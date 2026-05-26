@@ -261,7 +261,7 @@ const APP_VERSION = '0.1.0'
 function AboutBody() {
   return (
     <div className="set-about">
-      <p className="set-about-name">Mångata</p>
+      <p className="set-about-name">Simplicity</p>
       <p className="set-about-tag">Practice OS — לקצב הטיפוח שלך</p>
       <div className="set-about-meta">
         <span>גרסה {APP_VERSION}</span>

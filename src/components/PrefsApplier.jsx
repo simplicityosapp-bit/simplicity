@@ -25,10 +25,13 @@ export default function PrefsApplier() {
     try { localStorage.setItem('mg-theme', prefs.design.theme) } catch { /* noop */ }
   }, [prefs?.design?.theme])
 
-  /* Text size → <html data-text-size> (CSS root variables react). */
+  /* Text size → <html data-text-size> (CSS root variables react).
+     Mirrored to localStorage so the pre-React inline script in
+     index.html can restore it on the very first paint. */
   useEffect(() => {
     if (!prefs?.design?.text_size) return
     document.documentElement.setAttribute('data-text-size', prefs.design.text_size)
+    try { localStorage.setItem('mg-text-size', prefs.design.text_size) } catch { /* noop */ }
   }, [prefs?.design?.text_size])
 
   return null

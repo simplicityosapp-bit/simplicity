@@ -1,6 +1,6 @@
 :root{
   /* ════════════════════════════════════════════════════════════════════
-     Mångata Practice OS — design tokens (introduced 2026-05-15)
+     Simplicity Practice OS — design tokens (introduced 2026-05-15)
      Principle: structural restraint + precise visual jewels.
      Rules:
        • NEVER write hex colors directly in a component — always use a token.
@@ -36,7 +36,7 @@
   --icon-size-card:    20px;             /* card headers (18-20px) */
   --icon-stroke:       1.5;
 
-  /* ── Mångata layout system (12-col grid, fixed cards) ──────────── */
+  /* ── Simplicity layout system (12-col grid, fixed cards) ──────────── */
   --mg-page-pad:        32px;            /* desktop side padding */
   --mg-page-pad-mobile: 24px;            /* applied below 640px */
   --mg-gutter:          16px;            /* between columns */
@@ -47,7 +47,7 @@
   --mg-card-sm:         85px;            /* stat cards, icon rows */
   --mg-card-md:         136px;           /* moon-glance top, stats row */
   --mg-card-lg:         187px;           /* lists (tasks, attention) */
-  /* ── Mångata card glass (uniform across ALL cards) ──────────────
+  /* ── Simplicity card glass (uniform across ALL cards) ──────────────
      Single visual identity — same opacity, same blur, same shadow on
      every card. No colored borders, no per-card hierarchy. */
   --mg-card-bg:         rgba(255, 252, 247, 0.30);   /* Cream @ 30% — per design-tokens.md §2 (was 0.55 before backgrounds shipped) */
@@ -56,13 +56,13 @@
   --mg-card-radius:     20px;
   --mg-card-shadow:     0 1px 2px rgba(42, 37, 32, 0.04), 0 8px 24px rgba(42, 37, 32, 0.06);
   --mg-card-pad:        24px 28px;
-  /* ── Mångata list rows (clickable rows + dividers) ──────────────
+  /* ── Simplicity list rows (clickable rows + dividers) ──────────────
      Spec: vertical padding 14-16px, hit area = whole row, terracotta
      hover/active bg, divider only between rows (not above first). */
   --mg-row-pad-y:       14px;
   --mg-row-hover-bg:    rgba(201, 123, 94, 0.04); /* Terracotta @ 4% */
   --mg-row-active-bg:   rgba(201, 123, 94, 0.08); /* Terracotta @ 8% */
-  /* ── Mångata buttons (Primary / Secondary) ──────────────────────
+  /* ── Simplicity buttons (Primary / Secondary) ──────────────────────
      One primary per cluster: solid Terracotta, white text. Secondary
      wears the same glass as cards. NO gradients, NO colored shadows. */
   --mg-btn-h:           48px;
@@ -74,7 +74,7 @@
   --mg-btn-secondary-bg:        var(--mg-card-bg);             /* same glass */
   --mg-btn-secondary-bg-hover:  rgba(255, 252, 247, 0.88);     /* deeper glass */
   --mg-btn-secondary-border:    var(--mg-card-border);
-  /* ── Mångata typography (1.2 spec) ──────────────────────────────
+  /* ── Simplicity typography (1.2 spec) ──────────────────────────────
      One Hebrew font everywhere (Heebo). Numbers may use a mono face
      for Raycast-grade precision. */
   --mg-font:      'Heebo', 'Assistant', sans-serif;

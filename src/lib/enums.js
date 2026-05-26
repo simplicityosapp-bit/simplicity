@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════
-   ENUMS — Mångata React (ES modules)
+   ENUMS — Simplicity (ES modules)
    ════════════════════════════════════════════════════════════════
    מבוסס על HTML for MVP/scripts/enums.js, מעודכן לפי data-model.md
    ועל פי הוראות פרומפט ה-scaffold (25.05.26).

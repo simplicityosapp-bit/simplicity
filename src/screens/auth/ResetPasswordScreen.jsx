@@ -44,7 +44,7 @@ export default function ResetPasswordScreen() {
   return (
     <div className="auth-wrap">
       <form className="auth-card" onSubmit={submit}>
-        <div className="auth-brand"><Moon size={22} strokeWidth={1.6} aria-hidden="true" /><span>Mångata</span></div>
+        <div className="auth-brand"><Moon size={22} strokeWidth={1.6} aria-hidden="true" /><span>Simplicity</span></div>
         <p className="auth-title">איפוס סיסמה</p>
         <p className="auth-sub">נשלח לך קישור לאיפוס</p>
 

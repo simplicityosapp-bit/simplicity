@@ -92,7 +92,7 @@
   color: var(--t2);
 }
 
-/* ── Primary CTA (Mångata terracotta) ──────────────────────────── */
+/* ── Primary CTA (Simplicity terracotta) ───────────────────────── */
 /* Circular FAB-style button that sits centered in the empty half
    of the screen-top row. Original per-screen label text is hidden
    via font-size:0; the visible "+" is drawn through ::before so we

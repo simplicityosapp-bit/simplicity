@@ -53,7 +53,7 @@ export default function SignupScreen() {
   return (
     <div className="auth-wrap">
       <form className="auth-card" onSubmit={submit}>
-        <div className="auth-brand"><Moon size={22} strokeWidth={1.6} aria-hidden="true" /><span>Mångata</span></div>
+        <div className="auth-brand"><Moon size={22} strokeWidth={1.6} aria-hidden="true" /><span>Simplicity</span></div>
         <p className="auth-title">יצירת חשבון</p>
         <p className="auth-sub">כל מה שצריך כדי להתחיל</p>
 

@@ -1,36 +1,67 @@
 /* ════════════════════════════════════════════════════════════════
-   SIDEBAR — desktop-only vertical nav (visible at ≥768px).
+   SIDEBAR — desktop-only nav (≥768px), collapsed-by-default rail.
    ════════════════════════════════════════════════════════════════
-   Hidden by default; the @media block below promotes it into a
-   240px fixed column on the RTL start edge once the viewport is
-   wide enough. Bottom-nav is hidden in the same media query (in
-   BottomNav.css).
+   Default: narrow 72px rail showing icon-chips only. Hovering the
+   rail expands it to 240px and reveals labels + the "Simplicity" brand.
+   The background is a vertical blend of the five brand colours under
+   a heavy blur — terracotta → blush → sage → amber → clay, echoing
+   the mobile bottom-nav language.
    ════════════════════════════════════════════════════════════════ */
 
 .mg-sidebar { display: none; }
 
 @media (min-width: 768px) {
   .mg-sidebar {
+    --rail-w: 72px;
+    --open-w: 240px;
     display: flex;
     flex-direction: column;
-    flex: 0 0 240px;
-    width: 240px;
+    flex: 0 0 var(--rail-w);
+    width: var(--rail-w);
     height: 100vh;
     height: 100dvh;
-    padding: 24px 18px calc(24px + env(safe-area-inset-bottom, 0px));
-    background: rgba(42, 37, 32, 0.42);
-    backdrop-filter: blur(28px) saturate(140%);
-    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    padding: 24px 12px calc(24px + env(safe-area-inset-bottom, 0px));
+    /* Five-colour brand blur: a soft vertical waterfall of the
+       Terracotta / Blush / Sage / Amber / Clay palette under a
+       heavy backdrop blur, sitting over a dark base for cream
+       text to stay legible. */
+    background:
+      linear-gradient(180deg,
+        color-mix(in srgb, var(--terracotta) 22%, transparent) 0%,
+        color-mix(in srgb, var(--blush)      22%, transparent) 25%,
+        color-mix(in srgb, var(--sage)       22%, transparent) 50%,
+        color-mix(in srgb, var(--amber-warn) 22%, transparent) 75%,
+        color-mix(in srgb, var(--clay)       22%, transparent) 100%
+      ),
+      rgba(42, 37, 32, 0.42);
+    backdrop-filter: blur(34px) saturate(150%);
+    -webkit-backdrop-filter: blur(34px) saturate(150%);
     border-inline-start: 1px solid rgba(240, 235, 224, 0.10);
     color: var(--cream);
     box-shadow: -2px 0 20px rgba(42, 37, 32, 0.10);
     position: sticky;
     top: 0;
+    overflow: hidden;
+    transition: width 220ms ease, flex-basis 220ms ease;
   }
   [data-theme="dark"] .mg-sidebar {
-    background: rgba(13, 17, 23, 0.55);
+    background:
+      linear-gradient(180deg,
+        color-mix(in srgb, var(--terracotta) 18%, transparent) 0%,
+        color-mix(in srgb, var(--blush)      14%, transparent) 25%,
+        color-mix(in srgb, var(--sage)       18%, transparent) 50%,
+        color-mix(in srgb, var(--amber-warn) 18%, transparent) 75%,
+        color-mix(in srgb, var(--clay)       20%, transparent) 100%
+      ),
+      rgba(13, 17, 23, 0.55);
     border-inline-start: 1px solid rgba(240, 235, 224, 0.08);
     box-shadow: -2px 0 20px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Expand on hover */
+  .mg-sidebar:hover {
+    width: var(--open-w);
+    flex-basis: var(--open-w);
   }
 
   .mg-sidebar-brand {
@@ -40,6 +71,9 @@
     font-weight: 700;
     color: var(--cream);
     letter-spacing: -0.02em;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 180ms 80ms ease;
   }
   .mg-sidebar-tag {
     margin: 2px 0 22px;
@@ -48,7 +82,16 @@
     font-weight: 400;
     color: rgba(240, 235, 224, 0.7);
     letter-spacing: 0.04em;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 180ms 80ms ease;
   }
+  .mg-sidebar:hover .mg-sidebar-brand,
+  .mg-sidebar:hover .mg-sidebar-tag {
+    opacity: 1;
+  }
+  /* Collapsed: keep some vertical breathing room where the brand was */
+  .mg-sidebar:not(:hover) .mg-sidebar-tag { margin-bottom: 8px; }
 
   .mg-sidebar-nav {
     display: flex;
@@ -56,6 +99,7 @@
     gap: 4px;
     flex: 1 1 auto;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: none;
   }
   .mg-sidebar-nav::-webkit-scrollbar { display: none; }
@@ -70,13 +114,21 @@
   .mg-sidebar-link[data-screen="goals"]    { --nav-accent: var(--sage); }
   .mg-sidebar-link[data-screen="calendar"] { --nav-accent: var(--blush); }
   .mg-sidebar-link[data-screen="settings"] { --nav-accent: var(--terracotta); }
+  .mg-sidebar-link[data-screen="more"]     { --nav-accent: var(--blush); }
+  .mg-sidebar-link[data-screen="moon"]     { --nav-accent: var(--sage); }
+  .mg-sidebar-link[data-screen="reports"]  { --nav-accent: var(--blush); }
+  .mg-sidebar-link[data-screen="insights"] { --nav-accent: var(--sage); }
+  .mg-sidebar-link[data-screen="trash"]    { --nav-accent: var(--clay); }
+
+  /* Placeholder items in the "עוד" sub-menu — slightly dimmed. */
+  .mg-sidebar-link.placeholder { opacity: 0.62; }
 
   .mg-sidebar-link {
     display: flex;
     align-items: center;
     gap: 12px;
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px;
     border-radius: 14px;
     border: 1px solid transparent;
     background: transparent;
@@ -86,36 +138,64 @@
     font-family: var(--mg-font);
     font-size: 14px;
     font-weight: 500;
-    transition: background 0.18s, border-color 0.18s, transform 0.12s;
+    transition: background 0.18s, border-color 0.18s;
   }
   .mg-sidebar-link:hover {
     background: rgba(240, 235, 224, 0.06);
   }
   .mg-sidebar-link.on {
-    background: color-mix(in srgb, var(--nav-accent) 20%, transparent);
-    border-color: color-mix(in srgb, var(--nav-accent) 38%, transparent);
+    background: color-mix(in srgb, var(--nav-accent) 22%, transparent);
+    border-color: color-mix(in srgb, var(--nav-accent) 42%, transparent);
   }
 
   .mg-sidebar-link-chip {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 32px;
-    border-radius: 12px;
-    color: var(--nav-accent);
-    background: color-mix(in srgb, var(--nav-accent) 14%, transparent);
-    border: 1px solid color-mix(in srgb, var(--nav-accent) 30%, transparent);
+    width: 48px;
+    height: 44px;
+    border-radius: 14px;
+    color: var(--cream);                                                    /* always cream — pops against accent fill */
+    background: color-mix(in srgb, var(--nav-accent) 36%, transparent);
+    border: 1px solid color-mix(in srgb, var(--nav-accent) 60%, transparent);
     flex-shrink: 0;
+    box-shadow: 0 0 14px color-mix(in srgb, var(--nav-accent) 22%, transparent);
   }
   .mg-sidebar-link.on .mg-sidebar-link-chip {
-    background: color-mix(in srgb, var(--nav-accent) 32%, transparent);
-    border-color: color-mix(in srgb, var(--nav-accent) 55%, transparent);
+    background: color-mix(in srgb, var(--nav-accent) 58%, transparent);
+    border-color: color-mix(in srgb, var(--nav-accent) 85%, transparent);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--nav-accent) 42%, transparent);
   }
 
   .mg-sidebar-link-text {
     flex: 1;
     min-width: 0;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 180ms 80ms ease;
+  }
+  .mg-sidebar:hover .mg-sidebar-link-text { opacity: 1; }
+
+  /* "עוד" expansion */
+  .mg-sidebar-more.is-open .mg-sidebar-link-chip {
+    background: color-mix(in srgb, var(--nav-accent) 30%, transparent);
+    border-color: color-mix(in srgb, var(--nav-accent) 50%, transparent);
+  }
+  .mg-sidebar-extras {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 2px;
+    padding-inline-start: 6px;
+    border-inline-start: 1px solid rgba(240, 235, 224, 0.10);
+  }
+  .mg-sidebar-sub {
+    padding: 6px 6px;
+  }
+  .mg-sidebar-sub .mg-sidebar-link-chip {
+    width: 40px;
+    height: 36px;
+    border-radius: 12px;
   }
 
   /* Foot — theme toggle + logout */
@@ -130,9 +210,9 @@
   .mg-sidebar-util {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     width: 100%;
-    padding: 8px 12px;
+    padding: 8px;
     border: none;
     background: transparent;
     cursor: pointer;
@@ -144,8 +224,19 @@
     text-align: start;
     transition: background 0.15s, color 0.15s;
   }
+  .mg-sidebar-util > span {
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 180ms 80ms ease;
+  }
+  .mg-sidebar:hover .mg-sidebar-util > span { opacity: 1; }
   .mg-sidebar-util:hover {
     background: rgba(240, 235, 224, 0.06);
     color: var(--cream);
+  }
+  /* Center icons within the collapsed util buttons */
+  .mg-sidebar:not(:hover) .mg-sidebar-util {
+    justify-content: center;
+    padding: 8px 4px;
   }
 }

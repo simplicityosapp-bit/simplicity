@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════
-   MOCK DATA — Mångata React (dev only, pre-Supabase)
+   MOCK DATA — Simplicity (dev only, pre-Supabase)
    ════════════════════════════════════════════════════════════════
    דאטה לדוגמה לפיתוח קומפוננטות לפני חיבור Supabase.
    מבוסס על HTML for MVP/data md/data-model.md + src/lib/enums.js.

@@ -30,10 +30,18 @@ export default function UserPreferencesProvider({ children }) {
         const raw = await getUserPreferences()
         const migrated = migratePreferences(raw || defaultPreferences())
         if (!active) return
-        prefsRef.current = migrated
-        setPrefs(migrated)
+        /* RACE FIX: if the user already toggled something before this
+           initial load resolved, their `update()` call set prefsRef
+           and pushed a write to the DB. Adopting the server value
+           here would silently revert their click (the server read
+           started BEFORE the user clicked). Only adopt server prefs
+           when the user hasn't interacted yet. */
+        if (prefsRef.current == null) {
+          prefsRef.current = migrated
+          setPrefs(migrated)
+        }
         if (!raw) {
-          seedUserPreferences(migrated).catch(() => { /* non-fatal */ })
+          seedUserPreferences(prefsRef.current || migrated).catch(() => { /* non-fatal */ })
         }
       } catch (e) {
         if (active) setError(e.message)

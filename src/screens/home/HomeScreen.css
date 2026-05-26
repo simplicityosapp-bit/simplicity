@@ -54,27 +54,10 @@
 .home-screen[data-density="comfortable"] .home-stack { gap: 14px; }
 .home-screen[data-density="spacious"]    .home-stack { gap: 22px; }
 
-/* Card style (global). */
-.home-screen[data-card-style="flat"] .h-quote,
-.home-screen[data-card-style="flat"] .moon-card,
-.home-screen[data-card-style="flat"] .ins-widget,
-.home-screen[data-card-style="flat"] .h-card,
-.home-screen[data-card-style="flat"] .h-stat {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
-}
-.home-screen[data-card-style="outlined"] .h-quote,
-.home-screen[data-card-style="outlined"] .moon-card,
-.home-screen[data-card-style="outlined"] .ins-widget,
-.home-screen[data-card-style="outlined"] .h-card,
-.home-screen[data-card-style="outlined"] .h-stat {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: transparent;
-  border: 1px solid var(--divider);
-  box-shadow: none;
-}
+/* Card style (global) — see CSS vars block below for the override logic
+   (`--home-card-blur` / `--home-card-bg` / etc.). The previous selector-
+   list approach was being merged incorrectly by esbuild's CSS minifier
+   and stripping blur off all home cards. */
 
 /* Text strength (global) — bumps body weight. */
 .home-screen[data-text-strength="bold"] {
@@ -134,6 +117,28 @@
     var(--mg-card-shadow);
 }
 
+/* Card-style is driven by CSS variables on `.home-screen` so the cards
+   themselves only read the variables — no comma-separated selector lists
+   that esbuild's CSS minifier can merge incorrectly (it was dropping the
+   `[data-card-style="flat"]` prefix off the first selector in the list,
+   killing blur on ALL home cards). */
+.home-screen {
+  --home-card-bg:     var(--mg-card-bg);
+  --home-card-border: var(--mg-card-border);
+  --home-card-shadow: var(--mg-card-shadow);
+  --home-card-blur:   var(--mg-card-blur);
+}
+.home-screen[data-card-style="flat"] {
+  --home-card-shadow: none;
+  --home-card-blur:   none;
+}
+.home-screen[data-card-style="outlined"] {
+  --home-card-bg:     transparent;
+  --home-card-border: 1px solid var(--divider);
+  --home-card-shadow: none;
+  --home-card-blur:   none;
+}
+
 /* Shared glass card surface. */
 .h-quote,
 .moon-card,
@@ -141,11 +146,11 @@
 .h-card,
 .h-stat {
   border-radius: var(--mg-card-radius);
-  border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
+  border: var(--home-card-border);
+  background: var(--home-card-bg);
+  box-shadow: var(--home-card-shadow);
+  backdrop-filter: var(--home-card-blur);
+  -webkit-backdrop-filter: var(--home-card-blur);
 }
 
 /* ── Quote ─────────────────────────────────────────────────────── */

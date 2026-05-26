@@ -1,0 +1,287 @@
+/* ════════════════════════════════════════════════════════════════
+   MODALS — bottom sheet + shared form styles.
+   ════════════════════════════════════════════════════════════════ */
+
+.m-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: var(--overlay-bg);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.m-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+.m-sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  z-index: 510;
+  width: 100%;
+  max-width: 420px;
+  transform: translateX(-50%) translateY(100%);
+  visibility: hidden;
+  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0.24, 1), visibility 0s linear 0.34s;
+  background: var(--modal-bg);
+  backdrop-filter: var(--bl);
+  -webkit-backdrop-filter: var(--bl);
+  border-radius: 28px 28px 0 0;
+  border: 0.5px solid var(--b1);
+  border-bottom: none;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+}
+.m-sheet.open {
+  transform: translateX(-50%) translateY(0);
+  visibility: visible;
+  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0.24, 1), visibility 0s linear 0s;
+}
+.m-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+  flex-shrink: 0;
+}
+.m-title {
+  margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--espresso);
+}
+.m-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.42);
+  color: var(--stone);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+[data-theme="dark"] .m-close {
+  background: rgba(36, 42, 51, 0.5);
+}
+.m-body {
+  overflow-y: auto;
+  padding: 4px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  scrollbar-width: none;
+}
+.m-body::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Form fields ───────────────────────────────────────────────── */
+.m-field {
+  margin-bottom: 14px;
+}
+.m-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.m-label {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--stone);
+}
+.m-input,
+.m-select,
+.m-textarea {
+  width: 100%;
+  height: var(--mg-btn-h);
+  padding: 0 14px;
+  border-radius: var(--mg-btn-radius);
+  border: 1px solid rgba(42, 37, 32, 0.12);
+  background: var(--cream);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+[data-theme="dark"] .m-input,
+[data-theme="dark"] .m-select,
+[data-theme="dark"] .m-textarea {
+  background: rgba(36, 42, 51, 0.6);
+  border-color: rgba(240, 235, 224, 0.12);
+}
+.m-textarea {
+  height: auto;
+  min-height: 72px;
+  padding: 12px 14px;
+  resize: vertical;
+  line-height: 1.5;
+}
+.m-input:focus,
+.m-select:focus,
+.m-textarea:focus {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 2px var(--blush);
+}
+.m-input.err,
+.m-textarea.err {
+  border-color: var(--clay);
+}
+.m-select {
+  appearance: none;
+  cursor: pointer;
+}
+.m-error {
+  margin: 6px 0 0;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--clay);
+}
+.m-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 14px;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.m-sub-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Pills (type / priority) ───────────────────────────────────── */
+.m-pills {
+  display: flex;
+  gap: 8px;
+}
+.m-pill {
+  flex: 1;
+  height: 44px;
+  border-radius: var(--mg-btn-radius);
+  border: 1px solid rgba(42, 37, 32, 0.12);
+  background: var(--cream);
+  color: var(--stone);
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+[data-theme="dark"] .m-pill {
+  background: rgba(36, 42, 51, 0.6);
+  border-color: rgba(240, 235, 224, 0.12);
+}
+.m-pill.on {
+  background: var(--terracotta);
+  border-color: var(--terracotta);
+  color: #fff;
+}
+[data-theme="dark"] .m-pill.on {
+  color: #0f1419;
+}
+.m-pill.on.income { background: var(--sage); border-color: var(--sage); color: #fff; }
+.m-pill.on.expense { background: var(--clay); border-color: var(--clay); color: #fff; }
+
+/* ── Color picker ──────────────────────────────────────────────── */
+.m-colors {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.m-color {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.m-color.on {
+  box-shadow: 0 0 0 2px var(--cream), 0 0 0 4px var(--espresso);
+  transform: scale(1.08);
+}
+
+/* ── Actions ───────────────────────────────────────────────────── */
+.m-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.m-btn-cancel,
+.m-btn-save {
+  flex: 1;
+  height: var(--mg-btn-h);
+  border-radius: var(--mg-btn-radius);
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.15s, transform 0.12s;
+}
+.m-btn-cancel {
+  border: 1px solid rgba(42, 37, 32, 0.12);
+  background: none;
+  color: var(--stone);
+}
+.m-btn-save {
+  border: none;
+  background: var(--terracotta);
+  color: #fff;
+}
+[data-theme="dark"] .m-btn-save {
+  color: #0f1419;
+}
+.m-btn-save:hover {
+  background: var(--mg-btn-primary-bg-hover);
+}
+.m-btn-save:active,
+.m-btn-cancel:active {
+  transform: scale(0.97);
+}
+.m-btn-save.danger {
+  background: var(--clay);
+  color: #fff;
+}
+.m-btn-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 10px;
+  height: 40px;
+  border: none;
+  background: none;
+  border-radius: var(--mg-btn-radius);
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--clay);
+  cursor: pointer;
+}
+.m-btn-delete:active {
+  transform: scale(0.97);
+}
+
+/* ── Confirm body ──────────────────────────────────────────────── */
+.m-confirm-msg {
+  margin: 0 0 4px;
+  font-family: var(--mg-font);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--espresso);
+}

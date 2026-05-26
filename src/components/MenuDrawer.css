@@ -1,0 +1,395 @@
+/* ════════════════════════════════════════════════════════════════
+   MENU DRAWER — slide-in (≡) menu, ported from the prototype.
+   ════════════════════════════════════════════════════════════════
+   Scoped to the .app frame (position:absolute) so it stays inside the
+   phone frame instead of jumping to the viewport edge on desktop.
+   Slides from the physical left, matching mangata_v2.html.
+   ════════════════════════════════════════════════════════════════ */
+
+.drawer-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-bg);
+  z-index: 350;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.drawer-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.drawer-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 82%;
+  max-width: 320px;
+  background: var(--modal-bg);
+  backdrop-filter: var(--bl);
+  -webkit-backdrop-filter: var(--bl);
+  border-right: 0.5px solid var(--b1);
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.22);
+  z-index: 360;
+  transform: translateX(-100%);
+  visibility: hidden;
+  /* Keep the panel visible through the slide-out, then hide it so it leaves
+     the tab order + a11y tree when closed. */
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0.24, 1), visibility 0s linear 0.32s;
+  padding: 28px 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.drawer-panel::-webkit-scrollbar {
+  display: none;
+}
+/* Soft glow accent at the top corner — atmospheric, matches the moonlight theme. */
+.drawer-panel::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  left: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 200, 140, 0.14) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+[data-theme="dark"] .drawer-panel::before {
+  background: radial-gradient(circle, rgba(100, 200, 160, 0.18) 0%, transparent 70%);
+}
+.drawer-panel > * {
+  position: relative;
+  z-index: 1;
+}
+.drawer-panel.open {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0.24, 1), visibility 0s linear 0s;
+}
+
+.drawer-title {
+  font-family: 'Assistant', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--t1);
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.drawer-title-sub {
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 300;
+  color: var(--t4);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 20px;
+}
+.drawer-close {
+  background: rgba(255, 255, 255, 0.42);
+  border: 0.5px solid var(--b1);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--t3);
+  cursor: pointer;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+[data-theme="dark"] .drawer-close {
+  background: rgba(30, 40, 55, 0.42);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.drawer-close:hover {
+  background: rgba(255, 255, 255, 0.62);
+}
+.drawer-close:active {
+  transform: scale(0.92);
+}
+
+.drawer-section-lbl {
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--t4);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 14px 4px 6px;
+}
+
+/* ── Profile chip ──────────────────────────────────────────────── */
+.drawer-profile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  text-align: start;
+  padding: 11px 12px;
+  margin: 4px 0;
+  border-radius: var(--rm);
+  background: rgba(167, 139, 250, 0.08);
+  border: 0.5px solid rgba(167, 139, 250, 0.2);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.drawer-profile:hover {
+  background: rgba(167, 139, 250, 0.13);
+}
+.drawer-profile:active {
+  transform: scale(0.98);
+}
+.drawer-profile-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.5), rgba(56, 189, 248, 0.4));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Assistant', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+.drawer-profile-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.drawer-profile-name {
+  display: block;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--t1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.drawer-profile-meta {
+  display: block;
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 300;
+  color: var(--t4);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.drawer-profile-edit {
+  flex-shrink: 0;
+  color: var(--t4);
+  opacity: 0.55;
+  display: inline-flex;
+}
+
+/* ── Screen grid ───────────────────────────────────────────────── */
+.drawer-nav-mobile {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 6px 0 8px;
+}
+.dnav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 6px;
+  border: 1px solid rgba(42, 37, 32, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 252, 247, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+}
+[data-theme="dark"] .dnav-item {
+  border-color: rgba(240, 235, 224, 0.08);
+  background: rgba(26, 31, 38, 0.3);
+}
+.dnav-item span {
+  color: inherit;
+}
+.dnav-item:active {
+  transform: scale(0.96);
+}
+.dnav-item.active {
+  background: var(--terracotta);
+  border-color: transparent;
+  color: var(--cream);
+}
+[data-theme="dark"] .dnav-item.active {
+  color: #0f1419;
+}
+
+/* ── Links (personal / settings) ───────────────────────────────── */
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: start;
+  padding: 13px 14px;
+  border-radius: var(--rm);
+  color: var(--t1);
+  font-family: var(--mg-font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.32);
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
+  transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  margin-top: 2px;
+}
+[data-theme="dark"] .drawer-link {
+  background: rgba(30, 40, 55, 0.32);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.drawer-link:hover {
+  background: rgba(255, 255, 255, 0.52);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+[data-theme="dark"] .drawer-link:hover {
+  background: rgba(30, 40, 55, 0.52);
+}
+.drawer-link:active {
+  transform: scale(0.98);
+}
+.drawer-link-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--teal-glass);
+  border: 0.5px solid var(--teal-faint);
+  color: var(--teal);
+}
+[data-theme="dark"] .drawer-link-icon {
+  color: var(--teal-hi);
+}
+.drawer-link-text {
+  flex: 1;
+  line-height: 1.3;
+}
+.drawer-link-text-sub {
+  display: block;
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 300;
+  color: var(--t4);
+  margin-top: 1px;
+  letter-spacing: 0.02em;
+}
+
+/* Per-link accent variants */
+.drawer-link.tint-purple .drawer-link-icon {
+  background: var(--purple-glass);
+  border-color: var(--purple-faint);
+  color: var(--purple);
+}
+.drawer-link.tint-amber .drawer-link-icon {
+  background: var(--gold-glass);
+  border-color: var(--gold-faint);
+  color: var(--gold-dim);
+}
+[data-theme="dark"] .drawer-link.tint-amber .drawer-link-icon {
+  color: var(--gold-hi);
+}
+.drawer-link.tint-moon .drawer-link-icon {
+  background: radial-gradient(circle at 30% 30%, rgba(180, 200, 235, 0.22), rgba(80, 90, 120, 0.18));
+  border-color: rgba(140, 160, 200, 0.3);
+  color: var(--moon-deep);
+}
+[data-theme="dark"] .drawer-link.tint-moon .drawer-link-icon {
+  color: var(--moon-hi);
+}
+
+/* ── Theme toggle switch ───────────────────────────────────────── */
+.drawer-link.drawer-theme {
+  margin-top: 6px;
+}
+.theme-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 56px;
+  height: 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 200, 80, 0.16) 0%, rgba(80, 100, 160, 0.18) 100%);
+  border: 0.5px solid var(--b1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+[data-theme="dark"] .theme-switch {
+  background: linear-gradient(135deg, rgba(255, 200, 80, 0.1) 0%, rgba(100, 140, 220, 0.22) 100%);
+  border-color: rgba(120, 160, 200, 0.2);
+}
+.theme-switch-icon {
+  display: inline-flex;
+  line-height: 1;
+  z-index: 1;
+  color: var(--stone);
+  transition: opacity 0.25s, transform 0.25s;
+}
+.theme-switch-sun {
+  opacity: 1;
+}
+.theme-switch-moon {
+  opacity: 0.4;
+  transform: scale(0.85);
+}
+[data-theme="dark"] .theme-switch-sun {
+  opacity: 0.4;
+  transform: scale(0.85);
+}
+[data-theme="dark"] .theme-switch-moon {
+  opacity: 1;
+  transform: scale(1);
+}
+.theme-switch-thumb {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.25s;
+  z-index: 2;
+}
+[data-theme="dark"] .theme-switch-thumb {
+  background: rgba(220, 230, 255, 0.95);
+  transform: translateX(-28px);
+}

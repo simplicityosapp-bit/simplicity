@@ -1,0 +1,219 @@
+/* ════════════════════════════════════════════════════════════════
+   GLOBAL BASE — Mångata React
+   ════════════════════════════════════════════════════════════════
+   Reset + RTL + fonts + app shell + per-screen tint.
+   Design tokens come from styles/tokens.css (imported first in main.jsx).
+   Rule: never hardcode hex — use tokens. Per-screen background uses the
+   --bg-* tokens, which already have day/night variants.
+   ════════════════════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+html {
+  /* RTL + lang set on the element in index.html; keep the box-model honest. */
+  -webkit-text-size-adjust: 100%;
+  font-size: 16px;   /* Root size — text-size pref scales this. */
+}
+
+/* Text-size preference — uniformly scales every element including the
+   px-based typography we already shipped. `zoom` is supported in all
+   modern browsers and is the lightest-weight approach. */
+html[data-text-size="small"]  .app { zoom: 0.92; }
+html[data-text-size="normal"] .app { zoom: 1; }
+html[data-text-size="large"]  .app { zoom: 1.10; }
+
+body {
+  font-family: var(--mg-font);
+  font-size: var(--mg-body);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--espresso);
+  background: var(--bone);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+[data-theme="dark"] body {
+  background: #030e06;
+}
+
+#root {
+  min-height: 100%;
+}
+
+/* Numbers use the mono face for Raycast-grade precision. */
+.mono {
+  font-family: var(--mg-font-num);
+  font-variant-numeric: tabular-nums;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ── App shell ───────────────────────────────────────────────────
+   A single 420px-max phone frame, centered. Each screen scrolls inside. */
+.app {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--bone);
+  transition: background 0.4s ease;
+  z-index: 1;
+}
+
+/* ── Per-screen tint (token fallback) ────────────────────────────
+   Color falls back if the per-screen image fails to load. The image
+   itself is layered on .screen below — covers the .app frame. */
+.app[data-screen="home"]     { background: var(--bg-home); }
+.app[data-screen="clients"]  { background: var(--bg-clients); }
+.app[data-screen="finance"]  { background: var(--bg-finance); }
+.app[data-screen="tasks"]    { background: var(--bg-tasks); }
+.app[data-screen="leads"]    { background: var(--bg-leads); }
+.app[data-screen="projects"] { background: var(--bg-projects); }
+.app[data-screen="goals"]    { background: var(--bg-goals); }
+.app[data-screen="moon"]     { background: var(--bg-moon); }
+.app[data-screen="calendar"] { background: var(--bg-home); }
+.app[data-screen="settings"] { background: var(--bg-clients); }
+.app[data-screen="reports"]  { background: var(--bg-insights); }
+
+/* ── Per-screen nature backgrounds ───────────────────────────────
+   Each screen reads --screen-bg from a screen×theme lookup below.
+   Mobile by default; @media swap to desktop variants at ≥768px.
+   The background lives on .screen (the scroll container) so it
+   covers the visible viewport without leaking past the frame. */
+.app[data-screen="home"]      { --screen-bg: url('/backgrounds/mobile/day/home.png'); }
+.app[data-screen="clients"]   { --screen-bg: url('/backgrounds/mobile/day/clients.png'); }
+.app[data-screen="finance"]   { --screen-bg: url('/backgrounds/mobile/day/finance.png'); }
+.app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/mobile/day/tasks.png'); }
+.app[data-screen="leads"]     { --screen-bg: url('/backgrounds/mobile/day/leads.png'); }
+.app[data-screen="projects"]  { --screen-bg: url('/backgrounds/mobile/day/projects.png'); }
+.app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/day/goals.png'); }
+.app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/day/moon.png'); }
+.app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/mobile/day/calendar.png'); }
+.app[data-screen="settings"]  { --screen-bg: url('/backgrounds/mobile/day/settings.png'); }
+.app[data-screen="reports"]   { --screen-bg: url('/backgrounds/mobile/day/reports.png'); }
+
+[data-theme="dark"] .app[data-screen="home"]      { --screen-bg: url('/backgrounds/mobile/night/home.png'); }
+[data-theme="dark"] .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/mobile/night/clients.png'); }
+[data-theme="dark"] .app[data-screen="finance"]   { --screen-bg: url('/backgrounds/mobile/night/finance.png'); }
+[data-theme="dark"] .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/mobile/night/tasks.png'); }
+[data-theme="dark"] .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/mobile/night/leads.png'); }
+[data-theme="dark"] .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/mobile/night/projects.png'); }
+[data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/night/goals.png'); }
+[data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/night/moon.png'); }
+[data-theme="dark"] .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/mobile/night/calendar.png'); }
+[data-theme="dark"] .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/mobile/night/settings.png'); }
+[data-theme="dark"] .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/mobile/night/reports.png'); }
+
+@media (min-width: 768px) {
+  .app[data-screen="home"]      { --screen-bg: url('/backgrounds/desktop/day/home.png'); }
+  .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/desktop/day/clients.png'); }
+  .app[data-screen="finance"]   { --screen-bg: url('/backgrounds/desktop/day/finance.png'); }
+  .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/desktop/day/tasks.png'); }
+  .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/desktop/day/leads.png'); }
+  .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/desktop/day/projects.png'); }
+  .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/day/goals.png'); }
+  .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/day/moon.png'); }
+  .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/desktop/day/calendar.png'); }
+  .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/desktop/day/settings.png'); }
+  .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/desktop/day/reports.png'); }
+
+  [data-theme="dark"] .app[data-screen="home"]      { --screen-bg: url('/backgrounds/desktop/night/home.png'); }
+  [data-theme="dark"] .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/desktop/night/clients.png'); }
+  [data-theme="dark"] .app[data-screen="finance"]   { --screen-bg: url('/backgrounds/desktop/night/finance.png'); }
+  [data-theme="dark"] .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/desktop/night/tasks.png'); }
+  [data-theme="dark"] .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/desktop/night/leads.png'); }
+  [data-theme="dark"] .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/desktop/night/projects.png'); }
+  [data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/night/goals.png'); }
+  [data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/night/moon.png'); }
+  [data-theme="dark"] .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/desktop/night/calendar.png'); }
+  [data-theme="dark"] .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/desktop/night/settings.png'); }
+  [data-theme="dark"] .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/desktop/night/reports.png'); }
+}
+
+/* ── Screen scroll container ─────────────────────────────────────
+   Fills the frame; leaves room for the fixed bottom bar (84px).
+   The per-screen nature image (--screen-bg, set on .app[data-screen])
+   sits behind the scrollable content. */
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 var(--mg-page-pad-mobile) calc(84px + env(safe-area-inset-bottom, 0px));
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background-image: var(--screen-bg);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+.screen::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Placeholder centerpiece (Task 1 — empty screens) ────────────
+   Replaced screen-by-screen in later tasks. */
+.screen-placeholder {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}
+.screen-placeholder h1 {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: var(--mg-display-l);
+  font-weight: 600;
+  color: var(--espresso);
+}
+.screen-placeholder p {
+  margin: 0;
+  font-size: var(--mg-caption);
+  color: var(--mist);
+}
+
+/* ── Desktop layout (≥768px) ─────────────────────────────────────
+   Placed at the end of the file so it wins the cascade tie-break
+   against the mobile .app + .screen rules above. Mobile styles are
+   completely untouched. */
+@media (min-width: 768px) {
+  .app {
+    max-width: 1200px;
+    display: flex;
+    flex-direction: row-reverse;     /* RTL: sidebar at the start (right) */
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .screen {
+    position: relative;
+    inset: auto;
+    flex: 1 1 auto;
+    height: 100vh;
+    height: 100dvh;
+    padding: 0 var(--mg-page-pad) 24px;
+    overflow-y: auto;
+  }
+}

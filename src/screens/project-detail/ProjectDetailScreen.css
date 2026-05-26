@@ -1,0 +1,179 @@
+/* ════════════════════════════════════════════════════════════════
+   PROJECT DETAIL — project info + its groups.
+   ════════════════════════════════════════════════════════════════ */
+
+.pd-screen { padding-top: 12px; }
+
+.pd-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.pd-back,
+.pd-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--mg-card-bg);
+  color: var(--stone);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.pd-head-id { flex: 1; min-width: 0; }
+.pd-h-row { display: flex; align-items: center; gap: 8px; }
+.pd-color { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.pd-name {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--espresso);
+}
+.pd-meta {
+  margin: 2px 0 0;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--stone);
+}
+
+.pd-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 14px 8px;
+  margin-bottom: 14px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+.pd-stat { text-align: center; }
+.pd-stat.divided {
+  border-inline-start: 1px solid var(--divider);
+  border-inline-end: 1px solid var(--divider);
+}
+.pd-stat-v {
+  margin: 0;
+  font-family: var(--mg-font-num);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+.pd-stat-l {
+  margin: 2px 0 0;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--stone);
+}
+
+.pd-groups { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+
+.gc {
+  padding: 14px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+.gc-head { display: flex; align-items: center; gap: 8px; }
+.gc-color { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.gc-name {
+  margin: 0;
+  flex: 1;
+  font-family: var(--mg-font);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.gc-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  opacity: 0.6;
+}
+.gc-icon-btn:active { transform: scale(0.9); }
+.gc-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 10px;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--stone);
+}
+.gc-dot { opacity: 0.5; }
+.gc-members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.gc-empty {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--stone);
+  font-style: italic;
+}
+.gc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px 4px 4px;
+  border-radius: 999px;
+  background: rgba(42, 37, 32, 0.05);
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--espresso);
+}
+[data-theme="dark"] .gc-chip { background: rgba(240, 235, 224, 0.06); }
+.gc-chip-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+}
+.gc-chip-x:hover { color: var(--clay); }
+.gc-actions { display: flex; gap: 6px; padding-top: 10px; border-top: 1px solid var(--divider); }
+.gc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  justify-content: center;
+  padding: 8px;
+  border-radius: var(--mg-btn-radius);
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--espresso);
+  cursor: pointer;
+}
+.gc-btn.ghost {
+  flex: 0 0 36px;
+  color: var(--stone);
+}
+.gc-btn:active { transform: scale(0.97); }

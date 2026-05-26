@@ -1,0 +1,304 @@
+/* ════════════════════════════════════════════════════════════════
+   CLIENTS SCREEN — tabs, per-tab hero, search, client cards.
+   Shared primitives (.s-hero, .mg-toggle, .cta-add, .t-screen…) live
+   in styles/screens.css.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Tabs ──────────────────────────────────────────────────────── */
+.c-tabs-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+  margin-bottom: 12px;
+}
+.c-tabs-row::-webkit-scrollbar {
+  display: none;
+}
+.c-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 0.5px solid rgba(42, 37, 32, 0.1);
+  background: var(--mg-card-bg);
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.c-tab.on {
+  background: var(--terracotta);
+  border-color: transparent;
+  color: var(--cream);
+}
+[data-theme="dark"] .c-tab.on {
+  color: #0f1419;
+}
+.c-tab-count {
+  font-family: var(--mg-font-num);
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* ── Search ────────────────────────────────────────────────────── */
+.c-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  height: 42px;
+  margin-bottom: 12px;
+  border-radius: var(--mg-btn-radius);
+  border: 0.5px solid rgba(42, 37, 32, 0.1);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  color: var(--stone);
+}
+.c-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  font-family: var(--mg-font);
+  font-size: 14px;
+  color: var(--espresso);
+}
+.c-search input::placeholder {
+  color: var(--mist);
+}
+
+/* ── Hero ──────────────────────────────────────────────────────── */
+.c-hero {
+  margin-bottom: 16px;
+}
+.c-hero .mg-toggle {
+  position: absolute;
+  top: 11px;
+  inset-inline-end: 16px;
+  z-index: 2;
+}
+.c-hero-title {
+  margin: 0 0 14px;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.04em;
+}
+.c-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--xs);
+}
+.c-hero-stat {
+  text-align: center;
+}
+.c-hero-stat.divided {
+  border-inline-start: 1px solid var(--divider);
+  border-inline-end: 1px solid var(--divider);
+}
+.c-hero-stat-l {
+  margin: 0 0 4px;
+  font-family: var(--mg-font);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.c-hero-stat-v {
+  margin: 0;
+  font-family: var(--mg-font-num);
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Client card ───────────────────────────────────────────────── */
+.cc {
+  margin-bottom: var(--gap);
+  padding: 16px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  cursor: pointer;
+  transition: transform 0.18s;
+}
+.cc:active {
+  transform: scale(0.99);
+}
+.cc.is-past {
+  opacity: 0.62;
+}
+.cc-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cc-av {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Assistant', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cream);
+  background: linear-gradient(135deg, var(--terracotta), var(--amber-warn));
+}
+.cc-id {
+  flex: 1;
+  min-width: 0;
+}
+.cc-name {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.cc-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.cc-status {
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 9px;
+  border-radius: 10px;
+}
+.cc-status-active {
+  background: var(--sage-glass, rgba(139, 168, 136, 0.14));
+  color: var(--sage);
+}
+.cc-status-wandering {
+  background: rgba(212, 165, 116, 0.16);
+  color: var(--amber-warn);
+}
+.cc-status-past {
+  background: rgba(42, 37, 32, 0.06);
+  color: var(--mist);
+}
+.cc-status-no_status {
+  background: rgba(42, 37, 32, 0.06);
+  color: var(--stone);
+}
+.cc-proj {
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 400;
+  padding: 2px 9px;
+  border-radius: 10px;
+  color: var(--stone);
+  background: rgba(42, 37, 32, 0.06);
+  border: 0.5px solid rgba(42, 37, 32, 0.1);
+}
+[data-theme="dark"] .cc-proj {
+  background: rgba(240, 235, 224, 0.06);
+  border-color: rgba(240, 235, 224, 0.1);
+}
+.cc-profile {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 0.5px solid rgba(42, 37, 32, 0.12);
+  background: none;
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--stone);
+  transition: background 0.15s;
+}
+.cc-profile:hover {
+  background: var(--mg-row-hover-bg);
+}
+
+.cc-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  border-top: 1px solid var(--divider);
+  padding-top: 12px;
+  margin-top: 14px;
+}
+.cc-stats.dim {
+  opacity: 0.55;
+}
+.cc-stat {
+  text-align: center;
+}
+.cc-stat.divided {
+  border-inline-start: 1px solid var(--divider);
+  border-inline-end: 1px solid var(--divider);
+}
+.cc-stat-l {
+  margin: 0 0 4px;
+  font-family: var(--mg-font);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.cc-stat-v {
+  margin: 0;
+  font-family: var(--mg-font-num);
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+
+.cc-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+.cc-action {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  border-radius: var(--mg-btn-radius);
+  border: 0.5px solid rgba(42, 37, 32, 0.12);
+  background: var(--mg-card-bg);
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--espresso);
+  transition: background 0.15s;
+}
+.cc-action:hover {
+  background: var(--mg-row-hover-bg);
+}
+.cc-action-pay {
+  color: var(--sage);
+}

@@ -1,0 +1,151 @@
+/* ════════════════════════════════════════════════════════════════
+   SIDEBAR — desktop-only vertical nav (visible at ≥768px).
+   ════════════════════════════════════════════════════════════════
+   Hidden by default; the @media block below promotes it into a
+   240px fixed column on the RTL start edge once the viewport is
+   wide enough. Bottom-nav is hidden in the same media query (in
+   BottomNav.css).
+   ════════════════════════════════════════════════════════════════ */
+
+.mg-sidebar { display: none; }
+
+@media (min-width: 768px) {
+  .mg-sidebar {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 240px;
+    width: 240px;
+    height: 100vh;
+    height: 100dvh;
+    padding: 24px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+    background: rgba(42, 37, 32, 0.42);
+    backdrop-filter: blur(28px) saturate(140%);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    border-inline-start: 1px solid rgba(240, 235, 224, 0.10);
+    color: var(--cream);
+    box-shadow: -2px 0 20px rgba(42, 37, 32, 0.10);
+    position: sticky;
+    top: 0;
+  }
+  [data-theme="dark"] .mg-sidebar {
+    background: rgba(13, 17, 23, 0.55);
+    border-inline-start: 1px solid rgba(240, 235, 224, 0.08);
+    box-shadow: -2px 0 20px rgba(0, 0, 0, 0.45);
+  }
+
+  .mg-sidebar-brand {
+    margin: 0;
+    font-family: 'Assistant', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: -0.02em;
+  }
+  .mg-sidebar-tag {
+    margin: 2px 0 22px;
+    font-family: var(--mg-font);
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(240, 235, 224, 0.7);
+    letter-spacing: 0.04em;
+  }
+
+  .mg-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .mg-sidebar-nav::-webkit-scrollbar { display: none; }
+
+  /* Per-link brand accent — same palette as the bottom-nav. */
+  .mg-sidebar-link[data-screen="home"]     { --nav-accent: var(--terracotta); }
+  .mg-sidebar-link[data-screen="clients"]  { --nav-accent: var(--sage); }
+  .mg-sidebar-link[data-screen="leads"]    { --nav-accent: var(--blush); }
+  .mg-sidebar-link[data-screen="finance"]  { --nav-accent: var(--clay); }
+  .mg-sidebar-link[data-screen="projects"] { --nav-accent: var(--amber-warn); }
+  .mg-sidebar-link[data-screen="tasks"]    { --nav-accent: var(--amber-warn); }
+  .mg-sidebar-link[data-screen="goals"]    { --nav-accent: var(--sage); }
+  .mg-sidebar-link[data-screen="calendar"] { --nav-accent: var(--blush); }
+  .mg-sidebar-link[data-screen="settings"] { --nav-accent: var(--terracotta); }
+
+  .mg-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    color: var(--cream);
+    text-align: start;
+    font-family: var(--mg-font);
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.18s, border-color 0.18s, transform 0.12s;
+  }
+  .mg-sidebar-link:hover {
+    background: rgba(240, 235, 224, 0.06);
+  }
+  .mg-sidebar-link.on {
+    background: color-mix(in srgb, var(--nav-accent) 20%, transparent);
+    border-color: color-mix(in srgb, var(--nav-accent) 38%, transparent);
+  }
+
+  .mg-sidebar-link-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 32px;
+    border-radius: 12px;
+    color: var(--nav-accent);
+    background: color-mix(in srgb, var(--nav-accent) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--nav-accent) 30%, transparent);
+    flex-shrink: 0;
+  }
+  .mg-sidebar-link.on .mg-sidebar-link-chip {
+    background: color-mix(in srgb, var(--nav-accent) 32%, transparent);
+    border-color: color-mix(in srgb, var(--nav-accent) 55%, transparent);
+  }
+
+  .mg-sidebar-link-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Foot — theme toggle + logout */
+  .mg-sidebar-foot {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(240, 235, 224, 0.10);
+  }
+  .mg-sidebar-util {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: rgba(240, 235, 224, 0.8);
+    font-family: var(--mg-font);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 12px;
+    text-align: start;
+    transition: background 0.15s, color 0.15s;
+  }
+  .mg-sidebar-util:hover {
+    background: rgba(240, 235, 224, 0.06);
+    color: var(--cream);
+  }
+}

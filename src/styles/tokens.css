@@ -1,0 +1,233 @@
+:root{
+  /* ════════════════════════════════════════════════════════════════════
+     Mångata Practice OS — design tokens (introduced 2026-05-15)
+     Principle: structural restraint + precise visual jewels.
+     Rules:
+       • NEVER write hex colors directly in a component — always use a token.
+       • NO gradients, NO pure black (#000), NO pure white inside cards.
+       • Allowed colors: ONLY the tokens defined in this block.
+     Old palette (--gold/--mint/--green/--amber/--surface-card/--danger…)
+     is being phased out. Each migration removes the old usage in lockstep.
+     ──────────────────────────────────────────────────────────────────── */
+  /* Surfaces */
+  --bone:         #F7F3EE;             /* רקע ראשי — רקע כללי */
+  --cream:        #FFFCF7;             /* משטח כרטיס — בסיס כרטיסים */
+  --pure-white:   #FFFFFF;             /* משטח מורם — מודלים, popovers */
+  /* Text */
+  --espresso:     #2A2520;             /* טקסט ראשי — כותרות, מספרים */
+  --stone:        #2C2621;             /* טקסט משני — תוויות, אייקונים (הוכהה 24.05.26 לכמעט-שחור לקריאוּת מקסימלית בתצוגת יום; היה #6B6358) */
+  --mist:         #3A332B;             /* טקסט שלישוני — placeholders (הוכהה 24.05.26; היה #A8A097) */
+  /* Brand */
+  --terracotta:   #C97B5E;             /* מותג ראשי — כפתור ראשי, דגש קריטי */
+  --blush:        #F4E3DA;             /* מותג רך — hover, highlight עדין */
+  /* States */
+  --sage:         #8BA888;             /* חיובי — הצלחה, יעדים, דחוף */
+  --amber-warn:   #D4A574;             /* אזהרה רכה — תזכורות, priority רגיל
+                                          (יוסב ל --amber לאחר הסרת הישן) */
+  --clay:         #B5634E;             /* סכנה — אזהרות אמיתיות בלבד */
+  /* Structure */
+  --divider:      rgba(42, 37, 32, 0.06); /* קווי הפרדה ברשימות */
+  --sidebar-dark: #1F1B17;             /* רקע התפריט הצדדי */
+  /* ════════════════════════════════════════════════════════════════════ */
+
+  /* Icon defaults (Lucide) — see scripts/icons.js */
+  --icon-color:        var(--stone);
+  --icon-size:         16px;             /* inline with text */
+  --icon-size-card:    20px;             /* card headers (18-20px) */
+  --icon-stroke:       1.5;
+
+  /* ── Mångata layout system (12-col grid, fixed cards) ──────────── */
+  --mg-page-pad:        32px;            /* desktop side padding */
+  --mg-page-pad-mobile: 24px;            /* applied below 640px */
+  --mg-gutter:          16px;            /* between columns */
+  --mg-row-gap:         16px;            /* between card rows */
+  --mg-cols:            12;
+  /* Fixed card heights — long content truncates or scrolls inside.
+     Trimmed 15% on 2026-05-16 (was 100/160/220) — layout read too long. */
+  --mg-card-sm:         85px;            /* stat cards, icon rows */
+  --mg-card-md:         136px;           /* moon-glance top, stats row */
+  --mg-card-lg:         187px;           /* lists (tasks, attention) */
+  /* ── Mångata card glass (uniform across ALL cards) ──────────────
+     Single visual identity — same opacity, same blur, same shadow on
+     every card. No colored borders, no per-card hierarchy. */
+  --mg-card-bg:         rgba(255, 252, 247, 0.30);   /* Cream @ 30% — per design-tokens.md §2 (was 0.55 before backgrounds shipped) */
+  --mg-card-blur:       blur(24px);
+  --mg-card-border:     1px solid rgba(255, 255, 255, 0.5);
+  --mg-card-radius:     20px;
+  --mg-card-shadow:     0 1px 2px rgba(42, 37, 32, 0.04), 0 8px 24px rgba(42, 37, 32, 0.06);
+  --mg-card-pad:        24px 28px;
+  /* ── Mångata list rows (clickable rows + dividers) ──────────────
+     Spec: vertical padding 14-16px, hit area = whole row, terracotta
+     hover/active bg, divider only between rows (not above first). */
+  --mg-row-pad-y:       14px;
+  --mg-row-hover-bg:    rgba(201, 123, 94, 0.04); /* Terracotta @ 4% */
+  --mg-row-active-bg:   rgba(201, 123, 94, 0.08); /* Terracotta @ 8% */
+  /* ── Mångata buttons (Primary / Secondary) ──────────────────────
+     One primary per cluster: solid Terracotta, white text. Secondary
+     wears the same glass as cards. NO gradients, NO colored shadows. */
+  --mg-btn-h:           48px;
+  --mg-btn-pad:         14px 24px;
+  --mg-btn-radius:      18px;            /* rounder — matches the reference */
+  --mg-btn-weight:      500;
+  --mg-btn-primary-bg:        var(--terracotta);              /* #C97B5E */
+  --mg-btn-primary-bg-hover:  #B86E52;                         /* -8% darker */
+  --mg-btn-secondary-bg:        var(--mg-card-bg);             /* same glass */
+  --mg-btn-secondary-bg-hover:  rgba(255, 252, 247, 0.88);     /* deeper glass */
+  --mg-btn-secondary-border:    var(--mg-card-border);
+  /* ── Mångata typography (1.2 spec) ──────────────────────────────
+     One Hebrew font everywhere (Heebo). Numbers may use a mono face
+     for Raycast-grade precision. */
+  --mg-font:      'Heebo', 'Assistant', sans-serif;
+  --mg-font-num:  'JetBrains Mono', 'Heebo', monospace;
+  /* Scale — size / weight pairs. line-height: headings 1.2-1.3, body 1.5. */
+  --mg-display-xl: 36px;     /* huge numbers (51%, 2,265) — weight 500 */
+  --mg-display-l:  24px;     /* bold numbers in bottom cards — weight 500 */
+  --mg-heading:    17px;     /* card titles — weight 600 */
+  --mg-body:       15px;     /* body text — weight 400 */
+  --mg-caption:    13px;     /* secondary text — weight 500 */
+  --mg-micro:      11px;     /* labels under numbers — weight 500 */
+
+  /* Backgrounds — LIGHT */
+  --bg-home:#f5f7fa;
+  --bg-clients:#f4f8f5;
+  --bg-finance:#f4f8f6;
+  --bg-tasks:#f7f6f2;
+  --bg-projects:#f4f7fa;
+  --bg-leads:#f6f4fa;
+  --bg-goals:#f0f8f6;
+  --bg-insights:#f6f3fc;
+  /* Accents — same in both modes */
+  /* Accent tokens — LIGHT (dim alpha bumped 07.05.26 polish: .5→.7 for legible colored text) */
+  --gold:#c8a84e; --gold-hi:#e8c870;
+  --gold-dim:rgba(160,120,20,.7); --gold-faint:rgba(160,120,20,.1); --gold-glass:rgba(160,120,20,.05);
+  --mint:#00c870; --mint-dim:rgba(0,180,100,.7); --mint-faint:rgba(0,180,100,.09); --mint-glass:rgba(0,180,100,.04);
+  --green:#4a9a6a; --green-hi:#5aaa7a;
+  --green-dim:rgba(74,154,106,.7); --green-faint:rgba(74,154,106,.1); --green-glass:rgba(74,154,106,.04);
+  --cyan:#0099aa; --cyan-dim:rgba(0,160,180,.7); --cyan-faint:rgba(0,160,180,.12); --cyan-glass:rgba(0,160,180,.05);
+  --purple:#7a5cb8; --purple-hi:#9a7cd8;
+  --purple-dim:rgba(122,92,184,.7); --purple-faint:rgba(122,92,184,.12); --purple-glass:rgba(122,92,184,.05);
+  --teal:#0e9888; --teal-hi:#22c4af;
+  --teal-dim:rgba(14,152,136,.7); --teal-faint:rgba(14,152,136,.12); --teal-glass:rgba(14,152,136,.05);
+  --amethyst:#7c3aed; --amethyst-hi:#a78bfa;
+  --amethyst-dim:rgba(124,58,237,.7); --amethyst-faint:rgba(124,58,237,.12); --amethyst-glass:rgba(124,58,237,.05);
+  --amber:#d07040; --amber-dim:rgba(200,110,60,.7);
+  /* Text — LIGHT (07.05.26 polish round 2: darker base + higher alpha for legibility on glass) */
+  --t1:rgba(15,20,32,1); --t2:rgba(15,20,32,.95);
+  --t3:rgba(15,20,32,.92); --t4:rgba(15,20,32,.84);
+  /* Glass — LIGHT */
+  --g1:rgba(255,255,255,.85); --g2:rgba(255,255,255,.70); --g3:rgba(255,255,255,.50);
+  /* Borders — LIGHT */
+  --b1:rgba(0,0,0,.10); --b2:rgba(0,0,0,.07); --b3:rgba(0,0,0,.04);
+  /* Elevation — premium layered shadow system (added 07.05.26 polish)
+     elev-1: subtle (small cards, list rows)
+     elev-2: standard (clickable cards, modals)
+     elev-3: hero (top-level cards, drawers) */
+  --elev-1:0 1px 2px rgba(0,0,0,.04),0 2px 8px rgba(0,0,0,.05);
+  --elev-2:0 2px 4px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.55);
+  --elev-3:0 4px 8px rgba(0,0,0,.06),0 16px 48px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.65);
+  /* Surface gradients — replaces flat rgba(255,255,255,.92) for premium card backgrounds */
+  --surface-card:linear-gradient(160deg,rgba(255,255,255,.96) 0%,rgba(252,250,247,.88) 100%);
+  --surface-card-hi:linear-gradient(160deg,rgba(255,255,255,.98) 0%,rgba(250,247,240,.92) 100%);
+  --surface-card-soft:linear-gradient(160deg,rgba(255,255,255,.85) 0%,rgba(250,250,248,.78) 100%);
+  /* Blur */
+  --bl:blur(18px); --bm:blur(10px); --bs:blur(6px);
+  /* Radius */
+  --r:16px; --rm:20px; --rl:24px;
+  /* Spacing */
+  --px:20px; --gap:12px; --xs:8px; --sp4:4px;
+  /* Nav / Modal surfaces */
+  --nav-bg:rgba(248,250,252,.32);
+  --modal-bg:rgba(255,255,255,.40);
+  --overlay-bg:rgba(0,0,0,.22);
+  /* Legacy */
+  --border:rgba(0,0,0,.07); --border-hi:rgba(0,0,0,.10);
+  --card:var(--g2); --card2:var(--g1);
+  --bg:#edf2e8; --text:var(--t1); --text-dim:var(--t2); --text-faint:var(--t3);
+  --green-bright:var(--green-hi);
+  /* Card surface (used by inline finance cards) */
+  --card-surface:rgba(255,255,255,.88);
+  --card-border:rgba(0,0,0,.08);
+  --card-shadow:0 1px 12px rgba(0,0,0,.07);
+  --danger:#c0392b;
+  /* Moon-glance — silver moonlight palette (07.05.26) */
+  --moon:#8a96b8; --moon-hi:#b8c4e0; --moon-deep:#5a6a8c;
+  --moon-dim:rgba(138,150,184,.7); --moon-faint:rgba(138,150,184,.14); --moon-glass:rgba(180,195,225,.07);
+  --moon-glow:radial-gradient(ellipse at center, rgba(220,230,255,.45) 0%, rgba(180,200,235,.18) 35%, transparent 70%);
+  --moon-glow-soft:radial-gradient(ellipse at center, rgba(220,230,255,.20) 0%, transparent 65%);
+  --moon-gradient:linear-gradient(160deg, rgba(232,238,252,.75) 0%, rgba(208,218,242,.68) 50%, rgba(184,198,228,.60) 100%);
+  --moon-drawer-bg:linear-gradient(180deg, rgba(232,238,252,.55) 0%, rgba(208,218,242,.40) 30%, rgba(245,247,250,.92) 100%);
+  --bg-moon:#f3f5fa;
+}
+
+[data-theme="dark"]{
+  --bg-home:#030e06; --bg-clients:#030e08; --bg-finance:#020c05;
+  --bg-tasks:#030e06; --bg-projects:#030d06;
+  --bg-leads:#070612;
+  --bg-goals:#040d0c;
+  --bg-insights:#0a0618;
+  --gold-dim:rgba(200,168,78,.5); --gold-faint:rgba(200,168,78,.1); --gold-glass:rgba(200,168,78,.05);
+  --mint:#00dc82; --mint-dim:rgba(0,220,130,.45); --mint-faint:rgba(0,220,130,.09); --mint-glass:rgba(0,220,130,.04);
+  --green-hi:#6ab88a;
+  --green-dim:rgba(74,154,106,.45); --green-faint:rgba(74,154,106,.1); --green-glass:rgba(74,154,106,.04);
+  --cyan:#00c8c8; --cyan-dim:rgba(0,200,200,.45); --cyan-faint:rgba(0,200,200,.1); --cyan-glass:rgba(0,200,200,.04);
+  --purple:#a584d8; --purple-hi:#c0a4ed;
+  --purple-dim:rgba(165,132,216,.55); --purple-faint:rgba(165,132,216,.12); --purple-glass:rgba(165,132,216,.05);
+  --teal:#3fd9c0; --teal-hi:#5ee8d2;
+  --teal-dim:rgba(63,217,192,.55); --teal-faint:rgba(63,217,192,.12); --teal-glass:rgba(63,217,192,.05);
+  --amethyst:#b794f4; --amethyst-hi:#d6bcfa;
+  --amethyst-dim:rgba(183,148,244,.55); --amethyst-faint:rgba(183,148,244,.14); --amethyst-glass:rgba(183,148,244,.06);
+  --amber:#e89060; --amber-dim:rgba(220,140,80,.5);
+  /* Text — DARK (07.05.26 polish round 2: bumped t4 alpha further for legibility) */
+  --t1:rgba(240,228,200,1); --t2:rgba(220,208,178,.96);
+  --t3:rgba(210,198,168,.96); --t4:rgba(195,182,150,.92);
+  --g1:rgba(20,60,120,.14); --g2:rgba(15,45,100,.10); --g3:rgba(10,30,80,.07);
+  --b1:rgba(100,180,255,.09); --b2:rgba(80,160,255,.055); --b3:rgba(60,140,255,.028);
+  /* Elevation — dark variant (adjusted for low ambient + glow aesthetic) */
+  --elev-1:0 1px 2px rgba(0,0,0,.20),0 2px 8px rgba(0,0,0,.25);
+  --elev-2:0 2px 4px rgba(0,0,0,.25),0 8px 28px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04);
+  --elev-3:0 4px 12px rgba(0,0,0,.30),0 18px 56px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);
+  /* Surface gradients — dark variant */
+  --surface-card:linear-gradient(160deg,rgba(15,28,55,.55) 0%,rgba(8,18,42,.70) 100%);
+  --surface-card-hi:linear-gradient(160deg,rgba(20,40,75,.65) 0%,rgba(10,22,52,.80) 100%);
+  --surface-card-soft:linear-gradient(160deg,rgba(12,22,45,.45) 0%,rgba(6,14,32,.58) 100%);
+  --nav-bg:rgba(2,10,4,.40);
+  --modal-bg:rgba(8,18,12,.38);
+  --overlay-bg:rgba(0,0,0,.45);
+  --border:rgba(80,160,255,.055); --border-hi:rgba(100,180,255,.09);
+  --bg:#030e06;
+  --card-surface:rgba(0,12,32,.65);
+  --card-border:rgba(0,150,200,.15);
+  --card-shadow:none;
+  --danger:#8B4D5C;                            /* סכנה בולטת — Wine (כפתור מחיקה + הובר) */
+  /* Moon-glance — dark theme (07.05.26) */
+  --moon:#c9d2ec; --moon-hi:#e6edff; --moon-deep:#9aa6c8;
+  --moon-dim:rgba(201,210,236,.55); --moon-faint:rgba(201,210,236,.14); --moon-glass:rgba(220,230,255,.06);
+  --moon-glow:radial-gradient(ellipse at center, rgba(230,237,255,.32) 0%, rgba(170,185,225,.12) 35%, transparent 70%);
+  --moon-glow-soft:radial-gradient(ellipse at center, rgba(230,237,255,.16) 0%, transparent 65%);
+  --moon-gradient:linear-gradient(160deg, rgba(40,55,95,.45) 0%, rgba(28,42,80,.50) 50%, rgba(18,30,65,.55) 100%);
+  --moon-drawer-bg:linear-gradient(180deg, rgba(35,48,82,.65) 0%, rgba(20,30,60,.78) 30%, rgba(3,14,6,.96) 100%);
+  --bg-moon:#040d18;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   DARK MODE — design-token remap to the "Moonlight" palette (2026-05-17)
+   The cream-glass design tokens (--espresso, --mg-card-bg, --terracotta…)
+   aren't redefined for dark mode, so cards stay cream and text turns
+   invisible. This remaps them app-wide. Colours only — no position/size.
+   ──────────────────────────────────────────────────────────────────── */
+[data-theme="dark"]{
+  --espresso: #F0EBE0;                       /* טקסט ראשי — Moonlight */
+  --stone: #9BA89A;                          /* טקסט משני — Sage Mist */
+  --mist: #5E6670;                           /* טקסט שלישוני — Twilight Stone */
+  --terracotta: #6B8472;                     /* אקצנט — Misted Sage */
+  --mg-btn-primary-bg: #D9D2C0;              /* כפתור ראשי — Moonglow */
+  --mg-btn-primary-bg-hover: #E7E1D2;
+  --sage: #7A9583;                           /* חיובי — Soft Sage */
+  --amber-warn: #B8835A;                     /* אזהרה — Ember */
+  --clay: #6E3D49;                           /* סכנה — Deep Wine */
+  --divider: rgba(240, 235, 224, 0.06);      /* מפריד */
+  --mg-card-bg: rgba(26, 31, 38, 0.30);      /* משטח כרטיס — Moonlit Slate, 30% */
+  --mg-card-border: 1px solid rgba(240, 235, 224, 0.08);
+  --mg-card-shadow: 0 1px 2px rgba(0,0,0,0.30), 0 8px 24px rgba(0,0,0,0.42);
+  --mg-btn-secondary-bg-hover: rgba(36, 42, 51, 0.85);
+}

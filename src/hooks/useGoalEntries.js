@@ -1,0 +1,48 @@
+import { useCallback, useEffect, useState } from 'react'
+import { listGoalEntries, insertGoalEntry, removeGoalEntry as apiRemove } from '../lib/api/goalEntries'
+
+export function useGoalEntries() {
+  const [entries, setEntries] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  const refetch = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      setEntries(await listGoalEntries())
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      try {
+        const data = await listGoalEntries()
+        if (active) { setEntries(data); setError(null) }
+      } catch (e) {
+        if (active) setError(e.message)
+      } finally {
+        if (active) setLoading(false)
+      }
+    })()
+    return () => { active = false }
+  }, [])
+
+  const addEntry = useCallback(async (payload) => {
+    const row = await insertGoalEntry(payload)
+    setEntries((prev) => [row, ...prev])
+    return row
+  }, [])
+
+  const removeEntry = useCallback(async (id) => {
+    setEntries((prev) => prev.filter((e) => e.id !== id))
+    try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
+  }, [refetch])
+
+  return { entries, loading, error, addEntry, removeEntry, refetch }
+}

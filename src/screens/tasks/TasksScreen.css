@@ -1,0 +1,148 @@
+/* ════════════════════════════════════════════════════════════════
+   TASKS SCREEN — summary, status filter, priority groups.
+   Shared primitives (.s-hero, .mg-toggle, .cta-add, .t-screen…) live
+   in styles/screens.css.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Hero ──────────────────────────────────────────────────────── */
+.t-hero {
+  margin-bottom: 14px;
+}
+.t-hero-title {
+  margin: 0 0 14px;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.04em;
+}
+.t-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--xs);
+}
+.t-hero-stat {
+  text-align: center;
+}
+.t-hero-stat.divided {
+  border-inline-start: 1px solid var(--divider);
+  border-inline-end: 1px solid var(--divider);
+}
+.t-hero-stat-l {
+  margin: 0 0 4px;
+  font-family: var(--mg-font);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.t-hero-stat-v {
+  margin: 0;
+  font-family: var(--mg-font-num);
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Status filter ─────────────────────────────────────────────── */
+.t-filter {
+  width: fit-content;
+  margin: 0 auto 18px;
+}
+
+/* ── Priority groups ───────────────────────────────────────────── */
+.t-group {
+  margin-bottom: 18px;
+}
+.t-group-lbl {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 2px 8px;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--stone);
+  letter-spacing: 0.04em;
+}
+.t-group-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.t-group-count {
+  font-family: var(--mg-font-num);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--mist);
+}
+
+/* ── Task card ─────────────────────────────────────────────────── */
+.tc {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 13px 14px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+.tc-chk {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--divider);
+  background: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.tc-chk:hover {
+  border-color: var(--sage);
+}
+.tc-chk.on {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: #fff;
+}
+.tc-body {
+  flex: 1;
+  min-width: 0;
+}
+.tc-title {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--espresso);
+}
+.tc-meta {
+  margin: 3px 0 0;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--mist);
+}
+.tc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tc.is-done {
+  opacity: 0.6;
+}
+.tc.is-done .tc-title {
+  text-decoration: line-through;
+  color: var(--stone);
+}

@@ -1,0 +1,265 @@
+/* ════════════════════════════════════════════════════════════════
+   FINANCE SCREEN — month summary + grouped transaction list.
+   Shared primitives (.cta-add, .t-screen, .empty…) live in screens.css.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Month summary hero ────────────────────────────────────────── */
+.f-hero {
+  margin-bottom: 18px;
+  padding: 18px 20px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+.f-month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.f-month-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 0.5px solid rgba(42, 37, 32, 0.12);
+  background: var(--mg-card-bg);
+  color: var(--stone);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.12s;
+}
+.f-month-btn:hover {
+  background: var(--mg-row-hover-bg);
+}
+.f-month-btn:active {
+  transform: scale(0.9);
+}
+.f-month-label {
+  min-width: 110px;
+  text-align: center;
+  font-family: var(--mg-font);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.f-net-lbl {
+  margin: 0 0 6px;
+  text-align: center;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.04em;
+}
+.f-net {
+  margin: 0 0 12px;
+  text-align: center;
+  font-family: var(--mg-font-num);
+  font-weight: 500;
+  font-size: 36px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+.f-net.neg {
+  color: var(--clay);
+}
+.f-hero-divider {
+  height: 1px;
+  background: var(--divider);
+  margin-bottom: 14px;
+}
+.f-io {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+.f-io-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.f-io-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.f-io-icon.inc {
+  background: rgba(139, 168, 136, 0.2);
+  border: 0.5px solid rgba(139, 168, 136, 0.38);
+  color: var(--sage);
+}
+.f-io-icon.exp {
+  background: rgba(181, 99, 78, 0.18);
+  border: 0.5px solid rgba(181, 99, 78, 0.36);
+  color: var(--clay);
+}
+.f-io-lbl {
+  margin: 0 0 4px;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone);
+}
+.f-io-v {
+  margin: 0;
+  font-family: var(--mg-font-num);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Transaction groups ────────────────────────────────────────── */
+.f-tx-group {
+  margin-bottom: 18px;
+}
+.f-section-lbl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 2px 8px;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.06em;
+}
+.f-group-count {
+  font-family: var(--mg-font-num);
+  font-size: 11px;
+  color: var(--mist);
+}
+
+/* ── Transaction row ───────────────────────────────────────────── */
+.f-tx {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 12px 14px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+.f-tx.is-skipped {
+  opacity: 0.6;
+}
+.f-tx-body {
+  flex: 1;
+  min-width: 0;
+}
+.f-tx-desc {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.f-tx-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.f-tx-date {
+  font-family: var(--mg-font-num);
+  font-size: 11px;
+  color: var(--stone);
+}
+.f-tx-tag {
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 400;
+  padding: 1px 8px;
+  border-radius: 10px;
+}
+.f-tx-tag.cat {
+  color: var(--espresso);
+  background: var(--mg-card-bg);
+  border: 0.5px solid rgba(255, 255, 255, 0.5);
+}
+.f-tx-tag.skip {
+  color: var(--mist);
+  background: rgba(120, 120, 120, 0.1);
+  border: 0.5px solid rgba(120, 120, 120, 0.25);
+}
+.f-tx-meta-text {
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--mist);
+}
+.f-tx-amt {
+  flex-shrink: 0;
+  font-family: var(--mg-font-num);
+  font-weight: 500;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+.f-tx-amt.inc {
+  color: var(--sage);
+}
+.f-tx-amt.exp {
+  color: var(--clay);
+}
+.f-tx-amt.strike {
+  text-decoration: line-through;
+  color: var(--mist);
+}
+
+/* ── Row actions ───────────────────────────────────────────────── */
+.f-tx-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.f-tx-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 0.5px solid transparent;
+  transition: background 0.15s, transform 0.12s;
+}
+.f-tx-btn:active {
+  transform: scale(0.88);
+}
+.f-tx-btn.approve {
+  color: var(--sage);
+  background: rgba(139, 168, 136, 0.12);
+  border-color: rgba(139, 168, 136, 0.32);
+}
+.f-tx-btn.skip {
+  color: var(--mist);
+  background: rgba(120, 120, 120, 0.1);
+  border-color: rgba(120, 120, 120, 0.28);
+}
+.f-tx-btn.restore {
+  color: var(--stone);
+  background: rgba(120, 120, 120, 0.1);
+  border-color: rgba(120, 120, 120, 0.28);
+}

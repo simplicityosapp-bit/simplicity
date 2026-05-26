@@ -1,0 +1,98 @@
+/* ════════════════════════════════════════════════════════════════
+   BOTTOM NAV — heavy-blur glass bar with per-tab brand-color chips.
+   ════════════════════════════════════════════════════════════════
+   Each tab's icon lives inside a small glass pill tinted with one
+   of the five brand colors (Terracotta / Blush / Sage / Amber / Clay).
+   The tint keeps the icon legible over busy nature backgrounds while
+   matching the per-screen accent palette used across the app.
+   Active screen = stronger fill on the matching tab.
+   ════════════════════════════════════════════════════════════════ */
+
+.mg-bottombar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  display: flex;
+  /* Darker glass so the cream labels stay readable in both modes
+     while the brand-color chips still pop. */
+  background: rgba(42, 37, 32, 0.42);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border-top: 1px solid rgba(240, 235, 224, 0.10);
+  box-shadow: 0 -2px 16px rgba(42, 37, 32, 0.12);
+  padding: 10px 6px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+
+[data-theme="dark"] .mg-bottombar {
+  background: rgba(13, 17, 23, 0.55);
+  border-top: 1px solid rgba(240, 235, 224, 0.08);
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.45);
+}
+
+.mg-bottombar-item {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px 2px 0;
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--cream);                       /* labels always cream/white */
+  transition: color 0.18s, transform 0.12s;
+}
+
+.mg-bottombar-item:active { transform: scale(0.92); }
+
+/* ── Per-tab brand color (drives the chip + active label) ── */
+.mg-bottombar-item[data-screen="clients"] { --nav-accent: var(--sage); }
+.mg-bottombar-item[data-screen="tasks"]   { --nav-accent: var(--amber-warn); }
+.mg-bottombar-item[data-screen="home"]    { --nav-accent: var(--terracotta); }
+.mg-bottombar-item[data-screen="finance"] { --nav-accent: var(--clay); }
+.mg-bottombar-item[data-screen="menu"]    { --nav-accent: var(--blush); }
+
+/* ── Icon chip ── */
+.mg-bottombar-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 34px;
+  border-radius: 14px;
+  color: var(--nav-accent);
+  background: color-mix(in srgb, var(--nav-accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--nav-accent) 32%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+}
+
+/* Active screen → stronger fill + brand color on the label */
+.app[data-screen="clients"] .mg-bottombar-item[data-screen="clients"] .mg-bottombar-chip,
+.app[data-screen="tasks"]   .mg-bottombar-item[data-screen="tasks"]   .mg-bottombar-chip,
+.app[data-screen="home"]    .mg-bottombar-item[data-screen="home"]    .mg-bottombar-chip,
+.app[data-screen="finance"] .mg-bottombar-item[data-screen="finance"] .mg-bottombar-chip {
+  background: color-mix(in srgb, var(--nav-accent) 34%, transparent);
+  border-color: color-mix(in srgb, var(--nav-accent) 60%, transparent);
+}
+/* Labels stay cream across screens; the active state shows itself
+   through the chip's stronger fill above, not by recoloring the
+   label (user spec: nav text in the cream/white tone we use). */
+
+/* Blush is light enough that on dark mode the chip needs more punch. */
+[data-theme="dark"] .mg-bottombar-item[data-screen="menu"] .mg-bottombar-chip {
+  background: color-mix(in srgb, var(--blush) 22%, transparent);
+  border-color: color-mix(in srgb, var(--blush) 45%, transparent);
+}
+
+/* ── Desktop: hide the bottom bar — sidebar takes over (≥768px) ── */
+@media (min-width: 768px) {
+  .mg-bottombar { display: none; }
+}

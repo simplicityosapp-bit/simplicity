@@ -1,0 +1,139 @@
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Sparkles, Check } from 'lucide-react'
+import { ROUTES } from '../../../lib/routes'
+import { questionText } from '../../../lib/questionTemplates'
+import { useUserQuestions } from '../../../hooks/useUserQuestions'
+import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
+
+const dayStr = (offset = 0) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10)
+
+/* Custom glyph — a question-mark hook whose bottom dot is a heart (matches the
+   prototype's "מה איתך היום" collapse control). */
+function HeartQIcon() {
+  return (
+    <svg className="ins-hq-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+      <path d="M8.4 8.6a3.6 3.6 0 1 1 5.5 3.05c-1.25 .8-1.9 1.45-1.9 2.75v.3" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 20.2c-1.6-1.15-2.9-2.05-2.9-3.45a1.45 1.45 0 0 1 2.9-.5 1.45 1.45 0 0 1 2.9 .5c0 1.4-1.3 2.3-2.9 3.45z" fill="currentColor" />
+    </svg>
+  )
+}
+
+/* Daily-question widget: next unanswered active question for today + live input.
+   Answers persist to Supabase; once answered the widget advances. */
+export default function InsightsWidget() {
+  const navigate = useNavigate()
+  const { questions } = useUserQuestions()
+  const { answers, addAnswer } = useDailyAnswers()
+  const [val, setVal] = useState(null)
+  const [collapsed, setCollapsed] = useState(false)
+  const [busy, setBusy] = useState(false)
+
+  const today = dayStr(0)
+  const activeQuestions = useMemo(() => questions.filter((x) => x.active), [questions])
+  const q = useMemo(
+    () => activeQuestions.find((x) => !answers.some((a) => a.user_question_id === x.id && a.date === today)),
+    [activeQuestions, answers, today],
+  )
+
+  const save = async (value) => {
+    if (busy || !q) return
+    setBusy(true)
+    try {
+      await addAnswer({ user_question_id: q.id, date: today, value_num: value, value_text: null, note: null })
+      setVal(null)
+    } catch {
+      /* leave value so the user can retry */
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const collapseBtn = (
+    <button
+      type="button"
+      className="ins-collapse-btn"
+      aria-label={collapsed ? 'פתיחת מה איתך היום' : 'כיווץ מה איתך היום'}
+      title={collapsed ? 'פתיחת מה איתך היום' : 'כיווץ מה איתך היום'}
+      onClick={(e) => { e.stopPropagation(); setCollapsed((c) => !c) }}
+    >
+      <HeartQIcon />
+    </button>
+  )
+
+  if (collapsed) {
+    return (
+      <div className="ins-widget is-collapsed">
+        <div className="ins-collapsed">{collapseBtn}</div>
+      </div>
+    )
+  }
+
+  /* No questions yet — soft nudge to add one in settings. */
+  if (activeQuestions.length === 0) {
+    return (
+      <div className="ins-widget has-collapse">
+        {collapseBtn}
+        <p className="ins-q"><Sparkles size={16} strokeWidth={1.6} aria-hidden="true" /> מה איתך היום?</p>
+        <button type="button" className="ins-add-link" onClick={() => navigate(ROUTES.SETTINGS)}>
+          הוסף/י שאלה יומית ←
+        </button>
+      </div>
+    )
+  }
+
+  if (!q) {
+    return (
+      <div className="ins-widget has-collapse">
+        {collapseBtn}
+        <p className="ins-empty">סיימת להיום — יופי.</p>
+      </div>
+    )
+  }
+
+  const text = questionText(q)
+  const yAns = answers.find((a) => a.user_question_id === q.id && a.date === dayStr(-1))
+  const yVal = yAns && typeof yAns.value_num === 'number' ? Number(yAns.value_num) : null
+
+  let compare = ''
+  if (val != null && yVal != null && q.scale_type !== 'yes_no') {
+    if (val > yVal) compare = 'השתפר מאתמול'
+    else if (val === yVal) compare = 'יציב מאתמול'
+    else compare = 'מעט נמוך מאתמול'
+  }
+
+  return (
+    <div className="ins-widget has-collapse">
+      {collapseBtn}
+      <p className="ins-q">
+        <Sparkles size={16} strokeWidth={1.6} aria-hidden="true" /> {text}
+      </p>
+
+      {q.scale_type === 'yes_no' ? (
+        <div className="ins-yn">
+          <button type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(1)}>כן</button>
+          <button type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(0)}>לא</button>
+        </div>
+      ) : (
+        <div className="ins-slider-wrap">
+          <input
+            type="range"
+            min="1"
+            max="10"
+            step="1"
+            value={val ?? 1}
+            className="ins-slider"
+            aria-label={text}
+            onChange={(e) => setVal(parseInt(e.target.value, 10))}
+          />
+          <span className="ins-slider-val mono">{val ?? '—'}</span>
+          <button type="button" className="ins-save-btn" disabled={busy || val == null} onClick={() => save(val)} aria-label="שמירת תשובה">
+            <Check size={15} strokeWidth={2} aria-hidden="true" />
+          </button>
+        </div>
+      )}
+
+      {compare && <p className="ins-compare">{compare}</p>}
+    </div>
+  )
+}

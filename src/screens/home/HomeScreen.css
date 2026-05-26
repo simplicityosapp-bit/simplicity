@@ -1,0 +1,769 @@
+/* ════════════════════════════════════════════════════════════════
+   HOME SCREEN — dashboard widgets.
+   ════════════════════════════════════════════════════════════════
+   Glass cards (--mg-card-* tokens). Numbers use the mono face. The moon
+   confidence ring is a masked conic gradient (sage arc on a faint track).
+   ════════════════════════════════════════════════════════════════ */
+
+.home-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 16px;
+}
+
+/* Top row — moon-chip pinned to the start side (right in RTL),
+   quote next to it shrinking to fit the remaining width. The row
+   itself slots into the stack like any other stack item. */
+.home-row-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.home-row-top > .home-widget[data-widget-id="moon"] {
+  flex: 0 0 auto;
+}
+.home-row-top > .home-widget[data-widget-id="quote"] {
+  flex: 1 1 auto;
+  min-width: 0;     /* allow shrink under inner padding */
+}
+/* Density (global) — adjusts inter-widget gap. */
+.home-screen[data-density="compact"]     .home-stack { gap: 8px; }
+.home-screen[data-density="comfortable"] .home-stack { gap: 14px; }
+.home-screen[data-density="spacious"]    .home-stack { gap: 22px; }
+
+/* Card style (global). */
+.home-screen[data-card-style="flat"] .h-quote,
+.home-screen[data-card-style="flat"] .moon-card,
+.home-screen[data-card-style="flat"] .ins-widget,
+.home-screen[data-card-style="flat"] .h-card,
+.home-screen[data-card-style="flat"] .h-stat {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+.home-screen[data-card-style="outlined"] .h-quote,
+.home-screen[data-card-style="outlined"] .moon-card,
+.home-screen[data-card-style="outlined"] .ins-widget,
+.home-screen[data-card-style="outlined"] .h-card,
+.home-screen[data-card-style="outlined"] .h-stat {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: transparent;
+  border: 1px solid var(--divider);
+  box-shadow: none;
+}
+
+/* Text strength (global) — bumps body weight. */
+.home-screen[data-text-strength="bold"] {
+  font-weight: 500;
+}
+.home-screen[data-text-strength="bold"] .h-quote-text,
+.home-screen[data-text-strength="bold"] .moon-title,
+.home-screen[data-text-strength="bold"] .h-card-title {
+  font-weight: 700;
+}
+.home-screen[data-text-strength="bold"] .moon-desc,
+.home-screen[data-text-strength="bold"] .h-attn-text,
+.home-screen[data-text-strength="bold"] .h-task-text,
+.home-screen[data-text-strength="bold"] .h-rem-text,
+.home-screen[data-text-strength="bold"] .h-stat-lbl {
+  font-weight: 600;
+}
+
+/* Per-widget compact mode — tighter padding. */
+.home-widget.compact .h-card,
+.home-widget.compact .moon-card,
+.home-widget.compact .h-quote,
+.home-widget.compact .ins-widget {
+  padding: 10px 14px;
+}
+
+/* Per-widget density override (compact/spacious/comfortable). */
+.home-widget[data-density="compact"] .h-card,
+.home-widget[data-density="compact"] .moon-card,
+.home-widget[data-density="compact"] .h-quote,
+.home-widget[data-density="compact"] .ins-widget {
+  padding-block: 10px;
+}
+.home-widget[data-density="spacious"] .h-card,
+.home-widget[data-density="spacious"] .moon-card,
+.home-widget[data-density="spacious"] .h-quote,
+.home-widget[data-density="spacious"] .ins-widget {
+  padding-block: 24px;
+}
+
+/* Per-widget accent — soft tinted ring + ambient glow on the card.
+   No hard stripe. The first child of .home-widget is the actual card
+   element (.h-quote / .moon-card / .h-card / .ins-widget / .h-stat).
+   Selector is bumped to .home-stack .home-widget > * so it wins the
+   cascade tie-break against the .h-quote/.moon-card/... block below. */
+.home-stack .home-widget > * {
+  position: relative;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 28%, transparent),
+    0 0 22px color-mix(in srgb, var(--widget-accent, transparent) 14%, transparent),
+    var(--mg-card-shadow);
+}
+[data-theme="dark"] .home-stack .home-widget > * {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 40%, transparent),
+    0 0 28px color-mix(in srgb, var(--widget-accent, transparent) 18%, transparent),
+    var(--mg-card-shadow);
+}
+
+/* Shared glass card surface. */
+.h-quote,
+.moon-card,
+.ins-widget,
+.h-card,
+.h-stat {
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+
+/* ── Quote ─────────────────────────────────────────────────────── */
+.h-quote {
+  padding: 18px 20px;
+  text-align: center;
+}
+.h-quote-text {
+  margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--espresso);
+  letter-spacing: -0.005em;
+}
+.h-quote-author {
+  margin: 6px 0 0;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--mist);
+}
+
+/* ── Moon chip (compact glance — replaces the legacy big card) ─
+   Pure circle: glass surface, soft-blurred sage arc tracking the
+   confidence pace, percentage centered, tiny label below. The
+   widget's accent halo (from .home-stack .home-widget > *) wraps
+   the chip like a soft outer ring. */
+.moon-chip {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  margin: 4px auto;
+  border-radius: 50%;
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.18s;
+}
+.moon-chip:active { transform: scale(0.97); }
+.moon-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.moon-track {
+  fill: none;
+  stroke: rgba(42, 37, 32, 0.08);
+  stroke-width: 5;
+}
+[data-theme="dark"] .moon-track {
+  stroke: rgba(240, 235, 224, 0.10);
+}
+.moon-arc {
+  fill: none;
+  stroke: var(--widget-accent, var(--sage));
+  stroke-width: 7;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  filter: blur(2.5px);
+  transition: stroke-dasharray 0.4s ease;
+}
+.moon-chip-num {
+  font-family: var(--mg-font-num);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--espresso);
+}
+.moon-chip-label {
+  margin-top: 5px;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone);
+  text-align: center;
+  max-width: 100px;
+}
+.moon-chip-empty .moon-chip-num { color: var(--stone); }
+.moon-chip-empty .moon-chip-label { color: var(--terracotta); }
+
+/* The accent halo from .home-stack .home-widget > * draws around
+   square cards; for the moon CHIP (border-radius:50%) we want a
+   matching circular halo. Override the box-shadow rule's positioning
+   so it still hits a circle cleanly. */
+.home-stack .home-widget > .moon-chip {
+  /* Same recipe, no special tweaks needed — box-shadow respects
+     the element's border-radius automatically. Kept as a hook for
+     future per-shape tweaks. */
+}
+
+/* ── Moon widget (legacy big card — kept for /moon screen reuse) ─ */
+.moon-card {
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: transform 0.18s;
+}
+.moon-card:active {
+  transform: scale(0.99);
+}
+.moon-top {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.moon-ring {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--mg-card-bg);
+}
+.moon-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from -90deg,
+    var(--sage) 0% var(--ring-pct, 0%),
+    var(--divider) var(--ring-pct, 0%) 100%);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 84%, black 85%);
+          mask: radial-gradient(circle closest-side, transparent 84%, black 85%);
+  pointer-events: none;
+}
+.moon-ring-empty {
+  color: var(--stone);
+  border: 1px dashed var(--divider);
+}
+.moon-ring-pct {
+  font-family: var(--mg-font-num);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--espresso);
+}
+.moon-ring-sub {
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 500;
+  margin-top: 4px;
+  color: var(--stone);
+  white-space: nowrap;
+}
+.moon-titleblock {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.moon-title {
+  font-family: var(--mg-font);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--espresso);
+}
+.moon-desc {
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--stone);
+}
+.moon-open {
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--terracotta);
+}
+.moon-divider {
+  height: 1px;
+  background: var(--divider);
+  margin: 16px 0 12px;
+}
+.moon-stats {
+  display: flex;
+  align-items: center;
+}
+.moon-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--stone);
+}
+.moon-stat:not(:first-child) {
+  border-inline-start: 1px solid var(--divider);
+}
+.moon-stat-num {
+  font-family: var(--mg-font-num);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--espresso);
+  white-space: nowrap;
+}
+.moon-stat-lbl {
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--stone);
+}
+
+/* ── Insights (daily question) ─────────────────────────────────── */
+.ins-widget {
+  position: relative;
+  padding: 16px 18px;
+}
+/* Reserve an inline-start strip for the round collapse toggle when open. */
+.ins-widget.has-collapse {
+  padding-inline-start: 52px;
+}
+.ins-collapse-btn {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 8px;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--moon-deep);
+  background: linear-gradient(155deg, rgba(232, 238, 252, 0.6) 0%, rgba(208, 218, 242, 0.46) 100%);
+  border: 0.5px solid rgba(138, 150, 184, 0.3);
+  backdrop-filter: var(--bs);
+  -webkit-backdrop-filter: var(--bs);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05), inset 0 0.5px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+}
+.ins-collapse-btn:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08), 0 0 12px rgba(184, 196, 224, 0.32);
+}
+.ins-collapse-btn:active {
+  transform: translateY(-50%) scale(0.9);
+}
+.ins-collapse-btn .ins-hq-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+[data-theme="dark"] .ins-collapse-btn {
+  color: var(--moon-hi);
+  background: linear-gradient(155deg, rgba(40, 55, 95, 0.5) 0%, rgba(20, 32, 68, 0.55) 100%);
+  border-color: rgba(220, 230, 255, 0.18);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(220, 230, 255, 0.07);
+}
+/* Collapsed: drop the glass card; the button is all that remains. */
+.ins-widget.is-collapsed {
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.ins-collapsed {
+  display: flex;
+  justify-content: flex-start;
+}
+.ins-widget.is-collapsed .ins-collapse-btn {
+  position: static;
+  transform: none;
+}
+.ins-widget.is-collapsed .ins-collapse-btn:active {
+  transform: scale(0.9);
+}
+.ins-q {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--espresso);
+}
+.ins-q svg {
+  color: var(--moon-deep);
+  flex-shrink: 0;
+}
+.ins-empty {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  color: var(--stone);
+}
+.ins-add-link {
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--terracotta);
+  cursor: pointer;
+}
+.ins-save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--terracotta);
+  color: #fff;
+  cursor: pointer;
+}
+.ins-save-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+[data-theme="dark"] .ins-save-btn {
+  color: #0f1419;
+}
+.ins-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+.ins-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(to left, var(--moon-deep), var(--moon-hi));
+  outline: none;
+  cursor: pointer;
+}
+.ins-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--moon-deep);
+  box-shadow: 0 2px 8px rgba(42, 37, 32, 0.2);
+  cursor: pointer;
+}
+.ins-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--moon-deep);
+  box-shadow: 0 2px 8px rgba(42, 37, 32, 0.2);
+  cursor: pointer;
+}
+.ins-slider-val {
+  font-family: var(--mg-font-num);
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--moon-deep);
+  min-width: 24px;
+  text-align: center;
+}
+[data-theme="dark"] .ins-slider-val {
+  color: var(--moon-hi);
+}
+.ins-yn {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ins-yn-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--mg-btn-radius);
+  background: var(--mg-card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.ins-yn-btn.on {
+  background: var(--terracotta);
+  color: #fff;
+  border-color: var(--terracotta);
+}
+[data-theme="dark"] .ins-yn-btn.on {
+  color: #0f1419;
+}
+.ins-compare {
+  margin: 10px 0 0;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--moon-deep);
+}
+[data-theme="dark"] .ins-compare {
+  color: var(--moon-hi);
+}
+
+/* ── Quick action row ──────────────────────────────────────────── */
+.h-quick-row {
+  display: flex;
+  gap: 10px;
+}
+.h-quick-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: var(--mg-btn-h);
+  border-radius: var(--mg-btn-radius);
+  font-family: var(--mg-font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+}
+.h-quick-btn:active {
+  transform: scale(0.97);
+}
+.h-quick-primary {
+  background: var(--terracotta);
+  border: none;
+  color: #fff;
+}
+.h-quick-primary:hover {
+  background: var(--mg-btn-primary-bg-hover);
+}
+[data-theme="dark"] .h-quick-primary {
+  color: #0f1419;
+}
+.h-quick-secondary {
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  color: var(--espresso);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+
+/* ── List cards (attention / reminders / next tasks) ───────────── */
+.h-card {
+  padding: 16px 18px;
+}
+.h-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.h-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mg-font);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.h-card-title svg {
+  color: var(--stone);
+  flex-shrink: 0;
+}
+.h-card-count {
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--stone);
+}
+.h-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--stone);
+}
+.h-card-empty {
+  margin: 6px 2px;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  color: var(--stone);
+}
+.h-card-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Generic clickable row. */
+.h-attn-row,
+.h-task-row,
+.h-rem-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: start;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--divider);
+  cursor: pointer;
+  font-family: var(--mg-font);
+}
+.h-card-list > :first-child {
+  border-top: none;
+}
+.h-attn-icon {
+  color: var(--amber-warn);
+  flex-shrink: 0;
+}
+.h-attn-text,
+.h-task-text,
+.h-rem-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.h-row-chevron {
+  color: var(--stone);
+  flex-shrink: 0;
+}
+
+/* Task / reminder rows */
+.h-task-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.h-task-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.h-task-dot.urgent {
+  background: var(--sage);
+}
+.h-task-dot.regular {
+  background: var(--amber-warn);
+}
+.h-rem-when {
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--stone);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.h-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--divider);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.h-check:hover {
+  border-color: var(--sage);
+  color: var(--sage);
+}
+
+/* ── Bottom chips ──────────────────────────────────────────────── */
+.h-chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--mg-gutter);
+}
+.h-stat {
+  position: relative;
+  min-height: var(--mg-card-sm);
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+.h-stat:active {
+  transform: scale(0.97);
+}
+.h-stat-icon {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 10px;
+  color: var(--stone);
+}
+.h-stat-num {
+  font-family: var(--mg-font-num);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.h-stat-lbl {
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone);
+}

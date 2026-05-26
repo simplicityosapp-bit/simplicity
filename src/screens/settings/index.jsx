@@ -1,0 +1,560 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  ChevronDown, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
+  Plus, Trash2, Leaf, GripVertical, ChevronLeft,
+} from 'lucide-react'
+import { ROUTES } from '../../lib/routes'
+import { useUserQuestions } from '../../hooks/useUserQuestions'
+import { useLeadSources } from '../../hooks/useLeadSources'
+import { useClientStatuses } from '../../hooks/useClientStatuses'
+import { useLeadStatuses } from '../../hooks/useLeadStatuses'
+import { useUserPreferences } from '../../hooks/useUserPreferences'
+import { countClientsByStatus, reassignClientsStatus } from '../../lib/api/clientStatuses'
+import { countLeadsByStatus, reassignLeadsStatus } from '../../lib/api/leadStatuses'
+import DeleteSubStatusModal from '../../modals/DeleteSubStatusModal'
+import {
+  ROLE_LABELS, CURRENCY_OPTIONS, DATE_FORMAT_OPTIONS, TIME_FORMAT_OPTIONS, WEEK_START_OPTIONS,
+  TEXT_SIZE_OPTIONS, GENDER_OPTIONS, WIDGET_REGISTRY, ACCENT_OPTIONS,
+  CARD_STYLE_OPTIONS, TEXT_STRENGTH_OPTIONS, DENSITY_OPTIONS,
+} from '../../lib/preferences'
+import { questionText } from '../../lib/questionTemplates'
+import AddQuestionModal from '../../modals/AddQuestionModal'
+import './SettingsScreen.css'
+
+const SECTIONS = [
+  { key: 'profile', title: 'פרופיל', icon: User, sub: 'שם, תפקיד והתמחות' },
+  { key: 'widgets', title: 'ווידג׳טים ותצוגה', icon: LayoutGrid, sub: 'מה מופיע במסך הבית' },
+  { key: 'clients', title: 'לקוחות וסטטוסים', icon: Users, sub: 'תתי-סטטוסים מותאמים אישית' },
+  { key: 'goals', title: 'יעדים וקטגוריות', icon: Target, sub: 'קטגוריות מדידה' },
+  { key: 'payments', title: 'תשלומים ומטבע', icon: Wallet, sub: 'מטבע ופורמט סכומים' },
+  { key: 'questions', title: 'שאלות יומיות', icon: Sparkles, sub: 'מה נשאל בכל יום' },
+  { key: 'leads', title: 'הגדרות לידים', icon: Leaf, sub: 'מקורות וסטטוסים' },
+  { key: 'design', title: 'עיצוב', icon: Palette, sub: 'מצב יום/לילה, גודל טקסט' },
+  { key: 'about', title: 'אודות', icon: Info, sub: 'גרסה ומידע' },
+]
+
+const CLIENT_METAS = [
+  { k: 'active', l: 'פעיל' },
+  { k: 'wandering', l: 'ביניים' },
+  { k: 'past', l: 'לשעבר' },
+  { k: 'no_status', l: 'ללא סטטוס' },
+]
+const LEAD_METAS = [
+  { k: 'in_process', l: 'בתהליך' },
+  { k: 'converted', l: 'הומר' },
+  { k: 'not_relevant', l: 'לא רלוונטי' },
+  { k: 'ghost', l: 'רפאים' },
+]
+
+/* ── Segmented control ────────────────────────────────────────────
+   Compact horizontal pill group. Used by payments + design. */
+function Segmented({ label, value, options, onChange }) {
+  return (
+    <div className="m-field">
+      <label className="m-label">{label}</label>
+      <div className="set-seg" role="radiogroup">
+        {options.map((o) => (
+          <button
+            key={o.v}
+            type="button"
+            role="radio"
+            aria-checked={value === o.v}
+            className={`set-seg-btn${value === o.v ? ' on' : ''}`}
+            onClick={() => onChange(o.v)}
+          >
+            {o.l}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ── Payments + currency body ────────────────────────────────────
+   Persists to prefs.format. Currency is also surfaced to module-level
+   state (lib/finance) via PrefsApplier so isr() picks it up app-wide. */
+function PaymentsBody({ prefs, onUpdate }) {
+  const f = prefs?.format || {}
+  const setVal = (k) => (v) => onUpdate({ format: { [k]: v } })
+  return (
+    <div className="set-profile-body">
+      <Segmented label="מטבע" value={f.currency || 'ILS'} options={CURRENCY_OPTIONS} onChange={setVal('currency')} />
+      <Segmented label="פורמט תאריך" value={f.date_format || 'DD/MM/YY'} options={DATE_FORMAT_OPTIONS} onChange={setVal('date_format')} />
+      <Segmented label="פורמט שעה" value={f.time_format || '24h'} options={TIME_FORMAT_OPTIONS} onChange={setVal('time_format')} />
+      <Segmented label="יום ראשון בשבוע" value={f.week_start || 'sunday'} options={WEEK_START_OPTIONS} onChange={setVal('week_start')} />
+    </div>
+  )
+}
+
+/* ── Widgets body ────────────────────────────────────────────────
+   Per-widget controls: enabled, accent, compact (when supported),
+   density override. Globals + reorder live in WidgetsGlobals below. */
+function WidgetsBody({ prefs, onUpdate }) {
+  const cfg = prefs?.widgets || {}
+  const list = cfg.list || []
+  const global = cfg.global || {}
+  const [draggingId, setDraggingId] = useState(null)
+  const [overId, setOverId] = useState(null)
+
+  const updateWidget = (id, patch) => {
+    const next = list.map((w) => (w.id === id ? { ...w, ...patch } : w))
+    onUpdate({ widgets: { list: next } })
+  }
+  const setGlobal = (k) => (v) => {
+    onUpdate({ widgets: { global: { [k]: v } } })
+  }
+  const reorder = (fromId, toId) => {
+    if (!fromId || fromId === toId) return
+    const fromIdx = list.findIndex((w) => w.id === fromId)
+    if (fromIdx < 0) return
+    const next = [...list]
+    const [item] = next.splice(fromIdx, 1)
+    if (toId == null) next.push(item)
+    else {
+      const toIdx = next.findIndex((w) => w.id === toId)
+      if (toIdx < 0) next.push(item)
+      else next.splice(toIdx, 0, item)
+    }
+    onUpdate({ widgets: { list: next } })
+  }
+  const handleDragStart = (e, id) => {
+    setDraggingId(id)
+    try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', id) } catch { /* noop */ }
+  }
+  const handleDragOver = (e, id) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (id !== overId) setOverId(id)
+  }
+  const handleDrop = (e, id) => {
+    e.preventDefault()
+    if (draggingId && draggingId !== id) reorder(draggingId, id)
+    setDraggingId(null)
+    setOverId(null)
+  }
+  const handleDragEnd = () => { setDraggingId(null); setOverId(null) }
+
+  return (
+    <div className="set-w-body">
+      <p className="set-sub-h">תצוגה גלובלית</p>
+      <Segmented label="סגנון כרטיסים" value={global.cardStyle || 'frosted'} options={CARD_STYLE_OPTIONS} onChange={setGlobal('cardStyle')} />
+      <Segmented label="עוצמת טקסט" value={global.textStrength || 'normal'} options={TEXT_STRENGTH_OPTIONS} onChange={setGlobal('textStrength')} />
+      <Segmented label="צפיפות" value={global.density || 'comfortable'} options={DENSITY_OPTIONS} onChange={setGlobal('density')} />
+
+      <p className="set-sub-h" style={{ marginTop: 8 }}>ווידג׳טים</p>
+      <div className="set-w-list">
+        {list.map((w) => {
+          const reg = WIDGET_REGISTRY.find((r) => r.id === w.id)
+          if (!reg) return null
+          return (
+            <WidgetRow
+              key={w.id}
+              cfg={w}
+              reg={reg}
+              onUpdate={(p) => updateWidget(w.id, p)}
+              dragging={draggingId === w.id}
+              over={overId === w.id}
+              onDragStart={(e) => handleDragStart(e, w.id)}
+              onDragOver={(e) => handleDragOver(e, w.id)}
+              onDrop={(e) => handleDrop(e, w.id)}
+              onDragEnd={handleDragEnd}
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function WidgetRow({ cfg, reg, onUpdate, dragging, over, onDragStart, onDragOver, onDrop, onDragEnd }) {
+  return (
+    <div
+      className={`set-w-row${cfg.enabled ? '' : ' off'}${dragging ? ' dragging' : ''}${over ? ' over' : ''}`}
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+    >
+      <div className="set-w-row-head">
+        <span className="set-w-grip" aria-hidden="true">
+          <GripVertical size={14} strokeWidth={1.5} />
+        </span>
+        <span className="set-w-row-name">{reg.label}</span>
+        <button
+          type="button"
+          className={`set-w-toggle${cfg.enabled ? ' on' : ''}`}
+          aria-label={cfg.enabled ? 'כיבוי' : 'הפעלה'}
+          onClick={() => onUpdate({ enabled: !cfg.enabled })}
+        >
+          <span className="set-w-toggle-knob" />
+        </button>
+      </div>
+      {cfg.enabled && (
+        <div className="set-w-row-ctrls">
+          <div className="set-w-accents" role="radiogroup" aria-label="צבע מבטא">
+            {ACCENT_OPTIONS.map((a) => (
+              <button
+                key={a.v}
+                type="button"
+                role="radio"
+                aria-checked={cfg.accent === a.v}
+                title={a.l}
+                className={`set-w-accent${cfg.accent === a.v ? ' on' : ''}`}
+                style={{ background: a.color }}
+                onClick={() => onUpdate({ accent: a.v })}
+              />
+            ))}
+          </div>
+          {reg.supportsCompact && (
+            <button
+              type="button"
+              className={`set-w-chip${cfg.compact ? ' on' : ''}`}
+              onClick={() => onUpdate({ compact: !cfg.compact })}
+            >קומפקטי</button>
+          )}
+          <div className="set-w-density">
+            {[
+              { v: null,         l: 'גלובלי' },
+              { v: 'compact',     l: 'צפוף' },
+              { v: 'comfortable', l: 'רגיל' },
+              { v: 'spacious',    l: 'מרווח' },
+            ].map((d) => (
+              <button
+                key={d.v ?? 'global'}
+                type="button"
+                className={`set-w-chip${(cfg.density ?? null) === d.v ? ' on' : ''}`}
+                onClick={() => onUpdate({ density: d.v })}
+              >{d.l}</button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Design body ─────────────────────────────────────────────────
+   Theme + text size + grammatical gender. PrefsApplier picks up the
+   change and pushes it to <html> attributes app-wide. */
+const THEME_OPTIONS = [
+  { v: 'light', l: 'יום' },
+  { v: 'dark',  l: 'לילה' },
+]
+
+function DesignBody({ prefs, onUpdate }) {
+  const d = prefs?.design || {}
+  const setVal = (k) => (v) => onUpdate({ design: { [k]: v } })
+  return (
+    <div className="set-profile-body">
+      <Segmented label="מצב יום/לילה" value={d.theme || 'light'} options={THEME_OPTIONS} onChange={setVal('theme')} />
+      <Segmented label="גודל טקסט" value={d.text_size || 'normal'} options={TEXT_SIZE_OPTIONS} onChange={setVal('text_size')} />
+      <Segmented label="פנייה" value={d.gender || 'neutral'} options={GENDER_OPTIONS} onChange={setVal('gender')} />
+    </div>
+  )
+}
+
+/* ── About body ──────────────────────────────────────────────────
+   Static section: app identity, version, credits. */
+const APP_VERSION = '0.1.0'
+function AboutBody() {
+  return (
+    <div className="set-about">
+      <p className="set-about-name">Mångata</p>
+      <p className="set-about-tag">Practice OS — לקצב הטיפוח שלך</p>
+      <div className="set-about-meta">
+        <span>גרסה {APP_VERSION}</span>
+        <span className="set-about-dot">·</span>
+        <span>2026</span>
+      </div>
+      <p className="set-about-credit">נבנה בעבודה משותפת עם Claude.</p>
+    </div>
+  )
+}
+
+/* ── Profile body ────────────────────────────────────────────────
+   Editable name + role pills. Saves on blur (name) / click (role). */
+function ProfileBody({ prefs, onUpdate }) {
+  const [name, setName] = useState(prefs?.profile?.full_name || '')
+  const role = prefs?.profile?.role || 'other'
+  const ROLES = Object.entries(ROLE_LABELS)
+
+  const commitName = () => {
+    const trimmed = name.trim()
+    if (trimmed === (prefs?.profile?.full_name || '')) return
+    onUpdate({ profile: { full_name: trimmed } })
+  }
+  const pickRole = (k) => {
+    if (k === role) return
+    onUpdate({ profile: { role: k } })
+  }
+
+  return (
+    <div className="set-profile-body">
+      <div className="m-field">
+        <label className="m-label">שם מלא</label>
+        <input
+          className="m-input"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={commitName}
+          placeholder="איך תרצה/י שאקרא לך?"
+        />
+      </div>
+      <div className="m-field">
+        <label className="m-label">תפקיד</label>
+        <div className="m-pills">
+          {ROLES.map(([k, l]) => (
+            <button key={k} type="button" className={`m-pill${role === k ? ' on' : ''}`} onClick={() => pickRole(k)}>{l}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* Render a meta-grouped sub-status list with an inline add row per meta.
+   Used for both client_statuses and lead_statuses. */
+function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove }) {
+  return (
+    <div className="set-sub">
+      {metas.map((m) => {
+        const list = statuses.filter((s) => s.meta_category === m.k)
+        const draft = drafts[m.k] || ''
+        const submit = async () => {
+          const name = draft.trim()
+          if (!name) return
+          await onAdd({ meta_category: m.k, display_name: name, icon: null, is_default: false })
+          setDraft(m.k, '')
+        }
+        return (
+          <div key={m.k} className="set-sub-group">
+            <p className="set-sub-meta">{m.l}</p>
+            {list.length === 0 && <p className="set-sub-empty">—</p>}
+            {list.map((s) => (
+              <div key={s.id} className="set-q-row">
+                <span className="set-q-icon" style={s.color ? { color: s.color } : undefined}>{s.icon || '•'}</span>
+                <span className="set-q-text">{s.display_name}</span>
+                <button type="button" className="set-q-del" onClick={() => onRemove(s, list)} aria-label="מחיקה">
+                  <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
+                </button>
+              </div>
+            ))}
+            <div className="set-sub-add">
+              <input
+                className="m-input"
+                value={draft}
+                onChange={(e) => setDraft(m.k, e.target.value)}
+                placeholder={`תת-סטטוס ל"${m.l}"`}
+                onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
+              />
+              <button type="button" className="set-q-add" onClick={submit} disabled={!draft.trim()}>
+                <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+export default function SettingsScreen() {
+  const [open, setOpen] = useState('profile')
+  const [showAddQ, setShowAddQ] = useState(false)
+  const [newSourceName, setNewSourceName] = useState('')
+  const [clientDrafts, setClientDrafts] = useState({})
+  const [leadDrafts, setLeadDrafts] = useState({})
+  const { questions, addQuestion, toggleActive, removeQuestion } = useUserQuestions()
+  const { sources, addSource, removeSource } = useLeadSources()
+  const { statuses: clientStatuses, addStatus: addClientStatus, removeStatus: removeClientStatus } = useClientStatuses()
+  const { statuses: leadStatuses, addStatus: addLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
+  const { prefs, loading: prefsLoading, update: updatePrefs } = useUserPreferences()
+  const [pendingDelete, setPendingDelete] = useState(null)  /* { kind, status, peers } | null */
+  const navigate = useNavigate()
+  const toggle = (key) => setOpen((cur) => (cur === key ? null : key))
+
+  const setClientDraft = (k, v) => setClientDrafts((d) => ({ ...d, [k]: v }))
+  const setLeadDraft = (k, v) => setLeadDrafts((d) => ({ ...d, [k]: v }))
+
+  const renderBody = (key) => {
+    if (key === 'profile') {
+      if (prefsLoading) return <p className="set-soon">טוען…</p>
+      return <ProfileBody prefs={prefs} onUpdate={updatePrefs} />
+    }
+    if (key === 'payments') {
+      if (prefsLoading) return <p className="set-soon">טוען…</p>
+      return <PaymentsBody prefs={prefs} onUpdate={updatePrefs} />
+    }
+    if (key === 'design') {
+      if (prefsLoading) return <p className="set-soon">טוען…</p>
+      return <DesignBody prefs={prefs} onUpdate={updatePrefs} />
+    }
+    if (key === 'about') {
+      return <AboutBody />
+    }
+    if (key === 'widgets') {
+      if (prefsLoading) return <p className="set-soon">טוען…</p>
+      return <WidgetsBody prefs={prefs} onUpdate={updatePrefs} />
+    }
+    if (key === 'goals') {
+      return (
+        <div className="set-profile-body">
+          <p className="set-shortcut-hint">קטגוריות המדידה מנוהלות במסך היעדים — שם רואים את התרומה של כל קטגוריה לציון הירח.</p>
+          <button type="button" className="set-shortcut-btn" onClick={() => navigate(ROUTES.GOALS)}>
+            לניהול קטגוריות
+            <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
+          </button>
+        </div>
+      )
+    }
+    if (key === 'questions') {
+      return (
+        <div className="set-q">
+          {questions.length === 0 ? (
+            <p className="set-q-empty">עדיין אין שאלות יומיות. הוסף/י את הראשונה.</p>
+          ) : (
+            questions.map((q) => (
+              <div key={q.id} className={`set-q-row${q.active ? '' : ' off'}`}>
+                <span className="set-q-icon">{q.icon || '🫧'}</span>
+                <span className="set-q-text">{questionText(q)}</span>
+                <button
+                  type="button"
+                  className={`set-q-toggle${q.active ? ' on' : ''}`}
+                  onClick={() => toggleActive(q)}
+                  aria-pressed={q.active}
+                >{q.active ? 'פעילה' : 'כבויה'}</button>
+                <button type="button" className="set-q-del" onClick={() => removeQuestion(q.id)} aria-label="מחיקת שאלה">
+                  <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
+                </button>
+              </div>
+            ))
+          )}
+          <button type="button" className="set-q-add" onClick={() => setShowAddQ(true)}>
+            <Plus size={15} strokeWidth={1.8} aria-hidden="true" /> הוסף שאלה
+          </button>
+        </div>
+      )
+    }
+    if (key === 'clients') {
+      return (
+        <StatusGroups
+          metas={CLIENT_METAS}
+          statuses={clientStatuses}
+          drafts={clientDrafts}
+          setDraft={setClientDraft}
+          onAdd={addClientStatus}
+          onRemove={(status, peers) => setPendingDelete({ kind: 'client', status, peers })}
+        />
+      )
+    }
+    if (key === 'leads') {
+      const submitNewSource = async () => {
+        const v = newSourceName.trim()
+        if (!v) return
+        try {
+          await addSource({ name: v, color: '#0e9888' })
+          setNewSourceName('')
+        } catch { /* noop */ }
+      }
+      return (
+        <div className="set-q">
+          <p className="set-sub-h">מקורות פנייה</p>
+          {sources.length === 0 ? (
+            <p className="set-sub-empty">עדיין אין מקורות. הוסף/י את הראשון.</p>
+          ) : (
+            sources.map((s) => (
+              <div key={s.id} className="set-q-row">
+                <span className="set-q-icon" style={{ color: s.color }}>●</span>
+                <span className="set-q-text">{s.name}</span>
+                <button type="button" className="set-q-del" onClick={() => removeSource(s.id)} aria-label="מחיקת מקור">
+                  <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
+                </button>
+              </div>
+            ))
+          )}
+          <div className="set-sub-add">
+            <input
+              className="m-input"
+              value={newSourceName}
+              onChange={(e) => setNewSourceName(e.target.value)}
+              placeholder="שם מקור חדש"
+              onKeyDown={(e) => { if (e.key === 'Enter') submitNewSource() }}
+            />
+            <button type="button" className="set-q-add" onClick={submitNewSource} disabled={!newSourceName.trim()}>
+              <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+          </div>
+
+          <p className="set-sub-h" style={{ marginTop: 14 }}>תתי-סטטוסים</p>
+          <StatusGroups
+            metas={LEAD_METAS}
+            statuses={leadStatuses}
+            drafts={leadDrafts}
+            setDraft={setLeadDraft}
+            onAdd={addLeadStatus}
+            onRemove={(status, peers) => setPendingDelete({ kind: 'lead', status, peers })}
+          />
+        </div>
+      )
+    }
+    return <p className="set-soon">ההגדרות יתווספו בהמשך.</p>
+  }
+
+  return (
+    <div className="screen">
+      <div className="screen-top">
+        <header className="screen-head">
+          <div>
+            <div className="screen-head-meta">
+              <p className="lbl">{SECTIONS.length} אזורים</p>
+              <span className="lbl dot">·</span>
+              <p className="lbl">התאמה אישית</p>
+            </div>
+            <p className="lbl-sm">ברירות מחדל טובות, גמישות מלאה.</p>
+          </div>
+          <p className="t-screen">הגדרות</p>
+        </header>
+      </div>
+
+      <div className="set-list">
+        {SECTIONS.map((s) => {
+          const Icon = s.icon
+          const isOpen = open === s.key
+          return (
+            <div key={s.key} className={`set-acc${isOpen ? ' open' : ''}`}>
+              <button type="button" className="set-acc-head" onClick={() => toggle(s.key)} aria-expanded={isOpen}>
+                <span className="set-acc-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></span>
+                <span className="set-acc-text">
+                  <span className="set-acc-title">{s.title}</span>
+                  <span className="set-acc-sub">{s.sub}</span>
+                </span>
+                <ChevronDown size={18} strokeWidth={1.6} className="set-acc-chev" aria-hidden="true" />
+              </button>
+              {isOpen && <div className="set-acc-body">{renderBody(s.key)}</div>}
+            </div>
+          )
+        })}
+      </div>
+
+      <AddQuestionModal
+        open={showAddQ}
+        onClose={() => setShowAddQ(false)}
+        nextOrder={questions.length}
+        onSave={addQuestion}
+      />
+
+      <DeleteSubStatusModal
+        key={pendingDelete?.status?.id || 'none'}
+        open={!!pendingDelete}
+        onClose={() => setPendingDelete(null)}
+        status={pendingDelete?.status}
+        peers={pendingDelete?.peers || []}
+        onCount={pendingDelete?.kind === 'lead' ? countLeadsByStatus : countClientsByStatus}
+        onReassign={pendingDelete?.kind === 'lead' ? reassignLeadsStatus : reassignClientsStatus}
+        onDelete={pendingDelete?.kind === 'lead' ? removeLeadStatus : removeClientStatus}
+      />
+    </div>
+  )
+}

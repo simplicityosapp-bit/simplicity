@@ -1,0 +1,237 @@
+/* ════════════════════════════════════════════════════════════════
+   SHARED SCREEN PRIMITIVES — reused across screens.
+   ════════════════════════════════════════════════════════════════
+   Ported from the prototype (.t-screen, .lbl, .s-hero, .cta-add,
+   .mg-toggle, .empty, .anim). Screen-specific styles live next to
+   each screen component.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Screen top row ────────────────────────────────────────────── */
+/* Wraps the screen header card together with the circular add CTA.
+   Flex row: header takes ~62% on the RTL start (right) edge; CTA
+   sits centered in the remaining inline space on the other side. */
+.screen-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 16px;
+}
+
+/* ── Screen header ─────────────────────────────────────────────── */
+/* Glass card matching the rest of the screen's chrome. Main title
+   (.t-screen) pins to the top-right (RTL start); secondary block
+   (eyebrow + meta + tagline) stacks underneath it. column-reverse
+   lets us keep the JSX order intact (secondary first, title last)
+   while painting the title on top. */
+.screen-head {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;        /* RTL: flush against the start edge */
+  gap: 6px;
+  flex: 0 0 62%;
+  max-width: 280px;
+  padding: 16px 18px 14px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+.screen-head-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  color: var(--stone);
+}
+.screen-head-eyebrow p {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--t2);
+}
+.screen-head-mark {
+  display: inline-flex;
+  color: var(--stone);
+  opacity: 0.75;
+}
+.screen-head-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.screen-head-meta .dot {
+  opacity: 0.4;
+}
+
+.t-screen {
+  margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--t1);
+}
+.lbl {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--t3);
+  text-transform: uppercase;
+}
+.lbl-sm {
+  margin: 4px 0 0;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--t2);
+}
+
+/* ── Primary CTA (Mångata terracotta) ──────────────────────────── */
+/* Circular FAB-style button that sits centered in the empty half
+   of the screen-top row. Original per-screen label text is hidden
+   via font-size:0; the visible "+" is drawn through ::before so we
+   keep the accessible label intact for screen readers.
+   The "+" glyph itself is painted with a linear gradient through
+   the four non-terracotta brand colors (blush → sage → amber → clay),
+   echoing the per-widget halo palette. */
+.cta-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  margin: 0 auto;                     /* center inside its flex slot */
+  font-size: 0;                       /* hide the per-screen text */
+  background: var(--terracotta);
+  color: var(--terracotta);           /* fallback if gradient unsupported */
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: var(--mg-card-shadow);
+  transition: background 0.18s, transform 0.12s;
+  overflow: hidden;
+}
+.cta-add::before {
+  content: '+';
+  font-family: 'Assistant', sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 0.85;                  /* tighten so the glyph centers */
+  background: linear-gradient(
+    135deg,
+    var(--blush)      0%,
+    var(--sage)      35%,
+    var(--amber-warn) 65%,
+    var(--clay)     100%
+  );
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+}
+.cta-add:hover {
+  background: var(--mg-btn-primary-bg-hover);
+}
+.cta-add:active {
+  transform: scale(0.93);
+}
+/* Dark mode keeps the same gradient — the four colors stay legible
+   against terracotta in both themes. */
+
+/* ── Summary hero panel ────────────────────────────────────────── */
+.s-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--rl);
+  padding: 16px 20px;
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+}
+
+/* ── Monthly / cumulative toggle ───────────────────────────────── */
+.mg-toggle {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  border: 0.5px solid var(--moon-faint);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+[data-theme="dark"] .mg-toggle {
+  background: rgba(220, 230, 255, 0.06);
+}
+.mg-toggle-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone);
+  transition: background 0.15s, color 0.15s;
+}
+.mg-toggle-btn.on {
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--moon-deep);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+[data-theme="dark"] .mg-toggle-btn.on {
+  background: rgba(220, 230, 255, 0.18);
+  color: var(--moon-hi);
+}
+
+/* ── Empty state ───────────────────────────────────────────────── */
+/* Wrap the message in a soft glass card so it stays readable over
+   any nature image. Previously it was bare text with opacity:.6,
+   which disappeared on busy backgrounds. */
+.empty {
+  text-align: center;
+  padding: 32px 22px;
+  margin: 20px auto;
+  max-width: 320px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+.empty-icon {
+  display: inline-flex;
+  margin-bottom: 12px;
+  color: var(--stone);
+  opacity: 0.7;
+}
+.empty-text {
+  margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--espresso);
+}
+
+/* ── Entry animation ───────────────────────────────────────────── */
+@keyframes mgFadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim {
+  animation: mgFadeUp 0.35s ease forwards;
+  opacity: 0;
+}

@@ -1,0 +1,49 @@
+/* ════════════════════════════════════════════════════════════════
+   LEADS — kanban bucketing + helpers (ported from leads.js / core.js).
+   ════════════════════════════════════════════════════════════════
+   4 fixed meta columns (D24). Sub-status + source come from their tables.
+   ════════════════════════════════════════════════════════════════ */
+
+import { leads, lead_sources, lead_statuses } from '../data/mock'
+
+const live = (a) => (a || []).filter((r) => !r.deleted_at)
+
+export const LEAD_META = [
+  { key: 'in_process', title: 'בתהליך' },
+  { key: 'converted', title: 'הומרו' },
+  { key: 'not_relevant', title: 'לא רלוונטי' },
+  { key: 'ghost', title: 'רפאים' },
+]
+
+export const statusMetaOfLead = (l) => l.status_meta || 'in_process'
+export const sourceOf = (id) => lead_sources.find((s) => s.id === id)
+export const subStatusOf = (id) => lead_statuses.find((s) => s.id === id)
+
+/* Column accent = the default sub-status colour for that meta. */
+export function metaColor(key) {
+  const def = lead_statuses.find((s) => s.meta_category === key && s.is_default)
+  return def?.color || 'var(--stone)'
+}
+
+export function leadsByMeta() {
+  const all = live(leads)
+  const out = {}
+  LEAD_META.forEach((m) => {
+    out[m.key] = all.filter((l) => statusMetaOfLead(l) === m.key)
+  })
+  return out
+}
+
+export function leadStats(now = new Date()) {
+  const all = live(leads)
+  const inMonth = (d) => {
+    if (!d) return false
+    const x = new Date(d)
+    return x.getFullYear() === now.getFullYear() && x.getMonth() === now.getMonth()
+  }
+  const newThisMonth = all.filter((l) => (l.inquiry_date ? inMonth(l.inquiry_date) : inMonth(l.created_at)))
+  const convertedThisMonth = all.filter((l) => l.converted_at && inMonth(l.converted_at)).length
+  const cohortConverted = newThisMonth.filter((l) => !!l.converted_at).length
+  const convRate = newThisMonth.length ? Math.round((cohortConverted / newThisMonth.length) * 100) : null
+  return { newThisMonth: newThisMonth.length, convertedThisMonth, convRate }
+}

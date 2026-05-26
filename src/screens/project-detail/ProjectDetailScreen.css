@@ -20,6 +20,8 @@
   border-radius: 50%;
   border: none;
   background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   color: var(--stone);
   cursor: pointer;
   flex-shrink: 0;

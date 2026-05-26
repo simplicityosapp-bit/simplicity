@@ -82,6 +82,8 @@
   justify-content: center;
   text-align: center;
   background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .mg-ring::before {
   content: '';
@@ -260,6 +262,8 @@
   border-radius: var(--mg-btn-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   cursor: pointer;
   font-family: var(--mg-font);
   font-size: 13px;

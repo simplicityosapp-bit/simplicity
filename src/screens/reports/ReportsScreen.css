@@ -61,6 +61,8 @@
   display: inline-flex;
   border-radius: 999px;
   background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   border: var(--mg-card-border);
   padding: 3px;
   gap: 2px;
@@ -96,6 +98,8 @@
   height: 34px;
   border-radius: 999px;
   background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   border: var(--mg-card-border);
   color: var(--stone);
   cursor: pointer;
@@ -315,6 +319,8 @@
   border-radius: 999px;
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: 12px;
   font-weight: 500;
@@ -470,6 +476,8 @@
   border-radius: 999px;
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: 12px;
   font-weight: 600;

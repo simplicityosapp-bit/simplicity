@@ -173,6 +173,8 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .cd-stat {
   text-align: center;
@@ -220,6 +222,8 @@
   border-radius: var(--mg-btn-radius);
   border: 0.5px solid rgba(42, 37, 32, 0.12);
   background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   cursor: pointer;
   font-family: var(--mg-font);
   font-size: 13px;
@@ -245,6 +249,8 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   overflow: hidden;
 }
 .cd-sec-head {

@@ -227,6 +227,8 @@
   gap: 4px;
   padding: 3px;
   background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   border: var(--mg-card-border);
   border-radius: 999px;
 }

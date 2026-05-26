@@ -215,5 +215,11 @@ button {
     height: 100dvh;
     padding: 0 var(--mg-page-pad) 24px;
     overflow-y: auto;
+    /* Override mobile's `background-attachment: fixed`. On desktop the
+       screen is a scroll container; `fixed` attaches the background to
+       the viewport, which on Chromium breaks `backdrop-filter` inside.
+       Using `local` keeps the image painted *inside* the screen box so
+       cards can blur it properly. */
+    background-attachment: local;
   }
 }

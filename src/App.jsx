@@ -89,9 +89,23 @@ function AuthGate() {
   )
 }
 
+/* When the user returns from an OAuth provider (e.g. Google), the URL
+   carries the auth code/token. If we render <AuthGate/> and let the
+   router redirect "/" → "/login", the redirect strips the query string
+   before the Supabase client can exchange the code for a session —
+   producing an infinite login loop. While that exchange is in flight,
+   show the splash. */
+function urlHasOAuthCallback() {
+  if (typeof window === 'undefined') return false
+  return (
+    window.location.search.includes('code=') ||
+    window.location.hash.includes('access_token=')
+  )
+}
+
 function Root() {
   const { session, loading } = useAuth()
-  if (loading) {
+  if (loading || (!session && urlHasOAuthCallback())) {
     return (
       <div className="auth-splash">
         <span className="auth-splash-dot" />

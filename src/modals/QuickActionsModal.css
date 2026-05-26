@@ -1,0 +1,60 @@
+/* ════════════════════════════════════════════════════════════════
+   QUICK ACTIONS MODAL — 4×2 grid of "add X" tiles. Each tile is a
+   soft glass square with an icon + label. Tap a tile, this sheet
+   closes and the parent opens the matching Add* modal.
+   ════════════════════════════════════════════════════════════════ */
+
+.qa-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 4px 0 8px;
+}
+
+.qa-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 8px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+.qa-tile:hover {
+  background: var(--mg-row-hover-bg);
+}
+.qa-tile:active {
+  transform: scale(0.96);
+}
+
+.qa-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--terracotta) 14%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--terracotta) 28%, transparent);
+  color: var(--terracotta);
+}
+
+.qa-label {
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--espresso);
+}
+
+/* Phones with very narrow screens — let labels breathe. */
+@media (max-width: 360px) {
+  .qa-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

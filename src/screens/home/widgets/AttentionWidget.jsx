@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft } from 'lucide-react'
 import { attentionItems } from '../../../lib/homeData'
+import InfoPopover from '../../../components/InfoPopover'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
 import { useClients } from '../../../hooks/useClients'
@@ -35,6 +36,10 @@ export default function AttentionWidget() {
       <div className="h-card-head">
         <span className="h-card-title">
           <Bell size={20} strokeWidth={1.5} aria-hidden="true" /> דרושה תשומת לב
+          <InfoPopover
+            label="הסבר דרושה תשומת לב"
+            text="פריטים שדורשים פעולה: תנועות ממתינות לאישור, פגישות שעדיין לא סומנו, לקוחות שלא טופלו 45 ימים, ויעדים מתחת לקצב."
+          />
         </span>
         <span className="h-card-count">{items.length} {items.length === 1 ? 'פריט' : 'פריטים'}</span>
       </div>

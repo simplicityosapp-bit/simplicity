@@ -5,6 +5,7 @@ import { ROUTES } from '../../../lib/routes'
 import { questionText } from '../../../lib/questionTemplates'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
+import InfoPopover from '../../../components/InfoPopover'
 
 const dayStr = (offset = 0) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10)
 
@@ -107,6 +108,10 @@ export default function InsightsWidget() {
       {collapseBtn}
       <p className="ins-q">
         <Sparkles size={16} strokeWidth={1.6} aria-hidden="true" /> {text}
+        <InfoPopover
+          label="הסבר שאלה יומית"
+          text="שאלה יומית עוקבת אחרי ההרגשה שלך לאורך זמן. הסולם 1–10 (10 = הכי טוב). התשובות נשמרות לכל יום ויוצרות תובנות במסך 'התובנות'."
+        />
       </p>
 
       {q.scale_type === 'yes_no' ? (

@@ -1,15 +1,27 @@
-import { Trash2, User, FolderOpen, CheckSquare, UserPlus, Banknote, CalendarDays } from 'lucide-react'
+import {
+  Trash2, User, FolderOpen, Users, CheckSquare, UserPlus, Tag,
+  Banknote, CalendarDays, Bell, Target, LayoutGrid, BarChart3,
+  HelpCircle, MessageCircle,
+} from 'lucide-react'
 import { useTrash, TRASH_ENTITY_TYPES } from '../../hooks/useTrash'
 import TrashItem from './TrashItem'
 import './TrashScreen.css'
 
 const ENTITY_META = {
-  clients:      { label: 'לקוחות',   icon: User },
-  projects:     { label: 'פרויקטים', icon: FolderOpen },
-  tasks:        { label: 'משימות',   icon: CheckSquare },
-  leads:        { label: 'לידים',    icon: UserPlus },
-  transactions: { label: 'תנועות',   icon: Banknote },
-  sessions:     { label: 'פגישות',   icon: CalendarDays },
+  clients:        { label: 'לקוחות',          icon: User },
+  projects:       { label: 'פרויקטים',        icon: FolderOpen },
+  groups:         { label: 'קבוצות',          icon: Users },
+  tasks:          { label: 'משימות',          icon: CheckSquare },
+  leads:          { label: 'לידים',           icon: UserPlus },
+  leadSources:    { label: 'מקורות לידים',    icon: Tag },
+  transactions:   { label: 'תנועות',          icon: Banknote },
+  sessions:       { label: 'פגישות',          icon: CalendarDays },
+  reminders:      { label: 'תזכורות',         icon: Bell },
+  goals:          { label: 'יעדים',           icon: Target },
+  goalCategories: { label: 'קטגוריות יעדים',  icon: LayoutGrid },
+  goalEntries:    { label: 'הזנות יעדים',     icon: BarChart3 },
+  userQuestions:  { label: 'שאלות יומיות',    icon: HelpCircle },
+  dailyAnswers:   { label: 'תשובות יומיות',   icon: MessageCircle },
 }
 
 export default function TrashScreen() {

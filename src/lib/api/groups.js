@@ -44,3 +44,27 @@ export async function removeGroup(id) {
   const { error } = await supabase.from('groups').update({ deleted_at: new Date().toISOString() }).eq('id', id)
   if (error) throw error
 }
+
+export async function listDeletedGroups() {
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const { data, error } = await supabase
+    .from('groups')
+    .select('*')
+    .not('deleted_at', 'is', null)
+    .gte('deleted_at', thirtyDaysAgo.toISOString())
+    .order('deleted_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function restoreGroup(id) {
+  const { data, error } = await supabase
+    .from('groups')
+    .update({ deleted_at: null })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}

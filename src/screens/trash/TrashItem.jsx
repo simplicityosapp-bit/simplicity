@@ -10,10 +10,27 @@ function primaryLabel(entityType, row) {
   switch (entityType) {
     case 'clients':
     case 'projects':
+    case 'groups':
     case 'leads':
+    case 'leadSources':
+    case 'goalCategories':
       return row.name || '—'
     case 'tasks':
       return row.title || '—'
+    case 'reminders':
+      return row.title || '—'
+    case 'goals':
+      return row.label || (row.target_value != null ? `יעד ${row.target_value}` : '—')
+    case 'goalEntries': {
+      const v = row.value ?? '—'
+      return row.date ? `${v} · ${fmtShortDate(row.date)}` : `${v}`
+    }
+    case 'userQuestions':
+      return row.custom_text || row.template_key || '—'
+    case 'dailyAnswers': {
+      const v = row.value_num ?? row.value_text ?? '—'
+      return row.date ? `${fmtShortDate(row.date)} · ${v}` : `${v}`
+    }
     case 'transactions': {
       if (row.desc) return row.desc
       const sign = row.type === 'expense' ? '−' : '+'

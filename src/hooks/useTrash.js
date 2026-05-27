@@ -1,34 +1,75 @@
 import { useCallback, useEffect, useState } from 'react'
 import { listDeletedClients, restoreClient } from '../lib/api/clients'
 import { listDeletedProjects, restoreProject } from '../lib/api/projects'
+import { listDeletedGroups, restoreGroup } from '../lib/api/groups'
 import { listDeletedTasks, restoreTask } from '../lib/api/tasks'
 import { listDeletedLeads, restoreLead } from '../lib/api/leads'
+import { listDeletedLeadSources, restoreLeadSource } from '../lib/api/leadSources'
 import { listDeletedTransactions, restoreTransaction } from '../lib/api/transactions'
 import { listDeletedSessions, restoreSession } from '../lib/api/sessions'
+import { listDeletedReminders, restoreReminder } from '../lib/api/reminders'
+import { listDeletedGoals, restoreGoal } from '../lib/api/goals'
+import { listDeletedGoalCategories, restoreGoalCategory } from '../lib/api/goalCategories'
+import { listDeletedGoalEntries, restoreGoalEntry } from '../lib/api/goalEntries'
+import { listDeletedUserQuestions, restoreUserQuestion } from '../lib/api/userQuestions'
+import { listDeletedDailyAnswers, restoreDailyAnswer } from '../lib/api/dailyAnswers'
 
-/* Entity types covered by the v1 trash pilot. Add new keys here when
-   we expand to the remaining soft-delete entities (recurring,
-   categories, goals, etc.). Order is the display order on the screen. */
-export const TRASH_ENTITY_TYPES = ['clients', 'projects', 'tasks', 'leads', 'transactions', 'sessions']
+/* Entity types covered by the trash drawer. Order is the display
+   order on the screen. group_members is intentionally excluded
+   (relation table, restored via its parent). The 4 entities without
+   React adapters yet — recurring, categories, sessionAttachments,
+   clientNotes — will be added when those entity flows are built. */
+export const TRASH_ENTITY_TYPES = [
+  'clients',
+  'projects',
+  'groups',
+  'tasks',
+  'leads',
+  'leadSources',
+  'transactions',
+  'sessions',
+  'reminders',
+  'goals',
+  'goalCategories',
+  'goalEntries',
+  'userQuestions',
+  'dailyAnswers',
+]
 
 const EMPTY = Object.fromEntries(TRASH_ENTITY_TYPES.map((k) => [k, []]))
 
 const LISTERS = {
   clients: listDeletedClients,
   projects: listDeletedProjects,
+  groups: listDeletedGroups,
   tasks: listDeletedTasks,
   leads: listDeletedLeads,
+  leadSources: listDeletedLeadSources,
   transactions: listDeletedTransactions,
   sessions: listDeletedSessions,
+  reminders: listDeletedReminders,
+  goals: listDeletedGoals,
+  goalCategories: listDeletedGoalCategories,
+  goalEntries: listDeletedGoalEntries,
+  userQuestions: listDeletedUserQuestions,
+  dailyAnswers: listDeletedDailyAnswers,
 }
 
 const RESTORERS = {
   clients: restoreClient,
   projects: restoreProject,
+  groups: restoreGroup,
   tasks: restoreTask,
   leads: restoreLead,
+  leadSources: restoreLeadSource,
   transactions: restoreTransaction,
   sessions: restoreSession,
+  reminders: restoreReminder,
+  goals: restoreGoal,
+  goalCategories: restoreGoalCategory,
+  goalEntries: restoreGoalEntry,
+  userQuestions: restoreUserQuestion,
+  dailyAnswers: restoreDailyAnswer,
 }
 
 /* Loads deleted-but-recoverable rows from every entity in parallel,

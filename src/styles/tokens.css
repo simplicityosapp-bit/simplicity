@@ -96,6 +96,7 @@
   --bg-leads:#f6f4fa;
   --bg-goals:#f0f8f6;
   --bg-insights:#f6f3fc;
+  --bg-trash:#f6f4f1;
   /* Accents — same in both modes */
   /* Accent tokens — LIGHT (dim alpha bumped 07.05.26 polish: .5→.7 for legible colored text) */
   --gold:#c8a84e; --gold-hi:#e8c870;
@@ -165,6 +166,7 @@
   --bg-leads:#070612;
   --bg-goals:#040d0c;
   --bg-insights:#0a0618;
+  --bg-trash:#0d0a06;
   --gold-dim:rgba(200,168,78,.5); --gold-faint:rgba(200,168,78,.1); --gold-glass:rgba(200,168,78,.05);
   --mint:#00dc82; --mint-dim:rgba(0,220,130,.45); --mint-faint:rgba(0,220,130,.09); --mint-glass:rgba(0,220,130,.04);
   --green-hi:#6ab88a;

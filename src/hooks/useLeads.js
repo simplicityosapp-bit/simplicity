@@ -39,8 +39,8 @@ export function useLeads() {
     return row
   }, [])
 
-  const updateLead = useCallback(async (id, patch) => {
-    const row = await apiUpdateLead(id, patch)
+  const updateLead = useCallback(async (id, patch, opts) => {
+    const row = await apiUpdateLead(id, patch, opts)
     setLeads((prev) => prev.map((l) => (l.id === id ? row : l)))
     return row
   }, [])

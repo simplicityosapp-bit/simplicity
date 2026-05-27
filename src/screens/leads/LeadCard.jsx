@@ -1,8 +1,8 @@
-import { Clock, Check, CalendarDays } from 'lucide-react'
+import { Clock, Check, CalendarDays, ArrowLeft } from 'lucide-react'
 import { statusMetaOfLead } from '../../lib/leads'
 import { fmtShortDate } from '../../lib/dates'
 
-export default function LeadCard({ lead, onEdit, sources = [], statuses = [] }) {
+export default function LeadCard({ lead, onEdit, onConvert, sources = [], statuses = [] }) {
   const meta = statusMetaOfLead(lead)
   const source = lead.source_id ? sources.find((s) => s.id === lead.source_id) : null
   const sub = lead.status_id ? statuses.find((s) => s.id === lead.status_id) : null
@@ -11,7 +11,17 @@ export default function LeadCard({ lead, onEdit, sources = [], statuses = [] }) 
   const isConverted = meta === 'converted' && lead.converted_to_client_id
 
   return (
-    <div className="lead-card" role={onEdit ? 'button' : undefined} tabIndex={onEdit ? 0 : undefined} onClick={() => onEdit?.(lead)}>
+    <div
+      className="lead-card"
+      role={onEdit ? 'button' : undefined}
+      tabIndex={onEdit ? 0 : undefined}
+      onClick={() => onEdit?.(lead)}
+      draggable={!!onEdit}
+      onDragStart={(e) => {
+        e.dataTransfer.setData('text/lead-id', lead.id)
+        e.dataTransfer.effectAllowed = 'move'
+      }}
+    >
       <p className="lead-card-name">{lead.name}</p>
 
       {sub && (
@@ -44,6 +54,16 @@ export default function LeadCard({ lead, onEdit, sources = [], statuses = [] }) 
         <div className="lead-converted">
           <Check size={12} strokeWidth={2} aria-hidden="true" /> הומר ללקוח
         </div>
+      )}
+
+      {!isConverted && onConvert && (
+        <button
+          type="button"
+          className="lead-convert-btn"
+          onClick={(e) => { e.stopPropagation(); onConvert(lead) }}
+        >
+          <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" /> המר ללקוח
+        </button>
       )}
     </div>
   )

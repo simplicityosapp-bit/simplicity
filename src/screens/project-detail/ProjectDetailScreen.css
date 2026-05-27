@@ -21,7 +21,6 @@
   border: none;
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   color: var(--stone);
   cursor: pointer;
   flex-shrink: 0;
@@ -52,7 +51,6 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .pd-stat { text-align: center; }
 .pd-stat.divided {
@@ -83,7 +81,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .gc-head { display: flex; align-items: center; gap: 8px; }
 .gc-color { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }

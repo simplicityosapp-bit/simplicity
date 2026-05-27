@@ -92,7 +92,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .tc-chk {
   width: 22px;

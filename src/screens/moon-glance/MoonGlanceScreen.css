@@ -23,7 +23,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .moon-head-title {
   display: flex;
@@ -69,7 +68,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .mg-ring {
   position: relative;
@@ -83,7 +81,6 @@
   text-align: center;
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .mg-ring::before {
   content: '';
@@ -149,7 +146,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .mg-cat-head {
   display: flex;
@@ -201,7 +197,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .mg-trend-svg {
   width: 100%;
@@ -263,7 +258,6 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   cursor: pointer;
   font-family: var(--mg-font);
   font-size: 13px;

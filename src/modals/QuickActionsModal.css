@@ -22,7 +22,6 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   cursor: pointer;
   transition: transform 0.15s, background 0.15s;
 }

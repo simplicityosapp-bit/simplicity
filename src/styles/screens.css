@@ -36,7 +36,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .screen-head-eyebrow {
   display: flex;
@@ -155,7 +154,6 @@
   background: var(--mg-card-bg);
   border: var(--mg-card-border);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   box-shadow: var(--mg-card-shadow);
 }
 
@@ -168,7 +166,6 @@
   background: rgba(255, 255, 255, 0.3);
   border: 0.5px solid var(--moon-faint);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 [data-theme="dark"] .mg-toggle {
   background: rgba(220, 230, 255, 0.06);
@@ -209,7 +206,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .empty-icon {
   display: inline-flex;

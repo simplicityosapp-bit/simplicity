@@ -23,7 +23,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .rep-head-title {
   display: flex;
@@ -62,7 +61,6 @@
   border-radius: 999px;
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   border: var(--mg-card-border);
   padding: 3px;
   gap: 2px;
@@ -99,7 +97,6 @@
   border-radius: 999px;
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   border: var(--mg-card-border);
   color: var(--stone);
   cursor: pointer;
@@ -124,7 +121,6 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .rep-cust-head {
   display: flex;
@@ -320,7 +316,6 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: 12px;
   font-weight: 500;
@@ -359,7 +354,6 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   overflow: hidden;
 }
 .rep-group-head {
@@ -431,7 +425,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .rep-empty-icon { color: var(--stone); opacity: 0.8; }
 .rep-empty-text {
@@ -477,7 +470,6 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: 12px;
   font-weight: 600;
@@ -501,7 +493,6 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   -webkit-overflow-scrolling: touch;
 }
 .rep-table-wrap::-webkit-scrollbar { height: 6px; }

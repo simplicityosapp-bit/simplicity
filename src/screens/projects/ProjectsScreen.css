@@ -63,7 +63,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }

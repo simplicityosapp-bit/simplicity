@@ -23,7 +23,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--elev-3, 0 16px 48px rgba(0, 0, 0, 0.1));
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .auth-card-msg {
   text-align: center;

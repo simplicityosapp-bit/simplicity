@@ -30,7 +30,6 @@
   transition: transform 0.32s cubic-bezier(0.32, 0.72, 0.24, 1), visibility 0s linear 0.32s;
   background: var(--modal-bg);
   backdrop-filter: var(--bl);
-  -webkit-backdrop-filter: var(--bl);
   box-shadow: -8px 0 32px rgba(0, 0, 0, 0.22);
   display: flex;
   flex-direction: column;
@@ -174,7 +173,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .cd-stat {
   text-align: center;
@@ -223,7 +221,6 @@
   border: 0.5px solid rgba(42, 37, 32, 0.12);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   cursor: pointer;
   font-family: var(--mg-font);
   font-size: 13px;
@@ -250,7 +247,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   overflow: hidden;
 }
 .cd-sec-head {

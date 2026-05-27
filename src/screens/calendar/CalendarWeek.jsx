@@ -1,0 +1,49 @@
+import { useMemo } from 'react'
+import { startOfWeek, addDays, eventsForDay, isSameDay, DAY_NAMES_SHORT } from '../../lib/calendar'
+import { fmtTime } from '../../lib/dates'
+
+/* 7 vertical strips, one per day in the week containing `date`.
+   Each strip stacks the day's events as compact chips. Tap a chip
+   to surface the event details. The current day is tinted to
+   anchor the user. */
+export default function CalendarWeek({ date, events, onSelect, weekStart = 'sunday' }) {
+  const days = useMemo(() => {
+    const s = startOfWeek(date, weekStart)
+    return Array.from({ length: 7 }, (_, i) => addDays(s, i))
+  }, [date, weekStart])
+  const today = new Date()
+
+  return (
+    <div className="cal-week">
+      {days.map((d) => {
+        const list = eventsForDay(events, d)
+        const isToday = isSameDay(d, today)
+        return (
+          <div key={d.toISOString()} className={`cal-week-col${isToday ? ' today' : ''}`}>
+            <div className="cal-week-head">
+              <span className="cal-week-dow">{DAY_NAMES_SHORT[d.getDay()]}</span>
+              <span className="cal-week-date mono">{d.getDate()}</span>
+            </div>
+            <div className="cal-week-body">
+              {list.length === 0 ? (
+                <p className="cal-week-empty">—</p>
+              ) : (
+                list.map((ev) => (
+                  <button
+                    key={`${ev.kind}-${ev.id}`}
+                    type="button"
+                    className={`cal-week-evt ${ev.kind}`}
+                    onClick={() => onSelect?.(ev)}
+                  >
+                    <span className="cal-week-evt-time mono">{fmtTime(ev.when)}</span>
+                    <span className="cal-week-evt-title">{ev.title}</span>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}

@@ -121,3 +121,452 @@
 [data-theme="dark"] .cal-tag.rem {
   background: rgba(240, 235, 224, 0.06);
 }
+
+/* ────────────────────────────────────────────────────────────────
+   CALENDAR HEADER — view toggle + prev/today/next + range label
+   ──────────────────────────────────────────────────────────────── */
+.cal-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.cal-view-toggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+}
+.cal-view-btn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--stone);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.cal-view-btn.on {
+  background: var(--espresso);
+  color: var(--bg-clients, #fff);
+}
+[data-theme="dark"] .cal-view-btn.on {
+  color: #181410;
+}
+.cal-view-btn:not(.on):hover {
+  color: var(--espresso);
+}
+.cal-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cal-nav-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--espresso);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.cal-nav-btn:hover {
+  background: rgba(42, 37, 32, 0.05);
+}
+[data-theme="dark"] .cal-nav-btn:hover {
+  background: rgba(240, 235, 224, 0.07);
+}
+.cal-nav-today {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--espresso);
+  cursor: pointer;
+}
+.cal-nav-today:hover {
+  background: rgba(42, 37, 32, 0.04);
+}
+.cal-range-label {
+  flex: 1 1 100%;
+  margin: 4px 0 0;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+
+/* Buttons in the schedule list — match the existing card styling
+   when used as <button>, no special tweaks needed beyond a reset. */
+.cal-list button.cal-item {
+  text-align: start;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   DAY VIEW — hour rows + event chips
+   ──────────────────────────────────────────────────────────────── */
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cal-day-grid {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  overflow: hidden;
+}
+.cal-day-row {
+  display: flex;
+  align-items: stretch;
+  min-height: 44px;
+  border-top: 1px solid var(--divider);
+}
+.cal-day-row:first-child {
+  border-top: none;
+}
+.cal-day-hour {
+  flex: 0 0 56px;
+  padding: 8px 10px;
+  font-family: var(--mg-font-num);
+  font-size: 11px;
+  color: var(--stone);
+  border-inline-end: 1px solid var(--divider);
+  font-variant-numeric: tabular-nums;
+}
+.cal-day-slot {
+  flex: 1;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+}
+.cal-day-empty-line {
+  height: 1px;
+}
+.cal-day-evt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 0.5px solid rgba(139, 168, 136, 0.35);
+  background: rgba(139, 168, 136, 0.10);
+  text-align: start;
+  cursor: pointer;
+  font-family: var(--mg-font);
+}
+.cal-day-evt.reminder {
+  border-color: rgba(212, 165, 116, 0.40);
+  background: rgba(212, 165, 116, 0.10);
+}
+.cal-day-evt-time {
+  font-family: var(--mg-font-num);
+  font-size: 11px;
+  color: var(--stone);
+  flex-shrink: 0;
+}
+.cal-day-evt-title {
+  flex: 1;
+  font-size: 13px;
+  color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal-day-edge {
+  padding: 10px 12px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+}
+.cal-day-edge-lbl {
+  margin: 0 0 6px;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--stone);
+  letter-spacing: 0.05em;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   WEEK VIEW — 7 day columns
+   ──────────────────────────────────────────────────────────────── */
+.cal-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+.cal-week-col {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 6px;
+  border-radius: 12px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  min-height: 140px;
+}
+.cal-week-col.today {
+  border-color: rgba(139, 168, 136, 0.45);
+  background: rgba(139, 168, 136, 0.06);
+}
+.cal-week-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--divider);
+}
+.cal-week-dow {
+  font-family: var(--mg-font);
+  font-size: 10px;
+  color: var(--stone);
+  letter-spacing: 0.05em;
+}
+.cal-week-date {
+  font-family: var(--mg-font-num);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+.cal-week-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 6px;
+}
+.cal-week-empty {
+  margin: 0;
+  text-align: center;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--stone);
+  opacity: 0.5;
+}
+.cal-week-evt {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 5px 6px;
+  border-radius: 7px;
+  border: 0.5px solid rgba(139, 168, 136, 0.32);
+  background: rgba(139, 168, 136, 0.08);
+  text-align: start;
+  cursor: pointer;
+  min-width: 0;
+}
+.cal-week-evt.reminder {
+  border-color: rgba(212, 165, 116, 0.35);
+  background: rgba(212, 165, 116, 0.08);
+}
+.cal-week-evt-time {
+  font-family: var(--mg-font-num);
+  font-size: 9.5px;
+  color: var(--stone);
+}
+.cal-week-evt-title {
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   MONTH VIEW — 6-week grid with event dots
+   ──────────────────────────────────────────────────────────────── */
+.cal-month {
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  padding: 10px;
+}
+.cal-month-dow-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  padding: 0 0 6px;
+  border-bottom: 1px solid var(--divider);
+}
+.cal-month-dow {
+  text-align: center;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.05em;
+}
+.cal-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-auto-rows: minmax(56px, 1fr);
+  gap: 2px;
+  margin-top: 4px;
+}
+.cal-month-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px 5px;
+  border-radius: 8px;
+  border: 0.5px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.cal-month-cell:hover {
+  background: rgba(42, 37, 32, 0.04);
+  border-color: var(--divider);
+}
+[data-theme="dark"] .cal-month-cell:hover {
+  background: rgba(240, 235, 224, 0.05);
+}
+.cal-month-cell.dim {
+  opacity: 0.35;
+}
+.cal-month-cell.today {
+  background: rgba(139, 168, 136, 0.10);
+  border-color: rgba(139, 168, 136, 0.45);
+}
+.cal-month-num {
+  font-family: var(--mg-font-num);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+.cal-month-dots {
+  display: inline-flex;
+  gap: 2px;
+  margin-top: 2px;
+  align-items: center;
+}
+.cal-month-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+.cal-month-dot.meeting {
+  background: var(--sage);
+}
+.cal-month-dot.reminder {
+  background: var(--amber-warn);
+}
+.cal-month-more {
+  font-family: var(--mg-font-num);
+  font-size: 9px;
+  color: var(--stone);
+  margin-inline-start: 2px;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   EVENT DETAILS MODAL
+   ──────────────────────────────────────────────────────────────── */
+.evt-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.evt-detail-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.evt-detail-icon.meeting {
+  background: rgba(139, 168, 136, 0.16);
+  color: var(--sage);
+}
+.evt-detail-icon.reminder {
+  background: rgba(212, 165, 116, 0.18);
+  color: var(--amber-warn);
+}
+.evt-detail-text {
+  flex: 1;
+  min-width: 0;
+}
+.evt-detail-title {
+  margin: 0 0 2px;
+  font-family: var(--mg-font);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.evt-detail-when {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--stone);
+}
+.evt-detail-row {
+  margin: 12px 0 4px;
+}
+.evt-detail-question {
+  margin: 0 0 8px;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  color: var(--espresso);
+}
+.evt-detail-actions {
+  display: flex;
+  gap: 8px;
+}
+.evt-detail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 0.5px solid transparent;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.evt-detail-btn.approve {
+  color: var(--sage);
+  background: rgba(139, 168, 136, 0.12);
+  border-color: rgba(139, 168, 136, 0.32);
+}
+.evt-detail-btn.skip {
+  color: var(--stone);
+  background: rgba(120, 120, 120, 0.1);
+  border-color: rgba(120, 120, 120, 0.28);
+}
+.evt-detail-status {
+  margin: 12px 0;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  color: var(--stone);
+}
+.evt-detail-status.sage {
+  color: var(--sage);
+}

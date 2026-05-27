@@ -158,9 +158,13 @@ function nextReminderOccurrence(r, start) {
   if (r.recurrence_type === 'every_x_days') return nextEveryXDaysOccurrence(r, start)
   return new Date(r.scheduled_at)
 }
-export function remindersUpcoming(now = new Date(), remindersData = mockReminders) {
+/* Surface the next occurrence of each pending/triggered reminder in
+   the lookahead window. Default window matches the home widget (60
+   days / top 5) so existing callers don't change behaviour; the
+   calendar passes wider params to cover its grid views. */
+export function remindersUpcoming(now = new Date(), remindersData = mockReminders, daysAhead = 60, limit = 5) {
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
-  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 60, 23, 59, 59)
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead, 23, 59, 59)
   const out = []
   live(remindersData).forEach((r) => {
     if (!['pending', 'triggered'].includes(r.status)) return
@@ -169,7 +173,7 @@ export function remindersUpcoming(now = new Date(), remindersData = mockReminder
     if (occ && occ >= start && occ <= end) out.push({ id: r.id, title: r.title, when: occ })
   })
   out.sort((a, b) => a.when - b.when)
-  return out.slice(0, 5)
+  return limit ? out.slice(0, limit) : out
 }
 
 /* ── Next tasks (open, by priority) ────────────────────────────── */

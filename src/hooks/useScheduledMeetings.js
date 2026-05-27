@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { listScheduledMeetings, insertScheduledMeeting, removeScheduledMeeting as apiRemove } from '../lib/api/scheduledMeetings'
+import {
+  listScheduledMeetings, insertScheduledMeeting,
+  updateScheduledMeeting as apiUpdate,
+  removeScheduledMeeting as apiRemove,
+} from '../lib/api/scheduledMeetings'
 
 export function useScheduledMeetings() {
   const [meetings, setMeetings] = useState([])
@@ -39,10 +43,24 @@ export function useScheduledMeetings() {
     return row
   }, [])
 
+  const updateMeeting = useCallback(async (id, patch) => {
+    /* Optimistic — confirm/skip should feel instant. */
+    setMeetings((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)))
+    try {
+      const row = await apiUpdate(id, patch)
+      setMeetings((prev) => prev.map((m) => (m.id === id ? row : m)))
+      return row
+    } catch (e) {
+      setError(e.message)
+      refetch()
+      throw e
+    }
+  }, [refetch])
+
   const removeMeeting = useCallback(async (id) => {
     setMeetings((prev) => prev.filter((m) => m.id !== id))
     try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
   }, [refetch])
 
-  return { meetings, loading, error, addMeeting, removeMeeting, refetch }
+  return { meetings, loading, error, addMeeting, updateMeeting, removeMeeting, refetch }
 }

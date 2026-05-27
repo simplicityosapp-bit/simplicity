@@ -6,7 +6,9 @@ import { listDeletedTasks, restoreTask } from '../lib/api/tasks'
 import { listDeletedLeads, restoreLead } from '../lib/api/leads'
 import { listDeletedLeadSources, restoreLeadSource } from '../lib/api/leadSources'
 import { listDeletedTransactions, restoreTransaction } from '../lib/api/transactions'
+import { listDeletedCategories, restoreCategory } from '../lib/api/categories'
 import { listDeletedSessions, restoreSession } from '../lib/api/sessions'
+import { listDeletedRecurring, restoreRecurring } from '../lib/api/recurring'
 import { listDeletedReminders, restoreReminder } from '../lib/api/reminders'
 import { listDeletedGoals, restoreGoal } from '../lib/api/goals'
 import { listDeletedGoalCategories, restoreGoalCategory } from '../lib/api/goalCategories'
@@ -27,6 +29,8 @@ export const TRASH_ENTITY_TYPES = [
   'leads',
   'leadSources',
   'transactions',
+  'categories',
+  'recurring',
   'sessions',
   'reminders',
   'goals',
@@ -46,6 +50,8 @@ const LISTERS = {
   leads: listDeletedLeads,
   leadSources: listDeletedLeadSources,
   transactions: listDeletedTransactions,
+  categories: listDeletedCategories,
+  recurring: listDeletedRecurring,
   sessions: listDeletedSessions,
   reminders: listDeletedReminders,
   goals: listDeletedGoals,
@@ -63,6 +69,8 @@ const RESTORERS = {
   leads: restoreLead,
   leadSources: restoreLeadSource,
   transactions: restoreTransaction,
+  categories: restoreCategory,
+  recurring: restoreRecurring,
   sessions: restoreSession,
   reminders: restoreReminder,
   goals: restoreGoal,

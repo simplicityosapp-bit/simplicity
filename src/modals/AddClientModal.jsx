@@ -7,7 +7,15 @@ const STATUSES = [
   { k: 'past', l: 'לשעבר' },
   { k: 'no_status', l: 'ללא' },
 ]
-const blank = () => ({ name: '', status: 'active', status_id: '', sessions: '', price_per_session: '', phone: '', project_id: '' })
+const DAYS = [
+  { k: 0, l: 'ראשון' }, { k: 1, l: 'שני' }, { k: 2, l: 'שלישי' },
+  { k: 3, l: 'רביעי' }, { k: 4, l: 'חמישי' }, { k: 5, l: 'שישי' }, { k: 6, l: 'שבת' },
+]
+const blank = () => ({
+  name: '', status: 'active', status_id: '', sessions: '', price_per_session: '',
+  phone: '', project_id: '',
+  recurring_day: '', recurring_time: '',
+})
 
 /* onSave is async (Supabase insert). Sub-status is optional — the user can
    define sub-statuses per meta-category in Settings. */
@@ -36,8 +44,8 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
         price_per_session: Number(form.price_per_session) || 0,
         total_override: null,
         has_custom_price: false,
-        recurring_day: null,
-        recurring_time: null,
+        recurring_day: form.recurring_day !== '' ? Number(form.recurring_day) : null,
+        recurring_time: form.recurring_time || null,
         left_mid_process: false,
         phone: form.phone.trim() || null,
         notes: null,
@@ -101,6 +109,19 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
             <option value="">ללא</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
+        </div>
+      </div>
+      <div className="m-row2">
+        <div className="m-field">
+          <label className="m-label">פגישה קבועה — יום</label>
+          <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}>
+            <option value="">ללא</option>
+            {DAYS.map((d) => <option key={d.k} value={d.k}>{d.l}</option>)}
+          </select>
+        </div>
+        <div className="m-field">
+          <label className="m-label">פגישה קבועה — שעה</label>
+          <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
         </div>
       </div>
 

@@ -161,6 +161,17 @@
   flex-shrink: 0;
 }
 
+/* Inline help text under a field — used for explaining linked-meeting
+   mode in the RecurringModal and similar contextual hints. */
+.m-hint {
+  margin: 6px 0 0;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--stone);
+}
+
 /* ── Pills (type / priority) ───────────────────────────────────── */
 .m-pills {
   display: flex;

@@ -1,6 +1,6 @@
 import {
   Trash2, User, FolderOpen, Users, CheckSquare, UserPlus, Tag,
-  Banknote, CalendarDays, Bell, Target, LayoutGrid, BarChart3,
+  Banknote, Repeat, CalendarDays, Bell, Target, LayoutGrid, BarChart3,
   HelpCircle, MessageCircle,
 } from 'lucide-react'
 import { useTrash, TRASH_ENTITY_TYPES } from '../../hooks/useTrash'
@@ -15,6 +15,8 @@ const ENTITY_META = {
   leads:          { label: 'לידים',           icon: UserPlus },
   leadSources:    { label: 'מקורות לידים',    icon: Tag },
   transactions:   { label: 'תנועות',          icon: Banknote },
+  categories:     { label: 'קטגוריות הוצאות', icon: Tag },
+  recurring:      { label: 'תבניות חוזרות',   icon: Repeat },
   sessions:       { label: 'פגישות',          icon: CalendarDays },
   reminders:      { label: 'תזכורות',         icon: Bell },
   goals:          { label: 'יעדים',           icon: Target },

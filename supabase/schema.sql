@@ -210,6 +210,7 @@ CREATE TABLE recurring_templates (
   day_of_month  integer CHECK (day_of_month BETWEEN 1 AND 31),
   day_of_week   smallint CHECK (day_of_week BETWEEN 0 AND 6),
   until_date    date,
+  trigger_type  text NOT NULL DEFAULT 'schedule' CHECK (trigger_type IN ('schedule','on_meeting')),
   active        boolean NOT NULL DEFAULT true,
   created_at    timestamptz NOT NULL DEFAULT now(),
   updated_at    timestamptz NOT NULL DEFAULT now(),

@@ -7,8 +7,8 @@ const STATUSES = [
   { k: 'skipped', l: 'דולגה' },
 ]
 
-/* Edit a transaction — type / amount / date / desc / status / client / project. */
-export default function EditTransactionModal({ open, onClose, onSave, tx, clients = [], projects = [] }) {
+/* Edit a transaction — type / amount / date / desc / status / client / project / category. */
+export default function EditTransactionModal({ open, onClose, onSave, tx, clients = [], projects = [], categories = [] }) {
   const [form, setForm] = useState(() => ({
     type: tx?.type || 'income',
     amount: tx?.amount ?? '',
@@ -17,6 +17,7 @@ export default function EditTransactionModal({ open, onClose, onSave, tx, client
     status: tx?.status || 'confirmed',
     client_id: tx?.client_id || '',
     project_id: tx?.project_id || '',
+    category_id: tx?.category_id || '',
   }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -39,6 +40,7 @@ export default function EditTransactionModal({ open, onClose, onSave, tx, client
         status: form.status,
         client_id: form.client_id || null,
         project_id: form.project_id || null,
+        category_id: form.type === 'expense' ? (form.category_id || null) : null,
       })
       onClose()
     } catch (e) {
@@ -99,6 +101,16 @@ export default function EditTransactionModal({ open, onClose, onSave, tx, client
           </select>
         </div>
       </div>
+
+      {form.type === 'expense' && (
+        <div className="m-field">
+          <label className="m-label">קטגוריה</label>
+          <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
+            <option value="">ללא קטגוריה</option>
+            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </div>
+      )}
 
       {err && <p className="m-error">{err}</p>}
 

@@ -7,7 +7,7 @@ const GROUPS = [
   { key: 'skipped', label: 'דולגו' },
 ]
 
-export default function TransactionList({ transactions, clients, projects, onApprove, onSkip, onUnskip, onEdit }) {
+export default function TransactionList({ transactions, clients, projects, categories, onApprove, onSkip, onUnskip, onEdit }) {
   if (!transactions.length) {
     return (
       <div className="empty">
@@ -31,6 +31,7 @@ export default function TransactionList({ transactions, clients, projects, onApp
                 tx={t}
                 clients={clients}
                 projects={projects}
+                categories={categories}
                 onApprove={onApprove}
                 onSkip={onSkip}
                 onUnskip={onUnskip}

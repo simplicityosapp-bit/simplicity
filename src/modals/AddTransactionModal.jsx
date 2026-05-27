@@ -9,11 +9,12 @@ const blank = (defaults = {}) => ({
   date: todayStr(),
   client_id: defaults.client_id || '',
   project_id: defaults.project_id || '',
+  category_id: '',
 })
 
 /* onSave is async (Supabase insert). When `client` is provided the client is
    locked (drawer "קיבלתי תשלום" flow); otherwise a select is shown. */
-export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], client, defaultType }) {
+export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], client, defaultType }) {
   const lockedClientId = client?.id || ''
   const [form, setForm] = useState(() => blank({ client_id: lockedClientId, type: defaultType }))
   const [err, setErr] = useState('')
@@ -36,7 +37,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
         status: isFuture ? 'pending' : 'confirmed',
         project_id: form.project_id || null,
         client_id: lockedClientId || form.client_id || null,
-        category_id: null,
+        category_id: form.type === 'expense' ? (form.category_id || null) : null,
         recurring_id: null,
         orphaned_from: null,
       })
@@ -108,6 +109,16 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
+        </div>
+      )}
+
+      {form.type === 'expense' && (
+        <div className="m-field">
+          <label className="m-label">קטגוריה</label>
+          <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
+            <option value="">ללא קטגוריה</option>
+            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
         </div>
       )}
 

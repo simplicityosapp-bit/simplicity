@@ -2,10 +2,18 @@ import { useMemo, useState } from 'react'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
+import { useRecurring } from '../../hooks/useRecurring'
+import { useRecurringGeneration } from '../../hooks/useRecurringGeneration'
+import { useCategories } from '../../hooks/useCategories'
+import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import MonthSummary from './MonthSummary'
 import TransactionList from './TransactionList'
+import RecurringSection from './RecurringSection'
+import CategoriesSection from './CategoriesSection'
 import AddTransactionModal from '../../modals/AddTransactionModal'
 import EditTransactionModal from '../../modals/EditTransactionModal'
+import RecurringModal from '../../modals/RecurringModal'
+import ConfirmModal from '../../modals/ConfirmModal'
 import './FinanceScreen.css'
 
 const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1)
@@ -14,9 +22,21 @@ export default function FinanceScreen() {
   const { transactions, loading, addTransaction, editTransaction, setStatus } = useTransactions()
   const { clients } = useClients()
   const { projects } = useProjects()
+  const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
+  const { categories, addCategory, removeCategory } = useCategories()
+  const { meetings: scheduledMeetings } = useScheduledMeetings()
   const [month, setMonth] = useState(() => startOfMonth(new Date()))
   const [showAdd, setShowAdd] = useState(false)
   const [editTx, setEditTx] = useState(null)
+  const [showAddRec, setShowAddRec] = useState(false)
+  const [editRec, setEditRec] = useState(null)
+  const [pendingDeleteRec, setPendingDeleteRec] = useState(null)
+
+  /* Generate pending transactions for any active template still
+     missing rows for past due-dates. Idempotent — runs whenever
+     templates or transactions change and exits immediately when
+     nothing's owed. */
+  useRecurringGeneration({ templates, transactions, addTransaction, scheduledMeetings })
 
   const monthTxs = useMemo(
     () =>
@@ -61,6 +81,20 @@ export default function FinanceScreen() {
         net={summary.net}
       />
 
+      <RecurringSection
+        templates={templates}
+        onAdd={() => setShowAddRec(true)}
+        onEdit={setEditRec}
+        onDelete={setPendingDeleteRec}
+        onToggleActive={(t) => updateRecurring(t.id, { active: !t.active })}
+      />
+
+      <CategoriesSection
+        categories={categories}
+        onAdd={addCategory}
+        onDelete={(c) => removeCategory(c.id)}
+      />
+
       <section className="f-list">
         {loading ? (
           <div className="empty"><p className="empty-text">טוען תנועות…</p></div>
@@ -69,6 +103,7 @@ export default function FinanceScreen() {
             transactions={monthTxs}
             clients={clients}
             projects={projects}
+            categories={categories}
             onApprove={(id) => setStatus(id, 'confirmed')}
             onSkip={(id) => setStatus(id, 'skipped')}
             onUnskip={(id) => setStatus(id, 'pending')}
@@ -82,6 +117,7 @@ export default function FinanceScreen() {
         onClose={() => setShowAdd(false)}
         clients={clients}
         projects={projects}
+        categories={categories}
         onSave={async (tx) => {
           const row = await addTransaction(tx)
           setMonth(startOfMonth(new Date(row.date)))
@@ -94,7 +130,36 @@ export default function FinanceScreen() {
         tx={editTx}
         clients={clients}
         projects={projects}
+        categories={categories}
         onSave={editTransaction}
+      />
+
+      <RecurringModal
+        open={showAddRec}
+        onClose={() => setShowAddRec(false)}
+        onSave={addRecurring}
+        clients={clients}
+        projects={projects}
+        categories={categories}
+      />
+      <RecurringModal
+        key={editRec?.id}
+        open={!!editRec}
+        onClose={() => setEditRec(null)}
+        template={editRec}
+        onSave={(patch) => updateRecurring(editRec.id, patch)}
+        clients={clients}
+        projects={projects}
+        categories={categories}
+      />
+      <ConfirmModal
+        open={!!pendingDeleteRec}
+        onClose={() => setPendingDeleteRec(null)}
+        title="מחיקת תבנית חוזרת"
+        message={pendingDeleteRec ? `למחוק את "${pendingDeleteRec.desc || (pendingDeleteRec.type === 'income' ? 'הכנסה' : 'הוצאה')}"? תנועות שכבר נוצרו לפי התבנית יישארו.` : ''}
+        confirmLabel="מחק"
+        danger
+        onConfirm={() => { if (pendingDeleteRec) removeRecurring(pendingDeleteRec.id) }}
       />
     </div>
   )

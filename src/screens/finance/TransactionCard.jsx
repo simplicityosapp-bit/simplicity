@@ -2,10 +2,11 @@ import { Check, X, RotateCcw } from 'lucide-react'
 import { isr } from '../../lib/finance'
 import { fmtShortDate } from '../../lib/dates'
 
-export default function TransactionCard({ tx, clients = [], projects = [], onApprove, onSkip, onUnskip, onEdit }) {
+export default function TransactionCard({ tx, clients = [], projects = [], categories = [], onApprove, onSkip, onUnskip, onEdit }) {
   const stop = (fn) => (e) => { e.stopPropagation(); fn() }
   const client = tx.client_id ? clients.find((c) => c.id === tx.client_id) : null
   const project = tx.project_id ? projects.find((p) => p.id === tx.project_id) : null
+  const category = tx.category_id ? categories.find((c) => c.id === tx.category_id) : null
   const meta = [client?.name, project?.name].filter(Boolean).join(' · ')
   const isExpense = tx.type === 'expense'
   const isPending = tx.status === 'pending'
@@ -24,6 +25,12 @@ export default function TransactionCard({ tx, clients = [], projects = [], onApp
           <span className="f-tx-date">{fmtShortDate(tx.date)}</span>
           {isSkipped && <span className="f-tx-tag skip">דולגה</span>}
           {meta && <span className="f-tx-meta-text">· {meta}</span>}
+          {category && (
+            <span className="f-tx-cat">
+              <span className="f-tx-cat-dot" style={{ background: category.color || '#888' }} />
+              {category.name}
+            </span>
+          )}
         </div>
       </div>
 

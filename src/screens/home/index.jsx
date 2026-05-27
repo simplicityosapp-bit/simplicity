@@ -8,17 +8,19 @@ import AttentionWidget from './widgets/AttentionWidget'
 import RemindersWidget from './widgets/RemindersWidget'
 import NextTasksWidget from './widgets/NextTasksWidget'
 import ChipsWidget from './widgets/ChipsWidget'
+import MeetingConfirmWidget from './widgets/MeetingConfirmWidget'
 import './HomeScreen.css'
 
 const WIDGET_COMPONENTS = {
-  'quote':      QuoteWidget,
-  'moon':       MoonWidget,
-  'insights':   InsightsWidget,
-  'quick-row':  QuickRow,
-  'attention':  AttentionWidget,
-  'reminders':  RemindersWidget,
-  'next-tasks': NextTasksWidget,
-  'chips':      ChipsWidget,
+  'quote':            QuoteWidget,
+  'moon':             MoonWidget,
+  'insights':         InsightsWidget,
+  'quick-row':        QuickRow,
+  'meeting-confirm':  MeetingConfirmWidget,
+  'attention':        AttentionWidget,
+  'reminders':        RemindersWidget,
+  'next-tasks':       NextTasksWidget,
+  'chips':            ChipsWidget,
 }
 
 const ACCENT_BY_KEY = Object.fromEntries(ACCENT_OPTIONS.map((a) => [a.v, a.color]))

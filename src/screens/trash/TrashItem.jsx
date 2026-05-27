@@ -13,6 +13,7 @@ function primaryLabel(entityType, row) {
     case 'groups':
     case 'leads':
     case 'leadSources':
+    case 'categories':
     case 'goalCategories':
       return row.name || '—'
     case 'tasks':
@@ -32,6 +33,11 @@ function primaryLabel(entityType, row) {
       return row.date ? `${fmtShortDate(row.date)} · ${v}` : `${v}`
     }
     case 'transactions': {
+      if (row.desc) return row.desc
+      const sign = row.type === 'expense' ? '−' : '+'
+      return `${sign}${isr(Math.abs(row.amount || 0))}`
+    }
+    case 'recurring': {
       if (row.desc) return row.desc
       const sign = row.type === 'expense' ? '−' : '+'
       return `${sign}${isr(Math.abs(row.amount || 0))}`

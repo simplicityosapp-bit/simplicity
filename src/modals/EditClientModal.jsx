@@ -7,6 +7,10 @@ const STATUSES = [
   { k: 'past', l: 'לשעבר' },
   { k: 'no_status', l: 'ללא' },
 ]
+const DAYS = [
+  { k: 0, l: 'ראשון' }, { k: 1, l: 'שני' }, { k: 2, l: 'שלישי' },
+  { k: 3, l: 'רביעי' }, { k: 4, l: 'חמישי' }, { k: 5, l: 'שישי' }, { k: 6, l: 'שבת' },
+]
 
 /* Edit a client — name / status / sub-status / sessions / price / phone /
    project. Parent passes key={client?.id} so this remounts cleanly per client. */
@@ -19,6 +23,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     price_per_session: client?.price_per_session ?? '',
     phone: client?.phone || '',
     project_id: client?.project_id || '',
+    recurring_day: client?.recurring_day != null ? String(client.recurring_day) : '',
+    recurring_time: client?.recurring_time || '',
   }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -42,6 +48,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         price_per_session: Number(form.price_per_session) || 0,
         phone: form.phone.trim() || null,
         project_id: form.project_id || null,
+        recurring_day: form.recurring_day !== '' ? Number(form.recurring_day) : null,
+        recurring_time: form.recurring_time || null,
       })
       onClose()
     } catch (e) {
@@ -98,6 +106,19 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             <option value="">ללא</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
+        </div>
+      </div>
+      <div className="m-row2">
+        <div className="m-field">
+          <label className="m-label">פגישה קבועה — יום</label>
+          <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}>
+            <option value="">ללא</option>
+            {DAYS.map((d) => <option key={d.k} value={d.k}>{d.l}</option>)}
+          </select>
+        </div>
+        <div className="m-field">
+          <label className="m-label">פגישה קבועה — שעה</label>
+          <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
         </div>
       </div>
 

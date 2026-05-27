@@ -151,7 +151,10 @@ button {
 /* ── Screen scroll container ─────────────────────────────────────
    Fills the frame; leaves room for the fixed bottom bar (84px).
    The per-screen nature image (--screen-bg, set on .app[data-screen])
-   sits behind the scrollable content. */
+   is painted via `::before` so `backdrop-filter` on the glass cards
+   can reliably blur it. Chromium's backdrop-filter is flaky when the
+   backdrop comes from a scrollable container's `background-image`
+   (especially with `background-attachment: fixed/local`). */
 .screen {
   position: absolute;
   inset: 0;
@@ -160,11 +163,18 @@ button {
   padding: 0 var(--mg-page-pad-mobile) calc(84px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  isolation: isolate;
+}
+.screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   background-image: var(--screen-bg);
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
   background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: -1;
 }
 .screen::-webkit-scrollbar {
   display: none;
@@ -215,25 +225,5 @@ button {
     height: 100dvh;
     padding: 0 var(--mg-page-pad) 24px;
     overflow-y: auto;
-    /* On desktop, paint the per-screen image via ::before pseudo so it
-       sits *inside* `.screen`'s painting context as a real element rather
-       than a CSS background. Chromium's `backdrop-filter` reliably blurs
-       painted elements but is flaky when the backdrop comes from a
-       scrollable container's `background-image` (especially with
-       `background-attachment: fixed/local`). */
-    background-image: none;
-    background-attachment: scroll;
-    isolation: isolate;            /* contain the pseudo z-index hack */
-  }
-  .screen::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: var(--screen-bg);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    pointer-events: none;
-    z-index: -1;                   /* sit below all real content */
   }
 }

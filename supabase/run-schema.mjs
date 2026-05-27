@@ -19,7 +19,7 @@ const here = dirname(fileURLToPath(import.meta.url))
 
 function loadDbUrl() {
   if (process.env.SUPABASE_DB_URL) return process.env.SUPABASE_DB_URL
-  for (const f of ['../env.download', '../.env.local', '../.env', './.env']) {
+  for (const f of ['../env.download', '../env (1).download', '../.env.local', '../.env', './.env']) {
     try {
       const txt = readFileSync(join(here, f), 'utf8')
       const m = txt.match(/^\s*SUPABASE_DB_URL\s*=\s*(.+?)\s*$/m)

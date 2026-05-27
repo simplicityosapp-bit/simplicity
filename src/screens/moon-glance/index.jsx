@@ -10,6 +10,7 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { useClients } from '../../hooks/useClients'
 import { useLeads } from '../../hooks/useLeads'
 import { useDailyAnswers } from '../../hooks/useDailyAnswers'
+import { useMoonSnapshots } from '../../hooks/useMoonSnapshots'
 import './MoonGlanceScreen.css'
 
 function TrendChart({ data }) {
@@ -47,7 +48,21 @@ export default function MoonGlanceScreen() {
   )
   const { overall } = useMemo(() => moonGetData(new Date(), data), [data])
   const cats = useMemo(() => moonGetCategories(new Date(), data), [data])
-  const trend = useMemo(() => moonTrend(30, new Date(), data), [data])
+  const liveTrend = useMemo(() => moonTrend(30, new Date(), data), [data])
+  const { snapshots } = useMoonSnapshots(30)
+
+  /* Prefer real persisted snapshots once we have enough to draw a
+     meaningful line; fall back to the live recompute for users who
+     just started (no historical snapshots yet). */
+  const trend = useMemo(() => {
+    if (snapshots && snapshots.length >= 2) {
+      return snapshots.map((s) => ({
+        date: new Date(s.date),
+        score: Number(s.confidence ?? s.score ?? 0),
+      }))
+    }
+    return liveTrend
+  }, [snapshots, liveTrend])
 
   const scores = trend.map((t) => t.score)
   const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0

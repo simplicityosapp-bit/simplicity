@@ -4,6 +4,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { insertClientStatusLog } from './clientStatusLog'
 
 /* Columns the DB owns — never send these on insert/update. */
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
@@ -35,13 +36,11 @@ export async function insertClient(input) {
   /* Open the status log with the first entry — never fails the insert
      itself, just gets best-effort logged. */
   if (data?.id && data?.status_meta) {
-    supabase.from('client_status_log').insert({
-      user_id: session.user.id,
-      client_id: data.id,
-      old_status: null,
-      new_status: data.status_meta,
-      changed_at: new Date().toISOString(),
-    }).then(() => {}, () => { /* non-fatal */ })
+    insertClientStatusLog({
+      clientId: data.id,
+      oldStatus: null,
+      newStatus: data.status_meta,
+    }).catch(() => { /* non-fatal */ })
   }
   return data
 }
@@ -60,16 +59,11 @@ export async function updateClient(id, patch) {
   const { data, error } = await supabase.from('clients').update(cleanPatch).eq('id', id).select().single()
   if (error) throw error
   if (cleanPatch.status_meta !== undefined && cleanPatch.status_meta !== oldMeta) {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session) {
-      supabase.from('client_status_log').insert({
-        user_id: session.user.id,
-        client_id: id,
-        old_status: oldMeta,
-        new_status: cleanPatch.status_meta,
-        changed_at: new Date().toISOString(),
-      }).then(() => {}, () => { /* non-fatal */ })
-    }
+    insertClientStatusLog({
+      clientId: id,
+      oldStatus: oldMeta,
+      newStatus: cleanPatch.status_meta,
+    }).catch(() => { /* non-fatal */ })
   }
   return data
 }

@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../../lib/routes'
 import { moonGetData } from '../../../lib/moon'
+import { upsertMoonSnapshot } from '../../../lib/api/moonSnapshots'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useGoalEntries } from '../../../hooks/useGoalEntries'
@@ -35,6 +36,18 @@ export default function MoonWidget() {
     [goals, categories, entries, transactions, sessions, clients, leads, answers],
   )
   const { overall } = useMemo(() => moonGetData(new Date(), data), [data])
+
+  /* Persist today's moon-glance score as a daily snapshot. Upserts on
+     (user_id, date) so multiple recomputes within a day just overwrite
+     today's row. Fire-and-forget — never blocks the UI. */
+  useEffect(() => {
+    if (!overall) return
+    upsertMoonSnapshot({
+      score: overall.pure,
+      paced: overall.paced,
+      confidence: overall.confidence,
+    }).catch(() => { /* non-fatal */ })
+  }, [overall])
 
   const conf = overall?.confidence ?? 0
   const pure = overall?.pure

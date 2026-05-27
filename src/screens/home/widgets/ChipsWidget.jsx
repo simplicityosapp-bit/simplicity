@@ -1,52 +1,82 @@
-import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
 import { ClipboardList, Wallet, Users } from 'lucide-react'
-import { ROUTES } from '../../../lib/routes'
-import { homeChips } from '../../../lib/homeData'
+import { homeChips, getTileFilters } from '../../../lib/homeData'
 import { useClients } from '../../../hooks/useClients'
+import { useGroups } from '../../../hooks/useGroups'
+import { useProjects } from '../../../hooks/useProjects'
 import { useTasks } from '../../../hooks/useTasks'
 import { useTransactions } from '../../../hooks/useTransactions'
+import { useCategories } from '../../../hooks/useCategories'
+import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import InfoPopover from '../../../components/InfoPopover'
+import TileDrillModal from '../../../modals/TileDrillModal'
 
-/* Bottom data chips — RTL order: משימות · נטו · לקוחות. Each taps to its
-   screen. */
+/* Bottom data chips — RTL order: משימות · נטו · לקוחות. Tap opens
+   a drill-down modal where the user picks filters (status, time
+   range, priorities, etc.). The number above the label updates live
+   from the filters. "פתיחה במלא ←" inside the modal still routes
+   to the corresponding screen for full management. */
 export default function ChipsWidget() {
-  const navigate = useNavigate()
   const { clients } = useClients()
+  const { groups } = useGroups()
+  const { projects } = useProjects()
   const { tasks } = useTasks()
   const { transactions } = useTransactions()
-  const { activeClients, openTasks, net } = useMemo(
-    () => homeChips(new Date(), { clients, tasks, transactions }),
-    [clients, tasks, transactions],
+  const { categories } = useCategories()
+  const { prefs, update: updatePrefs } = useUserPreferences()
+  const [openTile, setOpenTile] = useState(null)
+
+  const filters = useMemo(() => getTileFilters(prefs), [prefs])
+  const summary = useMemo(
+    () => homeChips(new Date(), { clients, tasks, transactions }, filters),
+    [clients, tasks, transactions, filters],
   )
-  const netStr = `${net < 0 ? '−' : ''}${Math.round(Math.abs(net)).toLocaleString('en-US')} ₪`
+  const netStr = `${summary.net < 0 ? '−' : ''}${Math.round(Math.abs(summary.net)).toLocaleString('en-US')} ₪`
 
   return (
-    <div className="h-chips">
-      <button type="button" className="h-stat" onClick={() => navigate(ROUTES.TASKS)}>
-        <ClipboardList size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-        <span className="h-stat-num mono">{openTasks}</span>
-        <span className="h-stat-lbl">
-          משימות
-          <InfoPopover label="הסבר משימות" text="משימות פתוחות בלבד — דברים שעוד לא סומנו 'בוצע'." placement="top" />
-        </span>
-      </button>
-      <button type="button" className="h-stat" onClick={() => navigate(ROUTES.FINANCE)}>
-        <Wallet size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-        <span className="h-stat-num mono">{netStr}</span>
-        <span className="h-stat-lbl">
-          נטו
-          <InfoPopover label="הסבר נטו" text="הכנסות פחות הוצאות לחודש הנוכחי. סופר רק תנועות שאושרו — pending/דולגו לא נכנסות." placement="top" />
-        </span>
-      </button>
-      <button type="button" className="h-stat" onClick={() => navigate(ROUTES.CLIENTS)}>
-        <Users size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-        <span className="h-stat-num mono">{activeClients}</span>
-        <span className="h-stat-lbl">
-          לקוחות
-          <InfoPopover label="הסבר לקוחות" text="לקוחות בסטטוס 'פעיל' או 'ביניים'. לשעבר וללא-סטטוס לא נספרים." placement="top" />
-        </span>
-      </button>
-    </div>
+    <>
+      <div className="h-chips">
+        <button type="button" className="h-stat" onClick={() => setOpenTile('tasks')}>
+          <ClipboardList size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
+          <span className="h-stat-num mono">{summary.openTasks}</span>
+          <span className="h-stat-lbl">
+            משימות
+            <InfoPopover label="הסבר משימות" text="לחץ/י על הכרטיס כדי לסנן ולראות פירוט. ברירת מחדל: רק משימות פתוחות." placement="top" />
+          </span>
+        </button>
+        <button type="button" className="h-stat" onClick={() => setOpenTile('net')}>
+          <Wallet size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
+          <span className="h-stat-num mono">{netStr}</span>
+          <span className="h-stat-lbl">
+            נטו
+            <InfoPopover label="הסבר נטו" text="לחץ/י על הכרטיס כדי לסנן לפי טווח זמן, סוג, פרויקט וקטגוריה. סופר רק תנועות שאושרו." placement="top" />
+          </span>
+        </button>
+        <button type="button" className="h-stat" onClick={() => setOpenTile('clients')}>
+          <Users size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
+          <span className="h-stat-num mono">{summary.activeClients}</span>
+          <span className="h-stat-lbl">
+            לקוחות
+            <InfoPopover label="הסבר לקוחות" text="לחץ/י על הכרטיס כדי לסנן לפי סטטוס, פרויקט וקבוצה. ברירת מחדל: פעיל + ביניים." placement="top" />
+          </span>
+        </button>
+      </div>
+
+      <TileDrillModal
+        key={openTile}
+        open={!!openTile}
+        tile={openTile}
+        onClose={() => setOpenTile(null)}
+        prefs={prefs}
+        updatePrefs={updatePrefs}
+        clients={clients}
+        groups={groups}
+        projects={projects}
+        categories={categories}
+        tasks={tasks}
+        transactions={transactions}
+        netSummary={summary}
+      />
+    </>
   )
 }

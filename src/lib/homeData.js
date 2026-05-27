@@ -60,12 +60,90 @@ export function leadsNeedingAttention(days = 45, now = new Date(), leads = mockL
 }
 
 /* ── Chips ─────────────────────────────────────────────────────── */
-export function homeChips(now = new Date(), data) {
+/* Per-tile filter shapes — saved under userPreferences.tileFilters.
+   Each field is optional; a missing field means "no filter on that
+   axis" (the engine treats it as the widest reasonable default). */
+const DEFAULT_TILE_FILTERS = {
+  clients: { statuses: ['active', 'wandering'], projectIds: [], groupIds: [] },
+  net:     { timeRange: 'thisMonth', type: 'both', projectIds: [], groupIds: [], categoryIds: [] },
+  tasks:   { status: 'open', priorities: [], projectIds: [], clientIds: [] },
+}
+
+export function getTileFilters(prefs) {
+  const fromPrefs = prefs?.tileFilters || {}
+  return {
+    clients: { ...DEFAULT_TILE_FILTERS.clients, ...(fromPrefs.clients || {}) },
+    net:     { ...DEFAULT_TILE_FILTERS.net,     ...(fromPrefs.net     || {}) },
+    tasks:   { ...DEFAULT_TILE_FILTERS.tasks,   ...(fromPrefs.tasks   || {}) },
+  }
+}
+
+function rangeFromKey(key, now) {
+  if (key === 'thisWeek') {
+    const start = new Date(now)
+    const dow = start.getDay()
+    start.setDate(start.getDate() - dow)
+    start.setHours(0, 0, 0, 0)
+    return { from: start, to: now }
+  }
+  if (key === 'last30days') {
+    const start = new Date(now.getTime() - 30 * DAY)
+    return { from: start, to: now }
+  }
+  /* default = thisMonth */
+  return currentMonthRange(now)
+}
+
+/* Filter-aware computation of the three home tiles.
+   Each tile reads its slice from the resolved filters; missing
+   filters fall back to sensible defaults (see DEFAULT_TILE_FILTERS). */
+export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS) {
   const { clients = mockClients, tasks = mockTasks, transactions } = data || {}
-  const activeClients = live(clients).filter((c) => ['active', 'wandering'].includes(c.status)).length
-  const openTasks = live(tasks).filter((t) => t.status !== 'done').length
-  const { net } = monthNet(now, { transactions })
-  return { activeClients, openTasks, net }
+  const f = {
+    clients: { ...DEFAULT_TILE_FILTERS.clients, ...(filters.clients || {}) },
+    net:     { ...DEFAULT_TILE_FILTERS.net,     ...(filters.net     || {}) },
+    tasks:   { ...DEFAULT_TILE_FILTERS.tasks,   ...(filters.tasks   || {}) },
+  }
+
+  /* Clients tile — count by status_meta + optional project/group. */
+  const activeClients = live(clients).filter((c) => {
+    const meta = c.status_meta || c.status
+    if (f.clients.statuses?.length && !f.clients.statuses.includes(meta)) return false
+    if (f.clients.projectIds?.length && !f.clients.projectIds.includes(c.project_id)) return false
+    if (f.clients.groupIds?.length && !f.clients.groupIds.includes(c.group_id)) return false
+    return true
+  }).length
+
+  /* Tasks tile — open/done/both + priorities + project + client. */
+  const openTasks = live(tasks).filter((t) => {
+    if (f.tasks.status === 'open' && t.status === 'done') return false
+    if (f.tasks.status === 'done' && t.status !== 'done') return false
+    if (f.tasks.priorities?.length && !f.tasks.priorities.includes(t.priority)) return false
+    if (f.tasks.projectIds?.length && !f.tasks.projectIds.includes(t.project_id)) return false
+    if (f.tasks.clientIds?.length && !f.tasks.clientIds.includes(t.client_id)) return false
+    return true
+  }).length
+
+  /* Net tile — type, time range, project/category. Only confirmed
+     transactions feed the number; financeQuery already drops
+     pending/skipped via isConfirmedTx. */
+  const range = rangeFromKey(f.net.timeRange, now)
+  const filteredTx = financeQuery({ ...range, source: transactions }).filter((t) => {
+    if (f.net.projectIds?.length && !f.net.projectIds.includes(t.project_id)) return false
+    if (f.net.categoryIds?.length && !f.net.categoryIds.includes(t.category_id)) return false
+    return true
+  })
+  let inc = 0, exp = 0
+  for (const t of filteredTx) {
+    if (t.type === 'income') inc += t.amount
+    else if (t.type === 'expense') exp += t.amount
+  }
+  let net
+  if (f.net.type === 'income') net = inc
+  else if (f.net.type === 'expense') net = -exp
+  else net = inc - exp
+
+  return { activeClients, openTasks, net, _income: inc, _expense: exp, _txCount: filteredTx.length }
 }
 
 /* ── Attention rows ────────────────────────────────────────────── */

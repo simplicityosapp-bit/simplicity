@@ -73,3 +73,29 @@ export async function removeClient(id) {
   const { error } = await supabase.from('clients').update({ deleted_at: new Date().toISOString() }).eq('id', id)
   if (error) throw error
 }
+
+/* Deleted-but-recoverable clients: only those soft-deleted in the last
+   30 days (older rows are eligible for hard-delete and stay hidden). */
+export async function listDeletedClients() {
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const { data, error } = await supabase
+    .from('clients')
+    .select('*')
+    .not('deleted_at', 'is', null)
+    .gte('deleted_at', thirtyDaysAgo.toISOString())
+    .order('deleted_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function restoreClient(id) {
+  const { data, error } = await supabase
+    .from('clients')
+    .update({ deleted_at: null })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}

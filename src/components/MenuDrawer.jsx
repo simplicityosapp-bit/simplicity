@@ -124,8 +124,7 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
 
         <p className="drawer-section-lbl">הגדרות</p>
 
-        {/* זבל — trash drawer (built in a later task) */}
-        <button className="drawer-link tint-amber" onClick={onClose}>
+        <button className="drawer-link tint-amber" onClick={() => goTo(ROUTES.TRASH)}>
           <span className="drawer-link-icon"><Trash2 size={18} strokeWidth={1.5} /></span>
           <span className="drawer-link-text">
             זבל

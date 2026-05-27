@@ -22,6 +22,7 @@ export const ROUTES = {
   REPORTS: '/reports',
   SETTINGS: '/settings',
   PROJECTS: '/projects',
+  TRASH: '/trash',
 
   // Dynamic routes
   CLIENT: '/clients/:id',

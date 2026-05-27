@@ -1,0 +1,123 @@
+/* ════════════════════════════════════════════════════════════════
+   TRASH SCREEN — recoverable soft-deletes, grouped by entity type.
+   Shared primitives (.screen-top, .screen-head, .empty…) live in
+   styles/screens.css.
+   ════════════════════════════════════════════════════════════════ */
+
+.trash-error {
+  margin: 12px 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(180, 70, 60, 0.08);
+  color: #8c3a32;
+  font-family: var(--mg-font);
+  font-size: 13px;
+}
+
+.trash-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.trash-group {
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  padding: 12px 14px;
+}
+
+.trash-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--divider);
+  margin-bottom: 6px;
+}
+.trash-group-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--espresso);
+  letter-spacing: 0.02em;
+}
+.trash-group-count {
+  font-family: var(--mg-font-num);
+  font-size: 12px;
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+}
+
+.trash-group-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.trash-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.trash-item:last-child {
+  border-bottom: none;
+}
+.trash-item-main {
+  min-width: 0;
+  flex: 1;
+}
+.trash-item-label {
+  margin: 0 0 3px;
+  font-family: var(--mg-font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.trash-item-meta {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--stone);
+  letter-spacing: 0.02em;
+}
+
+.trash-item-restore {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.trash-item-restore:hover:not(:disabled) {
+  background: rgba(42, 37, 32, 0.04);
+  border-color: rgba(42, 37, 32, 0.15);
+}
+.trash-item-restore:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+[data-theme="dark"] .trash-item-restore:hover:not(:disabled) {
+  background: rgba(240, 235, 224, 0.06);
+  border-color: rgba(240, 235, 224, 0.18);
+}

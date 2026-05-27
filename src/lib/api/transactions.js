@@ -41,3 +41,27 @@ export async function removeTransaction(id) {
   const { error } = await supabase.from('transactions').update({ deleted_at: new Date().toISOString() }).eq('id', id)
   if (error) throw error
 }
+
+export async function listDeletedTransactions() {
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .not('deleted_at', 'is', null)
+    .gte('deleted_at', thirtyDaysAgo.toISOString())
+    .order('deleted_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function restoreTransaction(id) {
+  const { data, error } = await supabase
+    .from('transactions')
+    .update({ deleted_at: null })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}

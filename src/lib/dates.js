@@ -29,6 +29,23 @@ function sameDay(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
 }
 
+/* Backward-looking relative label for past moments: "כעת", "לפני שעה",
+   "לפני 3 ימים", etc. Falls back to a short date for >30 days. */
+export function fmtTimeAgo(date, now = new Date()) {
+  const d = date instanceof Date ? date : new Date(date)
+  const diffMs = now.getTime() - d.getTime()
+  if (diffMs < 0) return 'כעת'
+  const sec = Math.floor(diffMs / 1000)
+  if (sec < 60) return 'כעת'
+  const min = Math.floor(sec / 60)
+  if (min < 60) return min === 1 ? 'לפני דקה' : `לפני ${min} דקות`
+  const hr = Math.floor(min / 60)
+  if (hr < 24) return hr === 1 ? 'לפני שעה' : `לפני ${hr} שעות`
+  const day = Math.floor(hr / 24)
+  if (day < 30) return day === 1 ? 'אתמול' : `לפני ${day} ימים`
+  return fmtShortDate(d)
+}
+
 /* Relative-ish label: "היום 18:00", "מחר 10:00", else "31/05 · 10:00". */
 export function formatWhen(date, now = new Date()) {
   const d = date instanceof Date ? date : new Date(date)

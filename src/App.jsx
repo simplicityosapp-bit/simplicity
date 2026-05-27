@@ -27,6 +27,7 @@ import SettingsScreen from './screens/settings'
 import ReportsScreen from './screens/reports'
 import ProjectsScreen from './screens/projects'
 import ProjectDetailScreen from './screens/project-detail'
+import TrashScreen from './screens/trash'
 
 import LoginScreen from './screens/auth/LoginScreen'
 import SignupScreen from './screens/auth/SignupScreen'
@@ -63,6 +64,7 @@ function AppShell() {
         <Route path={ROUTES.REPORTS} element={<ReportsScreen />} />
         <Route path={ROUTES.PROJECTS} element={<ProjectsScreen />} />
         <Route path={ROUTES.PROJECT} element={<ProjectDetailScreen />} />
+        <Route path={ROUTES.TRASH} element={<TrashScreen />} />
         <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
       </Routes>
 

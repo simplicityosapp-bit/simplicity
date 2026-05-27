@@ -557,6 +557,161 @@
   background: rgba(240, 235, 224, 0.07);
 }
 
+/* ── Top actions row (export + add) ─────────────────────────── */
+.f-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.f-top-actions .cta-add { margin: 0; }
+.f-export-btn {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.f-export-btn:hover:not(:disabled) {
+  background: rgba(42, 37, 32, 0.05);
+}
+.f-export-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+[data-theme="dark"] .f-export-btn:hover:not(:disabled) {
+  background: rgba(240, 235, 224, 0.07);
+}
+
+/* ── Delta pill in MonthSummary ────────────────────────────── */
+.f-net-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.f-io-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.f-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-family: var(--mg-font);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.f-delta.pos {
+  color: var(--sage);
+  background: rgba(139, 168, 136, 0.14);
+}
+.f-delta.neg {
+  color: var(--clay);
+  background: rgba(181, 99, 78, 0.14);
+}
+.f-delta.neu {
+  color: var(--stone);
+  background: rgba(120, 120, 120, 0.08);
+}
+
+/* ── Breakdown sections (by project / by category) ─────────── */
+.f-breakdown {
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+}
+.f-breakdown-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.f-breakdown-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.f-breakdown-count {
+  font-family: var(--mg-font-num);
+  font-size: 11px;
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+}
+.f-breakdown-empty {
+  margin: 4px 0 0;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--stone);
+}
+.f-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.f-breakdown-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.f-breakdown-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.f-breakdown-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.f-breakdown-name {
+  flex: 1;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.f-breakdown-amt {
+  font-family: var(--mg-font-num);
+  font-size: 13px;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+.f-breakdown-bar {
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(42, 37, 32, 0.06);
+  overflow: hidden;
+}
+[data-theme="dark"] .f-breakdown-bar {
+  background: rgba(240, 235, 224, 0.06);
+}
+.f-breakdown-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
 /* Category chip on TransactionCard (compact). */
 .f-tx-cat {
   display: inline-flex;

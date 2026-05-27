@@ -6,10 +6,13 @@ import { useRecurring } from '../../hooks/useRecurring'
 import { useRecurringGeneration } from '../../hooks/useRecurringGeneration'
 import { useCategories } from '../../hooks/useCategories'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
+import { exportTransactionsCSV } from '../../lib/export'
 import MonthSummary from './MonthSummary'
 import TransactionList from './TransactionList'
 import RecurringSection from './RecurringSection'
 import CategoriesSection from './CategoriesSection'
+import IncomeByProject from './IncomeByProject'
+import ExpensesByCategory from './ExpensesByCategory'
 import AddTransactionModal from '../../modals/AddTransactionModal'
 import EditTransactionModal from '../../modals/EditTransactionModal'
 import RecurringModal from '../../modals/RecurringModal'
@@ -48,12 +51,24 @@ export default function FinanceScreen() {
     [transactions, month],
   )
 
-  const summary = useMemo(() => {
-    const conf = monthTxs.filter((t) => t.status === 'confirmed')
+  const prevMonthTxs = useMemo(() => {
+    const prev = new Date(month.getFullYear(), month.getMonth() - 1, 1)
+    return transactions.filter((t) => {
+      if (t.deleted_at) return false
+      const d = new Date(t.date)
+      return d.getFullYear() === prev.getFullYear() && d.getMonth() === prev.getMonth()
+    })
+  }, [transactions, month])
+
+  const sumConfirmed = (rows) => {
+    const conf = rows.filter((t) => t.status === 'confirmed')
     const income = conf.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
     const expenses = conf.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
     return { income, expenses, net: income - expenses }
-  }, [monthTxs])
+  }
+
+  const summary = useMemo(() => sumConfirmed(monthTxs), [monthTxs])
+  const prevSummary = useMemo(() => sumConfirmed(prevMonthTxs), [prevMonthTxs])
 
   return (
     <div className="screen">
@@ -69,7 +84,18 @@ export default function FinanceScreen() {
           </div>
           <p className="t-screen">כסף</p>
         </header>
-        <button className="cta-add" type="button" aria-label="הוסף תנועה" onClick={() => setShowAdd(true)}>הוסף תנועה +</button>
+        <div className="f-top-actions">
+          <button
+            type="button"
+            className="f-export-btn"
+            onClick={() => exportTransactionsCSV({ transactions: monthTxs, clients, projects, categories, monthDate: month })}
+            disabled={monthTxs.length === 0}
+            aria-label="ייצוא לקובץ CSV"
+          >
+            ייצוא CSV
+          </button>
+          <button className="cta-add" type="button" aria-label="הוסף תנועה" onClick={() => setShowAdd(true)}>הוסף תנועה +</button>
+        </div>
       </div>
 
       <MonthSummary
@@ -79,7 +105,13 @@ export default function FinanceScreen() {
         income={summary.income}
         expenses={summary.expenses}
         net={summary.net}
+        prevIncome={prevSummary.income}
+        prevExpenses={prevSummary.expenses}
+        prevNet={prevSummary.net}
       />
+
+      <IncomeByProject monthTxs={monthTxs} clients={clients} projects={projects} />
+      <ExpensesByCategory monthTxs={monthTxs} categories={categories} />
 
       <RecurringSection
         templates={templates}

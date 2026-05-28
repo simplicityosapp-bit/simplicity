@@ -127,6 +127,21 @@
 .f-tx-group {
   margin-bottom: 18px;
 }
+
+/* On desktop each status group (pending / confirmed / skipped) lays
+   out its transactions as a 4-up cube grid. The group label spans
+   the full width so it still reads as a header. Mobile keeps the
+   original stack of full-width rows. */
+@media (min-width: 768px) {
+  .f-tx-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+    align-items: start;
+  }
+  .f-tx-group > .f-section-lbl { grid-column: 1 / -1; margin-bottom: 0; }
+  .f-tx-group > .f-tx { margin-bottom: 0; }
+}
 .f-section-lbl {
   display: flex;
   align-items: center;

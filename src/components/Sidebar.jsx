@@ -18,7 +18,7 @@ const ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calen
 const EXTRAS = [
   { key: 'moon',     label: 'מבט על',         icon: Moon,       to: ROUTES.MOON_GLANCE },
   { key: 'reports',  label: 'דוחות',          icon: BarChart3,  to: ROUTES.REPORTS },
-  { key: 'insights', label: 'מה איתך היום?',  icon: Sparkles,   to: ROUTES.HOME,  placeholder: true, soon: 'הוויג׳ט במסך הבית — בקרוב כדראוור מלא' },
+  { key: 'insights', label: 'מה איתך היום?',  icon: Sparkles,   to: ROUTES.INSIGHTS },
   { key: 'trash',    label: 'זבל',            icon: Trash2,     to: ROUTES.TRASH },
 ]
 

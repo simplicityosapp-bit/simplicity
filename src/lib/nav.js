@@ -20,6 +20,7 @@ export function screenKeyFromPath(pathname) {
   if (pathname.startsWith('/settings')) return 'settings'
   if (pathname.startsWith('/projects')) return 'projects'
   if (pathname.startsWith('/trash')) return 'trash'
+  if (pathname.startsWith('/insights')) return 'insights'
   return 'home'
 }
 

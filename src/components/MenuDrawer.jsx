@@ -97,12 +97,11 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
 
         <p className="drawer-section-lbl">אישי</p>
 
-        {/* מה איתך היום? — insights drawer (built in a later task) */}
-        <button className="drawer-link tint-purple" onClick={onClose}>
+        <button className="drawer-link tint-purple" onClick={() => goTo(ROUTES.INSIGHTS)}>
           <span className="drawer-link-icon"><Sparkles size={18} strokeWidth={1.5} /></span>
           <span className="drawer-link-text">
             מה איתך היום?
-            <span className="drawer-link-text-sub">השאלות היומיות שלך</span>
+            <span className="drawer-link-text-sub">השאלות היומיות שלך + תובנות</span>
           </span>
         </button>
 

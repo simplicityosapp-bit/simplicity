@@ -113,11 +113,17 @@ export default function InsightsWidget() {
   return (
     <div className="ins-widget has-collapse">
       {collapseBtn}
-      <p className="ins-q">
+      <p
+        className="ins-q ins-q-link"
+        role="button"
+        tabIndex={0}
+        onClick={() => navigate(ROUTES.INSIGHTS)}
+        onKeyDown={(e) => { if (e.key === 'Enter') navigate(ROUTES.INSIGHTS) }}
+      >
         <Sparkles size={16} strokeWidth={1.6} aria-hidden="true" /> {text}
         <InfoPopover
           label="הסבר שאלה יומית"
-          text="שאלה יומית עוקבת אחרי ההרגשה שלך לאורך זמן. הסולם 1–10 (10 = הכי טוב). התשובות נשמרות לכל יום ויוצרות תובנות במסך 'התובנות'."
+          text="שאלה יומית עוקבת אחרי ההרגשה שלך לאורך זמן. הסולם 1–10 (10 = הכי טוב). התשובות נשמרות לכל יום ויוצרות תובנות במסך 'מה איתך היום'."
         />
       </p>
 

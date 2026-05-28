@@ -210,6 +210,7 @@ button {
 .app[data-screen="settings"] { background: var(--bg-clients); }
 .app[data-screen="reports"]  { background: var(--bg-insights); }
 .app[data-screen="trash"]    { background: var(--bg-trash); }
+.app[data-screen="insights"] { background: var(--bg-insights); }
 
 /* ── Per-screen nature backgrounds ───────────────────────────────
    Each screen reads --screen-bg from a screen×theme lookup below.
@@ -228,6 +229,9 @@ button {
 .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/mobile/day/settings.png'); }
 .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/mobile/day/reports.png'); }
 .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/mobile/day/trash.png'); }
+/* Insights reuses the moon nature image until a dedicated asset
+   ships — the dark-violet sky underneath fits the reflective tone. */
+.app[data-screen="insights"]  { --screen-bg: url('/backgrounds/mobile/day/moon.png'); }
 
 [data-theme="dark"] .app[data-screen="home"]      { --screen-bg: url('/backgrounds/mobile/night/home.png'); }
 [data-theme="dark"] .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/mobile/night/clients.png'); }
@@ -241,6 +245,7 @@ button {
 [data-theme="dark"] .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/mobile/night/settings.png'); }
 [data-theme="dark"] .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/mobile/night/reports.png'); }
 [data-theme="dark"] .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/mobile/night/trash.png'); }
+[data-theme="dark"] .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/mobile/night/moon.png'); }
 
 @media (min-width: 768px) {
   .app[data-screen="home"]      { --screen-bg: url('/backgrounds/desktop/day/home.png'); }
@@ -255,6 +260,7 @@ button {
   .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/desktop/day/settings.png'); }
   .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/desktop/day/reports.png'); }
   .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/desktop/day/trash.png'); }
+  .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/desktop/day/moon.png'); }
 
   [data-theme="dark"] .app[data-screen="home"]      { --screen-bg: url('/backgrounds/desktop/night/home.png'); }
   [data-theme="dark"] .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/desktop/night/clients.png'); }
@@ -268,6 +274,7 @@ button {
   [data-theme="dark"] .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/desktop/night/settings.png'); }
   [data-theme="dark"] .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/desktop/night/reports.png'); }
   [data-theme="dark"] .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/desktop/night/trash.png'); }
+  [data-theme="dark"] .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/desktop/night/moon.png'); }
 }
 
 /* ── Screen scroll container ─────────────────────────────────────

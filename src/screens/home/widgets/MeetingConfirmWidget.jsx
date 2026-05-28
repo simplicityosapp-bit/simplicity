@@ -26,19 +26,28 @@ import { toDateKey } from '../../../lib/recurring'
 export default function MeetingConfirmWidget() {
   const { clients } = useClients()
   const { groups } = useGroups()
-  const { meetings, updateMeeting, addMeeting } = useScheduledMeetings()
-  const { transactions, addTransaction, setStatus: setTxStatus } = useTransactions()
+  const { meetings, loading: meetingsLoading, updateMeeting, addMeeting } = useScheduledMeetings()
+  const { transactions, loading: transactionsLoading, addTransaction, setStatus: setTxStatus } = useTransactions()
   const { templates } = useRecurring()
   const { categories } = useCategories()
 
   /* Materialise any missing scheduled_meeting rows for clients/groups
-     with a recurring_day + recurring_time. Idempotent. */
-  useScheduledMeetingsGeneration({ clients, groups, meetings, addMeeting })
+     with a recurring_day + recurring_time. Idempotent — but only
+     gates correctly when meetingsLoading is wired through, otherwise
+     the engine races the initial fetch and duplicates every slot. */
+  useScheduledMeetingsGeneration({ clients, groups, meetings, meetingsLoading, addMeeting })
 
   /* And generate the linked pending expense transactions for
      trigger_type='on_meeting' templates — so visiting home is enough
      to surface both prompts in this widget. Idempotent. */
-  useRecurringGeneration({ templates, transactions, addTransaction, scheduledMeetings: meetings })
+  useRecurringGeneration({
+    templates,
+    transactions,
+    addTransaction,
+    scheduledMeetings: meetings,
+    transactionsLoading,
+    scheduledMeetingsLoading: meetingsLoading,
+  })
 
   const pending = useMemo(() => pendingMeetingsToReview(meetings || []), [meetings])
 

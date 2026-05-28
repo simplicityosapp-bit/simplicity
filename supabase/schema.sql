@@ -329,7 +329,9 @@ CREATE TABLE scheduled_meetings (
   status        text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','confirmed','skipped','expired')),
   session_id    uuid REFERENCES sessions(id) ON DELETE SET NULL,
   created_at    timestamptz NOT NULL DEFAULT now(),
-  updated_at    timestamptz NOT NULL DEFAULT now()
+  updated_at    timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT scheduled_meetings_user_subject_at_uniq
+    UNIQUE (user_id, subject_type, subject_id, scheduled_at)
 );
 
 -- TABLE: goals

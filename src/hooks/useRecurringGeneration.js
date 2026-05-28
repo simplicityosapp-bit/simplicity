@@ -7,12 +7,24 @@ import { generateRecurringTransactions } from '../lib/recurring'
    non-skipped meeting on the linked subject seeds one pending tx).
    A ref-based latch prevents the in-flight inserts from re-triggering
    the effect through the transactions state mutation. Once all
-   inserts settle, the effect runs again, sees nothing owed, exits. */
-export function useRecurringGeneration({ templates, transactions, addTransaction, scheduledMeetings }) {
+   inserts settle, the effect runs again, sees nothing owed, exits.
+
+   IMPORTANT: gating on `transactionsLoading` (and the optional
+   `scheduledMeetingsLoading`) keeps the engine from firing during
+   the initial fetch — otherwise the empty default arrays look like
+   "no rows exist yet" and we cheerfully create duplicate pending
+   transactions for every cadence slot. Same root cause as the
+   scheduled-meetings dedup bug. */
+export function useRecurringGeneration({
+  templates, transactions, addTransaction, scheduledMeetings,
+  transactionsLoading, scheduledMeetingsLoading,
+}) {
   const generating = useRef(false)
 
   useEffect(() => {
     if (generating.current) return
+    if (transactionsLoading) return
+    if (scheduledMeetingsLoading) return
     if (!templates || !transactions) return
     if (!templates.length) return
     const due = generateRecurringTransactions(templates, transactions, new Date(), scheduledMeetings || [])
@@ -24,5 +36,5 @@ export function useRecurringGeneration({ templates, transactions, addTransaction
       }
       generating.current = false
     })()
-  }, [templates, transactions, addTransaction, scheduledMeetings])
+  }, [templates, transactions, addTransaction, scheduledMeetings, transactionsLoading, scheduledMeetingsLoading])
 }

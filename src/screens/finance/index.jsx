@@ -27,7 +27,7 @@ export default function FinanceScreen() {
   const { projects } = useProjects()
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
   const { categories, addCategory, removeCategory } = useCategories()
-  const { meetings: scheduledMeetings } = useScheduledMeetings()
+  const { meetings: scheduledMeetings, loading: scheduledMeetingsLoading } = useScheduledMeetings()
   const [month, setMonth] = useState(() => startOfMonth(new Date()))
   const [showAdd, setShowAdd] = useState(false)
   const [editTx, setEditTx] = useState(null)
@@ -39,7 +39,14 @@ export default function FinanceScreen() {
      missing rows for past due-dates. Idempotent — runs whenever
      templates or transactions change and exits immediately when
      nothing's owed. */
-  useRecurringGeneration({ templates, transactions, addTransaction, scheduledMeetings })
+  useRecurringGeneration({
+    templates,
+    transactions,
+    addTransaction,
+    scheduledMeetings,
+    transactionsLoading: loading,
+    scheduledMeetingsLoading,
+  })
 
   const monthTxs = useMemo(
     () =>

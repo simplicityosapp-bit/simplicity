@@ -6,12 +6,18 @@ import { generateScheduledMeetings } from '../lib/scheduledMeetings'
    and fires inserts for any missing scheduled_meeting rows in the
    window. Idempotent; the same ref-latch pattern as
    useRecurringGeneration keeps the in-flight inserts from re-firing
-   through the meetings state update. */
-export function useScheduledMeetingsGeneration({ clients, groups, meetings, addMeeting }) {
+   through the meetings state update.
+
+   IMPORTANT: gating on `meetingsLoading` is what keeps the engine
+   from firing during the initial fetch — without it, the empty
+   default state ([]) looks like "no meetings exist yet" and the
+   engine cheerfully creates duplicates for every slot. */
+export function useScheduledMeetingsGeneration({ clients, groups, meetings, meetingsLoading, addMeeting }) {
   const generating = useRef(false)
 
   useEffect(() => {
     if (generating.current) return
+    if (meetingsLoading) return
     if (!clients || !groups || !meetings) return
     if (!clients.length && !groups.length) return
     const due = generateScheduledMeetings(clients, groups, meetings, new Date())
@@ -23,5 +29,5 @@ export function useScheduledMeetingsGeneration({ clients, groups, meetings, addM
       }
       generating.current = false
     })()
-  }, [clients, groups, meetings, addMeeting])
+  }, [clients, groups, meetings, meetingsLoading, addMeeting])
 }

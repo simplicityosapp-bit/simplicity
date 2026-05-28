@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Search, ArrowUpDown, X } from 'lucide-react'
 import { statusMetaOf, paidForClients, sessionsCountForClients, clientBalance } from '../../lib/clients'
-import { currentMonthRange, isr } from '../../lib/finance'
+import { currentMonthRange, isr, financeQuery } from '../../lib/finance'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useTransactions } from '../../hooks/useTransactions'
@@ -31,8 +31,10 @@ const HERO_LABEL = {
 const SORT_OPTIONS = [
   { k: 'name',     l: 'שם' },
   { k: 'balance',  l: 'יתרה' },
+  { k: 'paid',     l: 'שולם' },
   { k: 'sessions', l: 'פגישות' },
   { k: 'created',  l: 'תאריך הוספה' },
+  { k: 'oldest',   l: 'ותק (הכי ישן)' },
 ]
 const BULK_META_OPTIONS = [
   { k: 'active',    l: 'פעיל' },
@@ -56,10 +58,20 @@ function sortClients(arr, sort, ctx) {
         av = clientBalance(a, transactions, sessions, members, groups).sessionsPaid
         bv = clientBalance(b, transactions, sessions, members, groups).sessionsPaid
         return (av - bv) * dir
+      case 'paid':
+        av = financeQuery({ type: 'income', clientId: a.id, source: transactions }).reduce((s, f) => s + f.amount, 0)
+        bv = financeQuery({ type: 'income', clientId: b.id, source: transactions }).reduce((s, f) => s + f.amount, 0)
+        return (av - bv) * dir
       case 'created':
         av = new Date(a.created_at || 0).getTime()
         bv = new Date(b.created_at || 0).getTime()
         return (av - bv) * dir
+      case 'oldest':
+        /* "Oldest first" is created ascending — independent of dir so the
+           label "ותק (הכי ישן)" stays semantically correct. */
+        av = new Date(a.created_at || 0).getTime()
+        bv = new Date(b.created_at || 0).getTime()
+        return av - bv
       case 'name':
       default:
         return (a.name || '').localeCompare(b.name || '', 'he') * dir
@@ -80,7 +92,10 @@ export default function ClientsScreen() {
   const { statuses: clientStatuses } = useClientStatuses()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [tab, setTab] = useState('active')
-  const [scope, setScope] = useState('monthly')
+  const scope = prefs?.clientsScope === 'cumulative' ? 'cumulative' : 'monthly'
+  const setScope = (s) => updatePrefs?.({ clientsScope: s })
+  const groupBy = prefs?.clientsGroupBy === 'project' ? 'project' : 'status'
+  const setGroupBy = (g) => updatePrefs?.({ clientsGroupBy: g })
   const [query, setQuery] = useState('')
   const { id: routeClientId } = useParams()
   const [openId, setOpenId] = useState(routeClientId || null)
@@ -112,11 +127,32 @@ export default function ClientsScreen() {
   const total = counts.active + counts.wandering + counts.past + counts.no_status
 
   const tabClients = useMemo(() => byMeta[tab] || [], [byMeta, tab])
+  /* Source list — when grouping by project, all live clients participate
+     (so projects with mixed-meta clients still show); the tab filter applies
+     only inside the status mode. */
+  const sourceClients = groupBy === 'project' ? clientList : tabClients
   const list = useMemo(() => {
     const q = query.trim()
-    const filtered = q ? tabClients.filter((c) => c.name.includes(q)) : tabClients
+    const filtered = q ? sourceClients.filter((c) => c.name.includes(q)) : sourceClients
     return sortClients(filtered, sort, { transactions, sessions, members, groups })
-  }, [tabClients, query, sort, transactions, sessions, members, groups])
+  }, [sourceClients, query, sort, transactions, sessions, members, groups])
+
+  /* Project bucket lookup for the grouped view. Includes a "no project"
+     bucket for clients with no project_id. */
+  const grouped = useMemo(() => {
+    if (groupBy !== 'project') return null
+    const byProj = new Map()
+    list.forEach((c) => {
+      const k = c.project_id || '__none__'
+      if (!byProj.has(k)) byProj.set(k, [])
+      byProj.get(k).push(c)
+    })
+    /* Stable order: projects in the order they appear in `projects`, then "no project". */
+    const ordered = []
+    projects.forEach((p) => { if (byProj.has(p.id)) ordered.push({ project: p, clients: byProj.get(p.id) }) })
+    if (byProj.has('__none__')) ordered.push({ project: null, clients: byProj.get('__none__') })
+    return ordered
+  }, [groupBy, list, projects])
 
   /* Close the sort popover when tapping outside. */
   useEffect(() => {
@@ -237,6 +273,18 @@ export default function ClientsScreen() {
               </div>
             )}
           </div>
+          <div className="mg-toggle c-groupby" role="tablist" aria-label="קיבוץ לקוחות">
+            <button
+              type="button"
+              className={`mg-toggle-btn${groupBy === 'status' ? ' on' : ''}`}
+              onClick={() => setGroupBy('status')}
+            >סטטוס</button>
+            <button
+              type="button"
+              className={`mg-toggle-btn${groupBy === 'project' ? ' on' : ''}`}
+              onClick={() => setGroupBy('project')}
+            >פרויקט</button>
+          </div>
           <button
             type="button"
             className={`c-select-btn${selectMode ? ' on' : ''}`}
@@ -248,7 +296,9 @@ export default function ClientsScreen() {
         </div>
       </div>
 
-      <ClientTabs active={tab} counts={counts} showNoStatus={counts.no_status > 0} onChange={setTab} />
+      {groupBy === 'status' && (
+        <ClientTabs active={tab} counts={counts} showNoStatus={counts.no_status > 0} onChange={setTab} />
+      )}
 
       <div className="c-search">
         <Search size={16} strokeWidth={1.6} aria-hidden="true" />
@@ -260,23 +310,25 @@ export default function ClientsScreen() {
         />
       </div>
 
-      <section className="c-hero">
-        <div className="s-hero">
-          <div className="mg-toggle" role="tablist" aria-label="טווח סכומים">
-            <button type="button" className={`mg-toggle-btn${scope === 'monthly' ? ' on' : ''}`} onClick={() => setScope('monthly')}>חודשי</button>
-            <button type="button" className={`mg-toggle-btn${scope === 'cumulative' ? ' on' : ''}`} onClick={() => setScope('cumulative')}>מצטבר</button>
+      {groupBy === 'status' && (
+        <section className="c-hero">
+          <div className="s-hero">
+            <div className="mg-toggle" role="tablist" aria-label="טווח סכומים">
+              <button type="button" className={`mg-toggle-btn${scope === 'monthly' ? ' on' : ''}`} onClick={() => setScope('monthly')}>חודשי</button>
+              <button type="button" className={`mg-toggle-btn${scope === 'cumulative' ? ' on' : ''}`} onClick={() => setScope('cumulative')}>מצטבר</button>
+            </div>
+            <p className="c-hero-title">{HERO_LABEL[tab]}</p>
+            <div className="c-hero-grid">
+              {hero.map((s, i) => (
+                <div key={s.l} className={`c-hero-stat${i === 1 ? ' divided' : ''}`}>
+                  <p className="c-hero-stat-l">{s.l}</p>
+                  <p className="c-hero-stat-v mono">{s.v}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          <p className="c-hero-title">{HERO_LABEL[tab]}</p>
-          <div className="c-hero-grid">
-            {hero.map((s, i) => (
-              <div key={s.l} className={`c-hero-stat${i === 1 ? ' divided' : ''}`}>
-                <p className="c-hero-stat-l">{s.l}</p>
-                <p className="c-hero-stat-v mono">{s.v}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="c-list">
         {loading ? (
@@ -289,6 +341,37 @@ export default function ClientsScreen() {
               {query ? 'לא נמצאו לקוחות בחיפוש.' : total === 0 ? 'עדיין אין לקוחות. הוסף/י את הראשון!' : 'אין לקוחות בקטגוריה זו.'}
             </p>
           </div>
+        ) : groupBy === 'project' ? (
+          grouped.map(({ project, clients: pc }) => (
+            <div key={project?.id || 'none'} className="c-proj-group">
+              <p className="c-proj-head">
+                <span
+                  className="c-proj-dot"
+                  style={{ background: project?.color || 'var(--stone)' }}
+                  aria-hidden="true"
+                />
+                <span className="c-proj-name">{project?.name || 'ללא פרויקט'}</span>
+                <span className="c-proj-count mono">{pc.length}</span>
+              </p>
+              {pc.map((c, i) => (
+                <ClientCard
+                  key={c.id}
+                  client={c}
+                  index={i}
+                  onOpen={setOpenId}
+                  selectMode={selectMode}
+                  selected={selectedIds.has(c.id)}
+                  onToggleSelect={toggleSelect}
+                  projects={projects}
+                  txns={transactions}
+                  sessions={sessions}
+                  members={members}
+                  groups={groups}
+                  statuses={clientStatuses}
+                />
+              ))}
+            </div>
+          ))
         ) : (
           list.map((c, i) => (
             <ClientCard

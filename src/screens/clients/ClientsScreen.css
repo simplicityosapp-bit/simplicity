@@ -124,6 +124,46 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ── Group-by toggle (in top-actions row) ──────────────────────── */
+.c-groupby { margin-inline-end: 8px; }
+
+/* ── Project-grouped view ─────────────────────────────────────── */
+/* When the user picks "פרויקט", the flat list becomes a stack of
+   .c-proj-group blocks, each with a project header strip + a card
+   grid (on desktop) or stack (on mobile) below it. */
+.c-proj-group {
+  margin-bottom: 18px;
+}
+.c-proj-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 2px 10px;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--espresso);
+  letter-spacing: 0.02em;
+}
+.c-proj-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.c-proj-name { flex: 1; min-width: 0; }
+.c-proj-count {
+  font-family: var(--mg-font-num);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--stone);
+  background: rgba(42, 37, 32, 0.08);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+[data-theme="dark"] .c-proj-count { background: rgba(240, 235, 224, 0.08); }
+
 /* ── Client card ───────────────────────────────────────────────── */
 /* On desktop the cards lay out as a flexible 4-up grid (auto-fit so
    the column count drops gracefully on smaller widths); on mobile
@@ -136,6 +176,17 @@
   }
   .c-list > .cc { margin-bottom: 0; }
   .c-list > .empty { grid-column: 1 / -1; }
+  /* Group blocks also use the same cube grid for their cards. */
+  .c-proj-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .c-proj-group > .c-proj-head {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+  }
+  .c-proj-group > .cc { margin-bottom: 0; }
 }
 
 .cc {

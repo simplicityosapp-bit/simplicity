@@ -329,7 +329,8 @@ button {
    completely untouched. */
 @media (min-width: 768px) {
   .app {
-    max-width: 1200px;
+    max-width: none;                 /* fill the user's full viewport;
+                                        the screen + sidebar share it */
     display: flex;
     flex-direction: row-reverse;     /* RTL: sidebar at the start (right) */
     height: 100vh;

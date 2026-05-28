@@ -78,3 +78,52 @@ export function financeQuery(opts = {}) {
     return true
   })
 }
+
+/* Daily aggregate for a calendar month with optional scope. Used by the finance
+   chart and any future "trend within month" widget. Returns parallel arrays of
+   length daysInMonth so chart code can iterate by index without date math. */
+export function financeDailyBuckets(year, month, opts = {}) {
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const monthStart = new Date(year, month, 1, 0, 0, 0, 0)
+  const monthEnd = new Date(year, month, daysInMonth, 23, 59, 59, 999)
+  const tx = financeQuery({ ...opts, from: monthStart, to: monthEnd })
+  const dailyInc = new Array(daysInMonth).fill(0)
+  const dailyExp = new Array(daysInMonth).fill(0)
+  tx.forEach((f) => {
+    const d = new Date(f.date).getDate() - 1
+    if (d < 0 || d >= daysInMonth) return
+    if (f.type === 'income') dailyInc[d] += f.amount
+    else if (f.type === 'expense') dailyExp[d] += f.amount
+  })
+  const dailyNet = dailyInc.map((v, i) => v - dailyExp[i])
+  const cumInc = []
+  const cumExp = []
+  const cumNet = []
+  let ci = 0; let ce = 0; let cn = 0
+  for (let i = 0; i < daysInMonth; i += 1) {
+    ci += dailyInc[i]; cumInc.push(ci)
+    ce += dailyExp[i]; cumExp.push(ce)
+    cn += dailyNet[i]; cumNet.push(cn)
+  }
+  return { daysInMonth, dailyInc, dailyExp, dailyNet, cumInc, cumExp, cumNet }
+}
+
+/* Single source of truth for the monthly income goal. Mirrors the prototype's
+   getMonthlyIncomeGoal — finds the goals[] record tied to the 'income' goal
+   category at the monthly time-frame with no project/parent scope. Returns
+   the goal record or null. Caller supplies goals + categories arrays so the
+   helper stays pure (and chart/widgets pull from useGoals + useGoalCategories). */
+export function getMonthlyIncomeGoal(goals, goalCategories) {
+  const incomeCat = (goalCategories || []).find((c) => c.key === 'income')
+  if (!incomeCat) return null
+  return (goals || []).find(
+    (g) => g.category_id === incomeCat.id
+      && !g.project_id
+      && !g.parent_goal_id
+      && g.time_frame === 'monthly',
+  ) || null
+}
+export const getMonthlyIncomeGoalAmount = (goals, goalCategories) => {
+  const g = getMonthlyIncomeGoal(goals, goalCategories)
+  return g ? (g.target_value || 0) : 0
+}

@@ -8,6 +8,7 @@ import { useCategories } from '../../hooks/useCategories'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { exportTransactionsCSV } from '../../lib/export'
 import MonthSummary from './MonthSummary'
+import FinanceChart from './FinanceChart'
 import TransactionList from './TransactionList'
 import RecurringSection from './RecurringSection'
 import CategoriesSection from './CategoriesSection'
@@ -116,6 +117,8 @@ export default function FinanceScreen() {
         prevExpenses={prevSummary.expenses}
         prevNet={prevSummary.net}
       />
+
+      <FinanceChart month={month} />
 
       <div className="f-mid">
         <IncomeByProject monthTxs={monthTxs} clients={clients} projects={projects} />

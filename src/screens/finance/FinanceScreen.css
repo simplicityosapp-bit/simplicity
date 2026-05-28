@@ -123,6 +123,98 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ── Cumulative income chart ───────────────────────────────────
+   A "moonlight" line chart of cumulative income for the selected
+   month, with a dashed goal target line. Lives between the hero
+   summary and the f-mid grid so it doesn't fight the cube layout. */
+.f-chart {
+  margin: 12px 0 14px;
+  padding: 14px 14px 10px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+}
+.f-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.f-chart-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--espresso);
+  letter-spacing: 0.02em;
+}
+.f-chart-pct {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--mg-font-num);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+.f-chart-pct-frac {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone);
+}
+.f-chart-pct.done { color: color-mix(in srgb, var(--sage) 80%, var(--espresso)); }
+.f-chart-svg-wrap { width: 100%; }
+.f-chart-svg { overflow: visible; }
+.f-chart-line {
+  fill: none;
+  stroke: var(--clay);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.f-chart-target {
+  fill: none;
+  stroke: color-mix(in srgb, var(--sage) 80%, var(--stone));
+  stroke-width: 1.2;
+  stroke-dasharray: 5 4;
+  opacity: 0.7;
+}
+.f-chart-dot {
+  fill: var(--clay);
+  stroke: var(--cream);
+  stroke-width: 1.8;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--clay) 50%, transparent));
+}
+[data-theme="dark"] .f-chart-dot { stroke: var(--ink); }
+.f-chart-axis {
+  fill: var(--stone);
+  font-family: var(--mg-font-num);
+  font-size: 9px;
+  opacity: 0.7;
+}
+.f-chart-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 6px 0;
+  border: none;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--clay);
+  cursor: pointer;
+}
+.f-chart-cta:hover { text-decoration: underline; }
+
 /* ── Transaction groups ────────────────────────────────────────── */
 .f-tx-group {
   margin-bottom: 18px;

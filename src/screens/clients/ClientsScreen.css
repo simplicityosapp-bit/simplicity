@@ -125,6 +125,19 @@
 }
 
 /* ── Client card ───────────────────────────────────────────────── */
+/* On desktop the cards lay out as a flexible 4-up grid (auto-fit so
+   the column count drops gracefully on smaller widths); on mobile
+   they stay a single-column stack with the original spacing. */
+@media (min-width: 768px) {
+  .c-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .c-list > .cc { margin-bottom: 0; }
+  .c-list > .empty { grid-column: 1 / -1; }
+}
+
 .cc {
   margin-bottom: var(--gap);
   padding: 16px;

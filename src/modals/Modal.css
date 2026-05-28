@@ -15,48 +15,48 @@
   opacity: 1;
   visibility: visible;
 }
+/* Centered card — anchored to the middle of the visible app frame on
+   every viewport, mobile + desktop. The size, blur, and rounded
+   corners match the rest of the design language; the entry is a
+   short fade + small scale so it feels like the dialog pops above
+   the trigger rather than sliding up from the bottom. */
 .m-sheet {
   position: fixed;
+  top: 50%;
   left: 50%;
-  bottom: 0;
   z-index: 510;
-  width: 100%;
+  width: calc(100% - 24px);
   max-width: 420px;
-  transform: translateX(-50%) translateY(100%);
+  max-height: min(82vh, 720px);
+  transform: translate(-50%, calc(-50% + 12px)) scale(0.97);
+  opacity: 0;
   visibility: hidden;
-  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0.24, 1), visibility 0s linear 0.34s;
+  transition:
+    transform 0.26s cubic-bezier(0.32, 0.72, 0.24, 1),
+    opacity 0.18s ease,
+    visibility 0s linear 0.26s;
   background: var(--modal-bg);
   backdrop-filter: var(--bl);
-  border-radius: 28px 28px 0 0;
+  border-radius: 22px;
   border: 0.5px solid var(--b1);
-  border-bottom: none;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
-  max-height: 88vh;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
   display: flex;
   flex-direction: column;
 }
 .m-sheet.open {
-  transform: translateX(-50%) translateY(0);
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
   visibility: visible;
-  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0.24, 1), visibility 0s linear 0s;
+  transition:
+    transform 0.26s cubic-bezier(0.32, 0.72, 0.24, 1),
+    opacity 0.18s ease,
+    visibility 0s linear 0s;
 }
 
-/* Desktop — center the sheet instead of anchoring it to the bottom
-   so it never lands far from the trigger or off-screen on tall
-   monitors. Keeps the same animation (transform-based) so the
-   slide-in still feels right. */
 @media (min-width: 768px) {
   .m-sheet {
-    top: 50%;
-    bottom: auto;
-    max-height: 86vh;
     max-width: 520px;
-    border-radius: 22px;
-    border-bottom: 0.5px solid var(--b1);
-    transform: translate(-50%, calc(-50% + 24px));
-  }
-  .m-sheet.open {
-    transform: translate(-50%, -50%);
+    max-height: min(80vh, 720px);
   }
 }
 .m-head {

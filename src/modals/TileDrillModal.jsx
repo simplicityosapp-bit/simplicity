@@ -5,6 +5,7 @@ import Modal from './Modal'
 import { ROUTES } from '../lib/routes'
 import { isr } from '../lib/finance'
 import { getTileFilters } from '../lib/homeData'
+import { ClientsTrend, NetBars, TasksBars } from './TileDrillCharts'
 
 const STATUS_OPTIONS = [
   { k: 'active',     l: 'פעיל' },
@@ -38,13 +39,13 @@ function toggleInList(list, value) {
   return arr.includes(value) ? arr.filter((x) => x !== value) : [...arr, value]
 }
 
+/* Pills group — single-select by default, multi via `multi` prop. Mobile-
+   friendly: rows wrap, no horizontal overflow drama. */
 function Pills({ options, value, onChange, multi = false }) {
   return (
     <div className="td-pills">
       {options.map((o) => {
-        const active = multi
-          ? (value || []).includes(o.k)
-          : value === o.k
+        const active = multi ? (value || []).includes(o.k) : value === o.k
         return (
           <button
             key={o.k}
@@ -60,6 +61,106 @@ function Pills({ options, value, onChange, multi = false }) {
   )
 }
 
+/* Multi-select pill list with a leading "הכל" reset (active when nothing
+   is selected). Replaces the old single-pick <select> for project/group/
+   client/category filters — matches the prototype's multi-axis filter UX. */
+function MultiPills({ items, selected, onChange, allLabel = 'הכל', emptyLabel = 'אין' }) {
+  if (!items?.length) {
+    return <p className="td-empty-inline">{emptyLabel}</p>
+  }
+  const list = selected || []
+  return (
+    <div className="td-pills td-pills-multi">
+      <button
+        type="button"
+        className={`td-pill${list.length === 0 ? ' on' : ''}`}
+        onClick={() => onChange([])}
+      >
+        {allLabel}
+      </button>
+      {items.map((it) => {
+        const active = list.includes(it.id)
+        return (
+          <button
+            key={it.id}
+            type="button"
+            className={`td-pill${active ? ' on' : ''}`}
+            onClick={() => onChange(toggleInList(list, it.id))}
+            title={it.name}
+          >
+            {it.color && <span className="td-pill-dot" style={{ background: it.color }} />}
+            <span className="td-pill-name">{it.name}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+const DAY_MS = 86400000
+const dayKey = (d) => new Date(d).toISOString().slice(0, 10)
+
+/* Approximation: for each day in the last N days, count clients
+   created on/before that day and not yet deleted. Gives a meaningful
+   30-day "client base" trend without needing status snapshots. */
+function clientsTrendValues(clients, days = 30) {
+  const out = new Array(days).fill(0)
+  const liveClients = clients.filter((c) => !c.deleted_at)
+  const today = new Date()
+  for (let i = 0; i < days; i += 1) {
+    const ts = today.getTime() - (days - 1 - i) * DAY_MS
+    const cutoff = new Date(ts)
+    cutoff.setHours(23, 59, 59, 999)
+    out[i] = liveClients.filter((c) => {
+      const created = c.created_at ? new Date(c.created_at).getTime() : 0
+      return created <= cutoff.getTime()
+    }).length
+  }
+  return out
+}
+
+function netTrendValues(transactions, days = 30) {
+  const incomes = new Array(days).fill(0)
+  const expenses = new Array(days).fill(0)
+  const today = new Date()
+  const startKey = dayKey(new Date(today.getTime() - (days - 1) * DAY_MS))
+  const idxMap = new Map()
+  for (let i = 0; i < days; i += 1) {
+    const k = dayKey(new Date(today.getTime() - (days - 1 - i) * DAY_MS))
+    idxMap.set(k, i)
+  }
+  transactions.forEach((t) => {
+    if (t.deleted_at) return
+    if (t.status !== 'confirmed') return
+    const k = dayKey(t.date)
+    if (k < startKey) return
+    const idx = idxMap.get(k)
+    if (idx == null) return
+    if (t.type === 'income') incomes[idx] += t.amount
+    else if (t.type === 'expense') expenses[idx] += t.amount
+  })
+  return { incomes, expenses }
+}
+
+function tasksDoneTrend(tasks, days = 7) {
+  const values = new Array(days).fill(0)
+  const dows = new Array(days).fill(0)
+  const today = new Date()
+  for (let i = 0; i < days; i += 1) {
+    const d = new Date(today.getTime() - (days - 1 - i) * DAY_MS)
+    dows[i] = d.getDay()
+    const k = dayKey(d)
+    values[i] = tasks.filter((t) => {
+      if (t.deleted_at) return false
+      if (t.status !== 'done') return false
+      const completedAt = t.updated_at || t.completed_at
+      if (!completedAt) return false
+      return dayKey(completedAt) === k
+    }).length
+  }
+  return { values, dows }
+}
+
 function ClientsPanel({ filters, setFilter, clients, projects, groups }) {
   const liveClients = clients.filter((c) => !c.deleted_at)
   const filtered = useMemo(() => {
@@ -71,32 +172,27 @@ function ClientsPanel({ filters, setFilter, clients, projects, groups }) {
       return true
     })
   }, [liveClients, filters])
+  const trend = useMemo(() => clientsTrendValues(liveClients, 30), [liveClients])
 
   return (
     <>
       <p className="td-num mono">{filtered.length}</p>
       <p className="td-num-lbl">לקוחות תואמים</p>
 
+      <div className="td-chart-block">
+        <p className="td-chart-lbl">בסיס הלקוחות · 30 ימים</p>
+        <ClientsTrend values={trend} />
+      </div>
+
       <p className="td-field-lbl">סטטוס</p>
       <Pills options={STATUS_OPTIONS} value={filters.statuses} multi
              onChange={(v) => setFilter('statuses', v)} />
 
-      <div className="td-row2">
-        <div className="td-field">
-          <p className="td-field-lbl">פרויקט</p>
-          <select className="m-select" value={filters.projectIds?.[0] || ''} onChange={(e) => setFilter('projectIds', e.target.value ? [e.target.value] : [])}>
-            <option value="">הכל</option>
-            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-        </div>
-        <div className="td-field">
-          <p className="td-field-lbl">קבוצה</p>
-          <select className="m-select" value={filters.groupIds?.[0] || ''} onChange={(e) => setFilter('groupIds', e.target.value ? [e.target.value] : [])}>
-            <option value="">הכל</option>
-            {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-          </select>
-        </div>
-      </div>
+      <p className="td-field-lbl">פרויקט</p>
+      <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} emptyLabel="אין פרויקטים עדיין" />
+
+      <p className="td-field-lbl">קבוצה</p>
+      <MultiPills items={groups} selected={filters.groupIds} onChange={(v) => setFilter('groupIds', v)} emptyLabel="אין קבוצות עדיין" />
 
       <p className="td-section-lbl">תואמים ({filtered.length})</p>
       <div className="td-list">
@@ -128,12 +224,22 @@ function statusLabel(meta) {
 }
 
 function NetPanel({ filters, setFilter, transactions, projects, categories, summary }) {
+  const trend = useMemo(() => netTrendValues(transactions || [], 30), [transactions])
   return (
     <>
       <p className={`td-num mono${summary.net < 0 ? ' neg' : ''}`}>
         {summary.net < 0 ? '−' : ''}{isr(Math.abs(summary.net))}
       </p>
       <p className="td-num-lbl">{filters.type === 'income' ? 'הכנסות' : filters.type === 'expense' ? 'הוצאות' : 'נטו'}</p>
+
+      <div className="td-chart-block">
+        <p className="td-chart-lbl">הכנסות מול הוצאות · 30 ימים</p>
+        <NetBars incomes={trend.incomes} expenses={trend.expenses} />
+        <div className="td-chart-legend">
+          <span className="td-chart-key"><span className="td-chart-swatch sage" />הכנסות</span>
+          <span className="td-chart-key"><span className="td-chart-swatch clay" />הוצאות</span>
+        </div>
+      </div>
 
       <p className="td-field-lbl">טווח זמן</p>
       <Pills options={NET_RANGES} value={filters.timeRange}
@@ -143,22 +249,11 @@ function NetPanel({ filters, setFilter, transactions, projects, categories, summ
       <Pills options={NET_TYPES} value={filters.type}
              onChange={(v) => setFilter('type', v)} />
 
-      <div className="td-row2">
-        <div className="td-field">
-          <p className="td-field-lbl">פרויקט</p>
-          <select className="m-select" value={filters.projectIds?.[0] || ''} onChange={(e) => setFilter('projectIds', e.target.value ? [e.target.value] : [])}>
-            <option value="">הכל</option>
-            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-        </div>
-        <div className="td-field">
-          <p className="td-field-lbl">קטגוריה</p>
-          <select className="m-select" value={filters.categoryIds?.[0] || ''} onChange={(e) => setFilter('categoryIds', e.target.value ? [e.target.value] : [])}>
-            <option value="">הכל</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </div>
-      </div>
+      <p className="td-field-lbl">פרויקט</p>
+      <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} emptyLabel="אין פרויקטים עדיין" />
+
+      <p className="td-field-lbl">קטגוריה</p>
+      <MultiPills items={categories} selected={filters.categoryIds} onChange={(v) => setFilter('categoryIds', v)} emptyLabel="אין קטגוריות עדיין" />
 
       <div className="td-mini-stats">
         <div className="td-mini">
@@ -193,11 +288,17 @@ function TasksPanel({ filters, setFilter, tasks, projects, clients }) {
       return (order[a.priority] ?? 9) - (order[b.priority] ?? 9)
     })
   }, [liveTasks, filters])
+  const trend = useMemo(() => tasksDoneTrend(liveTasks, 7), [liveTasks])
 
   return (
     <>
       <p className="td-num mono">{filtered.length}</p>
       <p className="td-num-lbl">משימות תואמות</p>
+
+      <div className="td-chart-block">
+        <p className="td-chart-lbl">משימות שהושלמו · 7 ימים</p>
+        <TasksBars values={trend.values} daysOfWeek={trend.dows} />
+      </div>
 
       <p className="td-field-lbl">סטטוס</p>
       <Pills options={TASK_STATUS} value={filters.status}
@@ -207,22 +308,11 @@ function TasksPanel({ filters, setFilter, tasks, projects, clients }) {
       <Pills options={TASK_PRIORITIES} value={filters.priorities} multi
              onChange={(v) => setFilter('priorities', v)} />
 
-      <div className="td-row2">
-        <div className="td-field">
-          <p className="td-field-lbl">פרויקט</p>
-          <select className="m-select" value={filters.projectIds?.[0] || ''} onChange={(e) => setFilter('projectIds', e.target.value ? [e.target.value] : [])}>
-            <option value="">הכל</option>
-            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-        </div>
-        <div className="td-field">
-          <p className="td-field-lbl">לקוח</p>
-          <select className="m-select" value={filters.clientIds?.[0] || ''} onChange={(e) => setFilter('clientIds', e.target.value ? [e.target.value] : [])}>
-            <option value="">הכל</option>
-            {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </div>
-      </div>
+      <p className="td-field-lbl">פרויקט</p>
+      <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} emptyLabel="אין פרויקטים עדיין" />
+
+      <p className="td-field-lbl">לקוח</p>
+      <MultiPills items={clients} selected={filters.clientIds} onChange={(v) => setFilter('clientIds', v)} emptyLabel="אין לקוחות עדיין" />
 
       <p className="td-section-lbl">המשימות הקרובות</p>
       <div className="td-list">

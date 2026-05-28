@@ -18,8 +18,10 @@ const RECURRENCES = [
 ]
 
 /* onSave is async (Supabase insert). Supports one-off or recurring reminders:
-   weekly (same weekday), monthly on the date, or every X days. */
-export default function AddReminderModal({ open, onClose, onSave, clients = [] }) {
+   weekly (same weekday), monthly on the date, or every X days.
+   `defaultLinkedTo` pre-binds the reminder to a project/group/etc. and hides
+   the client selector — used when opened from a project drawer. */
+export default function AddReminderModal({ open, onClose, onSave, clients = [], defaultLinkedTo = null, linkedSubjectName = '' }) {
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -46,8 +48,8 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [] }
         recurrence_type: form.recurrence,
         recurrence_pattern: pattern,
         end_date: form.recurrence !== 'none' && form.end_date ? form.end_date : null,
-        linked_to_type: form.client_id ? 'client' : null,
-        linked_to_id: form.client_id || null,
+        linked_to_type: defaultLinkedTo?.type || (form.client_id ? 'client' : null),
+        linked_to_id: defaultLinkedTo?.id || form.client_id || null,
         status: 'pending',
         type: null,
         channel: null,
@@ -103,13 +105,23 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [] }
           <input type="date" className="m-input" value={form.end_date} onChange={(e) => set('end_date', e.target.value)} />
         </div>
       )}
-      <div className="m-field">
-        <label className="m-label">לקוח מקושר (אופציונלי)</label>
-        <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
-          <option value="">ללא</option>
-          {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
-      </div>
+      {defaultLinkedTo ? (
+        <div className="m-field">
+          <label className="m-label">מקושרת ל</label>
+          <p className="m-sub">
+            <span className="m-sub-dot" style={{ background: 'var(--clay)' }} />
+            {linkedSubjectName || (defaultLinkedTo.type === 'project' ? 'פרויקט' : defaultLinkedTo.type)}
+          </p>
+        </div>
+      ) : (
+        <div className="m-field">
+          <label className="m-label">לקוח מקושר (אופציונלי)</label>
+          <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
+            <option value="">ללא</option>
+            {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </div>
+      )}
       <div className="m-field">
         <label className="m-label">פרטים (אופציונלי)</label>
         <textarea className="m-textarea" value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="פרטים נוספים" />

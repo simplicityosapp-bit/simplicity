@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { listSessions, insertSession, removeSession as apiRemove } from '../lib/api/sessions'
+import { listSessions, insertSession, updateSession as apiUpdate, removeSession as apiRemove } from '../lib/api/sessions'
 
 export function useSessions() {
   const [sessions, setSessions] = useState([])
@@ -39,10 +39,16 @@ export function useSessions() {
     return row
   }, [])
 
+  const updateSession = useCallback(async (id, patch) => {
+    const row = await apiUpdate(id, patch)
+    setSessions((prev) => prev.map((s) => (s.id === id ? row : s)))
+    return row
+  }, [])
+
   const removeSession = useCallback(async (id) => {
     setSessions((prev) => prev.filter((s) => s.id !== id))
     try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
   }, [refetch])
 
-  return { sessions, loading, error, addSession, removeSession, refetch }
+  return { sessions, loading, error, addSession, updateSession, removeSession, refetch }
 }

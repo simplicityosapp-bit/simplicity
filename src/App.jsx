@@ -56,6 +56,7 @@ function AppShell() {
       <Routes>
         <Route path={ROUTES.HOME} element={<HomeScreen />} />
         <Route path={ROUTES.CLIENTS} element={<ClientsScreen />} />
+        <Route path={ROUTES.CLIENT} element={<ClientsScreen />} />
         <Route path={ROUTES.FINANCE} element={<FinanceScreen />} />
         <Route path={ROUTES.TASKS} element={<TasksScreen />} />
         <Route path={ROUTES.LEADS} element={<LeadsScreen />} />

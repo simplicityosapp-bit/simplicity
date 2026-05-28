@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { Search, ArrowUpDown, X } from 'lucide-react'
 import { statusMetaOf, paidForClients, sessionsCountForClients, clientBalance } from '../../lib/clients'
 import { currentMonthRange, isr } from '../../lib/finance'
@@ -81,7 +82,10 @@ export default function ClientsScreen() {
   const [tab, setTab] = useState('active')
   const [scope, setScope] = useState('monthly')
   const [query, setQuery] = useState('')
-  const [openId, setOpenId] = useState(null)
+  const { id: routeClientId } = useParams()
+  const [openId, setOpenId] = useState(routeClientId || null)
+  /* Allow deep-link to a specific client (e.g. from project drawer). */
+  useEffect(() => { if (routeClientId) setOpenId(routeClientId) }, [routeClientId])
   const [showAdd, setShowAdd] = useState(false)
   const [pendingDeleteClient, setPendingDeleteClient] = useState(null)
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState(null)

@@ -74,6 +74,306 @@
 
 .pd-groups { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
 
+/* ── Section accordion ─────────────────────────────────── */
+.pd-section {
+  margin-top: 14px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  overflow: hidden;
+}
+.pd-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: start;
+}
+.pd-sec-title {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--espresso);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pd-sec-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: rgba(42, 37, 32, 0.08);
+  font-family: var(--mg-font-num);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--stone);
+}
+[data-theme="dark"] .pd-sec-count { background: rgba(240, 235, 224, 0.08); }
+.pd-sec-chev {
+  color: var(--stone);
+  transition: transform 0.18s;
+  transform: rotate(-90deg);
+}
+.pd-sec-chev.open { transform: rotate(0deg); }
+.pd-sec-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 12px 14px;
+}
+.pd-empty {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  color: var(--stone);
+  text-align: center;
+  padding: 8px 0;
+}
+.pd-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 9px 12px;
+  border-radius: var(--mg-btn-radius);
+  border: 1px dashed var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+  cursor: pointer;
+}
+.pd-add-btn:hover { background: rgba(42, 37, 32, 0.04); }
+[data-theme="dark"] .pd-add-btn:hover { background: rgba(240, 235, 224, 0.04); }
+
+/* ── Group status pills ────────────────────────────────── */
+.gc-status-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.gc-status-pill {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--stone);
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s, border-color 0.14s;
+}
+.gc-status-pill.on[data-status="active"] {
+  background: color-mix(in srgb, var(--sage) 18%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 50%, transparent);
+  color: var(--espresso);
+}
+.gc-status-pill.on[data-status="in_development"] {
+  background: color-mix(in srgb, var(--amber-warn) 20%, transparent);
+  border-color: color-mix(in srgb, var(--amber-warn) 55%, transparent);
+  color: var(--espresso);
+}
+.gc-status-pill.on[data-status="ended"] {
+  background: color-mix(in srgb, var(--clay) 18%, transparent);
+  border-color: color-mix(in srgb, var(--clay) 50%, transparent);
+  color: var(--espresso);
+}
+
+/* ── Group sessions expand panel ───────────────────────── */
+.gc-actions .gc-btn.ghost.on {
+  background: rgba(42, 37, 32, 0.06);
+  color: var(--espresso);
+}
+[data-theme="dark"] .gc-actions .gc-btn.ghost.on {
+  background: rgba(240, 235, 224, 0.06);
+}
+.gc-actions .gc-btn.ghost.danger {
+  flex: 0 0 36px;
+  color: color-mix(in srgb, var(--clay) 80%, var(--stone));
+}
+.gc-actions .gc-btn.ghost.danger:hover {
+  background: color-mix(in srgb, var(--clay) 12%, transparent);
+}
+.gc-sessions {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--divider);
+}
+.gc-section-title {
+  margin: 0 0 6px;
+  font-family: var(--mg-font);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--stone);
+}
+.gc-sess-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.gc-sess-num {
+  font-family: var(--mg-font-num);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--stone);
+  min-width: 28px;
+}
+.gc-sess-date {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  color: var(--espresso);
+}
+
+/* ── Client rows inside the clients section ────────────── */
+.pd-client {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(42, 37, 32, 0.04);
+  cursor: pointer;
+  text-align: start;
+}
+[data-theme="dark"] .pd-client {
+  background: rgba(240, 235, 224, 0.04);
+}
+.pd-client:hover { background: rgba(42, 37, 32, 0.07); }
+[data-theme="dark"] .pd-client:hover { background: rgba(240, 235, 224, 0.07); }
+.pd-client-name {
+  flex: 1;
+  font-family: var(--mg-font);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--espresso);
+}
+.pd-client-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 600;
+}
+.pd-client-tag.private {
+  background: rgba(42, 37, 32, 0.06);
+  color: var(--stone);
+}
+[data-theme="dark"] .pd-client-tag.private { background: rgba(240, 235, 224, 0.06); }
+.pd-client-tag.group-member {
+  background: color-mix(in srgb, var(--sage) 16%, transparent);
+  color: var(--espresso);
+}
+
+/* ── Reminders rows ────────────────────────────────────── */
+.pd-rem-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--divider);
+}
+.pd-rem-row:last-of-type { border-bottom: none; }
+.pd-rem-id { flex: 1; min-width: 0; }
+.pd-rem-title {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.pd-rem-title.done {
+  color: var(--stone);
+  text-decoration: line-through;
+}
+.pd-rem-meta {
+  margin: 2px 0 0;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--stone);
+}
+.pd-rem-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+}
+.pd-rem-btn:hover {
+  background: rgba(42, 37, 32, 0.05);
+  color: var(--espresso);
+}
+.pd-rem-btn.danger:hover {
+  background: color-mix(in srgb, var(--clay) 14%, transparent);
+  color: var(--clay);
+}
+
+/* ── Delete-group cascade modal rows ──────────────────── */
+.dg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 6px 0 14px;
+}
+.dg-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--divider);
+  background: rgba(42, 37, 32, 0.03);
+}
+[data-theme="dark"] .dg-row { background: rgba(240, 235, 224, 0.03); }
+.dg-row-text { flex: 1; min-width: 0; }
+.dg-row-l {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.dg-row-sub {
+  margin: 2px 0 0;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--stone);
+}
+.dg-row-choice {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .gc {
   padding: 14px;
   border-radius: var(--mg-card-radius);

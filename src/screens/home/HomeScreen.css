@@ -103,14 +103,20 @@
    element (.h-quote / .moon-card / .h-card / .ins-widget / .h-stat).
    Selector is bumped to .home-stack .home-widget > * so it wins the
    cascade tie-break against the .h-quote/.moon-card/... block below. */
-.home-stack .home-widget > * {
+/* :not() exclusions keep modal portals (rendered as siblings of the
+   widget body — e.g. the TileDrillModal opened from ChipsWidget)
+   from inheriting position:relative. They have to stay
+   position:fixed so they can overlay the entire app frame; without
+   the exclusion this rule wins specificity (0,2,1 vs 0,1,0) and
+   the modal flows in the document instead of floating centered. */
+.home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
   position: relative;
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 28%, transparent),
     0 0 22px color-mix(in srgb, var(--widget-accent, transparent) 14%, transparent),
     var(--mg-card-shadow);
 }
-[data-theme="dark"] .home-stack .home-widget > * {
+[data-theme="dark"] .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 40%, transparent),
     0 0 28px color-mix(in srgb, var(--widget-accent, transparent) 18%, transparent),

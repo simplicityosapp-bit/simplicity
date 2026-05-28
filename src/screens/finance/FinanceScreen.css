@@ -557,6 +557,28 @@
   background: rgba(240, 235, 224, 0.07);
 }
 
+/* ── Mid-section grid — analytical/management blocks ─────────
+   The four blocks between the month hero and the transaction list
+   (by-project, by-category, recurring templates, categories) lay
+   out as a flexible card grid. Mobile keeps a single column; on
+   desktop the auto-fit minmax lands ~4 cards per row on standard
+   widths and degrades gracefully to 3/2 on narrower screens. */
+.f-mid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.f-mid > * {
+  margin-bottom: 0 !important;  /* override per-section bottom margins */
+}
+@media (min-width: 768px) {
+  .f-mid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    align-items: start;
+  }
+}
+
 /* ── Top actions row (export + add) ─────────────────────────── */
 .f-top-actions {
   display: flex;

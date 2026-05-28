@@ -117,22 +117,24 @@ export default function FinanceScreen() {
         prevNet={prevSummary.net}
       />
 
-      <IncomeByProject monthTxs={monthTxs} clients={clients} projects={projects} />
-      <ExpensesByCategory monthTxs={monthTxs} categories={categories} />
+      <div className="f-mid">
+        <IncomeByProject monthTxs={monthTxs} clients={clients} projects={projects} />
+        <ExpensesByCategory monthTxs={monthTxs} categories={categories} />
 
-      <RecurringSection
-        templates={templates}
-        onAdd={() => setShowAddRec(true)}
-        onEdit={setEditRec}
-        onDelete={setPendingDeleteRec}
-        onToggleActive={(t) => updateRecurring(t.id, { active: !t.active })}
-      />
+        <RecurringSection
+          templates={templates}
+          onAdd={() => setShowAddRec(true)}
+          onEdit={setEditRec}
+          onDelete={setPendingDeleteRec}
+          onToggleActive={(t) => updateRecurring(t.id, { active: !t.active })}
+        />
 
-      <CategoriesSection
-        categories={categories}
-        onAdd={addCategory}
-        onDelete={(c) => removeCategory(c.id)}
-      />
+        <CategoriesSection
+          categories={categories}
+          onAdd={addCategory}
+          onDelete={(c) => removeCategory(c.id)}
+        />
+      </div>
 
       <section className="f-list">
         {loading ? (

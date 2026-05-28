@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Sparkles, Check } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
-import { questionText } from '../../../lib/questionTemplates'
+import { questionText, isQuestionDueToday } from '../../../lib/questionTemplates'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
 import InfoPopover from '../../../components/InfoPopover'
@@ -31,7 +31,14 @@ export default function InsightsWidget() {
   const [busy, setBusy] = useState(false)
 
   const today = dayStr(0)
-  const activeQuestions = useMemo(() => questions.filter((x) => x.active), [questions])
+  const todayDate = useMemo(() => new Date(), [])
+  /* "Due today" combines `active` with the per-question
+     schedule_pattern (days-of-week / every-X-days). Null pattern
+     means "always". */
+  const activeQuestions = useMemo(
+    () => questions.filter((x) => x.active && isQuestionDueToday(x, todayDate)),
+    [questions, todayDate],
+  )
   const q = useMemo(
     () => activeQuestions.find((x) => !answers.some((a) => a.user_question_id === x.id && a.date === today)),
     [activeQuestions, answers, today],

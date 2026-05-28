@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ChevronDown, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
-  Plus, Trash2, Leaf, GripVertical, ChevronLeft,
+  Plus, Trash2, Leaf, GripVertical, ChevronLeft, CalendarDays, Database, Download,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
@@ -10,6 +10,12 @@ import { useLeadSources } from '../../hooks/useLeadSources'
 import { useClientStatuses } from '../../hooks/useClientStatuses'
 import { useLeadStatuses } from '../../hooks/useLeadStatuses'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
+import { useClients } from '../../hooks/useClients'
+import { useProjects } from '../../hooks/useProjects'
+import { useTransactions } from '../../hooks/useTransactions'
+import { useCategories } from '../../hooks/useCategories'
+import { useTasks } from '../../hooks/useTasks'
+import { useLeads } from '../../hooks/useLeads'
 import { countClientsByStatus, reassignClientsStatus } from '../../lib/api/clientStatuses'
 import { countLeadsByStatus, reassignLeadsStatus } from '../../lib/api/leadStatuses'
 import DeleteSubStatusModal from '../../modals/DeleteSubStatusModal'
@@ -18,8 +24,10 @@ import {
   TEXT_SIZE_OPTIONS, GENDER_OPTIONS, WIDGET_REGISTRY, ACCENT_OPTIONS,
   CARD_STYLE_OPTIONS, TEXT_STRENGTH_OPTIONS, DENSITY_OPTIONS,
 } from '../../lib/preferences'
-import { questionText } from '../../lib/questionTemplates'
+import { questionText, describeSchedule } from '../../lib/questionTemplates'
+import { exportTransactionsCSV } from '../../lib/export'
 import AddQuestionModal from '../../modals/AddQuestionModal'
+import QuestionScheduleEditor from './QuestionScheduleEditor'
 import './SettingsScreen.css'
 
 const SECTIONS = [
@@ -31,6 +39,7 @@ const SECTIONS = [
   { key: 'questions', title: 'שאלות יומיות', icon: Sparkles, sub: 'מה נשאל בכל יום' },
   { key: 'leads', title: 'הגדרות לידים', icon: Leaf, sub: 'מקורות וסטטוסים' },
   { key: 'design', title: 'עיצוב', icon: Palette, sub: 'מצב יום/לילה, גודל טקסט' },
+  { key: 'data', title: 'נתונים', icon: Database, sub: 'ייצוא, יבוא, איפוס' },
   { key: 'about', title: 'אודות', icon: Info, sub: 'גרסה ומידע' },
 ]
 
@@ -366,11 +375,20 @@ export default function SettingsScreen() {
   const [newSourceName, setNewSourceName] = useState('')
   const [clientDrafts, setClientDrafts] = useState({})
   const [leadDrafts, setLeadDrafts] = useState({})
-  const { questions, addQuestion, toggleActive, removeQuestion } = useUserQuestions()
+  const [editingScheduleId, setEditingScheduleId] = useState(null)
+  const { questions, addQuestion, toggleActive, updateQuestion, removeQuestion } = useUserQuestions()
   const { sources, addSource, removeSource } = useLeadSources()
   const { statuses: clientStatuses, addStatus: addClientStatus, removeStatus: removeClientStatus } = useClientStatuses()
   const { statuses: leadStatuses, addStatus: addLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
   const { prefs, loading: prefsLoading, update: updatePrefs } = useUserPreferences()
+  /* Data-section hooks — pulled lazily-ish: useClients/etc. all use a
+     single network round-trip on mount, so this isn't expensive. */
+  const { clients: dataClients } = useClients()
+  const { projects: dataProjects } = useProjects()
+  const { transactions: dataTransactions } = useTransactions()
+  const { categories: dataCategories } = useCategories()
+  const { tasks: dataTasks } = useTasks()
+  const { leads: dataLeads } = useLeads()
   const [pendingDelete, setPendingDelete] = useState(null)  /* { kind, status, peers } | null */
   const navigate = useNavigate()
   const toggle = (key) => setOpen((cur) => (cur === key ? null : key))
@@ -410,30 +428,116 @@ export default function SettingsScreen() {
       )
     }
     if (key === 'questions') {
+      const reminderPref = prefs?.insightsReminder || { enabled: false, time: '20:00' }
+      const setReminder = (patch) => updatePrefs?.({ insightsReminder: { ...reminderPref, ...patch } })
       return (
         <div className="set-q">
           {questions.length === 0 ? (
             <p className="set-q-empty">עדיין אין שאלות יומיות. הוסף/י את הראשונה.</p>
           ) : (
             questions.map((q) => (
-              <div key={q.id} className={`set-q-row${q.active ? '' : ' off'}`}>
-                <span className="set-q-icon">{q.icon || '🫧'}</span>
-                <span className="set-q-text">{questionText(q)}</span>
-                <button
-                  type="button"
-                  className={`set-q-toggle${q.active ? ' on' : ''}`}
-                  onClick={() => toggleActive(q)}
-                  aria-pressed={q.active}
-                >{q.active ? 'פעילה' : 'כבויה'}</button>
-                <button type="button" className="set-q-del" onClick={() => removeQuestion(q.id)} aria-label="מחיקת שאלה">
-                  <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
-                </button>
+              <div key={q.id} className={`set-q-block${q.active ? '' : ' off'}`}>
+                <div className={`set-q-row`}>
+                  <span className="set-q-icon">{q.icon || '🫧'}</span>
+                  <span className="set-q-text">{questionText(q)}</span>
+                  <button
+                    type="button"
+                    className="set-q-sched"
+                    onClick={() => setEditingScheduleId(editingScheduleId === q.id ? null : q.id)}
+                    aria-expanded={editingScheduleId === q.id}
+                  >
+                    <CalendarDays size={11} strokeWidth={1.7} aria-hidden="true" />
+                    {describeSchedule(q)}
+                  </button>
+                  <button
+                    type="button"
+                    className={`set-q-toggle${q.active ? ' on' : ''}`}
+                    onClick={() => toggleActive(q)}
+                    aria-pressed={q.active}
+                  >{q.active ? 'פעילה' : 'כבויה'}</button>
+                  <button type="button" className="set-q-del" onClick={() => removeQuestion(q.id)} aria-label="מחיקת שאלה">
+                    <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
+                  </button>
+                </div>
+                {editingScheduleId === q.id && (
+                  <QuestionScheduleEditor
+                    question={q}
+                    onClose={() => setEditingScheduleId(null)}
+                    onUpdate={updateQuestion}
+                  />
+                )}
               </div>
             ))
           )}
           <button type="button" className="set-q-add" onClick={() => setShowAddQ(true)}>
             <Plus size={15} strokeWidth={1.8} aria-hidden="true" /> הוסף שאלה
           </button>
+
+          <div className="set-sub-divider" />
+          <p className="set-sub-h">תזכורת יומית</p>
+          <div className="set-reminder-row">
+            <label className="set-reminder-toggle">
+              <input
+                type="checkbox"
+                checked={!!reminderPref.enabled}
+                onChange={(e) => setReminder({ enabled: e.target.checked })}
+              />
+              <span>תזכיר/י לי לענות אם לא ענית עד</span>
+            </label>
+            <input
+              type="time"
+              className="m-input set-reminder-time"
+              value={reminderPref.time || '20:00'}
+              onChange={(e) => setReminder({ time: e.target.value })}
+              disabled={!reminderPref.enabled}
+            />
+          </div>
+          <p className="set-reminder-hint">
+            ההעדפה נשמרת. ההתראה עצמה (push בדפדפן) תופעל בעדכון הבא.
+          </p>
+        </div>
+      )
+    }
+    if (key === 'data') {
+      const txAll = (dataTransactions || []).filter((t) => !t.deleted_at)
+      const exportAll = () => exportTransactionsCSV({
+        transactions: txAll,
+        clients: dataClients,
+        projects: dataProjects,
+        categories: dataCategories,
+        monthDate: new Date(),
+      })
+      const counts = [
+        { l: 'לקוחות', n: dataClients?.length || 0 },
+        { l: 'תנועות', n: txAll.length },
+        { l: 'לידים',  n: dataLeads?.length || 0 },
+        { l: 'משימות', n: dataTasks?.length || 0 },
+        { l: 'פרויקטים', n: dataProjects?.length || 0 },
+        { l: 'קטגוריות', n: dataCategories?.length || 0 },
+      ]
+      return (
+        <div className="set-data">
+          <p className="set-sub-intro">סיכום מצב הנתונים שלך וייצוא לקובץ CSV. לפעולות נוספות (יבוא/איפוס) — בקרוב.</p>
+          <div className="set-data-stats">
+            {counts.map((c) => (
+              <div key={c.l} className="set-data-stat">
+                <p className="set-data-stat-v mono">{c.n}</p>
+                <p className="set-data-stat-l">{c.l}</p>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="set-data-action"
+            onClick={exportAll}
+            disabled={txAll.length === 0}
+          >
+            <Download size={15} strokeWidth={1.7} aria-hidden="true" />
+            ייצוא תנועות לקובץ CSV
+          </button>
+          <p className="set-data-hint">
+            הקובץ כולל את כל התנועות (כולל ממתינות ודולגו) עם עמודות תאריך, סוג, סכום, תיאור, סטטוס, לקוח, פרויקט, קטגוריה.
+          </p>
         </div>
       )
     }

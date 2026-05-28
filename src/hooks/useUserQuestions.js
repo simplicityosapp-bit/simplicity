@@ -49,10 +49,23 @@ export function useUserQuestions() {
     }
   }, [refetch])
 
+  const updateQuestion = useCallback(async (id, patch) => {
+    setQuestions((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)))
+    try {
+      const row = await updateUserQuestion(id, patch)
+      setQuestions((prev) => prev.map((x) => (x.id === id ? row : x)))
+      return row
+    } catch (e) {
+      setError(e.message)
+      refetch()
+      throw e
+    }
+  }, [refetch])
+
   const removeQuestion = useCallback(async (id) => {
     setQuestions((prev) => prev.filter((q) => q.id !== id))
     try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
   }, [refetch])
 
-  return { questions, loading, error, addQuestion, toggleActive, removeQuestion, refetch }
+  return { questions, loading, error, addQuestion, toggleActive, updateQuestion, removeQuestion, refetch }
 }

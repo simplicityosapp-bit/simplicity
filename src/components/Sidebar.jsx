@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles,
+  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
@@ -11,10 +11,8 @@ import './Sidebar.css'
 
 const ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings }
 
-/* Extras — screens that aren't in the main bottom-nav set. Lives
-   under a collapsible "עוד" section at the bottom of the sidebar.
-   `placeholder: true` items aren't routed yet — they show a soft
-   "soon" alert so the user can see what's planned. */
+/* Extras — screens that aren't in the main bottom-nav set. Surface
+   from a slide-up panel anchored over the "עוד" button. */
 const EXTRAS = [
   { key: 'moon',     label: 'מבט על',         icon: Moon,       to: ROUTES.MOON_GLANCE },
   { key: 'reports',  label: 'דוחות',          icon: BarChart3,  to: ROUTES.REPORTS },
@@ -33,11 +31,38 @@ export default function Sidebar({ screen, isDark, onToggleTheme }) {
   const navigate = useNavigate()
   const { signOut } = useAuth()
   const [extrasOpen, setExtrasOpen] = useState(false)
+  const sidebarRef = useRef(null)
+
+  /* Close the slide-up panel when the user clicks outside the
+     sidebar or presses Escape. */
+  useEffect(() => {
+    if (!extrasOpen) return
+    const onDown = (e) => {
+      if (!sidebarRef.current?.contains(e.target)) setExtrasOpen(false)
+    }
+    const onKey = (e) => { if (e.key === 'Escape') setExtrasOpen(false) }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [extrasOpen])
 
   return (
-    <aside className="mg-sidebar" aria-label="ניווט ראשי">
-      <p className="mg-sidebar-brand">Simplicity</p>
-      <p className="mg-sidebar-tag">Practice OS</p>
+    <aside className="mg-sidebar" aria-label="ניווט ראשי" ref={sidebarRef}>
+      <div className="mg-sidebar-brand-row">
+        <img
+          className="mg-sidebar-logo"
+          src="/logo-light.png"
+          alt=""
+          aria-hidden="true"
+        />
+        <div className="mg-sidebar-brand-text">
+          <p className="mg-sidebar-brand">Simplicity</p>
+          <p className="mg-sidebar-tag">Practice OS</p>
+        </div>
+      </div>
 
       <nav className="mg-sidebar-nav">
         {DRAWER_NAV.map((item) => {
@@ -60,12 +85,12 @@ export default function Sidebar({ screen, isDark, onToggleTheme }) {
           )
         })}
 
-        {/* "עוד" — expansion submenu for screens not in the main set */}
+        {/* "עוד" — opens the slide-up extras panel */}
         <button
           type="button"
           className={`mg-sidebar-link mg-sidebar-more${extrasOpen ? ' is-open' : ''}`}
           data-screen="more"
-          onClick={() => setExtrasOpen((v) => !v)}
+          onClick={(e) => { e.stopPropagation(); setExtrasOpen((v) => !v) }}
           aria-expanded={extrasOpen}
           title="עוד"
         >
@@ -74,33 +99,49 @@ export default function Sidebar({ screen, isDark, onToggleTheme }) {
           </span>
           <span className="mg-sidebar-link-text">עוד</span>
         </button>
-        {extrasOpen && (
-          <div className="mg-sidebar-extras">
-            {EXTRAS.map((item) => {
-              const Icon = item.icon
-              const active = item.key === screen
-              const handleClick = item.placeholder
-                ? () => window.alert(item.soon || 'בקרוב')
-                : () => navigate(item.to)
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  className={`mg-sidebar-link mg-sidebar-sub${active ? ' on' : ''}${item.placeholder ? ' placeholder' : ''}`}
-                  data-screen={item.key}
-                  onClick={handleClick}
-                  title={item.label}
-                >
-                  <span className="mg-sidebar-link-chip" aria-hidden="true">
-                    <Icon size={18} strokeWidth={2} />
-                  </span>
-                  <span className="mg-sidebar-link-text">{item.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        )}
       </nav>
+
+      {/* Slide-up panel — sits over the nav area, anchored to the
+          bottom of the sidebar so it appears to rise out of "עוד".
+          Glass styling lets the icons beneath show through. */}
+      <div
+        className={`mg-sidebar-extras${extrasOpen ? ' open' : ''}`}
+        role="menu"
+        aria-hidden={!extrasOpen}
+      >
+        <div className="mg-sidebar-extras-head">
+          <span>עוד</span>
+          <button
+            type="button"
+            className="mg-sidebar-extras-close"
+            onClick={() => setExtrasOpen(false)}
+            aria-label="סגירה"
+          >
+            <X size={14} strokeWidth={1.7} aria-hidden="true" />
+          </button>
+        </div>
+        <div className="mg-sidebar-extras-list">
+          {EXTRAS.map((item) => {
+            const Icon = item.icon
+            const active = item.key === screen
+            return (
+              <button
+                key={item.key}
+                type="button"
+                className={`mg-sidebar-link mg-sidebar-sub${active ? ' on' : ''}`}
+                data-screen={item.key}
+                onClick={() => { setExtrasOpen(false); navigate(item.to) }}
+                title={item.label}
+              >
+                <span className="mg-sidebar-link-chip" aria-hidden="true">
+                  <Icon size={18} strokeWidth={2} />
+                </span>
+                <span className="mg-sidebar-link-text">{item.label}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
 
       <div className="mg-sidebar-foot">
         <button type="button" className="mg-sidebar-util" onClick={onToggleTheme} title={isDark ? 'מצב יום' : 'מצב לילה'}>

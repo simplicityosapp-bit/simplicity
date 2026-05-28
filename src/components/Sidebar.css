@@ -1,30 +1,30 @@
 /* ════════════════════════════════════════════════════════════════
    SIDEBAR — desktop-only nav (≥768px), collapsed-by-default rail.
    ════════════════════════════════════════════════════════════════
-   Default: narrow 72px rail showing icon-chips only. Hovering the
-   rail expands it to 240px and reveals labels + the "Simplicity" brand.
+   Default: narrow 80px rail showing the brand mark + icon chips.
+   Hovering the rail expands it to 240px and reveals labels + the
+   "Simplicity" wordmark + tag.
    The background is a vertical blend of the five brand colours under
    a heavy blur — terracotta → blush → sage → amber → clay, echoing
-   the mobile bottom-nav language.
+   the mobile bottom-nav language. Inner padding stays tight so the
+   chips (52px wide) clear the rail edge cleanly.
    ════════════════════════════════════════════════════════════════ */
 
 .mg-sidebar { display: none; }
 
 @media (min-width: 768px) {
   .mg-sidebar {
-    --rail-w: 72px;
+    --rail-w: 80px;
     --open-w: 240px;
+    --extras-h: 246px;     /* slide-up panel height (head + 4 rows) */
     display: flex;
     flex-direction: column;
     flex: 0 0 var(--rail-w);
     width: var(--rail-w);
     height: 100vh;
     height: 100dvh;
-    padding: 24px 12px calc(24px + env(safe-area-inset-bottom, 0px));
-    /* Five-colour brand blur: a soft vertical waterfall of the
-       Terracotta / Blush / Sage / Amber / Clay palette under a
-       heavy backdrop blur, sitting over a dark base for cream
-       text to stay legible. */
+    padding: 22px 8px calc(20px + env(safe-area-inset-bottom, 0px));
+    /* Five-colour brand blur. */
     background:
       linear-gradient(180deg,
         color-mix(in srgb, var(--terracotta) 22%, transparent) 0%,
@@ -63,35 +63,52 @@
     flex-basis: var(--open-w);
   }
 
+  /* ── Brand row — heart logo always visible, "Simplicity" text
+       fades in when the rail expands. */
+  .mg-sidebar-brand-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 6px;
+    margin-bottom: 18px;
+    min-height: 44px;
+  }
+  .mg-sidebar-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 8px rgba(240, 235, 224, 0.18));
+  }
+  .mg-sidebar-brand-text {
+    min-width: 0;
+    opacity: 0;
+    transition: opacity 180ms 80ms ease;
+  }
+  .mg-sidebar:hover .mg-sidebar-brand-text {
+    opacity: 1;
+  }
   .mg-sidebar-brand {
     margin: 0;
     font-family: 'Assistant', sans-serif;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--cream);
     letter-spacing: -0.02em;
     white-space: nowrap;
-    opacity: 0;
-    transition: opacity 180ms 80ms ease;
+    line-height: 1.05;
   }
   .mg-sidebar-tag {
-    margin: 2px 0 22px;
+    margin: 2px 0 0;
     font-family: var(--mg-font);
     font-size: 11px;
     font-weight: 400;
     color: rgba(240, 235, 224, 0.7);
     letter-spacing: 0.04em;
     white-space: nowrap;
-    opacity: 0;
-    transition: opacity 180ms 80ms ease;
   }
-  .mg-sidebar:hover .mg-sidebar-brand,
-  .mg-sidebar:hover .mg-sidebar-tag {
-    opacity: 1;
-  }
-  /* Collapsed: keep some vertical breathing room where the brand was */
-  .mg-sidebar:not(:hover) .mg-sidebar-tag { margin-bottom: 8px; }
 
+  /* ── Nav stack ────────────────────────────────────────────── */
   .mg-sidebar-nav {
     display: flex;
     flex-direction: column;
@@ -119,15 +136,12 @@
   .mg-sidebar-link[data-screen="insights"] { --nav-accent: var(--sage); }
   .mg-sidebar-link[data-screen="trash"]    { --nav-accent: var(--clay); }
 
-  /* Placeholder items in the "עוד" sub-menu — slightly dimmed. */
-  .mg-sidebar-link.placeholder { opacity: 0.62; }
-
   .mg-sidebar-link {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
-    padding: 8px;
+    padding: 4px 6px;
     border-radius: 14px;
     border: 1px solid transparent;
     background: transparent;
@@ -151,10 +165,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
+    width: 52px;
     height: 44px;
     border-radius: 14px;
-    color: var(--cream);                                                    /* always cream — pops against accent fill */
+    color: var(--cream);
     background: color-mix(in srgb, var(--nav-accent) 36%, transparent);
     border: 1px solid color-mix(in srgb, var(--nav-accent) 60%, transparent);
     flex-shrink: 0;
@@ -175,21 +189,88 @@
   }
   .mg-sidebar:hover .mg-sidebar-link-text { opacity: 1; }
 
-  /* "עוד" expansion */
   .mg-sidebar-more.is-open .mg-sidebar-link-chip {
-    background: color-mix(in srgb, var(--nav-accent) 30%, transparent);
-    border-color: color-mix(in srgb, var(--nav-accent) 50%, transparent);
+    background: color-mix(in srgb, var(--nav-accent) 50%, transparent);
+    border-color: color-mix(in srgb, var(--nav-accent) 75%, transparent);
   }
+
+  /* ── Slide-up extras panel ───────────────────────────────────
+     Anchored to the bottom of the sidebar, above the foot row.
+     Closed: slides down off-screen + invisible. Open: floats in
+     place, blurring the icons beneath. Transparency is intentional
+     so the user keeps spatial context. */
   .mg-sidebar-extras {
+    position: absolute;
+    inset-inline: 8px;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    z-index: 10;
+    max-height: var(--extras-h);
+    padding: 8px;
+    border-radius: 16px;
+    border: 1px solid rgba(240, 235, 224, 0.12);
+    background: rgba(34, 28, 24, 0.45);
+    backdrop-filter: blur(28px) saturate(160%);
+    box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.32);
+    transform: translateY(20px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      transform 0.26s cubic-bezier(0.32, 0.72, 0.24, 1),
+      opacity 0.2s ease,
+      visibility 0s linear 0.26s;
+  }
+  [data-theme="dark"] .mg-sidebar-extras {
+    background: rgba(8, 10, 14, 0.6);
+  }
+  .mg-sidebar-extras.open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      transform 0.26s cubic-bezier(0.32, 0.72, 0.24, 1),
+      opacity 0.2s ease,
+      visibility 0s linear 0s;
+  }
+  .mg-sidebar-extras-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px 6px;
+    border-bottom: 1px solid rgba(240, 235, 224, 0.08);
+    margin-bottom: 6px;
+    font-family: var(--mg-font);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(240, 235, 224, 0.7);
+  }
+  .mg-sidebar-extras-close {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(240, 235, 224, 0.15);
+    background: transparent;
+    color: var(--cream);
+    cursor: pointer;
+  }
+  .mg-sidebar-extras-close:hover {
+    background: rgba(240, 235, 224, 0.08);
+  }
+  .mg-sidebar-extras-list {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin-top: 2px;
-    padding-inline-start: 6px;
-    border-inline-start: 1px solid rgba(240, 235, 224, 0.10);
   }
+  /* Inside the extras panel: labels are ALWAYS visible (panel is
+     already an opt-in expansion), regardless of rail-hover state. */
+  .mg-sidebar-extras .mg-sidebar-link-text { opacity: 1; }
   .mg-sidebar-sub {
-    padding: 6px 6px;
+    padding: 4px 6px;
   }
   .mg-sidebar-sub .mg-sidebar-link-chip {
     width: 40px;
@@ -197,7 +278,7 @@
     border-radius: 12px;
   }
 
-  /* Foot — theme toggle + logout */
+  /* ── Foot — theme toggle + logout ─────────────────────────── */
   .mg-sidebar-foot {
     display: flex;
     flex-direction: column;
@@ -233,7 +314,6 @@
     background: rgba(240, 235, 224, 0.06);
     color: var(--cream);
   }
-  /* Center icons within the collapsed util buttons */
   .mg-sidebar:not(:hover) .mg-sidebar-util {
     justify-content: center;
     padding: 8px 4px;

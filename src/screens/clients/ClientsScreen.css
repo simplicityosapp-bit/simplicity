@@ -302,3 +302,293 @@
 .cc-action-pay {
   color: var(--sage);
 }
+
+/* ── Top actions: sort + select + add ───────────────────────── */
+.c-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.c-top-actions .cta-add { margin: 0; }
+.c-sort-wrap {
+  position: relative;
+  display: inline-block;
+}
+.c-sort-btn,
+.c-select-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.c-sort-btn:hover,
+.c-select-btn:hover {
+  background: rgba(42, 37, 32, 0.04);
+}
+.c-select-btn.on {
+  background: var(--espresso);
+  border-color: var(--espresso);
+  color: var(--bg-clients, #fff);
+}
+[data-theme="dark"] .c-select-btn.on {
+  color: #181410;
+}
+[data-theme="dark"] .c-sort-btn:hover,
+[data-theme="dark"] .c-select-btn:hover {
+  background: rgba(240, 235, 224, 0.07);
+}
+
+/* Sort popover */
+.c-sort-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-end: 0;
+  z-index: 30;
+  min-width: 160px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  backdrop-filter: var(--mg-card-blur);
+}
+.c-sort-h {
+  margin: 0 0 6px;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--stone);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.c-sort-opt {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  text-align: start;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  color: var(--espresso);
+  cursor: pointer;
+}
+.c-sort-opt:hover {
+  background: rgba(42, 37, 32, 0.04);
+}
+.c-sort-opt.on {
+  background: rgba(139, 168, 136, 0.15);
+  color: var(--sage);
+  font-weight: 600;
+}
+.c-sort-divider {
+  height: 1px;
+  background: var(--divider);
+  margin: 6px 0;
+}
+.c-sort-dir {
+  display: flex;
+  gap: 4px;
+}
+.c-sort-dir .c-sort-opt {
+  flex: 1;
+  text-align: center;
+}
+[data-theme="dark"] .c-sort-opt:hover {
+  background: rgba(240, 235, 224, 0.05);
+}
+
+/* ── Bulk select state ──────────────────────────────────────── */
+.cc.select-mode {
+  padding-inline-end: 36px;
+  cursor: pointer;
+}
+.cc.selected {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 2px rgba(139, 168, 136, 0.2);
+}
+.cc-check {
+  position: absolute;
+  top: 14px;
+  inset-inline-end: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--divider);
+  background: var(--mg-card-bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  transition: background 0.12s, border-color 0.12s;
+  padding: 0;
+}
+.cc-check.on {
+  background: var(--sage);
+  border-color: var(--sage);
+}
+
+.cc {
+  position: relative;
+}
+
+/* ── Bulk action bar ────────────────────────────────────────── */
+.screen.has-bulk-bar {
+  padding-bottom: 80px;
+}
+.c-bulk-bar {
+  position: fixed;
+  inset-inline: 12px;
+  bottom: 16px;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16);
+}
+@media (min-width: 768px) {
+  .c-bulk-bar {
+    inset-inline: auto;
+    inset-inline-end: 32px;
+    inset-inline-start: 280px;
+  }
+}
+.c-bulk-count {
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.c-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.c-bulk-meta-wrap {
+  position: relative;
+}
+.c-bulk-pop {
+  inset-inline-end: 0;
+  inset-block-end: calc(100% + 6px);
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+.c-bulk-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--espresso);
+  cursor: pointer;
+}
+.c-bulk-btn:hover:not(:disabled) {
+  background: rgba(42, 37, 32, 0.04);
+}
+.c-bulk-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.c-bulk-btn.danger {
+  color: var(--clay);
+  border-color: rgba(181, 99, 78, 0.35);
+}
+.c-bulk-btn.danger:hover:not(:disabled) {
+  background: rgba(181, 99, 78, 0.08);
+}
+.c-bulk-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--stone);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ── DeleteClientModal — keep / cascade choices ─────────────── */
+.dcm-intro {
+  margin: 0 0 12px;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--espresso);
+}
+.dcm-summary {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--divider);
+  margin-bottom: 14px;
+}
+.dcm-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+}
+.dcm-summary-l { color: var(--stone); }
+.dcm-summary-v { color: var(--espresso); font-variant-numeric: tabular-nums; }
+.dcm-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dcm-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  text-align: start;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.dcm-choice:hover:not(:disabled) {
+  background: rgba(42, 37, 32, 0.04);
+}
+.dcm-choice.cascade {
+  color: var(--clay);
+}
+.dcm-choice.cascade:hover:not(:disabled) {
+  background: rgba(181, 99, 78, 0.06);
+  border-color: rgba(181, 99, 78, 0.35);
+}
+.dcm-choice-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.dcm-choice.cascade .dcm-choice-title { color: var(--clay); }
+.dcm-choice-sub {
+  font-size: 11.5px;
+  color: var(--stone);
+  line-height: 1.5;
+}

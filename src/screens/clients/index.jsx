@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Search } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Search, ArrowUpDown, X } from 'lucide-react'
 import { statusMetaOf, paidForClients, sessionsCountForClients, clientBalance } from '../../lib/clients'
 import { currentMonthRange, isr } from '../../lib/finance'
 import { useClients } from '../../hooks/useClients'
@@ -12,11 +12,12 @@ import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useGroups } from '../../hooks/useGroups'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useClientStatuses } from '../../hooks/useClientStatuses'
+import { useUserPreferences } from '../../hooks/useUserPreferences'
 import ClientTabs from './ClientTabs'
 import ClientCard from './ClientCard'
 import ClientDrawer from '../../drawers/client/ClientDrawer'
 import AddClientModal from '../../modals/AddClientModal'
-import ConfirmModal from '../../modals/ConfirmModal'
+import DeleteClientModal from '../../modals/DeleteClientModal'
 import './ClientsScreen.css'
 
 const HERO_LABEL = {
@@ -26,10 +27,49 @@ const HERO_LABEL = {
   no_status: 'סיכום ללא סטטוס',
 }
 
+const SORT_OPTIONS = [
+  { k: 'name',     l: 'שם' },
+  { k: 'balance',  l: 'יתרה' },
+  { k: 'sessions', l: 'פגישות' },
+  { k: 'created',  l: 'תאריך הוספה' },
+]
+const BULK_META_OPTIONS = [
+  { k: 'active',    l: 'פעיל' },
+  { k: 'wandering', l: 'ביניים' },
+  { k: 'past',      l: 'לשעבר' },
+  { k: 'no_status', l: 'ללא סטטוס' },
+]
+const DEFAULT_SORT = { field: 'name', dir: 'asc' }
+
+function sortClients(arr, sort, ctx) {
+  const dir = sort.dir === 'desc' ? -1 : 1
+  const { transactions, sessions, members, groups } = ctx
+  return [...arr].sort((a, b) => {
+    let av, bv
+    switch (sort.field) {
+      case 'balance':
+        av = clientBalance(a, transactions, sessions, members, groups).balance
+        bv = clientBalance(b, transactions, sessions, members, groups).balance
+        return (av - bv) * dir
+      case 'sessions':
+        av = clientBalance(a, transactions, sessions, members, groups).sessionsPaid
+        bv = clientBalance(b, transactions, sessions, members, groups).sessionsPaid
+        return (av - bv) * dir
+      case 'created':
+        av = new Date(a.created_at || 0).getTime()
+        bv = new Date(b.created_at || 0).getTime()
+        return (av - bv) * dir
+      case 'name':
+      default:
+        return (a.name || '').localeCompare(b.name || '', 'he') * dir
+    }
+  })
+}
+
 export default function ClientsScreen() {
   const { clients: clientList, loading, error, addClient, updateClient, removeClient } = useClients()
   const { projects } = useProjects()
-  const { transactions, addTransaction } = useTransactions()
+  const { transactions, addTransaction, editTransaction, removeTransaction } = useTransactions()
   const { tasks } = useTasks()
   const { reminders } = useReminders()
   const { sessions, addSession } = useSessions()
@@ -37,13 +77,22 @@ export default function ClientsScreen() {
   const { groups } = useGroups()
   const { members } = useGroupMembers()
   const { statuses: clientStatuses } = useClientStatuses()
+  const { prefs, update: updatePrefs } = useUserPreferences()
   const [tab, setTab] = useState('active')
   const [scope, setScope] = useState('monthly')
   const [query, setQuery] = useState('')
   const [openId, setOpenId] = useState(null)
   const [showAdd, setShowAdd] = useState(false)
-  const [pendingDelete, setPendingDelete] = useState(null)
+  const [pendingDeleteClient, setPendingDeleteClient] = useState(null)
+  const [pendingDeleteBatch, setPendingDeleteBatch] = useState(null)
+  const [sortOpen, setSortOpen] = useState(false)
+  const sortAnchorRef = useRef(null)
+  const [selectMode, setSelectMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState(() => new Set())
+  const [bulkMetaOpen, setBulkMetaOpen] = useState(false)
   const openClient = openId ? clientList.find((c) => c.id === openId) : null
+
+  const sort = useMemo(() => ({ ...DEFAULT_SORT, ...(prefs?.clientsSort || {}) }), [prefs])
 
   const byMeta = useMemo(() => {
     const g = { active: [], wandering: [], past: [], no_status: [] }
@@ -61,8 +110,47 @@ export default function ClientsScreen() {
   const tabClients = useMemo(() => byMeta[tab] || [], [byMeta, tab])
   const list = useMemo(() => {
     const q = query.trim()
-    return q ? tabClients.filter((c) => c.name.includes(q)) : tabClients
-  }, [tabClients, query])
+    const filtered = q ? tabClients.filter((c) => c.name.includes(q)) : tabClients
+    return sortClients(filtered, sort, { transactions, sessions, members, groups })
+  }, [tabClients, query, sort, transactions, sessions, members, groups])
+
+  /* Close the sort popover when tapping outside. */
+  useEffect(() => {
+    if (!sortOpen) return
+    const onDoc = (e) => {
+      if (!sortAnchorRef.current?.contains(e.target)) setSortOpen(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [sortOpen])
+
+  /* Clear selection when switching tabs or leaving select mode. */
+  useEffect(() => { setSelectedIds(new Set()) }, [tab, selectMode])
+
+  const setSort = (patch) => updatePrefs?.({ clientsSort: { ...sort, ...patch } })
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+
+  const selectedClients = useMemo(
+    () => list.filter((c) => selectedIds.has(c.id)),
+    [list, selectedIds],
+  )
+
+  const bulkChangeMeta = async (newMeta) => {
+    setBulkMetaOpen(false)
+    const now = new Date().toISOString()
+    for (const c of selectedClients) {
+      await updateClient(c.id, { status_meta: newMeta, status: newMeta }).catch(() => {})
+    }
+    setSelectedIds(new Set())
+    setSelectMode(false)
+  }
 
   /* Hero — per tab. Monthly/cumulative affects פגישות + שולם; balance is always current. */
   const hero = useMemo(() => {
@@ -92,7 +180,7 @@ export default function ClientsScreen() {
   }, [tab, scope, tabClients, transactions, sessions, members, groups])
 
   return (
-    <div className="screen">
+    <div className={`screen${selectMode ? ' has-bulk-bar' : ''}`}>
       <div className="screen-top">
         <header className="screen-head">
           <div>
@@ -105,7 +193,55 @@ export default function ClientsScreen() {
           </div>
           <p className="t-screen">לקוחות</p>
         </header>
-        <button className="cta-add" type="button" aria-label="הוסף לקוח" onClick={() => setShowAdd(true)}>הוסף לקוח +</button>
+        <div className="c-top-actions">
+          <div className="c-sort-wrap" ref={sortAnchorRef}>
+            <button
+              type="button"
+              className="c-sort-btn"
+              onClick={() => setSortOpen((v) => !v)}
+              aria-expanded={sortOpen}
+              aria-label="מיון"
+            >
+              <ArrowUpDown size={14} strokeWidth={1.7} aria-hidden="true" /> מיון
+            </button>
+            {sortOpen && (
+              <div className="c-sort-pop" role="menu">
+                <p className="c-sort-h">מיין/י לפי</p>
+                {SORT_OPTIONS.map((o) => (
+                  <button
+                    key={o.k}
+                    type="button"
+                    className={`c-sort-opt${sort.field === o.k ? ' on' : ''}`}
+                    onClick={() => setSort({ field: o.k })}
+                  >
+                    {o.l}
+                  </button>
+                ))}
+                <div className="c-sort-divider" />
+                <div className="c-sort-dir">
+                  <button
+                    type="button"
+                    className={`c-sort-opt${sort.dir === 'asc' ? ' on' : ''}`}
+                    onClick={() => setSort({ dir: 'asc' })}
+                  >עולה</button>
+                  <button
+                    type="button"
+                    className={`c-sort-opt${sort.dir === 'desc' ? ' on' : ''}`}
+                    onClick={() => setSort({ dir: 'desc' })}
+                  >יורד</button>
+                </div>
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            className={`c-select-btn${selectMode ? ' on' : ''}`}
+            onClick={() => setSelectMode((v) => !v)}
+          >
+            {selectMode ? 'בטל בחירה' : 'בחר/י'}
+          </button>
+          <button className="cta-add" type="button" aria-label="הוסף לקוח" onClick={() => setShowAdd(true)}>הוסף לקוח +</button>
+        </div>
       </div>
 
       <ClientTabs active={tab} counts={counts} showNoStatus={counts.no_status > 0} onChange={setTab} />
@@ -150,14 +286,68 @@ export default function ClientsScreen() {
             </p>
           </div>
         ) : (
-          list.map((c, i) => <ClientCard key={c.id} client={c} index={i} onOpen={setOpenId} projects={projects} txns={transactions} sessions={sessions} members={members} groups={groups} statuses={clientStatuses} />)
+          list.map((c, i) => (
+            <ClientCard
+              key={c.id}
+              client={c}
+              index={i}
+              onOpen={setOpenId}
+              selectMode={selectMode}
+              selected={selectedIds.has(c.id)}
+              onToggleSelect={toggleSelect}
+              projects={projects}
+              txns={transactions}
+              sessions={sessions}
+              members={members}
+              groups={groups}
+              statuses={clientStatuses}
+            />
+          ))
         )}
       </section>
+
+      {selectMode && (
+        <div className="c-bulk-bar">
+          <span className="c-bulk-count">{selectedIds.size} נבחרו</span>
+          <div className="c-bulk-actions">
+            <div className="c-bulk-meta-wrap">
+              <button
+                type="button"
+                className="c-bulk-btn"
+                onClick={() => setBulkMetaOpen((v) => !v)}
+                disabled={selectedIds.size === 0}
+              >שינוי סטטוס ←</button>
+              {bulkMetaOpen && (
+                <div className="c-sort-pop c-bulk-pop" role="menu">
+                  <p className="c-sort-h">העברה ל-</p>
+                  {BULK_META_OPTIONS.map((o) => (
+                    <button
+                      key={o.k}
+                      type="button"
+                      className="c-sort-opt"
+                      onClick={() => bulkChangeMeta(o.k)}
+                    >{o.l}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              className="c-bulk-btn danger"
+              onClick={() => setPendingDeleteBatch(selectedClients)}
+              disabled={selectedIds.size === 0}
+            >מחיקה</button>
+            <button type="button" className="c-bulk-close" onClick={() => setSelectMode(false)} aria-label="סגירת מצב בחירה">
+              <X size={16} strokeWidth={1.7} aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      )}
 
       <ClientDrawer
         client={openClient}
         onClose={() => setOpenId(null)}
-        onDelete={() => setPendingDelete(openClient)}
+        onDelete={() => setPendingDeleteClient(openClient)}
         projects={projects}
         txns={transactions}
         tasks={tasks}
@@ -180,19 +370,19 @@ export default function ClientsScreen() {
         onSave={async (c) => { await addClient(c); setTab(c.status_meta) }}
       />
 
-      <ConfirmModal
-        open={!!pendingDelete}
-        onClose={() => setPendingDelete(null)}
-        title="מחיקת לקוח"
-        message={pendingDelete ? `למחוק את "${pendingDelete.name}"? אפשר יהיה לשחזר מהזבל.` : ''}
-        confirmLabel="מחק"
-        danger
-        onConfirm={() => {
-          if (pendingDelete) {
-            removeClient(pendingDelete.id)
-            setOpenId(null)
-          }
+      <DeleteClientModal
+        key={pendingDeleteClient?.id || (pendingDeleteBatch?.map((c) => c.id).join('|') || 'none')}
+        open={!!pendingDeleteClient || !!pendingDeleteBatch}
+        onClose={() => { setPendingDeleteClient(null); setPendingDeleteBatch(null) }}
+        client={pendingDeleteClient}
+        clients={pendingDeleteBatch}
+        transactions={transactions}
+        onRemoveClient={async (id) => {
+          await removeClient(id)
+          if (pendingDeleteClient?.id === id) setOpenId(null)
         }}
+        onUpdateTransaction={editTransaction}
+        onRemoveTransaction={removeTransaction}
       />
     </div>
   )

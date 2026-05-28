@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react'
 import { clientBalance, statusMetaOf } from '../../lib/clients'
 import { isr } from '../../lib/finance'
 
@@ -16,7 +17,11 @@ const initials = (name) =>
     .slice(0, 2)
     .toUpperCase()
 
-export default function ClientCard({ client, index, onOpen, projects = [], txns, sessions, members, groups, statuses = [] }) {
+export default function ClientCard({
+  client, index, onOpen,
+  selectMode = false, selected = false, onToggleSelect,
+  projects = [], txns, sessions, members, groups, statuses = [],
+}) {
   const meta = statusMetaOf(client)
   const isPast = meta === 'past'
   const status = STATUS[meta] || STATUS.no_status
@@ -29,12 +34,28 @@ export default function ClientCard({ client, index, onOpen, projects = [], txns,
   const hasSetup = isMember
     || ((Number(client.sessions) > 0 || !!client.group_id) && (Number(client.price_per_session) > 0 || Number(client.total_override) > 0))
 
+  const handleCardClick = () => {
+    if (selectMode) onToggleSelect?.(client.id)
+    else onOpen?.(client.id)
+  }
+
   return (
     <div
-      className={`cc anim${isPast ? ' is-past' : ''}`}
+      className={`cc anim${isPast ? ' is-past' : ''}${selectMode ? ' select-mode' : ''}${selected ? ' selected' : ''}`}
       style={{ animationDelay: `${index * 0.04}s` }}
-      onClick={() => onOpen?.(client.id)}
+      onClick={handleCardClick}
     >
+      {selectMode && (
+        <button
+          type="button"
+          className={`cc-check${selected ? ' on' : ''}`}
+          onClick={(e) => { e.stopPropagation(); onToggleSelect?.(client.id) }}
+          aria-label={selected ? 'בטל בחירה' : 'בחר'}
+          aria-pressed={selected}
+        >
+          {selected && <Check size={13} strokeWidth={2.4} aria-hidden="true" />}
+        </button>
+      )}
       <div className="cc-head">
         <div className="cc-av">{initials(client.name)}</div>
         <div className="cc-id">
@@ -44,17 +65,19 @@ export default function ClientCard({ client, index, onOpen, projects = [], txns,
             {project && <span className="cc-proj">{project.name}</span>}
           </div>
         </div>
-        <button
-          type="button"
-          className="cc-profile"
-          onClick={(e) => {
-            e.stopPropagation()
-            onOpen?.(client.id)
-          }}
-        >
-          <span>פרופיל</span>
-          <span>מלא</span>
-        </button>
+        {!selectMode && (
+          <button
+            type="button"
+            className="cc-profile"
+            onClick={(e) => {
+              e.stopPropagation()
+              onOpen?.(client.id)
+            }}
+          >
+            <span>פרופיל</span>
+            <span>מלא</span>
+          </button>
+        )}
       </div>
 
       <div className={`cc-stats${hasSetup ? '' : ' dim'}`}>

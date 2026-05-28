@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Moon } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
@@ -10,6 +10,7 @@ import './AuthScreen.css'
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -29,30 +30,67 @@ export default function LoginScreen() {
 
   return (
     <div className="auth-wrap">
-      <form className="auth-card" onSubmit={submit}>
-        <div className="auth-brand"><Moon size={22} strokeWidth={1.6} aria-hidden="true" /><span>Simplicity</span></div>
-        <p className="auth-title">ברוך/ה הבא/ה</p>
-        <p className="auth-sub">התחבר/י כדי להמשיך</p>
+      <div className="auth-bg" aria-hidden="true" />
+      <div className="auth-stage">
+        <div className="auth-brand">
+          <img className="auth-logo light" src="/logo-dark.png" alt="" aria-hidden="true" />
+          <img className="auth-logo dark"  src="/logo-light.png" alt="" aria-hidden="true" />
+          <img className="auth-name light" src="/name-dark.png" alt="simplicity" />
+          <img className="auth-name dark"  src="/name-light.png" alt="simplicity" />
+        </div>
 
-        {error && <p className="auth-error">{error}</p>}
+        <form className="auth-form" onSubmit={submit}>
+          {error && <p className="auth-error">{error}</p>}
 
-        <label className="auth-label" htmlFor="login-email">אימייל</label>
-        <input id="login-email" className="auth-input" type="email" dir="ltr" autoComplete="email"
-          value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+          <label className="auth-field" htmlFor="login-email">
+            <span className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></span>
+            <input
+              id="login-email"
+              type="email"
+              dir="ltr"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+            />
+          </label>
 
-        <label className="auth-label" htmlFor="login-pass">סיסמה</label>
-        <input id="login-pass" className="auth-input" type="password" dir="ltr" autoComplete="current-password"
-          value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+          <label className="auth-field" htmlFor="login-pass">
+            <span className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></span>
+            <input
+              id="login-pass"
+              type={showPassword ? 'text' : 'password'}
+              dir="ltr"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+            />
+            <button
+              type="button"
+              className="auth-field-toggle"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? 'הסתר סיסמה' : 'הצג סיסמה'}
+            >
+              {showPassword
+                ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
+                : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
+            </button>
+          </label>
 
-        <Link to={ROUTES.RESET_PASSWORD} className="auth-link-sm">שכחת סיסמה?</Link>
+          <button className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
+            {busy ? 'מתחבר…' : 'התחברות'}
+          </button>
 
-        <button className="auth-btn" type="submit" disabled={busy}>{busy ? 'מתחבר…' : 'התחברות'}</button>
+          <div className="auth-divider"><span>או</span></div>
 
-        <div className="auth-divider"><span>או</span></div>
-        <GoogleButton onError={setError} />
+          <GoogleButton onError={setError} />
+
+          <Link to={ROUTES.RESET_PASSWORD} className="auth-link-sm">שכחת סיסמה?</Link>
+        </form>
 
         <p className="auth-foot">אין לך חשבון? <Link to={ROUTES.SIGNUP}>הרשמה</Link></p>
-      </form>
+      </div>
     </div>
   )
 }

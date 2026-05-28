@@ -1,35 +1,305 @@
 /* ════════════════════════════════════════════════════════════════
-   AUTH SCREENS — login / signup / reset. Full-page centered glass card.
+   AUTH SCREENS — login / signup / reset.
+   Full-bleed reference photo as the backdrop (the tree-framed
+   corridor); brand mark + simplicity wordmark anchored above the
+   form; transparent inputs that float over the photo with a soft
+   sage focus glow. Same logic on mobile + desktop, with the
+   landscape photo swapped in via @media on wider viewports.
    ════════════════════════════════════════════════════════════════ */
 
 .auth-wrap {
+  position: relative;
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 32px 20px;
   background: var(--bg-home);
+  overflow: hidden;
 }
 
+/* The photo lives on its own absolutely-positioned layer so we can
+   apply a faint warm overlay above it without bleeding into the
+   form's blur effects. */
+.auth-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url('/login-bg-mobile.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.auth-bg::after {
+  /* Soft warm wash to bring the form's contrast up without flattening
+     the photo. */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(244, 227, 218, 0.42), rgba(244, 227, 218, 0) 55%);
+}
+[data-theme="dark"] .auth-bg::after {
+  background: radial-gradient(circle at 50% 45%, rgba(10, 8, 6, 0.45), rgba(10, 8, 6, 0) 55%);
+}
+@media (min-width: 768px) {
+  .auth-bg {
+    background-image: url('/login-bg-desktop.png');
+  }
+}
+
+.auth-stage {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 22px;
+}
+
+/* Brand mark + wordmark — heart logo above the "simplicity" image.
+   Both PNGs ship in two flavours (light + dark) and we swap via the
+   theme attribute. */
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.auth-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+.auth-name {
+  height: 36px;
+  object-fit: contain;
+  margin-top: 2px;
+}
+.auth-logo.dark,
+.auth-name.dark { display: none; }
+.auth-logo.light,
+.auth-name.light { display: block; }
+[data-theme="dark"] .auth-logo.light,
+[data-theme="dark"] .auth-name.light { display: none; }
+[data-theme="dark"] .auth-logo.dark,
+[data-theme="dark"] .auth-name.dark { display: block; }
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(181, 99, 78, 0.12);
+  border: 0.5px solid rgba(181, 99, 78, 0.35);
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--clay);
+  text-align: center;
+}
+
+/* Field row — leading icon (mail / lock) on the inline-start side,
+   input fills the rest. RTL safe: inset-inline-start puts the icon
+   on the right side for Hebrew layouts. The input itself keeps
+   dir="ltr" so emails/passwords read left-to-right. */
+.auth-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 52px;
+  border-radius: 14px;
+  border: 0.5px solid rgba(42, 37, 32, 0.18);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(10px);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+[data-theme="dark"] .auth-field {
+  background: rgba(28, 25, 22, 0.7);
+  border-color: rgba(240, 235, 224, 0.22);
+}
+.auth-field:focus-within {
+  border-color: var(--sage, #8BA888);
+  box-shadow: 0 0 0 3px rgba(139, 168, 136, 0.18);
+}
+.auth-field-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  color: var(--stone);
+  flex-shrink: 0;
+}
+.auth-field input {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+  padding: 0 4px 0 14px;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--mg-font);
+  font-size: 15px;
+  color: var(--espresso);
+}
+.auth-field input::placeholder {
+  color: var(--mist);
+}
+.auth-field-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: var(--stone);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.auth-field-toggle:hover {
+  color: var(--espresso);
+}
+
+/* Primary CTA — solid terracotta pill, full-width. */
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: 14px;
+  background: var(--terracotta);
+  color: #fff;
+  font-family: var(--mg-font);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s, opacity 0.15s;
+  text-decoration: none;
+  margin-top: 6px;
+}
+.auth-btn:hover {
+  background: var(--mg-btn-primary-bg-hover, #b15942);
+}
+.auth-btn:active {
+  transform: scale(0.99);
+}
+.auth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 0;
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: 12px;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(42, 37, 32, 0.18);
+}
+[data-theme="dark"] .auth-divider::before,
+[data-theme="dark"] .auth-divider::after {
+  background: rgba(240, 235, 224, 0.18);
+}
+
+/* Google button — white pill with subtle border, matches the form
+   row height so the stack reads as a single column. */
+.auth-btn-google {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 52px;
+  border-radius: 14px;
+  border: 0.5px solid rgba(42, 37, 32, 0.18);
+  background: #ffffff;
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+}
+.auth-btn-google:hover {
+  background: rgba(255, 255, 255, 0.92);
+}
+.auth-btn-google:active {
+  transform: scale(0.99);
+}
+[data-theme="dark"] .auth-btn-google {
+  background: rgba(36, 42, 51, 0.85);
+  color: var(--espresso);
+  border-color: rgba(240, 235, 224, 0.22);
+}
+
+.auth-link-sm {
+  align-self: center;
+  margin: 6px 0 0;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  color: var(--stone);
+  text-decoration: none;
+}
+.auth-link-sm:hover {
+  color: var(--espresso);
+}
+
+.auth-foot {
+  margin: 4px 0 0;
+  text-align: center;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  color: var(--stone);
+}
+.auth-foot a {
+  color: var(--terracotta);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ── Legacy classes kept for SignupScreen + ResetPasswordScreen ──
+   until those screens are migrated to the new field/btn pattern. */
 .auth-card {
   width: 100%;
-  max-width: 360px;
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   padding: 28px 24px 24px;
-  border-radius: var(--mg-card-radius);
-  border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  box-shadow: var(--elev-3, 0 16px 48px rgba(0, 0, 0, 0.1));
-  backdrop-filter: var(--mg-card-blur);
+  border-radius: 22px;
+  border: 0.5px solid rgba(42, 37, 32, 0.18);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 1;
+}
+[data-theme="dark"] .auth-card {
+  background: rgba(28, 25, 22, 0.75);
+  border-color: rgba(240, 235, 224, 0.18);
 }
 .auth-card-msg {
   text-align: center;
   align-items: center;
 }
-
-.auth-brand {
+.auth-brand-legacy {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,10 +310,6 @@
   font-weight: 700;
   color: var(--espresso);
 }
-.auth-brand svg {
-  color: var(--terracotta);
-}
-
 .auth-title {
   margin: 0;
   text-align: center;
@@ -59,7 +325,6 @@
   font-size: 13px;
   color: var(--stone);
 }
-
 .auth-label {
   margin: 0 2px 6px;
   font-family: var(--mg-font);
@@ -68,153 +333,29 @@
   color: var(--stone);
 }
 .auth-input {
-  height: var(--mg-btn-h);
+  height: 48px;
   margin-bottom: 14px;
   padding: 0 14px;
-  border-radius: var(--mg-btn-radius);
+  border-radius: 12px;
   border: 1px solid rgba(42, 37, 32, 0.12);
-  background: var(--cream);
+  background: rgba(255, 255, 255, 0.6);
   color: var(--espresso);
   font-family: var(--mg-font);
   font-size: 14px;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
 }
 .auth-input:focus {
-  border-color: var(--terracotta);
-  box-shadow: 0 0 0 2px var(--blush);
+  border-color: var(--sage);
+  box-shadow: 0 0 0 2px rgba(139, 168, 136, 0.2);
 }
 .auth-input::placeholder {
   color: var(--mist);
 }
-
-.auth-error {
-  margin: 0 0 14px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(181, 99, 78, 0.1);
-  border: 0.5px solid rgba(181, 99, 78, 0.3);
-  font-family: var(--mg-font);
-  font-size: 12px;
-  color: var(--clay);
-  text-align: center;
-}
-
-.auth-link-sm {
-  align-self: flex-start;
-  margin: -4px 2px 14px;
-  font-family: var(--mg-font);
-  font-size: 12px;
-  color: var(--terracotta);
-  text-decoration: none;
-}
-
-.auth-btn {
-  height: var(--mg-btn-h);
-  border: none;
-  border-radius: var(--mg-btn-radius);
-  background: var(--terracotta);
-  color: #fff;
-  font-family: var(--mg-font);
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.12s, opacity 0.15s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-}
-.auth-btn:hover {
-  background: var(--mg-btn-primary-bg-hover);
-}
-.auth-btn:active {
-  transform: scale(0.98);
-}
-.auth-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 .auth-btn-link {
   margin-top: 8px;
 }
-
-.auth-divider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 16px 0;
-  color: var(--mist);
-  font-family: var(--mg-font);
-  font-size: 11px;
-}
-.auth-divider::before,
-.auth-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--divider);
-}
-
-.auth-btn-google {
-  height: var(--mg-btn-h);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border-radius: var(--mg-btn-radius);
-  border: 1px solid rgba(42, 37, 32, 0.14);
-  background: var(--pure-white);
-  color: var(--espresso);
-  font-family: var(--mg-font);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.12s;
-}
-[data-theme="dark"] .auth-btn-google {
-  background: rgba(36, 42, 51, 0.85);
-}
-.auth-btn-google:active {
-  transform: scale(0.98);
-}
-
-.auth-foot {
-  margin: 18px 0 0;
-  text-align: center;
-  font-family: var(--mg-font);
-  font-size: 13px;
-  color: var(--stone);
-}
-.auth-foot a {
-  color: var(--terracotta);
-  font-weight: 500;
-  text-decoration: none;
-}
-
 .auth-msg-icon {
   display: inline-flex;
   margin-bottom: 10px;
   color: var(--sage);
-}
-
-/* Splash while the session is being resolved. */
-.auth-splash {
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-home);
-}
-.auth-splash-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--terracotta);
-  animation: authPulse 1s ease-in-out infinite;
-}
-@keyframes authPulse {
-  0%, 100% { opacity: 0.35; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1); }
 }

@@ -64,7 +64,10 @@ button {
 }
 
 /* ── App shell ───────────────────────────────────────────────────
-   A single 420px-max phone frame, centered. Each screen scrolls inside. */
+   A single 420px-max phone frame, centered. Each screen scrolls inside.
+   The per-screen background image lives on .app::before so it stays
+   anchored to the visible frame while content scrolls over it — the
+   image never "ends" at the bottom of a long page. */
 .app {
   position: relative;
   width: 100%;
@@ -76,6 +79,71 @@ button {
   background: var(--bone);
   transition: background 0.4s ease;
   z-index: 1;
+}
+.app::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--screen-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+  transition: background-image 0.3s ease;
+}
+
+/* ── LoadingSplash — pulsing-heart logo while data is loading ── */
+.splash {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: var(--bone);
+  z-index: 200;
+}
+.splash-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  animation: splashHeartbeat 1.4s ease-in-out infinite;
+}
+.splash-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.splash-logo.dark { display: none; }
+.splash-logo.light { display: block; }
+[data-theme="dark"] .splash-logo.light { display: none; }
+[data-theme="dark"] .splash-logo.dark  { display: block; }
+.splash-label {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.04em;
+}
+/* "Lub-dub" heartbeat: a quick upbeat, a brief release, a second
+   upbeat slightly smaller, then back to rest. */
+@keyframes splashHeartbeat {
+  0%   { transform: scale(1.00); }
+  14%  { transform: scale(1.18); }
+  28%  { transform: scale(1.00); }
+  42%  { transform: scale(1.12); }
+  56%  { transform: scale(1.00); }
+  100% { transform: scale(1.00); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash-logo-wrap { animation: none; }
 }
 
 /* ── InfoPopover — small "?" tooltip used across screens ─────── */
@@ -108,7 +176,9 @@ button {
   position: absolute;
   z-index: 50;
   inset-inline-end: -4px;
-  max-width: 240px;
+  /* Clamp to the viewport's edge minus a tiny padding so the
+     popover never overflows the screen on narrow mobile widths. */
+  max-width: min(240px, calc(100vw - 24px));
   width: max-content;
   padding: 8px 11px;
   border-radius: 10px;
@@ -202,11 +272,11 @@ button {
 
 /* ── Screen scroll container ─────────────────────────────────────
    Fills the frame; leaves room for the fixed bottom bar (84px).
-   The per-screen nature image (--screen-bg, set on .app[data-screen])
-   is painted via `::before` so `backdrop-filter` on the glass cards
-   can reliably blur it. Chromium's backdrop-filter is flaky when the
-   backdrop comes from a scrollable container's `background-image`
-   (especially with `background-attachment: fixed/local`). */
+   The per-screen nature image is painted on .app::before (above) so
+   it stays anchored to the viewport. .screen sits over it via a
+   transparent background; backdrop-filter on the glass cards still
+   blurs the fixed image cleanly because the image isn't inside the
+   scroll container anymore. */
 .screen {
   position: absolute;
   inset: 0;
@@ -216,17 +286,7 @@ button {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   isolation: isolate;
-}
-.screen::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: var(--screen-bg);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  pointer-events: none;
-  z-index: -1;
+  background: transparent;
 }
 .screen::-webkit-scrollbar {
   display: none;

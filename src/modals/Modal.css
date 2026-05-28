@@ -40,6 +40,25 @@
   visibility: visible;
   transition: transform 0.34s cubic-bezier(0.32, 0.72, 0.24, 1), visibility 0s linear 0s;
 }
+
+/* Desktop — center the sheet instead of anchoring it to the bottom
+   so it never lands far from the trigger or off-screen on tall
+   monitors. Keeps the same animation (transform-based) so the
+   slide-in still feels right. */
+@media (min-width: 768px) {
+  .m-sheet {
+    top: 50%;
+    bottom: auto;
+    max-height: 86vh;
+    max-width: 520px;
+    border-radius: 22px;
+    border-bottom: 0.5px solid var(--b1);
+    transform: translate(-50%, calc(-50% + 24px));
+  }
+  .m-sheet.open {
+    transform: translate(-50%, -50%);
+  }
+}
 .m-head {
   display: flex;
   align-items: center;

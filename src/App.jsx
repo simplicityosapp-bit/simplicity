@@ -14,6 +14,7 @@ import BottomNav from './components/BottomNav'
 import MenuDrawer from './components/MenuDrawer'
 import Sidebar from './components/Sidebar'
 import PrefsApplier from './components/PrefsApplier'
+import LoadingSplash from './components/LoadingSplash'
 
 import HomeScreen from './screens/home'
 import ClientsScreen from './screens/clients'
@@ -108,11 +109,7 @@ function urlHasOAuthCallback() {
 function Root() {
   const { session, loading } = useAuth()
   if (loading || (!session && urlHasOAuthCallback())) {
-    return (
-      <div className="auth-splash">
-        <span className="auth-splash-dot" />
-      </div>
-    )
+    return <LoadingSplash />
   }
   return session ? (
     <UserPreferencesProvider>

@@ -6,9 +6,11 @@ import { useRecurring } from '../../hooks/useRecurring'
 import { useRecurringGeneration } from '../../hooks/useRecurringGeneration'
 import { useCategories } from '../../hooks/useCategories'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
+import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { exportTransactionsCSV } from '../../lib/export'
 import MonthSummary from './MonthSummary'
 import FinanceChart from './FinanceChart'
+import PendingSection from './PendingSection'
 import TransactionList from './TransactionList'
 import RecurringSection from './RecurringSection'
 import CategoriesSection from './CategoriesSection'
@@ -29,6 +31,9 @@ export default function FinanceScreen() {
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
   const { categories, addCategory, removeCategory } = useCategories()
   const { meetings: scheduledMeetings, loading: scheduledMeetingsLoading } = useScheduledMeetings()
+  const { prefs, update: updatePrefs } = useUserPreferences()
+  const showSkipped = prefs?.financeShowSkipped !== false
+  const setShowSkipped = (v) => updatePrefs?.({ financeShowSkipped: v })
   const [month, setMonth] = useState(() => startOfMonth(new Date()))
   const [showAdd, setShowAdd] = useState(false)
   const [editTx, setEditTx] = useState(null)
@@ -58,6 +63,15 @@ export default function FinanceScreen() {
       }),
     [transactions, month],
   )
+
+  /* Pending lives in its own attention section above the main list.
+     Sorted ascending by date so the oldest "you owe me a decision" rows
+     are at the top — matches the prototype's f-pending-section. */
+  const pendingTxs = useMemo(
+    () => monthTxs.filter((t) => t.status === 'pending').sort((a, b) => new Date(a.date) - new Date(b.date)),
+    [monthTxs],
+  )
+  const skippedCount = useMemo(() => monthTxs.filter((t) => t.status === 'skipped').length, [monthTxs])
 
   const prevMonthTxs = useMemo(() => {
     const prev = new Date(month.getFullYear(), month.getMonth() - 1, 1)
@@ -139,20 +153,45 @@ export default function FinanceScreen() {
         />
       </div>
 
+      <PendingSection
+        transactions={pendingTxs}
+        clients={clients}
+        projects={projects}
+        categories={categories}
+        onApprove={(id) => setStatus(id, 'confirmed')}
+        onSkip={(id) => setStatus(id, 'skipped')}
+        onEdit={setEditTx}
+      />
+
       <section className="f-list">
         {loading ? (
           <div className="empty"><p className="empty-text">טוען תנועות…</p></div>
         ) : (
-          <TransactionList
-            transactions={monthTxs}
-            clients={clients}
-            projects={projects}
-            categories={categories}
-            onApprove={(id) => setStatus(id, 'confirmed')}
-            onSkip={(id) => setStatus(id, 'skipped')}
-            onUnskip={(id) => setStatus(id, 'pending')}
-            onEdit={setEditTx}
-          />
+          <>
+            {skippedCount > 0 && (
+              <div className="f-skipped-toggle">
+                <button
+                  type="button"
+                  className={`f-skipped-btn${showSkipped ? ' on' : ''}`}
+                  onClick={() => setShowSkipped(!showSkipped)}
+                  aria-pressed={showSkipped}
+                >
+                  {showSkipped ? 'הסתר דולגות' : `הצג ${skippedCount} דולגות`}
+                </button>
+              </div>
+            )}
+            <TransactionList
+              transactions={monthTxs}
+              clients={clients}
+              projects={projects}
+              categories={categories}
+              showSkipped={showSkipped}
+              onApprove={(id) => setStatus(id, 'confirmed')}
+              onSkip={(id) => setStatus(id, 'skipped')}
+              onUnskip={(id) => setStatus(id, 'pending')}
+              onEdit={setEditTx}
+            />
+          </>
         )}
       </section>
 

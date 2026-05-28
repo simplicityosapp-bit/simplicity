@@ -1,14 +1,15 @@
 import TransactionCard from './TransactionCard'
 
-/* Pending first (needs action), then confirmed, then skipped. */
+/* Pending lives in its own section now (see PendingSection). The main list
+   shows confirmed + (optionally) skipped. */
 const GROUPS = [
-  { key: 'pending', label: 'ממתינות לאישור' },
   { key: 'confirmed', label: 'אושרו' },
   { key: 'skipped', label: 'דולגו' },
 ]
 
-export default function TransactionList({ transactions, clients, projects, categories, onApprove, onSkip, onUnskip, onEdit }) {
-  if (!transactions.length) {
+export default function TransactionList({ transactions, clients, projects, categories, showSkipped = true, onApprove, onSkip, onUnskip, onEdit }) {
+  const visible = transactions.filter((t) => t.status !== 'pending' && (showSkipped || t.status !== 'skipped'))
+  if (!visible.length) {
     return (
       <div className="empty">
         <p className="empty-text">אין תנועות לחודש זה.</p>
@@ -18,7 +19,8 @@ export default function TransactionList({ transactions, clients, projects, categ
   return (
     <div className="f-tx-groups">
       {GROUPS.map((g) => {
-        const items = transactions.filter((t) => t.status === g.key)
+        if (g.key === 'skipped' && !showSkipped) return null
+        const items = visible.filter((t) => t.status === g.key)
         if (!items.length) return null
         return (
           <div key={g.key} className="f-tx-group">

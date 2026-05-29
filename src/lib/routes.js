@@ -9,6 +9,7 @@ export const ROUTES = {
   LOGIN: '/login',
   SIGNUP: '/signup', // נוסף — מסך הרשמה (החלטת auth)
   RESET_PASSWORD: '/reset-password', // נוסף — איפוס סיסמה (החלטת auth)
+  ONBOARDING: '/onboarding', // 9-step wizard, gates Home until completed
 
   // Main screens
   HOME: '/',

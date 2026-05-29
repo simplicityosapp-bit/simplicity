@@ -16,6 +16,7 @@ import Sidebar from './components/Sidebar'
 import PrefsApplier from './components/PrefsApplier'
 import LoadingSplash from './components/LoadingSplash'
 
+import OnboardingScreen from './screens/onboarding'
 import HomeScreen from './screens/home'
 import ClientsScreen from './screens/clients'
 import FinanceScreen from './screens/finance'
@@ -40,13 +41,33 @@ function AppShell() {
   const location = useLocation()
   const screen = screenKeyFromPath(location.pathname)
   const { isDark, toggleTheme } = useTheme()
-  const { update: updatePrefs } = useUserPreferences()
+  const { prefs, update: updatePrefs, loading: prefsLoading } = useUserPreferences()
   const [menuOpen, setMenuOpen] = useState(false)
 
   /* Toggle theme on the local hook (fast) AND persist to prefs. */
   const handleToggleTheme = () => {
     toggleTheme()
     updatePrefs({ design: { theme: isDark ? 'light' : 'dark' } })
+  }
+
+  /* Onboarding guard. While prefs are loading we render nothing — the
+     prefs blob arrives in a few ms and we don't want to flicker the
+     wrong screen. Once loaded, if the user hasn't completed or skipped
+     the wizard, force /onboarding (chrome hidden). They can still log
+     out, but every other route bounces to the wizard. */
+  const ob = prefs?.onboarding
+  const obDone = !!(ob?.completed_at || ob?.skipped_at)
+  if (prefsLoading) return null
+  if (!obDone) {
+    return (
+      <div className="app" data-screen="onboarding">
+        <PrefsApplier />
+        <Routes>
+          <Route path={ROUTES.ONBOARDING} element={<OnboardingScreen />} />
+          <Route path="*" element={<Navigate to={ROUTES.ONBOARDING} replace />} />
+        </Routes>
+      </div>
+    )
   }
 
   return (

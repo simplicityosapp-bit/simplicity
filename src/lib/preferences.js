@@ -130,6 +130,44 @@ export function defaultPreferences() {
     },
     widgets: defaultWidgetsConfig(),
     reports: null,
+    onboarding: defaultOnboarding(),
+  }
+}
+
+/* 9-step welcome flow. `step` is the key currently shown; `completed_at`
+   releases the AuthGate to /home. `answers` carries per-step inputs so
+   the user can resume mid-flow (e.g. closed tab). `parsed_data` is the
+   raw CSV-parse output when the user picked path A; cleared on finish. */
+export const ONBOARDING_STEPS = [
+  'profile',
+  'data_import',
+  'projects',
+  'clients',
+  'daily_questions',
+  'goals',
+  'recurring',
+  'preview',
+  'finish',
+]
+
+export function defaultOnboarding() {
+  return {
+    version: 1,
+    step: 'profile',
+    completed_at: null,
+    skipped_at: null,           /* user fully skipped the flow — still released to home */
+    started_at: null,
+    answers: {
+      profile:         { name: '', role: null },
+      data_import:     { mode: null, file_name: null, parsed_at: null },
+      projects:        { created_ids: [], group_mode: null },
+      clients:         { created_ids: [] },
+      daily_questions: { question_ids: [], custom_text: '' },
+      goals:           { created_ids: [], income_goal_amount: null },
+      recurring:       { created_ids: [] },
+    },
+    completed_steps: [],         /* keys of steps the user actually filled (not skipped) — drives the tree growth */
+    parsed_data: null,
   }
 }
 
@@ -162,8 +200,20 @@ export function migratePreferences(input) {
     design:  { ...base.design,  ...(cur.design  || {}) },
     widgets: migrateWidgets(cur.widgets),
     reports: cur.reports || null,   /* shaped by useReportsConfig */
+    onboarding: migrateOnboarding(cur.onboarding),
   }
   return out
+}
+
+function migrateOnboarding(input) {
+  const base = defaultOnboarding()
+  if (!input || typeof input !== 'object') return base
+  return {
+    ...base,
+    ...input,
+    answers: { ...base.answers, ...(input.answers || {}) },
+    completed_steps: Array.isArray(input.completed_steps) ? input.completed_steps : [],
+  }
 }
 
 function migrateWidgets(input) {

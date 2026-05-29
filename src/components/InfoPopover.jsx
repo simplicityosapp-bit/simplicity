@@ -9,6 +9,17 @@ import { HelpCircle } from 'lucide-react'
 export default function InfoPopover({ text, label, placement = 'bottom' }) {
   const [open, setOpen] = useState(false)
   const wrapRef = useRef(null)
+  /* Small close delay so moving the cursor from the trigger button into
+     the popover body (across the 6px gap) doesn't snap it shut mid-traverse.
+     onMouseEnter on either element cancels the pending close. */
+  const closeTimer = useRef(null)
+  const scheduleClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    closeTimer.current = setTimeout(() => setOpen(false), 180)
+  }
+  const cancelClose = () => {
+    if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null }
+  }
 
   useEffect(() => {
     if (!open) return
@@ -24,12 +35,14 @@ export default function InfoPopover({ text, label, placement = 'bottom' }) {
     }
   }, [open])
 
+  useEffect(() => () => cancelClose(), [])
+
   return (
     <span
       className="info-pop"
       ref={wrapRef}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onMouseEnter={() => { cancelClose(); setOpen(true) }}
+      onMouseLeave={scheduleClose}
     >
       <button
         type="button"
@@ -41,7 +54,12 @@ export default function InfoPopover({ text, label, placement = 'bottom' }) {
         <HelpCircle size={13} strokeWidth={1.7} aria-hidden="true" />
       </button>
       {open && (
-        <span className={`info-pop-body info-pop-${placement}`} role="tooltip">
+        <span
+          className={`info-pop-body info-pop-${placement}`}
+          role="tooltip"
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
+        >
           {text}
         </span>
       )}

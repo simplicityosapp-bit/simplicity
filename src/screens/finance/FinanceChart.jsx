@@ -33,13 +33,17 @@ export default function FinanceChart({ month }) {
     [goals, goalCategories],
   )
   const targetValue = goal?.target_value || 0
-  const scopeOpts = goal
-    ? { projectId: goal.project_id || null, source: transactions }
-    : { source: transactions }
-
+  /* Resolve scope to primitives so useMemo deps stay stable across
+     renders — passing a fresh object literal every render forces
+     financeDailyBuckets to recompute on every parent re-render. */
+  const goalProjectId = goal?.project_id || null
   const buckets = useMemo(
-    () => financeDailyBuckets(month.getFullYear(), month.getMonth(), scopeOpts),
-    [month, scopeOpts],
+    () => financeDailyBuckets(
+      month.getFullYear(),
+      month.getMonth(),
+      { projectId: goalProjectId, source: transactions },
+    ),
+    [month, goalProjectId, transactions],
   )
 
   const { daysInMonth, cumInc } = buckets

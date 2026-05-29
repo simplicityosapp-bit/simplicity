@@ -1,25 +1,31 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Users, ClipboardList, Home, Wallet, Menu } from 'lucide-react'
 import { BOTTOM_NAV } from '../lib/nav'
+import { screenKeyFromPath } from '../lib/nav'
 import './BottomNav.css'
 
 const ICONS = { Users, ClipboardList, Home, Wallet }
 
 /* Fixed 5-slot tab bar: 4 quick screens + "תפריט" which opens the drawer.
    The active item is colored via CSS that matches the .app[data-screen]
-   attribute (set on the app root) against each item's data-screen. */
+   attribute (set on the app root) against each item's data-screen. We
+   also surface the active state to assistive tech via aria-current. */
 export default function BottomNav({ onOpenMenu }) {
   const navigate = useNavigate()
+  const location = useLocation()
+  const screen = screenKeyFromPath(location.pathname)
 
   return (
     <nav className="mg-bottombar" aria-label="ניווט תחתון">
       {BOTTOM_NAV.map((item) => {
         const Icon = ICONS[item.icon]
+        const active = item.key === screen
         return (
           <button
             key={item.key}
             className="mg-bottombar-item"
             data-screen={item.key}
+            aria-current={active ? 'page' : undefined}
             onClick={() => navigate(item.to)}
           >
             <span className="mg-bottombar-chip" aria-hidden="true">

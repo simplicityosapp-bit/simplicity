@@ -109,6 +109,7 @@ export default function ClientsScreen() {
   const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState(() => new Set())
   const [bulkMetaOpen, setBulkMetaOpen] = useState(false)
+  const bulkMetaAnchorRef = useRef(null)
   const openClient = openId ? clientList.find((c) => c.id === openId) : null
 
   const sort = useMemo(() => ({ ...DEFAULT_SORT, ...(prefs?.clientsSort || {}) }), [prefs])
@@ -163,6 +164,16 @@ export default function ClientsScreen() {
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
   }, [sortOpen])
+
+  /* Same dismissal for the bulk-meta popover inside the bulk action bar. */
+  useEffect(() => {
+    if (!bulkMetaOpen) return
+    const onDoc = (e) => {
+      if (!bulkMetaAnchorRef.current?.contains(e.target)) setBulkMetaOpen(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [bulkMetaOpen])
 
   /* Clear selection when switching tabs or leaving select mode. */
   useEffect(() => { setSelectedIds(new Set()) }, [tab, selectMode])
@@ -397,7 +408,7 @@ export default function ClientsScreen() {
         <div className="c-bulk-bar">
           <span className="c-bulk-count">{selectedIds.size} נבחרו</span>
           <div className="c-bulk-actions">
-            <div className="c-bulk-meta-wrap">
+            <div className="c-bulk-meta-wrap" ref={bulkMetaAnchorRef}>
               <button
                 type="button"
                 className="c-bulk-btn"

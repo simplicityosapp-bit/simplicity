@@ -55,7 +55,7 @@ export default function ProjectDetailScreen() {
   const { sessions, addSession, updateSession, removeSession } = useSessions()
   const { transactions } = useTransactions()
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
-  const { meetings: scheduledMeetings } = useScheduledMeetings()
+  const { meetings: scheduledMeetings, removeMeeting } = useScheduledMeetings()
 
   /* Section accordion + per-group sessions expand state. */
   const [openSec, setOpenSec] = useState({ groups: true, clients: true, reminders: false })
@@ -245,8 +245,19 @@ export default function ProjectDetailScreen() {
         await removeReminder(r.id).catch(() => {})
       }
     }
-    /* Future meetings: out of scope for this delete path — engine will skip
-       them once the group is gone, and they'll fall off naturally. */
+    /* Future scheduled meetings (pending) — honor the user's keepFutureMeetings
+       choice. Default is to drop them (the recurring rule is gone), but the
+       user can override if they want the existing rows to stay (e.g. for
+       short-term continuity while a replacement is being set up). */
+    if (choices.keepFutureMeetings === false) {
+      const futureMeetings = scheduledMeetings.filter(
+        (m) => m.subject_type === 'group' && m.subject_id === g.id && m.status === 'pending',
+      )
+      for (const m of futureMeetings) {
+        // eslint-disable-next-line no-await-in-loop
+        await removeMeeting(m.id).catch(() => {})
+      }
+    }
     await removeGroup(g.id)
   }
 

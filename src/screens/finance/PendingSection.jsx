@@ -31,7 +31,15 @@ export default function PendingSection({ transactions, clients = [], projects = 
           <button
             type="button"
             className="f-pending-bulk"
-            onClick={() => transactions.forEach((t) => onApprove(t.id))}
+            onClick={async () => {
+              /* Sequential await so optimistic state updates in setStatus
+                 don't trample each other — same pattern as bulkChangeMeta
+                 in clients. Catch per-row so one failure doesn't abort. */
+              for (const t of transactions) {
+                // eslint-disable-next-line no-await-in-loop
+                await Promise.resolve(onApprove(t.id)).catch(() => {})
+              }
+            }}
           >
             <Check size={13} strokeWidth={1.9} aria-hidden="true" /> אשר הכל
           </button>

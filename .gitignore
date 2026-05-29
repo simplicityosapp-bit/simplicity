@@ -30,3 +30,6 @@ _migrate.mjs
 *.njsproj
 *.sln
 *.sw?
+
+# audit user creds for live UX checks
+.claude-audit-creds.json

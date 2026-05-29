@@ -33,33 +33,40 @@ export default function ChipsWidget() {
   )
   const netStr = `${summary.net < 0 ? '−' : ''}${Math.round(Math.abs(summary.net)).toLocaleString('en-US')} ₪`
 
+  /* The tile is a `<div role="button">` instead of a real <button> because
+     it contains the InfoPopover trigger (which is itself a <button>) —
+     nested <button>s break hydration and aren't valid HTML. Keyboard
+     activation is preserved via the Enter/Space handler. */
+  const onTileKey = (fn) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn() }
+  }
   return (
     <>
       <div className="h-chips">
-        <button type="button" className="h-stat" onClick={() => setOpenTile('tasks')}>
+        <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('tasks')} onKeyDown={onTileKey(() => setOpenTile('tasks'))}>
           <ClipboardList size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
           <span className="h-stat-num mono">{summary.openTasks}</span>
           <span className="h-stat-lbl">
             משימות
             <InfoPopover label="הסבר משימות" text="לחץ/י על הכרטיס כדי לסנן ולראות פירוט. ברירת מחדל: רק משימות פתוחות." placement="top" />
           </span>
-        </button>
-        <button type="button" className="h-stat" onClick={() => setOpenTile('net')}>
+        </div>
+        <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('net')} onKeyDown={onTileKey(() => setOpenTile('net'))}>
           <Wallet size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
           <span className="h-stat-num mono">{netStr}</span>
           <span className="h-stat-lbl">
             נטו
             <InfoPopover label="הסבר נטו" text="לחץ/י על הכרטיס כדי לסנן לפי טווח זמן, סוג, פרויקט וקטגוריה. סופר רק תנועות שאושרו." placement="top" />
           </span>
-        </button>
-        <button type="button" className="h-stat" onClick={() => setOpenTile('clients')}>
+        </div>
+        <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('clients')} onKeyDown={onTileKey(() => setOpenTile('clients'))}>
           <Users size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
           <span className="h-stat-num mono">{summary.activeClients}</span>
           <span className="h-stat-lbl">
             לקוחות
             <InfoPopover label="הסבר לקוחות" text="לחץ/י על הכרטיס כדי לסנן לפי סטטוס, פרויקט וקבוצה. ברירת מחדל: פעיל + ביניים." placement="top" />
           </span>
-        </button>
+        </div>
       </div>
 
       <TileDrillModal

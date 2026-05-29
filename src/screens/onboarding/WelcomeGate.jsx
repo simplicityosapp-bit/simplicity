@@ -31,7 +31,11 @@ export default function WelcomeGate() {
   return (
     <div className="ob-screen screen">
       <div className="ob-welcome">
-        <img className="ob-welcome-logo" src="/logo-light.png" alt="" aria-hidden="true" />
+        {/* Two img tags + a CSS swap on [data-theme] so the right logo
+            ships against the right background tone — dark logo against
+            the daytime tree-frame, light logo against the night one. */}
+        <img className="ob-welcome-logo ob-welcome-logo-day"   src="/logo-dark.png"  alt="" aria-hidden="true" />
+        <img className="ob-welcome-logo ob-welcome-logo-night" src="/logo-light.png" alt="" aria-hidden="true" />
         <p className="ob-welcome-name">Simplicity</p>
         <p className="ob-welcome-tag">Practice OS</p>
 

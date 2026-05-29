@@ -517,6 +517,11 @@
   filter: drop-shadow(0 4px 16px rgba(42, 37, 32, 0.18));
   margin-bottom: 4px;
 }
+/* Day theme = bright tree bg → show dark logo. Night theme = dark
+   tree bg → show light logo. Each is hidden in the wrong theme. */
+.ob-welcome-logo-night { display: none; }
+[data-theme="dark"] .ob-welcome-logo-day   { display: none; }
+[data-theme="dark"] .ob-welcome-logo-night { display: block; }
 .ob-welcome-name {
   margin: 0;
   font-family: 'Assistant', sans-serif;

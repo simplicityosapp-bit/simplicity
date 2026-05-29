@@ -34,6 +34,11 @@ export default function Step7Recurring({ ob }) {
   const onNext = async () => {
     setBusy(true); setErr('')
     try {
+      const same = initial.desc === desc.trim() && Number(initial.amount) === Number(amount) && initial.type === type
+      if (same && (initial.created_ids?.length || 0) > 0) {
+        await ob.advance()
+        return
+      }
       const row = await addRecurring({
         type,
         amount: Number(amount),
@@ -130,7 +135,12 @@ export default function Step7Recurring({ ob }) {
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+        {!canAdvance && (
+          <p className="ob-empty-hint">
+            {!desc.trim() ? 'תיאור חובה.' : 'סכום חיובי חובה.'}
+          </p>
+        )}
         <button
           type="button"
           className="ob-btn primary"

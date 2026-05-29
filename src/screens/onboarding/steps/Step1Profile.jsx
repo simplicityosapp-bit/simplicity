@@ -63,13 +63,13 @@ export default function Step1Profile({ ob }) {
         </div>
       </div>
 
-      <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+        {!canAdvance && <p className="ob-empty-hint">נא להזין שם כדי להמשיך.</p>}
         <button
           type="button"
           className="ob-btn primary"
           onClick={onNext}
           disabled={!canAdvance}
-          title={canAdvance ? '' : 'נא להזין שם'}
         >
           הלאה
         </button>

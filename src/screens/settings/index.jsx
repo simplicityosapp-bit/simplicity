@@ -26,6 +26,7 @@ import {
 } from '../../lib/preferences'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
 import { exportTransactionsCSV } from '../../lib/export'
+import { defaultOnboarding } from '../../lib/preferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
 import QuestionScheduleEditor from './QuestionScheduleEditor'
 import './SettingsScreen.css'
@@ -537,6 +538,23 @@ export default function SettingsScreen() {
           </button>
           <p className="set-data-hint">
             הקובץ כולל את כל התנועות (כולל ממתינות ודולגו) עם עמודות תאריך, סוג, סכום, תיאור, סטטוס, לקוח, פרויקט, קטגוריה.
+          </p>
+
+          <button
+            type="button"
+            className="set-data-action"
+            onClick={async () => {
+              if (!window.confirm('להתחיל מחדש את ההכרות? הצעדים יחזרו לאפס — הנתונים שכבר נוצרו (לקוחות, פרויקטים וכו\') יישארו.')) return
+              await updatePrefs({ onboarding: defaultOnboarding() })
+              navigate(ROUTES.ONBOARDING)
+            }}
+            style={{ marginTop: 10 }}
+          >
+            <Sparkles size={15} strokeWidth={1.7} aria-hidden="true" />
+            התחל מחדש את ההכרות
+          </button>
+          <p className="set-data-hint">
+            פותח את אשף ההכרות מהצעד הראשון. נוח לחזור אם דילגת באמצע.
           </p>
         </div>
       )

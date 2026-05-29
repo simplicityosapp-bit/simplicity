@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react'
 import { Upload, FileSpreadsheet, CheckCircle2 } from 'lucide-react'
+import { parseCsvFile } from '../../../lib/csvImport'
 
-/* Step 2 — paths A (import) vs B (start fresh). Path A uses a stubbed
-   parser: we accept the file, count its rows, and stash a placeholder
-   `parsed_data` blob so downstream steps know "the user uploaded".
-   Real entity extraction (mapping headers → clients / projects /
-   transactions) is deep work — see open follow-ups. */
+/* Step 2 — paths A (import) vs B (start fresh). Path A runs a real
+   header-aware CSV parser (lib/csvImport) and stashes the structured
+   result in `ob.parsed_data` so downstream steps (esp. step 4 clients)
+   can offer "extracted from your file" chips. Excel files are accepted
+   by the picker but treated as a placeholder for now — xlsx parsing
+   ships next. */
 
 const ACCEPT = '.csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
@@ -22,28 +24,39 @@ export default function Step2DataImport({ ob }) {
     if (!file) return
     setBusy(true); setErr('')
     try {
-      /* Best-effort parse: only handles CSV here; Excel parsing is a
-         heavier dependency (xlsx) — we mark it as "received" and let
-         the deep-import follow-up handle it properly. */
       const isCsv = /\.csv$/i.test(file.name) || file.type === 'text/csv'
-      let parsedRows = 0
-      if (isCsv) {
-        const text = await file.text()
-        parsedRows = text.split(/\r?\n/).filter((l) => l.trim().length > 0).length - 1 // minus header
-        if (parsedRows < 0) parsedRows = 0
+      if (!isCsv) {
+        /* Excel placeholder — same UX, but no chips downstream. */
+        setFileName(file.name)
+        setRowCount(null)
+        await ob.setParsedData({
+          kind: 'placeholder',
+          file_name: file.name,
+          received_at: new Date().toISOString(),
+        })
+        await ob.setAnswers('data_import', {
+          mode: 'A',
+          file_name: file.name,
+          parsed_at: new Date().toISOString(),
+          format: 'xlsx-placeholder',
+        })
+        return
       }
+      const parsed = await parseCsvFile(file)
       setFileName(file.name)
-      setRowCount(parsedRows)
+      setRowCount(parsed.raw_rows)
       await ob.setParsedData({
-        kind: 'placeholder',
-        file_name: file.name,
-        approx_rows: parsedRows,
+        kind: 'csv',
+        ...parsed,
         received_at: new Date().toISOString(),
       })
       await ob.setAnswers('data_import', {
         mode: 'A',
         file_name: file.name,
         parsed_at: new Date().toISOString(),
+        format: 'csv',
+        client_count: parsed.clients.length,
+        project_count: parsed.projects.length,
       })
     } catch (e) {
       setErr('הקובץ לא נקרא — נסה/י שוב או בחר/י להתחיל מאפס.')
@@ -115,12 +128,22 @@ export default function Step2DataImport({ ob }) {
       {mode === 'A' && fileName && (
         <div className="ob-pre-fill-banner">
           <CheckCircle2 size={15} strokeWidth={1.8} aria-hidden="true" />
-          התקבל: <strong>{fileName}</strong>
-          {rowCount != null && <span style={{ color: 'var(--stone)' }}>· ~{rowCount} שורות</span>}
+          <div>
+            התקבל: <strong>{fileName}</strong>
+            {rowCount != null && <span style={{ color: 'var(--stone)' }}> · {rowCount} שורות</span>}
+            {ob.state.parsed_data?.kind === 'csv' && (
+              <div style={{ marginTop: 4, color: 'var(--stone)', fontSize: 11.5 }}>
+                זוהו {ob.state.parsed_data.clients?.length || 0} לקוחות
+                {ob.state.parsed_data.projects?.length ? ` · ${ob.state.parsed_data.projects.length} פרויקטים` : ''}
+                {ob.state.parsed_data.unmapped_columns?.length ? ` · ${ob.state.parsed_data.unmapped_columns.length} עמודות לא זוהו` : ''}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+        {!canAdvance && <p className="ob-empty-hint">בחר/י "כן יש לי" + העלאת קובץ, או "מתחיל/ה מאפס".</p>}
         <button
           type="button"
           className="ob-btn primary"

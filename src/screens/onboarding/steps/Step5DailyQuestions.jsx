@@ -32,6 +32,14 @@ export default function Step5DailyQuestions({ ob }) {
   const onNext = async () => {
     setBusy(true); setErr('')
     try {
+      /* Idempotent: skip recreate if selection identical to prior pass. */
+      const prevKeys = initial.preset_keys || []
+      const sameKeys = prevKeys.length === picked.length && prevKeys.every((k) => picked.includes(k))
+      const sameCustom = (initial.custom_text || '') === custom.trim()
+      if (sameKeys && sameCustom && (initial.question_ids?.length || 0) > 0) {
+        await ob.advance()
+        return
+      }
       const ids = []
       for (const k of picked) {
         // eslint-disable-next-line no-await-in-loop
@@ -107,7 +115,8 @@ export default function Step5DailyQuestions({ ob }) {
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+        {!canAdvance && <p className="ob-empty-hint">בחר/י שאלה אחת לפחות (מהצעות או מותאמת).</p>}
         <button
           type="button"
           className="ob-btn primary"

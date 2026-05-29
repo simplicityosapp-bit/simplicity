@@ -30,15 +30,25 @@ export default function Step3Projects({ ob }) {
 
   const canAdvance = name.trim().length > 0 && (groupMode === false || (groupMode === true && gName.trim().length > 0 && Number(gPrice) > 0))
 
+  /* Idempotency: if we already created a project in this step before
+     (back+next pattern) and the user hasn't touched the project name,
+     skip the create. Same for the optional group. */
   const onNext = async () => {
     setBusy(true); setErr('')
     try {
-      const createdProject = await addProject({ name: name.trim(), color })
-      const createdIds = [createdProject.id]
-      let groupId = null
-      if (groupMode === true) {
+      const prevName = initial.name
+      const sameAsBefore = prevName && prevName === name.trim() && initial.created_ids?.length > 0
+      let projectId = sameAsBefore ? initial.created_ids[0] : null
+      const createdIds = sameAsBefore ? [...initial.created_ids] : []
+      if (!projectId) {
+        const createdProject = await addProject({ name: name.trim(), color })
+        projectId = createdProject.id
+        createdIds.push(projectId)
+      }
+      let groupId = initial.group_id || null
+      if (groupMode === true && (!groupId || initial.group_name !== gName.trim())) {
         const grp = await addGroup({
-          project_id: createdProject.id,
+          project_id: projectId,
           name: gName.trim(),
           color,
           package_price: Number(gPrice),
@@ -55,6 +65,7 @@ export default function Step3Projects({ ob }) {
         group_mode: groupMode === true,
         created_ids: createdIds,
         group_id: groupId,
+        group_name: gName.trim(),
       })
       await ob.advance()
     } catch (e) {
@@ -191,7 +202,12 @@ export default function Step3Projects({ ob }) {
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+        {!canAdvance && (
+          <p className="ob-empty-hint">
+            {!name.trim() ? 'שם פרויקט חובה.' : groupMode === null ? 'בחר/י אם יש קבוצות.' : 'יש למלא שם קבוצה ומחיר חבילה.'}
+          </p>
+        )}
         <button
           type="button"
           className="ob-btn primary"

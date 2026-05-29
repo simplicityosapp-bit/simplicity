@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
+import { useUserQuestions } from '../../../hooks/useUserQuestions'
+import { questionText } from '../../../lib/questionTemplates'
 import { CATEGORY_PRESETS, presetToCategory } from '../../../lib/goalPresets'
 
 /* Step 6 — first goal + optional income goal.
@@ -21,6 +23,8 @@ const FIRST_GOAL_LABELS = {
 export default function Step6Goals({ ob }) {
   const { addGoal } = useGoals()
   const { categories, addCategory } = useGoalCategories()
+  const { questions } = useUserQuestions()
+  const activeQuestions = questions.filter((q) => q.active)
   const initial = ob.state.answers?.goals || {}
   const [firstType, setFirstType] = useState(initial.first_type || null)
   const [firstTarget, setFirstTarget] = useState(initial.first_target || '')
@@ -45,6 +49,13 @@ export default function Step6Goals({ ob }) {
   const onNext = async () => {
     setBusy(true); setErr('')
     try {
+      /* Skip recreate when inputs unchanged. */
+      const sameFirst = initial.first_type === firstType && Number(initial.first_target) === Number(firstTarget)
+      const sameIncome = (initial.income_goal_amount || null) === (incomeOpen ? Number(incomeAmount) || null : null)
+      if (sameFirst && sameIncome && (initial.created_ids?.length || 0) > 0) {
+        await ob.advance()
+        return
+      }
       const createdIds = []
       const firstCatId = await resolveCategoryId(firstType)
       const firstGoal = await addGoal({
@@ -172,9 +183,26 @@ export default function Step6Goals({ ob }) {
         </div>
       )}
 
+      {activeQuestions.length > 0 && (
+        <div className="ob-pre-fill-banner" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+          <span style={{ fontWeight: 600 }}>השאלות היומיות שלך:</span>
+          <span style={{ color: 'var(--stone)' }}>
+            {activeQuestions.map((q) => questionText(q)).join(' · ')}
+          </span>
+          <span style={{ fontSize: 11, color: 'var(--stone)' }}>
+            הן יופיעו ב&quot;מבט על&quot; ובדוחות לצד היעדים שלך.
+          </span>
+        </div>
+      )}
+
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+        {!canAdvance && (
+          <p className="ob-empty-hint">
+            {!firstType ? 'בחר/י סוג יעד.' : 'הזן/י ערך חודשי חיובי.'}
+          </p>
+        )}
         <button
           type="button"
           className="ob-btn primary"

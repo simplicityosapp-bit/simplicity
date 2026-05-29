@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Sparkles, MessageCircle } from 'lucide-react'
 
 /* Step 9 — finish. Quick widget overview + an optional feedback panel
@@ -14,7 +15,10 @@ const WIDGET_OVERVIEW = [
   { title: 'כרטיסי-מצב',       body: 'לקוחות פעילים, נטו החודש, משימות פתוחות.' },
 ]
 
-export default function Step9Finish({ ob, onDone }) {
+export default function Step9Finish({ ob, onDone, setCTA }) {
+  useEffect(() => {
+    setCTA({ onNext: onDone, canAdvance: true, busy: false, hint: null, nextLabel: 'הפרקטיקה שלך מוכנה ←' })
+  }, [onDone]) // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
       <p className="ob-intro">
@@ -38,11 +42,6 @@ export default function Step9Finish({ ob, onDone }) {
         </span>
       </div>
 
-      <div className="ob-cta">
-        <button type="button" className="ob-btn primary" onClick={onDone}>
-          הפרקטיקה שלך מוכנה ←
-        </button>
-      </div>
     </>
   )
 }

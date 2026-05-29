@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
@@ -20,7 +20,7 @@ const FIRST_GOAL_LABELS = {
   income:          { l: 'יצירה / הכנסות',     unit: '₪' },
 }
 
-export default function Step6Goals({ ob }) {
+export default function Step6Goals({ ob, setCTA }) {
   const { addGoal } = useGoals()
   const { categories, addCategory } = useGoalCategories()
   const { questions } = useUserQuestions()
@@ -34,6 +34,8 @@ export default function Step6Goals({ ob }) {
   const [err, setErr] = useState('')
 
   const canAdvance = firstType && Number(firstTarget) > 0
+  const hint = !canAdvance ? (!firstType ? 'בחר/י סוג יעד.' : 'הזן/י ערך חודשי חיובי.') : null
+  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [firstType, firstTarget, incomeOpen, incomeAmount, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Find-or-create the goal category for a preset key. Reuses the
      existing presetToCategory shape so the UI stays consistent. */
@@ -197,21 +199,6 @@ export default function Step6Goals({ ob }) {
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div className="ob-cta">
-        {!canAdvance && (
-          <p className="ob-empty-hint">
-            {!firstType ? 'בחר/י סוג יעד.' : 'הזן/י ערך חודשי חיובי.'}
-          </p>
-        )}
-        <button
-          type="button"
-          className="ob-btn primary"
-          onClick={onNext}
-          disabled={!canAdvance || busy}
-        >
-          {busy ? 'שומר…' : 'הלאה'}
-        </button>
-      </div>
     </>
   )
 }

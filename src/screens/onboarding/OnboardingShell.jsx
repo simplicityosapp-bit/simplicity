@@ -10,9 +10,12 @@ import { HELP_BY_STEP } from './helpContent'
    - step counter + title
    - help (?) button → slide-up panel with per-step explanation
    - skip-all link (top-right, low-emphasis)
-   - footer with back / skip-step / next CTAs (next is rendered by
-     the step component because only it knows when "next" is valid). */
-export default function OnboardingShell({ title, ob, children, onAskSkipAll }) {
+   - footer split: a small "חזרה" panel on one side, the Next CTA
+     stacked over a short "דלג" link on the other. The step component
+     publishes its onNext/canAdvance/busy/hint via setCTA — that's how
+     the shell knows when it's safe to advance without owning the
+     step's form state. */
+export default function OnboardingShell({ title, ob, cta, children, onAskSkipAll }) {
   const [helpOpen, setHelpOpen] = useState(false)
   const helpContent = HELP_BY_STEP[ob.step] || null
   const isFirst = ob.stepIndex === 0
@@ -62,21 +65,38 @@ export default function OnboardingShell({ title, ob, children, onAskSkipAll }) {
       <main className="ob-body">{children}</main>
 
       <footer className="ob-foot">
-        <button
-          type="button"
-          className="ob-btn ghost"
-          onClick={ob.back}
-          disabled={isFirst}
-        >
-          <ChevronRight size={15} strokeWidth={1.6} aria-hidden="true" /> חזרה
-        </button>
-        <button
-          type="button"
-          className="ob-btn link"
-          onClick={ob.skipStep}
-        >
-          {isLast ? 'סיום בלי למלא' : 'דילוג על הצעד הזה'} <ChevronLeft size={13} strokeWidth={1.6} aria-hidden="true" />
-        </button>
+        {/* CTA cluster: Next on top, "דלג" link below. No glass — the
+            primary button + short skip stand on their own. */}
+        <div className="ob-foot-cta">
+          {cta?.hint && <p className="ob-empty-hint">{cta.hint}</p>}
+          <button
+            type="button"
+            className="ob-btn primary"
+            onClick={cta?.onNext}
+            disabled={!cta?.canAdvance || cta?.busy || !cta?.onNext}
+          >
+            {cta?.busy ? 'שומר…' : (cta?.nextLabel || 'הלאה')}
+          </button>
+          <button
+            type="button"
+            className="ob-btn link"
+            onClick={ob.skipStep}
+          >
+            {isLast ? 'סיום בלי למלא' : 'דלג'} <ChevronLeft size={13} strokeWidth={1.6} aria-hidden="true" />
+          </button>
+        </div>
+
+        {/* Back in its own tiny glass panel on the opposite side. */}
+        <div className="ob-foot-back">
+          <button
+            type="button"
+            className="ob-btn ghost"
+            onClick={ob.back}
+            disabled={isFirst}
+          >
+            <ChevronRight size={15} strokeWidth={1.6} aria-hidden="true" /> חזרה
+          </button>
+        </div>
       </footer>
 
       <OnboardingHelpPanel

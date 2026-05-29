@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useClients } from '../../../hooks/useClients'
 import { useProjects } from '../../../hooks/useProjects'
 
@@ -6,7 +6,7 @@ import { useProjects } from '../../../hooks/useProjects'
    the user just created (step 3), if any. When path A is active and
    the parsed_data later carries client suggestions, we could surface
    them as chips here — see open follow-ups. */
-export default function Step4Clients({ ob }) {
+export default function Step4Clients({ ob, setCTA }) {
   const { addClient, clients } = useClients()
   const { projects } = useProjects()
   const projectAnswers = ob.state.answers?.projects || {}
@@ -21,6 +21,8 @@ export default function Step4Clients({ ob }) {
   const [err, setErr] = useState('')
 
   const canAdvance = name.trim().length > 0
+  const hint = !canAdvance ? 'שם הלקוח חובה.' : null
+  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [name, projectId, sessions, price, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
   const existingCount = useMemo(() => clients?.length || 0, [clients])
 
   /* Idempotent: if the user comes back and the name + project haven't
@@ -162,17 +164,6 @@ export default function Step4Clients({ ob }) {
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div className="ob-cta">
-        {!canAdvance && <p className="ob-empty-hint">שם הלקוח חובה.</p>}
-        <button
-          type="button"
-          className="ob-btn primary"
-          onClick={onNext}
-          disabled={!canAdvance || busy}
-        >
-          {busy ? 'שומר…' : 'הלאה'}
-        </button>
-      </div>
     </>
   )
 }

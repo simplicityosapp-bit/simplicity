@@ -47,11 +47,11 @@
 .ob-head-mid,
 .ob-head-right,
 .ob-progress,
-.ob-foot,
+.ob-foot-back,
 .ob-body > .ob-intro,
 .ob-body > .ob-intro-sub,
 .ob-body > .ob-field,
-.ob-body > .ob-cta {
+.ob-body > .ob-field-row > .ob-field {
   border-radius: 16px;
   border: 1px solid rgba(240, 235, 224, 0.42);
   background: rgba(255, 250, 240, 0.62);
@@ -62,11 +62,11 @@
 [data-theme="dark"] .ob-head-mid,
 [data-theme="dark"] .ob-head-right,
 [data-theme="dark"] .ob-progress,
-[data-theme="dark"] .ob-foot,
+[data-theme="dark"] .ob-foot-back,
 [data-theme="dark"] .ob-body > .ob-intro,
 [data-theme="dark"] .ob-body > .ob-intro-sub,
 [data-theme="dark"] .ob-body > .ob-field,
-[data-theme="dark"] .ob-body > .ob-cta {
+[data-theme="dark"] .ob-body > .ob-field-row > .ob-field {
   background: rgba(20, 18, 14, 0.62);
   border-color: rgba(240, 235, 224, 0.12);
   box-shadow: 0 10px 32px rgba(0, 0, 0, 0.42);
@@ -241,6 +241,24 @@
   max-width: 100%;
   min-width: min(280px, 100%);
 }
+/* Side-by-side fields — used when two short controls share a row. */
+.ob-field-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-self: center;
+  gap: 8px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.ob-field-row > .ob-field {
+  align-self: auto;
+  flex: 0 1 auto;
+  min-width: 200px;
+}
 /* The CTA cluster (hint + Next) is its own snug panel. In RTL the
    "next" button conventionally lives at the inline-start edge (right
    side), so we use align-self:flex-start which respects the writing
@@ -374,16 +392,35 @@
 }
 [data-theme="dark"] .ob-color-swatch.on { box-shadow: 0 0 0 2px var(--ink); }
 
-/* ── Footer — back + skip-step, its own panel ───────────────── */
+/* ── Footer — two clusters on opposite sides ──────────────────
+   Transparent container that lays out two children:
+   - .ob-foot-cta  (no glass) — Next button + tiny "דלג" link below
+   - .ob-foot-back (small glass panel) — just "חזרה"
+   They sit at opposite inline edges; the CTA cluster takes the
+   reading-start side (right in RTL), back closes the trailing side. */
 .ob-foot {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 10px;
+  gap: 14px;
   margin: 0;
-  padding: 10px 14px;
-  border-top: none;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
 }
+.ob-foot-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.ob-foot-back {
+  padding: 8px 12px;
+  align-self: flex-end;
+}
+.ob-foot-back .ob-btn.ghost { border: none; padding: 6px 10px; }
 
 .ob-btn {
   display: inline-flex;

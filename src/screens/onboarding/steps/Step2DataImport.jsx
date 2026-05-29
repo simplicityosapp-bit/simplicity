@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Upload, FileSpreadsheet, CheckCircle2 } from 'lucide-react'
 import { parseCsvFile } from '../../../lib/csvImport'
 
@@ -11,7 +11,7 @@ import { parseCsvFile } from '../../../lib/csvImport'
 
 const ACCEPT = '.csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
-export default function Step2DataImport({ ob }) {
+export default function Step2DataImport({ ob, setCTA }) {
   const fileRef = useRef(null)
   const initial = ob.state.answers?.data_import || {}
   const [mode, setMode] = useState(initial.mode || null) // 'A' | 'B' | null
@@ -85,6 +85,8 @@ export default function Step2DataImport({ ob }) {
   }
 
   const canAdvance = mode === 'B' || (mode === 'A' && !!fileName)
+  const hint = !canAdvance ? 'בחר/י "כן יש לי" + העלאת קובץ, או "מתחיל/ה מאפס".' : null
+  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [mode, fileName, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -142,17 +144,6 @@ export default function Step2DataImport({ ob }) {
         </div>
       )}
 
-      <div className="ob-cta">
-        {!canAdvance && <p className="ob-empty-hint">בחר/י "כן יש לי" + העלאת קובץ, או "מתחיל/ה מאפס".</p>}
-        <button
-          type="button"
-          className="ob-btn primary"
-          onClick={onNext}
-          disabled={!canAdvance || busy}
-        >
-          הלאה
-        </button>
-      </div>
     </>
   )
 }

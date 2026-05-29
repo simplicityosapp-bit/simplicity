@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useProjects } from '../../../hooks/useProjects'
 import { useGroups } from '../../../hooks/useGroups'
 
@@ -12,7 +12,7 @@ const DAYS = [
    If user answers "yes" to groups, the form expands to collect the
    first group's tuition + schedule. Both project and group rows are
    created via the live hooks so they're real entities, not drafts. */
-export default function Step3Projects({ ob }) {
+export default function Step3Projects({ ob, setCTA }) {
   const { projects, addProject } = useProjects()
   const { addGroup } = useGroups()
   const initial = ob.state.answers?.projects || {}
@@ -29,6 +29,10 @@ export default function Step3Projects({ ob }) {
   const [err, setErr] = useState('')
 
   const canAdvance = name.trim().length > 0 && (groupMode === false || (groupMode === true && gName.trim().length > 0 && Number(gPrice) > 0))
+  const hint = !canAdvance
+    ? (!name.trim() ? 'שם פרויקט חובה.' : groupMode === null ? 'בחר/י אם יש קבוצות.' : 'יש למלא שם קבוצה ומחיר חבילה.')
+    : null
+  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [name, color, groupMode, gName, gPrice, gSessions, gDay, gTime, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Idempotency: if we already created a project in this step before
      (back+next pattern) and the user hasn't touched the project name,
@@ -202,21 +206,6 @@ export default function Step3Projects({ ob }) {
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div className="ob-cta">
-        {!canAdvance && (
-          <p className="ob-empty-hint">
-            {!name.trim() ? 'שם פרויקט חובה.' : groupMode === null ? 'בחר/י אם יש קבוצות.' : 'יש למלא שם קבוצה ומחיר חבילה.'}
-          </p>
-        )}
-        <button
-          type="button"
-          className="ob-btn primary"
-          onClick={onNext}
-          disabled={!canAdvance || busy}
-        >
-          {busy ? 'שומר…' : 'הלאה'}
-        </button>
-      </div>
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRecurring } from '../../../hooks/useRecurring'
 
 const PRESETS = [
@@ -13,7 +13,7 @@ const PRESETS = [
    recurring_templates table the finance screen reads. monthly_date
    is the simplest cadence to introduce here; on_meeting + every-X-days
    can be configured later from the finance screen. */
-export default function Step7Recurring({ ob }) {
+export default function Step7Recurring({ ob, setCTA }) {
   const { addRecurring } = useRecurring()
   const initial = ob.state.answers?.recurring || {}
   const [type, setType] = useState(initial.type || 'expense')
@@ -24,6 +24,8 @@ export default function Step7Recurring({ ob }) {
   const [err, setErr] = useState('')
 
   const canAdvance = desc.trim().length > 0 && Number(amount) > 0
+  const hint = !canAdvance ? (!desc.trim() ? 'תיאור חובה.' : 'סכום חיובי חובה.') : null
+  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [type, desc, amount, dayOfMonth, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fillPreset = (p) => {
     setType(p.type)
@@ -135,21 +137,6 @@ export default function Step7Recurring({ ob }) {
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div className="ob-cta">
-        {!canAdvance && (
-          <p className="ob-empty-hint">
-            {!desc.trim() ? 'תיאור חובה.' : 'סכום חיובי חובה.'}
-          </p>
-        )}
-        <button
-          type="button"
-          className="ob-btn primary"
-          onClick={onNext}
-          disabled={!canAdvance || busy}
-        >
-          {busy ? 'שומר…' : 'הלאה'}
-        </button>
-      </div>
     </>
   )
 }

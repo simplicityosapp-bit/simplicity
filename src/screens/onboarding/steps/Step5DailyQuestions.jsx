@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 
 /* The 6 starter presets the spec calls out. They are stored with a
@@ -17,7 +17,7 @@ const PRESETS = [
    optional custom (reflective) question. Each selected preset becomes
    a real user_questions row (active=true, scale 1-10). The custom
    one is yes_no by default since it's textual reflection. */
-export default function Step5DailyQuestions({ ob }) {
+export default function Step5DailyQuestions({ ob, setCTA }) {
   const { addQuestion } = useUserQuestions()
   const initial = ob.state.answers?.daily_questions || {}
   const [picked, setPicked] = useState(initial.preset_keys || [])
@@ -28,6 +28,8 @@ export default function Step5DailyQuestions({ ob }) {
   const toggle = (k) => setPicked((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]))
 
   const canAdvance = picked.length > 0 || custom.trim().length > 0
+  const hint = !canAdvance ? 'בחר/י שאלה אחת לפחות (מהצעות או מותאמת).' : null
+  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [picked, custom, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const onNext = async () => {
     setBusy(true); setErr('')
@@ -115,17 +117,6 @@ export default function Step5DailyQuestions({ ob }) {
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div className="ob-cta">
-        {!canAdvance && <p className="ob-empty-hint">בחר/י שאלה אחת לפחות (מהצעות או מותאמת).</p>}
-        <button
-          type="button"
-          className="ob-btn primary"
-          onClick={onNext}
-          disabled={!canAdvance || busy}
-        >
-          {busy ? 'שומר…' : 'הלאה'}
-        </button>
-      </div>
     </>
   )
 }

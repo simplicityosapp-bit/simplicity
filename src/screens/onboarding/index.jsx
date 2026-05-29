@@ -34,6 +34,10 @@ export default function OnboardingScreen() {
   const navigate = useNavigate()
   const ob = useOnboarding()
   const [skipAllOpen, setSkipAllOpen] = useState(false)
+  /* CTA descriptor lifted to the screen so the shell footer can
+     render the primary Next button outside the per-step body. Each
+     step pushes its onNext/canAdvance/busy/hint via setCTA below. */
+  const [cta, setCTA] = useState(null)
   const meta = STEPS[ob.step] || STEPS.profile
   const StepComp = meta.Component
 
@@ -58,9 +62,10 @@ export default function OnboardingScreen() {
       <OnboardingShell
         title={meta.title}
         ob={ob}
+        cta={cta}
         onAskSkipAll={() => setSkipAllOpen(true)}
       >
-        <StepComp ob={ob} onDone={onDone} />
+        <StepComp ob={ob} onDone={onDone} setCTA={setCTA} />
       </OnboardingShell>
 
       {skipAllOpen && (

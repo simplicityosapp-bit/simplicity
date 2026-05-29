@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
-import { addressUser } from '../../../lib/address'
 
 const ROLES = [
   { k: 'coach',       l: 'מאמן/ת' },
@@ -16,10 +15,11 @@ const GENDERS = [
   { k: 'neutral', l: 'נייטרלי' },
 ]
 
-/* Step 1 — name + gender + role. Writes directly to prefs (profile +
-   design.gender) so the data is immediately useful elsewhere. Picking
-   "אחר" opens a second input panel for the custom role text. */
-export default function Step1Profile({ ob }) {
+/* Step 1 — name + gender (side-by-side) + role + optional "other" panel.
+   Writes directly to prefs.profile + prefs.design.gender so the data
+   is immediately useful elsewhere in the app. Picking "אחר" opens a
+   sub-panel for the custom role text. */
+export default function Step1Profile({ ob, setCTA }) {
   const { prefs, update } = useUserPreferences()
   const initial = ob.state.answers?.profile || {}
   const [name, setName] = useState(initial.name || prefs?.profile?.full_name || '')
@@ -27,14 +27,11 @@ export default function Step1Profile({ ob }) {
   const [roleOther, setRoleOther] = useState(initial.role_other || prefs?.profile?.role_other || '')
   const [gender, setGender] = useState(initial.gender || prefs?.design?.gender || 'neutral')
   const canAdvance = name.trim().length > 0 && (role !== 'other' || roleOther.trim().length > 0)
+  const hint = !canAdvance
+    ? (!name.trim() ? 'נא להזין שם כדי להמשיך.' : 'פרט/י את התחום שבחרת.')
+    : null
 
   useEffect(() => { ob.markStarted() }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const intro = addressUser(gender, {
-    male: 'ברוך הבא. נכיר אותך?',
-    female: 'ברוכה הבאה. נכיר אותך?',
-    neutral: 'ברוך/ה הבא/ה. נכיר אותך?',
-  })
 
   const onNext = async () => {
     await update({
@@ -54,38 +51,45 @@ export default function Step1Profile({ ob }) {
     await ob.advance()
   }
 
+  /* Push the latest CTA state up to the shell so the footer's "הלאה"
+     stays in sync with the form. Deps cover every input that affects
+     canAdvance / onNext closure. */
+  useEffect(() => {
+    setCTA({ onNext, canAdvance, busy: false, hint })
+  }, [name, role, roleOther, gender, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <>
-      <p className="ob-intro">{intro}</p>
       <p className="ob-intro-sub">לאורך כל ההכרות אפשר לדלג ולהשלים אחר כך — שום דבר לא נעול.</p>
 
-      <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-name">שם מלא</label>
-        <input
-          id="ob-name"
-          className="ob-input"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="איך לקרוא לך?"
-          autoFocus
-        />
-      </div>
-
-      <div className="ob-field">
-        <p className="ob-label">לשון פנייה</p>
-        <div className="ob-pills">
-          {GENDERS.map((g) => (
-            <button
-              key={g.k}
-              type="button"
-              className={`ob-pill${gender === g.k ? ' on' : ''}`}
-              onClick={() => setGender(g.k)}
-            >
-              {g.l}
-            </button>
-          ))}
+      <div className="ob-field-row">
+        <div className="ob-field">
+          <label className="ob-label" htmlFor="ob-name">שם מלא</label>
+          <input
+            id="ob-name"
+            className="ob-input"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="איך לקרוא לך?"
+            autoFocus
+          />
         </div>
-        <p className="ob-empty-hint">משפיע על איך המערכת פונה אליך לאורך השימוש.</p>
+
+        <div className="ob-field">
+          <p className="ob-label">לשון פנייה</p>
+          <div className="ob-pills">
+            {GENDERS.map((g) => (
+              <button
+                key={g.k}
+                type="button"
+                className={`ob-pill${gender === g.k ? ' on' : ''}`}
+                onClick={() => setGender(g.k)}
+              >
+                {g.l}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="ob-field">
@@ -117,22 +121,6 @@ export default function Step1Profile({ ob }) {
           />
         </div>
       )}
-
-      <div className="ob-cta">
-        {!canAdvance && (
-          <p className="ob-empty-hint">
-            {!name.trim() ? 'נא להזין שם כדי להמשיך.' : 'פרט/י את התחום שבחרת.'}
-          </p>
-        )}
-        <button
-          type="button"
-          className="ob-btn primary"
-          onClick={onNext}
-          disabled={!canAdvance}
-        >
-          הלאה
-        </button>
-      </div>
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { TrendingUp, Moon, Target } from 'lucide-react'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useGoals } from '../../../hooks/useGoals'
@@ -64,7 +64,9 @@ function MoonArc({ pct = 0 }) {
   )
 }
 
-export default function Step8Preview({ ob }) {
+export default function Step8Preview({ ob, setCTA }) {
+  useEffect(() => { setCTA({ onNext: () => ob.advance(), canAdvance: true, busy: false, hint: null }) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   const { transactions } = useTransactions()
   const { goals } = useGoals()
   const incomeCurr = useMemo(() => {
@@ -122,15 +124,6 @@ export default function Step8Preview({ ob }) {
         המסך הזה לא מצריך מילוי — רק הצצה. ממשיכים?
       </p>
 
-      <div className="ob-cta">
-        <button
-          type="button"
-          className="ob-btn primary"
-          onClick={() => ob.advance()}
-        >
-          הלאה
-        </button>
-      </div>
     </>
   )
 }

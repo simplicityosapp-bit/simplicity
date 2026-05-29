@@ -505,6 +505,20 @@
   color: var(--stone);
   font-style: italic;
 }
+/* Sub-panel that opens under "אחר" — same glass language, indented a
+   touch so it reads as a child of the role row. */
+.ob-other-panel {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed color-mix(in srgb, var(--clay) 36%, transparent);
+  background: color-mix(in srgb, var(--clay) 6%, transparent);
+  margin-inline-start: 8px;
+  animation: obOtherOpen 0.22s cubic-bezier(0.32, 0.72, 0.24, 1);
+}
+@keyframes obOtherOpen {
+  from { transform: translateY(-4px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
 .ob-pre-fill-banner {
   display: flex;
   align-items: center;

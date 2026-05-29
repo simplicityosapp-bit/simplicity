@@ -284,20 +284,37 @@ function AboutBody() {
 }
 
 /* ── Profile body ────────────────────────────────────────────────
-   Editable name + role pills. Saves on blur (name) / click (role). */
+   Editable name + role pills + gender + role_other custom panel.
+   Saves on blur (name / role_other) / click (role / gender). */
 function ProfileBody({ prefs, onUpdate }) {
   const [name, setName] = useState(prefs?.profile?.full_name || '')
   const role = prefs?.profile?.role || 'other'
+  const [roleOther, setRoleOther] = useState(prefs?.profile?.role_other || '')
+  const gender = prefs?.design?.gender || 'neutral'
   const ROLES = Object.entries(ROLE_LABELS)
+  const GENDERS = [
+    { k: 'female',  l: 'נקבה' },
+    { k: 'male',    l: 'זכר' },
+    { k: 'neutral', l: 'נייטרלי' },
+  ]
 
   const commitName = () => {
     const trimmed = name.trim()
     if (trimmed === (prefs?.profile?.full_name || '')) return
     onUpdate({ profile: { full_name: trimmed } })
   }
+  const commitRoleOther = () => {
+    const trimmed = roleOther.trim()
+    if (trimmed === (prefs?.profile?.role_other || '')) return
+    onUpdate({ profile: { role_other: trimmed } })
+  }
   const pickRole = (k) => {
     if (k === role) return
-    onUpdate({ profile: { role: k } })
+    onUpdate({ profile: { role: k, role_other: k === 'other' ? roleOther : '' } })
+  }
+  const pickGender = (g) => {
+    if (g === gender) return
+    onUpdate({ design: { gender: g } })
   }
 
   return (
@@ -313,6 +330,14 @@ function ProfileBody({ prefs, onUpdate }) {
         />
       </div>
       <div className="m-field">
+        <label className="m-label">לשון פנייה</label>
+        <div className="m-pills">
+          {GENDERS.map((g) => (
+            <button key={g.k} type="button" className={`m-pill${gender === g.k ? ' on' : ''}`} onClick={() => pickGender(g.k)}>{g.l}</button>
+          ))}
+        </div>
+      </div>
+      <div className="m-field">
         <label className="m-label">תפקיד</label>
         <div className="m-pills">
           {ROLES.map(([k, l]) => (
@@ -320,6 +345,18 @@ function ProfileBody({ prefs, onUpdate }) {
           ))}
         </div>
       </div>
+      {role === 'other' && (
+        <div className="m-field set-role-other">
+          <label className="m-label">פרט/י את התחום</label>
+          <input
+            className="m-input"
+            value={roleOther}
+            onChange={(e) => setRoleOther(e.target.value)}
+            onBlur={commitRoleOther}
+            placeholder="לדוגמה: יוגה תרפיסט/ית, מורה למתמטיקה"
+          />
+        </div>
+      )}
     </div>
   )
 }

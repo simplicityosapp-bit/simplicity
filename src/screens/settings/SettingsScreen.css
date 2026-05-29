@@ -218,6 +218,15 @@
   flex-direction: column;
   gap: 12px;
 }
+/* Sub-panel under "אחר" — same dashed accent as the onboarding step,
+   keyed to clay so both surfaces feel like the same control. */
+.set-role-other {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed color-mix(in srgb, var(--clay) 36%, transparent);
+  background: color-mix(in srgb, var(--clay) 6%, transparent);
+  margin-inline-start: 8px;
+}
 
 /* Segmented control — small inline radio-pills */
 .set-seg {

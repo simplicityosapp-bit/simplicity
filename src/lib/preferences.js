@@ -116,6 +116,7 @@ export function defaultPreferences() {
     profile: {
       full_name: '',
       role: 'other',
+      role_other: '',           /* when role==='other', the free-text custom value */
     },
     format: {
       currency: 'ILS',

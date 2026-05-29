@@ -38,7 +38,7 @@ export default function Step9Finish({ ob, onDone }) {
         </span>
       </div>
 
-      <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+      <div className="ob-cta">
         <button type="button" className="ob-btn primary" onClick={onDone}>
           הפרקטיקה שלך מוכנה ←
         </button>

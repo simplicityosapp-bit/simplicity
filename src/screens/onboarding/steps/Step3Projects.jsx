@@ -202,7 +202,7 @@ export default function Step3Projects({ ob }) {
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+      <div className="ob-cta">
         {!canAdvance && (
           <p className="ob-empty-hint">
             {!name.trim() ? 'שם פרויקט חובה.' : groupMode === null ? 'בחר/י אם יש קבוצות.' : 'יש למלא שם קבוצה ומחיר חבילה.'}

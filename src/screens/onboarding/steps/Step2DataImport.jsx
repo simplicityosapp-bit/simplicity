@@ -142,7 +142,7 @@ export default function Step2DataImport({ ob }) {
         </div>
       )}
 
-      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+      <div className="ob-cta">
         {!canAdvance && <p className="ob-empty-hint">בחר/י "כן יש לי" + העלאת קובץ, או "מתחיל/ה מאפס".</p>}
         <button
           type="button"

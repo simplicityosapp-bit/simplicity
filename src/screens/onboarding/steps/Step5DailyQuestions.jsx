@@ -115,7 +115,7 @@ export default function Step5DailyQuestions({ ob }) {
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+      <div className="ob-cta">
         {!canAdvance && <p className="ob-empty-hint">בחר/י שאלה אחת לפחות (מהצעות או מותאמת).</p>}
         <button
           type="button"

@@ -122,7 +122,7 @@ export default function Step8Preview({ ob }) {
         המסך הזה לא מצריך מילוי — רק הצצה. ממשיכים?
       </p>
 
-      <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+      <div className="ob-cta">
         <button
           type="button"
           className="ob-btn primary"

@@ -197,7 +197,7 @@ export default function Step6Goals({ ob }) {
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+      <div className="ob-cta">
         {!canAdvance && (
           <p className="ob-empty-hint">
             {!firstType ? 'בחר/י סוג יעד.' : 'הזן/י ערך חודשי חיובי.'}

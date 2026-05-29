@@ -118,7 +118,7 @@ export default function Step1Profile({ ob }) {
         </div>
       )}
 
-      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+      <div className="ob-cta">
         {!canAdvance && (
           <p className="ob-empty-hint">
             {!name.trim() ? 'נא להזין שם כדי להמשיך.' : 'פרט/י את התחום שבחרת.'}

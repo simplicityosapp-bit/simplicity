@@ -511,8 +511,8 @@
   text-align: center;
 }
 .ob-welcome-logo {
-  width: 72px;
-  height: 72px;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
   filter: drop-shadow(0 4px 16px rgba(42, 37, 32, 0.18));
   margin-bottom: 4px;
@@ -599,7 +599,7 @@
 
 @media (min-width: 768px) {
   .ob-welcome { max-width: 520px; padding: 32px 24px; gap: 16px; }
-  .ob-welcome-logo { width: 88px; height: 88px; }
+  .ob-welcome-logo { width: 128px; height: 128px; }
   .ob-welcome-name { font-size: 34px; }
 }
 

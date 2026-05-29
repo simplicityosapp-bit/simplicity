@@ -37,7 +37,7 @@ export default function OnboardingShell({ ob, cta, children }) {
             a tiny line above the tree's crown. */}
         <div className="ob-head-left">
           <p className="ob-step-counter mono">{ob.stepIndex + 1} / {ob.total}</p>
-          <OnboardingTree completedCount={ob.completedSteps.length} total={ob.total} />
+          <OnboardingTree stepIndex={ob.stepIndex} />
         </div>
 
         {/* Help button gets its own panel on the opposite side. */}

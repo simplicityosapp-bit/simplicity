@@ -149,14 +149,26 @@
   border-color: rgba(240, 235, 224, 0.12) !important;
 }
 
-/* ── Tree ────────────────────────────────────────────────────── */
-.ob-tree { display: block; }
-.ob-leaf { transition: r 0.32s ease, opacity 0.32s ease, fill 0.32s ease; }
-.ob-leaf.on { animation: obLeafPop 0.45s ease-out; }
-@keyframes obLeafPop {
-  0%   { transform: scale(0.6); opacity: 0; }
-  60%  { transform: scale(1.18); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+/* ── Tree (image-based) ─────────────────────────────────────────
+   The 10-stage tree art (transparent PNG) is dropped into the
+   header's left panel. Each onboarding step shows a more grown
+   tree, ending at the canopy on step 9. Fade-in on swap so the
+   step-change feels gentle. */
+.ob-tree {
+  display: block;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 2px 6px rgba(42, 37, 32, 0.18));
+  animation: obTreeIn 0.32s ease-out;
+}
+@media (min-width: 768px) {
+  .ob-tree { width: 72px; height: 72px; }
+}
+@keyframes obTreeIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 /* ── Progress strip — its own slim panel ────────────────────── */

@@ -155,6 +155,7 @@ export function defaultOnboarding() {
   return {
     version: 1,
     step: 'profile',
+    welcome_seen: false,         /* pre-flow gate: shows the logo + 2-card chooser until acknowledged */
     completed_at: null,
     skipped_at: null,           /* user fully skipped the flow — still released to home */
     started_at: null,

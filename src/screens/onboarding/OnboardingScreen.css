@@ -212,7 +212,7 @@
 .ob-intro {
   margin: 0;
   padding: 10px 14px;
-  align-self: flex-start;
+  align-self: center;
   width: fit-content;
   max-width: 100%;
   font-family: var(--mg-font);
@@ -223,7 +223,7 @@
 .ob-intro-sub {
   margin: 0;
   padding: 8px 14px;
-  align-self: flex-start;
+  align-self: center;
   width: fit-content;
   max-width: 100%;
   font-family: var(--mg-font);
@@ -236,7 +236,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 10px 14px;
-  align-self: flex-start;
+  align-self: center;
   width: fit-content;
   max-width: 100%;
   min-width: min(280px, 100%);
@@ -253,7 +253,7 @@
   gap: 6px;
   margin-top: auto;
   padding: 10px 12px;
-  align-self: flex-start;
+  align-self: center;
   width: max-content;
   max-width: 100%;
 }
@@ -493,6 +493,110 @@
 .ob-help-p { margin: 0 0 8px; }
 .ob-help-list { padding-inline-start: 18px; margin: 6px 0 0; }
 .ob-help-list li { margin-bottom: 4px; }
+
+/* ── Welcome gate — first-ever visit chooser ──────────────────
+   Shown before the wizard. Centered logo + name + two stacked
+   option cards (start onboarding / skip to home). Cards share the
+   shell's glass language; the primary card uses the sage accent. */
+.ob-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 460px;
+  margin: auto;
+  padding: 24px 18px;
+  color: var(--espresso);
+  text-align: center;
+}
+.ob-welcome-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(42, 37, 32, 0.18));
+  margin-bottom: 4px;
+}
+.ob-welcome-name {
+  margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--espresso);
+  letter-spacing: -0.02em;
+}
+.ob-welcome-tag {
+  margin: 0 0 14px;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+}
+.ob-welcome-option {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+  padding: 16px 18px 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(240, 235, 224, 0.42);
+  background: rgba(255, 250, 240, 0.62);
+  backdrop-filter: blur(24px) saturate(150%);
+  box-shadow: 0 10px 32px rgba(42, 37, 32, 0.14);
+  font-family: var(--mg-font);
+  text-align: start;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.ob-welcome-option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(42, 37, 32, 0.18);
+}
+.ob-welcome-option.primary {
+  background: color-mix(in srgb, var(--sage) 22%, rgba(255, 250, 240, 0.62));
+  border-color: color-mix(in srgb, var(--sage) 55%, transparent);
+}
+.ob-welcome-option.primary:hover {
+  background: color-mix(in srgb, var(--sage) 32%, rgba(255, 250, 240, 0.62));
+}
+[data-theme="dark"] .ob-welcome-option {
+  background: rgba(20, 18, 14, 0.62);
+  border-color: rgba(240, 235, 224, 0.14);
+}
+[data-theme="dark"] .ob-welcome-option.primary {
+  background: color-mix(in srgb, var(--sage) 22%, rgba(20, 18, 14, 0.7));
+}
+.ob-welcome-option-title {
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--espresso);
+  letter-spacing: -0.01em;
+}
+[data-theme="dark"] .ob-welcome-option-title { color: var(--cream); }
+.ob-welcome-option-sub {
+  font-size: 12.5px;
+  color: var(--stone);
+  line-height: 1.5;
+}
+.ob-welcome-option-arrow {
+  position: absolute;
+  inset-inline-end: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--stone);
+  opacity: 0.7;
+}
+.ob-welcome-option.primary .ob-welcome-option-arrow { color: var(--espresso); opacity: 1; }
+
+@media (min-width: 768px) {
+  .ob-welcome { max-width: 520px; padding: 32px 24px; gap: 16px; }
+  .ob-welcome-logo { width: 88px; height: 88px; }
+  .ob-welcome-name { font-size: 34px; }
+}
 
 /* ── Confirm dialog for "skip all" ──────────────────────────── */
 .ob-confirm-back {

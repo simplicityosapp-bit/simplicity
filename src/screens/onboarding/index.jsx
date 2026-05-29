@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../lib/routes'
 import { useOnboarding } from '../../hooks/useOnboarding'
 import OnboardingShell from './OnboardingShell'
+import WelcomeGate from './WelcomeGate'
 import Step1Profile         from './steps/Step1Profile'
 import Step2DataImport      from './steps/Step2DataImport'
 import Step3Projects        from './steps/Step3Projects'
@@ -35,6 +36,12 @@ export default function OnboardingScreen() {
   const [skipAllOpen, setSkipAllOpen] = useState(false)
   const meta = STEPS[ob.step] || STEPS.profile
   const StepComp = meta.Component
+
+  /* Show the welcome chooser on first ever visit. The flag is flipped
+     by WelcomeGate (either path), so we never replay it. */
+  if (!ob.state.welcome_seen) {
+    return <WelcomeGate />
+  }
 
   const onDone = async () => {
     await ob.complete()

@@ -15,31 +15,28 @@ import Step8Preview         from './steps/Step8Preview'
 import Step9Finish          from './steps/Step9Finish'
 import './OnboardingScreen.css'
 
-/* Per-step component map — each renders a focused panel + decides
-   when it's "complete enough" to advance. The shell wraps it all
-   with the tree + chrome + skip controls. */
+/* Step key → component map. Titles dropped from the shell per design
+   pass 2 (the body's own intros do the labelling). */
 const STEPS = {
-  profile:         { Component: Step1Profile,        title: 'מי את/ה?' },
-  data_import:     { Component: Step2DataImport,     title: 'יש לך דאטה קיימת?' },
-  projects:        { Component: Step3Projects,       title: 'פרויקטים' },
-  clients:         { Component: Step4Clients,        title: 'לקוחות' },
-  daily_questions: { Component: Step5DailyQuestions, title: 'שאלות יומיות' },
-  goals:           { Component: Step6Goals,          title: 'יעדים' },
-  recurring:       { Component: Step7Recurring,      title: 'כסף מעגלי' },
-  preview:         { Component: Step8Preview,        title: 'מה ייצא מזה' },
-  finish:          { Component: Step9Finish,         title: 'מוכן/ה לצאת לדרך' },
+  profile:         Step1Profile,
+  data_import:     Step2DataImport,
+  projects:        Step3Projects,
+  clients:         Step4Clients,
+  daily_questions: Step5DailyQuestions,
+  goals:           Step6Goals,
+  recurring:       Step7Recurring,
+  preview:         Step8Preview,
+  finish:          Step9Finish,
 }
 
 export default function OnboardingScreen() {
   const navigate = useNavigate()
   const ob = useOnboarding()
-  const [skipAllOpen, setSkipAllOpen] = useState(false)
   /* CTA descriptor lifted to the screen so the shell footer can
      render the primary Next button outside the per-step body. Each
      step pushes its onNext/canAdvance/busy/hint via setCTA below. */
   const [cta, setCTA] = useState(null)
-  const meta = STEPS[ob.step] || STEPS.profile
-  const StepComp = meta.Component
+  const StepComp = STEPS[ob.step] || STEPS.profile
 
   /* Show the welcome chooser on first ever visit. The flag is flipped
      by WelcomeGate (either path), so we never replay it. */
@@ -51,37 +48,12 @@ export default function OnboardingScreen() {
     await ob.complete()
     navigate(ROUTES.HOME, { replace: true })
   }
-  const onSkipAll = async () => {
-    setSkipAllOpen(false)
-    await ob.skipAll()
-    navigate(ROUTES.HOME, { replace: true })
-  }
 
   return (
     <div className="ob-screen screen">
-      <OnboardingShell
-        title={meta.title}
-        ob={ob}
-        cta={cta}
-        onAskSkipAll={() => setSkipAllOpen(true)}
-      >
+      <OnboardingShell ob={ob} cta={cta}>
         <StepComp ob={ob} onDone={onDone} setCTA={setCTA} />
       </OnboardingShell>
-
-      {skipAllOpen && (
-        <div className="ob-confirm-back" onClick={() => setSkipAllOpen(false)} aria-hidden="true">
-          <div className="ob-confirm" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-            <p className="ob-confirm-title">לדלג על כל ההכרות?</p>
-            <p className="ob-confirm-body">
-              תוכל/י להתחיל מאפס בכל מסך. אפשר תמיד לחזור לכאן מההגדרות.
-            </p>
-            <div className="ob-confirm-actions">
-              <button type="button" className="ob-btn ghost" onClick={() => setSkipAllOpen(false)}>חזרה</button>
-              <button type="button" className="ob-btn danger" onClick={onSkipAll}>לדלג</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -72,17 +72,16 @@
   box-shadow: 0 10px 32px rgba(0, 0, 0, 0.42);
 }
 
-/* ── Header row — 3 separate floating panels ─────────────────
-   Each cell is its own glass card; the grid lays them out side by
-   side with a small gap. min-content widths keep each panel as
-   tight as its content allows — title stretches to fill the middle. */
+/* ── Header row — 2 floating panels ────────────────────────────
+   Tree+counter on one side, help button on the other. With
+   justify-content:space-between the children push to opposite
+   edges of the row. */
 .ob-head {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: stretch;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 8px;
   margin: 0;
-  /* Defeat the inherited glass — only the children are panels here. */
   border: none;
   background: transparent;
   backdrop-filter: none;
@@ -92,40 +91,29 @@
 }
 .ob-head-left {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 10px;
-}
-.ob-head-mid {
-  min-width: 0;
-  padding: 10px 14px;
-  display: flex;
   flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px 10px;
 }
 .ob-head-right {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 8px 10px;
+  /* When there's no help button to render the cell collapses but
+     keeps its slot via min-width so the layout doesn't jump. */
+  min-width: 44px;
+  justify-content: center;
 }
 
 .ob-step-counter {
-  margin: 0;
+  margin: 0 0 2px;
   font-family: var(--mg-font-num);
   font-size: 11px;
-  font-weight: 600;
-  color: var(--stone);
-  letter-spacing: 0.06em;
-}
-.ob-step-title {
-  margin: 2px 0 0;
-  font-family: var(--mg-font);
-  font-size: 19px;
   font-weight: 700;
-  color: var(--espresso);
-  letter-spacing: -0.01em;
-  line-height: 1.15;
+  color: var(--stone);
+  letter-spacing: 0.08em;
 }
 
 .ob-help-btn {
@@ -146,19 +134,20 @@
 }
 .ob-help-btn:hover { color: var(--espresso); }
 
-.ob-skip-all {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 8px;
-  border: none;
-  background: transparent;
-  font-family: var(--mg-font);
-  font-size: 12px;
-  color: var(--stone);
-  cursor: pointer;
+/* The "דלג" link inside the footer cluster gets its own tiny glass
+   panel so it's actually visible against the background image. */
+.ob-foot-skip {
+  padding: 5px 12px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(240, 235, 224, 0.42) !important;
+  background: rgba(255, 250, 240, 0.62) !important;
+  backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: 0 6px 20px rgba(42, 37, 32, 0.10);
 }
-.ob-skip-all:hover { color: var(--espresso); }
+[data-theme="dark"] .ob-foot-skip {
+  background: rgba(20, 18, 14, 0.62) !important;
+  border-color: rgba(240, 235, 224, 0.12) !important;
+}
 
 /* ── Tree ────────────────────────────────────────────────────── */
 .ob-tree { display: block; }

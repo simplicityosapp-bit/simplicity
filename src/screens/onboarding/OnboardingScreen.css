@@ -46,28 +46,50 @@
    the progress strip, body sub-panels, and footer.
    NOTE: the head row's tree + help button are NOT in this list — they
    sit out of flow as side-anchored floating decorations (see .ob-head
-   absolute block below), so they keep zero glass card around them. */
+   absolute block below), so they keep zero glass card around them.
+   Title-bearing classes that USED TO float bare on the backdrop —
+   .ob-empty-hint, .ob-pre-fill-banner, .ob-preview-title — are now
+   pulled INTO the glass list so every piece of text rides a panel,
+   matching the rest of the rhythm. The bg alpha is also bumped from
+   0.62 → 0.86 (light) / 0.78 (dark) so labels read clearly even on
+   the busiest stretches of the photographic background. */
 .ob-progress,
 .ob-foot-back,
 .ob-body > .ob-intro,
 .ob-body > .ob-intro-sub,
 .ob-body > .ob-field,
-.ob-body > .ob-field-row > .ob-field {
+.ob-body > .ob-field-row > .ob-field,
+.ob-body > .ob-empty-hint,
+.ob-body > .ob-pre-fill-banner {
   border-radius: 16px;
-  border: 1px solid rgba(240, 235, 224, 0.42);
-  background: rgba(255, 250, 240, 0.62);
+  border: 1px solid rgba(240, 235, 224, 0.55);
+  background: rgba(255, 250, 240, 0.86);
   backdrop-filter: blur(24px) saturate(150%);
-  box-shadow: 0 10px 32px rgba(42, 37, 32, 0.14);
+  box-shadow: 0 10px 32px rgba(42, 37, 32, 0.18);
 }
 [data-theme="dark"] .ob-progress,
 [data-theme="dark"] .ob-foot-back,
 [data-theme="dark"] .ob-body > .ob-intro,
 [data-theme="dark"] .ob-body > .ob-intro-sub,
 [data-theme="dark"] .ob-body > .ob-field,
-[data-theme="dark"] .ob-body > .ob-field-row > .ob-field {
-  background: rgba(20, 18, 14, 0.62);
-  border-color: rgba(240, 235, 224, 0.12);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.42);
+[data-theme="dark"] .ob-body > .ob-field-row > .ob-field,
+[data-theme="dark"] .ob-body > .ob-empty-hint,
+[data-theme="dark"] .ob-body > .ob-pre-fill-banner {
+  background: rgba(20, 18, 14, 0.78);
+  border-color: rgba(240, 235, 224, 0.18);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.48);
+}
+
+/* Direct-child loose titles need the same fit-content + padding as
+   .ob-field so the new glass actually wraps the text instead of
+   stretching edge-to-edge. */
+.ob-body > .ob-empty-hint,
+.ob-body > .ob-pre-fill-banner {
+  margin: 0;
+  padding: 6px 12px;
+  align-self: center;
+  width: fit-content;
+  max-width: 100%;
 }
 
 /* ── Header row — 2 floating panels ────────────────────────────

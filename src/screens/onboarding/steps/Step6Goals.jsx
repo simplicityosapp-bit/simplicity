@@ -1,48 +1,104 @@
 import { useEffect, useState } from 'react'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
+import { useProjects } from '../../../hooks/useProjects'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
-import { questionText } from '../../../lib/questionTemplates'
 import { CATEGORY_PRESETS, presetToCategory } from '../../../lib/goalPresets'
 
-/* Step 6 — first goal + optional income goal.
-   We surface the 4 preset goal categories (income / clients / leads /
-   closings). The user picks one as the "first goal" — we create the
-   matching goal category lazily if it doesn't exist, then a goal row.
-   Then an optional second card: monthly income goal. Both are
-   skippable but a value of `null` per field is preserved so the user
-   can pick up later from settings → goals. */
+/* Step 6 — first goal.
+   Flow (mirrors AddGoalModal piece-by-piece so the user gets the
+   same affordances later in Settings → Goals):
+     1) Project — which project does this goal live under (or "all")
+     2) Type — 3 auto presets (income / leads / closings) + 1 personal
+        custom track. Auto goals pull data from the system already
+        (transactions / leads); personal goals are user-entered.
+     3) Inline form matching the in-app modal:
+        - auto: just target value
+        - personal: name + target + time frame + tracking method
+          (manual or "daily question" — yes/no or 1-10 slider, with
+          the question auto-created and linked to the goal). */
 
-const FIRST_GOAL_LABELS = {
-  clients_active:  { l: 'לקוחות פעילים',     unit: 'לקוחות' },
-  leads_inquiries: { l: 'פניות חדשות',        unit: 'פניות' },
-  leads_closings:  { l: 'סגירות',             unit: 'סגירות' },
-  income:          { l: 'יצירה / הכנסות',     unit: '₪' },
-}
+const TYPES = [
+  { key: 'income',          label: 'הכנסות',  icon: '💰', hint: 'מתעדכן אוטומטית מהתנועות',  auto: true },
+  { key: 'leads_inquiries', label: 'פניות',    icon: '🌱', hint: 'נספר אוטומטית מהלידים',     auto: true },
+  { key: 'leads_closings',  label: 'סגירות',   icon: '✨', hint: 'לידים שהומרו ללקוחות',      auto: true },
+  { key: 'personal',        label: 'יעד אישי', icon: '✍️', hint: 'למידה, יצירה, ריצה — מה שאת/ה מודד/ת', auto: false },
+]
+
+const TIME_FRAMES = [
+  { k: 'monthly', l: 'חודשי' },
+  { k: 'weekly',  l: 'שבועי' },
+]
+
+const TRACKING = [
+  { k: 'manual',         l: 'הזנה ידנית' },
+  { k: 'daily_question', l: 'שאלה יומית' },
+]
+
+const SCALES = [
+  { k: '1-10',  l: 'סולם 1–10' },
+  { k: 'yes_no', l: 'כן / לא' },
+]
+const QUESTION_ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 
 export default function Step6Goals({ ob, setCTA }) {
   const { addGoal } = useGoals()
   const { categories, addCategory } = useGoalCategories()
-  const { questions } = useUserQuestions()
-  const activeQuestions = questions.filter((q) => q.active)
+  const { projects } = useProjects()
+  const { addQuestion } = useUserQuestions()
+
   const initial = ob.state.answers?.goals || {}
-  const [firstType, setFirstType] = useState(initial.first_type || null)
-  const [firstTarget, setFirstTarget] = useState(initial.first_target || '')
-  const [incomeOpen, setIncomeOpen] = useState(!!initial.income_goal_amount)
-  const [incomeAmount, setIncomeAmount] = useState(initial.income_goal_amount || '')
+  const [projectId, setProjectId]   = useState(initial.project_id || '')
+  const [type, setType]             = useState(initial.first_type || null)
+  const [target, setTarget]         = useState(initial.first_target || '')
+  /* Personal-goal extras (collapsed when an auto type is picked). */
+  const [label, setLabel]           = useState(initial.personal_label || '')
+  const [timeFrame, setTimeFrame]   = useState(initial.time_frame || 'monthly')
+  const [tracking, setTracking]     = useState(initial.tracking || 'manual')
+  /* Daily-question extras (collapsed unless tracking = daily_question). */
+  const [qText, setQText]   = useState(initial.question_text || '')
+  const [qScale, setQScale] = useState(initial.question_scale || '1-10')
+  const [qIcon, setQIcon]   = useState(initial.question_icon || QUESTION_ICONS[0])
+
   const [busy, setBusy] = useState(false)
-  const [err, setErr] = useState('')
+  const [err, setErr]   = useState('')
 
-  const canAdvance = firstType && Number(firstTarget) > 0
-  const hint = !canAdvance ? (!firstType ? 'בחר/י סוג יעד.' : 'הזן/י ערך חודשי חיובי.') : null
-  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [firstType, firstTarget, incomeOpen, incomeAmount, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
+  const isPersonal   = type === 'personal'
+  const byQuestion   = isPersonal && tracking === 'daily_question'
+  const targetNum    = Number(target)
+  const canAdvance   = !!type && targetNum > 0
+    && (!isPersonal || label.trim().length > 0)
+    && (!byQuestion || qText.trim().length > 0)
+  const hint = !type ? 'בחר/י סוג יעד.'
+    : targetNum <= 0 ? 'הזן/י ערך חיובי.'
+    : (isPersonal && !label.trim()) ? 'תן/י שם ליעד.'
+    : (byQuestion && !qText.trim()) ? 'נסח/י את השאלה היומית.'
+    : null
+  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) },
+    [type, target, label, timeFrame, tracking, qText, qScale, qIcon, projectId, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* Find-or-create the goal category for a preset key. Reuses the
-     existing presetToCategory shape so the UI stays consistent. */
-  const resolveCategoryId = async (presetKey) => {
-    const existing = categories.find((c) => c.key === presetKey)
+  /* Find-or-create the goal category for the picked type. Auto types
+     use the CATEGORY_PRESETS shape; personal falls back to a custom
+     manual category (lazily created on first use). */
+  const resolveCategoryId = async () => {
+    if (isPersonal) {
+      const existing = categories.find((c) => !c.builtin && c.measurement_type === 'manual' && c.name === 'אישי')
+      if (existing) return existing.id
+      const created = await addCategory({
+        key: null,
+        name: 'אישי',
+        icon: '✍️',
+        color: '#7a5cb8',
+        measurement_type: 'manual',
+        data_source: null,
+        graph_type: 'delta',
+        builtin: false,
+      })
+      return created.id
+    }
+    const existing = categories.find((c) => c.key === type)
     if (existing) return existing.id
-    const preset = CATEGORY_PRESETS.find((p) => p.key === presetKey)
+    const preset = CATEGORY_PRESETS.find((p) => p.key === type)
     if (!preset) throw new Error('preset not found')
     const created = await addCategory(presetToCategory(preset))
     return created.id
@@ -51,58 +107,58 @@ export default function Step6Goals({ ob, setCTA }) {
   const onNext = async () => {
     setBusy(true); setErr('')
     try {
-      /* Skip recreate when inputs unchanged. */
-      const sameFirst = initial.first_type === firstType && Number(initial.first_target) === Number(firstTarget)
-      const sameIncome = (initial.income_goal_amount || null) === (incomeOpen ? Number(incomeAmount) || null : null)
-      if (sameFirst && sameIncome && (initial.created_ids?.length || 0) > 0) {
+      /* Idempotent: rerun is a no-op if the inputs haven't changed
+         and we already created the goal row. */
+      const samePrev = initial.first_type === type
+        && Number(initial.first_target) === targetNum
+        && (initial.project_id || '') === projectId
+        && (initial.tracking || 'manual') === tracking
+      if (samePrev && (initial.created_ids?.length || 0) > 0) {
         await ob.advance()
         return
       }
       const createdIds = []
-      const firstCatId = await resolveCategoryId(firstType)
-      const firstGoal = await addGoal({
-        category_id: firstCatId,
+      let questionId = null
+      if (byQuestion && qText.trim()) {
+        const q = await addQuestion({
+          template_key: null,
+          custom_text: qText.trim(),
+          scale_type: qScale,
+          icon: qIcon,
+          active: true,
+          schedule_pattern: {},
+        })
+        questionId = q.id
+      }
+      const categoryId = await resolveCategoryId()
+      const goal = await addGoal({
+        category_id: categoryId,
         parent_goal_id: null,
-        project_id: null,
+        project_id: projectId || null,
         group_id: null,
-        label: FIRST_GOAL_LABELS[firstType]?.l || null,
-        time_frame: 'monthly',
-        target_value: Number(firstTarget),
+        label: isPersonal ? label.trim() : null,
+        time_frame: timeFrame,
+        target_value: targetNum,
         target_date: null,
         importance: 3,
-        tracking_method: 'manual',
-        tracked_by_question_id: null,
-        measurement_type: 'auto',
+        tracking_method: byQuestion ? 'daily_question' : 'manual',
+        tracked_by_question_id: questionId,
+        measurement_type: isPersonal ? 'manual' : 'auto',
       })
-      createdIds.push(firstGoal.id)
-
-      let incomeGoalId = null
-      if (incomeOpen && Number(incomeAmount) > 0 && firstType !== 'income') {
-        const incomeCatId = await resolveCategoryId('income')
-        const incomeGoal = await addGoal({
-          category_id: incomeCatId,
-          parent_goal_id: null,
-          project_id: null,
-          group_id: null,
-          label: null,
-          time_frame: 'monthly',
-          target_value: Number(incomeAmount),
-          target_date: null,
-          importance: 3,
-          tracking_method: 'manual',
-          tracked_by_question_id: null,
-          measurement_type: 'auto',
-        })
-        createdIds.push(incomeGoal.id)
-        incomeGoalId = incomeGoal.id
-      }
+      createdIds.push(goal.id)
 
       await ob.setAnswers('goals', {
-        first_type: firstType,
-        first_target: Number(firstTarget),
-        income_goal_amount: incomeOpen ? Number(incomeAmount) || null : null,
+        project_id: projectId || null,
+        first_type: type,
+        first_target: targetNum,
+        personal_label: isPersonal ? label.trim() : null,
+        time_frame: timeFrame,
+        tracking,
+        question_text: byQuestion ? qText.trim() : null,
+        question_scale: byQuestion ? qScale : null,
+        question_icon: byQuestion ? qIcon : null,
+        question_id: questionId,
         created_ids: createdIds,
-        income_goal_id: incomeGoalId,
       })
       await ob.advance()
     } catch (e) {
@@ -112,89 +168,164 @@ export default function Step6Goals({ ob, setCTA }) {
     }
   }
 
-  const showIncomeRow = firstType !== 'income'
-  const unit = FIRST_GOAL_LABELS[firstType]?.unit || ''
+  const chosenType = TYPES.find((t) => t.key === type)
 
   return (
     <>
-      <p className="ob-intro">מה תרצה/י לראות גדל החודש?</p>
-      <p className="ob-intro-sub">יעדים מחברים את הכל יחד — הם משמשים גם ב"מבט על" ובדוחות.</p>
+      <p className="ob-intro">בוא/י נגדיר את היעד הראשון לפרויקט שלך.</p>
+      <p className="ob-intro-sub">כל יעד שייך לפרויקט וניתן לעקוב אחריו במבט-על ובדוחות.</p>
 
       <div className="ob-field">
-        <p className="ob-label">סוג היעד הראשון</p>
+        <label className="ob-label" htmlFor="ob-g-proj">לאיזה פרויקט?</label>
+        <select
+          id="ob-g-proj"
+          className="ob-select"
+          value={projectId}
+          onChange={(e) => setProjectId(e.target.value)}
+        >
+          <option value="">כל הפרויקטים</option>
+          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
+      </div>
+
+      <div className="ob-field">
+        <p className="ob-label">איזו התקדמות תרצה/י למדוד?</p>
         <div className="ob-card-options">
-          {Object.entries(FIRST_GOAL_LABELS).map(([k, v]) => (
+          {TYPES.map((t) => (
             <button
-              key={k}
+              key={t.key}
               type="button"
-              className={`ob-option-card${firstType === k ? ' on' : ''}`}
-              onClick={() => setFirstType(k)}
+              className={`ob-option-card${type === t.key ? ' on' : ''}`}
+              onClick={() => setType(t.key)}
             >
-              <span className="ob-option-card-l">{v.l}</span>
+              <span className="ob-option-card-l">
+                <span style={{ marginInlineEnd: 6 }}>{t.icon}</span>{t.label}
+              </span>
+              <p className="ob-option-card-sub">{t.hint}</p>
             </button>
           ))}
         </div>
       </div>
 
-      {firstType && (
-        <div className="ob-field">
-          <label className="ob-label" htmlFor="ob-goal-val">ערך חודשי</label>
-          <input
-            id="ob-goal-val"
-            className="ob-input"
-            type="number"
-            min="0"
-            value={firstTarget}
-            onChange={(e) => setFirstTarget(e.target.value)}
-            placeholder={firstType === 'income' ? '15,000' : '3'}
-          />
-          <p className="ob-empty-hint">יחידות: {unit}</p>
-        </div>
-      )}
+      {type && (
+        <>
+          {isPersonal && (
+            <div className="ob-field">
+              <label className="ob-label" htmlFor="ob-g-label">שם היעד</label>
+              <input
+                id="ob-g-label"
+                className="ob-input"
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+                placeholder="לדוגמה: 5 שעות למידה בשבוע"
+              />
+            </div>
+          )}
 
-      {showIncomeRow && (
-        <div className="ob-field">
-          <p className="ob-label">רוצה להגדיר גם יעד הכנסה חודשי?</p>
-          <div className="ob-card-options">
-            <button
-              type="button"
-              className={`ob-option-card${!incomeOpen ? ' on' : ''}`}
-              onClick={() => { setIncomeOpen(false); setIncomeAmount('') }}
-            >
-              <span className="ob-option-card-l">לא עכשיו</span>
-            </button>
-            <button
-              type="button"
-              className={`ob-option-card${incomeOpen ? ' on' : ''}`}
-              onClick={() => setIncomeOpen(true)}
-            >
-              <span className="ob-option-card-l">כן, בוא נגדיר</span>
-            </button>
-          </div>
-          {incomeOpen && (
+          <div className="ob-field">
+            <label className="ob-label" htmlFor="ob-g-val">יעד</label>
             <input
+              id="ob-g-val"
               className="ob-input"
               type="number"
               min="0"
-              value={incomeAmount}
-              onChange={(e) => setIncomeAmount(e.target.value)}
-              placeholder="יעד הכנסה חודשי ב-₪"
-              style={{ marginTop: 6 }}
+              value={target}
+              onChange={(e) => setTarget(e.target.value)}
+              placeholder={type === 'income' ? '15,000' : '5'}
             />
-          )}
-        </div>
-      )}
+          </div>
 
-      {activeQuestions.length > 0 && (
-        <div className="ob-pre-fill-banner" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-          <span style={{ fontWeight: 600 }}>השאלות היומיות שלך:</span>
-          <span style={{ color: 'var(--stone)' }}>
-            {activeQuestions.map((q) => questionText(q)).join(' · ')}
-          </span>
-          <span style={{ fontSize: 11, color: 'var(--stone)' }}>
-            הן יופיעו ב&quot;מבט על&quot; ובדוחות לצד היעדים שלך.
-          </span>
-        </div>
+          {isPersonal && (
+            <>
+              <div className="ob-field">
+                <p className="ob-label">מסגרת זמן</p>
+                <div className="ob-pills">
+                  {TIME_FRAMES.map((f) => (
+                    <button
+                      key={f.k}
+                      type="button"
+                      className={`ob-pill${timeFrame === f.k ? ' on' : ''}`}
+                      onClick={() => setTimeFrame(f.k)}
+                    >
+                      {f.l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="ob-field">
+                <p className="ob-label">איך נמדוד?</p>
+                <div className="ob-pills">
+                  {TRACKING.map((t) => (
+                    <button
+                      key={t.k}
+                      type="button"
+                      className={`ob-pill${tracking === t.k ? ' on' : ''}`}
+                      onClick={() => setTracking(t.k)}
+                    >
+                      {t.l}
+                    </button>
+                  ))}
+                </div>
+                <p className="ob-empty-hint">
+                  {tracking === 'manual'
+                    ? 'תזין/י התקדמות ידנית מהמסך הראשי.'
+                    : 'ניצור שאלה יומית — סליידר או כן/לא — שמתחברת ליעד.'}
+                </p>
+              </div>
+
+              {byQuestion && (
+                <>
+                  <div className="ob-field">
+                    <label className="ob-label" htmlFor="ob-g-q">השאלה היומית</label>
+                    <input
+                      id="ob-g-q"
+                      className="ob-input"
+                      value={qText}
+                      onChange={(e) => setQText(e.target.value)}
+                      placeholder={qScale === 'yes_no' ? 'לדוגמה: למדת היום?' : 'לדוגמה: כמה זמן למדת היום?'}
+                    />
+                  </div>
+                  <div className="ob-field">
+                    <p className="ob-label">סוג תשובה</p>
+                    <div className="ob-pills">
+                      {SCALES.map((s) => (
+                        <button
+                          key={s.k}
+                          type="button"
+                          className={`ob-pill${qScale === s.k ? ' on' : ''}`}
+                          onClick={() => setQScale(s.k)}
+                        >
+                          {s.l}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="ob-field">
+                    <p className="ob-label">אייקון</p>
+                    <div className="ob-pills">
+                      {QUESTION_ICONS.map((ic) => (
+                        <button
+                          key={ic}
+                          type="button"
+                          className={`ob-pill${qIcon === ic ? ' on' : ''}`}
+                          onClick={() => setQIcon(ic)}
+                          aria-label={`אייקון ${ic}`}
+                        >
+                          {ic}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+
+          {!isPersonal && chosenType && (
+            <p className="ob-empty-hint">{chosenType.hint}.</p>
+          )}
+        </>
       )}
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}

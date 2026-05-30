@@ -21,6 +21,7 @@
    to each individual sub-section so they read as separate panels
    floating on the background, each taking only the space it needs. */
 .ob-frame {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -42,10 +43,10 @@
 
 /* Glass mixin — applied directly to each visible panel. Kept here as
    a single source of truth so the visual rhythm stays coherent across
-   the head row, progress strip, body sub-panels, and footer. */
-.ob-head-left,
-.ob-head-mid,
-.ob-head-right,
+   the progress strip, body sub-panels, and footer.
+   NOTE: the head row's tree + help button are NOT in this list — they
+   sit out of flow as side-anchored floating decorations (see .ob-head
+   absolute block below), so they keep zero glass card around them. */
 .ob-progress,
 .ob-foot-back,
 .ob-body > .ob-intro,
@@ -58,9 +59,6 @@
   backdrop-filter: blur(24px) saturate(150%);
   box-shadow: 0 10px 32px rgba(42, 37, 32, 0.14);
 }
-[data-theme="dark"] .ob-head-left,
-[data-theme="dark"] .ob-head-mid,
-[data-theme="dark"] .ob-head-right,
 [data-theme="dark"] .ob-progress,
 [data-theme="dark"] .ob-foot-back,
 [data-theme="dark"] .ob-body > .ob-intro,
@@ -76,11 +74,16 @@
    Tree+counter on one side, help button on the other. With
    justify-content:space-between the children push to opposite
    edges of the row. */
+/* Head row sits ABOVE the progress strip via flex order. The tree
+   plus counter form the centered hero cluster; the help button is
+   pulled out of flow into the top inline-end corner so the tree
+   stays optically centered. Below this row, progress + body + foot
+   all flow at the same gap rhythm. */
 .ob-head {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px;
+  gap: 1px;
   margin: 0;
   border: none;
   background: transparent;
@@ -88,23 +91,32 @@
   box-shadow: none;
   border-radius: 0;
   padding: 0;
+  order: -1;
 }
+
 .ob-head-left {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 5px 10px 6px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 .ob-head-right {
+  position: absolute;
+  top: 4px;
+  inset-inline-end: 4px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  /* When there's no help button to render the cell collapses but
-     keeps its slot via min-width so the layout doesn't jump. */
-  min-width: 44px;
-  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  z-index: 2;
 }
 
 .ob-step-counter {
@@ -123,14 +135,17 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 1px solid rgba(42, 37, 32, 0.12);
-  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(42, 37, 32, 0.18);
+  background: rgba(255, 250, 240, 0.78);
+  backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: 0 4px 14px rgba(42, 37, 32, 0.10);
   color: var(--stone);
   cursor: pointer;
 }
 [data-theme="dark"] .ob-help-btn {
-  border-color: rgba(240, 235, 224, 0.18);
-  background: rgba(36, 32, 28, 0.5);
+  border-color: rgba(240, 235, 224, 0.20);
+  background: rgba(20, 18, 14, 0.72);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.42);
 }
 .ob-help-btn:hover { color: var(--espresso); }
 
@@ -160,7 +175,7 @@
   height: 64px;
   object-fit: contain;
   user-select: none;
-  filter: drop-shadow(0 2px 6px rgba(42, 37, 32, 0.18));
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
   animation: obTreeIn 0.32s ease-out;
 }
 @media (min-width: 768px) {

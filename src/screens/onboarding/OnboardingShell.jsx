@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { HelpCircle, ChevronRight, ChevronLeft } from 'lucide-react'
+import { HelpCircle, ChevronRight, ChevronLeft, Sun, Moon } from 'lucide-react'
 import { ONBOARDING_STEPS } from '../../lib/preferences'
+import { useTheme } from '../../hooks/useTheme'
+import { useUserPreferences } from '../../hooks/useUserPreferences'
 import OnboardingTree from './OnboardingTree'
 import OnboardingHelpPanel from './OnboardingHelpPanel'
 import { HELP_BY_STEP } from './helpContent'
@@ -21,6 +23,15 @@ export default function OnboardingShell({ ob, cta, children }) {
   const helpContent = HELP_BY_STEP[ob.step] || null
   const isFirst = ob.stepIndex === 0
   const isLast = ob.stepIndex === ONBOARDING_STEPS.length - 1
+  /* Theme toggle — same plumbing as AppShell: flip the local hook
+     immediately for instant feedback, then persist to prefs so the
+     choice survives reload + sync across devices. */
+  const { isDark, toggleTheme } = useTheme()
+  const { update: updatePrefs } = useUserPreferences()
+  const handleToggleTheme = () => {
+    toggleTheme()
+    updatePrefs({ design: { theme: isDark ? 'light' : 'dark' } })
+  }
 
   return (
     <div className="ob-frame">
@@ -40,8 +51,21 @@ export default function OnboardingShell({ ob, cta, children }) {
           <OnboardingTree stepIndex={ob.stepIndex} />
         </div>
 
-        {/* Help button gets its own panel on the opposite side. */}
+        {/* Top inline-end corner cluster: theme toggle + (optional)
+            help button. Pulled out of flow by CSS so the centered
+            tree above the progress strip stays optically centered. */}
         <div className="ob-head-right">
+          <button
+            type="button"
+            className="ob-help-btn"
+            onClick={handleToggleTheme}
+            aria-label={isDark ? 'מצב יום' : 'מצב לילה'}
+            title={isDark ? 'מצב יום' : 'מצב לילה'}
+          >
+            {isDark
+              ? <Sun size={16} strokeWidth={1.7} aria-hidden="true" />
+              : <Moon size={16} strokeWidth={1.7} aria-hidden="true" />}
+          </button>
           {helpContent && (
             <button
               type="button"

@@ -80,29 +80,30 @@ export default function LeadsScreen() {
           </div>
           <p className="t-screen">לידים</p>
         </header>
-        <div className="l-view-toggle" role="tablist" aria-label="תצוגה">
-          <button
-            type="button"
-            className={`l-view-btn${view === 'kanban' ? ' on' : ''}`}
-            onClick={() => setView('kanban')}
-            role="tab"
-            aria-selected={view === 'kanban'}
-          >
-            קנבן
-          </button>
-          <button
-            type="button"
-            className={`l-view-btn${view === 'statuses' ? ' on' : ''}`}
-            onClick={() => setView('statuses')}
-            role="tab"
-            aria-selected={view === 'statuses'}
-          >
-            סטטוסים
-          </button>
-        </div>
         {view === 'kanban' && (
           <button className="cta-add" type="button" aria-label="ליד חדש" onClick={() => setShowAdd(true)}>ליד חדש +</button>
         )}
+      </div>
+
+      <div className="l-view-toggle" role="tablist" aria-label="תצוגה">
+        <button
+          type="button"
+          className={`l-view-btn${view === 'kanban' ? ' on' : ''}`}
+          onClick={() => setView('kanban')}
+          role="tab"
+          aria-selected={view === 'kanban'}
+        >
+          קנבן
+        </button>
+        <button
+          type="button"
+          className={`l-view-btn${view === 'statuses' ? ' on' : ''}`}
+          onClick={() => setView('statuses')}
+          role="tab"
+          aria-selected={view === 'statuses'}
+        >
+          סטטוסים
+        </button>
       </div>
 
       <div className="l-stats">

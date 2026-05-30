@@ -244,7 +244,9 @@ export default function ClientsScreen() {
           </div>
           <p className="t-screen">לקוחות</p>
         </header>
-        <div className="c-top-actions">
+        <button className="cta-add" type="button" aria-label="הוסף לקוח" onClick={() => setShowAdd(true)}>הוסף לקוח +</button>
+      </div>
+      <div className="c-top-actions">
           <div className="c-sort-wrap" ref={sortAnchorRef}>
             <button
               type="button"
@@ -303,9 +305,7 @@ export default function ClientsScreen() {
           >
             {selectMode ? 'בטל בחירה' : 'בחר/י'}
           </button>
-          <button className="cta-add" type="button" aria-label="הוסף לקוח" onClick={() => setShowAdd(true)}>הוסף לקוח +</button>
         </div>
-      </div>
 
       {groupBy === 'status' && (
         <ClientTabs active={tab} counts={counts} showNoStatus={counts.no_status > 0} onChange={setTab} />

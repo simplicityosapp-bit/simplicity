@@ -26,7 +26,7 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background-image: url('/login-bg-mobile.png');
+  background-image: url('/login-bg-mobile.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -44,7 +44,7 @@
 }
 @media (min-width: 768px) {
   .auth-bg {
-    background-image: url('/login-bg-desktop.png');
+    background-image: url('/login-bg-desktop.webp');
   }
 }
 

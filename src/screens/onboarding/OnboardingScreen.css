@@ -7,19 +7,25 @@
    shows through; the layout reflows to a single column on mobile.
    ════════════════════════════════════════════════════════════════ */
 
+/* The onboarding screen also carries the global `.screen` class
+   (which sets position:absolute + inset:0 + overflow-y:auto on
+   mobile). The previous override of position:relative here broke
+   that — the body itself ended up scrolling instead of .screen,
+   so the bg image moved with the content. We keep .screen's
+   positioning and just layer the flex centering on top. */
 .ob-screen {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  min-height: 100dvh;
   padding: 28px 16px;
-  position: relative;
 }
 
 /* Outer frame is a transparent flex column — the visible glass moves
    to each individual sub-section so they read as separate panels
-   floating on the background, each taking only the space it needs. */
+   floating on the background, each taking only the space it needs.
+   margin:auto centers vertically inside the .screen scroll container
+   when the content is shorter than the viewport, and yields gracefully
+   to natural flow when content overflows. */
 .ob-frame {
   position: relative;
   display: flex;
@@ -28,6 +34,7 @@
   gap: 3px;
   width: 100%;
   max-width: 580px;
+  margin: auto;
   padding: 0;
   background: transparent;
   border: none;

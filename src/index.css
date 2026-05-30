@@ -220,68 +220,68 @@ button {
    Mobile by default; @media swap to desktop variants at ≥768px.
    The background lives on .screen (the scroll container) so it
    covers the visible viewport without leaking past the frame. */
-.app[data-screen="home"]      { --screen-bg: url('/backgrounds/mobile/day/home.png'); }
-.app[data-screen="clients"]   { --screen-bg: url('/backgrounds/mobile/day/clients.png'); }
-.app[data-screen="finance"]   { --screen-bg: url('/backgrounds/mobile/day/finance.png'); }
-.app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/mobile/day/tasks.png'); }
-.app[data-screen="leads"]     { --screen-bg: url('/backgrounds/mobile/day/leads.png'); }
-.app[data-screen="projects"]  { --screen-bg: url('/backgrounds/mobile/day/projects.png'); }
-.app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/day/goals.png'); }
-.app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/day/moon.png'); }
-.app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/mobile/day/calendar.png'); }
-.app[data-screen="settings"]  { --screen-bg: url('/backgrounds/mobile/day/settings.png'); }
-.app[data-screen="reports"]   { --screen-bg: url('/backgrounds/mobile/day/reports.png'); }
-.app[data-screen="trash"]     { --screen-bg: url('/backgrounds/mobile/day/trash.png'); }
+.app[data-screen="home"]      { --screen-bg: url('/backgrounds/mobile/day/home.webp'); }
+.app[data-screen="clients"]   { --screen-bg: url('/backgrounds/mobile/day/clients.webp'); }
+.app[data-screen="finance"]   { --screen-bg: url('/backgrounds/mobile/day/finance.webp'); }
+.app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/mobile/day/tasks.webp'); }
+.app[data-screen="leads"]     { --screen-bg: url('/backgrounds/mobile/day/leads.webp'); }
+.app[data-screen="projects"]  { --screen-bg: url('/backgrounds/mobile/day/projects.webp'); }
+.app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/day/goals.webp'); }
+.app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/day/moon.webp'); }
+.app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/mobile/day/calendar.webp'); }
+.app[data-screen="settings"]  { --screen-bg: url('/backgrounds/mobile/day/settings.webp'); }
+.app[data-screen="reports"]   { --screen-bg: url('/backgrounds/mobile/day/reports.webp'); }
+.app[data-screen="trash"]     { --screen-bg: url('/backgrounds/mobile/day/trash.webp'); }
 /* Insights reuses the moon nature image until a dedicated asset
    ships — the dark-violet sky underneath fits the reflective tone. */
-.app[data-screen="insights"]  { --screen-bg: url('/backgrounds/mobile/day/moon.png'); }
-.app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/mobile/day/onboarding.png'); }
+.app[data-screen="insights"]  { --screen-bg: url('/backgrounds/mobile/day/moon.webp'); }
+.app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/mobile/day/onboarding.webp'); }
 
-[data-theme="dark"] .app[data-screen="home"]      { --screen-bg: url('/backgrounds/mobile/night/home.png'); }
-[data-theme="dark"] .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/mobile/night/clients.png'); }
-[data-theme="dark"] .app[data-screen="finance"]   { --screen-bg: url('/backgrounds/mobile/night/finance.png'); }
-[data-theme="dark"] .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/mobile/night/tasks.png'); }
-[data-theme="dark"] .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/mobile/night/leads.png'); }
-[data-theme="dark"] .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/mobile/night/projects.png'); }
-[data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/night/goals.png'); }
-[data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/night/moon.png'); }
-[data-theme="dark"] .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/mobile/night/calendar.png'); }
-[data-theme="dark"] .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/mobile/night/settings.png'); }
-[data-theme="dark"] .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/mobile/night/reports.png'); }
-[data-theme="dark"] .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/mobile/night/trash.png'); }
-[data-theme="dark"] .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/mobile/night/moon.png'); }
-[data-theme="dark"] .app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/mobile/night/onboarding.png'); }
+[data-theme="dark"] .app[data-screen="home"]      { --screen-bg: url('/backgrounds/mobile/night/home.webp'); }
+[data-theme="dark"] .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/mobile/night/clients.webp'); }
+[data-theme="dark"] .app[data-screen="finance"]   { --screen-bg: url('/backgrounds/mobile/night/finance.webp'); }
+[data-theme="dark"] .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/mobile/night/tasks.webp'); }
+[data-theme="dark"] .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/mobile/night/leads.webp'); }
+[data-theme="dark"] .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/mobile/night/projects.webp'); }
+[data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/night/goals.webp'); }
+[data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/night/moon.webp'); }
+[data-theme="dark"] .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/mobile/night/calendar.webp'); }
+[data-theme="dark"] .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/mobile/night/settings.webp'); }
+[data-theme="dark"] .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/mobile/night/reports.webp'); }
+[data-theme="dark"] .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/mobile/night/trash.webp'); }
+[data-theme="dark"] .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/mobile/night/moon.webp'); }
+[data-theme="dark"] .app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/mobile/night/onboarding.webp'); }
 
 @media (min-width: 768px) {
-  .app[data-screen="home"]      { --screen-bg: url('/backgrounds/desktop/day/home.png'); }
-  .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/desktop/day/clients.png'); }
-  .app[data-screen="finance"]   { --screen-bg: url('/backgrounds/desktop/day/finance.png'); }
-  .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/desktop/day/tasks.png'); }
-  .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/desktop/day/leads.png'); }
-  .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/desktop/day/projects.png'); }
-  .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/day/goals.png'); }
-  .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/day/moon.png'); }
-  .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/desktop/day/calendar.png'); }
-  .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/desktop/day/settings.png'); }
-  .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/desktop/day/reports.png'); }
-  .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/desktop/day/trash.png'); }
-  .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/desktop/day/moon.png'); }
-  .app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/desktop/day/onboarding.png'); }
+  .app[data-screen="home"]      { --screen-bg: url('/backgrounds/desktop/day/home.webp'); }
+  .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/desktop/day/clients.webp'); }
+  .app[data-screen="finance"]   { --screen-bg: url('/backgrounds/desktop/day/finance.webp'); }
+  .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/desktop/day/tasks.webp'); }
+  .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/desktop/day/leads.webp'); }
+  .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/desktop/day/projects.webp'); }
+  .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/day/goals.webp'); }
+  .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/day/moon.webp'); }
+  .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/desktop/day/calendar.webp'); }
+  .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/desktop/day/settings.webp'); }
+  .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/desktop/day/reports.webp'); }
+  .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/desktop/day/trash.webp'); }
+  .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/desktop/day/moon.webp'); }
+  .app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/desktop/day/onboarding.webp'); }
 
-  [data-theme="dark"] .app[data-screen="home"]      { --screen-bg: url('/backgrounds/desktop/night/home.png'); }
-  [data-theme="dark"] .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/desktop/night/clients.png'); }
-  [data-theme="dark"] .app[data-screen="finance"]   { --screen-bg: url('/backgrounds/desktop/night/finance.png'); }
-  [data-theme="dark"] .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/desktop/night/tasks.png'); }
-  [data-theme="dark"] .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/desktop/night/leads.png'); }
-  [data-theme="dark"] .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/desktop/night/projects.png'); }
-  [data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/night/goals.png'); }
-  [data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/night/moon.png'); }
-  [data-theme="dark"] .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/desktop/night/calendar.png'); }
-  [data-theme="dark"] .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/desktop/night/settings.png'); }
-  [data-theme="dark"] .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/desktop/night/reports.png'); }
-  [data-theme="dark"] .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/desktop/night/trash.png'); }
-  [data-theme="dark"] .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/desktop/night/moon.png'); }
-  [data-theme="dark"] .app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/desktop/night/onboarding.png'); }
+  [data-theme="dark"] .app[data-screen="home"]      { --screen-bg: url('/backgrounds/desktop/night/home.webp'); }
+  [data-theme="dark"] .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/desktop/night/clients.webp'); }
+  [data-theme="dark"] .app[data-screen="finance"]   { --screen-bg: url('/backgrounds/desktop/night/finance.webp'); }
+  [data-theme="dark"] .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/desktop/night/tasks.webp'); }
+  [data-theme="dark"] .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/desktop/night/leads.webp'); }
+  [data-theme="dark"] .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/desktop/night/projects.webp'); }
+  [data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/night/goals.webp'); }
+  [data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/night/moon.webp'); }
+  [data-theme="dark"] .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/desktop/night/calendar.webp'); }
+  [data-theme="dark"] .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/desktop/night/settings.webp'); }
+  [data-theme="dark"] .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/desktop/night/reports.webp'); }
+  [data-theme="dark"] .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/desktop/night/trash.webp'); }
+  [data-theme="dark"] .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/desktop/night/moon.webp'); }
+  [data-theme="dark"] .app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/desktop/night/onboarding.webp'); }
 }
 
 /* ── Screen scroll container ─────────────────────────────────────

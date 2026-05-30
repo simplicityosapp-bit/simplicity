@@ -1,22 +1,25 @@
 import { useEffect, useState } from 'react'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 
-/* The 6 starter presets the spec calls out. They are stored with a
-   `template_key` so future analytics can compare across users.
-   Custom (user-typed) questions get template_key=null + custom_text. */
+/* 7 starter presets in the order the design spec defines. Each one
+   is stored with a `template_key` so future analytics can compare
+   across users. All presets use the 1-10 scale. The optional custom
+   ("אחר") question is yes/no — used for binary habits like
+   "יצירת תוכן" or "למדת היום?". */
 const PRESETS = [
-  { key: 'nutrition', icon: '🥗', text: 'איך אכלת היום?' },
   { key: 'sleep',     icon: '🌙', text: 'איך ישנת אתמול?' },
+  { key: 'nutrition', icon: '🥗', text: 'איך אכלת היום?' },
   { key: 'movement',  icon: '🏃', text: 'כמה תנועה היה לך היום?' },
-  { key: 'quiet',     icon: '🫧', text: 'כמה שקט מצאת היום?' },
-  { key: 'joy',       icon: '✨', text: 'מה שמח אותך היום?' },
   { key: 'mood',      icon: '🤍', text: 'איך מצב הרוח שלך היום?' },
+  { key: 'focus',     icon: '🎯', text: 'כמה ממוקד/ת הרגשת היום?' },
+  { key: 'joy',       icon: '✨', text: 'מה שמח אותך היום?' },
+  { key: 'quiet',     icon: '🫧', text: 'כמה שקט מצאת היום?' },
 ]
 
-/* Step 5 — daily questions. Multi-select from 6 preset chips + an
-   optional custom (reflective) question. Each selected preset becomes
-   a real user_questions row (active=true, scale 1-10). The custom
-   one is yes_no by default since it's textual reflection. */
+/* Step 5 — daily questions. Multi-select from 7 preset chips + an
+   optional custom yes/no question ("אחר"). Each selected preset
+   becomes a real user_questions row (active=true, scale 1-10). The
+   custom one is yes_no — binary daily habits live there. */
 export default function Step5DailyQuestions({ ob, setCTA }) {
   const { addQuestion } = useUserQuestions()
   const initial = ob.state.answers?.daily_questions || {}
@@ -60,7 +63,9 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
         const row = await addQuestion({
           template_key: null,
           custom_text: custom.trim(),
-          scale_type: '1-10',
+          /* "אחר" lives at the yes/no end of the daily-habits spectrum
+             — binary "did I do this today?" items. */
+          scale_type: 'yes_no',
           icon: '✍️',
           active: true,
           schedule_pattern: {},
@@ -104,15 +109,15 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
       </div>
 
       <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-q-custom">שאלה שלך (רפלקטיבית)</label>
+        <label className="ob-label" htmlFor="ob-q-custom">אחר (שאלת כן/לא)</label>
         <input
           id="ob-q-custom"
           className="ob-input"
           value={custom}
           onChange={(e) => setCustom(e.target.value)}
-          placeholder="לדוגמה: על מה הרגעת היום שעוד לא ראיתי?"
+          placeholder="לדוגמה: יצרת תוכן היום? למדת היום?"
         />
-        <p className="ob-empty-hint">שאלות מותאמות שלך = רפלקציה אישית, לא ננתח אותן אוטומטית.</p>
+        <p className="ob-empty-hint">שאלות כן/לא — מותאמות לך אישית.</p>
       </div>
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}

@@ -354,3 +354,71 @@ button {
     overflow-y: auto;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   DARK MODE — global contrast bumps (pkg 1, 2026-05-29)
+   ════════════════════════════════════════════════════════════════
+   Cross-cutting fixes from the dark-mode audit. Each rule fixes a
+   widely-shared element that was failing the 4.5:1 contrast bar.
+   Component-local styles inherit these via var() tokens or by
+   selector specificity. */
+[data-theme="dark"] {
+  /* Inputs / selects across all modals: the default light borders
+     (rgba(42,37,32,...)) disappear against the dark backdrop. Override
+     with a cream border at low alpha so the field reads as a separable
+     surface and the placeholder text is visible. */
+}
+[data-theme="dark"] .m-input,
+[data-theme="dark"] .m-select,
+[data-theme="dark"] .m-textarea {
+  border: 1px solid rgba(240, 235, 224, 0.18);
+  background: rgba(20, 18, 14, 0.55);
+  color: var(--cream, #F0EBE0);
+}
+[data-theme="dark"] .m-input::placeholder,
+[data-theme="dark"] .m-textarea::placeholder {
+  color: rgba(240, 235, 224, 0.42);
+}
+[data-theme="dark"] .m-label,
+[data-theme="dark"] .m-confirm-msg,
+[data-theme="dark"] .lbl,
+[data-theme="dark"] .lbl-sm {
+  color: rgba(240, 235, 224, 0.78);
+}
+/* Sub-text classes (empty hints / sub-intros) become readable. */
+[data-theme="dark"] .ob-empty-hint,
+[data-theme="dark"] .empty-text,
+[data-theme="dark"] .set-data-hint,
+[data-theme="dark"] .set-sub-intro {
+  color: rgba(240, 235, 224, 0.72);
+}
+
+/* Search input wrappers (clients/leads/etc.) — same border bump. */
+[data-theme="dark"] .c-search,
+[data-theme="dark"] .leads-search,
+[data-theme="dark"] .f-search {
+  border-color: rgba(240, 235, 224, 0.18);
+  background: rgba(20, 18, 14, 0.55);
+}
+
+/* Sidebar icon chips were too dim — bump base opacity + active glow. */
+[data-theme="dark"] .mg-sidebar-link-chip {
+  background: color-mix(in srgb, var(--nav-accent) 28%, rgba(20, 18, 14, 0.4));
+  border-color: color-mix(in srgb, var(--nav-accent) 55%, transparent);
+}
+[data-theme="dark"] .mg-sidebar-link.on .mg-sidebar-link-chip {
+  background: color-mix(in srgb, var(--nav-accent) 55%, rgba(20, 18, 14, 0.4));
+  border-color: color-mix(in srgb, var(--nav-accent) 90%, transparent);
+}
+
+/* Onboarding progress strip — was almost invisible. */
+[data-theme="dark"] .ob-progress-track {
+  background: rgba(240, 235, 224, 0.16);
+}
+
+/* Generic chevron / sub-text inside accordions — bump from 0.45 stone */
+[data-theme="dark"] .set-acc-head .set-sec-chev,
+[data-theme="dark"] .pd-sec-chev,
+[data-theme="dark"] .accordion-chev {
+  color: rgba(240, 235, 224, 0.7);
+}

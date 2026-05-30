@@ -23,6 +23,8 @@ import AddClientModal from '../../modals/AddClientModal'
 import AddReminderModal from '../../modals/AddReminderModal'
 import DeleteGroupModal from '../../modals/DeleteGroupModal'
 import ConfirmModal from '../../modals/ConfirmModal'
+import ProjectQuickRow from './ProjectQuickRow'
+import ProjectIncomeChart from './ProjectIncomeChart'
 import './ProjectDetailScreen.css'
 
 const DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
@@ -299,6 +301,15 @@ export default function ProjectDetailScreen() {
           <p className="pd-stat-l">קבוצות</p>
         </div>
       </section>
+
+      {/* Quick-action row — same shape as Home's QuickRow, but every
+          Add* opened from here pre-binds to the current project. */}
+      <div className="pd-quick-row-wrap">
+        <ProjectQuickRow projectId={id} projectName={project.name} />
+      </div>
+
+      {/* Monthly cumulative income chart, scoped to this project. */}
+      <ProjectIncomeChart projectId={id} />
 
       {/* ── Groups section ────────────────────────────────── */}
       <section className="pd-section">

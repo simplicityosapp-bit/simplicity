@@ -1,8 +1,70 @@
 /* ════════════════════════════════════════════════════════════════
-   PROJECT DETAIL — project info + its groups.
+   PROJECT DETAIL — project info + its groups + quick actions + chart.
    ════════════════════════════════════════════════════════════════ */
 
 .pd-screen { padding-top: 12px; }
+
+/* ── Project quick-action row — sits below the stats and above the
+   sections. Reuses .h-quick-row styling so it reads as the same
+   widget the user sees on Home. */
+.pd-quick-row-wrap { margin: 0 0 14px; }
+
+/* ── Project income chart ─────────────────────────────────────── */
+.pd-chart {
+  margin: 0 0 14px;
+  padding: 14px 16px 10px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+}
+.pd-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.pd-chart-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.pd-chart-total {
+  font-family: var(--mg-font-num);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--espresso);
+}
+.pd-chart-empty { padding: 8px 0; text-align: center; }
+.pd-chart-svg { overflow: visible; }
+.pd-chart-line {
+  fill: none;
+  stroke: var(--clay);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pd-chart-dot {
+  fill: var(--clay);
+  stroke: var(--mg-card-bg);
+  stroke-width: 2;
+}
+.pd-chart-axis {
+  fill: var(--stone);
+  font-family: var(--mg-font-num);
+  font-size: 10px;
+}
+.pd-chart-area-top { stop-color: rgba(201, 123, 94, 0.22); }
+.pd-chart-area-bot { stop-color: rgba(201, 123, 94, 0); }
+[data-theme="dark"] .pd-chart-area-top { stop-color: rgba(232, 144, 96, 0.46); }
+[data-theme="dark"] .pd-chart-area-bot { stop-color: rgba(232, 144, 96, 0.04); }
 
 .pd-head {
   display: flex;

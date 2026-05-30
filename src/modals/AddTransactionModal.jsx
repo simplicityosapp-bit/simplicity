@@ -13,14 +13,18 @@ const blank = (defaults = {}) => ({
 })
 
 /* onSave is async (Supabase insert). When `client` is provided the client is
-   locked (drawer "קיבלתי תשלום" flow); otherwise a select is shown. */
-export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], client, defaultType }) {
+   locked (drawer "קיבלתי תשלום" flow); otherwise a select is shown.
+   `defaults` lets callers pre-fill any blank() field — used by the
+   project-detail QuickRow to pre-bind project_id so the user doesn't
+   have to re-pick the project they're clearly already on. */
+export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], client, defaultType, defaults = {} }) {
   const lockedClientId = client?.id || ''
-  const [form, setForm] = useState(() => blank({ client_id: lockedClientId, type: defaultType }))
+  const initial = { ...defaults, client_id: lockedClientId || defaults.client_id, type: defaultType || defaults.type }
+  const [form, setForm] = useState(() => blank(initial))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(blank({ client_id: lockedClientId, type: defaultType })); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
     const amount = parseFloat(form.amount)

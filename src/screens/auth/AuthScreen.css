@@ -264,6 +264,11 @@
 }
 
 .auth-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
   margin: 4px 0 0;
   text-align: center;
   font-family: var(--mg-font);
@@ -274,6 +279,50 @@
   color: var(--terracotta);
   font-weight: 600;
   text-decoration: none;
+}
+/* Highlighted cross-screen CTA — promotes the "signup" / "login"
+   link from plain text to a small glass pill so it reads as an
+   actionable button against the photographic background. */
+.auth-foot-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--terracotta);
+  background: rgba(255, 250, 240, 0.78);
+  backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: 0 4px 14px rgba(201, 123, 94, 0.18);
+  color: var(--terracotta) !important;
+  font-weight: 700;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.12s;
+}
+.auth-foot-cta:hover {
+  background: var(--terracotta);
+  color: #fff !important;
+  box-shadow: 0 6px 18px rgba(201, 123, 94, 0.28);
+}
+.auth-foot-cta:active { transform: scale(0.96); }
+[data-theme="dark"] .auth-foot-cta {
+  background: rgba(20, 18, 14, 0.62);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32);
+}
+
+/* "Check your email" confirmation card — reuses the auth-form shell. */
+.auth-msg-card {
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+.auth-msg-card .auth-msg-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(123, 158, 113, 0.18);
+  color: var(--sage);
+  margin-bottom: 4px;
 }
 
 /* ── Legacy classes kept for SignupScreen + ResetPasswordScreen ──

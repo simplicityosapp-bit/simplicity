@@ -89,7 +89,7 @@ export default function LoginScreen() {
           <Link to={ROUTES.RESET_PASSWORD} className="auth-link-sm">שכחת סיסמה?</Link>
         </form>
 
-        <p className="auth-foot">אין לך חשבון? <Link to={ROUTES.SIGNUP}>הרשמה</Link></p>
+        <p className="auth-foot">אין לך חשבון? <Link to={ROUTES.SIGNUP} className="auth-foot-cta">הרשמה</Link></p>
       </div>
     </div>
   )

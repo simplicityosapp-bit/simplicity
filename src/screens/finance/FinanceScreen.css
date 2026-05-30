@@ -172,6 +172,12 @@
 .f-chart-pct.done { color: color-mix(in srgb, var(--sage) 80%, var(--espresso)); }
 .f-chart-svg-wrap { width: 100%; }
 .f-chart-svg { overflow: visible; }
+/* Gradient stops — theme-aware so the soft fill is visible in both
+   day (bright bg) and night (dark bg). */
+.f-chart-area-top { stop-color: rgba(201, 123, 94, 0.22); }
+.f-chart-area-bot { stop-color: rgba(201, 123, 94, 0); }
+[data-theme="dark"] .f-chart-area-top { stop-color: rgba(232, 144, 96, 0.46); }
+[data-theme="dark"] .f-chart-area-bot { stop-color: rgba(232, 144, 96, 0.04); }
 .f-chart-line {
   fill: none;
   stroke: var(--clay);

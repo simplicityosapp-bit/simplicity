@@ -116,8 +116,11 @@ export default function FinanceChart({ month }) {
         >
           <defs>
             <linearGradient id="fChartArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(201,123,94,.22)" />
-              <stop offset="100%" stopColor="rgba(201,123,94,0)" />
+              {/* Theme-aware stops: CSS sets stop-color so dark mode
+                  can bump the fill alpha (clay glows almost invisibly
+                  against the dark forest bg at 0.22). */}
+              <stop offset="0%" className="f-chart-area-top" />
+              <stop offset="100%" className="f-chart-area-bot" />
             </linearGradient>
           </defs>
           {targetValue > 0 && (

@@ -51,6 +51,12 @@
   width: fit-content;
   margin: 0 auto 18px;
 }
+/* Entity toggle (משימות ↔ תזכורות) — sits between the screen-top
+   row and the hero summary so the same chrome serves both views. */
+.t-view {
+  width: fit-content;
+  margin: 0 auto 14px;
+}
 
 /* ── Priority groups ───────────────────────────────────────────── */
 .t-group {

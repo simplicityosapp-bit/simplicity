@@ -136,10 +136,13 @@
   padding: 2px 9px;
   border-radius: 10px;
 }
-.cd-status-active { color: var(--sage); background: rgba(139, 168, 136, 0.14); }
-.cd-status-wandering { color: var(--amber-warn); background: rgba(212, 165, 116, 0.16); }
-.cd-status-past { color: var(--mist); background: rgba(42, 37, 32, 0.06); }
-.cd-status-no_status { color: var(--stone); background: rgba(42, 37, 32, 0.06); }
+/* Status pills — text forced to --espresso (dark in light, light
+   in dark via the token system) so the label is readable on any
+   tinted bg. The bg color stays as the per-status differentiator. */
+.cd-status-active { color: var(--espresso); background: rgba(139, 168, 136, 0.14); }
+.cd-status-wandering { color: var(--espresso); background: rgba(212, 165, 116, 0.16); }
+.cd-status-past { color: var(--espresso); background: rgba(42, 37, 32, 0.06); }
+.cd-status-no_status { color: var(--espresso); background: rgba(42, 37, 32, 0.06); }
 .cd-h-proj {
   font-family: var(--mg-font);
   font-size: 11px;

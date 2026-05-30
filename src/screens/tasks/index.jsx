@@ -1,9 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useTasks } from '../../hooks/useTasks'
+import { useReminders } from '../../hooks/useReminders'
 import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
 import TaskItem from './TaskItem'
+import ReminderItem from './ReminderItem'
 import AddTaskModal from '../../modals/AddTaskModal'
+import AddReminderModal from '../../modals/AddReminderModal'
 import './TasksScreen.css'
 
 const PRIORITY_COLOR = {
@@ -22,25 +25,77 @@ const FILTERS = [
   { key: 'all', label: 'הכל' },
 ]
 
+/* Date buckets used to group reminders the same way tasks are grouped
+   by priority — keeps the visual rhythm identical between the two
+   modes. Buckets are computed against now; "overdue" only includes
+   pending reminders, never completed ones. */
+const REM_BUCKETS = [
+  { key: 'overdue', label: 'באיחור', color: 'var(--clay)' },
+  { key: 'today',   label: 'היום',   color: 'var(--amber-warn)' },
+  { key: 'week',    label: 'השבוע',  color: 'var(--sage)' },
+  { key: 'later',   label: 'מאוחר יותר', color: 'var(--mist)' },
+]
+
+function reminderBucket(rem, now) {
+  if (rem.status === 'completed') return null
+  const due = new Date(rem.scheduled_at)
+  if (due < now) return 'overdue'
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1)
+  const weekEnd = new Date(today); weekEnd.setDate(today.getDate() + 7)
+  if (due < tomorrow) return 'today'
+  if (due < weekEnd)  return 'week'
+  return 'later'
+}
+
 export default function TasksScreen() {
-  const { tasks, loading, addTask, toggleTask } = useTasks()
+  const { tasks, loading: tasksLoading, addTask, toggleTask } = useTasks()
+  const { reminders, loading: remindersLoading, addReminder, completeReminder } = useReminders()
   const { projects } = useProjects()
   const { clients } = useClients()
+  /* Top toggle drives entity choice. The rest of the screen reads
+     from the active hook and renders the same chrome (header counts,
+     hero stats, filter, list). */
+  const [view, setView] = useState('tasks')
   const [filter, setFilter] = useState('todo')
   const [showAdd, setShowAdd] = useState(false)
 
-  const openCount = tasks.filter((t) => t.status !== 'done').length
-  const doneCount = tasks.filter((t) => t.status === 'done').length
-  const urgentCount = tasks.filter((t) => t.status !== 'done' && t.priority === 'high').length
+  const isTasks = view === 'tasks'
+  const loading = isTasks ? tasksLoading : remindersLoading
 
-  const filtered = useMemo(() => {
+  /* Counts for the header + hero ─ both entities share a pending/done
+     contract so we can derive them with a single .status check. */
+  const openCount  = isTasks
+    ? tasks.filter((t) => t.status !== 'done').length
+    : reminders.filter((r) => r.status !== 'completed').length
+  const doneCount  = isTasks
+    ? tasks.filter((t) => t.status === 'done').length
+    : reminders.filter((r) => r.status === 'completed').length
+  const now = useMemo(() => new Date(), [reminders, filter])
+  /* "Urgent" tile re-labels per entity: tasks use priority=high, while
+     reminders use overdue (past due AND still pending). */
+  const urgentCount = isTasks
+    ? tasks.filter((t) => t.status !== 'done' && t.priority === 'high').length
+    : reminders.filter((r) => r.status !== 'completed' && new Date(r.scheduled_at) < now).length
+
+  const filteredTasks = useMemo(() => {
     if (filter === 'todo') return tasks.filter((t) => t.status !== 'done')
     if (filter === 'done') return tasks.filter((t) => t.status === 'done')
     return tasks
   }, [tasks, filter])
 
+  const filteredReminders = useMemo(() => {
+    if (filter === 'todo') return reminders.filter((r) => r.status !== 'completed')
+    if (filter === 'done') return reminders.filter((r) => r.status === 'completed')
+    return reminders
+  }, [reminders, filter])
+
   const projOf = (id) => projects.find((p) => p.id === id)
   const clientNameOf = (id) => clients.find((c) => c.id === id)?.name
+
+  const emptyMsg = isTasks
+    ? (filter === 'done' ? 'עוד לא הושלמו משימות.' : 'אין משימות פתוחות. כל הכבוד!')
+    : (filter === 'done' ? 'עוד לא הושלמו תזכורות.' : 'אין תזכורות פתוחות. הכל רגוע.')
 
   return (
     <div className="screen">
@@ -48,27 +103,58 @@ export default function TasksScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{openCount} פתוחות</p>
+              <p className="lbl">{openCount} {isTasks ? 'פתוחות' : 'תזכורות'}</p>
               <span className="lbl dot">·</span>
               <p className="lbl">{doneCount} הושלמו</p>
             </div>
             <p className="lbl-sm">עשה/י את הצעד הבא.</p>
           </div>
-          <p className="t-screen">משימות</p>
+          <p className="t-screen">{isTasks ? 'משימות' : 'תזכורות'}</p>
         </header>
-        <button className="cta-add" type="button" aria-label="הוסף משימה" onClick={() => setShowAdd(true)}>הוסף משימה +</button>
+        <button
+          className="cta-add"
+          type="button"
+          aria-label={isTasks ? 'הוסף משימה' : 'הוסף תזכורת'}
+          onClick={() => setShowAdd(true)}
+        >
+          {isTasks ? 'הוסף משימה +' : 'הוסף תזכורת +'}
+        </button>
+      </div>
+
+      {/* Entity toggle — same role as Leads' kanban/statuses switcher,
+          rendered below screen-top so it doesn't break the centered
+          "+" slot. */}
+      <div className="mg-toggle t-view" role="tablist" aria-label="תצוגה">
+        <button
+          type="button"
+          className={`mg-toggle-btn${view === 'tasks' ? ' on' : ''}`}
+          onClick={() => setView('tasks')}
+          role="tab"
+          aria-selected={view === 'tasks'}
+        >
+          משימות
+        </button>
+        <button
+          type="button"
+          className={`mg-toggle-btn${view === 'reminders' ? ' on' : ''}`}
+          onClick={() => setView('reminders')}
+          role="tab"
+          aria-selected={view === 'reminders'}
+        >
+          תזכורות
+        </button>
       </div>
 
       <section className="t-hero">
         <div className="s-hero">
-          <p className="t-hero-title">סיכום משימות</p>
+          <p className="t-hero-title">{isTasks ? 'סיכום משימות' : 'סיכום תזכורות'}</p>
           <div className="t-hero-grid">
             <div className="t-hero-stat">
               <p className="t-hero-stat-l">פתוחות</p>
               <p className="t-hero-stat-v mono">{openCount}</p>
             </div>
             <div className="t-hero-stat divided">
-              <p className="t-hero-stat-l">דחופות</p>
+              <p className="t-hero-stat-l">{isTasks ? 'דחופות' : 'באיחור'}</p>
               <p className="t-hero-stat-v mono">{urgentCount}</p>
             </div>
             <div className="t-hero-stat">
@@ -94,46 +180,103 @@ export default function TasksScreen() {
 
       <section className="t-list">
         {loading ? (
-          <div className="empty"><p className="empty-text">טוען משימות…</p></div>
-        ) : filtered.length === 0 ? (
-          <div className="empty">
-            <p className="empty-text">{filter === 'done' ? 'עוד לא הושלמו משימות.' : 'אין משימות פתוחות. כל הכבוד!'}</p>
-          </div>
+          <div className="empty"><p className="empty-text">{isTasks ? 'טוען משימות…' : 'טוען תזכורות…'}</p></div>
+        ) : isTasks ? (
+          filteredTasks.length === 0 ? (
+            <div className="empty"><p className="empty-text">{emptyMsg}</p></div>
+          ) : (
+            PRIORITY_GROUPS.map((g) => {
+              const items = filteredTasks.filter((t) => (t.priority || 'medium') === g.key)
+              if (!items.length) return null
+              return (
+                <div key={g.key} className="t-group">
+                  <p className="t-group-lbl">
+                    <span className="t-group-dot" style={{ background: PRIORITY_COLOR[g.key] }} />
+                    {g.label}
+                    <span className="t-group-count">{items.length}</span>
+                  </p>
+                  {items.map((t, i) => (
+                    <TaskItem
+                      key={t.id}
+                      task={t}
+                      project={projOf(t.project_id)}
+                      clientName={clientNameOf(t.client_id)}
+                      dotColor={PRIORITY_COLOR[t.priority || 'medium']}
+                      onToggle={() => toggleTask(t)}
+                      index={i}
+                    />
+                  ))}
+                </div>
+              )
+            })
+          )
         ) : (
-          PRIORITY_GROUPS.map((g) => {
-            const items = filtered.filter((t) => (t.priority || 'medium') === g.key)
-            if (!items.length) return null
-            return (
-              <div key={g.key} className="t-group">
-                <p className="t-group-lbl">
-                  <span className="t-group-dot" style={{ background: PRIORITY_COLOR[g.key] }} />
-                  {g.label}
-                  <span className="t-group-count">{items.length}</span>
-                </p>
-                {items.map((t, i) => (
-                  <TaskItem
-                    key={t.id}
-                    task={t}
-                    project={projOf(t.project_id)}
-                    clientName={clientNameOf(t.client_id)}
-                    dotColor={PRIORITY_COLOR[t.priority || 'medium']}
-                    onToggle={() => toggleTask(t)}
-                    index={i}
-                  />
-                ))}
-              </div>
-            )
-          })
+          filteredReminders.length === 0 ? (
+            <div className="empty"><p className="empty-text">{emptyMsg}</p></div>
+          ) : filter === 'done' ? (
+            /* Completed reminders render as one flat group — date
+               buckets don't carry meaning once the item is closed. */
+            <div className="t-group">
+              <p className="t-group-lbl">
+                <span className="t-group-dot" style={{ background: 'var(--mist)' }} />
+                הושלמו
+                <span className="t-group-count">{filteredReminders.length}</span>
+              </p>
+              {filteredReminders.map((r, i) => (
+                <ReminderItem
+                  key={r.id}
+                  reminder={r}
+                  clientName={clientNameOf(r.client_id)}
+                  dotColor="var(--mist)"
+                  onComplete={completeReminder}
+                  index={i}
+                />
+              ))}
+            </div>
+          ) : (
+            REM_BUCKETS.map((b) => {
+              const items = filteredReminders.filter((r) => reminderBucket(r, now) === b.key)
+              if (!items.length) return null
+              return (
+                <div key={b.key} className="t-group">
+                  <p className="t-group-lbl">
+                    <span className="t-group-dot" style={{ background: b.color }} />
+                    {b.label}
+                    <span className="t-group-count">{items.length}</span>
+                  </p>
+                  {items.map((r, i) => (
+                    <ReminderItem
+                      key={r.id}
+                      reminder={r}
+                      clientName={clientNameOf(r.client_id)}
+                      dotColor={b.color}
+                      onComplete={completeReminder}
+                      index={i}
+                    />
+                  ))}
+                </div>
+              )
+            })
+          )
         )}
       </section>
 
-      <AddTaskModal
-        open={showAdd}
-        onClose={() => setShowAdd(false)}
-        projects={projects}
-        clients={clients}
-        onSave={addTask}
-      />
+      {isTasks ? (
+        <AddTaskModal
+          open={showAdd}
+          onClose={() => setShowAdd(false)}
+          projects={projects}
+          clients={clients}
+          onSave={addTask}
+        />
+      ) : (
+        <AddReminderModal
+          open={showAdd}
+          onClose={() => setShowAdd(false)}
+          clients={clients}
+          onSave={addReminder}
+        />
+      )}
     </div>
   )
 }

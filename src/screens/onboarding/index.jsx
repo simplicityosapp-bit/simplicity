@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../lib/routes'
 import { useOnboarding } from '../../hooks/useOnboarding'
+import { finalizeOnboardingImport } from '../../lib/onboardingImport'
 import OnboardingShell from './OnboardingShell'
 import WelcomeGate from './WelcomeGate'
 import Step1Profile         from './steps/Step1Profile'
@@ -44,10 +45,27 @@ export default function OnboardingScreen() {
     return <WelcomeGate />
   }
 
-  const onDone = async () => {
-    await ob.complete()
-    navigate(ROUTES.HOME, { replace: true })
-  }
+  /* Latest mutable snapshot of inputs to onDone — kept in refs so the
+     callback below stays referentially STABLE across renders. Without
+     this, every parent re-render produced a new onDone, which Step 9's
+     useEffect treated as a dep change, looping forever. The finalize
+     import itself reads existing clients/projects directly from the
+     DB so we don't have to plumb them through React state. */
+  const onDoneInputs = useRef({ ob, navigate })
+  onDoneInputs.current = { ob, navigate }
+
+  const onDone = useCallback(async () => {
+    const cur = onDoneInputs.current
+    if (cur.ob.state.parsed_data?.kind === 'csv') {
+      try {
+        await finalizeOnboardingImport({ parsedData: cur.ob.state.parsed_data })
+      } catch {
+        /* non-fatal — we still want the user on /home */
+      }
+    }
+    await cur.ob.complete()
+    cur.navigate(ROUTES.HOME, { replace: true })
+  }, [])
 
   return (
     <div className="ob-screen screen">

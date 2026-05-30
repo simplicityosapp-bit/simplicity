@@ -41,43 +41,37 @@
   }
 }
 
-/* Glass mixin — applied directly to each visible panel. Kept here as
-   a single source of truth so the visual rhythm stays coherent across
-   the progress strip, body sub-panels, and footer.
-   NOTE: the head row's tree + help button are NOT in this list — they
-   sit out of flow as side-anchored floating decorations (see .ob-head
-   absolute block below), so they keep zero glass card around them.
-   Title-bearing classes that USED TO float bare on the backdrop —
-   .ob-empty-hint, .ob-pre-fill-banner, .ob-preview-title — are now
-   pulled INTO the glass list so every piece of text rides a panel,
-   matching the rest of the rhythm. The bg alpha is also bumped from
-   0.62 → 0.86 (light) / 0.78 (dark) so labels read clearly even on
-   the busiest stretches of the photographic background. */
+/* Glass mixin — every visible onboarding panel uses the SAME global
+   card tokens (--mg-card-bg / -border / -blur / -shadow) as the rest
+   of the app, so cream-glass density and dark-mode behaviour match
+   1:1 with home / clients / finance cards. Direct children of .ob-body
+   that need glass:
+     - .ob-intro / .ob-intro-sub   step heading + subtitle
+     - .ob-field                   each per-field micro-panel
+     - .ob-field-row > .ob-field   side-by-side fields
+     - .ob-step-grid > .ob-field   2-col grids (Step 3 pricing, Step 4
+                                   sessions/price) — were missing
+                                   before, which left labels like
+                                   "חבילת פגישות (אופציונלי)" and
+                                   "מחיר לפגישה ₪" floating bare.
+     - .ob-empty-hint              inline hints (e.g. "יחידות: X")
+     - .ob-pre-fill-banner         "כבר יש לך N לקוחות" notices
+   The head row's tree + help button are NOT in this list — they sit
+   out of flow as side-anchored floating decorations. */
 .ob-progress,
 .ob-foot-back,
 .ob-body > .ob-intro,
 .ob-body > .ob-intro-sub,
 .ob-body > .ob-field,
 .ob-body > .ob-field-row > .ob-field,
+.ob-body > .ob-step-grid > .ob-field,
 .ob-body > .ob-empty-hint,
 .ob-body > .ob-pre-fill-banner {
   border-radius: 16px;
-  border: 1px solid rgba(240, 235, 224, 0.55);
-  background: rgba(255, 250, 240, 0.86);
-  backdrop-filter: blur(24px) saturate(150%);
-  box-shadow: 0 10px 32px rgba(42, 37, 32, 0.18);
-}
-[data-theme="dark"] .ob-progress,
-[data-theme="dark"] .ob-foot-back,
-[data-theme="dark"] .ob-body > .ob-intro,
-[data-theme="dark"] .ob-body > .ob-intro-sub,
-[data-theme="dark"] .ob-body > .ob-field,
-[data-theme="dark"] .ob-body > .ob-field-row > .ob-field,
-[data-theme="dark"] .ob-body > .ob-empty-hint,
-[data-theme="dark"] .ob-body > .ob-pre-fill-banner {
-  background: rgba(20, 18, 14, 0.78);
-  border-color: rgba(240, 235, 224, 0.18);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.48);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur) saturate(150%);
+  box-shadow: var(--mg-card-shadow);
 }
 
 /* Direct-child loose titles need the same fit-content + padding as

@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 
-/* 7 starter presets in the order the design spec defines. Each one
+/* 6 starter presets in the order the design spec defines. Each one
    is stored with a `template_key` so future analytics can compare
    across users. All presets use the 1-10 scale. The optional custom
    ("אחר") question is yes/no — used for binary habits like
-   "יצירת תוכן" or "למדת היום?". */
+   "יצירת תוכן" or "למדת היום?".
+   NOTE: "joy / מה שמח אותך היום?" lived here briefly but was pulled
+   because the phrasing invites a free-text answer and we don't ship
+   free_text scoring yet — only 1-10 and yes/no. */
 const PRESETS = [
   { key: 'sleep',     icon: '🌙', text: 'איך ישנת אתמול?' },
   { key: 'nutrition', icon: '🥗', text: 'איך אכלת היום?' },
   { key: 'movement',  icon: '🏃', text: 'כמה תנועה היה לך היום?' },
   { key: 'mood',      icon: '🤍', text: 'איך מצב הרוח שלך היום?' },
   { key: 'focus',     icon: '🎯', text: 'כמה ממוקד/ת הרגשת היום?' },
-  { key: 'joy',       icon: '✨', text: 'מה שמח אותך היום?' },
   { key: 'quiet',     icon: '🫧', text: 'כמה שקט מצאת היום?' },
 ]
 

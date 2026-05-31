@@ -70,14 +70,13 @@ Deno.serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      // NOTE: no reply_to. In Resend's testing mode (no verified domain)
-      // every address in the request — including reply_to — must equal the
-      // account-owner address, so a reply_to of the sender's email is
-      // rejected with a 403. The sender is captured in the subject/body
-      // instead. Once a domain is verified, reply_to can be reinstated.
+      // Domain is verified, so reply_to may be the user's own address —
+      // hitting "Reply" in the inbox answers the user directly. Only set
+      // it when we actually resolved an email (not the anonymous fallback).
       body: JSON.stringify({
         from: FEEDBACK_FROM,
         to: [FEEDBACK_TO],
+        reply_to: sender.includes('@') ? sender : undefined,
         subject: typeLabel ? `[${typeLabel}] פידבק חדש מ-${sender}` : `פידבק חדש מ-${sender}`,
         text: `מאת: ${sender}${typeLabel ? `\nסוג: ${typeLabel}` : ''}\n\n${text}`,
       }),

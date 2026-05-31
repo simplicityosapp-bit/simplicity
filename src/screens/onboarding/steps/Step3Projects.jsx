@@ -83,8 +83,8 @@ export default function Step3Projects({ ob, setCTA }) {
   const existingHint = projects?.length > 0
   return (
     <>
-      <p className="ob-intro">בוא/י נבנה את הפרויקט הראשון.</p>
-      <p className="ob-intro-sub">פרויקט הוא ההקשר הרחב — כמו "אימון אישי" או "סדנאות". לקוחות חיים בתוך פרויקט.</p>
+      <p className="ob-intro">נבנה פרויקט?</p>
+      <p className="ob-intro-sub">אפשר לשייך לפרויקט לקוחות, משימות, תזכורות, הכנסות — ובערך כל מה שתרצה.</p>
 
       {existingHint && (
         <div className="ob-pre-fill-banner">

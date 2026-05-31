@@ -68,13 +68,13 @@ export default function Step2DataImport({ ob, setCTA }) {
   }
 
   const canAdvance = mode === 'B' || (mode === 'A' && !!fileName)
-  const hint = !canAdvance ? 'בחר/י "כן יש לי" + העלאת קובץ, או "מתחיל/ה מאפס".' : null
+  const hint = null
   useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [mode, fileName, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
-      <p className="ob-intro">יש לך דאטה קיימת שאת/ה רוצה להעלות?</p>
-      <p className="ob-intro-sub">לא חובה. אם יש — נמלא את השלבים הבאים בהצעות מהקובץ, ותוכל/י לאשר כל אחד.</p>
+      <p className="ob-intro">יש לך דאטה שאתה רוצה להעלות?</p>
+      <p className="ob-intro-sub">אם יש נעבור על זה יחד ונכניס למערכת — אם לא נמשיך יחד בצעדים קטנים :)</p>
 
       <div className="ob-card-options">
         <button
@@ -95,7 +95,6 @@ export default function Step2DataImport({ ob, setCTA }) {
           <span className="ob-option-card-l">
             <Upload size={16} strokeWidth={1.7} aria-hidden="true" /> לא, מתחיל/ה מאפס
           </span>
-          <p className="ob-option-card-sub">המסכים הבאים יהיו ריקים — תמלא/י ידנית כל אחד.</p>
         </button>
       </div>
 

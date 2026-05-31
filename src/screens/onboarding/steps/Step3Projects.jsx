@@ -169,12 +169,12 @@ export default function Step3Projects({ ob, setCTA }) {
           </div>
           <div className="ob-field">
             <p className="ob-label">תמחור</p>
-            <div className="ob-pills">
+            <div className="ob-seg">
               {GROUP_BILLING_MODES.map((mode) => (
                 <button
                   key={mode}
                   type="button"
-                  className={`ob-pill${gBilling === mode ? ' on' : ''}`}
+                  className={`ob-seg-btn${gBilling === mode ? ' on' : ''}`}
                   onClick={() => setGBilling(mode)}
                 >
                   {GROUP_BILLING_LABELS[mode]}

@@ -33,6 +33,7 @@ export const CSV_FIELDS = [
   { key: 'status',    label: 'סטטוס',           step: null       },
   { key: 'amount',    label: 'סכום (תנועה)',    step: null       },
   { key: 'date',      label: 'תאריך (תנועה)',   step: null       },
+  { key: 'type',      label: 'סוג (הכנסה/הוצאה)', step: null     },
   { key: 'notes',     label: 'הערות',           step: null       },
 ]
 
@@ -79,7 +80,7 @@ export function columnsForStep(parsed, stepKey) {
 }
 
 const HEADER_SYNONYMS = {
-  name:       ['name', 'fullname', 'full_name', 'clientname', 'שם', 'שםמלא', 'שםהלקוח'],
+  name:       ['name', 'fullname', 'full_name', 'clientname', 'client', 'שם', 'שםמלא', 'שםהלקוח', 'לקוח'],
   email:      ['email', 'mail', 'emailaddress', 'אימייל', 'מייל', 'דוארא', 'דואראלקטרוני'],
   phone:      ['phone', 'mobile', 'tel', 'phonenumber', 'cell', 'טלפון', 'נייד', 'סלולרי', 'מספרטלפון'],
   project:    ['project', 'projectname', 'program', 'פרויקט', 'תוכנית', 'מסלול'],
@@ -88,7 +89,14 @@ const HEADER_SYNONYMS = {
   price:      ['price', 'priceperession', 'pricepersession', 'rate', 'sessionprice', 'מחיר', 'מחירלפגישה', 'תעריף'],
   amount:     ['amount', 'sum', 'total', 'paid', 'payment', 'income', 'revenue', 'סכום', 'תשלום', 'שולם', 'סהכ', 'סךהכל', 'הכנסה'],
   date:       ['date', 'transactiondate', 'paymentdate', 'paydate', 'תאריך', 'תאריךתשלום', 'תאריךעסקה', 'תאריךתנועה'],
+  type:       ['type', 'kind', 'סוג', 'סוגתנועה'],
   notes:      ['notes', 'note', 'comment', 'comments', 'remark', 'הערה', 'הערות', 'תיאור'],
+}
+
+/* Transaction type text (Hebrew + English) → income | expense. */
+const TYPE_MAP = {
+  income: 'income', 'הכנסה': 'income', 'זיכוי': 'income', 'credit': 'income',
+  expense: 'expense', 'הוצאה': 'expense', 'חיוב': 'expense', 'debit': 'expense',
 }
 
 /* Map of status text (Hebrew + English) → app status_meta. Unknown
@@ -261,10 +269,13 @@ export function projectEntities(headers, rows, mapping) {
     const amountNum = hasAmount ? toNum(obj.amount) : NaN
     const isoDate = normalizeDate(obj.date)
     if (!Number.isNaN(amountNum) && amountNum !== 0 && isoDate) {
+      /* Type: an explicit "סוג" column wins (so export→import round-trips
+         expenses correctly); otherwise fall back to the amount's sign. */
+      const mappedType = obj.type ? TYPE_MAP[normalizeHeader(obj.type)] : null
       transactions.push({
         _row: rowIdx,
         amount: Math.abs(amountNum),
-        type: amountNum < 0 ? 'expense' : 'income', /* negative sum → expense */
+        type: mappedType || (amountNum < 0 ? 'expense' : 'income'),
         date: isoDate,
         date_raw: obj.date || null,
         /* Description: prefer a real notes column; otherwise leave empty

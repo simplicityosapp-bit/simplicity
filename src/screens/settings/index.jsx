@@ -27,7 +27,7 @@ import {
   CARD_STYLE_OPTIONS, TEXT_STRENGTH_OPTIONS, DENSITY_OPTIONS,
 } from '../../lib/preferences'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
-import { exportTransactionsCSV } from '../../lib/export'
+import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV } from '../../lib/export'
 import { defaultOnboarding } from '../../lib/preferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
 import QuestionScheduleEditor from './QuestionScheduleEditor'
@@ -575,6 +575,8 @@ export default function SettingsScreen() {
         categories: dataCategories,
         monthDate: new Date(),
       })
+      const exportClients = () => exportClientsCSV({ clients: dataClients, projects: dataProjects, now: new Date() })
+      const exportProjects = () => exportProjectsCSV({ projects: dataProjects, now: new Date() })
       const counts = [
         { l: 'לקוחות', n: dataClients?.length || 0 },
         { l: 'תנועות', n: txAll.length },
@@ -605,6 +607,30 @@ export default function SettingsScreen() {
           </button>
           <p className="set-data-hint">
             הקובץ כולל את כל התנועות (כולל ממתינות ודולגו) עם עמודות תאריך, סוג, סכום, תיאור, סטטוס, לקוח, פרויקט, קטגוריה.
+          </p>
+
+          <button
+            type="button"
+            className="set-data-action"
+            onClick={exportClients}
+            disabled={(dataClients?.length || 0) === 0}
+            style={{ marginTop: 10 }}
+          >
+            <Download size={15} strokeWidth={1.7} aria-hidden="true" />
+            ייצוא לקוחות לקובץ CSV
+          </button>
+          <button
+            type="button"
+            className="set-data-action"
+            onClick={exportProjects}
+            disabled={(dataProjects?.length || 0) === 0}
+            style={{ marginTop: 10 }}
+          >
+            <Download size={15} strokeWidth={1.7} aria-hidden="true" />
+            ייצוא פרויקטים לקובץ CSV
+          </button>
+          <p className="set-data-hint">
+            קבצי הלקוחות והפרויקטים נשמרים בפורמט שניתן לייבא בחזרה (אותן כותרות שהמערכת מזהה).
           </p>
 
           <input

@@ -31,6 +31,14 @@ export default function Step1Profile({ ob, setCTA }) {
     ? (!name.trim() ? 'נא להזין שם כדי להמשיך.' : 'פרט/י את התחום שבחרת.')
     : null
 
+  /* Warm welcome line, gendered by the chosen form of address — updates
+     live as the user toggles the לשון פנייה pills. */
+  const welcomeGreeting = gender === 'male'
+    ? 'ברוך הבא מלך'
+    : gender === 'female'
+      ? 'ברוכה הבאה מלכה'
+      : 'כמה טוב שבאת'
+
   useEffect(() => { ob.markStarted() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const onNext = async () => {
@@ -60,7 +68,7 @@ export default function Step1Profile({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro-sub">לאורך כל ההכרות אפשר לדלג ולהשלים אחר כך — שום דבר לא נעול.</p>
+      <p className="ob-intro-sub">{welcomeGreeting}</p>
 
       <div className="ob-field-row">
         <div className="ob-field">

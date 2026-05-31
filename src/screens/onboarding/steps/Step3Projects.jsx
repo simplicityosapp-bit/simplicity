@@ -1,87 +1,88 @@
 import { useEffect, useState } from 'react'
+import { Plus, X, Users } from 'lucide-react'
 import { useProjects } from '../../../hooks/useProjects'
 import { useGroups } from '../../../hooks/useGroups'
-import { GROUP_BILLING_MODES, GROUP_BILLING_LABELS } from '../../../lib/enums'
+import { isr } from '../../../lib/finance'
+import AddGroupModal from '../../../modals/AddGroupModal'
 import CsvMappingEditor from '../CsvMappingEditor'
 
 const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
-const DAYS = [
-  { k: 0, l: 'ראשון' }, { k: 1, l: 'שני' }, { k: 2, l: 'שלישי' },
-  { k: 3, l: 'רביעי' }, { k: 4, l: 'חמישי' }, { k: 5, l: 'שישי' }, { k: 6, l: 'שבת' },
-]
+const DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
-/* Step 3 — first project (always) + optional first group split.
-   If user answers "yes" to groups, the form expands to collect the
-   first group's tuition + schedule. Both project and group rows are
-   created via the live hooks so they're real entities, not drafts. */
+/* Price label for a group, by its billing mode — mirrors the in-app
+   project-detail group card. */
+function groupPriceLabel(g) {
+  const mode = g.billing_mode || 'package'
+  if (mode === 'per_session') return g.price_per_session ? `${isr(g.price_per_session)} למפגש` : ''
+  if (mode === 'none') return 'ללא מחיר קבוע'
+  return g.package_price ? `${isr(g.package_price)} / ${g.package_sessions || 1} מפגשים` : ''
+}
+
+/* Step 3 — build the first project as a real, inline project card that
+   mirrors the in-app project-detail screen. The user names the project,
+   then a card appears where they can add one or more real groups (via
+   the same AddGroupModal used inside the app). Clients are previewed
+   here but actually assigned in step 4. The project row is created the
+   moment it's needed (first group add, or on advancing). */
 export default function Step3Projects({ ob, setCTA }) {
-  const { projects, addProject } = useProjects()
-  const { addGroup } = useGroups()
+  const { projects, addProject, updateProject } = useProjects()
+  const { groups, addGroup, removeGroup } = useGroups()
   const initial = ob.state.answers?.projects || {}
   const [name, setName] = useState(initial.name || '')
   const [color, setColor] = useState(initial.color || COLORS[0])
-  const [groupMode, setGroupMode] = useState(initial.group_mode) // null | true | false
-  /* Group fields (only used when groupMode === true) */
-  const [gName, setGName] = useState(initial.group_name || '')
-  const [gBilling, setGBilling] = useState(initial.group_billing_mode || 'package')
-  const [gPrice, setGPrice] = useState(initial.group_price || '')
-  const [gSessions, setGSessions] = useState(initial.group_sessions || 6)
-  const [gPerSession, setGPerSession] = useState(initial.group_price_per_session || '')
-  const [gDay, setGDay] = useState(initial.group_day ?? '')
-  const [gTime, setGTime] = useState(initial.group_time || '')
+  const [projectId, setProjectId] = useState(initial.created_ids?.[0] || null)
+  const [addGroupOpen, setAddGroupOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
 
-  /* A group is billable-valid when its chosen mode has the fields it
-     needs: package → price; per_session → per-session rate; none → nothing. */
-  const groupBillingOk = gBilling === 'none'
-    || (gBilling === 'package' && Number(gPrice) > 0)
-    || (gBilling === 'per_session' && Number(gPerSession) > 0)
-  const canAdvance = name.trim().length > 0 && (groupMode === false || (groupMode === true && gName.trim().length > 0 && groupBillingOk))
-  const hint = !canAdvance
-    ? (!name.trim() ? 'שם פרויקט חובה.' : groupMode === null ? 'בחר/י אם יש קבוצות.' : !gName.trim() ? 'יש למלא שם קבוצה.' : 'יש למלא מחיר לפי סוג התמחור.')
-    : null
-  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [name, color, groupMode, gName, gBilling, gPrice, gSessions, gPerSession, gDay, gTime, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
+  /* Groups already created under this project (real rows). */
+  const projectGroups = projectId ? groups.filter((g) => g.project_id === projectId) : []
+  const hasName = name.trim().length > 0
+  const canAdvance = hasName
+  const hint = !hasName ? 'שם פרויקט חובה.' : null
 
-  /* Idempotency: if we already created a project in this step before
-     (back+next pattern) and the user hasn't touched the project name,
-     skip the create. Same for the optional group. */
+  /* Ensure the project row exists, returning its id. Created lazily so a
+     user who never adds a group still gets exactly one project on Next,
+     and back+next never duplicates it. Keeps name/color in sync. */
+  const ensureProject = async () => {
+    if (projectId) {
+      /* keep an existing row's name/color current */
+      const cur = projects.find((p) => p.id === projectId)
+      if (cur && (cur.name !== name.trim() || cur.color !== color)) {
+        await updateProject(projectId, { name: name.trim(), color }).catch(() => {})
+      }
+      return projectId
+    }
+    const created = await addProject({ name: name.trim(), color })
+    setProjectId(created.id)
+    await ob.setAnswers('projects', {
+      name: name.trim(), color, created_ids: [created.id],
+    })
+    return created.id
+  }
+
+  const openAddGroup = async () => {
+    if (!hasName) return
+    setBusy(true); setErr('')
+    try {
+      await ensureProject()
+      setAddGroupOpen(true)
+    } catch (e) {
+      setErr('יצירת הפרויקט נכשלה: ' + (e.message || 'נסה/י שוב'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const onNext = async () => {
     setBusy(true); setErr('')
     try {
-      const prevName = initial.name
-      const sameAsBefore = prevName && prevName === name.trim() && initial.created_ids?.length > 0
-      let projectId = sameAsBefore ? initial.created_ids[0] : null
-      const createdIds = sameAsBefore ? [...initial.created_ids] : []
-      if (!projectId) {
-        const createdProject = await addProject({ name: name.trim(), color })
-        projectId = createdProject.id
-        createdIds.push(projectId)
-      }
-      let groupId = initial.group_id || null
-      if (groupMode === true && (!groupId || initial.group_name !== gName.trim())) {
-        const grp = await addGroup({
-          project_id: projectId,
-          name: gName.trim(),
-          color,
-          billing_mode: gBilling,
-          package_price: gBilling === 'package' ? Number(gPrice) : null,
-          package_sessions: gBilling === 'package' ? (Number(gSessions) || 1) : null,
-          price_per_session: gBilling === 'per_session' ? Number(gPerSession) : null,
-          recurring_day: gDay === '' ? null : Number(gDay),
-          recurring_time: gTime || null,
-          status: 'active',
-        })
-        groupId = grp.id
-      }
+      const pid = await ensureProject()
       await ob.setAnswers('projects', {
         name: name.trim(),
         color,
-        group_mode: groupMode === true,
-        created_ids: createdIds,
-        group_id: groupId,
-        group_name: gName.trim(),
-        group_billing_mode: gBilling,
+        group_mode: projectGroups.length > 0,
+        created_ids: [pid],
       })
       await ob.advance()
     } catch (e) {
@@ -91,7 +92,11 @@ export default function Step3Projects({ ob, setCTA }) {
     }
   }
 
-  const existingHint = projects?.length > 0
+  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [name, color, projectId, projectGroups.length, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const existingHint = projects?.length > 0 && !projectId
+  const projectForModal = projectId ? { id: projectId, name: name.trim(), color } : null
+
   return (
     <>
       <p className="ob-intro">נבנה פרויקט?</p>
@@ -133,126 +138,77 @@ export default function Step3Projects({ ob, setCTA }) {
         </div>
       </div>
 
-      <div className="ob-field">
-        <p className="ob-label">עובד/ת גם עם קבוצות?</p>
-        <div className="ob-card-options">
-          <button
-            type="button"
-            className={`ob-option-card${groupMode === false ? ' on' : ''}`}
-            onClick={() => setGroupMode(false)}
-          >
-            <span className="ob-option-card-l">לא, רק 1:1</span>
-            <p className="ob-option-card-sub">ממשיכים ללקוח הראשון.</p>
-          </button>
-          <button
-            type="button"
-            className={`ob-option-card${groupMode === true ? ' on' : ''}`}
-            onClick={() => setGroupMode(true)}
-          >
-            <span className="ob-option-card-l">כן, יש לי קבוצות</span>
-            <p className="ob-option-card-sub">נוסיף קבוצה ראשונה עם תמחור גמיש.</p>
-          </button>
-        </div>
-      </div>
+      {/* Live project card — appears once the project has a name, mirroring
+          the in-app project-detail card so the user sees what they're
+          building (groups now, clients next step). */}
+      {hasName && (
+        <div className="ob-proj-card">
+          <div className="ob-pc-head">
+            <span className="ob-pc-color" style={{ background: color }} />
+            <p className="ob-pc-name">{name.trim()}</p>
+          </div>
 
-      {groupMode === true && (
-        <>
-          <div className="ob-field">
-            <label className="ob-label" htmlFor="ob-g-name">שם הקבוצה הראשונה</label>
-            <input
-              id="ob-g-name"
-              className="ob-input"
-              value={gName}
-              onChange={(e) => setGName(e.target.value)}
-              placeholder="לדוגמה: סדנת בוקר"
-            />
-          </div>
-          <div className="ob-field">
-            <p className="ob-label">תמחור</p>
-            <div className="ob-seg">
-              {GROUP_BILLING_MODES.map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  className={`ob-seg-btn${gBilling === mode ? ' on' : ''}`}
-                  onClick={() => setGBilling(mode)}
-                >
-                  {GROUP_BILLING_LABELS[mode]}
-                </button>
-              ))}
-            </div>
-          </div>
-          {gBilling === 'package' && (
-            <div className="ob-step-grid">
-              <div className="ob-field">
-                <label className="ob-label" htmlFor="ob-g-price">מחיר חבילה ₪</label>
-                <input
-                  id="ob-g-price"
-                  className="ob-input"
-                  type="number"
-                  min="0"
-                  value={gPrice}
-                  onChange={(e) => setGPrice(e.target.value)}
-                />
+          {/* Groups — real, multiple, via the same modal used in-app. */}
+          <section className="ob-pc-section">
+            <p className="ob-pc-sec-title">
+              קבוצות {projectGroups.length > 0 && <span className="ob-pc-count">{projectGroups.length}</span>}
+            </p>
+            {projectGroups.length === 0 ? (
+              <p className="ob-pc-empty">עדיין אין קבוצות. אפשר להוסיף מחזור או סדנה — או לדלג ולהמשיך 1:1.</p>
+            ) : (
+              <div className="ob-pc-group-list">
+                {projectGroups.map((g) => {
+                  const price = groupPriceLabel(g)
+                  const recurring = g.recurring_day != null && g.recurring_time
+                    ? `${DAYS[g.recurring_day]} ${g.recurring_time}` : null
+                  return (
+                    <div key={g.id} className="ob-pc-group">
+                      <span className="ob-pc-group-color" style={{ background: g.color || color }} />
+                      <div className="ob-pc-group-body">
+                        <p className="ob-pc-group-name">{g.name}</p>
+                        {(price || recurring) && (
+                          <p className="ob-pc-group-meta">
+                            {price}{price && recurring ? ' · ' : ''}{recurring}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        className="ob-pc-group-x"
+                        onClick={() => removeGroup(g.id)}
+                        aria-label={`הסר ${g.name}`}
+                      >
+                        <X size={13} strokeWidth={2} aria-hidden="true" />
+                      </button>
+                    </div>
+                  )
+                })}
               </div>
-              <div className="ob-field">
-                <label className="ob-label" htmlFor="ob-g-sess">מספר מפגשים</label>
-                <input
-                  id="ob-g-sess"
-                  className="ob-input"
-                  type="number"
-                  min="1"
-                  value={gSessions}
-                  onChange={(e) => setGSessions(e.target.value)}
-                />
-              </div>
+            )}
+            <button type="button" className="ob-pc-add" onClick={openAddGroup} disabled={busy}>
+              <Plus size={14} strokeWidth={1.9} aria-hidden="true" /> הוסף קבוצה
+            </button>
+          </section>
+
+          {/* Clients — preview only; real assignment happens in step 4. */}
+          <section className="ob-pc-section">
+            <p className="ob-pc-sec-title">לקוחות</p>
+            <div className="ob-pc-teaser">
+              <Users size={16} strokeWidth={1.6} aria-hidden="true" />
+              <span>בצעד הבא נוסיף לקוחות — תוכל לחבר אותם לפרויקט הזה.</span>
             </div>
-          )}
-          {gBilling === 'per_session' && (
-            <div className="ob-field">
-              <label className="ob-label" htmlFor="ob-g-persess">מחיר למפגש ₪</label>
-              <input
-                id="ob-g-persess"
-                className="ob-input"
-                type="number"
-                min="0"
-                value={gPerSession}
-                onChange={(e) => setGPerSession(e.target.value)}
-              />
-            </div>
-          )}
-          {gBilling === 'none' && (
-            <p className="ob-intro-sub">בלי מחיר קבוע מראש — אפשר לתמחר כל חבר בנפרד בהמשך.</p>
-          )}
-          <div className="ob-step-grid">
-            <div className="ob-field">
-              <label className="ob-label" htmlFor="ob-g-day">יום קבוע (אופציונלי)</label>
-              <select
-                id="ob-g-day"
-                className="ob-select"
-                value={gDay}
-                onChange={(e) => setGDay(e.target.value)}
-              >
-                <option value="">ללא</option>
-                {DAYS.map((d) => <option key={d.k} value={d.k}>{d.l}</option>)}
-              </select>
-            </div>
-            <div className="ob-field">
-              <label className="ob-label" htmlFor="ob-g-time">שעה (אופציונלי)</label>
-              <input
-                id="ob-g-time"
-                className="ob-input"
-                type="time"
-                value={gTime}
-                onChange={(e) => setGTime(e.target.value)}
-              />
-            </div>
-          </div>
-        </>
+          </section>
+        </div>
       )}
 
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
+      <AddGroupModal
+        open={addGroupOpen}
+        onClose={() => setAddGroupOpen(false)}
+        project={projectForModal}
+        onSave={addGroup}
+      />
     </>
   )
 }

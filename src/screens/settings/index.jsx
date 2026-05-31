@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ChevronDown, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
-  Plus, Trash2, Leaf, GripVertical, ChevronLeft, CalendarDays, Database, Download,
+  Plus, Trash2, Leaf, GripVertical, ChevronLeft, CalendarDays, Database, Download, Upload,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
+import { parseCsvFile } from '../../lib/csvImport'
+import ImportDataModal from '../onboarding/ImportDataModal'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useLeadSources } from '../../hooks/useLeadSources'
 import { useClientStatuses } from '../../hooks/useClientStatuses'
@@ -25,7 +27,7 @@ import {
   CARD_STYLE_OPTIONS, TEXT_STRENGTH_OPTIONS, DENSITY_OPTIONS,
 } from '../../lib/preferences'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
-import { exportTransactionsCSV } from '../../lib/export'
+import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV } from '../../lib/export'
 import { defaultOnboarding } from '../../lib/preferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
 import QuestionScheduleEditor from './QuestionScheduleEditor'
@@ -421,13 +423,41 @@ export default function SettingsScreen() {
   const { prefs, loading: prefsLoading, update: updatePrefs } = useUserPreferences()
   /* Data-section hooks — pulled lazily-ish: useClients/etc. all use a
      single network round-trip on mount, so this isn't expensive. */
-  const { clients: dataClients } = useClients()
-  const { projects: dataProjects } = useProjects()
-  const { transactions: dataTransactions } = useTransactions()
+  const { clients: dataClients, refetch: refetchClients } = useClients()
+  const { projects: dataProjects, refetch: refetchProjects } = useProjects()
+  const { transactions: dataTransactions, refetch: refetchTransactions } = useTransactions()
   const { categories: dataCategories } = useCategories()
   const { tasks: dataTasks } = useTasks()
   const { leads: dataLeads } = useLeads()
   const [pendingDelete, setPendingDelete] = useState(null)  /* { kind, status, peers } | null */
+  /* CSV import (Settings → data). Pick a file → parse → open the
+     mapping+review modal (reused from onboarding). */
+  const importFileRef = useRef(null)
+  const [importParsed, setImportParsed] = useState(null)
+  const [importMsg, setImportMsg] = useState('')
+  const onPickImport = async (file) => {
+    if (!file) return
+    setImportMsg('')
+    try {
+      const parsed = await parseCsvFile(file)
+      setImportParsed({ kind: 'csv', ...parsed })
+    } catch {
+      setImportMsg('הקובץ לא נקרא — נסה/י שוב.')
+    }
+  }
+  const onImported = (summary) => {
+    refetchClients?.(); refetchProjects?.(); refetchTransactions?.()
+    if (summary) {
+      const c = summary.clients?.created || 0
+      const p = summary.projects?.created || 0
+      const t = summary.transactions?.created || 0
+      setImportMsg(
+        c + p + t === 0
+          ? 'לא נוצרו רשומות חדשות (ייתכן שכבר היו קיימות).'
+          : `יובאו בהצלחה: ${c} לקוחות · ${p} פרויקטים · ${t} תנועות.`,
+      )
+    }
+  }
   const navigate = useNavigate()
   const toggle = (key) => setOpen((cur) => (cur === key ? null : key))
 
@@ -545,6 +575,8 @@ export default function SettingsScreen() {
         categories: dataCategories,
         monthDate: new Date(),
       })
+      const exportClients = () => exportClientsCSV({ clients: dataClients, projects: dataProjects, now: new Date() })
+      const exportProjects = () => exportProjectsCSV({ projects: dataProjects, now: new Date() })
       const counts = [
         { l: 'לקוחות', n: dataClients?.length || 0 },
         { l: 'תנועות', n: txAll.length },
@@ -555,7 +587,7 @@ export default function SettingsScreen() {
       ]
       return (
         <div className="set-data">
-          <p className="set-sub-intro">סיכום מצב הנתונים שלך וייצוא לקובץ CSV. לפעולות נוספות (יבוא/איפוס) — בקרוב.</p>
+          <p className="set-sub-intro">סיכום מצב הנתונים שלך, ייצוא וייבוא מקובץ CSV.</p>
           <div className="set-data-stats">
             {counts.map((c) => (
               <div key={c.l} className="set-data-stat">
@@ -576,6 +608,53 @@ export default function SettingsScreen() {
           <p className="set-data-hint">
             הקובץ כולל את כל התנועות (כולל ממתינות ודולגו) עם עמודות תאריך, סוג, סכום, תיאור, סטטוס, לקוח, פרויקט, קטגוריה.
           </p>
+
+          <button
+            type="button"
+            className="set-data-action"
+            onClick={exportClients}
+            disabled={(dataClients?.length || 0) === 0}
+            style={{ marginTop: 10 }}
+          >
+            <Download size={15} strokeWidth={1.7} aria-hidden="true" />
+            ייצוא לקוחות לקובץ CSV
+          </button>
+          <button
+            type="button"
+            className="set-data-action"
+            onClick={exportProjects}
+            disabled={(dataProjects?.length || 0) === 0}
+            style={{ marginTop: 10 }}
+          >
+            <Download size={15} strokeWidth={1.7} aria-hidden="true" />
+            ייצוא פרויקטים לקובץ CSV
+          </button>
+          <p className="set-data-hint">
+            קבצי הלקוחות והפרויקטים נשמרים בפורמט שניתן לייבא בחזרה (אותן כותרות שהמערכת מזהה).
+          </p>
+
+          <input
+            ref={importFileRef}
+            type="file"
+            accept=".csv,text/csv"
+            style={{ display: 'none' }}
+            onChange={(e) => { onPickImport(e.target.files?.[0]); e.target.value = '' }}
+          />
+          <button
+            type="button"
+            className="set-data-action"
+            onClick={() => importFileRef.current?.click()}
+            style={{ marginTop: 10 }}
+          >
+            <Upload size={15} strokeWidth={1.7} aria-hidden="true" />
+            ייבוא מקובץ CSV
+          </button>
+          <p className="set-data-hint">
+            מזהה אוטומטית עמודות (שם, טלפון, מייל, פרויקט, סכום, תאריך ועוד), נותן להתאים ידנית, ולסקור כל שורה לפני שנכתבת.
+          </p>
+          {importMsg && (
+            <p className="set-data-hint" style={{ color: 'var(--sage)', fontWeight: 600 }}>{importMsg}</p>
+          )}
 
           <button
             type="button"
@@ -714,6 +793,14 @@ export default function SettingsScreen() {
         onReassign={pendingDelete?.kind === 'lead' ? reassignLeadsStatus : reassignClientsStatus}
         onDelete={pendingDelete?.kind === 'lead' ? removeLeadStatus : removeClientStatus}
       />
+
+      {importParsed && (
+        <ImportDataModal
+          parsed={importParsed}
+          onClose={() => setImportParsed(null)}
+          onImported={onImported}
+        />
+      )}
     </div>
   )
 }

@@ -92,7 +92,7 @@ export default function Step3Projects({ ob, setCTA }) {
         </div>
       )}
 
-      <CsvMappingEditor ob={ob} stepKey="projects" title="עמודת הפרויקט מהקובץ" />
+      <CsvMappingEditor parsed={ob.state.parsed_data} onChange={ob.setParsedData} stepKey="projects" title="עמודת הפרויקט מהקובץ" />
 
       <div className="ob-field">
         <label className="ob-label" htmlFor="ob-p-name">שם הפרויקט</label>

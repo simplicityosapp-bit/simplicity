@@ -83,7 +83,7 @@ export default function Step4Clients({ ob, setCTA }) {
       <p className="ob-intro">הוסף/י לקוח/ה ראשון/ה.</p>
       <p className="ob-intro-sub">לקוח הוא אדם אחד שאת/ה עובד/ת איתו. אפשר להוסיף עוד מאוחר יותר.</p>
 
-      <CsvMappingEditor ob={ob} stepKey="clients" title="שדות הלקוח מהקובץ" />
+      <CsvMappingEditor parsed={ob.state.parsed_data} onChange={ob.setParsedData} stepKey="clients" title="שדות הלקוח מהקובץ" />
 
       {pathA && suggestions.length > 0 && (
         <div className="ob-field">

@@ -152,7 +152,8 @@ export default function Step2DataImport({ ob, setCTA }) {
       )}
 
       <CsvMappingEditor
-        ob={ob}
+        parsed={ob.state.parsed_data}
+        onChange={ob.setParsedData}
         stepKey="data_import"
         title="עמודות מהקובץ — התאמת שדות"
       />

@@ -48,6 +48,7 @@ const FIELD_STEP = Object.fromEntries(CSV_FIELDS.map((f) => [f.key, f.step]))
 /* Which fields a given onboarding step confirms. Step 2 ("data_import")
    owns every field NOT claimed by a later step, plus unmapped columns. */
 export function fieldsForStep(stepKey) {
+  if (stepKey === 'all') return CSV_FIELDS.map((f) => f.key) /* in-app import: full mapping */
   if (stepKey === 'data_import') return CSV_FIELDS.filter((f) => f.step === null).map((f) => f.key)
   return CSV_FIELDS.filter((f) => f.step === stepKey).map((f) => f.key)
 }
@@ -70,7 +71,11 @@ export function columnsForStep(parsed, stepKey) {
   }
   return parsed.headers
     .map((header, colIdx) => ({ colIdx, header, field: parsed.mapping[colIdx] || null, sample: sampleFor(colIdx) }))
-    .filter(({ field }) => (stepKey === 'data_import' ? (!field || owned.has(field)) : owned.has(field)))
+    .filter(({ field }) => {
+      if (stepKey === 'all') return true /* in-app: show every column */
+      if (stepKey === 'data_import') return !field || owned.has(field)
+      return owned.has(field)
+    })
 }
 
 const HEADER_SYNONYMS = {

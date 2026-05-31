@@ -10,23 +10,28 @@ import { columnsForStep, fieldsForStep, remapColumn, FIELD_LABEL, CSV_FIELDS } f
    (columnsForStep) and offers only that step's fields in the dropdown
    (fieldsForStep). Editing writes back through remapColumn → the
    entities re-derive and every other screen stays in sync.
-   Renders null when there's no CSV or no relevant column, so steps can
-   mount it unconditionally. ════════════════════════════════════════ */
+   Renders null when there's no CSV or no relevant column, so callers can
+   mount it unconditionally.
+   Props: `parsed` (the parsed_data object) + `onChange(nextParsed)`.
+   Used by onboarding steps (parsed=ob.state.parsed_data,
+   onChange=ob.setParsedData) AND the in-app import modal (local state).
+   ════════════════════════════════════════════════════════════════ */
 
-export default function CsvMappingEditor({ ob, stepKey, title }) {
-  const parsed = ob.state.parsed_data
+export default function CsvMappingEditor({ parsed, onChange: onParsedChange, stepKey, title }) {
   if (!parsed || parsed.kind !== 'csv' || !Array.isArray(parsed.rows) || parsed.rows.length === 0) return null
 
   const columns = columnsForStep(parsed, stepKey)
   if (columns.length === 0) return null
-  /* Step 2 is the catch-all: it must let an UNrecognised column be
-     assigned to ANY field (incl. name/project/sessions/price) — else a
-     missed "name" column would be unmappable and 0 clients import.
-     Steps 3/4 stay scoped to the fields they confirm. */
-  const allowed = stepKey === 'data_import' ? CSV_FIELDS.map((f) => f.key) : fieldsForStep(stepKey)
+  /* Step 2 + the in-app 'all' view are catch-alls: they must let an
+     UNrecognised column be assigned to ANY field (incl.
+     name/project/sessions/price) — else a missed "name" column would be
+     unmappable and 0 clients import. Steps 3/4 stay scoped. */
+  const allowed = (stepKey === 'data_import' || stepKey === 'all')
+    ? CSV_FIELDS.map((f) => f.key)
+    : fieldsForStep(stepKey)
 
   const onChange = (colIdx, field) => {
-    ob.setParsedData(remapColumn(parsed, colIdx, field || null))
+    onParsedChange(remapColumn(parsed, colIdx, field || null))
   }
 
   const detected = columns.filter((c) => c.field).length

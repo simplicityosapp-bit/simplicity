@@ -132,6 +132,15 @@ export function defaultPreferences() {
     widgets: defaultWidgetsConfig(),
     reports: null,
     onboarding: defaultOnboarding(),
+    /* First-touch coachmarks. Map of coachmark id → true once the user
+       has interacted with that button. Empty/absent map = every button
+       is still "virgin" and should glow — so existing users (who lack a
+       `coachmarks` key) see the guidance too, with no migration. */
+    coachmarks: {},
+    /* Guided screen tours. Map of screen key → true once the multi-step
+       spotlight tour for that screen has been seen (or skipped). Absent =
+       not seen yet, so the tour auto-runs on first visit. No migration. */
+    tours: {},
   }
 }
 
@@ -203,6 +212,12 @@ export function migratePreferences(input) {
     widgets: migrateWidgets(cur.widgets),
     reports: cur.reports || null,   /* shaped by useReportsConfig */
     onboarding: migrateOnboarding(cur.onboarding),
+    coachmarks: (cur.coachmarks && typeof cur.coachmarks === 'object' && !Array.isArray(cur.coachmarks))
+      ? cur.coachmarks
+      : {},
+    tours: (cur.tours && typeof cur.tours === 'object' && !Array.isArray(cur.tours))
+      ? cur.tours
+      : {},
   }
   return out
 }

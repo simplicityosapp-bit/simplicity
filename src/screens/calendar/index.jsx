@@ -19,6 +19,7 @@ import CalendarSchedule from './CalendarSchedule'
 import CalendarDay from './CalendarDay'
 import CalendarWeek from './CalendarWeek'
 import CalendarMonth from './CalendarMonth'
+import Coachmark from '../../components/Coachmark'
 import './CalendarScreen.css'
 
 const VALID_VIEWS = new Set(['schedule', 'day', 'week', 'month'])
@@ -111,7 +112,9 @@ export default function CalendarScreen() {
           </div>
           <p className="t-screen">יומן</p>
         </header>
-        <button className="cta-add" type="button" aria-label="אירוע חדש" onClick={() => setShowGate(true)}>אירוע חדש +</button>
+        <Coachmark id="add-meeting" radius="50%">
+          <button className="cta-add" type="button" aria-label="אירוע חדש" onClick={() => setShowGate(true)}>אירוע חדש +</button>
+        </Coachmark>
       </div>
 
       <CalendarHeader

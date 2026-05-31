@@ -158,6 +158,12 @@
   --moon-gradient:linear-gradient(160deg, rgba(232,238,252,.75) 0%, rgba(208,218,242,.68) 50%, rgba(184,198,228,.60) 100%);
   --moon-drawer-bg:linear-gradient(180deg, rgba(232,238,252,.55) 0%, rgba(208,218,242,.40) 30%, rgba(245,247,250,.92) 100%);
   --bg-moon:#f3f5fa;
+  /* Coachmark glow — terracotta halo for first-touch guidance (2026-05-31) */
+  --cm-glow-soft: rgba(201, 123, 94, 0.32);
+  --cm-glow-mid:  rgba(201, 123, 94, 0.45);
+  --cm-glow-hi:   rgba(201, 123, 94, 0.58);
+  /* Guided-tour scrim — dims everything except the spotlight (light) */
+  --tour-scrim: rgba(26, 22, 18, 0.55);
 }
 
 [data-theme="dark"]{
@@ -209,6 +215,12 @@
   --moon-gradient:linear-gradient(160deg, rgba(40,55,95,.45) 0%, rgba(28,42,80,.50) 50%, rgba(18,30,65,.55) 100%);
   --moon-drawer-bg:linear-gradient(180deg, rgba(35,48,82,.65) 0%, rgba(20,30,60,.78) 30%, rgba(3,14,6,.96) 100%);
   --bg-moon:#040d18;
+  /* Coachmark glow — dark uses the Misted-Sage accent (terracotta remap) */
+  --cm-glow-soft: rgba(107, 132, 114, 0.34);
+  --cm-glow-mid:  rgba(107, 132, 114, 0.48);
+  --cm-glow-hi:   rgba(107, 132, 114, 0.62);
+  /* Guided-tour scrim — darker in dark mode for separation */
+  --tour-scrim: rgba(0, 0, 0, 0.68);
 }
 
 /* ════════════════════════════════════════════════════════════════════

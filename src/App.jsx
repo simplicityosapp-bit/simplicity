@@ -14,6 +14,7 @@ import BottomNav from './components/BottomNav'
 import MenuDrawer from './components/MenuDrawer'
 import Sidebar from './components/Sidebar'
 import PrefsApplier from './components/PrefsApplier'
+import ScreenTour from './components/ScreenTour'
 import LoadingSplash from './components/LoadingSplash'
 import FeedbackModal from './modals/FeedbackModal'
 
@@ -110,6 +111,7 @@ function AppShell() {
         onOpenFeedback={() => setFeedbackOpen(true)}
       />
       <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
+      <ScreenTour screenKey={screen} />
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { ListTodo, Plus } from 'lucide-react'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
 import { useProjects } from '../../hooks/useProjects'
@@ -7,6 +8,8 @@ import TaskItem from './TaskItem'
 import ReminderItem from './ReminderItem'
 import AddTaskModal from '../../modals/AddTaskModal'
 import AddReminderModal from '../../modals/AddReminderModal'
+import Coachmark from '../../components/Coachmark'
+import { coachmarkText } from '../../lib/coachmarks'
 import './TasksScreen.css'
 
 const PRIORITY_COLOR = {
@@ -111,14 +114,16 @@ export default function TasksScreen() {
           </div>
           <p className="t-screen">{isTasks ? 'משימות' : 'תזכורות'}</p>
         </header>
-        <button
-          className="cta-add"
-          type="button"
-          aria-label={isTasks ? 'הוסף משימה' : 'הוסף תזכורת'}
-          onClick={() => setShowAdd(true)}
-        >
-          {isTasks ? 'הוסף משימה +' : 'הוסף תזכורת +'}
-        </button>
+        <Coachmark id="add-task" radius="50%">
+          <button
+            className="cta-add"
+            type="button"
+            aria-label={isTasks ? 'הוסף משימה' : 'הוסף תזכורת'}
+            onClick={() => setShowAdd(true)}
+          >
+            {isTasks ? 'הוסף משימה +' : 'הוסף תזכורת +'}
+          </button>
+        </Coachmark>
       </div>
 
       {/* Entity toggle — same role as Leads' kanban/statuses switcher,
@@ -183,7 +188,21 @@ export default function TasksScreen() {
           <div className="empty"><p className="empty-text">{isTasks ? 'טוען משימות…' : 'טוען תזכורות…'}</p></div>
         ) : isTasks ? (
           filteredTasks.length === 0 ? (
-            <div className="empty"><p className="empty-text">{emptyMsg}</p></div>
+            tasks.length === 0 ? (
+              <div className="empty">
+                <span className="empty-icon"><ListTodo size={28} strokeWidth={1.4} aria-hidden="true" /></span>
+                <p className="empty-text">אין עדיין משימות. המשימה הראשונה שלכם מתחילה כאן.</p>
+                <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
+                  <Plus size={18} strokeWidth={1.8} aria-hidden="true" /> הוסיפו משימה
+                </button>
+                <details className="empty-reminder">
+                  <summary>למה זה חשוב?</summary>
+                  <p className="empty-reminder-body">{coachmarkText('add-task').detail}</p>
+                </details>
+              </div>
+            ) : (
+              <div className="empty"><p className="empty-text">{emptyMsg}</p></div>
+            )
           ) : (
             PRIORITY_GROUPS.map((g) => {
               const items = filteredTasks.filter((t) => (t.priority || 'medium') === g.key)

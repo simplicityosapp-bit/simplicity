@@ -20,6 +20,7 @@ import AddTransactionModal from '../../modals/AddTransactionModal'
 import EditTransactionModal from '../../modals/EditTransactionModal'
 import RecurringModal from '../../modals/RecurringModal'
 import ConfirmModal from '../../modals/ConfirmModal'
+import Coachmark from '../../components/Coachmark'
 import './FinanceScreen.css'
 
 const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1)
@@ -116,7 +117,9 @@ export default function FinanceScreen() {
           >
             ייצוא CSV
           </button>
+          <Coachmark id="add-transaction" radius="50%">
           <button className="cta-add" type="button" aria-label="הוסף תנועה" onClick={() => setShowAdd(true)}>הוסף תנועה +</button>
+        </Coachmark>
         </div>
       </div>
 

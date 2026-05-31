@@ -1,0 +1,129 @@
+/* ════════════════════════════════════════════════════════════════
+   Coachmark — first-touch glow ring + guidance bubble.
+   ════════════════════════════════════════════════════════════════
+   Colors come only from tokens (--cm-glow-*, --pure-white, --espresso,
+   --terracotta). Glow + bubble appear only while .is-virgin. Honors
+   prefers-reduced-motion (static ring, no pulse / no float). RTL-safe:
+   the bubble centers on the button and uses logical placement.
+   ════════════════════════════════════════════════════════════════ */
+
+.coachmark {
+  position: relative;
+  display: inline-flex;
+}
+
+/* While a guided tour is running it owns the stage — hide the standalone
+   coachmark glow + bubble so the final CTA step isn't double-highlighted. */
+body[data-tour-active] .coachmark-glow,
+body[data-tour-active] .coachmark-bubble {
+  display: none;
+}
+
+/* ── Glow ring ─────────────────────────────────────────────────── */
+.coachmark-glow {
+  position: absolute;
+  inset: -3px;
+  border-radius: var(--cm-radius, 20px);
+  pointer-events: none;
+  z-index: 0;
+  animation: cmPulse 1.9s ease-in-out infinite;
+}
+@keyframes cmPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--cm-glow-mid), 0 0 12px 2px var(--cm-glow-soft);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0), 0 0 24px 7px var(--cm-glow-hi);
+  }
+}
+
+/* ── Guidance bubble ───────────────────────────────────────────── */
+.coachmark-bubble {
+  position: absolute;
+  z-index: 5;
+  width: max-content;
+  max-width: 220px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--mg-card-bg);
+  color: var(--espresso);
+  border: var(--mg-card-border);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: center;
+  pointer-events: none;
+  animation: cmBubbleIn 0.35s ease both, cmBubbleFloat 2.6s ease-in-out 0.4s infinite;
+}
+/* Little caret pointing at the button. */
+.coachmark-bubble::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  border-right: var(--mg-card-border);
+  border-bottom: var(--mg-card-border);
+}
+
+/* Placement: bottom (default) — bubble under the button. */
+.coachmark--bottom .coachmark-bubble {
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.coachmark--bottom .coachmark-bubble::after {
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(225deg);
+}
+
+/* Placement: top — bubble above the button. */
+.coachmark--top .coachmark-bubble {
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.coachmark--top .coachmark-bubble::after {
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* Placement: start / end — RTL-aware horizontal bubbles. */
+.coachmark--start .coachmark-bubble {
+  top: 50%;
+  inset-inline-start: calc(100% + 12px);
+  transform: translateY(-50%);
+}
+.coachmark--end .coachmark-bubble {
+  top: 50%;
+  inset-inline-end: calc(100% + 12px);
+  transform: translateY(-50%);
+}
+
+@keyframes cmBubbleIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes cmBubbleFloat {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -3px; }
+}
+
+/* ── Reduced motion — keep the cue, drop the movement. ─────────── */
+@media (prefers-reduced-motion: reduce) {
+  .coachmark-glow {
+    animation: none;
+    box-shadow: 0 0 0 3px var(--cm-glow-mid), 0 0 16px 4px var(--cm-glow-soft);
+  }
+  .coachmark-bubble {
+    animation: cmBubbleIn 0.2s ease both;
+  }
+}

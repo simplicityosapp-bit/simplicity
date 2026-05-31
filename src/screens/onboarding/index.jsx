@@ -43,12 +43,6 @@ export default function OnboardingScreen() {
   const [review, setReview] = useState(null)
   const StepComp = STEPS[ob.step] || STEPS.profile
 
-  /* Show the welcome chooser on first ever visit. The flag is flipped
-     by WelcomeGate (either path), so we never replay it. */
-  if (!ob.state.welcome_seen) {
-    return <WelcomeGate />
-  }
-
   /* Latest mutable snapshot of inputs to onDone — kept in refs so the
      callback below stays referentially STABLE across renders. Without
      this, every parent re-render produced a new onDone, which Step 9's
@@ -93,6 +87,15 @@ export default function OnboardingScreen() {
     setReview(null)
     await finishAndGoHome()
   }, [finishAndGoHome])
+
+  /* Show the welcome chooser on first ever visit. The flag is flipped
+     by WelcomeGate (either path), so we never replay it. MUST stay below
+     all hooks above — an early return before them changes the hook count
+     between renders (React #310) and blanks the screen once welcome_seen
+     flips to true. */
+  if (!ob.state.welcome_seen) {
+    return <WelcomeGate />
+  }
 
   return (
     <div className="ob-screen screen">

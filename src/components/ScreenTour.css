@@ -1,0 +1,143 @@
+/* ════════════════════════════════════════════════════════════════
+   ScreenTour — dim scrim + spotlight + guidance bubble.
+   ════════════════════════════════════════════════════════════════
+   Colors only from tokens. The scrim is painted by a huge box-shadow
+   on the spotlight box (so the lit hole is genuinely transparent). The
+   bubble wears the standard glass identity. Honors reduced-motion.
+   ════════════════════════════════════════════════════════════════ */
+
+.tour-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  /* The scrim is the spotlight's box-shadow; this layer only catches
+     clicks so the page behind the tour can't be interacted with. */
+  pointer-events: auto;
+}
+
+/* ── Spotlight hole ────────────────────────────────────────────── */
+.tour-spot {
+  position: fixed;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 9999px var(--tour-scrim),
+    0 0 0 2px var(--cm-glow-hi),
+    0 0 22px 6px var(--cm-glow-mid);
+  transition: top 0.28s ease, left 0.28s ease, width 0.28s ease, height 0.28s ease;
+  animation: tourSpotPulse 2s ease-in-out infinite;
+}
+.tour-spot--sage {
+  box-shadow:
+    0 0 0 9999px var(--tour-scrim),
+    0 0 0 2px var(--sage),
+    0 0 22px 6px var(--sage);
+}
+@keyframes tourSpotPulse {
+  0%, 100% { box-shadow: 0 0 0 9999px var(--tour-scrim), 0 0 0 2px var(--cm-glow-hi), 0 0 16px 3px var(--cm-glow-soft); }
+  50%      { box-shadow: 0 0 0 9999px var(--tour-scrim), 0 0 0 2px var(--cm-glow-hi), 0 0 28px 9px var(--cm-glow-hi); }
+}
+
+/* ── Guidance bubble ───────────────────────────────────────────── */
+.tour-bubble {
+  position: fixed;
+  width: min(288px, calc(100vw - 24px));
+  max-width: 288px;
+  padding: 16px 18px 14px;
+  border-radius: var(--mg-card-radius);
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  pointer-events: auto;
+  animation: tourBubbleIn 0.3s ease both;
+}
+@keyframes tourBubbleIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tour-bubble-title {
+  margin: 0 0 6px;
+  font-family: 'Assistant', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--espresso);
+}
+.tour-bubble-body {
+  margin: 0 0 14px;
+  font-family: var(--mg-font);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--stone);
+}
+
+.tour-bubble-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.tour-bubble-count {
+  font-family: var(--mg-font-num);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mist);
+}
+.tour-bubble-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tour-btn-next {
+  min-height: 38px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--mg-btn-radius);
+  background: var(--mg-btn-primary-bg);
+  color: var(--pure-white);
+  font-family: var(--mg-font);
+  font-size: 13.5px;
+  font-weight: var(--mg-btn-weight);
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+}
+.tour-btn-next:hover { background: var(--mg-btn-primary-bg-hover); }
+.tour-btn-next:active { transform: scale(0.96); }
+[data-theme="dark"] .tour-btn-next { color: var(--espresso); }
+
+.tour-btn-skip {
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+.tour-btn-skip:hover { background: var(--mg-row-hover-bg); }
+
+.tour-skip-all {
+  display: block;
+  margin: 10px auto 0;
+  padding: 4px 6px;
+  border: none;
+  background: transparent;
+  color: var(--mist);
+  font-family: var(--mg-font);
+  font-size: 11.5px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.tour-skip-all:hover { color: var(--stone); }
+
+/* ── Reduced motion — keep the cue, drop the movement. ─────────── */
+@media (prefers-reduced-motion: reduce) {
+  .tour-spot { animation: none; transition: none; }
+  .tour-bubble { animation: none; }
+}

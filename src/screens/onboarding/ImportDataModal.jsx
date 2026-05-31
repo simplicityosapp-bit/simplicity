@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import CsvMappingEditor from './CsvMappingEditor'
 import OnboardingReviewWizard from './OnboardingReviewWizard'
@@ -18,6 +18,14 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
   const [parsed, setParsed] = useState(initialParsed)
   const [phase, setPhase] = useState('map') /* 'map' | 'review' */
   const summaryRef = useRef(null)
+
+  /* Escape closes the mapping phase (the review phase's wizard handles
+     its own Escape → back to mapping). */
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape' && phase === 'map') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [phase, onClose])
 
   const counts = {
     clients: parsed?.clients?.length || 0,

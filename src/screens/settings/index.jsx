@@ -451,7 +451,11 @@ export default function SettingsScreen() {
       const c = summary.clients?.created || 0
       const p = summary.projects?.created || 0
       const t = summary.transactions?.created || 0
-      setImportMsg(`יובאו בהצלחה: ${c} לקוחות · ${p} פרויקטים · ${t} תנועות.`)
+      setImportMsg(
+        c + p + t === 0
+          ? 'לא נוצרו רשומות חדשות (ייתכן שכבר היו קיימות).'
+          : `יובאו בהצלחה: ${c} לקוחות · ${p} פרויקטים · ${t} תנועות.`,
+      )
     }
   }
   const navigate = useNavigate()

@@ -135,17 +135,22 @@ export function normalizeDate(input) {
      spreadsheet datetime exports add, then parse the date alone. */
   const s = String(input).trim().split(/[ T]/)[0]
   if (!s) return null
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
-  const m = s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})$/)
-  if (m) {
-    let [, d, mo, y] = m
-    d = Number(d); mo = Number(mo); y = Number(y)
+  let y, mo, d
+  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)
+  if (iso) {
+    y = Number(iso[1]); mo = Number(iso[2]); d = Number(iso[3])
+  } else {
+    const m = s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})$/) /* day-first (IL) */
+    if (!m) return null
+    d = Number(m[1]); mo = Number(m[2]); y = Number(m[3])
     if (y < 100) y += y < 70 ? 2000 : 1900
-    if (mo < 1 || mo > 12 || d < 1 || d > 31) return null
-    const pad = (n) => String(n).padStart(2, '0')
-    return `${y}-${pad(mo)}-${pad(d)}`
   }
-  return null
+  /* Calendar-accurate validation via UTC round-trip — rejects month 13,
+     Feb 30, Apr 31, etc. (which would otherwise blow up on DB insert). */
+  const dt = new Date(Date.UTC(y, mo - 1, d))
+  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${y}-${pad(mo)}-${pad(d)}`
 }
 
 const toNum = (v) => {
@@ -331,6 +336,10 @@ export function buildParsedFromRows(rows, fileName) {
   }
   const headers = rows[0].map((h) => (h == null ? '' : String(h)).trim())
   const mapping = headers.map((h) => pickField(normalizeHeader(h)))
+  /* Enforce 1:1 on auto-detect too (matches remapColumn): if two columns
+     resolve to the same field, keep the first and drop the rest. */
+  const seenFields = new Set()
+  mapping.forEach((f, i) => { if (!f) return; if (seenFields.has(f)) mapping[i] = null; else seenFields.add(f) })
   const allDataRows = rows.slice(1)
   const dataRows = allDataRows.slice(0, ROW_CAP) /* cap what we persist to JSONB */
   const unmapped_columns = headers.filter((h, i) => !mapping[i])

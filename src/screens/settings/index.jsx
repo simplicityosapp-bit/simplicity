@@ -5,7 +5,7 @@ import {
   Plus, Trash2, Leaf, GripVertical, ChevronLeft, CalendarDays, Database, Download, Upload,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
-import { parseCsvFile } from '../../lib/csvImport'
+import { parseFile } from '../../lib/csvImport'
 import ImportDataModal from '../onboarding/ImportDataModal'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useLeadSources } from '../../hooks/useLeadSources'
@@ -439,10 +439,10 @@ export default function SettingsScreen() {
     if (!file) return
     setImportMsg('')
     try {
-      const parsed = await parseCsvFile(file)
+      const parsed = await parseFile(file)
       setImportParsed({ kind: 'csv', ...parsed })
     } catch {
-      setImportMsg('הקובץ לא נקרא — נסה/י שוב.')
+      setImportMsg('הקובץ לא נקרא — ודא/י שזה CSV או Excel תקין.')
     }
   }
   const onImported = (summary) => {
@@ -587,7 +587,7 @@ export default function SettingsScreen() {
       ]
       return (
         <div className="set-data">
-          <p className="set-sub-intro">סיכום מצב הנתונים שלך, ייצוא וייבוא מקובץ CSV.</p>
+          <p className="set-sub-intro">סיכום מצב הנתונים שלך, ייצוא וייבוא מקובץ CSV / Excel.</p>
           <div className="set-data-stats">
             {counts.map((c) => (
               <div key={c.l} className="set-data-stat">
@@ -636,7 +636,7 @@ export default function SettingsScreen() {
           <input
             ref={importFileRef}
             type="file"
-            accept=".csv,text/csv"
+            accept=".csv,.tsv,.xlsx,.xls,text/csv"
             style={{ display: 'none' }}
             onChange={(e) => { onPickImport(e.target.files?.[0]); e.target.value = '' }}
           />
@@ -647,10 +647,10 @@ export default function SettingsScreen() {
             style={{ marginTop: 10 }}
           >
             <Upload size={15} strokeWidth={1.7} aria-hidden="true" />
-            ייבוא מקובץ CSV
+            ייבוא מקובץ (CSV / Excel)
           </button>
           <p className="set-data-hint">
-            מזהה אוטומטית עמודות (שם, טלפון, מייל, פרויקט, סכום, תאריך ועוד), נותן להתאים ידנית, ולסקור כל שורה לפני שנכתבת.
+            תומך ב-CSV, TSV ו-Excel. מזהה אוטומטית עמודות (שם, טלפון, מייל, פרויקט, סכום, תאריך ועוד), נותן להתאים ידנית, ולסקור כל שורה לפני שנכתבת.
           </p>
           {importMsg && (
             <p className="set-data-hint" style={{ color: 'var(--sage)', fontWeight: 600 }}>{importMsg}</p>

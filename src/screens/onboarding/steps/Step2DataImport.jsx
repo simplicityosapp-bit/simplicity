@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Upload, FileSpreadsheet, CheckCircle2 } from 'lucide-react'
-import { parseCsvFile } from '../../../lib/csvImport'
+import { parseFile } from '../../../lib/csvImport'
 import CsvMappingEditor from '../CsvMappingEditor'
 
 /* Step 2 — paths A (import) vs B (start fresh). Path A runs a real
-   header-aware CSV parser (lib/csvImport) and stashes the structured
-   result in `ob.parsed_data` so downstream steps (esp. step 4 clients)
-   can offer "extracted from your file" chips. Excel files are accepted
-   by the picker but treated as a placeholder for now — xlsx parsing
-   ships next. */
+   header-aware parser (lib/csvImport: CSV/TSV + Excel via lazy SheetJS)
+   and stashes the structured result in `ob.parsed_data` so downstream
+   steps (esp. step 4 clients) can offer "extracted from your file"
+   chips. */
 
 const ACCEPT = '.csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
@@ -25,25 +24,8 @@ export default function Step2DataImport({ ob, setCTA }) {
     if (!file) return
     setBusy(true); setErr('')
     try {
-      const isCsv = /\.csv$/i.test(file.name) || file.type === 'text/csv'
-      if (!isCsv) {
-        /* Excel placeholder — same UX, but no chips downstream. */
-        setFileName(file.name)
-        setRowCount(null)
-        await ob.setParsedData({
-          kind: 'placeholder',
-          file_name: file.name,
-          received_at: new Date().toISOString(),
-        })
-        await ob.setAnswers('data_import', {
-          mode: 'A',
-          file_name: file.name,
-          parsed_at: new Date().toISOString(),
-          format: 'xlsx-placeholder',
-        })
-        return
-      }
-      const parsed = await parseCsvFile(file)
+      const isXlsx = /\.xlsx?$/i.test(file.name)
+      const parsed = await parseFile(file)
       setFileName(file.name)
       setRowCount(parsed.raw_rows)
       await ob.setParsedData({
@@ -55,12 +37,12 @@ export default function Step2DataImport({ ob, setCTA }) {
         mode: 'A',
         file_name: file.name,
         parsed_at: new Date().toISOString(),
-        format: 'csv',
+        format: isXlsx ? 'xlsx' : 'csv',
         client_count: parsed.clients.length,
         project_count: parsed.projects.length,
       })
     } catch (e) {
-      setErr('הקובץ לא נקרא — נסה/י שוב או בחר/י להתחיל מאפס.')
+      setErr('הקובץ לא נקרא — ודא/י שזה CSV או Excel תקין, או בחר/י להתחיל מאפס.')
     } finally {
       setBusy(false)
     }

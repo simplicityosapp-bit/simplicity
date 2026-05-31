@@ -321,18 +321,15 @@ export function remapColumn(parsed, colIdx, field) {
      raw_rows, clients, projects, transactions }. Empty buckets on an
    empty file rather than throwing — the caller decides how to surface
    that. */
-export async function parseCsvFile(file) {
-  if (!file) return null
-  const text = await decodeFile(file)
-  const rows = parseCsv(text, detectDelimiter(text))
-  if (rows.length === 0) {
+export function buildParsedFromRows(rows, fileName) {
+  if (!rows || rows.length === 0) {
     return {
-      file_name: file.name,
+      file_name: fileName,
       headers: [], rows: [], mapping: [], unmapped_columns: [],
-      raw_rows: 0, clients: [], projects: [], transactions: [],
+      raw_rows: 0, clients: [], projects: [], transactions: [], transaction_issues: 0,
     }
   }
-  const headers = rows[0].map((h) => (h || '').trim())
+  const headers = rows[0].map((h) => (h == null ? '' : String(h)).trim())
   const mapping = headers.map((h) => pickField(normalizeHeader(h)))
   const allDataRows = rows.slice(1)
   const dataRows = allDataRows.slice(0, ROW_CAP) /* cap what we persist to JSONB */
@@ -340,7 +337,7 @@ export async function parseCsvFile(file) {
   const derived = projectEntities(headers, dataRows, mapping)
 
   return {
-    file_name: file.name,
+    file_name: fileName,
     headers,
     rows: dataRows,
     mapping,
@@ -350,4 +347,46 @@ export async function parseCsvFile(file) {
     row_cap: ROW_CAP,
     ...derived,
   }
+}
+
+/* Read + parse a CSV/TSV File (delimiter + encoding auto-detected). */
+export async function parseCsvFile(file) {
+  if (!file) return null
+  const text = await decodeFile(file)
+  const rows = parseCsv(text, detectDelimiter(text))
+  return buildParsedFromRows(rows, file.name)
+}
+
+/* Read + parse an Excel (.xlsx/.xls) File. SheetJS is loaded lazily so
+   it only ships when a user actually picks a spreadsheet. First sheet
+   only; cells coerced to strings (dates → YYYY-MM-DD via their
+   components, dodging SheetJS timezone drift) so the same header
+   detection / date parsing as CSV applies downstream. */
+export async function parseXlsxFile(file) {
+  if (!file) return null
+  const XLSX = await import('xlsx')
+  const buf = await file.arrayBuffer()
+  const wb = XLSX.read(buf, { type: 'array', cellDates: true })
+  const sheet = wb.Sheets[wb.SheetNames[0]]
+  if (!sheet) return buildParsedFromRows([], file.name)
+  const raw = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false, defval: '', raw: true })
+  const fmtCell = (c) => {
+    if (c == null) return ''
+    if (c instanceof Date) {
+      const y = c.getFullYear()
+      const m = String(c.getMonth() + 1).padStart(2, '0')
+      const d = String(c.getDate()).padStart(2, '0')
+      return `${y}-${m}-${d}`
+    }
+    return String(c)
+  }
+  const rows = raw.map((r) => (Array.isArray(r) ? r.map(fmtCell) : []))
+  return buildParsedFromRows(rows, file.name)
+}
+
+/* Dispatch by file type: CSV/TSV/text → CSV reader, otherwise Excel. */
+export async function parseFile(file) {
+  if (!file) return null
+  const isCsvLike = /\.(csv|tsv|txt)$/i.test(file.name) || file.type === 'text/csv' || file.type === 'text/plain'
+  return isCsvLike ? parseCsvFile(file) : parseXlsxFile(file)
 }

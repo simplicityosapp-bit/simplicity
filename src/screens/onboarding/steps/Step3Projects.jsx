@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useProjects } from '../../../hooks/useProjects'
 import { useGroups } from '../../../hooks/useGroups'
+import CsvMappingEditor from '../CsvMappingEditor'
 
 const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
 const DAYS = [
@@ -90,6 +91,8 @@ export default function Step3Projects({ ob, setCTA }) {
           כבר יש לך {projects.length} פרויקטים. ההוספה כאן רק יוצרת אחד נוסף.
         </div>
       )}
+
+      <CsvMappingEditor ob={ob} stepKey="projects" title="עמודת הפרויקט מהקובץ" />
 
       <div className="ob-field">
         <label className="ob-label" htmlFor="ob-p-name">שם הפרויקט</label>

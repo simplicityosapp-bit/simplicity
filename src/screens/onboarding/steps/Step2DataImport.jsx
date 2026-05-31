@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Upload, FileSpreadsheet, CheckCircle2 } from 'lucide-react'
 import { parseCsvFile } from '../../../lib/csvImport'
+import CsvMappingEditor from '../CsvMappingEditor'
 
 /* Step 2 — paths A (import) vs B (start fresh). Path A runs a real
    header-aware CSV parser (lib/csvImport) and stashes the structured
@@ -143,6 +144,18 @@ export default function Step2DataImport({ ob, setCTA }) {
           </div>
         </div>
       )}
+
+      {mode === 'A' && fileName && ob.state.parsed_data?.kind === 'csv' && ob.state.parsed_data.raw_rows === 0 && (
+        <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>
+          לא זוהו שורות בקובץ — ודא/י שהקובץ אינו ריק ושנשמר כ-CSV, ונסה/י שוב.
+        </p>
+      )}
+
+      <CsvMappingEditor
+        ob={ob}
+        stepKey="data_import"
+        title="עמודות מהקובץ — התאמת שדות"
+      />
 
     </>
   )

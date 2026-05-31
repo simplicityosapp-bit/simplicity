@@ -95,6 +95,7 @@ export function useOnboarding() {
     }
     if (cur === ONBOARDING_STEPS[ONBOARDING_STEPS.length - 1]) {
       nextState.skipped_at = new Date().toISOString()
+      nextState.parsed_data = null /* terminal — drop the raw CSV */
     }
     return update({ onboarding: nextState })
   }, [step, state, update])
@@ -110,12 +111,15 @@ export function useOnboarding() {
   }, [patch])
 
   const skipAll = useCallback(
-    () => patch({ skipped_at: new Date().toISOString() }),
+    () => patch({ skipped_at: new Date().toISOString(), parsed_data: null }),
     [patch],
   )
 
+  /* Completing is terminal — drop the raw CSV (personal client data we
+     only kept for the review wizard) in the SAME write that sets
+     completed_at, so a stale-state merge can't resurrect it. */
   const complete = useCallback(
-    () => patch({ completed_at: new Date().toISOString() }),
+    () => patch({ completed_at: new Date().toISOString(), parsed_data: null }),
     [patch],
   )
 

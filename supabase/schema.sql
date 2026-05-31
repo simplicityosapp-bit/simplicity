@@ -113,8 +113,13 @@ CREATE TABLE groups (
   project_id        uuid NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   name              text NOT NULL,
   color             text,
-  package_price     numeric NOT NULL,
-  package_sessions  integer NOT NULL,
+  -- Billing (migration 0005): a group bills as a fixed package, per
+  -- session held, or has no group-level price at all. package_* are
+  -- nullable now so 'per_session' / 'none' groups can omit them.
+  billing_mode      text NOT NULL DEFAULT 'package' CHECK (billing_mode IN ('package','per_session','none')),
+  package_price     numeric,
+  package_sessions  integer,
+  price_per_session numeric,
   recurring_day     smallint CHECK (recurring_day BETWEEN 0 AND 6),
   recurring_time    text,
   status            text NOT NULL DEFAULT 'active' CHECK (status IN ('active','in_development','ended')),

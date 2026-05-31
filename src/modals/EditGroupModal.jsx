@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
+import { GROUP_BILLING_MODES, GROUP_BILLING_LABELS } from '../lib/enums'
 
 const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
 const DAYS = [
@@ -12,8 +13,10 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
   const [form, setForm] = useState(() => ({
     name: group?.name || '',
     color: group?.color || COLORS[0],
+    billing_mode: group?.billing_mode || 'package',
     package_price: group?.package_price ?? '',
     package_sessions: group?.package_sessions ?? '',
+    price_per_session: group?.price_per_session ?? '',
     recurring_day: group?.recurring_day == null ? '' : String(group.recurring_day),
     recurring_time: group?.recurring_time || '',
   }))
@@ -25,18 +28,26 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
 
   const submit = async () => {
     if (!form.name.trim()) { setErr('יש למלא שם.'); return }
+    const mode = form.billing_mode
     const price = parseFloat(form.package_price)
     const sess = parseInt(form.package_sessions, 10)
-    if (!(price > 0)) { setErr('יש למלא מחיר חבילה חיובי.'); return }
-    if (!(sess > 0)) { setErr('יש למלא מספר מפגשים חיובי.'); return }
+    const perSession = parseFloat(form.price_per_session)
+    if (mode === 'package') {
+      if (!(price > 0)) { setErr('יש למלא מחיר חבילה חיובי.'); return }
+      if (!(sess > 0)) { setErr('יש למלא מספר מפגשים חיובי.'); return }
+    } else if (mode === 'per_session') {
+      if (!(perSession > 0)) { setErr('יש למלא מחיר למפגש חיובי.'); return }
+    }
     setBusy(true)
     setErr('')
     try {
       await onSave(group.id, {
         name: form.name.trim(),
         color: form.color,
-        package_price: price,
-        package_sessions: sess,
+        billing_mode: mode,
+        package_price: mode === 'package' ? price : null,
+        package_sessions: mode === 'package' ? sess : null,
+        price_per_session: mode === 'per_session' ? perSession : null,
         recurring_day: form.recurring_day === '' ? null : Number(form.recurring_day),
         recurring_time: form.recurring_time || null,
       })
@@ -57,16 +68,45 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
           onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
         />
       </div>
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">מחיר חבילה ₪</label>
-          <input type="number" min="0" className="m-input" value={form.package_price} onChange={(e) => set('package_price', e.target.value)} />
-        </div>
-        <div className="m-field">
-          <label className="m-label">מספר מפגשים</label>
-          <input type="number" min="1" className="m-input" value={form.package_sessions} onChange={(e) => set('package_sessions', e.target.value)} />
+      <div className="m-field">
+        <label className="m-label">תמחור</label>
+        <div className="m-seg">
+          {GROUP_BILLING_MODES.map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              className={`m-seg-btn${form.billing_mode === mode ? ' on' : ''}`}
+              onClick={() => { set('billing_mode', mode); if (err) setErr('') }}
+            >
+              {GROUP_BILLING_LABELS[mode]}
+            </button>
+          ))}
         </div>
       </div>
+
+      {form.billing_mode === 'package' && (
+        <div className="m-row2">
+          <div className="m-field">
+            <label className="m-label">מחיר חבילה ₪</label>
+            <input type="number" min="0" className="m-input" value={form.package_price} onChange={(e) => set('package_price', e.target.value)} />
+          </div>
+          <div className="m-field">
+            <label className="m-label">מספר מפגשים</label>
+            <input type="number" min="1" className="m-input" value={form.package_sessions} onChange={(e) => set('package_sessions', e.target.value)} />
+          </div>
+        </div>
+      )}
+
+      {form.billing_mode === 'per_session' && (
+        <div className="m-field">
+          <label className="m-label">מחיר למפגש ₪</label>
+          <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => set('price_per_session', e.target.value)} />
+        </div>
+      )}
+
+      {form.billing_mode === 'none' && (
+        <p className="m-hint">בלי מחיר קבוע מראש. אפשר לתמחר כל חבר בנפרד דרך כרטיס הלקוח.</p>
+      )}
       <div className="m-row2">
         <div className="m-field">
           <label className="m-label">יום קבוע</label>

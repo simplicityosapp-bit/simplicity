@@ -517,6 +517,15 @@ CREATE TRIGGER trg_quotes_updated              BEFORE UPDATE ON quotes          
 CREATE TRIGGER trg_user_preferences_updated    BEFORE UPDATE ON user_preferences    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 
+-- TABLE: feedback  (in-app free-text feedback; emailed + stored)
+CREATE TABLE feedback (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     uuid NOT NULL DEFAULT auth.uid() REFERENCES auth.users(id) ON DELETE CASCADE,
+  message     text NOT NULL CHECK (char_length(btrim(message)) > 0),
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+
 -- ============================================================
 -- 3. Row Level Security
 -- ============================================================
@@ -585,6 +594,11 @@ CREATE POLICY lead_status_log_insert   ON lead_status_log   FOR INSERT TO authen
 
 -- quotes: readable by everyone (authenticated); no client writes (no INSERT/UPDATE/DELETE policy).
 CREATE POLICY quotes_select ON quotes FOR SELECT TO authenticated USING (true);
+
+-- feedback: submit + read own rows only (no UPDATE / DELETE policy = blocked).
+ALTER TABLE feedback ENABLE ROW LEVEL SECURITY;
+CREATE POLICY feedback_select ON feedback FOR SELECT TO authenticated USING (user_id = auth.uid());
+CREATE POLICY feedback_insert ON feedback FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
 
 
 -- ============================================================

@@ -9,6 +9,7 @@ import RemindersWidget from './widgets/RemindersWidget'
 import NextTasksWidget from './widgets/NextTasksWidget'
 import ChipsWidget from './widgets/ChipsWidget'
 import MeetingConfirmWidget from './widgets/MeetingConfirmWidget'
+import FeedbackCard from '../../components/FeedbackCard'
 import './HomeScreen.css'
 
 const WIDGET_COMPONENTS = {
@@ -52,7 +53,7 @@ function renderWidget(w, globalDensity) {
    the right; if the quote widget is also enabled it sits to its
    left, shrinking to fit the remaining width. The rest of the
    widgets follow the user's order in a vertical stack. */
-export default function HomeScreen() {
+export default function HomeScreen({ onOpenFeedback }) {
   const { prefs } = useUserPreferences()
   const widgetsCfg = prefs?.widgets || { global: {}, list: [] }
   const globalDensity = widgetsCfg.global?.density || 'comfortable'
@@ -79,6 +80,7 @@ export default function HomeScreen() {
           </div>
         )}
         {restList.map((w) => renderWidget(w, globalDensity))}
+        <FeedbackCard onOpenFeedback={onOpenFeedback} />
       </div>
     </div>
   )

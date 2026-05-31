@@ -15,6 +15,7 @@ import MenuDrawer from './components/MenuDrawer'
 import Sidebar from './components/Sidebar'
 import PrefsApplier from './components/PrefsApplier'
 import LoadingSplash from './components/LoadingSplash'
+import FeedbackModal from './modals/FeedbackModal'
 
 import OnboardingScreen from './screens/onboarding'
 import HomeScreen from './screens/home'
@@ -43,6 +44,7 @@ function AppShell() {
   const { isDark, toggleTheme } = useTheme()
   const { prefs, update: updatePrefs, loading: prefsLoading } = useUserPreferences()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
 
   /* Toggle theme on the local hook (fast) AND persist to prefs. */
   const handleToggleTheme = () => {
@@ -73,9 +75,14 @@ function AppShell() {
   return (
     <div className="app" data-screen={screen}>
       <PrefsApplier />
-      <Sidebar screen={screen} isDark={isDark} onToggleTheme={handleToggleTheme} />
+      <Sidebar
+        screen={screen}
+        isDark={isDark}
+        onToggleTheme={handleToggleTheme}
+        onOpenFeedback={() => setFeedbackOpen(true)}
+      />
       <Routes>
-        <Route path={ROUTES.HOME} element={<HomeScreen />} />
+        <Route path={ROUTES.HOME} element={<HomeScreen onOpenFeedback={() => setFeedbackOpen(true)} />} />
         <Route path={ROUTES.CLIENTS} element={<ClientsScreen />} />
         <Route path={ROUTES.CLIENT} element={<ClientsScreen />} />
         <Route path={ROUTES.FINANCE} element={<FinanceScreen />} />
@@ -100,7 +107,9 @@ function AppShell() {
         screen={screen}
         isDark={isDark}
         onToggleTheme={handleToggleTheme}
+        onOpenFeedback={() => setFeedbackOpen(true)}
       />
+      <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </div>
   )
 }

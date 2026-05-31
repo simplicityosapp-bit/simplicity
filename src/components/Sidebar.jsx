@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X,
+  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
@@ -27,7 +27,7 @@ const EXTRAS = [
    Background is a vertical blend of all five brand colours under a
    heavy blur, echoing the bottom-nav language on mobile.
    ════════════════════════════════════════════════════════════════ */
-export default function Sidebar({ screen, isDark, onToggleTheme }) {
+export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback }) {
   const navigate = useNavigate()
   const { signOut } = useAuth()
   const [extrasOpen, setExtrasOpen] = useState(false)
@@ -140,6 +140,20 @@ export default function Sidebar({ screen, isDark, onToggleTheme }) {
               </button>
             )
           })}
+
+          {/* Feedback — an action, not a route. */}
+          <button
+            type="button"
+            className="mg-sidebar-link mg-sidebar-sub"
+            data-screen="feedback"
+            onClick={() => { setExtrasOpen(false); onOpenFeedback?.() }}
+            title="דברו אלינו"
+          >
+            <span className="mg-sidebar-link-chip" aria-hidden="true">
+              <MessageSquarePlus size={18} strokeWidth={2} />
+            </span>
+            <span className="mg-sidebar-link-text">דברו אלינו</span>
+          </button>
         </div>
       </div>
 

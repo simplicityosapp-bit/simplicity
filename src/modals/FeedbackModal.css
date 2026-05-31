@@ -1,0 +1,73 @@
+/* FeedbackModal — body styling. Shell comes from Modal.css; the
+   textarea also borrows the shared .m-textarea look for consistency. */
+
+.fb-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fb-lead {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--stone);
+}
+
+.fb-textarea {
+  min-height: 132px;
+}
+
+.fb-error {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--clay);
+}
+
+.fb-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: var(--mg-btn-h);
+  font-family: var(--mg-font);
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--terracotta);
+  border: none;
+  border-radius: var(--mg-btn-radius);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease, opacity 0.15s ease;
+}
+
+[data-theme="dark"] .fb-submit { color: #0f1419; }
+
+.fb-submit:hover:not(:disabled) { background: var(--mg-btn-primary-bg-hover); }
+.fb-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+.fb-submit:not(:disabled):active { transform: scale(0.97); }
+
+.fb-spin { animation: fb-spin 1s linear infinite; }
+
+@keyframes fb-spin { to { transform: rotate(360deg); } }
+
+.fb-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 8px;
+  text-align: center;
+  color: var(--terracotta);
+}
+
+.fb-done p {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--espresso);
+}

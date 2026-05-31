@@ -1,5 +1,5 @@
 /* FeedbackModal — body styling. Shell comes from Modal.css; the
-   textarea also borrows the shared .m-textarea look for consistency. */
+   textarea + type pills also borrow the shared .m-* look for consistency. */
 
 .fb-form {
   display: flex;
@@ -12,6 +12,19 @@
   font-family: var(--mg-font);
   font-size: 13px;
   line-height: 1.5;
+  color: var(--stone);
+}
+
+.fb-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fb-label {
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 500;
   color: var(--stone);
 }
 

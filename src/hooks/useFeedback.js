@@ -11,13 +11,17 @@ import { useAuth } from '../auth/AuthContext'
    2. Invoke the `send-feedback` edge function to email the team.
       Best-effort: if the mail step fails the row is already saved,
       so the feedback is never lost.
+
+   `type` is optional (bug/idea/praise/other). It rides along to the
+   email subject for triage; it is NOT stored on the row (no column —
+   keeping this change schema-free).
    ════════════════════════════════════════════════════════════════ */
 export function useFeedback() {
   const { user } = useAuth()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
-  const submitFeedback = useCallback(async (message) => {
+  const submitFeedback = useCallback(async (message, type = null) => {
     const text = (message || '').trim()
     if (!text) return { ok: false, error: 'empty' }
 
@@ -32,7 +36,7 @@ export function useFeedback() {
 
       // 2) Email the team (best-effort).
       const { error: fnErr } = await supabase.functions.invoke('send-feedback', {
-        body: { message: text },
+        body: { message: text, type },
       })
       if (fnErr) {
         console.warn('send-feedback email failed (row was saved):', fnErr)

@@ -661,6 +661,83 @@
 }
 .ob-pc-teaser svg { color: var(--sage); flex-shrink: 0; }
 
+/* ── Goal step (step 6) — compact type grid + live goal card ────── */
+/* Compact type tiles — replaces the full-width option cards (6 of them
+   were far too tall). Icon over a short label, 3 per row. */
+.ob-goal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+@media (max-width: 380px) { .ob-goal-grid { grid-template-columns: repeat(2, 1fr); } }
+.ob-goal-type {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(42, 37, 32, 0.14);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: var(--bm);
+  -webkit-backdrop-filter: var(--bm);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
+}
+[data-theme="dark"] .ob-goal-type {
+  border-color: rgba(240, 235, 224, 0.18);
+  background: rgba(36, 32, 28, 0.5);
+}
+.ob-goal-type:hover { transform: translateY(-1px); }
+.ob-goal-type-ic { font-size: 20px; line-height: 1; }
+.ob-goal-type-l {
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--espresso);
+  text-align: center;
+}
+.ob-goal-type.on {
+  background: color-mix(in srgb, var(--sage) 22%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 60%, transparent);
+}
+
+/* Live goal preview card — same glass identity as the project/client
+   cards, scaled for a single goal row. */
+.ob-goal-card {
+  align-self: center;
+  width: min(420px, 100%);
+  margin-top: 6px;
+  padding: 14px 16px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+}
+.ob-gc-head { display: flex; align-items: center; gap: 9px; }
+.ob-gc-ic { font-size: 20px; line-height: 1; }
+.ob-gc-name {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--espresso);
+}
+.ob-gc-meta {
+  margin: 8px 0 0;
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  color: var(--stone);
+}
+.ob-gc-hint {
+  margin: 4px 0 0;
+  font-family: var(--mg-font);
+  font-size: 11.5px;
+  color: var(--mist);
+}
+
 /* ── Live client card (step 4) — faithful to the in-app .cc card so
    onboarding shows the real thing the user is creating. ──────────── */
 .ob-cc-wrap,

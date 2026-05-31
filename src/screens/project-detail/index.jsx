@@ -330,7 +330,12 @@ export default function ProjectDetailScreen() {
                 const recurring = g.recurring_day != null && g.recurring_time
                   ? `${DAYS[g.recurring_day]} ${g.recurring_time}`
                   : null
-                const priceLabel = g.package_price ? `${isr(g.package_price)} / ${g.package_sessions || 1} פגישות` : ''
+                const billingMode = g.billing_mode || 'package'
+                const priceLabel = billingMode === 'per_session'
+                  ? (g.price_per_session ? `${isr(g.price_per_session)} למפגש` : '')
+                  : billingMode === 'none'
+                    ? ''
+                    : (g.package_price ? `${isr(g.package_price)} / ${g.package_sessions || 1} פגישות` : '')
                 const status = g.status || 'active'
                 const sessOpen = openGroupSessions.has(g.id)
                 const groupSessions = sessions

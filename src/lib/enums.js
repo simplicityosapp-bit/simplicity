@@ -51,6 +51,12 @@ export const LEAD_STATUS_META = ['in_process', 'converted', 'not_relevant', 'gho
 
 /* ── Groups ───────────────────────────────────────────────────── */
 export const GROUP_STATUSES = ['active', 'in_development', 'ended'] // סטטוס מחזור קבוצה
+export const GROUP_BILLING_MODES = ['package', 'per_session', 'none'] // groups.billing_mode (migration 0005)
+export const GROUP_BILLING_LABELS = {
+  package:     'מחיר לחבילה',
+  per_session: 'מחיר למפגש',
+  none:        'ללא מחיר קבוע',
+}
 
 /* ── Recurrence — שני enums נפרדים לפי data-model.md ───────────── */
 export const REMINDER_RECURRENCE_TYPES = ['none', 'weekly', 'monthly_date', 'every_x_days'] // reminders.recurrence_type

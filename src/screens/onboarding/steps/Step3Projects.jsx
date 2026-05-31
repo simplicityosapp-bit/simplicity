@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useProjects } from '../../../hooks/useProjects'
 import { useGroups } from '../../../hooks/useGroups'
+import { GROUP_BILLING_MODES, GROUP_BILLING_LABELS } from '../../../lib/enums'
 import CsvMappingEditor from '../CsvMappingEditor'
 
 const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
@@ -22,18 +23,25 @@ export default function Step3Projects({ ob, setCTA }) {
   const [groupMode, setGroupMode] = useState(initial.group_mode) // null | true | false
   /* Group fields (only used when groupMode === true) */
   const [gName, setGName] = useState(initial.group_name || '')
+  const [gBilling, setGBilling] = useState(initial.group_billing_mode || 'package')
   const [gPrice, setGPrice] = useState(initial.group_price || '')
   const [gSessions, setGSessions] = useState(initial.group_sessions || 6)
+  const [gPerSession, setGPerSession] = useState(initial.group_price_per_session || '')
   const [gDay, setGDay] = useState(initial.group_day ?? '')
   const [gTime, setGTime] = useState(initial.group_time || '')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
 
-  const canAdvance = name.trim().length > 0 && (groupMode === false || (groupMode === true && gName.trim().length > 0 && Number(gPrice) > 0))
+  /* A group is billable-valid when its chosen mode has the fields it
+     needs: package → price; per_session → per-session rate; none → nothing. */
+  const groupBillingOk = gBilling === 'none'
+    || (gBilling === 'package' && Number(gPrice) > 0)
+    || (gBilling === 'per_session' && Number(gPerSession) > 0)
+  const canAdvance = name.trim().length > 0 && (groupMode === false || (groupMode === true && gName.trim().length > 0 && groupBillingOk))
   const hint = !canAdvance
-    ? (!name.trim() ? 'שם פרויקט חובה.' : groupMode === null ? 'בחר/י אם יש קבוצות.' : 'יש למלא שם קבוצה ומחיר חבילה.')
+    ? (!name.trim() ? 'שם פרויקט חובה.' : groupMode === null ? 'בחר/י אם יש קבוצות.' : !gName.trim() ? 'יש למלא שם קבוצה.' : 'יש למלא מחיר לפי סוג התמחור.')
     : null
-  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [name, color, groupMode, gName, gPrice, gSessions, gDay, gTime, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [name, color, groupMode, gName, gBilling, gPrice, gSessions, gPerSession, gDay, gTime, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Idempotency: if we already created a project in this step before
      (back+next pattern) and the user hasn't touched the project name,
@@ -56,8 +64,10 @@ export default function Step3Projects({ ob, setCTA }) {
           project_id: projectId,
           name: gName.trim(),
           color,
-          package_price: Number(gPrice),
-          package_sessions: Number(gSessions) || 1,
+          billing_mode: gBilling,
+          package_price: gBilling === 'package' ? Number(gPrice) : null,
+          package_sessions: gBilling === 'package' ? (Number(gSessions) || 1) : null,
+          price_per_session: gBilling === 'per_session' ? Number(gPerSession) : null,
           recurring_day: gDay === '' ? null : Number(gDay),
           recurring_time: gTime || null,
           status: 'active',
@@ -71,6 +81,7 @@ export default function Step3Projects({ ob, setCTA }) {
         created_ids: createdIds,
         group_id: groupId,
         group_name: gName.trim(),
+        group_billing_mode: gBilling,
       })
       await ob.advance()
     } catch (e) {
@@ -139,7 +150,7 @@ export default function Step3Projects({ ob, setCTA }) {
             onClick={() => setGroupMode(true)}
           >
             <span className="ob-option-card-l">כן, יש לי קבוצות</span>
-            <p className="ob-option-card-sub">נוסיף קבוצה ראשונה עם חבילה ולוז.</p>
+            <p className="ob-option-card-sub">נוסיף קבוצה ראשונה עם תמחור גמיש.</p>
           </button>
         </div>
       </div>
@@ -156,30 +167,63 @@ export default function Step3Projects({ ob, setCTA }) {
               placeholder="לדוגמה: סדנת בוקר"
             />
           </div>
-          <div className="ob-step-grid">
+          <div className="ob-field">
+            <p className="ob-label">תמחור</p>
+            <div className="ob-pills">
+              {GROUP_BILLING_MODES.map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  className={`ob-pill${gBilling === mode ? ' on' : ''}`}
+                  onClick={() => setGBilling(mode)}
+                >
+                  {GROUP_BILLING_LABELS[mode]}
+                </button>
+              ))}
+            </div>
+          </div>
+          {gBilling === 'package' && (
+            <div className="ob-step-grid">
+              <div className="ob-field">
+                <label className="ob-label" htmlFor="ob-g-price">מחיר חבילה ₪</label>
+                <input
+                  id="ob-g-price"
+                  className="ob-input"
+                  type="number"
+                  min="0"
+                  value={gPrice}
+                  onChange={(e) => setGPrice(e.target.value)}
+                />
+              </div>
+              <div className="ob-field">
+                <label className="ob-label" htmlFor="ob-g-sess">מספר מפגשים</label>
+                <input
+                  id="ob-g-sess"
+                  className="ob-input"
+                  type="number"
+                  min="1"
+                  value={gSessions}
+                  onChange={(e) => setGSessions(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+          {gBilling === 'per_session' && (
             <div className="ob-field">
-              <label className="ob-label" htmlFor="ob-g-price">מחיר חבילה ₪</label>
+              <label className="ob-label" htmlFor="ob-g-persess">מחיר למפגש ₪</label>
               <input
-                id="ob-g-price"
+                id="ob-g-persess"
                 className="ob-input"
                 type="number"
                 min="0"
-                value={gPrice}
-                onChange={(e) => setGPrice(e.target.value)}
+                value={gPerSession}
+                onChange={(e) => setGPerSession(e.target.value)}
               />
             </div>
-            <div className="ob-field">
-              <label className="ob-label" htmlFor="ob-g-sess">מספר מפגשים</label>
-              <input
-                id="ob-g-sess"
-                className="ob-input"
-                type="number"
-                min="1"
-                value={gSessions}
-                onChange={(e) => setGSessions(e.target.value)}
-              />
-            </div>
-          </div>
+          )}
+          {gBilling === 'none' && (
+            <p className="ob-intro-sub">בלי מחיר קבוע מראש — אפשר לתמחר כל חבר בנפרד בהמשך.</p>
+          )}
           <div className="ob-step-grid">
             <div className="ob-field">
               <label className="ob-label" htmlFor="ob-g-day">יום קבוע (אופציונלי)</label>

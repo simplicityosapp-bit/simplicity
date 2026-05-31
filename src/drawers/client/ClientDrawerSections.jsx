@@ -176,13 +176,25 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           {memberships.length ? (
             memberships.map((m) => {
               const g = groups.find((x) => x.id === m.group_id)
-              const total = m.total_override != null ? m.total_override : (g?.package_price || 0)
+              const mode = g?.billing_mode || 'package'
+              /* A per-member override always wins; otherwise show the
+                 group's price by its billing mode. */
+              let sub
+              if (m.total_override != null) {
+                sub = isr(m.total_override)
+              } else if (mode === 'per_session') {
+                sub = g?.price_per_session ? `${isr(g.price_per_session)} למפגש` : 'מחיר למפגש'
+              } else if (mode === 'none') {
+                sub = 'ללא מחיר קבוע'
+              } else {
+                sub = `${g?.package_sessions ? `${g.package_sessions} פגישות · ` : ''}${isr(g?.package_price || 0)}`
+              }
               return (
                 <div key={m.id} className="cd-row">
                   <span className="cd-row-dot" style={{ background: g?.color || 'var(--stone)' }} />
                   <div className="cd-row-body">
                     <p className="cd-row-title">{g ? g.name : '(קבוצה נמחקה)'}</p>
-                    <p className="cd-row-sub">{g?.package_sessions ? `${g.package_sessions} פגישות · ` : ''}{isr(total)}</p>
+                    <p className="cd-row-sub">{sub}</p>
                   </div>
                 </div>
               )

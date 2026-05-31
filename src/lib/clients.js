@@ -17,17 +17,36 @@ export function getClientMemberships(clientId, membersData = mockMembers) {
   return live(membersData).filter((m) => m.client_id === clientId && !m.left_at)
 }
 
-function membershipTotal(m, groupsData) {
+/* Total owed for one group membership. A per-member override always
+   wins. Otherwise the group's billing_mode decides:
+     - 'package'     → the fixed package_price.
+     - 'per_session' → price_per_session × sessions actually held for
+                       this group (passed in via heldCount).
+     - 'none'        → no group-level price (0 unless an override exists).
+   Legacy rows have no billing_mode; they default to 'package', matching
+   their pre-migration behaviour exactly. */
+function membershipTotal(m, groupsData, heldCount = 0) {
   if (m.total_override != null && m.total_override !== '') return Number(m.total_override)
   const g = groupsData.find((x) => x.id === m.group_id)
-  return g ? g.package_price || 0 : 0
+  if (!g) return 0
+  const mode = g.billing_mode || 'package'
+  if (mode === 'per_session') return (g.price_per_session || 0) * heldCount
+  if (mode === 'none') return 0
+  return g.package_price || 0
 }
 
 export function clientBalance(c, txns, sessionsData = sessions, membersData = mockMembers, groupsData = mockGroups) {
   const paid = financeQuery({ type: 'income', clientId: c.id, source: txns }).reduce((s, f) => s + f.amount, 0)
 
   const memberships = getClientMemberships(c.id, membersData)
-  const memTotal = memberships.reduce((s, m) => s + membershipTotal(m, groupsData), 0)
+  const liveSess = live(sessionsData)
+  /* Sessions held per group — needed for per-session billing. Counts
+     all group sessions (the package/per-session rate applies per member). */
+  const heldForGroup = (gid) => liveSess.filter((s) => s.group_id === gid).length
+  const memTotal = memberships.reduce(
+    (s, m) => s + membershipTotal(m, groupsData, heldForGroup(m.group_id)),
+    0,
+  )
   let privateTotal = 0
   if (memberships.length === 0) {
     privateTotal = c.total_override != null && c.total_override !== ''

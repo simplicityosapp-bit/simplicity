@@ -222,6 +222,68 @@
   color: var(--espresso);
 }
 
+/* ── Empty-state direct action ─────────────────────────────────── */
+/* Turns a passive empty card into a guided one: a primary action that
+   opens the same Add flow, plus an expandable "why this matters" note. */
+.empty-action {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 11px 22px;
+  border: none;
+  border-radius: var(--mg-btn-radius);
+  background: var(--mg-btn-primary-bg);
+  color: var(--pure-white);
+  font-family: var(--mg-font);
+  font-size: 14px;
+  font-weight: var(--mg-btn-weight);
+  cursor: pointer;
+  box-shadow: var(--mg-card-shadow);
+  transition: background 0.18s, transform 0.12s;
+}
+.empty-action:hover { background: var(--mg-btn-primary-bg-hover); }
+.empty-action:active { transform: scale(0.97); }
+/* Dark primary is a light "Moonglow" fill — needs dark text. */
+[data-theme="dark"] .empty-action { color: var(--espresso); }
+
+/* Expandable reminder — collapsed one-liner that opens to a fuller note. */
+.empty-reminder {
+  margin-top: 16px;
+  text-align: start;
+}
+.empty-reminder > summary {
+  list-style: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--terracotta);
+}
+.empty-reminder > summary::-webkit-details-marker { display: none; }
+.empty-reminder > summary::after {
+  content: '⌄';
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+.empty-reminder[open] > summary::after { transform: rotate(180deg); }
+.empty-reminder-body {
+  margin: 8px 0 0;
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--stone);
+}
+
+/* When the add CTA is wrapped in a <Coachmark>, the wrapper span becomes
+   the flex item — carry the centering the bare button used to do. */
+.screen-top .coachmark { flex: 0 0 auto; margin: 0 auto; }
+
 /* ── Entry animation ───────────────────────────────────────────── */
 @keyframes mgFadeUp {
   from { opacity: 0; transform: translateY(8px); }

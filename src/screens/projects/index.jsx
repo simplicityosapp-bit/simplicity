@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { FolderOpen } from 'lucide-react'
+import { FolderOpen, FolderPlus } from 'lucide-react'
 import { financeQuery, isr, currentMonthRange } from '../../lib/finance'
 import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
@@ -9,6 +9,8 @@ import ProjectCard from './ProjectCard'
 import AddProjectModal from '../../modals/AddProjectModal'
 import EditProjectModal from '../../modals/EditProjectModal'
 import ConfirmModal from '../../modals/ConfirmModal'
+import Coachmark from '../../components/Coachmark'
+import { coachmarkText } from '../../lib/coachmarks'
 import './ProjectsScreen.css'
 
 export default function ProjectsScreen() {
@@ -61,7 +63,9 @@ export default function ProjectsScreen() {
           </div>
           <p className="t-screen">פרויקטים</p>
         </header>
-        <button className="cta-add" type="button" aria-label="הוסף פרויקט" onClick={() => setShowAdd(true)}>הוסף פרויקט +</button>
+        <Coachmark id="add-project" radius="50%">
+          <button className="cta-add" type="button" aria-label="הוסף פרויקט" onClick={() => setShowAdd(true)}>הוסף פרויקט +</button>
+        </Coachmark>
       </div>
 
       <section className="p-hero">
@@ -94,7 +98,14 @@ export default function ProjectsScreen() {
         ) : projects.length === 0 ? (
           <div className="empty">
             <span className="empty-icon"><FolderOpen size={36} strokeWidth={1.4} aria-hidden="true" /></span>
-            <p className="empty-text">עדיין אין פרויקטים<br />הוסף את הראשון!</p>
+            <p className="empty-text">אין עדיין פרויקטים. הפרויקט הראשון שלכם מתחיל כאן.</p>
+            <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
+              <FolderPlus size={18} strokeWidth={1.6} aria-hidden="true" /> הוסיפו פרויקט
+            </button>
+            <details className="empty-reminder">
+              <summary>למה זה חשוב?</summary>
+              <p className="empty-reminder-body">{coachmarkText('add-project').detail}</p>
+            </details>
           </div>
         ) : (
           cards.map((c, i) => (

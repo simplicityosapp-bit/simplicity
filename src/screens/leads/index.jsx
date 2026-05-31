@@ -12,6 +12,7 @@ import LeadStatusesPanel from './LeadStatusesPanel'
 import AddLeadModal from '../../modals/AddLeadModal'
 import EditLeadModal from '../../modals/EditLeadModal'
 import ConvertLeadModal from '../../modals/ConvertLeadModal'
+import Coachmark from '../../components/Coachmark'
 import './LeadsScreen.css'
 
 function computeStats(list, now = new Date()) {
@@ -81,7 +82,9 @@ export default function LeadsScreen() {
           <p className="t-screen">לידים</p>
         </header>
         {view === 'kanban' && (
-          <button className="cta-add" type="button" aria-label="ליד חדש" onClick={() => setShowAdd(true)}>ליד חדש +</button>
+          <Coachmark id="add-lead" radius="50%">
+            <button className="cta-add" type="button" aria-label="ליד חדש" onClick={() => setShowAdd(true)}>ליד חדש +</button>
+          </Coachmark>
         )}
       </div>
 

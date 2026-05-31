@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Search, ArrowUpDown, X } from 'lucide-react'
+import { Search, ArrowUpDown, X, UserPlus } from 'lucide-react'
 import { statusMetaOf, paidForClients, sessionsCountForClients, clientBalance } from '../../lib/clients'
 import { currentMonthRange, isr, financeQuery } from '../../lib/finance'
 import { useClients } from '../../hooks/useClients'
@@ -19,6 +19,8 @@ import ClientCard from './ClientCard'
 import ClientDrawer from '../../drawers/client/ClientDrawer'
 import AddClientModal from '../../modals/AddClientModal'
 import DeleteClientModal from '../../modals/DeleteClientModal'
+import Coachmark from '../../components/Coachmark'
+import { coachmarkText } from '../../lib/coachmarks'
 import './ClientsScreen.css'
 
 const HERO_LABEL = {
@@ -244,7 +246,9 @@ export default function ClientsScreen() {
           </div>
           <p className="t-screen">לקוחות</p>
         </header>
-        <button className="cta-add" type="button" aria-label="הוסף לקוח" onClick={() => setShowAdd(true)}>הוסף לקוח +</button>
+        <Coachmark id="add-client" radius="50%">
+          <button className="cta-add" type="button" aria-label="הוסף לקוח" onClick={() => setShowAdd(true)}>הוסף לקוח +</button>
+        </Coachmark>
       </div>
       <div className="c-top-actions">
           <div className="c-sort-wrap" ref={sortAnchorRef}>
@@ -347,11 +351,23 @@ export default function ClientsScreen() {
         ) : error ? (
           <div className="empty"><p className="empty-text">שגיאה בטעינת הלקוחות: {error}</p></div>
         ) : list.length === 0 ? (
-          <div className="empty">
-            <p className="empty-text">
-              {query ? 'לא נמצאו לקוחות בחיפוש.' : total === 0 ? 'עדיין אין לקוחות. הוסף/י את הראשון!' : 'אין לקוחות בקטגוריה זו.'}
-            </p>
-          </div>
+          query ? (
+            <div className="empty"><p className="empty-text">לא נמצאו לקוחות בחיפוש.</p></div>
+          ) : total === 0 ? (
+            <div className="empty">
+              <span className="empty-icon"><UserPlus size={28} strokeWidth={1.4} aria-hidden="true" /></span>
+              <p className="empty-text">עדיין אין לקוחות. הלקוח הראשון שלכם מתחיל כאן.</p>
+              <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
+                <UserPlus size={18} strokeWidth={1.6} aria-hidden="true" /> הוסיפו לקוח
+              </button>
+              <details className="empty-reminder">
+                <summary>למה זה חשוב?</summary>
+                <p className="empty-reminder-body">{coachmarkText('add-client').detail}</p>
+              </details>
+            </div>
+          ) : (
+            <div className="empty"><p className="empty-text">אין לקוחות בקטגוריה זו.</p></div>
+          )
         ) : groupBy === 'project' ? (
           grouped.map(({ project, clients: pc }) => (
             <div key={project?.id || 'none'} className="c-proj-group">

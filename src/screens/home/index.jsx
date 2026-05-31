@@ -1,5 +1,7 @@
 import { useUserPreferences } from '../../hooks/useUserPreferences'
+import { useClients } from '../../hooks/useClients'
 import { ACCENT_OPTIONS } from '../../lib/preferences'
+import HomeWelcome from '../../components/HomeWelcome'
 import QuoteWidget from './widgets/QuoteWidget'
 import MoonWidget from './widgets/MoonWidget'
 import InsightsWidget from './widgets/InsightsWidget'
@@ -55,6 +57,8 @@ function renderWidget(w, globalDensity) {
    widgets follow the user's order in a vertical stack. */
 export default function HomeScreen({ onOpenFeedback }) {
   const { prefs } = useUserPreferences()
+  const { clients, loading: clientsLoading } = useClients()
+  const showWelcome = !clientsLoading && (clients?.length || 0) === 0
   const widgetsCfg = prefs?.widgets || { global: {}, list: [] }
   const globalDensity = widgetsCfg.global?.density || 'comfortable'
   const cardStyle    = widgetsCfg.global?.cardStyle    || 'frosted'
@@ -73,6 +77,7 @@ export default function HomeScreen({ onOpenFeedback }) {
       data-density={globalDensity}
     >
       <div className="home-stack">
+        {showWelcome && <HomeWelcome />}
         {(quoteCfg || moonCfg) && (
           <div className="home-row-top">
             {moonCfg  && renderWidget(moonCfg, globalDensity)}

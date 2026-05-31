@@ -19,6 +19,8 @@ import EditGoalModal from '../../modals/EditGoalModal'
 import EditGoalCategoryModal from '../../modals/EditGoalCategoryModal'
 import GoalCategoryPicker from '../../modals/GoalCategoryPicker'
 import ConfirmModal from '../../modals/ConfirmModal'
+import Coachmark from '../../components/Coachmark'
+import { coachmarkText } from '../../lib/coachmarks'
 import './GoalsScreen.css'
 
 export default function GoalsScreen() {
@@ -73,14 +75,16 @@ export default function GoalsScreen() {
           </div>
           <p className="t-screen">יעדים</p>
         </header>
-        <button
-          className="cta-add"
-          type="button"
-          aria-label={categories.length > 0 ? 'יעד חדש' : 'בחר/י קטגוריה'}
-          onClick={() => (categories.length > 0 ? setShowAddGoal(true) : setShowCatPicker(true))}
-        >
-          {categories.length > 0 ? 'יעד חדש +' : 'בחר/י קטגוריה +'}
-        </button>
+        <Coachmark id="add-goal" radius="50%">
+          <button
+            className="cta-add"
+            type="button"
+            aria-label={categories.length > 0 ? 'יעד חדש' : 'בחר/י קטגוריה'}
+            onClick={() => (categories.length > 0 ? setShowAddGoal(true) : setShowCatPicker(true))}
+          >
+            {categories.length > 0 ? 'יעד חדש +' : 'בחר/י קטגוריה +'}
+          </button>
+        </Coachmark>
       </div>
 
       {categories.length > 0 && (
@@ -115,7 +119,15 @@ export default function GoalsScreen() {
         </div>
       ) : totalGoals === 0 ? (
         <div className="empty">
-          <p className="empty-text">יש לך קטגוריות מוכנות. צור/י את היעד הראשון מ«יעד חדש +».</p>
+          <span className="empty-icon"><Target size={28} strokeWidth={1.4} aria-hidden="true" /></span>
+          <p className="empty-text">יש לכם קטגוריות מוכנות. היעד הראשון שלכם מתחיל כאן.</p>
+          <button className="empty-action" type="button" onClick={() => setShowAddGoal(true)}>
+            <Plus size={18} strokeWidth={1.8} aria-hidden="true" /> הגדירו יעד
+          </button>
+          <details className="empty-reminder">
+            <summary>למה זה חשוב?</summary>
+            <p className="empty-reminder-body">{coachmarkText('add-goal').detail}</p>
+          </details>
         </div>
       ) : (
         groups.map((g) => (

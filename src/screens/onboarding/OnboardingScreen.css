@@ -315,13 +315,61 @@
   width: max-content;
   max-width: 100%;
 }
-.ob-label {
+/* Field labels sit directly over the nature background, so they wear a
+   small glass pill to stay legible (no bare text on the photo). Applies
+   to native onboarding labels AND the shared modal-field labels when
+   rendered inside an onboarding step. */
+.ob-label,
+.ob-client-form .m-label {
+  display: inline-block;
+  width: fit-content;
+  margin: 0 0 2px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  border: var(--mg-card-border);
   font-family: var(--mg-font);
   font-size: 12px;
   font-weight: 600;
   color: var(--stone);
   letter-spacing: 0.02em;
 }
+
+/* Shared client-form fields (modal classes) need the onboarding glass
+   look — transparent + blurred, not the modal's solid cream — so they
+   sit naturally over the background like the native .ob-input fields. */
+.ob-client-form .m-input,
+.ob-client-form .m-select {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: var(--bm);
+  -webkit-backdrop-filter: var(--bm);
+  border: 1px solid rgba(42, 37, 32, 0.14);
+}
+[data-theme="dark"] .ob-client-form .m-input,
+[data-theme="dark"] .ob-client-form .m-select {
+  background: rgba(36, 32, 28, 0.5);
+  border-color: rgba(240, 235, 224, 0.18);
+}
+/* Status pills in the shared form — glassy to match. */
+.ob-client-form .m-pill {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: var(--bm);
+  -webkit-backdrop-filter: var(--bm);
+}
+[data-theme="dark"] .ob-client-form .m-pill {
+  background: rgba(36, 32, 28, 0.5);
+}
+/* Active status pill uses our sage green (not the terracotta default). */
+.ob-client-form .m-pill.on {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: #fff;
+}
+[data-theme="dark"] .ob-client-form .m-pill.on { color: #1a1a1a; }
+/* Each shared field stacks label-pill above its control with a small gap. */
+.ob-client-form .m-field { display: flex; flex-direction: column; gap: 4px; }
 .ob-input,
 .ob-select {
   padding: 10px 12px;
@@ -468,6 +516,241 @@
   box-shadow: 0 0 0 2px var(--cream);
 }
 [data-theme="dark"] .ob-color-swatch.on { box-shadow: 0 0 0 2px var(--ink); }
+
+/* ── Live project card (step 3) — mirrors the in-app project-detail
+   card so onboarding shows the real thing the user is building. ──── */
+.ob-proj-card {
+  align-self: center;
+  width: min(420px, 100%);
+  margin-top: 6px;
+  padding: 14px 16px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+}
+.ob-pc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--divider);
+}
+.ob-pc-color { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.ob-pc-name {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--espresso);
+}
+.ob-pc-section { padding-top: 12px; }
+.ob-pc-sec-title {
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--espresso);
+}
+.ob-pc-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: rgba(42, 37, 32, 0.08);
+  font-family: var(--mg-font-num);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--stone);
+}
+[data-theme="dark"] .ob-pc-count { background: rgba(240, 235, 224, 0.08); }
+.ob-pc-empty {
+  margin: 0 0 8px;
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--stone);
+}
+.ob-pc-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.ob-pc-group {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(42, 37, 32, 0.04);
+}
+[data-theme="dark"] .ob-pc-group { background: rgba(240, 235, 224, 0.04); }
+.ob-pc-group-color { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.ob-pc-group-body { flex: 1; min-width: 0; }
+.ob-pc-group-name {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.ob-pc-group-meta {
+  margin: 1px 0 0;
+  font-family: var(--mg-font);
+  font-size: 11.5px;
+  color: var(--stone);
+}
+.ob-pc-group-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.ob-pc-group-x:hover { color: var(--clay); }
+.ob-pc-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: var(--mg-btn-radius);
+  border: 1px solid var(--mg-card-border);
+  /* Glass fill so the label reads over the background photo (was a
+     transparent dashed button that vanished against the nature image). */
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ob-pc-add:hover { background: var(--mg-btn-secondary-bg-hover); }
+.ob-pc-add:disabled { opacity: 0.5; cursor: default; }
+.ob-pc-teaser {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--divider);
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--stone);
+}
+.ob-pc-teaser svg { color: var(--sage); flex-shrink: 0; }
+
+/* ── Live client card (step 4) — faithful to the in-app .cc card so
+   onboarding shows the real thing the user is creating. ──────────── */
+.ob-cc-wrap,
+.ob-cc-list {
+  align-self: center;
+  width: min(420px, 100%);
+}
+.ob-cc-wrap { margin-top: 6px; }
+.ob-cc-list { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
+.ob-cc-list-h { align-self: flex-start; margin: 4px 2px 0; }
+.ob-cc {
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  padding: 14px 16px;
+}
+.ob-cc-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.ob-cc-av {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--sage) 22%, transparent);
+  font-family: var(--mg-font);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--espresso);
+}
+.ob-cc-id { flex: 1; min-width: 0; }
+.ob-cc-name {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.ob-cc-meta { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+.ob-cc-status {
+  font-family: var(--mg-font);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sage) 20%, transparent);
+  color: var(--espresso);
+}
+.ob-cc-proj { font-family: var(--mg-font); font-size: 11px; color: var(--stone); }
+.ob-cc-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.ob-cc-x:hover { color: var(--clay); }
+.ob-cc-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+}
+.ob-cc-stat { text-align: center; }
+.ob-cc-stat.divided {
+  border-inline-start: 1px solid var(--divider);
+  border-inline-end: 1px solid var(--divider);
+}
+.ob-cc-stat-l { margin: 0 0 2px; font-family: var(--mg-font); font-size: 10px; color: var(--stone); }
+.ob-cc-stat-v { margin: 0; font-family: var(--mg-font-num); font-size: 14px; color: var(--espresso); }
+
+/* The shared client form (modal field classes) sits in a self-sizing
+   onboarding panel; constrain width so the .m-* fields don't stretch
+   full-bleed inside the centered step body. */
+.ob-client-form {
+  align-self: center;
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+}
 
 /* ── Footer — two clusters on opposite sides ──────────────────
    Transparent container that lays out two children:

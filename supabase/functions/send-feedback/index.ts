@@ -8,15 +8,17 @@
 //  Deploy:   supabase functions deploy send-feedback
 //  Secret:   supabase secrets set RESEND_API_KEY=re_xxx
 //
-//  Resend free tier: with no verified domain you may only send to the
-//  address that owns the Resend account. Open the Resend account with
-//  simplicity.os.app@gmail.com and delivery works with no domain setup.
+//  Sends from feedback@simplicity-os.com (a domain verified in Resend),
+//  so the team can simply hit "Reply" to answer the user directly via
+//  reply_to. Before the domain was verified we sent from onboarding@
+//  resend.dev with no reply_to (testing mode rejects any address that
+//  isn't the account owner).
 // ════════════════════════════════════════════════════════════════
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
 const FEEDBACK_TO = 'simplicity.os.app@gmail.com'
-const FEEDBACK_FROM = 'Simplicity Feedback <onboarding@resend.dev>'
+const FEEDBACK_FROM = 'Simplicity Feedback <feedback@simplicity-os.com>'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sparkles, Moon, BarChart3, Trash2, Sun, X, Pencil, LogOut,
+  Sparkles, Moon, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
@@ -26,7 +26,7 @@ function initial(name) {
   return name?.trim()?.[0] ?? '·'
 }
 
-export default function MenuDrawer({ open, onClose, screen, isDark, onToggleTheme }) {
+export default function MenuDrawer({ open, onClose, screen, isDark, onToggleTheme, onOpenFeedback }) {
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
 
@@ -122,6 +122,14 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
         </button>
 
         <p className="drawer-section-lbl">הגדרות</p>
+
+        <button className="drawer-link tint-purple" onClick={() => { onClose(); onOpenFeedback?.() }}>
+          <span className="drawer-link-icon"><MessageSquarePlus size={18} strokeWidth={1.5} /></span>
+          <span className="drawer-link-text">
+            דברו אלינו
+            <span className="drawer-link-text-sub">מה עובד, מה חסר, ומה אפשר לשפר</span>
+          </span>
+        </button>
 
         <button className="drawer-link tint-amber" onClick={() => goTo(ROUTES.TRASH)}>
           <span className="drawer-link-icon"><Trash2 size={18} strokeWidth={1.5} /></span>

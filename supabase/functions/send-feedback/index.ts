@@ -34,10 +34,19 @@ function json(body: unknown, status = 200) {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
+  // Optional feedback type → Hebrew label for the email subject.
+  const TYPE_LABELS: Record<string, string> = {
+    bug: 'באג',
+    idea: 'רעיון',
+    praise: 'מחמאה',
+    other: 'אחר',
+  }
+
   try {
-    const { message } = await req.json().catch(() => ({}))
+    const { message, type } = await req.json().catch(() => ({}))
     const text = (message ?? '').toString().trim()
     if (!text) return json({ error: 'empty message' }, 400)
+    const typeLabel = TYPE_LABELS[type as string] ?? null
 
     // Identify the sender from their JWT so the email shows who wrote it.
     let sender = 'משתמש לא מזוהה'
@@ -67,8 +76,8 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: FEEDBACK_FROM,
         to: [FEEDBACK_TO],
-        subject: `פידבק חדש מ-${sender}`,
-        text: `מאת: ${sender}\n\n${text}`,
+        subject: typeLabel ? `[${typeLabel}] פידבק חדש מ-${sender}` : `פידבק חדש מ-${sender}`,
+        text: `מאת: ${sender}${typeLabel ? `\nסוג: ${typeLabel}` : ''}\n\n${text}`,
       }),
     })
 

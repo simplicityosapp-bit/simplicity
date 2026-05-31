@@ -413,6 +413,43 @@
   line-height: 1.5;
 }
 
+/* Segmented control — multi-option choice matching the in-app
+   .mg-toggle / .m-seg pattern (one glass track, sage active segment).
+   Used for the group billing-mode picker in step 3. */
+.ob-seg {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  border: 1px solid rgba(42, 37, 32, 0.14);
+  background: rgba(255, 255, 255, 0.5);
+}
+[data-theme="dark"] .ob-seg {
+  border-color: rgba(240, 235, 224, 0.18);
+  background: rgba(36, 32, 28, 0.5);
+}
+.ob-seg-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--stone);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.ob-seg-btn.on {
+  background: var(--sage);
+  color: #fff;
+}
+[data-theme="dark"] .ob-seg-btn.on {
+  color: #1a1a1a;
+}
+
 .ob-color-row {
   display: flex;
   flex-wrap: wrap;

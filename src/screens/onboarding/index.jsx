@@ -4,6 +4,7 @@ import { ROUTES } from '../../lib/routes'
 import { useOnboarding } from '../../hooks/useOnboarding'
 import { finalizeOnboardingImport } from '../../lib/onboardingImport'
 import OnboardingShell from './OnboardingShell'
+import OnboardingReviewWizard from './OnboardingReviewWizard'
 import WelcomeGate from './WelcomeGate'
 import Step1Profile         from './steps/Step1Profile'
 import Step2DataImport      from './steps/Step2DataImport'
@@ -37,6 +38,9 @@ export default function OnboardingScreen() {
      render the primary Next button outside the per-step body. Each
      step pushes its onNext/canAdvance/busy/hint via setCTA below. */
   const [cta, setCTA] = useState(null)
+  /* When non-null, the pre-create review wizard is open over Step 9,
+     carrying the parsed_data snapshot to review. */
+  const [review, setReview] = useState(null)
   const StepComp = STEPS[ob.step] || STEPS.profile
 
   /* Show the welcome chooser on first ever visit. The flag is flipped
@@ -54,24 +58,55 @@ export default function OnboardingScreen() {
   const onDoneInputs = useRef({ ob, navigate })
   onDoneInputs.current = { ob, navigate }
 
-  const onDone = useCallback(async () => {
+  /* Finish: complete() clears the raw CSV from prefs (personal client
+     data we only kept for the review) in the same write, then land home. */
+  const finishAndGoHome = useCallback(async () => {
     const cur = onDoneInputs.current
-    if (cur.ob.state.parsed_data?.kind === 'csv') {
-      try {
-        await finalizeOnboardingImport({ parsedData: cur.ob.state.parsed_data })
-      } catch {
-        /* non-fatal — we still want the user on /home */
-      }
-    }
     await cur.ob.complete()
     cur.navigate(ROUTES.HOME, { replace: true })
   }, [])
+
+  /* Step 9 "finish": if the user imported a CSV with reviewable rows,
+     open the review wizard instead of writing straight to the DB. Path
+     B / empty / Excel-placeholder users complete immediately. */
+  const onDone = useCallback(async () => {
+    const pd = onDoneInputs.current.ob.state.parsed_data
+    const reviewable =
+      pd?.kind === 'csv' &&
+      ((pd.clients?.length || 0) + (pd.projects?.length || 0) + (pd.transactions?.length || 0)) > 0
+    if (reviewable) { setReview(pd); return }
+    await finishAndGoHome()
+  }, [finishAndGoHome])
+
+  /* Run the import and hand the summary back to the wizard so it can
+     surface partial failures instead of swallowing them. Does NOT
+     navigate — the wizard calls onReviewComplete once the user is done. */
+  const onReviewConfirm = useCallback(async (payload) => {
+    try {
+      return await finalizeOnboardingImport(payload)
+    } catch (e) {
+      return { fatal: true, error: e?.message || 'שגיאה לא צפויה' }
+    }
+  }, [])
+
+  const onReviewComplete = useCallback(async () => {
+    setReview(null)
+    await finishAndGoHome()
+  }, [finishAndGoHome])
 
   return (
     <div className="ob-screen screen">
       <OnboardingShell ob={ob} cta={cta}>
         <StepComp ob={ob} onDone={onDone} setCTA={setCTA} />
       </OnboardingShell>
+      {review && (
+        <OnboardingReviewWizard
+          parsed={review}
+          onConfirm={onReviewConfirm}
+          onComplete={onReviewComplete}
+          onCancel={() => setReview(null)}
+        />
+      )}
     </div>
   )
 }

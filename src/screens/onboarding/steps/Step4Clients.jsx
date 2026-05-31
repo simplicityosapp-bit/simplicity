@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useClients } from '../../../hooks/useClients'
 import { useProjects } from '../../../hooks/useProjects'
+import CsvMappingEditor from '../CsvMappingEditor'
 
 /* Step 4 — first client. Pre-fills the project select to the project
    the user just created (step 3), if any. When path A is active and
@@ -81,6 +82,8 @@ export default function Step4Clients({ ob, setCTA }) {
     <>
       <p className="ob-intro">הוסף/י לקוח/ה ראשון/ה.</p>
       <p className="ob-intro-sub">לקוח הוא אדם אחד שאת/ה עובד/ת איתו. אפשר להוסיף עוד מאוחר יותר.</p>
+
+      <CsvMappingEditor ob={ob} stepKey="clients" title="שדות הלקוח מהקובץ" />
 
       {pathA && suggestions.length > 0 && (
         <div className="ob-field">

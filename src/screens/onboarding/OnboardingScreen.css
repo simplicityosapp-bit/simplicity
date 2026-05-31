@@ -758,6 +758,75 @@
   color: var(--espresso);
 }
 
+/* ── CSV mapping editor (Steps 2/3/4) ─────────────────────────
+   A wider .ob-field that lists each relevant column with its sample
+   value and a field dropdown. Wider than the default fit-content
+   field so the column/sample/select row breathes. */
+.ob-map {
+  width: 100%;
+  max-width: 520px;
+  min-width: min(420px, 100%);
+  align-items: stretch;
+}
+.ob-map-sub {
+  margin: 0 0 2px;
+  font-family: var(--mg-font);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--stone);
+}
+.ob-map-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ob-map-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(42, 37, 32, 0.08);
+  background: rgba(255, 255, 255, 0.34);
+}
+[data-theme="dark"] .ob-map-row {
+  border-color: rgba(240, 235, 224, 0.12);
+  background: rgba(36, 32, 28, 0.34);
+}
+.ob-map-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.ob-map-col-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.ob-map-col-name svg { color: var(--sage); flex: none; }
+.ob-map-sample {
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--stone);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+.ob-map-select {
+  flex: none;
+  width: 140px;
+  padding: 7px 10px;
+  font-size: 13px;
+}
+
 /* Step 8 preview tiles */
 .ob-preview-grid {
   display: grid;

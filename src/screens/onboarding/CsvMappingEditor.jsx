@@ -1,0 +1,75 @@
+import { CheckCircle2, HelpCircle } from 'lucide-react'
+import { columnsForStep, fieldsForStep, remapColumn, FIELD_LABEL, CSV_FIELDS } from '../../lib/csvImport'
+
+/* ════════════════════════════════════════════════════════════════
+   CSV MAPPING EDITOR — shared per-step column→field confirmation.
+   ════════════════════════════════════════════════════════════════
+   Mounted inside Step 2 (leftover / non-onboarding fields + unmapped
+   columns), Step 3 (the `project` column) and Step 4 (name / sessions
+   / price). Each instance shows only the columns relevant to its step
+   (columnsForStep) and offers only that step's fields in the dropdown
+   (fieldsForStep). Editing writes back through remapColumn → the
+   entities re-derive and every other screen stays in sync.
+   Renders null when there's no CSV or no relevant column, so steps can
+   mount it unconditionally. ════════════════════════════════════════ */
+
+export default function CsvMappingEditor({ ob, stepKey, title }) {
+  const parsed = ob.state.parsed_data
+  if (!parsed || parsed.kind !== 'csv' || !Array.isArray(parsed.rows) || parsed.rows.length === 0) return null
+
+  const columns = columnsForStep(parsed, stepKey)
+  if (columns.length === 0) return null
+  /* Step 2 is the catch-all: it must let an UNrecognised column be
+     assigned to ANY field (incl. name/project/sessions/price) — else a
+     missed "name" column would be unmappable and 0 clients import.
+     Steps 3/4 stay scoped to the fields they confirm. */
+  const allowed = stepKey === 'data_import' ? CSV_FIELDS.map((f) => f.key) : fieldsForStep(stepKey)
+
+  const onChange = (colIdx, field) => {
+    ob.setParsedData(remapColumn(parsed, colIdx, field || null))
+  }
+
+  const detected = columns.filter((c) => c.field).length
+  const unmapped = columns.length - detected
+
+  return (
+    <div className="ob-field ob-map">
+      <p className="ob-label">
+        {title || 'מהקובץ שלך — אישור מיפוי עמודות'}
+      </p>
+      <p className="ob-map-sub">
+        {detected > 0 && <>זיהינו {detected} עמודות אוטומטית. </>}
+        {unmapped > 0
+          ? <>{unmapped} עמודות לא זוהו — בחר/י להן שדה או דלג/י.</>
+          : <>אפשר לתקן ידנית אם משהו לא נכון.</>}
+      </p>
+
+      <div className="ob-map-rows">
+        {columns.map(({ colIdx, header, field, sample }) => (
+          <div className="ob-map-row" key={colIdx}>
+            <div className="ob-map-col">
+              <span className="ob-map-col-name">
+                {field
+                  ? <CheckCircle2 size={13} strokeWidth={2} aria-hidden="true" />
+                  : <HelpCircle size={13} strokeWidth={2} aria-hidden="true" />}
+                {header || `עמודה ${colIdx + 1}`}
+              </span>
+              {sample && <span className="ob-map-sample" title={sample}>לדוגמה: {sample}</span>}
+            </div>
+            <select
+              className="ob-select ob-map-select"
+              value={field || ''}
+              onChange={(e) => onChange(colIdx, e.target.value)}
+              aria-label={`מיפוי לעמודה ${header}`}
+            >
+              <option value="">— התעלם</option>
+              {allowed.map((f) => (
+                <option key={f} value={f}>{FIELD_LABEL[f]}</option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

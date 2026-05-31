@@ -1,0 +1,390 @@
+/* ════════════════════════════════════════════════════════════════
+   ONBOARDING REVIEW WIZARD — interstitial dialog over Step 9.
+   ════════════════════════════════════════════════════════════════
+   Same glass language as the rest of onboarding (--mg-card tokens),
+   scaled up to a centered modal with a scrollable row list. RTL by
+   inheritance; light + dark parity via custom properties. */
+.obrw-back {
+  position: fixed;
+  inset: 0;
+  z-index: 720;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(20, 18, 14, 0.4);
+  backdrop-filter: blur(4px);
+  animation: obrwFade 0.2s ease-out;
+}
+@keyframes obrwFade { from { opacity: 0; } to { opacity: 1; } }
+
+.obrw-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(680px, 100%);
+  max-height: min(86vh, 760px);
+  border-radius: 20px;
+  border: 1px solid rgba(240, 235, 224, 0.42);
+  background: rgba(255, 250, 240, 0.96);
+  backdrop-filter: blur(24px) saturate(150%);
+  box-shadow: 0 22px 64px rgba(42, 37, 32, 0.34);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  overflow: hidden;
+  animation: obrwUp 0.26s cubic-bezier(0.32, 0.72, 0.24, 1);
+}
+[data-theme="dark"] .obrw-panel {
+  background: rgba(20, 18, 14, 0.96);
+  border-color: rgba(240, 235, 224, 0.14);
+}
+@keyframes obrwUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.obrw-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid rgba(42, 37, 32, 0.08);
+}
+[data-theme="dark"] .obrw-head { border-color: rgba(240, 235, 224, 0.1); }
+.obrw-title { margin: 0 0 3px; font-size: 16px; font-weight: 700; color: var(--espresso); }
+.obrw-sub   { margin: 0; font-size: 12px; line-height: 1.5; color: var(--stone); }
+.obrw-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; height: 30px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid rgba(42, 37, 32, 0.14);
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+}
+[data-theme="dark"] .obrw-x { border-color: rgba(240, 235, 224, 0.18); }
+.obrw-x:hover:not(:disabled) { color: var(--espresso); }
+
+.obrw-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 12px 20px 0;
+  flex-wrap: wrap;
+}
+.obrw-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(42, 37, 32, 0.14);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+[data-theme="dark"] .obrw-tab { border-color: rgba(240, 235, 224, 0.18); color: var(--cream); }
+.obrw-tab.on {
+  background: color-mix(in srgb, var(--sage) 22%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 55%, transparent);
+}
+.obrw-tab-count {
+  font-family: var(--mg-font-num);
+  font-size: 11px;
+  color: var(--stone);
+  letter-spacing: 0.03em;
+}
+
+/* Loading state — shown until existing clients/projects load, so the
+   "already exists" defaults are correct before the list paints (no
+   flash of everything-included). Pulsing logo. */
+.obrw-loading {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 48px 20px 56px;
+}
+.obrw-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  animation: obrwPulse 1.4s ease-in-out infinite;
+}
+.obrw-logo-night { display: none; }
+[data-theme="dark"] .obrw-logo-day   { display: none; }
+[data-theme="dark"] .obrw-logo-night { display: block; }
+@keyframes obrwPulse {
+  0%, 100% { transform: scale(0.92); opacity: 0.55; }
+  50%      { transform: scale(1.04); opacity: 1; }
+}
+.obrw-loading-txt {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  color: var(--stone);
+}
+
+/* Bulk actions + warnings strip for the active tab */
+.obrw-bulk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 20px 0;
+}
+.obrw-bulk-btn {
+  background: none;
+  border: none;
+  padding: 2px 2px;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sage);
+  cursor: pointer;
+}
+.obrw-bulk-btn:hover { text-decoration: underline; }
+.obrw-bulk-sep { color: var(--stone); font-size: 11px; }
+.obrw-warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: auto;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--clay);
+}
+.obrw-warn svg { flex: none; }
+
+.obrw-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.obrw-more {
+  align-self: center;
+  margin-top: 4px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(42, 37, 32, 0.16);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  color: var(--espresso);
+  cursor: pointer;
+}
+[data-theme="dark"] .obrw-more { border-color: rgba(240, 235, 224, 0.2); color: var(--cream); }
+.obrw-more:hover { background: rgba(42, 37, 32, 0.05); }
+[data-theme="dark"] .obrw-more:hover { background: rgba(240, 235, 224, 0.06); }
+
+.obrw-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(42, 37, 32, 0.08);
+  background: rgba(255, 255, 255, 0.4);
+  transition: opacity 0.15s;
+}
+[data-theme="dark"] .obrw-row {
+  border-color: rgba(240, 235, 224, 0.1);
+  background: rgba(36, 32, 28, 0.4);
+}
+.obrw-row.off { opacity: 0.42; }
+
+.obrw-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px; height: 26px;
+  flex: none;
+  border-radius: 8px;
+  border: 1px solid rgba(42, 37, 32, 0.2);
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+[data-theme="dark"] .obrw-toggle { border-color: rgba(240, 235, 224, 0.2); }
+.obrw-toggle.on {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: #fff;
+}
+
+.obrw-fields {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.obrw-input {
+  padding: 6px 9px;
+  border-radius: 9px;
+  border: 1px solid rgba(42, 37, 32, 0.14);
+  background: rgba(255, 255, 255, 0.7);
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  color: var(--espresso);
+  min-width: 70px;
+}
+[data-theme="dark"] .obrw-input {
+  border-color: rgba(240, 235, 224, 0.18);
+  background: rgba(28, 25, 21, 0.6);
+  color: var(--cream);
+}
+.obrw-input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--sage) 60%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sage) 18%, transparent);
+}
+.obrw-input:disabled { opacity: 0.55; cursor: not-allowed; }
+.obrw-grow { flex: 1 1 120px; }
+.obrw-num  { width: 76px; flex: none; }
+.obrw-cl-proj { width: 130px; flex: none; }
+
+/* Labeled transaction field — tiny caption above the input so the
+   date/amount are unambiguous. */
+.obrw-tx-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.obrw-tx-field .obrw-input { width: 100%; }
+.obrw-tx-amount { flex: 0 0 auto; width: 90px; }
+.obrw-tx-date   { flex: 0 0 auto; width: 150px; }
+.obrw-tx-proj   { flex: 0 0 auto; width: 130px; }
+.obrw-tx-field.obrw-grow { flex: 1 1 120px; }
+.obrw-tx-lbl {
+  font-family: var(--mg-font);
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--stone);
+  letter-spacing: 0.02em;
+}
+
+.obrw-tx-type   { flex: 0 0 auto; width: 84px; }
+
+.obrw-link {
+  font-size: 11px;
+  color: var(--stone);
+  white-space: nowrap;
+}
+.obrw-link.muted { color: var(--clay); opacity: 0.85; }
+.obrw-invalid {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--clay);
+  white-space: nowrap;
+}
+.obrw-badge {
+  flex: none;
+  font-family: var(--mg-font-num);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--stone);
+  white-space: nowrap;
+}
+.obrw-badge.income  { color: var(--sage); }
+.obrw-badge.expense { color: var(--clay); }
+.obrw-badge.dup {
+  font-family: var(--mg-font);
+  color: var(--amber);
+  border: 1px solid color-mix(in srgb, var(--amber) 45%, transparent);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+/* Included-but-invalid row — red hairline so the skip is visible. */
+.obrw-row.invalid {
+  border-color: color-mix(in srgb, var(--clay) 55%, transparent);
+  background: color-mix(in srgb, var(--clay) 7%, rgba(255, 255, 255, 0.4));
+}
+[data-theme="dark"] .obrw-row.invalid {
+  background: color-mix(in srgb, var(--clay) 14%, rgba(36, 32, 28, 0.4));
+}
+
+.obrw-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 20px 16px;
+  border-top: 1px solid rgba(42, 37, 32, 0.08);
+}
+[data-theme="dark"] .obrw-foot { border-color: rgba(240, 235, 224, 0.1); }
+.obrw-summary { margin: 0; font-size: 12.5px; color: var(--stone); }
+.obrw-summary strong { color: var(--espresso); font-family: var(--mg-font-num); }
+.obrw-actions { display: flex; gap: 10px; }
+
+/* ── Result / error view ─────────────────────────────────────── */
+.obrw-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 32px 24px 24px;
+}
+.obrw-result-icon { color: var(--clay); }
+.obrw-result-title { margin: 4px 0 0; font-size: 16px; font-weight: 700; color: var(--espresso); }
+.obrw-result-txt { margin: 0; font-size: 13px; color: var(--stone); }
+.obrw-result-fail { color: var(--clay); font-weight: 600; }
+.obrw-result-errs {
+  margin: 6px 0 2px;
+  padding-inline-start: 18px;
+  text-align: start;
+  font-size: 11.5px;
+  color: var(--stone);
+  max-height: 120px;
+  overflow-y: auto;
+}
+.obrw-result .obrw-actions { margin-top: 14px; }
+
+/* ── Dirty-close confirm overlay ─────────────────────────────── */
+.obrw-confirm {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+  background: color-mix(in srgb, var(--mg-card-bg, rgba(255,250,240,0.96)) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  z-index: 5;
+}
+.obrw-confirm-txt { margin: 0; font-family: var(--mg-font); font-size: 14px; color: var(--espresso); max-width: 320px; line-height: 1.5; }
+
+/* ── Mobile — stack fields so nothing gets crushed ───────────── */
+@media (max-width: 600px) {
+  .obrw-head, .obrw-tabs, .obrw-bulk, .obrw-body, .obrw-foot { padding-inline: 14px; }
+  .obrw-fields { gap: 8px; }
+  .obrw-input { min-width: 60px; }
+  .obrw-grow, .obrw-tx-field.obrw-grow { flex: 1 1 100%; }
+  .obrw-num { width: 64px; }
+  .obrw-tx-amount, .obrw-tx-type { width: calc(50% - 4px); flex: 0 0 auto; }
+  .obrw-tx-date, .obrw-tx-proj { width: calc(50% - 4px); flex: 0 0 auto; }
+  .obrw-foot { gap: 8px; }
+  .obrw-actions { width: 100%; }
+  .obrw-actions .ob-btn { flex: 1 1 auto; justify-content: center; }
+}

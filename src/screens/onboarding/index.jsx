@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../lib/routes'
 import { useOnboarding } from '../../hooks/useOnboarding'
 import { finalizeOnboardingImport } from '../../lib/onboardingImport'
+import { flattenAllSources } from '../../lib/multiImport'
+import { projectSheet } from '../../lib/sheetMapper'
 import OnboardingShell from './OnboardingShell'
 import OnboardingReviewWizard from './OnboardingReviewWizard'
 import WelcomeGate from './WelcomeGate'
@@ -38,9 +40,12 @@ export default function OnboardingScreen() {
      render the primary Next button outside the per-step body. Each
      step pushes its onNext/canAdvance/busy/hint via setCTA below. */
   const [cta, setCTA] = useState(null)
-  /* When non-null, the pre-create review wizard is open over Step 9,
-     carrying the parsed_data snapshot to review. */
+  /* When non-null, the pre-create review wizard is open, carrying the
+     parsed_data snapshot to review. `reviewMode` records where it was
+     opened from: 'finish' (Step 9 → go home after) or 'step2' (data
+     import → advance to the next step after). */
   const [review, setReview] = useState(null)
+  const [reviewMode, setReviewMode] = useState('finish')
   const StepComp = STEPS[ob.step] || STEPS.profile
 
   /* Latest mutable snapshot of inputs to onDone — kept in refs so the
@@ -60,17 +65,73 @@ export default function OnboardingScreen() {
     cur.navigate(ROUTES.HOME, { replace: true })
   }, [])
 
-  /* Step 9 "finish": if the user imported a CSV with reviewable rows,
-     open the review wizard instead of writing straight to the DB. Path
-     B / empty / Excel-placeholder users complete immediately. */
-  const onDone = useCallback(async () => {
-    const pd = onDoneInputs.current.ob.state.parsed_data
+  /* Build the merged review object from parsed_data (sheets → entities):
+     flat entity sheets project their rows; matrix sheets flatten to
+     transactions (with project/client links per labelKind). Returns the
+     merged review object, or null when nothing is reviewable. Shared by
+     the Step 9 finish flow AND the Step 2 "review now" button. */
+  const buildReview = (pd) => {
+    let review = pd
+    if (pd?.sheets?.length) {
+      const live = pd.sheets.filter((s) => !s.removed)
+      const acc = { clients: [], projects: [], leads: [], transactions: [] }
+      live.forEach((sheet) => {
+        if (sheet.type === 'matrix') {
+          const merged = flattenAllSources([{ id: sheet.id, config: sheet.pivot, transactions: sheet.pivotTransactions, fileName: sheet.fileName }])
+          acc.transactions.push(...merged.transactions)
+          acc.projects.push(...merged.projects)
+          acc.clients.push(...merged.clients)
+        } else {
+          const p = projectSheet(sheet)
+          acc.clients.push(...p.clients)
+          acc.projects.push(...p.projects)
+          acc.leads.push(...p.leads)
+          acc.transactions.push(...p.transactions)
+        }
+      })
+      /* MERGE by name (not just dedup): the same client/project often
+         appears across sheets (Notion: clients + meetings + payments),
+         each carrying different fields. We keep one record per name and
+         fill any empty field from later occurrences, so no data is lost. */
+      const mergeByName = (arr) => {
+        const byKey = new Map()
+        arr.forEach((x) => {
+          const k = (x.name || '').trim().toLowerCase()
+          if (!k) return
+          if (!byKey.has(k)) { byKey.set(k, { ...x }); return }
+          const cur = byKey.get(k)
+          Object.entries(x).forEach(([field, val]) => {
+            const empty = cur[field] == null || cur[field] === '' || cur[field] === 0
+            const incoming = val != null && val !== '' && val !== 0
+            if (empty && incoming) cur[field] = val
+          })
+        })
+        return Array.from(byKey.values())
+      }
+      review = { ...pd, ...acc, projects: mergeByName(acc.projects), clients: mergeByName(acc.clients) }
+    }
     const reviewable =
       pd?.kind === 'csv' &&
-      ((pd.clients?.length || 0) + (pd.projects?.length || 0) + (pd.transactions?.length || 0)) > 0
-    if (reviewable) { setReview(pd); return }
+      ((review.clients?.length || 0) + (review.projects?.length || 0)
+        + (review.leads?.length || 0) + (review.transactions?.length || 0)) > 0
+    return reviewable ? review : null
+  }
+
+  /* Step 9 "finish": review imported data, else finish straight away. */
+  const onDone = useCallback(async () => {
+    const r = buildReview(onDoneInputs.current.ob.state.parsed_data)
+    if (r) { setReviewMode('finish'); setReview(r); return }
     await finishAndGoHome()
   }, [finishAndGoHome])
+
+  /* Step 2 "review now": open the same wizard from the data-import step.
+     On complete it ADVANCES to the next step (not home). Returns true if
+     a review opened, so the step knows not to advance itself. */
+  const onReviewFromStep = useCallback(() => {
+    const r = buildReview(onDoneInputs.current.ob.state.parsed_data)
+    if (r) { setReviewMode('step2'); setReview(r); return true }
+    return false
+  }, [])
 
   /* Run the import and hand the summary back to the wizard so it can
      surface partial failures instead of swallowing them. Does NOT
@@ -85,8 +146,13 @@ export default function OnboardingScreen() {
 
   const onReviewComplete = useCallback(async () => {
     setReview(null)
-    await finishAndGoHome()
-  }, [finishAndGoHome])
+    if (reviewMode === 'step2') {
+      /* Imported from the data step → advance to the next onboarding step. */
+      await onDoneInputs.current.ob.advance()
+    } else {
+      await finishAndGoHome()
+    }
+  }, [reviewMode, finishAndGoHome])
 
   /* Show the welcome chooser on first ever visit. The flag is flipped
      by WelcomeGate (either path), so we never replay it. MUST stay below
@@ -100,7 +166,7 @@ export default function OnboardingScreen() {
   return (
     <div className="ob-screen screen">
       <OnboardingShell ob={ob} cta={cta}>
-        <StepComp ob={ob} onDone={onDone} setCTA={setCTA} />
+        <StepComp ob={ob} onDone={onDone} setCTA={setCTA} onReviewFromStep={onReviewFromStep} />
       </OnboardingShell>
       {review && (
         <OnboardingReviewWizard

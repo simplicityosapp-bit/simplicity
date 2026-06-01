@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
-import { Upload, FileSpreadsheet, CheckCircle2 } from 'lucide-react'
-import { parseFile } from '../../../lib/csvImport'
-import CsvMappingEditor from '../CsvMappingEditor'
+import { Upload, FileSpreadsheet } from 'lucide-react'
+import { parseXlsxSheets, parseCsvFile } from '../../../lib/csvImport'
+import { buildSheetMapping } from '../../../lib/sheetMapper'
+import { buildPivotConfig, detectMatrix, flattenMatrix, yearFromSheetName } from '../../../lib/pivotImport'
+import UnifiedSheetImporter from '../UnifiedSheetImporter'
 
-/* Step 2 — paths A (import) vs B (start fresh). Path A runs a real
-   header-aware parser (lib/csvImport: CSV/TSV + Excel via lazy SheetJS)
-   and stashes the structured result in `ob.parsed_data` so downstream
-   steps (esp. step 4 clients) can offer "extracted from your file"
-   chips. */
+/* Step 2 — paths A (import) vs B (start fresh). Path A reads EVERY file
+   the user picks (multiple) and EVERY sheet inside each (one per year).
+   Matrix sheets (months as columns) become editable "sources"; flat
+   sheets fall back to the column-mapping editor. The result is stashed
+   in ob.parsed_data so downstream steps + the review wizard can use it. */
 
 const ACCEPT = '.csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
-export default function Step2DataImport({ ob, setCTA }) {
+export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
   const fileRef = useRef(null)
   const initial = ob.state.answers?.data_import || {}
   const [mode, setMode] = useState(initial.mode || null) // 'A' | 'B' | null
@@ -20,32 +22,60 @@ export default function Step2DataImport({ ob, setCTA }) {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
 
-  const handleFile = async (file) => {
-    if (!file) return
+  /* Handle one or more picked files. Reads every sheet of every file;
+     matrix sheets become editable sources, a single flat file keeps the
+     legacy column-mapping flow. */
+  const handleFiles = async (fileList) => {
+    const files = Array.from(fileList || [])
+    if (!files.length) return
     setBusy(true); setErr('')
     try {
-      const isXlsx = /\.xlsx?$/i.test(file.name)
-      const parsed = await parseFile(file)
-      setFileName(file.name)
-      setRowCount(parsed.raw_rows)
+      /* Read EVERY sheet of EVERY file into a unified list. Each sheet
+         becomes one editable mapping (entity type + columns); matrix
+         sheets also carry a pivot config. The user confirms/fixes each. */
+      const sheets = []
+      for (const file of files) {
+        const isCsv = /\.(csv|tsv|txt)$/i.test(file.name) || file.type === 'text/csv'
+        // eslint-disable-next-line no-await-in-loop
+        const raw = isCsv
+          ? [{ sheetName: null, rows: [(await parseCsvFile(file)).headers, ...((await parseCsvFile(file)).rows || [])] }]
+          : await parseXlsxSheets(file)
+        raw.forEach(({ sheetName, rows }) => {
+          const sheet = buildSheetMapping(file.name, sheetName, rows)
+          if (sheet.type === 'matrix') {
+            const headers = sheet.headers
+            const det = detectMatrix(headers)
+            const year = yearFromSheetName(sheetName) || yearFromSheetName(file.name)
+            sheet.pivot = buildPivotConfig(headers, sheet.rows, det, year)
+            sheet.pivotTransactions = flattenMatrix(sheet.rows, { ...sheet.pivot, skipRows: new Set(sheet.pivot.skipRows) })
+          }
+          sheets.push(sheet)
+        })
+      }
+      const names = files.map((f) => f.name).join(', ')
+      setFileName(names)
+      setRowCount(sheets.reduce((s, sh) => s + (sh.rows?.length || 0), 0))
       await ob.setParsedData({
         kind: 'csv',
-        ...parsed,
+        file_name: names,
+        sheets,
+        clients: [], projects: [], transactions: [],
         received_at: new Date().toISOString(),
       })
       await ob.setAnswers('data_import', {
-        mode: 'A',
-        file_name: file.name,
-        parsed_at: new Date().toISOString(),
-        format: isXlsx ? 'xlsx' : 'csv',
-        client_count: parsed.clients.length,
-        project_count: parsed.projects.length,
+        mode: 'A', file_name: names, parsed_at: new Date().toISOString(), sheet_count: sheets.length,
       })
     } catch (e) {
       setErr('הקובץ לא נקרא — ודא/י שזה CSV או Excel תקין, או בחר/י להתחיל מאפס.')
     } finally {
       setBusy(false)
     }
+  }
+
+  /* Update the editable sheet mappings in place (from UnifiedSheetImporter). */
+  const onSheetsChange = (nextSheets) => {
+    const pd = ob.state.parsed_data || {}
+    ob.setParsedData({ ...pd, sheets: nextSheets })
   }
 
   const onPickPathA = () => {
@@ -64,11 +94,17 @@ export default function Step2DataImport({ ob, setCTA }) {
     /* If user picked path A but didn't actually upload, fall back to B. */
     const finalMode = mode === 'A' && !fileName ? 'B' : (mode || 'B')
     await ob.setAnswers('data_import', { mode: finalMode })
+    /* Uploaded data → open the review wizard right here. If it opens, it
+       owns advancing on complete; otherwise advance normally. */
+    if (finalMode === 'A' && onReviewFromStep?.()) return
     await ob.advance()
   }
 
-  const canAdvance = mode === 'B' || (mode === 'A' && !!fileName)
-  const hint = null
+  /* Block advancing while any matrix sheet still needs a year. */
+  const sheets = (ob.state.parsed_data?.sheets || []).filter((s) => !s.removed)
+  const yearMissing = sheets.some((s) => s.type === 'matrix' && (s.pivot?.periodCols || []).some((c) => c.month) && !s.pivot?.year)
+  const canAdvance = (mode === 'B' || (mode === 'A' && !!fileName)) && !yearMissing
+  const hint = yearMissing ? 'יש לבחור שנה לכל טבלת חודשים לפני שממשיכים.' : null
   useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [mode, fileName, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -85,7 +121,7 @@ export default function Step2DataImport({ ob, setCTA }) {
           <span className="ob-option-card-l">
             <FileSpreadsheet size={16} strokeWidth={1.7} aria-hidden="true" /> כן, יש לי
           </span>
-          <p className="ob-option-card-sub">CSV או Excel — נעלה ונחלץ ממנו מה שאפשר.</p>
+          <p className="ob-option-card-sub">CSV או Excel — אפשר כמה קבצים יחד, נחלץ מהם מה שאפשר.</p>
         </button>
         <button
           type="button"
@@ -102,42 +138,21 @@ export default function Step2DataImport({ ob, setCTA }) {
         ref={fileRef}
         type="file"
         accept={ACCEPT}
+        multiple
         style={{ display: 'none' }}
-        onChange={(e) => handleFile(e.target.files?.[0])}
+        onChange={(e) => handleFiles(e.target.files)}
       />
 
       {busy && <p className="ob-empty-hint">מעבד את הקובץ…</p>}
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
 
-      {mode === 'A' && fileName && (
-        <div className="ob-pre-fill-banner">
-          <CheckCircle2 size={15} strokeWidth={1.8} aria-hidden="true" />
-          <div>
-            התקבל: <strong>{fileName}</strong>
-            {rowCount != null && <span style={{ color: 'var(--stone)' }}> · {rowCount} שורות</span>}
-            {ob.state.parsed_data?.kind === 'csv' && (
-              <div style={{ marginTop: 4, color: 'var(--stone)', fontSize: 11.5 }}>
-                זוהו {ob.state.parsed_data.clients?.length || 0} לקוחות
-                {ob.state.parsed_data.projects?.length ? ` · ${ob.state.parsed_data.projects.length} פרויקטים` : ''}
-                {ob.state.parsed_data.unmapped_columns?.length ? ` · ${ob.state.parsed_data.unmapped_columns.length} עמודות לא זוהו` : ''}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {busy && <p className="ob-empty-hint">מעבד את הקבצים…</p>}
 
-      {mode === 'A' && fileName && ob.state.parsed_data?.kind === 'csv' && ob.state.parsed_data.raw_rows === 0 && (
-        <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>
-          לא זוהו שורות בקובץ — ודא/י שהקובץ אינו ריק ושנשמר כ-CSV, ונסה/י שוב.
-        </p>
+      {/* One editable card per sheet: detected entity type + column
+          mapping. Anything unrecognised is surfaced for the user to set. */}
+      {ob.state.parsed_data?.sheets?.length > 0 && (
+        <UnifiedSheetImporter sheets={ob.state.parsed_data.sheets} onChange={onSheetsChange} />
       )}
-
-      <CsvMappingEditor
-        parsed={ob.state.parsed_data}
-        onChange={ob.setParsedData}
-        stepKey="data_import"
-        title="עמודות מהקובץ — התאמת שדות"
-      />
 
     </>
   )

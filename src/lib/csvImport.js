@@ -17,7 +17,16 @@
    ignored, not rejected. Headers are matched in lowercase + with
    whitespace/punctuation stripped, so "Full Name", "full_name",
    "FullName" all collapse to "fullname".
+
+   MATRIX SHEETS: many coaches keep income/expenses in a cross-tab
+   (months as columns). buildParsedFromRows runs pivot detection
+   (lib/pivotImport) and, when a matrix is detected, attaches a
+   `pivot` descriptor so the import UI can offer the matrix mapping
+   screen. The flat extraction still runs so nothing breaks if the
+   user prefers the row-per-record reading.
    ════════════════════════════════════════════════════════════════ */
+
+import { detectMatrix, buildPivotConfig, flattenMatrix } from './pivotImport'
 
 /* Canonical importable fields + their Hebrew labels (used by the
    mapping dropdowns) and which onboarding step "owns" confirming them.
@@ -345,6 +354,18 @@ export function buildParsedFromRows(rows, fileName) {
   const unmapped_columns = headers.filter((h, i) => !mapping[i])
   const derived = projectEntities(headers, dataRows, mapping)
 
+  /* Matrix detection — does this sheet look like a cross-tab (months as
+     columns)? If so, attach a pivot descriptor with a pre-filled config
+     and the flattened transactions, so the import UI can offer the
+     matrix screen. Detection never blocks the flat reading above. */
+  const matrix = detectMatrix(headers)
+  let pivot = null
+  if (matrix.isMatrix) {
+    const config = buildPivotConfig(headers, dataRows, matrix, null)
+    const flat = flattenMatrix(dataRows, { ...config, skipRows: new Set(config.skipRows) })
+    pivot = { detected: true, ...config, transactions: flat }
+  }
+
   return {
     file_name: fileName,
     headers,
@@ -354,8 +375,20 @@ export function buildParsedFromRows(rows, fileName) {
     raw_rows: allDataRows.length,
     truncated: allDataRows.length > ROW_CAP,
     row_cap: ROW_CAP,
+    layout: matrix.isMatrix ? 'matrix' : 'flat',
+    pivot,
     ...derived,
   }
+}
+
+/* Re-derive a matrix's flattened transactions after the user edits the
+   pivot config (label column, period columns, skipped rows, year, type)
+   in the import UI. Returns a fresh parsed_data with the new pivot block. */
+export function repivot(parsed, configPatch) {
+  if (!parsed || !parsed.pivot) return parsed
+  const config = { ...parsed.pivot, ...configPatch }
+  const flat = flattenMatrix(parsed.rows || [], { ...config, skipRows: new Set(config.skipRows || []) })
+  return { ...parsed, pivot: { ...config, detected: parsed.pivot.detected, transactions: flat } }
 }
 
 /* Read + parse a CSV/TSV File (delimiter + encoding auto-detected). */
@@ -366,31 +399,61 @@ export async function parseCsvFile(file) {
   return buildParsedFromRows(rows, file.name)
 }
 
-/* Read + parse an Excel (.xlsx/.xls) File. SheetJS is loaded lazily so
-   it only ships when a user actually picks a spreadsheet. First sheet
-   only; cells coerced to strings (dates → YYYY-MM-DD via their
-   components, dodging SheetJS timezone drift) so the same header
-   detection / date parsing as CSV applies downstream. */
-export async function parseXlsxFile(file) {
-  if (!file) return null
+const fmtXlsxCell = (c) => {
+  if (c == null) return ''
+  if (c instanceof Date) {
+    const y = c.getFullYear()
+    const m = String(c.getMonth() + 1).padStart(2, '0')
+    const d = String(c.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
+  return String(c)
+}
+
+/* Read EVERY sheet of an Excel workbook into rows. Returns
+   [{ sheetName, rows }] — the caller decides per sheet whether it's a
+   matrix (cross-tab) or a flat table. Coaches commonly keep one sheet
+   per YEAR (named "2025", "2026"), so reading all sheets is essential. */
+export async function parseXlsxSheets(file) {
+  if (!file) return []
   const XLSX = await import('xlsx')
   const buf = await file.arrayBuffer()
   const wb = XLSX.read(buf, { type: 'array', cellDates: true })
-  const sheet = wb.Sheets[wb.SheetNames[0]]
-  if (!sheet) return buildParsedFromRows([], file.name)
-  const raw = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false, defval: '', raw: true })
-  const fmtCell = (c) => {
-    if (c == null) return ''
-    if (c instanceof Date) {
-      const y = c.getFullYear()
-      const m = String(c.getMonth() + 1).padStart(2, '0')
-      const d = String(c.getDate()).padStart(2, '0')
-      return `${y}-${m}-${d}`
-    }
-    return String(c)
-  }
-  const rows = raw.map((r) => (Array.isArray(r) ? r.map(fmtCell) : []))
-  return buildParsedFromRows(rows, file.name)
+  return wb.SheetNames.map((sheetName) => {
+    const sheet = wb.Sheets[sheetName]
+    /* MERGED CELLS: a merged region keeps its value only in the top-left
+       cell; the rest read blank. Therapists' sheets merge category labels
+       across rows/columns, which would orphan all the data under them. We
+       copy the anchor value across the whole merged block so every row
+       carries its label. Done with blankrows:true so row indices align
+       with the merge coordinates, then we trim trailing empties. */
+    let raw = sheet
+      ? XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: true, defval: '', raw: true })
+      : []
+    const merges = (sheet && sheet['!merges']) || []
+    merges.forEach((m) => {
+      const anchor = raw[m.s.r]?.[m.s.c]
+      if (anchor == null || anchor === '') return
+      for (let r = m.s.r; r <= m.e.r; r += 1) {
+        if (!Array.isArray(raw[r])) continue
+        for (let c = m.s.c; c <= m.e.c; c += 1) {
+          if (raw[r][c] == null || raw[r][c] === '') raw[r][c] = anchor
+        }
+      }
+    })
+    /* drop fully-empty rows now that merges are filled */
+    raw = raw.filter((r) => Array.isArray(r) && r.some((c) => String(c == null ? '' : c).trim() !== ''))
+    const rows = raw.map((r) => (Array.isArray(r) ? r.map(fmtXlsxCell) : []))
+    return { sheetName, rows }
+  })
+}
+
+/* Read + parse an Excel File (legacy single-sheet entry — kept for the
+   flat in-app import path). Uses the first sheet only. */
+export async function parseXlsxFile(file) {
+  if (!file) return null
+  const sheets = await parseXlsxSheets(file)
+  return buildParsedFromRows(sheets[0]?.rows || [], file.name)
 }
 
 /* Dispatch by file type: CSV/TSV/text → CSV reader, otherwise Excel. */

@@ -187,8 +187,11 @@ export async function finalizeOnboardingImport(input = {}) {
         group_id: null,
         sessions: Number(c.sessions) || 0,
         price_per_session: Number(c.price_per_session) || 0,
-        total_override: null,
-        has_custom_price: false,
+        /* Imported "סה״כ לתשלום" → the client's total due. When present it
+           overrides sessions×price so the balance (total − paid) matches
+           what the coach already tracks. */
+        total_override: Number(c.total_due) > 0 ? Number(c.total_due) : null,
+        has_custom_price: Number(c.total_due) > 0,
         recurring_day: null,
         recurring_time: null,
         left_mid_process: false,

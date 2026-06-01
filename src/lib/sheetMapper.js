@@ -119,17 +119,38 @@ function entityHeaderScore(entityType, headers) {
 function guessTypeByContent(headers, rows) {
   const nh = (headers || []).map(norm)
   const has = (...syns) => syns.some((s) => nh.some((h) => h.includes(norm(s))))
+  const dated = hasDateColumn(headers, rows)
   /* Transactions: an amount-ish column AND a date-ish column. */
-  if (has('סכום', 'amount', 'תשלום') && has('תאריך', 'date')) return 'transactions'
+  if (has('סכום', 'amount', 'תשלום') && dated) return 'transactions'
   /* Leads: lead-specific columns. */
   if (has('מקור', 'source', 'פנייה', 'inquiry') || (has('קטגוריה', 'category') && has('סטטוס', 'status'))) return 'leads'
   /* Clients: session/price columns. */
   if (has('פגישות', 'מפגשים', 'sessions', 'מחיר', 'price')) return 'clients'
-  /* Fall back to whichever entity's vocabulary the headers best match. */
-  const scored = ['clients', 'leads', 'transactions', 'projects']
+  /* Fall back to whichever entity's vocabulary the headers best match.
+     A dateless sheet can't be a transactions LEDGER (it's a per-entity
+     summary), so transactions only competes when a date column exists —
+     otherwise an amounts-per-client table wrongly wins over clients. */
+  const candidates = dated ? ['clients', 'leads', 'transactions', 'projects'] : ['clients', 'leads', 'projects']
+  const scored = candidates
     .map((t) => ({ t, score: entityHeaderScore(t, headers) }))
     .sort((a, b) => b.score - a.score)
   return scored[0].score > 0 ? scored[0].t : 'clients'
+}
+
+/* Does the sheet have a date column? A real transactions LEDGER has
+   dates; an amounts-per-entity table without dates (e.g. a "תשלומים"
+   summary of סך-הכנסה/שולם per client) is a roster, not a ledger — and
+   would otherwise double-count against a dated income source. Checks the
+   header text first, then the column VALUES. */
+function hasDateColumn(headers, rows) {
+  const nh = (headers || []).map(norm)
+  if (nh.some((h) => h.includes('תאריך') || h.includes('date'))) return true
+  for (let i = 0; i < (headers || []).length; i += 1) {
+    if (!String(headers[i] || '').trim()) continue
+    const { type, confidence } = detectColumnType(rows || [], i)
+    if (type === 'date' && confidence >= 0.6) return true
+  }
+  return false
 }
 
 /* Guess a sheet's entity type. Order: empty → ignore; matrix detection;
@@ -142,9 +163,15 @@ export function guessSheetType(sheetName, headers, rows) {
   /* Name hints first. */
   for (const [type, hints] of Object.entries(SHEET_NAME_HINTS)) {
     if (hints.some((h) => n.includes(norm(h)))) {
-      /* A "transactions"/finance-named sheet that's actually a cross-tab
-         (months as columns) → matrix. */
-      if (type === 'transactions' && detectMatrix(headers || []).isMatrix) return 'matrix'
+      if (type === 'transactions') {
+        /* A finance-named cross-tab (months as columns) → matrix. */
+        if (detectMatrix(headers || []).isMatrix) return 'matrix'
+        /* A finance-named sheet with NO date column isn't a ledger —
+           defer to content typing (it's usually a per-client summary that
+           belongs with the clients, and creating income from it would
+           double-count a dated income source). */
+        if (!hasDateColumn(headers, rows)) break
+      }
       return type
     }
   }

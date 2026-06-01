@@ -54,6 +54,19 @@ export function guessRowType(label) {
   return EXPENSE_HINTS.some((h) => n === norm(h) || n.includes(norm(h))) ? 'expense' : 'income'
 }
 
+/* Does the LABEL-COLUMN HEADER itself mark the whole sheet as expenses?
+   A sheet headed "הוצאה \\ מנוי" lists costs whose row labels are vendor
+   names (גוגל / קלוד …) that don't match per-row expense hints — so
+   without this the whole sheet would be misread as income. */
+const EXPENSE_HEADER_HINTS = [
+  'הוצאה', 'הוצאות', 'מנוי', 'מנויים', 'expense', 'expenses', 'cost', 'costs', 'spend', 'spending', 'subscription',
+]
+export function isExpenseLabelHeader(header) {
+  const n = norm(header)
+  if (!n) return false
+  return EXPENSE_HEADER_HINTS.some((h) => n.includes(norm(h)))
+}
+
 /* Derive a 4-digit year from a sheet name ("2025" → 2025, "הכנסות 2026"
    → 2026). Returns null when no plausible year is present. */
 export function yearFromSheetName(name) {
@@ -190,17 +203,32 @@ export function flattenMatrix(rows, config) {
    type (income/expense) from its label — all overridable in the UI. */
 export function buildPivotConfig(headers, rows, detection, year) {
   const det = detection || detectMatrix(headers)
+  /* If the label-column header marks the sheet as expenses (e.g.
+     "הוצאה \\ מנוי"), every row is a cost — vendor-name labels won't
+     match per-row expense hints, so default the whole sheet to expense. */
+  const sheetIsExpense = isExpenseLabelHeader(headers[det.labelCol])
+  /* Rate table: when the period columns are all non-month rate words
+     (חודשי + שנתי …) the SAME figure is restated per period, so flattening
+     every column double-counts. Keep ONE column — prefer the monthly rate
+     (most granular / recurring), else the first. The user can still pick a
+     different period in the UI. */
+  let periodCols = det.periodCols
+  const allRateWords = periodCols.length >= 2 && periodCols.every((p) => !p.month)
+  if (allRateWords) {
+    const monthly = periodCols.find((p) => /חודשי|monthly/.test(norm(p.period)))
+    periodCols = [monthly || periodCols[0]]
+  }
   const skipRows = new Set()
   const rowTypes = {}
   rows.forEach((r, i) => {
     const label = r[det.labelCol]
     if (isSummaryLabel(label)) skipRows.add(i)
-    rowTypes[i] = guessRowType(label)
+    rowTypes[i] = sheetIsExpense ? 'expense' : guessRowType(label)
   })
   return {
     layout: 'matrix',
     labelCol: det.labelCol,
-    periodCols: det.periodCols,
+    periodCols,
     skipRows: Array.from(skipRows),
     rowTypes,
     /* What the row labels are (project/client/category) — drives whether

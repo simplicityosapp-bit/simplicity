@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import { questionText } from '../lib/questionTemplates'
+import { scheduledOccurrences } from '../lib/goals'
 
 const TIME_FRAMES = [
   { k: 'monthly', l: 'חודשי' },
@@ -34,12 +35,23 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
   const byQuestion = isManual && form.tracking_method === 'daily_question'
   const activeQuestions = questions.filter((q) => q.active)
 
+  /* When the goal tracks a yes/no question, that question's own schedule
+     caps the target — you can't aim to say "yes" more times than it's
+     asked. Sliders accumulate freely, so no cap. */
+  const selectedQuestion = questions.find((q) => q.id === form.tracked_by_question_id)
+  const isYesNo = byQuestion && selectedQuestion?.scale_type === 'yes_no'
+  const maxOccurrences = isYesNo
+    ? scheduledOccurrences(selectedQuestion.schedule_pattern, form.time_frame, form.target_date)
+    : null
+  const overMax = isYesNo && parseFloat(form.target_value) > maxOccurrences
+
   const submit = async () => {
     if (!form.category_id) { setErr('יש לבחור קטגוריה.'); return }
     const target = parseFloat(form.target_value)
     if (!target || target <= 0) { setErr('יש למלא יעד מספרי חיובי.'); return }
     if (form.time_frame === 'deadline' && !form.target_date) { setErr('יש לבחור תאריך יעד.'); return }
     if (byQuestion && !form.tracked_by_question_id) { setErr('יש לבחור שאלה יומית.'); return }
+    if (overMax) { setErr(`היעד גבוה ממספר הימים שהשאלה מופיעה (${maxOccurrences}).`); return }
     setBusy(true)
     setErr('')
     try {
@@ -142,6 +154,11 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
             </select>
           ) : (
             <p className="m-error">אין שאלות יומיות פעילות — הוסף/י שאלה בהגדרות.</p>
+          )}
+          {isYesNo && (
+            <p className="m-hint">
+              השאלה מופיעה כ-{maxOccurrences} פעמים ב{form.time_frame === 'weekly' ? 'שבוע' : form.time_frame === 'monthly' ? 'חודש' : 'תקופה'} — אפשר לכוון לפחות, לא ליותר.
+            </p>
           )}
         </div>
       )}

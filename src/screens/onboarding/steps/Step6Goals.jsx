@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Star } from 'lucide-react'
+import { Star, AlertTriangle } from 'lucide-react'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useProjects } from '../../../hooks/useProjects'
@@ -72,12 +72,14 @@ export default function Step6Goals({ ob, setCTA }) {
   const isDeadline   = timeFrame === 'deadline'
   const targetNum    = Number(target)
 
-  /* For a yes/no goal the schedule caps the target: the question can only
-     be answered "yes" on days it actually appears. */
-  const schedPattern = isYesNoGoal ? buildSchedulePattern(schedMode, schedDays, schedX) : null
-  const maxOccurrences = isYesNoGoal ? scheduledOccurrences(schedPattern, timeFrame, targetDate) : null
+  /* The day picker shows for ANY daily-question goal (slider too) — the
+     user chooses when to be asked. The schedule only CAPS the target for
+     yes/no goals (you can't say "yes" more times than asked); sliders
+     accumulate freely, so no cap. */
+  const schedPattern = byQuestion ? buildSchedulePattern(schedMode, schedDays, schedX) : null
+  const maxOccurrences = byQuestion ? scheduledOccurrences(schedPattern, timeFrame, targetDate) : null
   const overMax = isYesNoGoal && targetNum > maxOccurrences
-  const noDays = isYesNoGoal && schedMode === 'days_of_week' && schedDays.length === 0
+  const noDays = byQuestion && schedMode === 'days_of_week' && schedDays.length === 0
 
   const canAdvance   = !!type && targetNum > 0
     && (!isDeadline || !!targetDate)
@@ -107,6 +109,14 @@ export default function Step6Goals({ ob, setCTA }) {
       : isPersonal
         ? 'הסכום שתצבור/י בתקופה מכל ההזנות הידניות.'
         : null
+
+  /* Inline warning next to the day picker when a yes/no target can't be
+     met by the chosen days (fewer scheduled days than the target). */
+  const scheduleWarning = isYesNoGoal && overMax
+    ? `היעד (${targetNum}) גבוה ממספר הפעמים שהשאלה מופיעה (${maxOccurrences}). הוסף/י ימים או הקטן/י את היעד.`
+    : noDays
+      ? 'בחר/י לפחות יום אחד.'
+      : null
 
   /* Find-or-create the goal category for the picked type. Auto types use
      the CATEGORY_PRESETS shape (same path as the in-app category picker);
@@ -146,9 +156,9 @@ export default function Step6Goals({ ob, setCTA }) {
         const q = await addQuestion({
           template_key: null, custom_text: qText.trim(), scale_type: qScale,
           icon: qIcon, active: true,
-          /* yes/no questions carry the chosen schedule; slider questions
-             stay every-day (empty pattern). */
-          schedule_pattern: isYesNoGoal ? (schedPattern || {}) : {},
+          /* Both slider and yes/no questions carry the chosen schedule;
+             null pattern (every day) is stored as {}. */
+          schedule_pattern: schedPattern || {},
         })
         questionId = q.id
       }
@@ -387,20 +397,25 @@ export default function Step6Goals({ ob, setCTA }) {
                     </div>
                   </div>
 
-                  {/* Yes/no goals: pick which days the question is asked.
-                      This caps the target (can't aim for more "yes" days
-                      than the question appears). Slider goals stay daily. */}
-                  {isYesNoGoal && (
-                    <div className="ob-field">
-                      <p className="ob-label">מתי להישאל?</p>
-                      <ScheduleDayPicker
-                        mode={schedMode}
-                        days={schedDays}
-                        x={schedX}
-                        onChange={({ mode, days, x }) => { setSchedMode(mode); setSchedDays(days); setSchedX(x) }}
-                      />
-                    </div>
-                  )}
+                  {/* Pick which days the question is asked — for any
+                      daily-question goal (slider or yes/no). For yes/no it
+                      also caps the target; a warning shows if the target
+                      can't be met by the chosen days. */}
+                  <div className="ob-field">
+                    <p className="ob-label">מתי להישאל?</p>
+                    <ScheduleDayPicker
+                      mode={schedMode}
+                      days={schedDays}
+                      x={schedX}
+                      onChange={({ mode, days, x }) => { setSchedMode(mode); setSchedDays(days); setSchedX(x) }}
+                    />
+                    {scheduleWarning && (
+                      <p className="ob-sched-warn">
+                        <AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" />
+                        {scheduleWarning}
+                      </p>
+                    )}
+                  </div>
                 </>
               )}
             </>

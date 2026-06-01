@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AlertTriangle } from 'lucide-react'
 import Modal from './Modal'
 import { questionText } from '../lib/questionTemplates'
 import { scheduledOccurrences } from '../lib/goals'
@@ -156,9 +157,16 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
             <p className="m-error">אין שאלות יומיות פעילות — הוסף/י שאלה בהגדרות.</p>
           )}
           {isYesNo && (
-            <p className="m-hint">
-              השאלה מופיעה כ-{maxOccurrences} פעמים ב{form.time_frame === 'weekly' ? 'שבוע' : form.time_frame === 'monthly' ? 'חודש' : 'תקופה'} — אפשר לכוון לפחות, לא ליותר.
-            </p>
+            overMax ? (
+              <p className="m-sched-warn">
+                <AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" />
+                היעד ({parseFloat(form.target_value)}) גבוה ממספר הפעמים שהשאלה מופיעה ({maxOccurrences}). הקטן/י את היעד או שנה/י את לוח-הזמנים של השאלה.
+              </p>
+            ) : (
+              <p className="m-hint">
+                השאלה מופיעה כ-{maxOccurrences} פעמים ב{form.time_frame === 'weekly' ? 'שבוע' : form.time_frame === 'monthly' ? 'חודש' : 'תקופה'} — אפשר לכוון לפחות, לא ליותר.
+              </p>
+            )
           )}
         </div>
       )}

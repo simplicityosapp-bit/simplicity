@@ -191,6 +191,22 @@
   color: var(--stone);
 }
 
+/* Inline schedule warning — yes/no target exceeds scheduled days. */
+.m-sched-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 8px 0 4px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--clay) 12%, transparent);
+  font-family: var(--mg-font);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--clay);
+}
+.m-sched-warn svg { flex-shrink: 0; margin-top: 1px; }
+
 /* ── TileDrillModal — chip drill-down with filter controls ───── */
 .td-body {
   display: flex;

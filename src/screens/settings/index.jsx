@@ -325,7 +325,10 @@ function ProfileBody({ prefs, onUpdate }) {
      would be lost. Commit any pending change on unmount. Refs hold the
      latest typed + persisted values so the cleanup sees fresh data. */
   const liveRef = useRef({ name, roleOther, savedName: prefs?.profile?.full_name || '', savedRole: prefs?.profile?.role_other || '' })
-  liveRef.current = { name, roleOther, savedName: prefs?.profile?.full_name || '', savedRole: prefs?.profile?.role_other || '' }
+  /* Keep the ref synced AFTER each render (never during render). */
+  useEffect(() => {
+    liveRef.current = { name, roleOther, savedName: prefs?.profile?.full_name || '', savedRole: prefs?.profile?.role_other || '' }
+  })
   useEffect(() => () => {
     const { name: n, roleOther: ro, savedName: sn, savedRole: sr } = liveRef.current
     if (n.trim() !== sn) onUpdate({ profile: { full_name: n.trim() } })

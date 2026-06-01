@@ -38,11 +38,9 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
         const isCsv = /\.(csv|tsv|txt)$/i.test(file.name) || file.type === 'text/csv'
         let raw
         if (isCsv) {
-          // eslint-disable-next-line no-await-in-loop
           const csv = await parseCsvFile(file) // parse ONCE (was parsed twice)
           raw = [{ sheetName: null, rows: [csv.headers, ...(csv.rows || [])] }]
         } else {
-          // eslint-disable-next-line no-await-in-loop
           raw = await parseXlsxSheets(file)
         }
         raw.forEach(({ sheetName, rows }) => {

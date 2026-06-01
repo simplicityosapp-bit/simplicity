@@ -41,11 +41,10 @@ export default function OnboardingScreen() {
      step pushes its onNext/canAdvance/busy/hint via setCTA below. */
   const [cta, setCTA] = useState(null)
   /* When non-null, the pre-create review wizard is open, carrying the
-     parsed_data snapshot to review. `reviewMode` records where it was
-     opened from: 'finish' (Step 9 → go home after) or 'step2' (data
-     import → advance to the next step after). */
+     parsed_data snapshot to review. The wizard opens ONLY at the final
+     step (step 9) — it is the single place data is created, so step 9 is
+     authoritative: an item excluded there is never created. */
   const [review, setReview] = useState(null)
-  const [reviewMode, setReviewMode] = useState('finish')
   const StepComp = STEPS[ob.step] || STEPS.profile
 
   /* Latest mutable snapshot of inputs to onDone — kept in refs so the
@@ -117,21 +116,13 @@ export default function OnboardingScreen() {
     return reviewable ? review : null
   }
 
-  /* Step 9 "finish": review imported data, else finish straight away. */
+  /* Step 9 "finish": review the imported data (the ONLY create point),
+     else finish straight away when there's nothing to import. */
   const onDone = useCallback(async () => {
     const r = buildReview(onDoneInputs.current.ob.state.parsed_data)
-    if (r) { setReviewMode('finish'); setReview(r); return }
+    if (r) { setReview(r); return }
     await finishAndGoHome()
   }, [finishAndGoHome])
-
-  /* Step 2 "review now": open the same wizard from the data-import step.
-     On complete it ADVANCES to the next step (not home). Returns true if
-     a review opened, so the step knows not to advance itself. */
-  const onReviewFromStep = useCallback(() => {
-    const r = buildReview(onDoneInputs.current.ob.state.parsed_data)
-    if (r) { setReviewMode('step2'); setReview(r); return true }
-    return false
-  }, [])
 
   /* Run the import and hand the summary back to the wizard so it can
      surface partial failures instead of swallowing them. Does NOT
@@ -146,13 +137,8 @@ export default function OnboardingScreen() {
 
   const onReviewComplete = useCallback(async () => {
     setReview(null)
-    if (reviewMode === 'step2') {
-      /* Imported from the data step → advance to the next onboarding step. */
-      await onDoneInputs.current.ob.advance()
-    } else {
-      await finishAndGoHome()
-    }
-  }, [reviewMode, finishAndGoHome])
+    await finishAndGoHome()
+  }, [finishAndGoHome])
 
   /* Show the welcome chooser on first ever visit. The flag is flipped
      by WelcomeGate (either path), so we never replay it. MUST stay below
@@ -166,7 +152,7 @@ export default function OnboardingScreen() {
   return (
     <div className="ob-screen screen">
       <OnboardingShell ob={ob} cta={cta}>
-        <StepComp ob={ob} onDone={onDone} setCTA={setCTA} onReviewFromStep={onReviewFromStep} />
+        <StepComp ob={ob} onDone={onDone} setCTA={setCTA} />
       </OnboardingShell>
       {review && (
         <OnboardingReviewWizard

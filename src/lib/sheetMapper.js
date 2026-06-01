@@ -67,6 +67,7 @@ export const ENTITY_FIELDS = {
     { key: 'sessions_done', label: 'פגישות שנעשו', syn: ['פגישותשנעשו', 'בוצעו'] },
     { key: 'income',    label: 'סך הכנסה',        syn: ['סךהכנסה', 'הכנסה', 'income', 'revenue'] },
     { key: 'paid',      label: 'שולם',            syn: ['שולם', 'paid'] },
+    { key: 'total_due', label: 'סה״כ לתשלום',     syn: ['סהכלתשלום', 'יתרהלתשלום', 'לתשלום', 'יתרה', 'balance', 'due', 'outstanding', 'totaldue'] },
     { key: 'project',   label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'project'] },
     { key: 'notes',     label: 'הערות',           syn: ['הערות', 'הערה', 'notes', 'note'] },
   ],
@@ -334,6 +335,10 @@ export function projectSheet(sheet) {
         sessions_done: num(r, 'sessions_done'),
         income,
         paid: num(r, 'paid'),
+        /* "סה״כ לתשלום" — the client's total amount due. Drives the
+           client total (overrides sessions×price) so the balance the
+           coach already tracks carries over verbatim. */
+        total_due: num(r, 'total_due'),
         price_per_session: price,
         project_name: val(r, 'project') || null,
         notes: val(r, 'notes') || null,

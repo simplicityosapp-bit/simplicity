@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ChevronDown, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
@@ -294,6 +294,8 @@ function ProfileBody({ prefs, onUpdate }) {
   const [name, setName] = useState(prefs?.profile?.full_name || '')
   const role = prefs?.profile?.role || 'other'
   const [roleOther, setRoleOther] = useState(prefs?.profile?.role_other || '')
+  const [savedName, setSavedName] = useState(false)
+  const [savedRoleOther, setSavedRoleOther] = useState(false)
   const gender = prefs?.design?.gender || 'neutral'
   const ROLES = Object.entries(ROLE_LABELS)
   const GENDERS = [
@@ -306,12 +308,26 @@ function ProfileBody({ prefs, onUpdate }) {
     const trimmed = name.trim()
     if (trimmed === (prefs?.profile?.full_name || '')) return
     onUpdate({ profile: { full_name: trimmed } })
+    setSavedName(true)
   }
   const commitRoleOther = () => {
     const trimmed = roleOther.trim()
     if (trimmed === (prefs?.profile?.role_other || '')) return
     onUpdate({ profile: { role_other: trimmed } })
+    setSavedRoleOther(true)
   }
+
+  /* Safety net: blur usually commits, but if the section is collapsed
+     (which unmounts this body) before a blur fires, the in-flight edit
+     would be lost. Commit any pending change on unmount. Refs hold the
+     latest typed + persisted values so the cleanup sees fresh data. */
+  const liveRef = useRef({ name, roleOther, savedName: prefs?.profile?.full_name || '', savedRole: prefs?.profile?.role_other || '' })
+  liveRef.current = { name, roleOther, savedName: prefs?.profile?.full_name || '', savedRole: prefs?.profile?.role_other || '' }
+  useEffect(() => () => {
+    const { name: n, roleOther: ro, savedName: sn, savedRole: sr } = liveRef.current
+    if (n.trim() !== sn) onUpdate({ profile: { full_name: n.trim() } })
+    if (ro.trim() !== sr) onUpdate({ profile: { role_other: ro.trim() } })
+  }, [onUpdate])
   const pickRole = (k) => {
     if (k === role) return
     onUpdate({ profile: { role: k, role_other: k === 'other' ? roleOther : '' } })
@@ -324,11 +340,11 @@ function ProfileBody({ prefs, onUpdate }) {
   return (
     <div className="set-profile-body">
       <div className="m-field">
-        <label className="m-label">שם מלא</label>
+        <label className="m-label">שם מלא {savedName && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>· נשמר</span>}</label>
         <input
           className="m-input"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => { setName(e.target.value); setSavedName(false) }}
           onBlur={commitName}
           placeholder="איך תרצה/י שאקרא לך?"
         />
@@ -351,11 +367,11 @@ function ProfileBody({ prefs, onUpdate }) {
       </div>
       {role === 'other' && (
         <div className="m-field set-role-other">
-          <label className="m-label">פרט/י את התחום</label>
+          <label className="m-label">פרט/י את התחום {savedRoleOther && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>· נשמר</span>}</label>
           <input
             className="m-input"
             value={roleOther}
-            onChange={(e) => setRoleOther(e.target.value)}
+            onChange={(e) => { setRoleOther(e.target.value); setSavedRoleOther(false) }}
             onBlur={commitRoleOther}
             placeholder="לדוגמה: יוגה תרפיסט/ית, מורה למתמטיקה"
           />
@@ -448,9 +464,18 @@ export default function SettingsScreen() {
   /* Full account wipe → then restart onboarding so the user lands on a
      clean first-run experience. */
   const onResetAccount = async () => {
-    await resetAllUserData()
-    await updatePrefs({ onboarding: defaultOnboarding() })
-    navigate(ROUTES.ONBOARDING)
+    /* Best-effort wipe: resetAllUserData() continues through every table
+       and is idempotent (safe to retry). Reset onboarding REGARDLESS, in
+       `finally`, so a partial failure can never strand the user in a
+       half-emptied app with onboarding still "done" — they always land
+       back in the clean first-run flow. A wipe error still propagates to
+       the modal so the user is told something didn't delete. */
+    try {
+      await resetAllUserData()
+    } finally {
+      await updatePrefs({ onboarding: defaultOnboarding() })
+      navigate(ROUTES.ONBOARDING)
+    }
   }
   /* CSV import (Settings → data). Pick a file → parse → open the
      mapping+review modal (reused from onboarding). */

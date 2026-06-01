@@ -738,6 +738,91 @@
   color: var(--mist);
 }
 
+/* Star-rating picker (importance) — matches the in-app goal stars. */
+.ob-stars-pick { display: inline-flex; gap: 4px; }
+.ob-star-btn {
+  border: none;
+  background: transparent;
+  padding: 2px;
+  cursor: pointer;
+  color: var(--divider);
+  line-height: 0;
+  transition: color 0.12s, transform 0.12s;
+}
+.ob-star-btn.on { color: var(--amber-warn); }
+.ob-star-btn:active { transform: scale(0.88); }
+
+/* Live goal card — faithful clone of the in-app .g-card (progress bar,
+   percent, target line, importance stars) for the onboarding preview. */
+.ob-gcard {
+  align-self: center;
+  width: min(420px, 100%);
+  margin-top: 6px;
+  padding: 16px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+.ob-gcard-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+.ob-gcard-titleblock { flex: 1; min-width: 0; }
+.ob-gcard-title {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.ob-gcard-cat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-family: var(--mg-font);
+  font-size: 11px;
+  color: var(--stone);
+}
+.ob-gcard-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.ob-gcard-pct {
+  margin: 0;
+  font-family: var(--mg-font-num);
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+.ob-gcard-progress {
+  height: 6px;
+  border-radius: 6px;
+  background: rgba(42, 37, 32, 0.08);
+  overflow: hidden;
+}
+[data-theme="dark"] .ob-gcard-progress { background: rgba(240, 235, 224, 0.08); }
+.ob-gcard-progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--terracotta);
+  transition: width 0.8s ease;
+}
+.ob-gcard-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+.ob-gcard-target {
+  font-family: var(--mg-font-num);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+}
+.ob-gcard-stars { display: inline-flex; gap: 2px; color: var(--divider); }
+.ob-gcard-stars .on { color: var(--amber-warn); }
+
 /* ── Live client card (step 4) — faithful to the in-app .cc card so
    onboarding shows the real thing the user is creating. ──────────── */
 .ob-cc-wrap,

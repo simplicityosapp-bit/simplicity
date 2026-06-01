@@ -342,24 +342,24 @@
    sit naturally over the background like the native .ob-input fields. */
 .ob-client-form .m-input,
 .ob-client-form .m-select {
-  background: rgba(255, 252, 247, 0.78);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: var(--bm);
+  -webkit-backdrop-filter: var(--bm);
   border: 1px solid rgba(42, 37, 32, 0.14);
 }
 [data-theme="dark"] .ob-client-form .m-input,
 [data-theme="dark"] .ob-client-form .m-select {
-  background: rgba(36, 32, 28, 0.7);
+  background: rgba(36, 32, 28, 0.5);
   border-color: rgba(240, 235, 224, 0.18);
 }
 /* Status pills in the shared form — glassy to match. */
 .ob-client-form .m-pill {
-  background: rgba(255, 252, 247, 0.72);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: var(--bm);
+  -webkit-backdrop-filter: var(--bm);
 }
 [data-theme="dark"] .ob-client-form .m-pill {
-  background: rgba(36, 32, 28, 0.7);
+  background: rgba(36, 32, 28, 0.5);
 }
 /* Active status pill uses our sage green (not the terracotta default). */
 .ob-client-form .m-pill.on {
@@ -430,24 +430,20 @@
   flex-direction: column;
   gap: 6px;
   padding: 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(42, 37, 32, 0.14);
-  background: rgba(255, 250, 240, 0.72);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   color: var(--espresso);
   cursor: pointer;
   text-align: start;
-  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
-[data-theme="dark"] .ob-option-card {
-  border-color: rgba(240, 235, 224, 0.16);
-  background: rgba(28, 25, 21, 0.72);
-  color: var(--cream);
-}
-.ob-option-card:hover { background: rgba(255, 252, 247, 0.85); transform: translateY(-1px); }
-[data-theme="dark"] .ob-option-card:hover { background: rgba(36, 32, 28, 0.82); }
+[data-theme="dark"] .ob-option-card { color: var(--cream); }
+.ob-option-card:hover { transform: translateY(-1px); }
 .ob-option-card.on {
   border-color: color-mix(in srgb, var(--sage) 60%, transparent);
   background: color-mix(in srgb, var(--sage) 16%, transparent);
@@ -471,14 +467,11 @@
   gap: 4px;
   padding: 3px;
   border-radius: 12px;
-  border: 1px solid rgba(42, 37, 32, 0.14);
-  background: rgba(255, 250, 240, 0.72);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-}
-[data-theme="dark"] .ob-seg {
-  border-color: rgba(240, 235, 224, 0.18);
-  background: rgba(28, 25, 21, 0.72);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .ob-seg-btn {
   flex: 1;
@@ -681,16 +674,13 @@
   gap: 5px;
   padding: 10px 6px;
   border-radius: 14px;
-  border: 1px solid rgba(42, 37, 32, 0.14);
-  background: rgba(255, 250, 240, 0.72);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, transform 0.12s;
-}
-[data-theme="dark"] .ob-goal-type {
-  border-color: rgba(240, 235, 224, 0.18);
-  background: rgba(28, 25, 21, 0.72);
 }
 .ob-goal-type:hover { transform: translateY(-1px); }
 .ob-goal-type-ic { font-size: 20px; line-height: 1; }
@@ -1290,14 +1280,11 @@
   gap: 10px;
   padding: 6px 8px;
   border-radius: 10px;
-  border: 1px solid rgba(42, 37, 32, 0.08);
-  background: rgba(255, 250, 240, 0.72);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-}
-[data-theme="dark"] .ob-map-row {
-  border-color: rgba(240, 235, 224, 0.12);
-  background: rgba(28, 25, 21, 0.72);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .ob-map-col {
   display: flex;
@@ -1343,15 +1330,12 @@
 }
 .ob-preview-card {
   padding: 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(42, 37, 32, 0.1);
-  background: rgba(255, 250, 240, 0.72);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-}
-[data-theme="dark"] .ob-preview-card {
-  background: rgba(28, 25, 21, 0.72);
-  border-color: rgba(240, 235, 224, 0.12);
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .ob-preview-title {
   margin: 0 0 6px;

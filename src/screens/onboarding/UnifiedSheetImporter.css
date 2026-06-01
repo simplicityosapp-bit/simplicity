@@ -11,21 +11,15 @@
   margin: 6px 0;
 }
 
+/* Glass card — identical tokens to the home-screen cards. */
 .usi-card {
   padding: 14px 16px;
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
-  /* Frosted glass that stays visible over the onboarding background
-     image — the shared --mg-card-bg (cream @ 30%) reads as transparent
-     for a panel this large, so we use a stronger frost + saturate. */
-  background: rgba(255, 250, 240, 0.72);
+  background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-}
-[data-theme="dark"] .usi-card {
-  background: rgba(28, 25, 21, 0.72);
-  border-color: rgba(240, 235, 224, 0.14);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 
 .usi-head { display: flex; align-items: center; gap: 9px; }
@@ -149,14 +143,10 @@
   padding: 14px 16px;
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
-  background: rgba(255, 250, 240, 0.72);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   box-shadow: var(--mg-card-shadow);
-}
-[data-theme="dark"] .usi-summary {
-  background: rgba(28, 25, 21, 0.72);
-  border-color: rgba(240, 235, 224, 0.14);
 }
 .usi-summary-line { margin: 0; font-family: var(--mg-font); font-size: 13px; line-height: 1.6; color: var(--stone); text-align: center; }
 .usi-summary-line strong { color: var(--espresso); font-family: var(--mg-font-num); }

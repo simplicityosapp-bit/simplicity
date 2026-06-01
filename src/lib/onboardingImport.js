@@ -18,6 +18,7 @@
 import { insertClient, listClients } from './api/clients'
 import { insertProject, listProjects } from './api/projects'
 import { insertTransaction, listTransactions } from './api/transactions'
+import { insertRecurring, listRecurring } from './api/recurring'
 import { insertClientStatus, listClientStatuses } from './api/clientStatuses'
 import { insertLeadStatus, listLeadStatuses } from './api/leadStatuses'
 import { insertLead } from './api/leads'
@@ -34,6 +35,7 @@ export async function finalizeOnboardingImport(input = {}) {
     projects:       { created: 0, skipped: 0, failed: 0 },
     clients:        { created: 0, skipped: 0, failed: 0 },
     transactions:   { created: 0, skipped: 0, failed: 0 },
+    recurring:      { created: 0, skipped: 0, failed: 0 },
     leads:          { created: 0, skipped: 0, failed: 0 },
     clientStatuses: { created: 0, skipped: 0, failed: 0 },
     leadStatuses:   { created: 0, skipped: 0, failed: 0 },
@@ -235,7 +237,50 @@ export async function finalizeOnboardingImport(input = {}) {
   const seenTxns = new Set(
     existingTxns.map((t) => txnKey(t.amount, t.type, String(t.date).slice(0, 10), t.client_id, t.project_id)),
   )
+
+  /* ── Recurring rules (rate-table rows: a fixed monthly cost with no
+     date) → create a recurring_templates rule, NOT a dated transaction.
+     The recurring engine then generates the monthly instances. Dedup by
+     type+amount+desc against existing templates and within this run. ── */
+  const recurringTxns = transactions.filter((t) => t.recurring)
+  if (recurringTxns.length) {
+    let existingRec = []
+    try { existingRec = await listRecurring() } catch { /* assume none */ }
+    const recKey = (type, amount, desc) => `${type}|${Math.abs(Number(amount))}|${(desc || '').trim()}`
+    const seenRec = new Set(existingRec.map((r) => recKey(r.type, r.amount, r.desc)))
+    for (const t of recurringTxns) {
+      const amount = Number(t.amount)
+      if (Number.isNaN(amount) || amount === 0) { summary.recurring.skipped += 1; continue }
+      const type = t.type === 'income' ? 'income' : 'expense'
+      const key = recKey(type, amount, t.desc)
+      if (seenRec.has(key)) { summary.recurring.skipped += 1; continue }
+      const project_id = t.project_name ? (projectIdByName.get(norm(t.project_name)) || null) : null
+      try {
+        await insertRecurring({
+          type,
+          amount: Math.abs(amount),
+          desc: t.desc || null,
+          cadence_type: t.cadence === 'weekly' ? 'weekly' : 'monthly_date',
+          day_of_month: t.cadence === 'weekly' ? null : (t.day_of_month || 1),
+          day_of_week: null,
+          trigger_type: 'schedule',
+          project_id,
+          client_id: null,
+          category_id: null,
+          until_date: null,
+          active: true,
+        })
+        seenRec.add(key)
+        summary.recurring.created += 1
+      } catch (e) {
+        summary.recurring.failed += 1
+        summary.errors.push(`recurring "${t.desc || amount}": ${e.message || 'unknown'}`)
+      }
+    }
+  }
+
   for (const t of transactions) {
+    if (t.recurring) continue /* handled above as a recurring rule */
     const date = normalizeDate(t.date)
     const amount = Number(t.amount)
     if (!date || Number.isNaN(amount) || amount === 0) { summary.transactions.skipped += 1; continue }

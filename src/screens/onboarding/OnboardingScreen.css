@@ -20,16 +20,6 @@
   padding: 28px 16px;
 }
 
-/* The global `.screen` sets `isolation: isolate`, which turns it into a
-   BACKDROP ROOT. That stops the glass cards' backdrop-filter from
-   blurring the fixed page background (painted on `.app::before`, which
-   lives OUTSIDE `.screen`) — so in stricter browsers the cards render
-   see-through instead of frosted, even though it looks fine in others.
-   Onboarding is a full-screen wizard with no bottom bar to layer
-   against, so we drop the isolation here and let the cards blur the
-   background exactly like the home-screen cards. */
-.ob-screen.screen { isolation: auto; }
-
 /* Outer frame is a transparent flex column — the visible glass moves
    to each individual sub-section so they read as separate panels
    floating on the background, each taking only the space it needs.
@@ -338,7 +328,6 @@
   border-radius: 999px;
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   border: var(--mg-card-border);
   font-family: var(--mg-font);
   font-size: 12px;
@@ -354,7 +343,6 @@
 .ob-client-form .m-select {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: var(--bm);
-  -webkit-backdrop-filter: var(--bm);
   border: 1px solid rgba(42, 37, 32, 0.14);
 }
 [data-theme="dark"] .ob-client-form .m-input,
@@ -366,7 +354,6 @@
 .ob-client-form .m-pill {
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: var(--bm);
-  -webkit-backdrop-filter: var(--bm);
 }
 [data-theme="dark"] .ob-client-form .m-pill {
   background: rgba(36, 32, 28, 0.5);
@@ -445,7 +432,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   color: var(--espresso);
   cursor: pointer;
@@ -481,7 +467,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .ob-seg-btn {
   flex: 1;
@@ -643,7 +628,6 @@
      transparent dashed button that vanished against the nature image). */
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   box-shadow: var(--mg-card-shadow);
   font-family: var(--mg-font);
   font-size: 13px;
@@ -688,7 +672,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, transform 0.12s;
 }
@@ -717,7 +700,6 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
   box-shadow: var(--mg-card-shadow);
 }
 .ob-gc-head { display: flex; align-items: center; gap: 9px; }
@@ -768,7 +750,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .ob-gcard-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
 .ob-gcard-titleblock { flex: 1; min-width: 0; }
@@ -1294,7 +1275,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .ob-map-col {
   display: flex;
@@ -1345,7 +1325,6 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  -webkit-backdrop-filter: var(--mg-card-blur);
 }
 .ob-preview-title {
   margin: 0 0 6px;

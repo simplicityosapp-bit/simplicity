@@ -205,7 +205,11 @@
   transform: rotate(180deg);
 }
 .set-acc-body {
-  padding: 0 16px 16px 64px;
+  padding: 0 16px 16px;
+  /* The icon sits on the inline-start (right, in RTL); indent the body to
+     align under the title rather than under the icon. Logical property so
+     it mirrors correctly. */
+  padding-inline-start: 64px;
 }
 .set-soon {
   margin: 0;
@@ -508,7 +512,7 @@
 .qs-mode.on {
   background: var(--espresso);
   border-color: var(--espresso);
-  color: var(--bg-clients, #fff);
+  color: var(--cream);
 }
 [data-theme="dark"] .qs-mode.on {
   color: #181410;
@@ -570,7 +574,7 @@
 .qs-save {
   background: var(--espresso);
   border-color: var(--espresso);
-  color: var(--bg-clients, #fff);
+  color: var(--cream);
 }
 [data-theme="dark"] .qs-save {
   color: #181410;

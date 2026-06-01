@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Upload, FileSpreadsheet } from 'lucide-react'
-import { parseXlsxSheets, parseCsvFile } from '../../../lib/csvImport'
+import { parseXlsxSheets, parseCsvFile, ROW_CAP } from '../../../lib/csvImport'
 import { buildSheetMapping } from '../../../lib/sheetMapper'
 import { buildPivotConfig, detectMatrix, flattenMatrix, yearFromSheetName } from '../../../lib/pivotImport'
 import UnifiedSheetImporter from '../UnifiedSheetImporter'
@@ -36,12 +36,26 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
       const sheets = []
       for (const file of files) {
         const isCsv = /\.(csv|tsv|txt)$/i.test(file.name) || file.type === 'text/csv'
-        // eslint-disable-next-line no-await-in-loop
-        const raw = isCsv
-          ? [{ sheetName: null, rows: [(await parseCsvFile(file)).headers, ...((await parseCsvFile(file)).rows || [])] }]
-          : await parseXlsxSheets(file)
+        let raw
+        if (isCsv) {
+          const csv = await parseCsvFile(file) // parse ONCE (was parsed twice)
+          raw = [{ sheetName: null, rows: [csv.headers, ...(csv.rows || [])] }]
+        } else {
+          raw = await parseXlsxSheets(file)
+        }
         raw.forEach(({ sheetName, rows }) => {
-          const sheet = buildSheetMapping(file.name, sheetName, rows)
+          /* Cap the data rows we persist — parsed_data lives in the
+             user_preferences JSONB blob, so an oversized sheet would bloat
+             it. We keep the header + first ROW_CAP rows and flag the cut so
+             the UI can surface it (mirrors the flat parseFile path). */
+          const rawDataCount = Math.max(0, (rows?.length || 0) - 1)
+          const capped = rawDataCount > ROW_CAP ? [rows[0], ...rows.slice(1, ROW_CAP + 1)] : rows
+          const sheet = buildSheetMapping(file.name, sheetName, capped)
+          if (rawDataCount > ROW_CAP) {
+            sheet.truncated = true
+            sheet.raw_rows = rawDataCount
+            sheet.row_cap = ROW_CAP
+          }
           if (sheet.type === 'matrix') {
             const headers = sheet.headers
             const det = detectMatrix(headers)
@@ -141,19 +155,24 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
         type="file"
         accept={ACCEPT}
         multiple
+        aria-label="בחירת קובץ CSV או Excel לייבוא"
         style={{ display: 'none' }}
         onChange={(e) => handleFiles(e.target.files)}
       />
 
-      {busy && <p className="ob-empty-hint">מעבד את הקובץ…</p>}
+      {busy && <p className="ob-empty-hint">מעבד…</p>}
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
-
-      {busy && <p className="ob-empty-hint">מעבד את הקבצים…</p>}
 
       {/* One editable card per sheet: detected entity type + column
           mapping. Anything unrecognised is surfaced for the user to set. */}
       {ob.state.parsed_data?.sheets?.length > 0 && (
         <UnifiedSheetImporter sheets={ob.state.parsed_data.sheets} onChange={onSheetsChange} />
+      )}
+
+      {ob.state.parsed_data?.sheets?.some((s) => s.truncated) && (
+        <p className="ob-empty-hint" style={{ color: 'var(--amber-warn)' }}>
+          חלק מהגיליונות נקטעו ל-{ROW_CAP} השורות הראשונות כדי לשמור על ביצועים. אפשר לייבא את השאר בנפרד בהמשך.
+        </p>
       )}
 
     </>

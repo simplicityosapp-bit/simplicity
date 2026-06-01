@@ -57,9 +57,9 @@ export default function CsvMappingEditor({ parsed, onChange: onParsedChange, ste
                 {field
                   ? <CheckCircle2 size={13} strokeWidth={2} aria-hidden="true" />
                   : <HelpCircle size={13} strokeWidth={2} aria-hidden="true" />}
-                {header || `עמודה ${colIdx + 1}`}
+                <bdi>{header || `עמודה ${colIdx + 1}`}</bdi>
               </span>
-              {sample && <span className="ob-map-sample" title={sample}>לדוגמה: {sample}</span>}
+              {sample && <span className="ob-map-sample" title={sample}>לדוגמה: <bdi>{sample}</bdi></span>}
             </div>
             <select
               className="ob-select ob-map-select"

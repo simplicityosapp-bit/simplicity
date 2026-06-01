@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ChevronDown, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
@@ -198,8 +198,10 @@ function WidgetRow({ cfg, reg, onUpdate, dragging, over, onDragStart, onDragOver
         <span className="set-w-row-name">{reg.label}</span>
         <button
           type="button"
+          role="switch"
+          aria-checked={cfg.enabled}
           className={`set-w-toggle${cfg.enabled ? ' on' : ''}`}
-          aria-label={cfg.enabled ? 'כיבוי' : 'הפעלה'}
+          aria-label={`${reg.label} — ${cfg.enabled ? 'כיבוי' : 'הפעלה'}`}
           onClick={() => onUpdate({ enabled: !cfg.enabled })}
         >
           <span className="set-w-toggle-knob" />
@@ -214,6 +216,7 @@ function WidgetRow({ cfg, reg, onUpdate, dragging, over, onDragStart, onDragOver
                 type="button"
                 role="radio"
                 aria-checked={cfg.accent === a.v}
+                aria-label={`צבע ${a.l}`}
                 title={a.l}
                 className={`set-w-accent${cfg.accent === a.v ? ' on' : ''}`}
                 style={{ background: a.color }}
@@ -294,6 +297,8 @@ function ProfileBody({ prefs, onUpdate }) {
   const [name, setName] = useState(prefs?.profile?.full_name || '')
   const role = prefs?.profile?.role || 'other'
   const [roleOther, setRoleOther] = useState(prefs?.profile?.role_other || '')
+  const [savedName, setSavedName] = useState(false)
+  const [savedRoleOther, setSavedRoleOther] = useState(false)
   const gender = prefs?.design?.gender || 'neutral'
   const ROLES = Object.entries(ROLE_LABELS)
   const GENDERS = [
@@ -306,12 +311,29 @@ function ProfileBody({ prefs, onUpdate }) {
     const trimmed = name.trim()
     if (trimmed === (prefs?.profile?.full_name || '')) return
     onUpdate({ profile: { full_name: trimmed } })
+    setSavedName(true)
   }
   const commitRoleOther = () => {
     const trimmed = roleOther.trim()
     if (trimmed === (prefs?.profile?.role_other || '')) return
     onUpdate({ profile: { role_other: trimmed } })
+    setSavedRoleOther(true)
   }
+
+  /* Safety net: blur usually commits, but if the section is collapsed
+     (which unmounts this body) before a blur fires, the in-flight edit
+     would be lost. Commit any pending change on unmount. Refs hold the
+     latest typed + persisted values so the cleanup sees fresh data. */
+  const liveRef = useRef({ name, roleOther, savedName: prefs?.profile?.full_name || '', savedRole: prefs?.profile?.role_other || '' })
+  /* Keep the ref synced AFTER each render (never during render). */
+  useEffect(() => {
+    liveRef.current = { name, roleOther, savedName: prefs?.profile?.full_name || '', savedRole: prefs?.profile?.role_other || '' }
+  })
+  useEffect(() => () => {
+    const { name: n, roleOther: ro, savedName: sn, savedRole: sr } = liveRef.current
+    if (n.trim() !== sn) onUpdate({ profile: { full_name: n.trim() } })
+    if (ro.trim() !== sr) onUpdate({ profile: { role_other: ro.trim() } })
+  }, [onUpdate])
   const pickRole = (k) => {
     if (k === role) return
     onUpdate({ profile: { role: k, role_other: k === 'other' ? roleOther : '' } })
@@ -324,11 +346,11 @@ function ProfileBody({ prefs, onUpdate }) {
   return (
     <div className="set-profile-body">
       <div className="m-field">
-        <label className="m-label">שם מלא</label>
+        <label className="m-label">שם מלא {savedName && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>· נשמר</span>}</label>
         <input
           className="m-input"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => { setName(e.target.value); setSavedName(false) }}
           onBlur={commitName}
           placeholder="איך תרצה/י שאקרא לך?"
         />
@@ -351,11 +373,11 @@ function ProfileBody({ prefs, onUpdate }) {
       </div>
       {role === 'other' && (
         <div className="m-field set-role-other">
-          <label className="m-label">פרט/י את התחום</label>
+          <label className="m-label">פרט/י את התחום {savedRoleOther && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>· נשמר</span>}</label>
           <input
             className="m-input"
             value={roleOther}
-            onChange={(e) => setRoleOther(e.target.value)}
+            onChange={(e) => { setRoleOther(e.target.value); setSavedRoleOther(false) }}
             onBlur={commitRoleOther}
             placeholder="לדוגמה: יוגה תרפיסט/ית, מורה למתמטיקה"
           />
@@ -367,17 +389,27 @@ function ProfileBody({ prefs, onUpdate }) {
 
 /* Render a meta-grouped sub-status list with an inline add row per meta.
    Used for both client_statuses and lead_statuses. */
-function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove }) {
+function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, loading, error }) {
+  const [addError, setAddError] = useState(null)
+  if (loading) {
+    return <div className="set-sub"><p className="set-sub-empty">טוען…</p></div>
+  }
   return (
     <div className="set-sub">
+      {error && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>שגיאה בטעינה: {error}</p>}
       {metas.map((m) => {
         const list = statuses.filter((s) => s.meta_category === m.k)
         const draft = drafts[m.k] || ''
         const submit = async () => {
           const name = draft.trim()
           if (!name) return
-          await onAdd({ meta_category: m.k, display_name: name, icon: null, is_default: false })
-          setDraft(m.k, '')
+          try {
+            await onAdd({ meta_category: m.k, display_name: name, icon: null, is_default: false })
+            setDraft(m.k, '')
+            setAddError(null)
+          } catch (e) {
+            setAddError(e?.message || 'ההוספה נכשלה — נסה/י שוב.')
+          }
         }
         return (
           <div key={m.k} className="set-sub-group">
@@ -407,6 +439,7 @@ function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove }) {
           </div>
         )
       })}
+      {addError && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{addError}</p>}
     </div>
   )
 }
@@ -415,13 +448,14 @@ export default function SettingsScreen() {
   const [open, setOpen] = useState('profile')
   const [showAddQ, setShowAddQ] = useState(false)
   const [newSourceName, setNewSourceName] = useState('')
+  const [sourceError, setSourceError] = useState(null)
   const [clientDrafts, setClientDrafts] = useState({})
   const [leadDrafts, setLeadDrafts] = useState({})
   const [editingScheduleId, setEditingScheduleId] = useState(null)
-  const { questions, addQuestion, toggleActive, updateQuestion, removeQuestion } = useUserQuestions()
-  const { sources, addSource, removeSource } = useLeadSources()
-  const { statuses: clientStatuses, addStatus: addClientStatus, removeStatus: removeClientStatus } = useClientStatuses()
-  const { statuses: leadStatuses, addStatus: addLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
+  const { questions, loading: questionsLoading, error: questionsError, addQuestion, toggleActive, updateQuestion, removeQuestion } = useUserQuestions()
+  const { sources, loading: sourcesLoading, error: sourcesError, addSource, removeSource } = useLeadSources()
+  const { statuses: clientStatuses, loading: clientStatusesLoading, error: clientStatusesError, addStatus: addClientStatus, removeStatus: removeClientStatus } = useClientStatuses()
+  const { statuses: leadStatuses, loading: leadStatusesLoading, error: leadStatusesError, addStatus: addLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
   const { prefs, loading: prefsLoading, update: updatePrefs } = useUserPreferences()
   /* Data-section hooks — pulled lazily-ish: useClients/etc. all use a
      single network round-trip on mount, so this isn't expensive. */
@@ -436,9 +470,18 @@ export default function SettingsScreen() {
   /* Full account wipe → then restart onboarding so the user lands on a
      clean first-run experience. */
   const onResetAccount = async () => {
-    await resetAllUserData()
-    await updatePrefs({ onboarding: defaultOnboarding() })
-    navigate(ROUTES.ONBOARDING)
+    /* Best-effort wipe: resetAllUserData() continues through every table
+       and is idempotent (safe to retry). Reset onboarding REGARDLESS, in
+       `finally`, so a partial failure can never strand the user in a
+       half-emptied app with onboarding still "done" — they always land
+       back in the clean first-run flow. A wipe error still propagates to
+       the modal so the user is told something didn't delete. */
+    try {
+      await resetAllUserData()
+    } finally {
+      await updatePrefs({ onboarding: defaultOnboarding() })
+      navigate(ROUTES.ONBOARDING)
+    }
   }
   /* CSV import (Settings → data). Pick a file → parse → open the
      mapping+review modal (reused from onboarding). */
@@ -510,7 +553,11 @@ export default function SettingsScreen() {
       const setReminder = (patch) => updatePrefs?.({ insightsReminder: { ...reminderPref, ...patch } })
       return (
         <div className="set-q">
-          {questions.length === 0 ? (
+          {questionsLoading ? (
+            <p className="set-q-empty">טוען…</p>
+          ) : questionsError ? (
+            <p className="set-q-empty" style={{ color: 'var(--clay)' }}>שגיאה בטעינת השאלות: {questionsError}</p>
+          ) : questions.length === 0 ? (
             <p className="set-q-empty">עדיין אין שאלות יומיות. הוסף/י את הראשונה.</p>
           ) : (
             questions.map((q) => (
@@ -709,6 +756,8 @@ export default function SettingsScreen() {
           setDraft={setClientDraft}
           onAdd={addClientStatus}
           onRemove={(status, peers) => setPendingDelete({ kind: 'client', status, peers })}
+          loading={clientStatusesLoading}
+          error={clientStatusesError}
         />
       )
     }
@@ -719,12 +768,19 @@ export default function SettingsScreen() {
         try {
           await addSource({ name: v, color: '#0e9888' })
           setNewSourceName('')
-        } catch { /* noop */ }
+          setSourceError(null)
+        } catch (e) {
+          setSourceError(e?.message || 'הוספת המקור נכשלה — נסה/י שוב.')
+        }
       }
       return (
         <div className="set-q">
           <p className="set-sub-h">מקורות פנייה</p>
-          {sources.length === 0 ? (
+          {sourcesLoading ? (
+            <p className="set-sub-empty">טוען…</p>
+          ) : sourcesError ? (
+            <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>שגיאה בטעינת המקורות: {sourcesError}</p>
+          ) : sources.length === 0 ? (
             <p className="set-sub-empty">עדיין אין מקורות. הוסף/י את הראשון.</p>
           ) : (
             sources.map((s) => (
@@ -749,6 +805,7 @@ export default function SettingsScreen() {
               <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
             </button>
           </div>
+          {sourceError && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{sourceError}</p>}
 
           <p className="set-sub-h" style={{ marginTop: 14 }}>תתי-סטטוסים</p>
           <StatusGroups
@@ -758,6 +815,8 @@ export default function SettingsScreen() {
             setDraft={setLeadDraft}
             onAdd={addLeadStatus}
             onRemove={(status, peers) => setPendingDelete({ kind: 'lead', status, peers })}
+            loading={leadStatusesLoading}
+            error={leadStatusesError}
           />
         </div>
       )

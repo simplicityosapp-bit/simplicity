@@ -24,7 +24,7 @@ import './UnifiedSheetImporter.css'
      - onChange(nextSheets): writes back.
    ════════════════════════════════════════════════════════════════ */
 
-const THIS_YEAR = 2026
+const THIS_YEAR = new Date().getFullYear()
 const YEARS = [THIS_YEAR - 3, THIS_YEAR - 2, THIS_YEAR - 1, THIS_YEAR, THIS_YEAR + 1]
 
 export default function UnifiedSheetImporter({ sheets, onChange }) {
@@ -134,8 +134,8 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
                 <div className={`usi-col${field ? '' : ' unmapped'}`} key={colIdx}>
                   <span className="usi-col-name">
                     {field ? <CheckCircle2 size={12} strokeWidth={2} aria-hidden="true" /> : <HelpCircle size={12} strokeWidth={2} aria-hidden="true" />}
-                    <span className="usi-col-h" title={h}>{h}</span>
-                    {sample(colIdx) && <span className="usi-col-sample" title={sample(colIdx)}>לדוגמה: {sample(colIdx)}</span>}
+                    <span className="usi-col-h" title={h}><bdi>{h}</bdi></span>
+                    {sample(colIdx) && <span className="usi-col-sample" title={sample(colIdx)}>לדוגמה: <bdi>{sample(colIdx)}</bdi></span>}
                   </span>
                   <select className="usi-select usi-col-select" value={field} onChange={(e) => changeColumn(sheet, colIdx, e.target.value)}>
                     <option value="">— התעלם</option>

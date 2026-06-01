@@ -103,7 +103,7 @@ export function looksName(v) {
   if (looksEmail(s) || looksPhone(s) || looksDate(s) || looksAmount(s)) return false
   const words = s.split(/\s+/)
   if (words.length > 5) return false
-  const letters = (s.match(/[֐-׿a-zA-Z]/g) || []).length
+  const letters = (s.match(/[א-תa-zA-Z]/g) || []).length
   return letters >= 2 && letters >= s.replace(/\s/g, '').length * 0.5
 }
 

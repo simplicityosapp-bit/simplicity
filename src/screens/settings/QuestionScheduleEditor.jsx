@@ -49,8 +49,11 @@ export default function QuestionScheduleEditor({ question, onClose, onUpdate }) 
       const v = days.slice().sort((a, b) => a - b)
       nextPattern = v.length === 7 || v.length === 0 ? null : { type: 'days_of_week', values: v }
     } else if (mode === 'every_x_days') {
-      const xi = Math.max(1, Math.min(30, parseInt(x, 10) || 1))
-      nextPattern = xi <= 1 ? null : { type: 'every_x_days', x: xi }
+      /* The user explicitly chose "every X days", so floor at 2 (X=1 is
+         just "every day" and has its own mode). A blank/invalid field
+         normalises to 2 rather than silently flipping to every-day. */
+      const xi = Math.max(2, Math.min(30, parseInt(x, 10) || 2))
+      nextPattern = { type: 'every_x_days', x: xi }
     }
     setBusy(true)
     try {
@@ -94,6 +97,7 @@ export default function QuestionScheduleEditor({ question, onClose, onUpdate }) 
             max="30"
             value={x}
             onChange={(e) => setX(e.target.value)}
+            onBlur={() => setX((v) => String(Math.max(2, Math.min(30, parseInt(v, 10) || 2))))}
             className="qs-x-input"
           />
           <span>ימים</span>

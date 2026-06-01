@@ -367,17 +367,27 @@ function ProfileBody({ prefs, onUpdate }) {
 
 /* Render a meta-grouped sub-status list with an inline add row per meta.
    Used for both client_statuses and lead_statuses. */
-function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove }) {
+function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, loading, error }) {
+  const [addError, setAddError] = useState(null)
+  if (loading) {
+    return <div className="set-sub"><p className="set-sub-empty">טוען…</p></div>
+  }
   return (
     <div className="set-sub">
+      {error && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>שגיאה בטעינה: {error}</p>}
       {metas.map((m) => {
         const list = statuses.filter((s) => s.meta_category === m.k)
         const draft = drafts[m.k] || ''
         const submit = async () => {
           const name = draft.trim()
           if (!name) return
-          await onAdd({ meta_category: m.k, display_name: name, icon: null, is_default: false })
-          setDraft(m.k, '')
+          try {
+            await onAdd({ meta_category: m.k, display_name: name, icon: null, is_default: false })
+            setDraft(m.k, '')
+            setAddError(null)
+          } catch (e) {
+            setAddError(e?.message || 'ההוספה נכשלה — נסה/י שוב.')
+          }
         }
         return (
           <div key={m.k} className="set-sub-group">
@@ -407,6 +417,7 @@ function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove }) {
           </div>
         )
       })}
+      {addError && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{addError}</p>}
     </div>
   )
 }
@@ -415,13 +426,14 @@ export default function SettingsScreen() {
   const [open, setOpen] = useState('profile')
   const [showAddQ, setShowAddQ] = useState(false)
   const [newSourceName, setNewSourceName] = useState('')
+  const [sourceError, setSourceError] = useState(null)
   const [clientDrafts, setClientDrafts] = useState({})
   const [leadDrafts, setLeadDrafts] = useState({})
   const [editingScheduleId, setEditingScheduleId] = useState(null)
-  const { questions, addQuestion, toggleActive, updateQuestion, removeQuestion } = useUserQuestions()
-  const { sources, addSource, removeSource } = useLeadSources()
-  const { statuses: clientStatuses, addStatus: addClientStatus, removeStatus: removeClientStatus } = useClientStatuses()
-  const { statuses: leadStatuses, addStatus: addLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
+  const { questions, loading: questionsLoading, error: questionsError, addQuestion, toggleActive, updateQuestion, removeQuestion } = useUserQuestions()
+  const { sources, loading: sourcesLoading, error: sourcesError, addSource, removeSource } = useLeadSources()
+  const { statuses: clientStatuses, loading: clientStatusesLoading, error: clientStatusesError, addStatus: addClientStatus, removeStatus: removeClientStatus } = useClientStatuses()
+  const { statuses: leadStatuses, loading: leadStatusesLoading, error: leadStatusesError, addStatus: addLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
   const { prefs, loading: prefsLoading, update: updatePrefs } = useUserPreferences()
   /* Data-section hooks — pulled lazily-ish: useClients/etc. all use a
      single network round-trip on mount, so this isn't expensive. */
@@ -510,7 +522,11 @@ export default function SettingsScreen() {
       const setReminder = (patch) => updatePrefs?.({ insightsReminder: { ...reminderPref, ...patch } })
       return (
         <div className="set-q">
-          {questions.length === 0 ? (
+          {questionsLoading ? (
+            <p className="set-q-empty">טוען…</p>
+          ) : questionsError ? (
+            <p className="set-q-empty" style={{ color: 'var(--clay)' }}>שגיאה בטעינת השאלות: {questionsError}</p>
+          ) : questions.length === 0 ? (
             <p className="set-q-empty">עדיין אין שאלות יומיות. הוסף/י את הראשונה.</p>
           ) : (
             questions.map((q) => (
@@ -709,6 +725,8 @@ export default function SettingsScreen() {
           setDraft={setClientDraft}
           onAdd={addClientStatus}
           onRemove={(status, peers) => setPendingDelete({ kind: 'client', status, peers })}
+          loading={clientStatusesLoading}
+          error={clientStatusesError}
         />
       )
     }
@@ -719,12 +737,19 @@ export default function SettingsScreen() {
         try {
           await addSource({ name: v, color: '#0e9888' })
           setNewSourceName('')
-        } catch { /* noop */ }
+          setSourceError(null)
+        } catch (e) {
+          setSourceError(e?.message || 'הוספת המקור נכשלה — נסה/י שוב.')
+        }
       }
       return (
         <div className="set-q">
           <p className="set-sub-h">מקורות פנייה</p>
-          {sources.length === 0 ? (
+          {sourcesLoading ? (
+            <p className="set-sub-empty">טוען…</p>
+          ) : sourcesError ? (
+            <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>שגיאה בטעינת המקורות: {sourcesError}</p>
+          ) : sources.length === 0 ? (
             <p className="set-sub-empty">עדיין אין מקורות. הוסף/י את הראשון.</p>
           ) : (
             sources.map((s) => (
@@ -749,6 +774,7 @@ export default function SettingsScreen() {
               <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
             </button>
           </div>
+          {sourceError && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{sourceError}</p>}
 
           <p className="set-sub-h" style={{ marginTop: 14 }}>תתי-סטטוסים</p>
           <StatusGroups
@@ -758,6 +784,8 @@ export default function SettingsScreen() {
             setDraft={setLeadDraft}
             onAdd={addLeadStatus}
             onRemove={(status, peers) => setPendingDelete({ kind: 'lead', status, peers })}
+            loading={leadStatusesLoading}
+            error={leadStatusesError}
           />
         </div>
       )

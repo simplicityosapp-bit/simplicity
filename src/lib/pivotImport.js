@@ -159,7 +159,7 @@ export function detectMatrix(headers) {
    rowTypes override wins, else guessRowType(label). Rows in skipRows
    (summaries) are excluded. date is built from month + year when known. */
 export function flattenMatrix(rows, config) {
-  const { labelCol, periodCols, skipRows, year, rowTypes = {}, labelKind = 'category' } = config
+  const { labelCol, periodCols, skipRows, year, rowTypes = {}, labelKind = 'category', recurring = false, recurringDay = 1 } = config
   const skip = skipRows instanceof Set ? skipRows : new Set(skipRows || [])
   const out = []
   const toNum = (v) => {
@@ -187,6 +187,12 @@ export function flattenMatrix(rows, config) {
         amount: Math.abs(amount),
         type,
         date,
+        /* Rate-table rows (חודשי/שנתי, no real month) describe an ongoing
+           cost — emit them as a RECURRING monthly rule instead of a dated
+           one-off (which would be dropped for lacking a date). */
+        recurring,
+        cadence: recurring ? 'monthly_date' : null,
+        day_of_month: recurring ? recurringDay : null,
         /* For income rows the label is a real linkable entity
            (project/client per labelKind); for expense rows it's just a
            category name, so we don't create a project/client from it. */
@@ -214,10 +220,15 @@ export function buildPivotConfig(headers, rows, detection, year) {
      different period in the UI. */
   let periodCols = det.periodCols
   const allRateWords = periodCols.length >= 2 && periodCols.every((p) => !p.month)
+  let monthlyCol = null
   if (allRateWords) {
-    const monthly = periodCols.find((p) => /חודשי|monthly/.test(norm(p.period)))
-    periodCols = [monthly || periodCols[0]]
+    monthlyCol = periodCols.find((p) => /חודשי|monthly/.test(norm(p.period)))
+    periodCols = [monthlyCol || periodCols[0]]
   }
+  /* A rate table with a MONTHLY column is an ongoing recurring cost
+     (no dates) → import as a recurring monthly rule, not dated one-offs.
+     Yearly-only rate tables stay one-offs (we have no yearly cadence). */
+  const recurring = allRateWords && !!monthlyCol
   const skipRows = new Set()
   const rowTypes = {}
   rows.forEach((r, i) => {
@@ -235,5 +246,7 @@ export function buildPivotConfig(headers, rows, detection, year) {
        we create projects/clients and link transactions to them. */
     labelKind: guessLabelKind(headers[det.labelCol]),
     year: year || null,
+    recurring,
+    recurringDay: 1,
   }
 }

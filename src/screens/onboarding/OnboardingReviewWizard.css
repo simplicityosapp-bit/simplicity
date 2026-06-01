@@ -269,6 +269,20 @@
   color: var(--amber-warn);
   white-space: nowrap;
 }
+/* Recurring (rate-table) transactions repeat monthly — shown as a chip
+   instead of a one-off date field. */
+.obrw-recurring {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--sage) 18%, transparent);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--espresso);
+  white-space: nowrap;
+}
 
 /* Labeled transaction field — tiny caption above the input so the
    date/amount are unambiguous. */

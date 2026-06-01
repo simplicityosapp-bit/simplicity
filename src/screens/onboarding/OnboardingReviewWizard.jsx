@@ -96,7 +96,9 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   const isValid = (type, row) => {
     if (type === 'transactions') {
       const amt = Number(row.amount)
-      return !Number.isNaN(amt) && amt !== 0 && !!row.date
+      /* Recurring rules have no single date (they repeat) — only the
+         amount must be valid. One-off transactions still need a date. */
+      return !Number.isNaN(amt) && amt !== 0 && (row.recurring || !!row.date)
     }
     return (row.name || '').trim().length > 0
   }
@@ -196,7 +198,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
         .map(({ _row, ...rest }) => rest)
       const summary = await onConfirm({ projects: strip('projects'), clients: strip('clients'), leads: strip('leads'), transactions: strip('transactions') })
       const failed = summary
-        ? (summary.projects?.failed || 0) + (summary.clients?.failed || 0) + (summary.leads?.failed || 0) + (summary.transactions?.failed || 0)
+        ? (summary.projects?.failed || 0) + (summary.clients?.failed || 0) + (summary.leads?.failed || 0) + (summary.transactions?.failed || 0) + (summary.recurring?.failed || 0)
         : 0
       if (summary?.fatal || failed > 0) setResult(summary)
       else await onComplete()
@@ -220,16 +222,18 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
       projects: result.projects?.created || 0,
       leads: result.leads?.created || 0,
       transactions: result.transactions?.created || 0,
+      recurring: result.recurring?.created || 0,
     }
-    const totalCreated = created.clients + created.projects + created.leads + created.transactions
+    const totalCreated = created.clients + created.projects + created.leads + created.transactions + created.recurring
     const totalFailed = (result.clients?.failed || 0) + (result.projects?.failed || 0)
-      + (result.leads?.failed || 0) + (result.transactions?.failed || 0)
+      + (result.leads?.failed || 0) + (result.transactions?.failed || 0) + (result.recurring?.failed || 0)
     /* Plain-language created summary line (only non-zero kinds). */
     const parts = []
     if (created.clients) parts.push(`${created.clients} לקוחות`)
     if (created.projects) parts.push(`${created.projects} פרויקטים`)
     if (created.leads) parts.push(`${created.leads} לידים`)
     if (created.transactions) parts.push(`${created.transactions} תנועות`)
+    if (created.recurring) parts.push(`${created.recurring} הוצאות חוזרות`)
 
     return (
       <div className="obrw-back" role="dialog" aria-modal="true" aria-label="תוצאת הייבוא">
@@ -432,9 +436,13 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                       onChange={(e) => patchRow('transactions', i, { amount: Number(e.target.value) || 0 })} />
                   </label>
                   <label className="obrw-tx-field obrw-tx-date">
-                    <span className="obrw-tx-lbl">תאריך</span>
-                    <input className="obrw-input" type="date" value={t.date || ''} title="תאריך התנועה" disabled={!inc}
-                      onChange={(e) => patchRow('transactions', i, { date: e.target.value })} />
+                    <span className="obrw-tx-lbl">{t.recurring ? 'תדירות' : 'תאריך'}</span>
+                    {t.recurring ? (
+                      <span className="obrw-recurring" title="הוצאה חוזרת — תיווצר אוטומטית בכל חודש">🔁 חוזרת חודשית</span>
+                    ) : (
+                      <input className="obrw-input" type="date" value={t.date || ''} title="תאריך התנועה" disabled={!inc}
+                        onChange={(e) => patchRow('transactions', i, { date: e.target.value })} />
+                    )}
                   </label>
                   <label className="obrw-tx-field obrw-tx-proj">
                     <span className="obrw-tx-lbl">פרויקט</span>

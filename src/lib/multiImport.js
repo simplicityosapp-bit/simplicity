@@ -116,6 +116,11 @@ export function flattenAllSources(sources) {
         amount: t.amount,
         type: t.type,
         date: t.date,
+        /* Recurring rate-table rows carry their cadence so the import can
+           create a recurring rule instead of a (dateless) one-off. */
+        recurring: !!t.recurring,
+        cadence: t.cadence || null,
+        day_of_month: t.day_of_month || null,
         project_name: asProject ? t.label : null,
         client_name: asClient ? t.label : null,
         desc: `${t.label || ''}${t.period ? ` · ${t.period}` : ''}${yr ? ` ${yr}` : ''}`.trim() || null,

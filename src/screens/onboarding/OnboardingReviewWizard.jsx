@@ -54,7 +54,11 @@ function humanizeError(raw) {
    custom status ("פולואפ" etc.) stays selectable. */
 const CLIENT_STATUS_DEFAULTS = ['פעיל', 'ביניים', 'לשעבר', 'ללא סטטוס']
 
-export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, onCancel }) {
+/* `mode`: 'create' (step 9 — actually writes the data) or 'approve'
+   (step 2 — only records the user's approval; step 9 leans on it and is
+   the single place data is created). The two differ only in wording; the
+   confirm flow is identical (onConfirm decides whether to write). */
+export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, onCancel, mode = 'create' }) {
   const { clients: existingClients, loading: clientsLoading } = useClients()
   const { projects: existingProjects, loading: projectsLoading } = useProjects()
   const dataLoading = clientsLoading || projectsLoading
@@ -481,7 +485,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
 
         <footer className="obrw-foot">
           <p className="obrw-summary">
-            ייווצרו: <strong>{counts.clients}</strong> לקוחות · <strong>{counts.projects}</strong> פרויקטים
+            {mode === 'approve' ? 'יאושרו' : 'ייווצרו'}: <strong>{counts.clients}</strong> לקוחות · <strong>{counts.projects}</strong> פרויקטים
             {counts.leads > 0 && <> · <strong>{counts.leads}</strong> לידים</>}
             {' · '}<strong>{counts.transactions}</strong> תנועות
           </p>
@@ -490,7 +494,11 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               חזרה
             </button>
             <button type="button" className="ob-btn primary" onClick={handleConfirm} disabled={busy}>
-              {busy ? 'יוצר…' : (totalIncluded === 0 ? 'סיום ללא ייבוא' : `אישור ויצירה (${totalIncluded})`)}
+              {busy
+                ? (mode === 'approve' ? 'שומר…' : 'יוצר…')
+                : totalIncluded === 0
+                  ? (mode === 'approve' ? 'אישור והמשך' : 'סיום ללא ייבוא')
+                  : (mode === 'approve' ? `אישור והמשך (${totalIncluded})` : `אישור ויצירה (${totalIncluded})`)}
             </button>
           </div>
         </footer>

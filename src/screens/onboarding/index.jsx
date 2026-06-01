@@ -40,11 +40,14 @@ export default function OnboardingScreen() {
      render the primary Next button outside the per-step body. Each
      step pushes its onNext/canAdvance/busy/hint via setCTA below. */
   const [cta, setCTA] = useState(null)
-  /* When non-null, the pre-create review wizard is open, carrying the
-     parsed_data snapshot to review. The wizard opens ONLY at the final
-     step (step 9) — it is the single place data is created, so step 9 is
-     authoritative: an item excluded there is never created. */
+  /* When non-null, the review wizard is open with this snapshot.
+     `reviewMode` says which step opened it:
+       'step2'  — data-import step: the user APPROVES (reviews/edits/excludes);
+                  we only RECORD the approval, nothing is written.
+       'finish' — step 9: the single place data is actually CREATED, leaning
+                  on the step-2 approval. Excluding here still wins (hero). */
   const [review, setReview] = useState(null)
+  const [reviewMode, setReviewMode] = useState('finish')
   const StepComp = STEPS[ob.step] || STEPS.profile
 
   /* Latest mutable snapshot of inputs to onDone — kept in refs so the
@@ -116,29 +119,51 @@ export default function OnboardingScreen() {
     return reviewable ? review : null
   }
 
-  /* Step 9 "finish": review the imported data (the ONLY create point),
-     else finish straight away when there's nothing to import. */
+  /* Step 9 "finish": open the FINAL review (the only create point). It
+     leans on the step-2 approval when present (parsed_data.reviewed), so
+     the user sees exactly what they approved — still fully editable here.
+     Falls back to a fresh build (e.g. user never opened step 2's review). */
   const onDone = useCallback(async () => {
-    const r = buildReview(onDoneInputs.current.ob.state.parsed_data)
-    if (r) { setReview(r); return }
+    const pd = onDoneInputs.current.ob.state.parsed_data
+    const approved = pd?.reviewed
+    const r = approved
+      ? { kind: 'csv', clients: approved.clients || [], projects: approved.projects || [], leads: approved.leads || [], transactions: approved.transactions || [] }
+      : buildReview(pd)
+    const hasAny = r && ((r.clients?.length || 0) + (r.projects?.length || 0) + (r.leads?.length || 0) + (r.transactions?.length || 0)) > 0
+    if (hasAny) { setReviewMode('finish'); setReview(r); return }
     await finishAndGoHome()
   }, [finishAndGoHome])
 
-  /* Run the import and hand the summary back to the wizard so it can
-     surface partial failures instead of swallowing them. Does NOT
-     navigate — the wizard calls onReviewComplete once the user is done. */
+  /* Step 2 "approve now": open the same wizard from the data-import step.
+     Returns true if it opened so the step knows not to advance itself. */
+  const onReviewFromStep = useCallback(() => {
+    const r = buildReview(onDoneInputs.current.ob.state.parsed_data)
+    if (r) { setReviewMode('step2'); setReview(r); return true }
+    return false
+  }, [])
+
+  /* Confirm handler — behaviour depends on which step opened the wizard:
+       step2  → RECORD the approved selection (no DB write); step 9 uses it.
+       finish → actually create the data, returning the summary so the
+                wizard can surface partial failures. */
   const onReviewConfirm = useCallback(async (payload) => {
+    if (reviewMode === 'step2') {
+      const pd = onDoneInputs.current.ob.state.parsed_data || {}
+      await onDoneInputs.current.ob.setParsedData({ ...pd, reviewed: payload })
+      return undefined /* clean → wizard advances without a result screen */
+    }
     try {
       return await finalizeOnboardingImport(payload)
     } catch (e) {
       return { fatal: true, error: e?.message || 'שגיאה לא צפויה' }
     }
-  }, [])
+  }, [reviewMode])
 
   const onReviewComplete = useCallback(async () => {
     setReview(null)
+    if (reviewMode === 'step2') { await onDoneInputs.current.ob.advance(); return }
     await finishAndGoHome()
-  }, [finishAndGoHome])
+  }, [reviewMode, finishAndGoHome])
 
   /* Show the welcome chooser on first ever visit. The flag is flipped
      by WelcomeGate (either path), so we never replay it. MUST stay below
@@ -152,11 +177,12 @@ export default function OnboardingScreen() {
   return (
     <div className="ob-screen screen">
       <OnboardingShell ob={ob} cta={cta}>
-        <StepComp ob={ob} onDone={onDone} setCTA={setCTA} />
+        <StepComp ob={ob} onDone={onDone} setCTA={setCTA} onReviewFromStep={onReviewFromStep} />
       </OnboardingShell>
       {review && (
         <OnboardingReviewWizard
           parsed={review}
+          mode={reviewMode === 'step2' ? 'approve' : 'create'}
           onConfirm={onReviewConfirm}
           onComplete={onReviewComplete}
           onCancel={() => setReview(null)}

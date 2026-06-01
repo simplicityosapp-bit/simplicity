@@ -13,7 +13,7 @@ import UnifiedSheetImporter from '../UnifiedSheetImporter'
 
 const ACCEPT = '.csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
-export default function Step2DataImport({ ob, setCTA }) {
+export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
   const fileRef = useRef(null)
   const initial = ob.state.answers?.data_import || {}
   const [mode, setMode] = useState(initial.mode || null) // 'A' | 'B' | null
@@ -94,12 +94,11 @@ export default function Step2DataImport({ ob, setCTA }) {
     /* If user picked path A but didn't actually upload, fall back to B. */
     const finalMode = mode === 'A' && !fileName ? 'B' : (mode || 'B')
     await ob.setAnswers('data_import', { mode: finalMode })
-    /* Just advance — NOTHING is created here. The column mapping the user
-       did above is already saved in parsed_data.sheets and flows to the
-       FINAL review at step 9, which is the single source of truth: data is
-       created exactly once, and an item excluded there is never created.
-       (Importing here too would double-run and, worse, make a step-2
-       inclusion impossible to undo at step 9.) */
+    /* Path A → open the APPROVAL review here: the user reviews/edits/excludes
+       and approves, but NOTHING is written yet. The approval is recorded and
+       the FINAL creation happens once, at step 9 (which leans on it). If the
+       wizard opens it owns advancing; otherwise advance normally. */
+    if (finalMode === 'A' && onReviewFromStep?.()) return
     await ob.advance()
   }
 

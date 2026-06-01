@@ -1,0 +1,74 @@
+/* ════════════════════════════════════════════════════════════════
+   ScheduleDayPicker — shared schedule UI styles.
+   ════════════════════════════════════════════════════════════════
+   Mirrors the original .qs-* rules from SettingsScreen.css so the
+   picker looks identical in settings, onboarding, and modals. Kept in
+   its own file and imported by the component so it's available wherever
+   the picker mounts (not only on the settings screen).
+   ════════════════════════════════════════════════════════════════ */
+
+.qs-editor {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--divider);
+  background: rgba(42, 37, 32, 0.025);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+[data-theme="dark"] .qs-editor { background: rgba(240, 235, 224, 0.03); }
+
+.qs-modes { display: flex; flex-wrap: wrap; gap: 6px; }
+.qs-mode {
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s, border-color 0.14s;
+}
+.qs-mode.on {
+  background: var(--espresso);
+  border-color: var(--espresso);
+  color: var(--bg-clients, #fff);
+}
+[data-theme="dark"] .qs-mode.on { color: #181410; }
+
+.qs-day-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.qs-day {
+  min-width: 30px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s, border-color 0.14s;
+}
+.qs-day.on { background: var(--sage); border-color: var(--sage); color: #fff; }
+
+.qs-x-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  color: var(--espresso);
+}
+.qs-x-input {
+  width: 60px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--divider);
+  font-family: var(--mg-font-num);
+  font-size: 13px;
+  text-align: center;
+  background: var(--cream);
+  color: var(--espresso);
+}
+[data-theme="dark"] .qs-x-input { background: rgba(36, 32, 28, 0.5); }

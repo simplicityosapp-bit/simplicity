@@ -106,11 +106,16 @@
 
 ---
 
-## Execution plan (this round)
+## Round outcome
 
-**Auto-apply now (TECHNICAL + DESIGN-TOKEN), one at a time:**
-Settings: S4, S5, S3, S7, S11, S13, S15, S1(persistence), S8, S9.
-Onboarding: O8, O9, O10, O12, O15, O17, O18, O20, O4, O3, O13, O7(verify-then-remove), O11/O14(align), O19.
+### ✅ Shipped (technical + token-grounded), each verified by a green build
+- **Settings:** S4/S5 (loading + error states, surfaced add failures) · S3 (reset resets onboarding in `finally`) · S15 (modal copy lists all wiped data) · S7 (profile commits on collapse + saved hint) · S11 (schedule "every X" floors at 2) · S13 (toggle `role=switch`, swatch `aria-label`) · S1 (migratePreferences preserves extra top-level prefs — also fixed latent leadsView/financeShowSkipped/tileFilters stripping) · S8 + clear subset of S9 (`padding-inline-start`; `--bg-clients` leak → `--cream`).
+- **Onboarding:** O8 (year from `getFullYear()`) · O9/O10 (single parse, one busy hint) · O15 (name regex) · O17 (tabpanel a11y) · O18 (file-input aria-label) · O19 (`<bdi>` on dynamic header/sample) · O3/O4 (cap + flag oversized sheets) · O13 (already enforced via `canAdvance`) · O7 (removed dead MultiSourceImporter + PivotMappingEditor).
 
-**Held for owner discussion (PRODUCT / DESIGN):**
-O1+O2 (past-meetings import — **headline**, needs input-format sign-off), O5, O6, O16; S2 (dead format settings — wire vs remove), S10 (source/status color UI), S12 (reorder a11y), S1(notification), S6 (text-size zoom), S14 (toggle idioms unification).
+### ⏸️ Held — NOT changed autonomously
+- **PRODUCT (owner decision):**
+  - **O1 + O2 — past/held-meetings import (HEADLINE).** Owner chose "held session + money" representation; still needs the **input-format** sign-off (per-session ledger vs count-only vs matrix) before build. See top of doc for exact insert points.
+  - O5 (imported-paid date source), O6 (dateless-transaction drop policy), O16 (CSV RFC4180).
+  - S2 (dead date/time/week-start settings — wire vs remove), S10 (source/status colour-picker UI), S12 (widget-reorder keyboard a11y), S1-notification (actual push), S6 (text-size `zoom` approach).
+- **DESIGN (subjective):** S14 (unify toggle idioms), remaining S9 hex (`#181410` contrast text etc. — no clean token; needs a mapping pass), O20 (Step2 error is already token-grounded inline; class refactor is cosmetic).
+- **Deferred for safety (would alter import parsing of real financial data — verify before changing):** O11 (amount-synonym double-count guard alignment), O14 (consolidate the two status mappers).

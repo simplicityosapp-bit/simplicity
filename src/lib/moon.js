@@ -46,16 +46,18 @@ const isBinary = (goal) => goal.time_frame === 'deadline' && Number(goal.target_
 function goalActual(goal, cat, now, entries, transactions, clients, leads, answers) {
   const period = goalPeriod(goal, now)
   const to = now < period.end ? now : period.end
-  /* D10 — goal tracked by a daily question: value = AVERAGE of that question's
-     answers in the period (unanswered days don't count). */
+  /* D10 — goal tracked by a daily question: value = SUM of that question's
+     numeric answers in the period (unanswered days contribute nothing).
+     A 1-10 slider answer of 7 adds 7 toward the target (e.g. "35 study
+     hours this week"); a yes/no answer adds 1 per "yes". */
   if (goal.tracking_method === 'daily_question' && goal.tracked_by_question_id) {
-    const ans = live(answers).filter((a) => {
-      if (a.user_question_id !== goal.tracked_by_question_id || a.value_num == null) return false
-      const d = new Date(a.date + 'T12:00:00')
-      return d >= period.start && d <= to
-    })
-    if (!ans.length) return 0
-    return ans.reduce((s, a) => s + Number(a.value_num), 0) / ans.length
+    return live(answers)
+      .filter((a) => {
+        if (a.user_question_id !== goal.tracked_by_question_id || a.value_num == null) return false
+        const d = new Date(a.date + 'T12:00:00')
+        return d >= period.start && d <= to
+      })
+      .reduce((s, a) => s + Number(a.value_num), 0)
   }
   if (cat.measurement_type === 'auto') {
     if (cat.data_source === 'transactions') {
@@ -99,10 +101,10 @@ function scoreGoal(goal, now, categories, entries, transactions, clients, leads,
   const binary = isBinary(goal)
   const pure = binary ? (actual >= 1 ? 100 : 0) : Math.round((actual / target) * 100)
   const isCumulative = cat.graph_type === 'cumulative'
-  /* Daily-question goals are an average, not an accumulation → no pacing. */
-  const isAverage = goal.tracking_method === 'daily_question'
+  /* Daily-question goals now SUM their answers (like manual entries), so
+     they pace over the period the same way — no special-casing needed. */
   let paced = pure
-  if (!isCumulative && !binary && !isAverage) {
+  if (!isCumulative && !binary) {
     const frac = elapsedFraction(goalPeriod(goal, now), now)
     if (frac > 0) paced = Math.round((actual / (target * frac)) * 100)
   }

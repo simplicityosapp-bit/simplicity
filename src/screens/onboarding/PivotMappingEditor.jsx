@@ -26,7 +26,7 @@ import './PivotMappingEditor.css'
        back to the normal column-mapping editor.
    ════════════════════════════════════════════════════════════════ */
 
-const THIS_YEAR = 2026 /* current app year (see currentDate); user can change */
+const THIS_YEAR = new Date().getFullYear() /* current app year; user can change */
 const YEARS = [THIS_YEAR - 2, THIS_YEAR - 1, THIS_YEAR, THIS_YEAR + 1]
 
 export default function PivotMappingEditor({ parsed, onChange, onLayoutChange }) {

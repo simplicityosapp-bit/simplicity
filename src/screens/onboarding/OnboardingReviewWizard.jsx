@@ -323,7 +323,8 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
           {TABS.map((t) => {
             const Icon = t.icon
             return (
-              <button key={t.key} type="button" role="tab" aria-selected={tab === t.key}
+              <button key={t.key} type="button" role="tab" id={`obrw-tab-${t.key}`}
+                aria-selected={tab === t.key} aria-controls="obrw-panel"
                 className={`obrw-tab${tab === t.key ? ' on' : ''}`} onClick={() => setTab(t.key)}>
                 <Icon size={14} strokeWidth={1.9} aria-hidden="true" />
                 {t.label}
@@ -351,7 +352,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
           )}
         </div>
 
-        <div className="obrw-body">
+        <div className="obrw-body" role="tabpanel" id="obrw-panel" aria-labelledby={`obrw-tab-${tab}`}>
           {tab === 'clients' && state.clients.slice(0, visible).map((c, i) => {
             const inc = isIncluded('clients', i, c)
             const exists = existingClientNames.has(norm(c.name))

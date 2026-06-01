@@ -36,10 +36,15 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
       const sheets = []
       for (const file of files) {
         const isCsv = /\.(csv|tsv|txt)$/i.test(file.name) || file.type === 'text/csv'
-        // eslint-disable-next-line no-await-in-loop
-        const raw = isCsv
-          ? [{ sheetName: null, rows: [(await parseCsvFile(file)).headers, ...((await parseCsvFile(file)).rows || [])] }]
-          : await parseXlsxSheets(file)
+        let raw
+        if (isCsv) {
+          // eslint-disable-next-line no-await-in-loop
+          const csv = await parseCsvFile(file) // parse ONCE (was parsed twice)
+          raw = [{ sheetName: null, rows: [csv.headers, ...(csv.rows || [])] }]
+        } else {
+          // eslint-disable-next-line no-await-in-loop
+          raw = await parseXlsxSheets(file)
+        }
         raw.forEach(({ sheetName, rows }) => {
           const sheet = buildSheetMapping(file.name, sheetName, rows)
           if (sheet.type === 'matrix') {
@@ -141,14 +146,13 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
         type="file"
         accept={ACCEPT}
         multiple
+        aria-label="בחירת קובץ CSV או Excel לייבוא"
         style={{ display: 'none' }}
         onChange={(e) => handleFiles(e.target.files)}
       />
 
-      {busy && <p className="ob-empty-hint">מעבד את הקובץ…</p>}
+      {busy && <p className="ob-empty-hint">מעבד…</p>}
       {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
-
-      {busy && <p className="ob-empty-hint">מעבד את הקבצים…</p>}
 
       {/* One editable card per sheet: detected entity type + column
           mapping. Anything unrecognised is surfaced for the user to set. */}

@@ -19,7 +19,7 @@ import './MultiSourceImporter.css'
      - onChange(nextSources): writes back the edited source list.
    ════════════════════════════════════════════════════════════════ */
 
-const THIS_YEAR = 2026
+const THIS_YEAR = new Date().getFullYear()
 const YEARS = [THIS_YEAR - 3, THIS_YEAR - 2, THIS_YEAR - 1, THIS_YEAR, THIS_YEAR + 1]
 const HE_MONTHS_SHORT = { 1: 'ינו', 2: 'פבר', 3: 'מרץ', 4: 'אפר', 5: 'מאי', 6: 'יונ', 7: 'יול', 8: 'אוג', 9: 'ספט', 10: 'אוק', 11: 'נוב', 12: 'דצמ' }
 

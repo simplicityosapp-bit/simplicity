@@ -1,71 +1,39 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listClients, insertClient, updateClient as apiUpdateClient, removeClient as apiRemoveClient } from '../lib/api/clients'
 
-/* Loads the signed-in user's clients from Supabase and exposes CRUD.
-   Optimistic for add/remove; refetch on error to resync. */
+/* Loads the signed-in user's clients and exposes CRUD. Backed by React
+   Query so every component that calls useClients() shares ONE cached
+   fetch instead of each firing its own (the home screen mounted this
+   hook 6×). Public API is unchanged. Mutations update the cache
+   optimistically and invalidate on error to resync. */
+const KEY = ['clients']
+
 export function useClients() {
-  const [clients, setClients] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setClients(await listClients())
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  /* Initial load — setState only happens after the await, so it isn't a
-     synchronous effect-body update. */
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await listClients()
-        if (active) {
-          setClients(data)
-          setError(null)
-        }
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    })()
-    return () => {
-      active = false
-    }
-  }, [])
+  const qc = useQueryClient()
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listClients })
+  const clients = data ?? []
 
   const addClient = useCallback(async (payload) => {
     const row = await insertClient(payload)
-    setClients((prev) => [row, ...prev])
+    qc.setQueryData(KEY, (prev) => [row, ...(prev ?? [])])
     return row
-  }, [])
+  }, [qc])
 
   const updateClient = useCallback(async (id, patch) => {
     const row = await apiUpdateClient(id, patch)
-    setClients((prev) => prev.map((c) => (c.id === id ? row : c)))
+    qc.setQueryData(KEY, (prev) => (prev ?? []).map((c) => (c.id === id ? row : c)))
     return row
-  }, [])
+  }, [qc])
 
-  const removeClient = useCallback(
-    async (id) => {
-      setClients((prev) => prev.filter((c) => c.id !== id)) // optimistic
-      try {
-        await apiRemoveClient(id)
-      } catch (e) {
-        setError(e.message)
-        refetch()
-      }
-    },
-    [refetch],
-  )
+  const removeClient = useCallback(async (id) => {
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((c) => c.id !== id)) // optimistic
+    try {
+      await apiRemoveClient(id)
+    } catch {
+      qc.invalidateQueries({ queryKey: KEY }) // resync
+    }
+  }, [qc])
 
-  return { clients, loading, error, addClient, updateClient, removeClient, refetch }
+  return { clients, loading: isLoading, error: error?.message ?? null, addClient, updateClient, removeClient, refetch }
 }

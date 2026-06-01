@@ -636,6 +636,7 @@ CREATE INDEX idx_group_members_client         ON group_members (client_id);
 
 CREATE INDEX idx_client_status_log_user       ON client_status_log (user_id);
 CREATE INDEX idx_client_status_log_client     ON client_status_log (client_id);
+CREATE INDEX idx_client_status_log_user_changed ON client_status_log (user_id, changed_at);  -- range/trend query (migration 0006)
 
 CREATE INDEX idx_transactions_user            ON transactions (user_id);
 CREATE INDEX idx_transactions_client          ON transactions (client_id);
@@ -658,6 +659,7 @@ CREATE INDEX idx_leads_status_meta            ON leads (status_meta);
 
 CREATE INDEX idx_lead_status_log_user         ON lead_status_log (user_id);
 CREATE INDEX idx_lead_status_log_lead         ON lead_status_log (lead_id);
+CREATE INDEX idx_lead_status_log_user_changed ON lead_status_log (user_id, changed_at);  -- range/trend query (migration 0006)
 
 CREATE INDEX idx_sessions_user                ON sessions (user_id);
 CREATE INDEX idx_sessions_client              ON sessions (client_id);

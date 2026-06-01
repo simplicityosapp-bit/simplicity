@@ -142,7 +142,7 @@ export default function MeetingConfirmWidget() {
                       <p className="mtg-confirm-tx-meta">
                         {cat && (
                           <>
-                            <span className="mtg-confirm-tx-dot" style={{ background: cat.color || '#888' }} />
+                            <span className="mtg-confirm-tx-dot" style={{ background: cat.color || 'var(--stone)' }} />
                             {cat.name}
                           </>
                         )}

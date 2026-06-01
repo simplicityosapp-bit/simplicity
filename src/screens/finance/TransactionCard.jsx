@@ -27,7 +27,7 @@ export default function TransactionCard({ tx, clients = [], projects = [], categ
           {meta && <span className="f-tx-meta-text">· {meta}</span>}
           {category && (
             <span className="f-tx-cat">
-              <span className="f-tx-cat-dot" style={{ background: category.color || '#888' }} />
+              <span className="f-tx-cat-dot" style={{ background: category.color || 'var(--stone)' }} />
               {category.name}
             </span>
           )}

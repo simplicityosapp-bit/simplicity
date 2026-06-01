@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getUserPreferences, updateUserPreferences, seedUserPreferences } from '../lib/api/userPreferences'
 import { defaultPreferences, migratePreferences } from '../lib/preferences'
 import { UserPreferencesContext } from '../hooks/useUserPreferences'
@@ -70,8 +70,10 @@ export default function UserPreferencesProvider({ children }) {
     }
   }, [])
 
+  const value = useMemo(() => ({ prefs, loading, error, update }), [prefs, loading, error, update])
+
   return (
-    <UserPreferencesContext.Provider value={{ prefs, loading, error, update }}>
+    <UserPreferencesContext.Provider value={value}>
       {children}
     </UserPreferencesContext.Provider>
   )

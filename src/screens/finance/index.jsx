@@ -26,7 +26,7 @@ import './FinanceScreen.css'
 const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1)
 
 export default function FinanceScreen() {
-  const { transactions, loading, addTransaction, editTransaction, setStatus } = useTransactions()
+  const { transactions, loading, error, addTransaction, editTransaction, setStatus } = useTransactions()
   const { clients } = useClients()
   const { projects } = useProjects()
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
@@ -169,6 +169,8 @@ export default function FinanceScreen() {
       <section className="f-list">
         {loading ? (
           <div className="empty"><p className="empty-text">טוען תנועות…</p></div>
+        ) : error ? (
+          <div className="empty"><p className="empty-text">שגיאה בטעינת התנועות: {error}</p></div>
         ) : (
           <>
             {skippedCount > 0 && (

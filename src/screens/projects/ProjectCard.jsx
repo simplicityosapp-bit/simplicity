@@ -20,7 +20,7 @@ export default function ProjectCard({ project, clientsCount, income, openTasks, 
     >
       <div className="ph">
         <span className="pcolor" style={{ background: project.color || 'var(--sage)' }} />
-        <p className="pn">{project.name}</p>
+        <p className="pn" title={project.name}>{project.name}</p>
         {groupsCount ? (
           <span className="ps-tag">
             <Users size={11} strokeWidth={1.6} aria-hidden="true" /> {groupsCount}

@@ -144,12 +144,6 @@ function ListView({ config, data, onDrill }) {
   const months = useMemo(() => getLast12Months(), [])
   const [selected, setSelected] = useState(months[months.length - 1])
 
-  /* All 12 months' reports — used both for the pill click handlers and
-     the "jump to last month with data" suggestion when empty. */
-  const reports = useMemo(
-    () => months.map((p) => ({ ...p, data: computeReportForRange(p.start, p.end, data) })),
-    [months, data],
-  )
   const selectedReport = useMemo(
     () => computeReportForRange(selected.start, selected.end, data),
     [selected, data],
@@ -164,15 +158,24 @@ function ListView({ config, data, onDrill }) {
     return v === null || v === undefined || v === 0
   })
 
-  const suggested = isEmpty
-    ? [...reports].reverse().find((r) => {
-        if (r.year === selected.year && r.month === selected.month) return false
-        return ordered.some((m) => {
-          const v = r.data.metrics[m.id]
-          return v !== null && v !== undefined && v !== 0
-        })
+  /* Lazy: only when the selected month is empty do we scan other months
+     for activity — newest first, stopping at the first hit. This avoids
+     computing all 12 monthly reports on every mount (the common case is
+     a non-empty month, where we compute nothing extra). */
+  const suggested = useMemo(() => {
+    if (!isEmpty) return null
+    for (let i = months.length - 1; i >= 0; i -= 1) {
+      const p = months[i]
+      if (p.year === selected.year && p.month === selected.month) continue
+      const report = computeReportForRange(p.start, p.end, data)
+      const hasData = ordered.some((m) => {
+        const v = report.metrics[m.id]
+        return v !== null && v !== undefined && v !== 0
       })
-    : null
+      if (hasData) return p
+    }
+    return null
+  }, [isEmpty, months, selected, data, ordered])
 
   /* Group metrics by their group, in the user's order. */
   const grouped = useMemo(() => {

@@ -1,66 +1,43 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   listScheduledMeetings, insertScheduledMeeting,
   updateScheduledMeeting as apiUpdate,
   removeScheduledMeeting as apiRemove,
 } from '../lib/api/scheduledMeetings'
 
+/* React-Query-backed: attention + meeting-confirm + quick-row widgets
+   shared this fetch. Public API unchanged. */
+const KEY = ['scheduledMeetings']
+const byTime = (a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at)
+
 export function useScheduledMeetings() {
-  const [meetings, setMeetings] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setMeetings(await listScheduledMeetings())
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await listScheduledMeetings()
-        if (active) { setMeetings(data); setError(null) }
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    })()
-    return () => { active = false }
-  }, [])
+  const qc = useQueryClient()
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listScheduledMeetings })
+  const meetings = data ?? []
 
   const addMeeting = useCallback(async (payload) => {
     const row = await insertScheduledMeeting(payload)
-    setMeetings((prev) => [...prev, row].sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at)))
+    qc.setQueryData(KEY, (prev) => [...(prev ?? []), row].sort(byTime))
     return row
-  }, [])
+  }, [qc])
 
   const updateMeeting = useCallback(async (id, patch) => {
-    /* Optimistic — confirm/skip should feel instant. */
-    setMeetings((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)))
+    qc.setQueryData(KEY, (prev) => (prev ?? []).map((m) => (m.id === id ? { ...m, ...patch } : m))) // optimistic
     try {
       const row = await apiUpdate(id, patch)
-      setMeetings((prev) => prev.map((m) => (m.id === id ? row : m)))
+      qc.setQueryData(KEY, (prev) => (prev ?? []).map((m) => (m.id === id ? row : m)))
       return row
     } catch (e) {
-      setError(e.message)
-      refetch()
+      qc.invalidateQueries({ queryKey: KEY })
       throw e
     }
-  }, [refetch])
+  }, [qc])
 
   const removeMeeting = useCallback(async (id) => {
-    setMeetings((prev) => prev.filter((m) => m.id !== id))
-    try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((m) => m.id !== id))
+    try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
 
-  return { meetings, loading, error, addMeeting, updateMeeting, removeMeeting, refetch }
+  return { meetings, loading: isLoading, error: error?.message ?? null, addMeeting, updateMeeting, removeMeeting, refetch }
 }

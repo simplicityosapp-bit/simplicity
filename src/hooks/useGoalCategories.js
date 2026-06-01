@@ -1,54 +1,32 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listGoalCategories, insertGoalCategory, updateGoalCategory, removeGoalCategory as apiRemove } from '../lib/api/goalCategories'
 
+/* React-Query-backed: shared across moon/attention/quick-row widgets +
+   moon-glance + finance chart. Public API unchanged. */
+const KEY = ['goalCategories']
+
 export function useGoalCategories() {
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setCategories(await listGoalCategories())
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await listGoalCategories()
-        if (active) { setCategories(data); setError(null) }
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    })()
-    return () => { active = false }
-  }, [])
+  const qc = useQueryClient()
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listGoalCategories })
+  const categories = data ?? []
 
   const addCategory = useCallback(async (payload) => {
     const row = await insertGoalCategory(payload)
-    setCategories((prev) => [...prev, row])
+    qc.setQueryData(KEY, (prev) => [...(prev ?? []), row])
     return row
-  }, [])
+  }, [qc])
 
   const updateCategory = useCallback(async (id, patch) => {
     const row = await updateGoalCategory(id, patch)
-    setCategories((prev) => prev.map((c) => (c.id === id ? row : c)))
+    qc.setQueryData(KEY, (prev) => (prev ?? []).map((c) => (c.id === id ? row : c)))
     return row
-  }, [])
+  }, [qc])
 
   const removeCategory = useCallback(async (id) => {
-    setCategories((prev) => prev.filter((c) => c.id !== id))
-    try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((c) => c.id !== id))
+    try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
 
-  return { categories, loading, error, addCategory, updateCategory, removeCategory, refetch }
+  return { categories, loading: isLoading, error: error?.message ?? null, addCategory, updateCategory, removeCategory, refetch }
 }

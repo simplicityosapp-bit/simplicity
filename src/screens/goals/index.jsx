@@ -24,8 +24,8 @@ import { coachmarkText } from '../../lib/coachmarks'
 import './GoalsScreen.css'
 
 export default function GoalsScreen() {
-  const { goals, loading: goalsLoading, addGoal, updateGoal, removeGoal } = useGoals()
-  const { categories, loading: catsLoading, addCategory, updateCategory, removeCategory } = useGoalCategories()
+  const { goals, loading: goalsLoading, error: goalsError, addGoal, updateGoal, removeGoal } = useGoals()
+  const { categories, loading: catsLoading, error: catsError, addCategory, updateCategory, removeCategory } = useGoalCategories()
   const { entries, addEntry, removeEntry } = useGoalEntries()
   const { transactions } = useTransactions()
   const { projects } = useProjects()
@@ -42,6 +42,7 @@ export default function GoalsScreen() {
   const [editGoal, setEditGoalState] = useState(null)
 
   const loading = goalsLoading || catsLoading
+  const error = goalsError || catsError
   const taken = new Set(categories.map((c) => c.data_source).filter(Boolean))
   const availablePresets = CATEGORY_PRESETS.filter((p) => !taken.has(p.data_source))
 
@@ -97,6 +98,8 @@ export default function GoalsScreen() {
 
       {loading ? (
         <div className="empty"><p className="empty-text">טוען יעדים…</p></div>
+      ) : error ? (
+        <div className="empty"><p className="empty-text">שגיאה בטעינת היעדים: {error}</p></div>
       ) : categories.length === 0 ? (
         <div className="g-welcome">
           <span className="g-welcome-icon"><Target size={34} strokeWidth={1.4} aria-hidden="true" /></span>

@@ -22,7 +22,7 @@ export default function LeadCard({ lead, onEdit, onConvert, sources = [], status
         e.dataTransfer.effectAllowed = 'move'
       }}
     >
-      <p className="lead-card-name">{lead.name}</p>
+      <p className="lead-card-name" title={lead.name}>{lead.name}</p>
 
       {sub && (
         <div className="lead-sub">

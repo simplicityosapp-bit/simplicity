@@ -52,8 +52,8 @@ function reminderBucket(rem, now) {
 }
 
 export default function TasksScreen() {
-  const { tasks, loading: tasksLoading, addTask, toggleTask } = useTasks()
-  const { reminders, loading: remindersLoading, addReminder, completeReminder } = useReminders()
+  const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask } = useTasks()
+  const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder } = useReminders()
   const { projects } = useProjects()
   const { clients } = useClients()
   /* Top toggle drives entity choice. The rest of the screen reads
@@ -65,6 +65,7 @@ export default function TasksScreen() {
 
   const isTasks = view === 'tasks'
   const loading = isTasks ? tasksLoading : remindersLoading
+  const error = isTasks ? tasksError : remindersError
 
   /* Counts for the header + hero ─ both entities share a pending/done
      contract so we can derive them with a single .status check. */
@@ -186,6 +187,8 @@ export default function TasksScreen() {
       <section className="t-list">
         {loading ? (
           <div className="empty"><p className="empty-text">{isTasks ? 'טוען משימות…' : 'טוען תזכורות…'}</p></div>
+        ) : error ? (
+          <div className="empty"><p className="empty-text">{isTasks ? 'שגיאה בטעינת המשימות' : 'שגיאה בטעינת התזכורות'}: {error}</p></div>
         ) : isTasks ? (
           filteredTasks.length === 0 ? (
             tasks.length === 0 ? (

@@ -235,6 +235,9 @@
   font-size: 15px;
   font-weight: 600;
   color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .cc-meta {
   display: flex;

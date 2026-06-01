@@ -40,7 +40,7 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
         <div className="cat-chips">
           {live.map((c) => (
             <span key={c.id} className="cat-chip">
-              <span className="cat-chip-dot" style={{ background: c.color || '#888' }} />
+              <span className="cat-chip-dot" style={{ background: c.color || 'var(--stone)' }} />
               <span className="cat-chip-name">{c.name}</span>
               <button
                 type="button"

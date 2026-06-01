@@ -823,6 +823,23 @@
 .ob-gcard-stars { display: inline-flex; gap: 2px; color: var(--divider); }
 .ob-gcard-stars .on { color: var(--amber-warn); }
 
+/* Inline schedule warning — shows next to the day picker when a yes/no
+   target can't be met by the chosen days. */
+.ob-sched-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--clay) 12%, transparent);
+  font-family: var(--mg-font);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--clay);
+}
+.ob-sched-warn svg { flex-shrink: 0; margin-top: 1px; }
+
 /* ── Live client card (step 4) — faithful to the in-app .cc card so
    onboarding shows the real thing the user is creating. ──────────── */
 .ob-cc-wrap,

@@ -198,8 +198,10 @@ function WidgetRow({ cfg, reg, onUpdate, dragging, over, onDragStart, onDragOver
         <span className="set-w-row-name">{reg.label}</span>
         <button
           type="button"
+          role="switch"
+          aria-checked={cfg.enabled}
           className={`set-w-toggle${cfg.enabled ? ' on' : ''}`}
-          aria-label={cfg.enabled ? 'כיבוי' : 'הפעלה'}
+          aria-label={`${reg.label} — ${cfg.enabled ? 'כיבוי' : 'הפעלה'}`}
           onClick={() => onUpdate({ enabled: !cfg.enabled })}
         >
           <span className="set-w-toggle-knob" />
@@ -214,6 +216,7 @@ function WidgetRow({ cfg, reg, onUpdate, dragging, over, onDragStart, onDragOver
                 type="button"
                 role="radio"
                 aria-checked={cfg.accent === a.v}
+                aria-label={`צבע ${a.l}`}
                 title={a.l}
                 className={`set-w-accent${cfg.accent === a.v ? ' on' : ''}`}
                 style={{ background: a.color }}

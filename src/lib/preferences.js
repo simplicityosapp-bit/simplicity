@@ -206,6 +206,11 @@ export function migratePreferences(input) {
   const base = defaultPreferences()
   const cur = input && typeof input === 'object' ? input : {}
   const out = {
+    /* Preserve any extra top-level prefs the app persists outside the
+       structured shape (insightsReminder, leadsView, financeShowSkipped,
+       tileFilters, …). Without this spread the whitelist below silently
+       dropped them on every load, so the saved value never came back. */
+    ...cur,
     profile: { ...base.profile, ...(cur.profile || {}) },
     format:  { ...base.format,  ...(cur.format  || {}) },
     design:  { ...base.design,  ...(cur.design  || {}) },

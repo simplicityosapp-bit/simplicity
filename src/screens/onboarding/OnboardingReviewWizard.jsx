@@ -25,6 +25,35 @@ import './OnboardingReviewWizard.css'
 const norm = (s) => (s || '').trim().toLowerCase()
 const PAGE = 100 /* rows rendered per tab before "load more" */
 
+/* Turn a raw importer error into one plain-Hebrew sentence the user can
+   actually act on. The importer prefixes each error with the entity +
+   name ("lead \"דנה\": <db message>"); we keep that label and translate
+   the common database messages. Unknown messages fall back to a generic
+   but still-friendly line (never raw SQL jargon alone). */
+function humanizeError(raw) {
+  const s = String(raw || '')
+  const labelMatch = s.match(/^(\w+)\s+"([^"]*)":/)
+  const who = labelMatch
+    ? `${{ client: 'הלקוח', project: 'הפרויקט', lead: 'הליד', transaction: 'התנועה' }[labelMatch[1]] || ''} "${labelMatch[2]}"`.trim()
+    : ''
+  const lower = s.toLowerCase()
+  let why
+  if (lower.includes('schema cache') || lower.includes('column')) why = 'שדה שלא קיים במערכת — כנראה עמודה שמופתה לא נכון.'
+  else if (lower.includes('duplicate') || lower.includes('unique')) why = 'כבר קיים אצלך פריט זהה.'
+  else if (lower.includes('violates') && lower.includes('check')) why = 'אחד הערכים לא תקין (למשל תאריך או סטטוס לא מוכר).'
+  else if (lower.includes('foreign key')) why = 'הפריט מקושר למשהו שלא נוצר.'
+  else if (lower.includes('null value') || lower.includes('not-null')) why = 'חסר ערך בשדה חובה.'
+  else if (lower.includes('date')) why = 'התאריך לא תקין.'
+  else if (lower.includes('אין חיבור')) why = 'נותק החיבור — צריך להתחבר מחדש.'
+  else why = 'שגיאה לא צפויה.'
+  return who ? `${who}: ${why}` : why
+}
+
+/* Default client status options offered in the review (the 4 meta
+   buckets). The file's own status text is added on top so a recognised
+   custom status ("פולואפ" etc.) stays selectable. */
+const CLIENT_STATUS_DEFAULTS = ['פעיל', 'ביניים', 'לשעבר', 'ללא סטטוס']
+
 export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, onCancel }) {
   const { clients: existingClients, loading: clientsLoading } = useClients()
   const { projects: existingProjects, loading: projectsLoading } = useProjects()
@@ -34,6 +63,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   const [confirmingClose, setConfirmingClose] = useState(false)
   const [result, setResult] = useState(null) /* import summary, when shown */
   const panelRef = useRef(null)
+  const confirmingRef = useRef(false) /* synchronous double-confirm guard */
 
   const existingClientNames = useMemo(
     () => new Set((existingClients || []).map((c) => norm(c?.name))),
@@ -48,9 +78,10 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   const [state, setState] = useState(() => ({
     clients: (parsed?.clients || []).map((c) => ({ ...c })),
     projects: (parsed?.projects || []).map((p) => ({ ...p })),
+    leads: (parsed?.leads || []).map((l) => ({ ...l })),
     transactions: (parsed?.transactions || []).map((t) => ({ ...t })),
   }))
-  const [overrides, setOverrides] = useState({ clients: {}, projects: {}, transactions: {} })
+  const [overrides, setOverrides] = useState({ clients: {}, projects: {}, leads: {}, transactions: {} })
 
   const rowExists = (type, row) => {
     if (type === 'clients') return existingClientNames.has(norm(row.name))
@@ -100,9 +131,18 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     return Array.from(names)
   }, [existingProjects, state.projects])
 
+  /* Client status options = the 4 defaults + any distinct status text
+     that came in from the file, so every imported value stays pickable. */
+  const clientStatusOptions = useMemo(() => {
+    const set = new Set(CLIENT_STATUS_DEFAULTS)
+    state.clients.forEach((c) => { if (c.status_name) set.add(c.status_name) })
+    return Array.from(set)
+  }, [state.clients])
+
   const TABS = [
     { key: 'clients',      label: 'לקוחות',   icon: Users },
     { key: 'projects',     label: 'פרויקטים', icon: FolderKanban },
+    { key: 'leads',        label: 'לידים',    icon: Users },
     { key: 'transactions', label: 'תנועות',   icon: Receipt },
   ].filter((t) => state[t.key].length > 0)
 
@@ -136,26 +176,33 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   const counts = {
     clients: creatableRows('clients').length,
     projects: creatableRows('projects').length,
+    leads: creatableRows('leads').length,
     transactions: creatableRows('transactions').length,
   }
-  const totalIncluded = counts.clients + counts.projects + counts.transactions
+  const totalIncluded = counts.clients + counts.projects + counts.leads + counts.transactions
   const txIssues = parsed?.transaction_issues || 0
 
   const handleConfirm = async () => {
-    if (busy) return
+    /* Ref guard, not just `busy`: state updates are async, so a fast
+       double-click could pass the `busy` check twice before re-render —
+       which is exactly what double-imports the data. The ref flips
+       synchronously, so the second call returns immediately. */
+    if (busy || confirmingRef.current) return
+    confirmingRef.current = true
     setBusy(true)
     try {
       const strip = (type) => state[type]
         .filter((row, i) => isIncluded(type, i, row) && isValid(type, row))
         .map(({ _row, ...rest }) => rest)
-      const summary = await onConfirm({ projects: strip('projects'), clients: strip('clients'), transactions: strip('transactions') })
+      const summary = await onConfirm({ projects: strip('projects'), clients: strip('clients'), leads: strip('leads'), transactions: strip('transactions') })
       const failed = summary
-        ? (summary.projects?.failed || 0) + (summary.clients?.failed || 0) + (summary.transactions?.failed || 0)
+        ? (summary.projects?.failed || 0) + (summary.clients?.failed || 0) + (summary.leads?.failed || 0) + (summary.transactions?.failed || 0)
         : 0
       if (summary?.fatal || failed > 0) setResult(summary)
       else await onComplete()
     } finally {
       setBusy(false)
+      confirmingRef.current = false
     }
   }
 
@@ -168,40 +215,53 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
 
   /* ── Result / error view (after a confirm that hit failures) ── */
   if (result) {
-    const f = {
-      projects: result.projects?.failed || 0,
-      clients: result.clients?.failed || 0,
-      transactions: result.transactions?.failed || 0,
-    }
     const created = {
-      projects: result.projects?.created || 0,
       clients: result.clients?.created || 0,
+      projects: result.projects?.created || 0,
+      leads: result.leads?.created || 0,
       transactions: result.transactions?.created || 0,
     }
+    const totalCreated = created.clients + created.projects + created.leads + created.transactions
+    const totalFailed = (result.clients?.failed || 0) + (result.projects?.failed || 0)
+      + (result.leads?.failed || 0) + (result.transactions?.failed || 0)
+    /* Plain-language created summary line (only non-zero kinds). */
+    const parts = []
+    if (created.clients) parts.push(`${created.clients} לקוחות`)
+    if (created.projects) parts.push(`${created.projects} פרויקטים`)
+    if (created.leads) parts.push(`${created.leads} לידים`)
+    if (created.transactions) parts.push(`${created.transactions} תנועות`)
+
     return (
       <div className="obrw-back" role="dialog" aria-modal="true" aria-label="תוצאת הייבוא">
         <div className="obrw-panel" ref={panelRef} tabIndex={-1}>
           <div className="obrw-result">
             <AlertTriangle size={28} strokeWidth={1.8} className="obrw-result-icon" aria-hidden="true" />
-            <p className="obrw-result-title">
-              {result.fatal ? 'הייבוא נכשל' : 'הייבוא הסתיים עם שגיאות'}
-            </p>
             {result.fatal ? (
-              <p className="obrw-result-txt">{result.error}</p>
+              <>
+                <p className="obrw-result-title">לא הצלחנו לייבא את הנתונים</p>
+                <p className="obrw-result-txt">
+                  משהו השתבש לפני שנוצר משהו — שום דבר לא נשמר. אפשר לנסות שוב, ואם זה חוזר נשמח לעזור.
+                </p>
+                <p className="obrw-result-hint">פרטים טכניים: {humanizeError(result.error)}</p>
+              </>
             ) : (
               <>
-                <p className="obrw-result-txt">
-                  נוצרו {created.clients} לקוחות · {created.projects} פרויקטים · {created.transactions} תנועות.
+                <p className="obrw-result-title">
+                  {totalCreated > 0 ? 'הייבוא הושלם — אבל חלק מהשורות לא נכנסו' : 'אף שורה לא נכנסה'}
                 </p>
+                {totalCreated > 0 && (
+                  <p className="obrw-result-txt">נוצרו בהצלחה: {parts.join(' · ')}.</p>
+                )}
                 <p className="obrw-result-txt obrw-result-fail">
-                  נכשלו: {f.clients + f.projects + f.transactions} שורות.
+                  {totalFailed} שורות לא נכנסו. הנה למה:
                 </p>
                 {result.errors?.length > 0 && (
                   <ul className="obrw-result-errs">
-                    {result.errors.slice(0, 4).map((e, i) => <li key={i}>{e}</li>)}
-                    {result.errors.length > 4 && <li>ועוד {result.errors.length - 4}…</li>}
+                    {result.errors.slice(0, 5).map((e, i) => <li key={i}>{humanizeError(e)}</li>)}
+                    {result.errors.length > 5 && <li>ועוד {result.errors.length - 5} שורות דומות…</li>}
                   </ul>
                 )}
+                <p className="obrw-result-hint">מה שכן נכנס כבר נשמר. אפשר להמשיך, או לחזור ולתקן את השורות שנכשלו.</p>
               </>
             )}
             <div className="obrw-actions">
@@ -209,7 +269,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                 חזרה לרשימה
               </button>
               <button type="button" className="ob-btn primary" onClick={onComplete} disabled={busy}>
-                המשך לבית
+                המשך
               </button>
             </div>
           </div>
@@ -293,11 +353,17 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                     <option value="">בלי פרויקט</option>
                     {opts.map((n) => <option key={n} value={n}>{n}</option>)}
                   </select>
+                  <select className={`obrw-input obrw-cl-status${c.status_unsure ? ' unsure' : ''}`} value={c.status_name || ''} title="סטטוס לקוח" disabled={!inc}
+                    onChange={(e) => patchRow('clients', i, { status_name: e.target.value || null, status_unsure: false })}>
+                    <option value="">סטטוס: פעיל</option>
+                    {clientStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
                   <input className="obrw-input obrw-num" type="number" min="0" value={c.sessions ?? ''} placeholder="פגישות" title="מספר פגישות" disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { sessions: Number(e.target.value) || 0 })} />
                   <input className="obrw-input obrw-num" type="number" min="0" value={c.price_per_session ?? ''} placeholder="מחיר" title="מחיר לפגישה" disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { price_per_session: Number(e.target.value) || 0 })} />
                   {invalid && <span className="obrw-invalid">חסר שם</span>}
+                  {c.status_unsure && inc && <span className="obrw-unsure">❓ ודא/י סטטוס</span>}
                   {projectOrphan && <span className="obrw-invalid">הפרויקט לא ייווצר</span>}
                 </div>
                 {exists ? <span className="obrw-badge">כבר קיים</span>
@@ -319,6 +385,25 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                   {invalid && <span className="obrw-invalid">חסר שם</span>}
                 </div>
                 {exists && <span className="obrw-badge">כבר קיים</span>}
+              </div>
+            )
+          })}
+
+          {tab === 'leads' && state.leads.slice(0, visible).map((l, i) => {
+            const inc = isIncluded('leads', i, l)
+            const invalid = inc && !isValid('leads', l)
+            return (
+              <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
+                {renderToggle('leads', i, l, inc)}
+                <div className="obrw-fields">
+                  <input className="obrw-input obrw-grow" value={l.name || ''} placeholder="שם הליד" disabled={!inc}
+                    onChange={(e) => patchRow('leads', i, { name: e.target.value })} />
+                  <input className={`obrw-input obrw-cl-proj${l.status_unsure ? ' unsure' : ''}`} value={l.status_name || ''} placeholder="סטטוס" title="סטטוס הליד" disabled={!inc}
+                    onChange={(e) => patchRow('leads', i, { status_name: e.target.value || null, status_unsure: false })} />
+                  {invalid && <span className="obrw-invalid">חסר שם</span>}
+                  {l.status_unsure && inc && <span className="obrw-unsure">❓ ודא/י סטטוס</span>}
+                </div>
+                {l.status_name && <span className="obrw-badge">{l.status_name}</span>}
               </div>
             )
           })}
@@ -388,7 +473,9 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
 
         <footer className="obrw-foot">
           <p className="obrw-summary">
-            ייווצרו: <strong>{counts.clients}</strong> לקוחות · <strong>{counts.projects}</strong> פרויקטים · <strong>{counts.transactions}</strong> תנועות
+            ייווצרו: <strong>{counts.clients}</strong> לקוחות · <strong>{counts.projects}</strong> פרויקטים
+            {counts.leads > 0 && <> · <strong>{counts.leads}</strong> לידים</>}
+            {' · '}<strong>{counts.transactions}</strong> תנועות
           </p>
           <div className="obrw-actions">
             <button type="button" className="ob-btn ghost" onClick={requestClose} disabled={busy}>

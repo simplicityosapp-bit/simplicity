@@ -256,6 +256,19 @@
 .obrw-grow { flex: 1 1 120px; }
 .obrw-num  { width: 76px; flex: none; }
 .obrw-cl-proj { width: 130px; flex: none; }
+.obrw-cl-status { width: 110px; flex: none; }
+/* Status the system couldn't confidently map — nudge the user to confirm
+   instead of silently filing it as "active". */
+.obrw-input.unsure {
+  border-color: var(--amber-warn);
+  background: color-mix(in srgb, var(--amber-warn) 14%, transparent);
+}
+.obrw-unsure {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--amber-warn);
+  white-space: nowrap;
+}
 
 /* Labeled transaction field — tiny caption above the input so the
    date/amount are unambiguous. */
@@ -354,6 +367,12 @@
   color: var(--stone);
   max-height: 120px;
   overflow-y: auto;
+}
+.obrw-result-hint {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--mist);
 }
 .obrw-result .obrw-actions { margin-top: 14px; }
 

@@ -1,0 +1,167 @@
+/* ════════════════════════════════════════════════════════════════
+   PivotMappingEditor — matrix import control surface.
+   ════════════════════════════════════════════════════════════════
+   Glass card matching the onboarding design line; colors only from
+   tokens. Self-sizing, centered in the step body like other ob fields.
+   ════════════════════════════════════════════════════════════════ */
+
+.pv {
+  align-self: center;
+  width: min(440px, 100%);
+  margin: 6px 0;
+  padding: 16px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+
+.pv-head { margin-bottom: 14px; }
+.pv-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-family: var(--mg-font);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--espresso);
+}
+.pv-title svg { color: var(--sage); }
+.pv-sub {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--stone);
+}
+
+.pv-field { margin-top: 14px; }
+.pv-row2 { display: flex; gap: 12px; margin-top: 14px; }
+.pv-row2 .pv-field { margin-top: 0; flex: 1; }
+
+.pv-label {
+  margin: 0 0 6px;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--stone);
+}
+
+/* Segmented control — matches .ob-seg. */
+.pv-seg {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  border: 1px solid rgba(42, 37, 32, 0.14);
+  background: rgba(255, 255, 255, 0.5);
+}
+[data-theme="dark"] .pv-seg { border-color: rgba(240, 235, 224, 0.18); background: rgba(36, 32, 28, 0.5); }
+.pv-seg-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--stone);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.pv-seg-btn.on { background: var(--sage); color: #fff; }
+[data-theme="dark"] .pv-seg-btn.on { color: #1a1a1a; }
+
+.pv-select {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(42, 37, 32, 0.14);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: var(--bm);
+  -webkit-backdrop-filter: var(--bm);
+  font-family: var(--mg-font);
+  font-size: 13.5px;
+  color: var(--espresso);
+  cursor: pointer;
+}
+[data-theme="dark"] .pv-select { background: rgba(36, 32, 28, 0.5); border-color: rgba(240, 235, 224, 0.18); }
+
+/* Column role rows */
+.pv-cols { display: flex; flex-direction: column; gap: 6px; }
+.pv-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgba(42, 37, 32, 0.03);
+}
+[data-theme="dark"] .pv-col { background: rgba(240, 235, 224, 0.03); }
+.pv-col-name {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mg-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pv-col-select { width: auto; flex: 0 0 130px; padding: 6px 10px; font-size: 12.5px; }
+
+/* Row skip toggles */
+.pv-rows {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pv-row-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
+  font-family: var(--mg-font);
+  font-size: 12.5px;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+}
+.pv-row-item.off { background: transparent; opacity: 0.5; }
+.pv-row-item input { accent-color: var(--sage); cursor: pointer; }
+.pv-row-label { white-space: nowrap; }
+
+.pv-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--clay) 12%, transparent);
+  font-family: var(--mg-font);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--clay);
+}
+.pv-warn svg { flex-shrink: 0; margin-top: 1px; }
+
+.pv-preview {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+  font-family: var(--mg-font);
+  font-size: 13px;
+  color: var(--stone);
+  text-align: center;
+}
+.pv-preview strong { color: var(--espresso); font-family: var(--mg-font-num); }

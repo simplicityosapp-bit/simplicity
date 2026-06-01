@@ -69,7 +69,7 @@ export default function PendingSection({ transactions, clients = [], projects = 
                     <>
                       <span className="f-pending-dot">·</span>
                       <span className="f-pending-cat">
-                        <span className="f-pending-cat-dot" style={{ background: category.color || '#888' }} />
+                        <span className="f-pending-cat-dot" style={{ background: category.color || 'var(--stone)' }} />
                         {category.name}
                       </span>
                     </>

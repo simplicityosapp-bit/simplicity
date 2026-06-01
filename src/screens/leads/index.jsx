@@ -29,7 +29,7 @@ function computeStats(list, now = new Date()) {
 }
 
 export default function LeadsScreen() {
-  const { leads: leadList, loading, addLead, updateLead } = useLeads()
+  const { leads: leadList, loading, error, addLead, updateLead } = useLeads()
   const { sources } = useLeadSources()
   const { statuses: leadStatuses, addStatus: addLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
   const { addClient } = useClients()
@@ -135,6 +135,8 @@ export default function LeadsScreen() {
 
       {loading ? (
         <div className="empty"><p className="empty-text">טוען לידים…</p></div>
+      ) : error ? (
+        <div className="empty"><p className="empty-text">שגיאה בטעינת הלידים: {error}</p></div>
       ) : view === 'statuses' ? (
         <LeadStatusesPanel
           statuses={leadStatuses}

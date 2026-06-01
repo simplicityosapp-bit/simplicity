@@ -59,7 +59,7 @@ export default function ClientCard({
       <div className="cc-head">
         <div className="cc-av">{initials(client.name)}</div>
         <div className="cc-id">
-          <p className="cc-name">{client.name}</p>
+          <p className="cc-name" title={client.name}>{client.name}</p>
           <div className="cc-meta">
             <span className={`cc-status cc-status-${status.cls}`}>{statusLabel}</span>
             {project && <span className="cc-proj">{project.name}</span>}

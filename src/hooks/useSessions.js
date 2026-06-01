@@ -1,54 +1,31 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listSessions, insertSession, updateSession as apiUpdate, removeSession as apiRemove } from '../lib/api/sessions'
 
+/* React-Query-backed: shared across moon + attention widgets. Public API unchanged. */
+const KEY = ['sessions']
+
 export function useSessions() {
-  const [sessions, setSessions] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setSessions(await listSessions())
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await listSessions()
-        if (active) { setSessions(data); setError(null) }
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    })()
-    return () => { active = false }
-  }, [])
+  const qc = useQueryClient()
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listSessions })
+  const sessions = data ?? []
 
   const addSession = useCallback(async (payload) => {
     const row = await insertSession(payload)
-    setSessions((prev) => [row, ...prev])
+    qc.setQueryData(KEY, (prev) => [row, ...(prev ?? [])])
     return row
-  }, [])
+  }, [qc])
 
   const updateSession = useCallback(async (id, patch) => {
     const row = await apiUpdate(id, patch)
-    setSessions((prev) => prev.map((s) => (s.id === id ? row : s)))
+    qc.setQueryData(KEY, (prev) => (prev ?? []).map((s) => (s.id === id ? row : s)))
     return row
-  }, [])
+  }, [qc])
 
   const removeSession = useCallback(async (id) => {
-    setSessions((prev) => prev.filter((s) => s.id !== id))
-    try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((s) => s.id !== id))
+    try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
 
-  return { sessions, loading, error, addSession, updateSession, removeSession, refetch }
+  return { sessions, loading: isLoading, error: error?.message ?? null, addSession, updateSession, removeSession, refetch }
 }

@@ -631,7 +631,7 @@
   font-variant-numeric: tabular-nums;
 }
 .rec-card-amount.income {
-  color: var(--sage, #6b8e6b);
+  color: var(--sage);
 }
 .rec-card-amount.expense {
   color: var(--stone);
@@ -661,7 +661,7 @@
 }
 .rec-card-btn-danger:hover {
   background: rgba(180, 70, 60, 0.08);
-  color: #8c3a32;
+  color: var(--clay);
 }
 [data-theme="dark"] .rec-card-btn:hover {
   background: rgba(240, 235, 224, 0.07);
@@ -747,7 +747,7 @@
   line-height: 1;
 }
 .cat-chip-x:hover {
-  color: #8c3a32;
+  color: var(--clay);
 }
 
 .cat-add-row {

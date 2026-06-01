@@ -1,58 +1,35 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   listCategories, insertCategory,
   updateCategory as apiUpdateCategory,
   removeCategory as apiRemoveCategory,
 } from '../lib/api/categories'
 
+/* React-Query-backed: shared across meeting-confirm + chips widgets + finance. Public API unchanged. */
+const KEY = ['categories']
+
 export function useCategories() {
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setCategories(await listCategories())
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await listCategories()
-        if (active) { setCategories(data); setError(null) }
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    })()
-    return () => { active = false }
-  }, [])
+  const qc = useQueryClient()
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listCategories })
+  const categories = data ?? []
 
   const addCategory = useCallback(async (payload) => {
     const row = await insertCategory(payload)
-    setCategories((prev) => [...prev, row])
+    qc.setQueryData(KEY, (prev) => [...(prev ?? []), row])
     return row
-  }, [])
+  }, [qc])
 
   const updateCategory = useCallback(async (id, patch) => {
     const row = await apiUpdateCategory(id, patch)
-    setCategories((prev) => prev.map((c) => (c.id === id ? row : c)))
+    qc.setQueryData(KEY, (prev) => (prev ?? []).map((c) => (c.id === id ? row : c)))
     return row
-  }, [])
+  }, [qc])
 
   const removeCategory = useCallback(async (id) => {
-    setCategories((prev) => prev.filter((c) => c.id !== id))
-    try { await apiRemoveCategory(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((c) => c.id !== id))
+    try { await apiRemoveCategory(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
 
-  return { categories, loading, error, addCategory, updateCategory, removeCategory, refetch }
+  return { categories, loading: isLoading, error: error?.message ?? null, addCategory, updateCategory, removeCategory, refetch }
 }

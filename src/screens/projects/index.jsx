@@ -14,7 +14,7 @@ import { coachmarkText } from '../../lib/coachmarks'
 import './ProjectsScreen.css'
 
 export default function ProjectsScreen() {
-  const { projects, loading, addProject, updateProject, removeProject } = useProjects()
+  const { projects, loading, error, addProject, updateProject, removeProject } = useProjects()
   const { clients } = useClients()
   const { transactions } = useTransactions()
   const { tasks } = useTasks()
@@ -95,6 +95,8 @@ export default function ProjectsScreen() {
       <section className="p-list">
         {loading ? (
           <div className="empty"><p className="empty-text">טוען פרויקטים…</p></div>
+        ) : error ? (
+          <div className="empty"><p className="empty-text">שגיאה בטעינת הפרויקטים: {error}</p></div>
         ) : projects.length === 0 ? (
           <div className="empty">
             <span className="empty-icon"><FolderOpen size={36} strokeWidth={1.4} aria-hidden="true" /></span>

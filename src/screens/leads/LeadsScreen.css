@@ -194,7 +194,7 @@
   line-height: 1;
 }
 .lead-statuses-chip-x:hover {
-  color: #8c3a32;
+  color: var(--clay);
 }
 .lead-statuses-add {
   display: flex;
@@ -294,6 +294,9 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .lead-sub {
   display: inline-flex;

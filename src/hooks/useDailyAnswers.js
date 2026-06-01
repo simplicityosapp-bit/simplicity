@@ -1,43 +1,20 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listDailyAnswers, insertDailyAnswer } from '../lib/api/dailyAnswers'
 
+/* React-Query-backed: shared across moon + insights widgets. Public API unchanged. */
+const KEY = ['dailyAnswers']
+
 export function useDailyAnswers() {
-  const [answers, setAnswers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setAnswers(await listDailyAnswers())
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await listDailyAnswers()
-        if (active) { setAnswers(data); setError(null) }
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    })()
-    return () => { active = false }
-  }, [])
+  const qc = useQueryClient()
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listDailyAnswers })
+  const answers = data ?? []
 
   const addAnswer = useCallback(async (payload) => {
     const row = await insertDailyAnswer(payload)
-    setAnswers((prev) => [row, ...prev])
+    qc.setQueryData(KEY, (prev) => [row, ...(prev ?? [])])
     return row
-  }, [])
+  }, [qc])
 
-  return { answers, loading, error, addAnswer, refetch }
+  return { answers, loading: isLoading, error: error?.message ?? null, addAnswer, refetch }
 }

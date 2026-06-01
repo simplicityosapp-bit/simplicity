@@ -98,7 +98,17 @@ function MultiPills({ items, selected, onChange, allLabel = 'הכל', emptyLabel
 }
 
 const DAY_MS = 86400000
-const dayKey = (d) => new Date(d).toISOString().slice(0, 10)
+/* Local calendar-day key "YYYY-MM-DD". A date-only string (e.g. a tx's
+   `date` column) is already a calendar day — return it as-is. A full
+   timestamp (e.g. a task's `updated_at`) is bucketed by LOCAL parts so
+   the trend axis (also built from local Dates) and the data points agree;
+   `toISOString()` would shift to UTC and mis-bucket rows near midnight. */
+const pad2 = (n) => String(n).padStart(2, '0')
+const dayKey = (d) => {
+  if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d)) return d.slice(0, 10)
+  const dt = d instanceof Date ? d : new Date(d)
+  return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}`
+}
 
 /* Approximation: for each day in the last N days, count clients
    created on/before that day and not yet deleted. Gives a meaningful

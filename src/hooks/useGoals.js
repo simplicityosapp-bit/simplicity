@@ -1,54 +1,32 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listGoals, insertGoal, updateGoal as apiUpdate, removeGoal as apiRemove } from '../lib/api/goals'
 
+/* React-Query-backed: shared across moon/attention/quick-row widgets +
+   moon-glance + finance chart. Public API unchanged. */
+const KEY = ['goals']
+
 export function useGoals() {
-  const [goals, setGoals] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setGoals(await listGoals())
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await listGoals()
-        if (active) { setGoals(data); setError(null) }
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    })()
-    return () => { active = false }
-  }, [])
+  const qc = useQueryClient()
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listGoals })
+  const goals = data ?? []
 
   const addGoal = useCallback(async (payload) => {
     const row = await insertGoal(payload)
-    setGoals((prev) => [row, ...prev])
+    qc.setQueryData(KEY, (prev) => [row, ...(prev ?? [])])
     return row
-  }, [])
+  }, [qc])
 
   const updateGoal = useCallback(async (id, patch) => {
     const row = await apiUpdate(id, patch)
-    setGoals((prev) => prev.map((g) => (g.id === id ? row : g)))
+    qc.setQueryData(KEY, (prev) => (prev ?? []).map((g) => (g.id === id ? row : g)))
     return row
-  }, [])
+  }, [qc])
 
   const removeGoal = useCallback(async (id) => {
-    setGoals((prev) => prev.filter((g) => g.id !== id))
-    try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((g) => g.id !== id))
+    try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
 
-  return { goals, loading, error, addGoal, updateGoal, removeGoal, refetch }
+  return { goals, loading: isLoading, error: error?.message ?? null, addGoal, updateGoal, removeGoal, refetch }
 }

@@ -21,6 +21,8 @@ import { useLeads } from '../../hooks/useLeads'
 import { countClientsByStatus, reassignClientsStatus } from '../../lib/api/clientStatuses'
 import { countLeadsByStatus, reassignLeadsStatus } from '../../lib/api/leadStatuses'
 import DeleteSubStatusModal from '../../modals/DeleteSubStatusModal'
+import ResetAccountModal from '../../modals/ResetAccountModal'
+import { resetAllUserData } from '../../lib/api/account'
 import {
   ROLE_LABELS, CURRENCY_OPTIONS, DATE_FORMAT_OPTIONS, TIME_FORMAT_OPTIONS, WEEK_START_OPTIONS,
   TEXT_SIZE_OPTIONS, GENDER_OPTIONS, WIDGET_REGISTRY, ACCENT_OPTIONS,
@@ -430,6 +432,14 @@ export default function SettingsScreen() {
   const { tasks: dataTasks } = useTasks()
   const { leads: dataLeads } = useLeads()
   const [pendingDelete, setPendingDelete] = useState(null)  /* { kind, status, peers } | null */
+  const [showReset, setShowReset] = useState(false)
+  /* Full account wipe → then restart onboarding so the user lands on a
+     clean first-run experience. */
+  const onResetAccount = async () => {
+    await resetAllUserData()
+    await updatePrefs({ onboarding: defaultOnboarding() })
+    navigate(ROUTES.ONBOARDING)
+  }
   /* CSV import (Settings → data). Pick a file → parse → open the
      mapping+review modal (reused from onboarding). */
   const importFileRef = useRef(null)
@@ -672,6 +682,21 @@ export default function SettingsScreen() {
           <p className="set-data-hint">
             פותח את אשף ההכרות מהצעד הראשון. נוח לחזור אם דילגת באמצע.
           </p>
+
+          <div className="set-danger-zone">
+            <p className="set-danger-title">איפוס חשבון</p>
+            <button
+              type="button"
+              className="set-data-action danger"
+              onClick={() => setShowReset(true)}
+            >
+              <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" />
+              מחיקת כל הנתונים והתחלה מאפס
+            </button>
+            <p className="set-data-hint">
+              מוחק את כל הנתונים בחשבון (לקוחות, פרויקטים, לידים, תנועות, יעדים, תזכורות ועוד) ומתחיל את ההכרות מחדש. הפעולה דורשת אישור כפול ואי אפשר לבטל אותה.
+            </p>
+          </div>
         </div>
       )
     }
@@ -801,6 +826,12 @@ export default function SettingsScreen() {
           onImported={onImported}
         />
       )}
+
+      <ResetAccountModal
+        open={showReset}
+        onClose={() => setShowReset(false)}
+        onConfirm={onResetAccount}
+      />
     </div>
   )
 }

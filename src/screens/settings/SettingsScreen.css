@@ -671,6 +671,31 @@
 [data-theme="dark"] .set-data-action:hover:not(:disabled) {
   background: rgba(240, 235, 224, 0.06);
 }
+/* Destructive variant for the account-reset action. */
+.set-data-action.danger {
+  border-color: color-mix(in srgb, var(--clay) 45%, transparent);
+  color: var(--clay);
+}
+.set-data-action.danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--clay) 10%, transparent);
+}
+/* Danger zone — visually separated block at the bottom of the data tab. */
+.set-danger-zone {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid color-mix(in srgb, var(--clay) 30%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.set-danger-title {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--clay);
+}
 .set-data-hint {
   margin: 0;
   font-family: var(--mg-font);

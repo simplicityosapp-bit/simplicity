@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Star } from 'lucide-react'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useProjects } from '../../../hooks/useProjects'
@@ -45,6 +46,7 @@ export default function Step6Goals({ ob, setCTA }) {
   const [target, setTarget]         = useState(initial.first_target || '')
   const [timeFrame, setTimeFrame]   = useState(initial.time_frame || 'monthly')
   const [targetDate, setTargetDate] = useState(initial.target_date || '')
+  const [importance, setImportance] = useState(Number(initial.importance) || 3)
   /* Personal-goal extras (collapsed when an auto type is picked). */
   const [label, setLabel]           = useState(initial.personal_label || '')
   const [tracking, setTracking]     = useState(initial.tracking || 'manual')
@@ -70,8 +72,21 @@ export default function Step6Goals({ ob, setCTA }) {
     : (isPersonal && !label.trim()) ? 'תן/י שם ליעד.'
     : (byQuestion && !qText.trim()) ? 'נסח/י את השאלה היומית.'
     : null
+  /* Deps coerced to stable primitives — never undefined — so the array
+     keeps a constant length across renders (React requires this). */
   useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) },
-    [type, target, timeFrame, targetDate, label, tracking, qText, qScale, qIcon, projectId, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
+    [type || '', target || '', timeFrame, targetDate || '', importance, label || '', tracking, qText || '', qScale, qIcon, projectId || '', busy, canAdvance, hint || '']) // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* Dynamic explainer under the target field — what the number means
+     depends on how the goal is measured (sum of slider answers, count of
+     "yes" days, or a plain target for auto/manual goals). */
+  const targetHelp = byQuestion
+    ? (qScale === 'yes_no'
+        ? 'מספר הימים שתענה/י בהם "כן" בתקופה.'
+        : 'סכום כל התשובות בתקופה (למשל סך שעות הלמידה).')
+    : isPersonal
+      ? 'הסכום שתצבור/י בתקופה מכל ההזנות הידניות.'
+      : null
 
   /* Find-or-create the goal category for the picked type. Auto types use
      the CATEGORY_PRESETS shape (same path as the in-app category picker);
@@ -124,7 +139,7 @@ export default function Step6Goals({ ob, setCTA }) {
         time_frame: timeFrame,
         target_value: targetNum,
         target_date: isDeadline ? targetDate : null,
-        importance: 3,
+        importance: Number(importance),
         tracking_method: byQuestion ? 'daily_question' : 'manual',
         tracked_by_question_id: questionId,
         measurement_type: isPersonal ? 'manual' : 'auto',
@@ -136,6 +151,7 @@ export default function Step6Goals({ ob, setCTA }) {
         first_target: targetNum,
         time_frame: timeFrame,
         target_date: isDeadline ? targetDate : null,
+        importance: Number(importance),
         personal_label: isPersonal ? label.trim() : null,
         tracking,
         question_text: byQuestion ? qText.trim() : null,
@@ -156,6 +172,11 @@ export default function Step6Goals({ ob, setCTA }) {
   const projectName = projects.find((p) => p.id === projectId)?.name || ''
   const tfLabel = TIME_FRAMES.find((f) => f.k === timeFrame)?.l || ''
   const previewName = isPersonal ? (label.trim() || 'יעד אישי') : (chosenType?.label || '')
+  /* Category dot color for the preview card — auto types carry the preset
+     color; personal goals use the same purple the personal category gets. */
+  const catColor = isPersonal
+    ? '#7a5cb8'
+    : (CATEGORY_PRESETS.find((p) => p.key === type)?.color || 'var(--stone)')
 
   return (
     <>
@@ -209,20 +230,7 @@ export default function Step6Goals({ ob, setCTA }) {
             </div>
           )}
 
-          <div className="ob-field">
-            <label className="ob-label" htmlFor="ob-g-val">יעד</label>
-            <input
-              id="ob-g-val"
-              className="ob-input"
-              type="number"
-              min="0"
-              value={target}
-              onChange={(e) => setTarget(e.target.value)}
-              placeholder={type === 'income' ? '15,000' : '5'}
-            />
-          </div>
-
-          {/* Time frame — for EVERY goal, matching the in-app modal. */}
+          {/* Time frame first (like AddGoalModal: name → time frame → target). */}
           <div className="ob-field">
             <p className="ob-label">מסגרת זמן</p>
             <div className="ob-seg">
@@ -251,6 +259,40 @@ export default function Step6Goals({ ob, setCTA }) {
               />
             </div>
           )}
+
+          <div className="ob-field">
+            <label className="ob-label" htmlFor="ob-g-val">יעד</label>
+            <input
+              id="ob-g-val"
+              className="ob-input"
+              type="number"
+              min="0"
+              value={target}
+              onChange={(e) => setTarget(e.target.value)}
+              placeholder={type === 'income' ? '15,000' : '5'}
+            />
+            {targetHelp && <p className="ob-empty-hint">{targetHelp}</p>}
+          </div>
+
+          {/* Importance — stars, matching AddGoalModal (was missing here). */}
+          <div className="ob-field">
+            <p className="ob-label">חשיבות</p>
+            <div className="ob-stars-pick" role="radiogroup" aria-label="חשיבות">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className={`ob-star-btn${n <= importance ? ' on' : ''}`}
+                  onClick={() => setImportance(n)}
+                  aria-label={`${n} מתוך 5`}
+                  aria-checked={n === importance}
+                  role="radio"
+                >
+                  <Star size={20} strokeWidth={1.5} fill={n <= importance ? 'currentColor' : 'none'} aria-hidden="true" />
+                </button>
+              ))}
+            </div>
+          </div>
 
           {isPersonal && (
             <>
@@ -323,18 +365,33 @@ export default function Step6Goals({ ob, setCTA }) {
             </>
           )}
 
-          {/* Live goal preview card — faithful to a goal as it'll appear. */}
+          {/* Live goal preview — faithful to the in-app GoalCard: title +
+              category dot + time frame, percent, progress bar, target line,
+              and importance stars. Actual is 0 (nothing logged yet). */}
           {targetNum > 0 && (
-            <div className="ob-goal-card">
-              <div className="ob-gc-head">
-                <span className="ob-gc-ic">{chosenType?.icon}</span>
-                <p className="ob-gc-name">{previewName}</p>
+            <div className="ob-gcard">
+              <div className="ob-gcard-head">
+                <div className="ob-gcard-titleblock">
+                  <p className="ob-gcard-title">{previewName}</p>
+                  <p className="ob-gcard-cat">
+                    <span className="ob-gcard-cat-dot" style={{ background: catColor }} />
+                    {chosenType?.label} · {tfLabel}{isDeadline && targetDate ? ` (${targetDate})` : ''}
+                    {projectName ? ` · ${projectName}` : ''}
+                  </p>
+                </div>
+                <p className="ob-gcard-pct">0%</p>
               </div>
-              <p className="ob-gc-meta">
-                יעד {targetNum.toLocaleString('he-IL')} · {tfLabel}{isDeadline && targetDate ? ` (${targetDate})` : ''}
-                {projectName ? ` · ${projectName}` : ''}
-              </p>
-              {!isPersonal && chosenType && <p className="ob-gc-hint">{chosenType.hint}</p>}
+              <div className="ob-gcard-progress">
+                <div className="ob-gcard-progress-fill" style={{ width: '0%' }} />
+              </div>
+              <div className="ob-gcard-meta">
+                <span className="ob-gcard-target mono">0 / {targetNum.toLocaleString('he-IL')}</span>
+                <span className="ob-gcard-stars" aria-label={`חשיבות ${importance} מתוך 5`}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star key={i} size={12} strokeWidth={1.5} className={i <= importance ? 'on' : ''} fill={i <= importance ? 'currentColor' : 'none'} aria-hidden="true" />
+                  ))}
+                </span>
+              </div>
             </div>
           )}
         </>

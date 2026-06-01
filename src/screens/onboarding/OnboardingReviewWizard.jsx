@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { X, Users, FolderKanban, Receipt, Check, RotateCcw, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
+import { useLeads } from '../../hooks/useLeads'
 import { isr } from '../../lib/finance'
 import './OnboardingReviewWizard.css'
 
@@ -61,6 +62,7 @@ const CLIENT_STATUS_DEFAULTS = ['פעיל', 'ביניים', 'לשעבר', 'לל�
 export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, onCancel, mode = 'create' }) {
   const { clients: existingClients, loading: clientsLoading } = useClients()
   const { projects: existingProjects, loading: projectsLoading } = useProjects()
+  const { leads: existingLeads } = useLeads()
   const dataLoading = clientsLoading || projectsLoading
   const [busy, setBusy] = useState(false)
   const [dirty, setDirty] = useState(false)
@@ -77,6 +79,10 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     () => new Set((existingProjects || []).map((p) => norm(p?.name))),
     [existingProjects],
   )
+  const existingLeadNames = useMemo(
+    () => new Set((existingLeads || []).map((l) => norm(l?.name))),
+    [existingLeads],
+  )
 
   /* Editable working copy of the rows (field edits only). */
   const [state, setState] = useState(() => ({
@@ -90,6 +96,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   const rowExists = (type, row) => {
     if (type === 'clients') return existingClientNames.has(norm(row.name))
     if (type === 'projects') return existingProjectNames.has(norm(row.name))
+    if (type === 'leads') return existingLeadNames.has(norm(row.name))
     return false
   }
   const isIncluded = (type, idx, row) => {
@@ -129,6 +136,11 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     state.clients.forEach((c, i) => { const k = norm(c.name); if (!k) return; if (seen.has(k)) dup.add(i); else seen.add(k) })
     return dup
   }, [state.clients])
+  const dupLeadIdx = useMemo(() => {
+    const seen = new Set(); const dup = new Set()
+    state.leads.forEach((l, i) => { const k = norm(l.name); if (!k) return; if (seen.has(k)) dup.add(i); else seen.add(k) })
+    return dup
+  }, [state.leads])
 
   const projectOptions = useMemo(() => {
     const names = new Set()
@@ -400,6 +412,8 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
           {tab === 'leads' && state.leads.slice(0, visible).map((l, i) => {
             const inc = isIncluded('leads', i, l)
             const invalid = inc && !isValid('leads', l)
+            const exists = existingLeadNames.has(norm(l.name))
+            const dup = dupLeadIdx.has(i)
             return (
               <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('leads', i, l, inc)}
@@ -411,7 +425,9 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                   {invalid && <span className="obrw-invalid">חסר שם</span>}
                   {l.status_unsure && inc && <span className="obrw-unsure">❓ ודא/י סטטוס</span>}
                 </div>
-                {l.status_name && <span className="obrw-badge">{l.status_name}</span>}
+                {exists ? <span className="obrw-badge">כבר קיים</span>
+                  : dup ? <span className="obrw-badge dup">כפול בקובץ</span>
+                  : l.status_name ? <span className="obrw-badge">{l.status_name}</span> : null}
               </div>
             )
           })}

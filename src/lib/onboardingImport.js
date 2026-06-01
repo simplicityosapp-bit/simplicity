@@ -21,7 +21,7 @@ import { insertTransaction, listTransactions } from './api/transactions'
 import { insertRecurring, listRecurring } from './api/recurring'
 import { insertClientStatus, listClientStatuses } from './api/clientStatuses'
 import { insertLeadStatus, listLeadStatuses } from './api/leadStatuses'
-import { insertLead } from './api/leads'
+import { insertLead, listLeads } from './api/leads'
 import { normalizeDate } from './csvImport'
 import { mapValueToMeta } from './statusImport'
 
@@ -211,35 +211,44 @@ export async function finalizeOnboardingImport(input = {}) {
     }
   }
 
-  /* Create the collected client payments (confirmed income, dated today). */
-  const todayIso = nowIso ? String(nowIso).slice(0, 10) : null
-  for (const pmt of clientPayments) {
-    if (!todayIso) break /* no clock passed → skip (caller can pass one) */
-    try {
-      await insertTransaction({
-        amount: Math.abs(pmt.amount), type: 'income', desc: `תשלום מיובא — ${pmt.name}`,
-        date: todayIso, status: 'confirmed', project_id: pmt.project_id, client_id: pmt.client_id,
-        category_id: null, recurring_id: null, orphaned_from: null,
-      })
-      summary.transactions.created += 1
-    } catch (e) {
-      summary.transactions.failed += 1
-      summary.errors.push(`payment "${pmt.name}": ${e.message || 'unknown'}`)
-    }
-  }
-
-  /* ── Transactions — FK to client/project by name where resolvable.
-     A valid (parseable) date is required by the schema.
-     DEDUP: a transaction is "the same" if amount+type+date+client+project
-     all match. We seed the seen-set from existing rows (so re-importing
-     the same file is a no-op) and add each created one, so duplicates
-     WITHIN this import are skipped too. ── */
+  /* Existing transactions — fetched ONCE, used for both payment
+     idempotency and the dated-transaction dedup below, so re-running
+     onboarding never doubles anything. ── */
   let existingTxns = []
   try { existingTxns = await listTransactions() } catch { /* assume none */ }
   const txnKey = (amount, type, date, cId, pId) => `${Math.abs(amount)}|${type}|${date}|${cId || ''}|${pId || ''}`
   const seenTxns = new Set(
     existingTxns.map((t) => txnKey(t.amount, t.type, String(t.date).slice(0, 10), t.client_id, t.project_id)),
   )
+  /* Client payments are dated "today", so a plain date-keyed check would
+     let a re-import on a DIFFERENT day duplicate them. Dedup them
+     date-AGNOSTICALLY by client+amount+desc. */
+  const payKey = (cId, amount, desc) => `${cId || ''}|${Math.abs(Number(amount))}|${(desc || '').trim()}`
+  const seenPay = new Set(
+    existingTxns.filter((t) => t.type === 'income').map((t) => payKey(t.client_id, t.amount, t.desc)),
+  )
+
+  /* Create the collected client payments (confirmed income, dated today). */
+  const todayIso = nowIso ? String(nowIso).slice(0, 10) : null
+  for (const pmt of clientPayments) {
+    if (!todayIso) break /* no clock passed → skip (caller can pass one) */
+    const desc = `תשלום מיובא — ${pmt.name}`
+    const pk = payKey(pmt.client_id, pmt.amount, desc)
+    if (seenPay.has(pk)) { summary.transactions.skipped += 1; continue }
+    try {
+      await insertTransaction({
+        amount: Math.abs(pmt.amount), type: 'income', desc,
+        date: todayIso, status: 'confirmed', project_id: pmt.project_id, client_id: pmt.client_id,
+        category_id: null, recurring_id: null, orphaned_from: null,
+      })
+      seenPay.add(pk)
+      seenTxns.add(txnKey(pmt.amount, 'income', todayIso, pmt.client_id, pmt.project_id))
+      summary.transactions.created += 1
+    } catch (e) {
+      summary.transactions.failed += 1
+      summary.errors.push(`payment "${pmt.name}": ${e.message || 'unknown'}`)
+    }
+  }
 
   /* ── Recurring rules (rate-table rows: a fixed monthly cost with no
      date) → create a recurring_templates rule, NOT a dated transaction.
@@ -314,10 +323,16 @@ export async function finalizeOnboardingImport(input = {}) {
   }
 
   /* ── Leads — link to their imported sub-status (so they land in the
-     right kanban column). status_name → status_id + status_meta. ── */
+     right kanban column). status_name → status_id + status_meta.
+     DEDUP by name (case-insensitive) against the DB and within this run,
+     so re-importing or a name on two sheets doesn't double the lead. ── */
+  let existingLeads = []
+  try { existingLeads = await listLeads() } catch { /* assume none */ }
+  const seenLeadNames = new Set(existingLeads.map((l) => norm(l?.name)).filter(Boolean))
   for (const l of leads) {
     const name = (l.name || '').trim()
     if (!name) { summary.leads.skipped += 1; continue }
+    if (seenLeadNames.has(norm(name))) { summary.leads.skipped += 1; continue }
     const statusName = l.status_name ? norm(l.status_name) : null
     const status_id = statusName ? (leadStatusIdByName.get(statusName) || null) : null
     const status_meta = (statusName && leadStatusMetaByName.get(statusName)) || l.status_meta || 'in_process'
@@ -331,6 +346,7 @@ export async function finalizeOnboardingImport(input = {}) {
         inquiry_date: normalizeDate(l.inquiry_date) || null,
         notes: l.notes || null,
       })
+      seenLeadNames.add(norm(name))
       summary.leads.created += 1
     } catch (e) {
       summary.leads.failed += 1

@@ -110,7 +110,7 @@ export default function OnboardingScreen() {
         })
         return Array.from(byKey.values())
       }
-      review = { ...pd, ...acc, projects: mergeByName(acc.projects), clients: mergeByName(acc.clients) }
+      review = { ...pd, ...acc, projects: mergeByName(acc.projects), clients: mergeByName(acc.clients), leads: mergeByName(acc.leads) }
     }
     const reviewable =
       pd?.kind === 'csv' &&

@@ -21,6 +21,8 @@
    periods, which rows to skip, the year) so the user has final say.
    ════════════════════════════════════════════════════════════════ */
 
+import { parseAmount } from './columnDetect'
+
 /* Hebrew month names → 1-based month number. Covers full names; the
    detector also accepts numeric/date-like headers. */
 export const HE_MONTHS = {
@@ -162,11 +164,7 @@ export function flattenMatrix(rows, config) {
   const { labelCol, periodCols, skipRows, year, rowTypes = {}, labelKind = 'category', recurring = false, recurringDay = 1 } = config
   const skip = skipRows instanceof Set ? skipRows : new Set(skipRows || [])
   const out = []
-  const toNum = (v) => {
-    if (v == null) return NaN
-    const n = Number(String(v).replace(/[^\d.\-]/g, ''))
-    return Number.isNaN(n) ? NaN : n
-  }
+  const toNum = (v) => parseAmount(v)
   const pad = (x) => String(x).padStart(2, '0')
 
   rows.forEach((r, rowIdx) => {

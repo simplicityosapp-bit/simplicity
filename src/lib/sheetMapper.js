@@ -17,7 +17,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { detectMatrix } from './pivotImport'
-import { detectColumnType } from './columnDetect'
+import { detectColumnType, parseAmount } from './columnDetect'
 import { normalizeDate } from './csvImport'
 import { mapValueToMetaConfident } from './statusImport'
 
@@ -67,7 +67,11 @@ export const ENTITY_FIELDS = {
     { key: 'sessions_done', label: 'פגישות שנעשו', syn: ['פגישותשנעשו', 'בוצעו'] },
     { key: 'income',    label: 'סך הכנסה',        syn: ['סךהכנסה', 'הכנסה', 'income', 'revenue'] },
     { key: 'paid',      label: 'שולם',            syn: ['שולם', 'paid'] },
-    { key: 'total_due', label: 'סה״כ לתשלום',     syn: ['סהכלתשלום', 'יתרהלתשלום', 'לתשלום', 'יתרה', 'balance', 'due', 'outstanding', 'totaldue'] },
+    { key: 'total_due', label: 'סה״כ לתשלום',     syn: ['סהכלתשלום', 'סךלתשלום', 'לתשלום', 'totaldue', 'totaltopay'] },
+    /* Remaining balance — RECOGNISED but intentionally NOT imported: the
+       app computes balance itself (total − paid). Mapping a column here
+       tells the user "we see this column, and we compute it ourselves". */
+    { key: 'computed_balance', label: 'יתרה לתשלום (מחושב אוטומטית)', syn: ['יתרהלתשלום', 'יתרה', 'נותרלתשלום', 'יתרתחוב', 'balance', 'outstanding', 'remaining', 'owed'] },
     { key: 'project',   label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'project'] },
     { key: 'notes',     label: 'הערות',           syn: ['הערות', 'הערה', 'notes', 'note'] },
   ],
@@ -310,7 +314,7 @@ export function projectSheet(sheet) {
   const fieldAt = {}
   ;(sheet.mapping || []).forEach((f, i) => { if (f) fieldAt[f] = i })
   const val = (r, key) => (fieldAt[key] != null ? String(r[fieldAt[key]] ?? '').trim() : '')
-  const num = (r, key) => { const n = Number(String(val(r, key)).replace(/[^\d.\-]/g, '')); return Number.isNaN(n) ? 0 : n }
+  const num = (r, key) => { const n = parseAmount(val(r, key)); return Number.isNaN(n) ? 0 : n }
 
   sheet.rows.forEach((r, rowIdx) => {
     if (sheet.type === 'clients') {
@@ -368,10 +372,15 @@ export function projectSheet(sheet) {
       const amount = num(r, 'amount')
       if (!amount) return
       const rawDate = val(r, 'date')
+      /* Type: an explicit סוג column wins (Hebrew/English synonyms), else a
+         negative amount means an expense, else income. */
+      const tv = norm(val(r, 'type'))
+      const isExpense = ['הוצאה', 'הוצאות', 'חיוב', 'expense', 'debit'].some((w) => tv && tv.includes(norm(w)))
+      const isIncome = ['הכנסה', 'זיכוי', 'income', 'credit'].some((w) => tv && tv.includes(norm(w)))
       out.transactions.push({
         _row: `${sheet.id}#${rowIdx}`,
-        amount,
-        type: val(r, 'type') === 'הוצאה' || val(r, 'type') === 'expense' ? 'expense' : 'income',
+        amount: Math.abs(amount),
+        type: isExpense ? 'expense' : isIncome ? 'income' : (amount < 0 ? 'expense' : 'income'),
         date: rawDate ? (normalizeDate(rawDate) || null) : null,
         date_raw: rawDate || null,            /* original value, for "bad date" warnings */
         client_name: val(r, 'client') || null,

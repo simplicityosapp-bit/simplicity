@@ -123,7 +123,10 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
             {isFlat && (() => {
               const colData = sheet.headers
                 .map((h, colIdx) => ({ h, colIdx, field: sheet.mapping[colIdx] || '' }))
-                .filter((c) => c.h)
+                /* Keep columns that have a header AND either are already
+                   mapped or actually contain data — an unmapped, totally
+                   empty column is just noise, so we don't ask about it. */
+                .filter((c) => c.h && (c.field || sample(c.colIdx)))
               const unmapped = colData.filter((c) => !c.field)
               const recognized = colData.filter((c) => c.field)
               const showAll = !!sheet._showAllCols

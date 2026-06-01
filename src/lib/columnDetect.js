@@ -12,6 +12,46 @@
 
 const clean = (v) => String(v == null ? '' : v).trim()
 
+/* ── robust money parser ────────────────────────────────────────────
+   Shared by every import path so detection and extraction agree. Handles
+   the shapes therapists' sheets actually contain:
+     - currency + spaces:        "₪ 1,200"  "$1000"
+     - thousands separators:     "1,234"  "1.234"  "1,234,567"
+     - decimal comma (he/eu):    "1.234,56"  "12,50"
+     - accounting negatives:     "(500)" → -500
+     - trailing/leading minus:   "500-"  "-500"
+   Returns a finite number, or NaN when it isn't money. */
+export function parseAmount(v) {
+  if (v == null) return NaN
+  let s = String(v).trim()
+  if (!s) return NaN
+  let neg = false
+  if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1) }   /* (123) accounting */
+  s = s.replace(/[^\d.,\-]/g, '')                               /* drop ₪ $ € spaces… */
+  if (!s) return NaN
+  if (s.includes('-')) { neg = true; s = s.replace(/-/g, '') }  /* leading/trailing minus */
+  const hasComma = s.includes(','); const hasDot = s.includes('.')
+  if (hasComma && hasDot) {
+    /* the LAST-occurring separator is the decimal point */
+    if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.')
+    else s = s.replace(/,/g, '')
+  } else if (hasComma) {
+    const commas = (s.match(/,/g) || []).length
+    /* a single "1,234"-style group is thousands; "12,5" is a decimal */
+    if (commas === 1 && !/^\d{1,3},\d{3}$/.test(s)) s = s.replace(',', '.')
+    else s = s.replace(/,/g, '')
+  } else if (hasDot) {
+    /* "1.234.567" or "1.234" grouped in 3s → thousands */
+    if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '')
+  }
+  /* collapse any leftover extra dots, keeping the last as the decimal */
+  const dots = (s.match(/\./g) || []).length
+  if (dots > 1) { const i = s.lastIndexOf('.'); s = s.slice(0, i).replace(/\./g, '') + s.slice(i) }
+  const n = Number(s)
+  if (!Number.isFinite(n)) return NaN
+  return neg ? -n : n
+}
+
 /* ── per-value matchers ─────────────────────────────────────────── */
 
 /* Israeli + international phone: lots of digits, optional +, dashes,
@@ -37,7 +77,7 @@ export function looksEmail(v) {
 export function looksDate(v) {
   const s = clean(v).split(/[ T]/)[0]
   if (!s) return false
-  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(s)) return true
+  if (/^\d{4}[/-]\d{1,2}[/-]\d{1,2}$/.test(s)) return true   /* ISO, dash or slash */
   if (/^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(s)) return true
   return false
 }
@@ -49,10 +89,10 @@ export function looksAmount(v) {
   const s = clean(v)
   if (!s) return false
   if (looksPhone(s) || looksDate(s)) return false
-  /* strip currency + separators, then it must be a finite number */
-  const stripped = s.replace(/[₪$€£,\s]/g, '')
-  if (!/^-?\d+(\.\d+)?$/.test(stripped)) return false
-  return true
+  /* must contain at least one digit and parse to a finite number via the
+     shared money parser (so "(500)", "1.234,56", "500-" all count). */
+  if (!/\d/.test(s)) return false
+  return Number.isFinite(parseAmount(s))
 }
 
 /* Plausible person/entity name: short-ish text, mostly letters (Hebrew

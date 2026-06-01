@@ -27,6 +27,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { detectMatrix, buildPivotConfig, flattenMatrix } from './pivotImport'
+import { parseAmount } from './columnDetect'
 
 /* Canonical importable fields + their Hebrew labels (used by the
    mapping dropdowns) and which onboarding step "owns" confirming them.
@@ -139,13 +140,23 @@ function pickField(normalized) {
    DD/MM/YYYY, DD/MM/YY, DD.MM.YYYY, DD-MM-YYYY (day-first, the IL
    convention). Returns null when it can't make a valid date. */
 export function normalizeDate(input) {
-  if (!input) return null
+  if (input == null || input === '') return null
+  /* Excel serial date that slipped through as a bare number (a date cell
+     formatted as General, or a string "45678"). Excel's epoch is
+     1899-12-30; the 20000–80000 window covers ~1954–2119, well clear of
+     money amounts which don't arrive here as standalone date values. */
+  const serial = typeof input === 'number' ? input : (/^\d{5}$/.test(String(input).trim()) ? Number(String(input).trim()) : NaN)
+  if (Number.isFinite(serial) && serial >= 20000 && serial <= 80000) {
+    const dt0 = new Date(Date.UTC(1899, 11, 30) + Math.round(serial) * 86400000)
+    const pad0 = (n) => String(n).padStart(2, '0')
+    return `${dt0.getUTCFullYear()}-${pad0(dt0.getUTCMonth() + 1)}-${pad0(dt0.getUTCDate())}`
+  }
   /* Drop a trailing time part ("2026-05-12 14:30" / "...T14:30") that
      spreadsheet datetime exports add, then parse the date alone. */
   const s = String(input).trim().split(/[ T]/)[0]
   if (!s) return null
   let y, mo, d
-  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)
+  const iso = s.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/) /* ISO, dash or slash */
   if (iso) {
     y = Number(iso[1]); mo = Number(iso[2]); d = Number(iso[3])
   } else {
@@ -162,11 +173,7 @@ export function normalizeDate(input) {
   return `${y}-${pad(mo)}-${pad(d)}`
 }
 
-const toNum = (v) => {
-  if (v == null) return NaN
-  const n = Number(String(v).replace(/[^\d.\-]/g, ''))
-  return Number.isNaN(n) ? NaN : n
-}
+const toNum = (v) => parseAmount(v)
 
 /* Sniff the delimiter from the header line. Israeli spreadsheet exports
    frequently use ';' (or a tab) instead of ','. We pick whichever

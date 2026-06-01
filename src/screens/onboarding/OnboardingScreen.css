@@ -20,6 +20,16 @@
   padding: 28px 16px;
 }
 
+/* The global `.screen` sets `isolation: isolate`, which turns it into a
+   BACKDROP ROOT. That stops the glass cards' backdrop-filter from
+   blurring the fixed page background (painted on `.app::before`, which
+   lives OUTSIDE `.screen`) — so in stricter browsers the cards render
+   see-through instead of frosted, even though it looks fine in others.
+   Onboarding is a full-screen wizard with no bottom bar to layer
+   against, so we drop the isolation here and let the cards blur the
+   background exactly like the home-screen cards. */
+.ob-screen.screen { isolation: auto; }
+
 /* Outer frame is a transparent flex column — the visible glass moves
    to each individual sub-section so they read as separate panels
    floating on the background, each taking only the space it needs.

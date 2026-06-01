@@ -5,6 +5,8 @@ import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useProjects } from '../../../hooks/useProjects'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { CATEGORY_PRESETS, presetToCategory } from '../../../lib/goalPresets'
+import { scheduledOccurrences, buildSchedulePattern } from '../../../lib/goals'
+import ScheduleDayPicker from '../../../components/ScheduleDayPicker'
 
 /* Step 6 — first goal, faithful to the in-app AddGoalModal:
    - every auto category the app supports (derived from CATEGORY_PRESETS,
@@ -54,39 +56,57 @@ export default function Step6Goals({ ob, setCTA }) {
   const [qText, setQText]   = useState(initial.question_text || '')
   const [qScale, setQScale] = useState(initial.question_scale || '1-10')
   const [qIcon, setQIcon]   = useState(initial.question_icon || QUESTION_ICONS[0])
+  /* Schedule for a yes/no daily-question goal — which days the question
+     is asked. Drives the max sensible target (you can't aim to say "yes"
+     more times than the question appears). */
+  const [schedMode, setSchedMode] = useState(initial.sched_mode || 'every_day')
+  const [schedDays, setSchedDays] = useState(initial.sched_days || [0, 1, 2, 3, 4, 5, 6])
+  const [schedX, setSchedX]       = useState(initial.sched_x || 2)
 
   const [busy, setBusy] = useState(false)
   const [err, setErr]   = useState('')
 
   const isPersonal   = type === 'personal'
   const byQuestion   = isPersonal && tracking === 'daily_question'
+  const isYesNoGoal  = byQuestion && qScale === 'yes_no'
   const isDeadline   = timeFrame === 'deadline'
   const targetNum    = Number(target)
+
+  /* For a yes/no goal the schedule caps the target: the question can only
+     be answered "yes" on days it actually appears. */
+  const schedPattern = isYesNoGoal ? buildSchedulePattern(schedMode, schedDays, schedX) : null
+  const maxOccurrences = isYesNoGoal ? scheduledOccurrences(schedPattern, timeFrame, targetDate) : null
+  const overMax = isYesNoGoal && targetNum > maxOccurrences
+  const noDays = isYesNoGoal && schedMode === 'days_of_week' && schedDays.length === 0
+
   const canAdvance   = !!type && targetNum > 0
     && (!isDeadline || !!targetDate)
     && (!isPersonal || label.trim().length > 0)
     && (!byQuestion || qText.trim().length > 0)
+    && !overMax && !noDays
   const hint = !type ? 'בחר/י סוג יעד.'
     : targetNum <= 0 ? 'הזן/י ערך חיובי.'
     : (isDeadline && !targetDate) ? 'בחר/י תאריך יעד.'
     : (isPersonal && !label.trim()) ? 'תן/י שם ליעד.'
     : (byQuestion && !qText.trim()) ? 'נסח/י את השאלה היומית.'
+    : noDays ? 'בחר/י לפחות יום אחד.'
+    : overMax ? `היעד גבוה ממספר הימים שהשאלה מופיעה (${maxOccurrences}).`
     : null
   /* Deps coerced to stable primitives — never undefined — so the array
      keeps a constant length across renders (React requires this). */
   useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) },
-    [type || '', target || '', timeFrame, targetDate || '', importance, label || '', tracking, qText || '', qScale, qIcon, projectId || '', busy, canAdvance, hint || '']) // eslint-disable-line react-hooks/exhaustive-deps
+    [type || '', target || '', timeFrame, targetDate || '', importance, label || '', tracking, qText || '', qScale, qIcon, schedMode, schedDays.length, schedX, projectId || '', busy, canAdvance, hint || '']) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Dynamic explainer under the target field — what the number means
-     depends on how the goal is measured (sum of slider answers, count of
-     "yes" days, or a plain target for auto/manual goals). */
-  const targetHelp = byQuestion
-    ? (qScale === 'yes_no'
-        ? 'מספר הימים שתענה/י בהם "כן" בתקופה.'
-        : 'סכום כל התשובות בתקופה (למשל סך שעות הלמידה).')
-    : isPersonal
-      ? 'הסכום שתצבור/י בתקופה מכל ההזנות הידניות.'
-      : null
+     depends on how the goal is measured (count of "yes" days, sum of
+     slider answers, or a plain accumulation). */
+  const targetHelp = isYesNoGoal
+    ? `בכמה ימים תענה/י "כן" בתקופה. השאלה מופיעה כ-${maxOccurrences} פעמים — אפשר לכוון לפחות, לא ליותר.`
+    : byQuestion
+      ? 'סכום כל התשובות בתקופה (למשל סך שעות הלמידה).'
+      : isPersonal
+        ? 'הסכום שתצבור/י בתקופה מכל ההזנות הידניות.'
+        : null
 
   /* Find-or-create the goal category for the picked type. Auto types use
      the CATEGORY_PRESETS shape (same path as the in-app category picker);
@@ -125,7 +145,10 @@ export default function Step6Goals({ ob, setCTA }) {
       if (byQuestion && qText.trim()) {
         const q = await addQuestion({
           template_key: null, custom_text: qText.trim(), scale_type: qScale,
-          icon: qIcon, active: true, schedule_pattern: {},
+          icon: qIcon, active: true,
+          /* yes/no questions carry the chosen schedule; slider questions
+             stay every-day (empty pattern). */
+          schedule_pattern: isYesNoGoal ? (schedPattern || {}) : {},
         })
         questionId = q.id
       }
@@ -158,6 +181,9 @@ export default function Step6Goals({ ob, setCTA }) {
         question_scale: byQuestion ? qScale : null,
         question_icon: byQuestion ? qIcon : null,
         question_id: questionId,
+        sched_mode: schedMode,
+        sched_days: schedDays,
+        sched_x: schedX,
         created_ids: [goal.id],
       })
       await ob.advance()
@@ -360,6 +386,21 @@ export default function Step6Goals({ ob, setCTA }) {
                       ))}
                     </div>
                   </div>
+
+                  {/* Yes/no goals: pick which days the question is asked.
+                      This caps the target (can't aim for more "yes" days
+                      than the question appears). Slider goals stay daily. */}
+                  {isYesNoGoal && (
+                    <div className="ob-field">
+                      <p className="ob-label">מתי להישאל?</p>
+                      <ScheduleDayPicker
+                        mode={schedMode}
+                        days={schedDays}
+                        x={schedX}
+                        onChange={({ mode, days, x }) => { setSchedMode(mode); setSchedDays(days); setSchedX(x) }}
+                      />
+                    </div>
+                  )}
                 </>
               )}
             </>

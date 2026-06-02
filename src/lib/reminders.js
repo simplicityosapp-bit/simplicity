@@ -34,8 +34,15 @@ export function recurrenceLabel(r) {
 export function nextScheduledAt(r) {
   const d = new Date(r.scheduled_at)
   if (r.recurrence_type === 'weekly') d.setDate(d.getDate() + 7)
-  else if (r.recurrence_type === 'monthly_date') d.setMonth(d.getMonth() + 1)
-  else if (r.recurrence_type === 'every_x_days') d.setDate(d.getDate() + (Number(r.recurrence_pattern?.x) || 1))
+  else if (r.recurrence_type === 'monthly_date') {
+    /* advance one month, clamping the target day to the next month's length
+       so "31st" doesn't roll over into the month after in shorter months. */
+    const dom = Number(r.recurrence_pattern?.dayOfMonth) || d.getDate()
+    const y = d.getFullYear()
+    const nextMonth = d.getMonth() + 1
+    const lastDay = new Date(y, nextMonth + 1, 0).getDate()
+    d.setFullYear(y, nextMonth, Math.min(dom, lastDay))
+  } else if (r.recurrence_type === 'every_x_days') d.setDate(d.getDate() + (Number(r.recurrence_pattern?.x) || 1))
   return d
 }
 

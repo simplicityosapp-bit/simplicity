@@ -15,8 +15,12 @@ export function timeFrameLabel(goal) {
 
 /* Currency for transaction-backed categories, plain number otherwise. */
 export function formatGoalValue(v, cat) {
-  if (cat && cat.measurement_type === 'auto' && cat.data_source === 'transactions') return isr(v)
-  return Math.round(v || 0).toLocaleString('he-IL')
+  /* coerce first — a stray string ("NaN", "") would otherwise render the
+     literal "NaN" via Math.round("NaN"). Always resolve to a real number. */
+  const n = Number(v)
+  const safe = Number.isFinite(n) ? n : 0
+  if (cat && cat.measurement_type === 'auto' && cat.data_source === 'transactions') return isr(safe)
+  return Math.round(safe).toLocaleString('he-IL')
 }
 
 /* ════════════════════════════════════════════════════════════════

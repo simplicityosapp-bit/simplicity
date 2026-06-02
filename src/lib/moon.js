@@ -106,11 +106,17 @@ function goalActual(goal, cat, now, entries, transactions, clients, leads, answe
 
 function scoreGoal(goal, now, categories, entries, transactions, clients, leads, answers, members, groups) {
   const cat = categories.find((c) => c.id === goal.category_id)
-  if (!cat || !goal.target_value || goal.target_value <= 0) return null
-  const target = goal.target_value
-  const actual = goalActual(goal, cat, now, entries, transactions, clients, leads, answers, members, groups)
+  /* target must be a real positive number — Number() guards against a
+     non-numeric string slipping past `<= 0` (e.g. "x" <= 0 is false),
+     which would make actual/target NaN and surface "NaN%" on the card
+     and in the overall moon score. */
+  const target = Number(goal.target_value)
+  if (!cat || !Number.isFinite(target) || target <= 0) return null
+  const rawActual = goalActual(goal, cat, now, entries, transactions, clients, leads, answers, members, groups)
+  const actual = Number.isFinite(Number(rawActual)) ? Number(rawActual) : 0
   const binary = isBinary(goal)
-  const pure = binary ? (actual >= 1 ? 100 : 0) : Math.round((actual / target) * 100)
+  let pure = binary ? (actual >= 1 ? 100 : 0) : Math.round((actual / target) * 100)
+  if (!Number.isFinite(pure)) pure = 0
   const isCumulative = cat.graph_type === 'cumulative'
   /* Daily-question goals now SUM their answers (like manual entries), so
      they pace over the period the same way — no special-casing needed. */
@@ -119,6 +125,7 @@ function scoreGoal(goal, now, categories, entries, transactions, clients, leads,
     const frac = elapsedFraction(goalPeriod(goal, now), now)
     if (frac > 0) paced = Math.round((actual / (target * frac)) * 100)
   }
+  if (!Number.isFinite(paced)) paced = pure
   return { goal, cat, target, actual, pure, paced }
 }
 

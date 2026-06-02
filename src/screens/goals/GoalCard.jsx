@@ -4,7 +4,8 @@ import { formatGoalValue, timeFrameLabel } from '../../lib/goals'
 import { fmtShortDate } from '../../lib/dates'
 
 function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEdit }) {
-  const { goal, cat, actual, target, pure } = scored
+  const { goal, cat, actual, target, pure: rawPure } = scored
+  const pure = Number.isFinite(rawPure) ? rawPure : 0
   const capped = Math.max(0, Math.min(pure, 100))
   const importance = goal.importance || 3
   const isManual = cat.measurement_type === 'manual'

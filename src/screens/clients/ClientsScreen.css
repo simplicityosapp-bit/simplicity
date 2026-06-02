@@ -76,6 +76,36 @@
   color: var(--mist);
 }
 
+/* ── "יתרה פתוחה" filter pill ───────────────────────────────────── */
+.c-filter-row {
+  display: flex;
+  gap: 8px;
+  margin: -4px 0 12px;
+}
+.c-bal-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 0.5px solid rgba(42, 37, 32, 0.14);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.c-bal-filter:hover { color: var(--espresso); }
+.c-bal-filter.on {
+  background: var(--terracotta);
+  border-color: var(--terracotta);
+  color: var(--on-accent);
+}
+[data-theme="dark"] .c-bal-filter.on { color: var(--ink-on-accent); }
+
 /* ── Hero ──────────────────────────────────────────────────────── */
 .c-hero {
   margin-bottom: 16px;

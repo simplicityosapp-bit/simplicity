@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Search, ArrowUpDown, X, UserPlus } from 'lucide-react'
+import { Search, ArrowUpDown, X, UserPlus, Wallet } from 'lucide-react'
 import { effectiveClientMeta, paidForClients, sessionsCountForClients, clientBalance } from '../../lib/clients'
 import { currentMonthRange, isr, financeQuery } from '../../lib/finance'
 import { useClients } from '../../hooks/useClients'
@@ -95,6 +95,7 @@ export default function ClientsScreen() {
   const { statuses: clientStatuses } = useClientStatuses()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [tab, setTab] = useState('active')
+  const [balanceOnly, setBalanceOnly] = useState(false)
   const scope = prefs?.clientsScope === 'cumulative' ? 'cumulative' : 'monthly'
   const setScope = (s) => updatePrefs?.({ clientsScope: s })
   const groupBy = prefs?.clientsGroupBy === 'project' ? 'project' : 'status'
@@ -139,9 +140,17 @@ export default function ClientsScreen() {
   const sourceClients = groupBy === 'project' ? clientList : tabClients
   const list = useMemo(() => {
     const q = query.trim()
-    const filtered = q ? sourceClients.filter((c) => c.name.includes(q)) : sourceClients
+    let filtered = q ? sourceClients.filter((c) => c.name.includes(q)) : sourceClients
+    /* "יתרה פתוחה" filter — only clients who still owe (balance > 0). */
+    if (balanceOnly) filtered = filtered.filter((c) => clientBalance(c, transactions, sessions, members, groups).balance > 0)
     return sortClients(filtered, sort, { transactions, sessions, members, groups })
-  }, [sourceClients, query, sort, transactions, sessions, members, groups])
+  }, [sourceClients, query, sort, balanceOnly, transactions, sessions, members, groups])
+
+  /* How many clients in the current view still owe — shown on the filter pill. */
+  const openBalanceCount = useMemo(
+    () => sourceClients.filter((c) => clientBalance(c, transactions, sessions, members, groups).balance > 0).length,
+    [sourceClients, transactions, sessions, members, groups],
+  )
 
   /* Project bucket lookup for the grouped view. Includes a "no project"
      bucket for clients with no project_id. */
@@ -326,6 +335,18 @@ export default function ClientsScreen() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+      </div>
+
+      <div className="c-filter-row">
+        <button
+          type="button"
+          className={`c-bal-filter${balanceOnly ? ' on' : ''}`}
+          onClick={() => setBalanceOnly((v) => !v)}
+          aria-pressed={balanceOnly}
+        >
+          <Wallet size={13} strokeWidth={1.8} aria-hidden="true" />
+          יתרה פתוחה{openBalanceCount > 0 ? ` · ${openBalanceCount}` : ''}
+        </button>
       </div>
 
       {groupBy === 'status' && (

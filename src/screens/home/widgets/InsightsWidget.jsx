@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sparkles, Check } from 'lucide-react'
+import { Sparkles, Check, Bell } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
 import { questionText, isQuestionDueToday } from '../../../lib/questionTemplates'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
+import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import InfoPopover from '../../../components/InfoPopover'
 
 const dayStr = (offset = 0) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10)
@@ -26,6 +27,7 @@ export default function InsightsWidget() {
   const navigate = useNavigate()
   const { questions } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
+  const { prefs } = useUserPreferences()
   const [val, setVal] = useState(null)
   const [collapsed, setCollapsed] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -43,6 +45,17 @@ export default function InsightsWidget() {
     () => activeQuestions.find((x) => !answers.some((a) => a.user_question_id === x.id && a.date === today)),
     [activeQuestions, answers, today],
   )
+
+  /* S1 — soft in-app reminder: if the user enabled the daily reminder and
+     the chosen time has passed but a question is still unanswered, show a
+     gentle nudge right where they'd answer it (no push, no permissions). */
+  const reminder = prefs?.insightsReminder
+  const isOverdue = useMemo(() => {
+    if (!reminder?.enabled || !q) return false
+    const [h, m] = String(reminder.time || '20:00').split(':').map((n) => parseInt(n, 10) || 0)
+    const now = new Date()
+    return now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)
+  }, [reminder, q])
 
   const save = async (value) => {
     if (busy || !q) return
@@ -113,6 +126,11 @@ export default function InsightsWidget() {
   return (
     <div className="ins-widget has-collapse">
       {collapseBtn}
+      {isOverdue && (
+        <p className="ins-reminder">
+          <Bell size={12} strokeWidth={1.8} aria-hidden="true" /> עדיין לא ענית היום — רגע קטן לעצמך?
+        </p>
+      )}
       <p
         className="ins-q ins-q-link"
         role="button"

@@ -575,6 +575,17 @@
 .ins-widget.is-collapsed .ins-collapse-btn:active {
   transform: scale(0.9);
 }
+.ins-reminder {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 8px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  color: var(--amber-warn);
+}
+.ins-reminder svg { flex-shrink: 0; }
 .ins-q {
   display: flex;
   align-items: center;

@@ -698,7 +698,7 @@ export default function SettingsScreen() {
             />
           </div>
           <p className="set-reminder-hint">
-            ההעדפה נשמרת. ההתראה עצמה (push בדפדפן) תופעל בעדכון הבא.
+            אם לא ענית עד השעה שבחרת, תופיע תזכורת עדינה בווידג׳ט "מה איתך היום" במסך הבית.
           </p>
         </div>
       )

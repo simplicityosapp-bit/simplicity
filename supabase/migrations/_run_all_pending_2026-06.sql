@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════════════════════════════════════
--- CONSOLIDATED — all pending schema changes (migrations 0007 → 0010)
+-- CONSOLIDATED — all pending schema changes (migrations 0007 → 0012)
 -- ════════════════════════════════════════════════════════════════════════
 -- Run from the Supabase SQL editor. 100% idempotent (add column if not
 -- exists / drop constraint if exists / guarded inserts + conditional

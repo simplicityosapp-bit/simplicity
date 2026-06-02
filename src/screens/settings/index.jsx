@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ChevronDown, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
+  ChevronDown, ChevronUp, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
   Plus, Trash2, Leaf, GripVertical, ChevronLeft, CalendarDays, Database, Download, Upload,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
@@ -28,6 +28,7 @@ import {
   TEXT_SIZE_OPTIONS, GENDER_OPTIONS, WIDGET_REGISTRY, ACCENT_OPTIONS,
   CARD_STYLE_OPTIONS, TEXT_STRENGTH_OPTIONS, DENSITY_OPTIONS,
 } from '../../lib/preferences'
+import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
 import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV } from '../../lib/export'
 import { defaultOnboarding } from '../../lib/preferences'
@@ -101,6 +102,46 @@ function PaymentsBody({ prefs, onUpdate }) {
   )
 }
 
+/* ── Color dots ───────────────────────────────────────────────────
+   Shared swatch picker (reuses the finance category palette) for the
+   lead-source and lead sub-status colors. */
+function ColorDots({ value, onChange }) {
+  return (
+    <div className="set-color-dots" role="radiogroup" aria-label="צבע">
+      {CATEGORY_COLORS.map((c) => (
+        <button
+          key={c}
+          type="button"
+          role="radio"
+          aria-checked={value === c}
+          aria-label={`צבע ${c}`}
+          className={`set-color-dot${value === c ? ' on' : ''}`}
+          style={{ background: c }}
+          onClick={() => onChange(c)}
+        />
+      ))}
+    </div>
+  )
+}
+
+/* ── Switch ───────────────────────────────────────────────────────
+   One on/off control used everywhere in settings (replaces the old mix
+   of pressed-button / checkbox / faux-switch idioms). role="switch". */
+function Switch({ checked, onChange, label }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      className={`set-w-toggle${checked ? ' on' : ''}`}
+      onClick={() => onChange(!checked)}
+    >
+      <span className="set-w-toggle-knob" />
+    </button>
+  )
+}
+
 /* ── Widgets body ────────────────────────────────────────────────
    Per-widget controls: enabled, accent, compact (when supported),
    density override. Globals + reorder live in WidgetsGlobals below. */
@@ -148,6 +189,16 @@ function WidgetsBody({ prefs, onUpdate }) {
     setOverId(null)
   }
   const handleDragEnd = () => { setDraggingId(null); setOverId(null) }
+  /* Keyboard-accessible reorder (swap with neighbour) — the drag handle
+     is pointer-only, so the up/down buttons are the accessible path. */
+  const moveWidget = (id, dir) => {
+    const idx = list.findIndex((w) => w.id === id)
+    const swap = idx + dir
+    if (idx < 0 || swap < 0 || swap >= list.length) return
+    const next = [...list]
+    ;[next[idx], next[swap]] = [next[swap], next[idx]]
+    onUpdate({ widgets: { list: next } })
+  }
 
   return (
     <div className="set-w-body">
@@ -158,7 +209,7 @@ function WidgetsBody({ prefs, onUpdate }) {
 
       <p className="set-sub-h" style={{ marginTop: 8 }}>ווידג׳טים</p>
       <div className="set-w-list">
-        {list.map((w) => {
+        {list.map((w, i) => {
           const reg = WIDGET_REGISTRY.find((r) => r.id === w.id)
           if (!reg) return null
           return (
@@ -166,6 +217,9 @@ function WidgetsBody({ prefs, onUpdate }) {
               key={w.id}
               cfg={w}
               reg={reg}
+              index={i}
+              total={list.length}
+              onMove={moveWidget}
               onUpdate={(p) => updateWidget(w.id, p)}
               dragging={draggingId === w.id}
               over={overId === w.id}
@@ -181,7 +235,7 @@ function WidgetsBody({ prefs, onUpdate }) {
   )
 }
 
-function WidgetRow({ cfg, reg, onUpdate, dragging, over, onDragStart, onDragOver, onDrop, onDragEnd }) {
+function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, onDragStart, onDragOver, onDrop, onDragEnd }) {
   return (
     <div
       className={`set-w-row${cfg.enabled ? '' : ' off'}${dragging ? ' dragging' : ''}${over ? ' over' : ''}`}
@@ -195,17 +249,32 @@ function WidgetRow({ cfg, reg, onUpdate, dragging, over, onDragStart, onDragOver
         <span className="set-w-grip" aria-hidden="true">
           <GripVertical size={14} strokeWidth={1.5} />
         </span>
+        <span className="set-w-move">
+          <button
+            type="button"
+            className="set-w-move-btn"
+            aria-label={`${reg.label} — הזזה למעלה`}
+            disabled={index === 0}
+            onClick={() => onMove(cfg.id, -1)}
+          >
+            <ChevronUp size={14} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="set-w-move-btn"
+            aria-label={`${reg.label} — הזזה למטה`}
+            disabled={index === total - 1}
+            onClick={() => onMove(cfg.id, 1)}
+          >
+            <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+        </span>
         <span className="set-w-row-name">{reg.label}</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={cfg.enabled}
-          className={`set-w-toggle${cfg.enabled ? ' on' : ''}`}
-          aria-label={`${reg.label} — ${cfg.enabled ? 'כיבוי' : 'הפעלה'}`}
-          onClick={() => onUpdate({ enabled: !cfg.enabled })}
-        >
-          <span className="set-w-toggle-knob" />
-        </button>
+        <Switch
+          checked={cfg.enabled}
+          onChange={(v) => onUpdate({ enabled: v })}
+          label={`${reg.label} — ${cfg.enabled ? 'כיבוי' : 'הפעלה'}`}
+        />
       </div>
       {cfg.enabled && (
         <div className="set-w-row-ctrls">
@@ -389,8 +458,9 @@ function ProfileBody({ prefs, onUpdate }) {
 
 /* Render a meta-grouped sub-status list with an inline add row per meta.
    Used for both client_statuses and lead_statuses. */
-function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, loading, error }) {
+function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, loading, error, withColor = false }) {
   const [addError, setAddError] = useState(null)
+  const [draftColors, setDraftColors] = useState({})
   if (loading) {
     return <div className="set-sub"><p className="set-sub-empty">טוען…</p></div>
   }
@@ -400,11 +470,14 @@ function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, load
       {metas.map((m) => {
         const list = statuses.filter((s) => s.meta_category === m.k)
         const draft = drafts[m.k] || ''
+        const color = draftColors[m.k] || CATEGORY_COLORS[0]
         const submit = async () => {
           const name = draft.trim()
           if (!name) return
           try {
-            await onAdd({ meta_category: m.k, display_name: name, icon: null, is_default: false })
+            const payload = { meta_category: m.k, display_name: name, icon: null, is_default: false }
+            if (withColor) payload.color = color
+            await onAdd(payload)
             setDraft(m.k, '')
             setAddError(null)
           } catch (e) {
@@ -436,6 +509,9 @@ function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, load
                 <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
               </button>
             </div>
+            {withColor && (
+              <ColorDots value={color} onChange={(c) => setDraftColors((d) => ({ ...d, [m.k]: c }))} />
+            )}
           </div>
         )
       })}
@@ -448,6 +524,7 @@ export default function SettingsScreen() {
   const [open, setOpen] = useState('profile')
   const [showAddQ, setShowAddQ] = useState(false)
   const [newSourceName, setNewSourceName] = useState('')
+  const [newSourceColor, setNewSourceColor] = useState(CATEGORY_COLORS[0])
   const [sourceError, setSourceError] = useState(null)
   const [clientDrafts, setClientDrafts] = useState({})
   const [leadDrafts, setLeadDrafts] = useState({})
@@ -504,10 +581,14 @@ export default function SettingsScreen() {
       const c = summary.clients?.created || 0
       const p = summary.projects?.created || 0
       const t = summary.transactions?.created || 0
+      const est = summary.transactions?.dateEstimated || 0
+      const s = summary.sessions?.created || 0
+      const estNote = est > 0 ? ` ${est} מהן עם תאריך משוער — אפשר לערוך במסך הכסף.` : ''
+      const sessNote = s > 0 ? ` · ${s} פגישות שנעשו` : ''
       setImportMsg(
-        c + p + t === 0
+        c + p + t + s === 0
           ? 'לא נוצרו רשומות חדשות (ייתכן שכבר היו קיימות).'
-          : `יובאו בהצלחה: ${c} לקוחות · ${p} פרויקטים · ${t} תנועות.`,
+          : `יובאו בהצלחה: ${c} לקוחות · ${p} פרויקטים · ${t} תנועות${sessNote}.${estNote}`,
       )
     }
   }
@@ -574,12 +655,11 @@ export default function SettingsScreen() {
                     <CalendarDays size={11} strokeWidth={1.7} aria-hidden="true" />
                     {describeSchedule(q)}
                   </button>
-                  <button
-                    type="button"
-                    className={`set-q-toggle${q.active ? ' on' : ''}`}
-                    onClick={() => toggleActive(q)}
-                    aria-pressed={q.active}
-                  >{q.active ? 'פעילה' : 'כבויה'}</button>
+                  <Switch
+                    checked={q.active}
+                    onChange={() => toggleActive(q)}
+                    label={q.active ? 'כיבוי השאלה' : 'הפעלת השאלה'}
+                  />
                   <button type="button" className="set-q-del" onClick={() => removeQuestion(q.id)} aria-label="מחיקת שאלה">
                     <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
                   </button>
@@ -601,14 +681,14 @@ export default function SettingsScreen() {
           <div className="set-sub-divider" />
           <p className="set-sub-h">תזכורת יומית</p>
           <div className="set-reminder-row">
-            <label className="set-reminder-toggle">
-              <input
-                type="checkbox"
+            <span className="set-reminder-toggle">
+              <Switch
                 checked={!!reminderPref.enabled}
-                onChange={(e) => setReminder({ enabled: e.target.checked })}
+                onChange={(v) => setReminder({ enabled: v })}
+                label="תזכורת יומית"
               />
               <span>תזכיר/י לי לענות אם לא ענית עד</span>
-            </label>
+            </span>
             <input
               type="time"
               className="m-input set-reminder-time"
@@ -618,7 +698,7 @@ export default function SettingsScreen() {
             />
           </div>
           <p className="set-reminder-hint">
-            ההעדפה נשמרת. ההתראה עצמה (push בדפדפן) תופעל בעדכון הבא.
+            אם לא ענית עד השעה שבחרת, תופיע תזכורת עדינה בווידג׳ט "מה איתך היום" במסך הבית.
           </p>
         </div>
       )
@@ -766,7 +846,7 @@ export default function SettingsScreen() {
         const v = newSourceName.trim()
         if (!v) return
         try {
-          await addSource({ name: v, color: '#0e9888' })
+          await addSource({ name: v, color: newSourceColor })
           setNewSourceName('')
           setSourceError(null)
         } catch (e) {
@@ -805,6 +885,7 @@ export default function SettingsScreen() {
               <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
             </button>
           </div>
+          <ColorDots value={newSourceColor} onChange={setNewSourceColor} />
           {sourceError && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{sourceError}</p>}
 
           <p className="set-sub-h" style={{ marginTop: 14 }}>תתי-סטטוסים</p>
@@ -817,6 +898,7 @@ export default function SettingsScreen() {
             onRemove={(status, peers) => setPendingDelete({ kind: 'lead', status, peers })}
             loading={leadStatusesLoading}
             error={leadStatusesError}
+            withColor
           />
         </div>
       )

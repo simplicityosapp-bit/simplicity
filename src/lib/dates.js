@@ -4,6 +4,16 @@
 
 const pad = (n) => String(n).padStart(2, '0')
 
+/* Date/time format preference — set once from PrefsApplier (mirrors how
+   lib/finance receives the currency). Every formatter below reads these,
+   so the "תשלומים ומטבע" date/time settings drive the whole app. */
+let dateFmt = 'DD/MM/YY'   /* DD/MM/YY | MM/DD/YY | YYYY-MM-DD */
+let timeFmt = '24h'        /* 24h | 12h */
+export function setDateTimeFormat({ date_format, time_format } = {}) {
+  if (date_format) dateFmt = date_format
+  if (time_format) timeFmt = time_format
+}
+
 const HE_MONTHS = [
   'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
   'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר',
@@ -17,12 +27,21 @@ export function fmtMonthYear(date) {
 
 export function fmtTime(date) {
   const d = date instanceof Date ? date : new Date(date)
+  if (timeFmt === '12h') {
+    const ampm = d.getHours() >= 12 ? 'PM' : 'AM'
+    const h12 = d.getHours() % 12 || 12
+    return `${h12}:${pad(d.getMinutes())} ${ampm}`
+  }
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
 export function fmtShortDate(date) {
   const d = date instanceof Date ? date : new Date(date)
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`
+  const dd = pad(d.getDate())
+  const mm = pad(d.getMonth() + 1)
+  if (dateFmt === 'MM/DD/YY') return `${mm}/${dd}`
+  if (dateFmt === 'YYYY-MM-DD') return `${mm}-${dd}`
+  return `${dd}/${mm}`
 }
 
 function sameDay(a, b) {

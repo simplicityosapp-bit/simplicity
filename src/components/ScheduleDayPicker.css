@@ -25,7 +25,7 @@
   border: 1px solid var(--divider);
   background: transparent;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--espresso);
   cursor: pointer;
   transition: background 0.14s, color 0.14s, border-color 0.14s;
@@ -35,7 +35,7 @@
   border-color: var(--espresso);
   color: var(--bg-clients, #fff);
 }
-[data-theme="dark"] .qs-mode.on { color: #181410; }
+[data-theme="dark"] .qs-mode.on { color: var(--ink-on-accent); }
 
 .qs-day-pills { display: flex; gap: 6px; flex-wrap: wrap; }
 .qs-day {
@@ -45,19 +45,19 @@
   border: 1px solid var(--divider);
   background: transparent;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--espresso);
   cursor: pointer;
   transition: background 0.14s, color 0.14s, border-color 0.14s;
 }
-.qs-day.on { background: var(--sage); border-color: var(--sage); color: #fff; }
+.qs-day.on { background: var(--sage); border-color: var(--sage); color: var(--on-accent); }
 
 .qs-x-row {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
 }
 .qs-x-input {
@@ -66,7 +66,7 @@
   border-radius: 8px;
   border: 1px solid var(--divider);
   font-family: var(--mg-font-num);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   text-align: center;
   background: var(--cream);
   color: var(--espresso);

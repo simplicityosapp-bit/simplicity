@@ -41,7 +41,7 @@ export default function CalendarScreen() {
   const [activeModal, setActiveModal] = useState(null)
   const [selectedEvent, setSelectedEvent] = useState(null)
 
-  const weekStart = prefs?.weekStart || 'sunday'
+  const weekStart = prefs?.format?.week_start || prefs?.weekStart || 'sunday'
   const dayViewStart = Number.isFinite(prefs?.dayViewStart) ? prefs.dayViewStart : 6
   const dayViewEnd = Number.isFinite(prefs?.dayViewEnd) ? prefs.dayViewEnd : 22
 

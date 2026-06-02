@@ -23,15 +23,15 @@ body {
 html {
   /* RTL + lang set on the element in index.html; keep the box-model honest. */
   -webkit-text-size-adjust: 100%;
-  font-size: 16px;   /* Root size — text-size pref scales this. */
+  font-size: calc(16px * var(--text-scale));   /* Root size — text-size pref scales this. */
 }
 
-/* Text-size preference — uniformly scales every element including the
-   px-based typography we already shipped. `zoom` is supported in all
-   modern browsers and is the lightest-weight approach. */
-html[data-text-size="small"]  .app { zoom: 0.92; }
-html[data-text-size="normal"] .app { zoom: 1; }
-html[data-text-size="large"]  .app { zoom: 1.10; }
+/* Text-size preference — drives the --text-scale multiplier that every
+   font-size in the app multiplies into (see tokens.css). This scales
+   TEXT only, not layout (the old `zoom` scaled the whole UI). */
+html[data-text-size="small"]  { --text-scale: 0.92; }
+html[data-text-size="normal"] { --text-scale: 1; }
+html[data-text-size="large"]  { --text-scale: 1.10; }
 
 body {
   font-family: var(--mg-font);
@@ -127,7 +127,7 @@ button {
 .splash-label {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
   letter-spacing: 0.04em;
@@ -187,7 +187,7 @@ button {
   backdrop-filter: var(--mg-card-blur);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
   font-family: var(--mg-font);
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--text-scale));
   line-height: 1.55;
   color: var(--espresso);
   /* pointer-events removed: body needs to receive mouseenter so hovering

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { X, Users, FolderKanban, Receipt, Check, RotateCcw, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { X, Users, FolderKanban, Receipt, CalendarDays, Check, RotateCcw, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useLeads } from '../../hooks/useLeads'
@@ -90,8 +90,9 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     projects: (parsed?.projects || []).map((p) => ({ ...p })),
     leads: (parsed?.leads || []).map((l) => ({ ...l })),
     transactions: (parsed?.transactions || []).map((t) => ({ ...t })),
+    sessions: (parsed?.sessions || []).map((s) => ({ ...s })),
   }))
-  const [overrides, setOverrides] = useState({ clients: {}, projects: {}, leads: {}, transactions: {} })
+  const [overrides, setOverrides] = useState({ clients: {}, projects: {}, leads: {}, transactions: {}, sessions: {} })
 
   const rowExists = (type, row) => {
     if (type === 'clients') return existingClientNames.has(norm(row.name))
@@ -111,6 +112,9 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
          amount must be valid. One-off transactions still need a date. */
       return !Number.isNaN(amt) && amt !== 0 && (row.recurring || !!row.date)
     }
+    /* A session row needs a client to attach to; the date is optional (a
+       missing one falls back to the historical placeholder at import). */
+    if (type === 'sessions') return (row.client_name || '').trim().length > 0
     return (row.name || '').trim().length > 0
   }
   const creatableRows = (type) => state[type].filter((row, i) => isIncluded(type, i, row) && isValid(type, row))
@@ -149,6 +153,15 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     return Array.from(names)
   }, [existingProjects, state.projects])
 
+  /* Client names for the sessions tab's client picker — existing clients
+     plus the ones being created in this import. */
+  const clientOptions = useMemo(() => {
+    const names = new Set()
+    ;(existingClients || []).forEach((c) => { if (c?.name) names.add(c.name) })
+    ;(state.clients || []).forEach((c) => { if (c?.name) names.add(c.name) })
+    return Array.from(names)
+  }, [existingClients, state.clients])
+
   /* Client status options = the 4 defaults + any distinct status text
      that came in from the file, so every imported value stays pickable. */
   const clientStatusOptions = useMemo(() => {
@@ -162,6 +175,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     { key: 'projects',     label: 'פרויקטים', icon: FolderKanban },
     { key: 'leads',        label: 'לידים',    icon: Users },
     { key: 'transactions', label: 'תנועות',   icon: Receipt },
+    { key: 'sessions',     label: 'פגישות',   icon: CalendarDays },
   ].filter((t) => state[t.key].length > 0)
 
   const [tab, setTab] = useState(TABS[0]?.key || 'clients')
@@ -196,8 +210,9 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     projects: creatableRows('projects').length,
     leads: creatableRows('leads').length,
     transactions: creatableRows('transactions').length,
+    sessions: creatableRows('sessions').length,
   }
-  const totalIncluded = counts.clients + counts.projects + counts.leads + counts.transactions
+  const totalIncluded = counts.clients + counts.projects + counts.leads + counts.transactions + counts.sessions
   const txIssues = parsed?.transaction_issues || 0
 
   const handleConfirm = async () => {
@@ -212,9 +227,9 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
       const strip = (type) => state[type]
         .filter((row, i) => isIncluded(type, i, row) && isValid(type, row))
         .map(({ _row, ...rest }) => rest)
-      const summary = await onConfirm({ projects: strip('projects'), clients: strip('clients'), leads: strip('leads'), transactions: strip('transactions') })
+      const summary = await onConfirm({ projects: strip('projects'), clients: strip('clients'), leads: strip('leads'), transactions: strip('transactions'), sessions: strip('sessions') })
       const failed = summary
-        ? (summary.projects?.failed || 0) + (summary.clients?.failed || 0) + (summary.leads?.failed || 0) + (summary.transactions?.failed || 0) + (summary.recurring?.failed || 0)
+        ? (summary.projects?.failed || 0) + (summary.clients?.failed || 0) + (summary.leads?.failed || 0) + (summary.transactions?.failed || 0) + (summary.recurring?.failed || 0) + (summary.sessions?.failed || 0)
         : 0
       if (summary?.fatal || failed > 0) setResult(summary)
       else await onComplete()
@@ -489,6 +504,42 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                 <span className={`obrw-badge${expense ? ' expense' : ' income'}`}>
                   {expense ? '−' : '+'}{isr(Math.abs(Number(t.amount) || 0))}
                 </span>
+              </div>
+            )
+          })}
+
+          {tab === 'sessions' && state.sessions.slice(0, visible).map((s, i) => {
+            const inc = isIncluded('sessions', i, s)
+            const invalid = inc && !isValid('sessions', s)
+            const clientOrphan = inc && s.client_name && !willClientNames.has(norm(s.client_name))
+            const opts = s.client_name && !clientOptions.includes(s.client_name)
+              ? [s.client_name, ...clientOptions] : clientOptions
+            return (
+              <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
+                {renderToggle('sessions', i, s, inc)}
+                <div className="obrw-fields">
+                  <label className="obrw-tx-field obrw-grow">
+                    <span className="obrw-tx-lbl">לקוח</span>
+                    <select className="obrw-input" value={s.client_name || ''} disabled={!inc}
+                      onChange={(e) => patchRow('sessions', i, { client_name: e.target.value || null })}>
+                      <option value="">— בחר/י לקוח</option>
+                      {opts.map((n) => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </label>
+                  <label className="obrw-tx-field obrw-tx-date">
+                    <span className="obrw-tx-lbl">תאריך</span>
+                    <input className="obrw-input" type="date" value={s.date || ''} title="תאריך הפגישה" disabled={!inc}
+                      onChange={(e) => patchRow('sessions', i, { date: e.target.value })} />
+                  </label>
+                  <label className="obrw-tx-field obrw-grow">
+                    <span className="obrw-tx-lbl">סיכום</span>
+                    <input className="obrw-input" value={s.summary || ''} placeholder="סיכום (אופציונלי)" disabled={!inc}
+                      onChange={(e) => patchRow('sessions', i, { summary: e.target.value || null })} />
+                  </label>
+                  {invalid && <span className="obrw-invalid">חסר לקוח</span>}
+                  {clientOrphan && <span className="obrw-invalid">הלקוח לא ייווצר — הפגישה תידלג</span>}
+                  {inc && !s.date && <span className="obrw-link muted">ללא תאריך — יוצב בתאריך משוער</span>}
+                </div>
               </div>
             )
           })}

@@ -15,7 +15,7 @@
 .home-welcome-eyebrow {
   margin: 0 0 4px;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--terracotta);
@@ -24,14 +24,14 @@
   margin: 0 0 6px;
   font-family: 'Assistant', sans-serif;
   font-weight: 700;
-  font-size: 22px;
+  font-size: calc(22px * var(--text-scale));
   letter-spacing: -0.02em;
   color: var(--espresso);
 }
 .home-welcome-sub {
   margin: 0 0 18px;
   font-family: var(--mg-font);
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--text-scale));
   line-height: 1.6;
   color: var(--stone);
 }
@@ -52,7 +52,7 @@
   background: var(--mg-btn-secondary-bg);
   color: var(--espresso);
   font-family: var(--mg-font);
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--text-scale));
   font-weight: 500;
   cursor: pointer;
   backdrop-filter: var(--mg-card-blur);

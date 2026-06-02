@@ -22,6 +22,7 @@ import { insertRecurring, listRecurring } from './api/recurring'
 import { insertClientStatus, listClientStatuses } from './api/clientStatuses'
 import { insertLeadStatus, listLeadStatuses } from './api/leadStatuses'
 import { insertLead, listLeads } from './api/leads'
+import { insertSession, listSessions } from './api/sessions'
 import { normalizeDate } from './csvImport'
 import { mapValueToMeta } from './statusImport'
 
@@ -34,7 +35,7 @@ export async function finalizeOnboardingImport(input = {}) {
   const summary = {
     projects:       { created: 0, skipped: 0, failed: 0 },
     clients:        { created: 0, skipped: 0, failed: 0 },
-    transactions:   { created: 0, skipped: 0, failed: 0 },
+    transactions:   { created: 0, skipped: 0, failed: 0, dateEstimated: 0 },
     recurring:      { created: 0, skipped: 0, failed: 0 },
     leads:          { created: 0, skipped: 0, failed: 0 },
     clientStatuses: { created: 0, skipped: 0, failed: 0 },
@@ -50,14 +51,17 @@ export async function finalizeOnboardingImport(input = {}) {
   let leads = []
   let clientStatuses = []
   let leadStatuses = []
+  let ledgerSessions = []
   if (Array.isArray(input.projects) || Array.isArray(input.clients) || Array.isArray(input.transactions)
-      || Array.isArray(input.leads) || Array.isArray(input.clientStatuses) || Array.isArray(input.leadStatuses)) {
+      || Array.isArray(input.leads) || Array.isArray(input.clientStatuses) || Array.isArray(input.leadStatuses)
+      || Array.isArray(input.sessions)) {
     projects = input.projects || []
     clients = input.clients || []
     transactions = input.transactions || []
     leads = input.leads || []
     clientStatuses = input.clientStatuses || []
     leadStatuses = input.leadStatuses || []
+    ledgerSessions = input.sessions || []
   } else if (input.parsedData && input.parsedData.kind !== 'placeholder') {
     projects = input.parsedData.projects || []
     clients = input.parsedData.clients || []
@@ -167,6 +171,9 @@ export async function finalizeOnboardingImport(input = {}) {
      after the client rows exist so we can FK them. Each becomes one
      confirmed income transaction dated today (the sheet rarely says when). */
   const clientPayments = []
+  /* Held/past sessions to create from each client's "פגישות שנעשו" count
+     (O2) — collected here, made after the client rows exist. */
+  const clientSessions = []
   for (const c of clients) {
     const key = norm(c.name)
     if (!key) continue
@@ -205,9 +212,80 @@ export async function finalizeOnboardingImport(input = {}) {
          client arrives with paid history, not just a hollow shell. */
       const paid = Number(c.paid)
       if (paid > 0) clientPayments.push({ client_id: row.id, project_id, amount: paid, name: c.name })
+      /* O2: a "פגישות שנעשו" count → that many logged sessions. */
+      const done = Math.floor(Number(c.sessions_done) || 0)
+      if (done > 0) clientSessions.push({ client_id: row.id, count: done, name: c.name })
     } catch (e) {
       summary.clients.failed += 1
       summary.errors.push(`client "${c.name}": ${e.message || 'unknown'}`)
+    }
+  }
+
+  /* ── Held/past sessions — create logged `sessions` rows so imported
+     clients arrive with real history (counts toward the X/Y tally +
+     per-session billing). Two sources combine:
+       • O1 LEDGER (input.sessions): one row per meeting, with its real date.
+       • O2 COUNT (client.sessions_done): "N done" with no dates → tops the
+         client up to N using the historical placeholder date.
+     `num` continues from existing sessions per client, and the ledger is
+     deduped by client+date, so a re-import never doubles. ── */
+  const ledgerByClient = new Map()
+  for (const ls of ledgerSessions) {
+    const cId = ls.client_name ? clientIdByName.get(norm(ls.client_name)) : null
+    if (!cId) continue /* unlinked client → skip (flagged in the review) */
+    if (!ledgerByClient.has(cId)) ledgerByClient.set(cId, [])
+    ledgerByClient.get(cId).push({ date: normalizeDate(ls.date), summary: ls.summary || null })
+  }
+
+  if (clientSessions.length || ledgerByClient.size) {
+    summary.sessions = { created: 0, skipped: 0, failed: 0 }
+    let existingSessions = []
+    try { existingSessions = await listSessions() } catch { /* assume none */ }
+    const numByClient = new Map()   /* client_id → highest num seen */
+    const datesByClient = new Map() /* client_id → Set<YYYY-MM-DD> for ledger dedup */
+    for (const s of existingSessions) {
+      if (!s?.client_id) continue
+      numByClient.set(s.client_id, Math.max(numByClient.get(s.client_id) || 0, Number(s.num) || 0))
+      if (!datesByClient.has(s.client_id)) datesByClient.set(s.client_id, new Set())
+      datesByClient.get(s.client_id).add(String(s.date).slice(0, 10))
+    }
+    const placeholderDate = `${new Date(nowIso).getFullYear() - 1}-12-31T12:00:00.000Z`
+    const insertOne = async (cId, dateIso, summaryText) => {
+      const next = (numByClient.get(cId) || 0) + 1
+      try {
+        await insertSession({
+          client_id: cId, group_id: null, subject_type: 'client', subject_id: cId,
+          date: dateIso, num: next, notes: null, summary: summaryText,
+        })
+        numByClient.set(cId, next)
+        summary.sessions.created += 1
+        return true
+      } catch (e) {
+        summary.sessions.failed += 1
+        summary.errors.push(`session #${next}: ${e.message || 'unknown'}`)
+        return false
+      }
+    }
+    /* 1) Ledger rows — real dates; dedup by client+date. */
+    for (const [cId, rows] of ledgerByClient) {
+      const seen = datesByClient.get(cId) || new Set()
+      for (const r of rows) {
+        const dayKey = (r.date || placeholderDate).slice(0, 10)
+        if (r.date && seen.has(dayKey)) { summary.sessions.skipped += 1; continue }
+        const iso = r.date ? `${r.date}T12:00:00.000Z` : placeholderDate
+        // eslint-disable-next-line no-await-in-loop
+        await insertOne(cId, iso, r.summary || 'יובא מהקובץ')
+        seen.add(dayKey)
+      }
+      datesByClient.set(cId, seen)
+    }
+    /* 2) Count fallback — top each client up to its sessions_done target. */
+    for (const cs of clientSessions) {
+      while ((numByClient.get(cs.client_id) || 0) < cs.count) {
+        // eslint-disable-next-line no-await-in-loop
+        const ok = await insertOne(cs.client_id, placeholderDate, 'יובא מהקובץ')
+        if (!ok) break
+      }
     }
   }
 
@@ -228,22 +306,26 @@ export async function finalizeOnboardingImport(input = {}) {
     existingTxns.filter((t) => t.type === 'income').map((t) => payKey(t.client_id, t.amount, t.desc)),
   )
 
-  /* Create the collected client payments (confirmed income, dated today). */
-  const todayIso = nowIso ? String(nowIso).slice(0, 10) : null
+  /* Imported "amount paid so far" totals + any dateless transactions carry
+     no real date. Rather than dropping them (lost revenue) or dating them
+     today (pollutes the current month's reports), park them on the last
+     day of the PREVIOUS year — a clear, non-distorting placeholder — and
+     count them so the user can be told to fix the dates in Finance. */
+  const estimatedDate = `${new Date(nowIso).getFullYear() - 1}-12-31`
   for (const pmt of clientPayments) {
-    if (!todayIso) break /* no clock passed → skip (caller can pass one) */
     const desc = `תשלום מיובא — ${pmt.name}`
     const pk = payKey(pmt.client_id, pmt.amount, desc)
     if (seenPay.has(pk)) { summary.transactions.skipped += 1; continue }
     try {
       await insertTransaction({
         amount: Math.abs(pmt.amount), type: 'income', desc,
-        date: todayIso, status: 'confirmed', project_id: pmt.project_id, client_id: pmt.client_id,
-        category_id: null, recurring_id: null, orphaned_from: null,
+        date: estimatedDate, status: 'confirmed', project_id: pmt.project_id, client_id: pmt.client_id,
+        category_id: null, recurring_id: null, orphaned_from: { date_estimated: true },
       })
       seenPay.add(pk)
-      seenTxns.add(txnKey(pmt.amount, 'income', todayIso, pmt.client_id, pmt.project_id))
+      seenTxns.add(txnKey(pmt.amount, 'income', estimatedDate, pmt.client_id, pmt.project_id))
       summary.transactions.created += 1
+      summary.transactions.dateEstimated += 1
     } catch (e) {
       summary.transactions.failed += 1
       summary.errors.push(`payment "${pmt.name}": ${e.message || 'unknown'}`)
@@ -293,9 +375,13 @@ export async function finalizeOnboardingImport(input = {}) {
 
   for (const t of transactions) {
     if (t.recurring) continue /* handled above as a recurring rule */
-    const date = normalizeDate(t.date)
+    let date = normalizeDate(t.date)
     const amount = Number(t.amount)
-    if (!date || Number.isNaN(amount) || amount === 0) { summary.transactions.skipped += 1; continue }
+    if (Number.isNaN(amount) || amount === 0) { summary.transactions.skipped += 1; continue }
+    /* O6: a valid amount with no/invalid date is no longer dropped — it
+       gets the historical placeholder date and is flagged as estimated. */
+    const dateEstimated = !date
+    if (dateEstimated) date = estimatedDate
     const client_id = t.client_name ? (clientIdByName.get(norm(t.client_name)) || null) : null
     const project_id = t.project_name ? (projectIdByName.get(norm(t.project_name)) || null) : null
     const type = t.type === 'expense' ? 'expense' : 'income'
@@ -312,10 +398,11 @@ export async function finalizeOnboardingImport(input = {}) {
         client_id,
         category_id: null,
         recurring_id: null,
-        orphaned_from: null,
+        orphaned_from: dateEstimated ? { date_estimated: true } : null,
       })
       seenTxns.add(key)
       summary.transactions.created += 1
+      if (dateEstimated) summary.transactions.dateEstimated += 1
     } catch (e) {
       summary.transactions.failed += 1
       summary.errors.push(`transaction ${date} ${amount}: ${e.message || 'unknown'}`)

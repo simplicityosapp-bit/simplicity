@@ -40,13 +40,13 @@
 }
 
 .feedback-card-title {
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
 }
 
 .feedback-card-sub {
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   line-height: 1.4;
   color: var(--stone);
 }

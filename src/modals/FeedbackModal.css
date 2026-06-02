@@ -10,7 +10,7 @@
 .fb-lead {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   line-height: 1.5;
   color: var(--stone);
 }
@@ -23,7 +23,7 @@
 
 .fb-label {
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
 }
@@ -35,7 +35,7 @@
 .fb-error {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--clay);
 }
 
@@ -47,9 +47,9 @@
   width: 100%;
   height: var(--mg-btn-h);
   font-family: var(--mg-font);
-  font-size: 15px;
+  font-size: calc(15px * var(--text-scale));
   font-weight: 500;
-  color: #fff;
+  color: var(--on-accent);
   background: var(--terracotta);
   border: none;
   border-radius: var(--mg-btn-radius);
@@ -57,7 +57,7 @@
   transition: background 0.15s ease, transform 0.12s ease, opacity 0.15s ease;
 }
 
-[data-theme="dark"] .fb-submit { color: #0f1419; }
+[data-theme="dark"] .fb-submit { color: var(--ink-on-accent); }
 
 .fb-submit:hover:not(:disabled) { background: var(--mg-btn-primary-bg-hover); }
 .fb-submit:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -80,7 +80,7 @@
 .fb-done p {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 16px;
+  font-size: calc(16px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
 }

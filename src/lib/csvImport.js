@@ -28,6 +28,7 @@
 
 import { detectMatrix, buildPivotConfig, flattenMatrix } from './pivotImport'
 import { parseAmount } from './columnDetect'
+import { mapValueToMeta } from './statusImport'
 
 /* Canonical importable fields + their Hebrew labels (used by the
    mapping dropdowns) and which onboarding step "owns" confirming them.
@@ -97,7 +98,12 @@ const HEADER_SYNONYMS = {
   status:     ['status', 'state', 'סטטוס', 'מצב'],
   sessions:   ['sessions', 'session', 'totalsessions', 'meetings', 'numsessions', 'פגישות', 'מספרפגישות', 'מפגשים'],
   price:      ['price', 'priceperession', 'pricepersession', 'rate', 'sessionprice', 'מחיר', 'מחירלפגישה', 'תעריף'],
-  amount:     ['amount', 'sum', 'total', 'paid', 'payment', 'income', 'revenue', 'סכום', 'תשלום', 'שולם', 'סהכ', 'סךהכל', 'הכנסה'],
+  /* NOTE: 'paid'/'שולם' are deliberately NOT here — they mean an
+     already-paid CUMULATIVE total (a client-roster column), not a
+     per-transaction amount. Treating them as a transaction amount
+     double-counts against a real dated income source. This matches
+     sheetMapper, which maps שולם to the client's `paid` field. */
+  amount:     ['amount', 'sum', 'total', 'payment', 'income', 'revenue', 'סכום', 'תשלום', 'סהכ', 'סךהכל', 'הכנסה'],
   date:       ['date', 'transactiondate', 'paymentdate', 'paydate', 'תאריך', 'תאריךתשלום', 'תאריךעסקה', 'תאריךתנועה'],
   type:       ['type', 'kind', 'סוג', 'סוגתנועה'],
   notes:      ['notes', 'note', 'comment', 'comments', 'remark', 'הערה', 'הערות', 'תיאור'],
@@ -107,15 +113,6 @@ const HEADER_SYNONYMS = {
 const TYPE_MAP = {
   income: 'income', 'הכנסה': 'income', 'זיכוי': 'income', 'credit': 'income',
   expense: 'expense', 'הוצאה': 'expense', 'חיוב': 'expense', 'debit': 'expense',
-}
-
-/* Map of status text (Hebrew + English) → app status_meta. Unknown
-   strings fall back to 'active'. */
-const STATUS_MAP = {
-  active: 'active', 'פעיל': 'active', 'פעילה': 'active', 'פעיל/ת': 'active',
-  wandering: 'wandering', 'נודד': 'wandering', 'נודדת': 'wandering', 'ביניים': 'wandering',
-  past: 'past', 'לשעבר': 'past', 'former': 'past', 'inactive': 'past',
-  no_status: 'no_status', 'ללאסטטוס': 'no_status',
 }
 
 function normalizeHeader(h) {
@@ -193,8 +190,11 @@ function detectDelimiter(text) {
 
 /* Quote-aware CSV parser. Handles double-quoted cells with the
    delimiter/newlines inside; an embedded "" inside a quoted cell
-   becomes a single ". Delimiter is sniffed (',' / ';' / tab). Not
-   RFC4180-perfect, just good enough for spreadsheet-exported files. */
+   becomes a single ". Delimiter is sniffed (',' / ';' / tab).
+   A quote only OPENS a quoted field at the START of a field (leading
+   whitespace allowed + discarded); a quote in the middle of an unquoted
+   value is treated as a literal — so a stray " in a hand-edited file
+   no longer swallows the rest of the row. */
 function parseCsv(text, delimiter = ',') {
   const rows = []
   let cur = ''
@@ -208,8 +208,9 @@ function parseCsv(text, delimiter = ',') {
       } else {
         cur += ch
       }
-    } else if (ch === '"') {
+    } else if (ch === '"' && cur.trim() === '') {
       inQuotes = true
+      cur = '' /* discard any leading whitespace before the opening quote */
     } else if (ch === delimiter) {
       row.push(cur); cur = ''
     } else if (ch === '\n' || ch === '\r') {
@@ -266,7 +267,9 @@ export function projectEntities(headers, rows, mapping) {
     if (obj.project) projectNames.add(obj.project)
 
     if (obj.name) {
-      const status_meta = STATUS_MAP[normalizeHeader(obj.status || '')] || 'active'
+      /* Single source of truth for status mapping (was a divergent local
+         table) — the comprehensive keyword mapper used everywhere else. */
+      const status_meta = mapValueToMeta(obj.status || '', 'client')
       clients.push({
         _row: rowIdx,
         name: obj.name,

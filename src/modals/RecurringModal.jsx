@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import DateField from '../components/DateField'
 
 const DAY_NAMES = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
@@ -176,9 +177,7 @@ export default function RecurringModal({ open, onClose, onSave, template, client
             )}
             <div className="m-field">
               <label className="m-label">תוקף עד (אופציונלי)</label>
-              <input
-                type="date"
-                className="m-input"
+              <DateField
                 value={form.until_date}
                 onChange={(e) => set('until_date', e.target.value)}
               />

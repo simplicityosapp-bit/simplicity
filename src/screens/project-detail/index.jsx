@@ -23,6 +23,8 @@ import AddClientModal from '../../modals/AddClientModal'
 import AddReminderModal from '../../modals/AddReminderModal'
 import DeleteGroupModal from '../../modals/DeleteGroupModal'
 import ConfirmModal from '../../modals/ConfirmModal'
+import Modal from '../../modals/Modal'
+import DateField from '../../components/DateField'
 import ProjectQuickRow from './ProjectQuickRow'
 import ProjectIncomeChart from './ProjectIncomeChart'
 import './ProjectDetailScreen.css'
@@ -76,6 +78,9 @@ export default function ProjectDetailScreen() {
   const [pendingDeleteReminder, setPendingDeleteReminder] = useState(null)
   /* Pending group status change (when ≥1 client will flip) → confirm dialog. */
   const [pendingStatusChange, setPendingStatusChange] = useState(null)
+  /* Drag-a-client-onto-a-group state. */
+  const [dropTargetGroup, setDropTargetGroup] = useState(null)
+  const [pendingAssign, setPendingAssign] = useState(null) /* { client, group } */
 
   const project = projects.find((p) => p.id === id)
   const projectGroups = useMemo(() => groups.filter((g) => g.project_id === id), [groups, id])
@@ -195,6 +200,55 @@ export default function ProjectDetailScreen() {
     const next = new Date(dateStr)
     next.setHours(orig.getHours(), orig.getMinutes(), orig.getSeconds(), orig.getMilliseconds())
     await updateSession(s.id, { date: next.toISOString() })
+  }
+
+  /* ── drag a client onto a group ─────────────────────────────
+     A client can belong to several groups; dropping either MOVES them
+     here (removing other memberships) or ADDS this one alongside. The
+     join date is set to today automatically (optional flow). */
+  const otherGroupCount = (client) =>
+    liveMembers.filter((m) => m.client_id === client.id && m.group_id !== null).map((m) => m.group_id)
+      .concat(client.group_id ? [client.group_id] : [])
+      .filter((gid, i, arr) => gid && arr.indexOf(gid) === i)
+      .length
+
+  const assignToGroup = async (client, group, mode) => {
+    if (!client || !group) return
+    if (mode === 'move') {
+      const others = liveMembers.filter((m) => m.client_id === client.id && m.group_id !== group.id)
+      for (const m of others) {
+        // eslint-disable-next-line no-await-in-loop
+        await removeMember(m.id).catch(() => {})
+      }
+    }
+    const alreadyMember = liveMembers.some((m) => m.client_id === client.id && m.group_id === group.id)
+    if (!alreadyMember) {
+      await addMember({
+        group_id: group.id,
+        client_id: client.id,
+        joined_at: new Date().toISOString(),
+        left_at: null,
+        total_override: null,
+        has_custom_price: false,
+        package_sessions_override: null,
+        left_mid_process: false,
+      }).catch(() => {})
+    }
+    /* Mirror the single-group tag (clients.group_id) to the latest group. */
+    if (client.group_id !== group.id) await updateClient(client.id, { group_id: group.id }).catch(() => {})
+  }
+
+  const handleDropOnGroup = (e, group) => {
+    e.preventDefault()
+    setDropTargetGroup(null)
+    const cid = e.dataTransfer.getData('text/client-id')
+    const client = clients.find((c) => c.id === cid)
+    if (!client) return
+    const inThisGroup = liveMembers.some((m) => m.client_id === client.id && m.group_id === group.id) || client.group_id === group.id
+    const elsewhere = otherGroupCount(client) - (inThisGroup ? 1 : 0)
+    if (inThisGroup && elsewhere <= 0) return /* already only here — nothing to do */
+    if (elsewhere <= 0) { assignToGroup(client, group, 'add'); return } /* not in any other group → just add */
+    setPendingAssign({ client, group }) /* in other group(s) → ask move vs add */
   }
 
   /* ── delete-group cascade ───────────────────────────────── */
@@ -342,7 +396,13 @@ export default function ProjectDetailScreen() {
                   .filter((s) => s.group_id === g.id)
                   .sort((a, b) => new Date(b.date) - new Date(a.date))
                 return (
-                  <article key={g.id} className="gc">
+                  <article
+                    key={g.id}
+                    className={`gc${dropTargetGroup === g.id ? ' drop-target' : ''}`}
+                    onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (dropTargetGroup !== g.id) setDropTargetGroup(g.id) }}
+                    onDragLeave={(e) => { if (e.currentTarget === e.target) setDropTargetGroup(null) }}
+                    onDrop={(e) => handleDropOnGroup(e, g)}
+                  >
                     <div className="gc-head">
                       <span className="gc-color" style={{ background: g.color || 'var(--stone)' }} />
                       <p className="gc-name">{g.name}</p>
@@ -420,8 +480,7 @@ export default function ProjectDetailScreen() {
                           groupSessions.map((s) => (
                             <div key={s.id} className="gc-sess-row">
                               <span className="gc-sess-num mono">#{s.num}</span>
-                              <input
-                                type="date"
+                              <DateField
                                 className="gc-sess-date"
                                 value={isoDate(s.date)}
                                 onChange={(e) => updateSessionDate(s, e.target.value)}
@@ -470,8 +529,11 @@ export default function ProjectDetailScreen() {
                     key={c.id}
                     type="button"
                     className="pd-client"
+                    draggable
+                    onDragStart={(e) => { e.dataTransfer.setData('text/client-id', c.id); e.dataTransfer.effectAllowed = 'move' }}
                     onClick={() => navigate(buildRoute(ROUTES.CLIENT, { id: c.id }))}
                   >
+                    <span className="pd-client-grip" aria-hidden="true">⠿</span>
                     <span className="pd-client-name">{c.name}</span>
                     {g ? (
                       <span className="pd-client-tag group-member">{g.name}</span>
@@ -645,6 +707,34 @@ export default function ProjectDetailScreen() {
         confirmLabel="שנה סטטוס"
         onConfirm={confirmGroupStatusChange}
       />
+
+      <Modal open={!!pendingAssign} onClose={() => setPendingAssign(null)} title="שיוך לקבוצה">
+        {pendingAssign && (
+          <>
+            <p className="m-confirm-msg">
+              <strong>{pendingAssign.client.name}</strong> כבר משויך/ת לקבוצה אחרת. להעביר
+              ל"{pendingAssign.group.name}", או להוסיף כך שיהיה/תהיה גם וגם?
+            </p>
+            <div className="m-actions">
+              <button type="button" className="m-btn-cancel" onClick={() => setPendingAssign(null)}>ביטול</button>
+              <button
+                type="button"
+                className="m-btn-save"
+                onClick={() => { assignToGroup(pendingAssign.client, pendingAssign.group, 'add'); setPendingAssign(null) }}
+              >
+                הוספה (גם וגם)
+              </button>
+              <button
+                type="button"
+                className="m-btn-save"
+                onClick={() => { assignToGroup(pendingAssign.client, pendingAssign.group, 'move'); setPendingAssign(null) }}
+              >
+                העברה לכאן
+              </button>
+            </div>
+          </>
+        )}
+      </Modal>
     </div>
   )
 }

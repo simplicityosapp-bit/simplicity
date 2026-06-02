@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import DateField from '../components/DateField'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = () => ({ client_id: '', joined_at: todayStr() })
@@ -15,14 +16,14 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, avai
 
   const submit = async () => {
     if (!form.client_id) { setErr('יש לבחור לקוח.'); return }
-    if (!form.joined_at) { setErr('יש לבחור תאריך הצטרפות.'); return }
     setBusy(true)
     setErr('')
     try {
       await onSave({
         group_id: group.id,
         client_id: form.client_id,
-        joined_at: new Date(`${form.joined_at}T12:00:00`).toISOString(),
+        /* Join date is optional — default to today when left blank. */
+        joined_at: new Date(form.joined_at ? `${form.joined_at}T12:00:00` : Date.now()).toISOString(),
         left_at: null,
         total_override: null,
         has_custom_price: false,
@@ -56,8 +57,8 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, avai
         )}
       </div>
       <div className="m-field">
-        <label className="m-label">תאריך הצטרפות</label>
-        <input type="date" className="m-input" value={form.joined_at} onChange={(e) => set('joined_at', e.target.value)} />
+        <label className="m-label">תאריך הצטרפות (אופציונלי)</label>
+        <DateField value={form.joined_at} onChange={(e) => set('joined_at', e.target.value)} />
       </div>
 
       {err && <p className="m-error">{err}</p>}

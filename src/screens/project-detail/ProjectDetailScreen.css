@@ -324,6 +324,15 @@
 }
 .pd-client:hover { background: rgba(42, 37, 32, 0.07); }
 [data-theme="dark"] .pd-client:hover { background: rgba(240, 235, 224, 0.07); }
+.pd-client { cursor: grab; }
+.pd-client:active { cursor: grabbing; }
+.pd-client-grip {
+  flex-shrink: 0;
+  color: var(--stone);
+  opacity: 0.45;
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1;
+}
 .pd-client-name {
   flex: 1;
   font-family: var(--mg-font);
@@ -443,6 +452,12 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
+  transition: box-shadow 0.12s, background 0.12s;
+}
+/* Highlighted while a client is dragged over it. */
+.gc.drop-target {
+  background: color-mix(in srgb, var(--sage) 12%, var(--mg-card-bg));
+  box-shadow: 0 0 0 2px var(--sage), var(--mg-card-shadow);
 }
 .gc-head { display: flex; align-items: center; gap: 8px; }
 .gc-color { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }

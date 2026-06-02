@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import Modal from './Modal'
+import DateField from '../components/DateField'
 import { questionText } from '../lib/questionTemplates'
 import { scheduledOccurrences } from '../lib/goals'
 
@@ -116,7 +117,7 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
         {form.time_frame === 'deadline' && (
           <div className="m-field">
             <label className="m-label">תאריך יעד</label>
-            <input type="date" className="m-input" value={form.target_date} onChange={(e) => set('target_date', e.target.value)} />
+            <DateField value={form.target_date} onChange={(e) => set('target_date', e.target.value)} />
           </div>
         )}
       </div>

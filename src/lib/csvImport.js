@@ -193,8 +193,11 @@ function detectDelimiter(text) {
 
 /* Quote-aware CSV parser. Handles double-quoted cells with the
    delimiter/newlines inside; an embedded "" inside a quoted cell
-   becomes a single ". Delimiter is sniffed (',' / ';' / tab). Not
-   RFC4180-perfect, just good enough for spreadsheet-exported files. */
+   becomes a single ". Delimiter is sniffed (',' / ';' / tab).
+   A quote only OPENS a quoted field at the START of a field (leading
+   whitespace allowed + discarded); a quote in the middle of an unquoted
+   value is treated as a literal — so a stray " in a hand-edited file
+   no longer swallows the rest of the row. */
 function parseCsv(text, delimiter = ',') {
   const rows = []
   let cur = ''
@@ -208,8 +211,9 @@ function parseCsv(text, delimiter = ',') {
       } else {
         cur += ch
       }
-    } else if (ch === '"') {
+    } else if (ch === '"' && cur.trim() === '') {
       inQuotes = true
+      cur = '' /* discard any leading whitespace before the opening quote */
     } else if (ch === delimiter) {
       row.push(cur); cur = ''
     } else if (ch === '\n' || ch === '\r') {

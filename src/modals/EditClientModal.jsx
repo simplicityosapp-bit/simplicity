@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import Modal from './Modal'
-import DateField from '../components/DateField'
 import { isr } from '../lib/finance'
 
 const STATUSES = [
@@ -16,7 +15,7 @@ const DAYS = [
 
 /* Edit a client — name / status / sub-status / sessions / price / phone /
    project. Parent passes key={client?.id} so this remounts cleanly per client. */
-export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, rawPaid = 0, memberTotal = 0, isMember = false }) {
+export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, rawPaid = 0, memberTotal = 0, sessionsPaid = 0, sessionsTotal = 0, isMember = false }) {
   /* Per-group billing override (group_members.total_override) — keyed by
      membership id. Lets the user manually set a member's total after the
      group's billing mode produced a default. */
@@ -157,21 +156,31 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </p>
       </div>
       <div className="m-field">
-        <label className="m-label">שולם ויתרה (כמו בכרטיס)</label>
-        <div className="m-row2">
-          <div className="m-field" style={{ margin: 0 }}>
-            <label className="m-label">שולם ₪</label>
-            <input type="number" className="m-input" value={form.paid}
-              onChange={(e) => set('paid', e.target.value)} />
+        <label className="m-label">חיוב — נאמן לכרטיס</label>
+        <div className="ec-bill">
+          <div className="ec-bill-cell">
+            <p className="ec-bill-label">פגישות</p>
+            <p className="ec-bill-val">{sessionsPaid}/{sessionsTotal || 0}</p>
           </div>
-          <div className="m-field" style={{ margin: 0 }}>
-            <label className="m-label">יתרה ₪</label>
-            <input type="number" className="m-input" value={String(liveBalance)}
-              onChange={(e) => setBalance(e.target.value)} />
+          <div className="ec-bill-cell divided">
+            <p className="ec-bill-label">שולם</p>
+            <div className="ec-bill-money">
+              <span className="ec-bill-cur">₪</span>
+              <input type="number" className="ec-bill-input" value={form.paid}
+                onChange={(e) => set('paid', e.target.value)} aria-label="שולם" />
+            </div>
+          </div>
+          <div className="ec-bill-cell">
+            <p className="ec-bill-label">יתרה</p>
+            <div className="ec-bill-money">
+              <span className="ec-bill-cur">₪</span>
+              <input type="number" className="ec-bill-input" value={String(liveBalance)}
+                onChange={(e) => setBalance(e.target.value)} aria-label="יתרה" />
+            </div>
           </div>
         </div>
-        <p style={{ margin: '4px 0 0', fontSize: 'calc(11px * var(--text-scale))', color: 'var(--stone)' }}>
-          יתרה = סה״כ ({isr(liveTotal)}) − שולם. עריכה ידנית נשמרת כהתאמה — פגישות חדשות ימשיכו להיחשב אוטומטית לפי המחיר המעודכן.
+        <p className="ec-bill-hint">
+          סה״כ {isr(liveTotal)} · עריכה ידנית נשמרת כהתאמה — פגישות חדשות ימשיכו להיחשב אוטומטית לפי המחיר.
         </p>
       </div>
       {memberships.length > 0 && (
@@ -229,24 +238,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           </select>
         </div>
         <div className="m-field">
-          <label className="m-label">פגישה קבועה — שעת התחלה</label>
+          <label className="m-label">פגישה קבועה — שעה</label>
           <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
-        </div>
-      </div>
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">שעת סיום</label>
-          <input type="time" className="m-input" value={form.recurring_end_time} onChange={(e) => set('recurring_end_time', e.target.value)} />
-        </div>
-      </div>
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">תאריך התחלה (אופציונלי)</label>
-          <DateField value={form.recurring_start_date} onChange={(e) => set('recurring_start_date', e.target.value)} />
-        </div>
-        <div className="m-field">
-          <label className="m-label">תאריך סיום (אופציונלי)</label>
-          <DateField value={form.recurring_end_date} onChange={(e) => set('recurring_end_date', e.target.value)} />
         </div>
       </div>
 

@@ -33,15 +33,9 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
 
   const meta = client ? effectiveClientMeta(client, members, groups) : null
   const groupDriven = isGroupDriven(client, members)
-  const isPast = meta === 'past'
   const project = client ? projects.find((p) => p.id === client.project_id) : null
   const balance = client ? clientBalance(client, txns, sessions, members, groups) : null
   const isMember = !!client && members.some((m) => m.client_id === client.id && !m.left_at)
-  const hasSetup = client && (
-    isMember
-    || (client.sessions && client.price_per_session)
-    || (client.total_override != null && client.total_override !== '')
-  )
   const clientSessions = client ? sessions.filter((s) => s.client_id === client.id) : []
   const nextNum = clientSessions.length + 1
 
@@ -115,38 +109,34 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 </button>
               </div>
 
-              {hasSetup ? (
-                <div className="cd-hero">
-                  <div className="cd-stat">
-                    <p className="cd-stat-l">פגישות</p>
-                    <p className="cd-stat-v mono">{balance.sessionsPaid}/{balance.sessionsTotal || 0}</p>
-                  </div>
-                  <div className="cd-stat divided">
-                    <p className="cd-stat-l">שולם</p>
-                    <p className="cd-stat-v mono">{isr(balance.paid)}</p>
-                  </div>
-                  <div className="cd-stat">
-                    <p className="cd-stat-l">יתרה</p>
-                    <p className="cd-stat-v mono">{isr(balance.balance)}</p>
-                  </div>
+              {/* Billing hero — ALWAYS shown on every client card (global). */}
+              <div className="cd-hero">
+                <div className="cd-stat">
+                  <p className="cd-stat-l">פגישות</p>
+                  <p className="cd-stat-v mono">{balance.sessionsPaid}/{balance.sessionsTotal || 0}</p>
                 </div>
-              ) : (
-                <p className="cd-hero-hint">הוסף פגישות ומחיר דרך «ערוך»</p>
-              )}
+                <div className="cd-stat divided">
+                  <p className="cd-stat-l">שולם</p>
+                  <p className="cd-stat-v mono">{isr(balance.paid)}</p>
+                </div>
+                <div className="cd-stat">
+                  <p className="cd-stat-l">יתרה</p>
+                  <p className="cd-stat-v mono">{isr(balance.balance)}</p>
+                </div>
+              </div>
 
-              {!isPast && (
-                <div className="cd-actions">
-                  <button type="button" className="cd-action" onClick={() => setActionModal('session')}>
-                    <Check size={15} strokeWidth={1.8} aria-hidden="true" /> תעד פגישה
-                  </button>
-                  <button type="button" className="cd-action" onClick={() => setActionModal('meeting')}>
-                    <CalendarPlus size={15} strokeWidth={1.8} aria-hidden="true" /> תאם פגישה
-                  </button>
-                  <button type="button" className="cd-action" onClick={() => setActionModal('payment')}>
-                    <Banknote size={15} strokeWidth={1.8} aria-hidden="true" /> קיבלתי תשלום
-                  </button>
-                </div>
-              )}
+              {/* Quick actions — ALWAYS shown on every client card (global). */}
+              <div className="cd-actions">
+                <button type="button" className="cd-action" onClick={() => setActionModal('session')}>
+                  <Check size={15} strokeWidth={1.8} aria-hidden="true" /> תעד פגישה
+                </button>
+                <button type="button" className="cd-action" onClick={() => setActionModal('meeting')}>
+                  <CalendarPlus size={15} strokeWidth={1.8} aria-hidden="true" /> תאם פגישה
+                </button>
+                <button type="button" className="cd-action" onClick={() => setActionModal('payment')}>
+                  <Banknote size={15} strokeWidth={1.8} aria-hidden="true" /> קיבלתי תשלום
+                </button>
+              </div>
 
               <ClientDrawerSections client={client} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} />
             </div>
@@ -194,6 +184,8 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         memberships={client ? members.filter((m) => m.client_id === client.id && !m.left_at) : []}
         rawPaid={balance?.paidReal ?? 0}
         memberTotal={balance?.memberTotal ?? 0}
+        sessionsPaid={balance?.sessionsPaid ?? 0}
+        sessionsTotal={balance?.sessionsTotal ?? 0}
         isMember={isMember}
         onSave={onUpdateClient}
         onUpdateMember={onUpdateMember}

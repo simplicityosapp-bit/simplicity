@@ -577,3 +577,82 @@
   line-height: 1.6;
   color: var(--espresso);
 }
+
+/* ── Editable billing strip (EditClientModal) — pixel-mirrors the client
+   card hero (.cd-hero in ClientDrawer.css): same card, same 3 cells, same
+   divided middle, same fonts — only שולם/יתרה are typeable inputs. ── */
+.ec-bill {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--xs);
+  padding: 16px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+}
+.ec-bill-cell {
+  text-align: center;
+}
+.ec-bill-cell.divided {
+  border-inline-start: 1px solid var(--divider);
+  border-inline-end: 1px solid var(--divider);
+}
+.ec-bill-label {
+  margin: 0 0 4px;
+  font-family: var(--mg-font);
+  font-size: calc(9px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ec-bill-val {
+  margin: 0;
+  font-family: var(--mg-font-num);
+  font-weight: 500;
+  font-size: calc(19px * var(--text-scale));
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+.ec-bill-money {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+}
+.ec-bill-cur {
+  font-family: var(--mg-font-num);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--stone);
+}
+.ec-bill-input {
+  width: 100%;
+  max-width: 74px;
+  padding: 0 2px 2px;
+  border: none;
+  border-bottom: 1px dashed color-mix(in srgb, var(--stone) 50%, transparent);
+  background: transparent;
+  text-align: center;
+  font-family: var(--mg-font-num);
+  font-weight: 500;
+  font-size: calc(19px * var(--text-scale));
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.15s ease;
+  -moz-appearance: textfield;
+}
+.ec-bill-input::-webkit-outer-spin-button,
+.ec-bill-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.ec-bill-input:focus {
+  outline: none;
+  border-bottom-color: var(--terracotta);
+}
+.ec-bill-hint {
+  margin: 8px 0 0;
+  text-align: center;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--mist);
+}

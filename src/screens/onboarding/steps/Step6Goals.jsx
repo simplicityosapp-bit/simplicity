@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Star, AlertTriangle } from 'lucide-react'
+import DateField from '../../../components/DateField'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useProjects } from '../../../hooks/useProjects'
@@ -286,10 +287,8 @@ export default function Step6Goals({ ob, setCTA }) {
           {isDeadline && (
             <div className="ob-field">
               <label className="ob-label" htmlFor="ob-g-date">תאריך יעד</label>
-              <input
-                id="ob-g-date"
+              <DateField
                 className="ob-input"
-                type="date"
                 value={targetDate}
                 onChange={(e) => setTargetDate(e.target.value)}
               />

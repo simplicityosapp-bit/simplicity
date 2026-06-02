@@ -24,6 +24,7 @@ import AddReminderModal from '../../modals/AddReminderModal'
 import DeleteGroupModal from '../../modals/DeleteGroupModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Modal from '../../modals/Modal'
+import DateField from '../../components/DateField'
 import ProjectQuickRow from './ProjectQuickRow'
 import ProjectIncomeChart from './ProjectIncomeChart'
 import './ProjectDetailScreen.css'
@@ -479,8 +480,7 @@ export default function ProjectDetailScreen() {
                           groupSessions.map((s) => (
                             <div key={s.id} className="gc-sess-row">
                               <span className="gc-sess-num mono">#{s.num}</span>
-                              <input
-                                type="date"
+                              <DateField
                                 className="gc-sess-date"
                                 value={isoDate(s.date)}
                                 onChange={(e) => updateSessionDate(s, e.target.value)}

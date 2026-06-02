@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import DateField from '../../components/DateField'
 import { X, Users, FolderKanban, Receipt, CalendarDays, Check, RotateCcw, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
@@ -476,7 +477,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                     {t.recurring ? (
                       <span className="obrw-recurring" title="הוצאה חוזרת — תיווצר אוטומטית בכל חודש">🔁 חוזרת חודשית</span>
                     ) : (
-                      <input className="obrw-input" type="date" value={t.date || ''} title="תאריך התנועה" disabled={!inc}
+                      <DateField className="obrw-input" value={t.date || ''} disabled={!inc}
                         onChange={(e) => patchRow('transactions', i, { date: e.target.value })} />
                     )}
                   </label>
@@ -528,7 +529,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                   </label>
                   <label className="obrw-tx-field obrw-tx-date">
                     <span className="obrw-tx-lbl">תאריך</span>
-                    <input className="obrw-input" type="date" value={s.date || ''} title="תאריך הפגישה" disabled={!inc}
+                    <DateField className="obrw-input" value={s.date || ''} disabled={!inc}
                       onChange={(e) => patchRow('sessions', i, { date: e.target.value })} />
                   </label>
                   <label className="obrw-tx-field obrw-grow">

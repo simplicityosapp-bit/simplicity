@@ -44,6 +44,22 @@ export function fmtShortDate(date) {
   return `${dd}/${mm}`
 }
 
+/* Full date incl. year, per the user's date_format pref. Used by the
+   custom DateField (the native <input type=date> ignores our pref and
+   follows the browser's UI language instead). */
+export function fmtDateInput(date) {
+  if (!date) return ''
+  const d = date instanceof Date ? date : new Date(date)
+  if (Number.isNaN(d.getTime())) return ''
+  const dd = pad(d.getDate())
+  const mm = pad(d.getMonth() + 1)
+  const yyyy = d.getFullYear()
+  const yy = pad(yyyy % 100)
+  if (dateFmt === 'MM/DD/YY') return `${mm}/${dd}/${yy}`
+  if (dateFmt === 'YYYY-MM-DD') return `${yyyy}-${mm}-${dd}`
+  return `${dd}/${mm}/${yy}`
+}
+
 function sameDay(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
 }

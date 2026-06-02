@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import DateField from '../components/DateField'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = () => ({ client_id: '', joined_at: todayStr() })
@@ -57,7 +58,7 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, avai
       </div>
       <div className="m-field">
         <label className="m-label">תאריך הצטרפות (אופציונלי)</label>
-        <input type="date" className="m-input" value={form.joined_at} onChange={(e) => set('joined_at', e.target.value)} />
+        <DateField value={form.joined_at} onChange={(e) => set('joined_at', e.target.value)} />
       </div>
 
       {err && <p className="m-error">{err}</p>}

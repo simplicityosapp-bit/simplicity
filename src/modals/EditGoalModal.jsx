@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import DateField from '../components/DateField'
 import Modal from './Modal'
 import { questionText } from '../lib/questionTemplates'
 
@@ -86,7 +87,7 @@ export default function EditGoalModal({ open, onClose, onSave, goal, categories 
         {form.time_frame === 'deadline' && (
           <div className="m-field">
             <label className="m-label">תאריך יעד</label>
-            <input type="date" className="m-input" value={form.target_date || ''} onChange={(e) => set('target_date', e.target.value)} />
+            <DateField value={form.target_date || ''} onChange={(e) => set('target_date', e.target.value)} />
           </div>
         )}
       </div>

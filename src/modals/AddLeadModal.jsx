@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import DateField from '../components/DateField'
 import Modal from './Modal'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
@@ -80,11 +81,11 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
       <div className="m-row2">
         <div className="m-field">
           <label className="m-label">תאריך פנייה</label>
-          <input type="date" className="m-input" value={form.inquiry_date} onChange={(e) => set('inquiry_date', e.target.value)} />
+          <DateField value={form.inquiry_date} onChange={(e) => set('inquiry_date', e.target.value)} />
         </div>
         <div className="m-field">
           <label className="m-label">מעקב</label>
-          <input type="date" className="m-input" value={form.follow_up_date} onChange={(e) => set('follow_up_date', e.target.value)} />
+          <DateField value={form.follow_up_date} onChange={(e) => set('follow_up_date', e.target.value)} />
         </div>
       </div>
       <div className="m-field">

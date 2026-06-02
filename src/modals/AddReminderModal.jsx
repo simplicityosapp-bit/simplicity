@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import DateField from '../components/DateField'
 import Modal from './Modal'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
@@ -78,7 +79,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
       <div className="m-row2">
         <div className="m-field">
           <label className="m-label">תאריך</label>
-          <input type="date" className="m-input" value={form.date} onChange={(e) => set('date', e.target.value)} />
+          <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
         </div>
         <div className="m-field">
           <label className="m-label">שעה</label>
@@ -102,7 +103,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
       {recurring && (
         <div className="m-field">
           <label className="m-label">תאריך סיום (אופציונלי)</label>
-          <input type="date" className="m-input" value={form.end_date} onChange={(e) => set('end_date', e.target.value)} />
+          <DateField value={form.end_date} onChange={(e) => set('end_date', e.target.value)} />
         </div>
       )}
       {defaultLinkedTo ? (

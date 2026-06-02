@@ -288,6 +288,22 @@
   background: rgba(125, 138, 172, 0.18);
 }
 .set-w-grip { color: var(--stone); opacity: 0.6; display: inline-flex; cursor: grab; }
+.set-w-move { display: inline-flex; flex-direction: column; gap: 1px; }
+.set-w-move-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 15px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  border-radius: 5px;
+}
+.set-w-move-btn:hover:not(:disabled) { background: var(--mg-row-hover-bg); color: var(--espresso); }
+.set-w-move-btn:disabled { opacity: 0.3; cursor: default; }
 .set-w-row-head {
   display: flex;
   align-items: center;

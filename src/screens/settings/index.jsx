@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ChevronDown, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
+  ChevronDown, ChevronUp, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
   Plus, Trash2, Leaf, GripVertical, ChevronLeft, CalendarDays, Database, Download, Upload,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
@@ -148,6 +148,16 @@ function WidgetsBody({ prefs, onUpdate }) {
     setOverId(null)
   }
   const handleDragEnd = () => { setDraggingId(null); setOverId(null) }
+  /* Keyboard-accessible reorder (swap with neighbour) — the drag handle
+     is pointer-only, so the up/down buttons are the accessible path. */
+  const moveWidget = (id, dir) => {
+    const idx = list.findIndex((w) => w.id === id)
+    const swap = idx + dir
+    if (idx < 0 || swap < 0 || swap >= list.length) return
+    const next = [...list]
+    ;[next[idx], next[swap]] = [next[swap], next[idx]]
+    onUpdate({ widgets: { list: next } })
+  }
 
   return (
     <div className="set-w-body">
@@ -158,7 +168,7 @@ function WidgetsBody({ prefs, onUpdate }) {
 
       <p className="set-sub-h" style={{ marginTop: 8 }}>ווידג׳טים</p>
       <div className="set-w-list">
-        {list.map((w) => {
+        {list.map((w, i) => {
           const reg = WIDGET_REGISTRY.find((r) => r.id === w.id)
           if (!reg) return null
           return (
@@ -166,6 +176,9 @@ function WidgetsBody({ prefs, onUpdate }) {
               key={w.id}
               cfg={w}
               reg={reg}
+              index={i}
+              total={list.length}
+              onMove={moveWidget}
               onUpdate={(p) => updateWidget(w.id, p)}
               dragging={draggingId === w.id}
               over={overId === w.id}
@@ -181,7 +194,7 @@ function WidgetsBody({ prefs, onUpdate }) {
   )
 }
 
-function WidgetRow({ cfg, reg, onUpdate, dragging, over, onDragStart, onDragOver, onDrop, onDragEnd }) {
+function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, onDragStart, onDragOver, onDrop, onDragEnd }) {
   return (
     <div
       className={`set-w-row${cfg.enabled ? '' : ' off'}${dragging ? ' dragging' : ''}${over ? ' over' : ''}`}
@@ -194,6 +207,26 @@ function WidgetRow({ cfg, reg, onUpdate, dragging, over, onDragStart, onDragOver
       <div className="set-w-row-head">
         <span className="set-w-grip" aria-hidden="true">
           <GripVertical size={14} strokeWidth={1.5} />
+        </span>
+        <span className="set-w-move">
+          <button
+            type="button"
+            className="set-w-move-btn"
+            aria-label={`${reg.label} — הזזה למעלה`}
+            disabled={index === 0}
+            onClick={() => onMove(cfg.id, -1)}
+          >
+            <ChevronUp size={14} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="set-w-move-btn"
+            aria-label={`${reg.label} — הזזה למטה`}
+            disabled={index === total - 1}
+            onClick={() => onMove(cfg.id, 1)}
+          >
+            <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
+          </button>
         </span>
         <span className="set-w-row-name">{reg.label}</span>
         <button

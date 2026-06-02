@@ -119,7 +119,7 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
         open={!!pendingDelete}
         onClose={() => setPendingDelete(null)}
         title="מחיקת תת-סטטוס"
-        message={pendingDelete ? `למחוק את "${pendingDelete.display_name}"? לידים שמסומנים בו יישארו ללא תת-סטטוס.` : ''}
+        message={pendingDelete ? `למחוק את "${pendingDelete.display_name}"? לידים שמסומנים בו יישארו ללא תת-סטטוס. ניתן לשחזר מהזבל תוך 30 יום.` : ''}
         confirmLabel="מחק"
         danger
         onConfirm={() => { if (pendingDelete) onRemove(pendingDelete.id) }}

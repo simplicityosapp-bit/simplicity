@@ -16,6 +16,8 @@ function primaryLabel(entityType, row) {
     case 'categories':
     case 'goalCategories':
       return row.name || '—'
+    case 'leadStatuses':
+      return row.display_name || '—'
     case 'tasks':
       return row.title || '—'
     case 'reminders':

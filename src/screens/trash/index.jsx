@@ -14,6 +14,7 @@ const ENTITY_META = {
   tasks:          { label: 'משימות',          icon: CheckSquare },
   leads:          { label: 'לידים',           icon: UserPlus },
   leadSources:    { label: 'מקורות לידים',    icon: Tag },
+  leadStatuses:   { label: 'תתי-סטטוס לידים', icon: Tag },
   transactions:   { label: 'תנועות',          icon: Banknote },
   categories:     { label: 'קטגוריות הוצאות', icon: Tag },
   recurring:      { label: 'תבניות חוזרות',   icon: Repeat },

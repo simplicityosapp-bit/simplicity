@@ -45,6 +45,7 @@ export default function GoalsScreen() {
   const [entryCategory, setEntryCategory] = useState(null)
   const [editCategory, setEditCategory] = useState(null)
   const [pendingDeleteCat, setPendingDeleteCat] = useState(null)
+  const [pendingDeleteGoal, setPendingDeleteGoal] = useState(null)
   const [editGoal, setEditGoalState] = useState(null)
 
   const loading = goalsLoading || catsLoading
@@ -223,6 +224,7 @@ export default function GoalsScreen() {
         groups={clientGroups}
         questions={questions}
         onSave={updateGoal}
+        onDelete={(g) => { setEditGoalState(null); setPendingDeleteGoal(g) }}
       />
       <EditGoalCategoryModal
         key={editCategory?.id}
@@ -240,6 +242,15 @@ export default function GoalsScreen() {
         confirmLabel="מחק"
         danger
         onConfirm={confirmDeleteCategory}
+      />
+      <ConfirmModal
+        open={!!pendingDeleteGoal}
+        onClose={() => setPendingDeleteGoal(null)}
+        title="מחיקת יעד"
+        message={pendingDeleteGoal ? `למחוק את היעד${pendingDeleteGoal.label ? ` "${pendingDeleteGoal.label}"` : ''}? ניתן לשחזר מהזבל תוך 30 יום.` : ''}
+        confirmLabel="מחק"
+        danger
+        onConfirm={() => { if (pendingDeleteGoal) removeGoal(pendingDeleteGoal.id) }}
       />
     </div>
   )

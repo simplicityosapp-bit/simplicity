@@ -47,6 +47,31 @@ export async function removeLeadStatus(id) {
   if (error) throw error
 }
 
+/* Trash — sub-statuses soft-deleted in the last 30 days + restore. */
+export async function listDeletedLeadStatuses() {
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const { data, error } = await supabase
+    .from('lead_statuses')
+    .select('*')
+    .not('deleted_at', 'is', null)
+    .gte('deleted_at', thirtyDaysAgo.toISOString())
+    .order('deleted_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function restoreLeadStatus(id) {
+  const { data, error } = await supabase
+    .from('lead_statuses')
+    .update({ deleted_at: null })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
 /* Count live leads currently assigned to a given sub-status. */
 export async function countLeadsByStatus(statusId) {
   const { count, error } = await supabase

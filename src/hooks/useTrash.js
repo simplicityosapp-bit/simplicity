@@ -5,6 +5,7 @@ import { listDeletedGroups, restoreGroup } from '../lib/api/groups'
 import { listDeletedTasks, restoreTask } from '../lib/api/tasks'
 import { listDeletedLeads, restoreLead } from '../lib/api/leads'
 import { listDeletedLeadSources, restoreLeadSource } from '../lib/api/leadSources'
+import { listDeletedLeadStatuses, restoreLeadStatus } from '../lib/api/leadStatuses'
 import { listDeletedTransactions, restoreTransaction } from '../lib/api/transactions'
 import { listDeletedCategories, restoreCategory } from '../lib/api/categories'
 import { listDeletedSessions, restoreSession } from '../lib/api/sessions'
@@ -28,6 +29,7 @@ export const TRASH_ENTITY_TYPES = [
   'tasks',
   'leads',
   'leadSources',
+  'leadStatuses',
   'transactions',
   'categories',
   'recurring',
@@ -49,6 +51,7 @@ const LISTERS = {
   tasks: listDeletedTasks,
   leads: listDeletedLeads,
   leadSources: listDeletedLeadSources,
+  leadStatuses: listDeletedLeadStatuses,
   transactions: listDeletedTransactions,
   categories: listDeletedCategories,
   recurring: listDeletedRecurring,
@@ -68,6 +71,7 @@ const RESTORERS = {
   tasks: restoreTask,
   leads: restoreLead,
   leadSources: restoreLeadSource,
+  leadStatuses: restoreLeadStatus,
   transactions: restoreTransaction,
   categories: restoreCategory,
   recurring: restoreRecurring,

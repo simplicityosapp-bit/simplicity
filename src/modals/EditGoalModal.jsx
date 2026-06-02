@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Trash2 } from 'lucide-react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import { questionText } from '../lib/questionTemplates'
@@ -12,7 +13,7 @@ const IMPORTANCE = [1, 2, 3, 4, 5]
 
 /* Edit a goal — label / time_frame / target / importance / project / tracking
    (manual vs daily question for manual categories). */
-export default function EditGoalModal({ open, onClose, onSave, goal, categories = [], projects = [], groups = [], questions = [] }) {
+export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, categories = [], projects = [], groups = [], questions = [] }) {
   const [form, setForm] = useState(() => ({
     label: goal?.label || '',
     time_frame: goal?.time_frame || 'monthly',
@@ -147,6 +148,11 @@ export default function EditGoalModal({ open, onClose, onSave, goal, categories 
         <button type="button" className="m-btn-cancel" onClick={onClose}>ביטול</button>
         <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
       </div>
+      {onDelete && (
+        <button type="button" className="m-btn-delete" onClick={() => onDelete(goal)}>
+          <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" /> מחיקת היעד
+        </button>
+      )}
     </Modal>
   )
 }

@@ -145,6 +145,7 @@ CREATE TABLE clients (
   price_per_session numeric NOT NULL DEFAULT 0,
   total_override    numeric,
   has_custom_price  boolean NOT NULL DEFAULT false,
+  balance_adjustment numeric NOT NULL DEFAULT 0,
   recurring_day     smallint CHECK (recurring_day BETWEEN 0 AND 6),
   recurring_time    text,
   recurring_end_time   text,                 -- slot end time (migration 0007)

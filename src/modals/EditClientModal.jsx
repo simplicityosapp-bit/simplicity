@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
+import { isr } from '../lib/finance'
 
 const STATUSES = [
   { k: 'active', l: 'פעיל' },
@@ -15,7 +16,7 @@ const DAYS = [
 
 /* Edit a client — name / status / sub-status / sessions / price / phone /
    project. Parent passes key={client?.id} so this remounts cleanly per client. */
-export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember }) {
+export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, rawPaid = 0, memberTotal = 0, isMember = false }) {
   /* Per-group billing override (group_members.total_override) — keyed by
      membership id. Lets the user manually set a member's total after the
      group's billing mode produced a default. */
@@ -29,6 +30,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     sessions: client?.sessions ?? '',
     price_per_session: client?.price_per_session ?? '',
     total_due: client?.total_override != null ? String(client.total_override) : '',
+    /* "שולם" as shown on the card = real income + manual adjustment. */
+    paid: String(rawPaid + (Number(client?.balance_adjustment) || 0)),
     phone: client?.phone || '',
     project_id: client?.project_id || '',
     group_id: client?.group_id || '',
@@ -47,12 +50,25 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   if (!client) return <Modal open={open} onClose={onClose} title="עריכת לקוח" />
   const subStatuses = statuses.filter((s) => s.meta_category === form.status)
 
+  /* Live billing snapshot — mirrors the card. Total stays automatic
+     (members → group total; private → total_override ?? price × sessions),
+     and the editable "שולם"/"יתרה" are two views of the same number. */
+  const liveTotal = isMember
+    ? memberTotal
+    : (form.total_due !== '' && Number(form.total_due) > 0
+        ? Number(form.total_due)
+        : (Number(form.sessions) || 0) * (Number(form.price_per_session) || 0))
+  const livePaid = Number(form.paid) || 0
+  const liveBalance = liveTotal - livePaid
+  /* Editing "יתרה" back-solves "שולם" so total stays the automatic anchor. */
+  const setBalance = (v) => set('paid', String(liveTotal - (Number(v) || 0)))
+
   const submit = async () => {
     if (!form.name.trim()) { setErr('יש למלא שם.'); return }
     setBusy(true)
     setErr('')
     try {
-      await onSave(client.id, {
+      const patch = {
         name: form.name.trim(),
         status: form.status,
         status_meta: form.status,
@@ -71,7 +87,14 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         recurring_end_time: form.recurring_end_time || null,
         recurring_start_date: form.recurring_start_date || null,
         recurring_end_date: form.recurring_end_date || null,
-      })
+      }
+      /* Only send balance_adjustment when the user actually changed "שולם" —
+         so a normal edit never depends on migration 0010 existing (sending
+         an unknown column would 400 and break ALL client edits pre-0010). */
+      const nextAdj = (Number(form.paid) || 0) - rawPaid
+      const prevAdj = Number(client?.balance_adjustment) || 0
+      if (nextAdj !== prevAdj) patch.balance_adjustment = nextAdj
+      await onSave(client.id, patch)
       /* Persist any changed per-group billing overrides. */
       for (const m of memberships) {
         const raw = memberOverrides[m.id]
@@ -131,6 +154,24 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           onChange={(e) => set('total_due', e.target.value)} placeholder="אוטומטי: פגישות × מחיר" />
         <p style={{ margin: '4px 0 0', fontSize: 'calc(11px * var(--text-scale))', color: 'var(--stone)' }}>
           אם תזין/י סכום כאן הוא יגבר על החישוב האוטומטי (פגישות × מחיר) — שימושי לנתונים שיובאו.
+        </p>
+      </div>
+      <div className="m-field">
+        <label className="m-label">שולם ויתרה (כמו בכרטיס)</label>
+        <div className="m-row2">
+          <div className="m-field" style={{ margin: 0 }}>
+            <label className="m-label">שולם ₪</label>
+            <input type="number" className="m-input" value={form.paid}
+              onChange={(e) => set('paid', e.target.value)} />
+          </div>
+          <div className="m-field" style={{ margin: 0 }}>
+            <label className="m-label">יתרה ₪</label>
+            <input type="number" className="m-input" value={String(liveBalance)}
+              onChange={(e) => setBalance(e.target.value)} />
+          </div>
+        </div>
+        <p style={{ margin: '4px 0 0', fontSize: 'calc(11px * var(--text-scale))', color: 'var(--stone)' }}>
+          יתרה = סה״כ ({isr(liveTotal)}) − שולם. עריכה ידנית נשמרת כהתאמה — פגישות חדשות ימשיכו להיחשב אוטומטית לפי המחיר המעודכן.
         </p>
       </div>
       {memberships.length > 0 && (

@@ -192,6 +192,9 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         groups={groups}
         statuses={statuses}
         memberships={client ? members.filter((m) => m.client_id === client.id && !m.left_at) : []}
+        rawPaid={balance?.paidReal ?? 0}
+        memberTotal={balance?.memberTotal ?? 0}
+        isMember={isMember}
         onSave={onUpdateClient}
         onUpdateMember={onUpdateMember}
       />

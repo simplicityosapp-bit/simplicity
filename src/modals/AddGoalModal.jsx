@@ -19,13 +19,14 @@ const blank = (categoryId = '') => ({
   target_date: '',
   importance: 3,
   project_id: '',
+  group_id: '',
   tracking_method: 'manual',
   tracked_by_question_id: '',
 })
 
 /* onSave is async (Supabase insert). For manual categories the user picks a
    tracking method: manual entries, or linked to a daily question (D10). */
-export default function AddGoalModal({ open, onClose, onSave, categories = [], projects = [], questions = [], defaultCategoryId = '' }) {
+export default function AddGoalModal({ open, onClose, onSave, categories = [], projects = [], groups = [], questions = [], defaultCategoryId = '' }) {
   const [form, setForm] = useState(() => blank(defaultCategoryId))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -61,7 +62,7 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
         category_id: form.category_id,
         parent_goal_id: null,
         project_id: form.project_id || null,
-        group_id: null,
+        group_id: form.project_id && form.group_id ? form.group_id : null,
         label: form.label.trim() || null,
         time_frame: form.time_frame,
         target_value: target,
@@ -131,11 +132,20 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
       </div>
       <div className="m-field">
         <label className="m-label">פרויקט (אופציונלי)</label>
-        <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
+        <select className="m-select" value={form.project_id} onChange={(e) => { set('project_id', e.target.value); set('group_id', '') }}>
           <option value="">ללא</option>
           {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </div>
+      {form.project_id && groups.some((g) => g.project_id === form.project_id) && (
+        <div className="m-field">
+          <label className="m-label">קבוצה (אופציונלי)</label>
+          <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
+            <option value="">ללא קבוצה</option>
+            {groups.filter((g) => g.project_id === form.project_id).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+          </select>
+        </div>
+      )}
 
       {isManual && (
         <div className="m-field">

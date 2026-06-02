@@ -101,6 +101,24 @@ function PaymentsBody({ prefs, onUpdate }) {
   )
 }
 
+/* ── Switch ───────────────────────────────────────────────────────
+   One on/off control used everywhere in settings (replaces the old mix
+   of pressed-button / checkbox / faux-switch idioms). role="switch". */
+function Switch({ checked, onChange, label }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      className={`set-w-toggle${checked ? ' on' : ''}`}
+      onClick={() => onChange(!checked)}
+    >
+      <span className="set-w-toggle-knob" />
+    </button>
+  )
+}
+
 /* ── Widgets body ────────────────────────────────────────────────
    Per-widget controls: enabled, accent, compact (when supported),
    density override. Globals + reorder live in WidgetsGlobals below. */
@@ -229,16 +247,11 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
           </button>
         </span>
         <span className="set-w-row-name">{reg.label}</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={cfg.enabled}
-          className={`set-w-toggle${cfg.enabled ? ' on' : ''}`}
-          aria-label={`${reg.label} — ${cfg.enabled ? 'כיבוי' : 'הפעלה'}`}
-          onClick={() => onUpdate({ enabled: !cfg.enabled })}
-        >
-          <span className="set-w-toggle-knob" />
-        </button>
+        <Switch
+          checked={cfg.enabled}
+          onChange={(v) => onUpdate({ enabled: v })}
+          label={`${reg.label} — ${cfg.enabled ? 'כיבוי' : 'הפעלה'}`}
+        />
       </div>
       {cfg.enabled && (
         <div className="set-w-row-ctrls">
@@ -607,12 +620,11 @@ export default function SettingsScreen() {
                     <CalendarDays size={11} strokeWidth={1.7} aria-hidden="true" />
                     {describeSchedule(q)}
                   </button>
-                  <button
-                    type="button"
-                    className={`set-q-toggle${q.active ? ' on' : ''}`}
-                    onClick={() => toggleActive(q)}
-                    aria-pressed={q.active}
-                  >{q.active ? 'פעילה' : 'כבויה'}</button>
+                  <Switch
+                    checked={q.active}
+                    onChange={() => toggleActive(q)}
+                    label={q.active ? 'כיבוי השאלה' : 'הפעלת השאלה'}
+                  />
                   <button type="button" className="set-q-del" onClick={() => removeQuestion(q.id)} aria-label="מחיקת שאלה">
                     <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
                   </button>
@@ -634,14 +646,14 @@ export default function SettingsScreen() {
           <div className="set-sub-divider" />
           <p className="set-sub-h">תזכורת יומית</p>
           <div className="set-reminder-row">
-            <label className="set-reminder-toggle">
-              <input
-                type="checkbox"
+            <span className="set-reminder-toggle">
+              <Switch
                 checked={!!reminderPref.enabled}
-                onChange={(e) => setReminder({ enabled: e.target.checked })}
+                onChange={(v) => setReminder({ enabled: v })}
+                label="תזכורת יומית"
               />
               <span>תזכיר/י לי לענות אם לא ענית עד</span>
-            </label>
+            </span>
             <input
               type="time"
               className="m-input set-reminder-time"

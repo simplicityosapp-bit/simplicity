@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import DateField from '../components/DateField'
 
 const STATUSES = [
   { k: 'active', l: 'פעיל' },
@@ -28,6 +29,9 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     notes: client?.notes || '',
     recurring_day: client?.recurring_day != null ? String(client.recurring_day) : '',
     recurring_time: client?.recurring_time || '',
+    recurring_end_time: client?.recurring_end_time || '',
+    recurring_start_date: client?.recurring_start_date || '',
+    recurring_end_date: client?.recurring_end_date || '',
   }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -58,6 +62,9 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         notes: form.notes.trim() || null,
         recurring_day: form.recurring_day !== '' ? Number(form.recurring_day) : null,
         recurring_time: form.recurring_time || null,
+        recurring_end_time: form.recurring_end_time || null,
+        recurring_start_date: form.recurring_start_date || null,
+        recurring_end_date: form.recurring_end_date || null,
       })
       onClose()
     } catch (e) {
@@ -142,8 +149,24 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           </select>
         </div>
         <div className="m-field">
-          <label className="m-label">פגישה קבועה — שעה</label>
+          <label className="m-label">פגישה קבועה — שעת התחלה</label>
           <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
+        </div>
+      </div>
+      <div className="m-row2">
+        <div className="m-field">
+          <label className="m-label">שעת סיום</label>
+          <input type="time" className="m-input" value={form.recurring_end_time} onChange={(e) => set('recurring_end_time', e.target.value)} />
+        </div>
+      </div>
+      <div className="m-row2">
+        <div className="m-field">
+          <label className="m-label">תאריך התחלה (אופציונלי)</label>
+          <DateField value={form.recurring_start_date} onChange={(e) => set('recurring_start_date', e.target.value)} />
+        </div>
+        <div className="m-field">
+          <label className="m-label">תאריך סיום (אופציונלי)</label>
+          <DateField value={form.recurring_end_date} onChange={(e) => set('recurring_end_date', e.target.value)} />
         </div>
       </div>
 

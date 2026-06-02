@@ -50,7 +50,9 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
         ניהול תתי-סטטוסים תחת כל קטגוריית-על. תתי-סטטוסים מופיעים כשמסמנים נקודת צבע על כרטיס ליד, ומשמשים לסינון ולגרפים.
       </p>
       {LEAD_META.map((m) => {
-        const list = (statuses || []).filter((s) => s.meta_category === m.key)
+        const list = (statuses || [])
+          .filter((s) => s.meta_category === m.key)
+          .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
         return (
           <div key={m.key} className="lead-statuses-group">
             <p className="lead-statuses-meta">{m.title}</p>

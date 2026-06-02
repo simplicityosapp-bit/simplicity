@@ -17,10 +17,13 @@ export async function listLeadStatuses() {
     .from('lead_statuses')
     .select('*')
     .is('deleted_at', null)
-    .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true })
   if (error) throw error
-  return data
+  /* Sort by sort_order CLIENT-SIDE (not in the query): the column is
+     added by migration 0009, and ordering by a non-existent column makes
+     PostgREST return 400 — which would wipe out ALL sub-statuses on any
+     DB where 0009 hasn't run yet. Missing/!null sort_order → 0. */
+  return [...(data || [])].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
 }
 
 export async function insertLeadStatus(input) {

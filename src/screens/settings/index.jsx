@@ -582,11 +582,13 @@ export default function SettingsScreen() {
       const p = summary.projects?.created || 0
       const t = summary.transactions?.created || 0
       const est = summary.transactions?.dateEstimated || 0
+      const s = summary.sessions?.created || 0
       const estNote = est > 0 ? ` ${est} מהן עם תאריך משוער — אפשר לערוך במסך הכסף.` : ''
+      const sessNote = s > 0 ? ` · ${s} פגישות שנעשו` : ''
       setImportMsg(
-        c + p + t === 0
+        c + p + t + s === 0
           ? 'לא נוצרו רשומות חדשות (ייתכן שכבר היו קיימות).'
-          : `יובאו בהצלחה: ${c} לקוחות · ${p} פרויקטים · ${t} תנועות.${estNote}`,
+          : `יובאו בהצלחה: ${c} לקוחות · ${p} פרויקטים · ${t} תנועות${sessNote}.${estNote}`,
       )
     }
   }

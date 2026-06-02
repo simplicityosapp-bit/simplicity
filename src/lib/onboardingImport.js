@@ -22,6 +22,7 @@ import { insertRecurring, listRecurring } from './api/recurring'
 import { insertClientStatus, listClientStatuses } from './api/clientStatuses'
 import { insertLeadStatus, listLeadStatuses } from './api/leadStatuses'
 import { insertLead, listLeads } from './api/leads'
+import { insertSession, listSessions } from './api/sessions'
 import { normalizeDate } from './csvImport'
 import { mapValueToMeta } from './statusImport'
 
@@ -167,6 +168,9 @@ export async function finalizeOnboardingImport(input = {}) {
      after the client rows exist so we can FK them. Each becomes one
      confirmed income transaction dated today (the sheet rarely says when). */
   const clientPayments = []
+  /* Held/past sessions to create from each client's "פגישות שנעשו" count
+     (O2) — collected here, made after the client rows exist. */
+  const clientSessions = []
   for (const c of clients) {
     const key = norm(c.name)
     if (!key) continue
@@ -205,9 +209,51 @@ export async function finalizeOnboardingImport(input = {}) {
          client arrives with paid history, not just a hollow shell. */
       const paid = Number(c.paid)
       if (paid > 0) clientPayments.push({ client_id: row.id, project_id, amount: paid, name: c.name })
+      /* O2: a "פגישות שנעשו" count → that many logged sessions. */
+      const done = Math.floor(Number(c.sessions_done) || 0)
+      if (done > 0) clientSessions.push({ client_id: row.id, count: done, name: c.name })
     } catch (e) {
       summary.clients.failed += 1
       summary.errors.push(`client "${c.name}": ${e.message || 'unknown'}`)
+    }
+  }
+
+  /* ── Held/past sessions (O2): expand each client's "פגישות שנעשו" count
+     into that many logged session rows, so an imported client arrives with
+     real session history (counts toward the X/Y session tally + per-session
+     billing). The count carries no real dates, so they share the historical
+     placeholder. Dedup: only create the delta beyond sessions already
+     logged for that client, so a re-import never doubles them. ── */
+  if (clientSessions.length) {
+    summary.sessions = { created: 0, skipped: 0, failed: 0 }
+    let existingSessions = []
+    try { existingSessions = await listSessions() } catch { /* assume none */ }
+    const sessCountByClient = new Map()
+    for (const s of existingSessions) {
+      if (s?.client_id) sessCountByClient.set(s.client_id, (sessCountByClient.get(s.client_id) || 0) + 1)
+    }
+    const sessDate = `${new Date(nowIso).getFullYear() - 1}-12-31T12:00:00.000Z`
+    for (const cs of clientSessions) {
+      const already = sessCountByClient.get(cs.client_id) || 0
+      for (let n = already + 1; n <= cs.count; n += 1) {
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          await insertSession({
+            client_id: cs.client_id,
+            group_id: null,
+            subject_type: 'client',
+            subject_id: cs.client_id,
+            date: sessDate,
+            num: n,
+            notes: null,
+            summary: 'יובא מהקובץ',
+          })
+          summary.sessions.created += 1
+        } catch (e) {
+          summary.sessions.failed += 1
+          summary.errors.push(`session "${cs.name}" #${n}: ${e.message || 'unknown'}`)
+        }
+      }
     }
   }
 

@@ -431,7 +431,8 @@
 .c-sort-pop {
   position: absolute;
   top: calc(100% + 6px);
-  inset-inline-end: 0;
+  /* horizontal side (left/right: 0) is set inline via usePopoverSide so the
+     menu always opens toward the screen centre and never spills off-edge. */
   z-index: 30;
   min-width: 160px;
   max-width: calc(100vw - 24px);

@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { Star, Plus, X, ChevronDown, Pencil } from 'lucide-react'
 import { formatGoalValue, timeFrameLabel } from '../../lib/goals'
 import { fmtShortDate } from '../../lib/dates'
 
-export default function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEdit }) {
+function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEdit }) {
   const { goal, cat, actual, target, pure } = scored
   const capped = Math.max(0, Math.min(pure, 100))
   const importance = goal.importance || 3
@@ -85,3 +85,5 @@ export default function GoalCard({ scored, index, entries = [], onAddEntry, onDe
     </div>
   )
 }
+
+export default memo(GoalCard)

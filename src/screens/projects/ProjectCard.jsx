@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Users, X, Pencil } from 'lucide-react'
 import { isr } from '../../lib/finance'
@@ -6,7 +7,7 @@ import { buildRoute, ROUTES } from '../../lib/routes'
 /* One project card: color dot + name + group-count tag, then three stats
    (clients / income for the active scope / open tasks) + edit + delete.
    Tapping the card opens the project detail screen. */
-export default function ProjectCard({ project, clientsCount, income, openTasks, groupsCount, incomeLabel, index, onEdit, onDelete }) {
+function ProjectCard({ project, clientsCount, income, openTasks, groupsCount, incomeLabel, index, onEdit, onDelete }) {
   const navigate = useNavigate()
   const open = () => navigate(buildRoute(ROUTES.PROJECT, { id: project.id }))
   const stop = (fn) => (e) => { e.stopPropagation(); fn() }
@@ -53,3 +54,5 @@ export default function ProjectCard({ project, clientsCount, income, openTasks, 
     </div>
   )
 }
+
+export default memo(ProjectCard)

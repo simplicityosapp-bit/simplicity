@@ -1,8 +1,9 @@
+import { memo } from 'react'
 import { Check, X, RotateCcw } from 'lucide-react'
 import { isr } from '../../lib/finance'
 import { fmtShortDate } from '../../lib/dates'
 
-export default function TransactionCard({ tx, clients = [], projects = [], categories = [], onApprove, onSkip, onUnskip, onEdit }) {
+function TransactionCard({ tx, clients = [], projects = [], categories = [], onApprove, onSkip, onUnskip, onEdit }) {
   const stop = (fn) => (e) => { e.stopPropagation(); fn() }
   const client = tx.client_id ? clients.find((c) => c.id === tx.client_id) : null
   const project = tx.project_id ? projects.find((p) => p.id === tx.project_id) : null
@@ -57,3 +58,5 @@ export default function TransactionCard({ tx, clients = [], projects = [], categ
     </div>
   )
 }
+
+export default memo(TransactionCard)

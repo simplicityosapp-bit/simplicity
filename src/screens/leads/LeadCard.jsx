@@ -1,8 +1,9 @@
+import { memo } from 'react'
 import { Clock, Check, CalendarDays, ArrowLeft } from 'lucide-react'
 import { statusMetaOfLead } from '../../lib/leads'
 import { fmtShortDate } from '../../lib/dates'
 
-export default function LeadCard({ lead, onEdit, onConvert, sources = [], statuses = [] }) {
+function LeadCard({ lead, onEdit, onConvert, sources = [], statuses = [] }) {
   const meta = statusMetaOfLead(lead)
   const source = lead.source_id ? sources.find((s) => s.id === lead.source_id) : null
   const sub = lead.status_id ? statuses.find((s) => s.id === lead.status_id) : null
@@ -68,3 +69,5 @@ export default function LeadCard({ lead, onEdit, onConvert, sources = [], status
     </div>
   )
 }
+
+export default memo(LeadCard)

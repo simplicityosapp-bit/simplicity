@@ -1,6 +1,7 @@
+import { memo } from 'react'
 import { Check } from 'lucide-react'
 
-export default function TaskItem({ task, project, clientName, dotColor, onToggle, index }) {
+function TaskItem({ task, project, clientName, dotColor, onToggle, index }) {
   const isDone = task.status === 'done'
   const meta = [clientName, project?.name].filter(Boolean).join(' · ')
 
@@ -23,3 +24,5 @@ export default function TaskItem({ task, project, clientName, dotColor, onToggle
     </div>
   )
 }
+
+export default memo(TaskItem)

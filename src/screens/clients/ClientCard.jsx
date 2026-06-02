@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Check } from 'lucide-react'
 import { clientBalance, statusMetaOf } from '../../lib/clients'
 import { isr } from '../../lib/finance'
@@ -17,7 +18,7 @@ const initials = (name) =>
     .slice(0, 2)
     .toUpperCase()
 
-export default function ClientCard({
+function ClientCard({
   client, index, onOpen,
   selectMode = false, selected = false, onToggleSelect,
   projects = [], txns, sessions, members, groups, statuses = [],
@@ -97,3 +98,5 @@ export default function ClientCard({
     </div>
   )
 }
+
+export default memo(ClientCard)

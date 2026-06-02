@@ -76,7 +76,7 @@ export default function OnboardingScreen() {
     let review = pd
     if (pd?.sheets?.length) {
       const live = pd.sheets.filter((s) => !s.removed)
-      const acc = { clients: [], projects: [], leads: [], transactions: [] }
+      const acc = { clients: [], projects: [], leads: [], transactions: [], sessions: [] }
       live.forEach((sheet) => {
         if (sheet.type === 'matrix') {
           const merged = flattenAllSources([{ id: sheet.id, config: sheet.pivot, transactions: sheet.pivotTransactions, fileName: sheet.fileName }])
@@ -89,6 +89,7 @@ export default function OnboardingScreen() {
           acc.projects.push(...p.projects)
           acc.leads.push(...p.leads)
           acc.transactions.push(...p.transactions)
+          acc.sessions.push(...(p.sessions || []))
         }
       })
       /* MERGE by name (not just dedup): the same client/project often
@@ -111,11 +112,15 @@ export default function OnboardingScreen() {
         return Array.from(byKey.values())
       }
       review = { ...pd, ...acc, projects: mergeByName(acc.projects), clients: mergeByName(acc.clients), leads: mergeByName(acc.leads) }
+      /* Sessions are a held-meeting LEDGER — each row is a distinct meeting,
+         so they are NOT merged by name (unlike clients/projects). */
+      review.sessions = acc.sessions
     }
     const reviewable =
       pd?.kind === 'csv' &&
       ((review.clients?.length || 0) + (review.projects?.length || 0)
-        + (review.leads?.length || 0) + (review.transactions?.length || 0)) > 0
+        + (review.leads?.length || 0) + (review.transactions?.length || 0)
+        + (review.sessions?.length || 0)) > 0
     return reviewable ? review : null
   }
 

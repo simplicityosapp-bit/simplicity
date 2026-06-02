@@ -51,14 +51,17 @@ export async function finalizeOnboardingImport(input = {}) {
   let leads = []
   let clientStatuses = []
   let leadStatuses = []
+  let ledgerSessions = []
   if (Array.isArray(input.projects) || Array.isArray(input.clients) || Array.isArray(input.transactions)
-      || Array.isArray(input.leads) || Array.isArray(input.clientStatuses) || Array.isArray(input.leadStatuses)) {
+      || Array.isArray(input.leads) || Array.isArray(input.clientStatuses) || Array.isArray(input.leadStatuses)
+      || Array.isArray(input.sessions)) {
     projects = input.projects || []
     clients = input.clients || []
     transactions = input.transactions || []
     leads = input.leads || []
     clientStatuses = input.clientStatuses || []
     leadStatuses = input.leadStatuses || []
+    ledgerSessions = input.sessions || []
   } else if (input.parsedData && input.parsedData.kind !== 'placeholder') {
     projects = input.parsedData.projects || []
     clients = input.parsedData.clients || []
@@ -218,41 +221,70 @@ export async function finalizeOnboardingImport(input = {}) {
     }
   }
 
-  /* ── Held/past sessions (O2): expand each client's "פגישות שנעשו" count
-     into that many logged session rows, so an imported client arrives with
-     real session history (counts toward the X/Y session tally + per-session
-     billing). The count carries no real dates, so they share the historical
-     placeholder. Dedup: only create the delta beyond sessions already
-     logged for that client, so a re-import never doubles them. ── */
-  if (clientSessions.length) {
+  /* ── Held/past sessions — create logged `sessions` rows so imported
+     clients arrive with real history (counts toward the X/Y tally +
+     per-session billing). Two sources combine:
+       • O1 LEDGER (input.sessions): one row per meeting, with its real date.
+       • O2 COUNT (client.sessions_done): "N done" with no dates → tops the
+         client up to N using the historical placeholder date.
+     `num` continues from existing sessions per client, and the ledger is
+     deduped by client+date, so a re-import never doubles. ── */
+  const ledgerByClient = new Map()
+  for (const ls of ledgerSessions) {
+    const cId = ls.client_name ? clientIdByName.get(norm(ls.client_name)) : null
+    if (!cId) continue /* unlinked client → skip (flagged in the review) */
+    if (!ledgerByClient.has(cId)) ledgerByClient.set(cId, [])
+    ledgerByClient.get(cId).push({ date: normalizeDate(ls.date), summary: ls.summary || null })
+  }
+
+  if (clientSessions.length || ledgerByClient.size) {
     summary.sessions = { created: 0, skipped: 0, failed: 0 }
     let existingSessions = []
     try { existingSessions = await listSessions() } catch { /* assume none */ }
-    const sessCountByClient = new Map()
+    const numByClient = new Map()   /* client_id → highest num seen */
+    const datesByClient = new Map() /* client_id → Set<YYYY-MM-DD> for ledger dedup */
     for (const s of existingSessions) {
-      if (s?.client_id) sessCountByClient.set(s.client_id, (sessCountByClient.get(s.client_id) || 0) + 1)
+      if (!s?.client_id) continue
+      numByClient.set(s.client_id, Math.max(numByClient.get(s.client_id) || 0, Number(s.num) || 0))
+      if (!datesByClient.has(s.client_id)) datesByClient.set(s.client_id, new Set())
+      datesByClient.get(s.client_id).add(String(s.date).slice(0, 10))
     }
-    const sessDate = `${new Date(nowIso).getFullYear() - 1}-12-31T12:00:00.000Z`
+    const placeholderDate = `${new Date(nowIso).getFullYear() - 1}-12-31T12:00:00.000Z`
+    const insertOne = async (cId, dateIso, summaryText) => {
+      const next = (numByClient.get(cId) || 0) + 1
+      try {
+        await insertSession({
+          client_id: cId, group_id: null, subject_type: 'client', subject_id: cId,
+          date: dateIso, num: next, notes: null, summary: summaryText,
+        })
+        numByClient.set(cId, next)
+        summary.sessions.created += 1
+        return true
+      } catch (e) {
+        summary.sessions.failed += 1
+        summary.errors.push(`session #${next}: ${e.message || 'unknown'}`)
+        return false
+      }
+    }
+    /* 1) Ledger rows — real dates; dedup by client+date. */
+    for (const [cId, rows] of ledgerByClient) {
+      const seen = datesByClient.get(cId) || new Set()
+      for (const r of rows) {
+        const dayKey = (r.date || placeholderDate).slice(0, 10)
+        if (r.date && seen.has(dayKey)) { summary.sessions.skipped += 1; continue }
+        const iso = r.date ? `${r.date}T12:00:00.000Z` : placeholderDate
+        // eslint-disable-next-line no-await-in-loop
+        await insertOne(cId, iso, r.summary || 'יובא מהקובץ')
+        seen.add(dayKey)
+      }
+      datesByClient.set(cId, seen)
+    }
+    /* 2) Count fallback — top each client up to its sessions_done target. */
     for (const cs of clientSessions) {
-      const already = sessCountByClient.get(cs.client_id) || 0
-      for (let n = already + 1; n <= cs.count; n += 1) {
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          await insertSession({
-            client_id: cs.client_id,
-            group_id: null,
-            subject_type: 'client',
-            subject_id: cs.client_id,
-            date: sessDate,
-            num: n,
-            notes: null,
-            summary: 'יובא מהקובץ',
-          })
-          summary.sessions.created += 1
-        } catch (e) {
-          summary.sessions.failed += 1
-          summary.errors.push(`session "${cs.name}" #${n}: ${e.message || 'unknown'}`)
-        }
+      while ((numByClient.get(cs.client_id) || 0) < cs.count) {
+        // eslint-disable-next-line no-await-in-loop
+        const ok = await insertOne(cs.client_id, placeholderDate, 'יובא מהקובץ')
+        if (!ok) break
       }
     }
   }

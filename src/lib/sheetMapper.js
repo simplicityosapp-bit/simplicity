@@ -31,16 +31,19 @@ const CONTENT_TYPE_FIELD = {
   projects:     { phone: null,    email: null,    status: null,     date: null,  amount: null,     name: 'name' },
   leads:        { phone: 'phone', email: 'email', status: 'status', date: 'date', amount: null,    name: 'name' },
   transactions: { phone: null,    email: null,    status: 'status', date: 'date', amount: 'amount', name: 'client' },
+  sessions:     { phone: null,    email: null,    status: null,     date: 'date', amount: null,     name: 'client' },
 }
 
 /* Entity types a sheet can map to. 'matrix' = cross-tab (months as
-   columns); 'ignore' = summary/empty sheets we skip by default. */
-export const SHEET_TYPES = ['clients', 'projects', 'leads', 'transactions', 'matrix', 'ignore']
+   columns); 'ignore' = summary/empty sheets we skip by default.
+   'sessions' = a HELD-meeting ledger (one row per past session). */
+export const SHEET_TYPES = ['clients', 'projects', 'leads', 'transactions', 'sessions', 'matrix', 'ignore']
 export const SHEET_TYPE_LABELS = {
   clients: 'לקוחות',
   projects: 'פרויקטים',
   leads: 'לידים',
   transactions: 'תנועות / תשלומים',
+  sessions: 'יומן פגישות',
   matrix: 'טבלת חודשים',
   ignore: 'להתעלם',
 }
@@ -51,6 +54,7 @@ const SHEET_NAME_HINTS = {
   projects:     ['פרויקט', 'פרוייקט', 'פרויקטים', 'project', 'projects', 'program'],
   leads:        ['ליד', 'לידים', 'lead', 'leads', 'פניות', 'מתעניינים'],
   transactions: ['תשלום', 'תשלומים', 'הכנס', 'הוצא', 'תנוע', 'payment', 'transaction', 'income', 'expense', 'finance', 'כספים'],
+  sessions:     ['יומןפגישות', 'יומןמפגשים', 'פגישותשהתקיימו', 'מפגשים', 'meetings', 'sessions', 'sessionlog'],
   ignore:       ['סיכום', 'summary', 'דאשבורד', 'dashboard', 'הוראות', 'readme', 'info'],
 }
 
@@ -102,6 +106,15 @@ export const ENTITY_FIELDS = {
     { key: 'date',     label: 'תאריך',           syn: ['תאריך', 'date'] },
     { key: 'project',  label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'project'] },
     { key: 'notes',    label: 'הערות',           syn: ['הערות', 'notes'] },
+  ],
+  /* A HELD-session ledger: one row = one past meeting. client + date are
+     the essentials; summary/notes optional. The session NUMBER is assigned
+     automatically (continuing from any sessions already logged). */
+  sessions: [
+    { key: 'client',  label: 'שם לקוח', syn: ['שםלקוח', 'לקוח', 'client', 'name', 'מטופל', 'חניך'] },
+    { key: 'date',    label: 'תאריך',   syn: ['תאריך', 'date', 'תאריךפגישה', 'מועד', 'תאריךמפגש'] },
+    { key: 'summary', label: 'סיכום',   syn: ['סיכום', 'summary', 'תקציר'] },
+    { key: 'notes',   label: 'הערות',   syn: ['הערות', 'הערה', 'notes', 'note'] },
   ],
 }
 
@@ -309,7 +322,7 @@ export function setSheetType(sheet, type) {
    Returns { clients, projects, leads, transactions } slices (only the
    one matching the sheet type is populated). Pure + deterministic. */
 export function projectSheet(sheet) {
-  const out = { clients: [], projects: [], leads: [], transactions: [] }
+  const out = { clients: [], projects: [], leads: [], transactions: [], sessions: [] }
   if (!sheet || sheet.type === 'ignore' || sheet.type === 'matrix') return out
   const fieldAt = {}
   ;(sheet.mapping || []).forEach((f, i) => { if (f) fieldAt[f] = i })
@@ -386,6 +399,17 @@ export function projectSheet(sheet) {
         client_name: val(r, 'client') || null,
         project_name: val(r, 'project') || null,
         desc: val(r, 'notes') || null,
+      })
+    } else if (sheet.type === 'sessions') {
+      const clientName = val(r, 'client')
+      if (!clientName) return
+      const rawDate = val(r, 'date')
+      out.sessions.push({
+        _row: `${sheet.id}#${rowIdx}`,
+        client_name: clientName,
+        date: rawDate ? (normalizeDate(rawDate) || null) : null,
+        date_raw: rawDate || null,            /* original value, for "bad date" warnings */
+        summary: val(r, 'summary') || val(r, 'notes') || null,
       })
     }
   })

@@ -15,7 +15,7 @@ const DAYS = [
 
 /* Edit a client — name / status / sub-status / sessions / price / phone /
    project. Parent passes key={client?.id} so this remounts cleanly per client. */
-export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, rawPaid = 0, memberTotal = 0, sessionsPaid = 0, sessionsTotal = 0, isMember = false }) {
+export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, rawPaid = 0, memberTotal = 0, sessionsPaid = 0, sessionsTotal = 0, isMember = false }) {
   /* Per-group billing override (group_members.total_override) — keyed by
      membership id. Lets the user manually set a member's total after the
      group's billing mode produced a default. */
@@ -43,6 +43,9 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  /* Which billing cell the user last touched — decides save behaviour:
+     'paid' → prompt for a real transaction; 'balance' → silent adjustment. */
+  const [lastBillEdit, setLastBillEdit] = useState(null)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const setMeta = (k) => setForm((f) => ({ ...f, status: k, status_id: '' }))
 
@@ -87,12 +90,21 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         recurring_start_date: form.recurring_start_date || null,
         recurring_end_date: form.recurring_end_date || null,
       }
-      /* Only send balance_adjustment when the user actually changed "שולם" —
-         so a normal edit never depends on migration 0010 existing (sending
-         an unknown column would 400 and break ALL client edits pre-0010). */
-      const nextAdj = (Number(form.paid) || 0) - rawPaid
+      /* Billing intent split:
+         - edited "יתרה" → silent balance_adjustment (forgive/zero; needs 0010)
+         - edited "שולם" → a real payment → prompt the parent to record a
+           transaction (handled after save); never written as adjustment.
+         balance_adjustment is included ONLY when it actually changes, so a
+         normal edit never depends on migration 0010 existing. */
       const prevAdj = Number(client?.balance_adjustment) || 0
-      if (nextAdj !== prevAdj) patch.balance_adjustment = nextAdj
+      const nextPaid = Number(form.paid) || 0
+      let paymentDelta = 0
+      if (lastBillEdit === 'balance') {
+        const nextAdj = nextPaid - rawPaid
+        if (nextAdj !== prevAdj) patch.balance_adjustment = nextAdj
+      } else if (lastBillEdit === 'paid') {
+        paymentDelta = nextPaid - (rawPaid + prevAdj)
+      }
       await onSave(client.id, patch)
       /* Persist any changed per-group billing overrides. */
       for (const m of memberships) {
@@ -103,6 +115,9 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           await onUpdateMember?.(m.id, { total_override: next, has_custom_price: next != null })
         }
       }
+      /* A manual "שולם" change → hand the delta to the parent so it can ask
+         whether to record a real transaction. */
+      if (paymentDelta !== 0) onPaidEntry?.(paymentDelta)
       onClose()
     } catch (e) {
       setBusy(false)
@@ -167,7 +182,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             <div className="ec-bill-money">
               <span className="ec-bill-cur">₪</span>
               <input type="number" className="ec-bill-input" value={form.paid}
-                onChange={(e) => set('paid', e.target.value)} aria-label="שולם" />
+                onChange={(e) => { set('paid', e.target.value); setLastBillEdit('paid') }} aria-label="שולם" />
             </div>
           </div>
           <div className="ec-bill-cell">
@@ -175,12 +190,12 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             <div className="ec-bill-money">
               <span className="ec-bill-cur">₪</span>
               <input type="number" className="ec-bill-input" value={String(liveBalance)}
-                onChange={(e) => setBalance(e.target.value)} aria-label="יתרה" />
+                onChange={(e) => { setBalance(e.target.value); setLastBillEdit('balance') }} aria-label="יתרה" />
             </div>
           </div>
         </div>
         <p className="ec-bill-hint">
-          סה״כ {isr(liveTotal)} · עריכה ידנית נשמרת כהתאמה — פגישות חדשות ימשיכו להיחשב אוטומטית לפי המחיר.
+          סה״כ {isr(liveTotal)} · שינוי «שולם» → תנועה בכספים · שינוי «יתרה» → התאמה. פגישות חדשות נשארות אוטומטיות לפי המחיר.
         </p>
       </div>
       {memberships.length > 0 && (

@@ -7,6 +7,7 @@ import AddSessionModal from '../../modals/AddSessionModal'
 import ScheduleMeetingModal from '../../modals/ScheduleMeetingModal'
 import AddTransactionModal from '../../modals/AddTransactionModal'
 import EditClientModal from '../../modals/EditClientModal'
+import ConfirmModal from '../../modals/ConfirmModal'
 import './ClientDrawer.css'
 
 const STATUS = {
@@ -23,6 +24,10 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   const open = !!client
   const [actionModal, setActionModal] = useState(null)
   const [statusMenu, setStatusMenu] = useState(false)
+  /* Manual "שולם" edit flow: pendingPayment holds the delta awaiting the
+     "record a transaction?" prompt; paymentAmount pre-fills the payment modal. */
+  const [pendingPayment, setPendingPayment] = useState(null)
+  const [paymentAmount, setPaymentAmount] = useState(null)
 
   useEffect(() => {
     if (!open) return
@@ -133,7 +138,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 <button type="button" className="cd-action" onClick={() => setActionModal('meeting')}>
                   <CalendarPlus size={15} strokeWidth={1.8} aria-hidden="true" /> תאם פגישה
                 </button>
-                <button type="button" className="cd-action" onClick={() => setActionModal('payment')}>
+                <button type="button" className="cd-action" onClick={() => { setPaymentAmount(null); setActionModal('payment') }}>
                   <Banknote size={15} strokeWidth={1.8} aria-hidden="true" /> קיבלתי תשלום
                 </button>
               </div>
@@ -165,12 +170,13 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         onSave={onScheduleMeeting}
       />
       <AddTransactionModal
-        key={`pay-${client?.id}`}
+        key={`pay-${client?.id}-${paymentAmount ?? 'x'}`}
         open={actionModal === 'payment'}
-        onClose={() => setActionModal(null)}
+        onClose={() => { setActionModal(null); setPaymentAmount(null) }}
         client={client}
         projects={projects}
         defaultType="income"
+        defaults={paymentAmount != null ? { amount: String(Math.abs(paymentAmount)), desc: 'עדכון תשלום' } : {}}
         onSave={onAddPayment}
       />
       <EditClientModal
@@ -189,6 +195,20 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         isMember={isMember}
         onSave={onUpdateClient}
         onUpdateMember={onUpdateMember}
+        onPaidEntry={(delta) => setPendingPayment(delta)}
+      />
+
+      {/* Manual "שולם" edit → ask whether to record a real transaction. */}
+      <ConfirmModal
+        open={pendingPayment != null}
+        onClose={() => setPendingPayment(null)}
+        title="עדכון תשלום ידני"
+        message={pendingPayment != null
+          ? `שינית את «שולם» ב-${isr(Math.abs(pendingPayment))}. להוסיף תנועה רשמית בכספים (מומלץ), או להתעלם מהשינוי?`
+          : ''}
+        confirmLabel="הוסף תנועה"
+        cancelLabel="התעלם"
+        onConfirm={() => { setPaymentAmount(pendingPayment); setPendingPayment(null); setActionModal('payment') }}
       />
     </>
   )

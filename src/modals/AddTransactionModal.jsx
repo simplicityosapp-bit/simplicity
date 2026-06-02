@@ -5,8 +5,8 @@ import Modal from './Modal'
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = (defaults = {}) => ({
   type: defaults.type || 'income',
-  amount: '',
-  desc: '',
+  amount: defaults.amount || '',
+  desc: defaults.desc || '',
   date: todayStr(),
   client_id: defaults.client_id || '',
   project_id: defaults.project_id || '',

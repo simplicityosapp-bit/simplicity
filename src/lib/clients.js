@@ -17,6 +17,29 @@ export function getClientMemberships(clientId, membersData = mockMembers) {
   return live(membersData).filter((m) => m.client_id === clientId && !m.left_at)
 }
 
+/* C1 — a client who belongs to one or more groups derives their status
+   from those groups (the group owns the client's lifecycle). "Active wins
+   over ended": if ANY of their groups is not ended → 'active'; if they
+   only sit in ended groups → 'past'. A client with no group membership
+   keeps their own stored status_meta. */
+export function effectiveClientMeta(c, membersData = mockMembers, groupsData = mockGroups) {
+  if (!c) return 'no_status'
+  const memberships = getClientMemberships(c.id, membersData)
+  if (!memberships.length) return statusMetaOf(c)
+  const statuses = memberships
+    .map((m) => (groupsData || []).find((g) => g.id === m.group_id))
+    .filter(Boolean)
+    .map((g) => g.status)
+  if (!statuses.length) return statusMetaOf(c)
+  return statuses.some((s) => s !== 'ended') ? 'active' : 'past'
+}
+
+/* True when the client's status is being driven by a group (so manual
+   status editing in the card is disabled). */
+export function isGroupDriven(c, membersData = mockMembers) {
+  return !!c && getClientMemberships(c.id, membersData).length > 0
+}
+
 /* Total owed for one group membership. A per-member override always
    wins. Otherwise the group's billing_mode decides:
      - 'package'     → the fixed package_price.

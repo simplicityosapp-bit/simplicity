@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Search, ArrowUpDown, X, UserPlus } from 'lucide-react'
-import { statusMetaOf, paidForClients, sessionsCountForClients, clientBalance } from '../../lib/clients'
+import { effectiveClientMeta, paidForClients, sessionsCountForClients, clientBalance } from '../../lib/clients'
 import { currentMonthRange, isr, financeQuery } from '../../lib/finance'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
@@ -91,7 +91,7 @@ export default function ClientsScreen() {
   const { sessions, addSession } = useSessions()
   const { addMeeting } = useScheduledMeetings()
   const { groups } = useGroups()
-  const { members } = useGroupMembers()
+  const { members, updateMember } = useGroupMembers()
   const { statuses: clientStatuses } = useClientStatuses()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [tab, setTab] = useState('active')
@@ -121,9 +121,9 @@ export default function ClientsScreen() {
 
   const byMeta = useMemo(() => {
     const g = { active: [], wandering: [], past: [], no_status: [] }
-    clientList.forEach((c) => { (g[statusMetaOf(c)] || g.no_status).push(c) })
+    clientList.forEach((c) => { (g[effectiveClientMeta(c, members, groups)] || g.no_status).push(c) })
     return g
-  }, [clientList])
+  }, [clientList, members, groups])
   const counts = {
     active: byMeta.active.length,
     wandering: byMeta.wandering.length,
@@ -477,6 +477,7 @@ export default function ClientsScreen() {
         onScheduleMeeting={addMeeting}
         onAddPayment={addTransaction}
         onUpdateClient={updateClient}
+        onUpdateMember={updateMember}
       />
 
       <AddClientModal

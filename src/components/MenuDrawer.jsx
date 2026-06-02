@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
-import { user_preferences } from '../data/mock'
+import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useAuth } from '../auth/AuthContext'
 import './MenuDrawer.css'
 
@@ -29,6 +29,7 @@ function initial(name) {
 export default function MenuDrawer({ open, onClose, screen, isDark, onToggleTheme, onOpenFeedback }) {
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
+  const { prefs } = useUserPreferences()
 
   /* Close on Escape while open. */
   useEffect(() => {
@@ -43,8 +44,11 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
     onClose()
   }
 
-  const name = user_preferences.full_name
-  const role = ROLE_LABELS[user_preferences.role] ?? ''
+  const profile = prefs?.profile || {}
+  const name = profile.full_name || ''
+  const role = profile.role === 'other'
+    ? (profile.role_other || '')
+    : (ROLE_LABELS[profile.role] || '')
 
   return (
     <>
@@ -66,12 +70,12 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
         </div>
         <p className="drawer-title-sub">תפריט · העדפות וכלים אישיים</p>
 
-        {/* Profile chip → settings */}
-        <button className="drawer-profile" onClick={() => goTo(ROUTES.SETTINGS)}>
+        {/* Profile chip → settings, opening the profile section directly */}
+        <button className="drawer-profile" onClick={() => { navigate(ROUTES.SETTINGS, { state: { openSection: 'profile' } }); onClose() }}>
           <span className="drawer-profile-avatar">{initial(name)}</span>
           <span className="drawer-profile-text">
             <span className="drawer-profile-name">{name}</span>
-            <span className="drawer-profile-meta">{user?.email || role}</span>
+            <span className="drawer-profile-meta">{role || user?.email || ''}</span>
           </span>
           <span className="drawer-profile-edit" aria-hidden="true">
             <Pencil size={16} strokeWidth={1.5} />

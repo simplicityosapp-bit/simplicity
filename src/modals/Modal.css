@@ -440,6 +440,25 @@
   display: flex;
   gap: 8px;
 }
+/* ── Global mobile rule (C6): an option row with more pills than fit the
+   screen width scrolls SIDEWAYS instead of overflowing off-screen. When
+   the pills do fit, flex:1 still stretches them — nothing changes. Covers
+   .m-pills (forms/profile) and .set-seg (segmented controls). ── */
+@media (max-width: 640px) {
+  .m-pills,
+  .set-seg {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+  .m-pills::-webkit-scrollbar,
+  .set-seg::-webkit-scrollbar { display: none; }
+  .m-pills > .m-pill {
+    scroll-snap-align: start;
+    padding-inline: 14px;
+  }
+}
 .m-pill {
   flex: 1;
   height: 44px;

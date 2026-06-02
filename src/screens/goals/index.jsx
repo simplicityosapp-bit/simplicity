@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Target, Plus, Pencil } from 'lucide-react'
 import { goalsByCategory } from '../../lib/goals'
 import { CATEGORY_PRESETS, presetToCategory } from '../../lib/goalPresets'
@@ -12,6 +12,7 @@ import { useClients } from '../../hooks/useClients'
 import { useLeads } from '../../hooks/useLeads'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../hooks/useDailyAnswers'
+import { useUserPreferences } from '../../hooks/useUserPreferences'
 import GoalCard from './GoalCard'
 import AddGoalModal from '../../modals/AddGoalModal'
 import AddGoalCategoryModal from '../../modals/AddGoalCategoryModal'
@@ -35,6 +36,7 @@ export default function GoalsScreen() {
   const { leads } = useLeads()
   const { questions } = useUserQuestions()
   const { answers } = useDailyAnswers()
+  const { prefs, update: updatePrefs } = useUserPreferences()
   const [showAddGoal, setShowAddGoal] = useState(false)
   const [showAddCat, setShowAddCat] = useState(false)
   const [showCatPicker, setShowCatPicker] = useState(false)
@@ -55,6 +57,30 @@ export default function GoalsScreen() {
   const totalGoals = groups.reduce((s, g) => s + g.goals.length, 0)
 
   const addPreset = (preset) => addCategory(presetToCategory(preset))
+
+  /* C9 — seed the auto-measurable default categories ONCE per account so
+     the user lands on a ready board instead of an empty "choose where to
+     start" screen. Guarded by prefs.goalsSeeded so deleting a seeded
+     category never makes it reappear. Existing users (who already have
+     categories) are just flagged as seeded without adding anything. */
+  const seedingRef = useRef(false)
+  useEffect(() => {
+    if (catsLoading || !prefs || prefs.goalsSeeded || seedingRef.current) return
+    seedingRef.current = true
+    ;(async () => {
+      try {
+        if (categories.length === 0) {
+          for (const p of CATEGORY_PRESETS) {
+            // eslint-disable-next-line no-await-in-loop
+            await addCategory(presetToCategory(p))
+          }
+        }
+        await updatePrefs({ goalsSeeded: true })
+      } catch {
+        seedingRef.current = false /* allow a retry on next mount */
+      }
+    })()
+  }, [catsLoading, prefs, categories.length, addCategory, updatePrefs])
 
   /* Soft-delete a category + its goals (cascade isn't triggered by soft-delete). */
   const confirmDeleteCategory = async () => {

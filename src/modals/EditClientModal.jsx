@@ -15,7 +15,13 @@ const DAYS = [
 
 /* Edit a client — name / status / sub-status / sessions / price / phone /
    project. Parent passes key={client?.id} so this remounts cleanly per client. */
-export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [] }) {
+export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember }) {
+  /* Per-group billing override (group_members.total_override) — keyed by
+     membership id. Lets the user manually set a member's total after the
+     group's billing mode produced a default. */
+  const [memberOverrides, setMemberOverrides] = useState(() =>
+    Object.fromEntries((memberships || []).map((m) => [m.id, m.total_override != null ? String(m.total_override) : ''])),
+  )
   const [form, setForm] = useState(() => ({
     name: client?.name || '',
     status: client?.status || 'active',
@@ -66,6 +72,15 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         recurring_start_date: form.recurring_start_date || null,
         recurring_end_date: form.recurring_end_date || null,
       })
+      /* Persist any changed per-group billing overrides. */
+      for (const m of memberships) {
+        const raw = memberOverrides[m.id]
+        const next = raw !== '' && raw != null && Number(raw) > 0 ? Number(raw) : null
+        if (next !== (m.total_override ?? null)) {
+          // eslint-disable-next-line no-await-in-loop
+          await onUpdateMember?.(m.id, { total_override: next, has_custom_price: next != null })
+        }
+      }
       onClose()
     } catch (e) {
       setBusy(false)
@@ -118,6 +133,30 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           אם תזין/י סכום כאן הוא יגבר על החישוב האוטומטי (פגישות × מחיר) — שימושי לנתונים שיובאו.
         </p>
       </div>
+      {memberships.length > 0 && (
+        <div className="m-field">
+          <label className="m-label">חיוב לפי קבוצה (דריסה ידנית)</label>
+          {memberships.map((m) => {
+            const g = groups.find((x) => x.id === m.group_id)
+            return (
+              <div key={m.id} className="m-row2" style={{ alignItems: 'center', marginBottom: '6px' }}>
+                <span style={{ fontSize: 'calc(13px * var(--text-scale))', color: 'var(--espresso)' }}>{g?.name || 'קבוצה'}</span>
+                <input
+                  type="number"
+                  min="0"
+                  className="m-input"
+                  value={memberOverrides[m.id] ?? ''}
+                  onChange={(e) => setMemberOverrides((o) => ({ ...o, [m.id]: e.target.value }))}
+                  placeholder="ברירת מחדל מהקבוצה"
+                />
+              </div>
+            )
+          })}
+          <p style={{ margin: '4px 0 0', fontSize: 'calc(11px * var(--text-scale))', color: 'var(--stone)' }}>
+            הסכום שתזין/י כאן גובר על החיוב שמגיע מהקבוצה — עבור הלקוח הזה בלבד.
+          </p>
+        </div>
+      )}
       <div className="m-row2">
         <div className="m-field">
           <label className="m-label">טלפון</label>

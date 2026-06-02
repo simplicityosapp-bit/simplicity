@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ChevronDown, ChevronUp, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
   Plus, Trash2, Leaf, GripVertical, ChevronLeft, CalendarDays, Database, Download, Upload,
@@ -18,6 +18,7 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { useCategories } from '../../hooks/useCategories'
 import { useTasks } from '../../hooks/useTasks'
 import { useLeads } from '../../hooks/useLeads'
+import { useGoals } from '../../hooks/useGoals'
 import { countClientsByStatus, reassignClientsStatus } from '../../lib/api/clientStatuses'
 import { countLeadsByStatus, reassignLeadsStatus } from '../../lib/api/leadStatuses'
 import DeleteSubStatusModal from '../../modals/DeleteSubStatusModal'
@@ -59,7 +60,6 @@ const LEAD_METAS = [
   { k: 'in_process', l: 'בתהליך' },
   { k: 'converted', l: 'הומר' },
   { k: 'not_relevant', l: 'לא רלוונטי' },
-  { k: 'ghost', l: 'רפאים' },
 ]
 
 /* ── Segmented control ────────────────────────────────────────────
@@ -521,7 +521,10 @@ function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, load
 }
 
 export default function SettingsScreen() {
-  const [open, setOpen] = useState('profile')
+  /* Sections start CLOSED. Only open 'profile' up-front when arriving via
+     the menu's "edit profile" chip (which navigates with this state). */
+  const location = useLocation()
+  const [open, setOpen] = useState(location.state?.openSection || null)
   const [showAddQ, setShowAddQ] = useState(false)
   const [newSourceName, setNewSourceName] = useState('')
   const [newSourceColor, setNewSourceColor] = useState(CATEGORY_COLORS[0])
@@ -530,6 +533,9 @@ export default function SettingsScreen() {
   const [leadDrafts, setLeadDrafts] = useState({})
   const [editingScheduleId, setEditingScheduleId] = useState(null)
   const { questions, loading: questionsLoading, error: questionsError, addQuestion, toggleActive, updateQuestion, removeQuestion } = useUserQuestions()
+  const { goals } = useGoals()
+  /* C10 — which questions are wired to a goal (goals.tracked_by_question_id). */
+  const goalLinkedQ = new Set((goals || []).filter((g) => g.tracked_by_question_id).map((g) => g.tracked_by_question_id))
   const { sources, loading: sourcesLoading, error: sourcesError, addSource, removeSource } = useLeadSources()
   const { statuses: clientStatuses, loading: clientStatusesLoading, error: clientStatusesError, addStatus: addClientStatus, removeStatus: removeClientStatus } = useClientStatuses()
   const { statuses: leadStatuses, loading: leadStatusesLoading, error: leadStatusesError, addStatus: addLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
@@ -646,6 +652,11 @@ export default function SettingsScreen() {
                 <div className={`set-q-row`}>
                   <span className="set-q-icon">{q.icon || '🫧'}</span>
                   <span className="set-q-text">{questionText(q)}</span>
+                  {goalLinkedQ.has(q.id) && (
+                    <span className="set-q-goal" title="מחוברת ליעד" aria-label="מחוברת ליעד">
+                      <Target size={12} strokeWidth={1.9} aria-hidden="true" />
+                    </span>
+                  )}
                   <button
                     type="button"
                     className="set-q-sched"

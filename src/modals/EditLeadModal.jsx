@@ -6,7 +6,6 @@ const METAS = [
   { k: 'in_process', l: 'בתהליך' },
   { k: 'converted', l: 'הומר' },
   { k: 'not_relevant', l: 'לא רלוונטי' },
-  { k: 'ghost', l: 'רפאים' },
 ]
 
 /* Edit a lead — name / phone / dates / notes / kanban column (status_meta) /

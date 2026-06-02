@@ -12,6 +12,8 @@ import LeadStatusesPanel from './LeadStatusesPanel'
 import AddLeadModal from '../../modals/AddLeadModal'
 import EditLeadModal from '../../modals/EditLeadModal'
 import ConvertLeadModal from '../../modals/ConvertLeadModal'
+import ConfirmModal from '../../modals/ConfirmModal'
+import Modal from '../../modals/Modal'
 import Coachmark from '../../components/Coachmark'
 import './LeadsScreen.css'
 
@@ -29,9 +31,9 @@ function computeStats(list, now = new Date()) {
 }
 
 export default function LeadsScreen() {
-  const { leads: leadList, loading, error, addLead, updateLead } = useLeads()
+  const { leads: leadList, loading, error, addLead, updateLead, removeLead } = useLeads()
   const { sources } = useLeadSources()
-  const { statuses: leadStatuses, addStatus: addLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
+  const { statuses: leadStatuses, addStatus: addLeadStatus, updateStatus: updateLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
   const { addClient } = useClients()
   const { projects } = useProjects()
   const { prefs, update: updatePrefs } = useUserPreferences()
@@ -40,6 +42,8 @@ export default function LeadsScreen() {
   const [showAdd, setShowAdd] = useState(false)
   const [editLead, setEditLead] = useState(null)
   const [convertLead, setConvertLead] = useState(null)
+  const [pendingDeleteLead, setPendingDeleteLead] = useState(null)
+  const [dropPicker, setDropPicker] = useState(null) // { leadId, newMeta, subs }
 
   const buckets = useMemo(() => {
     const g = {}
@@ -50,22 +54,33 @@ export default function LeadsScreen() {
   const stats = useMemo(() => computeStats(leadList), [leadList])
   const total = LEAD_META.reduce((s, m) => s + (buckets[m.key]?.length || 0), 0)
 
-  /* Drag-drop between meta columns. No-op when dropped on the same
-     column. source='manual_drag' so the lead_status_log captures the
-     transition correctly. */
-  const handleDropLead = useCallback((leadId, newMeta) => {
-    const lead = leadList.find((l) => l.id === leadId)
-    if (!lead) return
-    if (statusMetaOfLead(lead) === newMeta) return
+  /* Commit a column move (+ optional sub-status). status_id is always set
+     to a sub-status that BELONGS to the target column (or null) — this
+     fixes stale sub-statuses that lingered from the old column.
+     source='manual_drag' so the lead_status_log captures the transition. */
+  const applyLeadMove = useCallback((leadId, newMeta, statusId) => {
     updateLead(
       leadId,
       {
         status_meta: newMeta,
+        status_id: statusId ?? null,
         last_status_changed_at: new Date().toISOString(),
       },
       { source: 'manual_drag' },
     ).catch(() => { /* error surfaces via useLeads state */ })
-  }, [leadList, updateLead])
+  }, [updateLead])
+
+  /* Drag-drop between meta columns. No-op on same column. If the target
+     column has 2+ sub-statuses, ask which one; exactly 1 → auto-assign;
+     none → move with no sub-status. */
+  const handleDropLead = useCallback((leadId, newMeta) => {
+    const lead = leadList.find((l) => l.id === leadId)
+    if (!lead) return
+    if (statusMetaOfLead(lead) === newMeta) return
+    const subs = leadStatuses.filter((s) => s.meta_category === newMeta && !s.deleted_at)
+    if (subs.length >= 2) { setDropPicker({ leadId, newMeta, subs }); return }
+    applyLeadMove(leadId, newMeta, subs.length === 1 ? subs[0].id : null)
+  }, [leadList, leadStatuses, applyLeadMove])
 
   return (
     <div className="screen">
@@ -141,6 +156,7 @@ export default function LeadsScreen() {
         <LeadStatusesPanel
           statuses={leadStatuses}
           onAdd={addLeadStatus}
+          onUpdate={updateLeadStatus}
           onRemove={removeLeadStatus}
         />
       ) : (
@@ -154,6 +170,7 @@ export default function LeadsScreen() {
               leads={buckets[m.key] || []}
               onEdit={setEditLead}
               onConvert={setConvertLead}
+              onDelete={setPendingDeleteLead}
               onDropLead={handleDropLead}
               sources={sources}
               statuses={leadStatuses}
@@ -181,6 +198,43 @@ export default function LeadsScreen() {
         onCreateClient={addClient}
         onUpdateLead={updateLead}
       />
+
+      <ConfirmModal
+        open={!!pendingDeleteLead}
+        onClose={() => setPendingDeleteLead(null)}
+        title="מחיקת ליד"
+        message={pendingDeleteLead ? `למחוק את "${pendingDeleteLead.name}"? הליד יעבור לזבל וניתן לשחזר אותו תוך 30 יום.` : ''}
+        confirmLabel="מחק"
+        danger
+        onConfirm={() => { if (pendingDeleteLead) removeLead(pendingDeleteLead.id) }}
+      />
+
+      <Modal
+        open={!!dropPicker}
+        onClose={() => setDropPicker(null)}
+        title="לאיזה תת-סטטוס לשייך?"
+      >
+        <div className="lead-drop-picker">
+          {(dropPicker?.subs || []).map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              className="lead-drop-opt"
+              onClick={() => { applyLeadMove(dropPicker.leadId, dropPicker.newMeta, s.id); setDropPicker(null) }}
+            >
+              <span className="lead-drop-dot" style={{ background: s.color || 'var(--stone)' }} aria-hidden="true" />
+              <span>{s.icon ? `${s.icon} ` : ''}{s.display_name}</span>
+            </button>
+          ))}
+          <button
+            type="button"
+            className="lead-drop-opt muted"
+            onClick={() => { applyLeadMove(dropPicker.leadId, dropPicker.newMeta, null); setDropPicker(null) }}
+          >
+            ללא תת-סטטוס
+          </button>
+        </div>
+      </Modal>
     </div>
   )
 }

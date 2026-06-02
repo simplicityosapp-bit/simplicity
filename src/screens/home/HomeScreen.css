@@ -122,6 +122,22 @@
     0 0 28px color-mix(in srgb, var(--widget-accent, transparent) 18%, transparent),
     var(--mg-card-shadow);
 }
+/* The moon widget's root is a LAYOUT block wrapping a ROUND chip — the
+   generic ring above would draw a SQUARE around the circle. Move the ring
+   onto the chip itself so it hugs the actual (round) widget. */
+.home-stack .home-widget > .moon-block { box-shadow: none; }
+.home-stack .home-widget[data-widget-id="moon"] .moon-chip {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 28%, transparent),
+    0 0 22px color-mix(in srgb, var(--widget-accent, transparent) 14%, transparent),
+    var(--mg-card-shadow);
+}
+[data-theme="dark"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 40%, transparent),
+    0 0 28px color-mix(in srgb, var(--widget-accent, transparent) 18%, transparent),
+    var(--mg-card-shadow);
+}
 
 /* Card-style is driven by CSS variables on `.home-screen` so the cards
    themselves only read the variables — no comma-separated selector lists
@@ -600,6 +616,32 @@
   color: var(--moon-deep);
   flex-shrink: 0;
 }
+/* on/off switch for the current daily question (mirrors settings) */
+.ins-q-switch {
+  margin-inline-start: auto;
+  flex: none;
+  position: relative;
+  width: 30px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--moon-deep) 55%, transparent);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.ins-q-switch:not(.on) { background: var(--stone); }
+.ins-q-switch-thumb {
+  position: absolute;
+  top: 2px;
+  inset-inline-start: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: inset-inline-start 0.15s ease;
+}
+.ins-q-switch.on .ins-q-switch-thumb { inset-inline-start: 14px; }
 .ins-empty {
   margin: 0;
   font-family: var(--mg-font);

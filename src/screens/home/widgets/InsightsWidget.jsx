@@ -25,7 +25,7 @@ function HeartQIcon() {
    Answers persist to Supabase; once answered the widget advances. */
 export default function InsightsWidget() {
   const navigate = useNavigate()
-  const { questions } = useUserQuestions()
+  const { questions, toggleActive } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
   const { prefs } = useUserPreferences()
   const [val, setVal] = useState(null)
@@ -143,6 +143,17 @@ export default function InsightsWidget() {
           label="הסבר שאלה יומית"
           text="שאלה יומית עוקבת אחרי ההרגשה שלך לאורך זמן. הסולם 1–10 (10 = הכי טוב). התשובות נשמרות לכל יום ויוצרות תובנות במסך 'מה איתך היום'."
         />
+        <button
+          type="button"
+          className="ins-q-switch on"
+          role="switch"
+          aria-checked="true"
+          aria-label={`כיבוי השאלה "${text}"`}
+          title="כיבוי השאלה (אפשר להחזיר בהגדרות)"
+          onClick={(e) => { e.stopPropagation(); toggleActive(q) }}
+        >
+          <span className="ins-q-switch-thumb" />
+        </button>
       </p>
 
       {q.scale_type === 'yes_no' ? (

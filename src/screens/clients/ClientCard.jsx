@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Check } from 'lucide-react'
-import { clientBalance, statusMetaOf } from '../../lib/clients'
+import { clientBalance, effectiveClientMeta } from '../../lib/clients'
 import { isr } from '../../lib/finance'
 
 const STATUS = {
@@ -23,15 +23,18 @@ function ClientCard({
   selectMode = false, selected = false, onToggleSelect,
   projects = [], txns, sessions, members, groups, statuses = [],
 }) {
-  const meta = statusMetaOf(client)
+  const isMember = !!members?.some((m) => m.client_id === client.id && !m.left_at)
+  /* C1 — group members derive their status from their group(s). */
+  const meta = effectiveClientMeta(client, members, groups)
   const isPast = meta === 'past'
   const status = STATUS[meta] || STATUS.no_status
-  const sub = client.status_id ? statuses.find((s) => s.id === client.status_id) : null
+  /* A group-driven client shows the derived meta label, not a stale
+     private sub-status. */
+  const sub = !isMember && client.status_id ? statuses.find((s) => s.id === client.status_id) : null
   const statusLabel = sub ? `${sub.icon ? sub.icon + ' ' : ''}${sub.display_name}` : status.label
   const project = projects.find((p) => p.id === client.project_id)
   const { paid, balance, sessionsPaid, sessionsTotal } = clientBalance(client, txns, sessions, members, groups)
   const sessLabel = `${sessionsPaid}/${sessionsTotal || 0}`
-  const isMember = !!members?.some((m) => m.client_id === client.id && !m.left_at)
   const hasSetup = isMember
     || ((Number(client.sessions) > 0 || !!client.group_id) && (Number(client.price_per_session) > 0 || Number(client.total_override) > 0))
 

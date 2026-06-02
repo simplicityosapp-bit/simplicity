@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { X, Pencil, Trash2, Check, CalendarPlus, Banknote } from 'lucide-react'
-import { clientBalance, statusMetaOf } from '../../lib/clients'
+import { X, Pencil, Trash2, Check, CalendarPlus, Banknote, ChevronDown } from 'lucide-react'
+import { clientBalance, effectiveClientMeta, isGroupDriven } from '../../lib/clients'
 import { isr } from '../../lib/finance'
 import ClientDrawerSections from './ClientDrawerSections'
 import AddSessionModal from '../../modals/AddSessionModal'
@@ -19,9 +19,10 @@ const STATUS = {
 const initials = (name) =>
   (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient }) {
+export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient, onUpdateMember }) {
   const open = !!client
   const [actionModal, setActionModal] = useState(null)
+  const [statusMenu, setStatusMenu] = useState(false)
 
   useEffect(() => {
     if (!open) return
@@ -30,7 +31,8 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
-  const meta = client ? statusMetaOf(client) : null
+  const meta = client ? effectiveClientMeta(client, members, groups) : null
+  const groupDriven = isGroupDriven(client, members)
   const isPast = meta === 'past'
   const project = client ? projects.find((p) => p.id === client.project_id) : null
   const balance = client ? clientBalance(client, txns, sessions, members, groups) : null
@@ -65,7 +67,46 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 <div className="cd-h-id">
                   <p className="cd-h-name">{client.name}</p>
                   <div className="cd-h-sub">
-                    <span className={`cd-h-status cd-status-${meta}`}>{STATUS[meta] || STATUS.no_status}</span>
+                    {groupDriven ? (
+                      <span className={`cd-h-status cd-status-${meta}`} title="הסטטוס נקבע אוטומטית לפי הקבוצה">
+                        {STATUS[meta] || STATUS.no_status}
+                        <span className="cd-h-status-by"> · לפי הקבוצה</span>
+                      </span>
+                    ) : (
+                      <span className="cd-status-pick">
+                        <button
+                          type="button"
+                          className={`cd-h-status cd-status-${meta} is-btn`}
+                          aria-haspopup="menu"
+                          aria-expanded={statusMenu}
+                          onClick={() => setStatusMenu((o) => !o)}
+                        >
+                          {STATUS[meta] || STATUS.no_status}
+                          <ChevronDown size={12} strokeWidth={2} aria-hidden="true" />
+                        </button>
+                        {statusMenu && (
+                          <>
+                            <button type="button" className="cd-status-backdrop" aria-hidden="true" tabIndex={-1} onClick={() => setStatusMenu(false)} />
+                            <div className="cd-status-menu" role="menu">
+                              {Object.entries(STATUS).map(([k, label]) => (
+                                <button
+                                  key={k}
+                                  type="button"
+                                  role="menuitemradio"
+                                  aria-checked={meta === k}
+                                  className={`cd-status-opt${meta === k ? ' on' : ''}`}
+                                  onClick={() => { onUpdateClient?.(client.id, { status_meta: k, status_id: null }); setStatusMenu(false) }}
+                                >
+                                  <span className={`cd-status-dot cd-status-${k}`} aria-hidden="true" />
+                                  {label}
+                                  {meta === k && <Check size={13} strokeWidth={2} aria-hidden="true" className="cd-status-check" />}
+                                </button>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </span>
+                    )}
                     {project && <span className="cd-h-proj">· {project.name}</span>}
                   </div>
                 </div>
@@ -150,7 +191,9 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         projects={projects}
         groups={groups}
         statuses={statuses}
+        memberships={members.filter((m) => m.client_id === client.id && !m.left_at)}
         onSave={onUpdateClient}
+        onUpdateMember={onUpdateMember}
       />
     </>
   )

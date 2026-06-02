@@ -31,8 +31,8 @@ const CLIENT_CONTEXT_HINTS = ['client', 'clients', 'customer', 'לקוח', 'לק
    values fall back to the kind's default bucket. */
 const LEAD_META_KEYWORDS = {
   converted:    ['הומר', 'הומרו', 'נסגר', 'סגור', 'סגרה', 'סגר', 'נסגרה', 'הצליח', 'won', 'converted', 'closed', 'client'],
-  not_relevant: ['לארלוונטי', 'לאמתאים', 'נדחה', 'סירב', 'ביטל', 'lost', 'notrelevant', 'rejected', 'declined'],
-  ghost:        ['רפאים', 'נעלם', 'אינוסע', 'גוסט', 'ghost', 'noresponse', 'איןמענה'],
+  /* "רפאים"/ghost folded into not_relevant — it's a reason, not a column. */
+  not_relevant: ['לארלוונטי', 'לאמתאים', 'נדחה', 'סירב', 'ביטל', 'lost', 'notrelevant', 'rejected', 'declined', 'רפאים', 'נעלם', 'אינוסע', 'גוסט', 'ghost', 'noresponse', 'איןמענה'],
   in_process:   ['בתהליך', 'חדש', 'חם', 'בשיחה', 'בקשר', 'מעקב', 'פולואפ', 'פולו', 'new', 'inprocess', 'inprogress', 'contacted', 'followup', 'hot', 'warm'],
 }
 const CLIENT_META_KEYWORDS = {
@@ -45,9 +45,9 @@ const CLIENT_META_KEYWORDS = {
   active:    ['פעיל', 'פעילה', 'פעיל/ת', 'קבוע', 'active', 'current'],
 }
 
-export const LEAD_METAS = ['in_process', 'converted', 'not_relevant', 'ghost']
+export const LEAD_METAS = ['in_process', 'converted', 'not_relevant']
 export const CLIENT_METAS = ['active', 'wandering', 'past', 'no_status']
-export const LEAD_META_LABELS = { in_process: 'בתהליך', converted: 'הומרו', not_relevant: 'לא רלוונטי', ghost: 'רפאים' }
+export const LEAD_META_LABELS = { in_process: 'בתהליך', converted: 'הומרו', not_relevant: 'לא רלוונטי' }
 export const CLIENT_META_LABELS = { active: 'פעיל', wandering: 'ביניים', past: 'לשעבר', no_status: 'ללא סטטוס' }
 const LEAD_DEFAULT = 'in_process'
 const CLIENT_DEFAULT = 'active'

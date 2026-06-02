@@ -33,7 +33,7 @@ function computeStats(list, now = new Date()) {
 export default function LeadsScreen() {
   const { leads: leadList, loading, error, addLead, updateLead, removeLead } = useLeads()
   const { sources } = useLeadSources()
-  const { statuses: leadStatuses, addStatus: addLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
+  const { statuses: leadStatuses, addStatus: addLeadStatus, updateStatus: updateLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
   const { addClient } = useClients()
   const { projects } = useProjects()
   const { prefs, update: updatePrefs } = useUserPreferences()
@@ -156,6 +156,7 @@ export default function LeadsScreen() {
         <LeadStatusesPanel
           statuses={leadStatuses}
           onAdd={addLeadStatus}
+          onUpdate={updateLeadStatus}
           onRemove={removeLeadStatus}
         />
       ) : (

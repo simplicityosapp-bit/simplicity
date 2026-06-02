@@ -175,7 +175,16 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--espresso);
   background: var(--mg-card-bg);
+  cursor: grab;
+  transition: opacity 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
+.lead-statuses-chip:active { cursor: grabbing; }
+.lead-statuses-chip.dragging { opacity: 0.4; }
+.lead-statuses-chip.drop-target {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sage) 60%, transparent);
+  transform: translateY(-1px);
+}
+.lead-statuses-chip-grip { color: var(--stone); flex-shrink: 0; cursor: grab; }
 .lead-statuses-chip-dot {
   width: 8px;
   height: 8px;

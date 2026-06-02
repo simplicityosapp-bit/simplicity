@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { listLeadStatuses, insertLeadStatus, removeLeadStatus as apiRemove } from '../lib/api/leadStatuses'
+import { listLeadStatuses, insertLeadStatus, updateLeadStatus as apiUpdate, removeLeadStatus as apiRemove } from '../lib/api/leadStatuses'
 
 export function useLeadStatuses() {
   const [statuses, setStatuses] = useState([])
@@ -44,5 +44,11 @@ export function useLeadStatuses() {
     try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
   }, [refetch])
 
-  return { statuses, loading, error, addStatus, removeStatus, refetch }
+  /* Optimistic patch (used for drag-reorder sort_order). */
+  const updateStatus = useCallback(async (id, patch) => {
+    setStatuses((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)))
+    try { await apiUpdate(id, patch) } catch (e) { setError(e.message); refetch() }
+  }, [refetch])
+
+  return { statuses, loading, error, addStatus, updateStatus, removeStatus, refetch }
 }

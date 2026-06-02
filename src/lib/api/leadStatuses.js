@@ -17,6 +17,7 @@ export async function listLeadStatuses() {
     .from('lead_statuses')
     .select('*')
     .is('deleted_at', null)
+    .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true })
   if (error) throw error
   return data

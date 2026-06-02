@@ -8,11 +8,12 @@ import { leads, lead_sources, lead_statuses } from '../data/mock'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 
+/* 3 fixed meta columns. "רפאים" (ghost) is no longer its own column —
+   it became a SUB-status under "לא רלוונטי" (migration 0009). */
 export const LEAD_META = [
   { key: 'in_process', title: 'בתהליך' },
   { key: 'converted', title: 'הומרו' },
   { key: 'not_relevant', title: 'לא רלוונטי' },
-  { key: 'ghost', title: 'רפאים' },
 ]
 
 export const statusMetaOfLead = (l) => l.status_meta || 'in_process'

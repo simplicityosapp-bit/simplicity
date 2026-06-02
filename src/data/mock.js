@@ -60,7 +60,7 @@ export const lead_statuses = [
   { id: uid(), user_id: USER, meta_category: 'in_process', display_name: 'חדש', color: '#7a5cb8', icon: '✨', is_default: true, legacy_key: 'new', created_at: daysAgo(200), deleted_at: null },
   { id: uid(), user_id: USER, meta_category: 'converted', display_name: 'הומר ללקוח', color: '#8BA888', icon: '🤝', is_default: true, legacy_key: 'closed', created_at: daysAgo(200), deleted_at: null },
   { id: uid(), user_id: USER, meta_category: 'not_relevant', display_name: 'לא רלוונטי', color: '#B5634E', icon: '✕', is_default: true, legacy_key: null, created_at: daysAgo(200), deleted_at: null },
-  { id: uid(), user_id: USER, meta_category: 'ghost', display_name: 'רפאים', color: '#A8A097', icon: '🌫', is_default: true, legacy_key: null, created_at: daysAgo(200), deleted_at: null },
+  { id: uid(), user_id: USER, meta_category: 'not_relevant', display_name: 'רפאים', color: '#A8A097', icon: '🌫', is_default: false, legacy_key: 'ghost', created_at: daysAgo(200), deleted_at: null },
 ]
 
 /* ── lead_sources (נוסף — FK של leads.source_id) ── */
@@ -112,7 +112,7 @@ export const tasks = [
 export const leads = [
   { id: uid(), user_id: USER, name: 'מירב כהן', phone: '054-1112233', source_id: lead_sources[0].id, status: 'new', status_id: lead_statuses[0].id, status_meta: 'in_process', inquiry_date: dateAgo(5), follow_up_date: dateFromNow(2), last_status_changed_at: daysAgo(5), notes: 'מעוניינת בליווי אישי.', created_at: daysAgo(5), converted_to_client_id: null, converted_at: null },
   { id: uid(), user_id: USER, name: 'תום לוי', phone: '050-9998877', source_id: lead_sources[1].id, status: 'closed', status_id: lead_statuses[1].id, status_meta: 'converted', inquiry_date: dateAgo(60), follow_up_date: null, last_status_changed_at: daysAgo(40), notes: null, created_at: daysAgo(60), converted_to_client_id: clients[0].id, converted_at: daysAgo(40) },
-  { id: uid(), user_id: USER, name: 'נועה שחר', phone: null, source_id: lead_sources[0].id, status: 'new', status_id: lead_statuses[3].id, status_meta: 'ghost', inquiry_date: dateAgo(80), follow_up_date: null, last_status_changed_at: daysAgo(50), notes: 'לא הגיבה לפניות.', created_at: daysAgo(80), converted_to_client_id: null, converted_at: null },
+  { id: uid(), user_id: USER, name: 'נועה שחר', phone: null, source_id: lead_sources[0].id, status: 'new', status_id: lead_statuses[3].id, status_meta: 'not_relevant', inquiry_date: dateAgo(80), follow_up_date: null, last_status_changed_at: daysAgo(50), notes: 'לא הגיבה לפניות.', created_at: daysAgo(80), converted_to_client_id: null, converted_at: null },
 ]
 
 /* ── sessions — פרטי + קבוצתי (polymorphic subject_type/subject_id) ── */

@@ -1,9 +1,9 @@
 import { memo } from 'react'
-import { Clock, Check, CalendarDays, ArrowLeft } from 'lucide-react'
+import { Clock, Check, CalendarDays, ArrowLeft, X } from 'lucide-react'
 import { statusMetaOfLead } from '../../lib/leads'
 import { fmtShortDate } from '../../lib/dates'
 
-function LeadCard({ lead, onEdit, onConvert, sources = [], statuses = [] }) {
+function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = [] }) {
   const meta = statusMetaOfLead(lead)
   const source = lead.source_id ? sources.find((s) => s.id === lead.source_id) : null
   const sub = lead.status_id ? statuses.find((s) => s.id === lead.status_id) : null
@@ -23,6 +23,18 @@ function LeadCard({ lead, onEdit, onConvert, sources = [], statuses = [] }) {
         e.dataTransfer.effectAllowed = 'move'
       }}
     >
+      {onDelete && (
+        <button
+          type="button"
+          className="lead-del-btn"
+          aria-label={`מחק ליד ${lead.name}`}
+          title="מחק ליד"
+          onClick={(e) => { e.stopPropagation(); onDelete(lead) }}
+        >
+          <X size={13} strokeWidth={2} aria-hidden="true" />
+        </button>
+      )}
+
       <p className="lead-card-name" title={lead.name}>{lead.name}</p>
 
       {sub && (

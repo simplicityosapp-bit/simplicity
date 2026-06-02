@@ -75,7 +75,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           )}
         </Section>
 
-        <Section title="פגישות וסיכומים" count={clientSessions.length} defaultOpen>
+        <Section title="פגישות וסיכומים" count={clientSessions.length}>
           {clientSessions.length ? (
             clientSessions.map((s) => (
               <div key={s.id} className="cd-sess">
@@ -91,7 +91,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           )}
         </Section>
 
-        <Section title="תשלומים" count={payments.length} defaultOpen>
+        <Section title="תשלומים" count={payments.length}>
           <div className="cd-pay-summary">
             <span>סה״כ שולם</span>
             <span className="mono">{isr(payTotal)}</span>
@@ -142,7 +142,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
       <div className="cd-group">
         <p className="cd-group-title">קשר וסביבה</p>
 
-        <Section title="הערות" defaultOpen>
+        <Section title="הערות">
           {c.notes ? (
             <>
               <p className="cd-note">{c.notes}</p>
@@ -153,7 +153,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           )}
         </Section>
 
-        <Section title="תזכורות מקושרות" count={activeReminders.length} defaultOpen>
+        <Section title="תזכורות מקושרות" count={activeReminders.length}>
           {linkedReminders.length ? (
             linkedReminders.map((r) => {
               const done = r.status === 'completed'

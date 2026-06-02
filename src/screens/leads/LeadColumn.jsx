@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import LeadCard from './LeadCard'
 
-export default function LeadColumn({ title, color, metaKey, leads, onEdit, onConvert, onDropLead, sources, statuses }) {
+export default function LeadColumn({ title, color, metaKey, leads, onEdit, onConvert, onDelete, onDropLead, sources, statuses }) {
   const [over, setOver] = useState(false)
 
   const handleDragOver = (e) => {
@@ -37,7 +37,7 @@ export default function LeadColumn({ title, color, metaKey, leads, onEdit, onCon
       </div>
       <div className="lead-col-body">
         {leads.length ? (
-          leads.map((l) => <LeadCard key={l.id} lead={l} onEdit={onEdit} onConvert={onConvert} sources={sources} statuses={statuses} />)
+          leads.map((l) => <LeadCard key={l.id} lead={l} onEdit={onEdit} onConvert={onConvert} onDelete={onDelete} sources={sources} statuses={statuses} />)
         ) : (
           <p className="lead-col-empty">אין לידים בעמודה זו</p>
         )}

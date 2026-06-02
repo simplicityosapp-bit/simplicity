@@ -281,6 +281,7 @@
 
 /* ── Lead card ─────────────────────────────────────────────────── */
 .lead-card {
+  position: relative;
   padding: 14px;
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
@@ -290,6 +291,7 @@
 }
 .lead-card-name {
   margin: 0 0 8px;
+  padding-inline-start: 20px;
   font-family: var(--mg-font);
   font-size: calc(14px * var(--text-scale));
   font-weight: 600;
@@ -298,6 +300,53 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* delete X — sits in the far (inline-end) top corner; appears on
+   hover/focus so it stays calm but is always reachable on touch. */
+.lead-del-btn {
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.lead-card:hover .lead-del-btn,
+.lead-del-btn:focus-visible { opacity: 1; }
+.lead-del-btn:hover {
+  background: color-mix(in srgb, var(--clay) 14%, transparent);
+  color: var(--clay);
+}
+/* drop-target sub-status picker */
+.lead-drop-picker { display: flex; flex-direction: column; gap: 8px; }
+.lead-drop-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+  cursor: pointer;
+  text-align: start;
+  transition: background 0.15s ease;
+}
+.lead-drop-opt:hover { background: color-mix(in srgb, var(--sage) 12%, var(--mg-card-bg)); }
+.lead-drop-opt.muted { color: var(--stone); justify-content: center; }
+.lead-drop-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
 .lead-sub {
   display: inline-flex;
   align-items: center;

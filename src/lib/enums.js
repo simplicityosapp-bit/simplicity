@@ -47,7 +47,7 @@ export const SESSION_SUBJECT_TYPES = ['client', 'group']
 
 /* ── Leads ────────────────────────────────────────────────────── */
 export const LEAD_STATUS_KEYS = ['new', 'in_contact', 'intro_call', 'pending_decision', 'closed'] // legacy (ל-backward-compat)
-export const LEAD_STATUS_META = ['in_process', 'converted', 'not_relevant', 'ghost'] // D24: קטגוריות-מטא
+export const LEAD_STATUS_META = ['in_process', 'converted', 'not_relevant'] // D24: קטגוריות-מטא (רפאים = תת-סטטוס תחת not_relevant)
 
 /* ── Groups ───────────────────────────────────────────────────── */
 export const GROUP_STATUSES = ['active', 'in_development', 'ended'] // סטטוס מחזור קבוצה

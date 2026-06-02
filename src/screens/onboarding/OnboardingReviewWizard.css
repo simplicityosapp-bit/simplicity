@@ -221,7 +221,7 @@
 .obrw-toggle.on {
   background: var(--sage);
   border-color: var(--sage);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .obrw-fields {

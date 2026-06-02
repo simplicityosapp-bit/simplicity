@@ -133,9 +133,9 @@
 .usi-row-label { flex: 1; min-width: 0; font-family: var(--mg-font); font-size: calc(13px * var(--text-scale)); font-weight: 500; color: var(--espresso); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .usi-row-types { display: inline-flex; gap: 3px; flex-shrink: 0; }
 .usi-rt { padding: 4px 9px; border-radius: 999px; border: 1px solid var(--divider); background: transparent; font-family: var(--mg-font); font-size: calc(11.5px * var(--text-scale)); color: var(--stone); cursor: pointer; transition: background 0.14s, color 0.14s, border-color 0.14s; }
-.usi-rt.on.income { background: var(--sage); border-color: var(--sage); color: #fff; }
-.usi-rt.on.expense { background: var(--clay); border-color: var(--clay); color: #fff; }
-.usi-rt.on.skip { background: var(--stone); border-color: var(--stone); color: #fff; }
+.usi-rt.on.income { background: var(--sage); border-color: var(--sage); color: var(--on-accent); }
+.usi-rt.on.expense { background: var(--clay); border-color: var(--clay); color: var(--on-accent); }
+.usi-rt.on.skip { background: var(--stone); border-color: var(--stone); color: var(--on-accent); }
 
 .usi-summary {
   padding: 14px 16px;

@@ -28,6 +28,9 @@
   /* Structure */
   --divider:      rgba(42, 37, 32, 0.06); /* קווי הפרדה ברשימות */
   --sidebar-dark: #1F1B17;             /* רקע התפריט הצדדי */
+  /* Contrast text — colour that sits ON a filled accent (button/pill). */
+  --on-accent:     #FFFFFF;            /* light text on a saturated accent (sage/clay/terracotta) */
+  --ink-on-accent: #181410;            /* dark text on a LIGHT accent (e.g. the primary button in dark mode) */
   /* ════════════════════════════════════════════════════════════════════ */
 
   /* Icon defaults (Lucide) — see scripts/icons.js */

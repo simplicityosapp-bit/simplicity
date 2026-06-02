@@ -40,7 +40,7 @@
   color: var(--cream);
 }
 [data-theme="dark"] .c-tab.on {
-  color: #0f1419;
+  color: var(--ink-on-accent);
 }
 .c-tab-count {
   font-family: var(--mg-font-num);
@@ -420,7 +420,7 @@
   color: var(--bg-clients, #fff);
 }
 [data-theme="dark"] .c-select-btn.on {
-  color: #181410;
+  color: var(--ink-on-accent);
 }
 [data-theme="dark"] .c-sort-btn:hover,
 [data-theme="dark"] .c-select-btn:hover {
@@ -511,7 +511,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #fff;
+  color: var(--on-accent);
   transition: background 0.12s, border-color 0.12s;
   padding: 0;
 }

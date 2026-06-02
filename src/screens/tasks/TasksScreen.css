@@ -119,7 +119,7 @@
 .tc-chk.on {
   background: var(--sage);
   border-color: var(--sage);
-  color: #fff;
+  color: var(--on-accent);
 }
 .tc-body {
   flex: 1;

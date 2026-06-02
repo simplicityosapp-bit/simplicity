@@ -362,7 +362,7 @@
 .ob-client-form .m-pill.on {
   background: var(--sage);
   border-color: var(--sage);
-  color: #fff;
+  color: var(--on-accent);
 }
 [data-theme="dark"] .ob-client-form .m-pill.on { color: #1a1a1a; }
 /* Each shared field stacks label-pill above its control with a small gap. */
@@ -484,7 +484,7 @@
 }
 .ob-seg-btn.on {
   background: var(--sage);
-  color: #fff;
+  color: var(--on-accent);
 }
 [data-theme="dark"] .ob-seg-btn.on {
   color: #1a1a1a;

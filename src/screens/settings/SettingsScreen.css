@@ -533,7 +533,7 @@
   color: var(--cream);
 }
 [data-theme="dark"] .qs-mode.on {
-  color: #181410;
+  color: var(--ink-on-accent);
 }
 .qs-day-pills {
   display: flex;
@@ -554,7 +554,7 @@
 .qs-day.on {
   background: var(--sage);
   border-color: var(--sage);
-  color: #fff;
+  color: var(--on-accent);
 }
 .qs-x-row {
   display: inline-flex;
@@ -595,7 +595,7 @@
   color: var(--cream);
 }
 [data-theme="dark"] .qs-save {
-  color: #181410;
+  color: var(--ink-on-accent);
 }
 
 /* ── Daily reminder row ─────────────────────────────────────── */

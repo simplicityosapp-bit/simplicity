@@ -49,7 +49,7 @@
   font-family: var(--mg-font);
   font-size: calc(15px * var(--text-scale));
   font-weight: 500;
-  color: #fff;
+  color: var(--on-accent);
   background: var(--terracotta);
   border: none;
   border-radius: var(--mg-btn-radius);
@@ -57,7 +57,7 @@
   transition: background 0.15s ease, transform 0.12s ease, opacity 0.15s ease;
 }
 
-[data-theme="dark"] .fb-submit { color: #0f1419; }
+[data-theme="dark"] .fb-submit { color: var(--ink-on-accent); }
 
 .fb-submit:hover:not(:disabled) { background: var(--mg-btn-primary-bg-hover); }
 .fb-submit:disabled { opacity: 0.55; cursor: not-allowed; }

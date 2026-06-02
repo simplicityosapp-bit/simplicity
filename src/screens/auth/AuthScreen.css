@@ -179,7 +179,7 @@
   border: none;
   border-radius: 14px;
   background: var(--terracotta);
-  color: #fff;
+  color: var(--on-accent);
   font-family: var(--mg-font);
   font-size: calc(15px * var(--text-scale));
   font-weight: 600;
@@ -298,7 +298,7 @@
 }
 .auth-foot-cta:hover {
   background: var(--terracotta);
-  color: #fff !important;
+  color: var(--on-accent) !important;
   box-shadow: 0 6px 18px rgba(201, 123, 94, 0.28);
 }
 .auth-foot-cta:active { transform: scale(0.96); }

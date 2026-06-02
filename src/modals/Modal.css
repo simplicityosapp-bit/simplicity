@@ -289,7 +289,7 @@
   color: var(--bg-clients, #fff);
 }
 [data-theme="dark"] .td-pill.on {
-  color: #181410;
+  color: var(--ink-on-accent);
 }
 .td-pill-dot {
   display: inline-block;
@@ -460,13 +460,13 @@
 .m-pill.on {
   background: var(--terracotta);
   border-color: var(--terracotta);
-  color: #fff;
+  color: var(--on-accent);
 }
 [data-theme="dark"] .m-pill.on {
-  color: #0f1419;
+  color: var(--ink-on-accent);
 }
-.m-pill.on.income { background: var(--sage); border-color: var(--sage); color: #fff; }
-.m-pill.on.expense { background: var(--clay); border-color: var(--clay); color: #fff; }
+.m-pill.on.income { background: var(--sage); border-color: var(--sage); color: var(--on-accent); }
+.m-pill.on.expense { background: var(--clay); border-color: var(--clay); color: var(--on-accent); }
 
 /* ── Color picker ──────────────────────────────────────────────── */
 .m-colors {
@@ -513,10 +513,10 @@
 .m-btn-save {
   border: none;
   background: var(--terracotta);
-  color: #fff;
+  color: var(--on-accent);
 }
 [data-theme="dark"] .m-btn-save {
-  color: #0f1419;
+  color: var(--ink-on-accent);
 }
 .m-btn-save:hover {
   background: var(--mg-btn-primary-bg-hover);
@@ -527,7 +527,7 @@
 }
 .m-btn-save.danger {
   background: var(--clay);
-  color: #fff;
+  color: var(--on-accent);
 }
 .m-btn-delete {
   display: flex;

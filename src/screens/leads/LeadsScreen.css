@@ -116,7 +116,7 @@
 }
 [data-theme="dark"] .l-view-btn.on {
   background: var(--espresso);
-  color: #181410;
+  color: var(--ink-on-accent);
 }
 .l-view-btn:not(.on):hover {
   color: var(--espresso);

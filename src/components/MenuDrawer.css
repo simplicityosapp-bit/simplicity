@@ -163,7 +163,7 @@
   font-family: 'Assistant', sans-serif;
   font-size: calc(13px * var(--text-scale));
   font-weight: 600;
-  color: #fff;
+  color: var(--on-accent);
   flex-shrink: 0;
 }
 .drawer-profile-text {
@@ -240,7 +240,7 @@
   color: var(--cream);
 }
 [data-theme="dark"] .dnav-item.active {
-  color: #0f1419;
+  color: var(--ink-on-accent);
 }
 
 /* ── Links (personal / settings) ───────────────────────────────── */

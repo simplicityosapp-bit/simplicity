@@ -157,7 +157,7 @@
   color: var(--bg-clients, #fff);
 }
 [data-theme="dark"] .cal-view-btn.on {
-  color: #181410;
+  color: var(--ink-on-accent);
 }
 .cal-view-btn:not(.on):hover {
   color: var(--espresso);

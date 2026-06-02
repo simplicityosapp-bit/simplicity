@@ -35,7 +35,7 @@
   border-color: var(--espresso);
   color: var(--bg-clients, #fff);
 }
-[data-theme="dark"] .qs-mode.on { color: #181410; }
+[data-theme="dark"] .qs-mode.on { color: var(--ink-on-accent); }
 
 .qs-day-pills { display: flex; gap: 6px; flex-wrap: wrap; }
 .qs-day {
@@ -50,7 +50,7 @@
   cursor: pointer;
   transition: background 0.14s, color 0.14s, border-color 0.14s;
 }
-.qs-day.on { background: var(--sage); border-color: var(--sage); color: #fff; }
+.qs-day.on { background: var(--sage); border-color: var(--sage); color: var(--on-accent); }
 
 .qs-x-row {
   display: inline-flex;

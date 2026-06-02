@@ -656,3 +656,30 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--mist);
 }
+/* 2-cell variant (sessions נקבע/נעשה, money שולם/יתרה) + single divider */
+.ec-bill-2 { grid-template-columns: 1fr 1fr; }
+.ec-bill-cell.divided-start { border-inline-start: 1px solid var(--divider); }
+/* read-only group-session rows under the personal sessions strip */
+.ec-grp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: color-mix(in srgb, var(--sage) 8%, var(--mg-card-bg));
+}
+.ec-grp-name {
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+}
+.ec-grp-val {
+  font-family: var(--mg-font-num);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+}

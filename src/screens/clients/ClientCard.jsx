@@ -33,8 +33,12 @@ function ClientCard({
   const sub = !isMember && client.status_id ? statuses.find((s) => s.id === client.status_id) : null
   const statusLabel = sub ? `${sub.icon ? sub.icon + ' ' : ''}${sub.display_name}` : status.label
   const project = projects.find((p) => p.id === client.project_id)
-  const { paid, balance, sessionsPaid, sessionsTotal } = clientBalance(client, txns, sessions, members, groups)
-  const sessLabel = `${sessionsPaid}/${sessionsTotal || 0}`
+  const { paid, balance, hasPersonal, personalDone, personalQuota, groupSessions } = clientBalance(client, txns, sessions, members, groups)
+  /* Compact card shows PERSONAL sessions only; a pure group member shows
+     the group summary instead. (The full profile shows both.) */
+  const sessLabel = hasPersonal
+    ? `${personalDone}/${personalQuota || 0}`
+    : `${groupSessions.reduce((s, g) => s + g.held, 0)}/${groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`
   const hasSetup = isMember
     || ((Number(client.sessions) > 0 || !!client.group_id) && (Number(client.price_per_session) > 0 || Number(client.total_override) > 0))
 

@@ -114,11 +114,17 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 </button>
               </div>
 
-              {/* Billing hero — ALWAYS shown on every client card (global). */}
+              {/* Billing hero — ALWAYS shown on every client card (global).
+                 "פגישות" = PERSONAL (done/set) when the client has 1-on-1
+                 sessions; otherwise it summarises the group(s). */}
               <div className="cd-hero">
                 <div className="cd-stat">
                   <p className="cd-stat-l">פגישות</p>
-                  <p className="cd-stat-v mono">{balance.sessionsPaid}/{balance.sessionsTotal || 0}</p>
+                  <p className="cd-stat-v mono">
+                    {balance.hasPersonal
+                      ? `${balance.personalDone}/${balance.personalQuota || 0}`
+                      : `${balance.groupSessions.reduce((s, g) => s + g.held, 0)}/${balance.groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`}
+                  </p>
                 </div>
                 <div className="cd-stat divided">
                   <p className="cd-stat-l">שולם</p>
@@ -129,6 +135,20 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   <p className="cd-stat-v mono">{isr(balance.balance)}</p>
                 </div>
               </div>
+
+              {/* Group sessions — read-only breakdown, one row per group.
+                 The full profile shows these in addition to the personal
+                 count above (the compact list card shows personal only). */}
+              {balance.groupSessions.length > 0 && (
+                <div className="cd-grp-sessions">
+                  {balance.groupSessions.map((gs) => (
+                    <div key={gs.id} className="cd-grp-row">
+                      <span className="cd-grp-name">פגישות · {gs.name}</span>
+                      <span className="cd-grp-val mono">{gs.held}/{gs.quota || 0}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Quick actions — ALWAYS shown on every client card (global). */}
               <div className="cd-actions">
@@ -190,8 +210,8 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         memberships={client ? members.filter((m) => m.client_id === client.id && !m.left_at) : []}
         rawPaid={balance?.paidReal ?? 0}
         memberTotal={balance?.memberTotal ?? 0}
-        sessionsPaid={balance?.sessionsPaid ?? 0}
-        sessionsTotal={balance?.sessionsTotal ?? 0}
+        personalHeld={balance?.personalHeld ?? 0}
+        groupSessions={balance?.groupSessions ?? []}
         isMember={isMember}
         onSave={onUpdateClient}
         onUpdateMember={onUpdateMember}

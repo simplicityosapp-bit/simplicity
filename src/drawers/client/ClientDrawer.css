@@ -268,6 +268,36 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--mist);
 }
+/* Group-session rows (read-only) — shown under the hero in the full
+   profile, one per group the client belongs to. */
+.cd-grp-sessions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: -4px 0 12px;
+}
+.cd-grp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: color-mix(in srgb, var(--sage) 8%, var(--mg-card-bg));
+}
+.cd-grp-name {
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+}
+.cd-grp-val {
+  font-family: var(--mg-font-num);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
 .cd-actions {
   display: flex;
   gap: 8px;

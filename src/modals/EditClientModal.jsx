@@ -15,7 +15,7 @@ const DAYS = [
 
 /* Edit a client — name / status / sub-status / sessions / price / phone /
    project. Parent passes key={client?.id} so this remounts cleanly per client. */
-export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, rawPaid = 0, memberTotal = 0, sessionsPaid = 0, sessionsTotal = 0, isMember = false }) {
+export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [], isMember = false }) {
   /* Per-group billing override (group_members.total_override) — keyed by
      membership id. Lets the user manually set a member's total after the
      group's billing mode produced a default. */
@@ -27,6 +27,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     status: client?.status || 'active',
     status_id: client?.status_id || '',
     sessions: client?.sessions ?? '',
+    /* "נעשה" = real private held + manual sessions_done_adjustment. */
+    done: String(personalHeld + (Number(client?.sessions_done_adjustment) || 0)),
     price_per_session: client?.price_per_session ?? '',
     total_due: client?.total_override != null ? String(client.total_override) : '',
     /* "שולם" = real income only (stays put). "adjustment" = the forgiveness
@@ -93,6 +95,12 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         recurring_start_date: form.recurring_start_date || null,
         recurring_end_date: form.recurring_end_date || null,
       }
+      /* "נעשה" manual edit → store the delta as sessions_done_adjustment;
+         only when it actually changes, so it never depends on migration
+         0011 existing. ("נקבע" is just form.sessions, saved above.) */
+      const nextDoneAdj = (Number(form.done) || 0) - personalHeld
+      const prevDoneAdj = Number(client?.sessions_done_adjustment) || 0
+      if (nextDoneAdj !== prevDoneAdj) patch.sessions_done_adjustment = nextDoneAdj
       /* Billing intent split:
          - edited "יתרה" → silent balance_adjustment (forgive/zero; needs 0010)
          - edited "שולם" → a real payment → prompt the parent to record a
@@ -155,15 +163,30 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           </select>
         </div>
       )}
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">מספר פגישות</label>
-          <input type="number" min="0" className="m-input" value={form.sessions} onChange={(e) => set('sessions', e.target.value)} />
+      <div className="m-field">
+        <label className="m-label">פגישות אישיות</label>
+        <div className="ec-bill ec-bill-2">
+          <div className="ec-bill-cell">
+            <p className="ec-bill-label">נקבע</p>
+            <input type="number" min="0" className="ec-bill-input" value={form.sessions}
+              onChange={(e) => set('sessions', e.target.value)} aria-label="נקבע" />
+          </div>
+          <div className="ec-bill-cell divided-start">
+            <p className="ec-bill-label">נעשה</p>
+            <input type="number" min="0" className="ec-bill-input" value={form.done}
+              onChange={(e) => set('done', e.target.value)} aria-label="נעשה" />
+          </div>
         </div>
-        <div className="m-field">
-          <label className="m-label">מחיר לפגישה ₪</label>
-          <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => set('price_per_session', e.target.value)} />
-        </div>
+        {groupSessions.map((gs) => (
+          <div key={gs.id} className="ec-grp-row">
+            <span className="ec-grp-name">פגישות · {gs.name}</span>
+            <span className="ec-grp-val">נעשה {gs.held} · נקבע {gs.quota || 0}</span>
+          </div>
+        ))}
+      </div>
+      <div className="m-field">
+        <label className="m-label">מחיר לפגישה ₪</label>
+        <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => set('price_per_session', e.target.value)} />
       </div>
       <div className="m-field">
         <label className="m-label">סה״כ לתשלום (אופציונלי)</label>
@@ -175,12 +198,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       </div>
       <div className="m-field">
         <label className="m-label">חיוב — נאמן לכרטיס</label>
-        <div className="ec-bill">
+        <div className="ec-bill ec-bill-2">
           <div className="ec-bill-cell">
-            <p className="ec-bill-label">פגישות</p>
-            <p className="ec-bill-val">{sessionsPaid}/{sessionsTotal || 0}</p>
-          </div>
-          <div className="ec-bill-cell divided">
             <p className="ec-bill-label">שולם</p>
             <div className="ec-bill-money">
               <span className="ec-bill-cur">₪</span>
@@ -188,7 +207,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
                 onChange={(e) => { set('paid', e.target.value); setLastBillEdit('paid') }} aria-label="שולם" />
             </div>
           </div>
-          <div className="ec-bill-cell">
+          <div className="ec-bill-cell divided-start">
             <p className="ec-bill-label">יתרה</p>
             <div className="ec-bill-money">
               <span className="ec-bill-cur">₪</span>

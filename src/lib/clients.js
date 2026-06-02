@@ -101,7 +101,27 @@ export function clientBalance(c, txns, sessionsData = sessions, membersData = mo
   }, 0)
   const sessionsTotal = (c.sessions || 0) + memSessions
 
-  return { paid, paidReal, adjustment, total, memberTotal: memTotal, balance: total - paid - adjustment, sessionsPaid: privateCount + groupCount, sessionsTotal }
+  /* Sessions split into PERSONAL (1-on-1) vs each GROUP the client is in.
+     "נעשה" (done) = real private session records + the manual
+     sessions_done_adjustment (for imported clients with no per-session
+     records). Group sessions are read-only — they come from the group. */
+  const doneAdj = Number(c.sessions_done_adjustment) || 0
+  const personalQuota = c.sessions || 0
+  const personalHeld = privateCount
+  const personalDone = privateCount + doneAdj
+  const hasPersonal = personalQuota > 0 || privateCount > 0 || doneAdj !== 0
+  const groupSessions = memberships.map((m) => {
+    const g = groupsData.find((x) => x.id === m.group_id)
+    const quota = m.package_sessions_override != null ? Number(m.package_sessions_override) : (g?.package_sessions || 0)
+    return { id: m.group_id, name: g?.name || 'קבוצה', quota, held: heldForGroup(m.group_id) }
+  })
+
+  return {
+    paid, paidReal, adjustment, total, memberTotal: memTotal,
+    balance: total - paid - adjustment,
+    sessionsPaid: privateCount + groupCount, sessionsTotal,
+    personalQuota, personalHeld, personalDone, hasPersonal, groupSessions,
+  }
 }
 
 /* Sum confirmed income for a set of clients, optionally within a date range. */

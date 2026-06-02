@@ -122,6 +122,9 @@ CREATE TABLE groups (
   price_per_session numeric,
   recurring_day     smallint CHECK (recurring_day BETWEEN 0 AND 6),
   recurring_time    text,
+  recurring_end_time   text,                 -- slot end time (migration 0007)
+  recurring_start_date date,                 -- series start (migration 0007)
+  recurring_end_date   date,                 -- series end, null = open (migration 0007)
   status            text NOT NULL DEFAULT 'active' CHECK (status IN ('active','in_development','ended')),
   created_at        timestamptz NOT NULL DEFAULT now(),
   updated_at        timestamptz NOT NULL DEFAULT now(),
@@ -144,6 +147,9 @@ CREATE TABLE clients (
   has_custom_price  boolean NOT NULL DEFAULT false,
   recurring_day     smallint CHECK (recurring_day BETWEEN 0 AND 6),
   recurring_time    text,
+  recurring_end_time   text,                 -- slot end time (migration 0007)
+  recurring_start_date date,                 -- series start (migration 0007)
+  recurring_end_date   date,                 -- series end, null = open (migration 0007)
   left_mid_process  boolean NOT NULL DEFAULT false,
   phone             text,
   notes             text,

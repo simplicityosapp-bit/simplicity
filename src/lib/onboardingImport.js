@@ -184,6 +184,16 @@ export async function finalizeOnboardingImport(input = {}) {
     const statusName = c.status_name ? norm(c.status_name) : null
     const status_id = statusName ? (clientStatusIdByName.get(statusName) || null) : null
     const resolvedMeta = (statusName && clientStatusMetaByName.get(statusName)) || c.status_meta || 'active'
+    /* Total due: an explicit "סה״כ לתשלום" wins. Otherwise, if the file
+       only gave us how much was PAID (no total, and no sessions×price to
+       compute one), assume the paid amount IS the total — otherwise the
+       client would import with a negative balance (paid against a total of
+       0, looking like the coach owes them). The user can still override it
+       per client. */
+    const calcTotal = (Number(c.sessions) || 0) * (Number(c.price_per_session) || 0)
+    const totalDue = Number(c.total_due) > 0
+      ? Number(c.total_due)
+      : (Number(c.paid) > 0 && calcTotal === 0 ? Number(c.paid) : null)
     try {
       const row = await insertClient({
         name: c.name.trim(),
@@ -197,8 +207,8 @@ export async function finalizeOnboardingImport(input = {}) {
         /* Imported "סה״כ לתשלום" → the client's total due. When present it
            overrides sessions×price so the balance (total − paid) matches
            what the coach already tracks. */
-        total_override: Number(c.total_due) > 0 ? Number(c.total_due) : null,
-        has_custom_price: Number(c.total_due) > 0,
+        total_override: totalDue,
+        has_custom_price: totalDue != null,
         recurring_day: null,
         recurring_time: null,
         left_mid_process: false,

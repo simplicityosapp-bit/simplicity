@@ -148,6 +148,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         onClose={() => setActionModal(null)}
         client={client}
         projects={projects}
+        groups={groups}
         statuses={statuses}
         onSave={onUpdateClient}
       />

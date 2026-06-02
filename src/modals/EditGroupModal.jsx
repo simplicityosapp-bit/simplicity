@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
+import DateField from '../components/DateField'
 import { GROUP_BILLING_MODES, GROUP_BILLING_LABELS } from '../lib/enums'
 
 const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
@@ -19,6 +20,9 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
     price_per_session: group?.price_per_session ?? '',
     recurring_day: group?.recurring_day == null ? '' : String(group.recurring_day),
     recurring_time: group?.recurring_time || '',
+    recurring_end_time: group?.recurring_end_time || '',
+    recurring_start_date: group?.recurring_start_date || '',
+    recurring_end_date: group?.recurring_end_date || '',
   }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -50,6 +54,9 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
         price_per_session: mode === 'per_session' ? perSession : null,
         recurring_day: form.recurring_day === '' ? null : Number(form.recurring_day),
         recurring_time: form.recurring_time || null,
+        recurring_end_time: form.recurring_end_time || null,
+        recurring_start_date: form.recurring_start_date || null,
+        recurring_end_date: form.recurring_end_date || null,
       })
       onClose()
     } catch (e) {
@@ -116,8 +123,24 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
           </select>
         </div>
         <div className="m-field">
-          <label className="m-label">שעה</label>
+          <label className="m-label">שעת התחלה</label>
           <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
+        </div>
+      </div>
+      <div className="m-row2">
+        <div className="m-field">
+          <label className="m-label">שעת סיום</label>
+          <input type="time" className="m-input" value={form.recurring_end_time} onChange={(e) => set('recurring_end_time', e.target.value)} />
+        </div>
+      </div>
+      <div className="m-row2">
+        <div className="m-field">
+          <label className="m-label">תאריך התחלה (אופציונלי)</label>
+          <DateField value={form.recurring_start_date} onChange={(e) => set('recurring_start_date', e.target.value)} />
+        </div>
+        <div className="m-field">
+          <label className="m-label">תאריך סיום (אופציונלי)</label>
+          <DateField value={form.recurring_end_date} onChange={(e) => set('recurring_end_date', e.target.value)} />
         </div>
       </div>
       <div className="m-field">

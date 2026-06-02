@@ -7,6 +7,7 @@ import { useGoalCategories } from '../../hooks/useGoalCategories'
 import { useGoalEntries } from '../../hooks/useGoalEntries'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useProjects } from '../../hooks/useProjects'
+import { useGroups } from '../../hooks/useGroups'
 import { useClients } from '../../hooks/useClients'
 import { useLeads } from '../../hooks/useLeads'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
@@ -29,6 +30,7 @@ export default function GoalsScreen() {
   const { entries, addEntry, removeEntry } = useGoalEntries()
   const { transactions } = useTransactions()
   const { projects } = useProjects()
+  const { groups: clientGroups } = useGroups()
   const { clients } = useClients()
   const { leads } = useLeads()
   const { questions } = useUserQuestions()
@@ -161,6 +163,7 @@ export default function GoalsScreen() {
         onClose={() => setShowAddGoal(false)}
         categories={categories}
         projects={projects}
+        groups={clientGroups}
         questions={questions}
         onSave={addGoal}
       />
@@ -189,6 +192,7 @@ export default function GoalsScreen() {
         goal={editGoal}
         categories={categories}
         projects={projects}
+        groups={clientGroups}
         questions={questions}
         onSave={updateGoal}
       />

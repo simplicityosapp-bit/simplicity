@@ -10,6 +10,7 @@ import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
 import { useSessions } from '../../hooks/useSessions'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
+import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useGroups } from '../../hooks/useGroups'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useClientStatuses } from '../../hooks/useClientStatuses'
@@ -108,10 +109,12 @@ export default function ClientsScreen() {
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState(null)
   const [sortOpen, setSortOpen] = useState(false)
   const sortAnchorRef = useRef(null)
+  const sortSide = usePopoverSide(sortAnchorRef, sortOpen)
   const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState(() => new Set())
   const [bulkMetaOpen, setBulkMetaOpen] = useState(false)
   const bulkMetaAnchorRef = useRef(null)
+  const bulkMetaSide = usePopoverSide(bulkMetaAnchorRef, bulkMetaOpen)
   const openClient = openId ? clientList.find((c) => c.id === openId) : null
 
   const sort = useMemo(() => ({ ...DEFAULT_SORT, ...(prefs?.clientsSort || {}) }), [prefs])
@@ -262,7 +265,7 @@ export default function ClientsScreen() {
               <ArrowUpDown size={14} strokeWidth={1.7} aria-hidden="true" /> מיון
             </button>
             {sortOpen && (
-              <div className="c-sort-pop" role="menu">
+              <div className="c-sort-pop" role="menu" style={{ [sortSide]: 0 }}>
                 <p className="c-sort-h">מיין/י לפי</p>
                 {SORT_OPTIONS.map((o) => (
                   <button
@@ -432,7 +435,7 @@ export default function ClientsScreen() {
                 disabled={selectedIds.size === 0}
               >שינוי סטטוס ←</button>
               {bulkMetaOpen && (
-                <div className="c-sort-pop c-bulk-pop" role="menu">
+                <div className="c-sort-pop c-bulk-pop" role="menu" style={{ [bulkMetaSide]: 0 }}>
                   <p className="c-sort-h">העברה ל-</p>
                   {BULK_META_OPTIONS.map((o) => (
                     <button

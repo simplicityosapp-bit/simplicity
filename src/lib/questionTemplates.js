@@ -5,11 +5,18 @@
    (template or custom). QTEXT resolves a template_key to its display text.
    ════════════════════════════════════════════════════════════════ */
 
+/* Must cover EVERY template_key any creation path uses — the in-app
+   AddQuestionModal (mood/energy/sleep/focus) AND the onboarding Step 5
+   presets (sleep/nutrition/movement/mood/focus/quiet). A key missing here
+   makes questionText() fall back to the generic "שאלת היום". */
 export const QTEXT = {
   mood: 'איך מצב הרוח שלך היום?',
   energy: 'כמה אנרגיה יש לך היום?',
-  sleep: 'איך ישנת הלילה?',
+  sleep: 'איך ישנת אתמול?',
   focus: 'כמה ממוקד/ת הרגשת היום?',
+  nutrition: 'איך אכלת היום?',
+  movement: 'כמה תנועה היה לך היום?',
+  quiet: 'כמה שקט מצאת היום?',
 }
 
 export const QUESTION_TEMPLATES = [

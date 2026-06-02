@@ -46,7 +46,7 @@
 
 .qa-label {
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   font-weight: 500;
   color: var(--espresso);
 }

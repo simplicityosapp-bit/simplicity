@@ -34,3 +34,6 @@ _migrate.mjs
 # audit user creds for live UX checks
 .claude-audit-creds.json
 .claude-signup-test.json
+
+# Supabase CLI local temp
+supabase/.temp/

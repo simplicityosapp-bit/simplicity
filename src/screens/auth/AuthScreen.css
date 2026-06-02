@@ -101,7 +101,7 @@
   background: rgba(181, 99, 78, 0.12);
   border: 0.5px solid rgba(181, 99, 78, 0.35);
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--clay);
   text-align: center;
 }
@@ -146,7 +146,7 @@
   background: transparent;
   outline: none;
   font-family: var(--mg-font);
-  font-size: 15px;
+  font-size: calc(15px * var(--text-scale));
   color: var(--espresso);
 }
 .auth-field input::placeholder {
@@ -181,7 +181,7 @@
   background: var(--terracotta);
   color: #fff;
   font-family: var(--mg-font);
-  font-size: 15px;
+  font-size: calc(15px * var(--text-scale));
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, transform 0.12s, opacity 0.15s;
@@ -206,7 +206,7 @@
   margin: 6px 0;
   color: var(--stone);
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
 }
 .auth-divider::before,
 .auth-divider::after {
@@ -234,7 +234,7 @@
   background: #ffffff;
   color: var(--espresso);
   font-family: var(--mg-font);
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s, transform 0.12s;
@@ -255,7 +255,7 @@
   align-self: center;
   margin: 6px 0 0;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   color: var(--stone);
   text-decoration: none;
 }
@@ -272,7 +272,7 @@
   margin: 4px 0 0;
   text-align: center;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   color: var(--stone);
 }
 .auth-foot a {
@@ -355,7 +355,7 @@
   gap: 8px;
   margin-bottom: 18px;
   font-family: 'Assistant', sans-serif;
-  font-size: 20px;
+  font-size: calc(20px * var(--text-scale));
   font-weight: 700;
   color: var(--espresso);
 }
@@ -363,7 +363,7 @@
   margin: 0;
   text-align: center;
   font-family: 'Assistant', sans-serif;
-  font-size: 22px;
+  font-size: calc(22px * var(--text-scale));
   font-weight: 700;
   color: var(--espresso);
 }
@@ -371,13 +371,13 @@
   margin: 4px 0 18px;
   text-align: center;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   color: var(--stone);
 }
 .auth-label {
   margin: 0 2px 6px;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
 }
@@ -390,7 +390,7 @@
   background: rgba(255, 255, 255, 0.6);
   color: var(--espresso);
   font-family: var(--mg-font);
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   outline: none;
 }
 .auth-input:focus {

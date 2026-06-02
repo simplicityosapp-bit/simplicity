@@ -42,7 +42,7 @@
   cursor: pointer;
   padding: 2px 2px 0;
   font-family: var(--mg-font);
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale));
   font-weight: 500;
   color: var(--cream);                       /* labels always cream/white */
   transition: color 0.18s, transform 0.12s;

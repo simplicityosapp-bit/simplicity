@@ -69,7 +69,7 @@
 .m-title {
   margin: 0;
   font-family: 'Assistant', sans-serif;
-  font-size: 18px;
+  font-size: calc(18px * var(--text-scale));
   font-weight: 700;
   color: var(--espresso);
 }
@@ -110,7 +110,7 @@
   display: block;
   margin-bottom: 6px;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
 }
@@ -125,7 +125,7 @@
   background: var(--cream);
   color: var(--espresso);
   font-family: var(--mg-font);
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
   box-sizing: border-box;
@@ -160,7 +160,7 @@
 .m-error {
   margin: 6px 0 0;
   font-family: var(--mg-font);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   color: var(--clay);
 }
 .m-sub {
@@ -169,7 +169,7 @@
   gap: 6px;
   margin: 0 0 14px;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
 }
@@ -185,7 +185,7 @@
 .m-hint {
   margin: 6px 0 0;
   font-family: var(--mg-font);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   font-weight: 400;
   line-height: 1.5;
   color: var(--stone);
@@ -201,7 +201,7 @@
   border-radius: 10px;
   background: color-mix(in srgb, var(--clay) 12%, transparent);
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   line-height: 1.45;
   color: var(--clay);
 }
@@ -216,7 +216,7 @@
 .td-num {
   margin: 0;
   font-family: var(--mg-font-num);
-  font-size: 36px;
+  font-size: calc(36px * var(--text-scale));
   font-weight: 500;
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
@@ -228,7 +228,7 @@
 .td-num-lbl {
   margin: -4px 0 4px;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--stone);
   text-align: center;
   letter-spacing: 0.03em;
@@ -237,7 +237,7 @@
 .td-section-lbl {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   font-weight: 600;
   color: var(--stone);
   letter-spacing: 0.04em;
@@ -274,7 +274,7 @@
   border: 1px solid var(--divider);
   background: transparent;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--espresso);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
@@ -307,7 +307,7 @@
 .td-empty-inline {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--stone);
   font-style: italic;
 }
@@ -325,7 +325,7 @@
 .td-chart-lbl {
   margin: 0 0 4px;
   font-family: var(--mg-font);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   font-weight: 600;
   color: var(--stone);
   letter-spacing: 0.04em;
@@ -341,7 +341,7 @@
   align-items: center;
   gap: 5px;
   font-family: var(--mg-font);
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--text-scale));
   color: var(--stone);
 }
 .td-chart-swatch {
@@ -376,14 +376,14 @@
 .td-mini-l {
   margin: 0 0 3px;
   font-family: var(--mg-font);
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale));
   color: var(--stone);
   letter-spacing: 0.04em;
 }
 .td-mini-v {
   margin: 0;
   font-family: var(--mg-font-num);
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
 }
@@ -405,7 +405,7 @@
 .td-list-name {
   flex: 1;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
   white-space: nowrap;
   overflow: hidden;
@@ -413,7 +413,7 @@
 }
 .td-list-meta {
   font-family: var(--mg-font);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
 .td-list-meta.priority-high {
@@ -426,12 +426,12 @@
 .td-list-more {
   margin: 8px 0;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--stone);
   text-align: center;
 }
 .td-list-more {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   margin: 4px 0 0;
 }
 
@@ -449,7 +449,7 @@
   color: var(--stone);
   cursor: pointer;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   font-weight: 500;
   transition: all 0.15s;
 }
@@ -501,7 +501,7 @@
   border-radius: var(--mg-btn-radius);
   cursor: pointer;
   font-family: var(--mg-font);
-  font-size: 15px;
+  font-size: calc(15px * var(--text-scale));
   font-weight: 500;
   transition: background 0.15s, transform 0.12s;
 }
@@ -541,7 +541,7 @@
   background: none;
   border-radius: var(--mg-btn-radius);
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   font-weight: 500;
   color: var(--clay);
   cursor: pointer;
@@ -554,7 +554,7 @@
 .m-confirm-msg {
   margin: 0 0 4px;
   font-family: var(--mg-font);
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   line-height: 1.6;
   color: var(--espresso);
 }

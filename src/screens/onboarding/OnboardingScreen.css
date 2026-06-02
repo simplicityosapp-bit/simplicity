@@ -146,7 +146,7 @@
 .ob-step-counter {
   margin: 0 0 2px;
   font-family: var(--mg-font-num);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   font-weight: 700;
   color: var(--stone);
   letter-spacing: 0.08em;
@@ -256,7 +256,7 @@
   width: fit-content;
   max-width: 100%;
   font-family: var(--mg-font);
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   line-height: 1.5;
   color: var(--espresso);
 }
@@ -267,7 +267,7 @@
   width: fit-content;
   max-width: 100%;
   font-family: var(--mg-font);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--text-scale));
   line-height: 1.5;
   color: var(--stone);
 }
@@ -330,7 +330,7 @@
   backdrop-filter: var(--mg-card-blur);
   border: var(--mg-card-border);
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   font-weight: 600;
   color: var(--stone);
   letter-spacing: 0.02em;
@@ -374,7 +374,7 @@
   border: 1px solid rgba(42, 37, 32, 0.14);
   background: rgba(255, 255, 255, 0.6);
   font-family: var(--mg-font);
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   color: var(--espresso);
 }
 [data-theme="dark"] .ob-input,
@@ -401,7 +401,7 @@
   border: 1px solid rgba(42, 37, 32, 0.14);
   background: transparent;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
@@ -445,12 +445,12 @@
   background: color-mix(in srgb, var(--sage) 16%, transparent);
 }
 .ob-option-card-l {
-  font-size: 15px;
+  font-size: calc(15px * var(--text-scale));
   font-weight: 700;
 }
 .ob-option-card-sub {
   margin: 0;
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--text-scale));
   color: var(--stone);
   line-height: 1.5;
 }
@@ -475,7 +475,7 @@
   border-radius: 9px;
   background: transparent;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
   cursor: pointer;
@@ -533,7 +533,7 @@
 .ob-pc-name {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 16px;
+  font-size: calc(16px * var(--text-scale));
   font-weight: 700;
   color: var(--espresso);
 }
@@ -544,7 +544,7 @@
   align-items: center;
   gap: 6px;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   font-weight: 700;
   color: var(--espresso);
 }
@@ -558,7 +558,7 @@
   border-radius: 9px;
   background: rgba(42, 37, 32, 0.08);
   font-family: var(--mg-font-num);
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--text-scale));
   font-weight: 600;
   color: var(--stone);
 }
@@ -566,7 +566,7 @@
 .ob-pc-empty {
   margin: 0 0 8px;
   font-family: var(--mg-font);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--text-scale));
   line-height: 1.5;
   color: var(--stone);
 }
@@ -590,14 +590,14 @@
 .ob-pc-group-name {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
 }
 .ob-pc-group-meta {
   margin: 1px 0 0;
   font-family: var(--mg-font);
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--text-scale));
   color: var(--stone);
 }
 .ob-pc-group-x {
@@ -630,7 +630,7 @@
   backdrop-filter: var(--mg-card-blur);
   box-shadow: var(--mg-card-shadow);
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
   cursor: pointer;
@@ -646,7 +646,7 @@
   border-radius: 12px;
   border: 1px dashed var(--divider);
   font-family: var(--mg-font);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--text-scale));
   line-height: 1.5;
   color: var(--stone);
 }
@@ -676,10 +676,10 @@
   transition: background 0.15s, border-color 0.15s, transform 0.12s;
 }
 .ob-goal-type:hover { transform: translateY(-1px); }
-.ob-goal-type-ic { font-size: 20px; line-height: 1; }
+.ob-goal-type-ic { font-size: calc(20px * var(--text-scale)); line-height: 1; }
 .ob-goal-type-l {
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
   text-align: center;
@@ -703,24 +703,24 @@
   box-shadow: var(--mg-card-shadow);
 }
 .ob-gc-head { display: flex; align-items: center; gap: 9px; }
-.ob-gc-ic { font-size: 20px; line-height: 1; }
+.ob-gc-ic { font-size: calc(20px * var(--text-scale)); line-height: 1; }
 .ob-gc-name {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 15px;
+  font-size: calc(15px * var(--text-scale));
   font-weight: 700;
   color: var(--espresso);
 }
 .ob-gc-meta {
   margin: 8px 0 0;
   font-family: var(--mg-font);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--text-scale));
   color: var(--stone);
 }
 .ob-gc-hint {
   margin: 4px 0 0;
   font-family: var(--mg-font);
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--text-scale));
   color: var(--mist);
 }
 
@@ -756,7 +756,7 @@
 .ob-gcard-title {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 15px;
+  font-size: calc(15px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
 }
@@ -766,7 +766,7 @@
   gap: 6px;
   margin: 4px 0 0;
   font-family: var(--mg-font);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
 .ob-gcard-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -774,7 +774,7 @@
   margin: 0;
   font-family: var(--mg-font-num);
   font-weight: 500;
-  font-size: 20px;
+  font-size: calc(20px * var(--text-scale));
   line-height: 1;
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
@@ -800,7 +800,7 @@
 }
 .ob-gcard-target {
   font-family: var(--mg-font-num);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
   font-variant-numeric: tabular-nums;
@@ -819,7 +819,7 @@
   border-radius: 10px;
   background: color-mix(in srgb, var(--clay) 12%, transparent);
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   line-height: 1.45;
   color: var(--clay);
 }
@@ -855,28 +855,28 @@
   background: color-mix(in srgb, var(--sage) 22%, transparent);
   font-family: var(--mg-font);
   font-weight: 700;
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   color: var(--espresso);
 }
 .ob-cc-id { flex: 1; min-width: 0; }
 .ob-cc-name {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 15px;
+  font-size: calc(15px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
 }
 .ob-cc-meta { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
 .ob-cc-status {
   font-family: var(--mg-font);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--sage) 20%, transparent);
   color: var(--espresso);
 }
-.ob-cc-proj { font-family: var(--mg-font); font-size: 11px; color: var(--stone); }
+.ob-cc-proj { font-family: var(--mg-font); font-size: calc(11px * var(--text-scale)); color: var(--stone); }
 .ob-cc-x {
   display: inline-flex;
   align-items: center;
@@ -903,8 +903,8 @@
   border-inline-start: 1px solid var(--divider);
   border-inline-end: 1px solid var(--divider);
 }
-.ob-cc-stat-l { margin: 0 0 2px; font-family: var(--mg-font); font-size: 10px; color: var(--stone); }
-.ob-cc-stat-v { margin: 0; font-family: var(--mg-font-num); font-size: 14px; color: var(--espresso); }
+.ob-cc-stat-l { margin: 0 0 2px; font-family: var(--mg-font); font-size: calc(10px * var(--text-scale)); color: var(--stone); }
+.ob-cc-stat-v { margin: 0; font-family: var(--mg-font-num); font-size: calc(14px * var(--text-scale)); color: var(--espresso); }
 
 /* The shared client form (modal field classes) sits in a self-sizing
    onboarding panel; constrain width so the .m-* fields don't stretch
@@ -954,7 +954,7 @@
   border-radius: 14px;
   border: none;
   font-family: var(--mg-font);
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, transform 0.12s, opacity 0.15s;
@@ -1033,7 +1033,7 @@
 .ob-help-title {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   font-weight: 700;
   color: var(--espresso);
 }
@@ -1050,7 +1050,7 @@
   cursor: pointer;
 }
 [data-theme="dark"] .ob-help-close { border-color: rgba(240, 235, 224, 0.18); }
-.ob-help-body { font-family: var(--mg-font); font-size: 13.5px; line-height: 1.6; color: var(--espresso); }
+.ob-help-body { font-family: var(--mg-font); font-size: calc(13.5px * var(--text-scale)); line-height: 1.6; color: var(--espresso); }
 .ob-help-p { margin: 0 0 8px; }
 .ob-help-list { padding-inline-start: 18px; margin: 6px 0 0; }
 .ob-help-list li { margin-bottom: 4px; }
@@ -1086,7 +1086,7 @@
 .ob-welcome-name {
   margin: 0;
   font-family: 'Assistant', sans-serif;
-  font-size: 30px;
+  font-size: calc(30px * var(--text-scale));
   font-weight: 700;
   color: var(--espresso);
   letter-spacing: -0.02em;
@@ -1094,7 +1094,7 @@
 .ob-welcome-tag {
   margin: 0 0 14px;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
   letter-spacing: 0.06em;
@@ -1137,14 +1137,14 @@
   background: color-mix(in srgb, var(--sage) 22%, rgba(20, 18, 14, 0.7));
 }
 .ob-welcome-option-title {
-  font-size: 16.5px;
+  font-size: calc(16.5px * var(--text-scale));
   font-weight: 700;
   color: var(--espresso);
   letter-spacing: -0.01em;
 }
 [data-theme="dark"] .ob-welcome-option-title { color: var(--cream); }
 .ob-welcome-option-sub {
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--text-scale));
   color: var(--stone);
   line-height: 1.5;
 }
@@ -1161,7 +1161,7 @@
 @media (min-width: 768px) {
   .ob-welcome { max-width: 520px; padding: 32px 24px; gap: 16px; }
   .ob-welcome-logo { width: 128px; height: 128px; }
-  .ob-welcome-name { font-size: 34px; }
+  .ob-welcome-name { font-size: calc(34px * var(--text-scale)); }
 }
 
 /* ── Confirm dialog for "skip all" ──────────────────────────── */
@@ -1190,8 +1190,8 @@
   background: rgba(20, 18, 14, 0.96);
   border-color: rgba(240, 235, 224, 0.14);
 }
-.ob-confirm-title { margin: 0 0 6px; font-size: 16px; font-weight: 700; }
-.ob-confirm-body  { margin: 0 0 16px; font-size: 13.5px; color: var(--stone); line-height: 1.55; }
+.ob-confirm-title { margin: 0 0 6px; font-size: calc(16px * var(--text-scale)); font-weight: 700; }
+.ob-confirm-body  { margin: 0 0 16px; font-size: calc(13.5px * var(--text-scale)); color: var(--stone); line-height: 1.55; }
 .ob-confirm-actions {
   display: flex;
   gap: 10px;
@@ -1200,7 +1200,7 @@
 
 /* ── Per-step layout helpers ───────────────────────────────── */
 .ob-step-illu {
-  font-size: 26px;
+  font-size: calc(26px * var(--text-scale));
   margin-bottom: 6px;
 }
 .ob-step-grid {
@@ -1211,7 +1211,7 @@
 .ob-empty-hint {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--text-scale));
   color: var(--stone);
   font-style: italic;
 }
@@ -1238,7 +1238,7 @@
   border: 1px dashed color-mix(in srgb, var(--sage) 50%, transparent);
   background: color-mix(in srgb, var(--sage) 10%, transparent);
   font-family: var(--mg-font);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--text-scale));
   color: var(--espresso);
 }
 
@@ -1255,7 +1255,7 @@
 .ob-map-sub {
   margin: 0 0 2px;
   font-family: var(--mg-font);
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--text-scale));
   line-height: 1.5;
   color: var(--stone);
 }
@@ -1288,14 +1288,14 @@
   align-items: center;
   gap: 5px;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
 }
 .ob-map-col-name svg { color: var(--sage); flex: none; }
 .ob-map-sample {
   font-family: var(--mg-font);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   color: var(--stone);
   white-space: nowrap;
   overflow: hidden;
@@ -1306,7 +1306,7 @@
   flex: none;
   width: 140px;
   padding: 7px 10px;
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
 }
 
 /* Step 8 preview tiles */
@@ -1329,7 +1329,7 @@
 .ob-preview-title {
   margin: 0 0 6px;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   font-weight: 700;
   color: var(--stone);
   letter-spacing: 0.04em;

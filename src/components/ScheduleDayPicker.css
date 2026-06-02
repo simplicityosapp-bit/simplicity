@@ -25,7 +25,7 @@
   border: 1px solid var(--divider);
   background: transparent;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--espresso);
   cursor: pointer;
   transition: background 0.14s, color 0.14s, border-color 0.14s;
@@ -45,7 +45,7 @@
   border: 1px solid var(--divider);
   background: transparent;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--espresso);
   cursor: pointer;
   transition: background 0.14s, color 0.14s, border-color 0.14s;
@@ -57,7 +57,7 @@
   align-items: center;
   gap: 8px;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
 }
 .qs-x-input {
@@ -66,7 +66,7 @@
   border-radius: 8px;
   border: 1px solid var(--divider);
   font-family: var(--mg-font-num);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   text-align: center;
   background: var(--cream);
   color: var(--espresso);

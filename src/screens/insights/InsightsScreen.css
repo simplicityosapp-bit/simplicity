@@ -23,7 +23,7 @@
 .ins-mirror-title {
   margin: 0;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   font-weight: 600;
   letter-spacing: 0.03em;
   color: var(--espresso);
@@ -38,7 +38,7 @@
 }
 .ins-mirror-line {
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   line-height: 1.55;
   color: var(--espresso);
 }
@@ -74,14 +74,14 @@
   height: 30px;
   border-radius: 50%;
   background: rgba(244, 227, 218, 0.45);
-  font-size: 16px;
+  font-size: calc(16px * var(--text-scale));
   flex-shrink: 0;
 }
 .ins-q-text {
   margin: 0;
   flex: 1;
   font-family: var(--mg-font);
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
 }
@@ -92,7 +92,7 @@
   background: rgba(139, 168, 136, 0.15);
   color: var(--sage);
   font-family: var(--mg-font-num);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   font-variant-numeric: tabular-nums;
 }
 
@@ -114,7 +114,7 @@
   min-width: 28px;
   text-align: center;
   font-family: var(--mg-font-num);
-  font-size: 16px;
+  font-size: calc(16px * var(--text-scale));
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
 }
@@ -141,7 +141,7 @@
   border: 1px solid var(--divider);
   background: transparent;
   font-family: var(--mg-font);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
   cursor: pointer;
 }
@@ -165,7 +165,7 @@
 .ins-stat-l {
   margin: 0 0 4px;
   font-family: var(--mg-font);
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale));
   color: var(--stone);
   letter-spacing: 0.04em;
 }
@@ -175,7 +175,7 @@
   align-items: center;
   gap: 6px;
   font-family: var(--mg-font-num);
-  font-size: 18px;
+  font-size: calc(18px * var(--text-scale));
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
 }
@@ -183,7 +183,7 @@
   padding: 1px 7px;
   border-radius: 999px;
   font-family: var(--mg-font-num);
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale));
   font-weight: 500;
 }
 .ins-delta.pos { background: rgba(139, 168, 136, 0.16); color: var(--sage); }
@@ -207,7 +207,7 @@
 }
 .ins-trend-empty {
   font-family: var(--mg-font);
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale));
   color: var(--stone);
   text-align: center;
   padding-top: 16px;
@@ -221,7 +221,7 @@
 .ins-heat-h {
   margin: 0 0 6px;
   font-family: var(--mg-font);
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--text-scale));
   color: var(--stone);
   letter-spacing: 0.04em;
 }
@@ -258,7 +258,7 @@
   border: 1px solid var(--divider);
   background: transparent;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--espresso);
   cursor: pointer;
 }
@@ -267,7 +267,7 @@
 .ins-history-empty {
   margin: 12px 0 0;
   font-family: var(--mg-font);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   color: var(--stone);
 }
 .ins-history-list {
@@ -288,11 +288,11 @@
   border-top: 1px solid var(--divider);
 }
 .ins-history-row:first-child { border-top: none; }
-.ins-history-icon { font-size: 14px; flex-shrink: 0; }
+.ins-history-icon { font-size: calc(14px * var(--text-scale)); flex-shrink: 0; }
 .ins-history-text {
   flex: 1;
   font-family: var(--mg-font);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--text-scale));
   color: var(--espresso);
   white-space: nowrap;
   overflow: hidden;
@@ -306,12 +306,12 @@
 }
 .ins-history-date {
   font-family: var(--mg-font);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
 .ins-history-val {
   font-family: var(--mg-font-num);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--text-scale));
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
 }

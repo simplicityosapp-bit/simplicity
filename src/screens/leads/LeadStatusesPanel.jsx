@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus, X, GripVertical } from 'lucide-react'
 import { LEAD_META } from '../../lib/leads'
+import ConfirmModal from '../../modals/ConfirmModal'
 
 /* Inline sub-status manager for the leads screen — mirrors what
    Settings already shows, in a more compact chip layout so the user
@@ -12,6 +13,7 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
   const [busy, setBusy] = useState({})
   const [dragId, setDragId] = useState(null)
   const [overId, setOverId] = useState(null)
+  const [pendingDelete, setPendingDelete] = useState(null) // the status awaiting delete confirm
   const setDraft = (k, v) => setDrafts((d) => ({ ...d, [k]: v }))
   const setBusyFor = (k, v) => setBusy((b) => ({ ...b, [k]: v }))
 
@@ -80,7 +82,7 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                       <button
                         type="button"
                         className="lead-statuses-chip-x"
-                        onClick={() => onRemove(s.id)}
+                        onClick={() => setPendingDelete(s)}
                         aria-label={`מחיקת ${s.display_name}`}
                         title="מחיקה"
                       >
@@ -112,6 +114,16 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
           </div>
         )
       })}
+
+      <ConfirmModal
+        open={!!pendingDelete}
+        onClose={() => setPendingDelete(null)}
+        title="מחיקת תת-סטטוס"
+        message={pendingDelete ? `למחוק את "${pendingDelete.display_name}"? לידים שמסומנים בו יישארו ללא תת-סטטוס.` : ''}
+        confirmLabel="מחק"
+        danger
+        onConfirm={() => { if (pendingDelete) onRemove(pendingDelete.id) }}
+      />
     </div>
   )
 }

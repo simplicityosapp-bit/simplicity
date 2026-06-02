@@ -6,7 +6,7 @@
    importance-weighted average of per-goal pace, each capped at 100.
    ════════════════════════════════════════════════════════════════ */
 
-import { goals as allGoals, goal_categories, goal_entries, sessions, clients as mockClients, leads as mockLeads, daily_answers as mockAnswers } from '../data/mock'
+import { goals as allGoals, goal_categories, goal_entries, sessions, clients as mockClients, leads as mockLeads, daily_answers as mockAnswers, group_members as mockMembers, groups as mockGroups } from '../data/mock'
 import { financeQuery, currentMonthRange } from './finance'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
@@ -43,7 +43,7 @@ function elapsedFraction(period, now) {
 
 const isBinary = (goal) => goal.time_frame === 'deadline' && Number(goal.target_value) === 1
 
-function goalActual(goal, cat, now, entries, transactions, clients, leads, answers) {
+function goalActual(goal, cat, now, entries, transactions, clients, leads, answers, members, groups) {
   const period = goalPeriod(goal, now)
   const to = now < period.end ? now : period.end
   /* D10 — goal tracked by a daily question: value = SUM of that question's
@@ -82,6 +82,17 @@ function goalActual(goal, cat, now, entries, transactions, clients, leads, answe
         return d >= period.start && d <= to
       }).length
     }
+    if (cat.data_source === 'group_members') {
+      /* snapshot — distinct active people in groups (graph_type cumulative),
+         optionally scoped to the goal's project. */
+      const activeMembers = live(members).filter((m) => !m.left_at)
+      let inScope = activeMembers
+      if (goal.project_id) {
+        const projGroupIds = new Set(live(groups).filter((g) => g.project_id === goal.project_id).map((g) => g.id))
+        inScope = activeMembers.filter((m) => projGroupIds.has(m.group_id))
+      }
+      return new Set(inScope.map((m) => m.client_id)).length
+    }
   }
   /* manual — sum of entries in the period */
   return live(entries)
@@ -93,11 +104,11 @@ function goalActual(goal, cat, now, entries, transactions, clients, leads, answe
     .reduce((s, e) => s + (e.value || 0), 0)
 }
 
-function scoreGoal(goal, now, categories, entries, transactions, clients, leads, answers) {
+function scoreGoal(goal, now, categories, entries, transactions, clients, leads, answers, members, groups) {
   const cat = categories.find((c) => c.id === goal.category_id)
   if (!cat || !goal.target_value || goal.target_value <= 0) return null
   const target = goal.target_value
-  const actual = goalActual(goal, cat, now, entries, transactions, clients, leads, answers)
+  const actual = goalActual(goal, cat, now, entries, transactions, clients, leads, answers, members, groups)
   const binary = isBinary(goal)
   const pure = binary ? (actual >= 1 ? 100 : 0) : Math.round((actual / target) * 100)
   const isCumulative = cat.graph_type === 'cumulative'
@@ -122,10 +133,12 @@ export function moonGetData(now = new Date(), data) {
     clients = mockClients,
     leads = mockLeads,
     answers = mockAnswers,
+    members = mockMembers,
+    groups = mockGroups,
   } = data || {}
   const scored = live(goals)
     .filter((g) => !g.parent_goal_id)
-    .map((g) => scoreGoal(g, now, categories, entries, transactions, clients, leads, answers))
+    .map((g) => scoreGoal(g, now, categories, entries, transactions, clients, leads, answers, members, groups))
     .filter(Boolean)
   if (!scored.length) return { overall: null, scored: [] }
   let tw = 0, tp = 0, tpc = 0, tc = 0

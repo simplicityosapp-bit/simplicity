@@ -52,6 +52,17 @@ export const CATEGORY_PRESETS = [
     builtin: true,
     hint: 'לידים שהומרו ללקוחות',
   },
+  {
+    key: 'group_members',
+    name: 'חברים בקבוצה',
+    icon: '👥',
+    color: '#7C8DB5',
+    measurement_type: 'auto',
+    data_source: 'group_members',
+    graph_type: 'cumulative',
+    builtin: true,
+    hint: 'נספר אוטומטית מחברי הקבוצות (אפשר לשייך לפרויקט)',
+  },
 ]
 
 /* Strip the UI-only `hint` before sending to Supabase. */

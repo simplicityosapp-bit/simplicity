@@ -8,6 +8,7 @@ import { useGoalEntries } from '../../hooks/useGoalEntries'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useProjects } from '../../hooks/useProjects'
 import { useGroups } from '../../hooks/useGroups'
+import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useClients } from '../../hooks/useClients'
 import { useLeads } from '../../hooks/useLeads'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
@@ -32,6 +33,7 @@ export default function GoalsScreen() {
   const { transactions } = useTransactions()
   const { projects } = useProjects()
   const { groups: clientGroups } = useGroups()
+  const { members } = useGroupMembers()
   const { clients } = useClients()
   const { leads } = useLeads()
   const { questions } = useUserQuestions()
@@ -51,8 +53,8 @@ export default function GoalsScreen() {
   const availablePresets = CATEGORY_PRESETS.filter((p) => !taken.has(p.data_source))
 
   const groups = useMemo(
-    () => goalsByCategory(new Date(), { goals, categories, entries, transactions, clients, leads, answers }),
-    [goals, categories, entries, transactions, clients, leads, answers],
+    () => goalsByCategory(new Date(), { goals, categories, entries, transactions, clients, leads, answers, members, groups: clientGroups }),
+    [goals, categories, entries, transactions, clients, leads, answers, members, clientGroups],
   )
   const totalGoals = groups.reduce((s, g) => s + g.goals.length, 0)
 

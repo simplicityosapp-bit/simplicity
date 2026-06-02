@@ -12,6 +12,8 @@ import { useClients } from '../../../hooks/useClients'
 import { useLeads } from '../../../hooks/useLeads'
 import { useSessions } from '../../../hooks/useSessions'
 import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
+import { useGroups } from '../../../hooks/useGroups'
+import { useGroupMembers } from '../../../hooks/useGroupMembers'
 import InfoPopover from '../../../components/InfoPopover'
 
 /* Moon-glance mini — a single chip with the pace-based confidence
@@ -37,11 +39,13 @@ export default function MoonWidget() {
   const { leads } = useLeads()
   const { sessions } = useSessions()
   const { answers } = useDailyAnswers()
+  const { groups } = useGroups()
+  const { members } = useGroupMembers()
   const [expanded, setExpanded] = useState(false)
 
   const data = useMemo(
-    () => ({ goals, categories, entries, transactions, sessions, clients, leads, answers }),
-    [goals, categories, entries, transactions, sessions, clients, leads, answers],
+    () => ({ goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups }),
+    [goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups],
   )
   const { overall } = useMemo(() => moonGetData(new Date(), data), [data])
   const cats = useMemo(() => (expanded ? moonGetCategories(new Date(), data) : []), [expanded, data])

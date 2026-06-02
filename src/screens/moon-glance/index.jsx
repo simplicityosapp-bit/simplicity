@@ -10,6 +10,8 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { useClients } from '../../hooks/useClients'
 import { useLeads } from '../../hooks/useLeads'
 import { useDailyAnswers } from '../../hooks/useDailyAnswers'
+import { useGroups } from '../../hooks/useGroups'
+import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useMoonSnapshots } from '../../hooks/useMoonSnapshots'
 import './MoonGlanceScreen.css'
 
@@ -42,9 +44,11 @@ export default function MoonGlanceScreen() {
   const { clients } = useClients()
   const { leads } = useLeads()
   const { answers } = useDailyAnswers()
+  const { groups } = useGroups()
+  const { members } = useGroupMembers()
   const data = useMemo(
-    () => ({ goals, categories, entries, transactions, clients, leads, answers }),
-    [goals, categories, entries, transactions, clients, leads, answers],
+    () => ({ goals, categories, entries, transactions, clients, leads, answers, members, groups }),
+    [goals, categories, entries, transactions, clients, leads, answers, members, groups],
   )
   const { overall } = useMemo(() => moonGetData(new Date(), data), [data])
   const cats = useMemo(() => moonGetCategories(new Date(), data), [data])

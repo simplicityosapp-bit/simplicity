@@ -34,7 +34,7 @@ export async function finalizeOnboardingImport(input = {}) {
   const summary = {
     projects:       { created: 0, skipped: 0, failed: 0 },
     clients:        { created: 0, skipped: 0, failed: 0 },
-    transactions:   { created: 0, skipped: 0, failed: 0 },
+    transactions:   { created: 0, skipped: 0, failed: 0, dateEstimated: 0 },
     recurring:      { created: 0, skipped: 0, failed: 0 },
     leads:          { created: 0, skipped: 0, failed: 0 },
     clientStatuses: { created: 0, skipped: 0, failed: 0 },
@@ -228,22 +228,26 @@ export async function finalizeOnboardingImport(input = {}) {
     existingTxns.filter((t) => t.type === 'income').map((t) => payKey(t.client_id, t.amount, t.desc)),
   )
 
-  /* Create the collected client payments (confirmed income, dated today). */
-  const todayIso = nowIso ? String(nowIso).slice(0, 10) : null
+  /* Imported "amount paid so far" totals + any dateless transactions carry
+     no real date. Rather than dropping them (lost revenue) or dating them
+     today (pollutes the current month's reports), park them on the last
+     day of the PREVIOUS year — a clear, non-distorting placeholder — and
+     count them so the user can be told to fix the dates in Finance. */
+  const estimatedDate = `${new Date(nowIso).getFullYear() - 1}-12-31`
   for (const pmt of clientPayments) {
-    if (!todayIso) break /* no clock passed → skip (caller can pass one) */
     const desc = `תשלום מיובא — ${pmt.name}`
     const pk = payKey(pmt.client_id, pmt.amount, desc)
     if (seenPay.has(pk)) { summary.transactions.skipped += 1; continue }
     try {
       await insertTransaction({
         amount: Math.abs(pmt.amount), type: 'income', desc,
-        date: todayIso, status: 'confirmed', project_id: pmt.project_id, client_id: pmt.client_id,
-        category_id: null, recurring_id: null, orphaned_from: null,
+        date: estimatedDate, status: 'confirmed', project_id: pmt.project_id, client_id: pmt.client_id,
+        category_id: null, recurring_id: null, orphaned_from: { date_estimated: true },
       })
       seenPay.add(pk)
-      seenTxns.add(txnKey(pmt.amount, 'income', todayIso, pmt.client_id, pmt.project_id))
+      seenTxns.add(txnKey(pmt.amount, 'income', estimatedDate, pmt.client_id, pmt.project_id))
       summary.transactions.created += 1
+      summary.transactions.dateEstimated += 1
     } catch (e) {
       summary.transactions.failed += 1
       summary.errors.push(`payment "${pmt.name}": ${e.message || 'unknown'}`)
@@ -293,9 +297,13 @@ export async function finalizeOnboardingImport(input = {}) {
 
   for (const t of transactions) {
     if (t.recurring) continue /* handled above as a recurring rule */
-    const date = normalizeDate(t.date)
+    let date = normalizeDate(t.date)
     const amount = Number(t.amount)
-    if (!date || Number.isNaN(amount) || amount === 0) { summary.transactions.skipped += 1; continue }
+    if (Number.isNaN(amount) || amount === 0) { summary.transactions.skipped += 1; continue }
+    /* O6: a valid amount with no/invalid date is no longer dropped — it
+       gets the historical placeholder date and is flagged as estimated. */
+    const dateEstimated = !date
+    if (dateEstimated) date = estimatedDate
     const client_id = t.client_name ? (clientIdByName.get(norm(t.client_name)) || null) : null
     const project_id = t.project_name ? (projectIdByName.get(norm(t.project_name)) || null) : null
     const type = t.type === 'expense' ? 'expense' : 'income'
@@ -312,10 +320,11 @@ export async function finalizeOnboardingImport(input = {}) {
         client_id,
         category_id: null,
         recurring_id: null,
-        orphaned_from: null,
+        orphaned_from: dateEstimated ? { date_estimated: true } : null,
       })
       seenTxns.add(key)
       summary.transactions.created += 1
+      if (dateEstimated) summary.transactions.dateEstimated += 1
     } catch (e) {
       summary.transactions.failed += 1
       summary.errors.push(`transaction ${date} ${amount}: ${e.message || 'unknown'}`)

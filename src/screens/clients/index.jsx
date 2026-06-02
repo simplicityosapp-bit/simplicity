@@ -91,7 +91,7 @@ export default function ClientsScreen() {
   const { sessions, addSession } = useSessions()
   const { addMeeting } = useScheduledMeetings()
   const { groups } = useGroups()
-  const { members } = useGroupMembers()
+  const { members, updateMember } = useGroupMembers()
   const { statuses: clientStatuses } = useClientStatuses()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [tab, setTab] = useState('active')
@@ -477,6 +477,7 @@ export default function ClientsScreen() {
         onScheduleMeeting={addMeeting}
         onAddPayment={addTransaction}
         onUpdateClient={updateClient}
+        onUpdateMember={updateMember}
       />
 
       <AddClientModal

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { listGroupMembers, insertGroupMember, removeGroupMember as apiRemove } from '../lib/api/groupMembers'
+import { listGroupMembers, insertGroupMember, updateGroupMember as apiUpdate, removeGroupMember as apiRemove } from '../lib/api/groupMembers'
 
 export function useGroupMembers() {
   const [members, setMembers] = useState([])
@@ -44,5 +44,11 @@ export function useGroupMembers() {
     try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
   }, [refetch])
 
-  return { members, loading, error, addMember, removeMember, refetch }
+  /* Optimistic patch — used for per-member billing override (total_override). */
+  const updateMember = useCallback(async (id, patch) => {
+    setMembers((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)))
+    try { await apiUpdate(id, patch) } catch (e) { setError(e.message); refetch() }
+  }, [refetch])
+
+  return { members, loading, error, addMember, updateMember, removeMember, refetch }
 }

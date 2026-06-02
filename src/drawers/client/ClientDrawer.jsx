@@ -19,7 +19,7 @@ const STATUS = {
 const initials = (name) =>
   (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient }) {
+export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient, onUpdateMember }) {
   const open = !!client
   const [actionModal, setActionModal] = useState(null)
   const [statusMenu, setStatusMenu] = useState(false)
@@ -191,7 +191,9 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         projects={projects}
         groups={groups}
         statuses={statuses}
+        memberships={members.filter((m) => m.client_id === client.id && !m.left_at)}
         onSave={onUpdateClient}
+        onUpdateMember={onUpdateMember}
       />
     </>
   )

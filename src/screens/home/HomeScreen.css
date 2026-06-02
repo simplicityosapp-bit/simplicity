@@ -122,6 +122,22 @@
     0 0 28px color-mix(in srgb, var(--widget-accent, transparent) 18%, transparent),
     var(--mg-card-shadow);
 }
+/* The moon widget's root is a LAYOUT block wrapping a ROUND chip — the
+   generic ring above would draw a SQUARE around the circle. Move the ring
+   onto the chip itself so it hugs the actual (round) widget. */
+.home-stack .home-widget > .moon-block { box-shadow: none; }
+.home-stack .home-widget[data-widget-id="moon"] .moon-chip {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 28%, transparent),
+    0 0 22px color-mix(in srgb, var(--widget-accent, transparent) 14%, transparent),
+    var(--mg-card-shadow);
+}
+[data-theme="dark"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 40%, transparent),
+    0 0 28px color-mix(in srgb, var(--widget-accent, transparent) 18%, transparent),
+    var(--mg-card-shadow);
+}
 
 /* Card-style is driven by CSS variables on `.home-screen` so the cards
    themselves only read the variables — no comma-separated selector lists

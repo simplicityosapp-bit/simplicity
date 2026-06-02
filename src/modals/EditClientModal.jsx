@@ -29,8 +29,10 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     sessions: client?.sessions ?? '',
     price_per_session: client?.price_per_session ?? '',
     total_due: client?.total_override != null ? String(client.total_override) : '',
-    /* "שולם" as shown on the card = real income + manual adjustment. */
-    paid: String(rawPaid + (Number(client?.balance_adjustment) || 0)),
+    /* "שולם" = real income only (stays put). "adjustment" = the forgiveness
+       that lowers "יתרה". */
+    paid: String(rawPaid),
+    adjustment: String(Number(client?.balance_adjustment) || 0),
     phone: client?.phone || '',
     project_id: client?.project_id || '',
     group_id: client?.group_id || '',
@@ -61,9 +63,10 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         ? Number(form.total_due)
         : (Number(form.sessions) || 0) * (Number(form.price_per_session) || 0))
   const livePaid = Number(form.paid) || 0
-  const liveBalance = liveTotal - livePaid
-  /* Editing "יתרה" back-solves "שולם" so total stays the automatic anchor. */
-  const setBalance = (v) => set('paid', String(liveTotal - (Number(v) || 0)))
+  const liveAdj = Number(form.adjustment) || 0
+  const liveBalance = liveTotal - livePaid - liveAdj
+  /* Editing "יתרה" moves the forgiveness (adjustment) — "שולם" stays put. */
+  const setBalance = (v) => set('adjustment', String(liveTotal - livePaid - (Number(v) || 0)))
 
   const submit = async () => {
     if (!form.name.trim()) { setErr('יש למלא שם.'); return }
@@ -100,10 +103,10 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       const nextPaid = Number(form.paid) || 0
       let paymentDelta = 0
       if (lastBillEdit === 'balance') {
-        const nextAdj = nextPaid - rawPaid
+        const nextAdj = Number(form.adjustment) || 0
         if (nextAdj !== prevAdj) patch.balance_adjustment = nextAdj
       } else if (lastBillEdit === 'paid') {
-        paymentDelta = nextPaid - (rawPaid + prevAdj)
+        paymentDelta = nextPaid - rawPaid
       }
       await onSave(client.id, patch)
       /* Persist any changed per-group billing overrides. */

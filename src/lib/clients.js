@@ -59,13 +59,13 @@ function membershipTotal(m, groupsData, heldCount = 0) {
 }
 
 export function clientBalance(c, txns, sessionsData = sessions, membersData = mockMembers, groupsData = mockGroups) {
-  /* Real money in = confirmed income transactions. The manual
-     balance_adjustment (set from the card) is a signed credit on top, so
-     the user can fix "שולם"/"יתרה" without faking transactions and without
-     freezing the price × sessions engine. */
+  /* "שולם" = real confirmed income only — it stays put. The manual
+     balance_adjustment (a forgiveness/credit) reduces the BALANCE directly,
+     so zeroing a balance after a price change never touches "שולם" and
+     never freezes the price × sessions engine. */
   const paidReal = financeQuery({ type: 'income', clientId: c.id, source: txns }).reduce((s, f) => s + f.amount, 0)
   const adjustment = Number(c.balance_adjustment) || 0
-  const paid = paidReal + adjustment
+  const paid = paidReal
 
   const memberships = getClientMemberships(c.id, membersData)
   const liveSess = live(sessionsData)
@@ -101,7 +101,7 @@ export function clientBalance(c, txns, sessionsData = sessions, membersData = mo
   }, 0)
   const sessionsTotal = (c.sessions || 0) + memSessions
 
-  return { paid, paidReal, adjustment, total, memberTotal: memTotal, balance: total - paid, sessionsPaid: privateCount + groupCount, sessionsTotal }
+  return { paid, paidReal, adjustment, total, memberTotal: memTotal, balance: total - paid - adjustment, sessionsPaid: privateCount + groupCount, sessionsTotal }
 }
 
 /* Sum confirmed income for a set of clients, optionally within a date range. */

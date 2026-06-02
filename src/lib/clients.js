@@ -59,13 +59,14 @@ function membershipTotal(m, groupsData, heldCount = 0) {
 }
 
 export function clientBalance(c, txns, sessionsData = sessions, membersData = mockMembers, groupsData = mockGroups) {
-  /* "שולם" = real confirmed income only — it stays put. The manual
-     balance_adjustment (a forgiveness/credit) reduces the BALANCE directly,
-     so zeroing a balance after a price change never touches "שולם" and
-     never freezes the price × sessions engine. */
+  /* "שולם" = real confirmed income + paid_adjustment (an INFORMAL paid
+     credit recorded from the card via "התעלם" — money received but not
+     entered as a finance transaction). The separate balance_adjustment is
+     a forgiveness that lowers the BALANCE without touching "שולם", so
+     zeroing a balance never freezes the price × sessions engine. */
   const paidReal = financeQuery({ type: 'income', clientId: c.id, source: txns }).reduce((s, f) => s + f.amount, 0)
   const adjustment = Number(c.balance_adjustment) || 0
-  const paid = paidReal
+  const paid = paidReal + (Number(c.paid_adjustment) || 0)
 
   const memberships = getClientMemberships(c.id, membersData)
   const liveSess = live(sessionsData)

@@ -31,9 +31,9 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     done: String(personalHeld + (Number(client?.sessions_done_adjustment) || 0)),
     price_per_session: client?.price_per_session ?? '',
     total_due: client?.total_override != null ? String(client.total_override) : '',
-    /* "שולם" = real income only (stays put). "adjustment" = the forgiveness
-       that lowers "יתרה". */
-    paid: String(rawPaid),
+    /* "שולם" = real income + informal paid_adjustment (from past "התעלם").
+       "adjustment" = the balance forgiveness that lowers "יתרה". */
+    paid: String(rawPaid + (Number(client?.paid_adjustment) || 0)),
     adjustment: String(Number(client?.balance_adjustment) || 0),
     phone: client?.phone || '',
     project_id: client?.project_id || '',
@@ -114,7 +114,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         const nextAdj = Number(form.adjustment) || 0
         if (nextAdj !== prevAdj) patch.balance_adjustment = nextAdj
       } else if (lastBillEdit === 'paid') {
-        paymentDelta = nextPaid - rawPaid
+        /* delta vs the currently-shown "שולם" (= real income + informal adj). */
+        paymentDelta = nextPaid - (rawPaid + (Number(client?.paid_adjustment) || 0))
       }
       await onSave(client.id, patch)
       /* Persist any changed per-group billing overrides. */

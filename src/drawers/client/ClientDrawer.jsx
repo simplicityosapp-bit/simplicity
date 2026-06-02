@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X, Pencil, Trash2, Check, CalendarPlus, Banknote, ChevronDown } from 'lucide-react'
 import { clientBalance, effectiveClientMeta, isGroupDriven } from '../../lib/clients'
 import { isr } from '../../lib/finance'
@@ -28,6 +28,9 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
      "record a transaction?" prompt; paymentAmount pre-fills the payment modal. */
   const [pendingPayment, setPendingPayment] = useState(null)
   const [paymentAmount, setPaymentAmount] = useState(null)
+  /* True while "הוסף תנועה" is handling the prompt, so the shared onClose
+     doesn't ALSO record an informal credit. */
+  const paidActionRef = useRef(false)
 
   useEffect(() => {
     if (!open) return
@@ -218,17 +221,25 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         onPaidEntry={(delta) => setPendingPayment(delta)}
       />
 
-      {/* Manual "שולם" edit → ask whether to record a real transaction. */}
+      {/* Manual "שולם" edit → record a real transaction, or just fix the card. */}
       <ConfirmModal
         open={pendingPayment != null}
-        onClose={() => setPendingPayment(null)}
+        onClose={() => {
+          /* "התעלם" (or dismiss) → keep the change ON THE CARD only: store
+             the delta as an informal paid_adjustment, no finance entry. */
+          if (!paidActionRef.current && pendingPayment != null && client) {
+            onUpdateClient?.(client.id, { paid_adjustment: (Number(client.paid_adjustment) || 0) + pendingPayment })
+          }
+          paidActionRef.current = false
+          setPendingPayment(null)
+        }}
         title="עדכון תשלום ידני"
         message={pendingPayment != null
-          ? `שינית את «שולם» ב-${isr(Math.abs(pendingPayment))}. להוסיף תנועה רשמית בכספים (מומלץ), או להתעלם מהשינוי?`
+          ? `עדכנת את «שולם» ב-${isr(Math.abs(pendingPayment))}. להוסיף תנועה רשמית בכספים, או רק לעדכן את כרטיס הלקוח (בלי תנועה)?`
           : ''}
         confirmLabel="הוסף תנועה"
-        cancelLabel="התעלם"
-        onConfirm={() => { setPaymentAmount(pendingPayment); setPendingPayment(null); setActionModal('payment') }}
+        cancelLabel="רק בכרטיס"
+        onConfirm={() => { paidActionRef.current = true; setPaymentAmount(pendingPayment); setActionModal('payment') }}
       />
     </>
   )

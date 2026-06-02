@@ -34,6 +34,9 @@ alter table clients add column if not exists balance_adjustment numeric not null
 -- 0011 — client manual "sessions done" adjustment ("נעשה")
 alter table clients add column if not exists sessions_done_adjustment integer not null default 0;
 
+-- 0012 — client informal "paid" adjustment ("שולם" via "רק בכרטיס")
+alter table clients add column if not exists paid_adjustment numeric not null default 0;
+
 -- 0009a — sort_order for sub-status reordering
 alter table lead_statuses add column if not exists sort_order integer not null default 0;
 

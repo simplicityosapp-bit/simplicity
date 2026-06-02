@@ -32,6 +32,18 @@
   font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
 }
+/* C10 — "linked to a goal" badge on a daily question */
+.set-q-goal {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: var(--sage-deep, var(--sage));
+  background: color-mix(in srgb, var(--sage) 16%, transparent);
+}
 .set-q-del {
   flex-shrink: 0;
   display: inline-flex;

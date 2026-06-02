@@ -70,8 +70,8 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
         </div>
         <p className="drawer-title-sub">תפריט · העדפות וכלים אישיים</p>
 
-        {/* Profile chip → settings */}
-        <button className="drawer-profile" onClick={() => goTo(ROUTES.SETTINGS)}>
+        {/* Profile chip → settings, opening the profile section directly */}
+        <button className="drawer-profile" onClick={() => { navigate(ROUTES.SETTINGS, { state: { openSection: 'profile' } }); onClose() }}>
           <span className="drawer-profile-avatar">{initial(name)}</span>
           <span className="drawer-profile-text">
             <span className="drawer-profile-name">{name}</span>

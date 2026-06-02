@@ -616,6 +616,32 @@
   color: var(--moon-deep);
   flex-shrink: 0;
 }
+/* on/off switch for the current daily question (mirrors settings) */
+.ins-q-switch {
+  margin-inline-start: auto;
+  flex: none;
+  position: relative;
+  width: 30px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--moon-deep) 55%, transparent);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.ins-q-switch:not(.on) { background: var(--stone); }
+.ins-q-switch-thumb {
+  position: absolute;
+  top: 2px;
+  inset-inline-start: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: inset-inline-start 0.15s ease;
+}
+.ins-q-switch.on .ins-q-switch-thumb { inset-inline-start: 14px; }
 .ins-empty {
   margin: 0;
   font-family: var(--mg-font);

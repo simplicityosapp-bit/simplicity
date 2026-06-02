@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Check } from 'lucide-react'
 import { formatWhen } from '../../lib/dates'
 
@@ -6,7 +7,7 @@ import { formatWhen } from '../../lib/dates'
    The meta line shows the scheduled date/time and (optional) linked
    client. Dot color signals urgency: clay if overdue, amber if today,
    sage otherwise. */
-export default function ReminderItem({ reminder, clientName, dotColor, onComplete, index }) {
+function ReminderItem({ reminder, clientName, dotColor, onComplete, index }) {
   const isDone = reminder.status === 'completed'
   const meta = [clientName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
 
@@ -29,3 +30,5 @@ export default function ReminderItem({ reminder, clientName, dotColor, onComplet
     </div>
   )
 }
+
+export default memo(ReminderItem)

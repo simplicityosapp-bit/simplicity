@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import {
   BrowserRouter, Routes, Route, Navigate, useLocation,
 } from 'react-router-dom'
@@ -70,6 +70,29 @@ function AppShell() {
      out, but every other route bounces to the wizard. */
   const ob = prefs?.onboarding
   const obDone = !!(ob?.completed_at || ob?.skipped_at)
+
+  /* Warm the most-visited screen chunks during idle time once the first
+     screen is up, so navigating to them is instant instead of showing the
+     lazy fallback. Initial load stays small (these run AFTER paint, only
+     when the browser is idle). Prefetch failures are silent (offline). */
+  useEffect(() => {
+    if (prefsLoading || !obDone) return undefined
+    const prefetch = () => {
+      import('./screens/clients').catch(() => {})
+      import('./screens/finance').catch(() => {})
+      import('./screens/tasks').catch(() => {})
+      import('./screens/calendar').catch(() => {})
+      import('./screens/leads').catch(() => {})
+      import('./screens/goals').catch(() => {})
+    }
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(prefetch, { timeout: 2500 })
+      return () => window.cancelIdleCallback?.(id)
+    }
+    const id = setTimeout(prefetch, 1500)
+    return () => clearTimeout(id)
+  }, [prefsLoading, obDone])
+
   if (prefsLoading) return null
   if (!obDone) {
     return (

@@ -1,38 +1,42 @@
 -- ════════════════════════════════════════════════════════════════════════
 -- CONSOLIDATED — all pending schema changes (migrations 0007 → 0010)
 -- ════════════════════════════════════════════════════════════════════════
--- Convenience aggregate for applying every recent change in ONE run from the
--- Supabase SQL editor. 100% idempotent (add column if not exists / drop
--- constraint if exists / guarded inserts + conditional updates) — safe to run
--- more than once. Wrapped in a transaction so it's all-or-nothing.
+-- Run from the Supabase SQL editor. 100% idempotent (add column if not
+-- exists / drop constraint if exists / guarded inserts + conditional
+-- updates) — safe to run more than once.
 --
--- Covers:
---   0007  recurring window (end time + start/end dates) on groups + clients
---   0008  clients.total_override + has_custom_price (manual "סה״כ לתשלום")
---   0009  ghost → sub-status under "לא רלוונטי" + lead_statuses.sort_order
---   0010  clients.balance_adjustment (manual "שולם"/"יתרה" editing)
+-- NOT wrapped in a transaction ON PURPOSE: the column adds (PART A) must
+-- stick even if the ghost data-migration (PART B) ever errors, so a problem
+-- in one section can never roll back the others. Each `notify pgrst` forces
+-- PostgREST to refresh its schema cache so new columns are visible at once.
+--
+-- If PART B shows a red error, the columns from PART A are already applied —
+-- copy the error and we'll sort PART B out separately.
 -- ════════════════════════════════════════════════════════════════════════
 
-begin;
+-- ░░ PART A — additive columns (safe, run first) ░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
--- ── 0007 — recurring window ──────────────────────────────────────────────
+-- 0007 — recurring window
 alter table groups  add column if not exists recurring_end_time   text;
 alter table groups  add column if not exists recurring_start_date date;
 alter table groups  add column if not exists recurring_end_date   date;
-
 alter table clients add column if not exists recurring_end_time   text;
 alter table clients add column if not exists recurring_start_date date;
 alter table clients add column if not exists recurring_end_date   date;
 
--- ── 0008 — client manual "total due" override ────────────────────────────
+-- 0008 — client manual "total due" override
 alter table clients add column if not exists total_override   numeric;
 alter table clients add column if not exists has_custom_price boolean not null default false;
 
--- ── 0010 — client manual balance adjustment ──────────────────────────────
+-- 0010 — client manual balance adjustment ("שולם"/"יתרה")
 alter table clients add column if not exists balance_adjustment numeric not null default 0;
 
--- ── 0009 — lead status restructure (ghost → not_relevant) + sort_order ────
+-- 0009a — sort_order for sub-status reordering
 alter table lead_statuses add column if not exists sort_order integer not null default 0;
+
+notify pgrst, 'reload schema';
+
+-- ░░ PART B — ghost → not_relevant reclassification + CHECK constraints ░░░░
 
 -- 1. ensure a "רפאים" sub-status under not_relevant for users with ghost data
 insert into lead_statuses (user_id, meta_category, display_name, color, icon, is_default, legacy_key, sort_order)
@@ -69,4 +73,4 @@ alter table lead_statuses drop constraint if exists lead_statuses_meta_category_
 alter table lead_statuses add constraint lead_statuses_meta_category_check
   check (meta_category in ('in_process', 'converted', 'not_relevant'));
 
-commit;
+notify pgrst, 'reload schema';

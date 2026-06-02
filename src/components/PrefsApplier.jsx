@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { setCurrentCurrency } from '../lib/finance'
+import { setDateTimeFormat } from '../lib/dates'
 
 /* ════════════════════════════════════════════════════════════════
    PrefsApplier — one-way bridge from user_preferences to side-effects.
@@ -16,6 +17,14 @@ export default function PrefsApplier() {
   useEffect(() => {
     if (prefs?.format?.currency) setCurrentCurrency(prefs.format.currency)
   }, [prefs?.format?.currency])
+
+  /* Date + time format → lib/dates (drives fmtShortDate / fmtTime app-wide) */
+  useEffect(() => {
+    setDateTimeFormat({
+      date_format: prefs?.format?.date_format,
+      time_format: prefs?.format?.time_format,
+    })
+  }, [prefs?.format?.date_format, prefs?.format?.time_format])
 
   /* Theme → <html data-theme>. Mirrored to localStorage so a refresh
      before prefs load shows the right theme. */

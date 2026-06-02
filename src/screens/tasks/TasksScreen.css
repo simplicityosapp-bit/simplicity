@@ -132,6 +132,20 @@
   font-weight: 500;
   color: var(--espresso);
 }
+/* "×N" badge — recurring reminder with several occurrences still due */
+.tc-recur-count {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--clay) 16%, transparent);
+  color: var(--clay);
+  font-family: var(--mg-font-num);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  vertical-align: middle;
+}
 .tc-meta {
   margin: 3px 0 0;
   font-family: var(--mg-font);

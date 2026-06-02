@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { listReminders, insertReminder, updateReminder, removeReminder as apiRemove } from '../lib/api/reminders'
+import { isRecurring, nextScheduledAt } from '../lib/reminders'
+
+const bySchedule = (a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at)
 
 export function useReminders() {
   const [reminders, setReminders] = useState([])
@@ -39,15 +42,29 @@ export function useReminders() {
     return row
   }, [])
 
-  const completeReminder = useCallback(async (id) => {
-    setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'completed' } : r)))
+  /* Accepts a reminder object (preferred) or an id. A recurring reminder
+     ADVANCES to its next occurrence (so it actually recurs) instead of being
+     marked done — unless it passed its end_date, then it stops. */
+  const completeReminder = useCallback(async (arg) => {
+    const r = (arg && typeof arg === 'object') ? arg : reminders.find((x) => x.id === arg)
+    if (!r) return
+    let patch
+    if (isRecurring(r)) {
+      const next = nextScheduledAt(r)
+      patch = (r.end_date && next > new Date(r.end_date))
+        ? { status: 'completed' }
+        : { scheduled_at: next.toISOString() }
+    } else {
+      patch = { status: 'completed' }
+    }
+    setReminders((prev) => prev.map((x) => (x.id === r.id ? { ...x, ...patch } : x)).sort(bySchedule))
     try {
-      await updateReminder(id, { status: 'completed' })
+      await updateReminder(r.id, patch)
     } catch (e) {
       setError(e.message)
       refetch()
     }
-  }, [refetch])
+  }, [reminders, refetch])
 
   const removeReminder = useCallback(async (id) => {
     setReminders((prev) => prev.filter((r) => r.id !== id))

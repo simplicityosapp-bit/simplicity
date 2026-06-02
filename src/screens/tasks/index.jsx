@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ListTodo, Plus } from 'lucide-react'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
@@ -10,6 +10,7 @@ import AddTaskModal from '../../modals/AddTaskModal'
 import AddReminderModal from '../../modals/AddReminderModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
+import { isRecurring, isActiveReminder, dueOccurrenceCount } from '../../lib/reminders'
 import './TasksScreen.css'
 
 const PRIORITY_COLOR = {
@@ -27,6 +28,12 @@ const FILTERS = [
   { key: 'done', label: 'הושלמו' },
   { key: 'all', label: 'הכל' },
 ]
+/* Reminders get their own tabs: open vs the recurring schedule. */
+const REM_FILTERS = [
+  { key: 'todo', label: 'פתוחות' },
+  { key: 'recurring', label: 'חוזרות' },
+]
+const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
 /* Date buckets used to group reminders the same way tasks are grouped
    by priority — keeps the visual rhythm identical between the two
@@ -64,6 +71,9 @@ export default function TasksScreen() {
   const [showAdd, setShowAdd] = useState(false)
 
   const isTasks = view === 'tasks'
+  /* Reset to the "open" tab when flipping views (the other tabs differ). */
+  useEffect(() => { setFilter('todo') }, [view])
+  const filters = isTasks ? FILTERS : REM_FILTERS
   const loading = isTasks ? tasksLoading : remindersLoading
   const error = isTasks ? tasksError : remindersError
 
@@ -89,10 +99,29 @@ export default function TasksScreen() {
   }, [tasks, filter])
 
   const filteredReminders = useMemo(() => {
-    if (filter === 'todo') return reminders.filter((r) => r.status !== 'completed')
-    if (filter === 'done') return reminders.filter((r) => r.status === 'completed')
-    return reminders
-  }, [reminders, filter])
+    /* "פתוחות" = open one-off + recurring whose occurrence has come due. */
+    return reminders.filter((r) => {
+      if (!isActiveReminder(r)) return false
+      return isRecurring(r) ? dueOccurrenceCount(r, now) >= 1 : true
+    })
+  }, [reminders, now])
+
+  /* "חוזרות" tab — all active recurring reminders, grouped: weekly by
+     day-of-week, monthly together, every-X-days together. */
+  const recurringGroups = useMemo(() => {
+    if (isTasks) return []
+    const rec = reminders.filter((r) => isRecurring(r) && isActiveReminder(r))
+    const groups = []
+    for (let d = 0; d < 7; d++) {
+      const items = rec.filter((r) => r.recurrence_type === 'weekly' && r.recurrence_pattern?.dayOfWeek === d)
+      if (items.length) groups.push({ key: `w${d}`, label: `יום ${HEB_DAYS[d]}`, color: 'var(--sage)', items })
+    }
+    const monthly = rec.filter((r) => r.recurrence_type === 'monthly_date')
+    if (monthly.length) groups.push({ key: 'monthly', label: 'חודשי', color: 'var(--moon-deep)', items: monthly })
+    const everyX = rec.filter((r) => r.recurrence_type === 'every_x_days')
+    if (everyX.length) groups.push({ key: 'everyx', label: 'כל כמה ימים', color: 'var(--clay)', items: everyX })
+    return groups
+  }, [reminders, isTasks])
 
   const projOf = (id) => projects.find((p) => p.id === id)
   const clientNameOf = (id) => clients.find((c) => c.id === id)?.name
@@ -172,7 +201,7 @@ export default function TasksScreen() {
       </section>
 
       <div className="mg-toggle t-filter" role="tablist" aria-label="סינון לפי סטטוס">
-        {FILTERS.map((f) => (
+        {filters.map((f) => (
           <button
             key={f.key}
             type="button"
@@ -233,28 +262,33 @@ export default function TasksScreen() {
             })
           )
         ) : (
-          filteredReminders.length === 0 ? (
-            <div className="empty"><p className="empty-text">{emptyMsg}</p></div>
-          ) : filter === 'done' ? (
-            /* Completed reminders render as one flat group — date
-               buckets don't carry meaning once the item is closed. */
-            <div className="t-group">
-              <p className="t-group-lbl">
-                <span className="t-group-dot" style={{ background: 'var(--mist)' }} />
-                הושלמו
-                <span className="t-group-count">{filteredReminders.length}</span>
-              </p>
-              {filteredReminders.map((r, i) => (
-                <ReminderItem
-                  key={r.id}
-                  reminder={r}
-                  clientName={clientNameOf(r.client_id)}
-                  dotColor="var(--mist)"
-                  onComplete={completeReminder}
-                  index={i}
-                />
-              ))}
-            </div>
+          filter === 'recurring' ? (
+            /* "חוזרות" — recurring schedule grouped by weekday / monthly. */
+            recurringGroups.length === 0 ? (
+              <div className="empty"><p className="empty-text">אין תזכורות חוזרות עדיין.</p></div>
+            ) : (
+              recurringGroups.map((g) => (
+                <div key={g.key} className="t-group">
+                  <p className="t-group-lbl">
+                    <span className="t-group-dot" style={{ background: g.color }} />
+                    {g.label}
+                    <span className="t-group-count">{g.items.length}</span>
+                  </p>
+                  {g.items.map((r, i) => (
+                    <ReminderItem
+                      key={r.id}
+                      reminder={r}
+                      clientName={clientNameOf(r.client_id)}
+                      dotColor={g.color}
+                      onComplete={completeReminder}
+                      index={i}
+                    />
+                  ))}
+                </div>
+              ))
+            )
+          ) : filteredReminders.length === 0 ? (
+            <div className="empty"><p className="empty-text">אין תזכורות פתוחות. הכל רגוע.</p></div>
           ) : (
             REM_BUCKETS.map((b) => {
               const items = filteredReminders.filter((r) => reminderBucket(r, now) === b.key)
@@ -273,6 +307,7 @@ export default function TasksScreen() {
                       clientName={clientNameOf(r.client_id)}
                       dotColor={b.color}
                       onComplete={completeReminder}
+                      count={dueOccurrenceCount(r, now)}
                       index={i}
                     />
                   ))}

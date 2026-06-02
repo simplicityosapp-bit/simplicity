@@ -32,23 +32,6 @@
   font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
 }
-.set-q-toggle {
-  flex-shrink: 0;
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--divider);
-  background: transparent;
-  font-family: var(--mg-font);
-  font-size: calc(11px * var(--text-scale));
-  font-weight: 600;
-  color: var(--stone);
-  cursor: pointer;
-}
-.set-q-toggle.on {
-  background: var(--sage);
-  border-color: var(--sage);
-  color: #fff;
-}
 .set-q-del {
   flex-shrink: 0;
   display: inline-flex;

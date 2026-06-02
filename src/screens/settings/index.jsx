@@ -28,6 +28,7 @@ import {
   TEXT_SIZE_OPTIONS, GENDER_OPTIONS, WIDGET_REGISTRY, ACCENT_OPTIONS,
   CARD_STYLE_OPTIONS, TEXT_STRENGTH_OPTIONS, DENSITY_OPTIONS,
 } from '../../lib/preferences'
+import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
 import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV } from '../../lib/export'
 import { defaultOnboarding } from '../../lib/preferences'
@@ -97,6 +98,28 @@ function PaymentsBody({ prefs, onUpdate }) {
       <Segmented label="פורמט תאריך" value={f.date_format || 'DD/MM/YY'} options={DATE_FORMAT_OPTIONS} onChange={setVal('date_format')} />
       <Segmented label="פורמט שעה" value={f.time_format || '24h'} options={TIME_FORMAT_OPTIONS} onChange={setVal('time_format')} />
       <Segmented label="יום ראשון בשבוע" value={f.week_start || 'sunday'} options={WEEK_START_OPTIONS} onChange={setVal('week_start')} />
+    </div>
+  )
+}
+
+/* ── Color dots ───────────────────────────────────────────────────
+   Shared swatch picker (reuses the finance category palette) for the
+   lead-source and lead sub-status colors. */
+function ColorDots({ value, onChange }) {
+  return (
+    <div className="set-color-dots" role="radiogroup" aria-label="צבע">
+      {CATEGORY_COLORS.map((c) => (
+        <button
+          key={c}
+          type="button"
+          role="radio"
+          aria-checked={value === c}
+          aria-label={`צבע ${c}`}
+          className={`set-color-dot${value === c ? ' on' : ''}`}
+          style={{ background: c }}
+          onClick={() => onChange(c)}
+        />
+      ))}
     </div>
   )
 }
@@ -435,8 +458,9 @@ function ProfileBody({ prefs, onUpdate }) {
 
 /* Render a meta-grouped sub-status list with an inline add row per meta.
    Used for both client_statuses and lead_statuses. */
-function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, loading, error }) {
+function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, loading, error, withColor = false }) {
   const [addError, setAddError] = useState(null)
+  const [draftColors, setDraftColors] = useState({})
   if (loading) {
     return <div className="set-sub"><p className="set-sub-empty">טוען…</p></div>
   }
@@ -446,11 +470,14 @@ function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, load
       {metas.map((m) => {
         const list = statuses.filter((s) => s.meta_category === m.k)
         const draft = drafts[m.k] || ''
+        const color = draftColors[m.k] || CATEGORY_COLORS[0]
         const submit = async () => {
           const name = draft.trim()
           if (!name) return
           try {
-            await onAdd({ meta_category: m.k, display_name: name, icon: null, is_default: false })
+            const payload = { meta_category: m.k, display_name: name, icon: null, is_default: false }
+            if (withColor) payload.color = color
+            await onAdd(payload)
             setDraft(m.k, '')
             setAddError(null)
           } catch (e) {
@@ -482,6 +509,9 @@ function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, load
                 <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
               </button>
             </div>
+            {withColor && (
+              <ColorDots value={color} onChange={(c) => setDraftColors((d) => ({ ...d, [m.k]: c }))} />
+            )}
           </div>
         )
       })}
@@ -494,6 +524,7 @@ export default function SettingsScreen() {
   const [open, setOpen] = useState('profile')
   const [showAddQ, setShowAddQ] = useState(false)
   const [newSourceName, setNewSourceName] = useState('')
+  const [newSourceColor, setNewSourceColor] = useState(CATEGORY_COLORS[0])
   const [sourceError, setSourceError] = useState(null)
   const [clientDrafts, setClientDrafts] = useState({})
   const [leadDrafts, setLeadDrafts] = useState({})
@@ -811,7 +842,7 @@ export default function SettingsScreen() {
         const v = newSourceName.trim()
         if (!v) return
         try {
-          await addSource({ name: v, color: '#0e9888' })
+          await addSource({ name: v, color: newSourceColor })
           setNewSourceName('')
           setSourceError(null)
         } catch (e) {
@@ -850,6 +881,7 @@ export default function SettingsScreen() {
               <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
             </button>
           </div>
+          <ColorDots value={newSourceColor} onChange={setNewSourceColor} />
           {sourceError && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{sourceError}</p>}
 
           <p className="set-sub-h" style={{ marginTop: 14 }}>תתי-סטטוסים</p>
@@ -862,6 +894,7 @@ export default function SettingsScreen() {
             onRemove={(status, peers) => setPendingDelete({ kind: 'lead', status, peers })}
             loading={leadStatusesLoading}
             error={leadStatusesError}
+            withColor
           />
         </div>
       )

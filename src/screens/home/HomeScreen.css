@@ -830,18 +830,6 @@
   flex-direction: column;
 }
 
-/* ── Collapsible card (attention / reminders / next-tasks) ──────────
-   The header looks IDENTICAL to a normal card — the only change is that
-   it's clickable and closed by default. No chevron, no extra chrome.
-   When collapsed there's no list, so drop the header's bottom gap. */
-.h-card-head-toggle {
-  cursor: pointer;
-  user-select: none;
-}
-.h-card.is-collapsed .h-card-head-toggle {
-  margin-bottom: 0;
-}
-
 /* Generic clickable row. */
 .h-attn-row,
 .h-task-row,

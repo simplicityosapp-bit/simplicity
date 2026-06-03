@@ -7,14 +7,18 @@ const PRIORITIES = [
   { k: 'low', l: 'נמוך' },
 ]
 const blank = () => ({ title: '', priority: 'medium', project_id: '', client_id: '' })
+const fromTask = (t) => (t
+  ? { title: t.title || '', priority: t.priority || 'medium', project_id: t.project_id || '', client_id: t.client_id || '' }
+  : blank())
 
-/* onSave is async (Supabase insert). */
-export default function AddTaskModal({ open, onClose, onSave, projects = [], clients = [] }) {
-  const [form, setForm] = useState(blank)
+/* onSave is async (Supabase insert/update). Pass `task` to edit an existing one. */
+export default function AddTaskModal({ open, onClose, onSave, projects = [], clients = [], task = null }) {
+  const isEdit = !!task
+  const [form, setForm] = useState(() => fromTask(task))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(fromTask(task)); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
     if (!form.title.trim()) { setErr('חובה למלא תיאור'); return }
@@ -24,10 +28,9 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
       await onSave({
         title: form.title.trim(),
         priority: form.priority,
-        status: 'todo',
         project_id: form.project_id || null,
         client_id: form.client_id || null,
-        completed_at: null,
+        ...(isEdit ? {} : { status: 'todo', completed_at: null }),
       })
       close()
     } catch (e) {
@@ -39,7 +42,7 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
   const titleMissing = !!err && !form.title.trim()
 
   return (
-    <Modal open={open} onClose={close} title="משימה חדשה">
+    <Modal open={open} onClose={close} title={isEdit ? 'עריכת משימה' : 'משימה חדשה'}>
       <div className="m-field">
         <label className="m-label">מה צריך לעשות?</label>
         <input

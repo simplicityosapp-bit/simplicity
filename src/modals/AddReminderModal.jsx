@@ -49,6 +49,26 @@ function nextMonthly(dom, time) {
   return d
 }
 
+/* Reverse-map an existing reminder into the form shape (for editing). */
+function fromReminder(r) {
+  if (!r) return blank()
+  const d = new Date(r.scheduled_at)
+  const pad = (x) => String(x).padStart(2, '0')
+  const rec = r.recurrence_type || 'none'
+  return {
+    title: r.title || '',
+    description: r.description || '',
+    date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+    client_id: (r.linked_to_type === 'client' && r.linked_to_id) ? r.linked_to_id : '',
+    recurrence: rec,
+    day_of_week: String(r.recurrence_pattern?.dayOfWeek ?? new Date().getDay()),
+    day_of_month: String(r.recurrence_pattern?.dayOfMonth ?? new Date().getDate()),
+    every_x: String(r.recurrence_pattern?.x ?? 2),
+    end_date: r.end_date || '',
+  }
+}
+
 /* onSave is async (Supabase insert). Supports one-off or recurring reminders.
    Recurrence is chosen FIRST, then a fitting timing field appears: a weekday
    for weekly, a day-of-month for monthly, a start date for every-X / one-off.
@@ -56,12 +76,13 @@ function nextMonthly(dom, time) {
    (which silently defaulted to today → everything showed "היום").
    `defaultLinkedTo` pre-binds the reminder to a project/group/etc. and hides
    the client selector — used when opened from a project drawer. */
-export default function AddReminderModal({ open, onClose, onSave, clients = [], defaultLinkedTo = null, linkedSubjectName = '' }) {
-  const [form, setForm] = useState(blank)
+export default function AddReminderModal({ open, onClose, onSave, clients = [], defaultLinkedTo = null, linkedSubjectName = '', reminder = null }) {
+  const isEdit = !!reminder
+  const [form, setForm] = useState(() => fromReminder(reminder))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(fromReminder(reminder)); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
     if (!form.title.trim()) { setErr('יש למלא כותרת.'); return }
@@ -102,9 +123,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
         end_date: form.recurrence !== 'none' && form.end_date ? form.end_date : null,
         linked_to_type: defaultLinkedTo?.type || (form.client_id ? 'client' : null),
         linked_to_id: defaultLinkedTo?.id || form.client_id || null,
-        status: 'pending',
-        type: null,
-        channel: null,
+        ...(isEdit ? {} : { status: 'pending', type: null, channel: null }),
       })
       close()
     } catch (e) {
@@ -117,7 +136,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
   const recurring = form.recurrence !== 'none'
 
   return (
-    <Modal open={open} onClose={close} title="תזכורת חדשה">
+    <Modal open={open} onClose={close} title={isEdit ? 'עריכת תזכורת' : 'תזכורת חדשה'}>
       <div className="m-field">
         <label className="m-label">על מה להזכיר?</label>
         <input

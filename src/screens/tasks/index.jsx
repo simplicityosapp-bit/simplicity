@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ListTodo, Plus } from 'lucide-react'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
@@ -59,8 +59,8 @@ function reminderBucket(rem, now) {
 }
 
 export default function TasksScreen() {
-  const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask } = useTasks()
-  const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder } = useReminders()
+  const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask, editTask } = useTasks()
+  const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder, editReminder } = useReminders()
   const { projects } = useProjects()
   const { clients } = useClients()
   /* Top toggle drives entity choice. The rest of the screen reads
@@ -69,10 +69,12 @@ export default function TasksScreen() {
   const [view, setView] = useState('tasks')
   const [filter, setFilter] = useState('todo')
   const [showAdd, setShowAdd] = useState(false)
+  const [editItem, setEditItem] = useState(null)
 
   const isTasks = view === 'tasks'
-  /* Reset to the "open" tab when flipping views (the other tabs differ). */
-  useEffect(() => { setFilter('todo') }, [view])
+  /* Flip view + reset the filter tab and any in-progress edit. Done in the
+     handler (not an effect) to avoid a cascading set-state-in-effect. */
+  const switchView = (v) => { setView(v); setFilter('todo'); setEditItem(null) }
   const filters = isTasks ? FILTERS : REM_FILTERS
   const loading = isTasks ? tasksLoading : remindersLoading
   const error = isTasks ? tasksError : remindersError
@@ -163,7 +165,7 @@ export default function TasksScreen() {
         <button
           type="button"
           className={`mg-toggle-btn${view === 'tasks' ? ' on' : ''}`}
-          onClick={() => setView('tasks')}
+          onClick={() => switchView('tasks')}
           role="tab"
           aria-selected={view === 'tasks'}
         >
@@ -172,7 +174,7 @@ export default function TasksScreen() {
         <button
           type="button"
           className={`mg-toggle-btn${view === 'reminders' ? ' on' : ''}`}
-          onClick={() => setView('reminders')}
+          onClick={() => switchView('reminders')}
           role="tab"
           aria-selected={view === 'reminders'}
         >
@@ -254,6 +256,7 @@ export default function TasksScreen() {
                       clientName={clientNameOf(t.client_id)}
                       dotColor={PRIORITY_COLOR[t.priority || 'medium']}
                       onToggle={() => toggleTask(t)}
+                      onEdit={setEditItem}
                       index={i}
                     />
                   ))}
@@ -281,6 +284,7 @@ export default function TasksScreen() {
                       clientName={clientNameOf(r.client_id)}
                       dotColor={g.color}
                       onComplete={completeReminder}
+                      onEdit={setEditItem}
                       index={i}
                     />
                   ))}
@@ -307,6 +311,7 @@ export default function TasksScreen() {
                       clientName={clientNameOf(r.client_id)}
                       dotColor={b.color}
                       onComplete={completeReminder}
+                      onEdit={setEditItem}
                       count={dueOccurrenceCount(r, now)}
                       index={i}
                     />
@@ -319,20 +324,41 @@ export default function TasksScreen() {
       </section>
 
       {isTasks ? (
-        <AddTaskModal
-          open={showAdd}
-          onClose={() => setShowAdd(false)}
-          projects={projects}
-          clients={clients}
-          onSave={addTask}
-        />
+        <>
+          <AddTaskModal
+            open={showAdd}
+            onClose={() => setShowAdd(false)}
+            projects={projects}
+            clients={clients}
+            onSave={addTask}
+          />
+          <AddTaskModal
+            key={editItem?.id || 'edit-task'}
+            open={!!editItem}
+            onClose={() => setEditItem(null)}
+            task={editItem}
+            projects={projects}
+            clients={clients}
+            onSave={(patch) => editItem && editTask(editItem.id, patch)}
+          />
+        </>
       ) : (
-        <AddReminderModal
-          open={showAdd}
-          onClose={() => setShowAdd(false)}
-          clients={clients}
-          onSave={addReminder}
-        />
+        <>
+          <AddReminderModal
+            open={showAdd}
+            onClose={() => setShowAdd(false)}
+            clients={clients}
+            onSave={addReminder}
+          />
+          <AddReminderModal
+            key={editItem?.id || 'edit-rem'}
+            open={!!editItem}
+            onClose={() => setEditItem(null)}
+            reminder={editItem}
+            clients={clients}
+            onSave={(patch) => editItem && editReminder(editItem.id, patch)}
+          />
+        </>
       )}
     </div>
   )

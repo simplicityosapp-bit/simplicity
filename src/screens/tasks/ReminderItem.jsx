@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { Check } from 'lucide-react'
+import { Check, Pencil } from 'lucide-react'
 import { formatWhen } from '../../lib/dates'
 
 /* Mirrors TaskItem visually so the Tasks ↔ Reminders toggle keeps a
@@ -7,7 +7,7 @@ import { formatWhen } from '../../lib/dates'
    The meta line shows the scheduled date/time and (optional) linked
    client. Dot color signals urgency: clay if overdue, amber if today,
    sage otherwise. */
-function ReminderItem({ reminder, clientName, dotColor, onComplete, count = 1, index }) {
+function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, count = 1, index }) {
   const isDone = reminder.status === 'completed'
   const meta = [clientName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
 
@@ -29,6 +29,11 @@ function ReminderItem({ reminder, clientName, dotColor, onComplete, count = 1, i
         </p>
         {meta && <p className="tc-meta">{meta}</p>}
       </div>
+      {onEdit && (
+        <button type="button" className="tc-edit" onClick={() => onEdit(reminder)} aria-label="עריכת תזכורת">
+          <Pencil size={13} strokeWidth={1.7} aria-hidden="true" />
+        </button>
+      )}
       <span className="tc-dot" style={{ background: dotColor }} aria-hidden="true" />
     </div>
   )

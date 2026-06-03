@@ -28,10 +28,21 @@ export function useTasks() {
     }
   }, [qc])
 
+  const editTask = useCallback(async (id, patch) => {
+    qc.setQueryData(KEY, (prev) => (prev ?? []).map((t) => (t.id === id ? { ...t, ...patch } : t)))
+    try {
+      const row = await updateTask(id, patch)
+      qc.setQueryData(KEY, (prev) => (prev ?? []).map((t) => (t.id === id ? row : t)))
+      return row
+    } catch {
+      qc.invalidateQueries({ queryKey: KEY })
+    }
+  }, [qc])
+
   const removeTask = useCallback(async (id) => {
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => t.id !== id))
     try { await apiRemoveTask(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
-  return { tasks, loading: isLoading, error: error?.message ?? null, addTask, toggleTask, removeTask, refetch }
+  return { tasks, loading: isLoading, error: error?.message ?? null, addTask, toggleTask, editTask, removeTask, refetch }
 }

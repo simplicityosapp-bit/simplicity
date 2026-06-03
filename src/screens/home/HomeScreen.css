@@ -616,32 +616,6 @@
   color: var(--moon-deep);
   flex-shrink: 0;
 }
-/* on/off switch for the current daily question (mirrors settings) */
-.ins-q-switch {
-  margin-inline-start: auto;
-  flex: none;
-  position: relative;
-  width: 30px;
-  height: 18px;
-  padding: 0;
-  border: none;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--moon-deep) 55%, transparent);
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-.ins-q-switch:not(.on) { background: var(--stone); }
-.ins-q-switch-thumb {
-  position: absolute;
-  top: 2px;
-  inset-inline-start: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #fff;
-  transition: inset-inline-start 0.15s ease;
-}
-.ins-q-switch.on .ins-q-switch-thumb { inset-inline-start: 14px; }
 .ins-empty {
   margin: 0;
   font-family: var(--mg-font);
@@ -854,6 +828,27 @@
 .h-card-list {
   display: flex;
   flex-direction: column;
+}
+
+/* ── Collapsible card (attention / reminders / next-tasks) ──────────
+   Header is the toggle; closed by default. A leading chevron is the
+   disclosure affordance — it rotates when open. The count/link on the
+   trailing side stays exactly as before. */
+.h-card-head-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+.h-card.is-collapsed .h-card-head-toggle {
+  margin-bottom: 0;
+}
+.h-card-chevron {
+  color: var(--stone);
+  flex-shrink: 0;
+  margin-inline-end: -2px;
+  transition: transform 160ms ease;
+}
+.h-card.is-open .h-card-chevron {
+  transform: rotate(180deg);
 }
 
 /* Generic clickable row. */

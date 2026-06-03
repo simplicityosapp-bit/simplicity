@@ -1,13 +1,14 @@
-import { AlertCircle, Check, X } from 'lucide-react'
+import { AlertCircle, Check, X, Trash2 } from 'lucide-react'
 import { isr } from '../../lib/finance'
 import { fmtShortDate } from '../../lib/dates'
+import './PendingSection.css'
 
 /* Dedicated pending-transactions section. Mirrors the prototype's
    f-pending-section: a prominent attention card listing each pending
    tx with confirm + skip + click-to-edit, plus a bulk "אשר הכל" button
    that confirms every visible pending row. Hidden when nothing's
    pending. */
-export default function PendingSection({ transactions, clients = [], projects = [], categories = [], onApprove, onSkip, onEdit }) {
+export default function PendingSection({ transactions, clients = [], projects = [], categories = [], onApprove, onSkip, onEdit, onDelete }) {
   if (!transactions.length) return null
 
   const totalIncome = transactions.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
@@ -98,6 +99,17 @@ export default function PendingSection({ transactions, clients = [], projects = 
                 >
                   <X size={14} strokeWidth={2} aria-hidden="true" />
                 </button>
+                {onDelete && (
+                  <button
+                    type="button"
+                    className="f-tx-btn delete"
+                    onClick={(e) => { e.stopPropagation(); onDelete(t.id) }}
+                    title="מחק"
+                    aria-label="מחק"
+                  >
+                    <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
+                  </button>
+                )}
               </div>
             </div>
           )

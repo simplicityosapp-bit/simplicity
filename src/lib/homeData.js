@@ -160,13 +160,13 @@ export function attentionItems(now = new Date(), data) {
   } = data || {}
   const items = []
   const pending = (transactions || []).filter((t) => !t.deleted_at && t.status === 'pending')
-  if (pending.length) items.push({ icon: 'Wallet', text: `${pending.length} תנועות ממתינות לאישור`, to: ROUTES.FINANCE })
+  if (pending.length) items.push({ icon: 'Wallet', text: `${pending.length} תנועות ממתינות לאישור`, to: ROUTES.FINANCE, kind: 'pendingTx' })
 
   const pastMeetings = (scheduled_meetings || []).filter(
     (m) => m.status === 'pending' && new Date(m.scheduled_at).getTime() <= now.getTime(),
   )
   if (pastMeetings.length) {
-    items.push({ icon: 'Calendar', text: `${pastMeetings.length} ${pastMeetings.length === 1 ? 'פגישה ממתינה' : 'פגישות ממתינות'} לאישור`, to: ROUTES.CALENDAR })
+    items.push({ icon: 'Calendar', text: `${pastMeetings.length} ${pastMeetings.length === 1 ? 'פגישה ממתינה' : 'פגישות ממתינות'} לאישור`, to: ROUTES.CALENDAR, kind: 'pendingMeetings' })
   }
 
   const withBalance = live(clients).filter((c) => c.status !== 'past' && clientBalance(c, transactions, sessions).balance > 0)

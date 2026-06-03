@@ -1078,3 +1078,8 @@
   background: rgba(120, 120, 120, 0.1);
   border-color: rgba(120, 120, 120, 0.28);
 }
+.mtg-confirm-btn.delete {
+  color: var(--clay);
+  background: rgba(181, 99, 78, 0.1);
+  border-color: rgba(181, 99, 78, 0.28);
+}

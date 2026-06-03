@@ -222,128 +222,8 @@
 .f-chart-cta:hover { text-decoration: underline; }
 
 /* ── Pending section ──────────────────────────────────────────
-   Dedicated attention card above the main list — surfaces every
-   pending tx with one-tap confirm/skip + a bulk "אשר הכל". The
-   subtle amber tint differentiates it from confirmed rows. */
-.f-pending {
-  margin: 0 0 14px;
-  padding: 12px;
-  border-radius: var(--mg-card-radius);
-  border: 1px solid color-mix(in srgb, var(--amber-warn) 32%, transparent);
-  background: color-mix(in srgb, var(--amber-warn) 8%, var(--mg-card-bg));
-  backdrop-filter: var(--mg-card-blur);
-}
-.f-pending-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.f-pending-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--amber-warn) 24%, transparent);
-  color: color-mix(in srgb, var(--amber-warn) 90%, var(--espresso));
-}
-.f-pending-id { flex: 1; min-width: 0; }
-.f-pending-title {
-  margin: 0;
-  font-family: var(--mg-font);
-  font-size: calc(13.5px * var(--text-scale));
-  font-weight: 700;
-  color: var(--espresso);
-}
-.f-pending-sub {
-  margin: 2px 0 0;
-  font-family: var(--mg-font);
-  font-size: calc(11px * var(--text-scale));
-  color: var(--stone);
-}
-.f-pending-bulk {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--sage) 55%, transparent);
-  background: color-mix(in srgb, var(--sage) 22%, transparent);
-  font-family: var(--mg-font);
-  font-size: calc(12px * var(--text-scale));
-  font-weight: 600;
-  color: var(--espresso);
-  cursor: pointer;
-}
-.f-pending-bulk:hover {
-  background: color-mix(in srgb, var(--sage) 32%, transparent);
-}
-.f-pending-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.f-pending-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 12px;
-  background: rgba(42, 37, 32, 0.03);
-  border: 1px solid var(--divider);
-  cursor: pointer;
-}
-[data-theme="dark"] .f-pending-row { background: rgba(240, 235, 224, 0.03); }
-.f-pending-row:hover { background: rgba(42, 37, 32, 0.06); }
-[data-theme="dark"] .f-pending-row:hover { background: rgba(240, 235, 224, 0.06); }
-.f-pending-row-id { flex: 1; min-width: 0; }
-.f-pending-desc {
-  margin: 0;
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 600;
-  color: var(--espresso);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.f-pending-meta {
-  margin: 2px 0 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--mg-font);
-  font-size: calc(11px * var(--text-scale));
-  color: var(--stone);
-}
-.f-pending-dot { opacity: 0.5; }
-.f-pending-cat {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.f-pending-cat-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-.f-pending-amt {
-  font-family: var(--mg-font-num);
-  font-size: calc(14px * var(--text-scale));
-  font-weight: 600;
-  flex-shrink: 0;
-}
-.f-pending-amt.inc { color: color-mix(in srgb, var(--sage) 90%, var(--espresso)); }
-.f-pending-amt.exp { color: color-mix(in srgb, var(--clay) 90%, var(--espresso)); }
-.f-pending-actions {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
-}
+   Styles moved to PendingSection.css (co-located with the component)
+   so the pending card also works in the home "דרושה תשומת לב" popup. */
 
 /* ── Show/hide skipped toggle ────────────────────────────────── */
 .f-skipped-toggle {
@@ -493,36 +373,8 @@
   gap: 6px;
   flex-shrink: 0;
 }
-.f-tx-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border: 0.5px solid transparent;
-  transition: background 0.15s, transform 0.12s;
-}
-.f-tx-btn:active {
-  transform: scale(0.88);
-}
-.f-tx-btn.approve {
-  color: var(--sage);
-  background: rgba(139, 168, 136, 0.12);
-  border-color: rgba(139, 168, 136, 0.32);
-}
-.f-tx-btn.skip {
-  color: var(--mist);
-  background: rgba(120, 120, 120, 0.1);
-  border-color: rgba(120, 120, 120, 0.28);
-}
-.f-tx-btn.restore {
-  color: var(--stone);
-  background: rgba(120, 120, 120, 0.1);
-  border-color: rgba(120, 120, 120, 0.28);
-}
+/* .f-tx-btn round action buttons moved to PendingSection.css (shared by
+   PendingSection + TransactionCard, both on the finance screen). */
 
 /* ── Recurring templates section ──────────────────────────────── */
 .rec-section {

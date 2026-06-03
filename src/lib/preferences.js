@@ -13,7 +13,6 @@ export const WIDGET_REGISTRY = [
   { id: 'moon',            label: 'מבט על',              defaultAccent: 'sage',       supportsCompact: true },
   { id: 'insights',        label: 'מה איתך היום',        defaultAccent: 'sage',       supportsCompact: false },
   { id: 'quick-row',       label: 'תנועה / עדכון מהיר',  defaultAccent: 'terracotta', supportsCompact: false },
-  { id: 'meeting-confirm', label: 'פגישות לאישור',       defaultAccent: 'sage',       supportsCompact: false },
   { id: 'attention',       label: 'התראות (פגישות, תשלומים)', defaultAccent: 'amber', supportsCompact: true },
   { id: 'reminders',       label: 'תזכורות קרובות',       defaultAccent: 'amber',      supportsCompact: true },
   { id: 'next-tasks',      label: 'המשימות הבאות',        defaultAccent: 'terracotta', supportsCompact: false },

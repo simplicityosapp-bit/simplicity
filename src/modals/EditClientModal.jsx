@@ -56,14 +56,14 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   if (!client) return <Modal open={open} onClose={onClose} title="עריכת לקוח" />
   const subStatuses = statuses.filter((s) => s.meta_category === form.status)
 
-  /* Live billing snapshot — mirrors the card. Total stays automatic
-     (members → group total; private → total_override ?? price × sessions),
-     and the editable "שולם"/"יתרה" are two views of the same number. */
-  const liveTotal = isMember
-    ? memberTotal
-    : (form.total_due !== '' && Number(form.total_due) > 0
-        ? Number(form.total_due)
-        : (Number(form.sessions) || 0) * (Number(form.price_per_session) || 0))
+  /* Live billing snapshot — mirrors the card. Billing is per-client: the
+     group dues (memberTotal, 0 for non-members) PLUS the private portion
+     (total_override when set — incl. an explicit 0 for "free" — else
+     sessions × price). The editable "שולם"/"יתרה" are two views of it. */
+  const privatePortion = form.total_due !== ''
+    ? Math.max(0, Number(form.total_due) || 0)
+    : (Number(form.sessions) || 0) * (Number(form.price_per_session) || 0)
+  const liveTotal = (Number(memberTotal) || 0) + privatePortion
   const livePaid = Number(form.paid) || 0
   const liveAdj = Number(form.adjustment) || 0
   const liveBalance = liveTotal - livePaid - liveAdj
@@ -82,9 +82,11 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         status_id: form.status_id || null,
         sessions: Number(form.sessions) || 0,
         price_per_session: Number(form.price_per_session) || 0,
-        /* Manual "total due" overrides the auto-calc (sessions × price). */
-        total_override: form.total_due !== '' && Number(form.total_due) > 0 ? Number(form.total_due) : null,
-        has_custom_price: form.total_due !== '' && Number(form.total_due) > 0,
+        /* Manual "total due" overrides the auto-calc (sessions × price).
+           An explicit 0 is kept (a deliberate "free" private total); only an
+           empty field falls back to the automatic calculation. */
+        total_override: form.total_due !== '' ? Math.max(0, Number(form.total_due) || 0) : null,
+        has_custom_price: form.total_due !== '',
         phone: form.phone.trim() || null,
         project_id: form.project_id || null,
         group_id: form.group_id || null,
@@ -121,7 +123,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       /* Persist any changed per-group billing overrides. */
       for (const m of memberships) {
         const raw = memberOverrides[m.id]
-        const next = raw !== '' && raw != null && Number(raw) > 0 ? Number(raw) : null
+        const next = raw !== '' && raw != null ? Math.max(0, Number(raw) || 0) : null
         if (next !== (m.total_override ?? null)) {
           // eslint-disable-next-line no-await-in-loop
           await onUpdateMember?.(m.id, { total_override: next, has_custom_price: next != null })

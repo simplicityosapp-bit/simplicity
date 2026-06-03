@@ -77,12 +77,14 @@ export function clientBalance(c, txns, sessionsData = sessions, membersData = mo
     (s, m) => s + membershipTotal(m, groupsData, heldForGroup(m.group_id)),
     0,
   )
-  let privateTotal = 0
-  if (memberships.length === 0) {
-    privateTotal = c.total_override != null && c.total_override !== ''
-      ? Number(c.total_override)
-      : (c.sessions || 0) * (c.price_per_session || 0)
-  }
+  /* Billing is ALWAYS per-client: a member owes their group dues (memTotal)
+     PLUS any private 1-on-1 series they run on the side. A pure group member
+     simply has no private sessions/price, so privateTotal is 0. A manual
+     total_override (when set — including an explicit 0 for "free") overrides
+     the private sessions × price. */
+  const privateTotal = c.total_override != null && c.total_override !== ''
+    ? Number(c.total_override)
+    : (c.sessions || 0) * (c.price_per_session || 0)
   const total = memTotal + privateTotal
 
   const liveSessions = live(sessionsData)

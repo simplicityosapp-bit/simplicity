@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft } from 'lucide-react'
 import { attentionItems } from '../../../lib/homeData'
@@ -30,9 +30,16 @@ export default function AttentionWidget() {
     () => attentionItems(new Date(), { transactions, scheduled_meetings: meetings, clients, tasks, goals, categories, sessions, leads }),
     [transactions, meetings, clients, tasks, goals, categories, sessions, leads],
   )
+  /* Closed = original card. Clicking the card opens a roomier, fully-readable
+     view (un-truncated rows). Rows stop propagation so a tap navigates
+     instead of toggling. */
+  const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className="h-card">
+    <div
+      className={`h-card is-expandable${expanded ? ' is-expanded' : ''}`}
+      onClick={() => setExpanded((v) => !v)}
+    >
       <div className="h-card-head">
         <span className="h-card-title">
           <Bell size={20} strokeWidth={1.5} aria-hidden="true" /> דרושה תשומת לב
@@ -48,7 +55,7 @@ export default function AttentionWidget() {
           items.map((it, i) => {
             const Icon = ICONS[it.icon] || Bell
             return (
-              <button key={i} type="button" className="h-attn-row" onClick={() => navigate(it.to)}>
+              <button key={i} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); navigate(it.to) }}>
                 <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
                 <span className="h-attn-text">{it.text}</span>
                 <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />

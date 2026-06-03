@@ -914,6 +914,36 @@
   color: var(--sage);
 }
 
+/* ── Expandable list card (attention / reminders / next-tasks) ──────
+   Closed state is the ORIGINAL card, untouched. Clicking the card opens
+   a roomier, fully-readable view: row text un-truncates (no ellipsis) and
+   rows get more breathing room. All rules below are scoped to .is-expanded
+   so the default (closed) appearance is unchanged. */
+.h-card.is-expandable {
+  cursor: pointer;
+}
+.h-card.is-expanded .h-attn-row,
+.h-card.is-expanded .h-task-row,
+.h-card.is-expanded .h-rem-row {
+  padding: 12px 0;
+  align-items: flex-start;
+}
+.h-card.is-expanded .h-attn-text,
+.h-card.is-expanded .h-task-text,
+.h-card.is-expanded .h-rem-text {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  font-size: calc(16px * var(--text-scale));
+  line-height: 1.5;
+}
+.h-card.is-expanded .h-attn-icon,
+.h-card.is-expanded .h-task-dot,
+.h-card.is-expanded .h-row-chevron,
+.h-card.is-expanded .h-check {
+  margin-top: 2px;
+}
+
 /* ── Bottom chips ──────────────────────────────────────────────── */
 .h-chips {
   display: grid;

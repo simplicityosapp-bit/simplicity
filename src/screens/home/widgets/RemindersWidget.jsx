@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Clock, ChevronLeft, Check } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
@@ -11,14 +11,19 @@ export default function RemindersWidget() {
   const navigate = useNavigate()
   const { reminders, completeReminder } = useReminders()
   const items = useMemo(() => remindersUpcoming(new Date(), reminders), [reminders])
+  /* Closed = original card; click opens a roomier, fully-readable view. */
+  const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className="h-card">
+    <div
+      className={`h-card is-expandable${expanded ? ' is-expanded' : ''}`}
+      onClick={() => setExpanded((v) => !v)}
+    >
       <div className="h-card-head">
         <span className="h-card-title">
           <Clock size={20} strokeWidth={1.5} aria-hidden="true" /> תזכורות קרובות
         </span>
-        <button type="button" className="h-card-link" onClick={() => navigate(ROUTES.CALENDAR)}>
+        <button type="button" className="h-card-link" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.CALENDAR) }}>
           {items.length} {items.length === 1 ? 'פעילה' : 'פעילויות'}
           <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
         </button>
@@ -29,7 +34,7 @@ export default function RemindersWidget() {
             <div key={r.id} className="h-rem-row">
               <span className="h-rem-text">{r.title}</span>
               <span className="h-rem-when">{formatWhen(r.when)}</span>
-              <button type="button" className="h-check" title="בוצעה" aria-label="סמן כבוצעה" onClick={() => completeReminder(r.id)}>
+              <button type="button" className="h-check" title="בוצעה" aria-label="סמן כבוצעה" onClick={(e) => { e.stopPropagation(); completeReminder(r.id) }}>
                 <Check size={13} strokeWidth={2} aria-hidden="true" />
               </button>
             </div>

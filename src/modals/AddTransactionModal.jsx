@@ -18,14 +18,36 @@ const blank = (defaults = {}) => ({
    `defaults` lets callers pre-fill any blank() field — used by the
    project-detail QuickRow to pre-bind project_id so the user doesn't
    have to re-pick the project they're clearly already on. */
-export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], client, defaultType, defaults = {} }) {
+export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {} }) {
   const lockedClientId = client?.id || ''
   const initial = { ...defaults, client_id: lockedClientId || defaults.client_id, type: defaultType || defaults.type }
   const [form, setForm] = useState(() => blank(initial))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [creatingCat, setCreatingCat] = useState(false)
+  const [newCatName, setNewCatName] = useState('')
+  const [catBusy, setCatBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); onClose() }
+
+  /* Inline "new category" creation (Option C1): only when the parent passes
+     onCreateCategory. Creating one selects it immediately so the user never
+     has to leave the modal to set up a category first. */
+  const createCat = async () => {
+    const name = newCatName.trim()
+    if (!name || !onCreateCategory) return
+    setCatBusy(true)
+    try {
+      const row = await onCreateCategory(name)
+      if (row?.id) set('category_id', row.id)
+      setCreatingCat(false)
+      setNewCatName('')
+    } catch {
+      /* leave the field open so the user can retry */
+    } finally {
+      setCatBusy(false)
+    }
+  }
 
   const submit = async () => {
     const amount = parseFloat(form.amount)
@@ -120,10 +142,37 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       {form.type === 'expense' && (
         <div className="m-field">
           <label className="m-label">קטגוריה</label>
-          <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
-            <option value="">ללא קטגוריה</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+          {creatingCat ? (
+            <div className="m-cat-create">
+              <input
+                className="m-input"
+                value={newCatName}
+                onChange={(e) => setNewCatName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); createCat() } }}
+                placeholder="שם הקטגוריה"
+                autoFocus
+              />
+              <button type="button" className="m-cat-add" onClick={createCat} disabled={catBusy || !newCatName.trim()}>
+                {catBusy ? '…' : 'הוסף'}
+              </button>
+              <button type="button" className="m-cat-cancel" onClick={() => { setCreatingCat(false); setNewCatName('') }}>
+                ביטול
+              </button>
+            </div>
+          ) : (
+            <select
+              className="m-select"
+              value={form.category_id}
+              onChange={(e) => {
+                if (e.target.value === '__new__') { setCreatingCat(true); return }
+                set('category_id', e.target.value)
+              }}
+            >
+              <option value="">ללא קטגוריה</option>
+              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {onCreateCategory && <option value="__new__">+ קטגוריה חדשה…</option>}
+            </select>
+          )}
         </div>
       )}
 

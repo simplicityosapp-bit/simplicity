@@ -1,7 +1,7 @@
 import { memo } from 'react'
-import { Check } from 'lucide-react'
+import { Check, Pencil } from 'lucide-react'
 
-function TaskItem({ task, project, clientName, dotColor, onToggle, index }) {
+function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, index }) {
   const isDone = task.status === 'done'
   const meta = [clientName, project?.name].filter(Boolean).join(' · ')
 
@@ -20,6 +20,11 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, index }) {
         <p className="tc-title">{task.title}</p>
         {meta && <p className="tc-meta">{meta}</p>}
       </div>
+      {onEdit && (
+        <button type="button" className="tc-edit" onClick={() => onEdit(task)} aria-label="עריכת משימה">
+          <Pencil size={13} strokeWidth={1.7} aria-hidden="true" />
+        </button>
+      )}
       <span className="tc-dot" style={{ background: dotColor }} aria-hidden="true" />
     </div>
   )

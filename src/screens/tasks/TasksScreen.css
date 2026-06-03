@@ -165,3 +165,21 @@
   text-decoration: line-through;
   color: var(--stone);
 }
+
+.tc-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  opacity: 0.55;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, opacity 0.15s;
+}
+.tc-edit:hover { color: var(--espresso); opacity: 1; }
+.tc-edit:active { transform: scale(0.9); }

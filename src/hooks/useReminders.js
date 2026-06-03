@@ -66,10 +66,22 @@ export function useReminders() {
     }
   }, [reminders, refetch])
 
+  const editReminder = useCallback(async (id, patch) => {
+    setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)).sort(bySchedule))
+    try {
+      const row = await updateReminder(id, patch)
+      setReminders((prev) => prev.map((r) => (r.id === id ? row : r)).sort(bySchedule))
+      return row
+    } catch (e) {
+      setError(e.message)
+      refetch()
+    }
+  }, [refetch])
+
   const removeReminder = useCallback(async (id) => {
     setReminders((prev) => prev.filter((r) => r.id !== id))
     try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
   }, [refetch])
 
-  return { reminders, loading, error, addReminder, completeReminder, removeReminder, refetch }
+  return { reminders, loading, error, addReminder, completeReminder, editReminder, removeReminder, refetch }
 }

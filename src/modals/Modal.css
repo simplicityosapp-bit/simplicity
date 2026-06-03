@@ -683,3 +683,39 @@
   color: var(--stone);
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Inline "new category" creator (expense category field) ─────── */
+.m-cat-create {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.m-cat-create .m-input { flex: 1; }
+.m-cat-add,
+.m-cat-cancel {
+  height: var(--mg-btn-h);
+  padding: 0 14px;
+  border-radius: var(--mg-btn-radius);
+  border: 1px solid rgba(42, 37, 32, 0.12);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, opacity 0.15s;
+}
+.m-cat-add {
+  background: var(--terracotta);
+  border-color: var(--terracotta);
+  color: var(--on-accent);
+}
+.m-cat-add:disabled { opacity: 0.5; cursor: default; }
+.m-cat-cancel {
+  background: var(--cream);
+  color: var(--stone);
+}
+[data-theme="dark"] .m-cat-add { color: var(--ink-on-accent); }
+[data-theme="dark"] .m-cat-cancel {
+  background: rgba(36, 42, 51, 0.6);
+  border-color: rgba(240, 235, 224, 0.12);
+}

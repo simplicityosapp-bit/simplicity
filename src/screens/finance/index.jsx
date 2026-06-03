@@ -8,6 +8,7 @@ import { useCategories } from '../../hooks/useCategories'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { exportTransactionsCSV } from '../../lib/export'
+import { CATEGORY_COLORS } from '../../lib/api/categories'
 import MonthSummary from './MonthSummary'
 import FinanceChart from './FinanceChart'
 import PendingSection from './PendingSection'
@@ -206,6 +207,7 @@ export default function FinanceScreen() {
         clients={clients}
         projects={projects}
         categories={categories}
+        onCreateCategory={(name) => addCategory({ name, color: CATEGORY_COLORS[categories.length % CATEGORY_COLORS.length] })}
         onSave={async (tx) => {
           const row = await addTransaction(tx)
           setMonth(startOfMonth(new Date(row.date)))

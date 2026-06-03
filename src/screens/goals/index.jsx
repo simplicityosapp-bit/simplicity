@@ -181,6 +181,7 @@ export default function GoalsScreen() {
                 onAddEntry={(cat) => setEntryCategory(cat)}
                 onDeleteEntry={removeEntry}
                 onEdit={(g) => setEditGoalState(g)}
+                onDelete={(g) => setPendingDeleteGoal(g)}
               />
             ))}
           </section>

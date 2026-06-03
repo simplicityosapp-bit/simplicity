@@ -831,24 +831,15 @@
 }
 
 /* ── Collapsible card (attention / reminders / next-tasks) ──────────
-   Header is the toggle; closed by default. A leading chevron is the
-   disclosure affordance — it rotates when open. The count/link on the
-   trailing side stays exactly as before. */
+   The header looks IDENTICAL to a normal card — the only change is that
+   it's clickable and closed by default. No chevron, no extra chrome.
+   When collapsed there's no list, so drop the header's bottom gap. */
 .h-card-head-toggle {
   cursor: pointer;
   user-select: none;
 }
 .h-card.is-collapsed .h-card-head-toggle {
   margin-bottom: 0;
-}
-.h-card-chevron {
-  color: var(--stone);
-  flex-shrink: 0;
-  margin-inline-end: -2px;
-  transition: transform 160ms ease;
-}
-.h-card.is-open .h-card-chevron {
-  transform: rotate(180deg);
 }
 
 /* Generic clickable row. */

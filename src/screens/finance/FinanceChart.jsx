@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Sparkles } from 'lucide-react'
 import { financeDailyBuckets, getMonthlyIncomeGoal, isr } from '../../lib/finance'
@@ -15,8 +15,12 @@ import InfoPopover from '../../components/InfoPopover'
    - When no monthly income goal is defined, the dashed line is hidden and a
      soft nudge invites the user to set one (taps through to /goals).
    - The chart shows the entire month — the today dot lands on the last day
-     when viewing a past/future month. */
-const W = 320
+     when viewing a past/future month.
+   - The SVG coordinate width tracks the rendered container width (1:1 px),
+     so the line/labels fill the card without the non-uniform horizontal
+     stretch that previously smeared the axis numbers on wide (desktop)
+     layouts. */
+const W_DEFAULT = 320
 const H = 132
 const PAD_X = 12
 const PAD_TOP = 14
@@ -27,6 +31,26 @@ export default function FinanceChart({ month }) {
   const { transactions } = useTransactions()
   const { goals } = useGoals()
   const { categories: goalCategories } = useGoalCategories()
+
+  /* Measure the rendered chart width so the SVG viewBox maps 1 unit -> 1px.
+     Keeping the coordinate space the same size as the painted box avoids the
+     horizontal smear that preserveAspectRatio="none" caused on screens wider
+     than the old fixed 320 viewBox. */
+  const wrapRef = useRef(null)
+  const [W, setW] = useState(W_DEFAULT)
+  useLayoutEffect(() => {
+    const el = wrapRef.current
+    if (!el) return undefined
+    const measure = () => {
+      const next = Math.round(el.clientWidth)
+      if (next > 0) setW(next)
+    }
+    measure()
+    if (typeof ResizeObserver === 'undefined') return undefined
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   const goal = useMemo(
     () => getMonthlyIncomeGoal(goals, goalCategories),
@@ -106,10 +130,9 @@ export default function FinanceChart({ month }) {
         )}
       </div>
 
-      <div className="f-chart-svg-wrap">
+      <div className="f-chart-svg-wrap" ref={wrapRef}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          preserveAspectRatio="none"
           className="f-chart-svg"
           style={{ display: 'block', width: '100%', height: `${H}px` }}
           aria-label="גרף הכנסה מצטברת לפי ימי החודש"

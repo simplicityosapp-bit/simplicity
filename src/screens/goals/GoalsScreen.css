@@ -335,3 +335,21 @@
   flex-shrink: 0;
 }
 .g-entry-del:active { transform: scale(0.9); }
+
+.g-card-del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  opacity: 0.6;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, opacity 0.15s;
+}
+.g-card-del:hover { color: var(--clay); opacity: 1; }
+.g-card-del:active { transform: scale(0.9); }

@@ -1,9 +1,9 @@
 import { memo, useState } from 'react'
-import { Star, Plus, X, ChevronDown, Pencil } from 'lucide-react'
+import { Star, Plus, X, ChevronDown, Pencil, Trash2 } from 'lucide-react'
 import { formatGoalValue, timeFrameLabel } from '../../lib/goals'
 import { fmtShortDate } from '../../lib/dates'
 
-function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEdit }) {
+function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEdit, onDelete }) {
   const { goal, cat, actual, target, pure: rawPure } = scored
   const pure = Number.isFinite(rawPure) ? rawPure : 0
   const capped = Math.max(0, Math.min(pure, 100))
@@ -27,6 +27,9 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
         </div>
         <button type="button" className="g-card-edit" onClick={() => onEdit?.(goal)} aria-label="עריכת יעד">
           <Pencil size={13} strokeWidth={1.7} aria-hidden="true" />
+        </button>
+        <button type="button" className="g-card-del" onClick={() => onDelete?.(goal)} aria-label="מחיקת יעד">
+          <Trash2 size={13} strokeWidth={1.7} aria-hidden="true" />
         </button>
         <p className={`g-card-pct${pure >= 100 ? ' over' : ''}`}>
           {Math.min(pure, 100)}%{pure > 100 ? '+' : ''}

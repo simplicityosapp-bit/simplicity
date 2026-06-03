@@ -93,24 +93,36 @@ function DeltaPill({ delta }) {
   return <span className={`ins-delta ${tone} mono`}>{sign}{Math.abs(delta).toFixed(1)}</span>
 }
 
-function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft }) {
+function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle }) {
   const avg7 = averageForWindow(idx, question.id, 7)
   const avg30 = averageForWindow(idx, question.id, 30)
   const d7 = deltaVsPrevWindow(idx, question.id, 7)
   const points = useMemo(() => trendPoints(idx, question.id, 30), [idx, question.id])
   const heat  = useMemo(() => heatmapWeeks(idx, question.id, new Date(), 26), [idx, question.id])
   const isYn = question.scale_type === 'yes_no'
+  const active = !!question.active
 
   return (
-    <section className="ins-q-card">
+    <section className={`ins-q-card${active ? '' : ' inactive'}`}>
       <div className="ins-q-head">
         <span className="ins-q-icon">{question.icon || '🫧'}</span>
         <p className="ins-q-text">{questionText(question)}</p>
         {latestAnswerToday != null && <span className="ins-q-today-pill mono">היום · {latestAnswerToday}</span>}
+        <button
+          type="button"
+          role="switch"
+          aria-checked={active}
+          aria-label={active ? `כיבוי השאלה "${questionText(question)}"` : `הפעלת השאלה "${questionText(question)}"`}
+          title={active ? 'כיבוי השאלה' : 'הפעלת השאלה'}
+          className={`ins-q-toggle${active ? ' on' : ''}`}
+          onClick={onToggle}
+        >
+          <span className="ins-q-toggle-knob" />
+        </button>
       </div>
 
-      {/* Entry row — only shown if not yet answered today */}
-      {latestAnswerToday == null && (
+      {/* Entry row — only for an active, due-today question not yet answered */}
+      {canAnswer && latestAnswerToday == null && (
         <div className="ins-q-entry">
           {isYn ? (
             <div className="ins-yn">
@@ -172,7 +184,7 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
 }
 
 export default function InsightsScreen() {
-  const { questions, addQuestion: _add, updateQuestion } = useUserQuestions()
+  const { questions, addQuestion: _add, updateQuestion, toggleActive } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [drafts, setDrafts] = useState({}) /* qId → slider draft */
@@ -185,10 +197,14 @@ export default function InsightsScreen() {
   const today = useMemo(() => new Date(), [])
   const todayKey = dateKey(today)
   const idx = useMemo(() => indexAnswers(answers), [answers])
-  const active = useMemo(
-    () => (questions || []).filter((q) => q.active && isQuestionDueToday(q, today)),
-    [questions, today],
-  )
+  /* Show every question (active + off) so the on/off toggle works in place.
+     Off questions render greyed; only active+due-today ones can be answered. */
+  const visible = useMemo(() => questions || [], [questions])
+  const canAnswer = useMemo(() => {
+    const m = new Map()
+    for (const q of visible) m.set(q.id, q.active && isQuestionDueToday(q, today))
+    return m
+  }, [visible, today])
   const reflections = useMemo(() => mirrorReflections(questions || [], idx, today), [questions, idx, today])
 
   const setDraft = (qId, v) => setDrafts((d) => ({ ...d, [qId]: v }))
@@ -260,17 +276,19 @@ export default function InsightsScreen() {
       )}
 
       {/* Per-question cards */}
-      {active.length === 0 ? (
+      {visible.length === 0 ? (
         <div className="empty">
-          <p className="empty-text">אין שאלות שצריך לענות עליהן היום.</p>
+          <p className="empty-text">עדיין אין שאלות יומיות. אפשר להוסיף בהגדרות.</p>
         </div>
       ) : (
         <div className="ins-q-grid">
-          {active.map((q) => (
+          {visible.map((q) => (
             <QuestionCard
               key={q.id}
               question={q}
               idx={idx}
+              canAnswer={!!canAnswer.get(q.id)}
+              onToggle={() => toggleActive(q)}
               latestAnswerToday={(() => {
                 const v = idx.get(q.id)?.get(todayKey)
                 return v && v.value_num != null ? Number(v.value_num) : null

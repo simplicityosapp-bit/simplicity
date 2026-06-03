@@ -96,6 +96,37 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Per-question on/off toggle (mirrors the settings switch idiom). */
+.ins-q-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 160ms;
+}
+[data-theme="dark"] .ins-q-toggle { background: rgba(255, 255, 255, 0.15); }
+.ins-q-toggle.on { background: var(--moon-deep); }
+[data-theme="dark"] .ins-q-toggle.on { background: var(--moon-hi); }
+.ins-q-toggle-knob {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--cream);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: right 160ms;
+}
+.ins-q-toggle.on .ins-q-toggle-knob { right: calc(100% - 18px); }
+
+/* Off questions stay visible but greyed; the toggle is still tappable. */
+.ins-q-card.inactive { opacity: 0.62; }
+
 /* Entry row */
 .ins-q-entry {
   display: flex;

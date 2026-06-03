@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft } from 'lucide-react'
 import { attentionItems } from '../../../lib/homeData'
 import InfoPopover from '../../../components/InfoPopover'
+import CollapsibleCard from './CollapsibleCard'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
 import { useClients } from '../../../hooks/useClients'
@@ -32,33 +33,32 @@ export default function AttentionWidget() {
   )
 
   return (
-    <div className="h-card">
-      <div className="h-card-head">
-        <span className="h-card-title">
+    <CollapsibleCard
+      title={(
+        <>
           <Bell size={20} strokeWidth={1.5} aria-hidden="true" /> דרושה תשומת לב
           <InfoPopover
             label="הסבר דרושה תשומת לב"
             text="פריטים שדורשים פעולה: תנועות ממתינות לאישור, פגישות שעדיין לא סומנו, לקוחות שלא טופלו 45 ימים, ויעדים מתחת לקצב."
           />
-        </span>
-        <span className="h-card-count">{items.length} {items.length === 1 ? 'פריט' : 'פריטים'}</span>
-      </div>
-      <div className="h-card-list">
-        {items.length ? (
-          items.map((it, i) => {
-            const Icon = ICONS[it.icon] || Bell
-            return (
-              <button key={i} type="button" className="h-attn-row" onClick={() => navigate(it.to)}>
-                <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                <span className="h-attn-text">{it.text}</span>
-                <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-              </button>
-            )
-          })
-        ) : (
-          <p className="h-card-empty">אין פריטים שדורשים תשומת לב כרגע.</p>
-        )}
-      </div>
-    </div>
+        </>
+      )}
+      headEnd={<span className="h-card-count">{items.length} {items.length === 1 ? 'פריט' : 'פריטים'}</span>}
+    >
+      {items.length ? (
+        items.map((it, i) => {
+          const Icon = ICONS[it.icon] || Bell
+          return (
+            <button key={i} type="button" className="h-attn-row" onClick={() => navigate(it.to)}>
+              <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
+              <span className="h-attn-text">{it.text}</span>
+              <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
+            </button>
+          )
+        })
+      ) : (
+        <p className="h-card-empty">אין פריטים שדורשים תשומת לב כרגע.</p>
+      )}
+    </CollapsibleCard>
   )
 }

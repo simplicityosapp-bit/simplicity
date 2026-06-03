@@ -146,7 +146,7 @@
   --px:20px; --gap:12px; --xs:8px; --sp4:4px;
   /* Nav / Modal surfaces */
   --nav-bg:rgba(248,250,252,.32);
-  --modal-bg:rgba(255,255,255,.40);
+  --modal-bg:rgba(255,255,255,.72);    /* bumped from .40 — sheet was bleeding the (green) page through, hiding the sage ✓ buttons (matches the dark-theme fix) */
   --overlay-bg:rgba(0,0,0,.22);
   /* Legacy */
   --border:rgba(0,0,0,.07); --border-hi:rgba(0,0,0,.10);

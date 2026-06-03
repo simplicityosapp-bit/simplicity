@@ -8,20 +8,25 @@ import './PendingSection.css'
    tx with confirm + skip + click-to-edit, plus a bulk "אשר הכל" button
    that confirms every visible pending row. Hidden when nothing's
    pending. */
-export default function PendingSection({ transactions, clients = [], projects = [], categories = [], onApprove, onSkip, onEdit, onDelete }) {
+export default function PendingSection({ transactions, clients = [], projects = [], categories = [], onApprove, onSkip, onEdit, onDelete, embedded = false }) {
   if (!transactions.length) return null
 
   const totalIncome = transactions.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const totalExpense = transactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
 
+  /* `embedded` = rendered inside a Modal (the home "דרושה תשומת לב" popup):
+     drop the amber card wrapper + the icon/title (the modal already has both)
+     so it reads as one clean card, not a card-in-card with a doubled heading. */
   return (
-    <section className="f-pending">
+    <section className={`f-pending${embedded ? ' embedded' : ''}`}>
       <div className="f-pending-head">
-        <span className="f-pending-icon">
-          <AlertCircle size={15} strokeWidth={1.8} aria-hidden="true" />
-        </span>
+        {!embedded && (
+          <span className="f-pending-icon">
+            <AlertCircle size={15} strokeWidth={1.8} aria-hidden="true" />
+          </span>
+        )}
         <div className="f-pending-id">
-          <p className="f-pending-title">{transactions.length} תנועות ממתינות</p>
+          {!embedded && <p className="f-pending-title">{transactions.length} תנועות ממתינות</p>}
           <p className="f-pending-sub">
             {totalIncome > 0 && <>הכנסות {isr(totalIncome)}</>}
             {totalIncome > 0 && totalExpense > 0 && ' · '}

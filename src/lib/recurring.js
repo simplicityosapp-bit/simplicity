@@ -41,10 +41,11 @@ export function* dueDatesForTemplate(template, anchorDate, now) {
   if (template.cadence_type === 'monthly_date') {
     const day = Number(template.day_of_month)
     if (!day) return
+    /* Start at the anchor month's day_of_month — including the current
+       month's occurrence even when the rule was created AFTER that day
+       already passed. The missed occurrence surfaces as a pending tx the
+       user still confirms; existingKeys dedups anything already generated. */
     let cursor = monthlyDateFor(anchorDate.getFullYear(), anchorDate.getMonth(), day)
-    if (cursor < anchorDate) {
-      cursor = monthlyDateFor(anchorDate.getFullYear(), anchorDate.getMonth() + 1, day)
-    }
     while (cursor <= now && (!until || cursor <= until)) {
       yield new Date(cursor)
       cursor = monthlyDateFor(cursor.getFullYear(), cursor.getMonth() + 1, day)
@@ -155,7 +156,7 @@ const DAY_NAMES_HE = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמ�
 export function describeCadence(template) {
   if (!template) return ''
   if (template.trigger_type === 'on_meeting') return 'בעקבות פגישה'
-  let core = ''
+  let core
   if (template.cadence_type === 'monthly_date' && template.day_of_month) {
     core = `כל חודש ב-${template.day_of_month}`
   } else if (template.cadence_type === 'weekly' && template.day_of_week != null) {

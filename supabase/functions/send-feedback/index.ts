@@ -45,10 +45,12 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { message, type } = await req.json().catch(() => ({}))
+    const { message, type, device } = await req.json().catch(() => ({}))
     const text = (message ?? '').toString().trim()
     if (!text) return json({ error: 'empty message' }, 400)
     const typeLabel = TYPE_LABELS[type as string] ?? null
+    // Where the feedback was written (מובייל/דסקטופ) — detected client-side.
+    const deviceLabel = (device ?? '').toString().trim() || null
 
     // Identify the sender from their JWT so the email shows who wrote it.
     let sender = 'משתמש לא מזוהה'
@@ -78,7 +80,7 @@ Deno.serve(async (req) => {
         to: [FEEDBACK_TO],
         reply_to: sender.includes('@') ? sender : undefined,
         subject: typeLabel ? `[${typeLabel}] פידבק חדש מ-${sender}` : `פידבק חדש מ-${sender}`,
-        text: `מאת: ${sender}${typeLabel ? `\nסוג: ${typeLabel}` : ''}\n\n${text}`,
+        text: `מאת: ${sender}${typeLabel ? `\nסוג: ${typeLabel}` : ''}${deviceLabel ? `\nמכשיר: ${deviceLabel}` : ''}\n\n${text}`,
       }),
     })
 

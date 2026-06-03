@@ -149,6 +149,7 @@ export function makeMockClient() {
   return {
     from: (table) => makeQuery(table),
     rpc: () => Promise.resolve({ data: [], error: null }),
+    functions: { invoke: async () => ({ data: { ok: true }, error: null }) },
     channel: () => noopChannel,
     removeChannel: () => Promise.resolve('ok'),
     removeAllChannels: () => Promise.resolve('ok'),

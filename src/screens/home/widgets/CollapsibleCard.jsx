@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { ChevronDown } from 'lucide-react'
 
-/* Collapsible home card. The header (title + count) is always visible and
-   acts as the toggle; the list below renders only when open. Closed by
-   default — home stays a glance, and you expand the cards you want to read.
-   Used by the three list widgets (attention / reminders / next-tasks).
+/* Collapsible home card. The header (title + count) stays visually IDENTICAL
+   to the original card and acts as the toggle; the list below renders only
+   when open. Closed by default — home stays a glance, and you expand the
+   cards you want to read. No extra chrome (no chevron) — the only change is
+   that the header is clickable. Used by the three list widgets
+   (attention / reminders / next-tasks).
 
    `title`   — inner content of the header title (icon + text [+ InfoPopover]).
    `headEnd` — the trailing count / nav link, kept exactly as before.
@@ -26,10 +27,7 @@ export default function CollapsibleCard({ title, headEnd, defaultOpen = false, c
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle() }
         }}
       >
-        <span className="h-card-title">
-          <ChevronDown size={18} strokeWidth={1.8} className="h-card-chevron" aria-hidden="true" />
-          {title}
-        </span>
+        <span className="h-card-title">{title}</span>
         {headEnd}
       </div>
       {open && <div className="h-card-list">{children}</div>}

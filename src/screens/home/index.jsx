@@ -10,7 +10,6 @@ import AttentionWidget from './widgets/AttentionWidget'
 import RemindersWidget from './widgets/RemindersWidget'
 import NextTasksWidget from './widgets/NextTasksWidget'
 import ChipsWidget from './widgets/ChipsWidget'
-import MeetingConfirmWidget from './widgets/MeetingConfirmWidget'
 import FeedbackCard from '../../components/FeedbackCard'
 import './HomeScreen.css'
 
@@ -19,7 +18,6 @@ const WIDGET_COMPONENTS = {
   'moon':             MoonWidget,
   'insights':         InsightsWidget,
   'quick-row':        QuickRow,
-  'meeting-confirm':  MeetingConfirmWidget,
   'attention':        AttentionWidget,
   'reminders':        RemindersWidget,
   'next-tasks':       NextTasksWidget,

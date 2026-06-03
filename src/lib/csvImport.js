@@ -308,6 +308,7 @@ export function projectEntities(headers, rows, mapping) {
         desc: obj.notes || null,
         client_name: obj.name || null,
         project_name: obj.project || null,
+        category: obj.category || null,
       })
     } else if (hasAmount && hasDate) {
       transactionIssues += 1

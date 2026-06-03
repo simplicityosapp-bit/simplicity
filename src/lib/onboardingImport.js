@@ -25,6 +25,7 @@ import { insertLead, listLeads } from './api/leads'
 import { insertSession, listSessions } from './api/sessions'
 import { normalizeDate } from './csvImport'
 import { mapValueToMeta } from './statusImport'
+import { listCategories, insertCategory, CATEGORY_COLORS } from './api/categories'
 
 const norm = (s) => (s || '').trim().toLowerCase()
 
@@ -383,6 +384,27 @@ export async function finalizeOnboardingImport(input = {}) {
     }
   }
 
+  /* ── Category resolution for imported expenses (Option A): map the
+     file's "קטגוריה"/category label to a category_id, creating the
+     category if it doesn't exist yet. Additive + data-safe — no schema
+     change; new category rows pick a colour from the preset palette. ── */
+  let existingCats = []
+  try { existingCats = await listCategories() } catch { /* assume none */ }
+  const categoryIdByName = new Map()
+  existingCats.forEach((c) => { if (c?.name) categoryIdByName.set(norm(c.name), c.id) })
+  let catColorIdx = existingCats.length
+  const resolveCategoryId = async (rawName) => {
+    const name = (rawName || '').trim()
+    if (!name) return null
+    const k = norm(name)
+    if (categoryIdByName.has(k)) return categoryIdByName.get(k)
+    try {
+      const row = await insertCategory({ name, color: CATEGORY_COLORS[catColorIdx++ % CATEGORY_COLORS.length] })
+      categoryIdByName.set(k, row.id)
+      return row.id
+    } catch { return null }
+  }
+
   for (const t of transactions) {
     if (t.recurring) continue /* handled above as a recurring rule */
     let date = normalizeDate(t.date)
@@ -395,6 +417,7 @@ export async function finalizeOnboardingImport(input = {}) {
     const client_id = t.client_name ? (clientIdByName.get(norm(t.client_name)) || null) : null
     const project_id = t.project_name ? (projectIdByName.get(norm(t.project_name)) || null) : null
     const type = t.type === 'expense' ? 'expense' : 'income'
+    const category_id = type === 'expense' ? await resolveCategoryId(t.category) : null
     const key = txnKey(amount, type, date, client_id, project_id)
     if (seenTxns.has(key)) { summary.transactions.skipped += 1; continue }
     try {
@@ -406,7 +429,7 @@ export async function finalizeOnboardingImport(input = {}) {
         status: 'confirmed',
         project_id,
         client_id,
-        category_id: null,
+        category_id,
         recurring_id: null,
         orphaned_from: dateEstimated ? { date_estimated: true } : null,
       })

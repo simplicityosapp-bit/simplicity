@@ -30,15 +30,18 @@ export default function AttentionWidget() {
     () => attentionItems(new Date(), { transactions, scheduled_meetings: meetings, clients, tasks, goals, categories, sessions, leads }),
     [transactions, meetings, clients, tasks, goals, categories, sessions, leads],
   )
-  /* Closed = original card. Clicking the card opens a roomier, fully-readable
-     view (un-truncated rows). Rows stop propagation so a tap navigates
-     instead of toggling. */
-  const [expanded, setExpanded] = useState(false)
+  /* Closed = title + summary of what's inside; click opens the full list.
+     Rows stop propagation so a tap navigates instead of toggling. */
+  const [open, setOpen] = useState(false)
+
+  const summary = items.length === 0
+    ? 'הכל תחת שליטה — אין פריטים פתוחים'
+    : items.slice(0, 2).map((it) => it.text).join(' · ') + (items.length > 2 ? ` · ועוד ${items.length - 2}` : '')
 
   return (
     <div
-      className={`h-card is-expandable${expanded ? ' is-expanded' : ''}`}
-      onClick={() => setExpanded((v) => !v)}
+      className={`h-card is-expandable${open ? ' is-open' : ''}`}
+      onClick={() => setOpen((v) => !v)}
     >
       <div className="h-card-head">
         <span className="h-card-title">
@@ -50,22 +53,26 @@ export default function AttentionWidget() {
         </span>
         <span className="h-card-count">{items.length} {items.length === 1 ? 'פריט' : 'פריטים'}</span>
       </div>
-      <div className="h-card-list">
-        {items.length ? (
-          items.map((it, i) => {
-            const Icon = ICONS[it.icon] || Bell
-            return (
-              <button key={i} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); navigate(it.to) }}>
-                <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                <span className="h-attn-text">{it.text}</span>
-                <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-              </button>
-            )
-          })
-        ) : (
-          <p className="h-card-empty">אין פריטים שדורשים תשומת לב כרגע.</p>
-        )}
-      </div>
+      {open ? (
+        <div className="h-card-list">
+          {items.length ? (
+            items.map((it, i) => {
+              const Icon = ICONS[it.icon] || Bell
+              return (
+                <button key={i} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); navigate(it.to) }}>
+                  <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
+                  <span className="h-attn-text">{it.text}</span>
+                  <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
+                </button>
+              )
+            })
+          ) : (
+            <p className="h-card-empty">אין פריטים שדורשים תשומת לב כרגע.</p>
+          )}
+        </div>
+      ) : (
+        <p className="h-card-summary">{summary}</p>
+      )}
     </div>
   )
 }

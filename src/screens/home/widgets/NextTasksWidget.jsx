@@ -9,15 +9,25 @@ import { useTasks } from '../../../hooks/useTasks'
 export default function NextTasksWidget() {
   const navigate = useNavigate()
   const { tasks, toggleTask } = useTasks()
-  const items = useMemo(() => nextTasks(5, tasks), [tasks])
+  const items = useMemo(() => nextTasks(999, tasks), [tasks])   /* all open, by priority */
   const total = useMemo(() => openTasksCount(tasks), [tasks])
-  /* Closed = original card; click opens a roomier, fully-readable view. */
-  const [expanded, setExpanded] = useState(false)
+  const urgent = useMemo(
+    () => (tasks || []).filter((t) => !t.deleted_at && t.status !== 'done' && t.priority === 'high').length,
+    [tasks],
+  )
+  /* Closed = title + summary; click opens the full list of every open task. */
+  const [open, setOpen] = useState(false)
+
+  const summary = total === 0
+    ? 'אין משימות פתוחות'
+    : urgent > 0
+      ? `${urgent} ${urgent === 1 ? 'דחופה' : 'דחופות'} מתוך ${total} ${total === 1 ? 'פתוחה' : 'פתוחות'}`
+      : `${total} ${total === 1 ? 'משימה פתוחה' : 'משימות פתוחות'}`
 
   return (
     <div
-      className={`h-card is-expandable${expanded ? ' is-expanded' : ''}`}
-      onClick={() => setExpanded((v) => !v)}
+      className={`h-card is-expandable${open ? ' is-open' : ''}`}
+      onClick={() => setOpen((v) => !v)}
     >
       <div className="h-card-head">
         <span className="h-card-title">
@@ -28,23 +38,27 @@ export default function NextTasksWidget() {
           <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
         </button>
       </div>
-      <div className="h-card-list">
-        {items.length ? (
-          items.map((t) => (
-            <div key={t.id} className="h-task-row" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.TASKS) }}>
-              <span className="h-task-content">
-                <span className={`h-task-dot ${t.priority === 'high' ? 'urgent' : 'regular'}`} />
-                <span className="h-task-text">{t.title}</span>
-              </span>
-              <button type="button" className="h-check" title="סמן כבוצע" aria-label="סמן כבוצע" onClick={(e) => { e.stopPropagation(); toggleTask(t) }}>
-                <Check size={13} strokeWidth={2} aria-hidden="true" />
-              </button>
-            </div>
-          ))
-        ) : (
-          <p className="h-card-empty">כל המשימות בוצעו. הוסף/י משימה כשנהיה צורך.</p>
-        )}
-      </div>
+      {open ? (
+        <div className="h-card-list">
+          {items.length ? (
+            items.map((t) => (
+              <div key={t.id} className="h-task-row" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.TASKS) }}>
+                <span className="h-task-content">
+                  <span className={`h-task-dot ${t.priority === 'high' ? 'urgent' : 'regular'}`} />
+                  <span className="h-task-text">{t.title}</span>
+                </span>
+                <button type="button" className="h-check" title="סמן כבוצע" aria-label="סמן כבוצע" onClick={(e) => { e.stopPropagation(); toggleTask(t) }}>
+                  <Check size={13} strokeWidth={2} aria-hidden="true" />
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="h-card-empty">כל המשימות בוצעו. הוסף/י משימה כשנהיה צורך.</p>
+          )}
+        </div>
+      ) : (
+        <p className="h-card-summary">{summary}</p>
+      )}
     </div>
   )
 }

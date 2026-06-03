@@ -422,3 +422,11 @@ button {
 [data-theme="dark"] .accordion-chev {
   color: rgba(240, 235, 224, 0.7);
 }
+
+/* Transparent variant — used as the in-shell route-loading fallback so the
+   pulsing-heart logo shows over the existing UI instead of a blank screen,
+   without blocking clicks on the sidebar / bottom-nav. */
+.splash--transparent {
+  background: transparent;
+  pointer-events: none;
+}

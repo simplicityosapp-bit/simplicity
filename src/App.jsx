@@ -46,7 +46,7 @@ import './screens/auth/AuthScreen.css'
    so the sidebar / bottom-nav stay put — only the content area waits. The
    `.screen` class keeps the page padding + background so it doesn't flash. */
 function ScreenFallback() {
-  return <div className="screen" aria-busy="true" />
+  return <LoadingSplash transparent />
 }
 
 function AppShell() {
@@ -93,7 +93,7 @@ function AppShell() {
     return () => clearTimeout(id)
   }, [prefsLoading, obDone])
 
-  if (prefsLoading) return null
+  if (prefsLoading) return <LoadingSplash />
   if (!obDone) {
     return (
       <div className="app" data-screen="onboarding">

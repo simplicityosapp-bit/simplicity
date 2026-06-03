@@ -122,6 +122,7 @@ export default function AttentionWidget() {
 
       <Modal open={popup === 'tx'} onClose={() => setPopup(null)} title="תנועות ממתינות לאישור">
         <PendingSection
+          embedded
           transactions={pendingTxs}
           clients={clients}
           projects={projects}

@@ -63,7 +63,7 @@
   margin-bottom: 18px;
 }
 .t-group-lbl {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 7px;
   margin: 0 2px 8px;
@@ -72,6 +72,14 @@
   font-weight: 600;
   color: var(--stone);
   letter-spacing: 0.04em;
+  /* Glass pill behind the group label — bare text disappeared over the
+     nature background (beta feedback 03/06/2026; same fix as .empty). */
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
 }
 .t-group-dot {
   width: 7px;

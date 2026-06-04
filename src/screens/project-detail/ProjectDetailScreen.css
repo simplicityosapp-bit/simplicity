@@ -71,6 +71,14 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 14px;
+  /* Glass panel behind the title — bare text disappeared over the nature
+     background (beta feedback 03/06/2026; same fix as .empty / .screen-head). */
+  padding: 12px 14px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
 }
 .pd-back,
 .pd-edit {

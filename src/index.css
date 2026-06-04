@@ -183,7 +183,13 @@ button {
   padding: 8px 11px;
   border-radius: 10px;
   border: 1px solid var(--divider);
-  background: var(--mg-card-bg);
+  /* Elevated (near-opaque) surface — the popover floats over content and
+     needs guaranteed readability (two-layer transparency standard,
+     design checklist 24.05.26). The old 30% glass + backdrop-filter never
+     actually blurred: the popover sits inside cards that already have
+     backdrop-filter, which becomes the backdrop root, so the child filter
+     saw nothing behind it and the text was illegible (beta 03/06/2026). */
+  background: var(--pure-white);
   backdrop-filter: var(--mg-card-blur);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
   font-family: var(--mg-font);
@@ -196,6 +202,10 @@ button {
 }
 .info-pop-bottom { top: calc(100% + 6px); }
 .info-pop-top    { bottom: calc(100% + 6px); }
+/* Dark mode: near-opaque Moonlit Slate, like drawers/dropdowns (checklist §13). */
+[data-theme="dark"] .info-pop-body {
+  background: rgba(26, 31, 38, 0.96);
+}
 
 /* ── Per-screen tint (token fallback) ────────────────────────────
    Color falls back if the per-screen image fails to load. The image

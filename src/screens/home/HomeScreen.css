@@ -252,6 +252,16 @@
   letter-spacing: -0.02em;
   color: var(--espresso);
 }
+/* Micro-word right under the big percent — names what it measures
+   ("87% מהקצב"), pairing with the "X% מהיעד" line below (beta 03/06/2026). */
+.moon-chip-kicker {
+  margin-top: 1px;
+  font-family: var(--mg-font);
+  font-size: calc(10px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+  line-height: 1.2;
+}
 .moon-chip-label {
   margin-top: 5px;
   font-family: var(--mg-font);

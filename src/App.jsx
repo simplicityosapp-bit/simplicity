@@ -18,6 +18,7 @@ import ScreenTour from './components/ScreenTour'
 import LoadingSplash from './components/LoadingSplash'
 import FeedbackModal from './modals/FeedbackModal'
 import UndoToast from './components/UndoToast'
+import AccountDeletionPending from './components/AccountDeletionPending'
 
 /* Screens are code-split: each becomes its own chunk loaded on first
    navigation, so the initial bundle is just the shell + the first screen
@@ -72,6 +73,12 @@ function AppShell() {
   const ob = prefs?.onboarding
   const obDone = !!(ob?.completed_at || ob?.skipped_at)
 
+  /* Account-deletion gate. If a deletion is scheduled, lock the whole app
+     behind the grace-period screen (countdown + cancel) — regardless of
+     onboarding state. Data isn't deleted yet, so canceling there clears
+     the flag and returns the user to normal use. */
+  const deletionPending = !!prefs?.accountDeletion?.scheduled_for
+
   /* Warm the most-visited screen chunks during idle time once the first
      screen is up, so navigating to them is instant instead of showing the
      lazy fallback. Initial load stays small (these run AFTER paint, only
@@ -95,6 +102,14 @@ function AppShell() {
   }, [prefsLoading, obDone])
 
   if (prefsLoading) return <LoadingSplash />
+  if (deletionPending) {
+    return (
+      <div className="app" data-screen="account-deletion">
+        <PrefsApplier />
+        <AccountDeletionPending />
+      </div>
+    )
+  }
   if (!obDone) {
     return (
       <div className="app" data-screen="onboarding">

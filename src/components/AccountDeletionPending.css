@@ -1,0 +1,132 @@
+/* ════════════════════════════════════════════════════════════════
+   ACCOUNT DELETION PENDING — locked grace-period gate.
+   Full-viewport, centered glass card. Colours/blur from tokens only.
+   ════════════════════════════════════════════════════════════════ */
+.adp-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg-home);
+}
+
+.adp-card {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 28px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+}
+
+.adp-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  color: var(--clay);
+  background: rgba(181, 99, 78, 0.10);
+}
+
+.adp-title {
+  margin: 0 0 4px;
+  font-family: 'Assistant', sans-serif;
+  font-weight: 700;
+  font-size: calc(22px * var(--text-scale));
+  letter-spacing: -0.02em;
+  color: var(--espresso);
+}
+
+.adp-countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 18px 0 14px;
+}
+.adp-count-num {
+  font-family: var(--mg-font-num);
+  font-weight: 600;
+  font-size: calc(52px * var(--text-scale));
+  line-height: 1;
+  color: var(--clay);
+}
+.adp-count-unit {
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+}
+
+.adp-body {
+  margin: 0 0 22px;
+  font-family: var(--mg-font);
+  font-size: calc(14.5px * var(--text-scale));
+  line-height: 1.65;
+  color: var(--stone);
+}
+.adp-body strong { color: var(--espresso); }
+
+.adp-err {
+  margin: 0 0 14px;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--clay);
+}
+
+.adp-btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 50px;
+  padding: 13px 22px;
+  border: none;
+  border-radius: var(--mg-btn-radius);
+  background: var(--mg-btn-primary-bg);
+  color: var(--pure-white);
+  font-family: var(--mg-font);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: var(--mg-btn-weight);
+  cursor: pointer;
+  box-shadow: var(--mg-card-shadow);
+  transition: background 0.18s, transform 0.12s;
+}
+.adp-btn-cancel:hover:not(:disabled) { background: var(--mg-btn-primary-bg-hover); }
+.adp-btn-cancel:active:not(:disabled) { transform: scale(0.98); }
+.adp-btn-cancel:disabled { opacity: 0.6; cursor: default; }
+/* Dark primary is a light "Moonglow" fill — needs dark text. */
+[data-theme="dark"] .adp-btn-cancel { color: var(--espresso); }
+
+.adp-btn-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: calc(13.5px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.adp-btn-logout:hover:not(:disabled) { color: var(--espresso); }
+.adp-btn-logout:disabled { opacity: 0.5; cursor: default; }

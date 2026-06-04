@@ -56,3 +56,33 @@ export async function resetAllUserData() {
 
   if (failed.length) throw new Error(`חלק מהנתונים לא נמחקו — ${failed.join(' · ')}`)
 }
+
+/* ════════════════════════════════════════════════════════════════
+   ACCOUNT DELETION — permanent, with a 30-day grace window.
+   ════════════════════════════════════════════════════════════════
+   Unlike resetAllUserData() (which wipes rows but KEEPS the account),
+   deleting the account removes the auth.users row itself — and every
+   table cascades away with it (ON DELETE CASCADE on user_id). That
+   delete needs the service_role key, so it can't run from the browser.
+
+   Flow:
+     1. The browser RECORDS the request in user_preferences (a plain
+        JSONB key — no schema change), with requested_at + scheduled_for.
+     2. While scheduled_for is in the future the app is gated to a
+        "pending deletion" screen; the user may CANCEL (clears the key)
+        and return to normal use.
+     3. A scheduled edge function (purge-deleted-accounts) finds every
+        account whose scheduled_for has passed and calls admin.deleteUser.
+
+   We never delete the auth user from the client — only mark intent. */
+export const ACCOUNT_DELETION_GRACE_DAYS = 30
+
+/* Build the prefs.accountDeletion record for a fresh request. */
+export function buildAccountDeletionRequest(now = new Date()) {
+  const requestedMs = now.getTime()
+  const scheduledMs = requestedMs + ACCOUNT_DELETION_GRACE_DAYS * 86400000
+  return {
+    requested_at: new Date(requestedMs).toISOString(),
+    scheduled_for: new Date(scheduledMs).toISOString(),
+  }
+}

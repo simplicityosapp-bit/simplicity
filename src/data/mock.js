@@ -175,6 +175,11 @@ export const quotes = [
   { id: uid(), text: 'הדרך היחידה לעשות עבודה נהדרת היא לאהוב את מה שאתה עושה.', author: 'סטיב ג׳ובס', created_at: daysAgo(30) },
 ]
 
+/* ── user_quotes — ציטוטים אישיים (migration 0013) ── */
+export const user_quotes = [
+  { id: uid(), user_id: USER, text: 'הציטוט האישי הראשון שלי.', author: null, created_at: daysAgo(5), updated_at: daysAgo(5), deleted_at: null },
+]
+
 /* ── user_preferences — אובייקט אחד עם ברירות מחדל (snake_case; הפרוטוטיפ השתמש ב-camelCase) ── */
 export const user_preferences = {
   user_id: USER,
@@ -213,5 +218,6 @@ export const MOCK_DB = {
   daily_answers,
   reminders,
   quotes,
+  user_quotes,
   user_preferences,
 }

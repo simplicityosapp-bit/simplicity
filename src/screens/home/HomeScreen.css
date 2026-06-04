@@ -179,6 +179,13 @@
   padding: 18px 20px;
   text-align: center;
 }
+/* The quote card is a button since beta 03/06/2026 — tap opens the
+   source picker (system pool / personal quotes). */
+.h-quote-btn {
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+.h-quote-btn:active { transform: scale(0.98); }
 .h-quote-text {
   margin: 0;
   font-family: 'Assistant', sans-serif;

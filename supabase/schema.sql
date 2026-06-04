@@ -484,8 +484,20 @@ CREATE TABLE quotes (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   text        text NOT NULL,
   author      text,
+  category    text,                              -- curated theme (migration 0015)
   created_at  timestamptz NOT NULL DEFAULT now(),
   updated_at  timestamptz NOT NULL DEFAULT now()
+);
+
+-- TABLE: user_quotes  (personal quotes pool — migration 0013)
+CREATE TABLE user_quotes (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  text        text NOT NULL CHECK (char_length(btrim(text)) > 0),
+  author      text,
+  created_at  timestamptz NOT NULL DEFAULT now(),
+  updated_at  timestamptz NOT NULL DEFAULT now(),
+  deleted_at  timestamptz
 );
 
 -- TABLE: user_preferences  (single row per user; preferences as one JSONB blob)
@@ -528,6 +540,7 @@ CREATE TRIGGER trg_moon_snapshots_updated      BEFORE UPDATE ON moon_snapshots  
 CREATE TRIGGER trg_reminders_updated           BEFORE UPDATE ON reminders           FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_reminder_occurrences_updated BEFORE UPDATE ON reminder_occurrences FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_quotes_updated              BEFORE UPDATE ON quotes              FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_user_quotes_updated         BEFORE UPDATE ON user_quotes         FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_user_preferences_updated    BEFORE UPDATE ON user_preferences    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 
@@ -608,6 +621,10 @@ CREATE POLICY lead_status_log_insert   ON lead_status_log   FOR INSERT TO authen
 
 -- quotes: readable by everyone (authenticated); no client writes (no INSERT/UPDATE/DELETE policy).
 CREATE POLICY quotes_select ON quotes FOR SELECT TO authenticated USING (true);
+
+-- user_quotes: personal pool — own rows only (migration 0013).
+ALTER TABLE user_quotes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY user_quotes_own ON user_quotes FOR ALL TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
 -- feedback: submit + read own rows only (no UPDATE / DELETE policy = blocked).
 ALTER TABLE feedback ENABLE ROW LEVEL SECURITY;
@@ -713,6 +730,10 @@ CREATE INDEX idx_reminder_occurrences_user    ON reminder_occurrences (user_id);
 CREATE INDEX idx_reminder_occurrences_reminder ON reminder_occurrences (reminder_id);
 
 CREATE INDEX idx_user_preferences_user        ON user_preferences (user_id);
+
+CREATE INDEX idx_user_quotes_user             ON user_quotes (user_id);
+-- Unique guard for the idempotent system-quote seed (migration 0013).
+CREATE UNIQUE INDEX idx_quotes_text_uniq      ON quotes (text);
 
 -- ============================================================
 -- End of schema

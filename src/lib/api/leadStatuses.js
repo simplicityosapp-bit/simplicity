@@ -92,3 +92,11 @@ export async function reassignLeadsStatus(fromId, toId) {
     .is('deleted_at', null)
   if (error) throw error
 }
+
+/* Reassign a SPECIFIC set of leads (by id) to a sub-status — used by
+   undo to move back exactly the leads a delete had reassigned. */
+export async function reassignLeadsStatusByIds(ids, toId) {
+  if (!ids?.length) return
+  const { error } = await supabase.from('leads').update({ status_id: toId }).in('id', ids)
+  if (error) throw error
+}

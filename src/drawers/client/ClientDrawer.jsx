@@ -8,6 +8,7 @@ import ScheduleMeetingModal from '../../modals/ScheduleMeetingModal'
 import AddTransactionModal from '../../modals/AddTransactionModal'
 import EditClientModal from '../../modals/EditClientModal'
 import ConfirmModal from '../../modals/ConfirmModal'
+import { pushUndo } from '../../lib/undo'
 import './ClientDrawer.css'
 
 const STATUS = {
@@ -38,6 +39,21 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
+
+  /* Change the client's status with a one-step undo (restores the prior
+     status_meta + status_id). No-op if the status didn't actually change. */
+  const changeStatus = (k) => {
+    if (!client || client.status_meta === k) { setStatusMenu(false); return }
+    const prev = { status_meta: client.status_meta ?? null, status_id: client.status_id ?? null }
+    const next = { status_meta: k, status_id: null }
+    onUpdateClient?.(client.id, next)
+    setStatusMenu(false)
+    pushUndo({
+      label: 'הסטטוס שונה',
+      undo: async () => { await onUpdateClient?.(client.id, prev) },
+      redo: async () => { await onUpdateClient?.(client.id, next) },
+    })
+  }
 
   const meta = client ? effectiveClientMeta(client, members, groups) : null
   const groupDriven = isGroupDriven(client, members)
@@ -97,7 +113,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                                   role="menuitemradio"
                                   aria-checked={meta === k}
                                   className={`cd-status-opt${meta === k ? ' on' : ''}`}
-                                  onClick={() => { onUpdateClient?.(client.id, { status_meta: k, status_id: null }); setStatusMenu(false) }}
+                                  onClick={() => changeStatus(k)}
                                 >
                                   <span className={`cd-status-dot cd-status-${k}`} aria-hidden="true" />
                                   {label}

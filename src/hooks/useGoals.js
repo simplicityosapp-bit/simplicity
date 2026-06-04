@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { listGoals, insertGoal, updateGoal as apiUpdate, removeGoal as apiRemove } from '../lib/api/goals'
+import { listGoals, insertGoal, updateGoal as apiUpdate, removeGoal as apiRemove, restoreGoal } from '../lib/api/goals'
+import { registerDeleteUndo } from '../lib/undoActions'
 
 /* React-Query-backed: shared across moon/attention/quick-row widgets +
    moon-glance + finance chart. Public API unchanged. */
@@ -24,8 +25,12 @@ export function useGoals() {
   }, [qc])
 
   const removeGoal = useCallback(async (id) => {
+    const row = (qc.getQueryData(KEY) ?? []).find((g) => g.id === id)
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((g) => g.id !== id))
-    try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try {
+      await apiRemove(id)
+      registerDeleteUndo({ qc, key: KEY, row, label: 'המטרה נמחקה', restoreFn: restoreGoal, deleteFn: apiRemove })
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
   return { goals, loading: isLoading, error: error?.message ?? null, addGoal, updateGoal, removeGoal, refetch }

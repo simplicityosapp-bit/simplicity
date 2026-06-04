@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { listLeads, insertLead, updateLead as apiUpdateLead, removeLead as apiRemoveLead } from '../lib/api/leads'
+import { listLeads, insertLead, updateLead as apiUpdateLead, removeLead as apiRemoveLead, restoreLead } from '../lib/api/leads'
+import { registerDeleteUndo } from '../lib/undoActions'
 
 /* React-Query-backed: shared cache across screens. Public API unchanged. */
 const KEY = ['leads']
@@ -23,8 +24,12 @@ export function useLeads() {
   }, [qc])
 
   const removeLead = useCallback(async (id) => {
+    const row = (qc.getQueryData(KEY) ?? []).find((l) => l.id === id)
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((l) => l.id !== id))
-    try { await apiRemoveLead(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try {
+      await apiRemoveLead(id)
+      registerDeleteUndo({ qc, key: KEY, row, label: 'הליד נמחק', restoreFn: restoreLead, deleteFn: apiRemoveLead })
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
   return { leads, loading: isLoading, error: error?.message ?? null, addLead, updateLead, removeLead, refetch }

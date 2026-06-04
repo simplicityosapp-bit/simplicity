@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { listLeadStatuses, insertLeadStatus, updateLeadStatus as apiUpdate, removeLeadStatus as apiRemove } from '../lib/api/leadStatuses'
+import { listLeadStatuses, insertLeadStatus, updateLeadStatus as apiUpdate, removeLeadStatus as apiRemove, restoreLeadStatus } from '../lib/api/leadStatuses'
+import { pushUndo } from '../lib/undo'
 
 export function useLeadStatuses() {
   const [statuses, setStatuses] = useState([])
@@ -40,9 +41,20 @@ export function useLeadStatuses() {
   }, [])
 
   const removeStatus = useCallback(async (id) => {
+    const row = statuses.find((s) => s.id === id)
     setStatuses((prev) => prev.filter((s) => s.id !== id))
-    try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    try {
+      await apiRemove(id)
+      if (row) pushUndo({
+        label: 'תת-הסטטוס נמחק',
+        undo: async () => { try { await restoreLeadStatus(id) } finally { refetch() } },
+        redo: async () => {
+          setStatuses((prev) => prev.filter((s) => s.id !== id))
+          try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
+        },
+      })
+    } catch (e) { setError(e.message); refetch() }
+  }, [statuses, refetch])
 
   /* Optimistic patch (used for drag-reorder sort_order). */
   const updateStatus = useCallback(async (id, patch) => {

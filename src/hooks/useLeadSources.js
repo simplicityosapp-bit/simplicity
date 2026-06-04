@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { listLeadSources, insertLeadSource, removeLeadSource as apiRemove } from '../lib/api/leadSources'
+import { listLeadSources, insertLeadSource, removeLeadSource as apiRemove, restoreLeadSource } from '../lib/api/leadSources'
+import { pushUndo } from '../lib/undo'
 
 export function useLeadSources() {
   const [sources, setSources] = useState([])
@@ -40,9 +41,20 @@ export function useLeadSources() {
   }, [])
 
   const removeSource = useCallback(async (id) => {
+    const row = sources.find((s) => s.id === id)
     setSources((prev) => prev.filter((s) => s.id !== id))
-    try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    try {
+      await apiRemove(id)
+      if (row) pushUndo({
+        label: 'המקור נמחק',
+        undo: async () => { try { await restoreLeadSource(id) } finally { refetch() } },
+        redo: async () => {
+          setSources((prev) => prev.filter((s) => s.id !== id))
+          try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
+        },
+      })
+    } catch (e) { setError(e.message); refetch() }
+  }, [sources, refetch])
 
   return { sources, loading, error, addSource, removeSource, refetch }
 }

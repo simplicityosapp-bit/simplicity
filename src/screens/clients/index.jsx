@@ -22,6 +22,7 @@ import AddClientModal from '../../modals/AddClientModal'
 import DeleteClientModal from '../../modals/DeleteClientModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
+import { pushUndo } from '../../lib/undo'
 import './ClientsScreen.css'
 
 const HERO_LABEL = {
@@ -209,12 +210,20 @@ export default function ClientsScreen() {
 
   const bulkChangeMeta = async (newMeta) => {
     setBulkMetaOpen(false)
-    const now = new Date().toISOString()
+    /* Snapshot each client's prior status so one Undo reverts them all. */
+    const snapshots = selectedClients.map((c) => ({ id: c.id, status_meta: c.status_meta ?? null, status: c.status ?? null }))
     for (const c of selectedClients) {
       await updateClient(c.id, { status_meta: newMeta, status: newMeta }).catch(() => {})
     }
     setSelectedIds(new Set())
     setSelectMode(false)
+    if (snapshots.length) {
+      pushUndo({
+        label: snapshots.length === 1 ? 'הסטטוס שונה' : `סטטוס שונה ל-${snapshots.length} לקוחות`,
+        undo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: s.status_meta, status: s.status }).catch(() => {}) },
+        redo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: newMeta, status: newMeta }).catch(() => {}) },
+      })
+    }
   }
 
   /* Hero — per tab. Monthly/cumulative affects פגישות + שולם; balance is always current. */

@@ -1,0 +1,130 @@
+/* ════════════════════════════════════════════════════════════════
+   UNDO TOAST — bottom-centered glass snackbar with a countdown bar.
+   ════════════════════════════════════════════════════════════════
+   Wears the same dark heavy-blur glass as the bottom nav so it stays
+   legible over any per-screen background in both light and dark mode
+   (no per-mode color flips needed). Sits above the bottom nav on
+   mobile; drops to the bottom edge on desktop where the nav is gone.
+   ──────────────────────────────────────────────────────────────── */
+.undo-toast-wrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px)); /* clear the bottom nav */
+  z-index: 250;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none; /* only the pill itself is interactive */
+}
+
+.undo-toast {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: min(440px, 100%);
+  padding: 11px 14px 11px 16px;
+  border-radius: 14px;
+  background: rgba(42, 37, 32, 0.62);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border: 1px solid rgba(240, 235, 224, 0.12);
+  box-shadow: 0 8px 28px rgba(42, 37, 32, 0.28);
+  color: #F0EBE0;
+  font-family: var(--mg-font);
+  font-size: var(--mg-body);
+  pointer-events: auto;
+  animation: undo-toast-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="dark"] .undo-toast {
+  background: rgba(13, 17, 23, 0.72);
+  border: 1px solid rgba(240, 235, 224, 0.10);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes undo-toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.undo-toast-label {
+  flex: 1 1 auto;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.undo-toast-label--done {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--sage);
+}
+
+/* "בטל" — terracotta accent, the one action on the toast. */
+.undo-toast-action {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(201, 123, 94, 0.22);
+  color: #F4E3DA;
+  font-family: inherit;
+  font-size: var(--mg-caption);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+.undo-toast-action:hover { background: rgba(201, 123, 94, 0.36); }
+.undo-toast-action:active { background: rgba(201, 123, 94, 0.46); }
+
+.undo-toast-x {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(240, 235, 224, 0.62);
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+.undo-toast-x:hover { background: rgba(240, 235, 224, 0.12); color: #F0EBE0; }
+
+/* Countdown — a thin terracotta bar along the bottom edge that shrinks
+   to zero over the offer window, mirroring how long "בטל" stays. */
+.undo-toast-bar {
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: 0;
+  height: 2.5px;
+  width: 100%;
+  background: var(--terracotta);
+  transform-origin: inline-start;
+  animation: undo-toast-countdown linear forwards;
+}
+
+@keyframes undo-toast-countdown {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* Desktop: no bottom nav, so the toast drops to the bottom edge. */
+@media (min-width: 768px) {
+  .undo-toast-wrap { bottom: 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .undo-toast { animation: none; }
+  .undo-toast-bar { animation-name: undo-toast-countdown; }
+}

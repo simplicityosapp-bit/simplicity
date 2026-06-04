@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { listSessions, insertSession, updateSession as apiUpdate, removeSession as apiRemove } from '../lib/api/sessions'
+import { listSessions, insertSession, updateSession as apiUpdate, removeSession as apiRemove, restoreSession } from '../lib/api/sessions'
+import { registerDeleteUndo } from '../lib/undoActions'
 
 /* React-Query-backed: shared across moon + attention widgets. Public API unchanged. */
 const KEY = ['sessions']
@@ -23,8 +24,12 @@ export function useSessions() {
   }, [qc])
 
   const removeSession = useCallback(async (id) => {
+    const row = (qc.getQueryData(KEY) ?? []).find((s) => s.id === id)
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((s) => s.id !== id))
-    try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try {
+      await apiRemove(id)
+      registerDeleteUndo({ qc, key: KEY, row, label: 'המפגש נמחק', restoreFn: restoreSession, deleteFn: apiRemove })
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
   return { sessions, loading: isLoading, error: error?.message ?? null, addSession, updateSession, removeSession, refetch }

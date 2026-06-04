@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { listGroups, insertGroup, updateGroup as apiUpdate, removeGroup as apiRemove } from '../lib/api/groups'
+import { listGroups, insertGroup, updateGroup as apiUpdate, removeGroup as apiRemove, restoreGroup } from '../lib/api/groups'
+import { registerDeleteUndo } from '../lib/undoActions'
 
 /* React-Query-backed: shared across meeting-confirm + chips widgets. Public API unchanged. */
 const KEY = ['groups']
@@ -23,8 +24,12 @@ export function useGroups() {
   }, [qc])
 
   const removeGroup = useCallback(async (id) => {
+    const row = (qc.getQueryData(KEY) ?? []).find((g) => g.id === id)
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((g) => g.id !== id))
-    try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try {
+      await apiRemove(id)
+      registerDeleteUndo({ qc, key: KEY, row, label: 'הקבוצה נמחקה', restoreFn: restoreGroup, deleteFn: apiRemove })
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
   return { groups, loading: isLoading, error: error?.message ?? null, addGroup, updateGroup, removeGroup, refetch }

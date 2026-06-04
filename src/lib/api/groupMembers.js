@@ -44,3 +44,9 @@ export async function removeGroupMember(id) {
   const { error } = await supabase.from('group_members').update({ deleted_at: new Date().toISOString() }).eq('id', id)
   if (error) throw error
 }
+
+/* Soft-delete restore — used by group-delete undo to re-attach members. */
+export async function restoreGroupMember(id) {
+  const { error } = await supabase.from('group_members').update({ deleted_at: null }).eq('id', id)
+  if (error) throw error
+}

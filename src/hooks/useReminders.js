@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import { listReminders, insertReminder, updateReminder, removeReminder as apiRemove } from '../lib/api/reminders'
+import { listReminders, insertReminder, updateReminder, removeReminder as apiRemove, restoreReminder } from '../lib/api/reminders'
 import { isRecurring, nextScheduledAt } from '../lib/reminders'
+import { pushUndo } from '../lib/undo'
 
 const bySchedule = (a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at)
 
@@ -79,9 +80,20 @@ export function useReminders() {
   }, [refetch])
 
   const removeReminder = useCallback(async (id) => {
+    const row = reminders.find((r) => r.id === id)
     setReminders((prev) => prev.filter((r) => r.id !== id))
-    try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    try {
+      await apiRemove(id)
+      if (row) pushUndo({
+        label: 'התזכורת נמחקה',
+        undo: async () => { try { await restoreReminder(id) } finally { refetch() } },
+        redo: async () => {
+          setReminders((prev) => prev.filter((r) => r.id !== id))
+          try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
+        },
+      })
+    } catch (e) { setError(e.message); refetch() }
+  }, [reminders, refetch])
 
   return { reminders, loading, error, addReminder, completeReminder, editReminder, removeReminder, refetch }
 }

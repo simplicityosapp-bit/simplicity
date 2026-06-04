@@ -39,3 +39,9 @@ export async function removeUserQuote(id) {
   const { error } = await supabase.from('user_quotes').update({ deleted_at: new Date().toISOString() }).eq('id', id)
   if (error) throw error
 }
+
+/* Soft-delete restore — used by undo. */
+export async function restoreUserQuote(id) {
+  const { error } = await supabase.from('user_quotes').update({ deleted_at: null }).eq('id', id)
+  if (error) throw error
+}

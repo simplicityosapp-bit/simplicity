@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { listTasks, insertTask, updateTask, removeTask as apiRemoveTask } from '../lib/api/tasks'
+import { listTasks, insertTask, updateTask, removeTask as apiRemoveTask, restoreTask } from '../lib/api/tasks'
+import { registerDeleteUndo } from '../lib/undoActions'
 
 /* React-Query-backed: home widgets (attention, chips, next-tasks) shared
    the same task fetch. Public API unchanged. */
@@ -40,8 +41,12 @@ export function useTasks() {
   }, [qc])
 
   const removeTask = useCallback(async (id) => {
+    const row = (qc.getQueryData(KEY) ?? []).find((t) => t.id === id)
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => t.id !== id))
-    try { await apiRemoveTask(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try {
+      await apiRemoveTask(id)
+      registerDeleteUndo({ qc, key: KEY, row, label: 'המשימה נמחקה', restoreFn: restoreTask, deleteFn: apiRemoveTask })
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
   return { tasks, loading: isLoading, error: error?.message ?? null, addTask, toggleTask, editTask, removeTask, refetch }

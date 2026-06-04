@@ -240,7 +240,8 @@
   stroke-linecap: round;
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
-  filter: blur(2.5px);
+  /* Beta feedback (03/06/2026): the 2.5px blur smeared the accent color
+     and hid the progress — the colored ring must read clean and sharp. */
   transition: stroke-dasharray 0.4s ease;
 }
 .moon-chip-num {
@@ -963,7 +964,12 @@
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  max-width: 100%;
 }
+/* Long currency strings (e.g. "−123,456 ₪") step down so they never run
+   over the corner icon on the narrow mobile chips (beta 03/06/2026). */
+.h-stat-num-long  { font-size: calc(18px * var(--text-scale)); }
+.h-stat-num-xlong { font-size: calc(15px * var(--text-scale)); }
 .h-stat-lbl {
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));

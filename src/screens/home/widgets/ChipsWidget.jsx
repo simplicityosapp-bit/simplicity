@@ -32,6 +32,10 @@ export default function ChipsWidget() {
     [clients, tasks, transactions, filters],
   )
   const netStr = `${summary.net < 0 ? '−' : ''}${Math.round(Math.abs(summary.net)).toLocaleString('en-US')} ₪`
+  /* Long amounts overflowed the narrow mobile chip and ran over the wallet
+     icon (beta feedback 03/06/2026) — step the font down as the string grows
+     so the number always fits inside the card. */
+  const netSizeCls = netStr.length >= 11 ? ' h-stat-num-xlong' : netStr.length >= 8 ? ' h-stat-num-long' : ''
 
   /* The tile is a `<div role="button">` instead of a real <button> because
      it contains the InfoPopover trigger (which is itself a <button>) —
@@ -53,7 +57,7 @@ export default function ChipsWidget() {
         </div>
         <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('net')} onKeyDown={onTileKey(() => setOpenTile('net'))}>
           <Wallet size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-          <span className="h-stat-num mono">{netStr}</span>
+          <span className={`h-stat-num mono${netSizeCls}`}>{netStr}</span>
           <span className="h-stat-lbl">
             נטו
             <InfoPopover label="הסבר נטו" text="לחץ/י על הכרטיס כדי לסנן לפי טווח זמן, סוג, פרויקט וקטגוריה. סופר רק תנועות שאושרו." placement="top" />

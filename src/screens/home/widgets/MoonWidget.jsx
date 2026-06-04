@@ -114,6 +114,9 @@ export default function MoonWidget() {
           />
         </svg>
         <div className="moon-chip-num mono">{`${conf}%`}</div>
+        {/* Beta request 03/06/2026 — the bare percentage was unclear; the
+            micro-word ties it to pace: "87% מהקצב / 62% מהיעד". */}
+        <div className="moon-chip-kicker">מהקצב</div>
         <div className="moon-chip-label">
           {label}
           <InfoPopover

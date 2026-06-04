@@ -1,0 +1,77 @@
+/* ════════════════════════════════════════════════════════════════
+   QUOTE SOURCE MODAL — source pills + personal pool management.
+   All values from tokens; rows follow the list-row primitives.
+   ════════════════════════════════════════════════════════════════ */
+
+.qsm-hint {
+  margin: 8px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+
+/* Input + round add button on one row. */
+.qsm-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.qsm-add .m-input { flex: 1; }
+.qsm-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--mg-btn-primary-bg);
+  color: var(--on-accent);
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+}
+.qsm-add-btn:hover { background: var(--mg-btn-primary-bg-hover); }
+.qsm-add-btn:active { transform: scale(0.93); }
+.qsm-add-btn:disabled { opacity: 0.6; cursor: default; }
+[data-theme="dark"] .qsm-add-btn { color: var(--ink-on-accent); }
+
+/* Personal list — scrolls internally past ~5 rows. */
+.qsm-list {
+  max-height: 220px;
+  overflow-y: auto;
+}
+.qsm-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 2px;
+  border-top: 1px solid var(--divider);
+}
+.qsm-row:first-child { border-top: none; }
+.qsm-row-text {
+  flex: 1;
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1.45;
+  color: var(--espresso);
+}
+.qsm-row-del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.qsm-row-del:hover {
+  color: var(--clay);
+  background: rgba(181, 99, 78, 0.08);
+}

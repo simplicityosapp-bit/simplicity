@@ -1,20 +1,68 @@
+import { useMemo, useState } from 'react'
 import { useQuote } from '../../../hooks/useQuote'
+import { useUserQuotes } from '../../../hooks/useUserQuotes'
+import { useUserPreferences } from '../../../hooks/useUserPreferences'
+import QuoteSourceModal from '../../../modals/QuoteSourceModal'
 
-/* Picks one quote at random per session — first from the real `quotes` table,
-   falling back to the local mock if the table is empty or the read fails. */
+/* Daily quote — tap opens the source picker + personal pool manager
+   (beta request 03/06/2026). Source: prefs.quoteSource ('system' |
+   'personal'). System picks once per session from the `quotes` table;
+   personal picks from the user's own pool and falls back to the
+   system quote while the pool is still empty. */
 export default function QuoteWidget() {
   const { quote } = useQuote()
-  if (!quote) {
-    return (
-      <div className="h-quote">
-        <p className="h-quote-text">היום יום חדש. הכל אפשרי.</p>
-      </div>
-    )
+  const { userQuotes, addUserQuote, removeUserQuote } = useUserQuotes()
+  const { prefs, update } = useUserPreferences()
+  const [open, setOpen] = useState(false)
+
+  const source = prefs?.quoteSource === 'personal' ? 'personal' : 'system'
+
+  /* Deterministic daily pick — a day-seeded hash chooses the personal
+     quote, so it stays stable across re-renders (pure, lint-safe) and
+     rotates naturally once a day. */
+  const personalQuote = useMemo(() => {
+    if (!userQuotes.length) return null
+    const dayKey = new Date().toDateString()
+    let h = 0
+    for (let i = 0; i < dayKey.length; i++) h = (h * 31 + dayKey.charCodeAt(i)) | 0
+    return userQuotes[Math.abs(h) % userQuotes.length]
+  }, [userQuotes])
+
+  const shown = (source === 'personal' && personalQuote) ? personalQuote : quote
+
+  const onKey = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(true) }
   }
+
   return (
-    <div className="h-quote">
-      <p className="h-quote-text">{quote.text}</p>
-      {quote.author && <p className="h-quote-author">— {quote.author}</p>}
-    </div>
+    <>
+      <div
+        className="h-quote h-quote-btn"
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen(true)}
+        onKeyDown={onKey}
+        aria-label="בחירת מקור הציטוטים"
+      >
+        {shown ? (
+          <>
+            <p className="h-quote-text">{shown.text}</p>
+            {shown.author && <p className="h-quote-author">— {shown.author}</p>}
+          </>
+        ) : (
+          <p className="h-quote-text">היום יום חדש. הכל אפשרי.</p>
+        )}
+      </div>
+
+      <QuoteSourceModal
+        open={open}
+        onClose={() => setOpen(false)}
+        source={source}
+        onChangeSource={(k) => update({ quoteSource: k })}
+        userQuotes={userQuotes}
+        onAdd={addUserQuote}
+        onRemove={removeUserQuote}
+      />
+    </>
   )
 }

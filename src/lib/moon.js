@@ -84,14 +84,19 @@ function goalActual(goal, cat, now, entries, transactions, clients, leads, answe
     }
     if (cat.data_source === 'group_members') {
       /* snapshot — distinct active people in groups (graph_type cumulative),
-         optionally scoped to the goal's project. */
+         optionally scoped to the goal's group or project (goals.group_id /
+         goals.project_id — both set by AddGoalModal). */
       const activeMembers = live(members).filter((m) => !m.left_at)
       let inScope = activeMembers
-      if (goal.project_id) {
+      if (goal.group_id) {
+        inScope = activeMembers.filter((m) => m.group_id === goal.group_id)
+      } else if (goal.project_id) {
         const projGroupIds = new Set(live(groups).filter((g) => g.project_id === goal.project_id).map((g) => g.id))
         inScope = activeMembers.filter((m) => projGroupIds.has(m.group_id))
       }
-      return new Set(inScope.map((m) => m.client_id)).length
+      /* Set exposes .size — .length was undefined, which turned the actual
+         into NaN→0 so the goal never updated (beta feedback 03/06/2026). */
+      return new Set(inScope.map((m) => m.client_id)).size
     }
   }
   /* manual — sum of entries in the period */

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
-import { moonGetData, moonGetCategories, moonReflection } from '../../../lib/moon'
+import { moonGetData, moonReflection } from '../../../lib/moon'
 import { upsertMoonSnapshot } from '../../../lib/api/moonSnapshots'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
@@ -17,10 +17,10 @@ import { useGroupMembers } from '../../../hooks/useGroupMembers'
 import InfoPopover from '../../../components/InfoPopover'
 
 /* Moon-glance mini — a single chip with the pace-based confidence
-   percentage inside a soft circular ring. The progress arc itself
-   is blurred so it reads as a glow, not a hard line; its color
-   follows the widget's accent (sage by default, can be re-tinted
-   via the home customize panel).
+   percentage inside a soft circular ring. The progress arc renders
+   clean and sharp (beta feedback 03/06/2026 — the old blur hid the
+   accent color); its color follows the widget's accent (sage by
+   default, can be re-tinted via the home customize panel).
 
    Tap the chip → toggle inline expansion. The expanded card shows
    per-category bars + a one-line reflection + a "פירוט מלא ←" link
@@ -47,8 +47,11 @@ export default function MoonWidget() {
     () => ({ goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups }),
     [goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups],
   )
-  const { overall } = useMemo(() => moonGetData(new Date(), data), [data])
-  const cats = useMemo(() => (expanded ? moonGetCategories(new Date(), data) : []), [expanded, data])
+  /* `scored` carries one entry per goal — the expansion lists the goals
+     themselves with the name the user chose (goal.label, falling back to
+     the category name like GoalCard does). Per beta decision 04/06/2026:
+     per-goal bars, not per-category. */
+  const { overall, scored } = useMemo(() => moonGetData(new Date(), data), [data])
 
   /* Persist today's moon-glance score as a daily snapshot. Upserts on
      (user_id, date) so multiple recomputes within a day just overwrite
@@ -133,25 +136,28 @@ export default function MoonWidget() {
       {expanded && (
         <div className="moon-expanded">
           <p className="moon-expanded-reflection">{moonReflection(conf)}</p>
-          {cats.length === 0 ? (
+          {scored.length === 0 ? (
             <p className="moon-expanded-empty">אין עדיין יעדים פעילים עם נתונים החודש.</p>
           ) : (
             <div className="moon-expanded-cats">
-              {cats.map((c) => (
-                <div key={c.category.id} className="moon-expanded-cat">
-                  <div className="moon-expanded-cat-head">
-                    <span className="moon-expanded-cat-dot" style={{ background: c.category.color || 'var(--sage)' }} />
-                    <span className="moon-expanded-cat-name">{c.category.name}</span>
-                    <span className="moon-expanded-cat-pct mono">{c.confidence}%</span>
+              {scored.map((s) => {
+                const confidence = Math.min(100, s.paced)
+                return (
+                  <div key={s.goal.id} className="moon-expanded-cat">
+                    <div className="moon-expanded-cat-head">
+                      <span className="moon-expanded-cat-dot" style={{ background: s.cat.color || 'var(--sage)' }} />
+                      <span className="moon-expanded-cat-name">{s.goal.label || s.cat.name}</span>
+                      <span className="moon-expanded-cat-pct mono">{confidence}%</span>
+                    </div>
+                    <div className="moon-expanded-cat-bar">
+                      <div
+                        className="moon-expanded-cat-fill"
+                        style={{ width: `${confidence}%`, background: s.cat.color || 'var(--sage)' }}
+                      />
+                    </div>
                   </div>
-                  <div className="moon-expanded-cat-bar">
-                    <div
-                      className="moon-expanded-cat-fill"
-                      style={{ width: `${Math.min(c.confidence, 100)}%`, background: c.category.color || 'var(--sage)' }}
-                    />
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
           <button type="button" className="moon-expanded-link" onClick={() => navigate(ROUTES.MOON_GLANCE)}>

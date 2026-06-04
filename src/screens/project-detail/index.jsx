@@ -296,19 +296,17 @@ export default function ProjectDetailScreen() {
         if (choices.keepMembers === false) {
           /* removeClient (not updateClient) — updateClient sanitizes
              deleted_at out, so a direct patch would be a no-op. */
-          // eslint-disable-next-line no-await-in-loop
           await removeClient(c.id).catch(() => {})
           deletedClientIds.push(c.id)
         } else if (c.group_id === g.id) {
-          // eslint-disable-next-line no-await-in-loop
           await updateClient(c.id, { group_id: null }).catch(() => {})
           releasedClientIds.push(c.id)
         }
       }
-      for (const mid of memberRowIds) { await removeMember(mid).catch(() => {}) } // eslint-disable-line no-await-in-loop
-      for (const sid of sessionIds) { await removeSession(sid).catch(() => {}) } // eslint-disable-line no-await-in-loop
-      for (const rid of reminderIds) { await removeReminder(rid).catch(() => {}) } // eslint-disable-line no-await-in-loop
-      for (const m of futureMeetings) { await removeMeeting(m.id).catch(() => {}) } // eslint-disable-line no-await-in-loop
+      for (const mid of memberRowIds) { await removeMember(mid).catch(() => {}) }
+      for (const sid of sessionIds) { await removeSession(sid).catch(() => {}) }
+      for (const rid of reminderIds) { await removeReminder(rid).catch(() => {}) }
+      for (const m of futureMeetings) { await removeMeeting(m.id).catch(() => {}) }
       await removeGroup(g.id)
     }
 
@@ -325,26 +323,25 @@ export default function ProjectDetailScreen() {
       label: 'הקבוצה נמחקה',
       undo: async () => {
         try { await restoreGroup(g.id) } catch { /* keep going */ }
-        for (const id of deletedClientIds) { try { await restoreClient(id) } catch { /* keep going */ } } // eslint-disable-line no-await-in-loop
-        for (const id of releasedClientIds) { await updateClient(id, { group_id: g.id }).catch(() => {}) } // eslint-disable-line no-await-in-loop
-        for (const id of memberRowIds) { try { await restoreGroupMember(id) } catch { /* keep going */ } } // eslint-disable-line no-await-in-loop
-        for (const id of sessionIds) { try { await restoreSession(id) } catch { /* keep going */ } } // eslint-disable-line no-await-in-loop
-        for (const id of reminderIds) { try { await restoreReminder(id) } catch { /* keep going */ } } // eslint-disable-line no-await-in-loop
+        for (const id of deletedClientIds) { try { await restoreClient(id) } catch { /* keep going */ } }
+        for (const id of releasedClientIds) { await updateClient(id, { group_id: g.id }).catch(() => {}) }
+        for (const id of memberRowIds) { try { await restoreGroupMember(id) } catch { /* keep going */ } }
+        for (const id of sessionIds) { try { await restoreSession(id) } catch { /* keep going */ } }
+        for (const id of reminderIds) { try { await restoreReminder(id) } catch { /* keep going */ } }
         reMeetingIds = []
         for (const m of futureMeetings) {
-          // eslint-disable-next-line no-await-in-loop
           try { const r = await insertScheduledMeeting(m); reMeetingIds.push(r.id) } catch { /* keep going */ }
         }
         refreshAll()
       },
       redo: async () => {
-        for (const id of releasedClientIds) { await updateClient(id, { group_id: null }).catch(() => {}) } // eslint-disable-line no-await-in-loop
-        for (const id of deletedClientIds) { await removeClient(id).catch(() => {}) } // eslint-disable-line no-await-in-loop
-        for (const id of memberRowIds) { await removeMember(id).catch(() => {}) } // eslint-disable-line no-await-in-loop
-        for (const id of sessionIds) { await removeSession(id).catch(() => {}) } // eslint-disable-line no-await-in-loop
-        for (const id of reminderIds) { await removeReminder(id).catch(() => {}) } // eslint-disable-line no-await-in-loop
+        for (const id of releasedClientIds) { await updateClient(id, { group_id: null }).catch(() => {}) }
+        for (const id of deletedClientIds) { await removeClient(id).catch(() => {}) }
+        for (const id of memberRowIds) { await removeMember(id).catch(() => {}) }
+        for (const id of sessionIds) { await removeSession(id).catch(() => {}) }
+        for (const id of reminderIds) { await removeReminder(id).catch(() => {}) }
         const meetingTargets = reMeetingIds.length ? reMeetingIds : futureMeetings.map((m) => m.id)
-        for (const id of meetingTargets) { await removeMeeting(id).catch(() => {}) } // eslint-disable-line no-await-in-loop
+        for (const id of meetingTargets) { await removeMeeting(id).catch(() => {}) }
         await removeGroup(g.id).catch(() => {})
         refreshAll()
       },

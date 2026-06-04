@@ -19,8 +19,9 @@ import { useCategories } from '../../hooks/useCategories'
 import { useTasks } from '../../hooks/useTasks'
 import { useLeads } from '../../hooks/useLeads'
 import { useGoals } from '../../hooks/useGoals'
-import { countClientsByStatus, reassignClientsStatus } from '../../lib/api/clientStatuses'
-import { countLeadsByStatus, reassignLeadsStatus } from '../../lib/api/leadStatuses'
+import { countClientsByStatus, reassignClientsStatus, reassignClientsStatusByIds, restoreClientStatus } from '../../lib/api/clientStatuses'
+import { countLeadsByStatus, reassignLeadsStatus, reassignLeadsStatusByIds, restoreLeadStatus } from '../../lib/api/leadStatuses'
+import { pushUndo } from '../../lib/undo'
 import DeleteSubStatusModal from '../../modals/DeleteSubStatusModal'
 import ResetAccountModal from '../../modals/ResetAccountModal'
 import { resetAllUserData } from '../../lib/api/account'
@@ -537,8 +538,8 @@ export default function SettingsScreen() {
   /* C10 — which questions are wired to a goal (goals.tracked_by_question_id). */
   const goalLinkedQ = new Set((goals || []).filter((g) => g.tracked_by_question_id).map((g) => g.tracked_by_question_id))
   const { sources, loading: sourcesLoading, error: sourcesError, addSource, removeSource } = useLeadSources()
-  const { statuses: clientStatuses, loading: clientStatusesLoading, error: clientStatusesError, addStatus: addClientStatus, removeStatus: removeClientStatus } = useClientStatuses()
-  const { statuses: leadStatuses, loading: leadStatusesLoading, error: leadStatusesError, addStatus: addLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
+  const { statuses: clientStatuses, loading: clientStatusesLoading, error: clientStatusesError, addStatus: addClientStatus, removeStatus: removeClientStatus, refetch: refetchClientStatuses } = useClientStatuses()
+  const { statuses: leadStatuses, loading: leadStatusesLoading, error: leadStatusesError, addStatus: addLeadStatus, removeStatus: removeLeadStatus, refetch: refetchLeadStatuses } = useLeadStatuses()
   const { prefs, loading: prefsLoading, update: updatePrefs } = useUserPreferences()
   /* Data-section hooks — pulled lazily-ish: useClients/etc. all use a
      single network round-trip on mount, so this isn't expensive. */
@@ -547,8 +548,59 @@ export default function SettingsScreen() {
   const { transactions: dataTransactions, refetch: refetchTransactions } = useTransactions()
   const { categories: dataCategories } = useCategories()
   const { tasks: dataTasks } = useTasks()
-  const { leads: dataLeads } = useLeads()
+  const { leads: dataLeads, refetch: refetchLeads } = useLeads()
   const [pendingDelete, setPendingDelete] = useState(null)  /* { kind, status, peers } | null */
+  /* Captures which leads/clients a sub-status delete reassigned, so undo
+     can move exactly those rows back (see handleSubStatusReassign/Delete). */
+  const reassignRef = useRef(null)
+
+  /* ── Sub-status delete with reassignment-aware undo ────────────────
+     The modal calls reassign (if there are assignees) then delete. We
+     snapshot the exact rows moved, then register ONE composite undo that
+     restores the sub-status AND moves those rows back to it. */
+  const handleSubStatusReassign = async (fromId, toId) => {
+    const kind = pendingDelete?.kind
+    const src = kind === 'lead' ? (dataLeads || []) : (dataClients || [])
+    const ids = src.filter((x) => x.status_id === fromId && !x.deleted_at).map((x) => x.id)
+    reassignRef.current = { kind, statusId: fromId, toId, ids }
+    await (kind === 'lead' ? reassignLeadsStatus : reassignClientsStatus)(fromId, toId)
+  }
+
+  const handleSubStatusDelete = async (statusId) => {
+    const kind = pendingDelete?.kind
+    await (kind === 'lead' ? removeLeadStatus : removeClientStatus)(statusId)
+    const snap = (reassignRef.current && reassignRef.current.statusId === statusId) ? reassignRef.current : null
+    reassignRef.current = null
+    const ids = snap?.ids || []
+    const toId = snap?.toId ?? null
+    /* Overwrites the restore-only undo the hook just queued, adding the
+       reassignment revert. */
+    pushUndo({
+      label: 'תת-הסטטוס נמחק',
+      undo: async () => {
+        if (kind === 'lead') {
+          try { await restoreLeadStatus(statusId) } catch { /* keep going */ }
+          try { if (ids.length) await reassignLeadsStatusByIds(ids, statusId) } catch { /* keep going */ }
+          refetchLeadStatuses(); refetchLeads()
+        } else {
+          try { await restoreClientStatus(statusId) } catch { /* keep going */ }
+          try { if (ids.length) await reassignClientsStatusByIds(ids, statusId) } catch { /* keep going */ }
+          refetchClientStatuses(); refetchClients()
+        }
+      },
+      redo: async () => {
+        if (kind === 'lead') {
+          try { if (ids.length) await reassignLeadsStatusByIds(ids, toId) } catch { /* keep going */ }
+          try { await removeLeadStatus(statusId) } catch { /* keep going */ }
+          refetchLeads()
+        } else {
+          try { if (ids.length) await reassignClientsStatusByIds(ids, toId) } catch { /* keep going */ }
+          try { await removeClientStatus(statusId) } catch { /* keep going */ }
+          refetchClients()
+        }
+      },
+    })
+  }
   const [showReset, setShowReset] = useState(false)
   /* Full account wipe → then restart onboarding so the user lands on a
      clean first-run experience. */
@@ -967,8 +1019,8 @@ export default function SettingsScreen() {
         status={pendingDelete?.status}
         peers={pendingDelete?.peers || []}
         onCount={pendingDelete?.kind === 'lead' ? countLeadsByStatus : countClientsByStatus}
-        onReassign={pendingDelete?.kind === 'lead' ? reassignLeadsStatus : reassignClientsStatus}
-        onDelete={pendingDelete?.kind === 'lead' ? removeLeadStatus : removeClientStatus}
+        onReassign={handleSubStatusReassign}
+        onDelete={handleSubStatusDelete}
       />
 
       {importParsed && (

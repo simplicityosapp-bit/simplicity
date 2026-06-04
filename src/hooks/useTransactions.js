@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  listTransactions, insertTransaction, updateTransaction, removeTransaction as apiRemoveTx,
+  listTransactions, insertTransaction, updateTransaction, removeTransaction as apiRemoveTx, restoreTransaction,
 } from '../lib/api/transactions'
+import { registerDeleteUndo } from '../lib/undoActions'
 
 /* React-Query-backed: the finance + home widgets that each fetched the
    whole transactions table now share one cached fetch. Public API
@@ -36,8 +37,12 @@ export function useTransactions() {
   }, [qc])
 
   const removeTransaction = useCallback(async (id) => {
+    const row = (qc.getQueryData(KEY) ?? []).find((t) => t.id === id)
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => t.id !== id))
-    try { await apiRemoveTx(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try {
+      await apiRemoveTx(id)
+      registerDeleteUndo({ qc, key: KEY, row, label: 'התנועה נמחקה', restoreFn: restoreTransaction, deleteFn: apiRemoveTx })
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
   return { transactions, loading: isLoading, error: error?.message ?? null, addTransaction, editTransaction, setStatus, removeTransaction, refetch }

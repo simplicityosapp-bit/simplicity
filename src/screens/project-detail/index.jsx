@@ -14,6 +14,13 @@ import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { statusMetaOf } from '../../lib/clients'
 import { financeQuery, currentMonthRange, isr } from '../../lib/finance'
 import { buildRoute, ROUTES } from '../../lib/routes'
+import { restoreGroup } from '../../lib/api/groups'
+import { restoreSession } from '../../lib/api/sessions'
+import { restoreReminder } from '../../lib/api/reminders'
+import { restoreClient } from '../../lib/api/clients'
+import { restoreGroupMember } from '../../lib/api/groupMembers'
+import { insertScheduledMeeting } from '../../lib/api/scheduledMeetings'
+import { pushUndo } from '../../lib/undo'
 import AddGroupModal from '../../modals/AddGroupModal'
 import EditGroupModal from '../../modals/EditGroupModal'
 import EditProjectModal from '../../modals/EditProjectModal'
@@ -53,13 +60,13 @@ export default function ProjectDetailScreen() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { projects, updateProject } = useProjects()
-  const { clients, addClient, updateClient } = useClients()
-  const { groups, addGroup, updateGroup, removeGroup } = useGroups()
-  const { members, addMember, removeMember } = useGroupMembers()
-  const { sessions, addSession, updateSession, removeSession } = useSessions()
+  const { clients, addClient, updateClient, removeClient, refetch: refetchClients } = useClients()
+  const { groups, addGroup, updateGroup, removeGroup, refetch: refetchGroups } = useGroups()
+  const { members, addMember, removeMember, refetch: refetchMembers } = useGroupMembers()
+  const { sessions, addSession, updateSession, removeSession, refetch: refetchSessions } = useSessions()
   const { transactions } = useTransactions()
-  const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
-  const { meetings: scheduledMeetings, removeMeeting } = useScheduledMeetings()
+  const { reminders, addReminder, completeReminder, removeReminder, refetch: refetchReminders } = useReminders()
+  const { meetings: scheduledMeetings, removeMeeting, refetch: refetchMeetings } = useScheduledMeetings()
 
   /* Section accordion + per-group sessions expand state. */
   const [openSec, setOpenSec] = useState({ groups: true, clients: true, reminders: false })
@@ -266,55 +273,95 @@ export default function ProjectDetailScreen() {
   }
 
   const runDeleteGroup = async (g, choices) => {
-    /* Members: if user opted to "delete clients", soft-delete them via updateClient.
-       Otherwise release the group_id and clear membership rows so they fall back to
-       private project clients (matches prototype semantics). */
+    /* Snapshot everything this delete will touch BEFORE mutating, so one
+       composite Undo can fully reverse the cascade — including the
+       hard-deleted future meetings (re-inserted) which a plain Trash
+       restore of the group would never bring back. */
     const memberClients = groupMemberClients(g.id)
-    for (const c of memberClients) {
-      if (choices.keepMembers === false) {
-        // eslint-disable-next-line no-await-in-loop
-        await updateClient(c.id, { deleted_at: new Date().toISOString() }).catch(() => {})
-      } else if (c.group_id === g.id) {
-        // eslint-disable-next-line no-await-in-loop
-        await updateClient(c.id, { group_id: null }).catch(() => {})
-      }
-    }
-    /* Drop the group_members rows tied to this group regardless. */
     const memberRows = liveMembers.filter((m) => m.group_id === g.id)
-    for (const m of memberRows) {
-      // eslint-disable-next-line no-await-in-loop
-      await removeMember(m.id).catch(() => {})
-    }
-    /* Past sessions are kept by default (history); if user opted to delete, soft-delete. */
-    if (choices.keepPastSessions === false) {
-      const groupSessions = sessions.filter((s) => s.group_id === g.id)
-      for (const s of groupSessions) {
-        // eslint-disable-next-line no-await-in-loop
-        await removeSession(s.id).catch(() => {})
+    const memberRowIds = memberRows.map((m) => m.id)
+    const sessionIds = choices.keepPastSessions === false
+      ? sessions.filter((s) => s.group_id === g.id).map((s) => s.id) : []
+    const reminderIds = choices.keepReminders === false
+      ? reminders.filter((r) => r.linked_to_type === 'group' && r.linked_to_id === g.id).map((r) => r.id) : []
+    const futureMeetings = choices.keepFutureMeetings === false
+      ? scheduledMeetings.filter((m) => m.subject_type === 'group' && m.subject_id === g.id && m.status === 'pending') : []
+    const deletedClientIds = []
+    const releasedClientIds = []
+
+    /* Forward cascade. Members: "delete clients" soft-deletes them, else
+       release the group_id so they fall back to private project clients. */
+    const apply = async () => {
+      for (const c of memberClients) {
+        if (choices.keepMembers === false) {
+          /* removeClient (not updateClient) — updateClient sanitizes
+             deleted_at out, so a direct patch would be a no-op. */
+          // eslint-disable-next-line no-await-in-loop
+          await removeClient(c.id).catch(() => {})
+          deletedClientIds.push(c.id)
+        } else if (c.group_id === g.id) {
+          // eslint-disable-next-line no-await-in-loop
+          await updateClient(c.id, { group_id: null }).catch(() => {})
+          releasedClientIds.push(c.id)
+        }
       }
+      for (const mid of memberRowIds) { await removeMember(mid).catch(() => {}) } // eslint-disable-line no-await-in-loop
+      for (const sid of sessionIds) { await removeSession(sid).catch(() => {}) } // eslint-disable-line no-await-in-loop
+      for (const rid of reminderIds) { await removeReminder(rid).catch(() => {}) } // eslint-disable-line no-await-in-loop
+      for (const m of futureMeetings) { await removeMeeting(m.id).catch(() => {}) } // eslint-disable-line no-await-in-loop
+      await removeGroup(g.id)
     }
-    /* Reminders linked to this group: soft-delete if user opted out. */
-    if (choices.keepReminders === false) {
-      const groupReminders = reminders.filter((r) => r.linked_to_type === 'group' && r.linked_to_id === g.id)
-      for (const r of groupReminders) {
-        // eslint-disable-next-line no-await-in-loop
-        await removeReminder(r.id).catch(() => {})
-      }
+
+    await apply()
+
+    const refreshAll = () => {
+      refetchGroups(); refetchClients(); refetchMembers()
+      refetchSessions(); refetchReminders(); refetchMeetings()
     }
-    /* Future scheduled meetings (pending) — honor the user's keepFutureMeetings
-       choice. Default is to drop them (the recurring rule is gone), but the
-       user can override if they want the existing rows to stay (e.g. for
-       short-term continuity while a replacement is being set up). */
-    if (choices.keepFutureMeetings === false) {
-      const futureMeetings = scheduledMeetings.filter(
-        (m) => m.subject_type === 'group' && m.subject_id === g.id && m.status === 'pending',
-      )
-      for (const m of futureMeetings) {
-        // eslint-disable-next-line no-await-in-loop
-        await removeMeeting(m.id).catch(() => {})
-      }
-    }
-    await removeGroup(g.id)
+    /* Meetings are hard-deleted, so undo re-inserts them (new ids); track
+       those so a subsequent redo deletes the right rows. */
+    let reMeetingIds = []
+    pushUndo({
+      label: 'הקבוצה נמחקה',
+      undo: async () => {
+        try { await restoreGroup(g.id) } catch { /* keep going */ }
+        for (const id of deletedClientIds) { try { await restoreClient(id) } catch { /* keep going */ } } // eslint-disable-line no-await-in-loop
+        for (const id of releasedClientIds) { await updateClient(id, { group_id: g.id }).catch(() => {}) } // eslint-disable-line no-await-in-loop
+        for (const id of memberRowIds) { try { await restoreGroupMember(id) } catch { /* keep going */ } } // eslint-disable-line no-await-in-loop
+        for (const id of sessionIds) { try { await restoreSession(id) } catch { /* keep going */ } } // eslint-disable-line no-await-in-loop
+        for (const id of reminderIds) { try { await restoreReminder(id) } catch { /* keep going */ } } // eslint-disable-line no-await-in-loop
+        reMeetingIds = []
+        for (const m of futureMeetings) {
+          // eslint-disable-next-line no-await-in-loop
+          try { const r = await insertScheduledMeeting(m); reMeetingIds.push(r.id) } catch { /* keep going */ }
+        }
+        refreshAll()
+      },
+      redo: async () => {
+        for (const id of releasedClientIds) { await updateClient(id, { group_id: null }).catch(() => {}) } // eslint-disable-line no-await-in-loop
+        for (const id of deletedClientIds) { await removeClient(id).catch(() => {}) } // eslint-disable-line no-await-in-loop
+        for (const id of memberRowIds) { await removeMember(id).catch(() => {}) } // eslint-disable-line no-await-in-loop
+        for (const id of sessionIds) { await removeSession(id).catch(() => {}) } // eslint-disable-line no-await-in-loop
+        for (const id of reminderIds) { await removeReminder(id).catch(() => {}) } // eslint-disable-line no-await-in-loop
+        const meetingTargets = reMeetingIds.length ? reMeetingIds : futureMeetings.map((m) => m.id)
+        for (const id of meetingTargets) { await removeMeeting(id).catch(() => {}) } // eslint-disable-line no-await-in-loop
+        await removeGroup(g.id).catch(() => {})
+        refreshAll()
+      },
+    })
+  }
+
+  /* Remove a single member from a group (the chip X) with undo. Wired
+     here, not in the hook, so internal member moves and the group-delete
+     cascade don't each pop their own toast. */
+  const handleRemoveMember = (m) => {
+    if (!m) return
+    removeMember(m.id)
+    pushUndo({
+      label: 'החבר הוסר מהקבוצה',
+      undo: async () => { try { await restoreGroupMember(m.id) } finally { refetchMembers() } },
+      redo: async () => { await removeMember(m.id).catch(() => {}) },
+    })
   }
 
   /* ── render ─────────────────────────────────────────────── */
@@ -437,7 +484,7 @@ export default function ProjectDetailScreen() {
                           return (
                             <span key={m.id} className="gc-chip">
                               {c?.name || '(לקוח/ה)'}
-                              <button type="button" className="gc-chip-x" onClick={() => removeMember(m.id)} aria-label={`הסר ${c?.name || 'חבר'}`}>
+                              <button type="button" className="gc-chip-x" onClick={() => handleRemoveMember(m)} aria-label={`הסר ${c?.name || 'חבר'}`}>
                                 <X size={11} strokeWidth={2} aria-hidden="true" />
                               </button>
                             </span>

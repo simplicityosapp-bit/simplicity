@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { listUserQuestions, insertUserQuestion, updateUserQuestion, removeUserQuestion as apiRemove } from '../lib/api/userQuestions'
+import { listUserQuestions, insertUserQuestion, updateUserQuestion, removeUserQuestion as apiRemove, restoreUserQuestion } from '../lib/api/userQuestions'
+import { pushUndo } from '../lib/undo'
 
 export function useUserQuestions() {
   const [questions, setQuestions] = useState([])
@@ -63,9 +64,20 @@ export function useUserQuestions() {
   }, [refetch])
 
   const removeQuestion = useCallback(async (id) => {
+    const row = questions.find((q) => q.id === id)
     setQuestions((prev) => prev.filter((q) => q.id !== id))
-    try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    try {
+      await apiRemove(id)
+      if (row) pushUndo({
+        label: 'השאלה נמחקה',
+        undo: async () => { try { await restoreUserQuestion(id) } finally { refetch() } },
+        redo: async () => {
+          setQuestions((prev) => prev.filter((q) => q.id !== id))
+          try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
+        },
+      })
+    } catch (e) { setError(e.message); refetch() }
+  }, [questions, refetch])
 
   return { questions, loading, error, addQuestion, toggleActive, updateQuestion, removeQuestion, refetch }
 }

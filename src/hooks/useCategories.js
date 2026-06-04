@@ -3,8 +3,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   listCategories, insertCategory,
   updateCategory as apiUpdateCategory,
-  removeCategory as apiRemoveCategory,
+  removeCategory as apiRemoveCategory, restoreCategory,
 } from '../lib/api/categories'
+import { registerDeleteUndo } from '../lib/undoActions'
 
 /* React-Query-backed: shared across meeting-confirm + chips widgets + finance. Public API unchanged. */
 const KEY = ['categories']
@@ -27,8 +28,12 @@ export function useCategories() {
   }, [qc])
 
   const removeCategory = useCallback(async (id) => {
+    const row = (qc.getQueryData(KEY) ?? []).find((c) => c.id === id)
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((c) => c.id !== id))
-    try { await apiRemoveCategory(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try {
+      await apiRemoveCategory(id)
+      registerDeleteUndo({ qc, key: KEY, row, label: 'הקטגוריה נמחקה', restoreFn: restoreCategory, deleteFn: apiRemoveCategory })
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
   return { categories, loading: isLoading, error: error?.message ?? null, addCategory, updateCategory, removeCategory, refetch }

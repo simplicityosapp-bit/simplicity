@@ -7,6 +7,7 @@ import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { LEAD_META, statusMetaOfLead, metaColor } from '../../lib/leads'
+import { pushUndo } from '../../lib/undo'
 import LeadColumn from './LeadColumn'
 import LeadStatusesPanel from './LeadStatusesPanel'
 import AddLeadModal from '../../modals/AddLeadModal'
@@ -59,16 +60,27 @@ export default function LeadsScreen() {
      fixes stale sub-statuses that lingered from the old column.
      source='manual_drag' so the lead_status_log captures the transition. */
   const applyLeadMove = useCallback((leadId, newMeta, statusId) => {
-    updateLead(
-      leadId,
-      {
-        status_meta: newMeta,
-        status_id: statusId ?? null,
-        last_status_changed_at: new Date().toISOString(),
-      },
-      { source: 'manual_drag' },
-    ).catch(() => { /* error surfaces via useLeads state */ })
-  }, [updateLead])
+    const lead = leadList.find((l) => l.id === leadId)
+    const prev = lead
+      ? { status_meta: lead.status_meta ?? null, status_id: lead.status_id ?? null, last_status_changed_at: lead.last_status_changed_at ?? null }
+      : null
+    const next = {
+      status_meta: newMeta,
+      status_id: statusId ?? null,
+      last_status_changed_at: new Date().toISOString(),
+    }
+    updateLead(leadId, next, { source: 'manual_drag' })
+      .then(() => {
+        if (prev) {
+          pushUndo({
+            label: 'הסטטוס שונה',
+            undo: async () => { await updateLead(leadId, prev, { source: 'manual_drag' }).catch(() => {}) },
+            redo: async () => { await updateLead(leadId, next, { source: 'manual_drag' }).catch(() => {}) },
+          })
+        }
+      })
+      .catch(() => { /* error surfaces via useLeads state */ })
+  }, [leadList, updateLead])
 
   /* Drag-drop between meta columns. No-op on same column. If the target
      column has 2+ sub-statuses, ask which one; exactly 1 → auto-assign;

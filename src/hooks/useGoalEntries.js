@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { listGoalEntries, insertGoalEntry, removeGoalEntry as apiRemove } from '../lib/api/goalEntries'
+import { listGoalEntries, insertGoalEntry, removeGoalEntry as apiRemove, restoreGoalEntry } from '../lib/api/goalEntries'
+import { pushUndo } from '../lib/undo'
 
 export function useGoalEntries() {
   const [entries, setEntries] = useState([])
@@ -40,9 +41,20 @@ export function useGoalEntries() {
   }, [])
 
   const removeEntry = useCallback(async (id) => {
+    const row = entries.find((en) => en.id === id)
     setEntries((prev) => prev.filter((e) => e.id !== id))
-    try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    try {
+      await apiRemove(id)
+      if (row) pushUndo({
+        label: 'העדכון נמחק',
+        undo: async () => { try { await restoreGoalEntry(id) } finally { refetch() } },
+        redo: async () => {
+          setEntries((prev) => prev.filter((e) => e.id !== id))
+          try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
+        },
+      })
+    } catch (e) { setError(e.message); refetch() }
+  }, [entries, refetch])
 
   return { entries, loading, error, addEntry, removeEntry, refetch }
 }

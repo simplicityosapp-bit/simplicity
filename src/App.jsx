@@ -17,6 +17,7 @@ import PrefsApplier from './components/PrefsApplier'
 import ScreenTour from './components/ScreenTour'
 import LoadingSplash from './components/LoadingSplash'
 import FeedbackModal from './modals/FeedbackModal'
+import UndoToast from './components/UndoToast'
 
 /* Screens are code-split: each becomes its own chunk loaded on first
    navigation, so the initial bundle is just the shell + the first screen
@@ -149,6 +150,7 @@ function AppShell() {
       />
       <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
       <ScreenTour screenKey={screen} />
+      <UndoToast />
     </div>
   )
 }

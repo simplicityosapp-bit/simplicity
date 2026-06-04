@@ -3,7 +3,9 @@ import {
   listRecurring, insertRecurring,
   updateRecurring as apiUpdateRecurring,
   removeRecurring as apiRemoveRecurring,
+  restoreRecurring,
 } from '../lib/api/recurring'
+import { pushUndo } from '../lib/undo'
 
 export function useRecurring() {
   const [templates, setTemplates] = useState([])
@@ -50,9 +52,20 @@ export function useRecurring() {
   }, [])
 
   const removeRecurring = useCallback(async (id) => {
+    const row = templates.find((t) => t.id === id)
     setTemplates((prev) => prev.filter((t) => t.id !== id))
-    try { await apiRemoveRecurring(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    try {
+      await apiRemoveRecurring(id)
+      if (row) pushUndo({
+        label: 'הוראת הקבע נמחקה',
+        undo: async () => { try { await restoreRecurring(id) } finally { refetch() } },
+        redo: async () => {
+          setTemplates((prev) => prev.filter((t) => t.id !== id))
+          try { await apiRemoveRecurring(id) } catch (e) { setError(e.message); refetch() }
+        },
+      })
+    } catch (e) { setError(e.message); refetch() }
+  }, [templates, refetch])
 
   return { templates, loading, error, addRecurring, updateRecurring, removeRecurring, refetch }
 }

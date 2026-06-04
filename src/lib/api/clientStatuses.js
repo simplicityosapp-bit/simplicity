@@ -63,3 +63,23 @@ export async function reassignClientsStatus(fromId, toId) {
     .is('deleted_at', null)
   if (error) throw error
 }
+
+/* Reassign a SPECIFIC set of clients (by id) to a sub-status — used by
+   undo to move back exactly the clients a delete had reassigned. */
+export async function reassignClientsStatusByIds(ids, toId) {
+  if (!ids?.length) return
+  const { error } = await supabase.from('clients').update({ status_id: toId }).in('id', ids)
+  if (error) throw error
+}
+
+/* Soft-delete restore — clears deleted_at (mirrors the lead-status one). */
+export async function restoreClientStatus(id) {
+  const { data, error } = await supabase
+    .from('client_statuses')
+    .update({ deleted_at: null })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}

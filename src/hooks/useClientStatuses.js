@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { listClientStatuses, insertClientStatus, removeClientStatus as apiRemove } from '../lib/api/clientStatuses'
+import { listClientStatuses, insertClientStatus, removeClientStatus as apiRemove, restoreClientStatus } from '../lib/api/clientStatuses'
+import { pushUndo } from '../lib/undo'
 
 export function useClientStatuses() {
   const [statuses, setStatuses] = useState([])
@@ -40,9 +41,20 @@ export function useClientStatuses() {
   }, [])
 
   const removeStatus = useCallback(async (id) => {
+    const row = statuses.find((s) => s.id === id)
     setStatuses((prev) => prev.filter((s) => s.id !== id))
-    try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    try {
+      await apiRemove(id)
+      if (row) pushUndo({
+        label: 'תת-הסטטוס נמחק',
+        undo: async () => { try { await restoreClientStatus(id) } finally { refetch() } },
+        redo: async () => {
+          setStatuses((prev) => prev.filter((s) => s.id !== id))
+          try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
+        },
+      })
+    } catch (e) { setError(e.message); refetch() }
+  }, [statuses, refetch])
 
   return { statuses, loading, error, addStatus, removeStatus, refetch }
 }

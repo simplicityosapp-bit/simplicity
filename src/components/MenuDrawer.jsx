@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
@@ -7,7 +7,9 @@ import {
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
 import { useUserPreferences } from '../hooks/useUserPreferences'
+import { useProfileHealth } from '../hooks/useProfileHealth'
 import { useAuth } from '../auth/AuthContext'
+import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './MenuDrawer.css'
 
 const GRID_ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings }
@@ -31,16 +33,27 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
   const { user, signOut } = useAuth()
   const { prefs } = useUserPreferences()
 
-  /* Close on Escape while open. */
+  /* Close on Escape while open — but defer to an open modal layered above
+     the drawer (the profile-health sheet). Its own Esc handler closes it
+     first; the next Esc then closes the drawer. */
   useEffect(() => {
     if (!open) return
-    const onKey = (e) => e.key === 'Escape' && onClose()
+    const onKey = (e) => {
+      if (e.key === 'Escape' && !document.querySelector('.m-sheet.open')) onClose()
+    }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
   const goTo = (to) => {
     navigate(to)
+    onClose()
+  }
+
+  /* Navigate with optional router state (e.g. settings → open profile
+     section), then close the drawer. Used by the profile-health rows. */
+  const navTo = (to, state) => {
+    navigate(to, state ? { state } : undefined)
     onClose()
   }
 
@@ -70,17 +83,13 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
         </div>
         <p className="drawer-title-sub">תפריט · העדפות וכלים אישיים</p>
 
-        {/* Profile chip → settings, opening the profile section directly */}
-        <button className="drawer-profile" onClick={() => { navigate(ROUTES.SETTINGS, { state: { openSection: 'profile' } }); onClose() }}>
-          <span className="drawer-profile-avatar">{initial(name)}</span>
-          <span className="drawer-profile-text">
-            <span className="drawer-profile-name">{name}</span>
-            <span className="drawer-profile-meta">{role || user?.email || ''}</span>
-          </span>
-          <span className="drawer-profile-edit" aria-hidden="true">
-            <Pencil size={16} strokeWidth={1.5} />
-          </span>
-        </button>
+        {/* Profile chip → opens the profile-health breakdown. The score
+            (and the data hooks behind it) is computed lazily: ProfileChipLive
+            only mounts while the drawer is open, so nothing fetches on app
+            load. While closed we show a static placeholder chip. */}
+        {open
+          ? <ProfileChipLive name={name} role={role} email={user?.email} onNavigate={navTo} />
+          : <ProfileChipStatic name={name} role={role} email={user?.email} />}
 
         {/* Screen grid — every reachable screen */}
         <nav className="drawer-nav-mobile" aria-label="ניווט מסכים">
@@ -168,6 +177,88 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
           </span>
         </button>
       </aside>
+    </>
+  )
+}
+
+/* ── Profile chip ─────────────────────────────────────────────────
+   Shared markup for the menu's profile chip. `health` is null in the
+   static (drawer-closed) variant; when present it paints a tier-coloured
+   progress ring around the avatar and a trailing score badge. */
+const RING_R = 18
+const RING_C = 2 * Math.PI * RING_R
+
+function ProfileChipInner({ name, role, email, health, loading, onClick }) {
+  const score = health?.score ?? 0
+  const tier = health?.tier
+  const showScore = !!health && !loading
+  return (
+    <button
+      className="drawer-profile"
+      onClick={onClick}
+      aria-label={health ? `בריאות הפרופיל${showScore ? ` ${score} אחוז` : ''} — פתיחת פירוט` : undefined}
+    >
+      <span className="drawer-profile-avatar-wrap">
+        {showScore && (
+          <svg className="drawer-profile-ring" viewBox="0 0 40 40" aria-hidden="true">
+            <circle className="dp-ring-track" cx="20" cy="20" r={RING_R} />
+            <circle
+              className="dp-ring-fill"
+              cx="20" cy="20" r={RING_R}
+              style={{ color: tier.color }}
+              strokeDasharray={`${RING_C * (score / 100)} ${RING_C}`}
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
+        <span className="drawer-profile-avatar">{initial(name)}</span>
+      </span>
+      <span className="drawer-profile-text">
+        <span className="drawer-profile-name">{name || 'הפרופיל שלי'}</span>
+        <span className="drawer-profile-meta">{role || email || ''}</span>
+      </span>
+      {health
+        ? (
+          <span className="drawer-profile-score" style={tier ? { color: tier.color } : undefined}>
+            {loading ? '··' : `${score}%`}
+          </span>
+        )
+        : (
+          <span className="drawer-profile-edit" aria-hidden="true">
+            <Pencil size={16} strokeWidth={1.5} />
+          </span>
+        )}
+    </button>
+  )
+}
+
+/* Drawer-closed placeholder — no score, no data hooks. */
+function ProfileChipStatic({ name, role, email }) {
+  return <ProfileChipInner name={name} role={role} email={email} health={null} onClick={undefined} />
+}
+
+/* Drawer-open variant — computes health on mount and owns the breakdown
+   modal. Local modal state resets to closed on every remount (i.e. each
+   time the drawer re-opens). The drawer's Escape handler defers to the
+   open sheet via a DOM check, so no lifting is needed. Unmounts (and stops
+   fetching) when the drawer closes. */
+function ProfileChipLive({ name, role, email, onNavigate }) {
+  const { health, loading } = useProfileHealth()
+  const [modalOpen, setModalOpen] = useState(false)
+  return (
+    <>
+      <ProfileChipInner
+        name={name} role={role} email={email}
+        health={health} loading={loading}
+        onClick={() => setModalOpen(true)}
+      />
+      <ProfileHealthModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        health={health}
+        loading={loading}
+        onNavigate={onNavigate}
+      />
     </>
   )
 }

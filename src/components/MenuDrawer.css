@@ -199,6 +199,52 @@
   display: inline-flex;
 }
 
+/* ── Profile-health ring + score badge ─────────────────────────── */
+/* Avatar sits inside a 40px slot; the progress ring is drawn on an SVG
+   overlaid on that slot, tier-coloured, so it hugs the 32px avatar. */
+.drawer-profile-avatar-wrap {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.drawer-profile-avatar-wrap .drawer-profile-avatar {
+  width: 30px;
+  height: 30px;
+}
+.drawer-profile-ring {
+  position: absolute;
+  inset: 0;
+  width: 40px;
+  height: 40px;
+  transform: rotate(-90deg);   /* fill starts at 12 o'clock */
+  pointer-events: none;
+}
+.dp-ring-track {
+  fill: none;
+  stroke: var(--divider);
+  stroke-width: 3;
+}
+.dp-ring-fill {
+  fill: none;
+  /* currentColor, not stroke:var() — avoids Chromium's var-in-transitioning-
+     stroke bug that resolves to the light-mode colour (see ProfileHealthModal.css). */
+  stroke: currentColor;
+  stroke-width: 3;
+  transition: stroke-dasharray 0.5s cubic-bezier(0.32, 0.72, 0.24, 1), color 0.3s ease;
+}
+.drawer-profile-score {
+  flex-shrink: 0;
+  font-family: var(--mg-font-num);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
 /* ── Screen grid ───────────────────────────────────────────────── */
 .drawer-nav-mobile {
   display: grid;

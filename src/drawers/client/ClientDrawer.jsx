@@ -126,7 +126,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   <p className="cd-stat-v mono">
                     {balance.hasPersonal
                       ? `${balance.personalDone}/${balance.personalQuota || 0}`
-                      : `${balance.groupSessions.reduce((s, g) => s + g.held, 0)}/${balance.groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`}
+                      : `${balance.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + g.held, 0)}/${balance.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + (g.quota || 0), 0) || 0}`}
                   </p>
                 </div>
                 <div className="cd-stat divided">
@@ -146,7 +146,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 <div className="cd-grp-sessions">
                   {balance.groupSessions.map((gs) => (
                     <div key={gs.id} className="cd-grp-row">
-                      <span className="cd-grp-name">פגישות · {gs.name}</span>
+                      <span className="cd-grp-name">פגישות · {gs.name}{gs.ended ? ' (הסתיימה)' : ''}</span>
                       <span className="cd-grp-val mono">{gs.held}/{gs.quota || 0}</span>
                     </div>
                   ))}

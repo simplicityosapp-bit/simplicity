@@ -87,17 +87,25 @@ export function clientBalance(c, txns, sessionsData = sessions, membersData = mo
     : (c.sessions || 0) * (c.price_per_session || 0)
   const total = memTotal + privateTotal
 
+  /* Ended groups leave the RUNNING session balance (beta decision
+     04/06/2026): their sessions and quotas stay visible per-group as
+     history (the `ended` flag on groupSessions) but no longer feed the
+     current counters. Money is intentionally untouched — group dues and
+     payments don't evaporate when a group closes. */
+  const isEndedGroup = (gid) => (groupsData || []).find((x) => x.id === gid)?.status === 'ended'
+  const activeMemberships = memberships.filter((m) => !isEndedGroup(m.group_id))
+
   const liveSessions = live(sessionsData)
   const privateCount = liveSessions.filter((s) => s.client_id === c.id).length
-  const groupIds = memberships.map((m) => m.group_id)
-  const groupCount = groupIds.length
+  const groupIds = activeMemberships.map((m) => m.group_id)
+  const groupCount = memberships.length
     ? liveSessions.filter((s) => s.group_id && groupIds.includes(s.group_id)).length
-    : (c.group_id ? liveSessions.filter((s) => s.group_id === c.group_id).length : 0)
+    : (c.group_id && !isEndedGroup(c.group_id) ? liveSessions.filter((s) => s.group_id === c.group_id).length : 0)
 
-  /* Session quota: client's private series + each membership's package
-     (override wins over the group's default). Lets group-only clients show
-     a meaningful denominator (e.g. "1/10" instead of "1/0"). */
-  const memSessions = memberships.reduce((s, m) => {
+  /* Session quota: client's private series + each ACTIVE membership's
+     package (override wins over the group's default). Lets group-only
+     clients show a meaningful denominator (e.g. "1/10" instead of "1/0"). */
+  const memSessions = activeMemberships.reduce((s, m) => {
     if (m.package_sessions_override != null) return s + Number(m.package_sessions_override)
     const g = groupsData.find((x) => x.id === m.group_id)
     return s + (g?.package_sessions || 0)
@@ -116,7 +124,7 @@ export function clientBalance(c, txns, sessionsData = sessions, membersData = mo
   const groupSessions = memberships.map((m) => {
     const g = groupsData.find((x) => x.id === m.group_id)
     const quota = m.package_sessions_override != null ? Number(m.package_sessions_override) : (g?.package_sessions || 0)
-    return { id: m.group_id, name: g?.name || 'קבוצה', quota, held: heldForGroup(m.group_id) }
+    return { id: m.group_id, name: g?.name || 'קבוצה', quota, held: heldForGroup(m.group_id), ended: g?.status === 'ended' }
   })
 
   return {

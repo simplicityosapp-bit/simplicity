@@ -24,7 +24,8 @@ import { countLeadsByStatus, reassignLeadsStatus, reassignLeadsStatusByIds, rest
 import { pushUndo } from '../../lib/undo'
 import DeleteSubStatusModal from '../../modals/DeleteSubStatusModal'
 import ResetAccountModal from '../../modals/ResetAccountModal'
-import { resetAllUserData } from '../../lib/api/account'
+import DeleteAccountModal from '../../modals/DeleteAccountModal'
+import { resetAllUserData, buildAccountDeletionRequest } from '../../lib/api/account'
 import {
   ROLE_LABELS, CURRENCY_OPTIONS, DATE_FORMAT_OPTIONS, TIME_FORMAT_OPTIONS, WEEK_START_OPTIONS,
   TEXT_SIZE_OPTIONS, GENDER_OPTIONS, WIDGET_REGISTRY, ACCENT_OPTIONS,
@@ -602,6 +603,14 @@ export default function SettingsScreen() {
     })
   }
   const [showReset, setShowReset] = useState(false)
+  const [showDelete, setShowDelete] = useState(false)
+  /* Schedule permanent account deletion (30-day grace). We only RECORD the
+     request in prefs; the App-level gate then takes over (locked countdown
+     screen), and a scheduled edge function does the real auth.users delete
+     once the window passes. No sign-out here — the gate shows immediately. */
+  const onDeleteAccount = async () => {
+    await updatePrefs({ accountDeletion: buildAccountDeletionRequest() })
+  }
   /* Full account wipe → then restart onboarding so the user lands on a
      clean first-run experience. */
   const onResetAccount = async () => {
@@ -886,6 +895,19 @@ export default function SettingsScreen() {
             <p className="set-data-hint">
               מוחק את כל הנתונים בחשבון (לקוחות, פרויקטים, לידים, תנועות, יעדים, תזכורות ועוד) ומתחיל את ההכרות מחדש. הפעולה דורשת אישור כפול ואי אפשר לבטל אותה.
             </p>
+
+            <p className="set-danger-title" style={{ marginTop: 20 }}>מחיקת חשבון</p>
+            <button
+              type="button"
+              className="set-data-action danger"
+              onClick={() => setShowDelete(true)}
+            >
+              <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" />
+              מחיקת החשבון לצמיתות
+            </button>
+            <p className="set-data-hint">
+              מוחק את החשבון כולו — כולל ההתחברות עצמה — ולא רק את הנתונים. יש תקופת חסד של 30 יום שבה אפשר להתחרט ולבטל; בתום התקופה הכול נמחק לצמיתות ואי אפשר להתחבר שוב. דורש אישור כפול בהקלדה.
+            </p>
           </div>
         </div>
       )
@@ -1035,6 +1057,12 @@ export default function SettingsScreen() {
         open={showReset}
         onClose={() => setShowReset(false)}
         onConfirm={onResetAccount}
+      />
+
+      <DeleteAccountModal
+        open={showDelete}
+        onClose={() => setShowDelete(false)}
+        onConfirm={onDeleteAccount}
       />
     </div>
   )

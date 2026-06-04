@@ -140,6 +140,10 @@ export function defaultPreferences() {
        spotlight tour for that screen has been seen (or skipped). Absent =
        not seen yet, so the tour auto-runs on first visit. No migration. */
     tours: {},
+    /* Account-deletion request (30-day grace). null = no pending deletion.
+       When set: { requested_at, scheduled_for } (ISO). Preserved across
+       loads by the `...cur` spread in migratePreferences — no migration. */
+    accountDeletion: null,
   }
 }
 

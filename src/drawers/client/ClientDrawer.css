@@ -268,6 +268,14 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--mist);
 }
+/* Per-session billing note — caption under the hero (migration 0014). */
+.cd-billmode {
+  margin: -6px 0 12px;
+  text-align: center;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+}
 /* Group-session rows (read-only) — shown under the hero in the full
    profile, one per group the client belongs to. */
 .cd-grp-sessions {

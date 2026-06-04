@@ -74,11 +74,40 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
         </div>
       )}
 
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">מספר פגישות</label>
-          <input type="number" min="0" className="m-input" value={form.sessions} onChange={(e) => set('sessions', e.target.value)} placeholder="0" />
+      {/* Billing mode (migration 0014) — 'package' keeps the sessions ×
+          price model; 'per_session' bills per held meeting, so the quota
+          field is hidden. Switching back recalculates from the quota —
+          soft warning below per per-session-billing.spec.md §5.2. */}
+      <div className="m-field">
+        <label className="m-label">אופן חיוב</label>
+        <div className="m-pills">
+          <button
+            type="button"
+            className={`m-pill${(form.billing_mode || 'package') === 'package' ? ' on' : ''}`}
+            onClick={() => set('billing_mode', 'package')}
+          >
+            חבילה
+          </button>
+          <button
+            type="button"
+            className={`m-pill${form.billing_mode === 'per_session' ? ' on' : ''}`}
+            onClick={() => set('billing_mode', 'per_session')}
+          >
+            לפי פגישה
+          </button>
         </div>
+        {form.billing_mode === 'per_session' && (
+          <p className="m-sub">היתרה נצברת לפי פגישות שתועדו × מחיר לפגישה.</p>
+        )}
+      </div>
+
+      <div className="m-row2">
+        {form.billing_mode !== 'per_session' && (
+          <div className="m-field">
+            <label className="m-label">מספר פגישות</label>
+            <input type="number" min="0" className="m-input" value={form.sessions} onChange={(e) => set('sessions', e.target.value)} placeholder="0" />
+          </div>
+        )}
         <div className="m-field">
           <label className="m-label">מחיר לפגישה ₪</label>
           <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => set('price_per_session', e.target.value)} placeholder="0" />

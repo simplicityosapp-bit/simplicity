@@ -125,7 +125,11 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   <p className="cd-stat-l">פגישות</p>
                   <p className="cd-stat-v mono">
                     {balance.hasPersonal
-                      ? `${balance.personalDone}/${balance.personalQuota || 0}`
+                      ? (balance.perSession
+                        /* Per-session billing (migration 0014) — no preset
+                           quota, so only the held count is meaningful. */
+                        ? `${balance.personalDone}`
+                        : `${balance.personalDone}/${balance.personalQuota || 0}`)
                       : `${balance.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + g.held, 0)}/${balance.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + (g.quota || 0), 0) || 0}`}
                   </p>
                 </div>
@@ -138,6 +142,12 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   <p className="cd-stat-v mono">{isr(balance.balance)}</p>
                 </div>
               </div>
+
+              {/* Per-session billing note — names the model so the growing
+                 balance after each logged meeting is self-explanatory. */}
+              {balance.perSession && (
+                <p className="cd-billmode">חיוב לפי פגישה · {isr(client.price_per_session || 0)} לפגישה</p>
+              )}
 
               {/* Group sessions — read-only breakdown, one row per group.
                  The full profile shows these in addition to the personal

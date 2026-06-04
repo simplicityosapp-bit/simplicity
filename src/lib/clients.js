@@ -77,16 +77,6 @@ export function clientBalance(c, txns, sessionsData = sessions, membersData = mo
     (s, m) => s + membershipTotal(m, groupsData, heldForGroup(m.group_id)),
     0,
   )
-  /* Billing is ALWAYS per-client: a member owes their group dues (memTotal)
-     PLUS any private 1-on-1 series they run on the side. A pure group member
-     simply has no private sessions/price, so privateTotal is 0. A manual
-     total_override (when set — including an explicit 0 for "free") overrides
-     the private sessions × price. */
-  const privateTotal = c.total_override != null && c.total_override !== ''
-    ? Number(c.total_override)
-    : (c.sessions || 0) * (c.price_per_session || 0)
-  const total = memTotal + privateTotal
-
   /* Ended groups leave the RUNNING session balance (beta decision
      04/06/2026): their sessions and quotas stay visible per-group as
      history (the `ended` flag on groupSessions) but no longer feed the
@@ -97,6 +87,25 @@ export function clientBalance(c, txns, sessionsData = sessions, membersData = mo
 
   const liveSessions = live(sessionsData)
   const privateCount = liveSessions.filter((s) => s.client_id === c.id).length
+
+  /* Billing is ALWAYS per-client: a member owes their group dues (memTotal)
+     PLUS any private 1-on-1 series they run on the side. A pure group member
+     simply has no private sessions/price, so privateTotal is 0. A manual
+     total_override (when set — including an explicit 0 for "free") overrides
+     the private total in BOTH billing modes (override always wins, like
+     group memberships). billing_mode (migration 0014):
+       - 'package'     → sessions × price_per_session  (the original model)
+       - 'per_session' → sessions actually held × price_per_session — for
+                         practitioners who work meeting-to-meeting with no
+                         preset quota (per-session-billing.spec.md). */
+  const perSession = c.billing_mode === 'per_session'
+  const privateDoneForBilling = privateCount + (Number(c.sessions_done_adjustment) || 0)
+  const privateTotal = c.total_override != null && c.total_override !== ''
+    ? Number(c.total_override)
+    : perSession
+      ? privateDoneForBilling * (c.price_per_session || 0)
+      : (c.sessions || 0) * (c.price_per_session || 0)
+  const total = memTotal + privateTotal
   const groupIds = activeMemberships.map((m) => m.group_id)
   const groupCount = memberships.length
     ? liveSessions.filter((s) => s.group_id && groupIds.includes(s.group_id)).length
@@ -120,7 +129,9 @@ export function clientBalance(c, txns, sessionsData = sessions, membersData = mo
   const personalQuota = c.sessions || 0
   const personalHeld = privateCount
   const personalDone = privateCount + doneAdj
-  const hasPersonal = personalQuota > 0 || privateCount > 0 || doneAdj !== 0
+  /* A per-session client is ALWAYS "personal" — their whole billing model
+     is the private meeting count, even before the first one is logged. */
+  const hasPersonal = perSession || personalQuota > 0 || privateCount > 0 || doneAdj !== 0
   const groupSessions = memberships.map((m) => {
     const g = groupsData.find((x) => x.id === m.group_id)
     const quota = m.package_sessions_override != null ? Number(m.package_sessions_override) : (g?.package_sessions || 0)
@@ -132,6 +143,7 @@ export function clientBalance(c, txns, sessionsData = sessions, membersData = mo
     balance: total - paid - adjustment,
     sessionsPaid: privateCount + groupCount, sessionsTotal,
     personalQuota, personalHeld, personalDone, hasPersonal, groupSessions,
+    perSession,
   }
 }
 

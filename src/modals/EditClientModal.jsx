@@ -26,6 +26,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     name: client?.name || '',
     status: client?.status || 'active',
     status_id: client?.status_id || '',
+    billing_mode: client?.billing_mode || 'package',
     sessions: client?.sessions ?? '',
     /* "נעשה" = real private held + manual sessions_done_adjustment. */
     done: String(personalHeld + (Number(client?.sessions_done_adjustment) || 0)),
@@ -58,11 +59,15 @@ export default function EditClientModal({ open, onClose, onSave, client, project
 
   /* Live billing snapshot — mirrors the card. Billing is per-client: the
      group dues (memberTotal, 0 for non-members) PLUS the private portion
-     (total_override when set — incl. an explicit 0 for "free" — else
-     sessions × price). The editable "שולם"/"יתרה" are two views of it. */
+     (total_override when set — incl. an explicit 0 for "free" — else by
+     billing_mode: package = sessions × price, per_session = held × price;
+     migration 0014). The editable "שולם"/"יתרה" are two views of it. */
+  const isPerSession = form.billing_mode === 'per_session'
   const privatePortion = form.total_due !== ''
     ? Math.max(0, Number(form.total_due) || 0)
-    : (Number(form.sessions) || 0) * (Number(form.price_per_session) || 0)
+    : isPerSession
+      ? (Number(form.done) || 0) * (Number(form.price_per_session) || 0)
+      : (Number(form.sessions) || 0) * (Number(form.price_per_session) || 0)
   const liveTotal = (Number(memberTotal) || 0) + privatePortion
   const livePaid = Number(form.paid) || 0
   const liveAdj = Number(form.adjustment) || 0
@@ -80,6 +85,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         status: form.status,
         status_meta: form.status,
         status_id: form.status_id || null,
+        billing_mode: form.billing_mode || 'package',
         sessions: Number(form.sessions) || 0,
         price_per_session: Number(form.price_per_session) || 0,
         /* Manual "total due" overrides the auto-calc (sessions × price).
@@ -167,14 +173,26 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </div>
       )}
       <div className="m-field">
+        <label className="m-label">אופן חיוב</label>
+        <div className="m-pills">
+          <button type="button" className={`m-pill${!isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'package')}>חבילה</button>
+          <button type="button" className={`m-pill${isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'per_session')}>לפי פגישה</button>
+        </div>
+        {form.billing_mode !== (client?.billing_mode || 'package') && (
+          <p className="m-sub">שימו לב: היתרה תחושב מחדש לפי אופן החיוב החדש.</p>
+        )}
+      </div>
+      <div className="m-field">
         <label className="m-label">פגישות אישיות</label>
-        <div className="ec-bill ec-bill-2">
-          <div className="ec-bill-cell">
-            <p className="ec-bill-label">נקבע</p>
-            <input type="number" min="0" className="ec-bill-input" value={form.sessions}
-              onChange={(e) => set('sessions', e.target.value)} aria-label="נקבע" />
-          </div>
-          <div className="ec-bill-cell divided-start">
+        <div className={`ec-bill${isPerSession ? '' : ' ec-bill-2'}`} style={isPerSession ? { gridTemplateColumns: '1fr' } : undefined}>
+          {!isPerSession && (
+            <div className="ec-bill-cell">
+              <p className="ec-bill-label">נקבע</p>
+              <input type="number" min="0" className="ec-bill-input" value={form.sessions}
+                onChange={(e) => set('sessions', e.target.value)} aria-label="נקבע" />
+            </div>
+          )}
+          <div className={`ec-bill-cell${isPerSession ? '' : ' divided-start'}`}>
             <p className="ec-bill-label">נעשה</p>
             <input type="number" min="0" className="ec-bill-input" value={form.done}
               onChange={(e) => set('done', e.target.value)} aria-label="נעשה" />

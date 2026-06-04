@@ -143,6 +143,8 @@ CREATE TABLE clients (
   group_id          uuid REFERENCES groups(id) ON DELETE SET NULL,
   sessions          integer NOT NULL DEFAULT 0,
   price_per_session numeric NOT NULL DEFAULT 0,
+  -- 'package' = sessions × price · 'per_session' = held sessions × price (migration 0014)
+  billing_mode      text NOT NULL DEFAULT 'package' CHECK (billing_mode IN ('package','per_session')),
   total_override    numeric,
   has_custom_price  boolean NOT NULL DEFAULT false,
   balance_adjustment numeric NOT NULL DEFAULT 0,

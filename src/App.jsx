@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import {
   BrowserRouter, Routes, Route, Navigate, useLocation,
 } from 'react-router-dom'
@@ -16,6 +16,8 @@ import Sidebar from './components/Sidebar'
 import PrefsApplier from './components/PrefsApplier'
 import ScreenTour from './components/ScreenTour'
 import LoadingSplash from './components/LoadingSplash'
+import ErrorBoundary from './components/ErrorBoundary'
+import lazyWithRetry from './lib/lazyWithRetry'
 import FeedbackModal from './modals/FeedbackModal'
 import UndoToast from './components/UndoToast'
 import AccountDeletionPending from './components/AccountDeletionPending'
@@ -23,21 +25,21 @@ import AccountDeletionPending from './components/AccountDeletionPending'
 /* Screens are code-split: each becomes its own chunk loaded on first
    navigation, so the initial bundle is just the shell + the first screen
    rather than all 15. A logged-out user never downloads the app screens. */
-const OnboardingScreen = lazy(() => import('./screens/onboarding'))
-const HomeScreen = lazy(() => import('./screens/home'))
-const ClientsScreen = lazy(() => import('./screens/clients'))
-const FinanceScreen = lazy(() => import('./screens/finance'))
-const TasksScreen = lazy(() => import('./screens/tasks'))
-const LeadsScreen = lazy(() => import('./screens/leads'))
-const CalendarScreen = lazy(() => import('./screens/calendar'))
-const GoalsScreen = lazy(() => import('./screens/goals'))
-const MoonGlanceScreen = lazy(() => import('./screens/moon-glance'))
-const SettingsScreen = lazy(() => import('./screens/settings'))
-const ReportsScreen = lazy(() => import('./screens/reports'))
-const ProjectsScreen = lazy(() => import('./screens/projects'))
-const ProjectDetailScreen = lazy(() => import('./screens/project-detail'))
-const TrashScreen = lazy(() => import('./screens/trash'))
-const InsightsScreen = lazy(() => import('./screens/insights'))
+const OnboardingScreen = lazyWithRetry(() => import('./screens/onboarding'))
+const HomeScreen = lazyWithRetry(() => import('./screens/home'))
+const ClientsScreen = lazyWithRetry(() => import('./screens/clients'))
+const FinanceScreen = lazyWithRetry(() => import('./screens/finance'))
+const TasksScreen = lazyWithRetry(() => import('./screens/tasks'))
+const LeadsScreen = lazyWithRetry(() => import('./screens/leads'))
+const CalendarScreen = lazyWithRetry(() => import('./screens/calendar'))
+const GoalsScreen = lazyWithRetry(() => import('./screens/goals'))
+const MoonGlanceScreen = lazyWithRetry(() => import('./screens/moon-glance'))
+const SettingsScreen = lazyWithRetry(() => import('./screens/settings'))
+const ReportsScreen = lazyWithRetry(() => import('./screens/reports'))
+const ProjectsScreen = lazyWithRetry(() => import('./screens/projects'))
+const ProjectDetailScreen = lazyWithRetry(() => import('./screens/project-detail'))
+const TrashScreen = lazyWithRetry(() => import('./screens/trash'))
+const InsightsScreen = lazyWithRetry(() => import('./screens/insights'))
 
 import LoginScreen from './screens/auth/LoginScreen'
 import SignupScreen from './screens/auth/SignupScreen'
@@ -114,12 +116,14 @@ function AppShell() {
     return (
       <div className="app" data-screen="onboarding">
         <PrefsApplier />
-        <Suspense fallback={<ScreenFallback />}>
-          <Routes>
-            <Route path={ROUTES.ONBOARDING} element={<OnboardingScreen />} />
-            <Route path="*" element={<Navigate to={ROUTES.ONBOARDING} replace />} />
-          </Routes>
-        </Suspense>
+        <ErrorBoundary resetKey={location.pathname}>
+          <Suspense fallback={<ScreenFallback />}>
+            <Routes>
+              <Route path={ROUTES.ONBOARDING} element={<OnboardingScreen />} />
+              <Route path="*" element={<Navigate to={ROUTES.ONBOARDING} replace />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </div>
     )
   }
@@ -133,26 +137,28 @@ function AppShell() {
         onToggleTheme={handleToggleTheme}
         onOpenFeedback={() => setFeedbackOpen(true)}
       />
-      <Suspense fallback={<ScreenFallback />}>
-        <Routes>
-          <Route path={ROUTES.HOME} element={<HomeScreen onOpenFeedback={() => setFeedbackOpen(true)} />} />
-          <Route path={ROUTES.CLIENTS} element={<ClientsScreen />} />
-          <Route path={ROUTES.CLIENT} element={<ClientsScreen />} />
-          <Route path={ROUTES.FINANCE} element={<FinanceScreen />} />
-          <Route path={ROUTES.TASKS} element={<TasksScreen />} />
-          <Route path={ROUTES.LEADS} element={<LeadsScreen />} />
-          <Route path={ROUTES.CALENDAR} element={<CalendarScreen />} />
-          <Route path={ROUTES.GOALS} element={<GoalsScreen />} />
-          <Route path={ROUTES.MOON_GLANCE} element={<MoonGlanceScreen />} />
-          <Route path={ROUTES.SETTINGS} element={<SettingsScreen />} />
-          <Route path={ROUTES.REPORTS} element={<ReportsScreen />} />
-          <Route path={ROUTES.PROJECTS} element={<ProjectsScreen />} />
-          <Route path={ROUTES.PROJECT} element={<ProjectDetailScreen />} />
-          <Route path={ROUTES.TRASH} element={<TrashScreen />} />
-          <Route path={ROUTES.INSIGHTS} element={<InsightsScreen />} />
-          <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
-        </Routes>
-      </Suspense>
+      <ErrorBoundary resetKey={location.pathname}>
+        <Suspense fallback={<ScreenFallback />}>
+          <Routes>
+            <Route path={ROUTES.HOME} element={<HomeScreen onOpenFeedback={() => setFeedbackOpen(true)} />} />
+            <Route path={ROUTES.CLIENTS} element={<ClientsScreen />} />
+            <Route path={ROUTES.CLIENT} element={<ClientsScreen />} />
+            <Route path={ROUTES.FINANCE} element={<FinanceScreen />} />
+            <Route path={ROUTES.TASKS} element={<TasksScreen />} />
+            <Route path={ROUTES.LEADS} element={<LeadsScreen />} />
+            <Route path={ROUTES.CALENDAR} element={<CalendarScreen />} />
+            <Route path={ROUTES.GOALS} element={<GoalsScreen />} />
+            <Route path={ROUTES.MOON_GLANCE} element={<MoonGlanceScreen />} />
+            <Route path={ROUTES.SETTINGS} element={<SettingsScreen />} />
+            <Route path={ROUTES.REPORTS} element={<ReportsScreen />} />
+            <Route path={ROUTES.PROJECTS} element={<ProjectsScreen />} />
+            <Route path={ROUTES.PROJECT} element={<ProjectDetailScreen />} />
+            <Route path={ROUTES.TRASH} element={<TrashScreen />} />
+            <Route path={ROUTES.INSIGHTS} element={<InsightsScreen />} />
+            <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
 
       <BottomNav onOpenMenu={() => setMenuOpen(true)} />
       <MenuDrawer

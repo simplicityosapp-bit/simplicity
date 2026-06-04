@@ -145,6 +145,26 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .splash-logo-wrap { animation: none; }
 }
+/* Recovery action on the ErrorBoundary fallback — same primary-button
+   tokens as .empty-action so it never looks foreign. */
+.splash-retry {
+  margin-top: 4px;
+  min-height: 44px;
+  padding: 10px 26px;
+  border: none;
+  border-radius: var(--mg-btn-radius);
+  background: var(--mg-btn-primary-bg);
+  color: var(--pure-white);
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: var(--mg-btn-weight);
+  cursor: pointer;
+  box-shadow: var(--mg-card-shadow);
+  transition: background 0.18s, transform 0.12s;
+}
+.splash-retry:hover { background: var(--mg-btn-primary-bg-hover); }
+.splash-retry:active { transform: scale(0.97); }
+[data-theme="dark"] .splash-retry { color: var(--espresso); }
 
 /* ── InfoPopover — small "?" tooltip used across screens ─────── */
 .info-pop {

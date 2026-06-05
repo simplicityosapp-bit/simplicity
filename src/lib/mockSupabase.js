@@ -35,7 +35,9 @@ const FAKE_SESSION = {
     id: 'mock-user-001', // matches USER in src/data/mock.js so inserts attach correctly
     aud: 'authenticated',
     role: 'authenticated',
-    email: 'preview@simplicity.dev',
+    // The owner email, so the /admin gate passes in preview. DEV-only mock;
+    // tree-shaken from production. Lets us verify the admin console locally.
+    email: 'simplicity.os.app@gmail.com',
     app_metadata: { provider: 'mock' },
     user_metadata: { full_name: 'מאמן/ת לדוגמה' },
   },
@@ -145,11 +147,107 @@ const noopChannel = {
   unsubscribe() { return Promise.resolve('ok') },
 }
 
+/* ── Admin console fixtures (preview only) ──────────────────────────
+   The real /admin screens call the `admin` edge function, which can't
+   run under the mock. We synthesise a believable dataset once so the
+   console renders end-to-end in preview. Built lazily + cached so a
+   status change (feedback_update_status) sticks until reload. */
+const dayISO = (offset) => {
+  const d = new Date()
+  d.setDate(d.getDate() + offset)
+  return d.toISOString().slice(0, 10)
+}
+const STEP_LABELS = ['פרופיל', 'ייבוא נתונים', 'פרויקטים', 'לקוחות', 'שאלות יומיות', 'יעדים', 'הוראות קבע', 'תצוגה מקדימה', 'סיום']
+
+let MOCK_ADMIN = null
+function adminFixtures() {
+  if (MOCK_ADMIN) return MOCK_ADMIN
+  const names = ['dana', 'yossi', 'maya', 'avi', 'noa', 'tom', 'rina', 'omer', 'lior', 'shira', 'gal', 'eden']
+  const users = names.map((n, i) => ({
+    id: `u${i}`,
+    email: `${n}@example.com`,
+    created_at: dayISO(-(i * 6 + 2)),
+    last_sign_in_at: i % 5 === 0 ? dayISO(-20) : dayISO(-(i % 7)),
+    onboarding_index: i === 0 ? 9 : (i % 9),
+    onboarding_label: i === 0 ? 'הושלם' : STEP_LABELS[i % 9],
+    onboarding_done: i === 0,
+    reflections: Math.max(0, 14 - i * 2),
+    sessions: Math.max(0, 30 - i * 3),
+    feedback_count: i % 3 === 0 ? 1 : 0,
+    // Preview seed: user 0 = real (paid) subscriber, user 1 = manual.
+    _paid: i === 0,
+    _manual: i === 1,
+  }))
+  const feedback = [
+    { type: 'bug', status: 'new', message: 'הכפתור של הוספת לקוח לא נפתח במובייל.' },
+    { type: 'idea', status: 'new', message: 'אשמח לראות ייצוא לאקסל של הדוחות.' },
+    { type: 'praise', status: 'in_progress', message: 'אפליקציה מהממת, עוזרת לי כל יום!' },
+    { type: 'bug', status: 'done', message: 'תאריך הפגישה הוצג לא נכון.' },
+    { type: 'other', status: 'new', message: 'איך מוחקים קבוצה?' },
+    { type: 'idea', status: 'in_progress', message: 'תזכורות גם בוואטסאפ יהיה אדיר.' },
+  ].map((f, i) => ({ id: `f${i}`, email: users[i % users.length].email, created_at: dayISO(-i), ...f }))
+
+  const buckets = (days, max) => {
+    const out = []
+    for (let d = days; d >= 0; d--) out.push({ date: dayISO(-d), count: Math.round(Math.abs(Math.sin(d)) * max) })
+    return out
+  }
+  MOCK_ADMIN = { users, feedback, buckets }
+  return MOCK_ADMIN
+}
+
+function adminInvoke(body) {
+  const { action } = body || {}
+  const fx = adminFixtures()
+  const kindOf = (u) => (u._paid ? 'regular' : u._manual ? 'manual' : null)
+  if (action === 'dashboard') {
+    return {
+      ok: true,
+      totals: { totalUsers: fx.users.length, subscribers: fx.users.filter((u) => u._paid || u._manual).length, active7d: 7, openFeedback: fx.feedback.filter((f) => f.status !== 'done').length, sessionsThisWeek: 23 },
+      signups: Array.from({ length: 12 }, (_, i) => ({ weekStart: dayISO(-(11 - i) * 7), count: Math.round(2 + Math.abs(Math.sin(i)) * 5) })),
+    }
+  }
+  if (action === 'users') {
+    return { ok: true, rows: fx.users.map((u) => ({ ...u, subscriber_kind: kindOf(u), is_subscriber: !!kindOf(u) })) }
+  }
+  if (action === 'set_subscriber') {
+    const u = fx.users.find((x) => x.id === body.user_id)
+    if (u) u._manual = !!body.value
+    return { ok: true, is_subscriber: u ? !!kindOf(u) : false }
+  }
+  if (action === 'feedback_list') return { ok: true, items: fx.feedback }
+  if (action === 'feedback_update_status') {
+    const row = fx.feedback.find((f) => f.id === body.id)
+    if (row) row.status = body.status
+    return { ok: true }
+  }
+  if (action === 'analytics') {
+    const span = body.range === 'week' ? 7 : body.range === 'all' ? 60 : 30
+    return {
+      ok: true,
+      range: body.range,
+      totalUsers: fx.users.length,
+      sessionsOverTime: fx.buckets(span, 8),
+      reflectionsOverTime: fx.buckets(span, 5),
+      funnel: STEP_LABELS.map((label, i) => ({ step: String(i), label, count: Math.max(1, fx.users.length - i) })),
+      topUsers: fx.users.slice(0, 10).map((u) => ({ email: u.email, sessions: u.sessions })),
+    }
+  }
+  return { ok: true }
+}
+
 export function makeMockClient() {
   return {
     from: (table) => makeQuery(table),
     rpc: () => Promise.resolve({ data: [], error: null }),
-    functions: { invoke: async () => ({ data: { ok: true }, error: null }) },
+    functions: {
+      invoke: async (name, opts) => {
+        // The admin console talks to one function; synthesise its data so the
+        // /admin screens render in preview. Everything else is a no-op ok.
+        if (name === 'admin') return { data: adminInvoke(opts?.body), error: null }
+        return { data: { ok: true }, error: null }
+      },
+    },
     channel: () => noopChannel,
     removeChannel: () => Promise.resolve('ok'),
     removeAllChannels: () => Promise.resolve('ok'),

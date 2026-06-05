@@ -244,6 +244,8 @@ button {
 .app[data-screen="trash"]    { background: var(--bg-trash); }
 .app[data-screen="insights"] { background: var(--bg-insights); }
 .app[data-screen="onboarding"] { background: var(--bg-home); }
+/* Admin console reuses the HOME background entirely (owner request). */
+.app[data-screen="admin"]    { background: var(--bg-home); }
 
 /* ── Per-screen nature backgrounds ───────────────────────────────
    Each screen reads --screen-bg from a screen×theme lookup below.
@@ -266,6 +268,7 @@ button {
    ships — the dark-violet sky underneath fits the reflective tone. */
 .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/mobile/day/moon.webp'); }
 .app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/mobile/day/onboarding.webp'); }
+.app[data-screen="admin"]     { --screen-bg: url('/backgrounds/mobile/day/home.webp'); }
 
 [data-theme="dark"] .app[data-screen="home"]      { --screen-bg: url('/backgrounds/mobile/night/home.webp'); }
 [data-theme="dark"] .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/mobile/night/clients.webp'); }
@@ -281,6 +284,7 @@ button {
 [data-theme="dark"] .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/mobile/night/trash.webp'); }
 [data-theme="dark"] .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/mobile/night/moon.webp'); }
 [data-theme="dark"] .app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/mobile/night/onboarding.webp'); }
+[data-theme="dark"] .app[data-screen="admin"]     { --screen-bg: url('/backgrounds/mobile/night/home.webp'); }
 
 @media (min-width: 768px) {
   .app[data-screen="home"]      { --screen-bg: url('/backgrounds/desktop/day/home.webp'); }
@@ -297,6 +301,7 @@ button {
   .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/desktop/day/trash.webp'); }
   .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/desktop/day/moon.webp'); }
   .app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/desktop/day/onboarding.webp'); }
+  .app[data-screen="admin"]     { --screen-bg: url('/backgrounds/desktop/day/home.webp'); }
 
   [data-theme="dark"] .app[data-screen="home"]      { --screen-bg: url('/backgrounds/desktop/night/home.webp'); }
   [data-theme="dark"] .app[data-screen="clients"]   { --screen-bg: url('/backgrounds/desktop/night/clients.webp'); }
@@ -312,6 +317,7 @@ button {
   [data-theme="dark"] .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/desktop/night/trash.webp'); }
   [data-theme="dark"] .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/desktop/night/moon.webp'); }
   [data-theme="dark"] .app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/desktop/night/onboarding.webp'); }
+  [data-theme="dark"] .app[data-screen="admin"]     { --screen-bg: url('/backgrounds/desktop/night/home.webp'); }
 }
 
 /* ── Screen scroll container ─────────────────────────────────────

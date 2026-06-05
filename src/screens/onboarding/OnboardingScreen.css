@@ -411,6 +411,7 @@
 [data-theme="dark"] .ob-pill:hover:not(.on) { background: rgba(240, 235, 224, 0.06); }
 .ob-pill.on {
   background: color-mix(in srgb, var(--sage) 22%, transparent);
+  backdrop-filter: var(--mg-card-blur);
   border-color: color-mix(in srgb, var(--sage) 50%, transparent);
 }
 

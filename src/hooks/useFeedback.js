@@ -13,8 +13,9 @@ import { useAuth } from '../auth/AuthContext'
       so the feedback is never lost.
 
    `type` is optional (bug/idea/praise/other). It rides along to the
-   email subject for triage; it is NOT stored on the row (no column —
-   keeping this change schema-free).
+   email subject for triage AND is stored on the row (migration 0016)
+   so the admin console can classify feedback. Legacy rows have a NULL
+   type — harmless, treated as "unclassified".
 
    `device` (מובייל/דסקטופ) is detected client-side and likewise only rides
    along to the email — not stored on the row — so the team can see whether
@@ -44,10 +45,21 @@ export function useFeedback() {
     setSubmitting(true)
     setError(null)
     try {
-      // 1) Durable copy.
-      const { error: insErr } = await supabase
+      // 1) Durable copy. `type` (bug/idea/praise/other) is stored from
+      //    migration 0016 on; null when the user didn't pick one.
+      //    Resilient to deploy ordering: if this build ships before the
+      //    migration adds the `type` column, the first insert fails with a
+      //    "column not found" error — we fall back to a type-less insert so
+      //    feedback NEVER breaks for users regardless of deploy order.
+      const first = await supabase
         .from('feedback')
-        .insert({ user_id: user?.id, message: text })
+        .insert({ user_id: user?.id, message: text, type: type || null })
+      const missingTypeCol = first.error
+        && /type/i.test(first.error.message || '')
+        && /column|schema|find/i.test(first.error.message || '')
+      const insErr = missingTypeCol
+        ? (await supabase.from('feedback').insert({ user_id: user?.id, message: text })).error
+        : first.error
       if (insErr) throw insErr
 
       // 2) Email the team (best-effort). `device` is email-only (not stored).

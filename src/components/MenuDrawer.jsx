@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sparkles, Moon, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus,
+  Sparkles, Moon, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
-import { ROUTES } from '../lib/routes'
+import { ROUTES, ADMIN_EMAIL } from '../lib/routes'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useProfileHealth } from '../hooks/useProfileHealth'
 import { useAuth } from '../auth/AuthContext'
@@ -57,6 +57,8 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
     onClose()
   }
 
+  const isAdmin = (user?.email || '').toLowerCase() === ADMIN_EMAIL
+
   const profile = prefs?.profile || {}
   const name = profile.full_name || ''
   const role = profile.role === 'other'
@@ -107,6 +109,20 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
             )
           })}
         </nav>
+
+        {/* Owner-only admin console entry — hidden for everyone else. */}
+        {isAdmin && (
+          <>
+            <p className="drawer-section-lbl">ניהול</p>
+            <button className="drawer-link" onClick={() => goTo(ROUTES.ADMIN)}>
+              <span className="drawer-link-icon"><Shield size={18} strokeWidth={1.5} /></span>
+              <span className="drawer-link-text">
+                קונסולת ניהול
+                <span className="drawer-link-text-sub">משתמשים · פידבקים · אנליטיקס</span>
+              </span>
+            </button>
+          </>
+        )}
 
         <p className="drawer-section-lbl">אישי</p>
 

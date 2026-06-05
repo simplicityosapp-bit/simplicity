@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus,
+  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
-import { ROUTES } from '../lib/routes'
+import { ROUTES, ADMIN_EMAIL } from '../lib/routes'
 import { useAuth } from '../auth/AuthContext'
 import './Sidebar.css'
 
@@ -29,7 +29,8 @@ const EXTRAS = [
    ════════════════════════════════════════════════════════════════ */
 export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback }) {
   const navigate = useNavigate()
-  const { signOut } = useAuth()
+  const { signOut, user } = useAuth()
+  const isAdmin = (user?.email || '').toLowerCase() === ADMIN_EMAIL
   const [extrasOpen, setExtrasOpen] = useState(false)
   const sidebarRef = useRef(null)
 
@@ -158,6 +159,12 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
       </div>
 
       <div className="mg-sidebar-foot">
+        {isAdmin && (
+          <button type="button" className="mg-sidebar-util mg-sidebar-admin" onClick={() => navigate(ROUTES.ADMIN)} title="קונסולת ניהול">
+            <Shield size={16} strokeWidth={1.6} aria-hidden="true" />
+            <span>ניהול</span>
+          </button>
+        )}
         <button type="button" className="mg-sidebar-util" onClick={onToggleTheme} title={isDark ? 'מצב יום' : 'מצב לילה'}>
           {isDark
             ? <Sun size={16} strokeWidth={1.6} aria-hidden="true" />

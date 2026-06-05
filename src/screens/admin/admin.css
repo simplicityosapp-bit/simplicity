@@ -1,0 +1,427 @@
+/* ════════════════════════════════════════════════════════════════
+   ADMIN CONSOLE — owner-only stats world.
+   ════════════════════════════════════════════════════════════════
+   A separate visual world from the main app, but built ENTIRELY on the
+   shared design tokens (tokens.css) so it inherits light/dark parity and
+   the brand palette. No hex literals here — tokens only. Hand-rolled,
+   no UI library, Lucide icons, Heebo via --mg-font.
+   ════════════════════════════════════════════════════════════════ */
+
+/* Neutralise the main app's desktop flex shell so the admin owns its own
+   layout + scrolling. The wrapper still carries data-screen="admin", which
+   paints the HOME background image on .app::before (see index.css). */
+.app[data-screen="admin"] { display: block; }
+
+.admin-root {
+  display: grid;
+  /* minmax(0,1fr): let the content track shrink below its content so a wide
+     table scrolls inside .admin-table-wrap instead of blowing out the grid
+     (which overflowed the viewport on mobile). */
+  grid-template-columns: 220px minmax(0, 1fr);
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;          /* the admin scrolls here — .app is overflow:hidden */
+  scrollbar-width: none;     /* hide the scrollbar (matches the app's .screen) */
+  background: transparent;   /* let the HOME image on .app::before show through */
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  direction: rtl;
+}
+.admin-root::-webkit-scrollbar { display: none; }
+
+/* ── Nav rail (right side, RTL) ─────────────────────────────────── */
+.admin-nav {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 22px 14px;
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  border-inline-start: var(--mg-card-border);
+}
+.admin-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 18px;
+}
+.admin-nav-dot {
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  background: var(--terracotta);
+  flex: none;
+}
+.admin-nav-title { font-size: var(--mg-heading); font-weight: 600; line-height: 1.1; }
+.admin-nav-sub { font-size: var(--mg-micro); color: var(--mist); letter-spacing: .04em; }
+
+.admin-nav-list { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border-radius: 13px;
+  color: var(--stone);
+  font-size: var(--mg-body);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background .15s ease, color .15s ease;
+}
+.admin-nav-link:hover { background: var(--mg-row-hover-bg); }
+.admin-nav-link.on {
+  background: var(--terracotta);
+  color: var(--on-accent);
+}
+[data-theme="dark"] .admin-nav-link.on { color: var(--ink-on-accent); }
+
+/* Feedback action styled like a nav link but it's a button, not a route. */
+.admin-nav-action { background: transparent; border: none; cursor: pointer; }
+.admin-nav-action svg { color: var(--terracotta); flex: none; }
+
+.admin-nav-exit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: var(--mist);
+  font-family: inherit;
+  font-size: var(--mg-caption);
+  cursor: pointer;
+  border-radius: 12px;
+}
+.admin-nav-exit:hover { background: var(--mg-row-hover-bg); color: var(--stone); }
+
+/* ── Main content area ─────────────────────────────────────────── */
+.admin-main {
+  /* One uniform vertical rhythm for every screen — gap (16px, the app's
+     --mg-row-gap) spaces all panels equally, so individual blocks no
+     longer set their own margins (which drifted: 12/14/18/22/26px). */
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-row-gap);
+  padding: 32px var(--mg-page-pad) 48px;
+  max-width: 1180px;
+  width: 100%;
+  min-width: 0;   /* allow shrinking inside the grid so wide tables scroll */
+}
+
+.admin-head { margin-bottom: 0; }
+.admin-head h1 { font-size: calc(26px * var(--text-scale)); font-weight: 600; letter-spacing: -.01em; }
+.admin-head p { font-size: var(--mg-caption); color: var(--mist); margin-top: 4px; }
+
+/* ── Generic states ────────────────────────────────────────────── */
+.admin-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  color: var(--mist);
+  font-size: var(--mg-body);
+}
+.admin-state.err { color: var(--clay); }
+
+/* ── Card primitive ────────────────────────────────────────────── */
+.admin-card {
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  border: var(--mg-card-border);
+  border-radius: var(--mg-card-radius);
+  box-shadow: var(--mg-card-shadow);
+}
+
+/* ── Stat cards row ────────────────────────────────────────────── */
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--mg-gutter);
+}
+.admin-stat {
+  padding: 18px 20px;
+  border-radius: var(--mg-card-radius);
+}
+.admin-stat-label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: var(--mg-caption);
+  color: var(--stone);
+  margin-bottom: 10px;
+}
+.admin-stat-label svg { color: var(--terracotta); }
+.admin-stat-value {
+  font-family: var(--mg-font-num);
+  font-size: var(--mg-display-l);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--espresso);
+}
+.admin-stat-value.muted { color: var(--mist); }
+.admin-stat-sub { font-size: var(--mg-micro); color: var(--mist); margin-top: 6px; }
+
+@media (max-width: 920px) {
+  .admin-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Section + chart card ──────────────────────────────────────── */
+.admin-section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.admin-section-head h2 { font-size: var(--mg-heading); font-weight: 600; }
+.admin-chart-card { padding: 20px 22px; }
+
+.admin-chart-svg { display: block; width: 100%; overflow: visible; }
+.admin-chart-bar { fill: var(--terracotta); }
+.admin-chart-bar.alt { fill: var(--sage); }
+.admin-chart-line { fill: none; stroke: var(--terracotta); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.admin-chart-line.alt { stroke: var(--sage); }
+.admin-chart-area-top { stop-color: var(--terracotta); stop-opacity: .18; }
+.admin-chart-area-top.alt { stop-color: var(--sage); }
+.admin-chart-area-bot { stop-color: var(--terracotta); stop-opacity: 0; }
+.admin-chart-axis { fill: var(--mist); font-size: 10px; font-family: var(--mg-font); }
+.admin-chart-grid { stroke: var(--divider); stroke-width: 1; }
+.admin-chart-empty { fill: var(--mist); font-size: 12px; }
+
+/* ── Range toggle ──────────────────────────────────────────────── */
+.admin-range { display: inline-flex; gap: 4px; padding: 3px; border-radius: 12px; background: var(--mg-card-bg); border: var(--mg-card-border); }
+/* Keep the standalone range toggle compact (don't stretch as a flex child). */
+.admin-range-top { align-self: flex-start; }
+.admin-range button {
+  border: none; background: transparent; cursor: pointer;
+  font-family: inherit; font-size: var(--mg-caption); color: var(--stone);
+  padding: 6px 14px; border-radius: 9px;
+}
+.admin-range button.on { background: var(--terracotta); color: var(--on-accent); }
+[data-theme="dark"] .admin-range button.on { color: var(--ink-on-accent); }
+
+/* ── Tables ────────────────────────────────────────────────────── */
+/* Horizontal scroll on narrow widths, but hide the bar (the app hides all
+   scrollbars; content still scrolls via swipe/trackpad). */
+.admin-table-wrap { overflow-x: auto; scrollbar-width: none; }
+.admin-table-wrap::-webkit-scrollbar { display: none; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: var(--mg-body); }
+.admin-table th {
+  text-align: start;
+  font-size: var(--mg-caption);
+  font-weight: 600;
+  color: var(--mist);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--divider);
+  white-space: nowrap;
+}
+.admin-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--divider);
+  color: var(--espresso);
+}
+.admin-table tbody tr { cursor: default; }
+.admin-table tbody tr.clickable { cursor: pointer; }
+.admin-table tbody tr.clickable:hover { background: var(--mg-row-hover-bg); }
+.admin-table .num { font-family: var(--mg-font-num); text-align: start; }
+.admin-table .muted { color: var(--mist); }
+
+/* Search box */
+.admin-search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  max-width: 320px;
+}
+.admin-search svg { color: var(--mist); flex: none; }
+.admin-search input {
+  border: none; background: transparent; outline: none;
+  font-family: inherit; font-size: var(--mg-body); color: var(--espresso);
+  width: 100%;
+}
+
+/* ── Users: summary chips ──────────────────────────────────────── */
+.admin-usum { display: flex; flex-wrap: wrap; gap: 8px; }
+.admin-usum-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: 999px;
+  background: var(--mg-card-bg); backdrop-filter: var(--mg-card-blur);
+  border: var(--mg-card-border);
+  font-size: var(--mg-caption); color: var(--stone);
+}
+.admin-usum-chip svg { color: var(--terracotta); }
+.admin-usum-chip b { font-family: var(--mg-font-num); color: var(--espresso); font-weight: 600; }
+.admin-usum-chip.sub { font-size: var(--mg-micro); color: var(--mist); }
+.admin-usum-chip.sub svg { color: var(--mist); }
+
+/* ── Users: accordion sections ─────────────────────────────────── */
+.admin-acc { margin: 0; }
+.admin-acc-head {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 12px 16px; border-radius: 14px;
+  background: var(--mg-card-bg); backdrop-filter: var(--mg-card-blur);
+  border: var(--mg-card-border);
+  font-family: inherit; font-size: var(--mg-heading); font-weight: 600;
+  color: var(--espresso); cursor: pointer; text-align: start;
+}
+.admin-acc-head:hover { background: var(--mg-btn-secondary-bg-hover); }
+.admin-acc-chev { color: var(--mist); transition: transform .18s ease; flex: none; }
+.admin-acc-head > svg:nth-of-type(2) { color: var(--terracotta); flex: none; }
+.admin-acc-title { flex: 1; }
+.admin-acc-count {
+  font-family: var(--mg-font-num); font-size: var(--mg-caption); font-weight: 600;
+  color: var(--on-accent); background: var(--terracotta);
+  min-width: 24px; text-align: center; padding: 2px 9px; border-radius: 999px;
+}
+[data-theme="dark"] .admin-acc-count { color: var(--ink-on-accent); }
+.admin-acc-body { padding: 12px 2px 4px; }
+.admin-acc.nested { margin: 10px 0 0; }
+.admin-acc.nested .admin-acc-head {
+  padding: 9px 14px; font-size: var(--mg-body);
+  background: var(--mg-row-active-bg); backdrop-filter: none; border: none;
+}
+.admin-acc.nested .admin-acc-count { background: var(--mg-card-bg); color: var(--stone); border: var(--mg-card-border); }
+.admin-acc.nested .admin-acc-body { padding: 10px 0 2px; }
+
+/* Subscriber toggle + highlighted row */
+.admin-sub-toggle {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 11px; border-radius: 999px;
+  border: 1px dashed var(--divider); background: transparent;
+  font-family: inherit; font-size: var(--mg-micro); font-weight: 500;
+  color: var(--mist); cursor: pointer; white-space: nowrap;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.admin-sub-toggle:hover { color: var(--stone); border-color: var(--stone); }
+.admin-sub-toggle.on {
+  border: 1px solid transparent;
+  background: var(--sage); color: var(--on-accent);
+}
+[data-theme="dark"] .admin-sub-toggle.on { color: var(--ink-on-accent); }
+.admin-sub-toggle:disabled { opacity: .55; cursor: default; }
+/* Two-step confirm cluster (prevents accidental flagging) */
+.admin-sub-confirm { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.admin-sub-confirm-q { font-size: var(--mg-micro); color: var(--stone); }
+.admin-sub-yes, .admin-sub-no {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 7px; border: none; cursor: pointer;
+}
+.admin-sub-yes { background: var(--sage); color: var(--on-accent); }
+.admin-sub-no { background: var(--mg-row-active-bg); color: var(--stone); }
+.admin-sub-yes:disabled { opacity: .55; cursor: default; }
+[data-theme="dark"] .admin-sub-yes { color: var(--ink-on-accent); }
+/* Read-only "regular subscriber" badge (billing-owned, admin can't change) */
+.admin-sub-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border-radius: 999px;
+  font-size: var(--mg-micro); font-weight: 500; white-space: nowrap;
+}
+.admin-sub-badge.regular { background: rgba(201, 123, 94, .16); color: var(--terracotta); }
+/* Subscribed rows get a faint sage wash so they stand out at a glance. */
+.admin-table tbody tr.is-sub td { background: rgba(139, 168, 136, .07); }
+.admin-table tbody tr.is-sub.clickable:hover td { background: rgba(139, 168, 136, .12); }
+
+/* Onboarding stage pill */
+.admin-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: var(--mg-micro);
+  font-weight: 500;
+  background: var(--mg-row-active-bg);
+  color: var(--stone);
+  white-space: nowrap;
+}
+.admin-pill.done { background: rgba(139, 168, 136, .18); color: var(--sage); }
+
+/* Expanded user detail row */
+.admin-detail td { background: var(--mg-row-hover-bg); }
+.admin-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  padding: 6px 2px;
+}
+.admin-detail-grid .k { font-size: var(--mg-micro); color: var(--mist); margin-bottom: 3px; }
+.admin-detail-grid .v { font-size: var(--mg-body); color: var(--espresso); }
+
+/* ── Feedback cards ────────────────────────────────────────────── */
+.admin-fb-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.admin-fb-list { display: flex; flex-direction: column; gap: var(--mg-row-gap); }
+.admin-fb-card { padding: 16px 18px; }
+.admin-fb-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.admin-fb-from { font-size: var(--mg-caption); font-weight: 600; color: var(--espresso); }
+.admin-fb-date { font-size: var(--mg-micro); color: var(--mist); }
+.admin-fb-msg { font-size: var(--mg-body); line-height: 1.55; color: var(--stone); white-space: pre-wrap; }
+
+/* Type + status chips */
+.admin-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: var(--mg-micro); font-weight: 500;
+  background: var(--mg-row-active-bg); color: var(--stone);
+}
+.admin-chip.type-bug { background: rgba(181, 99, 78, .16); color: var(--clay); }
+.admin-chip.type-idea { background: rgba(212, 165, 116, .18); color: var(--amber-warn); }
+.admin-chip.type-praise { background: rgba(139, 168, 136, .18); color: var(--sage); }
+
+.admin-status-row { display: inline-flex; gap: 4px; margin-inline-start: auto; padding: 3px; border-radius: 10px; background: var(--mg-row-active-bg); }
+.admin-status-row button {
+  border: none; background: transparent; cursor: pointer;
+  font-family: inherit; font-size: var(--mg-micro); font-weight: 500; color: var(--mist);
+  padding: 4px 10px; border-radius: 8px;
+}
+.admin-status-row button.on { background: var(--terracotta); color: var(--on-accent); }
+[data-theme="dark"] .admin-status-row button.on { color: var(--ink-on-accent); }
+
+/* ── Funnel ────────────────────────────────────────────────────── */
+.admin-funnel { display: flex; flex-direction: column; gap: 9px; }
+.admin-funnel-row { display: grid; grid-template-columns: 120px 1fr 40px; align-items: center; gap: 12px; }
+.admin-funnel-label { font-size: var(--mg-caption); color: var(--stone); white-space: nowrap; }
+.admin-funnel-track { height: 22px; border-radius: 7px; background: var(--mg-row-active-bg); overflow: hidden; }
+.admin-funnel-fill { display: block; height: 100%; border-radius: 7px; background: var(--terracotta); transition: width .4s ease; }
+.admin-funnel-count { font-family: var(--mg-font-num); font-size: var(--mg-caption); color: var(--espresso); text-align: start; }
+
+/* ── Goals (targets) ───────────────────────────────────────────── */
+.admin-goals { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--mg-gutter); }
+.admin-goal { padding: 16px 18px; }
+.admin-goal-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+.admin-goal-label { font-size: var(--mg-caption); color: var(--stone); }
+.admin-goal-now { font-family: var(--mg-font-num); font-size: var(--mg-body); color: var(--espresso); }
+.admin-goal-now b { color: var(--terracotta); }
+.admin-goal-bar { height: 8px; border-radius: 999px; background: var(--mg-row-active-bg); overflow: hidden; }
+.admin-goal-bar > span { display: block; height: 100%; border-radius: 999px; background: var(--terracotta); transition: width .4s ease; }
+.admin-goal-bar > span.done { background: var(--sage); }
+.admin-goal-input {
+  width: 90px; text-align: start;
+  border: none; border-bottom: 1px solid var(--divider);
+  background: transparent; font-family: var(--mg-font-num); font-size: var(--mg-body);
+  color: var(--espresso); outline: none; padding: 2px 0;
+}
+.admin-goal-input:focus { border-color: var(--terracotta); }
+
+/* ── Mobile fallback (<760px) ──────────────────────────────────────
+   The console is desktop-first, but never let it break on a phone:
+   the rail collapses to a scrollable top bar above the content. */
+@media (max-width: 760px) {
+  .admin-root { grid-template-columns: minmax(0, 1fr); }
+  .admin-nav {
+    position: sticky; top: 0; z-index: 5;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-inline-start: none;
+    border-bottom: var(--mg-card-border);
+    overflow-x: auto;
+  }
+  .admin-nav-brand { padding: 0 6px 0 4px; }
+  .admin-nav-sub { display: none; }
+  .admin-nav-list { flex-direction: row; flex: 1; gap: 4px; }
+  .admin-nav-link span { display: none; }   /* icons only on phone */
+  .admin-nav-link { padding: 9px 11px; }
+  .admin-nav-exit span { display: none; }
+  .admin-main { padding: 22px 18px 48px; }
+  .admin-stats { grid-template-columns: repeat(2, 1fr); }
+}

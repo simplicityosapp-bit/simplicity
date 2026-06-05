@@ -3,7 +3,7 @@ import {
   BrowserRouter, Routes, Route, Navigate, useLocation,
 } from 'react-router-dom'
 
-import { ROUTES } from './lib/routes'
+import { ROUTES, ADMIN_EMAIL } from './lib/routes'
 import { screenKeyFromPath } from './lib/nav'
 import { useTheme } from './hooks/useTheme'
 import { useUserPreferences } from './hooks/useUserPreferences'
@@ -40,6 +40,8 @@ const ProjectsScreen = lazyWithRetry(() => import('./screens/projects'))
 const ProjectDetailScreen = lazyWithRetry(() => import('./screens/project-detail'))
 const TrashScreen = lazyWithRetry(() => import('./screens/trash'))
 const InsightsScreen = lazyWithRetry(() => import('./screens/insights'))
+/* Owner-only admin console — its own route tree + chrome, gated below. */
+const AdminApp = lazyWithRetry(() => import('./screens/admin'))
 
 import LoginScreen from './screens/auth/LoginScreen'
 import SignupScreen from './screens/auth/SignupScreen'
@@ -56,6 +58,7 @@ function ScreenFallback() {
 function AppShell() {
   const location = useLocation()
   const screen = screenKeyFromPath(location.pathname)
+  const { user } = useAuth()
   const { isDark, toggleTheme } = useTheme()
   const { prefs, update: updatePrefs, loading: prefsLoading } = useUserPreferences()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -104,6 +107,28 @@ function AppShell() {
   }, [prefsLoading, obDone])
 
   if (prefsLoading) return <LoadingSplash />
+
+  /* Admin console gate. A separate world, checked BEFORE the onboarding /
+     deletion guards so the owner can always reach it. The email check here
+     is only UX — the `admin` edge function re-verifies server-side. Anyone
+     who isn't the owner is bounced home with no error, no explanation. */
+  const isAdminRoute =
+    location.pathname === ROUTES.ADMIN ||
+    location.pathname.startsWith(ROUTES.ADMIN + '/')
+  if (isAdminRoute) {
+    const isOwner = (user?.email || '').toLowerCase() === ADMIN_EMAIL
+    if (!isOwner) return <Navigate to={ROUTES.HOME} replace />
+    return (
+      <div className="app" data-screen="admin">
+        <ErrorBoundary resetKey={location.pathname}>
+          <Suspense fallback={<ScreenFallback />}>
+            <AdminApp />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+    )
+  }
+
   if (deletionPending) {
     return (
       <div className="app" data-screen="account-deletion">

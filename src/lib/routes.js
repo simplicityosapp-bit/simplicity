@@ -26,10 +26,23 @@ export const ROUTES = {
   TRASH: '/trash',
   INSIGHTS: '/insights',
 
+  // Admin console — owner-only (simplicity.os.app@gmail.com). A separate
+  // world: gated by email in App.jsx, served by the `admin` edge function,
+  // never touches the main app's chrome or RLS. Non-owners are bounced home.
+  ADMIN: '/admin',
+  ADMIN_USERS: '/admin/users',
+  ADMIN_FEEDBACK: '/admin/feedback',
+  ADMIN_ANALYTICS: '/admin/analytics',
+
   // Dynamic routes
   CLIENT: '/clients/:id',
   PROJECT: '/projects/:id',
 }
+
+/* The owner email allowed into /admin. Mirror of the server-side check in
+   supabase/functions/admin — the client gate is only UX; the edge function
+   is the real authority. */
+export const ADMIN_EMAIL = 'simplicity.os.app@gmail.com'
 
 export const DEFAULT_ROUTE = ROUTES.HOME
 

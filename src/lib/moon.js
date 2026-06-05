@@ -99,12 +99,17 @@ function goalActual(goal, cat, now, entries, transactions, clients, leads, answe
       return new Set(inScope.map((m) => m.client_id)).size
     }
   }
-  /* manual — sum of entries in the period */
+  /* manual — sum of entries in the period.
+     Use end-of-today as the upper-bound so an entry logged before noon
+     still counts toward the current day (comparing to `now` directly
+     would exclude today's entries whenever `now` is before noon, because
+     the sentinel date is normalised to 'YYYY-MM-DDT12:00:00'). */
+  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
   return live(entries)
     .filter((e) => {
       if (e.category_id !== goal.category_id) return false
       const d = new Date(e.date + 'T12:00:00')
-      return d >= period.start && d <= period.end && d <= now
+      return d >= period.start && d <= period.end && d <= todayEnd
     })
     .reduce((s, e) => s + (e.value || 0), 0)
 }

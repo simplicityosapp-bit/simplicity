@@ -92,6 +92,7 @@
 [data-theme="dark"] .obrw-tab { border-color: rgba(240, 235, 224, 0.18); color: var(--cream); }
 .obrw-tab.on {
   background: color-mix(in srgb, var(--sage) 22%, transparent);
+  backdrop-filter: var(--mg-card-blur);
   border-color: color-mix(in srgb, var(--sage) 55%, transparent);
 }
 .obrw-tab-count {

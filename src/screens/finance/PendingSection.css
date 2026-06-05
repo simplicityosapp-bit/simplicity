@@ -63,6 +63,7 @@
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--sage) 55%, transparent);
   background: color-mix(in srgb, var(--sage) 22%, transparent);
+  backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));
   font-weight: 600;
@@ -148,6 +149,7 @@
   justify-content: center;
   cursor: pointer;
   border: 0.5px solid transparent;
+  backdrop-filter: var(--mg-card-blur);
   transition: background 0.15s, transform 0.12s;
 }
 .f-tx-btn:active {

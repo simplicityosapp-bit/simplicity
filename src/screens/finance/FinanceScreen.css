@@ -202,7 +202,10 @@
 .f-chart-axis {
   fill: var(--stone);
   font-family: var(--mg-font-num);
-  font-size: calc(9px * var(--text-scale));
+  /* Beta 04/06/2026 — axis numbers were too small (9px, off the type
+     scale). Aligned to the smallest token: --mg-micro (11px, "labels
+     under numbers" — design checklist §2). */
+  font-size: var(--mg-micro);
   opacity: 0.7;
 }
 .f-chart-cta {

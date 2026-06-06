@@ -54,9 +54,9 @@ function renderWidget(w, globalDensity) {
    left, shrinking to fit the remaining width. The rest of the
    widgets follow the user's order in a vertical stack. */
 export default function HomeScreen({ onOpenFeedback }) {
-  const { prefs } = useUserPreferences()
+  const { prefs, update: updatePrefs } = useUserPreferences()
   const { clients, loading: clientsLoading } = useClients()
-  const showWelcome = !clientsLoading && (clients?.length || 0) === 0
+  const showWelcome = !clientsLoading && (clients?.length || 0) === 0 && !prefs?.homeWelcomeDismissed
   const widgetsCfg = prefs?.widgets || { global: {}, list: [] }
   const globalDensity = widgetsCfg.global?.density || 'comfortable'
   const cardStyle    = widgetsCfg.global?.cardStyle    || 'frosted'
@@ -75,7 +75,7 @@ export default function HomeScreen({ onOpenFeedback }) {
       data-density={globalDensity}
     >
       <div className="home-stack">
-        {showWelcome && <HomeWelcome />}
+        {showWelcome && <HomeWelcome onDismiss={() => updatePrefs({ homeWelcomeDismissed: true })} />}
         {(quoteCfg || moonCfg) && (
           <div className="home-row-top">
             {moonCfg  && renderWidget(moonCfg, globalDensity)}

@@ -4,6 +4,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 .home-welcome {
+  position: relative;
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -11,6 +12,28 @@
   backdrop-filter: var(--mg-card-blur);
   padding: 22px 24px;
 }
+
+/* Permanent dismiss (saved to prefs.homeWelcomeDismissed) — sits in the
+   top corner opposite the right-aligned title (RTL → top-left). */
+.home-welcome-close {
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: var(--mg-btn-secondary-border);
+  background: var(--mg-btn-secondary-bg);
+  color: var(--stone);
+  cursor: pointer;
+  backdrop-filter: var(--mg-card-blur);
+  transition: background 0.18s, transform 0.12s;
+}
+.home-welcome-close:hover { background: var(--mg-btn-secondary-bg-hover); }
+.home-welcome-close:active { transform: scale(0.94); }
 
 .home-welcome-eyebrow {
   margin: 0 0 4px;

@@ -12,6 +12,15 @@
   padding-top: 16px;
 }
 
+/* Mobile — the empty-profile welcome card moves to the bottom of the
+   stack (below the widgets, above the feedback card) per beta 06/06/2026.
+   Flex `order` only; DOM order is unchanged, and desktop (grid) keeps the
+   card at the top. */
+@media (max-width: 767px) {
+  .home-stack > .home-welcome { order: 1; }
+  .home-stack > .feedback-card { order: 2; }
+}
+
 /* ── Desktop layout (≥768px) ────────────────────────────────────
    The stack becomes a 3-column grid. Most widgets span the full
    row; the three list widgets (attention / reminders / next-tasks)

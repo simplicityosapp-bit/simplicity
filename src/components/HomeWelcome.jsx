@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { UserPlus, ListTodo, UserSearch } from 'lucide-react'
+import { UserPlus, ListTodo, UserSearch, X } from 'lucide-react'
 import { ROUTES } from '../lib/routes'
 import './HomeWelcome.css'
 
@@ -19,10 +19,20 @@ const STARTERS = [
   { icon: UserSearch, label: 'הוסיפו ליד',         to: ROUTES.LEADS },
 ]
 
-export default function HomeWelcome() {
+export default function HomeWelcome({ onDismiss }) {
   const navigate = useNavigate()
   return (
     <section className="home-welcome anim">
+      {onDismiss && (
+        <button
+          type="button"
+          className="home-welcome-close"
+          onClick={onDismiss}
+          aria-label="הסתרת כרטיס הפתיחה"
+        >
+          <X size={16} strokeWidth={1.8} aria-hidden="true" />
+        </button>
+      )}
       <p className="home-welcome-eyebrow">ברוכים הבאים לסימפליסיטי</p>
       <h2 className="home-welcome-title">הכול מתחיל כאן</h2>
       <p className="home-welcome-sub">

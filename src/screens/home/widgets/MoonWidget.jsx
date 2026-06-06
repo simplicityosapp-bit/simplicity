@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
 import { moonGetData, moonReflection } from '../../../lib/moon'
 import { upsertMoonSnapshot } from '../../../lib/api/moonSnapshots'
@@ -124,16 +124,9 @@ export default function MoonWidget() {
             text="הציון המשוקלל של כל היעדים החודש, מודע-לקצב — כמה מהיעד היומי הצפוי כיסית עד עכשיו. 100% = בדיוק בקצב."
           />
         </div>
-        <button
-          type="button"
-          className="moon-chip-toggle"
-          onClick={(e) => { e.stopPropagation(); setExpanded((v) => !v) }}
-          aria-label={expanded ? 'כיווץ' : 'הרחבה'}
-        >
-          {expanded
-            ? <ChevronUp size={14} strokeWidth={1.8} aria-hidden="true" />
-            : <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />}
-        </button>
+        {/* The redundant expand chevron was removed (beta 06/06/2026) — the
+            whole chip already toggles expansion via its onClick, and
+            aria-expanded lives on the chip itself. */}
       </div>
 
       {expanded && (

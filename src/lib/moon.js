@@ -46,18 +46,37 @@ const isBinary = (goal) => goal.time_frame === 'deadline' && Number(goal.target_
 function goalActual(goal, cat, now, entries, transactions, clients, leads, answers, members, groups) {
   const period = goalPeriod(goal, now)
   const to = now < period.end ? now : period.end
+  /* Sum of manual progress entries for this goal's category within the
+     period. Used for purely-manual goals AND added on top of a
+     question-tracked goal's answers — a daily-question goal still shows
+     the "הזנה" button, so a manual top-up has to count too rather than
+     be silently dropped (beta 06/06/2026). End-of-today is the upper
+     bound so an entry logged before noon still counts toward today (the
+     sentinel date is normalised to 'YYYY-MM-DDT12:00:00'). */
+  const sumManualEntries = () => {
+    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+    return live(entries)
+      .filter((e) => {
+        if (e.category_id !== goal.category_id) return false
+        const d = new Date(e.date + 'T12:00:00')
+        return d >= period.start && d <= period.end && d <= todayEnd
+      })
+      .reduce((s, e) => s + (e.value || 0), 0)
+  }
   /* D10 — goal tracked by a daily question: value = SUM of that question's
      numeric answers in the period (unanswered days contribute nothing).
      A 1-10 slider answer of 7 adds 7 toward the target (e.g. "35 study
-     hours this week"); a yes/no answer adds 1 per "yes". */
+     hours this week"); a yes/no answer adds 1 per "yes". Manual entries
+     logged on the same goal are added on top. */
   if (goal.tracking_method === 'daily_question' && goal.tracked_by_question_id) {
-    return live(answers)
+    const answersSum = live(answers)
       .filter((a) => {
         if (a.user_question_id !== goal.tracked_by_question_id || a.value_num == null) return false
         const d = new Date(a.date + 'T12:00:00')
         return d >= period.start && d <= to
       })
       .reduce((s, a) => s + Number(a.value_num), 0)
+    return answersSum + sumManualEntries()
   }
   if (cat.measurement_type === 'auto') {
     if (cat.data_source === 'transactions') {
@@ -99,19 +118,8 @@ function goalActual(goal, cat, now, entries, transactions, clients, leads, answe
       return new Set(inScope.map((m) => m.client_id)).size
     }
   }
-  /* manual — sum of entries in the period.
-     Use end-of-today as the upper-bound so an entry logged before noon
-     still counts toward the current day (comparing to `now` directly
-     would exclude today's entries whenever `now` is before noon, because
-     the sentinel date is normalised to 'YYYY-MM-DDT12:00:00'). */
-  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
-  return live(entries)
-    .filter((e) => {
-      if (e.category_id !== goal.category_id) return false
-      const d = new Date(e.date + 'T12:00:00')
-      return d >= period.start && d <= period.end && d <= todayEnd
-    })
-    .reduce((s, e) => s + (e.value || 0), 0)
+  /* manual — sum of entries in the period (see sumManualEntries above). */
+  return sumManualEntries()
 }
 
 function scoreGoal(goal, now, categories, entries, transactions, clients, leads, answers, members, groups) {

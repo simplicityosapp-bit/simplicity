@@ -956,7 +956,10 @@
 .h-stat {
   position: relative;
   min-height: var(--mg-card-sm);
-  padding: 14px 12px;
+  /* extra top padding reserves the strip for the absolutely-positioned
+     corner icon, so a wide centred value (e.g. "−123,456 ₪") never rides
+     up under it on the narrow mobile chip (beta 06/06/2026). */
+  padding: 28px 12px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;

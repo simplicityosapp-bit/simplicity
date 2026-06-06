@@ -38,7 +38,10 @@
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: baseline;
+  /* center vertically in the ring — `baseline` pinned the number near the
+     top of the 120px box (~43px above centre). The number/% pair keeps its
+     baseline relationship via the %'s self-alignment below. */
+  align-items: center;
   justify-content: center;
   gap: 1px;
 }
@@ -54,6 +57,10 @@
   font-size: calc(15px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
+  /* nudge the small % down so it reads near the number's baseline rather
+     than floating at the big digit's vertical mid-line */
+  align-self: center;
+  margin-top: calc(8px * var(--text-scale));
 }
 
 .ph-lead {

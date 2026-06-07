@@ -226,6 +226,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         onClose={() => setActionModal(null)}
         client={client}
         onSave={onScheduleMeeting}
+        onSetRecurringSlot={onUpdateClient}
       />
       <AddTransactionModal
         key={`pay-${client?.id}-${paymentAmount ?? 'x'}`}

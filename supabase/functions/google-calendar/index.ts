@@ -106,14 +106,18 @@ type GEvent = {
    expanded); incremental uses the stored syncToken (which also reports
    cancellations). On a 410 the syncToken is stale → caller does a full
    resync. Returns the events + the next syncToken. */
-async function fetchEvents(accessToken: string, opts: { timeMin?: string; syncToken?: string }) {
+async function fetchEvents(accessToken: string, opts: { timeMin?: string; timeMax?: string; syncToken?: string }) {
   const events: GEvent[] = []
   let pageToken: string | undefined
   let nextSyncToken: string | undefined
   do {
     const p = new URLSearchParams({ singleEvents: 'true', maxResults: '250' })
     if (opts.syncToken) p.set('syncToken', opts.syncToken)
-    else { p.set('timeMin', opts.timeMin!); p.set('orderBy', 'startTime') }
+    else {
+      p.set('timeMin', opts.timeMin!)
+      p.set('orderBy', 'startTime')
+      if (opts.timeMax) p.set('timeMax', opts.timeMax)
+    }
     if (pageToken) p.set('pageToken', pageToken)
     const res = await fetch(
       `https://www.googleapis.com/calendar/v3/calendars/primary/events?${p}`,
@@ -129,16 +133,19 @@ async function fetchEvents(accessToken: string, opts: { timeMin?: string; syncTo
   return { events, nextSyncToken }
 }
 
-// ── Fuzzy client matching ───────────────────────────────────────
-function buildMatcher(clients: { id: string; name: string }[]) {
-  const fuse = new Fuse(clients, { keys: ['name'], includeScore: true, threshold: 0.6, ignoreLocation: true })
-  return (title: string): { client_id: string | null; confidence: number } => {
+// ── Fuzzy matching (clients, projects, … extensible) ────────────
+/* Generic title→entity matcher. Returns the best entity id + confidence
+   (1 − fuse score), or null below the threshold. The same factory is used
+   for clients and projects today; add more targets the same way. */
+function makeMatcher(items: { id: string; name: string }[]) {
+  const fuse = new Fuse(items, { keys: ['name'], includeScore: true, threshold: 0.6, ignoreLocation: true })
+  return (title: string): { id: string | null; confidence: number } => {
     const q = (title ?? '').trim()
-    if (!q) return { client_id: null, confidence: 0 }
+    if (!q) return { id: null, confidence: 0 }
     const hit = fuse.search(q)[0]
-    if (!hit) return { client_id: null, confidence: 0 }
+    if (!hit) return { id: null, confidence: 0 }
     const confidence = 1 - (hit.score ?? 1) // fuse: 0 = perfect → confidence 1
-    return confidence >= MATCH_THRESHOLD ? { client_id: hit.item.id, confidence } : { client_id: null, confidence }
+    return confidence >= MATCH_THRESHOLD ? { id: hit.item.id, confidence } : { id: null, confidence }
   }
 }
 
@@ -148,7 +155,12 @@ function eventTimes(e: GEvent) {
   const end = e.end?.dateTime ?? (e.end?.date ? `${e.end.date}T00:00:00` : null)
   const startISO = start ? new Date(start).toISOString() : null
   const endISO = end ? new Date(end).toISOString() : null
-  const duration = startISO && endISO ? Math.round((new Date(endISO).getTime() - new Date(startISO).getTime()) / 60000) : null
+  /* All-day events: Google's end.date is EXCLUSIVE (the day after), so a
+     naive end−start is always ~24h. Duration is meaningless for an all-day
+     event → null. Only timed events get a real duration. */
+  const duration = (!allDay && startISO && endISO)
+    ? Math.round((new Date(endISO).getTime() - new Date(startISO).getTime()) / 60000)
+    : null
   return { allDay, startISO, endISO, duration }
 }
 
@@ -163,35 +175,46 @@ async function runSync(userId: string) {
 
   const accessToken = await freshAccessToken(integration)
 
-  // Match against this user's live clients.
+  // Match against this user's live clients AND projects.
   const { data: clients } = await admin.from('clients')
     .select('id, name').eq('user_id', userId).is('deleted_at', null)
-  const match = buildMatcher((clients ?? []) as any)
+  const { data: projects } = await admin.from('projects')
+    .select('id, name').eq('user_id', userId).is('deleted_at', null)
+  const matchClient = makeMatcher((clients ?? []) as any)
+  const matchProject = makeMatcher((projects ?? []) as any)
 
   // Pull events — incremental if we have a token, else full from sync_from.
+  // Future is bounded (sync_from → +1y) so a full resync can't fetch an
+  // unbounded window. `didFull` tracks whether we (re)ran a full sync so
+  // we never write back a syncToken we just learned is stale (→ 410 loop).
+  const timeMin = new Date(`${integration.sync_from}T00:00:00Z`).toISOString()
+  const timeMax = new Date(Date.now() + 365 * 86400000).toISOString()
   let events: GEvent[] = []
   let nextSyncToken: string | undefined
+  let didFull = !integration.sync_token
   try {
-    const timeMin = new Date(`${integration.sync_from}T00:00:00Z`).toISOString()
     const r = await fetchEvents(accessToken, integration.sync_token
       ? { syncToken: integration.sync_token }
-      : { timeMin })
+      : { timeMin, timeMax })
     events = r.events; nextSyncToken = r.nextSyncToken
   } catch (e: any) {
     if (!e.gone) throw e
-    const timeMin = new Date(`${integration.sync_from}T00:00:00Z`).toISOString()
-    const r = await fetchEvents(accessToken, { timeMin }) // token stale → full resync
+    didFull = true
+    const r = await fetchEvents(accessToken, { timeMin, timeMax }) // token stale → full resync
     events = r.events; nextSyncToken = r.nextSyncToken
   }
 
-  // Preserve manual matches: never overwrite a client the user set by hand.
+  // Preserve manual matches: never overwrite a client/project the user set
+  // by hand. matched_manually freezes BOTH links for that event.
   const ids = events.map((e) => e.id)
-  const manual = new Map<string, string | null>()
+  const manual = new Map<string, { client_id: string | null; project_id: string | null }>()
   if (ids.length) {
     const { data: existing } = await admin.from('calendar_events')
-      .select('google_event_id, client_id, matched_manually')
+      .select('google_event_id, client_id, project_id, matched_manually')
       .eq('user_id', userId).in('google_event_id', ids)
-    ;(existing ?? []).forEach((r: any) => { if (r.matched_manually) manual.set(r.google_event_id, r.client_id) })
+    ;(existing ?? []).forEach((r: any) => {
+      if (r.matched_manually) manual.set(r.google_event_id, { client_id: r.client_id, project_id: r.project_id })
+    })
   }
 
   const upserts: any[] = []
@@ -200,17 +223,33 @@ async function runSync(userId: string) {
     if (e.status === 'cancelled') { cancelled.push(e.id); continue }
     const { allDay, startISO, endISO, duration } = eventTimes(e)
     const isManual = manual.has(e.id)
-    const m = isManual ? { client_id: manual.get(e.id)!, confidence: 1 } : match(e.summary ?? '')
+    let clientId: string | null
+    let projectId: string | null
+    let confidence: number
+    if (isManual) {
+      const m = manual.get(e.id)!
+      clientId = m.client_id; projectId = m.project_id
+      confidence = (clientId || projectId) ? 1 : 0 // a cleared manual match isn't "confident"
+    } else {
+      const c = matchClient(e.summary ?? '')
+      const p = matchProject(e.summary ?? '')
+      clientId = c.id; projectId = p.id
+      confidence = Math.max(c.confidence, p.confidence) // confidence of whichever link was assigned
+    }
+    /* ALL events are stored — matched or not (unmatched just carry null
+       links). The unique (user_id, google_event_id) key dedupes, so an
+       event is never inserted twice. */
     upserts.push({
       user_id: userId,
       google_event_id: e.id,
-      client_id: m.client_id,
+      client_id: clientId,
+      project_id: projectId,
       title: e.summary ?? '(ללא כותרת)',
       start_time: startISO,
       end_time: endISO,
       all_day: allDay,
       duration_minutes: duration,
-      confidence_score: m.confidence,
+      confidence_score: confidence,
       matched_manually: isManual,
       deleted_at: null,
     })
@@ -229,7 +268,13 @@ async function runSync(userId: string) {
 
   const last_synced_at = new Date().toISOString()
   await admin.from('user_integrations')
-    .update({ last_synced_at, sync_token: nextSyncToken ?? integration.sync_token })
+    .update({
+      last_synced_at,
+      /* After a full (re)sync, store the fresh token or NULL — never the old
+         one (which would 410 again next time). Incremental keeps the prior
+         token if Google didn't hand back a new one. */
+      sync_token: didFull ? (nextSyncToken ?? null) : (nextSyncToken ?? integration.sync_token),
+    })
     .eq('id', integration.id)
 
   return { synced: upserts.length, removed: cancelled.length, last_synced_at, sync_from: integration.sync_from }
@@ -293,7 +338,13 @@ Deno.serve(async (req) => {
       const { data } = await admin.from('user_integrations')
         .select('refresh_token').eq('user_id', userId).eq('provider', 'google_calendar').maybeSingle()
       if (data?.refresh_token) {
-        await fetch(`https://oauth2.googleapis.com/revoke?token=${data.refresh_token}`, { method: 'POST' }).catch(() => {})
+        /* Revoke via POST body — never put the token in the URL (it leaks to
+           proxy/access logs). Fire-and-forget; we delete our copy regardless. */
+        await fetch('https://oauth2.googleapis.com/revoke', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ token: data.refresh_token }),
+        }).catch(() => {})
       }
       await admin.from('user_integrations').delete().eq('user_id', userId).eq('provider', 'google_calendar')
       return json({ ok: true, status: { connected: false } })

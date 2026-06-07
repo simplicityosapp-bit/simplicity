@@ -130,15 +130,14 @@
 .conn-event-list { display: flex; flex-direction: column; gap: 8px; }
 .conn-event {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
   padding: 12px 14px;
   border-radius: 16px;
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
 }
-.conn-event-main { flex: 1; min-width: 150px; }
+.conn-event-main { flex: 1; min-width: 0; }
 .conn-event-title {
   margin: 0;
   font-family: var(--mg-font);
@@ -152,13 +151,27 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--mist);
 }
-.conn-event-side {
+.conn-assign-row {
   display: flex;
-  align-items: center;
   gap: 8px;
-  flex-shrink: 0;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.conn-assign {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 110px;
+  min-width: 0;
+}
+.conn-assign-lbl {
+  font-family: var(--mg-font);
+  font-size: calc(10px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
 }
 .conn-tag {
+  flex-shrink: 0;
   padding: 3px 9px;
   border-radius: 999px;
   border: 1px solid var(--divider);
@@ -170,7 +183,7 @@
 }
 .conn-tag.on { color: var(--sage); border-color: color-mix(in srgb, var(--sage) 45%, transparent); }
 .conn-event-select {
-  max-width: 130px;
+  width: 100%;
   height: 34px;
   padding: 0 8px;
   border-radius: 12px;

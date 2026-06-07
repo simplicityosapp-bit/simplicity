@@ -27,7 +27,7 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
         </span>
         <div className="evt-detail-text">
           <p className="evt-detail-title">{title}</p>
-          <p className="evt-detail-when">{formatWhen(event.when)} · {fmtTime(event.when)}</p>
+          <p className="evt-detail-when">{formatWhen(event.when)}{event.allDay ? ' · כל היום' : ` · ${fmtTime(event.when)}`}</p>
         </div>
       </div>
 
@@ -51,7 +51,11 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
 
       {isCalendar && (
         <p className="evt-detail-status">
-          {event.clientName ? `מזוהה עם: ${event.clientName} · ` : ''}אירוע מ-Google Calendar (לקריאה בלבד).
+          {(() => {
+            const links = [event.clientName && `לקוח: ${event.clientName}`, event.projectName && `פרויקט: ${event.projectName}`].filter(Boolean)
+            return links.length ? `${links.join(' · ')} · ` : ''
+          })()}
+          אירוע מ-Google Calendar (לקריאה בלבד).
         </p>
       )}
 

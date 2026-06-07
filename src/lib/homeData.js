@@ -66,7 +66,7 @@ export function leadsNeedingAttention(days = 45, now = new Date(), leads = mockL
 const DEFAULT_TILE_FILTERS = {
   clients: { statuses: ['active', 'wandering'], projectIds: [], groupIds: [] },
   net:     { timeRange: 'thisMonth', type: 'both', projectIds: [], groupIds: [], categoryIds: [] },
-  tasks:   { status: 'open', priorities: [], projectIds: [], clientIds: [] },
+  tasks:   { status: 'open', priorities: [], projectIds: [], clientScope: 'all' },
 }
 
 export function getTileFilters(prefs) {
@@ -114,13 +114,16 @@ export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS
     return true
   }).length
 
-  /* Tasks tile — open/done/both + priorities + project + client. */
+  /* Tasks tile — open/done/both + priorities + project + client-scope.
+     clientScope 'linked' keeps only tasks attached to some client; 'all'
+     (default) applies no client filter (beta 07/06/2026 — replaced the
+     per-client pill list with one general "משויכות ללקוח" toggle). */
   const openTasks = live(tasks).filter((t) => {
     if (f.tasks.status === 'open' && t.status === 'done') return false
     if (f.tasks.status === 'done' && t.status !== 'done') return false
     if (f.tasks.priorities?.length && !f.tasks.priorities.includes(t.priority)) return false
     if (f.tasks.projectIds?.length && !f.tasks.projectIds.includes(t.project_id)) return false
-    if (f.tasks.clientIds?.length && !f.tasks.clientIds.includes(t.client_id)) return false
+    if (f.tasks.clientScope === 'linked' && !t.client_id) return false
     return true
   }).length
 

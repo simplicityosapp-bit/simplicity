@@ -131,9 +131,8 @@ export default function ScreenTour({ screenKey }) {
         <div className="tour-bubble-foot">
           <span className="tour-bubble-count">{idx + 1}/{steps.length}</span>
           <div className="tour-bubble-btns">
-            {!isLast && (
-              <button type="button" className="tour-btn-skip" onClick={next}>דלג</button>
-            )}
+            {/* "דלג" was a duplicate of "הבנתי" (both advanced one step) —
+               skipping the whole tour is "דלג על הכל" below. */}
             <button type="button" className="tour-btn-next" onClick={next}>
               {isLast ? 'סיום' : 'הבנתי'}
             </button>

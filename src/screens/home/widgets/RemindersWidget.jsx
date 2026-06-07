@@ -24,7 +24,7 @@ export default function RemindersWidget() {
     ? 'אין תזכורות קרובות'
     : todayCount > 0
       ? `${todayCount} להיום · ${items.length} ${items.length === 1 ? 'קרובה' : 'קרובות'}`
-      : `${items.length} ${items.length === 1 ? 'תזכורה קרובה' : 'תזכורות קרובות'}`
+      : `${items.length} ${items.length === 1 ? 'תזכורת קרובה' : 'תזכורות קרובות'}`
 
   return (
     <div

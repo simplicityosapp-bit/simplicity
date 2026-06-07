@@ -256,7 +256,7 @@ export default function ConnectionsScreen() {
             eventsLoading ? (
               <p className="conn-empty">טוען אירועים…</p>
             ) : events.length === 0 ? (
-              <p className="conn-empty">אין אירועים בטווח שנבחר. נסה/י לסנכרן שוב או להרחיב את הטווח.</p>
+              <p className="conn-empty">אין אירועים בטווח שנבחר. נסה/י לסנכרן שוב, או לחבר מחדש עם טווח תאריכים מוקדם יותר.</p>
             ) : (
               <div className="conn-cats">
                 {eventCategories.map((cat) => {

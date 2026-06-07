@@ -34,7 +34,7 @@ export default function NextTasksWidget() {
           <ClipboardList size={20} strokeWidth={1.5} aria-hidden="true" /> המשימות הבאות
         </span>
         <button type="button" className="h-card-link" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.TASKS) }}>
-          {total} {total === 1 ? 'פעולה' : 'פעולות'}
+          {total} {total === 1 ? 'משימה' : 'משימות'}
           <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
         </button>
       </div>

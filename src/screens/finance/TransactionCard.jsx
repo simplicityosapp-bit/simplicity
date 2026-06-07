@@ -19,6 +19,7 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
       role={onEdit ? 'button' : undefined}
       tabIndex={onEdit ? 0 : undefined}
       onClick={() => onEdit?.(tx)}
+      onKeyDown={onEdit ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit(tx) } } : undefined}
     >
       <div className="f-tx-body">
         <p className="f-tx-desc">{tx.desc || 'ללא תיאור'}</p>

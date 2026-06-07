@@ -269,7 +269,7 @@
 .conn-tag.on { color: var(--sage); border-color: color-mix(in srgb, var(--sage) 45%, transparent); }
 .conn-event-select {
   width: 100%;
-  height: 34px;
+  height: 40px;                 /* touch target — was 34px */
   padding: 0 8px;
   border-radius: 12px;
   border: 1px solid var(--divider);

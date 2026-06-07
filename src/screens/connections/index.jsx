@@ -21,6 +21,10 @@ function fmtDateTime(iso, allDay) {
   const time = d.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })
   return `${date} · ${time}`
 }
+function fmtClock(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })
+}
 function fmtDuration(min) {
   if (!min || min <= 0) return ''
   if (min < 60) return `${min} ד׳`
@@ -132,7 +136,7 @@ export default function ConnectionsScreen() {
         <div className="conn-event-main">
           <p className="conn-event-title">{ev.title}</p>
           <p className="conn-event-meta">
-            {fmtDateTime(ev.start_time, ev.all_day)}{ev.duration_minutes ? ` · ${fmtDuration(ev.duration_minutes)}` : ''}
+            {fmtDateTime(ev.start_time, ev.all_day)}{!ev.all_day && ev.end_time ? `–${fmtClock(ev.end_time)}` : ''}{ev.duration_minutes ? ` · ${fmtDuration(ev.duration_minutes)}` : ''}
           </p>
           <div className="conn-assign-row">
             <label className="conn-assign">

@@ -93,6 +93,7 @@ export default function CalendarScreen() {
         kind: 'calendar',
         title: ev.title || 'אירוע',
         when: new Date(ev.start_time),
+        end: ev.end_time ? new Date(ev.end_time) : null,
         allDay: !!ev.all_day,
         clientName: ev.client_id ? (clients.find((c) => c.id === ev.client_id)?.name || null) : null,
         projectName: ev.project_id ? (projects.find((p) => p.id === ev.project_id)?.name || null) : null,

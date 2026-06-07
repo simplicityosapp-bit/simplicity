@@ -49,7 +49,7 @@ export default function MultiTrendChart({ days, series }) {
           <span key={s.key} className="mt-legend-item">
             <span className="mt-legend-dot" style={{ background: s.color }} />
             <span className="mt-legend-label">{s.label}</span>
-            <span className="mt-legend-val mono">{fmtRaw(s.latest, s.unit)}</span>
+            <span className="mt-legend-val mono">{fmtRaw(s.summary, s.unit)}</span>
           </span>
         ))}
       </div>

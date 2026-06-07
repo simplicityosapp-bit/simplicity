@@ -93,13 +93,15 @@ function rawSeries(metricKey, days, ctx) {
 }
 
 /* Min-max normalize a raw series to 0–100, preserving nulls as gaps.
-   A flat series (max === min) sits at 50 so it reads as "no movement". */
+   A flat NON-zero series sits at 50 ("no movement"); a flat ALL-ZERO
+   series sits at 0 — otherwise an income/leads line for a user with no
+   activity would draw at mid-height and read as "steady medium income". */
 function normalize(raw) {
   const vals = raw.filter((v) => v != null)
   if (!vals.length) return raw.map(() => null)
   const min = Math.min(...vals)
   const max = Math.max(...vals)
-  if (max === min) return raw.map((v) => (v == null ? null : 50))
+  if (max === min) return raw.map((v) => (v == null ? null : (max === 0 ? 0 : 50)))
   return raw.map((v) => (v == null ? null : ((v - min) / (max - min)) * 100))
 }
 
@@ -228,9 +230,11 @@ function buildPairs(driverMap, outcome, corr) {
     })
   } else {
     const arr = corr[outcome.kind] /* aligned to days */
-    for (let i = 0; i < days.length; i += 7) {
+    /* Full 7-day blocks only — a trailing partial week sums fewer days and
+       would bias its outcome low against the full weeks. */
+    for (let i = 0; i + 7 <= days.length; i += 7) {
       let dSum = 0; let dCount = 0; let oSum = 0
-      for (let j = i; j < Math.min(i + 7, days.length); j += 1) {
+      for (let j = i; j < i + 7; j += 1) {
         const d = driverMap[days[j]]
         if (d != null) { dSum += d; dCount += 1 }
         oSum += arr[j] || 0
@@ -252,7 +256,9 @@ export function buildOverviewCorrelations(ctx, {
   minDaily = 12, minWeekly = 8, pThreshold = 0.01, iters = 1000, cap = 3,
 } = {}) {
   const corr = corrContext(ctx, window, now)
-  const active = (questions || []).filter((q) => q.active)
+  /* Only numeric (1–10) questions drive a correlation — "when X is higher"
+     is meaningless for a yes/no question, and the wording would read wrong. */
+  const active = (questions || []).filter((q) => q.active && q.scale_type !== 'yes_no')
   const maps = active.map((q) => ({ q, map: questionDayMap(ctx.answers, q.id) }))
 
   const candidates = []
@@ -305,7 +311,13 @@ export function buildOverviewTrend(selectedKeys, ctx, { window = 30, now = new D
     .filter(Boolean)
     .map((m) => {
       const raw = rawSeries(m.key, days, ctx)
+      /* Legend value: count/money metrics show the WINDOW TOTAL (a daily
+         "latest" is almost always 0 and would mislead); the score and a
+         daily question show their latest answered value. */
       const lastRaw = [...raw].reverse().find((v) => v != null)
+      const summary = m.missingZero
+        ? raw.reduce((acc, v) => acc + (v || 0), 0)
+        : (lastRaw == null ? null : lastRaw)
       return {
         key: m.key,
         label: m.key === 'question' && questionLabel ? questionLabel : m.label,
@@ -313,7 +325,8 @@ export function buildOverviewTrend(selectedKeys, ctx, { window = 30, now = new D
         unit: m.unit,
         raw,
         norm: normalize(raw),
-        latest: lastRaw == null ? null : lastRaw,
+        summary,
+        summaryKind: m.missingZero ? 'total' : 'latest',
       }
     })
   return { days, series }

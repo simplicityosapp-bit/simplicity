@@ -45,7 +45,7 @@ function CorrCard({ driverText, outcomeText, c }) {
   return (
     <div className="mg-corr-card">
       <div className="mg-corr-text">
-        <p className="mg-corr-line">בימים ש<b>{driverText}</b> גבוה, <b>{outcomeText}</b> נוטה להיות {dir} יותר.</p>
+        <p className="mg-corr-line">כש<b>{driverText}</b> גבוה יותר, <b>{outcomeText}</b> נוטה להיות {dir} יותר.</p>
         <p className="mg-corr-sub">קשר {c.strength} · {c.n} נקודות</p>
       </div>
       <Scatter points={c.points} />
@@ -253,7 +253,7 @@ export default function MoonGlanceScreen() {
           </select>
         )}
         <MultiTrendChart days={overview.days} series={overview.series} />
-        <p className="mg-ov-note">מגמות יחסיות — כל קו בקנה-מידה משלו (0–100). קשר ויזואלי אינו סיבתיות.</p>
+        <p className="mg-ov-note">מגמות יחסיות · 30 הימים האחרונים — כל קו בקנה-מידה משלו (0–100). קשר ויזואלי אינו סיבתיות.</p>
       </div>
 
       <p className="mg-section-h">קשרים לבדיקה</p>

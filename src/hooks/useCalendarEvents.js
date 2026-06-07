@@ -43,19 +43,30 @@ export function useCalendarEvents() {
     }
   }, [])
 
-  /* Manual match: setting a client by hand flips matched_manually so the
-     next sync won't overwrite it. Passing '' clears the match. */
-  const assignClient = useCallback(async (id, clientId) => {
-    const next = clientId || null
-    setEvents((prev) => prev.map((ev) => (ev.id === id
-      ? { ...ev, client_id: next, matched_manually: !!next }
-      : ev)))
+  /* Manual match: setting a client/project by hand flips matched_manually
+     so the next sync won't overwrite EITHER link. Passing '' clears just
+     that field. `field` is 'client_id' or 'project_id' (extensible). */
+  const assignMatch = useCallback(async (id, field, value) => {
+    const next = value || null
+    setEvents((prev) => prev.map((ev) => {
+      if (ev.id !== id) return ev
+      const updated = { ...ev, [field]: next }
+      /* matched_manually stays true while any manual link remains. */
+      updated.matched_manually = !!(updated.client_id || updated.project_id)
+      return updated
+    }))
+    /* Read the post-update row from state to derive matched_manually. */
+    const row = events.find((ev) => ev.id === id) || {}
+    const stillManual = !!((field === 'client_id' ? next : row.client_id) || (field === 'project_id' ? next : row.project_id))
     const { error: e } = await supabase
       .from('calendar_events')
-      .update({ client_id: next, matched_manually: !!next })
+      .update({ [field]: next, matched_manually: stillManual })
       .eq('id', id)
     if (e) setError(e.message)
-  }, [])
+  }, [events])
 
-  return { events, loading, error, refetch, assignClient }
+  const assignClient = useCallback((id, clientId) => assignMatch(id, 'client_id', clientId), [assignMatch])
+  const assignProject = useCallback((id, projectId) => assignMatch(id, 'project_id', projectId), [assignMatch])
+
+  return { events, loading, error, refetch, assignClient, assignProject }
 }

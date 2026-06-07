@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Plug, Calendar, RefreshCw, Check, CircleAlert, Link2Off } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
 import { useClients } from '../../hooks/useClients'
+import { useProjects } from '../../hooks/useProjects'
 import './ConnectionsScreen.css'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
@@ -29,15 +30,12 @@ export default function ConnectionsScreen() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const gcal = useGoogleCalendar()
-  const { events, loading: eventsLoading, refetch, assignClient } = useCalendarEvents()
+  const { events, loading: eventsLoading, refetch, assignClient, assignProject } = useCalendarEvents()
   const { clients } = useClients()
+  const { projects } = useProjects()
   const [syncFrom, setSyncFrom] = useState(yearAgoStr())
   const [callbackError, setCallbackError] = useState('')
   const handledCode = useRef(false)
-
-  const clientName = useMemo(() => {
-    const m = new Map(); (clients || []).forEach((c) => m.set(c.id, c.name)); return m
-  }, [clients])
 
   /* OAuth return: Google sent us back with ?code (or ?error). Exchange it
      once, then scrub the query string so a refresh can't re-fire it. */
@@ -130,7 +128,7 @@ export default function ConnectionsScreen() {
           ) : (
             <div className="conn-event-list">
               {events.map((ev) => {
-                const matched = !!ev.client_id
+                const matched = !!(ev.client_id || ev.project_id)
                 return (
                   <div key={ev.id} className="conn-event">
                     <div className="conn-event-main">
@@ -138,25 +136,36 @@ export default function ConnectionsScreen() {
                       <p className="conn-event-meta">
                         {fmtDateTime(ev.start_time, ev.all_day)}{ev.duration_minutes ? ` · ${fmtDuration(ev.duration_minutes)}` : ''}
                       </p>
+                      <div className="conn-assign-row">
+                        <label className="conn-assign">
+                          <span className="conn-assign-lbl">לקוח</span>
+                          <select
+                            className="conn-event-select"
+                            value={ev.client_id || ''}
+                            onChange={(e) => assignClient(ev.id, e.target.value)}
+                            aria-label="שיוך לקוח"
+                          >
+                            <option value="">— ללא —</option>
+                            {(clients || []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                          </select>
+                        </label>
+                        <label className="conn-assign">
+                          <span className="conn-assign-lbl">פרויקט</span>
+                          <select
+                            className="conn-event-select"
+                            value={ev.project_id || ''}
+                            onChange={(e) => assignProject(ev.id, e.target.value)}
+                            aria-label="שיוך פרויקט"
+                          >
+                            <option value="">— ללא —</option>
+                            {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                          </select>
+                        </label>
+                      </div>
                     </div>
-                    <div className="conn-event-side">
-                      <span className={`conn-tag${matched ? ' on' : ''}`}>
-                        {matched
-                          ? `${ev.matched_manually ? 'שויך' : 'מזוהה'}: ${clientName.get(ev.client_id) || 'לקוח'}`
-                          : 'לא מזוהה'}
-                      </span>
-                      <select
-                        className="conn-event-select"
-                        value={ev.client_id || ''}
-                        onChange={(e) => assignClient(ev.id, e.target.value)}
-                        aria-label="שיוך לקוח"
-                      >
-                        <option value="">— ללא לקוח —</option>
-                        {(clients || []).map((c) => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <span className={`conn-tag${matched ? ' on' : ''}`}>
+                      {matched ? 'מזוהה' : 'לא מזוהה'}
+                    </span>
                   </div>
                 )
               })}

@@ -129,16 +129,19 @@ async function fetchEvents(accessToken: string, opts: { timeMin?: string; syncTo
   return { events, nextSyncToken }
 }
 
-// ── Fuzzy client matching ───────────────────────────────────────
-function buildMatcher(clients: { id: string; name: string }[]) {
-  const fuse = new Fuse(clients, { keys: ['name'], includeScore: true, threshold: 0.6, ignoreLocation: true })
-  return (title: string): { client_id: string | null; confidence: number } => {
+// ── Fuzzy matching (clients, projects, … extensible) ────────────
+/* Generic title→entity matcher. Returns the best entity id + confidence
+   (1 − fuse score), or null below the threshold. The same factory is used
+   for clients and projects today; add more targets the same way. */
+function makeMatcher(items: { id: string; name: string }[]) {
+  const fuse = new Fuse(items, { keys: ['name'], includeScore: true, threshold: 0.6, ignoreLocation: true })
+  return (title: string): { id: string | null; confidence: number } => {
     const q = (title ?? '').trim()
-    if (!q) return { client_id: null, confidence: 0 }
+    if (!q) return { id: null, confidence: 0 }
     const hit = fuse.search(q)[0]
-    if (!hit) return { client_id: null, confidence: 0 }
+    if (!hit) return { id: null, confidence: 0 }
     const confidence = 1 - (hit.score ?? 1) // fuse: 0 = perfect → confidence 1
-    return confidence >= MATCH_THRESHOLD ? { client_id: hit.item.id, confidence } : { client_id: null, confidence }
+    return confidence >= MATCH_THRESHOLD ? { id: hit.item.id, confidence } : { id: null, confidence }
   }
 }
 
@@ -163,10 +166,13 @@ async function runSync(userId: string) {
 
   const accessToken = await freshAccessToken(integration)
 
-  // Match against this user's live clients.
+  // Match against this user's live clients AND projects.
   const { data: clients } = await admin.from('clients')
     .select('id, name').eq('user_id', userId).is('deleted_at', null)
-  const match = buildMatcher((clients ?? []) as any)
+  const { data: projects } = await admin.from('projects')
+    .select('id, name').eq('user_id', userId).is('deleted_at', null)
+  const matchClient = makeMatcher((clients ?? []) as any)
+  const matchProject = makeMatcher((projects ?? []) as any)
 
   // Pull events — incremental if we have a token, else full from sync_from.
   let events: GEvent[] = []
@@ -184,14 +190,17 @@ async function runSync(userId: string) {
     events = r.events; nextSyncToken = r.nextSyncToken
   }
 
-  // Preserve manual matches: never overwrite a client the user set by hand.
+  // Preserve manual matches: never overwrite a client/project the user set
+  // by hand. matched_manually freezes BOTH links for that event.
   const ids = events.map((e) => e.id)
-  const manual = new Map<string, string | null>()
+  const manual = new Map<string, { client_id: string | null; project_id: string | null }>()
   if (ids.length) {
     const { data: existing } = await admin.from('calendar_events')
-      .select('google_event_id, client_id, matched_manually')
+      .select('google_event_id, client_id, project_id, matched_manually')
       .eq('user_id', userId).in('google_event_id', ids)
-    ;(existing ?? []).forEach((r: any) => { if (r.matched_manually) manual.set(r.google_event_id, r.client_id) })
+    ;(existing ?? []).forEach((r: any) => {
+      if (r.matched_manually) manual.set(r.google_event_id, { client_id: r.client_id, project_id: r.project_id })
+    })
   }
 
   const upserts: any[] = []
@@ -200,17 +209,31 @@ async function runSync(userId: string) {
     if (e.status === 'cancelled') { cancelled.push(e.id); continue }
     const { allDay, startISO, endISO, duration } = eventTimes(e)
     const isManual = manual.has(e.id)
-    const m = isManual ? { client_id: manual.get(e.id)!, confidence: 1 } : match(e.summary ?? '')
+    let clientId: string | null
+    let projectId: string | null
+    let confidence: number
+    if (isManual) {
+      const m = manual.get(e.id)!
+      clientId = m.client_id; projectId = m.project_id; confidence = 1
+    } else {
+      const c = matchClient(e.summary ?? '')
+      const p = matchProject(e.summary ?? '')
+      clientId = c.id; projectId = p.id; confidence = c.confidence
+    }
+    /* ALL events are stored — matched or not (unmatched just carry null
+       links). The unique (user_id, google_event_id) key dedupes, so an
+       event is never inserted twice. */
     upserts.push({
       user_id: userId,
       google_event_id: e.id,
-      client_id: m.client_id,
+      client_id: clientId,
+      project_id: projectId,
       title: e.summary ?? '(ללא כותרת)',
       start_time: startISO,
       end_time: endISO,
       all_day: allDay,
       duration_minutes: duration,
-      confidence_score: m.confidence,
+      confidence_score: confidence,
       matched_manually: isManual,
       deleted_at: null,
     })

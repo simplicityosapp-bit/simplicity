@@ -94,10 +94,11 @@ export default function CalendarScreen() {
         title: ev.title || 'אירוע',
         when: new Date(ev.start_time),
         clientName: ev.client_id ? (clients.find((c) => c.id === ev.client_id)?.name || null) : null,
+        projectName: ev.project_id ? (projects.find((p) => p.id === ev.project_id)?.name || null) : null,
         raw: ev,
       }))
     return [...meetingItems, ...reminderItems, ...calendarItems].sort((a, b) => a.when - b.when)
-  }, [meetings, reminders, calendarEvents, clients, groups])
+  }, [meetings, reminders, calendarEvents, clients, groups, projects])
 
   const scheduleItems = useMemo(() => {
     const startOfToday = new Date()

@@ -42,6 +42,13 @@ const live = (arr) => (Array.isArray(arr) ? arr.filter((r) => r && !r.deleted_at
 const missingPrice = (c) =>
   !(Number(c.price_per_session) > 0) && c.total_override == null && !c.has_custom_price
 
+/* The "missing price" quality check only concerns clients we're actually
+   (or potentially) working with: 'active' (פעיל) and 'wandering' (ביניים).
+   'past' (לשעבר) and 'no_status' (ללא סטטוס) clients are ignored — a former
+   client doesn't need a price. Status labels per enums.js (D18). */
+const statusMetaOf = (c) => c.status_meta || c.status || 'no_status'
+const PRICEABLE_STATUSES = new Set(['active', 'wandering'])
+
 /* Profile role is "set" when it's a real role, or 'other' with a
    free-text specialisation typed in. */
 function roleFilled(profile) {
@@ -83,7 +90,8 @@ export function computeProfileHealth(data = {}, today = new Date()) {
   const questions = live(data.questions).filter((q) => q.active !== false)
   const answers = data.answers
 
-  const unpriced = clients.filter(missingPrice).length
+  const priceable = clients.filter((c) => PRICEABLE_STATUSES.has(statusMetaOf(c)))
+  const unpriced = priceable.filter(missingPrice).length
 
   const SETTINGS_PROFILE = { route: ROUTES.SETTINGS, state: { openSection: 'profile' } }
 
@@ -106,7 +114,7 @@ export function computeProfileHealth(data = {}, today = new Date()) {
       id: 'clients_priced', group: 'quality', icon: 'wallet',
       label: unpriced === 1 ? 'חסר מחיר ללקוח אחד' : `חסר מחיר ל-${unpriced} לקוחות`,
       action: { label: 'תמחור', route: ROUTES.CLIENTS },
-      applicable: clients.length > 0, passed: unpriced === 0, count: unpriced,
+      applicable: priceable.length > 0, passed: unpriced === 0, count: unpriced,
     },
     {
       id: 'answers_recent', group: 'quality', icon: 'sparkles',

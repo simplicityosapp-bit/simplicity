@@ -245,8 +245,9 @@ export function makeMockClient() {
         // The admin console talks to one function; synthesise its data so the
         // /admin screens render in preview. Everything else is a no-op ok.
         if (name === 'admin') return { data: adminInvoke(opts?.body), error: null }
-        // Google Calendar in preview: always "not connected" (no real OAuth).
-        if (name === 'google-calendar') return { data: { status: { connected: false } }, error: null }
+        // Google Calendar in preview: "connected" so the synced-events
+        // accordion renders against the mock calendar_events fixtures.
+        if (name === 'google-calendar') return { data: { status: { connected: true, sync_from: '2025-06-07', last_synced_at: new Date().toISOString() } }, error: null }
         return { data: { ok: true }, error: null }
       },
     },

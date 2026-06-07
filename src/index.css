@@ -283,7 +283,8 @@ button {
 .app[data-screen="goals"]    { background: var(--bg-goals); }
 .app[data-screen="moon"]     { background: var(--bg-moon); }
 .app[data-screen="calendar"] { background: var(--bg-home); }
-.app[data-screen="settings"] { background: var(--bg-clients); }
+.app[data-screen="settings"],
+.app[data-screen="connections"] { background: var(--bg-clients); }
 .app[data-screen="reports"]  { background: var(--bg-insights); }
 .app[data-screen="trash"]    { background: var(--bg-trash); }
 .app[data-screen="insights"] { background: var(--bg-insights); }
@@ -305,7 +306,8 @@ button {
 .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/day/goals.webp'); }
 .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/day/moon.webp'); }
 .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/mobile/day/calendar.webp'); }
-.app[data-screen="settings"]  { --screen-bg: url('/backgrounds/mobile/day/settings.webp'); }
+.app[data-screen="settings"],
+.app[data-screen="connections"]  { --screen-bg: url('/backgrounds/mobile/day/settings.webp'); }
 .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/mobile/day/reports.webp'); }
 .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/mobile/day/trash.webp'); }
 /* Insights reuses the moon nature image until a dedicated asset
@@ -323,7 +325,8 @@ button {
 [data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/night/goals.webp'); }
 [data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/night/moon.webp'); }
 [data-theme="dark"] .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/mobile/night/calendar.webp'); }
-[data-theme="dark"] .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/mobile/night/settings.webp'); }
+[data-theme="dark"] .app[data-screen="settings"],
+[data-theme="dark"] .app[data-screen="connections"]  { --screen-bg: url('/backgrounds/mobile/night/settings.webp'); }
 [data-theme="dark"] .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/mobile/night/reports.webp'); }
 [data-theme="dark"] .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/mobile/night/trash.webp'); }
 [data-theme="dark"] .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/mobile/night/moon.webp'); }
@@ -340,7 +343,8 @@ button {
   .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/day/goals.webp'); }
   .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/day/moon.webp'); }
   .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/desktop/day/calendar.webp'); }
-  .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/desktop/day/settings.webp'); }
+  .app[data-screen="settings"],
+  .app[data-screen="connections"]  { --screen-bg: url('/backgrounds/desktop/day/settings.webp'); }
   .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/desktop/day/reports.webp'); }
   .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/desktop/day/trash.webp'); }
   .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/desktop/day/moon.webp'); }
@@ -356,7 +360,8 @@ button {
   [data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/night/goals.webp'); }
   [data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/night/moon.webp'); }
   [data-theme="dark"] .app[data-screen="calendar"]  { --screen-bg: url('/backgrounds/desktop/night/calendar.webp'); }
-  [data-theme="dark"] .app[data-screen="settings"]  { --screen-bg: url('/backgrounds/desktop/night/settings.webp'); }
+  [data-theme="dark"] .app[data-screen="settings"],
+  [data-theme="dark"] .app[data-screen="connections"]  { --screen-bg: url('/backgrounds/desktop/night/settings.webp'); }
   [data-theme="dark"] .app[data-screen="reports"]   { --screen-bg: url('/backgrounds/desktop/night/reports.webp'); }
   [data-theme="dark"] .app[data-screen="trash"]     { --screen-bg: url('/backgrounds/desktop/night/trash.webp'); }
   [data-theme="dark"] .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/desktop/night/moon.webp'); }

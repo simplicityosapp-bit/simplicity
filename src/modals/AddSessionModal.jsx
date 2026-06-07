@@ -4,18 +4,22 @@ import Modal from './Modal'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = () => ({ date: todayStr(), summary: '', notes: '' })
+const fromSession = (s) => (s
+  ? { date: s.date ? new Date(s.date).toISOString().slice(0, 10) : todayStr(), summary: s.summary || '', notes: s.notes || '' }
+  : blank())
 
 /* Log a past session. The caller composes the full row (client_id or group_id,
    subject_type, num). This modal collects when + summary + notes. Subject is
    either a client (drawer flow) or a group (group flow). */
-export default function AddSessionModal({ open, onClose, onSave, client, group, nextNum }) {
+export default function AddSessionModal({ open, onClose, onSave, client, group, nextNum, session = null }) {
   const subject = group || client
   const subjectColor = group ? (group.color || 'var(--stone)') : 'var(--sage)'
-  const [form, setForm] = useState(blank)
+  const isEdit = !!session
+  const [form, setForm] = useState(() => fromSession(session))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(fromSession(session)); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
     if (!form.date) { setErr('יש לבחור תאריך.'); return }
@@ -35,7 +39,7 @@ export default function AddSessionModal({ open, onClose, onSave, client, group, 
   }
 
   return (
-    <Modal open={open} onClose={close} title="תיעוד פגישה">
+    <Modal open={open} onClose={close} title={isEdit ? 'עריכת פגישה' : 'תיעוד פגישה'}>
       {subject && (
         <p className="m-sub">
           <span className="m-sub-dot" style={{ background: subjectColor }} />

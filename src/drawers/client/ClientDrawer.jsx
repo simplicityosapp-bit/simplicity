@@ -4,6 +4,8 @@ import { clientBalance, effectiveClientMeta, isGroupDriven } from '../../lib/cli
 import { isr } from '../../lib/finance'
 import ClientDrawerSections from './ClientDrawerSections'
 import AddSessionModal from '../../modals/AddSessionModal'
+import AddTaskModal from '../../modals/AddTaskModal'
+import AddReminderModal from '../../modals/AddReminderModal'
 import ScheduleMeetingModal from '../../modals/ScheduleMeetingModal'
 import AddTransactionModal from '../../modals/AddTransactionModal'
 import EditClientModal from '../../modals/EditClientModal'
@@ -22,11 +24,15 @@ const STATUS = {
 const initials = (name) =>
   (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], categories = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient, onUpdateMember, onEditTransaction }) {
+export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], categories = [], clients = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient, onUpdateMember, onEditTransaction, onEditSession, onEditTask, onEditReminder }) {
   const open = !!client
   const [actionModal, setActionModal] = useState(null)
   /* A transaction picked for editing from the payments panel. */
   const [editTx, setEditTx] = useState(null)
+  /* Items picked for editing from their panels (session / task / reminder). */
+  const [editSession, setEditSession] = useState(null)
+  const [editTask, setEditTask] = useState(null)
+  const [editReminder, setEditReminder] = useState(null)
   const [statusMenu, setStatusMenu] = useState(false)
   /* Manual "שולם" edit flow: pendingPayment holds the delta awaiting the
      "record a transaction?" prompt; paymentAmount pre-fills the payment modal. */
@@ -195,7 +201,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 </button>
               </div>
 
-              <ClientDrawerSections client={client} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} />
+              <ClientDrawerSections client={client} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} />
             </div>
           </>
         )}
@@ -260,6 +266,33 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         projects={projects}
         categories={categories}
         onSave={onEditTransaction}
+      />
+
+      {/* Edit an existing session / task / reminder from its panel. */}
+      <AddSessionModal
+        key={`edit-sess-${editSession?.id}`}
+        open={!!editSession}
+        onClose={() => setEditSession(null)}
+        client={client}
+        session={editSession}
+        onSave={(patch) => onEditSession?.(editSession.id, patch)}
+      />
+      <AddTaskModal
+        key={`edit-task-${editTask?.id}`}
+        open={!!editTask}
+        onClose={() => setEditTask(null)}
+        task={editTask}
+        projects={projects}
+        clients={clients}
+        onSave={(patch) => onEditTask?.(editTask.id, patch)}
+      />
+      <AddReminderModal
+        key={`edit-rem-${editReminder?.id}`}
+        open={!!editReminder}
+        onClose={() => setEditReminder(null)}
+        reminder={editReminder}
+        clients={clients}
+        onSave={(patch) => onEditReminder?.(editReminder.id, patch)}
       />
 
       {/* Manual "שולם" edit → record a real transaction, or just fix the card. */}

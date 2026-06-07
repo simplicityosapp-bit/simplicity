@@ -608,3 +608,22 @@
   font-size: calc(10px * var(--text-scale));
   color: var(--mist);
 }
+
+/* Editable session row (edit mode on the sessions panel). */
+.cd-sess-edit {
+  display: block;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--divider);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.cd-sec-body > .cd-sess-edit:first-child { border-top: none; }
+.cd-sess-edit:hover { background: rgba(42, 37, 32, 0.04); }
+[data-theme="dark"] .cd-sess-edit:hover { background: rgba(240, 235, 224, 0.05); }
+.cd-sess-edit:active { transform: scale(0.99); }
+.cd-sess-editicon { margin-inline-start: auto; }

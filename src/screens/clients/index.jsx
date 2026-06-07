@@ -88,9 +88,9 @@ export default function ClientsScreen() {
   const { clients: clientList, loading, error, addClient, updateClient, removeClient } = useClients()
   const { projects } = useProjects()
   const { transactions, addTransaction, editTransaction, removeTransaction } = useTransactions()
-  const { tasks } = useTasks()
-  const { reminders } = useReminders()
-  const { sessions, addSession } = useSessions()
+  const { tasks, editTask } = useTasks()
+  const { reminders, editReminder } = useReminders()
+  const { sessions, addSession, updateSession } = useSessions()
   const { addMeeting } = useScheduledMeetings()
   const { groups } = useGroups()
   const { members, updateMember } = useGroupMembers()
@@ -506,12 +506,16 @@ export default function ClientsScreen() {
         groups={groups}
         statuses={clientStatuses}
         categories={categories}
+        clients={clientList}
         onLogSession={addSession}
         onScheduleMeeting={addMeeting}
         onAddPayment={addTransaction}
         onUpdateClient={updateClient}
         onUpdateMember={updateMember}
         onEditTransaction={editTransaction}
+        onEditSession={updateSession}
+        onEditTask={editTask}
+        onEditReminder={editReminder}
       />
 
       <AddClientModal

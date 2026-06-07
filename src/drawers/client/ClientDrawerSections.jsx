@@ -46,7 +46,7 @@ function Section({ title, count, defaultOpen = false, onEdit, editing = false, c
   )
 }
 
-export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditClient }) {
+export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder }) {
   /* Which panel is currently in edit mode (one at a time). The header
      pencil toggles it; in edit mode the panel's rows become tappable and
      open the matching editor. */
@@ -92,17 +92,32 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           )}
         </Section>
 
-        <Section title="פגישות וסיכומים" count={clientSessions.length}>
+        <Section
+          title="פגישות וסיכומים"
+          count={clientSessions.length}
+          onEdit={onEditSession && clientSessions.some((s) => !s.group_id) ? () => toggleEdit('sess') : undefined}
+          editing={editKey === 'sess'}
+        >
           {clientSessions.length ? (
-            clientSessions.map((s) => (
-              <div key={s.id} className="cd-sess">
-                <div className="cd-sess-head">
-                  <span className="cd-sess-num">{s.num || '•'}</span>
-                  <span className="cd-sess-date">{fmtShortDate(s.date)}{s.group_id ? ' · קבוצתי' : ''}</span>
-                </div>
-                {s.summary && <p className="cd-sess-summary">{s.summary}</p>}
-              </div>
-            ))
+            clientSessions.map((s) => {
+              const inner = (
+                <>
+                  <div className="cd-sess-head">
+                    <span className="cd-sess-num">{s.num || '•'}</span>
+                    <span className="cd-sess-date">{fmtShortDate(s.date)}{s.group_id ? ' · קבוצתי' : ''}</span>
+                    {editKey === 'sess' && !s.group_id && <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon cd-sess-editicon" aria-hidden="true" />}
+                  </div>
+                  {s.summary && <p className="cd-sess-summary">{s.summary}</p>}
+                </>
+              )
+              return editKey === 'sess' && !s.group_id ? (
+                <button key={s.id} type="button" className="cd-sess cd-sess-edit" onClick={() => onEditSession?.(s)}>
+                  {inner}
+                </button>
+              ) : (
+                <div key={s.id} className="cd-sess">{inner}</div>
+              )
+            })
           ) : (
             <p className="cd-empty">אין פגישות רשומות</p>
           )}
@@ -149,14 +164,27 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           )}
         </Section>
 
-        <Section title="משימות פתוחות" count={openTasks.length}>
+        <Section
+          title="משימות פתוחות"
+          count={openTasks.length}
+          onEdit={onEditTask && openTasks.length ? () => toggleEdit('tasks') : undefined}
+          editing={editKey === 'tasks'}
+        >
           {openTasks.length ? (
-            openTasks.map((t) => (
-              <div key={t.id} className="cd-row">
-                <span className="cd-task-dot" style={{ background: PRIORITY_COLOR[t.priority] || PRIORITY_COLOR.medium }} />
-                <p className="cd-row-title cd-grow">{t.title}</p>
-              </div>
-            ))
+            openTasks.map((t) => {
+              const inner = (
+                <>
+                  <span className="cd-task-dot" style={{ background: PRIORITY_COLOR[t.priority] || PRIORITY_COLOR.medium }} />
+                  <p className="cd-row-title cd-grow">{t.title}</p>
+                  {editKey === 'tasks' && <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon" aria-hidden="true" />}
+                </>
+              )
+              return editKey === 'tasks' ? (
+                <button key={t.id} type="button" className="cd-row cd-row-edit" onClick={() => onEditTask?.(t)}>{inner}</button>
+              ) : (
+                <div key={t.id} className="cd-row">{inner}</div>
+              )
+            })
           ) : (
             <p className="cd-empty">אין משימות פתוחות</p>
           )}
@@ -190,18 +218,30 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           )}
         </Section>
 
-        <Section title="תזכורות מקושרות" count={activeReminders.length}>
+        <Section
+          title="תזכורות מקושרות"
+          count={activeReminders.length}
+          onEdit={onEditReminder && linkedReminders.length ? () => toggleEdit('rem') : undefined}
+          editing={editKey === 'rem'}
+        >
           {linkedReminders.length ? (
             linkedReminders.map((r) => {
               const done = r.status === 'completed'
-              return (
-                <div key={r.id} className="cd-row">
+              const inner = (
+                <>
                   <div className="cd-row-body">
                     <p className={`cd-row-title${done ? ' done' : ''}`}>{r.title}</p>
                     <p className="cd-row-sub">{fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}</p>
                   </div>
-                  {done && <Check size={14} strokeWidth={2} className="cd-row-done" aria-hidden="true" />}
-                </div>
+                  {editKey === 'rem'
+                    ? <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon" aria-hidden="true" />
+                    : (done && <Check size={14} strokeWidth={2} className="cd-row-done" aria-hidden="true" />)}
+                </>
+              )
+              return editKey === 'rem' ? (
+                <button key={r.id} type="button" className="cd-row cd-row-edit" onClick={() => onEditReminder?.(r)}>{inner}</button>
+              ) : (
+                <div key={r.id} className="cd-row">{inner}</div>
               )
             })
           ) : (

@@ -40,6 +40,21 @@ export function useTasks() {
     }
   }, [qc])
 
+  /* Bulk-clear every completed task in one go. Soft-delete (deleted_at), so
+     the rows land in Trash and stay restorable for 30 days — that's the
+     safety net here, rather than the single-level inline undo. */
+  const clearCompleted = useCallback(async () => {
+    const done = (qc.getQueryData(KEY) ?? []).filter((t) => t.status === 'done')
+    if (!done.length) return 0
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => t.status !== 'done'))
+    try {
+      await Promise.all(done.map((t) => apiRemoveTask(t.id)))
+    } catch {
+      qc.invalidateQueries({ queryKey: KEY })
+    }
+    return done.length
+  }, [qc])
+
   const removeTask = useCallback(async (id) => {
     const row = (qc.getQueryData(KEY) ?? []).find((t) => t.id === id)
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => t.id !== id))
@@ -49,5 +64,5 @@ export function useTasks() {
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
-  return { tasks, loading: isLoading, error: error?.message ?? null, addTask, toggleTask, editTask, removeTask, refetch }
+  return { tasks, loading: isLoading, error: error?.message ?? null, addTask, toggleTask, editTask, removeTask, clearCompleted, refetch }
 }

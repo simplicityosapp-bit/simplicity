@@ -1,17 +1,22 @@
 import { useMemo, useState } from 'react'
-import { ListTodo, Plus, Trash2 } from 'lucide-react'
+import { ListTodo, Plus, Trash2, Tags } from 'lucide-react'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
 import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
+import { useTaskStatuses } from '../../hooks/useTaskStatuses'
+import { useTaskCategories } from '../../hooks/useTaskCategories'
 import TaskItem from './TaskItem'
 import ReminderItem from './ReminderItem'
 import AddTaskModal from '../../modals/AddTaskModal'
 import AddReminderModal from '../../modals/AddReminderModal'
 import ConfirmModal from '../../modals/ConfirmModal'
+import TaskTaxonomyModal from '../../modals/TaskTaxonomyModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
 import { isRecurring, isActiveReminder, dueOccurrenceCount } from '../../lib/reminders'
+import { reassignTasksStatus } from '../../lib/api/taskStatuses'
+import { reassignTasksCategory } from '../../lib/api/taskCategories'
 import './TasksScreen.css'
 
 const PRIORITY_COLOR = {
@@ -60,10 +65,12 @@ function reminderBucket(rem, now) {
 }
 
 export default function TasksScreen() {
-  const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask, editTask, clearCompleted } = useTasks()
+  const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask, editTask, clearCompleted, refetch: refetchTasks } = useTasks()
   const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder, editReminder } = useReminders()
   const { projects } = useProjects()
   const { clients } = useClients()
+  const { statuses: taskStatuses, addStatus, removeStatus } = useTaskStatuses()
+  const { categories: taskCategories, addCategory, removeCategory } = useTaskCategories()
   /* Top toggle drives entity choice. The rest of the screen reads
      from the active hook and renders the same chrome (header counts,
      hero stats, filter, list). */
@@ -72,6 +79,29 @@ export default function TasksScreen() {
   const [showAdd, setShowAdd] = useState(false)
   const [editItem, setEditItem] = useState(null)
   const [confirmClear, setConfirmClear] = useState(false)
+  const [showTaxonomy, setShowTaxonomy] = useState(false)
+  const [categoryFilter, setCategoryFilter] = useState('') /* '' = all categories */
+
+  const statusById = useMemo(() => {
+    const m = new Map(); taskStatuses.forEach((s) => m.set(s.id, s)); return m
+  }, [taskStatuses])
+  const categoryById = useMemo(() => {
+    const m = new Map(); taskCategories.forEach((c) => m.set(c.id, c)); return m
+  }, [taskCategories])
+
+  /* Deleting a status/category first clears the link on any task using it
+     (the task survives, falling back to its meta / "no category"), then
+     soft-deletes the taxonomy row, then refreshes the task list. */
+  const handleRemoveStatus = async (id) => {
+    try { await reassignTasksStatus(id, null) } catch { /* non-fatal */ }
+    await removeStatus(id)
+    refetchTasks()
+  }
+  const handleRemoveCategory = async (id) => {
+    try { await reassignTasksCategory(id, null) } catch { /* non-fatal */ }
+    await removeCategory(id)
+    refetchTasks()
+  }
 
   const isTasks = view === 'tasks'
   /* Flip view + reset the filter tab and any in-progress edit. Done in the
@@ -97,10 +127,12 @@ export default function TasksScreen() {
     : reminders.filter((r) => r.status !== 'completed' && new Date(r.scheduled_at) < now).length
 
   const filteredTasks = useMemo(() => {
-    if (filter === 'todo') return tasks.filter((t) => t.status !== 'done')
-    if (filter === 'done') return tasks.filter((t) => t.status === 'done')
-    return tasks
-  }, [tasks, filter])
+    let list = tasks
+    if (filter === 'todo') list = list.filter((t) => t.status !== 'done')
+    else if (filter === 'done') list = list.filter((t) => t.status === 'done')
+    if (categoryFilter) list = list.filter((t) => t.category_id === categoryFilter)
+    return list
+  }, [tasks, filter, categoryFilter])
 
   const filteredReminders = useMemo(() => {
     /* "פתוחות" = open one-off + recurring whose occurrence has come due. */
@@ -217,6 +249,31 @@ export default function TasksScreen() {
         ))}
       </div>
 
+      {isTasks && (
+        <div className="t-tax-bar">
+          {taskCategories.length > 0 ? (
+            <div className="t-cat-filter">
+              <button type="button" className={`t-cat-pill${!categoryFilter ? ' on' : ''}`} onClick={() => setCategoryFilter('')}>הכל</button>
+              {taskCategories.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  className={`t-cat-pill${categoryFilter === c.id ? ' on' : ''}`}
+                  onClick={() => setCategoryFilter(categoryFilter === c.id ? '' : c.id)}
+                >
+                  <span className="t-cat-dot" style={{ background: c.color || 'var(--stone)' }} />
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          ) : <span />}
+          <button type="button" className="t-manage-btn" onClick={() => setShowTaxonomy(true)}>
+            <Tags size={14} strokeWidth={1.7} aria-hidden="true" />
+            ניהול
+          </button>
+        </div>
+      )}
+
       {isTasks && filter === 'done' && doneCount > 0 && (
         <div className="t-clear-row">
           <button type="button" className="t-clear-btn" onClick={() => setConfirmClear(true)}>
@@ -269,6 +326,8 @@ export default function TasksScreen() {
                       onToggle={() => toggleTask(t)}
                       onEdit={setEditItem}
                       index={i}
+                      taskStatus={t.status_id ? statusById.get(t.status_id) : null}
+                      category={t.category_id ? categoryById.get(t.category_id) : null}
                     />
                   ))}
                 </div>
@@ -341,6 +400,8 @@ export default function TasksScreen() {
             onClose={() => setShowAdd(false)}
             projects={projects}
             clients={clients}
+            statuses={taskStatuses}
+            categories={taskCategories}
             onSave={addTask}
           />
           <AddTaskModal
@@ -350,6 +411,8 @@ export default function TasksScreen() {
             task={editItem}
             projects={projects}
             clients={clients}
+            statuses={taskStatuses}
+            categories={taskCategories}
             onSave={(patch) => editItem && editTask(editItem.id, patch)}
           />
           <ConfirmModal
@@ -360,6 +423,16 @@ export default function TasksScreen() {
             confirmLabel="מחק הכל"
             danger
             onConfirm={() => clearCompleted()}
+          />
+          <TaskTaxonomyModal
+            open={showTaxonomy}
+            onClose={() => setShowTaxonomy(false)}
+            statuses={taskStatuses}
+            categories={taskCategories}
+            onAddStatus={addStatus}
+            onRemoveStatus={handleRemoveStatus}
+            onAddCategory={addCategory}
+            onRemoveCategory={handleRemoveCategory}
           />
         </>
       ) : (

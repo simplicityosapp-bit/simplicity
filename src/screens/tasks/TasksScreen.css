@@ -87,6 +87,66 @@
   transform: scale(0.97);
 }
 
+/* ── Taxonomy bar — category filter + manage button ────────────── */
+.t-tax-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 2px 14px;
+}
+.t-cat-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.t-cat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.t-cat-pill.on {
+  background: var(--terracotta);
+  color: #fff;
+  border-color: transparent;
+}
+.t-cat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.t-manage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.t-manage-btn:hover { background: color-mix(in srgb, var(--terracotta) 6%, var(--mg-card-bg)); }
+
 /* ── Priority groups ───────────────────────────────────────────── */
 .t-group {
   margin-bottom: 18px;
@@ -191,6 +251,32 @@
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   color: var(--mist);
+}
+/* Custom-status + category chips under the task title. */
+.tc-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+}
+.tc-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  font-family: var(--mg-font);
+  font-size: calc(10px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+}
+.tc-tag-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 .tc-dot {
   width: 8px;

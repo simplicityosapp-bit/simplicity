@@ -2,8 +2,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 /* Reads the synced `calendar_events` (own rows via RLS) and lets the user
-   assign a client by hand to an unmatched event. The sync upsert itself
+   assign an entity by hand to an unmatched event. The sync upsert itself
    is server-side; here we only read + the manual match. */
+
+/* All link fields an event can carry — any one set ⇒ the event counts as
+   manually matched (frozen against the next sync). */
+const MATCH_FIELDS = ['client_id', 'project_id', 'lead_id', 'group_id']
 
 async function fetchCalendarEvents() {
   const { data, error } = await supabase
@@ -43,16 +47,17 @@ export function useCalendarEvents() {
     }
   }, [])
 
-  /* Manual match: setting a client/project by hand flips matched_manually
-     so the next sync won't overwrite EITHER link. Passing '' clears just
-     that field. The caller passes the current `ev` row (from render) so
-     matched_manually is derived from fresh values — no stale closure, and
-     no dependency on the `events` array. On a failed write we refetch to
-     undo the optimistic change. */
+  /* Manual match: setting a client/project/lead/group by hand flips
+     matched_manually so the next sync won't overwrite ANY link. Passing ''
+     clears just that field; matched_manually stays true only while at least
+     one link remains. The caller passes the current `ev` row (from render)
+     so the flag is derived from fresh values — no stale closure, and no
+     dependency on the `events` array. On a failed write we refetch to undo
+     the optimistic change. */
   const assignMatch = useCallback(async (ev, field, value) => {
     const next = value || null
-    const otherField = field === 'client_id' ? 'project_id' : 'client_id'
-    const stillManual = !!(next || ev[otherField])
+    const updated = { ...ev, [field]: next }
+    const stillManual = MATCH_FIELDS.some((f) => !!updated[f])
     setEvents((prev) => prev.map((row) => (row.id === ev.id
       ? { ...row, [field]: next, matched_manually: stillManual }
       : row)))
@@ -65,6 +70,8 @@ export function useCalendarEvents() {
 
   const assignClient = useCallback((ev, clientId) => assignMatch(ev, 'client_id', clientId), [assignMatch])
   const assignProject = useCallback((ev, projectId) => assignMatch(ev, 'project_id', projectId), [assignMatch])
+  const assignLead = useCallback((ev, leadId) => assignMatch(ev, 'lead_id', leadId), [assignMatch])
+  const assignGroup = useCallback((ev, groupId) => assignMatch(ev, 'group_id', groupId), [assignMatch])
 
-  return { events, loading, error, refetch, assignClient, assignProject }
+  return { events, loading, error, refetch, assignClient, assignProject, assignLead, assignGroup }
 }

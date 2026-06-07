@@ -19,7 +19,6 @@
 //    disconnect { }                               → { ok }
 // ════════════════════════════════════════════════════════════════
 import { createClient } from 'jsr:@supabase/supabase-js@2'
-import Fuse from 'npm:fuse.js@7'
 
 const GOOGLE_CLIENT_ID = Deno.env.get('GOOGLE_CLIENT_ID')!
 const GOOGLE_CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET')!
@@ -28,7 +27,6 @@ const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 const SCOPE = 'https://www.googleapis.com/auth/calendar.readonly'
-const MATCH_THRESHOLD = 0.7 // confidence (1 − fuse score) at/above which we auto-assign a client
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -133,19 +131,34 @@ async function fetchEvents(accessToken: string, opts: { timeMin?: string; timeMa
   return { events, nextSyncToken }
 }
 
-// ── Fuzzy matching (clients, projects, leads, groups … extensible) ─
-/* Generic title→entity matcher. Returns the best entity id + confidence
-   (1 − fuse score), or null below the threshold. The same factory is used
-   for clients, projects, leads and groups; add more targets the same way. */
+// ── Strict name matching (clients, projects, leads, groups … extensible) ─
+/* Exact whole-word matcher. Fuzzy matching bled across names that share a
+   root (e.g. "אורן" / "אורטל" were wrongly assigned to the client "אורלי"),
+   so we now require the entity's FULL name to appear as exact words in the
+   event title — precision over recall, per the "very high level only" steer.
+   Niqqud is stripped and matching is case-insensitive. When several names
+   qualify the longest (most specific) wins; no qualifying name ⇒ the event
+   is left UNidentified (the user can still assign it by hand). */
+const wordsOf = (s: string): string[] =>
+  (s ?? '').toString().toLowerCase().normalize('NFKD')
+    .replace(/[֑-ׇ]/g, '')        // strip Hebrew niqqud
+    .split(/[^\p{L}\p{N}]+/u)               // split on anything that isn't a letter/digit
+    .filter((w) => w.length >= 2)           // drop 1-char noise (prepositions etc.)
+
 function makeMatcher(items: { id: string; name: string }[]) {
-  const fuse = new Fuse(items, { keys: ['name'], includeScore: true, threshold: 0.6, ignoreLocation: true })
+  const prepared = (items ?? [])
+    .map((it) => ({ id: it.id, words: wordsOf(it.name) }))
+    .filter((p) => p.words.length > 0)
   return (title: string): { id: string | null; confidence: number } => {
-    const q = (title ?? '').trim()
-    if (!q) return { id: null, confidence: 0 }
-    const hit = fuse.search(q)[0]
-    if (!hit) return { id: null, confidence: 0 }
-    const confidence = 1 - (hit.score ?? 1) // fuse: 0 = perfect → confidence 1
-    return confidence >= MATCH_THRESHOLD ? { id: hit.item.id, confidence } : { id: null, confidence }
+    const titleWords = new Set(wordsOf(title))
+    if (!titleWords.size) return { id: null, confidence: 0 }
+    let best: { id: string; len: number } | null = null
+    for (const p of prepared) {
+      if (!p.words.every((w) => titleWords.has(w))) continue           // every name word must be present, verbatim
+      const len = p.words.reduce((n, w) => n + w.length, 0)
+      if (!best || len > best.len) best = { id: p.id, len }            // longest name = most specific match
+    }
+    return best ? { id: best.id, confidence: 1 } : { id: null, confidence: 0 }
   }
 }
 

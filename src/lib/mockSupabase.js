@@ -245,6 +245,8 @@ export function makeMockClient() {
         // The admin console talks to one function; synthesise its data so the
         // /admin screens render in preview. Everything else is a no-op ok.
         if (name === 'admin') return { data: adminInvoke(opts?.body), error: null }
+        // Google Calendar in preview: always "not connected" (no real OAuth).
+        if (name === 'google-calendar') return { data: { status: { connected: false } }, error: null }
         return { data: { ok: true }, error: null }
       },
     },

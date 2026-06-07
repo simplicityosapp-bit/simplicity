@@ -27,7 +27,7 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
         </span>
         <div className="evt-detail-text">
           <p className="evt-detail-title">{title}</p>
-          <p className="evt-detail-when">{formatWhen(event.when)} · {fmtTime(event.when)}</p>
+          <p className="evt-detail-when">{formatWhen(event.when)}{event.allDay ? ' · כל היום' : ` · ${fmtTime(event.when)}`}</p>
         </div>
       </div>
 

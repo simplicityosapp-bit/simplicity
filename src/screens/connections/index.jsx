@@ -49,15 +49,33 @@ export default function ConnectionsScreen() {
     if (err) {
       Promise.resolve().then(() => setCallbackError('החיבור בוטל או נדחה.')).finally(finish)
     } else {
-      gcal.completeConnect(code).then(() => refetch()).catch(() => {}).finally(finish)
+      gcal.completeConnect(code)
+        .then(() => refetch())
+        .catch(() => setCallbackError('החיבור נכשל. נסו שוב.'))
+        .finally(finish)
     }
   }, [params, gcal, navigate, refetch])
 
   const status = gcal.status
   const connected = !!status?.connected
+  const [busyAction, setBusyAction] = useState(null) // 'sync' | 'disconnect'
+  const [confirmDisc, setConfirmDisc] = useState(false)
   const connecting = gcal.busy && !!params.get('code')
 
-  const onSync = async () => { await gcal.sync().catch(() => {}); refetch() }
+  const onSync = async () => {
+    setBusyAction('sync')
+    await gcal.sync().catch(() => {})
+    refetch()
+    setBusyAction(null)
+  }
+  const onDisconnect = async () => {
+    if (!confirmDisc) { setConfirmDisc(true); return } // two-step confirm — no undo
+    setConfirmDisc(false)
+    setBusyAction('disconnect')
+    await gcal.disconnect()
+    refetch()
+    setBusyAction(null)
+  }
 
   return (
     <div className="screen">
@@ -101,17 +119,17 @@ export default function ConnectionsScreen() {
                 onChange={(e) => setSyncFrom(e.target.value)}
               />
             </label>
-            <button type="button" className="conn-btn primary" disabled={gcal.busy} onClick={() => gcal.beginConnect(syncFrom)}>
+            <button type="button" className="conn-btn primary" disabled={gcal.busy} onClick={() => { setCallbackError(''); gcal.beginConnect(syncFrom) }}>
               {gcal.busy ? 'פותח…' : 'חבר את Google Calendar'}
             </button>
           </div>
         ) : (
           <div className="conn-actions">
             <button type="button" className="conn-btn primary" disabled={gcal.busy} onClick={onSync}>
-              <RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {gcal.busy ? 'מסנכרן…' : 'סנכרן עכשיו'}
+              <RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'sync' ? 'מסנכרן…' : 'סנכרן עכשיו'}
             </button>
-            <button type="button" className="conn-btn ghost danger" disabled={gcal.busy} onClick={() => gcal.disconnect()}>
-              <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> נתק
+            <button type="button" className="conn-btn ghost danger" disabled={gcal.busy} onClick={onDisconnect} onBlur={() => setConfirmDisc(false)}>
+              <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? 'מנתק…' : (confirmDisc ? 'בטוח? נתק' : 'נתק')}
             </button>
           </div>
         )}
@@ -142,7 +160,7 @@ export default function ConnectionsScreen() {
                           <select
                             className="conn-event-select"
                             value={ev.client_id || ''}
-                            onChange={(e) => assignClient(ev.id, e.target.value)}
+                            onChange={(e) => assignClient(ev, e.target.value)}
                             aria-label="שיוך לקוח"
                           >
                             <option value="">— ללא —</option>
@@ -154,7 +172,7 @@ export default function ConnectionsScreen() {
                           <select
                             className="conn-event-select"
                             value={ev.project_id || ''}
-                            onChange={(e) => assignProject(ev.id, e.target.value)}
+                            onChange={(e) => assignProject(ev, e.target.value)}
                             aria-label="שיוך פרויקט"
                           >
                             <option value="">— ללא —</option>

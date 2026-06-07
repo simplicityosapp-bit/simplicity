@@ -46,7 +46,7 @@ export default function CalendarDay({ date, events, onSelect, dayViewStart = DEF
       {earlyEvents.length > 0 && (
         <div className="cal-day-edge">
           <p className="cal-day-edge-lbl">לפני {String(hours[0]).padStart(2, '0')}:00</p>
-          {earlyEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}`} event={ev} onSelect={onSelect} />)}
+          {earlyEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} />)}
         </div>
       )}
 
@@ -60,7 +60,7 @@ export default function CalendarDay({ date, events, onSelect, dayViewStart = DEF
                 {slot.length === 0 ? (
                   <div className="cal-day-empty-line" aria-hidden="true" />
                 ) : (
-                  slot.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}`} event={ev} onSelect={onSelect} />)
+                  slot.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} />)
                 )}
               </div>
             </div>
@@ -71,7 +71,7 @@ export default function CalendarDay({ date, events, onSelect, dayViewStart = DEF
       {lateEvents.length > 0 && (
         <div className="cal-day-edge">
           <p className="cal-day-edge-lbl">אחרי {String(hours[hours.length - 1]).padStart(2, '0')}:00</p>
-          {lateEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}`} event={ev} onSelect={onSelect} />)}
+          {lateEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} />)}
         </div>
       )}
     </div>

@@ -106,14 +106,18 @@ type GEvent = {
    expanded); incremental uses the stored syncToken (which also reports
    cancellations). On a 410 the syncToken is stale → caller does a full
    resync. Returns the events + the next syncToken. */
-async function fetchEvents(accessToken: string, opts: { timeMin?: string; syncToken?: string }) {
+async function fetchEvents(accessToken: string, opts: { timeMin?: string; timeMax?: string; syncToken?: string }) {
   const events: GEvent[] = []
   let pageToken: string | undefined
   let nextSyncToken: string | undefined
   do {
     const p = new URLSearchParams({ singleEvents: 'true', maxResults: '250' })
     if (opts.syncToken) p.set('syncToken', opts.syncToken)
-    else { p.set('timeMin', opts.timeMin!); p.set('orderBy', 'startTime') }
+    else {
+      p.set('timeMin', opts.timeMin!)
+      p.set('orderBy', 'startTime')
+      if (opts.timeMax) p.set('timeMax', opts.timeMax)
+    }
     if (pageToken) p.set('pageToken', pageToken)
     const res = await fetch(
       `https://www.googleapis.com/calendar/v3/calendars/primary/events?${p}`,
@@ -151,7 +155,12 @@ function eventTimes(e: GEvent) {
   const end = e.end?.dateTime ?? (e.end?.date ? `${e.end.date}T00:00:00` : null)
   const startISO = start ? new Date(start).toISOString() : null
   const endISO = end ? new Date(end).toISOString() : null
-  const duration = startISO && endISO ? Math.round((new Date(endISO).getTime() - new Date(startISO).getTime()) / 60000) : null
+  /* All-day events: Google's end.date is EXCLUSIVE (the day after), so a
+     naive end−start is always ~24h. Duration is meaningless for an all-day
+     event → null. Only timed events get a real duration. */
+  const duration = (!allDay && startISO && endISO)
+    ? Math.round((new Date(endISO).getTime() - new Date(startISO).getTime()) / 60000)
+    : null
   return { allDay, startISO, endISO, duration }
 }
 
@@ -175,18 +184,23 @@ async function runSync(userId: string) {
   const matchProject = makeMatcher((projects ?? []) as any)
 
   // Pull events — incremental if we have a token, else full from sync_from.
+  // Future is bounded (sync_from → +1y) so a full resync can't fetch an
+  // unbounded window. `didFull` tracks whether we (re)ran a full sync so
+  // we never write back a syncToken we just learned is stale (→ 410 loop).
+  const timeMin = new Date(`${integration.sync_from}T00:00:00Z`).toISOString()
+  const timeMax = new Date(Date.now() + 365 * 86400000).toISOString()
   let events: GEvent[] = []
   let nextSyncToken: string | undefined
+  let didFull = !integration.sync_token
   try {
-    const timeMin = new Date(`${integration.sync_from}T00:00:00Z`).toISOString()
     const r = await fetchEvents(accessToken, integration.sync_token
       ? { syncToken: integration.sync_token }
-      : { timeMin })
+      : { timeMin, timeMax })
     events = r.events; nextSyncToken = r.nextSyncToken
   } catch (e: any) {
     if (!e.gone) throw e
-    const timeMin = new Date(`${integration.sync_from}T00:00:00Z`).toISOString()
-    const r = await fetchEvents(accessToken, { timeMin }) // token stale → full resync
+    didFull = true
+    const r = await fetchEvents(accessToken, { timeMin, timeMax }) // token stale → full resync
     events = r.events; nextSyncToken = r.nextSyncToken
   }
 
@@ -214,11 +228,13 @@ async function runSync(userId: string) {
     let confidence: number
     if (isManual) {
       const m = manual.get(e.id)!
-      clientId = m.client_id; projectId = m.project_id; confidence = 1
+      clientId = m.client_id; projectId = m.project_id
+      confidence = (clientId || projectId) ? 1 : 0 // a cleared manual match isn't "confident"
     } else {
       const c = matchClient(e.summary ?? '')
       const p = matchProject(e.summary ?? '')
-      clientId = c.id; projectId = p.id; confidence = c.confidence
+      clientId = c.id; projectId = p.id
+      confidence = Math.max(c.confidence, p.confidence) // confidence of whichever link was assigned
     }
     /* ALL events are stored — matched or not (unmatched just carry null
        links). The unique (user_id, google_event_id) key dedupes, so an
@@ -252,7 +268,13 @@ async function runSync(userId: string) {
 
   const last_synced_at = new Date().toISOString()
   await admin.from('user_integrations')
-    .update({ last_synced_at, sync_token: nextSyncToken ?? integration.sync_token })
+    .update({
+      last_synced_at,
+      /* After a full (re)sync, store the fresh token or NULL — never the old
+         one (which would 410 again next time). Incremental keeps the prior
+         token if Google didn't hand back a new one. */
+      sync_token: didFull ? (nextSyncToken ?? null) : (nextSyncToken ?? integration.sync_token),
+    })
     .eq('id', integration.id)
 
   return { synced: upserts.length, removed: cancelled.length, last_synced_at, sync_from: integration.sync_from }
@@ -316,7 +338,13 @@ Deno.serve(async (req) => {
       const { data } = await admin.from('user_integrations')
         .select('refresh_token').eq('user_id', userId).eq('provider', 'google_calendar').maybeSingle()
       if (data?.refresh_token) {
-        await fetch(`https://oauth2.googleapis.com/revoke?token=${data.refresh_token}`, { method: 'POST' }).catch(() => {})
+        /* Revoke via POST body — never put the token in the URL (it leaks to
+           proxy/access logs). Fire-and-forget; we delete our copy regardless. */
+        await fetch('https://oauth2.googleapis.com/revoke', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ token: data.refresh_token }),
+        }).catch(() => {})
       }
       await admin.from('user_integrations').delete().eq('user_id', userId).eq('provider', 'google_calendar')
       return json({ ok: true, status: { connected: false } })

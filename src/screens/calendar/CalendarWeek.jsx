@@ -30,7 +30,7 @@ export default function CalendarWeek({ date, events, onSelect, weekStart = 'sund
               ) : (
                 list.map((ev) => (
                   <button
-                    key={`${ev.kind}-${ev.id}`}
+                    key={`${ev.kind}-${ev.id}-${+ev.when}`}
                     type="button"
                     className={`cal-week-evt ${ev.kind}`}
                     onClick={() => onSelect?.(ev)}

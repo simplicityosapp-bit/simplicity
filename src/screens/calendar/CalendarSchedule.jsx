@@ -15,7 +15,7 @@ export default function CalendarSchedule({ items, onSelect }) {
     <section className="cal-list">
       {items.map((it) => (
         <button
-          key={`${it.kind}-${it.id}`}
+          key={`${it.kind}-${it.id}-${+it.when}`}
           type="button"
           className="cal-item"
           onClick={() => onSelect?.(it)}
@@ -27,7 +27,7 @@ export default function CalendarSchedule({ items, onSelect }) {
           </span>
           <div className="cal-body">
             <p className="cal-title">{it.title}</p>
-            <p className="cal-when">{formatWhen(it.when)}{it.kind === 'calendar' && (it.clientName || it.projectName) ? ` · ${it.clientName || it.projectName}` : ''}</p>
+            <p className="cal-when">{it.allDay ? 'כל היום' : formatWhen(it.when)}{it.kind === 'calendar' && (it.clientName || it.projectName) ? ` · ${it.clientName || it.projectName}` : ''}</p>
           </div>
           {it.kind === 'meeting' && it.status === 'pending' && <span className="cal-tag">ממתינה</span>}
           {it.kind === 'reminder' && <span className="cal-tag rem">תזכורת</span>}

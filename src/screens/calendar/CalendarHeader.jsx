@@ -14,8 +14,12 @@ const MONTHS = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 
    day + schedule step by day. */
 function stepDate(view, date, dir) {
   const d = new Date(date)
-  if (view === 'week' || view === 'month') d.setMonth(d.getMonth() + dir)
-  else d.setDate(d.getDate() + dir)
+  if (view === 'week' || view === 'month') {
+    d.setDate(1) // normalize first so Jan 31 + 1mo → Feb, not Mar
+    d.setMonth(d.getMonth() + dir)
+  } else {
+    d.setDate(d.getDate() + dir)
+  }
   return d
 }
 

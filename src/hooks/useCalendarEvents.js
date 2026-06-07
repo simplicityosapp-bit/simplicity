@@ -45,28 +45,26 @@ export function useCalendarEvents() {
 
   /* Manual match: setting a client/project by hand flips matched_manually
      so the next sync won't overwrite EITHER link. Passing '' clears just
-     that field. `field` is 'client_id' or 'project_id' (extensible). */
-  const assignMatch = useCallback(async (id, field, value) => {
+     that field. The caller passes the current `ev` row (from render) so
+     matched_manually is derived from fresh values — no stale closure, and
+     no dependency on the `events` array. On a failed write we refetch to
+     undo the optimistic change. */
+  const assignMatch = useCallback(async (ev, field, value) => {
     const next = value || null
-    setEvents((prev) => prev.map((ev) => {
-      if (ev.id !== id) return ev
-      const updated = { ...ev, [field]: next }
-      /* matched_manually stays true while any manual link remains. */
-      updated.matched_manually = !!(updated.client_id || updated.project_id)
-      return updated
-    }))
-    /* Read the post-update row from state to derive matched_manually. */
-    const row = events.find((ev) => ev.id === id) || {}
-    const stillManual = !!((field === 'client_id' ? next : row.client_id) || (field === 'project_id' ? next : row.project_id))
+    const otherField = field === 'client_id' ? 'project_id' : 'client_id'
+    const stillManual = !!(next || ev[otherField])
+    setEvents((prev) => prev.map((row) => (row.id === ev.id
+      ? { ...row, [field]: next, matched_manually: stillManual }
+      : row)))
     const { error: e } = await supabase
       .from('calendar_events')
       .update({ [field]: next, matched_manually: stillManual })
-      .eq('id', id)
-    if (e) setError(e.message)
-  }, [events])
+      .eq('id', ev.id)
+    if (e) { setError(e.message); refetch() }
+  }, [refetch])
 
-  const assignClient = useCallback((id, clientId) => assignMatch(id, 'client_id', clientId), [assignMatch])
-  const assignProject = useCallback((id, projectId) => assignMatch(id, 'project_id', projectId), [assignMatch])
+  const assignClient = useCallback((ev, clientId) => assignMatch(ev, 'client_id', clientId), [assignMatch])
+  const assignProject = useCallback((ev, projectId) => assignMatch(ev, 'project_id', projectId), [assignMatch])
 
   return { events, loading, error, refetch, assignClient, assignProject }
 }

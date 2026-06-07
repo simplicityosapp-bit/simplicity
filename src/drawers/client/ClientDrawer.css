@@ -353,13 +353,22 @@
 .cd-sec-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
+}
+.cd-sec-toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   padding: 13px 14px;
   background: none;
   border: none;
   cursor: pointer;
   text-align: start;
+  font: inherit;
+  color: inherit;
 }
 .cd-sec-title {
   display: flex;
@@ -390,8 +399,16 @@
 }
 .cd-sec-edit {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 12px;
+  background: none;
+  border: none;
   cursor: pointer;
+  color: var(--stone);
+  transition: color 0.15s;
 }
+.cd-sec-edit.on { color: var(--terracotta); }
 .cd-sec-chev {
   transition: transform 0.2s ease;
 }
@@ -428,6 +445,21 @@
 .cd-sec-body > .cd-pay-summary + .cd-row {
   border-top: none;
 }
+.cd-row-edit {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--divider);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.cd-row-edit:hover { background: rgba(42, 37, 32, 0.04); }
+[data-theme="dark"] .cd-row-edit:hover { background: rgba(240, 235, 224, 0.05); }
+.cd-row-edit:active { transform: scale(0.99); }
+.cd-row-editicon { flex-shrink: 0; color: var(--terracotta); }
 .cd-row-dot {
   width: 8px;
   height: 8px;

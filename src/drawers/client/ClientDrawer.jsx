@@ -7,6 +7,7 @@ import AddSessionModal from '../../modals/AddSessionModal'
 import ScheduleMeetingModal from '../../modals/ScheduleMeetingModal'
 import AddTransactionModal from '../../modals/AddTransactionModal'
 import EditClientModal from '../../modals/EditClientModal'
+import EditTransactionModal from '../../modals/EditTransactionModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import { pushUndo } from '../../lib/undo'
 import './ClientDrawer.css'
@@ -21,9 +22,11 @@ const STATUS = {
 const initials = (name) =>
   (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient, onUpdateMember }) {
+export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], categories = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient, onUpdateMember, onEditTransaction }) {
   const open = !!client
   const [actionModal, setActionModal] = useState(null)
+  /* A transaction picked for editing from the payments panel. */
+  const [editTx, setEditTx] = useState(null)
   const [statusMenu, setStatusMenu] = useState(false)
   /* Manual "שולם" edit flow: pendingPayment holds the delta awaiting the
      "record a transaction?" prompt; paymentAmount pre-fills the payment modal. */
@@ -192,7 +195,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 </button>
               </div>
 
-              <ClientDrawerSections client={client} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} />
+              <ClientDrawerSections client={client} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} />
             </div>
           </>
         )}
@@ -245,6 +248,18 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         onSave={onUpdateClient}
         onUpdateMember={onUpdateMember}
         onPaidEntry={(delta) => setPendingPayment(delta)}
+      />
+
+      {/* Edit an existing payment/transaction from the payments panel. */}
+      <EditTransactionModal
+        key={editTx?.id}
+        open={!!editTx}
+        onClose={() => setEditTx(null)}
+        tx={editTx}
+        clients={client ? [client] : []}
+        projects={projects}
+        categories={categories}
+        onSave={onEditTransaction}
       />
 
       {/* Manual "שולם" edit → record a real transaction, or just fix the card. */}

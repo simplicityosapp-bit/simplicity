@@ -14,6 +14,7 @@ import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useGroups } from '../../hooks/useGroups'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useClientStatuses } from '../../hooks/useClientStatuses'
+import { useCategories } from '../../hooks/useCategories'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import ClientTabs from './ClientTabs'
 import ClientCard from './ClientCard'
@@ -94,6 +95,7 @@ export default function ClientsScreen() {
   const { groups } = useGroups()
   const { members, updateMember } = useGroupMembers()
   const { statuses: clientStatuses } = useClientStatuses()
+  const { categories } = useCategories()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [tab, setTab] = useState('active')
   const [balanceOnly, setBalanceOnly] = useState(false)
@@ -503,11 +505,13 @@ export default function ClientsScreen() {
         members={members}
         groups={groups}
         statuses={clientStatuses}
+        categories={categories}
         onLogSession={addSession}
         onScheduleMeeting={addMeeting}
         onAddPayment={addTransaction}
         onUpdateClient={updateClient}
         onUpdateMember={updateMember}
+        onEditTransaction={editTransaction}
       />
 
       <AddClientModal

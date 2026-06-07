@@ -8,34 +8,51 @@ const DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 
 const PRIORITY_COLOR = { high: 'var(--clay)', medium: 'var(--amber-warn)', low: 'var(--sage)' }
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 
-function Section({ title, count, defaultOpen = false, children }) {
+/* A collapsible section. When `onEdit` is supplied the header shows a real
+   edit button — a SIBLING of the toggle, never nested inside it (nested
+   <button> is invalid HTML and swallowed the tap on mobile). `editing`
+   reflects the panel's active edit state: it forces the section open and
+   flips the pencil to a "done" check. */
+function Section({ title, count, defaultOpen = false, onEdit, editing = false, children }) {
   const [open, setOpen] = useState(defaultOpen)
+  const isOpen = open || editing
   return (
-    <div className={`cd-section${open ? ' open' : ''}`}>
-      <button type="button" className="cd-sec-head" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        <span className="cd-sec-title">
-          {title}
-          {count != null && <span className="cd-sec-count">{count}</span>}
-        </span>
-        <span className="cd-sec-tools">
-          <span
-            className="cd-sec-edit"
-            role="button"
-            tabIndex={-1}
-            title="ערוך"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Pencil size={13} strokeWidth={1.6} aria-hidden="true" />
+    <div className={`cd-section${isOpen ? ' open' : ''}${editing ? ' editing' : ''}`}>
+      <div className="cd-sec-head">
+        <button type="button" className="cd-sec-toggle" onClick={() => setOpen((o) => !o)} aria-expanded={isOpen}>
+          <span className="cd-sec-title">
+            {title}
+            {count != null && <span className="cd-sec-count">{count}</span>}
           </span>
           <ChevronDown size={16} strokeWidth={1.6} className="cd-sec-chev" aria-hidden="true" />
-        </span>
-      </button>
-      {open && <div className="cd-sec-body">{children}</div>}
+        </button>
+        {onEdit && (
+          <button
+            type="button"
+            className={`cd-sec-edit${editing ? ' on' : ''}`}
+            title={editing ? 'סיום עריכה' : 'ערוך'}
+            aria-label={`ערוך ${title}`}
+            aria-pressed={editing}
+            onClick={onEdit}
+          >
+            {editing
+              ? <Check size={14} strokeWidth={2} aria-hidden="true" />
+              : <Pencil size={13} strokeWidth={1.6} aria-hidden="true" />}
+          </button>
+        )}
+      </div>
+      {isOpen && <div className="cd-sec-body">{children}</div>}
     </div>
   )
 }
 
-export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [] }) {
+export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx }) {
+  /* Which panel is currently in edit mode (one at a time). The header
+     pencil toggles it; in edit mode the panel's rows become tappable and
+     open the matching editor. */
+  const [editKey, setEditKey] = useState(null)
+  const toggleEdit = (k) => setEditKey((p) => (p === k ? null : k))
+
   /* ── data ── */
   const payments = financeQuery({ clientId: c.id, includePending: true, source: txns })
     .slice()
@@ -91,22 +108,42 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           )}
         </Section>
 
-        <Section title="תשלומים" count={payments.length}>
+        <Section
+          title="תשלומים"
+          count={payments.length}
+          onEdit={onEditTx && payments.length ? () => toggleEdit('pay') : undefined}
+          editing={editKey === 'pay'}
+        >
           <div className="cd-pay-summary">
             <span>סה״כ שולם</span>
             <span className="mono">{isr(payTotal)}</span>
           </div>
           {payments.length ? (
-            payments.map((f) => (
-              <div key={f.id} className="cd-row">
-                <span className="cd-row-dot" style={{ background: f.type === 'income' ? 'var(--sage)' : 'var(--clay)' }} />
-                <div className="cd-row-body">
-                  <p className="cd-row-title">{f.desc || 'ללא תיאור'}</p>
-                  <p className="cd-row-sub">{fmtShortDate(f.date)}{f.status === 'pending' ? ' · ממתין' : ''}</p>
-                </div>
-                <span className="cd-row-amt mono">{f.type === 'income' ? '+' : '−'}{isr(f.amount)}</span>
-              </div>
-            ))
+            payments.map((f) => {
+              const body = (
+                <>
+                  <span className="cd-row-dot" style={{ background: f.type === 'income' ? 'var(--sage)' : 'var(--clay)' }} />
+                  <div className="cd-row-body">
+                    <p className="cd-row-title">{f.desc || 'ללא תיאור'}</p>
+                    <p className="cd-row-sub">{fmtShortDate(f.date)}{f.status === 'pending' ? ' · ממתין' : ''}</p>
+                  </div>
+                  <span className="cd-row-amt mono">{f.type === 'income' ? '+' : '−'}{isr(f.amount)}</span>
+                </>
+              )
+              return editKey === 'pay' ? (
+                <button
+                  key={f.id}
+                  type="button"
+                  className="cd-row cd-row-edit"
+                  onClick={() => onEditTx?.((txns || []).find((t) => t.id === f.id) || f)}
+                >
+                  {body}
+                  <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon" aria-hidden="true" />
+                </button>
+              ) : (
+                <div key={f.id} className="cd-row">{body}</div>
+              )
+            })
           ) : (
             <p className="cd-empty">אין תשלומים עדיין</p>
           )}

@@ -100,7 +100,11 @@ function DayEvent({ event, onSelect }) {
       className={`cal-day-evt ${event.kind}`}
       onClick={() => onSelect?.(event)}
     >
-      {!event.allDay && <span className="cal-day-evt-time mono">{fmtTime(event.when)}</span>}
+      {!event.allDay && (
+        <span className="cal-day-evt-time mono">
+          {fmtTime(event.when)}{event.end ? `–${fmtTime(event.end)}` : ''}
+        </span>
+      )}
       <span className="cal-day-evt-title">{event.title}</span>
       {event.kind === 'meeting' && event.status === 'pending' && <span className="cal-tag">ממתינה</span>}
       {event.kind === 'reminder' && <span className="cal-tag rem">תזכורת</span>}

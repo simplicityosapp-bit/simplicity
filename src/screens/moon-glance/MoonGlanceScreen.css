@@ -319,6 +319,49 @@
   color: var(--mist);
 }
 
+/* ── Correlations "patterns to explore" (§8.2) ─────────────────── */
+.mg-corr-empty {
+  margin: 2px 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  line-height: 1.6;
+  color: var(--stone);
+}
+.mg-corr-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.mg-corr-card:last-of-type { border-bottom: none; }
+.mg-corr-text { flex: 1; min-width: 0; }
+.mg-corr-line {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--espresso);
+}
+.mg-corr-line b { font-weight: 600; }
+.mg-corr-sub {
+  margin: 4px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+}
+.mg-scatter {
+  width: 120px;
+  height: 78px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--moon-deep) 5%, transparent);
+}
+.mg-scatter-dot {
+  fill: var(--moon-deep);
+  opacity: 0.55;
+}
+
 /* ── Footer link ───────────────────────────────────────────────── */
 .mg-footer-link {
   display: block;

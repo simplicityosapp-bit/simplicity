@@ -259,6 +259,66 @@
   color: var(--stone);
 }
 
+/* ── Cross-module trends overlay (§8.1) ────────────────────────── */
+.mg-overview {
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  padding: 16px;
+}
+.mg-ov-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.mg-ov-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.mg-ov-pill.on {
+  background: var(--mg-card-bg);
+  border-color: var(--espresso);
+  color: var(--espresso);
+}
+.mg-ov-pill:disabled { opacity: 0.4; cursor: default; }
+.mg-ov-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.mg-ov-select {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+}
+.mg-ov-note {
+  margin: 10px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(10px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--mist);
+}
+
 /* ── Footer link ───────────────────────────────────────────────── */
 .mg-footer-link {
   display: block;

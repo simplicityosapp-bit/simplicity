@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Moon, BarChart3 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
@@ -13,7 +13,25 @@ import { useDailyAnswers } from '../../hooks/useDailyAnswers'
 import { useGroups } from '../../hooks/useGroups'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useMoonSnapshots } from '../../hooks/useMoonSnapshots'
+import { useSessions } from '../../hooks/useSessions'
+import { useUserQuestions } from '../../hooks/useUserQuestions'
+import { questionText } from '../../lib/questionTemplates'
+import { buildOverviewTrend, OVERVIEW_METRICS } from '../../lib/overview'
+import MultiTrendChart from '../../components/MultiTrendChart'
 import './MoonGlanceScreen.css'
+
+/* Metric toggles for the cross-module trend overlay (§8.1). */
+const OVERVIEW_PILLS = [
+  { key: 'income',   label: 'הכנסות' },
+  { key: 'leads',    label: 'פניות' },
+  { key: 'sessions', label: 'פגישות' },
+  { key: 'score',    label: 'ציון' },
+  { key: 'question', label: 'שאלה יומית' },
+]
+const dayKeyOf = (d) => {
+  const dt = d instanceof Date ? d : new Date(d)
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
+}
 
 function TrendChart({ data }) {
   const W = 300
@@ -46,6 +64,8 @@ export default function MoonGlanceScreen() {
   const { answers } = useDailyAnswers()
   const { groups } = useGroups()
   const { members } = useGroupMembers()
+  const { sessions } = useSessions()
+  const { questions } = useUserQuestions()
   const data = useMemo(
     () => ({ goals, categories, entries, transactions, clients, leads, answers, members, groups }),
     [goals, categories, entries, transactions, clients, leads, answers, members, groups],
@@ -71,6 +91,27 @@ export default function MoonGlanceScreen() {
   const scores = trend.map((t) => t.score)
   const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
   const peak = scores.length ? Math.max(...scores) : 0
+
+  /* ── Cross-module trend overlay (§8.1) ───────────────────────── */
+  const activeQuestions = useMemo(() => (questions || []).filter((q) => q.active), [questions])
+  const [overviewKeys, setOverviewKeys] = useState(['income', 'score'])
+  const [questionId, setQuestionId] = useState('')
+  const toggleOverviewKey = (k) => {
+    setOverviewKeys((prev) => (prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]))
+    if (k === 'question' && !questionId && activeQuestions.length) setQuestionId(activeQuestions[0].id)
+  }
+  const scoreByDay = useMemo(() => {
+    const m = {}
+    trend.forEach((t) => { m[dayKeyOf(t.date)] = t.score })
+    return m
+  }, [trend])
+  const selectedQuestion = activeQuestions.find((q) => q.id === questionId)
+  const overview = useMemo(
+    () => buildOverviewTrend(overviewKeys, {
+      transactions, leads, sessions, answers, scoreByDay, questionId: questionId || null,
+    }, { window: 30, questionLabel: selectedQuestion ? questionText(selectedQuestion) : undefined }),
+    [overviewKeys, transactions, leads, sessions, answers, scoreByDay, questionId, selectedQuestion],
+  )
 
   if (!overall) {
     return (
@@ -145,6 +186,35 @@ export default function MoonGlanceScreen() {
             <p className="mg-trend-stat-l">היום</p>
           </div>
         </div>
+      </div>
+
+      <p className="mg-section-h">מגמות בין מודולים</p>
+      <div className="mg-overview">
+        <div className="mg-ov-pills">
+          {OVERVIEW_PILLS.map((m) => {
+            const on = overviewKeys.includes(m.key)
+            const disabled = m.key === 'question' && activeQuestions.length === 0
+            return (
+              <button
+                key={m.key}
+                type="button"
+                disabled={disabled}
+                className={`mg-ov-pill${on ? ' on' : ''}`}
+                onClick={() => toggleOverviewKey(m.key)}
+              >
+                <span className="mg-ov-dot" style={{ background: OVERVIEW_METRICS[m.key].color }} />
+                {m.label}
+              </button>
+            )
+          })}
+        </div>
+        {overviewKeys.includes('question') && activeQuestions.length > 0 && (
+          <select className="mg-ov-select" value={questionId} onChange={(e) => setQuestionId(e.target.value)}>
+            {activeQuestions.map((q) => <option key={q.id} value={q.id}>{questionText(q)}</option>)}
+          </select>
+        )}
+        <MultiTrendChart days={overview.days} series={overview.series} />
+        <p className="mg-ov-note">מגמות יחסיות — כל קו בקנה-מידה משלו (0–100). קשר ויזואלי אינו סיבתיות.</p>
       </div>
 
       <button type="button" className="mg-footer-link" onClick={() => navigate(ROUTES.GOALS)}>

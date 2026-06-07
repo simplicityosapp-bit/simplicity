@@ -40,6 +40,7 @@ const ProjectsScreen = lazyWithRetry(() => import('./screens/projects'))
 const ProjectDetailScreen = lazyWithRetry(() => import('./screens/project-detail'))
 const TrashScreen = lazyWithRetry(() => import('./screens/trash'))
 const InsightsScreen = lazyWithRetry(() => import('./screens/insights'))
+const ConnectionsScreen = lazyWithRetry(() => import('./screens/connections'))
 /* Owner-only admin console — its own route tree + chrome, gated below. */
 const AdminApp = lazyWithRetry(() => import('./screens/admin'))
 
@@ -180,6 +181,7 @@ function AppShell() {
             <Route path={ROUTES.PROJECT} element={<ProjectDetailScreen />} />
             <Route path={ROUTES.TRASH} element={<TrashScreen />} />
             <Route path={ROUTES.INSIGHTS} element={<InsightsScreen />} />
+            <Route path={ROUTES.CONNECTIONS} element={<ConnectionsScreen />} />
             <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
           </Routes>
         </Suspense>

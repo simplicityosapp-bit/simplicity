@@ -20,7 +20,14 @@ export function useTasks() {
 
   const toggleTask = useCallback(async (task) => {
     const done = task.status === 'done'
-    const patch = { status: done ? 'todo' : 'done', completed_at: done ? null : new Date().toISOString() }
+    /* Marking done clears any custom (open-meta) status_id — a finished
+       task shouldn't keep an "in progress"-style status. Reopening leaves
+       it cleared; the user can re-pick a status from the edit modal. */
+    const patch = {
+      status: done ? 'todo' : 'done',
+      completed_at: done ? null : new Date().toISOString(),
+      ...(done ? {} : { status_id: null }),
+    }
     qc.setQueryData(KEY, (prev) => (prev ?? []).map((t) => (t.id === task.id ? { ...t, ...patch } : t)))
     try {
       await updateTask(task.id, patch)

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield,
+  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield, Plug,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES, ADMIN_EMAIL } from '../lib/routes'
@@ -12,7 +12,7 @@ import { useProfileHealth } from '../hooks/useProfileHealth'
 import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './Sidebar.css'
 
-const ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings }
+const ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug }
 
 /* Hebrew role label — mirrors MenuDrawer (UI-only). */
 const ROLE_LABELS = {

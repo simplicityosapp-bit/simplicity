@@ -21,6 +21,7 @@ export function screenKeyFromPath(pathname) {
   if (pathname.startsWith('/projects')) return 'projects'
   if (pathname.startsWith('/trash')) return 'trash'
   if (pathname.startsWith('/insights')) return 'insights'
+  if (pathname.startsWith('/connections')) return 'connections'
   if (pathname.startsWith('/onboarding')) return 'onboarding'
   return 'home'
 }
@@ -45,5 +46,6 @@ export const DRAWER_NAV = [
   { key: 'tasks', label: 'משימות', icon: 'ClipboardList', to: ROUTES.TASKS },
   { key: 'goals', label: 'יעדים', icon: 'Target', to: ROUTES.GOALS },
   { key: 'calendar', label: 'יומן', icon: 'Calendar', to: ROUTES.CALENDAR },
+  { key: 'connections', label: 'חיבורים', icon: 'Plug', to: ROUTES.CONNECTIONS },
   { key: 'settings', label: 'הגדרות', icon: 'Settings', to: ROUTES.SETTINGS },
 ]

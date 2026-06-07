@@ -25,6 +25,7 @@ export const ROUTES = {
   PROJECTS: '/projects',
   TRASH: '/trash',
   INSIGHTS: '/insights',
+  CONNECTIONS: '/connections',
 
   // Admin console — owner-only (simplicity.os.app@gmail.com). A separate
   // world: gated by email in App.jsx, served by the `admin` edge function,

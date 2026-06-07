@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sparkles, Moon, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield,
+  Sparkles, Moon, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES, ADMIN_EMAIL } from '../lib/routes'
@@ -12,7 +12,7 @@ import { useAuth } from '../auth/AuthContext'
 import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './MenuDrawer.css'
 
-const GRID_ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings }
+const GRID_ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug }
 
 /* Hebrew role label (UI-only; PREF_ROLES has no Hebrew map in enums.js). */
 const ROLE_LABELS = {
@@ -96,7 +96,7 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
         {/* Screen grid — every reachable screen */}
         <nav className="drawer-nav-mobile" aria-label="ניווט מסכים">
           {DRAWER_NAV.map((item) => {
-            const Icon = GRID_ICONS[item.icon]
+            const Icon = GRID_ICONS[item.icon] || Settings
             return (
               <button
                 key={item.key}

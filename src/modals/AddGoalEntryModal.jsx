@@ -2,7 +2,12 @@ import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 
-const todayStr = () => new Date().toISOString().slice(0, 10)
+/* LOCAL today (UTC toISOString would roll to tomorrow on Israeli evenings,
+   pre-filling a future date that goal scoring then silently ignores). */
+const todayStr = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 const blank = () => ({ value: '', date: todayStr(), note: '' })
 
 /* Log a manual progress entry for a category. onSave receives a row ready
@@ -18,6 +23,7 @@ export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
     const value = parseFloat(form.value)
     if (Number.isNaN(value)) { setErr('יש למלא ערך מספרי.'); return }
     if (!form.date) { setErr('יש לבחור תאריך.'); return }
+    if (form.date > todayStr()) { setErr('לא ניתן להזין תאריך עתידי.'); return }
     setBusy(true)
     setErr('')
     try {

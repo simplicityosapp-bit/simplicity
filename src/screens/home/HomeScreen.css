@@ -251,7 +251,11 @@
 }
 .moon-arc {
   fill: none;
-  stroke: var(--widget-accent, var(--sage));
+  /* Chromium mis-resolves var() in a TRANSITIONING svg stroke to the light
+     value in dark mode — drive the color via currentColor (same fix the
+     profile rings use), not stroke:var() directly. */
+  color: var(--widget-accent, var(--sage));
+  stroke: currentColor;
   stroke-width: 7;
   stroke-linecap: round;
   transform: rotate(-90deg);

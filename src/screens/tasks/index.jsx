@@ -119,7 +119,7 @@ export default function TasksScreen() {
   const doneCount  = isTasks
     ? tasks.filter((t) => t.status === 'done').length
     : reminders.filter((r) => r.status === 'completed').length
-  const now = useMemo(() => new Date(), [reminders, filter])
+  const now = useMemo(() => new Date(), [reminders, filter, view])
   /* "Urgent" tile re-labels per entity: tasks use priority=high, while
      reminders use overdue (past due AND still pending). */
   const urgentCount = isTasks

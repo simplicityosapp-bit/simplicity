@@ -18,10 +18,12 @@ export function setCurrentCurrency(c) {
 }
 export function getCurrentCurrency() { return CURRENT_CURRENCY }
 
-/* Format a number as the user's currency (e.g. "₪1,200"). */
+/* Format a number as the user's currency (e.g. "₪1,200"). Negatives put the
+   sign BEFORE the symbol ("-₪50"), not between ("₪-50"). */
 export function isr(n) {
   const sym = CURRENCY_SYMBOL[CURRENT_CURRENCY] || '₪'
-  return sym + Math.round(n || 0).toLocaleString('he-IL')
+  const v = Math.round(n || 0)
+  return (v < 0 ? '-' : '') + sym + Math.abs(v).toLocaleString('he-IL')
 }
 
 /* Confirmed = not pending and not skipped. */

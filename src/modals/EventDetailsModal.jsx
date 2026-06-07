@@ -55,7 +55,12 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
       {isCalendar && (
         <p className="evt-detail-status">
           {(() => {
-            const links = [event.clientName && `לקוח: ${event.clientName}`, event.projectName && `פרויקט: ${event.projectName}`].filter(Boolean)
+            const links = [
+              event.clientName && `לקוח: ${event.clientName}`,
+              event.projectName && `פרויקט: ${event.projectName}`,
+              event.leadName && `ליד: ${event.leadName}`,
+              event.groupName && `קבוצה: ${event.groupName}`,
+            ].filter(Boolean)
             return links.length ? `${links.join(' · ')} · ` : ''
           })()}
           אירוע מ-Google Calendar (לקריאה בלבד).

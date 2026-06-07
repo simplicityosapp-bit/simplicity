@@ -86,8 +86,8 @@
 .conn-btn.primary { background: var(--terracotta); color: #fff; width: 100%; }
 .conn-connect .conn-btn.primary { width: 100%; }
 .conn-actions .conn-btn.primary { width: auto; flex: 1; }
-.conn-btn.primary:hover { background: var(--terracotta-deep, #B86E52); }
-[data-theme="dark"] .conn-btn.primary { color: var(--deep-night, #0F1419); }
+.conn-btn.primary:hover { background: var(--mg-btn-primary-bg-hover); }
+[data-theme="dark"] .conn-btn.primary { color: var(--ink-on-accent); }
 .conn-btn.ghost {
   background: var(--mg-card-bg);
   border: var(--mg-card-border);

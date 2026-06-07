@@ -36,7 +36,7 @@ export default function RemindersWidget() {
           <Clock size={20} strokeWidth={1.5} aria-hidden="true" /> תזכורות קרובות
         </span>
         <button type="button" className="h-card-link" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.CALENDAR) }}>
-          {items.length} {items.length === 1 ? 'פעילה' : 'פעילויות'}
+          {items.length} {items.length === 1 ? 'תזכורת' : 'תזכורות'}
           <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
         </button>
       </div>

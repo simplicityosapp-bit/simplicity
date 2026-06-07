@@ -5,6 +5,7 @@ import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
 import { useClients } from '../../hooks/useClients'
 import { useGroups } from '../../hooks/useGroups'
+import { useLeads } from '../../hooks/useLeads'
 import { useProjects } from '../../hooks/useProjects'
 import { useTasks } from '../../hooks/useTasks'
 import { useTransactions } from '../../hooks/useTransactions'
@@ -31,6 +32,7 @@ export default function CalendarScreen() {
   const { events: calendarEvents } = useCalendarEvents()
   const { clients } = useClients()
   const { groups } = useGroups()
+  const { leads } = useLeads()
   const { projects } = useProjects()
   const { addTask } = useTasks()
   const { addTransaction } = useTransactions()
@@ -97,10 +99,12 @@ export default function CalendarScreen() {
         allDay: !!ev.all_day,
         clientName: ev.client_id ? (clients.find((c) => c.id === ev.client_id)?.name || null) : null,
         projectName: ev.project_id ? (projects.find((p) => p.id === ev.project_id)?.name || null) : null,
+        leadName: ev.lead_id ? (leads.find((l) => l.id === ev.lead_id)?.name || null) : null,
+        groupName: ev.group_id ? (groups.find((g) => g.id === ev.group_id)?.name || null) : null,
         raw: ev,
       }))
     return [...meetingItems, ...reminderItems, ...calendarItems].sort((a, b) => a.when - b.when)
-  }, [meetings, reminders, calendarEvents, clients, groups, projects])
+  }, [meetings, reminders, calendarEvents, clients, groups, leads, projects])
 
   const scheduleItems = useMemo(() => {
     const startOfToday = new Date()

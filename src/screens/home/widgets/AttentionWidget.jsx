@@ -12,6 +12,7 @@ import { useScheduledMeetingsGeneration } from '../../../hooks/useScheduledMeeti
 import { useRecurringGeneration } from '../../../hooks/useRecurringGeneration'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
+import { useGroupMembers } from '../../../hooks/useGroupMembers'
 import { useTasks } from '../../../hooks/useTasks'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
@@ -35,6 +36,7 @@ export default function AttentionWidget() {
   const { meetings, addMeeting, loading: meetingsLoading } = useScheduledMeetings()
   const { clients } = useClients()
   const { groups } = useGroups()
+  const { members } = useGroupMembers()
   const { tasks } = useTasks()
   const { goals } = useGoals()
   const { categories: goalCategories } = useGoalCategories()
@@ -58,8 +60,8 @@ export default function AttentionWidget() {
   })
 
   const items = useMemo(
-    () => attentionItems(new Date(), { transactions, scheduled_meetings: meetings, clients, tasks, goals, categories: goalCategories, sessions, leads }),
-    [transactions, meetings, clients, tasks, goals, goalCategories, sessions, leads],
+    () => attentionItems(new Date(), { transactions, scheduled_meetings: meetings, clients, tasks, goals, categories: goalCategories, sessions, leads, members, groups }),
+    [transactions, meetings, clients, tasks, goals, goalCategories, sessions, leads, members, groups],
   )
 
   /* Closed = title + summary of what's inside; click opens the full list. */

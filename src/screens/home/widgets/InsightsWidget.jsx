@@ -8,7 +8,15 @@ import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import InfoPopover from '../../../components/InfoPopover'
 
-const dayStr = (offset = 0) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10)
+/* LOCAL YYYY-MM-DD — must match how daily answers are bucketed elsewhere
+   (profileHealth `ymd`, overview `dayKey`). A UTC `toISOString()` here would
+   roll an evening answer (Israel UTC+2/+3) to tomorrow's date, so it would
+   reappear as unanswered and land on the wrong day in correlations/health. */
+const dayStr = (offset = 0) => {
+  const d = new Date()
+  d.setDate(d.getDate() + offset)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 
 /* Custom glyph — a question-mark hook whose bottom dot is a heart (matches the
    prototype's "מה איתך היום" collapse control). */

@@ -133,10 +133,10 @@ async function fetchEvents(accessToken: string, opts: { timeMin?: string; timeMa
   return { events, nextSyncToken }
 }
 
-// ── Fuzzy matching (clients, projects, … extensible) ────────────
+// ── Fuzzy matching (clients, projects, leads, groups … extensible) ─
 /* Generic title→entity matcher. Returns the best entity id + confidence
    (1 − fuse score), or null below the threshold. The same factory is used
-   for clients and projects today; add more targets the same way. */
+   for clients, projects, leads and groups; add more targets the same way. */
 function makeMatcher(items: { id: string; name: string }[]) {
   const fuse = new Fuse(items, { keys: ['name'], includeScore: true, threshold: 0.6, ignoreLocation: true })
   return (title: string): { id: string | null; confidence: number } => {
@@ -175,13 +175,17 @@ async function runSync(userId: string) {
 
   const accessToken = await freshAccessToken(integration)
 
-  // Match against this user's live clients AND projects.
-  const { data: clients } = await admin.from('clients')
-    .select('id, name').eq('user_id', userId).is('deleted_at', null)
-  const { data: projects } = await admin.from('projects')
-    .select('id, name').eq('user_id', userId).is('deleted_at', null)
+  // Match against this user's live clients, projects, leads AND groups.
+  const [{ data: clients }, { data: projects }, { data: leads }, { data: groups }] = await Promise.all([
+    admin.from('clients').select('id, name').eq('user_id', userId).is('deleted_at', null),
+    admin.from('projects').select('id, name').eq('user_id', userId).is('deleted_at', null),
+    admin.from('leads').select('id, name').eq('user_id', userId).is('deleted_at', null),
+    admin.from('groups').select('id, name').eq('user_id', userId).is('deleted_at', null),
+  ])
   const matchClient = makeMatcher((clients ?? []) as any)
   const matchProject = makeMatcher((projects ?? []) as any)
+  const matchLead = makeMatcher((leads ?? []) as any)
+  const matchGroup = makeMatcher((groups ?? []) as any)
 
   // Pull events — incremental if we have a token, else full from sync_from.
   // Future is bounded (sync_from → +1y) so a full resync can't fetch an
@@ -204,16 +208,16 @@ async function runSync(userId: string) {
     events = r.events; nextSyncToken = r.nextSyncToken
   }
 
-  // Preserve manual matches: never overwrite a client/project the user set
-  // by hand. matched_manually freezes BOTH links for that event.
+  // Preserve manual matches: never overwrite a link the user set by hand.
+  // matched_manually freezes ALL links (client/project/lead/group) for that event.
   const ids = events.map((e) => e.id)
-  const manual = new Map<string, { client_id: string | null; project_id: string | null }>()
+  const manual = new Map<string, { client_id: string | null; project_id: string | null; lead_id: string | null; group_id: string | null }>()
   if (ids.length) {
     const { data: existing } = await admin.from('calendar_events')
-      .select('google_event_id, client_id, project_id, matched_manually')
+      .select('google_event_id, client_id, project_id, lead_id, group_id, matched_manually')
       .eq('user_id', userId).in('google_event_id', ids)
     ;(existing ?? []).forEach((r: any) => {
-      if (r.matched_manually) manual.set(r.google_event_id, { client_id: r.client_id, project_id: r.project_id })
+      if (r.matched_manually) manual.set(r.google_event_id, { client_id: r.client_id, project_id: r.project_id, lead_id: r.lead_id, group_id: r.group_id })
     })
   }
 
@@ -225,16 +229,20 @@ async function runSync(userId: string) {
     const isManual = manual.has(e.id)
     let clientId: string | null
     let projectId: string | null
+    let leadId: string | null
+    let groupId: string | null
     let confidence: number
     if (isManual) {
       const m = manual.get(e.id)!
-      clientId = m.client_id; projectId = m.project_id
-      confidence = (clientId || projectId) ? 1 : 0 // a cleared manual match isn't "confident"
+      clientId = m.client_id; projectId = m.project_id; leadId = m.lead_id; groupId = m.group_id
+      confidence = (clientId || projectId || leadId || groupId) ? 1 : 0 // a cleared manual match isn't "confident"
     } else {
       const c = matchClient(e.summary ?? '')
       const p = matchProject(e.summary ?? '')
-      clientId = c.id; projectId = p.id
-      confidence = Math.max(c.confidence, p.confidence) // confidence of whichever link was assigned
+      const l = matchLead(e.summary ?? '')
+      const g = matchGroup(e.summary ?? '')
+      clientId = c.id; projectId = p.id; leadId = l.id; groupId = g.id
+      confidence = Math.max(c.confidence, p.confidence, l.confidence, g.confidence) // best of the assigned links
     }
     /* ALL events are stored — matched or not (unmatched just carry null
        links). The unique (user_id, google_event_id) key dedupes, so an
@@ -244,6 +252,8 @@ async function runSync(userId: string) {
       google_event_id: e.id,
       client_id: clientId,
       project_id: projectId,
+      lead_id: leadId,
+      group_id: groupId,
       title: e.summary ?? '(ללא כותרת)',
       start_time: startISO,
       end_time: endISO,

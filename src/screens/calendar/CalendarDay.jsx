@@ -20,29 +20,44 @@ export default function CalendarDay({ date, events, onSelect, dayViewStart = DEF
 
   const dayEvents = useMemo(() => eventsForDay(events, date), [events, date])
 
-  /* Pre-bucket the events by hour for fast lookup inside the loop. */
+  /* All-day events sit in their own band above the timeline — they have
+     no real hour, so placing them in the grid (or the early/late edges)
+     at 00:00 would be misleading. Timed events drive the hour grid. */
+  const allDayEvents = useMemo(() => dayEvents.filter((e) => e.allDay), [dayEvents])
+  const timedEvents = useMemo(() => dayEvents.filter((e) => !e.allDay), [dayEvents])
+
+  /* Pre-bucket the timed events by hour for fast lookup inside the loop. */
   const byHour = useMemo(() => {
     const m = new Map()
-    for (const ev of dayEvents) {
+    for (const ev of timedEvents) {
       const h = new Date(ev.when).getHours()
       const list = m.get(h) || []
       list.push(ev)
       m.set(h, list)
     }
     return m
-  }, [dayEvents])
+  }, [timedEvents])
 
   const earlyEvents = useMemo(
-    () => dayEvents.filter((e) => new Date(e.when).getHours() < hours[0]),
-    [dayEvents, hours],
+    () => timedEvents.filter((e) => new Date(e.when).getHours() < hours[0]),
+    [timedEvents, hours],
   )
   const lateEvents = useMemo(
-    () => dayEvents.filter((e) => new Date(e.when).getHours() > hours[hours.length - 1]),
-    [dayEvents, hours],
+    () => timedEvents.filter((e) => new Date(e.when).getHours() > hours[hours.length - 1]),
+    [timedEvents, hours],
   )
 
   return (
     <div className="cal-day">
+      {allDayEvents.length > 0 && (
+        <div className="cal-day-allday">
+          <p className="cal-day-edge-lbl">כל היום</p>
+          <div className="cal-day-allday-items">
+            {allDayEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} />)}
+          </div>
+        </div>
+      )}
+
       {earlyEvents.length > 0 && (
         <div className="cal-day-edge">
           <p className="cal-day-edge-lbl">לפני {String(hours[0]).padStart(2, '0')}:00</p>
@@ -85,7 +100,7 @@ function DayEvent({ event, onSelect }) {
       className={`cal-day-evt ${event.kind}`}
       onClick={() => onSelect?.(event)}
     >
-      <span className="cal-day-evt-time mono">{fmtTime(event.when)}</span>
+      {!event.allDay && <span className="cal-day-evt-time mono">{fmtTime(event.when)}</span>}
       <span className="cal-day-evt-title">{event.title}</span>
       {event.kind === 'meeting' && event.status === 'pending' && <span className="cal-tag">ממתינה</span>}
       {event.kind === 'reminder' && <span className="cal-tag rem">תזכורת</span>}

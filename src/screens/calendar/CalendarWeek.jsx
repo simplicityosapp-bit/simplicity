@@ -17,6 +17,8 @@ export default function CalendarWeek({ date, events, onSelect, weekStart = 'sund
     <div className="cal-week">
       {days.map((d) => {
         const list = eventsForDay(events, d)
+        const allDay = list.filter((e) => e.allDay)
+        const timed = list.filter((e) => !e.allDay)
         const isToday = isSameDay(d, today)
         return (
           <div key={d.toISOString()} className={`cal-week-col${isToday ? ' today' : ''}`}>
@@ -25,10 +27,21 @@ export default function CalendarWeek({ date, events, onSelect, weekStart = 'sund
               <span className="cal-week-date mono">{d.getDate()}</span>
             </div>
             <div className="cal-week-body">
+              {/* All-day band first — no time, distinct tint. */}
+              {allDay.map((ev) => (
+                <button
+                  key={`${ev.kind}-${ev.id}-${+ev.when}`}
+                  type="button"
+                  className={`cal-week-evt allday ${ev.kind}`}
+                  onClick={() => onSelect?.(ev)}
+                >
+                  <span className="cal-week-evt-title">{ev.title}</span>
+                </button>
+              ))}
               {list.length === 0 ? (
                 <p className="cal-week-empty">—</p>
               ) : (
-                list.map((ev) => (
+                timed.map((ev) => (
                   <button
                     key={`${ev.kind}-${ev.id}-${+ev.when}`}
                     type="button"

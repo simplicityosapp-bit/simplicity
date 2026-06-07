@@ -6,6 +6,8 @@ import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
+import { useLeads } from '../../hooks/useLeads'
+import { useGroups } from '../../hooks/useGroups'
 import './ConnectionsScreen.css'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
@@ -30,9 +32,11 @@ export default function ConnectionsScreen() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const gcal = useGoogleCalendar()
-  const { events, loading: eventsLoading, refetch, assignClient, assignProject } = useCalendarEvents()
+  const { events, loading: eventsLoading, refetch, assignClient, assignProject, assignLead, assignGroup } = useCalendarEvents()
   const { clients } = useClients()
   const { projects } = useProjects()
+  const { leads } = useLeads()
+  const { groups } = useGroups()
   const [syncFrom, setSyncFrom] = useState(yearAgoStr())
   const [callbackError, setCallbackError] = useState('')
   const handledCode = useRef(false)
@@ -44,28 +48,41 @@ export default function ConnectionsScreen() {
     return next
   })
 
-  /* Group synced events by their identified entity (client first, else
-     project); unidentified pinned last — drives the nested accordion. */
+  /* Group synced events by EVERY entity they're identified to — an event
+     matched to both a client and a project appears under both. Unmatched
+     events land in one "לא מזוהים" group pinned last. Drives the nested
+     accordion. */
   const eventGroups = useMemo(() => {
-    const clientName = new Map((clients || []).map((c) => [c.id, c.name]))
-    const projectName = new Map((projects || []).map((p) => [p.id, p.name]))
+    const names = {
+      c: new Map((clients || []).map((x) => [x.id, x.name])),
+      p: new Map((projects || []).map((x) => [x.id, x.name])),
+      l: new Map((leads || []).map((x) => [x.id, x.name])),
+      g: new Map((groups || []).map((x) => [x.id, x.name])),
+    }
+    const fallback = { c: 'לקוח', p: 'פרויקט', l: 'ליד', g: 'קבוצה' }
     const map = new Map()
-    ;(events || []).forEach((ev) => {
-      let key, label
-      if (ev.client_id) { key = `c:${ev.client_id}`; label = clientName.get(ev.client_id) || 'לקוח' }
-      else if (ev.project_id) { key = `p:${ev.project_id}`; label = projectName.get(ev.project_id) || 'פרויקט' }
-      else { key = 'none'; label = 'לא מזוהים' }
-      if (!map.has(key)) map.set(key, { key, label, items: [] })
+    const add = (prefix, id, ev) => {
+      const key = `${prefix}:${id}`
+      if (!map.has(key)) map.set(key, { key, label: names[prefix].get(id) || fallback[prefix], items: [] })
       map.get(key).items.push(ev)
+    }
+    ;(events || []).forEach((ev) => {
+      let matched = false
+      if (ev.client_id) { add('c', ev.client_id, ev); matched = true }
+      if (ev.project_id) { add('p', ev.project_id, ev); matched = true }
+      if (ev.lead_id) { add('l', ev.lead_id, ev); matched = true }
+      if (ev.group_id) { add('g', ev.group_id, ev); matched = true }
+      if (!matched) {
+        if (!map.has('none')) map.set('none', { key: 'none', label: 'לא מזוהים', items: [] })
+        map.get('none').items.push(ev)
+      }
     })
-    const groups = [...map.values()]
-    groups.sort((a, b) => {
+    return [...map.values()].sort((a, b) => {
       if (a.key === 'none') return 1
       if (b.key === 'none') return -1
       return a.label.localeCompare(b.label, 'he')
     })
-    return groups
-  }, [events, clients, projects])
+  }, [events, clients, projects, leads, groups])
 
   /* OAuth return: Google sent us back with ?code (or ?error). Exchange it
      once, then scrub the query string so a refresh can't re-fire it. */
@@ -109,7 +126,7 @@ export default function ConnectionsScreen() {
 
   /* One synced-event card — reused inside each accordion group. */
   const renderEvent = (ev) => {
-    const matched = !!(ev.client_id || ev.project_id)
+    const matched = !!(ev.client_id || ev.project_id || ev.lead_id || ev.group_id)
     return (
       <div key={ev.id} className="conn-event">
         <div className="conn-event-main">
@@ -130,6 +147,20 @@ export default function ConnectionsScreen() {
               <select className="conn-event-select" value={ev.project_id || ''} onChange={(e) => assignProject(ev, e.target.value)} aria-label="שיוך פרויקט">
                 <option value="">— ללא —</option>
                 {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </label>
+            <label className="conn-assign">
+              <span className="conn-assign-lbl">ליד</span>
+              <select className="conn-event-select" value={ev.lead_id || ''} onChange={(e) => assignLead(ev, e.target.value)} aria-label="שיוך ליד">
+                <option value="">— ללא —</option>
+                {(leads || []).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+              </select>
+            </label>
+            <label className="conn-assign">
+              <span className="conn-assign-lbl">קבוצה</span>
+              <select className="conn-event-select" value={ev.group_id || ''} onChange={(e) => assignGroup(ev, e.target.value)} aria-label="שיוך קבוצה">
+                <option value="">— ללא —</option>
+                {(groups || []).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
               </select>
             </label>
           </div>

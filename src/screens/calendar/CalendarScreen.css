@@ -390,6 +390,22 @@
   letter-spacing: 0.05em;
 }
 
+/* All-day band — sits above the hour grid (Google-style), one frosted
+   card holding the day's all-day events with no time. */
+.cal-day-allday {
+  padding: 10px 12px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+}
+.cal-day-allday-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 /* ────────────────────────────────────────────────────────────────
    WEEK VIEW — 7 day columns
    ──────────────────────────────────────────────────────────────── */
@@ -461,6 +477,10 @@
 .cal-week-evt.reminder {
   border-color: rgba(212, 165, 116, 0.35);
   background: rgba(212, 165, 116, 0.08);
+}
+/* All-day chip — dashed edge signals it spans the whole day (no time). */
+.cal-week-evt.allday {
+  border-style: dashed;
 }
 .cal-week-evt-time {
   font-family: var(--mg-font-num);

@@ -126,14 +126,18 @@ export const scheduled_meetings = [
   { id: uid(), user_id: USER, subject_type: 'client', subject_id: clients[0].id, scheduled_at: daysFromNow(2), status: 'pending', session_id: null, created_at: daysAgo(1) },
 ]
 
-/* ── calendar_events — Google Calendar sync (preview): grouped by the
-   identified client/project, plus unidentified (incl. an all-day). ── */
+/* ── calendar_events — Google Calendar sync (preview): grouped by EVERY
+   identified entity (client / project / lead / group). g-1 is matched to
+   both a client and a project, so it appears under both. Plus a lead match,
+   a group match, an unidentified event and an all-day one. ── */
 export const calendar_events = [
-  { id: uid(), user_id: USER, google_event_id: 'g-1', client_id: clients[0].id, project_id: null, title: 'פגישה עם רעות מדיון', start_time: daysFromNow(1), end_time: daysFromNow(1), all_day: false, duration_minutes: 50, confidence_score: 0.92, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
-  { id: uid(), user_id: USER, google_event_id: 'g-2', client_id: clients[0].id, project_id: null, title: 'מעקב — רעות', start_time: daysFromNow(8), end_time: daysFromNow(8), all_day: false, duration_minutes: 50, confidence_score: 0.85, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
-  { id: uid(), user_id: USER, google_event_id: 'g-3', client_id: null, project_id: projects[1].id, title: 'סדנת בוקר — קבוצה', start_time: daysFromNow(3), end_time: daysFromNow(3), all_day: false, duration_minutes: 90, confidence_score: 0.8, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
-  { id: uid(), user_id: USER, google_event_id: 'g-4', client_id: null, project_id: null, title: 'רופא שיניים', start_time: daysFromNow(2), end_time: daysFromNow(2), all_day: false, duration_minutes: 30, confidence_score: 0, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
-  { id: uid(), user_id: USER, google_event_id: 'g-5', client_id: null, project_id: null, title: 'חופשה', start_time: daysFromNow(10), end_time: daysFromNow(11), all_day: true, duration_minutes: null, confidence_score: 0, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+  { id: uid(), user_id: USER, google_event_id: 'g-1', client_id: clients[0].id, project_id: projects[0].id, lead_id: null, group_id: null, title: 'פגישה עם רעות מדיון', start_time: daysFromNow(1), end_time: daysFromNow(1), all_day: false, duration_minutes: 50, confidence_score: 0.92, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+  { id: uid(), user_id: USER, google_event_id: 'g-2', client_id: clients[0].id, project_id: null, lead_id: null, group_id: null, title: 'מעקב — רעות', start_time: daysFromNow(8), end_time: daysFromNow(8), all_day: false, duration_minutes: 50, confidence_score: 0.85, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+  { id: uid(), user_id: USER, google_event_id: 'g-3', client_id: null, project_id: projects[1].id, lead_id: null, group_id: null, title: 'סדנת בוקר — קבוצה', start_time: daysFromNow(3), end_time: daysFromNow(3), all_day: false, duration_minutes: 90, confidence_score: 0.8, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+  { id: uid(), user_id: USER, google_event_id: 'g-6', client_id: null, project_id: null, lead_id: leads[0].id, group_id: null, title: 'שיחת היכרות — מירב כהן', start_time: daysFromNow(2), end_time: daysFromNow(2), all_day: false, duration_minutes: 30, confidence_score: 0.78, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+  { id: uid(), user_id: USER, google_event_id: 'g-7', client_id: null, project_id: null, lead_id: null, group_id: groups[0].id, title: 'מעגל בוקר', start_time: daysFromNow(4), end_time: daysFromNow(4), all_day: false, duration_minutes: 90, confidence_score: 0.83, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+  { id: uid(), user_id: USER, google_event_id: 'g-4', client_id: null, project_id: null, lead_id: null, group_id: null, title: 'רופא שיניים', start_time: daysFromNow(2), end_time: daysFromNow(2), all_day: false, duration_minutes: 30, confidence_score: 0, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+  { id: uid(), user_id: USER, google_event_id: 'g-5', client_id: null, project_id: null, lead_id: null, group_id: null, title: 'חופשה', start_time: daysFromNow(10), end_time: daysFromNow(11), all_day: true, duration_minutes: null, confidence_score: 0, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
 ]
 
 /* ── goal_categories — auto אחת, manual שתיים ── */

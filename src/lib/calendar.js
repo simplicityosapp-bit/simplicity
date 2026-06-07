@@ -96,17 +96,5 @@ export function fmtDayLabel(date) {
   const d = new Date(date)
   return `יום ${DAY_NAMES_FULL[d.getDay()]} · ${d.getDate()} ${MONTH_NAMES_HE[d.getMonth()]}`
 }
-export function fmtWeekLabel(startDate, weekStart = 'sunday') {
-  const s = startOfWeek(startDate, weekStart)
-  const e = addDays(s, 6)
-  const m1 = MONTH_NAMES_HE[s.getMonth()]
-  const m2 = MONTH_NAMES_HE[e.getMonth()]
-  if (s.getMonth() === e.getMonth()) return `${s.getDate()}–${e.getDate()} ${m1}`
-  return `${s.getDate()} ${m1} – ${e.getDate()} ${m2}`
-}
-export function fmtMonthLabel(date) {
-  const d = new Date(date)
-  return `${MONTH_NAMES_HE[d.getMonth()]} ${d.getFullYear()}`
-}
 
 export { MS_PER_DAY }

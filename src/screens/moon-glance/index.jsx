@@ -99,6 +99,9 @@ export default function MoonGlanceScreen() {
       <div className="mg-hero">
         <div className="mg-ring" style={{ '--ring-pct': `${conf}%` }}>
           <div className="mg-ring-pct mono">{conf}%</div>
+          {/* Micro-word naming the big number as pace — mirrors the home
+              MoonWidget kicker so the full screen reads the same. */}
+          <div className="mg-ring-kicker">מהקצב</div>
           <div className="mg-ring-sub">{overall.pure}% מהיעד</div>
         </div>
         <p className="mg-reflection">{moonReflection(conf)}</p>

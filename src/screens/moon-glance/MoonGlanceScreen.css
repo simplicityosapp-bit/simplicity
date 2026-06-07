@@ -107,6 +107,17 @@
   letter-spacing: -0.02em;
   color: var(--espresso);
 }
+/* Micro-word right under the big percent — names it as pace ("מהקצב"),
+   pairing with the "% מהיעד" line below. Mirrors the home MoonWidget
+   kicker (beta 03/06/2026) so the full screen reads the same. */
+.mg-ring-kicker {
+  margin-top: 2px;
+  font-family: var(--mg-font);
+  font-size: calc(10px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+  line-height: 1.2;
+}
 .mg-ring-sub {
   margin-top: 6px;
   font-family: var(--mg-font);

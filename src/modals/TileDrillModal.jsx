@@ -33,6 +33,12 @@ const TASK_PRIORITIES = [
   { k: 'medium', l: 'בינונית' },
   { k: 'low',    l: 'נמוכה' },
 ]
+/* One general client toggle instead of a pill-per-client list (beta
+   07/06/2026): 'all' = no filter, 'linked' = only tasks tied to a client. */
+const TASK_CLIENT_SCOPE = [
+  { k: 'all',    l: 'הכל' },
+  { k: 'linked', l: 'משויכות ללקוח' },
+]
 
 function toggleInList(list, value) {
   const arr = list || []
@@ -283,7 +289,7 @@ function NetPanel({ filters, setFilter, transactions, projects, categories, summ
   )
 }
 
-function TasksPanel({ filters, setFilter, tasks, projects, clients }) {
+function TasksPanel({ filters, setFilter, tasks, projects }) {
   const liveTasks = (tasks || []).filter((t) => !t.deleted_at)
   const filtered = useMemo(() => {
     return liveTasks.filter((t) => {
@@ -291,7 +297,7 @@ function TasksPanel({ filters, setFilter, tasks, projects, clients }) {
       if (filters.status === 'done' && t.status !== 'done') return false
       if (filters.priorities?.length && !filters.priorities.includes(t.priority)) return false
       if (filters.projectIds?.length && !filters.projectIds.includes(t.project_id)) return false
-      if (filters.clientIds?.length && !filters.clientIds.includes(t.client_id)) return false
+      if (filters.clientScope === 'linked' && !t.client_id) return false
       return true
     }).sort((a, b) => {
       const order = { high: 0, medium: 1, low: 2 }
@@ -321,8 +327,9 @@ function TasksPanel({ filters, setFilter, tasks, projects, clients }) {
       <p className="td-field-lbl">פרויקט</p>
       <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} emptyLabel="אין פרויקטים עדיין" />
 
-      <p className="td-field-lbl">לקוח</p>
-      <MultiPills items={clients} selected={filters.clientIds} onChange={(v) => setFilter('clientIds', v)} emptyLabel="אין לקוחות עדיין" />
+      <p className="td-field-lbl">שיוך ללקוח</p>
+      <Pills options={TASK_CLIENT_SCOPE} value={filters.clientScope || 'all'}
+             onChange={(v) => setFilter('clientScope', v)} />
 
       <p className="td-section-lbl">המשימות הקרובות</p>
       <div className="td-list">
@@ -405,7 +412,6 @@ export default function TileDrillModal({
             setFilter={setFilter}
             tasks={tasks}
             projects={projects}
-            clients={clients}
           />
         )}
       </div>

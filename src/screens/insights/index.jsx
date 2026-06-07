@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Sparkles, Check, ChevronDown, ChevronUp } from 'lucide-react'
+import { Sparkles, Check, ChevronDown, ChevronUp, RotateCcw, SkipForward } from 'lucide-react'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
@@ -93,7 +93,7 @@ function DeltaPill({ delta }) {
   return <span className={`ins-delta ${tone} mono`}>{sign}{Math.abs(delta).toFixed(1)}</span>
 }
 
-function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle }) {
+function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle, skipped, onSkip }) {
   const avg7 = averageForWindow(idx, question.id, 7)
   const avg30 = averageForWindow(idx, question.id, 30)
   const d7 = deltaVsPrevWindow(idx, question.id, 7)
@@ -121,8 +121,12 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
         </button>
       </div>
 
-      {/* Entry row — only for an active, due-today question not yet answered */}
-      {canAnswer && latestAnswerToday == null && (
+      {/* Entry row — only for an active, due-today question not yet
+          answered AND not skipped-for-today (beta 07/06/2026: a small
+          "דלג" lets the user dismiss one question for the day without
+          answering — no answer is written, so streak/averages are
+          untouched). */}
+      {canAnswer && latestAnswerToday == null && !skipped && (
         <div className="ins-q-entry">
           {isYn ? (
             <div className="ins-yn">
@@ -152,6 +156,16 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
               </button>
             </>
           )}
+          <button
+            type="button"
+            className="ins-skip-btn"
+            disabled={busy}
+            onClick={onSkip}
+            aria-label="דלג על השאלה להיום"
+          >
+            <SkipForward size={13} strokeWidth={1.7} aria-hidden="true" />
+            דלג
+          </button>
         </div>
       )}
 
@@ -206,6 +220,29 @@ export default function InsightsScreen() {
     return m
   }, [visible, today])
   const reflections = useMemo(() => mirrorReflections(questions || [], idx, today), [questions, idx, today])
+
+  /* Per-day skip set (beta 07/06/2026). Stored as a single-day object in
+     prefs JSONB ({date, ids}) so it auto-expires next day and never grows —
+     no migration. Skipping writes NO answer, so streak/averages are untouched. */
+  const skippedToday = useMemo(() => {
+    const s = prefs?.insSkipped
+    return (s && s.date === todayKey && Array.isArray(s.ids)) ? s.ids : []
+  }, [prefs?.insSkipped, todayKey])
+  const skippedSet = useMemo(() => new Set(skippedToday), [skippedToday])
+
+  const skipQuestion = (qId) => {
+    if (skippedSet.has(qId)) return
+    updatePrefs?.({ insSkipped: { date: todayKey, ids: [...skippedToday, qId] } })
+  }
+  const unskipAll = () => updatePrefs?.({ insSkipped: { date: todayKey, ids: [] } })
+
+  /* Count of today's skipped questions that are still answerable (active,
+     due, unanswered) — drives the "ענה על N שדולגו" button below the grid. */
+  const skippedCount = useMemo(() => visible.filter((q) => {
+    if (!skippedSet.has(q.id) || !canAnswer.get(q.id)) return false
+    const v = idx.get(q.id)?.get(todayKey)
+    return !(v && v.value_num != null)
+  }).length, [visible, skippedSet, canAnswer, idx, todayKey])
 
   const setDraft = (qId, v) => setDrafts((d) => ({ ...d, [qId]: v }))
 
@@ -297,8 +334,20 @@ export default function InsightsScreen() {
               draft={drafts[q.id]}
               setDraft={(v) => setDraft(q.id, v)}
               onSubmit={(v) => submit(q, v)}
+              skipped={skippedSet.has(q.id)}
+              onSkip={() => skipQuestion(q.id)}
             />
           ))}
+        </div>
+      )}
+
+      {/* Re-open today's skipped questions so they can still be answered. */}
+      {skippedCount > 0 && (
+        <div className="ins-unskip-row">
+          <button type="button" className="ins-unskip-btn" onClick={unskipAll}>
+            <RotateCcw size={14} strokeWidth={1.7} aria-hidden="true" />
+            {skippedCount === 1 ? 'ענה על שאלה אחת שדולגה' : `ענה על ${skippedCount} שאלות שדולגו`}
+          </button>
         </div>
       )}
 

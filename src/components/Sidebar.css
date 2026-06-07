@@ -318,4 +318,114 @@
     justify-content: center;
     padding: 8px 4px;
   }
+
+  /* ── Profile-health chip (foot, above the util buttons) ───────
+       Collapsed: just the avatar + tier ring, centred on the rail.
+       Expanded (rail hover): name + "ציון פרופיל NN%" fade in. */
+  .mg-sidebar-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 4px;
+    border: none;
+    background: transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(--cream);
+    text-align: start;
+    transition: background 0.15s;
+  }
+  .mg-sidebar-profile:hover {
+    background: rgba(240, 235, 224, 0.06);
+  }
+  .mg-sidebar:not(:hover) .mg-sidebar-profile {
+    justify-content: center;
+    padding: 6px 4px;
+  }
+  .mg-sidebar-profile-avatar-wrap {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mg-sidebar-profile-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.5), rgba(56, 189, 248, 0.4));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Assistant', sans-serif;
+    font-size: calc(13px * var(--text-scale));
+    font-weight: 600;
+    color: var(--on-accent);
+    flex-shrink: 0;
+  }
+  .mg-sidebar-profile-ring {
+    position: absolute;
+    inset: 0;
+    width: 40px;
+    height: 40px;
+    transform: rotate(-90deg);
+    pointer-events: none;
+  }
+  .msp-ring-track {
+    fill: none;
+    stroke: rgba(240, 235, 224, 0.18);
+    stroke-width: 3;
+  }
+  .msp-ring-fill {
+    fill: none;
+    /* currentColor, not stroke:var() — avoids Chromium's var-in-transitioning-
+       stroke bug (same note as the menu-drawer ring). */
+    stroke: currentColor;
+    stroke-width: 3;
+    transition: stroke-dasharray 0.5s cubic-bezier(0.32, 0.72, 0.24, 1), color 0.3s ease;
+  }
+  .mg-sidebar-profile-text {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 180ms 80ms ease;
+  }
+  .mg-sidebar:hover .mg-sidebar-profile-text { opacity: 1; }
+  .mg-sidebar-profile-name {
+    display: block;
+    font-family: var(--mg-font);
+    font-size: calc(13px * var(--text-scale));
+    font-weight: 500;
+    color: var(--cream);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mg-sidebar-profile-meta {
+    display: block;
+    font-family: var(--mg-font);
+    font-size: calc(10px * var(--text-scale));
+    font-weight: 400;
+    color: rgba(240, 235, 224, 0.7);
+    margin-top: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mg-sidebar-profile-score {
+    display: block;
+    font-family: var(--mg-font);
+    font-size: calc(10px * var(--text-scale));
+    font-weight: 500;
+    color: rgba(240, 235, 224, 0.7);
+    margin-top: 1px;
+  }
+  .mg-sidebar-profile-score-num {
+    font-family: var(--mg-font-num);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
 }

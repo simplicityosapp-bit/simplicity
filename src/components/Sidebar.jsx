@@ -7,9 +7,21 @@ import {
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES, ADMIN_EMAIL } from '../lib/routes'
 import { useAuth } from '../auth/AuthContext'
+import { useUserPreferences } from '../hooks/useUserPreferences'
+import { useProfileHealth } from '../hooks/useProfileHealth'
+import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './Sidebar.css'
 
 const ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings }
+
+/* Hebrew role label — mirrors MenuDrawer (UI-only). */
+const ROLE_LABELS = {
+  therapist: 'מטפל/ת', coach: 'מאמן/ת', facilitator: 'מנחה',
+  teacher: 'מורה', instructor: 'מדריך/ה', other: '',
+}
+const initial = (name) => name?.trim()?.[0] ?? '·'
+const RING_R = 18
+const RING_C = 2 * Math.PI * RING_R
 
 /* Extras — screens that aren't in the main bottom-nav set. Surface
    from a slide-up panel anchored over the "עוד" button. */
@@ -30,9 +42,20 @@ const EXTRAS = [
 export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback }) {
   const navigate = useNavigate()
   const { signOut, user } = useAuth()
+  const { prefs } = useUserPreferences()
   const isAdmin = (user?.email || '').toLowerCase() === ADMIN_EMAIL
   const [extrasOpen, setExtrasOpen] = useState(false)
   const sidebarRef = useRef(null)
+  /* Profile-health chip is lazy: useProfileHealth fans out ~11 fetches, so we
+     only mount the live variant after the user first hovers the rail — never
+     on app load (mirrors the menu-drawer's open-gated mount). */
+  const [profileLive, setProfileLive] = useState(false)
+
+  const profile = prefs?.profile || {}
+  const name = profile.full_name || ''
+  const role = profile.role === 'other'
+    ? (profile.role_other || '')
+    : (ROLE_LABELS[profile.role] || '')
 
   /* Close the slide-up panel when the user clicks outside the
      sidebar or presses Escape. */
@@ -51,7 +74,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
   }, [extrasOpen])
 
   return (
-    <aside className="mg-sidebar" aria-label="ניווט ראשי" ref={sidebarRef}>
+    <aside className="mg-sidebar" aria-label="ניווט ראשי" ref={sidebarRef} onMouseEnter={() => setProfileLive(true)}>
       <div className="mg-sidebar-brand-row">
         <img
           className="mg-sidebar-logo"
@@ -159,6 +182,9 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
       </div>
 
       <div className="mg-sidebar-foot">
+        {profileLive
+          ? <SidebarProfileLive name={name} role={role} email={user?.email} />
+          : <SidebarProfileStatic name={name} role={role} email={user?.email} />}
         {isAdmin && (
           <button type="button" className="mg-sidebar-util mg-sidebar-admin" onClick={() => navigate(ROUTES.ADMIN)} title="קונסולת ניהול">
             <Shield size={16} strokeWidth={1.6} aria-hidden="true" />
@@ -177,5 +203,83 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
         </button>
       </div>
     </aside>
+  )
+}
+
+/* ── Desktop profile-health chip ───────────────────────────────────
+   Shared markup. `health` is null in the static (pre-hover) variant;
+   when present it paints a tier-coloured ring around the avatar + a
+   "ציון פרופיל NN%" line that fades in with the expanded rail. */
+function SidebarProfileChipInner({ name, role, email, health, loading, onClick }) {
+  const score = health?.score ?? 0
+  const tier = health?.tier
+  const showScore = !!health && !loading
+  return (
+    <button
+      type="button"
+      className="mg-sidebar-profile"
+      onClick={onClick}
+      title={name || 'הפרופיל שלי'}
+      aria-label={health ? `בריאות הפרופיל${showScore ? ` ${score} אחוז` : ''} — פתיחת פירוט` : (name || 'הפרופיל שלי')}
+    >
+      <span className="mg-sidebar-profile-avatar-wrap">
+        {showScore && (
+          <svg className="mg-sidebar-profile-ring" viewBox="0 0 40 40" aria-hidden="true">
+            <circle className="msp-ring-track" cx="20" cy="20" r={RING_R} />
+            <circle
+              className="msp-ring-fill"
+              cx="20" cy="20" r={RING_R}
+              style={{ color: tier.color }}
+              strokeDasharray={`${RING_C * (score / 100)} ${RING_C}`}
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
+        <span className="mg-sidebar-profile-avatar">{initial(name)}</span>
+      </span>
+      <span className="mg-sidebar-profile-text">
+        <span className="mg-sidebar-profile-name">{name || 'הפרופיל שלי'}</span>
+        {health
+          ? (
+            <span className="mg-sidebar-profile-score">
+              ציון פרופיל{' '}
+              <span className="mg-sidebar-profile-score-num" style={tier ? { color: tier.color } : undefined}>
+                {loading ? '··' : `${score}%`}
+              </span>
+            </span>
+          )
+          : <span className="mg-sidebar-profile-meta">{role || email || ''}</span>}
+      </span>
+    </button>
+  )
+}
+
+/* Pre-hover placeholder — no score, no data hooks. */
+function SidebarProfileStatic({ name, role, email }) {
+  return <SidebarProfileChipInner name={name} role={role} email={email} health={null} />
+}
+
+/* Live variant — computes health on mount (only mounted after first rail
+   hover) and owns the breakdown modal. */
+function SidebarProfileLive({ name, role, email }) {
+  const navigate = useNavigate()
+  const { health, loading } = useProfileHealth()
+  const [modalOpen, setModalOpen] = useState(false)
+  const navTo = (to, state) => navigate(to, state ? { state } : undefined)
+  return (
+    <>
+      <SidebarProfileChipInner
+        name={name} role={role} email={email}
+        health={health} loading={loading}
+        onClick={() => setModalOpen(true)}
+      />
+      <ProfileHealthModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        health={health}
+        loading={loading}
+        onNavigate={navTo}
+      />
+    </>
   )
 }

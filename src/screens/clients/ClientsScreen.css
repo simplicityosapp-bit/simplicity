@@ -303,6 +303,12 @@
   background: rgba(42, 37, 32, 0.06);
   color: var(--espresso);
 }
+/* Dark mode: the near-black tint is invisible on the dark card — flip to a
+   light-alpha fill so the pill keeps its shape (matches .cc-proj). */
+[data-theme="dark"] .cc-status-past,
+[data-theme="dark"] .cc-status-no_status {
+  background: rgba(240, 235, 224, 0.06);
+}
 .cc-proj {
   font-family: var(--mg-font);
   font-size: calc(10px * var(--text-scale));

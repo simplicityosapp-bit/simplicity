@@ -110,16 +110,28 @@ export default function ConnectionsScreen() {
   const connected = !!status?.connected
   const [busyAction, setBusyAction] = useState(null) // 'sync' | 'disconnect'
   const [confirmDisc, setConfirmDisc] = useState(false)
+  const [syncMsg, setSyncMsg] = useState('')
+  const discTimer = useRef(0)
   const connecting = gcal.busy && !!params.get('code')
 
   const onSync = async () => {
     setBusyAction('sync')
-    await gcal.sync().catch(() => {})
+    setSyncMsg('')
+    const res = await gcal.sync().catch(() => null)
     refetch()
     setBusyAction(null)
+    if (res) setSyncMsg(`סונכרנו ${res.synced ?? 0} אירועים${res.removed ? `, הוסרו ${res.removed}` : ''}.`)
   }
   const onDisconnect = async () => {
-    if (!confirmDisc) { setConfirmDisc(true); return } // two-step confirm — no undo
+    if (!confirmDisc) {
+      /* Two-step confirm (no undo). Auto-disarm after a few seconds —
+         replaces a flaky onBlur that fired on any incidental focus shift. */
+      setConfirmDisc(true)
+      window.clearTimeout(discTimer.current)
+      discTimer.current = window.setTimeout(() => setConfirmDisc(false), 4000)
+      return
+    }
+    window.clearTimeout(discTimer.current)
     setConfirmDisc(false)
     setBusyAction('disconnect')
     await gcal.disconnect()
@@ -224,11 +236,12 @@ export default function ConnectionsScreen() {
             <button type="button" className="conn-btn primary" disabled={gcal.busy} onClick={onSync}>
               <RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'sync' ? 'מסנכרן…' : 'סנכרן עכשיו'}
             </button>
-            <button type="button" className="conn-btn ghost danger" disabled={gcal.busy} onClick={onDisconnect} onBlur={() => setConfirmDisc(false)}>
+            <button type="button" className="conn-btn ghost danger" disabled={gcal.busy} onClick={onDisconnect}>
               <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? 'מנתק…' : (confirmDisc ? 'בטוח? נתק' : 'נתק')}
             </button>
           </div>
         )}
+        {syncMsg && !gcal.error && <p className="conn-note">{syncMsg}</p>}
       </section>
 
       {/* ── Synced events — nested accordion ──────────────────── */}

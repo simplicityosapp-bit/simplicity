@@ -63,6 +63,21 @@ button {
   font-family: inherit;
 }
 
+/* Keyboard-focus baseline — a visible ring for keyboard users (never on
+   mouse clicks, thanks to :focus-visible). Components that explicitly strip
+   `outline` still override this; this restores focus on the many interactive
+   elements that don't. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 2px;
+}
+
 /* ── App shell ───────────────────────────────────────────────────
    A single 420px-max phone frame, centered. Each screen scrolls inside.
    The per-screen background image lives on .app::before so it stays

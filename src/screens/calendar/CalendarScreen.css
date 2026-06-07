@@ -230,7 +230,7 @@
 .cal-monthpick-panel {
   position: absolute;
   top: calc(100% + 6px);
-  right: 0;                               /* RTL: anchor to the trigger's right edge */
+  inset-inline-end: 0;                    /* anchor to the trigger's start/right edge (RTL-safe) */
   z-index: 30;
   width: min(240px, calc(100vw - 24px));  /* never wider than the viewport */
   padding: 12px;
@@ -285,7 +285,7 @@
   color: #fff;
   border-color: transparent;
 }
-[data-theme="dark"] .cal-monthpick-cell.on { color: var(--deep-night, #0F1419); }
+[data-theme="dark"] .cal-monthpick-cell.on { color: var(--ink-on-accent); }
 
 
 /* Buttons in the schedule list — match the existing card styling

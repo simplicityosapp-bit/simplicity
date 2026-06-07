@@ -42,7 +42,14 @@ export default function NextTasksWidget() {
         <div className="h-card-list">
           {items.length ? (
             items.map((t) => (
-              <div key={t.id} className="h-task-row" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.TASKS) }}>
+              <div
+                key={t.id}
+                className="h-task-row"
+                role="button"
+                tabIndex={0}
+                onClick={(e) => { e.stopPropagation(); navigate(ROUTES.TASKS) }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); navigate(ROUTES.TASKS) } }}
+              >
                 <span className="h-task-content">
                   <span className={`h-task-dot ${t.priority === 'high' ? 'urgent' : 'regular'}`} />
                   <span className="h-task-text">{t.title}</span>

@@ -12,6 +12,7 @@ import {
   transactions as mockTransactions, reminders as mockReminders,
   scheduled_meetings as mockMeetings, sessions as mockSessions,
   goals as mockGoals, goal_categories as mockCategories,
+  group_members as mockMembers, groups as mockGroups,
 } from '../data/mock'
 import { ROUTES } from './routes'
 import { financeQuery, currentMonthRange } from './finance'
@@ -160,6 +161,8 @@ export function attentionItems(now = new Date(), data) {
     categories = mockCategories,
     sessions = mockSessions,
     leads = mockLeads,
+    members = mockMembers,
+    groups = mockGroups,
   } = data || {}
   const items = []
   const pending = (transactions || []).filter((t) => !t.deleted_at && t.status === 'pending')
@@ -172,7 +175,7 @@ export function attentionItems(now = new Date(), data) {
     items.push({ icon: 'Calendar', text: `${pastMeetings.length} ${pastMeetings.length === 1 ? 'פגישה ממתינה' : 'פגישות ממתינות'} לאישור`, to: ROUTES.CALENDAR, kind: 'pendingMeetings' })
   }
 
-  const withBalance = live(clients).filter((c) => c.status !== 'past' && clientBalance(c, transactions, sessions).balance > 0)
+  const withBalance = live(clients).filter((c) => c.status !== 'past' && clientBalance(c, transactions, sessions, members, groups).balance > 0)
   if (withBalance.length) items.push({ icon: 'Wallet', text: `${withBalance.length} לקוח${withBalance.length > 1 ? 'ות' : ''} עם יתרה`, to: ROUTES.CLIENTS })
 
   const goal = monthlyIncomeGoal({ goals, categories })

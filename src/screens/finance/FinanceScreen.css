@@ -198,7 +198,9 @@
   stroke-width: 1.8;
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--clay) 50%, transparent));
 }
-[data-theme="dark"] .f-chart-dot { stroke: var(--ink); }
+/* Ring matches the dark card base (--mg-card-bg's rgb); the old var(--ink)
+   was undefined, so the dot lost its outline in dark mode. */
+[data-theme="dark"] .f-chart-dot { stroke: #1A1F26; }
 .f-chart-axis {
   fill: var(--stone);
   font-family: var(--mg-font-num);

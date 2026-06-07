@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useClients } from '../../hooks/useClients'
@@ -10,7 +10,7 @@ import { financeDailyBuckets, isr } from '../../lib/finance'
    side payments still flow into the project view even when the tx
    itself didn't get a project_id). No dashed goal line; users see a
    simple "did the income climb this month" trace. */
-const W = 320
+const W_DEFAULT = 320
 const H = 120
 const PAD_X = 12
 const PAD_TOP = 14
@@ -19,6 +19,25 @@ const PAD_BOTTOM = 22
 export default function ProjectIncomeChart({ projectId }) {
   const { transactions } = useTransactions()
   const { clients } = useClients()
+
+  /* Measure the rendered width so the viewBox maps 1 unit → 1px (same fix as
+     FinanceChart). The old preserveAspectRatio="none" stretched the line +
+     axis numerals horizontally on any layout wider than the fixed 320. */
+  const wrapRef = useRef(null)
+  const [W, setW] = useState(W_DEFAULT)
+  useLayoutEffect(() => {
+    const el = wrapRef.current
+    if (!el) return undefined
+    const measure = () => {
+      const next = Math.round(el.clientWidth)
+      if (next > 0) setW(next)
+    }
+    measure()
+    if (typeof ResizeObserver === 'undefined') return undefined
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   const now = useMemo(() => new Date(), [])
   const buckets = useMemo(() => {
@@ -71,9 +90,9 @@ export default function ProjectIncomeChart({ projectId }) {
       {total === 0 ? (
         <p className="pd-empty pd-chart-empty">אין הכנסות לפרויקט החודש.</p>
       ) : (
+        <div ref={wrapRef} style={{ width: '100%' }}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          preserveAspectRatio="none"
           className="pd-chart-svg"
           style={{ display: 'block', width: '100%', height: `${H}px` }}
           aria-label="גרף הכנסה מצטברת לפרויקט לפי ימי החודש"
@@ -101,6 +120,7 @@ export default function ProjectIncomeChart({ projectId }) {
             </text>
           ))}
         </svg>
+        </div>
       )}
     </section>
   )

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { AlertCircle, Check, X, Trash2 } from 'lucide-react'
 import { isr } from '../../lib/finance'
 import { fmtShortDate } from '../../lib/dates'
@@ -9,7 +10,22 @@ import './PendingSection.css'
    that confirms every visible pending row. Hidden when nothing's
    pending. */
 export default function PendingSection({ transactions, clients = [], projects = [], categories = [], onApprove, onSkip, onEdit, onDelete, embedded = false }) {
+  const [bulkBusy, setBulkBusy] = useState(false)
   if (!transactions.length) return null
+
+  /* Sequential await so optimistic state updates in setStatus don't trample
+     each other; catch per-row so one failure doesn't abort the rest. */
+  const approveAll = async () => {
+    if (bulkBusy) return
+    setBulkBusy(true)
+    try {
+      for (const t of transactions) {
+        await Promise.resolve(onApprove(t.id)).catch(() => {})
+      }
+    } finally {
+      setBulkBusy(false)
+    }
+  }
 
   const totalIncome = transactions.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const totalExpense = transactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
@@ -37,17 +53,10 @@ export default function PendingSection({ transactions, clients = [], projects = 
           <button
             type="button"
             className="f-pending-bulk"
-            onClick={async () => {
-              /* Sequential await so optimistic state updates in setStatus
-                 don't trample each other — same pattern as bulkChangeMeta
-                 in clients. Catch per-row so one failure doesn't abort. */
-              for (const t of transactions) {
-                // eslint-disable-next-line no-await-in-loop
-                await Promise.resolve(onApprove(t.id)).catch(() => {})
-              }
-            }}
+            onClick={approveAll}
+            disabled={bulkBusy}
           >
-            <Check size={13} strokeWidth={1.9} aria-hidden="true" /> אשר הכל
+            <Check size={13} strokeWidth={1.9} aria-hidden="true" /> {bulkBusy ? 'מאשר…' : 'אשר הכל'}
           </button>
         )}
       </div>
@@ -65,6 +74,7 @@ export default function PendingSection({ transactions, clients = [], projects = 
               role="button"
               tabIndex={0}
               onClick={() => onEdit?.(t)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit?.(t) } }}
             >
               <div className="f-pending-row-id">
                 <p className="f-pending-desc">{t.desc || 'ללא תיאור'}</p>

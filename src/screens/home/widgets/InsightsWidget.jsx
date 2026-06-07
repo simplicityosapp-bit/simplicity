@@ -165,7 +165,7 @@ export default function InsightsWidget() {
             min="1"
             max="10"
             step="1"
-            value={val ?? 1}
+            value={val ?? 5}
             className="ins-slider"
             aria-label={text}
             onChange={(e) => setVal(parseInt(e.target.value, 10))}

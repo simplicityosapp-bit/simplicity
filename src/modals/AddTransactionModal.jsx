@@ -2,7 +2,12 @@ import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 
-const todayStr = () => new Date().toISOString().slice(0, 10)
+/* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
+   Israeli evenings, flipping a same-day tx to pending. */
+const todayStr = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 const blank = (defaults = {}) => ({
   type: defaults.type || 'income',
   amount: defaults.amount || '',
@@ -106,6 +111,9 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
         <div className="m-field">
           <label className="m-label">תאריך</label>
           <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
+          {form.date > todayStr() && (
+            <p className="m-hint">תאריך עתידי — התנועה תופיע כ"ממתינה" עד למועד זה.</p>
+          )}
         </div>
       </div>
       <div className="m-field">

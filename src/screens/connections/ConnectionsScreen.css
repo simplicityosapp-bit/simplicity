@@ -137,16 +137,41 @@
   margin-bottom: 10px;
 }
 .conn-acc-main:hover { background: color-mix(in srgb, var(--terracotta) 5%, var(--mg-card-bg)); }
-.conn-groups { display: flex; flex-direction: column; gap: 8px; }
-.conn-group {
+.conn-cats { display: flex; flex-direction: column; gap: 8px; }
+
+/* Level 1 — category panel (לקוחות / פרויקטים / לידים / קבוצות / לא-מזוהים):
+   the frosted outer card. */
+.conn-cat {
   border-radius: 14px;
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
   overflow: hidden;
 }
+.conn-acc-cat {
+  padding: 13px 15px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  font-size: calc(13.5px * var(--text-scale));
+  font-weight: 600;
+}
+.conn-acc-cat:hover { background: color-mix(in srgb, var(--terracotta) 5%, transparent); }
+
+/* Level 2 — entity rows inside a category (flat, no glass-on-glass),
+   indented from the start edge and hairline-separated. */
+.conn-cat-entities {
+  display: flex;
+  flex-direction: column;
+  padding: 0 8px 4px;
+  padding-inline-start: 16px;
+}
+.conn-entity { border-top: 1px solid var(--divider); }
+.conn-cat-entities > .conn-entity:first-child { border-top: none; }
+
 .conn-acc-sub {
-  padding: 12px 14px;
+  padding: 11px 12px;
   border: none;
   border-radius: 0;
   background: transparent;
@@ -171,15 +196,15 @@
   font-size: calc(10px * var(--text-scale));
   font-weight: 600;
 }
-.conn-group.unmatched .conn-group-count {
+.conn-cat.unmatched .conn-group-count {
   background: rgba(42, 37, 32, 0.07);
   color: var(--stone);
 }
-[data-theme="dark"] .conn-group.unmatched .conn-group-count { background: rgba(240, 235, 224, 0.08); }
+[data-theme="dark"] .conn-cat.unmatched .conn-group-count { background: rgba(240, 235, 224, 0.08); }
 .conn-group-events {
   display: flex;
   flex-direction: column;
-  padding: 0 14px 6px;
+  padding: 0 12px 6px;
 }
 .conn-empty {
   margin: 8px 2px;

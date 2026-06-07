@@ -45,47 +45,46 @@ export default function ConnectionsScreen() {
   const [callbackError, setCallbackError] = useState('')
   const handledCode = useRef(false)
   const [eventsOpen, setEventsOpen] = useState(true)
+  const [openCats, setOpenCats] = useState(() => new Set())
   const [openGroups, setOpenGroups] = useState(() => new Set())
-  const toggleGroup = (key) => setOpenGroups((prev) => {
+  const toggleSet = (setter) => (key) => setter((prev) => {
     const next = new Set(prev)
     if (next.has(key)) next.delete(key); else next.add(key)
     return next
   })
+  const toggleCat = toggleSet(setOpenCats)
+  const toggleGroup = toggleSet(setOpenGroups)
 
-  /* Group synced events by EVERY entity they're identified to — an event
-     matched to both a client and a project appears under both. Unmatched
-     events land in one "לא מזוהים" group pinned last. Drives the nested
-     accordion. */
-  const eventGroups = useMemo(() => {
-    const names = {
-      c: new Map((clients || []).map((x) => [x.id, x.name])),
-      p: new Map((projects || []).map((x) => [x.id, x.name])),
-      l: new Map((leads || []).map((x) => [x.id, x.name])),
-      g: new Map((groups || []).map((x) => [x.id, x.name])),
+  /* Three-level accordion: category (לקוחות/פרויקטים/לידים/קבוצות) → entity
+     (one toggle per client/project/…) → events. An event matched to several
+     entities appears under each. Unmatched events form a leaf "לא מזוהים"
+     category (no entity level), pinned last. */
+  const eventCategories = useMemo(() => {
+    const defs = [
+      { prefix: 'c', label: 'לקוחות', link: 'client_id', fb: 'לקוח', items: clients },
+      { prefix: 'p', label: 'פרויקטים', link: 'project_id', fb: 'פרויקט', items: projects },
+      { prefix: 'l', label: 'לידים', link: 'lead_id', fb: 'ליד', items: leads },
+      { prefix: 'g', label: 'קבוצות', link: 'group_id', fb: 'קבוצה', items: groups },
+    ]
+    const cats = []
+    for (const d of defs) {
+      const nameMap = new Map((d.items || []).map((x) => [x.id, x.name]))
+      const entMap = new Map()
+      ;(events || []).forEach((ev) => {
+        const id = ev[d.link]
+        if (!id) return
+        const key = `${d.prefix}:${id}`
+        if (!entMap.has(key)) entMap.set(key, { key, label: nameMap.get(id) || d.fb, items: [] })
+        entMap.get(key).items.push(ev)
+      })
+      if (entMap.size === 0) continue
+      const entities = [...entMap.values()].sort((a, b) => a.label.localeCompare(b.label, 'he'))
+      const count = entities.reduce((n, e) => n + e.items.length, 0)
+      cats.push({ key: d.prefix, label: d.label, count, entities })
     }
-    const fallback = { c: 'לקוח', p: 'פרויקט', l: 'ליד', g: 'קבוצה' }
-    const map = new Map()
-    const add = (prefix, id, ev) => {
-      const key = `${prefix}:${id}`
-      if (!map.has(key)) map.set(key, { key, label: names[prefix].get(id) || fallback[prefix], items: [] })
-      map.get(key).items.push(ev)
-    }
-    ;(events || []).forEach((ev) => {
-      let matched = false
-      if (ev.client_id) { add('c', ev.client_id, ev); matched = true }
-      if (ev.project_id) { add('p', ev.project_id, ev); matched = true }
-      if (ev.lead_id) { add('l', ev.lead_id, ev); matched = true }
-      if (ev.group_id) { add('g', ev.group_id, ev); matched = true }
-      if (!matched) {
-        if (!map.has('none')) map.set('none', { key: 'none', label: 'לא מזוהים', items: [] })
-        map.get('none').items.push(ev)
-      }
-    })
-    return [...map.values()].sort((a, b) => {
-      if (a.key === 'none') return 1
-      if (b.key === 'none') return -1
-      return a.label.localeCompare(b.label, 'he')
-    })
+    const unmatched = (events || []).filter((ev) => !ev.client_id && !ev.project_id && !ev.lead_id && !ev.group_id)
+    if (unmatched.length) cats.push({ key: 'none', label: 'לא מזוהים', count: unmatched.length, items: unmatched, leaf: true })
+    return cats
   }, [events, clients, projects, leads, groups])
 
   /* OAuth return: Google sent us back with ?code (or ?error). Exchange it
@@ -246,16 +245,35 @@ export default function ConnectionsScreen() {
             ) : events.length === 0 ? (
               <p className="conn-empty">אין אירועים בטווח שנבחר. נסה/י לסנכרן שוב או להרחיב את הטווח.</p>
             ) : (
-              <div className="conn-groups">
-                {eventGroups.map((g) => {
-                  const open = openGroups.has(g.key)
+              <div className="conn-cats">
+                {eventCategories.map((cat) => {
+                  const catOpen = openCats.has(cat.key)
                   return (
-                    <div key={g.key} className={`conn-group${g.key === 'none' ? ' unmatched' : ''}`}>
-                      <button type="button" className="conn-acc-head conn-acc-sub" onClick={() => toggleGroup(g.key)} aria-expanded={open}>
-                        <span className="conn-group-label">{g.label}<span className="conn-group-count">{g.items.length}</span></span>
-                        {open ? <ChevronUp size={15} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={15} strokeWidth={1.7} aria-hidden="true" />}
+                    <div key={cat.key} className={`conn-cat${cat.key === 'none' ? ' unmatched' : ''}`}>
+                      <button type="button" className="conn-acc-head conn-acc-cat" onClick={() => toggleCat(cat.key)} aria-expanded={catOpen}>
+                        <span className="conn-group-label">{cat.label}<span className="conn-group-count">{cat.count}</span></span>
+                        {catOpen ? <ChevronUp size={16} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={16} strokeWidth={1.7} aria-hidden="true" />}
                       </button>
-                      {open && <div className="conn-group-events">{g.items.map(renderEvent)}</div>}
+                      {catOpen && (
+                        cat.leaf
+                          ? <div className="conn-group-events">{cat.items.map(renderEvent)}</div>
+                          : (
+                            <div className="conn-cat-entities">
+                              {cat.entities.map((ent) => {
+                                const entOpen = openGroups.has(ent.key)
+                                return (
+                                  <div key={ent.key} className="conn-entity">
+                                    <button type="button" className="conn-acc-head conn-acc-sub" onClick={() => toggleGroup(ent.key)} aria-expanded={entOpen}>
+                                      <span className="conn-group-label">{ent.label}<span className="conn-group-count">{ent.items.length}</span></span>
+                                      {entOpen ? <ChevronUp size={15} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={15} strokeWidth={1.7} aria-hidden="true" />}
+                                    </button>
+                                    {entOpen && <div className="conn-group-events">{ent.items.map(renderEvent)}</div>}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )
+                      )}
                     </div>
                   )
                 })}

@@ -89,6 +89,7 @@ function DayEvent({ event, onSelect }) {
       <span className="cal-day-evt-title">{event.title}</span>
       {event.kind === 'meeting' && event.status === 'pending' && <span className="cal-tag">ממתינה</span>}
       {event.kind === 'reminder' && <span className="cal-tag rem">תזכורת</span>}
+      {event.kind === 'calendar' && <span className="cal-tag cal">יומן</span>}
     </button>
   )
 }

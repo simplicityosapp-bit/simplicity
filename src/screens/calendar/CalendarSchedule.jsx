@@ -21,16 +21,17 @@ export default function CalendarSchedule({ items, onSelect }) {
           onClick={() => onSelect?.(it)}
         >
           <span className={`cal-icon ${it.kind}`}>
-            {it.kind === 'meeting'
-              ? <CalendarDays size={16} strokeWidth={1.6} aria-hidden="true" />
-              : <Clock size={16} strokeWidth={1.6} aria-hidden="true" />}
+            {it.kind === 'reminder'
+              ? <Clock size={16} strokeWidth={1.6} aria-hidden="true" />
+              : <CalendarDays size={16} strokeWidth={1.6} aria-hidden="true" />}
           </span>
           <div className="cal-body">
             <p className="cal-title">{it.title}</p>
-            <p className="cal-when">{formatWhen(it.when)}</p>
+            <p className="cal-when">{formatWhen(it.when)}{it.kind === 'calendar' && it.clientName ? ` · ${it.clientName}` : ''}</p>
           </div>
           {it.kind === 'meeting' && it.status === 'pending' && <span className="cal-tag">ממתינה</span>}
           {it.kind === 'reminder' && <span className="cal-tag rem">תזכורת</span>}
+          {it.kind === 'calendar' && <span className="cal-tag cal">יומן</span>}
         </button>
       ))}
     </section>

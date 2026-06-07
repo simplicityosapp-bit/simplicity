@@ -159,10 +159,23 @@ function makeRng(seed) {
   }
 }
 
+/* Stable 32-bit string hash → permutation seed keyed to the link's
+   IDENTITY (driver|outcome), not its position in the candidate array.
+   Reordering / toggling questions no longer reshuffles every p-value. */
+function strHash(str) {
+  let h = 2166136261
+  for (let i = 0; i < str.length; i += 1) {
+    h ^= str.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
 /* Permutation test: how often a shuffled outcome matches/beats the
-   observed |ρ|. Low p = the link is unlikely to be coincidence. */
+   observed |ρ|. The (ge+1)/(iters+1) estimator never returns 0, so a
+   real link stays distinguishable under multiple-comparison correction. */
 function permutationP(x, y, rhoObs, iters, seed) {
-  const rng = makeRng(seed + x.length * 7919)
+  const rng = makeRng(seed)
   const yc = y.slice()
   const absObs = Math.abs(rhoObs)
   let ge = 0
@@ -173,18 +186,19 @@ function permutationP(x, y, rhoObs, iters, seed) {
     }
     if (Math.abs(spearman(x, yc)) >= absObs) ge += 1
   }
-  return ge / iters
+  return (ge + 1) / (iters + 1)
 }
 
-/* Same-sign Spearman in BOTH chronological halves → the pattern is
-   stable, not driven by one stretch. Each half must be big enough. */
+/* Same-sign, non-trivial Spearman in BOTH chronological halves → the
+   pattern is stable, not driven by one stretch. Each half needs ≥5 points
+   and |r| ≥ 0.2 (4-point halves clear a 0.1 bar almost by chance). */
 function splitHalfStable(xs, ys) {
   const n = xs.length
   const mid = Math.floor(n / 2)
-  if (mid < 4 || n - mid < 4) return false
+  if (mid < 5 || n - mid < 5) return false
   const r1 = spearman(xs.slice(0, mid), ys.slice(0, mid))
   const r2 = spearman(xs.slice(mid), ys.slice(mid))
-  return Math.sign(r1) === Math.sign(r2) && Math.abs(r1) >= 0.1 && Math.abs(r2) >= 0.1
+  return Math.sign(r1) === Math.sign(r2) && Math.abs(r1) >= 0.2 && Math.abs(r2) >= 0.2
 }
 
 function strengthLabel(absR) {
@@ -239,7 +253,9 @@ function buildPairs(driverMap, outcome, corr) {
         if (d != null) { dSum += d; dCount += 1 }
         oSum += arr[j] || 0
       }
-      if (dCount > 0) { xs.push(dSum / dCount); ys.push(oSum) }
+      /* Need ≥3 answered days for a stable weekly driver mean — a week
+         with one stray answer is noise, not a data point. */
+      if (dCount >= 3) { xs.push(dSum / dCount); ys.push(oSum) }
     }
   }
   return { xs, ys }
@@ -247,13 +263,15 @@ function buildPairs(driverMap, outcome, corr) {
 
 const OUTCOME_LABELS = { income: 'הכנסות', leads: 'פניות', sessions: 'פגישות' }
 
-/* The guarded pipeline. Returns up to `cap` links that pass EVERY gate,
-   each with the scatter points for honest display. Sorted by |ρ| but the
-   caller must present them as a flat "patterns to explore" list — never a
-   single headline. */
+/* The guarded pipeline (analytics §8.2). Cheap gates (sample size, a
+   minimum |ρ|, split-half stability) pre-filter; survivors get a permutation
+   p-value; then a Benjamini-Hochberg FDR correction over the FULL candidate
+   family controls the false-discovery rate from testing many pairs. Returns
+   ≤ `cap` survivors as a flat "patterns to explore" list — never a headline.
+   The common, correct result is an empty array. */
 export function buildOverviewCorrelations(ctx, {
-  window = 90, now = new Date(), questions = [],
-  minDaily = 12, minWeekly = 8, pThreshold = 0.01, iters = 1000, cap = 3,
+  window = 120, now = new Date(), questions = [],
+  minDaily = 14, minWeekly = 10, fdrQ = 0.10, iters = 2000, cap = 3,
 } = {}) {
   const corr = corrContext(ctx, window, now)
   /* Only numeric (1–10) questions drive a correlation — "when X is higher"
@@ -274,31 +292,51 @@ export function buildOverviewCorrelations(ctx, {
     })
   })
 
-  const passing = []
-  candidates.forEach((c, ci) => {
+  /* mTotal = the whole family of comparisons, so the FDR denominator
+     reflects every test we COULD have surfaced — the multiple-comparison
+     guard the per-test p-value alone can't provide. */
+  const mTotal = candidates.length
+  if (mTotal === 0) return []
+
+  const scored = []
+  candidates.forEach((c) => {
     const { xs, ys } = buildPairs(c.driverMap, c.outcome, corr)
     if (xs.length < c.minN) return
     const rho = spearman(xs, ys)
     if (Math.abs(rho) < 0.2) return
     if (!splitHalfStable(xs, ys)) return
-    const p = permutationP(xs, ys, rho, iters, ci + 1)
-    if (p >= pThreshold) return
-    passing.push({
-      key: `${c.driver.id}|${c.outcomeKey}`,
-      driverLabel: c.driver,                 /* caller resolves text */
-      outcomeLabel: c.outcomeLabel,          /* null for question → caller resolves */
-      outcomeQ: c.outcomeQ,
-      rho,
+    const key = `${c.driver.id}|${c.outcomeKey}`
+    const p = permutationP(xs, ys, rho, iters, strHash(key))
+    scored.push({
       p,
-      n: xs.length,
-      direction: rho >= 0 ? 'pos' : 'neg',
-      strength: strengthLabel(Math.abs(rho)),
-      points: xs.map((x, i) => ({ x, y: ys[i] })),
+      result: {
+        key,
+        driverLabel: c.driver,            /* caller resolves text */
+        outcomeLabel: c.outcomeLabel,     /* null for question → caller resolves */
+        outcomeQ: c.outcomeQ,
+        rho,
+        p,
+        n: xs.length,
+        direction: rho >= 0 ? 'pos' : 'neg',
+        strength: strengthLabel(Math.abs(rho)),
+        points: xs.map((x, i) => ({ x, y: ys[i] })),
+      },
     })
   })
 
-  passing.sort((a, b) => Math.abs(b.rho) - Math.abs(a.rho))
-  return passing.slice(0, cap)
+  /* Benjamini-Hochberg: sort by p, keep the largest prefix where
+     p(k) ≤ (k / mTotal) · q. Survivors have a controlled false-discovery
+     rate even though many pairs were tested. */
+  scored.sort((a, b) => a.p - b.p)
+  let kMax = 0
+  for (let k = 1; k <= scored.length; k += 1) {
+    if (scored[k - 1].p <= (k / mTotal) * fdrQ) kMax = k
+  }
+  return scored
+    .slice(0, kMax)
+    .map((s) => s.result)
+    .sort((a, b) => Math.abs(b.rho) - Math.abs(a.rho))
+    .slice(0, cap)
 }
 
 /* Build the overlay: one normalized series per selected metric, each with

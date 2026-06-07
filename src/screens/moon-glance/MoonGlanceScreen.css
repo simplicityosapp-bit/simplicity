@@ -329,13 +329,16 @@
 }
 .mg-corr-card {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   padding: 12px 0;
   border-bottom: 1px solid var(--divider);
 }
 .mg-corr-card:last-of-type { border-bottom: none; }
-.mg-corr-text { flex: 1; min-width: 0; }
+/* min-width forces the 120px scatter to wrap BELOW the text on very
+   narrow screens instead of crushing the Hebrew sentence. */
+.mg-corr-text { flex: 1; min-width: 150px; }
 .mg-corr-line {
   margin: 0;
   font-family: var(--mg-font);

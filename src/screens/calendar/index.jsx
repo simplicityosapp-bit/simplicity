@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { remindersUpcoming } from '../../lib/homeData'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
+import { useCalendarEvents } from '../../hooks/useCalendarEvents'
 import { useClients } from '../../hooks/useClients'
 import { useGroups } from '../../hooks/useGroups'
 import { useProjects } from '../../hooks/useProjects'
@@ -27,6 +28,7 @@ const VALID_VIEWS = new Set(['schedule', 'day', 'week', 'month'])
 export default function CalendarScreen() {
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, addMeeting, updateMeeting } = useScheduledMeetings()
+  const { events: calendarEvents } = useCalendarEvents()
   const { clients } = useClients()
   const { groups } = useGroups()
   const { projects } = useProjects()
@@ -82,8 +84,20 @@ export default function CalendarScreen() {
       when: r.when,
       raw: r,
     }))
-    return [...meetingItems, ...reminderItems].sort((a, b) => a.when - b.when)
-  }, [meetings, reminders, clients, groups])
+    /* Synced Google Calendar events — read-only, identified to a client
+       where the fuzzy match (or a manual assignment) found one. */
+    const calendarItems = (calendarEvents || [])
+      .filter((ev) => ev.start_time)
+      .map((ev) => ({
+        id: ev.id,
+        kind: 'calendar',
+        title: ev.title || 'אירוע',
+        when: new Date(ev.start_time),
+        clientName: ev.client_id ? (clients.find((c) => c.id === ev.client_id)?.name || null) : null,
+        raw: ev,
+      }))
+    return [...meetingItems, ...reminderItems, ...calendarItems].sort((a, b) => a.when - b.when)
+  }, [meetings, reminders, calendarEvents, clients, groups])
 
   const scheduleItems = useMemo(() => {
     const startOfToday = new Date()

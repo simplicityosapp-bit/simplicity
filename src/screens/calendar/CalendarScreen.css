@@ -198,6 +198,95 @@
 .cal-nav-today:hover {
   background: rgba(42, 37, 32, 0.04);
 }
+.cal-nav-label {
+  min-width: 92px;
+  text-align: center;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+
+/* ── Month + year picker (week/month nav centre) ──────────────── */
+.cal-monthpick { position: relative; }
+.cal-monthpick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 96px;
+  justify-content: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+  cursor: pointer;
+}
+.cal-monthpick-btn:hover { background: rgba(42, 37, 32, 0.04); }
+[data-theme="dark"] .cal-monthpick-btn:hover { background: rgba(240, 235, 224, 0.06); }
+.cal-monthpick-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;                               /* RTL: anchor to the trigger's right edge */
+  z-index: 30;
+  width: min(240px, calc(100vw - 24px));  /* never wider than the viewport */
+  padding: 12px;
+  border-radius: 16px;
+  border: var(--mg-card-border);
+  background: var(--modal-bg, var(--mg-card-bg));
+  backdrop-filter: blur(24px);
+  box-shadow: 0 16px 40px rgba(42, 37, 32, 0.16);
+}
+.cal-monthpick-year {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.cal-monthpick-year span {
+  font-family: var(--mg-font-num);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.cal-monthpick-year button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--espresso);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.cal-monthpick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.cal-monthpick-cell {
+  padding: 8px 4px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--mg-card-bg);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--espresso);
+  cursor: pointer;
+}
+.cal-monthpick-cell:hover { background: color-mix(in srgb, var(--terracotta) 6%, var(--mg-card-bg)); }
+.cal-monthpick-cell.on {
+  background: var(--terracotta);
+  color: #fff;
+  border-color: transparent;
+}
+[data-theme="dark"] .cal-monthpick-cell.on { color: var(--deep-night, #0F1419); }
+
 .cal-range-label {
   flex: 1 1 100%;
   margin: 4px 0 0;
@@ -476,6 +565,31 @@
 }
 .cal-month-dot.reminder {
   background: var(--amber-warn);
+}
+.cal-month-dot.calendar {
+  background: var(--moon-deep);
+}
+
+/* ── Google Calendar synced events (kind="calendar") ──────────── */
+.cal-icon.calendar {
+  background: color-mix(in srgb, var(--moon-deep) 14%, transparent);
+  color: var(--moon-deep);
+}
+.cal-tag.cal {
+  color: var(--moon-deep);
+  background: color-mix(in srgb, var(--moon-deep) 12%, transparent);
+}
+.cal-day-evt.calendar {
+  border-color: color-mix(in srgb, var(--moon-deep) 38%, transparent);
+  background: color-mix(in srgb, var(--moon-deep) 10%, transparent);
+}
+.cal-week-evt.calendar {
+  border-color: color-mix(in srgb, var(--moon-deep) 35%, transparent);
+  background: color-mix(in srgb, var(--moon-deep) 8%, transparent);
+}
+.evt-detail-icon.calendar {
+  background: color-mix(in srgb, var(--moon-deep) 14%, transparent);
+  color: var(--moon-deep);
 }
 .cal-month-more {
   font-family: var(--mg-font-num);

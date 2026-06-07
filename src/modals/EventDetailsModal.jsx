@@ -10,9 +10,10 @@ import { formatWhen, fmtTime } from '../lib/dates'
 export default function EventDetailsModal({ open, onClose, event, onConfirmMeeting, onSkipMeeting, onCompleteReminder, onRemoveReminder }) {
   if (!event) return <Modal open={open} onClose={onClose} title="פרטי אירוע" />
 
-  const Icon = event.kind === 'meeting' ? CalendarDays : Clock
-  const title = event.title || 'אירוע'
   const isMeeting = event.kind === 'meeting'
+  const isCalendar = event.kind === 'calendar'
+  const Icon = (isMeeting || isCalendar) ? CalendarDays : Clock
+  const title = event.title || 'אירוע'
 
   const handle = (fn) => async () => {
     try { await fn(event) } finally { onClose() }
@@ -48,7 +49,13 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
         <p className="evt-detail-status sage">הפגישה אושרה.</p>
       )}
 
-      {!isMeeting && (
+      {isCalendar && (
+        <p className="evt-detail-status">
+          {event.clientName ? `מזוהה עם: ${event.clientName} · ` : ''}אירוע מ-Google Calendar (לקריאה בלבד).
+        </p>
+      )}
+
+      {!isMeeting && !isCalendar && (
         <div className="evt-detail-row">
           <div className="evt-detail-actions">
             <button type="button" className="evt-detail-btn approve" onClick={handle(onCompleteReminder)}>

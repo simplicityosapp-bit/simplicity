@@ -71,12 +71,13 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
   const memberships = getClientMemberships(c.id, members)
   const hasRecurring = c.recurring_day != null && c.recurring_time
 
-  /* timeline — merged event feed */
+  /* timeline — merged event feed. Each event keeps an optional `edit`
+     callback so edit mode can reopen the original item. */
   const events = []
-  clientSessions.forEach((s) => events.push({ type: 'meeting', date: s.date, label: `פגישה${s.num ? ' #' + s.num : ''}`, sub: s.summary || s.notes || '' }))
-  financeQuery({ clientId: c.id, source: txns }).forEach((f) => events.push({ type: 'payment', date: f.date, label: `תשלום · ${isr(f.amount)}`, sub: f.desc || '' }))
+  clientSessions.forEach((s) => events.push({ type: 'meeting', date: s.date, label: `פגישה${s.num ? ' #' + s.num : ''}`, sub: s.summary || s.notes || '', edit: onEditSession && !s.group_id ? () => onEditSession(s) : null }))
+  financeQuery({ clientId: c.id, source: txns }).forEach((f) => events.push({ type: 'payment', date: f.date, label: `תשלום · ${isr(f.amount)}`, sub: f.desc || '', edit: onEditTx ? () => onEditTx((txns || []).find((t) => t.id === f.id) || f) : null }))
   live(tasks).filter((t) => t.client_id === c.id && t.status === 'done' && t.completed_at)
-    .forEach((t) => events.push({ type: 'task', date: t.completed_at, label: t.title, sub: '' }))
+    .forEach((t) => events.push({ type: 'task', date: t.completed_at, label: t.title, sub: '', edit: onEditTask ? () => onEditTask(t) : null }))
   events.sort((a, b) => new Date(b.date) - new Date(a.date))
 
   return (
@@ -190,14 +191,28 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           )}
         </Section>
 
-        <Section title="ציר זמן" count={events.length}>
+        <Section
+          title="ציר זמן"
+          count={events.length}
+          onEdit={events.some((e) => e.edit) ? () => toggleEdit('tl') : undefined}
+          editing={editKey === 'tl'}
+        >
           {events.length ? (
-            events.slice(0, 30).map((e, i) => (
-              <div key={i} className="cd-tl-row">
-                <span className="cd-tl-label">{e.label}{e.sub ? <span className="cd-tl-sub"> · {e.sub.slice(0, 50)}</span> : null}</span>
-                <span className="cd-tl-date">{fmtShortDate(e.date)}</span>
-              </div>
-            ))
+            events.slice(0, 30).map((e, i) => {
+              const inner = (
+                <>
+                  <span className="cd-tl-label">{e.label}{e.sub ? <span className="cd-tl-sub"> · {e.sub.slice(0, 50)}</span> : null}</span>
+                  {editKey === 'tl' && e.edit
+                    ? <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon" aria-hidden="true" />
+                    : <span className="cd-tl-date">{fmtShortDate(e.date)}</span>}
+                </>
+              )
+              return editKey === 'tl' && e.edit ? (
+                <button key={i} type="button" className="cd-tl-row cd-tl-edit" onClick={e.edit}>{inner}</button>
+              ) : (
+                <div key={i} className="cd-tl-row">{inner}</div>
+              )
+            })
           ) : (
             <p className="cd-empty">אין אירועים</p>
           )}

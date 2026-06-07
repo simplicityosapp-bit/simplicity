@@ -22,7 +22,7 @@ import './MoonGlanceScreen.css'
 
 /* Tiny scatter for a correlation card — honest display so the user sees
    the spread, not just a number. Points are min-max scaled per axis. */
-function Scatter({ points }) {
+function Scatter({ points, driverText, outcomeText }) {
   const W = 120, H = 78, PAD = 6
   if (!points || points.length < 3) return null
   const xs = points.map((p) => p.x)
@@ -32,7 +32,8 @@ function Scatter({ points }) {
   const sx = (x) => (xmax === xmin ? W / 2 : PAD + ((x - xmin) / (xmax - xmin)) * (W - 2 * PAD))
   const sy = (y) => (ymax === ymin ? H / 2 : H - PAD - ((y - ymin) / (ymax - ymin)) * (H - 2 * PAD))
   return (
-    <svg className="mg-scatter" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
+    <svg className="mg-scatter" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={`פיזור הנקודות: ציר אופקי ${driverText || 'מדד א'}, ציר אנכי ${outcomeText || 'מדד ב'}`}>
+      <title>{`ציר אופקי: ${driverText || ''} · ציר אנכי: ${outcomeText || ''}`}</title>
       {points.map((p, i) => (
         <circle key={i} cx={Math.round(sx(p.x) * 10) / 10} cy={Math.round(sy(p.y) * 10) / 10} r="2.2" className="mg-scatter-dot" />
       ))}
@@ -41,14 +42,17 @@ function Scatter({ points }) {
 }
 
 function CorrCard({ driverText, outcomeText, c }) {
-  const dir = c.direction === 'pos' ? 'גבוה' : 'נמוך'
+  /* Symmetric co-movement phrasing — deliberately NOT "X drives Y". */
+  const line = c.direction === 'pos'
+    ? <><b>{driverText}</b> ו<b>{outcomeText}</b> נוטים לנוע יחד (כשאחד גבוה, גם השני).</>
+    : <><b>{driverText}</b> ו<b>{outcomeText}</b> נוטים לנוע הפוך (כשאחד גבוה, השני נמוך).</>
   return (
     <div className="mg-corr-card">
       <div className="mg-corr-text">
-        <p className="mg-corr-line">בימים ש<b>{driverText}</b> גבוה, <b>{outcomeText}</b> נוטה להיות {dir} יותר.</p>
-        <p className="mg-corr-sub">קשר {c.strength} · {c.n} נקודות</p>
+        <p className="mg-corr-line">{line}</p>
+        <p className="mg-corr-sub">קשר {c.strength} · {c.n} נקודות · תצפית, לא סיבתיות</p>
       </div>
-      <Scatter points={c.points} />
+      <Scatter points={c.points} driverText={driverText} outcomeText={outcomeText} />
     </div>
   )
 }
@@ -148,7 +152,7 @@ export default function MoonGlanceScreen() {
   /* Guarded correlations (§8.2) — Spearman + permutation + split-half;
      the common result is an honest "no significant link". */
   const correlations = useMemo(
-    () => buildOverviewCorrelations({ transactions, leads, sessions, answers }, { window: 90, questions: activeQuestions }),
+    () => buildOverviewCorrelations({ transactions, leads, sessions, answers }, { questions: activeQuestions }),
     [transactions, leads, sessions, answers, activeQuestions],
   )
 
@@ -253,13 +257,13 @@ export default function MoonGlanceScreen() {
           </select>
         )}
         <MultiTrendChart days={overview.days} series={overview.series} />
-        <p className="mg-ov-note">מגמות יחסיות — כל קו בקנה-מידה משלו (0–100). קשר ויזואלי אינו סיבתיות.</p>
+        <p className="mg-ov-note">מגמות יחסיות · 30 הימים האחרונים — כל קו בקנה-מידה משלו (0–100). קשר ויזואלי אינו סיבתיות.</p>
       </div>
 
       <p className="mg-section-h">קשרים לבדיקה</p>
       <div className="mg-overview">
         {correlations.length === 0 ? (
-          <p className="mg-corr-empty">אין קשר מובהק בנתונים — וזה בסדר. ככל שתצבור עוד ימים עם תשובות יומיות, נציף כאן דפוסים יציבים שכדאי לבדוק.</p>
+          <p className="mg-corr-empty">אין כרגע קשר מובהק בנתונים — ולרוב פשוט אין, וזה תקין. אם יופיע דפוס יציב ומובהק מספיק, נציף אותו כאן לבדיקה.</p>
         ) : (
           <>
             {correlations.map((c) => (

@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { Plug, Calendar, RefreshCw, Check, CircleAlert, Link2Off } from 'lucide-react'
+import { Plug, Calendar, RefreshCw, Check, CircleAlert, Link2Off, ChevronDown, ChevronUp } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
@@ -36,6 +36,36 @@ export default function ConnectionsScreen() {
   const [syncFrom, setSyncFrom] = useState(yearAgoStr())
   const [callbackError, setCallbackError] = useState('')
   const handledCode = useRef(false)
+  const [eventsOpen, setEventsOpen] = useState(true)
+  const [openGroups, setOpenGroups] = useState(() => new Set())
+  const toggleGroup = (key) => setOpenGroups((prev) => {
+    const next = new Set(prev)
+    if (next.has(key)) next.delete(key); else next.add(key)
+    return next
+  })
+
+  /* Group synced events by their identified entity (client first, else
+     project); unidentified pinned last — drives the nested accordion. */
+  const eventGroups = useMemo(() => {
+    const clientName = new Map((clients || []).map((c) => [c.id, c.name]))
+    const projectName = new Map((projects || []).map((p) => [p.id, p.name]))
+    const map = new Map()
+    ;(events || []).forEach((ev) => {
+      let key, label
+      if (ev.client_id) { key = `c:${ev.client_id}`; label = clientName.get(ev.client_id) || 'לקוח' }
+      else if (ev.project_id) { key = `p:${ev.project_id}`; label = projectName.get(ev.project_id) || 'פרויקט' }
+      else { key = 'none'; label = 'לא מזוהים' }
+      if (!map.has(key)) map.set(key, { key, label, items: [] })
+      map.get(key).items.push(ev)
+    })
+    const groups = [...map.values()]
+    groups.sort((a, b) => {
+      if (a.key === 'none') return 1
+      if (b.key === 'none') return -1
+      return a.label.localeCompare(b.label, 'he')
+    })
+    return groups
+  }, [events, clients, projects])
 
   /* OAuth return: Google sent us back with ?code (or ?error). Exchange it
      once, then scrub the query string so a refresh can't re-fire it. */
@@ -75,6 +105,38 @@ export default function ConnectionsScreen() {
     await gcal.disconnect()
     refetch()
     setBusyAction(null)
+  }
+
+  /* One synced-event card — reused inside each accordion group. */
+  const renderEvent = (ev) => {
+    const matched = !!(ev.client_id || ev.project_id)
+    return (
+      <div key={ev.id} className="conn-event">
+        <div className="conn-event-main">
+          <p className="conn-event-title">{ev.title}</p>
+          <p className="conn-event-meta">
+            {fmtDateTime(ev.start_time, ev.all_day)}{ev.duration_minutes ? ` · ${fmtDuration(ev.duration_minutes)}` : ''}
+          </p>
+          <div className="conn-assign-row">
+            <label className="conn-assign">
+              <span className="conn-assign-lbl">לקוח</span>
+              <select className="conn-event-select" value={ev.client_id || ''} onChange={(e) => assignClient(ev, e.target.value)} aria-label="שיוך לקוח">
+                <option value="">— ללא —</option>
+                {(clients || []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </label>
+            <label className="conn-assign">
+              <span className="conn-assign-lbl">פרויקט</span>
+              <select className="conn-event-select" value={ev.project_id || ''} onChange={(e) => assignProject(ev, e.target.value)} aria-label="שיוך פרויקט">
+                <option value="">— ללא —</option>
+                {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </label>
+          </div>
+        </div>
+        <span className={`conn-tag${matched ? ' on' : ''}`}>{matched ? 'מזוהה' : 'לא מזוהה'}</span>
+      </div>
+    )
   }
 
   return (
@@ -135,59 +197,35 @@ export default function ConnectionsScreen() {
         )}
       </section>
 
-      {/* ── Synced events ─────────────────────────────────────── */}
+      {/* ── Synced events — nested accordion ──────────────────── */}
       {connected && (
         <section className="conn-events">
-          <p className="conn-events-h">אירועים שסונכרנו {events.length ? `(${events.length})` : ''}</p>
-          {eventsLoading ? (
-            <p className="conn-empty">טוען אירועים…</p>
-          ) : events.length === 0 ? (
-            <p className="conn-empty">אין אירועים בטווח שנבחר. נסה/י לסנכרן שוב או להרחיב את הטווח.</p>
-          ) : (
-            <div className="conn-event-list">
-              {events.map((ev) => {
-                const matched = !!(ev.client_id || ev.project_id)
-                return (
-                  <div key={ev.id} className="conn-event">
-                    <div className="conn-event-main">
-                      <p className="conn-event-title">{ev.title}</p>
-                      <p className="conn-event-meta">
-                        {fmtDateTime(ev.start_time, ev.all_day)}{ev.duration_minutes ? ` · ${fmtDuration(ev.duration_minutes)}` : ''}
-                      </p>
-                      <div className="conn-assign-row">
-                        <label className="conn-assign">
-                          <span className="conn-assign-lbl">לקוח</span>
-                          <select
-                            className="conn-event-select"
-                            value={ev.client_id || ''}
-                            onChange={(e) => assignClient(ev, e.target.value)}
-                            aria-label="שיוך לקוח"
-                          >
-                            <option value="">— ללא —</option>
-                            {(clients || []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                          </select>
-                        </label>
-                        <label className="conn-assign">
-                          <span className="conn-assign-lbl">פרויקט</span>
-                          <select
-                            className="conn-event-select"
-                            value={ev.project_id || ''}
-                            onChange={(e) => assignProject(ev, e.target.value)}
-                            aria-label="שיוך פרויקט"
-                          >
-                            <option value="">— ללא —</option>
-                            {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                          </select>
-                        </label>
-                      </div>
+          <button type="button" className="conn-acc-head conn-acc-main" onClick={() => setEventsOpen((v) => !v)} aria-expanded={eventsOpen}>
+            <span>אירועים שסונכרנו {events.length ? `(${events.length})` : ''}</span>
+            {eventsOpen ? <ChevronUp size={16} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={16} strokeWidth={1.7} aria-hidden="true" />}
+          </button>
+
+          {eventsOpen && (
+            eventsLoading ? (
+              <p className="conn-empty">טוען אירועים…</p>
+            ) : events.length === 0 ? (
+              <p className="conn-empty">אין אירועים בטווח שנבחר. נסה/י לסנכרן שוב או להרחיב את הטווח.</p>
+            ) : (
+              <div className="conn-groups">
+                {eventGroups.map((g) => {
+                  const open = openGroups.has(g.key)
+                  return (
+                    <div key={g.key} className={`conn-group${g.key === 'none' ? ' unmatched' : ''}`}>
+                      <button type="button" className="conn-acc-head conn-acc-sub" onClick={() => toggleGroup(g.key)} aria-expanded={open}>
+                        <span className="conn-group-label">{g.label}<span className="conn-group-count">{g.items.length}</span></span>
+                        {open ? <ChevronUp size={15} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={15} strokeWidth={1.7} aria-hidden="true" />}
+                      </button>
+                      {open && <div className="conn-group-events">{g.items.map(renderEvent)}</div>}
                     </div>
-                    <span className={`conn-tag${matched ? ' on' : ''}`}>
-                      {matched ? 'מזוהה' : 'לא מזוהה'}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+              </div>
+            )
           )}
         </section>
       )}

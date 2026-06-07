@@ -126,6 +126,16 @@ export const scheduled_meetings = [
   { id: uid(), user_id: USER, subject_type: 'client', subject_id: clients[0].id, scheduled_at: daysFromNow(2), status: 'pending', session_id: null, created_at: daysAgo(1) },
 ]
 
+/* ── calendar_events — Google Calendar sync (preview): grouped by the
+   identified client/project, plus unidentified (incl. an all-day). ── */
+export const calendar_events = [
+  { id: uid(), user_id: USER, google_event_id: 'g-1', client_id: clients[0].id, project_id: null, title: 'פגישה עם רעות מדיון', start_time: daysFromNow(1), end_time: daysFromNow(1), all_day: false, duration_minutes: 50, confidence_score: 0.92, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+  { id: uid(), user_id: USER, google_event_id: 'g-2', client_id: clients[0].id, project_id: null, title: 'מעקב — רעות', start_time: daysFromNow(8), end_time: daysFromNow(8), all_day: false, duration_minutes: 50, confidence_score: 0.85, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+  { id: uid(), user_id: USER, google_event_id: 'g-3', client_id: null, project_id: projects[1].id, title: 'סדנת בוקר — קבוצה', start_time: daysFromNow(3), end_time: daysFromNow(3), all_day: false, duration_minutes: 90, confidence_score: 0.8, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+  { id: uid(), user_id: USER, google_event_id: 'g-4', client_id: null, project_id: null, title: 'רופא שיניים', start_time: daysFromNow(2), end_time: daysFromNow(2), all_day: false, duration_minutes: 30, confidence_score: 0, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+  { id: uid(), user_id: USER, google_event_id: 'g-5', client_id: null, project_id: null, title: 'חופשה', start_time: daysFromNow(10), end_time: daysFromNow(11), all_day: true, duration_minutes: null, confidence_score: 0, matched_manually: false, created_at: daysAgo(1), updated_at: daysAgo(1), deleted_at: null },
+]
+
 /* ── goal_categories — auto אחת, manual שתיים ── */
 export const goal_categories = [
   { id: uid(), user_id: USER, key: 'income', name: 'הכנסות', icon: '💰', color: '#0e9888', measurement_type: 'auto', data_source: 'transactions', graph_type: 'delta', builtin: true, created_at: daysAgo(300) },
@@ -211,6 +221,7 @@ export const MOCK_DB = {
   lead_statuses,
   sessions,
   scheduled_meetings,
+  calendar_events,
   goal_categories,
   goals,
   goal_entries,

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ListTodo, Plus } from 'lucide-react'
+import { ListTodo, Plus, Trash2 } from 'lucide-react'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
 import { useProjects } from '../../hooks/useProjects'
@@ -8,6 +8,7 @@ import TaskItem from './TaskItem'
 import ReminderItem from './ReminderItem'
 import AddTaskModal from '../../modals/AddTaskModal'
 import AddReminderModal from '../../modals/AddReminderModal'
+import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
 import { isRecurring, isActiveReminder, dueOccurrenceCount } from '../../lib/reminders'
@@ -59,7 +60,7 @@ function reminderBucket(rem, now) {
 }
 
 export default function TasksScreen() {
-  const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask, editTask } = useTasks()
+  const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask, editTask, clearCompleted } = useTasks()
   const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder, editReminder } = useReminders()
   const { projects } = useProjects()
   const { clients } = useClients()
@@ -70,6 +71,7 @@ export default function TasksScreen() {
   const [filter, setFilter] = useState('todo')
   const [showAdd, setShowAdd] = useState(false)
   const [editItem, setEditItem] = useState(null)
+  const [confirmClear, setConfirmClear] = useState(false)
 
   const isTasks = view === 'tasks'
   /* Flip view + reset the filter tab and any in-progress edit. Done in the
@@ -215,6 +217,15 @@ export default function TasksScreen() {
         ))}
       </div>
 
+      {isTasks && filter === 'done' && doneCount > 0 && (
+        <div className="t-clear-row">
+          <button type="button" className="t-clear-btn" onClick={() => setConfirmClear(true)}>
+            <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
+            מחק הכל
+          </button>
+        </div>
+      )}
+
       <section className="t-list">
         {loading ? (
           <div className="empty"><p className="empty-text">{isTasks ? 'טוען משימות…' : 'טוען תזכורות…'}</p></div>
@@ -340,6 +351,15 @@ export default function TasksScreen() {
             projects={projects}
             clients={clients}
             onSave={(patch) => editItem && editTask(editItem.id, patch)}
+          />
+          <ConfirmModal
+            open={confirmClear}
+            onClose={() => setConfirmClear(false)}
+            title="מחיקת משימות שהושלמו"
+            message={`למחוק ${doneCount} ${doneCount === 1 ? 'משימה שהושלמה' : 'משימות שהושלמו'}? אפשר לשחזר אותן מ"זבל" עד 30 יום.`}
+            confirmLabel="מחק הכל"
+            danger
+            onConfirm={() => clearCompleted()}
           />
         </>
       ) : (

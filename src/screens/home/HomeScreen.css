@@ -928,6 +928,10 @@
   height: 22px;
   border-radius: 50%;
   border: 1.5px solid var(--divider);
+  /* Frosted glass instead of an opaque circle — matches the tasks-screen
+     check button (.tc-chk) and the app's two-layer standard. */
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;

@@ -58,6 +58,35 @@
   margin: 0 auto 14px;
 }
 
+/* ── "מחק הכל" action (completed-tasks view only) ───────────────── */
+.t-clear-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: -6px 2px 14px;
+}
+.t-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  color: var(--clay);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+}
+.t-clear-btn:hover {
+  background: color-mix(in srgb, var(--clay) 12%, var(--mg-card-bg));
+}
+.t-clear-btn:active {
+  transform: scale(0.97);
+}
+
 /* ── Priority groups ───────────────────────────────────────────── */
 .t-group {
   margin-bottom: 18px;
@@ -113,7 +142,10 @@
   flex-shrink: 0;
   border-radius: 50%;
   border: 1.5px solid var(--divider);
-  background: none;
+  /* Frosted glass instead of an opaque circle — translucent surface + blur,
+     the app's two-layer standard (beta feedback 04/06/2026). */
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
   cursor: pointer;
   display: inline-flex;
   align-items: center;

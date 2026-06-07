@@ -46,7 +46,7 @@ function Section({ title, count, defaultOpen = false, onEdit, editing = false, c
   )
 }
 
-export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx }) {
+export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditClient }) {
   /* Which panel is currently in edit mode (one at a time). The header
      pencil toggles it; in edit mode the panel's rows become tappable and
      open the matching editor. */
@@ -84,7 +84,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
       <div className="cd-group">
         <p className="cd-group-title">פעילות</p>
 
-        <Section title="פגישה שבועית קבועה">
+        <Section title="פגישה שבועית קבועה" onEdit={onEditClient}>
           {hasRecurring ? (
             <p className="cd-rec">כל יום <b>{DAYS[c.recurring_day]}</b> ב-<b>{c.recurring_time}</b></p>
           ) : (
@@ -179,7 +179,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
       <div className="cd-group">
         <p className="cd-group-title">קשר וסביבה</p>
 
-        <Section title="הערות">
+        <Section title="הערות" onEdit={onEditClient}>
           {c.notes ? (
             <>
               <p className="cd-note">{c.notes}</p>
@@ -209,7 +209,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           )}
         </Section>
 
-        <Section title="חברויות בקבוצות" count={memberships.length}>
+        <Section title="חברויות בקבוצות" count={memberships.length} onEdit={onEditClient && memberships.length ? onEditClient : undefined}>
           {memberships.length ? (
             memberships.map((m) => {
               const g = groups.find((x) => x.id === m.group_id)

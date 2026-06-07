@@ -195,7 +195,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 </button>
               </div>
 
-              <ClientDrawerSections client={client} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} />
+              <ClientDrawerSections client={client} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} />
             </div>
           </>
         )}

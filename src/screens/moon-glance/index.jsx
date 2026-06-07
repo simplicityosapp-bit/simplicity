@@ -16,9 +16,42 @@ import { useMoonSnapshots } from '../../hooks/useMoonSnapshots'
 import { useSessions } from '../../hooks/useSessions'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { questionText } from '../../lib/questionTemplates'
-import { buildOverviewTrend, OVERVIEW_METRICS } from '../../lib/overview'
+import { buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from '../../lib/overview'
 import MultiTrendChart from '../../components/MultiTrendChart'
 import './MoonGlanceScreen.css'
+
+/* Tiny scatter for a correlation card — honest display so the user sees
+   the spread, not just a number. Points are min-max scaled per axis. */
+function Scatter({ points }) {
+  const W = 120, H = 78, PAD = 6
+  if (!points || points.length < 3) return null
+  const xs = points.map((p) => p.x)
+  const ys = points.map((p) => p.y)
+  const xmin = Math.min(...xs), xmax = Math.max(...xs)
+  const ymin = Math.min(...ys), ymax = Math.max(...ys)
+  const sx = (x) => (xmax === xmin ? W / 2 : PAD + ((x - xmin) / (xmax - xmin)) * (W - 2 * PAD))
+  const sy = (y) => (ymax === ymin ? H / 2 : H - PAD - ((y - ymin) / (ymax - ymin)) * (H - 2 * PAD))
+  return (
+    <svg className="mg-scatter" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
+      {points.map((p, i) => (
+        <circle key={i} cx={Math.round(sx(p.x) * 10) / 10} cy={Math.round(sy(p.y) * 10) / 10} r="2.2" className="mg-scatter-dot" />
+      ))}
+    </svg>
+  )
+}
+
+function CorrCard({ driverText, outcomeText, c }) {
+  const dir = c.direction === 'pos' ? 'גבוה' : 'נמוך'
+  return (
+    <div className="mg-corr-card">
+      <div className="mg-corr-text">
+        <p className="mg-corr-line">בימים ש<b>{driverText}</b> גבוה, <b>{outcomeText}</b> נוטה להיות {dir} יותר.</p>
+        <p className="mg-corr-sub">קשר {c.strength} · {c.n} נקודות</p>
+      </div>
+      <Scatter points={c.points} />
+    </div>
+  )
+}
 
 /* Metric toggles for the cross-module trend overlay (§8.1). */
 const OVERVIEW_PILLS = [
@@ -111,6 +144,12 @@ export default function MoonGlanceScreen() {
       transactions, leads, sessions, answers, scoreByDay, questionId: questionId || null,
     }, { window: 30, questionLabel: selectedQuestion ? questionText(selectedQuestion) : undefined }),
     [overviewKeys, transactions, leads, sessions, answers, scoreByDay, questionId, selectedQuestion],
+  )
+  /* Guarded correlations (§8.2) — Spearman + permutation + split-half;
+     the common result is an honest "no significant link". */
+  const correlations = useMemo(
+    () => buildOverviewCorrelations({ transactions, leads, sessions, answers }, { window: 90, questions: activeQuestions }),
+    [transactions, leads, sessions, answers, activeQuestions],
   )
 
   if (!overall) {
@@ -215,6 +254,25 @@ export default function MoonGlanceScreen() {
         )}
         <MultiTrendChart days={overview.days} series={overview.series} />
         <p className="mg-ov-note">מגמות יחסיות — כל קו בקנה-מידה משלו (0–100). קשר ויזואלי אינו סיבתיות.</p>
+      </div>
+
+      <p className="mg-section-h">קשרים לבדיקה</p>
+      <div className="mg-overview">
+        {correlations.length === 0 ? (
+          <p className="mg-corr-empty">אין קשר מובהק בנתונים — וזה בסדר. ככל שתצבור עוד ימים עם תשובות יומיות, נציף כאן דפוסים יציבים שכדאי לבדוק.</p>
+        ) : (
+          <>
+            {correlations.map((c) => (
+              <CorrCard
+                key={c.key}
+                c={c}
+                driverText={questionText(c.driverLabel)}
+                outcomeText={c.outcomeLabel || (c.outcomeQ ? questionText(c.outcomeQ) : '')}
+              />
+            ))}
+            <p className="mg-ov-note">תצפיות ראשוניות בלבד — קשר אינו סיבתיות. הנתונים מאוגדים ומסוננים סטטיסטית לאמינוּת.</p>
+          </>
+        )}
       </div>
 
       <button type="button" className="mg-footer-link" onClick={() => navigate(ROUTES.GOALS)}>

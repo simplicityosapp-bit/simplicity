@@ -238,6 +238,22 @@
 }
 .drawer-profile-score {
   flex-shrink: 0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+.drawer-profile-score-lbl {
+  /* Own colour overrides the tier colour the parent sets inline, so the
+     caption stays a muted label while the number wears the tier hue. */
+  font-family: var(--mg-font);
+  font-size: calc(9px * var(--text-scale));
+  font-weight: 500;
+  color: var(--t4);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.drawer-profile-score-val {
   font-family: var(--mg-font-num);
   font-size: calc(13px * var(--text-scale));
   font-weight: 500;

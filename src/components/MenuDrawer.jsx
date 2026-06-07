@@ -236,7 +236,8 @@ function ProfileChipInner({ name, role, email, health, loading, onClick }) {
       {health
         ? (
           <span className="drawer-profile-score" style={tier ? { color: tier.color } : undefined}>
-            {loading ? '··' : `${score}%`}
+            <span className="drawer-profile-score-lbl">ציון פרופיל</span>
+            <span className="drawer-profile-score-val">{loading ? '··' : `${score}%`}</span>
           </span>
         )
         : (

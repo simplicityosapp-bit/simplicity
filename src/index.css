@@ -105,6 +105,44 @@ button {
   background: var(--bone);
   z-index: 200;
 }
+/* Emblem = the ensō ring with the heartbeat logo nested in its centre. */
+.splash-emblem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+}
+/* The ensō draws itself: a conic-gradient mask sweeps clockwise from the
+   brush's bottom opening (90deg) to reveal the stroke, holds the full
+   circle, then fades and redraws — a calm breathing loop while loading.
+   --enso-sweep is registered with @property so the angle interpolates. */
+@property --enso-sweep {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.splash-enso {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-mask-image: conic-gradient(from 90deg, #000 0deg, #000 var(--enso-sweep), transparent var(--enso-sweep));
+  mask-image: conic-gradient(from 90deg, #000 0deg, #000 var(--enso-sweep), transparent var(--enso-sweep));
+  animation: ensoDraw 2.6s ease-in-out infinite;
+}
+@keyframes ensoDraw {
+  0%   { --enso-sweep: 0deg;   opacity: 0; }
+  12%  { opacity: 1; }
+  62%  { --enso-sweep: 360deg; opacity: 1; }
+  82%  { --enso-sweep: 360deg; opacity: 1; }
+  100% { --enso-sweep: 360deg; opacity: 0; }
+}
 .splash-logo-wrap {
   display: flex;
   align-items: center;
@@ -144,6 +182,12 @@ button {
 }
 @media (prefers-reduced-motion: reduce) {
   .splash-logo-wrap { animation: none; }
+  /* Show the full ensō statically — no sweep, no fade. */
+  .splash-enso {
+    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
 }
 /* Recovery action on the ErrorBoundary fallback — same primary-button
    tokens as .empty-action so it never looks foreign. */

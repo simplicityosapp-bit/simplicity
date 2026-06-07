@@ -35,9 +35,18 @@ export function useOnboarding() {
   const isComplete = !!(state.completed_at || state.skipped_at)
   const completedSteps = state.completed_steps || []
 
+  /* Patch a few onboarding keys. We deliberately DON'T spread `...state`
+     here: `update` already deep-merges the patch over the LATEST prefs
+     (prefsRef), so re-injecting this render's snapshot only risks
+     clobbering a value written by an immediately-preceding update() in
+     the same handler. That race was the "double-click to start" bug:
+     WelcomeGate.onStart sets welcome_seen=true, then markStarted() ran
+     patch({started_at}) which spread a stale state with welcome_seen=false
+     and reverted it — bouncing the user straight back out of onboarding.
+     (setAnswers already patches sub-keys without the spread — same idea.) */
   const patch = useCallback(
-    (next) => update({ onboarding: { ...state, ...next } }),
-    [update, state],
+    (next) => update({ onboarding: next }),
+    [update],
   )
 
   const setAnswers = useCallback(

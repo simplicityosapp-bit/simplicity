@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown } from 'lucide-react'
+import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock } from 'lucide-react'
 import { attentionItems } from '../../../lib/homeData'
 import InfoPopover from '../../../components/InfoPopover'
 import Modal from '../../../modals/Modal'
@@ -21,6 +21,9 @@ import { useProjects } from '../../../hooks/useProjects'
 import { useRecurring } from '../../../hooks/useRecurring'
 import { useSessions } from '../../../hooks/useSessions'
 import { useLeads } from '../../../hooks/useLeads'
+import { useCalendarEvents } from '../../../hooks/useCalendarEvents'
+import { useCalendarDuplicates } from '../../../hooks/useCalendarDuplicates'
+import CalendarDuplicateModal from '../../../modals/CalendarDuplicateModal'
 
 const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
 
@@ -33,7 +36,7 @@ const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
 export default function AttentionWidget() {
   const navigate = useNavigate()
   const { transactions, setStatus: setTxStatus, removeTransaction, addTransaction, loading: transactionsLoading } = useTransactions()
-  const { meetings, addMeeting, loading: meetingsLoading } = useScheduledMeetings()
+  const { meetings, addMeeting, updateMeeting, loading: meetingsLoading } = useScheduledMeetings()
   const { clients } = useClients()
   const { groups } = useGroups()
   const { members } = useGroupMembers()
@@ -45,6 +48,7 @@ export default function AttentionWidget() {
   const { templates } = useRecurring()
   const { sessions } = useSessions()
   const { leads } = useLeads()
+  const { events: calendarEvents, dismissEvent } = useCalendarEvents()
 
   /* Materialise pending scheduled-meeting rows + their linked on_meeting
      expenses so the attention count + popups are populated on home visit.
@@ -64,6 +68,12 @@ export default function AttentionWidget() {
     [transactions, meetings, clients, tasks, goals, goalCategories, sessions, leads, members, groups],
   )
 
+  /* Calendar duplicates (app recurring meeting ⇄ synced Google event) surface
+     as one attention row here that opens the shared resolver modal. */
+  const { duplicates, hideMeeting, hideEvent } = useCalendarDuplicates({
+    meetings, calendarEvents, clients, groups, updateMeeting, dismissEvent,
+  })
+
   /* Closed = title + summary of what's inside; click opens the full list. */
   const [open, setOpen] = useState(false)
   const [popup, setPopup] = useState(null) /* 'tx' | 'meetings' | null */
@@ -73,9 +83,14 @@ export default function AttentionWidget() {
     [transactions],
   )
 
-  const summary = items.length === 0
+  const dupText = duplicates.length > 0
+    ? (duplicates.length === 1 ? 'כפילות ביומן מול גוגל' : `${duplicates.length} כפילויות ביומן מול גוגל`)
+    : null
+  const totalCount = items.length + (dupText ? 1 : 0)
+  const summaryParts = [dupText, ...items.map((it) => it.text)].filter(Boolean)
+  const summary = totalCount === 0
     ? 'הכל תחת שליטה — אין פריטים פתוחים'
-    : items.slice(0, 2).map((it) => it.text).join(' · ') + (items.length > 2 ? ` · ועוד ${items.length - 2}` : '')
+    : summaryParts.slice(0, 2).join(' · ') + (summaryParts.length > 2 ? ` · ועוד ${summaryParts.length - 2}` : '')
 
   /* Actionable rows open a popup; the rest navigate. */
   const onRow = (it) => {
@@ -98,11 +113,18 @@ export default function AttentionWidget() {
               text="פריטים שדורשים פעולה: תנועות ממתינות לאישור, פגישות שעדיין לא סומנו, לקוחות שלא טופלו 45 ימים, ויעדים מתחת לקצב."
             />
           </span>
-          <span className="h-card-count">{items.length} {items.length === 1 ? 'פריט' : 'פריטים'}</span>
+          <span className="h-card-count">{totalCount} {totalCount === 1 ? 'פריט' : 'פריטים'}</span>
           <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
         </div>
         {open ? (
           <div className="h-card-list">
+            {duplicates.length > 0 && (
+              <button type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('duplicates') }}>
+                <CalendarClock size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
+                <span className="h-attn-text">{dupText}</span>
+                <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
+              </button>
+            )}
             {items.length ? (
               items.map((it, i) => {
                 const Icon = ICONS[it.icon] || Bell
@@ -114,9 +136,9 @@ export default function AttentionWidget() {
                   </button>
                 )
               })
-            ) : (
+            ) : duplicates.length === 0 ? (
               <p className="h-card-empty">אין פריטים שדורשים תשומת לב כרגע.</p>
-            )}
+            ) : null}
           </div>
         ) : (
           <p className="h-card-summary">{summary}</p>
@@ -143,6 +165,14 @@ export default function AttentionWidget() {
       <Modal open={popup === 'meetings'} onClose={() => setPopup(null)} title="פגישות לאישור">
         <MeetingConfirmList />
       </Modal>
+
+      <CalendarDuplicateModal
+        open={popup === 'duplicates'}
+        onClose={() => setPopup(null)}
+        duplicates={duplicates}
+        onHideMeeting={hideMeeting}
+        onHideEvent={hideEvent}
+      />
     </>
   )
 }

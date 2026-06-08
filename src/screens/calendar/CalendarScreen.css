@@ -11,6 +11,31 @@
   letter-spacing: 0.06em;
 }
 
+/* Duplicate-detection banner: app recurring meeting collides with a synced
+   Google event. Opens the resolver modal. Clay-tinted to read as "attention". */
+.cal-dup-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: var(--mg-card-radius);
+  border: 1px solid color-mix(in srgb, var(--clay) 45%, var(--divider));
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  color: var(--clay);
+  cursor: pointer;
+  text-align: start;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  transition: border-color 0.15s;
+}
+.cal-dup-banner:hover { border-color: var(--clay); }
+.cal-dup-text { flex: 1; }
+.cal-dup-cta { font-weight: 600; white-space: nowrap; }
+
 /* add gate (D2 — 4-type chooser) */
 .cal-gate {
   display: flex;

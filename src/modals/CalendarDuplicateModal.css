@@ -1,0 +1,88 @@
+/* ── Calendar duplicate resolver ───────────────────────────────── */
+.cdup-empty {
+  margin: 8px 0 4px;
+  text-align: center;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--stone);
+}
+.cdup-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 4px 0 2px;
+}
+.cdup-card {
+  padding: 12px;
+  border-radius: var(--mg-card-radius);
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+}
+.cdup-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.cdup-name {
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.cdup-when {
+  font-family: var(--mg-font-num, var(--mg-font));
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+}
+.cdup-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cdup-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--espresso) 5%, transparent);
+}
+.cdup-row-lbl {
+  flex: 1;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--espresso);
+  line-height: 1.4;
+}
+.cdup-btn {
+  flex-shrink: 0;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.cdup-btn:hover {
+  border-color: var(--clay);
+  color: var(--clay);
+}
+.cdup-note {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 8px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(10px * var(--text-scale));
+  color: var(--mist, var(--stone));
+}

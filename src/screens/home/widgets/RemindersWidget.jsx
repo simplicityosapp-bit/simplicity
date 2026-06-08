@@ -44,7 +44,14 @@ export default function RemindersWidget() {
         <div className="h-card-list">
           {items.length ? (
             items.map((r) => (
-              <div key={r.id} className="h-rem-row">
+              <div
+                key={r.id}
+                className="h-rem-row"
+                role="button"
+                tabIndex={0}
+                onClick={(e) => { e.stopPropagation(); navigate(ROUTES.CALENDAR) }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); navigate(ROUTES.CALENDAR) } }}
+              >
                 <span className="h-rem-text">{r.title}</span>
                 <span className="h-rem-when">{formatWhen(r.when)}</span>
                 <button type="button" className="h-check" title="בוצעה" aria-label="סמן כבוצעה" onClick={(e) => { e.stopPropagation(); completeReminder(r.id) }}>

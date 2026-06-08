@@ -14,6 +14,10 @@ export default function BottomNav({ onOpenMenu }) {
   const navigate = useNavigate()
   const location = useLocation()
   const screen = screenKeyFromPath(location.pathname)
+  /* Screens reached only via the drawer (reports/moon/insights/trash/
+     connections/settings/…) match no bottom tab — mark "תפריט" active so the
+     bar never reads as "nowhere". */
+  const onMenuScreen = !BOTTOM_NAV.some((i) => i.key === screen)
 
   return (
     <nav className="mg-bottombar" aria-label="ניווט תחתון">
@@ -35,7 +39,12 @@ export default function BottomNav({ onOpenMenu }) {
           </button>
         )
       })}
-      <button className="mg-bottombar-item" data-screen="menu" onClick={onOpenMenu}>
+      <button
+        className={`mg-bottombar-item${onMenuScreen ? ' is-active' : ''}`}
+        data-screen="menu"
+        aria-current={onMenuScreen ? 'page' : undefined}
+        onClick={onOpenMenu}
+      >
         <span className="mg-bottombar-chip" aria-hidden="true">
           <Menu size={22} strokeWidth={1.6} />
         </span>

@@ -19,11 +19,16 @@ export const QTEXT = {
   quiet: 'כמה שקט מצאת היום?',
 }
 
+/* Single source of truth for BOTH the in-app AddQuestionModal and the
+   onboarding Step-5 presets (they used to drift apart). One icon per key. */
 export const QUESTION_TEMPLATES = [
-  { key: 'mood', icon: '🫧', scale_type: '1-10' },
+  { key: 'mood', icon: '🤍', scale_type: '1-10' },
   { key: 'energy', icon: '⚡', scale_type: '1-10' },
   { key: 'sleep', icon: '🌙', scale_type: '1-10' },
   { key: 'focus', icon: '🎯', scale_type: '1-10' },
+  { key: 'nutrition', icon: '🥗', scale_type: '1-10' },
+  { key: 'movement', icon: '🏃', scale_type: '1-10' },
+  { key: 'quiet', icon: '🫧', scale_type: '1-10' },
 ]
 
 /* The text shown for a question row (custom_text wins, else the template). */

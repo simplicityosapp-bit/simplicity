@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft } from 'lucide-react'
+import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown } from 'lucide-react'
 import { attentionItems } from '../../../lib/homeData'
 import InfoPopover from '../../../components/InfoPopover'
 import Modal from '../../../modals/Modal'
@@ -99,6 +99,7 @@ export default function AttentionWidget() {
             />
           </span>
           <span className="h-card-count">{items.length} {items.length === 1 ? 'פריט' : 'פריטים'}</span>
+          <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
         </div>
         {open ? (
           <div className="h-card-list">

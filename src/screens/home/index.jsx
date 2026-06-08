@@ -1,6 +1,5 @@
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useClients } from '../../hooks/useClients'
-import { ACCENT_OPTIONS } from '../../lib/preferences'
 import HomeWelcome from '../../components/HomeWelcome'
 import QuoteWidget from './widgets/QuoteWidget'
 import MoonWidget from './widgets/MoonWidget'
@@ -24,8 +23,6 @@ const WIDGET_COMPONENTS = {
   'chips':            ChipsWidget,
 }
 
-const ACCENT_BY_KEY = Object.fromEntries(ACCENT_OPTIONS.map((a) => [a.v, a.color]))
-
 /* Build a `<div class="home-widget">` wrapper around the widget body.
    Lifted out so we can render it both inline (default stack) and
    inside the special top row (quote + moon side-by-side). */
@@ -33,8 +30,9 @@ function renderWidget(w, globalDensity) {
   const Comp = WIDGET_COMPONENTS[w.id]
   if (!Comp) return null
   const density = w.density || globalDensity
-  const style = { '--widget-accent': ACCENT_BY_KEY[w.accent] || ACCENT_BY_KEY.sage }
   const className = `home-widget${w.compact ? ' compact' : ''}`
+  /* --widget-accent is resolved in CSS from data-accent (HomeScreen.css), so
+     it can remap per theme — a light-mode hex no longer leaks into dark. */
   return (
     <div
       key={w.id}
@@ -42,7 +40,6 @@ function renderWidget(w, globalDensity) {
       data-widget-id={w.id}
       data-density={density}
       data-accent={w.accent}
-      style={style}
     >
       <Comp compact={w.compact} />
     </div>

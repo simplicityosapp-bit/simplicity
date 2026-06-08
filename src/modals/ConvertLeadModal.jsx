@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import { showToast } from '../lib/toast'
 
 /* Convert a lead → client. The lead's name/phone seed the form; the
    user can adjust and pick a project. On save:
@@ -70,6 +71,7 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], s
         },
         { source: 'converted' },
       )
+      showToast('נוצר לקוח חדש')
       onClose()
     } catch (e) {
       setBusy(false)

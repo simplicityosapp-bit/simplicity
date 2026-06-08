@@ -20,6 +20,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import lazyWithRetry from './lib/lazyWithRetry'
 import FeedbackModal from './modals/FeedbackModal'
 import UndoToast from './components/UndoToast'
+import Toast from './components/Toast'
 import AccountDeletionPending from './components/AccountDeletionPending'
 
 /* Screens are code-split: each becomes its own chunk loaded on first
@@ -199,6 +200,7 @@ function AppShell() {
       <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
       <ScreenTour screenKey={screen} />
       <UndoToast />
+      <Toast />
     </div>
   )
 }

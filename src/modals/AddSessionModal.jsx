@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import { showToast } from '../lib/toast'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = () => ({ date: todayStr(), summary: '', notes: '' })
@@ -31,6 +32,7 @@ export default function AddSessionModal({ open, onClose, onSave, client, group, 
         summary: form.summary.trim() || null,
         notes: form.notes.trim() || null,
       })
+      showToast('הפגישה נשמרה')
       close()
     } catch (e) {
       setBusy(false)

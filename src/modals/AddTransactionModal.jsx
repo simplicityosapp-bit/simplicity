@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import { showToast } from '../lib/toast'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
    Israeli evenings, flipping a same-day tx to pending. */
@@ -73,6 +74,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
         recurring_id: null,
         orphaned_from: null,
       })
+      showToast('התנועה נשמרה')
       close()
     } catch (e) {
       setBusy(false)

@@ -1,0 +1,38 @@
+/* ════════════════════════════════════════════════════════════════
+   APP TOAST — transient success confirmation (sage pill).
+   Sits just above the undo snackbar so the two never overlap on the
+   rare occasion both are visible.
+   ════════════════════════════════════════════════════════════════ */
+.app-toast {
+  position: fixed;
+  bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 260;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 11px 16px;
+  border-radius: 14px;
+  background: var(--sage);
+  color: var(--on-accent);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(42, 37, 32, 0.22);
+  cursor: pointer;
+  animation: app-toast-in 0.2s ease;
+}
+[data-theme="dark"] .app-toast { color: var(--ink-on-accent); }
+.app-toast svg { flex-shrink: 0; }
+
+@keyframes app-toast-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (max-width: 767px) {
+  /* On mobile the undo bar sits at 80px; keep the success pill clear of it. */
+  .app-toast { bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
+}

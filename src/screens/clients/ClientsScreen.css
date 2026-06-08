@@ -116,6 +116,15 @@
   inset-inline-end: 16px;
   z-index: 2;
 }
+.c-hero .mg-toggle-btn:disabled { opacity: 0.45; cursor: default; }
+/* One-line caption explaining what the monthly/cumulative toggle changes. */
+.c-hero-scope-note {
+  margin: 0 0 10px;
+  padding-inline-end: 112px;            /* clear the absolutely-positioned toggle */
+  font-family: var(--mg-font);
+  font-size: calc(10.5px * var(--text-scale));
+  color: var(--mist);
+}
 .c-hero-title {
   margin: 0 0 14px;
   font-family: var(--mg-font);

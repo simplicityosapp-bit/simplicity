@@ -41,6 +41,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   /* True while "הוסף תנועה" is handling the prompt, so the shared onClose
      doesn't ALSO record an informal credit. */
   const paidActionRef = useRef(false)
+  const scrollRef = useRef(null)
 
   useEffect(() => {
     if (!open) return
@@ -48,6 +49,11 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
+
+  /* Reset the scroll to the top when a different client opens — the panel
+     swaps content in place, so a new (shorter) profile would otherwise open
+     scrolled partway down. */
+  useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = 0 }, [client?.id])
 
   /* Change the client's status with a one-step undo (restores the prior
      status_meta + status_id). No-op if the status didn't actually change. */
@@ -88,7 +94,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
               </button>
             </div>
 
-            <div className="cd-scroll">
+            <div className="cd-scroll" ref={scrollRef}>
               <div className="cd-header">
                 <div className="cd-h-av">{initials(client.name)}</div>
                 <div className="cd-h-id">

@@ -73,19 +73,6 @@ function ClientCard({
             {project && <span className="cc-proj">{project.name}</span>}
           </div>
         </div>
-        {!selectMode && (
-          <button
-            type="button"
-            className="cc-profile"
-            onClick={(e) => {
-              e.stopPropagation()
-              onOpen?.(client.id)
-            }}
-          >
-            <span>פרופיל</span>
-            <span>מלא</span>
-          </button>
-        )}
       </div>
 
       <div className={`cc-stats${hasSetup ? '' : ' dim'}`}>

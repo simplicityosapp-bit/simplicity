@@ -1,8 +1,10 @@
 /* ════════════════════════════════════════════════════════════════
    GOAL CATEGORIES API — Supabase data access (RLS-scoped to the user).
    ════════════════════════════════════════════════════════════════
-   No builtins are seeded — a user starts with zero categories and is
-   softly nudged to add one (preset or custom).
+   CANONICAL: the auto-measurable default categories ARE seeded once per
+   account on the first Goals visit (goals/index.jsx, guarded by
+   prefs.goalsSeeded). The empty "choose where to start" chooser now only
+   serves a user who deleted every category.
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'

@@ -1,10 +1,11 @@
 /* ════════════════════════════════════════════════════════════════
    GOAL CATEGORY PRESETS — one-tap "auto" categories.
    ════════════════════════════════════════════════════════════════
-   No builtins are seeded; the user adds these on demand. Each carries
-   the technical config (measurement_type / data_source / graph_type)
-   so a non-technical user never has to set it. Custom (manual)
-   categories are created via AddGoalCategoryModal instead.
+   CANONICAL: these defaults ARE seeded once per account on first visit to
+   Goals (goals/index.jsx, guarded by prefs.goalsSeeded) so a new user lands
+   on a ready board. Each carries the technical config (measurement_type /
+   data_source / graph_type) so a non-technical user never has to set it.
+   Custom (manual) categories are created via AddGoalCategoryModal instead.
    ════════════════════════════════════════════════════════════════ */
 
 export const CATEGORY_PRESETS = [

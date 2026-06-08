@@ -405,6 +405,11 @@ textarea:focus-visible,
 .screen::-webkit-scrollbar {
   display: none;
 }
+/* While a modal is open, freeze the scrolling screen behind it so touch
+   scrolling can't bleed through to the background (Modal toggles the class). */
+body.modal-open .screen {
+  overflow: hidden;
+}
 
 /* ── Placeholder centerpiece (Task 1 — empty screens) ────────────
    Replaced screen-by-screen in later tasks. */

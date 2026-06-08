@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { showError } from '../lib/toast'
 
 /* Reads the synced `calendar_events` (own rows via RLS) and lets the user
    assign an entity by hand to an unmatched event. The sync upsert itself
@@ -65,7 +66,7 @@ export function useCalendarEvents() {
       .from('calendar_events')
       .update({ [field]: next, matched_manually: stillManual })
       .eq('id', ev.id)
-    if (e) { setError(e.message); refetch() }
+    if (e) { setError(e.message); showError('שיוך האירוע נכשל — נסה/י שוב'); refetch() }
   }, [refetch])
 
   const assignClient = useCallback((ev, clientId) => assignMatch(ev, 'client_id', clientId), [assignMatch])

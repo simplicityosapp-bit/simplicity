@@ -4,6 +4,7 @@ import {
   listTransactions, insertTransaction, updateTransaction, removeTransaction as apiRemoveTx, restoreTransaction,
 } from '../lib/api/transactions'
 import { registerDeleteUndo } from '../lib/undoActions'
+import { showError } from '../lib/toast'
 
 /* React-Query-backed: the finance + home widgets that each fetched the
    whole transactions table now share one cached fetch. Public API
@@ -33,6 +34,7 @@ export function useTransactions() {
       await updateTransaction(id, { status })
     } catch {
       qc.invalidateQueries({ queryKey: KEY })
+      showError('עדכון התנועה נכשל — נסה/י שוב')
     }
   }, [qc])
 

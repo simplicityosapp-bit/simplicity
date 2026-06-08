@@ -64,9 +64,10 @@ button {
 }
 
 /* Keyboard-focus baseline — a visible ring for keyboard users (never on
-   mouse clicks, thanks to :focus-visible). Components that explicitly strip
-   `outline` still override this; this restores focus on the many interactive
-   elements that don't. */
+   mouse clicks, thanks to :focus-visible). `!important` so it wins over the
+   ~dozen components that strip `outline` on :focus with higher specificity —
+   it only ever applies to KEYBOARD focus, so those components keep their
+   clean mouse-click state while keyboard users always get a visible ring. */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -74,8 +75,8 @@ select:focus-visible,
 textarea:focus-visible,
 [role="button"]:focus-visible,
 [tabindex]:not([tabindex="-1"]):focus-visible {
-  outline: 2px solid var(--terracotta);
-  outline-offset: 2px;
+  outline: 2px solid var(--terracotta) !important;
+  outline-offset: 2px !important;
 }
 
 /* ── App shell ───────────────────────────────────────────────────

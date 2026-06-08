@@ -108,6 +108,10 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
         </div>
       )}
 
+      {!isEdit && (
+        <p className="m-hint">למשימה אין תאריך יעד — צריך תזכורת ליום מסוים? הוסיפו <strong>תזכורת</strong> במקום.</p>
+      )}
+
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">

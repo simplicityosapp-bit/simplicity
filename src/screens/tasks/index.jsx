@@ -34,10 +34,11 @@ const FILTERS = [
   { key: 'done', label: 'הושלמו' },
   { key: 'all', label: 'הכל' },
 ]
-/* Reminders get their own tabs: open vs the recurring schedule. */
+/* Reminders get their own tabs: open, the recurring schedule, and completed. */
 const REM_FILTERS = [
   { key: 'todo', label: 'פתוחות' },
   { key: 'recurring', label: 'חוזרות' },
+  { key: 'done', label: 'הושלמו' },
 ]
 const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
@@ -135,12 +136,13 @@ export default function TasksScreen() {
   }, [tasks, filter, categoryFilter])
 
   const filteredReminders = useMemo(() => {
+    if (filter === 'done') return reminders.filter((r) => r.status === 'completed')
     /* "פתוחות" = open one-off + recurring whose occurrence has come due. */
     return reminders.filter((r) => {
       if (!isActiveReminder(r)) return false
       return isRecurring(r) ? dueOccurrenceCount(r, now) >= 1 : true
     })
-  }, [reminders, now])
+  }, [reminders, now, filter])
 
   /* "חוזרות" tab — all active recurring reminders, grouped: weekly by
      day-of-week, monthly together, every-X-days together. */
@@ -362,7 +364,26 @@ export default function TasksScreen() {
               ))
             )
           ) : filteredReminders.length === 0 ? (
-            <div className="empty"><p className="empty-text">אין תזכורות פתוחות. הכל רגוע.</p></div>
+            <div className="empty"><p className="empty-text">{filter === 'done' ? 'עוד לא הושלמו תזכורות.' : 'אין תזכורות פתוחות. הכל רגוע.'}</p></div>
+          ) : filter === 'done' ? (
+            <div className="t-group">
+              <p className="t-group-lbl">
+                <span className="t-group-dot" style={{ background: 'var(--stone)' }} />
+                הושלמו
+                <span className="t-group-count">{filteredReminders.length}</span>
+              </p>
+              {filteredReminders.map((r, i) => (
+                <ReminderItem
+                  key={r.id}
+                  reminder={r}
+                  clientName={clientNameOf(r.client_id)}
+                  dotColor="var(--stone)"
+                  onComplete={completeReminder}
+                  onEdit={setEditItem}
+                  index={i}
+                />
+              ))}
+            </div>
           ) : (
             REM_BUCKETS.map((b) => {
               const items = filteredReminders.filter((r) => reminderBucket(r, now) === b.key)

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { remindersUpcoming } from '../../lib/homeData'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
+import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetingsGeneration'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
 import { useClients } from '../../hooks/useClients'
 import { useGroups } from '../../hooks/useGroups'
@@ -28,10 +29,16 @@ const VALID_VIEWS = new Set(['schedule', 'day', 'week', 'month'])
 
 export default function CalendarScreen() {
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
-  const { meetings, addMeeting, updateMeeting } = useScheduledMeetings()
+  const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
   const { events: calendarEvents } = useCalendarEvents()
   const { clients } = useClients()
   const { groups } = useGroups()
+
+  /* Materialize recurring client/group meetings (recurring_day + recurring_time)
+     into scheduled_meetings while the calendar is open. Without this the engine
+     only runs on the home screen (AttentionWidget), so a freshly-set "שעה קבועה"
+     wouldn't appear here until the user happened to visit home. Idempotent. */
+  useScheduledMeetingsGeneration({ clients, groups, meetings, meetingsLoading, addMeeting })
   const { leads } = useLeads()
   const { projects } = useProjects()
   const { addTask } = useTasks()

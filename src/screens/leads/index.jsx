@@ -5,6 +5,8 @@ import { useLeadSources } from '../../hooks/useLeadSources'
 import { useLeadStatuses } from '../../hooks/useLeadStatuses'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
+import { useGroups } from '../../hooks/useGroups'
+import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { LEAD_META, statusMetaOfLead, metaColor } from '../../lib/leads'
@@ -34,10 +36,14 @@ function computeStats(list, now = new Date()) {
 
 export default function LeadsScreen() {
   const { leads: leadList, loading, error, addLead, updateLead, removeLead } = useLeads()
-  const { sources } = useLeadSources()
+  const { sources, addSource } = useLeadSources()
   const { statuses: leadStatuses, addStatus: addLeadStatus, updateStatus: updateLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
   const { addClient } = useClients()
   const { projects } = useProjects()
+  const { groups } = useGroups()
+  /* Inline source creation from the lead modals — new sources take the first
+     palette color (recolorable later in Settings → lead settings). */
+  const handleAddSource = useCallback((name) => addSource({ name: name.trim(), color: CATEGORY_COLORS[0] }), [addSource])
   const { prefs, update: updatePrefs } = useUserPreferences()
   const view = prefs?.leadsView === 'statuses' ? 'statuses' : 'kanban'
   const setView = (v) => updatePrefs?.({ leadsView: v })
@@ -195,14 +201,17 @@ export default function LeadsScreen() {
         </div>
       )}
 
-      <AddLeadModal open={showAdd} onClose={() => setShowAdd(false)} sources={sources} statuses={leadStatuses} projects={projects} onSave={addLead} />
+      <AddLeadModal open={showAdd} onClose={() => setShowAdd(false)} sources={sources} statuses={leadStatuses} projects={projects} groups={groups} onAddSource={handleAddSource} onSave={addLead} />
       <EditLeadModal
         key={editLead?.id}
         open={!!editLead}
         onClose={() => setEditLead(null)}
         lead={editLead}
         statuses={leadStatuses}
+        sources={sources}
         projects={projects}
+        groups={groups}
+        onAddSource={handleAddSource}
         onSave={updateLead}
       />
       <ConvertLeadModal
@@ -211,6 +220,7 @@ export default function LeadsScreen() {
         onClose={() => setConvertLead(null)}
         lead={convertLead}
         projects={projects}
+        groups={groups}
         statuses={leadStatuses}
         onCreateClient={addClient}
         onUpdateLead={updateLead}

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Check, X, CalendarDays, Clock } from 'lucide-react'
 import Modal from './Modal'
 import { formatWhen, fmtTime } from '../lib/dates'
@@ -8,6 +9,9 @@ import { formatWhen, fmtTime } from '../lib/dates'
    parent decides whether confirming a meeting also touches linked
    transactions (we don't repeat that cascade here). */
 export default function EventDetailsModal({ open, onClose, event, onConfirmMeeting, onSkipMeeting, onCompleteReminder, onRemoveReminder }) {
+  /* Two-step delete confirm (resets per event — parent keys the modal on
+     event.id). No undo path here, so the second tap is the safety net. */
+  const [confirmDel, setConfirmDel] = useState(false)
   if (!event) return <Modal open={open} onClose={onClose} title="פרטי אירוע" />
 
   const isMeeting = event.kind === 'meeting'
@@ -73,8 +77,12 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
             <button type="button" className="evt-detail-btn approve" onClick={handle(onCompleteReminder)}>
               <Check size={15} strokeWidth={2} aria-hidden="true" /> סמן כבוצע
             </button>
-            <button type="button" className="evt-detail-btn skip" onClick={handle(onRemoveReminder)}>
-              <X size={15} strokeWidth={2} aria-hidden="true" /> מחק
+            <button
+              type="button"
+              className="evt-detail-btn skip"
+              onClick={confirmDel ? handle(onRemoveReminder) : () => setConfirmDel(true)}
+            >
+              <X size={15} strokeWidth={2} aria-hidden="true" /> {confirmDel ? 'בטוח? מחק' : 'מחק'}
             </button>
           </div>
         </div>

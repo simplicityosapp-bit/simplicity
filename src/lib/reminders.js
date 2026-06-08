@@ -58,8 +58,14 @@ export function dueOccurrenceCount(r, now = new Date()) {
     return Math.floor((now - base) / (x * DAY)) + 1
   }
   if (r.recurrence_type === 'monthly_date') {
+    /* Compare against the CONFIGURED day-of-month (clamped to this month),
+       not base.getDate() — which may itself be clamped (a "31st" reminder
+       whose scheduled_at landed on Feb 28 would otherwise count a month
+       early). */
+    const dom = Number(r.recurrence_pattern?.dayOfMonth) || base.getDate()
     const months = (now.getFullYear() - base.getFullYear()) * 12 + (now.getMonth() - base.getMonth())
-    return Math.max(months + (now.getDate() >= base.getDate() ? 1 : 0), 1)
+    const dueDayThisMonth = Math.min(dom, new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate())
+    return Math.max(months + (now.getDate() >= dueDayThisMonth ? 1 : 0), 1)
   }
   return 1
 }

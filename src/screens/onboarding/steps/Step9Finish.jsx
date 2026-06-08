@@ -1,9 +1,8 @@
 import { useEffect } from 'react'
 import { Sparkles, MessageCircle } from 'lucide-react'
 
-/* Step 9 — finish. Quick widget overview + an optional feedback panel
-   stub. The actual feedback panel is a separate feature; here we just
-   reserve the slot and explain it. The primary CTA flips
+/* Step 9 — finish. Quick widget overview + a note pointing to the existing
+   in-app feedback flow ("דברו אלינו" in the menu). The primary CTA flips
    onboarding.completed_at and lands the user on /home. */
 const WIDGET_OVERVIEW = [
   { title: 'מבט על',          body: 'הציון המשוקלל של היעדים שלך — תצוגה אחת על הכל.' },
@@ -38,7 +37,7 @@ export default function Step9Finish({ ob, onDone, setCTA }) {
       <div className="ob-pre-fill-banner" role="region" aria-label="פידבק">
         <MessageCircle size={14} strokeWidth={1.7} aria-hidden="true" />
         <span>
-          המערכת נבנית עבורך. כל פידבק מעצב אותה — חלונית פידבק תיפתח בקרוב.
+          המערכת נבנית עבורך. כל פידבק מעצב אותה — מוזמן/ת לכתוב לנו בכל עת דרך &quot;דברו אלינו&quot; בתפריט.
         </span>
       </div>
 

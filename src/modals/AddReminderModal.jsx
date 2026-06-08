@@ -2,7 +2,10 @@ import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 
-const todayStr = () => new Date().toISOString().slice(0, 10)
+const todayStr = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 const now = () => new Date()
 const blank = () => ({
   title: '', description: '',
@@ -110,6 +113,28 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
       scheduled = new Date(`${form.date}T${form.time}`)
     }
     if (Number.isNaN(scheduled.getTime())) { setErr('התאריך או השעה אינם תקינים.'); return }
+
+    /* Editing a recurring reminder without touching its timing should NOT
+       reschedule it to the next future slot (that would wipe an overdue
+       "×N" state). Only recompute when the recurrence/day/time actually
+       changed; otherwise keep the stored scheduled_at. */
+    if (isEdit && reminder?.scheduled_at && form.recurrence !== 'none') {
+      const orig = fromReminder(reminder)
+      const timingChanged =
+        form.recurrence !== orig.recurrence ||
+        form.time !== orig.time ||
+        (form.recurrence === 'weekly' && form.day_of_week !== orig.day_of_week) ||
+        (form.recurrence === 'monthly_date' && form.day_of_month !== orig.day_of_month) ||
+        (form.recurrence === 'every_x_days' && (form.every_x !== orig.every_x || form.date !== orig.date))
+      if (!timingChanged) scheduled = new Date(reminder.scheduled_at)
+    }
+
+    /* A recurring reminder whose end date is before its first occurrence
+       would be born already-expired — reject it instead of silently saving. */
+    if (form.recurrence !== 'none' && form.end_date
+        && new Date(`${form.end_date}T23:59:59`) < scheduled) {
+      setErr('תאריך הסיום מוקדם מהמופע הראשון של התזכורת.'); return
+    }
 
     setBusy(true)
     setErr('')

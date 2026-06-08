@@ -20,6 +20,14 @@ import { HELP_BY_STEP } from './helpContent'
    setCTA prop on the screen; the shell just renders the buttons. */
 export default function OnboardingShell({ ob, cta, children }) {
   const [helpOpen, setHelpOpen] = useState(false)
+  const [skipping, setSkipping] = useState(false)
+  /* The App-level gate (obDone) swaps to Home once skip/complete writes land;
+     show a busy state meanwhile so the last-step "סיום" isn't a dead tap. */
+  const onSkip = async () => {
+    if (skipping) return
+    setSkipping(true)
+    try { await ob.skipStep() } catch { setSkipping(false) }
+  }
   const helpContent = HELP_BY_STEP[ob.step] || null
   const isFirst = ob.stepIndex === 0
   const isLast = ob.stepIndex === ONBOARDING_STEPS.length - 1
@@ -110,9 +118,10 @@ export default function OnboardingShell({ ob, cta, children }) {
           <button
             type="button"
             className="ob-btn link ob-foot-skip"
-            onClick={ob.skipStep}
+            onClick={onSkip}
+            disabled={skipping}
           >
-            {isLast ? 'סיום בלי למלא' : 'דלג'} <ChevronLeft size={13} strokeWidth={1.6} aria-hidden="true" />
+            {skipping ? 'מסיים…' : (isLast ? 'סיום בלי למלא' : 'דלג')} <ChevronLeft size={13} strokeWidth={1.6} aria-hidden="true" />
           </button>
         </div>
       </footer>

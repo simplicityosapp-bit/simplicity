@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
+import { ROLE_LABELS } from '../../../lib/preferences'
 
+/* Drive the role pills from the canonical ROLE_LABELS so onboarding, Settings
+   and the profile chip always show identical labels ("other" pinned last as
+   it opens the custom-text panel). */
 const ROLES = [
-  { k: 'coach',       l: 'מאמן/ת' },
-  { k: 'therapist',   l: 'מטפל/ת' },
-  { k: 'facilitator', l: 'מנחה' },
-  { k: 'instructor',  l: 'יועץ/ת' },
-  { k: 'other',       l: 'אחר' },
+  ...Object.entries(ROLE_LABELS).filter(([k]) => k !== 'other').map(([k, l]) => ({ k, l })),
+  { k: 'other', l: ROLE_LABELS.other },
 ]
 
 const GENDERS = [

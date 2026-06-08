@@ -167,7 +167,7 @@
 }
 .cal-view-btn.on {
   background: var(--espresso);
-  color: var(--bg-clients, #fff);
+  color: var(--on-accent);
 }
 [data-theme="dark"] .cal-view-btn.on {
   color: var(--ink-on-accent);

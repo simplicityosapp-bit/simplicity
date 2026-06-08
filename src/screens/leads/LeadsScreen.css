@@ -119,6 +119,36 @@
   color: var(--espresso);
 }
 
+/* Toolbar row: view toggle on one side, the "lead sources" shortcut pill
+   on the other. Wraps on very narrow screens. */
+.l-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+/* Pill linking to Settings → lead settings (opens that section directly). */
+.l-sources-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.l-sources-link:hover {
+  border-color: var(--espresso);
+}
+
 /* ── Lead statuses management panel ──────────────────────────── */
 .lead-statuses-panel {
   padding: 16px 18px;

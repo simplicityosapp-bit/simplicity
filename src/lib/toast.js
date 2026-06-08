@@ -9,7 +9,7 @@
 
 export const TOAST_DURATION = 2600
 
-let state = { message: '', seq: 0 }
+let state = { message: '', type: 'success', seq: 0 }
 let timer = null
 const listeners = new Set()
 const emit = () => { for (const fn of listeners) fn() }
@@ -23,18 +23,22 @@ export function getSnapshot() {
   return state
 }
 
-/* Show a success toast. Replaces any toast currently on screen. */
-export function showToast(message) {
+/* Show a toast (type 'success' | 'error'). Replaces any toast on screen.
+   Errors linger a touch longer so they're not missed. */
+export function showToast(message, type = 'success') {
   if (!message) return
   if (timer) clearTimeout(timer)
-  state = { message, seq: state.seq + 1 }
+  state = { message, type, seq: state.seq + 1 }
   emit()
   timer = setTimeout(() => {
     timer = null
-    state = { message: '', seq: state.seq + 1 }
+    state = { message: '', type: 'success', seq: state.seq + 1 }
     emit()
-  }, TOAST_DURATION)
+  }, type === 'error' ? TOAST_DURATION + 1400 : TOAST_DURATION)
 }
+
+/* Convenience for the silent-failure path (optimistic update reverted). */
+export function showError(message) { showToast(message, 'error') }
 
 /* Dismiss immediately (e.g. a tap on the toast). */
 export function clearToast() {

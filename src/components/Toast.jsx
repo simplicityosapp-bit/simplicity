@@ -1,25 +1,27 @@
 import { useEffect, useState } from 'react'
-import { Check } from 'lucide-react'
-import { subscribe, getSnapshot, clearToast, TOAST_DURATION } from '../lib/toast'
+import { Check, CircleAlert } from 'lucide-react'
+import { subscribe, getSnapshot, clearToast } from '../lib/toast'
 import './Toast.css'
 
-/* <Toast> — the visible half of the success/info channel. Always mounted at
+/* <Toast> — the visible half of the success/error channel. Always mounted at
    the app shell; renders nothing while idle. Tap to dismiss. */
 export default function Toast() {
   const [, setTick] = useState(0)
   useEffect(() => subscribe(() => setTick((t) => t + 1)), [])
-  const { message, seq } = getSnapshot()
+  const { message, type, seq } = getSnapshot()
   if (!message) return null
+  const isError = type === 'error'
   return (
     <div
       key={seq}
-      className="app-toast"
-      role="status"
-      aria-live="polite"
+      className={`app-toast${isError ? ' error' : ''}`}
+      role={isError ? 'alert' : 'status'}
+      aria-live={isError ? 'assertive' : 'polite'}
       onClick={clearToast}
-      style={{ '--toast-dur': `${TOAST_DURATION}ms` }}
     >
-      <Check size={15} strokeWidth={2.2} aria-hidden="true" />
+      {isError
+        ? <CircleAlert size={15} strokeWidth={2} aria-hidden="true" />
+        : <Check size={15} strokeWidth={2.2} aria-hidden="true" />}
       <span>{message}</span>
     </div>
   )

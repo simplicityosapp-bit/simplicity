@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus, X } from 'lucide-react'
 import Modal from './Modal'
+import ConfirmModal from './ConfirmModal'
 
 const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
 /* Statuses roll up to one of two fixed meta buckets so the binary
@@ -12,7 +13,8 @@ const META = [
 
 /* Manage custom task statuses (grouped by open/done meta) and custom task
    categories. CRUD ties to useTaskStatuses / useTaskCategories via the
-   parent; deletes carry undo, so there's no extra confirm here. */
+   parent. Deleting a status/category un-tags every task using it, so it
+   asks to confirm first (undo is still offered after). */
 export default function TaskTaxonomyModal({
   open, onClose,
   statuses = [], categories = [],
@@ -25,6 +27,7 @@ export default function TaskTaxonomyModal({
   const [cName, setCName] = useState('')
   const [cColor, setCColor] = useState(COLORS[3])
   const [busy, setBusy] = useState(false)
+  const [confirm, setConfirm] = useState(null) // { kind: 'status'|'category', id, name }
 
   const addStatus = async () => {
     const name = sName.trim()
@@ -64,7 +67,7 @@ export default function TaskTaxonomyModal({
                   <span key={s.id} className="m-tax-chip">
                     <span className="m-tax-dot" style={{ background: s.color || 'var(--stone)' }} />
                     <span>{s.display_name}</span>
-                    <button type="button" className="m-tax-x" onClick={() => onRemoveStatus(s.id)} aria-label={`מחיקת ${s.display_name}`} title="מחיקה">
+                    <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'status', id: s.id, name: s.display_name })} aria-label={`מחיקת ${s.display_name}`} title="מחיקה">
                       <X size={11} strokeWidth={2} aria-hidden="true" />
                     </button>
                   </span>
@@ -110,7 +113,7 @@ export default function TaskTaxonomyModal({
             <span key={c.id} className="m-tax-chip">
               <span className="m-tax-dot" style={{ background: c.color || 'var(--stone)' }} />
               <span>{c.name}</span>
-              <button type="button" className="m-tax-x" onClick={() => onRemoveCategory(c.id)} aria-label={`מחיקת ${c.name}`} title="מחיקה">
+              <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'category', id: c.id, name: c.name })} aria-label={`מחיקת ${c.name}`} title="מחיקה">
                 <X size={11} strokeWidth={2} aria-hidden="true" />
               </button>
             </span>
@@ -141,6 +144,16 @@ export default function TaskTaxonomyModal({
       <div className="m-actions">
         <button type="button" className="m-btn-save" onClick={onClose}>סגירה</button>
       </div>
+
+      <ConfirmModal
+        open={!!confirm}
+        onClose={() => setConfirm(null)}
+        title="מחיקה"
+        danger
+        confirmLabel="מחק"
+        message={confirm ? `למחוק את "${confirm.name}"? משימות שמשויכות אליו יישארו ללא ${confirm.kind === 'status' ? 'סטטוס' : 'קטגוריה'}.` : ''}
+        onConfirm={() => { if (confirm) return (confirm.kind === 'status' ? onRemoveStatus : onRemoveCategory)(confirm.id) }}
+      />
     </Modal>
   )
 }

@@ -524,11 +524,11 @@
   z-index: 2;
   text-align: start !important;
   min-width: 130px;
-  border-left: 1px solid var(--divider, rgba(0,0,0,.06));
+  border-inline-end: 1px solid var(--divider, rgba(0,0,0,.06));
 }
 .rep-th-period.current { color: var(--espresso); }
 .rep-th-summary {
-  border-right: 1px solid var(--divider, rgba(0,0,0,.06));
+  border-inline-start: 1px solid var(--divider, rgba(0,0,0,.06));
 }
 
 .rep-tr-group td {
@@ -558,7 +558,7 @@
   z-index: 1;
   background: var(--mg-card-bg);
   text-align: start !important;
-  border-left: 1px solid var(--divider, rgba(0,0,0,.06));
+  border-inline-end: 1px solid var(--divider, rgba(0,0,0,.06));
   min-width: 130px;
 }
 .rep-td-metric-icon {
@@ -594,7 +594,7 @@
 .rep-td-summary {
   font-variant-numeric: tabular-nums;
   font-weight: 700;
-  border-right: 1px solid var(--divider, rgba(0,0,0,.06));
+  border-inline-start: 1px solid var(--divider, rgba(0,0,0,.06));
   background: rgba(0,0,0,.015);
 }
 [data-theme="dark"] .rep-td-summary {

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Tag, X } from 'lucide-react'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
+import ConfirmModal from '../../modals/ConfirmModal'
 
 /* Inline categories manager — ported from the prototype's
    f-cat-list / f-cat-inp / f-cat-colors block. Chip list of
@@ -10,6 +11,7 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
   const [name, setName] = useState('')
   const [colorIdx, setColorIdx] = useState(0)
   const [busy, setBusy] = useState(false)
+  const [confirm, setConfirm] = useState(null) // category awaiting delete confirm
   const live = categories.filter((c) => !c.deleted_at)
 
   const submit = async () => {
@@ -45,7 +47,7 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
               <button
                 type="button"
                 className="cat-chip-x"
-                onClick={() => onDelete(c)}
+                onClick={() => setConfirm(c)}
                 aria-label={`מחק ${c.name}`}
                 title="מחיקה"
               >
@@ -87,6 +89,16 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
           הוסף
         </button>
       </div>
+
+      <ConfirmModal
+        open={!!confirm}
+        onClose={() => setConfirm(null)}
+        title="מחיקת קטגוריה"
+        danger
+        confirmLabel="מחק"
+        message={confirm ? `למחוק את "${confirm.name}"? הוצאות שמשויכות אליה יישארו ללא קטגוריה.` : ''}
+        onConfirm={() => { if (confirm) return onDelete(confirm) }}
+      />
     </section>
   )
 }

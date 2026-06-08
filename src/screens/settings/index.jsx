@@ -24,6 +24,7 @@ import { countLeadsByStatus, reassignLeadsStatus, reassignLeadsStatusByIds, rest
 import { pushUndo } from '../../lib/undo'
 import DeleteSubStatusModal from '../../modals/DeleteSubStatusModal'
 import ResetAccountModal from '../../modals/ResetAccountModal'
+import ConfirmModal from '../../modals/ConfirmModal'
 import DeleteAccountModal from '../../modals/DeleteAccountModal'
 import { resetAllUserData, buildAccountDeletionRequest } from '../../lib/api/account'
 import {
@@ -604,6 +605,7 @@ export default function SettingsScreen() {
   }
   const [showReset, setShowReset] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
+  const [showRestartOb, setShowRestartOb] = useState(false)
   /* Schedule permanent account deletion (30-day grace). We only RECORD the
      request in prefs; the App-level gate then takes over (locked countdown
      screen), and a scheduled edge function does the real auth.users delete
@@ -868,11 +870,7 @@ export default function SettingsScreen() {
           <button
             type="button"
             className="set-data-action"
-            onClick={async () => {
-              if (!window.confirm('להתחיל מחדש את ההכרות? הצעדים יחזרו לאפס — הנתונים שכבר נוצרו (לקוחות, פרויקטים וכו\') יישארו.')) return
-              await updatePrefs({ onboarding: defaultOnboarding() })
-              navigate(ROUTES.ONBOARDING)
-            }}
+            onClick={() => setShowRestartOb(true)}
             style={{ marginTop: 10 }}
           >
             <Sparkles size={15} strokeWidth={1.7} aria-hidden="true" />
@@ -1052,6 +1050,18 @@ export default function SettingsScreen() {
           onImported={onImported}
         />
       )}
+
+      <ConfirmModal
+        open={showRestartOb}
+        onClose={() => setShowRestartOb(false)}
+        title="התחלת ההכרות מחדש"
+        confirmLabel="התחל מחדש"
+        message="להתחיל מחדש את ההכרות? הצעדים יחזרו לאפס — הנתונים שכבר נוצרו (לקוחות, פרויקטים וכו') יישארו."
+        onConfirm={async () => {
+          await updatePrefs({ onboarding: defaultOnboarding() })
+          navigate(ROUTES.ONBOARDING)
+        }}
+      />
 
       <ResetAccountModal
         open={showReset}

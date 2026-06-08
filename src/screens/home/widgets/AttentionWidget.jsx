@@ -124,16 +124,20 @@ export default function AttentionWidget() {
       </div>
 
       <Modal open={popup === 'tx'} onClose={() => setPopup(null)} title="תנועות ממתינות לאישור">
-        <PendingSection
-          embedded
-          transactions={pendingTxs}
-          clients={clients}
-          projects={projects}
-          categories={financeCategories}
-          onApprove={(id) => setTxStatus(id, 'confirmed')}
-          onSkip={(id) => setTxStatus(id, 'skipped')}
-          onDelete={(id) => removeTransaction(id)}
-        />
+        {pendingTxs.length === 0 ? (
+          <p className="h-card-empty">סיימת — אין תנועות ממתינות. אפשר לסגור.</p>
+        ) : (
+          <PendingSection
+            embedded
+            transactions={pendingTxs}
+            clients={clients}
+            projects={projects}
+            categories={financeCategories}
+            onApprove={(id) => setTxStatus(id, 'confirmed')}
+            onSkip={(id) => setTxStatus(id, 'skipped')}
+            onDelete={(id) => removeTransaction(id)}
+          />
+        )}
       </Modal>
 
       <Modal open={popup === 'meetings'} onClose={() => setPopup(null)} title="פגישות לאישור">

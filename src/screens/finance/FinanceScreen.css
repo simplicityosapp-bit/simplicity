@@ -753,6 +753,7 @@
   font-weight: 500;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
+  backdrop-filter: var(--mg-card-blur);
 }
 .f-delta.pos {
   color: var(--sage);

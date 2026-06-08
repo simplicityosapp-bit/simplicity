@@ -109,7 +109,7 @@
 }
 .l-view-btn.on {
   background: var(--espresso);
-  color: var(--bg-clients, #fff);
+  color: var(--on-accent);
 }
 [data-theme="dark"] .l-view-btn.on {
   background: var(--espresso);

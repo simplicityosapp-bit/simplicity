@@ -462,7 +462,7 @@
 .c-select-btn.on {
   background: var(--espresso);
   border-color: var(--espresso);
-  color: var(--bg-clients, #fff);
+  color: var(--on-accent);
 }
 [data-theme="dark"] .c-select-btn.on {
   color: var(--ink-on-accent);

@@ -98,7 +98,9 @@ export default function ClientsScreen() {
   const { categories } = useCategories()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [tab, setTab] = useState('active')
-  const [balanceOnly, setBalanceOnly] = useState(false)
+  /* "יתרה פתוחה" filter persists like the neighbouring sort/scope/groupBy. */
+  const balanceOnly = !!prefs?.clientsBalanceOnly
+  const setBalanceOnly = (v) => updatePrefs?.({ clientsBalanceOnly: v })
   const scope = prefs?.clientsScope === 'cumulative' ? 'cumulative' : 'monthly'
   const setScope = (s) => updatePrefs?.({ clientsScope: s })
   const groupBy = prefs?.clientsGroupBy === 'project' ? 'project' : 'status'
@@ -228,21 +230,27 @@ export default function ClientsScreen() {
     }
   }
 
+  /* past/לשעבר + ללא-סטטוס rosters rarely pay/meet THIS month, so monthly
+     reads ~₪0 there — they're always shown cumulatively (the toggle is
+     locked on those tabs). */
+  const scopeLocked = tab === 'past' || tab === 'no_status'
+  const effScope = scopeLocked ? 'cumulative' : scope
+
   /* Hero — per tab. Monthly/cumulative affects פגישות + שולם; balance is always current. */
   const hero = useMemo(() => {
-    const range = scope === 'monthly' ? currentMonthRange() : {}
+    const range = effScope === 'monthly' ? currentMonthRange() : {}
     const paid = paidForClients(tabClients, range, transactions)
     const balance = tabClients.reduce((s, c) => s + clientBalance(c, transactions, sessions, members, groups).balance, 0)
     if (tab === 'past' || tab === 'no_status') {
       return [
         { l: 'לקוחות', v: tabClients.length },
-        { l: 'פגישות', v: sessionsCountForClients(tabClients, range, sessions) },
+        { l: 'פגישות', v: sessionsCountForClients(tabClients, range, sessions, members, groups) },
         { l: 'שולם', v: isr(paid) },
       ]
     }
     let sessionsLabel
-    if (scope === 'monthly') {
-      sessionsLabel = String(sessionsCountForClients(tabClients, range, sessions))
+    if (effScope === 'monthly') {
+      sessionsLabel = String(sessionsCountForClients(tabClients, range, sessions, members, groups))
     } else {
       const done = tabClients.reduce((s, c) => s + clientBalance(c, transactions, sessions, members, groups).sessionsPaid, 0)
       const allot = tabClients.reduce((s, c) => s + (c.sessions || 0), 0)
@@ -253,7 +261,7 @@ export default function ClientsScreen() {
       { l: 'שולם', v: isr(paid) },
       { l: 'יתרה פתוחה', v: isr(balance) },
     ]
-  }, [tab, scope, tabClients, transactions, sessions, members, groups])
+  }, [tab, effScope, tabClients, transactions, sessions, members, groups])
 
   return (
     <div className={`screen${selectMode ? ' has-bulk-bar' : ''}`}>
@@ -352,7 +360,7 @@ export default function ClientsScreen() {
         <button
           type="button"
           className={`c-bal-filter${balanceOnly ? ' on' : ''}`}
-          onClick={() => setBalanceOnly((v) => !v)}
+          onClick={() => setBalanceOnly(!balanceOnly)}
           aria-pressed={balanceOnly}
         >
           <Wallet size={13} strokeWidth={1.8} aria-hidden="true" />
@@ -364,9 +372,12 @@ export default function ClientsScreen() {
         <section className="c-hero">
           <div className="s-hero">
             <div className="mg-toggle" role="tablist" aria-label="טווח סכומים">
-              <button type="button" className={`mg-toggle-btn${scope === 'monthly' ? ' on' : ''}`} onClick={() => setScope('monthly')}>חודשי</button>
-              <button type="button" className={`mg-toggle-btn${scope === 'cumulative' ? ' on' : ''}`} onClick={() => setScope('cumulative')}>מצטבר</button>
+              <button type="button" className={`mg-toggle-btn${effScope === 'monthly' ? ' on' : ''}`} onClick={() => setScope('monthly')} disabled={scopeLocked}>חודשי</button>
+              <button type="button" className={`mg-toggle-btn${effScope === 'cumulative' ? ' on' : ''}`} onClick={() => setScope('cumulative')} disabled={scopeLocked}>מצטבר</button>
             </div>
+            <p className="c-hero-scope-note">
+              {scopeLocked ? 'מצטבר · לקוחות לשעבר' : (scope === 'monthly' ? 'טווח הסכומים: החודש' : 'טווח הסכומים: מאז ומתמיד')}
+            </p>
             <p className="c-hero-title">{HERO_LABEL[tab]}</p>
             <div className="c-hero-grid">
               {hero.map((s, i) => (

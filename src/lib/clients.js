@@ -155,19 +155,32 @@ export function paidForClients(arr, range = {}, txns) {
   )
 }
 
-/* Count sessions tied to a set of clients, optionally within a date range. */
-export function sessionsCountForClients(arr, range = {}, sessionsData = sessions) {
-  const ids = new Set(arr.map((c) => c.id))
+/* Count sessions tied to a set of clients, optionally within a date range.
+   Includes BOTH private (1-on-1) sessions AND each client's active-group
+   sessions — mirroring clientBalance.sessionsPaid (every member "attends" the
+   group's sessions), so the monthly count matches cumulative (formula §4.1 =
+   private + active-group sessions). */
+export function sessionsCountForClients(arr, range = {}, sessionsData = sessions, membersData = mockMembers, groupsData = mockGroups) {
   const from = range.from ? new Date(range.from).getTime() : null
   const to = range.to ? new Date(range.to).getTime() : null
-  return live(sessionsData).filter((s) => {
-    if (!ids.has(s.client_id)) return false
+  const inRange = (s) => {
     if (from === null && to === null) return true
     const ts = new Date(s.date).getTime()
     if (from !== null && ts < from) return false
     if (to !== null && ts > to) return false
     return true
-  }).length
+  }
+  const liveSess = live(sessionsData)
+  const ids = new Set(arr.map((c) => c.id))
+  let count = liveSess.filter((s) => s.client_id && ids.has(s.client_id) && inRange(s)).length
+  const isEndedGroup = (gid) => (groupsData || []).find((x) => x.id === gid)?.status === 'ended'
+  for (const c of arr) {
+    const memberships = getClientMemberships(c.id, membersData)
+    let gids = memberships.filter((m) => !isEndedGroup(m.group_id)).map((m) => m.group_id)
+    if (!memberships.length && c.group_id && !isEndedGroup(c.group_id)) gids = [c.group_id]
+    if (gids.length) count += liveSess.filter((s) => s.group_id && gids.includes(s.group_id) && inRange(s)).length
+  }
+  return count
 }
 
 /* All live clients grouped by status meta. */

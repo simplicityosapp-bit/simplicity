@@ -107,6 +107,19 @@
   padding-block: 24px;
 }
 
+/* Widget accent value, resolved per data-accent so it can remap for dark
+   mode (a chosen light hex would otherwise stay bright on the dark glass). */
+.home-widget[data-accent="terracotta"] { --widget-accent: #C97B5E; }
+.home-widget[data-accent="blush"]      { --widget-accent: #E8C9B8; }
+.home-widget[data-accent="sage"]       { --widget-accent: #8BA888; }
+.home-widget[data-accent="amber"]      { --widget-accent: #D4A574; }
+.home-widget[data-accent="clay"]       { --widget-accent: #B5634E; }
+[data-theme="dark"] .home-widget[data-accent="terracotta"] { --widget-accent: #B0795F; }
+[data-theme="dark"] .home-widget[data-accent="blush"]      { --widget-accent: #BFA99C; }
+[data-theme="dark"] .home-widget[data-accent="sage"]       { --widget-accent: #7E9A82; }
+[data-theme="dark"] .home-widget[data-accent="amber"]      { --widget-accent: #BE9266; }
+[data-theme="dark"] .home-widget[data-accent="clay"]       { --widget-accent: #9A5E50; }
+
 /* Per-widget accent — soft tinted ring + ambient glow on the card.
    No hard stripe. The first child of .home-widget is the actual card
    element (.h-quote / .moon-card / .h-card / .ins-widget / .h-stat).
@@ -837,7 +850,16 @@
   font-size: calc(13px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
+  margin-inline-start: auto;        /* push count + chevron to the end as a group */
 }
+/* Expand/collapse affordance for the expandable attention card. */
+.h-card-chevron {
+  color: var(--stone);
+  flex-shrink: 0;
+  margin-inline-start: 6px;
+  transition: transform 0.2s ease;
+}
+.h-card.is-open .h-card-chevron { transform: rotate(180deg); }
 .h-card-link {
   display: inline-flex;
   align-items: center;

@@ -1,23 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
+import { QUESTION_TEMPLATES, QTEXT } from '../../../lib/questionTemplates'
 
-/* 6 starter presets in the order the design spec defines. Each one
-   is stored with a `template_key` so future analytics can compare
-   across users. All presets use the 1-10 scale. The optional custom
-   ("אחר") question matches Settings → AddQuestionModal's custom mode
-   exactly — text + scale (1-10 / yes-no) + icon picker — so the
-   onboarding flow stays faithful to the in-app creation surface.
-   NOTE: "joy / מה שמח אותך היום?" lived here briefly but was pulled
-   because the phrasing invites a free-text answer and we don't ship
-   free_text scoring yet. */
-const PRESETS = [
-  { key: 'sleep',     icon: '🌙', text: 'איך ישנת אתמול?' },
-  { key: 'nutrition', icon: '🥗', text: 'איך אכלת היום?' },
-  { key: 'movement',  icon: '🏃', text: 'כמה תנועה היה לך היום?' },
-  { key: 'mood',      icon: '🤍', text: 'איך מצב הרוח שלך היום?' },
-  { key: 'focus',     icon: '🎯', text: 'כמה ממוקד/ת הרגשת היום?' },
-  { key: 'quiet',     icon: '🫧', text: 'כמה שקט מצאת היום?' },
-]
+/* Starter presets — derived from the SHARED QUESTION_TEMPLATES so onboarding
+   and the in-app AddQuestionModal always offer the same set (single source).
+   All presets use the 1-10 scale. The optional custom ("אחר") question
+   matches AddQuestionModal's custom mode exactly (text + scale + icon). */
+const PRESETS = QUESTION_TEMPLATES.map((t) => ({ key: t.key, icon: t.icon, text: QTEXT[t.key] }))
 
 /* Mirror AddQuestionModal — same scales + same icon palette so the
    user gets the same affordances they'll see later under Settings. */

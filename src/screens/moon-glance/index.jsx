@@ -20,6 +20,10 @@ import { buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from 
 import MultiTrendChart from '../../components/MultiTrendChart'
 import './MoonGlanceScreen.css'
 
+/* Shared window (days) for BOTH the cross-module trend overlay and the
+   guarded correlations beneath it, so they always describe the same period. */
+const OV_WINDOW = 30
+
 /* Tiny scatter for a correlation card — honest display so the user sees
    the spread, not just a number. Points are min-max scaled per axis. */
 function Scatter({ points, driverText, outcomeText }) {
@@ -146,13 +150,14 @@ export default function MoonGlanceScreen() {
   const overview = useMemo(
     () => buildOverviewTrend(overviewKeys, {
       transactions, leads, sessions, answers, scoreByDay, questionId: questionId || null,
-    }, { window: 30, questionLabel: selectedQuestion ? questionText(selectedQuestion) : undefined }),
+    }, { window: OV_WINDOW, questionLabel: selectedQuestion ? questionText(selectedQuestion) : undefined }),
     [overviewKeys, transactions, leads, sessions, answers, scoreByDay, questionId, selectedQuestion],
   )
   /* Guarded correlations (§8.2) — Spearman + permutation + split-half;
-     the common result is an honest "no significant link". */
+     the common result is an honest "no significant link". Same window as the
+     trend overlay above so both describe the identical period. */
   const correlations = useMemo(
-    () => buildOverviewCorrelations({ transactions, leads, sessions, answers }, { questions: activeQuestions }),
+    () => buildOverviewCorrelations({ transactions, leads, sessions, answers }, { questions: activeQuestions, window: OV_WINDOW }),
     [transactions, leads, sessions, answers, activeQuestions],
   )
 

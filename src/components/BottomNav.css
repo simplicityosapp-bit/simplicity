@@ -84,10 +84,21 @@
    through the chip's stronger fill above, not by recoloring the
    label (user spec: nav text in the cream/white tone we use). */
 
+/* "תפריט" active — when on a drawer-only screen (no bottom tab matches),
+   the menu button gets the same stronger-fill treatment as an active tab. */
+.mg-bottombar-item.is-active .mg-bottombar-chip {
+  background: color-mix(in srgb, var(--nav-accent) 34%, transparent);
+  border-color: color-mix(in srgb, var(--nav-accent) 60%, transparent);
+}
+
 /* Blush is light enough that on dark mode the chip needs more punch. */
 [data-theme="dark"] .mg-bottombar-item[data-screen="menu"] .mg-bottombar-chip {
   background: color-mix(in srgb, var(--blush) 22%, transparent);
   border-color: color-mix(in srgb, var(--blush) 45%, transparent);
+}
+[data-theme="dark"] .mg-bottombar-item.is-active[data-screen="menu"] .mg-bottombar-chip {
+  background: color-mix(in srgb, var(--blush) 38%, transparent);
+  border-color: color-mix(in srgb, var(--blush) 62%, transparent);
 }
 
 /* ── Desktop: hide the bottom bar — sidebar takes over (≥768px) ── */

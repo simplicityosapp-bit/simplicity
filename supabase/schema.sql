@@ -261,6 +261,7 @@ CREATE TABLE leads (
   phone                  text,
   source_id              uuid REFERENCES lead_sources(id) ON DELETE SET NULL,
   project_id             uuid REFERENCES projects(id) ON DELETE SET NULL,
+  group_id               uuid REFERENCES groups(id) ON DELETE SET NULL,
   status                 text NOT NULL DEFAULT 'new'
                            CHECK (status IN ('new','in_contact','intro_call','pending_decision','closed')),
   status_id              uuid REFERENCES lead_statuses(id) ON DELETE SET NULL,
@@ -686,6 +687,7 @@ CREATE INDEX idx_leads_user                   ON leads (user_id);
 CREATE INDEX idx_leads_status                 ON leads (status);
 CREATE INDEX idx_leads_status_meta            ON leads (status_meta);
 CREATE INDEX idx_leads_project                ON leads (project_id);
+CREATE INDEX idx_leads_group                  ON leads (group_id);
 
 CREATE INDEX idx_lead_status_log_user         ON lead_status_log (user_id);
 CREATE INDEX idx_lead_status_log_lead         ON lead_status_log (lead_id);

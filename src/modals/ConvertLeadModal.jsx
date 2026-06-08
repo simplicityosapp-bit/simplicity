@@ -10,18 +10,26 @@ import { showToast } from '../lib/toast'
         with source='converted' so the lead_status_log captures it.
    The parent wires onCreateClient + onUpdateLead so the modal stays
    adapter-agnostic. */
-export default function ConvertLeadModal({ open, onClose, lead, projects = [], statuses = [], onCreateClient, onUpdateLead }) {
+export default function ConvertLeadModal({ open, onClose, lead, projects = [], groups = [], statuses = [], onCreateClient, onUpdateLead }) {
   const [form, setForm] = useState(() => ({
     name: lead?.name || '',
     phone: lead?.phone || '',
     project_id: lead?.project_id || '',
+    group_id: lead?.group_id || '',
     status_id: '',
   }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  /* Changing the project clears the group — a group only belongs to its project. */
+  const setProject = (v) => setForm((f) => ({ ...f, project_id: v, group_id: '' }))
 
   if (!lead) return <Modal open={open} onClose={onClose} title="המרת ליד ללקוח" />
+
+  /* Groups belonging to the chosen project — drives the conditional picker. */
+  const projectGroups = form.project_id
+    ? groups.filter((g) => g.project_id === form.project_id && !g.deleted_at)
+    : []
 
   /* Sub-statuses inside the 'converted' meta — if the user has
      defined any, offer them so the lead_status_log captures the
@@ -42,7 +50,7 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], s
         status_meta: 'active',
         status_id: null,
         project_id: form.project_id || null,
-        group_id: null,
+        group_id: form.group_id || null,
         sessions: 0,
         price_per_session: 0,
         total_override: null,
@@ -102,12 +110,22 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], s
         </div>
         <div className="m-field">
           <label className="m-label">פרויקט (אופציונלי)</label>
-          <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
+          <select className="m-select" value={form.project_id} onChange={(e) => setProject(e.target.value)}>
             <option value="">ללא</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
       </div>
+
+      {projectGroups.length > 0 && (
+        <div className="m-field">
+          <label className="m-label">קבוצה (אופציונלי)</label>
+          <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
+            <option value="">ללא</option>
+            {projectGroups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+          </select>
+        </div>
+      )}
 
       {convertedSubStatuses.length > 0 && (
         <div className="m-field">

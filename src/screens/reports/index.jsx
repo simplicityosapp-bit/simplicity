@@ -14,6 +14,7 @@ import {
   getAllOrderedMetrics, getDrillRecords,
 } from '../../lib/reports'
 import Modal from '../../modals/Modal'
+import InfoPopover from '../../components/InfoPopover'
 import { useReportsConfig } from '../../hooks/useReportsConfig'
 import { useLeads } from '../../hooks/useLeads'
 import { useClients } from '../../hooks/useClients'
@@ -228,17 +229,19 @@ function ListView({ config, data, onDrill }) {
                   const v = selectedReport.metrics[m.id]
                   const empty = v === null || v === undefined || v === 0
                   return (
-                    <button
-                      key={m.id}
-                      type="button"
-                      className={`rep-row${empty ? ' empty' : ''}`}
-                      onClick={() => !empty && onDrill(m.id, selected)}
-                      disabled={empty}
-                    >
-                      <span className="rep-row-icon"><MetricIcon id={m.id} /></span>
-                      <span className="rep-row-label">{m.label}</span>
-                      <span className="rep-row-value mono">{formatReportValue(m, v)}</span>
-                    </button>
+                    <div key={m.id} className={`rep-row-wrap${empty ? ' empty' : ''}`}>
+                      <button
+                        type="button"
+                        className={`rep-row${empty ? ' empty' : ''}`}
+                        onClick={() => !empty && onDrill(m.id, selected)}
+                        disabled={empty}
+                      >
+                        <span className="rep-row-icon"><MetricIcon id={m.id} /></span>
+                        <span className="rep-row-label">{m.label}</span>
+                        <span className="rep-row-value mono">{formatReportValue(m, v)}</span>
+                      </button>
+                      {m.desc && <span className="rep-row-info"><InfoPopover label={`הסבר על ${m.label}`} text={m.desc} /></span>}
+                    </div>
                   )
                 })}
               </div>
@@ -327,6 +330,7 @@ function TableView({ config, data, onSetRange, onDrill }) {
                   <td className="rep-td-metric">
                     <span className="rep-td-metric-icon"><MetricIcon id={m.id} size={13} /></span>
                     <span className="rep-td-metric-name">{m.label}</span>
+                    {m.desc && <InfoPopover label={`הסבר על ${m.label}`} text={m.desc} />}
                   </td>
                   {periodReports.map((p) => {
                     const v = p.data.metrics[m.id]

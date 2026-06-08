@@ -265,6 +265,7 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
   padding: 16px;
 }
 .mg-ov-pills {

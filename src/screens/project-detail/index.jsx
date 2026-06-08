@@ -11,6 +11,7 @@ import { useSessions } from '../../hooks/useSessions'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
+import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { statusMetaOf } from '../../lib/clients'
 import { financeQuery, currentMonthRange, isr } from '../../lib/finance'
 import { buildRoute, ROUTES } from '../../lib/routes'
@@ -85,8 +86,6 @@ export default function ProjectDetailScreen() {
   const [pendingDeleteReminder, setPendingDeleteReminder] = useState(null)
   /* Pending group status change (when ≥1 client will flip) → confirm dialog. */
   const [pendingStatusChange, setPendingStatusChange] = useState(null)
-  /* Drag-a-client-onto-a-group state. */
-  const [dropTargetGroup, setDropTargetGroup] = useState(null)
   const [pendingAssign, setPendingAssign] = useState(null) /* { client, group } */
 
   const project = projects.find((p) => p.id === id)
@@ -119,6 +118,11 @@ export default function ProjectDetailScreen() {
     [reminders, id],
   )
   const activeReminders = projectReminders.filter((r) => r.status === 'pending' || r.status === 'triggered')
+
+  /* Touch+mouse drag of a project client onto a group (zone = group id).
+     Declared before the early return so the hook order stays stable; the
+     onDrop closure resolves dropClientOnGroup (defined below) lazily. */
+  const clientDnd = usePointerDnd({ onDrop: (clientId, groupId) => dropClientOnGroup(clientId, groupId) })
 
   if (!project) {
     return (
@@ -245,12 +249,10 @@ export default function ProjectDetailScreen() {
     if (client.group_id !== group.id) await updateClient(client.id, { group_id: group.id }).catch(() => {})
   }
 
-  const handleDropOnGroup = (e, group) => {
-    e.preventDefault()
-    setDropTargetGroup(null)
-    const cid = e.dataTransfer.getData('text/client-id')
-    const client = clients.find((c) => c.id === cid)
-    if (!client) return
+  const dropClientOnGroup = (clientId, groupId) => {
+    const client = clients.find((c) => c.id === clientId)
+    const group = projectGroups.find((g) => g.id === groupId)
+    if (!client || !group) return
     const inThisGroup = liveMembers.some((m) => m.client_id === client.id && m.group_id === group.id) || client.group_id === group.id
     const elsewhere = otherGroupCount(client) - (inThisGroup ? 1 : 0)
     if (inThisGroup && elsewhere <= 0) return /* already only here — nothing to do */
@@ -442,10 +444,8 @@ export default function ProjectDetailScreen() {
                 return (
                   <article
                     key={g.id}
-                    className={`gc${dropTargetGroup === g.id ? ' drop-target' : ''}`}
-                    onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (dropTargetGroup !== g.id) setDropTargetGroup(g.id) }}
-                    onDragLeave={(e) => { if (e.currentTarget === e.target) setDropTargetGroup(null) }}
-                    onDrop={(e) => handleDropOnGroup(e, g)}
+                    className={`gc${clientDnd.overZone === g.id ? ' drop-target' : ''}`}
+                    {...clientDnd.dropZoneProps(g.id)}
                   >
                     <div className="gc-head">
                       <span className="gc-color" style={{ background: g.color || 'var(--stone)' }} />
@@ -569,13 +569,14 @@ export default function ProjectDetailScreen() {
               projectClients.map((c) => {
                 const g = c.group_id ? projectGroups.find((gg) => gg.id === c.group_id) : null
                 return (
-                  <button
+                  <div
                     key={c.id}
-                    type="button"
-                    className="pd-client"
-                    draggable
-                    onDragStart={(e) => { e.dataTransfer.setData('text/client-id', c.id); e.dataTransfer.effectAllowed = 'move' }}
+                    role="button"
+                    tabIndex={0}
+                    className={`pd-client${clientDnd.dragId === c.id ? ' dragging' : ''}`}
                     onClick={() => navigate(buildRoute(ROUTES.CLIENT, { id: c.id }))}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(buildRoute(ROUTES.CLIENT, { id: c.id })) } }}
+                    {...clientDnd.draggableProps(c.id)}
                   >
                     <span className="pd-client-grip" aria-hidden="true">⠿</span>
                     <span className="pd-client-name">{c.name}</span>
@@ -584,7 +585,7 @@ export default function ProjectDetailScreen() {
                     ) : (
                       <span className="pd-client-tag private">פרטי</span>
                     )}
-                  </button>
+                  </div>
                 )
               })
             )}

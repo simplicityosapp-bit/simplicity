@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus, X, GripVertical } from 'lucide-react'
 import { LEAD_META } from '../../lib/leads'
+import { usePointerDnd } from '../../hooks/usePointerDnd'
 import ConfirmModal from '../../modals/ConfirmModal'
 
 /* Inline sub-status manager for the leads screen — mirrors what
@@ -11,8 +12,6 @@ import ConfirmModal from '../../modals/ConfirmModal'
 export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove }) {
   const [drafts, setDrafts] = useState({})
   const [busy, setBusy] = useState({})
-  const [dragId, setDragId] = useState(null)
-  const [overId, setOverId] = useState(null)
   const [pendingDelete, setPendingDelete] = useState(null) // the status awaiting delete confirm
   const setDraft = (k, v) => setDrafts((d) => ({ ...d, [k]: v }))
   const setBusyFor = (k, v) => setBusy((b) => ({ ...b, [k]: v }))
@@ -33,6 +32,21 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
       if (s.sort_order !== so) onUpdate(s.id, { sort_order: so })
     })
   }
+
+  /* Touch+mouse reorder: each chip is both draggable and a drop zone; the
+     drop resolves the meta group from the two ids and reorders within it. */
+  const dnd = usePointerDnd({
+    onDrop: (fromId, toId) => {
+      if (!fromId || !toId || fromId === toId) return
+      const from = (statuses || []).find((s) => s.id === fromId)
+      const to = (statuses || []).find((s) => s.id === toId)
+      if (!from || !to || from.meta_category !== to.meta_category) return
+      const list = (statuses || [])
+        .filter((s) => s.meta_category === from.meta_category)
+        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+      reorder(list, fromId, toId)
+    },
+  })
 
   const submit = async (meta) => {
     const v = (drafts[meta] || '').trim()
@@ -65,15 +79,9 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                 {list.map((s) => (
                   <span
                     key={s.id}
-                    className={`lead-statuses-chip${dragId === s.id ? ' dragging' : ''}${overId === s.id && dragId && dragId !== s.id ? ' drop-target' : ''}`}
-                    draggable
-                    onDragStart={(e) => { setDragId(s.id); e.dataTransfer.effectAllowed = 'move' }}
-                    onDragEnd={() => { setDragId(null); setOverId(null) }}
-                    onDragOver={(e) => {
-                      /* only a valid target within the same meta group */
-                      if (dragId && list.some((x) => x.id === dragId)) { e.preventDefault(); if (overId !== s.id) setOverId(s.id) }
-                    }}
-                    onDrop={(e) => { e.preventDefault(); reorder(list, dragId, s.id); setDragId(null); setOverId(null) }}
+                    className={`lead-statuses-chip${dnd.dragId === s.id ? ' dragging' : ''}${dnd.overZone === s.id && dnd.dragId && dnd.dragId !== s.id ? ' drop-target' : ''}`}
+                    {...dnd.draggableProps(s.id)}
+                    {...dnd.dropZoneProps(s.id)}
                   >
                     <GripVertical size={12} strokeWidth={1.7} aria-hidden="true" className="lead-statuses-chip-grip" />
                     <span className="lead-statuses-chip-dot" style={{ background: s.color || 'var(--stone)' }} />

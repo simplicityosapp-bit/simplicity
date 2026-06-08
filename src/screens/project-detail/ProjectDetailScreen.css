@@ -334,6 +334,7 @@
 [data-theme="dark"] .pd-client:hover { background: rgba(240, 235, 224, 0.07); }
 .pd-client { cursor: grab; }
 .pd-client:active { cursor: grabbing; }
+.pd-client.dragging { opacity: 0.4; }
 .pd-client-grip {
   flex-shrink: 0;
   color: var(--stone);

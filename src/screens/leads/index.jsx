@@ -6,6 +6,7 @@ import { useLeadStatuses } from '../../hooks/useLeadStatuses'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
+import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { LEAD_META, statusMetaOfLead, metaColor } from '../../lib/leads'
 import { pushUndo } from '../../lib/undo'
 import LeadColumn from './LeadColumn'
@@ -93,6 +94,9 @@ export default function LeadsScreen() {
     if (subs.length >= 2) { setDropPicker({ leadId, newMeta, subs }); return }
     applyLeadMove(leadId, newMeta, subs.length === 1 ? subs[0].id : null)
   }, [leadList, leadStatuses, applyLeadMove])
+
+  /* Touch+mouse drag of a lead between meta columns (zone = meta key). */
+  const leadDnd = usePointerDnd({ onDrop: handleDropLead })
 
   return (
     <div className="screen">
@@ -183,7 +187,7 @@ export default function LeadsScreen() {
               onEdit={setEditLead}
               onConvert={setConvertLead}
               onDelete={setPendingDeleteLead}
-              onDropLead={handleDropLead}
+              dnd={leadDnd}
               sources={sources}
               statuses={leadStatuses}
             />

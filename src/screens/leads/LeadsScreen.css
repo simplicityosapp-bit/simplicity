@@ -81,13 +81,10 @@
 }
 .lead-card {
   user-select: none;
-}
-.lead-card[draggable="true"] {
   cursor: grab;
 }
-.lead-card[draggable="true"]:active {
-  cursor: grabbing;
-}
+.lead-card:active { cursor: grabbing; }
+.lead-card.dragging { opacity: 0.4; }
 
 /* ── View toggle (kanban / statuses) ─────────────────────────── */
 .l-view-toggle {
@@ -196,6 +193,9 @@
   border: none;
   padding: 0;
   margin-inline-start: 2px;
+  min-width: 28px;
+  min-height: 28px;
+  justify-content: center;
   color: var(--stone);
   cursor: pointer;
   display: inline-flex;

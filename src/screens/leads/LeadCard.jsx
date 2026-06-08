@@ -3,7 +3,7 @@ import { Clock, Check, CalendarDays, ArrowLeft, X } from 'lucide-react'
 import { statusMetaOfLead } from '../../lib/leads'
 import { fmtShortDate } from '../../lib/dates'
 
-function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = [] }) {
+function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = [], dragProps = null, dragging = false }) {
   const meta = statusMetaOfLead(lead)
   const source = lead.source_id ? sources.find((s) => s.id === lead.source_id) : null
   const sub = lead.status_id ? statuses.find((s) => s.id === lead.status_id) : null
@@ -13,15 +13,12 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
 
   return (
     <div
-      className="lead-card"
+      className={`lead-card${dragging ? ' dragging' : ''}`}
       role={onEdit ? 'button' : undefined}
       tabIndex={onEdit ? 0 : undefined}
       onClick={() => onEdit?.(lead)}
-      draggable={!!onEdit}
-      onDragStart={(e) => {
-        e.dataTransfer.setData('text/lead-id', lead.id)
-        e.dataTransfer.effectAllowed = 'move'
-      }}
+      onKeyDown={onEdit ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit(lead) } } : undefined}
+      {...(dragProps || {})}
     >
       {onDelete && (
         <button

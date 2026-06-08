@@ -58,13 +58,20 @@ export function useReminders() {
     } else {
       patch = { status: 'completed' }
     }
-    setReminders((prev) => prev.map((x) => (x.id === r.id ? { ...x, ...patch } : x)).sort(bySchedule))
-    try {
-      await updateReminder(r.id, patch)
-    } catch (e) {
-      setError(e.message)
-      refetch()
+    const advanced = !patch.status /* recurring → bumped to next slot, not done */
+    const prev = { status: r.status, scheduled_at: r.scheduled_at }
+    const apply = async (p) => {
+      setReminders((prevR) => prevR.map((x) => (x.id === r.id ? { ...x, ...p } : x)).sort(bySchedule))
+      try { await updateReminder(r.id, p) } catch (e) { setError(e.message); refetch() }
     }
+    await apply(patch)
+    /* Undo an accidental ✓ — restores the prior status/slot (a recurring
+       reminder otherwise silently jumps to its next occurrence). */
+    pushUndo({
+      label: advanced ? 'התזכורת קודמה' : 'התזכורת הושלמה',
+      undo: () => apply(prev),
+      redo: () => apply(patch),
+    })
   }, [reminders, refetch])
 
   const editReminder = useCallback(async (id, patch) => {

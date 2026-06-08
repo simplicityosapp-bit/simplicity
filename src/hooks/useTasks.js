@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listTasks, insertTask, updateTask, removeTask as apiRemoveTask, restoreTask } from '../lib/api/tasks'
 import { registerDeleteUndo } from '../lib/undoActions'
+import { pushUndo } from '../lib/undo'
 
 /* React-Query-backed: home widgets (attention, chips, next-tasks) shared
    the same task fetch. Public API unchanged. */
@@ -28,12 +29,19 @@ export function useTasks() {
       completed_at: done ? null : new Date().toISOString(),
       ...(done ? {} : { status_id: null }),
     }
-    qc.setQueryData(KEY, (prev) => (prev ?? []).map((t) => (t.id === task.id ? { ...t, ...patch } : t)))
-    try {
-      await updateTask(task.id, patch)
-    } catch {
-      qc.invalidateQueries({ queryKey: KEY })
+    /* Snapshot the fields the toggle touches so the change is undoable
+       (an accidental check on the ✓ is recoverable, like a lead move). */
+    const prev = { status: task.status, completed_at: task.completed_at ?? null, status_id: task.status_id ?? null }
+    const apply = (p) => {
+      qc.setQueryData(KEY, (rows) => (rows ?? []).map((t) => (t.id === task.id ? { ...t, ...p } : t)))
+      return updateTask(task.id, p).catch(() => qc.invalidateQueries({ queryKey: KEY }))
     }
+    await apply(patch)
+    pushUndo({
+      label: done ? 'המשימה הוחזרה' : 'המשימה הושלמה',
+      undo: () => apply(prev),
+      redo: () => apply(patch),
+    })
   }, [qc])
 
   const editTask = useCallback(async (id, patch) => {

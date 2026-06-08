@@ -2,6 +2,7 @@ import { memo, useState } from 'react'
 import { Star, Plus, X, ChevronDown, Pencil, Trash2 } from 'lucide-react'
 import { formatGoalValue, timeFrameLabel } from '../../lib/goals'
 import { fmtShortDate } from '../../lib/dates'
+import ConfirmModal from '../../modals/ConfirmModal'
 
 function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEdit, onDelete }) {
   const { goal, cat, actual, target, pure: rawPure } = scored
@@ -10,6 +11,7 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
   const importance = goal.importance || 3
   const isManual = cat.measurement_type === 'manual'
   const [showHistory, setShowHistory] = useState(false)
+  const [confirmEntry, setConfirmEntry] = useState(null) // entry awaiting delete confirm
 
   const catEntries = isManual
     ? entries.filter((e) => e.category_id === cat.id).slice().sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -79,13 +81,23 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
               <span className="g-entry-val mono">{formatGoalValue(e.value, cat)}</span>
               <span className="g-entry-date">{fmtShortDate(e.date)}</span>
               {e.note && <span className="g-entry-note">· {e.note}</span>}
-              <button type="button" className="g-entry-del" onClick={() => onDeleteEntry?.(e.id)} aria-label="מחק הזנה">
+              <button type="button" className="g-entry-del" onClick={() => setConfirmEntry(e)} aria-label="מחק הזנה">
                 <X size={13} strokeWidth={1.8} aria-hidden="true" />
               </button>
             </div>
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        open={!!confirmEntry}
+        onClose={() => setConfirmEntry(null)}
+        title="מחיקת הזנה"
+        danger
+        confirmLabel="מחק"
+        message={confirmEntry ? `למחוק את ההזנה (${formatGoalValue(confirmEntry.value, cat)} · ${fmtShortDate(confirmEntry.date)})?` : ''}
+        onConfirm={() => { if (confirmEntry) return onDeleteEntry?.(confirmEntry.id) }}
+      />
     </div>
   )
 }

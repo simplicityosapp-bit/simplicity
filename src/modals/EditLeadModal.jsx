@@ -10,10 +10,11 @@ const METAS = [
 
 /* Edit a lead — name / phone / dates / notes / kanban column (status_meta) /
    sub-status. Moving between columns is editing status_meta. */
-export default function EditLeadModal({ open, onClose, onSave, lead, statuses = [] }) {
+export default function EditLeadModal({ open, onClose, onSave, lead, statuses = [], projects = [] }) {
   const [form, setForm] = useState(() => ({
     name: lead?.name || '',
     phone: lead?.phone || '',
+    project_id: lead?.project_id || '',
     inquiry_date: lead?.inquiry_date || '',
     follow_up_date: lead?.follow_up_date || '',
     notes: lead?.notes || '',
@@ -39,6 +40,7 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
       await onSave(lead.id, {
         name: form.name.trim(),
         phone: form.phone.trim() || null,
+        project_id: form.project_id || null,
         inquiry_date: form.inquiry_date || null,
         follow_up_date: form.follow_up_date || null,
         notes: form.notes.trim() || null,
@@ -67,6 +69,13 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
       <div className="m-field">
         <label className="m-label">טלפון</label>
         <input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="050-0000000" />
+      </div>
+      <div className="m-field">
+        <label className="m-label">פרויקט (אופציונלי)</label>
+        <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
+          <option value="">ללא</option>
+          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
       </div>
       <div className="m-row2">
         <div className="m-field">

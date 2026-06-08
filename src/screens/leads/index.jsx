@@ -195,13 +195,14 @@ export default function LeadsScreen() {
         </div>
       )}
 
-      <AddLeadModal open={showAdd} onClose={() => setShowAdd(false)} sources={sources} statuses={leadStatuses} onSave={addLead} />
+      <AddLeadModal open={showAdd} onClose={() => setShowAdd(false)} sources={sources} statuses={leadStatuses} projects={projects} onSave={addLead} />
       <EditLeadModal
         key={editLead?.id}
         open={!!editLead}
         onClose={() => setEditLead(null)}
         lead={editLead}
         statuses={leadStatuses}
+        projects={projects}
         onSave={updateLead}
       />
       <ConvertLeadModal

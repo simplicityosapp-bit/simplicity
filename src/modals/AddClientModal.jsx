@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import ClientFormFields from '../components/ClientFormFields'
+import { showToast } from '../lib/toast'
 
 const blank = () => ({
   name: '', status: 'active', status_id: '', sessions: '', price_per_session: '',
@@ -44,6 +45,7 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
         notes: null,
         notes_updated_at: null,
       })
+      showToast('הלקוח נשמר')
       close()
     } catch (e) {
       setBusy(false)

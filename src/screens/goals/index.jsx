@@ -61,11 +61,12 @@ export default function GoalsScreen() {
 
   const addPreset = (preset) => addCategory(presetToCategory(preset))
 
-  /* C9 — seed the auto-measurable default categories ONCE per account so
-     the user lands on a ready board instead of an empty "choose where to
-     start" screen. Guarded by prefs.goalsSeeded so deleting a seeded
-     category never makes it reappear. Existing users (who already have
-     categories) are just flagged as seeded without adding anything. */
+  /* CANONICAL (C9, 2026): seed the auto-measurable default categories ONCE
+     per account so a new user lands on a ready board (this SUPERSEDES the
+     older "start empty + choose where to start" design — that chooser now
+     only serves a user who deleted every category). Guarded by
+     prefs.goalsSeeded so deleting a seeded category never makes it reappear;
+     existing users are just flagged seeded without adding anything. */
   const seedingRef = useRef(false)
   useEffect(() => {
     if (catsLoading || !prefs || prefs.goalsSeeded || seedingRef.current) return
@@ -127,7 +128,10 @@ export default function GoalsScreen() {
         </div>
       )}
 
-      {loading ? (
+      {loading || !prefs?.goalsSeeded ? (
+        /* Show loading (not the welcome chooser) while the one-time seed runs,
+           so a fresh user doesn't see the empty chooser flash before the
+           default categories land. */
         <div className="empty"><p className="empty-text">טוען יעדים…</p></div>
       ) : error ? (
         <div className="empty"><p className="empty-text">שגיאה בטעינת היעדים: {error}</p></div>

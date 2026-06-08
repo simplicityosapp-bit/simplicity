@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Leaf, ArrowLeft, TrendingUp } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Leaf, ArrowLeft, TrendingUp, ChevronLeft } from 'lucide-react'
+import { ROUTES } from '../../lib/routes'
 import { useLeads } from '../../hooks/useLeads'
 import { useLeadSources } from '../../hooks/useLeadSources'
 import { useLeadStatuses } from '../../hooks/useLeadStatuses'
@@ -35,6 +37,7 @@ function computeStats(list, now = new Date()) {
 }
 
 export default function LeadsScreen() {
+  const navigate = useNavigate()
   const { leads: leadList, loading, error, addLead, updateLead, removeLead } = useLeads()
   const { sources, addSource } = useLeadSources()
   const { statuses: leadStatuses, addStatus: addLeadStatus, updateStatus: updateLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
@@ -125,6 +128,7 @@ export default function LeadsScreen() {
         )}
       </div>
 
+      <div className="l-toolbar">
       <div className="l-view-toggle" role="tablist" aria-label="תצוגה">
         <button
           type="button"
@@ -143,6 +147,16 @@ export default function LeadsScreen() {
           aria-selected={view === 'statuses'}
         >
           סטטוסים
+        </button>
+      </div>
+        <button
+          type="button"
+          className="l-sources-link"
+          onClick={() => navigate(ROUTES.SETTINGS, { state: { openSection: 'leads' } })}
+        >
+          <Leaf size={14} strokeWidth={1.7} aria-hidden="true" />
+          מקורות לידים
+          <ChevronLeft size={15} strokeWidth={1.7} aria-hidden="true" />
         </button>
       </div>
 

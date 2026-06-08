@@ -372,24 +372,36 @@
   border-bottom-color: rgba(255,255,255,.06);
 }
 .rep-list { display: flex; flex-direction: column; }
+/* Row wrapper: holds the drill button + an optional info (ⓘ) popover as a
+   SIBLING, so the popover's button is never nested inside the row button. */
+.rep-row-wrap {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--divider, rgba(0,0,0,.04));
+}
+.rep-row-wrap:last-child { border-bottom: none; }
+.rep-row-info {
+  display: inline-flex;
+  align-items: center;
+  padding-inline-end: 12px;
+  flex-shrink: 0;
+}
 .rep-row {
+  flex: 1;
+  min-width: 0;
   display: grid;
   grid-template-columns: 18px 1fr auto;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-bottom: 1px solid var(--divider, rgba(0,0,0,.04));
   background: none;
-  border-top: none;
-  border-inline: none;
-  width: 100%;
+  border: none;
   text-align: start;
   font: inherit;
   color: inherit;
   cursor: pointer;
   transition: background 120ms;
 }
-.rep-row:last-child { border-bottom: none; }
 .rep-row:not(:disabled):hover {
   background: rgba(0,0,0,.025);
 }

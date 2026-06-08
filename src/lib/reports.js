@@ -189,7 +189,7 @@ export function computeReportForRange(start, end, data = {}) {
 export const REPORT_METRICS = [
   /* Leads */
   { id: 'newInquiries',       label: 'פניות חדשות',           group: 'leads',    kind: 'flow',      format: 'count' },
-  { id: 'leadsClosed',        label: 'לידים נסגרו',           group: 'leads',    kind: 'flow',      format: 'count' },
+  { id: 'leadsClosed',        label: 'לידים נסגרו',           desc: 'כל הלידים שיצאו מהתהליך — הומרו ללקוחות או סומנו לא רלוונטי. (לעומת "הומרו ללקוחות" שסופר רק את אלה שהפכו ללקוחות.)', group: 'leads', kind: 'flow', format: 'count' },
   { id: 'leadsConverted',     label: 'הומרו ללקוחות',         group: 'leads',    kind: 'flow',      format: 'count' },
   { id: 'conversionRate',     label: 'אחוז המרה',             group: 'leads',    kind: 'cohortPct', format: 'pct' },
   /* Clients */

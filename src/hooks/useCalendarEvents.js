@@ -74,5 +74,18 @@ export function useCalendarEvents() {
   const assignLead = useCallback((ev, leadId) => assignMatch(ev, 'lead_id', leadId), [assignMatch])
   const assignGroup = useCallback((ev, groupId) => assignMatch(ev, 'group_id', groupId), [assignMatch])
 
-  return { events, loading, error, refetch, assignClient, assignProject, assignLead, assignGroup }
+  /* Hide a synced event from the app view (soft-delete). Used to resolve a
+     calendar duplicate when the user keeps the app meeting. NOTE: one-way
+     sync means a future sync may re-create the row — the calling UI warns
+     about this. Optimistic; refetch on failure. */
+  const dismissEvent = useCallback(async (ev) => {
+    setEvents((prev) => prev.filter((row) => row.id !== ev.id))
+    const { error: e } = await supabase
+      .from('calendar_events')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', ev.id)
+    if (e) { setError(e.message); showError('הסתרת האירוע נכשלה — נסה/י שוב'); refetch() }
+  }, [refetch])
+
+  return { events, loading, error, refetch, assignClient, assignProject, assignLead, assignGroup, dismissEvent }
 }

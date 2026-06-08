@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
+import { AlertTriangle } from 'lucide-react'
 import { remindersUpcoming } from '../../lib/homeData'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetingsGeneration'
+import { useCalendarDuplicates } from '../../hooks/useCalendarDuplicates'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
 import { useClients } from '../../hooks/useClients'
 import { useGroups } from '../../hooks/useGroups'
@@ -17,6 +19,7 @@ import AddReminderModal from '../../modals/AddReminderModal'
 import AddTaskModal from '../../modals/AddTaskModal'
 import AddTransactionModal from '../../modals/AddTransactionModal'
 import EventDetailsModal from '../../modals/EventDetailsModal'
+import CalendarDuplicateModal from '../../modals/CalendarDuplicateModal'
 import CalendarHeader from './CalendarHeader'
 import CalendarSchedule from './CalendarSchedule'
 import CalendarDay from './CalendarDay'
@@ -30,7 +33,7 @@ const VALID_VIEWS = new Set(['schedule', 'day', 'week', 'month'])
 export default function CalendarScreen() {
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
-  const { events: calendarEvents } = useCalendarEvents()
+  const { events: calendarEvents, dismissEvent } = useCalendarEvents()
   const { clients } = useClients()
   const { groups } = useGroups()
 
@@ -51,6 +54,14 @@ export default function CalendarScreen() {
   const [showGate, setShowGate] = useState(false)
   const [activeModal, setActiveModal] = useState(null)
   const [selectedEvent, setSelectedEvent] = useState(null)
+  const [showDuplicates, setShowDuplicates] = useState(false)
+
+  /* Calendar duplicates: an app recurring meeting that collides with a synced
+     Google event for the same subject/day/time. Surfaced as a banner here +
+     a row in the home AttentionWidget; resolved one-by-one (never auto). */
+  const { duplicates, hideMeeting, hideEvent } = useCalendarDuplicates({
+    meetings, calendarEvents, clients, groups, updateMeeting, dismissEvent,
+  })
 
   const weekStart = prefs?.format?.week_start || prefs?.weekStart || 'sunday'
   const dayViewStart = Number.isFinite(prefs?.dayViewStart) ? prefs.dayViewStart : 6
@@ -147,6 +158,18 @@ export default function CalendarScreen() {
         </Coachmark>
       </div>
 
+      {duplicates.length > 0 && (
+        <button type="button" className="cal-dup-banner" onClick={() => setShowDuplicates(true)}>
+          <AlertTriangle size={15} strokeWidth={1.8} aria-hidden="true" />
+          <span className="cal-dup-text">
+            {duplicates.length === 1
+              ? 'כפילות אחת ביומן מול גוגל'
+              : `${duplicates.length} כפילויות ביומן מול גוגל`}
+          </span>
+          <span className="cal-dup-cta">פתרו ←</span>
+        </button>
+      )}
+
       <CalendarHeader
         view={view}
         onViewChange={setView}
@@ -220,6 +243,13 @@ export default function CalendarScreen() {
         onSkipMeeting={skipMeeting}
         onCompleteReminder={completeReminderHandler}
         onRemoveReminder={removeReminderHandler}
+      />
+      <CalendarDuplicateModal
+        open={showDuplicates}
+        onClose={() => setShowDuplicates(false)}
+        duplicates={duplicates}
+        onHideMeeting={hideMeeting}
+        onHideEvent={hideEvent}
       />
     </div>
   )

@@ -14,7 +14,7 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], s
   const [form, setForm] = useState(() => ({
     name: lead?.name || '',
     phone: lead?.phone || '',
-    project_id: '',
+    project_id: lead?.project_id || '',
     status_id: '',
   }))
   const [err, setErr] = useState('')

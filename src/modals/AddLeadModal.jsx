@@ -3,11 +3,12 @@ import DateField from '../components/DateField'
 import Modal from './Modal'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
-const blank = () => ({ name: '', phone: '', source_id: '', status_id: '', inquiry_date: todayStr(), follow_up_date: '', notes: '' })
+const blank = () => ({ name: '', phone: '', source_id: '', project_id: '', status_id: '', inquiry_date: todayStr(), follow_up_date: '', notes: '' })
 
 /* onSave is async (Supabase insert). New leads land in the "בתהליך" column;
-   the user can optionally pick a sub-status from those defined in Settings. */
-export default function AddLeadModal({ open, onClose, onSave, sources = [], statuses = [] }) {
+   the user can optionally pick a sub-status from those defined in Settings,
+   and optionally tie the lead to a project. */
+export default function AddLeadModal({ open, onClose, onSave, sources = [], statuses = [], projects = [] }) {
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -24,6 +25,7 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
         name: form.name.trim(),
         phone: form.phone.trim() || null,
         source_id: form.source_id || null,
+        project_id: form.project_id || null,
         status: 'new',
         status_id: form.status_id || null,
         status_meta: 'in_process',
@@ -66,6 +68,13 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
             {sources.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
         </div>
+      </div>
+      <div className="m-field">
+        <label className="m-label">פרויקט (אופציונלי)</label>
+        <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
+          <option value="">ללא</option>
+          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
       </div>
       {statuses.filter((s) => s.meta_category === 'in_process').length > 0 && (
         <div className="m-field">

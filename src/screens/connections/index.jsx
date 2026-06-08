@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { Plug, Calendar, RefreshCw, Check, CircleAlert, Link2Off, ChevronDown, ChevronUp } from 'lucide-react'
+import { Plug, Calendar, RefreshCw, Check, CircleAlert, Link2Off, ChevronDown, ChevronUp, X } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
@@ -139,9 +139,24 @@ export default function ConnectionsScreen() {
     setBusyAction(null)
   }
 
-  /* One synced-event card — reused inside each accordion group. */
+  const [picker, setPicker] = useState(null) // { id, type } — which event's "שייך ל…" picker is open
+  /* The four assignable targets in one list — drives the compact picker. */
+  const ASSIGN_TYPES = [
+    { key: 'client', label: 'לקוח', field: 'client_id', list: clients, assign: assignClient },
+    { key: 'project', label: 'פרויקט', field: 'project_id', list: projects, assign: assignProject },
+    { key: 'lead', label: 'ליד', field: 'lead_id', list: leads, assign: assignLead },
+    { key: 'group', label: 'קבוצה', field: 'group_id', list: groups, assign: assignGroup },
+  ]
+
+  /* One synced-event card — reused inside each accordion group. Assignment
+     is a compact "שייך ל…" picker: current links show as removable chips, and
+     adding one picks a type then an entity (instead of 4 always-open selects). */
   const renderEvent = (ev) => {
-    const matched = !!(ev.client_id || ev.project_id || ev.lead_id || ev.group_id)
+    const links = ASSIGN_TYPES
+      .filter((t) => ev[t.field])
+      .map((t) => ({ ...t, name: (t.list || []).find((x) => x.id === ev[t.field])?.name || t.label }))
+    const open = picker?.id === ev.id
+    const active = open && picker.type ? ASSIGN_TYPES.find((t) => t.key === picker.type) : null
     return (
       <div key={ev.id} className="conn-event">
         <div className="conn-event-main">
@@ -150,37 +165,36 @@ export default function ConnectionsScreen() {
             {fmtDateTime(ev.start_time, ev.all_day)}{!ev.all_day && ev.end_time ? `–${fmtClock(ev.end_time)}` : ''}{ev.duration_minutes ? ` · ${fmtDuration(ev.duration_minutes)}` : ''}
           </p>
           <div className="conn-assign-row">
-            <label className="conn-assign">
-              <span className="conn-assign-lbl">לקוח</span>
-              <select className="conn-event-select" value={ev.client_id || ''} onChange={(e) => assignClient(ev, e.target.value)} aria-label="שיוך לקוח">
-                <option value="">— ללא —</option>
-                {(clients || []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </label>
-            <label className="conn-assign">
-              <span className="conn-assign-lbl">פרויקט</span>
-              <select className="conn-event-select" value={ev.project_id || ''} onChange={(e) => assignProject(ev, e.target.value)} aria-label="שיוך פרויקט">
-                <option value="">— ללא —</option>
-                {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-            </label>
-            <label className="conn-assign">
-              <span className="conn-assign-lbl">ליד</span>
-              <select className="conn-event-select" value={ev.lead_id || ''} onChange={(e) => assignLead(ev, e.target.value)} aria-label="שיוך ליד">
-                <option value="">— ללא —</option>
-                {(leads || []).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
-              </select>
-            </label>
-            <label className="conn-assign">
-              <span className="conn-assign-lbl">קבוצה</span>
-              <select className="conn-event-select" value={ev.group_id || ''} onChange={(e) => assignGroup(ev, e.target.value)} aria-label="שיוך קבוצה">
-                <option value="">— ללא —</option>
-                {(groups || []).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-              </select>
-            </label>
+            {links.map((t) => (
+              <span key={t.key} className="conn-link-chip">
+                <span className="conn-link-chip-type">{t.label}</span>
+                {t.name}
+                <button type="button" className="conn-link-chip-x" onClick={() => t.assign(ev, '')} aria-label={`הסרת שיוך ${t.label}`} title="הסרה">
+                  <X size={11} strokeWidth={2} aria-hidden="true" />
+                </button>
+              </span>
+            ))}
+            {!open ? (
+              <button type="button" className="conn-assign-add" onClick={() => setPicker({ id: ev.id, type: null })}>+ שייך ל…</button>
+            ) : (
+              <div className="conn-assign-picker">
+                <div className="conn-assign-types">
+                  {ASSIGN_TYPES.map((t) => (
+                    <button key={t.key} type="button" className={`conn-type-pill${picker.type === t.key ? ' on' : ''}`} onClick={() => setPicker({ id: ev.id, type: t.key })}>{t.label}</button>
+                  ))}
+                </div>
+                {active && (
+                  <select className="conn-event-select" value={ev[active.field] || ''} onChange={(e) => { active.assign(ev, e.target.value); setPicker(null) }} aria-label={`שיוך ${active.label}`}>
+                    <option value="">— בחר/י —</option>
+                    {(active.list || []).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+                  </select>
+                )}
+                <button type="button" className="conn-assign-cancel" onClick={() => setPicker(null)}>סגור</button>
+              </div>
+            )}
           </div>
         </div>
-        <span className={`conn-tag${matched ? ' on' : ''}`}>{matched ? 'מזוהה' : 'לא מזוהה'}</span>
+        <span className={`conn-tag${links.length ? ' on' : ''}`}>{links.length ? 'מזוהה' : 'לא מזוהה'}</span>
       </div>
     )
   }

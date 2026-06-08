@@ -1,9 +1,16 @@
+import { useState } from 'react'
 import { Clock, CalendarDays } from 'lucide-react'
 import { formatWhen } from '../../lib/dates'
 
-/* The original list view — kept verbatim under the new toggle.
-   Items already come merged (meetings + reminders) and sorted. */
+const PAGE = 30
+
+/* The agenda list view (merged meetings + reminders + synced events, sorted).
+   Paginates with "טען עוד" so a long horizon isn't silently truncated. The
+   window only grows; a shrinking feed is handled by slice, and switching away
+   from the agenda view remounts this and resets to the first page. */
 export default function CalendarSchedule({ items, onSelect }) {
+  const [limit, setLimit] = useState(PAGE)
+
   if (!items.length) {
     return (
       <div className="empty">
@@ -11,9 +18,11 @@ export default function CalendarSchedule({ items, onSelect }) {
       </div>
     )
   }
+  const shown = items.slice(0, limit)
+  const remaining = items.length - shown.length
   return (
     <section className="cal-list">
-      {items.map((it) => (
+      {shown.map((it) => (
         <button
           key={`${it.kind}-${it.id}-${+it.when}`}
           type="button"
@@ -34,6 +43,11 @@ export default function CalendarSchedule({ items, onSelect }) {
           {it.kind === 'calendar' && <span className="cal-tag cal">יומן</span>}
         </button>
       ))}
+      {remaining > 0 && (
+        <button type="button" className="cal-load-more" onClick={() => setLimit((n) => n + PAGE)}>
+          טען עוד ({remaining})
+        </button>
+      )}
     </section>
   )
 }

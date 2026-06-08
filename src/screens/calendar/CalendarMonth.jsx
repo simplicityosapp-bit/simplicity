@@ -5,7 +5,8 @@ const MAX_DOTS = 3
 
 /* 6-week month grid (always 42 cells — every layout fits, no
    exceptions). Cells outside the month dim. Each cell shows up to
-   3 dots tinted by event kind (sage = meeting, amber = reminder).
+   3 dots tinted by event kind (sage = meeting, amber = reminder,
+   moon = synced calendar) — keyed by the legend below the grid.
    Tap a cell → switch to the day view on that date. */
 export default function CalendarMonth({ date, events, onPickDay, weekStart = 'sunday' }) {
   const grid = useMemo(() => monthGrid(date, weekStart), [date, weekStart])
@@ -55,6 +56,11 @@ export default function CalendarMonth({ date, events, onPickDay, weekStart = 'su
             </button>
           )
         })}
+      </div>
+      <div className="cal-month-legend">
+        <span className="cal-month-leg"><span className="cal-month-dot meeting" aria-hidden="true" /> פגישות</span>
+        <span className="cal-month-leg"><span className="cal-month-dot reminder" aria-hidden="true" /> תזכורות</span>
+        <span className="cal-month-leg"><span className="cal-month-dot calendar" aria-hidden="true" /> יומן</span>
       </div>
     </div>
   )

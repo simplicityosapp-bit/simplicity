@@ -77,10 +77,12 @@ function MonthPicker({ date, onPick }) {
    the centre is a month picker; in day they step a day and show the date.
    RTL: ChevronRight = "previous" (it points toward the past). */
 export default function CalendarHeader({ view, onViewChange, date, onDateChange }) {
+  const monthish = view === 'week' || view === 'month'
   const goPrev = () => onDateChange(stepDate(view, date, -1))
   const goNext = () => onDateChange(stepDate(view, date, +1))
-  const goToday = () => onDateChange(new Date())
-  const monthish = view === 'week' || view === 'month'
+  /* In week/month "היום" also drops into the day view of today, so it always
+     does something visible (otherwise it's a no-op when already on this month). */
+  const goToday = () => { onDateChange(new Date()); if (monthish) onViewChange('day') }
 
   return (
     <div className="cal-header">

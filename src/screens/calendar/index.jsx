@@ -109,7 +109,9 @@ export default function CalendarScreen() {
   const scheduleItems = useMemo(() => {
     const startOfToday = new Date()
     startOfToday.setHours(0, 0, 0, 0)
-    return allEvents.filter((e) => e.when >= startOfToday).slice(0, 30)
+    /* Full upcoming list — the dedicated agenda screen paginates with a
+       "טען עוד" inside CalendarSchedule (no silent 30-item truncation). */
+    return allEvents.filter((e) => e.when >= startOfToday)
   }, [allEvents])
 
   /* Event action handlers — passed into EventDetailsModal so it
@@ -134,7 +136,7 @@ export default function CalendarScreen() {
           <p className="t-screen">יומן</p>
         </header>
         <Coachmark id="add-meeting" radius="50%">
-          <button className="cta-add" type="button" aria-label="אירוע חדש" onClick={() => setShowGate(true)}>אירוע חדש +</button>
+          <button className="cta-add" type="button" aria-label="הוספה" onClick={() => setShowGate(true)}>הוסף +</button>
         </Coachmark>
       </div>
 

@@ -59,6 +59,19 @@
   flex-direction: column;
   gap: 8px;
 }
+.cal-load-more {
+  margin-top: 4px;
+  padding: 11px;
+  border-radius: var(--mg-card-radius);
+  border: 1px dashed var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--stone);
+  cursor: pointer;
+}
+.cal-load-more:hover { background: rgba(42, 37, 32, 0.04); color: var(--espresso); }
+[data-theme="dark"] .cal-load-more:hover { background: rgba(240, 235, 224, 0.05); }
 .cal-item {
   display: flex;
   align-items: center;
@@ -581,6 +594,24 @@
 .cal-month-dot.calendar {
   background: var(--moon-deep);
 }
+.cal-month-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--divider);
+}
+.cal-month-leg {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+}
+.cal-month-leg .cal-month-dot { width: 7px; height: 7px; }
 
 /* ── Google Calendar synced events (kind="calendar") ──────────── */
 .cal-icon.calendar {

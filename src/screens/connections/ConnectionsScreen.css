@@ -238,22 +238,77 @@
 }
 .conn-assign-row {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
   margin-top: 8px;
   flex-wrap: wrap;
 }
-.conn-assign {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  flex: 1 1 110px;
-  min-width: 0;
-}
-.conn-assign-lbl {
+/* A current link, shown as a removable chip. */
+.conn-link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 4px 3px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--sage) 40%, transparent);
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
   font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--espresso);
+}
+.conn-link-chip-type {
   font-size: calc(10px * var(--text-scale));
-  font-weight: 500;
   color: var(--stone);
+}
+.conn-link-chip-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  min-height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+}
+.conn-link-chip-x:hover { color: var(--clay); background: color-mix(in srgb, var(--clay) 12%, transparent); }
+/* "+ שייך ל…" add button + the inline type/entity picker it opens. */
+.conn-assign-add {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px dashed var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  cursor: pointer;
+}
+.conn-assign-add:hover { color: var(--espresso); background: rgba(42, 37, 32, 0.04); }
+[data-theme="dark"] .conn-assign-add:hover { background: rgba(240, 235, 224, 0.05); }
+.conn-assign-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; width: 100%; }
+.conn-assign-types { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.conn-type-pill {
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  cursor: pointer;
+}
+.conn-type-pill.on { background: var(--terracotta); color: var(--on-accent); border-color: transparent; }
+[data-theme="dark"] .conn-type-pill.on { color: var(--ink-on-accent); }
+.conn-assign-picker .conn-event-select { flex: 1 1 140px; width: auto; }
+.conn-assign-cancel {
+  border: none;
+  background: transparent;
+  padding: 6px 8px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  cursor: pointer;
 }
 .conn-tag {
   flex-shrink: 0;

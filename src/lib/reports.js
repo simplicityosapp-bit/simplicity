@@ -194,7 +194,7 @@ export const REPORT_METRICS = [
   { id: 'conversionRate',     label: 'אחוז המרה',             group: 'leads',    kind: 'cohortPct', format: 'pct' },
   /* Clients */
   { id: 'newClients',         label: 'לקוחות חדשים',          group: 'clients',  kind: 'flow',      format: 'count' },
-  { id: 'activeClientsAtEnd', label: 'לקוחות פעילים בסוף',    group: 'clients',  kind: 'snapshot',  format: 'count' },
+  { id: 'activeClientsAtEnd', label: 'לקוחות פעיל׊׉ בסוף',    group: 'clients',  kind: 'snapshot',  format: 'count' },
   { id: 'leftMidProcessPct',  label: 'עזבו באמצע מסלול',      group: 'clients',  kind: 'cohortPct', format: 'pct' },
   /* Sessions */
   { id: 'sessions',           label: 'פגישות שהתקיימו',       group: 'sessions', kind: 'flow',      format: 'count' },

@@ -220,7 +220,7 @@ export default function Step6Goals({ ob, setCTA }) {
   return (
     <>
       <p className="ob-intro">נגדיר יעד ראשון?</p>
-      <p className="ob-intro-sub">{addr({ male: 'תוכל', female: 'תוכלי', neutral: 'תוכל/י' })} לעקוב אחר ההתקדמות שלך בקלות — וכמובן לערוך את היעד מתי ש{addr({ male: 'תרצה', female: 'תרצי', neutral: 'תרצה' })}.</p>
+      <p className="ob-intro-sub">{addr({ male: 'תוכל', female: 'תוכלי', neutral: 'תוכל/י' })} לעקוב אחרי ההתקדמות — ואפשר תמיד להוסיף, לערוך או למחוק יעדים בקלות.</p>
 
       <div className="ob-field">
         <label className="ob-label" htmlFor="ob-g-proj">לאיזה פרויקט?</label>
@@ -329,6 +329,7 @@ export default function Step6Goals({ ob, setCTA }) {
                 </button>
               ))}
             </div>
+            <p className="ob-empty-hint">זה ישפיע על חישוב אחוז ההתקדמות הכולל שלך.</p>
           </div>
 
           {isPersonal && (

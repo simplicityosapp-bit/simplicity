@@ -22,7 +22,7 @@ const ENTITY_META = {
   sessions:       { label: 'פגישות',          icon: CalendarDays },
   reminders:      { label: 'תזכורות',         icon: Bell },
   goals:          { label: 'יעדים',           icon: Target },
-  goalCategories: { label: 'קטגוריות יעדים',  icon: LayoutGrid },
+  goalCategories: { label: 'מדדי יעדים',      icon: LayoutGrid },
   goalEntries:    { label: 'הזנות יעדים',     icon: BarChart3 },
   userQuestions:  { label: 'שאלות יומיות',    icon: HelpCircle },
   dailyAnswers:   { label: 'תשובות יומיות',   icon: MessageCircle },

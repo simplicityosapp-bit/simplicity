@@ -4,6 +4,7 @@ import Modal from './Modal'
 import DateField from '../components/DateField'
 import { questionText } from '../lib/questionTemplates'
 import { scheduledOccurrences } from '../lib/goals'
+import { CATEGORY_PRESETS } from '../lib/goalPresets'
 import { useAddress } from '../hooks/useAddress'
 
 const TIME_FRAMES = [
@@ -12,8 +13,15 @@ const TIME_FRAMES = [
   { k: 'deadline', l: 'עד תאריך' },
 ]
 const IMPORTANCE = [1, 2, 3, 4, 5]
-const blank = (categoryId = '') => ({
-  category_id: categoryId,
+
+/* The metric is chosen here, not managed on the Goals screen: the system's
+   auto-measured presets + one generic "אחר — עדכון ידני" (manual). The parent
+   (onSave) resolves the chosen key to a real category, creating it on demand. */
+export const OTHER_METRIC_KEY = 'other'
+const METRICS = [...CATEGORY_PRESETS, { key: OTHER_METRIC_KEY, name: 'אחר — עדכון ידני', icon: '📝', measurement_type: 'manual' }]
+
+const blank = () => ({
+  metric_key: '',
   label: '',
   time_frame: 'monthly',
   target_value: '',
@@ -25,18 +33,19 @@ const blank = (categoryId = '') => ({
   tracked_by_question_id: '',
 })
 
-/* onSave is async (Supabase insert). For manual categories the user picks a
-   tracking method: manual entries, or linked to a daily question (D10). */
-export default function AddGoalModal({ open, onClose, onSave, categories = [], projects = [], groups = [], questions = [], defaultCategoryId = '' }) {
+/* onSave is async — it resolves metric_key to a category, then inserts the
+   goal. For the manual metric ("אחר") the user picks a tracking method: manual
+   entries, or linked to a daily question (yes/no or slider). */
+export default function AddGoalModal({ open, onClose, onSave, projects = [], groups = [], questions = [] }) {
   const { addr, tryAgain } = useAddress()
-  const [form, setForm] = useState(() => blank(defaultCategoryId))
+  const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(blank(defaultCategoryId)); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
 
-  const selectedCat = categories.find((c) => c.id === form.category_id)
-  const isManual = selectedCat?.measurement_type === 'manual'
+  const selectedMetric = METRICS.find((m) => m.key === form.metric_key)
+  const isManual = selectedMetric?.measurement_type === 'manual'
   const byQuestion = isManual && form.tracking_method === 'daily_question'
   const activeQuestions = questions.filter((q) => q.active)
 
@@ -51,7 +60,7 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
   const overMax = isYesNo && parseFloat(form.target_value) > maxOccurrences
 
   const submit = async () => {
-    if (!form.category_id) { setErr('יש לבחור קטגוריה.'); return }
+    if (!form.metric_key) { setErr('יש לבחור מדד.'); return }
     const target = parseFloat(form.target_value)
     if (!target || target <= 0) { setErr('יש למלא יעד מספרי חיובי.'); return }
     if (form.time_frame === 'deadline' && !form.target_date) { setErr('יש לבחור תאריך יעד.'); return }
@@ -61,7 +70,7 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
     setErr('')
     try {
       await onSave({
-        category_id: form.category_id,
+        metric_key: form.metric_key,
         parent_goal_id: null,
         project_id: form.project_id || null,
         group_id: form.project_id && form.group_id ? form.group_id : null,
@@ -87,10 +96,10 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
   return (
     <Modal open={open} onClose={close} title="יעד חדש">
       <div className="m-field">
-        <label className="m-label">קטגוריה</label>
-        <select className="m-select" value={form.category_id} onChange={(e) => { set('category_id', e.target.value); if (err) setErr('') }}>
-          <option value="">{addr({ male: 'בחר קטגוריה', female: 'בחרי קטגוריה', neutral: 'בחר/י קטגוריה' })}</option>
-          {categories.map((c) => <option key={c.id} value={c.id}>{c.icon ? c.icon + ' ' : ''}{c.name}</option>)}
+        <label className="m-label">מדד</label>
+        <select className="m-select" value={form.metric_key} onChange={(e) => { set('metric_key', e.target.value); if (err) setErr('') }}>
+          <option value="">{addr({ male: 'בחר מדד', female: 'בחרי מדד', neutral: 'בחר/י מדד' })}</option>
+          {METRICS.map((m) => <option key={m.key} value={m.key}>{m.icon ? m.icon + ' ' : ''}{m.name}</option>)}
         </select>
       </div>
       <div className="m-field">

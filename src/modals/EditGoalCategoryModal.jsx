@@ -21,7 +21,7 @@ export default function EditGoalCategoryModal({ open, onClose, category, onSave,
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
 
-  if (!category) return <Modal open={open} onClose={onClose} title="עריכת קטגוריה" />
+  if (!category) return <Modal open={open} onClose={onClose} title="עריכת מדד" />
 
   const submit = async () => {
     if (!form.name.trim()) { setErr('יש למלא שם.'); return }
@@ -39,14 +39,14 @@ export default function EditGoalCategoryModal({ open, onClose, category, onSave,
   const icons = category.icon && !ICONS.includes(category.icon) ? [category.icon, ...ICONS] : ICONS
 
   return (
-    <Modal open={open} onClose={onClose} title="עריכת קטגוריה">
+    <Modal open={open} onClose={onClose} title="עריכת מדד">
       <div className="m-field">
-        <label className="m-label">שם הקטגוריה</label>
+        <label className="m-label">שם המדד</label>
         <input
           className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
           value={form.name}
           onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
-          placeholder="שם הקטגוריה"
+          placeholder="שם המדד"
         />
       </div>
       <div className="m-field">
@@ -73,7 +73,7 @@ export default function EditGoalCategoryModal({ open, onClose, category, onSave,
         <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
       </div>
       <button type="button" className="m-btn-delete" onClick={() => onDelete(category)}>
-        <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" /> מחיקת הקטגוריה
+        <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" /> מחיקת המדד
       </button>
     </Modal>
   )

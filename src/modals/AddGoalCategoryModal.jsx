@@ -39,9 +39,9 @@ export default function AddGoalCategoryModal({ open, onClose, onSave }) {
   }
 
   return (
-    <Modal open={open} onClose={close} title="קטגוריה חדשה">
+    <Modal open={open} onClose={close} title="מדד חדש">
       <div className="m-field">
-        <label className="m-label">שם הקטגוריה</label>
+        <label className="m-label">שם המדד</label>
         <input
           className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
           value={form.name}

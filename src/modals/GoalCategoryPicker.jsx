@@ -9,7 +9,7 @@ export default function GoalCategoryPicker({ open, onClose, categories = [], onA
   const available = CATEGORY_PRESETS.filter((p) => !taken.has(p.data_source))
 
   return (
-    <Modal open={open} onClose={onClose} title="הוספת קטגוריה">
+    <Modal open={open} onClose={onClose} title="הוספת מדד">
       <div className="g-welcome-actions">
         {available.map((p) => (
           <button key={p.key} type="button" className="g-preset" onClick={() => { onAddPreset(p); onClose() }}>
@@ -20,7 +20,7 @@ export default function GoalCategoryPicker({ open, onClose, categories = [], onA
         ))}
         <button type="button" className="g-preset custom" onClick={() => { onClose(); onAddCustom() }}>
           <span className="g-preset-ic"><Plus size={18} strokeWidth={1.8} aria-hidden="true" /></span>
-          <span className="g-preset-name">קטגוריה משלי</span>
+          <span className="g-preset-name">מדד משלי</span>
           <span className="g-preset-hint">שם, אייקון וצבע</span>
         </button>
       </div>

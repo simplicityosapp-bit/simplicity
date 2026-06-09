@@ -45,7 +45,7 @@ const SECTIONS = [
   { key: 'profile', title: 'פרופיל', icon: User, sub: 'שם, תפקיד והתמחות' },
   { key: 'widgets', title: 'ווידג׳טים ותצוגה', icon: LayoutGrid, sub: 'מה מופיע במסך הבית' },
   { key: 'clients', title: 'לקוחות וסטטוסים', icon: Users, sub: 'תתי-סטטוסים מותאמים אישית' },
-  { key: 'goals', title: 'יעדים וקטגוריות', icon: Target, sub: 'קטגוריות מדידה' },
+  { key: 'goals', title: 'יעדים ומדדים', icon: Target, sub: 'מדדי מדידה' },
   { key: 'payments', title: 'תשלומים ומטבע', icon: Wallet, sub: 'מטבע ופורמט סכומים' },
   { key: 'questions', title: 'שאלות יומיות', icon: Sparkles, sub: 'מה נשאל בכל יום' },
   { key: 'leads', title: 'הגדרות לידים', icon: Leaf, sub: 'מקורות וסטטוסים' },
@@ -693,9 +693,9 @@ export default function SettingsScreen() {
     if (key === 'goals') {
       return (
         <div className="set-profile-body">
-          <p className="set-shortcut-hint">קטגוריות המדידה מנוהלות במסך היעדים — שם רואים את התרומה של כל קטגוריה לציון הירח.</p>
+          <p className="set-shortcut-hint">המדדים מנוהלים במסך היעדים — שם רואים את התרומה של כל מדד לציון הירח.</p>
           <button type="button" className="set-shortcut-btn" onClick={() => navigate(ROUTES.GOALS)}>
-            לניהול קטגוריות
+            לניהול מדדים
             <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
           </button>
         </div>

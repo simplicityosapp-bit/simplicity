@@ -7,6 +7,7 @@ import { useProjects } from '../../../hooks/useProjects'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { CATEGORY_PRESETS, presetToCategory } from '../../../lib/goalPresets'
 import { scheduledOccurrences, buildSchedulePattern } from '../../../lib/goals'
+import { addressUser } from '../../../lib/address'
 import ScheduleDayPicker from '../../../components/ScheduleDayPicker'
 
 /* Step 6 — first goal, faithful to the in-app AddGoalModal:
@@ -38,6 +39,7 @@ const SCALES = [
 const QUESTION_ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 
 export default function Step6Goals({ ob, setCTA }) {
+  const addr = (v) => addressUser(ob.state.answers?.profile?.gender, v)
   const { addGoal } = useGoals()
   const { categories, addCategory } = useGoalCategories()
   const { projects } = useProjects()
@@ -87,12 +89,12 @@ export default function Step6Goals({ ob, setCTA }) {
     && (!isPersonal || label.trim().length > 0)
     && (!byQuestion || qText.trim().length > 0)
     && !overMax && !noDays
-  const hint = !type ? 'בחר/י סוג יעד.'
-    : targetNum <= 0 ? 'הזן/י ערך חיובי.'
-    : (isDeadline && !targetDate) ? 'בחר/י תאריך יעד.'
-    : (isPersonal && !label.trim()) ? 'תן/י שם ליעד.'
-    : (byQuestion && !qText.trim()) ? 'נסח/י את השאלה היומית.'
-    : noDays ? 'בחר/י לפחות יום אחד.'
+  const hint = !type ? addr({ male: 'בחר סוג יעד.', female: 'בחרי סוג יעד.', neutral: 'בחר/י סוג יעד.' })
+    : targetNum <= 0 ? addr({ male: 'הזן ערך חיובי.', female: 'הזיני ערך חיובי.', neutral: 'הזן/י ערך חיובי.' })
+    : (isDeadline && !targetDate) ? addr({ male: 'בחר תאריך יעד.', female: 'בחרי תאריך יעד.', neutral: 'בחר/י תאריך יעד.' })
+    : (isPersonal && !label.trim()) ? addr({ male: 'תן שם ליעד.', female: 'תני שם ליעד.', neutral: 'תן/י שם ליעד.' })
+    : (byQuestion && !qText.trim()) ? addr({ male: 'נסח את השאלה היומית.', female: 'נסחי את השאלה היומית.', neutral: 'נסח/י את השאלה היומית.' })
+    : noDays ? addr({ male: 'בחר לפחות יום אחד.', female: 'בחרי לפחות יום אחד.', neutral: 'בחר/י לפחות יום אחד.' })
     : overMax ? `היעד גבוה ממספר הימים שהשאלה מופיעה (${maxOccurrences}).`
     : null
   /* Deps coerced to stable primitives — never undefined — so the array
@@ -104,19 +106,19 @@ export default function Step6Goals({ ob, setCTA }) {
      depends on how the goal is measured (count of "yes" days, sum of
      slider answers, or a plain accumulation). */
   const targetHelp = isYesNoGoal
-    ? `בכמה ימים תענה/י "כן" בתקופה. השאלה מופיעה כ-${maxOccurrences} פעמים — אפשר לכוון לפחות, לא ליותר.`
+    ? `בכמה ימים ${addr({ male: 'תענה', female: 'תעני', neutral: 'תענה/י' })} "כן" בתקופה. השאלה מופיעה כ-${maxOccurrences} פעמים — אפשר לכוון לפחות, לא ליותר.`
     : byQuestion
       ? 'סכום כל התשובות בתקופה (למשל סך שעות הלמידה).'
       : isPersonal
-        ? 'הסכום שתצבור/י בתקופה מכל ההזנות הידניות.'
+        ? `הסכום ש${addr({ male: 'תצבור', female: 'תצברי', neutral: 'תצבור/י' })} בתקופה מכל ההזנות הידניות.`
         : null
 
   /* Inline warning next to the day picker when a yes/no target can't be
      met by the chosen days (fewer scheduled days than the target). */
   const scheduleWarning = isYesNoGoal && overMax
-    ? `היעד (${targetNum}) גבוה ממספר הפעמים שהשאלה מופיעה (${maxOccurrences}). הוסף/י ימים או הקטן/י את היעד.`
+    ? `היעד (${targetNum}) גבוה ממספר הפעמים שהשאלה מופיעה (${maxOccurrences}). ${addr({ male: 'הוסף ימים או הקטן', female: 'הוסיפי ימים או הקטיני', neutral: 'הוסף/י ימים או הקטן/י' })} את היעד.`
     : noDays
-      ? 'בחר/י לפחות יום אחד.'
+      ? addr({ male: 'בחר לפחות יום אחד.', female: 'בחרי לפחות יום אחד.', neutral: 'בחר/י לפחות יום אחד.' })
       : null
 
   /* Find-or-create the goal category for the picked type. Auto types use
@@ -218,7 +220,7 @@ export default function Step6Goals({ ob, setCTA }) {
   return (
     <>
       <p className="ob-intro">נגדיר יעד ראשון?</p>
-      <p className="ob-intro-sub">תוכל לעקוב אחר ההתקדמות שלך בקלות — וכמובן לערוך את היעד מתי שתרצה.</p>
+      <p className="ob-intro-sub">{addr({ male: 'תוכל', female: 'תוכלי', neutral: 'תוכל/י' })} לעקוב אחר ההתקדמות שלך בקלות — וכמובן לערוך את היעד מתי ש{addr({ male: 'תרצה', female: 'תרצי', neutral: 'תרצה' })}.</p>
 
       <div className="ob-field">
         <label className="ob-label" htmlFor="ob-g-proj">לאיזה פרויקט?</label>
@@ -347,7 +349,7 @@ export default function Step6Goals({ ob, setCTA }) {
                 </div>
                 <p className="ob-empty-hint">
                   {tracking === 'manual'
-                    ? 'תזין/י התקדמות ידנית מהמסך הראשי.'
+                    ? addr({ male: 'תזין התקדמות ידנית מהמסך הראשי.', female: 'תזיני התקדמות ידנית מהמסך הראשי.', neutral: 'תזין/י התקדמות ידנית מהמסך הראשי.' })
                     : 'ניצור שאלה יומית — סליידר או כן/לא — שמתחברת ליעד.'}
                 </p>
               </div>

@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 /* Cascade-delete modal for groups. Mirrors the prototype's showDeleteOptions:
    for every child-type that has rows (members / future meetings / past sessions /
    reminders), let the user choose keep vs delete. Empty sections are skipped. */
 export default function DeleteGroupModal({ open, onClose, group, counts, onConfirm }) {
+  const { addr } = useAddress()
   const options = useMemo(() => {
     const out = []
     if (counts?.members) {
@@ -74,7 +76,7 @@ export default function DeleteGroupModal({ open, onClose, group, counts, onConfi
 
   return (
     <Modal open={open} onClose={onClose} title={`למחוק את "${group.name}"?`}>
-      <p className="m-confirm-msg">בחר/י מה לעשות עם הדאטה המקושר.</p>
+      <p className="m-confirm-msg">{addr({ male: 'בחר מה לעשות עם הדאטה המקושר', female: 'בחרי מה לעשות עם הדאטה המקושר', neutral: 'בחר/י מה לעשות עם הדאטה המקושר' })}.</p>
       <div className="dg-list">
         {options.length === 0 ? (
           <p className="m-confirm-msg">אין דאטה מקושר — הקבוצה תימחק.</p>

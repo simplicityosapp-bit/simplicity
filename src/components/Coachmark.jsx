@@ -1,5 +1,6 @@
 import { useCoachmarks } from '../hooks/useCoachmarks'
 import { coachmarkText } from '../lib/coachmarks'
+import { useAddress } from '../hooks/useAddress'
 import './Coachmark.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -25,8 +26,9 @@ import './Coachmark.css'
 
 export default function Coachmark({ id, placement = 'bottom', radius, bubble, className = '', children }) {
   const { isVirgin, dismiss } = useCoachmarks()
+  const { gender } = useAddress()
   const virgin = isVirgin(id)
-  const text = bubble ?? coachmarkText(id).bubble
+  const text = bubble ?? coachmarkText(id, gender).bubble
 
   /* Capture-phase so we mark seen before the child's own handler runs;
      we never stop propagation, so the button still fires normally. */

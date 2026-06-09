@@ -12,6 +12,7 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
+import { useAddress } from '../../hooks/useAddress'
 import { statusMetaOf } from '../../lib/clients'
 import { financeQuery, currentMonthRange, isr } from '../../lib/finance'
 import { buildRoute, ROUTES } from '../../lib/routes'
@@ -33,6 +34,7 @@ import DeleteGroupModal from '../../modals/DeleteGroupModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Modal from '../../modals/Modal'
 import DateField from '../../components/DateField'
+import MG from '../../components/MG'
 import ProjectQuickRow from './ProjectQuickRow'
 import ProjectIncomeChart from './ProjectIncomeChart'
 import './ProjectDetailScreen.css'
@@ -45,7 +47,7 @@ const GSTATUS = [
   { k: 'ended', l: 'הסתיימה' },
 ]
 const STATUS_LABEL = { active: 'פעילה', in_development: 'בפיתוח', ended: 'הסתיימה' }
-const META_LABEL = { active: 'פעיל/ת', past: 'לשעבר' }
+const META_LABEL = { active: 'פעיל׌', past: 'לשעבר' }
 
 const fmtShortDate = (d) => {
   const dt = new Date(d)
@@ -58,6 +60,7 @@ const fmtTime = (d) => {
 const isoDate = (d) => new Date(d).toISOString().slice(0, 10)
 
 export default function ProjectDetailScreen() {
+  const { addr } = useAddress()
   const { id } = useParams()
   const navigate = useNavigate()
   const { projects, updateProject } = useProjects()
@@ -377,8 +380,8 @@ export default function ProjectDetailScreen() {
             <p className="pd-name">{project.name}</p>
           </div>
           <p className="pd-meta">
-            {activeCount} פעילים
-            {wanderingCount > 0 && ` · ${wanderingCount} נודדים`}
+            {activeCount} <MG text="פעיל׊׉" />
+            {wanderingCount > 0 && ` · ${wanderingCount} ביניים`}
             {' · '}{projectGroups.length} קבוצות
           </p>
         </div>
@@ -422,7 +425,7 @@ export default function ProjectDetailScreen() {
         {openSec.groups && (
           <div className="pd-sec-body">
             {projectGroups.length === 0 ? (
-              <p className="pd-empty">עדיין אין קבוצות. הוסף/י קבוצה כדי להתחיל ניהול מחזור.</p>
+              <p className="pd-empty">עדיין אין קבוצות. {addr({male:'הוסף',female:'הוסיפי',neutral:'הוסף/י'})} קבוצה כדי להתחיל.</p>
             ) : (
               projectGroups.map((g) => {
                 const groupMembers = liveMembers.filter((m) => m.group_id === g.id)
@@ -432,7 +435,7 @@ export default function ProjectDetailScreen() {
                   : null
                 const billingMode = g.billing_mode || 'package'
                 const priceLabel = billingMode === 'per_session'
-                  ? (g.price_per_session ? `${isr(g.price_per_session)} למפגש` : '')
+                  ? (g.price_per_session ? `${isr(g.price_per_session)} לפגישה` : '')
                   : billingMode === 'none'
                     ? ''
                     : (g.package_price ? `${isr(g.package_price)} / ${g.package_sessions || 1} פגישות` : '')
@@ -547,7 +550,7 @@ export default function ProjectDetailScreen() {
               })
             )}
             <button className="pd-add-btn" type="button" onClick={() => setShowAddGroup(true)}>
-              הוסף קבוצה +
+              + קבוצה חדשה
             </button>
           </div>
         )}
@@ -590,7 +593,7 @@ export default function ProjectDetailScreen() {
               })
             )}
             <button className="pd-add-btn" type="button" onClick={() => setShowAddClient(true)}>
-              הוסף לקוח לפרויקט +
+              + <MG word="client" /> לפרויקט
             </button>
           </div>
         )}

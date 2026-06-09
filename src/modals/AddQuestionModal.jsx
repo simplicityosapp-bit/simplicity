@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import Modal from './Modal'
-import { QUESTION_TEMPLATES, QTEXT } from '../lib/questionTemplates'
+import { QUESTION_TEMPLATES, qtext } from '../lib/questionTemplates'
+import { useUserPreferences } from '../hooks/useUserPreferences'
+import { addressUser } from '../lib/address'
 
 const ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 const SCALES = [
@@ -11,6 +13,8 @@ const SCALES = [
 /* Add a daily question — from a ready template or custom (text + scale + icon).
    No questions are seeded; this is how the user builds their set. */
 export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0 }) {
+  const { prefs } = useUserPreferences()
+  const gender = prefs?.design?.gender
   const [mode, setMode] = useState('template')
   const [tmplKey, setTmplKey] = useState('')
   const [form, setForm] = useState({ text: '', scale_type: '1-10', icon: ICONS[0] })
@@ -36,7 +40,7 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0 
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || addressUser(gender, { male: 'נסה שוב', female: 'נסי שוב', neutral: 'נסה/י שוב' })))
     }
   }
 
@@ -56,7 +60,7 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0 
             {QUESTION_TEMPLATES.map((t) => (
               <button key={t.key} type="button" className={`q-tmpl${tmplKey === t.key ? ' on' : ''}`} onClick={() => { setTmplKey(t.key); if (err) setErr('') }}>
                 <span className="q-tmpl-ic">{t.icon}</span>
-                <span className="q-tmpl-text">{QTEXT[t.key]}</span>
+                <span className="q-tmpl-text">{qtext(t.key, gender)}</span>
               </button>
             ))}
           </div>

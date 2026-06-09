@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Tag, X } from 'lucide-react'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
+import { useAddress } from '../../hooks/useAddress'
 import ConfirmModal from '../../modals/ConfirmModal'
 
 /* Inline categories manager — ported from the prototype's
@@ -8,6 +9,7 @@ import ConfirmModal from '../../modals/ConfirmModal'
    existing categories + add form (name + colour picker). Click
    the X on a chip to soft-delete it (parent handles the call). */
 export default function CategoriesSection({ categories, onAdd, onDelete }) {
+  const { addr } = useAddress()
   const [name, setName] = useState('')
   const [colorIdx, setColorIdx] = useState(0)
   const [busy, setBusy] = useState(false)
@@ -37,7 +39,7 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
       </div>
 
       {live.length === 0 ? (
-        <p className="cat-section-empty">אין קטגוריות עדיין. הוסף/י קטגוריה כדי לתייג הוצאות (מנויים, ייעוץ, וכו׳).</p>
+        <p className="cat-section-empty">אין קטגוריות עדיין. {addr({male:'הוסף',female:'הוסיפי',neutral:'הוסף/י'})} קטגוריה כדי לתייג הוצאות (מנויים, ייעוץ, וכו׳).</p>
       ) : (
         <div className="cat-chips">
           {live.map((c) => (

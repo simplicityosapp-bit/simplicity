@@ -1,5 +1,6 @@
 import { CalendarClock, RefreshCw } from 'lucide-react'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 import './CalendarDuplicateModal.css'
 
 const fmtTime = (d) => {
@@ -17,11 +18,12 @@ const fmtDay = (d) => {
    removes it from `duplicates` (re-derived by the parent), so the list shrinks
    live; when it empties we close. */
 export default function CalendarDuplicateModal({ open, onClose, duplicates = [], onHideMeeting, onHideEvent }) {
+  const { addr } = useAddress()
   return (
     <Modal open={open} onClose={onClose} title="כפילויות ביומן">
       <p className="m-sub">
         <CalendarClock size={15} strokeWidth={1.7} aria-hidden="true" />
-        פגישות חוזרות שכבר קיימות כאירוע ביומן גוגל. בחר/י מה להשאיר בכל אחת.
+        פגישות חוזרות שכבר קיימות כאירוע ביומן גוגל. {addr({ male: 'בחר מה להשאיר בכל אחת', female: 'בחרי מה להשאיר בכל אחת', neutral: 'בחר/י מה להשאיר בכל אחת' })}
       </p>
 
       {duplicates.length === 0 ? (
@@ -59,7 +61,7 @@ export default function CalendarDuplicateModal({ open, onClose, duplicates = [],
 
       <div className="m-actions">
         <button type="button" className="m-btn-cancel" onClick={onClose}>
-          {duplicates.length === 0 ? 'סגירה' : 'אחזור לזה אחר כך'}
+          {duplicates.length === 0 ? 'סגירה' : 'אטפל בזה אחר כך'}
         </button>
       </div>
     </Modal>

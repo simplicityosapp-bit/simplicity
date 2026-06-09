@@ -54,7 +54,7 @@ export const GROUP_STATUSES = ['active', 'in_development', 'ended'] // סטטו�
 export const GROUP_BILLING_MODES = ['package', 'per_session', 'none'] // groups.billing_mode (migration 0005)
 export const GROUP_BILLING_LABELS = {
   package:     'מחיר לחבילה',
-  per_session: 'מחיר למפגש',
+  per_session: 'מחיר לפגישה',
   none:        'ללא מחיר קבוע',
 }
 

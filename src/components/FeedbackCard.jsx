@@ -10,7 +10,7 @@ export default function FeedbackCard({ onOpenFeedback }) {
         <MessageSquarePlus size={20} strokeWidth={1.6} />
       </span>
       <span className="feedback-card-text">
-        <span className="feedback-card-title">יש לכם משוב?</span>
+        <span className="feedback-card-title">יש לך משוב?</span>
         <span className="feedback-card-sub">מה עובד, מה חסר, ומה אפשר לשפר — דברו אלינו</span>
       </span>
     </button>

@@ -8,7 +8,7 @@ import { getTileFilters } from '../lib/homeData'
 import { ClientsTrend, NetBars, TasksBars } from './TileDrillCharts'
 
 const STATUS_OPTIONS = [
-  { k: 'active',     l: 'פעיל' },
+  { k: 'active',     l: 'פעיל׌' },
   { k: 'wandering',  l: 'ביניים' },
   { k: 'past',       l: 'לשעבר' },
   { k: 'no_status',  l: 'ללא' },
@@ -232,7 +232,7 @@ function ClientsPanel({ filters, setFilter, clients, projects, groups }) {
 
 function statusLabel(meta) {
   return ({
-    active: 'פעיל',
+    active: 'פעיל׌',
     wandering: 'ביניים',
     past: 'לשעבר',
     no_status: 'ללא',
@@ -375,7 +375,7 @@ export default function TileDrillModal({
 
   const titles = {
     clients: 'לקוחות',
-    net: 'מאזן',
+    net: 'נטו',
     tasks: 'משימות',
   }
   const routes = {

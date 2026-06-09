@@ -27,7 +27,7 @@ function ProjectCard({ project, clientsCount, income, openTasks, groupsCount, in
             <Users size={11} strokeWidth={1.6} aria-hidden="true" /> {groupsCount}
           </span>
         ) : (
-          <span className="ps-tag">פעיל</span>
+          <span className="ps-tag">פעילה</span>
         )}
         <button type="button" className="pc-edit" title="ערוך פרויקט" onClick={stop(() => onEdit?.(project))}>
           <Pencil size={13} strokeWidth={1.7} aria-hidden="true" />

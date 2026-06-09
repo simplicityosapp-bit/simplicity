@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
+import { useAddress } from '../hooks/useAddress'
 
 const DAY_NAMES = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
@@ -42,6 +43,7 @@ function fromTemplate(t) {
    an object is "edit". onSave receives the patch; the caller picks
    insert vs update. */
 export default function RecurringModal({ open, onClose, onSave, template, clients = [], projects = [], categories = [] }) {
+  const { addr, tryAgain } = useAddress()
   const isEdit = !!template
   const [form, setForm] = useState(() => (template ? fromTemplate(template) : blank()))
   const [err, setErr] = useState('')
@@ -91,7 +93,7 @@ export default function RecurringModal({ open, onClose, onSave, template, client
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 
@@ -136,7 +138,7 @@ export default function RecurringModal({ open, onClose, onSave, template, client
           <button type="button" className={`m-pill${form.trigger_type === 'on_meeting' ? ' on' : ''}`} onClick={() => set('trigger_type', 'on_meeting')}>בעקבות פגישה</button>
         </div>
         {form.trigger_type === 'on_meeting' && (
-          <p className="m-hint">תיווצר תנועה ממתינה לכל פגישה עם הלקוח שתבחר/י למטה. נסגרת אוטומטית כשמסמנים את הפגישה כדולגה.</p>
+          <p className="m-hint">תיווצר תנועה ממתינה לכל פגישה עם הלקוח {addr({ male: 'שתבחר', female: 'שתבחרי', neutral: 'שתבחר/י' })} למטה. נסגרת אוטומטית כשמסמנים את הפגישה כדולגה.</p>
         )}
       </div>
 

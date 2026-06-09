@@ -3,6 +3,8 @@ import { Upload, FileSpreadsheet } from 'lucide-react'
 import { parseXlsxSheets, parseCsvFile, ROW_CAP } from '../../../lib/csvImport'
 import { buildSheetMapping } from '../../../lib/sheetMapper'
 import { buildPivotConfig, detectMatrix, flattenMatrix, yearFromSheetName } from '../../../lib/pivotImport'
+import { useUserPreferences } from '../../../hooks/useUserPreferences'
+import { addressUser } from '../../../lib/address'
 import UnifiedSheetImporter from '../UnifiedSheetImporter'
 
 /* Step 2 — paths A (import) vs B (start fresh). Path A reads EVERY file
@@ -14,6 +16,8 @@ import UnifiedSheetImporter from '../UnifiedSheetImporter'
 const ACCEPT = '.csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
 export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
+  const { prefs } = useUserPreferences()
+  const gender = prefs?.design?.gender || 'neutral'
   const fileRef = useRef(null)
   const initial = ob.state.answers?.data_import || {}
   const [mode, setMode] = useState(initial.mode || null) // 'A' | 'B' | null
@@ -125,7 +129,11 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
 
   return (
     <>
-      <p className="ob-intro">יש לך דאטה שאתה רוצה להעלות?</p>
+      <p className="ob-intro">{addressUser(gender, {
+        male:    'יש לך דאטה שאתה רוצה להעלות?',
+        female:  'יש לך דאטה שאת רוצה להעלות?',
+        neutral: 'יש לך דאטה שאת/ה רוצה להעלות?',
+      })}</p>
       <p className="ob-intro-sub">אם יש נעבור על זה יחד ונכניס למערכת — אם לא נמשיך יחד בצעדים קטנים :)</p>
 
       <div className="ob-card-options">
@@ -137,7 +145,7 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
           <span className="ob-option-card-l">
             <FileSpreadsheet size={16} strokeWidth={1.7} aria-hidden="true" /> כן, יש לי
           </span>
-          <p className="ob-option-card-sub">CSV או Excel — אפשר כמה קבצים יחד, נחלץ מהם מה שאפשר.</p>
+          <p className="ob-option-card-sub">CSV או Excel — אפשר כמה קבצים יחד, נוציא מהם מה שאפשר.</p>
         </button>
         <button
           type="button"
@@ -145,8 +153,13 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
           onClick={onPickPathB}
         >
           <span className="ob-option-card-l">
-            <Upload size={16} strokeWidth={1.7} aria-hidden="true" /> לא, מתחיל/ה מאפס
+            <Upload size={16} strokeWidth={1.7} aria-hidden="true" /> {addressUser(gender, {
+              male:    'לא, מתחיל מאפס',
+              female:  'לא, מתחילה מאפס',
+              neutral: 'לא, מתחיל/ה מאפס',
+            })}
           </span>
+          <p className="ob-option-card-sub">אין בעיה — נבנה את הכול יחד, צעד אחר צעד, בקצב שלך.</p>
         </button>
       </div>
 

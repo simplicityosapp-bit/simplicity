@@ -5,9 +5,11 @@ import { supabase } from '../../lib/supabase'
 import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
 import GoogleButton from '../../auth/GoogleButton'
+import { useAddress } from '../../hooks/useAddress'
 import './AuthScreen.css'
 
 export default function SignupScreen() {
+  const { addr } = useAddress()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -49,7 +51,7 @@ export default function SignupScreen() {
           </div>
           <div className="auth-form auth-msg-card">
             <span className="auth-msg-icon"><MailCheck size={34} strokeWidth={1.4} aria-hidden="true" /></span>
-            <p className="auth-title">בדוק/י את האימייל</p>
+            <p className="auth-title">{addr({male:'בדוק',female:'בדקי',neutral:'בדוק/י'})} את האימייל</p>
             <p className="auth-sub">שלחנו קישור אישור ל-{email}. אחרי האישור אפשר להתחבר.</p>
             <Link to={ROUTES.LOGIN} className="auth-btn auth-btn-primary">חזרה להתחברות</Link>
           </div>

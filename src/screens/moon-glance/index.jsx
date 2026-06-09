@@ -18,6 +18,7 @@ import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { questionText } from '../../lib/questionTemplates'
 import { buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from '../../lib/overview'
 import MultiTrendChart from '../../components/MultiTrendChart'
+import { useAddress } from '../../hooks/useAddress'
 import './MoonGlanceScreen.css'
 
 /* Shared window (days) for BOTH the cross-module trend overlay and the
@@ -95,6 +96,7 @@ function TrendChart({ data }) {
 }
 
 export default function MoonGlanceScreen() {
+  const { addr } = useAddress()
   const navigate = useNavigate()
   const { goals } = useGoals()
   const { categories } = useGoalCategories()
@@ -168,7 +170,7 @@ export default function MoonGlanceScreen() {
           <div className="moon-head-title"><Moon size={20} strokeWidth={1.5} /> מבט על</div>
         </div>
         <div className="empty">
-          <p className="empty-text">עדיין אין יעדים. הגדר/י יעד כדי לראות את הציון.</p>
+          <p className="empty-text">עדיין אין יעדים. {addr({male:'הגדר',female:'הגדירי',neutral:'הגדר/י'})} יעד כדי לראות את הציון.</p>
         </div>
       </div>
     )
@@ -285,7 +287,7 @@ export default function MoonGlanceScreen() {
       </div>
 
       <button type="button" className="mg-footer-link" onClick={() => navigate(ROUTES.GOALS)}>
-        ערכ/י את היעדים שלך ←
+        {addr({male:'ערוך',female:'ערכי',neutral:'ערכ/י'})} את היעדים שלך ←
       </button>
     </div>
   )

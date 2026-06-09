@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Plus, X, Users } from 'lucide-react'
 import { useProjects } from '../../../hooks/useProjects'
 import { useGroups } from '../../../hooks/useGroups'
+import { useUserPreferences } from '../../../hooks/useUserPreferences'
+import { addressUser } from '../../../lib/address'
 import { isr } from '../../../lib/finance'
 import AddGroupModal from '../../../modals/AddGroupModal'
 import CsvMappingEditor from '../CsvMappingEditor'
@@ -13,9 +15,9 @@ const DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 
    project-detail group card. */
 function groupPriceLabel(g) {
   const mode = g.billing_mode || 'package'
-  if (mode === 'per_session') return g.price_per_session ? `${isr(g.price_per_session)} למפגש` : ''
+  if (mode === 'per_session') return g.price_per_session ? `${isr(g.price_per_session)} לפגישה` : ''
   if (mode === 'none') return 'ללא מחיר קבוע'
-  return g.package_price ? `${isr(g.package_price)} / ${g.package_sessions || 1} מפגשים` : ''
+  return g.package_price ? `${isr(g.package_price)} / ${g.package_sessions || 1} פגישות` : ''
 }
 
 /* Step 3 — build the first project as a real, inline project card that
@@ -25,6 +27,8 @@ function groupPriceLabel(g) {
    here but actually assigned in step 4. The project row is created the
    moment it's needed (first group add, or on advancing). */
 export default function Step3Projects({ ob, setCTA }) {
+  const { prefs } = useUserPreferences()
+  const gender = prefs?.design?.gender || 'neutral'
   const { projects, addProject, updateProject } = useProjects()
   const { groups, addGroup, removeGroup } = useGroups()
   const initial = ob.state.answers?.projects || {}
@@ -100,7 +104,7 @@ export default function Step3Projects({ ob, setCTA }) {
   return (
     <>
       <p className="ob-intro">נבנה פרויקט?</p>
-      <p className="ob-intro-sub">אפשר לשייך לפרויקט לקוחות, משימות, תזכורות, הכנסות — ובערך כל מה שתרצה.</p>
+      <p className="ob-intro-sub">אפשר לשייך לפרויקט לקוחות, משימות, תזכורות, הכנסות — ובערך כל מה ש{addressUser(gender, { male: 'תרצה', female: 'תרצי', neutral: 'תרצה' })}.</p>
 
       {existingHint && (
         <div className="ob-pre-fill-banner">
@@ -154,7 +158,7 @@ export default function Step3Projects({ ob, setCTA }) {
               קבוצות {projectGroups.length > 0 && <span className="ob-pc-count">{projectGroups.length}</span>}
             </p>
             {projectGroups.length === 0 ? (
-              <p className="ob-pc-empty">עדיין אין קבוצות. אפשר להוסיף מחזור או סדנה — או לדלג ולהמשיך 1:1.</p>
+              <p className="ob-pc-empty">עדיין אין קבוצות. אפשר להוסיף מחזור או סדנה — או לדלג ולהמשיך אחד על אחד.</p>
             ) : (
               <div className="ob-pc-group-list">
                 {projectGroups.map((g) => {
@@ -195,7 +199,7 @@ export default function Step3Projects({ ob, setCTA }) {
             <p className="ob-pc-sec-title">לקוחות</p>
             <div className="ob-pc-teaser">
               <Users size={16} strokeWidth={1.6} aria-hidden="true" />
-              <span>בצעד הבא נוסיף לקוחות — תוכל לחבר אותם לפרויקט הזה.</span>
+              <span>בצעד הבא נוסיף לקוחות — {addressUser(gender, { male: 'ותוכל', female: 'ותוכלי', neutral: 'ותוכל/י' })} לחבר אותם לפרויקט הזה.</span>
             </div>
           </section>
         </div>

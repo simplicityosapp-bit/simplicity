@@ -28,11 +28,12 @@ import ConfirmModal from '../../modals/ConfirmModal'
 import DeleteAccountModal from '../../modals/DeleteAccountModal'
 import { resetAllUserData, buildAccountDeletionRequest } from '../../lib/api/account'
 import {
-  ROLE_LABELS, CURRENCY_OPTIONS, DATE_FORMAT_OPTIONS, TIME_FORMAT_OPTIONS, WEEK_START_OPTIONS,
-  TEXT_SIZE_OPTIONS, GENDER_OPTIONS, WIDGET_REGISTRY, ACCENT_OPTIONS,
+  ROLE_LABELS, roleLabel, CURRENCY_OPTIONS, DATE_FORMAT_OPTIONS, TIME_FORMAT_OPTIONS, WEEK_START_OPTIONS,
+  TEXT_SIZE_OPTIONS, WIDGET_REGISTRY, ACCENT_OPTIONS,
   CARD_STYLE_OPTIONS, TEXT_STRENGTH_OPTIONS, DENSITY_OPTIONS,
 } from '../../lib/preferences'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
+import { addressUser } from '../../lib/address'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
 import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV } from '../../lib/export'
 import { defaultOnboarding } from '../../lib/preferences'
@@ -54,7 +55,7 @@ const SECTIONS = [
 ]
 
 const CLIENT_METAS = [
-  { k: 'active', l: 'פעיל' },
+  { k: 'active', l: 'פעיל׌' },
   { k: 'wandering', l: 'ביניים' },
   { k: 'past', l: 'לשעבר' },
   { k: 'no_status', l: 'ללא סטטוס' },
@@ -339,7 +340,6 @@ function DesignBody({ prefs, onUpdate }) {
     <div className="set-profile-body">
       <Segmented label="מצב יום/לילה" value={d.theme || 'light'} options={THEME_OPTIONS} onChange={setVal('theme')} />
       <Segmented label="גודל טקסט" value={d.text_size || 'normal'} options={TEXT_SIZE_OPTIONS} onChange={setVal('text_size')} />
-      <Segmented label="פנייה" value={d.gender || 'neutral'} options={GENDER_OPTIONS} onChange={setVal('gender')} />
     </div>
   )
 }
@@ -372,7 +372,7 @@ function ProfileBody({ prefs, onUpdate }) {
   const [savedName, setSavedName] = useState(false)
   const [savedRoleOther, setSavedRoleOther] = useState(false)
   const gender = prefs?.design?.gender || 'neutral'
-  const ROLES = Object.entries(ROLE_LABELS)
+  const ROLE_KEYS = Object.keys(ROLE_LABELS)
   const GENDERS = [
     { k: 'female',  l: 'נקבה' },
     { k: 'male',    l: 'זכר' },
@@ -424,7 +424,7 @@ function ProfileBody({ prefs, onUpdate }) {
           value={name}
           onChange={(e) => { setName(e.target.value); setSavedName(false) }}
           onBlur={commitName}
-          placeholder="איך תרצה/י שאקרא לך?"
+          placeholder={`איך ${addressUser(gender, { male: 'תרצה', female: 'תרצי', neutral: 'תרצה/י' })} שאקרא לך?`}
         />
       </div>
       <div className="m-field">
@@ -438,14 +438,14 @@ function ProfileBody({ prefs, onUpdate }) {
       <div className="m-field">
         <label className="m-label">תפקיד</label>
         <div className="m-pills">
-          {ROLES.map(([k, l]) => (
-            <button key={k} type="button" className={`m-pill${role === k ? ' on' : ''}`} onClick={() => pickRole(k)}>{l}</button>
+          {ROLE_KEYS.map((k) => (
+            <button key={k} type="button" className={`m-pill${role === k ? ' on' : ''}`} onClick={() => pickRole(k)}>{roleLabel(k, gender)}</button>
           ))}
         </div>
       </div>
       {role === 'other' && (
         <div className="m-field set-role-other">
-          <label className="m-label">פרט/י את התחום {savedRoleOther && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>· נשמר</span>}</label>
+          <label className="m-label">מה {addressUser(gender, { male: 'אתה', female: 'את', neutral: 'את/ה' })} עושה? {savedRoleOther && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>· נשמר</span>}</label>
           <input
             className="m-input"
             value={roleOther}
@@ -464,6 +464,8 @@ function ProfileBody({ prefs, onUpdate }) {
 function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, loading, error, withColor = false }) {
   const [addError, setAddError] = useState(null)
   const [draftColors, setDraftColors] = useState({})
+  const { prefs } = useUserPreferences()
+  const gender = prefs?.design?.gender || 'neutral'
   if (loading) {
     return <div className="set-sub"><p className="set-sub-empty">טוען…</p></div>
   }
@@ -484,7 +486,7 @@ function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, load
             setDraft(m.k, '')
             setAddError(null)
           } catch (e) {
-            setAddError(e?.message || 'ההוספה נכשלה — נסה/י שוב.')
+            setAddError(e?.message || ('ההוספה נכשלה — ' + addressUser(gender, { male: 'נסה שוב', female: 'נסי שוב', neutral: 'נסה/י שוב' }) + '.'))
           }
         }
         return (
@@ -543,6 +545,7 @@ export default function SettingsScreen() {
   const { statuses: clientStatuses, loading: clientStatusesLoading, error: clientStatusesError, addStatus: addClientStatus, removeStatus: removeClientStatus, refetch: refetchClientStatuses } = useClientStatuses()
   const { statuses: leadStatuses, loading: leadStatusesLoading, error: leadStatusesError, addStatus: addLeadStatus, removeStatus: removeLeadStatus, refetch: refetchLeadStatuses } = useLeadStatuses()
   const { prefs, loading: prefsLoading, update: updatePrefs } = useUserPreferences()
+  const gender = prefs?.design?.gender || 'neutral'
   /* Data-section hooks — pulled lazily-ish: useClients/etc. all use a
      single network round-trip on mount, so this isn't expensive. */
   const { clients: dataClients, refetch: refetchClients } = useClients()
@@ -641,7 +644,7 @@ export default function SettingsScreen() {
       const parsed = await parseFile(file)
       setImportParsed({ kind: 'csv', ...parsed })
     } catch {
-      setImportMsg('הקובץ לא נקרא — ודא/י שזה CSV או Excel תקין.')
+      setImportMsg('הקובץ לא נקרא — ' + addressUser(gender, { male: 'ודא', female: 'ודאי', neutral: 'ודא/י' }) + ' שזה CSV או Excel תקין.')
     }
   }
   const onImported = (summary) => {
@@ -708,7 +711,7 @@ export default function SettingsScreen() {
           ) : questionsError ? (
             <p className="set-q-empty" style={{ color: 'var(--clay)' }}>שגיאה בטעינת השאלות: {questionsError}</p>
           ) : questions.length === 0 ? (
-            <p className="set-q-empty">עדיין אין שאלות יומיות. הוסף/י את הראשונה.</p>
+            <p className="set-q-empty">עדיין אין שאלות יומיות. {addressUser(gender, { male: 'הוסף', female: 'הוסיפי', neutral: 'הוסף/י' })} את הראשונה.</p>
           ) : (
             questions.map((q) => (
               <div key={q.id} className={`set-q-block${q.active ? '' : ' off'}`}>
@@ -761,7 +764,7 @@ export default function SettingsScreen() {
                 onChange={(v) => setReminder({ enabled: v })}
                 label="תזכורת יומית"
               />
-              <span>תזכיר/י לי לענות אם לא ענית עד</span>
+              <span>{addressUser(gender, { male: 'תזכיר', female: 'תזכירי', neutral: 'תזכיר/י' })} לי לענות אם לא ענית עד</span>
             </span>
             <input
               type="time"
@@ -874,7 +877,7 @@ export default function SettingsScreen() {
             style={{ marginTop: 10 }}
           >
             <Sparkles size={15} strokeWidth={1.7} aria-hidden="true" />
-            התחל מחדש את ההכרות
+            {addressUser(gender, { male: 'התחל מחדש את ההכרות', female: 'התחילי מחדש את ההכרות', neutral: 'התחל/י מחדש את ההכרות' })}
           </button>
           <p className="set-data-hint">
             פותח את אשף ההכרות מהצעד הראשון. נוח לחזור אם דילגת באמצע.
@@ -933,7 +936,7 @@ export default function SettingsScreen() {
           setNewSourceName('')
           setSourceError(null)
         } catch (e) {
-          setSourceError(e?.message || 'הוספת המקור נכשלה — נסה/י שוב.')
+          setSourceError(e?.message || ('הוספת המקור נכשלה — ' + addressUser(gender, { male: 'נסה שוב', female: 'נסי שוב', neutral: 'נסה/י שוב' }) + '.'))
         }
       }
       return (
@@ -944,7 +947,7 @@ export default function SettingsScreen() {
           ) : sourcesError ? (
             <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>שגיאה בטעינת המקורות: {sourcesError}</p>
           ) : sources.length === 0 ? (
-            <p className="set-sub-empty">עדיין אין מקורות. הוסף/י את הראשון.</p>
+            <p className="set-sub-empty">עדיין אין מקורות. {addressUser(gender, { male: 'הוסף', female: 'הוסיפי', neutral: 'הוסף/י' })} את הראשון.</p>
           ) : (
             sources.map((s) => (
               <div key={s.id} className="set-q-row">
@@ -1055,7 +1058,7 @@ export default function SettingsScreen() {
         open={showRestartOb}
         onClose={() => setShowRestartOb(false)}
         title="התחלת ההכרות מחדש"
-        confirmLabel="התחל מחדש"
+        confirmLabel={addressUser(gender, { male: 'התחל מחדש', female: 'התחילי מחדש', neutral: 'התחל/י מחדש' })}
         message="להתחיל מחדש את ההכרות? הצעדים יחזרו לאפס — הנתונים שכבר נוצרו (לקוחות, פרויקטים וכו') יישארו."
         onConfirm={async () => {
           await updatePrefs({ onboarding: defaultOnboarding() })

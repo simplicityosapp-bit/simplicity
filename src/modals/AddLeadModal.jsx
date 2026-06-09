@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = () => ({ name: '', phone: '', source_id: '', project_id: '', group_id: '', status_id: '', inquiry_date: todayStr(), follow_up_date: '', notes: '' })
@@ -10,6 +11,7 @@ const blank = () => ({ name: '', phone: '', source_id: '', project_id: '', group
    when that project has groups — to a specific group. onAddSource (optional)
    enables inline source creation so the user never leaves the modal. */
 export default function AddLeadModal({ open, onClose, onSave, sources = [], statuses = [], projects = [], groups = [], onAddSource }) {
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -74,7 +76,7 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import Modal from './Modal'
 import { ACCOUNT_DELETION_GRACE_DAYS } from '../lib/api/account'
+import { useAddress } from '../hooks/useAddress'
 
 /* ════════════════════════════════════════════════════════════════
    DELETE ACCOUNT — permanent removal with a 30-day grace window.
@@ -19,6 +20,7 @@ import { ACCOUNT_DELETION_GRACE_DAYS } from '../lib/api/account'
 const CONFIRM_PHRASE = 'מחיקת חשבון'
 
 export default function DeleteAccountModal({ open, onClose, onConfirm }) {
+  const { addr, tryAgain } = useAddress()
   const [step, setStep] = useState(1)
   const [typed, setTyped] = useState('')
   const [busy, setBusy] = useState(false)
@@ -38,7 +40,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
       setStep(1); setTyped('')
       onClose()
     } catch (e) {
-      setErr(e?.message || 'משהו השתבש — נסה/י שוב.')
+      setErr(e?.message || 'משהו השתבש — ' + tryAgain + '.')
     } finally {
       setBusy(false)
     }
@@ -60,7 +62,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
           </span>
         ) : (
           <span>
-            כדי לאשר, הקלד/י את הביטוי <strong>{CONFIRM_PHRASE}</strong> בתיבה.
+            כדי לאשר, {addr({ male: 'הקלד את הביטוי', female: 'הקלידי את הביטוי', neutral: 'הקלד/י את הביטוי' })} <strong>{CONFIRM_PHRASE}</strong> בתיבה.
             מיד לאחר מכן יתחיל מניין {ACCOUNT_DELETION_GRACE_DAYS} הימים.
           </span>
         )}
@@ -68,7 +70,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
 
       {step === 2 && (
         <div style={{ marginTop: 4 }}>
-          <label className="m-label" htmlFor="delete-account-input">הקלד/י: {CONFIRM_PHRASE}</label>
+          <label className="m-label" htmlFor="delete-account-input">{addr({ male: 'הקלד:', female: 'הקלידי:', neutral: 'הקלד/י:' })} {CONFIRM_PHRASE}</label>
           <input
             id="delete-account-input"
             className={`m-input${typed && typed.trim() !== CONFIRM_PHRASE ? ' err' : ''}`}

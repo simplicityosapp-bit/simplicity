@@ -154,7 +154,7 @@ export default function CalendarScreen() {
           <p className="t-screen">יומן</p>
         </header>
         <Coachmark id="add-meeting" radius="50%">
-          <button className="cta-add" type="button" aria-label="הוספה" onClick={() => setShowGate(true)}>הוסף +</button>
+          <button className="cta-add" type="button" aria-label="אירוע חדש" onClick={() => setShowGate(true)}>+ אירוע חדש</button>
         </Coachmark>
       </div>
 
@@ -166,7 +166,7 @@ export default function CalendarScreen() {
               ? 'כפילות אחת ביומן מול גוגל'
               : `${duplicates.length} כפילויות ביומן מול גוגל`}
           </span>
-          <span className="cal-dup-cta">פתרו ←</span>
+          <span className="cal-dup-cta">לטיפול בכפילויות ←</span>
         </button>
       )}
 

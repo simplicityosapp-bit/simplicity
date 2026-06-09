@@ -13,7 +13,7 @@
 const TYPE_HE = { income: 'הכנסה', expense: 'הוצאה' }
 const STATUS_HE = { confirmed: 'אושרה', pending: 'ממתינה', skipped: 'דולגה' }
 /* status_meta → Hebrew the importer's STATUS_MAP can read back. */
-const STATUS_META_HE = { active: 'פעיל', wandering: 'נודד', past: 'לשעבר', no_status: 'ללא סטטוס' }
+const STATUS_META_HE = { active: 'פעיל', wandering: 'ביניים', past: 'לשעבר', no_status: 'ללא סטטוס' }
 
 function esc(v) {
   const s = v == null ? '' : String(v)

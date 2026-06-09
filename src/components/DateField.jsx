@@ -3,6 +3,7 @@ import { ChevronRight, ChevronLeft } from 'lucide-react'
 import { monthGrid, MONTH_NAMES_HE, DAY_NAMES_SHORT, isSameDay, weekStartIndex } from '../lib/calendar'
 import { fmtDateInput } from '../lib/dates'
 import { useUserPreferences } from '../hooks/useUserPreferences'
+import { useAddress } from '../hooks/useAddress'
 import './DateField.css'
 
 /* Drop-in replacement for <input type="date">. The native picker displays
@@ -18,7 +19,9 @@ const parse = (v) => {
   return Number.isNaN(d.getTime()) ? null : d
 }
 
-export default function DateField({ value, onChange, className = '', disabled = false, placeholder = 'בחר/י תאריך' }) {
+export default function DateField({ value, onChange, className = '', disabled = false, placeholder }) {
+  const { addr } = useAddress()
+  const ph = placeholder ?? addr({ male: 'בחר תאריך', female: 'בחרי תאריך', neutral: 'בחר/י תאריך' })
   const { prefs } = useUserPreferences()
   const weekStart = prefs?.format?.week_start || 'sunday'
   const selected = parse(value)
@@ -62,7 +65,7 @@ export default function DateField({ value, onChange, className = '', disabled = 
         aria-haspopup="dialog"
         aria-expanded={open}
       >
-        <span className={value ? 'datefield-val' : 'datefield-ph'}>{value ? fmtDateInput(selected) : placeholder}</span>
+        <span className={value ? 'datefield-val' : 'datefield-ph'}>{value ? fmtDateInput(selected) : ph}</span>
       </button>
       {open && !disabled && (
         <div className="datefield-pop" role="dialog" aria-label="בחירת תאריך">

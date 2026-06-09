@@ -6,6 +6,7 @@ import { questionText, isQuestionDueToday } from '../../../lib/questionTemplates
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
+import { useAddress } from '../../../hooks/useAddress'
 import InfoPopover from '../../../components/InfoPopover'
 
 /* LOCAL YYYY-MM-DD — must match how daily answers are bucketed elsewhere
@@ -32,6 +33,7 @@ function HeartQIcon() {
 /* Daily-question widget: next unanswered active question for today + live input.
    Answers persist to Supabase; once answered the widget advances. */
 export default function InsightsWidget() {
+  const { addr } = useAddress()
   const navigate = useNavigate()
   const { questions } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
@@ -105,7 +107,7 @@ export default function InsightsWidget() {
         {collapseBtn}
         <p className="ins-q"><Sparkles size={16} strokeWidth={1.6} aria-hidden="true" /> מה איתך היום?</p>
         <button type="button" className="ins-add-link" onClick={() => navigate(ROUTES.SETTINGS)}>
-          הוסף/י שאלה יומית ←
+          {addr({male:'הוסף',female:'הוסיפי',neutral:'הוסף/י'})} שאלה יומית ←
         </button>
       </div>
     )

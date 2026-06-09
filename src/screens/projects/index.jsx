@@ -11,9 +11,11 @@ import EditProjectModal from '../../modals/EditProjectModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
+import { useAddress } from '../../hooks/useAddress'
 import './ProjectsScreen.css'
 
 export default function ProjectsScreen() {
+  const { addr, gender } = useAddress()
   const { projects, loading, error, addProject, updateProject, removeProject } = useProjects()
   const { clients } = useClients()
   const { transactions } = useTransactions()
@@ -64,7 +66,7 @@ export default function ProjectsScreen() {
           <p className="t-screen">פרויקטים</p>
         </header>
         <Coachmark id="add-project" radius="50%">
-          <button className="cta-add" type="button" aria-label="הוסף פרויקט" onClick={() => setShowAdd(true)}>הוסף פרויקט +</button>
+          <button className="cta-add" type="button" aria-label="פרויקט חדש" onClick={() => setShowAdd(true)}>+ פרויקט חדש</button>
         </Coachmark>
       </div>
 
@@ -100,13 +102,13 @@ export default function ProjectsScreen() {
         ) : projects.length === 0 ? (
           <div className="empty">
             <span className="empty-icon"><FolderOpen size={36} strokeWidth={1.4} aria-hidden="true" /></span>
-            <p className="empty-text">אין עדיין פרויקטים. הפרויקט הראשון שלכם מתחיל כאן.</p>
+            <p className="empty-text">אין עדיין פרויקטים. הפרויקט הראשון שלך מתחיל כאן.</p>
             <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
-              <FolderPlus size={18} strokeWidth={1.6} aria-hidden="true" /> הוסיפו פרויקט
+              <FolderPlus size={18} strokeWidth={1.6} aria-hidden="true" /> {addr({ male: 'הוסף פרויקט', female: 'הוסיפי פרויקט', neutral: 'הוסף/י פרויקט' })}
             </button>
             <details className="empty-reminder">
               <summary>למה זה חשוב?</summary>
-              <p className="empty-reminder-body">{coachmarkText('add-project').detail}</p>
+              <p className="empty-reminder-body">{coachmarkText('add-project', gender).detail}</p>
             </details>
           </div>
         ) : (

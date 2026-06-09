@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRecurring } from '../../../hooks/useRecurring'
+import { addressUser } from '../../../lib/address'
 
 const PRESETS = [
   { k: 'rent',      label: 'שכירות',       type: 'expense', amount: 3500 },
@@ -14,6 +15,7 @@ const PRESETS = [
    is the simplest cadence to introduce here; on_meeting + every-X-days
    can be configured later from the finance screen. */
 export default function Step7Recurring({ ob, setCTA }) {
+  const addr = (v) => addressUser(ob.state.answers?.profile?.gender, v)
   const { addRecurring } = useRecurring()
   const initial = ob.state.answers?.recurring || {}
   const [type, setType] = useState(initial.type || 'expense')
@@ -73,7 +75,7 @@ export default function Step7Recurring({ ob, setCTA }) {
   return (
     <>
       <p className="ob-intro">יש הוצאות או הכנסות שחוזרות כל חודש?</p>
-      <p className="ob-intro-sub">נרשם פעם אחת, ייווצרו אוטומטית כל חודש כתנועה ממתינה — את/ה רק מאשר/ת.</p>
+      <p className="ob-intro-sub">נרשם פעם אחת, ייווצרו אוטומטית כל חודש כתנועה ממתינה — {addr({ male: 'אתה רק מאשר', female: 'את רק מאשרת', neutral: 'את/ה רק מאשר/ת' })}.</p>
 
       <div className="ob-field">
         <p className="ob-label">הצעות מהירות</p>

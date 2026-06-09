@@ -6,6 +6,7 @@ import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
 import { useTaskStatuses } from '../../hooks/useTaskStatuses'
 import { useTaskCategories } from '../../hooks/useTaskCategories'
+import { useAddress } from '../../hooks/useAddress'
 import TaskItem from './TaskItem'
 import ReminderItem from './ReminderItem'
 import AddTaskModal from '../../modals/AddTaskModal'
@@ -66,6 +67,7 @@ function reminderBucket(rem, now) {
 }
 
 export default function TasksScreen() {
+  const { addr, gender } = useAddress()
   const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask, editTask, clearCompleted, refetch: refetchTasks } = useTasks()
   const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder, editReminder } = useReminders()
   const { projects } = useProjects()
@@ -178,7 +180,7 @@ export default function TasksScreen() {
               <span className="lbl dot">·</span>
               <p className="lbl">{doneCount} הושלמו</p>
             </div>
-            <p className="lbl-sm">עשה/י את הצעד הבא.</p>
+            <p className="lbl-sm">{addr({male:'עשה',female:'עשי',neutral:'עשה/י'})} את הצעד הבא.</p>
           </div>
           <p className="t-screen">{isTasks ? 'משימות' : 'תזכורות'}</p>
         </header>
@@ -189,7 +191,7 @@ export default function TasksScreen() {
             aria-label={isTasks ? 'הוסף משימה' : 'הוסף תזכורת'}
             onClick={() => setShowAdd(true)}
           >
-            {isTasks ? 'הוסף משימה +' : 'הוסף תזכורת +'}
+            {isTasks ? '+ משימה חדשה' : '+ תזכורת חדשה'}
           </button>
         </Coachmark>
       </div>
@@ -271,7 +273,7 @@ export default function TasksScreen() {
           ) : <span />}
           <button type="button" className="t-manage-btn" onClick={() => setShowTaxonomy(true)}>
             <Tags size={14} strokeWidth={1.7} aria-hidden="true" />
-            ניהול
+            סטטוסים וקטגוריות
           </button>
         </div>
       )}
@@ -295,13 +297,13 @@ export default function TasksScreen() {
             tasks.length === 0 ? (
               <div className="empty">
                 <span className="empty-icon"><ListTodo size={28} strokeWidth={1.4} aria-hidden="true" /></span>
-                <p className="empty-text">אין עדיין משימות. המשימה הראשונה שלכם מתחילה כאן.</p>
+                <p className="empty-text">אין עדיין משימות. המשימה הראשונה שלך מתחילה כאן.</p>
                 <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
-                  <Plus size={18} strokeWidth={1.8} aria-hidden="true" /> הוסיפו משימה
+                  <Plus size={18} strokeWidth={1.8} aria-hidden="true" /> {addr({ male: 'הוסף משימה', female: 'הוסיפי משימה', neutral: 'הוסף/י משימה' })}
                 </button>
                 <details className="empty-reminder">
                   <summary>למה זה חשוב?</summary>
-                  <p className="empty-reminder-body">{coachmarkText('add-task').detail}</p>
+                  <p className="empty-reminder-body">{coachmarkText('add-task', gender).detail}</p>
                 </details>
               </div>
             ) : (
@@ -440,7 +442,7 @@ export default function TasksScreen() {
             open={confirmClear}
             onClose={() => setConfirmClear(false)}
             title="מחיקת משימות שהושלמו"
-            message={`למחוק ${doneCount} ${doneCount === 1 ? 'משימה שהושלמה' : 'משימות שהושלמו'}? אפשר לשחזר אותן מ"זבל" עד 30 יום.`}
+            message={`למחוק ${doneCount} ${doneCount === 1 ? 'משימה שהושלמה' : 'משימות שהושלמו'}? אפשר לשחזר אותן מסל המיחזור עד 30 יום.`}
             confirmLabel="מחק הכל"
             danger
             onConfirm={() => clearCompleted()}

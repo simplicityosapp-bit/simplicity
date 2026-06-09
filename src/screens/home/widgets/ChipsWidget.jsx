@@ -8,6 +8,7 @@ import { useTasks } from '../../../hooks/useTasks'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useCategories } from '../../../hooks/useCategories'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
+import { useAddress } from '../../../hooks/useAddress'
 import InfoPopover from '../../../components/InfoPopover'
 import TileDrillModal from '../../../modals/TileDrillModal'
 
@@ -17,6 +18,7 @@ import TileDrillModal from '../../../modals/TileDrillModal'
    from the filters. "פתיחה במלא ←" inside the modal still routes
    to the corresponding screen for full management. */
 export default function ChipsWidget() {
+  const { addr } = useAddress()
   const { clients } = useClients()
   const { groups } = useGroups()
   const { projects } = useProjects()
@@ -52,7 +54,7 @@ export default function ChipsWidget() {
           <span className="h-stat-num mono">{summary.openTasks}</span>
           <span className="h-stat-lbl">
             משימות
-            <InfoPopover label="הסבר משימות" text="לחץ/י על הכרטיס כדי לסנן ולראות פירוט. ברירת מחדל: רק משימות פתוחות." placement="top" />
+            <InfoPopover label="הסבר משימות" text={addr({male:'לחץ',female:'לחצי',neutral:'לחץ/י'}) + ' על הכרטיס כדי לסנן ולראות פירוט. ברירת מחדל: רק משימות פתוחות.'} placement="top" />
           </span>
         </div>
         <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('net')} onKeyDown={onTileKey(() => setOpenTile('net'))}>
@@ -60,7 +62,7 @@ export default function ChipsWidget() {
           <span className={`h-stat-num mono${netSizeCls}`}>{netStr}</span>
           <span className="h-stat-lbl">
             נטו
-            <InfoPopover label="הסבר נטו" text="לחץ/י על הכרטיס כדי לסנן לפי טווח זמן, סוג, פרויקט וקטגוריה. סופר רק תנועות שאושרו." placement="top" />
+            <InfoPopover label="הסבר נטו" text={addr({male:'לחץ',female:'לחצי',neutral:'לחץ/י'}) + ' על הכרטיס כדי לסנן לפי טווח זמן, סוג, פרויקט וקטגוריה. סופר רק תנועות שאושרו.'} placement="top" />
           </span>
         </div>
         <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('clients')} onKeyDown={onTileKey(() => setOpenTile('clients'))}>
@@ -68,7 +70,7 @@ export default function ChipsWidget() {
           <span className="h-stat-num mono">{summary.activeClients}</span>
           <span className="h-stat-lbl">
             לקוחות
-            <InfoPopover label="הסבר לקוחות" text="לחץ/י על הכרטיס כדי לסנן לפי סטטוס, פרויקט וקבוצה. ברירת מחדל: פעיל + ביניים." placement="top" />
+            <InfoPopover label="הסבר לקוחות" text={addr({male:'לחץ',female:'לחצי',neutral:'לחץ/י'}) + ' על הכרטיס כדי לסנן לפי סטטוס, פרויקט וקבוצה. ברירת מחדל: פעיל + ביניים.'} placement="top" />
           </span>
         </div>
       </div>

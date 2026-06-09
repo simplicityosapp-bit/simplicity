@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
 const ICONS = ['💰', '🤝', '🌱', '✨', '🎨', '🏃', '📚', '🧘', '✍️', '💡', '⭐']
@@ -10,6 +11,7 @@ const ICONS = ['💰', '🤝', '🌱', '✨', '🎨', '🏃', '📚', '🧘', '�
    the preset. Delete removes the category (and its goals, handled by caller).
    The parent passes key={category.id} so this remounts per category. */
 export default function EditGoalCategoryModal({ open, onClose, category, onSave, onDelete }) {
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(() => ({
     name: category?.name || '',
     icon: category?.icon || ICONS[0],
@@ -30,7 +32,7 @@ export default function EditGoalCategoryModal({ open, onClose, category, onSave,
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 

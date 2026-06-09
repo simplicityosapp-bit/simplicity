@@ -24,9 +24,11 @@ import GoalCategoryPicker from '../../modals/GoalCategoryPicker'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
+import { useAddress } from '../../hooks/useAddress'
 import './GoalsScreen.css'
 
 export default function GoalsScreen() {
+  const { addr } = useAddress()
   const { goals, loading: goalsLoading, error: goalsError, addGoal, updateGoal, removeGoal } = useGoals()
   const { categories, loading: catsLoading, error: catsError, addCategory, updateCategory, removeCategory } = useGoalCategories()
   const { entries, addEntry, removeEntry } = useGoalEntries()
@@ -112,10 +114,10 @@ export default function GoalsScreen() {
           <button
             className="cta-add"
             type="button"
-            aria-label={categories.length > 0 ? 'יעד חדש' : 'בחר/י קטגוריה'}
+            aria-label={categories.length > 0 ? 'יעד חדש' : addr({male:'בחר קטגוריה',female:'בחרי קטגוריה',neutral:'בחר/י קטגוריה'})}
             onClick={() => (categories.length > 0 ? setShowAddGoal(true) : setShowCatPicker(true))}
           >
-            {categories.length > 0 ? 'יעד חדש +' : 'בחר/י קטגוריה +'}
+            {categories.length > 0 ? '+ יעד חדש' : '+ ' + addr({male:'בחר קטגוריה',female:'בחרי קטגוריה',neutral:'בחר/י קטגוריה'})}
           </button>
         </Coachmark>
       </div>
@@ -138,7 +140,7 @@ export default function GoalsScreen() {
       ) : categories.length === 0 ? (
         <div className="g-welcome">
           <span className="g-welcome-icon"><Target size={34} strokeWidth={1.4} aria-hidden="true" /></span>
-          <p className="g-welcome-title">בחר/י מאיפה להתחיל</p>
+          <p className="g-welcome-title">{addr({male:'בחר מאיפה להתחיל',female:'בחרי מאיפה להתחיל',neutral:'בחר/י מאיפה להתחיל'})}</p>
           <p className="g-welcome-sub">יעד הוא כיוון, לא לחץ. אפשר תמיד להוסיף עוד בהמשך.</p>
           <div className="g-welcome-actions">
             {availablePresets.map((p) => (
@@ -158,13 +160,13 @@ export default function GoalsScreen() {
       ) : totalGoals === 0 ? (
         <div className="empty">
           <span className="empty-icon"><Target size={28} strokeWidth={1.4} aria-hidden="true" /></span>
-          <p className="empty-text">יש לכם קטגוריות מוכנות. היעד הראשון שלכם מתחיל כאן.</p>
+          <p className="empty-text">יש לך קטגוריות מוכנות. היעד הראשון שלך מתחיל כאן.</p>
           <button className="empty-action" type="button" onClick={() => setShowAddGoal(true)}>
-            <Plus size={18} strokeWidth={1.8} aria-hidden="true" /> הגדירו יעד
+            <Plus size={18} strokeWidth={1.8} aria-hidden="true" /> {addr({ male: 'הגדר יעד', female: 'הגדירי יעד', neutral: 'הגדר/י יעד' })}
           </button>
           <details className="empty-reminder">
             <summary>למה זה חשוב?</summary>
-            <p className="empty-reminder-body">{coachmarkText('add-goal').detail}</p>
+            <p className="empty-reminder-body">{coachmarkText('add-goal', prefs?.design?.gender).detail}</p>
           </details>
         </div>
       ) : (
@@ -252,7 +254,7 @@ export default function GoalsScreen() {
         open={!!pendingDeleteGoal}
         onClose={() => setPendingDeleteGoal(null)}
         title="מחיקת יעד"
-        message={pendingDeleteGoal ? `למחוק את היעד${pendingDeleteGoal.label ? ` "${pendingDeleteGoal.label}"` : ''}? ניתן לשחזר מהזבל תוך 30 יום.` : ''}
+        message={pendingDeleteGoal ? `למחוק את היעד${pendingDeleteGoal.label ? ` "${pendingDeleteGoal.label}"` : ''}? ניתן לשחזר מסל המיחזור תוך 30 יום.` : ''}
         confirmLabel="מחק"
         danger
         onConfirm={() => { if (pendingDeleteGoal) removeGoal(pendingDeleteGoal.id) }}

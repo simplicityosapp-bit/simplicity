@@ -7,7 +7,9 @@ import { useGroupMembers } from '../../../hooks/useGroupMembers'
 import { clientBalance } from '../../../lib/clients'
 import { isr } from '../../../lib/finance'
 import ClientFormFields from '../../../components/ClientFormFields'
+import MG from '../../../components/MG'
 import CsvMappingEditor from '../CsvMappingEditor'
+import { addressUser } from '../../../lib/address'
 
 const initials = (name) =>
   (name || '')
@@ -35,7 +37,7 @@ function ClientPreviewCard({ client, projectName, members, groups, onRemove }) {
         <div className="ob-cc-id">
           <p className="ob-cc-name">{client.name || 'לקוח/ה חדש/ה'}</p>
           <div className="ob-cc-meta">
-            <span className="ob-cc-status">פעיל</span>
+            <span className="ob-cc-status"><MG text="פעיל׌" /></span>
             {projectName && <span className="ob-cc-proj">{projectName}</span>}
           </div>
         </div>
@@ -107,13 +109,14 @@ export default function Step4Clients({ ob, setCTA }) {
     }
   }, [projectGroups, form.group_id])
 
-  /* Gendered title, matching the form-of-address chosen in step 1. */
+  /* Gendered title, matching the form-of-address chosen in step 1 —
+     routed through the shared addressUser helper for app-wide consistency. */
   const gender = ob.state.answers?.profile?.gender
-  const addTitle = gender === 'female'
-    ? 'הוסיפי לקוחות ראשונים'
-    : gender === 'male'
-      ? 'הוסף לקוחות ראשונים'
-      : 'הוסיפו לקוחות ראשונים'
+  const addTitle = addressUser(gender, {
+    male:    'הוסף לקוחות ראשונים',
+    female:  'הוסיפי לקוחות ראשונים',
+    neutral: 'הוסף/י לקוחות ראשונים',
+  })
 
   const projectName = (id) => projects.find((p) => p.id === id)?.name || ''
   const addedClients = useMemo(
@@ -123,7 +126,13 @@ export default function Step4Clients({ ob, setCTA }) {
 
   const composerHasName = form.name.trim().length > 0
   const canAdvance = composerHasName || addedClients.length > 0
-  const hint = !canAdvance ? 'הוסף/י לקוח אחד לפחות, או דלג/י.' : null
+  const hint = !canAdvance
+    ? addressUser(gender, {
+        male:    'הוסף לקוח אחד לפחות, או דלג.',
+        female:  'הוסיפי לקוח אחד לפחות, או דלגי.',
+        neutral: 'הוסף/י לקוח אחד לפחות, או דלג/י.',
+      })
+    : null
 
   const clientPayload = () => ({
     name: form.name.trim(),
@@ -229,7 +238,7 @@ export default function Step4Clients({ ob, setCTA }) {
 
       {pathA && suggestions.length > 0 && (
         <div className="ob-field">
-          <p className="ob-label">מהקובץ שלך — בחר/י לקוח כדי למלא את השדות</p>
+          <p className="ob-label">מהקובץ שלך — {addressUser(gender, { male: 'בחר', female: 'בחרי', neutral: 'בחר/י' })} לקוח כדי למלא את השדות</p>
           <div className="ob-pills">
             {suggestions.map((s, i) => (
               <button
@@ -270,7 +279,7 @@ export default function Step4Clients({ ob, setCTA }) {
             groups={groups}
           />
           <button type="button" className="ob-pc-add" onClick={onAddClient} disabled={busy}>
-            הוסף לקוח לרשימה +
+            + <MG word="client" /> לרשימה
           </button>
         </div>
       )}

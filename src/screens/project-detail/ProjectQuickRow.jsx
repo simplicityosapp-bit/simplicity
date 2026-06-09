@@ -64,7 +64,7 @@ export default function ProjectQuickRow({ projectId, projectName }) {
         onClick={() => setShowLauncher(true)}
       >
         <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        <span>תנועה מהירה</span>
+        <span>הוספה מהירה</span>
       </button>
       <button
         type="button"
@@ -72,7 +72,7 @@ export default function ProjectQuickRow({ projectId, projectName }) {
         onClick={() => setShowPicker(true)}
       >
         <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        <span>עדכון זריז</span>
+        <span>עדכון יעד</span>
       </button>
 
       <QuickActionsModal

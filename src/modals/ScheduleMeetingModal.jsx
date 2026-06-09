@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = (clientId = '') => ({ client_id: clientId, date: todayStr(), time: '09:00' })
@@ -16,6 +17,7 @@ const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמיש�
    — perpetual until changed or cleared in the client editor. Replacing an
    existing slot asks once before overwriting. */
 export default function ScheduleMeetingModal({ open, onClose, onSave, client, clients = [], onSetRecurringSlot }) {
+  const { addr, tryAgain } = useAddress()
   const [form, setForm] = useState(() => blank(client?.id || ''))
   const [recurring, setRecurring] = useState(false)
   const [confirmReplace, setConfirmReplace] = useState(false)
@@ -57,7 +59,7 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
         close()
       } catch (e) {
         setBusy(false)
-        setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+        setErr('השמירה נכשלה: ' + (e.message || tryAgain))
       }
       return
     }
@@ -75,7 +77,7 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 
@@ -92,7 +94,7 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
         <div className="m-field">
           <label className="m-label">לקוח</label>
           <select className="m-select" value={form.client_id} onChange={(e) => { set('client_id', e.target.value); if (err) setErr('') }}>
-            <option value="">בחר/י לקוח</option>
+            <option value="">{addr({ male: 'בחר לקוח', female: 'בחרי לקוח', neutral: 'בחר/י לקוח' })}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>

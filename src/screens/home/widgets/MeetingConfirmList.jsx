@@ -104,7 +104,7 @@ export default function MeetingConfirmList() {
                           <span className="mtg-confirm-tx-dot" style={{ background: cat.color || 'var(--stone)' }} />
                           {cat.name}
                         </>
-                      ) : 'הוצאה צמודה לפגישה'}
+                      ) : 'הוצאה מהפגישה'}
                     </p>
                   </div>
                   <div className="mtg-confirm-actions">

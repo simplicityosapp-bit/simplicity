@@ -2,6 +2,7 @@ import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import { showToast } from '../lib/toast'
+import { useAddress } from '../hooks/useAddress'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = () => ({ date: todayStr(), summary: '', notes: '' })
@@ -16,6 +17,7 @@ export default function AddSessionModal({ open, onClose, onSave, client, group, 
   const subject = group || client
   const subjectColor = group ? (group.color || 'var(--stone)') : 'var(--sage)'
   const isEdit = !!session
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(() => fromSession(session))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -36,7 +38,7 @@ export default function AddSessionModal({ open, onClose, onSave, client, group, 
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 

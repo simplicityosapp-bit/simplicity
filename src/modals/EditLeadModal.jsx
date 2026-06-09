@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 const METAS = [
   { k: 'in_process', l: 'בתהליך' },
@@ -13,6 +14,7 @@ const METAS = [
    when the chosen project has groups. onAddSource (optional) enables inline
    source creation. */
 export default function EditLeadModal({ open, onClose, onSave, lead, statuses = [], sources = [], projects = [], groups = [], onAddSource }) {
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(() => ({
     name: lead?.name || '',
     phone: lead?.phone || '',
@@ -82,7 +84,7 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 

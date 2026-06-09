@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 const PRIORITIES = [
   { k: 'high', l: 'דחוף' },
@@ -14,6 +15,7 @@ const fromTask = (t) => (t
 /* onSave is async (Supabase insert/update). Pass `task` to edit an existing one. */
 export default function AddTaskModal({ open, onClose, onSave, projects = [], clients = [], statuses = [], categories = [], task = null }) {
   const isEdit = !!task
+  const { tryAgain, addr } = useAddress()
   const [form, setForm] = useState(() => fromTask(task))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -43,7 +45,7 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 
@@ -109,7 +111,7 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
       )}
 
       {!isEdit && (
-        <p className="m-hint">למשימה אין תאריך יעד — צריך תזכורת ליום מסוים? הוסיפו <strong>תזכורת</strong> במקום.</p>
+        <p className="m-hint">למשימה אין תאריך יעד — צריך תזכורת ליום מסוים? {addr({ male: 'הוסף', female: 'הוסיפי', neutral: 'הוסף/י' })} <strong>תזכורת</strong> במקום.</p>
       )}
 
       {err && <p className="m-error">{err}</p>}

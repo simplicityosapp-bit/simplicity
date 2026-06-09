@@ -9,14 +9,27 @@
    AddQuestionModal (mood/energy/sleep/focus) AND the onboarding Step 5
    presets (sleep/nutrition/movement/mood/focus/quiet). A key missing here
    makes questionText() fall back to the generic "שאלת היום". */
+import { addressUser } from './address'
+
+/* Most templates are gender-neutral ("שלך", "לך", "ישנת"…). A few carry
+   an adjective addressed to the user and are stored as {male,female,
+   neutral} variants — resolve them with qtext(key, gender). */
 export const QTEXT = {
   mood: 'איך מצב הרוח שלך היום?',
   energy: 'כמה אנרגיה יש לך היום?',
   sleep: 'איך ישנת אתמול?',
-  focus: 'כמה ממוקד/ת הרגשת היום?',
+  focus: { male: 'כמה ממוקד הרגשת היום?', female: 'כמה ממוקדת הרגשת היום?', neutral: 'כמה ממוקד/ת הרגשת היום?' },
   nutrition: 'איך אכלת היום?',
   movement: 'כמה תנועה היה לך היום?',
   quiet: 'כמה שקט מצאת היום?',
+}
+
+/* Resolve a template_key to display text for the user's form of address.
+   Neutral templates return as-is; gendered ones pick via addressUser
+   (gender omitted → neutral/slash form, so legacy callers are unchanged). */
+export const qtext = (key, gender) => {
+  const v = QTEXT[key]
+  return v && typeof v === 'object' ? addressUser(gender, v) : v
 }
 
 /* Single source of truth for BOTH the in-app AddQuestionModal and the
@@ -32,7 +45,7 @@ export const QUESTION_TEMPLATES = [
 ]
 
 /* The text shown for a question row (custom_text wins, else the template). */
-export const questionText = (q) => q.custom_text || QTEXT[q.template_key] || 'שאלת היום'
+export const questionText = (q, gender) => q.custom_text || qtext(q.template_key, gender) || 'שאלת היום'
 
 const MS_PER_DAY = 86400000
 

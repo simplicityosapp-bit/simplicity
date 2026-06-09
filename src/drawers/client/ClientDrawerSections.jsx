@@ -275,7 +275,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
               if (m.total_override != null) {
                 sub = isr(m.total_override)
               } else if (mode === 'per_session') {
-                sub = g?.price_per_session ? `${isr(g.price_per_session)} למפגש` : 'מחיר למפגש'
+                sub = g?.price_per_session ? `${isr(g.price_per_session)} לפגישה` : 'מחיר לפגישה'
               } else if (mode === 'none') {
                 sub = 'ללא מחיר קבוע'
               } else {

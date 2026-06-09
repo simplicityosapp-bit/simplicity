@@ -8,6 +8,7 @@ import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useLeads } from '../../hooks/useLeads'
 import { useGroups } from '../../hooks/useGroups'
+import { useAddress } from '../../hooks/useAddress'
 import './ConnectionsScreen.css'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
@@ -34,6 +35,7 @@ function fmtDuration(min) {
 
 export default function ConnectionsScreen() {
   const navigate = useNavigate()
+  const { addr } = useAddress()
   const [params] = useSearchParams()
   const gcal = useGoogleCalendar()
   const { events, loading: eventsLoading, refetch, assignClient, assignProject, assignLead, assignGroup } = useCalendarEvents()
@@ -185,7 +187,7 @@ export default function ConnectionsScreen() {
                 </div>
                 {active && (
                   <select className="conn-event-select" value={ev[active.field] || ''} onChange={(e) => { active.assign(ev, e.target.value); setPicker(null) }} aria-label={`שיוך ${active.label}`}>
-                    <option value="">— בחר/י —</option>
+                    <option value="">{addr({male:'— בחר —',female:'— בחרי —',neutral:'— בחר/י —'})}</option>
                     {(active.list || []).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
                   </select>
                 )}
@@ -251,7 +253,7 @@ export default function ConnectionsScreen() {
               <RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'sync' ? 'מסנכרן…' : 'סנכרן עכשיו'}
             </button>
             <button type="button" className="conn-btn ghost danger" disabled={gcal.busy} onClick={onDisconnect}>
-              <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? 'מנתק…' : (confirmDisc ? 'בטוח? נתק' : 'נתק')}
+              <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? 'מנתק…' : (confirmDisc ? addr({ male: 'בטוח? נתק', female: 'בטוחה? נתק', neutral: 'בטוח/ה? נתק' }) : 'נתק')}
             </button>
           </div>
         )}
@@ -270,7 +272,7 @@ export default function ConnectionsScreen() {
             eventsLoading ? (
               <p className="conn-empty">טוען אירועים…</p>
             ) : events.length === 0 ? (
-              <p className="conn-empty">אין אירועים בטווח שנבחר. נסה/י לסנכרן שוב, או לחבר מחדש עם טווח תאריכים מוקדם יותר.</p>
+              <p className="conn-empty">אין אירועים בטווח שנבחר. {addr({male:'נסה',female:'נסי',neutral:'נסה/י'})} לסנכרן שוב, או לחבר מחדש עם טווח תאריכים מוקדם יותר.</p>
             ) : (
               <div className="conn-cats">
                 {eventCategories.map((cat) => {

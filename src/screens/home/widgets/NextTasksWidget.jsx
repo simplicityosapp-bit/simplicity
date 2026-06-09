@@ -4,9 +4,11 @@ import { ClipboardList, ChevronLeft, Check } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
 import { nextTasks, openTasksCount } from '../../../lib/homeData'
 import { useTasks } from '../../../hooks/useTasks'
+import { useAddress } from '../../../hooks/useAddress'
 
 /* Next 3-5 open tasks by priority. Row → tasks screen; the ✓ marks done. */
 export default function NextTasksWidget() {
+  const { addr } = useAddress()
   const navigate = useNavigate()
   const { tasks, toggleTask } = useTasks()
   const items = useMemo(() => nextTasks(999, tasks), [tasks])   /* all open, by priority */
@@ -60,7 +62,7 @@ export default function NextTasksWidget() {
               </div>
             ))
           ) : (
-            <p className="h-card-empty">כל המשימות בוצעו. הוסף/י משימה כשנהיה צורך.</p>
+            <p className="h-card-empty">כל המשימות בוצעו. {addr({male:'הוסף',female:'הוסיפי',neutral:'הוסף/י'})} משימה כשנהיה צורך.</p>
           )}
         </div>
       ) : (

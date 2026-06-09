@@ -6,6 +6,7 @@ import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
 import { useTransactions } from '../../hooks/useTransactions'
 import { ROUTES } from '../../lib/routes'
+import { useAddress } from '../../hooks/useAddress'
 import InfoPopover from '../../components/InfoPopover'
 
 /* Moonlight chart — SVG line of cumulative income day by day for the selected
@@ -27,6 +28,7 @@ const PAD_TOP = 14
 const PAD_BOTTOM = 22
 
 export default function FinanceChart({ month }) {
+  const { addr } = useAddress()
   const navigate = useNavigate()
   const { transactions } = useTransactions()
   const { goals } = useGoals()
@@ -120,7 +122,7 @@ export default function FinanceChart({ month }) {
           הכנסה מצטברת
           <InfoPopover
             label="הסבר גרף הכנסה מצטברת"
-            text="הגרף מצטבר יום אחר יום את ההכנסות (מאושרות) של החודש הנבחר. הקו המקווקו הוא יעד ההכנסה החודשי שהוגדר במסך 'מטרות' — אם אין יעד, הוא לא מוצג. הנקודה היא היום הנוכחי."
+            text="הגרף מצטבר יום אחר יום את ההכנסות (מאושרות) של החודש הנבחר. הקו המקווקו הוא יעד ההכנסה החודשי שהוגדר במסך 'יעדים' — אם אין יעד, הוא לא מוצג. הנקודה היא היום הנוכחי."
           />
         </p>
         {pctOfGoal != null && (
@@ -183,7 +185,7 @@ export default function FinanceChart({ month }) {
           className="f-chart-cta"
           onClick={() => navigate(ROUTES.GOALS)}
         >
-          הגדר/י יעד הכנסה חודשי ←
+          {addr({male:'הגדר',female:'הגדירי',neutral:'הגדר/י'})} יעד הכנסה חודשי ←
         </button>
       )}
     </section>

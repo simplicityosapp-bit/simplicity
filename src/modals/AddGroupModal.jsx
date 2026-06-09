@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
 import { GROUP_BILLING_MODES, GROUP_BILLING_LABELS } from '../lib/enums'
+import { useAddress } from '../hooks/useAddress'
 
 const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
 const DAYS = [
@@ -17,6 +18,7 @@ const blank = () => ({
 /* Create a group under a given project (passed in). package_price + sessions
    define the membership tuition. Recurring day/time are optional. */
 export default function AddGroupModal({ open, onClose, onSave, project }) {
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -32,9 +34,9 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
     /* Validate only the fields the chosen billing mode actually uses. */
     if (mode === 'package') {
       if (!(price > 0)) { setErr('יש למלא מחיר חבילה חיובי.'); return }
-      if (!(sess > 0)) { setErr('יש למלא מספר מפגשים חיובי.'); return }
+      if (!(sess > 0)) { setErr('יש למלא מספר פגישות חיובי.'); return }
     } else if (mode === 'per_session') {
-      if (!(perSession > 0)) { setErr('יש למלא מחיר למפגש חיובי.'); return }
+      if (!(perSession > 0)) { setErr('יש למלא מחיר לפגישה חיובי.'); return }
     }
     setBusy(true)
     setErr('')
@@ -57,7 +59,7 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 
@@ -109,7 +111,7 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
             />
           </div>
           <div className="m-field">
-            <label className="m-label">מספר מפגשים</label>
+            <label className="m-label">מספר פגישות</label>
             <input
               type="number"
               min="1"
@@ -123,7 +125,7 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
 
       {form.billing_mode === 'per_session' && (
         <div className="m-field">
-          <label className="m-label">מחיר למפגש ₪</label>
+          <label className="m-label">מחיר לפגישה ₪</label>
           <input
             type="number"
             min="0"

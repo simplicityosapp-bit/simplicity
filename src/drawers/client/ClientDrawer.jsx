@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { X, Pencil, Trash2, Check, CalendarPlus, Banknote, ChevronDown } from 'lucide-react'
 import { clientBalance, effectiveClientMeta, isGroupDriven } from '../../lib/clients'
+import MG from '../../components/MG'
 import { isr } from '../../lib/finance'
 import ClientDrawerSections from './ClientDrawerSections'
 import AddSessionModal from '../../modals/AddSessionModal'
@@ -15,7 +16,7 @@ import { pushUndo } from '../../lib/undo'
 import './ClientDrawer.css'
 
 const STATUS = {
-  active: 'פעיל',
+  active: 'פעיל׌',
   wandering: 'ביניים',
   past: 'לשעבר',
   no_status: 'ללא סטטוס',
@@ -102,7 +103,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   <div className="cd-h-sub">
                     {groupDriven ? (
                       <span className={`cd-h-status cd-status-${meta}`} title="הסטטוס נקבע אוטומטית לפי הקבוצה">
-                        {STATUS[meta] || STATUS.no_status}
+                        <MG text={STATUS[meta] || STATUS.no_status} />
                         <span className="cd-h-status-by"> · לפי הקבוצה</span>
                       </span>
                     ) : (
@@ -114,7 +115,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                           aria-expanded={statusMenu}
                           onClick={() => setStatusMenu((o) => !o)}
                         >
-                          {STATUS[meta] || STATUS.no_status}
+                          <MG text={STATUS[meta] || STATUS.no_status} />
                           <ChevronDown size={12} strokeWidth={2} aria-hidden="true" />
                         </button>
                         {statusMenu && (
@@ -197,10 +198,10 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
               {/* Quick actions — ALWAYS shown on every client card (global). */}
               <div className="cd-actions">
                 <button type="button" className="cd-action" onClick={() => setActionModal('session')}>
-                  <Check size={15} strokeWidth={1.8} aria-hidden="true" /> תעד פגישה
+                  <Check size={15} strokeWidth={1.8} aria-hidden="true" /> תיעוד פגישה
                 </button>
                 <button type="button" className="cd-action" onClick={() => setActionModal('meeting')}>
-                  <CalendarPlus size={15} strokeWidth={1.8} aria-hidden="true" /> תאם פגישה
+                  <CalendarPlus size={15} strokeWidth={1.8} aria-hidden="true" /> קביעת פגישה
                 </button>
                 <button type="button" className="cd-action" onClick={() => { setPaymentAmount(null); setActionModal('payment') }}>
                   <Banknote size={15} strokeWidth={1.8} aria-hidden="true" /> קיבלתי תשלום
@@ -316,7 +317,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         }}
         title="עדכון תשלום ידני"
         message={pendingPayment != null
-          ? `עדכנת את «שולם» ב-${isr(Math.abs(pendingPayment))}. להוסיף תנועה רשמית בכספים, או רק לעדכן את כרטיס הלקוח (בלי תנועה)?`
+          ? `עדכנת את «שולם» ב-${isr(Math.abs(pendingPayment))}. להוסיף תנועה רשמית בכסף, או רק לעדכן את כרטיס הלקוח (בלי תנועה)?`
           : ''}
         confirmLabel="הוסף תנועה"
         cancelLabel="רק בכרטיס"

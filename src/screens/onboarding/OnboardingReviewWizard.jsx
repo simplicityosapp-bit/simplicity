@@ -54,7 +54,7 @@ function humanizeError(raw) {
 /* Default client status options offered in the review (the 4 meta
    buckets). The file's own status text is added on top so a recognised
    custom status ("פולואפ" etc.) stays selectable. */
-const CLIENT_STATUS_DEFAULTS = ['פעיל', 'ביניים', 'לשעבר', 'ללא סטטוס']
+const CLIENT_STATUS_DEFAULTS = ['פעיל׌', 'ביניים', 'לשעבר', 'ללא סטטוס']
 
 /* `mode`: 'create' (step 9 — actually writes the data) or 'approve'
    (step 2 — only records the user's approval; step 9 leans on it and is

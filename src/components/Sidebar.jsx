@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES, ADMIN_EMAIL } from '../lib/routes'
+import { roleLabel } from '../lib/preferences'
 import { useAuth } from '../auth/AuthContext'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useProfileHealth } from '../hooks/useProfileHealth'
@@ -14,11 +15,6 @@ import './Sidebar.css'
 
 const ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug }
 
-/* Hebrew role label — mirrors MenuDrawer (UI-only). */
-const ROLE_LABELS = {
-  therapist: 'מטפל/ת', coach: 'מאמן/ת', facilitator: 'מנחה',
-  teacher: 'מורה', instructor: 'מדריך/ה', other: '',
-}
 const initial = (name) => name?.trim()?.[0] ?? '·'
 const RING_R = 18
 const RING_C = 2 * Math.PI * RING_R
@@ -29,7 +25,7 @@ const EXTRAS = [
   { key: 'moon',     label: 'מבט על',         icon: Moon,       to: ROUTES.MOON_GLANCE },
   { key: 'reports',  label: 'דוחות',          icon: BarChart3,  to: ROUTES.REPORTS },
   { key: 'insights', label: 'מה איתך היום?',  icon: Sparkles,   to: ROUTES.INSIGHTS },
-  { key: 'trash',    label: 'זבל',            icon: Trash2,     to: ROUTES.TRASH },
+  { key: 'trash',    label: 'סל מיחזור',      icon: Trash2,     to: ROUTES.TRASH },
 ]
 
 /* ════════════════════════════════════════════════════════════════
@@ -55,7 +51,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
   const name = profile.full_name || ''
   const role = profile.role === 'other'
     ? (profile.role_other || '')
-    : (ROLE_LABELS[profile.role] || '')
+    : roleLabel(profile.role, prefs?.design?.gender)
 
   /* Close the slide-up panel when the user clicks outside the
      sidebar or presses Escape. */

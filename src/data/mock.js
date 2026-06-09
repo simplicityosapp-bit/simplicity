@@ -50,7 +50,7 @@ export const groups = [
 
 /* ── client_statuses — תת-סטטוס ברירת-מחדל אחד לכל meta_category ── */
 export const client_statuses = [
-  { id: uid(), user_id: USER, meta_category: 'active', display_name: 'פעיל', icon: '🟢', is_default: true, created_at: daysAgo(300), updated_at: daysAgo(300), deleted_at: null },
+  { id: uid(), user_id: USER, meta_category: 'active', display_name: 'פעיל׌', icon: '🟢', is_default: true, created_at: daysAgo(300), updated_at: daysAgo(300), deleted_at: null },
   { id: uid(), user_id: USER, meta_category: 'wandering', display_name: 'ביניים', icon: '🟡', is_default: true, created_at: daysAgo(300), updated_at: daysAgo(300), deleted_at: null },
   { id: uid(), user_id: USER, meta_category: 'past', display_name: 'לשעבר', icon: '⚫', is_default: true, created_at: daysAgo(300), updated_at: daysAgo(300), deleted_at: null },
   { id: uid(), user_id: USER, meta_category: 'no_status', display_name: 'ללא סטטוס', icon: '⚪', is_default: true, created_at: daysAgo(300), updated_at: daysAgo(300), deleted_at: null },

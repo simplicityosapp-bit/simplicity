@@ -4,6 +4,7 @@ import {
   HelpCircle, MessageCircle,
 } from 'lucide-react'
 import { useTrash, TRASH_ENTITY_TYPES } from '../../hooks/useTrash'
+import { useAddress } from '../../hooks/useAddress'
 import TrashItem from './TrashItem'
 import './TrashScreen.css'
 
@@ -28,6 +29,7 @@ const ENTITY_META = {
 }
 
 export default function TrashScreen() {
+  const { addr } = useAddress()
   const { trash, totalCount, loading, error, restore } = useTrash()
 
   return (
@@ -42,7 +44,7 @@ export default function TrashScreen() {
             </div>
             <p className="lbl-sm">כל מחיקה כאן עוד הפיכה.</p>
           </div>
-          <p className="t-screen">זבל</p>
+          <p className="t-screen">סל מיחזור</p>
         </header>
       </div>
 
@@ -53,7 +55,7 @@ export default function TrashScreen() {
       ) : totalCount === 0 ? (
         <div className="empty">
           <span className="empty-icon"><Trash2 size={36} strokeWidth={1.4} aria-hidden="true" /></span>
-          <p className="empty-text">הזבל ריק 🌱<br />כל מה שתמחק יחכה כאן 30 יום.</p>
+          <p className="empty-text">סל המיחזור ריק 🌱<br />כל מה ש{addr({ male: 'תמחק', female: 'תמחקי', neutral: 'תמחק/י' })} יחכה כאן 30 יום.</p>
         </div>
       ) : (
         <section className="trash-groups">

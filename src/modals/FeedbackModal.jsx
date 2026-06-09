@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Send, Loader2, CheckCircle2 } from 'lucide-react'
 import Modal from './Modal'
 import { useFeedback } from '../hooks/useFeedback'
+import { useAddress } from '../hooks/useAddress'
 import './FeedbackModal.css'
 
 /* Feedback type — optional. Sent to the team so they can triage; the
@@ -18,6 +19,7 @@ const TYPES = [
    team and stored. Reuses the shared <Modal> shell.
    ════════════════════════════════════════════════════════════════ */
 export default function FeedbackModal({ open, onClose }) {
+  const { addr } = useAddress()
   const { submitFeedback, submitting } = useFeedback()
   const [message, setMessage] = useState('')
   const [type, setType] = useState(null)
@@ -75,7 +77,7 @@ export default function FeedbackModal({ open, onClose }) {
             className="fb-textarea m-textarea"
             value={message}
             onChange={(e) => { setMessage(e.target.value); setFailed(false) }}
-            placeholder="כתבו לנו כל מה שעולה לכם לראש…"
+            placeholder={`${addr({ male: 'כתוב', female: 'כתבי', neutral: 'כתוב/כתבי' })} לנו כל מה שעולה לך לראש…`}
             rows={6}
             autoFocus
             dir="rtl"

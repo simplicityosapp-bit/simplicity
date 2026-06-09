@@ -80,8 +80,13 @@
   /* ── Simplicity typography (1.2 spec) ──────────────────────────────
      One Hebrew font everywhere (Heebo). Numbers may use a mono face
      for Raycast-grade precision. */
-  --mg-font:      'Heebo', 'Assistant', sans-serif;
-  --mg-font-num:  'JetBrains Mono', 'Heebo', monospace;
+  /* Alef everywhere, with two unicode-range-scoped exceptions (index.css):
+     'HeeboNum' wins for digits/numeric punctuation (Alef figures read poorly),
+     and 'AlefMG' supplies the 12 dual-gender glyphs Alef lacks. Order matters —
+     the scoped faces are listed FIRST so they claim their codepoints; Alef
+     serves every remaining letter; Assistant backstops mid weights (500/600). */
+  --mg-font:      'HeeboNum', 'Alef', 'AlefMG', 'Assistant', sans-serif;
+  --mg-font-num:  'JetBrains Mono', 'HeeboNum', monospace;
   /* Text-size preference multiplier — the "גודל טקסט" setting sets this on
      <html data-text-size> (see index.css). Every font-size in the app is
      calc(Npx * var(--text-scale)), so it scales TEXT only (not layout, the

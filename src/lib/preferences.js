@@ -6,6 +6,8 @@
    localStorage (mg-reports-config) — will be migrated here later.
    ════════════════════════════════════════════════════════════════ */
 
+import { addressUser } from './address'
+
 /* Registry of home widgets. Order here = default order. Each widget
    in DEFAULT_WIDGETS.list mirrors registry entries. */
 export const WIDGET_REGISTRY = [
@@ -46,13 +48,24 @@ const ACCENT_REMAP = {
   clay:       'clay',
 }
 
+/* Role labels. Entries that inflect for gender are stored as
+   {male,female,neutral} variants and resolved via roleLabel(key, gender);
+   gender-invariant roles (מנחה, מורה, אחר) stay plain strings. */
 export const ROLE_LABELS = {
-  therapist:   'מטפל/ת',
-  coach:       'מאמן/ת',
+  therapist:   { male: 'מטפל',  female: 'מטפלת', neutral: 'מטפל/ת' },
+  coach:       { male: 'מאמן',  female: 'מאמנת', neutral: 'מאמן/ת' },
   facilitator: 'מנחה',
   teacher:     'מורה',
-  instructor:  'מדריך/ה',
+  instructor:  { male: 'מדריך', female: 'מדריכה', neutral: 'מדריך/ה' },
   other:       'אחר',
+}
+
+/* Resolve a role key to its label for the given form of address. Plain
+   strings return as-is; variant objects pick via addressUser (gender
+   omitted → neutral/slash form, so legacy callers are unchanged). */
+export function roleLabel(key, gender) {
+  const v = ROLE_LABELS[key]
+  return v && typeof v === 'object' ? addressUser(gender, v) : (v || '')
 }
 
 export const CURRENCY_OPTIONS = [

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Sparkles, MessageCircle } from 'lucide-react'
+import { addressUser } from '../../../lib/address'
 
 /* Step 9 — finish. Quick widget overview + a note pointing to the existing
    in-app feedback flow ("דברו אלינו" in the menu). The primary CTA flips
@@ -11,10 +12,11 @@ const WIDGET_OVERVIEW = [
   { title: 'דרושה תשומת לב',   body: 'פגישות לאישור, תשלומים ממתינים, לקוחות שלא טופלו.' },
   { title: 'תזכורות קרובות',   body: 'מה צריך לקרות בימים הקרובים.' },
   { title: 'המשימות הבאות',    body: 'מסומנות לפי דחיפות.' },
-  { title: 'כרטיסי-מצב',       body: 'לקוחות פעילים, נטו החודש, משימות פתוחות.' },
+  { title: 'כרטיסי-מצב',       body: 'לקוחות פעיל׊׉, נטו החודש, משימות פתוחות.' },
 ]
 
 export default function Step9Finish({ ob, onDone, setCTA }) {
+  const addr = (v) => addressUser(ob.state.answers?.profile?.gender, v)
   useEffect(() => {
     setCTA({ onNext: onDone, canAdvance: true, busy: false, hint: null, nextLabel: 'הפרקטיקה שלך מוכנה ←' })
   }, [onDone]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -23,10 +25,10 @@ export default function Step9Finish({ ob, onDone, setCTA }) {
       <p className="ob-intro">
         <Sparkles size={16} strokeWidth={1.7} aria-hidden="true" /> סיימת — הפרקטיקה שלך בנויה.
       </p>
-      <p className="ob-intro-sub">מסך הבית בנוי מווידג&apos;טים, ואת/ה בוחר/ת מה מופיע ובאיזה סדר. אפשר תמיד לחזור להגדיר מההגדרות.</p>
+      <p className="ob-intro-sub">מסך הבית בנוי מווידג&apos;טים, ו{addr({ male: 'אתה בוחר', female: 'את בוחרת', neutral: 'את/ה בוחר/ת' })} מה מופיע ובאיזה סדר. אפשר תמיד לחזור להגדיר מההגדרות.</p>
 
       <div className="ob-field">
-        <p className="ob-label">מה תראה/י במסך הבית</p>
+        <p className="ob-label">מה {addr({ male: 'תראה', female: 'תראי', neutral: 'תראה/י' })} במסך הבית</p>
         <ul style={{ margin: 0, paddingInlineStart: 18, fontFamily: 'var(--mg-font)', fontSize: 13, lineHeight: 1.65 }}>
           {WIDGET_OVERVIEW.map((w) => (
             <li key={w.title}><strong>{w.title}</strong> — <span style={{ color: 'var(--stone)' }}>{w.body}</span></li>
@@ -37,7 +39,7 @@ export default function Step9Finish({ ob, onDone, setCTA }) {
       <div className="ob-pre-fill-banner" role="region" aria-label="פידבק">
         <MessageCircle size={14} strokeWidth={1.7} aria-hidden="true" />
         <span>
-          המערכת נבנית עבורך. כל פידבק מעצב אותה — מוזמן/ת לכתוב לנו בכל עת דרך &quot;דברו אלינו&quot; בתפריט.
+          המערכת נבנית עבורך. כל פידבק מעצב אותה — {addr({ male: 'מוזמן', female: 'מוזמנת', neutral: 'מוזמן/ת' })} לכתוב לנו בכל עת דרך &quot;דברו אלינו&quot; בתפריט.
         </span>
       </div>
 

@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
-import { ROLE_LABELS } from '../../../lib/preferences'
+import { ROLE_LABELS, roleLabel } from '../../../lib/preferences'
+import { addressUser } from '../../../lib/address'
 
 /* Drive the role pills from the canonical ROLE_LABELS so onboarding, Settings
    and the profile chip always show identical labels ("other" pinned last as
-   it opens the custom-text panel). */
-const ROLES = [
-  ...Object.entries(ROLE_LABELS).filter(([k]) => k !== 'other').map(([k, l]) => ({ k, l })),
-  { k: 'other', l: ROLE_LABELS.other },
+   it opens the custom-text panel). Labels are resolved per-render via
+   roleLabel() so the pills re-inflect live as the gender pill is toggled. */
+const ROLE_KEYS = [
+  ...Object.keys(ROLE_LABELS).filter((k) => k !== 'other'),
+  'other',
 ]
 
 const GENDERS = [
@@ -34,11 +36,19 @@ export default function Step1Profile({ ob, setCTA }) {
 
   /* Warm welcome line, gendered by the chosen form of address — updates
      live as the user toggles the לשון פנייה pills. */
-  const welcomeGreeting = gender === 'male'
-    ? 'ברוך הבא מלך'
-    : gender === 'female'
-      ? 'ברוכה הבאה מלכה'
-      : 'כמה טוב שבאת'
+  /* Both lines are gendered by the chosen form of address (the live
+     `gender` pill state, before it's persisted) — driven through the
+     shared addressUser helper so phrasing stays consistent app-wide. */
+  const welcomeGreeting = addressUser(gender, {
+    male:    'ברוך הבא מלך',
+    female:  'ברוכה הבאה מלכה',
+    neutral: 'כמה טוב שבאת',
+  })
+  const roleOtherLabel = addressUser(gender, {
+    male:    'מה אתה עושה?',
+    female:  'מה את עושה?',
+    neutral: 'מה את/ה עושה?',
+  })
 
   useEffect(() => { ob.markStarted() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -104,14 +114,14 @@ export default function Step1Profile({ ob, setCTA }) {
       <div className="ob-field">
         <p className="ob-label">תחום</p>
         <div className="ob-pills">
-          {ROLES.map((r) => (
+          {ROLE_KEYS.map((k) => (
             <button
-              key={r.k}
+              key={k}
               type="button"
-              className={`ob-pill${role === r.k ? ' on' : ''}`}
-              onClick={() => setRole(r.k)}
+              className={`ob-pill${role === k ? ' on' : ''}`}
+              onClick={() => setRole(k)}
             >
-              {r.l}
+              {roleLabel(k, gender)}
             </button>
           ))}
         </div>
@@ -119,7 +129,7 @@ export default function Step1Profile({ ob, setCTA }) {
 
       {role === 'other' && (
         <div className="ob-field ob-other-panel">
-          <label className="ob-label" htmlFor="ob-role-other">פרט/י את התחום שלך</label>
+          <label className="ob-label" htmlFor="ob-role-other">{roleOtherLabel}</label>
           <input
             id="ob-role-other"
             className="ob-input"

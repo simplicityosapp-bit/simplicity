@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
+import { useAddress } from '../hooks/useAddress'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = () => ({ client_id: '', joined_at: todayStr() })
@@ -8,6 +9,7 @@ const blank = () => ({ client_id: '', joined_at: todayStr() })
 /* Add a client to a group. `availableClients` should exclude clients who are
    already members. joined_at defaults to today. */
 export default function AddGroupMemberModal({ open, onClose, onSave, group, availableClients = [] }) {
+  const { addr, tryAgain } = useAddress()
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -33,7 +35,7 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, avai
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 
@@ -49,7 +51,7 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, avai
         <label className="m-label">לקוח</label>
         {availableClients.length ? (
           <select className="m-select" value={form.client_id} onChange={(e) => { set('client_id', e.target.value); if (err) setErr('') }}>
-            <option value="">בחר/י לקוח</option>
+            <option value="">{addr({ male: 'בחר לקוח', female: 'בחרי לקוח', neutral: 'בחר/י לקוח' })}</option>
             {availableClients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         ) : (

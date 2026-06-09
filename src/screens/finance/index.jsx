@@ -119,7 +119,7 @@ export default function FinanceScreen() {
             ייצוא CSV
           </button>
           <Coachmark id="add-transaction" radius="50%">
-          <button className="cta-add" type="button" aria-label="הוסף תנועה" onClick={() => setShowAdd(true)}>הוסף תנועה +</button>
+          <button className="cta-add" type="button" aria-label="תנועה חדשה" onClick={() => setShowAdd(true)}>+ תנועה חדשה</button>
         </Coachmark>
         </div>
       </div>
@@ -182,7 +182,7 @@ export default function FinanceScreen() {
                   onClick={() => setShowSkipped(!showSkipped)}
                   aria-pressed={showSkipped}
                 >
-                  {showSkipped ? 'הסתר דולגות' : `הצג ${skippedCount} דולגות`}
+                  {showSkipped ? 'הסתר שדילגת' : `הצג ${skippedCount} שדילגת`}
                 </button>
               </div>
             )}

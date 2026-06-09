@@ -1,5 +1,6 @@
 import { Wallet, Users, UserPlus, FolderOpen, CheckSquare, Target, Bell, Calendar } from 'lucide-react'
 import Modal from './Modal'
+import MG from '../components/MG'
 import './QuickActionsModal.css'
 
 /* Quick-actions launcher — opened from the home "תנועה מהירה" button.
@@ -8,7 +9,7 @@ import './QuickActionsModal.css'
    Add* modal. The parent owns the actual modal instances + hooks. */
 const ACTIONS = [
   { id: 'transaction', label: 'תנועה',  icon: Wallet },
-  { id: 'client',      label: 'לקוח',   icon: Users },
+  { id: 'client',      label: 'לקוח',   icon: Users, mg: 'client' },
   { id: 'lead',        label: 'ליד',    icon: UserPlus },
   { id: 'task',        label: 'משימה',  icon: CheckSquare },
   { id: 'project',     label: 'פרויקט', icon: FolderOpen },
@@ -38,7 +39,7 @@ export default function QuickActionsModal({ open, onClose, onPick }) {
               <span className="qa-icon" aria-hidden="true">
                 <Icon size={22} strokeWidth={1.8} />
               </span>
-              <span className="qa-label">{a.label}</span>
+              <span className="qa-label">{a.mg ? <MG word={a.mg} /> : a.label}</span>
             </button>
           )
         })}

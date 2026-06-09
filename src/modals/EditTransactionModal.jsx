@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 const STATUSES = [
   { k: 'confirmed', l: 'אושרה' },
@@ -10,6 +11,7 @@ const STATUSES = [
 
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
 export default function EditTransactionModal({ open, onClose, onSave, tx, clients = [], projects = [], categories = [] }) {
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(() => ({
     type: tx?.type || 'income',
     amount: tx?.amount ?? '',
@@ -46,7 +48,7 @@ export default function EditTransactionModal({ open, onClose, onSave, tx, client
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 

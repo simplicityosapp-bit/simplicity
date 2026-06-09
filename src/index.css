@@ -13,6 +13,50 @@
   box-sizing: border-box;
 }
 
+/* ── Multi-Gender Hebrew (Alef MultiGndr, OFL 1.1 · multigenderhebrew.com) ──
+   The whole app runs on Alef; this self-hosted face supplies the 12 dual-gender
+   glyphs that the Google "Alef" webfont lacks. It is `unicode-range`-scoped to
+   ONLY those codepoints (U+05C8–05CF, U+05EB–05EE — unassigned Hebrew-block
+   slots), so Alef serves every normal letter and AlefMG is reached solely for
+   the merge glyphs — and they share one typeface, so a word like "לקוח׌" is
+   visually seamless. */
+@font-face {
+  font-family: 'AlefMG';
+  src: url('/fonts/AlefMultiGndr-Regular.woff') format('woff');
+  font-display: swap;
+  unicode-range: U+05C8-05CF, U+05EB-05EE;
+}
+
+/* Numerals stay Heebo — Alef's figures read as cramped/uneven. A tiny Heebo
+   subset (digits + numeric punctuation) is unicode-range-scoped so it wins
+   for those codepoints only, while Alef serves all letters. Self-hosted from
+   Google Fonts (Heebo, OFL). */
+@font-face {
+  font-family: 'HeeboNum';
+  src: url('/fonts/heebo-digits.woff2') format('woff2');
+  font-display: swap;
+  unicode-range: U+0025, U+002C, U+002E-002F, U+0030-003A;
+}
+/* Marker class for multi-gender entity nouns (see components/MG.jsx). The
+   special glyph is served via the global font fallback above; this class
+   just carries the semantic hook (and aria-label lives on the element). */
+.mg-text {
+  font-family: var(--mg-font);
+}
+/* Visually hidden but available to screen readers — carries the readable
+   slash form behind a multi-gender glyph (see components/MG.jsx). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html,
 body {
   margin: 0;
@@ -37,6 +81,10 @@ body {
   font-family: var(--mg-font);
   font-size: var(--mg-body);
   font-weight: 400;
+  /* Normalize Alef's smaller optical size up to Heebo's x-height (aspect
+     ~0.56) so body text and sub-headings keep their proportions after the
+     switch. Inherits app-wide; Heebo digits ≈ no-op (already ~0.56). */
+  font-size-adjust: 0.56;
   line-height: 1.5;
   color: var(--espresso);
   background: var(--bone);

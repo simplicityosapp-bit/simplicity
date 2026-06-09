@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES, ADMIN_EMAIL } from '../lib/routes'
+import { roleLabel } from '../lib/preferences'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useProfileHealth } from '../hooks/useProfileHealth'
 import { useAuth } from '../auth/AuthContext'
@@ -13,16 +14,6 @@ import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './MenuDrawer.css'
 
 const GRID_ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug }
-
-/* Hebrew role label (UI-only; PREF_ROLES has no Hebrew map in enums.js). */
-const ROLE_LABELS = {
-  therapist: 'מטפל/ת',
-  coach: 'מאמן/ת',
-  facilitator: 'מנחה',
-  teacher: 'מורה',
-  instructor: 'מדריך/ה',
-  other: '',
-}
 
 function initial(name) {
   return name?.trim()?.[0] ?? '·'
@@ -63,7 +54,7 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
   const name = profile.full_name || ''
   const role = profile.role === 'other'
     ? (profile.role_other || '')
-    : (ROLE_LABELS[profile.role] || '')
+    : roleLabel(profile.role, prefs?.design?.gender)
 
   return (
     <>
@@ -163,7 +154,7 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
         <button className="drawer-link tint-amber" onClick={() => goTo(ROUTES.TRASH)}>
           <span className="drawer-link-icon"><Trash2 size={18} strokeWidth={1.5} /></span>
           <span className="drawer-link-text">
-            זבל
+            סל מיחזור
             <span className="drawer-link-text-sub">שחזור פריטים שנמחקו · 30 יום</span>
           </span>
         </button>

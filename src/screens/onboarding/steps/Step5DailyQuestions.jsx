@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
-import { QUESTION_TEMPLATES, QTEXT } from '../../../lib/questionTemplates'
+import { QUESTION_TEMPLATES, qtext } from '../../../lib/questionTemplates'
+import { addressUser } from '../../../lib/address'
 
 /* Starter presets — derived from the SHARED QUESTION_TEMPLATES so onboarding
    and the in-app AddQuestionModal always offer the same set (single source).
    All presets use the 1-10 scale. The optional custom ("אחר") question
    matches AddQuestionModal's custom mode exactly (text + scale + icon). */
-const PRESETS = QUESTION_TEMPLATES.map((t) => ({ key: t.key, icon: t.icon, text: QTEXT[t.key] }))
+const PRESETS = QUESTION_TEMPLATES.map((t) => ({ key: t.key, icon: t.icon }))
 
 /* Mirror AddQuestionModal — same scales + same icon palette so the
    user gets the same affordances they'll see later under Settings. */
@@ -21,6 +22,7 @@ const ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', 
    preset becomes a real user_questions row (active=true, scale 1-10).
    The custom slot saves with the user-chosen scale + icon. */
 export default function Step5DailyQuestions({ ob, setCTA }) {
+  const gender = ob.state.answers?.profile?.gender
   const { addQuestion } = useUserQuestions()
   const initial = ob.state.answers?.daily_questions || {}
   const [picked, setPicked] = useState(initial.preset_keys || [])
@@ -33,7 +35,13 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
   const toggle = (k) => setPicked((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]))
 
   const canAdvance = picked.length > 0 || custom.trim().length > 0
-  const hint = !canAdvance ? 'בחר/י שאלה אחת לפחות (מהצעות או מותאמת).' : null
+  const hint = !canAdvance
+    ? addressUser(gender, {
+        male:    'בחר שאלה אחת לפחות (מהצעות או מותאמת).',
+        female:  'בחרי שאלה אחת לפחות (מהצעות או מותאמת).',
+        neutral: 'בחר/י שאלה אחת לפחות (מהצעות או מותאמת).',
+      })
+    : null
   useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [picked, custom, customScale, customIcon, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const onNext = async () => {
@@ -91,24 +99,25 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro">איזו שאלה אחת תרצה/י לשמוע מעצמך בכל יום?</p>
-      <p className="ob-intro-sub">בוחר/ים מההצעות שלנו, או מנסחים שלך. אפשר תמיד לערוך אחר כך.</p>
+      <p className="ob-intro">יש שאלות ש{addressUser(gender, { male: 'תרצה', female: 'תרצי', neutral: 'תרצה/י' })} שנשאל אותך כל יום?</p>
+      <p className="ob-intro-sub">אפשר לבחור מההצעות שלנו ולהוסיף בעצמך — ותמיד {addressUser(gender, { male: 'תוכל', female: 'תוכלי', neutral: 'תוכל/י' })} לשנות, להוסיף או לכבות אחר כך.</p>
 
       <div className="ob-field">
-        <p className="ob-label">הצעות (ניתן לנתח לאורך זמן)</p>
         <div className="ob-pills">
-          {PRESETS.map((p) => (
+          {PRESETS.map((p) => {
+            const text = qtext(p.key, gender)
+            return (
             <button
               key={p.key}
               type="button"
               className={`ob-pill${picked.includes(p.key) ? ' on' : ''}`}
               onClick={() => toggle(p.key)}
-              title={p.text}
+              title={text}
             >
               <span style={{ marginInlineEnd: 4 }}>{p.icon}</span>
-              {p.text}
+              {text}
             </button>
-          ))}
+          )})}
         </div>
       </div>
 
@@ -121,7 +130,7 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
           className="ob-input"
           value={custom}
           onChange={(e) => setCustom(e.target.value)}
-          placeholder="לדוגמה: כמה רגוע/ה הרגשת היום?"
+          placeholder={`לדוגמה: כמה ${addressUser(gender, { male: 'רגוע', female: 'רגועה', neutral: 'רגוע/ה' })} הרגשת היום?`}
         />
       </div>
 

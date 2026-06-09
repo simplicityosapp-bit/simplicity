@@ -14,6 +14,7 @@ import { useSessions } from '../../../hooks/useSessions'
 import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
 import { useGroups } from '../../../hooks/useGroups'
 import { useGroupMembers } from '../../../hooks/useGroupMembers'
+import { useAddress } from '../../../hooks/useAddress'
 import InfoPopover from '../../../components/InfoPopover'
 
 /* Moon-glance mini — a single chip with the pace-based confidence
@@ -30,6 +31,7 @@ const RADIUS = 42
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS   /* ~263.89 */
 
 export default function MoonWidget() {
+  const { addr } = useAddress()
   const navigate = useNavigate()
   const { goals } = useGoals()
   const { categories } = useGoalCategories()
@@ -72,7 +74,7 @@ export default function MoonWidget() {
 
   const label = hasGoals
     ? (pure != null ? `${pure}% מהיעד` : 'מבט על')
-    : 'הגדר/י יעד ←'
+    : addr({male:'הגדר',female:'הגדירי',neutral:'הגדר/י'}) + ' יעד ←'
 
   /* Empty-state — go straight to /goals; no expansion available. */
   if (!hasGoals) {

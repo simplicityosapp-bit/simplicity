@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import { showToast } from '../lib/toast'
+import { useAddress } from '../hooks/useAddress'
 
 /* Convert a lead → client. The lead's name/phone seed the form; the
    user can adjust and pick a project. On save:
@@ -11,6 +12,7 @@ import { showToast } from '../lib/toast'
    The parent wires onCreateClient + onUpdateLead so the modal stays
    adapter-agnostic. */
 export default function ConvertLeadModal({ open, onClose, lead, projects = [], groups = [], statuses = [], onCreateClient, onUpdateLead }) {
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(() => ({
     name: lead?.name || '',
     phone: lead?.phone || '',
@@ -83,7 +85,7 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('ההמרה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('ההמרה נכשלה: ' + (e.message || tryAgain))
     }
   }
 

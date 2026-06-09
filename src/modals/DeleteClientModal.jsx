@@ -6,6 +6,7 @@ import { isr } from '../lib/finance'
 import { restoreClient } from '../lib/api/clients'
 import { restoreTransaction } from '../lib/api/transactions'
 import { pushUndo } from '../lib/undo'
+import { useAddress } from '../hooks/useAddress'
 
 /* Delete client(s) with explicit handling of their finances:
    - "השאר תנועות (כיתומות)" → updateTransaction with client_id=null +
@@ -24,6 +25,7 @@ export default function DeleteClientModal({
   transactions = [],
   onRemoveClient, onUpdateTransaction, onRemoveTransaction,
 }) {
+  const { addr } = useAddress()
   const targets = useMemo(() => (clients?.length ? clients : (client ? [client] : [])), [client, clients])
   const targetIds = useMemo(() => new Set(targets.map((c) => c.id)), [targets])
   const linkedTxs = useMemo(
@@ -116,8 +118,8 @@ export default function DeleteClientModal({
     <Modal open={open} onClose={onClose} title={title}>
       <p className="dcm-intro">
         {targets.length === 1
-          ? 'בחר/י מה לעשות עם התנועות הקשורות ללקוח. אפשר לשחזר מהזבל תוך 30 יום.'
-          : 'בחר/י מה לעשות עם התנועות הקשורות ללקוחות שנבחרו. אפשר לשחזר מהזבל תוך 30 יום.'}
+          ? addr({ male: 'בחר', female: 'בחרי', neutral: 'בחר/י' }) + ' מה לעשות עם התנועות הקשורות ללקוח. אפשר לשחזר מסל המיחזור תוך 30 יום.'
+          : addr({ male: 'בחר', female: 'בחרי', neutral: 'בחר/י' }) + ' מה לעשות עם התנועות הקשורות ללקוחות שנבחרו. אפשר לשחזר מסל המיחזור תוך 30 יום.'}
       </p>
 
       <div className="dcm-summary">
@@ -139,16 +141,16 @@ export default function DeleteClientModal({
 
       <div className="dcm-choices">
         <button type="button" className="dcm-choice keep" onClick={doKeep} disabled={busy}>
-          <span className="dcm-choice-title">השאר/י תנועות</span>
+          <span className="dcm-choice-title">{addr({ male: 'השאר תנועות', female: 'השאירי תנועות', neutral: 'השאר/י תנועות' })}</span>
           <span className="dcm-choice-sub">
             התנועות יישארו ב"כסף" עם תווית "[שם] · נמחק". משמש כשרוצים לשמור היסטוריית חיובים.
           </span>
         </button>
         <button type="button" className="dcm-choice cascade" onClick={doCascade} disabled={busy}>
           <AlertCircle size={14} strokeWidth={1.8} aria-hidden="true" />
-          <span className="dcm-choice-title">מחק/י את התנועות יחד</span>
+          <span className="dcm-choice-title">{addr({ male: 'מחק את התנועות יחד', female: 'מחקי את התנועות יחד', neutral: 'מחק/י את התנועות יחד' })}</span>
           <span className="dcm-choice-sub">
-            התנועות יעברו לזבל יחד עם הלקוח. שחזור הלקוח לא משחזר אותן אוטומטית.
+            התנועות יעברו לסל המיחזור יחד עם הלקוח. שחזור הלקוח לא משחזר אותן אוטומטית.
           </span>
         </button>
       </div>

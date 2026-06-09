@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
 import { GROUP_BILLING_MODES, GROUP_BILLING_LABELS } from '../lib/enums'
+import { useAddress } from '../hooks/useAddress'
 
 const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
 const DAYS = [
@@ -11,6 +12,7 @@ const DAYS = [
 ]
 
 export default function EditGroupModal({ open, onClose, onSave, onDelete, group }) {
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(() => ({
     name: group?.name || '',
     color: group?.color || COLORS[0],
@@ -38,9 +40,9 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
     const perSession = parseFloat(form.price_per_session)
     if (mode === 'package') {
       if (!(price > 0)) { setErr('יש למלא מחיר חבילה חיובי.'); return }
-      if (!(sess > 0)) { setErr('יש למלא מספר מפגשים חיובי.'); return }
+      if (!(sess > 0)) { setErr('יש למלא מספר פגישות חיובי.'); return }
     } else if (mode === 'per_session') {
-      if (!(perSession > 0)) { setErr('יש למלא מחיר למפגש חיובי.'); return }
+      if (!(perSession > 0)) { setErr('יש למלא מחיר לפגישה חיובי.'); return }
     }
     setBusy(true)
     setErr('')
@@ -61,7 +63,7 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 
@@ -98,7 +100,7 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
             <input type="number" min="0" className="m-input" value={form.package_price} onChange={(e) => set('package_price', e.target.value)} />
           </div>
           <div className="m-field">
-            <label className="m-label">מספר מפגשים</label>
+            <label className="m-label">מספר פגישות</label>
             <input type="number" min="1" className="m-input" value={form.package_sessions} onChange={(e) => set('package_sessions', e.target.value)} />
           </div>
         </div>
@@ -106,7 +108,7 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
 
       {form.billing_mode === 'per_session' && (
         <div className="m-field">
-          <label className="m-label">מחיר למפגש ₪</label>
+          <label className="m-label">מחיר לפגישה ₪</label>
           <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => set('price_per_session', e.target.value)} />
         </div>
       )}

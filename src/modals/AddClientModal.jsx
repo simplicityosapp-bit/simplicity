@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import ClientFormFields from '../components/ClientFormFields'
+import MG from '../components/MG'
 import { showToast } from '../lib/toast'
+import { useAddress } from '../hooks/useAddress'
 
 const blank = () => ({
   name: '', status: 'active', status_id: '', sessions: '', price_per_session: '',
@@ -14,6 +16,7 @@ const blank = () => ({
    define sub-statuses per meta-category in Settings. Form body is the shared
    <ClientFormFields> so it stays identical to the onboarding client step. */
 export default function AddClientModal({ open, onClose, onSave, projects = [], statuses = [] }) {
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -49,12 +52,12 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 
   return (
-    <Modal open={open} onClose={close} title="לקוח חדש">
+    <Modal open={open} onClose={close} title={<MG word="client_new" />} titleLabel="לקוח חדש">
       <ClientFormFields
         form={form}
         set={set}

@@ -15,7 +15,7 @@ export default function RecurringSection({ templates, onAdd, onEdit, onDelete, o
           {live.length > 0 && <span className="rec-section-count mono">{live.length}</span>}
         </span>
         <button type="button" className="rec-section-add" onClick={onAdd}>
-          תבנית חדשה +
+          + תבנית חדשה
         </button>
       </div>
       {live.length === 0 ? (

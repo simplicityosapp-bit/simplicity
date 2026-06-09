@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
 const ICONS = ['🎨', '🏃', '📚', '🧘', '✍️', '🌱', '💡', '⭐']
@@ -8,6 +9,7 @@ const blank = () => ({ name: '', icon: ICONS[0], color: COLORS[0] })
 /* Custom (manual) goal category — name + icon + color. Auto categories (income
    etc.) are added as one-tap presets, not here. graph_type defaults to 'delta'. */
 export default function AddGoalCategoryModal({ open, onClose, onSave }) {
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -32,7 +34,7 @@ export default function AddGoalCategoryModal({ open, onClose, onSave }) {
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 

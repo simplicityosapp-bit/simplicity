@@ -4,6 +4,7 @@ import Modal from './Modal'
 import DateField from '../components/DateField'
 import { questionText } from '../lib/questionTemplates'
 import { scheduledOccurrences } from '../lib/goals'
+import { useAddress } from '../hooks/useAddress'
 
 const TIME_FRAMES = [
   { k: 'monthly', l: 'חודשי' },
@@ -27,6 +28,7 @@ const blank = (categoryId = '') => ({
 /* onSave is async (Supabase insert). For manual categories the user picks a
    tracking method: manual entries, or linked to a daily question (D10). */
 export default function AddGoalModal({ open, onClose, onSave, categories = [], projects = [], groups = [], questions = [], defaultCategoryId = '' }) {
+  const { addr, tryAgain } = useAddress()
   const [form, setForm] = useState(() => blank(defaultCategoryId))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -78,7 +80,7 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 
@@ -87,7 +89,7 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
       <div className="m-field">
         <label className="m-label">קטגוריה</label>
         <select className="m-select" value={form.category_id} onChange={(e) => { set('category_id', e.target.value); if (err) setErr('') }}>
-          <option value="">בחר/י קטגוריה</option>
+          <option value="">{addr({ male: 'בחר קטגוריה', female: 'בחרי קטגוריה', neutral: 'בחר/י קטגוריה' })}</option>
           {categories.map((c) => <option key={c.id} value={c.id}>{c.icon ? c.icon + ' ' : ''}{c.name}</option>)}
         </select>
       </div>
@@ -161,17 +163,17 @@ export default function AddGoalModal({ open, onClose, onSave, categories = [], p
           <label className="m-label">שאלה יומית</label>
           {activeQuestions.length ? (
             <select className="m-select" value={form.tracked_by_question_id} onChange={(e) => { set('tracked_by_question_id', e.target.value); if (err) setErr('') }}>
-              <option value="">בחר/י שאלה</option>
+              <option value="">{addr({ male: 'בחר שאלה', female: 'בחרי שאלה', neutral: 'בחר/י שאלה' })}</option>
               {activeQuestions.map((q) => <option key={q.id} value={q.id}>{q.icon ? q.icon + ' ' : ''}{questionText(q)}</option>)}
             </select>
           ) : (
-            <p className="m-error">אין שאלות יומיות פעילות — הוסף/י שאלה בהגדרות.</p>
+            <p className="m-error">אין שאלות יומיות פעילות — {addr({ male: 'הוסף שאלה בהגדרות', female: 'הוסיפי שאלה בהגדרות', neutral: 'הוסף/י שאלה בהגדרות' })}.</p>
           )}
           {isYesNo && (
             overMax ? (
               <p className="m-sched-warn">
                 <AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" />
-                היעד ({parseFloat(form.target_value)}) גבוה ממספר הפעמים שהשאלה מופיעה ({maxOccurrences}). הקטן/י את היעד או שנה/י את לוח-הזמנים של השאלה.
+                היעד ({parseFloat(form.target_value)}) גבוה ממספר הפעמים שהשאלה מופיעה ({maxOccurrences}). {addr({ male: 'הקטן את היעד או שנה את לוח-הזמנים של השאלה', female: 'הקטיני את היעד או שני את לוח-הזמנים של השאלה', neutral: 'הקטן/י את היעד או שנה/י את לוח-הזמנים של השאלה' })}.
               </p>
             ) : (
               <p className="m-hint">

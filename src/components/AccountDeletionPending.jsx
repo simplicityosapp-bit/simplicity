@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AlertTriangle, RotateCcw, LogOut } from 'lucide-react'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useAuth } from '../auth/AuthContext'
+import { useAddress } from '../hooks/useAddress'
 import './AccountDeletionPending.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -22,6 +23,7 @@ function daysLeft(scheduledFor) {
 }
 
 export default function AccountDeletionPending() {
+  const { addr, tryAgain } = useAddress()
   const { prefs, update } = useUserPreferences()
   const { signOut } = useAuth()
   const [busy, setBusy] = useState(false)
@@ -41,7 +43,7 @@ export default function AccountDeletionPending() {
       /* On success the AppShell gate re-renders and the app returns to
          normal — nothing else to do here. */
     } catch (e) {
-      setErr(e?.message || 'הביטול נכשל — נסה/י שוב.')
+      setErr(e?.message || 'הביטול נכשל — ' + tryAgain + '.')
       setBusy(false)
     }
   }
@@ -60,7 +62,7 @@ export default function AccountDeletionPending() {
         </div>
 
         <p className="adp-body">
-          ביקשת למחוק את החשבון. כל הנתונים עדיין שמורים — אם תתחרט/י, אפשר לבטל
+          ביקשת למחוק את החשבון. כל הנתונים עדיין שמורים — אם {addr({ male: 'תתחרט', female: 'תתחרטי', neutral: 'תתחרט/י' })}, אפשר לבטל
           עכשיו ולחזור לשימוש רגיל.
           {targetDate && (
             <>

@@ -23,6 +23,7 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { useTasks } from '../../hooks/useTasks'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useGroups } from '../../hooks/useGroups'
+import { useAddress } from '../../hooks/useAddress'
 import './ReportsScreen.css'
 
 /* Per-metric icon mapping (Lucide). Kept here so the lib stays icon-free. */
@@ -258,6 +259,7 @@ function ListView({ config, data, onDrill }) {
    one column per period, plus a summary column. Group-header rows
    appear above each contiguous run of metrics from the same group. */
 function TableView({ config, data, onSetRange, onDrill }) {
+  const { addr } = useAddress()
   const periods = useMemo(() => getPeriodsForMonths(config.range), [config.range])
   const periodReports = useMemo(
     () => periods.map((p) => ({ ...p, data: computeReportForRange(p.start, p.end, data) })),
@@ -291,7 +293,7 @@ function TableView({ config, data, onSetRange, onDrill }) {
         <RangePills range={config.range} onSetRange={onSetRange} />
         <p className="rep-period-title">{periodLabel}</p>
         <div className="rep-empty">
-          <p className="rep-empty-text">אין מדדים פעילים — לחץ/י על גלגל השיניים כדי להציג מדדים</p>
+          <p className="rep-empty-text">אין מדדים פעילים — {addr({male:'לחץ',female:'לחצי',neutral:'לחץ/י'})} על גלגל השיניים כדי להציג מדדים</p>
         </div>
       </>
     )
@@ -382,6 +384,7 @@ function RangePills({ range, onSetRange }) {
    Inline panel under the controls. Toggle each metric's visibility +
    drag the grip to reorder. Reset wipes back to factory defaults. */
 function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
+  const { addr } = useAddress()
   const items = useMemo(() => getAllOrderedMetrics(config), [config])
   const visible = useMemo(() => new Set(config.visibleMetrics), [config.visibleMetrics])
   const [draggingId, setDraggingId] = useState(null)
@@ -415,7 +418,7 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
           <X size={14} strokeWidth={1.6} aria-hidden="true" />
         </button>
       </div>
-      <p className="rep-cust-hint">סמנ/י אילו מדדים להציג, וגרר/י לסידור מחדש.</p>
+      <p className="rep-cust-hint">{addr({male:'סמן',female:'סמני',neutral:'סמנ/י'})} אילו מדדים להציג, {addr({male:'וגרר',female:'וגררי',neutral:'וגרר/י'})} לסידור מחדש.</p>
       <div className="rep-cust-list">
         {items.map((m) => {
           const on = visible.has(m.id)

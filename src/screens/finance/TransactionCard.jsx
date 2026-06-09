@@ -25,7 +25,7 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
         <p className="f-tx-desc">{tx.desc || 'ללא תיאור'}</p>
         <div className="f-tx-meta">
           <span className="f-tx-date">{fmtShortDate(tx.date)}</span>
-          {isSkipped && <span className="f-tx-tag skip">דולגה</span>}
+          {isSkipped && <span className="f-tx-tag skip">דילגת</span>}
           {meta && <span className="f-tx-meta-text">· {meta}</span>}
           {category && (
             <span className="f-tx-cat">

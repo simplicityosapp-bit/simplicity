@@ -653,7 +653,7 @@
   margin: 0;
   font-family: var(--mg-font);
   font-size: calc(14px * var(--text-scale));
-  font-weight: 500;
+  font-weight: 700;
   color: var(--espresso);
 }
 .ins-q svg {

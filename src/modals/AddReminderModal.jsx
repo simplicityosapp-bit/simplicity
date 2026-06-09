@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 const todayStr = () => {
   const d = new Date()
@@ -81,6 +82,7 @@ function fromReminder(r) {
    the client selector — used when opened from a project drawer. */
 export default function AddReminderModal({ open, onClose, onSave, clients = [], defaultLinkedTo = null, linkedSubjectName = '', reminder = null }) {
   const isEdit = !!reminder
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(() => fromReminder(reminder))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -153,7 +155,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 

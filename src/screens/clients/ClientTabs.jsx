@@ -1,8 +1,9 @@
 import { CheckCircle2, Clock, CircleSlash, CircleDashed } from 'lucide-react'
+import MG from '../../components/MG'
 
 /* 4 status tabs. no_status only appears when it holds clients (D22). */
 const TABS = [
-  { key: 'active', label: 'פעילים', icon: CheckCircle2 },
+  { key: 'active', label: 'פעיל׌', icon: CheckCircle2 },
   { key: 'wandering', label: 'ביניים', icon: Clock },
   { key: 'past', label: 'לשעבר', icon: CircleSlash },
   { key: 'no_status', label: 'ללא סטטוס', icon: CircleDashed },
@@ -25,7 +26,7 @@ export default function ClientTabs({ active, counts, showNoStatus, onChange }) {
             onClick={() => onChange(t.key)}
           >
             <Icon size={15} strokeWidth={1.6} aria-hidden="true" />
-            <span>{t.label}</span>
+            <span><MG text={t.label} /></span>
             <span className="c-tab-count">{count}</span>
           </button>
         )

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 /* ════════════════════════════════════════════════════════════════
    RESET ACCOUNT — irreversible "delete everything" with a DOUBLE
@@ -15,6 +16,7 @@ import Modal from './Modal'
 const CONFIRM_WORD = 'מחיקה'
 
 export default function ResetAccountModal({ open, onClose, onConfirm }) {
+  const { addr, tryAgain } = useAddress()
   const [step, setStep] = useState(1)
   const [typed, setTyped] = useState('')
   const [busy, setBusy] = useState(false)
@@ -34,7 +36,7 @@ export default function ResetAccountModal({ open, onClose, onConfirm }) {
       setStep(1); setTyped('')
       onClose()
     } catch (e) {
-      setErr(e?.message || 'משהו השתבש — נסה/י שוב.')
+      setErr(e?.message || 'משהו השתבש — ' + tryAgain + '.')
     } finally {
       setBusy(false)
     }
@@ -51,11 +53,11 @@ export default function ResetAccountModal({ open, onClose, onConfirm }) {
             שאלות יומיות והתשובות עליהן, פגישות מתועדות, הערות, תזכורות, סטטוסים
             ומקורות.
             <br />
-            <strong>אי אפשר לבטל את הפעולה.</strong> ההכרות (אונבורדינג) תתחיל מחדש כדי שתוכל/י להתחיל מאפס.
+            <strong>אי אפשר לבטל את הפעולה.</strong> ההכרות (אונבורדינג) תתחיל מחדש כדי {addr({ male: 'שתוכל', female: 'שתוכלי', neutral: 'שתוכל/י' })} להתחיל מאפס.
           </span>
         ) : (
           <span>
-            כדי לאשר סופית, הקלד/י את המילה <strong>{CONFIRM_WORD}</strong> בתיבה.
+            כדי לאשר סופית, {addr({ male: 'הקלד את המילה', female: 'הקלידי את המילה', neutral: 'הקלד/י את המילה' })} <strong>{CONFIRM_WORD}</strong> בתיבה.
             זהו אישור אחרון — מיד לאחר מכן הכול יימחק.
           </span>
         )}
@@ -63,7 +65,7 @@ export default function ResetAccountModal({ open, onClose, onConfirm }) {
 
       {step === 2 && (
         <div style={{ marginTop: 4 }}>
-          <label className="m-label" htmlFor="reset-confirm-input">הקלד/י: {CONFIRM_WORD}</label>
+          <label className="m-label" htmlFor="reset-confirm-input">{addr({ male: 'הקלד:', female: 'הקלידי:', neutral: 'הקלד/י:' })} {CONFIRM_WORD}</label>
           <input
             id="reset-confirm-input"
             className={`m-input${typed && typed.trim() !== CONFIRM_WORD ? ' err' : ''}`}

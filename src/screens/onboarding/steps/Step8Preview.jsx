@@ -3,6 +3,7 @@ import { TrendingUp, Moon, Target } from 'lucide-react'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useGoals } from '../../../hooks/useGoals'
 import { isr, financeDailyBuckets } from '../../../lib/finance'
+import { addressUser } from '../../../lib/address'
 
 /* Step 8 — read-only preview of what the user will see after onboarding.
    Shows mini versions of the three big home/finance/moon visualisations,
@@ -65,6 +66,7 @@ function MoonArc({ pct = 0 }) {
 }
 
 export default function Step8Preview({ ob, setCTA }) {
+  const addr = (v) => addressUser(ob.state.answers?.profile?.gender, v)
   useEffect(() => { setCTA({ onNext: () => ob.advance(), canAdvance: true, busy: false, hint: null }) }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { transactions } = useTransactions()
@@ -82,7 +84,7 @@ export default function Step8Preview({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro">ככל שתזיני יותר — המערכת תשקף יותר.</p>
+      <p className="ob-intro">ככל ש{addr({ male: 'תזין', female: 'תזיני', neutral: 'תזין/י' })} יותר — המערכת תשקף יותר.</p>
       <p className="ob-intro-sub">אלו דוגמאות לתוצרים שייווצרו מהדאטה שלך לאורך הזמן.</p>
 
       <div className="ob-preview-grid">
@@ -103,7 +105,7 @@ export default function Step8Preview({ ob, setCTA }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <MoonArc pct={0.32} />
             <p className="ob-empty-hint" style={{ flex: 1 }}>
-              הציון המשוקלל שלך לפי כל היעדים והרגלים. גדל ככל שיש יותר תשובות יומיות ועסקאות.
+              הציון המשוקלל שלך לפי כל היעדים והרגלים. גדל ככל שיש יותר תשובות יומיות ותנועות.
             </p>
           </div>
         </div>

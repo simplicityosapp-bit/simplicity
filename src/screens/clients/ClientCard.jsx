@@ -2,9 +2,10 @@ import { memo } from 'react'
 import { Check } from 'lucide-react'
 import { clientBalance, effectiveClientMeta } from '../../lib/clients'
 import { isr } from '../../lib/finance'
+import MG from '../../components/MG'
 
 const STATUS = {
-  active: { label: 'פעיל', cls: 'active' },
+  active: { label: 'פעיל׌', cls: 'active' },
   wandering: { label: 'ביניים', cls: 'wandering' },
   past: { label: 'לשעבר', cls: 'past' },
   no_status: { label: 'ללא סטטוס', cls: 'no_status' },
@@ -69,7 +70,7 @@ function ClientCard({
         <div className="cc-id">
           <p className="cc-name" title={client.name}>{client.name}</p>
           <div className="cc-meta">
-            <span className={`cc-status cc-status-${status.cls}`}>{statusLabel}</span>
+            <span className={`cc-status cc-status-${status.cls}`}><MG text={statusLabel} /></span>
             {project && <span className="cc-proj">{project.name}</span>}
           </div>
         </div>

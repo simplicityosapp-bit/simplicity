@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
 const blank = () => ({ name: '', color: COLORS[0] })
 
 export default function AddProjectModal({ open, onClose, onSave }) {
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -19,7 +21,7 @@ export default function AddProjectModal({ open, onClose, onSave }) {
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import { isr } from '../lib/finance'
+import { useAddress } from '../hooks/useAddress'
 
 const STATUSES = [
-  { k: 'active', l: 'פעיל' },
+  { k: 'active', l: 'פעיל׌' },
   { k: 'wandering', l: 'ביניים' },
   { k: 'past', l: 'לשעבר' },
   { k: 'no_status', l: 'ללא' },
@@ -16,6 +17,7 @@ const DAYS = [
 /* Edit a client — name / status / sub-status / sessions / price / phone /
    project. Parent passes key={client?.id} so this remounts cleanly per client. */
 export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [], isMember = false }) {
+  const { addr, tryAgain } = useAddress()
   /* Per-group billing override (group_members.total_override) — keyed by
      membership id. Lets the user manually set a member's total after the
      group's billing mode produced a default. */
@@ -141,7 +143,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 
@@ -187,21 +189,21 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         <div className={`ec-bill${isPerSession ? '' : ' ec-bill-2'}`} style={isPerSession ? { gridTemplateColumns: '1fr' } : undefined}>
           {!isPerSession && (
             <div className="ec-bill-cell">
-              <p className="ec-bill-label">נקבע</p>
+              <p className="ec-bill-label">נקבעו</p>
               <input type="number" min="0" className="ec-bill-input" value={form.sessions}
-                onChange={(e) => set('sessions', e.target.value)} aria-label="נקבע" />
+                onChange={(e) => set('sessions', e.target.value)} aria-label="נקבעו" />
             </div>
           )}
           <div className={`ec-bill-cell${isPerSession ? '' : ' divided-start'}`}>
-            <p className="ec-bill-label">נעשה</p>
+            <p className="ec-bill-label">בוצעו</p>
             <input type="number" min="0" className="ec-bill-input" value={form.done}
-              onChange={(e) => set('done', e.target.value)} aria-label="נעשה" />
+              onChange={(e) => set('done', e.target.value)} aria-label="בוצעו" />
           </div>
         </div>
         {groupSessions.map((gs) => (
           <div key={gs.id} className="ec-grp-row">
             <span className="ec-grp-name">פגישות · {gs.name}</span>
-            <span className="ec-grp-val">נעשה {gs.held} · נקבע {gs.quota || 0}</span>
+            <span className="ec-grp-val">בוצעו {gs.held} · נקבעו {gs.quota || 0}</span>
           </div>
         ))}
       </div>
@@ -214,7 +216,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         <input type="number" min="0" className="m-input" value={form.total_due}
           onChange={(e) => set('total_due', e.target.value)} placeholder="אוטומטי: פגישות × מחיר" />
         <p style={{ margin: '4px 0 0', fontSize: 'calc(11px * var(--text-scale))', color: 'var(--stone)' }}>
-          אם תזין/י סכום כאן הוא יגבר על החישוב האוטומטי (פגישות × מחיר) — שימושי לנתונים שיובאו.
+          אם {addr({ male: 'תזין', female: 'תזיני', neutral: 'תזין/י' })} סכום כאן הוא יגבר על החישוב האוטומטי (פגישות × מחיר) — שימושי לנתונים שיובאו.
         </p>
       </div>
       <div className="m-field">
@@ -238,7 +240,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           </div>
         </div>
         <p className="ec-bill-hint">
-          סה״כ {isr(liveTotal)} · שינוי «שולם» → תנועה בכספים · שינוי «יתרה» → התאמה. פגישות חדשות נשארות אוטומטיות לפי המחיר.
+          סה״כ {isr(liveTotal)} · שינוי «שולם» → תנועה בכסף · שינוי «יתרה» → התאמה. פגישות חדשות נשארות אוטומטיות לפי המחיר.
         </p>
       </div>
       {memberships.length > 0 && (
@@ -261,7 +263,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             )
           })}
           <p style={{ margin: '4px 0 0', fontSize: 'calc(11px * var(--text-scale))', color: 'var(--stone)' }}>
-            הסכום שתזין/י כאן גובר על החיוב שמגיע מהקבוצה — עבור הלקוח הזה בלבד.
+            הסכום {addr({ male: 'שתזין', female: 'שתזיני', neutral: 'שתזין/י' })} כאן גובר על החיוב שמגיע מהקבוצה — עבור הלקוח הזה בלבד.
           </p>
         </div>
       )}

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import { showToast } from '../lib/toast'
+import { useAddress } from '../hooks/useAddress'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
    Israeli evenings, flipping a same-day tx to pending. */
@@ -25,6 +26,7 @@ const blank = (defaults = {}) => ({
    project-detail QuickRow to pre-bind project_id so the user doesn't
    have to re-pick the project they're clearly already on. */
 export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {} }) {
+  const { tryAgain } = useAddress()
   const lockedClientId = client?.id || ''
   const initial = { ...defaults, client_id: lockedClientId || defaults.client_id, type: defaultType || defaults.type }
   const [form, setForm] = useState(() => blank(initial))
@@ -78,7 +80,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 

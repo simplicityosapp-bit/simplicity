@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import { questionText } from '../lib/questionTemplates'
+import { useAddress } from '../hooks/useAddress'
 
 const TIME_FRAMES = [
   { k: 'monthly', l: 'חודשי' },
@@ -14,6 +15,7 @@ const IMPORTANCE = [1, 2, 3, 4, 5]
 /* Edit a goal — label / time_frame / target / importance / project / tracking
    (manual vs daily question for manual categories). */
 export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, categories = [], projects = [], groups = [], questions = [] }) {
+  const { addr, tryAgain } = useAddress()
   const [form, setForm] = useState(() => ({
     label: goal?.label || '',
     time_frame: goal?.time_frame || 'monthly',
@@ -58,7 +60,7 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, c
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 
@@ -133,11 +135,11 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, c
           <label className="m-label">שאלה יומית</label>
           {activeQuestions.length ? (
             <select className="m-select" value={form.tracked_by_question_id} onChange={(e) => { set('tracked_by_question_id', e.target.value); if (err) setErr('') }}>
-              <option value="">בחר/י שאלה</option>
+              <option value="">{addr({ male: 'בחר שאלה', female: 'בחרי שאלה', neutral: 'בחר/י שאלה' })}</option>
               {activeQuestions.map((q) => <option key={q.id} value={q.id}>{q.icon ? q.icon + ' ' : ''}{questionText(q)}</option>)}
             </select>
           ) : (
-            <p className="m-error">אין שאלות יומיות פעילות — הוסף/י שאלה בהגדרות.</p>
+            <p className="m-error">אין שאלות יומיות פעילות — {addr({ male: 'הוסף שאלה בהגדרות', female: 'הוסיפי שאלה בהגדרות', neutral: 'הוסף/י שאלה בהגדרות' })}.</p>
           )}
         </div>
       )}

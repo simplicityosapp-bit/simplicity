@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 /* ════════════════════════════════════════════════════════════════
    DeleteSubStatusModal — D22.
@@ -17,6 +18,7 @@ export default function DeleteSubStatusModal({
   onReassign,      /* (fromId, toId|null) => Promise<void> */
   onDelete,        /* (statusId) => Promise<void> */
 }) {
+  const { tryAgain } = useAddress()
   /* Parent passes key={status?.id || 'none'} so this component
      remounts fresh per status — no in-effect setState resets. */
   const [count, setCount] = useState(null)
@@ -45,7 +47,7 @@ export default function DeleteSubStatusModal({
       await onDelete(status.id)
       onClose()
     } catch (e) {
-      setErr('המחיקה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('המחיקה נכשלה: ' + (e.message || tryAgain))
       setBusy(false)
     }
   }

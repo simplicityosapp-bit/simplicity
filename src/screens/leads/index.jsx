@@ -123,7 +123,7 @@ export default function LeadsScreen() {
         </header>
         {view === 'kanban' && (
           <Coachmark id="add-lead" radius="50%">
-            <button className="cta-add" type="button" aria-label="ליד חדש" onClick={() => setShowAdd(true)}>ליד חדש +</button>
+            <button className="cta-add" type="button" aria-label="ליד חדש" onClick={() => setShowAdd(true)}>+ ליד חדש</button>
           </Coachmark>
         )}
       </div>
@@ -244,7 +244,7 @@ export default function LeadsScreen() {
         open={!!pendingDeleteLead}
         onClose={() => setPendingDeleteLead(null)}
         title="מחיקת ליד"
-        message={pendingDeleteLead ? `למחוק את "${pendingDeleteLead.name}"? הליד יעבור לזבל וניתן לשחזר אותו תוך 30 יום.` : ''}
+        message={pendingDeleteLead ? `למחוק את "${pendingDeleteLead.name}"? הליד יעבור לסל המיחזור וניתן לשחזר אותו תוך 30 יום.` : ''}
         confirmLabel="מחק"
         danger
         onConfirm={() => { if (pendingDeleteLead) removeLead(pendingDeleteLead.id) }}

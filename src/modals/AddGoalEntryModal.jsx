@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import { useAddress } from '../hooks/useAddress'
 
 /* LOCAL today (UTC toISOString would roll to tomorrow on Israeli evenings,
    pre-filling a future date that goal scoring then silently ignores). */
@@ -13,6 +14,7 @@ const blank = () => ({ value: '', date: todayStr(), note: '' })
 /* Log a manual progress entry for a category. onSave receives a row ready
    for goal_entries (category_id filled by the caller). */
 export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
+  const { tryAgain } = useAddress()
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -38,7 +40,7 @@ export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
     }
   }
 

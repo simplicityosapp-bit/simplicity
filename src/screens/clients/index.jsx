@@ -16,18 +16,20 @@ import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useClientStatuses } from '../../hooks/useClientStatuses'
 import { useCategories } from '../../hooks/useCategories'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
+import { useAddress } from '../../hooks/useAddress'
 import ClientTabs from './ClientTabs'
 import ClientCard from './ClientCard'
 import ClientDrawer from '../../drawers/client/ClientDrawer'
 import AddClientModal from '../../modals/AddClientModal'
 import DeleteClientModal from '../../modals/DeleteClientModal'
 import Coachmark from '../../components/Coachmark'
+import MG from '../../components/MG'
 import { coachmarkText } from '../../lib/coachmarks'
 import { pushUndo } from '../../lib/undo'
 import './ClientsScreen.css'
 
 const HERO_LABEL = {
-  active: 'סיכום לקוחות פעילים',
+  active: 'סיכום לקוחות פעיל׊׉',
   wandering: 'סיכום לקוחות ביניים',
   past: 'סיכום לקוחות לשעבר',
   no_status: 'סיכום ללא סטטוס',
@@ -42,7 +44,7 @@ const SORT_OPTIONS = [
   { k: 'oldest',   l: 'ותק (הכי ישן)' },
 ]
 const BULK_META_OPTIONS = [
-  { k: 'active',    l: 'פעיל' },
+  { k: 'active',    l: 'פעיל׌' },
   { k: 'wandering', l: 'ביניים' },
   { k: 'past',      l: 'לשעבר' },
   { k: 'no_status', l: 'ללא סטטוס' },
@@ -85,6 +87,7 @@ function sortClients(arr, sort, ctx) {
 }
 
 export default function ClientsScreen() {
+  const { addr, gender } = useAddress()
   const { clients: clientList, loading, error, addClient, updateClient, removeClient } = useClients()
   const { projects } = useProjects()
   const { transactions, addTransaction, editTransaction, removeTransaction } = useTransactions()
@@ -278,7 +281,7 @@ export default function ClientsScreen() {
           <p className="t-screen">לקוחות</p>
         </header>
         <Coachmark id="add-client" radius="50%">
-          <button className="cta-add" type="button" aria-label="הוסף לקוח" onClick={() => setShowAdd(true)}>הוסף לקוח +</button>
+          <button className="cta-add" type="button" aria-label="הוספת לקוח" onClick={() => setShowAdd(true)}>+ <MG word="client_new" /></button>
         </Coachmark>
       </div>
       <div className="c-top-actions">
@@ -294,7 +297,7 @@ export default function ClientsScreen() {
             </button>
             {sortOpen && (
               <div className="c-sort-pop" role="menu" style={{ [sortSide]: 0 }}>
-                <p className="c-sort-h">מיין/י לפי</p>
+                <p className="c-sort-h">{addr({male:'מיין לפי',female:'מייני לפי',neutral:'מיין/י לפי'})}</p>
                 {SORT_OPTIONS.map((o) => (
                   <button
                     key={o.k}
@@ -338,7 +341,7 @@ export default function ClientsScreen() {
             className={`c-select-btn${selectMode ? ' on' : ''}`}
             onClick={() => setSelectMode((v) => !v)}
           >
-            {selectMode ? 'בטל בחירה' : 'בחר/י'}
+            {selectMode ? 'בטל בחירה' : addr({male:'בחר',female:'בחרי',neutral:'בחר/י'})}
           </button>
         </div>
 
@@ -376,9 +379,9 @@ export default function ClientsScreen() {
               <button type="button" className={`mg-toggle-btn${effScope === 'cumulative' ? ' on' : ''}`} onClick={() => setScope('cumulative')} disabled={scopeLocked}>מצטבר</button>
             </div>
             <p className="c-hero-scope-note">
-              {scopeLocked ? 'מצטבר · לקוחות לשעבר' : (scope === 'monthly' ? 'טווח הסכומים: החודש' : 'טווח הסכומים: מאז ומתמיד')}
+              {scopeLocked ? 'מצטבר · לקוחות לשעבר' : (scope === 'monthly' ? 'טווח הסכומים: החודש' : 'טווח הסכומים: מההתחלה')}
             </p>
-            <p className="c-hero-title">{HERO_LABEL[tab]}</p>
+            <p className="c-hero-title"><MG text={HERO_LABEL[tab]} /></p>
             <div className="c-hero-grid">
               {hero.map((s, i) => (
                 <div key={s.l} className={`c-hero-stat${i === 1 ? ' divided' : ''}`}>
@@ -402,13 +405,13 @@ export default function ClientsScreen() {
           ) : total === 0 ? (
             <div className="empty">
               <span className="empty-icon"><UserPlus size={28} strokeWidth={1.4} aria-hidden="true" /></span>
-              <p className="empty-text">עדיין אין לקוחות. הלקוח הראשון שלכם מתחיל כאן.</p>
+              <p className="empty-text">עדיין אין לקוחות. הלקוח הראשון שלך מתחיל כאן.</p>
               <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
-                <UserPlus size={18} strokeWidth={1.6} aria-hidden="true" /> הוסיפו לקוח
+                <UserPlus size={18} strokeWidth={1.6} aria-hidden="true" /> {addr({ male: 'הוסף לקוח', female: 'הוסיפי לקוח', neutral: 'הוסף/י לקוח' })}
               </button>
               <details className="empty-reminder">
                 <summary>למה זה חשוב?</summary>
-                <p className="empty-reminder-body">{coachmarkText('add-client').detail}</p>
+                <p className="empty-reminder-body">{coachmarkText('add-client', gender).detail}</p>
               </details>
             </div>
           ) : (

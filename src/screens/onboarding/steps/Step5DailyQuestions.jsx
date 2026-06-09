@@ -35,13 +35,8 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
   const toggle = (k) => setPicked((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]))
 
   const canAdvance = picked.length > 0 || custom.trim().length > 0
-  const hint = !canAdvance
-    ? addressUser(gender, {
-        male:    'בחר שאלה אחת לפחות (מהצעות או מותאמת).',
-        female:  'בחרי שאלה אחת לפחות (מהצעות או מותאמת).',
-        neutral: 'בחר/י שאלה אחת לפחות (מהצעות או מותאמת).',
-      })
-    : null
+  /* No CTA hint here — selecting is self-evident; the empty footer reads cleaner. */
+  const hint = null
   useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [picked, custom, customScale, customIcon, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const onNext = async () => {

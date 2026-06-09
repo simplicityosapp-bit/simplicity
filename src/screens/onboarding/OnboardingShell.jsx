@@ -115,14 +115,16 @@ export default function OnboardingShell({ ob, cta, children }) {
           >
             {cta?.busy ? 'שומר…' : (cta?.nextLabel || 'הלאה')}
           </button>
-          <button
-            type="button"
-            className="ob-btn link ob-foot-skip"
-            onClick={onSkip}
-            disabled={skipping}
-          >
-            {skipping ? 'מסיים…' : (isLast ? 'סיום בלי למלא' : 'דלג')} <ChevronLeft size={13} strokeWidth={1.6} aria-hidden="true" />
-          </button>
+          {!isLast && (
+            <button
+              type="button"
+              className="ob-btn link ob-foot-skip"
+              onClick={onSkip}
+              disabled={skipping}
+            >
+              {skipping ? 'מסיים…' : 'דלג'} <ChevronLeft size={13} strokeWidth={1.6} aria-hidden="true" />
+            </button>
+          )}
         </div>
       </footer>
 

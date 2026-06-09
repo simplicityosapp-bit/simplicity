@@ -22,7 +22,7 @@ export const CATEGORY_PRESETS = [
   },
   {
     key: 'clients_active',
-    name: 'לקוחות פעילים',
+    name: 'לקוחות פעיל׊׉',
     icon: '🤝',
     color: '#8BA888',
     measurement_type: 'auto',

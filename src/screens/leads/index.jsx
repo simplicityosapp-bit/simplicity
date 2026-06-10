@@ -115,7 +115,7 @@ export default function LeadsScreen() {
             <div className="screen-head-meta">
               <p className="lbl">{total} לידים</p>
               <span className="lbl dot">·</span>
-              <p className="lbl">{view === 'statuses' ? 'סטטוסים' : 'קנבן'}</p>
+              <p className="lbl">{view === 'statuses' ? 'סטטוסים' : 'לידים'}</p>
             </div>
             <p className="lbl-sm">טיפוח קשרים מוביל לתוצאות.</p>
           </div>
@@ -137,7 +137,7 @@ export default function LeadsScreen() {
           role="tab"
           aria-selected={view === 'kanban'}
         >
-          קנבן
+          לידים
         </button>
         <button
           type="button"

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTours } from '../hooks/useTours'
 import { tourFor } from '../lib/tours'
+import { useAddress } from '../hooks/useAddress'
+import { addressUser } from '../lib/address'
 import './ScreenTour.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -26,6 +28,10 @@ const BUBBLE_GAP = 14      /* gap between spotlight and bubble */
 
 export default function ScreenTour({ screenKey }) {
   const { isSeen, markSeen } = useTours()
+  const { gender } = useAddress()
+  /* Tour copy may be a plain string or a {male,female,neutral} object
+     (gendered direct address); resolve it for the current form of address. */
+  const t = (v) => (v && typeof v === 'object' ? addressUser(gender, v) : v)
   const [steps, setSteps] = useState([])     /* resolved (present in DOM) */
   const [idx, setIdx] = useState(0)
   const [rect, setRect] = useState(null)
@@ -112,7 +118,7 @@ export default function ScreenTour({ screenKey }) {
   bubbleLeft = Math.max(12, Math.min(bubbleLeft, window.innerWidth - BUBBLE_W - 12))
 
   return createPortal(
-    <div className="tour-root" role="dialog" aria-modal="true" aria-label={step.title}>
+    <div className="tour-root" role="dialog" aria-modal="true" aria-label={t(step.title)}>
       {/* Scrim + spotlight hole (box-shadow trick dims everything else). */}
       <div
         className={`tour-spot${step.accent === 'sage' ? ' tour-spot--sage' : ''}`}
@@ -126,8 +132,8 @@ export default function ScreenTour({ screenKey }) {
         className={`tour-bubble${placeBelow ? ' tour-bubble--below' : ' tour-bubble--above'}`}
         style={{ top: bubbleTop, bottom: bubbleBottom, left: bubbleLeft }}
       >
-        <p className="tour-bubble-title">{step.title}</p>
-        <p className="tour-bubble-body">{step.body}</p>
+        <p className="tour-bubble-title">{t(step.title)}</p>
+        <p className="tour-bubble-body">{t(step.body)}</p>
         <div className="tour-bubble-foot">
           <span className="tour-bubble-count">{idx + 1}/{steps.length}</span>
           <div className="tour-bubble-btns">

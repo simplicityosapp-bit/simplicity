@@ -22,9 +22,7 @@ import ClientCard from './ClientCard'
 import ClientDrawer from '../../drawers/client/ClientDrawer'
 import AddClientModal from '../../modals/AddClientModal'
 import DeleteClientModal from '../../modals/DeleteClientModal'
-import Coachmark from '../../components/Coachmark'
 import MG from '../../components/MG'
-import { coachmarkText } from '../../lib/coachmarks'
 import { pushUndo } from '../../lib/undo'
 import './ClientsScreen.css'
 
@@ -87,7 +85,7 @@ function sortClients(arr, sort, ctx) {
 }
 
 export default function ClientsScreen() {
-  const { addr, gender } = useAddress()
+  const { addr } = useAddress()
   const { clients: clientList, loading, error, addClient, updateClient, removeClient } = useClients()
   const { projects } = useProjects()
   const { transactions, addTransaction, editTransaction, removeTransaction } = useTransactions()
@@ -280,9 +278,7 @@ export default function ClientsScreen() {
           </div>
           <p className="t-screen">לקוחות</p>
         </header>
-        <Coachmark id="add-client" radius="50%">
-          <button className="cta-add" type="button" aria-label="הוספת לקוח" onClick={() => setShowAdd(true)}>+ <MG word="client_new" /></button>
-        </Coachmark>
+        <button className="cta-add" type="button" aria-label="הוספת לקוח" onClick={() => setShowAdd(true)}>+ <MG word="client_new" /></button>
       </div>
       <div className="c-top-actions">
           <div className="c-sort-wrap" ref={sortAnchorRef}>
@@ -409,10 +405,6 @@ export default function ClientsScreen() {
               <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
                 <UserPlus size={18} strokeWidth={1.6} aria-hidden="true" /> {addr({ male: 'הוסף לקוח', female: 'הוסיפי לקוח', neutral: 'הוסף/י לקוח' })}
               </button>
-              <details className="empty-reminder">
-                <summary>למה זה חשוב?</summary>
-                <p className="empty-reminder-body">{coachmarkText('add-client', gender).detail}</p>
-              </details>
             </div>
           ) : (
             <div className="empty"><p className="empty-text">אין לקוחות בקטגוריה זו.</p></div>

@@ -44,7 +44,7 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
           className={`m-input${nameMissing ? ' err' : ''}`}
           value={form.name}
           onChange={(e) => set('name', e.target.value)}
-          placeholder="שם הלקוח/ה"
+          placeholder="שם הלקוח׌"
         />
       </div>
 

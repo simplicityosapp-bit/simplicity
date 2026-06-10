@@ -196,11 +196,6 @@ export default function MoonGlanceScreen() {
           <div className="mg-ring-kicker">מהקצב</div>
           <div className="mg-ring-sub">{overall.pure}% מהיעד</div>
         </div>
-        {/* Pace + goal-% as two compact bars next to the ring (which still
-            shows pace alone). */}
-        <div className="mg-hero-bars">
-          <MoonDualBars pace={conf} goal={overall.pure} />
-        </div>
         <p className="mg-reflection">{moonReflection(conf)}</p>
       </div>
 
@@ -213,14 +208,9 @@ export default function MoonGlanceScreen() {
                 <span className="mg-cat-dot" style={{ background: c.category.color || 'var(--moon-deep)' }} />
                 {c.category.name}
               </span>
-              <span className="mg-cat-pct mono">{c.confidence}%</span>
             </div>
-            <div className="mg-cat-bar">
-              <div
-                className="mg-cat-fill"
-                style={{ width: `${Math.min(c.confidence, 100)}%`, background: c.category.color || 'var(--moon-deep)' }}
-              />
-            </div>
+            {/* Per-category: pace + goal-% side by side (was a lone pace bar). */}
+            <MoonDualBars pace={c.confidence} goal={c.pure} />
           </div>
         ))}
       </div>

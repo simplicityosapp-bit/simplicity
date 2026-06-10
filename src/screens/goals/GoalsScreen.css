@@ -2,24 +2,6 @@
    GOALS SCREEN — goals grouped by category with progress bars.
    ════════════════════════════════════════════════════════════════ */
 
-/* whole-screen moon-glance summary — pace + goal-% as two compact bars */
-.g-overall {
-  margin-bottom: 16px;
-  padding: 16px 18px;
-  border-radius: var(--mg-card-radius);
-  border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
-}
-.g-overall-title {
-  margin: 0 0 12px;
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 600;
-  color: var(--espresso);
-}
-
 /* toolbar — primary "new goal" + secondary "add category" */
 .g-toolbar {
   display: flex;

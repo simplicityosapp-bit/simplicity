@@ -3,11 +3,12 @@ import { Star, Plus, X, ChevronDown, Pencil, Trash2 } from 'lucide-react'
 import { formatGoalValue, timeFrameLabel } from '../../lib/goals'
 import { fmtShortDate } from '../../lib/dates'
 import ConfirmModal from '../../modals/ConfirmModal'
+import MoonDualBars from '../../components/MoonDualBars'
 
 function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEdit, onDelete }) {
-  const { goal, cat, actual, target, pure: rawPure } = scored
+  const { goal, cat, actual, target, pure: rawPure, paced: rawPaced } = scored
   const pure = Number.isFinite(rawPure) ? rawPure : 0
-  const capped = Math.max(0, Math.min(pure, 100))
+  const paced = Number.isFinite(rawPaced) ? rawPaced : pure
   const importance = goal.importance || 3
   const isManual = cat.measurement_type === 'manual'
   const [showHistory, setShowHistory] = useState(false)
@@ -38,9 +39,9 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
         </p>
       </div>
 
-      <div className="g-progress">
-        <div className={`g-progress-fill${pure >= 100 ? ' over' : ''}`} style={{ width: `${capped}%` }} />
-      </div>
+      {/* Per-goal: pace + goal-% side by side (was a lone goal-% bar). */}
+      <MoonDualBars pace={Math.min(100, paced)} goal={pure} />
+
 
       <div className="g-card-meta">
         <span className="g-card-target mono">

@@ -27,6 +27,10 @@
   --clay:         #B5634E;             /* סכנה — אזהרות אמיתיות בלבד */
   /* Structure */
   --divider:      rgba(42, 37, 32, 0.06); /* קווי הפרדה ברשימות */
+  /* Semi-transparent white pill behind COLOURED values (numbers/labels) so
+     a coloured token doesn't blend into the photo background — NOT opaque,
+     just enough lift for legibility. Applied via the .val-chip utility. */
+  --val-chip-bg:  rgba(255, 255, 255, 0.5);
   --sidebar-dark: #1F1B17;             /* רקע התפריט הצדדי */
   /* Contrast text — colour that sits ON a filled accent (button/pill). */
   --on-accent:     #FFFFFF;            /* light text on a saturated accent (sage/clay/terracotta) */
@@ -253,6 +257,7 @@
   --amber-warn: #B8835A;                     /* אזהרה — Ember */
   --clay: #6E3D49;                           /* סכנה — Deep Wine */
   --divider: rgba(240, 235, 224, 0.14);      /* מפריד — bumped from 0.06 so accordions/borders read */
+  --val-chip-bg: rgba(255, 255, 255, 0.10);  /* coloured-value pill — subtle white lift on dark */
   --mg-card-bg: rgba(26, 31, 38, 0.48);      /* משטח כרטיס — bumped from 0.30 for content separation */
   --mg-card-border: 1px solid rgba(240, 235, 224, 0.14);
   --mg-card-shadow: 0 1px 2px rgba(0,0,0,0.30), 0 8px 24px rgba(0,0,0,0.42);

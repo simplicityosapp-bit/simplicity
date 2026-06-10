@@ -87,5 +87,31 @@ export function useCalendarEvents() {
     if (e) { setError(e.message); showError('הסתרת האירוע נכשלה — נסה/י שוב'); refetch() }
   }, [refetch])
 
-  return { events, loading, error, refetch, assignClient, assignProject, assignLead, assignGroup, dismissEvent }
+  /* OWN + edit a synced event: setting owned=true detaches it from the
+     one-way sync (the Edge Function skips owned rows — migration 0023), so
+     the new title/time stick instead of being overwritten on the next sync.
+     `patch` carries the editable fields (title / start_time / end_time). */
+  const updateEvent = useCallback(async (ev, patch) => {
+    const next = { ...patch, owned: true }
+    setEvents((prev) => prev.map((row) => (row.id === ev.id ? { ...row, ...next } : row)))
+    const { error: e } = await supabase
+      .from('calendar_events')
+      .update(next)
+      .eq('id', ev.id)
+    if (e) { setError(e.message); showError('עדכון האירוע נכשל — נסה/י שוב'); refetch() }
+  }, [refetch])
+
+  /* OWN + delete a synced event for good. owned=true makes the soft-delete
+     survive future syncs (without it, the sync resets deleted_at to null and
+     the event reappears). Optimistic; refetch on failure. */
+  const deleteEvent = useCallback(async (ev) => {
+    setEvents((prev) => prev.filter((row) => row.id !== ev.id))
+    const { error: e } = await supabase
+      .from('calendar_events')
+      .update({ owned: true, deleted_at: new Date().toISOString() })
+      .eq('id', ev.id)
+    if (e) { setError(e.message); showError('מחיקת האירוע נכשלה — נסה/י שוב'); refetch() }
+  }, [refetch])
+
+  return { events, loading, error, refetch, assignClient, assignProject, assignLead, assignGroup, dismissEvent, updateEvent, deleteEvent }
 }

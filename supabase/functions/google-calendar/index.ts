@@ -225,11 +225,16 @@ async function runSync(userId: string) {
   // matched_manually freezes ALL links (client/project/lead/group) for that event.
   const ids = events.map((e) => e.id)
   const manual = new Map<string, { client_id: string | null; project_id: string | null; lead_id: string | null; group_id: string | null }>()
+  // Events the user has CLAIMED (owned=true) are detached from the sync:
+  // we never touch them, so their edited title/time and their deletion
+  // survive future syncs (migration 0023).
+  const owned = new Set<string>()
   if (ids.length) {
     const { data: existing } = await admin.from('calendar_events')
-      .select('google_event_id, client_id, project_id, lead_id, group_id, matched_manually')
+      .select('google_event_id, client_id, project_id, lead_id, group_id, matched_manually, owned')
       .eq('user_id', userId).in('google_event_id', ids)
     ;(existing ?? []).forEach((r: any) => {
+      if (r.owned) owned.add(r.google_event_id)
       if (r.matched_manually) manual.set(r.google_event_id, { client_id: r.client_id, project_id: r.project_id, lead_id: r.lead_id, group_id: r.group_id })
     })
   }
@@ -237,6 +242,7 @@ async function runSync(userId: string) {
   const upserts: any[] = []
   const cancelled: string[] = []
   for (const e of events) {
+    if (owned.has(e.id)) continue // claimed by the user — never overwrite or re-delete
     if (e.status === 'cancelled') { cancelled.push(e.id); continue }
     const { allDay, startISO, endISO, duration } = eventTimes(e)
     const isManual = manual.has(e.id)

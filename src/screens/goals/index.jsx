@@ -48,7 +48,7 @@ export default function GoalsScreen() {
   const { members } = useGroupMembers()
   const { clients } = useClients()
   const { leads } = useLeads()
-  const { questions } = useUserQuestions()
+  const { questions, addQuestion } = useUserQuestions()
   const { answers } = useDailyAnswers()
   const { prefs } = useUserPreferences()
   const [showAddGoal, setShowAddGoal] = useState(false)
@@ -153,6 +153,7 @@ export default function GoalsScreen() {
         projects={projects}
         groups={clientGroups}
         questions={questions}
+        onAddQuestion={addQuestion}
         onSave={handleAddGoal}
       />
       <AddGoalEntryModal

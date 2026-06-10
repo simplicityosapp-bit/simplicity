@@ -8,6 +8,7 @@ import { useLeadStatuses } from '../../hooks/useLeadStatuses'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useGroups } from '../../hooks/useGroups'
+import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
@@ -44,6 +45,7 @@ export default function LeadsScreen() {
   const { addClient } = useClients()
   const { projects } = useProjects()
   const { groups } = useGroups()
+  const { addMember } = useGroupMembers()
   /* Inline source creation from the lead modals — new sources take the first
      palette color (recolorable later in Settings → lead settings). */
   const handleAddSource = useCallback((name) => addSource({ name: name.trim(), color: CATEGORY_COLORS[0] }), [addSource])
@@ -238,6 +240,7 @@ export default function LeadsScreen() {
         statuses={leadStatuses}
         onCreateClient={addClient}
         onUpdateLead={updateLead}
+        onAddGroupMember={addMember}
       />
 
       <ConfirmModal

@@ -11,7 +11,7 @@ import { useAddress } from '../hooks/useAddress'
         with source='converted' so the lead_status_log captures it.
    The parent wires onCreateClient + onUpdateLead so the modal stays
    adapter-agnostic. */
-export default function ConvertLeadModal({ open, onClose, lead, projects = [], groups = [], statuses = [], onCreateClient, onUpdateLead }) {
+export default function ConvertLeadModal({ open, onClose, lead, projects = [], groups = [], statuses = [], onCreateClient, onUpdateLead, onAddGroupMember }) {
   const { tryAgain } = useAddress()
   const [form, setForm] = useState(() => ({
     name: lead?.name || '',
@@ -64,6 +64,24 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
         notes: lead.notes || null,
         notes_updated_at: lead.notes ? now : null,
       })
+
+      /* Step 1b — group membership is a real group_members row, NOT just the
+         clients.group_id mirror. Setting group_id alone left the client only
+         "half" in the group (visible via the legacy mirror, but absent from
+         the roster + per-member billing). Create the membership too, exactly
+         like assignToGroup in project-detail. */
+      if (form.group_id && onAddGroupMember) {
+        await onAddGroupMember({
+          group_id: form.group_id,
+          client_id: newClient.id,
+          joined_at: now,
+          left_at: null,
+          total_override: null,
+          has_custom_price: false,
+          package_sessions_override: null,
+          left_mid_process: false,
+        }).catch(() => {}) /* best-effort, like assignToGroup — never block the conversion */
+      }
 
       /* Step 2 — flip the lead to 'converted' and stamp the link.
          Pass source='converted' so the log row labels the transition

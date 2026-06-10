@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import {
   BrowserRouter, Routes, Route, Navigate, useLocation,
 } from 'react-router-dom'
@@ -24,6 +24,9 @@ import Toast from './components/Toast'
 import AccountDeletionPending from './components/AccountDeletionPending'
 import { CryptoProvider, useCrypto } from './context/CryptoContext'
 import EncryptionMigrator from './components/EncryptionMigrator'
+import PolicyUpdateModal from './components/legal/PolicyUpdateModal'
+import { needsReacceptance, readPendingConsent, clearPendingConsent } from './lib/legal'
+import { supabase } from './lib/supabase'
 
 /* Screens are code-split: each becomes its own chunk loaded on first
    navigation, so the initial bundle is just the shell + the first screen
@@ -255,20 +258,49 @@ function CryptoGate({ children }) {
   return children
 }
 
+/* Gates the app on legal consent. Writes a Google signup's stashed consent to
+   user_metadata on the OAuth return, and forces the policy re-acceptance modal
+   for users whose accepted version is stale (or who never accepted). */
+function ConsentGate({ children }) {
+  const { user } = useAuth()
+  const [pendingDone, setPendingDone] = useState(() => !readPendingConsent())
+  const tried = useRef(false)
+
+  useEffect(() => {
+    if (!user || tried.current) return
+    const pending = readPendingConsent()
+    if (!pending) { setPendingDone(true); return }
+    tried.current = true
+    if (needsReacceptance(user)) {
+      supabase.auth.updateUser({ data: { ...pending } })
+        .finally(() => { clearPendingConsent(); setPendingDone(true) })
+    } else {
+      clearPendingConsent()
+      setPendingDone(true)
+    }
+  }, [user])
+
+  if (!pendingDone) return <LoadingSplash />
+  if (user && needsReacceptance(user)) return <PolicyUpdateModal />
+  return children
+}
+
 function Root() {
   const { session, loading } = useAuth()
   if (loading || (!session && urlHasOAuthCallback())) {
     return <LoadingSplash />
   }
   return session ? (
-    <CryptoProvider>
-      <CryptoGate>
-        <UserPreferencesProvider>
-          <EncryptionMigrator />
-          <AppShell />
-        </UserPreferencesProvider>
-      </CryptoGate>
-    </CryptoProvider>
+    <ConsentGate>
+      <CryptoProvider>
+        <CryptoGate>
+          <UserPreferencesProvider>
+            <EncryptionMigrator />
+            <AppShell />
+          </UserPreferencesProvider>
+        </CryptoGate>
+      </CryptoProvider>
+    </ConsentGate>
   ) : <AuthGate />
 }
 

@@ -1,0 +1,49 @@
+/* Blocking policy re-acceptance gate. Sits below the legal document modals
+   (z 1200) so tapping a link opens the document on top. Tokens only. */
+.policy-update {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: var(--overlay-bg);
+  backdrop-filter: var(--bm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.policy-update-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--modal-bg);
+  backdrop-filter: var(--bl);
+  border: 1px solid var(--divider);
+  border-radius: var(--rl);
+  box-shadow: var(--elev-3);
+  padding: 28px 24px 24px;
+  font-family: var(--mg-font);
+}
+.policy-update-title {
+  margin: 0 0 6px;
+  font-size: var(--mg-heading);
+  font-weight: 600;
+  color: var(--espresso);
+  text-align: center;
+}
+.policy-update-sub {
+  margin: 0 0 18px;
+  font-size: var(--mg-caption);
+  color: var(--stone);
+  text-align: center;
+  line-height: 1.6;
+}
+.policy-update-error {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(181, 99, 78, 0.12);
+  border: 0.5px solid rgba(181, 99, 78, 0.35);
+  color: var(--clay);
+  font-size: calc(12px * var(--text-scale));
+  text-align: center;
+}
+.policy-update-card .auth-btn { margin-top: 16px; }

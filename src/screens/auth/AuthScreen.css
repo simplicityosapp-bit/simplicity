@@ -408,3 +408,65 @@
   margin-bottom: 10px;
   color: var(--sage);
 }
+
+/* ── Consent checkboxes (signup) ─────────────────────────────────── */
+.auth-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 6px 2px 2px;
+}
+.auth-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--stone);
+  text-align: right;
+}
+.auth-check > input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.auth-check-box {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(42, 37, 32, 0.28);
+  background: rgba(255, 255, 255, 0.6);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+[data-theme="dark"] .auth-check-box {
+  background: rgba(28, 25, 22, 0.6);
+  border-color: rgba(240, 235, 224, 0.28);
+}
+.auth-check > input:checked + .auth-check-box {
+  background: var(--terracotta);
+  border-color: var(--terracotta);
+  color: var(--on-accent);
+}
+.auth-check > input:focus-visible + .auth-check-box {
+  box-shadow: 0 0 0 3px rgba(139, 168, 136, 0.25);
+}
+.auth-check-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--terracotta);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.auth-check-link:hover { opacity: 0.82; }

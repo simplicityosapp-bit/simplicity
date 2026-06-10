@@ -162,17 +162,27 @@ export default function InsightsWidget() {
         </div>
       ) : (
         <div className="ins-slider-wrap">
-          <input
-            type="range"
-            min="1"
-            max="10"
-            step="1"
-            value={val ?? 5}
-            className="ins-slider"
-            aria-label={text}
-            onChange={(e) => setVal(parseInt(e.target.value, 10))}
-          />
-          <span className="ins-slider-val mono">{val ?? '—'}</span>
+          <div className="ins-slider-track">
+            <input
+              type="range"
+              min="1"
+              max="10"
+              step="1"
+              value={val ?? 5}
+              className="ins-slider"
+              aria-label={text}
+              onChange={(e) => setVal(parseInt(e.target.value, 10))}
+            />
+            {/* Value pill that rides above the thumb (RTL: value grows
+                right→left, so anchor from the right). 9px = half the 18px
+                thumb, keeping the pill centred over it at both ends. */}
+            <span
+              className="ins-slider-bubble mono"
+              style={{ right: `calc(${(((val ?? 5) - 1) / 9)} * (100% - 18px) + 9px)` }}
+            >
+              {val ?? '—'}
+            </span>
+          </div>
           <button type="button" className="ins-save-btn" disabled={busy || val == null} onClick={() => save(val)} aria-label="שמירת תשובה">
             <Check size={15} strokeWidth={2} aria-hidden="true" />
           </button>

@@ -180,6 +180,26 @@
   flex-shrink: 0;
 }
 
+/* Inline "clear" affordance for an optional field group (e.g. the fixed
+   meeting day+time) — a reachable path back to "none" on touch devices,
+   where a native time input can't be emptied. Understated muted text. */
+.m-clear-link {
+  display: inline-block;
+  margin: -6px 0 4px;
+  padding: 4px 2px;
+  background: none;
+  border: none;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+  cursor: pointer;
+}
+.m-clear-link:hover {
+  color: var(--clay);
+  text-decoration: underline;
+}
+
 /* Inline help text under a field — used for explaining linked-meeting
    mode in the RecurringModal and similar contextual hints. */
 .m-hint {

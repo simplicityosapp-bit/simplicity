@@ -151,6 +151,18 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
           <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
         </div>
       </div>
+      {/* A native time input can't be emptied on touch devices, so once a
+          fixed meeting is set by mistake there's no path back to "none".
+          This reachable clear resets the whole pair (day + time). */}
+      {(form.recurring_day !== '' || form.recurring_time !== '') && (
+        <button
+          type="button"
+          className="m-clear-link"
+          onClick={() => { set('recurring_day', ''); set('recurring_time', '') }}
+        >
+          ניקוי פגישה קבועה
+        </button>
+      )}
     </>
   )
 }

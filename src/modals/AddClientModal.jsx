@@ -42,7 +42,9 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
         total_override: null,
         has_custom_price: false,
         recurring_day: form.recurring_day !== '' ? Number(form.recurring_day) : null,
-        recurring_time: form.recurring_time || null,
+        /* A fixed meeting needs a day; with no day the time is inert — drop
+           it so a stray time can never persist a half-set meeting. */
+        recurring_time: form.recurring_day !== '' ? (form.recurring_time || null) : null,
         left_mid_process: false,
         phone: form.phone.trim() || null,
         notes: null,

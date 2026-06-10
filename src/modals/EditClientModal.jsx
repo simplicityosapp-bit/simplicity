@@ -100,8 +100,10 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         group_id: form.group_id || null,
         notes: form.notes.trim() || null,
         recurring_day: form.recurring_day !== '' ? Number(form.recurring_day) : null,
-        recurring_time: form.recurring_time || null,
-        recurring_end_time: form.recurring_end_time || null,
+        /* A fixed meeting needs a day; with no day the times are inert — drop
+           them so a stray time can never persist a half-set meeting. */
+        recurring_time: form.recurring_day !== '' ? (form.recurring_time || null) : null,
+        recurring_end_time: form.recurring_day !== '' ? (form.recurring_end_time || null) : null,
         recurring_start_date: form.recurring_start_date || null,
         recurring_end_date: form.recurring_end_date || null,
       }
@@ -302,6 +304,17 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
         </div>
       </div>
+      {/* Reachable clear — a native time input can't be emptied on touch, so
+          this is the only path back to "no fixed meeting". */}
+      {(form.recurring_day !== '' || form.recurring_time !== '' || form.recurring_end_time !== '') && (
+        <button
+          type="button"
+          className="m-clear-link"
+          onClick={() => { set('recurring_day', ''); set('recurring_time', ''); set('recurring_end_time', '') }}
+        >
+          ניקוי פגישה קבועה
+        </button>
+      )}
 
       <div className="m-field">
         <label className="m-label">הערות (אופציונלי)</label>

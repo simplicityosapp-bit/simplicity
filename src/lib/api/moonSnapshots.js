@@ -6,9 +6,14 @@
 
    Table has UNIQUE(user_id, date) — upsert by (user_id, date) to
    overwrite today's row when the score recalculates within a day.
+
+   `reflection` (the user's free-text daily note) is encrypted at rest
+   (see lib/fieldCrypto.js): encrypted on write, decrypted on read. The
+   score/paced/breakdown stay plaintext (they're the "usage" trend data).
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { encryptRow, decryptRow, decryptRows } from '../fieldCrypto'
 
 /* YYYY-MM-DD in local time (matches the DATE column semantics). */
 function localDateString(d = new Date()) {
@@ -45,11 +50,11 @@ export async function upsertMoonSnapshot({
   }
   const { data, error } = await supabase
     .from('moon_snapshots')
-    .upsert(row, { onConflict: 'user_id,date' })
+    .upsert(await encryptRow('moon_snapshots', row), { onConflict: 'user_id,date' })
     .select()
     .single()
   if (error) throw error
-  return data
+  return decryptRow('moon_snapshots', data)
 }
 
 /* Snapshots in a date range, ascending. Used by the trend chart. */
@@ -59,7 +64,7 @@ export async function getMoonSnapshotRange(fromDate, toDate) {
   if (toDate) q = q.lte('date', toDate)
   const { data, error } = await q
   if (error) throw error
-  return data
+  return decryptRows('moon_snapshots', data)
 }
 
 /* Last N days of snapshots (inclusive of today). */
@@ -78,7 +83,7 @@ export async function getMoonSnapshotForDate(date) {
     .eq('date', date)
     .maybeSingle()
   if (error) throw error
-  return data
+  return decryptRow('moon_snapshots', data)
 }
 
 export { localDateString as moonSnapshotLocalDate }

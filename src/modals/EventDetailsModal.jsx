@@ -100,7 +100,7 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
             })()}
             {isOwned
               ? 'אירוע שלך (נערך מתוך סימפליסיטי).'
-              : 'אירוע מ-Google Calendar — עריכה או מחיקה כאן יהפכו אותו לשלך, ולא יידרס בסנכרון.'}
+              : 'אירוע מ-Google Calendar — עריכה או מחיקה כאן ישפיעו עליו רק בתוך סימפליסיטי.'}
           </p>
           <div className="evt-detail-row">
             <div className="evt-detail-actions">

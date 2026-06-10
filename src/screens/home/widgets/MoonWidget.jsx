@@ -134,31 +134,21 @@ export default function MoonWidget() {
 
       {expanded && (
         <div className="moon-expanded">
-          {/* Pace + goal-% side by side (the ring still shows pace alone). */}
-          <MoonDualBars pace={conf} goal={pure} />
           <p className="moon-expanded-reflection">{moonReflection(conf)}</p>
           {scored.length === 0 ? (
             <p className="moon-expanded-empty">אין עדיין יעדים פעילים עם נתונים החודש.</p>
           ) : (
             <div className="moon-expanded-cats">
-              {scored.map((s) => {
-                const confidence = Math.min(100, s.paced)
-                return (
-                  <div key={s.goal.id} className="moon-expanded-cat">
-                    <div className="moon-expanded-cat-head">
-                      <span className="moon-expanded-cat-dot" style={{ background: s.cat.color || 'var(--sage)' }} />
-                      <span className="moon-expanded-cat-name">{s.goal.label || s.cat.name}</span>
-                      <span className="moon-expanded-cat-pct mono">{confidence}%</span>
-                    </div>
-                    <div className="moon-expanded-cat-bar">
-                      <div
-                        className="moon-expanded-cat-fill"
-                        style={{ width: `${confidence}%`, background: s.cat.color || 'var(--sage)' }}
-                      />
-                    </div>
+              {scored.map((s) => (
+                <div key={s.goal.id} className="moon-expanded-cat">
+                  <div className="moon-expanded-cat-head">
+                    <span className="moon-expanded-cat-dot" style={{ background: s.cat.color || 'var(--sage)' }} />
+                    <span className="moon-expanded-cat-name">{s.goal.label || s.cat.name}</span>
                   </div>
-                )
-              })}
+                  {/* Per-goal: pace + goal-% side by side (was a lone pace bar). */}
+                  <MoonDualBars pace={Math.min(100, s.paced)} goal={s.pure} />
+                </div>
+              ))}
             </div>
           )}
           <button type="button" className="moon-expanded-link" onClick={() => navigate(ROUTES.MOON_GLANCE)}>

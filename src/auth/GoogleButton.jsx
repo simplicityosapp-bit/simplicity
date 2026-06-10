@@ -13,9 +13,13 @@ function GoogleG() {
 }
 
 /* Shared "Sign in with Google" button. Needs the Google provider enabled in
-   Supabase (Auth → Providers) to actually complete. */
-export default function GoogleButton({ onError, label = 'התחברות עם Google' }) {
+   Supabase (Auth → Providers). `disabled` gates the button (signup consent);
+   `onBeforeAuth` runs just before the OAuth redirect (used to stash consent
+   so it can be written to user_metadata on return). */
+export default function GoogleButton({ onError, label = 'התחברות עם Google', disabled = false, onBeforeAuth }) {
   const click = async () => {
+    if (disabled) return
+    if (onBeforeAuth) onBeforeAuth()
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin },
@@ -23,7 +27,7 @@ export default function GoogleButton({ onError, label = 'התחברות עם Goo
     if (error && onError) onError(translateAuthError(error.message))
   }
   return (
-    <button type="button" className="auth-btn-google" onClick={click}>
+    <button type="button" className="auth-btn-google" onClick={click} disabled={disabled}>
       <GoogleG />
       <span>{label}</span>
     </button>

@@ -64,7 +64,7 @@ const STEP_LABELS: Record<string, string> = {
   finish: 'סיום',
 }
 
-type AuthUser = { id: string; email: string | null; created_at: string; last_sign_in_at: string | null }
+type AuthUser = { id: string; email: string | null; created_at: string; last_sign_in_at: string | null; marketing_consent: boolean }
 
 /* Page through auth.users with the admin API (max 1000/page) so no user
    is missed once the beta grows past a single page. */
@@ -82,6 +82,7 @@ async function fetchAllUsers(admin: ReturnType<typeof createClient>): Promise<Au
         email: u.email ?? null,
         created_at: u.created_at,
         last_sign_in_at: u.last_sign_in_at ?? null,
+        marketing_consent: u.user_metadata?.marketing_consent === true,
       })
     }
     if (batch.length < 1000) break
@@ -289,6 +290,7 @@ Deno.serve(async (req) => {
             feedback_count: fbById.get(u.id) ?? 0,
             subscriber_kind: kindById.get(u.id) ?? null,
             is_subscriber: !!kindById.get(u.id),
+            marketing_consent: u.marketing_consent,
           }
         })
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())

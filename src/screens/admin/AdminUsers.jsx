@@ -151,12 +151,13 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
             <th>שלב onboarding</th>
             <th>רפלקציות</th>
             <th>Sessions</th>
+            <th>שיווק</th>
             <th>פעיל לאחרונה</th>
             <th aria-label="הרחבה" style={{ width: 32 }}></th>
           </tr>
         </thead>
         <tbody>
-          {rows.length === 0 && <tr><td colSpan={8} className="muted">{emptyText}</td></tr>}
+          {rows.length === 0 && <tr><td colSpan={9} className="muted">{emptyText}</td></tr>}
           {rows.map((r) => (
             <UserRow
               key={r.id}
@@ -224,6 +225,7 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
         <td><span className={`admin-pill${r.onboarding_done ? ' done' : ''}`}>{r.onboarding_label}</span></td>
         <td className="num">{r.reflections}</td>
         <td className="num">{r.sessions}</td>
+        <td>{r.marketing_consent ? <Check size={15} strokeWidth={2.4} style={{ color: 'var(--sage)' }} aria-label="הסכים לשיווק" /> : <span className="muted">—</span>}</td>
         <td>{fmtLastActive(r.last_sign_in_at)}</td>
         <td>
           <ChevronDown size={16} strokeWidth={1.8}
@@ -233,7 +235,7 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
       </tr>
       {isOpen && (
         <tr className="admin-detail">
-          <td colSpan={8}>
+          <td colSpan={9}>
             <div className="admin-detail-grid">
               <div><div className="k">מנוי</div><div className="v">{r.subscriber_kind === 'regular' ? 'מנוי רגיל (תשלום)' : r.subscriber_kind === 'manual' ? 'מנוי ידני' : 'לא'}</div></div>
               <div><div className="k">שלב onboarding</div><div className="v">{r.onboarding_done ? r.onboarding_label : `נעצר ב: ${r.onboarding_label}`}</div></div>
@@ -242,6 +244,7 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
               <div><div className="k">Sessions</div><div className="v">{r.sessions}</div></div>
               <div><div className="k">נרשם</div><div className="v">{fmtDate(r.created_at)}</div></div>
               <div><div className="k">כניסה אחרונה</div><div className="v">{fmtLastActive(r.last_sign_in_at)}</div></div>
+              <div><div className="k">שיווק</div><div className="v">{r.marketing_consent ? 'הסכים' : 'לא'}</div></div>
             </div>
           </td>
         </tr>

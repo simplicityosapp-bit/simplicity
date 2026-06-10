@@ -39,7 +39,7 @@ const FAKE_SESSION = {
     // tree-shaken from production. Lets us verify the admin console locally.
     email: 'simplicity.os.app@gmail.com',
     app_metadata: { provider: 'mock' },
-    user_metadata: { full_name: 'מאמן/ת לדוגמה' },
+    user_metadata: { full_name: 'מאמן/ת לדוגמה', privacy_version: '1.0', dpa_version: '1.0', marketing_consent: true },
   },
 }
 
@@ -174,6 +174,7 @@ function adminFixtures() {
     reflections: Math.max(0, 14 - i * 2),
     sessions: Math.max(0, 30 - i * 3),
     feedback_count: i % 3 === 0 ? 1 : 0,
+    marketing_consent: i % 2 === 0,
     // Preview seed: user 0 = real (paid) subscriber, user 1 = manual.
     _paid: i === 0,
     _manual: i === 1,

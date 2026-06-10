@@ -35,7 +35,8 @@ import {
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { addressUser } from '../../lib/address'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
-import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV } from '../../lib/export'
+import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV, exportAllXLSX } from '../../lib/export'
+import ExportDataModal from '../../modals/ExportDataModal'
 import { defaultOnboarding } from '../../lib/preferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
 import QuestionScheduleEditor from './QuestionScheduleEditor'
@@ -555,6 +556,7 @@ export default function SettingsScreen() {
   const { tasks: dataTasks } = useTasks()
   const { leads: dataLeads, refetch: refetchLeads } = useLeads()
   const [pendingDelete, setPendingDelete] = useState(null)  /* { kind, status, peers } | null */
+  const [showExport, setShowExport] = useState(false)
   /* Captures which leads/clients a sub-status delete reassigned, so undo
      can move exactly those rows back (see handleSubStatusReassign/Delete). */
   const reassignRef = useRef(null)
@@ -782,7 +784,7 @@ export default function SettingsScreen() {
     }
     if (key === 'data') {
       const txAll = (dataTransactions || []).filter((t) => !t.deleted_at)
-      const exportAll = () => exportTransactionsCSV({
+      const exportTransactions = () => exportTransactionsCSV({
         transactions: txAll,
         clients: dataClients,
         projects: dataProjects,
@@ -791,6 +793,15 @@ export default function SettingsScreen() {
       })
       const exportClients = () => exportClientsCSV({ clients: dataClients, projects: dataProjects, now: new Date() })
       const exportProjects = () => exportProjectsCSV({ projects: dataProjects, now: new Date() })
+      const exportEverything = () => exportAllXLSX({
+        transactions: txAll,
+        clients: dataClients,
+        projects: dataProjects,
+        categories: dataCategories,
+        leads: dataLeads,
+        tasks: dataTasks,
+        now: new Date(),
+      })
       const counts = [
         { l: 'לקוחות', n: dataClients?.length || 0 },
         { l: 'תנועות', n: txAll.length },
@@ -813,39 +824,26 @@ export default function SettingsScreen() {
           <button
             type="button"
             className="set-data-action"
-            onClick={exportAll}
-            disabled={txAll.length === 0}
+            onClick={() => setShowExport(true)}
           >
             <Download size={15} strokeWidth={1.7} aria-hidden="true" />
-            ייצוא תנועות לקובץ CSV
+            ייצוא נתונים
           </button>
           <p className="set-data-hint">
-            הקובץ כולל את כל התנועות (כולל ממתינות ודולגו) עם עמודות תאריך, סוג, סכום, תיאור, סטטוס, לקוח, פרויקט, קטגוריה.
+            חלון אחד לכל הייצואים: כל הנתונים יחד לקובץ Excel (גיליון לכל סוג), או ייצוא בודד של תנועות / לקוחות / פרויקטים ל-CSV.
           </p>
 
-          <button
-            type="button"
-            className="set-data-action"
-            onClick={exportClients}
-            disabled={(dataClients?.length || 0) === 0}
-            style={{ marginTop: 10 }}
-          >
-            <Download size={15} strokeWidth={1.7} aria-hidden="true" />
-            ייצוא לקוחות לקובץ CSV
-          </button>
-          <button
-            type="button"
-            className="set-data-action"
-            onClick={exportProjects}
-            disabled={(dataProjects?.length || 0) === 0}
-            style={{ marginTop: 10 }}
-          >
-            <Download size={15} strokeWidth={1.7} aria-hidden="true" />
-            ייצוא פרויקטים לקובץ CSV
-          </button>
-          <p className="set-data-hint">
-            קבצי הלקוחות והפרויקטים נשמרים בפורמט שניתן לייבא בחזרה (אותן כותרות שהמערכת מזהה).
-          </p>
+          <ExportDataModal
+            open={showExport}
+            onClose={() => setShowExport(false)}
+            onExportAll={exportEverything}
+            onExportTransactions={exportTransactions}
+            onExportClients={exportClients}
+            onExportProjects={exportProjects}
+            hasTransactions={txAll.length > 0}
+            hasClients={(dataClients?.length || 0) > 0}
+            hasProjects={(dataProjects?.length || 0) > 0}
+          />
 
           <input
             ref={importFileRef}

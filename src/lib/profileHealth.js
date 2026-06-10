@@ -36,9 +36,12 @@ export function healthTier(score) {
 /* Live rows only (drop soft-deleted). */
 const live = (arr) => (Array.isArray(arr) ? arr.filter((r) => r && !r.deleted_at) : [])
 
-/* A client counts as "missing a price" when there's no per-session
-   price, no whole-package override, and no explicit custom-price flag —
-   i.e. nothing tells us what this client is worth. */
+/* A client counts as "missing a private price" when there's no per-session
+   price, no whole-package override, and no explicit custom-price flag.
+   This is only half the picture — a client priced through a GROUP carries
+   no private price by design (their dues come from the group's billing),
+   so the caller also excludes group members before flagging (see
+   isGroupPriced + analytics-formulas §4.1: total = membership + private). */
 const missingPrice = (c) =>
   !(Number(c.price_per_session) > 0) && c.total_override == null && !c.has_custom_price
 
@@ -90,8 +93,17 @@ export function computeProfileHealth(data = {}, today = new Date()) {
   const questions = live(data.questions).filter((q) => q.active !== false)
   const answers = data.answers
 
+  /* A client priced through a group (a live group_members row, or the
+     legacy clients.group_id mirror — the same union project-detail uses)
+     has no private price by design, so it must NOT count as "missing a
+     price". Their worth comes from the group's billing (analytics §4.1). */
+  const groupedClientIds = new Set(
+    live(data.members).filter((m) => m.group_id && !m.left_at).map((m) => m.client_id),
+  )
+  const isGroupPriced = (c) => !!c.group_id || groupedClientIds.has(c.id)
+
   const priceable = clients.filter((c) => PRICEABLE_STATUSES.has(statusMetaOf(c)))
-  const unpriced = priceable.filter(missingPrice).length
+  const unpriced = priceable.filter((c) => missingPrice(c) && !isGroupPriced(c)).length
 
   const SETTINGS_PROFILE = { route: ROUTES.SETTINGS, state: { openSection: 'profile' } }
 

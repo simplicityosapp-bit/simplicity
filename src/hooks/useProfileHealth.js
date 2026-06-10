@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useUserPreferences } from './useUserPreferences'
 import { useClients } from './useClients'
+import { useGroupMembers } from './useGroupMembers'
 import { useProjects } from './useProjects'
 import { useTransactions } from './useTransactions'
 import { useRecurring } from './useRecurring'
@@ -22,6 +23,7 @@ import { computeProfileHealth } from '../lib/profileHealth'
 export function useProfileHealth() {
   const { prefs, loading: prefsLoading } = useUserPreferences()
   const { clients, loading: lClients } = useClients()
+  const { members, loading: lMembers } = useGroupMembers()
   const { projects, loading: lProjects } = useProjects()
   const { transactions, loading: lTx } = useTransactions()
   const { templates: recurring, loading: lRecurring } = useRecurring()
@@ -33,16 +35,16 @@ export function useProfileHealth() {
   const { answers, loading: lAnswers } = useDailyAnswers()
 
   const loading =
-    prefsLoading || lClients || lProjects || lTx || lRecurring ||
+    prefsLoading || lClients || lMembers || lProjects || lTx || lRecurring ||
     lTasks || lReminders || lLeads || lGoals || lQuestions || lAnswers
 
   const health = useMemo(
     () => computeProfileHealth({
       profile: prefs?.profile,
-      clients, projects, transactions, recurring,
+      clients, members, projects, transactions, recurring,
       tasks, reminders, leads, goals, questions, answers,
     }),
-    [prefs?.profile, clients, projects, transactions, recurring, tasks, reminders, leads, goals, questions, answers],
+    [prefs?.profile, clients, members, projects, transactions, recurring, tasks, reminders, leads, goals, questions, answers],
   )
 
   return { health, loading }

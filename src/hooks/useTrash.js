@@ -44,6 +44,20 @@ export const TRASH_ENTITY_TYPES = [
 
 const EMPTY = Object.fromEntries(TRASH_ENTITY_TYPES.map((k) => [k, []]))
 
+/* Build the trash map from allSettled results: keep every entity that loaded,
+   blank the ones that failed, and surface the first failure — so one broken
+   lister can't blank the entire drawer (Promise.all used to reject the lot). */
+function settleTrash(results) {
+  const next = {}
+  let firstErr = null
+  TRASH_ENTITY_TYPES.forEach((k, i) => {
+    const r = results[i]
+    if (r.status === 'fulfilled') next[k] = r.value || []
+    else { next[k] = []; firstErr = firstErr || (r.reason?.message ?? 'load failed') }
+  })
+  return { next, firstErr }
+}
+
 const LISTERS = {
   clients: listDeletedClients,
   projects: listDeletedProjects,
@@ -95,33 +109,22 @@ export function useTrash() {
   const refetch = useCallback(async () => {
     setLoading(true)
     setError(null)
-    try {
-      const results = await Promise.all(TRASH_ENTITY_TYPES.map((k) => LISTERS[k]()))
-      const next = {}
-      TRASH_ENTITY_TYPES.forEach((k, i) => { next[k] = results[i] || [] })
-      setTrash(next)
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
+    const results = await Promise.allSettled(TRASH_ENTITY_TYPES.map((k) => LISTERS[k]()))
+    const { next, firstErr } = settleTrash(results)
+    setTrash(next)
+    setError(firstErr)
+    setLoading(false)
   }, [])
 
   useEffect(() => {
     let active = true
     ;(async () => {
-      try {
-        const results = await Promise.all(TRASH_ENTITY_TYPES.map((k) => LISTERS[k]()))
-        if (!active) return
-        const next = {}
-        TRASH_ENTITY_TYPES.forEach((k, i) => { next[k] = results[i] || [] })
-        setTrash(next)
-        setError(null)
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
+      const results = await Promise.allSettled(TRASH_ENTITY_TYPES.map((k) => LISTERS[k]()))
+      if (!active) return
+      const { next, firstErr } = settleTrash(results)
+      setTrash(next)
+      setError(firstErr)
+      setLoading(false)
     })()
     return () => { active = false }
   }, [])

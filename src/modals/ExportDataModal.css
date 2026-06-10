@@ -1,0 +1,65 @@
+/* Opt-in "sensitive data" category picker inside the export modal. Mirrors the
+   calendar filter's checkbox rows; terracotta accent, divider between rows. */
+.export-sens {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+}
+.export-sens-h {
+  margin: 0 0 2px;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+  font-weight: 600;
+}
+.export-sens-sub {
+  margin: 0 0 4px;
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  line-height: 1.5;
+}
+.export-cats {
+  display: flex;
+  flex-direction: column;
+}
+.export-cat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 2px;
+  cursor: pointer;
+}
+.export-cat + .export-cat {
+  border-top: 1px solid var(--divider);
+}
+.export-cat-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+}
+.export-cat-sub {
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+.export-cat-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--terracotta);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.export-cat input:disabled,
+.export-cat.is-disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.export-err {
+  margin: 10px 0 0;
+  font-size: calc(12px * var(--text-scale));
+  color: var(--clay);
+  text-align: center;
+}

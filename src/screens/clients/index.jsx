@@ -124,7 +124,7 @@ export default function ClientsScreen() {
   const bulkMetaSide = usePopoverSide(bulkMetaAnchorRef, bulkMetaOpen)
   const openClient = openId ? clientList.find((c) => c.id === openId) : null
 
-  const sort = useMemo(() => ({ ...DEFAULT_SORT, ...(prefs?.clientsSort || {}) }), [prefs])
+  const sort = useMemo(() => ({ ...DEFAULT_SORT, ...(prefs?.clientsSort || {}) }), [prefs?.clientsSort])
 
   const byMeta = useMemo(() => {
     const g = { active: [], wandering: [], past: [], no_status: [] }

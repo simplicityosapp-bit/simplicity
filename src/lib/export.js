@@ -10,6 +10,9 @@
    הערות / צבע), so an export can be re-imported cleanly (round-trip).
    ════════════════════════════════════════════════════════════════ */
 
+import { isEncrypted } from './crypto'
+import { questionText } from './questionTemplates'
+
 const TYPE_HE = { income: 'הכנסה', expense: 'הוצאה' }
 const STATUS_HE = { confirmed: 'אושרה', pending: 'ממתינה', skipped: 'דולגה' }
 /* status_meta → Hebrew the importer's STATUS_MAP can read back. */
@@ -110,12 +113,28 @@ export function exportProjectsCSV({ projects, now }) {
 const LEAD_META_HE = { in_process: 'בתהליך', converted: 'הומר', irrelevant: 'לא רלוונטי', ghost: 'רפאים' }
 const TASK_STATUS_HE = { todo: 'לביצוע', in_progress: 'בתהליך', done: 'הושלמה' }
 const PRIORITY_HE = { high: 'גבוהה', normal: 'רגילה', low: 'נמוכה' }
+const TIMEFRAME_HE = { deadline: 'דדליין', monthly: 'חודשי', weekly: 'שבועי' }
+
+/* id → row map, for resolving foreign keys to readable names in export sheets. */
+function mapById(arr) {
+  const m = new Map()
+  for (const r of arr || []) m.set(r.id, r)
+  return m
+}
+
+/* Encrypted fields arrive already-decrypted from the api layer; if decryption
+   failed the value is still an "ENC:" blob (lib/crypto.js returns the raw value
+   on failure, never throws). Never write that to the file — show a marker. */
+function decOrFlag(v) {
+  if (isEncrypted(v)) return '(לא ניתן לפענח)'
+  return v == null ? '' : String(v)
+}
 
 /* FULL EXPORT — everything in ONE file: a multi-sheet Excel workbook with a
    sheet per entity (transactions, clients, projects, leads, tasks,
    categories). Uses SheetJS (already a dependency, dynamically imported for
    the same reason the importer does — keeps it out of the main bundle). */
-export async function exportAllXLSX({ transactions, clients, projects, categories, leads, tasks, now }) {
+export async function exportAllXLSX({ transactions, clients, projects, categories, leads, tasks, now, sensitive }) {
   const XLSX = await import('xlsx')
   const wb = XLSX.utils.book_new()
   const addSheet = (name, headers, rows) => {
@@ -159,6 +178,78 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
   addSheet('קטגוריות',
     ['שם', 'צבע'],
     (categories || []).filter((c) => !c.deleted_at).map((c) => [c.name || '', c.color || '']))
+
+  /* ── Sensitive categories (opt-in; present only for the boxes the user
+     checked). Data arrives already-decrypted via the api layer; decOrFlag
+     guards any field that failed to decrypt so a raw ENC: blob never reaches
+     the file. Existing sheets above are untouched. */
+  if (sensitive) {
+    const clientsById = mapById(clients)
+    const groupsById = mapById(sensitive.groups)
+    const goalCatsById = mapById(sensitive.goalCategories)
+    const projectsById = mapById(projects)
+    const questionsById = mapById(sensitive.questions)
+
+    if (sensitive.sessions) {
+      addSheet('פגישות',
+        ['תאריך', 'נושא', 'מס׳ פגישה', 'הערות', 'סיכום'],
+        sensitive.sessions.filter((s) => !s.deleted_at).map((s) => [
+          fmtDate(s.date),
+          s.group_id ? (groupsById.get(s.group_id)?.name || 'קבוצה') : (clientsById.get(s.client_id)?.name || ''),
+          s.num != null ? String(s.num) : '',
+          decOrFlag(s.notes),
+          decOrFlag(s.summary),
+        ]))
+    }
+
+    if (sensitive.goals) {
+      addSheet('יעדים',
+        ['יעד', 'קטגוריה', 'מסגרת זמן', 'יעד מספרי', 'תאריך יעד', 'חשיבות', 'פרויקט'],
+        sensitive.goals.filter((g) => !g.deleted_at).map((g) => [
+          g.label || '',
+          goalCatsById.get(g.category_id)?.name || '',
+          TIMEFRAME_HE[g.time_frame] || g.time_frame || '',
+          g.target_value != null ? String(g.target_value) : '',
+          fmtDate(g.target_date),
+          g.importance != null ? String(g.importance) : '',
+          projectsById.get(g.project_id)?.name || '',
+        ]))
+    }
+
+    if (sensitive.goalEntries) {
+      addSheet('רישומי יעדים',
+        ['תאריך', 'קטגוריה', 'ערך', 'הערה', 'פרויקט'],
+        sensitive.goalEntries.filter((e) => !e.deleted_at).map((e) => [
+          fmtDate(e.date),
+          goalCatsById.get(e.category_id)?.name || '',
+          e.value != null ? String(e.value) : '',
+          e.note || '',
+          projectsById.get(e.project_id)?.name || '',
+        ]))
+    }
+
+    if (sensitive.dailyAnswers) {
+      addSheet('תשובות יומיות',
+        ['תאריך', 'שאלה', 'תשובה', 'הערה'],
+        sensitive.dailyAnswers.filter((a) => !a.deleted_at).map((a) => {
+          const q = questionsById.get(a.user_question_id)
+          return [
+            fmtDate(a.date),
+            q ? questionText(q, sensitive.gender) : '',
+            a.value_num != null ? String(a.value_num) : (a.value_text || ''),
+            a.note || '',
+          ]
+        }))
+    }
+
+    if (sensitive.moonSnapshots) {
+      addSheet('רפלקציות',
+        ['תאריך', 'רפלקציה', 'ציון'],
+        sensitive.moonSnapshots
+          .filter((m) => m.reflection != null && m.reflection !== '')
+          .map((m) => [fmtDate(m.date), decOrFlag(m.reflection), m.score != null ? String(m.score) : '']))
+    }
+  }
 
   const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
   const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })

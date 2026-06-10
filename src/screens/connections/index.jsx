@@ -114,6 +114,8 @@ export default function ConnectionsScreen() {
   const [confirmDisc, setConfirmDisc] = useState(false)
   const [syncMsg, setSyncMsg] = useState('')
   const discTimer = useRef(0)
+  /* Clear the 2-step-confirm auto-disarm timer if we unmount mid-confirm. */
+  useEffect(() => () => window.clearTimeout(discTimer.current), [])
   const connecting = gcal.busy && !!params.get('code')
 
   const onSync = async () => {

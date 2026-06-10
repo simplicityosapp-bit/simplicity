@@ -198,7 +198,7 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
 }
 
 export default function InsightsScreen() {
-  const { questions, addQuestion: _add, updateQuestion, toggleActive } = useUserQuestions()
+  const { questions, loading: questionsLoading, error: questionsError, addQuestion: _add, updateQuestion, toggleActive } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [drafts, setDrafts] = useState({}) /* qId → slider draft */
@@ -313,7 +313,11 @@ export default function InsightsScreen() {
       )}
 
       {/* Per-question cards */}
-      {visible.length === 0 ? (
+      {questionsLoading ? (
+        <div className="empty"><p className="empty-text">טוען…</p></div>
+      ) : questionsError ? (
+        <div className="empty"><p className="empty-text">שגיאה בטעינת השאלות. אפשר לנסות לרענן.</p></div>
+      ) : visible.length === 0 ? (
         <div className="empty">
           <p className="empty-text">עדיין אין שאלות יומיות. אפשר להוסיף בהגדרות.</p>
         </div>

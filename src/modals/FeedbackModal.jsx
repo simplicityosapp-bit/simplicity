@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Send, Loader2, CheckCircle2 } from 'lucide-react'
 import Modal from './Modal'
 import { useFeedback } from '../hooks/useFeedback'
@@ -25,6 +25,11 @@ export default function FeedbackModal({ open, onClose }) {
   const [type, setType] = useState(null)
   const [done, setDone] = useState(false)
   const [failed, setFailed] = useState(false)
+  const closeTimer = useRef(null)
+
+  /* Clear the success auto-close timer if the modal unmounts within the 1.6s
+     window, so reset()/onClose() never fire on an unmounted component. */
+  useEffect(() => () => clearTimeout(closeTimer.current), [])
 
   const reset = () => { setMessage(''); setType(null); setDone(false); setFailed(false) }
 
@@ -40,7 +45,7 @@ export default function FeedbackModal({ open, onClose }) {
     const res = await submitFeedback(message, type)
     if (res.ok) {
       setDone(true)
-      setTimeout(() => { reset(); onClose() }, 1600)
+      closeTimer.current = setTimeout(() => { reset(); onClose() }, 1600)
     } else {
       setFailed(true)
     }

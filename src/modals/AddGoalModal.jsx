@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
+import ScheduleDayPicker from '../components/ScheduleDayPicker'
 import { questionText } from '../lib/questionTemplates'
-import { scheduledOccurrences } from '../lib/goals'
+import { scheduledOccurrences, buildSchedulePattern } from '../lib/goals'
 import { CATEGORY_PRESETS } from '../lib/goalPresets'
 import { useAddress } from '../hooks/useAddress'
 
@@ -13,6 +14,14 @@ const TIME_FRAMES = [
   { k: 'deadline', l: 'עד תאריך' },
 ]
 const IMPORTANCE = [1, 2, 3, 4, 5]
+/* Inline daily-question creation (mirrors onboarding Step 6) — write your own
+   question instead of only picking an existing one, choose slider / yes-no,
+   and set when it's asked. */
+const SCALES = [
+  { k: '1-10', l: 'סולם 1–10' },
+  { k: 'yes_no', l: 'כן / לא' },
+]
+const QUESTION_ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 
 /* The metric is chosen here, not managed on the Goals screen: the system's
    auto-measured presets + one generic "אחר — עדכון ידני" (manual). The parent
@@ -31,12 +40,20 @@ const blank = () => ({
   group_id: '',
   tracking_method: 'manual',
   tracked_by_question_id: '',
+  /* Daily-question authoring (used when tracking = daily_question). */
+  question_mode: 'existing',   /* 'existing' = pick one · 'new' = write one */
+  question_text: '',
+  question_scale: '1-10',
+  question_icon: QUESTION_ICONS[0],
+  sched_mode: 'every_day',
+  sched_days: [0, 1, 2, 3, 4, 5, 6],
+  sched_x: 2,
 })
 
 /* onSave is async — it resolves metric_key to a category, then inserts the
    goal. For the manual metric ("אחר") the user picks a tracking method: manual
    entries, or linked to a daily question (yes/no or slider). */
-export default function AddGoalModal({ open, onClose, onSave, projects = [], groups = [], questions = [] }) {
+export default function AddGoalModal({ open, onClose, onSave, projects = [], groups = [], questions = [], onAddQuestion }) {
   const { addr, tryAgain } = useAddress()
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
@@ -48,27 +65,55 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
   const isManual = selectedMetric?.measurement_type === 'manual'
   const byQuestion = isManual && form.tracking_method === 'daily_question'
   const activeQuestions = questions.filter((q) => q.active)
+  const hasActiveQ = activeQuestions.length > 0
+  /* Authoring path: with no active question to pick, force "new"; otherwise
+     honour the toggle. Inline creation needs the parent's onAddQuestion. */
+  const canCreateQuestion = !!onAddQuestion
+  const qMode = byQuestion ? (hasActiveQ && canCreateQuestion ? form.question_mode : (canCreateQuestion ? 'new' : 'existing')) : null
+  const creatingQuestion = byQuestion && qMode === 'new'
 
-  /* When the goal tracks a yes/no question, that question's own schedule
-     caps the target — you can't aim to say "yes" more times than it's
-     asked. Sliders accumulate freely, so no cap. */
+  /* When the goal tracks a yes/no question, the question's schedule caps the
+     target — you can't aim to say "yes" more times than it's asked. Sliders
+     accumulate freely, so no cap. This handles BOTH a picked question (its
+     stored schedule) and a brand-new one (the schedule being authored here). */
   const selectedQuestion = questions.find((q) => q.id === form.tracked_by_question_id)
-  const isYesNo = byQuestion && selectedQuestion?.scale_type === 'yes_no'
-  const maxOccurrences = isYesNo
-    ? scheduledOccurrences(selectedQuestion.schedule_pattern, form.time_frame, form.target_date)
+  const newSchedPattern = creatingQuestion ? buildSchedulePattern(form.sched_mode, form.sched_days, form.sched_x) : null
+  const noDays = creatingQuestion && form.sched_mode === 'days_of_week' && form.sched_days.length === 0
+  const effIsYesNo = creatingQuestion
+    ? form.question_scale === 'yes_no'
+    : (byQuestion && selectedQuestion?.scale_type === 'yes_no')
+  const effPattern = creatingQuestion ? newSchedPattern : selectedQuestion?.schedule_pattern
+  const maxOccurrences = effIsYesNo
+    ? scheduledOccurrences(effPattern, form.time_frame, form.target_date)
     : null
-  const overMax = isYesNo && parseFloat(form.target_value) > maxOccurrences
+  const overMax = effIsYesNo && parseFloat(form.target_value) > maxOccurrences
 
   const submit = async () => {
     if (!form.metric_key) { setErr('יש לבחור מדד.'); return }
     const target = parseFloat(form.target_value)
     if (!target || target <= 0) { setErr('יש למלא יעד מספרי חיובי.'); return }
     if (form.time_frame === 'deadline' && !form.target_date) { setErr('יש לבחור תאריך יעד.'); return }
-    if (byQuestion && !form.tracked_by_question_id) { setErr('יש לבחור שאלה יומית.'); return }
+    if (byQuestion && creatingQuestion && !form.question_text.trim()) { setErr(addr({ male: 'נסח את השאלה היומית.', female: 'נסחי את השאלה היומית.', neutral: 'נסח/י את השאלה היומית.' })); return }
+    if (byQuestion && creatingQuestion && noDays) { setErr(addr({ male: 'בחר לפחות יום אחד.', female: 'בחרי לפחות יום אחד.', neutral: 'בחר/י לפחות יום אחד.' })); return }
+    if (byQuestion && !creatingQuestion && !form.tracked_by_question_id) { setErr('יש לבחור שאלה יומית.'); return }
     if (overMax) { setErr(`היעד גבוה ממספר הימים שהשאלה מופיעה (${maxOccurrences}).`); return }
     setBusy(true)
     setErr('')
     try {
+      /* Create the brand-new daily question first, then link the goal to it.
+         Slider and yes/no both carry the chosen schedule (every-day = {}). */
+      let questionId = form.tracked_by_question_id
+      if (byQuestion && creatingQuestion) {
+        const q = await onAddQuestion({
+          template_key: null,
+          custom_text: form.question_text.trim(),
+          scale_type: form.question_scale,
+          icon: form.question_icon,
+          active: true,
+          schedule_pattern: newSchedPattern || {},
+        })
+        questionId = q.id
+      }
       await onSave({
         metric_key: form.metric_key,
         parent_goal_id: null,
@@ -80,7 +125,7 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
         target_date: form.time_frame === 'deadline' ? form.target_date : null,
         importance: Number(form.importance),
         tracking_method: byQuestion ? 'daily_question' : 'manual',
-        tracked_by_question_id: byQuestion ? form.tracked_by_question_id : null,
+        tracked_by_question_id: byQuestion ? questionId : null,
         measurement_type: null,
         data_source: null,
         manual_input_type: null,
@@ -170,15 +215,63 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
       {byQuestion && (
         <div className="m-field">
           <label className="m-label">שאלה יומית</label>
-          {activeQuestions.length ? (
-            <select className="m-select" value={form.tracked_by_question_id} onChange={(e) => { set('tracked_by_question_id', e.target.value); if (err) setErr('') }}>
-              <option value="">{addr({ male: 'בחר שאלה', female: 'בחרי שאלה', neutral: 'בחר/י שאלה' })}</option>
-              {activeQuestions.map((q) => <option key={q.id} value={q.id}>{q.icon ? q.icon + ' ' : ''}{questionText(q)}</option>)}
-            </select>
-          ) : (
-            <p className="m-error">אין שאלות יומיות פעילות — {addr({ male: 'הוסף שאלה בהגדרות', female: 'הוסיפי שאלה בהגדרות', neutral: 'הוסף/י שאלה בהגדרות' })}.</p>
+
+          {/* Pick an existing question, or write a brand-new one inline. The
+              toggle only shows when there's an existing question to pick AND
+              the parent wired inline creation. */}
+          {hasActiveQ && canCreateQuestion && (
+            <div className="m-pills" style={{ marginBottom: 8 }}>
+              <button type="button" className={`m-pill${qMode === 'existing' ? ' on' : ''}`} onClick={() => { set('question_mode', 'existing'); if (err) setErr('') }}>בחירת שאלה קיימת</button>
+              <button type="button" className={`m-pill${qMode === 'new' ? ' on' : ''}`} onClick={() => { set('question_mode', 'new'); if (err) setErr('') }}>שאלה חדשה</button>
+            </div>
           )}
-          {isYesNo && (
+
+          {qMode === 'existing' ? (
+            hasActiveQ ? (
+              <select className="m-select" value={form.tracked_by_question_id} onChange={(e) => { set('tracked_by_question_id', e.target.value); if (err) setErr('') }}>
+                <option value="">{addr({ male: 'בחר שאלה', female: 'בחרי שאלה', neutral: 'בחר/י שאלה' })}</option>
+                {activeQuestions.map((q) => <option key={q.id} value={q.id}>{q.icon ? q.icon + ' ' : ''}{questionText(q)}</option>)}
+              </select>
+            ) : (
+              <p className="m-error">אין שאלות יומיות פעילות — {addr({ male: 'הוסף שאלה בהגדרות', female: 'הוסיפי שאלה בהגדרות', neutral: 'הוסף/י שאלה בהגדרות' })}.</p>
+            )
+          ) : (
+            <>
+              <input
+                className="m-input"
+                value={form.question_text}
+                onChange={(e) => { set('question_text', e.target.value); if (err) setErr('') }}
+                placeholder={form.question_scale === 'yes_no' ? 'לדוגמה: למדת היום?' : 'לדוגמה: כמה זמן למדת היום?'}
+              />
+              <div style={{ marginTop: 8 }}>
+                <label className="m-label">סוג תשובה</label>
+                <div className="m-pills">
+                  {SCALES.map((s) => (
+                    <button key={s.k} type="button" className={`m-pill${form.question_scale === s.k ? ' on' : ''}`} onClick={() => set('question_scale', s.k)}>{s.l}</button>
+                  ))}
+                </div>
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <label className="m-label">אייקון</label>
+                <div className="m-pills">
+                  {QUESTION_ICONS.map((ic) => (
+                    <button key={ic} type="button" className={`m-pill${form.question_icon === ic ? ' on' : ''}`} onClick={() => set('question_icon', ic)} aria-label={`אייקון ${ic}`}>{ic}</button>
+                  ))}
+                </div>
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <label className="m-label">מתי להישאל?</label>
+                <ScheduleDayPicker
+                  mode={form.sched_mode}
+                  days={form.sched_days}
+                  x={form.sched_x}
+                  onChange={({ mode, days, x }) => { set('sched_mode', mode); set('sched_days', days); set('sched_x', x) }}
+                />
+              </div>
+            </>
+          )}
+
+          {effIsYesNo && (
             overMax ? (
               <p className="m-sched-warn">
                 <AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" />

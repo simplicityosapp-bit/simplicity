@@ -22,6 +22,8 @@ import FeedbackModal from './modals/FeedbackModal'
 import UndoToast from './components/UndoToast'
 import Toast from './components/Toast'
 import AccountDeletionPending from './components/AccountDeletionPending'
+import { CryptoProvider, useCrypto } from './context/CryptoContext'
+import EncryptionMigrator from './components/EncryptionMigrator'
 
 /* Screens are code-split: each becomes its own chunk loaded on first
    navigation, so the initial bundle is just the shell + the first screen
@@ -230,15 +232,43 @@ function urlHasOAuthCallback() {
   )
 }
 
+/* Holds the app behind the field-encryption key. It derives from the user id
+   in a few ms; until it's ready we show the splash so no screen reads
+   ciphertext or writes plaintext. See docs/ENCRYPTION_PLAN.md. */
+function CryptoGate({ children }) {
+  const { isReady, error, retry } = useCrypto()
+  if (error) {
+    return (
+      <div className="app" data-screen="crypto-error">
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 24, textAlign: 'center' }}>
+          <p style={{ maxWidth: 360, lineHeight: 1.7, margin: 0 }}>
+            {error === 'secure-context'
+              ? 'לא ניתן להפעיל הצפנה בחיבור הזה. ודא/י שאת/ה בכתובת מאובטחת (https) ונסה/י שוב.'
+              : 'אירעה שגיאה בהפעלת ההצפנה. נסה/י שוב, ואם זה חוזר — רענן/י את הדף.'}
+          </p>
+          <button type="button" onClick={retry}>נסה/י שוב</button>
+        </div>
+      </div>
+    )
+  }
+  if (!isReady) return <LoadingSplash />
+  return children
+}
+
 function Root() {
   const { session, loading } = useAuth()
   if (loading || (!session && urlHasOAuthCallback())) {
     return <LoadingSplash />
   }
   return session ? (
-    <UserPreferencesProvider>
-      <AppShell />
-    </UserPreferencesProvider>
+    <CryptoProvider>
+      <CryptoGate>
+        <UserPreferencesProvider>
+          <EncryptionMigrator />
+          <AppShell />
+        </UserPreferencesProvider>
+      </CryptoGate>
+    </CryptoProvider>
   ) : <AuthGate />
 }
 

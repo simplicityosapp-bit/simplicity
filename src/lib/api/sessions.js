@@ -3,9 +3,14 @@
    ════════════════════════════════════════════════════════════════
    Client-only for now (groups aren't migrated). subject_type/subject_id
    mirror client_id, consistent with scheduled_meetings.
+
+   `notes` + `summary` are encrypted at rest (see lib/fieldCrypto.js): every
+   write encrypts them before they reach Supabase, every read decrypts them,
+   so callers only ever handle plaintext.
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { encryptRow, decryptRow, decryptRows } from '../fieldCrypto'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -21,7 +26,7 @@ export async function listSessions() {
     .is('deleted_at', null)
     .order('date', { ascending: false })
   if (error) throw error
-  return data
+  return decryptRows('sessions', data)
 }
 
 export async function insertSession(input) {
@@ -29,15 +34,15 @@ export async function insertSession(input) {
   if (!session) throw new Error('אין חיבור פעיל — התחבר/י מחדש')
   const row = sanitize(input)
   row.user_id = session.user.id
-  const { data, error } = await supabase.from('sessions').insert(row).select().single()
+  const { data, error } = await supabase.from('sessions').insert(await encryptRow('sessions', row)).select().single()
   if (error) throw error
-  return data
+  return decryptRow('sessions', data)
 }
 
 export async function updateSession(id, patch) {
-  const { data, error } = await supabase.from('sessions').update(sanitize(patch)).eq('id', id).select().single()
+  const { data, error } = await supabase.from('sessions').update(await encryptRow('sessions', sanitize(patch))).eq('id', id).select().single()
   if (error) throw error
-  return data
+  return decryptRow('sessions', data)
 }
 
 export async function removeSession(id) {
@@ -55,7 +60,7 @@ export async function listDeletedSessions() {
     .gte('deleted_at', thirtyDaysAgo.toISOString())
     .order('deleted_at', { ascending: false })
   if (error) throw error
-  return data
+  return decryptRows('sessions', data)
 }
 
 export async function restoreSession(id) {
@@ -66,5 +71,5 @@ export async function restoreSession(id) {
     .select()
     .single()
   if (error) throw error
-  return data
+  return decryptRow('sessions', data)
 }

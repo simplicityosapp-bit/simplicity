@@ -22,6 +22,9 @@ export default function UserPreferencesProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const prefsRef = useRef(null)
+  /* Serializes DB writes so an earlier write finishing last can't overwrite a
+     later merge (lost-update race when two update()s land near-simultaneously). */
+  const writeChain = useRef(Promise.resolve())
 
   useEffect(() => {
     let active = true
@@ -57,17 +60,23 @@ export default function UserPreferencesProvider({ children }) {
     const next = typeof patch === 'function' ? patch(cur) : deepMerge(cur, patch)
     prefsRef.current = next
     setPrefs(next)
-    try {
-      await updateUserPreferences(next)
-    } catch (e) {
-      setError(e.message)
+    /* Chain the DB write after any in-flight one, and send the LATEST merged
+       state — so concurrent updates can't lose each other. */
+    const task = writeChain.current.then(async () => {
       try {
-        const raw = await getUserPreferences()
-        const migrated = migratePreferences(raw || defaultPreferences())
-        prefsRef.current = migrated
-        setPrefs(migrated)
-      } catch { /* ignore */ }
-    }
+        await updateUserPreferences(prefsRef.current)
+      } catch (e) {
+        setError(e.message)
+        try {
+          const raw = await getUserPreferences()
+          const migrated = migratePreferences(raw || defaultPreferences())
+          prefsRef.current = migrated
+          setPrefs(migrated)
+        } catch { /* ignore */ }
+      }
+    })
+    writeChain.current = task.catch(() => {})
+    return task
   }, [])
 
   const value = useMemo(() => ({ prefs, loading, error, update }), [prefs, loading, error, update])

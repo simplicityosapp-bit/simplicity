@@ -107,6 +107,16 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Coloured-value pill — wrap a coloured number/label so its tint doesn't
+   blend into the photo background. Semi-transparent white (var(--val-chip-bg),
+   NOT opaque) keeps the colour readable without hiding the surface. Reusable
+   globally; apply by adding `val-chip` to a coloured value's className. */
+.val-chip {
+  background: var(--val-chip-bg);
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+
 button {
   font-family: inherit;
 }

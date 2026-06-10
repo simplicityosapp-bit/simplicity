@@ -367,6 +367,15 @@
 .f-tx-amt.exp {
   color: var(--clay);
 }
+/* Coloured-value pill (beta 10/06) — a semi-transparent white lift so the
+   sage/clay amounts don't blend into the glass/photo. Same treatment as the
+   global .val-chip; this is the first prominent spot it's applied to. */
+.f-tx-amt.inc,
+.f-tx-amt.exp {
+  background: var(--val-chip-bg);
+  padding: 1px 8px;
+  border-radius: 999px;
+}
 .f-tx-amt.strike {
   text-decoration: line-through;
   color: var(--mist);

@@ -149,6 +149,68 @@
   border-color: var(--espresso);
 }
 
+/* ── Kanban sub-status filter + date sort ────────────────────── */
+.l-filterbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.l-subfilter {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  flex: 1;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.l-subfilter::-webkit-scrollbar { display: none; }
+.l-subpill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.l-subpill.on {
+  background: var(--espresso);
+  color: var(--on-accent);
+  border-color: var(--espresso);
+}
+[data-theme="dark"] .l-subpill.on { color: var(--ink-on-accent); }
+.l-subpill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.l-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--espresso);
+  cursor: pointer;
+}
+.l-sort-btn.on { border-color: var(--terracotta); color: var(--terracotta); }
+
 /* ── Follow-ups banner + panel ───────────────────────────────── */
 .l-followup-banner {
   display: flex;

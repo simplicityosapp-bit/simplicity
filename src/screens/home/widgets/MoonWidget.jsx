@@ -16,6 +16,7 @@ import { useGroups } from '../../../hooks/useGroups'
 import { useGroupMembers } from '../../../hooks/useGroupMembers'
 import { useAddress } from '../../../hooks/useAddress'
 import InfoPopover from '../../../components/InfoPopover'
+import MoonDualBars from '../../../components/MoonDualBars'
 
 /* Moon-glance mini — a single chip with the pace-based confidence
    percentage inside a soft circular ring. The progress arc renders
@@ -133,6 +134,8 @@ export default function MoonWidget() {
 
       {expanded && (
         <div className="moon-expanded">
+          {/* Pace + goal-% side by side (the ring still shows pace alone). */}
+          <MoonDualBars pace={conf} goal={pure} />
           <p className="moon-expanded-reflection">{moonReflection(conf)}</p>
           {scored.length === 0 ? (
             <p className="moon-expanded-empty">אין עדיין יעדים פעילים עם נתונים החודש.</p>

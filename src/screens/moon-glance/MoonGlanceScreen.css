@@ -125,6 +125,10 @@
   font-weight: 500;
   color: var(--stone);
 }
+.mg-hero-bars {
+  width: 100%;
+  max-width: 260px;
+}
 .mg-reflection {
   margin: 0;
   text-align: center;

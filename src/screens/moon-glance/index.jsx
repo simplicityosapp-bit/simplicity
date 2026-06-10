@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Moon, BarChart3 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { moonGetData, moonGetCategories, moonTrend, moonReflection } from '../../lib/moon'
+import MoonDualBars from '../../components/MoonDualBars'
 import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
 import { useGoalEntries } from '../../hooks/useGoalEntries'
@@ -194,6 +195,11 @@ export default function MoonGlanceScreen() {
               MoonWidget kicker so the full screen reads the same. */}
           <div className="mg-ring-kicker">מהקצב</div>
           <div className="mg-ring-sub">{overall.pure}% מהיעד</div>
+        </div>
+        {/* Pace + goal-% as two compact bars next to the ring (which still
+            shows pace alone). */}
+        <div className="mg-hero-bars">
+          <MoonDualBars pace={conf} goal={overall.pure} />
         </div>
         <p className="mg-reflection">{moonReflection(conf)}</p>
       </div>

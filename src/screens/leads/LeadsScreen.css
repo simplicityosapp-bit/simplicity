@@ -149,6 +149,92 @@
   border-color: var(--espresso);
 }
 
+/* ── Follow-ups banner + panel ───────────────────────────────── */
+.l-followup-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 4px 0 14px;
+  padding: 12px 16px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  color: var(--espresso);
+  cursor: pointer;
+  text-align: start;
+  transition: border-color 0.15s;
+}
+.l-followup-banner:hover { border-color: var(--terracotta); }
+.l-followup-banner.muted { opacity: 0.7; }
+.l-followup-banner > svg { color: var(--amber-warn); flex-shrink: 0; }
+.l-followup-banner.muted > svg { color: var(--stone); }
+.l-followup-count {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--amber-warn);
+  color: var(--on-accent);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.l-followup-text {
+  flex: 1;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+}
+.l-followup-chev { color: var(--stone); flex-shrink: 0; }
+
+.fu-list { display: flex; flex-direction: column; }
+.fu-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+.fu-row + .fu-row { border-top: 1px solid var(--divider); }
+.fu-open {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 4px 2px;
+  cursor: pointer;
+  text-align: start;
+}
+.fu-name {
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+}
+.fu-date {
+  font-size: calc(13px * var(--text-scale));
+  color: var(--stone);
+}
+.fu-done {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--sage);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.fu-done:hover { background: rgba(139, 168, 136, 0.12); border-color: var(--sage); }
+
 /* ── Lead statuses management panel ──────────────────────────── */
 .lead-statuses-panel {
   padding: 16px 18px;

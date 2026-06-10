@@ -18,7 +18,7 @@ const toLocalInput = (d) =>
    decides whether confirming a meeting also touches linked transactions.
    Google-synced events can be CLAIMED here: editing or deleting one owns
    it (owned=true), so the change survives future syncs (migration 0023). */
-export default function EventDetailsModal({ open, onClose, event, onConfirmMeeting, onSkipMeeting, onCompleteReminder, onRemoveReminder, onUpdateEvent, onDeleteEvent }) {
+export default function EventDetailsModal({ open, onClose, event, onConfirmMeeting, onSkipMeeting, onCompleteReminder, onRemoveReminder, onUpdateEvent, onDeleteEvent, onFollowupDone }) {
   /* Two-step delete confirm (resets per event — parent keys the modal on
      event.id). No undo path here, so the second tap is the safety net. */
   const [confirmDel, setConfirmDel] = useState(false)
@@ -29,6 +29,7 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
 
   const isMeeting = event.kind === 'meeting'
   const isCalendar = event.kind === 'calendar'
+  const isFollowup = event.kind === 'leadFollowup'
   const isOwned = !!event.raw?.owned
   const Icon = (isMeeting || isCalendar) ? CalendarDays : Clock
   const title = event.title || 'אירוע'
@@ -146,7 +147,18 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
         </div>
       )}
 
-      {!isMeeting && !isCalendar && (
+      {isFollowup && (
+        <div className="evt-detail-row">
+          <p className="evt-detail-status">פולואו-אפ ליד — {event.title}.</p>
+          <div className="evt-detail-actions">
+            <button type="button" className="evt-detail-btn approve" onClick={handle(onFollowupDone)}>
+              <Check size={15} strokeWidth={2} aria-hidden="true" /> פולואפ בוצע
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!isMeeting && !isCalendar && !isFollowup && (
         <div className="evt-detail-row">
           <div className="evt-detail-actions">
             <button type="button" className="evt-detail-btn approve" onClick={handle(onCompleteReminder)}>

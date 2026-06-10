@@ -5,9 +5,10 @@ import Modal from './Modal'
    income/expense + sessions; those aren't on the React calendar yet). The
    selection is persisted in prefs.calendarFilter by the parent. */
 const OPTS = [
-  { key: 'meeting',  label: 'פגישות',           sub: 'ממתינות ומאושרות' },
-  { key: 'reminder', label: 'תזכורות',          sub: 'חד-פעמיות וחוזרות' },
-  { key: 'calendar', label: 'אירועי יומן גוגל', sub: 'מסונכרנים' },
+  { key: 'meeting',      label: 'פגישות',           sub: 'ממתינות ומאושרות' },
+  { key: 'reminder',     label: 'תזכורות',          sub: 'חד-פעמיות וחוזרות' },
+  { key: 'leadFollowup', label: 'פולואו-אפ לידים',  sub: 'מתוך תאריך מעקב' },
+  { key: 'calendar',     label: 'אירועי יומן גוגל', sub: 'מסונכרנים' },
 ]
 
 export default function CalendarFilterModal({ open, onClose, filter = {}, onChange }) {

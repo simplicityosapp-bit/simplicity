@@ -33,7 +33,7 @@ const VALID_VIEWS = new Set(['schedule', 'day', 'week', 'month'])
 export default function CalendarScreen() {
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
-  const { events: calendarEvents, dismissEvent } = useCalendarEvents()
+  const { events: calendarEvents, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
   const { clients } = useClients()
   const { groups } = useGroups()
 
@@ -243,6 +243,8 @@ export default function CalendarScreen() {
         onSkipMeeting={skipMeeting}
         onCompleteReminder={completeReminderHandler}
         onRemoveReminder={removeReminderHandler}
+        onUpdateEvent={updateEvent}
+        onDeleteEvent={deleteEvent}
       />
       <CalendarDuplicateModal
         open={showDuplicates}

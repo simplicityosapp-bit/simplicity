@@ -1,0 +1,39 @@
+.moon-dual {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.moon-dual-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.moon-dual-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.moon-dual-lbl {
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+}
+.moon-dual-val {
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+}
+.moon-dual-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--divider);
+  overflow: hidden;
+}
+.moon-dual-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}

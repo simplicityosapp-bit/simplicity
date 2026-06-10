@@ -22,6 +22,9 @@ import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
 import { useAddress } from '../../hooks/useAddress'
+import { useSessions } from '../../hooks/useSessions'
+import { moonGetData } from '../../lib/moon'
+import MoonDualBars from '../../components/MoonDualBars'
 import './GoalsScreen.css'
 
 /* The generic "אחר — עדכון ידני" bucket: every custom manual goal lands here,
@@ -50,6 +53,7 @@ export default function GoalsScreen() {
   const { leads } = useLeads()
   const { questions, addQuestion } = useUserQuestions()
   const { answers } = useDailyAnswers()
+  const { sessions } = useSessions()
   const { prefs } = useUserPreferences()
   const [showAddGoal, setShowAddGoal] = useState(false)
   const [entryCategory, setEntryCategory] = useState(null)
@@ -64,6 +68,13 @@ export default function GoalsScreen() {
     [goals, categories, entries, transactions, clients, leads, answers, members, clientGroups],
   )
   const totalGoals = groups.reduce((s, g) => s + g.goals.length, 0)
+
+  /* Overall moon-glance for the whole-screen summary: pace + goal-% as two
+     compact bars (the same view the moon widget/screen now show). */
+  const overall = useMemo(
+    () => moonGetData(new Date(), { goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups: clientGroups }).overall,
+    [goals, categories, entries, transactions, sessions, clients, leads, answers, members, clientGroups],
+  )
 
   /* Resolve the metric chosen in AddGoalModal to a real category id, creating
      the category on demand. Metrics aren't managed on-screen anymore: the
@@ -108,6 +119,13 @@ export default function GoalsScreen() {
           </button>
         </Coachmark>
       </div>
+
+      {!loading && !error && totalGoals > 0 && overall && (
+        <div className="g-overall">
+          <p className="g-overall-title">מבט-על — סך היעדים</p>
+          <MoonDualBars pace={overall.confidence} goal={overall.pure} />
+        </div>
+      )}
 
       {loading ? (
         <div className="empty"><p className="empty-text">טוען יעדים…</p></div>

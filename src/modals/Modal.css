@@ -579,8 +579,13 @@
 /* ── Color picker ──────────────────────────────────────────────── */
 .m-colors {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
+  /* Breathing room so the selected swatch's halo (the 4px ring + scale on
+     .m-color.on) never rides onto the field above/below or the next swatch
+     — the reported "color picker overlapping other fields" spacing fix. */
+  margin: 8px 0 12px;
+  padding: 2px;
 }
 .m-color {
   width: 30px;

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell } from 'lucide-react'
+import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, ArrowUpDown } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useLeads } from '../../hooks/useLeads'
 import { useLeadSources } from '../../hooks/useLeadSources'
@@ -53,6 +53,13 @@ export default function LeadsScreen() {
   const { prefs, update: updatePrefs } = useUserPreferences()
   const view = prefs?.leadsView === 'statuses' ? 'statuses' : 'kanban'
   const setView = (v) => updatePrefs?.({ leadsView: v })
+  /* Kanban sub-status filter + date sort (persisted, like the view choice).
+     subFilter = a status_id ('' = all); dateSort = '' | 'new' | 'old'. */
+  const subFilter = prefs?.leadsSubFilter || ''
+  const dateSort = prefs?.leadsSort || ''
+  const setSubFilter = (v) => updatePrefs?.({ leadsSubFilter: v })
+  const cycleSort = () => updatePrefs?.({ leadsSort: dateSort === '' ? 'new' : dateSort === 'new' ? 'old' : '' })
+  const sortLabel = dateSort === 'new' ? 'חדש→ישן' : dateSort === 'old' ? 'ישן→חדש' : 'לפי תאריך'
   const [showAdd, setShowAdd] = useState(false)
   const [editLead, setEditLead] = useState(null)
   const [convertLead, setConvertLead] = useState(null)
@@ -74,9 +81,15 @@ export default function LeadsScreen() {
   const buckets = useMemo(() => {
     const g = {}
     LEAD_META.forEach((m) => { g[m.key] = [] })
-    leadList.forEach((l) => { (g[statusMetaOfLead(l)] || g.in_process).push(l) })
+    const src = subFilter ? leadList.filter((l) => l.status_id === subFilter) : leadList
+    src.forEach((l) => { (g[statusMetaOfLead(l)] || g.in_process).push(l) })
+    if (dateSort) {
+      const dir = dateSort === 'old' ? 1 : -1
+      const keyOf = (l) => String(l.inquiry_date || l.created_at || '')
+      LEAD_META.forEach((m) => { g[m.key].sort((a, b) => keyOf(a).localeCompare(keyOf(b)) * dir) })
+    }
     return g
-  }, [leadList])
+  }, [leadList, subFilter, dateSort])
   const stats = useMemo(() => computeStats(leadList), [leadList])
   const total = LEAD_META.reduce((s, m) => s + (buckets[m.key]?.length || 0), 0)
 
@@ -224,7 +237,28 @@ export default function LeadsScreen() {
           onRemove={removeLeadStatus}
         />
       ) : (
-        <div className="lead-board">
+        <>
+          <div className="l-filterbar">
+            <div className="l-subfilter" role="tablist" aria-label="סינון לפי תת-סטטוס">
+              <button type="button" className={`l-subpill${!subFilter ? ' on' : ''}`} onClick={() => setSubFilter('')}>הכל</button>
+              {leadStatuses.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  className={`l-subpill${subFilter === s.id ? ' on' : ''}`}
+                  onClick={() => setSubFilter(subFilter === s.id ? '' : s.id)}
+                >
+                  <span className="l-subpill-dot" style={{ background: s.color || 'var(--stone)' }} />
+                  {s.display_name}
+                </button>
+              ))}
+            </div>
+            <button type="button" className={`l-sort-btn${dateSort ? ' on' : ''}`} onClick={cycleSort} aria-label={`מיון: ${sortLabel}`}>
+              <ArrowUpDown size={14} strokeWidth={1.7} aria-hidden="true" />
+              {sortLabel}
+            </button>
+          </div>
+          <div className="lead-board">
           {LEAD_META.map((m) => (
             <LeadColumn
               key={m.key}
@@ -240,7 +274,8 @@ export default function LeadsScreen() {
               statuses={leadStatuses}
             />
           ))}
-        </div>
+          </div>
+        </>
       )}
 
       <AddLeadModal open={showAdd} onClose={() => setShowAdd(false)} sources={sources} statuses={leadStatuses} projects={projects} groups={groups} onAddSource={handleAddSource} onSave={addLead} />

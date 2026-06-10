@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, ArrowLeft, TrendingUp, ChevronLeft } from 'lucide-react'
+import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useLeads } from '../../hooks/useLeads'
 import { useLeadSources } from '../../hooks/useLeadSources'
@@ -19,6 +19,7 @@ import LeadStatusesPanel from './LeadStatusesPanel'
 import AddLeadModal from '../../modals/AddLeadModal'
 import EditLeadModal from '../../modals/EditLeadModal'
 import ConvertLeadModal from '../../modals/ConvertLeadModal'
+import FollowupsModal from '../../modals/FollowupsModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Modal from '../../modals/Modal'
 import Coachmark from '../../components/Coachmark'
@@ -57,6 +58,18 @@ export default function LeadsScreen() {
   const [convertLead, setConvertLead] = useState(null)
   const [pendingDeleteLead, setPendingDeleteLead] = useState(null)
   const [dropPicker, setDropPicker] = useState(null) // { leadId, newMeta, subs }
+  const [showFollowups, setShowFollowups] = useState(false)
+
+  /* Open lead follow-ups — date ≤ today AND still in_process (a closed lead's
+     follow-up is moot). Drives the banner + the follow-ups panel. */
+  const dueFollowups = useMemo(() => {
+    const t = new Date()
+    const ymd = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
+    return (leadList || []).filter(
+      (l) => !l.deleted_at && l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= ymd,
+    )
+  }, [leadList])
+  const markFollowupDone = (lead) => updateLead(lead.id, { follow_up_date: null }).catch(() => {})
 
   const buckets = useMemo(() => {
     const g = {}
@@ -186,6 +199,19 @@ export default function LeadsScreen() {
         </div>
       </div>
 
+      <button
+        type="button"
+        className={`l-followup-banner${dueFollowups.length === 0 ? ' muted' : ''}`}
+        onClick={() => setShowFollowups(true)}
+      >
+        <Bell size={15} strokeWidth={1.8} aria-hidden="true" />
+        {dueFollowups.length > 0 && <span className="l-followup-count mono">{dueFollowups.length}</span>}
+        <span className="l-followup-text">
+          {dueFollowups.length === 0 ? 'אין פולואו-אפים פתוחים להיום' : 'פולואו-אפים להיום'}
+        </span>
+        <ChevronLeft size={15} strokeWidth={1.7} className="l-followup-chev" aria-hidden="true" />
+      </button>
+
       {loading ? (
         <div className="empty"><p className="empty-text">טוען לידים…</p></div>
       ) : error ? (
@@ -241,6 +267,13 @@ export default function LeadsScreen() {
         onCreateClient={addClient}
         onUpdateLead={updateLead}
         onAddGroupMember={addMember}
+      />
+      <FollowupsModal
+        open={showFollowups}
+        onClose={() => setShowFollowups(false)}
+        leads={dueFollowups}
+        onOpenLead={(lead) => { setShowFollowups(false); setEditLead(lead) }}
+        onMarkDone={markFollowupDone}
       />
 
       <ConfirmModal

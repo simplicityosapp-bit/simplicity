@@ -43,7 +43,7 @@ export default function CalendarScreen() {
      only runs on the home screen (AttentionWidget), so a freshly-set "שעה קבועה"
      wouldn't appear here until the user happened to visit home. Idempotent. */
   useScheduledMeetingsGeneration({ clients, groups, meetings, meetingsLoading, addMeeting })
-  const { leads } = useLeads()
+  const { leads, updateLead } = useLeads()
   const { projects } = useProjects()
   const { addTask } = useTasks()
   const { addTransaction } = useTransactions()
@@ -64,9 +64,14 @@ export default function CalendarScreen() {
   const fMeeting = prefs?.calendarFilter?.meeting !== false
   const fReminder = prefs?.calendarFilter?.reminder !== false
   const fCalendar = prefs?.calendarFilter?.calendar !== false
-  const filterActive = !(fMeeting && fReminder && fCalendar)
+  const fLeadFollowup = prefs?.calendarFilter?.leadFollowup !== false
+  const filterActive = !(fMeeting && fReminder && fCalendar && fLeadFollowup)
   const setCalFilter = (key, value) =>
-    updatePrefs?.({ calendarFilter: { meeting: fMeeting, reminder: fReminder, calendar: fCalendar, [key]: value } })
+    updatePrefs?.({ calendarFilter: { meeting: fMeeting, reminder: fReminder, calendar: fCalendar, leadFollowup: fLeadFollowup, [key]: value } })
+
+  /* Mark a lead's follow-up as done from the calendar — clears the date so
+     the event drops off (the lead itself stays in its column). */
+  const markFollowupDone = (ev) => updateLead(ev.raw.id, { follow_up_date: null }).catch(() => {})
 
   /* Calendar duplicates: an app recurring meeting that collides with a synced
      Google event for the same subject/day/time. Surfaced as a banner here +
@@ -133,11 +138,23 @@ export default function CalendarScreen() {
         groupName: ev.group_id ? (groups.find((g) => g.id === ev.group_id)?.name || null) : null,
         raw: ev,
       }))
-    const byKind = { meeting: fMeeting, reminder: fReminder, calendar: fCalendar }
-    return [...meetingItems, ...reminderItems, ...calendarItems]
+    /* Lead follow-ups — a soft follow_up_date on an active (in_process) lead,
+       shown at 09:00 that day. Closed leads (converted/irrelevant/ghost)
+       drop off. Tapping opens the lead-followup detail (mark done). */
+    const leadFollowupItems = (leads || [])
+      .filter((l) => !l.deleted_at && l.follow_up_date && l.status_meta === 'in_process')
+      .map((l) => ({
+        id: `lead-fu-${l.id}`,
+        kind: 'leadFollowup',
+        title: l.name || 'ליד',
+        when: new Date(`${String(l.follow_up_date).slice(0, 10)}T09:00:00`),
+        raw: l,
+      }))
+    const byKind = { meeting: fMeeting, reminder: fReminder, calendar: fCalendar, leadFollowup: fLeadFollowup }
+    return [...meetingItems, ...reminderItems, ...calendarItems, ...leadFollowupItems]
       .filter((e) => byKind[e.kind] !== false)
       .sort((a, b) => a.when - b.when)
-  }, [meetings, reminders, calendarEvents, clients, groups, leads, projects, fMeeting, fReminder, fCalendar])
+  }, [meetings, reminders, calendarEvents, clients, groups, leads, projects, fMeeting, fReminder, fCalendar, fLeadFollowup])
 
   const scheduleItems = useMemo(() => {
     const startOfToday = new Date()
@@ -262,6 +279,7 @@ export default function CalendarScreen() {
         onRemoveReminder={removeReminderHandler}
         onUpdateEvent={updateEvent}
         onDeleteEvent={deleteEvent}
+        onFollowupDone={markFollowupDone}
       />
       <CalendarDuplicateModal
         open={showDuplicates}
@@ -273,7 +291,7 @@ export default function CalendarScreen() {
       <CalendarFilterModal
         open={showFilter}
         onClose={() => setShowFilter(false)}
-        filter={{ meeting: fMeeting, reminder: fReminder, calendar: fCalendar }}
+        filter={{ meeting: fMeeting, reminder: fReminder, calendar: fCalendar, leadFollowup: fLeadFollowup }}
         onChange={setCalFilter}
       />
     </div>

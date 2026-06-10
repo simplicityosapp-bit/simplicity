@@ -245,6 +245,47 @@
   color: var(--espresso);
 }
 
+/* ── View filter (button + modal list) ────────────────────────── */
+.cal-filter-btn.is-active {
+  border-color: var(--terracotta);
+  color: var(--terracotta);
+}
+.cal-filter-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 6px;
+}
+.cal-filter-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 2px;
+  cursor: pointer;
+}
+.cal-filter-opt + .cal-filter-opt {
+  border-top: 1px solid var(--divider);
+}
+.cal-filter-opt-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+}
+.cal-filter-opt-sub {
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+.cal-filter-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--terracotta);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 /* ── Month + year picker (week/month nav centre) ──────────────── */
 .cal-monthpick { position: relative; }
 .cal-monthpick-btn {

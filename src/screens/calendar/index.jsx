@@ -20,6 +20,7 @@ import AddTaskModal from '../../modals/AddTaskModal'
 import AddTransactionModal from '../../modals/AddTransactionModal'
 import EventDetailsModal from '../../modals/EventDetailsModal'
 import CalendarDuplicateModal from '../../modals/CalendarDuplicateModal'
+import CalendarFilterModal from '../../modals/CalendarFilterModal'
 import CalendarHeader from './CalendarHeader'
 import CalendarSchedule from './CalendarSchedule'
 import CalendarDay from './CalendarDay'
@@ -55,6 +56,17 @@ export default function CalendarScreen() {
   const [activeModal, setActiveModal] = useState(null)
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [showDuplicates, setShowDuplicates] = useState(false)
+  const [showFilter, setShowFilter] = useState(false)
+
+  /* Calendar view filter — toggles which event TYPES appear (persisted in
+     prefs.calendarFilter; absent key = shown). Mirrors the prototype's
+     "פילטר תצוגה", scoped to the event kinds the app actually renders. */
+  const fMeeting = prefs?.calendarFilter?.meeting !== false
+  const fReminder = prefs?.calendarFilter?.reminder !== false
+  const fCalendar = prefs?.calendarFilter?.calendar !== false
+  const filterActive = !(fMeeting && fReminder && fCalendar)
+  const setCalFilter = (key, value) =>
+    updatePrefs?.({ calendarFilter: { meeting: fMeeting, reminder: fReminder, calendar: fCalendar, [key]: value } })
 
   /* Calendar duplicates: an app recurring meeting that collides with a synced
      Google event for the same subject/day/time. Surfaced as a banner here +
@@ -121,8 +133,11 @@ export default function CalendarScreen() {
         groupName: ev.group_id ? (groups.find((g) => g.id === ev.group_id)?.name || null) : null,
         raw: ev,
       }))
-    return [...meetingItems, ...reminderItems, ...calendarItems].sort((a, b) => a.when - b.when)
-  }, [meetings, reminders, calendarEvents, clients, groups, leads, projects])
+    const byKind = { meeting: fMeeting, reminder: fReminder, calendar: fCalendar }
+    return [...meetingItems, ...reminderItems, ...calendarItems]
+      .filter((e) => byKind[e.kind] !== false)
+      .sort((a, b) => a.when - b.when)
+  }, [meetings, reminders, calendarEvents, clients, groups, leads, projects, fMeeting, fReminder, fCalendar])
 
   const scheduleItems = useMemo(() => {
     const startOfToday = new Date()
@@ -176,6 +191,8 @@ export default function CalendarScreen() {
         date={date}
         onDateChange={setDate}
         weekStart={weekStart}
+        onOpenFilter={() => setShowFilter(true)}
+        filterActive={filterActive}
       />
 
       {view === 'schedule' && (
@@ -252,6 +269,12 @@ export default function CalendarScreen() {
         duplicates={duplicates}
         onHideMeeting={hideMeeting}
         onHideEvent={hideEvent}
+      />
+      <CalendarFilterModal
+        open={showFilter}
+        onClose={() => setShowFilter(false)}
+        filter={{ meeting: fMeeting, reminder: fReminder, calendar: fCalendar }}
+        onChange={setCalFilter}
       />
     </div>
   )

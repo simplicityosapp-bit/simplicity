@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react'
+import { ChevronRight, ChevronLeft, ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { fmtDayLabel } from '../../lib/calendar'
 
 const VIEWS = [
@@ -76,7 +76,7 @@ function MonthPicker({ date, onPick }) {
    view stays range-less. In week/month the arrows jump whole months and
    the centre is a month picker; in day they step a day and show the date.
    RTL: ChevronRight = "previous" (it points toward the past). */
-export default function CalendarHeader({ view, onViewChange, date, onDateChange }) {
+export default function CalendarHeader({ view, onViewChange, date, onDateChange, onOpenFilter, filterActive }) {
   const monthish = view === 'week' || view === 'month'
   const goPrev = () => onDateChange(stepDate(view, date, -1))
   const goNext = () => onDateChange(stepDate(view, date, +1))
@@ -114,6 +114,18 @@ export default function CalendarHeader({ view, onViewChange, date, onDateChange 
           </button>
           <button type="button" className="cal-nav-today" onClick={goToday}>היום</button>
         </div>
+      )}
+
+      {onOpenFilter && (
+        <button
+          type="button"
+          className={`cal-nav-btn cal-filter-btn${filterActive ? ' is-active' : ''}`}
+          onClick={onOpenFilter}
+          aria-label="פילטר תצוגה"
+          title="פילטר תצוגה"
+        >
+          <SlidersHorizontal size={16} strokeWidth={1.6} aria-hidden="true" />
+        </button>
       )}
     </div>
   )

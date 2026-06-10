@@ -1371,3 +1371,36 @@
   text-align: center;
   line-height: 1.6;
 }
+
+/* Step 9 finish summary — read-only recap of what onboarding created, in
+   the same glass as the other onboarding cards. */
+.ob-finish-summary {
+  display: flex;
+  flex-direction: column;
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  border-radius: var(--mg-card-radius);
+  padding: 4px 16px;
+  margin-top: 6px;
+}
+.ob-finish-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  color: var(--stone);
+}
+.ob-finish-row + .ob-finish-row {
+  border-top: 1px solid var(--divider);
+}
+.ob-finish-label {
+  flex: 1;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+}
+.ob-finish-count {
+  font-size: calc(16px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+}

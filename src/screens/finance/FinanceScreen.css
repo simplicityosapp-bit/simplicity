@@ -502,6 +502,14 @@
 .rec-card-amount.expense {
   color: var(--stone);
 }
+/* Coloured-value pill (beta 10/06) — same .val-chip lift on the recurring
+   template amounts so the sage income value doesn't blend into the glass. */
+.rec-card-amount.income,
+.rec-card-amount.expense {
+  background: var(--val-chip-bg);
+  padding: 1px 8px;
+  border-radius: 999px;
+}
 .rec-card-actions {
   display: inline-flex;
   align-items: center;

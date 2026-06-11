@@ -132,6 +132,14 @@
 }
 .f-pending-amt.inc { color: color-mix(in srgb, var(--sage) 90%, var(--espresso)); }
 .f-pending-amt.exp { color: color-mix(in srgb, var(--clay) 90%, var(--espresso)); }
+/* Coloured-value pill (beta 10/06) — same .val-chip lift as the regular tx
+   amounts, so pending amounts don't blend into the glass/photo either. */
+.f-pending-amt.inc,
+.f-pending-amt.exp {
+  background: var(--val-chip-bg);
+  padding: 1px 8px;
+  border-radius: 999px;
+}
 .f-pending-actions {
   display: flex;
   gap: 4px;
@@ -174,4 +182,14 @@
   color: var(--clay);
   background: rgba(181, 99, 78, 0.1);
   border-color: rgba(181, 99, 78, 0.28);
+}
+/* The coloured action icons (✓ approve, ✕ skip/delete) were faint tints over
+   the photo and blended in. Lift them onto the white .val-chip backdrop so the
+   icon colour pops; the coloured border keeps the approve/delete identity
+   (beta 10/06). */
+.f-tx-btn.approve,
+.f-tx-btn.skip,
+.f-tx-btn.restore,
+.f-tx-btn.delete {
+  background: var(--val-chip-bg);
 }

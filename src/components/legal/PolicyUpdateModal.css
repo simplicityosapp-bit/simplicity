@@ -23,6 +23,15 @@
 [data-theme="dark"] .policy-update::before {
   background-image: url('/backgrounds/mobile/night/reports.webp');
 }
+/* Desktop variants (≥768px) — match the app's per-screen background swap. */
+@media (min-width: 768px) {
+  .policy-update::before {
+    background-image: url('/backgrounds/desktop/day/reports.webp');
+  }
+  [data-theme="dark"] .policy-update::before {
+    background-image: url('/backgrounds/desktop/night/reports.webp');
+  }
+}
 .policy-update-card {
   position: relative;
   z-index: 1;

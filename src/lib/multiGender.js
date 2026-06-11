@@ -31,6 +31,9 @@ export const MG_WORDS = {
   client: { mg: `לקוח${HE}`, aria: 'לקוח/ה' },
   /* add-client CTA / modal title: "לקוח חדש" / "לקוחה חדשה" */
   client_new: { mg: `לקוח${HE} חדש${HE}`, aria: 'לקוח/ה חדש/ה' },
+  /* consent verb: "מסכים" / "מסכימה" — used by the signup + re-acceptance
+     consent checkboxes ("קראתי ומסכים/ה ל…"). */
+  agree: { mg: `מסכים${HE}`, aria: 'מסכים/ה' },
 }
 
 /* Any multi-gender merge glyph present? (used to decide whether a string

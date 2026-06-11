@@ -1,6 +1,6 @@
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
-import { PRIVACY_BLOCKS, PRIVACY_META, TERMS_BLOCKS } from './legalContent'
+import { PRIVACY_BLOCKS, PRIVACY_META, TERMS_BLOCKS, TERMS_META, DPA_BLOCKS, DPA_META } from './legalContent'
 import './LegalModal.css' // reuse the legal-document typography (.legal-h / .legal-h2 / .legal-p / .legal-meta)
 import './LegalPage.css'
 
@@ -14,7 +14,8 @@ import './LegalPage.css'
    ════════════════════════════════════════════════════════════════ */
 const TABS = [
   { key: 'privacy', label: 'מדיניות פרטיות', blocks: PRIVACY_BLOCKS, meta: PRIVACY_META },
-  { key: 'terms',   label: 'תנאי שימוש',     blocks: TERMS_BLOCKS,   meta: null },
+  { key: 'terms',   label: 'תנאי שימוש',     blocks: TERMS_BLOCKS,   meta: TERMS_META },
+  { key: 'dpa',     label: 'עיבוד נתונים',   blocks: DPA_BLOCKS,     meta: DPA_META },
 ]
 
 function renderBlocks(blocks) {
@@ -29,7 +30,8 @@ export default function LegalPage() {
   const [params, setParams] = useSearchParams()
   const navigate = useNavigate()
   const { session } = useAuth()
-  const active = params.get('tab') === 'terms' ? 'terms' : 'privacy'
+  const requested = params.get('tab')
+  const active = TABS.some((t) => t.key === requested) ? requested : 'privacy'
   const tab = TABS.find((t) => t.key === active) || TABS[0]
 
   return (

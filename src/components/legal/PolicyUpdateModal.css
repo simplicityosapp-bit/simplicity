@@ -4,14 +4,28 @@
   position: fixed;
   inset: 0;
   z-index: 1100;
-  background: var(--overlay-bg);
-  backdrop-filter: var(--bm);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background: var(--bg-home);
+}
+/* Reports-screen background behind the card (mobile + desktop, day + night). */
+.policy-update::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url('/backgrounds/mobile/day/reports.webp');
+  background-size: cover;
+  background-position: center;
+}
+[data-theme="dark"] .policy-update::before {
+  background-image: url('/backgrounds/mobile/night/reports.webp');
 }
 .policy-update-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 420px;
   background: var(--modal-bg);

@@ -350,6 +350,7 @@ function DesignBody({ prefs, onUpdate }) {
    Static section: app identity, version, credits. */
 const APP_VERSION = '0.1.0'
 function AboutBody() {
+  const navigate = useNavigate()
   return (
     <div className="set-about">
       <p className="set-about-name">Simplicity</p>
@@ -360,6 +361,15 @@ function AboutBody() {
         <span>2026</span>
       </div>
       <p className="set-about-credit">נבנה בעבודה משותפת עם Claude.</p>
+      {/* Legal documents — the desktop sidebar surfaces these too, but this is
+          the only path on mobile (no sidebar). Opens the public /legal page. */}
+      <div className="set-about-legal">
+        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=privacy`)}>מדיניות פרטיות</button>
+        <span className="set-about-dot">·</span>
+        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=terms`)}>תנאי שימוש</button>
+        <span className="set-about-dot">·</span>
+        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=dpa`)}>עיבוד נתונים</button>
+      </div>
     </div>
   )
 }

@@ -451,6 +451,28 @@
   font-style: italic;
   color: var(--stone);
 }
+/* Legal links — privacy · terms · DPA, opening the public /legal page. */
+.set-about-legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.set-about-legal-link {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  color: var(--stone);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.set-about-legal-link:hover { color: var(--terracotta); }
 
 /* Shortcut card (goals → /goals) */
 .set-shortcut-hint {

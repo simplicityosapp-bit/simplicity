@@ -39,7 +39,7 @@ const FAKE_SESSION = {
     // tree-shaken from production. Lets us verify the admin console locally.
     email: 'simplicity.os.app@gmail.com',
     app_metadata: { provider: 'mock' },
-    user_metadata: { full_name: 'מאמן/ת לדוגמה', privacy_version: '1.0', dpa_version: '1.0', marketing_consent: true },
+    user_metadata: { full_name: 'מאמן/ת לדוגמה', privacy_version: '1.0', dpa_version: '1.0', terms_version: '1.0', marketing_consent: true },
   },
 }
 

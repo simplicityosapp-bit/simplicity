@@ -9,11 +9,13 @@
 
    Shape stored in user_metadata:
      privacy_accepted_at, privacy_version, dpa_accepted_at, dpa_version,
+     terms_accepted_at, terms_version,
      marketing_consent (bool), marketing_consent_at (iso | null)
    ════════════════════════════════════════════════════════════════ */
 
 export const PRIVACY_VERSION = '1.0'
 export const DPA_VERSION = '1.0'
+export const TERMS_VERSION = '1.0'
 
 /* The consent block written at signup / first acceptance. */
 export function buildConsent({ marketing = false } = {}) {
@@ -23,12 +25,14 @@ export function buildConsent({ marketing = false } = {}) {
     privacy_version: PRIVACY_VERSION,
     dpa_accepted_at: now,
     dpa_version: DPA_VERSION,
+    terms_accepted_at: now,
+    terms_version: TERMS_VERSION,
     marketing_consent: !!marketing,
     marketing_consent_at: marketing ? now : null,
   }
 }
 
-/* Re-acceptance block (policy/DPA only — leaves marketing_consent untouched). */
+/* Re-acceptance block (privacy/DPA/terms — leaves marketing_consent untouched). */
 export function buildReacceptance() {
   const now = new Date().toISOString()
   return {
@@ -36,13 +40,17 @@ export function buildReacceptance() {
     privacy_version: PRIVACY_VERSION,
     dpa_accepted_at: now,
     dpa_version: DPA_VERSION,
+    terms_accepted_at: now,
+    terms_version: TERMS_VERSION,
   }
 }
 
 /* True when the user must (re)accept: never accepted (existing beta users
-   have no recorded consent) OR accepted an older privacy version. */
+   have no recorded consent), accepted an older privacy version, OR has no
+   terms acceptance yet / an older terms version (terms shipped after privacy). */
 export function needsReacceptance(user) {
-  return user?.user_metadata?.privacy_version !== PRIVACY_VERSION
+  const md = user?.user_metadata
+  return md?.privacy_version !== PRIVACY_VERSION || md?.terms_version !== TERMS_VERSION
 }
 
 export function marketingConsent(user) {
@@ -61,6 +69,9 @@ export function consentRowsFromMetadata(md, source = 'backfill') {
   }
   if (md.dpa_version && md.dpa_accepted_at) {
     rows.push({ kind: 'dpa', version: md.dpa_version, accepted: true, source, accepted_at: md.dpa_accepted_at })
+  }
+  if (md.terms_version && md.terms_accepted_at) {
+    rows.push({ kind: 'terms', version: md.terms_version, accepted: true, source, accepted_at: md.terms_accepted_at })
   }
   /* Record the marketing choice (in or out) at the moment it was made — an
      opt-out is timestamped at the privacy-acceptance moment (signup). */

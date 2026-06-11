@@ -7,8 +7,7 @@ import { translateAuthError } from '../../auth/authErrors'
 import GoogleButton from '../../auth/GoogleButton'
 import { useAddress } from '../../hooks/useAddress'
 import { buildConsent, stashPendingConsent } from '../../lib/legal'
-import PrivacyPolicyModal from '../../components/legal/PrivacyPolicyModal'
-import DPAModal from '../../components/legal/DPAModal'
+import MG from '../../components/MG'
 import './AuthScreen.css'
 
 export default function SignupScreen() {
@@ -16,16 +15,15 @@ export default function SignupScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [agreePrivacy, setAgreePrivacy] = useState(false)
-  const [agreeDpa, setAgreeDpa] = useState(false)
+  const [agreePolicies, setAgreePolicies] = useState(false) // privacy + DPA (one control, two consents)
+  const [agreeTerms, setAgreeTerms] = useState(false)
   const [agreeMarketing, setAgreeMarketing] = useState(false)
-  const [legalModal, setLegalModal] = useState(null) // 'privacy' | 'dpa' | null
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
 
-  /* Both legal documents must be accepted before any signup path. */
-  const canConsent = agreePrivacy && agreeDpa
+  /* All legal documents must be accepted before any signup path. */
+  const canConsent = agreePolicies && agreeTerms
 
   const submit = async (e) => {
     e.preventDefault()
@@ -39,7 +37,7 @@ export default function SignupScreen() {
       return
     }
     if (!canConsent) {
-      setError('יש לאשר את מדיניות הפרטיות ואת הסכם עיבוד הנתונים.')
+      setError('יש לאשר את מדיניות הפרטיות, הסכם עיבוד הנתונים ותנאי השימוש.')
       return
     }
     setBusy(true)
@@ -130,26 +128,28 @@ export default function SignupScreen() {
 
           <div className="auth-checks">
             <label className="auth-check">
-              <input type="checkbox" checked={agreePrivacy} onChange={(e) => setAgreePrivacy(e.target.checked)} />
+              <input type="checkbox" checked={agreePolicies} onChange={(e) => setAgreePolicies(e.target.checked)} />
               <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
               <span className="auth-check-label">
-                קראתי ומסכים/ה ל
-                <button type="button" className="auth-check-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal('privacy') }}>מדיניות הפרטיות</button>
+                קראתי ואני <MG word="agree" /> ל
+                <a className="auth-check-link" href={ROUTES.PRIVACY} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>מדיניות הפרטיות</a>
+                {' ול'}
+                <a className="auth-check-link" href={`${ROUTES.LEGAL}?tab=dpa`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>הסכם עיבוד הנתונים</a>
               </span>
             </label>
             <label className="auth-check">
-              <input type="checkbox" checked={agreeDpa} onChange={(e) => setAgreeDpa(e.target.checked)} />
+              <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
               <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
               <span className="auth-check-label">
-                קראתי ומסכים/ה ל
-                <button type="button" className="auth-check-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal('dpa') }}>הסכם עיבוד הנתונים (DPA)</button>
+                קראתי ואני <MG word="agree" /> ל
+                <a className="auth-check-link" href={ROUTES.TERMS} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>תנאי השימוש</a>
               </span>
             </label>
             <label className="auth-check">
               <input type="checkbox" checked={agreeMarketing} onChange={(e) => setAgreeMarketing(e.target.checked)} />
               <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
               <span className="auth-check-label">
-                אני מסכים/ה שסימפליסיטי תשתמש באימייל שלי ליצירת קהלי פרסום (ניתן לביטול בכל עת)
+                אני <MG word="agree" /> שסימפליסיטי תשתמש באימייל שלי ליצירת קהלי פרסום (ניתן לביטול בכל עת)
               </span>
             </label>
           </div>
@@ -170,9 +170,6 @@ export default function SignupScreen() {
 
         <p className="auth-foot">כבר יש לך חשבון? <Link to={ROUTES.LOGIN} className="auth-foot-cta">התחברות</Link></p>
       </div>
-
-      {legalModal === 'privacy' && <PrivacyPolicyModal onClose={() => setLegalModal(null)} />}
-      {legalModal === 'dpa' && <DPAModal onClose={() => setLegalModal(null)} />}
     </div>
   )
 }

@@ -29,8 +29,20 @@ export async function insertDailyAnswer(input) {
   const row = sanitize(input)
   row.user_id = session.user.id
   const { data, error } = await supabase.from('daily_answers').insert(row).select().single()
-  if (error) throw error
-  return data
+  if (!error) return data
+  /* One non-deleted answer per (question, date) — a partial-unique index. A
+     double-submit / two tabs / StrictMode hits 23505; treat it as "edit today's
+     answer" and update the existing row instead of surfacing a raw DB error. */
+  if (error.code === '23505' && row.user_question_id && row.date) {
+    const { data: upd, error: updErr } = await supabase
+      .from('daily_answers')
+      .update({ value_num: row.value_num ?? null, value_text: row.value_text ?? null, note: row.note ?? null })
+      .eq('user_question_id', row.user_question_id).eq('date', row.date).is('deleted_at', null)
+      .select().single()
+    if (updErr) throw updErr
+    return upd
+  }
+  throw error
 }
 
 export async function removeDailyAnswer(id) {

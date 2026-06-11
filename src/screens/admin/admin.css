@@ -344,6 +344,15 @@
 }
 .admin-detail-grid .k { font-size: var(--mg-micro); color: var(--mist); margin-bottom: 3px; }
 .admin-detail-grid .v { font-size: var(--mg-body); color: var(--espresso); }
+/* Legal-consent sub-block header inside the expanded user detail. */
+.admin-detail-consents-h {
+  margin: 12px 0 2px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+  font-size: var(--mg-micro);
+  font-weight: 600;
+  color: var(--stone);
+}
 
 /* ── Feedback cards ────────────────────────────────────────────── */
 .admin-fb-filters { display: flex; flex-wrap: wrap; gap: 8px; }

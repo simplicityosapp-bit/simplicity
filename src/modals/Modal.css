@@ -620,8 +620,13 @@
 }
 .m-btn-cancel {
   border: 1px solid rgba(42, 37, 32, 0.12);
-  background: none;
+  /* Glass pill — no fully-transparent buttons (beta 10/06). */
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
   color: var(--stone);
+}
+.m-btn-cancel:hover {
+  background: var(--mg-btn-secondary-bg-hover);
 }
 .m-btn-save {
   border: none;

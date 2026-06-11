@@ -144,7 +144,9 @@
   text-align: right;
   border-radius: 12px;
   border: 1px solid var(--divider);
-  background: transparent;
+  /* Glass pill — no fully-transparent buttons (beta 10/06). */
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
   cursor: pointer;
 }
 .q-tmpl.on {

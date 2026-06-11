@@ -167,6 +167,19 @@ Deno.serve(async (req) => {
       return json({ ok: true, is_subscriber: value })
     }
 
+    // Permanently delete a user — removes the auth.users row, which cascades
+    // to all their app data via ON DELETE CASCADE. Owner-only (verified at the
+    // top); deleting the owner's own account is blocked. Destructive +
+    // irreversible — the client gates this behind a typed-email confirmation.
+    if (action === 'delete_user') {
+      const uid = body?.user_id as string
+      if (!uid) return json({ error: 'bad request' }, 400)
+      if (uid === user.id) return json({ error: 'cannot delete the owner account' }, 400)
+      const { error } = await admin.auth.admin.deleteUser(uid)
+      if (error) return json({ error: 'delete failed', detail: error.message }, 500)
+      return json({ ok: true })
+    }
+
     if (action === 'feedback_list') {
       const users = await fetchAllUsers(admin)
       const emailById = new Map(users.map((u) => [u.id, u.email]))

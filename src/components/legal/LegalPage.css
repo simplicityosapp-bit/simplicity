@@ -24,6 +24,15 @@
 [data-theme="dark"] .legal-page::before {
   background-image: url('/backgrounds/mobile/night/onboarding.webp');
 }
+/* Desktop variants (≥768px) — match the app's per-screen background swap. */
+@media (min-width: 768px) {
+  .legal-page::before {
+    background-image: url('/backgrounds/desktop/day/onboarding.webp');
+  }
+  [data-theme="dark"] .legal-page::before {
+    background-image: url('/backgrounds/desktop/night/onboarding.webp');
+  }
+}
 
 .legal-page-sheet {
   position: relative;

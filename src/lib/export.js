@@ -91,13 +91,13 @@ export function exportClientsCSV({ clients, projects, now }) {
     .filter((c) => !c.deleted_at)
     .map((c) => [
       c.name || '',
-      c.phone || '',
+      decOrFlag(c.phone),
       c.email || '',
       nameById(projects, c.project_id),
       STATUS_META_HE[c.status_meta] || '',
       c.sessions != null ? String(c.sessions) : '',
       fmtAmount(Number(c.price_per_session || 0)),
-      c.notes || '',
+      decOrFlag(c.notes),
     ])
   downloadCsv(headers, rows, `mangata-clients-${ymd(now)}.csv`)
 }
@@ -154,8 +154,8 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
   addSheet('לקוחות',
     ['שם', 'טלפון', 'אימייל', 'פרויקט', 'סטטוס', 'מספר פגישות', 'מחיר לפגישה', 'הערות'],
     (clients || []).filter((c) => !c.deleted_at).map((c) => [
-      c.name || '', c.phone || '', c.email || '', nameById(projects, c.project_id), STATUS_META_HE[c.status_meta] || '',
-      c.sessions != null ? String(c.sessions) : '', fmtAmount(Number(c.price_per_session || 0)), c.notes || '',
+      c.name || '', decOrFlag(c.phone), c.email || '', nameById(projects, c.project_id), STATUS_META_HE[c.status_meta] || '',
+      c.sessions != null ? String(c.sessions) : '', fmtAmount(Number(c.price_per_session || 0)), decOrFlag(c.notes),
     ]))
 
   addSheet('פרויקטים',

@@ -66,7 +66,9 @@ export default function MoonWidget() {
       paced: overall.paced,
       confidence: overall.confidence,
     }).catch(() => { /* non-fatal */ })
-  }, [overall])
+    // Depend on the score primitives, not the fresh `overall` object — upsert
+    // only when the score actually changes, not on every data tick.
+  }, [overall?.pure, overall?.paced, overall?.confidence]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const conf = overall?.confidence ?? 0
   const pure = overall?.pure

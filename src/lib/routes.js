@@ -11,6 +11,12 @@ export const ROUTES = {
   RESET_PASSWORD: '/reset-password', // נוסף — איפוס סיסמה (החלטת auth)
   ONBOARDING: '/onboarding', // 9-step wizard, gates Home until completed
 
+  // Public legal pages — reachable WITHOUT login (and crawlable). /privacy
+  // and /terms redirect to /legal with the matching ?tab=.
+  LEGAL: '/legal',
+  PRIVACY: '/privacy',
+  TERMS: '/terms',
+
   // Main screens
   HOME: '/',
   CLIENTS: '/clients',

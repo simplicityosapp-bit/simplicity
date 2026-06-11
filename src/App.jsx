@@ -24,8 +24,10 @@ import Toast from './components/Toast'
 import AccountDeletionPending from './components/AccountDeletionPending'
 import { CryptoProvider, useCrypto } from './context/CryptoContext'
 import EncryptionMigrator from './components/EncryptionMigrator'
+import ConsentSync from './components/ConsentSync'
 import PolicyUpdateModal from './components/legal/PolicyUpdateModal'
-import { needsReacceptance, readPendingConsent, clearPendingConsent } from './lib/legal'
+import { needsReacceptance, readPendingConsent, clearPendingConsent, consentRowsFromMetadata } from './lib/legal'
+import { recordConsent } from './lib/api/consentLog'
 import { supabase } from './lib/supabase'
 
 /* Screens are code-split: each becomes its own chunk loaded on first
@@ -271,13 +273,23 @@ function ConsentGate({ children }) {
     const pending = readPendingConsent()
     if (!pending) { setPendingDone(true); return }
     tried.current = true
-    if (needsReacceptance(user)) {
-      supabase.auth.updateUser({ data: { ...pending } })
-        .finally(() => { clearPendingConsent(); setPendingDone(true) })
-    } else {
-      clearPendingConsent()
-      setPendingDone(true)
-    }
+    ;(async () => {
+      /* Durable legal record from the stash (incl. the marketing choice).
+         Best-effort + SEPARATE so it never blocks the gating write below; if it
+         fails (e.g. before migration 0029 exists) ConsentSync backfills it from
+         the metadata written below. */
+      try { await recordConsent(consentRowsFromMetadata(pending, 'google_oauth')) } catch { /* retried elsewhere */ }
+      try {
+        if (needsReacceptance(user)) {
+          await supabase.auth.updateUser({ data: { ...pending } })
+        }
+        clearPendingConsent() // only on success — a failed write keeps the stash for a retry
+      } catch {
+        tried.current = false // keep the stash; retry on the next render/load
+      } finally {
+        setPendingDone(true)
+      }
+    })()
   }, [user])
 
   if (!pendingDone) return <LoadingSplash />
@@ -296,6 +308,7 @@ function Root() {
         <CryptoGate>
           <UserPreferencesProvider>
             <EncryptionMigrator />
+            <ConsentSync />
             <AppShell />
           </UserPreferencesProvider>
         </CryptoGate>

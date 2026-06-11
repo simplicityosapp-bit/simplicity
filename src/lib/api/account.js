@@ -23,15 +23,25 @@ const SOFT_DELETE_TABLES = [
   'transactions', 'recurring_templates', 'clients', 'projects', 'groups',
   'group_members', 'leads', 'tasks', 'goals', 'goal_entries', 'goal_categories',
   'reminders', 'categories', 'lead_sources', 'client_statuses', 'lead_statuses',
-  'user_questions', 'daily_answers', 'sessions', 'session_attachments', 'client_notes',
+  'task_statuses', 'task_categories', 'user_questions', 'daily_answers', 'sessions',
+  'user_quotes', 'calendar_events',
 ]
 
 /* Tables without deleted_at — physically deleted. These are child/log
    tables, so removing them first avoids any FK surprises. */
 const HARD_DELETE_TABLES = [
-  'reminder_occurrences', 'scheduled_meetings', 'client_status_log',
-  'lead_status_log', 'moon_snapshots',
+  'scheduled_meetings', 'client_status_log', 'lead_status_log', 'moon_snapshots',
 ]
+
+/* Intentionally NOT wiped here:
+   - user_preferences — the caller resets the onboarding flow separately.
+   - feedback — team-owned communication, not the user's app content (and the
+     browser has no DELETE policy on it anyway).
+   - user_integrations — Google OAuth tokens live in a service-role-only vault
+     (RLS policy-none), so the browser can't delete them; disconnecting Google
+     on reset needs a server-side step (TODO).
+   The dead client_notes / session_attachments / reminder_occurrences tables
+   were removed from the lists above (0 rows, no writers; dropped via migration). */
 
 /* A filter that matches every row the caller can see (RLS already scopes
    to the user). PostgREST refuses an unfiltered update/delete, so we pass

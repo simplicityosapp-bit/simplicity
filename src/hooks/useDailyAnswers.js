@@ -12,7 +12,12 @@ export function useDailyAnswers() {
 
   const addAnswer = useCallback(async (payload) => {
     const row = await insertDailyAnswer(payload)
-    qc.setQueryData(KEY, (prev) => [row, ...(prev ?? [])])
+    /* insertDailyAnswer may UPDATE an existing row (edit-today's-answer on a
+       duplicate), so replace by id if already cached, else prepend. */
+    qc.setQueryData(KEY, (prev) => {
+      const list = prev ?? []
+      return list.some((r) => r.id === row.id) ? list.map((r) => (r.id === row.id ? row : r)) : [row, ...list]
+    })
     return row
   }, [qc])
 

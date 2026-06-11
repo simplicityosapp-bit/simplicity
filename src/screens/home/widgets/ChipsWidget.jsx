@@ -38,6 +38,9 @@ export default function ChipsWidget() {
      icon (beta feedback 03/06/2026) — step the font down as the string grows
      so the number always fits inside the card. */
   const netSizeCls = netStr.length >= 11 ? ' h-stat-num-xlong' : netStr.length >= 8 ? ' h-stat-num-long' : ''
+  /* Label mirrors the selected net type so it stays truthful when the drill
+     filter is income/expense-only — same mapping as NetPanel (beta 11/06/2026). */
+  const netLbl = filters.net?.type === 'income' ? 'הכנסות' : filters.net?.type === 'expense' ? 'הוצאות' : 'נטו'
 
   /* The tile is a `<div role="button">` instead of a real <button> because
      it contains the InfoPopover trigger (which is itself a <button>) —
@@ -61,7 +64,7 @@ export default function ChipsWidget() {
           <Wallet size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
           <span className={`h-stat-num mono${netSizeCls}`}>{netStr}</span>
           <span className="h-stat-lbl">
-            נטו
+            {netLbl}
             <InfoPopover label="הסבר נטו" text={addr({male:'לחץ',female:'לחצי',neutral:'לחץ/י'}) + ' על הכרטיס כדי לסנן לפי טווח זמן, סוג, פרויקט וקטגוריה. סופר רק תנועות שאושרו.'} placement="top" />
           </span>
         </div>

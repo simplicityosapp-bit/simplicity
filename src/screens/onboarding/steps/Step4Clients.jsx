@@ -21,7 +21,7 @@ const initials = (name) =>
 
 const blank = (defaultProjectId) => ({
   name: '', status: 'active', status_id: '', sessions: '', price_per_session: '',
-  phone: '', project_id: defaultProjectId || '', group_id: '',
+  phone: '', email: '', project_id: defaultProjectId || '', group_id: '',
   recurring_day: '', recurring_time: '',
 })
 
@@ -151,6 +151,7 @@ export default function Step4Clients({ ob, setCTA }) {
     recurring_time: form.recurring_time || null,
     left_mid_process: false,
     phone: form.phone.trim() || null,
+    email: form.email?.trim() || null,
     notes: null,
     notes_updated_at: null,
   })

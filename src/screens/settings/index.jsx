@@ -37,6 +37,7 @@ import { addressUser } from '../../lib/address'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
 import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV, exportAllXLSX } from '../../lib/export'
 import { loadSensitiveExportData } from '../../lib/exportSensitive'
+import { runPhoneDecryptMigration } from '../../lib/phoneDecryptMigration'
 import ExportDataModal from '../../modals/ExportDataModal'
 import { defaultOnboarding } from '../../lib/preferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
@@ -558,6 +559,7 @@ export default function SettingsScreen() {
   const { leads: dataLeads, refetch: refetchLeads } = useLeads()
   const [pendingDelete, setPendingDelete] = useState(null)  /* { kind, status, peers } | null */
   const [showExport, setShowExport] = useState(false)
+  const [phoneDec, setPhoneDec] = useState({ busy: false, msg: null }) // TEMP: phone un-encryption test
   /* Captures which leads/clients a sub-status delete reassigned, so undo
      can move exactly those rows back (see handleSubStatusReassign/Delete). */
   const reassignRef = useRef(null)
@@ -811,6 +813,17 @@ export default function SettingsScreen() {
           sensitive,
         })
       }
+      /* TEMP — manual trigger for the phone un-encryption backfill. Remove once
+         confirmed; the per-user auto-run will then cover everyone on login. */
+      const runPhoneDecrypt = async () => {
+        setPhoneDec({ busy: true, msg: null })
+        try {
+          const res = await runPhoneDecryptMigration()
+          setPhoneDec({ busy: false, msg: res.ran ? `פוענחו ${res.updated} טלפונים.` : 'המפתח עוד לא מוכן — נסה/י שוב אחרי טעינה.' })
+        } catch (e) {
+          setPhoneDec({ busy: false, msg: 'שגיאה בפענוח: ' + (e?.message || 'נכשל') })
+        }
+      }
       const counts = [
         { l: 'לקוחות', n: dataClients?.length || 0 },
         { l: 'תנועות', n: txAll.length },
@@ -841,6 +854,12 @@ export default function SettingsScreen() {
           <p className="set-data-hint">
             חלון אחד לכל הייצואים: כל הנתונים יחד לקובץ Excel (גיליון לכל סוג), או ייצוא בודד של תנועות / לקוחות / פרויקטים ל-CSV.
           </p>
+
+          {/* TEMP — phone un-encryption backfill test. Remove after confirmed. */}
+          <button type="button" className="set-data-action" style={{ marginTop: 12 }} onClick={runPhoneDecrypt} disabled={phoneDec.busy}>
+            {phoneDec.busy ? 'מפענח טלפונים…' : '🔓 פענוח טלפונים (זמני)'}
+          </button>
+          {phoneDec.msg && <p className="set-data-hint">{phoneDec.msg}</p>}
 
           <ExportDataModal
             open={showExport}

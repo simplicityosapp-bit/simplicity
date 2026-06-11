@@ -243,11 +243,12 @@ Deno.serve(async (req) => {
     if (action === 'users') {
       const users = await fetchAllUsers(admin)
 
-      const [{ data: moon }, { data: sess }, { data: prefs }, { data: fb }] = await Promise.all([
+      const [{ data: moon }, { data: sess }, { data: prefs }, { data: fb }, { data: consent }] = await Promise.all([
         admin.from('moon_snapshots').select('user_id, reflection'),
         admin.from('sessions').select('user_id, deleted_at'),
         admin.from('user_preferences').select('user_id, preferences'),
         admin.from('feedback').select('user_id'),
+        admin.from('user_consent').select('user_id, kind, version, accepted, accepted_at'),
       ])
 
       const reflById = new Map<string, number>()
@@ -274,6 +275,19 @@ Deno.serve(async (req) => {
       const fbById = new Map<string, number>()
       for (const f of fb ?? []) fbById.set(f.user_id, (fbById.get(f.user_id) ?? 0) + 1)
 
+      // Latest acceptance per kind, per user — the current legal-consent state.
+      // user_consent is append-only (re-acceptances add rows), so the newest
+      // accepted_at per kind wins. Shape: { privacy|dpa|terms|marketing: {...} }.
+      const consentById = new Map<string, Record<string, { version: string | null; accepted: boolean; accepted_at: string }>>()
+      for (const c of consent ?? []) {
+        let m = consentById.get(c.user_id)
+        if (!m) { m = {}; consentById.set(c.user_id, m) }
+        const prev = m[c.kind]
+        if (!prev || new Date(c.accepted_at).getTime() > new Date(prev.accepted_at).getTime()) {
+          m[c.kind] = { version: c.version ?? null, accepted: !!c.accepted, accepted_at: c.accepted_at }
+        }
+      }
+
       const rows = users
         .map((u) => {
           const ob = onboardingProgress(obById.get(u.id))
@@ -291,6 +305,7 @@ Deno.serve(async (req) => {
             subscriber_kind: kindById.get(u.id) ?? null,
             is_subscriber: !!kindById.get(u.id),
             marketing_consent: u.marketing_consent,
+            consent: consentById.get(u.id) ?? {},
           }
         })
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())

@@ -175,6 +175,14 @@ function adminFixtures() {
     sessions: Math.max(0, 30 - i * 3),
     feedback_count: i % 3 === 0 ? 1 : 0,
     marketing_consent: i % 2 === 0,
+    // Durable user_consent summary (latest per kind). Last user hasn't
+    // re-accepted terms yet → renders "—" in the detail.
+    consent: {
+      privacy: { version: '1.0', accepted: true, accepted_at: dayISO(-(i * 6 + 2)) },
+      dpa: { version: '1.0', accepted: true, accepted_at: dayISO(-(i * 6 + 2)) },
+      ...(i === names.length - 1 ? {} : { terms: { version: '1.0', accepted: true, accepted_at: dayISO(-(i % 4)) } }),
+      marketing: { version: null, accepted: i % 2 === 0, accepted_at: dayISO(-(i * 6 + 2)) },
+    },
     // Preview seed: user 0 = real (paid) subscriber, user 1 = manual.
     _paid: i === 0,
     _manual: i === 1,

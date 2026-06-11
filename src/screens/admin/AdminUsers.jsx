@@ -24,6 +24,21 @@ function fmtLastActive(iso) {
   return fmtDate(iso)
 }
 
+/* A versioned legal consent → "גרסה 1.0 · 11/06/26", or "—" when never recorded. */
+function fmtConsent(c) {
+  if (!c) return '—'
+  const v = c.version ? `גרסה ${c.version} · ` : ''
+  return `${v}${fmtDate(c.accepted_at)}`
+}
+
+/* Marketing consent — opted in/out + date (from the durable record), falling
+   back to the user_metadata flag when no record exists. */
+function fmtMarketing(r) {
+  const m = r.consent?.marketing
+  if (m) return `${m.accepted ? 'הסכים' : 'לא'} · ${fmtDate(m.accepted_at)}`
+  return r.marketing_consent ? 'הסכים' : 'לא'
+}
+
 export default function AdminUsers() {
   const { data, loading, error } = useAdminQuery('users')
   const [subOverride, setSubOverride] = useState({}) // id → optimistic is_subscriber (manual)
@@ -244,7 +259,13 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
               <div><div className="k">Sessions</div><div className="v">{r.sessions}</div></div>
               <div><div className="k">נרשם</div><div className="v">{fmtDate(r.created_at)}</div></div>
               <div><div className="k">כניסה אחרונה</div><div className="v">{fmtLastActive(r.last_sign_in_at)}</div></div>
-              <div><div className="k">שיווק</div><div className="v">{r.marketing_consent ? 'הסכים' : 'לא'}</div></div>
+            </div>
+            <div className="admin-detail-consents-h">הסכמות משפטיות</div>
+            <div className="admin-detail-grid">
+              <div><div className="k">פרטיות</div><div className="v">{fmtConsent(r.consent?.privacy)}</div></div>
+              <div><div className="k">עיבוד נתונים (DPA)</div><div className="v">{fmtConsent(r.consent?.dpa)}</div></div>
+              <div><div className="k">תנאי שימוש</div><div className="v">{fmtConsent(r.consent?.terms)}</div></div>
+              <div><div className="k">שיווק</div><div className="v">{fmtMarketing(r)}</div></div>
             </div>
           </td>
         </tr>

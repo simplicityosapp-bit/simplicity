@@ -354,6 +354,66 @@
   color: var(--stone);
 }
 
+/* Danger zone — permanent user deletion (typed-email confirmation). */
+.admin-detail-danger {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+}
+.admin-del-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid rgba(181, 99, 78, 0.4);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--clay);
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 600;
+  cursor: pointer;
+}
+.admin-del-btn:hover { background: rgba(181, 99, 78, 0.1); }
+.admin-del-confirm { display: flex; flex-direction: column; gap: 8px; max-width: 440px; }
+.admin-del-warn { margin: 0; font-size: var(--mg-caption); color: var(--espresso); line-height: 1.6; }
+.admin-del-input {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgba(181, 99, 78, 0.45);
+  border-radius: 10px;
+  background: var(--modal-bg);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: var(--mg-body);
+}
+.admin-del-err { margin: 0; font-size: var(--mg-caption); color: var(--clay); }
+.admin-del-actions { display: flex; gap: 8px; }
+.admin-del-cancel {
+  padding: 8px 16px;
+  border: 1px solid var(--divider);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 600;
+  cursor: pointer;
+}
+.admin-del-go {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  background: var(--clay);
+  color: var(--on-accent);
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 600;
+  cursor: pointer;
+}
+.admin-del-go:disabled { opacity: 0.5; cursor: not-allowed; }
+.admin-del-go:not(:disabled):hover { filter: brightness(0.93); }
+
 /* ── Feedback cards ────────────────────────────────────────────── */
 .admin-fb-filters { display: flex; flex-wrap: wrap; gap: 8px; }
 .admin-fb-list { display: flex; flex-direction: column; gap: var(--mg-row-gap); }

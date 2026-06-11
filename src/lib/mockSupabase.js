@@ -224,6 +224,11 @@ function adminInvoke(body) {
     if (u) u._manual = !!body.value
     return { ok: true, is_subscriber: u ? !!kindOf(u) : false }
   }
+  if (action === 'delete_user') {
+    const idx = fx.users.findIndex((x) => x.id === body.user_id)
+    if (idx >= 0) fx.users.splice(idx, 1)
+    return { ok: true }
+  }
   if (action === 'feedback_list') return { ok: true, items: fx.feedback }
   if (action === 'feedback_update_status') {
     const row = fx.feedback.find((f) => f.id === body.id)

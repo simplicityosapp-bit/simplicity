@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
 import {
-  Search, ChevronDown, BadgeCheck, Plus, Check, X, Users, CreditCard, Hand,
+  Search, ChevronDown, BadgeCheck, Plus, Check, X, Users, CreditCard, Hand, Trash2,
 } from 'lucide-react'
 import { useAdminQuery, callAdmin } from '../../hooks/useAdmin'
+import { ADMIN_EMAIL } from '../../lib/routes'
 
 /* dd/mm/yy, or "—" when missing. */
 function fmtDate(iso) {
@@ -40,7 +41,7 @@ function fmtMarketing(r) {
 }
 
 export default function AdminUsers() {
-  const { data, loading, error } = useAdminQuery('users')
+  const { data, loading, error, refetch } = useAdminQuery('users')
   const [subOverride, setSubOverride] = useState({}) // id → optimistic is_subscriber (manual)
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(null)        // expanded detail row id
@@ -84,6 +85,14 @@ export default function AdminUsers() {
   const manual = visible.filter((r) => r.subscriber_kind === 'manual')
   const regular = visible.filter((r) => r.subscriber_kind === 'regular')
 
+  /* Permanently delete a user (and all their data, via DB cascade). The row's
+     typed-email confirmation already happened in the UI; refetch on success so
+     the deleted user drops out of every section. */
+  const handleDelete = async (id) => {
+    await callAdmin('delete_user', { user_id: id })
+    await refetch()
+  }
+
   const rowProps = {
     openId: open,
     onToggleRow: (id) => setOpen(open === id ? null : id),
@@ -92,6 +101,7 @@ export default function AdminUsers() {
     onRequestConfirm: (id) => setConfirmId(id),
     onCancelConfirm: () => setConfirmId(null),
     onApply: applyToggle,
+    onDelete: handleDelete,
   }
 
   return (
@@ -154,7 +164,7 @@ function Section({ icon: Icon, title, count, open, onToggle, nested, children })
   )
 }
 
-function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfirm, onCancelConfirm, onApply, emptyText = 'לא נמצאו משתמשים' }) {
+function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfirm, onCancelConfirm, onApply, onDelete, emptyText = 'לא נמצאו משתמשים' }) {
   return (
     <div className="admin-card admin-table-wrap">
       <table className="admin-table">
@@ -184,6 +194,7 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
               onRequestConfirm={() => onRequestConfirm(r.id)}
               onCancelConfirm={onCancelConfirm}
               onApply={() => onApply(r)}
+              onDelete={() => onDelete(r.id)}
             />
           ))}
         </tbody>
@@ -221,7 +232,23 @@ function SubCell({ r, confirming, busy, onRequestConfirm, onCancelConfirm, onApp
   )
 }
 
-function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCancelConfirm, onApply }) {
+function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCancelConfirm, onApply, onDelete }) {
+  const [delOpen, setDelOpen] = useState(false)
+  const [delText, setDelText] = useState('')
+  const [delBusy, setDelBusy] = useState(false)
+  const [delErr, setDelErr] = useState(false)
+  const isOwner = (r.email || '').toLowerCase() === ADMIN_EMAIL
+  const canDelete = !!r.email && delText.trim().toLowerCase() === r.email.toLowerCase()
+  const runDelete = async () => {
+    if (!canDelete || delBusy) return
+    setDelBusy(true); setDelErr(false)
+    try {
+      await onDelete()
+      // success → the user is refetched away and this row unmounts.
+    } catch {
+      setDelBusy(false); setDelErr(true)
+    }
+  }
   return (
     <>
       <tr className={`clickable${r.is_subscriber ? ' is-sub' : ''}`} onClick={onToggle}>
@@ -267,6 +294,36 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
               <div><div className="k">תנאי שימוש</div><div className="v">{fmtConsent(r.consent?.terms)}</div></div>
               <div><div className="k">שיווק</div><div className="v">{fmtMarketing(r)}</div></div>
             </div>
+            {!isOwner && (
+              <div className="admin-detail-danger">
+                {!delOpen ? (
+                  <button type="button" className="admin-del-btn" onClick={(e) => { e.stopPropagation(); setDelOpen(true) }}>
+                    <Trash2 size={13} strokeWidth={2} aria-hidden="true" /> מחיקת משתמש
+                  </button>
+                ) : (
+                  <div className="admin-del-confirm" onClick={(e) => e.stopPropagation()}>
+                    <p className="admin-del-warn">
+                      מחיקת <b dir="ltr">{r.email}</b> וכל הנתונים שלו — לצמיתות, ללא אפשרות ביטול. להמשך, הקלד/י את האימייל המלא:
+                    </p>
+                    <input
+                      className="admin-del-input"
+                      dir="ltr"
+                      value={delText}
+                      onChange={(e) => { setDelText(e.target.value); setDelErr(false) }}
+                      placeholder={r.email}
+                      autoComplete="off"
+                    />
+                    {delErr && <p className="admin-del-err">המחיקה נכשלה. נסה/י שוב.</p>}
+                    <div className="admin-del-actions">
+                      <button type="button" className="admin-del-cancel" onClick={() => { setDelOpen(false); setDelText(''); setDelErr(false) }}>ביטול</button>
+                      <button type="button" className="admin-del-go" disabled={!canDelete || delBusy} onClick={runDelete}>
+                        {delBusy ? 'מוחק…' : 'מחק לצמיתות'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </td>
         </tr>
       )}

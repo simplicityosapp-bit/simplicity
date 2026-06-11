@@ -85,16 +85,6 @@ CREATE TABLE categories (
   deleted_at timestamp with time zone
 );
 
-CREATE TABLE client_notes (
-  id uuid DEFAULT gen_random_uuid() NOT NULL,
-  user_id uuid NOT NULL,
-  client_id uuid NOT NULL,
-  content text NOT NULL,
-  created_at timestamp with time zone DEFAULT now() NOT NULL,
-  updated_at timestamp with time zone DEFAULT now() NOT NULL,
-  deleted_at timestamp with time zone
-);
-
 CREATE TABLE client_status_log (
   id uuid DEFAULT gen_random_uuid() NOT NULL,
   user_id uuid NOT NULL,
@@ -372,18 +362,6 @@ CREATE TABLE recurring_templates (
   trigger_type text DEFAULT 'schedule'::text NOT NULL
 );
 
-CREATE TABLE reminder_occurrences (
-  id uuid DEFAULT gen_random_uuid() NOT NULL,
-  user_id uuid NOT NULL,
-  reminder_id uuid NOT NULL,
-  occurrence_date text NOT NULL,
-  status text NOT NULL,
-  completed_at timestamp with time zone,
-  date_override timestamp with time zone,
-  created_at timestamp with time zone DEFAULT now() NOT NULL,
-  updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
 CREATE TABLE reminders (
   id uuid DEFAULT gen_random_uuid() NOT NULL,
   user_id uuid NOT NULL,
@@ -413,19 +391,6 @@ CREATE TABLE scheduled_meetings (
   session_id uuid,
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-CREATE TABLE session_attachments (
-  id uuid DEFAULT gen_random_uuid() NOT NULL,
-  user_id uuid NOT NULL,
-  session_id uuid NOT NULL,
-  name text NOT NULL,
-  mime text NOT NULL,
-  size integer,
-  url text NOT NULL,
-  created_at timestamp with time zone DEFAULT now() NOT NULL,
-  updated_at timestamp with time zone DEFAULT now() NOT NULL,
-  deleted_at timestamp with time zone
 );
 
 CREATE TABLE sessions (
@@ -502,6 +467,17 @@ CREATE TABLE transactions (
   deleted_at timestamp with time zone
 );
 
+CREATE TABLE user_consent (
+  id uuid DEFAULT gen_random_uuid() NOT NULL,
+  user_id uuid NOT NULL,
+  kind text NOT NULL,
+  version text,
+  accepted boolean DEFAULT true NOT NULL,
+  source text,
+  accepted_at timestamp with time zone DEFAULT now() NOT NULL,
+  created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
 CREATE TABLE user_integrations (
   id uuid DEFAULT gen_random_uuid() NOT NULL,
   user_id uuid NOT NULL,
@@ -559,9 +535,6 @@ ALTER TABLE calendar_events ADD CONSTRAINT calendar_events_project_id_fkey FOREI
 ALTER TABLE calendar_events ADD CONSTRAINT calendar_events_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE categories ADD CONSTRAINT categories_pkey PRIMARY KEY (id);
 ALTER TABLE categories ADD CONSTRAINT categories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE client_notes ADD CONSTRAINT client_notes_pkey PRIMARY KEY (id);
-ALTER TABLE client_notes ADD CONSTRAINT client_notes_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE;
-ALTER TABLE client_notes ADD CONSTRAINT client_notes_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE client_status_log ADD CONSTRAINT client_status_log_pkey PRIMARY KEY (id);
 ALTER TABLE client_status_log ADD CONSTRAINT client_status_log_new_status_check CHECK ((new_status = ANY (ARRAY['active'::text, 'wandering'::text, 'past'::text, 'no_status'::text])));
 ALTER TABLE client_status_log ADD CONSTRAINT client_status_log_old_status_check CHECK ((old_status = ANY (ARRAY['active'::text, 'wandering'::text, 'past'::text, 'no_status'::text])));
@@ -655,10 +628,6 @@ ALTER TABLE recurring_templates ADD CONSTRAINT recurring_templates_category_id_f
 ALTER TABLE recurring_templates ADD CONSTRAINT recurring_templates_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE recurring_templates ADD CONSTRAINT recurring_templates_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE recurring_templates ADD CONSTRAINT recurring_templates_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE reminder_occurrences ADD CONSTRAINT reminder_occurrences_pkey PRIMARY KEY (id);
-ALTER TABLE reminder_occurrences ADD CONSTRAINT reminder_occurrences_status_check CHECK ((status = ANY (ARRAY['completed'::text, 'skipped'::text, 'rescheduled'::text])));
-ALTER TABLE reminder_occurrences ADD CONSTRAINT reminder_occurrences_reminder_id_fkey FOREIGN KEY (reminder_id) REFERENCES reminders(id) ON DELETE CASCADE;
-ALTER TABLE reminder_occurrences ADD CONSTRAINT reminder_occurrences_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE reminders ADD CONSTRAINT reminders_pkey PRIMARY KEY (id);
 ALTER TABLE reminders ADD CONSTRAINT reminders_linked_to_type_check CHECK ((linked_to_type = ANY (ARRAY['client'::text, 'project'::text, 'group'::text, 'task'::text, 'transaction'::text, 'lead'::text, 'period'::text])));
 ALTER TABLE reminders ADD CONSTRAINT reminders_recurrence_type_check CHECK ((recurrence_type = ANY (ARRAY['none'::text, 'weekly'::text, 'monthly_date'::text, 'every_x_days'::text])));
@@ -669,9 +638,6 @@ ALTER TABLE scheduled_meetings ADD CONSTRAINT scheduled_meetings_status_check CH
 ALTER TABLE scheduled_meetings ADD CONSTRAINT scheduled_meetings_subject_type_check CHECK ((subject_type = ANY (ARRAY['client'::text, 'group'::text])));
 ALTER TABLE scheduled_meetings ADD CONSTRAINT scheduled_meetings_session_id_fkey FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE SET NULL;
 ALTER TABLE scheduled_meetings ADD CONSTRAINT scheduled_meetings_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE session_attachments ADD CONSTRAINT session_attachments_pkey PRIMARY KEY (id);
-ALTER TABLE session_attachments ADD CONSTRAINT session_attachments_session_id_fkey FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE;
-ALTER TABLE session_attachments ADD CONSTRAINT session_attachments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE sessions ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
 ALTER TABLE sessions ADD CONSTRAINT sessions_subject_type_check CHECK ((subject_type = ANY (ARRAY['client'::text, 'group'::text])));
 ALTER TABLE sessions ADD CONSTRAINT sessions_subject_xor CHECK ((((client_id IS NOT NULL) AND (group_id IS NULL)) OR ((client_id IS NULL) AND (group_id IS NOT NULL))));
@@ -699,6 +665,10 @@ ALTER TABLE transactions ADD CONSTRAINT transactions_client_id_fkey FOREIGN KEY 
 ALTER TABLE transactions ADD CONSTRAINT transactions_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE transactions ADD CONSTRAINT transactions_recurring_id_fkey FOREIGN KEY (recurring_id) REFERENCES recurring_templates(id) ON DELETE SET NULL;
 ALTER TABLE transactions ADD CONSTRAINT transactions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE user_consent ADD CONSTRAINT user_consent_pkey PRIMARY KEY (id);
+ALTER TABLE user_consent ADD CONSTRAINT user_consent_uniq UNIQUE (user_id, kind, accepted_at);
+ALTER TABLE user_consent ADD CONSTRAINT user_consent_kind_check CHECK ((kind = ANY (ARRAY['privacy'::text, 'dpa'::text, 'marketing'::text])));
+ALTER TABLE user_consent ADD CONSTRAINT user_consent_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE user_integrations ADD CONSTRAINT user_integrations_pkey PRIMARY KEY (id);
 ALTER TABLE user_integrations ADD CONSTRAINT user_integrations_user_provider_uniq UNIQUE (user_id, provider);
 ALTER TABLE user_integrations ADD CONSTRAINT user_integrations_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
@@ -721,8 +691,6 @@ CREATE INDEX idx_calendar_events_project ON public.calendar_events USING btree (
 CREATE INDEX idx_calendar_events_start ON public.calendar_events USING btree (start_time);
 CREATE INDEX idx_calendar_events_user ON public.calendar_events USING btree (user_id);
 CREATE INDEX idx_categories_user ON public.categories USING btree (user_id);
-CREATE INDEX idx_client_notes_client ON public.client_notes USING btree (client_id);
-CREATE INDEX idx_client_notes_user ON public.client_notes USING btree (user_id);
 CREATE INDEX idx_client_status_log_client ON public.client_status_log USING btree (client_id);
 CREATE INDEX idx_client_status_log_user ON public.client_status_log USING btree (user_id);
 CREATE INDEX idx_client_status_log_user_changed ON public.client_status_log USING btree (user_id, changed_at);
@@ -779,8 +747,6 @@ CREATE INDEX idx_recurring_templates_category ON public.recurring_templates USIN
 CREATE INDEX idx_recurring_templates_client ON public.recurring_templates USING btree (client_id);
 CREATE INDEX idx_recurring_templates_project ON public.recurring_templates USING btree (project_id);
 CREATE INDEX idx_recurring_templates_user ON public.recurring_templates USING btree (user_id);
-CREATE INDEX idx_reminder_occurrences_reminder ON public.reminder_occurrences USING btree (reminder_id);
-CREATE INDEX idx_reminder_occurrences_user ON public.reminder_occurrences USING btree (user_id);
 CREATE INDEX idx_reminders_linked ON public.reminders USING btree (linked_to_type, linked_to_id);
 CREATE INDEX idx_reminders_status ON public.reminders USING btree (status);
 CREATE INDEX idx_reminders_user ON public.reminders USING btree (user_id);
@@ -789,8 +755,6 @@ CREATE INDEX idx_scheduled_meetings_status ON public.scheduled_meetings USING bt
 CREATE INDEX idx_scheduled_meetings_subject ON public.scheduled_meetings USING btree (subject_type, subject_id);
 CREATE INDEX idx_scheduled_meetings_user ON public.scheduled_meetings USING btree (user_id);
 CREATE UNIQUE INDEX scheduled_meetings_no_dup ON public.scheduled_meetings USING btree (user_id, subject_type, subject_id, scheduled_at) WHERE (status = 'pending'::text);
-CREATE INDEX idx_session_attachments_session ON public.session_attachments USING btree (session_id);
-CREATE INDEX idx_session_attachments_user ON public.session_attachments USING btree (user_id);
 CREATE INDEX idx_sessions_client ON public.sessions USING btree (client_id);
 CREATE INDEX idx_sessions_date ON public.sessions USING btree (date);
 CREATE INDEX idx_sessions_group ON public.sessions USING btree (group_id);
@@ -808,8 +772,10 @@ CREATE INDEX idx_transactions_client ON public.transactions USING btree (client_
 CREATE INDEX idx_transactions_date ON public.transactions USING btree (date);
 CREATE INDEX idx_transactions_project ON public.transactions USING btree (project_id);
 CREATE INDEX idx_transactions_recurring ON public.transactions USING btree (recurring_id);
+CREATE UNIQUE INDEX idx_transactions_recurring_slot ON public.transactions USING btree (user_id, recurring_id, date) WHERE ((recurring_id IS NOT NULL) AND (deleted_at IS NULL));
 CREATE INDEX idx_transactions_status ON public.transactions USING btree (status);
 CREATE INDEX idx_transactions_user ON public.transactions USING btree (user_id);
+CREATE INDEX idx_user_consent_user ON public.user_consent USING btree (user_id);
 CREATE INDEX idx_user_integrations_user ON public.user_integrations USING btree (user_id);
 CREATE INDEX idx_user_preferences_user ON public.user_preferences USING btree (user_id);
 CREATE INDEX idx_user_questions_user ON public.user_questions USING btree (user_id);
@@ -818,7 +784,6 @@ CREATE INDEX idx_user_quotes_user ON public.user_quotes USING btree (user_id);
 -- ════════════════════════════════════ Row Level Security ════════════════════════════════════
 ALTER TABLE calendar_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE client_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE client_status_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE client_statuses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
@@ -837,15 +802,14 @@ ALTER TABLE moon_snapshots ENABLE ROW LEVEL SECURITY;
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quotes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE recurring_templates ENABLE ROW LEVEL SECURITY;
-ALTER TABLE reminder_occurrences ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reminders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE scheduled_meetings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE session_attachments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE task_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE task_statuses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_consent ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_integrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_questions ENABLE ROW LEVEL SECURITY;
@@ -853,7 +817,6 @@ ALTER TABLE user_quotes ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY calendar_events_own ON calendar_events FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY categories_own ON categories FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
-CREATE POLICY client_notes_own ON client_notes FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY client_status_log_insert ON client_status_log FOR INSERT TO authenticated WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY client_status_log_select ON client_status_log FOR SELECT TO authenticated USING ((user_id = auth.uid()));
 CREATE POLICY client_statuses_own ON client_statuses FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
@@ -875,15 +838,15 @@ CREATE POLICY moon_snapshots_own ON moon_snapshots FOR ALL TO authenticated USIN
 CREATE POLICY projects_own ON projects FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY quotes_select ON quotes FOR SELECT TO authenticated USING (true);
 CREATE POLICY recurring_templates_own ON recurring_templates FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
-CREATE POLICY reminder_occurrences_own ON reminder_occurrences FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY reminders_own ON reminders FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY scheduled_meetings_own ON scheduled_meetings FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
-CREATE POLICY session_attachments_own ON session_attachments FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY sessions_own ON sessions FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY task_categories_own ON task_categories FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY task_statuses_own ON task_statuses FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY tasks_own ON tasks FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY transactions_own ON transactions FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
+CREATE POLICY user_consent_insert ON user_consent FOR INSERT TO authenticated WITH CHECK ((user_id = auth.uid()));
+CREATE POLICY user_consent_select ON user_consent FOR SELECT TO authenticated USING ((user_id = auth.uid()));
 CREATE POLICY user_preferences_own ON user_preferences FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY user_questions_own ON user_questions FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY user_quotes_own ON user_quotes FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
@@ -891,7 +854,6 @@ CREATE POLICY user_quotes_own ON user_quotes FOR ALL TO authenticated USING ((us
 -- ════════════════════════════════════ Triggers ════════════════════════════════════
 CREATE TRIGGER trg_calendar_events_updated BEFORE UPDATE ON public.calendar_events FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_categories_updated BEFORE UPDATE ON public.categories FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_client_notes_updated BEFORE UPDATE ON public.client_notes FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_client_statuses_updated BEFORE UPDATE ON public.client_statuses FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_clients_updated BEFORE UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_daily_answers_updated BEFORE UPDATE ON public.daily_answers FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -907,10 +869,8 @@ CREATE TRIGGER trg_moon_snapshots_updated BEFORE UPDATE ON public.moon_snapshots
 CREATE TRIGGER trg_projects_updated BEFORE UPDATE ON public.projects FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_quotes_updated BEFORE UPDATE ON public.quotes FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_recurring_templates_updated BEFORE UPDATE ON public.recurring_templates FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_reminder_occurrences_updated BEFORE UPDATE ON public.reminder_occurrences FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_reminders_updated BEFORE UPDATE ON public.reminders FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_scheduled_meetings_updated BEFORE UPDATE ON public.scheduled_meetings FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_session_attachments_updated BEFORE UPDATE ON public.session_attachments FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_sessions_updated BEFORE UPDATE ON public.sessions FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_task_categories_updated BEFORE UPDATE ON public.task_categories FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_task_statuses_updated BEFORE UPDATE ON public.task_statuses FOR EACH ROW EXECUTE FUNCTION set_updated_at();

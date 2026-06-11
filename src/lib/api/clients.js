@@ -10,6 +10,7 @@
 import { supabase } from '../supabase'
 import { insertClientStatusLog } from './clientStatusLog'
 import { encryptRow, decryptRow, decryptRows } from '../fieldCrypto'
+import { selectAllRows } from './paginate'
 
 /* Columns the DB owns — never send these on insert/update. */
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
@@ -22,13 +23,12 @@ function sanitize(input) {
 
 /* All live clients for the current user, newest first. */
 export async function listClients() {
-  const { data, error } = await supabase
+  const rows = await selectAllRows(() => supabase
     .from('clients')
     .select('*')
     .is('deleted_at', null)
-    .order('created_at', { ascending: false })
-  if (error) throw error
-  return decryptRows('clients', data)
+    .order('created_at', { ascending: false }))
+  return decryptRows('clients', rows)
 }
 
 export async function insertClient(input) {
@@ -84,14 +84,13 @@ export async function removeClient(id) {
 export async function listDeletedClients() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const { data, error } = await supabase
+  const rows = await selectAllRows(() => supabase
     .from('clients')
     .select('*')
     .not('deleted_at', 'is', null)
     .gte('deleted_at', thirtyDaysAgo.toISOString())
-    .order('deleted_at', { ascending: false })
-  if (error) throw error
-  return decryptRows('clients', data)
+    .order('deleted_at', { ascending: false }))
+  return decryptRows('clients', rows)
 }
 
 export async function restoreClient(id) {

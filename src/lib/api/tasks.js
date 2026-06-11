@@ -3,6 +3,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -26,13 +27,11 @@ function reconcileCompletion(row) {
 }
 
 export async function listTasks() {
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('tasks')
     .select('*')
     .is('deleted_at', null)
-    .order('created_at', { ascending: false })
-  if (error) throw error
-  return data
+    .order('created_at', { ascending: false }))
 }
 
 export async function insertTask(input) {
@@ -60,14 +59,12 @@ export async function removeTask(id) {
 export async function listDeletedTasks() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('tasks')
     .select('*')
     .not('deleted_at', 'is', null)
     .gte('deleted_at', thirtyDaysAgo.toISOString())
-    .order('deleted_at', { ascending: false })
-  if (error) throw error
-  return data
+    .order('deleted_at', { ascending: false }))
 }
 
 export async function restoreTask(id) {

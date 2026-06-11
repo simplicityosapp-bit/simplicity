@@ -6,6 +6,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -15,13 +16,11 @@ const sanitize = (input) => {
 }
 
 export async function listGroups() {
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('groups')
     .select('*')
     .is('deleted_at', null)
-    .order('created_at', { ascending: false })
-  if (error) throw error
-  return data
+    .order('created_at', { ascending: false }))
 }
 
 export async function insertGroup(input) {
@@ -48,14 +47,12 @@ export async function removeGroup(id) {
 export async function listDeletedGroups() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('groups')
     .select('*')
     .not('deleted_at', 'is', null)
     .gte('deleted_at', thirtyDaysAgo.toISOString())
-    .order('deleted_at', { ascending: false })
-  if (error) throw error
-  return data
+    .order('deleted_at', { ascending: false }))
 }
 
 export async function restoreGroup(id) {

@@ -5,6 +5,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -14,13 +15,7 @@ const sanitize = (input) => {
 }
 
 export async function listTaskCategories() {
-  const { data, error } = await supabase
-    .from('task_categories')
-    .select('*')
-    .is('deleted_at', null)
-    .order('created_at', { ascending: true })
-  if (error) throw error
-  return data
+  return selectAllRows(() => supabase.from('task_categories').select('*').is('deleted_at', null).order('created_at', { ascending: true }))
 }
 
 export async function insertTaskCategory(input) {

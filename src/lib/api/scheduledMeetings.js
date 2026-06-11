@@ -5,6 +5,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at']
 const sanitize = (input) => {
@@ -14,12 +15,10 @@ const sanitize = (input) => {
 }
 
 export async function listScheduledMeetings() {
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('scheduled_meetings')
     .select('*')
-    .order('scheduled_at', { ascending: true })
-  if (error) throw error
-  return data
+    .order('scheduled_at', { ascending: true }))
 }
 
 export async function insertScheduledMeeting(input) {

@@ -7,6 +7,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -16,13 +17,11 @@ const sanitize = (input) => {
 }
 
 export async function listUserQuotes() {
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('user_quotes')
     .select('*')
     .is('deleted_at', null)
-    .order('created_at', { ascending: false })
-  if (error) throw error
-  return data
+    .order('created_at', { ascending: false }))
 }
 
 export async function insertUserQuote(input) {

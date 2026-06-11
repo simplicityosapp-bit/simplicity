@@ -6,6 +6,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -15,13 +16,11 @@ const sanitize = (input) => {
 }
 
 export async function listGroupMembers() {
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('group_members')
     .select('*')
     .is('deleted_at', null)
-    .order('joined_at', { ascending: false })
-  if (error) throw error
-  return data
+    .order('joined_at', { ascending: false }))
 }
 
 export async function insertGroupMember(input) {

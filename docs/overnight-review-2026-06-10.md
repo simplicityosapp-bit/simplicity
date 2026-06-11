@@ -25,6 +25,13 @@ Ran a 6-agent deep review (export feature, encryption+consent, schema/RLS, api/h
 
 ## 🟠 OPEN DECISIONS — let's go through these one by one
 
+> **Resolution status (updated 2026-06-11, branch `review/followups-2026-06-11`):**
+> A ✅ pagination (deployed) · E ✅ FK indexes (migration 0025, run) · C ✅ full reset ·
+> F ✅ daily-answer upsert · G ✅ recurring unique (migration 0028) · I ✅ verified ·
+> J ✅ drop dead tables (migration 0027 — run after merge) · D ✅ schema.sql regenerated.
+> **Still open:** B (basic cache-clear done; hard-reload optional) · H ⛔ skipped (leads stay plaintext) ·
+> K ⏳ awaiting consent-model confirm · the lower-priority L–W cleanups.
+
 ### TOP PRIORITY
 
 **A. The Supabase 1000-row cap — ✅ RESOLVED 2026-06-11 (commit ed04da8).**

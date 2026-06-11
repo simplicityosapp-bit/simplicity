@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield, Plug,
+  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield, Plug, FileText,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES, ADMIN_EMAIL } from '../lib/routes'
@@ -26,6 +26,7 @@ const EXTRAS = [
   { key: 'reports',  label: 'דוחות',          icon: BarChart3,  to: ROUTES.REPORTS },
   { key: 'insights', label: 'מה איתך היום?',  icon: Sparkles,   to: ROUTES.INSIGHTS },
   { key: 'trash',    label: 'סל מיחזור',      icon: Trash2,     to: ROUTES.TRASH },
+  { key: 'legal',    label: 'מדיניות ותנאים', icon: FileText,   to: ROUTES.LEGAL },
 ]
 
 /* ════════════════════════════════════════════════════════════════

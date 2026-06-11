@@ -26,6 +26,7 @@ import { CryptoProvider, useCrypto } from './context/CryptoContext'
 import EncryptionMigrator from './components/EncryptionMigrator'
 import ConsentSync from './components/ConsentSync'
 import PolicyUpdateModal from './components/legal/PolicyUpdateModal'
+import LegalPage from './components/legal/LegalPage'
 import { needsReacceptance, readPendingConsent, clearPendingConsent, consentRowsFromMetadata } from './lib/legal'
 import { recordConsent } from './lib/api/consentLog'
 import { supabase } from './lib/supabase'
@@ -297,8 +298,22 @@ function ConsentGate({ children }) {
   return children
 }
 
+/* Public, login-free routes — served before the auth gate so logged-out
+   users (and crawlers) reach them with no splash and no app shell. */
+function PublicRoute() {
+  const { pathname } = useLocation()
+  if (pathname === ROUTES.PRIVACY) return <Navigate to={`${ROUTES.LEGAL}?tab=privacy`} replace />
+  if (pathname === ROUTES.TERMS) return <Navigate to={`${ROUTES.LEGAL}?tab=terms`} replace />
+  if (pathname === ROUTES.LEGAL) return <LegalPage />
+  return null
+}
+
+const PUBLIC_PATHS = new Set([ROUTES.LEGAL, ROUTES.PRIVACY, ROUTES.TERMS])
+
 function Root() {
   const { session, loading } = useAuth()
+  const { pathname } = useLocation()
+  if (PUBLIC_PATHS.has(pathname)) return <PublicRoute />
   if (loading || (!session && urlHasOAuthCallback())) {
     return <LoadingSplash />
   }

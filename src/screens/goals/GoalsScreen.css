@@ -276,7 +276,13 @@
   color: var(--espresso);
   cursor: pointer;
 }
-.g-entry-add { color: var(--terracotta); }
+.g-entry-add {
+  color: var(--terracotta);
+  /* Terracotta text on a transparent fill blended into the glass goal card
+     and got lost (beta 11/06). Lift onto the same --val-chip-bg backdrop used
+     for coloured values/labels so the entry button reads as a chip. */
+  background: var(--val-chip-bg);
+}
 .g-entry-toggle { margin-inline-start: auto; color: var(--stone); }
 .g-entry-count {
   font-family: var(--mg-font-num);

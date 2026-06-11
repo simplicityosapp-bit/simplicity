@@ -7,6 +7,7 @@ import { translateAuthError } from '../../auth/authErrors'
 import GoogleButton from '../../auth/GoogleButton'
 import { useAddress } from '../../hooks/useAddress'
 import { buildConsent, stashPendingConsent } from '../../lib/legal'
+import MG from '../../components/MG'
 import './AuthScreen.css'
 
 export default function SignupScreen() {
@@ -130,7 +131,7 @@ export default function SignupScreen() {
               <input type="checkbox" checked={agreePolicies} onChange={(e) => setAgreePolicies(e.target.checked)} />
               <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
               <span className="auth-check-label">
-                קראתי ומסכים/ה ל
+                קראתי ואני <MG word="agree" /> ל
                 <a className="auth-check-link" href={ROUTES.PRIVACY} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>מדיניות הפרטיות</a>
                 {' ול'}
                 <a className="auth-check-link" href={`${ROUTES.LEGAL}?tab=dpa`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>הסכם עיבוד הנתונים</a>
@@ -140,7 +141,7 @@ export default function SignupScreen() {
               <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
               <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
               <span className="auth-check-label">
-                קראתי ומסכים/ה ל
+                קראתי ואני <MG word="agree" /> ל
                 <a className="auth-check-link" href={ROUTES.TERMS} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>תנאי השימוש</a>
               </span>
             </label>
@@ -148,7 +149,7 @@ export default function SignupScreen() {
               <input type="checkbox" checked={agreeMarketing} onChange={(e) => setAgreeMarketing(e.target.checked)} />
               <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
               <span className="auth-check-label">
-                אני מסכים/ה שסימפליסיטי תשתמש באימייל שלי ליצירת קהלי פרסום (ניתן לביטול בכל עת)
+                אני <MG word="agree" /> שסימפליסיטי תשתמש באימייל שלי ליצירת קהלי פרסום (ניתן לביטול בכל עת)
               </span>
             </label>
           </div>

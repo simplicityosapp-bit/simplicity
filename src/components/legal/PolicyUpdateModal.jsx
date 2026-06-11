@@ -5,6 +5,7 @@ import { buildReacceptance } from '../../lib/legal'
 import PrivacyPolicyModal from './PrivacyPolicyModal'
 import DPAModal from './DPAModal'
 import TermsModal from './TermsModal'
+import MG from '../MG'
 import './PolicyUpdateModal.css'
 
 /* Blocking re-acceptance gate. Shown after login when the accepted privacy or
@@ -35,7 +36,7 @@ export default function PolicyUpdateModal() {
   return (
     <div className="policy-update" dir="rtl">
       <div className="policy-update-card">
-        <h2 className="policy-update-title">המסמכים המשפטיים עודכנו</h2>
+        <h2 className="policy-update-title">שינינו כמה דברים במדיניות</h2>
         <p className="policy-update-sub">אנא קרא/י ואשר/י את הגרסאות העדכניות כדי להמשיך.</p>
         {error && <p className="policy-update-error">{error}</p>}
 
@@ -44,7 +45,7 @@ export default function PolicyUpdateModal() {
             <input type="checkbox" checked={agreePrivacy} onChange={(e) => setAgreePrivacy(e.target.checked)} />
             <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
             <span className="auth-check-label">
-              קראתי ומסכים/ה ל
+              קראתי ואני <MG word="agree" /> ל
               <button type="button" className="auth-check-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal('privacy') }}>מדיניות הפרטיות</button>
             </span>
           </label>
@@ -52,7 +53,7 @@ export default function PolicyUpdateModal() {
             <input type="checkbox" checked={agreeDpa} onChange={(e) => setAgreeDpa(e.target.checked)} />
             <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
             <span className="auth-check-label">
-              קראתי ומסכים/ה ל
+              קראתי ואני <MG word="agree" /> ל
               <button type="button" className="auth-check-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal('dpa') }}>הסכם עיבוד הנתונים (DPA)</button>
             </span>
           </label>
@@ -60,7 +61,7 @@ export default function PolicyUpdateModal() {
             <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
             <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
             <span className="auth-check-label">
-              קראתי ומסכים/ה ל
+              קראתי ואני <MG word="agree" /> ל
               <button type="button" className="auth-check-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal('terms') }}>תנאי השימוש</button>
             </span>
           </label>

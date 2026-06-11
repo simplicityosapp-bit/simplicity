@@ -144,6 +144,14 @@
   font-weight: 600;
   color: var(--stone);
   letter-spacing: 0.06em;
+  /* These headings sit directly on the moon photo background (not inside a
+     card like every other prominent label), so the text blended in and was
+     hard to read (beta 11/06). Lift each onto the same --val-chip-bg backdrop
+     used for coloured values, sized to the text so it reads as a chip. */
+  width: fit-content;
+  background: var(--val-chip-bg);
+  padding: 3px 12px;
+  border-radius: 999px;
 }
 
 /* ── Category breakdown ────────────────────────────────────────── */

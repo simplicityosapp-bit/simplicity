@@ -39,6 +39,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     paid: String(rawPaid + (Number(client?.paid_adjustment) || 0)),
     adjustment: String(Number(client?.balance_adjustment) || 0),
     phone: client?.phone || '',
+    email: client?.email || '',
     project_id: client?.project_id || '',
     group_id: client?.group_id || '',
     notes: client?.notes || '',
@@ -96,6 +97,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         total_override: form.total_due !== '' ? Math.max(0, Number(form.total_due) || 0) : null,
         has_custom_price: form.total_due !== '',
         phone: form.phone.trim() || null,
+        email: form.email?.trim() || null,
         project_id: form.project_id || null,
         group_id: form.group_id || null,
         notes: form.notes.trim() || null,
@@ -281,6 +283,10 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
+      </div>
+      <div className="m-field">
+        <label className="m-label">אימייל (אופציונלי)</label>
+        <input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder="name@example.com" dir="ltr" />
       </div>
       {form.project_id && groups.some((g) => g.project_id === form.project_id) && (
         <div className="m-field">

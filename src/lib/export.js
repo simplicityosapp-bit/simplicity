@@ -86,12 +86,13 @@ export function exportTransactionsCSV({ transactions, clients, projects, categor
 
 /* Clients — round-trip-friendly columns (re-importable). */
 export function exportClientsCSV({ clients, projects, now }) {
-  const headers = ['שם', 'טלפון', 'פרויקט', 'סטטוס', 'מספר פגישות', 'מחיר לפגישה', 'הערות']
+  const headers = ['שם', 'טלפון', 'אימייל', 'פרויקט', 'סטטוס', 'מספר פגישות', 'מחיר לפגישה', 'הערות']
   const rows = (clients || [])
     .filter((c) => !c.deleted_at)
     .map((c) => [
       c.name || '',
       c.phone || '',
+      c.email || '',
       nameById(projects, c.project_id),
       STATUS_META_HE[c.status_meta] || '',
       c.sessions != null ? String(c.sessions) : '',
@@ -151,9 +152,9 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
     ]))
 
   addSheet('לקוחות',
-    ['שם', 'טלפון', 'פרויקט', 'סטטוס', 'מספר פגישות', 'מחיר לפגישה', 'הערות'],
+    ['שם', 'טלפון', 'אימייל', 'פרויקט', 'סטטוס', 'מספר פגישות', 'מחיר לפגישה', 'הערות'],
     (clients || []).filter((c) => !c.deleted_at).map((c) => [
-      c.name || '', c.phone || '', nameById(projects, c.project_id), STATUS_META_HE[c.status_meta] || '',
+      c.name || '', c.phone || '', c.email || '', nameById(projects, c.project_id), STATUS_META_HE[c.status_meta] || '',
       c.sessions != null ? String(c.sessions) : '', fmtAmount(Number(c.price_per_session || 0)), c.notes || '',
     ]))
 

@@ -16,9 +16,19 @@ import { encryptField, decryptField } from './crypto'
 /* Columns encrypted per table. NAMES stay plaintext on purpose, so server-side
    calendar matching + sort + search keep working. */
 export const ENCRYPTED_FIELDS = {
-  clients: ['phone', 'notes'],
+  clients: ['notes'],
   sessions: ['notes', 'summary'],
   moon_snapshots: ['reflection'],
+}
+
+/* Fields being UN-encrypted: decrypted on read but NOT encrypted on write.
+   clients.phone was encrypted; it is now stored plaintext (so invoicing
+   integrations can read it), but rows written before the change may still
+   hold "ENC:" at rest — keep decrypting it on read until the one-time
+   phoneDecryptMigration has cleared every row. Remove this entry once the
+   backfill is confirmed complete for all users. */
+export const LEGACY_DECRYPT_FIELDS = {
+  clients: ['phone'],
 }
 
 let activeKey = null
@@ -38,10 +48,12 @@ export async function encryptRow(table, row) {
   return out
 }
 
-/* Decrypt the configured fields on a row coming back from the DB. */
+/* Decrypt the configured fields on a row coming back from the DB. Includes the
+   LEGACY_DECRYPT_FIELDS (being un-encrypted) so any not-yet-backfilled "ENC:"
+   value still reads as plaintext; decryptField is a no-op on already-plaintext. */
 export async function decryptRow(table, row) {
-  const fields = ENCRYPTED_FIELDS[table]
-  if (!row || !fields) return row
+  const fields = [...(ENCRYPTED_FIELDS[table] || []), ...(LEGACY_DECRYPT_FIELDS[table] || [])]
+  if (!row || !fields.length) return row
   const out = { ...row }
   for (const f of fields) {
     if (Object.prototype.hasOwnProperty.call(out, f)) out[f] = await decryptField(out[f], activeKey)

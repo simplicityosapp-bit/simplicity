@@ -128,6 +128,11 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
         </div>
       </div>
 
+      <div className="m-field">
+        <label className="m-label">אימייל (אופציונלי)</label>
+        <input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder="name@example.com" dir="ltr" />
+      </div>
+
       {groups.length > 0 && (
         <div className="m-field">
           <label className="m-label">קבוצה (אופציונלי)</label>

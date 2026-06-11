@@ -8,7 +8,7 @@ import { useAddress } from '../hooks/useAddress'
 const blank = () => ({
   name: '', status: 'active', status_id: '', sessions: '', price_per_session: '',
   billing_mode: 'package',
-  phone: '', project_id: '', group_id: '',
+  phone: '', email: '', project_id: '', group_id: '',
   recurring_day: '', recurring_time: '',
 })
 
@@ -47,6 +47,7 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
         recurring_time: form.recurring_day !== '' ? (form.recurring_time || null) : null,
         left_mid_process: false,
         phone: form.phone.trim() || null,
+        email: form.email?.trim() || null,
         notes: null,
         notes_updated_at: null,
       })

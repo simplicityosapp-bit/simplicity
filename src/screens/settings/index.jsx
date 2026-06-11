@@ -36,6 +36,7 @@ import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { addressUser } from '../../lib/address'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
 import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV, exportAllXLSX } from '../../lib/export'
+import { loadSensitiveExportData } from '../../lib/exportSensitive'
 import ExportDataModal from '../../modals/ExportDataModal'
 import { defaultOnboarding } from '../../lib/preferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
@@ -607,6 +608,10 @@ export default function SettingsScreen() {
         }
       },
     })
+    /* Forward path must refresh clients/leads too — the reassign changed their
+       status_id; the undo/redo paths already refetch, so mirror them here. */
+    if (kind === 'lead') { refetchLeadStatuses(); refetchLeads() }
+    else { refetchClientStatuses(); refetchClients() }
   }
   const [showReset, setShowReset] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
@@ -793,15 +798,19 @@ export default function SettingsScreen() {
       })
       const exportClients = () => exportClientsCSV({ clients: dataClients, projects: dataProjects, now: new Date() })
       const exportProjects = () => exportProjectsCSV({ projects: dataProjects, now: new Date() })
-      const exportEverything = () => exportAllXLSX({
-        transactions: txAll,
-        clients: dataClients,
-        projects: dataProjects,
-        categories: dataCategories,
-        leads: dataLeads,
-        tasks: dataTasks,
-        now: new Date(),
-      })
+      const exportEverything = async (sel = {}) => {
+        const sensitive = await loadSensitiveExportData(sel, gender)
+        await exportAllXLSX({
+          transactions: txAll,
+          clients: dataClients,
+          projects: dataProjects,
+          categories: dataCategories,
+          leads: dataLeads,
+          tasks: dataTasks,
+          now: new Date(),
+          sensitive,
+        })
+      }
       const counts = [
         { l: 'לקוחות', n: dataClients?.length || 0 },
         { l: 'תנועות', n: txAll.length },

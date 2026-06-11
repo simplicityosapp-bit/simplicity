@@ -11,6 +11,7 @@
 
 import { supabase } from '../supabase'
 import { encryptRow, decryptRow, decryptRows } from '../fieldCrypto'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -20,13 +21,12 @@ const sanitize = (input) => {
 }
 
 export async function listSessions() {
-  const { data, error } = await supabase
+  const rows = await selectAllRows(() => supabase
     .from('sessions')
     .select('*')
     .is('deleted_at', null)
-    .order('date', { ascending: false })
-  if (error) throw error
-  return decryptRows('sessions', data)
+    .order('date', { ascending: false }))
+  return decryptRows('sessions', rows)
 }
 
 export async function insertSession(input) {
@@ -53,14 +53,13 @@ export async function removeSession(id) {
 export async function listDeletedSessions() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const { data, error } = await supabase
+  const rows = await selectAllRows(() => supabase
     .from('sessions')
     .select('*')
     .not('deleted_at', 'is', null)
     .gte('deleted_at', thirtyDaysAgo.toISOString())
-    .order('deleted_at', { ascending: false })
-  if (error) throw error
-  return decryptRows('sessions', data)
+    .order('deleted_at', { ascending: false }))
+  return decryptRows('sessions', rows)
 }
 
 export async function restoreSession(id) {

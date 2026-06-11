@@ -45,7 +45,7 @@ export function CryptoProvider({ children }) {
         console.error('[crypto] key derivation failed', e)
         setKey(null); setIsReady(false); setError('derive-failed')
       })
-    return () => { cancelled = true }
+    return () => { cancelled = true; clearActiveKey() }
   }, [user?.id, attempt])
 
   const encryptField = useCallback((value) => encWithKey(value, key), [key])

@@ -185,13 +185,18 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
 
   const requestClose = () => { if (busy) return; if (dirty) setConfirmingClose(true); else onCancel() }
 
-  /* Escape closes (guarded by the dirty confirm) + focus into dialog. */
+  /* Focus the dialog ONCE on mount. (Previously this ran on every render with
+     no dep array, so it stole focus back from the inline inputs on every
+     keystroke — typing in the review rows was broken.) */
+  useEffect(() => { panelRef.current?.focus() }, [])
+
+  /* Escape closes (guarded by the dirty confirm). Re-bind when the values
+     requestClose reads change, so the handler never goes stale. */
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') requestClose() }
     document.addEventListener('keydown', onKey)
-    panelRef.current?.focus()
     return () => document.removeEventListener('keydown', onKey)
-  }) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [busy, dirty]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const patchRow = (type, idx, patch) => {
     setDirty(true)

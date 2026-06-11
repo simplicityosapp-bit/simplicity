@@ -14,6 +14,7 @@
 
 import { supabase } from '../supabase'
 import { encryptRow, decryptRow, decryptRows } from '../fieldCrypto'
+import { selectAllRows } from './paginate'
 
 /* YYYY-MM-DD in local time (matches the DATE column semantics). */
 function localDateString(d = new Date()) {
@@ -59,12 +60,13 @@ export async function upsertMoonSnapshot({
 
 /* Snapshots in a date range, ascending. Used by the trend chart. */
 export async function getMoonSnapshotRange(fromDate, toDate) {
-  let q = supabase.from('moon_snapshots').select('*').order('date', { ascending: true })
-  if (fromDate) q = q.gte('date', fromDate)
-  if (toDate) q = q.lte('date', toDate)
-  const { data, error } = await q
-  if (error) throw error
-  return decryptRows('moon_snapshots', data)
+  const rows = await selectAllRows(() => {
+    let q = supabase.from('moon_snapshots').select('*').order('date', { ascending: true })
+    if (fromDate) q = q.gte('date', fromDate)
+    if (toDate) q = q.lte('date', toDate)
+    return q
+  })
+  return decryptRows('moon_snapshots', rows)
 }
 
 /* Last N days of snapshots (inclusive of today). */

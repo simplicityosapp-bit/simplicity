@@ -6,6 +6,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -15,13 +16,11 @@ const sanitize = (input) => {
 }
 
 export async function listDailyAnswers() {
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('daily_answers')
     .select('*')
     .is('deleted_at', null)
-    .order('date', { ascending: false })
-  if (error) throw error
-  return data
+    .order('date', { ascending: false }))
 }
 
 export async function insertDailyAnswer(input) {
@@ -42,14 +41,12 @@ export async function removeDailyAnswer(id) {
 export async function listDeletedDailyAnswers() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('daily_answers')
     .select('*')
     .not('deleted_at', 'is', null)
     .gte('deleted_at', thirtyDaysAgo.toISOString())
-    .order('deleted_at', { ascending: false })
-  if (error) throw error
-  return data
+    .order('deleted_at', { ascending: false }))
 }
 
 export async function restoreDailyAnswer(id) {

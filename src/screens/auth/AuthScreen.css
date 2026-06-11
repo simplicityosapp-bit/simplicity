@@ -189,7 +189,7 @@
   margin-top: 6px;
 }
 .auth-btn:hover {
-  background: var(--mg-btn-primary-bg-hover, #b15942);
+  background: var(--mg-btn-primary-bg-hover, #B86E52);
 }
 .auth-btn:active {
   transform: scale(0.99);

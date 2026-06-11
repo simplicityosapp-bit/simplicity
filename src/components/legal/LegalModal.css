@@ -100,7 +100,7 @@
   cursor: pointer;
   transition: background 0.15s, transform 0.12s;
 }
-.legal-close:hover { background: var(--mg-btn-primary-bg-hover, #b15942); }
+.legal-close:hover { background: var(--mg-btn-primary-bg-hover, #B86E52); }
 .legal-close:active { transform: scale(0.99); }
 
 @media (max-width: 640px) {

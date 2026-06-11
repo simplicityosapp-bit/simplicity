@@ -10,6 +10,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -19,13 +20,11 @@ const sanitize = (input) => {
 }
 
 export async function listRecurring() {
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('recurring_templates')
     .select('*')
     .is('deleted_at', null)
-    .order('created_at', { ascending: false })
-  if (error) throw error
-  return data
+    .order('created_at', { ascending: false }))
 }
 
 export async function insertRecurring(input) {
@@ -52,14 +51,12 @@ export async function removeRecurring(id) {
 export async function listDeletedRecurring() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('recurring_templates')
     .select('*')
     .not('deleted_at', 'is', null)
     .gte('deleted_at', thirtyDaysAgo.toISOString())
-    .order('deleted_at', { ascending: false })
-  if (error) throw error
-  return data
+    .order('deleted_at', { ascending: false }))
 }
 
 export async function restoreRecurring(id) {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { showError } from '../lib/toast'
+import { selectAllRows } from '../lib/api/paginate'
 
 /* Reads the synced `calendar_events` (own rows via RLS) and lets the user
    assign an entity by hand to an unmatched event. The sync upsert itself
@@ -11,13 +12,11 @@ import { showError } from '../lib/toast'
 const MATCH_FIELDS = ['client_id', 'project_id', 'lead_id', 'group_id']
 
 async function fetchCalendarEvents() {
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('calendar_events')
     .select('*')
     .is('deleted_at', null)
-    .order('start_time', { ascending: false })
-  if (error) throw error
-  return data || []
+    .order('start_time', { ascending: false }))
 }
 
 export function useCalendarEvents() {

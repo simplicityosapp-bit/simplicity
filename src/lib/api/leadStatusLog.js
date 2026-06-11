@@ -10,6 +10,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 /* Valid `source` values per schema check constraint. */
 export const LEAD_STATUS_LOG_SOURCES = ['manual_drag', 'manual_select', 'converted', 'auto_expire']
@@ -39,23 +40,21 @@ export async function insertLeadStatusLog({ leadId, fromStatusId, toStatusId, ch
 
 /* All transitions for a single lead, oldest first. */
 export async function listLeadStatusLog(leadId) {
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('lead_status_log')
     .select('*')
     .eq('lead_id', leadId)
-    .order('changed_at', { ascending: true })
-  if (error) throw error
-  return data
+    .order('changed_at', { ascending: true }))
 }
 
 /* All transitions in a date range, across every lead. */
 export async function getLeadStatusLogRange(fromISO, toISO) {
-  let q = supabase.from('lead_status_log').select('*').order('changed_at', { ascending: true })
-  if (fromISO) q = q.gte('changed_at', fromISO)
-  if (toISO) q = q.lte('changed_at', toISO)
-  const { data, error } = await q
-  if (error) throw error
-  return data
+  return selectAllRows(() => {
+    let q = supabase.from('lead_status_log').select('*').order('changed_at', { ascending: true })
+    if (fromISO) q = q.gte('changed_at', fromISO)
+    if (toISO) q = q.lte('changed_at', toISO)
+    return q
+  })
 }
 
 /* Count log rows for a single lead — used by the seed step. */

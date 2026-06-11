@@ -8,6 +8,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 /* 8-colour palette ported from the prototype's CAT_COLORS in core.js.
    Categories pick from this fixed set so the UI doesn't need a full
@@ -25,13 +26,7 @@ const sanitize = (input) => {
 }
 
 export async function listCategories() {
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .is('deleted_at', null)
-    .order('created_at', { ascending: true })
-  if (error) throw error
-  return data
+  return selectAllRows(() => supabase.from('categories').select('*').is('deleted_at', null).order('created_at', { ascending: true }))
 }
 
 export async function insertCategory(input) {
@@ -58,14 +53,7 @@ export async function removeCategory(id) {
 export async function listDeletedCategories() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .not('deleted_at', 'is', null)
-    .gte('deleted_at', thirtyDaysAgo.toISOString())
-    .order('deleted_at', { ascending: false })
-  if (error) throw error
-  return data
+  return selectAllRows(() => supabase.from('categories').select('*').not('deleted_at', 'is', null).gte('deleted_at', thirtyDaysAgo.toISOString()).order('deleted_at', { ascending: false }))
 }
 
 export async function restoreCategory(id) {

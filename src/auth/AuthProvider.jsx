@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { queryClient } from '../lib/queryClient'
 import { AuthContext } from './AuthContext'
 
 export default function AuthProvider({ children }) {
@@ -13,7 +14,10 @@ export default function AuthProvider({ children }) {
       setSession(data.session)
       setLoading(false)
     })
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+      // Drop all cached user data on sign-out, so a different account signing
+      // in on the same tab can't briefly render the previous user's rows.
+      if (event === 'SIGNED_OUT') queryClient.clear()
       setSession(s)
     })
     return () => {

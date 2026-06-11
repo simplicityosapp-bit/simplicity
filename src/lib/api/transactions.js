@@ -3,6 +3,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -12,13 +13,11 @@ const sanitize = (input) => {
 }
 
 export async function listTransactions() {
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('transactions')
     .select('*')
     .is('deleted_at', null)
-    .order('date', { ascending: false })
-  if (error) throw error
-  return data
+    .order('date', { ascending: false }))
 }
 
 export async function insertTransaction(input) {
@@ -45,14 +44,12 @@ export async function removeTransaction(id) {
 export async function listDeletedTransactions() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('transactions')
     .select('*')
     .not('deleted_at', 'is', null)
     .gte('deleted_at', thirtyDaysAgo.toISOString())
-    .order('deleted_at', { ascending: false })
-  if (error) throw error
-  return data
+    .order('deleted_at', { ascending: false }))
 }
 
 export async function restoreTransaction(id) {

@@ -5,6 +5,7 @@
    in the new-lead modal and on the lead card. */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -14,13 +15,7 @@ const sanitize = (input) => {
 }
 
 export async function listLeadSources() {
-  const { data, error } = await supabase
-    .from('lead_sources')
-    .select('*')
-    .is('deleted_at', null)
-    .order('created_at', { ascending: true })
-  if (error) throw error
-  return data
+  return selectAllRows(() => supabase.from('lead_sources').select('*').is('deleted_at', null).order('created_at', { ascending: true }))
 }
 
 export async function insertLeadSource(input) {
@@ -47,14 +42,7 @@ export async function removeLeadSource(id) {
 export async function listDeletedLeadSources() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const { data, error } = await supabase
-    .from('lead_sources')
-    .select('*')
-    .not('deleted_at', 'is', null)
-    .gte('deleted_at', thirtyDaysAgo.toISOString())
-    .order('deleted_at', { ascending: false })
-  if (error) throw error
-  return data
+  return selectAllRows(() => supabase.from('lead_sources').select('*').not('deleted_at', 'is', null).gte('deleted_at', thirtyDaysAgo.toISOString()).order('deleted_at', { ascending: false }))
 }
 
 export async function restoreLeadSource(id) {

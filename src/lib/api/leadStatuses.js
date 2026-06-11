@@ -4,6 +4,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 const sanitize = (input) => {
@@ -13,12 +14,7 @@ const sanitize = (input) => {
 }
 
 export async function listLeadStatuses() {
-  const { data, error } = await supabase
-    .from('lead_statuses')
-    .select('*')
-    .is('deleted_at', null)
-    .order('created_at', { ascending: true })
-  if (error) throw error
+  const data = await selectAllRows(() => supabase.from('lead_statuses').select('*').is('deleted_at', null).order('created_at', { ascending: true }))
   /* Sort by sort_order CLIENT-SIDE (not in the query): the column is
      added by migration 0009, and ordering by a non-existent column makes
      PostgREST return 400 — which would wipe out ALL sub-statuses on any
@@ -51,14 +47,7 @@ export async function removeLeadStatus(id) {
 export async function listDeletedLeadStatuses() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const { data, error } = await supabase
-    .from('lead_statuses')
-    .select('*')
-    .not('deleted_at', 'is', null)
-    .gte('deleted_at', thirtyDaysAgo.toISOString())
-    .order('deleted_at', { ascending: false })
-  if (error) throw error
-  return data
+  return selectAllRows(() => supabase.from('lead_statuses').select('*').not('deleted_at', 'is', null).gte('deleted_at', thirtyDaysAgo.toISOString()).order('deleted_at', { ascending: false }))
 }
 
 export async function restoreLeadStatus(id) {

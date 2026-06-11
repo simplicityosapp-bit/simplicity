@@ -3,9 +3,8 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 export async function listQuotes() {
-  const { data, error } = await supabase.from('quotes').select('*')
-  if (error) throw error
-  return data
+  return selectAllRows(() => supabase.from('quotes').select('*'))
 }

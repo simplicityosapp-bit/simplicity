@@ -6,6 +6,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 /* Insert a single transition row. `oldStatus` may be null (initial seed
    or first row). Throws on error — callers wanting fire-and-forget
@@ -27,24 +28,22 @@ export async function insertClientStatusLog({ clientId, oldStatus, newStatus, ch
 
 /* All transitions for a client, oldest first (chronological). */
 export async function listClientStatusLog(clientId) {
-  const { data, error } = await supabase
+  return selectAllRows(() => supabase
     .from('client_status_log')
     .select('*')
     .eq('client_id', clientId)
-    .order('changed_at', { ascending: true })
-  if (error) throw error
-  return data
+    .order('changed_at', { ascending: true }))
 }
 
 /* All transitions in a date range across every client. Used by the
    "active clients over time" trend on the moon-glance drawer. */
 export async function getClientStatusLogRange(fromISO, toISO) {
-  let q = supabase.from('client_status_log').select('*').order('changed_at', { ascending: true })
-  if (fromISO) q = q.gte('changed_at', fromISO)
-  if (toISO) q = q.lte('changed_at', toISO)
-  const { data, error } = await q
-  if (error) throw error
-  return data
+  return selectAllRows(() => {
+    let q = supabase.from('client_status_log').select('*').order('changed_at', { ascending: true })
+    if (fromISO) q = q.gte('changed_at', fromISO)
+    if (toISO) q = q.lte('changed_at', toISO)
+    return q
+  })
 }
 
 /* Count log rows for a single client — used by the seed step to

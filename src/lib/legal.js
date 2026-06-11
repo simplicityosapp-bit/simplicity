@@ -49,6 +49,28 @@ export function marketingConsent(user) {
   return !!user?.user_metadata?.marketing_consent
 }
 
+/* Derive the durable user_consent rows from a consent block (user_metadata OR
+   the pending-stash object — same shape). Records the privacy + DPA acceptances
+   and the marketing choice (opt-in OR opt-out) at the moment it was made.
+   `accepted_at` is the dedup key, so re-deriving + re-recording is idempotent. */
+export function consentRowsFromMetadata(md, source = 'backfill') {
+  if (!md) return []
+  const rows = []
+  if (md.privacy_version && md.privacy_accepted_at) {
+    rows.push({ kind: 'privacy', version: md.privacy_version, accepted: true, source, accepted_at: md.privacy_accepted_at })
+  }
+  if (md.dpa_version && md.dpa_accepted_at) {
+    rows.push({ kind: 'dpa', version: md.dpa_version, accepted: true, source, accepted_at: md.dpa_accepted_at })
+  }
+  /* Record the marketing choice (in or out) at the moment it was made — an
+     opt-out is timestamped at the privacy-acceptance moment (signup). */
+  const mAt = md.marketing_consent_at || md.privacy_accepted_at
+  if (md.marketing_consent !== undefined && mAt) {
+    rows.push({ kind: 'marketing', version: null, accepted: !!md.marketing_consent, source, accepted_at: mAt })
+  }
+  return rows
+}
+
 /* ── Pending-consent stash (Google signup) ──────────────────────────
    OAuth redirects away from the signup form, so we stash the consent the
    user gave (checkboxes) before redirecting, and write it to user_metadata

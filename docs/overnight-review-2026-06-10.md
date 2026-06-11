@@ -27,14 +27,14 @@ Ran a 6-agent deep review (export feature, encryption+consent, schema/RLS, api/h
 
 ### TOP PRIORITY
 
-**A. The Supabase 1000-row cap (most pervasive issue).**
-Every list function uses `.select()` with **no `.range()`/`.limit()`** → PostgREST silently returns at most 1000 rows. The only paginated code in the app is `encryptionMigration.js`. Impact by table:
+**A. The Supabase 1000-row cap — ✅ RESOLVED 2026-06-11 (commit ed04da8).**
+Every list function used `.select()` with **no `.range()`/`.limit()`** → PostgREST silently returned at most 1000 rows. The only paginated code was `encryptionMigration.js`. Impact by table:
 - `transactions` — finance totals/charts truncate; the recurring engine's dedup set is built from the capped list → **can generate duplicate pending transactions**.
 - `sessions` — session counts, moon engine, "sessions this month", history all undercount.
 - `daily_answers` — 5 questions × 365 days hits 1000 in ~200 days → insights trends/heatmaps corrupt.
 - `goal_entries`, `tasks`, status logs — similar.
 - **The new export** silently truncates a "full backup" for heavy users — worst failure mode.
-**Decision:** paginate-all (loop `.range()` until short page) vs windowed fetch per screen. Probably both: paginate the export + the engines now; window the screens. *I did not touch this — it's architectural and affects the whole app.*
+**Resolution:** chose **uniform pagination**. New `src/lib/api/paginate.js` → `selectAllRows()` loops `.range()` until a short page; applied to all 33 api collection reads (list/listDeleted/range) + the `calendar_events` read in `useCalendarEvents`. Backward-compatible (same return shape; one round-trip for sub-1000-row tables); single-row/count/mutation untouched. This also fixes the **export** truncation and the **truncation-driven duplicate recurring-transaction generation** (the dedup set is now complete). Still open: the separate `UNIQUE(user_id, recurring_id, date)` guard against *concurrent-tab* generation (item G).
 
 **B. Cache-clear on sign-out — is `queryClient.clear()` enough?** I added it (#1). But several hooks (`useGoalEntries`, `useReminders`, `useRecurring`, `useGroupMembers`, statuses…) are `useState`-based, not React Query — they reset only because logout unmounts the tree. The agent's "most robust" suggestion was a hard `window.location` reset on sign-out. **Decision:** keep the cache-clear, or go full hard-reload?
 

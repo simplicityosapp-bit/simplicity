@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Upload, FileSpreadsheet } from 'lucide-react'
-import { parseXlsxSheets, parseCsvFile, ROW_CAP } from '../../../lib/csvImport'
-import { buildSheetMapping } from '../../../lib/sheetMapper'
-import { buildPivotConfig, detectMatrix, flattenMatrix, yearFromSheetName } from '../../../lib/pivotImport'
+import { ROW_CAP } from '../../../lib/csvImport'
+import { projectSheet } from '../../../lib/sheetMapper'
+import { buildSheetsFromFiles, ACCEPT } from '../../../lib/importFlow'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import { addressUser } from '../../../lib/address'
 import UnifiedSheetImporter from '../UnifiedSheetImporter'
@@ -13,8 +13,6 @@ import UnifiedSheetImporter from '../UnifiedSheetImporter'
    sheets fall back to the column-mapping editor. The result is stashed
    in ob.parsed_data so downstream steps + the review wizard can use it. */
 
-const ACCEPT = '.csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-
 export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
   const { prefs } = useUserPreferences()
   const gender = prefs?.design?.gender || 'neutral'
@@ -22,7 +20,7 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
   const initial = ob.state.answers?.data_import || {}
   const [mode, setMode] = useState(initial.mode || null) // 'A' | 'B' | null
   const [fileName, setFileName] = useState(initial.file_name || '')
-  const [rowCount, setRowCount] = useState(null)
+  const [, setRowCount] = useState(null)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
 
@@ -32,45 +30,19 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
   const handleFiles = async (fileList) => {
     const files = Array.from(fileList || [])
     if (!files.length) return
+    /* Catch an unsupported file BEFORE trying to parse it, so the user gets
+       a clear "export to CSV" path instead of a generic "couldn't read". */
+    const UNSUPPORTED = ['pdf', 'numbers', 'pages', 'png', 'jpg', 'jpeg', 'gif', 'heic', 'webp', 'doc', 'docx', 'gsheet']
+    const bad = files.find((f) => UNSUPPORTED.includes((f.name.split('.').pop() || '').toLowerCase()))
+    if (bad) {
+      setErr('הפורמט הזה לא נתמך לייבוא. אפשר לייבא CSV או Excel (xlsx/xls) — אם הקובץ בנאמברס או בגוגל-שיטס, אפשר לייצא אותו ל-CSV ולנסות שוב.')
+      return
+    }
     setBusy(true); setErr('')
     try {
-      /* Read EVERY sheet of EVERY file into a unified list. Each sheet
-         becomes one editable mapping (entity type + columns); matrix
-         sheets also carry a pivot config. The user confirms/fixes each. */
-      const sheets = []
-      for (const file of files) {
-        const isCsv = /\.(csv|tsv|txt)$/i.test(file.name) || file.type === 'text/csv'
-        let raw
-        if (isCsv) {
-          const csv = await parseCsvFile(file) // parse ONCE (was parsed twice)
-          raw = [{ sheetName: null, rows: [csv.headers, ...(csv.rows || [])] }]
-        } else {
-          raw = await parseXlsxSheets(file)
-        }
-        raw.forEach(({ sheetName, rows }) => {
-          /* Cap the data rows we persist — parsed_data lives in the
-             user_preferences JSONB blob, so an oversized sheet would bloat
-             it. We keep the header + first ROW_CAP rows and flag the cut so
-             the UI can surface it (mirrors the flat parseFile path). */
-          const rawDataCount = Math.max(0, (rows?.length || 0) - 1)
-          const capped = rawDataCount > ROW_CAP ? [rows[0], ...rows.slice(1, ROW_CAP + 1)] : rows
-          const sheet = buildSheetMapping(file.name, sheetName, capped)
-          if (rawDataCount > ROW_CAP) {
-            sheet.truncated = true
-            sheet.raw_rows = rawDataCount
-            sheet.row_cap = ROW_CAP
-          }
-          if (sheet.type === 'matrix') {
-            const headers = sheet.headers
-            const det = detectMatrix(headers)
-            const year = yearFromSheetName(sheetName) || yearFromSheetName(file.name)
-            sheet.pivot = buildPivotConfig(headers, sheet.rows, det, year)
-            sheet.pivotTransactions = flattenMatrix(sheet.rows, { ...sheet.pivot, skipRows: new Set(sheet.pivot.skipRows) })
-          }
-          sheets.push(sheet)
-        })
-      }
-      const names = files.map((f) => f.name).join(', ')
+      /* Read EVERY sheet of EVERY file into a unified list of editable sheet
+         descriptors (the same engine the in-app import now uses). */
+      const { sheets, names } = await buildSheetsFromFiles(files)
       setFileName(names)
       setRowCount(sheets.reduce((s, sh) => s + (sh.rows?.length || 0), 0))
       await ob.setParsedData({
@@ -83,8 +55,9 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
       await ob.setAnswers('data_import', {
         mode: 'A', file_name: names, parsed_at: new Date().toISOString(), sheet_count: sheets.length,
       })
-    } catch (e) {
-      setErr('הקובץ לא נקרא — ודא/י שזה CSV או Excel תקין, או בחר/י להתחיל מאפס.')
+    } catch {
+      setErr('הקובץ לא נקרא — ' + addressUser(gender, { male: 'ודא', female: 'ודאי', neutral: 'ודא/י' })
+        + ' שזה CSV או Excel תקין ושאינו פתוח כרגע בתוכנה אחרת, או שאפשר להתחיל מאפס.')
     } finally {
       setBusy(false)
     }
@@ -116,7 +89,29 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
        and approves, but NOTHING is written yet. The approval is recorded and
        the FINAL creation happens once, at step 9 (which leans on it). If the
        wizard opens it owns advancing; otherwise advance normally. */
-    if (finalMode === 'A' && onReviewFromStep?.()) return
+    if (finalMode === 'A') {
+      /* Guard against a silent no-op advance: if the file was read but the
+         current typing/mapping yields zero entities, keep the user on the
+         step (cards stay visible) with a clear, fixable nudge instead of
+         slipping past with nothing imported. */
+      const live = (ob.state.parsed_data?.sheets || []).filter((s) => !s.removed)
+      let total = 0
+      live.forEach((s) => {
+        if (s.type === 'matrix') { total += (s.pivotTransactions || []).length; return }
+        if (s.type === 'ignore') return
+        const p = projectSheet(s)
+        total += p.clients.length + p.projects.length + p.leads.length + p.transactions.length + (p.sessions?.length || 0)
+      })
+      if (fileName && total === 0) {
+        setErr(addressUser(gender, {
+          male:    'קראנו את הקובץ אבל לא זיהינו ממנו לקוחות, פרויקטים או תנועות. כדאי לבדוק שהסוג נכון לכל טבלה ושעמודת השם/הסכום ממופה — או לבחור "מתחיל מאפס".',
+          female:  'קראנו את הקובץ אבל לא זיהינו ממנו לקוחות, פרויקטים או תנועות. כדאי לבדוק שהסוג נכון לכל טבלה ושעמודת השם/הסכום ממופה — או לבחור "מתחילה מאפס".',
+          neutral: 'קראנו את הקובץ אבל לא זיהינו ממנו לקוחות, פרויקטים או תנועות. כדאי לבדוק שהסוג נכון לכל טבלה ושעמודת השם/הסכום ממופה — או לבחור "מתחיל/ה מאפס".',
+        }))
+        return
+      }
+      if (onReviewFromStep?.()) return
+    }
     await ob.advance()
   }
 
@@ -130,9 +125,9 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
   return (
     <>
       <p className="ob-intro">{addressUser(gender, {
-        male:    'יש לך דאטה שאתה רוצה להעלות?',
-        female:  'יש לך דאטה שאת רוצה להעלות?',
-        neutral: 'יש לך דאטה שאת/ה רוצה להעלות?',
+        male:    'יש לך נתונים שאתה רוצה להעלות?',
+        female:  'יש לך נתונים שאת רוצה להעלות?',
+        neutral: 'יש לך נתונים שאת/ה רוצה להעלות?',
       })}</p>
       <p className="ob-intro-sub">אם יש נעבור על זה יחד ונכניס למערכת — אם לא נמשיך יחד בצעדים קטנים :)</p>
 
@@ -145,7 +140,7 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
           <span className="ob-option-card-l">
             <FileSpreadsheet size={16} strokeWidth={1.7} aria-hidden="true" /> כן, יש לי
           </span>
-          <p className="ob-option-card-sub">CSV או Excel — אפשר כמה קבצים יחד, נוציא מהם מה שאפשר.</p>
+          <p className="ob-option-card-sub">CSV או Excel — אפשר כמה קבצים יחד, נזהה את העמודות ותמיד תעברו על הכול לפני שמשהו נשמר.</p>
         </button>
         <button
           type="button"
@@ -173,18 +168,36 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
         onChange={(e) => handleFiles(e.target.files)}
       />
 
-      {busy && <p className="ob-empty-hint">מעבד…</p>}
-      {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
+      <div aria-live="polite" aria-atomic="true">
+        {busy && <p className="ob-empty-hint" role="status">מעבד את הקובץ…</p>}
+        {err && <p className="ob-empty-hint" role="alert" style={{ color: 'var(--clay)' }}>{err}</p>}
+      </div>
 
       {/* One editable card per sheet: detected entity type + column
           mapping. Anything unrecognised is surfaced for the user to set. */}
-      {ob.state.parsed_data?.sheets?.length > 0 && (
-        <UnifiedSheetImporter sheets={ob.state.parsed_data.sheets} onChange={onSheetsChange} />
+      {sheets.length > 0 && (
+        <>
+          <UnifiedSheetImporter sheets={ob.state.parsed_data.sheets} onChange={onSheetsChange} gender={gender} />
+          <p className="ob-intro-sub" style={{ textAlign: 'center' }}>
+            {addressUser(gender, {
+              male:    'רק קראנו את הקובץ — שום דבר עוד לא נשמר. בשלב הבא תעבור על הכול ותאשר.',
+              female:  'רק קראנו את הקובץ — שום דבר עוד לא נשמר. בשלב הבא תעברי על הכול ותאשרי.',
+              neutral: 'רק קראנו את הקובץ — שום דבר עוד לא נשמר. בשלב הבא תעברו על הכול ותאשרו.',
+            })}
+          </p>
+        </>
+      )}
+
+      {/* File read OK but nothing to import (empty / all sheets ignored). */}
+      {mode === 'A' && fileName && !busy && !err && sheets.length === 0 && (
+        <p className="ob-empty-hint" role="status">
+          הקובץ נקרא אבל לא נמצאו בו נתונים לייבוא. אם זה הקובץ הנכון, אפשר לייצא אותו מחדש כ-CSV — או שנמשיך יחד מאפס.
+        </p>
       )}
 
       {ob.state.parsed_data?.sheets?.some((s) => s.truncated) && (
         <p className="ob-empty-hint" style={{ color: 'var(--amber-warn)' }}>
-          חלק מהגיליונות נקטעו ל-{ROW_CAP} השורות הראשונות כדי לשמור על ביצועים. אפשר לייבא את השאר בנפרד בהמשך.
+          חלק מהטבלאות נקטעו ל-{ROW_CAP} השורות הראשונות כדי לשמור על ביצועים. אפשר לייבא את השאר בנפרד בהמשך.
         </p>
       )}
 

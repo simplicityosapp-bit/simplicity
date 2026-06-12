@@ -17,9 +17,13 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { detectMatrix } from './pivotImport'
-import { detectColumnType, parseAmount } from './columnDetect'
+import { detectColumnType, parseAmount, findHeaderRow } from './columnDetect'
 import { normalizeDate } from './csvImport'
 import { mapValueToMetaConfident } from './statusImport'
+
+/* Re-exported from columnDetect (its canonical home) so existing importers
+   of sheetMapper.findHeaderRow keep working. */
+export { findHeaderRow }
 
 const norm = (s) => String(s == null ? '' : s).trim().toLowerCase().replace(/["'`״׳]/g, '').replace(/[\s\-_.]+/g, '')
 
@@ -42,20 +46,33 @@ export const SHEET_TYPE_LABELS = {
   clients: 'לקוחות',
   projects: 'פרויקטים',
   leads: 'לידים',
-  transactions: 'תנועות / תשלומים',
+  transactions: 'הכנסות והוצאות',
   sessions: 'יומן פגישות',
-  matrix: 'טבלת חודשים',
-  ignore: 'להתעלם',
+  matrix: 'טבלת הכנסות/הוצאות לפי חודשים',
+  ignore: 'לא לייבא',
+}
+
+/* One-line, plain-language explanation per sheet type — shown under the
+   "what's in this table?" picker so a first-timer who has never seen the
+   app knows what each choice means (esp. the matrix layout). */
+export const SHEET_TYPE_HELP = {
+  clients: 'רשימת לקוחות — שם, טלפון, סטטוס, פגישות וכו׳.',
+  projects: 'רשימת פרויקטים / תוכניות / מסלולים.',
+  leads: 'פניות ומתעניינים שעוד לא הפכו ללקוחות.',
+  transactions: 'שורה לכל תשלום או הוצאה, עם תאריך וסכום.',
+  sessions: 'יומן פגישות שכבר התקיימו — שורה לכל מפגש.',
+  matrix: 'טבלה שבה החודשים הם עמודות, וכל שורה היא סעיף הכנסה או הוצאה.',
+  ignore: 'הטבלה הזו לא תיובא.',
 }
 
 /* Sheet-name → entity hints. */
 const SHEET_NAME_HINTS = {
-  clients:      ['לקוח', 'לקוחות', 'client', 'clients', 'customer', 'מטופל', 'חניך'],
-  projects:     ['פרויקט', 'פרוייקט', 'פרויקטים', 'project', 'projects', 'program'],
-  leads:        ['ליד', 'לידים', 'lead', 'leads', 'פניות', 'מתעניינים'],
-  transactions: ['תשלום', 'תשלומים', 'הכנס', 'הוצא', 'תנוע', 'payment', 'transaction', 'income', 'expense', 'finance', 'כספים'],
-  sessions:     ['יומןפגישות', 'יומןמפגשים', 'פגישותשהתקיימו', 'מפגשים', 'meetings', 'sessions', 'sessionlog'],
-  ignore:       ['סיכום', 'summary', 'דאשבורד', 'dashboard', 'הוראות', 'readme', 'info'],
+  clients:      ['לקוח', 'לקוחות', 'client', 'clients', 'customer', 'מטופל', 'מטופלים', 'חניך', 'חניכים', 'תלמיד', 'תלמידים', 'משתתפים', 'כרטיסי', 'רשימתלקוחות', 'roster'],
+  projects:     ['פרויקט', 'פרוייקט', 'פרויקטים', 'project', 'projects', 'program', 'שירותים', 'חבילות', 'תוכניות', 'מסלולים'],
+  leads:        ['ליד', 'לידים', 'lead', 'leads', 'פניות', 'פנייה', 'מתעניינים', 'פוטנציאל', 'פוטנציאליים', 'prospects'],
+  transactions: ['תשלום', 'תשלומים', 'הכנס', 'הוצא', 'תנוע', 'payment', 'transaction', 'income', 'expense', 'finance', 'כספים', 'קופה', 'תזרים', 'חשבונות', 'מאזן', 'רווחוהפסד', 'cashflow'],
+  sessions:     ['יומןפגישות', 'יומןמפגשים', 'פגישותשהתקיימו', 'מפגשים', 'מעקבפגישות', 'יומן', 'meetings', 'sessions', 'sessionlog'],
+  ignore:       ['סיכום', 'summary', 'דאשבורד', 'dashboard', 'הוראות', 'readme', 'info', 'הסבר', 'גרפים', 'charts'],
 }
 
 /* Per-entity column-field catalogs. Each field: key + Hebrew label +
@@ -63,58 +80,62 @@ const SHEET_NAME_HINTS = {
    matches a header to the first field whose synonym equals it. */
 export const ENTITY_FIELDS = {
   clients: [
-    { key: 'name',      label: 'שם הלקוח',        syn: ['שם', 'שםלקוח', 'שםהלקוח', 'name', 'fullname', 'client'] },
-    { key: 'status',    label: 'סטטוס',           syn: ['סטטוס', 'status', 'מצב', 'סטטוסלקוח'] },
-    { key: 'phone',     label: 'טלפון',           syn: ['טלפון', 'נייד', 'phone', 'mobile'] },
-    { key: 'email',     label: 'אימייל',          syn: ['אימייל', 'מייל', 'email', 'mail'] },
-    { key: 'sessions',  label: 'פגישות שנרכשו',   syn: ['פגישותשנרכשו', 'פגישות', 'מפגשים', 'sessions'] },
-    { key: 'sessions_done', label: 'פגישות שנעשו', syn: ['פגישותשנעשו', 'בוצעו'] },
-    { key: 'income',    label: 'סך הכנסה',        syn: ['סךהכנסה', 'הכנסה', 'income', 'revenue'] },
-    { key: 'paid',      label: 'שולם',            syn: ['שולם', 'paid'] },
-    { key: 'total_due', label: 'סה״כ לתשלום',     syn: ['סהכלתשלום', 'סךלתשלום', 'לתשלום', 'totaldue', 'totaltopay'] },
+    { key: 'name',      label: 'שם הלקוח',        syn: ['שם', 'שםלקוח', 'שםהלקוח', 'שםמלא', 'שםפרטי', 'שםומשפחה', 'שםהעסק', 'name', 'fullname', 'firstname', 'client', 'customer', 'contact', 'מטופל', 'מטופלת', 'חניך', 'חניכה', 'תלמיד', 'תלמידה', 'משתתף', 'משתתפת'] },
+    { key: 'status',    label: 'סטטוס',           syn: ['סטטוס', 'סטאטוס', 'status', 'state', 'מצב', 'שלב', 'סטטוסלקוח', 'מצבלקוח'] },
+    { key: 'phone',     label: 'טלפון',           syn: ['טלפון', 'טל', 'נייד', 'סלולרי', 'סלולארי', 'פלאפון', 'פלפון', 'מספרטלפון', 'מספרנייד', 'מסטלפון', 'phone', 'mobile', 'tel', 'cell', 'whatsapp', 'וואטסאפ'] },
+    { key: 'email',     label: 'אימייל',          syn: ['אימייל', 'מייל', 'דואל', 'דוארל', 'כתובתמייל', 'email', 'mail', 'emailaddress'] },
+    { key: 'sessions',  label: 'פגישות שנרכשו',   syn: ['פגישותשנרכשו', 'פגישות', 'מספרפגישות', 'כמותפגישות', 'מפגשים', 'מספרמפגשים', 'סשנים', 'sessions'] },
+    { key: 'sessions_done', label: 'פגישות שנעשו', syn: ['פגישותשנעשו', 'פגישותשבוצעו', 'בוצעו', 'מפגשיםשבוצעו'] },
+    /* Per-session PRICE — a direct rate column wins over deriving it from
+       income÷sessions, so a "מחיר לפגישה" sheet keeps the coach's real rate. */
+    { key: 'price_per_session', label: 'מחיר לפגישה', syn: ['מחירלפגישה', 'מחירלמפגש', 'מחירלשעה', 'מחיר', 'תעריף', 'תעריףלשעה', 'עלות', 'עלותלפגישה', 'עלותלמפגש', 'מחירפגישה', 'price', 'rate', 'fee', 'pricepersession'] },
+    { key: 'income',    label: 'סך הכנסה',        syn: ['סךהכנסה', 'הכנסה', 'הכנסות', 'income', 'revenue'] },
+    { key: 'paid',      label: 'שולם',            syn: ['שולם', 'שולמו', 'שילם', 'paid'] },
+    { key: 'total_due', label: 'סה״כ לתשלום',     syn: ['סהכלתשלום', 'סךלתשלום', 'לתשלום', 'סהכמחיר', 'עלותכוללת', 'totaldue', 'totaltopay'] },
     /* Remaining balance — RECOGNISED but intentionally NOT imported: the
        app computes balance itself (total − paid). Mapping a column here
        tells the user "we see this column, and we compute it ourselves". */
-    { key: 'computed_balance', label: 'יתרה לתשלום (מחושב אוטומטית)', syn: ['יתרהלתשלום', 'יתרה', 'נותרלתשלום', 'יתרתחוב', 'balance', 'outstanding', 'remaining', 'owed'] },
-    { key: 'project',   label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'project'] },
-    { key: 'notes',     label: 'הערות',           syn: ['הערות', 'הערה', 'notes', 'note'] },
+    { key: 'computed_balance', label: 'יתרה לתשלום (מחושב אוטומטית)', syn: ['יתרהלתשלום', 'יתרה', 'נותרלתשלום', 'יתרתחוב', 'חוב', 'balance', 'outstanding', 'remaining', 'owed', 'due'] },
+    { key: 'project',   label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'תוכנית', 'תכנית', 'מסלול', 'שירות', 'חבילה', 'project', 'program', 'package'] },
+    { key: 'notes',     label: 'הערות',           syn: ['הערות', 'הערה', 'תיאור', 'פירוט', 'notes', 'note', 'comment'] },
   ],
   projects: [
-    { key: 'name',     label: 'שם הפרויקט',      syn: ['שם', 'שםפרויקט', 'שםהפרויקט', 'project', 'name'] },
+    { key: 'name',     label: 'שם הפרויקט',      syn: ['שם', 'שםפרויקט', 'שםהפרויקט', 'תוכנית', 'תכנית', 'מסלול', 'שירות', 'חבילה', 'project', 'name', 'program', 'service'] },
     { key: 'subprojects', label: 'תתי פרויקטים', syn: ['תתיפרויקטים', 'תתפרויקט', 'subprojects'] },
     { key: 'client_count', label: 'מספר לקוחות', syn: ['מספרלקוחות', 'לקוחות', 'clients'] },
     { key: 'notes',    label: 'הערות',           syn: ['הערות', 'notes'] },
   ],
   leads: [
-    { key: 'name',     label: 'שם',              syn: ['שם', 'שםליד', 'name', 'fullname'] },
-    { key: 'status',   label: 'סטטוס',           syn: ['סטטוס', 'status', 'שלב', 'stage'] },
-    { key: 'category', label: 'קטגוריה',         syn: ['קטגוריה', 'category'] },
-    { key: 'source',   label: 'מקור',            syn: ['מקור', 'source'] },
-    { key: 'project',  label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'project'] },
-    { key: 'date',     label: 'תאריך',           syn: ['תאריך', 'date', 'תאריךפנייה', 'inquirydate'] },
-    { key: 'phone',    label: 'טלפון',           syn: ['טלפון', 'נייד', 'phone'] },
-    { key: 'email',    label: 'אימייל',          syn: ['אימייל', 'מייל', 'email'] },
-    { key: 'notes',    label: 'הערות',           syn: ['הערות', 'הערה', 'notes'] },
+    { key: 'name',     label: 'שם',              syn: ['שם', 'שםליד', 'שםמלא', 'שםפרטי', 'name', 'fullname', 'contact', 'מתעניין', 'מתעניינת'] },
+    { key: 'status',   label: 'סטטוס',           syn: ['סטטוס', 'סטאטוס', 'status', 'שלב', 'stage', 'state'] },
+    { key: 'category', label: 'קטגוריה',         syn: ['קטגוריה', 'category', 'סיווג'] },
+    { key: 'source',   label: 'מקור',            syn: ['מקור', 'source', 'ערוץ', 'channel', 'מאיפההגיע', 'איךהגיע', 'היכרות'] },
+    { key: 'project',  label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'תוכנית', 'מתענייןב', 'project'] },
+    { key: 'date',     label: 'תאריך',           syn: ['תאריך', 'date', 'תאריךפנייה', 'תאריךפניה', 'מועד', 'inquirydate'] },
+    { key: 'phone',    label: 'טלפון',           syn: ['טלפון', 'טל', 'נייד', 'סלולרי', 'פלאפון', 'מספרטלפון', 'phone', 'mobile', 'whatsapp', 'וואטסאפ'] },
+    { key: 'email',    label: 'אימייל',          syn: ['אימייל', 'מייל', 'דואל', 'כתובתמייל', 'email', 'mail'] },
+    { key: 'notes',    label: 'הערות',           syn: ['הערות', 'הערה', 'תיאור', 'פירוט', 'notes'] },
   ],
   transactions: [
-    { key: 'client',   label: 'שם לקוח',         syn: ['שםלקוח', 'לקוח', 'client', 'name'] },
-    { key: 'amount',   label: 'סכום',            syn: ['סכום', 'amount', 'סךהכנסה', 'הכנסה', 'income'] },
-    { key: 'paid',     label: 'שולם',            syn: ['שולם', 'paid'] },
-    { key: 'balance',  label: 'יתרה',            syn: ['יתרה', 'יתרהלתשלום', 'balance'] },
-    { key: 'status',   label: 'סטטוס',           syn: ['סטטוס', 'status', 'סטטוסלקוח'] },
-    { key: 'type',     label: 'סוג (הכנסה/הוצאה)', syn: ['סוג', 'type'] },
-    { key: 'date',     label: 'תאריך',           syn: ['תאריך', 'date'] },
-    { key: 'project',  label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'project'] },
-    { key: 'notes',    label: 'הערות',           syn: ['הערות', 'notes'] },
+    { key: 'client',   label: 'שם לקוח',         syn: ['שםלקוח', 'לקוח', 'client', 'name', 'מטופל', 'חניך', 'משולם ע״י', 'משולםעי'] },
+    { key: 'amount',   label: 'סכום',            syn: ['סכום', 'amount', 'סךהכנסה', 'הכנסה', 'הכנסות', 'תקבול', 'income', 'sum', 'total', 'סכוםתשלום'] },
+    { key: 'paid',     label: 'שולם',            syn: ['שולם', 'שולמו', 'paid'] },
+    { key: 'balance',  label: 'יתרה',            syn: ['יתרה', 'יתרהלתשלום', 'חוב', 'balance'] },
+    { key: 'status',   label: 'סטטוס',           syn: ['סטטוס', 'סטאטוס', 'status', 'סטטוסלקוח'] },
+    { key: 'type',     label: 'סוג (הכנסה/הוצאה)', syn: ['סוג', 'type', 'kind', 'סוגתנועה', 'סוגעסקה'] },
+    { key: 'category', label: 'קטגוריה',         syn: ['קטגוריה', 'category', 'סעיף', 'סעיףהוצאה', 'סוגהוצאה', 'סיווג', 'tag'] },
+    { key: 'date',     label: 'תאריך',           syn: ['תאריך', 'date', 'תאריךתשלום', 'תאריךעסקה', 'מועד'] },
+    { key: 'project',  label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'תוכנית', 'project'] },
+    { key: 'notes',    label: 'הערות',           syn: ['הערות', 'הערה', 'תיאור', 'פירוט', 'notes'] },
   ],
   /* A HELD-session ledger: one row = one past meeting. client + date are
      the essentials; summary/notes optional. The session NUMBER is assigned
      automatically (continuing from any sessions already logged). */
   sessions: [
-    { key: 'client',  label: 'שם לקוח', syn: ['שםלקוח', 'לקוח', 'client', 'name', 'מטופל', 'חניך'] },
-    { key: 'date',    label: 'תאריך',   syn: ['תאריך', 'date', 'תאריךפגישה', 'מועד', 'תאריךמפגש'] },
-    { key: 'summary', label: 'סיכום',   syn: ['סיכום', 'summary', 'תקציר'] },
-    { key: 'notes',   label: 'הערות',   syn: ['הערות', 'הערה', 'notes', 'note'] },
+    { key: 'client',  label: 'שם לקוח', syn: ['שםלקוח', 'לקוח', 'client', 'name', 'מטופל', 'מטופלת', 'חניך', 'חניכה', 'תלמיד', 'משתתף'] },
+    { key: 'date',    label: 'תאריך',   syn: ['תאריך', 'date', 'תאריךפגישה', 'מועד', 'מועדפגישה', 'תאריךמפגש'] },
+    { key: 'summary', label: 'סיכום',   syn: ['סיכום', 'summary', 'תקציר', 'סיכוםפגישה', 'מהנעשה'] },
+    { key: 'notes',   label: 'הערות',   syn: ['הערות', 'הערה', 'תיאור', 'notes', 'note'] },
   ],
 }
 
@@ -248,36 +269,6 @@ export function autoMapColumns(entityType, headers, rows = []) {
   return mapping
 }
 
-/* Find the real header row. Spreadsheets from the wild often open with a
-   title banner, a logo row, an export-date line, or blank rows before the
-   actual column headers. We scan the first ~10 rows and pick the best
-   header candidate: the row with the most non-empty cells that look like
-   headers (short, mostly text, mostly distinct) and whose NEXT row also
-   has data. Returns the row index (0 if nothing better is found). */
-export function findHeaderRow(rows) {
-  const limit = Math.min(rows.length, 10)
-  let bestIdx = 0; let bestScore = -1
-  for (let i = 0; i < limit; i += 1) {
-    const row = rows[i] || []
-    const cells = row.map((c) => String(c == null ? '' : c).trim())
-    const filled = cells.filter(Boolean)
-    if (filled.length < 2) continue /* a header row has ≥2 columns */
-    const next = (rows[i + 1] || []).map((c) => String(c == null ? '' : c).trim())
-    const nextFilled = next.filter(Boolean).length
-    if (nextFilled === 0) continue /* headers must be followed by data */
-    /* Header-likeness: short cells, distinct, not mostly numeric. */
-    const distinct = new Set(filled.map((c) => c.toLowerCase())).size
-    const shortish = filled.filter((c) => c.length <= 30).length
-    const numericish = filled.filter((c) => /^[-\d.,₪$€\s/]+$/.test(c)).length
-    const score = filled.length
-      + (distinct === filled.length ? 2 : 0)        /* all-unique bonus */
-      + (shortish === filled.length ? 1 : 0)
-      - numericish * 2                              /* a data row is mostly numbers */
-    if (score > bestScore) { bestScore = score; bestIdx = i }
-  }
-  return bestIdx
-}
-
 /* Build a fully-editable sheet descriptor: type + headers + rows +
    column mapping + the count of columns we couldn't place (so the UI
    can surface "N columns need you"). The header row is detected (not
@@ -335,9 +326,11 @@ export function projectSheet(sheet) {
       if (!name) return
       const sessions = num(r, 'sessions')
       const income = num(r, 'income')
-      /* Derive a per-session price from total income ÷ purchased sessions
-         when both are present (the sheet rarely lists a rate directly). */
-      const price = sessions > 0 && income > 0 ? Math.round(income / sessions) : 0
+      /* A direct "מחיר לפגישה" column wins; otherwise derive the per-session
+         price from total income ÷ purchased sessions (the sheet rarely lists
+         a rate directly). */
+      const priceCol = num(r, 'price_per_session')
+      const price = priceCol > 0 ? priceCol : (sessions > 0 && income > 0 ? Math.round(income / sessions) : 0)
       const cStatus = val(r, 'status')
       out.clients.push({
         _row: `${sheet.id}#${rowIdx}`,
@@ -398,6 +391,7 @@ export function projectSheet(sheet) {
         date_raw: rawDate || null,            /* original value, for "bad date" warnings */
         client_name: val(r, 'client') || null,
         project_name: val(r, 'project') || null,
+        category: val(r, 'category') || null, /* expense category → category_id on import */
         desc: val(r, 'notes') || null,
       })
     } else if (sheet.type === 'sessions') {

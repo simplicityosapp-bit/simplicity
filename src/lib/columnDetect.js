@@ -27,7 +27,7 @@ export function parseAmount(v) {
   if (!s) return NaN
   let neg = false
   if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1) }   /* (123) accounting */
-  s = s.replace(/[^\d.,\-]/g, '')                               /* drop ₪ $ € spaces… */
+  s = s.replace(/[^\d.,-]/g, '')                                /* drop ₪ $ € spaces… */
   if (!s) return NaN
   if (s.includes('-')) { neg = true; s = s.replace(/-/g, '') }  /* leading/trailing minus */
   const hasComma = s.includes(','); const hasDot = s.includes('.')
@@ -55,16 +55,22 @@ export function parseAmount(v) {
 /* ── per-value matchers ─────────────────────────────────────────── */
 
 /* Israeli + international phone: lots of digits, optional +, dashes,
-   spaces, parens. We require ≥7 digits and a phone-ish shape. */
+   spaces, parens, dots. We require ≥7 digits and a phone-ish shape, AND a
+   phone START (local '0', or international '+'/'972') — this is what tells
+   "052.123.4567" (a phone) apart from "1.234.567" (a dot-grouped amount),
+   which share the same character set. */
 export function looksPhone(v) {
   const s = clean(v)
   if (!s) return false
-  if (looksDate(s)) return false /* a date's digits aren't a phone */
+  if (looksDate(s) || looksEmail(s)) return false /* a date's digits aren't a phone */
   const digits = s.replace(/\D/g, '')
   if (digits.length < 7 || digits.length > 15) return false
-  /* reject date-like separators (a phone uses - and spaces, not / or .) */
+  /* reject the date separator '/' (a phone uses -, space, dot, parens). */
   if (/[/]/.test(s)) return false
-  return /^[+()\d][\d\-\s()+]{6,}$/.test(s)
+  /* must look like a real phone NUMBER, not just digits: local numbers
+     start 0, international start + or 972. */
+  if (!(s.startsWith('+') || s.startsWith('(') || s.startsWith('00') || digits.startsWith('0') || digits.startsWith('972'))) return false
+  return /^[+(]?[\d][\d\-\s().+]{5,}$/.test(s)
 }
 
 export function looksEmail(v) {
@@ -110,11 +116,13 @@ export function looksName(v) {
 /* Known status vocabulary (client + lead). A column whose values mostly
    come from this set is a status column. */
 const STATUS_VOCAB = [
-  'פעיל', 'פעילה', 'לא פעיל', 'לשעבר', 'ביניים', 'נודד', 'ללא סטטוס', 'הוקפא',
-  'בתהליך', 'חדש', 'חם', 'קר', 'בשיחה', 'פולואפ', 'בקשר', 'מעקב', 'בהמתנה', 'מתעניין',
-  'הומר', 'הומרו', 'נסגר', 'סגר', 'סגרה', 'נסגרה', 'לא רלוונטי', 'נדחה', 'סירב',
+  'פעיל', 'פעילה', 'לא פעיל', 'לשעבר', 'ביניים', 'נודד', 'ללא סטטוס', 'הוקפא', 'מוקפא', 'בהקפאה', 'מושהה',
+  'בתהליך', 'חדש', 'חם', 'קר', 'פושר', 'בשיחה', 'פולואפ', 'בקשר', 'מעקב', 'בהמתנה', 'ממתין', 'מתעניין',
+  'תיאום פגישה', 'הצעת מחיר', 'נשר', 'נשרה', 'עזב', 'סיים', 'הפסיק', 'לא ענה', 'לא מעוניין',
+  'הומר', 'הומרו', 'נסגר', 'סגר', 'סגרה', 'נסגרה', 'נרשם', 'חתם', 'לא רלוונטי', 'נדחה', 'סירב',
   'רפאים', 'נעלם', 'גוסט',
-  'active', 'inactive', 'past', 'lead', 'new', 'hot', 'cold', 'won', 'lost', 'closed', 'pending', 'followup',
+  'active', 'inactive', 'past', 'lead', 'new', 'hot', 'cold', 'warm', 'won', 'lost', 'closed', 'pending', 'followup',
+  'signed', 'quote', 'proposal', 'meeting', 'scheduled', 'enrolled', 'interested',
 ]
 const normV = (s) => clean(s).toLowerCase().replace(/["'`״׳/]/g, '').replace(/\s+/g, '')
 const STATUS_SET = new Set(STATUS_VOCAB.map(normV))
@@ -169,4 +177,36 @@ export function classifyColumnValues(values) {
 /* Convenience: classify column `colIdx` of `rows`. */
 export function detectColumnType(rows, colIdx) {
   return classifyColumnValues(sampleColumn(rows, colIdx))
+}
+
+/* Find the real header row. Spreadsheets from the wild often open with a
+   title banner, a logo row, an export-date line, or blank rows before the
+   actual column headers. We scan the first ~10 rows and pick the best
+   header candidate: the row with the most non-empty cells that look like
+   headers (short, mostly text, mostly distinct) and whose NEXT row also
+   has data. Returns the row index (0 if nothing better is found).
+   Shared by the flat parser (csvImport) and the multi-sheet mapper
+   (sheetMapper) so every import path skips banner/title rows alike. */
+export function findHeaderRow(rows) {
+  const limit = Math.min(rows.length, 10)
+  let bestIdx = 0; let bestScore = -1
+  for (let i = 0; i < limit; i += 1) {
+    const row = rows[i] || []
+    const cells = row.map((c) => String(c == null ? '' : c).trim())
+    const filled = cells.filter(Boolean)
+    if (filled.length < 2) continue /* a header row has ≥2 columns */
+    const next = (rows[i + 1] || []).map((c) => String(c == null ? '' : c).trim())
+    const nextFilled = next.filter(Boolean).length
+    if (nextFilled === 0) continue /* headers must be followed by data */
+    /* Header-likeness: short cells, distinct, not mostly numeric. */
+    const distinct = new Set(filled.map((c) => c.toLowerCase())).size
+    const shortish = filled.filter((c) => c.length <= 30).length
+    const numericish = filled.filter((c) => /^[-\d.,₪$€\s/]+$/.test(c)).length
+    const score = filled.length
+      + (distinct === filled.length ? 2 : 0)        /* all-unique bonus */
+      + (shortish === filled.length ? 1 : 0)
+      - numericish * 2                              /* a data row is mostly numbers */
+    if (score > bestScore) { bestScore = score; bestIdx = i }
+  }
+  return bestIdx
 }

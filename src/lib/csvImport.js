@@ -27,7 +27,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { detectMatrix, buildPivotConfig, flattenMatrix } from './pivotImport'
-import { parseAmount } from './columnDetect'
+import { parseAmount, detectColumnType, findHeaderRow } from './columnDetect'
 import { mapValueToMeta } from './statusImport'
 
 /* Canonical importable fields + their Hebrew labels (used by the
@@ -45,6 +45,7 @@ export const CSV_FIELDS = [
   { key: 'amount',    label: 'סכום (תנועה)',    step: null       },
   { key: 'date',      label: 'תאריך (תנועה)',   step: null       },
   { key: 'type',      label: 'סוג (הכנסה/הוצאה)', step: null     },
+  { key: 'category',  label: 'קטגוריה (הוצאה)', step: null       },
   { key: 'notes',     label: 'הערות',           step: null       },
 ]
 
@@ -55,7 +56,6 @@ export const CSV_FIELDS = [
 export const ROW_CAP = 500
 
 export const FIELD_LABEL = Object.fromEntries(CSV_FIELDS.map((f) => [f.key, f.label]))
-const FIELD_STEP = Object.fromEntries(CSV_FIELDS.map((f) => [f.key, f.step]))
 
 /* Which fields a given onboarding step confirms. Step 2 ("data_import")
    owns every field NOT claimed by a later step, plus unmapped columns. */
@@ -91,23 +91,67 @@ export function columnsForStep(parsed, stepKey) {
 }
 
 const HEADER_SYNONYMS = {
-  name:       ['name', 'fullname', 'full_name', 'clientname', 'client', 'שם', 'שםמלא', 'שםהלקוח', 'לקוח'],
-  email:      ['email', 'mail', 'emailaddress', 'אימייל', 'מייל', 'דוארא', 'דואראלקטרוני'],
-  phone:      ['phone', 'mobile', 'tel', 'phonenumber', 'cell', 'טלפון', 'נייד', 'סלולרי', 'מספרטלפון'],
-  project:    ['project', 'projectname', 'program', 'פרויקט', 'תוכנית', 'מסלול'],
-  status:     ['status', 'state', 'סטטוס', 'מצב'],
-  sessions:   ['sessions', 'session', 'totalsessions', 'meetings', 'numsessions', 'פגישות', 'מספרפגישות', 'מפגשים'],
-  price:      ['price', 'priceperession', 'pricepersession', 'rate', 'sessionprice', 'מחיר', 'מחירלפגישה', 'תעריף'],
+  name:       ['name', 'fullname', 'full_name', 'firstname', 'clientname', 'client', 'customer', 'contact', 'coachee', 'candidate',
+    'שם', 'שםמלא', 'שםהלקוח', 'שםלקוח', 'לקוח', 'לקוחה', 'שםפרטי', 'שםומשפחה', 'שםופרטי', 'שםמשפחה', 'שםהעסק', 'שםהמטופל',
+    'מטופל', 'מטופלת', 'חניך', 'חניכה', 'תלמיד', 'תלמידה', 'משתתף', 'משתתפת', 'מתאמן', 'מתאמנת', 'מודרך', 'מודרכת',
+    'מאומן', 'מאומנת', 'קליינט', 'מועמד', 'מועמדת', 'פונה', 'אישקשר', 'בעלחשבון'],
+  email:      ['email', 'mail', 'emailaddress', 'e-mail', 'אימייל', 'מייל', 'דוארא', 'דואראלקטרוני', 'דואל', 'דוארל', 'כתובתמייל', 'כתובתאימייל', 'אימל', 'דואראלקטרוני'],
+  phone:      ['phone', 'mobile', 'tel', 'telephone', 'phonenumber', 'cell', 'cellphone', 'whatsapp', 'וואטסאפ', 'ווצאפ', 'ואטסאפ', 'וואצאפ', 'ווטסאפ', 'וואטס',
+    'טלפון', 'טל', 'נייד', 'סלולרי', 'סלולארי', 'מספרטלפון', 'מספרנייד', 'מסטלפון', 'מסנייד', 'טלנייד', 'פלאפון', 'פלפון'],
+  project:    ['project', 'projectname', 'program', 'service', 'package', 'פרויקט', 'פרוייקט', 'תוכנית', 'תכנית', 'מסלול', 'שירות', 'חבילה', 'תכנית ליווי'],
+  status:     ['status', 'state', 'stage', 'סטטוס', 'סטאטוס', 'מצב', 'שלב', 'מצבלקוח', 'סטטוסלקוח'],
+  sessions:   ['sessions', 'session', 'totalsessions', 'meetings', 'numsessions', 'numberofsessions',
+    'פגישות', 'מספרפגישות', 'כמותפגישות', 'מספרמפגשים', 'מפגשים', 'מספרסשנים', 'סשנים', 'מפגש', 'פגישה', 'כמותמפגשים', 'מספרמפגש',
+    /* yoga / fitness / punch-card vocabulary (a count of sessions). */
+    'כרטיסיה', 'כרטיסייה', 'כניסות', 'מספרכניסות', 'מכסה', 'מכסתפגישות', 'מכסתטיפולים', 'שיעורים', 'מספרשיעורים',
+    'כמותטיפולים', 'מספרטיפולים', 'חבילתטיפולים', 'סהכפגישות', 'סהכמפגשים'],
+  price:      ['price', 'priceperession', 'pricepersession', 'rate', 'sessionprice', 'cost', 'fee',
+    'מחיר', 'מחירלפגישה', 'מחירלמפגש', 'מחירלשעה', 'תעריף', 'תעריףלשעה', 'עלות', 'עלותלפגישה', 'עלותלמפגש', 'מחירפגישה'],
   /* NOTE: 'paid'/'שולם' are deliberately NOT here — they mean an
      already-paid CUMULATIVE total (a client-roster column), not a
      per-transaction amount. Treating them as a transaction amount
      double-counts against a real dated income source. This matches
      sheetMapper, which maps שולם to the client's `paid` field. */
-  amount:     ['amount', 'sum', 'total', 'payment', 'income', 'revenue', 'סכום', 'תשלום', 'סהכ', 'סךהכל', 'הכנסה'],
-  date:       ['date', 'transactiondate', 'paymentdate', 'paydate', 'תאריך', 'תאריךתשלום', 'תאריךעסקה', 'תאריךתנועה'],
-  type:       ['type', 'kind', 'סוג', 'סוגתנועה'],
-  notes:      ['notes', 'note', 'comment', 'comments', 'remark', 'הערה', 'הערות', 'תיאור'],
+  /* NOTE: pure-total words ('סה״כ'/'סךהכל'/'total'/'סיכום') are deliberately
+     NOT here — in a flat (entity-agnostic) sheet they're usually a roster
+     SUMMARY column, and mapping them to a transaction amount double-counts
+     (same reasoning as the 'שולם'/'paid' exclusion above). A literal
+     'סכום'/'תשלום'/'הכנסה' still maps. */
+  amount:     ['amount', 'sum', 'payment', 'income', 'revenue',
+    'סכום', 'תשלום', 'הכנסה', 'תקבול', 'הכנסות', 'סכוםתשלום', 'גובהתשלום', 'סכוםעסקה'],
+  date:       ['date', 'transactiondate', 'paymentdate', 'paydate',
+    'תאריך', 'תאריךתשלום', 'תאריךעסקה', 'תאריךתנועה', 'תאריךפגישה', 'תאריךמפגש', 'מועד', 'מועדפגישה'],
+  type:       ['type', 'kind', 'סוג', 'סוגתנועה', 'סוגעסקה', 'הכנסההוצאה'],
+  /* Expense category (e.g. "שיווק", "ביטוח") → resolved to a category_id
+     on import. The root "קטגורי" + "סעיף" forms cover the wild variants. */
+  category:   ['category', 'expensecategory', 'tag', 'קטגוריה', 'קטגורייתהוצאה', 'סוגהוצאה', 'סוגההוצאה', 'סעיף', 'סעיףהוצאה', 'סיווג'],
+  notes:      ['notes', 'note', 'comment', 'comments', 'remark', 'description', 'הערה', 'הערות', 'תיאור', 'פירוט', 'הערותנוספות'],
 }
+
+/* Curated partial-match roots (after exact match fails). Order is
+   PRECEDENCE: the first root the (normalized) header CONTAINS wins. A
+   distinctive token must precede a generic one — so "שם הפרויקט" → project
+   (sees פרויקט before שם) and "תאריך פגישה" → date (sees תאריך before פגיש).
+   Deliberately excludes ambiguous 2-char tokens (e.g. "טל" — would hit
+   "דיגיטל"); those stay exact-only. Bare "שם" is the final catch-all. */
+const PARTIAL_ROOTS = [
+  ['פרוייקט', 'project'], ['פרויקט', 'project'], ['תוכנית', 'project'], ['תכנית', 'project'], ['מסלול', 'project'],
+  ['קטגורי', 'category'], ['סעיף', 'category'], ['סיווג', 'category'],
+  ['אימייל', 'email'], ['דואל', 'email'], ['דואר', 'email'], ['מייל', 'email'],
+  ['פלאפון', 'phone'], ['סלולר', 'phone'], ['וואטסאפ', 'phone'], ['whatsapp', 'phone'], ['טלפון', 'phone'], ['נייד', 'phone'],
+  ['מחיר', 'price'], ['תעריף', 'price'], ['עלות', 'price'],
+  ['תאריך', 'date'], ['מועד', 'date'],
+  /* 'תקבול'/'הכנסה' are unambiguously income; 'תשלום' is NOT a partial
+     root on purpose — "לתשלום"/"סה״כ לתשלום"/"יתרה לתשלום" are totals &
+     balances, not a transaction amount (a literal "תשלום" still maps via
+     the exact synonym). */
+  ['תקבול', 'amount'], ['הכנסה', 'amount'],
+  ['מפגש', 'sessions'], ['פגיש', 'sessions'], ['סשן', 'sessions'], ['כרטיסי', 'sessions'], ['שיעור', 'sessions'],
+  ['סטטוס', 'status'], ['סטאטוס', 'status'], ['שלב', 'status'],
+  ['הערות', 'notes'], ['הערה', 'notes'], ['תיאור', 'notes'], ['פירוט', 'notes'],
+  ['מטופל', 'name'], ['חניך', 'name'], ['תלמיד', 'name'], ['משתתף', 'name'],
+  ['מתאמן', 'name'], ['מודרך', 'name'], ['מאומן', 'name'], ['קליינט', 'name'], ['coachee', 'name'], ['שם', 'name'],
+]
 
 /* Transaction type text (Hebrew + English) → income | expense. */
 const TYPE_MAP = {
@@ -127,8 +171,14 @@ function normalizeHeader(h) {
 
 function pickField(normalized) {
   if (!normalized) return null
+  /* 1) exact synonym match (highest precision). */
   for (const [field, syns] of Object.entries(HEADER_SYNONYMS)) {
     if (syns.some((s) => normalizeHeader(s) === normalized)) return field
+  }
+  /* 2) partial: the header CONTAINS a curated root. First (highest-
+     precedence) root wins — see PARTIAL_ROOTS for the ordering rationale. */
+  for (const [root, field] of PARTIAL_ROOTS) {
+    if (normalized.includes(normalizeHeader(root))) return field
   }
   return null
 }
@@ -354,14 +404,33 @@ export function buildParsedFromRows(rows, fileName) {
       raw_rows: 0, clients: [], projects: [], transactions: [], transaction_issues: 0,
     }
   }
-  const headers = rows[0].map((h) => (h == null ? '' : String(h)).trim())
+  /* The real header is rarely guaranteed to be row 0 — files open with a
+     title banner, an export-date line, a logo row, or blank rows. Detect
+     it (same logic the multi-sheet mapper uses) so the flat path (the
+     in-app Settings import) reads the right columns instead of mapping a
+     banner. Anything above the header is dropped as noise. */
+  const headerIdx = findHeaderRow(rows)
+  const headers = (rows[headerIdx] || []).map((h) => (h == null ? '' : String(h)).trim())
   const mapping = headers.map((h) => pickField(normalizeHeader(h)))
   /* Enforce 1:1 on auto-detect too (matches remapColumn): if two columns
      resolve to the same field, keep the first and drop the rest. */
   const seenFields = new Set()
   mapping.forEach((f, i) => { if (!f) return; if (seenFields.has(f)) mapping[i] = null; else seenFields.add(f) })
-  const allDataRows = rows.slice(1)
+  const allDataRows = rows.slice(headerIdx + 1)
   const dataRows = allDataRows.slice(0, ROW_CAP) /* cap what we persist to JSONB */
+  /* Content fallback — for columns the header couldn't place, classify by
+     VALUES and map only the HIGH-PRECISION types (phone/email/date/status/
+     name). Numeric types (amount/price/sessions/category) stay header-
+     driven on purpose: a column of numbers might be a transaction amount,
+     a cumulative "שולם" total, a price or a session count — guessing would
+     double-count. Assign only when that field isn't already mapped. */
+  const CONTENT_FIELD = { phone: 'phone', email: 'email', date: 'date', status: 'status', name: 'name' }
+  headers.forEach((h, i) => {
+    if (mapping[i] || !String(h || '').trim()) return
+    const { type, confidence } = detectColumnType(dataRows, i)
+    const field = CONTENT_FIELD[type]
+    if (field && !seenFields.has(field) && confidence >= 0.6) { mapping[i] = field; seenFields.add(field) }
+  })
   const unmapped_columns = headers.filter((h, i) => !mapping[i])
   const derived = projectEntities(headers, dataRows, mapping)
 

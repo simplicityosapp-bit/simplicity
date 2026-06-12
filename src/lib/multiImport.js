@@ -123,6 +123,9 @@ export function flattenAllSources(sources) {
         day_of_month: t.day_of_month || null,
         project_name: asProject ? t.label : null,
         client_name: asClient ? t.label : null,
+        /* An expense row's label IS its category (שיווק / ביטוח / שכירות…) —
+           carry it so the importer auto-creates + links a category_id. */
+        category: t.type === 'expense' && t.label ? t.label : null,
         desc: `${t.label || ''}${t.period ? ` · ${t.period}` : ''}${yr ? ` ${yr}` : ''}`.trim() || null,
         _source: src.id,
       })

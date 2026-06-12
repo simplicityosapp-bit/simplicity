@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
 import { FileSpreadsheet, X, AlertTriangle, CheckCircle2, HelpCircle } from 'lucide-react'
 import {
-  SHEET_TYPES, SHEET_TYPE_LABELS, ENTITY_FIELDS,
+  SHEET_TYPES, SHEET_TYPE_LABELS, SHEET_TYPE_HELP, ENTITY_FIELDS,
   setSheetType, remapSheetColumn, projectSheet,
 } from '../../lib/sheetMapper'
 import { flattenMatrix } from '../../lib/pivotImport'
+import { addressUser } from '../../lib/address'
 import './UnifiedSheetImporter.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -27,7 +28,7 @@ import './UnifiedSheetImporter.css'
 const THIS_YEAR = new Date().getFullYear()
 const YEARS = [THIS_YEAR - 3, THIS_YEAR - 2, THIS_YEAR - 1, THIS_YEAR, THIS_YEAR + 1]
 
-export default function UnifiedSheetImporter({ sheets, onChange }) {
+export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutral' }) {
   const live = (sheets || []).filter((s) => !s.removed)
 
   const patch = (id, next) => onChange((sheets || []).map((s) => (s.id === id ? next : s)))
@@ -73,6 +74,13 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
           for (const r of sheet.rows) { const v = String(r[colIdx] ?? '').trim(); if (v) return v }
           return ''
         }
+        /* What this one table will actually produce — so a sheet typed as
+           the wrong entity (yielding nothing) gets a visible, fixable nudge
+           instead of silently contributing zero. */
+        let cardYield = 0
+        if (sheet.type === 'matrix') cardYield = (sheet.pivotTransactions || []).length
+        else if (sheet.type !== 'ignore') { const p = projectSheet(sheet); cardYield = p.clients.length + p.projects.length + p.leads.length + p.transactions.length + (p.sessions?.length || 0) }
+        const yieldHintField = { clients: 'השם', leads: 'השם', projects: 'השם', transactions: 'הסכום', sessions: 'הלקוח והתאריך' }[sheet.type] || 'המפתח'
         return (
           <div className="usi-card" key={sheet.id}>
             <div className="usi-head">
@@ -81,14 +89,15 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
                 <p className="usi-name">{sheet.sheetName || sheet.fileName}</p>
                 {sheet.sheetName && <p className="usi-file">{sheet.fileName}</p>}
               </div>
-              <button type="button" className="usi-x" onClick={() => remove(sheet.id)} aria-label="הסר גיליון"><X size={14} strokeWidth={2} aria-hidden="true" /></button>
+              <button type="button" className="usi-x" onClick={() => remove(sheet.id)} aria-label="הסר טבלה"><X size={14} strokeWidth={2} aria-hidden="true" /></button>
             </div>
 
             {/* Raw preview — first rows exactly as read, so the user can
                 spot a mis-read (wrong header row, shifted columns) before
                 trusting the mapping. Collapsed by default. */}
-            <button type="button" className="usi-toggle-cols" onClick={() => patch(sheet.id, { ...sheet, _showRaw: !sheet._showRaw })}>
-              {sheet._showRaw ? 'הסתר' : 'הצג'} את הנתונים כפי שנקראו {sheet._showRaw ? '▲' : '▼'}
+            <button type="button" className="usi-toggle-cols" aria-expanded={!!sheet._showRaw}
+              onClick={() => patch(sheet.id, { ...sheet, _showRaw: !sheet._showRaw })}>
+              {sheet._showRaw ? 'הסתר' : 'הצג'} תצוגה מקדימה של הקובץ (לוודא שנקרא נכון) <span aria-hidden="true">{sheet._showRaw ? '▲' : '▼'}</span>
             </button>
             {sheet._showRaw && (
               <div className="usi-raw">
@@ -107,15 +116,13 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
 
             {/* Entity type */}
             <div className="usi-field">
-              <label className="usi-label">מה יש בגיליון הזה?</label>
-              <select className="usi-select" value={sheet.type} onChange={(e) => changeType(sheet, e.target.value)}>
+              <label className="usi-label" id={`usi-type-${sheet.id}`}>מה יש בטבלה הזו?</label>
+              <select className="usi-select" value={sheet.type} aria-labelledby={`usi-type-${sheet.id}`}
+                onChange={(e) => changeType(sheet, e.target.value)}>
                 {SHEET_TYPES.map((t) => <option key={t} value={t}>{SHEET_TYPE_LABELS[t]}</option>)}
               </select>
+              {SHEET_TYPE_HELP[sheet.type] && <p className="usi-hint">{SHEET_TYPE_HELP[sheet.type]}</p>}
             </div>
-
-            {sheet.type === 'ignore' && (
-              <p className="usi-hint">הגיליון הזה לא ייובא.</p>
-            )}
 
             {/* Flat entity → column mapping. Unmapped columns are shown
                 first and highlighted (they need the user); recognized ones
@@ -137,8 +144,8 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
                     <span className="usi-col-h" title={h}><bdi>{h}</bdi></span>
                     {sample(colIdx) && <span className="usi-col-sample" title={sample(colIdx)}>לדוגמה: <bdi>{sample(colIdx)}</bdi></span>}
                   </span>
-                  <select className="usi-select usi-col-select" value={field} onChange={(e) => changeColumn(sheet, colIdx, e.target.value)}>
-                    <option value="">— התעלם</option>
+                  <select className="usi-select usi-col-select" value={field} aria-label={`מיפוי לעמודה ${h}`} onChange={(e) => changeColumn(sheet, colIdx, e.target.value)}>
+                    <option value="">— לא לייבא את העמודה</option>
                     {fields.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
                   </select>
                 </div>
@@ -148,16 +155,23 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
                   <p className="usi-cols-intro">
                     הערך האפור הוא דוגמה מהשורה הראשונה. בשלב הבא תהיה סקירה מלאה של כל הנתונים לפני שמשהו נשמר.
                   </p>
+                  {colData.length === 0 && (
+                    <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> לא זיהינו עמודות בטבלה הזו. ייתכן ששורת הכותרות לא נקראה נכון — אפשר לפתוח את "הצג תצוגה מקדימה של הקובץ" לבדיקה, או לשנות את הסוג ל"להתעלם".</p>
+                  )}
                   {unmapped.length > 0 && (
                     <>
-                      <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {unmapped.length} עמודות שלא זיהינו — בחר/י מה הן (או "התעלם").</p>
+                      <p className="usi-ask"><HelpCircle size={13} strokeWidth={1.9} aria-hidden="true" /> {addressUser(gender, {
+                        male: `יש ${unmapped.length} עמודות שנשאיר בצד אם לא תבחר להן שדה — אפשר להתעלם מהן בלי בעיה.`,
+                        female: `יש ${unmapped.length} עמודות שנשאיר בצד אם לא תבחרי להן שדה — אפשר להתעלם מהן בלי בעיה.`,
+                        neutral: `יש ${unmapped.length} עמודות שנשאיר בצד אם לא תבחר/י להן שדה — אפשר להתעלם מהן בלי בעיה.`,
+                      })}</p>
                       {unmapped.map(renderCol)}
                     </>
                   )}
                   {recognized.length > 0 && (
                     <>
-                      <button type="button" className="usi-toggle-cols" onClick={() => patch(sheet.id, { ...sheet, _showAllCols: !showAll })}>
-                        {showAll ? 'הסתר' : 'הצג'} {recognized.length} עמודות שזוהו אוטומטית {showAll ? '▲' : '▼'}
+                      <button type="button" className="usi-toggle-cols" aria-expanded={showAll} onClick={() => patch(sheet.id, { ...sheet, _showAllCols: !showAll })}>
+                        {showAll ? 'הסתר' : 'הצג'} {recognized.length} עמודות שזוהו אוטומטית <span aria-hidden="true">{showAll ? '▲' : '▼'}</span>
                       </button>
                       {showAll && recognized.map(renderCol)}
                     </>
@@ -176,14 +190,21 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
                 <>
                   {hasMonths && (
                     <div className="usi-field">
-                      <label className="usi-label">שנה{sheet.pivot.year ? ' (זוהתה מהגיליון)' : ''}</label>
-                      <select className="usi-select" value={sheet.pivot.year || ''} onChange={(e) => setYear(sheet, e.target.value)}>
+                      <label className="usi-label" id={`usi-year-${sheet.id}`}>שנה{sheet.pivot.year ? ' (זוהתה מהקובץ)' : ''}</label>
+                      <select className="usi-select" value={sheet.pivot.year || ''} aria-labelledby={`usi-year-${sheet.id}`} onChange={(e) => setYear(sheet, e.target.value)}>
                         <option value="">בחר/י שנה</option>
                         {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
                       </select>
                       {!sheet.pivot.year && <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> יש לבחור שנה.</p>}
                     </div>
                   )}
+                  <p className="usi-cols-intro">
+                    {addressUser(gender, {
+                      male: 'סמן לכל שורה אם היא הכנסה או הוצאה. "דלג" משאיר שורה בחוץ (למשל שורת סיכום).',
+                      female: 'סמני לכל שורה אם היא הכנסה או הוצאה. "דלג" משאיר שורה בחוץ (למשל שורת סיכום).',
+                      neutral: 'סמנו לכל שורה אם היא הכנסה או הוצאה. "דלג" משאיר שורה בחוץ (למשל שורת סיכום).',
+                    })}
+                  </p>
                   <div className="usi-rows">
                     {sheet.rows.map((r, rowIdx) => {
                       const label = String(r[labelCol] ?? '').trim()
@@ -193,10 +214,10 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
                       return (
                         <div className={`usi-row${isSkip ? ' skip' : ''}`} key={rowIdx}>
                           <span className="usi-row-label">{label}</span>
-                          <div className="usi-row-types">
-                            <button type="button" className={`usi-rt${!isSkip && type === 'income' ? ' on income' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'income')}>הכנסה</button>
-                            <button type="button" className={`usi-rt${!isSkip && type === 'expense' ? ' on expense' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'expense')}>הוצאה</button>
-                            <button type="button" className={`usi-rt${isSkip ? ' on skip' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'skip')}>דלג</button>
+                          <div className="usi-row-types" role="group" aria-label={`סוג השורה: ${label}`}>
+                            <button type="button" aria-pressed={!isSkip && type === 'income'} className={`usi-rt${!isSkip && type === 'income' ? ' on income' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'income')}>הכנסה</button>
+                            <button type="button" aria-pressed={!isSkip && type === 'expense'} className={`usi-rt${!isSkip && type === 'expense' ? ' on expense' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'expense')}>הוצאה</button>
+                            <button type="button" aria-pressed={isSkip} className={`usi-rt${isSkip ? ' on skip' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'skip')}>דלג</button>
                           </div>
                         </div>
                       )
@@ -205,18 +226,26 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
                 </>
               )
             })()}
+
+            {sheet.type !== 'ignore' && cardYield === 0 && (
+              <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> מהטבלה הזו עדיין לא ייווצר אף פריט — כדאי לוודא שהסוג נכון ושעמודת {yieldHintField} ממופה.</p>
+            )}
           </div>
         )
       })}
 
       <div className="usi-summary">
-        <p className="usi-summary-line">
-          סה״כ ייווצרו:
-          {totals.clients > 0 && <> <strong>{totals.clients}</strong> לקוחות ·</>}
-          {totals.projects > 0 && <> <strong>{totals.projects}</strong> פרויקטים ·</>}
-          {totals.leads > 0 && <> <strong>{totals.leads}</strong> לידים ·</>}
-          {' '}<strong>{totals.txns}</strong> תנועות
-        </p>
+        {totals.clients + totals.projects + totals.leads + totals.txns === 0 ? (
+          <p className="usi-summary-line">עדיין לא זוהה שום פריט לייבוא. בחרו לכל טבלה מה יש בה, ומפו את עמודות השם / הסכום.</p>
+        ) : (
+          <p className="usi-summary-line">
+            סה״כ ייווצרו (אחרי שתאשרו בסקירה):
+            {totals.clients > 0 && <> <strong>{totals.clients}</strong> לקוחות ·</>}
+            {totals.projects > 0 && <> <strong>{totals.projects}</strong> פרויקטים ·</>}
+            {totals.leads > 0 && <> <strong>{totals.leads}</strong> לידים ·</>}
+            {' '}<strong>{totals.txns}</strong> תנועות
+          </p>
+        )}
       </div>
     </div>
   )

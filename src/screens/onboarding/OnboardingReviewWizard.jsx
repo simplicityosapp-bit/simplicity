@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import DateField from '../../components/DateField'
-import { X, Users, FolderKanban, Receipt, CalendarDays, Check, RotateCcw, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { X, Users, FolderKanban, Receipt, CalendarDays, Check, RotateCcw, AlertTriangle } from 'lucide-react'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useLeads } from '../../hooks/useLeads'
+import { useUserPreferences } from '../../hooks/useUserPreferences'
+import { addressUser } from '../../lib/address'
 import { isr } from '../../lib/finance'
 import './OnboardingReviewWizard.css'
 
@@ -47,7 +49,7 @@ function humanizeError(raw) {
   else if (lower.includes('null value') || lower.includes('not-null')) why = 'חסר ערך בשדה חובה.'
   else if (lower.includes('date')) why = 'התאריך לא תקין.'
   else if (lower.includes('אין חיבור')) why = 'נותק החיבור — צריך להתחבר מחדש.'
-  else why = 'שגיאה לא צפויה.'
+  else why = 'משהו לא עבד בשורה הזו — אפשר לדלג עליה ולהמשיך, או לתקן ולנסות שוב.'
   return who ? `${who}: ${why}` : why
 }
 
@@ -61,6 +63,8 @@ const CLIENT_STATUS_DEFAULTS = ['פעיל׌', 'ביניים', 'לשעבר', 'ל�
    the single place data is created). The two differ only in wording; the
    confirm flow is identical (onConfirm decides whether to write). */
 export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, onCancel, mode = 'create' }) {
+  const { prefs } = useUserPreferences()
+  const gender = prefs?.design?.gender || 'neutral'
   const { clients: existingClients, loading: clientsLoading } = useClients()
   const { projects: existingProjects, loading: projectsLoading } = useProjects()
   const { leads: existingLeads } = useLeads()
@@ -70,6 +74,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   const [confirmingClose, setConfirmingClose] = useState(false)
   const [result, setResult] = useState(null) /* import summary, when shown */
   const panelRef = useRef(null)
+  const stayBtnRef = useRef(null) /* dirty-close: focus the safe action when shown */
   const confirmingRef = useRef(false) /* synchronous double-confirm guard */
 
   const existingClientNames = useMemo(
@@ -182,18 +187,36 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   const [tab, setTab] = useState(TABS[0]?.key || 'clients')
   const [visible, setVisible] = useState(PAGE)
   useEffect(() => { setVisible(PAGE) }, [tab])
+  /* When the dirty-close confirmation appears, move focus to its safe action. */
+  useEffect(() => { if (confirmingClose) stayBtnRef.current?.focus() }, [confirmingClose])
 
   const requestClose = () => { if (busy) return; if (dirty) setConfirmingClose(true); else onCancel() }
 
-  /* Focus the dialog ONCE on mount. (Previously this ran on every render with
-     no dep array, so it stole focus back from the inline inputs on every
-     keystroke — typing in the review rows was broken.) */
-  useEffect(() => { panelRef.current?.focus() }, [])
-
-  /* Escape closes (guarded by the dirty confirm). Re-bind when the values
-     requestClose reads change, so the handler never goes stale. */
+  /* Focus the dialog ONCE on mount, and restore focus to whatever was
+     focused before it opened when it closes (a11y: don't strand keyboard /
+     screen-reader users at the top of the page). */
+  const restoreFocusRef = useRef(null)
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') requestClose() }
+    restoreFocusRef.current = document.activeElement
+    panelRef.current?.focus()
+    return () => { try { restoreFocusRef.current?.focus?.() } catch { /* element gone */ } }
+  }, [])
+
+  /* Escape closes (guarded by the dirty confirm); Tab is trapped inside the
+     dialog so focus can't wander to the page behind it. Re-bind when the
+     values requestClose reads change, so the handler never goes stale. */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') { requestClose(); return }
+      if (e.key !== 'Tab') return
+      const panel = panelRef.current
+      if (!panel) return
+      const f = panel.querySelectorAll('button:not([disabled]),select:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])')
+      if (!f.length) return
+      const first = f[0]; const last = f[f.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [busy, dirty]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -247,7 +270,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
 
   const renderToggle = (type, i, row, inc) => (
     <button type="button" className={`obrw-toggle${inc ? ' on' : ''}`} onClick={() => toggle(type, i, row)}
-      aria-label={inc ? 'אל תכלול' : 'כלול'}>
+      aria-pressed={inc} aria-label={inc ? 'כלול — לחצו כדי להשאיר בחוץ' : 'לא כלול — לחצו כדי לכלול'}>
       {inc ? <Check size={14} strokeWidth={2.4} /> : <RotateCcw size={13} strokeWidth={2} />}
     </button>
   )
@@ -283,7 +306,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                 <p className="obrw-result-txt">
                   משהו השתבש לפני שנוצר משהו — שום דבר לא נשמר. אפשר לנסות שוב, ואם זה חוזר נשמח לעזור.
                 </p>
-                <p className="obrw-result-hint">פרטים טכניים: {humanizeError(result.error)}</p>
+                <p className="obrw-result-hint">מה קרה: {humanizeError(result.error)}</p>
               </>
             ) : (
               <>
@@ -325,7 +348,9 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
         <header className="obrw-head">
           <div>
             <p className="obrw-title">סקירה לפני יצירה</p>
-            <p className="obrw-sub">עברו על מה שזוהה מהקובץ. אפשר לערוך, לכלול או להשאיר בחוץ — רק מה שמסומן ייכתב.</p>
+            <p className="obrw-sub">{mode === 'approve'
+              ? 'עברו על מה שזוהה מהקובץ. כאן רק מסמנים מה להכניס — היצירה עצמה תתבצע בסוף, אחרי אישור אחרון. אפשר לערוך, לכלול או להשאיר בחוץ.'
+              : 'עברו על מה שזוהה מהקובץ. אפשר לערוך, לכלול או להשאיר בחוץ — רק מה שמסומן ייכתב.'}</p>
           </div>
           <button type="button" className="obrw-x" onClick={requestClose} aria-label="חזרה" disabled={busy}>
             <X size={18} strokeWidth={1.8} aria-hidden="true" />
@@ -346,10 +371,11 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
             return (
               <button key={t.key} type="button" role="tab" id={`obrw-tab-${t.key}`}
                 aria-selected={tab === t.key} aria-controls="obrw-panel"
+                aria-label={`${t.label}: ${counts[t.key]} מתוך ${state[t.key].length} ייכללו`}
                 className={`obrw-tab${tab === t.key ? ' on' : ''}`} onClick={() => setTab(t.key)}>
                 <Icon size={14} strokeWidth={1.9} aria-hidden="true" />
                 {t.label}
-                <span className="obrw-tab-count">{counts[t.key]}/{state[t.key].length}</span>
+                <span className="obrw-tab-count" aria-hidden="true">{counts[t.key]}/{state[t.key].length}</span>
               </button>
             )
           })}
@@ -358,7 +384,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
         <div className="obrw-bulk">
           <button type="button" className="obrw-bulk-btn" onClick={() => setAll(tab, true)}>כלול הכל</button>
           <span className="obrw-bulk-sep">·</span>
-          <button type="button" className="obrw-bulk-btn" onClick={() => setAll(tab, false)}>נקה הכל</button>
+          <button type="button" className="obrw-bulk-btn" onClick={() => setAll(tab, false)}>בטל הכל</button>
           {tab === 'transactions' && txIssues > 0 && (
             <span className="obrw-warn">
               <AlertTriangle size={12} strokeWidth={2} aria-hidden="true" />
@@ -388,24 +414,24 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('clients', i, c, inc)}
                 <div className="obrw-fields">
-                  <input className="obrw-input obrw-grow" value={c.name || ''} placeholder="שם" disabled={!inc}
+                  <input className="obrw-input obrw-grow" value={c.name || ''} placeholder="שם" aria-label="שם הלקוח" disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { name: e.target.value })} />
-                  <select className="obrw-input obrw-cl-proj" value={c.project_name || ''} title="פרויקט" disabled={!inc}
+                  <select className="obrw-input obrw-cl-proj" value={c.project_name || ''} title="פרויקט" aria-label="פרויקט" disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { project_name: e.target.value || null })}>
-                    <option value="">בלי פרויקט</option>
+                    <option value="">ללא פרויקט</option>
                     {opts.map((n) => <option key={n} value={n}>{n}</option>)}
                   </select>
-                  <select className={`obrw-input obrw-cl-status${c.status_unsure ? ' unsure' : ''}`} value={c.status_name || ''} title="סטטוס לקוח" disabled={!inc}
+                  <select className={`obrw-input obrw-cl-status${c.status_unsure ? ' unsure' : ''}`} value={c.status_name || ''} title="סטטוס לקוח" aria-label="סטטוס הלקוח" disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { status_name: e.target.value || null, status_unsure: false })}>
                     <option value="">סטטוס: פעיל</option>
                     {clientStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
-                  <input className="obrw-input obrw-num" type="number" min="0" value={c.sessions ?? ''} placeholder="פגישות" title="מספר פגישות" disabled={!inc}
+                  <input className="obrw-input obrw-num" type="number" min="0" value={c.sessions ?? ''} placeholder="פגישות" title="מספר פגישות" aria-label="מספר פגישות" disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { sessions: Number(e.target.value) || 0 })} />
-                  <input className="obrw-input obrw-num" type="number" min="0" value={c.price_per_session ?? ''} placeholder="מחיר" title="מחיר לפגישה" disabled={!inc}
+                  <input className="obrw-input obrw-num" type="number" min="0" value={c.price_per_session ?? ''} placeholder="מחיר" title="מחיר לפגישה" aria-label="מחיר לפגישה" disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { price_per_session: Number(e.target.value) || 0 })} />
                   {invalid && <span className="obrw-invalid">חסר שם</span>}
-                  {c.status_unsure && inc && <span className="obrw-unsure">❓ ודא/י סטטוס</span>}
+                  {c.status_unsure && inc && <span className="obrw-unsure">{addressUser(gender, { male: 'לא היינו בטוחים בסטטוס — כדאי שתבדוק', female: 'לא היינו בטוחים בסטטוס — כדאי שתבדקי', neutral: 'לא היינו בטוחים בסטטוס — כדאי לבדוק' })}</span>}
                   {projectOrphan && <span className="obrw-invalid">הפרויקט לא ייווצר</span>}
                 </div>
                 {exists ? <span className="obrw-badge">כבר קיים</span>
@@ -440,12 +466,12 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('leads', i, l, inc)}
                 <div className="obrw-fields">
-                  <input className="obrw-input obrw-grow" value={l.name || ''} placeholder="שם הליד" disabled={!inc}
+                  <input className="obrw-input obrw-grow" value={l.name || ''} placeholder="שם הליד" aria-label="שם הליד" disabled={!inc}
                     onChange={(e) => patchRow('leads', i, { name: e.target.value })} />
-                  <input className={`obrw-input obrw-cl-proj${l.status_unsure ? ' unsure' : ''}`} value={l.status_name || ''} placeholder="סטטוס" title="סטטוס הליד" disabled={!inc}
+                  <input className={`obrw-input obrw-cl-proj${l.status_unsure ? ' unsure' : ''}`} value={l.status_name || ''} placeholder="סטטוס" title="סטטוס הליד" aria-label="סטטוס הליד" disabled={!inc}
                     onChange={(e) => patchRow('leads', i, { status_name: e.target.value || null, status_unsure: false })} />
                   {invalid && <span className="obrw-invalid">חסר שם</span>}
-                  {l.status_unsure && inc && <span className="obrw-unsure">❓ ודא/י סטטוס</span>}
+                  {l.status_unsure && inc && <span className="obrw-unsure">{addressUser(gender, { male: 'לא היינו בטוחים בסטטוס — כדאי שתבדוק', female: 'לא היינו בטוחים בסטטוס — כדאי שתבדקי', neutral: 'לא היינו בטוחים בסטטוס — כדאי לבדוק' })}</span>}
                 </div>
                 {exists ? <span className="obrw-badge">כבר קיים</span>
                   : dup ? <span className="obrw-badge dup">כפול בקובץ</span>
@@ -528,7 +554,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                     <span className="obrw-tx-lbl">לקוח</span>
                     <select className="obrw-input" value={s.client_name || ''} disabled={!inc}
                       onChange={(e) => patchRow('sessions', i, { client_name: e.target.value || null })}>
-                      <option value="">— בחר/י לקוח</option>
+                      <option value="">{addressUser(gender, { male: '— בחר לקוח', female: '— בחרי לקוח', neutral: '— בחר/י לקוח' })}</option>
                       {opts.map((n) => <option key={n} value={n}>{n}</option>)}
                     </select>
                   </label>
@@ -581,10 +607,10 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
 
         {/* Dirty-close guard */}
         {confirmingClose && (
-          <div className="obrw-confirm">
-            <p className="obrw-confirm-txt">לצאת בלי לשמור? כל העריכות שעשית כאן יימחקו.</p>
+          <div className="obrw-confirm" role="alertdialog" aria-modal="true" aria-label="לצאת בלי לשמור?">
+            <p className="obrw-confirm-txt">לצאת בלי לשמור? כל העריכות שנעשו כאן יימחקו.</p>
             <div className="obrw-actions">
-              <button type="button" className="ob-btn ghost" onClick={() => setConfirmingClose(false)}>הישאר</button>
+              <button type="button" className="ob-btn ghost" ref={stayBtnRef} onClick={() => setConfirmingClose(false)}>הישאר</button>
               <button type="button" className="ob-btn danger" onClick={onCancel}>צא בלי לשמור</button>
             </div>
           </div>

@@ -1,39 +1,33 @@
-import { useEffect, useRef, useState } from 'react'
-import { X } from 'lucide-react'
-import CsvMappingEditor from './CsvMappingEditor'
+import { useState, useRef } from 'react'
+import { X, AlertTriangle } from 'lucide-react'
+import UnifiedSheetImporter from './UnifiedSheetImporter'
 import OnboardingReviewWizard from './OnboardingReviewWizard'
 import { finalizeOnboardingImport } from '../../lib/onboardingImport'
+import { buildReviewFromSheets } from '../../lib/importFlow'
 import './OnboardingScreen.css'        /* ob-* primitives (btn / map / input) */
 import './OnboardingReviewWizard.css'  /* obrw-* modal shell */
 
 /* ════════════════════════════════════════════════════════════════
-   IN-APP IMPORT MODAL — Settings → data. Same engine as onboarding,
-   but standalone: no wizard steps, so column mapping happens in ONE
-   full-mapping screen (every column, every field), then the shared
-   review wizard. On success it hands the summary back so the caller
-   can refresh + confirm. Reuses csvImport + finalizeOnboardingImport.
+   IN-APP IMPORT MODAL — Settings → data. Now the SAME engine as
+   onboarding: one editable card per sheet (entity type + column
+   mapping + matrix), then the shared review wizard. So a returning
+   user gets multi-sheet, matrix (months-as-columns), leads & sessions
+   — exactly what onboarding offers — instead of a single flat sheet.
+   Reuses UnifiedSheetImporter + buildReviewFromSheets + finalizeOnboardingImport.
    ════════════════════════════════════════════════════════════════ */
 
-export default function ImportDataModal({ parsed: initialParsed, onClose, onImported }) {
-  const [parsed, setParsed] = useState(initialParsed)
+export default function ImportDataModal({ parsed: initialParsed, gender = 'neutral', onClose, onImported }) {
+  const [parsed, setParsed] = useState(initialParsed) /* { kind:'csv', file_name, sheets } */
   const [phase, setPhase] = useState('map') /* 'map' | 'review' */
+  const [review, setReview] = useState(null)
   const summaryRef = useRef(null)
 
-  /* Escape closes the mapping phase (the review phase's wizard handles
-     its own Escape → back to mapping). */
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape' && phase === 'map') onClose() }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [phase, onClose])
+  const liveSheets = (parsed?.sheets || []).filter((s) => !s.removed)
+  const reviewObj = buildReviewFromSheets(parsed)
+  const yearMissing = liveSheets.some((s) => s.type === 'matrix' && (s.pivot?.periodCols || []).some((c) => c.month) && !s.pivot?.year)
+  const truncated = liveSheets.some((s) => s.truncated)
 
-  const counts = {
-    clients: parsed?.clients?.length || 0,
-    projects: parsed?.projects?.length || 0,
-    transactions: parsed?.transactions?.length || 0,
-  }
-  const total = counts.clients + counts.projects + counts.transactions
-  const hasRows = Array.isArray(parsed?.rows) && parsed.rows.length > 0
+  const onSheetsChange = (nextSheets) => setParsed((p) => ({ ...p, sheets: nextSheets }))
 
   const handleConfirm = async (payload) => {
     const summary = await finalizeOnboardingImport(payload)
@@ -48,7 +42,7 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
   if (phase === 'review') {
     return (
       <OnboardingReviewWizard
-        parsed={parsed}
+        parsed={review}
         onConfirm={handleConfirm}
         onComplete={handleComplete}
         onCancel={() => setPhase('map')}
@@ -62,10 +56,11 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
       <div className="obrw-panel">
         <header className="obrw-head">
           <div>
-            <p className="obrw-title">ייבוא מקובץ CSV</p>
+            <p className="obrw-title">ייבוא מקובץ</p>
             <p className="obrw-sub">
               {parsed?.file_name ? <><strong>{parsed.file_name}</strong> · </> : null}
-              התאימו את העמודות לשדות במערכת, ואז נעבור לסקירה לפני יצירה.
+              {liveSheets.length > 1 ? `${liveSheets.length} טבלאות. ` : ''}
+              בחרו לכל טבלה מה יש בה והתאימו עמודות — ואז נעבור לסקירה לפני שמשהו נשמר.
             </p>
           </div>
           <button type="button" className="obrw-x" onClick={onClose} aria-label="סגירה">
@@ -74,23 +69,30 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
         </header>
 
         <div className="obrw-body">
-          {hasRows ? (
-            <CsvMappingEditor parsed={parsed} onChange={setParsed} stepKey="all" title="התאמת עמודות → שדות" />
+          {liveSheets.length > 0 ? (
+            <UnifiedSheetImporter sheets={parsed.sheets} onChange={onSheetsChange} gender={gender} />
           ) : (
             <p className="obrw-loading-txt" style={{ textAlign: 'center', padding: '32px 0' }}>
-              לא זוהו שורות בקובץ — ודא/י שהקובץ אינו ריק ושנשמר כ-CSV.
+              לא זוהו נתונים בקובץ — אפשר לוודא שהקובץ אינו ריק ושנשמר כ-CSV או Excel.
+            </p>
+          )}
+          {truncated && (
+            <p className="obrw-warn" style={{ marginTop: 10 }}>
+              <AlertTriangle size={12} strokeWidth={2} aria-hidden="true" />
+              חלק מהטבלאות נקטעו לשורות הראשונות כדי לשמור על ביצועים. אפשר לייבא את השאר בקובץ נפרד בהמשך.
             </p>
           )}
         </div>
 
         <footer className="obrw-foot">
           <p className="obrw-summary">
-            זוהו: <strong>{counts.clients}</strong> לקוחות · <strong>{counts.projects}</strong> פרויקטים · <strong>{counts.transactions}</strong> תנועות
+            {reviewObj ? 'מוכן לסקירה לפני יצירה.' : 'בחרו לכל טבלה מה יש בה ומפו את עמודות השם / הסכום.'}
           </p>
           <div className="obrw-actions">
             <button type="button" className="ob-btn ghost" onClick={onClose}>ביטול</button>
-            <button type="button" className="ob-btn primary" onClick={() => setPhase('review')} disabled={total === 0}>
-              המשך לסקירה
+            <button type="button" className="ob-btn primary" disabled={!reviewObj || yearMissing}
+              onClick={() => { setReview(reviewObj); setPhase('review') }}>
+              {yearMissing ? 'בחרו שנה לכל טבלת חודשים' : 'המשך לסקירה'}
             </button>
           </div>
         </footer>

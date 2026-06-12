@@ -5,7 +5,7 @@ import {
   Plus, Trash2, Leaf, GripVertical, ChevronLeft, CalendarDays, Database, Download, Upload,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
-import { parseFile } from '../../lib/csvImport'
+import { buildSheetsFromFiles, ACCEPT } from '../../lib/importFlow'
 import ImportDataModal from '../onboarding/ImportDataModal'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useLeadSources } from '../../hooks/useLeadSources'
@@ -649,19 +649,30 @@ export default function SettingsScreen() {
       navigate(ROUTES.ONBOARDING)
     }
   }
-  /* CSV import (Settings → data). Pick a file → parse → open the
-     mapping+review modal (reused from onboarding). */
+  /* CSV/Excel import (Settings → data). Pick one or more files → read
+     every sheet via the shared multi-sheet engine → open the same
+     mapping+review modal onboarding uses. */
   const importFileRef = useRef(null)
   const [importParsed, setImportParsed] = useState(null)
   const [importMsg, setImportMsg] = useState('')
-  const onPickImport = async (file) => {
-    if (!file) return
+  const [importBusy, setImportBusy] = useState(false)
+  const onPickImport = async (fileList) => {
+    const files = Array.from(fileList || [])
+    if (!files.length) return
     setImportMsg('')
+    const UNSUPPORTED = ['pdf', 'numbers', 'pages', 'png', 'jpg', 'jpeg', 'gif', 'heic', 'webp', 'doc', 'docx', 'gsheet']
+    if (files.some((f) => UNSUPPORTED.includes((f.name.split('.').pop() || '').toLowerCase()))) {
+      setImportMsg('הקובץ לא נקרא — הפורמט לא נתמך. אפשר לייבא CSV או Excel (xlsx/xls); קובץ מנאמברס/גוגל-שיטס אפשר לייצא ל-CSV.')
+      return
+    }
+    setImportBusy(true)
     try {
-      const parsed = await parseFile(file)
-      setImportParsed({ kind: 'csv', ...parsed })
+      const { sheets, names } = await buildSheetsFromFiles(files)
+      setImportParsed({ kind: 'csv', file_name: names, sheets })
     } catch {
-      setImportMsg('הקובץ לא נקרא — ' + addressUser(gender, { male: 'ודא', female: 'ודאי', neutral: 'ודא/י' }) + ' שזה CSV או Excel תקין.')
+      setImportMsg('הקובץ לא נקרא — ' + addressUser(gender, { male: 'ודא', female: 'ודאי', neutral: 'ודא/י' }) + ' שזה CSV או Excel תקין ושאינו פתוח כרגע בתוכנה אחרת.')
+    } finally {
+      setImportBusy(false)
     }
   }
   const onImported = (summary) => {
@@ -670,14 +681,20 @@ export default function SettingsScreen() {
       const c = summary.clients?.created || 0
       const p = summary.projects?.created || 0
       const t = summary.transactions?.created || 0
+      const l = summary.leads?.created || 0
       const est = summary.transactions?.dateEstimated || 0
       const s = summary.sessions?.created || 0
       const estNote = est > 0 ? ` ${est} מהן עם תאריך משוער — אפשר לערוך במסך הכסף.` : ''
-      const sessNote = s > 0 ? ` · ${s} פגישות שנעשו` : ''
+      const parts = []
+      if (c) parts.push(`${c} לקוחות`)
+      if (p) parts.push(`${p} פרויקטים`)
+      if (l) parts.push(`${l} לידים`)
+      if (t) parts.push(`${t} תנועות`)
+      if (s) parts.push(`${s} פגישות`)
       setImportMsg(
-        c + p + t + s === 0
+        parts.length === 0
           ? 'לא נוצרו רשומות חדשות (ייתכן שכבר היו קיימות).'
-          : `יובאו בהצלחה: ${c} לקוחות · ${p} פרויקטים · ${t} תנועות${sessNote}.${estNote}`,
+          : `יובאו בהצלחה: ${parts.join(' · ')}.${estNote}`,
       )
     }
   }
@@ -867,24 +884,30 @@ export default function SettingsScreen() {
           <input
             ref={importFileRef}
             type="file"
-            accept=".csv,.tsv,.xlsx,.xls,text/csv"
+            accept={ACCEPT}
+            multiple
             style={{ display: 'none' }}
-            onChange={(e) => { onPickImport(e.target.files?.[0]); e.target.value = '' }}
+            onChange={(e) => { onPickImport(e.target.files); e.target.value = '' }}
           />
           <button
             type="button"
             className="set-data-action"
             onClick={() => importFileRef.current?.click()}
+            disabled={importBusy}
             style={{ marginTop: 10 }}
           >
             <Upload size={15} strokeWidth={1.7} aria-hidden="true" />
             ייבוא מקובץ (CSV / Excel)
           </button>
           <p className="set-data-hint">
-            תומך ב-CSV, TSV ו-Excel. מזהה אוטומטית עמודות (שם, טלפון, מייל, פרויקט, סכום, תאריך ועוד), נותן להתאים ידנית, ולסקור כל שורה לפני שנכתבת.
+            תומך ב-CSV, TSV ו-Excel — אפשר גם כמה קבצים יחד וכמה גיליונות. מזהה אוטומטית עמודות (שם, טלפון, מייל, פרויקט, סכום, תאריך ועוד), נותן להתאים ידנית, ולסקור הכול לפני שנכתב.
           </p>
+          {importBusy && (
+            <p className="set-data-hint" role="status" aria-live="polite">מעבד את הקובץ…</p>
+          )}
           {importMsg && (
-            <p className="set-data-hint" style={{ color: 'var(--sage)', fontWeight: 600 }}>{importMsg}</p>
+            <p className="set-data-hint" role="status" aria-live="polite"
+              style={{ color: importMsg.startsWith('הקובץ לא נקרא') ? 'var(--clay)' : 'var(--sage)', fontWeight: 600 }}>{importMsg}</p>
           )}
 
           <button
@@ -1066,6 +1089,7 @@ export default function SettingsScreen() {
       {importParsed && (
         <ImportDataModal
           parsed={importParsed}
+          gender={gender}
           onClose={() => setImportParsed(null)}
           onImported={onImported}
         />

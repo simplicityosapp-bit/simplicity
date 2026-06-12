@@ -409,16 +409,25 @@
 }
 .obrw-confirm-txt { margin: 0; font-family: var(--mg-font); font-size: calc(14px * var(--text-scale)); color: var(--espresso); max-width: 320px; line-height: 1.5; }
 
-/* ── Mobile — stack fields so nothing gets crushed ───────────── */
+/* ── Mobile — stack fields so nothing gets crushed, and grow tap
+   targets toward the 44px guideline ──────────────────────────── */
 @media (max-width: 600px) {
   .obrw-head, .obrw-tabs, .obrw-bulk, .obrw-body, .obrw-foot { padding-inline: 14px; }
   .obrw-fields { gap: 8px; }
-  .obrw-input { min-width: 60px; }
+  .obrw-input { min-width: 60px; min-height: 40px; }
+  .obrw-toggle { width: 34px; height: 34px; }
+  .obrw-tx-lbl { font-size: calc(11px * var(--text-scale)); }
   .obrw-grow, .obrw-tx-field.obrw-grow { flex: 1 1 100%; }
-  .obrw-num { width: 64px; }
+  /* clients: pair the two number boxes on one line; selects full width */
+  .obrw-num { width: calc(50% - 4px); }
+  .obrw-cl-proj, .obrw-cl-status { flex: 1 1 100%; width: auto; }
+  /* transactions: keep short type+amount paired; date & project full row */
   .obrw-tx-amount, .obrw-tx-type { width: calc(50% - 4px); flex: 0 0 auto; }
-  .obrw-tx-date, .obrw-tx-proj { width: calc(50% - 4px); flex: 0 0 auto; }
+  .obrw-tx-date, .obrw-tx-proj { flex: 1 1 100%; width: auto; }
   .obrw-foot { gap: 8px; }
+  .obrw-summary { flex: 1 1 100%; text-align: center; margin-bottom: 4px; }
   .obrw-actions { width: 100%; }
   .obrw-actions .ob-btn { flex: 1 1 auto; justify-content: center; }
+  /* the count is redundant on mobile (the tab's aria-label still says it) */
+  .obrw-tab-count { display: none; }
 }

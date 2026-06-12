@@ -30,6 +30,30 @@ export const HE_MONTHS = {
   'יולי': 7, 'אוגוסט': 8, 'ספטמבר': 9, 'אוקטובר': 10, 'נובמבר': 11, 'דצמבר': 12,
 }
 
+/* Hebrew month ABBREVIATIONS (coaches shorten freely: "ינו", "פבר"…).
+   מאי/מרץ have no shorter form; their full names already cover them. */
+const HE_MONTH_ABBR = {
+  'ינו': 1, 'פבר': 2, 'אפר': 4, 'יונ': 6, 'יול': 7,
+  'אוג': 8, 'ספט': 9, 'אוק': 10, 'אוקט': 10, 'נוב': 11, 'דצמ': 12,
+}
+
+/* English month names, full + 3-letter abbreviations (incl. "sept"). */
+const EN_MONTHS = {
+  january: 1, jan: 1, february: 2, feb: 2, march: 3, mar: 3, april: 4, apr: 4,
+  may: 5, june: 6, jun: 6, july: 7, jul: 7, august: 8, aug: 8,
+  september: 9, sep: 9, sept: 9, october: 10, oct: 10, november: 11, nov: 11,
+  december: 12, dec: 12,
+}
+
+/* Quarter labels → the quarter's START month, so a quarterly cross-tab
+   still produces a dated transaction (Q1→Jan, Q2→Apr, Q3→Jul, Q4→Oct).
+   Covers Q1/q1, Hebrew "רבעון 1", lettered "רבעון א׳", ordinal "רבעון
+   ראשון" and the short "ר1"/"ר3". Half-years (H1/H2 · חציון/מחצית) map to
+   their start month too (H1→Jan, H2→Jul). */
+const QUARTER_START = { 1: 1, 2: 4, 3: 7, 4: 10 }
+const HE_LETTER_NUM = { 'א': 1, 'ב': 2, 'ג': 3, 'ד': 4 }
+const HE_ORDINAL = { 'ראשון': 1, 'שני': 2, 'שלישי': 3, 'רביעי': 4, 'ראשונה': 1, 'שניה': 2, 'שנייה': 2 }
+
 /* Period header words that aren't months but still mark a value column
    (used by expense sheets: חודשי / שנתי …). They don't map to a month;
    the flattener keeps the header text as the period label. */
@@ -92,29 +116,93 @@ export function guessLabelKind(labelHeader) {
 
 const norm = (s) => String(s == null ? '' : s).trim().toLowerCase().replace(/["'`״׳]/g, '').replace(/\s+/g, '')
 
+/* Resolve a single normalized token to a month number, trying (in
+   order): full Hebrew name, Hebrew abbreviation, English full/abbrev. */
+function monthFromToken(tok) {
+  if (!tok) return null
+  for (const [name, num] of Object.entries(HE_MONTHS)) if (norm(name) === tok) return num
+  if (HE_MONTH_ABBR[tok]) return HE_MONTH_ABBR[tok]
+  if (EN_MONTHS[tok]) return EN_MONTHS[tok]
+  return null
+}
+
 /* Classify a single header cell as a period column. Returns
-   { period: <label>, month: <1-12|null> } or null if it's not a period. */
+   { period: <label>, month: <1-12|null> } or null if it's not a period.
+   Recognises the wild variety coaches actually type across a finance
+   cross-tab:
+     - month NAMES: Hebrew full/abbrev (ינואר / ינו / ינו׳), English
+       full/abbrev (January / Jan),
+     - month + YEAR in any order/separator, 2- or 4-digit
+       (ינואר 2026 · Jan-26 · מרץ׳26 · 2026 ינואר),
+     - numeric MM/YYYY · YYYY-MM · MM/YY,
+     - QUARTERS: Q1 · q1 2026 · רבעון 1 · רבעון א׳ · רבעון ראשון · ר1 · ר"1,
+     - HALF-years: H1/H2 · חציון 1 · מחצית א׳ · מחצית ראשונה,
+     - "ordinal period": חודש 1 · תקופה 2 · מחזור 3,
+     - period WORDS (חודשי/שנתי…) and a bare month number 1–12.
+   Summary/total columns (סה״כ / סיכום שנתי / ממוצע / עד כה) deliberately
+   match NOTHING here, so they're never flattened as a period (no double-
+   counting). */
 export function classifyPeriodHeader(header) {
   const raw = String(header == null ? '' : header).trim()
   if (!raw) return null
   const n = norm(raw)
-  /* Hebrew month name */
-  for (const [name, num] of Object.entries(HE_MONTHS)) {
-    if (norm(name) === n) return { period: raw, month: num }
+
+  /* 1) bare month NAME (Hebrew full/abbrev or English). */
+  const direct = monthFromToken(n)
+  if (direct) return { period: raw, month: direct }
+
+  /* 2) numeric MM/YYYY · MM/YY · MM.YY · YYYY-MM (a real separator, so a
+     bare "1/26" stays month=1 rather than collapsing to "126"). */
+  let m
+  if ((m = raw.match(/^\s*(\d{4})\s*[/.-]\s*(\d{1,2})\s*$/))) {
+    const mo = Number(m[2]); if (mo >= 1 && mo <= 12) return { period: raw, month: mo }
   }
-  /* Period word (חודשי/שנתי…) */
+  if ((m = raw.match(/^\s*(\d{1,2})\s*[/.-]\s*(\d{2,4})\s*$/))) {
+    const mo = Number(m[1]); if (mo >= 1 && mo <= 12) return { period: raw, month: mo }
+  }
+
+  /* 3) month NAME + year (either order, any separator, 2- or 4-digit, even
+     glued like "מרץ׳26"). Tokenise, then try each token as a month name —
+     with and without its trailing/leading digits. */
+  const toks = raw.toLowerCase().replace(/['׳״"`]/g, '').replace(/[/.\-_]+/g, ' ').split(/\s+/).filter(Boolean)
+  for (const t of toks) {
+    const mo = monthFromToken(norm(t)) || monthFromToken(norm(t.replace(/\d+/g, '')))
+    if (mo) return { period: raw, month: mo }
+  }
+
+  /* Separator-stripped form so a year glued on with any separator
+     ("רבעון 1/2026" → "רבעון12026") doesn't defeat the matchers below. */
+  const ns = n.replace(/[/.\-_]/g, '')
+
+  /* 4) QUARTERS → the quarter's start month, tolerating a trailing year:
+     q1 / q1 2026 / רבעון1 / ר1 / רבעוןא / רבעון ראשון. */
+  let q
+  if ((q = ns.match(/^q([1-4])(?:20\d{2}|\d{2})?$/))) return { period: raw, month: QUARTER_START[Number(q[1])] }
+  if ((q = ns.match(/^(?:רבעון|רבע|ר)([1-4])(?:20\d{2}|\d{2})?$/))) return { period: raw, month: QUARTER_START[Number(q[1])] }
+  if ((q = ns.match(/^(?:רבעון|רבע)([אבגד])$/))) return { period: raw, month: QUARTER_START[HE_LETTER_NUM[q[1]]] }
+  if ((q = ns.match(/^(?:רבעון|רבע)(ראשון|שני|שלישי|רביעי)$/))) return { period: raw, month: QUARTER_START[HE_ORDINAL[q[1]]] }
+
+  /* 5) HALF-years → start month (H1→Jan, H2→Jul). */
+  let h
+  if ((h = ns.match(/^h([12])(?:20\d{2}|\d{2})?$/))) return { period: raw, month: Number(h[1]) === 1 ? 1 : 7 }
+  if ((h = ns.match(/^(?:חציון|מחצית|מחצ)([12])(?:20\d{2}|\d{2})?$/))) return { period: raw, month: Number(h[1]) === 1 ? 1 : 7 }
+  if ((h = ns.match(/^(?:חציון|מחצית|מחצ)([אב]|ראשונה|שניה|שנייה)$/))) {
+    const num = HE_LETTER_NUM[h[1]] || HE_ORDINAL[h[1]]
+    if (num) return { period: raw, month: num === 1 ? 1 : 7 }
+  }
+
+  /* 6) "ordinal period": חודש 1 / תקופה 2 / מחזור 3 → that month number. */
+  if ((m = ns.match(/^(?:חודש|תקופה|מחזור|period|month)([1-9]|1[0-2])$/))) {
+    return { period: raw, month: Number(m[1]) }
+  }
+
+  /* 7) period WORD (חודשי/שנתי…) — a value column, no specific month. */
   if (PERIOD_WORDS.some((w) => norm(w) === n)) return { period: raw, month: null }
-  /* A bare month number 1–12 */
+
+  /* 8) a bare month number 1–12. */
   if (/^\d{1,2}$/.test(n)) {
-    const m = Number(n)
-    if (m >= 1 && m <= 12) return { period: raw, month: m }
-  }
-  /* MM/YYYY or YYYY-MM style */
-  const ym = raw.match(/^(\d{4})[-/](\d{1,2})$/) || raw.match(/^(\d{1,2})[-/](\d{4})$/)
-  if (ym) {
-    const a = Number(ym[1]); const b = Number(ym[2])
-    const month = a > 12 ? b : a
-    if (month >= 1 && month <= 12) return { period: raw, month }
+    const mo = Number(n)
+    if (mo >= 1 && mo <= 12) return { period: raw, month: mo }
   }
   return null
 }

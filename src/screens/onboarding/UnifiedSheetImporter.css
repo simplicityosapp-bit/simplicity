@@ -87,6 +87,7 @@
 .usi-raw {
   margin: 6px 0 10px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* smooth momentum scroll on touch */
   border-radius: 10px;
   border: 1px solid var(--divider);
 }
@@ -147,3 +148,18 @@
 }
 .usi-summary-line { margin: 0; font-family: var(--mg-font); font-size: calc(13px * var(--text-scale)); line-height: 1.6; color: var(--stone); text-align: center; }
 .usi-summary-line strong { color: var(--espresso); font-family: var(--mg-font-num); }
+
+/* ── Narrow screens (mobile-first app) ───────────────────────────────
+   Stack each column's header above a full-width select so the dropdown
+   is a comfortable tap target instead of a fixed 124px sliver, and give
+   the matrix income/expense/skip pills more height. */
+@media (max-width: 600px) {
+  .usi { width: 100%; }
+  .usi-col { flex-wrap: wrap; }
+  .usi-col-name { flex: 1 1 100%; }
+  .usi-col-h { max-width: none; }
+  .usi-col-select { flex: 1 1 100%; width: 100%; min-height: 42px; }
+  .usi-row { flex-wrap: wrap; }
+  .usi-row-types { margin-inline-start: auto; }
+  .usi-rt { padding: 8px 12px; font-size: calc(12px * var(--text-scale)); }
+}

@@ -31,9 +31,9 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 3px;
+  gap: 6px;
   width: 100%;
-  max-width: 580px;
+  max-width: 600px;
   margin: auto;
   padding: 0;
   background: transparent;
@@ -43,8 +43,8 @@
 }
 @media (min-width: 768px) {
   .ob-frame {
-    max-width: 640px;
-    gap: 4px;
+    max-width: 720px; /* wider content column on desktop (was 640) */
+    gap: 7px;
   }
 }
 
@@ -145,12 +145,16 @@
 
 .ob-step-counter {
   margin: 0 0 2px;
-  font-family: var(--mg-font-num);
-  font-size: calc(11px * var(--text-scale));
+  font-family: var(--mg-font); /* Hebrew words now ("צעד X מתוך Y"), not bare numbers */
+  font-size: calc(11.5px * var(--text-scale));
   font-weight: 700;
-  color: var(--stone);
-  letter-spacing: 0.08em;
+  color: var(--espresso);
+  letter-spacing: 0.01em;
+  background: rgba(255, 252, 247, 0.82);
+  border-radius: 999px;
+  padding: 2px 12px;
 }
+[data-theme="dark"] .ob-step-counter { color: var(--cream); background: rgba(26, 22, 18, 0.82); }
 
 .ob-help-btn {
   display: inline-flex;
@@ -236,7 +240,7 @@
 .ob-body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 7px;
   padding: 0;
   background: transparent;
   border: none;
@@ -251,13 +255,14 @@
    need because the inputs inside set their own min-width. */
 .ob-intro {
   margin: 0;
-  padding: 7px 12px;
+  padding: 7px 14px;
   align-self: center;
   width: fit-content;
   max-width: 100%;
   font-family: var(--mg-font);
-  font-size: calc(14px * var(--text-scale));
-  line-height: 1.5;
+  font-size: calc(17px * var(--text-scale)); /* the step's primary line — a touch bigger/bolder */
+  font-weight: 600;
+  line-height: 1.4;
   color: var(--espresso);
 }
 .ob-intro-sub {
@@ -296,9 +301,26 @@
 }
 .ob-field-row > .ob-field {
   align-self: auto;
-  flex: 0 1 auto;
-  min-width: 200px;
+  flex: 1 1 200px;
+  min-width: 180px;
 }
+
+/* ── Uniform panel width ─────────────────────────────────────────
+   Top-level step panels fill the frame so they align to the SAME left
+   and right edges — the step reads as one cohesive column instead of a
+   scatter of different-width floating pills. (Inline hints + pre-fill
+   banners stay snug & centered; they're asides, not part of the form.) */
+.ob-body > .ob-intro,
+.ob-body > .ob-intro-sub,
+.ob-body > .ob-field,
+.ob-body > .ob-field-row,
+.ob-body > .ob-step-grid {
+  align-self: stretch;
+  width: auto;
+  min-width: 0;
+}
+.ob-body > .ob-intro,
+.ob-body > .ob-intro-sub { text-align: center; }
 /* The CTA cluster (hint + Next) is its own snug panel. In RTL the
    "next" button conventionally lives at the inline-start edge (right
    side), so we use align-self:flex-start which respects the writing
@@ -324,16 +346,23 @@
   display: inline-block;
   width: fit-content;
   margin: 0 0 2px;
-  padding: 3px 10px;
+  padding: 3px 11px;
   border-radius: 999px;
-  background: var(--mg-card-bg);
+  /* A more OPAQUE pill than the panel glass (was --mg-card-bg ~30%) so the
+     section title reads crisply and doesn't get swallowed by the forest. */
+  background: rgba(255, 252, 247, 0.82);
   backdrop-filter: var(--mg-card-blur);
   border: var(--mg-card-border);
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));
   font-weight: 600;
-  color: var(--stone);
+  color: var(--espresso);
   letter-spacing: 0.02em;
+}
+[data-theme="dark"] .ob-label,
+[data-theme="dark"] .ob-client-form .m-label {
+  background: rgba(26, 22, 18, 0.82);
+  color: var(--cream);
 }
 
 /* Shared client-form fields (modal classes) need the onboarding glass
@@ -371,18 +400,21 @@
 .ob-select {
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid rgba(42, 37, 32, 0.14);
-  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(42, 37, 32, 0.16);
+  background: rgba(255, 255, 255, 0.82); /* more opaque so it reads over the bright forest */
   font-family: var(--mg-font);
   font-size: calc(14px * var(--text-scale));
   color: var(--espresso);
 }
+/* Placeholder readable over the photo — was the browser default light grey. */
+.ob-input::placeholder { color: var(--stone); opacity: 0.72; }
 [data-theme="dark"] .ob-input,
 [data-theme="dark"] .ob-select {
-  border-color: rgba(240, 235, 224, 0.18);
-  background: rgba(36, 32, 28, 0.5);
+  border-color: rgba(240, 235, 224, 0.20);
+  background: rgba(30, 26, 22, 0.78);
   color: var(--cream);
 }
+[data-theme="dark"] .ob-input::placeholder { color: var(--mist); opacity: 0.7; }
 .ob-input:focus,
 .ob-select:focus {
   outline: none;
@@ -393,19 +425,22 @@
 .ob-pills {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center; /* balance the row — no lopsided dead space in the wide panel */
   gap: 6px;
 }
 .ob-pill {
   padding: 7px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(42, 37, 32, 0.14);
-  background: transparent;
+  border: 1px solid rgba(42, 37, 32, 0.16);
+  background: rgba(255, 252, 247, 0.5); /* faint fill so unselected pills read over the forest */
+  backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
+[data-theme="dark"] .ob-pill { background: rgba(30, 26, 22, 0.5); }
 [data-theme="dark"] .ob-pill { border-color: rgba(240, 235, 224, 0.18); color: var(--cream); }
 .ob-pill:hover:not(.on) { background: rgba(42, 37, 32, 0.06); }
 [data-theme="dark"] .ob-pill:hover:not(.on) { background: rgba(240, 235, 224, 0.06); }

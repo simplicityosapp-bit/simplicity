@@ -26,7 +26,12 @@ export default function OnboardingShell({ ob, cta, children }) {
   const onSkip = async () => {
     if (skipping) return
     setSkipping(true)
-    try { await ob.skipStep() } catch { setSkipping(false) }
+    /* Reset on BOTH success and failure: skipStep on a non-last step only
+       advances (the shell stays mounted), so without resetting here the
+       button stuck on "מסיים…" forever and the `skipping` guard blocked
+       every later skip. On the last step skipStep navigates home and the
+       shell unmounts, where this setState is a harmless no-op. */
+    try { await ob.skipStep() } finally { setSkipping(false) }
   }
   const helpContent = HELP_BY_STEP[ob.step] || null
   const isFirst = ob.stepIndex === 0
@@ -55,7 +60,7 @@ export default function OnboardingShell({ ob, cta, children }) {
         {/* Tree + counter share one small panel — the counter sits as
             a tiny line above the tree's crown. */}
         <div className="ob-head-left">
-          <p className="ob-step-counter mono">{ob.stepIndex + 1} / {ob.total}</p>
+          <p className="ob-step-counter">צעד {ob.stepIndex + 1} מתוך {ob.total}</p>
           <OnboardingTree stepIndex={ob.stepIndex} />
         </div>
 

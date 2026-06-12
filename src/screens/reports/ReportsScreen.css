@@ -30,7 +30,7 @@
   gap: 8px;
   font-family: 'Assistant', sans-serif;
   font-size: calc(22px * var(--text-scale));
-  font-weight: 700;
+  font-weight: 600;
   color: var(--espresso);
 }
 .rep-head-title svg { color: var(--stone); }
@@ -74,7 +74,7 @@
   background: transparent;
   border-radius: 999px;
   font-family: var(--mg-font);
-  font-size: calc(12.5px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
   cursor: pointer;
@@ -116,7 +116,7 @@
 /* ── Customize panel ── */
 .rep-cust {
   margin-bottom: 14px;
-  padding: 14px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -143,7 +143,7 @@
   border: none;
   cursor: pointer;
   font-family: var(--mg-font);
-  font-size: calc(11.5px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
 }
@@ -160,7 +160,7 @@
 .rep-cust-hint {
   margin: 4px 0 10px;
   font-family: var(--mg-font);
-  font-size: calc(11.5px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   font-weight: 400;
   color: var(--stone);
 }
@@ -288,7 +288,7 @@
 }
 .rep-drill-row-secondary {
   font-family: var(--mg-font);
-  font-size: calc(11.5px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   font-weight: 400;
   color: var(--stone);
 }
@@ -360,7 +360,7 @@
   margin: 0;
   padding: 10px 14px;
   font-family: var(--mg-font);
-  font-size: calc(11.5px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--stone);
@@ -417,7 +417,7 @@
   color: var(--espresso);
 }
 .rep-row-value {
-  font-size: calc(13.5px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
@@ -431,7 +431,7 @@
   text-align: center;
   gap: 6px;
   margin-top: 18px;
-  padding: 28px 24px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -442,7 +442,7 @@
 .rep-empty-text {
   margin: 4px 0 0;
   font-family: var(--mg-font);
-  font-size: calc(13.5px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
   font-weight: 500;
   color: var(--espresso);
 }
@@ -452,7 +452,7 @@
   border: none;
   cursor: pointer;
   font-family: var(--mg-font);
-  font-size: calc(12.5px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
   font-weight: 500;
   color: var(--moon-deep);
 }
@@ -514,7 +514,7 @@
   width: 100%;
   border-collapse: collapse;
   font-family: var(--mg-font);
-  font-size: calc(12.5px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
 }
 .rep-table thead th {
@@ -522,7 +522,7 @@
   top: 0;
   background: var(--mg-card-bg);
   font-weight: 600;
-  font-size: calc(11.5px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   letter-spacing: 0.02em;
   color: var(--stone);
   padding: 10px 12px;
@@ -546,7 +546,7 @@
 .rep-tr-group td {
   padding: 8px 14px;
   font-size: calc(11px * var(--text-scale));
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: none;
   color: var(--stone);
@@ -580,7 +580,7 @@
   vertical-align: middle;
 }
 .rep-td-metric-name {
-  font-size: calc(12.5px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
   font-weight: 500;
   color: var(--espresso);
 }
@@ -605,7 +605,7 @@
 }
 .rep-td-summary {
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: 500;
   border-inline-start: 1px solid var(--divider, rgba(0,0,0,.06));
   background: rgba(0,0,0,.015);
 }

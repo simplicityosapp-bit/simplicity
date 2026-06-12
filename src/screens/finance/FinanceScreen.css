@@ -6,7 +6,7 @@
 /* ── Month summary hero ────────────────────────────────────────── */
 .f-hero {
   margin-bottom: 18px;
-  padding: 18px 20px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -150,7 +150,7 @@
   margin: 0;
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
-  font-weight: 700;
+  font-weight: 600;
   color: var(--espresso);
   letter-spacing: 0.02em;
 }
@@ -399,7 +399,7 @@
 /* ── Recurring templates section ──────────────────────────────── */
 .rec-section {
   margin-bottom: 22px;
-  padding: 14px 16px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -551,7 +551,7 @@
 /* ── Categories section ──────────────────────────────────────── */
 .cat-section {
   margin-bottom: 22px;
-  padding: 14px 16px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -710,7 +710,7 @@
 .f-mid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 14px;
+  gap: var(--mg-row-gap);
   margin-bottom: 22px;
 }
 .f-mid > * {
@@ -794,7 +794,7 @@
 /* ── Breakdown sections (by project / by category) ─────────── */
 .f-breakdown {
   margin-bottom: 22px;
-  padding: 14px 16px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);

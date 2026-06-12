@@ -8,7 +8,7 @@
 .home-stack {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--mg-row-gap);
   padding-top: 16px;
 }
 
@@ -75,7 +75,7 @@
 .home-screen[data-text-strength="bold"] .h-quote-text,
 .home-screen[data-text-strength="bold"] .moon-title,
 .home-screen[data-text-strength="bold"] .h-card-title {
-  font-weight: 700;
+  font-weight: 600;
 }
 .home-screen[data-text-strength="bold"] .moon-desc,
 .home-screen[data-text-strength="bold"] .h-attn-text,
@@ -195,7 +195,7 @@
 
 /* ── Quote ─────────────────────────────────────────────────────── */
 .h-quote {
-  padding: 18px 20px;
+  padding: var(--mg-card-pad);
   text-align: center;
 }
 /* The quote card is a button since beta 03/06/2026 — tap opens the
@@ -218,7 +218,7 @@
   margin: 6px 0 0;
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
-  font-weight: 300;
+  font-weight: 400;
   color: var(--mist);
 }
 
@@ -344,7 +344,7 @@
 }
 .moon-expanded {
   padding: 12px 14px;
-  border-radius: 14px;
+  border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
@@ -447,7 +447,7 @@
 
 /* ── Moon widget (legacy big card — kept for /moon screen reuse) ─ */
 .moon-card {
-  padding: 18px 20px;
+  padding: var(--mg-card-pad);
   cursor: pointer;
   transition: transform 0.18s;
 }
@@ -570,7 +570,7 @@
 /* ── Insights (daily question) ─────────────────────────────────── */
 .ins-widget {
   position: relative;
-  padding: 16px 18px;
+  padding: var(--mg-card-pad);
 }
 /* Reserve an inline-start strip for the round collapse toggle when open. */
 .ins-widget.has-collapse {
@@ -650,7 +650,7 @@
   margin: 0;
   font-family: var(--mg-font);
   font-size: calc(14px * var(--text-scale));
-  font-weight: 700;
+  font-weight: 600;
   color: var(--espresso);
 }
 .ins-q svg {
@@ -850,7 +850,7 @@
 
 /* ── List cards (attention / reminders / next tasks) ───────────── */
 .h-card {
-  padding: 16px 18px;
+  padding: var(--mg-card-pad);
 }
 .h-card-head {
   display: flex;

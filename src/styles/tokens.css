@@ -49,6 +49,11 @@
   --mg-gutter:          16px;            /* between columns */
   --mg-row-gap:         16px;            /* between card rows */
   --mg-cols:            12;
+  /* Desktop content-width caps — without these the .screen fills the whole
+     viewport and cards/lists over-stretch on wide monitors. Two tiers:
+     grids/dashboards wide, lists/forms narrow (see src/styles/screens.css). */
+  --mg-content-wide:    1200px;          /* home / clients / finance / projects / reports / leads / insights / calendar */
+  --mg-content-narrow:  780px;           /* tasks / settings / connections / trash / moon / goals / project-detail */
   /* Fixed card heights — long content truncates or scrolls inside.
      Trimmed 15% on 2026-05-16 (was 100/160/220) — layout read too long. */
   --mg-card-sm:         85px;            /* stat cards, icon rows */

@@ -293,3 +293,38 @@
   animation: mgFadeUp 0.35s ease forwards;
   opacity: 0;
 }
+
+/* ── Desktop content-width cap ─────────────────────────────────────
+   On desktop .screen fills the whole viewport, so cards/lists over-
+   stretch on wide monitors. Cap + centre each screen's top-level
+   blocks. Two tiers: grids/dashboards wide, lists/forms narrow.
+   Scoped by [data-screen] so onboarding (.ob-screen) is untouched.
+   Mobile is unaffected (this whole block is desktop-only). */
+@media (min-width: 768px) {
+  .app[data-screen="home"] .screen > *,
+  .app[data-screen="clients"] .screen > *,
+  .app[data-screen="finance"] .screen > *,
+  .app[data-screen="projects"] .screen > *,
+  .app[data-screen="reports"] .screen > *,
+  .app[data-screen="leads"] .screen > *,
+  .app[data-screen="insights"] .screen > *,
+  .app[data-screen="calendar"] .screen > * {
+    max-width: var(--mg-content-wide);
+    margin-inline: auto;
+  }
+  .app[data-screen="tasks"] .screen > *,
+  .app[data-screen="settings"] .screen > *,
+  .app[data-screen="connections"] .screen > *,
+  .app[data-screen="trash"] .screen > *,
+  .app[data-screen="moon"] .screen > *,
+  .app[data-screen="goals"] .screen > * {
+    max-width: var(--mg-content-narrow);
+    margin-inline: auto;
+  }
+  /* project-detail lives under data-screen="projects" but is a
+     reading/detail view → narrow (more specific via .pd-screen). */
+  .app[data-screen="projects"] .pd-screen > * {
+    max-width: var(--mg-content-narrow);
+    margin-inline: auto;
+  }
+}

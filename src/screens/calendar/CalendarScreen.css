@@ -76,7 +76,7 @@
 }
 .cal-gate-hint {
   font-family: var(--mg-font);
-  font-size: calc(11.5px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
 .cal-list {
@@ -145,7 +145,7 @@
 .cal-tag {
   flex-shrink: 0;
   font-family: var(--mg-font);
-  font-size: calc(10px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   font-weight: 500;
   padding: 2px 9px;
   border-radius: 10px;
@@ -315,7 +315,7 @@
   z-index: 30;
   width: min(240px, calc(100vw - 24px));  /* never wider than the viewport */
   padding: 12px;
-  border-radius: 16px;
+  border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--modal-bg, var(--mg-card-bg));
   backdrop-filter: blur(24px);
@@ -499,7 +499,7 @@
   display: flex;
   flex-direction: column;
   padding: 8px 6px;
-  border-radius: 12px;
+  border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
@@ -518,7 +518,7 @@
 }
 .cal-week-dow {
   font-family: var(--mg-font);
-  font-size: calc(10px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   color: var(--stone);
   letter-spacing: 0.05em;
 }
@@ -665,7 +665,7 @@
 .cal-month-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 16px;
   justify-content: center;
   margin-top: 10px;
   padding-top: 10px;

@@ -9,7 +9,7 @@
   grid-template-columns: 1fr 1fr 1fr;
   gap: var(--xs);
   margin-bottom: 16px;
-  padding: 14px 12px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -39,7 +39,7 @@
 .l-stat-lbl {
   margin: 3px 0 0;
   font-family: var(--mg-font);
-  font-size: calc(9px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
   letter-spacing: 0.02em;
@@ -299,7 +299,7 @@
 
 /* ── Lead statuses management panel ──────────────────────────── */
 .lead-statuses-panel {
-  padding: 16px 18px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -543,7 +543,7 @@
   border-radius: 10px;
   background: rgba(122, 92, 184, 0.1);
   font-family: var(--mg-font);
-  font-size: calc(10px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   font-weight: 500;
   color: var(--purple);
 }

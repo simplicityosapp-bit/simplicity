@@ -6,13 +6,13 @@
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
   box-shadow: var(--mg-card-shadow);
-  padding: 20px;
+  padding: var(--mg-card-pad);
   margin-bottom: 18px;
 }
 .conn-card-head {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 .conn-icon {
   display: inline-flex;
@@ -142,7 +142,7 @@
 /* Level 1 — category panel (לקוחות / פרויקטים / לידים / קבוצות / לא-מזוהים):
    the frosted outer card. */
 .conn-cat {
-  border-radius: 14px;
+  border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
@@ -154,7 +154,7 @@
   border-radius: 0;
   background: transparent;
   backdrop-filter: none;
-  font-size: calc(13.5px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
   font-weight: 600;
 }
 .conn-acc-cat:hover { background: color-mix(in srgb, var(--terracotta) 5%, transparent); }

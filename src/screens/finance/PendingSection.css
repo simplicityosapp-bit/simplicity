@@ -46,7 +46,7 @@
   margin: 0;
   font-family: var(--mg-font);
   font-size: calc(13.5px * var(--text-scale));
-  font-weight: 700;
+  font-weight: 600;
   color: var(--espresso);
 }
 .f-pending-sub {

@@ -29,8 +29,8 @@
   align-items: center;
   gap: 8px;
   font-family: 'Assistant', sans-serif;
-  font-size: calc(22px * var(--text-scale));
-  font-weight: 700;
+  font-size: calc(24px * var(--text-scale));
+  font-weight: 600;
   color: var(--espresso);
 }
 .moon-head-title svg {
@@ -60,8 +60,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 24px 20px;
+  gap: 16px;
+  padding: var(--mg-card-pad);
   margin-bottom: 8px;
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
@@ -101,7 +101,7 @@
 }
 .mg-ring-pct {
   font-family: var(--mg-font-num);
-  font-size: calc(40px * var(--text-scale));
+  font-size: calc(36px * var(--text-scale));
   font-weight: 500;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -113,7 +113,7 @@
 .mg-ring-kicker {
   margin-top: 2px;
   font-family: var(--mg-font);
-  font-size: calc(10px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
   line-height: 1.2;
@@ -129,7 +129,7 @@
   margin: 0;
   text-align: center;
   font-family: var(--mg-font);
-  font-size: calc(14px * var(--text-scale));
+  font-size: calc(15px * var(--text-scale));
   font-weight: 500;
   line-height: 1.5;
   color: var(--espresso);
@@ -158,8 +158,8 @@
 .mg-cats {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 16px;
+  gap: 16px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -210,7 +210,7 @@
 
 /* ── Trend ─────────────────────────────────────────────────────── */
 .mg-trend {
-  padding: 16px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -255,14 +255,14 @@
   margin: 0;
   font-family: var(--mg-font-num);
   font-weight: 500;
-  font-size: calc(18px * var(--text-scale));
+  font-size: calc(17px * var(--text-scale));
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
 }
 .mg-trend-stat-l {
   margin: 3px 0 0;
   font-family: var(--mg-font);
-  font-size: calc(10px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
 }
@@ -274,7 +274,7 @@
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
-  padding: 16px;
+  padding: var(--mg-card-pad);
 }
 .mg-ov-pills {
   display: flex;
@@ -323,7 +323,7 @@
 .mg-ov-note {
   margin: 10px 0 0;
   font-family: var(--mg-font);
-  font-size: calc(10px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   line-height: 1.5;
   color: var(--mist);
 }

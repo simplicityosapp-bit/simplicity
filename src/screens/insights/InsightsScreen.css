@@ -6,7 +6,7 @@
 /* ── Mirror reflection card ─────────────────────────────────── */
 .ins-mirror {
   margin-bottom: 18px;
-  padding: 14px 16px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -49,11 +49,11 @@
 .ins-q-grid {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   margin-bottom: 18px;
 }
 .ins-q-card {
-  padding: 14px 16px;
+  padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -81,7 +81,7 @@
   margin: 0;
   flex: 1;
   font-family: var(--mg-font);
-  font-size: calc(14px * var(--text-scale));
+  font-size: calc(15px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
 }
@@ -241,7 +241,7 @@
 .ins-stat-l {
   margin: 0 0 4px;
   font-family: var(--mg-font);
-  font-size: calc(10px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   color: var(--stone);
   letter-spacing: 0.04em;
 }
@@ -251,7 +251,7 @@
   align-items: center;
   gap: 6px;
   font-family: var(--mg-font-num);
-  font-size: calc(18px * var(--text-scale));
+  font-size: calc(17px * var(--text-scale));
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
 }
@@ -297,7 +297,7 @@
 .ins-heat-h {
   margin: 0 0 6px;
   font-family: var(--mg-font);
-  font-size: calc(10.5px * var(--text-scale));
+  font-size: calc(11px * var(--text-scale));
   color: var(--stone);
   letter-spacing: 0.04em;
 }
@@ -368,7 +368,7 @@
 .ins-history-text {
   flex: 1;
   font-family: var(--mg-font);
-  font-size: calc(12.5px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
   white-space: nowrap;
   overflow: hidden;
@@ -387,7 +387,7 @@
 }
 .ins-history-val {
   font-family: var(--mg-font-num);
-  font-size: calc(12.5px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
 }

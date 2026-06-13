@@ -265,7 +265,7 @@ Deno.serve(async (req) => {
         admin.from('sessions').select('user_id, deleted_at'),
         admin.from('user_preferences').select('user_id, preferences'),
         admin.from('feedback').select('user_id'),
-        admin.from('user_consent').select('user_id, kind, version, accepted, accepted_at'),
+        admin.from('user_consent').select('user_id, kind, version, accepted, accepted_at, created_at'),
       ])
 
       const reflById = new Map<string, number>()
@@ -293,15 +293,18 @@ Deno.serve(async (req) => {
       for (const f of fb ?? []) fbById.set(f.user_id, (fbById.get(f.user_id) ?? 0) + 1)
 
       // Latest acceptance per kind, per user — the current legal-consent state.
-      // user_consent is append-only (re-acceptances add rows), so the newest
-      // accepted_at per kind wins. Shape: { privacy|dpa|terms|marketing: {...} }.
-      const consentById = new Map<string, Record<string, { version: string | null; accepted: boolean; accepted_at: string }>>()
+      // user_consent is append-only (re-acceptances add rows). Rank by the
+      // SERVER-stamped created_at (recorded_at) — tamper-proof per migration 0032
+      // — NOT the client-supplied accepted_at, which can be backdated. recorded_at
+      // is the timestamp to trust/display in a dispute. Shape: { privacy|dpa|terms|marketing: {...} }.
+      const consentById = new Map<string, Record<string, { version: string | null; accepted: boolean; accepted_at: string; recorded_at: string }>>()
       for (const c of consent ?? []) {
         let m = consentById.get(c.user_id)
         if (!m) { m = {}; consentById.set(c.user_id, m) }
         const prev = m[c.kind]
-        if (!prev || new Date(c.accepted_at).getTime() > new Date(prev.accepted_at).getTime()) {
-          m[c.kind] = { version: c.version ?? null, accepted: !!c.accepted, accepted_at: c.accepted_at }
+        const recAt = (c.created_at as string) ?? c.accepted_at
+        if (!prev || new Date(recAt).getTime() > new Date(prev.recorded_at).getTime()) {
+          m[c.kind] = { version: c.version ?? null, accepted: !!c.accepted, accepted_at: c.accepted_at, recorded_at: recAt }
         }
       }
 

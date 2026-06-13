@@ -25,18 +25,20 @@ function fmtLastActive(iso) {
   return fmtDate(iso)
 }
 
-/* A versioned legal consent → "גרסה 1.0 · 11/06/26", or "—" when never recorded. */
+/* A versioned legal consent → "גרסה 1.0 · 11/06/26", or "—" when never recorded.
+   Shows the server-stamped recorded_at (tamper-proof, migration 0032) — the
+   timestamp to trust in a dispute — falling back to accepted_at for old rows. */
 function fmtConsent(c) {
   if (!c) return '—'
   const v = c.version ? `גרסה ${c.version} · ` : ''
-  return `${v}${fmtDate(c.accepted_at)}`
+  return `${v}${fmtDate(c.recorded_at || c.accepted_at)}`
 }
 
 /* Marketing consent — opted in/out + date (from the durable record), falling
    back to the user_metadata flag when no record exists. */
 function fmtMarketing(r) {
   const m = r.consent?.marketing
-  if (m) return `${m.accepted ? 'הסכים' : 'לא'} · ${fmtDate(m.accepted_at)}`
+  if (m) return `${m.accepted ? 'הסכים' : 'לא'} · ${fmtDate(m.recorded_at || m.accepted_at)}`
   return r.marketing_consent ? 'הסכים' : 'לא'
 }
 

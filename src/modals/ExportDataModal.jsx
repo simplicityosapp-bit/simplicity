@@ -9,9 +9,10 @@ import './ExportDataModal.css'
 
    Sensitive categories (sessions/goals/daily answers/reflections) are opt-in
    checkboxes — OFF by default — that add extra sheets to the "all data" file.
-   Their encrypted fields are decrypted in the api layer before export. */
+   These fields are stored plaintext at rest; the export simply includes the
+   extra sensitive columns. */
 const SENSITIVE = [
-  { key: 'sessions',     label: 'סשנים',         sub: 'הערות וסיכומי פגישות (מפוענחים)' },
+  { key: 'sessions',     label: 'סשנים',         sub: 'הערות וסיכומי פגישות' },
   { key: 'goals',        label: 'יעדים',          sub: 'יעדים ורישומי התקדמות' },
   { key: 'dailyAnswers', label: 'תשובות יומיות',  sub: 'תשובות לשאלות היומיות' },
   { key: 'moon',         label: 'רפלקציות',       sub: 'רפלקציות יומיות (מפוענחות)' },
@@ -64,7 +65,7 @@ export default function ExportDataModal({
       <div className="export-sens">
         <p className="export-sens-h">לכלול גם נתונים רגישים?</p>
         <p className="export-sens-sub">
-          לא נכלל כברירת מחדל. הנתונים המוצפנים מיוצאים מפוענחים — שמרו את הקובץ במקום בטוח.
+          לא נכלל כברירת מחדל. הנתונים הרגישים מיוצאים כטקסט גלוי — שמרו את הקובץ במקום בטוח.
         </p>
         <div className="export-cats">
           {SENSITIVE.map((o) => (

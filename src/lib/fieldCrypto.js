@@ -13,22 +13,22 @@
    ════════════════════════════════════════════════════════════════ */
 import { encryptField, decryptField } from './crypto'
 
-/* Columns encrypted per table. NAMES stay plaintext on purpose, so server-side
-   calendar matching + sort + search keep working. */
-export const ENCRYPTED_FIELDS = {
-  clients: ['notes'],
+/* Field encryption was REMOVED 2026-06 (see docs/security-review-2026-06.md):
+   notes / summaries / reflections are now stored plaintext at rest, like names,
+   phone and email. NOTHING is encrypted on write anymore — this map is empty so
+   encryptRow() is a no-op. */
+export const ENCRYPTED_FIELDS = {}
+
+/* Fields that may STILL hold legacy "ENC:" ciphertext at rest until the
+   one-time per-user decrypt backfill (lib/decryptMigration.js) rewrites them as
+   plaintext. They are decrypted transparently on read and never re-encrypted on
+   write. The key is still derivable (PBKDF2 over user id + bundled salt), so the
+   backfill can read them. Remove this map + the crypto code in the Phase-2
+   cleanup once the fleet has fully migrated. */
+export const LEGACY_DECRYPT_FIELDS = {
+  clients: ['notes', 'phone'],
   sessions: ['notes', 'summary'],
   moon_snapshots: ['reflection'],
-}
-
-/* Fields being UN-encrypted: decrypted on read but NOT encrypted on write.
-   clients.phone was encrypted; it is now stored plaintext (so invoicing
-   integrations can read it), but rows written before the change may still
-   hold "ENC:" at rest — keep decrypting it on read until the one-time
-   phoneDecryptMigration has cleared every row. Remove this entry once the
-   backfill is confirmed complete for all users. */
-export const LEGACY_DECRYPT_FIELDS = {
-  clients: ['phone'],
 }
 
 let activeKey = null

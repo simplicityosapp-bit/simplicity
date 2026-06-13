@@ -101,7 +101,7 @@ export default function ConnectionsScreen() {
     if (err) {
       Promise.resolve().then(() => setCallbackError('החיבור בוטל או נדחה.')).finally(finish)
     } else {
-      gcal.completeConnect(code)
+      gcal.completeConnect(code, params.get('state'))
         .then(() => refetch())
         .catch(() => setCallbackError('החיבור נכשל. נסו שוב.'))
         .finally(finish)

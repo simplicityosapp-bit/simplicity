@@ -315,7 +315,7 @@ Deno.serve(async (req) => {
   try {
     const userId = await getUserId(req)
     if (!userId) return json({ error: 'unauthorized' }, 401)
-    const { action, code, redirect_uri, sync_from } = await req.json().catch(() => ({}))
+    const { action, code, redirect_uri, sync_from, state } = await req.json().catch(() => ({}))
 
     if (action === 'auth-url') {
       if (!redirect_uri) return json({ error: 'redirect_uri required' }, 400)
@@ -327,7 +327,11 @@ Deno.serve(async (req) => {
         access_type: 'offline',
         prompt: 'consent',
         include_granted_scopes: 'true',
-        state: userId,
+        // CSRF: echo back the client-generated random nonce so the browser can
+        // verify on return that THIS device started the flow (the connect code
+        // is only redeemed if the returned state matches the stored nonce).
+        // Fall back to userId for older clients that don't send a state.
+        state: (typeof state === 'string' && state) ? state : userId,
       })
       return json({ url: `https://accounts.google.com/o/oauth2/v2/auth?${p}` })
     }

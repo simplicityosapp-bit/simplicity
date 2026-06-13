@@ -40,12 +40,24 @@ function json(body: unknown, status = 200) {
   })
 }
 
+/* Constant-time string compare so the shared secret can't be recovered via
+   response-timing analysis. (Length is allowed to leak, as is standard.) */
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  return diff === 0
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
-  // Defense-in-depth: only the scheduler (which knows the secret) may run this.
-  const expected = Deno.env.get('CRON_SECRET')
-  if (expected && req.headers.get('x-cron-secret') !== expected) {
+  // The shared secret is the ONLY gate (the platform JWT gateway is off for
+  // this function). FAIL CLOSED: if CRON_SECRET is unset/empty, refuse every
+  // request rather than running this irreversible deletion sweep unauthenticated.
+  const expected = Deno.env.get('CRON_SECRET') ?? ''
+  const provided = req.headers.get('x-cron-secret') ?? ''
+  if (!expected || !timingSafeEqual(provided, expected)) {
     return json({ error: 'unauthorized' }, 401)
   }
 
@@ -74,6 +86,27 @@ Deno.serve(async (req) => {
     const deleted: string[] = []
     const failed: { user_id: string; error: string }[] = []
     for (const row of due) {
+      // Revoke the Google Calendar OAuth grant FIRST. The auth.users delete
+      // cascades and drops our copy of the token, but Google keeps the grant
+      // live (Simplicity stays listed as an authorized app) until we revoke it.
+      // Best-effort and never blocks the deletion. Mirrors the disconnect path
+      // in the google-calendar function.
+      try {
+        const { data: integ } = await admin
+          .from('user_integrations')
+          .select('refresh_token')
+          .eq('user_id', row.user_id)
+          .eq('provider', 'google_calendar')
+          .maybeSingle()
+        if (integ?.refresh_token) {
+          await fetch('https://oauth2.googleapis.com/revoke', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ token: integ.refresh_token }),
+          }).catch(() => {})
+        }
+      } catch { /* revoke is best-effort; proceed with deletion regardless */ }
+
       // Cascade does the rest — all public + auth rows for this user go.
       const { error: delErr } = await admin.auth.admin.deleteUser(row.user_id)
       if (delErr) failed.push({ user_id: row.user_id, error: delErr.message })
@@ -82,6 +115,7 @@ Deno.serve(async (req) => {
 
     return json({ ok: true, scanned: data?.length ?? 0, due: due.length, deleted, failed })
   } catch (e) {
-    return json({ error: String(e) }, 500)
+    console.error('purge-deleted-accounts error:', e)
+    return json({ error: 'internal_error' }, 500)
   }
 })

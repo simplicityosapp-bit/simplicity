@@ -381,6 +381,9 @@ Deno.serve(async (req) => {
 
     return json({ error: 'unknown action' }, 400)
   } catch (e) {
-    return json({ error: String(e) }, 500)
+    // Log full detail server-side; never echo it to the client — the thrown
+    // messages embed raw Google token-endpoint / events.list response bodies.
+    console.error('google-calendar error:', e)
+    return json({ error: 'sync_failed' }, 500)
   }
 })

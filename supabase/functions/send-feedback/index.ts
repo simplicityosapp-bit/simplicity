@@ -45,26 +45,28 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Require a valid signed-in user. The durable feedback row already needs an
+    // authenticated RLS insert, so the email relay must not be an open,
+    // unauthenticated endpoint — otherwise it is a free spam / Resend-cost /
+    // sending-domain-reputation abuse vector callable by anyone.
+    const authHeader = req.headers.get('Authorization') ?? ''
+    if (!authHeader) return json({ error: 'unauthorized' }, 401)
+    const supa = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } },
+    )
+    const { data: { user } } = await supa.auth.getUser()
+    if (!user) return json({ error: 'unauthorized' }, 401)
+    const sender = user.email || user.id
+
     const { message, type, device } = await req.json().catch(() => ({}))
-    const text = (message ?? '').toString().trim()
+    // Cap lengths so even an authenticated client can't relay a giant body.
+    const text = (message ?? '').toString().trim().slice(0, 5000)
     if (!text) return json({ error: 'empty message' }, 400)
     const typeLabel = TYPE_LABELS[type as string] ?? null
     // Where the feedback was written (מובייל/דסקטופ) — detected client-side.
-    const deviceLabel = (device ?? '').toString().trim() || null
-
-    // Identify the sender from their JWT so the email shows who wrote it.
-    let sender = 'משתמש לא מזוהה'
-    const authHeader = req.headers.get('Authorization') ?? ''
-    if (authHeader) {
-      const supa = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_ANON_KEY')!,
-        { global: { headers: { Authorization: authHeader } } },
-      )
-      const { data: { user } } = await supa.auth.getUser()
-      if (user?.email) sender = user.email
-      else if (user?.id) sender = user.id
-    }
+    const deviceLabel = ((device ?? '').toString().trim().slice(0, 120)) || null
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -85,11 +87,13 @@ Deno.serve(async (req) => {
     })
 
     if (!res.ok) {
-      const detail = await res.text()
-      return json({ error: 'email failed', detail }, 502)
+      // Log the provider's response server-side; never echo it to the client.
+      console.error('send-feedback resend error:', await res.text())
+      return json({ error: 'email failed' }, 502)
     }
     return json({ ok: true })
   } catch (e) {
-    return json({ error: String(e) }, 500)
+    console.error('send-feedback error:', e)
+    return json({ error: 'internal_error' }, 500)
   }
 })

@@ -95,7 +95,14 @@ export async function decryptField(value, key) {
     const cipher = packed.slice(IV_BYTES)
     const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher)
     return td.decode(plain)
-  } catch {
+  } catch (e) {
+    /* Keep the graceful behaviour (return the raw value so a bad row never
+       crashes a screen) but make a GENUINE decrypt failure observable — a
+       wrong/cleared key, corrupt payload or GCM auth-tag mismatch would
+       otherwise surface only as an opaque "ENC:…" blob with no signal. We log
+       the error type ONLY, never the value/plaintext. A spike here means
+       decryption is failing across the fleet. */
+    console.warn('[crypto] decryptField failed:', e?.name || 'error')
     return value
   }
 }

@@ -18,8 +18,27 @@ const STATUS_HE = { confirmed: 'אושרה', pending: 'ממתינה', skipped: '
 /* status_meta → Hebrew the importer's STATUS_MAP can read back. */
 const STATUS_META_HE = { active: 'פעיל', wandering: 'ביניים', past: 'לשעבר', no_status: 'ללא סטטוס' }
 
+/* Neutralize spreadsheet formula injection (CWE-1236). A cell whose first
+   character is = + - @ or a leading TAB/CR is interpreted as a live formula
+   by Excel / Google Sheets / LibreOffice (e.g. =HYPERLINK(...), =cmd|... DDE,
+   =WEBSERVICE(...)), so an attacker-influenced value (a client/lead name, a
+   note, a transaction desc — often originating from an imported file) can
+   exfiltrate adjacent cells or trigger a command prompt when the coach opens
+   their own export. Prefix such string cells with a single quote so the app
+   treats them as text. Applied to BOTH the CSV and XLSX export paths; numbers
+   and dates are untouched. */
+export function neutralizeFormula(s) {
+  if (!/^[=+@\t\r-]/.test(s)) return s
+  /* Don't mangle legitimate phone numbers (+972…) or negative numbers: a value
+     made ONLY of digits and phone/number punctuation can't carry an injection
+     payload (HYPERLINK/WEBSERVICE/cmd/DDE all need a letter or '('), so it's
+     safe to leave as-is and the export stays clean + re-importable. */
+  if (/^[+-]?[\d\s()./-]+$/.test(s)) return s
+  return `'${s}`
+}
+
 function esc(v) {
-  const s = v == null ? '' : String(v)
+  const s = v == null ? '' : neutralizeFormula(String(v))
   return `"${s.replace(/"/g, '""')}"`
 }
 
@@ -97,7 +116,7 @@ export function exportClientsCSV({ clients, projects, now }) {
       STATUS_META_HE[c.status_meta] || '',
       c.sessions != null ? String(c.sessions) : '',
       fmtAmount(Number(c.price_per_session || 0)),
-      c.notes || '',
+      decOrFlag(c.notes),
     ])
   downloadCsv(headers, rows, `mangata-clients-${ymd(now)}.csv`)
 }
@@ -139,7 +158,10 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
   const XLSX = await import('xlsx')
   const wb = XLSX.utils.book_new()
   const addSheet = (name, headers, rows) => {
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows])
+    /* Defense-in-depth: neutralize formula-leading string cells before they
+       reach the workbook (matches the CSV path). */
+    const clean = rows.map((r) => r.map((c) => (typeof c === 'string' ? neutralizeFormula(c) : c)))
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...clean])
     XLSX.utils.book_append_sheet(wb, ws, name)
   }
 
@@ -155,7 +177,7 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
     ['שם', 'טלפון', 'אימייל', 'פרויקט', 'סטטוס', 'מספר פגישות', 'מחיר לפגישה', 'הערות'],
     (clients || []).filter((c) => !c.deleted_at).map((c) => [
       c.name || '', c.phone || '', c.email || '', nameById(projects, c.project_id), STATUS_META_HE[c.status_meta] || '',
-      c.sessions != null ? String(c.sessions) : '', fmtAmount(Number(c.price_per_session || 0)), c.notes || '',
+      c.sessions != null ? String(c.sessions) : '', fmtAmount(Number(c.price_per_session || 0)), decOrFlag(c.notes),
     ]))
 
   addSheet('פרויקטים',

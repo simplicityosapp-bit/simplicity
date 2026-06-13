@@ -12,6 +12,18 @@ const sanitize = (input) => {
   return row
 }
 
+/* Reject NaN/Infinity/negative/absurd amounts before they reach the DB and
+   poison finance aggregates and exported reports. The React modal validates
+   too, but PostgREST + the anon key mean the UI is not a trust boundary, and
+   the `amount` column has no DB CHECK. Coerce-and-check only; never mutate. */
+const MAX_AMOUNT = 1e12
+function assertValidAmount(amount) {
+  const n = Number(amount)
+  if (!Number.isFinite(n) || n < 0 || n > MAX_AMOUNT) {
+    throw new Error('סכום לא תקין')
+  }
+}
+
 export async function listTransactions() {
   return selectAllRows(() => supabase
     .from('transactions')
@@ -24,6 +36,7 @@ export async function insertTransaction(input) {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) throw new Error('אין חיבור פעיל — התחבר/י מחדש')
   const row = sanitize(input)
+  assertValidAmount(row.amount)
   row.user_id = session.user.id
   const { data, error } = await supabase.from('transactions').insert(row).select().single()
   if (error) throw error
@@ -31,7 +44,9 @@ export async function insertTransaction(input) {
 }
 
 export async function updateTransaction(id, patch) {
-  const { data, error } = await supabase.from('transactions').update(sanitize(patch)).eq('id', id).select().single()
+  const clean = sanitize(patch)
+  if ('amount' in clean) assertValidAmount(clean.amount)
+  const { data, error } = await supabase.from('transactions').update(clean).eq('id', id).select().single()
   if (error) throw error
   return data
 }

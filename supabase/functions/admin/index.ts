@@ -29,6 +29,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 const ADMIN_EMAIL = 'simplicity.os.app@gmail.com'
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -118,7 +119,10 @@ Deno.serve(async (req) => {
     )
     const { data: { user }, error: authErr } = await caller.auth.getUser()
     if (authErr || !user) return json({ error: 'unauthorized' }, 401)
-    if ((user.email ?? '').toLowerCase() !== ADMIN_EMAIL) {
+    // Require a CONFIRMED owner email — stays correct even if email-confirmation
+    // is ever relaxed, or email-change semantics issue a session on an
+    // unconfirmed address that happens to equal ADMIN_EMAIL.
+    if (!user.email_confirmed_at || (user.email ?? '').toLowerCase() !== ADMIN_EMAIL) {
       return json({ error: 'forbidden' }, 403)
     }
 
@@ -151,7 +155,7 @@ Deno.serve(async (req) => {
     if (action === 'set_subscriber') {
       const uid = body?.user_id as string
       const value = !!body?.value
-      if (!uid) return json({ error: 'bad request' }, 400)
+      if (!uid || !UUID_RE.test(uid)) return json({ error: 'bad request' }, 400)
       const { data: rows, error: readErr } = await admin
         .from('user_preferences')
         .select('preferences')
@@ -173,7 +177,7 @@ Deno.serve(async (req) => {
     // irreversible — the client gates this behind a typed-email confirmation.
     if (action === 'delete_user') {
       const uid = body?.user_id as string
-      if (!uid) return json({ error: 'bad request' }, 400)
+      if (!uid || !UUID_RE.test(uid)) return json({ error: 'bad request' }, 400)
       if (uid === user.id) return json({ error: 'cannot delete the owner account' }, 400)
       const { error } = await admin.auth.admin.deleteUser(uid)
       if (error) return json({ error: 'delete failed', detail: error.message }, 500)

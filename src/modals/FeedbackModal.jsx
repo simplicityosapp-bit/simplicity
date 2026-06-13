@@ -87,6 +87,9 @@ export default function FeedbackModal({ open, onClose }) {
             autoFocus
             dir="rtl"
           />
+          <p className="fb-hint" style={{ fontSize: 13, opacity: 0.7, margin: '8px 2px 0', lineHeight: 1.5 }}>
+            לשמירה על פרטיות הלקוחות — נא לא לכלול פרטים מזהים שלהם (שם מלא, טלפון).
+          </p>
           {failed && (
             <p className="fb-error">משהו השתבש בשליחה. אפשר לנסות שוב.</p>
           )}

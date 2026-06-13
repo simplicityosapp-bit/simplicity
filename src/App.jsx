@@ -56,6 +56,7 @@ const AdminApp = lazyWithRetry(() => import('./screens/admin'))
 import LoginScreen from './screens/auth/LoginScreen'
 import SignupScreen from './screens/auth/SignupScreen'
 import ResetPasswordScreen from './screens/auth/ResetPasswordScreen'
+import UpdatePasswordScreen from './screens/auth/UpdatePasswordScreen'
 import './screens/auth/AuthScreen.css'
 
 /* Lightweight fallback while a screen chunk loads. Lives INSIDE the shell
@@ -311,11 +312,20 @@ function PublicRoute() {
 const PUBLIC_PATHS = new Set([ROUTES.LEGAL, ROUTES.PRIVACY, ROUTES.TERMS])
 
 function Root() {
-  const { session, loading } = useAuth()
+  const { session, loading, recovery } = useAuth()
   const { pathname } = useLocation()
   if (PUBLIC_PATHS.has(pathname)) return <PublicRoute />
   if (loading || (!session && urlHasOAuthCallback())) {
     return <LoadingSplash />
+  }
+  /* Password-recovery completion: show the set-new-password screen instead of
+     dropping the user into the app. Triggered EITHER by the PASSWORD_RECOVERY
+     auth event (robust — fires wherever the recovery link lands, even if the
+     redirect URL isn't allowlisted and it lands on '/') OR by the /update-password
+     path (also a change-password entry for a signed-in user). Without a session
+     the recovery link is needed, so bounce to login. */
+  if (recovery || pathname === ROUTES.UPDATE_PASSWORD) {
+    return session ? <UpdatePasswordScreen /> : <Navigate to={ROUTES.LOGIN} replace />
   }
   return session ? (
     <ConsentGate>

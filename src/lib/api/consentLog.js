@@ -6,6 +6,11 @@
    (user_id, kind, accepted_at), so the per-load sync (components/ConsentSync)
    is idempotent — the same acceptance is never double-recorded, but a
    re-acceptance (new accepted_at) adds a new row. See lib/legal.js.
+
+   accepted_at is client-supplied (the idempotency key, so it CAN be backdated);
+   the authoritative legal timestamp is created_at, which a DB trigger
+   (migration 0032) forces to now() server-side and the client cannot set —
+   that's the field to trust in a dispute.
    ════════════════════════════════════════════════════════════════ */
 import { supabase } from '../supabase'
 import { selectAllRows } from './paginate'

@@ -52,6 +52,10 @@ const InsightsScreen = lazyWithRetry(() => import('./screens/insights'))
 const ConnectionsScreen = lazyWithRetry(() => import('./screens/connections'))
 /* Owner-only admin console — its own route tree + chrome, gated below. */
 const AdminApp = lazyWithRetry(() => import('./screens/admin'))
+/* Public marketing landing — served at "/" to logged-out visitors (and
+   crawlers) instead of bouncing them to /login. Lazy so it never weighs
+   down the authenticated app bundle; a logged-in "/" still renders Home. */
+const LandingScreen = lazyWithRetry(() => import('./screens/landing'))
 
 import LoginScreen from './screens/auth/LoginScreen'
 import SignupScreen from './screens/auth/SignupScreen'
@@ -327,7 +331,20 @@ function Root() {
   if (recovery || pathname === ROUTES.UPDATE_PASSWORD) {
     return session ? <UpdatePasswordScreen /> : <Navigate to={ROUTES.LOGIN} replace />
   }
-  return session ? (
+  /* Logged-out visitor on the bare "/" lands on the public marketing page
+     (the front door for Google + first-time visitors). Every other logged-out
+     path still falls through to the AuthGate (login / signup / reset). */
+  if (!session) {
+    if (pathname === ROUTES.HOME) {
+      return (
+        <Suspense fallback={<LoadingSplash />}>
+          <LandingScreen />
+        </Suspense>
+      )
+    }
+    return <AuthGate />
+  }
+  return (
     <ConsentGate>
       <CryptoProvider>
         <CryptoGate>
@@ -339,7 +356,7 @@ function Root() {
         </CryptoGate>
       </CryptoProvider>
     </ConsentGate>
-  ) : <AuthGate />
+  )
 }
 
 export default function App() {

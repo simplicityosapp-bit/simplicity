@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { FileText, Check, CircleAlert, Link2Off, RefreshCw } from 'lucide-react'
+import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle } from 'lucide-react'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useAddress } from '../../hooks/useAddress'
 
@@ -17,6 +17,13 @@ const PROVIDERS = [
       { slot: 'apiSecret', label: 'API Secret (סוד)', type: 'password' },
     ],
     help: 'את הפרטים מפיקים בחשבון חשבונית ירוקה: הגדרות ← כלים למפתחים ← מפתחות API. ה-Secret מוצג פעם אחת בלבד — שמרו אותו.',
+    steps: [
+      'היכנסו לחשבון חשבונית ירוקה (לבדיקות: הירשמו ב-sandbox.d.greeninvoice.co.il).',
+      'הגדרות ← כלים למפתחים ← מפתחות API.',
+      'צרו מפתח חדש — תקבלו API Key (מזהה) ו-Secret.',
+      'ה-Secret מוצג פעם אחת בלבד — העתיקו מיד.',
+      'הדביקו כאן את המזהה ואת ה-Secret, ולחצו "חבר".',
+    ],
   },
   {
     key: 'sumit',
@@ -27,6 +34,13 @@ const PROVIDERS = [
       { slot: 'apiSecret', label: 'API Key (מפתח)', type: 'password' },
     ],
     help: 'את הפרטים מפיקים בחשבון סאמיט: הגדרות ← מפתחים ובעלי אתרים ← מפתחות API (מזהה חברה + API Key).',
+    steps: [
+      'היכנסו לחשבון סאמיט.',
+      'הגדרות ← מפתחים ובעלי אתרים ← מפתחות API.',
+      'העתיקו את מזהה החברה (Company ID).',
+      'השתמשו במפתח ה-API הפרטי — לא הציבורי!',
+      'הדביקו כאן את שניהם, ולחצו "חבר".',
+    ],
   },
 ]
 const providerDef = (k) => PROVIDERS.find((p) => p.key === k) || PROVIDERS[0]
@@ -64,6 +78,7 @@ export default function InvoiceCard() {
   const [creds, setCreds] = useState({ apiKey: '', apiSecret: '' })
   const [localErr, setLocalErr] = useState('')
   const [okMsg, setOkMsg] = useState('')
+  const [showHelp, setShowHelp] = useState(false)
 
   const [busyAction, setBusyAction] = useState(null) // 'connect' | 'test' | 'disconnect'
   const [confirmDisc, setConfirmDisc] = useState(false)
@@ -141,7 +156,17 @@ export default function InvoiceCard() {
 
       {!connected ? (
         <div className="conn-connect">
-          <span className="conn-field-lbl">{addr({ male: 'בחר ספק', female: 'בחרי ספק', neutral: 'בחר/י ספק' })}</span>
+          <div className="conn-lbl-row">
+            <span className="conn-field-lbl">{addr({ male: 'בחר ספק', female: 'בחרי ספק', neutral: 'בחר/י ספק' })}</span>
+            <button type="button" className="conn-help-btn" onClick={() => setShowHelp((v) => !v)} aria-expanded={showHelp}>
+              <HelpCircle size={15} strokeWidth={1.7} aria-hidden="true" /> איך משיגים?
+            </button>
+          </div>
+          {showHelp && (
+            <ol className="conn-help-steps">
+              {def.steps.map((s, i) => <li key={i}>{s}</li>)}
+            </ol>
+          )}
           <div className="conn-pills">
             {PROVIDERS.map((p) => (
               <button

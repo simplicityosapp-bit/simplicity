@@ -120,8 +120,23 @@
 .inv-act-input::placeholder { color: var(--mist); }
 .inv-act-loading { font-family: var(--mg-font); font-size: calc(12px * var(--text-scale)); color: var(--stone); }
 
+/* Muted caption under the item field (catalog-vs-free-text help / load hint). */
+.inv-act-hint-cap {
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+  line-height: 1.45;
+}
+
+/* Spinner glyph on the issue button while a document is being created. */
+.inv-act-spin { animation: inv-act-spin 1s linear infinite; }
+@keyframes inv-act-spin { to { transform: rotate(360deg); } }
+
 .inv-act-picker-actions { display: flex; gap: 8px; align-items: center; margin-top: 2px; }
 .inv-act-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   height: 40px;
   padding: 0 20px;
   border-radius: 12px;

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import InvoiceActions from '../components/InvoiceActions'
@@ -26,6 +26,8 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  /* Resolved once per (clients, client_id) instead of re-scanning on every keystroke. */
+  const clientName = useMemo(() => clients.find((c) => c.id === tx?.client_id)?.name, [clients, tx?.client_id])
 
   if (!tx) return <Modal open={open} onClose={onClose} title="עריכת תנועה" />
 
@@ -119,7 +121,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       {/* Issue a real invoice for this income payment (Route A). Renders only
           when an invoice provider is connected; based on the SAVED transaction. */}
       {tx.type === 'income' && (
-        <InvoiceActions tx={tx} clientName={clients.find((c) => c.id === tx.client_id)?.name} onIssued={onIssued} />
+        <InvoiceActions tx={tx} clientName={clientName} onIssued={onIssued} />
       )}
 
       {err && <p className="m-error">{err}</p>}

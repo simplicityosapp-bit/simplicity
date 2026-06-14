@@ -1,6 +1,9 @@
-import { useState } from 'react'
-import { FileText, ExternalLink, CircleAlert } from 'lucide-react'
+import { memo, useEffect, useId, useRef, useState } from 'react'
+import { FileText, ExternalLink, CircleAlert, Loader2 } from 'lucide-react'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
+import { useAddress } from '../hooks/useAddress'
+import { isr } from '../lib/finance'
+import { showToast } from '../lib/toast'
 import './InvoiceActions.css'
 
 /* The three document types the user picks per issuance (covers עוסק פטור →
@@ -22,18 +25,22 @@ const PAY_METHODS = [
 const docTypeLabel = (k) => DOC_TYPES.find((d) => d.key === k)?.label || k
 const isReceiptType = (t) => t === 'invoice_receipt' || t === 'receipt'
 
-function errToHe(code) {
+/* Map the function's coarse error CODE to a Hebrew sentence (gendered via
+   addr, matching the InvoiceCard convention so the same backend error reads
+   the same way wherever it surfaces). */
+function errToHe(code, addr) {
+  const tryAgain = addr({ male: 'נסה שוב', female: 'נסי שוב', neutral: 'נסה/י שוב' })
   switch (code) {
     case 'already_issued': return 'כבר הופקה חשבונית לתנועה הזו.'
     case 'no_client': return 'כדי להפיק חשבונית צריך לשייך לקוח לתנועה ולשמור.'
-    case 'not_connected': return 'אין חיבור לשירות חשבוניות — חברו אותו במסך החיבורים.'
+    case 'not_connected': return addr({ male: 'אין חיבור לשירות חשבוניות — חבר אותו במסך החיבורים.', female: 'אין חיבור לשירות חשבוניות — חברי אותו במסך החיבורים.', neutral: 'אין חיבור לשירות חשבוניות — חבר/י אותו במסך החיבורים.' })
     case 'not_income': return 'אפשר להפיק חשבונית רק לתנועת הכנסה.'
-    case 'bad_amount': return 'לתנועה אין סכום חיובי — עדכנו את הסכום ושמרו.'
-    case 'transaction_not_found': return 'התנועה לא נמצאה — רעננו ונסו שוב.'
-    case 'invalid_credentials': return 'פרטי ההזדהות לשירות שגויים — בדקו במסך החיבורים.'
-    case 'provider_unreachable': return 'השירות לא זמין כרגע. נסו שוב בעוד רגע.'
-    case 'provider_error': return 'השירות לא הצליח להפיק את המסמך. בדקו את הפרטים ונסו שוב.'
-    default: return 'ההפקה נכשלה. נסו שוב.'
+    case 'bad_amount': return addr({ male: 'לתנועה אין סכום חיובי — עדכן את הסכום ושמור.', female: 'לתנועה אין סכום חיובי — עדכני את הסכום ושמרי.', neutral: 'לתנועה אין סכום חיובי — עדכן/י את הסכום ושמור/י.' })
+    case 'transaction_not_found': return addr({ male: 'התנועה לא נמצאה — רענן ונסה שוב.', female: 'התנועה לא נמצאה — רענני ונסי שוב.', neutral: 'התנועה לא נמצאה — רענן/י ונסה/י שוב.' })
+    case 'invalid_credentials': return addr({ male: 'פרטי ההזדהות לשירות שגויים — בדוק במסך החיבורים.', female: 'פרטי ההזדהות לשירות שגויים — בדקי במסך החיבורים.', neutral: 'פרטי ההזדהות לשירות שגויים — בדוק/י במסך החיבורים.' })
+    case 'provider_unreachable': return 'השירות לא זמין כרגע. ' + tryAgain + ' בעוד רגע.'
+    case 'provider_error': return addr({ male: 'השירות לא הצליח להפיק את המסמך. בדוק את הפרטים ונסה שוב.', female: 'השירות לא הצליח להפיק את המסמך. בדקי את הפרטים ונסי שוב.', neutral: 'השירות לא הצליח להפיק את המסמך. בדוק/י את הפרטים ונסה/י שוב.' })
+    default: return 'ההפקה נכשלה. ' + tryAgain + '.'
   }
 }
 
@@ -41,8 +48,10 @@ function errToHe(code) {
    provider is connected. The user picks document type, the product/service
    line, and (for receipts) the payment method. Once issued, shows the number
    + a link; the server refuses to issue twice (idempotency). */
-export default function InvoiceActions({ tx, clientName, onIssued }) {
+function InvoiceActions({ tx, clientName, onIssued }) {
   const inv = useInvoiceProvider()
+  const { addr } = useAddress()
+  const lblId = useId()
   const [issued, setIssued] = useState(
     tx?.invoice_document_id
       ? { number: tx.invoice_document_number, url: tx.invoice_document_url, type: tx.invoice_document_type }
@@ -54,17 +63,45 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
   const [items, setItems] = useState([])
   const [itemId, setItemId] = useState('') // '' = custom free text
   const [catalogLoading, setCatalogLoading] = useState(false)
+  const [catalogErr, setCatalogErr] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('bank_transfer')
   const [busy, setBusy] = useState(false)
+  const [confirmIssue, setConfirmIssue] = useState(false) // two-step confirm (irreversible)
   const [err, setErr] = useState('')
+
+  const issueTimer = useRef(0)
+  const pickerRef = useRef(null)
+  const issuedRef = useRef(null)
+  const justIssuedRef = useRef(false) // distinguishes a fresh issuance from the on-mount already-issued case
+
+  /* Clear the confirm auto-disarm timer on unmount. */
+  useEffect(() => () => window.clearTimeout(issueTimer.current), [])
+
+  /* When the picker opens it replaces the focused trigger button, so move
+     focus into the picker (otherwise it falls to <body>). */
+  useEffect(() => { if (picking) pickerRef.current?.focus() }, [picking])
+
+  /* After a fresh issuance, the success row replaces the focused button — move
+     focus there and let screen readers announce it. Guarded so the on-mount
+     already-issued state never steals focus. */
+  useEffect(() => {
+    if (issued && justIssuedRef.current) {
+      justIssuedRef.current = false
+      issuedRef.current?.focus()
+    }
+  }, [issued])
 
   if (inv.loading || !inv.status?.connected) return null
 
   if (issued) {
     return (
-      <div className="inv-act issued">
+      <div className="inv-act issued" ref={issuedRef} tabIndex={-1} role="status" aria-live="polite">
         <FileText size={15} strokeWidth={1.8} aria-hidden="true" />
-        <span>הופקה {docTypeLabel(issued.type)}{issued.number ? ` מס׳ ${issued.number}` : ''}</span>
+        <span>
+          הופקה {docTypeLabel(issued.type)}
+          {issued.number ? <> מס׳ <bdi>{issued.number}</bdi></> : ''}
+          {tx?.amount ? ` · ${isr(tx.amount)}` : ''}
+        </span>
         {issued.url && (
           <a href={issued.url} target="_blank" rel="noreferrer" className="inv-act-link">
             צפייה <ExternalLink size={12} strokeWidth={1.8} aria-hidden="true" />
@@ -75,11 +112,15 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
   }
 
   if (!tx?.client_id) {
-    return <p className="inv-act hint">כדי להפיק חשבונית — שייכו לקוח לתנועה ושמרו.</p>
+    return (
+      <p className="inv-act hint">
+        {addr({ male: 'כדי להפיק חשבונית — שייך לקוח לתנועה ושמור.', female: 'כדי להפיק חשבונית — שייכי לקוח לתנועה ושמרי.', neutral: 'כדי להפיק חשבונית — שייך/י לקוח לתנועה ושמור/י.' })}
+      </p>
+    )
   }
 
   const openPicker = async () => {
-    setErr('')
+    setErr(''); setCatalogErr(''); setConfirmIssue(false)
     setDocType('invoice_receipt')
     setItemName(tx.desc || '')
     setItemId('')
@@ -91,7 +132,10 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
       const arr = Array.isArray(list) ? list : []
       setItems(arr)
       if (arr.length) setItemId(String(arr[0].id)) // default to a real catalog item, not free-text
-    } catch { setItems([]) } finally { setCatalogLoading(false) }
+    } catch {
+      setItems([])
+      setCatalogErr('לא הצלחנו לטעון את רשימת המוצרים — אפשר להקליד תיאור ידנית.')
+    } finally { setCatalogLoading(false) }
   }
 
   const doIssue = async () => {
@@ -104,14 +148,39 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
         paymentMethod,
       })
       const doc = r?.document
-      setIssued({ number: doc?.number, url: doc?.url, type: doc?.type || docType })
+      const type = doc?.type || docType
+      justIssuedRef.current = true
+      setIssued({ number: doc?.number, url: doc?.url, type })
       setPicking(false)
+      showToast('הופקה ' + docTypeLabel(type) + (doc?.number ? ' מס׳ ' + doc.number : ''))
       onIssued?.()
     } catch (e) {
-      setErr(errToHe(e.message))
+      setErr(errToHe(e.message, addr))
     } finally {
       setBusy(false)
     }
+  }
+
+  /* Two-step confirm on the (irreversible) issue: first click arms + shows the
+     amount, second click issues. Auto-disarms after 4s. */
+  const onIssueClick = () => {
+    if (!confirmIssue) {
+      setConfirmIssue(true)
+      window.clearTimeout(issueTimer.current)
+      issueTimer.current = window.setTimeout(() => setConfirmIssue(false), 4000)
+      return
+    }
+    window.clearTimeout(issueTimer.current)
+    setConfirmIssue(false)
+    doIssue()
+  }
+
+  const cancelPicker = () => { setPicking(false); setConfirmIssue(false) }
+
+  /* Escape cancels the sub-step only — without stopPropagation it bubbles to
+     the parent Modal's window listener and closes the whole edit modal. */
+  const onPickerKeyDown = (e) => {
+    if (e.key === 'Escape') { e.stopPropagation(); cancelPicker() }
   }
 
   return (
@@ -121,16 +190,16 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
           <FileText size={15} strokeWidth={1.8} aria-hidden="true" /> הפק חשבונית
         </button>
       ) : (
-        <div className="inv-act-picker">
-          <span className="inv-act-picker-lbl">הפקת מסמך{clientName ? ` · ${clientName}` : ''}</span>
-          <div className="inv-act-types">
+        <div className="inv-act-picker" ref={pickerRef} tabIndex={-1} role="group" aria-labelledby={lblId} onKeyDown={onPickerKeyDown}>
+          <span id={lblId} className="inv-act-picker-lbl">הפקת מסמך{clientName ? ` · ${clientName}` : ''}</span>
+          <div className="inv-act-types" role="radiogroup" aria-label="סוג מסמך">
             {DOC_TYPES.map((d) => (
-              <button key={d.key} type="button" className={`inv-act-type${docType === d.key ? ' on' : ''}`} onClick={() => setDocType(d.key)}>{d.label}</button>
+              <button key={d.key} type="button" role="radio" aria-checked={docType === d.key} className={`inv-act-type${docType === d.key ? ' on' : ''}`} onClick={() => setDocType(d.key)}>{d.label}</button>
             ))}
           </div>
           <label className="inv-act-field">
             <span className="inv-act-field-lbl">מוצר / שירות</span>
-            {catalogLoading && <span className="inv-act-loading">טוען מוצרים…</span>}
+            {catalogLoading && <span className="inv-act-loading" role="status" aria-live="polite">טוען מוצרים…</span>}
             {!catalogLoading && items.length > 0 && (
               <select className="inv-act-select" value={itemId} onChange={(e) => setItemId(e.target.value)}>
                 {items.map((it) => <option key={it.id} value={it.id}>{it.name}{it.price != null ? ` · ₪${it.price}` : ''}</option>)}
@@ -140,6 +209,10 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
             {!catalogLoading && (items.length === 0 || itemId === '') && (
               <input type="text" className="inv-act-input" value={itemName} onChange={(e) => setItemName(e.target.value)} placeholder="לדוגמה: אימון אישי" />
             )}
+            {!catalogLoading && items.length > 0 && (
+              <span className="inv-act-hint-cap">{addr({ male: 'בחר פריט מהקטלוג של הספק, או כתוב תיאור חופשי.', female: 'בחרי פריט מהקטלוג של הספק, או כתבי תיאור חופשי.', neutral: 'בחר/י פריט מהקטלוג של הספק, או כתוב/כתבי תיאור חופשי.' })}</span>
+            )}
+            {catalogErr && <span className="inv-act-hint-cap" role="status">{catalogErr}</span>}
           </label>
           {isReceiptType(docType) && (
             <label className="inv-act-field">
@@ -150,8 +223,14 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
             </label>
           )}
           <div className="inv-act-picker-actions">
-            <button type="button" className="inv-act-go" disabled={busy} onClick={doIssue}>{busy ? 'מפיק…' : 'הפק'}</button>
-            <button type="button" className="inv-act-cancel" disabled={busy} onClick={() => setPicking(false)}>ביטול</button>
+            <button type="button" className="inv-act-go" disabled={busy || (!itemId && !itemName.trim())} aria-busy={busy} onClick={onIssueClick}>
+              {busy
+                ? <><Loader2 size={14} strokeWidth={2} className="inv-act-spin" aria-hidden="true" /> מפיק…</>
+                : confirmIssue
+                  ? addr({ male: `בטוח? להפיק על ${isr(tx.amount)}`, female: `בטוחה? להפיק על ${isr(tx.amount)}`, neutral: `בטוח/ה? להפיק על ${isr(tx.amount)}` })
+                  : 'הפק'}
+            </button>
+            <button type="button" className="inv-act-cancel" disabled={busy} onClick={cancelPicker}>ביטול</button>
           </div>
         </div>
       )}
@@ -159,3 +238,5 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
     </div>
   )
 }
+
+export default memo(InvoiceActions)

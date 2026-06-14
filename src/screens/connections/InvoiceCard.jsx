@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, ChevronDown, ChevronUp, Copy, Webhook } from 'lucide-react'
+import { useEffect, useId, useRef, useState } from 'react'
+import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, ChevronDown, ChevronUp, Copy, Webhook, Loader2 } from 'lucide-react'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useAddress } from '../../hooks/useAddress'
 
@@ -72,6 +72,7 @@ export default function InvoiceCard() {
   const inv = useInvoiceProvider()
   const status = inv.status
   const connected = !!status?.connected
+  const webhookId = useId()
 
   const [provider, setProvider] = useState('greeninvoice')
   const [environment, setEnvironment] = useState('sandbox')
@@ -137,8 +138,13 @@ export default function InvoiceCard() {
   }
 
   const onToggleAutoImport = async (value) => {
-    setLocalErr('')
-    try { await inv.setAutoImport(value) } catch (e) { setLocalErr(errToHe(e.message, addr)) }
+    setLocalErr(''); setOkMsg('')
+    try {
+      await inv.setAutoImport(value)
+      setOkMsg(value ? 'ייבוא אוטומטי הופעל.' : 'ייבוא אוטומטי כובה.')
+    } catch (e) {
+      setLocalErr(errToHe(e.message, addr))
+    }
   }
 
   const canConnect = !inv.busy && !!creds.apiKey.trim() && !!creds.apiSecret.trim()
@@ -159,7 +165,7 @@ export default function InvoiceCard() {
       </div>
 
       {localErr && (
-        <p className="conn-error"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {localErr}</p>
+        <p className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {localErr}</p>
       )}
 
       {!connected ? (
@@ -175,12 +181,13 @@ export default function InvoiceCard() {
               {def.steps.map((s, i) => <li key={i}>{s}</li>)}
             </ol>
           )}
-          <div className="conn-pills">
+          <div className="conn-pills" role="group" aria-label="ספק חשבוניות">
             {PROVIDERS.map((p) => (
               <button
                 key={p.key}
                 type="button"
                 className={`conn-type-pill${provider === p.key ? ' on' : ''}`}
+                aria-pressed={provider === p.key}
                 disabled={!p.enabled}
                 onClick={() => p.enabled && pickProvider(p.key)}
               >
@@ -194,9 +201,9 @@ export default function InvoiceCard() {
           {provider !== 'sumit' && (
             <>
               <span className="conn-field-lbl">סביבה</span>
-              <div className="conn-pills">
+              <div className="conn-pills" role="group" aria-label="סביבה">
                 {['sandbox', 'production'].map((e) => (
-                  <button key={e} type="button" className={`conn-type-pill${environment === e ? ' on' : ''}`} onClick={() => setEnvironment(e)}>
+                  <button key={e} type="button" className={`conn-type-pill${environment === e ? ' on' : ''}`} aria-pressed={environment === e} onClick={() => setEnvironment(e)}>
                     {e === 'sandbox' ? 'בדיקה (Sandbox)' : 'אמיתי (Production)'}
                   </button>
                 ))}
@@ -219,8 +226,8 @@ export default function InvoiceCard() {
             </label>
           ))}
 
-          <button type="button" className="conn-btn primary" disabled={!canConnect} onClick={onConnect}>
-            {busyAction === 'connect' ? 'מתחבר…' : 'חבר'}
+          <button type="button" className="conn-btn primary" disabled={!canConnect} aria-busy={busyAction === 'connect'} onClick={onConnect}>
+            {busyAction === 'connect' ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> מתחבר…</> : 'חבר'}
           </button>
 
           <p className="conn-note">{def.help}</p>
@@ -228,13 +235,20 @@ export default function InvoiceCard() {
       ) : (
         <>
           <div className="conn-actions">
-            <button type="button" className="conn-btn primary" disabled={inv.busy} onClick={onTest}>
-              <RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'test' ? 'בודק…' : 'בדוק חיבור'}
+            <button type="button" className="conn-btn primary" disabled={inv.busy} aria-busy={busyAction === 'test'} onClick={onTest}>
+              {busyAction === 'test'
+                ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> בודק…</>
+                : <><RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {addr({ male: 'בדוק חיבור', female: 'בדקי חיבור', neutral: 'בדוק/י חיבור' })}</>}
             </button>
-            <button type="button" className="conn-btn ghost danger" disabled={inv.busy} onClick={onDisconnect}>
-              <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? 'מנתק…' : (confirmDisc ? addr({ male: 'בטוח? נתק', female: 'בטוחה? נתק', neutral: 'בטוח/ה? נתק' }) : 'נתק')}
+            <button type="button" className="conn-btn ghost danger" disabled={inv.busy} aria-busy={busyAction === 'disconnect'} onClick={onDisconnect}>
+              {busyAction === 'disconnect'
+                ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> מנתק…</>
+                : <><Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {confirmDisc ? addr({ male: 'בטוח? נתק', female: 'בטוחה? נתק', neutral: 'בטוח/ה? נתק' }) : addr({ male: 'נתק', female: 'נתקי', neutral: 'נתק/י' })}</>}
             </button>
           </div>
+          {confirmDisc && (
+            <span className="sr-only" role="status">{addr({ male: 'לחץ שוב לאישור הניתוק', female: 'לחצי שוב לאישור הניתוק', neutral: 'לחצו שוב לאישור הניתוק' })}</span>
+          )}
           <label className="conn-autoimport">
             <input type="checkbox" checked={!!status?.auto_import} onChange={(e) => onToggleAutoImport(e.target.checked)} disabled={inv.busy} />
             <span>ייבוא אוטומטי — לרשום חשבוניות נכנסות כהכנסה ללא אישור ידני</span>
@@ -242,22 +256,25 @@ export default function InvoiceCard() {
           {status?.webhook_url && (
             <div className="conn-webhook">
               <button type="button" className="conn-webhook-toggle" onClick={() => setShowWebhook((v) => !v)} aria-expanded={showWebhook}>
-                <span><Webhook size={15} strokeWidth={1.7} aria-hidden="true" /> ייבוא אוטומטי מסאמיט</span>
+                <span><Webhook size={15} strokeWidth={1.7} aria-hidden="true" /> הגדרת ייבוא מסאמיט (חד-פעמי)</span>
                 {showWebhook ? <ChevronUp size={16} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={16} strokeWidth={1.7} aria-hidden="true" />}
               </button>
               {showWebhook && (
                 <div className="conn-webhook-panel">
                   <p className="conn-webhook-intro">כדי שחשבוניות שתפיקו ישירות בסאמיט ייובאו לכאן אוטומטית — צרו "טריגר" בסאמיט שמצביע לכתובת הזו:</p>
                   <div className="conn-webhook-url-row">
-                    <code className="conn-webhook-url">{status.webhook_url}</code>
+                    <code id={webhookId} className="conn-webhook-url">{status.webhook_url}</code>
                     <button
                       type="button"
                       className="conn-webhook-copy"
+                      aria-label={addr({ male: 'העתק את כתובת ה-webhook', female: 'העתקי את כתובת ה-webhook', neutral: 'העתק/י את כתובת ה-webhook' })}
+                      aria-describedby={webhookId}
                       onClick={() => { navigator.clipboard?.writeText(status.webhook_url).then(() => { setCopied(true); window.setTimeout(() => setCopied(false), 2000) }).catch(() => {}) }}
                     >
-                      <Copy size={13} strokeWidth={1.8} aria-hidden="true" /> {copied ? 'הועתק' : 'העתק'}
+                      <Copy size={13} strokeWidth={1.8} aria-hidden="true" /> <span aria-hidden="true">{copied ? 'הועתק' : addr({ male: 'העתק', female: 'העתקי', neutral: 'העתק/י' })}</span>
                     </button>
                   </div>
+                  {copied && <span className="sr-only" role="status">כתובת ה-webhook הועתקה</span>}
                   <ol className="conn-webhook-steps">
                     <li>בסאמיט: הגדרות ← <b>מודול טריגרים</b> ← "יצירת טריגר".</li>
                     <li>בחרו את התיקייה והתצוגה של מסמכי החשבוניות, ובאירוע: <b>"יצירת כרטיס"</b>.</li>
@@ -265,6 +282,7 @@ export default function InvoiceCard() {
                     <li>הדביקו את הכתובת שלמעלה בשדה ה-URL, ושמרו את הטריגר כ<b>פעיל</b>.</li>
                     <li>מעכשיו כל מסמך שתפיקו בסאמיט יופיע ב<b>"ייבוא ממתין"</b> במסך הכספים.</li>
                   </ol>
+                  <p className="conn-webhook-intro">המסמכים יופיעו ב"ייבוא ממתין" לאישור. כדי לרשום אותם כהכנסה אוטומטית — סמנו את "ייבוא אוטומטי" שלמעלה.</p>
                 </div>
               )}
             </div>
@@ -272,7 +290,7 @@ export default function InvoiceCard() {
         </>
       )}
 
-      {okMsg && !localErr && <p className="conn-note">{okMsg}</p>}
+      {okMsg && !localErr && <p className="conn-note" role="status" aria-live="polite">{okMsg}</p>}
     </section>
   )
 }

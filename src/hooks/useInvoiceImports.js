@@ -22,7 +22,7 @@ export function useInvoiceImports() {
     } catch (e) {
       // Already handled elsewhere → just reconcile; otherwise surface the failure.
       if (e?.message === 'already_handled') drop(id)
-      else showError('הייבוא נכשל — נסו שוב')
+      else showError('הייבוא נכשל — נסה/י שוב')
       throw e
     }
   }, [qc])
@@ -32,7 +32,7 @@ export function useInvoiceImports() {
       await callInvoices('import-dismiss', { import_id: id })
       drop(id)
     } catch (e) {
-      showError('הפעולה נכשלה — נסו שוב')
+      showError('הפעולה נכשלה — נסה/י שוב')
       throw e
     }
   }, [qc])

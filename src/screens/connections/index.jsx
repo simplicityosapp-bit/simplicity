@@ -9,6 +9,7 @@ import { useProjects } from '../../hooks/useProjects'
 import { useLeads } from '../../hooks/useLeads'
 import { useGroups } from '../../hooks/useGroups'
 import { useAddress } from '../../hooks/useAddress'
+import InvoiceCard from './InvoiceCard'
 import './ConnectionsScreen.css'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
@@ -261,6 +262,9 @@ export default function ConnectionsScreen() {
         )}
         {syncMsg && !gcal.error && <p className="conn-note">{syncMsg}</p>}
       </section>
+
+      {/* ── Invoices card (Green Invoice / SUMIT) ─────────────── */}
+      <InvoiceCard />
 
       {/* ── Synced events — nested accordion ──────────────────── */}
       {connected && (

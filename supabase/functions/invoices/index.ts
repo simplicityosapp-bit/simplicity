@@ -1,0 +1,137 @@
+// ════════════════════════════════════════════════════════════════
+//  invoices — connect Israeli invoice services (Green Invoice / SUMIT)
+// ════════════════════════════════════════════════════════════════
+//  Runs on Deno (Supabase Edge Functions). All credential handling is
+//  server-side: the API key + secret live in `user_integrations`
+//  (service-role only — the browser can NEVER read them, migrations
+//  0018 + 0033). The browser only ever sends an action and gets back
+//  non-secret status.
+//
+//  "Bring your own key": each coach connects THEIR OWN invoice account
+//  with THEIR OWN key. There is no app-level invoice secret (unlike
+//  google-calendar's OAuth client) — nothing to `supabase secrets set`.
+//
+//  The provider abstraction lives in ./providers.ts — this file is
+//  provider-agnostic. connect/test just call verifyCredentials().
+//
+//  Deploy:  supabase functions deploy invoices
+//  (SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY are
+//   injected automatically. verify_jwt stays ON — we need the caller's
+//   identity; the future public webhook is a SEPARATE function.)
+//
+//  Actions (POST { action, ... }):
+//    connect    { provider, api_key, api_secret, environment } → { status }
+//    status     { }                                            → { status }
+//    test       { }                                            → { ok, status }
+//    disconnect { }                                            → { ok, status }
+// ════════════════════════════════════════════════════════════════
+import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { getProvider, INVOICE_PROVIDERS, ProviderError } from './providers.ts'
+
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
+const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+
+const cors = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
+
+/* Service-role client — bypasses RLS, used for every DB op here. */
+const admin = createClient(SUPABASE_URL, SERVICE_ROLE)
+
+/* Identify the caller from their JWT (anon client + their Authorization). */
+async function getUserId(req: Request): Promise<string | null> {
+  const authHeader = req.headers.get('Authorization') ?? ''
+  if (!authHeader) return null
+  const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { global: { headers: { Authorization: authHeader } } })
+  const { data: { user } } = await supa.auth.getUser()
+  return user?.id ?? null
+}
+
+/* The ONLY shape the browser is allowed to see. NEVER include api_key /
+   api_secret here — those are service-role-only. */
+const statusOf = (row: any) =>
+  row
+    ? { connected: true, provider: row.provider, environment: row.environment, connected_at: row.created_at, auto_import: !!row.auto_import }
+    : { connected: false }
+
+/* The user's single invoice connection (they pick one provider). Scoped to
+   invoice providers so the google_calendar row is never touched. */
+async function loadInvoiceIntegration(userId: string) {
+  const { data } = await admin.from('user_integrations')
+    .select('*').eq('user_id', userId).in('provider', INVOICE_PROVIDERS)
+    .order('updated_at', { ascending: false }).limit(1).maybeSingle()
+  return data
+}
+
+// ── HTTP entry ──────────────────────────────────────────────────
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
+  try {
+    const userId = await getUserId(req)
+    if (!userId) return json({ error: 'unauthorized' }, 401)
+    const body = await req.json().catch(() => ({}))
+    const action = body.action
+
+    if (action === 'connect') {
+      const provider = String(body.provider ?? '')
+      const environment = String(body.environment ?? '')
+      const api_key = (body.api_key ?? '').toString().trim()
+      const api_secret = (body.api_secret ?? '').toString().trim()
+      if (!INVOICE_PROVIDERS.includes(provider)) return json({ error: 'unknown_provider' }, 400)
+      if (environment !== 'sandbox' && environment !== 'production') return json({ error: 'bad_environment' }, 400)
+      if (!api_key) return json({ error: 'missing_api_key' }, 400)
+      if (!api_secret) return json({ error: 'missing_api_secret' }, 400)
+
+      // Validate the credentials with a real, read-only call before storing.
+      const p = getProvider(provider)
+      await p.verifyCredentials({ apiKey: api_key, apiSecret: api_secret, environment: environment as any })
+
+      // One invoice provider per user: clear any prior invoice row first so
+      // switching greeninvoice↔sumit never leaves a stale connection behind.
+      await admin.from('user_integrations').delete().eq('user_id', userId).in('provider', INVOICE_PROVIDERS)
+      const { data: row, error } = await admin.from('user_integrations').insert({
+        user_id: userId,
+        provider,
+        api_key,
+        api_secret,
+        environment,
+      }).select('*').single()
+      if (error) throw error
+      return json({ status: statusOf(row) })
+    }
+
+    if (action === 'status') {
+      const row = await loadInvoiceIntegration(userId)
+      return json({ status: statusOf(row) })
+    }
+
+    if (action === 'test') {
+      const row = await loadInvoiceIntegration(userId)
+      if (!row) return json({ error: 'not_connected' }, 400)
+      const p = getProvider(row.provider)
+      await p.verifyCredentials({ apiKey: row.api_key, apiSecret: row.api_secret, environment: row.environment })
+      return json({ ok: true, status: statusOf(row) })
+    }
+
+    if (action === 'disconnect') {
+      await admin.from('user_integrations').delete().eq('user_id', userId).in('provider', INVOICE_PROVIDERS)
+      return json({ ok: true, status: { connected: false } })
+    }
+
+    return json({ error: 'unknown action' }, 400)
+  } catch (e) {
+    // Map known provider failures to a coarse, safe code; log full detail
+    // server-side only (it can embed the upstream response body).
+    if (e instanceof ProviderError) {
+      console.error('invoices provider error:', e.code, e.message)
+      return json({ error: e.code }, e.code === 'invalid_credentials' ? 400 : 502)
+    }
+    console.error('invoices error:', e)
+    return json({ error: 'request_failed' }, 500)
+  }
+})

@@ -19,6 +19,7 @@
 
 import { MOCK_DB } from '../data/mock'
 import { defaultPreferences } from './preferences'
+import { PRIVACY_VERSION, DPA_VERSION, TERMS_VERSION } from './legal'
 
 const uuid = () =>
   (globalThis.crypto?.randomUUID
@@ -39,7 +40,9 @@ const FAKE_SESSION = {
     // tree-shaken from production. Lets us verify the admin console locally.
     email: 'simplicity.os.app@gmail.com',
     app_metadata: { provider: 'mock' },
-    user_metadata: { full_name: 'מאמן/ת לדוגמה', privacy_version: '1.0', dpa_version: '1.0', terms_version: '1.0', marketing_consent: true },
+    /* Consent versions track legal.js so the policy-update gate doesn't block
+       the mocked-in app whenever a *_VERSION bumps (was hard-coded '1.0'). */
+    user_metadata: { full_name: 'מאמן/ת לדוגמה', privacy_version: PRIVACY_VERSION, dpa_version: DPA_VERSION, terms_version: TERMS_VERSION, marketing_consent: true },
   },
 }
 

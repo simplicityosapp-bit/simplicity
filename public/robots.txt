@@ -1,0 +1,9 @@
+# Simplicity (סימפליסיטי) — https://simplicity-os.com
+# The marketing landing page ("/") and legal pages are public and crawlable.
+# The app itself sits behind authentication, so there is nothing else to crawl.
+
+User-agent: *
+Allow: /
+Disallow: /admin
+
+Sitemap: https://simplicity-os.com/sitemap.xml

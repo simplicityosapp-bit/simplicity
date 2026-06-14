@@ -93,6 +93,7 @@ export default function InvoiceCard() {
   const pickProvider = (k) => {
     setProvider(k)
     setCreds({ apiKey: '', apiSecret: '' }) // different service → clear the fields
+    setEnvironment(k === 'sumit' ? 'production' : 'sandbox') // SUMIT has no separate sandbox host → force production
     setLocalErr(''); setOkMsg('')
   }
 
@@ -133,6 +134,11 @@ export default function InvoiceCard() {
     setLocalErr(''); setOkMsg(''); setBusyAction('disconnect')
     await inv.disconnect()
     setBusyAction(null)
+  }
+
+  const onToggleAutoImport = async (value) => {
+    setLocalErr('')
+    try { await inv.setAutoImport(value) } catch (e) { setLocalErr(errToHe(e.message, addr)) }
   }
 
   const canConnect = !inv.busy && !!creds.apiKey.trim() && !!creds.apiSecret.trim()
@@ -183,14 +189,20 @@ export default function InvoiceCard() {
             ))}
           </div>
 
-          <span className="conn-field-lbl">סביבה</span>
-          <div className="conn-pills">
-            {['sandbox', 'production'].map((e) => (
-              <button key={e} type="button" className={`conn-type-pill${environment === e ? ' on' : ''}`} onClick={() => setEnvironment(e)}>
-                {e === 'sandbox' ? 'בדיקה (Sandbox)' : 'אמיתי (Production)'}
-              </button>
-            ))}
-          </div>
+          {/* SUMIT's accounting API has no separate sandbox host — hide the
+              environment choice for it (forced to production in pickProvider). */}
+          {provider !== 'sumit' && (
+            <>
+              <span className="conn-field-lbl">סביבה</span>
+              <div className="conn-pills">
+                {['sandbox', 'production'].map((e) => (
+                  <button key={e} type="button" className={`conn-type-pill${environment === e ? ' on' : ''}`} onClick={() => setEnvironment(e)}>
+                    {e === 'sandbox' ? 'בדיקה (Sandbox)' : 'אמיתי (Production)'}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           {def.fields.map((f) => (
             <label key={f.slot} className="conn-field">
@@ -223,6 +235,10 @@ export default function InvoiceCard() {
               <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? 'מנתק…' : (confirmDisc ? addr({ male: 'בטוח? נתק', female: 'בטוחה? נתק', neutral: 'בטוח/ה? נתק' }) : 'נתק')}
             </button>
           </div>
+          <label className="conn-autoimport">
+            <input type="checkbox" checked={!!status?.auto_import} onChange={(e) => onToggleAutoImport(e.target.checked)} disabled={inv.busy} />
+            <span>ייבוא אוטומטי — לרשום חשבוניות נכנסות כהכנסה ללא אישור ידני</span>
+          </label>
           {status?.webhook_url && (
             <div className="conn-webhook">
               <button type="button" className="conn-webhook-toggle" onClick={() => setShowWebhook((v) => !v)} aria-expanded={showWebhook}>

@@ -98,6 +98,29 @@ Deno.serve(async (req) => {
       .select('id, name').eq('user_id', integ.user_id).is('deleted_at', null)
     const clientId = matchClient((clients ?? []) as any, doc.customerName)
 
+    // Auto-import: when the user opted in, record the income directly instead of
+    // staging for approval. The unique index on (user_id, invoice_provider,
+    // invoice_document_id) backstops a duplicate (incl. vs Route A).
+    if (integ.auto_import) {
+      const { error: txErr } = await admin.from('transactions').insert({
+        user_id: integ.user_id,
+        type: 'income',
+        amount: doc.amount,
+        desc: `חשבונית ${doc.number ?? ''}${doc.customerName ? ` — ${doc.customerName}` : ''}`.trim(),
+        date: doc.date ?? new Date().toISOString().slice(0, 10),
+        status: 'confirmed',
+        client_id: clientId,
+        invoice_provider: integ.provider,
+        invoice_document_id: doc.externalId,
+        invoice_document_number: doc.number,
+        invoice_document_type: doc.docType,
+        invoice_document_url: doc.url,
+        invoice_synced_at: new Date().toISOString(),
+      })
+      if (txErr && txErr.code !== '23505') console.error('invoice-webhook auto-import failed:', txErr)
+      return ok()
+    }
+
     // Stage it. Upsert + ignoreDuplicates makes a racy SUMIT re-delivery a no-op.
     const { error: stageErr } = await admin.from('pending_invoice_imports').upsert({
       user_id: integ.user_id,

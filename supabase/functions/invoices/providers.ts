@@ -195,9 +195,26 @@ class GreenInvoiceProvider implements InvoiceProvider {
     throw new ProviderError('provider_error', 'green-invoice fetchDocument not implemented yet')
   }
 
-  async listItems(_creds: InvoiceCredentials): Promise<CatalogItem[]> {
-    // Green Invoice catalog not wired yet — the picker falls back to free text.
-    return []
+  async listItems(creds: InvoiceCredentials): Promise<CatalogItem[]> {
+    // morning catalog (POST /items/search). UNVERIFIED — degrade to [] on any
+    // failure so the issuance picker just falls back to free text (never breaks).
+    try {
+      const token = await this.token(creds)
+      const res = await fetch(`${this.base(creds.environment)}/items/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ page: 1, pageSize: 100 }),
+      })
+      if (!res.ok) { console.error('green-invoice items error', res.status); return [] }
+      const data = (await res.json().catch(() => ({}))) as any
+      const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : [])
+      return items
+        .map((it: any) => ({ id: it.id != null ? String(it.id) : '', name: it.name ?? '', price: Number.isFinite(Number(it.price)) ? Number(it.price) : null }))
+        .filter((it: any) => it.id && it.name)
+    } catch (e) {
+      console.error('green-invoice items failed', e)
+      return []
+    }
   }
 }
 

@@ -460,3 +460,16 @@
   line-height: 1.55;
 }
 .conn-webhook-steps b { color: var(--espresso); font-weight: 600; }
+
+/* Auto-import toggle (Route B). */
+.conn-autoimport {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  cursor: pointer;
+}
+.conn-autoimport input { margin-top: 2px; accent-color: var(--terracotta); }

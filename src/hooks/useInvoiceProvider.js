@@ -98,5 +98,19 @@ export function useInvoiceProvider() {
     return r?.items ?? []
   }, [])
 
-  return { status, loading, busy, error, connect, test, disconnect, loadStatus, issueDocument, loadItems }
+  /* Toggle auto-import (Route B: stage vs. record incoming docs without asking). */
+  const setAutoImport = useCallback(async (value) => {
+    setBusy(true); setError(null)
+    try {
+      const r = await callInvoices('set-auto-import', { value: !!value })
+      if (r?.status) setStatus(r.status)
+      return r
+    } catch (e) {
+      setError(e.message); throw e
+    } finally {
+      setBusy(false)
+    }
+  }, [])
+
+  return { status, loading, busy, error, connect, test, disconnect, loadStatus, issueDocument, loadItems, setAutoImport }
 }

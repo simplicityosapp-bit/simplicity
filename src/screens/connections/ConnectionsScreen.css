@@ -83,7 +83,7 @@
   cursor: pointer;
   transition: background 0.15s, opacity 0.15s;
 }
-.conn-btn.primary { background: var(--terracotta); color: #fff; width: 100%; }
+.conn-btn.primary { background: var(--terracotta); color: var(--on-accent); width: 100%; }
 .conn-connect .conn-btn.primary { width: 100%; }
 .conn-actions .conn-btn.primary { width: auto; flex: 1; }
 .conn-btn.primary:hover { background: var(--mg-btn-primary-bg-hover); }

@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
       // existed, so the webhook URL appears without reconnecting.
       if (row && row.provider === 'sumit' && !row.webhook_token) {
         const { data: updated } = await admin.from('user_integrations')
-          .update({ webhook_token: crypto.randomUUID() }).eq('id', row.id).select('*').single()
+          .update({ webhook_token: crypto.randomUUID() }).eq('id', row.id).select('*').maybeSingle()
         if (updated) row = updated
       }
       return json({ status: statusOf(row) })
@@ -159,31 +159,51 @@ Deno.serve(async (req) => {
         .select('*').eq('id', transaction_id).eq('user_id', userId).is('deleted_at', null).maybeSingle()
       if (!tx) return json({ error: 'transaction_not_found' }, 404)
       if (tx.type !== 'income') return json({ error: 'not_income' }, 400)
-      // Idempotency: a tax document must NEVER be issued twice for one payment.
       if (tx.invoice_document_id) return json({ error: 'already_issued' }, 409)
       if (!tx.client_id) return json({ error: 'no_client' }, 400)
+      const amount = Number(tx.amount)
+      if (!Number.isFinite(amount) || amount <= 0) return json({ error: 'bad_amount' }, 400)
 
       const { data: client } = await admin.from('clients')
         .select('name, email, phone').eq('id', tx.client_id).eq('user_id', userId).maybeSingle()
       if (!client?.name) return json({ error: 'no_client' }, 400)
 
-      const provider = getProvider(integ.provider)
-      const result = await provider.createDocument(
-        { apiKey: integ.api_key, apiSecret: integ.api_secret, environment: integ.environment },
-        {
-          docType: doc_type as any,
-          amount: Number(tx.amount),
-          description: tx.desc || `תשלום — ${client.name}`,
-          itemName: (body.item_name ?? '').toString().trim() || tx.desc || `תשלום — ${client.name}`,
-          itemId: body.item_id ? String(body.item_id) : null,
-          paymentMethod: ['cash', 'bank_transfer', 'credit_card', 'cheque', 'app', 'other'].includes(body.payment_method) ? body.payment_method : 'other',
-          customer: { name: client.name, email: client.email, phone: client.phone },
-          send: true, // auto-send; the provider only acts if the customer has contact info
-        },
-      )
+      // Atomic claim — sets invoice_synced_at as an in-flight marker ONLY if the
+      // tx isn't already issued/issuing. Blocks a concurrent double-issue of a
+      // real tax document (double-click / retry / two tabs).
+      const { data: claimed } = await admin.from('transactions')
+        .update({ invoice_synced_at: new Date().toISOString() })
+        .eq('id', transaction_id).eq('user_id', userId)
+        .is('invoice_document_id', null).is('invoice_synced_at', null)
+        .select('id').maybeSingle()
+      if (!claimed) return json({ error: 'already_issued' }, 409)
 
-      // Record what was issued (idempotency guard + display number/link).
-      await admin.from('transactions').update({
+      const provider = getProvider(integ.provider)
+      let result
+      try {
+        result = await provider.createDocument(
+          { apiKey: integ.api_key, apiSecret: integ.api_secret, environment: integ.environment },
+          {
+            docType: doc_type as any,
+            amount,
+            description: tx.desc || `תשלום — ${client.name}`,
+            itemName: (body.item_name ?? '').toString().trim() || tx.desc || `תשלום — ${client.name}`,
+            itemId: body.item_id ? String(body.item_id) : null,
+            paymentMethod: ['cash', 'bank_transfer', 'credit_card', 'cheque', 'app', 'other'].includes(body.payment_method) ? body.payment_method : 'other',
+            customer: { name: client.name, email: client.email, phone: client.phone },
+            send: true, // auto-send; the provider only acts if the customer has contact info
+          },
+        )
+      } catch (e) {
+        // Release the claim so a retry is possible (only while no real doc is recorded).
+        await admin.from('transactions').update({ invoice_synced_at: null })
+          .eq('id', transaction_id).eq('user_id', userId).is('invoice_document_id', null)
+        throw e
+      }
+
+      // Record what was issued. If THIS fails, the real document already exists,
+      // so log loudly and still return the number rather than losing it.
+      const { error: linkErr } = await admin.from('transactions').update({
         invoice_provider: integ.provider,
         invoice_document_id: result.id,
         invoice_document_number: result.number,
@@ -191,6 +211,7 @@ Deno.serve(async (req) => {
         invoice_document_url: result.url,
         invoice_synced_at: new Date().toISOString(),
       }).eq('id', transaction_id).eq('user_id', userId)
+      if (linkErr) console.error('invoices issue: document issued but failed to link', result.id, linkErr)
 
       return json({ ok: true, document: { number: result.number, url: result.url, type: result.type } })
     }
@@ -198,10 +219,23 @@ Deno.serve(async (req) => {
     if (action === 'import-approve') {
       const import_id = String(body.import_id ?? '')
       if (!import_id) return json({ error: 'missing_import' }, 400)
+      // Atomic claim: flip pending->imported FIRST, only if still pending.
+      // Blocks a concurrent double-approve from creating duplicate income.
       const { data: imp } = await admin.from('pending_invoice_imports')
-        .select('*').eq('id', import_id).eq('user_id', userId).maybeSingle()
-      if (!imp) return json({ error: 'import_not_found' }, 404)
-      if (imp.status !== 'pending') return json({ error: 'already_handled' }, 409)
+        .update({ status: 'imported' })
+        .eq('id', import_id).eq('user_id', userId).eq('status', 'pending')
+        .select('*').maybeSingle()
+      if (!imp) return json({ error: 'already_handled' }, 409)
+
+      // Dedup vs Route A: if this document was already issued from Simplicity,
+      // link to that transaction instead of creating a duplicate income row.
+      const { data: existingTx } = await admin.from('transactions')
+        .select('id').eq('user_id', userId).eq('invoice_provider', imp.provider)
+        .eq('invoice_document_id', imp.external_document_id).is('deleted_at', null).maybeSingle()
+      if (existingTx) {
+        await admin.from('pending_invoice_imports').update({ created_transaction_id: existingTx.id }).eq('id', import_id).eq('user_id', userId)
+        return json({ ok: true, transaction_id: existingTx.id, deduped: true })
+      }
 
       const descName = imp.customer_name ? ` — ${imp.customer_name}` : ''
       const { data: tx, error: txErr } = await admin.from('transactions').insert({
@@ -219,9 +253,13 @@ Deno.serve(async (req) => {
         invoice_document_url: imp.document_url,
         invoice_synced_at: new Date().toISOString(),
       }).select('id').single()
-      if (txErr) throw txErr
+      if (txErr) {
+        // Roll the claim back so the user can retry.
+        await admin.from('pending_invoice_imports').update({ status: 'pending', created_transaction_id: null }).eq('id', import_id).eq('user_id', userId)
+        throw txErr
+      }
       await admin.from('pending_invoice_imports')
-        .update({ status: 'imported', created_transaction_id: tx.id }).eq('id', import_id).eq('user_id', userId)
+        .update({ created_transaction_id: tx.id }).eq('id', import_id).eq('user_id', userId)
       return json({ ok: true, transaction_id: tx.id })
     }
 

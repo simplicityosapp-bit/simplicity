@@ -28,8 +28,11 @@ function errToHe(code) {
     case 'no_client': return 'כדי להפיק חשבונית צריך לשייך לקוח לתנועה ולשמור.'
     case 'not_connected': return 'אין חיבור לשירות חשבוניות — חברו אותו במסך החיבורים.'
     case 'not_income': return 'אפשר להפיק חשבונית רק לתנועת הכנסה.'
+    case 'bad_amount': return 'לתנועה אין סכום חיובי — עדכנו את הסכום ושמרו.'
+    case 'transaction_not_found': return 'התנועה לא נמצאה — רעננו ונסו שוב.'
     case 'invalid_credentials': return 'פרטי ההזדהות לשירות שגויים — בדקו במסך החיבורים.'
     case 'provider_unreachable': return 'השירות לא זמין כרגע. נסו שוב בעוד רגע.'
+    case 'provider_error': return 'השירות לא הצליח להפיק את המסמך. בדקו את הפרטים ונסו שוב.'
     default: return 'ההפקה נכשלה. נסו שוב.'
   }
 }
@@ -50,6 +53,7 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
   const [itemName, setItemName] = useState('')
   const [items, setItems] = useState([])
   const [itemId, setItemId] = useState('') // '' = custom free text
+  const [catalogLoading, setCatalogLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('bank_transfer')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
@@ -81,7 +85,13 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
     setItemId('')
     setPaymentMethod('bank_transfer')
     setPicking(true)
-    try { const list = await inv.loadItems(); setItems(Array.isArray(list) ? list : []) } catch { setItems([]) }
+    setCatalogLoading(true)
+    try {
+      const list = await inv.loadItems()
+      const arr = Array.isArray(list) ? list : []
+      setItems(arr)
+      if (arr.length) setItemId(String(arr[0].id)) // default to a real catalog item, not free-text
+    } catch { setItems([]) } finally { setCatalogLoading(false) }
   }
 
   const doIssue = async () => {
@@ -120,13 +130,14 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
           </div>
           <label className="inv-act-field">
             <span className="inv-act-field-lbl">מוצר / שירות</span>
-            {items.length > 0 && (
+            {catalogLoading && <span className="inv-act-loading">טוען מוצרים…</span>}
+            {!catalogLoading && items.length > 0 && (
               <select className="inv-act-select" value={itemId} onChange={(e) => setItemId(e.target.value)}>
                 {items.map((it) => <option key={it.id} value={it.id}>{it.name}{it.price != null ? ` · ₪${it.price}` : ''}</option>)}
                 <option value="">אחר (טקסט חופשי)</option>
               </select>
             )}
-            {(items.length === 0 || itemId === '') && (
+            {!catalogLoading && (items.length === 0 || itemId === '') && (
               <input type="text" className="inv-act-input" value={itemName} onChange={(e) => setItemName(e.target.value)} placeholder="לדוגמה: אימון אישי" />
             )}
           </label>
@@ -144,7 +155,7 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
           </div>
         </div>
       )}
-      {err && <p className="inv-act-err"><CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {err}</p>}
+      {err && <p className="inv-act-err" role="alert"><CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {err}</p>}
     </div>
   )
 }

@@ -23,7 +23,7 @@ export default function InvoiceImports() {
     <section className="inv-imports">
       <div className="inv-imports-head">
         <FileDown size={16} strokeWidth={1.7} aria-hidden="true" />
-        <span>{imports.length} חשבוניות לייבוא</span>
+        <span>{imports.length === 1 ? 'חשבונית אחת לייבוא' : `${imports.length} חשבוניות לייבוא`}</span>
       </div>
       <p className="inv-imports-sub">חשבוניות שהופקו בשירות החיצוני — לייבא כהכנסה?</p>
       <div className="inv-imports-list">
@@ -38,10 +38,10 @@ export default function InvoiceImports() {
             </div>
             <p className="inv-import-amt mono">+{isr(imp.amount || 0)}</p>
             <div className="inv-import-actions">
-              <button type="button" className="inv-import-btn approve" disabled={!!busy} onClick={act(approve, imp.id)} title="ייבא כהכנסה" aria-label="ייבא כהכנסה">
+              <button type="button" className="inv-import-btn approve" disabled={busy === imp.id} onClick={act(approve, imp.id)} title="ייבא כהכנסה" aria-label="ייבא כהכנסה">
                 <Check size={15} strokeWidth={2} aria-hidden="true" />
               </button>
-              <button type="button" className="inv-import-btn dismiss" disabled={!!busy} onClick={act(dismiss, imp.id)} title="דחה" aria-label="דחה">
+              <button type="button" className="inv-import-btn dismiss" disabled={busy === imp.id} onClick={act(dismiss, imp.id)} title="דחה" aria-label="דחה">
                 <X size={15} strokeWidth={2} aria-hidden="true" />
               </button>
             </div>

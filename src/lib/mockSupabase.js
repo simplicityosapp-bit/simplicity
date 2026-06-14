@@ -271,7 +271,7 @@ export function makeMockClient() {
           const a = opts?.body?.action
           if (a === 'issue') return { data: { ok: true, document: { number: '2026-1042', url: 'https://example.com/doc.pdf', type: opts?.body?.doc_type } }, error: null }
           if (a === 'disconnect') return { data: { ok: true, status: { connected: false } }, error: null }
-          if (a === 'connect') return { data: { status: { connected: true, provider: opts?.body?.provider, environment: opts?.body?.environment } }, error: null }
+          if (a === 'connect') return { data: { status: { connected: true, provider: opts?.body?.provider, environment: opts?.body?.environment, connected_at: new Date().toISOString(), auto_import: false, webhook_url: opts?.body?.provider === 'sumit' ? 'https://rdurkakzyymxhocvhufw.supabase.co/functions/v1/invoice-webhook?t=mock-token' : null } }, error: null }
           if (a === 'import-approve') return { data: { ok: true, transaction_id: 'mock-tx' }, error: null }
           if (a === 'import-dismiss') return { data: { ok: true }, error: null }
           if (a === 'catalog') return { data: { items: [{ id: '1', name: 'אימון אישי', price: 380 }, { id: '2', name: 'ייעוץ זוגי', price: 450 }] }, error: null }

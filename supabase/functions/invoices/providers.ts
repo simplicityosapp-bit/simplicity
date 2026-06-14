@@ -37,6 +37,7 @@ export interface InvoiceDocInput {
   amount: number // gross total (currency ILS for now)
   description: string
   itemName: string // the product/service line on the document
+  itemId?: string | null // optional catalog item id (SUMIT income item) — overrides the ad-hoc name
   paymentMethod: PaymentMethod // only used by receipt-type docs
   customer: { name: string; email: string | null; phone: string | null }
   send: boolean // ask the provider to send the doc to the customer (only acts if contact info exists)
@@ -79,6 +80,13 @@ export interface FetchedDoc {
   raw: unknown
 }
 
+/* A product/service from the provider's catalog (SUMIT income items). */
+export interface CatalogItem {
+  id: string
+  name: string
+  price: number | null
+}
+
 export interface InvoiceProvider {
   readonly name: string
   /* Validate credentials with a real, READ-ONLY call. Used by connect + test. */
@@ -88,6 +96,9 @@ export interface InvoiceProvider {
   /* Re-fetch a document by its provider id (Route B webhook → authoritative
      details). Returns null if the document can't be found. */
   fetchDocument(creds: InvoiceCredentials, externalId: string): Promise<FetchedDoc | null>
+  /* The user's product/service catalog (for the issuance picker). Empty array
+     when the provider has no catalog wired — the UI falls back to free text. */
+  listItems(creds: InvoiceCredentials): Promise<CatalogItem[]>
 }
 
 // ── Green Invoice (morning) ───────────────────────────────────────
@@ -171,6 +182,11 @@ class GreenInvoiceProvider implements InvoiceProvider {
     // undocumented). Implement GET /documents/{id} when GI Route B is built.
     throw new ProviderError('provider_error', 'green-invoice fetchDocument not implemented yet')
   }
+
+  async listItems(_creds: InvoiceCredentials): Promise<CatalogItem[]> {
+    // Green Invoice catalog not wired yet — the picker falls back to free text.
+    return []
+  }
 }
 
 // ── SUMIT (OfficeGuy) ─────────────────────────────────────────────
@@ -222,7 +238,10 @@ class SumitProvider implements InvoiceProvider {
     }
     const payload: Record<string, unknown> = {
       Details: details,
-      Items: [{ Item: { Name: doc.itemName || doc.description || 'שירות' }, Quantity: 1, UnitPrice: doc.amount, Description: doc.description || undefined }],
+      Items: [{
+        Item: doc.itemId ? { ID: Number(doc.itemId), Name: doc.itemName || undefined } : { Name: doc.itemName || doc.description || 'שירות' },
+        Quantity: 1, UnitPrice: doc.amount, Description: doc.description || undefined,
+      }],
       VATIncluded: true, // the recorded amount is the gross the coach received; SUMIT applies the company's VAT config
     }
     // Receipt-type docs require a payment line — with the user-chosen method.
@@ -268,6 +287,14 @@ class SumitProvider implements InvoiceProvider {
       url: data.DocumentDownloadURL ?? null,
       raw: data,
     }
+  }
+
+  async listItems(creds: InvoiceCredentials): Promise<CatalogItem[]> {
+    const data = await this.post(creds, '/accounting/incomeitems/list/', {})
+    const items = (data?.IncomeItems ?? []) as any[]
+    return items
+      .map((it) => ({ id: it.ID != null ? String(it.ID) : '', name: it.Name ?? '', price: typeof it.Price === 'number' ? it.Price : null }))
+      .filter((it) => it.id && it.name)
   }
 }
 

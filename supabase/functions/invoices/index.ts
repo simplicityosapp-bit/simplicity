@@ -137,6 +137,14 @@ Deno.serve(async (req) => {
       return json({ ok: true, status: statusOf(row) })
     }
 
+    if (action === 'catalog') {
+      const row = await loadInvoiceIntegration(userId)
+      if (!row) return json({ error: 'not_connected' }, 400)
+      const items = await getProvider(row.provider)
+        .listItems({ apiKey: row.api_key, apiSecret: row.api_secret, environment: row.environment })
+      return json({ items })
+    }
+
     if (action === 'issue') {
       const transaction_id = String(body.transaction_id ?? '')
       const doc_type = String(body.doc_type ?? '')
@@ -167,6 +175,7 @@ Deno.serve(async (req) => {
           amount: Number(tx.amount),
           description: tx.desc || `תשלום — ${client.name}`,
           itemName: (body.item_name ?? '').toString().trim() || tx.desc || `תשלום — ${client.name}`,
+          itemId: body.item_id ? String(body.item_id) : null,
           paymentMethod: ['cash', 'bank_transfer', 'credit_card', 'cheque', 'app', 'other'].includes(body.payment_method) ? body.payment_method : 'other',
           customer: { name: client.name, email: client.email, phone: client.phone },
           send: true, // auto-send; the provider only acts if the customer has contact info

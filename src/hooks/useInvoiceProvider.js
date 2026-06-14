@@ -87,9 +87,16 @@ export function useInvoiceProvider() {
       transaction_id: transactionId,
       doc_type: docType,
       item_name: opts.itemName,
+      item_id: opts.itemId,
       payment_method: opts.paymentMethod,
     })
   }, [])
 
-  return { status, loading, busy, error, connect, test, disconnect, loadStatus, issueDocument }
+  /* The connected provider's product/service catalog (for the issuance picker). */
+  const loadItems = useCallback(async () => {
+    const r = await callInvoices('catalog')
+    return r?.items ?? []
+  }, [])
+
+  return { status, loading, busy, error, connect, test, disconnect, loadStatus, issueDocument, loadItems }
 }

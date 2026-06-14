@@ -333,3 +333,32 @@
   font-size: calc(12px * var(--text-scale));
   color: var(--espresso);
 }
+
+/* ── Invoice connection card (Green Invoice / SUMIT) ───────────── */
+/* Provider + environment choice — reuses the .conn-type-pill look. */
+.conn-pills { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 14px; }
+.conn-type-pill:disabled { opacity: 0.5; cursor: default; }
+/* "בקרוב" badge on a not-yet-enabled provider (SUMIT until Stage 4). */
+.conn-soon {
+  margin-inline-start: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--amber-warn) 18%, transparent);
+  color: var(--amber-warn);
+  font-size: calc(9px * var(--text-scale));
+  font-weight: 600;
+}
+/* Text/password fields — mirrors .conn-date so key + secret match the
+   calendar card's date input exactly. */
+.conn-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border-radius: 14px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+}
+.conn-input::placeholder { color: var(--mist); }

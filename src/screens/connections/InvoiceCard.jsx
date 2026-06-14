@@ -1,0 +1,203 @@
+import { useEffect, useRef, useState } from 'react'
+import { FileText, Check, CircleAlert, Link2Off, RefreshCw } from 'lucide-react'
+import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
+import { useAddress } from '../../hooks/useAddress'
+
+/* Supported invoice services. Each declares its two credential fields — the
+   generic api_key/api_secret slots are LABELLED per provider (Green Invoice:
+   key id + secret; SUMIT: company id + API key). Adding a provider here +
+   in the edge function's providers.ts is all it takes. */
+const PROVIDERS = [
+  {
+    key: 'greeninvoice',
+    label: 'חשבונית ירוקה',
+    enabled: true,
+    fields: [
+      { slot: 'apiKey', label: 'API Key (מזהה מפתח)', type: 'text' },
+      { slot: 'apiSecret', label: 'API Secret (סוד)', type: 'password' },
+    ],
+    help: 'את הפרטים מפיקים בחשבון חשבונית ירוקה: הגדרות ← כלים למפתחים ← מפתחות API. ה-Secret מוצג פעם אחת בלבד — שמרו אותו.',
+  },
+  {
+    key: 'sumit',
+    label: 'סאמיט',
+    enabled: true,
+    fields: [
+      { slot: 'apiKey', label: 'מזהה חברה (Company ID)', type: 'text' },
+      { slot: 'apiSecret', label: 'API Key (מפתח)', type: 'password' },
+    ],
+    help: 'את הפרטים מפיקים בחשבון סאמיט: הגדרות ← מפתחים ובעלי אתרים ← מפתחות API (מזהה חברה + API Key).',
+  },
+]
+const providerDef = (k) => PROVIDERS.find((p) => p.key === k) || PROVIDERS[0]
+const providerLabel = (k) => PROVIDERS.find((p) => p.key === k)?.label || k
+const envLabel = (e) => (e === 'production' ? 'Production' : 'Sandbox')
+
+/* Map the function's coarse error CODE to a Hebrew sentence (gendered via
+   addr). Provider-neutral wording — works for both services. */
+function errToHe(code, addr) {
+  switch (code) {
+    case 'invalid_credentials':
+      return addr({ male: 'פרטי ההזדהות שגויים. בדוק והעתק שוב.', female: 'פרטי ההזדהות שגויים. בדקי והעתיקי שוב.', neutral: 'פרטי ההזדהות שגויים. בדוק/י והעתק/י שוב.' })
+    case 'missing_api_key':
+    case 'missing_api_secret':
+      return 'יש למלא את שני השדות.'
+    case 'provider_unreachable':
+      return addr({ male: 'השירות לא זמין כרגע. נסה שוב בעוד רגע.', female: 'השירות לא זמין כרגע. נסי שוב בעוד רגע.', neutral: 'השירות לא זמין כרגע. נסה/י שוב בעוד רגע.' })
+    default:
+      return addr({ male: 'החיבור נכשל. נסה שוב.', female: 'החיבור נכשל. נסי שוב.', neutral: 'החיבור נכשל. נסה/י שוב.' })
+  }
+}
+
+/* Invoice connection card — sits on /connections beside the Google Calendar
+   card. The user picks a provider + environment, pastes their credentials,
+   and connects. Credentials go straight to the `invoices` edge function; the
+   browser never reads them back (status carries no secret). */
+export default function InvoiceCard() {
+  const { addr } = useAddress()
+  const inv = useInvoiceProvider()
+  const status = inv.status
+  const connected = !!status?.connected
+
+  const [provider, setProvider] = useState('greeninvoice')
+  const [environment, setEnvironment] = useState('sandbox')
+  const [creds, setCreds] = useState({ apiKey: '', apiSecret: '' })
+  const [localErr, setLocalErr] = useState('')
+  const [okMsg, setOkMsg] = useState('')
+
+  const [busyAction, setBusyAction] = useState(null) // 'connect' | 'test' | 'disconnect'
+  const [confirmDisc, setConfirmDisc] = useState(false)
+  const discTimer = useRef(0)
+  /* Clear the 2-step-confirm auto-disarm timer if we unmount mid-confirm. */
+  useEffect(() => () => window.clearTimeout(discTimer.current), [])
+
+  const def = providerDef(provider)
+
+  const pickProvider = (k) => {
+    setProvider(k)
+    setCreds({ apiKey: '', apiSecret: '' }) // different service → clear the fields
+    setLocalErr(''); setOkMsg('')
+  }
+
+  const onConnect = async () => {
+    setLocalErr(''); setOkMsg(''); setBusyAction('connect')
+    try {
+      await inv.connect({ provider, apiKey: creds.apiKey.trim(), apiSecret: creds.apiSecret.trim(), environment })
+      setCreds({ apiKey: '', apiSecret: '' }) // never keep credentials in component state
+      setOkMsg('החיבור הצליח.')
+    } catch (e) {
+      setLocalErr(errToHe(e.message, addr))
+    } finally {
+      setBusyAction(null)
+    }
+  }
+
+  const onTest = async () => {
+    setLocalErr(''); setOkMsg(''); setBusyAction('test')
+    try {
+      await inv.test()
+      setOkMsg('החיבור תקין.')
+    } catch (e) {
+      setLocalErr(errToHe(e.message, addr))
+    } finally {
+      setBusyAction(null)
+    }
+  }
+
+  const onDisconnect = async () => {
+    if (!confirmDisc) {
+      /* Two-step confirm (no undo) — same pattern as the calendar card. */
+      setConfirmDisc(true)
+      window.clearTimeout(discTimer.current)
+      discTimer.current = window.setTimeout(() => setConfirmDisc(false), 4000)
+      return
+    }
+    window.clearTimeout(discTimer.current); setConfirmDisc(false)
+    setLocalErr(''); setOkMsg(''); setBusyAction('disconnect')
+    await inv.disconnect()
+    setBusyAction(null)
+  }
+
+  const canConnect = !inv.busy && !!creds.apiKey.trim() && !!creds.apiSecret.trim()
+
+  return (
+    <section className="conn-card">
+      <div className="conn-card-head">
+        <span className="conn-icon"><FileText size={22} strokeWidth={1.6} aria-hidden="true" /></span>
+        <div className="conn-card-titles">
+          <p className="conn-card-title">חשבוניות</p>
+          <p className="conn-card-sub">
+            {inv.loading ? 'טוען…'
+              : connected
+                ? <><Check size={13} strokeWidth={2} aria-hidden="true" /> מחובר · {providerLabel(status.provider)} · {envLabel(status.environment)}</>
+                : 'לא מחובר — הפקת חשבוניות וקבלות ישירות מסימפליסיטי.'}
+          </p>
+        </div>
+      </div>
+
+      {localErr && (
+        <p className="conn-error"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {localErr}</p>
+      )}
+
+      {!connected ? (
+        <div className="conn-connect">
+          <span className="conn-field-lbl">{addr({ male: 'בחר ספק', female: 'בחרי ספק', neutral: 'בחר/י ספק' })}</span>
+          <div className="conn-pills">
+            {PROVIDERS.map((p) => (
+              <button
+                key={p.key}
+                type="button"
+                className={`conn-type-pill${provider === p.key ? ' on' : ''}`}
+                disabled={!p.enabled}
+                onClick={() => p.enabled && pickProvider(p.key)}
+              >
+                {p.label}{!p.enabled && <span className="conn-soon">בקרוב</span>}
+              </button>
+            ))}
+          </div>
+
+          <span className="conn-field-lbl">סביבה</span>
+          <div className="conn-pills">
+            {['sandbox', 'production'].map((e) => (
+              <button key={e} type="button" className={`conn-type-pill${environment === e ? ' on' : ''}`} onClick={() => setEnvironment(e)}>
+                {e === 'sandbox' ? 'בדיקה (Sandbox)' : 'אמיתי (Production)'}
+              </button>
+            ))}
+          </div>
+
+          {def.fields.map((f) => (
+            <label key={f.slot} className="conn-field">
+              <span className="conn-field-lbl">{f.label}</span>
+              <input
+                type={f.type}
+                className="conn-input"
+                value={creds[f.slot]}
+                onChange={(e) => setCreds((c) => ({ ...c, [f.slot]: e.target.value }))}
+                autoComplete="off"
+                dir="ltr"
+                placeholder="הדבק/י כאן"
+              />
+            </label>
+          ))}
+
+          <button type="button" className="conn-btn primary" disabled={!canConnect} onClick={onConnect}>
+            {busyAction === 'connect' ? 'מתחבר…' : 'חבר'}
+          </button>
+
+          <p className="conn-note">{def.help}</p>
+        </div>
+      ) : (
+        <div className="conn-actions">
+          <button type="button" className="conn-btn primary" disabled={inv.busy} onClick={onTest}>
+            <RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'test' ? 'בודק…' : 'בדוק חיבור'}
+          </button>
+          <button type="button" className="conn-btn ghost danger" disabled={inv.busy} onClick={onDisconnect}>
+            <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? 'מנתק…' : (confirmDisc ? addr({ male: 'בטוח? נתק', female: 'בטוחה? נתק', neutral: 'בטוח/ה? נתק' }) : 'נתק')}
+          </button>
+        </div>
+      )}
+
+      {okMsg && !localErr && <p className="conn-note">{okMsg}</p>}
+    </section>
+  )
+}

@@ -473,3 +473,7 @@
   cursor: pointer;
 }
 .conn-autoimport input { margin-top: 2px; accent-color: var(--terracotta); }
+
+/* Spinner glyph on connect/test/disconnect buttons while an action runs. */
+.conn-spin { animation: conn-spin 1s linear infinite; }
+@keyframes conn-spin { to { transform: rotate(360deg); } }

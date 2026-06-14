@@ -1,0 +1,99 @@
+/* ── InvoiceActions — "הפק חשבונית" on an income transaction ───────── */
+.inv-act {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--divider);
+  font-family: var(--mg-font);
+}
+
+/* Trigger button — glass ghost with a terracotta accent. */
+.inv-act-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--terracotta) 45%, transparent);
+  background: color-mix(in srgb, var(--terracotta) 8%, transparent);
+  color: var(--terracotta);
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.inv-act-btn:hover { background: color-mix(in srgb, var(--terracotta) 15%, transparent); }
+
+/* Document-type picker. */
+.inv-act-picker { display: flex; flex-direction: column; gap: 8px; }
+.inv-act-picker-lbl {
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+}
+.inv-act-types { display: flex; flex-wrap: wrap; gap: 8px; }
+.inv-act-type {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.inv-act-type:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--terracotta) 50%, transparent);
+  background: color-mix(in srgb, var(--terracotta) 8%, transparent);
+}
+.inv-act-type:disabled { opacity: 0.55; cursor: default; }
+.inv-act-cancel {
+  align-self: flex-start;
+  border: none;
+  background: transparent;
+  padding: 4px 2px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  cursor: pointer;
+}
+
+/* Issued state — sage (success) row with a link to the document. */
+.inv-act.issued {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sage);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+}
+.inv-act-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: auto;
+  color: var(--terracotta);
+  font-size: calc(12px * var(--text-scale));
+  text-decoration: none;
+}
+.inv-act-link:hover { text-decoration: underline; }
+
+/* Hint when no client is linked yet. */
+.inv-act.hint {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--divider);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+
+.inv-act-err {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 8px 0 0;
+  font-size: calc(12px * var(--text-scale));
+  color: var(--clay);
+}

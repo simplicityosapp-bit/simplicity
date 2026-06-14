@@ -27,7 +27,7 @@ import './FinanceScreen.css'
 const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1)
 
 export default function FinanceScreen() {
-  const { transactions, loading, error, addTransaction, editTransaction, setStatus } = useTransactions()
+  const { transactions, loading, error, addTransaction, editTransaction, setStatus, refetch } = useTransactions()
   const { clients } = useClients()
   const { projects } = useProjects()
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
@@ -222,6 +222,7 @@ export default function FinanceScreen() {
         projects={projects}
         categories={categories}
         onSave={editTransaction}
+        onIssued={refetch}
       />
 
       <RecurringModal

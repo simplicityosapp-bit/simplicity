@@ -265,6 +265,15 @@ export function makeMockClient() {
         // Google Calendar in preview: "connected" so the synced-events
         // accordion renders against the mock calendar_events fixtures.
         if (name === 'google-calendar') return { data: { status: { connected: true, sync_from: '2025-06-07', last_synced_at: new Date().toISOString() } }, error: null }
+        // Invoices in preview: a "connected" SUMIT account so the connections
+        // card AND the "הפק חשבונית" action on transactions render end-to-end.
+        if (name === 'invoices') {
+          const a = opts?.body?.action
+          if (a === 'issue') return { data: { ok: true, document: { number: '2026-1042', url: 'https://example.com/doc.pdf', type: opts?.body?.doc_type } }, error: null }
+          if (a === 'disconnect') return { data: { ok: true, status: { connected: false } }, error: null }
+          if (a === 'connect') return { data: { status: { connected: true, provider: opts?.body?.provider, environment: opts?.body?.environment } }, error: null }
+          return { data: { status: { connected: true, provider: 'sumit', environment: 'production', connected_at: new Date().toISOString(), auto_import: false }, ok: true }, error: null }
+        }
         return { data: { ok: true }, error: null }
       },
     },

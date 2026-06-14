@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import InvoiceActions from '../components/InvoiceActions'
 import { useAddress } from '../hooks/useAddress'
 
 const STATUSES = [
@@ -10,7 +11,7 @@ const STATUSES = [
 ]
 
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
-export default function EditTransactionModal({ open, onClose, onSave, tx, clients = [], projects = [], categories = [] }) {
+export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [] }) {
   const { tryAgain } = useAddress()
   const [form, setForm] = useState(() => ({
     type: tx?.type || 'income',
@@ -113,6 +114,12 @@ export default function EditTransactionModal({ open, onClose, onSave, tx, client
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
+      )}
+
+      {/* Issue a real invoice for this income payment (Route A). Renders only
+          when an invoice provider is connected; based on the SAVED transaction. */}
+      {tx.type === 'income' && (
+        <InvoiceActions tx={tx} clientName={clients.find((c) => c.id === tx.client_id)?.name} onIssued={onIssued} />
       )}
 
       {err && <p className="m-error">{err}</p>}

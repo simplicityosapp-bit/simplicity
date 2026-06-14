@@ -310,10 +310,17 @@ function PublicRoute() {
   if (pathname === ROUTES.PRIVACY) return <Navigate to={`${ROUTES.LEGAL}?tab=privacy`} replace />
   if (pathname === ROUTES.TERMS) return <Navigate to={`${ROUTES.LEGAL}?tab=terms`} replace />
   if (pathname === ROUTES.LEGAL) return <LegalPage />
+  if (pathname === ROUTES.LANDING) {
+    return (
+      <Suspense fallback={<LoadingSplash />}>
+        <LandingScreen />
+      </Suspense>
+    )
+  }
   return null
 }
 
-const PUBLIC_PATHS = new Set([ROUTES.LEGAL, ROUTES.PRIVACY, ROUTES.TERMS])
+const PUBLIC_PATHS = new Set([ROUTES.LEGAL, ROUTES.PRIVACY, ROUTES.TERMS, ROUTES.LANDING])
 
 function Root() {
   const { session, loading, recovery } = useAuth()

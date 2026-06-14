@@ -17,6 +17,9 @@ export const ROUTES = {
   LEGAL: '/legal',
   PRIVACY: '/privacy',
   TERMS: '/terms',
+  // Marketing landing — shown at "/" to logged-out visitors; ALSO reachable at
+  // "/landing" by anyone (incl. logged-in users) to view it directly.
+  LANDING: '/landing',
 
   // Main screens
   HOME: '/',

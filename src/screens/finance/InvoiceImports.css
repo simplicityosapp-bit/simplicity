@@ -1,0 +1,75 @@
+/* ── Route B: pending invoice imports (finance screen) ───────────── */
+.inv-imports {
+  border-radius: var(--mg-card-radius);
+  border: 1px solid color-mix(in srgb, var(--sage) 35%, transparent);
+  background: color-mix(in srgb, var(--sage) 7%, var(--mg-card-bg));
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+.inv-imports-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mg-font);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.inv-imports-sub {
+  margin: 4px 0 12px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+.inv-imports-list { display: flex; flex-direction: column; }
+.inv-import {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-top: 1px solid var(--divider);
+}
+.inv-import:first-child { border-top: none; }
+.inv-import-main { flex: 1; min-width: 0; }
+.inv-import-title {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+}
+.inv-import-meta {
+  margin: 3px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--mist);
+}
+.inv-import-link { color: var(--terracotta); text-decoration: none; }
+.inv-import-link:hover { text-decoration: underline; }
+.inv-import-amt {
+  font-family: var(--mg-font-num);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 600;
+  color: var(--sage);
+  white-space: nowrap;
+}
+.inv-import-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.inv-import-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.inv-import-btn.approve { color: var(--sage); }
+.inv-import-btn.approve:hover { background: color-mix(in srgb, var(--sage) 14%, transparent); }
+.inv-import-btn.dismiss { color: var(--stone); }
+.inv-import-btn.dismiss:hover { background: color-mix(in srgb, var(--clay) 12%, transparent); color: var(--clay); }
+.inv-import-btn:disabled { opacity: 0.5; cursor: default; }

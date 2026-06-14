@@ -55,12 +55,29 @@ export class ProviderError extends Error {
   }
 }
 
+/* A document re-fetched by id (Route B) — never trust the webhook body,
+   always pull the authoritative details. */
+export interface FetchedDoc {
+  externalId: string
+  docType: DocType | null
+  number: string | null
+  amount: number | null
+  currency: string
+  date: string | null // YYYY-MM-DD
+  customerName: string | null
+  url: string | null
+  raw: unknown
+}
+
 export interface InvoiceProvider {
   readonly name: string
   /* Validate credentials with a real, READ-ONLY call. Used by connect + test. */
   verifyCredentials(creds: InvoiceCredentials): Promise<void>
   /* Issue a REAL document at the provider. Used by the `issue` action. */
   createDocument(creds: InvoiceCredentials, doc: InvoiceDocInput): Promise<InvoiceDocResult>
+  /* Re-fetch a document by its provider id (Route B webhook → authoritative
+     details). Returns null if the document can't be found. */
+  fetchDocument(creds: InvoiceCredentials, externalId: string): Promise<FetchedDoc | null>
 }
 
 // ── Green Invoice (morning) ───────────────────────────────────────
@@ -139,6 +156,12 @@ class GreenInvoiceProvider implements InvoiceProvider {
     const url = data?.url?.origin ?? data?.url?.he ?? (typeof data?.url === 'string' ? data.url : null)
     return { id: String(data.id), number: String(data.number ?? data.id), url, type: doc.docType }
   }
+
+  async fetchDocument(_creds: InvoiceCredentials, _externalId: string): Promise<FetchedDoc | null> {
+    // Route B for Green Invoice is deferred (their document-created webhook is
+    // undocumented). Implement GET /documents/{id} when GI Route B is built.
+    throw new ProviderError('provider_error', 'green-invoice fetchDocument not implemented yet')
+  }
 }
 
 // ── SUMIT (OfficeGuy) ─────────────────────────────────────────────
@@ -203,6 +226,38 @@ class SumitProvider implements InvoiceProvider {
       number: String(data.DocumentNumber ?? data.DocumentID),
       url: data.DocumentDownloadURL ?? null,
       type: doc.docType,
+    }
+  }
+
+  /* Re-fetch a document by EntityID (from a trigger/webhook). Read-only. */
+  async fetchDocument(creds: InvoiceCredentials, externalId: string): Promise<FetchedDoc | null> {
+    const data = await this.post(creds, '/accounting/documents/getdetails/', { DocumentID: Number(externalId) })
+    const doc = data?.Document
+    if (!doc) return null
+    /* OfficeGuy may serialize the enum as an int, a name, or "Name (n)" —
+       normalize all three. */
+    const normType = (t: unknown): DocType | null => {
+      const byNum: Record<number, DocType> = { 0: 'invoice', 1: 'invoice_receipt', 2: 'receipt' }
+      const byName: Record<string, DocType> = { Invoice: 'invoice', InvoiceAndReceipt: 'invoice_receipt', Receipt: 'receipt' }
+      if (typeof t === 'number') return byNum[t] ?? null
+      if (typeof t === 'string') {
+        const m = t.match(/\((\d+)\)/)
+        if (m) return byNum[Number(m[1])] ?? null
+        if (byName[t]) return byName[t]
+        if (/^\d+$/.test(t)) return byNum[Number(t)] ?? null
+      }
+      return null
+    }
+    return {
+      externalId: String(data.DocumentID ?? externalId),
+      docType: normType(doc.Type),
+      number: data.DocumentNumber != null ? String(data.DocumentNumber) : null,
+      amount: typeof doc.DocumentValue === 'number' ? doc.DocumentValue : null,
+      currency: typeof doc.Currency === 'string' ? doc.Currency : 'ILS',
+      date: typeof doc.Date === 'string' ? doc.Date.slice(0, 10) : null,
+      customerName: doc.Customer?.Name ?? null,
+      url: data.DocumentDownloadURL ?? null,
+      raw: data,
     }
   }
 }

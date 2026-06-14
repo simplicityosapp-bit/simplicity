@@ -212,14 +212,23 @@ export default function InvoiceCard() {
           <p className="conn-note">{def.help}</p>
         </div>
       ) : (
-        <div className="conn-actions">
-          <button type="button" className="conn-btn primary" disabled={inv.busy} onClick={onTest}>
-            <RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'test' ? 'בודק…' : 'בדוק חיבור'}
-          </button>
-          <button type="button" className="conn-btn ghost danger" disabled={inv.busy} onClick={onDisconnect}>
-            <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? 'מנתק…' : (confirmDisc ? addr({ male: 'בטוח? נתק', female: 'בטוחה? נתק', neutral: 'בטוח/ה? נתק' }) : 'נתק')}
-          </button>
-        </div>
+        <>
+          <div className="conn-actions">
+            <button type="button" className="conn-btn primary" disabled={inv.busy} onClick={onTest}>
+              <RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'test' ? 'בודק…' : 'בדוק חיבור'}
+            </button>
+            <button type="button" className="conn-btn ghost danger" disabled={inv.busy} onClick={onDisconnect}>
+              <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? 'מנתק…' : (confirmDisc ? addr({ male: 'בטוח? נתק', female: 'בטוחה? נתק', neutral: 'בטוח/ה? נתק' }) : 'נתק')}
+            </button>
+          </div>
+          {status?.webhook_url && (
+            <div className="conn-webhook">
+              <p className="conn-field-lbl">כתובת Webhook לייבוא אוטומטי (סאמיט)</p>
+              <code className="conn-webhook-url">{status.webhook_url}</code>
+              <p className="conn-note">בסאמיט: הגדרות ← מודול טריגרים ← יצירת טריגר → שלב "יצירת קריאת HTTP" → הדביקו כאן (סוג JSON). כל מסמך שתפיקו יופיע ב"ייבוא ממתין" במסך הכספים.</p>
+            </div>
+          )}
+        </>
       )}
 
       {okMsg && !localErr && <p className="conn-note">{okMsg}</p>}

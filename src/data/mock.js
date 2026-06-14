@@ -211,7 +211,14 @@ export const user_preferences = {
 }
 
 /* ── MOCK_DB — הכל במקום אחד ── */
+/* Route B: staged incoming invoices awaiting import (preview only). */
+export const pending_invoice_imports = [
+  { id: uid(), user_id: USER, provider: 'sumit', external_document_id: '900123', document_type: 'invoice_receipt', document_number: '1042', amount: 380, currency: 'ILS', doc_date: new Date().toISOString().slice(0, 10), customer_name: 'רעות מדיון', document_url: 'https://example.com/doc.pdf', client_id: clients[0].id, status: 'pending', created_at: daysAgo(0) },
+  { id: uid(), user_id: USER, provider: 'sumit', external_document_id: '900124', document_type: 'receipt', document_number: '1043', amount: 520, currency: 'ILS', doc_date: new Date().toISOString().slice(0, 10), customer_name: 'לקוח מזדמן', document_url: null, client_id: null, status: 'pending', created_at: daysAgo(0) },
+]
+
 export const MOCK_DB = {
+  pending_invoice_imports,
   projects,
   groups,
   group_members,

@@ -389,3 +389,20 @@
   color: var(--stone);
   line-height: 1.5;
 }
+
+/* Route B: the per-connection webhook URL (SUMIT). */
+.conn-webhook { margin-top: 16px; }
+.conn-webhook-url {
+  display: block;
+  margin: 6px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--divider);
+  background: color-mix(in srgb, var(--espresso) 4%, var(--mg-card-bg));
+  font-family: var(--mg-font-num);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--espresso);
+  word-break: break-all;
+  direction: ltr;
+  text-align: left;
+}

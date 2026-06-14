@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  Layers, Compass, Languages,
+  Layers, Sun, Moon, TrendingUp, Languages,
   Users, Wallet, CalendarDays, Target, Sparkles, GitBranch,
   Gauge, Bell, SlidersHorizontal,
   Check, Plus, ArrowLeft, ShieldCheck, EyeOff,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
+import MG from '../../components/MG'
+import { MG_GLYPHS, mgToReadable } from '../../lib/multiGender'
 import './LandingScreen.css'
 
 /* ════════════════════════════════════════════════════════════════════
@@ -23,6 +25,15 @@ import './LandingScreen.css'
    signup. Numbers/%/₪ are bidi-isolated for correct RTL rendering.
    ════════════════════════════════════════════════════════════════════ */
 
+/* Dual-gender role nouns — the merge letters (YOD+PLU → ים/ות) render as one
+   combined glyph in the Alef MultiGndr font; <MG> pairs the visible glyph with
+   an sr-only readable "ים/ות" form for screen readers + SEO/search. */
+const PL = `${MG_GLYPHS.YOD}${MG_GLYPHS.PLU}`
+const R_THERAPIST = `מטפל${PL}`
+const R_ADVISOR = `יועצ${PL}`
+const R_TEACHER = `מור${PL}`
+const R_FACILITATOR = `מנח${PL}`
+
 const VALUES = [
   {
     icon: Layers,
@@ -30,49 +41,31 @@ const VALUES = [
     text: 'לקוחות, יומן, כספים, משימות ויעדים — בלי לקפוץ בין אקסל, וואטסאפ ופנקס. תמונה אחת שלמה של העסק, תמיד מעודכנת.',
   },
   {
-    icon: Compass,
-    title: 'קצב, לא לחץ',
-    text: '״מבט על״ מראה לכם במבט אחד אם אתם בקצב להשגת היעדים החודשיים. התקדמות נמדדת ברוגע — לא בעוד התראה אדומה.',
+    icon: Sun,
+    title: 'בהירות ומלאות',
+    text: 'המערכת הזו נבנתה כדי שניהול מידע וכספים יהפוך למזין, ממלא וכיף. כדי שתוכלו להתפנות כמה שיותר להגשמה ולצמיחה שלכם.',
   },
   {
-    icon: Languages,
-    title: 'בעברית, ובכבוד',
-    text: 'נבנתה מהיסוד בעברית מלאה ומימין לשמאל, עם פנייה בלשון שלכם — זכר, נקבה או ניטרלי. כי הדרך שמדברים אליכם חשובה.',
+    icon: TrendingUp,
+    title: 'יעדים והתפתחות',
+    text: 'המערכת לא רק תעזור לכם לראות איפה אתם, אלא גם להישאר בקשר ישיר עם המקום אליו אתם רוצים להגיע.',
   },
 ]
 
 const FEATURES = [
-  { icon: Users, title: 'לקוחות', text: 'כרטיס לקוח חי: היסטוריה, סטטוס, יתרה ופגישות — הכול תחת שם אחד.' },
-  { icon: Wallet, title: 'כספים', text: 'הכנסות, הוצאות, יתרות והוראות קבע. תדעו בדיוק איפה העסק עומד.' },
-  { icon: CalendarDays, title: 'פגישות ויומן', text: 'קביעת פגישות, חבילות וסשנים — מסודר וברור, מול היומן שלכם.' },
+  { icon: CalendarDays, title: 'פגישות ויומן', text: 'סנכרון עם גוגל קאלנדר, התראות על פגישות חוזרות או קבועות מראש, תזכורות, והוצאות והכנסות לפי תאריך — כל מה שיש לו תאריך.' },
+  { icon: Wallet, title: 'כספים', text: 'חיבור לסאמיט ולחשבונית ירוקה, הגדרת הוצאות והכנסות קבועות, חלוקה לקטגוריות — ופריסת התזרים שלך בדיוק כמו שתרצה.' },
+  { icon: Users, title: 'לידים ולקוחות', text: 'נעזור לך להחזיק את הקשר מהפנייה הראשונה ועד הפגישה האחרונה, ככה שיהיה הכי קל ונוח גם לך וגם ללקוחות שלך.' },
+  { icon: Sparkles, title: 'תובנות יומיות', text: 'ההבנה שזה לא רק עסק אלא גם בן אדם — הובילה אותנו ליצור מערכת שרואה את הכול גם מזווית הוליסטית ומותאמת אישית.' },
+  { icon: GitBranch, title: 'פרויקטים', text: 'מחזורים קבוצתיים, לקוחות פרטניים; אפשר לבנות ולהתאים מיני-מערכת לכל פרויקט בנפרד — כך שפיזור ומיקוד רק יעצימו זה את זה.' },
   { icon: Target, title: 'יעדים ומבט על', text: 'הציבו יעדים חודשיים, וראו ב״מבט על״ אם אתם בקצב להשיג אותם.' },
-  { icon: Sparkles, title: 'תובנות יומיות', text: 'שאלה קצרה כל יום, שמציירת לאורך זמן מגמות ותובנות על עצמכם.' },
-  { icon: GitBranch, title: 'לידים ופרויקטים', text: 'מפנייה ראשונה ועד לקוח משלם — ומיזמים קבוצתיים, במקום אחד.' },
-]
-
-const STEPS = [
-  {
-    tree: '/onboarding-tree/1.png',
-    title: 'נרשמים ומקימים את העסק',
-    text: 'מספרים לנו על העיסוק שלכם. אפשר גם לייבא לקוחות, פגישות וכספים מקובץ אקסל בלחיצה.',
-  },
-  {
-    tree: '/onboarding-tree/5.png',
-    title: 'מנהלים הכול במקום אחד',
-    text: 'לקוחות, פגישות, כספים ומשימות מתעדכנים תוך כדי עבודה — בלי כפילויות ובלי בלגן.',
-  },
-  {
-    tree: '/onboarding-tree/10.png',
-    title: 'מתקדמים בקצב',
-    text: '״מבט על״ והתובנות מראים לכם את התמונה הגדולה, ועוזרים להחליט מה הצעד הבא.',
-  },
 ]
 
 const DEMO_POINTS = [
   {
     icon: Gauge,
     title: 'מבט על — ציון אחד שאומר הכול',
-    text: 'במקום עשרה דוחות, מספר אחד: כמה אתם בקצב להשגת היעדים החודש.',
+    text: 'במקום עשרה דוחות, מספר אחד שיראה לכם בדיוק איפה אתם מול היעדים שלכם.',
   },
   {
     icon: Bell,
@@ -82,7 +75,7 @@ const DEMO_POINTS = [
   {
     icon: SlidersHorizontal,
     title: 'מותאם אליכם',
-    text: 'בוחרים אילו כרטיסים לראות, באיזו צפיפות ובאיזו ערכת נושא — יום או לילה.',
+    text: 'בוחרים מה לראות, איך ומתי.',
   },
 ]
 
@@ -94,7 +87,7 @@ const TRUST = [
   },
   {
     icon: Languages,
-    title: 'נבנתה בישראל, בעברית',
+    title: 'נבנתה בעברית',
     text: 'מהיסוד מימין לשמאל, עם פנייה בלשון זכר, נקבה או ניטרלי — לבחירתכם.',
   },
   {
@@ -107,7 +100,7 @@ const TRUST = [
 const FAQS = [
   {
     q: 'למי סימפליסיטי מתאימה?',
-    a: 'לקואצ׳ים, מנטורים, מטפלים, מנחים, מדריכים ומורים — לכל מי שמנהל עסק טיפולי או ליווי אישי, לבד או בקבוצות. מתאימה גם אם אתם רק בתחילת הדרך.',
+    a: `ל${R_THERAPIST}, ${R_TEACHER} ו${R_FACILITATOR} — ולכל מי שמלווה אנשים ומנהל עסק עצמאי, לבד או בקבוצות. מתאימה גם אם אתם רק בתחילת הדרך.`,
   },
   {
     q: 'כמה זמן לוקח להתחיל?',
@@ -126,7 +119,7 @@ const FAQS = [
     a: 'לא. סימפליסיטי עובדת בדפדפן ובנייד, ואפשר להוסיף אותה למסך הבית כאפליקציה — בלי הורדות ובלי עדכונים.',
   },
   {
-    q: 'זה באמת מותאם לישראל ולעברית?',
+    q: 'זה באמת בעברית ומותאם אליי?',
     a: 'לגמרי. נבנתה מהיסוד בעברית מלאה ומימין לשמאל, עם שקלים, תאריכים עבריים ופנייה בלשון זכר, נקבה או ניטרלי.',
   },
 ]
@@ -139,20 +132,48 @@ const FAQ_LD = {
   mainEntity: FAQS.map(({ q, a }) => ({
     '@type': 'Question',
     name: q,
-    acceptedAnswer: { '@type': 'Answer', text: a },
+    acceptedAnswer: { '@type': 'Answer', text: mgToReadable(a) },
   })),
 }
 
 export default function LandingScreen() {
   const rootRef = useRef(null)
+  const veilRef = useRef(null)
   const [scrolled, setScrolled] = useState(false)
+  const [theme, setTheme] = useState(() =>
+    (typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark') ? 'dark' : 'light'
+  )
+  /* Day/night toggle — writes the same localStorage key + data-theme the app's
+     bootstrap uses, so the choice persists on reload and into the app. */
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    document.documentElement.setAttribute('data-theme', next)
+    try { localStorage.setItem('mg-theme', next) } catch { /* private mode — non-fatal */ }
+  }
 
-  /* Sticky-header glass appears once the hero scrolls away. */
+  /* Sticky-header glass + the fixed forest backdrop whose centre brightens as
+     you scroll past the hero: the outer tree-frame stays visible, the middle
+     clears so content reads and the centre stays calm. rAF-throttled. */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    onScroll()
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const y = window.scrollY
+      setScrolled(y > 24)
+      const vh = window.innerHeight || 1
+      const t = Math.min(1, Math.max(0, (y - vh * 0.2) / (vh * 0.6)))
+      if (veilRef.current) veilRef.current.style.opacity = (0.12 + t * 0.83).toFixed(3)
+    }
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update) }
+    update()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    window.addEventListener('resize', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
   }, [])
 
   /* Gentle reveal-on-scroll for every .lp-reveal block. */
@@ -181,16 +202,29 @@ export default function LandingScreen() {
   return (
     <div className="lp-root" dir="rtl" ref={rootRef}>
       <div className="lp-bg" aria-hidden="true" />
+      <div className="lp-veil" aria-hidden="true" ref={veilRef} />
 
       {/* ── Header ─────────────────────────────────────────────── */}
       <header className={`lp-header${scrolled ? ' scrolled' : ''}`}>
         <div className="lp-wrap lp-header-in">
-          <a className="lp-brand" href="#top" aria-label="סימפליסיטי — לדף הבית">
+          <a className="lp-brand" href="#top" aria-label="Simplicity — לדף הבית">
             <img src="/logo-dark.png" className="lp-brand-logo dark" alt="" aria-hidden="true" />
             <img src="/logo-light.png" className="lp-brand-logo light" alt="" aria-hidden="true" />
-            <span className="lp-brand-name">סימפליסיטי</span>
+            <span className="lp-brand-name">Simplicity</span>
           </a>
           <nav className="lp-header-actions" aria-label="פעולות חשבון">
+            <button
+              type="button"
+              className="lp-switch"
+              role="switch"
+              aria-checked={theme === 'dark'}
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'מעבר לתצוגת יום' : 'מעבר לתצוגת לילה'}
+            >
+              <Sun className="lp-switch-ic lp-switch-sun" size={14} strokeWidth={2} aria-hidden="true" />
+              <Moon className="lp-switch-ic lp-switch-moon" size={13} strokeWidth={2} aria-hidden="true" />
+              <span className="lp-switch-knob" aria-hidden="true" />
+            </button>
             <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-ghost">כניסה</Link>
             <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-pill">התחילו בחינם</Link>
           </nav>
@@ -204,15 +238,15 @@ export default function LandingScreen() {
           <img src="/logo-light.png" className="lp-hero-mark light" alt="" aria-hidden="true" />
           <span className="lp-eyebrow">
             <span className="lp-eyebrow-dot" />
-            מערכת ההפעלה לעסק הטיפולי
+            מערכת הפעלה לעסק
           </span>
           <h1 className="lp-hero-title" id="lp-h1">
-            כל העסק הטיפולי שלך,<br />
+            כל העסק שלך,<br />
             <span className="accent">במקום אחד שקט.</span>
           </h1>
           <p className="lp-hero-sub">
-            לקואצ׳ים, מטפלים ומנטורים: לקוחות, כספים, פגישות ויעדים — במקום אחד מסודר, בעברית.
-            ו״מבט על״ אחד מראה לכם אם אתם בקצב הנכון החודש.
+            <MG text={`ל${R_THERAPIST}, ${R_ADVISOR}, ${R_TEACHER} ו${R_FACILITATOR}:`} /><br />
+            פרויקטים, כספים, לקוחות, פגישות, יעדים — הכל במקום אחד בהיר, נעים ובעברית. ״מבט על״ אחד שמראה לכם בדיוק מה צריך לקרות החודש.
           </p>
           <div className="lp-hero-cta">
             <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg">התחילו בחינם</Link>
@@ -328,7 +362,7 @@ export default function LandingScreen() {
         <section className="lp-section lp-wrap" aria-labelledby="lp-features-h">
           <div className="lp-section-head lp-reveal">
             <span className="lp-section-eyebrow">מה יש בפנים</span>
-            <h2 className="lp-section-title" id="lp-features-h">כל מה שצריך כדי לנהל עסק טיפולי</h2>
+            <h2 className="lp-section-title" id="lp-features-h">כל מה שצריך כדי לנהל את העסק</h2>
             <p className="lp-section-sub">
               ששת הכלים שעובדים יחד — מהפנייה הראשונה ועד התמונה הגדולה בסוף החודש.
             </p>
@@ -344,31 +378,26 @@ export default function LandingScreen() {
           </div>
         </section>
 
-        {/* ── How it works ─────────────────────────────────────── */}
-        <section className="lp-section lp-wrap" aria-labelledby="lp-how-h">
-          <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">פשוט להתחיל</span>
-            <h2 className="lp-section-title" id="lp-how-h">מתחילים בשלושה צעדים</h2>
-            <p className="lp-section-sub">
-              כמו עץ שגדל — מתחילים קטן, ובכל שלב התמונה נעשית שלמה יותר.
+        {/* ── Built with you (openness & feedback) ─────────────── */}
+        <section className="lp-section lp-wrap" aria-labelledby="lp-feedback-h">
+          <article className="lp-card lp-feedback lp-reveal">
+            <span className="lp-feedback-ic">
+              <img src="/logo-dark.png" className="lp-feedback-logo dark" alt="" aria-hidden="true" />
+              <img src="/logo-light.png" className="lp-feedback-logo light" alt="" aria-hidden="true" />
+            </span>
+            <h2 className="lp-section-title" id="lp-feedback-h">אתם הלב של סימפליסיטי</h2>
+            <p className="lp-feedback-text">
+              פתיחות מלאה ונגישות מלאה לפידבק — בכל רגע, על כל דבר. כי תוכנה טובה לא נבנית במגדל
+              שן, אלא יחד עם האנשים שמשתמשים בה. כל מילה שלכם עוזרת לסימפליסיטי להתאים את עצמה
+              אליכם — ואנחנו כאן כדי להקשיב.
             </p>
-          </div>
-          <div className="lp-steps">
-            {STEPS.map(({ tree, title, text }, i) => (
-              <article className="lp-card lp-step lp-reveal" key={title}>
-                <img className="lp-step-tree" src={tree} alt="" aria-hidden="true" />
-                <span className="lp-step-num"><bdi>{i + 1}</bdi></span>
-                <h3 className="lp-step-title">{title}</h3>
-                <p className="lp-step-text">{text}</p>
-              </article>
-            ))}
-          </div>
+          </article>
         </section>
 
         {/* ── Trust / privacy ──────────────────────────────────── */}
         <section className="lp-section lp-wrap" aria-labelledby="lp-trust-h">
           <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">פרטיות ושקט נפש</span>
+            <span className="lp-section-eyebrow">פרטיות ושקט נפשי</span>
             <h2 className="lp-section-title" id="lp-trust-h">הנתונים שלך — שלך בלבד.</h2>
             <p className="lp-section-sub">פרטיות היא לא עוד הגדרה במערכת. היא חלק מהשקט.</p>
           </div>
@@ -396,7 +425,7 @@ export default function LandingScreen() {
                   {q}
                   <Plus className="lp-faq-q-ic" size={20} strokeWidth={2} aria-hidden="true" />
                 </summary>
-                <p className="lp-faq-a">{a}</p>
+                <p className="lp-faq-a"><MG text={a} /></p>
               </details>
             ))}
           </div>
@@ -407,7 +436,7 @@ export default function LandingScreen() {
           <div className="lp-cta-card lp-reveal">
             <h2 className="lp-cta-title">הכול מתחיל כאן.</h2>
             <p className="lp-cta-sub">
-              הצטרפו לקואצ׳ים, מנטורים ומטפלים שכבר מנהלים את העסק שלהם ברוגע — במקום אחד.
+              הצטרפו ל<MG text={`${R_THERAPIST}, ${R_TEACHER} ו${R_FACILITATOR}`} /> שכבר מנהלים את העסק שלהם ברוגע — במקום אחד.
             </p>
             <div className="lp-cta-actions">
               <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg">התחילו בחינם</Link>
@@ -425,9 +454,9 @@ export default function LandingScreen() {
             <span className="lp-foot-brand-row">
               <img src="/logo-dark.png" className="lp-brand-logo dark" alt="" aria-hidden="true" />
               <img src="/logo-light.png" className="lp-brand-logo light" alt="" aria-hidden="true" />
-              <span className="lp-brand-name">סימפליסיטי</span>
+              <span className="lp-brand-name">Simplicity</span>
             </span>
-            <p className="lp-foot-tag">מערכת ההפעלה לעסק הטיפולי — לקואצ׳ים, מנטורים ומטפלים. נבנתה באהבה בישראל.</p>
+            <p className="lp-foot-tag">מערכת הפעלה לעסק — ל<MG text={`${R_THERAPIST}, ${R_TEACHER} ו${R_FACILITATOR}`} />. נבנתה באהבה בשביל לעזור ליצור עוד טוב בעולם.</p>
           </div>
           <div className="lp-foot-links">
             <div className="lp-foot-col">
@@ -448,7 +477,6 @@ export default function LandingScreen() {
         </div>
         <div className="lp-wrap lp-foot-legal">
           <span>© 2026 סימפליסיטי. כל הזכויות שמורות.</span>
-          <span>נבנה באהבה בישראל</span>
         </div>
       </footer>
 

@@ -83,7 +83,7 @@
   cursor: pointer;
   transition: background 0.15s, opacity 0.15s;
 }
-.conn-btn.primary { background: var(--terracotta); color: #fff; width: 100%; }
+.conn-btn.primary { background: var(--terracotta); color: var(--on-accent); width: 100%; }
 .conn-connect .conn-btn.primary { width: 100%; }
 .conn-actions .conn-btn.primary { width: auto; flex: 1; }
 .conn-btn.primary:hover { background: var(--mg-btn-primary-bg-hover); }
@@ -390,11 +390,36 @@
   line-height: 1.5;
 }
 
-/* Route B: the per-connection webhook URL (SUMIT). */
-.conn-webhook { margin-top: 16px; }
+/* Route B: the per-connection webhook setup (SUMIT) — collapsible panel. */
+.conn-webhook { margin-top: 16px; border-top: 1px solid var(--divider); padding-top: 14px; }
+.conn-webhook-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px 0;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+}
+.conn-webhook-toggle > span { display: inline-flex; align-items: center; gap: 7px; }
+.conn-webhook-panel { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.conn-webhook-intro {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  line-height: 1.5;
+}
+.conn-webhook-url-row { display: flex; align-items: stretch; gap: 8px; }
 .conn-webhook-url {
-  display: block;
-  margin: 6px 0;
+  flex: 1;
+  min-width: 0;
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid var(--divider);
@@ -406,3 +431,32 @@
   direction: ltr;
   text-align: left;
 }
+.conn-webhook-copy {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--terracotta) 45%, transparent);
+  background: color-mix(in srgb, var(--terracotta) 8%, transparent);
+  color: var(--terracotta);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.conn-webhook-copy:hover { background: color-mix(in srgb, var(--terracotta) 16%, transparent); }
+.conn-webhook-steps {
+  margin: 0;
+  padding-inline-start: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  line-height: 1.55;
+}
+.conn-webhook-steps b { color: var(--espresso); font-weight: 600; }

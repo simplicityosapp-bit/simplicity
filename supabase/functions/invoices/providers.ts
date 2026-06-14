@@ -46,8 +46,20 @@ export interface InvoiceDocInput {
 // Payment-method code per provider.
 // SUMIT (Accounting_Typed_DocumentPaymentType): Cash 2, BankTransfer 3, Cheque 4, CreditCard 5, Digital 6, Other 8.
 const SUMIT_PAYMENT: Record<PaymentMethod, number> = { cash: 2, bank_transfer: 3, credit_card: 5, cheque: 4, app: 6, other: 8 }
-// Green Invoice payment.type (best-effort; GI createDocument is unverified): cash 1, cheque 2, credit 3, transfer 4, app 5.
-const GI_PAYMENT: Record<PaymentMethod, number> = { cash: 1, cheque: 2, credit_card: 3, bank_transfer: 4, app: 5, other: 4 }
+// Green Invoice payment.type (morning enum): cash 1, cheque 2, credit_card 3, bank_transfer 4, paypal 5, payment_app 10, other 11. (Still unverified against a live GI key.)
+const GI_PAYMENT: Record<PaymentMethod, number> = { cash: 1, cheque: 2, credit_card: 3, bank_transfer: 4, app: 10, other: 11 }
+
+/* SUMIT/.NET dates arrive as ISO, "/Date(ms)/", or DD/MM/YYYY — return YYYY-MM-DD or null. */
+function normalizeDate(d: unknown): string | null {
+  if (typeof d !== 'string' || !d) return null
+  const dotnet = d.match(/\/Date\((\d+)\)\//)
+  if (dotnet) return new Date(Number(dotnet[1])).toISOString().slice(0, 10)
+  const dmy = d.match(/^(\d{2})\/(\d{2})\/(\d{4})/)
+  if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`
+  if (/^\d{4}-\d{2}-\d{2}/.test(d)) return d.slice(0, 10)
+  const t = Date.parse(d)
+  return Number.isFinite(t) ? new Date(t).toISOString().slice(0, 10) : null
+}
 
 export interface InvoiceDocResult {
   id: string
@@ -280,9 +292,9 @@ class SumitProvider implements InvoiceProvider {
       externalId: String(data.DocumentID ?? externalId),
       docType: normType(doc.Type),
       number: data.DocumentNumber != null ? String(data.DocumentNumber) : null,
-      amount: typeof doc.DocumentValue === 'number' ? doc.DocumentValue : null,
+      amount: Number.isFinite(Number(doc.DocumentValue)) ? Number(doc.DocumentValue) : null,
       currency: typeof doc.Currency === 'string' ? doc.Currency : 'ILS',
-      date: typeof doc.Date === 'string' ? doc.Date.slice(0, 10) : null,
+      date: normalizeDate(doc.Date),
       customerName: doc.Customer?.Name ?? null,
       url: data.DocumentDownloadURL ?? null,
       raw: data,
@@ -293,7 +305,7 @@ class SumitProvider implements InvoiceProvider {
     const data = await this.post(creds, '/accounting/incomeitems/list/', {})
     const items = (data?.IncomeItems ?? []) as any[]
     return items
-      .map((it) => ({ id: it.ID != null ? String(it.ID) : '', name: it.Name ?? '', price: typeof it.Price === 'number' ? it.Price : null }))
+      .map((it) => ({ id: it.ID != null ? String(it.ID) : '', name: it.Name ?? '', price: Number.isFinite(Number(it.Price)) ? Number(it.Price) : null }))
       .filter((it) => it.id && it.name)
   }
 }

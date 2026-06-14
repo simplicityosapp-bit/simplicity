@@ -20,7 +20,7 @@
 //      5 non-200 responses. So every path returns 200 (failures logged).
 // ════════════════════════════════════════════════════════════════
 import { createClient } from 'jsr:@supabase/supabase-js@2'
-import { getProvider } from '../invoices/providers.ts'
+import { getProvider, ProviderError } from '../invoices/providers.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -30,14 +30,19 @@ const ok = () => new Response('ok', { status: 200 })
 
 /* The document id (SUMIT EntityID) out of a trigger body whose shape is
    the user's View columns. Be liberal about casing / light nesting. */
-function extractEntityId(body: any): string | null {
-  if (!body || typeof body !== 'object') return null
-  for (const c of [body.EntityID, body.entityId, body.entityID, body.ID, body.Id, body.id, body.DocumentID]) {
+function extractEntityId(body: any, depth = 0): string | null {
+  if (!body || typeof body !== 'object' || depth > 4) return null
+  // Prefer explicit document-id keys (a View could also carry an unrelated bare "id").
+  for (const c of [body.EntityID, body.entityId, body.entityID, body.DocumentID]) {
     if (c != null && String(c).trim()) return String(c).trim()
   }
   for (const k of ['Data', 'data', 'Card', 'card', 'Entity', 'entity']) {
     const v = body[k]
-    if (v && typeof v === 'object') { const r = extractEntityId(v); if (r) return r }
+    if (v && typeof v === 'object') { const r = extractEntityId(v, depth + 1); if (r) return r }
+  }
+  // Bare id only as a last resort.
+  for (const c of [body.ID, body.Id, body.id]) {
+    if (c != null && String(c).trim()) return String(c).trim()
   }
   return null
 }
@@ -60,6 +65,7 @@ Deno.serve(async (req) => {
     const { data: integ } = await admin.from('user_integrations')
       .select('*').eq('webhook_token', token).maybeSingle()
     if (!integ) return ok() // unknown token → silently ack
+    if (integ.provider !== 'sumit') { console.warn('invoice-webhook: non-sumit provider', integ.provider); return ok() } // Route B is SUMIT-only
 
     const body = await req.json().catch(() => ({}))
     const entityId = extractEntityId(body)
@@ -67,7 +73,7 @@ Deno.serve(async (req) => {
 
     // Dedup: skip if we issued this document (Route A) or already staged it.
     const { data: issued } = await admin.from('transactions')
-      .select('id').eq('user_id', integ.user_id).eq('invoice_document_id', entityId).maybeSingle()
+      .select('id').eq('user_id', integ.user_id).eq('invoice_provider', integ.provider).eq('invoice_document_id', entityId).maybeSingle()
     if (issued) return ok()
     const { data: staged } = await admin.from('pending_invoice_imports')
       .select('id').eq('user_id', integ.user_id).eq('provider', integ.provider).eq('external_document_id', entityId).maybeSingle()
@@ -78,16 +84,22 @@ Deno.serve(async (req) => {
     try {
       doc = await getProvider(integ.provider).fetchDocument(
         { apiKey: integ.api_key, apiSecret: integ.api_secret, environment: integ.environment }, entityId)
-    } catch (e) { console.error('invoice-webhook fetch failed:', e); return ok() }
+    } catch (e) {
+      console.error('invoice-webhook fetch failed:', e)
+      // Transient (provider unreachable) → 503 so SUMIT retries; terminal → ack 200 (no retry).
+      if (e instanceof ProviderError && e.code === 'provider_unreachable') return new Response('retry', { status: 503 })
+      return ok()
+    }
     if (!doc || !doc.docType) return ok() // not found, or a type we don't import as income
+    if (!Number.isFinite(Number(doc.amount)) || Number(doc.amount) <= 0) { console.warn('invoice-webhook: skip non-positive amount', doc.externalId); return ok() }
 
     // Best-effort client match by customer name.
     const { data: clients } = await admin.from('clients')
       .select('id, name').eq('user_id', integ.user_id).is('deleted_at', null)
     const clientId = matchClient((clients ?? []) as any, doc.customerName)
 
-    // Stage it (unique constraint backstops a racy double-insert).
-    await admin.from('pending_invoice_imports').insert({
+    // Stage it. Upsert + ignoreDuplicates makes a racy SUMIT re-delivery a no-op.
+    const { error: stageErr } = await admin.from('pending_invoice_imports').upsert({
       user_id: integ.user_id,
       provider: integ.provider,
       external_document_id: doc.externalId,
@@ -101,7 +113,8 @@ Deno.serve(async (req) => {
       client_id: clientId,
       status: 'pending',
       raw: doc.raw,
-    })
+    }, { onConflict: 'user_id,provider,external_document_id', ignoreDuplicates: true })
+    if (stageErr) console.error('invoice-webhook stage failed:', stageErr)
     return ok()
   } catch (e) {
     console.error('invoice-webhook error:', e)

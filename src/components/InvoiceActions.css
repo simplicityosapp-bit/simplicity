@@ -118,6 +118,7 @@
   color: var(--espresso);
 }
 .inv-act-input::placeholder { color: var(--mist); }
+.inv-act-loading { font-family: var(--mg-font); font-size: calc(12px * var(--text-scale)); color: var(--stone); }
 
 .inv-act-picker-actions { display: flex; gap: 8px; align-items: center; margin-top: 2px; }
 .inv-act-go {

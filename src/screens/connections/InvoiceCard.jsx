@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle } from 'lucide-react'
+import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, ChevronDown, ChevronUp, Copy, Webhook } from 'lucide-react'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useAddress } from '../../hooks/useAddress'
 
@@ -79,6 +79,8 @@ export default function InvoiceCard() {
   const [localErr, setLocalErr] = useState('')
   const [okMsg, setOkMsg] = useState('')
   const [showHelp, setShowHelp] = useState(false)
+  const [showWebhook, setShowWebhook] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const [busyAction, setBusyAction] = useState(null) // 'connect' | 'test' | 'disconnect'
   const [confirmDisc, setConfirmDisc] = useState(false)
@@ -223,9 +225,32 @@ export default function InvoiceCard() {
           </div>
           {status?.webhook_url && (
             <div className="conn-webhook">
-              <p className="conn-field-lbl">כתובת Webhook לייבוא אוטומטי (סאמיט)</p>
-              <code className="conn-webhook-url">{status.webhook_url}</code>
-              <p className="conn-note">בסאמיט: הגדרות ← מודול טריגרים ← יצירת טריגר → שלב "יצירת קריאת HTTP" → הדביקו כאן (סוג JSON). כל מסמך שתפיקו יופיע ב"ייבוא ממתין" במסך הכספים.</p>
+              <button type="button" className="conn-webhook-toggle" onClick={() => setShowWebhook((v) => !v)} aria-expanded={showWebhook}>
+                <span><Webhook size={15} strokeWidth={1.7} aria-hidden="true" /> ייבוא אוטומטי מסאמיט</span>
+                {showWebhook ? <ChevronUp size={16} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={16} strokeWidth={1.7} aria-hidden="true" />}
+              </button>
+              {showWebhook && (
+                <div className="conn-webhook-panel">
+                  <p className="conn-webhook-intro">כדי שחשבוניות שתפיקו ישירות בסאמיט ייובאו לכאן אוטומטית — צרו "טריגר" בסאמיט שמצביע לכתובת הזו:</p>
+                  <div className="conn-webhook-url-row">
+                    <code className="conn-webhook-url">{status.webhook_url}</code>
+                    <button
+                      type="button"
+                      className="conn-webhook-copy"
+                      onClick={() => { navigator.clipboard?.writeText(status.webhook_url).then(() => { setCopied(true); window.setTimeout(() => setCopied(false), 2000) }).catch(() => {}) }}
+                    >
+                      <Copy size={13} strokeWidth={1.8} aria-hidden="true" /> {copied ? 'הועתק' : 'העתק'}
+                    </button>
+                  </div>
+                  <ol className="conn-webhook-steps">
+                    <li>בסאמיט: הגדרות ← <b>מודול טריגרים</b> ← "יצירת טריגר".</li>
+                    <li>בחרו את התיקייה והתצוגה של מסמכי החשבוניות, ובאירוע: <b>"יצירת כרטיס"</b>.</li>
+                    <li>בשלב הפעולה בחרו <b>"יצירת קריאת HTTP"</b>, וסוג הקריאה <b>JSON</b>.</li>
+                    <li>הדביקו את הכתובת שלמעלה בשדה ה-URL, ושמרו את הטריגר כ<b>פעיל</b>.</li>
+                    <li>מעכשיו כל מסמך שתפיקו בסאמיט יופיע ב<b>"ייבוא ממתין"</b> במסך הכספים.</li>
+                  </ol>
+                </div>
+              )}
             </div>
           )}
         </>

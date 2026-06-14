@@ -145,6 +145,14 @@ Deno.serve(async (req) => {
       return json({ items })
     }
 
+    if (action === 'set-auto-import') {
+      const row = await loadInvoiceIntegration(userId)
+      if (!row) return json({ error: 'not_connected' }, 400)
+      const { data: updated } = await admin.from('user_integrations')
+        .update({ auto_import: !!body.value }).eq('id', row.id).select('*').maybeSingle()
+      return json({ status: statusOf(updated) })
+    }
+
     if (action === 'issue') {
       const transaction_id = String(body.transaction_id ?? '')
       const doc_type = String(body.doc_type ?? '')

@@ -100,13 +100,13 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
   transition: background 0.25s ease, box-shadow 0.25s ease, backdrop-filter 0.25s ease;
 }
 .lp-header.scrolled {
-  background: rgba(255, 252, 247, 0.62);
-  backdrop-filter: blur(18px) saturate(150%);
-  box-shadow: 0 1px 0 rgba(42, 37, 32, 0.06);
+  background: rgba(255, 252, 247, 0.34);
+  backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 1px 0 rgba(42, 37, 32, 0.05);
 }
 [data-theme="dark"] .lp-header.scrolled {
-  background: rgba(20, 24, 20, 0.55);
-  box-shadow: 0 1px 0 rgba(240, 235, 224, 0.08);
+  background: rgba(20, 24, 22, 0.34);
+  box-shadow: 0 1px 0 rgba(240, 235, 224, 0.07);
 }
 .lp-header-in {
   display: flex;
@@ -119,8 +119,17 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
   display: inline-flex;
   align-items: center;
   gap: 9px;
+  padding: 6px 14px 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 252, 247, 0.55);
+  backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   text-decoration: none;
   color: var(--espresso);
+}
+[data-theme="dark"] .lp-brand {
+  background: rgba(26, 31, 29, 0.5);
+  border-color: rgba(240, 235, 224, 0.16);
 }
 .lp-brand-logo { width: 30px; height: 30px; object-fit: contain; }
 .lp-brand-logo.dark { display: block; }
@@ -202,15 +211,21 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
 /* Header ghost link (login) */
 .lp-btn-ghost {
   height: 42px;
-  padding: 0 16px;
-  background: transparent;
+  padding: 0 18px;
+  background: rgba(255, 252, 247, 0.55);
+  backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   color: var(--espresso);
   font-weight: 600;
   font-size: calc(14px * var(--text-scale));
-  border-radius: 12px;
+  border-radius: 999px;
 }
-.lp-btn-ghost:hover { background: rgba(42, 37, 32, 0.06); }
-[data-theme="dark"] .lp-btn-ghost:hover { background: rgba(240, 235, 224, 0.08); }
+.lp-btn-ghost:hover { background: rgba(255, 252, 247, 0.82); }
+[data-theme="dark"] .lp-btn-ghost {
+  background: rgba(26, 31, 29, 0.5);
+  border-color: rgba(240, 235, 224, 0.16);
+}
+[data-theme="dark"] .lp-btn-ghost:hover { background: rgba(40, 46, 43, 0.7); }
 .lp-btn-pill { height: 42px; padding: 0 20px; border-radius: 999px; font-size: calc(14px * var(--text-scale)); }
 /* Day/night switch — a glass pill with a sun + moon and a knob that slides
    under the active icon on click. */
@@ -358,18 +373,14 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
   animation: lpFadeUp 0.7s cubic-bezier(0.22, 0.68, 0.28, 1) 0.18s both;
 }
 .lp-hero-trust {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 8px 16px;
-  margin-top: 20px;
+  max-width: 46ch;
+  margin: 20px auto 0;
+  text-align: center;
   font-size: calc(13px * var(--text-scale));
+  line-height: 1.7;
   color: var(--stone);
   animation: lpFadeUp 0.7s cubic-bezier(0.22, 0.68, 0.28, 1) 0.24s both;
 }
-.lp-hero-trust span { display: inline-flex; align-items: center; gap: 6px; }
-.lp-hero-trust svg { color: var(--sage); flex-shrink: 0; }
 
 /* ════════════════════════════════════════════════════════════════════
    Section shell
@@ -808,8 +819,10 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
 }
 .lp-cta-actions { margin-top: 28px; display: inline-flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
 .lp-cta-micro {
-  margin: 18px 0 0;
+  margin: 18px auto 0;
+  max-width: 46ch;
   font-size: calc(13px * var(--text-scale));
+  line-height: 1.7;
   color: var(--stone);
 }
 
@@ -819,10 +832,10 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .lp-foot {
   position: relative;
   border-top: 1px solid var(--divider);
-  background: rgba(247, 243, 238, 0.6);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 252, 247, 0.38);
+  backdrop-filter: blur(24px) saturate(160%);
 }
-[data-theme="dark"] .lp-foot { background: rgba(8, 14, 10, 0.6); }
+[data-theme="dark"] .lp-foot { background: rgba(20, 24, 22, 0.4); }
 .lp-foot-in {
   display: flex;
   flex-direction: column;

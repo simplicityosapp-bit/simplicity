@@ -4,7 +4,7 @@ import {
   Layers, Sun, Moon, TrendingUp, Languages,
   Users, Wallet, CalendarDays, Target, Sparkles, GitBranch,
   Gauge, Bell, SlidersHorizontal,
-  Check, Plus, ArrowLeft, ShieldCheck, EyeOff,
+  Plus, ArrowLeft, ShieldCheck, EyeOff,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import MG from '../../components/MG'
@@ -252,11 +252,7 @@ export default function LandingScreen() {
             <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg">התחילו בחינם</Link>
             <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-secondary">כבר יש לי חשבון</Link>
           </div>
-          <p className="lp-hero-trust">
-            <span><Check size={15} strokeWidth={2.4} /> חינם להתחיל</span>
-            <span><Check size={15} strokeWidth={2.4} /> בלי כרטיס אשראי</span>
-            <span><Check size={15} strokeWidth={2.4} /> בעברית מלאה</span>
-          </p>
+          <p className="lp-hero-trust">הרשמה בחינם | אפשר לעזוב תמיד | אפשר לייבא ולייצא את כל המידע שלכם</p>
         </section>
 
         {/* ── Product preview (early proof) ────────────────────── */}
@@ -442,7 +438,7 @@ export default function LandingScreen() {
               <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg">התחילו בחינם</Link>
               <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-secondary">יש לי כבר חשבון</Link>
             </div>
-            <p className="lp-cta-micro">חינם להתחיל · בלי כרטיס אשראי · בלי התחייבות</p>
+            <p className="lp-cta-micro">הרשמה בחינם | אפשר לעזוב תמיד | אפשר לייבא ולייצא את כל המידע שלכם</p>
           </div>
         </section>
       </main>

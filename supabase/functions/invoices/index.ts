@@ -23,6 +23,7 @@
 //    connect    { provider, api_key, api_secret, environment } → { status }
 //    status     { }                                            → { status }
 //    test       { }                                            → { ok, status }
+//    issue      { transaction_id, doc_type }                   → { ok, document }
 //    disconnect { }                                            → { ok, status }
 // ════════════════════════════════════════════════════════════════
 import { createClient } from 'jsr:@supabase/supabase-js@2'
@@ -116,6 +117,53 @@ Deno.serve(async (req) => {
       const p = getProvider(row.provider)
       await p.verifyCredentials({ apiKey: row.api_key, apiSecret: row.api_secret, environment: row.environment })
       return json({ ok: true, status: statusOf(row) })
+    }
+
+    if (action === 'issue') {
+      const transaction_id = String(body.transaction_id ?? '')
+      const doc_type = String(body.doc_type ?? '')
+      if (!transaction_id) return json({ error: 'missing_transaction' }, 400)
+      if (!['invoice_receipt', 'receipt', 'invoice'].includes(doc_type)) return json({ error: 'bad_doc_type' }, 400)
+
+      const integ = await loadInvoiceIntegration(userId)
+      if (!integ) return json({ error: 'not_connected' }, 400)
+
+      // Load the transaction — scoped to the caller (defence in depth atop RLS).
+      const { data: tx } = await admin.from('transactions')
+        .select('*').eq('id', transaction_id).eq('user_id', userId).is('deleted_at', null).maybeSingle()
+      if (!tx) return json({ error: 'transaction_not_found' }, 404)
+      if (tx.type !== 'income') return json({ error: 'not_income' }, 400)
+      // Idempotency: a tax document must NEVER be issued twice for one payment.
+      if (tx.invoice_document_id) return json({ error: 'already_issued' }, 409)
+      if (!tx.client_id) return json({ error: 'no_client' }, 400)
+
+      const { data: client } = await admin.from('clients')
+        .select('name, email, phone').eq('id', tx.client_id).eq('user_id', userId).maybeSingle()
+      if (!client?.name) return json({ error: 'no_client' }, 400)
+
+      const provider = getProvider(integ.provider)
+      const result = await provider.createDocument(
+        { apiKey: integ.api_key, apiSecret: integ.api_secret, environment: integ.environment },
+        {
+          docType: doc_type as any,
+          amount: Number(tx.amount),
+          description: tx.desc || `תשלום — ${client.name}`,
+          customer: { name: client.name, email: client.email, phone: client.phone },
+          send: true, // auto-send; the provider only acts if the customer has contact info
+        },
+      )
+
+      // Record what was issued (idempotency guard + display number/link).
+      await admin.from('transactions').update({
+        invoice_provider: integ.provider,
+        invoice_document_id: result.id,
+        invoice_document_number: result.number,
+        invoice_document_type: result.type,
+        invoice_document_url: result.url,
+        invoice_synced_at: new Date().toISOString(),
+      }).eq('id', transaction_id).eq('user_id', userId)
+
+      return json({ ok: true, document: { number: result.number, url: result.url, type: result.type } })
     }
 
     if (action === 'disconnect') {

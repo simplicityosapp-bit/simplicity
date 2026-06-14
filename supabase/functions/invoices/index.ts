@@ -118,7 +118,14 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'status') {
-      const row = await loadInvoiceIntegration(userId)
+      let row = await loadInvoiceIntegration(userId)
+      // Backfill a webhook token for SUMIT connections made before Route B
+      // existed, so the webhook URL appears without reconnecting.
+      if (row && row.provider === 'sumit' && !row.webhook_token) {
+        const { data: updated } = await admin.from('user_integrations')
+          .update({ webhook_token: crypto.randomUUID() }).eq('id', row.id).select('*').single()
+        if (updated) row = updated
+      }
       return json({ status: statusOf(row) })
     }
 

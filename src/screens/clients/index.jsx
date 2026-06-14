@@ -88,7 +88,7 @@ export default function ClientsScreen() {
   const { addr } = useAddress()
   const { clients: clientList, loading, error, addClient, updateClient, removeClient } = useClients()
   const { projects } = useProjects()
-  const { transactions, addTransaction, editTransaction, removeTransaction } = useTransactions()
+  const { transactions, addTransaction, editTransaction, removeTransaction, refetch } = useTransactions()
   const { tasks, editTask } = useTasks()
   const { reminders, editReminder } = useReminders()
   const { sessions, addSession, updateSession } = useSessions()
@@ -519,6 +519,7 @@ export default function ClientsScreen() {
         onUpdateClient={updateClient}
         onUpdateMember={updateMember}
         onEditTransaction={editTransaction}
+        onIssued={refetch}
         onEditSession={updateSession}
         onEditTask={editTask}
         onEditReminder={editReminder}

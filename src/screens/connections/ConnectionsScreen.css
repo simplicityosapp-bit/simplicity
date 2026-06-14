@@ -362,3 +362,30 @@
   color: var(--espresso);
 }
 .conn-input::placeholder { color: var(--mist); }
+
+/* "איך משיגים?" help toggle + step list. */
+.conn-lbl-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.conn-help-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--terracotta);
+}
+.conn-help-btn:hover { text-decoration: underline; }
+.conn-help-steps {
+  margin: 8px 0 14px;
+  padding-inline-start: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  line-height: 1.5;
+}

@@ -111,6 +111,9 @@ export interface InvoiceProvider {
   /* The user's product/service catalog (for the issuance picker). Empty array
      when the provider has no catalog wired — the UI falls back to free text. */
   listItems(creds: InvoiceCredentials): Promise<CatalogItem[]>
+  /* Route B (polling): documents created at/after `sinceISO`, as FetchedDoc[].
+     Providers that push a webhook instead (SUMIT) return []. */
+  listDocumentsSince(creds: InvoiceCredentials, sinceISO: string): Promise<FetchedDoc[]>
 }
 
 // ── Green Invoice (morning) ───────────────────────────────────────
@@ -215,6 +218,33 @@ class GreenInvoiceProvider implements InvoiceProvider {
       console.error('green-invoice items failed', e)
       return []
     }
+  }
+
+  async listDocumentsSince(creds: InvoiceCredentials, sinceISO: string): Promise<FetchedDoc[]> {
+    // morning /documents/search. UNVERIFIED — degrade to [] on any failure.
+    const TYPE: Record<number, DocType> = { 305: 'invoice', 320: 'invoice_receipt', 400: 'receipt' }
+    try {
+      const token = await this.token(creds)
+      const res = await fetch(`${this.base(creds.environment)}/documents/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ fromDate: sinceISO.slice(0, 10), pageSize: 100 }),
+      })
+      if (!res.ok) { console.error('green-invoice search error', res.status); return [] }
+      const data = (await res.json().catch(() => ({}))) as any
+      const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : [])
+      return items.map((it: any) => ({
+        externalId: it.id != null ? String(it.id) : '',
+        docType: TYPE[Number(it.type)] ?? null,
+        number: it.number != null ? String(it.number) : null,
+        amount: Number.isFinite(Number(it.amount ?? it.total)) ? Number(it.amount ?? it.total) : null,
+        currency: typeof it.currency === 'string' ? it.currency : 'ILS',
+        date: normalizeDate(it.documentDate ?? it.date),
+        customerName: it.client?.name ?? it.recipient?.name ?? null,
+        url: it?.url?.origin ?? (typeof it?.url === 'string' ? it.url : null),
+        raw: it,
+      })).filter((d: FetchedDoc) => d.externalId && d.docType)
+    } catch (e) { console.error('green-invoice search failed', e); return [] }
   }
 }
 
@@ -324,6 +354,10 @@ class SumitProvider implements InvoiceProvider {
     return items
       .map((it) => ({ id: it.ID != null ? String(it.ID) : '', name: it.Name ?? '', price: Number.isFinite(Number(it.Price)) ? Number(it.Price) : null }))
       .filter((it) => it.id && it.name)
+  }
+
+  async listDocumentsSince(_creds: InvoiceCredentials, _sinceISO: string): Promise<FetchedDoc[]> {
+    return [] // SUMIT uses the push webhook (Route B), not polling.
   }
 }
 

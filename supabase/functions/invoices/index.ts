@@ -23,8 +23,10 @@
 //    connect    { provider, api_key, api_secret, environment } → { status }
 //    status     { }                                            → { status }
 //    test       { }                                            → { ok, status }
-//    issue      { transaction_id, doc_type }                   → { ok, document }
-//    disconnect { }                                            → { ok, status }
+//    issue          { transaction_id, doc_type }               → { ok, document }
+//    import-approve { import_id }                               → { ok, transaction_id }
+//    import-dismiss { import_id }                               → { ok }
+//    disconnect     { }                                         → { ok, status }
 // ════════════════════════════════════════════════════════════════
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 import { getProvider, INVOICE_PROVIDERS, ProviderError } from './providers.ts'
@@ -57,7 +59,13 @@ async function getUserId(req: Request): Promise<string | null> {
    api_secret here — those are service-role-only. */
 const statusOf = (row: any) =>
   row
-    ? { connected: true, provider: row.provider, environment: row.environment, connected_at: row.created_at, auto_import: !!row.auto_import }
+    ? {
+        connected: true, provider: row.provider, environment: row.environment,
+        connected_at: row.created_at, auto_import: !!row.auto_import,
+        // SUMIT Route B: the user's personal webhook URL to paste into a SUMIT trigger.
+        webhook_url: row.provider === 'sumit' && row.webhook_token
+          ? `${SUPABASE_URL}/functions/v1/invoice-webhook?t=${row.webhook_token}` : null,
+      }
     : { connected: false }
 
 /* The user's single invoice connection (they pick one provider). Scoped to
@@ -101,13 +109,23 @@ Deno.serve(async (req) => {
         api_key,
         api_secret,
         environment,
+        // SUMIT Route B identifies the tenant by an unguessable per-connection
+        // token in the webhook URL (no company id / signature in its payload).
+        webhook_token: provider === 'sumit' ? crypto.randomUUID() : null,
       }).select('*').single()
       if (error) throw error
       return json({ status: statusOf(row) })
     }
 
     if (action === 'status') {
-      const row = await loadInvoiceIntegration(userId)
+      let row = await loadInvoiceIntegration(userId)
+      // Backfill a webhook token for SUMIT connections made before Route B
+      // existed, so the webhook URL appears without reconnecting.
+      if (row && row.provider === 'sumit' && !row.webhook_token) {
+        const { data: updated } = await admin.from('user_integrations')
+          .update({ webhook_token: crypto.randomUUID() }).eq('id', row.id).select('*').single()
+        if (updated) row = updated
+      }
       return json({ status: statusOf(row) })
     }
 
@@ -164,6 +182,44 @@ Deno.serve(async (req) => {
       }).eq('id', transaction_id).eq('user_id', userId)
 
       return json({ ok: true, document: { number: result.number, url: result.url, type: result.type } })
+    }
+
+    if (action === 'import-approve') {
+      const import_id = String(body.import_id ?? '')
+      if (!import_id) return json({ error: 'missing_import' }, 400)
+      const { data: imp } = await admin.from('pending_invoice_imports')
+        .select('*').eq('id', import_id).eq('user_id', userId).maybeSingle()
+      if (!imp) return json({ error: 'import_not_found' }, 404)
+      if (imp.status !== 'pending') return json({ error: 'already_handled' }, 409)
+
+      const descName = imp.customer_name ? ` — ${imp.customer_name}` : ''
+      const { data: tx, error: txErr } = await admin.from('transactions').insert({
+        user_id: userId,
+        type: 'income',
+        amount: imp.amount ?? 0,
+        desc: `חשבונית ${imp.document_number ?? ''}${descName}`.trim(),
+        date: imp.doc_date ?? new Date().toISOString().slice(0, 10),
+        status: 'confirmed',
+        client_id: imp.client_id,
+        invoice_provider: imp.provider,
+        invoice_document_id: imp.external_document_id,
+        invoice_document_number: imp.document_number,
+        invoice_document_type: imp.document_type,
+        invoice_document_url: imp.document_url,
+        invoice_synced_at: new Date().toISOString(),
+      }).select('id').single()
+      if (txErr) throw txErr
+      await admin.from('pending_invoice_imports')
+        .update({ status: 'imported', created_transaction_id: tx.id }).eq('id', import_id).eq('user_id', userId)
+      return json({ ok: true, transaction_id: tx.id })
+    }
+
+    if (action === 'import-dismiss') {
+      const import_id = String(body.import_id ?? '')
+      if (!import_id) return json({ error: 'missing_import' }, 400)
+      await admin.from('pending_invoice_imports')
+        .update({ status: 'dismissed' }).eq('id', import_id).eq('user_id', userId).eq('status', 'pending')
+      return json({ ok: true })
     }
 
     if (action === 'disconnect') {

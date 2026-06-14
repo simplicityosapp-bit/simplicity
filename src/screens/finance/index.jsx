@@ -12,6 +12,7 @@ import { CATEGORY_COLORS } from '../../lib/api/categories'
 import MonthSummary from './MonthSummary'
 import FinanceChart from './FinanceChart'
 import PendingSection from './PendingSection'
+import InvoiceImports from './InvoiceImports'
 import TransactionList from './TransactionList'
 import RecurringSection from './RecurringSection'
 import CategoriesSection from './CategoriesSection'
@@ -156,6 +157,8 @@ export default function FinanceScreen() {
           onDelete={(c) => removeCategory(c.id)}
         />
       </div>
+
+      <InvoiceImports />
 
       <PendingSection
         transactions={pendingTxs}

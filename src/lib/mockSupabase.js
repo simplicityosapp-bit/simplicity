@@ -274,6 +274,7 @@ export function makeMockClient() {
           if (a === 'connect') return { data: { status: { connected: true, provider: opts?.body?.provider, environment: opts?.body?.environment } }, error: null }
           if (a === 'import-approve') return { data: { ok: true, transaction_id: 'mock-tx' }, error: null }
           if (a === 'import-dismiss') return { data: { ok: true }, error: null }
+          if (a === 'catalog') return { data: { items: [{ id: '1', name: 'אימון אישי', price: 380 }, { id: '2', name: 'ייעוץ זוגי', price: 450 }] }, error: null }
           return { data: { status: { connected: true, provider: 'sumit', environment: 'production', connected_at: new Date().toISOString(), auto_import: false, webhook_url: 'https://rdurkakzyymxhocvhufw.supabase.co/functions/v1/invoice-webhook?t=mock-token' }, ok: true }, error: null }
         }
         return { data: { ok: true }, error: null }

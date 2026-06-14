@@ -920,3 +920,63 @@ CREATE TRIGGER trg_user_integrations_updated BEFORE UPDATE ON public.user_integr
 CREATE TRIGGER trg_user_preferences_updated BEFORE UPDATE ON public.user_preferences FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_user_questions_updated BEFORE UPDATE ON public.user_questions FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_user_quotes_updated BEFORE UPDATE ON public.user_quotes FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- ════════════════════════════════════ Invoice integration (migrations 0033–0037) ════════════════════════════════════
+-- Resynced 2026-06-14. Per-user BYOK invoice credentials on user_integrations
+-- (service-role only — no authenticated policy). Document links on transactions,
+-- and a Route-B staging table. Written as additive ALTERs for clarity.
+ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS api_key text;
+ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS api_secret text;
+ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS environment text;
+ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS auto_import boolean DEFAULT false NOT NULL;
+ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS webhook_token text;
+ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS last_polled_at timestamp with time zone;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'user_integrations_environment_check') THEN
+  ALTER TABLE user_integrations ADD CONSTRAINT user_integrations_environment_check CHECK (environment IS NULL OR environment IN ('sandbox', 'production'));
+END IF; END $$;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_integrations_webhook_token ON public.user_integrations (webhook_token) WHERE webhook_token IS NOT NULL;
+
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_provider text;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_document_id text;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_document_number text;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_document_type text;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_document_url text;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_synced_at timestamp with time zone;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_transactions_invoice_doc_uniq ON public.transactions (user_id, invoice_provider, invoice_document_id) WHERE invoice_document_id IS NOT NULL AND deleted_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS pending_invoice_imports (
+  id uuid DEFAULT gen_random_uuid() NOT NULL,
+  user_id uuid NOT NULL,
+  provider text NOT NULL,
+  external_document_id text NOT NULL,
+  document_type text,
+  document_number text,
+  amount numeric,
+  currency text DEFAULT 'ILS'::text,
+  doc_date date,
+  customer_name text,
+  document_url text,
+  client_id uuid,
+  status text DEFAULT 'pending'::text NOT NULL,
+  created_transaction_id uuid,
+  raw jsonb,
+  created_at timestamp with time zone DEFAULT now() NOT NULL,
+  updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pending_invoice_imports_pkey') THEN
+    ALTER TABLE pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_pkey PRIMARY KEY (id);
+    ALTER TABLE pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_status_check CHECK (status = ANY (ARRAY['pending'::text, 'imported'::text, 'dismissed'::text]));
+    ALTER TABLE pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_uniq UNIQUE (user_id, provider, external_document_id);
+    ALTER TABLE pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+    ALTER TABLE pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
+    ALTER TABLE pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_created_transaction_id_fkey FOREIGN KEY (created_transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
+  END IF;
+END $$;
+CREATE INDEX IF NOT EXISTS idx_pending_invoice_imports_user ON public.pending_invoice_imports (user_id);
+CREATE INDEX IF NOT EXISTS idx_pending_invoice_imports_status ON public.pending_invoice_imports (status);
+ALTER TABLE pending_invoice_imports ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS pending_invoice_imports_select ON pending_invoice_imports;
+CREATE POLICY pending_invoice_imports_select ON pending_invoice_imports FOR SELECT TO authenticated USING ((user_id = auth.uid()));
+DROP TRIGGER IF EXISTS trg_pending_invoice_imports_updated ON public.pending_invoice_imports;
+CREATE TRIGGER trg_pending_invoice_imports_updated BEFORE UPDATE ON public.pending_invoice_imports FOR EACH ROW EXECUTE FUNCTION set_updated_at();

@@ -30,13 +30,23 @@ export interface InvoiceCredentials {
    עוסק מורשה → invoice_receipt without assuming a tax status). */
 export type DocType = 'invoice_receipt' | 'receipt' | 'invoice'
 
+export type PaymentMethod = 'cash' | 'bank_transfer' | 'credit_card' | 'cheque' | 'app' | 'other'
+
 export interface InvoiceDocInput {
   docType: DocType
   amount: number // gross total (currency ILS for now)
   description: string
+  itemName: string // the product/service line on the document
+  paymentMethod: PaymentMethod // only used by receipt-type docs
   customer: { name: string; email: string | null; phone: string | null }
   send: boolean // ask the provider to send the doc to the customer (only acts if contact info exists)
 }
+
+// Payment-method code per provider.
+// SUMIT (Accounting_Typed_DocumentPaymentType): Cash 2, BankTransfer 3, Cheque 4, CreditCard 5, Digital 6, Other 8.
+const SUMIT_PAYMENT: Record<PaymentMethod, number> = { cash: 2, bank_transfer: 3, credit_card: 5, cheque: 4, app: 6, other: 8 }
+// Green Invoice payment.type (best-effort; GI createDocument is unverified): cash 1, cheque 2, credit 3, transfer 4, app 5.
+const GI_PAYMENT: Record<PaymentMethod, number> = { cash: 1, cheque: 2, credit_card: 3, bank_transfer: 4, app: 5, other: 4 }
 
 export interface InvoiceDocResult {
   id: string
@@ -134,11 +144,10 @@ class GreenInvoiceProvider implements InvoiceProvider {
         name: doc.customer.name,
         emails: doc.send && doc.customer.email ? [doc.customer.email] : [],
       },
-      income: [{ description: doc.description, quantity: 1, price: doc.amount, currency: 'ILS', vatType: 0 }],
+      income: [{ description: doc.itemName || doc.description, quantity: 1, price: doc.amount, currency: 'ILS', vatType: 0 }],
     }
     if (isReceipt) {
-      // payment type 4 = bank/other transfer; method is unknown so we use a neutral value.
-      body.payment = [{ type: 4, price: doc.amount, currency: 'ILS' }]
+      body.payment = [{ type: GI_PAYMENT[doc.paymentMethod] ?? GI_PAYMENT.other, price: doc.amount, currency: 'ILS' }]
     }
     let res: Response
     try {
@@ -213,11 +222,11 @@ class SumitProvider implements InvoiceProvider {
     }
     const payload: Record<string, unknown> = {
       Details: details,
-      Items: [{ Item: { Name: doc.description || 'שירות' }, Quantity: 1, UnitPrice: doc.amount, Description: doc.description || undefined }],
+      Items: [{ Item: { Name: doc.itemName || doc.description || 'שירות' }, Quantity: 1, UnitPrice: doc.amount, Description: doc.description || undefined }],
       VATIncluded: true, // the recorded amount is the gross the coach received; SUMIT applies the company's VAT config
     }
-    // Receipt-type docs require a payment line. Type 1 = General (method unknown).
-    if (isReceipt) payload.Payments = [{ Amount: doc.amount, Type: 1 }]
+    // Receipt-type docs require a payment line — with the user-chosen method.
+    if (isReceipt) payload.Payments = [{ Amount: doc.amount, Type: SUMIT_PAYMENT[doc.paymentMethod] ?? SUMIT_PAYMENT.other }]
 
     const data = await this.post(creds, '/accounting/documents/create/', payload)
     if (!data?.DocumentID) throw new ProviderError('provider_error', 'sumit returned no DocumentID')

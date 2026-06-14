@@ -166,6 +166,8 @@ Deno.serve(async (req) => {
           docType: doc_type as any,
           amount: Number(tx.amount),
           description: tx.desc || `תשלום — ${client.name}`,
+          itemName: (body.item_name ?? '').toString().trim() || tx.desc || `תשלום — ${client.name}`,
+          paymentMethod: ['cash', 'bank_transfer', 'credit_card', 'cheque', 'app', 'other'].includes(body.payment_method) ? body.payment_method : 'other',
           customer: { name: client.name, email: client.email, phone: client.phone },
           send: true, // auto-send; the provider only acts if the customer has contact info
         },

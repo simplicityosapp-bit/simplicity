@@ -82,8 +82,13 @@ export function useInvoiceProvider() {
 
   /* Issue a real document for an income transaction. Returns { document }.
      The caller (InvoiceActions) tracks its own busy/error state. */
-  const issueDocument = useCallback(async (transactionId, docType) => {
-    return callInvoices('issue', { transaction_id: transactionId, doc_type: docType })
+  const issueDocument = useCallback(async (transactionId, docType, opts = {}) => {
+    return callInvoices('issue', {
+      transaction_id: transactionId,
+      doc_type: docType,
+      item_name: opts.itemName,
+      payment_method: opts.paymentMethod,
+    })
   }, [])
 
   return { status, loading, busy, error, connect, test, disconnect, loadStatus, issueDocument }

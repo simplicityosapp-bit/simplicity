@@ -10,7 +10,17 @@ const DOC_TYPES = [
   { key: 'receipt', label: 'קבלה' },
   { key: 'invoice', label: 'חשבונית מס' },
 ]
+/* Payment methods (shown for receipt-type docs). Map to provider codes server-side. */
+const PAY_METHODS = [
+  { key: 'bank_transfer', label: 'העברה בנקאית' },
+  { key: 'cash', label: 'מזומן' },
+  { key: 'credit_card', label: 'כרטיס אשראי' },
+  { key: 'cheque', label: 'צ׳ק' },
+  { key: 'app', label: 'אפליקציה (ביט/פייבוקס)' },
+  { key: 'other', label: 'אחר' },
+]
 const docTypeLabel = (k) => DOC_TYPES.find((d) => d.key === k)?.label || k
+const isReceiptType = (t) => t === 'invoice_receipt' || t === 'receipt'
 
 function errToHe(code) {
   switch (code) {
@@ -25,8 +35,9 @@ function errToHe(code) {
 }
 
 /* "הפק חשבונית" for an income transaction. Renders nothing unless an invoice
-   provider is connected. Once issued, shows the document number + a link, and
-   the server refuses to issue twice (idempotency). */
+   provider is connected. The user picks document type, the product/service
+   line, and (for receipts) the payment method. Once issued, shows the number
+   + a link; the server refuses to issue twice (idempotency). */
 export default function InvoiceActions({ tx, clientName, onIssued }) {
   const inv = useInvoiceProvider()
   const [issued, setIssued] = useState(
@@ -35,10 +46,12 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
       : null,
   )
   const [picking, setPicking] = useState(false)
-  const [busyType, setBusyType] = useState(null)
+  const [docType, setDocType] = useState('invoice_receipt')
+  const [itemName, setItemName] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState('bank_transfer')
+  const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
 
-  // Until status is known, and when no provider is connected, show nothing.
   if (inv.loading || !inv.status?.connected) return null
 
   if (issued) {
@@ -59,10 +72,18 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
     return <p className="inv-act hint">כדי להפיק חשבונית — שייכו לקוח לתנועה ושמרו.</p>
   }
 
-  const doIssue = async (docType) => {
-    setErr(''); setBusyType(docType)
+  const openPicker = () => {
+    setErr('')
+    setDocType('invoice_receipt')
+    setItemName(tx.desc || '')
+    setPaymentMethod('bank_transfer')
+    setPicking(true)
+  }
+
+  const doIssue = async () => {
+    setErr(''); setBusy(true)
     try {
-      const r = await inv.issueDocument(tx.id, docType)
+      const r = await inv.issueDocument(tx.id, docType, { itemName: itemName.trim(), paymentMethod })
       const doc = r?.document
       setIssued({ number: doc?.number, url: doc?.url, type: doc?.type || docType })
       setPicking(false)
@@ -70,27 +91,40 @@ export default function InvoiceActions({ tx, clientName, onIssued }) {
     } catch (e) {
       setErr(errToHe(e.message))
     } finally {
-      setBusyType(null)
+      setBusy(false)
     }
   }
 
   return (
     <div className="inv-act">
       {!picking ? (
-        <button type="button" className="inv-act-btn" onClick={() => { setErr(''); setPicking(true) }}>
+        <button type="button" className="inv-act-btn" onClick={openPicker}>
           <FileText size={15} strokeWidth={1.8} aria-hidden="true" /> הפק חשבונית
         </button>
       ) : (
         <div className="inv-act-picker">
-          <span className="inv-act-picker-lbl">בחרו סוג מסמך{clientName ? ` · ${clientName}` : ''}:</span>
+          <span className="inv-act-picker-lbl">הפקת מסמך{clientName ? ` · ${clientName}` : ''}</span>
           <div className="inv-act-types">
             {DOC_TYPES.map((d) => (
-              <button key={d.key} type="button" className="inv-act-type" disabled={!!busyType} onClick={() => doIssue(d.key)}>
-                {busyType === d.key ? 'מפיק…' : d.label}
-              </button>
+              <button key={d.key} type="button" className={`inv-act-type${docType === d.key ? ' on' : ''}`} onClick={() => setDocType(d.key)}>{d.label}</button>
             ))}
           </div>
-          <button type="button" className="inv-act-cancel" onClick={() => setPicking(false)} disabled={!!busyType}>ביטול</button>
+          <label className="inv-act-field">
+            <span className="inv-act-field-lbl">מוצר / שירות</span>
+            <input type="text" className="inv-act-input" value={itemName} onChange={(e) => setItemName(e.target.value)} placeholder="לדוגמה: אימון אישי" />
+          </label>
+          {isReceiptType(docType) && (
+            <label className="inv-act-field">
+              <span className="inv-act-field-lbl">אמצעי תשלום</span>
+              <select className="inv-act-select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+              </select>
+            </label>
+          )}
+          <div className="inv-act-picker-actions">
+            <button type="button" className="inv-act-go" disabled={busy} onClick={doIssue}>{busy ? 'מפיק…' : 'הפק'}</button>
+            <button type="button" className="inv-act-cancel" disabled={busy} onClick={() => setPicking(false)}>ביטול</button>
+          </div>
         </div>
       )}
       {err && <p className="inv-act-err"><CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {err}</p>}

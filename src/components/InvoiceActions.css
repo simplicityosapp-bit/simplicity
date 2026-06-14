@@ -97,3 +97,41 @@
   font-size: calc(12px * var(--text-scale));
   color: var(--clay);
 }
+
+/* Selected document type. */
+.inv-act-type.on { border-color: transparent; background: var(--terracotta); color: var(--on-accent); }
+[data-theme="dark"] .inv-act-type.on { color: var(--ink-on-accent); }
+
+/* Item + payment-method fields in the picker. */
+.inv-act-field { display: flex; flex-direction: column; gap: 4px; }
+.inv-act-field-lbl { font-size: calc(11px * var(--text-scale)); font-weight: 500; color: var(--stone); }
+.inv-act-input,
+.inv-act-select {
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+}
+.inv-act-input::placeholder { color: var(--mist); }
+
+.inv-act-picker-actions { display: flex; gap: 8px; align-items: center; margin-top: 2px; }
+.inv-act-go {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 12px;
+  border: none;
+  background: var(--terracotta);
+  color: var(--on-accent);
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+}
+[data-theme="dark"] .inv-act-go { color: var(--ink-on-accent); }
+.inv-act-go:hover:not(:disabled) { background: var(--mg-btn-primary-bg-hover); }
+.inv-act-go:disabled { opacity: 0.55; cursor: default; }

@@ -31,9 +31,19 @@
   padding: 12px;
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
-  background: var(--mg-card-bg);
+  /* A near-opaque frosted sheet — NOT the 30% --mg-card-bg. The calendar
+     floats over other content (in onboarding, over glass panels sitting on
+     the forest photo), and a parent backdrop-filter neutralises the popup's
+     own blur over the area it overflows — so a translucent fill let the
+     fields beneath bleed through. The opaque cream guarantees the popup
+     always reads as a solid sheet; the blur still softens the edge over the
+     page background. Matches the app's other floating panels (help/confirm). */
+  background: rgba(255, 252, 247, 0.97);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
+}
+[data-theme="dark"] .datefield-pop {
+  background: rgba(26, 31, 38, 0.97);
 }
 .datefield-nav {
   display: flex;

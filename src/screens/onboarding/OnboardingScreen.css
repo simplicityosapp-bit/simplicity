@@ -305,6 +305,17 @@
   min-width: 180px;
 }
 
+/* Date popup must cover the fields below it. Every .ob-field carries a
+   backdrop-filter, so each is its own stacking context — the popup's own
+   z-index is trapped inside its field and can't rise above the SIBLING
+   field that follows it in the DOM (target value, importance…), which is
+   why the calendar was getting covered. Lift the whole field instead.
+   :has() scopes the lift to exactly when the calendar is open. */
+.ob-body > .ob-field:has(.datefield-pop) {
+  position: relative;
+  z-index: 20;
+}
+
 /* ── Uniform panel width ─────────────────────────────────────────
    Top-level step panels fill the frame so they align to the SAME left
    and right edges — the step reads as one cohesive column instead of a

@@ -93,8 +93,17 @@ export default function ProjectDetailScreen() {
 
   const project = projects.find((p) => p.id === id)
   const projectGroups = useMemo(() => groups.filter((g) => g.project_id === id), [groups, id])
-  const liveMembers = useMemo(() => members.filter((m) => !m.left_at), [members])
   const clientById = useMemo(() => new Map(clients.map((c) => [c.id, c])), [clients])
+  /* A membership whose client was soft-deleted is a ghost row: `clients`
+     is live-only, so the roster used to render a nameless "(לקוח/ה)" chip
+     for it while memberCount (via groupMemberClients → .filter(Boolean))
+     already dropped it. Exclude these at the source so every liveMembers
+     consumer stays consistent and aligned with §3 (live() in current-state
+     views). */
+  const liveMembers = useMemo(
+    () => members.filter((m) => !m.left_at && clientById.has(m.client_id)),
+    [members, clientById],
+  )
   const projectClients = useMemo(() => clients.filter((c) => c.project_id === id), [clients, id])
 
   /* Active / wandering split — same logic as the prototype's pd-header sub. */

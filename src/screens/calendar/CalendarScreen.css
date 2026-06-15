@@ -386,8 +386,7 @@
   gap: 10px;
 }
 .cal-day-grid {
-  display: flex;
-  flex-direction: column;
+  position: relative;
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -395,34 +394,32 @@
   backdrop-filter: var(--mg-card-blur);
   overflow: hidden;
 }
-.cal-day-row {
-  display: flex;
-  align-items: stretch;
-  min-height: 44px;
+/* Hour gridlines — absolute horizontal rules; the hour label is pinned to
+   the inline-start gutter, and the events layer floats above, past it. */
+.cal-day-hourline {
+  position: absolute;
+  inset-inline: 0;
   border-top: 1px solid var(--divider);
 }
-.cal-day-row:first-child {
+.cal-day-hourline:first-child {
   border-top: none;
 }
 .cal-day-hour {
-  flex: 0 0 56px;
-  padding: 8px 10px;
+  position: absolute;
+  inset-inline-start: 0;
+  top: 2px;
+  width: 56px;
+  padding: 0 10px;
   font-family: var(--mg-font-num);
   font-size: calc(11px * var(--text-scale));
   color: var(--stone);
-  border-inline-end: 1px solid var(--divider);
   font-variant-numeric: tabular-nums;
 }
-.cal-day-slot {
-  flex: 1;
-  padding: 6px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  justify-content: center;
-}
-.cal-day-empty-line {
-  height: 1px;
+.cal-day-events {
+  position: absolute;
+  inset: 0;
+  inset-inline-start: 56px;
+  border-inline-start: 1px solid var(--divider);
 }
 .cal-day-evt {
   display: inline-flex;
@@ -453,6 +450,21 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+/* Positioned (timeline) variant — absolute, fills its overlap column, stacks
+   time over title; top/height are set inline from the event's duration. */
+.cal-day-evt.placed {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 4px 8px;
+  overflow: hidden;
+}
+.cal-day-evt.placed .cal-day-evt-title {
+  white-space: normal;
+  width: 100%;
 }
 .cal-day-edge {
   padding: 10px 12px;

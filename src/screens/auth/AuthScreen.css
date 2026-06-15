@@ -348,17 +348,6 @@
   text-align: center;
   align-items: center;
 }
-.auth-brand-legacy {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 18px;
-  font-family: 'Assistant', sans-serif;
-  font-size: calc(20px * var(--text-scale));
-  font-weight: 700;
-  color: var(--espresso);
-}
 .auth-title {
   margin: 0;
   text-align: center;

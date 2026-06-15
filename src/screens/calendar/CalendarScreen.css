@@ -2,15 +2,6 @@
    CALENDAR SCREEN — schedule list (upcoming meetings + reminders).
    ════════════════════════════════════════════════════════════════ */
 
-.cal-section-lbl {
-  margin: 0 2px 8px;
-  font-family: var(--mg-font);
-  font-size: calc(11px * var(--text-scale));
-  font-weight: 600;
-  color: var(--stone);
-  letter-spacing: 0.06em;
-}
-
 /* Duplicate-detection banner: app recurring meeting collides with a synced
    Google event. Opens the resolver modal. Clay-tinted to read as "attention". */
 .cal-dup-banner {
@@ -363,7 +354,7 @@
 .cal-monthpick-cell:hover { background: color-mix(in srgb, var(--terracotta) 6%, var(--mg-card-bg)); }
 .cal-monthpick-cell.on {
   background: var(--terracotta);
-  color: #fff;
+  color: var(--on-accent);
   border-color: transparent;
 }
 [data-theme="dark"] .cal-monthpick-cell.on { color: var(--ink-on-accent); }

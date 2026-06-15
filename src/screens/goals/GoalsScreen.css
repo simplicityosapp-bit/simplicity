@@ -73,7 +73,7 @@
   align-items: center;
   gap: 0 12px;
   padding: 12px 14px;
-  text-align: right;
+  text-align: start;
   border-radius: 14px;
   border: 1px solid var(--divider);
   background: transparent;
@@ -126,21 +126,6 @@
   color: var(--stone);
   letter-spacing: 0.06em;
 }
-.g-group-edit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  color: var(--stone);
-  opacity: 0.6;
-  cursor: pointer;
-}
-.g-group-edit:active { transform: scale(0.9); }
-
 .g-card {
   margin-bottom: var(--gap);
   padding: var(--mg-card-pad);
@@ -210,24 +195,6 @@
   color: var(--sage);
 }
 
-.g-progress {
-  height: 6px;
-  border-radius: 6px;
-  background: rgba(42, 37, 32, 0.08);
-  overflow: hidden;
-}
-[data-theme="dark"] .g-progress {
-  background: rgba(240, 235, 224, 0.08);
-}
-.g-progress-fill {
-  height: 100%;
-  border-radius: 6px;
-  background: var(--terracotta);
-  transition: width 0.8s ease;
-}
-.g-progress-fill.over {
-  background: var(--sage);
-}
 
 .g-card-meta {
   display: flex;

@@ -304,33 +304,6 @@
 .moon-chip-empty .moon-chip-num { color: var(--stone); }
 .moon-chip-empty .moon-chip-label { color: var(--terracotta); }
 
-/* Toggle chevron in the chip header — keeps the chip clickable as a
-   whole while still letting power users hit the explicit affordance.
-   Sits at the top in RTL so it doesn't fight the label. */
-.moon-chip-toggle {
-  position: absolute;
-  top: 6px;
-  inset-inline-start: 6px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 1px solid var(--divider);
-  background: transparent;
-  color: var(--stone);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.12s;
-}
-.moon-chip-toggle:hover {
-  background: rgba(42, 37, 32, 0.05);
-  color: var(--espresso);
-}
-[data-theme="dark"] .moon-chip-toggle:hover {
-  background: rgba(240, 235, 224, 0.06);
-}
-
 /* Block that wraps chip + expanded panel. When expanded we let the
    block grow taller; the chip stays its compact shape on top. */
 .moon-block {

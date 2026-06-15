@@ -168,7 +168,7 @@ export default function MoonGlanceScreen() {
     return (
       <div className="screen moon-screen">
         <div className="moon-head">
-          <div className="moon-head-title"><Moon size={20} strokeWidth={1.5} /> מבט על</div>
+          <div className="moon-head-title"><Moon size={20} strokeWidth={1.5} aria-hidden="true" /> מבט על</div>
         </div>
         <div className="empty">
           <p className="empty-text">עדיין אין יעדים. {addr({male:'הגדר',female:'הגדירי',neutral:'הגדר/י'})} יעד כדי לראות את הציון.</p>

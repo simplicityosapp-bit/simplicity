@@ -357,11 +357,6 @@
   padding: 1px 8px;
   border-radius: 10px;
 }
-.f-tx-tag.cat {
-  color: var(--espresso);
-  background: var(--mg-card-bg);
-  border: 0.5px solid rgba(255, 255, 255, 0.5);
-}
 .f-tx-tag.skip {
   color: var(--mist);
   background: rgba(120, 120, 120, 0.1);

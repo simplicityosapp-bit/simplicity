@@ -623,6 +623,25 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
 }
+/* Card header — mirrors the real "דרושה תשומת לב" card chrome (title + count)
+   so the preview reflects the actual component, not a bare row list. */
+.lp-rows-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 0 7px;
+  border-bottom: 1px solid var(--divider);
+}
+.lp-rows-title {
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 700;
+  color: var(--espresso);
+}
+.lp-rows-count {
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--stone);
+}
 .lp-row {
   display: flex;
   align-items: center;

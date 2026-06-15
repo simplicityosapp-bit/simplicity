@@ -291,6 +291,10 @@ export default function LandingScreen() {
                   </div>
 
                   <div className="lp-rows">
+                    <div className="lp-rows-head">
+                      <span className="lp-rows-title">דרושה תשומת לב</span>
+                      <span className="lp-rows-count"><bdi>3</bdi> פריטים</span>
+                    </div>
                     <div className="lp-row">
                       <span className="lp-row-dot amber"><Wallet size={16} strokeWidth={1.8} /></span>
                       <div className="lp-row-body">

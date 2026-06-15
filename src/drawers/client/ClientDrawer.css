@@ -200,7 +200,7 @@
 .cd-status-check { margin-inline-start: auto; color: var(--sage); }
 .cd-status-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 .cd-status-dot.cd-status-active { background: var(--sage); }
-.cd-status-dot.cd-status-wandering { background: var(--clay, #D4A574); }
+.cd-status-dot.cd-status-wandering { background: var(--amber-warn); }
 .cd-status-dot.cd-status-past { background: var(--stone); }
 .cd-status-dot.cd-status-no_status { background: rgba(42, 37, 32, 0.25); }
 .cd-h-proj {

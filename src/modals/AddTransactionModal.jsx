@@ -230,7 +230,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
             <>
               <label className="m-issue-toggle">
                 <input type="checkbox" checked={issueOnCreate} onChange={(e) => setIssueOnCreate(e.target.checked)} />
-                <span>הפק מסמך עם השמירה</span>
+                <span>הפק קבלה עם השמירה</span>
               </label>
               {issueOnCreate && (
                 <div className="m-issue-opts">

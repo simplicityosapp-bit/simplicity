@@ -122,6 +122,9 @@ Deno.serve(async (req) => {
         api_key,
         api_secret,
         environment,
+        // Income import is ON by default — incoming docs stage in "ייבוא ממתין"
+        // for the user's approval (they can turn it off on the card).
+        auto_import: true,
         // SUMIT Route B identifies the tenant by an unguessable per-connection
         // token in the webhook URL (no company id / signature in its payload).
         webhook_token: provider === 'sumit' ? crypto.randomUUID() : null,

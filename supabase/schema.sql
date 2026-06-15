@@ -928,7 +928,8 @@ CREATE TRIGGER trg_user_quotes_updated BEFORE UPDATE ON public.user_quotes FOR E
 ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS api_key text;
 ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS api_secret text;
 ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS environment text;
-ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS auto_import boolean DEFAULT false NOT NULL;
+ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS auto_import boolean DEFAULT true NOT NULL; -- income-import switch; ON by default (0040)
+ALTER TABLE user_integrations ALTER COLUMN auto_import SET DEFAULT true; -- 0040 (in case the column predates the new default)
 ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS webhook_token text;
 ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS last_polled_at timestamp with time zone;
 ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS credentials_invalid_at timestamp with time zone; -- 0038: durable "credentials rejected" marker

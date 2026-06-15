@@ -142,8 +142,6 @@
   color: var(--stone);
 }
 
-.pd-groups { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
-
 /* ── Section accordion ─────────────────────────────────── */
 .pd-section {
   margin-top: 14px;

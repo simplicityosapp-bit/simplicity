@@ -261,13 +261,6 @@
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
 }
-.cd-hero-hint {
-  margin: 0 0 12px;
-  text-align: center;
-  font-family: var(--mg-font);
-  font-size: calc(11px * var(--text-scale));
-  color: var(--mist);
-}
 /* Per-session billing note — caption under the hero (migration 0014). */
 .cd-billmode {
   margin: -6px 0 12px;
@@ -390,12 +383,6 @@
 }
 [data-theme="dark"] .cd-sec-count {
   background: rgba(240, 235, 224, 0.06);
-}
-.cd-sec-tools {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--stone);
 }
 .cd-sec-edit {
   display: inline-flex;

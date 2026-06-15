@@ -25,7 +25,7 @@
   animation: app-toast-in 0.2s ease;
 }
 [data-theme="dark"] .app-toast { color: var(--ink-on-accent); }
-.app-toast.error { background: var(--clay); color: #fff; }
+.app-toast.error { background: var(--clay); color: var(--on-accent); }
 [data-theme="dark"] .app-toast.error { color: var(--ink-on-accent); }
 .app-toast svg { flex-shrink: 0; }
 

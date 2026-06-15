@@ -392,26 +392,6 @@
   gap: 10px 8px;
   margin-top: 10px;
 }
-.set-w-accents {
-  display: inline-flex;
-  gap: 6px;
-}
-.set-w-accent {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  padding: 0;
-}
-.set-w-accent.on {
-  border-color: var(--espresso);
-  box-shadow: 0 0 0 1px var(--cream);
-}
-[data-theme="dark"] .set-w-accent.on {
-  border-color: var(--cream);
-  box-shadow: 0 0 0 1px var(--espresso);
-}
 .set-w-density {
   display: inline-flex;
   gap: 4px;
@@ -499,32 +479,6 @@
 }
 .set-about-legal-link:hover { color: var(--terracotta); }
 
-/* Shortcut card (goals → /goals) */
-.set-shortcut-hint {
-  margin: 0;
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  line-height: 1.5;
-  color: var(--stone);
-}
-.set-shortcut-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  align-self: flex-start;
-  padding: 9px 14px;
-  border-radius: var(--mg-btn-radius);
-  border: 1px solid var(--divider);
-  background: transparent;
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 600;
-  color: var(--terracotta);
-  cursor: pointer;
-}
-.set-shortcut-btn:hover {
-  background: rgba(0,0,0,.02);
-}
 
 /* ── Question schedule chip + inline editor ─────────────────── */
 .set-q-block {

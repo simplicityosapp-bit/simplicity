@@ -106,20 +106,6 @@
 .tour-btn-next:active { transform: scale(0.96); }
 [data-theme="dark"] .tour-btn-next { color: var(--espresso); }
 
-.tour-btn-skip {
-  padding: 8px 10px;
-  border: none;
-  background: transparent;
-  color: var(--stone);
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: 10px;
-  transition: background 0.15s;
-}
-.tour-btn-skip:hover { background: var(--mg-row-hover-bg); }
-
 .tour-skip-all {
   display: block;
   margin: 10px auto 0;

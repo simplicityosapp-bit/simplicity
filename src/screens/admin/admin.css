@@ -414,6 +414,67 @@
 .admin-del-go:disabled { opacity: 0.5; cursor: not-allowed; }
 .admin-del-go:not(:disabled):hover { filter: brightness(0.93); }
 
+/* ── Admin role management (inside expanded user detail) ─────────── */
+/* At-a-glance status chip next to the email (owner / promoted admin). */
+.admin-role-chip {
+  display: inline-flex; align-items: center; gap: 3px;
+  margin-inline-start: 8px; padding: 2px 8px; border-radius: 999px;
+  font-size: var(--mg-micro); font-weight: 600; vertical-align: middle;
+  background: var(--mg-row-active-bg); color: var(--stone);
+}
+.admin-role-chip.owner { background: rgba(139, 168, 136, .18); color: var(--sage); }
+/* The promote / update-perms / revoke block. */
+.admin-role-block {
+  margin-top: 14px; padding-top: 12px;
+  border-top: 1px solid var(--divider);
+  display: flex; flex-direction: column; gap: 10px; max-width: 460px;
+}
+.admin-role-head {
+  display: flex; align-items: center; gap: 6px;
+  font-size: var(--mg-micro); font-weight: 600; color: var(--stone);
+}
+.admin-role-tag {
+  margin-inline-start: 2px; padding: 1px 8px; border-radius: 999px;
+  background: rgba(139, 168, 136, .18); color: var(--sage);
+  font-size: var(--mg-micro); font-weight: 600;
+}
+.admin-role-hint { margin: 0; font-size: var(--mg-caption); color: var(--mist); line-height: 1.6; }
+.admin-role-perms { display: flex; flex-direction: column; gap: 8px; }
+.admin-role-perm {
+  display: flex; align-items: center; gap: 8px;
+  font-size: var(--mg-body); color: var(--espresso); cursor: pointer;
+}
+.admin-role-perm input { width: 16px; height: 16px; accent-color: var(--sage); cursor: pointer; }
+.admin-role-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.admin-role-go {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border: none; border-radius: 10px;
+  background: var(--sage); color: var(--on-accent);
+  font-family: var(--mg-font); font-size: var(--mg-caption); font-weight: 600; cursor: pointer;
+}
+[data-theme="dark"] .admin-role-go { color: var(--ink-on-accent); }
+.admin-role-go:disabled { opacity: .5; cursor: not-allowed; }
+.admin-role-go:not(:disabled):hover { filter: brightness(.95); }
+.admin-role-revoke {
+  padding: 8px 16px; border: 1px solid rgba(181, 99, 78, .4); border-radius: 10px;
+  background: transparent; color: var(--clay);
+  font-family: var(--mg-font); font-size: var(--mg-caption); font-weight: 600; cursor: pointer;
+}
+.admin-role-revoke:not(:disabled):hover { background: rgba(181, 99, 78, .1); }
+.admin-role-revoke:disabled { opacity: .5; cursor: not-allowed; }
+.admin-role-cancel {
+  padding: 8px 16px; border: 1px solid var(--divider); border-radius: 10px;
+  background: transparent; color: var(--stone);
+  font-family: var(--mg-font); font-size: var(--mg-caption); font-weight: 600; cursor: pointer;
+}
+.admin-role-confirm { display: flex; flex-direction: column; gap: 8px; }
+.admin-role-warn { margin: 0; font-size: var(--mg-caption); color: var(--espresso); line-height: 1.6; }
+.admin-role-err { margin: 0; font-size: var(--mg-caption); color: var(--clay); }
+.admin-role-summary { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.admin-role-summary li { display: flex; align-items: center; gap: 6px; font-size: var(--mg-caption); }
+.admin-role-summary li.on { color: var(--sage); }
+.admin-role-summary li.off { color: var(--mist); }
+
 /* ── Feedback cards ────────────────────────────────────────────── */
 .admin-fb-filters { display: flex; flex-wrap: wrap; gap: 8px; }
 .admin-fb-list { display: flex; flex-direction: column; gap: var(--mg-row-gap); }

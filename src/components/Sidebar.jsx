@@ -5,7 +5,8 @@ import {
   Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield, Plug, FileText,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
-import { ROUTES, ADMIN_EMAIL } from '../lib/routes'
+import { ROUTES } from '../lib/routes'
+import { isAdminUser } from '../lib/admin'
 import { roleLabel } from '../lib/preferences'
 import { useAuth } from '../auth/AuthContext'
 import { useUserPreferences } from '../hooks/useUserPreferences'
@@ -40,7 +41,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
   const navigate = useNavigate()
   const { signOut, user } = useAuth()
   const { prefs } = useUserPreferences()
-  const isAdmin = (user?.email || '').toLowerCase() === ADMIN_EMAIL
+  const isAdmin = isAdminUser(user)
   const [extrasOpen, setExtrasOpen] = useState(false)
   const sidebarRef = useRef(null)
   /* Profile-health chip is lazy: useProfileHealth fans out ~11 fetches, so we

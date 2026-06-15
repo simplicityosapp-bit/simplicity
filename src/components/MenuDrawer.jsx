@@ -5,7 +5,8 @@ import {
   Sparkles, Moon, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
-import { ROUTES, ADMIN_EMAIL } from '../lib/routes'
+import { ROUTES } from '../lib/routes'
+import { isAdminUser } from '../lib/admin'
 import { roleLabel } from '../lib/preferences'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useProfileHealth } from '../hooks/useProfileHealth'
@@ -48,7 +49,7 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
     onClose()
   }
 
-  const isAdmin = (user?.email || '').toLowerCase() === ADMIN_EMAIL
+  const isAdmin = isAdminUser(user)
 
   const profile = prefs?.profile || {}
   const name = profile.full_name || ''

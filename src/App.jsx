@@ -3,7 +3,8 @@ import {
   BrowserRouter, Routes, Route, Navigate, useLocation,
 } from 'react-router-dom'
 
-import { ROUTES, ADMIN_EMAIL } from './lib/routes'
+import { ROUTES } from './lib/routes'
+import { isAdminUser } from './lib/admin'
 import { screenKeyFromPath } from './lib/nav'
 import { useTheme } from './hooks/useTheme'
 import { useUserPreferences } from './hooks/useUserPreferences'
@@ -124,15 +125,15 @@ function AppShell() {
   if (prefsLoading) return <LoadingSplash />
 
   /* Admin console gate. A separate world, checked BEFORE the onboarding /
-     deletion guards so the owner can always reach it. The email check here
-     is only UX — the `admin` edge function re-verifies server-side. Anyone
-     who isn't the owner is bounced home with no error, no explanation. */
+     deletion guards so admins can always reach it. The check here is only
+     UX — the `admin` edge function re-verifies server-side. Anyone who isn't
+     the owner or a promoted admin is bounced home with no error, no
+     explanation. */
   const isAdminRoute =
     location.pathname === ROUTES.ADMIN ||
     location.pathname.startsWith(ROUTES.ADMIN + '/')
   if (isAdminRoute) {
-    const isOwner = (user?.email || '').toLowerCase() === ADMIN_EMAIL
-    if (!isOwner) return <Navigate to={ROUTES.HOME} replace />
+    if (!isAdminUser(user)) return <Navigate to={ROUTES.HOME} replace />
     return (
       <div className="app" data-screen="admin">
         <ErrorBoundary resetKey={location.pathname}>

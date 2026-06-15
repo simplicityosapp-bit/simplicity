@@ -75,7 +75,7 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
         </div>
       )}
 
-      {isManual && showHistory && (
+      {isManual && showHistory && catEntries.length > 0 && (
         <div className="g-entries">
           {catEntries.map((e) => (
             <div key={e.id} className="g-entry-row">

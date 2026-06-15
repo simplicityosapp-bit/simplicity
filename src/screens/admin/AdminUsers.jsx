@@ -286,6 +286,22 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
     set_subscriber: !!r.admin_perms?.set_subscriber,
     manage_admins: !!r.admin_perms?.manage_admins,
   }))
+  /* Keep the checkboxes in sync with the server-side perms when they change
+     (e.g. after a refetch following grant/revoke). The row is keyed by the
+     stable r.id so it never remounts on its own — without this, a revoke would
+     leave the boxes showing the pre-action perms. Adjusting state during render
+     (not in an effect) is React's recommended way to reset state on a prop
+     change. */
+  const permsSig = `${!!r.admin_perms?.delete_users}|${!!r.admin_perms?.set_subscriber}|${!!r.admin_perms?.manage_admins}`
+  const [syncedPermsSig, setSyncedPermsSig] = useState(permsSig)
+  if (permsSig !== syncedPermsSig) {
+    setSyncedPermsSig(permsSig)
+    setPermDraft({
+      delete_users: !!r.admin_perms?.delete_users,
+      set_subscriber: !!r.admin_perms?.set_subscriber,
+      manage_admins: !!r.admin_perms?.manage_admins,
+    })
+  }
   const [roleConfirm, setRoleConfirm] = useState(null) // null | 'grant' | 'revoke'
   const [roleBusy, setRoleBusy] = useState(false)
   const [roleErr, setRoleErr] = useState(false)

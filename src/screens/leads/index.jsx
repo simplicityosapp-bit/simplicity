@@ -42,7 +42,7 @@ export default function LeadsScreen() {
   const navigate = useNavigate()
   const { leads: leadList, loading, error, addLead, updateLead, removeLead } = useLeads()
   const { sources, addSource } = useLeadSources()
-  const { statuses: leadStatuses, addStatus: addLeadStatus, updateStatus: updateLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
+  const { statuses: leadStatuses, loading: statusesLoading, addStatus: addLeadStatus, updateStatus: updateLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
   const { addClient } = useClients()
   const { projects } = useProjects()
   const { groups } = useGroups()
@@ -55,7 +55,11 @@ export default function LeadsScreen() {
   const setView = (v) => updatePrefs?.({ leadsView: v })
   /* Kanban sub-status filter + date sort (persisted, like the view choice).
      subFilter = a status_id ('' = all); dateSort = '' | 'new' | 'old'. */
-  const subFilter = prefs?.leadsSubFilter || ''
+  /* If the sub-status we're filtering by was deleted, fall back to "all" so the
+     kanban doesn't stay filtered with no visible active chip. While statuses are
+     still loading we keep the stored value so an active filter doesn't flash. */
+  const rawSubFilter = prefs?.leadsSubFilter || ''
+  const subFilter = (rawSubFilter && (statusesLoading || leadStatuses.some((s) => s.id === rawSubFilter))) ? rawSubFilter : ''
   const dateSort = prefs?.leadsSort || ''
   const setSubFilter = (v) => updatePrefs?.({ leadsSubFilter: v })
   const cycleSort = () => updatePrefs?.({ leadsSort: dateSort === '' ? 'new' : dateSort === 'new' ? 'old' : '' })

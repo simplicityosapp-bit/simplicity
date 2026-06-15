@@ -34,7 +34,7 @@ export default function ResetPasswordScreen() {
         <div className="auth-card auth-card-msg">
           <span className="auth-msg-icon"><MailCheck size={34} strokeWidth={1.4} aria-hidden="true" /></span>
           <p className="auth-title">קישור איפוס נשלח</p>
-          <p className="auth-sub">אם {email} רשום אצלנו — ישלח קישור לאיפוס הסיסמה.</p>
+          <p className="auth-sub">אם <bdi>{email}</bdi> רשום אצלנו — ישלח קישור לאיפוס הסיסמה.</p>
           <Link to={ROUTES.LOGIN} className="auth-btn auth-btn-link">חזרה להתחברות</Link>
         </div>
       </div>

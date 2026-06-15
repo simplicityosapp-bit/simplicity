@@ -1387,6 +1387,10 @@
 .ob-moon-card .ob-preview-title { justify-content: center; }
 .ob-moon-ring { position: relative; width: 168px; margin: 12px auto 4px; }
 .ob-moon-ring svg { display: block; width: 100%; height: auto; }
+/* Background track — themed so it stays visible in dark mode (mirrors the
+   home MoonWidget's .moon-track; a hardcoded dark stroke vanished at night). */
+.ob-moon-track { stroke: rgba(42, 37, 32, 0.08); }
+[data-theme="dark"] .ob-moon-track { stroke: rgba(240, 235, 224, 0.10); }
 .ob-moon-center {
   position: absolute;
   inset: 0;

@@ -60,7 +60,7 @@ export default function DeleteSubStatusModal({
         <p className="set-soon">בודק שיוכים…</p>
       ) : count === 0 ? (
         <>
-          <p className="m-confirm-text">אין שיוכים פעילים. אפשר למחוק.</p>
+          <p className="m-confirm-msg">אין שיוכים פעילים. אפשר למחוק.</p>
           {err && <p className="m-error">{err}</p>}
           <div className="m-actions">
             <button type="button" className="m-btn-cancel" onClick={onClose}>ביטול</button>
@@ -69,7 +69,7 @@ export default function DeleteSubStatusModal({
         </>
       ) : (
         <>
-          <p className="m-confirm-text">
+          <p className="m-confirm-msg">
             {count === 1
               ? 'שיוך אחד פעיל יושפע מהמחיקה.'
               : `${count} שיוכים פעילים יושפעו מהמחיקה.`}

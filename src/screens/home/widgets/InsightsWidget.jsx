@@ -146,7 +146,7 @@ export default function InsightsWidget() {
         role="button"
         tabIndex={0}
         onClick={() => navigate(ROUTES.INSIGHTS)}
-        onKeyDown={(e) => { if (e.key === 'Enter') navigate(ROUTES.INSIGHTS) }}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(ROUTES.INSIGHTS) } }}
       >
         <Sparkles size={16} strokeWidth={1.6} aria-hidden="true" /> {text}
         <InfoPopover

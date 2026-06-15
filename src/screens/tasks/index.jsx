@@ -247,6 +247,8 @@ export default function TasksScreen() {
             type="button"
             className={`mg-toggle-btn${filter === f.key ? ' on' : ''}`}
             onClick={() => setFilter(f.key)}
+            role="tab"
+            aria-selected={filter === f.key}
           >
             {f.label}
           </button>

@@ -69,4 +69,12 @@
   font-size: calc(12px * var(--text-scale));
   text-align: center;
 }
+/* Dark: --clay remaps to a deep wine (#6E3D49) that's near-invisible on the
+   dark card. Use a lighter clay for the text (and a touch more tint) so the
+   save-error stays legible, matching this rule's existing clay-rgba style. */
+[data-theme="dark"] .policy-update-error {
+  background: rgba(217, 140, 118, 0.14);
+  border-color: rgba(217, 140, 118, 0.40);
+  color: #D98C76;
+}
 .policy-update-card .auth-btn { margin-top: 16px; }

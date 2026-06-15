@@ -18,6 +18,7 @@ function ProjectCard({ project, clientsCount, income, openTasks, groupsCount, in
       role="button"
       tabIndex={0}
       onClick={open}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open() } }}
     >
       <div className="ph">
         <span className="pcolor" style={{ background: project.color || 'var(--sage)' }} />

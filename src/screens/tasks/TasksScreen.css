@@ -119,9 +119,10 @@
 }
 .t-cat-pill.on {
   background: var(--terracotta);
-  color: #fff;
+  color: var(--on-accent);
   border-color: transparent;
 }
+[data-theme="dark"] .t-cat-pill.on { color: var(--ink-on-accent); }
 .t-cat-dot {
   width: 8px;
   height: 8px;

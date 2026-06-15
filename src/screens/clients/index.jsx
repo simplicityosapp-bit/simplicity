@@ -146,7 +146,7 @@ export default function ClientsScreen() {
   const sourceClients = groupBy === 'project' ? clientList : tabClients
   const list = useMemo(() => {
     const q = query.trim()
-    let filtered = q ? sourceClients.filter((c) => c.name.includes(q)) : sourceClients
+    let filtered = q ? sourceClients.filter((c) => (c.name || '').includes(q)) : sourceClients
     /* "יתרה פתוחה" filter — only clients who still owe (balance > 0). */
     if (balanceOnly) filtered = filtered.filter((c) => clientBalance(c, transactions, sessions, members, groups).balance > 0)
     return sortClients(filtered, sort, { transactions, sessions, members, groups })

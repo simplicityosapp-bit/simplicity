@@ -35,7 +35,12 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   const [creatingCat, setCreatingCat] = useState(false)
   const [newCatName, setNewCatName] = useState('')
   const [catBusy, setCatBusy] = useState(false)
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  const set = (k, v) => {
+    /* Leaving the expense type unmounts the inline category-creator block —
+       reset its state so switching back to הוצאה shows the normal <select>. */
+    if (k === 'type' && v !== 'expense') { setCreatingCat(false); setNewCatName('') }
+    setForm((f) => ({ ...f, [k]: v }))
+  }
   const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); onClose() }
 
   /* Inline "new category" creation (Option C1): only when the parent passes

@@ -657,6 +657,9 @@
   color: var(--moon-deep);
   flex-shrink: 0;
 }
+/* The daily-question paragraph is role="button" and navigates to Insights —
+   give it the pointer cursor every sibling control here already uses. */
+.ins-q-link { cursor: pointer; }
 .ins-empty {
   margin: 0;
   font-family: var(--mg-font);

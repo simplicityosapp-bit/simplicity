@@ -7,29 +7,11 @@ import IssueGuardModal from '../modals/IssueGuardModal'
 import ConfirmModal from '../modals/ConfirmModal'
 import { isr } from '../lib/finance'
 import { showToast } from '../lib/toast'
+import { DOC_TYPES, PAY_METHODS, docTypeLabel, isReceiptType } from '../lib/invoiceDocs'
 import './InvoiceActions.css'
 
 /* Same calendar-day key for two transactions (heuristic duplicate check). */
 const dayKey = (d) => (d ? new Date(d).toISOString().slice(0, 10) : null)
-
-/* The three document types the user picks per issuance (covers עוסק פטור →
-   receipt and עוסק מורשה → invoice_receipt without assuming a tax status). */
-const DOC_TYPES = [
-  { key: 'invoice_receipt', label: 'חשבונית מס קבלה' },
-  { key: 'receipt', label: 'קבלה' },
-  { key: 'invoice', label: 'חשבונית מס' },
-]
-/* Payment methods (shown for receipt-type docs). Map to provider codes server-side. */
-const PAY_METHODS = [
-  { key: 'bank_transfer', label: 'העברה בנקאית' },
-  { key: 'cash', label: 'מזומן' },
-  { key: 'credit_card', label: 'כרטיס אשראי' },
-  { key: 'cheque', label: 'צ׳ק' },
-  { key: 'app', label: 'אפליקציה (ביט/פייבוקס)' },
-  { key: 'other', label: 'אחר' },
-]
-const docTypeLabel = (k) => DOC_TYPES.find((d) => d.key === k)?.label || k
-const isReceiptType = (t) => t === 'invoice_receipt' || t === 'receipt'
 
 /* Map the function's coarse error CODE to a Hebrew sentence (gendered via
    addr, matching the InvoiceCard convention so the same backend error reads

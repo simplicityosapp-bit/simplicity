@@ -1,9 +1,9 @@
 import { memo } from 'react'
-import { Check, X, RotateCcw } from 'lucide-react'
+import { Check, X, RotateCcw, Trash2 } from 'lucide-react'
 import { isr } from '../../lib/finance'
 import { fmtShortDate } from '../../lib/dates'
 
-function TransactionCard({ tx, clients = [], projects = [], categories = [], onApprove, onSkip, onUnskip, onEdit }) {
+function TransactionCard({ tx, clients = [], projects = [], categories = [], onApprove, onSkip, onUnskip, onEdit, onDelete }) {
   const stop = (fn) => (e) => { e.stopPropagation(); fn() }
   const client = tx.client_id ? clients.find((c) => c.id === tx.client_id) : null
   const project = tx.project_id ? projects.find((p) => p.id === tx.project_id) : null
@@ -42,7 +42,7 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
         {isExpense ? '−' : '+'}{isr(tx.amount)}
       </p>
 
-      {isPending && (
+      {isPending ? (
         <div className="f-tx-actions">
           <button type="button" className="f-tx-btn approve" onClick={stop(() => onApprove(tx.id))} title="אשר — התנועה קרתה">
             <Check size={15} strokeWidth={2} aria-hidden="true" />
@@ -51,12 +51,21 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
             <X size={15} strokeWidth={2} aria-hidden="true" />
           </button>
         </div>
-      )}
-
-      {isSkipped && (
-        <button type="button" className="f-tx-btn restore" onClick={stop(() => onUnskip(tx.id))} title="החזר לממתינה">
-          <RotateCcw size={14} strokeWidth={1.8} aria-hidden="true" />
-        </button>
+      ) : (
+        (isSkipped || onDelete) && (
+          <div className="f-tx-actions">
+            {isSkipped && (
+              <button type="button" className="f-tx-btn restore" onClick={stop(() => onUnskip(tx.id))} title="החזר לממתינה" aria-label="החזר לממתינה">
+                <RotateCcw size={14} strokeWidth={1.8} aria-hidden="true" />
+              </button>
+            )}
+            {onDelete && (
+              <button type="button" className="f-tx-btn delete" onClick={stop(() => onDelete(tx.id))} title="מחק תנועה" aria-label="מחק תנועה">
+                <Trash2 size={14} strokeWidth={1.8} aria-hidden="true" />
+              </button>
+            )}
+          </div>
+        )
       )}
     </div>
   )

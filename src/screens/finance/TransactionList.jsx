@@ -7,7 +7,7 @@ const GROUPS = [
   { key: 'skipped', label: 'דולגו' },
 ]
 
-export default function TransactionList({ transactions, clients, projects, categories, showSkipped = true, onApprove, onSkip, onUnskip, onEdit }) {
+export default function TransactionList({ transactions, clients, projects, categories, showSkipped = true, onApprove, onSkip, onUnskip, onEdit, onDelete }) {
   const visible = transactions.filter((t) => t.status !== 'pending' && (showSkipped || t.status !== 'skipped'))
   if (!visible.length) {
     return (
@@ -38,6 +38,7 @@ export default function TransactionList({ transactions, clients, projects, categ
                 onSkip={onSkip}
                 onUnskip={onUnskip}
                 onEdit={onEdit}
+                onDelete={onDelete}
               />
             ))}
           </div>

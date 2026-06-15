@@ -28,7 +28,7 @@ import './FinanceScreen.css'
 const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1)
 
 export default function FinanceScreen() {
-  const { transactions, loading, error, addTransaction, editTransaction, setStatus, refetch } = useTransactions()
+  const { transactions, loading, error, addTransaction, editTransaction, setStatus, removeTransaction, refetch } = useTransactions()
   const { clients } = useClients()
   const { projects } = useProjects()
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
@@ -200,6 +200,7 @@ export default function FinanceScreen() {
               onSkip={(id) => setStatus(id, 'skipped')}
               onUnskip={(id) => setStatus(id, 'pending')}
               onEdit={setEditTx}
+              onDelete={removeTransaction}
             />
           </>
         )}
@@ -215,6 +216,7 @@ export default function FinanceScreen() {
         onSave={async (tx) => {
           const row = await addTransaction(tx)
           setMonth(startOfMonth(new Date(row.date)))
+          return row // let the modal issue a document for the new income when asked
         }}
       />
       <EditTransactionModal
@@ -227,6 +229,7 @@ export default function FinanceScreen() {
         categories={categories}
         onSave={editTransaction}
         onIssued={refetch}
+        onDelete={removeTransaction}
       />
 
       <RecurringModal

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ChevronDown, ChevronUp, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
-  Plus, Trash2, Leaf, GripVertical, ChevronLeft, CalendarDays, Database, Download, Upload,
+  Plus, Trash2, Leaf, GripVertical, CalendarDays, Database, Download, Upload,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { buildSheetsFromFiles, ACCEPT } from '../../lib/importFlow'
@@ -44,7 +44,7 @@ import QuestionScheduleEditor from './QuestionScheduleEditor'
 import './SettingsScreen.css'
 
 const SECTIONS = [
-  { key: 'profile', title: 'פרופיל', icon: User, sub: 'שם, תפקיד והתמחות' },
+  { key: 'profile', title: 'פרופיל', icon: User, sub: 'שם, מקצוע והתמחות' },
   { key: 'widgets', title: 'ווידג׳טים ותצוגה', icon: LayoutGrid, sub: 'מה מופיע במסך הבית' },
   { key: 'clients', title: 'לקוחות וסטטוסים', icon: Users, sub: 'תתי-סטטוסים מותאמים אישית' },
   { key: 'payments', title: 'תשלומים ומטבע', icon: Wallet, sub: 'מטבע ופורמט סכומים' },
@@ -434,7 +434,7 @@ function ProfileBody({ prefs, onUpdate }) {
         </div>
       </div>
       <div className="m-field">
-        <label className="m-label">תפקיד</label>
+        <label className="m-label">מקצוע</label>
         <div className="m-pills">
           {ROLE_KEYS.map((k) => (
             <button key={k} type="button" className={`m-pill${role === k ? ' on' : ''}`} onClick={() => pickRole(k)}>{roleLabel(k, gender)}</button>

@@ -102,5 +102,19 @@ export function useReminders() {
     } catch (e) { setError(e.message); refetch() }
   }, [reminders, refetch])
 
-  return { reminders, loading, error, addReminder, completeReminder, editReminder, removeReminder, refetch }
+  /* Bulk-clear every completed reminder (soft-delete → Trash, restorable 30
+     days — the safety net, like useTasks.clearCompleted). Recurring reminders
+     never sit in 'completed' (they advance to the next slot), so this only
+     sweeps real done rows. */
+  const clearCompleted = useCallback(async () => {
+    const done = reminders.filter((r) => r.status === 'completed')
+    if (!done.length) return 0
+    setReminders((prev) => prev.filter((r) => r.status !== 'completed'))
+    try {
+      await Promise.all(done.map((r) => apiRemove(r.id)))
+    } catch (e) { setError(e.message); refetch() }
+    return done.length
+  }, [reminders, refetch])
+
+  return { reminders, loading, error, addReminder, completeReminder, editReminder, removeReminder, clearCompleted, refetch }
 }

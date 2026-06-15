@@ -15,6 +15,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { isr, isConfirmedTx } from './finance'
+import { isConvertedLead } from './leads'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 
@@ -109,8 +110,8 @@ export function computeReportForRange(start, end, data = {}) {
      covers converted + not_relevant + ghost). Field is maintained by
      the leads API reconcileClosedAt() shim. */
   const closedLeads = liveLeads.filter((l) => inRangeTs(l.closed_at))
-  const convertedLeads = liveLeads.filter((l) => inRangeTs(l.converted_at))
-  const cohortConverted = newLeads.filter((l) => !!l.converted_at).length
+  const convertedLeads = liveLeads.filter((l) => isConvertedLead(l) && inRangeTs(l.converted_at))
+  const cohortConverted = newLeads.filter(isConvertedLead).length
   const conversionRate = newLeads.length > 0
     ? Math.round((cohortConverted / newLeads.length) * 100)
     : null
@@ -363,7 +364,7 @@ export function getDrillRecords(metricId, start, end, data = {}) {
     }
     case 'leadsConverted': {
       liveLeads.forEach((l) => {
-        if (!inRangeTs(l.converted_at)) return
+        if (!isConvertedLead(l) || !inRangeTs(l.converted_at)) return
         out.push({ ...leadRow(l, `הומר • ${fmtDay(l.converted_at)}`), icon: 'arrow' })
       })
       break
@@ -373,7 +374,7 @@ export function getDrillRecords(metricId, start, end, data = {}) {
       liveLeads.forEach((l) => {
         const inCohort = l.inquiry_date ? inRangeYMD(l.inquiry_date) : inRangeTs(l.created_at)
         if (!inCohort) return
-        const converted = !!l.converted_at
+        const converted = isConvertedLead(l)
         out.push({
           ...leadRow(l, converted ? `הומר • ${fmtDay(l.converted_at)}` : `פנייה • ${fmtDay(l.inquiry_date || l.created_at)}`),
           icon: converted ? 'arrow' : 'leaf',

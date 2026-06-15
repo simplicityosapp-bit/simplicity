@@ -12,7 +12,7 @@ import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
-import { LEAD_META, statusMetaOfLead, metaColor } from '../../lib/leads'
+import { LEAD_META, statusMetaOfLead, metaColor, isConvertedLead } from '../../lib/leads'
 import { pushUndo } from '../../lib/undo'
 import LeadColumn from './LeadColumn'
 import LeadStatusesPanel from './LeadStatusesPanel'
@@ -32,8 +32,8 @@ function computeStats(list, now = new Date()) {
     return x.getFullYear() === now.getFullYear() && x.getMonth() === now.getMonth()
   }
   const newThis = list.filter((l) => (l.inquiry_date ? inMonth(l.inquiry_date) : inMonth(l.created_at)))
-  const convertedThisMonth = list.filter((l) => l.converted_at && inMonth(l.converted_at)).length
-  const cohortConverted = newThis.filter((l) => !!l.converted_at).length
+  const convertedThisMonth = list.filter((l) => isConvertedLead(l) && inMonth(l.converted_at)).length
+  const cohortConverted = newThis.filter(isConvertedLead).length
   const convRate = newThis.length ? Math.round((cohortConverted / newThis.length) * 100) : null
   return { newThisMonth: newThis.length, convertedThisMonth, convRate }
 }

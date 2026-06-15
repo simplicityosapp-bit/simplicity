@@ -17,6 +17,13 @@ export const LEAD_META = [
 ]
 
 export const statusMetaOfLead = (l) => l.status_meta || 'in_process'
+/* A lead counts as a (real) conversion only while it is CURRENTLY in the
+   'converted' meta. A converted lead later moved back to 'not relevant' /
+   'in process' keeps its converted_at stamp (the kanban drag path doesn't
+   clear it), but is no longer a conversion — every conversion COUNT gates on
+   this so a reverted conversion drops out of the rate. Mirrors the LeadCard
+   badge (meta === 'converted' && converted_to_client_id). */
+export const isConvertedLead = (l) => statusMetaOfLead(l) === 'converted' && !!l.converted_at
 export const sourceOf = (id) => lead_sources.find((s) => s.id === id)
 export const subStatusOf = (id) => lead_statuses.find((s) => s.id === id)
 
@@ -43,8 +50,8 @@ export function leadStats(now = new Date()) {
     return x.getFullYear() === now.getFullYear() && x.getMonth() === now.getMonth()
   }
   const newThisMonth = all.filter((l) => (l.inquiry_date ? inMonth(l.inquiry_date) : inMonth(l.created_at)))
-  const convertedThisMonth = all.filter((l) => l.converted_at && inMonth(l.converted_at)).length
-  const cohortConverted = newThisMonth.filter((l) => !!l.converted_at).length
+  const convertedThisMonth = all.filter((l) => isConvertedLead(l) && inMonth(l.converted_at)).length
+  const cohortConverted = newThisMonth.filter(isConvertedLead).length
   const convRate = newThisMonth.length ? Math.round((cohortConverted / newThisMonth.length) * 100) : null
   return { newThisMonth: newThisMonth.length, convertedThisMonth, convRate }
 }

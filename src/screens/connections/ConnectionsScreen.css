@@ -474,6 +474,14 @@
   cursor: pointer;
 }
 .conn-autoimport input { margin-top: 2px; accent-color: var(--terracotta); }
+.conn-autoimport > span { font-weight: 500; color: var(--espresso); }
+.conn-autoimport-note {
+  margin: 6px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--stone);
+}
 
 /* Spinner glyph on connect/test/disconnect buttons while an action runs. */
 .conn-spin { animation: conn-spin 1s linear infinite; }

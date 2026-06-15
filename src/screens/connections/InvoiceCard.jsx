@@ -153,7 +153,7 @@ export default function InvoiceCard() {
     setLocalErr(''); setOkMsg('')
     try {
       await inv.setAutoImport(value)
-      setOkMsg(value ? 'ייבוא אוטומטי הופעל.' : 'ייבוא אוטומטי כובה.')
+      setOkMsg(value ? 'ייבוא הכנסות הופעל.' : 'ייבוא הכנסות כובה.')
     } catch (e) {
       setLocalErr(errToHe(e.message, addr))
     }
@@ -278,8 +278,9 @@ export default function InvoiceCard() {
           )}
           <label className="conn-autoimport">
             <input type="checkbox" checked={!!status?.auto_import} onChange={(e) => onToggleAutoImport(e.target.checked)} disabled={inv.busy} />
-            <span>ייבוא אוטומטי — לרשום חשבוניות נכנסות כהכנסה ללא אישור ידני</span>
+            <span>לייבא אוטומטית הכנסות?</span>
           </label>
+          <p className="conn-autoimport-note">המערכת תזהה הכנסות שהזנת בתוכנת הקבלות שלך — ותשאל אותך אם לרשום אותן גם אצלנו.</p>
           {status?.webhook_url && (
             <div className="conn-webhook">
               <button type="button" className="conn-webhook-toggle" onClick={() => setShowWebhook((v) => !v)} aria-expanded={showWebhook}>
@@ -309,7 +310,7 @@ export default function InvoiceCard() {
                     <li>הדביקו את הכתובת שלמעלה בשדה ה-URL, ושמרו את הטריגר כ<b>פעיל</b>.</li>
                     <li>מעכשיו כל מסמך שתפיקו בסאמיט יופיע ב<b>"ייבוא ממתין"</b> במסך הכספים.</li>
                   </ol>
-                  <p className="conn-webhook-intro">המסמכים יופיעו ב"ייבוא ממתין" לאישור. כדי לרשום אותם כהכנסה אוטומטית — סמנו את "ייבוא אוטומטי" שלמעלה.</p>
+                  <p className="conn-webhook-intro">לאחר ההגדרה, מסמכים שתפיקו בסאמיט יופיעו ב"ייבוא ממתין" לאישורך — כל עוד "לייבא אוטומטית הכנסות" מסומן למעלה.</p>
                 </div>
               )}
             </div>

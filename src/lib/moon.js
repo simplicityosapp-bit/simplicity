@@ -8,6 +8,7 @@
 
 import { goals as allGoals, goal_categories, goal_entries, sessions, clients as mockClients, leads as mockLeads, daily_answers as mockAnswers, group_members as mockMembers, groups as mockGroups } from '../data/mock'
 import { financeQuery, currentMonthRange } from './finance'
+import { isConvertedLead } from './leads'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 const isActiveClient = (c) => (c.status_meta || c.status || 'no_status') === 'active'
@@ -96,7 +97,7 @@ function goalActual(goal, cat, now, entries, transactions, clients, leads, answe
     }
     if (cat.data_source === 'leads_closings') {
       return live(leads).filter((l) => {
-        if (!l.converted_at) return false
+        if (!isConvertedLead(l)) return false
         const d = new Date(l.converted_at)
         return d >= period.start && d <= to
       }).length

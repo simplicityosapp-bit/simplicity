@@ -50,6 +50,8 @@ export default function LegalPage() {
                 key={t.key}
                 type="button"
                 role="tab"
+                id={`legal-tab-${t.key}`}
+                aria-controls="legal-tabpanel"
                 aria-selected={t.key === active}
                 className={`legal-page-tab${t.key === active ? ' on' : ''}`}
                 onClick={() => setParams({ tab: t.key }, { replace: true })}
@@ -60,7 +62,7 @@ export default function LegalPage() {
           </nav>
         </header>
 
-        <div className="legal-page-body" role="tabpanel">
+        <div className="legal-page-body" role="tabpanel" id="legal-tabpanel" aria-labelledby={`legal-tab-${active}`} tabIndex={0}>
           {tab.meta && <p className="legal-meta">{tab.meta}</p>}
           {renderBlocks(tab.blocks)}
         </div>

@@ -24,7 +24,7 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 0.5px solid rgba(42, 37, 32, 0.12);
+  border: 0.5px solid var(--divider);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
   color: var(--stone);
@@ -78,14 +78,18 @@
 }
 .f-io {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* minmax(0,1fr) lets the tracks shrink below content so a long amount can
+     scroll inside its cell instead of stretching the grid / pushing siblings. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--gap);
 }
 .f-io-card {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
+.f-io-card > div { min-width: 0; }
 .f-io-icon {
   width: 28px;
   height: 28px;
@@ -121,7 +125,14 @@
   letter-spacing: -0.02em;
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
+  /* A very long amount (7+ digits / enlarged text) scrolls horizontally inside
+     its cell rather than overflowing the card. No effect on amounts that fit. */
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
 }
+.f-io-v::-webkit-scrollbar { display: none; }
 
 /* ── Cumulative income chart ───────────────────────────────────
    A "moonlight" line chart of cumulative income for the selected

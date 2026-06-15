@@ -478,7 +478,7 @@
 }
 .lead-card-name {
   margin: 0 0 8px;
-  padding-inline-start: 20px;
+  padding-inline-end: 20px;
   font-family: var(--mg-font);
   font-size: calc(14px * var(--text-scale));
   font-weight: 600;

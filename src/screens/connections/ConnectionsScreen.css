@@ -248,7 +248,8 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 3px 4px 3px 10px;
+  padding-block: 3px;
+  padding-inline: 10px 4px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--sage) 40%, transparent);
   background: color-mix(in srgb, var(--sage) 12%, transparent);

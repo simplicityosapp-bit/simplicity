@@ -24,7 +24,7 @@ export default function Step8Preview({ ob, setCTA }) {
 
         <div className="ob-moon-ring">
           <svg viewBox="0 0 100 100" aria-hidden="true">
-            <circle cx="50" cy="50" r={R} stroke="rgba(42,37,32,0.12)" strokeWidth="6" fill="none" />
+            <circle className="ob-moon-track" cx="50" cy="50" r={R} strokeWidth="6" fill="none" />
             <circle
               cx="50" cy="50" r={R}
               stroke="var(--sage)" strokeWidth="6" strokeLinecap="round" fill="none"

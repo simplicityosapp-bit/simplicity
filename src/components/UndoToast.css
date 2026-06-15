@@ -52,6 +52,7 @@
 
 .undo-toast-label {
   flex: 1 1 auto;
+  min-width: 0;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -110,7 +111,9 @@
   height: 2.5px;
   width: 100%;
   background: var(--terracotta);
-  transform-origin: inline-start;
+  /* RTL: inset-inline-start = right edge, so pin the origin there and let the
+     bar drain toward the end. transform-origin has no logical keywords. */
+  transform-origin: right;
   animation: undo-toast-countdown linear forwards;
 }
 

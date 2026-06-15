@@ -505,7 +505,7 @@ function DrillModal({ open, onClose, drill, data, onNavigate }) {
                 <span className="rep-drill-row-primary">{r.primary}</span>
                 <span className="rep-drill-row-secondary">{r.secondary}</span>
               </span>
-              <span className="rep-drill-row-chev">›</span>
+              <span className="rep-drill-row-chev">‹</span>
             </button>
           ))}
         </div>

@@ -245,7 +245,9 @@
 .g-card-stars {
   display: inline-flex;
   gap: 2px;
-  color: var(--divider);
+  /* Empty stars in --mist (tertiary text) so the "X / 5" scale is legible;
+     filled stars override to --amber-warn below. */
+  color: var(--mist);
 }
 .g-card-stars .on {
   color: var(--amber-warn);

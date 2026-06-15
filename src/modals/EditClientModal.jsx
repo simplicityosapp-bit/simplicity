@@ -324,7 +324,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
 
       <div className="m-field">
         <label className="m-label">הערות (אופציונלי)</label>
-        <textarea className="m-input" rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
+        <textarea className="m-textarea" rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
       </div>
 
       {err && <p className="m-error">{err}</p>}

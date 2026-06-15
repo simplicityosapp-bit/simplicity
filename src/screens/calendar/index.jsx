@@ -102,16 +102,34 @@ export default function CalendarScreen() {
       if (m.subject_type === 'group') return groups.find((g) => g.id === m.subject_id)?.name || 'קבוצה'
       return 'אירוע'
     }
+    /* End time for a recurring meeting comes from the subject's
+       recurring_end_time (clients + groups both carry it) applied to the
+       meeting's own date — lets the day timeline span the real duration
+       instead of falling back to a fixed block. */
+    const subjectEnd = (m, start) => {
+      const subj = m.subject_type === 'group'
+        ? groups.find((g) => g.id === m.subject_id)
+        : clients.find((c) => c.id === m.subject_id)
+      const hhmm = subj?.recurring_end_time && String(subj.recurring_end_time).match(/^(\d{1,2}):(\d{2})/)
+      if (!hhmm) return null
+      const end = new Date(start)
+      end.setHours(Number(hhmm[1]), Number(hhmm[2]), 0, 0)
+      return end > start ? end : null
+    }
     const meetingItems = (meetings || [])
       .filter((m) => ['pending', 'confirmed'].includes(m.status))
-      .map((m) => ({
-        id: m.id,
-        kind: 'meeting',
-        title: subjectName(m),
-        when: new Date(m.scheduled_at),
-        status: m.status,
-        raw: m,
-      }))
+      .map((m) => {
+        const when = new Date(m.scheduled_at)
+        return {
+          id: m.id,
+          kind: 'meeting',
+          title: subjectName(m),
+          when,
+          end: subjectEnd(m, when),
+          status: m.status,
+          raw: m,
+        }
+      })
     /* Pull a wider reminder horizon for the grid views, with no
        cap on count (the widget default of 5 wouldn't fill a month). */
     const reminderItems = remindersUpcoming(new Date(), reminders, 365, 0).map((r) => ({

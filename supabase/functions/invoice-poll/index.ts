@@ -43,8 +43,10 @@ Deno.serve(async (req) => {
   if (!POLL_SECRET || secret !== POLL_SECRET) return json({ error: 'unauthorized' }, 401)
 
   const { data: integs } = await admin.from('user_integrations').select('*').in('provider', POLL_PROVIDERS)
-  let staged = 0, imported = 0, scanned = 0
+  let staged = 0, scanned = 0
   for (const integ of (integs ?? [])) {
+    // Income import is opt-in: only poll connections the user enabled. OFF = no import.
+    if (!integ.auto_import) continue
     try {
       const since = integ.last_polled_at ?? new Date(Date.now() - 7 * 86400000).toISOString()
       const docs = await getProvider(integ.provider).listDocumentsSince(
@@ -62,31 +64,20 @@ Deno.serve(async (req) => {
         if (stagedRow) continue
         const clientId = matchClient((clients ?? []) as any, doc.customerName)
 
-        if (integ.auto_import) {
-          const { error } = await admin.from('transactions').insert({
-            user_id: integ.user_id, type: 'income', amount: doc.amount,
-            desc: `חשבונית ${doc.number ?? ''}${doc.customerName ? ` — ${doc.customerName}` : ''}`.trim(),
-            date: doc.date ?? new Date().toISOString().slice(0, 10), status: 'confirmed', client_id: clientId,
-            invoice_provider: integ.provider, invoice_document_id: doc.externalId, invoice_document_number: doc.number,
-            invoice_document_type: doc.docType, invoice_document_url: doc.url, invoice_synced_at: new Date().toISOString(),
-          })
-          if (!error || error.code === '23505') imported++
-          else console.error('invoice-poll auto-import failed', error)
-        } else {
-          const { error } = await admin.from('pending_invoice_imports').upsert({
-            user_id: integ.user_id, provider: integ.provider, external_document_id: doc.externalId,
-            document_type: doc.docType, document_number: doc.number, amount: doc.amount, currency: doc.currency,
-            doc_date: doc.date, customer_name: doc.customerName, document_url: doc.url, client_id: clientId,
-            status: 'pending', raw: doc.raw,
-          }, { onConflict: 'user_id,provider,external_document_id', ignoreDuplicates: true })
-          if (!error) staged++
-          else console.error('invoice-poll stage failed', error)
-        }
+        // Always stage for the user's approval (never silently record income).
+        const { error } = await admin.from('pending_invoice_imports').upsert({
+          user_id: integ.user_id, provider: integ.provider, external_document_id: doc.externalId,
+          document_type: doc.docType, document_number: doc.number, amount: doc.amount, currency: doc.currency,
+          doc_date: doc.date, customer_name: doc.customerName, document_url: doc.url, client_id: clientId,
+          status: 'pending', raw: doc.raw,
+        }, { onConflict: 'user_id,provider,external_document_id', ignoreDuplicates: true })
+        if (!error) staged++
+        else console.error('invoice-poll stage failed', error)
       }
       await admin.from('user_integrations').update({ last_polled_at: new Date().toISOString() }).eq('id', integ.id)
     } catch (e) {
       console.error('invoice-poll: connection failed', integ.id, e)
     }
   }
-  return json({ ok: true, connections: (integs ?? []).length, scanned, staged, imported })
+  return json({ ok: true, connections: (integs ?? []).length, scanned, staged })
 })

@@ -45,6 +45,11 @@
 [data-theme="dark"] .datefield-pop {
   background: rgba(26, 31, 38, 0.97);
 }
+/* Flip above the field when there isn't room below (set by DateField.jsx). */
+.datefield-pop.up {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
 .datefield-nav {
   display: flex;
   align-items: center;

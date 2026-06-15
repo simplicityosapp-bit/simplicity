@@ -69,7 +69,7 @@ function reminderBucket(rem, now) {
 export default function TasksScreen() {
   const { addr, gender } = useAddress()
   const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask, editTask, clearCompleted, refetch: refetchTasks } = useTasks()
-  const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder, editReminder } = useReminders()
+  const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder, editReminder, clearCompleted: clearCompletedReminders } = useReminders()
   const { projects } = useProjects()
   const { clients } = useClients()
   const { statuses: taskStatuses, addStatus, removeStatus } = useTaskStatuses()
@@ -278,7 +278,7 @@ export default function TasksScreen() {
         </div>
       )}
 
-      {isTasks && filter === 'done' && doneCount > 0 && (
+      {filter === 'done' && doneCount > 0 && (
         <div className="t-clear-row">
           <button type="button" className="t-clear-btn" onClick={() => setConfirmClear(true)}>
             <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
@@ -473,6 +473,15 @@ export default function TasksScreen() {
             reminder={editItem}
             clients={clients}
             onSave={(patch) => editItem && editReminder(editItem.id, patch)}
+          />
+          <ConfirmModal
+            open={confirmClear}
+            onClose={() => setConfirmClear(false)}
+            title="מחיקת תזכורות שהושלמו"
+            message={`למחוק ${doneCount} ${doneCount === 1 ? 'תזכורת שהושלמה' : 'תזכורות שהושלמו'}? אפשר לשחזר אותן מסל המיחזור עד 30 יום.`}
+            confirmLabel="מחק הכל"
+            danger
+            onConfirm={() => clearCompletedReminders()}
           />
         </>
       )}

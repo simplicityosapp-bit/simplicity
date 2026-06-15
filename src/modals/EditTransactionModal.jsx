@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Trash2 } from 'lucide-react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import InvoiceActions from '../components/InvoiceActions'
@@ -11,7 +12,7 @@ const STATUSES = [
 ]
 
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
-export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [] }) {
+export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [], onDelete }) {
   const { tryAgain } = useAddress()
   const [form, setForm] = useState(() => ({
     type: tx?.type || 'income',
@@ -150,6 +151,11 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
+        {onDelete && tx?.id && (
+          <button type="button" className="m-btn-delete" onClick={() => { onDelete(tx.id); onClose() }}>
+            <Trash2 size={15} strokeWidth={1.8} aria-hidden="true" /> מחק
+          </button>
+        )}
         <button type="button" className="m-btn-cancel" onClick={onClose}>ביטול</button>
         <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
       </div>

@@ -3,6 +3,8 @@ import DateField from '../components/DateField'
 import Modal from './Modal'
 import { showToast } from '../lib/toast'
 import { useAddress } from '../hooks/useAddress'
+import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
+import { DOC_TYPES, PAY_METHODS, docTypeLabel, isReceiptType } from '../lib/invoiceDocs'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
    Israeli evenings, flipping a same-day tx to pending. */
@@ -27,6 +29,7 @@ const blank = (defaults = {}) => ({
    have to re-pick the project they're clearly already on. */
 export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {} }) {
   const { tryAgain } = useAddress()
+  const inv = useInvoiceProvider()
   const lockedClientId = client?.id || ''
   const initial = { ...defaults, client_id: lockedClientId || defaults.client_id, type: defaultType || defaults.type }
   const [form, setForm] = useState(() => blank(initial))
@@ -35,13 +38,19 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   const [creatingCat, setCreatingCat] = useState(false)
   const [newCatName, setNewCatName] = useState('')
   const [catBusy, setCatBusy] = useState(false)
+  /* "הפק קבלה עם היצירה" — issues a real document right after the income is
+     saved (one action instead of two). Only offered for income when a provider
+     is connected; the doc is irreversible, so the picker mirrors the per-tx one. */
+  const [issueOnCreate, setIssueOnCreate] = useState(false)
+  const [issueDocType, setIssueDocType] = useState('invoice_receipt')
+  const [issuePayment, setIssuePayment] = useState('bank_transfer')
   const set = (k, v) => {
     /* Leaving the expense type unmounts the inline category-creator block —
        reset its state so switching back to הוצאה shows the normal <select>. */
     if (k === 'type' && v !== 'expense') { setCreatingCat(false); setNewCatName('') }
     setForm((f) => ({ ...f, [k]: v }))
   }
-  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); onClose() }
+  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); onClose() }
 
   /* Inline "new category" creation (Option C1): only when the parent passes
      onCreateCategory. Creating one selects it immediately so the user never
@@ -68,20 +77,33 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
     setBusy(true)
     setErr('')
     const isFuture = form.date > todayStr()
+    const clientId = lockedClientId || form.client_id || null
+    const wantIssue = issueOnCreate && form.type === 'income' && !!clientId && !isFuture
+      && !!inv.status?.connected && !inv.status?.credentials_invalid
     try {
-      await onSave({
+      const row = await onSave({
         amount,
         type: form.type,
         desc: form.desc.trim() || (form.type === 'income' ? 'הכנסה' : 'הוצאה'),
         date: form.date,
         status: isFuture ? 'pending' : 'confirmed',
         project_id: form.project_id || null,
-        client_id: lockedClientId || form.client_id || null,
+        client_id: clientId,
         category_id: form.type === 'expense' ? (form.category_id || null) : null,
         recurring_id: null,
         orphaned_from: null,
       })
-      showToast('התנועה נשמרה')
+      if (wantIssue && row?.id) {
+        try {
+          const r = await inv.issueDocument(row.id, issueDocType, { itemId: null, itemName: form.desc.trim(), paymentMethod: issuePayment })
+          const num = r?.document?.number
+          showToast('התנועה נשמרה והופקה ' + docTypeLabel(issueDocType) + (num ? ' מס׳ ' + num : ''))
+        } catch {
+          showToast('התנועה נשמרה, אך ההפקה נכשלה — אפשר להפיק מהעריכה', 'error')
+        }
+      } else {
+        showToast('התנועה נשמרה')
+      }
       close()
     } catch (e) {
       setBusy(false)
@@ -90,6 +112,11 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   }
 
   const amountInvalid = !!err && !(parseFloat(form.amount) > 0)
+  /* Issue-on-creation is offered only for income when a usable provider is
+     connected; the body explains the missing piece (client / future date). */
+  const issuable = form.type === 'income' && !!inv.status?.connected && !inv.status?.credentials_invalid
+  const hasClient = !!(lockedClientId || form.client_id)
+  const futureDate = form.date > todayStr()
 
   return (
     <Modal open={open} onClose={close} title={client ? 'תשלום שהתקבל' : 'תנועה חדשה'}>
@@ -189,6 +216,37 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               {onCreateCategory && <option value="__new__">+ קטגוריה חדשה…</option>}
             </select>
+          )}
+        </div>
+      )}
+
+      {issuable && (
+        <div className="m-field m-issue">
+          {!hasClient ? (
+            <p className="m-hint">שייכו לקוח לתנועה כדי להפיק קבלה עם השמירה.</p>
+          ) : futureDate ? (
+            <p className="m-hint">לתנועה עתידית אי-אפשר להפיק קבלה כעת — אפשר להפיק כשתתקבל.</p>
+          ) : (
+            <>
+              <label className="m-issue-toggle">
+                <input type="checkbox" checked={issueOnCreate} onChange={(e) => setIssueOnCreate(e.target.checked)} />
+                <span>הפק מסמך עם השמירה</span>
+              </label>
+              {issueOnCreate && (
+                <div className="m-issue-opts">
+                  <div className="m-pills m-issue-types">
+                    {DOC_TYPES.map((d) => (
+                      <button key={d.key} type="button" className={`m-pill${issueDocType === d.key ? ' on' : ''}`} onClick={() => setIssueDocType(d.key)}>{d.label}</button>
+                    ))}
+                  </div>
+                  {isReceiptType(issueDocType) && (
+                    <select className="m-select" value={issuePayment} onChange={(e) => setIssuePayment(e.target.value)} aria-label="אמצעי תשלום">
+                      {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+                    </select>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

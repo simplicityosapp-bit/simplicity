@@ -548,19 +548,6 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
 [data-theme="dark"] .lp-screen {
   background: linear-gradient(170deg, rgba(26, 31, 30, 0.5), rgba(10, 16, 14, 0.4));
 }
-.lp-screen-greet {
-  margin: 0 0 2px;
-  font-size: calc(12px * var(--text-scale));
-  color: var(--stone);
-}
-.lp-screen-name {
-  margin: 0 0 16px;
-  font-family: var(--mg-font);
-  font-size: calc(20px * var(--text-scale));
-  font-weight: 700;
-  color: var(--espresso);
-}
-
 /* Moon-glance ring (signature) */
 .lp-moon {
   display: flex;

@@ -269,9 +269,6 @@ export default function LandingScreen() {
             <div className="lp-demo-stage lp-reveal">
               <div className="lp-device" role="img" aria-label="תצוגה של המסך הראשי בסימפליסיטי: ‘מבט על’ עם ציון של 78 אחוז בקצב, ורשימת פריטים שדורשים תשומת לב.">
                 <div className="lp-screen" aria-hidden="true">
-                  <p className="lp-screen-greet">בוקר טוב,</p>
-                  <p className="lp-screen-name">נועה</p>
-
                   <div className="lp-moon">
                     <div className="lp-ring">
                       <svg viewBox="0 0 100 100">

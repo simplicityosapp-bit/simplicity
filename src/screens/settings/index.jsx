@@ -29,7 +29,7 @@ import DeleteAccountModal from '../../modals/DeleteAccountModal'
 import { resetAllUserData, buildAccountDeletionRequest } from '../../lib/api/account'
 import {
   ROLE_LABELS, roleLabel, CURRENCY_OPTIONS, DATE_FORMAT_OPTIONS, TIME_FORMAT_OPTIONS, WEEK_START_OPTIONS,
-  TEXT_SIZE_OPTIONS, WIDGET_REGISTRY, ACCENT_OPTIONS,
+  TEXT_SIZE_OPTIONS, WIDGET_REGISTRY,
   CARD_STYLE_OPTIONS, TEXT_STRENGTH_OPTIONS, DENSITY_OPTIONS,
 } from '../../lib/preferences'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
@@ -47,7 +47,6 @@ const SECTIONS = [
   { key: 'profile', title: 'פרופיל', icon: User, sub: 'שם, תפקיד והתמחות' },
   { key: 'widgets', title: 'ווידג׳טים ותצוגה', icon: LayoutGrid, sub: 'מה מופיע במסך הבית' },
   { key: 'clients', title: 'לקוחות וסטטוסים', icon: Users, sub: 'תתי-סטטוסים מותאמים אישית' },
-  { key: 'goals', title: 'יעדים ומדדים', icon: Target, sub: 'מדדי מדידה' },
   { key: 'payments', title: 'תשלומים ומטבע', icon: Wallet, sub: 'מטבע ופורמט סכומים' },
   { key: 'questions', title: 'שאלות יומיות', icon: Sparkles, sub: 'מה נשאל בכל יום' },
   { key: 'leads', title: 'הגדרות לידים', icon: Leaf, sub: 'מקורות וסטטוסים' },
@@ -213,7 +212,8 @@ function WidgetsBody({ prefs, onUpdate }) {
       <Segmented label="עוצמת טקסט" value={global.textStrength || 'normal'} options={TEXT_STRENGTH_OPTIONS} onChange={setGlobal('textStrength')} />
       <Segmented label="צפיפות" value={global.density || 'comfortable'} options={DENSITY_OPTIONS} onChange={setGlobal('density')} />
 
-      <p className="set-sub-h" style={{ marginTop: 8 }}>ווידג׳טים</p>
+      <details className="set-w-collapse">
+      <summary className="set-w-summary">ווידג׳טים</summary>
       <div className="set-w-list">
         {list.map((w, i) => {
           const reg = WIDGET_REGISTRY.find((r) => r.id === w.id)
@@ -237,6 +237,7 @@ function WidgetsBody({ prefs, onUpdate }) {
           )
         })}
       </div>
+      </details>
     </div>
   )
 }
@@ -284,21 +285,6 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
       </div>
       {cfg.enabled && (
         <div className="set-w-row-ctrls">
-          <div className="set-w-accents" role="radiogroup" aria-label="צבע מבטא">
-            {ACCENT_OPTIONS.map((a) => (
-              <button
-                key={a.v}
-                type="button"
-                role="radio"
-                aria-checked={cfg.accent === a.v}
-                aria-label={`צבע ${a.l}`}
-                title={a.l}
-                className={`set-w-accent${cfg.accent === a.v ? ' on' : ''}`}
-                style={{ background: a.color }}
-                onClick={() => onUpdate({ accent: a.v })}
-              />
-            ))}
-          </div>
           {reg.supportsCompact && (
             <button
               type="button"
@@ -723,17 +709,6 @@ export default function SettingsScreen() {
     if (key === 'widgets') {
       if (prefsLoading) return <p className="set-soon">טוען…</p>
       return <WidgetsBody prefs={prefs} onUpdate={updatePrefs} />
-    }
-    if (key === 'goals') {
-      return (
-        <div className="set-profile-body">
-          <p className="set-shortcut-hint">המדדים מנוהלים במסך היעדים — שם רואים את התרומה של כל מדד לציון הירח.</p>
-          <button type="button" className="set-shortcut-btn" onClick={() => navigate(ROUTES.GOALS)}>
-            לניהול מדדים
-            <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
-          </button>
-        </div>
-      )
     }
     if (key === 'questions') {
       const reminderPref = prefs?.insightsReminder || { enabled: false, time: '20:00' }

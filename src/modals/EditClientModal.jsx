@@ -16,7 +16,7 @@ const DAYS = [
 
 /* Edit a client — name / status / sub-status / sessions / price / phone /
    project. Parent passes key={client?.id} so this remounts cleanly per client. */
-export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [], isMember = false }) {
+export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [] }) {
   const { addr, tryAgain } = useAddress()
   /* Per-group billing override (group_members.total_override) — keyed by
      membership id. Lets the user manually set a member's total after the
@@ -137,7 +137,6 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         const raw = memberOverrides[m.id]
         const next = raw !== '' && raw != null ? Math.max(0, Number(raw) || 0) : null
         if (next !== (m.total_override ?? null)) {
-          // eslint-disable-next-line no-await-in-loop
           await onUpdateMember?.(m.id, { total_override: next, has_custom_price: next != null })
         }
       }

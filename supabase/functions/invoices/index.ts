@@ -62,11 +62,24 @@ const statusOf = (row: any) =>
     ? {
         connected: true, provider: row.provider, environment: row.environment,
         connected_at: row.created_at, auto_import: !!row.auto_import,
+        // Durable "credentials rejected" marker (migration 0038) — drives the
+        // UI's reconnect prompt. Cleared on any successful call / reconnect.
+        credentials_invalid: !!row.credentials_invalid_at,
         // SUMIT Route B: the user's personal webhook URL to paste into a SUMIT trigger.
         webhook_url: row.provider === 'sumit' && row.webhook_token
           ? `${SUPABASE_URL}/functions/v1/invoice-webhook?t=${row.webhook_token}` : null,
       }
     : { connected: false }
+
+/* Flip the durable "credentials invalid" marker only when it actually changes
+   (avoids a needless write on every successful call). */
+async function setCredsInvalid(id: string, invalid: boolean, current: string | null) {
+  if (invalid && !current) {
+    await admin.from('user_integrations').update({ credentials_invalid_at: new Date().toISOString() }).eq('id', id)
+  } else if (!invalid && current) {
+    await admin.from('user_integrations').update({ credentials_invalid_at: null }).eq('id', id)
+  }
+}
 
 /* The user's single invoice connection (they pick one provider). Scoped to
    invoice providers so the google_calendar row is never touched. */
@@ -133,16 +146,28 @@ Deno.serve(async (req) => {
       const row = await loadInvoiceIntegration(userId)
       if (!row) return json({ error: 'not_connected' }, 400)
       const p = getProvider(row.provider)
-      await p.verifyCredentials({ apiKey: row.api_key, apiSecret: row.api_secret, environment: row.environment })
-      return json({ ok: true, status: statusOf(row) })
+      try {
+        await p.verifyCredentials({ apiKey: row.api_key, apiSecret: row.api_secret, environment: row.environment })
+      } catch (e) {
+        if (e instanceof ProviderError && e.code === 'invalid_credentials') await setCredsInvalid(row.id, true, row.credentials_invalid_at)
+        throw e
+      }
+      await setCredsInvalid(row.id, false, row.credentials_invalid_at)
+      return json({ ok: true, status: statusOf({ ...row, credentials_invalid_at: null }) })
     }
 
     if (action === 'catalog') {
       const row = await loadInvoiceIntegration(userId)
       if (!row) return json({ error: 'not_connected' }, 400)
-      const items = await getProvider(row.provider)
-        .listItems({ apiKey: row.api_key, apiSecret: row.api_secret, environment: row.environment })
-      return json({ items })
+      try {
+        const items = await getProvider(row.provider)
+          .listItems({ apiKey: row.api_key, apiSecret: row.api_secret, environment: row.environment })
+        await setCredsInvalid(row.id, false, row.credentials_invalid_at)
+        return json({ items })
+      } catch (e) {
+        if (e instanceof ProviderError && e.code === 'invalid_credentials') await setCredsInvalid(row.id, true, row.credentials_invalid_at)
+        throw e
+      }
     }
 
     if (action === 'set-auto-import') {
@@ -206,8 +231,11 @@ Deno.serve(async (req) => {
         // Release the claim so a retry is possible (only while no real doc is recorded).
         await admin.from('transactions').update({ invoice_synced_at: null })
           .eq('id', transaction_id).eq('user_id', userId).is('invoice_document_id', null)
+        if (e instanceof ProviderError && e.code === 'invalid_credentials') await setCredsInvalid(integ.id, true, integ.credentials_invalid_at)
         throw e
       }
+      // The document was created → credentials are definitely valid.
+      await setCredsInvalid(integ.id, false, integ.credentials_invalid_at)
 
       // Record what was issued. If THIS fails, the real document already exists,
       // so log loudly and still return the number rather than losing it.
@@ -222,6 +250,65 @@ Deno.serve(async (req) => {
       if (linkErr) console.error('invoices issue: document issued but failed to link', result.id, linkErr)
 
       return json({ ok: true, document: { number: result.number, url: result.url, type: result.type } })
+    }
+
+    if (action === 'credit') {
+      const transaction_id = String(body.transaction_id ?? '')
+      if (!transaction_id) return json({ error: 'missing_transaction' }, 400)
+
+      const integ = await loadInvoiceIntegration(userId)
+      if (!integ) return json({ error: 'not_connected' }, 400)
+
+      const { data: tx } = await admin.from('transactions')
+        .select('*').eq('id', transaction_id).eq('user_id', userId).is('deleted_at', null).maybeSingle()
+      if (!tx) return json({ error: 'transaction_not_found' }, 404)
+      if (!tx.invoice_document_id) return json({ error: 'not_issued' }, 400) // nothing to credit
+      if (tx.invoice_credited_at) return json({ error: 'already_credited' }, 409)
+
+      // Atomic claim — flip the credited marker first, only if issued & not yet
+      // credited, so a concurrent double-credit can't mint two credit documents.
+      const { data: claimed } = await admin.from('transactions')
+        .update({ invoice_credited_at: new Date().toISOString() })
+        .eq('id', transaction_id).eq('user_id', userId)
+        .not('invoice_document_id', 'is', null).is('invoice_credited_at', null)
+        .select('id').maybeSingle()
+      if (!claimed) return json({ error: 'already_credited' }, 409)
+
+      const { data: client } = await admin.from('clients')
+        .select('name, email, phone').eq('id', tx.client_id).eq('user_id', userId).maybeSingle()
+
+      let result
+      try {
+        result = await getProvider(integ.provider).createCreditNote(
+          { apiKey: integ.api_key, apiSecret: integ.api_secret, environment: integ.environment },
+          {
+            originalExternalId: tx.invoice_document_id,
+            docType: tx.invoice_document_type ?? 'invoice_receipt',
+            amount: Number(tx.amount),
+            description: tx.desc || '',
+            itemName: tx.desc || `זיכוי — ${client?.name ?? ''}`.trim(),
+            customer: { name: client?.name ?? '', email: client?.email ?? null, phone: client?.phone ?? null },
+            reason: (body.reason ?? '').toString().trim() || 'ביטול / זיכוי',
+          },
+        )
+      } catch (e) {
+        // Release the claim so a retry is possible (no credit document recorded).
+        await admin.from('transactions').update({ invoice_credited_at: null })
+          .eq('id', transaction_id).eq('user_id', userId)
+        if (e instanceof ProviderError && e.code === 'invalid_credentials') await setCredsInvalid(integ.id, true, integ.credentials_invalid_at)
+        throw e
+      }
+      await setCredsInvalid(integ.id, false, integ.credentials_invalid_at)
+
+      const { error: linkErr } = await admin.from('transactions').update({
+        invoice_credited_at: new Date().toISOString(),
+        invoice_credit_document_id: result.id,
+        invoice_credit_document_number: result.number,
+        invoice_credit_document_url: result.url,
+      }).eq('id', transaction_id).eq('user_id', userId)
+      if (linkErr) console.error('invoices credit: document issued but failed to link', result.id, linkErr)
+
+      return json({ ok: true, document: { number: result.number, url: result.url } })
     }
 
     if (action === 'import-approve') {

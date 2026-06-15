@@ -68,6 +68,17 @@ export interface InvoiceDocResult {
   type: DocType
 }
 
+/* Input for a credit note (זיכוי) — cancels/refunds a previously issued doc. */
+export interface CreditNoteInput {
+  originalExternalId: string // the provider's id of the document being credited
+  docType: DocType           // the original document's type (echoed back on the result)
+  amount: number
+  description: string
+  itemName: string
+  customer: { name: string; email: string | null; phone: string | null }
+  reason: string
+}
+
 /* A thrown ProviderError carries a coarse `code` the HTTP layer maps to a
    safe client message — the raw upstream body is NEVER sent to the browser. */
 export class ProviderError extends Error {
@@ -105,6 +116,9 @@ export interface InvoiceProvider {
   verifyCredentials(creds: InvoiceCredentials): Promise<void>
   /* Issue a REAL document at the provider. Used by the `issue` action. */
   createDocument(creds: InvoiceCredentials, doc: InvoiceDocInput): Promise<InvoiceDocResult>
+  /* Issue a credit note (זיכוי) that cancels/refunds an existing document.
+     Used by the `credit` action. Returns the credit document. */
+  createCreditNote(creds: InvoiceCredentials, input: CreditNoteInput): Promise<InvoiceDocResult>
   /* Re-fetch a document by its provider id (Route B webhook → authoritative
      details). Returns null if the document can't be found. */
   fetchDocument(creds: InvoiceCredentials, externalId: string): Promise<FetchedDoc | null>
@@ -190,6 +204,37 @@ class GreenInvoiceProvider implements InvoiceProvider {
     if (!data.id) throw new ProviderError('provider_error', 'green-invoice returned no document id')
     const url = data?.url?.origin ?? data?.url?.he ?? (typeof data?.url === 'string' ? data.url : null)
     return { id: String(data.id), number: String(data.number ?? data.id), url, type: doc.docType }
+  }
+
+  // Credit invoice = morning document type 330, linked to the original with
+  // linkType "cancel". UNVERIFIED against a live GI key (like createDocument).
+  async createCreditNote(creds: InvoiceCredentials, input: CreditNoteInput): Promise<InvoiceDocResult> {
+    const token = await this.token(creds)
+    const body: Record<string, unknown> = {
+      type: 330,
+      lang: 'he',
+      currency: 'ILS',
+      vatType: 0,
+      client: { name: input.customer.name },
+      income: [{ description: input.itemName || input.description || 'זיכוי', quantity: 1, price: input.amount, currency: 'ILS', vatType: 0 }],
+      linkedDocumentIds: [input.originalExternalId],
+      linkType: 'cancel',
+    }
+    let res: Response
+    try {
+      res = await fetch(`${this.base(creds.environment)}/documents`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      })
+    } catch (e) {
+      throw new ProviderError('provider_unreachable', `green-invoice unreachable: ${e}`)
+    }
+    if (!res.ok) throw new ProviderError('provider_error', `green-invoice credit error ${res.status}: ${await res.text()}`)
+    const data = (await res.json().catch(() => ({}))) as any
+    if (!data.id) throw new ProviderError('provider_error', 'green-invoice credit returned no document id')
+    const url = data?.url?.origin ?? data?.url?.he ?? (typeof data?.url === 'string' ? data.url : null)
+    return { id: String(data.id), number: String(data.number ?? data.id), url, type: input.docType }
   }
 
   async fetchDocument(_creds: InvoiceCredentials, _externalId: string): Promise<FetchedDoc | null> {
@@ -313,6 +358,23 @@ class SumitProvider implements InvoiceProvider {
       number: String(data.DocumentNumber ?? data.DocumentID),
       url: data.DocumentDownloadURL ?? null,
       type: doc.docType,
+    }
+  }
+
+  // SUMIT has a purpose-built cancel endpoint that issues the matching credit
+  // document (CreditInvoice / CreditReceipt) for an existing document and links
+  // it automatically. Swagger: Accounting_Documents_Cancel_Request.
+  async createCreditNote(creds: InvoiceCredentials, input: CreditNoteInput): Promise<InvoiceDocResult> {
+    const data = await this.post(creds, '/accounting/documents/cancel/', {
+      DocumentID: Number(input.originalExternalId),
+      Description: input.reason || 'ביטול / זיכוי',
+    })
+    if (!data?.DocumentID) throw new ProviderError('provider_error', 'sumit cancel returned no DocumentID')
+    return {
+      id: String(data.DocumentID),
+      number: String(data.DocumentNumber ?? data.DocumentID),
+      url: data.DocumentDownloadURL ?? null,
+      type: input.docType,
     }
   }
 

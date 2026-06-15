@@ -12,6 +12,7 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
   const isExpense = tx.type === 'expense'
   const isPending = tx.status === 'pending'
   const isSkipped = tx.status === 'skipped'
+  const isCredited = !!tx.invoice_credited_at // cancelled by a credit note → out of totals
 
   return (
     <div
@@ -26,6 +27,7 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
         <div className="f-tx-meta">
           <span className="f-tx-date">{fmtShortDate(tx.date)}</span>
           {isSkipped && <span className="f-tx-tag skip">דילגת</span>}
+          {isCredited && <span className="f-tx-tag credited">בוטלה</span>}
           {meta && <span className="f-tx-meta-text">· {meta}</span>}
           {category && (
             <span className="f-tx-cat">
@@ -36,7 +38,7 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
         </div>
       </div>
 
-      <p className={`f-tx-amt mono ${isExpense ? 'exp' : 'inc'}${isSkipped ? ' strike' : ''}`}>
+      <p className={`f-tx-amt mono ${isExpense ? 'exp' : 'inc'}${isSkipped || isCredited ? ' strike' : ''}`}>
         {isExpense ? '−' : '+'}{isr(tx.amount)}
       </p>
 

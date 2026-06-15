@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, ChevronDown, ChevronUp, Copy, Webhook, Loader2 } from 'lucide-react'
+import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, ChevronDown, ChevronUp, Copy, Webhook, Loader2, TriangleAlert } from 'lucide-react'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useAddress } from '../../hooks/useAddress'
 
@@ -72,6 +72,7 @@ export default function InvoiceCard() {
   const inv = useInvoiceProvider()
   const status = inv.status
   const connected = !!status?.connected
+  const credsInvalid = connected && !!status?.credentials_invalid // provider rejected the stored key
   const webhookId = useId()
 
   const [provider, setProvider] = useState('greeninvoice')
@@ -82,6 +83,7 @@ export default function InvoiceCard() {
   const [showHelp, setShowHelp] = useState(false)
   const [showWebhook, setShowWebhook] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [reconnecting, setReconnecting] = useState(false) // re-entering creds for a broken connection
 
   const [busyAction, setBusyAction] = useState(null) // 'connect' | 'test' | 'disconnect'
   const [confirmDisc, setConfirmDisc] = useState(false)
@@ -98,11 +100,21 @@ export default function InvoiceCard() {
     setLocalErr(''); setOkMsg('')
   }
 
+  /* Broken connection → re-enter credentials for the SAME provider. */
+  const startReconnect = () => {
+    setProvider(status.provider)
+    setEnvironment(status.environment || (status.provider === 'sumit' ? 'production' : 'sandbox'))
+    setCreds({ apiKey: '', apiSecret: '' })
+    setLocalErr(''); setOkMsg(''); setShowHelp(false)
+    setReconnecting(true)
+  }
+
   const onConnect = async () => {
     setLocalErr(''); setOkMsg(''); setBusyAction('connect')
     try {
       await inv.connect({ provider, apiKey: creds.apiKey.trim(), apiSecret: creds.apiSecret.trim(), environment })
       setCreds({ apiKey: '', apiSecret: '' }) // never keep credentials in component state
+      setReconnecting(false)
       setOkMsg('החיבור הצליח.')
     } catch (e) {
       setLocalErr(errToHe(e.message, addr))
@@ -158,7 +170,9 @@ export default function InvoiceCard() {
           <p className="conn-card-sub">
             {inv.loading ? 'טוען…'
               : connected
-                ? <><Check size={13} strokeWidth={2} aria-hidden="true" /> מחובר · {providerLabel(status.provider)} · {envLabel(status.environment)}</>
+                ? (credsInvalid
+                    ? <><TriangleAlert size={13} strokeWidth={2} aria-hidden="true" /> דורש חיבור מחדש · {providerLabel(status.provider)}</>
+                    : <><Check size={13} strokeWidth={2} aria-hidden="true" /> מחובר · {providerLabel(status.provider)} · {envLabel(status.environment)}</>)
                 : 'לא מחובר — הפקת חשבוניות וקבלות ישירות מסימפליסיטי.'}
           </p>
         </div>
@@ -168,7 +182,17 @@ export default function InvoiceCard() {
         <p className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {localErr}</p>
       )}
 
-      {!connected ? (
+      {credsInvalid && !reconnecting && (
+        <div className="conn-broken" role="alert">
+          <TriangleAlert size={16} strokeWidth={1.8} aria-hidden="true" />
+          <span>פרטי ההזדהות לשירות אינם תקפים יותר — ייתכן שהמפתח בוטל או הוחלף. כדי להמשיך להפיק חשבוניות, התחבר/י מחדש.</span>
+          <button type="button" className="conn-btn primary conn-broken-btn" onClick={startReconnect}>
+            {addr({ male: 'התחבר מחדש', female: 'התחברי מחדש', neutral: 'התחבר/י מחדש' })}
+          </button>
+        </div>
+      )}
+
+      {(!connected || reconnecting) ? (
         <div className="conn-connect">
           <div className="conn-lbl-row">
             <span className="conn-field-lbl">{addr({ male: 'בחר ספק', female: 'בחרי ספק', neutral: 'בחר/י ספק' })}</span>
@@ -227,8 +251,11 @@ export default function InvoiceCard() {
           ))}
 
           <button type="button" className="conn-btn primary" disabled={!canConnect} aria-busy={busyAction === 'connect'} onClick={onConnect}>
-            {busyAction === 'connect' ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> מתחבר…</> : 'חבר'}
+            {busyAction === 'connect' ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> מתחבר…</> : (reconnecting ? addr({ male: 'התחבר מחדש', female: 'התחברי מחדש', neutral: 'התחבר/י מחדש' }) : 'חבר')}
           </button>
+          {reconnecting && (
+            <button type="button" className="conn-btn ghost" disabled={busyAction === 'connect'} onClick={() => { setReconnecting(false); setLocalErr(''); setOkMsg('') }}>ביטול</button>
+          )}
 
           <p className="conn-note">{def.help}</p>
         </div>

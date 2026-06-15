@@ -931,6 +931,7 @@ ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS environment text;
 ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS auto_import boolean DEFAULT false NOT NULL;
 ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS webhook_token text;
 ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS last_polled_at timestamp with time zone;
+ALTER TABLE user_integrations ADD COLUMN IF NOT EXISTS credentials_invalid_at timestamp with time zone; -- 0038: durable "credentials rejected" marker
 DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'user_integrations_environment_check') THEN
   ALTER TABLE user_integrations ADD CONSTRAINT user_integrations_environment_check CHECK (environment IS NULL OR environment IN ('sandbox', 'production'));
 END IF; END $$;
@@ -942,6 +943,11 @@ ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_document_number text;
 ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_document_type text;
 ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_document_url text;
 ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_synced_at timestamp with time zone;
+-- 0039: credit notes (זיכוי) — invoice_credited_at doubles as the "out of totals" flag.
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_credited_at timestamp with time zone;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_credit_document_id text;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_credit_document_number text;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_credit_document_url text;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_transactions_invoice_doc_uniq ON public.transactions (user_id, invoice_provider, invoice_document_id) WHERE invoice_document_id IS NOT NULL AND deleted_at IS NULL;
 
 CREATE TABLE IF NOT EXISTS pending_invoice_imports (

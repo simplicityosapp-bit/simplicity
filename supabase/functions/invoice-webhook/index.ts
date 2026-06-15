@@ -28,6 +28,25 @@ const admin = createClient(SUPABASE_URL, SERVICE_ROLE)
 
 const ok = () => new Response('ok', { status: 200 })
 
+/* ── Rate limiting (best-effort, per warm isolate) ────────────────────
+   The endpoint is public, so guard it from abuse: token-guessing floods
+   (many requests from one IP) and a leaked token being hammered. This is
+   in-memory — it resets on a cold start and isn't shared across isolates,
+   which is the honest tradeoff for a stateless edge function without an
+   external store; it still blunts a sustained flood. Legitimate SUMIT
+   traffic is ~1 request per issued document, far under these caps, so a
+   real trigger never sees a 429. */
+const RL = new Map<string, number[]>()
+function overLimit(key: string, max: number, windowMs: number): boolean {
+  const now = Date.now()
+  const arr = (RL.get(key) ?? []).filter((t) => now - t < windowMs)
+  arr.push(now)
+  RL.set(key, arr)
+  if (RL.size > 10_000) RL.clear() // crude cap on isolate memory growth
+  return arr.length > max
+}
+const tooMany = () => new Response('rate limited', { status: 429 })
+
 /* The document id (SUMIT EntityID) out of a trigger body whose shape is
    the user's View columns. Be liberal about casing / light nesting. */
 function extractEntityId(body: any, depth = 0): string | null {
@@ -58,8 +77,14 @@ function matchClient(clients: { id: string; name: string }[], name: string | nul
 
 Deno.serve(async (req) => {
   try {
-    const token = new URL(req.url).searchParams.get('t')
+    const url = new URL(req.url)
+    const token = url.searchParams.get('t')
+    const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown'
+    // Generous per-IP cap (abuse / token-guessing) + tight per-token cap
+    // (a leaked token being flooded). Both are far above legitimate traffic.
+    if (overLimit(`ip:${ip}`, 100, 60_000)) return tooMany()
     if (!token) return ok()
+    if (overLimit(`t:${token}`, 20, 10_000)) return tooMany()
 
     // Map token → connection (webhook_token is service-role-only).
     const { data: integ } = await admin.from('user_integrations')

@@ -270,6 +270,7 @@ export function makeMockClient() {
         if (name === 'invoices') {
           const a = opts?.body?.action
           if (a === 'issue') return { data: { ok: true, document: { number: '2026-1042', url: 'https://example.com/doc.pdf', type: opts?.body?.doc_type } }, error: null }
+          if (a === 'credit') return { data: { ok: true, document: { number: '2026-2001', url: 'https://example.com/credit.pdf' } }, error: null }
           if (a === 'disconnect') return { data: { ok: true, status: { connected: false } }, error: null }
           if (a === 'connect') return { data: { status: { connected: true, provider: opts?.body?.provider, environment: opts?.body?.environment, connected_at: new Date().toISOString(), auto_import: false, webhook_url: opts?.body?.provider === 'sumit' ? 'https://rdurkakzyymxhocvhufw.supabase.co/functions/v1/invoice-webhook?t=mock-token' : null } }, error: null }
           if (a === 'import-approve') return { data: { ok: true, transaction_id: 'mock-tx' }, error: null }

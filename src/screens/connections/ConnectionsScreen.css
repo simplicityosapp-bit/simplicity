@@ -477,3 +477,25 @@
 /* Spinner glyph on connect/test/disconnect buttons while an action runs. */
 .conn-spin { animation: conn-spin 1s linear infinite; }
 @keyframes conn-spin { to { transform: rotate(360deg); } }
+
+/* Broken-credentials banner (durable invalid-key marker → reconnect). */
+.conn-broken {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--mg-card-radius);
+  border: 1px solid color-mix(in srgb, var(--clay) 38%, transparent);
+  background: color-mix(in srgb, var(--clay) 9%, var(--mg-card-bg));
+  color: var(--clay);
+}
+.conn-broken > span {
+  flex: 1 1 200px;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--espresso);
+}
+.conn-broken-btn { width: auto; flex: 0 0 auto; height: 38px; }

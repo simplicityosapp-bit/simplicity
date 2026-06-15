@@ -80,6 +80,26 @@
 }
 .inv-act-link:hover { text-decoration: underline; }
 
+/* Credit-note (זיכוי) affordance on the issued row. */
+.inv-act-credit-btn {
+  margin-inline-start: auto;
+  border: none;
+  background: transparent;
+  padding: 2px 4px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--clay);
+  cursor: pointer;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+.inv-act-credited {
+  margin-inline-start: auto;
+  font-size: calc(12px * var(--text-scale));
+  color: var(--clay);
+  white-space: nowrap;
+}
+
 /* Hint when no client is linked yet. */
 .inv-act.hint {
   margin: 16px 0 0;

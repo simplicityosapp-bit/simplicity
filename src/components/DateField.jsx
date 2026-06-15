@@ -19,6 +19,24 @@ const parse = (v) => {
   return Number.isNaN(d.getTime()) ? null : d
 }
 
+/* Edges (viewport coords) of the nearest ancestor that CLIPS overflow — a
+   scroll container or an overflow:hidden box. The popup is positioned inside
+   .datefield, so this ancestor is what would cut it off (e.g. the review
+   wizard's scrolling body). Falls back to the viewport. */
+const clipEdges = (el) => {
+  let node = el?.parentElement
+  while (node && node !== document.documentElement) {
+    const oy = getComputedStyle(node).overflowY
+    if (oy === 'auto' || oy === 'scroll' || oy === 'hidden') {
+      const r = node.getBoundingClientRect()
+      return { top: r.top, bottom: r.bottom }
+    }
+    node = node.parentElement
+  }
+  return { top: 0, bottom: window.innerHeight }
+}
+const POPUP_H = 330 /* approx calendar height — enough to choose a side */
+
 export default function DateField({ value, onChange, className = '', disabled = false, placeholder }) {
   const { addr } = useAddress()
   const ph = placeholder ?? addr({ male: 'בחר תאריך', female: 'בחרי תאריך', neutral: 'בחר/י תאריך' })
@@ -26,13 +44,26 @@ export default function DateField({ value, onChange, className = '', disabled = 
   const weekStart = prefs?.format?.week_start || 'sunday'
   const selected = parse(value)
   const [open, setOpen] = useState(false)
+  const [placement, setPlacement] = useState('bottom')
   const [view, setView] = useState(() => selected || new Date())
   const ref = useRef(null)
 
   /* Jump the calendar to the selected month when opening (no effect — the
      sync happens in the toggle handler to avoid setState-in-render). */
   const toggleOpen = () => {
-    if (!open) { const s = parse(value); if (s) setView(s) }
+    if (!open) {
+      const s = parse(value); if (s) setView(s)
+      /* Open upward when there isn't room below but there is more above —
+         so the calendar never gets clipped by a scroll container (e.g. a
+         row low in the review wizard's list). */
+      const r = ref.current?.getBoundingClientRect()
+      if (r) {
+        const { top, bottom } = clipEdges(ref.current)
+        const below = bottom - r.bottom
+        const above = r.top - top
+        setPlacement(below < POPUP_H && above > below ? 'top' : 'bottom')
+      }
+    }
     setOpen((o) => !o)
   }
   useEffect(() => {
@@ -68,7 +99,7 @@ export default function DateField({ value, onChange, className = '', disabled = 
         <span className={value ? 'datefield-val' : 'datefield-ph'}>{value ? fmtDateInput(selected) : ph}</span>
       </button>
       {open && !disabled && (
-        <div className="datefield-pop" role="dialog" aria-label="בחירת תאריך">
+        <div className={`datefield-pop${placement === 'top' ? ' up' : ''}`} role="dialog" aria-label="בחירת תאריך">
           <div className="datefield-nav">
             <button type="button" className="datefield-navbtn" onClick={() => shift(-1)} aria-label="חודש קודם">
               <ChevronRight size={16} strokeWidth={1.8} aria-hidden="true" />

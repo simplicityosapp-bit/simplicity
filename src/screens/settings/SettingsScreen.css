@@ -282,6 +282,31 @@
 
 /* Widgets section */
 .set-w-body { display: flex; flex-direction: column; gap: 10px; }
+/* Widgets sub-toggle — collapses the per-widget list under the display
+   settings so it doesn't crowd the global controls. */
+.set-w-collapse { margin-top: 8px; }
+.set-w-collapse > summary.set-w-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--stone);
+}
+.set-w-collapse > summary.set-w-summary::-webkit-details-marker { display: none; }
+.set-w-collapse > summary.set-w-summary::after {
+  content: '⌄';
+  margin-inline-start: auto;
+  transition: transform 0.2s ease;
+}
+.set-w-collapse[open] > summary.set-w-summary::after { transform: rotate(180deg); }
+.set-w-collapse > .set-w-list { margin-top: 8px; }
 .set-w-list { display: flex; flex-direction: column; gap: 8px; }
 .set-w-row {
   padding: 12px 12px;

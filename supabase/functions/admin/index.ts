@@ -1,11 +1,20 @@
 // ════════════════════════════════════════════════════════════════
-//  admin — read-only stats console backend for the single owner.
+//  admin — stats/management console backend for the owner + admins.
 // ════════════════════════════════════════════════════════════════
-//  The /admin screens in the React app are gated client-side to the
-//  owner's email, but a client gate is cosmetic. This function is the
-//  REAL gate: every request must carry the owner's JWT, and we verify
-//  server-side that the caller's email is exactly ADMIN_EMAIL before
-//  touching any data. Anyone else gets 403.
+//  The /admin screens in the React app are gated client-side, but a
+//  client gate is cosmetic. This function is the REAL gate: every
+//  request must carry an admin's JWT, and we verify server-side that
+//  the caller is either the hardcoded super-owner (ADMIN_EMAIL) OR a
+//  user the owner promoted (app_metadata.role === 'admin') before
+//  touching any data. Anyone else gets 403. Sensitive actions are
+//  further gated per-permission (see `perms` below).
+//
+//  WHY app_metadata for the admin flag:
+//   app_metadata is writable ONLY with the service_role key (i.e. only
+//   here, server-side) — never from the browser, unlike user_metadata
+//   or user_preferences. So it's the one place a user can't tamper with
+//   to escalate their own privileges. It also travels inside the JWT,
+//   so the client gate can read it with no extra fetch.
 //
 //  WHY an edge function at all:
 //   Every public table has RLS scoped to `user_id = auth.uid()`, so a
@@ -17,10 +26,14 @@
 //
 //  Actions (POST body { action, ...params }):
 //   - dashboard               → headline counters + weekly signups
-//   - users                   → one row per registered user
+//   - users                   → one row per registered user (+ admin flags)
 //   - feedback_list           → every feedback item + author email
-//   - feedback_update_status  → { id, status } (the ONLY write)
+//   - feedback_update_status  → { id, status }
 //   - analytics               → { range } sessions/reflections/funnel/top
+//   - set_subscriber          → { user_id, value }   (perm: set_subscriber)
+//   - delete_user             → { user_id }           (perm: delete_users)
+//   - set_admin               → { user_id, perms }    (perm: manage_admins)
+//   - revoke_admin            → { user_id }           (perm: manage_admins)
 //
 //  Deploy:   supabase functions deploy admin
 //  Secrets:  none needed — SUPABASE_URL / SUPABASE_ANON_KEY /
@@ -65,7 +78,8 @@ const STEP_LABELS: Record<string, string> = {
   finish: 'סיום',
 }
 
-type AuthUser = { id: string; email: string | null; created_at: string; last_sign_in_at: string | null; marketing_consent: boolean }
+type AdminPerms = { delete_users: boolean; set_subscriber: boolean; manage_admins: boolean }
+type AuthUser = { id: string; email: string | null; created_at: string; last_sign_in_at: string | null; marketing_consent: boolean; is_admin: boolean; admin_perms: AdminPerms }
 
 /* Page through auth.users with the admin API (max 1000/page) so no user
    is missed once the beta grows past a single page. */
@@ -78,12 +92,19 @@ async function fetchAllUsers(admin: ReturnType<typeof createClient>): Promise<Au
     if (error) throw error
     const batch = data?.users ?? []
     for (const u of batch) {
+      const ap = (u.app_metadata?.admin_perms ?? {}) as Record<string, unknown>
       out.push({
         id: u.id,
         email: u.email ?? null,
         created_at: u.created_at,
         last_sign_in_at: u.last_sign_in_at ?? null,
         marketing_consent: u.user_metadata?.marketing_consent === true,
+        is_admin: u.app_metadata?.role === 'admin',
+        admin_perms: {
+          delete_users:   ap.delete_users === true,
+          set_subscriber: ap.set_subscriber === true,
+          manage_admins:  ap.manage_admins === true,
+        },
       })
     }
     if (batch.length < 1000) break
@@ -119,11 +140,24 @@ Deno.serve(async (req) => {
     )
     const { data: { user }, error: authErr } = await caller.auth.getUser()
     if (authErr || !user) return json({ error: 'unauthorized' }, 401)
-    // Require a CONFIRMED owner email — stays correct even if email-confirmation
-    // is ever relaxed, or email-change semantics issue a session on an
-    // unconfirmed address that happens to equal ADMIN_EMAIL.
-    if (!user.email_confirmed_at || (user.email ?? '').toLowerCase() !== ADMIN_EMAIL) {
-      return json({ error: 'forbidden' }, 403)
+    // A CONFIRMED email is required either way — stays correct even if
+    // email-confirmation is ever relaxed, or email-change semantics issue a
+    // session on an unconfirmed address.
+    if (!user.email_confirmed_at) return json({ error: 'forbidden' }, 403)
+    // Admin = the hardcoded super-owner OR a user the owner promoted
+    // (app_metadata.role === 'admin', set only by set_admin below).
+    const isOwner = (user.email ?? '').toLowerCase() === ADMIN_EMAIL
+    const meta = (user.app_metadata ?? {}) as Record<string, unknown>
+    const isPromoted = meta.role === 'admin'
+    if (!isOwner && !isPromoted) return json({ error: 'forbidden' }, 403)
+    // Effective permissions. The owner implicitly has every power; a promoted
+    // admin has exactly the perms stamped on their metadata (default false).
+    // These gate the sensitive actions below; read actions need only admin.
+    const mp = (meta.admin_perms ?? {}) as Record<string, unknown>
+    const perms = {
+      delete_users:   isOwner || mp.delete_users === true,
+      set_subscriber: isOwner || mp.set_subscriber === true,
+      manage_admins:  isOwner || mp.manage_admins === true,
     }
 
     // ── 2. Service-role client — bypasses RLS, owner-verified above ──
@@ -153,6 +187,7 @@ Deno.serve(async (req) => {
     // app ignores this key, so a flagged user's experience is unchanged.
     // Writable only here (service-role) since RLS scopes prefs per-user.
     if (action === 'set_subscriber') {
+      if (!perms.set_subscriber) return json({ error: 'forbidden' }, 403)
       const uid = body?.user_id as string
       const value = !!body?.value
       if (!uid || !UUID_RE.test(uid)) return json({ error: 'bad request' }, 400)
@@ -176,11 +211,63 @@ Deno.serve(async (req) => {
     // top); deleting the owner's own account is blocked. Destructive +
     // irreversible — the client gates this behind a typed-email confirmation.
     if (action === 'delete_user') {
+      if (!perms.delete_users) return json({ error: 'forbidden' }, 403)
       const uid = body?.user_id as string
       if (!uid || !UUID_RE.test(uid)) return json({ error: 'bad request' }, 400)
       if (uid === user.id) return json({ error: 'cannot delete the owner account' }, 400)
       const { error } = await admin.auth.admin.deleteUser(uid)
       if (error) return json({ error: 'delete failed', detail: error.message }, 500)
+      return json({ ok: true })
+    }
+
+    // Promote a user to admin, or update an existing admin's permissions.
+    // Stored in the TARGET's app_metadata.{role,admin_perms} — writable only
+    // here (service-role), so it can't be self-set from the browser. Requires
+    // the `manage_admins` perm. Guards against self-edit (no self-escalation /
+    // self-lockout) and against touching the super-owner (always all-powerful).
+    // GoTrue shallow-merges app_metadata, so we pass only the two keys and
+    // leave provider info intact. The promoted user gains console access on
+    // their NEXT token refresh / sign-in (the new role rides in the JWT).
+    if (action === 'set_admin') {
+      if (!perms.manage_admins) return json({ error: 'forbidden' }, 403)
+      const uid = body?.user_id as string
+      if (!uid || !UUID_RE.test(uid)) return json({ error: 'bad request' }, 400)
+      if (uid === user.id) return json({ error: 'cannot change your own admin status' }, 400)
+      const { data: target, error: tErr } = await admin.auth.admin.getUserById(uid)
+      if (tErr || !target?.user) return json({ error: 'user not found' }, 404)
+      if ((target.user.email ?? '').toLowerCase() === ADMIN_EMAIL) {
+        return json({ error: 'cannot modify the owner account' }, 400)
+      }
+      const p = (body?.perms ?? {}) as Record<string, unknown>
+      const admin_perms = {
+        delete_users:   p.delete_users === true,
+        set_subscriber: p.set_subscriber === true,
+        manage_admins:  p.manage_admins === true,
+      }
+      const { error } = await admin.auth.admin.updateUserById(uid, {
+        app_metadata: { role: 'admin', admin_perms },
+      })
+      if (error) return json({ error: 'update failed', detail: error.message }, 500)
+      return json({ ok: true, role: 'admin', admin_perms })
+    }
+
+    // Revoke a user's admin status — null out role + admin_perms in their
+    // app_metadata. Same guards as set_admin. Takes effect on the demoted
+    // user's next token refresh / sign-in.
+    if (action === 'revoke_admin') {
+      if (!perms.manage_admins) return json({ error: 'forbidden' }, 403)
+      const uid = body?.user_id as string
+      if (!uid || !UUID_RE.test(uid)) return json({ error: 'bad request' }, 400)
+      if (uid === user.id) return json({ error: 'cannot change your own admin status' }, 400)
+      const { data: target, error: tErr } = await admin.auth.admin.getUserById(uid)
+      if (tErr || !target?.user) return json({ error: 'user not found' }, 404)
+      if ((target.user.email ?? '').toLowerCase() === ADMIN_EMAIL) {
+        return json({ error: 'cannot modify the owner account' }, 400)
+      }
+      const { error } = await admin.auth.admin.updateUserById(uid, {
+        app_metadata: { role: null, admin_perms: null },
+      })
+      if (error) return json({ error: 'update failed', detail: error.message }, 500)
       return json({ ok: true })
     }
 
@@ -326,11 +413,16 @@ Deno.serve(async (req) => {
             is_subscriber: !!kindById.get(u.id),
             marketing_consent: u.marketing_consent,
             consent: consentById.get(u.id) ?? {},
+            is_owner: (u.email ?? '').toLowerCase() === ADMIN_EMAIL,
+            is_admin: u.is_admin,
+            admin_perms: u.admin_perms,
           }
         })
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
-      return json({ ok: true, rows })
+      // The caller's own effective powers — lets the console show exactly the
+      // controls this admin is allowed to use, without re-deriving from the JWT.
+      return json({ ok: true, rows, caller: { is_owner: isOwner, perms } })
     }
 
     if (action === 'analytics') {

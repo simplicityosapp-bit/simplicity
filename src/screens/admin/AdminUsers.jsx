@@ -1,9 +1,20 @@
 import { useState, useMemo } from 'react'
 import {
   Search, ChevronDown, BadgeCheck, Plus, Check, X, Users, CreditCard, Hand, Trash2,
+  Shield, ShieldCheck,
 } from 'lucide-react'
 import { useAdminQuery, callAdmin } from '../../hooks/useAdmin'
 import { ADMIN_EMAIL } from '../../lib/routes'
+import { useAuth } from '../../auth/AuthContext'
+import { adminPerms } from '../../lib/admin'
+
+/* The three grantable admin permissions, in display order. Console view
+   access is implicit for every admin — these gate the sensitive extras. */
+const PERM_OPTIONS = [
+  { key: 'delete_users', label: 'מחיקת משתמשים' },
+  { key: 'set_subscriber', label: 'סימון מנויים' },
+  { key: 'manage_admins', label: 'מינוי מנהלים' },
+]
 
 /* dd/mm/yy, or "—" when missing. */
 function fmtDate(iso) {
@@ -43,6 +54,9 @@ function fmtMarketing(r) {
 }
 
 export default function AdminUsers() {
+  const { user } = useAuth()
+  const viewerPerms = adminPerms(user)
+  const viewerId = user?.id || null
   const { data, loading, error, refetch } = useAdminQuery('users')
   const [subOverride, setSubOverride] = useState({}) // id → optimistic is_subscriber (manual)
   const [q, setQ] = useState('')
@@ -95,6 +109,17 @@ export default function AdminUsers() {
     await refetch()
   }
 
+  /* Promote / update perms / revoke admin. The edge function re-checks the
+     caller's manage_admins perm and refuses self- or owner-targeting. */
+  const handleSetAdmin = async (id, perms) => {
+    await callAdmin('set_admin', { user_id: id, perms })
+    await refetch()
+  }
+  const handleRevokeAdmin = async (id) => {
+    await callAdmin('revoke_admin', { user_id: id })
+    await refetch()
+  }
+
   const rowProps = {
     openId: open,
     onToggleRow: (id) => setOpen(open === id ? null : id),
@@ -104,6 +129,10 @@ export default function AdminUsers() {
     onCancelConfirm: () => setConfirmId(null),
     onApply: applyToggle,
     onDelete: handleDelete,
+    onSetAdmin: handleSetAdmin,
+    onRevokeAdmin: handleRevokeAdmin,
+    viewerPerms,
+    viewerId,
   }
 
   return (
@@ -166,7 +195,7 @@ function Section({ icon: Icon, title, count, open, onToggle, nested, children })
   )
 }
 
-function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfirm, onCancelConfirm, onApply, onDelete, emptyText = 'לא נמצאו משתמשים' }) {
+function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, viewerPerms, viewerId, emptyText = 'לא נמצאו משתמשים' }) {
   return (
     <div className="admin-card admin-table-wrap">
       <table className="admin-table">
@@ -197,6 +226,10 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
               onCancelConfirm={onCancelConfirm}
               onApply={() => onApply(r)}
               onDelete={() => onDelete(r.id)}
+              onSetAdmin={onSetAdmin}
+              onRevokeAdmin={onRevokeAdmin}
+              viewerPerms={viewerPerms}
+              viewerId={viewerId}
             />
           ))}
         </tbody>
@@ -207,11 +240,15 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
 
 /* Subscriber cell: real (paid) → static read-only badge; otherwise a
    two-step toggle (click → confirm) so a flag never happens by accident. */
-function SubCell({ r, confirming, busy, onRequestConfirm, onCancelConfirm, onApply }) {
+function SubCell({ r, confirming, busy, canToggle, onRequestConfirm, onCancelConfirm, onApply }) {
   if (r.subscriber_kind === 'regular') {
     return <span className="admin-sub-badge regular"><CreditCard size={12} strokeWidth={2} aria-hidden="true" /> מנוי רגיל</span>
   }
   const on = r.subscriber_kind === 'manual'
+  // Admins without the set_subscriber perm see a read-only state, no toggle.
+  if (!canToggle) {
+    return on ? <span className="admin-pill done">מנוי</span> : <span className="muted">—</span>
+  }
   if (confirming) {
     return (
       <span className="admin-sub-confirm" onClick={(e) => e.stopPropagation()}>
@@ -234,13 +271,36 @@ function SubCell({ r, confirming, busy, onRequestConfirm, onCancelConfirm, onApp
   )
 }
 
-function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCancelConfirm, onApply, onDelete }) {
+function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, viewerPerms, viewerId }) {
   const [delOpen, setDelOpen] = useState(false)
   const [delText, setDelText] = useState('')
   const [delBusy, setDelBusy] = useState(false)
   const [delErr, setDelErr] = useState(false)
   const isOwner = (r.email || '').toLowerCase() === ADMIN_EMAIL
+  const isSelf = r.id === viewerId
+  const canManageAdmins = !!viewerPerms?.manage_admins && !isOwner && !isSelf
   const canDelete = !!r.email && delText.trim().toLowerCase() === r.email.toLowerCase()
+  // Admin role-management state (promote / update perms / revoke).
+  const [permDraft, setPermDraft] = useState(() => ({
+    delete_users: !!r.admin_perms?.delete_users,
+    set_subscriber: !!r.admin_perms?.set_subscriber,
+    manage_admins: !!r.admin_perms?.manage_admins,
+  }))
+  const [roleConfirm, setRoleConfirm] = useState(null) // null | 'grant' | 'revoke'
+  const [roleBusy, setRoleBusy] = useState(false)
+  const [roleErr, setRoleErr] = useState(false)
+  const runSetAdmin = async () => {
+    setRoleBusy(true); setRoleErr(false)
+    try { await onSetAdmin(r.id, permDraft); setRoleConfirm(null) }
+    catch { setRoleErr(true) }
+    finally { setRoleBusy(false) }
+  }
+  const runRevoke = async () => {
+    setRoleBusy(true); setRoleErr(false)
+    try { await onRevokeAdmin(r.id); setRoleConfirm(null) }
+    catch { setRoleErr(true) }
+    finally { setRoleBusy(false) }
+  }
   const runDelete = async () => {
     if (!canDelete || delBusy) return
     setDelBusy(true); setDelErr(false)
@@ -254,12 +314,20 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
   return (
     <>
       <tr className={`clickable${r.is_subscriber ? ' is-sub' : ''}`} onClick={onToggle}>
-        <td dir="ltr" style={{ textAlign: 'start' }}>{r.email || '—'}</td>
+        <td dir="ltr" style={{ textAlign: 'start' }}>
+          {r.email || '—'}
+          {r.is_owner
+            ? <span className="admin-role-chip owner" title="בעלים ראשי"><ShieldCheck size={11} strokeWidth={2.2} aria-hidden="true" /> בעלים</span>
+            : r.is_admin
+              ? <span className="admin-role-chip" title="מנהל"><Shield size={11} strokeWidth={2.2} aria-hidden="true" /> מנהל</span>
+              : null}
+        </td>
         <td>
           <SubCell
             r={r}
             confirming={confirming}
             busy={busy}
+            canToggle={!!viewerPerms?.set_subscriber}
             onRequestConfirm={onRequestConfirm}
             onCancelConfirm={onCancelConfirm}
             onApply={onApply}
@@ -296,7 +364,94 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
               <div><div className="k">תנאי שימוש</div><div className="v">{fmtConsent(r.consent?.terms)}</div></div>
               <div><div className="k">שיווק</div><div className="v">{fmtMarketing(r)}</div></div>
             </div>
-            {!isOwner && (
+
+            {/* Admin role management — only for viewers who can manage admins,
+                never on the owner row or your own row. Double confirmation:
+                pick perms → button → warning panel → confirm. */}
+            {canManageAdmins && (
+              <div className="admin-role-block" onClick={(e) => e.stopPropagation()}>
+                <div className="admin-role-head">
+                  <Shield size={14} strokeWidth={1.9} aria-hidden="true" />
+                  <span>הרשאות ניהול</span>
+                  {r.is_admin && <span className="admin-role-tag">מנהל</span>}
+                </div>
+
+                {roleConfirm === null && (
+                  <>
+                    <p className="admin-role-hint">
+                      {r.is_admin
+                        ? 'המשתמש מוגדר כמנהל. אפשר לעדכן הרשאות או להסיר את ההגדרה.'
+                        : 'בחר/י הרשאות והפוך/הפכי את המשתמש למנהל. כל מנהל מקבל גישה לקונסולה ולכל נתוני המשתמשים.'}
+                    </p>
+                    <div className="admin-role-perms">
+                      {PERM_OPTIONS.map(({ key, label }) => (
+                        <label key={key} className="admin-role-perm">
+                          <input
+                            type="checkbox"
+                            checked={permDraft[key]}
+                            onChange={(e) => setPermDraft((d) => ({ ...d, [key]: e.target.checked }))}
+                          />
+                          <span>{label}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="admin-role-actions">
+                      <button type="button" className="admin-role-go" onClick={() => { setRoleErr(false); setRoleConfirm('grant') }}>
+                        <ShieldCheck size={13} strokeWidth={2} aria-hidden="true" />
+                        {r.is_admin ? 'עדכון הרשאות' : 'הפיכה למנהל'}
+                      </button>
+                      {r.is_admin && (
+                        <button type="button" className="admin-role-revoke" onClick={() => { setRoleErr(false); setRoleConfirm('revoke') }}>
+                          הסרת מנהל
+                        </button>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {roleConfirm === 'grant' && (
+                  <div className="admin-role-confirm">
+                    <p className="admin-role-warn">
+                      {r.is_admin ? 'לעדכן את ההרשאות של ' : 'להפוך את '}
+                      <b dir="ltr">{r.email}</b>
+                      {r.is_admin ? '?' : ' למנהל?'} מנהל רואה את כל נתוני המשתמשים בקונסולה. הגישה תיכנס לתוקף בהתחברות הבאה של המשתמש.
+                    </p>
+                    <ul className="admin-role-summary">
+                      {PERM_OPTIONS.map(({ key, label }) => (
+                        <li key={key} className={permDraft[key] ? 'on' : 'off'}>
+                          {permDraft[key] ? <Check size={12} strokeWidth={2.4} aria-hidden="true" /> : <X size={12} strokeWidth={2.4} aria-hidden="true" />}
+                          {label}
+                        </li>
+                      ))}
+                    </ul>
+                    {roleErr && <p className="admin-role-err">הפעולה נכשלה. נסה/י שוב.</p>}
+                    <div className="admin-role-actions">
+                      <button type="button" className="admin-role-cancel" onClick={() => { setRoleConfirm(null); setRoleErr(false) }}>ביטול</button>
+                      <button type="button" className="admin-role-go" disabled={roleBusy} onClick={runSetAdmin}>
+                        {roleBusy ? 'שומר…' : 'אישור'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {roleConfirm === 'revoke' && (
+                  <div className="admin-role-confirm">
+                    <p className="admin-role-warn">
+                      להסיר את הרשאות הניהול של <b dir="ltr">{r.email}</b>? הגישה לקונסולה תיחסם בהתחברות הבאה.
+                    </p>
+                    {roleErr && <p className="admin-role-err">הפעולה נכשלה. נסה/י שוב.</p>}
+                    <div className="admin-role-actions">
+                      <button type="button" className="admin-role-cancel" onClick={() => { setRoleConfirm(null); setRoleErr(false) }}>ביטול</button>
+                      <button type="button" className="admin-role-revoke" disabled={roleBusy} onClick={runRevoke}>
+                        {roleBusy ? 'מסיר…' : 'הסרת מנהל'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!isOwner && !isSelf && viewerPerms?.delete_users && (
               <div className="admin-detail-danger">
                 {!delOpen ? (
                   <button type="button" className="admin-del-btn" onClick={(e) => { e.stopPropagation(); setDelOpen(true) }}>

@@ -189,6 +189,12 @@ function adminFixtures() {
     // Preview seed: user 0 = real (paid) subscriber, user 1 = manual.
     _paid: i === 0,
     _manual: i === 1,
+    // Preview seed: user 2 is already a promoted admin (so the "מנהל" chip +
+    // the update/revoke flow render). Others start as non-admins.
+    _admin: i === 2,
+    _adminPerms: i === 2
+      ? { delete_users: true, set_subscriber: true, manage_admins: false }
+      : { delete_users: false, set_subscriber: false, manage_admins: false },
   }))
   const feedback = [
     { type: 'bug', status: 'new', message: 'הכפתור של הוספת לקוח לא נפתח במובייל.' },
@@ -220,12 +226,41 @@ function adminInvoke(body) {
     }
   }
   if (action === 'users') {
-    return { ok: true, rows: fx.users.map((u) => ({ ...u, subscriber_kind: kindOf(u), is_subscriber: !!kindOf(u) })) }
+    return {
+      ok: true,
+      rows: fx.users.map((u) => ({
+        ...u,
+        subscriber_kind: kindOf(u),
+        is_subscriber: !!kindOf(u),
+        is_owner: false, // none of the example users is the hardcoded owner
+        is_admin: !!u._admin,
+        admin_perms: u._adminPerms || { delete_users: false, set_subscriber: false, manage_admins: false },
+      })),
+      // The mocked viewer is the owner → every power.
+      caller: { is_owner: true, perms: { delete_users: true, set_subscriber: true, manage_admins: true } },
+    }
   }
   if (action === 'set_subscriber') {
     const u = fx.users.find((x) => x.id === body.user_id)
     if (u) u._manual = !!body.value
     return { ok: true, is_subscriber: u ? !!kindOf(u) : false }
+  }
+  if (action === 'set_admin') {
+    const u = fx.users.find((x) => x.id === body.user_id)
+    if (u) {
+      u._admin = true
+      u._adminPerms = {
+        delete_users: !!body.perms?.delete_users,
+        set_subscriber: !!body.perms?.set_subscriber,
+        manage_admins: !!body.perms?.manage_admins,
+      }
+    }
+    return { ok: true, role: 'admin', admin_perms: u?._adminPerms }
+  }
+  if (action === 'revoke_admin') {
+    const u = fx.users.find((x) => x.id === body.user_id)
+    if (u) { u._admin = false; u._adminPerms = { delete_users: false, set_subscriber: false, manage_admins: false } }
+    return { ok: true }
   }
   if (action === 'delete_user') {
     const idx = fx.users.findIndex((x) => x.id === body.user_id)

@@ -311,9 +311,11 @@ textarea:focus-visible,
   color: var(--espresso);
 }
 .info-pop-body {
-  position: absolute;
-  z-index: 50;
-  inset-inline-end: -4px;
+  /* Portal'd to <body> with fixed, JS-computed coords (see InfoPopover.jsx)
+     so it always paints above the glass cards' backdrop-filter stacking
+     contexts. z-index sits above the top app layer (LegalModal = 1200). */
+  position: fixed;
+  z-index: 1300;
   /* Clamp to the viewport's edge minus a tiny padding so the
      popover never overflows the screen on narrow mobile widths. */
   max-width: min(240px, calc(100vw - 24px));
@@ -338,8 +340,7 @@ textarea:focus-visible,
      into the popover keeps it open (InfoPopover schedules a close on
      mouseleave; entering the body cancels the timer). */
 }
-.info-pop-bottom { top: calc(100% + 6px); }
-.info-pop-top    { bottom: calc(100% + 6px); }
+/* Placement (top/bottom) is applied as inline fixed coords by InfoPopover. */
 /* Dark mode: near-opaque Moonlit Slate, like drawers/dropdowns (checklist §13). */
 [data-theme="dark"] .info-pop-body {
   background: rgba(26, 31, 38, 0.96);

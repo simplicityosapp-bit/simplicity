@@ -3,6 +3,7 @@ import { Check, X, Trash2 } from 'lucide-react'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
 import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
+import { useSessions } from '../../../hooks/useSessions'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useRecurring } from '../../../hooks/useRecurring'
 import { useCategories } from '../../../hooks/useCategories'
@@ -21,6 +22,7 @@ export default function MeetingConfirmList() {
   const { clients } = useClients()
   const { groups } = useGroups()
   const { meetings, updateMeeting, removeMeeting } = useScheduledMeetings()
+  const { sessions, addSession, removeSession } = useSessions()
   const { transactions, setStatus: setTxStatus, removeTransaction } = useTransactions()
   const { templates } = useRecurring()
   const { categories } = useCategories()
@@ -49,14 +51,51 @@ export default function MeetingConfirmList() {
     })
   }
 
-  const confirmMeeting = (m) => updateMeeting(m.id, { status: 'confirmed' }).catch(() => {})
+  /* Next session number for the meeting's subject (mirrors ClientDrawer /
+     project-detail: count of the subject's existing sessions + 1). */
+  const sessionNum = (m) => (m.subject_type === 'group'
+    ? sessions.filter((s) => s.group_id === m.subject_id)
+    : sessions.filter((s) => s.client_id === m.subject_id)
+  ).length + 1
+
+  /* Confirming "it happened" MATERIALISES a real session and links it via
+     scheduled_meetings.session_id — the schema link that was designed but
+     never wired, which is why a confirmed meeting never showed up in the
+     client/group card or counted toward sessions. Dedup: if a session is
+     already linked, just flip the status. Best-effort: if the session
+     insert fails, still mark confirmed so the row doesn't get stuck. */
+  const confirmMeeting = async (m) => {
+    if (m.session_id) { updateMeeting(m.id, { status: 'confirmed' }).catch(() => {}); return }
+    const isGroup = m.subject_type === 'group'
+    try {
+      const session = await addSession({
+        date: m.scheduled_at,
+        summary: null,
+        notes: null,
+        client_id: isGroup ? null : m.subject_id,
+        group_id: isGroup ? m.subject_id : null,
+        subject_type: m.subject_type,
+        subject_id: m.subject_id,
+        num: sessionNum(m),
+      })
+      await updateMeeting(m.id, { status: 'confirmed', session_id: session.id })
+    } catch {
+      updateMeeting(m.id, { status: 'confirmed' }).catch(() => {})
+    }
+  }
   const skipMeeting = (m) => {
-    /* If the meeting didn't happen, its linked expense shouldn't either. */
+    /* Didn't happen: its linked expense shouldn't post, and any session we
+       materialised for it must be removed (defensive — pending rows have
+       no session yet, but a re-reviewed confirmed row might). */
     const linked = linkedTxsForMeeting(m)
-    updateMeeting(m.id, { status: 'skipped' }).catch(() => {})
+    updateMeeting(m.id, { status: 'skipped', session_id: null }).catch(() => {})
+    if (m.session_id) removeSession(m.session_id)
     for (const tx of linked) setTxStatus(tx.id, 'skipped')
   }
-  const deleteMeeting = (m) => removeMeeting(m.id)
+  const deleteMeeting = (m) => {
+    if (m.session_id) removeSession(m.session_id)
+    removeMeeting(m.id)
+  }
   const confirmTx = (tx) => setTxStatus(tx.id, 'confirmed')
   const skipTx = (tx) => setTxStatus(tx.id, 'skipped')
   const deleteTx = (tx) => removeTransaction(tx.id)

@@ -542,11 +542,16 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .lp-screen {
   border-radius: 18px;
   padding: 18px 16px 20px;
-  background: linear-gradient(170deg, rgba(255, 252, 247, 0.5), rgba(247, 243, 238, 0.3));
+  /* The real app's home: nature backdrop + frosted-glass cards, not a flat
+     white screen — so the preview reads as an actual screenshot. */
+  background-color: var(--bg-home);
+  background-image: url('/backgrounds/desktop/day/home.webp');
+  background-size: cover;
+  background-position: center;
   overflow: hidden;
 }
 [data-theme="dark"] .lp-screen {
-  background: linear-gradient(170deg, rgba(26, 31, 30, 0.5), rgba(10, 16, 14, 0.4));
+  background-image: url('/backgrounds/desktop/night/home.webp');
 }
 /* Moon-glance ring (signature) */
 .lp-moon {
@@ -558,6 +563,7 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
   margin-bottom: 12px;
 }
 .lp-ring { position: relative; width: 96px; height: 96px; flex-shrink: 0; }
@@ -609,6 +615,7 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
 }
 /* Card header — mirrors the real "דרושה תשומת לב" card chrome (title + count)
    so the preview reflects the actual component, not a bare row list. */

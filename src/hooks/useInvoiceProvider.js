@@ -90,6 +90,12 @@ export function useInvoiceProvider() {
     })
   }, [])
 
+  /* Issue a credit note that cancels a previously-issued document. Returns
+     { document }. The caller (InvoiceActions) tracks its own busy/error. */
+  const creditDocument = useCallback(async (transactionId, reason) => {
+    return callInvoices('credit', { transaction_id: transactionId, reason })
+  }, [])
+
   /* The connected provider's product/service catalog (for the issuance picker),
      cached for the session — re-opening the picker (same or another transaction)
      resolves from cache instead of re-fetching every time. */
@@ -122,6 +128,7 @@ export function useInvoiceProvider() {
     disconnect,
     loadStatus,
     issueDocument,
+    creditDocument,
     loadItems,
     setAutoImport,
   }

@@ -86,7 +86,8 @@ export default function FinanceScreen() {
   }, [transactions, month])
 
   const sumConfirmed = (rows) => {
-    const conf = rows.filter((t) => t.status === 'confirmed')
+    // Credited (cancelled by a credit note) transactions drop out of the totals.
+    const conf = rows.filter((t) => t.status === 'confirmed' && !t.invoice_credited_at)
     const income = conf.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
     const expenses = conf.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
     return { income, expenses, net: income - expenses }

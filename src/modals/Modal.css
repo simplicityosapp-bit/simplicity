@@ -677,6 +677,27 @@
   color: var(--espresso);
 }
 
+/* Issue-guard warning (IssueGuardModal stage 1). */
+.ig-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  margin: 0 0 4px;
+  border-radius: var(--mg-card-radius);
+  border: 1px solid color-mix(in srgb, var(--clay) 35%, transparent);
+  background: color-mix(in srgb, var(--clay) 8%, var(--mg-card-bg));
+  color: var(--clay);
+}
+.ig-warn-body { display: flex; flex-direction: column; gap: 6px; }
+.ig-warn-reason {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(13.5px * var(--text-scale));
+  line-height: 1.55;
+  color: var(--espresso);
+}
+
 /* ── Editable billing strip (EditClientModal) — pixel-mirrors the client
    card hero (.cd-hero in ClientDrawer.css): same card, same 3 cells, same
    divided middle, same fonts — only שולם/יתרה are typeable inputs. ── */

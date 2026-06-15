@@ -55,6 +55,7 @@ export function financeQuery(opts = {}) {
     to = null,
     includePending = false,
     includeSkipped = false,
+    includeCancelled = false,
     source = transactions,
   } = opts
 
@@ -64,6 +65,9 @@ export function financeQuery(opts = {}) {
 
   return (source || []).filter((f) => {
     if (f.deleted_at) return false
+    // Credited (cancelled by a credit note) → out of income totals by default,
+    // but the transaction list passes includeCancelled to still show it w/ a badge.
+    if (f.invoice_credited_at && !includeCancelled) return false
     if (f.status === 'skipped' && !includeSkipped) return false
     if (!includePending && !isConfirmedTx(f)) return false
     if (type === 'income' && f.type !== 'income') return false

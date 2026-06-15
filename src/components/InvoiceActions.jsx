@@ -1,10 +1,16 @@
 import { memo, useEffect, useId, useRef, useState } from 'react'
 import { FileText, ExternalLink, CircleAlert, Loader2 } from 'lucide-react'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
+import { useTransactions } from '../hooks/useTransactions'
 import { useAddress } from '../hooks/useAddress'
+import IssueGuardModal from '../modals/IssueGuardModal'
+import ConfirmModal from '../modals/ConfirmModal'
 import { isr } from '../lib/finance'
 import { showToast } from '../lib/toast'
 import './InvoiceActions.css'
+
+/* Same calendar-day key for two transactions (heuristic duplicate check). */
+const dayKey = (d) => (d ? new Date(d).toISOString().slice(0, 10) : null)
 
 /* The three document types the user picks per issuance (covers עוסק פטור →
    receipt and עוסק מורשה → invoice_receipt without assuming a tax status). */
@@ -32,6 +38,8 @@ function errToHe(code, addr) {
   const tryAgain = addr({ male: 'נסה שוב', female: 'נסי שוב', neutral: 'נסה/י שוב' })
   switch (code) {
     case 'already_issued': return 'כבר הופקה חשבונית לתנועה הזו.'
+    case 'already_credited': return 'כבר הופקה חשבונית זיכוי לתנועה הזו.'
+    case 'not_issued': return 'אין מסמך להפיק לו זיכוי.'
     case 'no_client': return 'כדי להפיק חשבונית צריך לשייך לקוח לתנועה ולשמור.'
     case 'not_connected': return addr({ male: 'אין חיבור לשירות חשבוניות — חבר אותו במסך החיבורים.', female: 'אין חיבור לשירות חשבוניות — חברי אותו במסך החיבורים.', neutral: 'אין חיבור לשירות חשבוניות — חבר/י אותו במסך החיבורים.' })
     case 'not_income': return 'אפשר להפיק חשבונית רק לתנועת הכנסה.'
@@ -48,15 +56,24 @@ function errToHe(code, addr) {
    provider is connected. The user picks document type, the product/service
    line, and (for receipts) the payment method. Once issued, shows the number
    + a link; the server refuses to issue twice (idempotency). */
-function InvoiceActions({ tx, clientName, onIssued }) {
+function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
   const inv = useInvoiceProvider()
+  const { transactions } = useTransactions()
   const { addr } = useAddress()
   const lblId = useId()
+  const [guardOpen, setGuardOpen] = useState(false)
   const [issued, setIssued] = useState(
     tx?.invoice_document_id
       ? { number: tx.invoice_document_number, url: tx.invoice_document_url, type: tx.invoice_document_type }
       : null,
   )
+  const [credited, setCredited] = useState(
+    tx?.invoice_credited_at
+      ? { number: tx.invoice_credit_document_number, url: tx.invoice_credit_document_url }
+      : null,
+  )
+  const [creditConfirm, setCreditConfirm] = useState(false)
+  const [creditErr, setCreditErr] = useState('')
   const [picking, setPicking] = useState(false)
   const [docType, setDocType] = useState('invoice_receipt')
   const [itemName, setItemName] = useState('')
@@ -93,21 +110,62 @@ function InvoiceActions({ tx, clientName, onIssued }) {
 
   if (inv.loading || !inv.status?.connected) return null
 
+  /* Issue a credit note (זיכוי) that cancels the issued document. */
+  const doCredit = async () => {
+    setCreditErr('')
+    try {
+      const r = await inv.creditDocument(tx.id)
+      const doc = r?.document
+      setCredited({ number: doc?.number, url: doc?.url })
+      showToast('הופקה חשבונית זיכוי' + (doc?.number ? ' מס׳ ' + doc.number : ''))
+      onIssued?.() // refresh transactions → totals drop it + the list shows "בוטלה"
+    } catch (e) {
+      setCreditErr(errToHe(e.message, addr))
+    }
+  }
+
   if (issued) {
     return (
-      <div className="inv-act issued" ref={issuedRef} tabIndex={-1} role="status" aria-live="polite">
-        <FileText size={15} strokeWidth={1.8} aria-hidden="true" />
-        <span>
-          הופקה {docTypeLabel(issued.type)}
-          {issued.number ? <> מס׳ <bdi>{issued.number}</bdi></> : ''}
-          {tx?.amount ? ` · ${isr(tx.amount)}` : ''}
-        </span>
-        {issued.url && (
-          <a href={issued.url} target="_blank" rel="noreferrer" className="inv-act-link">
-            צפייה <ExternalLink size={12} strokeWidth={1.8} aria-hidden="true" />
-          </a>
-        )}
-      </div>
+      <>
+        <div className="inv-act issued" ref={issuedRef} tabIndex={-1} role="status" aria-live="polite">
+          <FileText size={15} strokeWidth={1.8} aria-hidden="true" />
+          <span>
+            הופקה {docTypeLabel(issued.type)}
+            {issued.number ? <> מס׳ <bdi>{issued.number}</bdi></> : ''}
+            {tx?.amount ? ` · ${isr(tx.amount)}` : ''}
+          </span>
+          {issued.url && (
+            <a href={issued.url} target="_blank" rel="noreferrer" className="inv-act-link">
+              צפייה <ExternalLink size={12} strokeWidth={1.8} aria-hidden="true" />
+            </a>
+          )}
+          {credited ? (
+            <span className="inv-act-credited">· בוטלה{credited.number ? <> · זיכוי <bdi>{credited.number}</bdi></> : ''}</span>
+          ) : (
+            <button type="button" className="inv-act-credit-btn" onClick={() => { setCreditErr(''); setCreditConfirm(true) }}>
+              {addr({ male: 'זכה / בטל', female: 'זכי / בטלי', neutral: 'זכה/י · בטל/י' })}
+            </button>
+          )}
+        </div>
+        {creditErr && <p className="inv-act-err" role="alert"><CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {creditErr}</p>}
+        <ConfirmModal
+          open={creditConfirm}
+          onClose={() => setCreditConfirm(false)}
+          title="חשבונית זיכוי"
+          message={`להפיק חשבונית זיכוי שתבטל את ${docTypeLabel(issued.type)}${issued.number ? ` מס׳ ${issued.number}` : ''} על ${isr(tx?.amount || 0)}? נוצר מסמך מס אמיתי, וההכנסה תצא מהסיכומים.`}
+          confirmLabel={addr({ male: 'כן, זכה', female: 'כן, זכי', neutral: 'כן, זכה/י' })}
+          danger
+          onConfirm={doCredit}
+        />
+      </>
+    )
+  }
+
+  if (inv.status?.credentials_invalid) {
+    return (
+      <p className="inv-act hint">
+        {addr({ male: 'החיבור לשירות החשבוניות אינו תקף — חדש אותו במסך החיבורים כדי להפיק.', female: 'החיבור לשירות החשבוניות אינו תקף — חדשי אותו במסך החיבורים כדי להפיק.', neutral: 'החיבור לשירות החשבוניות אינו תקף — חדש/י אותו במסך החיבורים כדי להפיק.' })}
+      </p>
     )
   }
 
@@ -118,6 +176,21 @@ function InvoiceActions({ tx, clientName, onIssued }) {
       </p>
     )
   }
+
+  /* Escalate to a two-step warning before issuing when something looks off:
+     a likely duplicate (same client + amount + day already issued) or unsaved
+     edits to the transaction (the document is issued from the SAVED tx). */
+  const txDate = dayKey(tx.date)
+  const duplicate = (transactions || []).some((t) =>
+    t.id !== tx.id && !t.deleted_at && t.invoice_document_id
+    && t.client_id === tx.client_id
+    && Number(t.amount) === Number(tx.amount)
+    && dayKey(t.date) === txDate,
+  )
+  const needsGuard = duplicate || formDirty
+  const guardReasons = []
+  if (duplicate) guardReasons.push(`כבר הופקה חשבונית עבור ${clientName || 'הלקוח'} על ${isr(tx.amount)}${txDate ? ` בתאריך ${txDate}` : ''} — ייתכן שזו כפילות.`)
+  if (formDirty) guardReasons.push('יש שינויים שלא נשמרו בתנועה. המסמך יופק לפי הנתונים השמורים, לא לפי העריכות — כדאי לשמור קודם.')
 
   const openPicker = async () => {
     setErr(''); setCatalogErr(''); setConfirmIssue(false)
@@ -162,8 +235,10 @@ function InvoiceActions({ tx, clientName, onIssued }) {
   }
 
   /* Two-step confirm on the (irreversible) issue: first click arms + shows the
-     amount, second click issues. Auto-disarms after 4s. */
+     amount, second click issues. Auto-disarms after 4s. When something looks
+     off (duplicate / unsaved edits) we escalate to the explicit guard dialog. */
   const onIssueClick = () => {
+    if (needsGuard) { window.clearTimeout(issueTimer.current); setConfirmIssue(false); setGuardOpen(true); return }
     if (!confirmIssue) {
       setConfirmIssue(true)
       window.clearTimeout(issueTimer.current)
@@ -235,6 +310,7 @@ function InvoiceActions({ tx, clientName, onIssued }) {
         </div>
       )}
       {err && <p className="inv-act-err" role="alert"><CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {err}</p>}
+      <IssueGuardModal open={guardOpen} reasons={guardReasons} amount={tx.amount} onClose={() => setGuardOpen(false)} onConfirm={doIssue} />
     </div>
   )
 }

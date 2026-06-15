@@ -28,6 +28,29 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   /* Resolved once per (clients, client_id) instead of re-scanning on every keystroke. */
   const clientName = useMemo(() => clients.find((c) => c.id === tx?.client_id)?.name, [clients, tx?.client_id])
+  /* Whether the form has unsaved edits vs the saved transaction — issuance is
+     based on the SAVED tx, so InvoiceActions warns before issuing while dirty. */
+  const formDirty = useMemo(() => {
+    if (!tx) return false
+    const orig = {
+      type: tx.type || 'income',
+      amount: tx.amount ?? '',
+      desc: tx.desc || '',
+      date: tx.date ? new Date(tx.date).toISOString().slice(0, 10) : '',
+      status: tx.status || 'confirmed',
+      client_id: tx.client_id || '',
+      project_id: tx.project_id || '',
+      category_id: tx.category_id || '',
+    }
+    return form.type !== orig.type
+      || String(form.amount) !== String(orig.amount)
+      || form.desc !== orig.desc
+      || form.date !== orig.date
+      || form.status !== orig.status
+      || form.client_id !== orig.client_id
+      || form.project_id !== orig.project_id
+      || form.category_id !== orig.category_id
+  }, [form, tx])
 
   if (!tx) return <Modal open={open} onClose={onClose} title="עריכת תנועה" />
 
@@ -121,7 +144,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       {/* Issue a real invoice for this income payment (Route A). Renders only
           when an invoice provider is connected; based on the SAVED transaction. */}
       {tx.type === 'income' && (
-        <InvoiceActions tx={tx} clientName={clientName} onIssued={onIssued} />
+        <InvoiceActions tx={tx} clientName={clientName} onIssued={onIssued} formDirty={formDirty} />
       )}
 
       {err && <p className="m-error">{err}</p>}

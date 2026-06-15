@@ -109,8 +109,14 @@ export default function ClientsScreen() {
   const [query, setQuery] = useState('')
   const { id: routeClientId } = useParams()
   const [openId, setOpenId] = useState(routeClientId || null)
-  /* Allow deep-link to a specific client (e.g. from project drawer). */
-  useEffect(() => { if (routeClientId) setOpenId(routeClientId) }, [routeClientId])
+  /* Deep-link to a specific client (e.g. from the project drawer): when the
+     route param changes to an id, open it. Adjusted during render (not in an
+     effect) to avoid a cascading set-state-in-effect. */
+  const [prevRouteClientId, setPrevRouteClientId] = useState(routeClientId)
+  if (routeClientId !== prevRouteClientId) {
+    setPrevRouteClientId(routeClientId)
+    if (routeClientId) setOpenId(routeClientId)
+  }
   const [showAdd, setShowAdd] = useState(false)
   const [pendingDeleteClient, setPendingDeleteClient] = useState(null)
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState(null)
@@ -195,8 +201,14 @@ export default function ClientsScreen() {
     return () => document.removeEventListener('mousedown', onDoc)
   }, [bulkMetaOpen])
 
-  /* Clear selection when switching tabs or leaving select mode. */
-  useEffect(() => { setSelectedIds(new Set()) }, [tab, selectMode])
+  /* Clear selection when switching tabs or leaving select mode. Adjusted during
+     render (not in an effect) to avoid a cascading set-state-in-effect. */
+  const selScope = `${tab}|${selectMode}`
+  const [prevSelScope, setPrevSelScope] = useState(selScope)
+  if (selScope !== prevSelScope) {
+    setPrevSelScope(selScope)
+    setSelectedIds(new Set())
+  }
 
   const setSort = (patch) => updatePrefs?.({ clientsSort: { ...sort, ...patch } })
 

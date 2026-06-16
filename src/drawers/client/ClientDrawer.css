@@ -321,6 +321,7 @@
   font-weight: 500;
   color: var(--espresso);
 }
+.cd-action:hover { background: var(--mg-row-hover-bg); }
 
 /* ── Categories + sections ─────────────────────────────────────── */
 .cd-group {

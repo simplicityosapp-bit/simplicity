@@ -1183,6 +1183,15 @@
 [data-theme="dark"] .ob-welcome-option.primary {
   background: color-mix(in srgb, var(--sage) 22%, rgba(20, 18, 14, 0.7));
 }
+/* Secondary "skip" option — flatter + more transparent than the neutral base,
+   so it reads as the de-emphasized choice opposite the sage-tinted primary. */
+.ob-welcome-option.ghost {
+  background: rgba(255, 250, 240, 0.42);
+  box-shadow: 0 6px 20px rgba(42, 37, 32, 0.10);
+}
+[data-theme="dark"] .ob-welcome-option.ghost {
+  background: rgba(20, 18, 14, 0.42);
+}
 .ob-welcome-option-title {
   font-size: calc(16.5px * var(--text-scale));
   font-weight: 700;

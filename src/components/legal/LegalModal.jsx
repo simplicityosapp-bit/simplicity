@@ -27,7 +27,7 @@ export default function LegalModal({ title, meta, blocks, onClose }) {
         <header className="legal-head">
           <h2 className="legal-title">{title}</h2>
           <button type="button" className="legal-x" onClick={onClose} aria-label="סגור">
-            <X size={20} strokeWidth={1.6} aria-hidden="true" />
+            <X size={20} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </header>
 

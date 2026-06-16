@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, ArrowLeft } from 'lucide-react'
 import { remindersUpcoming } from '../../lib/homeData'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
@@ -216,7 +216,7 @@ export default function CalendarScreen() {
               ? 'כפילות אחת ביומן מול גוגל'
               : `${duplicates.length} כפילויות ביומן מול גוגל`}
           </span>
-          <span className="cal-dup-cta">לטיפול בכפילויות ←</span>
+          <span className="cal-dup-cta">לטיפול בכפילויות <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" /></span>
         </button>
       )}
 

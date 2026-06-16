@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, ArrowLeft } from 'lucide-react'
 import { financeDailyBuckets, getMonthlyIncomeGoal, isr } from '../../lib/finance'
 import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
@@ -185,7 +185,7 @@ export default function FinanceChart({ month }) {
           className="f-chart-cta"
           onClick={() => navigate(ROUTES.GOALS)}
         >
-          {addr({male:'הגדר',female:'הגדירי',neutral:'הגדר/י'})} יעד הכנסה חודשי ←
+          {addr({male:'הגדר',female:'הגדירי',neutral:'הגדר/י'})} יעד הכנסה חודשי <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" />
         </button>
       )}
     </section>

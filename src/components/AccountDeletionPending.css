@@ -37,7 +37,7 @@
   margin-bottom: 16px;
   border-radius: 50%;
   color: var(--clay);
-  background: rgba(181, 99, 78, 0.10);
+  background: color-mix(in srgb, var(--clay) 10%, transparent);
 }
 
 .adp-title {

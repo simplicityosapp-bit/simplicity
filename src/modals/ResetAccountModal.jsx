@@ -45,7 +45,7 @@ export default function ResetAccountModal({ open, onClose, onConfirm }) {
   return (
     <Modal open={open} onClose={close} title="איפוס חשבון — מחיקת כל הנתונים">
       <div className="m-confirm-msg" style={{ display: 'flex', gap: 9, alignItems: 'flex-start' }}>
-        <AlertTriangle size={20} strokeWidth={1.9} style={{ color: 'var(--clay)', flexShrink: 0, marginTop: 1 }} aria-hidden="true" />
+        <AlertTriangle size={20} strokeWidth={1.5} style={{ color: 'var(--clay)', flexShrink: 0, marginTop: 1 }} aria-hidden="true" />
         {step === 1 ? (
           <span>
             הפעולה תמחק <strong>את כל הנתונים בחשבון</strong>: לקוחות, פרויקטים, קבוצות,

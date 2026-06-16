@@ -5,9 +5,11 @@
 }
 .datefield-btn {
   width: 100%;
+  min-height: var(--mg-btn-h);
+  box-sizing: border-box;
   display: flex;
   align-items: center;
-  padding: 10px 12px;
+  padding: 0 14px;
   border-radius: var(--mg-btn-radius);
   border: 1px solid var(--divider);
   background: var(--mg-card-bg);
@@ -17,8 +19,14 @@
   color: var(--espresso);
   text-align: start;
   cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 .datefield-btn:disabled { opacity: 0.55; cursor: default; }
+.datefield-btn:focus-visible {
+  outline: none;
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 2px var(--blush);
+}
 .datefield-ph { color: var(--mist); }
 .datefield-val { font-variant-numeric: tabular-nums; }
 

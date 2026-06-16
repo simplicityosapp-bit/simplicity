@@ -366,7 +366,7 @@
   gap: 6px;
   padding: 7px 12px;
   border: 1px solid rgba(181, 99, 78, 0.4);
-  border-radius: 10px;
+  border-radius: var(--mg-btn-radius);
   background: transparent;
   color: var(--clay);
   font-family: var(--mg-font);
@@ -378,10 +378,10 @@
 .admin-del-confirm { display: flex; flex-direction: column; gap: 8px; max-width: 440px; }
 .admin-del-warn { margin: 0; font-size: var(--mg-caption); color: var(--espresso); line-height: 1.6; }
 .admin-del-input {
-  height: 38px;
+  height: var(--mg-btn-h);
   padding: 0 12px;
   border: 1px solid rgba(181, 99, 78, 0.45);
-  border-radius: 10px;
+  border-radius: var(--mg-btn-radius);
   background: var(--modal-bg);
   color: var(--espresso);
   font-family: var(--mg-font);
@@ -392,7 +392,7 @@
 .admin-del-cancel {
   padding: 8px 16px;
   border: 1px solid var(--divider);
-  border-radius: 10px;
+  border-radius: var(--mg-btn-radius);
   background: transparent;
   color: var(--stone);
   font-family: var(--mg-font);
@@ -403,7 +403,7 @@
 .admin-del-go {
   padding: 8px 16px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--mg-btn-radius);
   background: var(--clay);
   color: var(--on-accent);
   font-family: var(--mg-font);
@@ -448,7 +448,7 @@
 .admin-role-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .admin-role-go {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 16px; border: none; border-radius: 10px;
+  padding: 8px 16px; border: none; border-radius: var(--mg-btn-radius);
   background: var(--sage); color: var(--on-accent);
   font-family: var(--mg-font); font-size: var(--mg-caption); font-weight: 600; cursor: pointer;
 }
@@ -456,14 +456,14 @@
 .admin-role-go:disabled { opacity: .5; cursor: not-allowed; }
 .admin-role-go:not(:disabled):hover { filter: brightness(.95); }
 .admin-role-revoke {
-  padding: 8px 16px; border: 1px solid rgba(181, 99, 78, .4); border-radius: 10px;
+  padding: 8px 16px; border: 1px solid rgba(181, 99, 78, .4); border-radius: var(--mg-btn-radius);
   background: transparent; color: var(--clay);
   font-family: var(--mg-font); font-size: var(--mg-caption); font-weight: 600; cursor: pointer;
 }
 .admin-role-revoke:not(:disabled):hover { background: rgba(181, 99, 78, .1); }
 .admin-role-revoke:disabled { opacity: .5; cursor: not-allowed; }
 .admin-role-cancel {
-  padding: 8px 16px; border: 1px solid var(--divider); border-radius: 10px;
+  padding: 8px 16px; border: 1px solid var(--divider); border-radius: var(--mg-btn-radius);
   background: transparent; color: var(--stone);
   font-family: var(--mg-font); font-size: var(--mg-caption); font-weight: 600; cursor: pointer;
 }

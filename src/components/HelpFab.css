@@ -75,11 +75,11 @@
   max-height: 82%;
   display: flex;
   flex-direction: column;
-  background: var(--modal-bg);
-  backdrop-filter: var(--bl);
-  border-top-left-radius: var(--rl);
-  border-top-right-radius: var(--rl);
-  border-top: 0.5px solid var(--b1);
+  background: var(--pure-white);
+  backdrop-filter: var(--mg-card-blur);
+  border-top-left-radius: var(--mg-card-radius);
+  border-top-right-radius: var(--mg-card-radius);
+  border-top: var(--mg-card-border);
   box-shadow: 0 -8px 40px rgba(42, 37, 32, 0.22);
   z-index: 360;
   transform: translateY(100%);
@@ -145,12 +145,12 @@
 }
 .help-close {
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.42);
-  border: 0.5px solid var(--b1);
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  color: var(--t3);
+  color: var(--stone);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -161,7 +161,7 @@
   background: rgba(30, 40, 55, 0.42);
   border-color: rgba(255, 255, 255, 0.1);
 }
-.help-close:hover { background: rgba(255, 255, 255, 0.62); }
+.help-close:hover { background: var(--mg-btn-secondary-bg-hover); }
 .help-close:active { transform: scale(0.92); }
 
 /* ── Tabs ──────────────────────────────────────────────────────── */

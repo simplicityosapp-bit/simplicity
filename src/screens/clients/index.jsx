@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Search, ArrowUpDown, X, UserPlus, Wallet } from 'lucide-react'
+import { Search, ArrowUpDown, X, UserPlus, Wallet, ChevronLeft } from 'lucide-react'
 import { effectiveClientMeta, paidForClients, sessionsCountForClients, clientBalance } from '../../lib/clients'
 import { currentMonthRange, isr, financeQuery } from '../../lib/finance'
 import { useClients } from '../../hooks/useClients'
@@ -483,7 +483,7 @@ export default function ClientsScreen() {
                 className="c-bulk-btn"
                 onClick={() => setBulkMetaOpen((v) => !v)}
                 disabled={selectedIds.size === 0}
-              >שינוי סטטוס ←</button>
+              >שינוי סטטוס <ChevronLeft size={14} strokeWidth={1.5} aria-hidden="true" /></button>
               {bulkMetaOpen && (
                 <div className="c-sort-pop c-bulk-pop" role="menu" style={{ [bulkMetaSide]: 0 }}>
                   <p className="c-sort-h">העברה ל-</p>

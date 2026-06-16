@@ -18,7 +18,7 @@ const ICONS = {
    `addr` is the gendered-copy resolver from useAddress (the two middle
    tiers address the user directly, so they inflect for gender). */
 function leadLine(score, tier, addr) {
-  if (score >= 100) return 'הכול מנוצל — הוצאת מהמערכת את המקסימום. 🎉'
+  if (score >= 100) return 'הכול מנוצל — הוצאת מהמערכת את המקסימום.'
   if (tier.key === 'high') return addr({
     male:    'כמעט הכול במקום. עוד נגיעה קטנה ואתה שם.',
     female:  'כמעט הכול במקום. עוד נגיעה קטנה ואת שם.',

@@ -1,4 +1,4 @@
-import { CalendarClock, RefreshCw } from 'lucide-react'
+import { CalendarClock, RefreshCw, CheckCircle2 } from 'lucide-react'
 import Modal from './Modal'
 import { useAddress } from '../hooks/useAddress'
 import './CalendarDuplicateModal.css'
@@ -27,7 +27,10 @@ export default function CalendarDuplicateModal({ open, onClose, duplicates = [],
       </p>
 
       {duplicates.length === 0 ? (
-        <p className="cdup-empty">אין כרגע כפילויות לטיפול. 🎉</p>
+        <p className="cdup-empty">
+          <CheckCircle2 size={16} strokeWidth={1.5} aria-hidden="true" style={{ color: 'var(--sage)' }} />
+          אין כרגע כפילויות לטיפול.
+        </p>
       ) : (
         <div className="cdup-list">
           {duplicates.map((d) => (

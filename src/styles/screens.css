@@ -49,7 +49,7 @@
   font-family: var(--mg-font);
   font-weight: 400;
   font-size: calc(13px * var(--text-scale));
-  color: var(--t2);
+  color: var(--stone);
 }
 .screen-head-mark {
   display: inline-flex;
@@ -72,7 +72,7 @@
   font-size: calc(24px * var(--text-scale));
   letter-spacing: -0.02em;
   line-height: 1.1;
-  color: var(--t1);
+  color: var(--espresso);
 }
 .lbl {
   margin: 0;
@@ -80,7 +80,7 @@
   font-size: calc(10px * var(--text-scale));
   font-weight: 500;
   letter-spacing: 0.04em;
-  color: var(--t3);
+  color: var(--stone);
   text-transform: uppercase;
 }
 .lbl-sm {
@@ -88,7 +88,7 @@
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   font-weight: 500;
-  color: var(--t2);
+  color: var(--stone);
 }
 
 /* ── Primary CTA (Simplicity terracotta) ───────────────────────── */
@@ -149,7 +149,7 @@
 .s-hero {
   position: relative;
   overflow: hidden;
-  border-radius: var(--rl);
+  border-radius: var(--mg-card-radius);
   padding: 16px 20px;
   background: var(--mg-card-bg);
   border: var(--mg-card-border);

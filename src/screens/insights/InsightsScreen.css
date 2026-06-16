@@ -73,7 +73,7 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: rgba(244, 227, 218, 0.45);
+  background: color-mix(in srgb, var(--blush) 45%, transparent);
   font-size: calc(16px * var(--text-scale));
   flex-shrink: 0;
 }

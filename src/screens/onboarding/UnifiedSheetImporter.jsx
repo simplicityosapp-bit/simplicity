@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { FileSpreadsheet, X, AlertTriangle, CheckCircle2, HelpCircle } from 'lucide-react'
+import { FileSpreadsheet, X, AlertTriangle, CheckCircle2, HelpCircle, ChevronUp, ChevronDown } from 'lucide-react'
 import {
   SHEET_TYPES, SHEET_TYPE_LABELS, SHEET_TYPE_HELP, ENTITY_FIELDS,
   setSheetType, remapSheetColumn, projectSheet,
@@ -97,7 +97,7 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
                 trusting the mapping. Collapsed by default. */}
             <button type="button" className="usi-toggle-cols" aria-expanded={!!sheet._showRaw}
               onClick={() => patch(sheet.id, { ...sheet, _showRaw: !sheet._showRaw })}>
-              {sheet._showRaw ? 'הסתר' : 'הצג'} תצוגה מקדימה של הקובץ (לוודא שנקרא נכון) <span aria-hidden="true">{sheet._showRaw ? '▲' : '▼'}</span>
+              {sheet._showRaw ? 'הסתר' : 'הצג'} תצוגה מקדימה של הקובץ (לוודא שנקרא נכון) {sheet._showRaw ? <ChevronUp size={14} strokeWidth={1.5} aria-hidden="true" /> : <ChevronDown size={14} strokeWidth={1.5} aria-hidden="true" />}
             </button>
             {sheet._showRaw && (
               <div className="usi-raw">
@@ -171,7 +171,7 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
                   {recognized.length > 0 && (
                     <>
                       <button type="button" className="usi-toggle-cols" aria-expanded={showAll} onClick={() => patch(sheet.id, { ...sheet, _showAllCols: !showAll })}>
-                        {showAll ? 'הסתר' : 'הצג'} {recognized.length} עמודות שזוהו אוטומטית <span aria-hidden="true">{showAll ? '▲' : '▼'}</span>
+                        {showAll ? 'הסתר' : 'הצג'} {recognized.length} עמודות שזוהו אוטומטית {showAll ? <ChevronUp size={14} strokeWidth={1.5} aria-hidden="true" /> : <ChevronDown size={14} strokeWidth={1.5} aria-hidden="true" />}
                       </button>
                       {showAll && recognized.map(renderCol)}
                     </>

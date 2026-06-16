@@ -4,7 +4,7 @@ import {
   BarChart3, Moon, List, Table2, Settings, X, GripVertical, RotateCcw,
   Leaf, ArrowRight, TrendingUp, Users, CircleCheck, XCircle,
   Calendar, ArrowDownCircle, ArrowUpCircle, Coins,
-  Check, CircleAlert,
+  Check, CircleAlert, ChevronLeft,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import {
@@ -505,7 +505,7 @@ function DrillModal({ open, onClose, drill, data, onNavigate }) {
                 <span className="rep-drill-row-primary">{r.primary}</span>
                 <span className="rep-drill-row-secondary">{r.secondary}</span>
               </span>
-              <span className="rep-drill-row-chev">‹</span>
+              <span className="rep-drill-row-chev"><ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" /></span>
             </button>
           ))}
         </div>

@@ -38,7 +38,7 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, index
       </div>
       {onEdit && (
         <button type="button" className="tc-edit" onClick={() => onEdit(task)} aria-label="עריכת משימה">
-          <Pencil size={13} strokeWidth={1.7} aria-hidden="true" />
+          <Pencil size={13} strokeWidth={1.5} aria-hidden="true" />
         </button>
       )}
       <span className="tc-dot" style={{ background: dotColor }} aria-hidden="true" />

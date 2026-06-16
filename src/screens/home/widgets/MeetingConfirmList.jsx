@@ -14,8 +14,8 @@ import { toDateKey } from '../../../lib/recurring'
 
 /* Pending-meeting review list — extracted from the old MeetingConfirmWidget,
    now rendered inside the home "דרושה תשומת לב" popup. Per meeting: name +
-   when + ✓ happened / ✗ didn't / 🗑 delete, plus any linked on_meeting expense
-   with its own ✓/✗/🗑. The rows are MATERIALISED by the generation hooks in
+   when + approve / skip / delete, plus any linked on_meeting expense
+   with its own approve / skip / delete. The rows are MATERIALISED by the generation hooks in
    AttentionWidget (which always mounts on home), so the attention count is
    populated before this popup opens. */
 export default function MeetingConfirmList() {

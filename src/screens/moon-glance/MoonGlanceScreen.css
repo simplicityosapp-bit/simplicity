@@ -292,12 +292,23 @@
   width: 100%;
   margin-bottom: 12px;
   padding: 9px 12px;
-  border-radius: 14px;
+  padding-inline-end: 36px;     /* room for the RTL (left) chevron */
+  border-radius: var(--mg-btn-radius);
   border: 1px solid var(--divider);
   background: var(--mg-card-bg);
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232C2621' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 12px center;
+  background-size: 16px;
+}
+[data-theme="dark"] .mg-ov-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23B8C1B5' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 .mg-ov-note {
   margin: 10px 0 0;

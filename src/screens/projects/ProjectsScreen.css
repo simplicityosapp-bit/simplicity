@@ -141,9 +141,9 @@
   justify-content: center;
   transition: background 0.15s, color 0.15s;
 }
-.pc-edit:hover { color: var(--espresso); background: rgba(42, 37, 32, 0.06); }
+.pc-edit:hover { color: var(--espresso); background: color-mix(in srgb, var(--espresso) 6%, transparent); }
 .pc-del:hover {
-  background: rgba(181, 99, 78, 0.1);
+  background: color-mix(in srgb, var(--clay) 12%, transparent);
   color: var(--clay);
 }
 .pc-divider {

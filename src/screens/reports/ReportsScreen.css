@@ -243,7 +243,7 @@
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
   color: var(--stone);
-  border: 1px dashed var(--divider, rgba(0,0,0,.12));
+  border: 1px dashed var(--divider);
   border-radius: 10px;
 }
 .rep-drill-list {
@@ -260,7 +260,7 @@
   gap: 10px;
   padding: 10px 10px;
   border-radius: 10px;
-  border: 1px solid var(--divider, rgba(0,0,0,.05));
+  border: 1px solid var(--divider);
   background: none;
   width: 100%;
   text-align: start;
@@ -377,7 +377,7 @@
 .rep-row-wrap {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--divider, rgba(0,0,0,.04));
+  border-bottom: 1px solid var(--divider);
 }
 .rep-row-wrap:last-child { border-bottom: none; }
 .rep-row-info {

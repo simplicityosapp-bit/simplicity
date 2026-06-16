@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import DateField from '../../components/DateField'
-import { X, Users, FolderKanban, Receipt, CalendarDays, Check, RotateCcw, AlertTriangle } from 'lucide-react'
+import { X, Users, FolderKanban, Receipt, CalendarDays, Check, RotateCcw, Repeat, CornerDownLeft, AlertTriangle } from 'lucide-react'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useLeads } from '../../hooks/useLeads'
@@ -506,7 +506,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                   <label className="obrw-tx-field obrw-tx-date">
                     <span className="obrw-tx-lbl">{t.recurring ? 'תדירות' : 'תאריך'}</span>
                     {t.recurring ? (
-                      <span className="obrw-recurring" title="הוצאה חוזרת — תיווצר אוטומטית בכל חודש">🔁 חוזרת חודשית</span>
+                      <span className="obrw-recurring" title="הוצאה חוזרת — תיווצר אוטומטית בכל חודש"><Repeat size={12} strokeWidth={1.5} aria-hidden="true" /> חוזרת חודשית</span>
                     ) : (
                       <DateField className="obrw-input" value={t.date || ''} disabled={!inc}
                         onChange={(e) => patchRow('transactions', i, { date: e.target.value })} />
@@ -527,7 +527,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                   </label>
                   {t.client_name && (
                     <span className={`obrw-link${clientOrphan ? ' muted' : ''}`} title={clientOrphan ? 'הלקוח לא ייכלל — התנועה תיווצר בלי קישור' : ''}>
-                      ↪ {t.client_name}{clientOrphan ? ' (ללא קישור)' : ''}
+                      <CornerDownLeft size={12} strokeWidth={1.5} aria-hidden="true" /> {t.client_name}{clientOrphan ? ' (ללא קישור)' : ''}
                     </span>
                   )}
                   {invalid && <span className="obrw-invalid">חסר סכום/תאריך</span>}

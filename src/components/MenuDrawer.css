@@ -80,7 +80,7 @@
   font-family: 'Assistant', sans-serif;
   font-weight: 700;
   font-size: calc(22px * var(--text-scale));
-  color: var(--t1);
+  color: var(--espresso);
   letter-spacing: -0.02em;
   margin-bottom: 6px;
   display: flex;
@@ -90,8 +90,8 @@
 .drawer-title-sub {
   font-family: var(--mg-font);
   font-size: calc(10px * var(--text-scale));
-  font-weight: 300;
-  color: var(--t4);
+  font-weight: 400;
+  color: var(--stone);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin: 0 0 20px;
@@ -102,7 +102,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  color: var(--t3);
+  color: var(--stone);
   cursor: pointer;
   line-height: 1;
   display: inline-flex;
@@ -125,7 +125,7 @@
   font-family: var(--mg-font);
   font-size: calc(10px * var(--text-scale));
   font-weight: 400;
-  color: var(--t4);
+  color: var(--stone);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   margin: 14px 4px 6px;
@@ -176,7 +176,7 @@
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
   font-weight: 500;
-  color: var(--t1);
+  color: var(--espresso);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -185,8 +185,8 @@
   display: block;
   font-family: var(--mg-font);
   font-size: calc(10px * var(--text-scale));
-  font-weight: 300;
-  color: var(--t4);
+  font-weight: 400;
+  color: var(--stone);
   margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -194,7 +194,7 @@
 }
 .drawer-profile-edit {
   flex-shrink: 0;
-  color: var(--t4);
+  color: var(--stone);
   opacity: 0.55;
   display: inline-flex;
 }
@@ -249,7 +249,7 @@
   font-family: var(--mg-font);
   font-size: calc(9px * var(--text-scale));
   font-weight: 500;
-  color: var(--t4);
+  color: var(--stone);
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
@@ -314,7 +314,7 @@
   text-align: start;
   padding: 13px 14px;
   border-radius: var(--rm);
-  color: var(--t1);
+  color: var(--espresso);
   font-family: var(--mg-font);
   font-size: calc(14px * var(--text-scale));
   font-weight: 500;
@@ -363,8 +363,8 @@
   display: block;
   font-family: var(--mg-font);
   font-size: calc(10px * var(--text-scale));
-  font-weight: 300;
-  color: var(--t4);
+  font-weight: 400;
+  color: var(--stone);
   margin-top: 1px;
   letter-spacing: 0.02em;
 }

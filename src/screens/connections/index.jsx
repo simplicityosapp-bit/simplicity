@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { Plug, Calendar, FileText, Check, CircleAlert, ChevronLeft } from 'lucide-react'
+import { Plug, Calendar, FileText, Check, CircleAlert, ChevronLeft, MessageCircle, Sparkles } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
@@ -26,6 +26,27 @@ function ConnRow({ icon: Icon, title, loading, connected, warn, statusText, onOp
       </span>
       <ChevronLeft size={18} strokeWidth={1.7} aria-hidden="true" className="conn-row-chevron" />
     </button>
+  )
+}
+
+/* Not-yet-available integrations — shown as a disabled row with an
+   Anthropic-style toggle (off) + a "בקרוב" tag. Non-interactive. */
+const SOON = [
+  { key: 'whatsapp', title: 'WhatsApp', icon: MessageCircle },
+  { key: 'claude', title: 'Claude', icon: Sparkles },
+]
+function SoonRow({ icon: Icon, title }) {
+  return (
+    <div className="conn-row conn-row-soon" aria-disabled="true">
+      <span className="conn-row-icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></span>
+      <span className="conn-row-body">
+        <span className="conn-row-title">{title}</span>
+        <span className="conn-row-status soon">בקרוב</span>
+      </span>
+      <span className="conn-toggle" role="switch" aria-checked="false" aria-disabled="true" aria-label={`${title} — בקרוב`}>
+        <span className="conn-toggle-knob" aria-hidden="true" />
+      </span>
+    </div>
   )
 }
 
@@ -103,6 +124,7 @@ export default function ConnectionsScreen() {
           statusText={invStatusText}
           onOpen={() => navigate(ROUTES.CONNECTION_INVOICES)}
         />
+        {SOON.map((s) => <SoonRow key={s.key} icon={s.icon} title={s.title} />)}
       </div>
     </div>
   )

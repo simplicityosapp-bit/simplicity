@@ -570,8 +570,36 @@
   background: color-mix(in srgb, var(--clay) 88%, transparent);
   border-color: color-mix(in srgb, var(--clay) 60%, transparent);
 }
-[data-theme="dark"] .conn-row-status { color: var(--ink-on-accent); }
 .conn-row-chevron { flex-shrink: 0; color: var(--mist); }
+
+/* "Coming soon" rows — disabled, with an Anthropic-style off toggle + a muted
+   "בקרוב" tag. Non-interactive. */
+.conn-row-soon { cursor: default; }
+.conn-row-soon:hover { background: var(--mg-card-bg); }
+.conn-row-status.soon {
+  color: var(--stone);
+  background: color-mix(in srgb, var(--stone) 16%, transparent);
+  border-color: color-mix(in srgb, var(--stone) 28%, transparent);
+}
+.conn-toggle {
+  flex-shrink: 0;
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--stone) 28%, transparent);
+  border: 1px solid color-mix(in srgb, var(--stone) 34%, transparent);
+}
+.conn-toggle-knob {
+  position: absolute;
+  top: 2px;
+  inset-inline-start: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--on-accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
 
 /* Detail-screen header with a back button (calendar / invoices sub-screens). */
 .conn-detail-head { display: flex; align-items: flex-start; gap: 10px; }

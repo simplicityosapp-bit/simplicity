@@ -418,8 +418,49 @@ class SumitProvider implements InvoiceProvider {
       .filter((it) => it.id && it.name)
   }
 
-  async listDocumentsSince(_creds: InvoiceCredentials, _sinceISO: string): Promise<FetchedDoc[]> {
-    return [] // SUMIT uses the push webhook (Route B), not polling.
+  // Route B (polling): list income documents created since `sinceISO` via the
+  // accounting/documents/list endpoint — so the key+secret alone are enough for
+  // auto-import (no per-user SUMIT trigger needed). Income types only (0/1/2);
+  // credit docs (5/6/7) are excluded.
+  async listDocumentsSince(creds: InvoiceCredentials, sinceISO: string): Promise<FetchedDoc[]> {
+    const from = (sinceISO || '').slice(0, 10) || new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10)
+    const to = new Date().toISOString().slice(0, 10)
+    let data
+    try {
+      data = await this.post(creds, '/accounting/documents/list/', {
+        DocumentTypes: [0, 1, 2], // Invoice, InvoiceAndReceipt, Receipt
+        DateFrom: from,
+        DateTo: to,
+        IncludeDrafts: false,
+      })
+    } catch (e) {
+      console.error('sumit list failed', e)
+      return [] // degrade quietly — the next scheduled poll retries
+    }
+    const byNum: Record<number, DocType> = { 0: 'invoice', 1: 'invoice_receipt', 2: 'receipt' }
+    const normType = (t: unknown): DocType | null => {
+      if (typeof t === 'number') return byNum[t] ?? null
+      if (typeof t === 'string') {
+        const m = t.match(/\((\d+)\)/)
+        if (m) return byNum[Number(m[1])] ?? null
+        if (/^\d+$/.test(t)) return byNum[Number(t)] ?? null
+        const byName: Record<string, DocType> = { Invoice: 'invoice', InvoiceAndReceipt: 'invoice_receipt', Receipt: 'receipt' }
+        return byName[t] ?? null
+      }
+      return null
+    }
+    const docs = (data?.Documents ?? []) as any[]
+    return docs.map((d) => ({
+      externalId: d.DocumentID != null ? String(d.DocumentID) : '',
+      docType: normType(d.Type),
+      number: d.DocumentNumber != null ? String(d.DocumentNumber) : null,
+      amount: Number.isFinite(Number(d.DocumentValue)) ? Number(d.DocumentValue) : null,
+      currency: 'ILS',
+      date: normalizeDate(d.Date),
+      customerName: d.CustomerName ?? null,
+      url: d.DocumentDownloadURL ?? null,
+      raw: d,
+    })).filter((x) => x.externalId && x.docType)
   }
 }
 

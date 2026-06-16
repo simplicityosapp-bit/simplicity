@@ -36,6 +36,8 @@ export const ROUTES = {
   TRASH: '/trash',
   INSIGHTS: '/insights',
   CONNECTIONS: '/connections',
+  CONNECTION_CALENDAR: '/connections/calendar', // sub-screen: Google Calendar
+  CONNECTION_INVOICES: '/connections/invoices', // sub-screen: invoices (Green Invoice / SUMIT)
 
   // Admin console — owner-only (simplicity.os.app@gmail.com). A separate
   // world: gated by email in App.jsx, served by the `admin` edge function,

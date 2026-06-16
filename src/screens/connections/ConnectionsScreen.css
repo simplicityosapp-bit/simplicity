@@ -1,4 +1,6 @@
-.conn-head { margin-bottom: 4px; }
+/* Match the standard screen header spacing (.screen-top is margin 14/16);
+   the connections screens render the header bare, so set it here. */
+.conn-head { margin: 14px 0 16px; }
 
 .conn-card {
   border-radius: var(--mg-card-radius);

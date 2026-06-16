@@ -508,3 +508,70 @@
   color: var(--espresso);
 }
 .conn-broken-btn { width: auto; flex: 0 0 auto; height: 38px; }
+
+/* ── Connections list (home of the connections screen) ─────────────── */
+.conn-list { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.conn-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: start;
+  padding: 16px 18px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.05s;
+}
+.conn-row:hover { background: color-mix(in srgb, var(--terracotta) 5%, var(--mg-card-bg)); }
+.conn-row:active { transform: scale(0.995); }
+.conn-row-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--terracotta) 10%, transparent);
+  color: var(--terracotta);
+}
+.conn-row-body { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.conn-row-title {
+  font-family: var(--mg-font);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.conn-row-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+.conn-row-status.on { color: var(--sage); }
+.conn-row-status.warn { color: var(--clay); }
+.conn-row-chevron { flex-shrink: 0; color: var(--mist); }
+
+/* Detail-screen header with a back button (calendar / invoices sub-screens). */
+.conn-detail-head { display: flex; align-items: flex-start; gap: 10px; }
+.conn-back {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-top: 2px;
+  border-radius: 50%;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  color: var(--espresso);
+  cursor: pointer;
+}
+.conn-back:hover { background: color-mix(in srgb, var(--terracotta) 8%, var(--mg-card-bg)); }

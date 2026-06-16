@@ -13,6 +13,7 @@ import AuthProvider from './auth/AuthProvider'
 import { useAuth } from './auth/AuthContext'
 import BottomNav from './components/BottomNav'
 import MenuDrawer from './components/MenuDrawer'
+import HelpFab from './components/HelpFab'
 import Sidebar from './components/Sidebar'
 import PrefsApplier from './components/PrefsApplier'
 import ScreenTour from './components/ScreenTour'
@@ -206,6 +207,7 @@ function AppShell() {
         </Suspense>
       </ErrorBoundary>
 
+      <HelpFab screenKey={screen} />
       <BottomNav onOpenMenu={() => setMenuOpen(true)} />
       <MenuDrawer
         open={menuOpen}

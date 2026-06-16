@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ChevronDown, ChevronUp, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
   Plus, Trash2, Leaf, GripVertical, CalendarDays, Database, Download, Upload,
+  BookOpen, HelpCircle, Lightbulb,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { buildSheetsFromFiles, ACCEPT } from '../../lib/importFlow'
@@ -41,6 +42,8 @@ import ExportDataModal from '../../modals/ExportDataModal'
 import { defaultOnboarding } from '../../lib/preferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
 import QuestionScheduleEditor from './QuestionScheduleEditor'
+import { HELP_SCREENS, GLOBAL_FAQ, ABOUT_CONTENT } from '../../lib/helpContent'
+import MG from '../../components/MG'
 import './SettingsScreen.css'
 
 const SECTIONS = [
@@ -333,20 +336,76 @@ function DesignBody({ prefs, onUpdate }) {
 }
 
 /* ── About body ──────────────────────────────────────────────────
-   Static section: app identity, version, credits. */
-const APP_VERSION = '0.1.0'
-function AboutBody() {
+   Three tabs: אודות (app identity) · מדריך (full per-screen guide) ·
+   שאלות נפוצות (global FAQ). Guide/FAQ content lives in lib/helpContent.js
+   (shared with the floating HelpFab). The tip/list sub-styles reuse the
+   help-* classes from HelpFab.css, which is always loaded inside AppShell. */
+const ABOUT_TABS = [
+  { key: 'about', label: 'אודות', icon: Info },
+  { key: 'guide', label: 'מדריך', icon: BookOpen },
+  { key: 'faq',   label: 'שאלות נפוצות', icon: HelpCircle },
+]
+
+/* Screen order for the full guide — a logical reading order (not the raw
+   object key order). Owner-only screens (admin) are intentionally omitted. */
+const GUIDE_ORDER = [
+  'home', 'clients', 'leads', 'finance', 'projects', 'tasks',
+  'calendar', 'goals', 'insights', 'moon', 'reports', 'connections',
+  'settings', 'trash',
+]
+
+function AboutBody({ initialTab }) {
   const navigate = useNavigate()
+  const [tab, setTab] = useState(
+    initialTab && ABOUT_TABS.some((t) => t.key === initialTab) ? initialTab : 'about',
+  )
+  return (
+    <div className="set-about-wrap">
+      <div className="set-about-tabs" role="tablist" aria-label="אודות ועזרה">
+        {ABOUT_TABS.map((t) => {
+          const Icon = t.icon
+          return (
+            <button
+              key={t.key}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.key}
+              className={`set-about-tab${tab === t.key ? ' on' : ''}`}
+              onClick={() => setTab(t.key)}
+            >
+              <Icon size={14} strokeWidth={1.7} aria-hidden="true" />
+              {t.label}
+            </button>
+          )
+        })}
+      </div>
+      {tab === 'about' && <AboutInfo navigate={navigate} />}
+      {tab === 'guide' && <AboutGuide />}
+      {tab === 'faq' && <AboutFaq />}
+    </div>
+  )
+}
+
+function AboutInfo({ navigate }) {
   return (
     <div className="set-about">
       <p className="set-about-name">Simplicity</p>
-      <p className="set-about-tag">Practice OS — לקצב הטיפוח שלך</p>
+      <p className="set-about-tag">{ABOUT_CONTENT.tagline}</p>
+      <p className="set-about-desc"><MG text={ABOUT_CONTENT.description} /></p>
+      <div className="set-about-principles">
+        {ABOUT_CONTENT.principles.map((p, i) => (
+          <div key={i} className="set-about-principle">
+            <p className="set-about-principle-t">{p.title}</p>
+            <p className="set-about-principle-b"><MG text={p.body} /></p>
+          </div>
+        ))}
+      </div>
       <div className="set-about-meta">
-        <span>גרסה {APP_VERSION}</span>
+        <span>גרסה {ABOUT_CONTENT.version}</span>
         <span className="set-about-dot">·</span>
         <span>2026</span>
       </div>
-      <p className="set-about-credit">נבנה בעבודה משותפת עם Claude.</p>
+      <p className="set-about-credit">{ABOUT_CONTENT.built_with}</p>
       {/* Legal documents — the desktop sidebar surfaces these too, but this is
           the only path on mobile (no sidebar). Opens the public /legal page. */}
       <div className="set-about-legal">
@@ -356,6 +415,82 @@ function AboutBody() {
         <span className="set-about-dot">·</span>
         <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=dpa`)}>עיבוד נתונים</button>
       </div>
+    </div>
+  )
+}
+
+function AboutGuide() {
+  return (
+    <div className="set-guide">
+      <p className="set-sub-intro">הסבר מלא לכל מסך באפליקציה — היכולות, הטיפים והשאלות הנפוצות.</p>
+      {GUIDE_ORDER.map((key) => {
+        const s = HELP_SCREENS[key]
+        if (!s) return null
+        return (
+          <details key={key} className="set-guide-screen">
+            <summary>
+              {s.title}
+              <ChevronDown size={16} strokeWidth={1.7} className="set-guide-chev" aria-hidden="true" />
+            </summary>
+            <div className="set-guide-screen-body">
+              {s.intro && <p className="set-guide-intro"><MG text={s.intro} /></p>}
+              {(s.features || []).map((f, i) => (
+                <div key={i} className="set-guide-feat">
+                  <p className="set-guide-feat-t"><MG text={f.title} /></p>
+                  <p className="set-guide-feat-b"><MG text={f.body} /></p>
+                </div>
+              ))}
+              {(s.tips || []).length > 0 && (
+                <>
+                  <p className="set-guide-sub">טיפים</p>
+                  <ul className="help-tips">
+                    {s.tips.map((t, i) => (
+                      <li key={i} className="help-tip">
+                        <span className="help-tip-icon">
+                          <Lightbulb size={15} strokeWidth={1.7} aria-hidden="true" />
+                        </span>
+                        <MG text={t} />
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {(s.faq || []).length > 0 && (
+                <>
+                  <p className="set-guide-sub">שאלות נפוצות</p>
+                  {s.faq.map((item, i) => (
+                    <div key={i} className="set-guide-qa">
+                      <p className="set-guide-q"><MG text={item.q} /></p>
+                      <p className="set-guide-a"><MG text={item.a} /></p>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </details>
+        )
+      })}
+    </div>
+  )
+}
+
+function AboutFaq() {
+  return (
+    <div className="set-faq">
+      {GLOBAL_FAQ.map((cat, ci) => (
+        <div key={ci} className="set-faq-group">
+          <p className="set-faq-cat">{cat.category}</p>
+          {cat.items.map((item, i) => (
+            <details key={i} className="set-faq-item">
+              <summary>
+                <MG text={item.q} />
+                <ChevronDown size={15} strokeWidth={1.7} className="set-faq-chev" aria-hidden="true" />
+              </summary>
+              <p className="set-faq-a"><MG text={item.a} /></p>
+            </details>
+          ))}
+        </div>
+      ))}
     </div>
   )
 }
@@ -704,7 +839,7 @@ export default function SettingsScreen() {
       return <DesignBody prefs={prefs} onUpdate={updatePrefs} />
     }
     if (key === 'about') {
-      return <AboutBody />
+      return <AboutBody initialTab={location.state?.aboutTab} />
     }
     if (key === 'widgets') {
       if (prefsLoading) return <p className="set-soon">טוען…</p>

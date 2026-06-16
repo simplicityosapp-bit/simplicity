@@ -609,7 +609,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px 4px 8px;
+  padding-block: 4px;
+  padding-inline: 10px 8px;
   border-radius: 999px;
   border: 0.5px solid var(--divider);
   background: var(--mg-card-bg);
@@ -897,7 +898,8 @@
   align-items: center;
   gap: 4px;
   margin-inline-start: 4px;
-  padding: 1px 6px 1px 4px;
+  padding-block: 1px;
+  padding-inline: 6px 4px;
   border-radius: 999px;
   border: 0.5px solid var(--divider);
   font-size: calc(10px * var(--text-scale));

@@ -37,7 +37,7 @@
 .c-tab.on {
   background: var(--terracotta);
   border-color: transparent;
-  color: var(--cream);
+  color: var(--on-accent);
 }
 [data-theme="dark"] .c-tab.on {
   color: var(--ink-on-accent);

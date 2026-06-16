@@ -336,6 +336,8 @@
   justify-content: center;
   cursor: pointer;
 }
+.cal-monthpick-year button:hover { background: rgba(42, 37, 32, 0.05); }
+[data-theme="dark"] .cal-monthpick-year button:hover { background: rgba(240, 235, 224, 0.07); }
 .cal-monthpick-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

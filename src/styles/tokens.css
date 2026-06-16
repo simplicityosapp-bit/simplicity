@@ -35,6 +35,7 @@
   /* Contrast text — colour that sits ON a filled accent (button/pill). */
   --on-accent:     #FFFFFF;            /* light text on a saturated accent (sage/clay/terracotta) */
   --ink-on-accent: #181410;            /* dark text on a LIGHT accent (e.g. the primary button in dark mode) */
+  --ink:           #181410;            /* deepest near-black ink — e.g. the dark-mode colour-swatch ring */
   /* ════════════════════════════════════════════════════════════════════ */
 
   /* Icon defaults (Lucide) — see scripts/icons.js */

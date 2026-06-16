@@ -152,7 +152,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
 
       <div className="m-actions">
         {onDelete && tx?.id && (
-          <button type="button" className="m-btn-delete" onClick={() => { onDelete(tx.id); onClose() }}>
+          <button type="button" className="m-btn-delete-inline" onClick={() => { onDelete(tx.id); onClose() }}>
             <Trash2 size={15} strokeWidth={1.8} aria-hidden="true" /> מחק
           </button>
         )}

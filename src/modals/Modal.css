@@ -720,7 +720,7 @@
 
 /* Delete action in the edit-transaction modal — pushed to the start, away from
    cancel/save. Soft-delete + undo (no confirm; the undo toast is the safety). */
-.m-btn-delete {
+.m-btn-delete-inline {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -733,7 +733,7 @@
   color: var(--clay);
   cursor: pointer;
 }
-.m-btn-delete:hover { text-decoration: underline; }
+.m-btn-delete-inline:hover { text-decoration: underline; }
 
 /* ── Editable billing strip (EditClientModal) — pixel-mirrors the client
    card hero (.cd-hero in ClientDrawer.css): same card, same 3 cells, same

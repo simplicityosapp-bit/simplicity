@@ -15,10 +15,11 @@
 
 /* 2026-06-13: privacy + DPA text updated (field-encryption removed → wording now
    says access-control + infra at-rest encryption, not field-level AES / "not
-   readable by team"). Bumped to force re-acceptance via needsReacceptance().
-   Terms text unchanged → stays 1.0. */
-export const PRIVACY_VERSION = '1.1'
-export const DPA_VERSION = '1.1'
+   readable by team"). Bumped to 1.1 to force re-acceptance.
+   2026-06-16: footer version display fixed; landing-page AES-256 claims removed.
+   Bumped to 1.2 — rule: any policy text change must bump version. */
+export const PRIVACY_VERSION = '1.2'
+export const DPA_VERSION = '1.2'
 export const TERMS_VERSION = '1.0'
 
 /* The consent block written at signup / first acceptance. */

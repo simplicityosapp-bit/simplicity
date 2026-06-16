@@ -1,10 +1,10 @@
 // ════════════════════════════════════════════════════════════════
-//  invoice-poll — Route B for Green Invoice (which has no webhook).
+//  invoice-poll — Route B by polling (Green Invoice + SUMIT).
 // ════════════════════════════════════════════════════════════════
-//  A scheduled job (pg_cron → net.http_post) calls this. For each GI
-//  connection it lists documents created since the last poll and stages
-//  them as pending imports (or records them directly when auto_import is
-//  on) — mirroring the SUMIT webhook, but pull-based.
+//  A scheduled job (pg_cron → net.http_post) calls this. For each
+//  import-enabled connection it lists documents created since the last
+//  poll and stages them as pending imports for the user's approval — so
+//  the user's key+secret alone are enough (no per-user webhook/trigger).
 //
 //  Deploy:  supabase functions deploy invoice-poll --no-verify-jwt
 //  Secret:  supabase secrets set POLL_SECRET=<random>   (the cron must send it)
@@ -35,8 +35,9 @@ function matchClient(clients: { id: string; name: string }[], name: string | nul
   return clients.find((c) => norm(c.name) === n)?.id ?? null
 }
 
-// Providers that need polling (no push webhook). SUMIT pushes, so it's excluded.
-const POLL_PROVIDERS = ['greeninvoice']
+// Providers polled for incoming documents (so the key+secret alone are enough —
+// no per-user webhook/trigger). Both providers expose a documents-list API.
+const POLL_PROVIDERS = ['greeninvoice', 'sumit']
 
 Deno.serve(async (req) => {
   const secret = new URL(req.url).searchParams.get('s') ?? req.headers.get('x-poll-secret')

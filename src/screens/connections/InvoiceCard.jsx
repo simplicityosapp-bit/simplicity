@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, useState } from 'react'
-import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, ChevronDown, ChevronUp, Copy, Webhook, Loader2, TriangleAlert } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, Loader2, TriangleAlert } from 'lucide-react'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useAddress } from '../../hooks/useAddress'
 
@@ -73,7 +73,6 @@ export default function InvoiceCard() {
   const status = inv.status
   const connected = !!status?.connected
   const credsInvalid = connected && !!status?.credentials_invalid // provider rejected the stored key
-  const webhookId = useId()
 
   const [provider, setProvider] = useState('greeninvoice')
   const [environment, setEnvironment] = useState('production') // both providers are production-only (no sandbox)
@@ -81,8 +80,6 @@ export default function InvoiceCard() {
   const [localErr, setLocalErr] = useState('')
   const [okMsg, setOkMsg] = useState('')
   const [showHelp, setShowHelp] = useState(false)
-  const [showWebhook, setShowWebhook] = useState(false)
-  const [copied, setCopied] = useState(false)
   const [reconnecting, setReconnecting] = useState(false) // re-entering creds for a broken connection
 
   const [busyAction, setBusyAction] = useState(null) // 'connect' | 'test' | 'disconnect'
@@ -270,40 +267,6 @@ export default function InvoiceCard() {
             <span>לייבא אוטומטית הכנסות?</span>
           </label>
           <p className="conn-autoimport-note">המערכת תזהה הכנסות שהזנת בתוכנת הקבלות שלך — ותשאל אותך אם לרשום אותן גם אצלנו.</p>
-          {status?.webhook_url && (
-            <div className="conn-webhook">
-              <button type="button" className="conn-webhook-toggle" onClick={() => setShowWebhook((v) => !v)} aria-expanded={showWebhook}>
-                <span><Webhook size={15} strokeWidth={1.7} aria-hidden="true" /> הגדרת ייבוא מסאמיט (חד-פעמי)</span>
-                {showWebhook ? <ChevronUp size={16} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={16} strokeWidth={1.7} aria-hidden="true" />}
-              </button>
-              {showWebhook && (
-                <div className="conn-webhook-panel">
-                  <p className="conn-webhook-intro">כדי שחשבוניות שתפיקו ישירות בסאמיט ייובאו לכאן אוטומטית — צרו "טריגר" בסאמיט שמצביע לכתובת הזו:</p>
-                  <div className="conn-webhook-url-row">
-                    <code id={webhookId} className="conn-webhook-url">{status.webhook_url}</code>
-                    <button
-                      type="button"
-                      className="conn-webhook-copy"
-                      aria-label={addr({ male: 'העתק את כתובת ה-webhook', female: 'העתקי את כתובת ה-webhook', neutral: 'העתק/י את כתובת ה-webhook' })}
-                      aria-describedby={webhookId}
-                      onClick={() => { navigator.clipboard?.writeText(status.webhook_url).then(() => { setCopied(true); window.setTimeout(() => setCopied(false), 2000) }).catch(() => {}) }}
-                    >
-                      <Copy size={13} strokeWidth={1.8} aria-hidden="true" /> <span aria-hidden="true">{copied ? 'הועתק' : addr({ male: 'העתק', female: 'העתקי', neutral: 'העתק/י' })}</span>
-                    </button>
-                  </div>
-                  {copied && <span className="sr-only" role="status">כתובת ה-webhook הועתקה</span>}
-                  <ol className="conn-webhook-steps">
-                    <li>בסאמיט: הגדרות ← <b>מודול טריגרים</b> ← "יצירת טריגר".</li>
-                    <li>בחרו את התיקייה והתצוגה של מסמכי החשבוניות, ובאירוע: <b>"יצירת כרטיס"</b>.</li>
-                    <li>בשלב הפעולה בחרו <b>"יצירת קריאת HTTP"</b>, וסוג הקריאה <b>JSON</b>.</li>
-                    <li>הדביקו את הכתובת שלמעלה בשדה ה-URL, ושמרו את הטריגר כ<b>פעיל</b>.</li>
-                    <li>מעכשיו כל מסמך שתפיקו בסאמיט יופיע ב<b>"ייבוא ממתין"</b> במסך הכספים.</li>
-                  </ol>
-                  <p className="conn-webhook-intro">לאחר ההגדרה, מסמכים שתפיקו בסאמיט יופיעו ב"ייבוא ממתין" לאישורך — כל עוד "לייבא אוטומטית הכנסות" מסומן למעלה.</p>
-                </div>
-              )}
-            </div>
-          )}
         </>
       )}
 

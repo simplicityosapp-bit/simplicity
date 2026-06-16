@@ -60,7 +60,8 @@ export default function InvoiceImports() {
     <section className="inv-imports">
       <div className="inv-imports-head">
         <FileDown size={16} strokeWidth={1.7} aria-hidden="true" />
-        <span aria-live="polite">{imports.length === 1 ? 'חשבונית אחת לייבוא' : `${imports.length} חשבוניות לייבוא`}</span>
+        <span>ייבוא ממתין</span>
+        <span className="inv-imports-count" aria-live="polite" aria-label={`${imports.length} ${imports.length === 1 ? 'חשבונית' : 'חשבוניות'} לאישור`}>{imports.length}</span>
       </div>
       <p className="inv-imports-sub">חשבוניות שהופקו בשירות החיצוני — לייבא כהכנסה?</p>
       <div className="inv-imports-list">

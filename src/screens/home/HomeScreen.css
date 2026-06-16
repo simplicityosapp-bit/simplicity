@@ -73,11 +73,9 @@
   font-weight: 500;
 }
 .home-screen[data-text-strength="bold"] .h-quote-text,
-.home-screen[data-text-strength="bold"] .moon-title,
 .home-screen[data-text-strength="bold"] .h-card-title {
   font-weight: 600;
 }
-.home-screen[data-text-strength="bold"] .moon-desc,
 .home-screen[data-text-strength="bold"] .h-attn-text,
 .home-screen[data-text-strength="bold"] .h-task-text,
 .home-screen[data-text-strength="bold"] .h-rem-text,
@@ -87,7 +85,6 @@
 
 /* Per-widget compact mode — tighter padding. */
 .home-widget.compact .h-card,
-.home-widget.compact .moon-card,
 .home-widget.compact .h-quote,
 .home-widget.compact .ins-widget {
   padding: 10px 14px;
@@ -95,13 +92,11 @@
 
 /* Per-widget density override (compact/spacious/comfortable). */
 .home-widget[data-density="compact"] .h-card,
-.home-widget[data-density="compact"] .moon-card,
 .home-widget[data-density="compact"] .h-quote,
 .home-widget[data-density="compact"] .ins-widget {
   padding-block: 10px;
 }
 .home-widget[data-density="spacious"] .h-card,
-.home-widget[data-density="spacious"] .moon-card,
 .home-widget[data-density="spacious"] .h-quote,
 .home-widget[data-density="spacious"] .ins-widget {
   padding-block: 24px;
@@ -122,9 +117,9 @@
 
 /* Per-widget accent — soft tinted ring + ambient glow on the card.
    No hard stripe. The first child of .home-widget is the actual card
-   element (.h-quote / .moon-card / .h-card / .ins-widget / .h-stat).
+   element (.h-quote / .h-card / .ins-widget / .h-stat).
    Selector is bumped to .home-stack .home-widget > * so it wins the
-   cascade tie-break against the .h-quote/.moon-card/... block below. */
+   cascade tie-break against the .h-quote/.h-card/... block below. */
 /* :not() exclusions keep modal portals (rendered as siblings of the
    widget body — e.g. the TileDrillModal opened from ChipsWidget)
    from inheriting position:relative. They have to stay
@@ -182,7 +177,6 @@
 
 /* Shared glass card surface. */
 .h-quote,
-.moon-card,
 .ins-widget,
 .h-card,
 .h-stat {
@@ -418,127 +412,6 @@
      future per-shape tweaks. */
 }
 
-/* ── Moon widget (legacy big card — kept for /moon screen reuse) ─ */
-.moon-card {
-  padding: var(--mg-card-pad);
-  cursor: pointer;
-  transition: transform 0.18s;
-}
-.moon-card:active {
-  transform: scale(0.99);
-}
-.moon-top {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-.moon-ring {
-  position: relative;
-  width: 92px;
-  height: 92px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background: var(--mg-card-bg);
-  backdrop-filter: var(--mg-card-blur);
-}
-.moon-ring::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: conic-gradient(from -90deg,
-    var(--sage) 0% var(--ring-pct, 0%),
-    var(--divider) var(--ring-pct, 0%) 100%);
-  -webkit-mask: radial-gradient(circle closest-side, transparent 84%, black 85%);
-          mask: radial-gradient(circle closest-side, transparent 84%, black 85%);
-  pointer-events: none;
-}
-.moon-ring-empty {
-  color: var(--stone);
-  border: 1px dashed var(--divider);
-}
-.moon-ring-pct {
-  font-family: var(--mg-font-num);
-  font-size: calc(28px * var(--text-scale));
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: var(--espresso);
-}
-.moon-ring-sub {
-  font-family: var(--mg-font);
-  font-size: calc(10px * var(--text-scale));
-  font-weight: 500;
-  margin-top: 4px;
-  color: var(--stone);
-  white-space: nowrap;
-}
-.moon-titleblock {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
-}
-.moon-title {
-  font-family: var(--mg-font);
-  font-size: calc(17px * var(--text-scale));
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--espresso);
-}
-.moon-desc {
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 500;
-  line-height: 1.4;
-  color: var(--stone);
-}
-.moon-open {
-  font-family: var(--mg-font);
-  font-size: calc(12px * var(--text-scale));
-  font-weight: 500;
-  color: var(--terracotta);
-}
-.moon-divider {
-  height: 1px;
-  background: var(--divider);
-  margin: 16px 0 12px;
-}
-.moon-stats {
-  display: flex;
-  align-items: center;
-}
-.moon-stat {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  color: var(--stone);
-}
-.moon-stat:not(:first-child) {
-  border-inline-start: 1px solid var(--divider);
-}
-.moon-stat-num {
-  font-family: var(--mg-font-num);
-  font-size: calc(18px * var(--text-scale));
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.01em;
-  color: var(--espresso);
-  white-space: nowrap;
-}
-.moon-stat-lbl {
-  font-family: var(--mg-font);
-  font-size: calc(10px * var(--text-scale));
-  font-weight: 500;
-  color: var(--stone);
-}
 
 /* ── Insights (daily question) ─────────────────────────────────── */
 .ins-widget {

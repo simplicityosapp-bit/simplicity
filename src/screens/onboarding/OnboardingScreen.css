@@ -381,22 +381,24 @@
    sit naturally over the background like the native .ob-input fields. */
 .ob-client-form .m-input,
 .ob-client-form .m-select {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: var(--bm);
+  /* background-color (not the `background` shorthand) so the shared .m-select
+     chevron background-image (Modal.css) is preserved inside the onboarding form. */
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: var(--mg-card-blur);
   border: 1px solid rgba(42, 37, 32, 0.14);
 }
 [data-theme="dark"] .ob-client-form .m-input,
 [data-theme="dark"] .ob-client-form .m-select {
-  background: rgba(36, 32, 28, 0.5);
+  background-color: rgba(36, 32, 28, 0.5);
   border-color: rgba(240, 235, 224, 0.18);
 }
 /* Status pills in the shared form — glassy to match. */
 .ob-client-form .m-pill {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: var(--bm);
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: var(--mg-card-blur);
 }
 [data-theme="dark"] .ob-client-form .m-pill {
-  background: rgba(36, 32, 28, 0.5);
+  background-color: rgba(36, 32, 28, 0.5);
 }
 /* Active status pill uses our sage green (not the terracotta default). */
 .ob-client-form .m-pill.on {
@@ -404,7 +406,7 @@
   border-color: var(--sage);
   color: var(--on-accent);
 }
-[data-theme="dark"] .ob-client-form .m-pill.on { color: #1a1a1a; }
+[data-theme="dark"] .ob-client-form .m-pill.on { color: var(--ink); }
 /* Each shared field stacks label-pill above its control with a small gap. */
 .ob-client-form .m-field { display: flex; flex-direction: column; gap: 4px; }
 .ob-input,
@@ -412,17 +414,32 @@
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid rgba(42, 37, 32, 0.16);
-  background: rgba(255, 255, 255, 0.82); /* more opaque so it reads over the bright forest */
+  background-color: rgba(255, 255, 255, 0.82); /* more opaque so it reads over the bright forest */
   font-family: var(--mg-font);
   font-size: calc(14px * var(--text-scale));
   color: var(--espresso);
+}
+/* Native <select> affordance — strip the OS arrow and supply the Lucide
+   chevron (RTL → physical left). Matches the shared .m-select treatment. */
+.ob-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-inline-end: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232C2621' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 12px center;
+  background-size: 16px;
+}
+[data-theme="dark"] .ob-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23B8C1B5' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 /* Placeholder readable over the photo — was the browser default light grey. */
 .ob-input::placeholder { color: var(--stone); opacity: 0.72; }
 [data-theme="dark"] .ob-input,
 [data-theme="dark"] .ob-select {
   border-color: rgba(240, 235, 224, 0.20);
-  background: rgba(30, 26, 22, 0.78);
+  background-color: rgba(30, 26, 22, 0.78);
   color: var(--cream);
 }
 [data-theme="dark"] .ob-input::placeholder { color: var(--mist); opacity: 0.7; }

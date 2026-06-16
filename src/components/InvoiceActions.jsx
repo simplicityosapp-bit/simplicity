@@ -259,7 +259,7 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
             {catalogLoading && <span className="inv-act-loading" role="status" aria-live="polite">טוען מוצרים…</span>}
             {!catalogLoading && items.length > 0 && (
               <select className="inv-act-select" value={itemId} onChange={(e) => setItemId(e.target.value)}>
-                {items.map((it) => <option key={it.id} value={it.id}>{it.name}{it.price != null ? ` · ₪${it.price}` : ''}</option>)}
+                {items.map((it) => <option key={it.id} value={it.id}>{it.name}{it.price != null ? ` · ${isr(it.price)}` : ''}</option>)}
                 <option value="">אחר (טקסט חופשי)</option>
               </select>
             )}

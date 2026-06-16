@@ -309,8 +309,8 @@
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--modal-bg, var(--mg-card-bg));
-  backdrop-filter: blur(24px);
-  box-shadow: 0 16px 40px rgba(42, 37, 32, 0.16);
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
 }
 .cal-monthpick-year {
   display: flex;
@@ -788,8 +788,8 @@
 }
 .evt-detail-btn.skip {
   color: var(--stone);
-  background: rgba(120, 120, 120, 0.1);
-  border-color: rgba(120, 120, 120, 0.28);
+  background: color-mix(in srgb, var(--stone) 10%, transparent);
+  border-color: color-mix(in srgb, var(--stone) 28%, transparent);
 }
 .evt-detail-status {
   margin: 12px 0;

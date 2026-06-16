@@ -274,7 +274,7 @@ export default function TasksScreen() {
             </div>
           ) : <span />}
           <button type="button" className="t-manage-btn" onClick={() => setShowTaxonomy(true)}>
-            <Tags size={14} strokeWidth={1.7} aria-hidden="true" />
+            <Tags size={14} strokeWidth={1.5} aria-hidden="true" />
             סטטוסים וקטגוריות
           </button>
         </div>
@@ -283,7 +283,7 @@ export default function TasksScreen() {
       {filter === 'done' && doneCount > 0 && (
         <div className="t-clear-row">
           <button type="button" className="t-clear-btn" onClick={() => setConfirmClear(true)}>
-            <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
+            <Trash2 size={14} strokeWidth={1.5} aria-hidden="true" />
             מחק הכל
           </button>
         </div>
@@ -298,10 +298,10 @@ export default function TasksScreen() {
           filteredTasks.length === 0 ? (
             tasks.length === 0 ? (
               <div className="empty">
-                <span className="empty-icon"><ListTodo size={28} strokeWidth={1.4} aria-hidden="true" /></span>
+                <span className="empty-icon"><ListTodo size={28} strokeWidth={1.5} aria-hidden="true" /></span>
                 <p className="empty-text">אין עדיין משימות. המשימה הראשונה שלך מתחילה כאן.</p>
                 <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
-                  <Plus size={18} strokeWidth={1.8} aria-hidden="true" /> {addr({ male: 'הוסף משימה', female: 'הוסיפי משימה', neutral: 'הוסף/י משימה' })}
+                  <Plus size={18} strokeWidth={1.5} aria-hidden="true" /> {addr({ male: 'הוסף משימה', female: 'הוסיפי משימה', neutral: 'הוסף/י משימה' })}
                 </button>
                 <details className="empty-reminder">
                   <summary>למה זה חשוב?</summary>

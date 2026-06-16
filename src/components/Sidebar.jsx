@@ -100,7 +100,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
               title={item.label}
             >
               <span className="mg-sidebar-link-chip" aria-hidden="true">
-                <Icon size={22} strokeWidth={2} />
+                <Icon size={22} strokeWidth={1.5} />
               </span>
               <span className="mg-sidebar-link-text">{item.label}</span>
             </button>
@@ -117,7 +117,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
           title="עוד"
         >
           <span className="mg-sidebar-link-chip" aria-hidden="true">
-            <MoreHorizontal size={22} strokeWidth={2} />
+            <MoreHorizontal size={22} strokeWidth={1.5} />
           </span>
           <span className="mg-sidebar-link-text">עוד</span>
         </button>
@@ -156,7 +156,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
                 title={item.label}
               >
                 <span className="mg-sidebar-link-chip" aria-hidden="true">
-                  <Icon size={18} strokeWidth={2} />
+                  <Icon size={18} strokeWidth={1.5} />
                 </span>
                 <span className="mg-sidebar-link-text">{item.label}</span>
               </button>
@@ -172,7 +172,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
             title="דברו אלינו"
           >
             <span className="mg-sidebar-link-chip" aria-hidden="true">
-              <MessageSquarePlus size={18} strokeWidth={2} />
+              <MessageSquarePlus size={18} strokeWidth={1.5} />
             </span>
             <span className="mg-sidebar-link-text">דברו אלינו</span>
           </button>

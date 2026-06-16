@@ -75,16 +75,16 @@
   padding: 6px 12px;
   border: none;
   border-radius: 10px;
-  background: rgba(201, 123, 94, 0.22);
-  color: #F4E3DA;
+  background: color-mix(in srgb, var(--terracotta) 22%, transparent);
+  color: var(--blush);
   font-family: inherit;
   font-size: var(--mg-caption);
   font-weight: 600;
   cursor: pointer;
   transition: background 140ms ease;
 }
-.undo-toast-action:hover { background: rgba(201, 123, 94, 0.36); }
-.undo-toast-action:active { background: rgba(201, 123, 94, 0.46); }
+.undo-toast-action:hover { background: color-mix(in srgb, var(--terracotta) 36%, transparent); }
+.undo-toast-action:active { background: color-mix(in srgb, var(--terracotta) 46%, transparent); }
 
 .undo-toast-x {
   flex: 0 0 auto;

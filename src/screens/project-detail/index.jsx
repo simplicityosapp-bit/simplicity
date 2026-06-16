@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
-  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarPlus, X, Trash2, Bell,
+  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarPlus, X, Trash2, Bell, GripVertical,
 } from 'lucide-react'
 import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
@@ -590,7 +590,7 @@ export default function ProjectDetailScreen() {
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(buildRoute(ROUTES.CLIENT, { id: c.id })) } }}
                     {...clientDnd.draggableProps(c.id)}
                   >
-                    <span className="pd-client-grip" aria-hidden="true">⠿</span>
+                    <GripVertical size={16} strokeWidth={1.5} className="pd-client-grip" aria-hidden="true" />
                     <span className="pd-client-name">{c.name}</span>
                     {g ? (
                       <span className="pd-client-tag group-member">{g.name}</span>

@@ -518,7 +518,7 @@
 .set-about-tab.on {
   background: rgba(255, 255, 255, 0.62);
   color: var(--espresso);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--mg-card-shadow);
 }
 [data-theme="dark"] .set-about-tab.on {
   background: rgba(220, 230, 255, 0.16);
@@ -924,11 +924,11 @@
   filter: brightness(0.92);
 }
 [data-theme="dark"] .set-data-action.danger {
-  background: var(--danger);
+  background: var(--clay);
   color: var(--on-accent);
 }
 [data-theme="dark"] .set-data-action.danger:hover:not(:disabled) {
-  background: var(--danger);
+  background: var(--clay);
   filter: brightness(1.08);
 }
 /* Danger zone — visually separated block at the bottom of the data tab. */

@@ -70,7 +70,7 @@ export default function Step9Finish({ ob, onDone, setCTA }) {
 
       <div className="ob-field" style={{ textAlign: 'center' }}>
         <p className="ob-label" style={{ display: 'inline-block' }}>חשוב לדעת</p>
-        <div className="ob-about" style={{ fontFamily: 'var(--mg-font)', fontSize: 13.5, lineHeight: 1.75, color: 'var(--espresso)', textAlign: 'center' }}>
+        <div className="ob-about" style={{ fontFamily: 'var(--mg-font)', fontSize: 'calc(13.5px * var(--text-scale))', lineHeight: 1.75, color: 'var(--espresso)', textAlign: 'center' }}>
           <p style={{ margin: '0 0 10px' }}>המערכת הזאת נבנית בשבילך — כדי שיהיה כמה שיותר קל וכמה שיותר מזין לנהל את העסק שלך.</p>
           <p style={{ margin: '0 0 10px' }}>{addr({ male: 'תוכל', female: 'תוכלי', neutral: 'תוכל/י' })} ממסך הבית והתפריט להשאיר לנו פידבקים, בקשות ודיוקים כדי שהמערכת תתאים את עצמה אפילו עוד יותר אליך.</p>
           <p style={{ margin: '0 0 10px' }}>אכפת לנו ממך — אז {addr({ male: 'תרשה', female: 'תרשי', neutral: 'תרשה/י' })} לעצמך לפעול {addr({ male: 'כמלך', female: 'כמלכה', neutral: 'כמלך/כמלכה' })} ולבקש כל מה ש{addr({ male: 'תרצה', female: 'תרצי', neutral: 'תרצה/י' })}.</p>

@@ -218,7 +218,7 @@ export default function RecurringModal({ open, onClose, onSave, template, client
       {isEdit && (
         <div className="m-field">
           <label className="m-label" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <input type="checkbox" checked={form.active} onChange={(e) => set('active', e.target.checked)} />
+            <input type="checkbox" className="m-check" checked={form.active} onChange={(e) => set('active', e.target.checked)} />
             פעילה (מייצרת תנועות באופן אוטומטי)
           </label>
         </div>

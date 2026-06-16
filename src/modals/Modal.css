@@ -155,13 +155,34 @@
 }
 .m-select {
   appearance: none;
+  -webkit-appearance: none;
   cursor: pointer;
+  /* App is RTL → chevron sits on the physical left (inline-end); reserve room
+     for it so the value never rides under the glyph. The Lucide ChevronDown is
+     inlined as a data-URI (stone stroke), swapped for a light stroke in dark. */
+  padding-inline-end: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232C2621' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 14px center;
+  background-size: 16px;
+}
+[data-theme="dark"] .m-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23B8C1B5' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 .m-error {
   margin: 6px 0 0;
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   color: var(--clay);
+}
+/* Shared native checkbox — tints the control to the brand accent so modal
+   checkboxes match the language instead of rendering the OS default blue. */
+.m-check {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--terracotta);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 .m-sub {
   display: flex;

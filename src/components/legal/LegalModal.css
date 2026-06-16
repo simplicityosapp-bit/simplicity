@@ -93,7 +93,7 @@
   width: 100%;
   height: 48px;
   border: none;
-  border-radius: 14px;
+  border-radius: var(--mg-btn-radius);
   background: var(--terracotta);
   color: var(--on-accent);
   font-family: var(--mg-font);
@@ -102,7 +102,7 @@
   cursor: pointer;
   transition: background 0.15s, transform 0.12s;
 }
-.legal-close:hover { background: var(--mg-btn-primary-bg-hover, #B86E52); }
+.legal-close:hover { background: var(--mg-btn-primary-bg-hover); }
 .legal-close:active { transform: scale(0.99); }
 
 @media (max-width: 640px) {

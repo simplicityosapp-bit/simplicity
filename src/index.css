@@ -94,7 +94,7 @@ body {
 }
 
 [data-theme="dark"] body {
-  background: #030e06;
+  background: var(--bg);
 }
 
 #root {
@@ -331,7 +331,7 @@ textarea:focus-visible,
      saw nothing behind it and the text was illegible (beta 03/06/2026). */
   background: var(--pure-white);
   backdrop-filter: var(--mg-card-blur);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--mg-card-shadow);
   font-family: var(--mg-font);
   font-size: calc(11.5px * var(--text-scale));
   line-height: 1.55;
@@ -537,8 +537,11 @@ body.modal-open .screen {
 [data-theme="dark"] .m-select,
 [data-theme="dark"] .m-textarea {
   border: 1px solid rgba(240, 235, 224, 0.18);
-  background: rgba(20, 18, 14, 0.55);
-  color: var(--cream, #F0EBE0);
+  /* background-color (not the `background` shorthand) so the .m-select chevron
+     background-image set in Modal.css survives in dark mode regardless of
+     stylesheet load order. */
+  background-color: rgba(20, 18, 14, 0.55);
+  color: var(--cream);
 }
 [data-theme="dark"] .m-input::placeholder,
 [data-theme="dark"] .m-textarea::placeholder {

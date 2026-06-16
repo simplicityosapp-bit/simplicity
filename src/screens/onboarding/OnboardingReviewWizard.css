@@ -332,8 +332,8 @@
 .obrw-badge.expense { color: var(--clay); }
 .obrw-badge.dup {
   font-family: var(--mg-font);
-  color: var(--amber);
-  border: 1px solid color-mix(in srgb, var(--amber) 45%, transparent);
+  color: var(--amber-warn);
+  border: 1px solid color-mix(in srgb, var(--amber-warn) 45%, transparent);
   border-radius: 999px;
   padding: 1px 7px;
 }

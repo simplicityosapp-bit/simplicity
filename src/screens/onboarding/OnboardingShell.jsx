@@ -76,8 +76,8 @@ export default function OnboardingShell({ ob, cta, children }) {
             title={isDark ? 'מצב יום' : 'מצב לילה'}
           >
             {isDark
-              ? <Sun size={16} strokeWidth={1.7} aria-hidden="true" />
-              : <Moon size={16} strokeWidth={1.7} aria-hidden="true" />}
+              ? <Sun size={16} strokeWidth={1.5} aria-hidden="true" />
+              : <Moon size={16} strokeWidth={1.5} aria-hidden="true" />}
           </button>
           {helpContent && (
             <button
@@ -87,7 +87,7 @@ export default function OnboardingShell({ ob, cta, children }) {
               aria-label="הסבר על המסך הזה"
               title="הסבר על המסך הזה"
             >
-              <HelpCircle size={16} strokeWidth={1.7} aria-hidden="true" />
+              <HelpCircle size={16} strokeWidth={1.5} aria-hidden="true" />
             </button>
           )}
         </div>
@@ -104,7 +104,7 @@ export default function OnboardingShell({ ob, cta, children }) {
             onClick={ob.back}
             disabled={isFirst}
           >
-            <ChevronRight size={15} strokeWidth={1.6} aria-hidden="true" /> חזרה
+            <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" /> חזרה
           </button>
         </div>
 
@@ -127,7 +127,7 @@ export default function OnboardingShell({ ob, cta, children }) {
               onClick={onSkip}
               disabled={skipping}
             >
-              {skipping ? 'מסיים…' : 'דלג'} <ChevronLeft size={13} strokeWidth={1.6} aria-hidden="true" />
+              {skipping ? 'מסיים…' : 'דלג'} <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
             </button>
           )}
         </div>

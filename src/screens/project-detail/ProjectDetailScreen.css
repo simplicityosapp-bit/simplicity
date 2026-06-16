@@ -304,7 +304,7 @@
 .gc-sess-date {
   flex: 1;
   padding: 5px 8px;
-  border-radius: 8px;
+  border-radius: var(--mg-btn-radius);
   border: 1px solid var(--divider);
   background: transparent;
   font-family: var(--mg-font);

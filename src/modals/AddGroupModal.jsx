@@ -84,12 +84,12 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
       </div>
       <div className="m-field">
         <label className="m-label">תמחור</label>
-        <div className="m-seg">
+        <div className="m-pills">
           {GROUP_BILLING_MODES.map((mode) => (
             <button
               key={mode}
               type="button"
-              className={`m-seg-btn${form.billing_mode === mode ? ' on' : ''}`}
+              className={`m-pill${form.billing_mode === mode ? ' on' : ''}`}
               onClick={() => { set('billing_mode', mode); if (err) setErr('') }}
             >
               {GROUP_BILLING_LABELS[mode]}

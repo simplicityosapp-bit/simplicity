@@ -75,9 +75,9 @@
 /* Active drop target — soft sage tint so the user sees where a
    dragged card will land. */
 .lead-col.drag-over {
-  background: rgba(139, 168, 136, 0.10);
-  border-color: rgba(139, 168, 136, 0.45);
-  box-shadow: 0 0 0 2px rgba(139, 168, 136, 0.25);
+  background: color-mix(in srgb, var(--sage) 10%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 45%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sage) 25%, transparent);
 }
 .lead-card {
   user-select: none;
@@ -295,7 +295,7 @@
   justify-content: center;
   cursor: pointer;
 }
-.fu-done:hover { background: rgba(139, 168, 136, 0.12); border-color: var(--sage); }
+.fu-done:hover { background: color-mix(in srgb, var(--sage) 12%, transparent); border-color: var(--sage); }
 
 /* ── Lead statuses management panel ──────────────────────────── */
 .lead-statuses-panel {
@@ -345,7 +345,7 @@
   gap: 6px;
   padding: 4px 10px 4px 8px;
   border-radius: 999px;
-  border: 0.5px solid var(--divider);
+  border: 1px solid var(--divider);
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   color: var(--espresso);
@@ -407,14 +407,14 @@
   transition: background 0.15s;
 }
 .lead-statuses-add-btn:hover:not(:disabled) {
-  background: rgba(42, 37, 32, 0.05);
+  background: color-mix(in srgb, var(--espresso) 5%, transparent);
 }
 .lead-statuses-add-btn:disabled {
   opacity: 0.4;
   cursor: default;
 }
 [data-theme="dark"] .lead-statuses-add-btn:hover:not(:disabled) {
-  background: rgba(240, 235, 224, 0.07);
+  background: color-mix(in srgb, var(--bone) 7%, transparent);
 }
 .lead-col-head {
   display: flex;
@@ -443,12 +443,12 @@
   font-size: calc(12px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
-  background: rgba(42, 37, 32, 0.06);
+  background: color-mix(in srgb, var(--espresso) 6%, transparent);
   border-radius: 10px;
   padding: 1px 9px;
 }
 [data-theme="dark"] .lead-col-count {
-  background: rgba(240, 235, 224, 0.06);
+  background: color-mix(in srgb, var(--bone) 6%, transparent);
 }
 .lead-col-body {
   display: flex;
@@ -618,11 +618,11 @@
   transition: background 0.15s, border-color 0.15s;
 }
 .lead-convert-btn:hover {
-  background: rgba(139, 168, 136, 0.12);
-  border-color: rgba(139, 168, 136, 0.35);
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 35%, transparent);
   color: var(--sage);
 }
 [data-theme="dark"] .lead-convert-btn:hover {
-  background: rgba(139, 168, 136, 0.18);
-  border-color: rgba(139, 168, 136, 0.4);
+  background: color-mix(in srgb, var(--sage) 18%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 40%, transparent);
 }

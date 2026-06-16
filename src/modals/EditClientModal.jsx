@@ -218,7 +218,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         <label className="m-label">סה״כ לתשלום (אופציונלי)</label>
         <input type="number" min="0" className="m-input" value={form.total_due}
           onChange={(e) => set('total_due', e.target.value)} placeholder="אוטומטי: פגישות × מחיר" />
-        <p style={{ margin: '4px 0 0', fontSize: 'calc(11px * var(--text-scale))', color: 'var(--stone)' }}>
+        <p className="m-hint">
           אם {addr({ male: 'תזין', female: 'תזיני', neutral: 'תזין/י' })} סכום כאן הוא יגבר על החישוב האוטומטי (פגישות × מחיר) — שימושי לנתונים שיובאו.
         </p>
       </div>
@@ -265,7 +265,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
               </div>
             )
           })}
-          <p style={{ margin: '4px 0 0', fontSize: 'calc(11px * var(--text-scale))', color: 'var(--stone)' }}>
+          <p className="m-hint">
             הסכום {addr({ male: 'שתזין', female: 'שתזיני', neutral: 'שתזין/י' })} כאן גובר על החיוב שמגיע מהקבוצה — עבור הלקוח הזה בלבד.
           </p>
         </div>

@@ -33,7 +33,7 @@ export default function BottomNav({ onOpenMenu }) {
             onClick={() => navigate(item.to)}
           >
             <span className="mg-bottombar-chip" aria-hidden="true">
-              <Icon size={22} strokeWidth={1.6} />
+              <Icon size={22} strokeWidth={1.5} />
             </span>
             <span>{item.label}</span>
           </button>
@@ -46,7 +46,7 @@ export default function BottomNav({ onOpenMenu }) {
         onClick={onOpenMenu}
       >
         <span className="mg-bottombar-chip" aria-hidden="true">
-          <Menu size={22} strokeWidth={1.6} />
+          <Menu size={22} strokeWidth={1.5} />
         </span>
         <span>תפריט</span>
       </button>

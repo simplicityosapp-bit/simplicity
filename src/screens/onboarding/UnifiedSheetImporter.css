@@ -34,16 +34,27 @@
 .usi-select {
   width: 100%;
   padding: 8px 12px;
+  padding-inline-end: 36px;     /* room for the RTL (left) chevron */
   border-radius: 12px;
   border: 1px solid rgba(42, 37, 32, 0.14);
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: var(--bm);
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: calc(13.5px * var(--text-scale));
   color: var(--espresso);
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232C2621' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 12px center;
+  background-size: 16px;
 }
-[data-theme="dark"] .usi-select { background: rgba(36, 32, 28, 0.5); border-color: rgba(240, 235, 224, 0.18); }
+[data-theme="dark"] .usi-select {
+  background-color: rgba(36, 32, 28, 0.5);
+  border-color: rgba(240, 235, 224, 0.18);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23B8C1B5' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
 
 .usi-hint { margin: 8px 0 0; font-family: var(--mg-font); font-size: calc(12px * var(--text-scale)); color: var(--mist); }
 .usi-ask {

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { FileDown, Check, X, ExternalLink, Loader2 } from 'lucide-react'
+import { FileDown, Check, X, ExternalLink, Loader2, TriangleAlert } from 'lucide-react'
 import { useInvoiceImports } from '../../hooks/useInvoiceImports'
+import { useTransactions } from '../../hooks/useTransactions'
 import { useAddress } from '../../hooks/useAddress'
 import { isr } from '../../lib/finance'
+import ConfirmModal from '../../modals/ConfirmModal'
 import './InvoiceImports.css'
 
 const typeLabel = (t) => ({ invoice_receipt: 'חשבונית מס קבלה', receipt: 'קבלה', invoice: 'חשבונית מס' }[t] || 'מסמך')
@@ -11,10 +13,19 @@ const typeLabel = (t) => ({ invoice_receipt: 'חשבונית מס קבלה', rec
    waiting for the user to import them as income. Renders nothing when empty. */
 export default function InvoiceImports() {
   const { imports, loading, approve, dismiss } = useInvoiceImports()
+  const { transactions } = useTransactions()
   const { addr } = useAddress()
   const [busy, setBusy] = useState(null)
   const [confirmId, setConfirmId] = useState(null) // approve = real income → two-step confirm
+  const [dupConfirm, setDupConfirm] = useState(null) // an import flagged as a possible duplicate, awaiting a soft confirm
   const [liveMsg, setLiveMsg] = useState('')
+
+  /* Possible duplicate: an existing income for the SAME client + amount (e.g. you
+     already logged this payment manually). The poll already dedups by document id,
+     so this catches an unlinked manual entry — a soft warning, never a block. */
+  const possibleDuplicate = (imp) => !!imp.client_id && (transactions || []).some((t) =>
+    t.type === 'income' && !t.deleted_at && t.client_id === imp.client_id && Number(t.amount) === Number(imp.amount)
+  )
   const confirmTimer = useRef(0)
   const liveTimer = useRef(0)
 
@@ -36,6 +47,14 @@ export default function InvoiceImports() {
   /* Approve creates a real income transaction → arm on first tap, run on the
      second (auto-disarms after 4s). Dismiss is reversible, so it stays one-tap. */
   const onApprove = (id) => () => {
+    const imp = imports.find((x) => x.id === id)
+    // Possible duplicate → soft warning dialog (approve / cancel) instead of the
+    // inline two-step.
+    if (imp && possibleDuplicate(imp)) {
+      window.clearTimeout(confirmTimer.current); setConfirmId(null)
+      setDupConfirm(imp)
+      return
+    }
     if (confirmId !== id) {
       setConfirmId(id)
       window.clearTimeout(confirmTimer.current)
@@ -72,6 +91,7 @@ export default function InvoiceImports() {
               <p className="inv-import-meta">
                 {imp.customer_name || 'ללא שם'}{imp.doc_date ? ` · ${imp.doc_date}` : ''}
                 {imp.document_url ? <> · <a href={imp.document_url} target="_blank" rel="noreferrer" className="inv-import-link">צפייה <ExternalLink size={11} strokeWidth={1.8} aria-hidden="true" /></a></> : null}
+                {possibleDuplicate(imp) ? <> · <span className="inv-import-dup"><TriangleAlert size={10} strokeWidth={2} aria-hidden="true" /> ייתכן כפילות</span></> : null}
               </p>
             </div>
             <p className="inv-import-amt mono">+{isr(imp.amount || 0)}</p>
@@ -97,6 +117,15 @@ export default function InvoiceImports() {
         ))}
       </div>
       <span className="sr-only" role="status" aria-live="polite">{liveMsg}</span>
+      <ConfirmModal
+        open={!!dupConfirm}
+        onClose={() => setDupConfirm(null)}
+        title="ייתכן שזו כפילות"
+        message={dupConfirm ? `כבר קיימת אצלך תנועת הכנסה על ${isr(dupConfirm.amount || 0)}${dupConfirm.customer_name ? ` ל${dupConfirm.customer_name}` : ''}. לייבא בכל זאת כהכנסה נוספת?` : ''}
+        confirmLabel={addr({ male: 'כן, ייבא', female: 'כן, ייבאי', neutral: 'כן, ייבא/י' })}
+        cancelLabel="ביטול"
+        onConfirm={() => dupConfirm && act(approve, dupConfirm.id, 'החשבונית יובאה כהכנסה.')()}
+      />
     </section>
   )
 }

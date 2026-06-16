@@ -67,6 +67,7 @@
 }
 .inv-import-link { color: var(--terracotta); text-decoration: none; }
 .inv-import-link:hover { text-decoration: underline; }
+.inv-import-dup { display: inline-flex; align-items: center; gap: 3px; color: var(--clay); font-weight: 500; }
 .inv-import-amt {
   flex-shrink: 0;
   padding: 4px 11px;

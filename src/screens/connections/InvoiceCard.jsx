@@ -18,7 +18,7 @@ const PROVIDERS = [
     ],
     help: 'את הפרטים מפיקים בחשבון חשבונית ירוקה: הגדרות ← כלים למפתחים ← מפתחות API. ה-Secret מוצג פעם אחת בלבד — שמרו אותו.',
     steps: [
-      'היכנסו לחשבון חשבונית ירוקה (לבדיקות: הירשמו ב-sandbox.d.greeninvoice.co.il).',
+      'היכנסו לחשבון חשבונית ירוקה.',
       'הגדרות ← כלים למפתחים ← מפתחות API.',
       'צרו מפתח חדש — תקבלו API Key (מזהה) ו-Secret.',
       'ה-Secret מוצג פעם אחת בלבד — העתיקו מיד.',
@@ -76,7 +76,7 @@ export default function InvoiceCard() {
   const webhookId = useId()
 
   const [provider, setProvider] = useState('greeninvoice')
-  const [environment, setEnvironment] = useState('sandbox')
+  const [environment, setEnvironment] = useState('production') // both providers are production-only (no sandbox)
   const [creds, setCreds] = useState({ apiKey: '', apiSecret: '' })
   const [localErr, setLocalErr] = useState('')
   const [okMsg, setOkMsg] = useState('')
@@ -96,14 +96,14 @@ export default function InvoiceCard() {
   const pickProvider = (k) => {
     setProvider(k)
     setCreds({ apiKey: '', apiSecret: '' }) // different service → clear the fields
-    setEnvironment(k === 'sumit' ? 'production' : 'sandbox') // SUMIT has no separate sandbox host → force production
+    setEnvironment('production') // production-only for both providers (GI sandbox removed)
     setLocalErr(''); setOkMsg('')
   }
 
   /* Broken connection → re-enter credentials for the SAME provider. */
   const startReconnect = () => {
     setProvider(status.provider)
-    setEnvironment(status.environment || (status.provider === 'sumit' ? 'production' : 'sandbox'))
+    setEnvironment('production')
     setCreds({ apiKey: '', apiSecret: '' })
     setLocalErr(''); setOkMsg(''); setShowHelp(false)
     setReconnecting(true)
@@ -220,20 +220,9 @@ export default function InvoiceCard() {
             ))}
           </div>
 
-          {/* SUMIT's accounting API has no separate sandbox host — hide the
-              environment choice for it (forced to production in pickProvider). */}
-          {provider !== 'sumit' && (
-            <>
-              <span className="conn-field-lbl">סביבה</span>
-              <div className="conn-pills" role="group" aria-label="סביבה">
-                {['sandbox', 'production'].map((e) => (
-                  <button key={e} type="button" className={`conn-type-pill${environment === e ? ' on' : ''}`} aria-pressed={environment === e} onClick={() => setEnvironment(e)}>
-                    {e === 'sandbox' ? 'בדיקה (Sandbox)' : 'אמיתי (Production)'}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
+          {/* Both providers are production-only (Green Invoice sandbox was
+              removed — it never worked reliably), so there's no environment
+              choice; `environment` is forced to 'production'. */}
 
           {def.fields.map((f) => (
             <label key={f.slot} className="conn-field">

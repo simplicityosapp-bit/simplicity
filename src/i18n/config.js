@@ -16,6 +16,9 @@ export const DEFAULT_LANG = 'he'
 
 export const LANG_CODES = APP_LANGS.map((l) => l.code)
 
+/* {v,l} shape for the Settings <Segmented> language control. */
+export const LANGUAGE_OPTIONS = APP_LANGS.map((l) => ({ v: l.code, l: l.name }))
+
 export function isLang(code) {
   return APP_LANGS.some((l) => l.code === code)
 }

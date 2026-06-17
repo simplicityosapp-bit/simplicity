@@ -2,8 +2,10 @@ import { memo } from 'react'
 import { Clock, Check, CalendarDays, ArrowLeft, X } from 'lucide-react'
 import { statusMetaOfLead } from '../../lib/leads'
 import { fmtShortDate } from '../../lib/dates'
+import { useT } from '../../i18n/useT'
 
 function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = [], dragProps = null, dragging = false }) {
+  const { t } = useT('leads')
   const meta = statusMetaOfLead(lead)
   const source = lead.source_id ? sources.find((s) => s.id === lead.source_id) : null
   const sub = lead.status_id ? statuses.find((s) => s.id === lead.status_id) : null
@@ -24,8 +26,8 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
         <button
           type="button"
           className="lead-del-btn"
-          aria-label={`מחק ליד ${lead.name}`}
-          title="מחק ליד"
+          aria-label={t('card.deleteAria', { name: lead.name })}
+          title={t('card.deleteTitle')}
           onClick={(e) => { e.stopPropagation(); onDelete(lead) }}
         >
           <X size={13} strokeWidth={2} aria-hidden="true" />
@@ -43,13 +45,13 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
 
       <div className="lead-src">
         <span className="lead-src-dot" style={{ background: source?.color || 'rgba(42,37,32,.2)' }} />
-        <span className={source ? '' : 'lead-src-none'}>{source ? source.name : 'ללא מקור'}</span>
+        <span className={source ? '' : 'lead-src-none'}>{source ? source.name : t('card.noSource')}</span>
       </div>
 
       {lead.inquiry_date && (
         <div className="lead-line">
           <CalendarDays size={12} strokeWidth={1.6} aria-hidden="true" />
-          <span>פנייה {fmtShortDate(lead.inquiry_date)}</span>
+          <span>{t('card.inquiry', { date: fmtShortDate(lead.inquiry_date) })}</span>
         </div>
       )}
 
@@ -62,7 +64,7 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
 
       {isConverted && (
         <div className="lead-converted">
-          <Check size={12} strokeWidth={2} aria-hidden="true" /> הומר ללקוח
+          <Check size={12} strokeWidth={2} aria-hidden="true" /> {t('card.converted')}
         </div>
       )}
 
@@ -72,7 +74,7 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
           className="lead-convert-btn"
           onClick={(e) => { e.stopPropagation(); onConvert(lead) }}
         >
-          <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" /> המר ללקוח
+          <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" /> {t('card.convert')}
         </button>
       )}
     </div>

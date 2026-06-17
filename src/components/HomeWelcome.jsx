@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { UserPlus, ListTodo, UserSearch, X } from 'lucide-react'
 import { ROUTES } from '../lib/routes'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import './HomeWelcome.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -16,11 +16,11 @@ import './HomeWelcome.css'
 
 export default function HomeWelcome({ onDismiss }) {
   const navigate = useNavigate()
-  const { addr } = useAddress()
+  const { t } = useT('home')
   const STARTERS = [
-    { icon: UserPlus,   label: addr({ male: 'הוסף לקוח ראשון', female: 'הוסיפי לקוח ראשון', neutral: 'הוסף/י לקוח ראשון' }), to: ROUTES.CLIENTS },
-    { icon: ListTodo,   label: addr({ male: 'צור משימה', female: 'צרי משימה', neutral: 'צור/י משימה' }), to: ROUTES.TASKS },
-    { icon: UserSearch, label: addr({ male: 'הוסף ליד', female: 'הוסיפי ליד', neutral: 'הוסף/י ליד' }), to: ROUTES.LEADS },
+    { icon: UserPlus,   label: t('welcome.addClient'), to: ROUTES.CLIENTS },
+    { icon: ListTodo,   label: t('welcome.addTask'), to: ROUTES.TASKS },
+    { icon: UserSearch, label: t('welcome.addLead'), to: ROUTES.LEADS },
   ]
   return (
     <section className="home-welcome anim">
@@ -29,15 +29,15 @@ export default function HomeWelcome({ onDismiss }) {
           type="button"
           className="home-welcome-close"
           onClick={onDismiss}
-          aria-label="הסתרת כרטיס הפתיחה"
+          aria-label={t('welcome.close')}
         >
           <X size={16} strokeWidth={1.8} aria-hidden="true" />
         </button>
       )}
-      <p className="home-welcome-eyebrow">{addr({ male: 'ברוך הבא לסימפליסיטי', female: 'ברוכה הבאה לסימפליסיטי', neutral: 'ברוך/ה הבא/ה לסימפליסיטי' })}</p>
-      <h2 className="home-welcome-title">הכול מתחיל כאן</h2>
+      <p className="home-welcome-eyebrow">{t('welcome.eyebrow')}</p>
+      <h2 className="home-welcome-title">{t('welcome.title')}</h2>
       <p className="home-welcome-sub">
-        שלושה צעדים קצרים כדי להתחיל. הכפתורים המאירים בכל מסך יובילו אותך.
+        {t('welcome.sub')}
       </p>
       <div className="home-welcome-actions">
         {STARTERS.map(({ icon: Icon, label, to }) => (

@@ -11,6 +11,7 @@ import { pendingMeetingsToReview } from '../../../lib/scheduledMeetings'
 import { isr } from '../../../lib/finance'
 import { formatWhen } from '../../../lib/dates'
 import { toDateKey } from '../../../lib/recurring'
+import { useT } from '../../../i18n/useT'
 
 /* Pending-meeting review list — extracted from the old MeetingConfirmWidget,
    now rendered inside the home "דרושה תשומת לב" popup. Per meeting: name +
@@ -19,6 +20,7 @@ import { toDateKey } from '../../../lib/recurring'
    AttentionWidget (which always mounts on home), so the attention count is
    populated before this popup opens. */
 export default function MeetingConfirmList() {
+  const { t } = useT('home')
   const { clients } = useClients()
   const { groups } = useGroups()
   const { meetings, updateMeeting, removeMeeting } = useScheduledMeetings()
@@ -30,8 +32,8 @@ export default function MeetingConfirmList() {
   const pending = useMemo(() => pendingMeetingsToReview(meetings || []), [meetings])
 
   const subjectName = (m) => {
-    if (m.subject_type === 'client') return (clients || []).find((x) => x.id === m.subject_id)?.name || 'לקוח/ה'
-    if (m.subject_type === 'group') return (groups || []).find((x) => x.id === m.subject_id)?.name || 'קבוצה'
+    if (m.subject_type === 'client') return (clients || []).find((x) => x.id === m.subject_id)?.name || t('widgets.meetingConfirm.subjectClient')
+    if (m.subject_type === 'group') return (groups || []).find((x) => x.id === m.subject_id)?.name || t('widgets.meetingConfirm.subjectGroup')
     return '—'
   }
 
@@ -101,7 +103,7 @@ export default function MeetingConfirmList() {
   const deleteTx = (tx) => removeTransaction(tx.id)
 
   if (!pending.length) {
-    return <p className="h-card-empty" style={{ margin: '4px 2px' }}>אין פגישות שממתינות לאישור.</p>
+    return <p className="h-card-empty" style={{ margin: '4px 2px' }}>{t('widgets.meetingConfirm.empty')}</p>
   }
 
   return (
@@ -116,13 +118,13 @@ export default function MeetingConfirmList() {
                 <p className="mtg-confirm-when">{formatWhen(m.scheduled_at)}</p>
               </div>
               <div className="mtg-confirm-actions">
-                <button type="button" className="mtg-confirm-btn approve" onClick={() => confirmMeeting(m)} aria-label="הפגישה התקיימה">
+                <button type="button" className="mtg-confirm-btn approve" onClick={() => confirmMeeting(m)} aria-label={t('widgets.meetingConfirm.meetingHappened')}>
                   <Check size={15} strokeWidth={2} aria-hidden="true" />
                 </button>
-                <button type="button" className="mtg-confirm-btn skip" onClick={() => skipMeeting(m)} aria-label="לא התקיימה">
+                <button type="button" className="mtg-confirm-btn skip" onClick={() => skipMeeting(m)} aria-label={t('widgets.meetingConfirm.meetingSkipped')}>
                   <X size={15} strokeWidth={2} aria-hidden="true" />
                 </button>
-                <button type="button" className="mtg-confirm-btn delete" onClick={() => deleteMeeting(m)} aria-label="מחק פגישה">
+                <button type="button" className="mtg-confirm-btn delete" onClick={() => deleteMeeting(m)} aria-label={t('widgets.meetingConfirm.meetingDelete')}>
                   <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
                 </button>
               </div>
@@ -143,17 +145,17 @@ export default function MeetingConfirmList() {
                           <span className="mtg-confirm-tx-dot" style={{ background: cat.color || 'var(--stone)' }} />
                           {cat.name}
                         </>
-                      ) : 'הוצאה מהפגישה'}
+                      ) : t('widgets.meetingConfirm.linkedExpense')}
                     </p>
                   </div>
                   <div className="mtg-confirm-actions">
-                    <button type="button" className="mtg-confirm-btn approve" onClick={() => confirmTx(tx)} aria-label="שולם">
+                    <button type="button" className="mtg-confirm-btn approve" onClick={() => confirmTx(tx)} aria-label={t('widgets.meetingConfirm.txPaid')}>
                       <Check size={15} strokeWidth={2} aria-hidden="true" />
                     </button>
-                    <button type="button" className="mtg-confirm-btn skip" onClick={() => skipTx(tx)} aria-label="לא שולם">
+                    <button type="button" className="mtg-confirm-btn skip" onClick={() => skipTx(tx)} aria-label={t('widgets.meetingConfirm.txNotPaid')}>
                       <X size={15} strokeWidth={2} aria-hidden="true" />
                     </button>
-                    <button type="button" className="mtg-confirm-btn delete" onClick={() => deleteTx(tx)} aria-label="מחק תנועה">
+                    <button type="button" className="mtg-confirm-btn delete" onClick={() => deleteTx(tx)} aria-label={t('widgets.meetingConfirm.txDelete')}>
                       <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
                     </button>
                   </div>

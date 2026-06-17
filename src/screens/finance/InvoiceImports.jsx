@@ -2,19 +2,22 @@ import { useEffect, useRef, useState } from 'react'
 import { FileDown, Check, X, ExternalLink, Loader2, TriangleAlert } from 'lucide-react'
 import { useInvoiceImports } from '../../hooks/useInvoiceImports'
 import { useTransactions } from '../../hooks/useTransactions'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
 import { isr } from '../../lib/finance'
 import ConfirmModal from '../../modals/ConfirmModal'
 import './InvoiceImports.css'
 
-const typeLabel = (t) => ({ invoice_receipt: 'חשבונית מס קבלה', receipt: 'קבלה', invoice: 'חשבונית מס' }[t] || 'מסמך')
-
 /* Route B: invoices issued in the external service, staged by the webhook,
    waiting for the user to import them as income. Renders nothing when empty. */
 export default function InvoiceImports() {
+  const { t } = useT('finance')
+  const typeLabel = (type) => ({
+    invoice_receipt: t('imports.typeInvoiceReceipt'),
+    receipt: t('imports.typeReceipt'),
+    invoice: t('imports.typeInvoice'),
+  }[type] || t('imports.typeDoc'))
   const { imports, loading, approve, dismiss } = useInvoiceImports()
   const { transactions } = useTransactions()
-  const { addr } = useAddress()
   const [busy, setBusy] = useState(null)
   const [confirmId, setConfirmId] = useState(null) // approve = real income → two-step confirm
   const [dupConfirm, setDupConfirm] = useState(null) // an import flagged as a possible duplicate, awaiting a soft confirm
@@ -23,8 +26,8 @@ export default function InvoiceImports() {
   /* Possible duplicate: an existing income for the SAME client + amount (e.g. you
      already logged this payment manually). The poll already dedups by document id,
      so this catches an unlinked manual entry — a soft warning, never a block. */
-  const possibleDuplicate = (imp) => !!imp.client_id && (transactions || []).some((t) =>
-    t.type === 'income' && !t.deleted_at && t.client_id === imp.client_id && Number(t.amount) === Number(imp.amount)
+  const possibleDuplicate = (imp) => !!imp.client_id && (transactions || []).some((tx) =>
+    tx.type === 'income' && !tx.deleted_at && tx.client_id === imp.client_id && Number(tx.amount) === Number(imp.amount)
   )
   const confirmTimer = useRef(0)
   const liveTimer = useRef(0)
@@ -63,12 +66,12 @@ export default function InvoiceImports() {
     }
     window.clearTimeout(confirmTimer.current)
     setConfirmId(null)
-    act(approve, id, 'החשבונית יובאה כהכנסה.')()
+    act(approve, id, t('imports.importedToast'))()
   }
 
   const onDismiss = (id) => () => {
     if (confirmId === id) { window.clearTimeout(confirmTimer.current); setConfirmId(null) }
-    act(dismiss, id, 'החשבונית נדחתה.')()
+    act(dismiss, id, t('imports.dismissedToast'))()
   }
 
   if (loading || (imports.length === 0 && !liveMsg)) return null
@@ -79,37 +82,37 @@ export default function InvoiceImports() {
     <section className="inv-imports">
       <div className="inv-imports-head">
         <FileDown size={16} strokeWidth={1.7} aria-hidden="true" />
-        <span>ייבוא ממתין</span>
-        <span className="inv-imports-count" aria-live="polite" aria-label={`${imports.length} ${imports.length === 1 ? 'חשבונית' : 'חשבוניות'} לאישור`}>{imports.length}</span>
+        <span>{t('imports.heading')}</span>
+        <span className="inv-imports-count" aria-live="polite" aria-label={t('imports.countAria', { count: imports.length })}>{imports.length}</span>
       </div>
-      <p className="inv-imports-sub">חשבוניות שהופקו בשירות החיצוני — לייבא כהכנסה?</p>
+      <p className="inv-imports-sub">{t('imports.sub')}</p>
       <div className="inv-imports-list">
         {imports.map((imp) => (
           <div key={imp.id} className="inv-import">
             <div className="inv-import-main">
-              <p className="inv-import-title">{typeLabel(imp.document_type)}{imp.document_number ? <> מס׳ <bdi>{imp.document_number}</bdi></> : ''}</p>
+              <p className="inv-import-title">{typeLabel(imp.document_type)}{imp.document_number ? <> {t('imports.docNumber')} <bdi>{imp.document_number}</bdi></> : ''}</p>
               <p className="inv-import-meta">
-                {imp.customer_name || 'ללא שם'}{imp.doc_date ? ` · ${imp.doc_date}` : ''}
-                {imp.document_url ? <> · <a href={imp.document_url} target="_blank" rel="noreferrer" className="inv-import-link">צפייה <ExternalLink size={11} strokeWidth={1.8} aria-hidden="true" /></a></> : null}
-                {possibleDuplicate(imp) ? <> · <span className="inv-import-dup"><TriangleAlert size={10} strokeWidth={2} aria-hidden="true" /> ייתכן כפילות</span></> : null}
+                {imp.customer_name || t('imports.noName')}{imp.doc_date ? ` · ${imp.doc_date}` : ''}
+                {imp.document_url ? <> · <a href={imp.document_url} target="_blank" rel="noreferrer" className="inv-import-link">{t('imports.view')} <ExternalLink size={11} strokeWidth={1.8} aria-hidden="true" /></a></> : null}
+                {possibleDuplicate(imp) ? <> · <span className="inv-import-dup"><TriangleAlert size={10} strokeWidth={2} aria-hidden="true" /> {t('imports.possibleDup')}</span></> : null}
               </p>
             </div>
             <p className="inv-import-amt mono">+{isr(imp.amount || 0)}</p>
             <div className="inv-import-actions">
               {busy === imp.id ? (
-                <button type="button" className="inv-import-btn approve" disabled aria-busy="true" aria-label="מייבא…">
+                <button type="button" className="inv-import-btn approve" disabled aria-busy="true" aria-label={t('imports.importingAria')}>
                   <Loader2 size={15} strokeWidth={2} className="inv-import-spin" aria-hidden="true" />
                 </button>
               ) : confirmId === imp.id ? (
-                <button type="button" className="inv-import-btn approve confirm" onClick={onApprove(imp.id)} aria-label={`אישור ייבוא ${isr(imp.amount || 0)} כהכנסה`}>
-                  <Check size={15} strokeWidth={2} aria-hidden="true" /> {addr({ male: 'בטוח?', female: 'בטוחה?', neutral: 'בטוח/ה?' })}
+                <button type="button" className="inv-import-btn approve confirm" onClick={onApprove(imp.id)} aria-label={t('imports.confirmAria', { amount: isr(imp.amount || 0) })}>
+                  <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('imports.sure')}
                 </button>
               ) : (
-                <button type="button" className="inv-import-btn approve" onClick={onApprove(imp.id)} title="ייבא כהכנסה" aria-label="ייבא כהכנסה">
+                <button type="button" className="inv-import-btn approve" onClick={onApprove(imp.id)} title={t('imports.importTitle')} aria-label={t('imports.importAria')}>
                   <Check size={15} strokeWidth={2} aria-hidden="true" />
                 </button>
               )}
-              <button type="button" className="inv-import-btn dismiss" disabled={busy === imp.id} onClick={onDismiss(imp.id)} title="דחה" aria-label="דחה">
+              <button type="button" className="inv-import-btn dismiss" disabled={busy === imp.id} onClick={onDismiss(imp.id)} title={t('imports.dismiss')} aria-label={t('imports.dismiss')}>
                 <X size={15} strokeWidth={2} aria-hidden="true" />
               </button>
             </div>
@@ -120,11 +123,14 @@ export default function InvoiceImports() {
       <ConfirmModal
         open={!!dupConfirm}
         onClose={() => setDupConfirm(null)}
-        title="ייתכן שזו כפילות"
-        message={dupConfirm ? `כבר קיימת אצלך תנועת הכנסה על ${isr(dupConfirm.amount || 0)}${dupConfirm.customer_name ? ` ל${dupConfirm.customer_name}` : ''}. לייבא בכל זאת כהכנסה נוספת?` : ''}
-        confirmLabel={addr({ male: 'כן, ייבא', female: 'כן, ייבאי', neutral: 'כן, ייבא/י' })}
-        cancelLabel="ביטול"
-        onConfirm={() => dupConfirm && act(approve, dupConfirm.id, 'החשבונית יובאה כהכנסה.')()}
+        title={t('imports.dupTitle')}
+        message={dupConfirm ? t('imports.dupMessage', {
+          amount: isr(dupConfirm.amount || 0),
+          forName: dupConfirm.customer_name ? t('imports.dupForName', { name: dupConfirm.customer_name }) : '',
+        }) : ''}
+        confirmLabel={t('imports.dupConfirm')}
+        cancelLabel={t('imports.cancel')}
+        onConfirm={() => dupConfirm && act(approve, dupConfirm.id, t('imports.importedToast'))()}
       />
     </section>
   )

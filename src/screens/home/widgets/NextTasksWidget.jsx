@@ -4,11 +4,11 @@ import { ClipboardList, ChevronLeft, Check } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
 import { nextTasks, openTasksCount } from '../../../lib/homeData'
 import { useTasks } from '../../../hooks/useTasks'
-import { useAddress } from '../../../hooks/useAddress'
+import { useT } from '../../../i18n/useT'
 
 /* Next 3-5 open tasks by priority. Row → tasks screen; the ✓ marks done. */
 export default function NextTasksWidget() {
-  const { addr } = useAddress()
+  const { t } = useT('home')
   const navigate = useNavigate()
   const { tasks, toggleTask } = useTasks()
   const items = useMemo(() => nextTasks(999, tasks), [tasks])   /* all open, by priority */
@@ -21,10 +21,10 @@ export default function NextTasksWidget() {
   const [open, setOpen] = useState(false)
 
   const summary = total === 0
-    ? 'אין משימות פתוחות'
+    ? t('widgets.nextTasks.noOpen')
     : urgent > 0
-      ? `${urgent} ${urgent === 1 ? 'דחופה' : 'דחופות'} מתוך ${total} ${total === 1 ? 'פתוחה' : 'פתוחות'}`
-      : `${total} ${total === 1 ? 'משימה פתוחה' : 'משימות פתוחות'}`
+      ? t('widgets.nextTasks.urgentOf', { count: total, urgentText: t('widgets.nextTasks.urgent', { count: urgent }) })
+      : t('widgets.nextTasks.openSummary', { count: total })
 
   return (
     <div
@@ -33,19 +33,19 @@ export default function NextTasksWidget() {
     >
       <div className="h-card-head">
         <span className="h-card-title">
-          <ClipboardList size={20} strokeWidth={1.5} aria-hidden="true" /> המשימות הבאות
+          <ClipboardList size={20} strokeWidth={1.5} aria-hidden="true" /> {t('widgets.nextTasks.title')}
         </span>
         <button type="button" className="h-card-link" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.TASKS) }}>
-          {total} {total === 1 ? 'משימה' : 'משימות'}
+          {t('widgets.nextTasks.link', { count: total })}
           <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
         </button>
       </div>
       {open ? (
         <div className="h-card-list">
           {items.length ? (
-            items.map((t) => (
+            items.map((task) => (
               <div
-                key={t.id}
+                key={task.id}
                 className="h-task-row"
                 role="button"
                 tabIndex={0}
@@ -53,16 +53,16 @@ export default function NextTasksWidget() {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); navigate(ROUTES.TASKS) } }}
               >
                 <span className="h-task-content">
-                  <span className={`h-task-dot ${t.priority === 'high' ? 'urgent' : 'regular'}`} />
-                  <span className="h-task-text">{t.title}</span>
+                  <span className={`h-task-dot ${task.priority === 'high' ? 'urgent' : 'regular'}`} />
+                  <span className="h-task-text">{task.title}</span>
                 </span>
-                <button type="button" className="h-check" title="סמן כבוצע" aria-label="סמן כבוצע" onClick={(e) => { e.stopPropagation(); toggleTask(t) }}>
+                <button type="button" className="h-check" title={t('widgets.nextTasks.markDone')} aria-label={t('widgets.nextTasks.markDone')} onClick={(e) => { e.stopPropagation(); toggleTask(task) }}>
                   <Check size={13} strokeWidth={2} aria-hidden="true" />
                 </button>
               </div>
             ))
           ) : (
-            <p className="h-card-empty">כל המשימות בוצעו. {addr({male:'הוסף',female:'הוסיפי',neutral:'הוסף/י'})} משימה כשנהיה צורך.</p>
+            <p className="h-card-empty">{t('widgets.nextTasks.allDone', { add: t('widgets.nextTasks.addWord') })}</p>
           )}
         </div>
       ) : (

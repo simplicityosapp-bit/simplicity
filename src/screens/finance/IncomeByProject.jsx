@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { FolderOpen } from 'lucide-react'
 import { isr } from '../../lib/finance'
+import { useT } from '../../i18n/useT'
 
 /* Distribute the month's confirmed income across projects. A
    transaction belongs to its own project_id when set; otherwise we
@@ -8,14 +9,15 @@ import { isr } from '../../lib/finance'
    recorded against a client (with no explicit project) still counts.
    "ללא פרויקט" captures the remainder. */
 export default function IncomeByProject({ monthTxs, clients = [], projects = [] }) {
+  const { t } = useT('finance')
   const rows = useMemo(() => {
     const clientProj = new Map(clients.filter((c) => c.project_id).map((c) => [c.id, c.project_id]))
     const totals = new Map() /* projectId | null → number */
-    monthTxs.forEach((t) => {
-      if (t.type !== 'income') return
-      if (t.status !== 'confirmed') return
-      const pid = t.project_id || (t.client_id ? clientProj.get(t.client_id) : null) || null
-      totals.set(pid, (totals.get(pid) || 0) + Number(t.amount || 0))
+    monthTxs.forEach((tx) => {
+      if (tx.type !== 'income') return
+      if (tx.status !== 'confirmed') return
+      const pid = tx.project_id || (tx.client_id ? clientProj.get(tx.client_id) : null) || null
+      totals.set(pid, (totals.get(pid) || 0) + Number(tx.amount || 0))
     })
     const max = Math.max(0, ...totals.values())
     const out = []
@@ -24,26 +26,26 @@ export default function IncomeByProject({ monthTxs, clients = [], projects = [] 
       const project = pid ? projects.find((p) => p.id === pid) : null
       out.push({
         id: pid || 'none',
-        name: project?.name || 'ללא פרויקט',
+        name: project?.name || t('incomeByProject.noProject'),
         color: project?.color || 'var(--stone)',
         sum,
         pct: max > 0 ? Math.round((sum / max) * 100) : 0,
       })
     }
     return out.sort((a, b) => b.sum - a.sum)
-  }, [monthTxs, clients, projects])
+  }, [monthTxs, clients, projects, t])
 
   return (
     <section className="f-breakdown">
       <div className="f-breakdown-head">
         <span className="f-breakdown-title">
           <FolderOpen size={15} strokeWidth={1.5} aria-hidden="true" />
-          הכנסות לפי פרויקט
+          {t('incomeByProject.title')}
         </span>
         {rows.length > 0 && <span className="f-breakdown-count mono">{rows.length}</span>}
       </div>
       {rows.length === 0 ? (
-        <p className="f-breakdown-empty">אין הכנסות מסווגות החודש.</p>
+        <p className="f-breakdown-empty">{t('incomeByProject.empty')}</p>
       ) : (
         <div className="f-breakdown-list">
           {rows.map((r) => (

@@ -16,7 +16,7 @@ import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useClientStatuses } from '../../hooks/useClientStatuses'
 import { useCategories } from '../../hooks/useCategories'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
 import ClientTabs from './ClientTabs'
 import ClientCard from './ClientCard'
 import ClientDrawer from '../../drawers/client/ClientDrawer'
@@ -26,26 +26,26 @@ import MG from '../../components/MG'
 import { pushUndo } from '../../lib/undo'
 import './ClientsScreen.css'
 
-const HERO_LABEL = {
-  active: 'סיכום לקוחות פעיל׊׉',
-  wandering: 'סיכום לקוחות ביניים',
-  past: 'סיכום לקוחות לשעבר',
-  no_status: 'סיכום ללא סטטוס',
+const HERO_LABEL_KEY = {
+  active: 'hero.active',
+  wandering: 'hero.wandering',
+  past: 'hero.past',
+  no_status: 'hero.noStatus',
 }
 
 const SORT_OPTIONS = [
-  { k: 'name',     l: 'שם' },
-  { k: 'balance',  l: 'יתרה' },
-  { k: 'paid',     l: 'שולם' },
-  { k: 'sessions', l: 'פגישות' },
-  { k: 'created',  l: 'תאריך הוספה' },
-  { k: 'oldest',   l: 'ותק (הכי ישן)' },
+  { k: 'name',     labelKey: 'sort.name' },
+  { k: 'balance',  labelKey: 'sort.balance' },
+  { k: 'paid',     labelKey: 'sort.paid' },
+  { k: 'sessions', labelKey: 'sort.sessions' },
+  { k: 'created',  labelKey: 'sort.created' },
+  { k: 'oldest',   labelKey: 'sort.oldest' },
 ]
 const BULK_META_OPTIONS = [
-  { k: 'active',    l: 'פעיל׌' },
-  { k: 'wandering', l: 'ביניים' },
-  { k: 'past',      l: 'לשעבר' },
-  { k: 'no_status', l: 'ללא סטטוס' },
+  { k: 'active',    labelKey: 'status.active' },
+  { k: 'wandering', labelKey: 'status.wandering' },
+  { k: 'past',      labelKey: 'status.past' },
+  { k: 'no_status', labelKey: 'status.noStatus' },
 ]
 const DEFAULT_SORT = { field: 'name', dir: 'asc' }
 
@@ -85,7 +85,7 @@ function sortClients(arr, sort, ctx) {
 }
 
 export default function ClientsScreen() {
-  const { addr } = useAddress()
+  const { t } = useT('clients')
   const { clients: clientList, loading, error, addClient, updateClient, removeClient } = useClients()
   const { projects } = useProjects()
   const { transactions, addTransaction, editTransaction, removeTransaction, refetch } = useTransactions()
@@ -236,7 +236,7 @@ export default function ClientsScreen() {
     setSelectMode(false)
     if (snapshots.length) {
       pushUndo({
-        label: snapshots.length === 1 ? 'הסטטוס שונה' : `סטטוס שונה ל-${snapshots.length} לקוחות`,
+        label: snapshots.length === 1 ? t('bulk.statusChanged') : t('bulk.statusChangedMany', { count: snapshots.length }),
         undo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: s.status_meta, status: s.status }).catch(() => {}) },
         redo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: newMeta, status: newMeta }).catch(() => {}) },
       })
@@ -256,9 +256,9 @@ export default function ClientsScreen() {
     const balance = tabClients.reduce((s, c) => s + clientBalance(c, transactions, sessions, members, groups).balance, 0)
     if (tab === 'past' || tab === 'no_status') {
       return [
-        { l: 'לקוחות', v: tabClients.length },
-        { l: 'פגישות', v: sessionsCountForClients(tabClients, range, sessions, members, groups) },
-        { l: 'שולם', v: isr(paid) },
+        { l: t('hero.clients'), v: tabClients.length },
+        { l: t('hero.sessions'), v: sessionsCountForClients(tabClients, range, sessions, members, groups) },
+        { l: t('hero.paid'), v: isr(paid) },
       ]
     }
     let sessionsLabel
@@ -270,11 +270,11 @@ export default function ClientsScreen() {
       sessionsLabel = `${done}/${allot}`
     }
     return [
-      { l: 'פגישות', v: sessionsLabel },
-      { l: 'שולם', v: isr(paid) },
-      { l: 'יתרה פתוחה', v: isr(balance) },
+      { l: t('hero.sessions'), v: sessionsLabel },
+      { l: t('hero.paid'), v: isr(paid) },
+      { l: t('hero.openBalance'), v: isr(balance) },
     ]
-  }, [tab, effScope, tabClients, transactions, sessions, members, groups])
+  }, [tab, effScope, tabClients, transactions, sessions, members, groups, t])
 
   return (
     <div className={`screen${selectMode ? ' has-bulk-bar' : ''}`}>
@@ -282,15 +282,15 @@ export default function ClientsScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{total} לקוחות</p>
+              <p className="lbl">{t('countLabel', { count: total })}</p>
               <span className="lbl dot">·</span>
-              <p className="lbl">סיכום</p>
+              <p className="lbl">{t('summary')}</p>
             </div>
-            <p className="lbl-sm">בניית קשרים יוצרת תוצאות.</p>
+            <p className="lbl-sm">{t('tagline')}</p>
           </div>
-          <p className="t-screen">לקוחות</p>
+          <p className="t-screen">{t('title')}</p>
         </header>
-        <button className="cta-add" type="button" aria-label="הוספת לקוח" onClick={() => setShowAdd(true)}>+ <MG word="client_new" /></button>
+        <button className="cta-add" type="button" aria-label={t('addClientAria')} onClick={() => setShowAdd(true)}>+ <MG word="client_new" /></button>
       </div>
       <div className="c-top-actions">
           <div className="c-sort-wrap" ref={sortAnchorRef}>
@@ -299,13 +299,13 @@ export default function ClientsScreen() {
               className="c-sort-btn"
               onClick={() => setSortOpen((v) => !v)}
               aria-expanded={sortOpen}
-              aria-label="מיון"
+              aria-label={t('sort.label')}
             >
-              <ArrowUpDown size={14} strokeWidth={1.7} aria-hidden="true" /> מיון
+              <ArrowUpDown size={14} strokeWidth={1.7} aria-hidden="true" /> {t('sort.label')}
             </button>
             {sortOpen && (
               <div className="c-sort-pop" role="menu" style={{ [sortSide]: 0 }}>
-                <p className="c-sort-h">{addr({male:'מיין לפי',female:'מייני לפי',neutral:'מיין/י לפי'})}</p>
+                <p className="c-sort-h">{t('sort.heading')}</p>
                 {SORT_OPTIONS.map((o) => (
                   <button
                     key={o.k}
@@ -313,7 +313,7 @@ export default function ClientsScreen() {
                     className={`c-sort-opt${sort.field === o.k ? ' on' : ''}`}
                     onClick={() => setSort({ field: o.k })}
                   >
-                    {o.l}
+                    {t(o.labelKey)}
                   </button>
                 ))}
                 <div className="c-sort-divider" />
@@ -322,34 +322,34 @@ export default function ClientsScreen() {
                     type="button"
                     className={`c-sort-opt${sort.dir === 'asc' ? ' on' : ''}`}
                     onClick={() => setSort({ dir: 'asc' })}
-                  >עולה</button>
+                  >{t('sort.asc')}</button>
                   <button
                     type="button"
                     className={`c-sort-opt${sort.dir === 'desc' ? ' on' : ''}`}
                     onClick={() => setSort({ dir: 'desc' })}
-                  >יורד</button>
+                  >{t('sort.desc')}</button>
                 </div>
               </div>
             )}
           </div>
-          <div className="mg-toggle c-groupby" role="tablist" aria-label="קיבוץ לקוחות">
+          <div className="mg-toggle c-groupby" role="tablist" aria-label={t('groupBy.aria')}>
             <button
               type="button"
               className={`mg-toggle-btn${groupBy === 'status' ? ' on' : ''}`}
               onClick={() => setGroupBy('status')}
-            >סטטוס</button>
+            >{t('groupBy.status')}</button>
             <button
               type="button"
               className={`mg-toggle-btn${groupBy === 'project' ? ' on' : ''}`}
               onClick={() => setGroupBy('project')}
-            >פרויקט</button>
+            >{t('groupBy.project')}</button>
           </div>
           <button
             type="button"
             className={`c-select-btn${selectMode ? ' on' : ''}`}
             onClick={() => setSelectMode((v) => !v)}
           >
-            {selectMode ? 'בטל בחירה' : addr({male:'בחר',female:'בחרי',neutral:'בחר/י'})}
+            {selectMode ? t('select.cancel') : t('select.enter')}
           </button>
         </div>
 
@@ -361,7 +361,7 @@ export default function ClientsScreen() {
         <Search size={16} strokeWidth={1.6} aria-hidden="true" />
         <input
           type="search"
-          placeholder="חיפוש לקוח…"
+          placeholder={t('search')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -375,21 +375,21 @@ export default function ClientsScreen() {
           aria-pressed={balanceOnly}
         >
           <Wallet size={13} strokeWidth={1.8} aria-hidden="true" />
-          יתרה פתוחה{openBalanceCount > 0 ? ` · ${openBalanceCount}` : ''}
+          {t('balanceFilter')}{openBalanceCount > 0 ? ` · ${openBalanceCount}` : ''}
         </button>
       </div>
 
       {groupBy === 'status' && (
         <section className="c-hero">
           <div className="s-hero">
-            <div className="mg-toggle" role="tablist" aria-label="טווח סכומים">
-              <button type="button" className={`mg-toggle-btn${effScope === 'monthly' ? ' on' : ''}`} onClick={() => setScope('monthly')} disabled={scopeLocked}>חודשי</button>
-              <button type="button" className={`mg-toggle-btn${effScope === 'cumulative' ? ' on' : ''}`} onClick={() => setScope('cumulative')} disabled={scopeLocked}>מצטבר</button>
+            <div className="mg-toggle" role="tablist" aria-label={t('hero.rangeLabel')}>
+              <button type="button" className={`mg-toggle-btn${effScope === 'monthly' ? ' on' : ''}`} onClick={() => setScope('monthly')} disabled={scopeLocked}>{t('hero.monthly')}</button>
+              <button type="button" className={`mg-toggle-btn${effScope === 'cumulative' ? ' on' : ''}`} onClick={() => setScope('cumulative')} disabled={scopeLocked}>{t('hero.cumulative')}</button>
             </div>
             <p className="c-hero-scope-note">
-              {scopeLocked ? 'מצטבר · לקוחות לשעבר' : (scope === 'monthly' ? 'טווח הסכומים: החודש' : 'טווח הסכומים: מההתחלה')}
+              {scopeLocked ? t('hero.scopePast') : (scope === 'monthly' ? t('hero.scopeThisMonth') : t('hero.scopeFromStart'))}
             </p>
-            <p className="c-hero-title"><MG text={HERO_LABEL[tab]} /></p>
+            <p className="c-hero-title"><MG text={t(HERO_LABEL_KEY[tab])} /></p>
             <div className="c-hero-grid">
               {hero.map((s, i) => (
                 <div key={s.l} className={`c-hero-stat${i === 1 ? ' divided' : ''}`}>
@@ -404,22 +404,22 @@ export default function ClientsScreen() {
 
       <section className="c-list">
         {loading ? (
-          <div className="empty"><p className="empty-text">טוען לקוחות…</p></div>
+          <div className="empty"><p className="empty-text">{t('loading')}</p></div>
         ) : error ? (
-          <div className="empty"><p className="empty-text">שגיאה בטעינת הלקוחות: {error}</p></div>
+          <div className="empty"><p className="empty-text">{t('loadError', { error })}</p></div>
         ) : list.length === 0 ? (
           query ? (
-            <div className="empty"><p className="empty-text">לא נמצאו לקוחות בחיפוש.</p></div>
+            <div className="empty"><p className="empty-text">{t('empty.noSearchResults')}</p></div>
           ) : total === 0 ? (
             <div className="empty">
               <span className="empty-icon"><UserPlus size={28} strokeWidth={1.4} aria-hidden="true" /></span>
-              <p className="empty-text">עדיין אין לקוחות. הלקוח הראשון שלך מתחיל כאן.</p>
+              <p className="empty-text">{t('empty.firstClient')}</p>
               <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
-                <UserPlus size={18} strokeWidth={1.6} aria-hidden="true" /> {addr({ male: 'הוסף לקוח', female: 'הוסיפי לקוח', neutral: 'הוסף/י לקוח' })}
+                <UserPlus size={18} strokeWidth={1.6} aria-hidden="true" /> {t('empty.addClient')}
               </button>
             </div>
           ) : (
-            <div className="empty"><p className="empty-text">אין לקוחות בקטגוריה זו.</p></div>
+            <div className="empty"><p className="empty-text">{t('empty.noneInCategory')}</p></div>
           )
         ) : groupBy === 'project' ? (
           grouped.map(({ project, clients: pc }) => (
@@ -430,7 +430,7 @@ export default function ClientsScreen() {
                   style={{ background: project?.color || 'var(--stone)' }}
                   aria-hidden="true"
                 />
-                <span className="c-proj-name">{project?.name || 'ללא פרויקט'}</span>
+                <span className="c-proj-name">{project?.name || t('project.none')}</span>
                 <span className="c-proj-count mono">{pc.length}</span>
               </p>
               {pc.map((c, i) => (
@@ -475,7 +475,7 @@ export default function ClientsScreen() {
 
       {selectMode && (
         <div className="c-bulk-bar">
-          <span className="c-bulk-count">{selectedIds.size} נבחרו</span>
+          <span className="c-bulk-count">{t('bulk.selected', { count: selectedIds.size })}</span>
           <div className="c-bulk-actions">
             <div className="c-bulk-meta-wrap" ref={bulkMetaAnchorRef}>
               <button
@@ -483,17 +483,17 @@ export default function ClientsScreen() {
                 className="c-bulk-btn"
                 onClick={() => setBulkMetaOpen((v) => !v)}
                 disabled={selectedIds.size === 0}
-              >שינוי סטטוס <ChevronLeft size={14} strokeWidth={1.5} aria-hidden="true" /></button>
+              >{t('bulk.changeStatus')} <ChevronLeft size={14} strokeWidth={1.5} aria-hidden="true" /></button>
               {bulkMetaOpen && (
                 <div className="c-sort-pop c-bulk-pop" role="menu" style={{ [bulkMetaSide]: 0 }}>
-                  <p className="c-sort-h">העברה ל-</p>
+                  <p className="c-sort-h">{t('bulk.moveTo')}</p>
                   {BULK_META_OPTIONS.map((o) => (
                     <button
                       key={o.k}
                       type="button"
                       className="c-sort-opt"
                       onClick={() => bulkChangeMeta(o.k)}
-                    >{o.l}</button>
+                    >{t(o.labelKey)}</button>
                   ))}
                 </div>
               )}
@@ -503,8 +503,8 @@ export default function ClientsScreen() {
               className="c-bulk-btn danger"
               onClick={() => setPendingDeleteBatch(selectedClients)}
               disabled={selectedIds.size === 0}
-            >מחיקה</button>
-            <button type="button" className="c-bulk-close" onClick={() => setSelectMode(false)} aria-label="סגירת מצב בחירה">
+            >{t('bulk.delete')}</button>
+            <button type="button" className="c-bulk-close" onClick={() => setSelectMode(false)} aria-label={t('bulk.closeAria')}>
               <X size={16} strokeWidth={1.7} aria-hidden="true" />
             </button>
           </div>

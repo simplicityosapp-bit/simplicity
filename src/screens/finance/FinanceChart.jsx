@@ -6,7 +6,7 @@ import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
 import { useTransactions } from '../../hooks/useTransactions'
 import { ROUTES } from '../../lib/routes'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
 import InfoPopover from '../../components/InfoPopover'
 
 /* Moonlight chart — SVG line of cumulative income day by day for the selected
@@ -28,7 +28,7 @@ const PAD_TOP = 14
 const PAD_BOTTOM = 22
 
 export default function FinanceChart({ month }) {
-  const { addr } = useAddress()
+  const { t } = useT('finance')
   const navigate = useNavigate()
   const { transactions } = useTransactions()
   const { goals } = useGoals()
@@ -119,10 +119,10 @@ export default function FinanceChart({ month }) {
       <div className="f-chart-head">
         <p className="f-chart-title">
           <Sparkles size={14} strokeWidth={1.6} aria-hidden="true" />
-          הכנסה מצטברת
+          {t('chart.title')}
           <InfoPopover
-            label="הסבר גרף הכנסה מצטברת"
-            text="הגרף מצטבר יום אחר יום את ההכנסות (מאושרות) של החודש הנבחר. הקו המקווקו הוא יעד ההכנסה החודשי שהוגדר במסך 'יעדים' — אם אין יעד, הוא לא מוצג. הנקודה היא היום הנוכחי."
+            label={t('chart.infoLabel')}
+            text={t('chart.infoText')}
           />
         </p>
         {pctOfGoal != null && (
@@ -137,7 +137,7 @@ export default function FinanceChart({ month }) {
           viewBox={`0 0 ${W} ${H}`}
           className="f-chart-svg"
           style={{ display: 'block', width: '100%', height: `${H}px` }}
-          aria-label="גרף הכנסה מצטברת לפי ימי החודש"
+          aria-label={t('chart.svgAria')}
         >
           <defs>
             <linearGradient id="fChartArea" x1="0" y1="0" x2="0" y2="1">
@@ -185,7 +185,7 @@ export default function FinanceChart({ month }) {
           className="f-chart-cta"
           onClick={() => navigate(ROUTES.GOALS)}
         >
-          {addr({male:'הגדר',female:'הגדירי',neutral:'הגדר/י'})} יעד הכנסה חודשי <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" />
+          {t('chart.setGoal')} <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" />
         </button>
       )}
     </section>

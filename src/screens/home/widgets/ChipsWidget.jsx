@@ -8,9 +8,9 @@ import { useTasks } from '../../../hooks/useTasks'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useCategories } from '../../../hooks/useCategories'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
-import { useAddress } from '../../../hooks/useAddress'
 import InfoPopover from '../../../components/InfoPopover'
 import TileDrillModal from '../../../modals/TileDrillModal'
+import { useT } from '../../../i18n/useT'
 
 /* Bottom data chips — RTL order: משימות · נטו · לקוחות. Tap opens
    a drill-down modal where the user picks filters (status, time
@@ -18,7 +18,7 @@ import TileDrillModal from '../../../modals/TileDrillModal'
    from the filters. "פתיחה במלא ←" inside the modal still routes
    to the corresponding screen for full management. */
 export default function ChipsWidget() {
-  const { addr } = useAddress()
+  const { t } = useT('home')
   const { clients } = useClients()
   const { groups } = useGroups()
   const { projects } = useProjects()
@@ -40,7 +40,7 @@ export default function ChipsWidget() {
   const netSizeCls = netStr.length >= 11 ? ' h-stat-num-xlong' : netStr.length >= 8 ? ' h-stat-num-long' : ''
   /* Label mirrors the selected net type so it stays truthful when the drill
      filter is income/expense-only — same mapping as NetPanel (beta 11/06/2026). */
-  const netLbl = filters.net?.type === 'income' ? 'הכנסות' : filters.net?.type === 'expense' ? 'הוצאות' : 'נטו'
+  const netLbl = filters.net?.type === 'income' ? t('widgets.chips.income') : filters.net?.type === 'expense' ? t('widgets.chips.expense') : t('widgets.chips.net')
 
   /* The tile is a `<div role="button">` instead of a real <button> because
      it contains the InfoPopover trigger (which is itself a <button>) —
@@ -56,8 +56,8 @@ export default function ChipsWidget() {
           <ClipboardList size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
           <span className="h-stat-num mono">{summary.openTasks}</span>
           <span className="h-stat-lbl">
-            משימות
-            <InfoPopover label="הסבר משימות" text={addr({male:'לחץ',female:'לחצי',neutral:'לחץ/י'}) + ' על הכרטיס כדי לסנן ולראות פירוט. ברירת מחדל: רק משימות פתוחות.'} placement="top" />
+            {t('widgets.chips.tasks')}
+            <InfoPopover label={t('widgets.chips.tasksInfoLabel')} text={t('widgets.chips.tasksInfoText_pre') + t('widgets.chips.tasksInfoText_post')} placement="top" />
           </span>
         </div>
         <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('net')} onKeyDown={onTileKey(() => setOpenTile('net'))}>
@@ -65,15 +65,15 @@ export default function ChipsWidget() {
           <span className={`h-stat-num mono${netSizeCls}`}>{netStr}</span>
           <span className="h-stat-lbl">
             {netLbl}
-            <InfoPopover label="הסבר נטו" text={addr({male:'לחץ',female:'לחצי',neutral:'לחץ/י'}) + ' על הכרטיס כדי לסנן לפי טווח זמן, סוג, פרויקט וקטגוריה. סופר רק תנועות שאושרו.'} placement="top" />
+            <InfoPopover label={t('widgets.chips.netInfoLabel')} text={t('widgets.chips.netInfoText_pre') + t('widgets.chips.netInfoText_post')} placement="top" />
           </span>
         </div>
         <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('clients')} onKeyDown={onTileKey(() => setOpenTile('clients'))}>
           <Users size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
           <span className="h-stat-num mono">{summary.activeClients}</span>
           <span className="h-stat-lbl">
-            לקוחות
-            <InfoPopover label="הסבר לקוחות" text={addr({male:'לחץ',female:'לחצי',neutral:'לחץ/י'}) + ' על הכרטיס כדי לסנן לפי סטטוס, פרויקט וקבוצה. ברירת מחדל: פעיל + ביניים.'} placement="top" />
+            {t('widgets.chips.clients')}
+            <InfoPopover label={t('widgets.chips.clientsInfoLabel')} text={t('widgets.chips.clientsInfoText_pre') + t('widgets.chips.clientsInfoText_post')} placement="top" />
           </span>
         </div>
       </div>

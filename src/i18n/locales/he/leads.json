@@ -1,0 +1,61 @@
+{
+  "countLabel": "{{count}} לידים",
+  "tabLeads": "לידים",
+  "tabStatuses": "סטטוסים",
+  "tagline": "טיפוח קשרים מוביל לתוצאות.",
+  "title": "לידים",
+  "newLeadAria": "ליד חדש",
+  "newLead": "+ ליד חדש",
+  "viewToggleAria": "תצוגה",
+  "sourcesLink": "מקורות לידים",
+  "stats": {
+    "newThisMonth": "פניות החודש",
+    "converted": "הומרו ללקוחות",
+    "convRate": "אחוז המרה"
+  },
+  "sort": {
+    "newOld": "חדש→ישן",
+    "oldNew": "ישן→חדש",
+    "byDate": "לפי תאריך",
+    "aria": "מיון: {{label}}"
+  },
+  "followups": {
+    "empty": "אין פולואו-אפים פתוחים להיום",
+    "due": "פולואו-אפים להיום"
+  },
+  "loading": "טוען לידים…",
+  "loadError": "שגיאה בטעינת הלידים: {{error}}",
+  "subFilterAria": "סינון לפי תת-סטטוס",
+  "all": "הכל",
+  "undoStatusChanged": "הסטטוס שונה",
+  "delete": {
+    "title": "מחיקת ליד",
+    "message": "למחוק את \"{{name}}\"? הליד יעבור לסל המיחזור וניתן לשחזר אותו תוך 30 יום.",
+    "confirm": "מחק"
+  },
+  "dropPicker": {
+    "title": "לאיזה תת-סטטוס לשייך?",
+    "none": "ללא תת-סטטוס"
+  },
+  "column": {
+    "empty": "אין לידים בעמודה זו"
+  },
+  "card": {
+    "deleteAria": "מחק ליד {{name}}",
+    "deleteTitle": "מחק ליד",
+    "noSource": "ללא מקור",
+    "inquiry": "פנייה {{date}}",
+    "converted": "הומר ללקוח",
+    "convert": "המר ללקוח"
+  },
+  "statusesPanel": {
+    "intro": "ניהול תתי-סטטוסים תחת כל קטגוריית-על. תתי-סטטוסים מופיעים כשמסמנים נקודת צבע על כרטיס ליד, ומשמשים לסינון ולגרפים.",
+    "addPlaceholder": "תת-סטטוס ל\"{{meta}}\"",
+    "addAria": "הוספה",
+    "deleteChipAria": "מחיקת {{name}}",
+    "deleteChipTitle": "מחיקה",
+    "deleteTitle": "מחיקת תת-סטטוס",
+    "deleteMessage": "למחוק את \"{{name}}\"? לידים שמסומנים בו יישארו ללא תת-סטטוס. ניתן לשחזר מסל המיחזור תוך 30 יום.",
+    "deleteConfirm": "מחק"
+  }
+}

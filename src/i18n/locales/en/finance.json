@@ -1,0 +1,124 @@
+{
+  "countLabel": "{{count}} transactions",
+  "snapshot": "Snapshot",
+  "tagline": "Your actions create good outcomes.",
+  "title": "Money",
+  "exportCsv": "Export CSV",
+  "exportCsvAria": "Export to CSV file",
+  "newTxAria": "New transaction",
+  "newTx": "+ New transaction",
+  "loading": "Loading transactions…",
+  "loadError": "Couldn't load transactions: {{error}}",
+  "hideSkipped": "Hide skipped",
+  "showSkipped": "Show {{count}} skipped",
+  "deleteRecurring": {
+    "title": "Delete recurring template",
+    "message": "Delete \"{{name}}\"? Transactions already created from it will stay.",
+    "income": "Income",
+    "expense": "Expense",
+    "confirm": "Delete"
+  },
+  "summary": {
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "netThisMonth": "Net this month",
+    "income": "Income",
+    "expenses": "Expenses",
+    "changeAria": "Change {{value}}",
+    "new": "+new"
+  },
+  "tx": {
+    "noDesc": "No description",
+    "skipped": "Skipped",
+    "credited": "Cancelled",
+    "approveTitle": "Confirm — it happened",
+    "skipTitle": "Skip — didn't happen",
+    "restore": "Move back to pending",
+    "delete": "Delete transaction"
+  },
+  "list": {
+    "empty": "No transactions this month.",
+    "confirmed": "Confirmed",
+    "skipped": "Skipped"
+  },
+  "pending": {
+    "count": "{{count}} pending transactions",
+    "income": "Income {{amount}}",
+    "expenses": "Expenses {{amount}}",
+    "approving": "Confirming…",
+    "approveAll": "Confirm all",
+    "noDesc": "No description",
+    "approve": "Confirm",
+    "skip": "Skip",
+    "delete": "Delete"
+  },
+  "recurring": {
+    "title": "Recurring templates",
+    "add": "+ New template",
+    "empty": "No recurring templates yet. Adding one will create pending transactions automatically every month or week.",
+    "income": "Income",
+    "expense": "Expense",
+    "paused": "Paused",
+    "resume": "Resume",
+    "pause": "Pause",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "categories": {
+    "title": "Expense categories",
+    "empty": "No categories yet. Add a category to tag expenses (subscriptions, consulting, etc.).",
+    "add": "Add",
+    "namePlaceholder": "Category name",
+    "colorGroupAria": "Category color",
+    "colorAria": "Color {{number}}",
+    "deleteChipAria": "Delete {{name}}",
+    "deleteTitle": "Delete category",
+    "deleteAria": "Delete",
+    "deleteConfirm": "Delete",
+    "deleteMessage": "Delete \"{{name}}\"? Expenses tagged with it will stay uncategorized."
+  },
+  "incomeByProject": {
+    "title": "Income by project",
+    "noProject": "No project",
+    "empty": "No classified income this month."
+  },
+  "expensesByCategory": {
+    "title": "Expenses by category",
+    "noCategory": "Uncategorized",
+    "empty": "No classified expenses this month."
+  },
+  "chart": {
+    "title": "Cumulative income",
+    "infoLabel": "Cumulative income chart explanation",
+    "infoText": "The chart adds up your (confirmed) income day by day for the selected month. The dashed line is the monthly income goal set on the 'Goals' screen — if there's no goal, it isn't shown. The dot marks today.",
+    "svgAria": "Cumulative income chart by day of month",
+    "setGoal": "Set a monthly income goal"
+  },
+  "imports": {
+    "typeInvoiceReceipt": "Tax invoice receipt",
+    "typeReceipt": "Receipt",
+    "typeInvoice": "Tax invoice",
+    "typeDoc": "Document",
+    "heading": "Pending import",
+    "countAria_one": "{{count}} invoice to approve",
+    "countAria_other": "{{count}} invoices to approve",
+    "sub": "Invoices issued in the external service — import as income?",
+    "docNumber": "no.",
+    "noName": "No name",
+    "view": "View",
+    "possibleDup": "Possibly a duplicate",
+    "importedToast": "Invoice imported as income.",
+    "dismissedToast": "Invoice dismissed.",
+    "importingAria": "Importing…",
+    "confirmAria": "Confirm importing {{amount}} as income",
+    "sure": "Sure?",
+    "importAria": "Import as income",
+    "importTitle": "Import as income",
+    "dismiss": "Dismiss",
+    "dupTitle": "This might be a duplicate",
+    "dupMessage": "You already have an income transaction for {{amount}}{{forName}}. Import it anyway as additional income?",
+    "dupForName": " to {{name}}",
+    "dupConfirm": "Yes, import",
+    "cancel": "Cancel"
+  }
+}

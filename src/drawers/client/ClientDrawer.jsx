@@ -13,19 +13,21 @@ import EditClientModal from '../../modals/EditClientModal'
 import EditTransactionModal from '../../modals/EditTransactionModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import { pushUndo } from '../../lib/undo'
+import { useT } from '../../i18n/useT'
 import './ClientDrawer.css'
 
-const STATUS = {
-  active: 'פעיל׌',
-  wandering: 'ביניים',
-  past: 'לשעבר',
-  no_status: 'ללא סטטוס',
+const STATUS_KEY = {
+  active: 'status.active',
+  wandering: 'status.wandering',
+  past: 'status.past',
+  no_status: 'status.noStatus',
 }
 
 const initials = (name) =>
   (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
 export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], categories = [], clients = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient, onUpdateMember, onEditTransaction, onEditSession, onEditTask, onEditReminder, onIssued }) {
+  const { t } = useT('clients')
   const open = !!client
   const [actionModal, setActionModal] = useState(null)
   /* A transaction picked for editing from the payments panel. */
@@ -65,7 +67,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
     onUpdateClient?.(client.id, next)
     setStatusMenu(false)
     pushUndo({
-      label: 'הסטטוס שונה',
+      label: t('drawer.statusChanged'),
       undo: async () => { await onUpdateClient?.(client.id, prev) },
       redo: async () => { await onUpdateClient?.(client.id, next) },
     })
@@ -82,15 +84,15 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   return (
     <>
       <div className={`cd-overlay${open ? ' open' : ''}`} onClick={onClose} aria-hidden="true" />
-      <aside className={`cd-panel${open ? ' open' : ''}`} aria-label="תיק לקוח" aria-hidden={!open}>
+      <aside className={`cd-panel${open ? ' open' : ''}`} aria-label={t('drawer.fileAria')} aria-hidden={!open}>
         {client && (
           <>
             <div className="cd-topbar">
-              <button type="button" className="cd-top-btn" onClick={onClose} aria-label="סגור">
+              <button type="button" className="cd-top-btn" onClick={onClose} aria-label={t('drawer.closeAria')}>
                 <X size={18} strokeWidth={1.6} />
               </button>
-              <span className="cd-top-title">תיק לקוח</span>
-              <button type="button" className="cd-top-btn danger" title="מחק לקוח" onClick={onDelete}>
+              <span className="cd-top-title">{t('drawer.title')}</span>
+              <button type="button" className="cd-top-btn danger" title={t('drawer.deleteAria')} onClick={onDelete}>
                 <Trash2 size={17} strokeWidth={1.6} />
               </button>
             </div>
@@ -102,9 +104,9 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   <p className="cd-h-name">{client.name}</p>
                   <div className="cd-h-sub">
                     {groupDriven ? (
-                      <span className={`cd-h-status cd-status-${meta}`} title="הסטטוס נקבע אוטומטית לפי הקבוצה">
-                        <MG text={STATUS[meta] || STATUS.no_status} />
-                        <span className="cd-h-status-by"> · לפי הקבוצה</span>
+                      <span className={`cd-h-status cd-status-${meta}`} title={t('drawer.statusByGroup')}>
+                        <MG text={t(STATUS_KEY[meta] || STATUS_KEY.no_status)} />
+                        <span className="cd-h-status-by">{t('drawer.byGroup')}</span>
                       </span>
                     ) : (
                       <span className="cd-status-pick">
@@ -115,14 +117,14 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                           aria-expanded={statusMenu}
                           onClick={() => setStatusMenu((o) => !o)}
                         >
-                          <MG text={STATUS[meta] || STATUS.no_status} />
+                          <MG text={t(STATUS_KEY[meta] || STATUS_KEY.no_status)} />
                           <ChevronDown size={12} strokeWidth={2} aria-hidden="true" />
                         </button>
                         {statusMenu && (
                           <>
                             <button type="button" className="cd-status-backdrop" aria-hidden="true" tabIndex={-1} onClick={() => setStatusMenu(false)} />
                             <div className="cd-status-menu" role="menu">
-                              {Object.entries(STATUS).map(([k, label]) => (
+                              {Object.entries(STATUS_KEY).map(([k, labelKey]) => (
                                 <button
                                   key={k}
                                   type="button"
@@ -132,7 +134,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                                   onClick={() => changeStatus(k)}
                                 >
                                   <span className={`cd-status-dot cd-status-${k}`} aria-hidden="true" />
-                                  {label}
+                                  {t(labelKey)}
                                   {meta === k && <Check size={13} strokeWidth={2} aria-hidden="true" className="cd-status-check" />}
                                 </button>
                               ))}
@@ -145,7 +147,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   </div>
                 </div>
                 <button type="button" className="cd-edit-details" onClick={() => setActionModal('edit')}>
-                  <Pencil size={13} strokeWidth={1.6} aria-hidden="true" /> ערוך
+                  <Pencil size={13} strokeWidth={1.6} aria-hidden="true" /> {t('drawer.edit')}
                 </button>
               </div>
 
@@ -154,7 +156,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                  sessions; otherwise it summarises the group(s). */}
               <div className="cd-hero">
                 <div className="cd-stat">
-                  <p className="cd-stat-l">פגישות</p>
+                  <p className="cd-stat-l">{t('drawer.sessions')}</p>
                   <p className="cd-stat-v mono">
                     {balance.hasPersonal
                       ? (balance.perSession
@@ -166,11 +168,11 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   </p>
                 </div>
                 <div className="cd-stat divided">
-                  <p className="cd-stat-l">שולם</p>
+                  <p className="cd-stat-l">{t('drawer.paid')}</p>
                   <p className="cd-stat-v mono">{isr(balance.paid)}</p>
                 </div>
                 <div className="cd-stat">
-                  <p className="cd-stat-l">יתרה</p>
+                  <p className="cd-stat-l">{t('drawer.balance')}</p>
                   <p className="cd-stat-v mono">{isr(balance.balance)}</p>
                 </div>
               </div>
@@ -178,7 +180,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
               {/* Per-session billing note — names the model so the growing
                  balance after each logged meeting is self-explanatory. */}
               {balance.perSession && (
-                <p className="cd-billmode">חיוב לפי פגישה · {isr(client.price_per_session || 0)} לפגישה</p>
+                <p className="cd-billmode">{t('drawer.perSessionNote', { price: isr(client.price_per_session || 0) })}</p>
               )}
 
               {/* Group sessions — read-only breakdown, one row per group.
@@ -188,7 +190,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 <div className="cd-grp-sessions">
                   {balance.groupSessions.map((gs) => (
                     <div key={gs.id} className="cd-grp-row">
-                      <span className="cd-grp-name">פגישות · {gs.name}{gs.ended ? ' (הסתיימה)' : ''}</span>
+                      <span className="cd-grp-name">{t('drawer.groupSessions', { name: gs.name })}{gs.ended ? t('drawer.groupEnded') : ''}</span>
                       <span className="cd-grp-val mono">{gs.held}/{gs.quota || 0}</span>
                     </div>
                   ))}
@@ -198,13 +200,13 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
               {/* Quick actions — ALWAYS shown on every client card (global). */}
               <div className="cd-actions">
                 <button type="button" className="cd-action" onClick={() => setActionModal('session')}>
-                  <Check size={15} strokeWidth={1.8} aria-hidden="true" /> תיעוד פגישה
+                  <Check size={15} strokeWidth={1.8} aria-hidden="true" /> {t('drawer.logSession')}
                 </button>
                 <button type="button" className="cd-action" onClick={() => setActionModal('meeting')}>
-                  <CalendarPlus size={15} strokeWidth={1.8} aria-hidden="true" /> קביעת פגישה
+                  <CalendarPlus size={15} strokeWidth={1.8} aria-hidden="true" /> {t('drawer.scheduleMeeting')}
                 </button>
                 <button type="button" className="cd-action" onClick={() => { setPaymentAmount(null); setActionModal('payment') }}>
-                  <Banknote size={15} strokeWidth={1.8} aria-hidden="true" /> קיבלתי תשלום
+                  <Banknote size={15} strokeWidth={1.8} aria-hidden="true" /> {t('drawer.receivedPayment')}
                 </button>
               </div>
 
@@ -242,7 +244,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         client={client}
         projects={projects}
         defaultType="income"
-        defaults={paymentAmount != null ? { amount: String(Math.abs(paymentAmount)), desc: 'עדכון תשלום' } : {}}
+        defaults={paymentAmount != null ? { amount: String(Math.abs(paymentAmount)), desc: t('drawer.paymentDefaultDesc') } : {}}
         onSave={onAddPayment}
       />
       <EditClientModal
@@ -316,12 +318,12 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
           paidActionRef.current = false
           setPendingPayment(null)
         }}
-        title="עדכון תשלום ידני"
+        title={t('drawer.manualPayTitle')}
         message={pendingPayment != null
-          ? `עדכנת את «שולם» ב-${isr(Math.abs(pendingPayment))}. להוסיף תנועה רשמית בכסף, או רק לעדכן את כרטיס הלקוח (בלי תנועה)?`
+          ? t('drawer.manualPayMessage', { amount: isr(Math.abs(pendingPayment)) })
           : ''}
-        confirmLabel="הוסף תנועה"
-        cancelLabel="רק בכרטיס"
+        confirmLabel={t('drawer.manualPayConfirm')}
+        cancelLabel={t('drawer.manualPayCancel')}
         onConfirm={() => { paidActionRef.current = true; setPaymentAmount(pendingPayment); setActionModal('payment') }}
       />
     </>

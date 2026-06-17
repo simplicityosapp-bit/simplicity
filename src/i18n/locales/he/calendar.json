@@ -1,0 +1,56 @@
+{
+  "title": "יומן",
+  "upcomingCount": "{{count}} קרובים",
+  "schedule": "לוח זמנים",
+  "tagline": "יום אחרי יום, צעד אחרי צעד.",
+  "newEventAria": "אירוע חדש",
+  "newEvent": "+ אירוע חדש",
+  "dup": {
+    "one": "כפילות אחת ביומן מול גוגל",
+    "many": "{{count}} כפילויות ביומן מול גוגל",
+    "cta": "לטיפול בכפילויות"
+  },
+  "fallback": {
+    "client": "לקוח",
+    "group": "קבוצה",
+    "event": "אירוע",
+    "lead": "ליד"
+  },
+  "views": {
+    "schedule": "לוח",
+    "day": "יום",
+    "week": "שבוע",
+    "month": "חודש"
+  },
+  "nav": {
+    "tablistAria": "תצוגה",
+    "prevMonth": "חודש קודם",
+    "prev": "הקודם",
+    "nextMonth": "חודש הבא",
+    "next": "הבא",
+    "today": "היום"
+  },
+  "monthPicker": {
+    "dialogAria": "בחירת חודש",
+    "prevYear": "שנה קודמת",
+    "nextYear": "שנה הבאה"
+  },
+  "filter": "פילטר תצוגה",
+  "list": {
+    "empty": "אין אירועים קרובים — לוח נקי.",
+    "loadMore": "טען עוד ({{count}})"
+  },
+  "allDay": "כל היום",
+  "before": "לפני {{time}}",
+  "after": "אחרי {{time}}",
+  "tag": {
+    "pending": "ממתינה",
+    "reminder": "תזכורת",
+    "calendar": "יומן"
+  },
+  "legend": {
+    "meetings": "פגישות",
+    "reminders": "תזכורות",
+    "calendar": "יומן"
+  }
+}

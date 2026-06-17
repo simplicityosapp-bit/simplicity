@@ -1,16 +1,17 @@
 import { ChevronRight, ChevronLeft, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react'
 import { fmtMonthYear } from '../../lib/dates'
 import { isr } from '../../lib/finance'
+import { useT } from '../../i18n/useT'
 
 /* Compute the formatted month-over-month delta. `goodWhenUp` says
    whether an upward change reads as good (income) or bad (expense).
    Returns { text, tone } where tone is 'pos' (sage) or 'neg' (clay)
    or null when there's no signal to show. */
-function deltaInfo(curr, prev, goodWhenUp = true) {
+function deltaInfo(curr, prev, goodWhenUp = true, newLabel = '+new') {
   if (prev == null) return null
   if (prev === 0 && curr === 0) return null
   if (prev === 0) {
-    return { text: '+חדש', tone: goodWhenUp ? 'pos' : 'neg', dir: 'up' }
+    return { text: newLabel, tone: goodWhenUp ? 'pos' : 'neg', dir: 'up' }
   }
   const diff = curr - prev
   if (diff === 0) return { text: '0%', tone: 'neu', dir: 'flat' }
@@ -21,11 +22,11 @@ function deltaInfo(curr, prev, goodWhenUp = true) {
   return { text: `${isUp ? '+' : ''}${pct}%`, tone, dir }
 }
 
-function DeltaPill({ delta }) {
+function DeltaPill({ delta, t }) {
   if (!delta) return null
   const Icon = delta.dir === 'up' ? TrendingUp : delta.dir === 'down' ? TrendingDown : null
   return (
-    <span className={`f-delta ${delta.tone}`} aria-label={`שינוי ${delta.text}`}>
+    <span className={`f-delta ${delta.tone}`} aria-label={t('summary.changeAria', { value: delta.text })}>
       {Icon && <Icon size={11} strokeWidth={1.8} aria-hidden="true" />}
       <span className="mono">{delta.text}</span>
     </span>
@@ -40,24 +41,26 @@ export default function MonthSummary({
   income, expenses, net,
   prevIncome, prevExpenses, prevNet,
 }) {
-  const incomeDelta = deltaInfo(income, prevIncome, true)
-  const expenseDelta = deltaInfo(expenses, prevExpenses, false)
-  const netDelta = deltaInfo(net, prevNet, true)
+  const { t } = useT('finance')
+  const newLabel = t('summary.new')
+  const incomeDelta = deltaInfo(income, prevIncome, true, newLabel)
+  const expenseDelta = deltaInfo(expenses, prevExpenses, false, newLabel)
+  const netDelta = deltaInfo(net, prevNet, true, newLabel)
   return (
     <div className="f-hero">
       <div className="f-month-nav">
-        <button type="button" className="f-month-btn" onClick={onPrev} aria-label="חודש קודם">
+        <button type="button" className="f-month-btn" onClick={onPrev} aria-label={t('summary.prevMonth')}>
           <ChevronRight size={18} strokeWidth={1.6} aria-hidden="true" />
         </button>
         <span className="f-month-label">{fmtMonthYear(month)}</span>
-        <button type="button" className="f-month-btn" onClick={onNext} aria-label="חודש הבא">
+        <button type="button" className="f-month-btn" onClick={onNext} aria-label={t('summary.nextMonth')}>
           <ChevronLeft size={18} strokeWidth={1.6} aria-hidden="true" />
         </button>
       </div>
 
       <div className="f-net-row">
-        <p className="f-net-lbl">נטו החודש</p>
-        <DeltaPill delta={netDelta} />
+        <p className="f-net-lbl">{t('summary.netThisMonth')}</p>
+        <DeltaPill delta={netDelta} t={t} />
       </div>
       <p className={`f-net mono ${net < 0 ? 'neg' : 'pos'}`}>
         {net < 0 ? '−' : ''}{isr(Math.abs(net))}
@@ -70,8 +73,8 @@ export default function MonthSummary({
           <span className="f-io-icon inc"><ArrowUp size={14} strokeWidth={2} aria-hidden="true" /></span>
           <div>
             <div className="f-io-head">
-              <p className="f-io-lbl">הכנסות</p>
-              <DeltaPill delta={incomeDelta} />
+              <p className="f-io-lbl">{t('summary.income')}</p>
+              <DeltaPill delta={incomeDelta} t={t} />
             </div>
             <p className="f-io-v mono">{isr(income)}</p>
           </div>
@@ -80,8 +83,8 @@ export default function MonthSummary({
           <span className="f-io-icon exp"><ArrowDown size={14} strokeWidth={2} aria-hidden="true" /></span>
           <div>
             <div className="f-io-head">
-              <p className="f-io-lbl">הוצאות</p>
-              <DeltaPill delta={expenseDelta} />
+              <p className="f-io-lbl">{t('summary.expenses')}</p>
+              <DeltaPill delta={expenseDelta} t={t} />
             </div>
             <p className="f-io-v mono">{isr(expenses)}</p>
           </div>

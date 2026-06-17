@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import { Trans } from 'react-i18next'
 import { ChevronDown, Pencil, Check } from 'lucide-react'
 import { getClientMemberships } from '../../lib/clients'
 import { financeQuery, isConfirmedTx, isr } from '../../lib/finance'
 import { fmtShortDate, fmtTime } from '../../lib/dates'
+import { useT } from '../../i18n/useT'
 
-const DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 const PRIORITY_COLOR = { high: 'var(--clay)', medium: 'var(--amber-warn)', low: 'var(--sage)' }
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 
@@ -14,6 +15,7 @@ const live = (a) => (a || []).filter((r) => !r.deleted_at)
    reflects the panel's active edit state: it forces the section open and
    flips the pencil to a "done" check. */
 function Section({ title, count, defaultOpen = false, onEdit, editing = false, children }) {
+  const { t } = useT('clients')
   const [open, setOpen] = useState(defaultOpen)
   const isOpen = open || editing
   return (
@@ -30,8 +32,8 @@ function Section({ title, count, defaultOpen = false, onEdit, editing = false, c
           <button
             type="button"
             className={`cd-sec-edit${editing ? ' on' : ''}`}
-            title={editing ? 'סיום עריכה' : 'ערוך'}
-            aria-label={`ערוך ${title}`}
+            title={editing ? t('sections.editing') : t('sections.edit')}
+            aria-label={t('sections.editLabelAria', { title })}
             aria-pressed={editing}
             onClick={onEdit}
           >
@@ -47,6 +49,7 @@ function Section({ title, count, defaultOpen = false, onEdit, editing = false, c
 }
 
 export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder }) {
+  const { t } = useT('clients')
   /* Which panel is currently in edit mode (one at a time). The header
      pencil toggles it; in edit mode the panel's rows become tappable and
      open the matching editor. */
@@ -74,8 +77,8 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
   /* timeline — merged event feed. Each event keeps an optional `edit`
      callback so edit mode can reopen the original item. */
   const events = []
-  clientSessions.forEach((s) => events.push({ type: 'meeting', date: s.date, label: `פגישה${s.num ? ' #' + s.num : ''}`, sub: s.summary || s.notes || '', edit: onEditSession && !s.group_id ? () => onEditSession(s) : null }))
-  financeQuery({ clientId: c.id, source: txns }).forEach((f) => events.push({ type: 'payment', date: f.date, label: `תשלום · ${isr(f.amount)}`, sub: f.desc || '', edit: onEditTx ? () => onEditTx((txns || []).find((t) => t.id === f.id) || f) : null }))
+  clientSessions.forEach((s) => events.push({ type: 'meeting', date: s.date, label: `${t('sections.eventMeeting')}${s.num ? ' #' + s.num : ''}`, sub: s.summary || s.notes || '', edit: onEditSession && !s.group_id ? () => onEditSession(s) : null }))
+  financeQuery({ clientId: c.id, source: txns }).forEach((f) => events.push({ type: 'payment', date: f.date, label: t('sections.eventPayment', { amount: isr(f.amount) }), sub: f.desc || '', edit: onEditTx ? () => onEditTx((txns || []).find((tx) => tx.id === f.id) || f) : null }))
   live(tasks).filter((t) => t.client_id === c.id && t.status === 'done' && t.completed_at)
     .forEach((t) => events.push({ type: 'task', date: t.completed_at, label: t.title, sub: '', edit: onEditTask ? () => onEditTask(t) : null }))
   events.sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -83,18 +86,25 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
   return (
     <>
       <div className="cd-group">
-        <p className="cd-group-title">פעילות</p>
+        <p className="cd-group-title">{t('sections.activity')}</p>
 
-        <Section title="פגישה שבועית קבועה" onEdit={onEditClient}>
+        <Section title={t('sections.recurring')} onEdit={onEditClient}>
           {hasRecurring ? (
-            <p className="cd-rec">כל יום <b>{DAYS[c.recurring_day]}</b> ב-<b>{c.recurring_time}</b></p>
+            <p className="cd-rec">
+              <Trans
+                t={t}
+                i18nKey="sections.recurringLine"
+                values={{ day: t(`form.days.${c.recurring_day}`), time: c.recurring_time }}
+                components={[<b key="d" />, <b key="t" />]}
+              />
+            </p>
           ) : (
-            <p className="cd-empty">אין פגישה קבועה</p>
+            <p className="cd-empty">{t('sections.noRecurring')}</p>
           )}
         </Section>
 
         <Section
-          title="פגישות וסיכומים"
+          title={t('sections.sessionsTitle')}
           count={clientSessions.length}
           onEdit={onEditSession && clientSessions.some((s) => !s.group_id) ? () => toggleEdit('sess') : undefined}
           editing={editKey === 'sess'}
@@ -105,7 +115,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
                 <>
                   <div className="cd-sess-head">
                     <span className="cd-sess-num">{s.num || '•'}</span>
-                    <span className="cd-sess-date">{fmtShortDate(s.date)}{s.group_id ? ' · קבוצתי' : ''}</span>
+                    <span className="cd-sess-date">{fmtShortDate(s.date)}{s.group_id ? t('sections.sessionGroup') : ''}</span>
                     {editKey === 'sess' && !s.group_id && <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon cd-sess-editicon" aria-hidden="true" />}
                   </div>
                   {s.summary && <p className="cd-sess-summary">{s.summary}</p>}
@@ -120,18 +130,18 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
               )
             })
           ) : (
-            <p className="cd-empty">אין פגישות רשומות</p>
+            <p className="cd-empty">{t('sections.noSessions')}</p>
           )}
         </Section>
 
         <Section
-          title="תשלומים"
+          title={t('sections.payments')}
           count={payments.length}
           onEdit={onEditTx && payments.length ? () => toggleEdit('pay') : undefined}
           editing={editKey === 'pay'}
         >
           <div className="cd-pay-summary">
-            <span>סה״כ שולם</span>
+            <span>{t('sections.totalPaid')}</span>
             <span className="mono">{isr(payTotal)}</span>
           </div>
           {payments.length ? (
@@ -140,8 +150,8 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
                 <>
                   <span className="cd-row-dot" style={{ background: f.type === 'income' ? 'var(--sage)' : 'var(--clay)' }} />
                   <div className="cd-row-body">
-                    <p className="cd-row-title">{f.desc || 'ללא תיאור'}</p>
-                    <p className="cd-row-sub">{fmtShortDate(f.date)}{f.status === 'pending' ? ' · ממתין' : ''}</p>
+                    <p className="cd-row-title">{f.desc || t('sections.noDesc')}</p>
+                    <p className="cd-row-sub">{fmtShortDate(f.date)}{f.status === 'pending' ? t('sections.pending') : ''}</p>
                   </div>
                   <span className="cd-row-amt mono">{f.type === 'income' ? '+' : '−'}{isr(f.amount)}</span>
                 </>
@@ -161,12 +171,12 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
               )
             })
           ) : (
-            <p className="cd-empty">אין תשלומים עדיין</p>
+            <p className="cd-empty">{t('sections.noPayments')}</p>
           )}
         </Section>
 
         <Section
-          title="משימות פתוחות"
+          title={t('sections.openTasks')}
           count={openTasks.length}
           onEdit={onEditTask && openTasks.length ? () => toggleEdit('tasks') : undefined}
           editing={editKey === 'tasks'}
@@ -187,12 +197,12 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
               )
             })
           ) : (
-            <p className="cd-empty">אין משימות פתוחות</p>
+            <p className="cd-empty">{t('sections.noOpenTasks')}</p>
           )}
         </Section>
 
         <Section
-          title="ציר זמן"
+          title={t('sections.timeline')}
           count={events.length}
           onEdit={events.some((e) => e.edit) ? () => toggleEdit('tl') : undefined}
           editing={editKey === 'tl'}
@@ -214,27 +224,27 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
               )
             })
           ) : (
-            <p className="cd-empty">אין אירועים</p>
+            <p className="cd-empty">{t('sections.noEvents')}</p>
           )}
         </Section>
       </div>
 
       <div className="cd-group">
-        <p className="cd-group-title">קשר וסביבה</p>
+        <p className="cd-group-title">{t('sections.contactEnv')}</p>
 
-        <Section title="הערות" onEdit={onEditClient}>
+        <Section title={t('sections.notes')} onEdit={onEditClient}>
           {c.notes ? (
             <>
               <p className="cd-note">{c.notes}</p>
-              {c.notes_updated_at && <p className="cd-note-ts">עודכן {fmtShortDate(c.notes_updated_at)}</p>}
+              {c.notes_updated_at && <p className="cd-note-ts">{t('sections.notesUpdated', { date: fmtShortDate(c.notes_updated_at) })}</p>}
             </>
           ) : (
-            <p className="cd-empty">אין הערות עדיין</p>
+            <p className="cd-empty">{t('sections.noNotes')}</p>
           )}
         </Section>
 
         <Section
-          title="תזכורות מקושרות"
+          title={t('sections.reminders')}
           count={activeReminders.length}
           onEdit={onEditReminder && linkedReminders.length ? () => toggleEdit('rem') : undefined}
           editing={editKey === 'rem'}
@@ -260,11 +270,11 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
               )
             })
           ) : (
-            <p className="cd-empty">אין תזכורות מקושרות</p>
+            <p className="cd-empty">{t('sections.noReminders')}</p>
           )}
         </Section>
 
-        <Section title="חברויות בקבוצות" count={memberships.length} onEdit={onEditClient && memberships.length ? onEditClient : undefined}>
+        <Section title={t('sections.memberships')} count={memberships.length} onEdit={onEditClient && memberships.length ? onEditClient : undefined}>
           {memberships.length ? (
             memberships.map((m) => {
               const g = groups.find((x) => x.id === m.group_id)
@@ -275,24 +285,24 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
               if (m.total_override != null) {
                 sub = isr(m.total_override)
               } else if (mode === 'per_session') {
-                sub = g?.price_per_session ? `${isr(g.price_per_session)} לפגישה` : 'מחיר לפגישה'
+                sub = g?.price_per_session ? t('sections.perSession', { price: isr(g.price_per_session) }) : t('sections.pricePerSession')
               } else if (mode === 'none') {
-                sub = 'ללא מחיר קבוע'
+                sub = t('sections.noFixedPrice')
               } else {
-                sub = `${g?.package_sessions ? `${g.package_sessions} פגישות · ` : ''}${isr(g?.package_price || 0)}`
+                sub = `${g?.package_sessions ? t('sections.packageSessions', { count: g.package_sessions }) : ''}${isr(g?.package_price || 0)}`
               }
               return (
                 <div key={m.id} className="cd-row">
                   <span className="cd-row-dot" style={{ background: g?.color || 'var(--stone)' }} />
                   <div className="cd-row-body">
-                    <p className="cd-row-title">{g ? g.name : '(קבוצה נמחקה)'}</p>
+                    <p className="cd-row-title">{g ? g.name : t('sections.groupDeleted')}</p>
                     <p className="cd-row-sub">{sub}</p>
                   </div>
                 </div>
               )
             })
           ) : (
-            <p className="cd-empty">לא בקבוצות</p>
+            <p className="cd-empty">{t('sections.notInGroups')}</p>
           )}
         </Section>
       </div>

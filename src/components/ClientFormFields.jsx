@@ -21,35 +21,35 @@
      - err:      current error string (drives the name's error ring).
    ════════════════════════════════════════════════════════════════ */
 
+import { useT } from '../i18n/useT'
+
 const STATUSES = [
-  { k: 'active', l: 'פעיל׌' },
-  { k: 'wandering', l: 'ביניים' },
-  { k: 'past', l: 'לשעבר' },
-  { k: 'no_status', l: 'ללא' },
+  { k: 'active', labelKey: 'status.active' },
+  { k: 'wandering', labelKey: 'status.wandering' },
+  { k: 'past', labelKey: 'status.past' },
+  { k: 'no_status', labelKey: 'form.none' },
 ]
-const DAYS = [
-  { k: 0, l: 'ראשון' }, { k: 1, l: 'שני' }, { k: 2, l: 'שלישי' },
-  { k: 3, l: 'רביעי' }, { k: 4, l: 'חמישי' }, { k: 5, l: 'שישי' }, { k: 6, l: 'שבת' },
-]
+const DAY_KEYS = [0, 1, 2, 3, 4, 5, 6]
 
 export default function ClientFormFields({ form, set, setMeta, projects = [], statuses = [], groups = [], err }) {
+  const { t } = useT('clients')
   const subStatuses = statuses.filter((s) => s.meta_category === form.status)
   const nameMissing = !!err && !form.name.trim()
 
   return (
     <>
       <div className="m-field">
-        <label className="m-label">שם</label>
+        <label className="m-label">{t('form.name')}</label>
         <input
           className={`m-input${nameMissing ? ' err' : ''}`}
           value={form.name}
           onChange={(e) => set('name', e.target.value)}
-          placeholder="שם הלקוח׌"
+          placeholder={t('form.namePlaceholder')}
         />
       </div>
 
       <div className="m-field">
-        <label className="m-label">סטטוס</label>
+        <label className="m-label">{t('form.status')}</label>
         <div className="m-pills">
           {STATUSES.map((s) => (
             <button
@@ -58,7 +58,7 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
               className={`m-pill${form.status === s.k ? ' on' : ''}`}
               onClick={() => setMeta(s.k)}
             >
-              {s.l}
+              {t(s.labelKey)}
             </button>
           ))}
         </div>
@@ -66,9 +66,9 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
 
       {subStatuses.length > 0 && (
         <div className="m-field">
-          <label className="m-label">תת-סטטוס (אופציונלי)</label>
+          <label className="m-label">{t('form.subStatus')}</label>
           <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
-            <option value="">ללא</option>
+            <option value="">{t('form.none')}</option>
             {subStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
           </select>
         </div>
@@ -79,65 +79,65 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
           field is hidden. Switching back recalculates from the quota —
           soft warning below per per-session-billing.spec.md §5.2. */}
       <div className="m-field">
-        <label className="m-label">אופן חיוב</label>
+        <label className="m-label">{t('form.billingMode')}</label>
         <div className="m-pills">
           <button
             type="button"
             className={`m-pill${(form.billing_mode || 'package') === 'package' ? ' on' : ''}`}
             onClick={() => set('billing_mode', 'package')}
           >
-            חבילה
+            {t('form.package')}
           </button>
           <button
             type="button"
             className={`m-pill${form.billing_mode === 'per_session' ? ' on' : ''}`}
             onClick={() => set('billing_mode', 'per_session')}
           >
-            לפי פגישה
+            {t('form.perSession')}
           </button>
         </div>
         {form.billing_mode === 'per_session' && (
-          <p className="m-sub">היתרה נצברת לפי פגישות שתועדו × מחיר לפגישה.</p>
+          <p className="m-sub">{t('form.perSessionNote')}</p>
         )}
       </div>
 
       <div className="m-row2">
         {form.billing_mode !== 'per_session' && (
           <div className="m-field">
-            <label className="m-label">מספר פגישות</label>
+            <label className="m-label">{t('form.sessionsCount')}</label>
             <input type="number" min="0" className="m-input" value={form.sessions} onChange={(e) => set('sessions', e.target.value)} placeholder="0" />
           </div>
         )}
         <div className="m-field">
-          <label className="m-label">מחיר לפגישה ₪</label>
+          <label className="m-label">{t('form.pricePerSession')}</label>
           <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => set('price_per_session', e.target.value)} placeholder="0" />
         </div>
       </div>
 
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">טלפון</label>
+          <label className="m-label">{t('form.phone')}</label>
           <input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="050-0000000" />
         </div>
         <div className="m-field">
-          <label className="m-label">פרויקט</label>
+          <label className="m-label">{t('form.project')}</label>
           <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-            <option value="">ללא</option>
+            <option value="">{t('form.none')}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
       </div>
 
       <div className="m-field">
-        <label className="m-label">אימייל (אופציונלי)</label>
+        <label className="m-label">{t('form.email')}</label>
         <input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder="name@example.com" dir="ltr" />
       </div>
 
       {groups.length > 0 && (
         <div className="m-field">
-          <label className="m-label">קבוצה (אופציונלי)</label>
+          <label className="m-label">{t('form.group')}</label>
           <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
-            <option value="">ללא קבוצה</option>
+            <option value="">{t('form.noGroup')}</option>
             {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
           </select>
         </div>
@@ -145,14 +145,14 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
 
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">פגישה קבועה — יום</label>
+          <label className="m-label">{t('form.recurringDay')}</label>
           <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}>
-            <option value="">ללא</option>
-            {DAYS.map((d) => <option key={d.k} value={d.k}>{d.l}</option>)}
+            <option value="">{t('form.none')}</option>
+            {DAY_KEYS.map((d) => <option key={d} value={d}>{t(`form.days.${d}`)}</option>)}
           </select>
         </div>
         <div className="m-field">
-          <label className="m-label">פגישה קבועה — שעה</label>
+          <label className="m-label">{t('form.recurringTime')}</label>
           <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
         </div>
       </div>
@@ -165,7 +165,7 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
           className="m-clear-link"
           onClick={() => { set('recurring_day', ''); set('recurring_time', '') }}
         >
-          ניקוי פגישה קבועה
+          {t('form.clearRecurring')}
         </button>
       )}
     </>

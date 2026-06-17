@@ -30,12 +30,22 @@ import heGoals from './locales/he/goals.json'
 import enGoals from './locales/en/goals.json'
 import heTrash from './locales/he/trash.json'
 import enTrash from './locales/en/trash.json'
+import heHome from './locales/he/home.json'
+import enHome from './locales/en/home.json'
+import heClients from './locales/he/clients.json'
+import enClients from './locales/en/clients.json'
+import heFinance from './locales/he/finance.json'
+import enFinance from './locales/en/finance.json'
+import heCalendar from './locales/he/calendar.json'
+import enCalendar from './locales/en/calendar.json'
+import heLeads from './locales/he/leads.json'
+import enLeads from './locales/en/leads.json'
 
-export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'trash']
+export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads']
 
 const resources = {
-  he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, trash: heTrash },
-  en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, trash: enTrash },
+  he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads },
+  en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads },
   es: { common: esCommon, auth: esAuth },
   fr: { common: frCommon, auth: frAuth },
 }

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { monthGrid, eventsByDate, isSameDay, dateKey, DAY_NAMES_SHORT, weekStartIndex } from '../../lib/calendar'
+import { useT } from '../../i18n/useT'
 
 const MAX_DOTS = 3
 
@@ -9,6 +10,7 @@ const MAX_DOTS = 3
    moon = synced calendar) — keyed by the legend below the grid.
    Tap a cell → switch to the day view on that date. */
 export default function CalendarMonth({ date, events, onPickDay, weekStart = 'sunday' }) {
+  const { t } = useT('calendar')
   const grid = useMemo(() => monthGrid(date, weekStart), [date, weekStart])
   const eventsMap = useMemo(() => eventsByDate(events), [events])
   const today = new Date()
@@ -58,9 +60,9 @@ export default function CalendarMonth({ date, events, onPickDay, weekStart = 'su
         })}
       </div>
       <div className="cal-month-legend">
-        <span className="cal-month-leg"><span className="cal-month-dot meeting" aria-hidden="true" /> פגישות</span>
-        <span className="cal-month-leg"><span className="cal-month-dot reminder" aria-hidden="true" /> תזכורות</span>
-        <span className="cal-month-leg"><span className="cal-month-dot calendar" aria-hidden="true" /> יומן</span>
+        <span className="cal-month-leg"><span className="cal-month-dot meeting" aria-hidden="true" /> {t('legend.meetings')}</span>
+        <span className="cal-month-leg"><span className="cal-month-dot reminder" aria-hidden="true" /> {t('legend.reminders')}</span>
+        <span className="cal-month-leg"><span className="cal-month-dot calendar" aria-hidden="true" /> {t('legend.calendar')}</span>
       </div>
     </div>
   )

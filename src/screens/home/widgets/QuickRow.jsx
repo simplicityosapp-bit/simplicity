@@ -27,11 +27,13 @@ import AddReminderModal from '../../../modals/AddReminderModal'
 import ScheduleMeetingModal from '../../../modals/ScheduleMeetingModal'
 import AddGoalEntryModal from '../../../modals/AddGoalEntryModal'
 import QuickGoalUpdatePicker from '../../../modals/QuickGoalUpdatePicker'
+import { useT } from '../../../i18n/useT'
 
 /* Two quick-add CTAs on home:
    • תנועה מהירה  → QuickActionsModal (launcher for *every* Add* in the app).
    • עדכון זריז  → goal-category picker → AddGoalEntryModal. */
 export default function QuickRow() {
+  const { t } = useT('home')
   const { addTransaction } = useTransactions()
   const { clients, addClient } = useClients()
   const { statuses: clientStatuses } = useClientStatuses()
@@ -64,7 +66,7 @@ export default function QuickRow() {
         onClick={() => setShowLauncher(true)}
       >
         <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        <span>הוספה מהירה</span>
+        <span>{t('widgets.quick.quickAdd')}</span>
       </button>
       <button
         type="button"
@@ -72,7 +74,7 @@ export default function QuickRow() {
         onClick={() => setShowPicker(true)}
       >
         <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        <span>עדכון יעד</span>
+        <span>{t('widgets.quick.goalUpdate')}</span>
       </button>
 
       <QuickActionsModal

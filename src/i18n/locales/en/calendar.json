@@ -1,0 +1,56 @@
+{
+  "title": "Calendar",
+  "upcomingCount": "{{count}} upcoming",
+  "schedule": "Schedule",
+  "tagline": "Day after day, step by step.",
+  "newEventAria": "New event",
+  "newEvent": "+ New event",
+  "dup": {
+    "one": "One calendar duplicate with Google",
+    "many": "{{count}} calendar duplicates with Google",
+    "cta": "Resolve duplicates"
+  },
+  "fallback": {
+    "client": "Client",
+    "group": "Group",
+    "event": "Event",
+    "lead": "Lead"
+  },
+  "views": {
+    "schedule": "Agenda",
+    "day": "Day",
+    "week": "Week",
+    "month": "Month"
+  },
+  "nav": {
+    "tablistAria": "View",
+    "prevMonth": "Previous month",
+    "prev": "Previous",
+    "nextMonth": "Next month",
+    "next": "Next",
+    "today": "Today"
+  },
+  "monthPicker": {
+    "dialogAria": "Pick a month",
+    "prevYear": "Previous year",
+    "nextYear": "Next year"
+  },
+  "filter": "View filter",
+  "list": {
+    "empty": "No upcoming events — your calendar is clear.",
+    "loadMore": "Load more ({{count}})"
+  },
+  "allDay": "All day",
+  "before": "Before {{time}}",
+  "after": "After {{time}}",
+  "tag": {
+    "pending": "Pending",
+    "reminder": "Reminder",
+    "calendar": "Calendar"
+  },
+  "legend": {
+    "meetings": "Meetings",
+    "reminders": "Reminders",
+    "calendar": "Calendar"
+  }
+}

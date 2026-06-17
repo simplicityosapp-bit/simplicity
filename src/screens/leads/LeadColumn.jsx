@@ -1,9 +1,11 @@
 import LeadCard from './LeadCard'
+import { useT } from '../../i18n/useT'
 
 /* A meta column. Drop handling is pointer-based (touch + mouse) via the shared
    `dnd` instance: the column is a drop zone keyed by its meta, and each card is
    draggable. */
 export default function LeadColumn({ title, color, metaKey, leads, onEdit, onConvert, onDelete, dnd, sources, statuses }) {
+  const { t } = useT('leads')
   const over = dnd?.overZone === metaKey
   return (
     <div
@@ -31,7 +33,7 @@ export default function LeadColumn({ title, color, metaKey, leads, onEdit, onCon
             />
           ))
         ) : (
-          <p className="lead-col-empty">אין לידים בעמודה זו</p>
+          <p className="lead-col-empty">{t('column.empty')}</p>
         )}
       </div>
     </div>

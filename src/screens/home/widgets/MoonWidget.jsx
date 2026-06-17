@@ -14,9 +14,9 @@ import { useSessions } from '../../../hooks/useSessions'
 import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
 import { useGroups } from '../../../hooks/useGroups'
 import { useGroupMembers } from '../../../hooks/useGroupMembers'
-import { useAddress } from '../../../hooks/useAddress'
 import InfoPopover from '../../../components/InfoPopover'
 import MoonDualBars from '../../../components/MoonDualBars'
+import { useT } from '../../../i18n/useT'
 
 /* Moon-glance mini — a single chip with the pace-based confidence
    percentage inside a soft circular ring. The progress arc renders
@@ -32,7 +32,7 @@ const RADIUS = 42
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS   /* ~263.89 */
 
 export default function MoonWidget() {
-  const { addr } = useAddress()
+  const { t } = useT('home')
   const navigate = useNavigate()
   const { goals } = useGoals()
   const { categories } = useGoalCategories()
@@ -74,8 +74,8 @@ export default function MoonWidget() {
   const dash = (Math.min(100, Math.max(0, conf)) / 100) * CIRCUMFERENCE
 
   const label = hasGoals
-    ? (pure != null ? `${pure}% מהיעד` : 'מבט על')
-    : addr({male:'הגדר',female:'הגדירי',neutral:'הגדר/י'}) + ' יעד ←'
+    ? (pure != null ? t('widgets.moon.percentOfGoal', { percent: pure }) : t('widgets.moon.glance'))
+    : t('widgets.moon.setGoal')
 
   /* Empty-state — go straight to /goals; no expansion available. */
   if (!hasGoals) {
@@ -85,7 +85,7 @@ export default function MoonWidget() {
         role="button"
         tabIndex={0}
         onClick={() => navigate(ROUTES.GOALS)}
-        aria-label="הגדר יעד"
+        aria-label={t('widgets.moon.setGoalAria')}
       >
         <svg className="moon-svg" viewBox="0 0 100 100" aria-hidden="true">
           <circle className="moon-track" cx="50" cy="50" r={RADIUS} />
@@ -103,7 +103,7 @@ export default function MoonWidget() {
         role="button"
         tabIndex={0}
         onClick={() => setExpanded((v) => !v)}
-        aria-label={`מבט על ${conf}%`}
+        aria-label={t('widgets.moon.glanceAria', { percent: conf })}
         aria-expanded={expanded}
       >
         <svg className="moon-svg" viewBox="0 0 100 100" aria-hidden="true">
@@ -119,12 +119,12 @@ export default function MoonWidget() {
         <div className="moon-chip-num mono">{`${conf}%`}</div>
         {/* Beta request 03/06/2026 — the bare percentage was unclear; the
             micro-word ties it to pace: "87% מהקצב / 62% מהיעד". */}
-        <div className="moon-chip-kicker">מהקצב</div>
+        <div className="moon-chip-kicker">{t('widgets.moon.ofPace')}</div>
         <div className="moon-chip-label">
           {label}
           <InfoPopover
-            label="הסבר מבט על"
-            text="הציון המשוקלל של כל היעדים החודש, מודע-לקצב — כמה מהיעד היומי הצפוי כיסית עד עכשיו. 100% = בדיוק בקצב."
+            label={t('widgets.moon.infoLabel')}
+            text={t('widgets.moon.infoText')}
           />
         </div>
         {/* The redundant expand chevron was removed (beta 06/06/2026) — the
@@ -136,7 +136,7 @@ export default function MoonWidget() {
         <div className="moon-expanded">
           <p className="moon-expanded-reflection">{moonReflection(conf)}</p>
           {scored.length === 0 ? (
-            <p className="moon-expanded-empty">אין עדיין יעדים פעילים עם נתונים החודש.</p>
+            <p className="moon-expanded-empty">{t('widgets.moon.expandedEmpty')}</p>
           ) : (
             <div className="moon-expanded-cats">
               {scored.map((s) => (
@@ -152,7 +152,7 @@ export default function MoonWidget() {
             </div>
           )}
           <button type="button" className="moon-expanded-link" onClick={() => navigate(ROUTES.MOON_GLANCE)}>
-            פירוט מלא <ArrowLeft size={13} strokeWidth={1.8} aria-hidden="true" />
+            {t('widgets.moon.fullDetail')} <ArrowLeft size={13} strokeWidth={1.8} aria-hidden="true" />
           </button>
         </div>
       )}

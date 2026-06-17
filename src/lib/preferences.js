@@ -140,6 +140,10 @@ export function defaultPreferences() {
       theme: 'light',
       text_size: 'normal',
       gender: 'neutral',
+      /* UI language. null = follow the local choice (i18next/localStorage,
+         default Hebrew); set to a code ('he'|'en'|'es'|'fr') once the user
+         picks one, so it syncs across devices via <I18nSync/>. */
+      language: null,
     },
     widgets: defaultWidgetsConfig(),
     reports: null,

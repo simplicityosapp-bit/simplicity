@@ -9,6 +9,8 @@ import { screenKeyFromPath } from './lib/nav'
 import { useTheme } from './hooks/useTheme'
 import { useUserPreferences } from './hooks/useUserPreferences'
 import UserPreferencesProvider from './components/UserPreferencesProvider'
+import DirManager from './i18n/DirManager'
+import I18nSync from './i18n/I18nSync'
 import AuthProvider from './auth/AuthProvider'
 import { useAuth } from './auth/AuthContext'
 import BottomNav from './components/BottomNav'
@@ -363,6 +365,7 @@ function Root() {
       <CryptoProvider>
         <CryptoGate>
           <UserPreferencesProvider>
+            <I18nSync />
             <EncryptionMigrator />
             <ConsentSync />
             <AppShell />
@@ -377,6 +380,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <DirManager />
         <Root />
       </AuthProvider>
     </BrowserRouter>

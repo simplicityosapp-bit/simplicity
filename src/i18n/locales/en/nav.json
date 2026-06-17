@@ -32,6 +32,16 @@
     "settings": "Settings"
   },
   "items": {
+    "home": "Home",
+    "clients": "Clients",
+    "tasks": "Tasks",
+    "finance": "Money",
+    "leads": "Leads",
+    "projects": "Projects",
+    "goals": "Goals",
+    "calendar": "Calendar",
+    "connections": "Connections",
+    "settings": "Settings",
     "insightsSub": "Your daily questions + insights",
     "moonSub": "Your weighted score and progress",
     "reportsSub": "Metrics across periods",

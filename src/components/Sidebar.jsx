@@ -99,12 +99,12 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
               className={`mg-sidebar-link${active ? ' on' : ''}`}
               data-screen={item.key}
               onClick={() => navigate(item.to)}
-              title={item.label}
+              title={t(`items.${item.key}`)}
             >
               <span className="mg-sidebar-link-chip" aria-hidden="true">
                 <Icon size={22} strokeWidth={1.5} />
               </span>
-              <span className="mg-sidebar-link-text">{item.label}</span>
+              <span className="mg-sidebar-link-text">{t(`items.${item.key}`)}</span>
             </button>
           )
         })}

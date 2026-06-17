@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Trans } from 'react-i18next'
 import { Mail, Lock, Eye, EyeOff, MailCheck, Check } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
 import GoogleButton from '../../auth/GoogleButton'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
 import { buildConsent, stashPendingConsent } from '../../lib/legal'
-import MG from '../../components/MG'
 import './AuthScreen.css'
 
 export default function SignupScreen() {
-  const { addr } = useAddress()
+  const { t } = useT('auth')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -29,15 +29,15 @@ export default function SignupScreen() {
     e.preventDefault()
     setError('')
     if (!email || !password) {
-      setError('יש למלא אימייל וסיסמה.')
+      setError(t('fillEmailPassword'))
       return
     }
     if (password.length < 6) {
-      setError('הסיסמה צריכה להיות לפחות 6 תווים.')
+      setError(t('signupScreen.passwordMin6'))
       return
     }
     if (!canConsent) {
-      setError('יש לאשר את מדיניות הפרטיות, הסכם עיבוד הנתונים ותנאי השימוש.')
+      setError(t('signupScreen.mustAccept'))
       return
     }
     setBusy(true)
@@ -67,9 +67,9 @@ export default function SignupScreen() {
           </div>
           <div className="auth-form auth-msg-card">
             <span className="auth-msg-icon"><MailCheck size={34} strokeWidth={1.4} aria-hidden="true" /></span>
-            <p className="auth-title">{addr({male:'בדוק',female:'בדקי',neutral:'בדוק/י'})} את האימייל</p>
-            <p className="auth-sub">שלחנו קישור אישור ל-{email}. אחרי האישור אפשר להתחבר.</p>
-            <Link to={ROUTES.LOGIN} className="auth-btn auth-btn-primary">חזרה להתחברות</Link>
+            <p className="auth-title">{t('signupScreen.checkEmailTitle')}</p>
+            <p className="auth-sub">{t('signupScreen.sentBody', { email })}</p>
+            <Link to={ROUTES.LOGIN} className="auth-btn auth-btn-primary">{t('backToLogin')}</Link>
           </div>
         </div>
       </div>
@@ -112,13 +112,13 @@ export default function SignupScreen() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="לפחות 6 תווים"
+              placeholder={t('min6chars')}
             />
             <button
               type="button"
               className="auth-field-toggle"
               onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'הסתר סיסמה' : 'הצג סיסמה'}
+              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
             >
               {showPassword
                 ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
@@ -131,44 +131,53 @@ export default function SignupScreen() {
               <input type="checkbox" checked={agreePolicies} onChange={(e) => setAgreePolicies(e.target.checked)} />
               <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
               <span className="auth-check-label">
-                קראתי ואני <MG word="agree" /> ל
-                <a className="auth-check-link" href={ROUTES.PRIVACY} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>מדיניות הפרטיות</a>
-                {' ול'}
-                <a className="auth-check-link" href={`${ROUTES.LEGAL}?tab=dpa`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>הסכם עיבוד הנתונים</a>
+                <Trans
+                  t={t}
+                  i18nKey="signupScreen.consentPolicies"
+                  components={{
+                    a1: <a className="auth-check-link" href={ROUTES.PRIVACY} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />,
+                    a2: <a className="auth-check-link" href={`${ROUTES.LEGAL}?tab=dpa`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />,
+                  }}
+                />
               </span>
             </label>
             <label className="auth-check">
               <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
               <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
               <span className="auth-check-label">
-                קראתי ואני <MG word="agree" /> ל
-                <a className="auth-check-link" href={ROUTES.TERMS} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>תנאי השימוש</a>
+                <Trans
+                  t={t}
+                  i18nKey="signupScreen.consentTerms"
+                  components={{
+                    a1: <a className="auth-check-link" href={ROUTES.TERMS} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />,
+                  }}
+                />
               </span>
             </label>
             <label className="auth-check">
               <input type="checkbox" checked={agreeMarketing} onChange={(e) => setAgreeMarketing(e.target.checked)} />
               <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
               <span className="auth-check-label">
-                אני <MG word="agree" /> שסימפליסיטי תשתמש באימייל שלי ליצירת קהלי פרסום (ניתן לביטול בכל עת)
+                {t('signupScreen.consentMarketing')}
               </span>
             </label>
           </div>
 
           <button className="auth-btn auth-btn-primary" type="submit" disabled={busy || !canConsent}>
-            {busy ? 'יוצר חשבון…' : 'הרשמה'}
+            {busy ? t('signupScreen.creating') : t('signup')}
           </button>
 
-          <div className="auth-divider"><span>או</span></div>
+          <div className="auth-divider"><span>{t('or')}</span></div>
 
           <GoogleButton
             onError={setError}
-            label="הרשמה עם Google"
+            label={t('signupScreen.googleSignup')}
             disabled={!canConsent}
             onBeforeAuth={() => stashPendingConsent(buildConsent({ marketing: agreeMarketing }))}
           />
         </form>
 
-        <p className="auth-foot">כבר יש לך חשבון? <Link to={ROUTES.LOGIN} className="auth-foot-cta">התחברות</Link></p>
+        <p className="auth-foot">{t('signupScreen.haveAccount')} <Link to={ROUTES.LOGIN} className="auth-foot-cta">{t('login')}</Link></p>
       </div>
     </div>
   )

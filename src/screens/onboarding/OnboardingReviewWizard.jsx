@@ -4,9 +4,8 @@ import { X, Users, FolderKanban, Receipt, CalendarDays, Check, RotateCcw, Repeat
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useLeads } from '../../hooks/useLeads'
-import { useUserPreferences } from '../../hooks/useUserPreferences'
-import { addressUser } from '../../lib/address'
 import { isr } from '../../lib/finance'
+import { useT } from '../../i18n/useT'
 import './OnboardingReviewWizard.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -29,33 +28,36 @@ import './OnboardingReviewWizard.css'
 const norm = (s) => (s || '').trim().toLowerCase()
 const PAGE = 100 /* rows rendered per tab before "load more" */
 
-/* Turn a raw importer error into one plain-Hebrew sentence the user can
+/* Turn a raw importer error into one plain-language sentence the user can
    actually act on. The importer prefixes each error with the entity +
    name ("lead \"דנה\": <db message>"); we keep that label and translate
    the common database messages. Unknown messages fall back to a generic
-   but still-friendly line (never raw SQL jargon alone). */
-function humanizeError(raw) {
+   but still-friendly line (never raw SQL jargon alone). `t` is the
+   onboarding-namespace translator passed in from the component. */
+function humanizeError(raw, t) {
   const s = String(raw || '')
   const labelMatch = s.match(/^(\w+)\s+"([^"]*)":/)
   const who = labelMatch
-    ? `${{ client: 'הלקוח', project: 'הפרויקט', lead: 'הליד', transaction: 'התנועה' }[labelMatch[1]] || ''} "${labelMatch[2]}"`.trim()
+    ? `${t(`review.error.who.${labelMatch[1]}`, { defaultValue: '' })} "${labelMatch[2]}"`.trim()
     : ''
   const lower = s.toLowerCase()
   let why
-  if (lower.includes('schema cache') || lower.includes('column')) why = 'שדה שלא קיים במערכת — כנראה עמודה שמופתה לא נכון.'
-  else if (lower.includes('duplicate') || lower.includes('unique')) why = 'כבר קיים אצלך פריט זהה.'
-  else if (lower.includes('violates') && lower.includes('check')) why = 'אחד הערכים לא תקין (למשל תאריך או סטטוס לא מוכר).'
-  else if (lower.includes('foreign key')) why = 'הפריט מקושר למשהו שלא נוצר.'
-  else if (lower.includes('null value') || lower.includes('not-null')) why = 'חסר ערך בשדה חובה.'
-  else if (lower.includes('date')) why = 'התאריך לא תקין.'
-  else if (lower.includes('אין חיבור')) why = 'נותק החיבור — צריך להתחבר מחדש.'
-  else why = 'משהו לא עבד בשורה הזו — אפשר לדלג עליה ולהמשיך, או לתקן ולנסות שוב.'
-  return who ? `${who}: ${why}` : why
+  if (lower.includes('schema cache') || lower.includes('column')) why = t('review.error.why.schema')
+  else if (lower.includes('duplicate') || lower.includes('unique')) why = t('review.error.why.duplicate')
+  else if (lower.includes('violates') && lower.includes('check')) why = t('review.error.why.check')
+  else if (lower.includes('foreign key')) why = t('review.error.why.foreignKey')
+  else if (lower.includes('null value') || lower.includes('not-null')) why = t('review.error.why.notNull')
+  else if (lower.includes('date')) why = t('review.error.why.date')
+  else if (lower.includes('אין חיבור')) why = t('review.error.why.noConnection')
+  else why = t('review.error.why.generic')
+  return who ? t('review.error.withWho', { who, why }) : why
 }
 
 /* Default client status options offered in the review (the 4 meta
-   buckets). The file's own status text is added on top so a recognised
-   custom status ("פולואפ" etc.) stays selectable. */
+   buckets — these are the stored enum VALUES from lib/enums.js, not UI
+   chrome; they round-trip to the DB so they stay verbatim). The file's
+   own status text is added on top so a recognised custom status
+   ("פולואפ" etc.) stays selectable. */
 const CLIENT_STATUS_DEFAULTS = ['פעיל׌', 'ביניים', 'לשעבר', 'ללא סטטוס']
 
 /* `mode`: 'create' (step 9 — actually writes the data) or 'approve'
@@ -63,8 +65,7 @@ const CLIENT_STATUS_DEFAULTS = ['פעיל׌', 'ביניים', 'לשעבר', 'ל�
    the single place data is created). The two differ only in wording; the
    confirm flow is identical (onConfirm decides whether to write). */
 export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, onCancel, mode = 'create' }) {
-  const { prefs } = useUserPreferences()
-  const gender = prefs?.design?.gender || 'neutral'
+  const { t } = useT('onboarding')
   const { clients: existingClients, loading: clientsLoading } = useClients()
   const { projects: existingProjects, loading: projectsLoading } = useProjects()
   const { leads: existingLeads } = useLeads()
@@ -177,12 +178,12 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   }, [state.clients])
 
   const TABS = [
-    { key: 'clients',      label: 'לקוחות',   icon: Users },
-    { key: 'projects',     label: 'פרויקטים', icon: FolderKanban },
-    { key: 'leads',        label: 'לידים',    icon: Users },
-    { key: 'transactions', label: 'תנועות',   icon: Receipt },
-    { key: 'sessions',     label: 'פגישות',   icon: CalendarDays },
-  ].filter((t) => state[t.key].length > 0)
+    { key: 'clients',      label: t('review.tabs.clients'),      icon: Users },
+    { key: 'projects',     label: t('review.tabs.projects'),     icon: FolderKanban },
+    { key: 'leads',        label: t('review.tabs.leads'),        icon: Users },
+    { key: 'transactions', label: t('review.tabs.transactions'), icon: Receipt },
+    { key: 'sessions',     label: t('review.tabs.sessions'),     icon: CalendarDays },
+  ].filter((tabDef) => state[tabDef.key].length > 0)
 
   const [tab, setTab] = useState(TABS[0]?.key || 'clients')
   const [visible, setVisible] = useState(PAGE)
@@ -270,7 +271,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
 
   const renderToggle = (type, i, row, inc) => (
     <button type="button" className={`obrw-toggle${inc ? ' on' : ''}`} onClick={() => toggle(type, i, row)}
-      aria-pressed={inc} aria-label={inc ? 'כלול — לחצו כדי להשאיר בחוץ' : 'לא כלול — לחצו כדי לכלול'}>
+      aria-pressed={inc} aria-label={inc ? t('review.toggle.includedAria') : t('review.toggle.excludedAria')}>
       {inc ? <Check size={14} strokeWidth={2.4} /> : <RotateCcw size={13} strokeWidth={2} />}
     </button>
   )
@@ -289,51 +290,51 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
       + (result.leads?.failed || 0) + (result.transactions?.failed || 0) + (result.recurring?.failed || 0)
     /* Plain-language created summary line (only non-zero kinds). */
     const parts = []
-    if (created.clients) parts.push(`${created.clients} לקוחות`)
-    if (created.projects) parts.push(`${created.projects} פרויקטים`)
-    if (created.leads) parts.push(`${created.leads} לידים`)
-    if (created.transactions) parts.push(`${created.transactions} תנועות`)
-    if (created.recurring) parts.push(`${created.recurring} הוצאות חוזרות`)
+    if (created.clients) parts.push(t('review.result.created.clients', { count: created.clients }))
+    if (created.projects) parts.push(t('review.result.created.projects', { count: created.projects }))
+    if (created.leads) parts.push(t('review.result.created.leads', { count: created.leads }))
+    if (created.transactions) parts.push(t('review.result.created.transactions', { count: created.transactions }))
+    if (created.recurring) parts.push(t('review.result.created.recurring', { count: created.recurring }))
 
     return (
-      <div className="obrw-back" role="dialog" aria-modal="true" aria-label="תוצאת הייבוא">
+      <div className="obrw-back" role="dialog" aria-modal="true" aria-label={t('review.result.dialogAria')}>
         <div className="obrw-panel" ref={panelRef} tabIndex={-1}>
           <div className="obrw-result">
             <AlertTriangle size={28} strokeWidth={1.8} className="obrw-result-icon" aria-hidden="true" />
             {result.fatal ? (
               <>
-                <p className="obrw-result-title">לא הצלחנו לייבא את הנתונים</p>
+                <p className="obrw-result-title">{t('review.result.fatalTitle')}</p>
                 <p className="obrw-result-txt">
-                  משהו השתבש לפני שנוצר משהו — שום דבר לא נשמר. אפשר לנסות שוב, ואם זה חוזר נשמח לעזור.
+                  {t('review.result.fatalBody')}
                 </p>
-                <p className="obrw-result-hint">מה קרה: {humanizeError(result.error)}</p>
+                <p className="obrw-result-hint">{t('review.result.whatHappened', { detail: humanizeError(result.error, t) })}</p>
               </>
             ) : (
               <>
                 <p className="obrw-result-title">
-                  {totalCreated > 0 ? 'הייבוא הושלם — אבל חלק מהשורות לא נכנסו' : 'אף שורה לא נכנסה'}
+                  {totalCreated > 0 ? t('review.result.partialTitle') : t('review.result.noneTitle')}
                 </p>
                 {totalCreated > 0 && (
-                  <p className="obrw-result-txt">נוצרו בהצלחה: {parts.join(' · ')}.</p>
+                  <p className="obrw-result-txt">{t('review.result.createdLine', { parts: parts.join(' · ') })}</p>
                 )}
                 <p className="obrw-result-txt obrw-result-fail">
-                  {totalFailed} שורות לא נכנסו. הנה למה:
+                  {t('review.result.failedLine', { count: totalFailed })}
                 </p>
                 {result.errors?.length > 0 && (
                   <ul className="obrw-result-errs">
-                    {result.errors.slice(0, 5).map((e, i) => <li key={i}>{humanizeError(e)}</li>)}
-                    {result.errors.length > 5 && <li>ועוד {result.errors.length - 5} שורות דומות…</li>}
+                    {result.errors.slice(0, 5).map((e, i) => <li key={i}>{humanizeError(e, t)}</li>)}
+                    {result.errors.length > 5 && <li>{t('review.result.moreErrors', { count: result.errors.length - 5 })}</li>}
                   </ul>
                 )}
-                <p className="obrw-result-hint">מה שכן נכנס כבר נשמר. אפשר להמשיך, או לחזור ולתקן את השורות שנכשלו.</p>
+                <p className="obrw-result-hint">{t('review.result.partialHint')}</p>
               </>
             )}
             <div className="obrw-actions">
               <button type="button" className="ob-btn ghost" onClick={() => setResult(null)} disabled={busy}>
-                חזרה לרשימה
+                {t('review.result.backToList')}
               </button>
               <button type="button" className="ob-btn primary" onClick={onComplete} disabled={busy}>
-                המשך
+                {t('review.result.continue')}
               </button>
             </div>
           </div>
@@ -343,16 +344,16 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   }
 
   return (
-    <div className="obrw-back" role="dialog" aria-modal="true" aria-label="סקירה לפני יצירה">
+    <div className="obrw-back" role="dialog" aria-modal="true" aria-label={t('review.dialogAria')}>
       <div className="obrw-panel" ref={panelRef} tabIndex={-1}>
         <header className="obrw-head">
           <div>
-            <p className="obrw-title">סקירה לפני יצירה</p>
+            <p className="obrw-title">{t('review.title')}</p>
             <p className="obrw-sub">{mode === 'approve'
-              ? 'עברו על מה שזוהה מהקובץ. כאן רק מסמנים מה להכניס — היצירה עצמה תתבצע בסוף, אחרי אישור אחרון. אפשר לערוך, לכלול או להשאיר בחוץ.'
-              : 'עברו על מה שזוהה מהקובץ. אפשר לערוך, לכלול או להשאיר בחוץ — רק מה שמסומן ייכתב.'}</p>
+              ? t('review.subApprove')
+              : t('review.subCreate')}</p>
           </div>
-          <button type="button" className="obrw-x" onClick={requestClose} aria-label="חזרה" disabled={busy}>
+          <button type="button" className="obrw-x" onClick={requestClose} aria-label={t('review.closeAria')} disabled={busy}>
             <X size={18} strokeWidth={1.8} aria-hidden="true" />
           </button>
         </header>
@@ -361,40 +362,40 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
           <div className="obrw-loading">
             <img className="obrw-logo obrw-logo-day"   src="/logo-dark.png"  alt="" aria-hidden="true" />
             <img className="obrw-logo obrw-logo-night" src="/logo-light.png" alt="" aria-hidden="true" />
-            <p className="obrw-loading-txt">טוען את הנתונים הקיימים…</p>
+            <p className="obrw-loading-txt">{t('review.loading')}</p>
           </div>
         ) : (
         <>
         <div className="obrw-tabs" role="tablist">
-          {TABS.map((t) => {
-            const Icon = t.icon
+          {TABS.map((tabDef) => {
+            const Icon = tabDef.icon
             return (
-              <button key={t.key} type="button" role="tab" id={`obrw-tab-${t.key}`}
-                aria-selected={tab === t.key} aria-controls="obrw-panel"
-                aria-label={`${t.label}: ${counts[t.key]} מתוך ${state[t.key].length} ייכללו`}
-                className={`obrw-tab${tab === t.key ? ' on' : ''}`} onClick={() => setTab(t.key)}>
+              <button key={tabDef.key} type="button" role="tab" id={`obrw-tab-${tabDef.key}`}
+                aria-selected={tab === tabDef.key} aria-controls="obrw-panel"
+                aria-label={t('review.tabAria', { label: tabDef.label, included: counts[tabDef.key], total: state[tabDef.key].length })}
+                className={`obrw-tab${tab === tabDef.key ? ' on' : ''}`} onClick={() => setTab(tabDef.key)}>
                 <Icon size={14} strokeWidth={1.9} aria-hidden="true" />
-                {t.label}
-                <span className="obrw-tab-count" aria-hidden="true">{counts[t.key]}/{state[t.key].length}</span>
+                {tabDef.label}
+                <span className="obrw-tab-count" aria-hidden="true">{counts[tabDef.key]}/{state[tabDef.key].length}</span>
               </button>
             )
           })}
         </div>
 
         <div className="obrw-bulk">
-          <button type="button" className="obrw-bulk-btn" onClick={() => setAll(tab, true)}>כלול הכל</button>
+          <button type="button" className="obrw-bulk-btn" onClick={() => setAll(tab, true)}>{t('review.includeAll')}</button>
           <span className="obrw-bulk-sep">·</span>
-          <button type="button" className="obrw-bulk-btn" onClick={() => setAll(tab, false)}>בטל הכל</button>
+          <button type="button" className="obrw-bulk-btn" onClick={() => setAll(tab, false)}>{t('review.clearAll')}</button>
           {tab === 'transactions' && txIssues > 0 && (
             <span className="obrw-warn">
               <AlertTriangle size={12} strokeWidth={2} aria-hidden="true" />
-              {txIssues} שורות עם סכום/תאריך לא תקין לא יובאו כתנועות
+              {t('review.txIssues', { count: txIssues })}
             </span>
           )}
           {tab === 'clients' && parsed?.truncated && (
             <span className="obrw-warn">
               <AlertTriangle size={12} strokeWidth={2} aria-hidden="true" />
-              הקובץ נקטע ל-{parsed.row_cap} שורות ראשונות (מתוך {parsed.raw_rows})
+              {t('review.truncated', { cap: parsed.row_cap, raw: parsed.raw_rows })}
             </span>
           )}
         </div>
@@ -414,28 +415,28 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('clients', i, c, inc)}
                 <div className="obrw-fields">
-                  <input className="obrw-input obrw-grow" value={c.name || ''} placeholder="שם" aria-label="שם הלקוח" disabled={!inc}
+                  <input className="obrw-input obrw-grow" value={c.name || ''} placeholder={t('review.client.namePlaceholder')} aria-label={t('review.client.nameAria')} disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { name: e.target.value })} />
-                  <select className="obrw-input obrw-cl-proj" value={c.project_name || ''} title="פרויקט" aria-label="פרויקט" disabled={!inc}
+                  <select className="obrw-input obrw-cl-proj" value={c.project_name || ''} title={t('review.client.projectTitle')} aria-label={t('review.client.projectTitle')} disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { project_name: e.target.value || null })}>
-                    <option value="">ללא פרויקט</option>
+                    <option value="">{t('review.client.noProject')}</option>
                     {opts.map((n) => <option key={n} value={n}>{n}</option>)}
                   </select>
-                  <select className={`obrw-input obrw-cl-status${c.status_unsure ? ' unsure' : ''}`} value={c.status_name || ''} title="סטטוס לקוח" aria-label="סטטוס הלקוח" disabled={!inc}
+                  <select className={`obrw-input obrw-cl-status${c.status_unsure ? ' unsure' : ''}`} value={c.status_name || ''} title={t('review.client.statusTitle')} aria-label={t('review.client.statusAria')} disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { status_name: e.target.value || null, status_unsure: false })}>
-                    <option value="">סטטוס: פעיל</option>
+                    <option value="">{t('review.client.statusDefault')}</option>
                     {clientStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
-                  <input className="obrw-input obrw-num" type="number" min="0" value={c.sessions ?? ''} placeholder="פגישות" title="מספר פגישות" aria-label="מספר פגישות" disabled={!inc}
+                  <input className="obrw-input obrw-num" type="number" min="0" value={c.sessions ?? ''} placeholder={t('review.client.sessionsPlaceholder')} title={t('review.client.sessionsTitle')} aria-label={t('review.client.sessionsTitle')} disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { sessions: Number(e.target.value) || 0 })} />
-                  <input className="obrw-input obrw-num" type="number" min="0" value={c.price_per_session ?? ''} placeholder="מחיר" title="מחיר לפגישה" aria-label="מחיר לפגישה" disabled={!inc}
+                  <input className="obrw-input obrw-num" type="number" min="0" value={c.price_per_session ?? ''} placeholder={t('review.client.pricePlaceholder')} title={t('review.client.priceTitle')} aria-label={t('review.client.priceTitle')} disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { price_per_session: Number(e.target.value) || 0 })} />
-                  {invalid && <span className="obrw-invalid">חסר שם</span>}
-                  {c.status_unsure && inc && <span className="obrw-unsure">{addressUser(gender, { male: 'לא היינו בטוחים בסטטוס — כדאי שתבדוק', female: 'לא היינו בטוחים בסטטוס — כדאי שתבדקי', neutral: 'לא היינו בטוחים בסטטוס — כדאי לבדוק' })}</span>}
-                  {projectOrphan && <span className="obrw-invalid">הפרויקט לא ייווצר</span>}
+                  {invalid && <span className="obrw-invalid">{t('review.client.missingName')}</span>}
+                  {c.status_unsure && inc && <span className="obrw-unsure">{t('review.client.statusUnsure')}</span>}
+                  {projectOrphan && <span className="obrw-invalid">{t('review.client.projectOrphan')}</span>}
                 </div>
-                {exists ? <span className="obrw-badge">כבר קיים</span>
-                  : dup ? <span className="obrw-badge dup">כפול בקובץ</span> : null}
+                {exists ? <span className="obrw-badge">{t('review.badge.exists')}</span>
+                  : dup ? <span className="obrw-badge dup">{t('review.badge.duplicate')}</span> : null}
               </div>
             )
           })}
@@ -448,11 +449,11 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('projects', i, p, inc)}
                 <div className="obrw-fields">
-                  <input className="obrw-input obrw-grow" value={p.name || ''} placeholder="שם הפרויקט" disabled={!inc}
+                  <input className="obrw-input obrw-grow" value={p.name || ''} placeholder={t('review.project.namePlaceholder')} disabled={!inc}
                     onChange={(e) => patchRow('projects', i, { name: e.target.value })} />
-                  {invalid && <span className="obrw-invalid">חסר שם</span>}
+                  {invalid && <span className="obrw-invalid">{t('review.project.missingName')}</span>}
                 </div>
-                {exists && <span className="obrw-badge">כבר קיים</span>}
+                {exists && <span className="obrw-badge">{t('review.badge.exists')}</span>}
               </div>
             )
           })}
@@ -466,75 +467,75 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('leads', i, l, inc)}
                 <div className="obrw-fields">
-                  <input className="obrw-input obrw-grow" value={l.name || ''} placeholder="שם הליד" aria-label="שם הליד" disabled={!inc}
+                  <input className="obrw-input obrw-grow" value={l.name || ''} placeholder={t('review.lead.namePlaceholder')} aria-label={t('review.lead.nameAria')} disabled={!inc}
                     onChange={(e) => patchRow('leads', i, { name: e.target.value })} />
-                  <input className={`obrw-input obrw-cl-proj${l.status_unsure ? ' unsure' : ''}`} value={l.status_name || ''} placeholder="סטטוס" title="סטטוס הליד" aria-label="סטטוס הליד" disabled={!inc}
+                  <input className={`obrw-input obrw-cl-proj${l.status_unsure ? ' unsure' : ''}`} value={l.status_name || ''} placeholder={t('review.lead.statusPlaceholder')} title={t('review.lead.statusTitle')} aria-label={t('review.lead.statusAria')} disabled={!inc}
                     onChange={(e) => patchRow('leads', i, { status_name: e.target.value || null, status_unsure: false })} />
-                  {invalid && <span className="obrw-invalid">חסר שם</span>}
-                  {l.status_unsure && inc && <span className="obrw-unsure">{addressUser(gender, { male: 'לא היינו בטוחים בסטטוס — כדאי שתבדוק', female: 'לא היינו בטוחים בסטטוס — כדאי שתבדקי', neutral: 'לא היינו בטוחים בסטטוס — כדאי לבדוק' })}</span>}
+                  {invalid && <span className="obrw-invalid">{t('review.lead.missingName')}</span>}
+                  {l.status_unsure && inc && <span className="obrw-unsure">{t('review.lead.statusUnsure')}</span>}
                 </div>
-                {exists ? <span className="obrw-badge">כבר קיים</span>
-                  : dup ? <span className="obrw-badge dup">כפול בקובץ</span>
+                {exists ? <span className="obrw-badge">{t('review.badge.exists')}</span>
+                  : dup ? <span className="obrw-badge dup">{t('review.badge.duplicate')}</span>
                   : l.status_name ? <span className="obrw-badge">{l.status_name}</span> : null}
               </div>
             )
           })}
 
-          {tab === 'transactions' && state.transactions.slice(0, visible).map((t, i) => {
-            const inc = isIncluded('transactions', i, t)
-            const invalid = inc && !isValid('transactions', t)
-            const expense = t.type === 'expense'
-            const clientOrphan = inc && t.client_name && !willClientNames.has(norm(t.client_name))
-            const projectOrphan = inc && t.project_name && !willProjectNames.has(norm(t.project_name))
+          {tab === 'transactions' && state.transactions.slice(0, visible).map((tx, i) => {
+            const inc = isIncluded('transactions', i, tx)
+            const invalid = inc && !isValid('transactions', tx)
+            const expense = tx.type === 'expense'
+            const clientOrphan = inc && tx.client_name && !willClientNames.has(norm(tx.client_name))
+            const projectOrphan = inc && tx.project_name && !willProjectNames.has(norm(tx.project_name))
             return (
               <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
-                {renderToggle('transactions', i, t, inc)}
+                {renderToggle('transactions', i, tx, inc)}
                 <div className="obrw-fields">
                   <label className="obrw-tx-field obrw-tx-type">
-                    <span className="obrw-tx-lbl">סוג</span>
-                    <select className="obrw-input" value={t.type || 'income'} disabled={!inc}
+                    <span className="obrw-tx-lbl">{t('review.tx.type')}</span>
+                    <select className="obrw-input" value={tx.type || 'income'} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { type: e.target.value })}>
-                      <option value="income">הכנסה</option>
-                      <option value="expense">הוצאה</option>
+                      <option value="income">{t('review.tx.income')}</option>
+                      <option value="expense">{t('review.tx.expense')}</option>
                     </select>
                   </label>
                   <label className="obrw-tx-field obrw-tx-amount">
-                    <span className="obrw-tx-lbl">סכום</span>
-                    <input className="obrw-input" type="number" value={t.amount ?? ''} placeholder="סכום" disabled={!inc}
+                    <span className="obrw-tx-lbl">{t('review.tx.amount')}</span>
+                    <input className="obrw-input" type="number" value={tx.amount ?? ''} placeholder={t('review.tx.amountPlaceholder')} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { amount: Number(e.target.value) || 0 })} />
                   </label>
                   <label className="obrw-tx-field obrw-tx-date">
-                    <span className="obrw-tx-lbl">{t.recurring ? 'תדירות' : 'תאריך'}</span>
-                    {t.recurring ? (
-                      <span className="obrw-recurring" title="הוצאה חוזרת — תיווצר אוטומטית בכל חודש"><Repeat size={12} strokeWidth={1.5} aria-hidden="true" /> חוזרת חודשית</span>
+                    <span className="obrw-tx-lbl">{tx.recurring ? t('review.tx.frequency') : t('review.tx.date')}</span>
+                    {tx.recurring ? (
+                      <span className="obrw-recurring" title={t('review.tx.recurringTitle')}><Repeat size={12} strokeWidth={1.5} aria-hidden="true" /> {t('review.tx.recurringMonthly')}</span>
                     ) : (
-                      <DateField className="obrw-input" value={t.date || ''} disabled={!inc}
+                      <DateField className="obrw-input" value={tx.date || ''} disabled={!inc}
                         onChange={(e) => patchRow('transactions', i, { date: e.target.value })} />
                     )}
                   </label>
                   <label className="obrw-tx-field obrw-tx-proj">
-                    <span className="obrw-tx-lbl">פרויקט</span>
-                    <select className="obrw-input" value={t.project_name || ''} disabled={!inc}
+                    <span className="obrw-tx-lbl">{t('review.tx.project')}</span>
+                    <select className="obrw-input" value={tx.project_name || ''} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { project_name: e.target.value || null })}>
-                      <option value="">ללא פרויקט</option>
+                      <option value="">{t('review.tx.noProject')}</option>
                       {projectOptions.map((n) => <option key={n} value={n}>{n}</option>)}
                     </select>
                   </label>
                   <label className="obrw-tx-field obrw-grow">
-                    <span className="obrw-tx-lbl">תיאור</span>
-                    <input className="obrw-input" value={t.desc || ''} placeholder="תיאור (אופציונלי)" disabled={!inc}
+                    <span className="obrw-tx-lbl">{t('review.tx.desc')}</span>
+                    <input className="obrw-input" value={tx.desc || ''} placeholder={t('review.tx.descPlaceholder')} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { desc: e.target.value || null })} />
                   </label>
-                  {t.client_name && (
-                    <span className={`obrw-link${clientOrphan ? ' muted' : ''}`} title={clientOrphan ? 'הלקוח לא ייכלל — התנועה תיווצר בלי קישור' : ''}>
-                      <CornerDownLeft size={12} strokeWidth={1.5} aria-hidden="true" /> {t.client_name}{clientOrphan ? ' (ללא קישור)' : ''}
+                  {tx.client_name && (
+                    <span className={`obrw-link${clientOrphan ? ' muted' : ''}`} title={clientOrphan ? t('review.tx.clientOrphanTitle') : ''}>
+                      <CornerDownLeft size={12} strokeWidth={1.5} aria-hidden="true" /> {tx.client_name}{clientOrphan ? ` ${t('review.tx.noLink')}` : ''}
                     </span>
                   )}
-                  {invalid && <span className="obrw-invalid">חסר סכום/תאריך</span>}
-                  {projectOrphan && <span className="obrw-invalid">הפרויקט לא ייווצר</span>}
+                  {invalid && <span className="obrw-invalid">{t('review.tx.invalid')}</span>}
+                  {projectOrphan && <span className="obrw-invalid">{t('review.tx.projectOrphan')}</span>}
                 </div>
                 <span className={`obrw-badge${expense ? ' expense' : ' income'}`}>
-                  {expense ? '−' : '+'}{isr(Math.abs(Number(t.amount) || 0))}
+                  {expense ? '−' : '+'}{isr(Math.abs(Number(tx.amount) || 0))}
                 </span>
               </div>
             )
@@ -551,26 +552,26 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                 {renderToggle('sessions', i, s, inc)}
                 <div className="obrw-fields">
                   <label className="obrw-tx-field obrw-grow">
-                    <span className="obrw-tx-lbl">לקוח</span>
+                    <span className="obrw-tx-lbl">{t('review.session.client')}</span>
                     <select className="obrw-input" value={s.client_name || ''} disabled={!inc}
                       onChange={(e) => patchRow('sessions', i, { client_name: e.target.value || null })}>
-                      <option value="">{addressUser(gender, { male: '— בחר לקוח', female: '— בחרי לקוח', neutral: '— בחר/י לקוח' })}</option>
+                      <option value="">{t('review.session.pickClient')}</option>
                       {opts.map((n) => <option key={n} value={n}>{n}</option>)}
                     </select>
                   </label>
                   <label className="obrw-tx-field obrw-tx-date">
-                    <span className="obrw-tx-lbl">תאריך</span>
+                    <span className="obrw-tx-lbl">{t('review.session.date')}</span>
                     <DateField className="obrw-input" value={s.date || ''} disabled={!inc}
                       onChange={(e) => patchRow('sessions', i, { date: e.target.value })} />
                   </label>
                   <label className="obrw-tx-field obrw-grow">
-                    <span className="obrw-tx-lbl">סיכום</span>
-                    <input className="obrw-input" value={s.summary || ''} placeholder="סיכום (אופציונלי)" disabled={!inc}
+                    <span className="obrw-tx-lbl">{t('review.session.summary')}</span>
+                    <input className="obrw-input" value={s.summary || ''} placeholder={t('review.session.summaryPlaceholder')} disabled={!inc}
                       onChange={(e) => patchRow('sessions', i, { summary: e.target.value || null })} />
                   </label>
-                  {invalid && <span className="obrw-invalid">חסר לקוח</span>}
-                  {clientOrphan && <span className="obrw-invalid">הלקוח לא ייווצר — הפגישה תידלג</span>}
-                  {inc && !s.date && <span className="obrw-link muted">ללא תאריך — יוצב בתאריך משוער</span>}
+                  {invalid && <span className="obrw-invalid">{t('review.session.missingClient')}</span>}
+                  {clientOrphan && <span className="obrw-invalid">{t('review.session.clientOrphan')}</span>}
+                  {inc && !s.date && <span className="obrw-link muted">{t('review.session.noDate')}</span>}
                 </div>
               </div>
             )
@@ -578,27 +579,27 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
 
           {state[tab].length > visible && (
             <button type="button" className="obrw-more" onClick={() => setVisible((v) => v + PAGE)}>
-              הצג עוד {Math.min(PAGE, state[tab].length - visible)} (מתוך {state[tab].length})
+              {t('review.loadMore', { count: Math.min(PAGE, state[tab].length - visible), total: state[tab].length })}
             </button>
           )}
         </div>
 
         <footer className="obrw-foot">
           <p className="obrw-summary">
-            {mode === 'approve' ? 'יאושרו' : 'ייווצרו'}: <strong>{counts.clients}</strong> לקוחות · <strong>{counts.projects}</strong> פרויקטים
-            {counts.leads > 0 && <> · <strong>{counts.leads}</strong> לידים</>}
-            {' · '}<strong>{counts.transactions}</strong> תנועות
+            {mode === 'approve' ? t('review.summary.willApprove') : t('review.summary.willCreate')}: <strong>{counts.clients}</strong> {t('review.summary.clients')} · <strong>{counts.projects}</strong> {t('review.summary.projects')}
+            {counts.leads > 0 && <> · <strong>{counts.leads}</strong> {t('review.summary.leads')}</>}
+            {' · '}<strong>{counts.transactions}</strong> {t('review.summary.transactions')}
           </p>
           <div className="obrw-actions">
             <button type="button" className="ob-btn ghost" onClick={requestClose} disabled={busy}>
-              חזרה
+              {t('common.back')}
             </button>
             <button type="button" className="ob-btn primary" onClick={handleConfirm} disabled={busy}>
               {busy
-                ? (mode === 'approve' ? 'שומר…' : 'יוצר…')
+                ? (mode === 'approve' ? t('review.confirm.savingApprove') : t('review.confirm.savingCreate'))
                 : totalIncluded === 0
-                  ? (mode === 'approve' ? 'אישור והמשך' : 'סיום ללא ייבוא')
-                  : (mode === 'approve' ? `אישור והמשך (${totalIncluded})` : `אישור ויצירה (${totalIncluded})`)}
+                  ? (mode === 'approve' ? t('review.confirm.approveEmpty') : t('review.confirm.createEmpty'))
+                  : (mode === 'approve' ? t('review.confirm.approve', { count: totalIncluded }) : t('review.confirm.create', { count: totalIncluded }))}
             </button>
           </div>
         </footer>
@@ -607,11 +608,11 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
 
         {/* Dirty-close guard */}
         {confirmingClose && (
-          <div className="obrw-confirm" role="alertdialog" aria-modal="true" aria-label="לצאת בלי לשמור?">
-            <p className="obrw-confirm-txt">לצאת בלי לשמור? כל העריכות שנעשו כאן יימחקו.</p>
+          <div className="obrw-confirm" role="alertdialog" aria-modal="true" aria-label={t('review.dirty.ariaLabel')}>
+            <p className="obrw-confirm-txt">{t('review.dirty.text')}</p>
             <div className="obrw-actions">
-              <button type="button" className="ob-btn ghost" ref={stayBtnRef} onClick={() => setConfirmingClose(false)}>הישאר</button>
-              <button type="button" className="ob-btn danger" onClick={onCancel}>צא בלי לשמור</button>
+              <button type="button" className="ob-btn ghost" ref={stayBtnRef} onClick={() => setConfirmingClose(false)}>{t('review.dirty.stay')}</button>
+              <button type="button" className="ob-btn danger" onClick={onCancel}>{t('review.dirty.leave')}</button>
             </div>
           </div>
         )}

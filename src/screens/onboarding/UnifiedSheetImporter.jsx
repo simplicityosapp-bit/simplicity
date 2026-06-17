@@ -5,7 +5,7 @@ import {
   setSheetType, remapSheetColumn, projectSheet,
 } from '../../lib/sheetMapper'
 import { flattenMatrix } from '../../lib/pivotImport'
-import { addressUser } from '../../lib/address'
+import { useT } from '../../i18n/useT'
 import './UnifiedSheetImporter.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -28,7 +28,8 @@ import './UnifiedSheetImporter.css'
 const THIS_YEAR = new Date().getFullYear()
 const YEARS = [THIS_YEAR - 3, THIS_YEAR - 2, THIS_YEAR - 1, THIS_YEAR, THIS_YEAR + 1]
 
-export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutral' }) {
+export default function UnifiedSheetImporter({ sheets, onChange }) {
+  const { t } = useT('onboarding')
   const live = (sheets || []).filter((s) => !s.removed)
 
   const patch = (id, next) => onChange((sheets || []).map((s) => (s.id === id ? next : s)))
@@ -80,7 +81,7 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
         let cardYield = 0
         if (sheet.type === 'matrix') cardYield = (sheet.pivotTransactions || []).length
         else if (sheet.type !== 'ignore') { const p = projectSheet(sheet); cardYield = p.clients.length + p.projects.length + p.leads.length + p.transactions.length + (p.sessions?.length || 0) }
-        const yieldHintField = { clients: 'השם', leads: 'השם', projects: 'השם', transactions: 'הסכום', sessions: 'הלקוח והתאריך' }[sheet.type] || 'המפתח'
+        const yieldHintField = t(`sheet.yieldField.${sheet.type}`, { defaultValue: t('sheet.yieldField.default') })
         return (
           <div className="usi-card" key={sheet.id}>
             <div className="usi-head">
@@ -89,7 +90,7 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
                 <p className="usi-name">{sheet.sheetName || sheet.fileName}</p>
                 {sheet.sheetName && <p className="usi-file">{sheet.fileName}</p>}
               </div>
-              <button type="button" className="usi-x" onClick={() => remove(sheet.id)} aria-label="הסר טבלה"><X size={14} strokeWidth={2} aria-hidden="true" /></button>
+              <button type="button" className="usi-x" onClick={() => remove(sheet.id)} aria-label={t('sheet.removeAria')}><X size={14} strokeWidth={2} aria-hidden="true" /></button>
             </div>
 
             {/* Raw preview — first rows exactly as read, so the user can
@@ -97,13 +98,13 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
                 trusting the mapping. Collapsed by default. */}
             <button type="button" className="usi-toggle-cols" aria-expanded={!!sheet._showRaw}
               onClick={() => patch(sheet.id, { ...sheet, _showRaw: !sheet._showRaw })}>
-              {sheet._showRaw ? 'הסתר' : 'הצג'} תצוגה מקדימה של הקובץ (לוודא שנקרא נכון) {sheet._showRaw ? <ChevronUp size={14} strokeWidth={1.5} aria-hidden="true" /> : <ChevronDown size={14} strokeWidth={1.5} aria-hidden="true" />}
+              {sheet._showRaw ? t('sheet.rawHide') : t('sheet.rawShow')} {t('sheet.rawToggle')} {sheet._showRaw ? <ChevronUp size={14} strokeWidth={1.5} aria-hidden="true" /> : <ChevronDown size={14} strokeWidth={1.5} aria-hidden="true" />}
             </button>
             {sheet._showRaw && (
               <div className="usi-raw">
                 <table className="usi-raw-table">
                   <thead>
-                    <tr>{sheet.headers.map((h, i) => <th key={i}>{h || '—'}</th>)}</tr>
+                    <tr>{sheet.headers.map((h, i) => <th key={i}>{h || t('sheet.rawEmpty')}</th>)}</tr>
                   </thead>
                   <tbody>
                     {sheet.rows.slice(0, 3).map((r, ri) => (
@@ -116,10 +117,10 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
 
             {/* Entity type */}
             <div className="usi-field">
-              <label className="usi-label" id={`usi-type-${sheet.id}`}>מה יש בטבלה הזו?</label>
+              <label className="usi-label" id={`usi-type-${sheet.id}`}>{t('sheet.whatsHere')}</label>
               <select className="usi-select" value={sheet.type} aria-labelledby={`usi-type-${sheet.id}`}
                 onChange={(e) => changeType(sheet, e.target.value)}>
-                {SHEET_TYPES.map((t) => <option key={t} value={t}>{SHEET_TYPE_LABELS[t]}</option>)}
+                {SHEET_TYPES.map((st) => <option key={st} value={st}>{SHEET_TYPE_LABELS[st]}</option>)}
               </select>
               {SHEET_TYPE_HELP[sheet.type] && <p className="usi-hint">{SHEET_TYPE_HELP[sheet.type]}</p>}
             </div>
@@ -142,10 +143,10 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
                   <span className="usi-col-name">
                     {field ? <CheckCircle2 size={12} strokeWidth={2} aria-hidden="true" /> : <HelpCircle size={12} strokeWidth={2} aria-hidden="true" />}
                     <span className="usi-col-h" title={h}><bdi>{h}</bdi></span>
-                    {sample(colIdx) && <span className="usi-col-sample" title={sample(colIdx)}>לדוגמה: <bdi>{sample(colIdx)}</bdi></span>}
+                    {sample(colIdx) && <span className="usi-col-sample" title={sample(colIdx)}>{t('sheet.colSample')}<bdi>{sample(colIdx)}</bdi></span>}
                   </span>
-                  <select className="usi-select usi-col-select" value={field} aria-label={`מיפוי לעמודה ${h}`} onChange={(e) => changeColumn(sheet, colIdx, e.target.value)}>
-                    <option value="">— לא לייבא את העמודה</option>
+                  <select className="usi-select usi-col-select" value={field} aria-label={t('sheet.colMapAria', { header: h })} onChange={(e) => changeColumn(sheet, colIdx, e.target.value)}>
+                    <option value="">{t('sheet.colIgnore')}</option>
                     {fields.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
                   </select>
                 </div>
@@ -153,25 +154,21 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
               return (
                 <div className="usi-cols">
                   <p className="usi-cols-intro">
-                    הערך האפור הוא דוגמה מהשורה הראשונה. בשלב הבא תהיה סקירה מלאה של כל הנתונים לפני שמשהו נשמר.
+                    {t('sheet.colsIntro')}
                   </p>
                   {colData.length === 0 && (
-                    <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> לא זיהינו עמודות בטבלה הזו. ייתכן ששורת הכותרות לא נקראה נכון — אפשר לפתוח את "הצג תצוגה מקדימה של הקובץ" לבדיקה, או לשנות את הסוג ל"להתעלם".</p>
+                    <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.noCols')}</p>
                   )}
                   {unmapped.length > 0 && (
                     <>
-                      <p className="usi-ask"><HelpCircle size={13} strokeWidth={1.9} aria-hidden="true" /> {addressUser(gender, {
-                        male: `יש ${unmapped.length} עמודות שנשאיר בצד אם לא תבחר להן שדה — אפשר להתעלם מהן בלי בעיה.`,
-                        female: `יש ${unmapped.length} עמודות שנשאיר בצד אם לא תבחרי להן שדה — אפשר להתעלם מהן בלי בעיה.`,
-                        neutral: `יש ${unmapped.length} עמודות שנשאיר בצד אם לא תבחר/י להן שדה — אפשר להתעלם מהן בלי בעיה.`,
-                      })}</p>
+                      <p className="usi-ask"><HelpCircle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.unmapped', { count: unmapped.length })}</p>
                       {unmapped.map(renderCol)}
                     </>
                   )}
                   {recognized.length > 0 && (
                     <>
                       <button type="button" className="usi-toggle-cols" aria-expanded={showAll} onClick={() => patch(sheet.id, { ...sheet, _showAllCols: !showAll })}>
-                        {showAll ? 'הסתר' : 'הצג'} {recognized.length} עמודות שזוהו אוטומטית {showAll ? <ChevronUp size={14} strokeWidth={1.5} aria-hidden="true" /> : <ChevronDown size={14} strokeWidth={1.5} aria-hidden="true" />}
+                        {showAll ? t('sheet.recognizedHide', { count: recognized.length }) : t('sheet.recognizedShow', { count: recognized.length })} {showAll ? <ChevronUp size={14} strokeWidth={1.5} aria-hidden="true" /> : <ChevronDown size={14} strokeWidth={1.5} aria-hidden="true" />}
                       </button>
                       {showAll && recognized.map(renderCol)}
                     </>
@@ -190,20 +187,16 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
                 <>
                   {hasMonths && (
                     <div className="usi-field">
-                      <label className="usi-label" id={`usi-year-${sheet.id}`}>שנה{sheet.pivot.year ? ' (זוהתה מהקובץ)' : ''}</label>
+                      <label className="usi-label" id={`usi-year-${sheet.id}`}>{sheet.pivot.year ? t('sheet.yearDetected') : t('sheet.yearLabel')}</label>
                       <select className="usi-select" value={sheet.pivot.year || ''} aria-labelledby={`usi-year-${sheet.id}`} onChange={(e) => setYear(sheet, e.target.value)}>
-                        <option value="">בחר/י שנה</option>
+                        <option value="">{t('sheet.pickYear')}</option>
                         {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
                       </select>
-                      {!sheet.pivot.year && <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> יש לבחור שנה.</p>}
+                      {!sheet.pivot.year && <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.yearMissing')}</p>}
                     </div>
                   )}
                   <p className="usi-cols-intro">
-                    {addressUser(gender, {
-                      male: 'סמן לכל שורה אם היא הכנסה או הוצאה. "דלג" משאיר שורה בחוץ (למשל שורת סיכום).',
-                      female: 'סמני לכל שורה אם היא הכנסה או הוצאה. "דלג" משאיר שורה בחוץ (למשל שורת סיכום).',
-                      neutral: 'סמנו לכל שורה אם היא הכנסה או הוצאה. "דלג" משאיר שורה בחוץ (למשל שורת סיכום).',
-                    })}
+                    {t('sheet.matrixIntro')}
                   </p>
                   <div className="usi-rows">
                     {sheet.rows.map((r, rowIdx) => {
@@ -214,10 +207,10 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
                       return (
                         <div className={`usi-row${isSkip ? ' skip' : ''}`} key={rowIdx}>
                           <span className="usi-row-label">{label}</span>
-                          <div className="usi-row-types" role="group" aria-label={`סוג השורה: ${label}`}>
-                            <button type="button" aria-pressed={!isSkip && type === 'income'} className={`usi-rt${!isSkip && type === 'income' ? ' on income' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'income')}>הכנסה</button>
-                            <button type="button" aria-pressed={!isSkip && type === 'expense'} className={`usi-rt${!isSkip && type === 'expense' ? ' on expense' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'expense')}>הוצאה</button>
-                            <button type="button" aria-pressed={isSkip} className={`usi-rt${isSkip ? ' on skip' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'skip')}>דלג</button>
+                          <div className="usi-row-types" role="group" aria-label={t('sheet.rowTypeAria', { label })}>
+                            <button type="button" aria-pressed={!isSkip && type === 'income'} className={`usi-rt${!isSkip && type === 'income' ? ' on income' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'income')}>{t('sheet.income')}</button>
+                            <button type="button" aria-pressed={!isSkip && type === 'expense'} className={`usi-rt${!isSkip && type === 'expense' ? ' on expense' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'expense')}>{t('sheet.expense')}</button>
+                            <button type="button" aria-pressed={isSkip} className={`usi-rt${isSkip ? ' on skip' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'skip')}>{t('sheet.skip')}</button>
                           </div>
                         </div>
                       )
@@ -228,7 +221,7 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
             })()}
 
             {sheet.type !== 'ignore' && cardYield === 0 && (
-              <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> מהטבלה הזו עדיין לא ייווצר אף פריט — כדאי לוודא שהסוג נכון ושעמודת {yieldHintField} ממופה.</p>
+              <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.noYield', { field: yieldHintField })}</p>
             )}
           </div>
         )
@@ -236,14 +229,14 @@ export default function UnifiedSheetImporter({ sheets, onChange, gender = 'neutr
 
       <div className="usi-summary">
         {totals.clients + totals.projects + totals.leads + totals.txns === 0 ? (
-          <p className="usi-summary-line">עדיין לא זוהה שום פריט לייבוא. בחרו לכל טבלה מה יש בה, ומפו את עמודות השם / הסכום.</p>
+          <p className="usi-summary-line">{t('sheet.summaryEmpty')}</p>
         ) : (
           <p className="usi-summary-line">
-            סה״כ ייווצרו (אחרי שתאשרו בסקירה):
-            {totals.clients > 0 && <> <strong>{totals.clients}</strong> לקוחות ·</>}
-            {totals.projects > 0 && <> <strong>{totals.projects}</strong> פרויקטים ·</>}
-            {totals.leads > 0 && <> <strong>{totals.leads}</strong> לידים ·</>}
-            {' '}<strong>{totals.txns}</strong> תנועות
+            {t('sheet.summaryLead')}
+            {totals.clients > 0 && <> <strong>{totals.clients}</strong> {t('sheet.summary.clients')} ·</>}
+            {totals.projects > 0 && <> <strong>{totals.projects}</strong> {t('sheet.summary.projects')} ·</>}
+            {totals.leads > 0 && <> <strong>{totals.leads}</strong> {t('sheet.summary.leads')} ·</>}
+            {' '}<strong>{totals.txns}</strong> {t('sheet.summary.transactions')}
           </p>
         )}
       </div>

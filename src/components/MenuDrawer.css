@@ -50,7 +50,7 @@
 .drawer-panel::-webkit-scrollbar {
   display: none;
 }
-/* Soft glow accent at the top corner — atmospheric, matches the moonlight theme. */
+/* Soft glow accent at the top corner — atmospheric. On-palette terracotta tint. */
 .drawer-panel::before {
   content: "";
   position: absolute;
@@ -59,12 +59,12 @@
   width: 220px;
   height: 220px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 200, 140, 0.14) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--terracotta) 14%, transparent) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
 [data-theme="dark"] .drawer-panel::before {
-  background: radial-gradient(circle, rgba(100, 200, 160, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--terracotta) 20%, transparent) 0%, transparent 70%);
 }
 .drawer-panel > * {
   position: relative;
@@ -140,14 +140,14 @@
   text-align: start;
   padding: 11px 12px;
   margin: 4px 0;
-  border-radius: var(--rm);
-  background: rgba(167, 139, 250, 0.08);
-  border: 0.5px solid rgba(167, 139, 250, 0.2);
+  border-radius: var(--mg-card-radius);
+  background: var(--mg-card-bg);
+  border: 0.5px solid var(--divider);
   cursor: pointer;
   transition: transform 0.12s ease, background 0.12s ease;
 }
 .drawer-profile:hover {
-  background: rgba(167, 139, 250, 0.13);
+  background: color-mix(in srgb, var(--terracotta) 6%, var(--mg-card-bg));
 }
 .drawer-profile:active {
   transform: scale(0.98);
@@ -156,11 +156,11 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.5), rgba(56, 189, 248, 0.4));
+  background: var(--terracotta);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Assistant', sans-serif;
+  font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
   font-weight: 600;
   color: var(--on-accent);
@@ -348,12 +348,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--teal-glass);
-  border: 0.5px solid var(--teal-faint);
-  color: var(--teal);
-}
-[data-theme="dark"] .drawer-link-icon {
-  color: var(--teal-hi);
+  background: var(--mg-card-bg);
+  border: 0.5px solid var(--divider);
+  color: var(--stone);
 }
 .drawer-link-text {
   flex: 1;
@@ -369,23 +366,17 @@
   letter-spacing: 0.02em;
 }
 
-/* Per-link accent variants */
-.drawer-link.tint-purple .drawer-link-icon {
-  background: var(--purple-glass);
-  border-color: var(--purple-faint);
-  color: var(--purple);
-}
+/* Per-link accent variants. tint-purple now neutral (falls back to the default
+   stone chip); tint-amber = warning token (trash/logout); tint-moon keeps the
+   moon sub-theme (it links to "מבט ירח") but flattened off the gradient. */
 .drawer-link.tint-amber .drawer-link-icon {
-  background: var(--gold-glass);
-  border-color: var(--gold-faint);
-  color: var(--gold-dim);
-}
-[data-theme="dark"] .drawer-link.tint-amber .drawer-link-icon {
-  color: var(--gold-hi);
+  background: color-mix(in srgb, var(--amber-warn) 12%, transparent);
+  border-color: color-mix(in srgb, var(--amber-warn) 30%, transparent);
+  color: var(--amber-warn);
 }
 .drawer-link.tint-moon .drawer-link-icon {
-  background: radial-gradient(circle at 30% 30%, rgba(180, 200, 235, 0.22), rgba(80, 90, 120, 0.18));
-  border-color: rgba(140, 160, 200, 0.3);
+  background: color-mix(in srgb, var(--moon-deep) 16%, transparent);
+  border-color: color-mix(in srgb, var(--moon-deep) 32%, transparent);
   color: var(--moon-deep);
 }
 [data-theme="dark"] .drawer-link.tint-moon .drawer-link-icon {

@@ -129,3 +129,30 @@ Each is a single decision that resolves a whole cluster of findings.
     → OK to add a small derived-token set to `tokens.css`?
 
 Full per-finding detail was generated during the audit; ask if you want the raw list for any area.
+
+---
+
+## Round 2 — owner decisions applied (2026-06-17)
+
+Walked the 12 questions with the owner. Outcomes:
+
+**Sanctioned as-is (documented, not changed):**
+- **Onboarding sub-theme** — sage accent + clay CTA + soft 12–14px radii + 700 titles are an official onboarding sub-theme.
+- **Per-screen nav color-coding** — the 5 brand-color nav tints, the sidebar 5-color gradient, and the sun↔moon theme switch stay.
+- **Attention-tinted cards** — amber `PendingSection` / sage `InvoiceImports` are sanctioned semantic attention cards.
+- **Dashed borders** (admin toggle-off, calendar all-day chip, "load more") — kept as deliberate affordance.
+- **`+`/`−` sign glyphs** on income/expense pills — kept (numeric signs, not icons).
+- **Display titles use `Assistant` 700** — sanctioned for true display titles + wordmarks. Weight scale doc now allows 700 for display titles.
+- **Fonts**: text = `Alef` (dual-gender), numbers = `HeeboNum`, via `--mg-font`. Confirmed correct.
+
+**Implemented in round 2:**
+- **Moon sub-theme** — kept only where it's the reflection/daily-question motif (home "מה איתך היום" widget, Insights, and links to מבט-ירח). Generic toggles (`.mg-toggle`, Reports customize, Settings widget) → terracotta.
+- **Nav off-palette fixes** — avatar purple→cyan gradient → flat terracotta; menu teal/purple/gold icon chips → stone/amber-warn (tint-moon kept, gradient flattened); green atmospheric glow → terracotta tint. Avatar initials + home quote → `var(--mg-font)`.
+- **Data-viz palette** — duplicated swatch array centralized into `src/lib/palette.js` (`CATEGORY_SWATCHES`), imported by 8 files (no visual change). Income chart line clay→terracotta; urgent task dot sage→clay (regular stays amber).
+- **Compact tokens** — added `--mg-chip-radius` (10px) + `--mg-icon-btn` (34px); applied to calendar chips/cells.
+- **Legacy auth screens** — Reset/Update password migrated to the canonical `.auth-field` pattern + real logo lockup; auth focus sage→terracotta+blush (all auth fields).
+- **New tokens** — `--clay-on-dark` (legible danger text on dark) + the compact tokens above.
+- **Reports table fix (2026-06-17)** — months table marginally overflowed the card (summary column cut on the RTL-left edge); tightened metric column (130→112px) + cell padding (12→8px) + cell min-width (60→54px) so the default range fits cleanly; larger ranges still scroll inside the card.
+
+**Still a separate project (NOT done — touches stored data):**
+- **Emoji → Lucide iconography migration.** Questions / goals / goal-categories / lead-statuses / client-sub-statuses store an emoji as their icon. Owner approved migrating the whole system to Lucide line-icons — this needs a per-icon mapping, picker-UI changes, and a data migration of existing stored `icon` values. To be planned separately with migration logic that preserves user data.

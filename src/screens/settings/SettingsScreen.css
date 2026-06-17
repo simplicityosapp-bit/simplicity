@@ -369,8 +369,7 @@
   transition: background 160ms;
 }
 [data-theme="dark"] .set-w-toggle { background: rgba(255,255,255,.15); }
-.set-w-toggle.on { background: var(--moon-deep); }
-[data-theme="dark"] .set-w-toggle.on { background: var(--moon-hi); }
+.set-w-toggle.on { background: var(--terracotta); }
 .set-w-toggle-knob {
   position: absolute;
   top: 2px;

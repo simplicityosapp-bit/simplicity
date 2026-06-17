@@ -357,11 +357,11 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(167, 139, 250, 0.5), rgba(56, 189, 248, 0.4));
+    background: var(--terracotta);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Assistant', sans-serif;
+    font-family: var(--mg-font);
     font-size: calc(13px * var(--text-scale));
     font-weight: 600;
     color: var(--on-accent);

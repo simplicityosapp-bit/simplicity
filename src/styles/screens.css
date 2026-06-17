@@ -162,13 +162,10 @@
   display: flex;
   gap: 2px;
   padding: 2px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.3);
-  border: 0.5px solid var(--moon-faint);
+  border-radius: var(--mg-chip-radius);
+  background: var(--mg-card-bg);
+  border: 0.5px solid var(--divider);
   backdrop-filter: var(--mg-card-blur);
-}
-[data-theme="dark"] .mg-toggle {
-  background: rgba(220, 230, 255, 0.06);
 }
 .mg-toggle-btn {
   border: none;
@@ -182,14 +179,14 @@
   color: var(--stone);
   transition: background 0.15s, color 0.15s;
 }
+/* Active segment — canonical terracotta fill (generic toggle, not moon sub-theme). */
 .mg-toggle-btn.on {
-  background: rgba(255, 255, 255, 0.6);
-  color: var(--moon-deep);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: var(--terracotta);
+  color: var(--on-accent);
+  box-shadow: var(--mg-card-shadow);
 }
 [data-theme="dark"] .mg-toggle-btn.on {
-  background: rgba(220, 230, 255, 0.18);
-  color: var(--moon-hi);
+  color: var(--ink-on-accent);
 }
 
 /* ── Empty state ───────────────────────────────────────────────── */

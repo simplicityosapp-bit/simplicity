@@ -3,8 +3,8 @@ import Modal from './Modal'
 import DateField from '../components/DateField'
 import { GROUP_BILLING_MODES, GROUP_BILLING_LABELS } from '../lib/enums'
 import { useAddress } from '../hooks/useAddress'
+import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
 
-const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
 const DAYS = [
   { k: 0, l: 'ראשון' }, { k: 1, l: 'שני' }, { k: 2, l: 'שלישי' },
   { k: 3, l: 'רביעי' }, { k: 4, l: 'חמישי' }, { k: 5, l: 'שישי' }, { k: 6, l: 'שבת' },

@@ -201,7 +201,7 @@
 .h-quote-btn:active { transform: scale(0.98); }
 .h-quote-text {
   margin: 0;
-  font-family: 'Assistant', sans-serif;
+  font-family: var(--mg-font);
   font-weight: 500;
   font-size: calc(15px * var(--text-scale));
   line-height: 1.55;
@@ -812,7 +812,7 @@
   flex-shrink: 0;
 }
 .h-task-dot.urgent {
-  background: var(--sage);
+  background: var(--clay);
 }
 .h-task-dot.regular {
   background: var(--amber-warn);

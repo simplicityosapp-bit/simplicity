@@ -7,8 +7,8 @@ import { addressUser } from '../../../lib/address'
 import { isr } from '../../../lib/finance'
 import AddGroupModal from '../../../modals/AddGroupModal'
 import CsvMappingEditor from '../CsvMappingEditor'
+import { CATEGORY_SWATCHES as COLORS } from '../../../lib/palette'
 
-const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
 const DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
 /* Price label for a group, by its billing mode — mirrors the in-app

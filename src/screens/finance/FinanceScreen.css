@@ -191,7 +191,7 @@
 [data-theme="dark"] .f-chart-area-bot { stop-color: rgba(232, 144, 96, 0.04); }
 .f-chart-line {
   fill: none;
-  stroke: var(--clay);
+  stroke: var(--terracotta);
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -204,10 +204,10 @@
   opacity: 0.7;
 }
 .f-chart-dot {
-  fill: var(--clay);
+  fill: var(--terracotta);
   stroke: var(--cream);
   stroke-width: 1.8;
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--clay) 50%, transparent));
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--terracotta) 50%, transparent));
 }
 /* Ring matches the dark card base (--mg-card-bg's rgb); the old var(--ink)
    was undefined, so the dot lost its outline in dark mode. */

@@ -1,0 +1,146 @@
+{
+  "coachmark": {
+    "add-task": {
+      "bubble": "Create your first task",
+      "detail": "Tasks have no date. Reminders are anything with a date (one-off, or recurring and fixed)."
+    },
+    "add-lead": {
+      "bubble": "Add your first lead",
+      "detail": "Leads are inquiries that haven't become clients yet."
+    },
+    "add-project": {
+      "bubble": "Start your first project",
+      "detail": "Projects group clients and tasks under one shared goal."
+    },
+    "add-goal": {
+      "bubble": "Set your first goal",
+      "detail": "Goals help make sure you're moving at your own pace and in your own direction."
+    },
+    "add-transaction": {
+      "bubble": "Log your first transaction",
+      "detail": "Every income or expense you log feeds into your financial picture."
+    },
+    "add-meeting": {
+      "bubble": "Schedule your first meeting",
+      "detail": "Calendar meetings sync with your clients and show up in the reminders on your home screen."
+    }
+  },
+  "tour": {
+    "home": {
+      "moon": {
+        "title": "Overview",
+        "body": "A quick look at how your goals are progressing. Tap to see each goal on its own — and jump to the full screen."
+      },
+      "insights": {
+        "title": "Daily questions",
+        "body": "These are the questions you chose. You can track your answers over time on the \"How are you today\" screen, and link new questions to goals on the Goals screen."
+      },
+      "quick-row": {
+        "title": "Quick add",
+        "body": "Quick add is a shortcut to all the add buttons (tasks, income, leads…). \"Update goal\" lets you quickly update goals that need manual input."
+      },
+      "attention": {
+        "title": "Needs attention",
+        "body": "Confirming meetings that took place, payments that should arrive, calendar duplicates — and other things you don't want to slip through the cracks."
+      },
+      "reminders": {
+        "title": "Reminders",
+        "body": "Recurring tasks, or anything you want to remind yourself of every so often."
+      },
+      "next-tasks": {
+        "title": "Tasks",
+        "body": "Your urgent tasks show up here."
+      },
+      "chips": {
+        "title": "Status cards",
+        "body": "A focused, personalized view — tap here to open a menu and customize it."
+      }
+    },
+    "clients": {
+      "tabs": {
+        "title": "Client status",
+        "body": "Active, in-between, and former are the three top-level buckets, and within each you can define as many statuses as you like."
+      },
+      "groupby": {
+        "title": "Group by",
+        "body": "You can view your clients by status, by project, by balance — however you like."
+      },
+      "hero": {
+        "title": "Quick summary",
+        "body": "A general summary — \"Monthly\" shows this month's picture, and \"Cumulative\" shows everything from the start."
+      },
+      "select": {
+        "title": "Multi-select",
+        "body": "You can select several clients at once to change their status together, or delete them in one go."
+      },
+      "add": {
+        "title": "Add client",
+        "body": "This is where you add a new client."
+      }
+    },
+    "tasks": {
+      "view": {
+        "title": "Tasks and reminders",
+        "body": "Tasks have no date. Reminders are anything with a date (one-off, or recurring and fixed) — switch between them here."
+      },
+      "add": {
+        "title": "Add",
+        "body": "This is where you add a new task or reminder."
+      }
+    },
+    "leads": {
+      "toggle": {
+        "title": "Leads and statuses",
+        "body": "\"Leads\" shows your leads in columns by their status. On the Statuses screen you can edit and add the different statuses for your leads."
+      },
+      "stats": {
+        "title": "Snapshot",
+        "body": "How many inquiries came in this month, how many became clients, and what your conversion rate is."
+      },
+      "board": {
+        "title": "Leads board",
+        "body": "You can drag a lead from column to column to update where it stands."
+      },
+      "add": {
+        "title": "New lead",
+        "body": "This is where you add a new lead."
+      }
+    },
+    "projects": {
+      "hero": {
+        "title": "Projects summary",
+        "body": "A general summary — \"Monthly\" shows this month, \"Cumulative\" from the start."
+      },
+      "list": {
+        "title": "Project cards",
+        "body": "Each panel brings together the groups, clients, income, and tasks that belong to that project."
+      },
+      "add": {
+        "title": "New project",
+        "body": "This is where you start a new project."
+      }
+    },
+    "finance": {
+      "chart": {
+        "title": "Cumulative income",
+        "body": "The line builds day by day against the monthly income target (the dashed line). That's how you see if the pace holds."
+      },
+      "breakdown": {
+        "title": "From where, to where",
+        "body": "Income by project and expenses by category — where the money comes from and where it goes."
+      },
+      "recurring": {
+        "title": "Recurring templates",
+        "body": "Transactions that recur every month or week. Set it up once and the system creates them on its own — you just need to approve."
+      },
+      "list": {
+        "title": "Transactions",
+        "body": "All the transactions from this month. Ones awaiting approval are marked separately."
+      },
+      "add": {
+        "title": "New transaction",
+        "body": "This is where you add income or an expense."
+      }
+    }
+  }
+}

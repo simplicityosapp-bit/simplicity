@@ -1,0 +1,45 @@
+{
+  "mirror": {
+    "streak": "Nice streak — {{count}} days of writing for yourself.",
+    "high": "Weekly high in \"{{question}}\" — {{value}}.",
+    "low": "A low point in \"{{question}}\" — {{value}}.",
+    "deltaUp": "Up {{amount}} points this week compared with last week in \"{{question}}\".",
+    "deltaDown": "Down {{amount}} points this week compared with last week in \"{{question}}\".",
+    "stable": "A steady week — day after day, the rhythm holds.",
+    "welcome": "Every day you write, the data starts to speak."
+  },
+  "moon": {
+    "excellent": "You're right on track this month.",
+    "good": "Good progress — headed the right way.",
+    "behind": "There's a gap, and there's still time to close it.",
+    "low": "Let's build some momentum — one small step forward."
+  },
+  "health": {
+    "check": {
+      "profileName": "Add your name",
+      "profileRole": "Choose your role and specialty",
+      "clientsPriced_one": "One client is missing a price",
+      "clientsPriced_other": "{{count}} clients are missing a price",
+      "answersRecent": "You haven't answered this week's daily questions",
+      "clientsExist": "You haven't added any clients yet",
+      "transactionsExist": "You haven't recorded any transactions yet",
+      "recurringExist": "You haven't set up a recurring expense yet",
+      "projectsExist": "You haven't created a project yet",
+      "tasksExist": "You have no open tasks",
+      "remindersExist": "You haven't set any reminders",
+      "goalsExist": "You haven't set any goals",
+      "questionsExist": "You have no daily questions",
+      "leadsExist": "You haven't recorded any leads yet"
+    },
+    "action": {
+      "complete": "Complete",
+      "choose": "Choose",
+      "price": "Set price",
+      "answer": "Answer",
+      "add": "Add",
+      "record": "Record",
+      "setup": "Set up",
+      "create": "Create"
+    }
+  }
+}

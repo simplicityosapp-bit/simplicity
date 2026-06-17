@@ -16,7 +16,15 @@
    the user actually has questions) — those drop out of the denominator
    so we never double-punish a feature that isn't set up yet.
    ════════════════════════════════════════════════════════════════ */
+import i18n from '../i18n'
+import heReflections from '../i18n/locales/he/reflections.json'
+import enReflections from '../i18n/locales/en/reflections.json'
 import { ROUTES } from './routes'
+
+/* 'reflections' namespace is owned by these libs, not i18n/index.js — register
+   on import so i18n.t resolves wherever this lib loads first. Idempotent. */
+if (!i18n.hasResourceBundle('he', 'reflections')) i18n.addResourceBundle('he', 'reflections', heReflections, true, true)
+if (!i18n.hasResourceBundle('en', 'reflections')) i18n.addResourceBundle('en', 'reflections', enReflections, true, true)
 
 /* Tier thresholds — colour + key by score. Low stays on the soft
    warning amber rather than danger clay until it's really sparse, so a
@@ -112,80 +120,80 @@ export function computeProfileHealth(data = {}, today = new Date()) {
   const checks = [
     {
       id: 'profile_name', group: 'profile', icon: 'user',
-      label: 'השלמת השם שלך',
-      action: { label: 'השלמה', ...SETTINGS_PROFILE },
+      label: i18n.t('reflections:health.check.profileName'),
+      action: { label: i18n.t('reflections:health.action.complete'), ...SETTINGS_PROFILE },
       applicable: true, passed: !!profile?.full_name?.trim(),
     },
     {
       id: 'profile_role', group: 'profile', icon: 'user',
-      label: 'בחירת תפקיד והתמחות',
-      action: { label: 'בחירה', ...SETTINGS_PROFILE },
+      label: i18n.t('reflections:health.check.profileRole'),
+      action: { label: i18n.t('reflections:health.action.choose'), ...SETTINGS_PROFILE },
       applicable: true, passed: roleFilled(profile),
     },
     {
       id: 'clients_priced', group: 'quality', icon: 'wallet',
-      label: unpriced === 1 ? 'חסר מחיר ללקוח אחד' : `חסר מחיר ל-${unpriced} לקוחות`,
-      action: { label: 'תמחור', route: ROUTES.CLIENTS },
+      label: i18n.t('reflections:health.check.clientsPriced', { count: unpriced }),
+      action: { label: i18n.t('reflections:health.action.price'), route: ROUTES.CLIENTS },
       applicable: priceable.length > 0, passed: unpriced === 0, count: unpriced,
     },
     {
       id: 'answers_recent', group: 'quality', icon: 'sparkles',
-      label: 'לא ענית על השאלות היומיות השבוע',
-      action: { label: 'מענה', route: ROUTES.INSIGHTS },
+      label: i18n.t('reflections:health.check.answersRecent'),
+      action: { label: i18n.t('reflections:health.action.answer'), route: ROUTES.INSIGHTS },
       applicable: questions.length > 0, passed: answeredThisWeek(answers, today),
     },
     {
       id: 'clients_exist', group: 'activation', icon: 'users',
-      label: 'עדיין לא הוספת לקוחות',
-      action: { label: 'הוספה', route: ROUTES.CLIENTS },
+      label: i18n.t('reflections:health.check.clientsExist'),
+      action: { label: i18n.t('reflections:health.action.add'), route: ROUTES.CLIENTS },
       applicable: true, passed: clients.length > 0,
     },
     {
       id: 'transactions_exist', group: 'activation', icon: 'wallet',
-      label: 'טרם רשמת תנועות כספיות',
-      action: { label: 'רישום', route: ROUTES.FINANCE },
+      label: i18n.t('reflections:health.check.transactionsExist'),
+      action: { label: i18n.t('reflections:health.action.record'), route: ROUTES.FINANCE },
       applicable: true, passed: transactions.length > 0,
     },
     {
       id: 'recurring_exist', group: 'activation', icon: 'repeat',
-      label: 'טרם הגדרת הוצאה חוזרת בכסף',
-      action: { label: 'הגדרה', route: ROUTES.FINANCE },
+      label: i18n.t('reflections:health.check.recurringExist'),
+      action: { label: i18n.t('reflections:health.action.setup'), route: ROUTES.FINANCE },
       applicable: true, passed: recurring.length > 0,
     },
     {
       id: 'projects_exist', group: 'activation', icon: 'folder',
-      label: 'טרם יצרת פרויקט',
-      action: { label: 'יצירה', route: ROUTES.PROJECTS },
+      label: i18n.t('reflections:health.check.projectsExist'),
+      action: { label: i18n.t('reflections:health.action.create'), route: ROUTES.PROJECTS },
       applicable: true, passed: projects.length > 0,
     },
     {
       id: 'tasks_exist', group: 'activation', icon: 'tasks',
-      label: 'אין לך משימות פתוחות',
-      action: { label: 'הוספה', route: ROUTES.TASKS },
+      label: i18n.t('reflections:health.check.tasksExist'),
+      action: { label: i18n.t('reflections:health.action.add'), route: ROUTES.TASKS },
       applicable: true, passed: tasks.length > 0,
     },
     {
       id: 'reminders_exist', group: 'activation', icon: 'bell',
-      label: 'לא הגדרת תזכורות',
-      action: { label: 'הגדרה', route: ROUTES.TASKS },
+      label: i18n.t('reflections:health.check.remindersExist'),
+      action: { label: i18n.t('reflections:health.action.setup'), route: ROUTES.TASKS },
       applicable: true, passed: reminders.length > 0,
     },
     {
       id: 'goals_exist', group: 'activation', icon: 'target',
-      label: 'לא הגדרת יעדים',
-      action: { label: 'הגדרה', route: ROUTES.GOALS },
+      label: i18n.t('reflections:health.check.goalsExist'),
+      action: { label: i18n.t('reflections:health.action.setup'), route: ROUTES.GOALS },
       applicable: true, passed: goals.length > 0,
     },
     {
       id: 'questions_exist', group: 'activation', icon: 'sparkles',
-      label: 'אין לך שאלות יומיות',
-      action: { label: 'הוספה', route: ROUTES.INSIGHTS },
+      label: i18n.t('reflections:health.check.questionsExist'),
+      action: { label: i18n.t('reflections:health.action.add'), route: ROUTES.INSIGHTS },
       applicable: true, passed: questions.length > 0,
     },
     {
       id: 'leads_exist', group: 'activation', icon: 'leads',
-      label: 'טרם רשמת לידים',
-      action: { label: 'הוספה', route: ROUTES.LEADS },
+      label: i18n.t('reflections:health.check.leadsExist'),
+      action: { label: i18n.t('reflections:health.action.add'), route: ROUTES.LEADS },
       applicable: true, passed: leads.length > 0,
     },
   ]

@@ -20,9 +20,10 @@ import ScheduleDayPicker from '../../../components/ScheduleDayPicker'
 
 /* Auto categories come straight from the canonical preset catalog so the
    onboarding can never fall behind the app. Personal is appended. Auto
-   labels/hints come from the preset catalog (lib); the personal track's
-   label/hint are translated per-render inside the component. */
-const AUTO_TYPES = CATEGORY_PRESETS.map((p) => ({ key: p.key, label: p.name, icon: p.icon, hint: p.hint, auto: true }))
+   labels/hints come from the preset catalog (lib, i18n-resolved); the
+   personal track's label/hint are translated per-render inside the
+   component. Built lazily per-render (see TYPES) so the i18n name/hint
+   getters resolve in the active language rather than module-load language. */
 
 const TIME_FRAMES = [
   { k: 'monthly',  labelKey: 'step6.tfMonthly' },
@@ -42,7 +43,9 @@ const QUESTION_ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '
 export default function Step6Goals({ ob, setCTA }) {
   const { t } = useT('onboardingSteps')
   /* Personal track appended to the auto categories; its label/hint are
-     translated (auto types keep their lib-sourced preset names). */
+     translated (auto types resolve their lib-sourced preset name/hint via
+     i18n at render-time, so they follow the active language). */
+  const AUTO_TYPES = CATEGORY_PRESETS.map((p) => ({ key: p.key, label: p.name, icon: p.icon, hint: p.hint, auto: true }))
   const TYPES = [...AUTO_TYPES, { key: 'personal', label: t('step6.personalLabel'), icon: '✍️', hint: t('step6.personalHint'), auto: false }]
   const { addGoal } = useGoals()
   const { categories, addCategory } = useGoalCategories()

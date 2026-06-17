@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { HELP_SCREENS } from '../lib/helpContent'
 import { ROUTES } from '../lib/routes'
+import { useT } from '../i18n/useT'
 import MG from './MG'
 import './HelpFab.css'
 
@@ -16,12 +17,13 @@ import './HelpFab.css'
    to show. Falls back to the home entry for any unmapped screen. */
 
 const TABS = [
-  { key: 'features', label: 'יכולות', icon: LayoutGrid },
-  { key: 'tips',     label: 'טיפים',  icon: Lightbulb },
-  { key: 'faq',      label: 'שאלות',  icon: MessageCircleQuestion },
+  { key: 'features', labelKey: 'help.tabs.features', icon: LayoutGrid },
+  { key: 'tips',     labelKey: 'help.tabs.tips',     icon: Lightbulb },
+  { key: 'faq',      labelKey: 'help.tabs.faq',      icon: MessageCircleQuestion },
 ]
 
 export default function HelpFab({ screenKey }) {
+  const { t } = useT('components')
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const help = HELP_SCREENS[screenKey] || HELP_SCREENS.home
@@ -40,7 +42,7 @@ export default function HelpFab({ screenKey }) {
         type="button"
         className="help-fab"
         onClick={() => setOpen(true)}
-        aria-label={`עזרה — ${help.title}`}
+        aria-label={t('help.fabAria', { title: help.title })}
       >
         <HelpCircle size={22} strokeWidth={1.7} aria-hidden="true" />
       </button>
@@ -65,6 +67,7 @@ export default function HelpFab({ screenKey }) {
 }
 
 function HelpSheet({ open, help, onClose, onOpenGuide }) {
+  const { t } = useT('components')
   const [tab, setTab] = useState('features')
 
   /* Reset to the first tab each time the sheet re-opens (or the screen,
@@ -84,7 +87,7 @@ function HelpSheet({ open, help, onClose, onOpenGuide }) {
       className={`help-sheet${open ? ' open' : ''}`}
       role="dialog"
       aria-modal="true"
-      aria-label={`עזרה — ${help.title}`}
+      aria-label={t('help.fabAria', { title: help.title })}
       aria-hidden={!open}
     >
       <div className="help-grab" aria-hidden="true" />
@@ -93,31 +96,31 @@ function HelpSheet({ open, help, onClose, onOpenGuide }) {
         <div className="help-head-titles">
           <p className="help-head-eyebrow">
             <HelpCircle size={13} strokeWidth={1.8} aria-hidden="true" />
-            עזרה
+            {t('help.eyebrow')}
           </p>
           <h2 className="help-head-title"><MG text={help.title} /></h2>
           {help.intro && <p className="help-head-intro"><MG text={help.intro} /></p>}
         </div>
-        <button type="button" className="help-close" onClick={onClose} aria-label="סגירה">
+        <button type="button" className="help-close" onClick={onClose} aria-label={t('help.close')}>
           <X size={16} strokeWidth={1.6} aria-hidden="true" />
         </button>
       </div>
 
-      <div className="help-tabs" role="tablist" aria-label="קטגוריות עזרה">
-        {TABS.map((t) => {
-          const Icon = t.icon
+      <div className="help-tabs" role="tablist" aria-label={t('help.tabsAria')}>
+        {TABS.map((tabDef) => {
+          const Icon = tabDef.icon
           return (
             <button
-              key={t.key}
+              key={tabDef.key}
               type="button"
               role="tab"
-              aria-selected={tab === t.key}
-              className={`help-tab${tab === t.key ? ' on' : ''}`}
-              onClick={() => setTab(t.key)}
+              aria-selected={tab === tabDef.key}
+              className={`help-tab${tab === tabDef.key ? ' on' : ''}`}
+              onClick={() => setTab(tabDef.key)}
             >
               <Icon size={14} strokeWidth={1.7} aria-hidden="true" />
-              {t.label}
-              {counts[t.key] > 0 && <span className="help-tab-count">{counts[t.key]}</span>}
+              {t(tabDef.labelKey)}
+              {counts[tabDef.key] > 0 && <span className="help-tab-count">{counts[tabDef.key]}</span>}
             </button>
           )
         })}
@@ -132,7 +135,7 @@ function HelpSheet({ open, help, onClose, onOpenGuide }) {
       <div className="help-foot">
         <button type="button" className="help-foot-link" onClick={onOpenGuide}>
           <BookOpen size={14} strokeWidth={1.7} aria-hidden="true" />
-          המדריך המלא לכל המסכים
+          {t('help.fullGuide')}
         </button>
       </div>
     </aside>
@@ -140,7 +143,8 @@ function HelpSheet({ open, help, onClose, onOpenGuide }) {
 }
 
 function FeaturesTab({ features }) {
-  if (!features?.length) return <p className="help-empty">אין עדיין הסבר למסך הזה.</p>
+  const { t } = useT('components')
+  if (!features?.length) return <p className="help-empty">{t('help.emptyFeatures')}</p>
   return (
     <div>
       {features.map((f, i) => (
@@ -157,15 +161,16 @@ function FeaturesTab({ features }) {
 }
 
 function TipsTab({ tips }) {
-  if (!tips?.length) return <p className="help-empty">אין טיפים למסך הזה.</p>
+  const { t } = useT('components')
+  if (!tips?.length) return <p className="help-empty">{t('help.emptyTips')}</p>
   return (
     <ul className="help-tips">
-      {tips.map((t, i) => (
+      {tips.map((tip, i) => (
         <li key={i} className="help-tip">
           <span className="help-tip-icon">
             <Lightbulb size={15} strokeWidth={1.7} aria-hidden="true" />
           </span>
-          <MG text={t} />
+          <MG text={tip} />
         </li>
       ))}
     </ul>
@@ -173,7 +178,8 @@ function TipsTab({ tips }) {
 }
 
 function FaqTab({ faq }) {
-  if (!faq?.length) return <p className="help-empty">אין שאלות נפוצות למסך הזה.</p>
+  const { t } = useT('components')
+  if (!faq?.length) return <p className="help-empty">{t('help.emptyFaq')}</p>
   return (
     <div>
       {faq.map((item, i) => (

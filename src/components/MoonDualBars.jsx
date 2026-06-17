@@ -1,3 +1,4 @@
+import { useT } from '../i18n/useT'
 import './MoonDualBars.css'
 
 /* Two compact bars for a SINGLE goal/category: pace ("מהקצב") and progress
@@ -5,11 +6,12 @@ import './MoonDualBars.css'
    Replaces the lone pace bar the moon-glance breakdown used to show per item.
    Values can exceed 100 (shown as text); the bar width is capped at 100. */
 const COLS = [
-  { key: 'pace', label: 'מהקצב', color: 'var(--sage)' },
-  { key: 'goal', label: 'מהיעד', color: 'var(--moon-deep)' },
+  { key: 'pace', labelKey: 'dualBars.pace', color: 'var(--sage)' },
+  { key: 'goal', labelKey: 'dualBars.goal', color: 'var(--moon-deep)' },
 ]
 
 export default function MoonDualBars({ pace = 0, goal = null }) {
+  const { t } = useT('moon')
   return (
     <div className="moon-dual">
       {COLS.map((c) => {
@@ -17,7 +19,7 @@ export default function MoonDualBars({ pace = 0, goal = null }) {
         return (
           <div key={c.key} className="moon-dual-col">
             <div className="moon-dual-head">
-              <span className="moon-dual-lbl">{c.label}</span>
+              <span className="moon-dual-lbl">{t(c.labelKey)}</span>
               <span className="moon-dual-val mono">{v != null ? `${v}%` : '—'}</span>
             </div>
             <div className="moon-dual-bar">

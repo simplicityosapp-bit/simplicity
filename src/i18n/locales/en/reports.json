@@ -1,0 +1,42 @@
+{
+  "title": "Reports",
+  "moonGlance": "Overview",
+  "view": {
+    "selectAria": "Choose view",
+    "list": "List",
+    "table": "Table"
+  },
+  "customize": {
+    "label": "Customize view",
+    "title": "Customize view",
+    "regionAria": "Customize view",
+    "reset": "Default",
+    "resetTitle": "Reset to default",
+    "close": "Close",
+    "hint": "Pick which metrics to show, and drag to reorder.",
+    "show": "Show {{label}}",
+    "hide": "Hide {{label}}"
+  },
+  "list": {
+    "selectMonthAria": "Choose month",
+    "empty": "No data for this month",
+    "goToMonth": "← Go to {{label}}"
+  },
+  "table": {
+    "noMetrics": "No active metrics — tap the gear to show metrics",
+    "monthsBack": "Months back:",
+    "metric": "Metric",
+    "summary": "Summary"
+  },
+  "info": "About {{label}}",
+  "drill": {
+    "title": "Details",
+    "count_one": "{{count}} record",
+    "count_other": "{{count}} records",
+    "empty": "No records for this period"
+  },
+  "trend": {
+    "empty": "Not enough data for a chart yet.",
+    "aria": "Multi-metric trends"
+  }
+}

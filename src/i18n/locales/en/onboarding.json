@@ -1,0 +1,247 @@
+{
+  "common": {
+    "back": "Back",
+    "next": "Next",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "continue": "Continue"
+  },
+  "welcome": {
+    "tagline": "Practice OS",
+    "startTitle": "Take the tour",
+    "startSub": "A short, thoughtful intro and a few personal touches",
+    "skipTitle": "Just let me in",
+    "skipSub": "I'll figure it out as I go"
+  },
+  "shell": {
+    "progressAria": "Progress: step {{current}} of {{total}}",
+    "stepCounter": "Step {{current}} of {{total}}",
+    "dayMode": "Light mode",
+    "nightMode": "Dark mode",
+    "helpAria": "About this screen",
+    "back": "Back",
+    "saving": "Saving…",
+    "next": "Next",
+    "skip": "Skip",
+    "finishing": "Finishing…"
+  },
+  "help": {
+    "closeAria": "Close help"
+  },
+  "review": {
+    "title": "Review before we create anything",
+    "subApprove": "Take a look at what we found in your file. For now you're just choosing what to bring in — nothing gets created until the final step, after one last confirmation. You can edit, include, or leave things out.",
+    "subCreate": "Take a look at what we found in your file. Edit, include, or leave things out — only what's checked will be saved.",
+    "dialogAria": "Review before creating",
+    "closeAria": "Back",
+    "loading": "Loading what you already have…",
+    "tabAria": "{{label}}: {{included}} of {{total}} will be included",
+    "includeAll": "Include all",
+    "clearAll": "Clear all",
+    "txIssues": "{{count}} rows with an invalid amount or date won't be imported as transactions",
+    "truncated": "The file was cut to the first {{cap}} rows (out of {{raw}})",
+    "loadMore": "Show {{count}} more (of {{total}})",
+    "tabs": {
+      "clients": "Clients",
+      "projects": "Projects",
+      "leads": "Leads",
+      "transactions": "Transactions",
+      "sessions": "Sessions"
+    },
+    "toggle": {
+      "includedAria": "Included — tap to leave it out",
+      "excludedAria": "Not included — tap to include"
+    },
+    "badge": {
+      "exists": "Already exists",
+      "duplicate": "Duplicate in file"
+    },
+    "client": {
+      "namePlaceholder": "Name",
+      "nameAria": "Client name",
+      "projectTitle": "Project",
+      "noProject": "No project",
+      "statusTitle": "Client status",
+      "statusAria": "Client status",
+      "statusDefault": "Status: active",
+      "sessionsPlaceholder": "Sessions",
+      "sessionsTitle": "Number of sessions",
+      "pricePlaceholder": "Price",
+      "priceTitle": "Price per session",
+      "missingName": "Name missing",
+      "statusUnsure": "We weren't sure about the status — worth a quick check",
+      "projectOrphan": "This project won't be created"
+    },
+    "project": {
+      "namePlaceholder": "Project name",
+      "missingName": "Name missing"
+    },
+    "lead": {
+      "namePlaceholder": "Lead name",
+      "nameAria": "Lead name",
+      "statusPlaceholder": "Status",
+      "statusTitle": "Lead status",
+      "statusAria": "Lead status",
+      "missingName": "Name missing",
+      "statusUnsure": "We weren't sure about the status — worth a quick check"
+    },
+    "tx": {
+      "type": "Type",
+      "income": "Income",
+      "expense": "Expense",
+      "amount": "Amount",
+      "amountPlaceholder": "Amount",
+      "frequency": "Frequency",
+      "date": "Date",
+      "recurringTitle": "Recurring expense — created automatically each month",
+      "recurringMonthly": "Monthly",
+      "project": "Project",
+      "noProject": "No project",
+      "desc": "Description",
+      "descPlaceholder": "Description (optional)",
+      "clientOrphanTitle": "This client won't be included — the transaction will be created without a link",
+      "noLink": "(no link)",
+      "invalid": "Amount or date missing",
+      "projectOrphan": "This project won't be created"
+    },
+    "session": {
+      "client": "Client",
+      "pickClient": "— Pick a client",
+      "date": "Date",
+      "summary": "Summary",
+      "summaryPlaceholder": "Summary (optional)",
+      "missingClient": "Client missing",
+      "clientOrphan": "This client won't be created — the session will be skipped",
+      "noDate": "No date — we'll place it on an estimated date"
+    },
+    "summary": {
+      "willApprove": "Will be approved",
+      "willCreate": "Will be created",
+      "clients": "clients",
+      "projects": "projects",
+      "leads": "leads",
+      "transactions": "transactions"
+    },
+    "confirm": {
+      "savingApprove": "Saving…",
+      "savingCreate": "Creating…",
+      "approveEmpty": "Confirm and continue",
+      "createEmpty": "Finish without importing",
+      "approve": "Confirm and continue ({{count}})",
+      "create": "Confirm and create ({{count}})"
+    },
+    "dirty": {
+      "ariaLabel": "Leave without saving?",
+      "text": "Leave without saving? Any edits you made here will be lost.",
+      "stay": "Stay",
+      "leave": "Leave without saving"
+    },
+    "result": {
+      "dialogAria": "Import result",
+      "fatalTitle": "We couldn't import your data",
+      "fatalBody": "Something went wrong before anything was created — nothing was saved. You can try again, and if it keeps happening we're happy to help.",
+      "whatHappened": "What happened: {{detail}}",
+      "partialTitle": "Import finished — but some rows didn't make it",
+      "noneTitle": "No rows made it in",
+      "createdLine": "Created successfully: {{parts}}.",
+      "failedLine": "{{count}} rows didn't make it. Here's why:",
+      "moreErrors": "and {{count}} more similar rows…",
+      "partialHint": "Whatever made it in is already saved. You can continue, or go back and fix the rows that failed.",
+      "backToList": "Back to the list",
+      "continue": "Continue",
+      "created": {
+        "clients": "{{count}} clients",
+        "projects": "{{count}} projects",
+        "leads": "{{count}} leads",
+        "transactions": "{{count}} transactions",
+        "recurring": "{{count}} recurring expenses"
+      }
+    },
+    "error": {
+      "who": {
+        "client": "Client",
+        "project": "Project",
+        "lead": "Lead",
+        "transaction": "Transaction"
+      },
+      "withWho": "{{who}}: {{why}}",
+      "unexpected": "Unexpected error",
+      "why": {
+        "schema": "A field that doesn't exist here — probably a column mapped to the wrong place.",
+        "duplicate": "You already have an identical item.",
+        "check": "One of the values isn't valid (for example an unfamiliar date or status).",
+        "foreignKey": "This item is linked to something that wasn't created.",
+        "notNull": "A required field is empty.",
+        "date": "The date isn't valid.",
+        "noConnection": "The connection dropped — you'll need to reconnect.",
+        "generic": "Something didn't work on this row — you can skip it and continue, or fix it and try again."
+      }
+    }
+  },
+  "modal": {
+    "title": "Import from a file",
+    "dialogAria": "Import from a file",
+    "subSheets": "{{count}} sheets. ",
+    "subBody": "Choose what's in each sheet and match up the columns — then we'll move to a review before anything is saved.",
+    "closeAria": "Close",
+    "noData": "We didn't find any data in the file — make sure it isn't empty and that it's saved as CSV or Excel.",
+    "truncated": "Some sheets were cut to their first rows to keep things fast. You can import the rest in a separate file later.",
+    "ready": "Ready for the review before we create anything.",
+    "notReady": "Choose what's in each sheet and map the name / amount columns.",
+    "pickYear": "Pick a year for each monthly sheet",
+    "toReview": "Continue to review"
+  },
+  "sheet": {
+    "removeAria": "Remove sheet",
+    "rawShow": "Show",
+    "rawHide": "Hide",
+    "rawToggle": "file preview (to check it was read correctly)",
+    "rawEmpty": "—",
+    "whatsHere": "What's in this sheet?",
+    "colsIntro": "The grey value is a sample from the first row. In the next step you'll see a full review of all the data before anything is saved.",
+    "noCols": "We didn't recognize any columns in this sheet. The header row may not have been read correctly — try opening \"Show file preview\" to check, or change the type to \"Ignore\".",
+    "unmapped": "There are {{count}} columns we'll set aside unless you pick a field for them — it's fine to ignore them.",
+    "recognizedShow": "Show {{count}} auto-recognized columns",
+    "recognizedHide": "Hide {{count}} auto-recognized columns",
+    "colSample": "e.g. ",
+    "colMapAria": "Mapping for column {{header}}",
+    "colIgnore": "— Don't import this column",
+    "yearLabel": "Year",
+    "yearDetected": "Year (detected from the file)",
+    "yearAria": "Year",
+    "pickYear": "Pick a year",
+    "yearMissing": "Please pick a year.",
+    "matrixIntro": "Mark each row as income or expense. \"Skip\" leaves a row out (a totals row, for example).",
+    "rowTypeAria": "Row type: {{label}}",
+    "income": "Income",
+    "expense": "Expense",
+    "skip": "Skip",
+    "yieldField": {
+      "clients": "name",
+      "leads": "name",
+      "projects": "name",
+      "transactions": "amount",
+      "sessions": "client and date",
+      "default": "key"
+    },
+    "noYield": "Nothing will be created from this sheet yet — make sure the type is right and that the {{field}} column is mapped.",
+    "summaryEmpty": "Nothing to import recognized yet. Choose what's in each sheet, and map the name / amount columns.",
+    "summaryLead": "In total we'll create (after you confirm in the review):",
+    "summary": {
+      "clients": "clients",
+      "projects": "projects",
+      "leads": "leads",
+      "transactions": "transactions"
+    }
+  },
+  "csvMap": {
+    "title": "From your file — confirm the column mapping",
+    "detected": "We recognized {{count}} columns automatically. ",
+    "someUnmapped": "{{count}} columns weren't recognized — pick a field for them or skip them.",
+    "allMapped": "You can fix anything manually if something's off.",
+    "colFallback": "Column {{num}}",
+    "colSample": "e.g. ",
+    "colMapAria": "Mapping for column {{header}}",
+    "ignore": "— Ignore"
+  }
+}

@@ -3,6 +3,7 @@ import { HelpCircle, ChevronRight, ChevronLeft, Sun, Moon } from 'lucide-react'
 import { ONBOARDING_STEPS } from '../../lib/preferences'
 import { useTheme } from '../../hooks/useTheme'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
+import { useT } from '../../i18n/useT'
 import OnboardingTree from './OnboardingTree'
 import OnboardingHelpPanel from './OnboardingHelpPanel'
 import { HELP_BY_STEP } from './helpContent'
@@ -19,6 +20,7 @@ import { HELP_BY_STEP } from './helpContent'
    The step component publishes its onNext/canAdvance/busy/hint via the
    setCTA prop on the screen; the shell just renders the buttons. */
 export default function OnboardingShell({ ob, cta, children }) {
+  const { t } = useT('onboarding')
   const [helpOpen, setHelpOpen] = useState(false)
   const [skipping, setSkipping] = useState(false)
   /* The App-level gate (obDone) swaps to Home once skip/complete writes land;
@@ -50,7 +52,7 @@ export default function OnboardingShell({ ob, cta, children }) {
     <div className="ob-frame">
       {/* Progress strip — first thing on screen so the user reads
           "where am I in the flow?" before anything else. */}
-      <div className="ob-progress" aria-label={`התקדמות: צעד ${ob.stepIndex + 1} מתוך ${ob.total}`}>
+      <div className="ob-progress" aria-label={t('shell.progressAria', { current: ob.stepIndex + 1, total: ob.total })}>
         <div className="ob-progress-track">
           <div className="ob-progress-fill" style={{ width: `${Math.round(ob.progress * 100)}%` }} />
         </div>
@@ -60,7 +62,7 @@ export default function OnboardingShell({ ob, cta, children }) {
         {/* Tree + counter share one small panel — the counter sits as
             a tiny line above the tree's crown. */}
         <div className="ob-head-left">
-          <p className="ob-step-counter">צעד {ob.stepIndex + 1} מתוך {ob.total}</p>
+          <p className="ob-step-counter">{t('shell.stepCounter', { current: ob.stepIndex + 1, total: ob.total })}</p>
           <OnboardingTree stepIndex={ob.stepIndex} />
         </div>
 
@@ -72,8 +74,8 @@ export default function OnboardingShell({ ob, cta, children }) {
             type="button"
             className="ob-help-btn"
             onClick={handleToggleTheme}
-            aria-label={isDark ? 'מצב יום' : 'מצב לילה'}
-            title={isDark ? 'מצב יום' : 'מצב לילה'}
+            aria-label={isDark ? t('shell.dayMode') : t('shell.nightMode')}
+            title={isDark ? t('shell.dayMode') : t('shell.nightMode')}
           >
             {isDark
               ? <Sun size={16} strokeWidth={1.5} aria-hidden="true" />

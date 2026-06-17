@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { Trans } from 'react-i18next'
 import { AlertTriangle, RotateCcw, LogOut } from 'lucide-react'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useAuth } from '../auth/AuthContext'
 import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import './AccountDeletionPending.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -23,7 +25,8 @@ function daysLeft(scheduledFor) {
 }
 
 export default function AccountDeletionPending() {
-  const { addr, tryAgain } = useAddress()
+  const { tryAgain } = useAddress()
+  const { t } = useT('components')
   const { prefs, update } = useUserPreferences()
   const { signOut } = useAuth()
   const [busy, setBusy] = useState(false)
@@ -43,7 +46,7 @@ export default function AccountDeletionPending() {
       /* On success the AppShell gate re-renders and the app returns to
          normal — nothing else to do here. */
     } catch (e) {
-      setErr(e?.message || 'הביטול נכשל — ' + tryAgain + '.')
+      setErr(e?.message || t('deletion.cancelFailed', { tryAgain }))
       setBusy(false)
     }
   }
@@ -54,20 +57,19 @@ export default function AccountDeletionPending() {
         <span className="adp-icon" aria-hidden="true">
           <AlertTriangle size={30} strokeWidth={1.7} />
         </span>
-        <h1 className="adp-title">החשבון מתוזמן למחיקה</h1>
+        <h1 className="adp-title">{t('deletion.title')}</h1>
 
         <div className="adp-countdown">
           <span className="adp-count-num mono">{left}</span>
-          <span className="adp-count-unit">{left === 1 ? 'יום' : 'ימים'} עד המחיקה</span>
+          <span className="adp-count-unit">{left === 1 ? t('deletion.dayUnit') : t('deletion.daysUnit')}</span>
         </div>
 
         <p className="adp-body">
-          ביקשת למחוק את החשבון. כל הנתונים עדיין שמורים — אם {addr({ male: 'תתחרט', female: 'תתחרטי', neutral: 'תתחרט/י' })}, אפשר לבטל
-          עכשיו ולחזור לשימוש רגיל.
+          {t('deletion.bodyLead', { regret: t('deletion.regret') })}
           {targetDate && (
             <>
-              {' '}אחרת, ב־<strong>{targetDate}</strong> הכול יימחק לצמיתות
-              ואי אפשר יהיה לשחזר או להתחבר שוב.
+              {' '}
+              <Trans t={t} i18nKey="deletion.bodyDeadline" values={{ date: targetDate }} components={[<strong key="d" />]} />
             </>
           )}
         </p>
@@ -76,11 +78,11 @@ export default function AccountDeletionPending() {
 
         <button type="button" className="adp-btn-cancel" onClick={cancel} disabled={busy}>
           <RotateCcw size={17} strokeWidth={1.8} aria-hidden="true" />
-          {busy ? 'מבטל…' : 'בטל מחיקה ושחזר את החשבון'}
+          {busy ? t('deletion.canceling') : t('deletion.cancel')}
         </button>
         <button type="button" className="adp-btn-logout" onClick={() => signOut()} disabled={busy}>
           <LogOut size={16} strokeWidth={1.7} aria-hidden="true" />
-          התנתקות
+          {t('deletion.logout')}
         </button>
       </div>
     </div>

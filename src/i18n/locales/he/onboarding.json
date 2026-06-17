@@ -1,0 +1,259 @@
+{
+  "common": {
+    "back": "חזרה",
+    "next": "הלאה",
+    "saving": "שומר…",
+    "cancel": "ביטול",
+    "continue": "המשך"
+  },
+  "welcome": {
+    "tagline": "Practice OS",
+    "startTitle": "אונבורדינג",
+    "startSub": "היכרות קצרה ומעמיקה והתאמות אישיות",
+    "skipTitle": "אני רוצה כבר להיכנס",
+    "skipSub": "אני אסתדר עם ללמוד הכל לבד"
+  },
+  "shell": {
+    "progressAria": "התקדמות: צעד {{current}} מתוך {{total}}",
+    "stepCounter": "צעד {{current}} מתוך {{total}}",
+    "dayMode": "מצב יום",
+    "nightMode": "מצב לילה",
+    "helpAria": "הסבר על המסך הזה",
+    "back": "חזרה",
+    "saving": "שומר…",
+    "next": "הלאה",
+    "skip": "דלג",
+    "finishing": "מסיים…"
+  },
+  "help": {
+    "closeAria": "סגירת ההסבר"
+  },
+  "review": {
+    "title": "סקירה לפני יצירה",
+    "subApprove": "עברו על מה שזוהה מהקובץ. כאן רק מסמנים מה להכניס — היצירה עצמה תתבצע בסוף, אחרי אישור אחרון. אפשר לערוך, לכלול או להשאיר בחוץ.",
+    "subCreate": "עברו על מה שזוהה מהקובץ. אפשר לערוך, לכלול או להשאיר בחוץ — רק מה שמסומן ייכתב.",
+    "dialogAria": "סקירה לפני יצירה",
+    "closeAria": "חזרה",
+    "loading": "טוען את הנתונים הקיימים…",
+    "tabAria": "{{label}}: {{included}} מתוך {{total}} ייכללו",
+    "includeAll": "כלול הכל",
+    "clearAll": "בטל הכל",
+    "txIssues": "{{count}} שורות עם סכום/תאריך לא תקין לא יובאו כתנועות",
+    "truncated": "הקובץ נקטע ל-{{cap}} שורות ראשונות (מתוך {{raw}})",
+    "loadMore": "הצג עוד {{count}} (מתוך {{total}})",
+    "tabs": {
+      "clients": "לקוחות",
+      "projects": "פרויקטים",
+      "leads": "לידים",
+      "transactions": "תנועות",
+      "sessions": "פגישות"
+    },
+    "toggle": {
+      "includedAria": "כלול — לחצו כדי להשאיר בחוץ",
+      "excludedAria": "לא כלול — לחצו כדי לכלול"
+    },
+    "badge": {
+      "exists": "כבר קיים",
+      "duplicate": "כפול בקובץ"
+    },
+    "client": {
+      "namePlaceholder": "שם",
+      "nameAria": "שם הלקוח",
+      "projectTitle": "פרויקט",
+      "noProject": "ללא פרויקט",
+      "statusTitle": "סטטוס לקוח",
+      "statusAria": "סטטוס הלקוח",
+      "statusDefault": "סטטוס: פעיל",
+      "sessionsPlaceholder": "פגישות",
+      "sessionsTitle": "מספר פגישות",
+      "pricePlaceholder": "מחיר",
+      "priceTitle": "מחיר לפגישה",
+      "missingName": "חסר שם",
+      "statusUnsure": "לא היינו בטוחים בסטטוס — כדאי לבדוק",
+      "statusUnsure_male": "לא היינו בטוחים בסטטוס — כדאי שתבדוק",
+      "statusUnsure_female": "לא היינו בטוחים בסטטוס — כדאי שתבדקי",
+      "projectOrphan": "הפרויקט לא ייווצר"
+    },
+    "project": {
+      "namePlaceholder": "שם הפרויקט",
+      "missingName": "חסר שם"
+    },
+    "lead": {
+      "namePlaceholder": "שם הליד",
+      "nameAria": "שם הליד",
+      "statusPlaceholder": "סטטוס",
+      "statusTitle": "סטטוס הליד",
+      "statusAria": "סטטוס הליד",
+      "missingName": "חסר שם",
+      "statusUnsure": "לא היינו בטוחים בסטטוס — כדאי לבדוק",
+      "statusUnsure_male": "לא היינו בטוחים בסטטוס — כדאי שתבדוק",
+      "statusUnsure_female": "לא היינו בטוחים בסטטוס — כדאי שתבדקי"
+    },
+    "tx": {
+      "type": "סוג",
+      "income": "הכנסה",
+      "expense": "הוצאה",
+      "amount": "סכום",
+      "amountPlaceholder": "סכום",
+      "frequency": "תדירות",
+      "date": "תאריך",
+      "recurringTitle": "הוצאה חוזרת — תיווצר אוטומטית בכל חודש",
+      "recurringMonthly": "חוזרת חודשית",
+      "project": "פרויקט",
+      "noProject": "ללא פרויקט",
+      "desc": "תיאור",
+      "descPlaceholder": "תיאור (אופציונלי)",
+      "clientOrphanTitle": "הלקוח לא ייכלל — התנועה תיווצר בלי קישור",
+      "noLink": "(ללא קישור)",
+      "invalid": "חסר סכום/תאריך",
+      "projectOrphan": "הפרויקט לא ייווצר"
+    },
+    "session": {
+      "client": "לקוח",
+      "pickClient": "— בחר/י לקוח",
+      "pickClient_male": "— בחר לקוח",
+      "pickClient_female": "— בחרי לקוח",
+      "date": "תאריך",
+      "summary": "סיכום",
+      "summaryPlaceholder": "סיכום (אופציונלי)",
+      "missingClient": "חסר לקוח",
+      "clientOrphan": "הלקוח לא ייווצר — הפגישה תידלג",
+      "noDate": "ללא תאריך — יוצב בתאריך משוער"
+    },
+    "summary": {
+      "willApprove": "יאושרו",
+      "willCreate": "ייווצרו",
+      "clients": "לקוחות",
+      "projects": "פרויקטים",
+      "leads": "לידים",
+      "transactions": "תנועות"
+    },
+    "confirm": {
+      "savingApprove": "שומר…",
+      "savingCreate": "יוצר…",
+      "approveEmpty": "אישור והמשך",
+      "createEmpty": "סיום ללא ייבוא",
+      "approve": "אישור והמשך ({{count}})",
+      "create": "אישור ויצירה ({{count}})"
+    },
+    "dirty": {
+      "ariaLabel": "לצאת בלי לשמור?",
+      "text": "לצאת בלי לשמור? כל העריכות שנעשו כאן יימחקו.",
+      "stay": "הישאר",
+      "leave": "צא בלי לשמור"
+    },
+    "result": {
+      "dialogAria": "תוצאת הייבוא",
+      "fatalTitle": "לא הצלחנו לייבא את הנתונים",
+      "fatalBody": "משהו השתבש לפני שנוצר משהו — שום דבר לא נשמר. אפשר לנסות שוב, ואם זה חוזר נשמח לעזור.",
+      "whatHappened": "מה קרה: {{detail}}",
+      "partialTitle": "הייבוא הושלם — אבל חלק מהשורות לא נכנסו",
+      "noneTitle": "אף שורה לא נכנסה",
+      "createdLine": "נוצרו בהצלחה: {{parts}}.",
+      "failedLine": "{{count}} שורות לא נכנסו. הנה למה:",
+      "moreErrors": "ועוד {{count}} שורות דומות…",
+      "partialHint": "מה שכן נכנס כבר נשמר. אפשר להמשיך, או לחזור ולתקן את השורות שנכשלו.",
+      "backToList": "חזרה לרשימה",
+      "continue": "המשך",
+      "created": {
+        "clients": "{{count}} לקוחות",
+        "projects": "{{count}} פרויקטים",
+        "leads": "{{count}} לידים",
+        "transactions": "{{count}} תנועות",
+        "recurring": "{{count}} הוצאות חוזרות"
+      }
+    },
+    "error": {
+      "who": {
+        "client": "הלקוח",
+        "project": "הפרויקט",
+        "lead": "הליד",
+        "transaction": "התנועה"
+      },
+      "withWho": "{{who}}: {{why}}",
+      "unexpected": "שגיאה לא צפויה",
+      "why": {
+        "schema": "שדה שלא קיים במערכת — כנראה עמודה שמופתה לא נכון.",
+        "duplicate": "כבר קיים אצלך פריט זהה.",
+        "check": "אחד הערכים לא תקין (למשל תאריך או סטטוס לא מוכר).",
+        "foreignKey": "הפריט מקושר למשהו שלא נוצר.",
+        "notNull": "חסר ערך בשדה חובה.",
+        "date": "התאריך לא תקין.",
+        "noConnection": "נותק החיבור — צריך להתחבר מחדש.",
+        "generic": "משהו לא עבד בשורה הזו — אפשר לדלג עליה ולהמשיך, או לתקן ולנסות שוב."
+      }
+    }
+  },
+  "modal": {
+    "title": "ייבוא מקובץ",
+    "dialogAria": "ייבוא מקובץ",
+    "subSheets": "{{count}} טבלאות. ",
+    "subBody": "בחרו לכל טבלה מה יש בה והתאימו עמודות — ואז נעבור לסקירה לפני שמשהו נשמר.",
+    "closeAria": "סגירה",
+    "noData": "לא זוהו נתונים בקובץ — אפשר לוודא שהקובץ אינו ריק ושנשמר כ-CSV או Excel.",
+    "truncated": "חלק מהטבלאות נקטעו לשורות הראשונות כדי לשמור על ביצועים. אפשר לייבא את השאר בקובץ נפרד בהמשך.",
+    "ready": "מוכן לסקירה לפני יצירה.",
+    "notReady": "בחרו לכל טבלה מה יש בה ומפו את עמודות השם / הסכום.",
+    "pickYear": "בחרו שנה לכל טבלת חודשים",
+    "toReview": "המשך לסקירה"
+  },
+  "sheet": {
+    "removeAria": "הסר טבלה",
+    "rawShow": "הצג",
+    "rawHide": "הסתר",
+    "rawToggle": "תצוגה מקדימה של הקובץ (לוודא שנקרא נכון)",
+    "rawEmpty": "—",
+    "whatsHere": "מה יש בטבלה הזו?",
+    "colsIntro": "הערך האפור הוא דוגמה מהשורה הראשונה. בשלב הבא תהיה סקירה מלאה של כל הנתונים לפני שמשהו נשמר.",
+    "noCols": "לא זיהינו עמודות בטבלה הזו. ייתכן ששורת הכותרות לא נקראה נכון — אפשר לפתוח את \"הצג תצוגה מקדימה של הקובץ\" לבדיקה, או לשנות את הסוג ל\"להתעלם\".",
+    "unmapped": "יש {{count}} עמודות שנשאיר בצד אם לא תבחר/י להן שדה — אפשר להתעלם מהן בלי בעיה.",
+    "unmapped_male": "יש {{count}} עמודות שנשאיר בצד אם לא תבחר להן שדה — אפשר להתעלם מהן בלי בעיה.",
+    "unmapped_female": "יש {{count}} עמודות שנשאיר בצד אם לא תבחרי להן שדה — אפשר להתעלם מהן בלי בעיה.",
+    "recognizedShow": "הצג {{count}} עמודות שזוהו אוטומטית",
+    "recognizedHide": "הסתר {{count}} עמודות שזוהו אוטומטית",
+    "colSample": "לדוגמה: ",
+    "colMapAria": "מיפוי לעמודה {{header}}",
+    "colIgnore": "— לא לייבא את העמודה",
+    "yearLabel": "שנה",
+    "yearDetected": "שנה (זוהתה מהקובץ)",
+    "yearAria": "שנה",
+    "pickYear": "בחר/י שנה",
+    "yearMissing": "יש לבחור שנה.",
+    "matrixIntro": "סמנו לכל שורה אם היא הכנסה או הוצאה. \"דלג\" משאיר שורה בחוץ (למשל שורת סיכום).",
+    "matrixIntro_male": "סמן לכל שורה אם היא הכנסה או הוצאה. \"דלג\" משאיר שורה בחוץ (למשל שורת סיכום).",
+    "matrixIntro_female": "סמני לכל שורה אם היא הכנסה או הוצאה. \"דלג\" משאיר שורה בחוץ (למשל שורת סיכום).",
+    "rowTypeAria": "סוג השורה: {{label}}",
+    "income": "הכנסה",
+    "expense": "הוצאה",
+    "skip": "דלג",
+    "yieldField": {
+      "clients": "השם",
+      "leads": "השם",
+      "projects": "השם",
+      "transactions": "הסכום",
+      "sessions": "הלקוח והתאריך",
+      "default": "המפתח"
+    },
+    "noYield": "מהטבלה הזו עדיין לא ייווצר אף פריט — כדאי לוודא שהסוג נכון ושעמודת {{field}} ממופה.",
+    "summaryEmpty": "עדיין לא זוהה שום פריט לייבוא. בחרו לכל טבלה מה יש בה, ומפו את עמודות השם / הסכום.",
+    "summaryLead": "סה״כ ייווצרו (אחרי שתאשרו בסקירה):",
+    "summary": {
+      "clients": "לקוחות",
+      "projects": "פרויקטים",
+      "leads": "לידים",
+      "transactions": "תנועות"
+    }
+  },
+  "csvMap": {
+    "title": "מהקובץ שלך — אישור מיפוי עמודות",
+    "detected": "זיהינו {{count}} עמודות אוטומטית. ",
+    "someUnmapped": "{{count}} עמודות לא זוהו — בחר/י להן שדה או דלג/י.",
+    "someUnmapped_male": "{{count}} עמודות לא זוהו — בחר להן שדה או דלג.",
+    "someUnmapped_female": "{{count}} עמודות לא זוהו — בחרי להן שדה או דלגי.",
+    "allMapped": "אפשר לתקן ידנית אם משהו לא נכון.",
+    "colFallback": "עמודה {{num}}",
+    "colSample": "לדוגמה: ",
+    "colMapAria": "מיפוי לעמודה {{header}}",
+    "ignore": "— התעלם"
+  }
+}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import { ROLE_LABELS, roleLabel } from '../../../lib/preferences'
 import { addressUser } from '../../../lib/address'
+import { useT } from '../../../i18n/useT'
 
 /* Drive the role pills from the canonical ROLE_LABELS so onboarding, Settings
    and the profile chip always show identical labels ("other" pinned last as
@@ -10,12 +11,6 @@ import { addressUser } from '../../../lib/address'
 const ROLE_KEYS = [
   ...Object.keys(ROLE_LABELS).filter((k) => k !== 'other'),
   'other',
-]
-
-const GENDERS = [
-  { k: 'female',  l: 'נקבה' },
-  { k: 'male',    l: 'זכר' },
-  { k: 'neutral', l: 'נייטרלי' },
 ]
 
 /* Step 1 — name + gender (side-by-side) + role + optional "other" panel.

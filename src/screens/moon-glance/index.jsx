@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Trans } from 'react-i18next'
 import { Moon, BarChart3 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { moonGetData, moonGetCategories, moonTrend, moonReflection } from '../../lib/moon'
@@ -19,7 +20,7 @@ import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { questionText } from '../../lib/questionTemplates'
 import { buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from '../../lib/overview'
 import MultiTrendChart from '../../components/MultiTrendChart'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
 import './MoonGlanceScreen.css'
 
 /* Shared window (days) for BOTH the cross-module trend overlay and the
@@ -29,6 +30,7 @@ const OV_WINDOW = 30
 /* Tiny scatter for a correlation card — honest display so the user sees
    the spread, not just a number. Points are min-max scaled per axis. */
 function Scatter({ points, driverText, outcomeText }) {
+  const { t } = useT('moon')
   const W = 120, H = 78, PAD = 6
   if (!points || points.length < 3) return null
   const xs = points.map((p) => p.x)
@@ -38,8 +40,8 @@ function Scatter({ points, driverText, outcomeText }) {
   const sx = (x) => (xmax === xmin ? W / 2 : PAD + ((x - xmin) / (xmax - xmin)) * (W - 2 * PAD))
   const sy = (y) => (ymax === ymin ? H / 2 : H - PAD - ((y - ymin) / (ymax - ymin)) * (H - 2 * PAD))
   return (
-    <svg className="mg-scatter" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={`פיזור הנקודות: ציר אופקי ${driverText || 'מדד א'}, ציר אנכי ${outcomeText || 'מדד ב'}`}>
-      <title>{`ציר אופקי: ${driverText || ''} · ציר אנכי: ${outcomeText || ''}`}</title>
+    <svg className="mg-scatter" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={t('scatter.aria', { driver: driverText || t('scatter.xFallback'), outcome: outcomeText || t('scatter.yFallback') })}>
+      <title>{t('scatter.title', { driver: driverText || '', outcome: outcomeText || '' })}</title>
       {points.map((p, i) => (
         <circle key={i} cx={Math.round(sx(p.x) * 10) / 10} cy={Math.round(sy(p.y) * 10) / 10} r="2.2" className="mg-scatter-dot" />
       ))}
@@ -48,15 +50,16 @@ function Scatter({ points, driverText, outcomeText }) {
 }
 
 function CorrCard({ driverText, outcomeText, c }) {
+  const { t } = useT('moon')
   /* Symmetric co-movement phrasing — deliberately NOT "X drives Y". */
-  const line = c.direction === 'pos'
-    ? <><b>{driverText}</b> ו<b>{outcomeText}</b> נוטים לנוע יחד (כשאחד גבוה, גם השני).</>
-    : <><b>{driverText}</b> ו<b>{outcomeText}</b> נוטים לנוע הפוך (כשאחד גבוה, השני נמוך).</>
+  const lineKey = c.direction === 'pos' ? 'corr.moveTogether' : 'corr.moveOpposite'
   return (
     <div className="mg-corr-card">
       <div className="mg-corr-text">
-        <p className="mg-corr-line">{line}</p>
-        <p className="mg-corr-sub">קשר {c.strength} · {c.n} נקודות · תצפית, לא סיבתיות</p>
+        <p className="mg-corr-line">
+          <Trans t={t} i18nKey={lineKey} values={{ driver: driverText, outcome: outcomeText }} components={[<b key="d" />, <b key="o" />]} />
+        </p>
+        <p className="mg-corr-sub">{t('corr.sub', { strength: c.strength, n: c.n })}</p>
       </div>
       <Scatter points={c.points} driverText={driverText} outcomeText={outcomeText} />
     </div>
@@ -65,11 +68,11 @@ function CorrCard({ driverText, outcomeText, c }) {
 
 /* Metric toggles for the cross-module trend overlay (§8.1). */
 const OVERVIEW_PILLS = [
-  { key: 'income',   label: 'הכנסות' },
-  { key: 'leads',    label: 'פניות' },
-  { key: 'sessions', label: 'פגישות' },
-  { key: 'score',    label: 'ציון' },
-  { key: 'question', label: 'שאלה יומית' },
+  { key: 'income',   labelKey: 'pills.income' },
+  { key: 'leads',    labelKey: 'pills.leads' },
+  { key: 'sessions', labelKey: 'pills.sessions' },
+  { key: 'score',    labelKey: 'pills.score' },
+  { key: 'question', labelKey: 'pills.question' },
 ]
 const dayKeyOf = (d) => {
   const dt = d instanceof Date ? d : new Date(d)
@@ -77,6 +80,7 @@ const dayKeyOf = (d) => {
 }
 
 function TrendChart({ data }) {
+  const { t } = useT('moon')
   const W = 300
   const H = 84
   const pad = 5
@@ -89,7 +93,7 @@ function TrendChart({ data }) {
   const line = pts.map((p) => p.join(',')).join(' ')
   const area = `${pad},${H - pad} ${line} ${W - pad},${H - pad}`
   return (
-    <svg className="mg-trend-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="מגמת הציון ב-30 הימים האחרונים">
+    <svg className="mg-trend-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={t('trend.aria')}>
       <polygon className="mg-trend-area" points={area} />
       <polyline className="mg-trend-line" points={line} />
     </svg>
@@ -97,7 +101,7 @@ function TrendChart({ data }) {
 }
 
 export default function MoonGlanceScreen() {
-  const { addr } = useAddress()
+  const { t } = useT('moon')
   const navigate = useNavigate()
   const { goals } = useGoals()
   const { categories } = useGoalCategories()
@@ -168,10 +172,10 @@ export default function MoonGlanceScreen() {
     return (
       <div className="screen moon-screen">
         <div className="moon-head">
-          <div className="moon-head-title"><Moon size={20} strokeWidth={1.5} aria-hidden="true" /> מבט על</div>
+          <div className="moon-head-title"><Moon size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}</div>
         </div>
         <div className="empty">
-          <p className="empty-text">עדיין אין יעדים. {addr({male:'הגדר',female:'הגדירי',neutral:'הגדר/י'})} יעד כדי לראות את הציון.</p>
+          <p className="empty-text">{t('empty.noGoals', { action: t('empty.action') })}</p>
         </div>
       </div>
     )
@@ -182,9 +186,9 @@ export default function MoonGlanceScreen() {
   return (
     <div className="screen moon-screen">
       <div className="moon-head">
-        <div className="moon-head-title"><Moon size={20} strokeWidth={1.5} aria-hidden="true" /> מבט על</div>
+        <div className="moon-head-title"><Moon size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}</div>
         <button type="button" className="moon-head-link" onClick={() => navigate(ROUTES.REPORTS)}>
-          <BarChart3 size={16} strokeWidth={1.6} aria-hidden="true" /> דוחות
+          <BarChart3 size={16} strokeWidth={1.6} aria-hidden="true" /> {t('reports')}
         </button>
       </div>
 
@@ -193,13 +197,13 @@ export default function MoonGlanceScreen() {
           <div className="mg-ring-pct mono">{conf}%</div>
           {/* Micro-word naming the big number as pace — mirrors the home
               MoonWidget kicker so the full screen reads the same. */}
-          <div className="mg-ring-kicker">מהקצב</div>
-          <div className="mg-ring-sub">{overall.pure}% מהיעד</div>
+          <div className="mg-ring-kicker">{t('ring.kicker')}</div>
+          <div className="mg-ring-sub">{t('ring.sub', { pct: overall.pure })}</div>
         </div>
         <p className="mg-reflection">{moonReflection(conf)}</p>
       </div>
 
-      <p className="mg-section-h">פירוק לפי קטגוריה</p>
+      <p className="mg-section-h">{t('section.byCategory')}</p>
       <div className="mg-cats">
         {cats.map((c) => (
           <div key={c.category.id} className="mg-cat">
@@ -215,26 +219,26 @@ export default function MoonGlanceScreen() {
         ))}
       </div>
 
-      <p className="mg-section-h">המגמה לאורך זמן</p>
+      <p className="mg-section-h">{t('section.trend')}</p>
       <div className="mg-trend">
         <TrendChart data={trend} />
         <div className="mg-trend-stats">
           <div className="mg-trend-stat">
             <p className="mg-trend-stat-v mono">{avg}%</p>
-            <p className="mg-trend-stat-l">ממוצע</p>
+            <p className="mg-trend-stat-l">{t('trend.avg')}</p>
           </div>
           <div className="mg-trend-stat divided">
             <p className="mg-trend-stat-v mono">{peak}%</p>
-            <p className="mg-trend-stat-l">שיא</p>
+            <p className="mg-trend-stat-l">{t('trend.peak')}</p>
           </div>
           <div className="mg-trend-stat">
             <p className="mg-trend-stat-v mono">{conf}%</p>
-            <p className="mg-trend-stat-l">היום</p>
+            <p className="mg-trend-stat-l">{t('trend.today')}</p>
           </div>
         </div>
       </div>
 
-      <p className="mg-section-h">מגמות בין מודולים</p>
+      <p className="mg-section-h">{t('section.crossModule')}</p>
       <div className="mg-overview">
         <div className="mg-ov-pills">
           {OVERVIEW_PILLS.map((m) => {
@@ -249,7 +253,7 @@ export default function MoonGlanceScreen() {
                 onClick={() => toggleOverviewKey(m.key)}
               >
                 <span className="mg-ov-dot" style={{ background: OVERVIEW_METRICS[m.key].color }} />
-                {m.label}
+                {t(m.labelKey)}
               </button>
             )
           })}
@@ -260,13 +264,13 @@ export default function MoonGlanceScreen() {
           </select>
         )}
         <MultiTrendChart days={overview.days} series={overview.series} />
-        <p className="mg-ov-note">מגמות יחסיות · 30 הימים האחרונים — כל קו בקנה-מידה משלו (0–100). קשר ויזואלי אינו סיבתיות.</p>
+        <p className="mg-ov-note">{t('overview.note')}</p>
       </div>
 
-      <p className="mg-section-h">קשרים לבדיקה</p>
+      <p className="mg-section-h">{t('section.correlations')}</p>
       <div className="mg-overview">
         {correlations.length === 0 ? (
-          <p className="mg-corr-empty">אין כרגע קשר מובהק בנתונים — ולרוב פשוט אין, וזה תקין. אם יופיע דפוס יציב ומובהק מספיק, נציף אותו כאן לבדיקה.</p>
+          <p className="mg-corr-empty">{t('corr.empty')}</p>
         ) : (
           <>
             {correlations.map((c) => (
@@ -277,13 +281,13 @@ export default function MoonGlanceScreen() {
                 outcomeText={c.outcomeLabel || (c.outcomeQ ? questionText(c.outcomeQ) : '')}
               />
             ))}
-            <p className="mg-ov-note">תצפיות ראשוניות בלבד — קשר אינו סיבתיות. הנתונים מאוגדים ומסוננים סטטיסטית לאמינוּת.</p>
+            <p className="mg-ov-note">{t('corr.note')}</p>
           </>
         )}
       </div>
 
       <button type="button" className="mg-footer-link" onClick={() => navigate(ROUTES.GOALS)}>
-        {addr({male:'ערוך',female:'ערכי',neutral:'ערכ/י'})} את היעדים שלך ←
+        {t('footerLink')}
       </button>
     </div>
   )

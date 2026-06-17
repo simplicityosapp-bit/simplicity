@@ -23,7 +23,7 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { useTasks } from '../../hooks/useTasks'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useGroups } from '../../hooks/useGroups'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
 import './ReportsScreen.css'
 
 /* Per-metric icon mapping (Lucide). Kept here so the lib stays icon-free. */
@@ -49,6 +49,7 @@ function MetricIcon({ id, size = 14 }) {
 }
 
 export default function ReportsScreen() {
+  const { t } = useT('reports')
   const navigate = useNavigate()
   const { config, setView, setRange, toggleMetric, reorderMetric, resetConfig } = useReportsConfig()
   const [customizeOpen, setCustomizeOpen] = useState(false)
@@ -72,15 +73,15 @@ export default function ReportsScreen() {
     <div className="screen">
       <div className="rep-head">
         <div className="rep-head-title">
-          <BarChart3 size={20} strokeWidth={1.5} aria-hidden="true" /> דוחות
+          <BarChart3 size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}
         </div>
         <button type="button" className="rep-head-link" onClick={() => navigate(ROUTES.MOON_GLANCE)}>
-          <Moon size={16} strokeWidth={1.6} aria-hidden="true" /> מבט על
+          <Moon size={16} strokeWidth={1.6} aria-hidden="true" /> {t('moonGlance')}
         </button>
       </div>
 
       <div className="rep-controls">
-        <div className="rep-view-toggle" role="tablist" aria-label="בחירת תצוגה">
+        <div className="rep-view-toggle" role="tablist" aria-label={t('view.selectAria')}>
           <button
             type="button"
             className={`rep-view-btn${config.view === 'list' ? ' on' : ''}`}
@@ -88,7 +89,7 @@ export default function ReportsScreen() {
             aria-selected={config.view === 'list'}
             onClick={() => setView('list')}
           >
-            <List size={14} strokeWidth={1.6} aria-hidden="true" /> רשימה
+            <List size={14} strokeWidth={1.6} aria-hidden="true" /> {t('view.list')}
           </button>
           <button
             type="button"
@@ -97,14 +98,14 @@ export default function ReportsScreen() {
             aria-selected={config.view === 'table'}
             onClick={() => setView('table')}
           >
-            <Table2 size={14} strokeWidth={1.6} aria-hidden="true" /> טבלה
+            <Table2 size={14} strokeWidth={1.6} aria-hidden="true" /> {t('view.table')}
           </button>
         </div>
         <button
           type="button"
           className={`rep-cog${customizeOpen ? ' on' : ''}`}
-          aria-label="התאמת תצוגה"
-          title="התאמת תצוגה"
+          aria-label={t('customize.label')}
+          title={t('customize.label')}
           aria-expanded={customizeOpen}
           onClick={() => setCustomizeOpen((v) => !v)}
         >
@@ -143,6 +144,7 @@ export default function ReportsScreen() {
    12-month pill row + a single-month detail card. Empty months
    suggest navigating to the most recent month with data. */
 function ListView({ config, data, onDrill }) {
+  const { t } = useT('reports')
   const months = useMemo(() => getLast12Months(), [])
   const [selected, setSelected] = useState(months[months.length - 1])
 
@@ -190,7 +192,7 @@ function ListView({ config, data, onDrill }) {
 
   return (
     <>
-      <div className="rep-pills" role="tablist" aria-label="בחירת חודש">
+      <div className="rep-pills" role="tablist" aria-label={t('list.selectMonthAria')}>
         {months.map((p) => {
           const on = p.year === selected.year && p.month === selected.month
           return (
@@ -213,10 +215,10 @@ function ListView({ config, data, onDrill }) {
       {isEmpty ? (
         <div className="rep-empty">
           <span className="rep-empty-icon"><BarChart3 size={28} strokeWidth={1.3} aria-hidden="true" /></span>
-          <p className="rep-empty-text">אין נתונים לחודש הזה</p>
+          <p className="rep-empty-text">{t('list.empty')}</p>
           {suggested && (
             <button type="button" className="rep-empty-cta" onClick={() => setSelected(suggested)}>
-              ← עבור ל{suggested.label}
+              {t('list.goToMonth', { label: suggested.label })}
             </button>
           )}
         </div>
@@ -241,7 +243,7 @@ function ListView({ config, data, onDrill }) {
                         <span className="rep-row-label">{m.label}</span>
                         <span className="rep-row-value mono">{formatReportValue(m, v)}</span>
                       </button>
-                      {m.desc && <span className="rep-row-info"><InfoPopover label={`הסבר על ${m.label}`} text={m.desc} /></span>}
+                      {m.desc && <span className="rep-row-info"><InfoPopover label={t('info', { label: m.label })} text={m.desc} /></span>}
                     </div>
                   )
                 })}
@@ -259,7 +261,7 @@ function ListView({ config, data, onDrill }) {
    one column per period, plus a summary column. Group-header rows
    appear above each contiguous run of metrics from the same group. */
 function TableView({ config, data, onSetRange, onDrill }) {
-  const { addr } = useAddress()
+  const { t } = useT('reports')
   const periods = useMemo(() => getPeriodsForMonths(config.range), [config.range])
   const periodReports = useMemo(
     () => periods.map((p) => ({ ...p, data: computeReportForRange(p.start, p.end, data) })),
@@ -293,7 +295,7 @@ function TableView({ config, data, onSetRange, onDrill }) {
         <RangePills range={config.range} onSetRange={onSetRange} />
         <p className="rep-period-title">{periodLabel}</p>
         <div className="rep-empty">
-          <p className="rep-empty-text">אין מדדים פעילים — {addr({male:'לחץ',female:'לחצי',neutral:'לחץ/י'})} על גלגל השיניים כדי להציג מדדים</p>
+          <p className="rep-empty-text">{t('table.noMetrics')}</p>
         </div>
       </>
     )
@@ -307,13 +309,13 @@ function TableView({ config, data, onSetRange, onDrill }) {
         <table className="rep-table">
           <thead>
             <tr>
-              <th className="rep-th-metric">מדד</th>
+              <th className="rep-th-metric">{t('table.metric')}</th>
               {periodReports.map((p) => (
                 <th key={`${p.year}-${p.month}`} className={`rep-th-period${p.isCurrent ? ' current' : ''}`}>
                   {p.label}
                 </th>
               ))}
-              <th className="rep-th-summary">סיכום</th>
+              <th className="rep-th-summary">{t('table.summary')}</th>
             </tr>
           </thead>
           <tbody>
@@ -332,7 +334,7 @@ function TableView({ config, data, onSetRange, onDrill }) {
                   <td className="rep-td-metric">
                     <span className="rep-td-metric-icon"><MetricIcon id={m.id} size={13} /></span>
                     <span className="rep-td-metric-name">{m.label}</span>
-                    {m.desc && <InfoPopover label={`הסבר על ${m.label}`} text={m.desc} />}
+                    {m.desc && <InfoPopover label={t('info', { label: m.label })} text={m.desc} />}
                   </td>
                   {periodReports.map((p) => {
                     const v = p.data.metrics[m.id]
@@ -361,9 +363,10 @@ function TableView({ config, data, onSetRange, onDrill }) {
 }
 
 function RangePills({ range, onSetRange }) {
+  const { t } = useT('reports')
   return (
     <div className="rep-range-row">
-      <span className="rep-range-label">חודשים אחורה:</span>
+      <span className="rep-range-label">{t('table.monthsBack')}</span>
       <div className="rep-range-group">
         {[3, 6, 12].map((n) => (
           <button
@@ -384,7 +387,7 @@ function RangePills({ range, onSetRange }) {
    Inline panel under the controls. Toggle each metric's visibility +
    drag the grip to reorder. Reset wipes back to factory defaults. */
 function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
-  const { addr } = useAddress()
+  const { t } = useT('reports')
   const items = useMemo(() => getAllOrderedMetrics(config), [config])
   const visible = useMemo(() => new Set(config.visibleMetrics), [config.visibleMetrics])
   const [draggingId, setDraggingId] = useState(null)
@@ -408,17 +411,17 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
   const handleDragEnd = () => { setDraggingId(null); setOverId(null) }
 
   return (
-    <div className="rep-cust" role="region" aria-label="התאמת תצוגה">
+    <div className="rep-cust" role="region" aria-label={t('customize.regionAria')}>
       <div className="rep-cust-head">
-        <span className="rep-cust-title">התאמת תצוגה</span>
-        <button type="button" className="rep-cust-reset" onClick={onReset} title="חזרה לברירת המחדל">
-          <RotateCcw size={12} strokeWidth={1.6} aria-hidden="true" /> ברירת מחדל
+        <span className="rep-cust-title">{t('customize.title')}</span>
+        <button type="button" className="rep-cust-reset" onClick={onReset} title={t('customize.resetTitle')}>
+          <RotateCcw size={12} strokeWidth={1.6} aria-hidden="true" /> {t('customize.reset')}
         </button>
-        <button type="button" className="rep-cust-close" aria-label="סגירה" onClick={onClose}>
+        <button type="button" className="rep-cust-close" aria-label={t('customize.close')} onClick={onClose}>
           <X size={14} strokeWidth={1.6} aria-hidden="true" />
         </button>
       </div>
-      <p className="rep-cust-hint">{addr({male:'סמן',female:'סמני',neutral:'סמנ/י'})} אילו מדדים להציג, {addr({male:'וגרר',female:'וגררי',neutral:'וגרר/י'})} לסידור מחדש.</p>
+      <p className="rep-cust-hint">{t('customize.hint')}</p>
       <div className="rep-cust-list">
         {items.map((m) => {
           const on = visible.has(m.id)
@@ -440,7 +443,7 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
               <button
                 type="button"
                 className={`rep-cust-toggle${on ? ' on' : ''}`}
-                aria-label={on ? `הסתר ${m.label}` : `הצג ${m.label}`}
+                aria-label={on ? t('customize.hide', { label: m.label }) : t('customize.show', { label: m.label })}
                 onClick={() => onToggle(m.id)}
               >
                 <span className="rep-cust-toggle-knob" />
@@ -476,21 +479,22 @@ function DrillRowIcon({ name }) {
 }
 
 function DrillModal({ open, onClose, drill, data, onNavigate }) {
+  const { t } = useT('reports')
   const records = useMemo(() => {
     if (!drill) return []
     return getDrillRecords(drill.metricId, drill.period.start, drill.period.end, data)
   }, [drill, data])
 
   const metric = drill ? REPORT_METRICS.find((m) => m.id === drill.metricId) : null
-  const title = metric && drill ? `${metric.label} · ${drill.period.label}` : 'פרטים'
+  const title = metric && drill ? `${metric.label} · ${drill.period.label}` : t('drill.title')
 
   return (
     <Modal open={open} onClose={onClose} title={title}>
       <p className="rep-drill-count">
-        {records.length} {records.length === 1 ? 'רשומה' : 'רשומות'}
+        {t('drill.count', { count: records.length })}
       </p>
       {records.length === 0 ? (
-        <div className="rep-drill-empty">אין רשומות לתקופה הזו</div>
+        <div className="rep-drill-empty">{t('drill.empty')}</div>
       ) : (
         <div className="rep-drill-list">
           {records.map((r, i) => (

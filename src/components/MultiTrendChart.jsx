@@ -1,3 +1,4 @@
+import { useT } from '../i18n/useT'
 import './MultiTrendChart.css'
 
 /* Overlaid, self-normalized (0–100) line chart for the מבט-על trends.
@@ -33,13 +34,14 @@ function fmtRaw(v, unit) {
 }
 
 export default function MultiTrendChart({ days, series }) {
+  const { t } = useT('reports')
   const drawable = (series || []).filter((s) => s.norm.some((v) => v != null))
   if (drawable.length === 0 || (days?.length || 0) < 2) {
-    return <p className="mt-empty">אין מספיק נתונים לגרף עדיין.</p>
+    return <p className="mt-empty">{t('trend.empty')}</p>
   }
   return (
     <div className="mt-wrap">
-      <svg className="mt-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="מגמות רב-מדדיות">
+      <svg className="mt-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={t('trend.aria')}>
         {drawable.map((s) => (
           <path key={s.key} className="mt-line" style={{ stroke: s.color }} d={pathFor(s.norm)} />
         ))}

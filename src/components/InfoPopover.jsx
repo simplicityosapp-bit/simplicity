@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { HelpCircle } from 'lucide-react'
+import { useT } from '../i18n/useT'
 
 /* Small reusable "?" icon → popover. Hover opens on desktop, tap toggles
    on mobile. Click outside or Escape closes.
@@ -13,6 +14,7 @@ import { HelpCircle } from 'lucide-react'
    sits above page content. Coordinates are computed from the trigger rect and
    kept in sync on scroll/resize. */
 export default function InfoPopover({ text, label, placement = 'bottom' }) {
+  const { t } = useT('components')
   const [open, setOpen] = useState(false)
   const [coords, setCoords] = useState(null)
   const wrapRef = useRef(null)
@@ -80,7 +82,7 @@ export default function InfoPopover({ text, label, placement = 'bottom' }) {
       <button
         type="button"
         className="info-pop-btn"
-        aria-label={label || 'הסבר'}
+        aria-label={label || t('infoPopover.label')}
         aria-expanded={open}
         onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
       >

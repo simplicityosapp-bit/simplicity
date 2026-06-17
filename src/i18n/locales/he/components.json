@@ -1,0 +1,77 @@
+{
+  "dateField": {
+    "placeholder": "בחר/י תאריך",
+    "placeholder_male": "בחר תאריך",
+    "placeholder_female": "בחרי תאריך",
+    "dialogLabel": "בחירת תאריך",
+    "prevMonth": "חודש קודם",
+    "nextMonth": "חודש הבא",
+    "today": "היום"
+  },
+  "schedule": {
+    "everyDay": "כל יום",
+    "specificDays": "ימים מסוימים",
+    "everyXDays": "כל X ימים",
+    "every": "כל",
+    "days": "ימים",
+    "dayShort": {
+      "sun": "א׳",
+      "mon": "ב׳",
+      "tue": "ג׳",
+      "wed": "ד׳",
+      "thu": "ה׳",
+      "fri": "ו׳",
+      "sat": "ש׳"
+    }
+  },
+  "undo": {
+    "undo": "בטל",
+    "dismiss": "סגירה",
+    "undone": "בוטל"
+  },
+  "feedback": {
+    "title": "יש לך משוב?",
+    "sub": "מה עובד, מה חסר, ומה אפשר לשפר — דברו אלינו"
+  },
+  "help": {
+    "fabAria": "עזרה — {{title}}",
+    "eyebrow": "עזרה",
+    "close": "סגירה",
+    "tabsAria": "קטגוריות עזרה",
+    "tabs": {
+      "features": "יכולות",
+      "tips": "טיפים",
+      "faq": "שאלות"
+    },
+    "fullGuide": "המדריך המלא לכל המסכים",
+    "emptyFeatures": "אין עדיין הסבר למסך הזה.",
+    "emptyTips": "אין טיפים למסך הזה.",
+    "emptyFaq": "אין שאלות נפוצות למסך הזה."
+  },
+  "infoPopover": {
+    "label": "הסבר"
+  },
+  "tour": {
+    "done": "סיום",
+    "gotIt": "הבנתי",
+    "skipAll": "דלג על הכל"
+  },
+  "deletion": {
+    "title": "החשבון מתוזמן למחיקה",
+    "dayUnit": "יום עד המחיקה",
+    "daysUnit": "ימים עד המחיקה",
+    "bodyLead": "ביקשת למחוק את החשבון. כל הנתונים עדיין שמורים — אם {{regret}}, אפשר לבטל עכשיו ולחזור לשימוש רגיל.",
+    "regret": "תתחרט/י",
+    "regret_male": "תתחרט",
+    "regret_female": "תתחרטי",
+    "bodyDeadline": "אחרת, ב־<0>{{date}}</0> הכול יימחק לצמיתות ואי אפשר יהיה לשחזר או להתחבר שוב.",
+    "cancelFailed": "הביטול נכשל — {{tryAgain}}.",
+    "canceling": "מבטל…",
+    "cancel": "בטל מחיקה ושחזר את החשבון",
+    "logout": "התנתקות"
+  },
+  "errorBoundary": {
+    "message": "משהו השתבש. ננסה שוב?",
+    "retry": "רענון"
+  }
+}

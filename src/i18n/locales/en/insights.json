@@ -1,0 +1,44 @@
+{
+  "title": "How are you today",
+  "activeCount": "{{count}} active",
+  "dailyInsights": "Daily insights",
+  "tagline": "Listening to yourself, one day at a time.",
+  "mirror": {
+    "title": "Daily reflection"
+  },
+  "loading": "Loading…",
+  "loadError": "Couldn't load your questions. Try refreshing.",
+  "empty": "No daily questions yet. You can add some in settings.",
+  "trend": {
+    "notEnough": "Not enough data",
+    "aria": "Question trend over the last 30 days"
+  },
+  "heatmap": {
+    "aria": "Yearly answer history",
+    "heading": "Last six months"
+  },
+  "card": {
+    "todayPill": "Today · {{value}}",
+    "turnOnAria": "Turn on the question \"{{question}}\"",
+    "turnOffAria": "Turn off the question \"{{question}}\"",
+    "turnOnTitle": "Turn on question",
+    "turnOffTitle": "Turn off question",
+    "yes": "Yes",
+    "no": "No",
+    "save": "Save",
+    "skip": "Skip",
+    "skipAria": "Skip this question for today",
+    "avg7": "7-day average",
+    "avg30": "30-day average",
+    "last30": "Last 30 days"
+  },
+  "unskip": {
+    "one": "Answer the one skipped question",
+    "many": "Answer the {{count}} skipped questions"
+  },
+  "history": {
+    "title": "History",
+    "empty": "No answers in your history yet.",
+    "deletedQuestion": "Deleted question"
+  }
+}

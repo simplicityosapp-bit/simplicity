@@ -50,12 +50,18 @@ import heAdmin from './locales/he/admin.json'
 import enAdmin from './locales/en/admin.json'
 import heLanding from './locales/he/landing.json'
 import enLanding from './locales/en/landing.json'
+import heInsights from './locales/he/insights.json'
+import enInsights from './locales/en/insights.json'
+import heReports from './locales/he/reports.json'
+import enReports from './locales/en/reports.json'
+import heMoon from './locales/he/moon.json'
+import enMoon from './locales/en/moon.json'
 
-export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing']
+export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing', 'insights', 'reports', 'moon']
 
 const resources = {
-  he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads, projects: heProjects, tasks: heTasks, connections: heConnections, admin: heAdmin, landing: heLanding },
-  en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads, projects: enProjects, tasks: enTasks, connections: enConnections, admin: enAdmin, landing: enLanding },
+  he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads, projects: heProjects, tasks: heTasks, connections: heConnections, admin: heAdmin, landing: heLanding, insights: heInsights, reports: heReports, moon: heMoon },
+  en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads, projects: enProjects, tasks: enTasks, connections: enConnections, admin: enAdmin, landing: enLanding, insights: enInsights, reports: enReports, moon: enMoon },
   es: { common: esCommon, auth: esAuth },
   fr: { common: frCommon, auth: frAuth },
 }

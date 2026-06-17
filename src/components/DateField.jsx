@@ -3,7 +3,7 @@ import { ChevronRight, ChevronLeft } from 'lucide-react'
 import { monthGrid, MONTH_NAMES_HE, DAY_NAMES_SHORT, isSameDay, weekStartIndex } from '../lib/calendar'
 import { fmtDateInput } from '../lib/dates'
 import { useUserPreferences } from '../hooks/useUserPreferences'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import './DateField.css'
 
 /* Drop-in replacement for <input type="date">. The native picker displays
@@ -38,8 +38,8 @@ const clipEdges = (el) => {
 const POPUP_H = 330 /* approx calendar height — enough to choose a side */
 
 export default function DateField({ value, onChange, className = '', disabled = false, placeholder }) {
-  const { addr } = useAddress()
-  const ph = placeholder ?? addr({ male: 'בחר תאריך', female: 'בחרי תאריך', neutral: 'בחר/י תאריך' })
+  const { t } = useT('components')
+  const ph = placeholder ?? t('dateField.placeholder')
   const { prefs } = useUserPreferences()
   const weekStart = prefs?.format?.week_start || 'sunday'
   const selected = parse(value)
@@ -99,13 +99,13 @@ export default function DateField({ value, onChange, className = '', disabled = 
         <span className={value ? 'datefield-val' : 'datefield-ph'}>{value ? fmtDateInput(selected) : ph}</span>
       </button>
       {open && !disabled && (
-        <div className={`datefield-pop${placement === 'top' ? ' up' : ''}`} role="dialog" aria-label="בחירת תאריך">
+        <div className={`datefield-pop${placement === 'top' ? ' up' : ''}`} role="dialog" aria-label={t('dateField.dialogLabel')}>
           <div className="datefield-nav">
-            <button type="button" className="datefield-navbtn" onClick={() => shift(-1)} aria-label="חודש קודם">
+            <button type="button" className="datefield-navbtn" onClick={() => shift(-1)} aria-label={t('dateField.prevMonth')}>
               <ChevronRight size={16} strokeWidth={1.8} aria-hidden="true" />
             </button>
             <span className="datefield-month">{MONTH_NAMES_HE[view.getMonth()]} {view.getFullYear()}</span>
-            <button type="button" className="datefield-navbtn" onClick={() => shift(1)} aria-label="חודש הבא">
+            <button type="button" className="datefield-navbtn" onClick={() => shift(1)} aria-label={t('dateField.nextMonth')}>
               <ChevronLeft size={16} strokeWidth={1.8} aria-hidden="true" />
             </button>
           </div>
@@ -127,7 +127,7 @@ export default function DateField({ value, onChange, className = '', disabled = 
               )
             })}
           </div>
-          <button type="button" className="datefield-today-btn" onClick={() => pick(new Date())}>היום</button>
+          <button type="button" className="datefield-today-btn" onClick={() => pick(new Date())}>{t('dateField.today')}</button>
         </div>
       )}
     </div>

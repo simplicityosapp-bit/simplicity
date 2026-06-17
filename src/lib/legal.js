@@ -17,10 +17,20 @@
    says access-control + infra at-rest encryption, not field-level AES / "not
    readable by team"). Bumped to 1.1 to force re-acceptance.
    2026-06-16: footer version display fixed; landing-page AES-256 claims removed.
-   Bumped to 1.2 — rule: any policy text change must bump version. */
-export const PRIVACY_VERSION = '1.2'
-export const DPA_VERSION = '1.2'
-export const TERMS_VERSION = '1.0'
+   Bumped to 1.2 — rule: any policy text change must bump version.
+   2026-06-17: privacy + terms text overhauled from new legal-SaaS source docs
+   (Amendment-13 / תיקון 13 notices, DPO, breach-notification, international
+   transfer, anti-spam; terms: anti-scraping/anti-AI-training, arbitration +
+   class-action waiver, force majeure, severability, assignment, upgraded
+   liability cap). 3 corrections applied vs source: Anthropic/Claude vendor
+   removed, analytics marked future, AI-training reframed to "we do NOT train
+   on personal data". Privacy 1.2→2.0, Terms 1.0→2.0.
+   DPA 1.2→1.3: aligned §3 AI-training wording to the firm no-training stance
+   (was "no training without explicit consent" → now "in any case, end-client
+   data is not used to train AI models"). */
+export const PRIVACY_VERSION = '2.0'
+export const DPA_VERSION = '1.3'
+export const TERMS_VERSION = '2.0'
 
 /* The consent block written at signup / first acceptance. */
 export function buildConsent({ marketing = false } = {}) {

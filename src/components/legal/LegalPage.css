@@ -75,6 +75,34 @@
   color: var(--espresso);
 }
 
+/* Language switcher — small pills pushed to the far edge of the brand row. */
+.legal-page-langs {
+  display: flex;
+  gap: 4px;
+  margin-inline-start: auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.legal-page-lang {
+  appearance: none;
+  border: 1px solid var(--divider);
+  background: transparent;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  color: var(--stone);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.legal-page-lang:hover { color: var(--espresso); background: var(--mg-row-hover-bg); }
+.legal-page-lang.on {
+  color: var(--on-accent);
+  background: var(--terracotta);
+  border-color: var(--terracotta);
+}
+
 .legal-page-tabs {
   display: flex;
   gap: 4px;

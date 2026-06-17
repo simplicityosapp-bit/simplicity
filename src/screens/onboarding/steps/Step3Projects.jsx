@@ -2,22 +2,22 @@ import { useEffect, useState } from 'react'
 import { Plus, X, Users } from 'lucide-react'
 import { useProjects } from '../../../hooks/useProjects'
 import { useGroups } from '../../../hooks/useGroups'
-import { useUserPreferences } from '../../../hooks/useUserPreferences'
-import { addressUser } from '../../../lib/address'
+import { useT } from '../../../i18n/useT'
 import { isr } from '../../../lib/finance'
 import AddGroupModal from '../../../modals/AddGroupModal'
 import CsvMappingEditor from '../CsvMappingEditor'
 import { CATEGORY_SWATCHES as COLORS } from '../../../lib/palette'
 
-const DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
+/* Weekday names, by index, for a group's recurring-time label. */
+const DAY_KEYS = ['daySun', 'dayMon', 'dayTue', 'dayWed', 'dayThu', 'dayFri', 'daySat']
 
 /* Price label for a group, by its billing mode — mirrors the in-app
    project-detail group card. */
-function groupPriceLabel(g) {
+function groupPriceLabel(g, t) {
   const mode = g.billing_mode || 'package'
-  if (mode === 'per_session') return g.price_per_session ? `${isr(g.price_per_session)} לפגישה` : ''
-  if (mode === 'none') return 'ללא מחיר קבוע'
-  return g.package_price ? `${isr(g.package_price)} / ${g.package_sessions || 1} פגישות` : ''
+  if (mode === 'per_session') return g.price_per_session ? t('step3.perSession', { price: isr(g.price_per_session) }) : ''
+  if (mode === 'none') return t('step3.priceNone')
+  return g.package_price ? t('step3.package', { price: isr(g.package_price), count: g.package_sessions || 1 }) : ''
 }
 
 /* Step 3 — build the first project as a real, inline project card that
@@ -27,8 +27,7 @@ function groupPriceLabel(g) {
    here but actually assigned in step 4. The project row is created the
    moment it's needed (first group add, or on advancing). */
 export default function Step3Projects({ ob, setCTA }) {
-  const { prefs } = useUserPreferences()
-  const gender = prefs?.design?.gender || 'neutral'
+  const { t } = useT('onboardingSteps')
   const { projects, addProject, updateProject } = useProjects()
   const { groups, addGroup, removeGroup } = useGroups()
   const initial = ob.state.answers?.projects || {}
@@ -43,7 +42,7 @@ export default function Step3Projects({ ob, setCTA }) {
   const projectGroups = projectId ? groups.filter((g) => g.project_id === projectId) : []
   const hasName = name.trim().length > 0
   const canAdvance = hasName
-  const hint = !hasName ? 'שם פרויקט חובה.' : null
+  const hint = !hasName ? t('step3.hintName') : null
 
   /* Ensure the project row exists, returning its id. Created lazily so a
      user who never adds a group still gets exactly one project on Next,
@@ -72,7 +71,7 @@ export default function Step3Projects({ ob, setCTA }) {
       await ensureProject()
       setAddGroupOpen(true)
     } catch (e) {
-      setErr('יצירת הפרויקט נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr(t('step3.errCreateFail', { error: e.message || t('step3.tryAgain') }))
     } finally {
       setBusy(false)
     }
@@ -90,7 +89,7 @@ export default function Step3Projects({ ob, setCTA }) {
       })
       await ob.advance()
     } catch (e) {
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr(t('step3.errSaveFail', { error: e.message || t('step3.tryAgain') }))
     } finally {
       setBusy(false)
     }
@@ -103,31 +102,31 @@ export default function Step3Projects({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro">נבנה פרויקט?</p>
-      <p className="ob-intro-sub">אפשר לשייך לפרויקט לקוחות, משימות, תזכורות, הכנסות — ובערך כל מה ש{addressUser(gender, { male: 'תרצה', female: 'תרצי', neutral: 'תרצה' })}.</p>
+      <p className="ob-intro">{t('step3.intro')}</p>
+      <p className="ob-intro-sub">{t('step3.introSub', { verb: t('step3.introSubVerb') })}</p>
 
       {existingHint && (
         <div className="ob-pre-fill-banner">
-          כבר יש לך {projects.length} פרויקטים. ההוספה כאן רק יוצרת אחד נוסף.
+          {t('step3.existingBanner', { count: projects.length })}
         </div>
       )}
 
-      <CsvMappingEditor parsed={ob.state.parsed_data} onChange={ob.setParsedData} stepKey="projects" title="עמודת הפרויקט מהקובץ" />
+      <CsvMappingEditor parsed={ob.state.parsed_data} onChange={ob.setParsedData} stepKey="projects" title={t('step3.csvTitle')} />
 
       <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-p-name">שם הפרויקט</label>
+        <label className="ob-label" htmlFor="ob-p-name">{t('step3.nameLabel')}</label>
         <input
           id="ob-p-name"
           className="ob-input"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="לדוגמה: אימון אישי"
+          placeholder={t('step3.namePlaceholder')}
           autoFocus
         />
       </div>
 
       <div className="ob-field">
-        <p className="ob-label">צבע</p>
+        <p className="ob-label">{t('step3.colorLabel')}</p>
         <div className="ob-color-row">
           {COLORS.map((c) => (
             <button
@@ -155,16 +154,16 @@ export default function Step3Projects({ ob, setCTA }) {
           {/* Groups — real, multiple, via the same modal used in-app. */}
           <section className="ob-pc-section">
             <p className="ob-pc-sec-title">
-              קבוצות {projectGroups.length > 0 && <span className="ob-pc-count">{projectGroups.length}</span>}
+              {t('step3.groupsTitle')} {projectGroups.length > 0 && <span className="ob-pc-count">{projectGroups.length}</span>}
             </p>
             {projectGroups.length === 0 ? (
-              <p className="ob-pc-empty">עדיין אין קבוצות. אפשר להוסיף מחזור או סדנה — או לדלג ולהמשיך אחד על אחד.</p>
+              <p className="ob-pc-empty">{t('step3.groupsEmpty')}</p>
             ) : (
               <div className="ob-pc-group-list">
                 {projectGroups.map((g) => {
-                  const price = groupPriceLabel(g)
+                  const price = groupPriceLabel(g, t)
                   const recurring = g.recurring_day != null && g.recurring_time
-                    ? `${DAYS[g.recurring_day]} ${g.recurring_time}` : null
+                    ? `${t('step3.' + DAY_KEYS[g.recurring_day])} ${g.recurring_time}` : null
                   return (
                     <div key={g.id} className="ob-pc-group">
                       <span className="ob-pc-group-color" style={{ background: g.color || color }} />
@@ -180,7 +179,7 @@ export default function Step3Projects({ ob, setCTA }) {
                         type="button"
                         className="ob-pc-group-x"
                         onClick={() => removeGroup(g.id)}
-                        aria-label={`הסר ${g.name}`}
+                        aria-label={t('step3.removeGroupAria', { name: g.name })}
                       >
                         <X size={13} strokeWidth={2} aria-hidden="true" />
                       </button>
@@ -190,16 +189,16 @@ export default function Step3Projects({ ob, setCTA }) {
               </div>
             )}
             <button type="button" className="ob-pc-add" onClick={openAddGroup} disabled={busy}>
-              <Plus size={14} strokeWidth={1.9} aria-hidden="true" /> הוסף קבוצה
+              <Plus size={14} strokeWidth={1.9} aria-hidden="true" /> {t('step3.addGroup')}
             </button>
           </section>
 
           {/* Clients — preview only; real assignment happens in step 4. */}
           <section className="ob-pc-section">
-            <p className="ob-pc-sec-title">לקוחות</p>
+            <p className="ob-pc-sec-title">{t('step3.clientsTitle')}</p>
             <div className="ob-pc-teaser">
               <Users size={16} strokeWidth={1.6} aria-hidden="true" />
-              <span>בצעד הבא נוסיף לקוחות — {addressUser(gender, { male: 'ותוכל', female: 'ותוכלי', neutral: 'ותוכל/י' })} לחבר אותם לפרויקט הזה.</span>
+              <span>{t('step3.clientsTeaser', { verb: t('step3.clientsTeaserVerb') })}</span>
             </div>
           </section>
         </div>

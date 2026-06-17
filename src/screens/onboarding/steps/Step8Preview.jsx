@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Moon } from 'lucide-react'
+import { useT } from '../../../i18n/useT'
 
 /* Step 8 — a read-only "מבט על" glimpse, faithful in FORMAT to the home
    MoonWidget (pace % primary + "% מהיעד" secondary, stacked inside the ring).
@@ -11,6 +12,7 @@ const PACE = 82      /* מהקצב — primary */
 const TO_GOAL = 15   /* מהיעד — secondary */
 
 export default function Step8Preview({ ob, setCTA }) {
+  const { t } = useT('onboardingSteps')
   useEffect(() => { setCTA({ onNext: () => ob.advance(), canAdvance: true, busy: false, hint: null }) }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const dash = (Math.min(100, Math.max(0, PACE)) / 100) * C
@@ -19,7 +21,7 @@ export default function Step8Preview({ ob, setCTA }) {
     <>
       <div className="ob-preview-card ob-moon-card">
         <p className="ob-preview-title">
-          <Moon size={12} strokeWidth={2} aria-hidden="true" /> מבט על
+          <Moon size={12} strokeWidth={2} aria-hidden="true" /> {t('step8.title')}
         </p>
 
         <div className="ob-moon-ring">
@@ -34,18 +36,18 @@ export default function Step8Preview({ ob, setCTA }) {
           </svg>
           <div className="ob-moon-center">
             <span className="ob-moon-pct mono">{PACE}%</span>
-            <span className="ob-moon-kicker">מהקצב</span>
-            <span className="ob-moon-sub mono">{TO_GOAL}% מהיעד</span>
+            <span className="ob-moon-kicker">{t('step8.kicker')}</span>
+            <span className="ob-moon-sub mono">{t('step8.toGoal', { pct: TO_GOAL })}</span>
           </div>
         </div>
 
         <p className="ob-empty-hint ob-moon-explain">
-          האחוז הזה מחושב לפי סך היעדים שלך ומידת החשיבות שלהם — המטרה שלו היא לעזור לך לשמור על קצב יעיל, ותקשורת רציפה עם היעדים שלך.
+          {t('step8.explain')}
         </p>
       </div>
 
       <p className="ob-empty-hint" style={{ marginTop: 4 }}>
-        אין כאן מה למלא, רק רצינו להראות לך.
+        {t('step8.nothingToFill')}
       </p>
 
     </>

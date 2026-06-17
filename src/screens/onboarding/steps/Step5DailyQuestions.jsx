@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { QUESTION_TEMPLATES, qtext } from '../../../lib/questionTemplates'
-import { addressUser } from '../../../lib/address'
+import { useT } from '../../../i18n/useT'
 
 /* Starter presets — derived from the SHARED QUESTION_TEMPLATES so onboarding
    and the in-app AddQuestionModal always offer the same set (single source).
    All presets use the 1-10 scale. The optional custom ("אחר") question
    matches AddQuestionModal's custom mode exactly (text + scale + icon). */
-const PRESETS = QUESTION_TEMPLATES.map((t) => ({ key: t.key, icon: t.icon }))
+const PRESETS = QUESTION_TEMPLATES.map((tpl) => ({ key: tpl.key, icon: tpl.icon }))
 
 /* Mirror AddQuestionModal — same scales + same icon palette so the
    user gets the same affordances they'll see later under Settings. */
 const SCALES = [
-  { k: '1-10',  l: 'סולם 1–10' },
-  { k: 'yes_no', l: 'כן / לא' },
+  { k: '1-10',  labelKey: 'step5.scale110' },
+  { k: 'yes_no', labelKey: 'step5.scaleYesNo' },
 ]
 const ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 
@@ -22,6 +22,7 @@ const ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', 
    preset becomes a real user_questions row (active=true, scale 1-10).
    The custom slot saves with the user-chosen scale + icon. */
 export default function Step5DailyQuestions({ ob, setCTA }) {
+  const { t } = useT('onboardingSteps')
   const gender = ob.state.answers?.profile?.gender
   const { addQuestion } = useUserQuestions()
   const initial = ob.state.answers?.daily_questions || {}
@@ -86,7 +87,7 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
       })
       await ob.advance()
     } catch (e) {
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr(t('step5.errSaveFail', { error: e.message || t('step5.tryAgain') }))
     } finally {
       setBusy(false)
     }
@@ -94,8 +95,8 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro">יש שאלות ש{addressUser(gender, { male: 'תרצה', female: 'תרצי', neutral: 'תרצה/י' })} שנשאל אותך כל יום?</p>
-      <p className="ob-intro-sub">אפשר לבחור מההצעות שלנו ולהוסיף בעצמך — ותמיד {addressUser(gender, { male: 'תוכל', female: 'תוכלי', neutral: 'תוכל/י' })} לשנות, להוסיף או לכבות אחר כך.</p>
+      <p className="ob-intro">{t('step5.intro', { verb: t('step5.introVerb') })}</p>
+      <p className="ob-intro-sub">{t('step5.introSub', { verb: t('step5.introSubVerb') })}</p>
 
       <div className="ob-field">
         <div className="ob-pills">
@@ -119,20 +120,20 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
       {/* "אחר" — full custom-question creator, identical shape to
           AddQuestionModal's custom mode (text + scale + icon). */}
       <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-q-custom">אחר — שאלה משלך</label>
+        <label className="ob-label" htmlFor="ob-q-custom">{t('step5.customLabel')}</label>
         <input
           id="ob-q-custom"
           className="ob-input"
           value={custom}
           onChange={(e) => setCustom(e.target.value)}
-          placeholder={`לדוגמה: כמה ${addressUser(gender, { male: 'רגוע', female: 'רגועה', neutral: 'רגוע/ה' })} הרגשת היום?`}
+          placeholder={t('step5.customPlaceholder', { adj: t('step5.customAdj') })}
         />
       </div>
 
       {custom.trim().length > 0 && (
         <>
           <div className="ob-field">
-            <p className="ob-label">סוג תשובה</p>
+            <p className="ob-label">{t('step5.answerTypeLabel')}</p>
             <div className="ob-pills">
               {SCALES.map((s) => (
                 <button
@@ -141,14 +142,14 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
                   className={`ob-pill${customScale === s.k ? ' on' : ''}`}
                   onClick={() => setCustomScale(s.k)}
                 >
-                  {s.l}
+                  {t(s.labelKey)}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="ob-field">
-            <p className="ob-label">אייקון</p>
+            <p className="ob-label">{t('step5.iconLabel')}</p>
             <div className="ob-pills">
               {ICONS.map((ic) => (
                 <button
@@ -156,7 +157,7 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
                   type="button"
                   className={`ob-pill${customIcon === ic ? ' on' : ''}`}
                   onClick={() => setCustomIcon(ic)}
-                  aria-label={`אייקון ${ic}`}
+                  aria-label={t('step5.iconAria', { icon: ic })}
                 >
                   {ic}
                 </button>

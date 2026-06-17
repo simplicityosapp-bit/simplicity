@@ -2,24 +2,19 @@ import { useEffect, useRef, useState } from 'react'
 import { Send, Loader2, CheckCircle2 } from 'lucide-react'
 import Modal from './Modal'
 import { useFeedback } from '../hooks/useFeedback'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import './FeedbackModal.css'
 
 /* Feedback type — optional. Sent to the team so they can triage; the
    key is sent to the edge function which maps it to the email subject. */
-const TYPES = [
-  { k: 'bug',    l: 'באג' },
-  { k: 'idea',   l: 'רעיון' },
-  { k: 'praise', l: 'מחמאה' },
-  { k: 'other',  l: 'אחר' },
-]
+const TYPES = ['bug', 'idea', 'praise', 'other']
 
 /* ════════════════════════════════════════════════════════════════
    FeedbackModal — free-text feedback + optional type, emailed to the
    team and stored. Reuses the shared <Modal> shell.
    ════════════════════════════════════════════════════════════════ */
 export default function FeedbackModal({ open, onClose }) {
-  const { addr } = useAddress()
+  const { t } = useT('modalsSystem')
   const { submitFeedback, submitting } = useFeedback()
   const [message, setMessage] = useState('')
   const [type, setType] = useState(null)
@@ -52,27 +47,27 @@ export default function FeedbackModal({ open, onClose }) {
   }
 
   return (
-    <Modal open={open} onClose={handleClose} title="דברו אלינו">
+    <Modal open={open} onClose={handleClose} title={t('feedback.title')}>
       {done ? (
         <div className="fb-done">
           <CheckCircle2 size={40} strokeWidth={1.5} aria-hidden="true" />
-          <p>תודה! הפידבק נשלח.</p>
+          <p>{t('feedback.thanks')}</p>
         </div>
       ) : (
         <form className="fb-form" onSubmit={handleSubmit}>
-          <p className="fb-lead">נשמח לשמוע ממך — כל הערה עוזרת לנו לשפר.</p>
+          <p className="fb-lead">{t('feedback.lead')}</p>
 
           <div className="fb-field">
-            <span className="fb-label">סוג הפידבק (אופציונלי)</span>
+            <span className="fb-label">{t('feedback.typeLabel')}</span>
             <div className="m-pills">
-              {TYPES.map((t) => (
+              {TYPES.map((k) => (
                 <button
-                  key={t.k}
+                  key={k}
                   type="button"
-                  className={`m-pill${type === t.k ? ' on' : ''}`}
-                  onClick={() => setType((cur) => (cur === t.k ? null : t.k))}
+                  className={`m-pill${type === k ? ' on' : ''}`}
+                  onClick={() => setType((cur) => (cur === k ? null : k))}
                 >
-                  {t.l}
+                  {t(`feedback.types.${k}`)}
                 </button>
               ))}
             </div>
@@ -82,16 +77,16 @@ export default function FeedbackModal({ open, onClose }) {
             className="fb-textarea m-textarea"
             value={message}
             onChange={(e) => { setMessage(e.target.value); setFailed(false) }}
-            placeholder={`${addr({ male: 'כתוב', female: 'כתבי', neutral: 'כתוב/כתבי' })} לנו כל מה שעולה לך לראש…`}
+            placeholder={t('feedback.placeholder', { write: t('feedback.writeVerb') })}
             rows={6}
             autoFocus
             dir="rtl"
           />
           <p className="fb-hint" style={{ fontSize: 'calc(13px * var(--text-scale))', opacity: 0.7, margin: '8px 2px 0', lineHeight: 1.5 }}>
-            לשמירה על פרטיות הלקוחות — נא לא לכלול פרטים מזהים שלהם (שם מלא, טלפון).
+            {t('feedback.privacyHint')}
           </p>
           {failed && (
-            <p className="fb-error">משהו השתבש בשליחה. אפשר לנסות שוב.</p>
+            <p className="fb-error">{t('feedback.sendFailed')}</p>
           )}
           <button
             type="submit"
@@ -99,9 +94,9 @@ export default function FeedbackModal({ open, onClose }) {
             disabled={!message.trim() || submitting}
           >
             {submitting ? (
-              <><Loader2 size={18} strokeWidth={1.7} className="fb-spin" aria-hidden="true" /> שולח…</>
+              <><Loader2 size={18} strokeWidth={1.7} className="fb-spin" aria-hidden="true" /> {t('feedback.sending')}</>
             ) : (
-              <><Send size={18} strokeWidth={1.7} aria-hidden="true" /> שליחה</>
+              <><Send size={18} strokeWidth={1.7} aria-hidden="true" /> {t('feedback.send')}</>
             )}
           </button>
         </form>

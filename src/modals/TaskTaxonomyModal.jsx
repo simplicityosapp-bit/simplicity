@@ -3,12 +3,13 @@ import { Plus, X } from 'lucide-react'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
+import { useT } from '../i18n/useT'
 
 /* Statuses roll up to one of two fixed meta buckets so the binary
    open/done counters across the app keep working. */
 const META = [
-  { key: 'open', label: 'פתוחות' },
-  { key: 'done', label: 'הושלמו' },
+  { key: 'open', label: 'metaOpen' },
+  { key: 'done', label: 'metaDone' },
 ]
 
 /* Manage custom task statuses (grouped by open/done meta) and custom task
@@ -21,6 +22,7 @@ export default function TaskTaxonomyModal({
   onAddStatus, onRemoveStatus,
   onAddCategory, onRemoveCategory,
 }) {
+  const { t } = useT('modalsTask')
   const [sName, setSName] = useState('')
   const [sMeta, setSMeta] = useState('open')
   const [sColor, setSColor] = useState(COLORS[0])
@@ -50,15 +52,15 @@ export default function TaskTaxonomyModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="סטטוסים וקטגוריות">
+    <Modal open={open} onClose={onClose} title={t('taxonomy.title')}>
       {/* ── Statuses ───────────────────────────────────────────── */}
-      <p className="m-section-title">סטטוסים</p>
-      <p className="m-hint">כל סטטוס משויך ל"פתוחות" או "הושלמו" — כך הספירות בבית נשארות נכונות.</p>
+      <p className="m-section-title">{t('taxonomy.statuses')}</p>
+      <p className="m-hint">{t('taxonomy.statusesHint')}</p>
       {META.map((m) => {
         const list = statuses.filter((s) => s.meta_category === m.key)
         return (
           <div key={m.key} className="m-field">
-            <label className="m-label">{m.label}</label>
+            <label className="m-label">{t(`taxonomy.${m.label}`)}</label>
             {list.length === 0 ? (
               <p className="m-hint">—</p>
             ) : (
@@ -67,7 +69,7 @@ export default function TaskTaxonomyModal({
                   <span key={s.id} className="m-tax-chip">
                     <span className="m-tax-dot" style={{ background: s.color || 'var(--stone)' }} />
                     <span>{s.display_name}</span>
-                    <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'status', id: s.id, name: s.display_name })} aria-label={`מחיקת ${s.display_name}`} title="מחיקה">
+                    <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'status', id: s.id, name: s.display_name })} aria-label={t('taxonomy.deleteAria', { name: s.display_name })} title={t('taxonomy.deleteHint')}>
                       <X size={11} strokeWidth={2} aria-hidden="true" />
                     </button>
                   </span>
@@ -78,10 +80,10 @@ export default function TaskTaxonomyModal({
         )
       })}
       <div className="m-field">
-        <label className="m-label">סטטוס חדש</label>
+        <label className="m-label">{t('taxonomy.newStatus')}</label>
         <div className="m-pills">
           {META.map((m) => (
-            <button key={m.key} type="button" className={`m-pill${sMeta === m.key ? ' on' : ''}`} onClick={() => setSMeta(m.key)}>{m.label}</button>
+            <button key={m.key} type="button" className={`m-pill${sMeta === m.key ? ' on' : ''}`} onClick={() => setSMeta(m.key)}>{t(`taxonomy.${m.label}`)}</button>
           ))}
         </div>
         <div className="m-colors">
@@ -95,16 +97,16 @@ export default function TaskTaxonomyModal({
             value={sName}
             onChange={(e) => setSName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') addStatus() }}
-            placeholder="לדוגמה: בתהליך"
+            placeholder={t('taxonomy.statusPlaceholder')}
           />
-          <button type="button" className="m-tax-add-btn" onClick={addStatus} disabled={!sName.trim() || busy} aria-label="הוספת סטטוס">
+          <button type="button" className="m-tax-add-btn" onClick={addStatus} disabled={!sName.trim() || busy} aria-label={t('taxonomy.addStatusAria')}>
             <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
           </button>
         </div>
       </div>
 
       {/* ── Categories ─────────────────────────────────────────── */}
-      <p className="m-section-title">קטגוריות</p>
+      <p className="m-section-title">{t('taxonomy.categories')}</p>
       {categories.length === 0 ? (
         <p className="m-hint">—</p>
       ) : (
@@ -113,7 +115,7 @@ export default function TaskTaxonomyModal({
             <span key={c.id} className="m-tax-chip">
               <span className="m-tax-dot" style={{ background: c.color || 'var(--stone)' }} />
               <span>{c.name}</span>
-              <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'category', id: c.id, name: c.name })} aria-label={`מחיקת ${c.name}`} title="מחיקה">
+              <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'category', id: c.id, name: c.name })} aria-label={t('taxonomy.deleteAria', { name: c.name })} title={t('taxonomy.deleteHint')}>
                 <X size={11} strokeWidth={2} aria-hidden="true" />
               </button>
             </span>
@@ -121,7 +123,7 @@ export default function TaskTaxonomyModal({
         </div>
       )}
       <div className="m-field">
-        <label className="m-label">קטגוריה חדשה</label>
+        <label className="m-label">{t('taxonomy.newCategory')}</label>
         <div className="m-colors">
           {COLORS.map((c) => (
             <button key={c} type="button" className={`m-color${cColor === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => setCColor(c)} />
@@ -133,25 +135,25 @@ export default function TaskTaxonomyModal({
             value={cName}
             onChange={(e) => setCName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') addCategory() }}
-            placeholder="לדוגמה: שיווק"
+            placeholder={t('taxonomy.categoryPlaceholder')}
           />
-          <button type="button" className="m-tax-add-btn" onClick={addCategory} disabled={!cName.trim() || busy} aria-label="הוספת קטגוריה">
+          <button type="button" className="m-tax-add-btn" onClick={addCategory} disabled={!cName.trim() || busy} aria-label={t('taxonomy.addCategoryAria')}>
             <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
           </button>
         </div>
       </div>
 
       <div className="m-actions">
-        <button type="button" className="m-btn-save" onClick={onClose}>סגירה</button>
+        <button type="button" className="m-btn-save" onClick={onClose}>{t('common.close')}</button>
       </div>
 
       <ConfirmModal
         open={!!confirm}
         onClose={() => setConfirm(null)}
-        title="מחיקה"
+        title={t('taxonomy.deleteTitle')}
         danger
-        confirmLabel="מחק"
-        message={confirm ? `למחוק את "${confirm.name}"? משימות שמשויכות אליו יישארו ללא ${confirm.kind === 'status' ? 'סטטוס' : 'קטגוריה'}.` : ''}
+        confirmLabel={t('taxonomy.deleteConfirm')}
+        message={confirm ? (confirm.kind === 'status' ? t('taxonomy.deleteMessageStatus', { name: confirm.name }) : t('taxonomy.deleteMessageCategory', { name: confirm.name })) : ''}
         onConfirm={() => { if (confirm) return (confirm.kind === 'status' ? onRemoveStatus : onRemoveCategory)(confirm.id) }}
       />
     </Modal>

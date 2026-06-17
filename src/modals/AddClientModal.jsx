@@ -3,7 +3,7 @@ import Modal from './Modal'
 import ClientFormFields from '../components/ClientFormFields'
 import MG from '../components/MG'
 import { showToast } from '../lib/toast'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 
 const blank = () => ({
   name: '', status: 'active', status_id: '', sessions: '', price_per_session: '',
@@ -16,7 +16,7 @@ const blank = () => ({
    define sub-statuses per meta-category in Settings. Form body is the shared
    <ClientFormFields> so it stays identical to the onboarding client step. */
 export default function AddClientModal({ open, onClose, onSave, projects = [], statuses = [] }) {
-  const { tryAgain } = useAddress()
+  const { t } = useT('modalsClient')
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -25,7 +25,7 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
   const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
-    if (!form.name.trim()) { setErr('יש למלא שם.'); return }
+    if (!form.name.trim()) { setErr(t('common.nameRequired')); return }
     setBusy(true)
     setErr('')
     try {
@@ -51,16 +51,16 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
         notes: null,
         notes_updated_at: null,
       })
-      showToast('הלקוח נשמר')
+      showToast(t('addClient.toastSaved'))
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   return (
-    <Modal open={open} onClose={close} title={<MG word="client_new" />} titleLabel="לקוח חדש">
+    <Modal open={open} onClose={close} title={<MG word="client_new" />} titleLabel={t('addClient.titleLabel')}>
       <ClientFormFields
         form={form}
         set={set}
@@ -73,8 +73,8 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
     </Modal>
   )

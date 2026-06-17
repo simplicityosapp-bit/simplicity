@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { Trans } from 'react-i18next'
 import { AlertTriangle } from 'lucide-react'
 import Modal from './Modal'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 
 /* ════════════════════════════════════════════════════════════════
    RESET ACCOUNT — irreversible "delete everything" with a DOUBLE
@@ -10,13 +11,15 @@ import { useAddress } from '../hooks/useAddress'
      step 2 — the user must TYPE the confirmation word, so it can't be
               triggered by a stray click.
    onConfirm() does the actual wipe and may throw; we surface the error
-   in plain Hebrew and keep the modal open so nothing is lost silently.
+   in plain language and keep the modal open so nothing is lost silently.
+   The confirmation word is sourced from the active locale so the typed
+   match stays consistent with the on-screen instruction.
    ════════════════════════════════════════════════════════════════ */
 
-const CONFIRM_WORD = 'מחיקה'
-
 export default function ResetAccountModal({ open, onClose, onConfirm }) {
-  const { addr, tryAgain } = useAddress()
+  const { t } = useT('modalsSystem')
+  const tryAgain = t('common.tryAgain')
+  const CONFIRM_WORD = t('resetAccount.confirmWord')
   const [step, setStep] = useState(1)
   const [typed, setTyped] = useState('')
   const [busy, setBusy] = useState(false)
@@ -36,36 +39,32 @@ export default function ResetAccountModal({ open, onClose, onConfirm }) {
       setStep(1); setTyped('')
       onClose()
     } catch (e) {
-      setErr(e?.message || 'משהו השתבש — ' + tryAgain + '.')
+      setErr(e?.message || t('resetAccount.genericError', { tryAgain }))
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <Modal open={open} onClose={close} title="איפוס חשבון — מחיקת כל הנתונים">
+    <Modal open={open} onClose={close} title={t('resetAccount.title')}>
       <div className="m-confirm-msg" style={{ display: 'flex', gap: 9, alignItems: 'flex-start' }}>
         <AlertTriangle size={20} strokeWidth={1.5} style={{ color: 'var(--clay)', flexShrink: 0, marginTop: 1 }} aria-hidden="true" />
         {step === 1 ? (
           <span>
-            הפעולה תמחק <strong>את כל הנתונים בחשבון</strong>: לקוחות, פרויקטים, קבוצות,
-            לידים, תנועות והוצאות חוזרות, קטגוריות, משימות, יעדים ורישומי יעדים,
-            שאלות יומיות והתשובות עליהן, פגישות מתועדות, הערות, תזכורות, סטטוסים
-            ומקורות.
+            <Trans t={t} i18nKey="resetAccount.step1" components={[<strong key="0" />]} />
             <br />
-            <strong>אי אפשר לבטל את הפעולה.</strong> ההכרות (אונבורדינג) תתחיל מחדש כדי {addr({ male: 'שתוכל', female: 'שתוכלי', neutral: 'שתוכל/י' })} להתחיל מאפס.
+            <Trans t={t} i18nKey="resetAccount.step1b" values={{ enableTo: t('resetAccount.step1bEnable') }} components={[<strong key="0" />]} />
           </span>
         ) : (
           <span>
-            כדי לאשר סופית, {addr({ male: 'הקלד את המילה', female: 'הקלידי את המילה', neutral: 'הקלד/י את המילה' })} <strong>{CONFIRM_WORD}</strong> בתיבה.
-            זהו אישור אחרון — מיד לאחר מכן הכול יימחק.
+            <Trans t={t} i18nKey="resetAccount.step2" values={{ type: t('resetAccount.typeVerb'), word: CONFIRM_WORD }} components={[<strong key="0" />]} />
           </span>
         )}
       </div>
 
       {step === 2 && (
         <div style={{ marginTop: 4 }}>
-          <label className="m-label" htmlFor="reset-confirm-input">{addr({ male: 'הקלד:', female: 'הקלידי:', neutral: 'הקלד/י:' })} {CONFIRM_WORD}</label>
+          <label className="m-label" htmlFor="reset-confirm-input">{t('resetAccount.inputLabel')} {CONFIRM_WORD}</label>
           <input
             id="reset-confirm-input"
             className={`m-input${typed && typed.trim() !== CONFIRM_WORD ? ' err' : ''}`}
@@ -81,10 +80,10 @@ export default function ResetAccountModal({ open, onClose, onConfirm }) {
       {err && <p className="m-confirm-msg" style={{ color: 'var(--clay)', fontWeight: 600 }}>{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close} disabled={busy}>ביטול</button>
+        <button type="button" className="m-btn-cancel" onClick={close} disabled={busy}>{t('common.cancel')}</button>
         {step === 1 ? (
           <button type="button" className="m-btn-save danger" onClick={() => setStep(2)}>
-            המשך למחיקה
+            {t('resetAccount.continue')}
           </button>
         ) : (
           <button
@@ -93,7 +92,7 @@ export default function ResetAccountModal({ open, onClose, onConfirm }) {
             onClick={run}
             disabled={busy || typed.trim() !== CONFIRM_WORD}
           >
-            {busy ? 'מוחק…' : 'מחק הכל לצמיתות'}
+            {busy ? t('resetAccount.deleting') : t('resetAccount.confirmBtn')}
           </button>
         )}
       </div>

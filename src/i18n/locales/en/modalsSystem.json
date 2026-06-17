@@ -1,0 +1,215 @@
+{
+  "modal": {
+    "close": "Close"
+  },
+  "confirm": {
+    "title": "Confirm",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "back": "Back",
+    "tryAgain": "try again"
+  },
+  "deleteAccount": {
+    "title": "Delete account permanently",
+    "confirmPhrase": "delete account",
+    "step1": "This will mark <0>your entire account</0> for deletion: your profile, all your data (clients, projects, leads, transactions, goals, sessions, reminders, etc.)<1> and your login itself</1>.",
+    "step1b": "You have <0>{{days}} days</0> to change your mind: on every sign-in during this period you can cancel and go back to normal use. After that, everything is permanently deleted and <1>can't be recovered</1> — and you won't be able to sign in again with the same account.",
+    "step2": "To confirm, {{type}} <0>{{phrase}}</0> in the box. The {{days}}-day countdown begins right after.",
+    "typeVerb": "type the phrase",
+    "inputLabel": "Type:",
+    "genericError": "Something went wrong — {{tryAgain}}.",
+    "continue": "Continue to deletion",
+    "deleting": "Marking for deletion…",
+    "confirmBtn": "Delete the account"
+  },
+  "resetAccount": {
+    "title": "Reset account — delete all data",
+    "confirmWord": "delete",
+    "step1": "This will delete <0>all the data in your account</0>: clients, projects, groups, leads, transactions and recurring expenses, categories, tasks, goals and goal entries, daily questions and their answers, recorded sessions, notes, reminders, statuses and sources.",
+    "step1b": "<0>This action can't be undone.</0> Onboarding will start over so you can begin from scratch.",
+    "step2": "To confirm for good, {{type}} <0>{{word}}</0> in the box. This is the final confirmation — everything is deleted right after.",
+    "typeVerb": "type the word",
+    "inputLabel": "Type:",
+    "genericError": "Something went wrong — {{tryAgain}}.",
+    "continue": "Continue to deletion",
+    "deleting": "Deleting…",
+    "confirmBtn": "Delete everything permanently"
+  },
+  "export": {
+    "title": "Export data",
+    "intro": "All your data downloads together as a single Excel file with one sheet per type; the individual exports are separate CSV files.",
+    "exporting": "Exporting…",
+    "exportAll": "Export all data (Excel)",
+    "exportAllHint": "One file with a sheet per type: transactions, clients, projects, leads, tasks, categories.",
+    "sensitiveHeading": "Include sensitive data too?",
+    "sensitiveSub": "Not included by default. Sensitive data is exported as plain text — keep the file somewhere safe.",
+    "failed": "Export failed. Please try again.",
+    "exportTransactions": "Export transactions (CSV)",
+    "exportClients": "Export clients (CSV)",
+    "exportProjects": "Export projects (CSV)",
+    "reimportHint": "The client and project files are saved in a re-importable format (the same headers the system recognizes).",
+    "sensitive": {
+      "sessions": "Sessions",
+      "sessionsSub": "Session notes and summaries",
+      "goals": "Goals",
+      "goalsSub": "Goals and progress entries",
+      "dailyAnswers": "Daily answers",
+      "dailyAnswersSub": "Answers to the daily questions",
+      "moon": "Reflections",
+      "moonSub": "Daily reflections (decrypted)"
+    }
+  },
+  "feedback": {
+    "title": "Talk to us",
+    "thanks": "Thanks! Your feedback was sent.",
+    "lead": "We'd love to hear from you — every note helps us improve.",
+    "typeLabel": "Feedback type (optional)",
+    "placeholder": "{{write}} us anything that's on your mind…",
+    "writeVerb": "Write",
+    "privacyHint": "To protect your clients' privacy — please don't include details that identify them (full name, phone).",
+    "sendFailed": "Something went wrong while sending. You can try again.",
+    "sending": "Sending…",
+    "send": "Send",
+    "types": {
+      "bug": "Bug",
+      "idea": "Idea",
+      "praise": "Praise",
+      "other": "Other"
+    }
+  },
+  "profileHealth": {
+    "title": "Profile health",
+    "calculating": "One moment, calculating your score…",
+    "loadingData": "Loading your data…",
+    "noGaps": "No open gaps — everything's in use.",
+    "editProfile": "Edit profile",
+    "lead": {
+      "full": "Everything's in use — you're getting the most out of the system.",
+      "high": "Almost everything's in place. One more small touch and you're there.",
+      "mid": "You're on the right track — a few steps and your profile is complete.",
+      "low": "There's a real opportunity here to get more out of the system."
+    }
+  },
+  "issueGuard": {
+    "title1": "One moment before you issue",
+    "title2": "Final confirmation",
+    "sure": "Yes, I'm sure",
+    "finalMsg": "This will issue a real tax document that can't be canceled. Issue for {{amount}}?",
+    "issue": "Yes, issue it"
+  },
+  "quickActions": {
+    "title": "Quick add",
+    "actions": {
+      "transaction": "Transaction",
+      "client": "Client",
+      "lead": "Lead",
+      "task": "Task",
+      "project": "Project",
+      "goal": "Goal",
+      "reminder": "Reminder",
+      "meeting": "Session"
+    }
+  },
+  "quoteSource": {
+    "title": "Quotes",
+    "writeFirst": "Write a quote first.",
+    "saveFailed": "Couldn't save: {{error}}",
+    "tryAgain": "try again",
+    "pickLabel": "Where should the daily quote come from?",
+    "sourceSystem": "From the system",
+    "sourcePersonal": "Mine",
+    "emptyPersonal": "No personal quotes yet — until you add some, a quote from the library will show.",
+    "addLabel": "Add a personal quote",
+    "addPlaceholder": "Write a line that speaks to you…",
+    "addAria": "Add quote",
+    "myQuotes": "My quotes ({{count}})",
+    "removeAria": "Delete quote"
+  },
+  "tileDrill": {
+    "close": "Close",
+    "openFull": "Open in full",
+    "dayLabels": ["S", "M", "T", "W", "T", "F", "S"],
+    "titles": {
+      "clients": "Clients",
+      "net": "Net",
+      "tasks": "Tasks"
+    },
+    "status": {
+      "active": "Active",
+      "wandering": "In between",
+      "past": "Former",
+      "no_status": "None"
+    },
+    "netRanges": {
+      "thisWeek": "This week",
+      "thisMonth": "This month",
+      "last30days": "Last 30 days"
+    },
+    "netTypes": {
+      "both": "Net (income − expenses)",
+      "income": "Income only",
+      "expense": "Expenses only"
+    },
+    "taskStatus": {
+      "open": "Open",
+      "done": "Done",
+      "both": "All"
+    },
+    "priorities": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "taskClientScope": {
+      "all": "All",
+      "linked": "Linked to a client"
+    },
+    "all": "All",
+    "none": "None",
+    "clients": {
+      "matchingNum": "matching clients",
+      "trendLbl": "Client base · 30 days",
+      "statusLbl": "Status",
+      "projectLbl": "Project",
+      "groupLbl": "Group",
+      "matchingSection": "Matching ({{count}})",
+      "emptyFilter": "No clients match the filter.",
+      "moreCount": "+{{count}} more",
+      "noProjects": "No projects yet",
+      "noGroups": "No groups yet"
+    },
+    "net": {
+      "income": "Income",
+      "expense": "Expenses",
+      "net": "Net",
+      "trendLbl": "Income vs. expenses · 30 days",
+      "legendIncome": "Income",
+      "legendExpense": "Expenses",
+      "timeRangeLbl": "Time range",
+      "typeLbl": "Type",
+      "projectLbl": "Project",
+      "categoryLbl": "Category",
+      "miniIncome": "Income",
+      "miniExpense": "Expenses",
+      "miniTx": "Transactions",
+      "noProjects": "No projects yet",
+      "noCategories": "No categories yet"
+    },
+    "tasks": {
+      "matchingNum": "matching tasks",
+      "trendLbl": "Tasks completed · 7 days",
+      "statusLbl": "Status",
+      "priorityLbl": "Priority",
+      "projectLbl": "Project",
+      "clientScopeLbl": "Client link",
+      "upcomingSection": "Upcoming tasks",
+      "emptyFilter": "No tasks match the filter.",
+      "moreCount": "+{{count}} more",
+      "noProjects": "No projects yet"
+    }
+  }
+}

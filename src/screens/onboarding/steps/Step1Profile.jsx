@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import { ROLE_LABELS, roleLabel } from '../../../lib/preferences'
-import { addressUser } from '../../../lib/address'
 import { useT } from '../../../i18n/useT'
+
+/* Form-of-address pills — labels resolved from i18n. */
+const GENDER_KEYS = [
+  { k: 'female',  labelKey: 'step1.genderFemale' },
+  { k: 'male',    labelKey: 'step1.genderMale' },
+  { k: 'neutral', labelKey: 'step1.genderNeutral' },
+]
 
 /* Drive the role pills from the canonical ROLE_LABELS so onboarding, Settings
    and the profile chip always show identical labels ("other" pinned last as
@@ -18,6 +24,7 @@ const ROLE_KEYS = [
    is immediately useful elsewhere in the app. Picking "אחר" opens a
    sub-panel for the custom role text. */
 export default function Step1Profile({ ob, setCTA }) {
+  const { t } = useT('onboardingSteps')
   const { prefs, update } = useUserPreferences()
   const initial = ob.state.answers?.profile || {}
   const [name, setName] = useState(initial.name || prefs?.profile?.full_name || '')
@@ -26,24 +33,16 @@ export default function Step1Profile({ ob, setCTA }) {
   const [gender, setGender] = useState(initial.gender || prefs?.design?.gender || 'neutral')
   const canAdvance = name.trim().length > 0 && (role !== 'other' || roleOther.trim().length > 0)
   const hint = !canAdvance
-    ? (!name.trim() ? 'נא להזין שם כדי להמשיך.' : 'פרט/י את התחום שבחרת.')
+    ? (!name.trim() ? t('step1.hintName') : t('step1.hintRole'))
     : null
 
-  /* Warm welcome line, gendered by the chosen form of address — updates
-     live as the user toggles the לשון פנייה pills. */
   /* Both lines are gendered by the chosen form of address (the live
-     `gender` pill state, before it's persisted) — driven through the
-     shared addressUser helper so phrasing stays consistent app-wide. */
-  const welcomeGreeting = addressUser(gender, {
-    male:    'ברוך הבא מלך',
-    female:  'ברוכה הבאה מלכה',
-    neutral: 'כמה טוב שבאת',
-  })
-  const roleOtherLabel = addressUser(gender, {
-    male:    'מה אתה עושה?',
-    female:  'מה את עושה?',
-    neutral: 'מה את/ה עושה?',
-  })
+     `gender` pill state, before it's persisted). The explicit i18next
+     context re-inflects them live as the form-of-address pill is toggled,
+     ahead of the value being persisted to prefs. */
+  const ctx = gender === 'male' || gender === 'female' ? gender : undefined
+  const welcomeGreeting = t('step1.welcome', { context: ctx })
+  const roleOtherLabel = t('step1.roleOtherLabel', { context: ctx })
 
   useEffect(() => { ob.markStarted() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -78,28 +77,28 @@ export default function Step1Profile({ ob, setCTA }) {
 
       <div className="ob-field-row">
         <div className="ob-field">
-          <label className="ob-label" htmlFor="ob-name">שם מלא</label>
+          <label className="ob-label" htmlFor="ob-name">{t('step1.nameLabel')}</label>
           <input
             id="ob-name"
             className="ob-input"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="איך לקרוא לך?"
+            placeholder={t('step1.namePlaceholder')}
             autoFocus
           />
         </div>
 
         <div className="ob-field">
-          <p className="ob-label">לשון פנייה</p>
+          <p className="ob-label">{t('step1.genderLabel')}</p>
           <div className="ob-pills">
-            {GENDERS.map((g) => (
+            {GENDER_KEYS.map((g) => (
               <button
                 key={g.k}
                 type="button"
                 className={`ob-pill${gender === g.k ? ' on' : ''}`}
                 onClick={() => setGender(g.k)}
               >
-                {g.l}
+                {t(g.labelKey)}
               </button>
             ))}
           </div>
@@ -107,7 +106,7 @@ export default function Step1Profile({ ob, setCTA }) {
       </div>
 
       <div className="ob-field">
-        <p className="ob-label">תחום</p>
+        <p className="ob-label">{t('step1.roleLabel')}</p>
         <div className="ob-pills">
           {ROLE_KEYS.map((k) => (
             <button
@@ -130,7 +129,7 @@ export default function Step1Profile({ ob, setCTA }) {
             className="ob-input"
             value={roleOther}
             onChange={(e) => setRoleOther(e.target.value)}
-            placeholder="לדוגמה: יוגה תרפיסט/ית, מורה למתמטיקה"
+            placeholder={t('step1.roleOtherPlaceholder')}
             autoFocus
           />
         </div>

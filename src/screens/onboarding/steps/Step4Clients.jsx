@@ -9,7 +9,7 @@ import { isr } from '../../../lib/finance'
 import ClientFormFields from '../../../components/ClientFormFields'
 import MG from '../../../components/MG'
 import CsvMappingEditor from '../CsvMappingEditor'
-import { addressUser } from '../../../lib/address'
+import { useT } from '../../../i18n/useT'
 
 const initials = (name) =>
   (name || '')
@@ -28,36 +28,36 @@ const blank = (defaultProjectId) => ({
 /* Faithful mini client card — mirrors the in-app .cc card. Balance is
    membership-aware: pass the membership rows + groups so a group-linked
    client reflects the group's sessions + price, exactly like live. */
-function ClientPreviewCard({ client, projectName, members, groups, onRemove }) {
+function ClientPreviewCard({ client, projectName, members, groups, onRemove, t }) {
   const { paid, balance, sessionsPaid, sessionsTotal } = clientBalance(client, [], [], members, groups)
   return (
     <div className="ob-cc">
       <div className="ob-cc-head">
         <div className="ob-cc-av">{initials(client.name) || '–'}</div>
         <div className="ob-cc-id">
-          <p className="ob-cc-name">{client.name || 'לקוח/ה חדש/ה'}</p>
+          <p className="ob-cc-name">{client.name || t('step4.previewName')}</p>
           <div className="ob-cc-meta">
-            <span className="ob-cc-status"><MG text="פעיל׌" /></span>
+            <span className="ob-cc-status"><MG text={t('step4.statusActive')} /></span>
             {projectName && <span className="ob-cc-proj">{projectName}</span>}
           </div>
         </div>
         {onRemove && (
-          <button type="button" className="ob-cc-x" onClick={onRemove} aria-label={`הסר ${client.name}`}>
+          <button type="button" className="ob-cc-x" onClick={onRemove} aria-label={t('step4.removeAria', { name: client.name })}>
             <X size={14} strokeWidth={2} aria-hidden="true" />
           </button>
         )}
       </div>
       <div className="ob-cc-stats">
         <div className="ob-cc-stat">
-          <p className="ob-cc-stat-l">פגישות</p>
+          <p className="ob-cc-stat-l">{t('step4.sessions')}</p>
           <p className="ob-cc-stat-v mono">{sessionsPaid}/{sessionsTotal || 0}</p>
         </div>
         <div className="ob-cc-stat divided">
-          <p className="ob-cc-stat-l">שולם</p>
+          <p className="ob-cc-stat-l">{t('step4.paid')}</p>
           <p className="ob-cc-stat-v mono">{isr(paid)}</p>
         </div>
         <div className="ob-cc-stat">
-          <p className="ob-cc-stat-l">יתרה</p>
+          <p className="ob-cc-stat-l">{t('step4.balance')}</p>
           <p className="ob-cc-stat-v mono">{isr(balance)}</p>
         </div>
       </div>
@@ -72,6 +72,7 @@ function ClientPreviewCard({ client, projectName, members, groups, onRemove }) {
    one is selected. "Add to list" commits a real client (and a real
    group_members row when a group is chosen) and stacks it below. */
 export default function Step4Clients({ ob, setCTA }) {
+  const { t } = useT('onboardingSteps')
   const { addClient, removeClient, clients } = useClients()
   const { projects } = useProjects()
   const { groups, refetch: refetchGroups } = useGroups()
@@ -110,13 +111,8 @@ export default function Step4Clients({ ob, setCTA }) {
   }, [projectGroups, form.group_id])
 
   /* Gendered title, matching the form-of-address chosen in step 1 —
-     routed through the shared addressUser helper for app-wide consistency. */
-  const gender = ob.state.answers?.profile?.gender
-  const addTitle = addressUser(gender, {
-    male:    'הוסף לקוחות ראשונים',
-    female:  'הוסיפי לקוחות ראשונים',
-    neutral: 'הוסף/י לקוחות ראשונים',
-  })
+     i18next applies the gender context via useT for app-wide consistency. */
+  const addTitle = t('step4.title')
 
   const projectName = (id) => projects.find((p) => p.id === id)?.name || ''
   const addedClients = useMemo(
@@ -126,13 +122,7 @@ export default function Step4Clients({ ob, setCTA }) {
 
   const composerHasName = form.name.trim().length > 0
   const canAdvance = composerHasName || addedClients.length > 0
-  const hint = !canAdvance
-    ? addressUser(gender, {
-        male:    'הוסף לקוח אחד לפחות, או דלג.',
-        female:  'הוסיפי לקוח אחד לפחות, או דלגי.',
-        neutral: 'הוסף/י לקוח אחד לפחות, או דלג/י.',
-      })
-    : null
+  const hint = !canAdvance ? t('step4.hintAddOne') : null
 
   const clientPayload = () => ({
     name: form.name.trim(),
@@ -180,7 +170,7 @@ export default function Step4Clients({ ob, setCTA }) {
     if (!composerHasName) return
     setBusy(true); setErr('')
     try { await commitComposer(); resetComposer() }
-    catch (e) { setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב')) }
+    catch (e) { setErr(t('step4.errSaveFail', { error: e.message || t('step4.tryAgain') })) }
     finally { setBusy(false) }
   }
 
@@ -199,7 +189,7 @@ export default function Step4Clients({ ob, setCTA }) {
       if (composerHasName) await commitComposer()
       await ob.advance()
     } catch (e) {
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr(t('step4.errSaveFail', { error: e.message || t('step4.tryAgain') }))
     } finally {
       setBusy(false)
     }
@@ -235,11 +225,11 @@ export default function Step4Clients({ ob, setCTA }) {
     <>
       <p className="ob-intro">{addTitle}</p>
 
-      <CsvMappingEditor parsed={ob.state.parsed_data} onChange={ob.setParsedData} stepKey="clients" title="שדות הלקוח מהקובץ" />
+      <CsvMappingEditor parsed={ob.state.parsed_data} onChange={ob.setParsedData} stepKey="clients" title={t('step4.csvTitle')} />
 
       {pathA && suggestions.length > 0 && (
         <div className="ob-field">
-          <p className="ob-label">מהקובץ שלך — {addressUser(gender, { male: 'בחר', female: 'בחרי', neutral: 'בחר/י' })} לקוח כדי למלא את השדות</p>
+          <p className="ob-label">{t('step4.fromFileLabel', { verb: t('step4.fromFileVerb') })}</p>
           <div className="ob-pills">
             {suggestions.map((s, i) => (
               <button
@@ -278,9 +268,10 @@ export default function Step4Clients({ ob, setCTA }) {
             projectName={projectName(form.project_id)}
             members={previewMembers}
             groups={groups}
+            t={t}
           />
           <button type="button" className="ob-pc-add" onClick={onAddClient} disabled={busy}>
-            + <MG word="client" /> לרשימה
+            + <MG word="client" /> {t('step4.addToList')}
           </button>
         </div>
       )}
@@ -288,7 +279,7 @@ export default function Step4Clients({ ob, setCTA }) {
       {/* Cumulative list of added clients (real cards). */}
       {addedClients.length > 0 && (
         <div className="ob-cc-list">
-          <p className="ob-label ob-cc-list-h">לקוחות שנוספו ({addedClients.length})</p>
+          <p className="ob-label ob-cc-list-h">{t('step4.addedHeading', { count: addedClients.length })}</p>
           {addedClients.map((c) => (
             <ClientPreviewCard
               key={c.id}
@@ -297,6 +288,7 @@ export default function Step4Clients({ ob, setCTA }) {
               members={members}
               groups={groups}
               onRemove={() => onRemoveClient(c.id)}
+              t={t}
             />
           ))}
         </div>

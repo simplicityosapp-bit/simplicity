@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { TriangleAlert } from 'lucide-react'
 import Modal from './Modal'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import { isr } from '../lib/finance'
 
 /* Two-step guard shown before issuing a REAL (irreversible) tax document when
@@ -12,7 +12,7 @@ import { isr } from '../lib/finance'
    Stage is reset on every close (the single choke point) so the next open
    always starts at stage 1 — no setState-in-effect needed. */
 export default function IssueGuardModal({ open, reasons = [], amount, onClose, onConfirm }) {
-  const { addr } = useAddress()
+  const { t } = useT('modalsSystem')
   const [stage, setStage] = useState(1)
   const [busy, setBusy] = useState(false)
 
@@ -24,7 +24,7 @@ export default function IssueGuardModal({ open, reasons = [], amount, onClose, o
   }
 
   return (
-    <Modal open={open} onClose={close} title={stage === 1 ? 'רגע לפני שמפיקים' : 'אישור סופי'}>
+    <Modal open={open} onClose={close} title={stage === 1 ? t('issueGuard.title1') : t('issueGuard.title2')}>
       {stage === 1 ? (
         <>
           <div className="ig-warn">
@@ -34,19 +34,19 @@ export default function IssueGuardModal({ open, reasons = [], amount, onClose, o
             </div>
           </div>
           <div className="m-actions">
-            <button type="button" className="m-btn-cancel" onClick={close}>ביטול</button>
+            <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
             <button type="button" className="m-btn-save" onClick={() => setStage(2)}>
-              {addr({ male: 'כן, אני בטוח', female: 'כן, אני בטוחה', neutral: 'כן, אני בטוח/ה' })}
+              {t('issueGuard.sure')}
             </button>
           </div>
         </>
       ) : (
         <>
-          <p className="m-confirm-msg">פעולה זו תפיק מסמך מס אמיתי שאי-אפשר לבטל. להפיק על {isr(amount)}?</p>
+          <p className="m-confirm-msg">{t('issueGuard.finalMsg', { amount: isr(amount) })}</p>
           <div className="m-actions">
-            <button type="button" className="m-btn-cancel" onClick={() => setStage(1)} disabled={busy}>חזרה</button>
+            <button type="button" className="m-btn-cancel" onClick={() => setStage(1)} disabled={busy}>{t('common.back')}</button>
             <button type="button" className="m-btn-save danger" onClick={confirmFinal} disabled={busy}>
-              {busy ? '…' : addr({ male: 'כן, הפק', female: 'כן, הפיקי', neutral: 'כן, הפק/י' })}
+              {busy ? '…' : t('issueGuard.issue')}
             </button>
           </div>
         </>

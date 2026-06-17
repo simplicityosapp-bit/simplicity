@@ -62,12 +62,20 @@ import heOnboarding from './locales/he/onboarding.json'
 import enOnboarding from './locales/en/onboarding.json'
 import heOnboardingSteps from './locales/he/onboardingSteps.json'
 import enOnboardingSteps from './locales/en/onboardingSteps.json'
+import heModalsClient from './locales/he/modalsClient.json'
+import enModalsClient from './locales/en/modalsClient.json'
+import heModalsData from './locales/he/modalsData.json'
+import enModalsData from './locales/en/modalsData.json'
+import heModalsTask from './locales/he/modalsTask.json'
+import enModalsTask from './locales/en/modalsTask.json'
+import heModalsSystem from './locales/he/modalsSystem.json'
+import enModalsSystem from './locales/en/modalsSystem.json'
 
-export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing', 'insights', 'reports', 'moon', 'components', 'onboarding', 'onboardingSteps']
+export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing', 'insights', 'reports', 'moon', 'components', 'onboarding', 'onboardingSteps', 'modalsClient', 'modalsData', 'modalsTask', 'modalsSystem']
 
 const resources = {
-  he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads, projects: heProjects, tasks: heTasks, connections: heConnections, admin: heAdmin, landing: heLanding, insights: heInsights, reports: heReports, moon: heMoon, components: heComponents, onboarding: heOnboarding, onboardingSteps: heOnboardingSteps },
-  en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads, projects: enProjects, tasks: enTasks, connections: enConnections, admin: enAdmin, landing: enLanding, insights: enInsights, reports: enReports, moon: enMoon, components: enComponents, onboarding: enOnboarding, onboardingSteps: enOnboardingSteps },
+  he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads, projects: heProjects, tasks: heTasks, connections: heConnections, admin: heAdmin, landing: heLanding, insights: heInsights, reports: heReports, moon: heMoon, components: heComponents, onboarding: heOnboarding, onboardingSteps: heOnboardingSteps, modalsClient: heModalsClient, modalsData: heModalsData, modalsTask: heModalsTask, modalsSystem: heModalsSystem },
+  en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads, projects: enProjects, tasks: enTasks, connections: enConnections, admin: enAdmin, landing: enLanding, insights: enInsights, reports: enReports, moon: enMoon, components: enComponents, onboarding: enOnboarding, onboardingSteps: enOnboardingSteps, modalsClient: enModalsClient, modalsData: enModalsData, modalsTask: enModalsTask, modalsSystem: enModalsSystem },
   es: { common: esCommon, auth: esAuth },
   fr: { common: frCommon, auth: frAuth },
 }

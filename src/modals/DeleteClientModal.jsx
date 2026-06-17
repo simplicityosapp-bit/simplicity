@@ -6,7 +6,7 @@ import { isr } from '../lib/finance'
 import { restoreClient } from '../lib/api/clients'
 import { restoreTransaction } from '../lib/api/transactions'
 import { pushUndo } from '../lib/undo'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 
 /* Delete client(s) with explicit handling of their finances:
    - "השאר תנועות (כיתומות)" → updateTransaction with client_id=null +
@@ -25,7 +25,7 @@ export default function DeleteClientModal({
   transactions = [],
   onRemoveClient, onUpdateTransaction, onRemoveTransaction,
 }) {
-  const { addr } = useAddress()
+  const { t } = useT('modalsClient')
   const targets = useMemo(() => (clients?.length ? clients : (client ? [client] : [])), [client, clients])
   const targetIds = useMemo(() => new Set(targets.map((c) => c.id)), [targets])
   const linkedTxs = useMemo(
@@ -37,10 +37,10 @@ export default function DeleteClientModal({
   const [busy, setBusy] = useState(false)
   const qc = useQueryClient()
 
-  if (!targets.length) return <Modal open={open} onClose={onClose} title="מחיקת לקוח" />
+  if (!targets.length) return <Modal open={open} onClose={onClose} title={t('deleteClient.title')} />
 
-  const title = targets.length === 1 ? `מחיקת ${targets[0].name}` : `מחיקת ${targets.length} לקוחות`
-  const undoLabel = targets.length === 1 ? `${targets[0].name} נמחק` : `${targets.length} לקוחות נמחקו`
+  const title = targets.length === 1 ? t('deleteClient.titleOne', { name: targets[0].name }) : t('deleteClient.titleMany', { count: targets.length })
+  const undoLabel = targets.length === 1 ? t('deleteClient.undoOne', { name: targets[0].name }) : t('deleteClient.undoMany', { count: targets.length })
 
   const doKeep = async () => {
     if (busy) return
@@ -55,7 +55,7 @@ export default function DeleteClientModal({
       for (const tx of linkedTxs) {
         await onUpdateTransaction(tx.id, {
           client_id: null,
-          orphaned_from: { type: 'client', name: nameById.get(tx.client_id) || 'לקוח שנמחק' },
+          orphaned_from: { type: 'client', name: nameById.get(tx.client_id) || t('deleteClient.orphanName') },
         }).catch(() => {})
       }
       for (const c of targets) {
@@ -117,23 +117,21 @@ export default function DeleteClientModal({
   return (
     <Modal open={open} onClose={onClose} title={title}>
       <p className="dcm-intro">
-        {targets.length === 1
-          ? addr({ male: 'בחר', female: 'בחרי', neutral: 'בחר/י' }) + ' מה לעשות עם התנועות הקשורות ללקוח. אפשר לשחזר מסל המיחזור תוך 30 יום.'
-          : addr({ male: 'בחר', female: 'בחרי', neutral: 'בחר/י' }) + ' מה לעשות עם התנועות הקשורות ללקוחות שנבחרו. אפשר לשחזר מסל המיחזור תוך 30 יום.'}
+        {targets.length === 1 ? t('deleteClient.introOne') : t('deleteClient.introMany')}
       </p>
 
       <div className="dcm-summary">
         <div className="dcm-summary-row">
-          <span className="dcm-summary-l">לקוחות</span>
+          <span className="dcm-summary-l">{t('deleteClient.clients')}</span>
           <span className="dcm-summary-v mono">{targets.length}</span>
         </div>
         <div className="dcm-summary-row">
-          <span className="dcm-summary-l">תנועות קשורות</span>
+          <span className="dcm-summary-l">{t('deleteClient.linkedTransactions')}</span>
           <span className="dcm-summary-v mono">{linkedTxs.length}</span>
         </div>
         {linkedSum > 0 && (
           <div className="dcm-summary-row">
-            <span className="dcm-summary-l">הכנסות סה״כ</span>
+            <span className="dcm-summary-l">{t('deleteClient.totalIncome')}</span>
             <span className="dcm-summary-v mono">{isr(linkedSum)}</span>
           </div>
         )}
@@ -141,22 +139,18 @@ export default function DeleteClientModal({
 
       <div className="dcm-choices">
         <button type="button" className="dcm-choice keep" onClick={doKeep} disabled={busy}>
-          <span className="dcm-choice-title">{addr({ male: 'השאר תנועות', female: 'השאירי תנועות', neutral: 'השאר/י תנועות' })}</span>
-          <span className="dcm-choice-sub">
-            התנועות יישארו ב"כסף" עם תווית "[שם] · נמחק". משמש כשרוצים לשמור היסטוריית חיובים.
-          </span>
+          <span className="dcm-choice-title">{t('deleteClient.keepTitle')}</span>
+          <span className="dcm-choice-sub">{t('deleteClient.keepSub')}</span>
         </button>
         <button type="button" className="dcm-choice cascade" onClick={doCascade} disabled={busy}>
           <AlertCircle size={14} strokeWidth={1.8} aria-hidden="true" />
-          <span className="dcm-choice-title">{addr({ male: 'מחק את התנועות יחד', female: 'מחקי את התנועות יחד', neutral: 'מחק/י את התנועות יחד' })}</span>
-          <span className="dcm-choice-sub">
-            התנועות יעברו לסל המיחזור יחד עם הלקוח. שחזור הלקוח לא משחזר אותן אוטומטית.
-          </span>
+          <span className="dcm-choice-title">{t('deleteClient.cascadeTitle')}</span>
+          <span className="dcm-choice-sub">{t('deleteClient.cascadeSub')}</span>
         </button>
       </div>
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose} disabled={busy}>ביטול</button>
+        <button type="button" className="m-btn-cancel" onClick={onClose} disabled={busy}>{t('common.cancel')}</button>
       </div>
     </Modal>
   )

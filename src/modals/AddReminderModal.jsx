@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 
 const todayStr = () => {
   const d = new Date()
@@ -19,10 +19,10 @@ const blank = () => ({
   end_date: '',
 })
 const RECURRENCES = [
-  { k: 'none', l: 'חד-פעמית' },
-  { k: 'weekly', l: 'שבועי' },
-  { k: 'monthly_date', l: 'חודשי' },
-  { k: 'every_x_days', l: 'כל X ימים' },
+  { k: 'none', l: 'recOnce' },
+  { k: 'weekly', l: 'recWeekly' },
+  { k: 'monthly_date', l: 'recMonthly' },
+  { k: 'every_x_days', l: 'recEveryX' },
 ]
 const HEB_DAYS_SHORT = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳']
 
@@ -82,7 +82,7 @@ function fromReminder(r) {
    the client selector — used when opened from a project drawer. */
 export default function AddReminderModal({ open, onClose, onSave, clients = [], defaultLinkedTo = null, linkedSubjectName = '', reminder = null }) {
   const isEdit = !!reminder
-  const { tryAgain } = useAddress()
+  const { t } = useT('modalsTask')
   const [form, setForm] = useState(() => fromReminder(reminder))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -90,8 +90,8 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
   const close = () => { setForm(fromReminder(reminder)); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
-    if (!form.title.trim()) { setErr('יש למלא כותרת.'); return }
-    if (!form.time) { setErr('יש לבחור שעה.'); return }
+    if (!form.title.trim()) { setErr(t('reminder.titleRequired')); return }
+    if (!form.time) { setErr(t('reminder.timeRequired')); return }
 
     let scheduled
     let pattern = null
@@ -101,20 +101,20 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
       pattern = { dayOfWeek: dow }
     } else if (form.recurrence === 'monthly_date') {
       const dom = parseInt(form.day_of_month, 10)
-      if (!dom || dom < 1 || dom > 31) { setErr('יש לבחור יום בחודש בין 1 ל-31.'); return }
+      if (!dom || dom < 1 || dom > 31) { setErr(t('reminder.dayOfMonthRange')); return }
       scheduled = nextMonthly(dom, form.time)
       pattern = { dayOfMonth: dom }
     } else if (form.recurrence === 'every_x_days') {
       const x = parseInt(form.every_x, 10)
-      if (!x || x < 1) { setErr('יש לבחור מספר ימים חיובי.'); return }
-      if (!form.date) { setErr('יש לבחור תאריך התחלה.'); return }
+      if (!x || x < 1) { setErr(t('reminder.everyXPositive')); return }
+      if (!form.date) { setErr(t('reminder.startDateRequired')); return }
       scheduled = new Date(`${form.date}T${form.time}`)
       pattern = { x }
     } else {
-      if (!form.date) { setErr('יש לבחור תאריך.'); return }
+      if (!form.date) { setErr(t('reminder.dateRequired')); return }
       scheduled = new Date(`${form.date}T${form.time}`)
     }
-    if (Number.isNaN(scheduled.getTime())) { setErr('התאריך או השעה אינם תקינים.'); return }
+    if (Number.isNaN(scheduled.getTime())) { setErr(t('reminder.invalidDateTime')); return }
 
     /* Editing a recurring reminder without touching its timing should NOT
        reschedule it to the next future slot (that would wipe an overdue
@@ -135,7 +135,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
        would be born already-expired — reject it instead of silently saving. */
     if (form.recurrence !== 'none' && form.end_date
         && new Date(`${form.end_date}T23:59:59`) < scheduled) {
-      setErr('תאריך הסיום מוקדם מהמופע הראשון של התזכורת.'); return
+      setErr(t('reminder.endBeforeFirst')); return
     }
 
     setBusy(true)
@@ -155,7 +155,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
@@ -163,22 +163,22 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
   const recurring = form.recurrence !== 'none'
 
   return (
-    <Modal open={open} onClose={close} title={isEdit ? 'עריכת תזכורת' : 'תזכורת חדשה'}>
+    <Modal open={open} onClose={close} title={isEdit ? t('reminder.titleEdit') : t('reminder.titleNew')}>
       <div className="m-field">
-        <label className="m-label">על מה להזכיר?</label>
+        <label className="m-label">{t('reminder.what')}</label>
         <input
           className={`m-input${titleMissing ? ' err' : ''}`}
           value={form.title}
           onChange={(e) => { set('title', e.target.value); if (err) setErr('') }}
-          placeholder="כותרת התזכורת"
+          placeholder={t('reminder.titlePlaceholder')}
         />
       </div>
 
       <div className="m-field">
-        <label className="m-label">חזרתיות</label>
+        <label className="m-label">{t('reminder.recurrence')}</label>
         <div className="m-pills">
           {RECURRENCES.map((r) => (
-            <button key={r.k} type="button" className={`m-pill${form.recurrence === r.k ? ' on' : ''}`} onClick={() => { set('recurrence', r.k); if (err) setErr('') }}>{r.l}</button>
+            <button key={r.k} type="button" className={`m-pill${form.recurrence === r.k ? ' on' : ''}`} onClick={() => { set('recurrence', r.k); if (err) setErr('') }}>{t(`reminder.${r.l}`)}</button>
           ))}
         </div>
       </div>
@@ -188,11 +188,11 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
       {form.recurrence === 'none' && (
         <div className="m-row2">
           <div className="m-field">
-            <label className="m-label">תאריך</label>
+            <label className="m-label">{t('reminder.date')}</label>
             <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
           </div>
           <div className="m-field">
-            <label className="m-label">שעה</label>
+            <label className="m-label">{t('reminder.time')}</label>
             <input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
           </div>
         </div>
@@ -201,7 +201,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
       {form.recurrence === 'weekly' && (
         <>
           <div className="m-field">
-            <label className="m-label">יום בשבוע</label>
+            <label className="m-label">{t('reminder.dayOfWeek')}</label>
             <div className="m-pills">
               {HEB_DAYS_SHORT.map((d, i) => (
                 <button key={i} type="button" className={`m-pill${Number(form.day_of_week) === i ? ' on' : ''}`} onClick={() => set('day_of_week', String(i))}>{d}</button>
@@ -209,7 +209,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
             </div>
           </div>
           <div className="m-field">
-            <label className="m-label">שעה</label>
+            <label className="m-label">{t('reminder.time')}</label>
             <input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
           </div>
         </>
@@ -218,11 +218,11 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
       {form.recurrence === 'monthly_date' && (
         <div className="m-row2">
           <div className="m-field">
-            <label className="m-label">יום בחודש</label>
+            <label className="m-label">{t('reminder.dayOfMonth')}</label>
             <input type="number" min="1" max="31" className="m-input" value={form.day_of_month} onChange={(e) => { set('day_of_month', e.target.value); if (err) setErr('') }} />
           </div>
           <div className="m-field">
-            <label className="m-label">שעה</label>
+            <label className="m-label">{t('reminder.time')}</label>
             <input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
           </div>
         </div>
@@ -232,16 +232,16 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
         <>
           <div className="m-row2">
             <div className="m-field">
-              <label className="m-label">החל מתאריך</label>
+              <label className="m-label">{t('reminder.startFrom')}</label>
               <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
             </div>
             <div className="m-field">
-              <label className="m-label">שעה</label>
+              <label className="m-label">{t('reminder.time')}</label>
               <input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
             </div>
           </div>
           <div className="m-field">
-            <label className="m-label">כל כמה ימים</label>
+            <label className="m-label">{t('reminder.everyHowMany')}</label>
             <input type="number" min="1" className="m-input" value={form.every_x} onChange={(e) => { set('every_x', e.target.value); if (err) setErr('') }} />
           </div>
         </>
@@ -249,38 +249,38 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
 
       {recurring && (
         <div className="m-field">
-          <label className="m-label">תאריך סיום (אופציונלי)</label>
+          <label className="m-label">{t('reminder.endDate')}</label>
           <DateField value={form.end_date} onChange={(e) => set('end_date', e.target.value)} />
         </div>
       )}
 
       {defaultLinkedTo ? (
         <div className="m-field">
-          <label className="m-label">מקושרת ל</label>
+          <label className="m-label">{t('reminder.linkedTo')}</label>
           <p className="m-sub">
             <span className="m-sub-dot" style={{ background: 'var(--clay)' }} />
-            {linkedSubjectName || (defaultLinkedTo.type === 'project' ? 'פרויקט' : defaultLinkedTo.type)}
+            {linkedSubjectName || (defaultLinkedTo.type === 'project' ? t('reminder.project') : defaultLinkedTo.type)}
           </p>
         </div>
       ) : (
         <div className="m-field">
-          <label className="m-label">לקוח מקושר (אופציונלי)</label>
+          <label className="m-label">{t('reminder.linkedClient')}</label>
           <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
-            <option value="">ללא</option>
+            <option value="">{t('common.none')}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
       )}
       <div className="m-field">
-        <label className="m-label">פרטים (אופציונלי)</label>
-        <textarea className="m-textarea" value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="פרטים נוספים" />
+        <label className="m-label">{t('reminder.details')}</label>
+        <textarea className="m-textarea" value={form.description} onChange={(e) => set('description', e.target.value)} placeholder={t('reminder.detailsPlaceholder')} />
       </div>
 
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
     </Modal>
   )

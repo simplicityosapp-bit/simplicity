@@ -3,17 +3,16 @@ import { Trash2 } from 'lucide-react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import InvoiceActions from '../components/InvoiceActions'
-import { useAddress } from '../hooks/useAddress'
-
-const STATUSES = [
-  { k: 'confirmed', l: 'אושרה' },
-  { k: 'pending', l: 'ממתינה' },
-  { k: 'skipped', l: 'דולגה' },
-]
+import { useT } from '../i18n/useT'
 
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
 export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [], onDelete }) {
-  const { tryAgain } = useAddress()
+  const { t } = useT('modalsData')
+  const STATUSES = [
+    { k: 'confirmed', l: t('editTx.statusConfirmed') },
+    { k: 'pending', l: t('editTx.statusPending') },
+    { k: 'skipped', l: t('editTx.statusSkipped') },
+  ]
   const [form, setForm] = useState(() => ({
     type: tx?.type || 'income',
     amount: tx?.amount ?? '',
@@ -53,19 +52,19 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       || form.category_id !== orig.category_id
   }, [form, tx])
 
-  if (!tx) return <Modal open={open} onClose={onClose} title="עריכת תנועה" />
+  if (!tx) return <Modal open={open} onClose={onClose} title={t('editTx.title')} />
 
   const submit = async () => {
     const amount = parseFloat(form.amount)
-    if (!amount || amount <= 0) { setErr('יש למלא סכום חיובי.'); return }
-    if (!form.date) { setErr('יש לבחור תאריך.'); return }
+    if (!amount || amount <= 0) { setErr(t('common.amountPositive')); return }
+    if (!form.date) { setErr(t('editTx.needDate')); return }
     setBusy(true)
     setErr('')
     try {
       await onSave(tx.id, {
         type: form.type,
         amount,
-        desc: form.desc.trim() || (form.type === 'income' ? 'הכנסה' : 'הוצאה'),
+        desc: form.desc.trim() || (form.type === 'income' ? t('tx.incomeFallback') : t('tx.expenseFallback')),
         date: form.date,
         status: form.status,
         client_id: form.client_id || null,
@@ -75,21 +74,21 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="עריכת תנועה">
+    <Modal open={open} onClose={onClose} title={t('editTx.title')}>
       <div className="m-field">
         <div className="m-pills">
-          <button type="button" className={`m-pill${form.type === 'income' ? ' on income' : ''}`} onClick={() => set('type', 'income')}>+ הכנסה</button>
-          <button type="button" className={`m-pill${form.type === 'expense' ? ' on expense' : ''}`} onClick={() => set('type', 'expense')}>− הוצאה</button>
+          <button type="button" className={`m-pill${form.type === 'income' ? ' on income' : ''}`} onClick={() => set('type', 'income')}>{t('common.income')}</button>
+          <button type="button" className={`m-pill${form.type === 'expense' ? ' on expense' : ''}`} onClick={() => set('type', 'expense')}>{t('common.expense')}</button>
         </div>
       </div>
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">סכום ₪</label>
+          <label className="m-label">{t('common.amount')}</label>
           <input
             type="number"
             min="0"
@@ -99,16 +98,16 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
           />
         </div>
         <div className="m-field">
-          <label className="m-label">תאריך</label>
+          <label className="m-label">{t('common.date')}</label>
           <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
         </div>
       </div>
       <div className="m-field">
-        <label className="m-label">תיאור</label>
+        <label className="m-label">{t('common.description')}</label>
         <input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} />
       </div>
       <div className="m-field">
-        <label className="m-label">סטטוס</label>
+        <label className="m-label">{t('editTx.status')}</label>
         <div className="m-pills">
           {STATUSES.map((s) => (
             <button key={s.k} type="button" className={`m-pill${form.status === s.k ? ' on' : ''}`} onClick={() => set('status', s.k)}>{s.l}</button>
@@ -117,16 +116,16 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       </div>
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">לקוח</label>
+          <label className="m-label">{t('common.client')}</label>
           <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
-            <option value="">ללא</option>
+            <option value="">{t('common.none')}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
         <div className="m-field">
-          <label className="m-label">פרויקט</label>
+          <label className="m-label">{t('common.project')}</label>
           <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-            <option value="">ללא</option>
+            <option value="">{t('common.none')}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
@@ -134,9 +133,9 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
 
       {form.type === 'expense' && (
         <div className="m-field">
-          <label className="m-label">קטגוריה</label>
+          <label className="m-label">{t('common.category')}</label>
           <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
-            <option value="">ללא קטגוריה</option>
+            <option value="">{t('common.noCategory')}</option>
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
@@ -153,11 +152,11 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       <div className="m-actions">
         {onDelete && tx?.id && (
           <button type="button" className="m-btn-delete-inline" onClick={() => { onDelete(tx.id); onClose() }}>
-            <Trash2 size={15} strokeWidth={1.8} aria-hidden="true" /> מחק
+            <Trash2 size={15} strokeWidth={1.8} aria-hidden="true" /> {t('editTx.delete')}
           </button>
         )}
-        <button type="button" className="m-btn-cancel" onClick={onClose}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
     </Modal>
   )

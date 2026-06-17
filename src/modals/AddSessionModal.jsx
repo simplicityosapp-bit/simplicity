@@ -2,7 +2,7 @@ import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import { showToast } from '../lib/toast'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = () => ({ date: todayStr(), summary: '', notes: '' })
@@ -17,7 +17,7 @@ export default function AddSessionModal({ open, onClose, onSave, client, group, 
   const subject = group || client
   const subjectColor = group ? (group.color || 'var(--stone)') : 'var(--sage)'
   const isEdit = !!session
-  const { tryAgain } = useAddress()
+  const { t } = useT('modalsTask')
   const [form, setForm] = useState(() => fromSession(session))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -25,7 +25,7 @@ export default function AddSessionModal({ open, onClose, onSave, client, group, 
   const close = () => { setForm(fromSession(session)); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
-    if (!form.date) { setErr('יש לבחור תאריך.'); return }
+    if (!form.date) { setErr(t('session.dateRequired')); return }
     setBusy(true)
     setErr('')
     try {
@@ -34,40 +34,40 @@ export default function AddSessionModal({ open, onClose, onSave, client, group, 
         summary: form.summary.trim() || null,
         notes: form.notes.trim() || null,
       })
-      showToast('הפגישה נשמרה')
+      showToast(t('session.saved'))
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   return (
-    <Modal open={open} onClose={close} title={isEdit ? 'עריכת פגישה' : 'תיעוד פגישה'}>
+    <Modal open={open} onClose={close} title={isEdit ? t('session.titleEdit') : t('session.titleNew')}>
       {subject && (
         <p className="m-sub">
           <span className="m-sub-dot" style={{ background: subjectColor }} />
-          {subject.name}{nextNum ? ` · פגישה #${nextNum}` : ''}
+          {subject.name}{nextNum ? ` · ${t('session.meetingNum', { num: nextNum })}` : ''}
         </p>
       )}
       <div className="m-field">
-        <label className="m-label">תאריך הפגישה</label>
+        <label className="m-label">{t('session.date')}</label>
         <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
       </div>
       <div className="m-field">
-        <label className="m-label">סיכום (אופציונלי)</label>
-        <textarea className="m-textarea" value={form.summary} onChange={(e) => set('summary', e.target.value)} placeholder="מה עלה בפגישה? מה הצעד הבא?" />
+        <label className="m-label">{t('session.summary')}</label>
+        <textarea className="m-textarea" value={form.summary} onChange={(e) => set('summary', e.target.value)} placeholder={t('session.summaryPlaceholder')} />
       </div>
       <div className="m-field">
-        <label className="m-label">הערות פרטיות (אופציונלי)</label>
-        <input className="m-input" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="הערה לעצמך" />
+        <label className="m-label">{t('session.notes')}</label>
+        <input className="m-input" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={t('session.notesPlaceholder')} />
       </div>
 
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
     </Modal>
   )

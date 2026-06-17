@@ -2,13 +2,10 @@ import { useState } from 'react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
 import { GROUP_BILLING_MODES, GROUP_BILLING_LABELS } from '../lib/enums'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
 
-const DAYS = [
-  { k: 0, l: 'ראשון' }, { k: 1, l: 'שני' }, { k: 2, l: 'שלישי' },
-  { k: 3, l: 'רביעי' }, { k: 4, l: 'חמישי' }, { k: 5, l: 'שישי' }, { k: 6, l: 'שבת' },
-]
+const DAYS = [0, 1, 2, 3, 4, 5, 6]
 const blank = () => ({
   name: '', color: COLORS[0], billing_mode: 'package',
   package_price: '', package_sessions: '', price_per_session: '',
@@ -18,7 +15,7 @@ const blank = () => ({
 /* Create a group under a given project (passed in). package_price + sessions
    define the membership tuition. Recurring day/time are optional. */
 export default function AddGroupModal({ open, onClose, onSave, project }) {
-  const { tryAgain } = useAddress()
+  const { t } = useT('modalsClient')
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -26,17 +23,17 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
   const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
-    if (!form.name.trim()) { setErr('יש למלא שם.'); return }
+    if (!form.name.trim()) { setErr(t('common.nameRequired')); return }
     const mode = form.billing_mode
     const price = parseFloat(form.package_price)
     const sess = parseInt(form.package_sessions, 10)
     const perSession = parseFloat(form.price_per_session)
     /* Validate only the fields the chosen billing mode actually uses. */
     if (mode === 'package') {
-      if (!(price > 0)) { setErr('יש למלא מחיר חבילה חיובי.'); return }
-      if (!(sess > 0)) { setErr('יש למלא מספר פגישות חיובי.'); return }
+      if (!(price > 0)) { setErr(t('addGroup.errPackagePrice')); return }
+      if (!(sess > 0)) { setErr(t('addGroup.errSessions')); return }
     } else if (mode === 'per_session') {
-      if (!(perSession > 0)) { setErr('יש למלא מחיר לפגישה חיובי.'); return }
+      if (!(perSession > 0)) { setErr(t('addGroup.errPerSession')); return }
     }
     setBusy(true)
     setErr('')
@@ -59,14 +56,14 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   const nameMissing = !!err && !form.name.trim()
 
   return (
-    <Modal open={open} onClose={close} title="קבוצה חדשה">
+    <Modal open={open} onClose={close} title={t('addGroup.title')}>
       {project && (
         <p className="m-sub">
           <span className="m-sub-dot" style={{ background: project.color || 'var(--stone)' }} />
@@ -74,16 +71,16 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
         </p>
       )}
       <div className="m-field">
-        <label className="m-label">שם הקבוצה</label>
+        <label className="m-label">{t('addGroup.groupName')}</label>
         <input
           className={`m-input${nameMissing ? ' err' : ''}`}
           value={form.name}
           onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
-          placeholder="לדוגמה: סדנת בוקר"
+          placeholder={t('addGroup.groupNamePlaceholder')}
         />
       </div>
       <div className="m-field">
-        <label className="m-label">תמחור</label>
+        <label className="m-label">{t('addGroup.pricing')}</label>
         <div className="m-pills">
           {GROUP_BILLING_MODES.map((mode) => (
             <button
@@ -101,7 +98,7 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
       {form.billing_mode === 'package' && (
         <div className="m-row2">
           <div className="m-field">
-            <label className="m-label">מחיר חבילה ₪</label>
+            <label className="m-label">{t('addGroup.packagePrice')}</label>
             <input
               type="number"
               min="0"
@@ -111,7 +108,7 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
             />
           </div>
           <div className="m-field">
-            <label className="m-label">מספר פגישות</label>
+            <label className="m-label">{t('addGroup.sessionCount')}</label>
             <input
               type="number"
               min="1"
@@ -125,7 +122,7 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
 
       {form.billing_mode === 'per_session' && (
         <div className="m-field">
-          <label className="m-label">מחיר לפגישה ₪</label>
+          <label className="m-label">{t('addGroup.pricePerSession')}</label>
           <input
             type="number"
             min="0"
@@ -137,39 +134,39 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
       )}
 
       {form.billing_mode === 'none' && (
-        <p className="m-hint">בלי מחיר קבוע מראש. אפשר לתמחר כל חבר בנפרד דרך כרטיס הלקוח.</p>
+        <p className="m-hint">{t('addGroup.noneHint')}</p>
       )}
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">יום קבוע (אופציונלי)</label>
+          <label className="m-label">{t('addGroup.fixedDayOptional')}</label>
           <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}>
-            <option value="">ללא</option>
-            {DAYS.map((d) => <option key={d.k} value={d.k}>{d.l}</option>)}
+            <option value="">{t('common.none')}</option>
+            {DAYS.map((d) => <option key={d} value={d}>{t(`common.day${d}`)}</option>)}
           </select>
         </div>
         <div className="m-field">
-          <label className="m-label">שעת התחלה (אופציונלי)</label>
+          <label className="m-label">{t('addGroup.startTimeOptional')}</label>
           <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
         </div>
       </div>
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">שעת סיום (אופציונלי)</label>
+          <label className="m-label">{t('addGroup.endTimeOptional')}</label>
           <input type="time" className="m-input" value={form.recurring_end_time} onChange={(e) => set('recurring_end_time', e.target.value)} />
         </div>
       </div>
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">תאריך התחלה (אופציונלי)</label>
+          <label className="m-label">{t('addGroup.startDateOptional')}</label>
           <DateField value={form.recurring_start_date} onChange={(e) => set('recurring_start_date', e.target.value)} />
         </div>
         <div className="m-field">
-          <label className="m-label">תאריך סיום (אופציונלי)</label>
+          <label className="m-label">{t('addGroup.endDateOptional')}</label>
           <DateField value={form.recurring_end_date} onChange={(e) => set('recurring_end_date', e.target.value)} />
         </div>
       </div>
       <div className="m-field">
-        <label className="m-label">צבע</label>
+        <label className="m-label">{t('addGroup.color')}</label>
         <div className="m-colors">
           {COLORS.map((c) => (
             <button key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => set('color', c)} />
@@ -180,8 +177,8 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
     </Modal>
   )

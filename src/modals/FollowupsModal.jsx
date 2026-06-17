@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react'
 import Modal from './Modal'
+import { useT } from '../i18n/useT'
 
 /* "פולואו-אפים פתוחים" — the leads whose follow-up is due (date ≤ today,
    still in_process). Opened from the banner on the leads screen. Each row
@@ -10,10 +11,11 @@ const ddmm = (d) => {
 }
 
 export default function FollowupsModal({ open, onClose, leads = [], onOpenLead, onMarkDone }) {
+  const { t } = useT('modalsTask')
   return (
-    <Modal open={open} onClose={onClose} title="פולואו-אפים פתוחים">
+    <Modal open={open} onClose={onClose} title={t('followups.title')}>
       {leads.length === 0 ? (
-        <p className="m-hint">אין פולואו-אפים פתוחים להיום.</p>
+        <p className="m-hint">{t('followups.empty')}</p>
       ) : (
         <div className="fu-list">
           {leads.map((l) => (
@@ -22,7 +24,7 @@ export default function FollowupsModal({ open, onClose, leads = [], onOpenLead, 
                 <span className="fu-name">{l.name}</span>
                 <span className="fu-date mono">{ddmm(l.follow_up_date)}</span>
               </button>
-              <button type="button" className="fu-done" onClick={() => onMarkDone?.(l)} aria-label="פולואפ בוצע" title="פולואפ בוצע">
+              <button type="button" className="fu-done" onClick={() => onMarkDone?.(l)} aria-label={t('followups.doneAria')} title={t('followups.doneTitle')}>
                 <Check size={15} strokeWidth={2} aria-hidden="true" />
               </button>
             </div>
@@ -30,7 +32,7 @@ export default function FollowupsModal({ open, onClose, leads = [], onOpenLead, 
         </div>
       )}
       <div className="m-actions">
-        <button type="button" className="m-btn-save" onClick={onClose}>סגירה</button>
+        <button type="button" className="m-btn-save" onClick={onClose}>{t('common.close')}</button>
       </div>
     </Modal>
   )

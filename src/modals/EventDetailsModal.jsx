@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Check, X, CalendarDays, Clock, Pencil, Trash2 } from 'lucide-react'
 import Modal from './Modal'
 import { formatWhen, fmtTime } from '../lib/dates'
+import { useT } from '../i18n/useT'
 
 /* datetime-local helpers — show/parse the browser's local wall-clock value
    (a Date with an argument is allowed by the purity lint; argless new Date()
@@ -19,20 +20,21 @@ const toLocalInput = (d) =>
    Google-synced events can be CLAIMED here: editing or deleting one owns
    it (owned=true), so the change survives future syncs (migration 0023). */
 export default function EventDetailsModal({ open, onClose, event, onConfirmMeeting, onSkipMeeting, onCompleteReminder, onRemoveReminder, onUpdateEvent, onDeleteEvent, onFollowupDone }) {
+  const { t } = useT('modalsTask')
   /* Two-step delete confirm (resets per event — parent keys the modal on
      event.id). No undo path here, so the second tap is the safety net. */
   const [confirmDel, setConfirmDel] = useState(false)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ title: '', start: '', end: '' })
   const [editErr, setEditErr] = useState('')
-  if (!event) return <Modal open={open} onClose={onClose} title="פרטי אירוע" />
+  if (!event) return <Modal open={open} onClose={onClose} title={t('event.title')} />
 
   const isMeeting = event.kind === 'meeting'
   const isCalendar = event.kind === 'calendar'
   const isFollowup = event.kind === 'leadFollowup'
   const isOwned = !!event.raw?.owned
   const Icon = (isMeeting || isCalendar) ? CalendarDays : Clock
-  const title = event.title || 'אירוע'
+  const title = event.title || t('event.fallbackTitle')
 
   const handle = (fn) => async () => {
     try { await fn(event) } finally { onClose() }
@@ -44,9 +46,9 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
     setEditing(true)
   }
   const saveEdit = async () => {
-    if (!form.start) { setEditErr('יש לבחור שעת התחלה.'); return }
+    if (!form.start) { setEditErr(t('event.startRequired')); return }
     const patch = {
-      title: form.title.trim() || '(ללא כותרת)',
+      title: form.title.trim() || t('event.noTitle'),
       start_time: new Date(form.start).toISOString(),
       end_time: form.end ? new Date(form.end).toISOString() : null,
     }
@@ -54,7 +56,7 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="פרטי אירוע">
+    <Modal open={open} onClose={onClose} title={t('event.title')}>
       <div className="evt-detail-head">
         <span className={`evt-detail-icon ${event.kind}`}>
           <Icon size={18} strokeWidth={1.6} aria-hidden="true" />
@@ -63,27 +65,27 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
           <p className="evt-detail-title">{title}</p>
           <p className="evt-detail-when">
             {formatWhen(event.when)}
-            {event.allDay ? ' · כל היום' : (event.end ? `–${fmtTime(event.end)}` : '')}
+            {event.allDay ? ` · ${t('event.allDay')}` : (event.end ? `–${fmtTime(event.end)}` : '')}
           </p>
         </div>
       </div>
 
       {isMeeting && event.status === 'pending' && (
         <div className="evt-detail-row">
-          <p className="evt-detail-question">האם הפגישה התקיימה?</p>
+          <p className="evt-detail-question">{t('event.meetingHappened')}</p>
           <div className="evt-detail-actions">
             <button type="button" className="evt-detail-btn approve" onClick={handle(onConfirmMeeting)}>
-              <Check size={15} strokeWidth={2} aria-hidden="true" /> כן
+              <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('event.yes')}
             </button>
             <button type="button" className="evt-detail-btn skip" onClick={handle(onSkipMeeting)}>
-              <X size={15} strokeWidth={2} aria-hidden="true" /> לא
+              <X size={15} strokeWidth={2} aria-hidden="true" /> {t('event.no')}
             </button>
           </div>
         </div>
       )}
 
       {isMeeting && event.status === 'confirmed' && (
-        <p className="evt-detail-status sage">הפגישה אושרה.</p>
+        <p className="evt-detail-status sage">{t('event.meetingConfirmed')}</p>
       )}
 
       {isCalendar && !editing && (
@@ -91,28 +93,28 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
           <p className="evt-detail-status">
             {(() => {
               const links = [
-                event.clientName && `לקוח: ${event.clientName}`,
-                event.projectName && `פרויקט: ${event.projectName}`,
-                event.leadName && `ליד: ${event.leadName}`,
-                event.groupName && `קבוצה: ${event.groupName}`,
+                event.clientName && t('event.linkClient', { name: event.clientName }),
+                event.projectName && t('event.linkProject', { name: event.projectName }),
+                event.leadName && t('event.linkLead', { name: event.leadName }),
+                event.groupName && t('event.linkGroup', { name: event.groupName }),
               ].filter(Boolean)
               return links.length ? `${links.join(' · ')} · ` : ''
             })()}
             {isOwned
-              ? 'אירוע שלך (נערך מתוך סימפליסיטי).'
-              : 'אירוע מ-Google Calendar — עריכה או מחיקה כאן ישפיעו עליו רק בתוך סימפליסיטי.'}
+              ? t('event.ownedEvent')
+              : t('event.googleEvent')}
           </p>
           <div className="evt-detail-row">
             <div className="evt-detail-actions">
               <button type="button" className="evt-detail-btn approve" onClick={startEdit}>
-                <Pencil size={15} strokeWidth={2} aria-hidden="true" /> עריכה
+                <Pencil size={15} strokeWidth={2} aria-hidden="true" /> {t('event.edit')}
               </button>
               <button
                 type="button"
                 className="evt-detail-btn skip"
                 onClick={confirmDel ? handle(onDeleteEvent) : () => setConfirmDel(true)}
               >
-                <Trash2 size={15} strokeWidth={2} aria-hidden="true" /> {confirmDel ? 'בטוח? מחק' : 'מחיקה'}
+                <Trash2 size={15} strokeWidth={2} aria-hidden="true" /> {confirmDel ? t('event.deleteConfirm') : t('event.delete')}
               </button>
             </div>
           </div>
@@ -122,26 +124,26 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
       {isCalendar && editing && (
         <div className="evt-detail-row">
           <div className="m-field">
-            <label className="m-label">כותרת</label>
-            <input className="m-input" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="כותרת האירוע" />
+            <label className="m-label">{t('event.eventTitle')}</label>
+            <input className="m-input" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder={t('event.eventTitlePlaceholder')} />
           </div>
           <div className="m-row2">
             <div className="m-field">
-              <label className="m-label">התחלה</label>
+              <label className="m-label">{t('event.start')}</label>
               <input type="datetime-local" className="m-input" value={form.start} onChange={(e) => { setForm((f) => ({ ...f, start: e.target.value })); if (editErr) setEditErr('') }} />
             </div>
             <div className="m-field">
-              <label className="m-label">סיום</label>
+              <label className="m-label">{t('event.end')}</label>
               <input type="datetime-local" className="m-input" value={form.end} onChange={(e) => setForm((f) => ({ ...f, end: e.target.value }))} />
             </div>
           </div>
           {editErr && <p className="m-error">{editErr}</p>}
           <div className="evt-detail-actions">
             <button type="button" className="evt-detail-btn approve" onClick={saveEdit}>
-              <Check size={15} strokeWidth={2} aria-hidden="true" /> שמירה
+              <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('common.save')}
             </button>
             <button type="button" className="evt-detail-btn skip" onClick={() => setEditing(false)}>
-              <X size={15} strokeWidth={2} aria-hidden="true" /> ביטול
+              <X size={15} strokeWidth={2} aria-hidden="true" /> {t('common.cancel')}
             </button>
           </div>
         </div>
@@ -149,10 +151,10 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
 
       {isFollowup && (
         <div className="evt-detail-row">
-          <p className="evt-detail-status">פולואו-אפ ליד — {event.title}.</p>
+          <p className="evt-detail-status">{t('event.followupStatus', { title: event.title })}</p>
           <div className="evt-detail-actions">
             <button type="button" className="evt-detail-btn approve" onClick={handle(onFollowupDone)}>
-              <Check size={15} strokeWidth={2} aria-hidden="true" /> פולואפ בוצע
+              <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('event.followupDone')}
             </button>
           </div>
         </div>
@@ -162,21 +164,21 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
         <div className="evt-detail-row">
           <div className="evt-detail-actions">
             <button type="button" className="evt-detail-btn approve" onClick={handle(onCompleteReminder)}>
-              <Check size={15} strokeWidth={2} aria-hidden="true" /> סמן כבוצע
+              <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('event.markDone')}
             </button>
             <button
               type="button"
               className="evt-detail-btn skip"
               onClick={confirmDel ? handle(onRemoveReminder) : () => setConfirmDel(true)}
             >
-              <X size={15} strokeWidth={2} aria-hidden="true" /> {confirmDel ? 'בטוח? מחק' : 'מחק'}
+              <X size={15} strokeWidth={2} aria-hidden="true" /> {confirmDel ? t('event.deleteConfirm') : t('taxonomy.deleteConfirm')}
             </button>
           </div>
         </div>
       )}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>סגירה</button>
+        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.close')}</button>
       </div>
     </Modal>
   )

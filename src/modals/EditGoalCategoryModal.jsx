@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
 
 const ICONS = ['💰', '🤝', '🌱', '✨', '🎨', '🏃', '📚', '🧘', '✍️', '💡', '⭐']
@@ -11,7 +11,7 @@ const ICONS = ['💰', '🤝', '🌱', '✨', '🎨', '🏃', '📚', '🧘', '�
    the preset. Delete removes the category (and its goals, handled by caller).
    The parent passes key={category.id} so this remounts per category. */
 export default function EditGoalCategoryModal({ open, onClose, category, onSave, onDelete }) {
-  const { tryAgain } = useAddress()
+  const { t } = useT('modalsData')
   const [form, setForm] = useState(() => ({
     name: category?.name || '',
     icon: category?.icon || ICONS[0],
@@ -21,10 +21,10 @@ export default function EditGoalCategoryModal({ open, onClose, category, onSave,
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
 
-  if (!category) return <Modal open={open} onClose={onClose} title="עריכת מדד" />
+  if (!category) return <Modal open={open} onClose={onClose} title={t('editCat.title')} />
 
   const submit = async () => {
-    if (!form.name.trim()) { setErr('יש למלא שם.'); return }
+    if (!form.name.trim()) { setErr(t('common.nameRequired')); return }
     setBusy(true)
     setErr('')
     try {
@@ -32,25 +32,25 @@ export default function EditGoalCategoryModal({ open, onClose, category, onSave,
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   const icons = category.icon && !ICONS.includes(category.icon) ? [category.icon, ...ICONS] : ICONS
 
   return (
-    <Modal open={open} onClose={onClose} title="עריכת מדד">
+    <Modal open={open} onClose={onClose} title={t('editCat.title')}>
       <div className="m-field">
-        <label className="m-label">שם המדד</label>
+        <label className="m-label">{t('editCat.metricName')}</label>
         <input
           className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
           value={form.name}
           onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
-          placeholder="שם המדד"
+          placeholder={t('editCat.namePlaceholder')}
         />
       </div>
       <div className="m-field">
-        <label className="m-label">אייקון</label>
+        <label className="m-label">{t('common.icon')}</label>
         <div className="m-pills">
           {icons.map((ic) => (
             <button key={ic} type="button" className={`m-pill${form.icon === ic ? ' on' : ''}`} onClick={() => set('icon', ic)}>{ic}</button>
@@ -58,7 +58,7 @@ export default function EditGoalCategoryModal({ open, onClose, category, onSave,
         </div>
       </div>
       <div className="m-field">
-        <label className="m-label">צבע</label>
+        <label className="m-label">{t('common.color')}</label>
         <div className="m-colors">
           {COLORS.map((c) => (
             <button key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => set('color', c)} />
@@ -69,11 +69,11 @@ export default function EditGoalCategoryModal({ open, onClose, category, onSave,
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
       <button type="button" className="m-btn-delete" onClick={() => onDelete(category)}>
-        <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" /> מחיקת המדד
+        <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" /> {t('editCat.deleteMetric')}
       </button>
     </Modal>
   )

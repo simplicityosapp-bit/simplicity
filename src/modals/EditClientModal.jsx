@@ -1,23 +1,20 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import { isr } from '../lib/finance'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 
 const STATUSES = [
-  { k: 'active', l: 'פעיל׌' },
-  { k: 'wandering', l: 'ביניים' },
-  { k: 'past', l: 'לשעבר' },
-  { k: 'no_status', l: 'ללא' },
+  { k: 'active', l: 'statusActive' },
+  { k: 'wandering', l: 'statusWandering' },
+  { k: 'past', l: 'statusPast' },
+  { k: 'no_status', l: 'statusNone' },
 ]
-const DAYS = [
-  { k: 0, l: 'ראשון' }, { k: 1, l: 'שני' }, { k: 2, l: 'שלישי' },
-  { k: 3, l: 'רביעי' }, { k: 4, l: 'חמישי' }, { k: 5, l: 'שישי' }, { k: 6, l: 'שבת' },
-]
+const DAYS = [0, 1, 2, 3, 4, 5, 6]
 
 /* Edit a client — name / status / sub-status / sessions / price / phone /
    project. Parent passes key={client?.id} so this remounts cleanly per client. */
 export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [] }) {
-  const { addr, tryAgain } = useAddress()
+  const { t } = useT('modalsClient')
   /* Per-group billing override (group_members.total_override) — keyed by
      membership id. Lets the user manually set a member's total after the
      group's billing mode produced a default. */
@@ -57,7 +54,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const setMeta = (k) => setForm((f) => ({ ...f, status: k, status_id: '' }))
 
-  if (!client) return <Modal open={open} onClose={onClose} title="עריכת לקוח" />
+  if (!client) return <Modal open={open} onClose={onClose} title={t('editClient.title')} />
   const subStatuses = statuses.filter((s) => s.meta_category === form.status)
 
   /* Live billing snapshot — mirrors the card. Billing is per-client: the
@@ -79,7 +76,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   const setBalance = (v) => set('adjustment', String(liveTotal - livePaid - (Number(v) || 0)))
 
   const submit = async () => {
-    if (!form.name.trim()) { setErr('יש למלא שם.'); return }
+    if (!form.name.trim()) { setErr(t('common.nameRequired')); return }
     setBusy(true)
     setErr('')
     try {
@@ -146,14 +143,14 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="עריכת לקוח">
+    <Modal open={open} onClose={onClose} title={t('editClient.title')}>
       <div className="m-field">
-        <label className="m-label">שם</label>
+        <label className="m-label">{t('common.name')}</label>
         <input
           className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
           value={form.name}
@@ -161,151 +158,145 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         />
       </div>
       <div className="m-field">
-        <label className="m-label">סטטוס</label>
+        <label className="m-label">{t('editClient.status')}</label>
         <div className="m-pills">
           {STATUSES.map((s) => (
-            <button key={s.k} type="button" className={`m-pill${form.status === s.k ? ' on' : ''}`} onClick={() => setMeta(s.k)}>{s.l}</button>
+            <button key={s.k} type="button" className={`m-pill${form.status === s.k ? ' on' : ''}`} onClick={() => setMeta(s.k)}>{t(`editClient.${s.l}`)}</button>
           ))}
         </div>
       </div>
       {subStatuses.length > 0 && (
         <div className="m-field">
-          <label className="m-label">תת-סטטוס (אופציונלי)</label>
+          <label className="m-label">{t('common.subStatusOptional')}</label>
           <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
-            <option value="">ללא</option>
+            <option value="">{t('common.none')}</option>
             {subStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
           </select>
         </div>
       )}
       <div className="m-field">
-        <label className="m-label">אופן חיוב</label>
+        <label className="m-label">{t('editClient.billingMode')}</label>
         <div className="m-pills">
-          <button type="button" className={`m-pill${!isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'package')}>חבילה</button>
-          <button type="button" className={`m-pill${isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'per_session')}>לפי פגישה</button>
+          <button type="button" className={`m-pill${!isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'package')}>{t('editClient.billingPackage')}</button>
+          <button type="button" className={`m-pill${isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'per_session')}>{t('editClient.billingPerSession')}</button>
         </div>
         {form.billing_mode !== (client?.billing_mode || 'package') && (
-          <p className="m-sub">שימו לב: היתרה תחושב מחדש לפי אופן החיוב החדש.</p>
+          <p className="m-sub">{t('editClient.billingModeChangeNote')}</p>
         )}
       </div>
       <div className="m-field">
-        <label className="m-label">פגישות אישיות</label>
+        <label className="m-label">{t('editClient.personalSessions')}</label>
         <div className={`ec-bill${isPerSession ? '' : ' ec-bill-2'}`} style={isPerSession ? { gridTemplateColumns: '1fr' } : undefined}>
           {!isPerSession && (
             <div className="ec-bill-cell">
-              <p className="ec-bill-label">נקבעו</p>
+              <p className="ec-bill-label">{t('editClient.scheduled')}</p>
               <input type="number" min="0" className="ec-bill-input" value={form.sessions}
-                onChange={(e) => set('sessions', e.target.value)} aria-label="נקבעו" />
+                onChange={(e) => set('sessions', e.target.value)} aria-label={t('editClient.scheduled')} />
             </div>
           )}
           <div className={`ec-bill-cell${isPerSession ? '' : ' divided-start'}`}>
-            <p className="ec-bill-label">בוצעו</p>
+            <p className="ec-bill-label">{t('editClient.done')}</p>
             <input type="number" min="0" className="ec-bill-input" value={form.done}
-              onChange={(e) => set('done', e.target.value)} aria-label="בוצעו" />
+              onChange={(e) => set('done', e.target.value)} aria-label={t('editClient.done')} />
           </div>
         </div>
         {groupSessions.map((gs) => (
           <div key={gs.id} className="ec-grp-row">
-            <span className="ec-grp-name">פגישות · {gs.name}</span>
-            <span className="ec-grp-val">בוצעו {gs.held} · נקבעו {gs.quota || 0}</span>
+            <span className="ec-grp-name">{t('editClient.groupSessions', { name: gs.name })}</span>
+            <span className="ec-grp-val">{t('editClient.groupSessionsVal', { held: gs.held, quota: gs.quota || 0 })}</span>
           </div>
         ))}
       </div>
       <div className="m-field">
-        <label className="m-label">מחיר לפגישה ₪</label>
+        <label className="m-label">{t('editClient.pricePerSession')}</label>
         <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => set('price_per_session', e.target.value)} />
       </div>
       <div className="m-field">
-        <label className="m-label">סה״כ לתשלום (אופציונלי)</label>
+        <label className="m-label">{t('editClient.totalDueOptional')}</label>
         <input type="number" min="0" className="m-input" value={form.total_due}
-          onChange={(e) => set('total_due', e.target.value)} placeholder="אוטומטי: פגישות × מחיר" />
-        <p className="m-hint">
-          אם {addr({ male: 'תזין', female: 'תזיני', neutral: 'תזין/י' })} סכום כאן הוא יגבר על החישוב האוטומטי (פגישות × מחיר) — שימושי לנתונים שיובאו.
-        </p>
+          onChange={(e) => set('total_due', e.target.value)} placeholder={t('editClient.totalDuePlaceholder')} />
+        <p className="m-hint">{t('editClient.totalDueHint')}</p>
       </div>
       <div className="m-field">
-        <label className="m-label">חיוב — נאמן לכרטיס</label>
+        <label className="m-label">{t('editClient.billingCardLabel')}</label>
         <div className="ec-bill ec-bill-2">
           <div className="ec-bill-cell">
-            <p className="ec-bill-label">שולם</p>
+            <p className="ec-bill-label">{t('editClient.paid')}</p>
             <div className="ec-bill-money">
               <span className="ec-bill-cur">₪</span>
               <input type="number" className="ec-bill-input" value={form.paid}
-                onChange={(e) => { set('paid', e.target.value); setLastBillEdit('paid') }} aria-label="שולם" />
+                onChange={(e) => { set('paid', e.target.value); setLastBillEdit('paid') }} aria-label={t('editClient.paid')} />
             </div>
           </div>
           <div className="ec-bill-cell divided-start">
-            <p className="ec-bill-label">יתרה</p>
+            <p className="ec-bill-label">{t('editClient.balance')}</p>
             <div className="ec-bill-money">
               <span className="ec-bill-cur">₪</span>
               <input type="number" className="ec-bill-input" value={String(liveBalance)}
-                onChange={(e) => { setBalance(e.target.value); setLastBillEdit('balance') }} aria-label="יתרה" />
+                onChange={(e) => { setBalance(e.target.value); setLastBillEdit('balance') }} aria-label={t('editClient.balance')} />
             </div>
           </div>
         </div>
-        <p className="ec-bill-hint">
-          סה״כ {isr(liveTotal)} · שינוי «שולם» → תנועה בכסף · שינוי «יתרה» → התאמה. פגישות חדשות נשארות אוטומטיות לפי המחיר.
-        </p>
+        <p className="ec-bill-hint">{t('editClient.billingHint', { total: isr(liveTotal) })}</p>
       </div>
       {memberships.length > 0 && (
         <div className="m-field">
-          <label className="m-label">חיוב לפי קבוצה (דריסה ידנית)</label>
+          <label className="m-label">{t('editClient.perGroupBilling')}</label>
           {memberships.map((m) => {
             const g = groups.find((x) => x.id === m.group_id)
             return (
               <div key={m.id} className="m-row2" style={{ alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{ fontSize: 'calc(13px * var(--text-scale))', color: 'var(--espresso)' }}>{g?.name || 'קבוצה'}</span>
+                <span style={{ fontSize: 'calc(13px * var(--text-scale))', color: 'var(--espresso)' }}>{g?.name || t('editClient.groupFallback')}</span>
                 <input
                   type="number"
                   min="0"
                   className="m-input"
                   value={memberOverrides[m.id] ?? ''}
                   onChange={(e) => setMemberOverrides((o) => ({ ...o, [m.id]: e.target.value }))}
-                  placeholder="ברירת מחדל מהקבוצה"
+                  placeholder={t('editClient.perGroupPlaceholder')}
                 />
               </div>
             )
           })}
-          <p className="m-hint">
-            הסכום {addr({ male: 'שתזין', female: 'שתזיני', neutral: 'שתזין/י' })} כאן גובר על החיוב שמגיע מהקבוצה — עבור הלקוח הזה בלבד.
-          </p>
+          <p className="m-hint">{t('editClient.perGroupHint')}</p>
         </div>
       )}
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">טלפון</label>
-          <input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="050-0000000" />
+          <label className="m-label">{t('common.phone')}</label>
+          <input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} />
         </div>
         <div className="m-field">
-          <label className="m-label">פרויקט</label>
+          <label className="m-label">{t('common.project')}</label>
           <select className="m-select" value={form.project_id} onChange={(e) => { set('project_id', e.target.value); set('group_id', '') }}>
-            <option value="">ללא</option>
+            <option value="">{t('common.none')}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
       </div>
       <div className="m-field">
-        <label className="m-label">אימייל (אופציונלי)</label>
-        <input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder="name@example.com" dir="ltr" />
+        <label className="m-label">{t('common.email')}</label>
+        <input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder={t('common.emailPlaceholder')} dir="ltr" />
       </div>
       {form.project_id && groups.some((g) => g.project_id === form.project_id) && (
         <div className="m-field">
-          <label className="m-label">קבוצה (אופציונלי)</label>
+          <label className="m-label">{t('common.groupOptional')}</label>
           <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
-            <option value="">ללא קבוצה</option>
+            <option value="">{t('editClient.noGroup')}</option>
             {groups.filter((g) => g.project_id === form.project_id).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
           </select>
         </div>
       )}
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">פגישה קבועה — יום</label>
+          <label className="m-label">{t('editClient.fixedDay')}</label>
           <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}>
-            <option value="">ללא</option>
-            {DAYS.map((d) => <option key={d.k} value={d.k}>{d.l}</option>)}
+            <option value="">{t('common.none')}</option>
+            {DAYS.map((d) => <option key={d} value={d}>{t(`common.day${d}`)}</option>)}
           </select>
         </div>
         <div className="m-field">
-          <label className="m-label">פגישה קבועה — שעה</label>
+          <label className="m-label">{t('editClient.fixedTime')}</label>
           <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
         </div>
       </div>
@@ -317,20 +308,20 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           className="m-clear-link"
           onClick={() => { set('recurring_day', ''); set('recurring_time', ''); set('recurring_end_time', '') }}
         >
-          ניקוי פגישה קבועה
+          {t('editClient.clearFixed')}
         </button>
       )}
 
       <div className="m-field">
-        <label className="m-label">הערות (אופציונלי)</label>
+        <label className="m-label">{t('common.notesOptional')}</label>
         <textarea className="m-textarea" rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
       </div>
 
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
     </Modal>
   )

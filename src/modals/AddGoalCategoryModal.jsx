@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
 
 const ICONS = ['🎨', '🏃', '📚', '🧘', '✍️', '🌱', '💡', '⭐']
@@ -9,7 +9,7 @@ const blank = () => ({ name: '', icon: ICONS[0], color: COLORS[0] })
 /* Custom (manual) goal category — name + icon + color. Auto categories (income
    etc.) are added as one-tap presets, not here. graph_type defaults to 'delta'. */
 export default function AddGoalCategoryModal({ open, onClose, onSave }) {
-  const { tryAgain } = useAddress()
+  const { t } = useT('modalsData')
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -17,7 +17,7 @@ export default function AddGoalCategoryModal({ open, onClose, onSave }) {
   const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
-    if (!form.name.trim()) { setErr('יש למלא שם.'); return }
+    if (!form.name.trim()) { setErr(t('common.nameRequired')); return }
     setBusy(true)
     setErr('')
     try {
@@ -34,23 +34,23 @@ export default function AddGoalCategoryModal({ open, onClose, onSave }) {
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   return (
-    <Modal open={open} onClose={close} title="מדד חדש">
+    <Modal open={open} onClose={close} title={t('addCat.title')}>
       <div className="m-field">
-        <label className="m-label">שם המדד</label>
+        <label className="m-label">{t('addCat.metricName')}</label>
         <input
           className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
           value={form.name}
           onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
-          placeholder="לדוגמה: יצירת תוכן"
+          placeholder={t('addCat.namePlaceholder')}
         />
       </div>
       <div className="m-field">
-        <label className="m-label">אייקון</label>
+        <label className="m-label">{t('common.icon')}</label>
         <div className="m-pills">
           {ICONS.map((ic) => (
             <button key={ic} type="button" className={`m-pill${form.icon === ic ? ' on' : ''}`} onClick={() => set('icon', ic)}>{ic}</button>
@@ -58,7 +58,7 @@ export default function AddGoalCategoryModal({ open, onClose, onSave }) {
         </div>
       </div>
       <div className="m-field">
-        <label className="m-label">צבע</label>
+        <label className="m-label">{t('common.color')}</label>
         <div className="m-colors">
           {COLORS.map((c) => (
             <button
@@ -76,8 +76,8 @@ export default function AddGoalCategoryModal({ open, onClose, onSave }) {
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
     </Modal>
   )

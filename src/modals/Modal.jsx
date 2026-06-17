@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
+import { useT } from '../i18n/useT'
 import './Modal.css'
 
 /* Ref-count so stacked modals (e.g. a ConfirmModal opened over a form modal)
@@ -15,6 +16,7 @@ const FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), selec
    forced `position: relative` onto every direct child including the
    modal nodes). The portal sidesteps the cascade entirely. */
 export default function Modal({ open, onClose, title, titleLabel, children }) {
+  const { t } = useT('modalsSystem')
   const sheetRef = useRef(null)
   const restoreRef = useRef(null)
 
@@ -83,7 +85,7 @@ export default function Modal({ open, onClose, title, titleLabel, children }) {
       <div ref={sheetRef} tabIndex={-1} className={`m-sheet${open ? ' open' : ''}`} role="dialog" aria-modal="true" aria-hidden={!open} aria-label={titleLabel || (typeof title === 'string' ? title : undefined)}>
         <div className="m-head">
           <p className="m-title">{title}</p>
-          <button type="button" className="m-close" onClick={onClose} aria-label="סגור">
+          <button type="button" className="m-close" onClick={onClose} aria-label={t('modal.close')}>
             <X size={18} strokeWidth={1.6} />
           </button>
         </div>

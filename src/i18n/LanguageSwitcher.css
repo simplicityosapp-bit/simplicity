@@ -1,0 +1,29 @@
+/* Language switcher — small pills, theme-aware via tokens. */
+.lang-switch {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.lang-switch-opt {
+  appearance: none;
+  border: 1px solid var(--divider);
+  background: transparent;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  color: var(--stone);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.lang-switch-opt:hover { color: var(--espresso); background: var(--mg-row-hover-bg); }
+.lang-switch-opt.on {
+  color: var(--on-accent);
+  background: var(--terracotta);
+  border-color: var(--terracotta);
+}
+
+/* On the auth screens, sit below the footer link with breathing room. */
+.lang-switch.auth-langs { margin-top: 18px; }

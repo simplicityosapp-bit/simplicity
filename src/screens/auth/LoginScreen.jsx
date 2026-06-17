@@ -5,9 +5,12 @@ import { supabase } from '../../lib/supabase'
 import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
 import GoogleButton from '../../auth/GoogleButton'
+import { useT } from '../../i18n/useT'
+import LanguageSwitcher from '../../i18n/LanguageSwitcher'
 import './AuthScreen.css'
 
 export default function LoginScreen() {
+  const { t } = useT('auth')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -18,7 +21,7 @@ export default function LoginScreen() {
     e.preventDefault()
     setError('')
     if (!email || !password) {
-      setError('יש למלא אימייל וסיסמה.')
+      setError(t('fillEmailPassword'))
       return
     }
     setBusy(true)
@@ -70,7 +73,7 @@ export default function LoginScreen() {
               type="button"
               className="auth-field-toggle"
               onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'הסתר סיסמה' : 'הצג סיסמה'}
+              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
             >
               {showPassword
                 ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
@@ -79,17 +82,19 @@ export default function LoginScreen() {
           </label>
 
           <button className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
-            {busy ? 'מתחבר…' : 'התחברות'}
+            {busy ? t('loggingIn') : t('login')}
           </button>
 
-          <div className="auth-divider"><span>או</span></div>
+          <div className="auth-divider"><span>{t('or')}</span></div>
 
           <GoogleButton onError={setError} />
 
-          <Link to={ROUTES.RESET_PASSWORD} className="auth-link-sm">שכחת סיסמה?</Link>
+          <Link to={ROUTES.RESET_PASSWORD} className="auth-link-sm">{t('forgotPassword')}</Link>
         </form>
 
-        <p className="auth-foot">אין לך חשבון? <Link to={ROUTES.SIGNUP} className="auth-foot-cta">הרשמה</Link></p>
+        <p className="auth-foot">{t('noAccount')} <Link to={ROUTES.SIGNUP} className="auth-foot-cta">{t('signup')}</Link></p>
+
+        <LanguageSwitcher className="auth-langs" />
       </div>
     </div>
   )

@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 
 const METAS = [
-  { k: 'in_process', l: 'בתהליך' },
-  { k: 'converted', l: 'הומר' },
-  { k: 'not_relevant', l: 'לא רלוונטי' },
+  { k: 'in_process', l: 'metaInProcess' },
+  { k: 'converted', l: 'metaConverted' },
+  { k: 'not_relevant', l: 'metaNotRelevant' },
 ]
 
 /* Edit a lead — name / phone / source / project / group / dates / notes /
@@ -14,7 +14,7 @@ const METAS = [
    when the chosen project has groups. onAddSource (optional) enables inline
    source creation. */
 export default function EditLeadModal({ open, onClose, onSave, lead, statuses = [], sources = [], projects = [], groups = [], onAddSource }) {
-  const { tryAgain } = useAddress()
+  const { t } = useT('modalsClient')
   const [form, setForm] = useState(() => ({
     name: lead?.name || '',
     phone: lead?.phone || '',
@@ -37,7 +37,7 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
   /* Changing the project clears the group — a group only belongs to its project. */
   const setProject = (v) => setForm((f) => ({ ...f, project_id: v, group_id: '' }))
 
-  if (!lead) return <Modal open={open} onClose={onClose} title="עריכת ליד" />
+  if (!lead) return <Modal open={open} onClose={onClose} title={t('editLead.title')} />
   const subStatuses = statuses.filter((s) => s.meta_category === form.status_meta)
   const projectGroups = form.project_id
     ? groups.filter((g) => g.project_id === form.project_id && !g.deleted_at)
@@ -60,7 +60,7 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
   }
 
   const submit = async () => {
-    if (!form.name.trim()) { setErr('יש למלא שם.'); return }
+    if (!form.name.trim()) { setErr(t('common.nameRequired')); return }
     setBusy(true)
     setErr('')
     const wasConverted = lead.status_meta === 'converted'
@@ -84,14 +84,14 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="עריכת ליד">
+    <Modal open={open} onClose={onClose} title={t('editLead.title')}>
       <div className="m-field">
-        <label className="m-label">שם</label>
+        <label className="m-label">{t('common.name')}</label>
         <input
           className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
           value={form.name}
@@ -99,11 +99,11 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
         />
       </div>
       <div className="m-field">
-        <label className="m-label">טלפון</label>
-        <input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="050-0000000" />
+        <label className="m-label">{t('common.phone')}</label>
+        <input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} />
       </div>
       <div className="m-field">
-        <label className="m-label">מקור</label>
+        <label className="m-label">{t('common.source')}</label>
         {creatingSource ? (
           <div className="m-cat-create">
             <input
@@ -111,14 +111,14 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
               value={newSourceName}
               onChange={(e) => setNewSourceName(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); createSource() } }}
-              placeholder="שם מקור חדש"
+              placeholder={t('common.newSourceName')}
               autoFocus
             />
             <button type="button" className="m-cat-add" onClick={createSource} disabled={sourceBusy || !newSourceName.trim()}>
-              {sourceBusy ? '…' : 'הוסף'}
+              {sourceBusy ? '…' : t('common.add')}
             </button>
             <button type="button" className="m-cat-cancel" onClick={() => { setCreatingSource(false); setNewSourceName('') }}>
-              ביטול
+              {t('common.cancel')}
             </button>
           </div>
         ) : (
@@ -130,65 +130,65 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
               set('source_id', e.target.value)
             }}
           >
-            <option value="">ללא</option>
+            <option value="">{t('common.none')}</option>
             {sources.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            {onAddSource && <option value="__new__">+ מקור חדש…</option>}
+            {onAddSource && <option value="__new__">{t('common.newSourceOption')}</option>}
           </select>
         )}
       </div>
       <div className="m-field">
-        <label className="m-label">פרויקט (אופציונלי)</label>
+        <label className="m-label">{t('common.projectOptional')}</label>
         <select className="m-select" value={form.project_id} onChange={(e) => setProject(e.target.value)}>
-          <option value="">ללא</option>
+          <option value="">{t('common.none')}</option>
           {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </div>
       {projectGroups.length > 0 && (
         <div className="m-field">
-          <label className="m-label">קבוצה (אופציונלי)</label>
+          <label className="m-label">{t('common.groupOptional')}</label>
           <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
-            <option value="">ללא</option>
+            <option value="">{t('common.none')}</option>
             {projectGroups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
           </select>
         </div>
       )}
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">תאריך פנייה</label>
+          <label className="m-label">{t('common.inquiryDate')}</label>
           <DateField value={form.inquiry_date || ''} onChange={(e) => set('inquiry_date', e.target.value)} />
         </div>
         <div className="m-field">
-          <label className="m-label">מעקב</label>
+          <label className="m-label">{t('common.followUp')}</label>
           <DateField value={form.follow_up_date || ''} onChange={(e) => set('follow_up_date', e.target.value)} />
         </div>
       </div>
       <div className="m-field">
-        <label className="m-label">סטטוס</label>
+        <label className="m-label">{t('editLead.status')}</label>
         <div className="m-pills">
           {METAS.map((m) => (
-            <button key={m.k} type="button" className={`m-pill${form.status_meta === m.k ? ' on' : ''}`} onClick={() => setMeta(m.k)}>{m.l}</button>
+            <button key={m.k} type="button" className={`m-pill${form.status_meta === m.k ? ' on' : ''}`} onClick={() => setMeta(m.k)}>{t(`editLead.${m.l}`)}</button>
           ))}
         </div>
       </div>
       {subStatuses.length > 0 && (
         <div className="m-field">
-          <label className="m-label">תת-סטטוס (אופציונלי)</label>
+          <label className="m-label">{t('common.subStatusOptional')}</label>
           <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
-            <option value="">ללא</option>
+            <option value="">{t('common.none')}</option>
             {subStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
           </select>
         </div>
       )}
       <div className="m-field">
-        <label className="m-label">הערות</label>
-        <textarea className="m-textarea" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="מה הליד מחפש/ת?" />
+        <label className="m-label">{t('common.notes')}</label>
+        <textarea className="m-textarea" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={t('common.leadNotesPlaceholder')} />
       </div>
 
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
     </Modal>
   )

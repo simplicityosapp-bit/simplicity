@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import Modal from './Modal'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
 
 /* Edit a project — name + color. */
 export default function EditProjectModal({ open, onClose, onSave, project }) {
-  const { tryAgain } = useAddress()
+  const { t } = useT('modalsData')
   const [form, setForm] = useState(() => ({
     name: project?.name || '',
     color: project?.color || COLORS[0],
@@ -13,10 +13,10 @@ export default function EditProjectModal({ open, onClose, onSave, project }) {
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
 
-  if (!project) return <Modal open={open} onClose={onClose} title="עריכת פרויקט" />
+  if (!project) return <Modal open={open} onClose={onClose} title={t('editProject.title')} />
 
   const submit = async () => {
-    if (!form.name.trim()) { setErr('יש למלא שם.'); return }
+    if (!form.name.trim()) { setErr(t('common.nameRequired')); return }
     setBusy(true)
     setErr('')
     try {
@@ -24,14 +24,14 @@ export default function EditProjectModal({ open, onClose, onSave, project }) {
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="עריכת פרויקט">
+    <Modal open={open} onClose={onClose} title={t('editProject.title')}>
       <div className="m-field">
-        <label className="m-label">שם הפרויקט</label>
+        <label className="m-label">{t('editProject.projectName')}</label>
         <input
           className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
           value={form.name}
@@ -39,7 +39,7 @@ export default function EditProjectModal({ open, onClose, onSave, project }) {
         />
       </div>
       <div className="m-field">
-        <label className="m-label">צבע</label>
+        <label className="m-label">{t('common.color')}</label>
         <div className="m-colors">
           {COLORS.map((c) => (
             <button
@@ -57,8 +57,8 @@ export default function EditProjectModal({ open, onClose, onSave, project }) {
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
     </Modal>
   )

@@ -3,6 +3,7 @@
    language as the finance moonlight chart (cream stroke, accent dot,
    subtle area). Pure presentational; data shaping happens in the
    parent component so the charts can stay dumb. */
+import { useT } from '../i18n/useT'
 
 const W = 300
 const H = 70
@@ -94,8 +95,9 @@ export function NetBars({ incomes, expenses, incomeColor = 'var(--sage)', expens
 }
 
 /* 7-day single-color bar chart with day-of-week labels. */
-const DAY_LABELS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש']
 export function TasksBars({ values, daysOfWeek, accent = 'var(--amber-warn)' }) {
+  const { t } = useT('modalsSystem')
+  const dayLabels = t('tileDrill.dayLabels', { returnObjects: true })
   if (!values?.length) return null
   const n = values.length
   const mx = Math.max(...values, 1)
@@ -131,7 +133,7 @@ export function TasksBars({ values, daysOfWeek, accent = 'var(--amber-warn)' }) 
               opacity="0.7"
               fontFamily="var(--mg-font-num)"
             >
-              {DAY_LABELS[daysOfWeek[i]] || ''}
+              {(Array.isArray(dayLabels) ? dayLabels[daysOfWeek[i]] : '') || ''}
             </text>
           </g>
         )

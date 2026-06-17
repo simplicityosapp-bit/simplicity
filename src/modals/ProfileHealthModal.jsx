@@ -4,7 +4,7 @@ import {
 } from 'lucide-react'
 import Modal from './Modal'
 import { ROUTES } from '../lib/routes'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import './ProfileHealthModal.css'
 
 /* gap.icon key → Lucide component. Keys come from lib/profileHealth. */
@@ -15,21 +15,13 @@ const ICONS = {
 }
 
 /* One encouraging line per tier — frames gaps as opportunity, not failure.
-   `addr` is the gendered-copy resolver from useAddress (the two middle
-   tiers address the user directly, so they inflect for gender). */
-function leadLine(score, tier, addr) {
-  if (score >= 100) return 'הכול מנוצל — הוצאת מהמערכת את המקסימום.'
-  if (tier.key === 'high') return addr({
-    male:    'כמעט הכול במקום. עוד נגיעה קטנה ואתה שם.',
-    female:  'כמעט הכול במקום. עוד נגיעה קטנה ואת שם.',
-    neutral: 'כמעט הכול במקום. עוד נגיעה קטנה ואת/ה שם.',
-  })
-  if (tier.key === 'mid') return addr({
-    male:    'אתה בדרך הנכונה — כמה צעדים והפרופיל מלא.',
-    female:  'את בדרך הנכונה — כמה צעדים והפרופיל מלא.',
-    neutral: 'את/ה בדרך הנכונה — כמה צעדים והפרופיל מלא.',
-  })
-  return 'יש כאן הזדמנות אמיתית להפיק יותר מהמערכת.'
+   `t` is the gender-aware translator (the two middle tiers address the
+   user directly, so their he copy inflects for gender via _male/_female). */
+function leadLine(score, tier, t) {
+  if (score >= 100) return t('profileHealth.lead.full')
+  if (tier.key === 'high') return t('profileHealth.lead.high')
+  if (tier.key === 'mid') return t('profileHealth.lead.mid')
+  return t('profileHealth.lead.low')
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -39,7 +31,7 @@ function leadLine(score, tier, addr) {
    is wired by the caller to navigate AND close the menu drawer.
    ════════════════════════════════════════════════════════════════ */
 export default function ProfileHealthModal({ open, onClose, health, loading, onNavigate }) {
-  const { addr } = useAddress()
+  const { t } = useT('modalsSystem')
   const ready = !loading && !!health
   const score = health?.score ?? 0
   const tier = health?.tier ?? { key: 'low', color: 'var(--clay)' }
@@ -53,7 +45,7 @@ export default function ProfileHealthModal({ open, onClose, health, loading, onN
   const dash = C * ((ready ? score : 0) / 100)
 
   return (
-    <Modal open={open} onClose={onClose} title="בריאות הפרופיל">
+    <Modal open={open} onClose={onClose} title={t('profileHealth.title')}>
       <div className="ph-body">
         <div className="ph-ring-wrap">
           <svg className="ph-ring" viewBox="0 0 120 120" aria-hidden="true">
@@ -74,14 +66,14 @@ export default function ProfileHealthModal({ open, onClose, health, loading, onN
           </div>
         </div>
 
-        <p className="ph-lead">{ready ? leadLine(score, tier, addr) : 'רגע, מחשבים את הציון…'}</p>
+        <p className="ph-lead">{ready ? leadLine(score, tier, t) : t('profileHealth.calculating')}</p>
 
         {!ready ? (
-          <p className="ph-loading">טוען את הנתונים שלך…</p>
+          <p className="ph-loading">{t('profileHealth.loadingData')}</p>
         ) : gaps.length === 0 ? (
           <div className="ph-done">
             <CheckCircle2 size={22} strokeWidth={1.6} aria-hidden="true" />
-            <span>אין פערים פתוחים — הכול מנוצל.</span>
+            <span>{t('profileHealth.noGaps')}</span>
           </div>
         ) : (
           <ul className="ph-gaps">
@@ -111,7 +103,7 @@ export default function ProfileHealthModal({ open, onClose, health, loading, onN
           onClick={() => onNavigate(ROUTES.SETTINGS, { openSection: 'profile' })}
         >
           <Pencil size={16} strokeWidth={1.6} aria-hidden="true" />
-          עריכת הפרופיל
+          {t('profileHealth.editProfile')}
         </button>
       </div>
     </Modal>

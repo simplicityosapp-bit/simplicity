@@ -1,6 +1,6 @@
 import { CalendarClock, RefreshCw, CheckCircle2 } from 'lucide-react'
 import Modal from './Modal'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import './CalendarDuplicateModal.css'
 
 const fmtTime = (d) => {
@@ -18,18 +18,18 @@ const fmtDay = (d) => {
    removes it from `duplicates` (re-derived by the parent), so the list shrinks
    live; when it empties we close. */
 export default function CalendarDuplicateModal({ open, onClose, duplicates = [], onHideMeeting, onHideEvent }) {
-  const { addr } = useAddress()
+  const { t } = useT('modalsTask')
   return (
-    <Modal open={open} onClose={onClose} title="כפילויות ביומן">
+    <Modal open={open} onClose={onClose} title={t('duplicate.title')}>
       <p className="m-sub">
         <CalendarClock size={15} strokeWidth={1.7} aria-hidden="true" />
-        פגישות חוזרות שכבר קיימות כאירוע ביומן גוגל. {addr({ male: 'בחר מה להשאיר בכל אחת', female: 'בחרי מה להשאיר בכל אחת', neutral: 'בחר/י מה להשאיר בכל אחת' })}
+        {t('duplicate.intro')}
       </p>
 
       {duplicates.length === 0 ? (
         <p className="cdup-empty">
           <CheckCircle2 size={16} strokeWidth={1.5} aria-hidden="true" style={{ color: 'var(--sage)' }} />
-          אין כרגע כפילויות לטיפול.
+          {t('duplicate.empty')}
         </p>
       ) : (
         <div className="cdup-list">
@@ -37,25 +37,25 @@ export default function CalendarDuplicateModal({ open, onClose, duplicates = [],
             <div key={d.id} className="cdup-card">
               <div className="cdup-head">
                 <span className="cdup-name">{d.subjectName}</span>
-                <span className="cdup-when">{fmtDay(d.when)} · {fmtTime(d.when)}</span>
+                <span className="cdup-when">{t('duplicate.when', { day: fmtDay(d.when), time: fmtTime(d.when) })}</span>
               </div>
 
               <div className="cdup-rows">
                 <div className="cdup-row">
-                  <span className="cdup-row-lbl">פגישה חוזרת (האפליקציה) · {fmtTime(d.meeting.scheduled_at)}</span>
-                  <button type="button" className="cdup-btn" onClick={() => onHideMeeting(d)}>הסתר</button>
+                  <span className="cdup-row-lbl">{t('duplicate.rowMeeting', { time: fmtTime(d.meeting.scheduled_at) })}</span>
+                  <button type="button" className="cdup-btn" onClick={() => onHideMeeting(d)}>{t('duplicate.hide')}</button>
                 </div>
                 <div className="cdup-row">
                   <span className="cdup-row-lbl">
-                    יומן גוגל: {d.event.title || 'אירוע'} · {fmtTime(d.event.start_time)}
+                    {t('duplicate.rowEvent', { title: d.event.title || t('duplicate.eventFallback'), time: fmtTime(d.event.start_time) })}
                   </span>
-                  <button type="button" className="cdup-btn" onClick={() => onHideEvent(d)}>הסתר</button>
+                  <button type="button" className="cdup-btn" onClick={() => onHideEvent(d)}>{t('duplicate.hide')}</button>
                 </div>
               </div>
 
               <p className="cdup-note">
                 <RefreshCw size={11} strokeWidth={1.7} aria-hidden="true" />
-                הסתרת אירוע גוגל עשויה לחזור בסנכרון הבא.
+                {t('duplicate.note')}
               </p>
             </div>
           ))}
@@ -64,7 +64,7 @@ export default function CalendarDuplicateModal({ open, onClose, duplicates = [],
 
       <div className="m-actions">
         <button type="button" className="m-btn-cancel" onClick={onClose}>
-          {duplicates.length === 0 ? 'סגירה' : 'אטפל בזה אחר כך'}
+          {duplicates.length === 0 ? t('duplicate.closeEmpty') : t('duplicate.closeLater')}
         </button>
       </div>
     </Modal>

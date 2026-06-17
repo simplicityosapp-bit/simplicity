@@ -6,28 +6,15 @@ import ScheduleDayPicker from '../components/ScheduleDayPicker'
 import { questionText } from '../lib/questionTemplates'
 import { scheduledOccurrences, buildSchedulePattern } from '../lib/goals'
 import { CATEGORY_PRESETS } from '../lib/goalPresets'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 
-const TIME_FRAMES = [
-  { k: 'monthly', l: 'חודשי' },
-  { k: 'weekly', l: 'שבועי' },
-  { k: 'deadline', l: 'עד תאריך' },
-]
 const IMPORTANCE = [1, 2, 3, 4, 5]
-/* Inline daily-question creation (mirrors onboarding Step 6) — write your own
-   question instead of only picking an existing one, choose slider / yes-no,
-   and set when it's asked. */
-const SCALES = [
-  { k: '1-10', l: 'סולם 1–10' },
-  { k: 'yes_no', l: 'כן / לא' },
-]
 const QUESTION_ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 
 /* The metric is chosen here, not managed on the Goals screen: the system's
-   auto-measured presets + one generic "אחר — עדכון ידני" (manual). The parent
-   (onSave) resolves the chosen key to a real category, creating it on demand. */
+   auto-measured presets + one generic manual bucket. The parent (onSave)
+   resolves the chosen key to a real category, creating it on demand. */
 export const OTHER_METRIC_KEY = 'other'
-const METRICS = [...CATEGORY_PRESETS, { key: OTHER_METRIC_KEY, name: 'אחר — עדכון ידני', icon: '📝', measurement_type: 'manual' }]
 
 const blank = () => ({
   metric_key: '',
@@ -54,7 +41,19 @@ const blank = () => ({
    goal. For the manual metric ("אחר") the user picks a tracking method: manual
    entries, or linked to a daily question (yes/no or slider). */
 export default function AddGoalModal({ open, onClose, onSave, projects = [], groups = [], questions = [], onAddQuestion }) {
-  const { addr, tryAgain } = useAddress()
+  const { t } = useT('modalsData')
+  const TIME_FRAMES = [
+    { k: 'monthly', l: t('addGoal.tf.monthly') },
+    { k: 'weekly', l: t('addGoal.tf.weekly') },
+    { k: 'deadline', l: t('addGoal.tf.deadline') },
+  ]
+  /* Inline daily-question creation (mirrors onboarding Step 6) — write your own
+     question instead of only picking an existing one, choose slider / yes-no. */
+  const SCALES = [
+    { k: '1-10', l: t('addGoal.scale') },
+    { k: 'yes_no', l: t('addGoal.yesNo') },
+  ]
+  const METRICS = [...CATEGORY_PRESETS, { key: OTHER_METRIC_KEY, name: t('addGoal.otherMetricName'), icon: '📝', measurement_type: 'manual' }]
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -89,14 +88,14 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
   const overMax = effIsYesNo && parseFloat(form.target_value) > maxOccurrences
 
   const submit = async () => {
-    if (!form.metric_key) { setErr('יש לבחור מדד.'); return }
+    if (!form.metric_key) { setErr(t('addGoal.needMetric')); return }
     const target = parseFloat(form.target_value)
-    if (!target || target <= 0) { setErr('יש למלא יעד מספרי חיובי.'); return }
-    if (form.time_frame === 'deadline' && !form.target_date) { setErr('יש לבחור תאריך יעד.'); return }
-    if (byQuestion && creatingQuestion && !form.question_text.trim()) { setErr(addr({ male: 'נסח את השאלה היומית.', female: 'נסחי את השאלה היומית.', neutral: 'נסח/י את השאלה היומית.' })); return }
-    if (byQuestion && creatingQuestion && noDays) { setErr(addr({ male: 'בחר לפחות יום אחד.', female: 'בחרי לפחות יום אחד.', neutral: 'בחר/י לפחות יום אחד.' })); return }
-    if (byQuestion && !creatingQuestion && !form.tracked_by_question_id) { setErr('יש לבחור שאלה יומית.'); return }
-    if (overMax) { setErr(`היעד גבוה ממספר הימים שהשאלה מופיעה (${maxOccurrences}).`); return }
+    if (!target || target <= 0) { setErr(t('addGoal.needTarget')); return }
+    if (form.time_frame === 'deadline' && !form.target_date) { setErr(t('addGoal.needTargetDate')); return }
+    if (byQuestion && creatingQuestion && !form.question_text.trim()) { setErr(t('addGoal.needQuestionText')); return }
+    if (byQuestion && creatingQuestion && noDays) { setErr(t('addGoal.needAtLeastOneDay')); return }
+    if (byQuestion && !creatingQuestion && !form.tracked_by_question_id) { setErr(t('addGoal.needQuestion')); return }
+    if (overMax) { setErr(t('addGoal.overMaxError', { max: maxOccurrences })); return }
     setBusy(true)
     setErr('')
     try {
@@ -134,25 +133,25 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   return (
-    <Modal open={open} onClose={close} title="יעד חדש">
+    <Modal open={open} onClose={close} title={t('addGoal.title')}>
       <div className="m-field">
-        <label className="m-label">מדד</label>
+        <label className="m-label">{t('addGoal.metric')}</label>
         <select className="m-select" value={form.metric_key} onChange={(e) => { set('metric_key', e.target.value); if (err) setErr('') }}>
-          <option value="">{addr({ male: 'בחר מדד', female: 'בחרי מדד', neutral: 'בחר/י מדד' })}</option>
+          <option value="">{t('addGoal.pickMetric')}</option>
           {METRICS.map((m) => <option key={m.key} value={m.key}>{m.icon ? m.icon + ' ' : ''}{m.name}</option>)}
         </select>
       </div>
       <div className="m-field">
-        <label className="m-label">שם היעד (אופציונלי)</label>
-        <input className="m-input" value={form.label} onChange={(e) => set('label', e.target.value)} placeholder="לדוגמה: הכנסה חודשית" />
+        <label className="m-label">{t('addGoal.goalName')}</label>
+        <input className="m-input" value={form.label} onChange={(e) => set('label', e.target.value)} placeholder={t('addGoal.goalNamePlaceholder')} />
       </div>
       <div className="m-field">
-        <label className="m-label">מסגרת זמן</label>
+        <label className="m-label">{t('addGoal.timeFrame')}</label>
         <div className="m-pills">
           {TIME_FRAMES.map((t) => (
             <button key={t.k} type="button" className={`m-pill${form.time_frame === t.k ? ' on' : ''}`} onClick={() => set('time_frame', t.k)}>{t.l}</button>
@@ -161,7 +160,7 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
       </div>
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">יעד</label>
+          <label className="m-label">{t('addGoal.target')}</label>
           <input
             type="number"
             min="0"
@@ -173,13 +172,13 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
         </div>
         {form.time_frame === 'deadline' && (
           <div className="m-field">
-            <label className="m-label">תאריך יעד</label>
+            <label className="m-label">{t('addGoal.targetDate')}</label>
             <DateField value={form.target_date} onChange={(e) => set('target_date', e.target.value)} />
           </div>
         )}
       </div>
       <div className="m-field">
-        <label className="m-label">חשיבות</label>
+        <label className="m-label">{t('addGoal.importance')}</label>
         <div className="m-pills">
           {IMPORTANCE.map((n) => (
             <button key={n} type="button" className={`m-pill${Number(form.importance) === n ? ' on' : ''}`} onClick={() => set('importance', n)}>{n}</button>
@@ -187,17 +186,17 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
         </div>
       </div>
       <div className="m-field">
-        <label className="m-label">פרויקט (אופציונלי)</label>
+        <label className="m-label">{t('addGoal.projectOptional')}</label>
         <select className="m-select" value={form.project_id} onChange={(e) => { set('project_id', e.target.value); set('group_id', '') }}>
-          <option value="">ללא</option>
+          <option value="">{t('common.none')}</option>
           {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </div>
       {form.project_id && groups.some((g) => g.project_id === form.project_id) && (
         <div className="m-field">
-          <label className="m-label">קבוצה (אופציונלי)</label>
+          <label className="m-label">{t('addGoal.groupOptional')}</label>
           <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
-            <option value="">ללא קבוצה</option>
+            <option value="">{t('addGoal.noGroup')}</option>
             {groups.filter((g) => g.project_id === form.project_id).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
           </select>
         </div>
@@ -205,35 +204,35 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
 
       {isManual && (
         <div className="m-field">
-          <label className="m-label">מעקב</label>
+          <label className="m-label">{t('addGoal.tracking')}</label>
           <div className="m-pills">
-            <button type="button" className={`m-pill${form.tracking_method === 'manual' ? ' on' : ''}`} onClick={() => set('tracking_method', 'manual')}>הזנה ידנית</button>
-            <button type="button" className={`m-pill${form.tracking_method === 'daily_question' ? ' on' : ''}`} onClick={() => set('tracking_method', 'daily_question')}>שאלה יומית</button>
+            <button type="button" className={`m-pill${form.tracking_method === 'manual' ? ' on' : ''}`} onClick={() => set('tracking_method', 'manual')}>{t('addGoal.manualEntry')}</button>
+            <button type="button" className={`m-pill${form.tracking_method === 'daily_question' ? ' on' : ''}`} onClick={() => set('tracking_method', 'daily_question')}>{t('addGoal.dailyQuestion')}</button>
           </div>
         </div>
       )}
       {byQuestion && (
         <div className="m-field">
-          <label className="m-label">שאלה יומית</label>
+          <label className="m-label">{t('addGoal.dailyQuestion')}</label>
 
           {/* Pick an existing question, or write a brand-new one inline. The
               toggle only shows when there's an existing question to pick AND
               the parent wired inline creation. */}
           {hasActiveQ && canCreateQuestion && (
             <div className="m-pills" style={{ marginBottom: 8 }}>
-              <button type="button" className={`m-pill${qMode === 'existing' ? ' on' : ''}`} onClick={() => { set('question_mode', 'existing'); if (err) setErr('') }}>בחירת שאלה קיימת</button>
-              <button type="button" className={`m-pill${qMode === 'new' ? ' on' : ''}`} onClick={() => { set('question_mode', 'new'); if (err) setErr('') }}>שאלה חדשה</button>
+              <button type="button" className={`m-pill${qMode === 'existing' ? ' on' : ''}`} onClick={() => { set('question_mode', 'existing'); if (err) setErr('') }}>{t('addGoal.pickExisting')}</button>
+              <button type="button" className={`m-pill${qMode === 'new' ? ' on' : ''}`} onClick={() => { set('question_mode', 'new'); if (err) setErr('') }}>{t('addGoal.newQuestion')}</button>
             </div>
           )}
 
           {qMode === 'existing' ? (
             hasActiveQ ? (
               <select className="m-select" value={form.tracked_by_question_id} onChange={(e) => { set('tracked_by_question_id', e.target.value); if (err) setErr('') }}>
-                <option value="">{addr({ male: 'בחר שאלה', female: 'בחרי שאלה', neutral: 'בחר/י שאלה' })}</option>
+                <option value="">{t('addGoal.pickQuestion')}</option>
                 {activeQuestions.map((q) => <option key={q.id} value={q.id}>{q.icon ? q.icon + ' ' : ''}{questionText(q)}</option>)}
               </select>
             ) : (
-              <p className="m-error">אין שאלות יומיות פעילות — {addr({ male: 'הוסף שאלה בהגדרות', female: 'הוסיפי שאלה בהגדרות', neutral: 'הוסף/י שאלה בהגדרות' })}.</p>
+              <p className="m-error">{t('addGoal.noActiveQuestions')}</p>
             )
           ) : (
             <>
@@ -241,10 +240,10 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
                 className="m-input"
                 value={form.question_text}
                 onChange={(e) => { set('question_text', e.target.value); if (err) setErr('') }}
-                placeholder={form.question_scale === 'yes_no' ? 'לדוגמה: למדת היום?' : 'לדוגמה: כמה זמן למדת היום?'}
+                placeholder={form.question_scale === 'yes_no' ? t('addGoal.questionPlaceholderYesNo') : t('addGoal.questionPlaceholderSlider')}
               />
               <div style={{ marginTop: 8 }}>
-                <label className="m-label">סוג תשובה</label>
+                <label className="m-label">{t('addGoal.answerType')}</label>
                 <div className="m-pills">
                   {SCALES.map((s) => (
                     <button key={s.k} type="button" className={`m-pill${form.question_scale === s.k ? ' on' : ''}`} onClick={() => set('question_scale', s.k)}>{s.l}</button>
@@ -252,15 +251,15 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
                 </div>
               </div>
               <div style={{ marginTop: 8 }}>
-                <label className="m-label">אייקון</label>
+                <label className="m-label">{t('common.icon')}</label>
                 <div className="m-pills">
                   {QUESTION_ICONS.map((ic) => (
-                    <button key={ic} type="button" className={`m-pill${form.question_icon === ic ? ' on' : ''}`} onClick={() => set('question_icon', ic)} aria-label={`אייקון ${ic}`}>{ic}</button>
+                    <button key={ic} type="button" className={`m-pill${form.question_icon === ic ? ' on' : ''}`} onClick={() => set('question_icon', ic)} aria-label={t('addGoal.iconAria', { icon: ic })}>{ic}</button>
                   ))}
                 </div>
               </div>
               <div style={{ marginTop: 8 }}>
-                <label className="m-label">מתי להישאל?</label>
+                <label className="m-label">{t('addGoal.whenAsked')}</label>
                 <ScheduleDayPicker
                   mode={form.sched_mode}
                   days={form.sched_days}
@@ -275,11 +274,11 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
             overMax ? (
               <p className="m-sched-warn">
                 <AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" />
-                היעד ({parseFloat(form.target_value)}) גבוה ממספר הפעמים שהשאלה מופיעה ({maxOccurrences}). {addr({ male: 'הקטן את היעד או שנה את לוח-הזמנים של השאלה', female: 'הקטיני את היעד או שני את לוח-הזמנים של השאלה', neutral: 'הקטן/י את היעד או שנה/י את לוח-הזמנים של השאלה' })}.
+                {t('addGoal.overMaxWarn', { target: parseFloat(form.target_value), max: maxOccurrences })}
               </p>
             ) : (
               <p className="m-hint">
-                השאלה מופיעה כ-{maxOccurrences} פעמים ב{form.time_frame === 'weekly' ? 'שבוע' : form.time_frame === 'monthly' ? 'חודש' : 'תקופה'} — אפשר לכוון לפחות, לא ליותר.
+                {t('addGoal.freqHint', { max: maxOccurrences, period: t(`addGoal.period.${form.time_frame}`) })}
               </p>
             )
           )}
@@ -289,8 +288,8 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
     </Modal>
   )

@@ -1,6 +1,7 @@
 import { Wallet, Users, UserPlus, FolderOpen, CheckSquare, Target, Bell, Calendar } from 'lucide-react'
 import Modal from './Modal'
 import MG from '../components/MG'
+import { useT } from '../i18n/useT'
 import './QuickActionsModal.css'
 
 /* Quick-actions launcher — opened from the home "תנועה מהירה" button.
@@ -8,24 +9,25 @@ import './QuickActionsModal.css'
    tile closes this sheet and signals the parent to open the matching
    Add* modal. The parent owns the actual modal instances + hooks. */
 const ACTIONS = [
-  { id: 'transaction', label: 'תנועה',  icon: Wallet },
-  { id: 'client',      label: 'לקוח',   icon: Users, mg: 'client' },
-  { id: 'lead',        label: 'ליד',    icon: UserPlus },
-  { id: 'task',        label: 'משימה',  icon: CheckSquare },
-  { id: 'project',     label: 'פרויקט', icon: FolderOpen },
-  { id: 'goal',        label: 'יעד',    icon: Target },
-  { id: 'reminder',    label: 'תזכורת', icon: Bell },
-  { id: 'meeting',     label: 'פגישה',  icon: Calendar },
+  { id: 'transaction', icon: Wallet },
+  { id: 'client',      icon: Users, mg: 'client' },
+  { id: 'lead',        icon: UserPlus },
+  { id: 'task',        icon: CheckSquare },
+  { id: 'project',     icon: FolderOpen },
+  { id: 'goal',        icon: Target },
+  { id: 'reminder',    icon: Bell },
+  { id: 'meeting',     icon: Calendar },
 ]
 
 export default function QuickActionsModal({ open, onClose, onPick }) {
+  const { t } = useT('modalsSystem')
   const handlePick = (id) => {
     onPick(id)
     onClose()
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="הוספה מהירה">
+    <Modal open={open} onClose={onClose} title={t('quickActions.title')}>
       <div className="qa-grid">
         {ACTIONS.map((a) => {
           const Icon = a.icon
@@ -39,7 +41,7 @@ export default function QuickActionsModal({ open, onClose, onPick }) {
               <span className="qa-icon" aria-hidden="true">
                 <Icon size={22} strokeWidth={1.8} />
               </span>
-              <span className="qa-label">{a.mg ? <MG word={a.mg} /> : a.label}</span>
+              <span className="qa-label">{a.mg ? <MG word={a.mg} /> : t(`quickActions.actions.${a.id}`)}</span>
             </button>
           )
         })}

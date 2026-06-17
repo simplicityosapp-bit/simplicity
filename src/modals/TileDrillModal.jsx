@@ -5,40 +5,19 @@ import Modal from './Modal'
 import { ROUTES } from '../lib/routes'
 import { isr } from '../lib/finance'
 import { getTileFilters } from '../lib/homeData'
+import { useT } from '../i18n/useT'
 import { ClientsTrend, NetBars, TasksBars } from './TileDrillCharts'
 
-const STATUS_OPTIONS = [
-  { k: 'active',     l: 'פעיל׌' },
-  { k: 'wandering',  l: 'ביניים' },
-  { k: 'past',       l: 'לשעבר' },
-  { k: 'no_status',  l: 'ללא' },
-]
-const NET_RANGES = [
-  { k: 'thisWeek',    l: 'השבוע' },
-  { k: 'thisMonth',   l: 'החודש' },
-  { k: 'last30days',  l: '30 הימים האחרונים' },
-]
-const NET_TYPES = [
-  { k: 'both',     l: 'נטו (הכנסות − הוצאות)' },
-  { k: 'income',   l: 'הכנסות בלבד' },
-  { k: 'expense',  l: 'הוצאות בלבד' },
-]
-const TASK_STATUS = [
-  { k: 'open',  l: 'פתוחות' },
-  { k: 'done',  l: 'בוצעו' },
-  { k: 'both',  l: 'הכל' },
-]
-const TASK_PRIORITIES = [
-  { k: 'high',   l: 'גבוהה' },
-  { k: 'medium', l: 'בינונית' },
-  { k: 'low',    l: 'נמוכה' },
-]
+/* Option keys only — labels are resolved via t() at render so the pills
+   localize. The `tk` is the sub-key under the given group in the json. */
+const STATUS_OPTIONS = ['active', 'wandering', 'past', 'no_status']
+const NET_RANGES = ['thisWeek', 'thisMonth', 'last30days']
+const NET_TYPES = ['both', 'income', 'expense']
+const TASK_STATUS = ['open', 'done', 'both']
+const TASK_PRIORITIES = ['high', 'medium', 'low']
 /* One general client toggle instead of a pill-per-client list (beta
    07/06/2026): 'all' = no filter, 'linked' = only tasks tied to a client. */
-const TASK_CLIENT_SCOPE = [
-  { k: 'all',    l: 'הכל' },
-  { k: 'linked', l: 'משויכות ללקוח' },
-]
+const TASK_CLIENT_SCOPE = ['all', 'linked']
 
 function toggleInList(list, value) {
   const arr = list || []
@@ -46,20 +25,21 @@ function toggleInList(list, value) {
 }
 
 /* Pills group — single-select by default, multi via `multi` prop. Mobile-
-   friendly: rows wrap, no horizontal overflow drama. */
-function Pills({ options, value, onChange, multi = false }) {
+   friendly: rows wrap, no horizontal overflow drama. `options` is a list of
+   keys; `label(key)` resolves each to localized text. */
+function Pills({ options, value, onChange, multi = false, label }) {
   return (
     <div className="td-pills">
-      {options.map((o) => {
-        const active = multi ? (value || []).includes(o.k) : value === o.k
+      {options.map((k) => {
+        const active = multi ? (value || []).includes(k) : value === k
         return (
           <button
-            key={o.k}
+            key={k}
             type="button"
             className={`td-pill${active ? ' on' : ''}`}
-            onClick={() => onChange(multi ? toggleInList(value, o.k) : o.k)}
+            onClick={() => onChange(multi ? toggleInList(value, k) : k)}
           >
-            {o.l}
+            {label(k)}
           </button>
         )
       })}
@@ -67,10 +47,10 @@ function Pills({ options, value, onChange, multi = false }) {
   )
 }
 
-/* Multi-select pill list with a leading "הכל" reset (active when nothing
+/* Multi-select pill list with a leading "all" reset (active when nothing
    is selected). Replaces the old single-pick <select> for project/group/
    client/category filters — matches the prototype's multi-axis filter UX. */
-function MultiPills({ items, selected, onChange, allLabel = 'הכל', emptyLabel = 'אין' }) {
+function MultiPills({ items, selected, onChange, allLabel, emptyLabel }) {
   if (!items?.length) {
     return <p className="td-empty-inline">{emptyLabel}</p>
   }
@@ -177,7 +157,7 @@ function tasksDoneTrend(tasks, days = 7) {
   return { values, dows }
 }
 
-function ClientsPanel({ filters, setFilter, clients, projects, groups }) {
+function ClientsPanel({ filters, setFilter, clients, projects, groups, t }) {
   const liveClients = clients.filter((c) => !c.deleted_at)
   const filtered = useMemo(() => {
     return liveClients.filter((c) => {
@@ -193,95 +173,94 @@ function ClientsPanel({ filters, setFilter, clients, projects, groups }) {
   return (
     <>
       <p className="td-num mono">{filtered.length}</p>
-      <p className="td-num-lbl">לקוחות תואמים</p>
+      <p className="td-num-lbl">{t('tileDrill.clients.matchingNum')}</p>
 
       <div className="td-chart-block">
-        <p className="td-chart-lbl">בסיס הלקוחות · 30 ימים</p>
+        <p className="td-chart-lbl">{t('tileDrill.clients.trendLbl')}</p>
         <ClientsTrend values={trend} />
       </div>
 
-      <p className="td-field-lbl">סטטוס</p>
+      <p className="td-field-lbl">{t('tileDrill.clients.statusLbl')}</p>
       <Pills options={STATUS_OPTIONS} value={filters.statuses} multi
+             label={(k) => t(`tileDrill.status.${k}`)}
              onChange={(v) => setFilter('statuses', v)} />
 
-      <p className="td-field-lbl">פרויקט</p>
-      <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} emptyLabel="אין פרויקטים עדיין" />
+      <p className="td-field-lbl">{t('tileDrill.clients.projectLbl')}</p>
+      <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} allLabel={t('tileDrill.all')} emptyLabel={t('tileDrill.clients.noProjects')} />
 
-      <p className="td-field-lbl">קבוצה</p>
-      <MultiPills items={groups} selected={filters.groupIds} onChange={(v) => setFilter('groupIds', v)} emptyLabel="אין קבוצות עדיין" />
+      <p className="td-field-lbl">{t('tileDrill.clients.groupLbl')}</p>
+      <MultiPills items={groups} selected={filters.groupIds} onChange={(v) => setFilter('groupIds', v)} allLabel={t('tileDrill.all')} emptyLabel={t('tileDrill.clients.noGroups')} />
 
-      <p className="td-section-lbl">תואמים ({filtered.length})</p>
+      <p className="td-section-lbl">{t('tileDrill.clients.matchingSection', { count: filtered.length })}</p>
       <div className="td-list">
         {filtered.length === 0 ? (
-          <p className="td-empty">אין לקוחות שתואמים לפילטר.</p>
+          <p className="td-empty">{t('tileDrill.clients.emptyFilter')}</p>
         ) : (
           filtered.slice(0, 8).map((c) => (
             <div key={c.id} className="td-list-row">
               <span className="td-list-name">{c.name}</span>
-              <span className="td-list-meta">{statusLabel(c.status_meta || c.status)}</span>
+              <span className="td-list-meta">{statusLabel(c.status_meta || c.status, t)}</span>
             </div>
           ))
         )}
         {filtered.length > 8 && (
-          <p className="td-list-more">+{filtered.length - 8} נוספים</p>
+          <p className="td-list-more">{t('tileDrill.clients.moreCount', { count: filtered.length - 8 })}</p>
         )}
       </div>
     </>
   )
 }
 
-function statusLabel(meta) {
-  return ({
-    active: 'פעיל׌',
-    wandering: 'ביניים',
-    past: 'לשעבר',
-    no_status: 'ללא',
-  })[meta] || meta || '—'
+function statusLabel(meta, t) {
+  const known = ['active', 'wandering', 'past', 'no_status']
+  return known.includes(meta) ? t(`tileDrill.status.${meta}`) : (meta || '—')
 }
 
-function NetPanel({ filters, setFilter, transactions, projects, categories, summary }) {
+function NetPanel({ filters, setFilter, transactions, projects, categories, summary, t }) {
   const trend = useMemo(() => netTrendValues(transactions || [], 30), [transactions])
   return (
     <>
       <p className={`td-num mono${summary.net < 0 ? ' neg' : ''}`}>
         {summary.net < 0 ? '−' : ''}{isr(Math.abs(summary.net))}
       </p>
-      <p className="td-num-lbl">{filters.type === 'income' ? 'הכנסות' : filters.type === 'expense' ? 'הוצאות' : 'נטו'}</p>
+      <p className="td-num-lbl">{filters.type === 'income' ? t('tileDrill.net.income') : filters.type === 'expense' ? t('tileDrill.net.expense') : t('tileDrill.net.net')}</p>
 
       <div className="td-chart-block">
-        <p className="td-chart-lbl">הכנסות מול הוצאות · 30 ימים</p>
+        <p className="td-chart-lbl">{t('tileDrill.net.trendLbl')}</p>
         <NetBars incomes={trend.incomes} expenses={trend.expenses} />
         <div className="td-chart-legend">
-          <span className="td-chart-key"><span className="td-chart-swatch sage" />הכנסות</span>
-          <span className="td-chart-key"><span className="td-chart-swatch clay" />הוצאות</span>
+          <span className="td-chart-key"><span className="td-chart-swatch sage" />{t('tileDrill.net.legendIncome')}</span>
+          <span className="td-chart-key"><span className="td-chart-swatch clay" />{t('tileDrill.net.legendExpense')}</span>
         </div>
       </div>
 
-      <p className="td-field-lbl">טווח זמן</p>
+      <p className="td-field-lbl">{t('tileDrill.net.timeRangeLbl')}</p>
       <Pills options={NET_RANGES} value={filters.timeRange}
+             label={(k) => t(`tileDrill.netRanges.${k}`)}
              onChange={(v) => setFilter('timeRange', v)} />
 
-      <p className="td-field-lbl">סוג</p>
+      <p className="td-field-lbl">{t('tileDrill.net.typeLbl')}</p>
       <Pills options={NET_TYPES} value={filters.type}
+             label={(k) => t(`tileDrill.netTypes.${k}`)}
              onChange={(v) => setFilter('type', v)} />
 
-      <p className="td-field-lbl">פרויקט</p>
-      <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} emptyLabel="אין פרויקטים עדיין" />
+      <p className="td-field-lbl">{t('tileDrill.net.projectLbl')}</p>
+      <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} allLabel={t('tileDrill.all')} emptyLabel={t('tileDrill.net.noProjects')} />
 
-      <p className="td-field-lbl">קטגוריה</p>
-      <MultiPills items={categories} selected={filters.categoryIds} onChange={(v) => setFilter('categoryIds', v)} emptyLabel="אין קטגוריות עדיין" />
+      <p className="td-field-lbl">{t('tileDrill.net.categoryLbl')}</p>
+      <MultiPills items={categories} selected={filters.categoryIds} onChange={(v) => setFilter('categoryIds', v)} allLabel={t('tileDrill.all')} emptyLabel={t('tileDrill.net.noCategories')} />
 
       <div className="td-mini-stats">
         <div className="td-mini">
-          <p className="td-mini-l">הכנסות</p>
+          <p className="td-mini-l">{t('tileDrill.net.miniIncome')}</p>
           <p className="td-mini-v mono">{isr(summary._income || 0)}</p>
         </div>
         <div className="td-mini">
-          <p className="td-mini-l">הוצאות</p>
+          <p className="td-mini-l">{t('tileDrill.net.miniExpense')}</p>
           <p className="td-mini-v mono">{isr(summary._expense || 0)}</p>
         </div>
         <div className="td-mini">
-          <p className="td-mini-l">תנועות</p>
+          <p className="td-mini-l">{t('tileDrill.net.miniTx')}</p>
           <p className="td-mini-v mono">{summary._txCount || 0}</p>
         </div>
       </div>
@@ -289,15 +268,15 @@ function NetPanel({ filters, setFilter, transactions, projects, categories, summ
   )
 }
 
-function TasksPanel({ filters, setFilter, tasks, projects }) {
-  const liveTasks = (tasks || []).filter((t) => !t.deleted_at)
+function TasksPanel({ filters, setFilter, tasks, projects, t }) {
+  const liveTasks = (tasks || []).filter((tk) => !tk.deleted_at)
   const filtered = useMemo(() => {
-    return liveTasks.filter((t) => {
-      if (filters.status === 'open' && t.status === 'done') return false
-      if (filters.status === 'done' && t.status !== 'done') return false
-      if (filters.priorities?.length && !filters.priorities.includes(t.priority)) return false
-      if (filters.projectIds?.length && !filters.projectIds.includes(t.project_id)) return false
-      if (filters.clientScope === 'linked' && !t.client_id) return false
+    return liveTasks.filter((tk) => {
+      if (filters.status === 'open' && tk.status === 'done') return false
+      if (filters.status === 'done' && tk.status !== 'done') return false
+      if (filters.priorities?.length && !filters.priorities.includes(tk.priority)) return false
+      if (filters.projectIds?.length && !filters.projectIds.includes(tk.project_id)) return false
+      if (filters.clientScope === 'linked' && !tk.client_id) return false
       return true
     }).sort((a, b) => {
       const order = { high: 0, medium: 1, low: 2 }
@@ -309,44 +288,47 @@ function TasksPanel({ filters, setFilter, tasks, projects }) {
   return (
     <>
       <p className="td-num mono">{filtered.length}</p>
-      <p className="td-num-lbl">משימות תואמות</p>
+      <p className="td-num-lbl">{t('tileDrill.tasks.matchingNum')}</p>
 
       <div className="td-chart-block">
-        <p className="td-chart-lbl">משימות שהושלמו · 7 ימים</p>
+        <p className="td-chart-lbl">{t('tileDrill.tasks.trendLbl')}</p>
         <TasksBars values={trend.values} daysOfWeek={trend.dows} />
       </div>
 
-      <p className="td-field-lbl">סטטוס</p>
+      <p className="td-field-lbl">{t('tileDrill.tasks.statusLbl')}</p>
       <Pills options={TASK_STATUS} value={filters.status}
+             label={(k) => t(`tileDrill.taskStatus.${k}`)}
              onChange={(v) => setFilter('status', v)} />
 
-      <p className="td-field-lbl">דחיפות</p>
+      <p className="td-field-lbl">{t('tileDrill.tasks.priorityLbl')}</p>
       <Pills options={TASK_PRIORITIES} value={filters.priorities} multi
+             label={(k) => t(`tileDrill.priorities.${k}`)}
              onChange={(v) => setFilter('priorities', v)} />
 
-      <p className="td-field-lbl">פרויקט</p>
-      <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} emptyLabel="אין פרויקטים עדיין" />
+      <p className="td-field-lbl">{t('tileDrill.tasks.projectLbl')}</p>
+      <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} allLabel={t('tileDrill.all')} emptyLabel={t('tileDrill.tasks.noProjects')} />
 
-      <p className="td-field-lbl">שיוך ללקוח</p>
+      <p className="td-field-lbl">{t('tileDrill.tasks.clientScopeLbl')}</p>
       <Pills options={TASK_CLIENT_SCOPE} value={filters.clientScope || 'all'}
+             label={(k) => t(`tileDrill.taskClientScope.${k}`)}
              onChange={(v) => setFilter('clientScope', v)} />
 
-      <p className="td-section-lbl">המשימות הקרובות</p>
+      <p className="td-section-lbl">{t('tileDrill.tasks.upcomingSection')}</p>
       <div className="td-list">
         {filtered.length === 0 ? (
-          <p className="td-empty">אין משימות שתואמות לפילטר.</p>
+          <p className="td-empty">{t('tileDrill.tasks.emptyFilter')}</p>
         ) : (
-          filtered.slice(0, 8).map((t) => (
-            <div key={t.id} className="td-list-row">
-              <span className="td-list-name">{t.title}</span>
-              <span className={`td-list-meta priority-${t.priority || 'low'}`}>
-                {({ high: 'גבוהה', medium: 'בינונית', low: 'נמוכה' })[t.priority] || ''}
+          filtered.slice(0, 8).map((tk) => (
+            <div key={tk.id} className="td-list-row">
+              <span className="td-list-name">{tk.title}</span>
+              <span className={`td-list-meta priority-${tk.priority || 'low'}`}>
+                {['high', 'medium', 'low'].includes(tk.priority) ? t(`tileDrill.priorities.${tk.priority}`) : ''}
               </span>
             </div>
           ))
         )}
         {filtered.length > 8 && (
-          <p className="td-list-more">+{filtered.length - 8} נוספות</p>
+          <p className="td-list-more">{t('tileDrill.tasks.moreCount', { count: filtered.length - 8 })}</p>
         )}
       </div>
     </>
@@ -364,6 +346,7 @@ export default function TileDrillModal({
   tasks = [], transactions = [],
   netSummary = {},
 }) {
+  const { t } = useT('modalsSystem')
   const navigate = useNavigate()
   const allFilters = getTileFilters(prefs)
   const filters = allFilters[tile] || {}
@@ -373,11 +356,6 @@ export default function TileDrillModal({
     updatePrefs?.({ tileFilters: { ...(prefs?.tileFilters || {}), [tile]: nextTile } })
   }
 
-  const titles = {
-    clients: 'לקוחות',
-    net: 'נטו',
-    tasks: 'משימות',
-  }
   const routes = {
     clients: ROUTES.CLIENTS,
     net: ROUTES.FINANCE,
@@ -385,7 +363,7 @@ export default function TileDrillModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={titles[tile] || ''}>
+    <Modal open={open} onClose={onClose} title={tile ? t(`tileDrill.titles.${tile}`) : ''}>
       <div className="td-body">
         {tile === 'clients' && (
           <ClientsPanel
@@ -394,6 +372,7 @@ export default function TileDrillModal({
             clients={clients}
             projects={projects}
             groups={groups}
+            t={t}
           />
         )}
         {tile === 'net' && (
@@ -404,6 +383,7 @@ export default function TileDrillModal({
             projects={projects}
             categories={categories}
             summary={netSummary}
+            t={t}
           />
         )}
         {tile === 'tasks' && (
@@ -412,18 +392,19 @@ export default function TileDrillModal({
             setFilter={setFilter}
             tasks={tasks}
             projects={projects}
+            t={t}
           />
         )}
       </div>
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>סגירה</button>
+        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('tileDrill.close')}</button>
         <button
           type="button"
           className="m-btn-save"
           onClick={() => { navigate(routes[tile]); onClose() }}
         >
-          <ArrowLeft size={14} strokeWidth={1.8} aria-hidden="true" /> פתיחה במלא
+          <ArrowLeft size={14} strokeWidth={1.8} aria-hidden="true" /> {t('tileDrill.openFull')}
         </button>
       </div>
     </Modal>

@@ -1,5 +1,6 @@
 import { CheckCircle2, HelpCircle } from 'lucide-react'
 import { columnsForStep, fieldsForStep, remapColumn, FIELD_LABEL, CSV_FIELDS } from '../../lib/csvImport'
+import { useT } from '../../i18n/useT'
 
 /* ════════════════════════════════════════════════════════════════
    CSV MAPPING EDITOR — shared per-step column→field confirmation.
@@ -18,6 +19,7 @@ import { columnsForStep, fieldsForStep, remapColumn, FIELD_LABEL, CSV_FIELDS } f
    ════════════════════════════════════════════════════════════════ */
 
 export default function CsvMappingEditor({ parsed, onChange: onParsedChange, stepKey, title }) {
+  const { t } = useT('onboarding')
   if (!parsed || parsed.kind !== 'csv' || !Array.isArray(parsed.rows) || parsed.rows.length === 0) return null
 
   const columns = columnsForStep(parsed, stepKey)
@@ -40,13 +42,13 @@ export default function CsvMappingEditor({ parsed, onChange: onParsedChange, ste
   return (
     <div className="ob-field ob-map">
       <p className="ob-label">
-        {title || 'מהקובץ שלך — אישור מיפוי עמודות'}
+        {title || t('csvMap.title')}
       </p>
       <p className="ob-map-sub">
-        {detected > 0 && <>זיהינו {detected} עמודות אוטומטית. </>}
+        {detected > 0 && t('csvMap.detected', { count: detected })}
         {unmapped > 0
-          ? <>{unmapped} עמודות לא זוהו — בחר/י להן שדה או דלג/י.</>
-          : <>אפשר לתקן ידנית אם משהו לא נכון.</>}
+          ? t('csvMap.someUnmapped', { count: unmapped })
+          : t('csvMap.allMapped')}
       </p>
 
       <div className="ob-map-rows">

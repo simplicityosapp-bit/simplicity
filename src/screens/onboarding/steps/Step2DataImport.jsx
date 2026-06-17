@@ -4,7 +4,7 @@ import { ROW_CAP } from '../../../lib/csvImport'
 import { projectSheet } from '../../../lib/sheetMapper'
 import { buildSheetsFromFiles, ACCEPT } from '../../../lib/importFlow'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
-import { addressUser } from '../../../lib/address'
+import { useT } from '../../../i18n/useT'
 import UnifiedSheetImporter from '../UnifiedSheetImporter'
 
 /* Step 2 — paths A (import) vs B (start fresh). Path A reads EVERY file
@@ -14,6 +14,7 @@ import UnifiedSheetImporter from '../UnifiedSheetImporter'
    in ob.parsed_data so downstream steps + the review wizard can use it. */
 
 export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
+  const { t } = useT('onboardingSteps')
   const { prefs } = useUserPreferences()
   const gender = prefs?.design?.gender || 'neutral'
   const fileRef = useRef(null)
@@ -35,7 +36,7 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
     const UNSUPPORTED = ['pdf', 'numbers', 'pages', 'png', 'jpg', 'jpeg', 'gif', 'heic', 'webp', 'doc', 'docx', 'gsheet']
     const bad = files.find((f) => UNSUPPORTED.includes((f.name.split('.').pop() || '').toLowerCase()))
     if (bad) {
-      setErr('הפורמט הזה לא נתמך לייבוא. אפשר לייבא CSV או Excel (xlsx/xls) — אם הקובץ בנאמברס או בגוגל-שיטס, אפשר לייצא אותו ל-CSV ולנסות שוב.')
+      setErr(t('step2.errUnsupported'))
       return
     }
     setBusy(true); setErr('')
@@ -56,8 +57,7 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
         mode: 'A', file_name: names, parsed_at: new Date().toISOString(), sheet_count: sheets.length,
       })
     } catch {
-      setErr('הקובץ לא נקרא — ' + addressUser(gender, { male: 'ודא', female: 'ודאי', neutral: 'ודא/י' })
-        + ' שזה CSV או Excel תקין ושאינו פתוח כרגע בתוכנה אחרת, או שאפשר להתחיל מאפס.')
+      setErr(t('step2.errReadFail', { verb: t('step2.errReadFailVerb') }))
     } finally {
       setBusy(false)
     }
@@ -103,11 +103,7 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
         total += p.clients.length + p.projects.length + p.leads.length + p.transactions.length + (p.sessions?.length || 0)
       })
       if (fileName && total === 0) {
-        setErr(addressUser(gender, {
-          male:    'קראנו את הקובץ אבל לא זיהינו ממנו לקוחות, פרויקטים או תנועות. כדאי לבדוק שהסוג נכון לכל טבלה ושעמודת השם/הסכום ממופה — או לבחור "מתחיל מאפס".',
-          female:  'קראנו את הקובץ אבל לא זיהינו ממנו לקוחות, פרויקטים או תנועות. כדאי לבדוק שהסוג נכון לכל טבלה ושעמודת השם/הסכום ממופה — או לבחור "מתחילה מאפס".',
-          neutral: 'קראנו את הקובץ אבל לא זיהינו ממנו לקוחות, פרויקטים או תנועות. כדאי לבדוק שהסוג נכון לכל טבלה ושעמודת השם/הסכום ממופה — או לבחור "מתחיל/ה מאפס".',
-        }))
+        setErr(t('step2.errNoEntities'))
         return
       }
       if (onReviewFromStep?.()) return
@@ -119,17 +115,13 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
   const sheets = (ob.state.parsed_data?.sheets || []).filter((s) => !s.removed)
   const yearMissing = sheets.some((s) => s.type === 'matrix' && (s.pivot?.periodCols || []).some((c) => c.month) && !s.pivot?.year)
   const canAdvance = (mode === 'B' || (mode === 'A' && !!fileName)) && !yearMissing
-  const hint = yearMissing ? 'יש לבחור שנה לכל טבלת חודשים לפני שממשיכים.' : null
+  const hint = yearMissing ? t('step2.hintYearMissing') : null
   useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [mode, fileName, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
-      <p className="ob-intro">{addressUser(gender, {
-        male:    'יש לך נתונים שאתה רוצה להעלות?',
-        female:  'יש לך נתונים שאת רוצה להעלות?',
-        neutral: 'יש לך נתונים שאת/ה רוצה להעלות?',
-      })}</p>
-      <p className="ob-intro-sub">אם יש נעבור על זה יחד ונכניס למערכת — אם לא נמשיך יחד בצעדים קטנים :)</p>
+      <p className="ob-intro">{t('step2.intro')}</p>
+      <p className="ob-intro-sub">{t('step2.introSub')}</p>
 
       <div className="ob-card-options">
         <button
@@ -138,9 +130,9 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
           onClick={onPickPathA}
         >
           <span className="ob-option-card-l">
-            <FileSpreadsheet size={16} strokeWidth={1.7} aria-hidden="true" /> כן, יש לי
+            <FileSpreadsheet size={16} strokeWidth={1.7} aria-hidden="true" /> {t('step2.pathAHas')}
           </span>
-          <p className="ob-option-card-sub">CSV או Excel — אפשר כמה קבצים יחד, נזהה את העמודות ותמיד תעברו על הכול לפני שמשהו נשמר.</p>
+          <p className="ob-option-card-sub">{t('step2.pathASub')}</p>
         </button>
         <button
           type="button"
@@ -148,13 +140,9 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
           onClick={onPickPathB}
         >
           <span className="ob-option-card-l">
-            <Upload size={16} strokeWidth={1.7} aria-hidden="true" /> {addressUser(gender, {
-              male:    'לא, מתחיל מאפס',
-              female:  'לא, מתחילה מאפס',
-              neutral: 'לא, מתחיל/ה מאפס',
-            })}
+            <Upload size={16} strokeWidth={1.7} aria-hidden="true" /> {t('step2.pathBFresh')}
           </span>
-          <p className="ob-option-card-sub">אין בעיה — נבנה את הכול יחד, צעד אחר צעד, בקצב שלך.</p>
+          <p className="ob-option-card-sub">{t('step2.pathBSub')}</p>
         </button>
       </div>
 
@@ -163,13 +151,13 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
         type="file"
         accept={ACCEPT}
         multiple
-        aria-label="בחירת קובץ CSV או Excel לייבוא"
+        aria-label={t('step2.filePickerAria')}
         style={{ display: 'none' }}
         onChange={(e) => handleFiles(e.target.files)}
       />
 
       <div aria-live="polite" aria-atomic="true">
-        {busy && <p className="ob-empty-hint" role="status">מעבד את הקובץ…</p>}
+        {busy && <p className="ob-empty-hint" role="status">{t('step2.processing')}</p>}
         {err && <p className="ob-empty-hint" role="alert" style={{ color: 'var(--clay)' }}>{err}</p>}
       </div>
 
@@ -179,11 +167,7 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
         <>
           <UnifiedSheetImporter sheets={ob.state.parsed_data.sheets} onChange={onSheetsChange} gender={gender} />
           <p className="ob-intro-sub" style={{ textAlign: 'center' }}>
-            {addressUser(gender, {
-              male:    'רק קראנו את הקובץ — שום דבר עוד לא נשמר. בשלב הבא תעבור על הכול ותאשר.',
-              female:  'רק קראנו את הקובץ — שום דבר עוד לא נשמר. בשלב הבא תעברי על הכול ותאשרי.',
-              neutral: 'רק קראנו את הקובץ — שום דבר עוד לא נשמר. בשלב הבא תעברו על הכול ותאשרו.',
-            })}
+            {t('step2.readNote')}
           </p>
         </>
       )}
@@ -191,13 +175,13 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
       {/* File read OK but nothing to import (empty / all sheets ignored). */}
       {mode === 'A' && fileName && !busy && !err && sheets.length === 0 && (
         <p className="ob-empty-hint" role="status">
-          הקובץ נקרא אבל לא נמצאו בו נתונים לייבוא. אם זה הקובץ הנכון, אפשר לייצא אותו מחדש כ-CSV — או שנמשיך יחד מאפס.
+          {t('step2.noData')}
         </p>
       )}
 
       {ob.state.parsed_data?.sheets?.some((s) => s.truncated) && (
         <p className="ob-empty-hint" style={{ color: 'var(--amber-warn)' }}>
-          חלק מהטבלאות נקטעו ל-{ROW_CAP} השורות הראשונות כדי לשמור על ביצועים. אפשר לייבא את השאר בנפרד בהמשך.
+          {t('step2.truncated', { cap: ROW_CAP })}
         </p>
       )}
 

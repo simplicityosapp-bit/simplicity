@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Modal from './Modal'
 import { Download, FileSpreadsheet } from 'lucide-react'
+import { useT } from '../i18n/useT'
 import './ExportDataModal.css'
 
 /* Consolidates every export into one window: a single "all data" Excel file
@@ -11,18 +12,14 @@ import './ExportDataModal.css'
    checkboxes — OFF by default — that add extra sheets to the "all data" file.
    These fields are stored plaintext at rest; the export simply includes the
    extra sensitive columns. */
-const SENSITIVE = [
-  { key: 'sessions',     label: 'סשנים',         sub: 'הערות וסיכומי פגישות' },
-  { key: 'goals',        label: 'יעדים',          sub: 'יעדים ורישומי התקדמות' },
-  { key: 'dailyAnswers', label: 'תשובות יומיות',  sub: 'תשובות לשאלות היומיות' },
-  { key: 'moon',         label: 'רפלקציות',       sub: 'רפלקציות יומיות (מפוענחות)' },
-]
+const SENSITIVE = ['sessions', 'goals', 'dailyAnswers', 'moon']
 
 export default function ExportDataModal({
   open, onClose,
   onExportAll, onExportTransactions, onExportClients, onExportProjects,
   hasTransactions, hasClients, hasProjects,
 }) {
+  const { t } = useT('modalsSystem')
   const [sel, setSel] = useState({})   // category key → included?
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(false)
@@ -49,63 +46,63 @@ export default function ExportDataModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="ייצוא נתונים">
+    <Modal open={open} onClose={onClose} title={t('export.title')}>
       <p className="m-hint">
-        כל הנתונים יחד יורדים כקובץ Excel אחד עם גיליון לכל סוג; הייצואים הבודדים הם קובצי CSV נפרדים.
+        {t('export.intro')}
       </p>
 
       <button type="button" className="set-data-action" onClick={runAll} disabled={busy}>
         <FileSpreadsheet size={15} strokeWidth={1.7} aria-hidden="true" />
-        {busy ? 'מייצא…' : 'ייצוא כל הנתונים (Excel)'}
+        {busy ? t('export.exporting') : t('export.exportAll')}
       </button>
       <p className="set-data-hint">
-        קובץ אחד עם גיליון לכל סוג: תנועות, לקוחות, פרויקטים, לידים, משימות, קטגוריות.
+        {t('export.exportAllHint')}
       </p>
 
       <div className="export-sens">
-        <p className="export-sens-h">לכלול גם נתונים רגישים?</p>
+        <p className="export-sens-h">{t('export.sensitiveHeading')}</p>
         <p className="export-sens-sub">
-          לא נכלל כברירת מחדל. הנתונים הרגישים מיוצאים כטקסט גלוי — שמרו את הקובץ במקום בטוח.
+          {t('export.sensitiveSub')}
         </p>
         <div className="export-cats">
-          {SENSITIVE.map((o) => (
-            <label key={o.key} className={`export-cat${busy ? ' is-disabled' : ''}`}>
+          {SENSITIVE.map((key) => (
+            <label key={key} className={`export-cat${busy ? ' is-disabled' : ''}`}>
               <span className="export-cat-text">
-                {o.label}
-                <span className="export-cat-sub">{o.sub}</span>
+                {t(`export.sensitive.${key}`)}
+                <span className="export-cat-sub">{t(`export.sensitive.${key}Sub`)}</span>
               </span>
               <input
                 type="checkbox"
                 className="export-cat-checkbox"
-                checked={!!sel[o.key]}
+                checked={!!sel[key]}
                 disabled={busy}
-                onChange={() => toggle(o.key)}
+                onChange={() => toggle(key)}
               />
             </label>
           ))}
         </div>
       </div>
 
-      {err && <p className="export-err">הייצוא נכשל. נסו/י שוב.</p>}
+      {err && <p className="export-err">{t('export.failed')}</p>}
 
       <button type="button" className="set-data-action" onClick={onExportTransactions} disabled={!hasTransactions || busy} style={{ marginTop: 12 }}>
         <Download size={15} strokeWidth={1.7} aria-hidden="true" />
-        ייצוא תנועות (CSV)
+        {t('export.exportTransactions')}
       </button>
       <button type="button" className="set-data-action" onClick={onExportClients} disabled={!hasClients || busy} style={{ marginTop: 10 }}>
         <Download size={15} strokeWidth={1.7} aria-hidden="true" />
-        ייצוא לקוחות (CSV)
+        {t('export.exportClients')}
       </button>
       <button type="button" className="set-data-action" onClick={onExportProjects} disabled={!hasProjects || busy} style={{ marginTop: 10 }}>
         <Download size={15} strokeWidth={1.7} aria-hidden="true" />
-        ייצוא פרויקטים (CSV)
+        {t('export.exportProjects')}
       </button>
       <p className="set-data-hint">
-        קבצי הלקוחות והפרויקטים נשמרים בפורמט שניתן לייבא בחזרה (אותן כותרות שהמערכת מזהה).
+        {t('export.reimportHint')}
       </p>
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose} disabled={busy}>סגירה</button>
+        <button type="button" className="m-btn-cancel" onClick={onClose} disabled={busy}>{t('common.close')}</button>
       </div>
     </Modal>
   )

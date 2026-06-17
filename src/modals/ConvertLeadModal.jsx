@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import { showToast } from '../lib/toast'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 
 /* Convert a lead → client. The lead's name/phone seed the form; the
    user can adjust and pick a project. On save:
@@ -12,7 +12,7 @@ import { useAddress } from '../hooks/useAddress'
    The parent wires onCreateClient + onUpdateLead so the modal stays
    adapter-agnostic. */
 export default function ConvertLeadModal({ open, onClose, lead, projects = [], groups = [], statuses = [], onCreateClient, onUpdateLead, onAddGroupMember }) {
-  const { tryAgain } = useAddress()
+  const { t } = useT('modalsClient')
   const [form, setForm] = useState(() => ({
     name: lead?.name || '',
     phone: lead?.phone || '',
@@ -26,7 +26,7 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
   /* Changing the project clears the group — a group only belongs to its project. */
   const setProject = (v) => setForm((f) => ({ ...f, project_id: v, group_id: '' }))
 
-  if (!lead) return <Modal open={open} onClose={onClose} title="המרת ליד ללקוח" />
+  if (!lead) return <Modal open={open} onClose={onClose} title={t('convertLead.title')} />
 
   /* Groups belonging to the chosen project — drives the conditional picker. */
   const projectGroups = form.project_id
@@ -40,7 +40,7 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
   const defaultConverted = convertedSubStatuses.find((s) => s.is_default)
 
   const submit = async () => {
-    if (!form.name.trim()) { setErr('יש לתת שם ללקוח.'); return }
+    if (!form.name.trim()) { setErr(t('convertLead.nameRequired')); return }
     setBusy(true)
     setErr('')
     const now = new Date().toISOString()
@@ -99,23 +99,23 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
         },
         { source: 'converted' },
       )
-      showToast('נוצר לקוח חדש')
+      showToast(t('convertLead.toastCreated'))
       onClose()
     } catch (e) {
       setBusy(false)
-      setErr('ההמרה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('convertLead.convertFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="המרת ליד ללקוח">
+    <Modal open={open} onClose={onClose} title={t('convertLead.title')}>
       <p className="m-sub">
         <span className="m-sub-dot" style={{ background: 'var(--sage)' }} />
         {lead.name}
       </p>
 
       <div className="m-field">
-        <label className="m-label">שם הלקוח</label>
+        <label className="m-label">{t('convertLead.clientName')}</label>
         <input
           className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
           value={form.name}
@@ -125,13 +125,13 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
 
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">טלפון</label>
-          <input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="050-0000000" />
+          <label className="m-label">{t('common.phone')}</label>
+          <input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} />
         </div>
         <div className="m-field">
-          <label className="m-label">פרויקט (אופציונלי)</label>
+          <label className="m-label">{t('common.projectOptional')}</label>
           <select className="m-select" value={form.project_id} onChange={(e) => setProject(e.target.value)}>
-            <option value="">ללא</option>
+            <option value="">{t('common.none')}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
@@ -139,9 +139,9 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
 
       {projectGroups.length > 0 && (
         <div className="m-field">
-          <label className="m-label">קבוצה (אופציונלי)</label>
+          <label className="m-label">{t('common.groupOptional')}</label>
           <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
-            <option value="">ללא</option>
+            <option value="">{t('common.none')}</option>
             {projectGroups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
           </select>
         </div>
@@ -149,23 +149,21 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
 
       {convertedSubStatuses.length > 0 && (
         <div className="m-field">
-          <label className="m-label">תת-סטטוס "הומר" (אופציונלי)</label>
+          <label className="m-label">{t('convertLead.convertedSubStatusOptional')}</label>
           <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
-            <option value="">{defaultConverted ? `ברירת מחדל (${defaultConverted.display_name})` : 'ללא'}</option>
+            <option value="">{defaultConverted ? t('convertLead.convertedDefault', { name: defaultConverted.display_name }) : t('common.none')}</option>
             {convertedSubStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
           </select>
         </div>
       )}
 
-      <p className="m-hint">
-        ייווצר לקוח חדש; הליד יסומן כ"הומר ללקוח" ויישאר בעמודה "הומרו" עם קישור ללקוח החדש.
-      </p>
+      <p className="m-hint">{t('convertLead.footHint')}</p>
 
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose} disabled={busy}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'ממיר…' : 'המר ללקוח'}</button>
+        <button type="button" className="m-btn-cancel" onClick={onClose} disabled={busy}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('convertLead.converting') : t('convertLead.convert')}</button>
       </div>
     </Modal>
   )

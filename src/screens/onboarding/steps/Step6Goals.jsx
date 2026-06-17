@@ -7,7 +7,7 @@ import { useProjects } from '../../../hooks/useProjects'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { CATEGORY_PRESETS, presetToCategory } from '../../../lib/goalPresets'
 import { scheduledOccurrences, buildSchedulePattern } from '../../../lib/goals'
-import { addressUser } from '../../../lib/address'
+import { useT } from '../../../i18n/useT'
 import ScheduleDayPicker from '../../../components/ScheduleDayPicker'
 
 /* Step 6 — first goal, faithful to the in-app AddGoalModal:
@@ -19,27 +19,31 @@ import ScheduleDayPicker from '../../../components/ScheduleDayPicker'
    Personal goals add name + tracking method (manual / daily question). */
 
 /* Auto categories come straight from the canonical preset catalog so the
-   onboarding can never fall behind the app. Personal is appended. */
+   onboarding can never fall behind the app. Personal is appended. Auto
+   labels/hints come from the preset catalog (lib); the personal track's
+   label/hint are translated per-render inside the component. */
 const AUTO_TYPES = CATEGORY_PRESETS.map((p) => ({ key: p.key, label: p.name, icon: p.icon, hint: p.hint, auto: true }))
-const TYPES = [...AUTO_TYPES, { key: 'personal', label: 'יעד אישי', icon: '✍️', hint: 'למידה, יצירה, ריצה — מה שאת/ה מודד/ת', auto: false }]
 
 const TIME_FRAMES = [
-  { k: 'monthly',  l: 'חודשי' },
-  { k: 'weekly',   l: 'שבועי' },
-  { k: 'deadline', l: 'עד תאריך' },
+  { k: 'monthly',  labelKey: 'step6.tfMonthly' },
+  { k: 'weekly',   labelKey: 'step6.tfWeekly' },
+  { k: 'deadline', labelKey: 'step6.tfDeadline' },
 ]
 const TRACKING = [
-  { k: 'manual',         l: 'הזנה ידנית' },
-  { k: 'daily_question', l: 'שאלה יומית' },
+  { k: 'manual',         labelKey: 'step6.trackingManual' },
+  { k: 'daily_question', labelKey: 'step6.trackingQuestion' },
 ]
 const SCALES = [
-  { k: '1-10',  l: 'סולם 1–10' },
-  { k: 'yes_no', l: 'כן / לא' },
+  { k: '1-10',  labelKey: 'step6.scale110' },
+  { k: 'yes_no', labelKey: 'step6.scaleYesNo' },
 ]
 const QUESTION_ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 
 export default function Step6Goals({ ob, setCTA }) {
-  const addr = (v) => addressUser(ob.state.answers?.profile?.gender, v)
+  const { t } = useT('onboardingSteps')
+  /* Personal track appended to the auto categories; its label/hint are
+     translated (auto types keep their lib-sourced preset names). */
+  const TYPES = [...AUTO_TYPES, { key: 'personal', label: t('step6.personalLabel'), icon: '✍️', hint: t('step6.personalHint'), auto: false }]
   const { addGoal } = useGoals()
   const { categories, addCategory } = useGoalCategories()
   const { projects } = useProjects()
@@ -89,13 +93,13 @@ export default function Step6Goals({ ob, setCTA }) {
     && (!isPersonal || label.trim().length > 0)
     && (!byQuestion || qText.trim().length > 0)
     && !overMax && !noDays
-  const hint = !type ? addr({ male: 'בחר סוג יעד.', female: 'בחרי סוג יעד.', neutral: 'בחר/י סוג יעד.' })
-    : targetNum <= 0 ? addr({ male: 'הזן ערך חיובי.', female: 'הזיני ערך חיובי.', neutral: 'הזן/י ערך חיובי.' })
-    : (isDeadline && !targetDate) ? addr({ male: 'בחר תאריך יעד.', female: 'בחרי תאריך יעד.', neutral: 'בחר/י תאריך יעד.' })
-    : (isPersonal && !label.trim()) ? addr({ male: 'תן שם ליעד.', female: 'תני שם ליעד.', neutral: 'תן/י שם ליעד.' })
-    : (byQuestion && !qText.trim()) ? addr({ male: 'נסח את השאלה היומית.', female: 'נסחי את השאלה היומית.', neutral: 'נסח/י את השאלה היומית.' })
-    : noDays ? addr({ male: 'בחר לפחות יום אחד.', female: 'בחרי לפחות יום אחד.', neutral: 'בחר/י לפחות יום אחד.' })
-    : overMax ? `היעד גבוה ממספר הימים שהשאלה מופיעה (${maxOccurrences}).`
+  const hint = !type ? t('step6.hintPickType')
+    : targetNum <= 0 ? t('step6.hintPositive')
+    : (isDeadline && !targetDate) ? t('step6.hintPickDate')
+    : (isPersonal && !label.trim()) ? t('step6.hintNameGoal')
+    : (byQuestion && !qText.trim()) ? t('step6.hintPhraseQuestion')
+    : noDays ? t('step6.noDays')
+    : overMax ? t('step6.hintOverMax', { max: maxOccurrences })
     : null
   /* Deps coerced to stable primitives — never undefined — so the array
      keeps a constant length across renders (React requires this). */
@@ -106,19 +110,19 @@ export default function Step6Goals({ ob, setCTA }) {
      depends on how the goal is measured (count of "yes" days, sum of
      slider answers, or a plain accumulation). */
   const targetHelp = isYesNoGoal
-    ? `בכמה ימים ${addr({ male: 'תענה', female: 'תעני', neutral: 'תענה/י' })} "כן" בתקופה. השאלה מופיעה כ-${maxOccurrences} פעמים — אפשר לכוון לפחות, לא ליותר.`
+    ? t('step6.targetHelpYesNo', { verb: t('step6.targetHelpYesNoVerb'), max: maxOccurrences })
     : byQuestion
-      ? 'סכום כל התשובות בתקופה (למשל סך שעות הלמידה).'
+      ? t('step6.targetHelpQuestion')
       : isPersonal
-        ? `הסכום ש${addr({ male: 'תצבור', female: 'תצברי', neutral: 'תצבור/י' })} בתקופה מכל ההזנות הידניות.`
+        ? t('step6.targetHelpPersonal', { verb: t('step6.targetHelpPersonalVerb') })
         : null
 
   /* Inline warning next to the day picker when a yes/no target can't be
      met by the chosen days (fewer scheduled days than the target). */
   const scheduleWarning = isYesNoGoal && overMax
-    ? `היעד (${targetNum}) גבוה ממספר הפעמים שהשאלה מופיעה (${maxOccurrences}). ${addr({ male: 'הוסף ימים או הקטן', female: 'הוסיפי ימים או הקטיני', neutral: 'הוסף/י ימים או הקטן/י' })} את היעד.`
+    ? t('step6.scheduleWarnOver', { target: targetNum, max: maxOccurrences, verb: t('step6.scheduleWarnOverVerb') })
     : noDays
-      ? addr({ male: 'בחר לפחות יום אחד.', female: 'בחרי לפחות יום אחד.', neutral: 'בחר/י לפחות יום אחד.' })
+      ? t('step6.noDays')
       : null
 
   /* Find-or-create the goal category for the picked type. Auto types use
@@ -201,16 +205,17 @@ export default function Step6Goals({ ob, setCTA }) {
       })
       await ob.advance()
     } catch (e) {
-      setErr('השמירה נכשלה: ' + (e.message || 'נסה/י שוב'))
+      setErr(t('step6.errSaveFail', { error: e.message || t('step6.tryAgain') }))
     } finally {
       setBusy(false)
     }
   }
 
-  const chosenType = TYPES.find((t) => t.key === type)
+  const chosenType = TYPES.find((ty) => ty.key === type)
   const projectName = projects.find((p) => p.id === projectId)?.name || ''
-  const tfLabel = TIME_FRAMES.find((f) => f.k === timeFrame)?.l || ''
-  const previewName = isPersonal ? (label.trim() || 'יעד אישי') : (chosenType?.label || '')
+  const tfKey = TIME_FRAMES.find((f) => f.k === timeFrame)?.labelKey
+  const tfLabel = tfKey ? t(tfKey) : ''
+  const previewName = isPersonal ? (label.trim() || t('step6.personalLabel')) : (chosenType?.label || '')
   /* Category dot color for the preview card — auto types carry the preset
      color; personal goals use the same purple the personal category gets. */
   const catColor = isPersonal
@@ -219,36 +224,36 @@ export default function Step6Goals({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro">נגדיר יעד ראשון?</p>
-      <p className="ob-intro-sub">{addr({ male: 'תוכל', female: 'תוכלי', neutral: 'תוכל/י' })} לעקוב אחרי ההתקדמות — ואפשר תמיד להוסיף, לערוך או למחוק יעדים בקלות.</p>
+      <p className="ob-intro">{t('step6.intro')}</p>
+      <p className="ob-intro-sub">{t('step6.introSub', { verb: t('step6.introSubVerb') })}</p>
 
       <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-g-proj">לאיזה פרויקט?</label>
+        <label className="ob-label" htmlFor="ob-g-proj">{t('step6.projectLabel')}</label>
         <select
           id="ob-g-proj"
           className="ob-select"
           value={projectId}
           onChange={(e) => setProjectId(e.target.value)}
         >
-          <option value="">כל הפרויקטים</option>
+          <option value="">{t('step6.allProjects')}</option>
           {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </div>
 
       {/* Compact type grid — was full-width cards (too tall for 6 options). */}
       <div className="ob-field">
-        <p className="ob-label">מה נמדוד?</p>
+        <p className="ob-label">{t('step6.measureLabel')}</p>
         <div className="ob-goal-grid">
-          {TYPES.map((t) => (
+          {TYPES.map((ty) => (
             <button
-              key={t.key}
+              key={ty.key}
               type="button"
-              className={`ob-goal-type${type === t.key ? ' on' : ''}`}
-              onClick={() => setType(t.key)}
-              title={t.hint}
+              className={`ob-goal-type${type === ty.key ? ' on' : ''}`}
+              onClick={() => setType(ty.key)}
+              title={ty.hint}
             >
-              <span className="ob-goal-type-ic">{t.icon}</span>
-              <span className="ob-goal-type-l">{t.label}</span>
+              <span className="ob-goal-type-ic">{ty.icon}</span>
+              <span className="ob-goal-type-l">{ty.label}</span>
             </button>
           ))}
         </div>
@@ -258,20 +263,20 @@ export default function Step6Goals({ ob, setCTA }) {
         <>
           {isPersonal && (
             <div className="ob-field">
-              <label className="ob-label" htmlFor="ob-g-label">שם היעד</label>
+              <label className="ob-label" htmlFor="ob-g-label">{t('step6.goalNameLabel')}</label>
               <input
                 id="ob-g-label"
                 className="ob-input"
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
-                placeholder="לדוגמה: 5 שעות למידה בשבוע"
+                placeholder={t('step6.goalNamePlaceholder')}
               />
             </div>
           )}
 
           {/* Time frame first (like AddGoalModal: name → time frame → target). */}
           <div className="ob-field">
-            <p className="ob-label">מסגרת זמן</p>
+            <p className="ob-label">{t('step6.timeFrameLabel')}</p>
             <div className="ob-seg">
               {TIME_FRAMES.map((f) => (
                 <button
@@ -280,7 +285,7 @@ export default function Step6Goals({ ob, setCTA }) {
                   className={`ob-seg-btn${timeFrame === f.k ? ' on' : ''}`}
                   onClick={() => setTimeFrame(f.k)}
                 >
-                  {f.l}
+                  {t(f.labelKey)}
                 </button>
               ))}
             </div>
@@ -288,7 +293,7 @@ export default function Step6Goals({ ob, setCTA }) {
 
           {isDeadline && (
             <div className="ob-field">
-              <label className="ob-label" htmlFor="ob-g-date">תאריך יעד</label>
+              <label className="ob-label" htmlFor="ob-g-date">{t('step6.deadlineLabel')}</label>
               <DateField
                 className="ob-input"
                 value={targetDate}
@@ -298,7 +303,7 @@ export default function Step6Goals({ ob, setCTA }) {
           )}
 
           <div className="ob-field">
-            <label className="ob-label" htmlFor="ob-g-val">יעד</label>
+            <label className="ob-label" htmlFor="ob-g-val">{t('step6.targetLabel')}</label>
             <input
               id="ob-g-val"
               className="ob-input"
@@ -306,22 +311,22 @@ export default function Step6Goals({ ob, setCTA }) {
               min="0"
               value={target}
               onChange={(e) => setTarget(e.target.value)}
-              placeholder={type === 'income' ? '15,000' : '5'}
+              placeholder={type === 'income' ? t('step6.incomePlaceholder') : t('step6.genericPlaceholder')}
             />
             {targetHelp && <p className="ob-empty-hint">{targetHelp}</p>}
           </div>
 
           {/* Importance — stars, matching AddGoalModal (was missing here). */}
           <div className="ob-field">
-            <p className="ob-label">חשיבות</p>
-            <div className="ob-stars-pick" role="radiogroup" aria-label="חשיבות">
+            <p className="ob-label">{t('step6.importanceLabel')}</p>
+            <div className="ob-stars-pick" role="radiogroup" aria-label={t('step6.importanceAria')}>
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
                   type="button"
                   className={`ob-star-btn${n <= importance ? ' on' : ''}`}
                   onClick={() => setImportance(n)}
-                  aria-label={`${n} מתוך 5`}
+                  aria-label={t('step6.starAria', { n })}
                   aria-checked={n === importance}
                   role="radio"
                 >
@@ -329,46 +334,46 @@ export default function Step6Goals({ ob, setCTA }) {
                 </button>
               ))}
             </div>
-            <p className="ob-empty-hint">זה ישפיע על חישוב אחוז ההתקדמות הכולל שלך.</p>
+            <p className="ob-empty-hint">{t('step6.importanceHint')}</p>
           </div>
 
           {isPersonal && (
             <>
               <div className="ob-field">
-                <p className="ob-label">איך נמדוד?</p>
+                <p className="ob-label">{t('step6.howMeasureLabel')}</p>
                 <div className="ob-seg">
-                  {TRACKING.map((t) => (
+                  {TRACKING.map((tr) => (
                     <button
-                      key={t.k}
+                      key={tr.k}
                       type="button"
-                      className={`ob-seg-btn${tracking === t.k ? ' on' : ''}`}
-                      onClick={() => setTracking(t.k)}
+                      className={`ob-seg-btn${tracking === tr.k ? ' on' : ''}`}
+                      onClick={() => setTracking(tr.k)}
                     >
-                      {t.l}
+                      {t(tr.labelKey)}
                     </button>
                   ))}
                 </div>
                 <p className="ob-empty-hint">
                   {tracking === 'manual'
-                    ? addr({ male: 'תזין התקדמות ידנית מהמסך הראשי.', female: 'תזיני התקדמות ידנית מהמסך הראשי.', neutral: 'תזין/י התקדמות ידנית מהמסך הראשי.' })
-                    : 'ניצור שאלה יומית — סליידר או כן/לא — שמתחברת ליעד.'}
+                    ? t('step6.manualHint')
+                    : t('step6.questionHint')}
                 </p>
               </div>
 
               {byQuestion && (
                 <>
                   <div className="ob-field">
-                    <label className="ob-label" htmlFor="ob-g-q">השאלה היומית</label>
+                    <label className="ob-label" htmlFor="ob-g-q">{t('step6.questionLabel')}</label>
                     <input
                       id="ob-g-q"
                       className="ob-input"
                       value={qText}
                       onChange={(e) => setQText(e.target.value)}
-                      placeholder={qScale === 'yes_no' ? 'לדוגמה: למדת היום?' : 'לדוגמה: כמה זמן למדת היום?'}
+                      placeholder={qScale === 'yes_no' ? t('step6.questionPlaceholderYesNo') : t('step6.questionPlaceholderScale')}
                     />
                   </div>
                   <div className="ob-field">
-                    <p className="ob-label">סוג תשובה</p>
+                    <p className="ob-label">{t('step6.answerTypeLabel')}</p>
                     <div className="ob-seg">
                       {SCALES.map((s) => (
                         <button
@@ -377,13 +382,13 @@ export default function Step6Goals({ ob, setCTA }) {
                           className={`ob-seg-btn${qScale === s.k ? ' on' : ''}`}
                           onClick={() => setQScale(s.k)}
                         >
-                          {s.l}
+                          {t(s.labelKey)}
                         </button>
                       ))}
                     </div>
                   </div>
                   <div className="ob-field">
-                    <p className="ob-label">אייקון</p>
+                    <p className="ob-label">{t('step6.iconLabel')}</p>
                     <div className="ob-pills">
                       {QUESTION_ICONS.map((ic) => (
                         <button
@@ -391,7 +396,7 @@ export default function Step6Goals({ ob, setCTA }) {
                           type="button"
                           className={`ob-pill${qIcon === ic ? ' on' : ''}`}
                           onClick={() => setQIcon(ic)}
-                          aria-label={`אייקון ${ic}`}
+                          aria-label={t('step6.iconAria', { icon: ic })}
                         >
                           {ic}
                         </button>
@@ -404,7 +409,7 @@ export default function Step6Goals({ ob, setCTA }) {
                       also caps the target; a warning shows if the target
                       can't be met by the chosen days. */}
                   <div className="ob-field">
-                    <p className="ob-label">מתי להישאל?</p>
+                    <p className="ob-label">{t('step6.whenAskLabel')}</p>
                     <ScheduleDayPicker
                       mode={schedMode}
                       days={schedDays}
@@ -444,7 +449,7 @@ export default function Step6Goals({ ob, setCTA }) {
               </div>
               <div className="ob-gcard-meta">
                 <span className="ob-gcard-target mono">0 / {targetNum.toLocaleString('he-IL')}</span>
-                <span className="ob-gcard-stars" aria-label={`חשיבות ${importance} מתוך 5`}>
+                <span className="ob-gcard-stars" aria-label={`${t('step6.importanceLabel')} ${t('step6.starAria', { n: importance })}`}>
                   {[1, 2, 3, 4, 5].map((i) => (
                     <Star key={i} size={12} strokeWidth={1.5} className={i <= importance ? 'on' : ''} fill={i <= importance ? 'currentColor' : 'none'} aria-hidden="true" />
                   ))}

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import { showToast } from '../lib/toast'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
 import { DOC_TYPES, PAY_METHODS, docTypeLabel, isReceiptType } from '../lib/invoiceDocs'
 
@@ -28,7 +28,7 @@ const blank = (defaults = {}) => ({
    project-detail QuickRow to pre-bind project_id so the user doesn't
    have to re-pick the project they're clearly already on. */
 export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {} }) {
-  const { tryAgain } = useAddress()
+  const { t } = useT('modalsData')
   const inv = useInvoiceProvider()
   const lockedClientId = client?.id || ''
   const initial = { ...defaults, client_id: lockedClientId || defaults.client_id, type: defaultType || defaults.type }
@@ -73,7 +73,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
 
   const submit = async () => {
     const amount = parseFloat(form.amount)
-    if (!amount || amount <= 0) { setErr('יש למלא סכום חיובי.'); return }
+    if (!amount || amount <= 0) { setErr(t('common.amountPositive')); return }
     setBusy(true)
     setErr('')
     const isFuture = form.date > todayStr()
@@ -84,7 +84,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       const row = await onSave({
         amount,
         type: form.type,
-        desc: form.desc.trim() || (form.type === 'income' ? 'הכנסה' : 'הוצאה'),
+        desc: form.desc.trim() || (form.type === 'income' ? t('tx.incomeFallback') : t('tx.expenseFallback')),
         date: form.date,
         status: isFuture ? 'pending' : 'confirmed',
         project_id: form.project_id || null,
@@ -97,17 +97,17 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
         try {
           const r = await inv.issueDocument(row.id, issueDocType, { itemId: null, itemName: form.desc.trim(), paymentMethod: issuePayment })
           const num = r?.document?.number
-          showToast('התנועה נשמרה והופקה ' + docTypeLabel(issueDocType) + (num ? ' מס׳ ' + num : ''))
+          showToast(t('tx.savedAndIssued', { doc: docTypeLabel(issueDocType), num: num ? t('tx.numPrefix', { num }) : '' }))
         } catch {
-          showToast('התנועה נשמרה, אך ההפקה נכשלה — אפשר להפיק מהעריכה', 'error')
+          showToast(t('tx.issueFailed'), 'error')
         }
       } else {
-        showToast('התנועה נשמרה')
+        showToast(t('tx.saved'))
       }
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
@@ -119,7 +119,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   const futureDate = form.date > todayStr()
 
   return (
-    <Modal open={open} onClose={close} title={client ? 'תשלום שהתקבל' : 'תנועה חדשה'}>
+    <Modal open={open} onClose={close} title={client ? t('tx.titlePayment') : t('tx.titleNew')}>
       {client && (
         <p className="m-sub">
           <span className="m-sub-dot" style={{ background: 'var(--sage)' }} />
@@ -128,13 +128,13 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       )}
       <div className="m-field">
         <div className="m-pills">
-          <button type="button" className={`m-pill${form.type === 'income' ? ' on income' : ''}`} onClick={() => set('type', 'income')}>+ הכנסה</button>
-          <button type="button" className={`m-pill${form.type === 'expense' ? ' on expense' : ''}`} onClick={() => set('type', 'expense')}>− הוצאה</button>
+          <button type="button" className={`m-pill${form.type === 'income' ? ' on income' : ''}`} onClick={() => set('type', 'income')}>{t('common.income')}</button>
+          <button type="button" className={`m-pill${form.type === 'expense' ? ' on expense' : ''}`} onClick={() => set('type', 'expense')}>{t('common.expense')}</button>
         </div>
       </div>
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">סכום ₪</label>
+          <label className="m-label">{t('common.amount')}</label>
           <input
             type="number"
             min="0"
@@ -145,38 +145,38 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
           />
         </div>
         <div className="m-field">
-          <label className="m-label">תאריך</label>
+          <label className="m-label">{t('common.date')}</label>
           <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
           {form.date > todayStr() && (
-            <p className="m-hint">תאריך עתידי — התנועה תופיע כ"ממתינה" עד למועד זה.</p>
+            <p className="m-hint">{t('tx.futureHint')}</p>
           )}
         </div>
       </div>
       <div className="m-field">
-        <label className="m-label">תיאור</label>
-        <input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} placeholder="על מה התנועה?" />
+        <label className="m-label">{t('common.description')}</label>
+        <input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} placeholder={t('tx.descPlaceholder')} />
       </div>
       {client ? (
         <div className="m-field">
-          <label className="m-label">פרויקט</label>
+          <label className="m-label">{t('common.project')}</label>
           <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-            <option value="">ללא</option>
+            <option value="">{t('common.none')}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
       ) : (
         <div className="m-row2">
           <div className="m-field">
-            <label className="m-label">לקוח</label>
+            <label className="m-label">{t('common.client')}</label>
             <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
-              <option value="">ללא</option>
+              <option value="">{t('common.none')}</option>
               {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
           <div className="m-field">
-            <label className="m-label">פרויקט</label>
+            <label className="m-label">{t('common.project')}</label>
             <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-              <option value="">ללא</option>
+              <option value="">{t('common.none')}</option>
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
@@ -185,7 +185,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
 
       {form.type === 'expense' && (
         <div className="m-field">
-          <label className="m-label">קטגוריה</label>
+          <label className="m-label">{t('common.category')}</label>
           {creatingCat ? (
             <div className="m-cat-create">
               <input
@@ -193,14 +193,14 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); createCat() } }}
-                placeholder="שם הקטגוריה"
+                placeholder={t('tx.newCatPlaceholder')}
                 autoFocus
               />
               <button type="button" className="m-cat-add" onClick={createCat} disabled={catBusy || !newCatName.trim()}>
-                {catBusy ? '…' : 'הוסף'}
+                {catBusy ? '…' : t('common.add')}
               </button>
               <button type="button" className="m-cat-cancel" onClick={() => { setCreatingCat(false); setNewCatName('') }}>
-                ביטול
+                {t('common.cancel')}
               </button>
             </div>
           ) : (
@@ -212,9 +212,9 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                 set('category_id', e.target.value)
               }}
             >
-              <option value="">ללא קטגוריה</option>
+              <option value="">{t('common.noCategory')}</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              {onCreateCategory && <option value="__new__">+ קטגוריה חדשה…</option>}
+              {onCreateCategory && <option value="__new__">{t('tx.newCatOption')}</option>}
             </select>
           )}
         </div>
@@ -223,14 +223,14 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       {issuable && (
         <div className="m-field m-issue">
           {!hasClient ? (
-            <p className="m-hint">שייכו לקוח לתנועה כדי להפיק קבלה עם השמירה.</p>
+            <p className="m-hint">{t('tx.issueNeedsClient')}</p>
           ) : futureDate ? (
-            <p className="m-hint">לתנועה עתידית אי-אפשר להפיק קבלה כעת — אפשר להפיק כשתתקבל.</p>
+            <p className="m-hint">{t('tx.issueFutureBlocked')}</p>
           ) : (
             <>
               <label className="m-issue-toggle">
                 <input type="checkbox" checked={issueOnCreate} onChange={(e) => setIssueOnCreate(e.target.checked)} />
-                <span>הפק קבלה עם השמירה</span>
+                <span>{t('tx.issueOnSave')}</span>
               </label>
               {issueOnCreate && (
                 <div className="m-issue-opts">
@@ -240,7 +240,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                     ))}
                   </div>
                   {isReceiptType(issueDocType) && (
-                    <select className="m-select" value={issuePayment} onChange={(e) => setIssuePayment(e.target.value)} aria-label="אמצעי תשלום">
+                    <select className="m-select" value={issuePayment} onChange={(e) => setIssuePayment(e.target.value)} aria-label={t('tx.paymentMethodAria')}>
                       {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
                     </select>
                   )}
@@ -254,8 +254,8 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
     </Modal>
   )

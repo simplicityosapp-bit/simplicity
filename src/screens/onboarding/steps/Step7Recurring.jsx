@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { useRecurring } from '../../../hooks/useRecurring'
-import { addressUser } from '../../../lib/address'
+import { useT } from '../../../i18n/useT'
 import { isr } from '../../../lib/finance'
 
-/* Quick-fill presets. "אחר" clears the composer so the user types their own. */
+/* Quick-fill presets. "Other" clears the composer so the user types their own.
+   The localized label doubles as the prefilled description. */
 const PRESETS = [
-  { k: 'rent',      label: 'שכירות',     type: 'expense', amount: 3500 },
-  { k: 'insurance', label: 'ביטוח',      type: 'expense', amount: 220 },
-  { k: 'phone',     label: 'מנוי חודשי', type: 'expense', amount: 70  },
-  { k: 'office',    label: 'ייעוץ',      type: 'expense', amount: 950 },
-  { k: 'other',     label: 'אחר',        clear: true },
+  { k: 'rent',      labelKey: 'step7.presetRent',      type: 'expense', amount: 3500 },
+  { k: 'insurance', labelKey: 'step7.presetInsurance', type: 'expense', amount: 220 },
+  { k: 'phone',     labelKey: 'step7.presetPhone',     type: 'expense', amount: 70  },
+  { k: 'office',    labelKey: 'step7.presetOffice',    type: 'expense', amount: 950 },
+  { k: 'other',     labelKey: 'step7.presetOther',     clear: true },
 ]
 
 /* Step 7 — recurring items. Optional, and now multi-add: each "הוסף לרשימה"
@@ -18,7 +19,7 @@ const PRESETS = [
    can stack several (mirrors the step-4 client flow). monthly_date cadence;
    on_meeting / every-X-days can be set later from the finance screen. */
 export default function Step7Recurring({ ob, setCTA }) {
-  const addr = (v) => addressUser(ob.state.answers?.profile?.gender, v)
+  const { t } = useT('onboardingSteps')
   const { addRecurring, removeRecurring } = useRecurring()
   const initial = ob.state.answers?.recurring || {}
   const [type, setType] = useState('expense')
@@ -29,14 +30,14 @@ export default function Step7Recurring({ ob, setCTA }) {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
 
-  const tryAgain = addr({ male: 'נסה שוב', female: 'נסי שוב', neutral: 'נסה/י שוב' })
+  const tryAgain = t('step7.tryAgainVerb')
   const composerValid = desc.trim().length > 0 && Number(amount) > 0
   const canAdvance = added.length > 0 || composerValid
   useEffect(() => { setCTA({ onNext, canAdvance, busy, hint: null }) }, [type, desc, amount, dayOfMonth, added, busy, canAdvance]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fillPreset = (p) => {
     if (p.clear) { setType('expense'); setDesc(''); setAmount(''); return }
-    setType(p.type); setDesc(p.label); setAmount(p.amount)
+    setType(p.type); setDesc(t(p.labelKey)); setAmount(p.amount)
   }
   const resetComposer = () => { setType('expense'); setDesc(''); setAmount(''); setDayOfMonth(1) }
 
@@ -69,7 +70,7 @@ export default function Step7Recurring({ ob, setCTA }) {
     if (!composerValid) return
     setBusy(true); setErr('')
     try { await commitComposer(); resetComposer() }
-    catch (e) { setErr('השמירה נכשלה: ' + (e.message || tryAgain)) }
+    catch (e) { setErr(t('step7.errSaveFail', { error: e.message || tryAgain })) }
     finally { setBusy(false) }
   }
 
@@ -86,7 +87,7 @@ export default function Step7Recurring({ ob, setCTA }) {
       if (composerValid) await commitComposer()
       await ob.advance()
     } catch (e) {
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('step7.errSaveFail', { error: e.message || tryAgain }))
     } finally {
       setBusy(false)
     }
@@ -94,35 +95,37 @@ export default function Step7Recurring({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro">אם יש לך תנועות חוזרות — זה המקום</p>
-      <p className="ob-intro-sub">הוצאות והכנסות חוזרות מחושבות אל תוך התזרים שלך בכל חודש — {addr({ male: 'ותוכל', female: 'ותוכלי', neutral: 'ותוכל/י' })} תמיד לבטל, להוסיף או לערוך אותן בקלות.</p>
+      <p className="ob-intro">{t('step7.intro')}</p>
+      <p className="ob-intro-sub">{t('step7.introSub', { verb: t('step7.introSubVerb') })}</p>
 
       <div className="ob-field">
-        <p className="ob-label">הצעות מהירות</p>
+        <p className="ob-label">{t('step7.quickSuggestions')}</p>
         <div className="ob-pills">
-          {PRESETS.map((p) => (
+          {PRESETS.map((p) => {
+            const presetLabel = t(p.labelKey)
+            return (
             <button
               key={p.k}
               type="button"
-              className={`ob-pill${!p.clear && desc === p.label ? ' on' : ''}`}
+              className={`ob-pill${!p.clear && desc === presetLabel ? ' on' : ''}`}
               onClick={() => fillPreset(p)}
             >
-              {p.label}
+              {presetLabel}
             </button>
-          ))}
+          )})}
         </div>
       </div>
 
       <div className="ob-step-grid">
         <div className="ob-field">
-          <label className="ob-label">סוג</label>
+          <label className="ob-label">{t('step7.typeLabel')}</label>
           <div className="ob-pills">
-            <button type="button" className={`ob-pill${type === 'expense' ? ' on' : ''}`} onClick={() => setType('expense')}>הוצאה</button>
-            <button type="button" className={`ob-pill${type === 'income' ? ' on' : ''}`} onClick={() => setType('income')}>הכנסה</button>
+            <button type="button" className={`ob-pill${type === 'expense' ? ' on' : ''}`} onClick={() => setType('expense')}>{t('step7.expense')}</button>
+            <button type="button" className={`ob-pill${type === 'income' ? ' on' : ''}`} onClick={() => setType('income')}>{t('step7.income')}</button>
           </div>
         </div>
         <div className="ob-field">
-          <label className="ob-label" htmlFor="ob-r-day">יום בחודש</label>
+          <label className="ob-label" htmlFor="ob-r-day">{t('step7.dayOfMonthLabel')}</label>
           <input
             id="ob-r-day"
             className="ob-input"
@@ -136,17 +139,17 @@ export default function Step7Recurring({ ob, setCTA }) {
       </div>
 
       <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-r-desc">תיאור</label>
+        <label className="ob-label" htmlFor="ob-r-desc">{t('step7.descLabel')}</label>
         <input
           id="ob-r-desc"
           className="ob-input"
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
-          placeholder="לדוגמה: שכירות"
+          placeholder={t('step7.descPlaceholder')}
         />
       </div>
       <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-r-amt">סכום ₪</label>
+        <label className="ob-label" htmlFor="ob-r-amt">{t('step7.amountLabel')}</label>
         <input
           id="ob-r-amt"
           className="ob-input"
@@ -159,22 +162,22 @@ export default function Step7Recurring({ ob, setCTA }) {
 
       {composerValid && (
         <button type="button" className="ob-pc-add" onClick={onAddToList} disabled={busy}>
-          + {addr({ male: 'הוסף', female: 'הוסיפי', neutral: 'הוסף/י' })} לרשימה
+          + {t('step7.addToListVerb')} {t('step7.toList')}
         </button>
       )}
 
       {added.length > 0 && (
         <div className="ob-field">
-          <p className="ob-label">נוספו ({added.length})</p>
+          <p className="ob-label">{t('step7.addedHeading', { count: added.length })}</p>
           <div className="ob-pc-group-list">
             {added.map((a) => (
               <div key={a.id} className="ob-pc-group">
                 <span className="ob-pc-group-color" style={{ background: a.type === 'income' ? 'var(--sage)' : 'var(--clay)' }} />
                 <div className="ob-pc-group-body">
                   <p className="ob-pc-group-name">{a.desc}</p>
-                  <p className="ob-pc-group-meta">{a.type === 'income' ? 'הכנסה' : 'הוצאה'} · {isr(a.amount)}</p>
+                  <p className="ob-pc-group-meta">{a.type === 'income' ? t('step7.income') : t('step7.expense')} · {isr(a.amount)}</p>
                 </div>
-                <button type="button" className="ob-pc-group-x" onClick={() => onRemove(a.id)} aria-label={`הסר ${a.desc}`}>
+                <button type="button" className="ob-pc-group-x" onClick={() => onRemove(a.id)} aria-label={t('step7.removeAria', { name: a.desc })}>
                   <X size={13} strokeWidth={2} aria-hidden="true" />
                 </button>
               </div>

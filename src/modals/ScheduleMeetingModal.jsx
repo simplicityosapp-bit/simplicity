@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = (clientId = '') => ({ client_id: clientId, date: todayStr(), time: '09:00' })
@@ -17,7 +17,7 @@ const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמיש�
    — perpetual until changed or cleared in the client editor. Replacing an
    existing slot asks once before overwriting. */
 export default function ScheduleMeetingModal({ open, onClose, onSave, client, clients = [], onSetRecurringSlot }) {
-  const { addr, tryAgain } = useAddress()
+  const { t } = useT('modalsTask')
   const [form, setForm] = useState(() => blank(client?.id || ''))
   const [recurring, setRecurring] = useState(false)
   const [confirmReplace, setConfirmReplace] = useState(false)
@@ -40,8 +40,8 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
 
   const submit = async () => {
     const clientId = client?.id || form.client_id
-    if (!clientId) { setErr('יש לבחור לקוח.'); return }
-    if (!form.date || !form.time) { setErr('יש לבחור תאריך ושעה.'); return }
+    if (!clientId) { setErr(t('meeting.clientRequired')); return }
+    if (!form.date || !form.time) { setErr(t('meeting.dateTimeRequired')); return }
     setErr('')
 
     /* Recurring path — set the client's weekly slot and let the engine build
@@ -59,7 +59,7 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
         close()
       } catch (e) {
         setBusy(false)
-        setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+        setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
       }
       return
     }
@@ -77,14 +77,14 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
       close()
     } catch (e) {
       setBusy(false)
-      setErr('השמירה נכשלה: ' + (e.message || tryAgain))
+      setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
 
   const showReplaceWarning = recurring && confirmReplace && hasExistingSlot
 
   return (
-    <Modal open={open} onClose={close} title="תיאום פגישה">
+    <Modal open={open} onClose={close} title={t('meeting.title')}>
       {client ? (
         <p className="m-sub">
           <span className="m-sub-dot" style={{ background: 'var(--terracotta)' }} />
@@ -92,59 +92,59 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
         </p>
       ) : (
         <div className="m-field">
-          <label className="m-label">לקוח</label>
+          <label className="m-label">{t('meeting.client')}</label>
           <select className="m-select" value={form.client_id} onChange={(e) => { set('client_id', e.target.value); if (err) setErr('') }}>
-            <option value="">{addr({ male: 'בחר לקוח', female: 'בחרי לקוח', neutral: 'בחר/י לקוח' })}</option>
+            <option value="">{t('meeting.pickClient')}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
       )}
       <div className="m-row2">
         <div className="m-field">
-          <label className="m-label">תאריך</label>
+          <label className="m-label">{t('meeting.date')}</label>
           <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
         </div>
         <div className="m-field">
-          <label className="m-label">שעה</label>
+          <label className="m-label">{t('meeting.time')}</label>
           <input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
         </div>
       </div>
 
       {canRecur && (
         <div className="m-field">
-          <label className="m-label">סוג הפגישה</label>
+          <label className="m-label">{t('meeting.meetingType')}</label>
           <div className="m-pills">
             <button
               type="button"
               className={`m-pill${!recurring ? ' on' : ''}`}
               onClick={() => { setRecurring(false); setConfirmReplace(false); if (err) setErr('') }}
             >
-              חד-פעמית
+              {t('meeting.once')}
             </button>
             <button
               type="button"
               className={`m-pill${recurring ? ' on' : ''}`}
               onClick={() => { setRecurring(true); if (err) setErr('') }}
             >
-              שעה קבועה
+              {t('meeting.recurring')}
             </button>
           </div>
           {recurring && (
-            <p className="m-hint">פגישה שבועית קבועה בכל יום {HEB_DAYS[slotDow]} בשעה {form.time}. אפשר לשנות או לבטל בעריכת הלקוח.</p>
+            <p className="m-hint">{t('meeting.recurringHint', { day: HEB_DAYS[slotDow], time: form.time })}</p>
           )}
         </div>
       )}
 
       {showReplaceWarning && (
-        <p className="m-hint">ללקוח כבר מוגדרת שעה קבועה ביום {HEB_DAYS[client.recurring_day]} בשעה {client.recurring_time}. לחיצה על "כן, החלף" תחליף אותה.</p>
+        <p className="m-hint">{t('meeting.replaceWarning', { day: HEB_DAYS[client.recurring_day], time: client.recurring_time })}</p>
       )}
 
       {err && <p className="m-error">{err}</p>}
 
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>ביטול</button>
+        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
         <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>
-          {busy ? 'שומר…' : (showReplaceWarning ? 'כן, החלף' : 'שמירה')}
+          {busy ? t('common.saving') : (showReplaceWarning ? t('meeting.replaceConfirm') : t('common.save'))}
         </button>
       </div>
     </Modal>

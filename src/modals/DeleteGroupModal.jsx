@@ -1,56 +1,56 @@
 import { useState, useMemo } from 'react'
 import Modal from './Modal'
-import { useAddress } from '../hooks/useAddress'
+import { useT } from '../i18n/useT'
 
 /* Cascade-delete modal for groups. Mirrors the prototype's showDeleteOptions:
    for every child-type that has rows (members / future meetings / past sessions /
    reminders), let the user choose keep vs delete. Empty sections are skipped. */
 export default function DeleteGroupModal({ open, onClose, group, counts, onConfirm }) {
-  const { addr } = useAddress()
+  const { t } = useT('modalsClient')
   const options = useMemo(() => {
     const out = []
     if (counts?.members) {
       out.push({
         key: 'keepMembers',
-        label: `${counts.members} חבר${counts.members > 1 ? 'ים' : ''} בקבוצה`,
-        sub: 'מומלץ: ישתחררו ויישארו בפרויקט כלקוחות פרטיים',
+        label: t('deleteGroup.members', { count: counts.members }),
+        sub: t('deleteGroup.membersSub'),
         defaultValue: true,
-        keepLabel: 'להשאיר',
-        deleteLabel: 'למחוק לקוחות',
+        keepLabel: t('deleteGroup.membersKeep'),
+        deleteLabel: t('deleteGroup.membersDelete'),
       })
     }
     if (counts?.futureMeetings) {
       out.push({
         key: 'keepFutureMeetings',
-        label: `${counts.futureMeetings} פגיש${counts.futureMeetings > 1 ? 'ות' : 'ה'} עתידי${counts.futureMeetings > 1 ? 'ות' : 'ת'}`,
-        sub: 'מומלץ: למחוק — הכלל החוזר כבר לא קיים',
+        label: t('deleteGroup.futureMeetings', { count: counts.futureMeetings }),
+        sub: t('deleteGroup.futureMeetingsSub'),
         defaultValue: false,
-        keepLabel: 'להשאיר',
-        deleteLabel: 'למחוק',
+        keepLabel: t('deleteGroup.keep'),
+        deleteLabel: t('deleteGroup.delete'),
       })
     }
     if (counts?.pastSessions) {
       out.push({
         key: 'keepPastSessions',
-        label: `${counts.pastSessions} פגיש${counts.pastSessions > 1 ? 'ות' : 'ה'} היסטורי${counts.pastSessions > 1 ? 'ות' : 'ת'}`,
-        sub: 'מומלץ: להשאיר — תיעוד היסטורי',
+        label: t('deleteGroup.pastSessions', { count: counts.pastSessions }),
+        sub: t('deleteGroup.pastSessionsSub'),
         defaultValue: true,
-        keepLabel: 'להשאיר',
-        deleteLabel: 'למחוק',
+        keepLabel: t('deleteGroup.keep'),
+        deleteLabel: t('deleteGroup.delete'),
       })
     }
     if (counts?.reminders) {
       out.push({
         key: 'keepReminders',
-        label: `${counts.reminders} תזכורות מקושרות`,
-        sub: 'מומלץ: להשאיר — תיעוד מתמשך',
+        label: t('deleteGroup.reminders', { count: counts.reminders }),
+        sub: t('deleteGroup.remindersSub'),
         defaultValue: true,
-        keepLabel: 'להשאיר',
-        deleteLabel: 'למחוק',
+        keepLabel: t('deleteGroup.keep'),
+        deleteLabel: t('deleteGroup.delete'),
       })
     }
     return out
-  }, [counts])
+  }, [counts, t])
 
   const [choices, setChoices] = useState(() => {
     const init = {}
@@ -65,7 +65,7 @@ export default function DeleteGroupModal({ open, onClose, group, counts, onConfi
     setChoices(init)
   }
 
-  if (!group) return <Modal open={open} onClose={onClose} title="מחיקת קבוצה" />
+  if (!group) return <Modal open={open} onClose={onClose} title={t('deleteGroup.title')} />
 
   const set = (k, v) => setChoices((c) => ({ ...c, [k]: v }))
 
@@ -75,11 +75,11 @@ export default function DeleteGroupModal({ open, onClose, group, counts, onConfi
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={`למחוק את "${group.name}"?`}>
-      <p className="m-confirm-msg">{addr({ male: 'בחר מה לעשות עם הדאטה המקושר', female: 'בחרי מה לעשות עם הדאטה המקושר', neutral: 'בחר/י מה לעשות עם הדאטה המקושר' })}.</p>
+    <Modal open={open} onClose={onClose} title={t('deleteGroup.titleNamed', { name: group.name })}>
+      <p className="m-confirm-msg">{t('deleteGroup.intro')}</p>
       <div className="dg-list">
         {options.length === 0 ? (
-          <p className="m-confirm-msg">אין דאטה מקושר — הקבוצה תימחק.</p>
+          <p className="m-confirm-msg">{t('deleteGroup.noData')}</p>
         ) : (
           options.map((o) => (
             <div key={o.key} className="dg-row">
@@ -108,8 +108,8 @@ export default function DeleteGroupModal({ open, onClose, group, counts, onConfi
         )}
       </div>
       <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>ביטול</button>
-        <button type="button" className="m-btn-save danger" onClick={submit}>מחק קבוצה</button>
+        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
+        <button type="button" className="m-btn-save danger" onClick={submit}>{t('deleteGroup.confirm')}</button>
       </div>
     </Modal>
   )

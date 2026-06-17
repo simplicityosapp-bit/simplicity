@@ -1,0 +1,234 @@
+{
+  "header": {
+    "areas_one": "1 area",
+    "areas_other": "{{count}} areas",
+    "customization": "Personalization",
+    "tagline": "Sensible defaults, fully flexible.",
+    "title": "Settings"
+  },
+  "sections": {
+    "profile": { "title": "Profile", "sub": "Name, profession and focus" },
+    "widgets": { "title": "Widgets & display", "sub": "What shows on your home screen" },
+    "clients": { "title": "Clients & statuses", "sub": "Your own sub-statuses" },
+    "payments": { "title": "Payments & currency", "sub": "Currency and amount formats" },
+    "questions": { "title": "Daily questions", "sub": "What you're asked each day" },
+    "leads": { "title": "Lead settings", "sub": "Sources and statuses" },
+    "design": { "title": "Appearance", "sub": "Light/dark mode, text size" },
+    "data": { "title": "Data", "sub": "Export, import, reset" },
+    "about": { "title": "About", "sub": "Version and info" }
+  },
+  "common": {
+    "loading": "Loading…",
+    "soon": "More settings coming soon.",
+    "delete": "Delete",
+    "color": "Color",
+    "colorNamed": "Color {{color}}"
+  },
+  "clientMetas": {
+    "active": "Active",
+    "wandering": "On the fence",
+    "past": "Former",
+    "no_status": "No status"
+  },
+  "leadMetas": {
+    "in_process": "In progress",
+    "converted": "Converted",
+    "not_relevant": "Not a fit"
+  },
+  "payments": {
+    "currency": "Currency",
+    "dateFormat": "Date format",
+    "timeFormat": "Time format",
+    "weekStart": "First day of the week"
+  },
+  "widgets": {
+    "globalView": "Global display",
+    "cardStyle": "Card style",
+    "textStrength": "Text weight",
+    "density": "Density",
+    "widgets": "Widgets",
+    "moveUp": "{{label}} — move up",
+    "moveDown": "{{label}} — move down",
+    "toggle": "{{label}} — {{state}}",
+    "on": "turn on",
+    "off": "turn off",
+    "compact": "Compact",
+    "rowDensity": {
+      "global": "Global",
+      "compact": "Compact",
+      "comfortable": "Normal",
+      "spacious": "Spacious"
+    }
+  },
+  "design": {
+    "theme": "Light / dark mode",
+    "textSize": "Text size"
+  },
+  "about": {
+    "tabsAria": "About and help",
+    "tabs": {
+      "about": "About",
+      "guide": "Guide",
+      "faq": "FAQ"
+    },
+    "version": "Version {{version}}",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "dpa": "Data processing",
+    "guideIntro": "A full walkthrough of every screen — what it does, tips, and common questions.",
+    "guideTips": "Tips",
+    "guideFaq": "Common questions"
+  },
+  "profile": {
+    "fullName": "Full name",
+    "saved": "· saved",
+    "namePlaceholder": "What should I call you?",
+    "address": "Form of address",
+    "genders": {
+      "female": "She",
+      "male": "He",
+      "neutral": "Neutral"
+    },
+    "role": "Profession",
+    "roleOther": "What do you do?",
+    "roleOtherPlaceholder": "e.g. yoga therapist, math teacher"
+  },
+  "status": {
+    "loadError": "Couldn't load: {{error}}",
+    "empty": "—",
+    "deleteAria": "Delete",
+    "subStatusDeleted": "Sub-status deleted",
+    "subStatusPlaceholder": "Sub-status for \"{{meta}}\"",
+    "addFailed": "Couldn't add it — please try again."
+  },
+  "questions": {
+    "loadError": "Couldn't load your questions: {{error}}",
+    "empty": "No daily questions yet. Add your first one.",
+    "linkedToGoal": "Linked to a goal",
+    "toggleOn": "Turn question on",
+    "toggleOff": "Turn question off",
+    "deleteAria": "Delete question",
+    "add": "Add question",
+    "reminderTitle": "Daily reminder",
+    "reminderToggle": "Daily reminder",
+    "reminderLabel": "Remind me to answer if I haven't by",
+    "reminderHint": "If you haven't answered by the time you pick, a gentle reminder appears in the \"How are you today\" widget on your home screen."
+  },
+  "data": {
+    "intro": "An overview of your data, plus import and export from a CSV / Excel file.",
+    "counts": {
+      "clients": "Clients",
+      "transactions": "Transactions",
+      "leads": "Leads",
+      "tasks": "Tasks",
+      "projects": "Projects",
+      "categories": "Categories"
+    },
+    "export": "Export data",
+    "exportHint": "One place for every export: everything together in an Excel file (a sheet per type), or a single export of transactions / clients / projects to CSV.",
+    "import": "Import from a file (CSV / Excel)",
+    "importHint": "Supports CSV, TSV and Excel — several files and sheets at once are fine. It auto-detects columns (name, phone, email, project, amount, date and more), lets you map them by hand, and review everything before anything is saved.",
+    "importProcessing": "Processing the file…",
+    "importUnsupported": "Couldn't read the file — that format isn't supported. You can import CSV or Excel (xlsx/xls); a Numbers or Google Sheets file can be exported to CSV.",
+    "importFailed": "Couldn't read the file — make sure it's a valid CSV or Excel file and isn't currently open in another program.",
+    "importErrorPrefix": "Couldn't read the file",
+    "importNone": "No new records were created (they may already exist).",
+    "importSuccess": "Imported successfully: {{parts}}.{{estNote}}",
+    "importEstNote_one": " 1 of them with an estimated date — you can edit it on the money screen.",
+    "importEstNote_other": " {{count}} of them with an estimated date — you can edit them on the money screen.",
+    "importClients_one": "{{count}} client",
+    "importClients_other": "{{count}} clients",
+    "importProjects_one": "{{count}} project",
+    "importProjects_other": "{{count}} projects",
+    "importLeads_one": "{{count}} lead",
+    "importLeads_other": "{{count}} leads",
+    "importTransactions_one": "{{count}} transaction",
+    "importTransactions_other": "{{count}} transactions",
+    "importSessions_one": "{{count}} session",
+    "importSessions_other": "{{count}} sessions",
+    "restartOnboarding": "Restart the intro",
+    "restartHint": "Reopens the setup wizard from the first step. Handy if you skipped partway through."
+  },
+  "danger": {
+    "resetTitle": "Reset account",
+    "resetAction": "Delete all data and start over",
+    "resetHint": "Deletes all the data in your account (clients, projects, leads, transactions, goals, reminders and more) and restarts the intro. This needs double confirmation and can't be undone.",
+    "deleteTitle": "Delete account",
+    "deleteAction": "Delete account permanently",
+    "deleteHint": "Deletes the whole account — including the login itself — not just the data. There's a 30-day grace period to change your mind and cancel; after that everything is permanently deleted and you can't sign in again. Requires typed double confirmation.",
+    "restartTitle": "Restart the intro",
+    "restartConfirm": "Restart",
+    "restartMessage": "Restart the intro? The steps reset to the beginning — data you've already created (clients, projects, etc.) stays put."
+  },
+  "leads": {
+    "sources": "Lead sources",
+    "sourcesLoadError": "Couldn't load sources: {{error}}",
+    "sourcesEmpty": "No sources yet. Add your first one.",
+    "deleteSourceAria": "Delete source",
+    "newSourcePlaceholder": "New source name",
+    "addSourceFailed": "Couldn't add the source — please try again.",
+    "subStatuses": "Sub-statuses"
+  },
+  "schedule": {
+    "everyDay": "Every day",
+    "daysOfWeek": "Specific days",
+    "everyXDays": "Every X days",
+    "every": "Every",
+    "days": "days",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "save": "Save",
+    "weekdays": {
+      "0": "Sun",
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat"
+    }
+  },
+  "options": {
+    "currency": {
+      "ILS": "₪ Shekel",
+      "USD": "$ Dollar",
+      "EUR": "€ Euro"
+    },
+    "dateFormat": {
+      "DD/MM/YY": "DD/MM/YY",
+      "MM/DD/YY": "MM/DD/YY",
+      "YYYY-MM-DD": "YYYY-MM-DD"
+    },
+    "timeFormat": {
+      "24h": "24-hour",
+      "12h": "12-hour (AM/PM)"
+    },
+    "weekStart": {
+      "sunday": "Sunday",
+      "monday": "Monday"
+    },
+    "textSize": {
+      "small": "Small",
+      "normal": "Normal",
+      "large": "Large"
+    },
+    "theme": {
+      "light": "Day",
+      "dark": "Night"
+    },
+    "cardStyle": {
+      "frosted": "Frosted",
+      "flat": "Flat",
+      "outlined": "Outlined"
+    },
+    "textStrength": {
+      "normal": "Normal",
+      "bold": "Bold"
+    },
+    "density": {
+      "compact": "Compact",
+      "comfortable": "Normal",
+      "spacious": "Spacious"
+    }
+  }
+}

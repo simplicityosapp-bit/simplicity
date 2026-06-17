@@ -34,7 +34,6 @@ import {
   CARD_STYLE_OPTIONS, TEXT_STRENGTH_OPTIONS, DENSITY_OPTIONS,
 } from '../../lib/preferences'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
-import { addressUser } from '../../lib/address'
 import { useT } from '../../i18n/useT'
 import { LANGUAGE_OPTIONS } from '../../i18n/config'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
@@ -48,29 +47,24 @@ import { HELP_SCREENS, GLOBAL_FAQ, ABOUT_CONTENT } from '../../lib/helpContent'
 import MG from '../../components/MG'
 import './SettingsScreen.css'
 
+/* Section identity (key + icon). Titles + subtitles are translated at
+   render time via t(`sections.${key}.title` / `.sub`). */
 const SECTIONS = [
-  { key: 'profile', title: 'פרופיל', icon: User, sub: 'שם, מקצוע והתמחות' },
-  { key: 'widgets', title: 'ווידג׳טים ותצוגה', icon: LayoutGrid, sub: 'מה מופיע במסך הבית' },
-  { key: 'clients', title: 'לקוחות וסטטוסים', icon: Users, sub: 'תתי-סטטוסים מותאמים אישית' },
-  { key: 'payments', title: 'תשלומים ומטבע', icon: Wallet, sub: 'מטבע ופורמט סכומים' },
-  { key: 'questions', title: 'שאלות יומיות', icon: Sparkles, sub: 'מה נשאל בכל יום' },
-  { key: 'leads', title: 'הגדרות לידים', icon: Leaf, sub: 'מקורות וסטטוסים' },
-  { key: 'design', title: 'עיצוב', icon: Palette, sub: 'מצב יום/לילה, גודל טקסט' },
-  { key: 'data', title: 'נתונים', icon: Database, sub: 'ייצוא, יבוא, איפוס' },
-  { key: 'about', title: 'אודות', icon: Info, sub: 'גרסה ומידע' },
+  { key: 'profile', icon: User },
+  { key: 'widgets', icon: LayoutGrid },
+  { key: 'clients', icon: Users },
+  { key: 'payments', icon: Wallet },
+  { key: 'questions', icon: Sparkles },
+  { key: 'leads', icon: Leaf },
+  { key: 'design', icon: Palette },
+  { key: 'data', icon: Database },
+  { key: 'about', icon: Info },
 ]
 
-const CLIENT_METAS = [
-  { k: 'active', l: 'פעיל׌' },
-  { k: 'wandering', l: 'ביניים' },
-  { k: 'past', l: 'לשעבר' },
-  { k: 'no_status', l: 'ללא סטטוס' },
-]
-const LEAD_METAS = [
-  { k: 'in_process', l: 'בתהליך' },
-  { k: 'converted', l: 'הומר' },
-  { k: 'not_relevant', l: 'לא רלוונטי' },
-]
+/* Meta-category keys; labels are translated via t(`clientMetas.${k}`) /
+   t(`leadMetas.${k}`) at the call site. */
+const CLIENT_METAS = ['active', 'wandering', 'past', 'no_status']
+const LEAD_METAS = ['in_process', 'converted', 'not_relevant']
 
 /* ── Segmented control ────────────────────────────────────────────
    Compact horizontal pill group. Used by payments + design. */
@@ -100,14 +94,18 @@ function Segmented({ label, value, options, onChange }) {
    Persists to prefs.format. Currency is also surfaced to module-level
    state (lib/finance) via PrefsApplier so isr() picks it up app-wide. */
 function PaymentsBody({ prefs, onUpdate }) {
+  const { t } = useT('settings')
   const f = prefs?.format || {}
   const setVal = (k) => (v) => onUpdate({ format: { [k]: v } })
+  /* Option labels come from lib arrays (Hebrew `l`); re-label via t() so the
+     <Segmented> pills follow the active language. */
+  const tOpts = (group, opts) => opts.map((o) => ({ ...o, l: t(`options.${group}.${o.v}`) }))
   return (
     <div className="set-profile-body">
-      <Segmented label="מטבע" value={f.currency || 'ILS'} options={CURRENCY_OPTIONS} onChange={setVal('currency')} />
-      <Segmented label="פורמט תאריך" value={f.date_format || 'DD/MM/YY'} options={DATE_FORMAT_OPTIONS} onChange={setVal('date_format')} />
-      <Segmented label="פורמט שעה" value={f.time_format || '24h'} options={TIME_FORMAT_OPTIONS} onChange={setVal('time_format')} />
-      <Segmented label="יום ראשון בשבוע" value={f.week_start || 'sunday'} options={WEEK_START_OPTIONS} onChange={setVal('week_start')} />
+      <Segmented label={t('payments.currency')} value={f.currency || 'ILS'} options={tOpts('currency', CURRENCY_OPTIONS)} onChange={setVal('currency')} />
+      <Segmented label={t('payments.dateFormat')} value={f.date_format || 'DD/MM/YY'} options={tOpts('dateFormat', DATE_FORMAT_OPTIONS)} onChange={setVal('date_format')} />
+      <Segmented label={t('payments.timeFormat')} value={f.time_format || '24h'} options={tOpts('timeFormat', TIME_FORMAT_OPTIONS)} onChange={setVal('time_format')} />
+      <Segmented label={t('payments.weekStart')} value={f.week_start || 'sunday'} options={tOpts('weekStart', WEEK_START_OPTIONS)} onChange={setVal('week_start')} />
     </div>
   )
 }
@@ -116,15 +114,16 @@ function PaymentsBody({ prefs, onUpdate }) {
    Shared swatch picker (reuses the finance category palette) for the
    lead-source and lead sub-status colors. */
 function ColorDots({ value, onChange }) {
+  const { t } = useT('settings')
   return (
-    <div className="set-color-dots" role="radiogroup" aria-label="צבע">
+    <div className="set-color-dots" role="radiogroup" aria-label={t('common.color')}>
       {CATEGORY_COLORS.map((c) => (
         <button
           key={c}
           type="button"
           role="radio"
           aria-checked={value === c}
-          aria-label={`צבע ${c}`}
+          aria-label={t('common.colorNamed', { color: c })}
           className={`set-color-dot${value === c ? ' on' : ''}`}
           style={{ background: c }}
           onClick={() => onChange(c)}
@@ -156,6 +155,7 @@ function Switch({ checked, onChange, label }) {
    Per-widget controls: enabled, accent, compact (when supported),
    density override. Globals + reorder live in WidgetsGlobals below. */
 function WidgetsBody({ prefs, onUpdate }) {
+  const { t } = useT('settings')
   const cfg = prefs?.widgets || {}
   const list = cfg.list || []
   const global = cfg.global || {}
@@ -212,13 +212,13 @@ function WidgetsBody({ prefs, onUpdate }) {
 
   return (
     <div className="set-w-body">
-      <p className="set-sub-h">תצוגה גלובלית</p>
-      <Segmented label="סגנון כרטיסים" value={global.cardStyle || 'frosted'} options={CARD_STYLE_OPTIONS} onChange={setGlobal('cardStyle')} />
-      <Segmented label="עוצמת טקסט" value={global.textStrength || 'normal'} options={TEXT_STRENGTH_OPTIONS} onChange={setGlobal('textStrength')} />
-      <Segmented label="צפיפות" value={global.density || 'comfortable'} options={DENSITY_OPTIONS} onChange={setGlobal('density')} />
+      <p className="set-sub-h">{t('widgets.globalView')}</p>
+      <Segmented label={t('widgets.cardStyle')} value={global.cardStyle || 'frosted'} options={CARD_STYLE_OPTIONS.map((o) => ({ ...o, l: t(`options.cardStyle.${o.v}`) }))} onChange={setGlobal('cardStyle')} />
+      <Segmented label={t('widgets.textStrength')} value={global.textStrength || 'normal'} options={TEXT_STRENGTH_OPTIONS.map((o) => ({ ...o, l: t(`options.textStrength.${o.v}`) }))} onChange={setGlobal('textStrength')} />
+      <Segmented label={t('widgets.density')} value={global.density || 'comfortable'} options={DENSITY_OPTIONS.map((o) => ({ ...o, l: t(`options.density.${o.v}`) }))} onChange={setGlobal('density')} />
 
       <details className="set-w-collapse">
-      <summary className="set-w-summary">ווידג׳טים</summary>
+      <summary className="set-w-summary">{t('widgets.widgets')}</summary>
       <div className="set-w-list">
         {list.map((w, i) => {
           const reg = WIDGET_REGISTRY.find((r) => r.id === w.id)
@@ -248,6 +248,7 @@ function WidgetsBody({ prefs, onUpdate }) {
 }
 
 function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, onDragStart, onDragOver, onDrop, onDragEnd }) {
+  const { t } = useT('settings')
   return (
     <div
       className={`set-w-row${cfg.enabled ? '' : ' off'}${dragging ? ' dragging' : ''}${over ? ' over' : ''}`}
@@ -265,7 +266,7 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
           <button
             type="button"
             className="set-w-move-btn"
-            aria-label={`${reg.label} — הזזה למעלה`}
+            aria-label={t('widgets.moveUp', { label: reg.label })}
             disabled={index === 0}
             onClick={() => onMove(cfg.id, -1)}
           >
@@ -274,7 +275,7 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
           <button
             type="button"
             className="set-w-move-btn"
-            aria-label={`${reg.label} — הזזה למטה`}
+            aria-label={t('widgets.moveDown', { label: reg.label })}
             disabled={index === total - 1}
             onClick={() => onMove(cfg.id, 1)}
           >
@@ -285,7 +286,7 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
         <Switch
           checked={cfg.enabled}
           onChange={(v) => onUpdate({ enabled: v })}
-          label={`${reg.label} — ${cfg.enabled ? 'כיבוי' : 'הפעלה'}`}
+          label={t('widgets.toggle', { label: reg.label, state: cfg.enabled ? t('widgets.off') : t('widgets.on') })}
         />
       </div>
       {cfg.enabled && (
@@ -295,14 +296,14 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
               type="button"
               className={`set-w-chip${cfg.compact ? ' on' : ''}`}
               onClick={() => onUpdate({ compact: !cfg.compact })}
-            >קומפקטי</button>
+            >{t('widgets.compact')}</button>
           )}
           <div className="set-w-density">
             {[
-              { v: null,         l: 'גלובלי' },
-              { v: 'compact',     l: 'צפוף' },
-              { v: 'comfortable', l: 'רגיל' },
-              { v: 'spacious',    l: 'מרווח' },
+              { v: null,         l: t('widgets.rowDensity.global') },
+              { v: 'compact',     l: t('widgets.rowDensity.compact') },
+              { v: 'comfortable', l: t('widgets.rowDensity.comfortable') },
+              { v: 'spacious',    l: t('widgets.rowDensity.spacious') },
             ].map((d) => (
               <button
                 key={d.v ?? 'global'}
@@ -322,13 +323,15 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
    Theme + text size + grammatical gender. PrefsApplier picks up the
    change and pushes it to <html> attributes app-wide. */
 const THEME_OPTIONS = [
-  { v: 'light', l: 'יום' },
-  { v: 'dark',  l: 'לילה' },
+  { v: 'light' },
+  { v: 'dark' },
 ]
 
 function DesignBody({ prefs, onUpdate }) {
   const d = prefs?.design || {}
-  const { t, i18n } = useT('common')
+  /* Namespaced to 'settings'; the language label lives in 'common', so it's
+     resolved via the cross-namespace `common:language` key below. */
+  const { t, i18n } = useT('settings')
   const setVal = (k) => (v) => onUpdate({ design: { [k]: v } })
   /* Language is special: also switch i18next live (localStorage-cached),
      not just persist the preference. */
@@ -336,9 +339,9 @@ function DesignBody({ prefs, onUpdate }) {
   const setLanguage = (code) => { i18n.changeLanguage(code); onUpdate({ design: { language: code } }) }
   return (
     <div className="set-profile-body">
-      <Segmented label={t('language')} value={activeLang} options={LANGUAGE_OPTIONS} onChange={setLanguage} />
-      <Segmented label="מצב יום/לילה" value={d.theme || 'light'} options={THEME_OPTIONS} onChange={setVal('theme')} />
-      <Segmented label="גודל טקסט" value={d.text_size || 'normal'} options={TEXT_SIZE_OPTIONS} onChange={setVal('text_size')} />
+      <Segmented label={t('common:language')} value={activeLang} options={LANGUAGE_OPTIONS} onChange={setLanguage} />
+      <Segmented label={t('design.theme')} value={d.theme || 'light'} options={THEME_OPTIONS.map((o) => ({ ...o, l: t(`options.theme.${o.v}`) }))} onChange={setVal('theme')} />
+      <Segmented label={t('design.textSize')} value={d.text_size || 'normal'} options={TEXT_SIZE_OPTIONS.map((o) => ({ ...o, l: t(`options.textSize.${o.v}`) }))} onChange={setVal('text_size')} />
     </div>
   )
 }
@@ -349,9 +352,9 @@ function DesignBody({ prefs, onUpdate }) {
    (shared with the floating HelpFab). The tip/list sub-styles reuse the
    help-* classes from HelpFab.css, which is always loaded inside AppShell. */
 const ABOUT_TABS = [
-  { key: 'about', label: 'אודות', icon: Info },
-  { key: 'guide', label: 'מדריך', icon: BookOpen },
-  { key: 'faq',   label: 'שאלות נפוצות', icon: HelpCircle },
+  { key: 'about', icon: Info },
+  { key: 'guide', icon: BookOpen },
+  { key: 'faq',   icon: HelpCircle },
 ]
 
 /* Screen order for the full guide — a logical reading order (not the raw
@@ -363,26 +366,27 @@ const GUIDE_ORDER = [
 ]
 
 function AboutBody({ initialTab }) {
+  const { t } = useT('settings')
   const navigate = useNavigate()
   const [tab, setTab] = useState(
-    initialTab && ABOUT_TABS.some((t) => t.key === initialTab) ? initialTab : 'about',
+    initialTab && ABOUT_TABS.some((x) => x.key === initialTab) ? initialTab : 'about',
   )
   return (
     <div className="set-about-wrap">
-      <div className="set-about-tabs" role="tablist" aria-label="אודות ועזרה">
-        {ABOUT_TABS.map((t) => {
-          const Icon = t.icon
+      <div className="set-about-tabs" role="tablist" aria-label={t('about.tabsAria')}>
+        {ABOUT_TABS.map((tab2) => {
+          const Icon = tab2.icon
           return (
             <button
-              key={t.key}
+              key={tab2.key}
               type="button"
               role="tab"
-              aria-selected={tab === t.key}
-              className={`set-about-tab${tab === t.key ? ' on' : ''}`}
-              onClick={() => setTab(t.key)}
+              aria-selected={tab === tab2.key}
+              className={`set-about-tab${tab === tab2.key ? ' on' : ''}`}
+              onClick={() => setTab(tab2.key)}
             >
               <Icon size={14} strokeWidth={1.7} aria-hidden="true" />
-              {t.label}
+              {t(`about.tabs.${tab2.key}`)}
             </button>
           )
         })}
@@ -395,6 +399,7 @@ function AboutBody({ initialTab }) {
 }
 
 function AboutInfo({ navigate }) {
+  const { t } = useT('settings')
   return (
     <div className="set-about">
       <p className="set-about-name">Simplicity</p>
@@ -409,7 +414,7 @@ function AboutInfo({ navigate }) {
         ))}
       </div>
       <div className="set-about-meta">
-        <span>גרסה {ABOUT_CONTENT.version}</span>
+        <span>{t('about.version', { version: ABOUT_CONTENT.version })}</span>
         <span className="set-about-dot">·</span>
         <span>2026</span>
       </div>
@@ -417,20 +422,21 @@ function AboutInfo({ navigate }) {
       {/* Legal documents — the desktop sidebar surfaces these too, but this is
           the only path on mobile (no sidebar). Opens the public /legal page. */}
       <div className="set-about-legal">
-        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=privacy`)}>מדיניות פרטיות</button>
+        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=privacy`)}>{t('about.privacy')}</button>
         <span className="set-about-dot">·</span>
-        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=terms`)}>תנאי שימוש</button>
+        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=terms`)}>{t('about.terms')}</button>
         <span className="set-about-dot">·</span>
-        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=dpa`)}>עיבוד נתונים</button>
+        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=dpa`)}>{t('about.dpa')}</button>
       </div>
     </div>
   )
 }
 
 function AboutGuide() {
+  const { t } = useT('settings')
   return (
     <div className="set-guide">
-      <p className="set-sub-intro">הסבר מלא לכל מסך באפליקציה — היכולות, הטיפים והשאלות הנפוצות.</p>
+      <p className="set-sub-intro">{t('about.guideIntro')}</p>
       {GUIDE_ORDER.map((key) => {
         const s = HELP_SCREENS[key]
         if (!s) return null
@@ -450,7 +456,7 @@ function AboutGuide() {
               ))}
               {(s.tips || []).length > 0 && (
                 <>
-                  <p className="set-guide-sub">טיפים</p>
+                  <p className="set-guide-sub">{t('about.guideTips')}</p>
                   <ul className="help-tips">
                     {s.tips.map((t, i) => (
                       <li key={i} className="help-tip">
@@ -465,7 +471,7 @@ function AboutGuide() {
               )}
               {(s.faq || []).length > 0 && (
                 <>
-                  <p className="set-guide-sub">שאלות נפוצות</p>
+                  <p className="set-guide-sub">{t('about.guideFaq')}</p>
                   {s.faq.map((item, i) => (
                     <div key={i} className="set-guide-qa">
                       <p className="set-guide-q"><MG text={item.q} /></p>
@@ -507,6 +513,7 @@ function AboutFaq() {
    Editable name + role pills + gender + role_other custom panel.
    Saves on blur (name / role_other) / click (role / gender). */
 function ProfileBody({ prefs, onUpdate }) {
+  const { t } = useT('settings')
   const [name, setName] = useState(prefs?.profile?.full_name || '')
   const role = prefs?.profile?.role || 'other'
   const [roleOther, setRoleOther] = useState(prefs?.profile?.role_other || '')
@@ -514,11 +521,7 @@ function ProfileBody({ prefs, onUpdate }) {
   const [savedRoleOther, setSavedRoleOther] = useState(false)
   const gender = prefs?.design?.gender || 'neutral'
   const ROLE_KEYS = Object.keys(ROLE_LABELS)
-  const GENDERS = [
-    { k: 'female',  l: 'נקבה' },
-    { k: 'male',    l: 'זכר' },
-    { k: 'neutral', l: 'נייטרלי' },
-  ]
+  const GENDERS = ['female', 'male', 'neutral']
 
   const commitName = () => {
     const trimmed = name.trim()
@@ -559,25 +562,25 @@ function ProfileBody({ prefs, onUpdate }) {
   return (
     <div className="set-profile-body">
       <div className="m-field">
-        <label className="m-label">שם מלא {savedName && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>· נשמר</span>}</label>
+        <label className="m-label">{t('profile.fullName')} {savedName && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>{t('profile.saved')}</span>}</label>
         <input
           className="m-input"
           value={name}
           onChange={(e) => { setName(e.target.value); setSavedName(false) }}
           onBlur={commitName}
-          placeholder={`איך ${addressUser(gender, { male: 'תרצה', female: 'תרצי', neutral: 'תרצה/י' })} שאקרא לך?`}
+          placeholder={t('profile.namePlaceholder')}
         />
       </div>
       <div className="m-field">
-        <label className="m-label">לשון פנייה</label>
+        <label className="m-label">{t('profile.address')}</label>
         <div className="m-pills">
           {GENDERS.map((g) => (
-            <button key={g.k} type="button" className={`m-pill${gender === g.k ? ' on' : ''}`} onClick={() => pickGender(g.k)}>{g.l}</button>
+            <button key={g} type="button" className={`m-pill${gender === g ? ' on' : ''}`} onClick={() => pickGender(g)}>{t(`profile.genders.${g}`)}</button>
           ))}
         </div>
       </div>
       <div className="m-field">
-        <label className="m-label">מקצוע</label>
+        <label className="m-label">{t('profile.role')}</label>
         <div className="m-pills">
           {ROLE_KEYS.map((k) => (
             <button key={k} type="button" className={`m-pill${role === k ? ' on' : ''}`} onClick={() => pickRole(k)}>{roleLabel(k, gender)}</button>
@@ -586,13 +589,13 @@ function ProfileBody({ prefs, onUpdate }) {
       </div>
       {role === 'other' && (
         <div className="m-field set-role-other">
-          <label className="m-label">מה {addressUser(gender, { male: 'אתה', female: 'את', neutral: 'את/ה' })} עושה? {savedRoleOther && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>· נשמר</span>}</label>
+          <label className="m-label">{t('profile.roleOther')} {savedRoleOther && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>{t('profile.saved')}</span>}</label>
           <input
             className="m-input"
             value={roleOther}
             onChange={(e) => { setRoleOther(e.target.value); setSavedRoleOther(false) }}
             onBlur={commitRoleOther}
-            placeholder="לדוגמה: יוגה תרפיסט/ית, מורה למתמטיקה"
+            placeholder={t('profile.roleOtherPlaceholder')}
           />
         </div>
       )}
@@ -602,43 +605,43 @@ function ProfileBody({ prefs, onUpdate }) {
 
 /* Render a meta-grouped sub-status list with an inline add row per meta.
    Used for both client_statuses and lead_statuses. */
-function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, loading, error, withColor = false }) {
+function StatusGroups({ metas, metaNs, statuses, drafts, setDraft, onAdd, onRemove, loading, error, withColor = false }) {
+  const { t } = useT('settings')
   const [addError, setAddError] = useState(null)
   const [draftColors, setDraftColors] = useState({})
-  const { prefs } = useUserPreferences()
-  const gender = prefs?.design?.gender || 'neutral'
   if (loading) {
-    return <div className="set-sub"><p className="set-sub-empty">טוען…</p></div>
+    return <div className="set-sub"><p className="set-sub-empty">{t('common.loading')}</p></div>
   }
   return (
     <div className="set-sub">
-      {error && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>שגיאה בטעינה: {error}</p>}
-      {metas.map((m) => {
-        const list = statuses.filter((s) => s.meta_category === m.k)
-        const draft = drafts[m.k] || ''
-        const color = draftColors[m.k] || CATEGORY_COLORS[0]
+      {error && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{t('status.loadError', { error })}</p>}
+      {metas.map((mk) => {
+        const metaLabel = t(`${metaNs}.${mk}`)
+        const list = statuses.filter((s) => s.meta_category === mk)
+        const draft = drafts[mk] || ''
+        const color = draftColors[mk] || CATEGORY_COLORS[0]
         const submit = async () => {
           const name = draft.trim()
           if (!name) return
           try {
-            const payload = { meta_category: m.k, display_name: name, icon: null, is_default: false }
+            const payload = { meta_category: mk, display_name: name, icon: null, is_default: false }
             if (withColor) payload.color = color
             await onAdd(payload)
-            setDraft(m.k, '')
+            setDraft(mk, '')
             setAddError(null)
           } catch (e) {
-            setAddError(e?.message || ('ההוספה נכשלה — ' + addressUser(gender, { male: 'נסה שוב', female: 'נסי שוב', neutral: 'נסה/י שוב' }) + '.'))
+            setAddError(e?.message || t('status.addFailed'))
           }
         }
         return (
-          <div key={m.k} className="set-sub-group">
-            <p className="set-sub-meta">{m.l}</p>
-            {list.length === 0 && <p className="set-sub-empty">—</p>}
+          <div key={mk} className="set-sub-group">
+            <p className="set-sub-meta">{metaLabel}</p>
+            {list.length === 0 && <p className="set-sub-empty">{t('status.empty')}</p>}
             {list.map((s) => (
               <div key={s.id} className="set-q-row">
                 <span className="set-q-icon" style={s.color ? { color: s.color } : undefined}>{s.icon || '•'}</span>
                 <span className="set-q-text">{s.display_name}</span>
-                <button type="button" className="set-q-del" onClick={() => onRemove(s, list)} aria-label="מחיקה">
+                <button type="button" className="set-q-del" onClick={() => onRemove(s, list)} aria-label={t('status.deleteAria')}>
                   <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
                 </button>
               </div>
@@ -647,8 +650,8 @@ function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, load
               <input
                 className="m-input"
                 value={draft}
-                onChange={(e) => setDraft(m.k, e.target.value)}
-                placeholder={`תת-סטטוס ל"${m.l}"`}
+                onChange={(e) => setDraft(mk, e.target.value)}
+                placeholder={t('status.subStatusPlaceholder', { meta: metaLabel })}
                 onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
               />
               <button type="button" className="set-q-add" onClick={submit} disabled={!draft.trim()}>
@@ -656,7 +659,7 @@ function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, load
               </button>
             </div>
             {withColor && (
-              <ColorDots value={color} onChange={(c) => setDraftColors((d) => ({ ...d, [m.k]: c }))} />
+              <ColorDots value={color} onChange={(c) => setDraftColors((d) => ({ ...d, [mk]: c }))} />
             )}
           </div>
         )
@@ -667,6 +670,7 @@ function StatusGroups({ metas, statuses, drafts, setDraft, onAdd, onRemove, load
 }
 
 export default function SettingsScreen() {
+  const { t } = useT('settings')
   /* Sections start CLOSED. Only open 'profile' up-front when arriving via
      the menu's "edit profile" chip (which navigates with this state). */
   const location = useLocation()
@@ -723,7 +727,7 @@ export default function SettingsScreen() {
     /* Overwrites the restore-only undo the hook just queued, adding the
        reassignment revert. */
     pushUndo({
-      label: 'תת-הסטטוס נמחק',
+      label: t('status.subStatusDeleted'),
       undo: async () => {
         if (kind === 'lead') {
           try { await restoreLeadStatus(statusId) } catch { /* keep going */ }
@@ -791,7 +795,7 @@ export default function SettingsScreen() {
     setImportMsg('')
     const UNSUPPORTED = ['pdf', 'numbers', 'pages', 'png', 'jpg', 'jpeg', 'gif', 'heic', 'webp', 'doc', 'docx', 'gsheet']
     if (files.some((f) => UNSUPPORTED.includes((f.name.split('.').pop() || '').toLowerCase()))) {
-      setImportMsg('הקובץ לא נקרא — הפורמט לא נתמך. אפשר לייבא CSV או Excel (xlsx/xls); קובץ מנאמברס/גוגל-שיטס אפשר לייצא ל-CSV.')
+      setImportMsg(t('data.importUnsupported'))
       return
     }
     setImportBusy(true)
@@ -799,7 +803,7 @@ export default function SettingsScreen() {
       const { sheets, names } = await buildSheetsFromFiles(files)
       setImportParsed({ kind: 'csv', file_name: names, sheets })
     } catch {
-      setImportMsg('הקובץ לא נקרא — ' + addressUser(gender, { male: 'ודא', female: 'ודאי', neutral: 'ודא/י' }) + ' שזה CSV או Excel תקין ושאינו פתוח כרגע בתוכנה אחרת.')
+      setImportMsg(t('data.importFailed'))
     } finally {
       setImportBusy(false)
     }
@@ -809,21 +813,21 @@ export default function SettingsScreen() {
     if (summary) {
       const c = summary.clients?.created || 0
       const p = summary.projects?.created || 0
-      const t = summary.transactions?.created || 0
+      const tx = summary.transactions?.created || 0
       const l = summary.leads?.created || 0
       const est = summary.transactions?.dateEstimated || 0
-      const s = summary.sessions?.created || 0
-      const estNote = est > 0 ? ` ${est} מהן עם תאריך משוער — אפשר לערוך במסך הכסף.` : ''
+      const sCount = summary.sessions?.created || 0
+      const estNote = est > 0 ? t('data.importEstNote', { count: est }) : ''
       const parts = []
-      if (c) parts.push(`${c} לקוחות`)
-      if (p) parts.push(`${p} פרויקטים`)
-      if (l) parts.push(`${l} לידים`)
-      if (t) parts.push(`${t} תנועות`)
-      if (s) parts.push(`${s} פגישות`)
+      if (c) parts.push(t('data.importClients', { count: c }))
+      if (p) parts.push(t('data.importProjects', { count: p }))
+      if (l) parts.push(t('data.importLeads', { count: l }))
+      if (tx) parts.push(t('data.importTransactions', { count: tx }))
+      if (sCount) parts.push(t('data.importSessions', { count: sCount }))
       setImportMsg(
         parts.length === 0
-          ? 'לא נוצרו רשומות חדשות (ייתכן שכבר היו קיימות).'
-          : `יובאו בהצלחה: ${parts.join(' · ')}.${estNote}`,
+          ? t('data.importNone')
+          : t('data.importSuccess', { parts: parts.join(' · '), estNote }),
       )
     }
   }
@@ -835,22 +839,22 @@ export default function SettingsScreen() {
 
   const renderBody = (key) => {
     if (key === 'profile') {
-      if (prefsLoading) return <p className="set-soon">טוען…</p>
+      if (prefsLoading) return <p className="set-soon">{t('common.loading')}</p>
       return <ProfileBody prefs={prefs} onUpdate={updatePrefs} />
     }
     if (key === 'payments') {
-      if (prefsLoading) return <p className="set-soon">טוען…</p>
+      if (prefsLoading) return <p className="set-soon">{t('common.loading')}</p>
       return <PaymentsBody prefs={prefs} onUpdate={updatePrefs} />
     }
     if (key === 'design') {
-      if (prefsLoading) return <p className="set-soon">טוען…</p>
+      if (prefsLoading) return <p className="set-soon">{t('common.loading')}</p>
       return <DesignBody prefs={prefs} onUpdate={updatePrefs} />
     }
     if (key === 'about') {
       return <AboutBody initialTab={location.state?.aboutTab} />
     }
     if (key === 'widgets') {
-      if (prefsLoading) return <p className="set-soon">טוען…</p>
+      if (prefsLoading) return <p className="set-soon">{t('common.loading')}</p>
       return <WidgetsBody prefs={prefs} onUpdate={updatePrefs} />
     }
     if (key === 'questions') {
@@ -859,11 +863,11 @@ export default function SettingsScreen() {
       return (
         <div className="set-q">
           {questionsLoading ? (
-            <p className="set-q-empty">טוען…</p>
+            <p className="set-q-empty">{t('common.loading')}</p>
           ) : questionsError ? (
-            <p className="set-q-empty" style={{ color: 'var(--clay)' }}>שגיאה בטעינת השאלות: {questionsError}</p>
+            <p className="set-q-empty" style={{ color: 'var(--clay)' }}>{t('questions.loadError', { error: questionsError })}</p>
           ) : questions.length === 0 ? (
-            <p className="set-q-empty">עדיין אין שאלות יומיות. {addressUser(gender, { male: 'הוסף', female: 'הוסיפי', neutral: 'הוסף/י' })} את הראשונה.</p>
+            <p className="set-q-empty">{t('questions.empty')}</p>
           ) : (
             questions.map((q) => (
               <div key={q.id} className={`set-q-block${q.active ? '' : ' off'}`}>
@@ -871,7 +875,7 @@ export default function SettingsScreen() {
                   <span className="set-q-icon">{q.icon || '🫧'}</span>
                   <span className="set-q-text">{questionText(q)}</span>
                   {goalLinkedQ.has(q.id) && (
-                    <span className="set-q-goal" title="מחוברת ליעד" aria-label="מחוברת ליעד">
+                    <span className="set-q-goal" title={t('questions.linkedToGoal')} aria-label={t('questions.linkedToGoal')}>
                       <Target size={12} strokeWidth={1.9} aria-hidden="true" />
                     </span>
                   )}
@@ -887,9 +891,9 @@ export default function SettingsScreen() {
                   <Switch
                     checked={q.active}
                     onChange={() => toggleActive(q)}
-                    label={q.active ? 'כיבוי השאלה' : 'הפעלת השאלה'}
+                    label={q.active ? t('questions.toggleOff') : t('questions.toggleOn')}
                   />
-                  <button type="button" className="set-q-del" onClick={() => removeQuestion(q.id)} aria-label="מחיקת שאלה">
+                  <button type="button" className="set-q-del" onClick={() => removeQuestion(q.id)} aria-label={t('questions.deleteAria')}>
                     <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
                   </button>
                 </div>
@@ -904,19 +908,19 @@ export default function SettingsScreen() {
             ))
           )}
           <button type="button" className="set-q-add" onClick={() => setShowAddQ(true)}>
-            <Plus size={15} strokeWidth={1.8} aria-hidden="true" /> הוסף שאלה
+            <Plus size={15} strokeWidth={1.8} aria-hidden="true" /> {t('questions.add')}
           </button>
 
           <div className="set-sub-divider" />
-          <p className="set-sub-h">תזכורת יומית</p>
+          <p className="set-sub-h">{t('questions.reminderTitle')}</p>
           <div className="set-reminder-row">
             <span className="set-reminder-toggle">
               <Switch
                 checked={!!reminderPref.enabled}
                 onChange={(v) => setReminder({ enabled: v })}
-                label="תזכורת יומית"
+                label={t('questions.reminderToggle')}
               />
-              <span>{addressUser(gender, { male: 'תזכיר', female: 'תזכירי', neutral: 'תזכיר/י' })} לי לענות אם לא ענית עד</span>
+              <span>{t('questions.reminderLabel')}</span>
             </span>
             <input
               type="time"
@@ -927,13 +931,13 @@ export default function SettingsScreen() {
             />
           </div>
           <p className="set-reminder-hint">
-            אם לא ענית עד השעה שבחרת, תופיע תזכורת עדינה בווידג׳ט "מה איתך היום" במסך הבית.
+            {t('questions.reminderHint')}
           </p>
         </div>
       )
     }
     if (key === 'data') {
-      const txAll = (dataTransactions || []).filter((t) => !t.deleted_at)
+      const txAll = (dataTransactions || []).filter((tr) => !tr.deleted_at)
       const exportTransactions = () => exportTransactionsCSV({
         transactions: txAll,
         clients: dataClients,
@@ -957,21 +961,21 @@ export default function SettingsScreen() {
         })
       }
       const counts = [
-        { l: 'לקוחות', n: dataClients?.length || 0 },
-        { l: 'תנועות', n: txAll.length },
-        { l: 'לידים',  n: dataLeads?.length || 0 },
-        { l: 'משימות', n: dataTasks?.length || 0 },
-        { l: 'פרויקטים', n: dataProjects?.length || 0 },
-        { l: 'קטגוריות', n: dataCategories?.length || 0 },
+        { k: 'clients', n: dataClients?.length || 0 },
+        { k: 'transactions', n: txAll.length },
+        { k: 'leads',  n: dataLeads?.length || 0 },
+        { k: 'tasks', n: dataTasks?.length || 0 },
+        { k: 'projects', n: dataProjects?.length || 0 },
+        { k: 'categories', n: dataCategories?.length || 0 },
       ]
       return (
         <div className="set-data">
-          <p className="set-sub-intro">סיכום מצב הנתונים שלך, ייצוא וייבוא מקובץ CSV / Excel.</p>
+          <p className="set-sub-intro">{t('data.intro')}</p>
           <div className="set-data-stats">
             {counts.map((c) => (
-              <div key={c.l} className="set-data-stat">
+              <div key={c.k} className="set-data-stat">
                 <p className="set-data-stat-v mono">{c.n}</p>
-                <p className="set-data-stat-l">{c.l}</p>
+                <p className="set-data-stat-l">{t(`data.counts.${c.k}`)}</p>
               </div>
             ))}
           </div>
@@ -981,10 +985,10 @@ export default function SettingsScreen() {
             onClick={() => setShowExport(true)}
           >
             <Download size={15} strokeWidth={1.7} aria-hidden="true" />
-            ייצוא נתונים
+            {t('data.export')}
           </button>
           <p className="set-data-hint">
-            חלון אחד לכל הייצואים: כל הנתונים יחד לקובץ Excel (גיליון לכל סוג), או ייצוא בודד של תנועות / לקוחות / פרויקטים ל-CSV.
+            {t('data.exportHint')}
           </p>
 
           <ExportDataModal
@@ -1015,17 +1019,17 @@ export default function SettingsScreen() {
             style={{ marginTop: 10 }}
           >
             <Upload size={15} strokeWidth={1.7} aria-hidden="true" />
-            ייבוא מקובץ (CSV / Excel)
+            {t('data.import')}
           </button>
           <p className="set-data-hint">
-            תומך ב-CSV, TSV ו-Excel — אפשר גם כמה קבצים יחד וכמה גיליונות. מזהה אוטומטית עמודות (שם, טלפון, מייל, פרויקט, סכום, תאריך ועוד), נותן להתאים ידנית, ולסקור הכול לפני שנכתב.
+            {t('data.importHint')}
           </p>
           {importBusy && (
-            <p className="set-data-hint" role="status" aria-live="polite">מעבד את הקובץ…</p>
+            <p className="set-data-hint" role="status" aria-live="polite">{t('data.importProcessing')}</p>
           )}
           {importMsg && (
             <p className="set-data-hint" role="status" aria-live="polite"
-              style={{ color: importMsg.startsWith('הקובץ לא נקרא') ? 'var(--clay)' : 'var(--sage)', fontWeight: 600 }}>{importMsg}</p>
+              style={{ color: importMsg.startsWith(t('data.importErrorPrefix')) ? 'var(--clay)' : 'var(--sage)', fontWeight: 600 }}>{importMsg}</p>
           )}
 
           <button
@@ -1035,37 +1039,37 @@ export default function SettingsScreen() {
             style={{ marginTop: 10 }}
           >
             <Sparkles size={15} strokeWidth={1.7} aria-hidden="true" />
-            {addressUser(gender, { male: 'התחל מחדש את ההכרות', female: 'התחילי מחדש את ההכרות', neutral: 'התחל/י מחדש את ההכרות' })}
+            {t('data.restartOnboarding')}
           </button>
           <p className="set-data-hint">
-            פותח את אשף ההכרות מהצעד הראשון. נוח לחזור אם דילגת באמצע.
+            {t('data.restartHint')}
           </p>
 
           <div className="set-danger-zone">
-            <p className="set-danger-title">איפוס חשבון</p>
+            <p className="set-danger-title">{t('danger.resetTitle')}</p>
             <button
               type="button"
               className="set-data-action danger"
               onClick={() => setShowReset(true)}
             >
               <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" />
-              מחיקת כל הנתונים והתחלה מאפס
+              {t('danger.resetAction')}
             </button>
             <p className="set-data-hint">
-              מוחק את כל הנתונים בחשבון (לקוחות, פרויקטים, לידים, תנועות, יעדים, תזכורות ועוד) ומתחיל את ההכרות מחדש. הפעולה דורשת אישור כפול ואי אפשר לבטל אותה.
+              {t('danger.resetHint')}
             </p>
 
-            <p className="set-danger-title" style={{ marginTop: 20 }}>מחיקת חשבון</p>
+            <p className="set-danger-title" style={{ marginTop: 20 }}>{t('danger.deleteTitle')}</p>
             <button
               type="button"
               className="set-data-action danger"
               onClick={() => setShowDelete(true)}
             >
               <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" />
-              מחיקת החשבון לצמיתות
+              {t('danger.deleteAction')}
             </button>
             <p className="set-data-hint">
-              מוחק את החשבון כולו — כולל ההתחברות עצמה — ולא רק את הנתונים. יש תקופת חסד של 30 יום שבה אפשר להתחרט ולבטל; בתום התקופה הכול נמחק לצמיתות ואי אפשר להתחבר שוב. דורש אישור כפול בהקלדה.
+              {t('danger.deleteHint')}
             </p>
           </div>
         </div>
@@ -1075,6 +1079,7 @@ export default function SettingsScreen() {
       return (
         <StatusGroups
           metas={CLIENT_METAS}
+          metaNs="clientMetas"
           statuses={clientStatuses}
           drafts={clientDrafts}
           setDraft={setClientDraft}
@@ -1094,24 +1099,24 @@ export default function SettingsScreen() {
           setNewSourceName('')
           setSourceError(null)
         } catch (e) {
-          setSourceError(e?.message || ('הוספת המקור נכשלה — ' + addressUser(gender, { male: 'נסה שוב', female: 'נסי שוב', neutral: 'נסה/י שוב' }) + '.'))
+          setSourceError(e?.message || t('leads.addSourceFailed'))
         }
       }
       return (
         <div className="set-q">
-          <p className="set-sub-h">מקורות פנייה</p>
+          <p className="set-sub-h">{t('leads.sources')}</p>
           {sourcesLoading ? (
-            <p className="set-sub-empty">טוען…</p>
+            <p className="set-sub-empty">{t('common.loading')}</p>
           ) : sourcesError ? (
-            <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>שגיאה בטעינת המקורות: {sourcesError}</p>
+            <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{t('leads.sourcesLoadError', { error: sourcesError })}</p>
           ) : sources.length === 0 ? (
-            <p className="set-sub-empty">עדיין אין מקורות. {addressUser(gender, { male: 'הוסף', female: 'הוסיפי', neutral: 'הוסף/י' })} את הראשון.</p>
+            <p className="set-sub-empty">{t('leads.sourcesEmpty')}</p>
           ) : (
             sources.map((s) => (
               <div key={s.id} className="set-q-row">
                 <span className="set-q-icon" style={{ color: s.color }}>●</span>
                 <span className="set-q-text">{s.name}</span>
-                <button type="button" className="set-q-del" onClick={() => removeSource(s.id)} aria-label="מחיקת מקור">
+                <button type="button" className="set-q-del" onClick={() => removeSource(s.id)} aria-label={t('leads.deleteSourceAria')}>
                   <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
                 </button>
               </div>
@@ -1122,7 +1127,7 @@ export default function SettingsScreen() {
               className="m-input"
               value={newSourceName}
               onChange={(e) => setNewSourceName(e.target.value)}
-              placeholder="שם מקור חדש"
+              placeholder={t('leads.newSourcePlaceholder')}
               onKeyDown={(e) => { if (e.key === 'Enter') submitNewSource() }}
             />
             <button type="button" className="set-q-add" onClick={submitNewSource} disabled={!newSourceName.trim()}>
@@ -1132,9 +1137,10 @@ export default function SettingsScreen() {
           <ColorDots value={newSourceColor} onChange={setNewSourceColor} />
           {sourceError && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{sourceError}</p>}
 
-          <p className="set-sub-h" style={{ marginTop: 14 }}>תתי-סטטוסים</p>
+          <p className="set-sub-h" style={{ marginTop: 14 }}>{t('leads.subStatuses')}</p>
           <StatusGroups
             metas={LEAD_METAS}
+            metaNs="leadMetas"
             statuses={leadStatuses}
             drafts={leadDrafts}
             setDraft={setLeadDraft}
@@ -1147,7 +1153,7 @@ export default function SettingsScreen() {
         </div>
       )
     }
-    return <p className="set-soon">ההגדרות יתווספו בהמשך.</p>
+    return <p className="set-soon">{t('common.soon')}</p>
   }
 
   return (
@@ -1156,13 +1162,13 @@ export default function SettingsScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{SECTIONS.length} אזורים</p>
+              <p className="lbl">{t('header.areas', { count: SECTIONS.length })}</p>
               <span className="lbl dot">·</span>
-              <p className="lbl">התאמה אישית</p>
+              <p className="lbl">{t('header.customization')}</p>
             </div>
-            <p className="lbl-sm">ברירות מחדל טובות, גמישות מלאה.</p>
+            <p className="lbl-sm">{t('header.tagline')}</p>
           </div>
-          <p className="t-screen">הגדרות</p>
+          <p className="t-screen">{t('header.title')}</p>
         </header>
       </div>
 
@@ -1175,8 +1181,8 @@ export default function SettingsScreen() {
               <button type="button" className="set-acc-head" onClick={() => toggle(s.key)} aria-expanded={isOpen}>
                 <span className="set-acc-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></span>
                 <span className="set-acc-text">
-                  <span className="set-acc-title">{s.title}</span>
-                  <span className="set-acc-sub">{s.sub}</span>
+                  <span className="set-acc-title">{t(`sections.${s.key}.title`)}</span>
+                  <span className="set-acc-sub">{t(`sections.${s.key}.sub`)}</span>
                 </span>
                 <ChevronDown size={18} strokeWidth={1.6} className="set-acc-chev" aria-hidden="true" />
               </button>
@@ -1216,9 +1222,9 @@ export default function SettingsScreen() {
       <ConfirmModal
         open={showRestartOb}
         onClose={() => setShowRestartOb(false)}
-        title="התחלת ההכרות מחדש"
-        confirmLabel={addressUser(gender, { male: 'התחל מחדש', female: 'התחילי מחדש', neutral: 'התחל/י מחדש' })}
-        message="להתחיל מחדש את ההכרות? הצעדים יחזרו לאפס — הנתונים שכבר נוצרו (לקוחות, פרויקטים וכו') יישארו."
+        title={t('danger.restartTitle')}
+        confirmLabel={t('danger.restartConfirm')}
+        message={t('danger.restartMessage')}
         onConfirm={async () => {
           await updatePrefs({ onboarding: defaultOnboarding() })
           navigate(ROUTES.ONBOARDING)

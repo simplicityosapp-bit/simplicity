@@ -1,0 +1,268 @@
+{
+  "header": {
+    "areas_one": "אזור אחד",
+    "areas_two": "{{count}} אזורים",
+    "areas_many": "{{count}} אזורים",
+    "areas_other": "{{count}} אזורים",
+    "customization": "התאמה אישית",
+    "tagline": "ברירות מחדל טובות, גמישות מלאה.",
+    "title": "הגדרות"
+  },
+  "sections": {
+    "profile": { "title": "פרופיל", "sub": "שם, מקצוע והתמחות" },
+    "widgets": { "title": "ווידג׳טים ותצוגה", "sub": "מה מופיע במסך הבית" },
+    "clients": { "title": "לקוחות וסטטוסים", "sub": "תתי-סטטוסים מותאמים אישית" },
+    "payments": { "title": "תשלומים ומטבע", "sub": "מטבע ופורמט סכומים" },
+    "questions": { "title": "שאלות יומיות", "sub": "מה נשאל בכל יום" },
+    "leads": { "title": "הגדרות לידים", "sub": "מקורות וסטטוסים" },
+    "design": { "title": "עיצוב", "sub": "מצב יום/לילה, גודל טקסט" },
+    "data": { "title": "נתונים", "sub": "ייצוא, יבוא, איפוס" },
+    "about": { "title": "אודות", "sub": "גרסה ומידע" }
+  },
+  "common": {
+    "loading": "טוען…",
+    "soon": "ההגדרות יתווספו בהמשך.",
+    "delete": "מחיקה",
+    "color": "צבע",
+    "colorNamed": "צבע {{color}}"
+  },
+  "clientMetas": {
+    "active": "פעיל׌",
+    "wandering": "ביניים",
+    "past": "לשעבר",
+    "no_status": "ללא סטטוס"
+  },
+  "leadMetas": {
+    "in_process": "בתהליך",
+    "converted": "הומר",
+    "not_relevant": "לא רלוונטי"
+  },
+  "payments": {
+    "currency": "מטבע",
+    "dateFormat": "פורמט תאריך",
+    "timeFormat": "פורמט שעה",
+    "weekStart": "יום ראשון בשבוע"
+  },
+  "widgets": {
+    "globalView": "תצוגה גלובלית",
+    "cardStyle": "סגנון כרטיסים",
+    "textStrength": "עוצמת טקסט",
+    "density": "צפיפות",
+    "widgets": "ווידג׳טים",
+    "moveUp": "{{label}} — הזזה למעלה",
+    "moveDown": "{{label}} — הזזה למטה",
+    "toggle": "{{label}} — {{state}}",
+    "on": "הפעלה",
+    "off": "כיבוי",
+    "compact": "קומפקטי",
+    "rowDensity": {
+      "global": "גלובלי",
+      "compact": "צפוף",
+      "comfortable": "רגיל",
+      "spacious": "מרווח"
+    }
+  },
+  "design": {
+    "theme": "מצב יום/לילה",
+    "textSize": "גודל טקסט"
+  },
+  "about": {
+    "tabsAria": "אודות ועזרה",
+    "tabs": {
+      "about": "אודות",
+      "guide": "מדריך",
+      "faq": "שאלות נפוצות"
+    },
+    "version": "גרסה {{version}}",
+    "privacy": "מדיניות פרטיות",
+    "terms": "תנאי שימוש",
+    "dpa": "עיבוד נתונים",
+    "guideIntro": "הסבר מלא לכל מסך באפליקציה — היכולות, הטיפים והשאלות הנפוצות.",
+    "guideTips": "טיפים",
+    "guideFaq": "שאלות נפוצות"
+  },
+  "profile": {
+    "fullName": "שם מלא",
+    "saved": "· נשמר",
+    "namePlaceholder": "איך תרצה/י שאקרא לך?",
+    "namePlaceholder_male": "איך תרצה שאקרא לך?",
+    "namePlaceholder_female": "איך תרצי שאקרא לך?",
+    "address": "לשון פנייה",
+    "genders": {
+      "female": "נקבה",
+      "male": "זכר",
+      "neutral": "נייטרלי"
+    },
+    "role": "מקצוע",
+    "roleOther": "מה את/ה עושה?",
+    "roleOther_male": "מה אתה עושה?",
+    "roleOther_female": "מה את עושה?",
+    "roleOtherPlaceholder": "לדוגמה: יוגה תרפיסט/ית, מורה למתמטיקה"
+  },
+  "status": {
+    "loadError": "שגיאה בטעינה: {{error}}",
+    "empty": "—",
+    "deleteAria": "מחיקה",
+    "subStatusDeleted": "תת-הסטטוס נמחק",
+    "subStatusPlaceholder": "תת-סטטוס ל\"{{meta}}\"",
+    "addFailed": "ההוספה נכשלה — נסה/י שוב.",
+    "addFailed_male": "ההוספה נכשלה — נסה שוב.",
+    "addFailed_female": "ההוספה נכשלה — נסי שוב."
+  },
+  "questions": {
+    "loadError": "שגיאה בטעינת השאלות: {{error}}",
+    "empty": "עדיין אין שאלות יומיות. הוסף/י את הראשונה.",
+    "empty_male": "עדיין אין שאלות יומיות. הוסף את הראשונה.",
+    "empty_female": "עדיין אין שאלות יומיות. הוסיפי את הראשונה.",
+    "linkedToGoal": "מחוברת ליעד",
+    "toggleOn": "הפעלת השאלה",
+    "toggleOff": "כיבוי השאלה",
+    "deleteAria": "מחיקת שאלה",
+    "add": "הוסף שאלה",
+    "reminderTitle": "תזכורת יומית",
+    "reminderToggle": "תזכורת יומית",
+    "reminderLabel": "תזכיר/י לי לענות אם לא ענית עד",
+    "reminderLabel_male": "תזכיר לי לענות אם לא ענית עד",
+    "reminderLabel_female": "תזכירי לי לענות אם לא ענית עד",
+    "reminderHint": "אם לא ענית עד השעה שבחרת, תופיע תזכורת עדינה בווידג׳ט \"מה איתך היום\" במסך הבית."
+  },
+  "data": {
+    "intro": "סיכום מצב הנתונים שלך, ייצוא וייבוא מקובץ CSV / Excel.",
+    "counts": {
+      "clients": "לקוחות",
+      "transactions": "תנועות",
+      "leads": "לידים",
+      "tasks": "משימות",
+      "projects": "פרויקטים",
+      "categories": "קטגוריות"
+    },
+    "export": "ייצוא נתונים",
+    "exportHint": "חלון אחד לכל הייצואים: כל הנתונים יחד לקובץ Excel (גיליון לכל סוג), או ייצוא בודד של תנועות / לקוחות / פרויקטים ל-CSV.",
+    "import": "ייבוא מקובץ (CSV / Excel)",
+    "importHint": "תומך ב-CSV, TSV ו-Excel — אפשר גם כמה קבצים יחד וכמה גיליונות. מזהה אוטומטית עמודות (שם, טלפון, מייל, פרויקט, סכום, תאריך ועוד), נותן להתאים ידנית, ולסקור הכול לפני שנכתב.",
+    "importProcessing": "מעבד את הקובץ…",
+    "importUnsupported": "הקובץ לא נקרא — הפורמט לא נתמך. אפשר לייבא CSV או Excel (xlsx/xls); קובץ מנאמברס/גוגל-שיטס אפשר לייצא ל-CSV.",
+    "importFailed": "הקובץ לא נקרא — ודא/י שזה CSV או Excel תקין ושאינו פתוח כרגע בתוכנה אחרת.",
+    "importFailed_male": "הקובץ לא נקרא — ודא שזה CSV או Excel תקין ושאינו פתוח כרגע בתוכנה אחרת.",
+    "importFailed_female": "הקובץ לא נקרא — ודאי שזה CSV או Excel תקין ושאינו פתוח כרגע בתוכנה אחרת.",
+    "importErrorPrefix": "הקובץ לא נקרא",
+    "importNone": "לא נוצרו רשומות חדשות (ייתכן שכבר היו קיימות).",
+    "importSuccess": "יובאו בהצלחה: {{parts}}.{{estNote}}",
+    "importEstNote_one": " אחת מהן עם תאריך משוער — אפשר לערוך במסך הכסף.",
+    "importEstNote_two": " {{count}} מהן עם תאריך משוער — אפשר לערוך במסך הכסף.",
+    "importEstNote_many": " {{count}} מהן עם תאריך משוער — אפשר לערוך במסך הכסף.",
+    "importEstNote_other": " {{count}} מהן עם תאריך משוער — אפשר לערוך במסך הכסף.",
+    "importClients_one": "לקוח אחד",
+    "importClients_two": "{{count}} לקוחות",
+    "importClients_many": "{{count}} לקוחות",
+    "importClients_other": "{{count}} לקוחות",
+    "importProjects_one": "פרויקט אחד",
+    "importProjects_two": "{{count}} פרויקטים",
+    "importProjects_many": "{{count}} פרויקטים",
+    "importProjects_other": "{{count}} פרויקטים",
+    "importLeads_one": "ליד אחד",
+    "importLeads_two": "{{count}} לידים",
+    "importLeads_many": "{{count}} לידים",
+    "importLeads_other": "{{count}} לידים",
+    "importTransactions_one": "תנועה אחת",
+    "importTransactions_two": "{{count}} תנועות",
+    "importTransactions_many": "{{count}} תנועות",
+    "importTransactions_other": "{{count}} תנועות",
+    "importSessions_one": "פגישה אחת",
+    "importSessions_two": "{{count}} פגישות",
+    "importSessions_many": "{{count}} פגישות",
+    "importSessions_other": "{{count}} פגישות",
+    "restartOnboarding": "התחל/י מחדש את ההכרות",
+    "restartOnboarding_male": "התחל מחדש את ההכרות",
+    "restartOnboarding_female": "התחילי מחדש את ההכרות",
+    "restartHint": "פותח את אשף ההכרות מהצעד הראשון. נוח לחזור אם דילגת באמצע."
+  },
+  "danger": {
+    "resetTitle": "איפוס חשבון",
+    "resetAction": "מחיקת כל הנתונים והתחלה מאפס",
+    "resetHint": "מוחק את כל הנתונים בחשבון (לקוחות, פרויקטים, לידים, תנועות, יעדים, תזכורות ועוד) ומתחיל את ההכרות מחדש. הפעולה דורשת אישור כפול ואי אפשר לבטל אותה.",
+    "deleteTitle": "מחיקת חשבון",
+    "deleteAction": "מחיקת החשבון לצמיתות",
+    "deleteHint": "מוחק את החשבון כולו — כולל ההתחברות עצמה — ולא רק את הנתונים. יש תקופת חסד של 30 יום שבה אפשר להתחרט ולבטל; בתום התקופה הכול נמחק לצמיתות ואי אפשר להתחבר שוב. דורש אישור כפול בהקלדה.",
+    "restartTitle": "התחלת ההכרות מחדש",
+    "restartConfirm": "התחל/י מחדש",
+    "restartConfirm_male": "התחל מחדש",
+    "restartConfirm_female": "התחילי מחדש",
+    "restartMessage": "להתחיל מחדש את ההכרות? הצעדים יחזרו לאפס — הנתונים שכבר נוצרו (לקוחות, פרויקטים וכו') יישארו."
+  },
+  "leads": {
+    "sources": "מקורות פנייה",
+    "sourcesLoadError": "שגיאה בטעינת המקורות: {{error}}",
+    "sourcesEmpty": "עדיין אין מקורות. הוסף/י את הראשון.",
+    "sourcesEmpty_male": "עדיין אין מקורות. הוסף את הראשון.",
+    "sourcesEmpty_female": "עדיין אין מקורות. הוסיפי את הראשון.",
+    "deleteSourceAria": "מחיקת מקור",
+    "newSourcePlaceholder": "שם מקור חדש",
+    "addSourceFailed": "הוספת המקור נכשלה — נסה/י שוב.",
+    "addSourceFailed_male": "הוספת המקור נכשלה — נסה שוב.",
+    "addSourceFailed_female": "הוספת המקור נכשלה — נסי שוב.",
+    "subStatuses": "תתי-סטטוסים"
+  },
+  "schedule": {
+    "everyDay": "כל יום",
+    "daysOfWeek": "ימים מסוימים",
+    "everyXDays": "כל X ימים",
+    "every": "כל",
+    "days": "ימים",
+    "cancel": "ביטול",
+    "saving": "שומר…",
+    "save": "שמירה",
+    "weekdays": {
+      "0": "א׳",
+      "1": "ב׳",
+      "2": "ג׳",
+      "3": "ד׳",
+      "4": "ה׳",
+      "5": "ו׳",
+      "6": "ש׳"
+    }
+  },
+  "options": {
+    "currency": {
+      "ILS": "₪ שקל",
+      "USD": "$ דולר",
+      "EUR": "€ יורו"
+    },
+    "dateFormat": {
+      "DD/MM/YY": "DD/MM/YY",
+      "MM/DD/YY": "MM/DD/YY",
+      "YYYY-MM-DD": "YYYY-MM-DD"
+    },
+    "timeFormat": {
+      "24h": "24 שעות",
+      "12h": "12h (AM/PM)"
+    },
+    "weekStart": {
+      "sunday": "ראשון",
+      "monday": "שני"
+    },
+    "textSize": {
+      "small": "קטן",
+      "normal": "רגיל",
+      "large": "גדול"
+    },
+    "theme": {
+      "light": "יום",
+      "dark": "לילה"
+    },
+    "cardStyle": {
+      "frosted": "מעורפל",
+      "flat": "שטוח",
+      "outlined": "מתואר"
+    },
+    "textStrength": {
+      "normal": "רגיל",
+      "bold": "מודגש"
+    },
+    "density": {
+      "compact": "צפוף",
+      "comfortable": "רגיל",
+      "spacious": "מרווח"
+    }
+  }
+}

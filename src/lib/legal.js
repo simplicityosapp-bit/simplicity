@@ -25,11 +25,13 @@
    liability cap). 3 corrections applied vs source: Anthropic/Claude vendor
    removed, analytics marked future, AI-training reframed to "we do NOT train
    on personal data". Privacy 1.2→2.0, Terms 1.0→2.0.
-   DPA 1.2→1.3: aligned §3 AI-training wording to the firm no-training stance
-   (was "no training without explicit consent" → now "in any case, end-client
-   data is not used to train AI models"). */
+   DPA 1.2→1.3: aligned §3 AI-training wording to the firm no-training stance.
+   DPA 1.3→2.0: full upgrade to match privacy/terms — תיקון 13 + level-3/DPO
+   security, sub-processor binding + change-notice, breach reporting to the
+   Authority + assist, assist-controller with data-subject requests, intl
+   transfer, staff confidentiality. */
 export const PRIVACY_VERSION = '2.0'
-export const DPA_VERSION = '1.3'
+export const DPA_VERSION = '2.0'
 export const TERMS_VERSION = '2.0'
 
 /* The consent block written at signup / first acceptance. */

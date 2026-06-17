@@ -1,0 +1,31 @@
+{
+  "fallback": "שאלת היום",
+  "template": {
+    "mood": "איך מצב הרוח שלך היום?",
+    "energy": "כמה אנרגיה יש לך היום?",
+    "sleep": "איך ישנת אתמול?",
+    "focus": "כמה ממוקד/ת הרגשת היום?",
+    "focus_male": "כמה ממוקד הרגשת היום?",
+    "focus_female": "כמה ממוקדת הרגשת היום?",
+    "nutrition": "איך אכלת היום?",
+    "movement": "כמה תנועה היה לך היום?",
+    "quiet": "כמה שקט מצאת היום?"
+  },
+  "schedule": {
+    "everyDay": "כל יום",
+    "everyXDays_one": "כל יום",
+    "everyXDays_two": "כל {{count}} ימים",
+    "everyXDays_many": "כל {{count}} ימים",
+    "everyXDays_other": "כל {{count}} ימים",
+    "dayShort": {
+      "0": "א׳",
+      "1": "ב׳",
+      "2": "ג׳",
+      "3": "ד׳",
+      "4": "ה׳",
+      "5": "ו׳",
+      "6": "ש׳"
+    },
+    "daySeparator": ", "
+  }
+}

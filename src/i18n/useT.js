@@ -25,6 +25,12 @@ export function useT(ns) {
   const ctx = gender === 'male' || gender === 'female' ? gender : undefined
 
   const tg = (key, opts) => t(key, ctx ? { context: ctx, ...opts } : opts)
+  /* <Trans> reads the namespace + i18n off the `t` it's given. Our wrapper
+     is a fresh function, so copy that metadata across — otherwise <Trans>
+     falls back to the default ('common') namespace and renders raw keys. */
+  tg.ns = t.ns
+  tg.lng = t.lng
+  tg.i18n = t.i18n
 
   return { t: tg, i18n, lang: i18n.language, gender }
 }

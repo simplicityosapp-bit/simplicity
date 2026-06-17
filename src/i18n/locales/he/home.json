@@ -30,7 +30,11 @@
       "empty": "אין פריטים שדורשים תשומת לב כרגע.",
       "txModalTitle": "תנועות ממתינות לאישור",
       "txEmpty": "סיימת — אין תנועות ממתינות. אפשר לסגור.",
-      "meetingsModalTitle": "פגישות לאישור"
+      "meetingsModalTitle": "פגישות לאישור",
+      "count_two": "{{count}} פריטים",
+      "count_many": "{{count}} פריטים",
+      "dup_two": "{{count}} כפילויות ביומן מול גוגל",
+      "dup_many": "{{count}} כפילויות ביומן מול גוגל"
     },
     "chips": {
       "tasks": "משימות",
@@ -103,7 +107,15 @@
       "addWord": "הוסף/י",
       "addWord_male": "הוסף",
       "addWord_female": "הוסיפי",
-      "markDone": "סמן כבוצע"
+      "markDone": "סמן כבוצע",
+      "link_two": "{{count}} משימות",
+      "link_many": "{{count}} משימות",
+      "urgentOf_two": "{{urgentText}} מתוך {{count}} פתוחות",
+      "urgentOf_many": "{{urgentText}} מתוך {{count}} פתוחות",
+      "urgent_two": "{{count}} דחופות",
+      "urgent_many": "{{count}} דחופות",
+      "openSummary_two": "{{count}} משימות פתוחות",
+      "openSummary_many": "{{count}} משימות פתוחות"
     },
     "quick": {
       "quickAdd": "הוספה מהירה",
@@ -124,7 +136,13 @@
       "soonSummary_other": "{{count}} תזכורות קרובות",
       "empty": "אין תזכורות קרובות — הכל רגוע.",
       "markDone": "בוצעה",
-      "markDoneAria": "סמן כבוצעה"
+      "markDoneAria": "סמן כבוצעה",
+      "link_two": "{{count}} תזכורות",
+      "link_many": "{{count}} תזכורות",
+      "todaySummary_two": "{{today}} להיום · {{count}} קרובות",
+      "todaySummary_many": "{{today}} להיום · {{count}} קרובות",
+      "soonSummary_two": "{{count}} תזכורות קרובות",
+      "soonSummary_many": "{{count}} תזכורות קרובות"
     },
     "meetingConfirm": {
       "subjectClient": "לקוח/ה",

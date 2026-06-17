@@ -37,7 +37,9 @@
     "title": "פרטים",
     "count_one": "{{count}} רשומה",
     "count_other": "{{count}} רשומות",
-    "empty": "אין רשומות לתקופה הזו"
+    "empty": "אין רשומות לתקופה הזו",
+    "count_two": "{{count}} רשומות",
+    "count_many": "{{count}} רשומות"
   },
   "trend": {
     "empty": "אין מספיק נתונים לגרף עדיין.",

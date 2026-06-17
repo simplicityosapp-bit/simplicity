@@ -3,6 +3,7 @@ import { Sparkles } from 'lucide-react'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useClients } from '../../hooks/useClients'
 import { financeDailyBuckets, isr } from '../../lib/finance'
+import { useT } from '../../i18n/useT'
 
 /* Slim project-scoped clone of FinanceChart — a cumulative monthly
    income line (this calendar month) for transactions tagged to this
@@ -17,6 +18,7 @@ const PAD_TOP = 14
 const PAD_BOTTOM = 22
 
 export default function ProjectIncomeChart({ projectId }) {
+  const { t } = useT('projects')
   const { transactions } = useTransactions()
   const { clients } = useClients()
 
@@ -82,20 +84,20 @@ export default function ProjectIncomeChart({ projectId }) {
       <div className="pd-chart-head">
         <p className="pd-chart-title">
           <Sparkles size={14} strokeWidth={1.6} aria-hidden="true" />
-          הכנסה מצטברת — החודש
+          {t('detail.chart.title')}
         </p>
         <span className="pd-chart-total mono">{isr(total)}</span>
       </div>
 
       {total === 0 ? (
-        <p className="pd-empty pd-chart-empty">אין הכנסות לפרויקט החודש.</p>
+        <p className="pd-empty pd-chart-empty">{t('detail.chart.empty')}</p>
       ) : (
         <div ref={wrapRef} style={{ width: '100%' }}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="pd-chart-svg"
           style={{ display: 'block', width: '100%', height: `${H}px` }}
-          aria-label="גרף הכנסה מצטברת לפרויקט לפי ימי החודש"
+          aria-label={t('detail.chart.aria')}
         >
           <defs>
             <linearGradient id="pdChartArea" x1="0" y1="0" x2="0" y2="1">

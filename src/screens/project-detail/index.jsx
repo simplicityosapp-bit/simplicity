@@ -12,7 +12,8 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
+import { Trans } from 'react-i18next'
 import { statusMetaOf } from '../../lib/clients'
 import { financeQuery, currentMonthRange, isr } from '../../lib/finance'
 import { buildRoute, ROUTES } from '../../lib/routes'
@@ -39,15 +40,7 @@ import ProjectQuickRow from './ProjectQuickRow'
 import ProjectIncomeChart from './ProjectIncomeChart'
 import './ProjectDetailScreen.css'
 
-const DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
-
-const GSTATUS = [
-  { k: 'active', l: 'פעילה' },
-  { k: 'in_development', l: 'בפיתוח' },
-  { k: 'ended', l: 'הסתיימה' },
-]
-const STATUS_LABEL = { active: 'פעילה', in_development: 'בפיתוח', ended: 'הסתיימה' }
-const META_LABEL = { active: 'פעיל׌', past: 'לשעבר' }
+const GSTATUS_KEYS = ['active', 'in_development', 'ended']
 
 const fmtShortDate = (d) => {
   const dt = new Date(d)
@@ -60,7 +53,7 @@ const fmtTime = (d) => {
 const isoDate = (d) => new Date(d).toISOString().slice(0, 10)
 
 export default function ProjectDetailScreen() {
-  const { addr } = useAddress()
+  const { t } = useT('projects')
   const { id } = useParams()
   const navigate = useNavigate()
   const { projects, updateProject } = useProjects()
@@ -71,6 +64,15 @@ export default function ProjectDetailScreen() {
   const { transactions } = useTransactions()
   const { reminders, addReminder, completeReminder, removeReminder, refetch: refetchReminders } = useReminders()
   const { meetings: scheduledMeetings, removeMeeting, refetch: refetchMeetings } = useScheduledMeetings()
+
+  const DAYS = t('detail.days', { returnObjects: true })
+  const GSTATUS = GSTATUS_KEYS.map((k) => ({ k, l: t(`detail.status.${k}`) }))
+  const STATUS_LABEL = {
+    active: t('detail.status.active'),
+    in_development: t('detail.status.in_development'),
+    ended: t('detail.status.ended'),
+  }
+  const META_LABEL = { active: t('detail.meta.active'), past: t('detail.meta.past') }
 
   /* Section accordion + per-group sessions expand state. */
   const [openSec, setOpenSec] = useState({ groups: true, clients: true, reminders: false })
@@ -139,7 +141,7 @@ export default function ProjectDetailScreen() {
   if (!project) {
     return (
       <div className="screen">
-        <div className="empty"><p className="empty-text">הפרויקט לא נמצא.</p></div>
+        <div className="empty"><p className="empty-text">{t('detail.notFound')}</p></div>
       </div>
     )
   }
@@ -334,7 +336,7 @@ export default function ProjectDetailScreen() {
        those so a subsequent redo deletes the right rows. */
     let reMeetingIds = []
     pushUndo({
-      label: 'הקבוצה נמחקה',
+      label: t('detail.undo.groupDeleted'),
       undo: async () => {
         try { await restoreGroup(g.id) } catch { /* keep going */ }
         for (const id of deletedClientIds) { try { await restoreClient(id) } catch { /* keep going */ } }
@@ -369,7 +371,7 @@ export default function ProjectDetailScreen() {
     if (!m) return
     removeMember(m.id)
     pushUndo({
-      label: 'החבר הוסר מהקבוצה',
+      label: t('detail.undo.memberRemoved'),
       undo: async () => { try { await restoreGroupMember(m.id) } finally { refetchMembers() } },
       redo: async () => { await removeMember(m.id).catch(() => {}) },
     })
@@ -380,7 +382,7 @@ export default function ProjectDetailScreen() {
   return (
     <div className="screen pd-screen">
       <header className="pd-head">
-        <button type="button" className="pd-back" onClick={() => navigate(-1)} aria-label="חזרה">
+        <button type="button" className="pd-back" onClick={() => navigate(-1)} aria-label={t('detail.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
         </button>
         <div className="pd-head-id">
@@ -389,12 +391,12 @@ export default function ProjectDetailScreen() {
             <p className="pd-name">{project.name}</p>
           </div>
           <p className="pd-meta">
-            {activeCount} <MG text="פעיל׊׉" />
-            {wanderingCount > 0 && ` · ${wanderingCount} ביניים`}
-            {' · '}{projectGroups.length} קבוצות
+            {activeCount} <MG text={t('detail.metaActive')} />
+            {wanderingCount > 0 && ` · ${t('detail.metaWandering', { count: wanderingCount })}`}
+            {' · '}{t('detail.metaGroups', { count: projectGroups.length })}
           </p>
         </div>
-        <button type="button" className="pd-edit" onClick={() => setEditProjectOpen(true)} aria-label="עריכת פרויקט">
+        <button type="button" className="pd-edit" onClick={() => setEditProjectOpen(true)} aria-label={t('detail.editAria')}>
           <Pencil size={15} strokeWidth={1.6} aria-hidden="true" />
         </button>
       </header>
@@ -402,15 +404,15 @@ export default function ProjectDetailScreen() {
       <section className="pd-stats">
         <div className="pd-stat">
           <p className="pd-stat-v mono">{projectClients.length}</p>
-          <p className="pd-stat-l">לקוחות</p>
+          <p className="pd-stat-l">{t('detail.stats.clients')}</p>
         </div>
         <div className="pd-stat divided">
           <p className="pd-stat-v mono">{isr(monthIncome)}</p>
-          <p className="pd-stat-l">הכנסה החודש</p>
+          <p className="pd-stat-l">{t('detail.stats.incomeMonth')}</p>
         </div>
         <div className="pd-stat">
           <p className="pd-stat-v mono">{projectGroups.length}</p>
-          <p className="pd-stat-l">קבוצות</p>
+          <p className="pd-stat-l">{t('detail.stats.groups')}</p>
         </div>
       </section>
 
@@ -427,14 +429,14 @@ export default function ProjectDetailScreen() {
       <section className="pd-section">
         <button type="button" className="pd-sec-head" onClick={() => toggleSec('groups')}>
           <p className="pd-sec-title">
-            קבוצות {projectGroups.length > 0 && <span className="pd-sec-count">{projectGroups.length}</span>}
+            {t('detail.groups.title')} {projectGroups.length > 0 && <span className="pd-sec-count">{projectGroups.length}</span>}
           </p>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.groups ? ' open' : ''}`} aria-hidden="true" />
         </button>
         {openSec.groups && (
           <div className="pd-sec-body">
             {projectGroups.length === 0 ? (
-              <p className="pd-empty">עדיין אין קבוצות. {addr({male:'הוסף',female:'הוסיפי',neutral:'הוסף/י'})} קבוצה כדי להתחיל.</p>
+              <p className="pd-empty">{t('detail.groups.empty', { add: t('detail.groups.add') })}</p>
             ) : (
               projectGroups.map((g) => {
                 const groupMembers = liveMembers.filter((m) => m.group_id === g.id)
@@ -444,10 +446,10 @@ export default function ProjectDetailScreen() {
                   : null
                 const billingMode = g.billing_mode || 'package'
                 const priceLabel = billingMode === 'per_session'
-                  ? (g.price_per_session ? `${isr(g.price_per_session)} לפגישה` : '')
+                  ? (g.price_per_session ? t('detail.groups.pricePerSession', { price: isr(g.price_per_session) }) : '')
                   : billingMode === 'none'
                     ? ''
-                    : (g.package_price ? `${isr(g.package_price)} / ${g.package_sessions || 1} פגישות` : '')
+                    : (g.package_price ? t('detail.groups.pricePackage', { price: isr(g.package_price), count: g.package_sessions || 1 }) : '')
                 const status = g.status || 'active'
                 const sessOpen = openGroupSessions.has(g.id)
                 const groupSessions = sessions
@@ -462,7 +464,7 @@ export default function ProjectDetailScreen() {
                     <div className="gc-head">
                       <span className="gc-color" style={{ background: g.color || 'var(--stone)' }} />
                       <p className="gc-name">{g.name}</p>
-                      <button type="button" className="gc-icon-btn" onClick={() => setEditGroup(g)} aria-label="עריכת קבוצה">
+                      <button type="button" className="gc-icon-btn" onClick={() => setEditGroup(g)} aria-label={t('detail.groups.editAria')}>
                         <Pencil size={13} strokeWidth={1.7} aria-hidden="true" />
                       </button>
                     </div>
@@ -480,20 +482,20 @@ export default function ProjectDetailScreen() {
                       ))}
                     </div>
                     <p className="gc-meta">
-                      <span>{memberCount} חברים</span>
+                      <span>{t('detail.groups.members', { count: memberCount })}</span>
                       {priceLabel && <><span className="gc-dot">·</span><span>{priceLabel}</span></>}
                       {recurring && <><span className="gc-dot">·</span><span>{recurring}</span></>}
                     </p>
                     <div className="gc-members">
                       {groupMembers.length === 0 ? (
-                        <p className="gc-empty">עדיין אין חברים</p>
+                        <p className="gc-empty">{t('detail.groups.noMembers')}</p>
                       ) : (
                         groupMembers.map((m) => {
                           const c = clientById.get(m.client_id)
                           return (
                             <span key={m.id} className="gc-chip">
-                              {c?.name || '(לקוח/ה)'}
-                              <button type="button" className="gc-chip-x" onClick={() => handleRemoveMember(m)} aria-label={`הסר ${c?.name || 'חבר'}`}>
+                              {c?.name || t('detail.groups.fallbackClient')}
+                              <button type="button" className="gc-chip-x" onClick={() => handleRemoveMember(m)} aria-label={t('detail.groups.removeMemberAria', { name: c?.name || t('detail.groups.removeMemberFallback') })}>
                                 <X size={11} strokeWidth={2} aria-hidden="true" />
                               </button>
                             </span>
@@ -503,17 +505,17 @@ export default function ProjectDetailScreen() {
                     </div>
                     <div className="gc-actions">
                       <button type="button" className="gc-btn" onClick={() => setAddMemberFor(g)}>
-                        <Plus size={13} strokeWidth={1.8} aria-hidden="true" /> הוסף חבר
+                        <Plus size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.groups.addMember')}
                       </button>
                       <button type="button" className="gc-btn" onClick={() => setLogSessionFor(g)}>
-                        <Check size={13} strokeWidth={1.8} aria-hidden="true" /> תעד פגישה
+                        <Check size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.groups.logSession')}
                       </button>
                       <button
                         type="button"
                         className={`gc-btn ghost${sessOpen ? ' on' : ''}`}
                         onClick={() => toggleGroupSessions(g.id)}
-                        title="פגישות שהתקיימו"
-                        aria-label="פגישות שהתקיימו"
+                        title={t('detail.groups.pastSessions')}
+                        aria-label={t('detail.groups.pastSessions')}
                       >
                         <CalendarPlus size={13} strokeWidth={1.8} aria-hidden="true" />
                       </button>
@@ -521,17 +523,17 @@ export default function ProjectDetailScreen() {
                         type="button"
                         className="gc-btn ghost danger"
                         onClick={() => setPendingDeleteGroup(g)}
-                        title="מחק קבוצה"
-                        aria-label="מחק קבוצה"
+                        title={t('detail.groups.deleteGroup')}
+                        aria-label={t('detail.groups.deleteGroup')}
                       >
                         <Trash2 size={13} strokeWidth={1.8} aria-hidden="true" />
                       </button>
                     </div>
                     {sessOpen && (
                       <div className="gc-sessions">
-                        <p className="gc-section-title">פגישות שהתקיימו{groupSessions.length ? ` (${groupSessions.length})` : ''}</p>
+                        <p className="gc-section-title">{groupSessions.length ? t('detail.groups.pastSessionsCount', { count: groupSessions.length }) : t('detail.groups.pastSessionsTitle')}</p>
                         {groupSessions.length === 0 ? (
-                          <p className="gc-empty">אין פגישות מתועדות עדיין</p>
+                          <p className="gc-empty">{t('detail.groups.noSessions')}</p>
                         ) : (
                           groupSessions.map((s) => (
                             <div key={s.id} className="gc-sess-row">
@@ -545,7 +547,7 @@ export default function ProjectDetailScreen() {
                                 type="button"
                                 className="gc-chip-x"
                                 onClick={() => setPendingDeleteSession(s)}
-                                aria-label="מחק פגישה"
+                                aria-label={t('detail.groups.deleteSessionAria')}
                               >
                                 <X size={11} strokeWidth={2} aria-hidden="true" />
                               </button>
@@ -559,7 +561,7 @@ export default function ProjectDetailScreen() {
               })
             )}
             <button className="pd-add-btn" type="button" onClick={() => setShowAddGroup(true)}>
-              + קבוצה חדשה
+              {t('detail.groups.newGroup')}
             </button>
           </div>
         )}
@@ -569,14 +571,14 @@ export default function ProjectDetailScreen() {
       <section className="pd-section">
         <button type="button" className="pd-sec-head" onClick={() => toggleSec('clients')}>
           <p className="pd-sec-title">
-            לקוחות {projectClients.length > 0 && <span className="pd-sec-count">{projectClients.length}</span>}
+            {t('detail.clients.title')} {projectClients.length > 0 && <span className="pd-sec-count">{projectClients.length}</span>}
           </p>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.clients ? ' open' : ''}`} aria-hidden="true" />
         </button>
         {openSec.clients && (
           <div className="pd-sec-body">
             {projectClients.length === 0 ? (
-              <p className="pd-empty">אין לקוחות בפרויקט זה</p>
+              <p className="pd-empty">{t('detail.clients.empty')}</p>
             ) : (
               projectClients.map((c) => {
                 const g = c.group_id ? projectGroups.find((gg) => gg.id === c.group_id) : null
@@ -595,14 +597,14 @@ export default function ProjectDetailScreen() {
                     {g ? (
                       <span className="pd-client-tag group-member">{g.name}</span>
                     ) : (
-                      <span className="pd-client-tag private">פרטי</span>
+                      <span className="pd-client-tag private">{t('detail.clients.private')}</span>
                     )}
                   </div>
                 )
               })
             )}
             <button className="pd-add-btn" type="button" onClick={() => setShowAddClient(true)}>
-              + <MG word="client" /> לפרויקט
+              <Trans t={t} i18nKey="detail.clients.addToProject" components={{ mg: <MG word="client" /> }} />
             </button>
           </div>
         )}
@@ -612,7 +614,7 @@ export default function ProjectDetailScreen() {
       <section className="pd-section">
         <button type="button" className="pd-sec-head" onClick={() => toggleSec('reminders')}>
           <p className="pd-sec-title">
-            תזכורות מקושרות{' '}
+            {t('detail.reminders.title')}{' '}
             <span className="pd-sec-count">
               {activeReminders.length}
               {projectReminders.length > activeReminders.length ? ` / ${projectReminders.length}` : ''}
@@ -623,7 +625,7 @@ export default function ProjectDetailScreen() {
         {openSec.reminders && (
           <div className="pd-sec-body">
             {projectReminders.length === 0 ? (
-              <p className="pd-empty">אין תזכורות מקושרות</p>
+              <p className="pd-empty">{t('detail.reminders.empty')}</p>
             ) : (
               projectReminders.map((r) => {
                 const isCompleted = r.status === 'completed'
@@ -634,8 +636,8 @@ export default function ProjectDetailScreen() {
                       <p className={`pd-rem-title${isCompleted ? ' done' : ''}`}>{r.title}</p>
                       <p className="pd-rem-meta">
                         {fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}
-                        {isCompleted && ' · בוצעה'}
-                        {isOverdue && ' · באיחור'}
+                        {isCompleted && ` · ${t('detail.reminders.done')}`}
+                        {isOverdue && ` · ${t('detail.reminders.overdue')}`}
                       </p>
                     </div>
                     {!isCompleted && (
@@ -643,8 +645,8 @@ export default function ProjectDetailScreen() {
                         type="button"
                         className="pd-rem-btn"
                         onClick={() => completeReminder(r.id)}
-                        aria-label="סמן כבוצעה"
-                        title="סמן כבוצעה"
+                        aria-label={t('detail.reminders.completeAria')}
+                        title={t('detail.reminders.completeAria')}
                       >
                         <Check size={13} strokeWidth={1.8} aria-hidden="true" />
                       </button>
@@ -653,8 +655,8 @@ export default function ProjectDetailScreen() {
                       type="button"
                       className="pd-rem-btn danger"
                       onClick={() => setPendingDeleteReminder(r)}
-                      aria-label="מחק תזכורת"
-                      title="מחק תזכורת"
+                      aria-label={t('detail.reminders.deleteAria')}
+                      title={t('detail.reminders.deleteAria')}
                     >
                       <X size={13} strokeWidth={1.8} aria-hidden="true" />
                     </button>
@@ -663,7 +665,7 @@ export default function ProjectDetailScreen() {
               })
             )}
             <button className="pd-add-btn" type="button" onClick={() => setShowAddReminder(true)}>
-              <Bell size={13} strokeWidth={1.8} aria-hidden="true" /> תזכורת לפרויקט +
+              <Bell size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.reminders.add')}
             </button>
           </div>
         )}
@@ -737,56 +739,62 @@ export default function ProjectDetailScreen() {
       <ConfirmModal
         open={!!pendingDeleteSession}
         onClose={() => setPendingDeleteSession(null)}
-        title="מחיקת פגישה"
-        message="למחוק את הפגישה הקבוצתית? היא תוסר לכל החברים."
-        confirmLabel="מחק"
+        title={t('detail.deleteSession.title')}
+        message={t('detail.deleteSession.message')}
+        confirmLabel={t('detail.deleteSession.confirm')}
         danger
         onConfirm={() => { if (pendingDeleteSession) removeSession(pendingDeleteSession.id) }}
       />
       <ConfirmModal
         open={!!pendingDeleteReminder}
         onClose={() => setPendingDeleteReminder(null)}
-        title="מחיקת תזכורת"
-        message={pendingDeleteReminder ? `למחוק את "${pendingDeleteReminder.title}"?` : ''}
-        confirmLabel="מחק"
+        title={t('detail.deleteReminder.title')}
+        message={pendingDeleteReminder ? t('detail.deleteReminder.message', { title: pendingDeleteReminder.title }) : ''}
+        confirmLabel={t('detail.deleteReminder.confirm')}
         danger
         onConfirm={() => { if (pendingDeleteReminder) removeReminder(pendingDeleteReminder.id) }}
       />
       <ConfirmModal
         open={!!pendingStatusChange}
         onClose={() => setPendingStatusChange(null)}
-        title="שינוי סטטוס קבוצה"
+        title={t('detail.statusChange.title')}
         message={pendingStatusChange
-          ? `שינוי הסטטוס ל-"${STATUS_LABEL[pendingStatusChange.newStatus]}" יעביר ${pendingStatusChange.willFlip.length} ${
-              pendingStatusChange.willFlip.length === 1 ? 'לקוח' : 'לקוחות'
-            } ל-"${META_LABEL[pendingStatusChange.targetMeta]}". להמשיך?`
+          ? t(pendingStatusChange.willFlip.length === 1 ? 'detail.statusChange.messageOne' : 'detail.statusChange.messageMany', {
+              status: STATUS_LABEL[pendingStatusChange.newStatus],
+              count: pendingStatusChange.willFlip.length,
+              meta: META_LABEL[pendingStatusChange.targetMeta],
+            })
           : ''}
-        confirmLabel="שנה סטטוס"
+        confirmLabel={t('detail.statusChange.confirm')}
         onConfirm={confirmGroupStatusChange}
       />
 
-      <Modal open={!!pendingAssign} onClose={() => setPendingAssign(null)} title="שיוך לקבוצה">
+      <Modal open={!!pendingAssign} onClose={() => setPendingAssign(null)} title={t('detail.assign.title')}>
         {pendingAssign && (
           <>
             <p className="m-confirm-msg">
-              <strong>{pendingAssign.client.name}</strong> כבר משויך/ת לקבוצה אחרת. להעביר
-              ל"{pendingAssign.group.name}", או להוסיף כך שיהיה/תהיה גם וגם?
+              <Trans
+                t={t}
+                i18nKey="detail.assign.message"
+                values={{ name: pendingAssign.client.name, group: pendingAssign.group.name }}
+                components={[<strong key="n" />]}
+              />
             </p>
             <div className="m-actions">
-              <button type="button" className="m-btn-cancel" onClick={() => setPendingAssign(null)}>ביטול</button>
+              <button type="button" className="m-btn-cancel" onClick={() => setPendingAssign(null)}>{t('detail.assign.cancel')}</button>
               <button
                 type="button"
                 className="m-btn-save"
                 onClick={() => { assignToGroup(pendingAssign.client, pendingAssign.group, 'add'); setPendingAssign(null) }}
               >
-                הוספה (גם וגם)
+                {t('detail.assign.addBoth')}
               </button>
               <button
                 type="button"
                 className="m-btn-save"
                 onClick={() => { assignToGroup(pendingAssign.client, pendingAssign.group, 'move'); setPendingAssign(null) }}
               >
-                העברה לכאן
+                {t('detail.assign.moveHere')}
               </button>
             </div>
           </>

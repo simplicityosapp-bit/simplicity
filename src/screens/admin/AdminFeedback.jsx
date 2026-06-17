@@ -1,20 +1,17 @@
 import { useState, useMemo } from 'react'
 import { Bug, Lightbulb, Heart, MessageCircle } from 'lucide-react'
 import { useAdminQuery, callAdmin } from '../../hooks/useAdmin'
+import { useT } from '../../i18n/useT'
 
 const TYPE_META = {
-  bug:    { label: 'באג',    icon: Bug },
-  idea:   { label: 'רעיון',  icon: Lightbulb },
-  praise: { label: 'מחמאה',  icon: Heart },
-  other:  { label: 'אחר',    icon: MessageCircle },
+  bug:    { icon: Bug },
+  idea:   { icon: Lightbulb },
+  praise: { icon: Heart },
+  other:  { icon: MessageCircle },
 }
-const STATUSES = [
-  { k: 'new',         l: 'חדש' },
-  { k: 'in_progress', l: 'בטיפול' },
-  { k: 'done',        l: 'טופל' },
-]
-const TYPE_FILTERS = [{ k: 'all', l: 'הכול' }, ...Object.entries(TYPE_META).map(([k, v]) => ({ k, l: v.label }))]
-const STATUS_FILTERS = [{ k: 'all', l: 'הכול' }, ...STATUSES.map((s) => ({ k: s.k, l: s.l }))]
+const STATUS_KEYS = ['new', 'in_progress', 'done']
+const TYPE_FILTER_KEYS = ['all', ...Object.keys(TYPE_META)]
+const STATUS_FILTER_KEYS = ['all', ...STATUS_KEYS]
 
 function fmtDate(iso) {
   if (!iso) return ''
@@ -23,6 +20,7 @@ function fmtDate(iso) {
 }
 
 export default function AdminFeedback() {
+  const { t } = useT('admin')
   const { data, loading, error } = useAdminQuery('feedback_list')
   const [statusOverride, setStatusOverride] = useState({}) // id → optimistic status
   const [typeF, setTypeF] = useState('all')
@@ -54,51 +52,51 @@ export default function AdminFeedback() {
   return (
     <>
       <header className="admin-head">
-        <h1>פידבקים</h1>
-        <p>כל הפידבקים והבאגים במקום אחד — החדשים קודם</p>
+        <h1>{t('feedback.title')}</h1>
+        <p>{t('feedback.subtitle')}</p>
       </header>
 
-      {loading && <div className="admin-state">טוען…</div>}
-      {error && <div className="admin-state err">שגיאה בטעינת הנתונים</div>}
+      {loading && <div className="admin-state">{t('state.loading')}</div>}
+      {error && <div className="admin-state err">{t('state.loadError')}</div>}
 
       {data && (
         <>
           <div className="admin-fb-filters">
             <div className="admin-range">
-              {TYPE_FILTERS.map((f) => (
-                <button key={f.k} className={typeF === f.k ? 'on' : ''} onClick={() => setTypeF(f.k)}>{f.l}</button>
+              {TYPE_FILTER_KEYS.map((k) => (
+                <button key={k} className={typeF === k ? 'on' : ''} onClick={() => setTypeF(k)}>{k === 'all' ? t('feedback.filterAll') : t(`feedback.types.${k}`)}</button>
               ))}
             </div>
             <div className="admin-range">
-              {STATUS_FILTERS.map((f) => (
-                <button key={f.k} className={statusF === f.k ? 'on' : ''} onClick={() => setStatusF(f.k)}>{f.l}</button>
+              {STATUS_FILTER_KEYS.map((k) => (
+                <button key={k} className={statusF === k ? 'on' : ''} onClick={() => setStatusF(k)}>{k === 'all' ? t('feedback.filterAll') : t(`feedback.statuses.${k}`)}</button>
               ))}
             </div>
           </div>
 
           <div className="admin-fb-list">
-            {filtered.length === 0 && <div className="admin-state">אין פידבקים להצגה</div>}
+            {filtered.length === 0 && <div className="admin-state">{t('feedback.empty')}</div>}
             {filtered.map((it) => {
               const meta = TYPE_META[it.type]
               const Icon = meta?.icon
               return (
                 <div className="admin-card admin-fb-card" key={it.id}>
                   <div className="admin-fb-top">
-                    <span className="admin-fb-from" dir="ltr">{it.email || 'משתמש לא מזוהה'}</span>
+                    <span className="admin-fb-from" dir="ltr">{it.email || t('feedback.unknownUser')}</span>
                     <span className="admin-fb-date">{fmtDate(it.created_at)}</span>
                     {meta && (
                       <span className={`admin-chip type-${it.type}`}>
-                        {Icon && <Icon size={12} strokeWidth={1.9} aria-hidden="true" />}{meta.label}
+                        {Icon && <Icon size={12} strokeWidth={1.9} aria-hidden="true" />}{t(`feedback.types.${it.type}`)}
                       </span>
                     )}
-                    <div className="admin-status-row" role="group" aria-label="סטטוס">
-                      {STATUSES.map((s) => (
+                    <div className="admin-status-row" role="group" aria-label={t('feedback.statusGroupAria')}>
+                      {STATUS_KEYS.map((k) => (
                         <button
-                          key={s.k}
-                          className={(it.status || 'new') === s.k ? 'on' : ''}
-                          onClick={() => changeStatus(it.id, s.k)}
+                          key={k}
+                          className={(it.status || 'new') === k ? 'on' : ''}
+                          onClick={() => changeStatus(it.id, k)}
                         >
-                          {s.l}
+                          {t(`feedback.statuses.${k}`)}
                         </button>
                       ))}
                     </div>

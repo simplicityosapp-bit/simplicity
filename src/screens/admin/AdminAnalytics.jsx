@@ -1,12 +1,9 @@
 import { useState } from 'react'
 import { useAdminQuery } from '../../hooks/useAdmin'
+import { useT } from '../../i18n/useT'
 import { LineChart, FunnelBars } from './AdminCharts'
 
-const RANGES = [
-  { k: 'week',  l: 'שבוע' },
-  { k: 'month', l: 'חודש' },
-  { k: 'all',   l: 'הכול' },
-]
+const RANGES = ['week', 'month', 'all']
 
 /* "YYYY-MM-DD" → dd/mm for the x-axis. */
 function dayLabel(d) {
@@ -15,58 +12,59 @@ function dayLabel(d) {
 }
 
 export default function AdminAnalytics() {
+  const { t } = useT('admin')
   const [range, setRange] = useState('month')
   const { data, loading, error } = useAdminQuery('analytics', { range })
 
   return (
     <>
       <header className="admin-head">
-        <h1>אנליטיקס</h1>
-        <p>שאלות ספציפיות על המוצר — לא Google Analytics</p>
+        <h1>{t('analytics.title')}</h1>
+        <p>{t('analytics.subtitle')}</p>
       </header>
 
       <div className="admin-range admin-range-top">
         {RANGES.map((r) => (
-          <button key={r.k} className={range === r.k ? 'on' : ''} onClick={() => setRange(r.k)}>{r.l}</button>
+          <button key={r} className={range === r ? 'on' : ''} onClick={() => setRange(r)}>{t(`analytics.ranges.${r}`)}</button>
         ))}
       </div>
 
-      {loading && <div className="admin-state">טוען…</div>}
-      {error && <div className="admin-state err">שגיאה בטעינת הנתונים</div>}
+      {loading && <div className="admin-state">{t('state.loading')}</div>}
+      {error && <div className="admin-state err">{t('state.loadError')}</div>}
 
       {data && (
         <>
           <section className="admin-section">
-            <div className="admin-section-head"><h2>Sessions לאורך זמן</h2></div>
+            <div className="admin-section-head"><h2>{t('analytics.sessionsOverTime')}</h2></div>
             <div className="admin-card admin-chart-card">
               <LineChart data={data.sessionsOverTime || []} formatX={dayLabel} gradId="admSessions" />
             </div>
           </section>
 
           <section className="admin-section">
-            <div className="admin-section-head"><h2>רפלקציות לאורך זמן</h2></div>
+            <div className="admin-section-head"><h2>{t('analytics.reflectionsOverTime')}</h2></div>
             <div className="admin-card admin-chart-card">
               <LineChart data={data.reflectionsOverTime || []} alt formatX={dayLabel} gradId="admReflections" />
             </div>
           </section>
 
           <section className="admin-section">
-            <div className="admin-section-head"><h2>משפך onboarding</h2></div>
+            <div className="admin-section-head"><h2>{t('analytics.onboardingFunnel')}</h2></div>
             <div className="admin-card admin-chart-card">
               <FunnelBars data={data.funnel || []} />
             </div>
           </section>
 
           <section className="admin-section">
-            <div className="admin-section-head"><h2>המשתמשים הכי פעילים</h2></div>
+            <div className="admin-section-head"><h2>{t('analytics.topUsers')}</h2></div>
             <div className="admin-card admin-table-wrap">
               <table className="admin-table">
                 <thead>
-                  <tr><th style={{ width: 40 }}>#</th><th>אימייל</th><th>Sessions</th></tr>
+                  <tr><th style={{ width: 40 }}>{t('analytics.rank')}</th><th>{t('analytics.email')}</th><th>{t('analytics.sessions')}</th></tr>
                 </thead>
                 <tbody>
                   {(data.topUsers || []).length === 0 && (
-                    <tr><td colSpan={3} className="muted">אין נתונים בטווח הזה</td></tr>
+                    <tr><td colSpan={3} className="muted">{t('analytics.topUsersEmpty')}</td></tr>
                   )}
                   {(data.topUsers || []).map((u, i) => (
                     <tr key={i}>

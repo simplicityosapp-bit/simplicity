@@ -11,11 +11,11 @@ import EditProjectModal from '../../modals/EditProjectModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
 import './ProjectsScreen.css'
 
 export default function ProjectsScreen() {
-  const { addr, gender } = useAddress()
+  const { t, gender } = useT('projects')
   const { projects, loading, error, addProject, updateProject, removeProject } = useProjects()
   const { clients } = useClients()
   const { transactions } = useTransactions()
@@ -48,8 +48,8 @@ export default function ProjectsScreen() {
     return { totals: { assignedClients, heroIncome }, cards }
   }, [view, projects, clients, transactions, tasks])
 
-  const incomeLabel = view === 'monthly' ? 'הכנסות החודש' : 'הכנסות מצטברות'
-  const cardIncomeLabel = view === 'monthly' ? 'החודש' : 'מצטבר'
+  const incomeLabel = view === 'monthly' ? t('hero.incomeMonthly') : t('hero.incomeCumulative')
+  const cardIncomeLabel = view === 'monthly' ? t('cardIncome.monthly') : t('cardIncome.cumulative')
 
   return (
     <div className="screen">
@@ -57,33 +57,33 @@ export default function ProjectsScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{projects.length} פרויקטים</p>
+              <p className="lbl">{t('count', { count: projects.length })}</p>
               <span className="lbl dot">·</span>
-              <p className="lbl">בנייה</p>
+              <p className="lbl">{t('phase')}</p>
             </div>
-            <p className="lbl-sm">מיקוד יוצר תוצאות.</p>
+            <p className="lbl-sm">{t('tagline')}</p>
           </div>
-          <p className="t-screen">פרויקטים</p>
+          <p className="t-screen">{t('title')}</p>
         </header>
         <Coachmark id="add-project" radius="50%">
-          <button className="cta-add" type="button" aria-label="פרויקט חדש" onClick={() => setShowAdd(true)}>+ פרויקט חדש</button>
+          <button className="cta-add" type="button" aria-label={t('newAria')} onClick={() => setShowAdd(true)}>{t('new')}</button>
         </Coachmark>
       </div>
 
       <section className="p-hero">
         <div className="s-hero">
-          <div className="mg-toggle" role="tablist" aria-label="טווח סכומים">
-            <button type="button" className={`mg-toggle-btn${view === 'monthly' ? ' on' : ''}`} onClick={() => setView('monthly')}>חודשי</button>
-            <button type="button" className={`mg-toggle-btn${view === 'cumulative' ? ' on' : ''}`} onClick={() => setView('cumulative')}>מצטבר</button>
+          <div className="mg-toggle" role="tablist" aria-label={t('range.aria')}>
+            <button type="button" className={`mg-toggle-btn${view === 'monthly' ? ' on' : ''}`} onClick={() => setView('monthly')}>{t('range.monthly')}</button>
+            <button type="button" className={`mg-toggle-btn${view === 'cumulative' ? ' on' : ''}`} onClick={() => setView('cumulative')}>{t('range.cumulative')}</button>
           </div>
-          <p className="p-hero-title">סיכום פרויקטים</p>
+          <p className="p-hero-title">{t('hero.title')}</p>
           <div className="p-hero-grid">
             <div className="p-hero-stat">
-              <p className="p-hero-stat-l">פרויקטים</p>
+              <p className="p-hero-stat-l">{t('hero.projects')}</p>
               <p className="p-hero-stat-v mono">{projects.length}</p>
             </div>
             <div className="p-hero-stat divided">
-              <p className="p-hero-stat-l">לקוחות</p>
+              <p className="p-hero-stat-l">{t('hero.clients')}</p>
               <p className="p-hero-stat-v mono">{totals.assignedClients}</p>
             </div>
             <div className="p-hero-stat">
@@ -96,18 +96,18 @@ export default function ProjectsScreen() {
 
       <section className="p-list">
         {loading ? (
-          <div className="empty"><p className="empty-text">טוען פרויקטים…</p></div>
+          <div className="empty"><p className="empty-text">{t('loading')}</p></div>
         ) : error ? (
-          <div className="empty"><p className="empty-text">שגיאה בטעינת הפרויקטים: {error}</p></div>
+          <div className="empty"><p className="empty-text">{t('loadError', { error })}</p></div>
         ) : projects.length === 0 ? (
           <div className="empty">
             <span className="empty-icon"><FolderOpen size={36} strokeWidth={1.4} aria-hidden="true" /></span>
-            <p className="empty-text">אין עדיין פרויקטים. הפרויקט הראשון שלך מתחיל כאן.</p>
+            <p className="empty-text">{t('empty.text')}</p>
             <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
-              <FolderPlus size={18} strokeWidth={1.6} aria-hidden="true" /> {addr({ male: 'הוסף פרויקט', female: 'הוסיפי פרויקט', neutral: 'הוסף/י פרויקט' })}
+              <FolderPlus size={18} strokeWidth={1.6} aria-hidden="true" /> {t('empty.add')}
             </button>
             <details className="empty-reminder">
-              <summary>למה זה חשוב?</summary>
+              <summary>{t('empty.whyImportant')}</summary>
               <p className="empty-reminder-body">{coachmarkText('add-project', gender).detail}</p>
             </details>
           </div>
@@ -141,9 +141,9 @@ export default function ProjectsScreen() {
       <ConfirmModal
         open={!!pendingDelete}
         onClose={() => setPendingDelete(null)}
-        title="מחיקת פרויקט"
-        message={pendingDelete ? `למחוק את "${pendingDelete.name}"? הלקוחות והתנועות יישארו (ללא פרויקט).` : ''}
-        confirmLabel="מחק"
+        title={t('delete.title')}
+        message={pendingDelete ? t('delete.message', { name: pendingDelete.name }) : ''}
+        confirmLabel={t('delete.confirm')}
         danger
         onConfirm={() => { if (pendingDelete) removeProject(pendingDelete.id) }}
       />

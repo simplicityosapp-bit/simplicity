@@ -1,7 +1,9 @@
 import { memo } from 'react'
 import { Check, Pencil } from 'lucide-react'
+import { useT } from '../../i18n/useT'
 
 function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, index, taskStatus, category }) {
+  const { t } = useT('tasks')
   const isDone = task.status === 'done'
   const meta = [clientName, project?.name].filter(Boolean).join(' · ')
 
@@ -12,7 +14,7 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, index
         className={`tc-chk${isDone ? ' on' : ''}`}
         onClick={() => onToggle(task.id)}
         aria-pressed={isDone}
-        aria-label={isDone ? 'בטל סימון' : 'סמן כבוצע'}
+        aria-label={isDone ? t('item.uncheck') : t('item.checkTask')}
       >
         {isDone && <Check size={13} strokeWidth={2.5} aria-hidden="true" />}
       </button>
@@ -37,7 +39,7 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, index
         )}
       </div>
       {onEdit && (
-        <button type="button" className="tc-edit" onClick={() => onEdit(task)} aria-label="עריכת משימה">
+        <button type="button" className="tc-edit" onClick={() => onEdit(task)} aria-label={t('item.editTask')}>
           <Pencil size={13} strokeWidth={1.5} aria-hidden="true" />
         </button>
       )}

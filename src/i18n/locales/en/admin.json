@@ -1,0 +1,188 @@
+{
+  "nav": {
+    "label": "Admin navigation",
+    "title": "Admin",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "feedback": "Feedback",
+    "analytics": "Analytics",
+    "sendFeedback": "Send feedback",
+    "feedbackAction": "Feedback",
+    "backToApp": "Back to app"
+  },
+  "state": {
+    "loading": "Loading…",
+    "loadError": "Couldn't load the data"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "A live snapshot of the system",
+    "targets": {
+      "totalUsers": "Registered users",
+      "active7d": "Active in last 7 days",
+      "sessionsThisWeek": "Sessions this week"
+    },
+    "stats": {
+      "totalUsers": "Registered users",
+      "subscribers": "Subscribers",
+      "subscribersSub": "Marked manually",
+      "active7d": "Active in last 7 days",
+      "openFeedback": "Open feedback",
+      "sessionsThisWeek": "Sessions this week"
+    },
+    "signupsOverTime": "Signups over time",
+    "goalsHeading": "Targets",
+    "targetPlaceholder": "Target"
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Everyone who signed up — grouped by type, newest first",
+    "searchPlaceholder": "Search by email…",
+    "summary": {
+      "total": "Total",
+      "subscribers": "Subscribers",
+      "manual": "Manual",
+      "regular": "Regular"
+    },
+    "sections": {
+      "all": "All users",
+      "subscribers": "Subscribers",
+      "manual": "Manual subscription",
+      "regular": "Regular subscription"
+    },
+    "empty": {
+      "manual": "No manual subscribers",
+      "regular": "No regular subscribers (fills in once billing is live)",
+      "default": "No users found"
+    },
+    "table": {
+      "email": "Email",
+      "subscriber": "Subscriber",
+      "joined": "Joined",
+      "onboardingStage": "Onboarding stage",
+      "reflections": "Reflections",
+      "sessions": "Sessions",
+      "marketing": "Marketing",
+      "lastActive": "Last active",
+      "expandAria": "Expand"
+    },
+    "date": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{{count}} days ago"
+    },
+    "consent": {
+      "version": "Version {{version}} · ",
+      "agreed": "Agreed",
+      "declined": "No"
+    },
+    "sub": {
+      "regularBadge": "Regular subscriber",
+      "subscribed": "Subscriber",
+      "askCancel": "Cancel subscription?",
+      "askMark": "Mark as subscriber?",
+      "confirmAria": "Confirm",
+      "cancelAria": "Cancel",
+      "titleCancel": "Click to cancel subscription",
+      "titleMark": "Mark as subscriber",
+      "mark": "Mark"
+    },
+    "role": {
+      "ownerChip": "Owner",
+      "ownerTitle": "Primary owner",
+      "adminChip": "Admin",
+      "adminTitle": "Admin"
+    },
+    "marketingConsentAria": "Agreed to marketing",
+    "detail": {
+      "subscriber": "Subscriber",
+      "subscriberRegular": "Regular subscriber (paid)",
+      "subscriberManual": "Manual subscriber",
+      "subscriberNone": "No",
+      "onboardingStage": "Onboarding stage",
+      "onboardingStopped": "Stopped at: {{label}}",
+      "feedbackLeft": "Feedback left",
+      "feedbackCount": "{{count}} item(s)",
+      "feedbackNone": "None",
+      "reflections": "Reflections",
+      "sessions": "Sessions",
+      "joined": "Signed up",
+      "lastSignIn": "Last sign-in",
+      "consentsHeading": "Legal consents",
+      "privacy": "Privacy",
+      "dpa": "Data processing (DPA)",
+      "terms": "Terms of use",
+      "marketing": "Marketing"
+    },
+    "perms": {
+      "deleteUsers": "Delete users",
+      "setSubscriber": "Mark subscribers",
+      "manageAdmins": "Manage admins"
+    },
+    "manage": {
+      "heading": "Admin permissions",
+      "tag": "Admin",
+      "hintIsAdmin": "This user is an admin. You can update their permissions or remove admin access.",
+      "hintNotAdmin": "Pick permissions and make this user an admin. Every admin gets console access and can see all user data.",
+      "update": "Update permissions",
+      "makeAdmin": "Make admin",
+      "removeAdmin": "Remove admin",
+      "grantWarnUpdatePre": "Update the permissions for ",
+      "grantWarnMakePre": "Make ",
+      "grantWarnUpdatePost": "? An admin can see all user data in the console. Access takes effect on their next sign-in.",
+      "grantWarnMakePost": " an admin? An admin can see all user data in the console. Access takes effect on their next sign-in.",
+      "revokeWarnPre": "Remove admin access for ",
+      "revokeWarnPost": "? Console access will be blocked on their next sign-in.",
+      "actionFailed": "That didn't work. Try again.",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "confirm": "Confirm",
+      "removing": "Removing…"
+    },
+    "delete": {
+      "button": "Delete user",
+      "warnPre": "Delete ",
+      "warnPost": " and all their data — permanently, with no way to undo. To continue, type the full email:",
+      "failed": "Delete failed. Try again.",
+      "cancel": "Cancel",
+      "deleting": "Deleting…",
+      "confirm": "Delete permanently"
+    }
+  },
+  "feedback": {
+    "title": "Feedback",
+    "subtitle": "All feedback and bugs in one place — newest first",
+    "types": {
+      "bug": "Bug",
+      "idea": "Idea",
+      "praise": "Praise",
+      "other": "Other"
+    },
+    "statuses": {
+      "new": "New",
+      "in_progress": "In progress",
+      "done": "Done"
+    },
+    "filterAll": "All",
+    "empty": "No feedback to show",
+    "unknownUser": "Unknown user",
+    "statusGroupAria": "Status"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Specific product questions — not Google Analytics",
+    "ranges": {
+      "week": "Week",
+      "month": "Month",
+      "all": "All"
+    },
+    "sessionsOverTime": "Sessions over time",
+    "reflectionsOverTime": "Reflections over time",
+    "onboardingFunnel": "Onboarding funnel",
+    "topUsers": "Most active users",
+    "topUsersEmpty": "No data in this range",
+    "rank": "#",
+    "email": "Email",
+    "sessions": "Sessions"
+  }
+}

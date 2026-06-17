@@ -7,7 +7,7 @@ import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useLeads } from '../../hooks/useLeads'
 import { useGroups } from '../../hooks/useGroups'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
 import './ConnectionsScreen.css'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
@@ -25,11 +25,11 @@ function fmtClock(iso) {
   if (!iso) return ''
   return new Date(iso).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })
 }
-function fmtDuration(min) {
+function fmtDuration(min, t) {
   if (!min || min <= 0) return ''
-  if (min < 60) return `${min} ד׳`
+  if (min < 60) return t('calendar.minutes', { count: min })
   const h = Math.floor(min / 60); const m = min % 60
-  return m ? `${h} ש׳ ${m} ד׳` : `${h} ש׳`
+  return m ? t('calendar.hoursMinutes', { h, m }) : t('calendar.hours', { count: h })
 }
 
 /* Sub-screen for the Google Calendar connection: connect / sync / disconnect +
@@ -37,8 +37,8 @@ function fmtDuration(min) {
    connections list (the redirect_uri is /connections); here we just begin the
    flow and manage an existing connection. */
 export default function CalendarConnectionScreen() {
+  const { t } = useT('connections')
   const navigate = useNavigate()
-  const { addr } = useAddress()
   const gcal = useGoogleCalendar()
   const { events, loading: eventsLoading, refetch, assignClient, assignProject, assignLead, assignGroup } = useCalendarEvents()
   const { clients } = useClients()
@@ -69,10 +69,10 @@ export default function CalendarConnectionScreen() {
      (one toggle per client/project/…) → events. */
   const eventCategories = useMemo(() => {
     const defs = [
-      { prefix: 'c', label: 'לקוחות', link: 'client_id', fb: 'לקוח', items: clients },
-      { prefix: 'p', label: 'פרויקטים', link: 'project_id', fb: 'פרויקט', items: projects },
-      { prefix: 'l', label: 'לידים', link: 'lead_id', fb: 'ליד', items: leads },
-      { prefix: 'g', label: 'קבוצות', link: 'group_id', fb: 'קבוצה', items: groups },
+      { prefix: 'c', label: t('calendar.cats.clients'), link: 'client_id', fb: t('calendar.fb.client'), items: clients },
+      { prefix: 'p', label: t('calendar.cats.projects'), link: 'project_id', fb: t('calendar.fb.project'), items: projects },
+      { prefix: 'l', label: t('calendar.cats.leads'), link: 'lead_id', fb: t('calendar.fb.lead'), items: leads },
+      { prefix: 'g', label: t('calendar.cats.groups'), link: 'group_id', fb: t('calendar.fb.group'), items: groups },
     ]
     const cats = []
     for (const d of defs) {
@@ -91,9 +91,9 @@ export default function CalendarConnectionScreen() {
       cats.push({ key: d.prefix, label: d.label, count, entities })
     }
     const unmatched = (events || []).filter((ev) => !ev.client_id && !ev.project_id && !ev.lead_id && !ev.group_id)
-    if (unmatched.length) cats.push({ key: 'none', label: 'לא מזוהים', count: unmatched.length, items: unmatched, leaf: true })
+    if (unmatched.length) cats.push({ key: 'none', label: t('calendar.cats.unmatched'), count: unmatched.length, items: unmatched, leaf: true })
     return cats
-  }, [events, clients, projects, leads, groups])
+  }, [events, clients, projects, leads, groups, t])
 
   const onSync = async () => {
     setBusyAction('sync')
@@ -101,7 +101,10 @@ export default function CalendarConnectionScreen() {
     const res = await gcal.sync().catch(() => null)
     refetch()
     setBusyAction(null)
-    if (res) setSyncMsg(`סונכרנו ${res.synced ?? 0} אירועים${res.removed ? `, הוסרו ${res.removed}` : ''}.`)
+    if (res) setSyncMsg(t('calendar.syncResult', {
+      synced: res.synced ?? 0,
+      removed: res.removed ? t('calendar.syncRemoved', { count: res.removed }) : '',
+    }))
   }
   const onDisconnect = async () => {
     if (!confirmDisc) {
@@ -120,56 +123,56 @@ export default function CalendarConnectionScreen() {
 
   const [picker, setPicker] = useState(null) // { id, type } — which event's "שייך ל…" picker is open
   const ASSIGN_TYPES = [
-    { key: 'client', label: 'לקוח', field: 'client_id', list: clients, assign: assignClient },
-    { key: 'project', label: 'פרויקט', field: 'project_id', list: projects, assign: assignProject },
-    { key: 'lead', label: 'ליד', field: 'lead_id', list: leads, assign: assignLead },
-    { key: 'group', label: 'קבוצה', field: 'group_id', list: groups, assign: assignGroup },
+    { key: 'client', label: t('calendar.assignTypes.client'), field: 'client_id', list: clients, assign: assignClient },
+    { key: 'project', label: t('calendar.assignTypes.project'), field: 'project_id', list: projects, assign: assignProject },
+    { key: 'lead', label: t('calendar.assignTypes.lead'), field: 'lead_id', list: leads, assign: assignLead },
+    { key: 'group', label: t('calendar.assignTypes.group'), field: 'group_id', list: groups, assign: assignGroup },
   ]
 
   const renderEvent = (ev) => {
     const links = ASSIGN_TYPES
-      .filter((t) => ev[t.field])
-      .map((t) => ({ ...t, name: (t.list || []).find((x) => x.id === ev[t.field])?.name || t.label }))
+      .filter((at) => ev[at.field])
+      .map((at) => ({ ...at, name: (at.list || []).find((x) => x.id === ev[at.field])?.name || at.label }))
     const open = picker?.id === ev.id
-    const active = open && picker.type ? ASSIGN_TYPES.find((t) => t.key === picker.type) : null
+    const active = open && picker.type ? ASSIGN_TYPES.find((at) => at.key === picker.type) : null
     return (
       <div key={ev.id} className="conn-event">
         <div className="conn-event-main">
           <p className="conn-event-title">{ev.title}</p>
           <p className="conn-event-meta">
-            {fmtDateTime(ev.start_time, ev.all_day)}{!ev.all_day && ev.end_time ? `–${fmtClock(ev.end_time)}` : ''}{ev.duration_minutes ? ` · ${fmtDuration(ev.duration_minutes)}` : ''}
+            {fmtDateTime(ev.start_time, ev.all_day)}{!ev.all_day && ev.end_time ? `–${fmtClock(ev.end_time)}` : ''}{ev.duration_minutes ? ` · ${fmtDuration(ev.duration_minutes, t)}` : ''}
           </p>
           <div className="conn-assign-row">
-            {links.map((t) => (
-              <span key={t.key} className="conn-link-chip">
-                <span className="conn-link-chip-type">{t.label}</span>
-                {t.name}
-                <button type="button" className="conn-link-chip-x" onClick={() => t.assign(ev, '')} aria-label={`הסרת שיוך ${t.label}`} title="הסרה">
+            {links.map((at) => (
+              <span key={at.key} className="conn-link-chip">
+                <span className="conn-link-chip-type">{at.label}</span>
+                {at.name}
+                <button type="button" className="conn-link-chip-x" onClick={() => at.assign(ev, '')} aria-label={t('calendar.removeLinkAria', { type: at.label })} title={t('calendar.remove')}>
                   <X size={11} strokeWidth={2} aria-hidden="true" />
                 </button>
               </span>
             ))}
             {!open ? (
-              <button type="button" className="conn-assign-add" onClick={() => setPicker({ id: ev.id, type: null })}>+ שייך ל…</button>
+              <button type="button" className="conn-assign-add" onClick={() => setPicker({ id: ev.id, type: null })}>{t('calendar.assignTo')}</button>
             ) : (
               <div className="conn-assign-picker">
                 <div className="conn-assign-types">
-                  {ASSIGN_TYPES.map((t) => (
-                    <button key={t.key} type="button" className={`conn-type-pill${picker.type === t.key ? ' on' : ''}`} onClick={() => setPicker({ id: ev.id, type: t.key })}>{t.label}</button>
+                  {ASSIGN_TYPES.map((at) => (
+                    <button key={at.key} type="button" className={`conn-type-pill${picker.type === at.key ? ' on' : ''}`} onClick={() => setPicker({ id: ev.id, type: at.key })}>{at.label}</button>
                   ))}
                 </div>
                 {active && (
-                  <select className="conn-event-select" value={ev[active.field] || ''} onChange={(e) => { active.assign(ev, e.target.value); setPicker(null) }} aria-label={`שיוך ${active.label}`}>
-                    <option value="">{addr({ male: '— בחר —', female: '— בחרי —', neutral: '— בחר/י —' })}</option>
+                  <select className="conn-event-select" value={ev[active.field] || ''} onChange={(e) => { active.assign(ev, e.target.value); setPicker(null) }} aria-label={t('calendar.assignAria', { type: active.label })}>
+                    <option value="">{t('calendar.pick')}</option>
                     {(active.list || []).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
                   </select>
                 )}
-                <button type="button" className="conn-assign-cancel" onClick={() => setPicker(null)}>סגור</button>
+                <button type="button" className="conn-assign-cancel" onClick={() => setPicker(null)}>{t('calendar.close')}</button>
               </div>
             )}
           </div>
         </div>
-        <span className={`conn-tag${links.length ? ' on' : ''}`}>{links.length ? 'מזוהה' : 'לא מזוהה'}</span>
+        <span className={`conn-tag${links.length ? ' on' : ''}`}>{links.length ? t('calendar.identified') : t('calendar.notIdentified')}</span>
       </div>
     )
   }
@@ -177,12 +180,12 @@ export default function CalendarConnectionScreen() {
   return (
     <div className="screen">
       <header className="screen-head conn-head conn-detail-head">
-        <button type="button" className="conn-back" onClick={() => navigate(-1)} aria-label="חזרה">
+        <button type="button" className="conn-back" onClick={() => navigate(-1)} aria-label={t('calendar.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
         </button>
         <div>
           <p className="t-screen"><Calendar size={20} strokeWidth={1.6} aria-hidden="true" /> Google Calendar</p>
-          <p className="lbl-sm">משיכת אירועים מהיומן וזיהוי פגישות עם לקוחות.</p>
+          <p className="lbl-sm">{t('calendar.subtitle')}</p>
         </div>
       </header>
 
@@ -192,10 +195,10 @@ export default function CalendarConnectionScreen() {
           <div className="conn-card-titles">
             <p className="conn-card-title">Google Calendar</p>
             <p className="conn-card-sub">
-              {gcal.loading ? 'טוען…'
+              {gcal.loading ? t('loading')
                 : connected
-                  ? <><Check size={13} strokeWidth={2} aria-hidden="true" /> מחובר{status?.last_synced_at ? ` · סונכרן ${fmtDateTime(status.last_synced_at)}` : ''}</>
-                  : 'לא מחובר — משיכת אירועים מהיומן וזיהוי פגישות עם לקוחות.'}
+                  ? <><Check size={13} strokeWidth={2} aria-hidden="true" /> {status?.last_synced_at ? t('calendar.connectedSynced', { date: fmtDateTime(status.last_synced_at) }) : t('calendar.connected')}</>
+                  : t('calendar.notConnectedHint')}
             </p>
           </div>
         </div>
@@ -207,7 +210,7 @@ export default function CalendarConnectionScreen() {
         {!connected ? (
           <div className="conn-connect">
             <label className="conn-field">
-              <span className="conn-field-lbl">מאיזה תאריך לסנכרן?</span>
+              <span className="conn-field-lbl">{t('calendar.syncFromLabel')}</span>
               <input
                 type="date"
                 className="conn-date"
@@ -218,16 +221,16 @@ export default function CalendarConnectionScreen() {
               />
             </label>
             <button type="button" className="conn-btn primary" disabled={gcal.busy} onClick={() => gcal.beginConnect(syncFrom)}>
-              {gcal.busy ? 'פותח…' : 'חבר את Google Calendar'}
+              {gcal.busy ? t('calendar.opening') : t('calendar.connect')}
             </button>
           </div>
         ) : (
           <div className="conn-actions">
             <button type="button" className="conn-btn primary" disabled={gcal.busy} onClick={onSync}>
-              <RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'sync' ? 'מסנכרן…' : 'סנכרן עכשיו'}
+              <RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'sync' ? t('calendar.syncing') : t('calendar.syncNow')}
             </button>
             <button type="button" className="conn-btn ghost danger" disabled={gcal.busy} onClick={onDisconnect}>
-              <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? 'מנתק…' : (confirmDisc ? addr({ male: 'בטוח? נתק', female: 'בטוחה? נתק', neutral: 'בטוח/ה? נתק' }) : 'נתק')}
+              <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? t('calendar.disconnecting') : (confirmDisc ? t('calendar.disconnectConfirm') : t('calendar.disconnect'))}
             </button>
           </div>
         )}
@@ -237,15 +240,15 @@ export default function CalendarConnectionScreen() {
       {connected && (
         <section className="conn-events">
           <button type="button" className="conn-acc-head conn-acc-main" onClick={() => setEventsOpen((v) => !v)} aria-expanded={eventsOpen}>
-            <span>אירועים שסונכרנו {events.length ? `(${events.length})` : ''}</span>
+            <span>{t('calendar.eventsTitle')} {events.length ? `(${events.length})` : ''}</span>
             {eventsOpen ? <ChevronUp size={16} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={16} strokeWidth={1.7} aria-hidden="true" />}
           </button>
 
           {eventsOpen && (
             eventsLoading ? (
-              <p className="conn-empty">טוען אירועים…</p>
+              <p className="conn-empty">{t('calendar.loadingEvents')}</p>
             ) : events.length === 0 ? (
-              <p className="conn-empty">אין אירועים בטווח שנבחר. {addr({ male: 'נסה', female: 'נסי', neutral: 'נסה/י' })} לסנכרן שוב, או לחבר מחדש עם טווח תאריכים מוקדם יותר.</p>
+              <p className="conn-empty">{t('calendar.noEventsInRange', { retry: t('calendar.retry') })}</p>
             ) : (
               <div className="conn-cats">
                 {eventCategories.map((cat) => {

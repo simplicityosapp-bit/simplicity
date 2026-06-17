@@ -1,0 +1,197 @@
+{
+  "providers": {
+    "sumit": "SUMIT",
+    "greeninvoice": "Green Invoice"
+  },
+  "env": {
+    "production": "Production",
+    "sandbox": "Sandbox"
+  },
+  "loading": "Loading…",
+  "list": {
+    "title": "Connections",
+    "subtitle": "Connect outside services to pull in data automatically.",
+    "connecting": "Connecting and syncing…",
+    "connectCancelled": "The connection was cancelled or denied.",
+    "connectFailed": "The connection failed. Please try again.",
+    "rowAria": "{{title}} — {{status}}",
+    "notConnected": "Not connected",
+    "connected": "Connected",
+    "needsReconnect": "Needs reconnecting",
+    "connectedTo": "Connected · {{provider}}",
+    "invoices": "Invoices",
+    "soon": "Coming soon",
+    "soonAria": "{{title}} — coming soon"
+  },
+  "calendar": {
+    "back": "Back",
+    "subtitle": "Pull in calendar events and spot meetings with clients.",
+    "connected": "Connected",
+    "connectedSynced": "Connected · synced {{date}}",
+    "notConnectedHint": "Not connected — pull in calendar events and spot meetings with clients.",
+    "syncFromLabel": "Sync from which date?",
+    "opening": "Opening…",
+    "connect": "Connect Google Calendar",
+    "syncing": "Syncing…",
+    "syncNow": "Sync now",
+    "disconnecting": "Disconnecting…",
+    "disconnect": "Disconnect",
+    "disconnectConfirm": "Sure? Disconnect",
+    "syncResult": "Synced {{synced}} events{{removed}}.",
+    "syncRemoved": ", removed {{count}}",
+    "eventsTitle": "Synced events",
+    "loadingEvents": "Loading events…",
+    "noEventsInRange": "No events in the selected range. {{retry}} syncing again, or reconnect with an earlier date range.",
+    "retry": "Try",
+    "cats": {
+      "clients": "Clients",
+      "projects": "Projects",
+      "leads": "Leads",
+      "groups": "Groups",
+      "unmatched": "Unmatched"
+    },
+    "fb": {
+      "client": "Client",
+      "project": "Project",
+      "lead": "Lead",
+      "group": "Group"
+    },
+    "minutes": "{{count}} min",
+    "hours": "{{count}} h",
+    "hoursMinutes": "{{h}} h {{m}} min",
+    "assignTypes": {
+      "client": "Client",
+      "project": "Project",
+      "lead": "Lead",
+      "group": "Group"
+    },
+    "removeLinkAria": "Remove {{type}} link",
+    "remove": "Remove",
+    "assignTo": "+ Link to…",
+    "assignAria": "Link {{type}}",
+    "pick": "— Pick —",
+    "close": "Close",
+    "identified": "Linked",
+    "notIdentified": "Unlinked"
+  },
+  "invoiceScreen": {
+    "back": "Back",
+    "title": "Invoices",
+    "subtitle": "Issue invoices and receipts, and import income from your receipts software."
+  },
+  "invoiceCard": {
+    "fields": {
+      "gi": {
+        "apiKey": "API Key (key ID)",
+        "apiSecret": "API Secret"
+      },
+      "sumit": {
+        "apiKey": "Company ID",
+        "apiSecret": "API Key"
+      }
+    },
+    "help": {
+      "gi": "You generate these in your Green Invoice account: Settings → Developer Tools → API Keys. The Secret is shown only once — be sure to save it.",
+      "sumit": "You generate these in your SUMIT account: Settings → Developers & Site Owners → API Keys (Company ID + API Key)."
+    },
+    "steps": {
+      "gi": [
+        "Sign in to your Green Invoice account.",
+        "Settings → Developer Tools → API Keys.",
+        "Create a new key — you'll get an API Key (ID) and a Secret.",
+        "The Secret is shown only once — copy it right away.",
+        "Paste the ID and the Secret here, then tap \"Connect\"."
+      ],
+      "sumit": [
+        "Sign in to your SUMIT account.",
+        "Settings → Developers & Site Owners → API Keys.",
+        "Copy your Company ID.",
+        "Use your private API key — not the public one!",
+        "Paste both here, then tap \"Connect\"."
+      ]
+    },
+    "err": {
+      "invalidCredentials": "Those credentials are incorrect. Please check and copy them again.",
+      "missingFields": "Please fill in both fields.",
+      "providerUnreachable": "The service is unavailable right now. Please try again in a moment.",
+      "generic": "The connection failed. Please try again."
+    },
+    "title": "Invoices",
+    "needsReconnectStatus": "Needs reconnecting · {{provider}}",
+    "connectedStatus": "Connected · {{provider}} · {{env}}",
+    "notConnectedHint": "Not connected — issue invoices and receipts straight from Simplicity.",
+    "brokenMsg": "Your credentials are no longer valid — the key may have been revoked or replaced. To keep issuing invoices, reconnect.",
+    "reconnect": "Reconnect",
+    "pickProvider": "Choose a provider",
+    "howTo": "How do I get these?",
+    "providerGroupAria": "Invoice provider",
+    "soon": "Coming soon",
+    "pastePlaceholder": "Paste here",
+    "connecting": "Connecting…",
+    "connect": "Connect",
+    "cancel": "Cancel",
+    "connectSuccess": "Connected successfully.",
+    "testing": "Checking…",
+    "testConnection": "Test connection",
+    "testOk": "The connection is working.",
+    "disconnecting": "Disconnecting…",
+    "disconnect": "Disconnect",
+    "disconnectConfirm": "Sure? Disconnect",
+    "disconnectConfirmSr": "Tap again to confirm disconnecting",
+    "autoImportLabel": "Import income automatically?",
+    "autoImportNote": "We'll spot the income you've entered in your receipts software — and ask whether to record it here too.",
+    "autoImportOn": "Income import turned on.",
+    "autoImportOff": "Income import turned off."
+  },
+  "actions": {
+    "err": {
+      "alreadyIssued": "An invoice has already been issued for this transaction.",
+      "alreadyCredited": "A credit note has already been issued for this transaction.",
+      "notIssued": "There's no document to credit.",
+      "noClient": "To issue an invoice, link a client to the transaction and save.",
+      "notConnected": "No invoice service connected — connect one on the Connections screen.",
+      "notIncome": "Invoices can only be issued for income transactions.",
+      "badAmount": "This transaction has no positive amount — update the amount and save.",
+      "transactionNotFound": "Transaction not found — refresh and try again.",
+      "invalidCredentials": "The service credentials are incorrect — check them on the Connections screen.",
+      "providerUnreachable": "The service is unavailable right now. {{retry}} in a moment.",
+      "providerError": "The service couldn't issue the document. Check the details and try again.",
+      "generic": "Issuing failed. {{retry}}.",
+      "retry": "Try again"
+    },
+    "creditedToast": "Credit note issued",
+    "creditedToastNumbered": "Credit note no. {{number}} issued",
+    "issuedLabel": "Issued {{docType}}",
+    "issuedNumber": "no.",
+    "view": "View",
+    "cancelled": "· cancelled",
+    "creditNumber": "· credit",
+    "creditBtn": "Credit / cancel",
+    "creditModalTitle": "Credit note",
+    "creditModalMessage": "Issue a credit note that cancels {{doc}} for {{amount}}? A real tax document is created, and the income drops out of your totals.",
+    "creditConfirm": "Yes, credit it",
+    "credsInvalidHint": "The invoice connection is no longer valid — renew it on the Connections screen to issue.",
+    "needClientHint": "To issue an invoice — link a client to the transaction and save.",
+    "dupReason": "An invoice was already issued for {{client}} for {{amount}}{{date}} — this may be a duplicate.",
+    "dupReasonDate": " on {{date}}",
+    "dupClientFallback": "the client",
+    "dirtyReason": "This transaction has unsaved changes. The document is issued from the saved data, not your edits — best to save first.",
+    "catalogError": "We couldn't load the product list — you can type a description manually.",
+    "issuedToast": "Issued {{docType}}",
+    "issuedToastNumbered": "Issued {{docType}} no. {{number}}",
+    "issueBtn": "Issue invoice",
+    "pickerLabel": "Issue document",
+    "pickerLabelNamed": "Issue document · {{client}}",
+    "docTypeAria": "Document type",
+    "itemFieldLabel": "Product / service",
+    "loadingItems": "Loading products…",
+    "itemOther": "Other (free text)",
+    "itemPlaceholder": "e.g. personal coaching",
+    "itemHint": "Pick an item from the provider's catalog, or write a free-text description.",
+    "payMethodLabel": "Payment method",
+    "issuing": "Issuing…",
+    "issueConfirm": "Sure? Issue for {{amount}}",
+    "issue": "Issue",
+    "cancel": "Cancel"
+  }
+}

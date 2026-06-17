@@ -1,0 +1,188 @@
+{
+  "nav": {
+    "label": "ניווט ניהול",
+    "title": "ניהול",
+    "dashboard": "דשבורד",
+    "users": "משתמשים",
+    "feedback": "פידבקים",
+    "analytics": "אנליטיקס",
+    "sendFeedback": "שליחת פידבק",
+    "feedbackAction": "פידבק",
+    "backToApp": "חזרה לאפליקציה"
+  },
+  "state": {
+    "loading": "טוען…",
+    "loadError": "שגיאה בטעינת הנתונים"
+  },
+  "dashboard": {
+    "title": "דשבורד",
+    "subtitle": "תמונת מצב מיידית של המערכת",
+    "targets": {
+      "totalUsers": "משתמשים רשומים",
+      "active7d": "פעילים ב-7 ימים",
+      "sessionsThisWeek": "Sessions השבוע"
+    },
+    "stats": {
+      "totalUsers": "משתמשים רשומים",
+      "subscribers": "מנויים",
+      "subscribersSub": "מסומן ידנית",
+      "active7d": "פעילים ב-7 ימים",
+      "openFeedback": "פידבקים שלא טופלו",
+      "sessionsThisWeek": "Sessions השבוע"
+    },
+    "signupsOverTime": "הצטרפויות לאורך זמן",
+    "goalsHeading": "יעדים",
+    "targetPlaceholder": "יעד"
+  },
+  "users": {
+    "title": "משתמשים",
+    "subtitle": "כל מי שנרשם — מקובץ לפי סוג, החדש קודם",
+    "searchPlaceholder": "חיפוש לפי אימייל…",
+    "summary": {
+      "total": "סה״כ",
+      "subscribers": "מנויים",
+      "manual": "ידני",
+      "regular": "רגיל"
+    },
+    "sections": {
+      "all": "כל המשתמשים",
+      "subscribers": "מנויים",
+      "manual": "מנוי ידני",
+      "regular": "מנוי רגיל"
+    },
+    "empty": {
+      "manual": "אין מנויים ידניים",
+      "regular": "אין מנויים רגילים (יתמלא כשתעלה תשתית תשלומים)",
+      "default": "לא נמצאו משתמשים"
+    },
+    "table": {
+      "email": "אימייל",
+      "subscriber": "מנוי",
+      "joined": "הצטרפות",
+      "onboardingStage": "שלב onboarding",
+      "reflections": "רפלקציות",
+      "sessions": "Sessions",
+      "marketing": "שיווק",
+      "lastActive": "פעיל לאחרונה",
+      "expandAria": "הרחבה"
+    },
+    "date": {
+      "today": "היום",
+      "yesterday": "אתמול",
+      "daysAgo": "לפני {{count}} ימים"
+    },
+    "consent": {
+      "version": "גרסה {{version}} · ",
+      "agreed": "הסכים",
+      "declined": "לא"
+    },
+    "sub": {
+      "regularBadge": "מנוי רגיל",
+      "subscribed": "מנוי",
+      "askCancel": "לבטל מנוי?",
+      "askMark": "לסמן כמנוי?",
+      "confirmAria": "אישור",
+      "cancelAria": "ביטול",
+      "titleCancel": "לחץ כדי לבטל מנוי",
+      "titleMark": "סמן כמנוי",
+      "mark": "סמן"
+    },
+    "role": {
+      "ownerChip": "בעלים",
+      "ownerTitle": "בעלים ראשי",
+      "adminChip": "מנהל",
+      "adminTitle": "מנהל"
+    },
+    "marketingConsentAria": "הסכים לשיווק",
+    "detail": {
+      "subscriber": "מנוי",
+      "subscriberRegular": "מנוי רגיל (תשלום)",
+      "subscriberManual": "מנוי ידני",
+      "subscriberNone": "לא",
+      "onboardingStage": "שלב onboarding",
+      "onboardingStopped": "נעצר ב: {{label}}",
+      "feedbackLeft": "פידבקים שהשאיר",
+      "feedbackCount": "{{count}} פידבק(ים)",
+      "feedbackNone": "אין",
+      "reflections": "רפלקציות",
+      "sessions": "Sessions",
+      "joined": "נרשם",
+      "lastSignIn": "כניסה אחרונה",
+      "consentsHeading": "הסכמות משפטיות",
+      "privacy": "פרטיות",
+      "dpa": "עיבוד נתונים (DPA)",
+      "terms": "תנאי שימוש",
+      "marketing": "שיווק"
+    },
+    "perms": {
+      "deleteUsers": "מחיקת משתמשים",
+      "setSubscriber": "סימון מנויים",
+      "manageAdmins": "מינוי מנהלים"
+    },
+    "manage": {
+      "heading": "הרשאות ניהול",
+      "tag": "מנהל",
+      "hintIsAdmin": "המשתמש מוגדר כמנהל. אפשר לעדכן הרשאות או להסיר את ההגדרה.",
+      "hintNotAdmin": "בחר/י הרשאות והפוך/הפכי את המשתמש למנהל. כל מנהל מקבל גישה לקונסולה ולכל נתוני המשתמשים.",
+      "update": "עדכון הרשאות",
+      "makeAdmin": "הפיכה למנהל",
+      "removeAdmin": "הסרת מנהל",
+      "grantWarnUpdatePre": "לעדכן את ההרשאות של ",
+      "grantWarnMakePre": "להפוך את ",
+      "grantWarnUpdatePost": "? מנהל רואה את כל נתוני המשתמשים בקונסולה. הגישה תיכנס לתוקף בהתחברות הבאה של המשתמש.",
+      "grantWarnMakePost": " למנהל? מנהל רואה את כל נתוני המשתמשים בקונסולה. הגישה תיכנס לתוקף בהתחברות הבאה של המשתמש.",
+      "revokeWarnPre": "להסיר את הרשאות הניהול של ",
+      "revokeWarnPost": "? הגישה לקונסולה תיחסם בהתחברות הבאה.",
+      "actionFailed": "הפעולה נכשלה. נסה/י שוב.",
+      "cancel": "ביטול",
+      "saving": "שומר…",
+      "confirm": "אישור",
+      "removing": "מסיר…"
+    },
+    "delete": {
+      "button": "מחיקת משתמש",
+      "warnPre": "מחיקת ",
+      "warnPost": " וכל הנתונים שלו — לצמיתות, ללא אפשרות ביטול. להמשך, הקלד/י את האימייל המלא:",
+      "failed": "המחיקה נכשלה. נסה/י שוב.",
+      "cancel": "ביטול",
+      "deleting": "מוחק…",
+      "confirm": "מחק לצמיתות"
+    }
+  },
+  "feedback": {
+    "title": "פידבקים",
+    "subtitle": "כל הפידבקים והבאגים במקום אחד — החדשים קודם",
+    "types": {
+      "bug": "באג",
+      "idea": "רעיון",
+      "praise": "מחמאה",
+      "other": "אחר"
+    },
+    "statuses": {
+      "new": "חדש",
+      "in_progress": "בטיפול",
+      "done": "טופל"
+    },
+    "filterAll": "הכול",
+    "empty": "אין פידבקים להצגה",
+    "unknownUser": "משתמש לא מזוהה",
+    "statusGroupAria": "סטטוס"
+  },
+  "analytics": {
+    "title": "אנליטיקס",
+    "subtitle": "שאלות ספציפיות על המוצר — לא Google Analytics",
+    "ranges": {
+      "week": "שבוע",
+      "month": "חודש",
+      "all": "הכול"
+    },
+    "sessionsOverTime": "Sessions לאורך זמן",
+    "reflectionsOverTime": "רפלקציות לאורך זמן",
+    "onboardingFunnel": "משפך onboarding",
+    "topUsers": "המשתמשים הכי פעילים",
+    "topUsersEmpty": "אין נתונים בטווח הזה",
+    "rank": "#",
+    "email": "אימייל",
+    "sessions": "Sessions"
+  }
+}

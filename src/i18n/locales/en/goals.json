@@ -1,0 +1,32 @@
+{
+  "countLabel": "{{count}} goals",
+  "movement": "Movement",
+  "tagline": "Every goal is a direction, not pressure.",
+  "title": "Goals",
+  "newGoalAria": "New goal",
+  "newGoal": "+ New goal",
+  "loading": "Loading goals…",
+  "loadError": "Couldn't load goals: {{error}}",
+  "empty": {
+    "firstGoal": "Set your first goal.",
+    "setGoal": "Set a goal",
+    "whyImportant": "Why does this matter?"
+  },
+  "delete": {
+    "title": "Delete goal",
+    "messageNamed": "Delete the goal \"{{label}}\"? You can restore it from the recycle bin within 30 days.",
+    "message": "Delete this goal? You can restore it from the recycle bin within 30 days.",
+    "confirm": "Delete"
+  },
+  "card": {
+    "editAria": "Edit goal",
+    "deleteAria": "Delete goal",
+    "importanceAria": "Importance {{importance}} out of 5",
+    "addEntry": "Add entry",
+    "history": "History",
+    "deleteEntryAria": "Delete entry",
+    "deleteEntryTitle": "Delete entry",
+    "deleteEntryMessage": "Delete this entry ({{value}} · {{date}})?",
+    "deleteEntryConfirm": "Delete"
+  }
+}

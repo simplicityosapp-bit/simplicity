@@ -22,12 +22,20 @@ import heAuth from './locales/he/auth.json'
 import enAuth from './locales/en/auth.json'
 import esAuth from './locales/es/auth.json'
 import frAuth from './locales/fr/auth.json'
+/* English-first rollout namespaces — he (source) + en only; es/fr fall back
+   to he (fallbackLng) until their language pass fills the JSON. */
+import heNav from './locales/he/nav.json'
+import enNav from './locales/en/nav.json'
+import heGoals from './locales/he/goals.json'
+import enGoals from './locales/en/goals.json'
+import heTrash from './locales/he/trash.json'
+import enTrash from './locales/en/trash.json'
 
-export const NAMESPACES = ['common', 'auth']
+export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'trash']
 
 const resources = {
-  he: { common: heCommon, auth: heAuth },
-  en: { common: enCommon, auth: enAuth },
+  he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, trash: heTrash },
+  en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, trash: enTrash },
   es: { common: esCommon, auth: esAuth },
   fr: { common: frCommon, auth: frAuth },
 }

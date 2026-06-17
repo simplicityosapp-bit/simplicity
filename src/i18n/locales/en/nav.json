@@ -1,0 +1,48 @@
+{
+  "ariaMainNav": "Main navigation",
+  "ariaBottomNav": "Bottom navigation",
+  "ariaDrawerNav": "More menu",
+  "ariaScreensNav": "Screen navigation",
+  "more": "More",
+  "menu": "Menu",
+  "close": "Close",
+  "drawerSubtitle": "Menu · personal preferences and tools",
+  "extras": {
+    "moon": "Overview",
+    "reports": "Reports",
+    "insights": "How are you today?",
+    "trash": "Recycle bin",
+    "legal": "Policies & terms"
+  },
+  "feedback": "Talk to us",
+  "admin": {
+    "label": "Admin",
+    "console": "Admin console",
+    "consoleSub": "Users · feedback · analytics"
+  },
+  "theme": {
+    "toLight": "Light mode",
+    "toDark": "Dark mode",
+    "toDarkAlt": "Dark mode",
+    "sub": "Switch between day and night"
+  },
+  "logout": "Log out",
+  "sections": {
+    "personal": "Personal",
+    "settings": "Settings"
+  },
+  "items": {
+    "insightsSub": "Your daily questions + insights",
+    "moonSub": "Your weighted score and progress",
+    "reportsSub": "Metrics across periods",
+    "feedbackSub": "What works, what's missing, and what can improve",
+    "trashSub": "Restore deleted items · 30 days"
+  },
+  "signOut": "Sign out",
+  "profile": {
+    "myProfile": "My profile",
+    "score": "Profile score",
+    "healthAria": "Profile health — open breakdown",
+    "healthAriaWithScore": "Profile health {{score}} percent — open breakdown"
+  }
+}

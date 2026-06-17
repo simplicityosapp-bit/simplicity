@@ -1,0 +1,43 @@
+{
+  "title": "סל מיחזור",
+  "itemCount_one": "פריט {{count}}",
+  "itemCount_other": "{{count}} פריטים",
+  "keptDays": "נשמרים 30 יום",
+  "stillReversible": "כל מחיקה כאן עוד הפיכה.",
+  "error": "שגיאה: {{error}}",
+  "loading": "טוען…",
+  "empty": {
+    "body": "סל המיחזור ריק 🌱<br />כל מה ש{{deleteVerb}} יחכה כאן 30 יום."
+  },
+  "deleteVerb": "תמחק/י",
+  "deleteVerb_male": "תמחק",
+  "deleteVerb_female": "תמחקי",
+  "entities": {
+    "clients": "לקוחות",
+    "projects": "פרויקטים",
+    "groups": "קבוצות",
+    "tasks": "משימות",
+    "leads": "לידים",
+    "leadSources": "מקורות לידים",
+    "leadStatuses": "תתי-סטטוס לידים",
+    "transactions": "תנועות",
+    "categories": "קטגוריות הוצאות",
+    "recurring": "תבניות חוזרות",
+    "sessions": "פגישות",
+    "reminders": "תזכורות",
+    "goals": "יעדים",
+    "goalCategories": "מדדי יעדים",
+    "goalEntries": "הזנות יעדים",
+    "userQuestions": "שאלות יומיות",
+    "dailyAnswers": "תשובות יומיות"
+  },
+  "item": {
+    "goalFallback": "יעד {{value}}",
+    "session": "פגישה",
+    "sessionNum": "פגישה {{num}}",
+    "deletedAgo": "נמחק {{ago}}",
+    "restoreLabel": "שחזר {{label}}",
+    "restoring": "משחזר…",
+    "restore": "שחזור"
+  }
+}

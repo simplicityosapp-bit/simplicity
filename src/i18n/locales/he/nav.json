@@ -1,0 +1,48 @@
+{
+  "ariaMainNav": "ניווט ראשי",
+  "ariaBottomNav": "ניווט תחתון",
+  "ariaDrawerNav": "תפריט נוסף",
+  "ariaScreensNav": "ניווט מסכים",
+  "more": "עוד",
+  "menu": "תפריט",
+  "close": "סגירה",
+  "drawerSubtitle": "תפריט · העדפות וכלים אישיים",
+  "extras": {
+    "moon": "מבט על",
+    "reports": "דוחות",
+    "insights": "מה איתך היום?",
+    "trash": "סל מיחזור",
+    "legal": "מדיניות ותנאים"
+  },
+  "feedback": "דברו אלינו",
+  "admin": {
+    "label": "ניהול",
+    "console": "קונסולת ניהול",
+    "consoleSub": "משתמשים · פידבקים · אנליטיקס"
+  },
+  "theme": {
+    "toLight": "מצב יום",
+    "toDark": "מצב לילה",
+    "toDarkAlt": "מצב כהה",
+    "sub": "החלף בין יום ולילה"
+  },
+  "logout": "יציאה",
+  "sections": {
+    "personal": "אישי",
+    "settings": "הגדרות"
+  },
+  "items": {
+    "insightsSub": "השאלות היומיות שלך + תובנות",
+    "moonSub": "הציון המשוקלל וההתקדמות שלך",
+    "reportsSub": "מדדים לאורך תקופות",
+    "feedbackSub": "מה עובד, מה חסר, ומה אפשר לשפר",
+    "trashSub": "שחזור פריטים שנמחקו · 30 יום"
+  },
+  "signOut": "התנתקות",
+  "profile": {
+    "myProfile": "הפרופיל שלי",
+    "score": "ציון פרופיל",
+    "healthAria": "בריאות הפרופיל — פתיחת פירוט",
+    "healthAriaWithScore": "בריאות הפרופיל {{score}} אחוז — פתיחת פירוט"
+  }
+}

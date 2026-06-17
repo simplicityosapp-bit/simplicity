@@ -1,0 +1,36 @@
+{
+  "countLabel": "{{count}} יעדים",
+  "movement": "תנועה",
+  "tagline": "כל יעד — כיוון, לא לחץ.",
+  "title": "יעדים",
+  "newGoalAria": "יעד חדש",
+  "newGoal": "+ יעד חדש",
+  "loading": "טוען יעדים…",
+  "loadError": "שגיאה בטעינת היעדים: {{error}}",
+  "empty": {
+    "firstGoal": "הגדר/י את היעד הראשון שלך.",
+    "firstGoal_male": "הגדר את היעד הראשון שלך.",
+    "firstGoal_female": "הגדירי את היעד הראשון שלך.",
+    "setGoal": "הגדר/י יעד",
+    "setGoal_male": "הגדר יעד",
+    "setGoal_female": "הגדירי יעד",
+    "whyImportant": "למה זה חשוב?"
+  },
+  "delete": {
+    "title": "מחיקת יעד",
+    "messageNamed": "למחוק את היעד \"{{label}}\"? ניתן לשחזר מסל המיחזור תוך 30 יום.",
+    "message": "למחוק את היעד? ניתן לשחזר מסל המיחזור תוך 30 יום.",
+    "confirm": "מחק"
+  },
+  "card": {
+    "editAria": "עריכת יעד",
+    "deleteAria": "מחיקת יעד",
+    "importanceAria": "חשיבות {{importance}} מתוך 5",
+    "addEntry": "הזנה",
+    "history": "היסטוריה",
+    "deleteEntryAria": "מחק הזנה",
+    "deleteEntryTitle": "מחיקת הזנה",
+    "deleteEntryMessage": "למחוק את ההזנה ({{value}} · {{date}})?",
+    "deleteEntryConfirm": "מחק"
+  }
+}

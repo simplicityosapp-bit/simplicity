@@ -4,6 +4,7 @@ import UnifiedSheetImporter from './UnifiedSheetImporter'
 import OnboardingReviewWizard from './OnboardingReviewWizard'
 import { finalizeOnboardingImport } from '../../lib/onboardingImport'
 import { buildReviewFromSheets } from '../../lib/importFlow'
+import { useT } from '../../i18n/useT'
 import './OnboardingScreen.css'        /* ob-* primitives (btn / map / input) */
 import './OnboardingReviewWizard.css'  /* obrw-* modal shell */
 
@@ -16,7 +17,8 @@ import './OnboardingReviewWizard.css'  /* obrw-* modal shell */
    Reuses UnifiedSheetImporter + buildReviewFromSheets + finalizeOnboardingImport.
    ════════════════════════════════════════════════════════════════ */
 
-export default function ImportDataModal({ parsed: initialParsed, gender = 'neutral', onClose, onImported }) {
+export default function ImportDataModal({ parsed: initialParsed, onClose, onImported }) {
+  const { t } = useT('onboarding')
   const [parsed, setParsed] = useState(initialParsed) /* { kind:'csv', file_name, sheets } */
   const [phase, setPhase] = useState('map') /* 'map' | 'review' */
   const [review, setReview] = useState(null)
@@ -52,47 +54,47 @@ export default function ImportDataModal({ parsed: initialParsed, gender = 'neutr
 
   /* ── Mapping phase ── */
   return (
-    <div className="obrw-back" role="dialog" aria-modal="true" aria-label="ייבוא מקובץ">
+    <div className="obrw-back" role="dialog" aria-modal="true" aria-label={t('modal.dialogAria')}>
       <div className="obrw-panel">
         <header className="obrw-head">
           <div>
-            <p className="obrw-title">ייבוא מקובץ</p>
+            <p className="obrw-title">{t('modal.title')}</p>
             <p className="obrw-sub">
               {parsed?.file_name ? <><strong>{parsed.file_name}</strong> · </> : null}
-              {liveSheets.length > 1 ? `${liveSheets.length} טבלאות. ` : ''}
-              בחרו לכל טבלה מה יש בה והתאימו עמודות — ואז נעבור לסקירה לפני שמשהו נשמר.
+              {liveSheets.length > 1 ? t('modal.subSheets', { count: liveSheets.length }) : ''}
+              {t('modal.subBody')}
             </p>
           </div>
-          <button type="button" className="obrw-x" onClick={onClose} aria-label="סגירה">
+          <button type="button" className="obrw-x" onClick={onClose} aria-label={t('modal.closeAria')}>
             <X size={18} strokeWidth={1.8} aria-hidden="true" />
           </button>
         </header>
 
         <div className="obrw-body">
           {liveSheets.length > 0 ? (
-            <UnifiedSheetImporter sheets={parsed.sheets} onChange={onSheetsChange} gender={gender} />
+            <UnifiedSheetImporter sheets={parsed.sheets} onChange={onSheetsChange} />
           ) : (
             <p className="obrw-loading-txt" style={{ textAlign: 'center', padding: '32px 0' }}>
-              לא זוהו נתונים בקובץ — אפשר לוודא שהקובץ אינו ריק ושנשמר כ-CSV או Excel.
+              {t('modal.noData')}
             </p>
           )}
           {truncated && (
             <p className="obrw-warn" style={{ marginTop: 10 }}>
               <AlertTriangle size={12} strokeWidth={2} aria-hidden="true" />
-              חלק מהטבלאות נקטעו לשורות הראשונות כדי לשמור על ביצועים. אפשר לייבא את השאר בקובץ נפרד בהמשך.
+              {t('modal.truncated')}
             </p>
           )}
         </div>
 
         <footer className="obrw-foot">
           <p className="obrw-summary">
-            {reviewObj ? 'מוכן לסקירה לפני יצירה.' : 'בחרו לכל טבלה מה יש בה ומפו את עמודות השם / הסכום.'}
+            {reviewObj ? t('modal.ready') : t('modal.notReady')}
           </p>
           <div className="obrw-actions">
-            <button type="button" className="ob-btn ghost" onClick={onClose}>ביטול</button>
+            <button type="button" className="ob-btn ghost" onClick={onClose}>{t('common.cancel')}</button>
             <button type="button" className="ob-btn primary" disabled={!reviewObj || yearMissing}
               onClick={() => { setReview(reviewObj); setPhase('review') }}>
-              {yearMissing ? 'בחרו שנה לכל טבלת חודשים' : 'המשך לסקירה'}
+              {yearMissing ? t('modal.pickYear') : t('modal.toReview')}
             </button>
           </div>
         </footer>

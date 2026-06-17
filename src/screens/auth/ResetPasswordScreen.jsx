@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Trans } from 'react-i18next'
 import { Mail, MailCheck } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
+import { useT } from '../../i18n/useT'
 import './AuthScreen.css'
 
 export default function ResetPasswordScreen() {
+  const { t } = useT('auth')
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -16,7 +19,7 @@ export default function ResetPasswordScreen() {
     e.preventDefault()
     setError('')
     if (!email) {
-      setError('יש למלא אימייל.')
+      setError(t('reset.fillEmail'))
       return
     }
     setBusy(true)
@@ -41,9 +44,11 @@ export default function ResetPasswordScreen() {
           </div>
           <div className="auth-form auth-msg-card">
             <span className="auth-msg-icon"><MailCheck size={34} strokeWidth={1.4} aria-hidden="true" /></span>
-            <p className="auth-title">קישור איפוס נשלח</p>
-            <p className="auth-sub">אם <bdi>{email}</bdi> רשום אצלנו — יישלח קישור לאיפוס הסיסמה.</p>
-            <Link to={ROUTES.LOGIN} className="auth-btn auth-btn-primary">חזרה להתחברות</Link>
+            <p className="auth-title">{t('reset.sentTitle')}</p>
+            <p className="auth-sub">
+              <Trans t={t} i18nKey="reset.sentBody" values={{ email }} components={[<bdi key="e" />]} />
+            </p>
+            <Link to={ROUTES.LOGIN} className="auth-btn auth-btn-primary">{t('backToLogin')}</Link>
           </div>
         </div>
       </div>
@@ -62,8 +67,8 @@ export default function ResetPasswordScreen() {
         </div>
 
         <form className="auth-form" onSubmit={submit}>
-          <p className="auth-title">איפוס סיסמה</p>
-          <p className="auth-sub">נשלח לך קישור לאיפוס הסיסמה</p>
+          <p className="auth-title">{t('reset.title')}</p>
+          <p className="auth-sub">{t('reset.subtitle')}</p>
 
           {error && <p className="auth-error">{error}</p>}
 
@@ -81,10 +86,10 @@ export default function ResetPasswordScreen() {
           </label>
 
           <button className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
-            {busy ? 'שולח…' : 'שליחת קישור'}
+            {busy ? t('reset.sending') : t('reset.sendLink')}
           </button>
 
-          <p className="auth-foot"><Link to={ROUTES.LOGIN} className="auth-foot-cta">חזרה להתחברות</Link></p>
+          <p className="auth-foot"><Link to={ROUTES.LOGIN} className="auth-foot-cta">{t('backToLogin')}</Link></p>
         </form>
       </div>
     </div>

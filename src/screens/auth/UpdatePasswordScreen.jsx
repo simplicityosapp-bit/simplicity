@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
 import { useAuth } from '../../auth/AuthContext'
+import { useT } from '../../i18n/useT'
 import './AuthScreen.css'
 
 /* Completion screen for the password-reset flow. The recovery email links to
@@ -16,6 +17,7 @@ import './AuthScreen.css'
 export default function UpdatePasswordScreen() {
   const navigate = useNavigate()
   const { clearRecovery } = useAuth()
+  const { t } = useT('auth')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -26,8 +28,8 @@ export default function UpdatePasswordScreen() {
   const submit = async (e) => {
     e.preventDefault()
     setError('')
-    if (password.length < 6) { setError('הסיסמה צריכה להיות באורך 6 תווים לפחות.'); return }
-    if (password !== confirm) { setError('הסיסמאות אינן תואמות.'); return }
+    if (password.length < 6) { setError(t('update.pwTooShort')); return }
+    if (password !== confirm) { setError(t('update.mismatch')); return }
     setBusy(true)
     const { error } = await supabase.auth.updateUser({ password })
     setBusy(false)
@@ -48,9 +50,9 @@ export default function UpdatePasswordScreen() {
           </div>
           <div className="auth-form auth-msg-card">
             <span className="auth-msg-icon"><CheckCircle2 size={34} strokeWidth={1.4} aria-hidden="true" /></span>
-            <p className="auth-title">הסיסמה עודכנה</p>
-            <p className="auth-sub">אפשר להמשיך לאפליקציה עם הסיסמה החדשה.</p>
-            <button type="button" className="auth-btn auth-btn-primary" onClick={() => { clearRecovery?.(); navigate(ROUTES.HOME, { replace: true }) }}>המשך לאפליקציה</button>
+            <p className="auth-title">{t('update.doneTitle')}</p>
+            <p className="auth-sub">{t('update.doneBody')}</p>
+            <button type="button" className="auth-btn auth-btn-primary" onClick={() => { clearRecovery?.(); navigate(ROUTES.HOME, { replace: true }) }}>{t('update.continue')}</button>
           </div>
         </div>
       </div>
@@ -69,8 +71,8 @@ export default function UpdatePasswordScreen() {
         </div>
 
         <form className="auth-form" onSubmit={submit}>
-          <p className="auth-title">בחירת סיסמה חדשה</p>
-          <p className="auth-sub">הזן/י סיסמה חדשה לחשבון</p>
+          <p className="auth-title">{t('update.title')}</p>
+          <p className="auth-sub">{t('update.subtitle')}</p>
 
           {error && <p className="auth-error">{error}</p>}
 
@@ -83,13 +85,13 @@ export default function UpdatePasswordScreen() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="לפחות 6 תווים"
+              placeholder={t('min6chars')}
             />
             <button
               type="button"
               className="auth-field-toggle"
               onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'הסתר סיסמה' : 'הצג סיסמה'}
+              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
             >
               {showPassword
                 ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
@@ -106,12 +108,12 @@ export default function UpdatePasswordScreen() {
               autoComplete="new-password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              placeholder="הקלד/י שוב"
+              placeholder={t('update.confirmPlaceholder')}
             />
           </label>
 
           <button className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
-            {busy ? 'מעדכן…' : 'עדכון סיסמה'}
+            {busy ? t('update.updating') : t('update.updatePassword')}
           </button>
         </form>
       </div>

@@ -35,6 +35,8 @@ import {
 } from '../../lib/preferences'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { addressUser } from '../../lib/address'
+import { useT } from '../../i18n/useT'
+import { LANGUAGE_OPTIONS } from '../../i18n/config'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
 import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV, exportAllXLSX } from '../../lib/export'
 import { loadSensitiveExportData } from '../../lib/exportSensitive'
@@ -326,9 +328,15 @@ const THEME_OPTIONS = [
 
 function DesignBody({ prefs, onUpdate }) {
   const d = prefs?.design || {}
+  const { t, i18n } = useT('common')
   const setVal = (k) => (v) => onUpdate({ design: { [k]: v } })
+  /* Language is special: also switch i18next live (localStorage-cached),
+     not just persist the preference. */
+  const activeLang = (i18n.language || 'he').split('-')[0]
+  const setLanguage = (code) => { i18n.changeLanguage(code); onUpdate({ design: { language: code } }) }
   return (
     <div className="set-profile-body">
+      <Segmented label={t('language')} value={activeLang} options={LANGUAGE_OPTIONS} onChange={setLanguage} />
       <Segmented label="מצב יום/לילה" value={d.theme || 'light'} options={THEME_OPTIONS} onChange={setVal('theme')} />
       <Segmented label="גודל טקסט" value={d.text_size || 'normal'} options={TEXT_SIZE_OPTIONS} onChange={setVal('text_size')} />
     </div>

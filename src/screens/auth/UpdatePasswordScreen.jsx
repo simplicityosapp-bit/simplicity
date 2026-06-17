@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Moon, CheckCircle2 } from 'lucide-react'
+import { Lock, Eye, EyeOff, CheckCircle2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
@@ -18,6 +18,7 @@ export default function UpdatePasswordScreen() {
   const { clearRecovery } = useAuth()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
@@ -37,11 +38,20 @@ export default function UpdatePasswordScreen() {
   if (done) {
     return (
       <div className="auth-wrap">
-        <div className="auth-card auth-card-msg">
-          <span className="auth-msg-icon"><CheckCircle2 size={34} strokeWidth={1.4} aria-hidden="true" /></span>
-          <p className="auth-title">הסיסמה עודכנה</p>
-          <p className="auth-sub">אפשר להמשיך לאפליקציה עם הסיסמה החדשה.</p>
-          <button type="button" className="auth-btn" onClick={() => { clearRecovery?.(); navigate(ROUTES.HOME, { replace: true }) }}>המשך לאפליקציה</button>
+        <div className="auth-bg" aria-hidden="true" />
+        <div className="auth-stage">
+          <div className="auth-brand">
+            <img className="auth-logo light" src="/logo-dark.png" alt="" aria-hidden="true" />
+            <img className="auth-logo dark"  src="/logo-light.png" alt="" aria-hidden="true" />
+            <img className="auth-name light" src="/name-dark.png" alt="simplicity" />
+            <img className="auth-name dark"  src="/name-light.png" alt="simplicity" />
+          </div>
+          <div className="auth-form auth-msg-card">
+            <span className="auth-msg-icon"><CheckCircle2 size={34} strokeWidth={1.4} aria-hidden="true" /></span>
+            <p className="auth-title">הסיסמה עודכנה</p>
+            <p className="auth-sub">אפשר להמשיך לאפליקציה עם הסיסמה החדשה.</p>
+            <button type="button" className="auth-btn auth-btn-primary" onClick={() => { clearRecovery?.(); navigate(ROUTES.HOME, { replace: true }) }}>המשך לאפליקציה</button>
+          </div>
         </div>
       </div>
     )
@@ -49,23 +59,62 @@ export default function UpdatePasswordScreen() {
 
   return (
     <div className="auth-wrap">
-      <form className="auth-card" onSubmit={submit}>
-        <div className="auth-brand"><Moon size={22} strokeWidth={1.6} aria-hidden="true" /><span>Simplicity</span></div>
-        <p className="auth-title">בחירת סיסמה חדשה</p>
-        <p className="auth-sub">הזן/י סיסמה חדשה לחשבון</p>
+      <div className="auth-bg" aria-hidden="true" />
+      <div className="auth-stage">
+        <div className="auth-brand">
+          <img className="auth-logo light" src="/logo-dark.png" alt="" aria-hidden="true" />
+          <img className="auth-logo dark"  src="/logo-light.png" alt="" aria-hidden="true" />
+          <img className="auth-name light" src="/name-dark.png" alt="simplicity" />
+          <img className="auth-name dark"  src="/name-light.png" alt="simplicity" />
+        </div>
 
-        {error && <p className="auth-error">{error}</p>}
+        <form className="auth-form" onSubmit={submit}>
+          <p className="auth-title">בחירת סיסמה חדשה</p>
+          <p className="auth-sub">הזן/י סיסמה חדשה לחשבון</p>
 
-        <label className="auth-label" htmlFor="new-password">סיסמה חדשה</label>
-        <input id="new-password" className="auth-input" type="password" dir="ltr" autoComplete="new-password"
-          value={password} onChange={(e) => setPassword(e.target.value)} placeholder="לפחות 6 תווים" />
+          {error && <p className="auth-error">{error}</p>}
 
-        <label className="auth-label" htmlFor="confirm-password">אימות סיסמה</label>
-        <input id="confirm-password" className="auth-input" type="password" dir="ltr" autoComplete="new-password"
-          value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="הקלד/י שוב" />
+          <label className="auth-field" htmlFor="new-password">
+            <span className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></span>
+            <input
+              id="new-password"
+              type={showPassword ? 'text' : 'password'}
+              dir="ltr"
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="לפחות 6 תווים"
+            />
+            <button
+              type="button"
+              className="auth-field-toggle"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? 'הסתר סיסמה' : 'הצג סיסמה'}
+            >
+              {showPassword
+                ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
+                : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
+            </button>
+          </label>
 
-        <button className="auth-btn" type="submit" disabled={busy}>{busy ? 'מעדכן…' : 'עדכון סיסמה'}</button>
-      </form>
+          <label className="auth-field" htmlFor="confirm-password">
+            <span className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></span>
+            <input
+              id="confirm-password"
+              type={showPassword ? 'text' : 'password'}
+              dir="ltr"
+              autoComplete="new-password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              placeholder="הקלד/י שוב"
+            />
+          </label>
+
+          <button className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
+            {busy ? 'מעדכן…' : 'עדכון סיסמה'}
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

@@ -212,8 +212,7 @@
   transition: background 160ms;
 }
 [data-theme="dark"] .rep-cust-toggle { background: rgba(255,255,255,.15); }
-.rep-cust-toggle.on { background: var(--moon-deep); }
-[data-theme="dark"] .rep-cust-toggle.on { background: var(--moon-hi); }
+.rep-cust-toggle.on { background: var(--terracotta); }
 .rep-cust-toggle-knob {
   position: absolute;
   top: 2px;
@@ -454,9 +453,8 @@
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
   font-weight: 500;
-  color: var(--moon-deep);
+  color: var(--terracotta);
 }
-[data-theme="dark"] .rep-empty-cta { color: var(--moon-hi); }
 
 /* ── Table view ── */
 .rep-range-row {
@@ -525,7 +523,7 @@
   font-size: calc(11px * var(--text-scale));
   letter-spacing: 0.02em;
   color: var(--stone);
-  padding: 10px 12px;
+  padding: 10px 8px;
   text-align: center;
   border-bottom: 1px solid var(--divider, rgba(0,0,0,.08));
   white-space: nowrap;
@@ -535,7 +533,7 @@
   right: 0;
   z-index: 2;
   text-align: start !important;
-  min-width: 130px;
+  min-width: 112px;
   border-inline-end: 1px solid var(--divider, rgba(0,0,0,.06));
 }
 .rep-th-period.current { color: var(--espresso); }
@@ -558,7 +556,7 @@
 }
 
 .rep-tr-metric td {
-  padding: 10px 12px;
+  padding: 10px 8px;
   border-bottom: 1px solid var(--divider, rgba(0,0,0,.04));
   text-align: center;
 }
@@ -571,7 +569,7 @@
   background: var(--mg-card-bg);
   text-align: start !important;
   border-inline-end: 1px solid var(--divider, rgba(0,0,0,.06));
-  min-width: 130px;
+  min-width: 112px;
 }
 .rep-td-metric-icon {
   display: inline-flex;
@@ -587,7 +585,7 @@
 .rep-td-cell {
   font-variant-numeric: tabular-nums;
   font-weight: 500;
-  min-width: 60px;
+  min-width: 54px;
 }
 .rep-td-cell.clickable { cursor: pointer; }
 .rep-td-cell.clickable:hover {

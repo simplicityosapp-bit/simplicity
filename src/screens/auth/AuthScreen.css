@@ -126,8 +126,8 @@
   border-color: rgba(240, 235, 224, 0.22);
 }
 .auth-field:focus-within {
-  border-color: var(--sage);
-  box-shadow: 0 0 0 3px rgba(139, 168, 136, 0.18);
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 3px var(--blush);
 }
 .auth-field-icon {
   display: inline-flex;
@@ -383,8 +383,8 @@
   outline: none;
 }
 .auth-input:focus {
-  border-color: var(--sage);
-  box-shadow: 0 0 0 2px rgba(139, 168, 136, 0.2);
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 2px var(--blush);
 }
 .auth-input::placeholder {
   color: var(--mist);
@@ -446,7 +446,7 @@
   color: var(--on-accent);
 }
 .auth-check > input:focus-visible + .auth-check-box {
-  box-shadow: 0 0 0 3px rgba(139, 168, 136, 0.25);
+  box-shadow: 0 0 0 3px var(--blush);
 }
 .auth-check-link {
   background: none;

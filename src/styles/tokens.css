@@ -87,6 +87,14 @@
   --mg-btn-secondary-bg:        var(--mg-card-bg);             /* same glass */
   --mg-btn-secondary-bg-hover:  rgba(255, 252, 247, 0.88);     /* deeper glass */
   --mg-btn-secondary-border:    var(--mg-card-border);
+  /* ── Compact controls — sanctioned small sizes (2026-06-17 decision) ──
+     For genuinely small controls that must NOT take the full 48/18 spec:
+     dense chips, badges, grid cells, and round icon buttons. */
+  --mg-chip-radius:     10px;            /* small chips / badges / dense grid cells */
+  --mg-icon-btn:        34px;            /* round / compact icon buttons */
+  /* Legible danger TEXT on a surface. Light clay reads fine; dark clay is too
+     deep on dark glass, so dark mode lifts it (see [data-theme="dark"]). */
+  --clay-on-dark:       var(--clay);
   /* ── Simplicity typography (1.2 spec) ──────────────────────────────
      One Hebrew font everywhere (Heebo). Numbers may use a mono face
      for Raycast-grade precision. */
@@ -262,6 +270,7 @@
   --sage: #7A9583;                           /* חיובי — Soft Sage */
   --amber-warn: #B8835A;                     /* אזהרה — Ember */
   --clay: #6E3D49;                           /* סכנה — Deep Wine */
+  --clay-on-dark: #D98C76;                   /* legible danger TEXT on dark glass (deep wine is unreadable as text) */
   --divider: rgba(240, 235, 224, 0.14);      /* מפריד — bumped from 0.06 so accordions/borders read */
   --val-chip-bg: rgba(255, 255, 255, 0.10);  /* coloured-value pill — subtle white lift on dark */
   --mg-card-bg: rgba(26, 31, 38, 0.48);      /* משטח כרטיס — bumped from 0.30 for content separation */

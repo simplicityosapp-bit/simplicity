@@ -63,18 +63,17 @@
   margin: 0 0 12px;
   padding: 8px 12px;
   border-radius: 10px;
-  background: rgba(181, 99, 78, 0.12);
-  border: 0.5px solid rgba(181, 99, 78, 0.35);
+  background: color-mix(in srgb, var(--clay) 12%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--clay) 35%, transparent);
   color: var(--clay);
   font-size: calc(12px * var(--text-scale));
   text-align: center;
 }
-/* Dark: --clay remaps to a deep wine (#6E3D49) that's near-invisible on the
-   dark card. Use a lighter clay for the text (and a touch more tint) so the
-   save-error stays legible, matching this rule's existing clay-rgba style. */
+/* Dark: --clay remaps to a deep wine that's near-invisible on the dark card,
+   so danger text uses the lifted --clay-on-dark token (and a matching tint). */
 [data-theme="dark"] .policy-update-error {
-  background: rgba(217, 140, 118, 0.14);
-  border-color: rgba(217, 140, 118, 0.40);
-  color: #D98C76;
+  background: color-mix(in srgb, var(--clay-on-dark) 14%, transparent);
+  border-color: color-mix(in srgb, var(--clay-on-dark) 40%, transparent);
+  color: var(--clay-on-dark);
 }
 .policy-update-card .auth-btn { margin-top: 16px; }

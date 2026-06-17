@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import { useAddress } from '../hooks/useAddress'
+import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
 
-const COLORS = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
 const ICONS = ['🎨', '🏃', '📚', '🧘', '✍️', '🌱', '💡', '⭐']
 const blank = () => ({ name: '', icon: ICONS[0], color: COLORS[0] })
 

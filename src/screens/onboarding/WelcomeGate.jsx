@@ -4,6 +4,7 @@ import { ROUTES } from '../../lib/routes'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useOnboarding } from '../../hooks/useOnboarding'
 import { useT } from '../../i18n/useT'
+import LanguageSwitcher from '../../i18n/LanguageSwitcher'
 
 /* Pre-flow welcome screen — shows once before the 9-step wizard.
    Two paths: (1) start the onboarding (advance to step 1) or
@@ -52,6 +53,8 @@ export default function WelcomeGate() {
           <span className="ob-welcome-option-sub">{t('welcome.skipSub')}</span>
           <ArrowLeft size={16} strokeWidth={1.8} className="ob-welcome-option-arrow" aria-hidden="true" />
         </button>
+
+        <LanguageSwitcher className="ob-welcome-langs" />
       </div>
     </div>
   )

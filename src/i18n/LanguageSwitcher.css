@@ -27,3 +27,6 @@
 
 /* On the auth screens, sit below the footer link with breathing room. */
 .lang-switch.auth-langs { margin-top: 18px; }
+
+/* On the onboarding welcome screen, sit below the two option cards. */
+.lang-switch.ob-welcome-langs { margin-top: 20px; }

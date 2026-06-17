@@ -37,7 +37,7 @@ export default function BottomNav({ onOpenMenu }) {
             <span className="mg-bottombar-chip" aria-hidden="true">
               <Icon size={22} strokeWidth={1.5} />
             </span>
-            <span>{item.label}</span>
+            <span>{t(`items.${item.key}`)}</span>
           </button>
         )
       })}

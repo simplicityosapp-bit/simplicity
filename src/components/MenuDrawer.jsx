@@ -98,7 +98,7 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
                 onClick={() => goTo(item.to)}
               >
                 <Icon size={20} strokeWidth={1.5} aria-hidden="true" />
-                <span>{item.label}</span>
+                <span>{t(`items.${item.key}`)}</span>
               </button>
             )
           })}

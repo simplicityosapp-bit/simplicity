@@ -32,6 +32,16 @@
     "settings": "הגדרות"
   },
   "items": {
+    "home": "בית",
+    "clients": "לקוחות",
+    "tasks": "משימות",
+    "finance": "כסף",
+    "leads": "לידים",
+    "projects": "פרויקטים",
+    "goals": "יעדים",
+    "calendar": "יומן",
+    "connections": "חיבורים",
+    "settings": "הגדרות",
     "insightsSub": "השאלות היומיות שלך + תובנות",
     "moonSub": "הציון המשוקלל וההתקדמות שלך",
     "reportsSub": "מדדים לאורך תקופות",

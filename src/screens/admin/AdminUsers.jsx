@@ -7,13 +7,15 @@ import { useAdminQuery, callAdmin } from '../../hooks/useAdmin'
 import { ADMIN_EMAIL } from '../../lib/routes'
 import { useAuth } from '../../auth/AuthContext'
 import { adminPerms } from '../../lib/admin'
+import { useT } from '../../i18n/useT'
 
 /* The three grantable admin permissions, in display order. Console view
-   access is implicit for every admin — these gate the sensitive extras. */
+   access is implicit for every admin — these gate the sensitive extras.
+   Labels resolved via t('users.perms.*') at render. */
 const PERM_OPTIONS = [
-  { key: 'delete_users', label: 'מחיקת משתמשים' },
-  { key: 'set_subscriber', label: 'סימון מנויים' },
-  { key: 'manage_admins', label: 'מינוי מנהלים' },
+  { key: 'delete_users', labelKey: 'deleteUsers' },
+  { key: 'set_subscriber', labelKey: 'setSubscriber' },
+  { key: 'manage_admins', labelKey: 'manageAdmins' },
 ]
 
 /* dd/mm/yy, or "—" when missing. */
@@ -24,36 +26,37 @@ function fmtDate(iso) {
   return d.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: '2-digit' })
 }
 
-/* "היום" / "אתמול" / "לפני N ימים" / date for last-active warmth. */
-function fmtLastActive(iso) {
+/* "today" / "yesterday" / "N days ago" / date for last-active warmth. */
+function fmtLastActive(iso, t) {
   if (!iso) return '—'
-  const t = new Date(iso).getTime()
-  if (Number.isNaN(t)) return '—'
-  const days = Math.floor((Date.now() - t) / 86_400_000)
-  if (days <= 0) return 'היום'
-  if (days === 1) return 'אתמול'
-  if (days < 30) return `לפני ${days} ימים`
+  const ts = new Date(iso).getTime()
+  if (Number.isNaN(ts)) return '—'
+  const days = Math.floor((Date.now() - ts) / 86_400_000)
+  if (days <= 0) return t('users.date.today')
+  if (days === 1) return t('users.date.yesterday')
+  if (days < 30) return t('users.date.daysAgo', { count: days })
   return fmtDate(iso)
 }
 
-/* A versioned legal consent → "גרסה 1.0 · 11/06/26", or "—" when never recorded.
+/* A versioned legal consent → "Version 1.0 · 11/06/26", or "—" when never recorded.
    Shows the server-stamped recorded_at (tamper-proof, migration 0032) — the
    timestamp to trust in a dispute — falling back to accepted_at for old rows. */
-function fmtConsent(c) {
+function fmtConsent(c, t) {
   if (!c) return '—'
-  const v = c.version ? `גרסה ${c.version} · ` : ''
+  const v = c.version ? t('users.consent.version', { version: c.version }) : ''
   return `${v}${fmtDate(c.recorded_at || c.accepted_at)}`
 }
 
 /* Marketing consent — opted in/out + date (from the durable record), falling
    back to the user_metadata flag when no record exists. */
-function fmtMarketing(r) {
+function fmtMarketing(r, t) {
   const m = r.consent?.marketing
-  if (m) return `${m.accepted ? 'הסכים' : 'לא'} · ${fmtDate(m.recorded_at || m.accepted_at)}`
-  return r.marketing_consent ? 'הסכים' : 'לא'
+  if (m) return `${m.accepted ? t('users.consent.agreed') : t('users.consent.declined')} · ${fmtDate(m.recorded_at || m.accepted_at)}`
+  return r.marketing_consent ? t('users.consent.agreed') : t('users.consent.declined')
 }
 
 export default function AdminUsers() {
+  const { t } = useT('admin')
   const { user } = useAuth()
   const viewerPerms = adminPerms(user)
   const viewerId = user?.id || null
@@ -133,45 +136,46 @@ export default function AdminUsers() {
     onRevokeAdmin: handleRevokeAdmin,
     viewerPerms,
     viewerId,
+    t,
   }
 
   return (
     <>
       <header className="admin-head">
-        <h1>משתמשים</h1>
-        <p>כל מי שנרשם — מקובץ לפי סוג, החדש קודם</p>
+        <h1>{t('users.title')}</h1>
+        <p>{t('users.subtitle')}</p>
       </header>
 
-      {loading && <div className="admin-state">טוען…</div>}
-      {error && <div className="admin-state err">שגיאה בטעינת הנתונים</div>}
+      {loading && <div className="admin-state">{t('state.loading')}</div>}
+      {error && <div className="admin-state err">{t('state.loadError')}</div>}
 
       {data && (
         <>
           <div className="admin-search">
             <Search size={16} strokeWidth={1.8} aria-hidden="true" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="חיפוש לפי אימייל…" dir="ltr" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('users.searchPlaceholder')} dir="ltr" />
           </div>
 
           {/* Summary chips */}
           <div className="admin-usum">
-            <span className="admin-usum-chip"><Users size={14} strokeWidth={1.8} aria-hidden="true" />סה״כ <b>{visible.length}</b></span>
-            <span className="admin-usum-chip"><BadgeCheck size={14} strokeWidth={1.8} aria-hidden="true" />מנויים <b>{subs.length}</b></span>
-            <span className="admin-usum-chip sub"><Hand size={13} strokeWidth={1.8} aria-hidden="true" />ידני <b>{manual.length}</b></span>
-            <span className="admin-usum-chip sub"><CreditCard size={13} strokeWidth={1.8} aria-hidden="true" />רגיל <b>{regular.length}</b></span>
+            <span className="admin-usum-chip"><Users size={14} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.total')} <b>{visible.length}</b></span>
+            <span className="admin-usum-chip"><BadgeCheck size={14} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.subscribers')} <b>{subs.length}</b></span>
+            <span className="admin-usum-chip sub"><Hand size={13} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.manual')} <b>{manual.length}</b></span>
+            <span className="admin-usum-chip sub"><CreditCard size={13} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.regular')} <b>{regular.length}</b></span>
           </div>
 
           {/* All users */}
-          <Section icon={Users} title="כל המשתמשים" count={visible.length} open={sections.all} onToggle={() => toggleSection('all')}>
+          <Section icon={Users} title={t('users.sections.all')} count={visible.length} open={sections.all} onToggle={() => toggleSection('all')}>
             <UsersTable rows={visible} {...rowProps} />
           </Section>
 
           {/* Subscribers → manual + regular */}
-          <Section icon={BadgeCheck} title="מנויים" count={subs.length} open={sections.subs} onToggle={() => toggleSection('subs')}>
-            <Section nested icon={Hand} title="מנוי ידני" count={manual.length} open={sections.manual} onToggle={() => toggleSection('manual')}>
-              <UsersTable rows={manual} {...rowProps} emptyText="אין מנויים ידניים" />
+          <Section icon={BadgeCheck} title={t('users.sections.subscribers')} count={subs.length} open={sections.subs} onToggle={() => toggleSection('subs')}>
+            <Section nested icon={Hand} title={t('users.sections.manual')} count={manual.length} open={sections.manual} onToggle={() => toggleSection('manual')}>
+              <UsersTable rows={manual} {...rowProps} emptyText={t('users.empty.manual')} />
             </Section>
-            <Section nested icon={CreditCard} title="מנוי רגיל" count={regular.length} open={sections.regular} onToggle={() => toggleSection('regular')}>
-              <UsersTable rows={regular} {...rowProps} emptyText="אין מנויים רגילים (יתמלא כשתעלה תשתית תשלומים)" />
+            <Section nested icon={CreditCard} title={t('users.sections.regular')} count={regular.length} open={sections.regular} onToggle={() => toggleSection('regular')}>
+              <UsersTable rows={regular} {...rowProps} emptyText={t('users.empty.regular')} />
             </Section>
           </Section>
         </>
@@ -195,25 +199,25 @@ function Section({ icon: Icon, title, count, open, onToggle, nested, children })
   )
 }
 
-function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, viewerPerms, viewerId, emptyText = 'לא נמצאו משתמשים' }) {
+function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, viewerPerms, viewerId, t, emptyText }) {
   return (
     <div className="admin-card admin-table-wrap">
       <table className="admin-table">
         <thead>
           <tr>
-            <th>אימייל</th>
-            <th>מנוי</th>
-            <th>הצטרפות</th>
-            <th>שלב onboarding</th>
-            <th>רפלקציות</th>
-            <th>Sessions</th>
-            <th>שיווק</th>
-            <th>פעיל לאחרונה</th>
-            <th aria-label="הרחבה" style={{ width: 32 }}></th>
+            <th>{t('users.table.email')}</th>
+            <th>{t('users.table.subscriber')}</th>
+            <th>{t('users.table.joined')}</th>
+            <th>{t('users.table.onboardingStage')}</th>
+            <th>{t('users.table.reflections')}</th>
+            <th>{t('users.table.sessions')}</th>
+            <th>{t('users.table.marketing')}</th>
+            <th>{t('users.table.lastActive')}</th>
+            <th aria-label={t('users.table.expandAria')} style={{ width: 32 }}></th>
           </tr>
         </thead>
         <tbody>
-          {rows.length === 0 && <tr><td colSpan={9} className="muted">{emptyText}</td></tr>}
+          {rows.length === 0 && <tr><td colSpan={9} className="muted">{emptyText ?? t('users.empty.default')}</td></tr>}
           {rows.map((r) => (
             <UserRow
               key={r.id}
@@ -230,6 +234,7 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
               onRevokeAdmin={onRevokeAdmin}
               viewerPerms={viewerPerms}
               viewerId={viewerId}
+              t={t}
             />
           ))}
         </tbody>
@@ -240,21 +245,21 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
 
 /* Subscriber cell: real (paid) → static read-only badge; otherwise a
    two-step toggle (click → confirm) so a flag never happens by accident. */
-function SubCell({ r, confirming, busy, canToggle, onRequestConfirm, onCancelConfirm, onApply }) {
+function SubCell({ r, confirming, busy, canToggle, onRequestConfirm, onCancelConfirm, onApply, t }) {
   if (r.subscriber_kind === 'regular') {
-    return <span className="admin-sub-badge regular"><CreditCard size={12} strokeWidth={2} aria-hidden="true" /> מנוי רגיל</span>
+    return <span className="admin-sub-badge regular"><CreditCard size={12} strokeWidth={2} aria-hidden="true" /> {t('users.sub.regularBadge')}</span>
   }
   const on = r.subscriber_kind === 'manual'
   // Admins without the set_subscriber perm see a read-only state, no toggle.
   if (!canToggle) {
-    return on ? <span className="admin-pill done">מנוי</span> : <span className="muted">—</span>
+    return on ? <span className="admin-pill done">{t('users.sub.subscribed')}</span> : <span className="muted">—</span>
   }
   if (confirming) {
     return (
       <span className="admin-sub-confirm" onClick={(e) => e.stopPropagation()}>
-        <span className="admin-sub-confirm-q">{on ? 'לבטל מנוי?' : 'לסמן כמנוי?'}</span>
-        <button type="button" className="admin-sub-yes" disabled={busy} onClick={onApply} aria-label="אישור"><Check size={13} strokeWidth={2.4} /></button>
-        <button type="button" className="admin-sub-no" onClick={onCancelConfirm} aria-label="ביטול"><X size={13} strokeWidth={2.4} /></button>
+        <span className="admin-sub-confirm-q">{on ? t('users.sub.askCancel') : t('users.sub.askMark')}</span>
+        <button type="button" className="admin-sub-yes" disabled={busy} onClick={onApply} aria-label={t('users.sub.confirmAria')}><Check size={13} strokeWidth={2.4} /></button>
+        <button type="button" className="admin-sub-no" onClick={onCancelConfirm} aria-label={t('users.sub.cancelAria')}><X size={13} strokeWidth={2.4} /></button>
       </span>
     )
   }
@@ -264,14 +269,14 @@ function SubCell({ r, confirming, busy, canToggle, onRequestConfirm, onCancelCon
       className={`admin-sub-toggle${on ? ' on' : ''}`}
       disabled={busy}
       onClick={(e) => { e.stopPropagation(); onRequestConfirm() }}
-      title={on ? 'לחץ כדי לבטל מנוי' : 'סמן כמנוי'}
+      title={on ? t('users.sub.titleCancel') : t('users.sub.titleMark')}
     >
-      {on ? <><BadgeCheck size={13} strokeWidth={2} aria-hidden="true" /> מנוי</> : <><Plus size={13} strokeWidth={2} aria-hidden="true" /> סמן</>}
+      {on ? <><BadgeCheck size={13} strokeWidth={2} aria-hidden="true" /> {t('users.sub.subscribed')}</> : <><Plus size={13} strokeWidth={2} aria-hidden="true" /> {t('users.sub.mark')}</>}
     </button>
   )
 }
 
-function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, viewerPerms, viewerId }) {
+function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, viewerPerms, viewerId, t }) {
   const [delOpen, setDelOpen] = useState(false)
   const [delText, setDelText] = useState('')
   const [delBusy, setDelBusy] = useState(false)
@@ -333,9 +338,9 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
         <td dir="ltr" style={{ textAlign: 'start' }}>
           {r.email || '—'}
           {r.is_owner
-            ? <span className="admin-role-chip owner" title="בעלים ראשי"><ShieldCheck size={11} strokeWidth={2.2} aria-hidden="true" /> בעלים</span>
+            ? <span className="admin-role-chip owner" title={t('users.role.ownerTitle')}><ShieldCheck size={11} strokeWidth={2.2} aria-hidden="true" /> {t('users.role.ownerChip')}</span>
             : r.is_admin
-              ? <span className="admin-role-chip" title="מנהל"><Shield size={11} strokeWidth={2.2} aria-hidden="true" /> מנהל</span>
+              ? <span className="admin-role-chip" title={t('users.role.adminTitle')}><Shield size={11} strokeWidth={2.2} aria-hidden="true" /> {t('users.role.adminChip')}</span>
               : null}
         </td>
         <td>
@@ -347,14 +352,15 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
             onRequestConfirm={onRequestConfirm}
             onCancelConfirm={onCancelConfirm}
             onApply={onApply}
+            t={t}
           />
         </td>
         <td>{fmtDate(r.created_at)}</td>
         <td><span className={`admin-pill${r.onboarding_done ? ' done' : ''}`}>{r.onboarding_label}</span></td>
         <td className="num">{r.reflections}</td>
         <td className="num">{r.sessions}</td>
-        <td>{r.marketing_consent ? <Check size={15} strokeWidth={2.4} style={{ color: 'var(--sage)' }} aria-label="הסכים לשיווק" /> : <span className="muted">—</span>}</td>
-        <td>{fmtLastActive(r.last_sign_in_at)}</td>
+        <td>{r.marketing_consent ? <Check size={15} strokeWidth={2.4} style={{ color: 'var(--sage)' }} aria-label={t('users.marketingConsentAria')} /> : <span className="muted">—</span>}</td>
+        <td>{fmtLastActive(r.last_sign_in_at, t)}</td>
         <td>
           <ChevronDown size={16} strokeWidth={1.8}
             style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .15s', color: 'var(--mist)' }}
@@ -365,20 +371,20 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
         <tr className="admin-detail">
           <td colSpan={9}>
             <div className="admin-detail-grid">
-              <div><div className="k">מנוי</div><div className="v">{r.subscriber_kind === 'regular' ? 'מנוי רגיל (תשלום)' : r.subscriber_kind === 'manual' ? 'מנוי ידני' : 'לא'}</div></div>
-              <div><div className="k">שלב onboarding</div><div className="v">{r.onboarding_done ? r.onboarding_label : `נעצר ב: ${r.onboarding_label}`}</div></div>
-              <div><div className="k">פידבקים שהשאיר</div><div className="v">{r.feedback_count > 0 ? `${r.feedback_count} פידבק(ים)` : 'אין'}</div></div>
-              <div><div className="k">רפלקציות</div><div className="v">{r.reflections}</div></div>
-              <div><div className="k">Sessions</div><div className="v">{r.sessions}</div></div>
-              <div><div className="k">נרשם</div><div className="v">{fmtDate(r.created_at)}</div></div>
-              <div><div className="k">כניסה אחרונה</div><div className="v">{fmtLastActive(r.last_sign_in_at)}</div></div>
+              <div><div className="k">{t('users.detail.subscriber')}</div><div className="v">{r.subscriber_kind === 'regular' ? t('users.detail.subscriberRegular') : r.subscriber_kind === 'manual' ? t('users.detail.subscriberManual') : t('users.detail.subscriberNone')}</div></div>
+              <div><div className="k">{t('users.detail.onboardingStage')}</div><div className="v">{r.onboarding_done ? r.onboarding_label : t('users.detail.onboardingStopped', { label: r.onboarding_label })}</div></div>
+              <div><div className="k">{t('users.detail.feedbackLeft')}</div><div className="v">{r.feedback_count > 0 ? t('users.detail.feedbackCount', { count: r.feedback_count }) : t('users.detail.feedbackNone')}</div></div>
+              <div><div className="k">{t('users.detail.reflections')}</div><div className="v">{r.reflections}</div></div>
+              <div><div className="k">{t('users.detail.sessions')}</div><div className="v">{r.sessions}</div></div>
+              <div><div className="k">{t('users.detail.joined')}</div><div className="v">{fmtDate(r.created_at)}</div></div>
+              <div><div className="k">{t('users.detail.lastSignIn')}</div><div className="v">{fmtLastActive(r.last_sign_in_at, t)}</div></div>
             </div>
-            <div className="admin-detail-consents-h">הסכמות משפטיות</div>
+            <div className="admin-detail-consents-h">{t('users.detail.consentsHeading')}</div>
             <div className="admin-detail-grid">
-              <div><div className="k">פרטיות</div><div className="v">{fmtConsent(r.consent?.privacy)}</div></div>
-              <div><div className="k">עיבוד נתונים (DPA)</div><div className="v">{fmtConsent(r.consent?.dpa)}</div></div>
-              <div><div className="k">תנאי שימוש</div><div className="v">{fmtConsent(r.consent?.terms)}</div></div>
-              <div><div className="k">שיווק</div><div className="v">{fmtMarketing(r)}</div></div>
+              <div><div className="k">{t('users.detail.privacy')}</div><div className="v">{fmtConsent(r.consent?.privacy, t)}</div></div>
+              <div><div className="k">{t('users.detail.dpa')}</div><div className="v">{fmtConsent(r.consent?.dpa, t)}</div></div>
+              <div><div className="k">{t('users.detail.terms')}</div><div className="v">{fmtConsent(r.consent?.terms, t)}</div></div>
+              <div><div className="k">{t('users.detail.marketing')}</div><div className="v">{fmtMarketing(r, t)}</div></div>
             </div>
 
             {/* Admin role management — only for viewers who can manage admins,
@@ -388,37 +394,37 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
               <div className="admin-role-block" onClick={(e) => e.stopPropagation()}>
                 <div className="admin-role-head">
                   <Shield size={14} strokeWidth={1.9} aria-hidden="true" />
-                  <span>הרשאות ניהול</span>
-                  {r.is_admin && <span className="admin-role-tag">מנהל</span>}
+                  <span>{t('users.manage.heading')}</span>
+                  {r.is_admin && <span className="admin-role-tag">{t('users.manage.tag')}</span>}
                 </div>
 
                 {roleConfirm === null && (
                   <>
                     <p className="admin-role-hint">
                       {r.is_admin
-                        ? 'המשתמש מוגדר כמנהל. אפשר לעדכן הרשאות או להסיר את ההגדרה.'
-                        : 'בחר/י הרשאות והפוך/הפכי את המשתמש למנהל. כל מנהל מקבל גישה לקונסולה ולכל נתוני המשתמשים.'}
+                        ? t('users.manage.hintIsAdmin')
+                        : t('users.manage.hintNotAdmin')}
                     </p>
                     <div className="admin-role-perms">
-                      {PERM_OPTIONS.map(({ key, label }) => (
+                      {PERM_OPTIONS.map(({ key, labelKey }) => (
                         <label key={key} className="admin-role-perm">
                           <input
                             type="checkbox"
                             checked={permDraft[key]}
                             onChange={(e) => setPermDraft((d) => ({ ...d, [key]: e.target.checked }))}
                           />
-                          <span>{label}</span>
+                          <span>{t(`users.perms.${labelKey}`)}</span>
                         </label>
                       ))}
                     </div>
                     <div className="admin-role-actions">
                       <button type="button" className="admin-role-go" onClick={() => { setRoleErr(false); setRoleConfirm('grant') }}>
                         <ShieldCheck size={13} strokeWidth={2} aria-hidden="true" />
-                        {r.is_admin ? 'עדכון הרשאות' : 'הפיכה למנהל'}
+                        {r.is_admin ? t('users.manage.update') : t('users.manage.makeAdmin')}
                       </button>
                       {r.is_admin && (
                         <button type="button" className="admin-role-revoke" onClick={() => { setRoleErr(false); setRoleConfirm('revoke') }}>
-                          הסרת מנהל
+                          {t('users.manage.removeAdmin')}
                         </button>
                       )}
                     </div>
@@ -428,23 +434,23 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
                 {roleConfirm === 'grant' && (
                   <div className="admin-role-confirm">
                     <p className="admin-role-warn">
-                      {r.is_admin ? 'לעדכן את ההרשאות של ' : 'להפוך את '}
+                      {r.is_admin ? t('users.manage.grantWarnUpdatePre') : t('users.manage.grantWarnMakePre')}
                       <b dir="ltr">{r.email}</b>
-                      {r.is_admin ? '?' : ' למנהל?'} מנהל רואה את כל נתוני המשתמשים בקונסולה. הגישה תיכנס לתוקף בהתחברות הבאה של המשתמש.
+                      {r.is_admin ? t('users.manage.grantWarnUpdatePost') : t('users.manage.grantWarnMakePost')}
                     </p>
                     <ul className="admin-role-summary">
-                      {PERM_OPTIONS.map(({ key, label }) => (
+                      {PERM_OPTIONS.map(({ key, labelKey }) => (
                         <li key={key} className={permDraft[key] ? 'on' : 'off'}>
                           {permDraft[key] ? <Check size={12} strokeWidth={2.4} aria-hidden="true" /> : <X size={12} strokeWidth={2.4} aria-hidden="true" />}
-                          {label}
+                          {t(`users.perms.${labelKey}`)}
                         </li>
                       ))}
                     </ul>
-                    {roleErr && <p className="admin-role-err">הפעולה נכשלה. נסה/י שוב.</p>}
+                    {roleErr && <p className="admin-role-err">{t('users.manage.actionFailed')}</p>}
                     <div className="admin-role-actions">
-                      <button type="button" className="admin-role-cancel" onClick={() => { setRoleConfirm(null); setRoleErr(false) }}>ביטול</button>
+                      <button type="button" className="admin-role-cancel" onClick={() => { setRoleConfirm(null); setRoleErr(false) }}>{t('users.manage.cancel')}</button>
                       <button type="button" className="admin-role-go" disabled={roleBusy} onClick={runSetAdmin}>
-                        {roleBusy ? 'שומר…' : 'אישור'}
+                        {roleBusy ? t('users.manage.saving') : t('users.manage.confirm')}
                       </button>
                     </div>
                   </div>
@@ -453,13 +459,13 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
                 {roleConfirm === 'revoke' && (
                   <div className="admin-role-confirm">
                     <p className="admin-role-warn">
-                      להסיר את הרשאות הניהול של <b dir="ltr">{r.email}</b>? הגישה לקונסולה תיחסם בהתחברות הבאה.
+                      {t('users.manage.revokeWarnPre')}<b dir="ltr">{r.email}</b>{t('users.manage.revokeWarnPost')}
                     </p>
-                    {roleErr && <p className="admin-role-err">הפעולה נכשלה. נסה/י שוב.</p>}
+                    {roleErr && <p className="admin-role-err">{t('users.manage.actionFailed')}</p>}
                     <div className="admin-role-actions">
-                      <button type="button" className="admin-role-cancel" onClick={() => { setRoleConfirm(null); setRoleErr(false) }}>ביטול</button>
+                      <button type="button" className="admin-role-cancel" onClick={() => { setRoleConfirm(null); setRoleErr(false) }}>{t('users.manage.cancel')}</button>
                       <button type="button" className="admin-role-revoke" disabled={roleBusy} onClick={runRevoke}>
-                        {roleBusy ? 'מסיר…' : 'הסרת מנהל'}
+                        {roleBusy ? t('users.manage.removing') : t('users.manage.removeAdmin')}
                       </button>
                     </div>
                   </div>
@@ -471,12 +477,12 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
               <div className="admin-detail-danger">
                 {!delOpen ? (
                   <button type="button" className="admin-del-btn" onClick={(e) => { e.stopPropagation(); setDelOpen(true) }}>
-                    <Trash2 size={13} strokeWidth={2} aria-hidden="true" /> מחיקת משתמש
+                    <Trash2 size={13} strokeWidth={2} aria-hidden="true" /> {t('users.delete.button')}
                   </button>
                 ) : (
                   <div className="admin-del-confirm" onClick={(e) => e.stopPropagation()}>
                     <p className="admin-del-warn">
-                      מחיקת <b dir="ltr">{r.email}</b> וכל הנתונים שלו — לצמיתות, ללא אפשרות ביטול. להמשך, הקלד/י את האימייל המלא:
+                      {t('users.delete.warnPre')}<b dir="ltr">{r.email}</b>{t('users.delete.warnPost')}
                     </p>
                     <input
                       className="admin-del-input"
@@ -486,11 +492,11 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
                       placeholder={r.email}
                       autoComplete="off"
                     />
-                    {delErr && <p className="admin-del-err">המחיקה נכשלה. נסה/י שוב.</p>}
+                    {delErr && <p className="admin-del-err">{t('users.delete.failed')}</p>}
                     <div className="admin-del-actions">
-                      <button type="button" className="admin-del-cancel" onClick={() => { setDelOpen(false); setDelText(''); setDelErr(false) }}>ביטול</button>
+                      <button type="button" className="admin-del-cancel" onClick={() => { setDelOpen(false); setDelText(''); setDelErr(false) }}>{t('users.delete.cancel')}</button>
                       <button type="button" className="admin-del-go" disabled={!canDelete || delBusy} onClick={runDelete}>
-                        {delBusy ? 'מוחק…' : 'מחק לצמיתות'}
+                        {delBusy ? t('users.delete.deleting') : t('users.delete.confirm')}
                       </button>
                     </div>
                   </div>

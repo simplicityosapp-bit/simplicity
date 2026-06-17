@@ -6,7 +6,8 @@ import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
 import { useTaskStatuses } from '../../hooks/useTaskStatuses'
 import { useTaskCategories } from '../../hooks/useTaskCategories'
-import { useAddress } from '../../hooks/useAddress'
+import { useUserPreferences } from '../../hooks/useUserPreferences'
+import { useT } from '../../i18n/useT'
 import TaskItem from './TaskItem'
 import ReminderItem from './ReminderItem'
 import AddTaskModal from '../../modals/AddTaskModal'
@@ -25,33 +26,22 @@ const PRIORITY_COLOR = {
   medium: 'var(--amber-warn)',
   low: 'var(--sage)',
 }
-const PRIORITY_GROUPS = [
-  { key: 'high', label: 'דחוף' },
-  { key: 'medium', label: 'רגיל' },
-  { key: 'low', label: 'נמוך' },
-]
-const FILTERS = [
-  { key: 'todo', label: 'פתוחות' },
-  { key: 'done', label: 'הושלמו' },
-  { key: 'all', label: 'הכל' },
-]
+/* Group/filter keys; their labels are resolved via t() at render time
+   (the constants live at module scope where t isn't available). */
+const PRIORITY_GROUPS = ['high', 'medium', 'low']
+const FILTERS = ['todo', 'done', 'all']
 /* Reminders get their own tabs: open, the recurring schedule, and completed. */
-const REM_FILTERS = [
-  { key: 'todo', label: 'פתוחות' },
-  { key: 'recurring', label: 'חוזרות' },
-  { key: 'done', label: 'הושלמו' },
-]
-const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
+const REM_FILTERS = ['todo', 'recurring', 'done']
 
 /* Date buckets used to group reminders the same way tasks are grouped
    by priority — keeps the visual rhythm identical between the two
    modes. Buckets are computed against now; "overdue" only includes
    pending reminders, never completed ones. */
 const REM_BUCKETS = [
-  { key: 'overdue', label: 'באיחור', color: 'var(--clay)' },
-  { key: 'today',   label: 'היום',   color: 'var(--amber-warn)' },
-  { key: 'week',    label: 'השבוע',  color: 'var(--sage)' },
-  { key: 'later',   label: 'מאוחר יותר', color: 'var(--mist)' },
+  { key: 'overdue', color: 'var(--clay)' },
+  { key: 'today',   color: 'var(--amber-warn)' },
+  { key: 'week',    color: 'var(--sage)' },
+  { key: 'later',   color: 'var(--mist)' },
 ]
 
 function reminderBucket(rem, now) {
@@ -67,7 +57,9 @@ function reminderBucket(rem, now) {
 }
 
 export default function TasksScreen() {
-  const { addr, gender } = useAddress()
+  const { t } = useT('tasks')
+  const { prefs } = useUserPreferences()
+  const gender = prefs?.design?.gender
   const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask, editTask, clearCompleted, refetch: refetchTasks } = useTasks()
   const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder, editReminder, clearCompleted: clearCompletedReminders } = useReminders()
   const { projects } = useProjects()
@@ -154,21 +146,21 @@ export default function TasksScreen() {
     const groups = []
     for (let d = 0; d < 7; d++) {
       const items = rec.filter((r) => r.recurrence_type === 'weekly' && r.recurrence_pattern?.dayOfWeek === d)
-      if (items.length) groups.push({ key: `w${d}`, label: `יום ${HEB_DAYS[d]}`, color: 'var(--sage)', items })
+      if (items.length) groups.push({ key: `w${d}`, label: t('recurring.weekday', { day: t(`days.${d}`) }), color: 'var(--sage)', items })
     }
     const monthly = rec.filter((r) => r.recurrence_type === 'monthly_date')
-    if (monthly.length) groups.push({ key: 'monthly', label: 'חודשי', color: 'var(--moon-deep)', items: monthly })
+    if (monthly.length) groups.push({ key: 'monthly', label: t('recurring.monthly'), color: 'var(--moon-deep)', items: monthly })
     const everyX = rec.filter((r) => r.recurrence_type === 'every_x_days')
-    if (everyX.length) groups.push({ key: 'everyx', label: 'כל כמה ימים', color: 'var(--clay)', items: everyX })
+    if (everyX.length) groups.push({ key: 'everyx', label: t('recurring.everyXDays'), color: 'var(--clay)', items: everyX })
     return groups
-  }, [reminders, isTasks])
+  }, [reminders, isTasks, t])
 
   const projOf = (id) => projects.find((p) => p.id === id)
   const clientNameOf = (id) => clients.find((c) => c.id === id)?.name
 
   const emptyMsg = isTasks
-    ? (filter === 'done' ? 'עוד לא הושלמו משימות.' : 'אין משימות פתוחות. כל הכבוד!')
-    : (filter === 'done' ? 'עוד לא הושלמו תזכורות.' : 'אין תזכורות פתוחות. הכל רגוע.')
+    ? (filter === 'done' ? t('empty.tasksDone') : t('empty.tasksTodo'))
+    : (filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo'))
 
   return (
     <div className="screen">
@@ -176,22 +168,22 @@ export default function TasksScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{openCount} {isTasks ? 'פתוחות' : 'תזכורות'}</p>
+              <p className="lbl">{isTasks ? t('meta.open', { n: openCount }) : t('meta.openReminders', { n: openCount })}</p>
               <span className="lbl dot">·</span>
-              <p className="lbl">{doneCount} הושלמו</p>
+              <p className="lbl">{t('meta.done', { n: doneCount })}</p>
             </div>
-            <p className="lbl-sm">{addr({male:'עשה',female:'עשי',neutral:'עשה/י'})} את הצעד הבא.</p>
+            <p className="lbl-sm">{t('tagline')}</p>
           </div>
-          <p className="t-screen">{isTasks ? 'משימות' : 'תזכורות'}</p>
+          <p className="t-screen">{isTasks ? t('tasks') : t('reminders')}</p>
         </header>
         <Coachmark id="add-task" radius="50%">
           <button
             className="cta-add"
             type="button"
-            aria-label={isTasks ? 'הוסף משימה' : 'הוסף תזכורת'}
+            aria-label={isTasks ? t('add.taskAria') : t('add.reminderAria')}
             onClick={() => setShowAdd(true)}
           >
-            {isTasks ? '+ משימה חדשה' : '+ תזכורת חדשה'}
+            {isTasks ? t('add.task') : t('add.reminder')}
           </button>
         </Coachmark>
       </div>
@@ -199,7 +191,7 @@ export default function TasksScreen() {
       {/* Entity toggle — same role as Leads' kanban/statuses switcher,
           rendered below screen-top so it doesn't break the centered
           "+" slot. */}
-      <div className="mg-toggle t-view" role="tablist" aria-label="תצוגה">
+      <div className="mg-toggle t-view" role="tablist" aria-label={t('view.aria')}>
         <button
           type="button"
           className={`mg-toggle-btn${view === 'tasks' ? ' on' : ''}`}
@@ -207,7 +199,7 @@ export default function TasksScreen() {
           role="tab"
           aria-selected={view === 'tasks'}
         >
-          משימות
+          {t('tasks')}
         </button>
         <button
           type="button"
@@ -216,41 +208,41 @@ export default function TasksScreen() {
           role="tab"
           aria-selected={view === 'reminders'}
         >
-          תזכורות
+          {t('reminders')}
         </button>
       </div>
 
       <section className="t-hero">
         <div className="s-hero">
-          <p className="t-hero-title">{isTasks ? 'סיכום משימות' : 'סיכום תזכורות'}</p>
+          <p className="t-hero-title">{isTasks ? t('hero.tasksTitle') : t('hero.remindersTitle')}</p>
           <div className="t-hero-grid">
             <div className="t-hero-stat">
-              <p className="t-hero-stat-l">פתוחות</p>
+              <p className="t-hero-stat-l">{t('hero.open')}</p>
               <p className="t-hero-stat-v mono">{openCount}</p>
             </div>
             <div className="t-hero-stat divided">
-              <p className="t-hero-stat-l">{isTasks ? 'דחופות' : 'באיחור'}</p>
+              <p className="t-hero-stat-l">{isTasks ? t('hero.urgentTasks') : t('hero.overdueReminders')}</p>
               <p className="t-hero-stat-v mono">{urgentCount}</p>
             </div>
             <div className="t-hero-stat">
-              <p className="t-hero-stat-l">הושלמו</p>
+              <p className="t-hero-stat-l">{t('hero.done')}</p>
               <p className="t-hero-stat-v mono">{doneCount}</p>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="mg-toggle t-filter" role="tablist" aria-label="סינון לפי סטטוס">
+      <div className="mg-toggle t-filter" role="tablist" aria-label={t('filter.aria')}>
         {filters.map((f) => (
           <button
-            key={f.key}
+            key={f}
             type="button"
-            className={`mg-toggle-btn${filter === f.key ? ' on' : ''}`}
-            onClick={() => setFilter(f.key)}
+            className={`mg-toggle-btn${filter === f ? ' on' : ''}`}
+            onClick={() => setFilter(f)}
             role="tab"
-            aria-selected={filter === f.key}
+            aria-selected={filter === f}
           >
-            {f.label}
+            {t(`filter.${f}`)}
           </button>
         ))}
       </div>
@@ -259,7 +251,7 @@ export default function TasksScreen() {
         <div className="t-tax-bar">
           {taskCategories.length > 0 ? (
             <div className="t-cat-filter">
-              <button type="button" className={`t-cat-pill${!categoryFilter ? ' on' : ''}`} onClick={() => setCategoryFilter('')}>הכל</button>
+              <button type="button" className={`t-cat-pill${!categoryFilter ? ' on' : ''}`} onClick={() => setCategoryFilter('')}>{t('taxonomy.all')}</button>
               {taskCategories.map((c) => (
                 <button
                   key={c.id}
@@ -275,7 +267,7 @@ export default function TasksScreen() {
           ) : <span />}
           <button type="button" className="t-manage-btn" onClick={() => setShowTaxonomy(true)}>
             <Tags size={14} strokeWidth={1.5} aria-hidden="true" />
-            סטטוסים וקטגוריות
+            {t('taxonomy.manage')}
           </button>
         </div>
       )}
@@ -284,27 +276,27 @@ export default function TasksScreen() {
         <div className="t-clear-row">
           <button type="button" className="t-clear-btn" onClick={() => setConfirmClear(true)}>
             <Trash2 size={14} strokeWidth={1.5} aria-hidden="true" />
-            מחק הכל
+            {t('clearAll')}
           </button>
         </div>
       )}
 
       <section className="t-list">
         {loading ? (
-          <div className="empty"><p className="empty-text">{isTasks ? 'טוען משימות…' : 'טוען תזכורות…'}</p></div>
+          <div className="empty"><p className="empty-text">{isTasks ? t('loading.tasks') : t('loading.reminders')}</p></div>
         ) : error ? (
-          <div className="empty"><p className="empty-text">{isTasks ? 'שגיאה בטעינת המשימות' : 'שגיאה בטעינת התזכורות'}: {error}</p></div>
+          <div className="empty"><p className="empty-text">{isTasks ? t('loadError.tasks', { error }) : t('loadError.reminders', { error })}</p></div>
         ) : isTasks ? (
           filteredTasks.length === 0 ? (
             tasks.length === 0 ? (
               <div className="empty">
                 <span className="empty-icon"><ListTodo size={28} strokeWidth={1.5} aria-hidden="true" /></span>
-                <p className="empty-text">אין עדיין משימות. המשימה הראשונה שלך מתחילה כאן.</p>
+                <p className="empty-text">{t('empty.firstTask')}</p>
                 <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
-                  <Plus size={18} strokeWidth={1.5} aria-hidden="true" /> {addr({ male: 'הוסף משימה', female: 'הוסיפי משימה', neutral: 'הוסף/י משימה' })}
+                  <Plus size={18} strokeWidth={1.5} aria-hidden="true" /> {t('empty.addTask')}
                 </button>
                 <details className="empty-reminder">
-                  <summary>למה זה חשוב?</summary>
+                  <summary>{t('empty.whyImportant')}</summary>
                   <p className="empty-reminder-body">{coachmarkText('add-task', gender).detail}</p>
                 </details>
               </div>
@@ -313,27 +305,27 @@ export default function TasksScreen() {
             )
           ) : (
             PRIORITY_GROUPS.map((g) => {
-              const items = filteredTasks.filter((t) => (t.priority || 'medium') === g.key)
+              const items = filteredTasks.filter((task) => (task.priority || 'medium') === g)
               if (!items.length) return null
               return (
-                <div key={g.key} className="t-group">
+                <div key={g} className="t-group">
                   <p className="t-group-lbl">
-                    <span className="t-group-dot" style={{ background: PRIORITY_COLOR[g.key] }} />
-                    {g.label}
+                    <span className="t-group-dot" style={{ background: PRIORITY_COLOR[g] }} />
+                    {t(`priority.${g}`)}
                     <span className="t-group-count">{items.length}</span>
                   </p>
-                  {items.map((t, i) => (
+                  {items.map((task, i) => (
                     <TaskItem
-                      key={t.id}
-                      task={t}
-                      project={projOf(t.project_id)}
-                      clientName={clientNameOf(t.client_id)}
-                      dotColor={PRIORITY_COLOR[t.priority || 'medium']}
-                      onToggle={() => toggleTask(t)}
+                      key={task.id}
+                      task={task}
+                      project={projOf(task.project_id)}
+                      clientName={clientNameOf(task.client_id)}
+                      dotColor={PRIORITY_COLOR[task.priority || 'medium']}
+                      onToggle={() => toggleTask(task)}
                       onEdit={setEditItem}
                       index={i}
-                      taskStatus={t.status_id ? statusById.get(t.status_id) : null}
-                      category={t.category_id ? categoryById.get(t.category_id) : null}
+                      taskStatus={task.status_id ? statusById.get(task.status_id) : null}
+                      category={task.category_id ? categoryById.get(task.category_id) : null}
                     />
                   ))}
                 </div>
@@ -344,7 +336,7 @@ export default function TasksScreen() {
           filter === 'recurring' ? (
             /* "חוזרות" — recurring schedule grouped by weekday / monthly. */
             recurringGroups.length === 0 ? (
-              <div className="empty"><p className="empty-text">אין תזכורות חוזרות עדיין.</p></div>
+              <div className="empty"><p className="empty-text">{t('empty.noRecurring')}</p></div>
             ) : (
               recurringGroups.map((g) => (
                 <div key={g.key} className="t-group">
@@ -368,12 +360,12 @@ export default function TasksScreen() {
               ))
             )
           ) : filteredReminders.length === 0 ? (
-            <div className="empty"><p className="empty-text">{filter === 'done' ? 'עוד לא הושלמו תזכורות.' : 'אין תזכורות פתוחות. הכל רגוע.'}</p></div>
+            <div className="empty"><p className="empty-text">{filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo')}</p></div>
           ) : filter === 'done' ? (
             <div className="t-group">
               <p className="t-group-lbl">
                 <span className="t-group-dot" style={{ background: 'var(--stone)' }} />
-                הושלמו
+                {t('doneGroup')}
                 <span className="t-group-count">{filteredReminders.length}</span>
               </p>
               {filteredReminders.map((r, i) => (
@@ -396,7 +388,7 @@ export default function TasksScreen() {
                 <div key={b.key} className="t-group">
                   <p className="t-group-lbl">
                     <span className="t-group-dot" style={{ background: b.color }} />
-                    {b.label}
+                    {t(`buckets.${b.key}`)}
                     <span className="t-group-count">{items.length}</span>
                   </p>
                   {items.map((r, i) => (
@@ -443,9 +435,9 @@ export default function TasksScreen() {
           <ConfirmModal
             open={confirmClear}
             onClose={() => setConfirmClear(false)}
-            title="מחיקת משימות שהושלמו"
-            message={`למחוק ${doneCount} ${doneCount === 1 ? 'משימה שהושלמה' : 'משימות שהושלמו'}? אפשר לשחזר אותן מסל המיחזור עד 30 יום.`}
-            confirmLabel="מחק הכל"
+            title={t('clearConfirm.tasksTitle')}
+            message={doneCount === 1 ? t('clearConfirm.tasksMessageOne') : t('clearConfirm.tasksMessageMany', { count: doneCount })}
+            confirmLabel={t('clearConfirm.confirm')}
             danger
             onConfirm={() => clearCompleted()}
           />
@@ -479,9 +471,9 @@ export default function TasksScreen() {
           <ConfirmModal
             open={confirmClear}
             onClose={() => setConfirmClear(false)}
-            title="מחיקת תזכורות שהושלמו"
-            message={`למחוק ${doneCount} ${doneCount === 1 ? 'תזכורת שהושלמה' : 'תזכורות שהושלמו'}? אפשר לשחזר אותן מסל המיחזור עד 30 יום.`}
-            confirmLabel="מחק הכל"
+            title={t('clearConfirm.remindersTitle')}
+            message={doneCount === 1 ? t('clearConfirm.remindersMessageOne') : t('clearConfirm.remindersMessageMany', { count: doneCount })}
+            confirmLabel={t('clearConfirm.confirm')}
             danger
             onConfirm={() => clearCompletedReminders()}
           />

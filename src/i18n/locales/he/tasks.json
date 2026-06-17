@@ -1,0 +1,105 @@
+{
+  "tasks": "משימות",
+  "reminders": "תזכורות",
+  "tagline": "עשה/י את הצעד הבא.",
+  "tagline_male": "עשה את הצעד הבא.",
+  "tagline_female": "עשי את הצעד הבא.",
+  "meta": {
+    "open": "{{n}} פתוחות",
+    "openReminders": "{{n}} תזכורות",
+    "done": "{{n}} הושלמו"
+  },
+  "add": {
+    "task": "+ משימה חדשה",
+    "reminder": "+ תזכורת חדשה",
+    "taskAria": "הוסף משימה",
+    "reminderAria": "הוסף תזכורת"
+  },
+  "view": {
+    "aria": "תצוגה"
+  },
+  "filter": {
+    "aria": "סינון לפי סטטוס",
+    "todo": "פתוחות",
+    "done": "הושלמו",
+    "all": "הכל",
+    "recurring": "חוזרות"
+  },
+  "priority": {
+    "high": "דחוף",
+    "medium": "רגיל",
+    "low": "נמוך"
+  },
+  "buckets": {
+    "overdue": "באיחור",
+    "today": "היום",
+    "week": "השבוע",
+    "later": "מאוחר יותר"
+  },
+  "recurring": {
+    "weekday": "יום {{day}}",
+    "monthly": "חודשי",
+    "everyXDays": "כל כמה ימים"
+  },
+  "days": {
+    "0": "ראשון",
+    "1": "שני",
+    "2": "שלישי",
+    "3": "רביעי",
+    "4": "חמישי",
+    "5": "שישי",
+    "6": "שבת"
+  },
+  "hero": {
+    "tasksTitle": "סיכום משימות",
+    "remindersTitle": "סיכום תזכורות",
+    "open": "פתוחות",
+    "urgentTasks": "דחופות",
+    "overdueReminders": "באיחור",
+    "done": "הושלמו"
+  },
+  "taxonomy": {
+    "all": "הכל",
+    "manage": "סטטוסים וקטגוריות"
+  },
+  "clearAll": "מחק הכל",
+  "doneGroup": "הושלמו",
+  "loading": {
+    "tasks": "טוען משימות…",
+    "reminders": "טוען תזכורות…"
+  },
+  "loadError": {
+    "tasks": "שגיאה בטעינת המשימות: {{error}}",
+    "reminders": "שגיאה בטעינת התזכורות: {{error}}"
+  },
+  "empty": {
+    "tasksDone": "עוד לא הושלמו משימות.",
+    "tasksTodo": "אין משימות פתוחות. כל הכבוד!",
+    "remindersDone": "עוד לא הושלמו תזכורות.",
+    "remindersTodo": "אין תזכורות פתוחות. הכל רגוע.",
+    "firstTask": "אין עדיין משימות. המשימה הראשונה שלך מתחילה כאן.",
+    "addTask": "הוסף/י משימה",
+    "addTask_male": "הוסף משימה",
+    "addTask_female": "הוסיפי משימה",
+    "whyImportant": "למה זה חשוב?",
+    "noRecurring": "אין תזכורות חוזרות עדיין."
+  },
+  "clearConfirm": {
+    "tasksTitle": "מחיקת משימות שהושלמו",
+    "tasksMessageOne": "למחוק משימה שהושלמה? אפשר לשחזר אותה מסל המיחזור עד 30 יום.",
+    "tasksMessageMany": "למחוק {{count}} משימות שהושלמו? אפשר לשחזר אותן מסל המיחזור עד 30 יום.",
+    "remindersTitle": "מחיקת תזכורות שהושלמו",
+    "remindersMessageOne": "למחוק תזכורת שהושלמה? אפשר לשחזר אותה מסל המיחזור עד 30 יום.",
+    "remindersMessageMany": "למחוק {{count}} תזכורות שהושלמו? אפשר לשחזר אותן מסל המיחזור עד 30 יום.",
+    "confirm": "מחק הכל"
+  },
+  "item": {
+    "uncheck": "בטל סימון",
+    "checkTask": "סמן כבוצע",
+    "checkReminder": "סמן כבוצעה",
+    "reminderDone": "בוצעה",
+    "editTask": "עריכת משימה",
+    "editReminder": "עריכת תזכורת",
+    "pendingOccurrences": "{{n}} מופעים שטרם בוצעו"
+  }
+}

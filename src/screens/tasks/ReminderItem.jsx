@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import { Check, Pencil } from 'lucide-react'
 import { formatWhen } from '../../lib/dates'
+import { useT } from '../../i18n/useT'
 
 /* Mirrors TaskItem visually so the Tasks ↔ Reminders toggle keeps a
    single look. Status is "pending" → unchecked, "completed" → checked.
@@ -8,6 +9,7 @@ import { formatWhen } from '../../lib/dates'
    client. Dot color signals urgency: clay if overdue, amber if today,
    sage otherwise. */
 function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, count = 1, index }) {
+  const { t } = useT('tasks')
   const isDone = reminder.status === 'completed'
   const meta = [clientName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
 
@@ -18,19 +20,19 @@ function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, coun
         className={`tc-chk${isDone ? ' on' : ''}`}
         onClick={() => !isDone && onComplete?.(reminder)}
         aria-pressed={isDone}
-        aria-label={isDone ? 'בוצעה' : 'סמן כבוצעה'}
+        aria-label={isDone ? t('item.reminderDone') : t('item.checkReminder')}
       >
         {isDone && <Check size={13} strokeWidth={2.5} aria-hidden="true" />}
       </button>
       <div className="tc-body">
         <p className="tc-title">
           {reminder.title}
-          {count > 1 && <span className="tc-recur-count" title={`${count} מופעים שטרם בוצעו`}>×{count}</span>}
+          {count > 1 && <span className="tc-recur-count" title={t('item.pendingOccurrences', { n: count })}>×{count}</span>}
         </p>
         {meta && <p className="tc-meta">{meta}</p>}
       </div>
       {onEdit && (
-        <button type="button" className="tc-edit" onClick={() => onEdit(reminder)} aria-label="עריכת תזכורת">
+        <button type="button" className="tc-edit" onClick={() => onEdit(reminder)} aria-label={t('item.editReminder')}>
           <Pencil size={13} strokeWidth={1.5} aria-hidden="true" />
         </button>
       )}

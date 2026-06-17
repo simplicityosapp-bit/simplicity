@@ -1,0 +1,172 @@
+{
+  "roles": {
+    "therapists": "therapists",
+    "advisors": "advisors",
+    "teachers": "teachers",
+    "facilitators": "facilitators",
+    "list": "{{therapist}}, {{teacher}} and {{facilitator}}"
+  },
+  "brand": "Simplicity",
+  "nav": {
+    "home": "Simplicity — home",
+    "accountActions": "Account actions",
+    "toDay": "Switch to day mode",
+    "toNight": "Switch to night mode",
+    "login": "Log in",
+    "startFree": "Start free"
+  },
+  "hero": {
+    "eyebrow": "An operating system for your practice",
+    "title1": "Your whole practice,",
+    "title2": "in one calm place.",
+    "subAddress": "For {{therapist}}, {{advisor}}, {{teacher}} and {{facilitator}}:",
+    "subBody": "Projects, finances, clients, sessions, goals — all in one clear, welcoming place. A single big-picture view that shows you exactly what this month needs.",
+    "ctaPrimary": "Start free",
+    "ctaSecondary": "I already have an account",
+    "trust": "Free to sign up · Leave anytime · Import and export all your data"
+  },
+  "demo": {
+    "eyebrow": "The home screen",
+    "title": "Your whole day, on one screen",
+    "sub": "Open it in the morning and see exactly what matters: where you stand, and what needs your attention right now.",
+    "deviceAria": "A preview of the Simplicity home screen: a big-picture view with a score of 78 percent on pace, and a list of items that need attention.",
+    "moonTitle": "Big picture",
+    "moonLine": "You're <0>on pace</0> to hit this month's goals — keep it up.",
+    "attentionTitle": "Needs your attention",
+    "attentionCount": "{{count}} items",
+    "row1Title": "3 transactions awaiting approval",
+    "row1Sub": "Finances",
+    "row2Title": "Session today at <0>17:00</0>",
+    "row2Sub": "Calendar · Daniel Cohen",
+    "row3Title": "No contact in <0>45</0> days",
+    "row3Sub": "Follow-up · Michal Levi",
+    "points": {
+      "score": {
+        "title": "Big picture — one score that says it all",
+        "text": "Instead of ten reports, one number that shows you exactly where you stand against your goals."
+      },
+      "attention": {
+        "title": "Needs your attention",
+        "text": "Simplicity stays a step ahead and surfaces what needs action — a stuck payment, an upcoming session, a client who's gone quiet."
+      },
+      "tailored": {
+        "title": "Tailored to you",
+        "text": "You choose what to see, how, and when."
+      }
+    }
+  },
+  "values": {
+    "eyebrow": "Why Simplicity",
+    "title": "Less clutter. More presence.",
+    "sub": "Three things that make Simplicity a place you'll actually enjoy running your practice from — not just another app, but a home.",
+    "allInOne": {
+      "title": "Everything in one place",
+      "text": "Clients, calendar, finances, tasks and goals — no more jumping between spreadsheets, WhatsApp and a notebook. One complete picture of your practice, always up to date."
+    },
+    "clarity": {
+      "title": "Clarity and ease",
+      "text": "We built Simplicity so that managing your information and finances feels nourishing and even fun — freeing you up to focus on what you came here to do: your own growth and the work you love."
+    },
+    "growth": {
+      "title": "Goals and growth",
+      "text": "Simplicity doesn't just show you where you are — it keeps you in direct touch with where you want to go."
+    }
+  },
+  "features": {
+    "eyebrow": "What's inside",
+    "title": "Everything you need to run your practice",
+    "sub": "Six tools that work together — from the first inquiry to the big picture at month's end.",
+    "calendar": {
+      "title": "Sessions and calendar",
+      "text": "Sync with Google Calendar, alerts for recurring or scheduled sessions, reminders, and income and expenses by date — everything that has a date on it."
+    },
+    "finance": {
+      "title": "Finances",
+      "text": "Connect SUMIT and Green Invoice, set up recurring income and expenses, sort into categories — and lay out your cash flow exactly the way you want."
+    },
+    "clients": {
+      "title": "Leads and clients",
+      "text": "We help you hold the relationship from the first inquiry to the last session, so it stays effortless for you and for your clients alike."
+    },
+    "insights": {
+      "title": "Daily insights",
+      "text": "Knowing this is a person, not just a business, led us to build a system that sees the whole picture — holistic and personal."
+    },
+    "projects": {
+      "title": "Projects",
+      "text": "Group cohorts, one-on-one clients; build and tailor a mini-system for each project on its own — so breadth and focus only strengthen each other."
+    },
+    "goals": {
+      "title": "Goals and big picture",
+      "text": "Set monthly goals and see at a glance whether you're on pace to reach them."
+    }
+  },
+  "feedback": {
+    "title": "You're the heart of Simplicity",
+    "text": "Wide-open access to give feedback — anytime, on anything. Because good software isn't built in an ivory tower, but together with the people who use it. Every word from you helps Simplicity shape itself around you — and we're here to listen."
+  },
+  "trust": {
+    "eyebrow": "Privacy and peace of mind",
+    "title": "Your data — yours alone.",
+    "sub": "Privacy isn't just another setting. It's part of the calm.",
+    "secure": {
+      "title": "Protected and safe",
+      "text": "Your data is stored on servers in Ireland (EU), protected at the infrastructure level, and fully isolated — only you can reach your data."
+    },
+    "hebrew": {
+      "title": "Built in Hebrew",
+      "text": "Right-to-left from the ground up, with masculine, feminine or neutral address — your choice."
+    },
+    "noAds": {
+      "title": "No ads, no selling your data",
+      "text": "Your information is never passed to anyone. It's yours alone, full stop."
+    }
+  },
+  "faq": {
+    "eyebrow": "Frequently asked",
+    "title": "Everything you wanted to know",
+    "fit": {
+      "q": "Who is Simplicity for?",
+      "a": "For {{therapist}}, {{teacher}} and {{facilitator}} — and anyone who guides people and runs their own practice, solo or in groups. It fits even if you're just starting out."
+    },
+    "start": {
+      "q": "How long does it take to get started?",
+      "a": "Minutes. Sign up, tell us about your practice, and you can even import existing clients and finances from a spreadsheet — Simplicity recognizes the columns automatically."
+    },
+    "privacy": {
+      "q": "What about my clients' privacy?",
+      "a": "Your data is stored on servers in Ireland (EU), protected at the infrastructure level, and isolated so only you can reach it — we never sell or share it with anyone."
+    },
+    "price": {
+      "q": "How much does it cost?",
+      "a": "You can start for free and create an account with no credit card, to get to know Simplicity at your own pace."
+    },
+    "install": {
+      "q": "Do I need to install anything?",
+      "a": "No. Simplicity works in your browser and on mobile, and you can add it to your home screen as an app — no downloads, no updates."
+    },
+    "hebrew": {
+      "q": "Is it really built for Hebrew and for me?",
+      "a": "Absolutely. Built from the ground up in full Hebrew and right-to-left, with shekels, Hebrew dates, and masculine, feminine or neutral address."
+    }
+  },
+  "cta": {
+    "title": "It all starts here.",
+    "sub": "Join the {{roles}} who already run their practice with calm — all in one place.",
+    "ctaPrimary": "Start free",
+    "ctaSecondary": "I already have an account",
+    "micro": "Free to sign up · Leave anytime · Import and export all your data"
+  },
+  "footer": {
+    "tagline": "An operating system for your practice — for {{roles}}. Built with love, to help create a little more good in the world.",
+    "colProduct": "Product",
+    "signup": "Sign up",
+    "login": "Log in",
+    "colLegal": "Legal",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "colContact": "Contact",
+    "contact": "Get in touch",
+    "copyright": "© 2026 Simplicity. All rights reserved."
+  }
+}

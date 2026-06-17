@@ -1,0 +1,139 @@
+{
+  "count": "{{count}} projects",
+  "phase": "Building",
+  "tagline": "Focus creates results.",
+  "title": "Projects",
+  "newAria": "New project",
+  "new": "+ New project",
+  "range": {
+    "aria": "Amount range",
+    "monthly": "Monthly",
+    "cumulative": "Cumulative"
+  },
+  "hero": {
+    "title": "Projects summary",
+    "projects": "Projects",
+    "clients": "Clients",
+    "incomeMonthly": "Income this month",
+    "incomeCumulative": "Total income"
+  },
+  "cardIncome": {
+    "monthly": "This month",
+    "cumulative": "Total"
+  },
+  "loading": "Loading projects…",
+  "loadError": "Couldn't load projects: {{error}}",
+  "empty": {
+    "text": "No projects yet. Your first project starts here.",
+    "add": "Add a project",
+    "whyImportant": "Why does this matter?"
+  },
+  "delete": {
+    "title": "Delete project",
+    "message": "Delete \"{{name}}\"? Its clients and transactions will stay (without a project).",
+    "confirm": "Delete"
+  },
+  "card": {
+    "active": "Active",
+    "editTitle": "Edit project",
+    "deleteTitle": "Delete project",
+    "clients": "Clients",
+    "tasks": "Tasks"
+  },
+  "detail": {
+    "days": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "notFound": "Project not found.",
+    "back": "Back",
+    "editAria": "Edit project",
+    "metaActive": "active",
+    "metaWandering": "{{count}} in between",
+    "metaGroups": "{{count}} groups",
+    "stats": {
+      "clients": "Clients",
+      "incomeMonth": "Income this month",
+      "groups": "Groups"
+    },
+    "undo": {
+      "groupDeleted": "Group deleted",
+      "memberRemoved": "Member removed from group"
+    },
+    "groups": {
+      "title": "Groups",
+      "empty": "No groups yet. {{add}} a group to get started.",
+      "add": "Add",
+      "editAria": "Edit group",
+      "members": "{{count}} members",
+      "pricePerSession": "{{price}} per session",
+      "pricePackage": "{{price}} / {{count}} sessions",
+      "noMembers": "No members yet",
+      "fallbackClient": "(client)",
+      "removeMemberAria": "Remove {{name}}",
+      "removeMemberFallback": "member",
+      "addMember": "Add member",
+      "logSession": "Log session",
+      "pastSessions": "Past sessions",
+      "deleteGroup": "Delete group",
+      "pastSessionsTitle": "Past sessions",
+      "pastSessionsCount": "Past sessions ({{count}})",
+      "noSessions": "No sessions logged yet",
+      "deleteSessionAria": "Delete session",
+      "newGroup": "+ New group"
+    },
+    "status": {
+      "active": "Active",
+      "in_development": "In development",
+      "ended": "Ended"
+    },
+    "clients": {
+      "title": "Clients",
+      "empty": "No clients in this project",
+      "private": "Private",
+      "addToProject": "+ Add <mg>client</mg> to project"
+    },
+    "reminders": {
+      "title": "Linked reminders",
+      "empty": "No linked reminders",
+      "done": "Done",
+      "overdue": "Overdue",
+      "completeAria": "Mark as done",
+      "deleteAria": "Delete reminder",
+      "add": "Project reminder +"
+    },
+    "deleteSession": {
+      "title": "Delete session",
+      "message": "Delete this group session? It will be removed for all members.",
+      "confirm": "Delete"
+    },
+    "deleteReminder": {
+      "title": "Delete reminder",
+      "message": "Delete \"{{title}}\"?",
+      "confirm": "Delete"
+    },
+    "statusChange": {
+      "title": "Change group status",
+      "messageOne": "Changing the status to \"{{status}}\" will move {{count}} client to \"{{meta}}\". Continue?",
+      "messageMany": "Changing the status to \"{{status}}\" will move {{count}} clients to \"{{meta}}\". Continue?",
+      "confirm": "Change status"
+    },
+    "meta": {
+      "active": "active",
+      "past": "former"
+    },
+    "assign": {
+      "title": "Assign to group",
+      "message": "<0>{{name}}</0> is already assigned to another group. Move them to \"{{group}}\", or add this one alongside it?",
+      "cancel": "Cancel",
+      "addBoth": "Add (both)",
+      "moveHere": "Move here"
+    },
+    "chart": {
+      "title": "Cumulative income — this month",
+      "empty": "No income for this project this month.",
+      "aria": "Cumulative project income by day of month"
+    },
+    "quick": {
+      "add": "Quick add",
+      "updateGoal": "Update goal"
+    }
+  }
+}

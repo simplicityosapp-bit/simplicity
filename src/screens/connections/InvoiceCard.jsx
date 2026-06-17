@@ -1,65 +1,32 @@
 import { useEffect, useRef, useState } from 'react'
 import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, Loader2, TriangleAlert } from 'lucide-react'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
 
-/* Supported invoice services. Each declares its two credential fields — the
+/* Supported invoice services. Each declares its two credential SLOTS — the
    generic api_key/api_secret slots are LABELLED per provider (Green Invoice:
-   key id + secret; SUMIT: company id + API key). Adding a provider here +
-   in the edge function's providers.ts is all it takes. */
+   key id + secret; SUMIT: company id + API key). The display label, field
+   labels, help text and steps come from the translation file (keyed by `tk`).
+   Adding a provider here + in the edge function's providers.ts is all it takes. */
 const PROVIDERS = [
-  {
-    key: 'greeninvoice',
-    label: 'חשבונית ירוקה',
-    enabled: true,
-    fields: [
-      { slot: 'apiKey', label: 'API Key (מזהה מפתח)', type: 'text' },
-      { slot: 'apiSecret', label: 'API Secret (סוד)', type: 'password' },
-    ],
-    help: 'את הפרטים מפיקים בחשבון חשבונית ירוקה: הגדרות ← כלים למפתחים ← מפתחות API. ה-Secret מוצג פעם אחת בלבד — שמרו אותו.',
-    steps: [
-      'היכנסו לחשבון חשבונית ירוקה.',
-      'הגדרות ← כלים למפתחים ← מפתחות API.',
-      'צרו מפתח חדש — תקבלו API Key (מזהה) ו-Secret.',
-      'ה-Secret מוצג פעם אחת בלבד — העתיקו מיד.',
-      'הדביקו כאן את המזהה ואת ה-Secret, ולחצו "חבר".',
-    ],
-  },
-  {
-    key: 'sumit',
-    label: 'סאמיט',
-    enabled: true,
-    fields: [
-      { slot: 'apiKey', label: 'מזהה חברה (Company ID)', type: 'text' },
-      { slot: 'apiSecret', label: 'API Key (מפתח)', type: 'password' },
-    ],
-    help: 'את הפרטים מפיקים בחשבון סאמיט: הגדרות ← מפתחים ובעלי אתרים ← מפתחות API (מזהה חברה + API Key).',
-    steps: [
-      'היכנסו לחשבון סאמיט.',
-      'הגדרות ← מפתחים ובעלי אתרים ← מפתחות API.',
-      'העתיקו את מזהה החברה (Company ID).',
-      'השתמשו במפתח ה-API הפרטי — לא הציבורי!',
-      'הדביקו כאן את שניהם, ולחצו "חבר".',
-    ],
-  },
+  { key: 'greeninvoice', tk: 'gi', enabled: true, fields: [{ slot: 'apiKey', type: 'text' }, { slot: 'apiSecret', type: 'password' }] },
+  { key: 'sumit', tk: 'sumit', enabled: true, fields: [{ slot: 'apiKey', type: 'text' }, { slot: 'apiSecret', type: 'password' }] },
 ]
 const providerDef = (k) => PROVIDERS.find((p) => p.key === k) || PROVIDERS[0]
-const providerLabel = (k) => PROVIDERS.find((p) => p.key === k)?.label || k
-const envLabel = (e) => (e === 'production' ? 'Production' : 'Sandbox')
 
-/* Map the function's coarse error CODE to a Hebrew sentence (gendered via
-   addr). Provider-neutral wording — works for both services. */
-function errToHe(code, addr) {
+/* Map the function's coarse error CODE to a translated sentence (gender via
+   useT context). Provider-neutral wording — works for both services. */
+function errMsg(code, t) {
   switch (code) {
     case 'invalid_credentials':
-      return addr({ male: 'פרטי ההזדהות שגויים. בדוק והעתק שוב.', female: 'פרטי ההזדהות שגויים. בדקי והעתיקי שוב.', neutral: 'פרטי ההזדהות שגויים. בדוק/י והעתק/י שוב.' })
+      return t('invoiceCard.err.invalidCredentials')
     case 'missing_api_key':
     case 'missing_api_secret':
-      return 'יש למלא את שני השדות.'
+      return t('invoiceCard.err.missingFields')
     case 'provider_unreachable':
-      return addr({ male: 'השירות לא זמין כרגע. נסה שוב בעוד רגע.', female: 'השירות לא זמין כרגע. נסי שוב בעוד רגע.', neutral: 'השירות לא זמין כרגע. נסה/י שוב בעוד רגע.' })
+      return t('invoiceCard.err.providerUnreachable')
     default:
-      return addr({ male: 'החיבור נכשל. נסה שוב.', female: 'החיבור נכשל. נסי שוב.', neutral: 'החיבור נכשל. נסה/י שוב.' })
+      return t('invoiceCard.err.generic')
   }
 }
 
@@ -68,8 +35,10 @@ function errToHe(code, addr) {
    and connects. Credentials go straight to the `invoices` edge function; the
    browser never reads them back (status carries no secret). */
 export default function InvoiceCard() {
-  const { addr } = useAddress()
+  const { t } = useT('connections')
   const inv = useInvoiceProvider()
+  const providerLabel = (k) => (k === 'greeninvoice' || k === 'sumit' ? t(`providers.${k}`) : k)
+  const envLabel = (e) => (e === 'production' ? t('env.production') : t('env.sandbox'))
   const status = inv.status
   const connected = !!status?.connected
   const credsInvalid = connected && !!status?.credentials_invalid // provider rejected the stored key
@@ -112,9 +81,9 @@ export default function InvoiceCard() {
       await inv.connect({ provider, apiKey: creds.apiKey.trim(), apiSecret: creds.apiSecret.trim(), environment })
       setCreds({ apiKey: '', apiSecret: '' }) // never keep credentials in component state
       setReconnecting(false)
-      setOkMsg('החיבור הצליח.')
+      setOkMsg(t('invoiceCard.connectSuccess'))
     } catch (e) {
-      setLocalErr(errToHe(e.message, addr))
+      setLocalErr(errMsg(e.message, t))
     } finally {
       setBusyAction(null)
     }
@@ -124,9 +93,9 @@ export default function InvoiceCard() {
     setLocalErr(''); setOkMsg(''); setBusyAction('test')
     try {
       await inv.test()
-      setOkMsg('החיבור תקין.')
+      setOkMsg(t('invoiceCard.testOk'))
     } catch (e) {
-      setLocalErr(errToHe(e.message, addr))
+      setLocalErr(errMsg(e.message, t))
     } finally {
       setBusyAction(null)
     }
@@ -150,9 +119,9 @@ export default function InvoiceCard() {
     setLocalErr(''); setOkMsg('')
     try {
       await inv.setAutoImport(value)
-      setOkMsg(value ? 'ייבוא הכנסות הופעל.' : 'ייבוא הכנסות כובה.')
+      setOkMsg(value ? t('invoiceCard.autoImportOn') : t('invoiceCard.autoImportOff'))
     } catch (e) {
-      setLocalErr(errToHe(e.message, addr))
+      setLocalErr(errMsg(e.message, t))
     }
   }
 
@@ -163,14 +132,14 @@ export default function InvoiceCard() {
       <div className="conn-card-head">
         <span className="conn-icon"><FileText size={22} strokeWidth={1.6} aria-hidden="true" /></span>
         <div className="conn-card-titles">
-          <p className="conn-card-title">חשבוניות</p>
+          <p className="conn-card-title">{t('invoiceCard.title')}</p>
           <p className="conn-card-sub">
-            {inv.loading ? 'טוען…'
+            {inv.loading ? t('loading')
               : connected
                 ? (credsInvalid
-                    ? <><TriangleAlert size={13} strokeWidth={2} aria-hidden="true" /> דורש חיבור מחדש · {providerLabel(status.provider)}</>
-                    : <><Check size={13} strokeWidth={2} aria-hidden="true" /> מחובר · {providerLabel(status.provider)} · {envLabel(status.environment)}</>)
-                : 'לא מחובר — הפקת חשבוניות וקבלות ישירות מסימפליסיטי.'}
+                    ? <><TriangleAlert size={13} strokeWidth={2} aria-hidden="true" /> {t('invoiceCard.needsReconnectStatus', { provider: providerLabel(status.provider) })}</>
+                    : <><Check size={13} strokeWidth={2} aria-hidden="true" /> {t('invoiceCard.connectedStatus', { provider: providerLabel(status.provider), env: envLabel(status.environment) })}</>)
+                : t('invoiceCard.notConnectedHint')}
           </p>
         </div>
       </div>
@@ -182,9 +151,9 @@ export default function InvoiceCard() {
       {credsInvalid && !reconnecting && (
         <div className="conn-broken" role="alert">
           <TriangleAlert size={16} strokeWidth={1.8} aria-hidden="true" />
-          <span>פרטי ההזדהות לשירות אינם תקפים יותר — ייתכן שהמפתח בוטל או הוחלף. כדי להמשיך להפיק חשבוניות, התחבר/י מחדש.</span>
+          <span>{t('invoiceCard.brokenMsg')}</span>
           <button type="button" className="conn-btn primary conn-broken-btn" onClick={startReconnect}>
-            {addr({ male: 'התחבר מחדש', female: 'התחברי מחדש', neutral: 'התחבר/י מחדש' })}
+            {t('invoiceCard.reconnect')}
           </button>
         </div>
       )}
@@ -192,17 +161,17 @@ export default function InvoiceCard() {
       {(!connected || reconnecting) ? (
         <div className="conn-connect">
           <div className="conn-lbl-row">
-            <span className="conn-field-lbl">{addr({ male: 'בחר ספק', female: 'בחרי ספק', neutral: 'בחר/י ספק' })}</span>
+            <span className="conn-field-lbl">{t('invoiceCard.pickProvider')}</span>
             <button type="button" className="conn-help-btn" onClick={() => setShowHelp((v) => !v)} aria-expanded={showHelp}>
-              <HelpCircle size={15} strokeWidth={1.7} aria-hidden="true" /> איך משיגים?
+              <HelpCircle size={15} strokeWidth={1.7} aria-hidden="true" /> {t('invoiceCard.howTo')}
             </button>
           </div>
           {showHelp && (
             <ol className="conn-help-steps">
-              {def.steps.map((s, i) => <li key={i}>{s}</li>)}
+              {t(`invoiceCard.steps.${def.tk}`, { returnObjects: true }).map((s, i) => <li key={i}>{s}</li>)}
             </ol>
           )}
-          <div className="conn-pills" role="group" aria-label="ספק חשבוניות">
+          <div className="conn-pills" role="group" aria-label={t('invoiceCard.providerGroupAria')}>
             {PROVIDERS.map((p) => (
               <button
                 key={p.key}
@@ -212,7 +181,7 @@ export default function InvoiceCard() {
                 disabled={!p.enabled}
                 onClick={() => p.enabled && pickProvider(p.key)}
               >
-                {p.label}{!p.enabled && <span className="conn-soon">בקרוב</span>}
+                {providerLabel(p.key)}{!p.enabled && <span className="conn-soon">{t('invoiceCard.soon')}</span>}
               </button>
             ))}
           </div>
@@ -223,7 +192,7 @@ export default function InvoiceCard() {
 
           {def.fields.map((f) => (
             <label key={f.slot} className="conn-field">
-              <span className="conn-field-lbl">{f.label}</span>
+              <span className="conn-field-lbl">{t(`invoiceCard.fields.${def.tk}.${f.slot}`)}</span>
               <input
                 type={f.type}
                 className="conn-input"
@@ -231,42 +200,42 @@ export default function InvoiceCard() {
                 onChange={(e) => setCreds((c) => ({ ...c, [f.slot]: e.target.value }))}
                 autoComplete="off"
                 dir="ltr"
-                placeholder="הדבק/י כאן"
+                placeholder={t('invoiceCard.pastePlaceholder')}
               />
             </label>
           ))}
 
           <button type="button" className="conn-btn primary" disabled={!canConnect} aria-busy={busyAction === 'connect'} onClick={onConnect}>
-            {busyAction === 'connect' ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> מתחבר…</> : (reconnecting ? addr({ male: 'התחבר מחדש', female: 'התחברי מחדש', neutral: 'התחבר/י מחדש' }) : 'חבר')}
+            {busyAction === 'connect' ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> {t('invoiceCard.connecting')}</> : (reconnecting ? t('invoiceCard.reconnect') : t('invoiceCard.connect'))}
           </button>
           {reconnecting && (
-            <button type="button" className="conn-btn ghost" disabled={busyAction === 'connect'} onClick={() => { setReconnecting(false); setLocalErr(''); setOkMsg('') }}>ביטול</button>
+            <button type="button" className="conn-btn ghost" disabled={busyAction === 'connect'} onClick={() => { setReconnecting(false); setLocalErr(''); setOkMsg('') }}>{t('invoiceCard.cancel')}</button>
           )}
 
-          <p className="conn-note">{def.help}</p>
+          <p className="conn-note">{t(`invoiceCard.help.${def.tk}`)}</p>
         </div>
       ) : (
         <>
           <div className="conn-actions">
             <button type="button" className="conn-btn primary" disabled={inv.busy} aria-busy={busyAction === 'test'} onClick={onTest}>
               {busyAction === 'test'
-                ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> בודק…</>
-                : <><RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {addr({ male: 'בדוק חיבור', female: 'בדקי חיבור', neutral: 'בדוק/י חיבור' })}</>}
+                ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> {t('invoiceCard.testing')}</>
+                : <><RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {t('invoiceCard.testConnection')}</>}
             </button>
             <button type="button" className="conn-btn ghost danger" disabled={inv.busy} aria-busy={busyAction === 'disconnect'} onClick={onDisconnect}>
               {busyAction === 'disconnect'
-                ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> מנתק…</>
-                : <><Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {confirmDisc ? addr({ male: 'בטוח? נתק', female: 'בטוחה? נתק', neutral: 'בטוח/ה? נתק' }) : addr({ male: 'נתק', female: 'נתקי', neutral: 'נתק/י' })}</>}
+                ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> {t('invoiceCard.disconnecting')}</>
+                : <><Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {confirmDisc ? t('invoiceCard.disconnectConfirm') : t('invoiceCard.disconnect')}</>}
             </button>
           </div>
           {confirmDisc && (
-            <span className="sr-only" role="status">{addr({ male: 'לחץ שוב לאישור הניתוק', female: 'לחצי שוב לאישור הניתוק', neutral: 'לחצו שוב לאישור הניתוק' })}</span>
+            <span className="sr-only" role="status">{t('invoiceCard.disconnectConfirmSr')}</span>
           )}
           <label className="conn-autoimport">
             <input type="checkbox" checked={!!status?.auto_import} onChange={(e) => onToggleAutoImport(e.target.checked)} disabled={inv.busy} />
-            <span>לייבא אוטומטית הכנסות?</span>
+            <span>{t('invoiceCard.autoImportLabel')}</span>
           </label>
-          <p className="conn-autoimport-note">המערכת תזהה הכנסות שהזנת בתוכנת הקבלות שלך — ותשאל אותך אם לרשום אותן גם אצלנו.</p>
+          <p className="conn-autoimport-note">{t('invoiceCard.autoImportNote')}</p>
         </>
       )}
 

@@ -1,0 +1,101 @@
+{
+  "tasks": "Tasks",
+  "reminders": "Reminders",
+  "tagline": "Take the next step.",
+  "meta": {
+    "open": "{{n}} open",
+    "openReminders": "{{n}} reminders",
+    "done": "{{n}} done"
+  },
+  "add": {
+    "task": "+ New task",
+    "reminder": "+ New reminder",
+    "taskAria": "Add task",
+    "reminderAria": "Add reminder"
+  },
+  "view": {
+    "aria": "View"
+  },
+  "filter": {
+    "aria": "Filter by status",
+    "todo": "Open",
+    "done": "Done",
+    "all": "All",
+    "recurring": "Recurring"
+  },
+  "priority": {
+    "high": "Urgent",
+    "medium": "Normal",
+    "low": "Low"
+  },
+  "buckets": {
+    "overdue": "Overdue",
+    "today": "Today",
+    "week": "This week",
+    "later": "Later"
+  },
+  "recurring": {
+    "weekday": "{{day}}",
+    "monthly": "Monthly",
+    "everyXDays": "Every few days"
+  },
+  "days": {
+    "0": "Sunday",
+    "1": "Monday",
+    "2": "Tuesday",
+    "3": "Wednesday",
+    "4": "Thursday",
+    "5": "Friday",
+    "6": "Saturday"
+  },
+  "hero": {
+    "tasksTitle": "Tasks summary",
+    "remindersTitle": "Reminders summary",
+    "open": "Open",
+    "urgentTasks": "Urgent",
+    "overdueReminders": "Overdue",
+    "done": "Done"
+  },
+  "taxonomy": {
+    "all": "All",
+    "manage": "Statuses & categories"
+  },
+  "clearAll": "Clear all",
+  "doneGroup": "Done",
+  "loading": {
+    "tasks": "Loading tasks…",
+    "reminders": "Loading reminders…"
+  },
+  "loadError": {
+    "tasks": "Couldn't load tasks: {{error}}",
+    "reminders": "Couldn't load reminders: {{error}}"
+  },
+  "empty": {
+    "tasksDone": "No tasks completed yet.",
+    "tasksTodo": "No open tasks. Nice work!",
+    "remindersDone": "No reminders completed yet.",
+    "remindersTodo": "No open reminders. All calm.",
+    "firstTask": "No tasks yet. Your first task starts here.",
+    "addTask": "Add task",
+    "whyImportant": "Why does this matter?",
+    "noRecurring": "No recurring reminders yet."
+  },
+  "clearConfirm": {
+    "tasksTitle": "Delete completed tasks",
+    "tasksMessageOne": "Delete this completed task? You can restore it from the recycle bin within 30 days.",
+    "tasksMessageMany": "Delete {{count}} completed tasks? You can restore them from the recycle bin within 30 days.",
+    "remindersTitle": "Delete completed reminders",
+    "remindersMessageOne": "Delete this completed reminder? You can restore it from the recycle bin within 30 days.",
+    "remindersMessageMany": "Delete {{count}} completed reminders? You can restore them from the recycle bin within 30 days.",
+    "confirm": "Clear all"
+  },
+  "item": {
+    "uncheck": "Clear completion",
+    "checkTask": "Mark done",
+    "checkReminder": "Mark done",
+    "reminderDone": "Done",
+    "editTask": "Edit task",
+    "editReminder": "Edit reminder",
+    "pendingOccurrences": "{{n}} occurrences still pending"
+  }
+}

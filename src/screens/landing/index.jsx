@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Trans } from 'react-i18next'
 import {
   Layers, Sun, Moon, TrendingUp, Languages,
   Users, Wallet, CalendarDays, Target, Sparkles, GitBranch,
@@ -8,7 +9,8 @@ import {
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import MG from '../../components/MG'
-import { MG_GLYPHS, mgToReadable } from '../../lib/multiGender'
+import { mgToReadable } from '../../lib/multiGender'
+import { useT } from '../../i18n/useT'
 import './LandingScreen.css'
 
 /* ════════════════════════════════════════════════════════════════════
@@ -23,126 +25,91 @@ import './LandingScreen.css'
    Section order: hero → product demo → values → features → how-it-works →
    trust/privacy → FAQ → closing CTA → footer. ONE repeated CTA = free
    signup. Numbers/%/₪ are bidi-isolated for correct RTL rendering.
+
+   i18n: copy lives in i18n/locales/{en,he}/landing.json (namespace
+   'landing'); English is source. The dual-gender role nouns (מטפלים/ות …)
+   carry MultiGndr merge glyphs in the Hebrew strings and stay plain words
+   in English — both are wrapped in <MG> so the glyphs (when present) get an
+   accessible sr-only readable form. The brand wordmark "Simplicity" stays
+   in the markup as-is.
    ════════════════════════════════════════════════════════════════════ */
 
-/* Dual-gender role nouns — the merge letters (YOD+PLU → ים/ות) render as one
-   combined glyph in the Alef MultiGndr font; <MG> pairs the visible glyph with
-   an sr-only readable "ים/ות" form for screen readers + SEO/search. */
-const PL = `${MG_GLYPHS.YOD}${MG_GLYPHS.PLU}`
-const R_THERAPIST = `מטפל${PL}`
-const R_ADVISOR = `יועצ${PL}`
-const R_TEACHER = `מור${PL}`
-const R_FACILITATOR = `מנח${PL}`
-
-const VALUES = [
-  {
-    icon: Layers,
-    title: 'הכול במקום אחד',
-    text: 'לקוחות, יומן, כספים, משימות ויעדים — בלי לקפוץ בין אקסל, וואטסאפ ופנקס. תמונה אחת שלמה של העסק, תמיד מעודכנת.',
-  },
-  {
-    icon: Sun,
-    title: 'בהירות ומלאות',
-    text: 'המערכת הזו נבנתה כדי שניהול מידע וכספים יהפוך למזין, ממלא וכיף. כדי שתוכלו להתפנות כמה שיותר להגשמה ולצמיחה שלכם.',
-  },
-  {
-    icon: TrendingUp,
-    title: 'יעדים והתפתחות',
-    text: 'המערכת לא רק תעזור לכם לראות איפה אתם, אלא גם להישאר בקשר ישיר עם המקום אליו אתם רוצים להגיע.',
-  },
-]
-
-const FEATURES = [
-  { icon: CalendarDays, title: 'פגישות ויומן', text: 'סנכרון עם גוגל קאלנדר, התראות על פגישות חוזרות או קבועות מראש, תזכורות, והוצאות והכנסות לפי תאריך — כל מה שיש לו תאריך.' },
-  { icon: Wallet, title: 'כספים', text: 'חיבור לסאמיט ולחשבונית ירוקה, הגדרת הוצאות והכנסות קבועות, חלוקה לקטגוריות — ופריסת התזרים שלך בדיוק כמו שתרצה.' },
-  { icon: Users, title: 'לידים ולקוחות', text: 'נעזור לך להחזיק את הקשר מהפנייה הראשונה ועד הפגישה האחרונה, ככה שיהיה הכי קל ונוח גם לך וגם ללקוחות שלך.' },
-  { icon: Sparkles, title: 'תובנות יומיות', text: 'ההבנה שזה לא רק עסק אלא גם בן אדם — הובילה אותנו ליצור מערכת שרואה את הכול גם מזווית הוליסטית ומותאמת אישית.' },
-  { icon: GitBranch, title: 'פרויקטים', text: 'מחזורים קבוצתיים, לקוחות פרטניים; אפשר לבנות ולהתאים מיני-מערכת לכל פרויקט בנפרד — כך שפיזור ומיקוד רק יעצימו זה את זה.' },
-  { icon: Target, title: 'יעדים ומבט על', text: 'הציבו יעדים חודשיים, וראו ב״מבט על״ אם אתם בקצב להשיג אותם.' },
-]
-
-const DEMO_POINTS = [
-  {
-    icon: Gauge,
-    title: 'מבט על — ציון אחד שאומר הכול',
-    text: 'במקום עשרה דוחות, מספר אחד שיראה לכם בדיוק איפה אתם מול היעדים שלכם.',
-  },
-  {
-    icon: Bell,
-    title: 'דרושה תשומת לב',
-    text: 'המערכת מקדימה ומראה מה דורש פעולה — תשלום שתקוע, פגישה מתקרבת, לקוח ששקט.',
-  },
-  {
-    icon: SlidersHorizontal,
-    title: 'מותאם אליכם',
-    text: 'בוחרים מה לראות, איך ומתי.',
-  },
-]
-
-const TRUST = [
-  {
-    icon: ShieldCheck,
-    title: 'מוגן ושמור',
-    text: 'הנתונים שמורים בשרתים באירלנד (EU), מוצפנים ברמת-התשתית, ומבודדים לגמרי — רק אתם ניגשים לנתוניכם.',
-  },
-  {
-    icon: Languages,
-    title: 'נבנתה בעברית',
-    text: 'מהיסוד מימין לשמאל, עם פנייה בלשון זכר, נקבה או ניטרלי — לבחירתכם.',
-  },
-  {
-    icon: EyeOff,
-    title: 'בלי פרסומות, בלי מכירת מידע',
-    text: 'המידע שלכם לא מועבר לאף אחד. הוא שלכם בלבד, נקודה.',
-  },
-]
-
-const FAQS = [
-  {
-    q: 'למי סימפליסיטי מתאימה?',
-    a: `ל${R_THERAPIST}, ${R_TEACHER} ו${R_FACILITATOR} — ולכל מי שמלווה אנשים ומנהל עסק עצמאי, לבד או בקבוצות. מתאימה גם אם אתם רק בתחילת הדרך.`,
-  },
-  {
-    q: 'כמה זמן לוקח להתחיל?',
-    a: 'דקות. נרשמים, מספרים על העיסוק, ואפשר גם לייבא לקוחות וכספים קיימים מאקסל — והמערכת מזהה את העמודות באופן אוטומטי.',
-  },
-  {
-    q: 'מה עם הפרטיות של הלקוחות שלי?',
-    a: 'הנתונים שמורים בשרתים באירלנד (EU), מוצפנים ברמת-התשתית, ומבודדים כך שרק אתם ניגשים לנתוניכם — אנחנו לא מוכרים ולא חולקים עם אף אחד.',
-  },
-  {
-    q: 'כמה זה עולה?',
-    a: 'אפשר להתחיל בחינם וליצור חשבון בלי כרטיס אשראי, כדי להכיר את המערכת בקצב שלכם.',
-  },
-  {
-    q: 'צריך להתקין משהו?',
-    a: 'לא. סימפליסיטי עובדת בדפדפן ובנייד, ואפשר להוסיף אותה למסך הבית כאפליקציה — בלי הורדות ובלי עדכונים.',
-  },
-  {
-    q: 'זה באמת בעברית ומותאם אליי?',
-    a: 'לגמרי. נבנתה מהיסוד בעברית מלאה ומימין לשמאל, עם שקלים, תאריכים עבריים ופנייה בלשון זכר, נקבה או ניטרלי.',
-  },
-]
-
-/* FAQ structured data — rendered only on this page (the homepage), built
-   from the single FAQS source so the markup never drifts from the copy. */
-const FAQ_LD = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: FAQS.map(({ q, a }) => ({
-    '@type': 'Question',
-    name: q,
-    acceptedAnswer: { '@type': 'Answer', text: mgToReadable(a) },
-  })),
-}
-
 export default function LandingScreen() {
+  const { t } = useT('landing')
   const rootRef = useRef(null)
   const veilRef = useRef(null)
   const [scrolled, setScrolled] = useState(false)
   const [theme, setTheme] = useState(() =>
     (typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark') ? 'dark' : 'light'
   )
+
+  /* The three role nouns shared by hero / CTA / footer / FAQ, pre-joined per
+     the active language ("מטפלים/ות, מורים/ות ומנחים/ות" / "therapists,
+     teachers and facilitators"). The Hebrew nouns carry merge glyphs. */
+  const roleList = t('roles.list', {
+    therapist: t('roles.therapists'),
+    teacher: t('roles.teachers'),
+    facilitator: t('roles.facilitators'),
+  })
+
+  const VALUES = [
+    { icon: Layers, title: t('values.allInOne.title'), text: t('values.allInOne.text') },
+    { icon: Sun, title: t('values.clarity.title'), text: t('values.clarity.text') },
+    { icon: TrendingUp, title: t('values.growth.title'), text: t('values.growth.text') },
+  ]
+
+  const FEATURES = [
+    { icon: CalendarDays, title: t('features.calendar.title'), text: t('features.calendar.text') },
+    { icon: Wallet, title: t('features.finance.title'), text: t('features.finance.text') },
+    { icon: Users, title: t('features.clients.title'), text: t('features.clients.text') },
+    { icon: Sparkles, title: t('features.insights.title'), text: t('features.insights.text') },
+    { icon: GitBranch, title: t('features.projects.title'), text: t('features.projects.text') },
+    { icon: Target, title: t('features.goals.title'), text: t('features.goals.text') },
+  ]
+
+  const DEMO_POINTS = [
+    { icon: Gauge, title: t('demo.points.score.title'), text: t('demo.points.score.text') },
+    { icon: Bell, title: t('demo.points.attention.title'), text: t('demo.points.attention.text') },
+    { icon: SlidersHorizontal, title: t('demo.points.tailored.title'), text: t('demo.points.tailored.text') },
+  ]
+
+  const TRUST = [
+    { icon: ShieldCheck, title: t('trust.secure.title'), text: t('trust.secure.text') },
+    { icon: Languages, title: t('trust.hebrew.title'), text: t('trust.hebrew.text') },
+    { icon: EyeOff, title: t('trust.noAds.title'), text: t('trust.noAds.text') },
+  ]
+
+  /* FAQ — answers interpolate the (glyph-bearing) role nouns, so each one is
+     wrapped in <MG> for the accessible readable form. */
+  const FAQS = [
+    {
+      q: t('faq.fit.q'),
+      a: t('faq.fit.a', {
+        therapist: t('roles.therapists'),
+        teacher: t('roles.teachers'),
+        facilitator: t('roles.facilitators'),
+      }),
+    },
+    { q: t('faq.start.q'), a: t('faq.start.a') },
+    { q: t('faq.privacy.q'), a: t('faq.privacy.a') },
+    { q: t('faq.price.q'), a: t('faq.price.a') },
+    { q: t('faq.install.q'), a: t('faq.install.a') },
+    { q: t('faq.hebrew.q'), a: t('faq.hebrew.a') },
+  ]
+
+  /* FAQ structured data — rendered only on this page (the homepage), built
+     from the single FAQS source so the markup never drifts from the copy.
+     mgToReadable strips any merge glyphs from the answer text. */
+  const FAQ_LD = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: mgToReadable(a) },
+    })),
+  }
+
   /* Day/night toggle — writes the same localStorage key + data-theme the app's
      bootstrap uses, so the choice persists on reload and into the app. */
   const toggleTheme = () => {
@@ -207,26 +174,26 @@ export default function LandingScreen() {
       {/* ── Header ─────────────────────────────────────────────── */}
       <header className={`lp-header${scrolled ? ' scrolled' : ''}`}>
         <div className="lp-wrap lp-header-in">
-          <a className="lp-brand" href="#top" aria-label="Simplicity — לדף הבית">
+          <a className="lp-brand" href="#top" aria-label={t('nav.home')}>
             <img src="/logo-dark.png" className="lp-brand-logo dark" alt="" aria-hidden="true" />
             <img src="/logo-light.png" className="lp-brand-logo light" alt="" aria-hidden="true" />
             <span className="lp-brand-name">Simplicity</span>
           </a>
-          <nav className="lp-header-actions" aria-label="פעולות חשבון">
+          <nav className="lp-header-actions" aria-label={t('nav.accountActions')}>
             <button
               type="button"
               className="lp-switch"
               role="switch"
               aria-checked={theme === 'dark'}
               onClick={toggleTheme}
-              aria-label={theme === 'dark' ? 'מעבר לתצוגת יום' : 'מעבר לתצוגת לילה'}
+              aria-label={theme === 'dark' ? t('nav.toDay') : t('nav.toNight')}
             >
               <Sun className="lp-switch-ic lp-switch-sun" size={14} strokeWidth={2} aria-hidden="true" />
               <Moon className="lp-switch-ic lp-switch-moon" size={13} strokeWidth={2} aria-hidden="true" />
               <span className="lp-switch-knob" aria-hidden="true" />
             </button>
-            <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-ghost">כניסה</Link>
-            <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-pill">התחילו בחינם</Link>
+            <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-ghost">{t('nav.login')}</Link>
+            <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-pill">{t('nav.startFree')}</Link>
           </nav>
         </div>
       </header>
@@ -238,36 +205,41 @@ export default function LandingScreen() {
           <img src="/logo-light.png" className="lp-hero-mark light" alt="" aria-hidden="true" />
           <span className="lp-eyebrow">
             <span className="lp-eyebrow-dot" />
-            מערכת הפעלה לעסק
+            {t('hero.eyebrow')}
           </span>
           <h1 className="lp-hero-title" id="lp-h1">
-            כל העסק שלך,<br />
-            <span className="accent">במקום אחד שקט.</span>
+            {t('hero.title1')}<br />
+            <span className="accent">{t('hero.title2')}</span>
           </h1>
           <p className="lp-hero-sub">
-            <MG text={`ל${R_THERAPIST}, ${R_ADVISOR}, ${R_TEACHER} ו${R_FACILITATOR}:`} /><br />
-            פרויקטים, כספים, לקוחות, פגישות, יעדים — הכל במקום אחד בהיר, נעים ובעברית. ״מבט על״ אחד שמראה לכם בדיוק מה צריך לקרות החודש.
+            <MG text={t('hero.subAddress', {
+              therapist: t('roles.therapists'),
+              advisor: t('roles.advisors'),
+              teacher: t('roles.teachers'),
+              facilitator: t('roles.facilitators'),
+            })} /><br />
+            {t('hero.subBody')}
           </p>
           <div className="lp-hero-cta">
-            <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg">התחילו בחינם</Link>
-            <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-secondary">כבר יש לי חשבון</Link>
+            <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg">{t('hero.ctaPrimary')}</Link>
+            <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-secondary">{t('hero.ctaSecondary')}</Link>
           </div>
-          <p className="lp-hero-trust">הרשמה בחינם | אפשר לעזוב תמיד | אפשר לייבא ולייצא את כל המידע שלכם</p>
+          <p className="lp-hero-trust">{t('hero.trust')}</p>
         </section>
 
         {/* ── Product preview (early proof) ────────────────────── */}
         <section className="lp-section lp-wrap" aria-labelledby="lp-demo-h">
           <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">המסך הראשי</span>
-            <h2 className="lp-section-title" id="lp-demo-h">היום שלכם, מרוכז במסך אחד</h2>
+            <span className="lp-section-eyebrow">{t('demo.eyebrow')}</span>
+            <h2 className="lp-section-title" id="lp-demo-h">{t('demo.title')}</h2>
             <p className="lp-section-sub">
-              נכנסים בבוקר ורואים בדיוק מה חשוב: איפה אתם עומדים, ומה דורש תשומת לב עכשיו.
+              {t('demo.sub')}
             </p>
           </div>
 
           <div className="lp-demo-grid">
             <div className="lp-demo-stage lp-reveal">
-              <div className="lp-device" role="img" aria-label="תצוגה של המסך הראשי בסימפליסיטי: ‘מבט על’ עם ציון של 78 אחוז בקצב, ורשימת פריטים שדורשים תשומת לב.">
+              <div className="lp-device" role="img" aria-label={t('demo.deviceAria')}>
                 <div className="lp-screen" aria-hidden="true">
                   <div className="lp-moon">
                     <div className="lp-ring">
@@ -282,37 +254,45 @@ export default function LandingScreen() {
                       </div>
                     </div>
                     <div className="lp-moon-body">
-                      <p className="lp-moon-title">מבט על</p>
-                      <p className="lp-moon-line">אתם <b>בקצב</b> להשגת היעדים החודש — המשיכו ככה.</p>
+                      <p className="lp-moon-title">{t('demo.moonTitle')}</p>
+                      <p className="lp-moon-line">
+                        <Trans t={t} i18nKey="demo.moonLine" components={[<b key="b" />]} />
+                      </p>
                     </div>
                   </div>
 
                   <div className="lp-rows">
                     <div className="lp-rows-head">
-                      <span className="lp-rows-title">דרושה תשומת לב</span>
-                      <span className="lp-rows-count"><bdi>3</bdi> פריטים</span>
+                      <span className="lp-rows-title">{t('demo.attentionTitle')}</span>
+                      <span className="lp-rows-count">
+                        <Trans t={t} i18nKey="demo.attentionCount" values={{ count: 3 }} components={[<bdi key="c" />]} />
+                      </span>
                     </div>
                     <div className="lp-row">
                       <span className="lp-row-dot amber"><Wallet size={16} strokeWidth={1.8} /></span>
                       <div className="lp-row-body">
-                        <p className="lp-row-t">3 תנועות ממתינות לאישור</p>
-                        <p className="lp-row-s">כספים</p>
+                        <p className="lp-row-t">{t('demo.row1Title')}</p>
+                        <p className="lp-row-s">{t('demo.row1Sub')}</p>
                       </div>
                       <span className="lp-row-val"><bdi>₪1,240</bdi></span>
                     </div>
                     <div className="lp-row">
                       <span className="lp-row-dot sage"><CalendarDays size={16} strokeWidth={1.8} /></span>
                       <div className="lp-row-body">
-                        <p className="lp-row-t">פגישה היום ב־<bdi>17:00</bdi></p>
-                        <p className="lp-row-s">יומן · דניאל כהן</p>
+                        <p className="lp-row-t">
+                          <Trans t={t} i18nKey="demo.row2Title" components={[<bdi key="t" />]} />
+                        </p>
+                        <p className="lp-row-s">{t('demo.row2Sub')}</p>
                       </div>
                       <ArrowLeft size={16} strokeWidth={1.8} style={{ color: 'var(--stone)' }} />
                     </div>
                     <div className="lp-row">
                       <span className="lp-row-dot clay"><Users size={16} strokeWidth={1.8} /></span>
                       <div className="lp-row-body">
-                        <p className="lp-row-t">לא דיברתם <bdi>45</bdi> יום</p>
-                        <p className="lp-row-s">מעקב · מיכל לוי</p>
+                        <p className="lp-row-t">
+                          <Trans t={t} i18nKey="demo.row3Title" components={[<bdi key="d" />]} />
+                        </p>
+                        <p className="lp-row-s">{t('demo.row3Sub')}</p>
                       </div>
                       <ArrowLeft size={16} strokeWidth={1.8} style={{ color: 'var(--stone)' }} />
                     </div>
@@ -338,10 +318,10 @@ export default function LandingScreen() {
         {/* ── Values ───────────────────────────────────────────── */}
         <section className="lp-section lp-wrap" aria-labelledby="lp-values-h">
           <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">למה סימפליסיטי</span>
-            <h2 className="lp-section-title" id="lp-values-h">פחות בלגן. יותר נוכחות.</h2>
+            <span className="lp-section-eyebrow">{t('values.eyebrow')}</span>
+            <h2 className="lp-section-title" id="lp-values-h">{t('values.title')}</h2>
             <p className="lp-section-sub">
-              שלושה דברים שהופכים את סימפליסיטי למקום שנעים לנהל ממנו עסק — לא עוד תוכנה, אלא בית.
+              {t('values.sub')}
             </p>
           </div>
           <div className="lp-values">
@@ -358,10 +338,10 @@ export default function LandingScreen() {
         {/* ── Features ─────────────────────────────────────────── */}
         <section className="lp-section lp-wrap" aria-labelledby="lp-features-h">
           <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">מה יש בפנים</span>
-            <h2 className="lp-section-title" id="lp-features-h">כל מה שצריך כדי לנהל את העסק</h2>
+            <span className="lp-section-eyebrow">{t('features.eyebrow')}</span>
+            <h2 className="lp-section-title" id="lp-features-h">{t('features.title')}</h2>
             <p className="lp-section-sub">
-              ששת הכלים שעובדים יחד — מהפנייה הראשונה ועד התמונה הגדולה בסוף החודש.
+              {t('features.sub')}
             </p>
           </div>
           <div className="lp-features">
@@ -382,11 +362,9 @@ export default function LandingScreen() {
               <img src="/logo-dark.png" className="lp-feedback-logo dark" alt="" aria-hidden="true" />
               <img src="/logo-light.png" className="lp-feedback-logo light" alt="" aria-hidden="true" />
             </span>
-            <h2 className="lp-section-title" id="lp-feedback-h">אתם הלב של סימפליסיטי</h2>
+            <h2 className="lp-section-title" id="lp-feedback-h">{t('feedback.title')}</h2>
             <p className="lp-feedback-text">
-              פתיחות מלאה ונגישות מלאה לפידבק — בכל רגע, על כל דבר. כי תוכנה טובה לא נבנית במגדל
-              שן, אלא יחד עם האנשים שמשתמשים בה. כל מילה שלכם עוזרת לסימפליסיטי להתאים את עצמה
-              אליכם — ואנחנו כאן כדי להקשיב.
+              {t('feedback.text')}
             </p>
           </article>
         </section>
@@ -394,9 +372,9 @@ export default function LandingScreen() {
         {/* ── Trust / privacy ──────────────────────────────────── */}
         <section className="lp-section lp-wrap" aria-labelledby="lp-trust-h">
           <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">פרטיות ושקט נפשי</span>
-            <h2 className="lp-section-title" id="lp-trust-h">הנתונים שלך — שלך בלבד.</h2>
-            <p className="lp-section-sub">פרטיות היא לא עוד הגדרה במערכת. היא חלק מהשקט.</p>
+            <span className="lp-section-eyebrow">{t('trust.eyebrow')}</span>
+            <h2 className="lp-section-title" id="lp-trust-h">{t('trust.title')}</h2>
+            <p className="lp-section-sub">{t('trust.sub')}</p>
           </div>
           <div className="lp-values">
             {TRUST.map(({ icon: Icon, title, text }) => (
@@ -412,8 +390,8 @@ export default function LandingScreen() {
         {/* ── FAQ ──────────────────────────────────────────────── */}
         <section className="lp-section lp-wrap" aria-labelledby="lp-faq-h">
           <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">שאלות נפוצות</span>
-            <h2 className="lp-section-title" id="lp-faq-h">כל מה שרציתם לדעת</h2>
+            <span className="lp-section-eyebrow">{t('faq.eyebrow')}</span>
+            <h2 className="lp-section-title" id="lp-faq-h">{t('faq.title')}</h2>
           </div>
           <div className="lp-faq">
             {FAQS.map(({ q, a }) => (
@@ -431,15 +409,15 @@ export default function LandingScreen() {
         {/* ── Closing CTA ──────────────────────────────────────── */}
         <section className="lp-cta lp-wrap">
           <div className="lp-cta-card lp-reveal">
-            <h2 className="lp-cta-title">הכול מתחיל כאן.</h2>
+            <h2 className="lp-cta-title">{t('cta.title')}</h2>
             <p className="lp-cta-sub">
-              הצטרפו ל<MG text={`${R_THERAPIST}, ${R_TEACHER} ו${R_FACILITATOR}`} /> שכבר מנהלים את העסק שלהם ברוגע — במקום אחד.
+              <MG text={t('cta.sub', { roles: roleList })} />
             </p>
             <div className="lp-cta-actions">
-              <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg">התחילו בחינם</Link>
-              <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-secondary">יש לי כבר חשבון</Link>
+              <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg">{t('cta.ctaPrimary')}</Link>
+              <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-secondary">{t('cta.ctaSecondary')}</Link>
             </div>
-            <p className="lp-cta-micro">הרשמה בחינם | אפשר לעזוב תמיד | אפשר לייבא ולייצא את כל המידע שלכם</p>
+            <p className="lp-cta-micro">{t('cta.micro')}</p>
           </div>
         </section>
       </main>
@@ -453,27 +431,27 @@ export default function LandingScreen() {
               <img src="/logo-light.png" className="lp-brand-logo light" alt="" aria-hidden="true" />
               <span className="lp-brand-name">Simplicity</span>
             </span>
-            <p className="lp-foot-tag">מערכת הפעלה לעסק — ל<MG text={`${R_THERAPIST}, ${R_TEACHER} ו${R_FACILITATOR}`} />. נבנתה באהבה בשביל לעזור ליצור עוד טוב בעולם.</p>
+            <p className="lp-foot-tag"><MG text={t('footer.tagline', { roles: roleList })} /></p>
           </div>
           <div className="lp-foot-links">
             <div className="lp-foot-col">
-              <span className="lp-foot-col-h">מוצר</span>
-              <Link to={ROUTES.SIGNUP} className="lp-foot-link">הרשמה</Link>
-              <Link to={ROUTES.LOGIN} className="lp-foot-link">כניסה</Link>
+              <span className="lp-foot-col-h">{t('footer.colProduct')}</span>
+              <Link to={ROUTES.SIGNUP} className="lp-foot-link">{t('footer.signup')}</Link>
+              <Link to={ROUTES.LOGIN} className="lp-foot-link">{t('footer.login')}</Link>
             </div>
             <div className="lp-foot-col">
-              <span className="lp-foot-col-h">משפטי</span>
-              <Link to={`${ROUTES.LEGAL}?tab=privacy`} className="lp-foot-link">מדיניות פרטיות</Link>
-              <Link to={`${ROUTES.LEGAL}?tab=terms`} className="lp-foot-link">תנאי שימוש</Link>
+              <span className="lp-foot-col-h">{t('footer.colLegal')}</span>
+              <Link to={`${ROUTES.LEGAL}?tab=privacy`} className="lp-foot-link">{t('footer.privacy')}</Link>
+              <Link to={`${ROUTES.LEGAL}?tab=terms`} className="lp-foot-link">{t('footer.terms')}</Link>
             </div>
             <div className="lp-foot-col">
-              <span className="lp-foot-col-h">קשר</span>
-              <a href="mailto:simplicity.os.app@gmail.com" className="lp-foot-link">צרו קשר</a>
+              <span className="lp-foot-col-h">{t('footer.colContact')}</span>
+              <a href="mailto:simplicity.os.app@gmail.com" className="lp-foot-link">{t('footer.contact')}</a>
             </div>
           </div>
         </div>
         <div className="lp-wrap lp-foot-legal">
-          <span>© 2026 סימפליסיטי. כל הזכויות שמורות.</span>
+          <span>{t('footer.copyright')}</span>
         </div>
       </footer>
 

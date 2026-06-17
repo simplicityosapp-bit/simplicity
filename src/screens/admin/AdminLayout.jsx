@@ -5,15 +5,16 @@ import {
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import FeedbackModal from '../../modals/FeedbackModal'
+import { useT } from '../../i18n/useT'
 import './admin.css'
 
 /* Admin nav — four read-only screens. `end` on the dashboard link so it
    isn't kept "active" while on the nested /admin/* routes. */
 const NAV = [
-  { to: ROUTES.ADMIN,           label: 'דשבורד',    icon: LayoutDashboard, end: true },
-  { to: ROUTES.ADMIN_USERS,     label: 'משתמשים',   icon: Users },
-  { to: ROUTES.ADMIN_FEEDBACK,  label: 'פידבקים',   icon: MessageSquare },
-  { to: ROUTES.ADMIN_ANALYTICS, label: 'אנליטיקס',  icon: BarChart3 },
+  { to: ROUTES.ADMIN,           key: 'nav.dashboard', icon: LayoutDashboard, end: true },
+  { to: ROUTES.ADMIN_USERS,     key: 'nav.users',     icon: Users },
+  { to: ROUTES.ADMIN_FEEDBACK,  key: 'nav.feedback',  icon: MessageSquare },
+  { to: ROUTES.ADMIN_ANALYTICS, key: 'nav.analytics', icon: BarChart3 },
 ]
 
 /* ════════════════════════════════════════════════════════════════
@@ -24,21 +25,22 @@ const NAV = [
    nothing.
    ════════════════════════════════════════════════════════════════ */
 export default function AdminLayout({ children }) {
+  const { t } = useT('admin')
   const navigate = useNavigate()
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   return (
     <div className="admin-root" data-admin>
-      <aside className="admin-nav" aria-label="ניווט ניהול">
+      <aside className="admin-nav" aria-label={t('nav.label')}>
         <div className="admin-nav-brand">
           <span className="admin-nav-dot" aria-hidden="true" />
           <div>
-            <p className="admin-nav-title">ניהול</p>
+            <p className="admin-nav-title">{t('nav.title')}</p>
             <p className="admin-nav-sub">Simplicity</p>
           </div>
         </div>
 
         <nav className="admin-nav-list">
-          {NAV.map(({ to, label, icon: Icon, end }) => (
+          {NAV.map(({ to, key, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
@@ -46,7 +48,7 @@ export default function AdminLayout({ children }) {
               className={({ isActive }) => `admin-nav-link${isActive ? ' on' : ''}`}
             >
               <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
-              <span>{label}</span>
+              <span>{t(key)}</span>
             </NavLink>
           ))}
         </nav>
@@ -55,20 +57,20 @@ export default function AdminLayout({ children }) {
           type="button"
           className="admin-nav-link admin-nav-action"
           onClick={() => setFeedbackOpen(true)}
-          title="שליחת פידבק"
+          title={t('nav.sendFeedback')}
         >
           <MessageSquarePlus size={18} strokeWidth={1.8} aria-hidden="true" />
-          <span>פידבק</span>
+          <span>{t('nav.feedbackAction')}</span>
         </button>
 
         <button
           type="button"
           className="admin-nav-exit"
           onClick={() => navigate(ROUTES.HOME)}
-          title="חזרה לאפליקציה"
+          title={t('nav.backToApp')}
         >
           <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
-          <span>חזרה לאפליקציה</span>
+          <span>{t('nav.backToApp')}</span>
         </button>
       </aside>
 

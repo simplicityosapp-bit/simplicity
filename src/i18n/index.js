@@ -40,12 +40,22 @@ import heCalendar from './locales/he/calendar.json'
 import enCalendar from './locales/en/calendar.json'
 import heLeads from './locales/he/leads.json'
 import enLeads from './locales/en/leads.json'
+import heProjects from './locales/he/projects.json'
+import enProjects from './locales/en/projects.json'
+import heTasks from './locales/he/tasks.json'
+import enTasks from './locales/en/tasks.json'
+import heConnections from './locales/he/connections.json'
+import enConnections from './locales/en/connections.json'
+import heAdmin from './locales/he/admin.json'
+import enAdmin from './locales/en/admin.json'
+import heLanding from './locales/he/landing.json'
+import enLanding from './locales/en/landing.json'
 
-export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads']
+export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing']
 
 const resources = {
-  he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads },
-  en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads },
+  he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads, projects: heProjects, tasks: heTasks, connections: heConnections, admin: heAdmin, landing: heLanding },
+  en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads, projects: enProjects, tasks: enTasks, connections: enConnections, admin: enAdmin, landing: enLanding },
   es: { common: esCommon, auth: esAuth },
   fr: { common: frCommon, auth: frAuth },
 }

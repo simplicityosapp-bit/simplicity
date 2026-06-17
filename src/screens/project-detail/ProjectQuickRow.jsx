@@ -22,6 +22,7 @@ import AddReminderModal from '../../modals/AddReminderModal'
 import ScheduleMeetingModal from '../../modals/ScheduleMeetingModal'
 import AddGoalEntryModal from '../../modals/AddGoalEntryModal'
 import QuickGoalUpdatePicker from '../../modals/QuickGoalUpdatePicker'
+import { useT } from '../../i18n/useT'
 
 /* Project-scoped twin of the home QuickRow. Same two CTAs ("תנועה
    מהירה" + "עדכון זריז") and the same launcher → Add* modal flow,
@@ -38,6 +39,7 @@ import QuickGoalUpdatePicker from '../../modals/QuickGoalUpdatePicker'
        context, but the home QuickRow still covers them.
 */
 export default function ProjectQuickRow({ projectId, projectName }) {
+  const { t } = useT('projects')
   const { addTransaction } = useTransactions()
   const { clients, addClient } = useClients()
   const { statuses: clientStatuses } = useClientStatuses()
@@ -64,7 +66,7 @@ export default function ProjectQuickRow({ projectId, projectName }) {
         onClick={() => setShowLauncher(true)}
       >
         <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        <span>הוספה מהירה</span>
+        <span>{t('detail.quick.add')}</span>
       </button>
       <button
         type="button"
@@ -72,7 +74,7 @@ export default function ProjectQuickRow({ projectId, projectName }) {
         onClick={() => setShowPicker(true)}
       >
         <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        <span>עדכון יעד</span>
+        <span>{t('detail.quick.updateGoal')}</span>
       </button>
 
       <QuickActionsModal

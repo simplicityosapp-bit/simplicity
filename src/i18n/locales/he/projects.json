@@ -1,0 +1,143 @@
+{
+  "count": "{{count}} פרויקטים",
+  "phase": "בנייה",
+  "tagline": "מיקוד יוצר תוצאות.",
+  "title": "פרויקטים",
+  "newAria": "פרויקט חדש",
+  "new": "+ פרויקט חדש",
+  "range": {
+    "aria": "טווח סכומים",
+    "monthly": "חודשי",
+    "cumulative": "מצטבר"
+  },
+  "hero": {
+    "title": "סיכום פרויקטים",
+    "projects": "פרויקטים",
+    "clients": "לקוחות",
+    "incomeMonthly": "הכנסות החודש",
+    "incomeCumulative": "הכנסות מצטברות"
+  },
+  "cardIncome": {
+    "monthly": "החודש",
+    "cumulative": "מצטבר"
+  },
+  "loading": "טוען פרויקטים…",
+  "loadError": "שגיאה בטעינת הפרויקטים: {{error}}",
+  "empty": {
+    "text": "אין עדיין פרויקטים. הפרויקט הראשון שלך מתחיל כאן.",
+    "add": "הוסף/י פרויקט",
+    "add_male": "הוסף פרויקט",
+    "add_female": "הוסיפי פרויקט",
+    "whyImportant": "למה זה חשוב?"
+  },
+  "delete": {
+    "title": "מחיקת פרויקט",
+    "message": "למחוק את \"{{name}}\"? הלקוחות והתנועות יישארו (ללא פרויקט).",
+    "confirm": "מחק"
+  },
+  "card": {
+    "active": "פעילה",
+    "editTitle": "ערוך פרויקט",
+    "deleteTitle": "מחק פרויקט",
+    "clients": "לקוחות",
+    "tasks": "משימות"
+  },
+  "detail": {
+    "days": ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"],
+    "notFound": "הפרויקט לא נמצא.",
+    "back": "חזרה",
+    "editAria": "עריכת פרויקט",
+    "metaActive": "פעיל׊׉",
+    "metaWandering": "{{count}} ביניים",
+    "metaGroups": "{{count}} קבוצות",
+    "stats": {
+      "clients": "לקוחות",
+      "incomeMonth": "הכנסה החודש",
+      "groups": "קבוצות"
+    },
+    "undo": {
+      "groupDeleted": "הקבוצה נמחקה",
+      "memberRemoved": "החבר הוסר מהקבוצה"
+    },
+    "groups": {
+      "title": "קבוצות",
+      "empty": "עדיין אין קבוצות. {{add}} קבוצה כדי להתחיל.",
+      "add": "הוסף/י",
+      "add_male": "הוסף",
+      "add_female": "הוסיפי",
+      "editAria": "עריכת קבוצה",
+      "members": "{{count}} חברים",
+      "pricePerSession": "{{price}} לפגישה",
+      "pricePackage": "{{price}} / {{count}} פגישות",
+      "noMembers": "עדיין אין חברים",
+      "fallbackClient": "(לקוח/ה)",
+      "removeMemberAria": "הסר {{name}}",
+      "removeMemberFallback": "חבר",
+      "addMember": "הוסף חבר",
+      "logSession": "תעד פגישה",
+      "pastSessions": "פגישות שהתקיימו",
+      "deleteGroup": "מחק קבוצה",
+      "pastSessionsTitle": "פגישות שהתקיימו",
+      "pastSessionsCount": "פגישות שהתקיימו ({{count}})",
+      "noSessions": "אין פגישות מתועדות עדיין",
+      "deleteSessionAria": "מחק פגישה",
+      "newGroup": "+ קבוצה חדשה"
+    },
+    "status": {
+      "active": "פעילה",
+      "in_development": "בפיתוח",
+      "ended": "הסתיימה"
+    },
+    "clients": {
+      "title": "לקוחות",
+      "empty": "אין לקוחות בפרויקט זה",
+      "private": "פרטי",
+      "addToProject": "+ <mg>לקוח/ה</mg> לפרויקט"
+    },
+    "reminders": {
+      "title": "תזכורות מקושרות",
+      "empty": "אין תזכורות מקושרות",
+      "done": "בוצעה",
+      "overdue": "באיחור",
+      "completeAria": "סמן כבוצעה",
+      "deleteAria": "מחק תזכורת",
+      "add": "תזכורת לפרויקט +"
+    },
+    "deleteSession": {
+      "title": "מחיקת פגישה",
+      "message": "למחוק את הפגישה הקבוצתית? היא תוסר לכל החברים.",
+      "confirm": "מחק"
+    },
+    "deleteReminder": {
+      "title": "מחיקת תזכורת",
+      "message": "למחוק את \"{{title}}\"?",
+      "confirm": "מחק"
+    },
+    "statusChange": {
+      "title": "שינוי סטטוס קבוצה",
+      "messageOne": "שינוי הסטטוס ל-\"{{status}}\" יעביר {{count}} לקוח ל-\"{{meta}}\". להמשיך?",
+      "messageMany": "שינוי הסטטוס ל-\"{{status}}\" יעביר {{count}} לקוחות ל-\"{{meta}}\". להמשיך?",
+      "confirm": "שנה סטטוס"
+    },
+    "meta": {
+      "active": "פעיל",
+      "past": "לשעבר"
+    },
+    "assign": {
+      "title": "שיוך לקבוצה",
+      "message": "<0>{{name}}</0> כבר משויך/ת לקבוצה אחרת. להעביר ל\"{{group}}\", או להוסיף כך שיהיה/תהיה גם וגם?",
+      "cancel": "ביטול",
+      "addBoth": "הוספה (גם וגם)",
+      "moveHere": "העברה לכאן"
+    },
+    "chart": {
+      "title": "הכנסה מצטברת — החודש",
+      "empty": "אין הכנסות לפרויקט החודש.",
+      "aria": "גרף הכנסה מצטברת לפרויקט לפי ימי החודש"
+    },
+    "quick": {
+      "add": "הוספה מהירה",
+      "updateGoal": "עדכון יעד"
+    }
+  }
+}

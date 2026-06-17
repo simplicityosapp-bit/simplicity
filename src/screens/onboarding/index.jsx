@@ -4,6 +4,7 @@ import { ROUTES } from '../../lib/routes'
 import { useOnboarding } from '../../hooks/useOnboarding'
 import { finalizeOnboardingImport } from '../../lib/onboardingImport'
 import { buildReviewFromSheets } from '../../lib/importFlow'
+import { useT } from '../../i18n/useT'
 import OnboardingShell from './OnboardingShell'
 import OnboardingReviewWizard from './OnboardingReviewWizard'
 import WelcomeGate from './WelcomeGate'
@@ -33,6 +34,7 @@ const STEPS = {
 }
 
 export default function OnboardingScreen() {
+  const { t } = useT('onboarding')
   const navigate = useNavigate()
   const ob = useOnboarding()
   /* CTA descriptor lifted to the screen so the shell footer can
@@ -106,9 +108,9 @@ export default function OnboardingScreen() {
     try {
       return await finalizeOnboardingImport(payload)
     } catch (e) {
-      return { fatal: true, error: e?.message || 'שגיאה לא צפויה' }
+      return { fatal: true, error: e?.message || t('review.error.unexpected') }
     }
-  }, [reviewMode])
+  }, [reviewMode, t])
 
   const onReviewComplete = useCallback(async () => {
     setReview(null)

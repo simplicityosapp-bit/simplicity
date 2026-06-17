@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { X } from 'lucide-react'
+import { useT } from '../../i18n/useT'
 
 /* Slide-up panel pinned to the bottom of the step card. Holds the
    step-specific "what is this and how do we use it" explanation —
@@ -7,6 +8,7 @@ import { X } from 'lucide-react'
    Escape. Per-step body content lives in helpContent.js so we can
    iterate copy without touching layout. */
 export default function OnboardingHelpPanel({ open, onClose, content }) {
+  const { t } = useT('onboarding')
   useEffect(() => {
     if (!open) return
     const onKey = (e) => e.key === 'Escape' && onClose()
@@ -25,7 +27,7 @@ export default function OnboardingHelpPanel({ open, onClose, content }) {
             type="button"
             className="ob-help-close"
             onClick={onClose}
-            aria-label="סגירת ההסבר"
+            aria-label={t('help.closeAria')}
           >
             <X size={15} strokeWidth={1.7} aria-hidden="true" />
           </button>

@@ -4,6 +4,7 @@ import { useTours } from '../hooks/useTours'
 import { tourFor } from '../lib/tours'
 import { useAddress } from '../hooks/useAddress'
 import { addressUser } from '../lib/address'
+import { useT } from '../i18n/useT'
 import './ScreenTour.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -29,6 +30,7 @@ const BUBBLE_GAP = 14      /* gap between spotlight and bubble */
 export default function ScreenTour({ screenKey }) {
   const { isSeen, markSeen } = useTours()
   const { gender } = useAddress()
+  const { t: tr } = useT('components')
   /* Tour copy may be a plain string or a {male,female,neutral} object
      (gendered direct address); resolve it for the current form of address. */
   const t = (v) => (v && typeof v === 'object' ? addressUser(gender, v) : v)
@@ -140,12 +142,12 @@ export default function ScreenTour({ screenKey }) {
             {/* "דלג" was a duplicate of "הבנתי" (both advanced one step) —
                skipping the whole tour is "דלג על הכל" below. */}
             <button type="button" className="tour-btn-next" onClick={next}>
-              {isLast ? 'סיום' : 'הבנתי'}
+              {isLast ? tr('tour.done') : tr('tour.gotIt')}
             </button>
           </div>
         </div>
         {!isLast && (
-          <button type="button" className="tour-skip-all" onClick={finish}>דלג על הכל</button>
+          <button type="button" className="tour-skip-all" onClick={finish}>{tr('tour.skipAll')}</button>
         )}
       </div>
     </div>,

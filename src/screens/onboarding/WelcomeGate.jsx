@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useOnboarding } from '../../hooks/useOnboarding'
+import { useT } from '../../i18n/useT'
 
 /* Pre-flow welcome screen — shows once before the 9-step wizard.
    Two paths: (1) start the onboarding (advance to step 1) or
@@ -11,6 +12,7 @@ import { useOnboarding } from '../../hooks/useOnboarding'
    replay on subsequent visits to /onboarding (e.g. if the user comes
    back from the settings → reset action). */
 export default function WelcomeGate() {
+  const { t } = useT('onboarding')
   const navigate = useNavigate()
   const { update } = useUserPreferences()
   const ob = useOnboarding()
@@ -37,17 +39,17 @@ export default function WelcomeGate() {
         <img className="ob-welcome-logo ob-welcome-logo-day"   src="/logo-dark.png"  alt="" aria-hidden="true" />
         <img className="ob-welcome-logo ob-welcome-logo-night" src="/logo-light.png" alt="" aria-hidden="true" />
         <p className="ob-welcome-name">Simplicity</p>
-        <p className="ob-welcome-tag">Practice OS</p>
+        <p className="ob-welcome-tag">{t('welcome.tagline')}</p>
 
         <button type="button" className="ob-welcome-option primary" onClick={onStart}>
-          <span className="ob-welcome-option-title">אונבורדינג</span>
-          <span className="ob-welcome-option-sub">היכרות קצרה ומעמיקה והתאמות אישיות</span>
+          <span className="ob-welcome-option-title">{t('welcome.startTitle')}</span>
+          <span className="ob-welcome-option-sub">{t('welcome.startSub')}</span>
           <ArrowLeft size={16} strokeWidth={1.8} className="ob-welcome-option-arrow" aria-hidden="true" />
         </button>
 
         <button type="button" className="ob-welcome-option ghost" onClick={onSkip}>
-          <span className="ob-welcome-option-title">אני רוצה כבר להכנס</span>
-          <span className="ob-welcome-option-sub">אני אסתדר עם ללמוד הכל לבד</span>
+          <span className="ob-welcome-option-title">{t('welcome.skipTitle')}</span>
+          <span className="ob-welcome-option-sub">{t('welcome.skipSub')}</span>
           <ArrowLeft size={16} strokeWidth={1.8} className="ob-welcome-option-arrow" aria-hidden="true" />
         </button>
       </div>

@@ -9,14 +9,15 @@ import {
   mirrorReflections, indexAnswers, dateKey,
 } from '../../lib/insights'
 import { fmtShortDate } from '../../lib/dates'
+import { useT } from '../../i18n/useT'
 import './InsightsScreen.css'
 
 /* ── Inline trend line — last 30 days, missing days drawn as gaps. */
-function TrendLine({ points }) {
+function TrendLine({ points, t }) {
   const W = 240, H = 48, pad = 4
   const numeric = points.filter((p) => p.value != null)
   if (numeric.length < 2) {
-    return <div className="ins-trend-empty">אין מספיק נתונים</div>
+    return <div className="ins-trend-empty">{t('trend.notEnough')}</div>
   }
   const min = Math.min(...numeric.map((p) => p.value))
   const max = Math.max(...numeric.map((p) => p.value))
@@ -33,7 +34,7 @@ function TrendLine({ points }) {
   })
   if (curr.length) segments.push(curr)
   return (
-    <svg className="ins-trend-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="מגמת השאלה ב-30 הימים האחרונים">
+    <svg className="ins-trend-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t('trend.aria')}>
       {segments.map((seg, i) => (
         <polyline key={i} className="ins-trend-line" points={seg.map((p) => p.join(',')).join(' ')} />
       ))}
@@ -47,7 +48,7 @@ function TrendLine({ points }) {
 /* ── 53 × 7 heatmap. Cells are <rect>s — small enough to render
    ~370 in a single SVG without slowing. Colour scales linearly from
    the question's observed min to its observed max. */
-function Heatmap({ weeks, scale }) {
+function Heatmap({ weeks, scale, t }) {
   const CELL = 9, GAP = 2
   const W = weeks.length * (CELL + GAP)
   const H = 7 * (CELL + GAP)
@@ -61,7 +62,7 @@ function Heatmap({ weeks, scale }) {
     return 0.18 + ((v - min) / range) * 0.72
   }
   return (
-    <svg className="ins-heat-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMaxYMin meet" role="img" aria-label="היסטוריית תשובות שנתית">
+    <svg className="ins-heat-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMaxYMin meet" role="img" aria-label={t('heatmap.aria')}>
       {weeks.map((col, ci) => col.map((cell, ri) => {
         if (!cell) return null
         const x = ci * (CELL + GAP)
@@ -93,7 +94,7 @@ function DeltaPill({ delta }) {
   return <span className={`ins-delta ${tone} mono`}>{sign}{Math.abs(delta).toFixed(1)}</span>
 }
 
-function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle, skipped, onSkip }) {
+function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle, skipped, onSkip, t }) {
   const avg7 = averageForWindow(idx, question.id, 7)
   const avg30 = averageForWindow(idx, question.id, 30)
   const d7 = deltaVsPrevWindow(idx, question.id, 7)
@@ -107,13 +108,13 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
       <div className="ins-q-head">
         <span className="ins-q-icon">{question.icon || '🫧'}</span>
         <p className="ins-q-text">{questionText(question)}</p>
-        {latestAnswerToday != null && <span className="ins-q-today-pill mono">היום · {latestAnswerToday}</span>}
+        {latestAnswerToday != null && <span className="ins-q-today-pill mono">{t('card.todayPill', { value: latestAnswerToday })}</span>}
         <button
           type="button"
           role="switch"
           aria-checked={active}
-          aria-label={active ? `כיבוי השאלה "${questionText(question)}"` : `הפעלת השאלה "${questionText(question)}"`}
-          title={active ? 'כיבוי השאלה' : 'הפעלת השאלה'}
+          aria-label={active ? t('card.turnOffAria', { question: questionText(question) }) : t('card.turnOnAria', { question: questionText(question) })}
+          title={active ? t('card.turnOffTitle') : t('card.turnOnTitle')}
           className={`ins-q-toggle${active ? ' on' : ''}`}
           onClick={onToggle}
         >
@@ -130,8 +131,8 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
         <div className="ins-q-entry">
           {isYn ? (
             <div className="ins-yn">
-              <button type="button" disabled={busy} onClick={() => onSubmit(1)} className="ins-yn-btn">כן</button>
-              <button type="button" disabled={busy} onClick={() => onSubmit(0)} className="ins-yn-btn">לא</button>
+              <button type="button" disabled={busy} onClick={() => onSubmit(1)} className="ins-yn-btn">{t('card.yes')}</button>
+              <button type="button" disabled={busy} onClick={() => onSubmit(0)} className="ins-yn-btn">{t('card.no')}</button>
             </div>
           ) : (
             <>
@@ -150,7 +151,7 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
                 className="ins-save"
                 disabled={busy || draft == null}
                 onClick={() => onSubmit(draft)}
-                aria-label="שמור"
+                aria-label={t('card.save')}
               >
                 <Check size={15} strokeWidth={2} aria-hidden="true" />
               </button>
@@ -161,36 +162,36 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
             className="ins-skip-btn"
             disabled={busy}
             onClick={onSkip}
-            aria-label="דלג על השאלה להיום"
+            aria-label={t('card.skipAria')}
           >
             <SkipForward size={13} strokeWidth={1.7} aria-hidden="true" />
-            דלג
+            {t('card.skip')}
           </button>
         </div>
       )}
 
       <div className="ins-q-stats">
         <div className="ins-stat">
-          <p className="ins-stat-l">ממוצע 7 ימים</p>
+          <p className="ins-stat-l">{t('card.avg7')}</p>
           <p className="ins-stat-v mono">
             {avg7 != null ? avg7.toFixed(1) : '—'}
             <DeltaPill delta={d7} />
           </p>
         </div>
         <div className="ins-stat divided">
-          <p className="ins-stat-l">ממוצע 30 ימים</p>
+          <p className="ins-stat-l">{t('card.avg30')}</p>
           <p className="ins-stat-v mono">{avg30 != null ? avg30.toFixed(1) : '—'}</p>
         </div>
         <div className="ins-stat">
-          <p className="ins-stat-l">30 ימים אחרונים</p>
-          <TrendLine points={points} />
+          <p className="ins-stat-l">{t('card.last30')}</p>
+          <TrendLine points={points} t={t} />
         </div>
       </div>
 
       <div className="ins-q-heat">
-        <p className="ins-heat-h">חצי שנה אחרונה</p>
+        <p className="ins-heat-h">{t('heatmap.heading')}</p>
         <div className="ins-heat-wrap">
-          <Heatmap weeks={heat} scale={question.scale_type} />
+          <Heatmap weeks={heat} scale={question.scale_type} t={t} />
         </div>
       </div>
     </section>
@@ -198,6 +199,7 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
 }
 
 export default function InsightsScreen() {
+  const { t } = useT('insights')
   const { questions, loading: questionsLoading, error: questionsError, addQuestion: _add, updateQuestion, toggleActive } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
   const { prefs, update: updatePrefs } = useUserPreferences()
@@ -287,13 +289,13 @@ export default function InsightsScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{(questions || []).filter((q) => q.active).length} פעילות</p>
+              <p className="lbl">{t('activeCount', { count: (questions || []).filter((q) => q.active).length })}</p>
               <span className="lbl dot">·</span>
-              <p className="lbl">תובנות יומיות</p>
+              <p className="lbl">{t('dailyInsights')}</p>
             </div>
-            <p className="lbl-sm">הקשבה לעצמך, יום אחרי יום.</p>
+            <p className="lbl-sm">{t('tagline')}</p>
           </div>
-          <p className="t-screen">מה איתך היום</p>
+          <p className="t-screen">{t('title')}</p>
         </header>
       </div>
 
@@ -302,7 +304,7 @@ export default function InsightsScreen() {
         <section className="ins-mirror">
           <div className="ins-mirror-head">
             <Sparkles size={16} strokeWidth={1.6} aria-hidden="true" />
-            <p className="ins-mirror-title">שיקוף יומי</p>
+            <p className="ins-mirror-title">{t('mirror.title')}</p>
           </div>
           <ul className="ins-mirror-list">
             {reflections.map((r, i) => (
@@ -314,12 +316,12 @@ export default function InsightsScreen() {
 
       {/* Per-question cards */}
       {questionsLoading ? (
-        <div className="empty"><p className="empty-text">טוען…</p></div>
+        <div className="empty"><p className="empty-text">{t('loading')}</p></div>
       ) : questionsError ? (
-        <div className="empty"><p className="empty-text">שגיאה בטעינת השאלות. אפשר לנסות לרענן.</p></div>
+        <div className="empty"><p className="empty-text">{t('loadError')}</p></div>
       ) : visible.length === 0 ? (
         <div className="empty">
-          <p className="empty-text">עדיין אין שאלות יומיות. אפשר להוסיף בהגדרות.</p>
+          <p className="empty-text">{t('empty')}</p>
         </div>
       ) : (
         <div className="ins-q-grid">
@@ -340,6 +342,7 @@ export default function InsightsScreen() {
               onSubmit={(v) => submit(q, v)}
               skipped={skippedSet.has(q.id)}
               onSkip={() => skipQuestion(q.id)}
+              t={t}
             />
           ))}
         </div>
@@ -350,7 +353,7 @@ export default function InsightsScreen() {
         <div className="ins-unskip-row">
           <button type="button" className="ins-unskip-btn" onClick={unskipAll}>
             <RotateCcw size={14} strokeWidth={1.7} aria-hidden="true" />
-            {skippedCount === 1 ? 'ענה על שאלה אחת שדולגה' : `ענה על ${skippedCount} שאלות שדולגו`}
+            {skippedCount === 1 ? t('unskip.one') : t('unskip.many', { count: skippedCount })}
           </button>
         </div>
       )}
@@ -358,14 +361,14 @@ export default function InsightsScreen() {
       {/* History */}
       <section className="ins-history">
         <button type="button" className="ins-history-toggle" onClick={toggleHistory} aria-expanded={historyOpen}>
-          היסטוריה
+          {t('history.title')}
           {historyOpen
             ? <ChevronUp size={15} strokeWidth={1.7} aria-hidden="true" />
             : <ChevronDown size={15} strokeWidth={1.7} aria-hidden="true" />}
         </button>
         {historyOpen && (
           recent.length === 0
-            ? <p className="ins-history-empty">אין עדיין תשובות בהיסטוריה.</p>
+            ? <p className="ins-history-empty">{t('history.empty')}</p>
             : (
               <div className="ins-history-list">
                 {recent.map((a) => {
@@ -373,7 +376,7 @@ export default function InsightsScreen() {
                   return (
                     <div key={a.id} className="ins-history-row">
                       <span className="ins-history-icon">{q?.icon || '🫧'}</span>
-                      <span className="ins-history-text">{q ? questionText(q) : 'שאלה שנמחקה'}</span>
+                      <span className="ins-history-text">{q ? questionText(q) : t('history.deletedQuestion')}</span>
                       <span className="ins-history-meta">
                         <span className="ins-history-date">{fmtShortDate(a.date)}</span>
                         <span className="ins-history-val mono">{a.value_num != null ? a.value_num : (a.value_text || '—')}</span>

@@ -1,0 +1,72 @@
+{
+  "dateField": {
+    "placeholder": "Pick a date",
+    "dialogLabel": "Date picker",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "today": "Today"
+  },
+  "schedule": {
+    "everyDay": "Every day",
+    "specificDays": "Specific days",
+    "everyXDays": "Every X days",
+    "every": "Every",
+    "days": "days",
+    "dayShort": {
+      "sun": "S",
+      "mon": "M",
+      "tue": "T",
+      "wed": "W",
+      "thu": "T",
+      "fri": "F",
+      "sat": "S"
+    }
+  },
+  "undo": {
+    "undo": "Undo",
+    "dismiss": "Dismiss",
+    "undone": "Undone"
+  },
+  "feedback": {
+    "title": "Got feedback?",
+    "sub": "What works, what's missing, what we could improve — talk to us"
+  },
+  "help": {
+    "fabAria": "Help — {{title}}",
+    "eyebrow": "Help",
+    "close": "Close",
+    "tabsAria": "Help categories",
+    "tabs": {
+      "features": "Features",
+      "tips": "Tips",
+      "faq": "FAQ"
+    },
+    "fullGuide": "The full guide to every screen",
+    "emptyFeatures": "No explanation for this screen yet.",
+    "emptyTips": "No tips for this screen.",
+    "emptyFaq": "No frequently asked questions for this screen."
+  },
+  "infoPopover": {
+    "label": "Explanation"
+  },
+  "tour": {
+    "done": "Done",
+    "gotIt": "Got it",
+    "skipAll": "Skip all"
+  },
+  "deletion": {
+    "title": "Your account is scheduled for deletion",
+    "dayUnit": "day until deletion",
+    "daysUnit": "days until deletion",
+    "bodyLead": "You asked to delete your account. All your data is still saved — if you've changed your mind, you can cancel now and go back to using it as usual.",
+    "bodyDeadline": "Otherwise, on <0>{{date}}</0> everything will be permanently deleted, with no way to recover it or sign in again.",
+    "cancelFailed": "Cancellation failed — {{tryAgain}}.",
+    "canceling": "Canceling…",
+    "cancel": "Cancel deletion and restore my account",
+    "logout": "Sign out"
+  },
+  "errorBoundary": {
+    "message": "Something went wrong. Try again?",
+    "retry": "Reload"
+  }
+}

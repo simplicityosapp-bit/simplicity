@@ -1,0 +1,52 @@
+{
+  "title": "Overview",
+  "reports": "Reports",
+  "ring": {
+    "kicker": "Of pace",
+    "sub": "{{pct}}% of goal"
+  },
+  "section": {
+    "byCategory": "Breakdown by category",
+    "trend": "Trend over time",
+    "crossModule": "Cross-module trends",
+    "correlations": "Links to explore"
+  },
+  "trend": {
+    "aria": "Score trend over the last 30 days",
+    "avg": "Average",
+    "peak": "Peak",
+    "today": "Today"
+  },
+  "pills": {
+    "income": "Income",
+    "leads": "Leads",
+    "sessions": "Sessions",
+    "score": "Score",
+    "question": "Daily question"
+  },
+  "overview": {
+    "note": "Relative trends · last 30 days — each line on its own scale (0–100). A visual link is not causation."
+  },
+  "corr": {
+    "moveTogether": "<0>{{driver}}</0> and <1>{{outcome}}</1> tend to move together (when one is high, so is the other).",
+    "moveOpposite": "<0>{{driver}}</0> and <1>{{outcome}}</1> tend to move inversely (when one is high, the other is low).",
+    "sub": "{{strength}} link · {{n}} points · observation, not causation",
+    "empty": "There's no significant link in the data right now — and usually there simply isn't, which is fine. If a stable, significant-enough pattern appears, we'll surface it here to explore.",
+    "note": "Early observations only — correlation is not causation. The data is aggregated and statistically filtered for reliability."
+  },
+  "scatter": {
+    "aria": "Point scatter: horizontal axis {{driver}}, vertical axis {{outcome}}",
+    "title": "Horizontal axis: {{driver}} · vertical axis: {{outcome}}",
+    "xFallback": "Metric A",
+    "yFallback": "Metric B"
+  },
+  "empty": {
+    "noGoals": "No goals yet. {{action}} a goal to see the score.",
+    "action": "Set"
+  },
+  "footerLink": "Edit your goals ←",
+  "dualBars": {
+    "pace": "Of pace",
+    "goal": "Of goal"
+  }
+}

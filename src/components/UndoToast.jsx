@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { RotateCcw, X, Check } from 'lucide-react'
 import { useUndo } from '../hooks/useUndo'
 import { performUndo, performRedo, dismiss } from '../lib/undo'
+import { useT } from '../i18n/useT'
 import './UndoToast.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -21,6 +22,7 @@ import './UndoToast.css'
    "בטל" tap targets — no keyboard needed.
    ════════════════════════════════════════════════════════════════ */
 export default function UndoToast() {
+  const { t } = useT('components')
   const { phase, label, duration, seq } = useUndo()
 
   useEffect(() => {
@@ -47,9 +49,9 @@ export default function UndoToast() {
             <span className="undo-toast-label">{label}</span>
             <button type="button" className="undo-toast-action" onClick={performUndo}>
               <RotateCcw size={15} strokeWidth={1.8} aria-hidden="true" />
-              <span>בטל</span>
+              <span>{t('undo.undo')}</span>
             </button>
-            <button type="button" className="undo-toast-x" onClick={dismiss} aria-label="סגירה">
+            <button type="button" className="undo-toast-x" onClick={dismiss} aria-label={t('undo.dismiss')}>
               <X size={15} strokeWidth={1.8} aria-hidden="true" />
             </button>
             <span key={seq} className="undo-toast-bar" style={{ animationDuration: `${duration}ms` }} aria-hidden="true" />

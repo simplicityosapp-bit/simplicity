@@ -16,14 +16,13 @@
    identical wherever it's mounted.
    ════════════════════════════════════════════════════════════════ */
 
+import { useT } from '../i18n/useT'
 import './ScheduleDayPicker.css'
 
-const DAYS = [
-  { k: 0, l: 'א׳' }, { k: 1, l: 'ב׳' }, { k: 2, l: 'ג׳' },
-  { k: 3, l: 'ד׳' }, { k: 4, l: 'ה׳' }, { k: 5, l: 'ו׳' }, { k: 6, l: 'ש׳' },
-]
+const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 
 export default function ScheduleDayPicker({ mode, days, x, onChange, className = '' }) {
+  const { t } = useT('components')
   const setMode = (m) => onChange({ mode: m, days, x })
   const toggleDay = (k) => {
     const next = days.includes(k) ? days.filter((d) => d !== k) : [...days, k]
@@ -34,22 +33,22 @@ export default function ScheduleDayPicker({ mode, days, x, onChange, className =
   return (
     <div className={`qs-editor${className ? ` ${className}` : ''}`}>
       <div className="qs-modes">
-        <button type="button" className={`qs-mode${mode === 'every_day' ? ' on' : ''}`} onClick={() => setMode('every_day')}>כל יום</button>
-        <button type="button" className={`qs-mode${mode === 'days_of_week' ? ' on' : ''}`} onClick={() => setMode('days_of_week')}>ימים מסוימים</button>
-        <button type="button" className={`qs-mode${mode === 'every_x_days' ? ' on' : ''}`} onClick={() => setMode('every_x_days')}>כל X ימים</button>
+        <button type="button" className={`qs-mode${mode === 'every_day' ? ' on' : ''}`} onClick={() => setMode('every_day')}>{t('schedule.everyDay')}</button>
+        <button type="button" className={`qs-mode${mode === 'days_of_week' ? ' on' : ''}`} onClick={() => setMode('days_of_week')}>{t('schedule.specificDays')}</button>
+        <button type="button" className={`qs-mode${mode === 'every_x_days' ? ' on' : ''}`} onClick={() => setMode('every_x_days')}>{t('schedule.everyXDays')}</button>
       </div>
 
       {mode === 'days_of_week' && (
         <div className="qs-day-pills">
-          {DAYS.map((d) => (
+          {DAY_KEYS.map((dk, k) => (
             <button
-              key={d.k}
+              key={k}
               type="button"
-              className={`qs-day${days.includes(d.k) ? ' on' : ''}`}
-              onClick={() => toggleDay(d.k)}
-              aria-pressed={days.includes(d.k)}
+              className={`qs-day${days.includes(k) ? ' on' : ''}`}
+              onClick={() => toggleDay(k)}
+              aria-pressed={days.includes(k)}
             >
-              {d.l}
+              {t(`schedule.dayShort.${dk}`)}
             </button>
           ))}
         </div>
@@ -57,7 +56,7 @@ export default function ScheduleDayPicker({ mode, days, x, onChange, className =
 
       {mode === 'every_x_days' && (
         <div className="qs-x-row">
-          <span>כל</span>
+          <span>{t('schedule.every')}</span>
           <input
             type="number"
             min="2"
@@ -66,7 +65,7 @@ export default function ScheduleDayPicker({ mode, days, x, onChange, className =
             onChange={(e) => setX(e.target.value)}
             className="qs-x-input"
           />
-          <span>ימים</span>
+          <span>{t('schedule.days')}</span>
         </div>
       )}
     </div>

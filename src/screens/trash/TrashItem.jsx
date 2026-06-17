@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { RotateCcw } from 'lucide-react'
 import { fmtTimeAgo, fmtShortDate } from '../../lib/dates'
 import { isr } from '../../lib/finance'
+import { useT } from '../../i18n/useT'
 
 /* Primary-label resolver per entity type — mirrors the "Primary label
    per entity" table in data-model.md so a generic list can render any
    soft-deleted row without per-screen knowledge. */
-function primaryLabel(entityType, row) {
+function primaryLabel(entityType, row, t) {
   switch (entityType) {
     case 'clients':
     case 'projects':
@@ -23,7 +24,7 @@ function primaryLabel(entityType, row) {
     case 'reminders':
       return row.title || '—'
     case 'goals':
-      return row.label || (row.target_value != null ? `יעד ${row.target_value}` : '—')
+      return row.label || (row.target_value != null ? t('item.goalFallback', { value: row.target_value }) : '—')
     case 'goalEntries': {
       const v = row.value ?? '—'
       return row.date ? `${v} · ${fmtShortDate(row.date)}` : `${v}`
@@ -45,7 +46,7 @@ function primaryLabel(entityType, row) {
       return `${sign}${isr(Math.abs(row.amount || 0))}`
     }
     case 'sessions': {
-      const num = row.num != null ? `פגישה ${row.num}` : 'פגישה'
+      const num = row.num != null ? t('item.sessionNum', { num: row.num }) : t('item.session')
       return row.date ? `${num} · ${fmtShortDate(row.date)}` : num
     }
     default:
@@ -54,8 +55,9 @@ function primaryLabel(entityType, row) {
 }
 
 export default function TrashItem({ entityType, row, onRestore }) {
+  const { t } = useT('trash')
   const [busy, setBusy] = useState(false)
-  const label = primaryLabel(entityType, row)
+  const label = primaryLabel(entityType, row, t)
 
   const handleRestore = async () => {
     if (busy) return
@@ -67,17 +69,17 @@ export default function TrashItem({ entityType, row, onRestore }) {
     <div className="trash-item">
       <div className="trash-item-main">
         <p className="trash-item-label">{label}</p>
-        <p className="trash-item-meta">נמחק {fmtTimeAgo(row.deleted_at)}</p>
+        <p className="trash-item-meta">{t('item.deletedAgo', { ago: fmtTimeAgo(row.deleted_at) })}</p>
       </div>
       <button
         type="button"
         className="trash-item-restore"
         onClick={handleRestore}
         disabled={busy}
-        aria-label={`שחזר ${label}`}
+        aria-label={t('item.restoreLabel', { label })}
       >
         <RotateCcw size={14} strokeWidth={1.6} aria-hidden="true" />
-        <span>{busy ? 'משחזר…' : 'שחזור'}</span>
+        <span>{busy ? t('item.restoring') : t('item.restore')}</span>
       </button>
     </div>
   )

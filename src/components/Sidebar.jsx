@@ -11,6 +11,7 @@ import { roleLabel } from '../lib/preferences'
 import { useAuth } from '../auth/AuthContext'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useProfileHealth } from '../hooks/useProfileHealth'
+import { useT } from '../i18n/useT'
 import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './Sidebar.css'
 
@@ -23,11 +24,11 @@ const RING_C = 2 * Math.PI * RING_R
 /* Extras — screens that aren't in the main bottom-nav set. Surface
    from a slide-up panel anchored over the "עוד" button. */
 const EXTRAS = [
-  { key: 'moon',     label: 'מבט על',         icon: Moon,       to: ROUTES.MOON_GLANCE },
-  { key: 'reports',  label: 'דוחות',          icon: BarChart3,  to: ROUTES.REPORTS },
-  { key: 'insights', label: 'מה איתך היום?',  icon: Sparkles,   to: ROUTES.INSIGHTS },
-  { key: 'trash',    label: 'סל מיחזור',      icon: Trash2,     to: ROUTES.TRASH },
-  { key: 'legal',    label: 'מדיניות ותנאים', icon: FileText,   to: ROUTES.LEGAL },
+  { key: 'moon',     labelKey: 'extras.moon',     icon: Moon,       to: ROUTES.MOON_GLANCE },
+  { key: 'reports',  labelKey: 'extras.reports',  icon: BarChart3,  to: ROUTES.REPORTS },
+  { key: 'insights', labelKey: 'extras.insights', icon: Sparkles,   to: ROUTES.INSIGHTS },
+  { key: 'trash',    labelKey: 'extras.trash',    icon: Trash2,     to: ROUTES.TRASH },
+  { key: 'legal',    labelKey: 'extras.legal',    icon: FileText,   to: ROUTES.LEGAL },
 ]
 
 /* ════════════════════════════════════════════════════════════════
@@ -38,6 +39,7 @@ const EXTRAS = [
    heavy blur, echoing the bottom-nav language on mobile.
    ════════════════════════════════════════════════════════════════ */
 export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback }) {
+  const { t } = useT('nav')
   const navigate = useNavigate()
   const { signOut, user } = useAuth()
   const { prefs } = useUserPreferences()
@@ -72,7 +74,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
   }, [extrasOpen])
 
   return (
-    <aside className="mg-sidebar" aria-label="ניווט ראשי" ref={sidebarRef} onMouseEnter={() => setProfileLive(true)}>
+    <aside className="mg-sidebar" aria-label={t('ariaMainNav')} ref={sidebarRef} onMouseEnter={() => setProfileLive(true)}>
       <div className="mg-sidebar-brand-row">
         <img
           className="mg-sidebar-logo"
@@ -114,12 +116,12 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
           data-screen="more"
           onClick={(e) => { e.stopPropagation(); setExtrasOpen((v) => !v) }}
           aria-expanded={extrasOpen}
-          title="עוד"
+          title={t('more')}
         >
           <span className="mg-sidebar-link-chip" aria-hidden="true">
             <MoreHorizontal size={22} strokeWidth={1.5} />
           </span>
-          <span className="mg-sidebar-link-text">עוד</span>
+          <span className="mg-sidebar-link-text">{t('more')}</span>
         </button>
       </nav>
 
@@ -132,12 +134,12 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
         aria-hidden={!extrasOpen}
       >
         <div className="mg-sidebar-extras-head">
-          <span>עוד</span>
+          <span>{t('more')}</span>
           <button
             type="button"
             className="mg-sidebar-extras-close"
             onClick={() => setExtrasOpen(false)}
-            aria-label="סגירה"
+            aria-label={t('close')}
           >
             <X size={14} strokeWidth={1.7} aria-hidden="true" />
           </button>
@@ -153,12 +155,12 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
                 className={`mg-sidebar-link mg-sidebar-sub${active ? ' on' : ''}`}
                 data-screen={item.key}
                 onClick={() => { setExtrasOpen(false); navigate(item.to) }}
-                title={item.label}
+                title={t(item.labelKey)}
               >
                 <span className="mg-sidebar-link-chip" aria-hidden="true">
                   <Icon size={18} strokeWidth={1.5} />
                 </span>
-                <span className="mg-sidebar-link-text">{item.label}</span>
+                <span className="mg-sidebar-link-text">{t(item.labelKey)}</span>
               </button>
             )
           })}
@@ -169,12 +171,12 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
             className="mg-sidebar-link mg-sidebar-sub"
             data-screen="feedback"
             onClick={() => { setExtrasOpen(false); onOpenFeedback?.() }}
-            title="דברו אלינו"
+            title={t('feedback')}
           >
             <span className="mg-sidebar-link-chip" aria-hidden="true">
               <MessageSquarePlus size={18} strokeWidth={1.5} />
             </span>
-            <span className="mg-sidebar-link-text">דברו אלינו</span>
+            <span className="mg-sidebar-link-text">{t('feedback')}</span>
           </button>
         </div>
       </div>
@@ -184,20 +186,20 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
           ? <SidebarProfileLive name={name} role={role} email={user?.email} />
           : <SidebarProfileStatic name={name} role={role} email={user?.email} />}
         {isAdmin && (
-          <button type="button" className="mg-sidebar-util mg-sidebar-admin" onClick={() => navigate(ROUTES.ADMIN)} title="קונסולת ניהול">
+          <button type="button" className="mg-sidebar-util mg-sidebar-admin" onClick={() => navigate(ROUTES.ADMIN)} title={t('admin.console')}>
             <Shield size={16} strokeWidth={1.6} aria-hidden="true" />
-            <span>ניהול</span>
+            <span>{t('admin.label')}</span>
           </button>
         )}
-        <button type="button" className="mg-sidebar-util" onClick={onToggleTheme} title={isDark ? 'מצב יום' : 'מצב לילה'}>
+        <button type="button" className="mg-sidebar-util" onClick={onToggleTheme} title={isDark ? t('theme.toLight') : t('theme.toDark')}>
           {isDark
             ? <Sun size={16} strokeWidth={1.6} aria-hidden="true" />
             : <Moon size={16} strokeWidth={1.6} aria-hidden="true" />}
-          <span>{isDark ? 'מצב יום' : 'מצב לילה'}</span>
+          <span>{isDark ? t('theme.toLight') : t('theme.toDark')}</span>
         </button>
-        <button type="button" className="mg-sidebar-util" onClick={signOut} title="יציאה">
+        <button type="button" className="mg-sidebar-util" onClick={signOut} title={t('logout')}>
           <LogOut size={16} strokeWidth={1.6} aria-hidden="true" />
-          <span>יציאה</span>
+          <span>{t('logout')}</span>
         </button>
       </div>
     </aside>
@@ -209,6 +211,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
    when present it paints a tier-coloured ring around the avatar + a
    "ציון פרופיל NN%" line that fades in with the expanded rail. */
 function SidebarProfileChipInner({ name, role, email, health, loading, onClick }) {
+  const { t } = useT('nav')
   const score = health?.score ?? 0
   const tier = health?.tier
   const showScore = !!health && !loading
@@ -217,8 +220,8 @@ function SidebarProfileChipInner({ name, role, email, health, loading, onClick }
       type="button"
       className="mg-sidebar-profile"
       onClick={onClick}
-      title={name || 'הפרופיל שלי'}
-      aria-label={health ? `בריאות הפרופיל${showScore ? ` ${score} אחוז` : ''} — פתיחת פירוט` : (name || 'הפרופיל שלי')}
+      title={name || t('profile.myProfile')}
+      aria-label={health ? (showScore ? t('profile.healthAriaWithScore', { score }) : t('profile.healthAria')) : (name || t('profile.myProfile'))}
     >
       <span className="mg-sidebar-profile-avatar-wrap">
         {showScore && (
@@ -236,11 +239,11 @@ function SidebarProfileChipInner({ name, role, email, health, loading, onClick }
         <span className="mg-sidebar-profile-avatar">{initial(name)}</span>
       </span>
       <span className="mg-sidebar-profile-text">
-        <span className="mg-sidebar-profile-name">{name || 'הפרופיל שלי'}</span>
+        <span className="mg-sidebar-profile-name">{name || t('profile.myProfile')}</span>
         {health
           ? (
             <span className="mg-sidebar-profile-score">
-              ציון פרופיל{' '}
+              {t('profile.score')}{' '}
               <span className="mg-sidebar-profile-score-num" style={tier ? { color: tier.color } : undefined}>
                 {loading ? '··' : `${score}%`}
               </span>

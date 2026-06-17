@@ -4,8 +4,10 @@ import { formatGoalValue, timeFrameLabel } from '../../lib/goals'
 import { fmtShortDate } from '../../lib/dates'
 import ConfirmModal from '../../modals/ConfirmModal'
 import MoonDualBars from '../../components/MoonDualBars'
+import { useT } from '../../i18n/useT'
 
 function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEdit, onDelete }) {
+  const { t } = useT('goals')
   const { goal, cat, actual, target, pure: rawPure, paced: rawPaced } = scored
   const pure = Number.isFinite(rawPure) ? rawPure : 0
   const paced = Number.isFinite(rawPaced) ? rawPaced : pure
@@ -28,10 +30,10 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
             {cat.name} · {timeFrameLabel(goal)}
           </p>
         </div>
-        <button type="button" className="g-card-edit" onClick={() => onEdit?.(goal)} aria-label="עריכת יעד">
+        <button type="button" className="g-card-edit" onClick={() => onEdit?.(goal)} aria-label={t('card.editAria')}>
           <Pencil size={13} strokeWidth={1.7} aria-hidden="true" />
         </button>
-        <button type="button" className="g-card-del" onClick={() => onDelete?.(goal)} aria-label="מחיקת יעד">
+        <button type="button" className="g-card-del" onClick={() => onDelete?.(goal)} aria-label={t('card.deleteAria')}>
           <Trash2 size={13} strokeWidth={1.7} aria-hidden="true" />
         </button>
         <p className={`g-card-pct${pure >= 100 ? ' over' : ''}`}>
@@ -47,7 +49,7 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
         <span className="g-card-target mono">
           {formatGoalValue(actual, cat)} / {formatGoalValue(target, cat)}
         </span>
-        <span className="g-card-stars" aria-label={`חשיבות ${importance} מתוך 5`}>
+        <span className="g-card-stars" aria-label={t('card.importanceAria', { importance })}>
           {[1, 2, 3, 4, 5].map((i) => (
             <Star
               key={i}
@@ -64,11 +66,11 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
       {isManual && (
         <div className="g-entry-bar">
           <button type="button" className="g-entry-add" onClick={() => onAddEntry?.(cat)}>
-            <Plus size={14} strokeWidth={1.9} aria-hidden="true" /> הזנה
+            <Plus size={14} strokeWidth={1.9} aria-hidden="true" /> {t('card.addEntry')}
           </button>
           {catEntries.length > 0 && (
             <button type="button" className={`g-entry-toggle${showHistory ? ' open' : ''}`} onClick={() => setShowHistory((o) => !o)} aria-expanded={showHistory}>
-              היסטוריה <span className="g-entry-count">{catEntries.length}</span>
+              {t('card.history')} <span className="g-entry-count">{catEntries.length}</span>
               <ChevronDown size={14} strokeWidth={1.6} className="g-entry-chev" aria-hidden="true" />
             </button>
           )}
@@ -82,7 +84,7 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
               <span className="g-entry-val mono">{formatGoalValue(e.value, cat)}</span>
               <span className="g-entry-date">{fmtShortDate(e.date)}</span>
               {e.note && <span className="g-entry-note">· {e.note}</span>}
-              <button type="button" className="g-entry-del" onClick={() => setConfirmEntry(e)} aria-label="מחק הזנה">
+              <button type="button" className="g-entry-del" onClick={() => setConfirmEntry(e)} aria-label={t('card.deleteEntryAria')}>
                 <X size={13} strokeWidth={1.8} aria-hidden="true" />
               </button>
             </div>
@@ -93,10 +95,10 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
       <ConfirmModal
         open={!!confirmEntry}
         onClose={() => setConfirmEntry(null)}
-        title="מחיקת הזנה"
+        title={t('card.deleteEntryTitle')}
         danger
-        confirmLabel="מחק"
-        message={confirmEntry ? `למחוק את ההזנה (${formatGoalValue(confirmEntry.value, cat)} · ${fmtShortDate(confirmEntry.date)})?` : ''}
+        confirmLabel={t('card.deleteEntryConfirm')}
+        message={confirmEntry ? t('card.deleteEntryMessage', { value: formatGoalValue(confirmEntry.value, cat), date: fmtShortDate(confirmEntry.date) }) : ''}
         onConfirm={() => { if (confirmEntry) return onDeleteEntry?.(confirmEntry.id) }}
       />
     </div>

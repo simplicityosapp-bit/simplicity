@@ -21,7 +21,7 @@ import EditGoalModal from '../../modals/EditGoalModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
 import './GoalsScreen.css'
 
 /* The generic "אחר — עדכון ידני" bucket: every custom manual goal lands here,
@@ -38,7 +38,7 @@ const OTHER_METRIC = {
 }
 
 export default function GoalsScreen() {
-  const { addr } = useAddress()
+  const { t } = useT('goals')
   const { goals, loading: goalsLoading, error: goalsError, addGoal, updateGoal, removeGoal } = useGoals()
   const { categories, loading: catsLoading, error: catsError, addCategory } = useGoalCategories()
   const { entries, addEntry, removeEntry } = useGoalEntries()
@@ -94,34 +94,34 @@ export default function GoalsScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{totalGoals} יעדים</p>
+              <p className="lbl">{t('countLabel', { count: totalGoals })}</p>
               <span className="lbl dot">·</span>
-              <p className="lbl">תנועה</p>
+              <p className="lbl">{t('movement')}</p>
             </div>
-            <p className="lbl-sm">כל יעד — כיוון, לא לחץ.</p>
+            <p className="lbl-sm">{t('tagline')}</p>
           </div>
-          <p className="t-screen">יעדים</p>
+          <p className="t-screen">{t('title')}</p>
         </header>
         <Coachmark id="add-goal" radius="50%">
-          <button className="cta-add" type="button" aria-label="יעד חדש" onClick={() => setShowAddGoal(true)}>
-            + יעד חדש
+          <button className="cta-add" type="button" aria-label={t('newGoalAria')} onClick={() => setShowAddGoal(true)}>
+            {t('newGoal')}
           </button>
         </Coachmark>
       </div>
 
       {loading ? (
-        <div className="empty"><p className="empty-text">טוען יעדים…</p></div>
+        <div className="empty"><p className="empty-text">{t('loading')}</p></div>
       ) : error ? (
-        <div className="empty"><p className="empty-text">שגיאה בטעינת היעדים: {error}</p></div>
+        <div className="empty"><p className="empty-text">{t('loadError', { error })}</p></div>
       ) : totalGoals === 0 ? (
         <div className="empty">
           <span className="empty-icon"><Target size={28} strokeWidth={1.4} aria-hidden="true" /></span>
-          <p className="empty-text">{addr({ male: 'הגדר את היעד הראשון שלך', female: 'הגדירי את היעד הראשון שלך', neutral: 'הגדר/י את היעד הראשון שלך' })}.</p>
+          <p className="empty-text">{t('empty.firstGoal')}</p>
           <button className="empty-action" type="button" onClick={() => setShowAddGoal(true)}>
-            <Plus size={18} strokeWidth={1.8} aria-hidden="true" /> {addr({ male: 'הגדר יעד', female: 'הגדירי יעד', neutral: 'הגדר/י יעד' })}
+            <Plus size={18} strokeWidth={1.8} aria-hidden="true" /> {t('empty.setGoal')}
           </button>
           <details className="empty-reminder">
-            <summary>למה זה חשוב?</summary>
+            <summary>{t('empty.whyImportant')}</summary>
             <p className="empty-reminder-body">{coachmarkText('add-goal', prefs?.design?.gender).detail}</p>
           </details>
         </div>
@@ -177,9 +177,9 @@ export default function GoalsScreen() {
       <ConfirmModal
         open={!!pendingDeleteGoal}
         onClose={() => setPendingDeleteGoal(null)}
-        title="מחיקת יעד"
-        message={pendingDeleteGoal ? `למחוק את היעד${pendingDeleteGoal.label ? ` "${pendingDeleteGoal.label}"` : ''}? ניתן לשחזר מסל המיחזור תוך 30 יום.` : ''}
-        confirmLabel="מחק"
+        title={t('delete.title')}
+        message={pendingDeleteGoal ? (pendingDeleteGoal.label ? t('delete.messageNamed', { label: pendingDeleteGoal.label }) : t('delete.message')) : ''}
+        confirmLabel={t('delete.confirm')}
         danger
         onConfirm={() => { if (pendingDeleteGoal) removeGoal(pendingDeleteGoal.id) }}
       />

@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Users, ClipboardList, Home, Wallet, Menu } from 'lucide-react'
 import { BOTTOM_NAV } from '../lib/nav'
 import { screenKeyFromPath } from '../lib/nav'
+import { useT } from '../i18n/useT'
 import './BottomNav.css'
 
 const ICONS = { Users, ClipboardList, Home, Wallet }
@@ -11,6 +12,7 @@ const ICONS = { Users, ClipboardList, Home, Wallet }
    attribute (set on the app root) against each item's data-screen. We
    also surface the active state to assistive tech via aria-current. */
 export default function BottomNav({ onOpenMenu }) {
+  const { t } = useT('nav')
   const navigate = useNavigate()
   const location = useLocation()
   const screen = screenKeyFromPath(location.pathname)
@@ -20,7 +22,7 @@ export default function BottomNav({ onOpenMenu }) {
   const onMenuScreen = !BOTTOM_NAV.some((i) => i.key === screen)
 
   return (
-    <nav className="mg-bottombar" aria-label="ניווט תחתון">
+    <nav className="mg-bottombar" aria-label={t('ariaBottomNav')}>
       {BOTTOM_NAV.map((item) => {
         const Icon = ICONS[item.icon]
         const active = item.key === screen
@@ -48,7 +50,7 @@ export default function BottomNav({ onOpenMenu }) {
         <span className="mg-bottombar-chip" aria-hidden="true">
           <Menu size={22} strokeWidth={1.5} />
         </span>
-        <span>תפריט</span>
+        <span>{t('menu')}</span>
       </button>
     </nav>
   )

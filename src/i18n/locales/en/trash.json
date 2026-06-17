@@ -1,0 +1,41 @@
+{
+  "title": "Recycle bin",
+  "itemCount_one": "{{count}} item",
+  "itemCount_other": "{{count}} items",
+  "keptDays": "Kept for 30 days",
+  "stillReversible": "Every deletion here is still reversible.",
+  "error": "Error: {{error}}",
+  "loading": "Loading…",
+  "empty": {
+    "body": "The recycle bin is empty 🌱<br />Anything you {{deleteVerb}} will wait here for 30 days."
+  },
+  "deleteVerb": "delete",
+  "entities": {
+    "clients": "Clients",
+    "projects": "Projects",
+    "groups": "Groups",
+    "tasks": "Tasks",
+    "leads": "Leads",
+    "leadSources": "Lead sources",
+    "leadStatuses": "Lead sub-statuses",
+    "transactions": "Transactions",
+    "categories": "Expense categories",
+    "recurring": "Recurring templates",
+    "sessions": "Sessions",
+    "reminders": "Reminders",
+    "goals": "Goals",
+    "goalCategories": "Goal metrics",
+    "goalEntries": "Goal entries",
+    "userQuestions": "Daily questions",
+    "dailyAnswers": "Daily answers"
+  },
+  "item": {
+    "goalFallback": "Goal {{value}}",
+    "session": "Session",
+    "sessionNum": "Session {{num}}",
+    "deletedAgo": "Deleted {{ago}}",
+    "restoreLabel": "Restore {{label}}",
+    "restoring": "Restoring…",
+    "restore": "Restore"
+  }
+}

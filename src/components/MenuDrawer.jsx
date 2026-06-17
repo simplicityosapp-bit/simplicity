@@ -11,6 +11,7 @@ import { roleLabel } from '../lib/preferences'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useProfileHealth } from '../hooks/useProfileHealth'
 import { useAuth } from '../auth/AuthContext'
+import { useT } from '../i18n/useT'
 import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './MenuDrawer.css'
 
@@ -21,6 +22,7 @@ function initial(name) {
 }
 
 export default function MenuDrawer({ open, onClose, screen, isDark, onToggleTheme, onOpenFeedback }) {
+  const { t } = useT('nav')
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
   const { prefs } = useUserPreferences()
@@ -66,16 +68,16 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
       />
       <aside
         className={`drawer-panel${open ? ' open' : ''}`}
-        aria-label="תפריט נוסף"
+        aria-label={t('ariaDrawerNav')}
         aria-hidden={!open}
       >
         <div className="drawer-title">
-          <span>עוד</span>
-          <button className="drawer-close" onClick={onClose} aria-label="סגור">
+          <span>{t('more')}</span>
+          <button className="drawer-close" onClick={onClose} aria-label={t('close')}>
             <X size={16} strokeWidth={1.5} />
           </button>
         </div>
-        <p className="drawer-title-sub">תפריט · העדפות וכלים אישיים</p>
+        <p className="drawer-title-sub">{t('drawerSubtitle')}</p>
 
         {/* Profile chip → opens the profile-health breakdown. The score
             (and the data hooks behind it) is computed lazily: ProfileChipLive
@@ -86,7 +88,7 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
           : <ProfileChipStatic name={name} role={role} email={user?.email} />}
 
         {/* Screen grid — every reachable screen */}
-        <nav className="drawer-nav-mobile" aria-label="ניווט מסכים">
+        <nav className="drawer-nav-mobile" aria-label={t('ariaScreensNav')}>
           {DRAWER_NAV.map((item) => {
             const Icon = GRID_ICONS[item.icon] || Settings
             return (
@@ -105,58 +107,58 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
         {/* Owner-only admin console entry — hidden for everyone else. */}
         {isAdmin && (
           <>
-            <p className="drawer-section-lbl">ניהול</p>
+            <p className="drawer-section-lbl">{t('admin.label')}</p>
             <button className="drawer-link" onClick={() => goTo(ROUTES.ADMIN)}>
               <span className="drawer-link-icon"><Shield size={18} strokeWidth={1.5} /></span>
               <span className="drawer-link-text">
-                קונסולת ניהול
-                <span className="drawer-link-text-sub">משתמשים · פידבקים · אנליטיקס</span>
+                {t('admin.console')}
+                <span className="drawer-link-text-sub">{t('admin.consoleSub')}</span>
               </span>
             </button>
           </>
         )}
 
-        <p className="drawer-section-lbl">אישי</p>
+        <p className="drawer-section-lbl">{t('sections.personal')}</p>
 
         <button className="drawer-link tint-purple" onClick={() => goTo(ROUTES.INSIGHTS)}>
           <span className="drawer-link-icon"><Sparkles size={18} strokeWidth={1.5} /></span>
           <span className="drawer-link-text">
-            מה איתך היום?
-            <span className="drawer-link-text-sub">השאלות היומיות שלך + תובנות</span>
+            {t('extras.insights')}
+            <span className="drawer-link-text-sub">{t('items.insightsSub')}</span>
           </span>
         </button>
 
         <button className="drawer-link tint-moon" onClick={() => goTo(ROUTES.MOON_GLANCE)}>
           <span className="drawer-link-icon"><Moon size={18} strokeWidth={1.5} /></span>
           <span className="drawer-link-text">
-            מבט על
-            <span className="drawer-link-text-sub">הציון המשוקלל וההתקדמות שלך</span>
+            {t('extras.moon')}
+            <span className="drawer-link-text-sub">{t('items.moonSub')}</span>
           </span>
         </button>
 
         <button className="drawer-link" onClick={() => goTo(ROUTES.REPORTS)}>
           <span className="drawer-link-icon"><BarChart3 size={18} strokeWidth={1.5} /></span>
           <span className="drawer-link-text">
-            דוחות
-            <span className="drawer-link-text-sub">מדדים לאורך תקופות</span>
+            {t('extras.reports')}
+            <span className="drawer-link-text-sub">{t('items.reportsSub')}</span>
           </span>
         </button>
 
-        <p className="drawer-section-lbl">הגדרות</p>
+        <p className="drawer-section-lbl">{t('sections.settings')}</p>
 
         <button className="drawer-link tint-purple" onClick={() => { onClose(); onOpenFeedback?.() }}>
           <span className="drawer-link-icon"><MessageSquarePlus size={18} strokeWidth={1.5} /></span>
           <span className="drawer-link-text">
-            דברו אלינו
-            <span className="drawer-link-text-sub">מה עובד, מה חסר, ומה אפשר לשפר</span>
+            {t('feedback')}
+            <span className="drawer-link-text-sub">{t('items.feedbackSub')}</span>
           </span>
         </button>
 
         <button className="drawer-link tint-amber" onClick={() => goTo(ROUTES.TRASH)}>
           <span className="drawer-link-icon"><Trash2 size={18} strokeWidth={1.5} /></span>
           <span className="drawer-link-text">
-            סל מיחזור
-            <span className="drawer-link-text-sub">שחזור פריטים שנמחקו · 30 יום</span>
+            {t('extras.trash')}
+            <span className="drawer-link-text-sub">{t('items.trashSub')}</span>
           </span>
         </button>
 
@@ -168,8 +170,8 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
             <span className="theme-switch-thumb" />
           </span>
           <span className="drawer-link-text">
-            {isDark ? 'מצב יום' : 'מצב כהה'}
-            <span className="drawer-link-text-sub">החלף בין יום ולילה</span>
+            {isDark ? t('theme.toLight') : t('theme.toDarkAlt')}
+            <span className="drawer-link-text-sub">{t('theme.sub')}</span>
           </span>
         </button>
 
@@ -180,7 +182,7 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
         >
           <span className="drawer-link-icon"><LogOut size={18} strokeWidth={1.5} /></span>
           <span className="drawer-link-text">
-            התנתקות
+            {t('signOut')}
             <span className="drawer-link-text-sub">{user?.email || ''}</span>
           </span>
         </button>
@@ -197,6 +199,7 @@ const RING_R = 18
 const RING_C = 2 * Math.PI * RING_R
 
 function ProfileChipInner({ name, role, email, health, loading, onClick }) {
+  const { t } = useT('nav')
   const score = health?.score ?? 0
   const tier = health?.tier
   const showScore = !!health && !loading
@@ -204,7 +207,7 @@ function ProfileChipInner({ name, role, email, health, loading, onClick }) {
     <button
       className="drawer-profile"
       onClick={onClick}
-      aria-label={health ? `בריאות הפרופיל${showScore ? ` ${score} אחוז` : ''} — פתיחת פירוט` : undefined}
+      aria-label={health ? (showScore ? t('profile.healthAriaWithScore', { score }) : t('profile.healthAria')) : undefined}
     >
       <span className="drawer-profile-avatar-wrap">
         {showScore && (
@@ -222,13 +225,13 @@ function ProfileChipInner({ name, role, email, health, loading, onClick }) {
         <span className="drawer-profile-avatar">{initial(name)}</span>
       </span>
       <span className="drawer-profile-text">
-        <span className="drawer-profile-name">{name || 'הפרופיל שלי'}</span>
+        <span className="drawer-profile-name">{name || t('profile.myProfile')}</span>
         <span className="drawer-profile-meta">{role || email || ''}</span>
       </span>
       {health
         ? (
           <span className="drawer-profile-score" style={tier ? { color: tier.color } : undefined}>
-            <span className="drawer-profile-score-lbl">ציון פרופיל</span>
+            <span className="drawer-profile-score-lbl">{t('profile.score')}</span>
             <span className="drawer-profile-score-val">{loading ? '··' : `${score}%`}</span>
           </span>
         )

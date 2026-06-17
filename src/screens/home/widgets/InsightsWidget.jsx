@@ -6,8 +6,8 @@ import { questionText, isQuestionDueToday } from '../../../lib/questionTemplates
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
-import { useAddress } from '../../../hooks/useAddress'
 import InfoPopover from '../../../components/InfoPopover'
+import { useT } from '../../../i18n/useT'
 
 /* LOCAL YYYY-MM-DD — must match how daily answers are bucketed elsewhere
    (profileHealth `ymd`, overview `dayKey`). A UTC `toISOString()` here would
@@ -33,7 +33,7 @@ function HeartQIcon() {
 /* Daily-question widget: next unanswered active question for today + live input.
    Answers persist to Supabase; once answered the widget advances. */
 export default function InsightsWidget() {
-  const { addr } = useAddress()
+  const { t } = useT('home')
   const navigate = useNavigate()
   const { questions } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
@@ -84,8 +84,8 @@ export default function InsightsWidget() {
     <button
       type="button"
       className="ins-collapse-btn"
-      aria-label={collapsed ? 'פתיחת מה איתך היום' : 'כיווץ מה איתך היום'}
-      title={collapsed ? 'פתיחת מה איתך היום' : 'כיווץ מה איתך היום'}
+      aria-label={collapsed ? t('widgets.insights.expand') : t('widgets.insights.collapse')}
+      title={collapsed ? t('widgets.insights.expand') : t('widgets.insights.collapse')}
       onClick={(e) => { e.stopPropagation(); setCollapsed((c) => !c) }}
     >
       <HeartQIcon />
@@ -105,9 +105,9 @@ export default function InsightsWidget() {
     return (
       <div className="ins-widget has-collapse">
         {collapseBtn}
-        <p className="ins-q"><Sparkles size={16} strokeWidth={1.6} aria-hidden="true" /> מה איתך היום?</p>
+        <p className="ins-q"><Sparkles size={16} strokeWidth={1.6} aria-hidden="true" /> {t('widgets.insights.prompt')}</p>
         <button type="button" className="ins-add-link" onClick={() => navigate(ROUTES.SETTINGS)}>
-          {addr({male:'הוסף',female:'הוסיפי',neutral:'הוסף/י'})} שאלה יומית ←
+          {t('widgets.insights.addQuestion')}
         </button>
       </div>
     )
@@ -117,7 +117,7 @@ export default function InsightsWidget() {
     return (
       <div className="ins-widget has-collapse">
         {collapseBtn}
-        <p className="ins-empty">סיימת להיום — יופי.</p>
+        <p className="ins-empty">{t('widgets.insights.done')}</p>
       </div>
     )
   }
@@ -128,9 +128,9 @@ export default function InsightsWidget() {
 
   let compare = ''
   if (val != null && yVal != null && q.scale_type !== 'yes_no') {
-    if (val > yVal) compare = 'השתפר מאתמול'
-    else if (val === yVal) compare = 'יציב מאתמול'
-    else compare = 'מעט נמוך מאתמול'
+    if (val > yVal) compare = t('widgets.insights.improved')
+    else if (val === yVal) compare = t('widgets.insights.stable')
+    else compare = t('widgets.insights.lower')
   }
 
   return (
@@ -138,7 +138,7 @@ export default function InsightsWidget() {
       {collapseBtn}
       {isOverdue && (
         <p className="ins-reminder">
-          <Bell size={12} strokeWidth={1.8} aria-hidden="true" /> עדיין לא ענית היום — רגע קטן לעצמך?
+          <Bell size={12} strokeWidth={1.8} aria-hidden="true" /> {t('widgets.insights.reminder')}
         </p>
       )}
       <p
@@ -150,15 +150,15 @@ export default function InsightsWidget() {
       >
         <Sparkles size={16} strokeWidth={1.6} aria-hidden="true" /> {text}
         <InfoPopover
-          label="הסבר שאלה יומית"
-          text="שאלה יומית עוקבת אחרי ההרגשה שלך לאורך זמן. הסולם 1–10 (10 = הכי טוב). התשובות נשמרות לכל יום ויוצרות תובנות במסך 'מה איתך היום'."
+          label={t('widgets.insights.infoLabel')}
+          text={t('widgets.insights.infoText')}
         />
       </p>
 
       {q.scale_type === 'yes_no' ? (
         <div className="ins-yn">
-          <button type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(1)}>כן</button>
-          <button type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(0)}>לא</button>
+          <button type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(1)}>{t('widgets.insights.yes')}</button>
+          <button type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(0)}>{t('widgets.insights.no')}</button>
         </div>
       ) : (
         <div className="ins-slider-wrap">
@@ -183,7 +183,7 @@ export default function InsightsWidget() {
               {val ?? '—'}
             </span>
           </div>
-          <button type="button" className="ins-save-btn" disabled={busy || val == null} onClick={() => save(val)} aria-label="שמירת תשובה">
+          <button type="button" className="ins-save-btn" disabled={busy || val == null} onClick={() => save(val)} aria-label={t('widgets.insights.saveAria')}>
             <Check size={15} strokeWidth={2} aria-hidden="true" />
           </button>
         </div>

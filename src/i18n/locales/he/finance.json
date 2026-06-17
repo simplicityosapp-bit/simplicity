@@ -1,0 +1,132 @@
+{
+  "countLabel": "{{count}} תנועות",
+  "snapshot": "תמונת מצב",
+  "tagline": "הפעולות שלך יוצרות תוצאות טובות.",
+  "title": "כסף",
+  "exportCsv": "ייצוא CSV",
+  "exportCsvAria": "ייצוא לקובץ CSV",
+  "newTxAria": "תנועה חדשה",
+  "newTx": "+ תנועה חדשה",
+  "loading": "טוען תנועות…",
+  "loadError": "שגיאה בטעינת התנועות: {{error}}",
+  "hideSkipped": "הסתר שדילגת",
+  "showSkipped": "הצג {{count}} שדילגת",
+  "deleteRecurring": {
+    "title": "מחיקת תבנית חוזרת",
+    "message": "למחוק את \"{{name}}\"? תנועות שכבר נוצרו לפי התבנית יישארו.",
+    "income": "הכנסה",
+    "expense": "הוצאה",
+    "confirm": "מחק"
+  },
+  "summary": {
+    "prevMonth": "חודש קודם",
+    "nextMonth": "חודש הבא",
+    "netThisMonth": "נטו החודש",
+    "income": "הכנסות",
+    "expenses": "הוצאות",
+    "changeAria": "שינוי {{value}}",
+    "new": "+חדש"
+  },
+  "tx": {
+    "noDesc": "ללא תיאור",
+    "skipped": "דילגת",
+    "credited": "בוטלה",
+    "approveTitle": "אשר — התנועה קרתה",
+    "skipTitle": "דלג — לא קרה",
+    "restore": "החזר לממתינה",
+    "delete": "מחק תנועה"
+  },
+  "list": {
+    "empty": "אין תנועות לחודש זה.",
+    "confirmed": "אושרו",
+    "skipped": "דולגו"
+  },
+  "pending": {
+    "count": "{{count}} תנועות ממתינות",
+    "income": "הכנסות {{amount}}",
+    "expenses": "הוצאות {{amount}}",
+    "approving": "מאשר…",
+    "approveAll": "אשר הכל",
+    "noDesc": "ללא תיאור",
+    "approve": "אשר",
+    "skip": "דלג",
+    "delete": "מחק"
+  },
+  "recurring": {
+    "title": "תבניות חוזרות",
+    "add": "+ תבנית חדשה",
+    "empty": "אין תבניות חוזרות עדיין. הוספה תיצור תנועות ממתינות באופן אוטומטי בכל חודש או שבוע.",
+    "income": "הכנסה",
+    "expense": "הוצאה",
+    "paused": "מושהה",
+    "resume": "הפעלה",
+    "pause": "השהיה",
+    "edit": "עריכה",
+    "delete": "מחיקה"
+  },
+  "categories": {
+    "title": "קטגוריות הוצאות",
+    "empty": "אין קטגוריות עדיין. הוסף/י קטגוריה כדי לתייג הוצאות (מנויים, ייעוץ, וכו׳).",
+    "empty_male": "אין קטגוריות עדיין. הוסף קטגוריה כדי לתייג הוצאות (מנויים, ייעוץ, וכו׳).",
+    "empty_female": "אין קטגוריות עדיין. הוסיפי קטגוריה כדי לתייג הוצאות (מנויים, ייעוץ, וכו׳).",
+    "add": "הוסף",
+    "namePlaceholder": "שם קטגוריה",
+    "colorGroupAria": "צבע קטגוריה",
+    "colorAria": "צבע {{number}}",
+    "deleteChipAria": "מחק {{name}}",
+    "deleteTitle": "מחיקת קטגוריה",
+    "deleteAria": "מחיקה",
+    "deleteConfirm": "מחק",
+    "deleteMessage": "למחוק את \"{{name}}\"? הוצאות שמשויכות אליה יישארו ללא קטגוריה."
+  },
+  "incomeByProject": {
+    "title": "הכנסות לפי פרויקט",
+    "noProject": "ללא פרויקט",
+    "empty": "אין הכנסות מסווגות החודש."
+  },
+  "expensesByCategory": {
+    "title": "הוצאות לפי קטגוריה",
+    "noCategory": "ללא קטגוריה",
+    "empty": "אין הוצאות מסווגות החודש."
+  },
+  "chart": {
+    "title": "הכנסה מצטברת",
+    "infoLabel": "הסבר גרף הכנסה מצטברת",
+    "infoText": "הגרף מצטבר יום אחר יום את ההכנסות (מאושרות) של החודש הנבחר. הקו המקווקו הוא יעד ההכנסה החודשי שהוגדר במסך 'יעדים' — אם אין יעד, הוא לא מוצג. הנקודה היא היום הנוכחי.",
+    "svgAria": "גרף הכנסה מצטברת לפי ימי החודש",
+    "setGoal": "הגדר/י יעד הכנסה חודשי",
+    "setGoal_male": "הגדר יעד הכנסה חודשי",
+    "setGoal_female": "הגדירי יעד הכנסה חודשי"
+  },
+  "imports": {
+    "typeInvoiceReceipt": "חשבונית מס קבלה",
+    "typeReceipt": "קבלה",
+    "typeInvoice": "חשבונית מס",
+    "typeDoc": "מסמך",
+    "heading": "ייבוא ממתין",
+    "countAria_one": "חשבונית {{count}} לאישור",
+    "countAria_other": "{{count}} חשבוניות לאישור",
+    "sub": "חשבוניות שהופקו בשירות החיצוני — לייבא כהכנסה?",
+    "docNumber": "מס׳",
+    "noName": "ללא שם",
+    "view": "צפייה",
+    "possibleDup": "ייתכן כפילות",
+    "importedToast": "החשבונית יובאה כהכנסה.",
+    "dismissedToast": "החשבונית נדחתה.",
+    "importingAria": "מייבא…",
+    "confirmAria": "אישור ייבוא {{amount}} כהכנסה",
+    "sure": "בטוח/ה?",
+    "sure_male": "בטוח?",
+    "sure_female": "בטוחה?",
+    "importAria": "ייבא כהכנסה",
+    "importTitle": "ייבא כהכנסה",
+    "dismiss": "דחה",
+    "dupTitle": "ייתכן שזו כפילות",
+    "dupMessage": "כבר קיימת אצלך תנועת הכנסה על {{amount}}{{forName}}. לייבא בכל זאת כהכנסה נוספת?",
+    "dupForName": " ל{{name}}",
+    "dupConfirm": "כן, ייבא",
+    "dupConfirm_male": "כן, ייבא",
+    "dupConfirm_female": "כן, ייבאי",
+    "cancel": "ביטול"
+  }
+}

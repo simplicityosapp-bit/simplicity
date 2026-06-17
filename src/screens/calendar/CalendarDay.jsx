@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { eventsForDay, isSameDay } from '../../lib/calendar'
 import { fmtTime } from '../../lib/dates'
+import { useT } from '../../i18n/useT'
 
 const DEFAULT_START = 6
 const DEFAULT_END = 22
@@ -44,6 +45,7 @@ function assignColumns(items) {
    events share the width in side-by-side columns. All-day events get a band
    above; events that start outside the visible window keep the edge bands. */
 export default function CalendarDay({ date, events, onSelect, dayViewStart = DEFAULT_START, dayViewEnd = DEFAULT_END }) {
+  const { t } = useT('calendar')
   const startH = Math.max(0, Math.min(23, dayViewStart))
   const endH = Math.max(startH, Math.min(23, dayViewEnd))
   const gridStartMin = startH * 60
@@ -96,17 +98,17 @@ export default function CalendarDay({ date, events, onSelect, dayViewStart = DEF
     <div className="cal-day">
       {allDayEvents.length > 0 && (
         <div className="cal-day-allday">
-          <p className="cal-day-edge-lbl">כל היום</p>
+          <p className="cal-day-edge-lbl">{t('allDay')}</p>
           <div className="cal-day-allday-items">
-            {allDayEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} />)}
+            {allDayEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} t={t} />)}
           </div>
         </div>
       )}
 
       {earlyEvents.length > 0 && (
         <div className="cal-day-edge">
-          <p className="cal-day-edge-lbl">לפני {String(hours[0]).padStart(2, '0')}:00</p>
-          {earlyEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} />)}
+          <p className="cal-day-edge-lbl">{t('before', { time: `${String(hours[0]).padStart(2, '0')}:00` })}</p>
+          {earlyEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} t={t} />)}
         </div>
       )}
 
@@ -134,9 +136,9 @@ export default function CalendarDay({ date, events, onSelect, dayViewStart = DEF
                 {fmtTime(ev.when)}{ev.end ? `–${fmtTime(ev.end)}` : ''}
               </span>
               <span className="cal-day-evt-title">{ev.title}</span>
-              {ev.kind === 'meeting' && ev.status === 'pending' && <span className="cal-tag">ממתינה</span>}
-              {ev.kind === 'reminder' && <span className="cal-tag rem">תזכורת</span>}
-              {ev.kind === 'calendar' && <span className="cal-tag cal">יומן</span>}
+              {ev.kind === 'meeting' && ev.status === 'pending' && <span className="cal-tag">{t('tag.pending')}</span>}
+              {ev.kind === 'reminder' && <span className="cal-tag rem">{t('tag.reminder')}</span>}
+              {ev.kind === 'calendar' && <span className="cal-tag cal">{t('tag.calendar')}</span>}
             </button>
           ))}
         </div>
@@ -144,8 +146,8 @@ export default function CalendarDay({ date, events, onSelect, dayViewStart = DEF
 
       {lateEvents.length > 0 && (
         <div className="cal-day-edge">
-          <p className="cal-day-edge-lbl">אחרי {String(hours[hours.length - 1]).padStart(2, '0')}:00</p>
-          {lateEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} />)}
+          <p className="cal-day-edge-lbl">{t('after', { time: `${String(hours[hours.length - 1]).padStart(2, '0')}:00` })}</p>
+          {lateEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} t={t} />)}
         </div>
       )}
     </div>
@@ -153,7 +155,7 @@ export default function CalendarDay({ date, events, onSelect, dayViewStart = DEF
 }
 
 /* Bare (non-positioned) event chip — used in the all-day + early/late bands. */
-function DayEvent({ event, onSelect }) {
+function DayEvent({ event, onSelect, t }) {
   return (
     <button
       type="button"
@@ -166,9 +168,9 @@ function DayEvent({ event, onSelect }) {
         </span>
       )}
       <span className="cal-day-evt-title">{event.title}</span>
-      {event.kind === 'meeting' && event.status === 'pending' && <span className="cal-tag">ממתינה</span>}
-      {event.kind === 'reminder' && <span className="cal-tag rem">תזכורת</span>}
-      {event.kind === 'calendar' && <span className="cal-tag cal">יומן</span>}
+      {event.kind === 'meeting' && event.status === 'pending' && <span className="cal-tag">{t('tag.pending')}</span>}
+      {event.kind === 'reminder' && <span className="cal-tag rem">{t('tag.reminder')}</span>}
+      {event.kind === 'calendar' && <span className="cal-tag cal">{t('tag.calendar')}</span>}
     </button>
   )
 }

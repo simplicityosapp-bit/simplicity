@@ -3,6 +3,7 @@ import { useQuote } from '../../../hooks/useQuote'
 import { useUserQuotes } from '../../../hooks/useUserQuotes'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import QuoteSourceModal from '../../../modals/QuoteSourceModal'
+import { useT } from '../../../i18n/useT'
 
 /* Daily quote — tap opens the source picker + personal pool manager
    (beta request 03/06/2026). Source: prefs.quoteSource ('system' |
@@ -10,6 +11,7 @@ import QuoteSourceModal from '../../../modals/QuoteSourceModal'
    personal picks from the user's own pool and falls back to the
    system quote while the pool is still empty. */
 export default function QuoteWidget() {
+  const { t } = useT('home')
   const { quote } = useQuote()
   const { userQuotes, addUserQuote, removeUserQuote } = useUserQuotes()
   const { prefs, update } = useUserPreferences()
@@ -42,7 +44,7 @@ export default function QuoteWidget() {
         tabIndex={0}
         onClick={() => setOpen(true)}
         onKeyDown={onKey}
-        aria-label="בחירת מקור הציטוטים"
+        aria-label={t('widgets.quote.sourceAria')}
       >
         {shown ? (
           <>
@@ -50,7 +52,7 @@ export default function QuoteWidget() {
             {shown.author && <p className="h-quote-author">— {shown.author}</p>}
           </>
         ) : (
-          <p className="h-quote-text">היום יום חדש. הכל אפשרי.</p>
+          <p className="h-quote-text">{t('widgets.quote.fallback')}</p>
         )}
       </div>
 

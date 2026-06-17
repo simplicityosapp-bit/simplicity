@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Tag, X } from 'lucide-react'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
-import { useAddress } from '../../hooks/useAddress'
+import { useT } from '../../i18n/useT'
 import ConfirmModal from '../../modals/ConfirmModal'
 
 /* Inline categories manager — ported from the prototype's
@@ -9,7 +9,7 @@ import ConfirmModal from '../../modals/ConfirmModal'
    existing categories + add form (name + colour picker). Click
    the X on a chip to soft-delete it (parent handles the call). */
 export default function CategoriesSection({ categories, onAdd, onDelete }) {
-  const { addr } = useAddress()
+  const { t } = useT('finance')
   const [name, setName] = useState('')
   const [colorIdx, setColorIdx] = useState(0)
   const [busy, setBusy] = useState(false)
@@ -33,13 +33,13 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
       <div className="cat-section-head">
         <span className="cat-section-title">
           <Tag size={15} strokeWidth={1.5} aria-hidden="true" />
-          קטגוריות הוצאות
+          {t('categories.title')}
           {live.length > 0 && <span className="cat-section-count mono">{live.length}</span>}
         </span>
       </div>
 
       {live.length === 0 ? (
-        <p className="cat-section-empty">אין קטגוריות עדיין. {addr({male:'הוסף',female:'הוסיפי',neutral:'הוסף/י'})} קטגוריה כדי לתייג הוצאות (מנויים, ייעוץ, וכו׳).</p>
+        <p className="cat-section-empty">{t('categories.empty')}</p>
       ) : (
         <div className="cat-chips">
           {live.map((c) => (
@@ -50,8 +50,8 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
                 type="button"
                 className="cat-chip-x"
                 onClick={() => setConfirm(c)}
-                aria-label={`מחק ${c.name}`}
-                title="מחיקה"
+                aria-label={t('categories.deleteChipAria', { name: c.name })}
+                title={t('categories.deleteAria')}
               >
                 <X size={11} strokeWidth={2} aria-hidden="true" />
               </button>
@@ -66,9 +66,9 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
-          placeholder="שם קטגוריה"
+          placeholder={t('categories.namePlaceholder')}
         />
-        <div className="cat-color-picker" role="radiogroup" aria-label="צבע קטגוריה">
+        <div className="cat-color-picker" role="radiogroup" aria-label={t('categories.colorGroupAria')}>
           {CATEGORY_COLORS.map((c, i) => (
             <button
               key={c}
@@ -78,7 +78,7 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
               onClick={() => setColorIdx(i)}
               role="radio"
               aria-checked={i === colorIdx}
-              aria-label={`צבע ${i + 1}`}
+              aria-label={t('categories.colorAria', { number: i + 1 })}
             />
           ))}
         </div>
@@ -88,17 +88,17 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
           onClick={submit}
           disabled={!name.trim() || busy}
         >
-          הוסף
+          {t('categories.add')}
         </button>
       </div>
 
       <ConfirmModal
         open={!!confirm}
         onClose={() => setConfirm(null)}
-        title="מחיקת קטגוריה"
+        title={t('categories.deleteTitle')}
         danger
-        confirmLabel="מחק"
-        message={confirm ? `למחוק את "${confirm.name}"? הוצאות שמשויכות אליה יישארו ללא קטגוריה.` : ''}
+        confirmLabel={t('categories.deleteConfirm')}
+        message={confirm ? t('categories.deleteMessage', { name: confirm.name }) : ''}
         onConfirm={() => { if (confirm) return onDelete(confirm) }}
       />
     </section>

@@ -2,8 +2,10 @@ import { memo } from 'react'
 import { Check, X, RotateCcw, Trash2 } from 'lucide-react'
 import { isr } from '../../lib/finance'
 import { fmtShortDate } from '../../lib/dates'
+import { useT } from '../../i18n/useT'
 
 function TransactionCard({ tx, clients = [], projects = [], categories = [], onApprove, onSkip, onUnskip, onEdit, onDelete }) {
+  const { t } = useT('finance')
   const stop = (fn) => (e) => { e.stopPropagation(); fn() }
   const client = tx.client_id ? clients.find((c) => c.id === tx.client_id) : null
   const project = tx.project_id ? projects.find((p) => p.id === tx.project_id) : null
@@ -23,11 +25,11 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
       onKeyDown={onEdit ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit(tx) } } : undefined}
     >
       <div className="f-tx-body">
-        <p className="f-tx-desc">{tx.desc || 'ללא תיאור'}</p>
+        <p className="f-tx-desc">{tx.desc || t('tx.noDesc')}</p>
         <div className="f-tx-meta">
           <span className="f-tx-date">{fmtShortDate(tx.date)}</span>
-          {isSkipped && <span className="f-tx-tag skip">דילגת</span>}
-          {isCredited && <span className="f-tx-tag credited">בוטלה</span>}
+          {isSkipped && <span className="f-tx-tag skip">{t('tx.skipped')}</span>}
+          {isCredited && <span className="f-tx-tag credited">{t('tx.credited')}</span>}
           {meta && <span className="f-tx-meta-text">· {meta}</span>}
           {category && (
             <span className="f-tx-cat">
@@ -44,10 +46,10 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
 
       {isPending ? (
         <div className="f-tx-actions">
-          <button type="button" className="f-tx-btn approve" onClick={stop(() => onApprove(tx.id))} title="אשר — התנועה קרתה">
+          <button type="button" className="f-tx-btn approve" onClick={stop(() => onApprove(tx.id))} title={t('tx.approveTitle')}>
             <Check size={15} strokeWidth={2} aria-hidden="true" />
           </button>
-          <button type="button" className="f-tx-btn skip" onClick={stop(() => onSkip(tx.id))} title="דלג — לא קרה">
+          <button type="button" className="f-tx-btn skip" onClick={stop(() => onSkip(tx.id))} title={t('tx.skipTitle')}>
             <X size={15} strokeWidth={2} aria-hidden="true" />
           </button>
         </div>
@@ -55,12 +57,12 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
         (isSkipped || onDelete) && (
           <div className="f-tx-actions">
             {isSkipped && (
-              <button type="button" className="f-tx-btn restore" onClick={stop(() => onUnskip(tx.id))} title="החזר לממתינה" aria-label="החזר לממתינה">
+              <button type="button" className="f-tx-btn restore" onClick={stop(() => onUnskip(tx.id))} title={t('tx.restore')} aria-label={t('tx.restore')}>
                 <RotateCcw size={14} strokeWidth={1.8} aria-hidden="true" />
               </button>
             )}
             {onDelete && (
-              <button type="button" className="f-tx-btn delete" onClick={stop(() => onDelete(tx.id))} title="מחק תנועה" aria-label="מחק תנועה">
+              <button type="button" className="f-tx-btn delete" onClick={stop(() => onDelete(tx.id))} title={t('tx.delete')} aria-label={t('tx.delete')}>
                 <Trash2 size={14} strokeWidth={1.8} aria-hidden="true" />
               </button>
             )}

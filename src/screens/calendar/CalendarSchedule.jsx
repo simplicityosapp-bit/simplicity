@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Clock, CalendarDays } from 'lucide-react'
 import { formatWhen } from '../../lib/dates'
+import { useT } from '../../i18n/useT'
 
 const PAGE = 30
 
@@ -9,12 +10,13 @@ const PAGE = 30
    window only grows; a shrinking feed is handled by slice, and switching away
    from the agenda view remounts this and resets to the first page. */
 export default function CalendarSchedule({ items, onSelect }) {
+  const { t } = useT('calendar')
   const [limit, setLimit] = useState(PAGE)
 
   if (!items.length) {
     return (
       <div className="empty">
-        <p className="empty-text">אין אירועים קרובים — לוח נקי.</p>
+        <p className="empty-text">{t('list.empty')}</p>
       </div>
     )
   }
@@ -36,16 +38,16 @@ export default function CalendarSchedule({ items, onSelect }) {
           </span>
           <div className="cal-body">
             <p className="cal-title">{it.title}</p>
-            <p className="cal-when">{it.allDay ? 'כל היום' : formatWhen(it.when)}{it.kind === 'calendar' && (it.clientName || it.projectName) ? ` · ${it.clientName || it.projectName}` : ''}</p>
+            <p className="cal-when">{it.allDay ? t('allDay') : formatWhen(it.when)}{it.kind === 'calendar' && (it.clientName || it.projectName) ? ` · ${it.clientName || it.projectName}` : ''}</p>
           </div>
-          {it.kind === 'meeting' && it.status === 'pending' && <span className="cal-tag">ממתינה</span>}
-          {it.kind === 'reminder' && <span className="cal-tag rem">תזכורת</span>}
-          {it.kind === 'calendar' && <span className="cal-tag cal">יומן</span>}
+          {it.kind === 'meeting' && it.status === 'pending' && <span className="cal-tag">{t('tag.pending')}</span>}
+          {it.kind === 'reminder' && <span className="cal-tag rem">{t('tag.reminder')}</span>}
+          {it.kind === 'calendar' && <span className="cal-tag cal">{t('tag.calendar')}</span>}
         </button>
       ))}
       {remaining > 0 && (
         <button type="button" className="cal-load-more" onClick={() => setLimit((n) => n + PAGE)}>
-          טען עוד ({remaining})
+          {t('list.loadMore', { count: remaining })}
         </button>
       )}
     </section>

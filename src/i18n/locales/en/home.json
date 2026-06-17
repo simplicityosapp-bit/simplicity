@@ -1,0 +1,120 @@
+{
+  "welcome": {
+    "close": "Hide the welcome card",
+    "eyebrow": "Welcome to Simplicity",
+    "title": "It all starts here",
+    "sub": "Three short steps to get going. The glowing buttons on each screen will guide you.",
+    "addClient": "Add your first client",
+    "addTask": "Create a task",
+    "addLead": "Add a lead"
+  },
+  "widgets": {
+    "attention": {
+      "title": "Needs attention",
+      "infoLabel": "About \"Needs attention\"",
+      "infoText": "Items that need action: transactions awaiting approval, meetings not yet marked, clients untouched for 45 days, and goals behind pace.",
+      "count_one": "{{count}} item",
+      "count_other": "{{count}} items",
+      "dup_one": "Calendar conflict with Google",
+      "dup_other": "{{count}} calendar conflicts with Google",
+      "more": "and {{count}} more",
+      "allClear": "All under control — nothing open",
+      "empty": "Nothing needs your attention right now.",
+      "txModalTitle": "Transactions awaiting approval",
+      "txEmpty": "All done — no pending transactions. You can close this.",
+      "meetingsModalTitle": "Meetings to confirm"
+    },
+    "chips": {
+      "tasks": "Tasks",
+      "tasksInfoLabel": "About tasks",
+      "tasksInfoText_pre": "Tap",
+      "tasksInfoText_post": " the card to filter and see details. Default: open tasks only.",
+      "income": "Income",
+      "expense": "Expenses",
+      "net": "Net",
+      "netInfoLabel": "About net",
+      "netInfoText_pre": "Tap",
+      "netInfoText_post": " the card to filter by time range, type, project and category. Counts approved transactions only.",
+      "clients": "Clients",
+      "clientsInfoLabel": "About clients",
+      "clientsInfoText_pre": "Tap",
+      "clientsInfoText_post": " the card to filter by status, project and group. Default: active + mid."
+    },
+    "insights": {
+      "expand": "Open \"How are you today\"",
+      "collapse": "Collapse \"How are you today\"",
+      "prompt": "How are you today?",
+      "addQuestion": "Add a daily question ←",
+      "done": "Done for today — nice.",
+      "improved": "Up from yesterday",
+      "stable": "Steady since yesterday",
+      "lower": "A little lower than yesterday",
+      "reminder": "You haven't answered today — a small moment for yourself?",
+      "infoLabel": "About the daily question",
+      "infoText": "The daily question tracks how you feel over time. The scale is 1–10 (10 = best). Answers are saved per day and build insights in the 'How are you today' screen.",
+      "yes": "Yes",
+      "no": "No",
+      "saveAria": "Save answer"
+    },
+    "moon": {
+      "percentOfGoal": "{{percent}}% of goal",
+      "glance": "Glance",
+      "setGoal": "Set a goal ←",
+      "setGoalAria": "Set a goal",
+      "glanceAria": "Glance {{percent}}%",
+      "ofPace": "of pace",
+      "infoLabel": "About Glance",
+      "infoText": "The weighted score of all your goals this month, pace-aware — how much of the expected daily target you've covered so far. 100% = right on pace.",
+      "expandedEmpty": "No active goals with data this month yet.",
+      "fullDetail": "Full detail"
+    },
+    "nextTasks": {
+      "title": "Next tasks",
+      "link_one": "{{count}} task",
+      "link_other": "{{count}} tasks",
+      "noOpen": "No open tasks",
+      "urgentOf_one": "{{urgentText}} of {{count}} open",
+      "urgentOf_other": "{{urgentText}} of {{count}} open",
+      "urgent_one": "{{count}} urgent",
+      "urgent_other": "{{count}} urgent",
+      "openSummary_one": "{{count}} open task",
+      "openSummary_other": "{{count}} open tasks",
+      "allDone": "All tasks done. {{add}} a task when one comes up.",
+      "addWord": "Add",
+      "markDone": "Mark as done"
+    },
+    "quick": {
+      "quickAdd": "Quick add",
+      "goalUpdate": "Update goal"
+    },
+    "quote": {
+      "sourceAria": "Choose quote source",
+      "fallback": "Today is a new day. Anything is possible."
+    },
+    "reminders": {
+      "title": "Upcoming reminders",
+      "link_one": "{{count}} reminder",
+      "link_other": "{{count}} reminders",
+      "none": "No upcoming reminders",
+      "todaySummary_one": "{{today}} today · {{count}} upcoming",
+      "todaySummary_other": "{{today}} today · {{count}} upcoming",
+      "soonSummary_one": "{{count}} upcoming reminder",
+      "soonSummary_other": "{{count}} upcoming reminders",
+      "empty": "No upcoming reminders — all calm.",
+      "markDone": "Done",
+      "markDoneAria": "Mark as done"
+    },
+    "meetingConfirm": {
+      "subjectClient": "Client",
+      "subjectGroup": "Group",
+      "meetingHappened": "The meeting took place",
+      "meetingSkipped": "Didn't take place",
+      "meetingDelete": "Delete meeting",
+      "linkedExpense": "Meeting expense",
+      "txPaid": "Paid",
+      "txNotPaid": "Not paid",
+      "txDelete": "Delete transaction",
+      "empty": "No meetings awaiting approval."
+    }
+  }
+}

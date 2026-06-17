@@ -5,9 +5,11 @@ import { ROUTES } from '../../../lib/routes'
 import { remindersUpcoming } from '../../../lib/homeData'
 import { formatWhen } from '../../../lib/dates'
 import { useReminders } from '../../../hooks/useReminders'
+import { useT } from '../../../i18n/useT'
 
 /* Upcoming reminders (today → +60d). The ✓ marks a reminder done. */
 export default function RemindersWidget() {
+  const { t } = useT('home')
   const navigate = useNavigate()
   const { reminders, completeReminder } = useReminders()
   const items = useMemo(() => remindersUpcoming(new Date(), reminders, 60, 0), [reminders])   /* all upcoming */
@@ -21,10 +23,10 @@ export default function RemindersWidget() {
   }, [items])
 
   const summary = items.length === 0
-    ? 'אין תזכורות קרובות'
+    ? t('widgets.reminders.none')
     : todayCount > 0
-      ? `${todayCount} להיום · ${items.length} ${items.length === 1 ? 'קרובה' : 'קרובות'}`
-      : `${items.length} ${items.length === 1 ? 'תזכורת קרובה' : 'תזכורות קרובות'}`
+      ? t('widgets.reminders.todaySummary', { count: items.length, today: todayCount })
+      : t('widgets.reminders.soonSummary', { count: items.length })
 
   return (
     <div
@@ -33,10 +35,10 @@ export default function RemindersWidget() {
     >
       <div className="h-card-head">
         <span className="h-card-title">
-          <Clock size={20} strokeWidth={1.5} aria-hidden="true" /> תזכורות קרובות
+          <Clock size={20} strokeWidth={1.5} aria-hidden="true" /> {t('widgets.reminders.title')}
         </span>
         <button type="button" className="h-card-link" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.CALENDAR) }}>
-          {items.length} {items.length === 1 ? 'תזכורת' : 'תזכורות'}
+          {t('widgets.reminders.link', { count: items.length })}
           <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
         </button>
       </div>
@@ -54,13 +56,13 @@ export default function RemindersWidget() {
               >
                 <span className="h-rem-text">{r.title}</span>
                 <span className="h-rem-when">{formatWhen(r.when)}</span>
-                <button type="button" className="h-check" title="בוצעה" aria-label="סמן כבוצעה" onClick={(e) => { e.stopPropagation(); completeReminder(r.id) }}>
+                <button type="button" className="h-check" title={t('widgets.reminders.markDone')} aria-label={t('widgets.reminders.markDoneAria')} onClick={(e) => { e.stopPropagation(); completeReminder(r.id) }}>
                   <Check size={13} strokeWidth={2} aria-hidden="true" />
                 </button>
               </div>
             ))
           ) : (
-            <p className="h-card-empty">אין תזכורות קרובות — הכל רגוע.</p>
+            <p className="h-card-empty">{t('widgets.reminders.empty')}</p>
           )}
         </div>
       ) : (

@@ -24,6 +24,7 @@ import { useLeads } from '../../../hooks/useLeads'
 import { useCalendarEvents } from '../../../hooks/useCalendarEvents'
 import { useCalendarDuplicates } from '../../../hooks/useCalendarDuplicates'
 import CalendarDuplicateModal from '../../../modals/CalendarDuplicateModal'
+import { useT } from '../../../i18n/useT'
 
 const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
 
@@ -34,6 +35,7 @@ const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
    that materialise pending meetings + linked expenses on home (moved here from
    the now-removed meeting-confirm widget). */
 export default function AttentionWidget() {
+  const { t } = useT('home')
   const navigate = useNavigate()
   const { transactions, setStatus: setTxStatus, removeTransaction, addTransaction, loading: transactionsLoading } = useTransactions()
   const { meetings, addMeeting, updateMeeting, loading: meetingsLoading } = useScheduledMeetings()
@@ -84,13 +86,13 @@ export default function AttentionWidget() {
   )
 
   const dupText = duplicates.length > 0
-    ? (duplicates.length === 1 ? 'כפילות ביומן מול גוגל' : `${duplicates.length} כפילויות ביומן מול גוגל`)
+    ? t('widgets.attention.dup', { count: duplicates.length })
     : null
   const totalCount = items.length + (dupText ? 1 : 0)
   const summaryParts = [dupText, ...items.map((it) => it.text)].filter(Boolean)
   const summary = totalCount === 0
-    ? 'הכל תחת שליטה — אין פריטים פתוחים'
-    : summaryParts.slice(0, 2).join(' · ') + (summaryParts.length > 2 ? ` · ועוד ${summaryParts.length - 2}` : '')
+    ? t('widgets.attention.allClear')
+    : summaryParts.slice(0, 2).join(' · ') + (summaryParts.length > 2 ? ` · ${t('widgets.attention.more', { count: summaryParts.length - 2 })}` : '')
 
   /* Actionable rows open a popup; the rest navigate. */
   const onRow = (it) => {
@@ -107,13 +109,13 @@ export default function AttentionWidget() {
       >
         <div className="h-card-head">
           <span className="h-card-title">
-            <Bell size={20} strokeWidth={1.5} aria-hidden="true" /> דרושה תשומת לב
+            <Bell size={20} strokeWidth={1.5} aria-hidden="true" /> {t('widgets.attention.title')}
             <InfoPopover
-              label="הסבר דרושה תשומת לב"
-              text="פריטים שדורשים פעולה: תנועות ממתינות לאישור, פגישות שעדיין לא סומנו, לקוחות שלא טופלו 45 ימים, ויעדים מתחת לקצב."
+              label={t('widgets.attention.infoLabel')}
+              text={t('widgets.attention.infoText')}
             />
           </span>
-          <span className="h-card-count">{totalCount} {totalCount === 1 ? 'פריט' : 'פריטים'}</span>
+          <span className="h-card-count">{t('widgets.attention.count', { count: totalCount })}</span>
           <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
         </div>
         {open ? (
@@ -137,7 +139,7 @@ export default function AttentionWidget() {
                 )
               })
             ) : duplicates.length === 0 ? (
-              <p className="h-card-empty">אין פריטים שדורשים תשומת לב כרגע.</p>
+              <p className="h-card-empty">{t('widgets.attention.empty')}</p>
             ) : null}
           </div>
         ) : (
@@ -145,9 +147,9 @@ export default function AttentionWidget() {
         )}
       </div>
 
-      <Modal open={popup === 'tx'} onClose={() => setPopup(null)} title="תנועות ממתינות לאישור">
+      <Modal open={popup === 'tx'} onClose={() => setPopup(null)} title={t('widgets.attention.txModalTitle')}>
         {pendingTxs.length === 0 ? (
-          <p className="h-card-empty">סיימת — אין תנועות ממתינות. אפשר לסגור.</p>
+          <p className="h-card-empty">{t('widgets.attention.txEmpty')}</p>
         ) : (
           <PendingSection
             embedded
@@ -162,7 +164,7 @@ export default function AttentionWidget() {
         )}
       </Modal>
 
-      <Modal open={popup === 'meetings'} onClose={() => setPopup(null)} title="פגישות לאישור">
+      <Modal open={popup === 'meetings'} onClose={() => setPopup(null)} title={t('widgets.attention.meetingsModalTitle')}>
         <MeetingConfirmList />
       </Modal>
 

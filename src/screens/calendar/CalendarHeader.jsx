@@ -1,13 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronRight, ChevronLeft, ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { fmtDayLabel } from '../../lib/calendar'
+import { useT } from '../../i18n/useT'
 
-const VIEWS = [
-  { k: 'schedule', l: 'לוח' },
-  { k: 'day',      l: 'יום' },
-  { k: 'week',     l: 'שבוע' },
-  { k: 'month',    l: 'חודש' },
-]
+const VIEW_KEYS = ['schedule', 'day', 'week', 'month']
 const MONTHS = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר']
 
 /* Week + month views step by MONTH (the user navigates between months);
@@ -26,6 +22,7 @@ function stepDate(view, date, dir) {
 /* The month+year picker that sits between the nav arrows in the week and
    month views — click to open a 12-month grid with year stepping. */
 function MonthPicker({ date, onPick }) {
+  const { t } = useT('calendar')
   const [open, setOpen] = useState(false)
   const [year, setYear] = useState(date.getFullYear())
   const ref = useRef(null)
@@ -52,11 +49,11 @@ function MonthPicker({ date, onPick }) {
         <ChevronDown size={14} strokeWidth={1.7} aria-hidden="true" />
       </button>
       {open && (
-        <div className="cal-monthpick-panel" role="dialog" aria-label="בחירת חודש">
+        <div className="cal-monthpick-panel" role="dialog" aria-label={t('monthPicker.dialogAria')}>
           <div className="cal-monthpick-year">
-            <button type="button" onClick={() => setYear((y) => y - 1)} aria-label="שנה קודמת"><ChevronRight size={15} strokeWidth={1.7} aria-hidden="true" /></button>
+            <button type="button" onClick={() => setYear((y) => y - 1)} aria-label={t('monthPicker.prevYear')}><ChevronRight size={15} strokeWidth={1.7} aria-hidden="true" /></button>
             <span className="mono">{year}</span>
-            <button type="button" onClick={() => setYear((y) => y + 1)} aria-label="שנה הבאה"><ChevronLeft size={15} strokeWidth={1.7} aria-hidden="true" /></button>
+            <button type="button" onClick={() => setYear((y) => y + 1)} aria-label={t('monthPicker.nextYear')}><ChevronLeft size={15} strokeWidth={1.7} aria-hidden="true" /></button>
           </div>
           <div className="cal-monthpick-grid">
             {MONTHS.map((m, i) => {
@@ -77,6 +74,7 @@ function MonthPicker({ date, onPick }) {
    the centre is a month picker; in day they step a day and show the date.
    RTL: ChevronRight = "previous" (it points toward the past). */
 export default function CalendarHeader({ view, onViewChange, date, onDateChange, onOpenFilter, filterActive }) {
+  const { t } = useT('calendar')
   const monthish = view === 'week' || view === 'month'
   const goPrev = () => onDateChange(stepDate(view, date, -1))
   const goNext = () => onDateChange(stepDate(view, date, +1))
@@ -86,33 +84,33 @@ export default function CalendarHeader({ view, onViewChange, date, onDateChange,
 
   return (
     <div className="cal-header">
-      <div className="cal-view-toggle" role="tablist" aria-label="תצוגה">
-        {VIEWS.map((v) => (
+      <div className="cal-view-toggle" role="tablist" aria-label={t('nav.tablistAria')}>
+        {VIEW_KEYS.map((k) => (
           <button
-            key={v.k}
+            key={k}
             type="button"
-            className={`cal-view-btn${view === v.k ? ' on' : ''}`}
-            onClick={() => onViewChange(v.k)}
+            className={`cal-view-btn${view === k ? ' on' : ''}`}
+            onClick={() => onViewChange(k)}
             role="tab"
-            aria-selected={view === v.k}
+            aria-selected={view === k}
           >
-            {v.l}
+            {t(`views.${k}`)}
           </button>
         ))}
       </div>
 
       {view !== 'schedule' && (
         <div className="cal-nav">
-          <button type="button" className="cal-nav-btn" onClick={goPrev} aria-label={monthish ? 'חודש קודם' : 'הקודם'}>
+          <button type="button" className="cal-nav-btn" onClick={goPrev} aria-label={monthish ? t('nav.prevMonth') : t('nav.prev')}>
             <ChevronRight size={16} strokeWidth={1.6} aria-hidden="true" />
           </button>
           {monthish
             ? <MonthPicker date={date} onPick={onDateChange} />
             : <span className="cal-nav-label">{fmtDayLabel(date)}</span>}
-          <button type="button" className="cal-nav-btn" onClick={goNext} aria-label={monthish ? 'חודש הבא' : 'הבא'}>
+          <button type="button" className="cal-nav-btn" onClick={goNext} aria-label={monthish ? t('nav.nextMonth') : t('nav.next')}>
             <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
           </button>
-          <button type="button" className="cal-nav-today" onClick={goToday}>היום</button>
+          <button type="button" className="cal-nav-today" onClick={goToday}>{t('nav.today')}</button>
         </div>
       )}
 
@@ -121,8 +119,8 @@ export default function CalendarHeader({ view, onViewChange, date, onDateChange,
           type="button"
           className={`cal-nav-btn cal-filter-btn${filterActive ? ' is-active' : ''}`}
           onClick={onOpenFilter}
-          aria-label="פילטר תצוגה"
-          title="פילטר תצוגה"
+          aria-label={t('filter')}
+          title={t('filter')}
         >
           <SlidersHorizontal size={16} strokeWidth={1.6} aria-hidden="true" />
         </button>

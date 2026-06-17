@@ -23,11 +23,13 @@ import EditTransactionModal from '../../modals/EditTransactionModal'
 import RecurringModal from '../../modals/RecurringModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
+import { useT } from '../../i18n/useT'
 import './FinanceScreen.css'
 
 const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1)
 
 export default function FinanceScreen() {
+  const { t } = useT('finance')
   const { transactions, loading, error, addTransaction, editTransaction, setStatus, removeTransaction, refetch } = useTransactions()
   const { clients } = useClients()
   const { projects } = useProjects()
@@ -102,13 +104,13 @@ export default function FinanceScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{monthTxs.length} תנועות</p>
+              <p className="lbl">{t('countLabel', { count: monthTxs.length })}</p>
               <span className="lbl dot">·</span>
-              <p className="lbl">תמונת מצב</p>
+              <p className="lbl">{t('snapshot')}</p>
             </div>
-            <p className="lbl-sm">הפעולות שלך יוצרות תוצאות טובות.</p>
+            <p className="lbl-sm">{t('tagline')}</p>
           </div>
-          <p className="t-screen">כסף</p>
+          <p className="t-screen">{t('title')}</p>
         </header>
         <div className="f-top-actions">
           <button
@@ -116,12 +118,12 @@ export default function FinanceScreen() {
             className="f-export-btn"
             onClick={() => exportTransactionsCSV({ transactions: monthTxs, clients, projects, categories, monthDate: month })}
             disabled={monthTxs.length === 0}
-            aria-label="ייצוא לקובץ CSV"
+            aria-label={t('exportCsvAria')}
           >
-            ייצוא CSV
+            {t('exportCsv')}
           </button>
           <Coachmark id="add-transaction" radius="50%">
-          <button className="cta-add" type="button" aria-label="תנועה חדשה" onClick={() => setShowAdd(true)}>+ תנועה חדשה</button>
+          <button className="cta-add" type="button" aria-label={t('newTxAria')} onClick={() => setShowAdd(true)}>{t('newTx')}</button>
         </Coachmark>
         </div>
       </div>
@@ -173,9 +175,9 @@ export default function FinanceScreen() {
 
       <section className="f-list">
         {loading ? (
-          <div className="empty"><p className="empty-text">טוען תנועות…</p></div>
+          <div className="empty"><p className="empty-text">{t('loading')}</p></div>
         ) : error ? (
-          <div className="empty"><p className="empty-text">שגיאה בטעינת התנועות: {error}</p></div>
+          <div className="empty"><p className="empty-text">{t('loadError', { error })}</p></div>
         ) : (
           <>
             {skippedCount > 0 && (
@@ -186,7 +188,7 @@ export default function FinanceScreen() {
                   onClick={() => setShowSkipped(!showSkipped)}
                   aria-pressed={showSkipped}
                 >
-                  {showSkipped ? 'הסתר שדילגת' : `הצג ${skippedCount} שדילגת`}
+                  {showSkipped ? t('hideSkipped') : t('showSkipped', { count: skippedCount })}
                 </button>
               </div>
             )}
@@ -253,9 +255,9 @@ export default function FinanceScreen() {
       <ConfirmModal
         open={!!pendingDeleteRec}
         onClose={() => setPendingDeleteRec(null)}
-        title="מחיקת תבנית חוזרת"
-        message={pendingDeleteRec ? `למחוק את "${pendingDeleteRec.desc || (pendingDeleteRec.type === 'income' ? 'הכנסה' : 'הוצאה')}"? תנועות שכבר נוצרו לפי התבנית יישארו.` : ''}
-        confirmLabel="מחק"
+        title={t('deleteRecurring.title')}
+        message={pendingDeleteRec ? t('deleteRecurring.message', { name: pendingDeleteRec.desc || (pendingDeleteRec.type === 'income' ? t('deleteRecurring.income') : t('deleteRecurring.expense')) }) : ''}
+        confirmLabel={t('deleteRecurring.confirm')}
         danger
         onConfirm={() => { if (pendingDeleteRec) removeRecurring(pendingDeleteRec.id) }}
       />

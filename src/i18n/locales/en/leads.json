@@ -1,0 +1,61 @@
+{
+  "countLabel": "{{count}} leads",
+  "tabLeads": "Leads",
+  "tabStatuses": "Statuses",
+  "tagline": "Nurturing relationships leads to results.",
+  "title": "Leads",
+  "newLeadAria": "New lead",
+  "newLead": "+ New lead",
+  "viewToggleAria": "View",
+  "sourcesLink": "Lead sources",
+  "stats": {
+    "newThisMonth": "Inquiries this month",
+    "converted": "Converted to clients",
+    "convRate": "Conversion rate"
+  },
+  "sort": {
+    "newOld": "Newest first",
+    "oldNew": "Oldest first",
+    "byDate": "By date",
+    "aria": "Sort: {{label}}"
+  },
+  "followups": {
+    "empty": "No follow-ups due today",
+    "due": "Follow-ups due today"
+  },
+  "loading": "Loading leads…",
+  "loadError": "Couldn't load leads: {{error}}",
+  "subFilterAria": "Filter by sub-status",
+  "all": "All",
+  "undoStatusChanged": "Status changed",
+  "delete": {
+    "title": "Delete lead",
+    "message": "Delete \"{{name}}\"? The lead will move to the recycle bin and can be restored within 30 days.",
+    "confirm": "Delete"
+  },
+  "dropPicker": {
+    "title": "Which sub-status should it go to?",
+    "none": "No sub-status"
+  },
+  "column": {
+    "empty": "No leads in this column"
+  },
+  "card": {
+    "deleteAria": "Delete lead {{name}}",
+    "deleteTitle": "Delete lead",
+    "noSource": "No source",
+    "inquiry": "Inquiry {{date}}",
+    "converted": "Converted to client",
+    "convert": "Convert to client"
+  },
+  "statusesPanel": {
+    "intro": "Manage sub-statuses under each top-level category. Sub-statuses appear when you set a color dot on a lead card, and are used for filtering and charts.",
+    "addPlaceholder": "Sub-status for \"{{meta}}\"",
+    "addAria": "Add",
+    "deleteChipAria": "Delete {{name}}",
+    "deleteChipTitle": "Delete",
+    "deleteTitle": "Delete sub-status",
+    "deleteMessage": "Delete \"{{name}}\"? Leads marked with it will be left without a sub-status. You can restore it from the recycle bin within 30 days.",
+    "deleteConfirm": "Delete"
+  }
+}

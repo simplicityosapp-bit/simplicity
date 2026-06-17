@@ -3,6 +3,7 @@ import { Plus, X, GripVertical } from 'lucide-react'
 import { LEAD_META } from '../../lib/leads'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import ConfirmModal from '../../modals/ConfirmModal'
+import { useT } from '../../i18n/useT'
 
 /* Inline sub-status manager for the leads screen — mirrors what
    Settings already shows, in a more compact chip layout so the user
@@ -10,6 +11,7 @@ import ConfirmModal from '../../modals/ConfirmModal'
    straight to useLeadStatuses via the parent. Chips inside a meta group
    can be drag-reordered (persists sort_order via onUpdate). */
 export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove }) {
+  const { t } = useT('leads')
   const [drafts, setDrafts] = useState({})
   const [busy, setBusy] = useState({})
   const [pendingDelete, setPendingDelete] = useState(null) // the status awaiting delete confirm
@@ -63,7 +65,7 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
   return (
     <div className="lead-statuses-panel">
       <p className="lead-statuses-intro">
-        ניהול תתי-סטטוסים תחת כל קטגוריית-על. תתי-סטטוסים מופיעים כשמסמנים נקודת צבע על כרטיס ליד, ומשמשים לסינון ולגרפים.
+        {t('statusesPanel.intro')}
       </p>
       {LEAD_META.map((m) => {
         const list = (statuses || [])
@@ -91,8 +93,8 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                         type="button"
                         className="lead-statuses-chip-x"
                         onClick={() => setPendingDelete(s)}
-                        aria-label={`מחיקת ${s.display_name}`}
-                        title="מחיקה"
+                        aria-label={t('statusesPanel.deleteChipAria', { name: s.display_name })}
+                        title={t('statusesPanel.deleteChipTitle')}
                       >
                         <X size={11} strokeWidth={2} aria-hidden="true" />
                       </button>
@@ -107,14 +109,14 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                 value={drafts[m.key] || ''}
                 onChange={(e) => setDraft(m.key, e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') submit(m.key) }}
-                placeholder={`תת-סטטוס ל"${m.title}"`}
+                placeholder={t('statusesPanel.addPlaceholder', { meta: m.title })}
               />
               <button
                 type="button"
                 className="lead-statuses-add-btn"
                 onClick={() => submit(m.key)}
                 disabled={!(drafts[m.key] || '').trim() || busy[m.key]}
-                aria-label="הוספה"
+                aria-label={t('statusesPanel.addAria')}
               >
                 <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
               </button>
@@ -126,9 +128,9 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
       <ConfirmModal
         open={!!pendingDelete}
         onClose={() => setPendingDelete(null)}
-        title="מחיקת תת-סטטוס"
-        message={pendingDelete ? `למחוק את "${pendingDelete.display_name}"? לידים שמסומנים בו יישארו ללא תת-סטטוס. ניתן לשחזר מסל המיחזור תוך 30 יום.` : ''}
-        confirmLabel="מחק"
+        title={t('statusesPanel.deleteTitle')}
+        message={pendingDelete ? t('statusesPanel.deleteMessage', { name: pendingDelete.display_name }) : ''}
+        confirmLabel={t('statusesPanel.deleteConfirm')}
         danger
         onConfirm={() => { if (pendingDelete) onRemove(pendingDelete.id) }}
       />

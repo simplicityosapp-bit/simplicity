@@ -3,12 +3,13 @@ import { Check } from 'lucide-react'
 import { clientBalance, effectiveClientMeta } from '../../lib/clients'
 import { isr } from '../../lib/finance'
 import MG from '../../components/MG'
+import { useT } from '../../i18n/useT'
 
 const STATUS = {
-  active: { label: 'פעיל׌', cls: 'active' },
-  wandering: { label: 'ביניים', cls: 'wandering' },
-  past: { label: 'לשעבר', cls: 'past' },
-  no_status: { label: 'ללא סטטוס', cls: 'no_status' },
+  active: { labelKey: 'status.active', cls: 'active' },
+  wandering: { labelKey: 'status.wandering', cls: 'wandering' },
+  past: { labelKey: 'status.past', cls: 'past' },
+  no_status: { labelKey: 'status.noStatus', cls: 'no_status' },
 }
 
 const initials = (name) =>
@@ -24,6 +25,7 @@ function ClientCard({
   selectMode = false, selected = false, onToggleSelect,
   projects = [], txns, sessions, members, groups, statuses = [],
 }) {
+  const { t } = useT('clients')
   const isMember = !!members?.some((m) => m.client_id === client.id && !m.left_at)
   /* C1 — group members derive their status from their group(s). */
   const meta = effectiveClientMeta(client, members, groups)
@@ -32,7 +34,7 @@ function ClientCard({
   /* A group-driven client shows the derived meta label, not a stale
      private sub-status. */
   const sub = !isMember && client.status_id ? statuses.find((s) => s.id === client.status_id) : null
-  const statusLabel = sub ? `${sub.icon ? sub.icon + ' ' : ''}${sub.display_name}` : status.label
+  const statusLabel = sub ? `${sub.icon ? sub.icon + ' ' : ''}${sub.display_name}` : t(status.labelKey)
   const project = projects.find((p) => p.id === client.project_id)
   const { paid, balance, hasPersonal, personalDone, personalQuota, groupSessions } = clientBalance(client, txns, sessions, members, groups)
   /* Compact card shows PERSONAL sessions only; a pure group member shows
@@ -59,7 +61,7 @@ function ClientCard({
           type="button"
           className={`cc-check${selected ? ' on' : ''}`}
           onClick={(e) => { e.stopPropagation(); onToggleSelect?.(client.id) }}
-          aria-label={selected ? 'בטל בחירה' : 'בחר'}
+          aria-label={selected ? t('card.deselect') : t('card.selectAria')}
           aria-pressed={selected}
         >
           {selected && <Check size={13} strokeWidth={2.4} aria-hidden="true" />}
@@ -78,15 +80,15 @@ function ClientCard({
 
       <div className={`cc-stats${hasSetup ? '' : ' dim'}`}>
         <div className="cc-stat">
-          <p className="cc-stat-l">פגישות</p>
+          <p className="cc-stat-l">{t('card.sessions')}</p>
           <p className="cc-stat-v mono">{sessLabel}</p>
         </div>
         <div className="cc-stat divided">
-          <p className="cc-stat-l">שולם</p>
+          <p className="cc-stat-l">{t('card.paid')}</p>
           <p className="cc-stat-v mono">{isr(paid)}</p>
         </div>
         <div className="cc-stat">
-          <p className="cc-stat-l">יתרה</p>
+          <p className="cc-stat-l">{t('card.balance')}</p>
           <p className="cc-stat-v mono">{isr(balance)}</p>
         </div>
       </div>

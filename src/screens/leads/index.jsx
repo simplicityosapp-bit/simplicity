@@ -23,6 +23,7 @@ import FollowupsModal from '../../modals/FollowupsModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Modal from '../../modals/Modal'
 import Coachmark from '../../components/Coachmark'
+import { useT } from '../../i18n/useT'
 import './LeadsScreen.css'
 
 function computeStats(list, now = new Date()) {
@@ -39,6 +40,7 @@ function computeStats(list, now = new Date()) {
 }
 
 export default function LeadsScreen() {
+  const { t } = useT('leads')
   const navigate = useNavigate()
   const { leads: leadList, loading, error, addLead, updateLead, removeLead } = useLeads()
   const { sources, addSource } = useLeadSources()
@@ -63,7 +65,7 @@ export default function LeadsScreen() {
   const dateSort = prefs?.leadsSort || ''
   const setSubFilter = (v) => updatePrefs?.({ leadsSubFilter: v })
   const cycleSort = () => updatePrefs?.({ leadsSort: dateSort === '' ? 'new' : dateSort === 'new' ? 'old' : '' })
-  const sortLabel = dateSort === 'new' ? 'חדש→ישן' : dateSort === 'old' ? 'ישן→חדש' : 'לפי תאריך'
+  const sortLabel = dateSort === 'new' ? t('sort.newOld') : dateSort === 'old' ? t('sort.oldNew') : t('sort.byDate')
   const [showAdd, setShowAdd] = useState(false)
   const [editLead, setEditLead] = useState(null)
   const [convertLead, setConvertLead] = useState(null)
@@ -115,7 +117,7 @@ export default function LeadsScreen() {
       .then(() => {
         if (prev) {
           pushUndo({
-            label: 'הסטטוס שונה',
+            label: t('undoStatusChanged'),
             undo: async () => { await updateLead(leadId, prev, { source: 'manual_drag' }).catch(() => {}) },
             redo: async () => { await updateLead(leadId, next, { source: 'manual_drag' }).catch(() => {}) },
           })
@@ -145,23 +147,23 @@ export default function LeadsScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{total} לידים</p>
+              <p className="lbl">{t('countLabel', { count: total })}</p>
               <span className="lbl dot">·</span>
-              <p className="lbl">{view === 'statuses' ? 'סטטוסים' : 'לידים'}</p>
+              <p className="lbl">{view === 'statuses' ? t('tabStatuses') : t('tabLeads')}</p>
             </div>
-            <p className="lbl-sm">טיפוח קשרים מוביל לתוצאות.</p>
+            <p className="lbl-sm">{t('tagline')}</p>
           </div>
-          <p className="t-screen">לידים</p>
+          <p className="t-screen">{t('title')}</p>
         </header>
         {view === 'kanban' && (
           <Coachmark id="add-lead" radius="50%">
-            <button className="cta-add" type="button" aria-label="ליד חדש" onClick={() => setShowAdd(true)}>+ ליד חדש</button>
+            <button className="cta-add" type="button" aria-label={t('newLeadAria')} onClick={() => setShowAdd(true)}>{t('newLead')}</button>
           </Coachmark>
         )}
       </div>
 
       <div className="l-toolbar">
-      <div className="l-view-toggle" role="tablist" aria-label="תצוגה">
+      <div className="l-view-toggle" role="tablist" aria-label={t('viewToggleAria')}>
         <button
           type="button"
           className={`l-view-btn${view === 'kanban' ? ' on' : ''}`}
@@ -169,7 +171,7 @@ export default function LeadsScreen() {
           role="tab"
           aria-selected={view === 'kanban'}
         >
-          לידים
+          {t('tabLeads')}
         </button>
         <button
           type="button"
@@ -178,7 +180,7 @@ export default function LeadsScreen() {
           role="tab"
           aria-selected={view === 'statuses'}
         >
-          סטטוסים
+          {t('tabStatuses')}
         </button>
       </div>
         <button
@@ -187,7 +189,7 @@ export default function LeadsScreen() {
           onClick={() => navigate(ROUTES.SETTINGS, { state: { openSection: 'leads' } })}
         >
           <Leaf size={14} strokeWidth={1.7} aria-hidden="true" />
-          מקורות לידים
+          {t('sourcesLink')}
           <ChevronLeft size={15} strokeWidth={1.7} aria-hidden="true" />
         </button>
       </div>
@@ -197,21 +199,21 @@ export default function LeadsScreen() {
           <span className="l-stat-icon"><Leaf size={16} strokeWidth={1.6} aria-hidden="true" /></span>
           <div>
             <p className="l-stat-num mono">{stats.newThisMonth}</p>
-            <p className="l-stat-lbl">פניות החודש</p>
+            <p className="l-stat-lbl">{t('stats.newThisMonth')}</p>
           </div>
         </div>
         <div className="l-stat">
           <span className="l-stat-icon"><ArrowLeft size={16} strokeWidth={1.6} aria-hidden="true" /></span>
           <div>
             <p className="l-stat-num mono">{stats.convertedThisMonth}</p>
-            <p className="l-stat-lbl">הומרו ללקוחות</p>
+            <p className="l-stat-lbl">{t('stats.converted')}</p>
           </div>
         </div>
         <div className="l-stat">
           <span className="l-stat-icon"><TrendingUp size={16} strokeWidth={1.6} aria-hidden="true" /></span>
           <div>
             <p className="l-stat-num mono">{stats.convRate === null ? '—' : `${stats.convRate}%`}</p>
-            <p className="l-stat-lbl">אחוז המרה</p>
+            <p className="l-stat-lbl">{t('stats.convRate')}</p>
           </div>
         </div>
       </div>
@@ -224,15 +226,15 @@ export default function LeadsScreen() {
         <Bell size={15} strokeWidth={1.8} aria-hidden="true" />
         {dueFollowups.length > 0 && <span className="l-followup-count mono">{dueFollowups.length}</span>}
         <span className="l-followup-text">
-          {dueFollowups.length === 0 ? 'אין פולואו-אפים פתוחים להיום' : 'פולואו-אפים להיום'}
+          {dueFollowups.length === 0 ? t('followups.empty') : t('followups.due')}
         </span>
         <ChevronLeft size={15} strokeWidth={1.7} className="l-followup-chev" aria-hidden="true" />
       </button>
 
       {loading ? (
-        <div className="empty"><p className="empty-text">טוען לידים…</p></div>
+        <div className="empty"><p className="empty-text">{t('loading')}</p></div>
       ) : error ? (
-        <div className="empty"><p className="empty-text">שגיאה בטעינת הלידים: {error}</p></div>
+        <div className="empty"><p className="empty-text">{t('loadError', { error })}</p></div>
       ) : view === 'statuses' ? (
         <LeadStatusesPanel
           statuses={leadStatuses}
@@ -243,8 +245,8 @@ export default function LeadsScreen() {
       ) : (
         <>
           <div className="l-filterbar">
-            <div className="l-subfilter" role="tablist" aria-label="סינון לפי תת-סטטוס">
-              <button type="button" className={`l-subpill${!subFilter ? ' on' : ''}`} onClick={() => setSubFilter('')}>הכל</button>
+            <div className="l-subfilter" role="tablist" aria-label={t('subFilterAria')}>
+              <button type="button" className={`l-subpill${!subFilter ? ' on' : ''}`} onClick={() => setSubFilter('')}>{t('all')}</button>
               {leadStatuses.map((s) => (
                 <button
                   key={s.id}
@@ -257,7 +259,7 @@ export default function LeadsScreen() {
                 </button>
               ))}
             </div>
-            <button type="button" className={`l-sort-btn${dateSort ? ' on' : ''}`} onClick={cycleSort} aria-label={`מיון: ${sortLabel}`}>
+            <button type="button" className={`l-sort-btn${dateSort ? ' on' : ''}`} onClick={cycleSort} aria-label={t('sort.aria', { label: sortLabel })}>
               <ArrowUpDown size={14} strokeWidth={1.7} aria-hidden="true" />
               {sortLabel}
             </button>
@@ -318,9 +320,9 @@ export default function LeadsScreen() {
       <ConfirmModal
         open={!!pendingDeleteLead}
         onClose={() => setPendingDeleteLead(null)}
-        title="מחיקת ליד"
-        message={pendingDeleteLead ? `למחוק את "${pendingDeleteLead.name}"? הליד יעבור לסל המיחזור וניתן לשחזר אותו תוך 30 יום.` : ''}
-        confirmLabel="מחק"
+        title={t('delete.title')}
+        message={pendingDeleteLead ? t('delete.message', { name: pendingDeleteLead.name }) : ''}
+        confirmLabel={t('delete.confirm')}
         danger
         onConfirm={() => { if (pendingDeleteLead) removeLead(pendingDeleteLead.id) }}
       />
@@ -328,7 +330,7 @@ export default function LeadsScreen() {
       <Modal
         open={!!dropPicker}
         onClose={() => setDropPicker(null)}
-        title="לאיזה תת-סטטוס לשייך?"
+        title={t('dropPicker.title')}
       >
         <div className="lead-drop-picker">
           {(dropPicker?.subs || []).map((s) => (
@@ -347,7 +349,7 @@ export default function LeadsScreen() {
             className="lead-drop-opt muted"
             onClick={() => { applyLeadMove(dropPicker.leadId, dropPicker.newMeta, null); setDropPicker(null) }}
           >
-            ללא תת-סטטוס
+            {t('dropPicker.none')}
           </button>
         </div>
       </Modal>

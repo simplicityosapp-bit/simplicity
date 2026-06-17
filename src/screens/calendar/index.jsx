@@ -27,11 +27,13 @@ import CalendarDay from './CalendarDay'
 import CalendarWeek from './CalendarWeek'
 import CalendarMonth from './CalendarMonth'
 import Coachmark from '../../components/Coachmark'
+import { useT } from '../../i18n/useT'
 import './CalendarScreen.css'
 
 const VALID_VIEWS = new Set(['schedule', 'day', 'week', 'month'])
 
 export default function CalendarScreen() {
+  const { t } = useT('calendar')
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
   const { events: calendarEvents, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
@@ -98,9 +100,9 @@ export default function CalendarScreen() {
      render any selected period. */
   const allEvents = useMemo(() => {
     const subjectName = (m) => {
-      if (m.subject_type === 'client') return clients.find((c) => c.id === m.subject_id)?.name || 'לקוח'
-      if (m.subject_type === 'group') return groups.find((g) => g.id === m.subject_id)?.name || 'קבוצה'
-      return 'אירוע'
+      if (m.subject_type === 'client') return clients.find((c) => c.id === m.subject_id)?.name || t('fallback.client')
+      if (m.subject_type === 'group') return groups.find((g) => g.id === m.subject_id)?.name || t('fallback.group')
+      return t('fallback.event')
     }
     /* End time for a recurring meeting comes from the subject's
        recurring_end_time (clients + groups both carry it) applied to the
@@ -146,7 +148,7 @@ export default function CalendarScreen() {
       .map((ev) => ({
         id: ev.id,
         kind: 'calendar',
-        title: ev.title || 'אירוע',
+        title: ev.title || t('fallback.event'),
         when: new Date(ev.start_time),
         end: ev.end_time ? new Date(ev.end_time) : null,
         allDay: !!ev.all_day,
@@ -164,7 +166,7 @@ export default function CalendarScreen() {
       .map((l) => ({
         id: `lead-fu-${l.id}`,
         kind: 'leadFollowup',
-        title: l.name || 'ליד',
+        title: l.name || t('fallback.lead'),
         when: new Date(`${String(l.follow_up_date).slice(0, 10)}T09:00:00`),
         raw: l,
       }))
@@ -172,7 +174,7 @@ export default function CalendarScreen() {
     return [...meetingItems, ...reminderItems, ...calendarItems, ...leadFollowupItems]
       .filter((e) => byKind[e.kind] !== false)
       .sort((a, b) => a.when - b.when)
-  }, [meetings, reminders, calendarEvents, clients, groups, leads, projects, fMeeting, fReminder, fCalendar, fLeadFollowup])
+  }, [meetings, reminders, calendarEvents, clients, groups, leads, projects, fMeeting, fReminder, fCalendar, fLeadFollowup, t])
 
   const scheduleItems = useMemo(() => {
     const startOfToday = new Date()
@@ -195,16 +197,16 @@ export default function CalendarScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{scheduleItems.length} קרובים</p>
+              <p className="lbl">{t('upcomingCount', { count: scheduleItems.length })}</p>
               <span className="lbl dot">·</span>
-              <p className="lbl">לוח זמנים</p>
+              <p className="lbl">{t('schedule')}</p>
             </div>
-            <p className="lbl-sm">יום אחרי יום, צעד אחרי צעד.</p>
+            <p className="lbl-sm">{t('tagline')}</p>
           </div>
-          <p className="t-screen">יומן</p>
+          <p className="t-screen">{t('title')}</p>
         </header>
         <Coachmark id="add-meeting" radius="50%">
-          <button className="cta-add" type="button" aria-label="אירוע חדש" onClick={() => setShowGate(true)}>+ אירוע חדש</button>
+          <button className="cta-add" type="button" aria-label={t('newEventAria')} onClick={() => setShowGate(true)}>{t('newEvent')}</button>
         </Coachmark>
       </div>
 
@@ -213,10 +215,10 @@ export default function CalendarScreen() {
           <AlertTriangle size={15} strokeWidth={1.8} aria-hidden="true" />
           <span className="cal-dup-text">
             {duplicates.length === 1
-              ? 'כפילות אחת ביומן מול גוגל'
-              : `${duplicates.length} כפילויות ביומן מול גוגל`}
+              ? t('dup.one')
+              : t('dup.many', { count: duplicates.length })}
           </span>
-          <span className="cal-dup-cta">לטיפול בכפילויות <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" /></span>
+          <span className="cal-dup-cta">{t('dup.cta')} <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" /></span>
         </button>
       )}
 

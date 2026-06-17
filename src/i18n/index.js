@@ -91,6 +91,15 @@ i18n
     defaultNS: 'common',
     interpolation: { escapeValue: false }, // React already escapes
     returnEmptyString: false,
+    /* DEV safety net: surface ANY unresolved key (missing key, or a plural
+       category with no matching form) loudly in the console, so raw-key
+       leaks are caught immediately instead of shipping silently. No-op in
+       production (saveMissing false → handler never fires). */
+    saveMissing: import.meta.env.DEV,
+    missingKeyHandler: (lngs, ns, key) => {
+      // eslint-disable-next-line no-console
+      console.warn(`[i18n missing] ${ns}:${key} (${lngs?.join(',')})`)
+    },
     detection: {
       order: ['localStorage'],            // saved choice only; new visitors get fallback (he)
       caches: ['localStorage'],

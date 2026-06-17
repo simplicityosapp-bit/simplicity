@@ -8,6 +8,18 @@
    consistent.
    ════════════════════════════════════════════════════════════════ */
 
+import i18n from '../i18n'
+import heReflections from '../i18n/locales/he/reflections.json'
+import enReflections from '../i18n/locales/en/reflections.json'
+import { qtext } from './questionTemplates'
+
+/* The 'reflections' namespace lives in these three libs (insights / moon /
+   profileHealth), not in i18n/index.js's static registration. Register the
+   bundles on import so i18n.t('reflections:…') resolves. addResourceBundle
+   deep-merges and is idempotent, so all three libs may register safely. */
+if (!i18n.hasResourceBundle('he', 'reflections')) i18n.addResourceBundle('he', 'reflections', heReflections, true, true)
+if (!i18n.hasResourceBundle('en', 'reflections')) i18n.addResourceBundle('en', 'reflections', enReflections, true, true)
+
 const MS_PER_DAY = 86400000
 
 export function dateKey(d = new Date()) {
@@ -148,10 +160,14 @@ export function mirrorReflections(questions, idx, now = new Date()) {
   const out = []
   const active = (questions || []).filter((q) => q.active && !q.deleted_at)
 
+  /* Label for a question — its custom text, else the localized template
+     text (template_key is a raw key like 'mood'), else nothing. */
+  const qLabel = (q) => q.custom_text || qtext(q.template_key) || q.template_key
+
   /* 1. Streak — celebrate consecutive engagement. */
   const streak = streakDaysAny(active, idx, now)
   if (streak >= 3) {
-    out.push({ kind: 'streak', text: `רצף יפה — ${streak} ימים שאת/ה כותב/ת לעצמך.` })
+    out.push({ kind: 'streak', text: i18n.t('reflections:mirror.streak', { count: streak }) })
   }
 
   /* 2. Today extremes — surface the question whose today reading is
@@ -165,11 +181,11 @@ export function mirrorReflections(questions, idx, now = new Date()) {
     const ex = extremesForWindow(idx, q.id, 7, now)
     if (!ex || ex.n < 3) continue
     if (today >= ex.max && today >= 8) {
-      out.push({ kind: 'high', text: `שיא שבועי ב"${q.custom_text || q.template_key}" — ${today}.` })
+      out.push({ kind: 'high', text: i18n.t('reflections:mirror.high', { question: qLabel(q), value: today }) })
       break
     }
     if (today <= ex.min && today <= 4) {
-      out.push({ kind: 'low', text: `נקודת שפל ב"${q.custom_text || q.template_key}" — ${today}.` })
+      out.push({ kind: 'low', text: i18n.t('reflections:mirror.low', { question: qLabel(q), value: today }) })
       break
     }
   }
@@ -181,8 +197,8 @@ export function mirrorReflections(questions, idx, now = new Date()) {
     const d = deltaVsPrevWindow(idx, q.id, 7, now)
     if (d == null) continue
     if (Math.abs(d) < 0.6) continue
-    const dir = d > 0 ? 'עלייה' : 'ירידה'
-    out.push({ kind: 'delta', text: `${dir} של ${Math.abs(d).toFixed(1)} נקודות השבוע לעומת השבוע שעבר ב"${q.custom_text || q.template_key}".` })
+    const key = d > 0 ? 'reflections:mirror.deltaUp' : 'reflections:mirror.deltaDown'
+    out.push({ kind: 'delta', text: i18n.t(key, { amount: Math.abs(d).toFixed(1), question: qLabel(q) }) })
     break
   }
 
@@ -191,9 +207,9 @@ export function mirrorReflections(questions, idx, now = new Date()) {
   if (out.length === 0) {
     const hasMonthHistory = active.some((q) => averageForWindow(idx, q.id, 30, now) != null)
     if (hasMonthHistory) {
-      out.push({ kind: 'stable', text: 'שבוע יציב — יום אחרי יום הקצב נשמר.' })
+      out.push({ kind: 'stable', text: i18n.t('reflections:mirror.stable') })
     } else {
-      out.push({ kind: 'welcome', text: 'בכל יום שאת/ה כותב/ת — הנתונים מתחילים לדבר.' })
+      out.push({ kind: 'welcome', text: i18n.t('reflections:mirror.welcome') })
     }
   }
 

@@ -2,8 +2,6 @@ import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTours } from '../hooks/useTours'
 import { tourFor } from '../lib/tours'
-import { useAddress } from '../hooks/useAddress'
-import { addressUser } from '../lib/address'
 import { useT } from '../i18n/useT'
 import './ScreenTour.css'
 
@@ -29,11 +27,12 @@ const BUBBLE_GAP = 14      /* gap between spotlight and bubble */
 
 export default function ScreenTour({ screenKey }) {
   const { isSeen, markSeen } = useTours()
-  const { gender } = useAddress()
   const { t: tr } = useT('components')
-  /* Tour copy may be a plain string or a {male,female,neutral} object
-     (gendered direct address); resolve it for the current form of address. */
-  const t = (v) => (v && typeof v === 'object' ? addressUser(gender, v) : v)
+  /* Tour step title/body are i18n keys (guidance ns, prefixed). Resolve
+     them gender-aware via useT, which applies the user's form of address
+     as i18next `context` (gendered bodies live as _male/_female in the
+     he JSON, falling back to the neutral base). */
+  const { t } = useT('guidance')
   const [steps, setSteps] = useState([])     /* resolved (present in DOM) */
   const [idx, setIdx] = useState(0)
   const [rect, setRect] = useState(null)

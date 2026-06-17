@@ -1,0 +1,55 @@
+{
+  "mirror": {
+    "streak": "רצף יפה — {{count}} ימים שאת/ה כותב/ת לעצמך.",
+    "streak_male": "רצף יפה — {{count}} ימים שאתה כותב לעצמך.",
+    "streak_female": "רצף יפה — {{count}} ימים שאת כותבת לעצמך.",
+    "high": "שיא שבועי ב\"{{question}}\" — {{value}}.",
+    "low": "נקודת שפל ב\"{{question}}\" — {{value}}.",
+    "deltaUp": "עלייה של {{amount}} נקודות השבוע לעומת השבוע שעבר ב\"{{question}}\".",
+    "deltaDown": "ירידה של {{amount}} נקודות השבוע לעומת השבוע שעבר ב\"{{question}}\".",
+    "stable": "שבוע יציב — יום אחרי יום הקצב נשמר.",
+    "welcome": "בכל יום שאת/ה כותב/ת — הנתונים מתחילים לדבר.",
+    "welcome_male": "בכל יום שאתה כותב — הנתונים מתחילים לדבר.",
+    "welcome_female": "בכל יום שאת כותבת — הנתונים מתחילים לדבר."
+  },
+  "moon": {
+    "excellent": "את/ה במסלול מצוין החודש.",
+    "excellent_male": "אתה במסלול מצוין החודש.",
+    "excellent_female": "את במסלול מצוין החודש.",
+    "good": "התקדמות יפה — בכיוון הנכון.",
+    "behind": "יש פער, ועדיין יש זמן לסגור אותו.",
+    "low": "בוא/י נצבור תנופה — צעד קטן קדימה.",
+    "low_male": "בוא נצבור תנופה — צעד קטן קדימה.",
+    "low_female": "בואי נצבור תנופה — צעד קטן קדימה."
+  },
+  "health": {
+    "check": {
+      "profileName": "השלמת השם שלך",
+      "profileRole": "בחירת תפקיד והתמחות",
+      "clientsPriced_one": "חסר מחיר ללקוח אחד",
+      "clientsPriced_two": "חסר מחיר ל-{{count}} לקוחות",
+      "clientsPriced_many": "חסר מחיר ל-{{count}} לקוחות",
+      "clientsPriced_other": "חסר מחיר ל-{{count}} לקוחות",
+      "answersRecent": "לא ענית על השאלות היומיות השבוע",
+      "clientsExist": "עדיין לא הוספת לקוחות",
+      "transactionsExist": "טרם רשמת תנועות כספיות",
+      "recurringExist": "טרם הגדרת הוצאה חוזרת בכסף",
+      "projectsExist": "טרם יצרת פרויקט",
+      "tasksExist": "אין לך משימות פתוחות",
+      "remindersExist": "לא הגדרת תזכורות",
+      "goalsExist": "לא הגדרת יעדים",
+      "questionsExist": "אין לך שאלות יומיות",
+      "leadsExist": "טרם רשמת לידים"
+    },
+    "action": {
+      "complete": "השלמה",
+      "choose": "בחירה",
+      "price": "תמחור",
+      "answer": "מענה",
+      "add": "הוספה",
+      "record": "רישום",
+      "setup": "הגדרה",
+      "create": "יצירה"
+    }
+  }
+}

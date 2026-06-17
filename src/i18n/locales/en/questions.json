@@ -1,0 +1,27 @@
+{
+  "fallback": "Today's question",
+  "template": {
+    "mood": "How is your mood today?",
+    "energy": "How much energy do you have today?",
+    "sleep": "How did you sleep last night?",
+    "focus": "How focused did you feel today?",
+    "nutrition": "How did you eat today?",
+    "movement": "How much did you move today?",
+    "quiet": "How much quiet did you find today?"
+  },
+  "schedule": {
+    "everyDay": "Every day",
+    "everyXDays_one": "Every day",
+    "everyXDays_other": "Every {{count}} days",
+    "dayShort": {
+      "0": "Sun",
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat"
+    },
+    "daySeparator": ", "
+  }
+}

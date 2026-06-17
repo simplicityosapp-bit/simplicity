@@ -39,5 +39,7 @@
     "restoreLabel": "שחזר {{label}}",
     "restoring": "משחזר…",
     "restore": "שחזור"
-  }
+  },
+  "itemCount_two": "{{count}} פריטים",
+  "itemCount_many": "{{count}} פריטים"
 }

@@ -197,7 +197,15 @@
     "remindersSub": "מומלץ: להשאיר — תיעוד מתמשך",
     "keep": "להשאיר",
     "delete": "למחוק",
-    "confirm": "מחק קבוצה"
+    "confirm": "מחק קבוצה",
+    "members_two": "{{count}} חברים בקבוצה",
+    "members_many": "{{count}} חברים בקבוצה",
+    "futureMeetings_two": "{{count}} פגישות עתידיות",
+    "futureMeetings_many": "{{count}} פגישות עתידיות",
+    "pastSessions_two": "{{count}} פגישות היסטוריות",
+    "pastSessions_many": "{{count}} פגישות היסטוריות",
+    "reminders_two": "{{count}} תזכורות מקושרות",
+    "reminders_many": "{{count}} תזכורות מקושרות"
   },
   "deleteSubStatus": {
     "title": "מחיקת תת-סטטוס \"{{name}}\"",
@@ -211,6 +219,8 @@
     "unassigned": "— ללא שיוך —",
     "delete": "מחק",
     "deleting": "מוחק…",
-    "deleteAndMove": "מחק והעבר"
+    "deleteAndMove": "מחק והעבר",
+    "affected_two": "{{count}} שיוכים פעילים יושפעו מהמחיקה.",
+    "affected_many": "{{count}} שיוכים פעילים יושפעו מהמחיקה."
   }
 }

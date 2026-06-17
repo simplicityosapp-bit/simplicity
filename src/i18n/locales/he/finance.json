@@ -127,6 +127,8 @@
     "dupConfirm": "כן, ייבא",
     "dupConfirm_male": "כן, ייבא",
     "dupConfirm_female": "כן, ייבאי",
-    "cancel": "ביטול"
+    "cancel": "ביטול",
+    "countAria_two": "{{count}} חשבוניות לאישור",
+    "countAria_many": "{{count}} חשבוניות לאישור"
   }
 }

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
-import { GROUP_BILLING_MODES, GROUP_BILLING_LABELS } from '../lib/enums'
+import { GROUP_BILLING_MODES } from '../lib/enums'
 import { useT } from '../i18n/useT'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
 
@@ -84,7 +84,7 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
               className={`m-pill${form.billing_mode === mode ? ' on' : ''}`}
               onClick={() => { set('billing_mode', mode); if (err) setErr('') }}
             >
-              {GROUP_BILLING_LABELS[mode]}
+              {t(`groupBilling.${mode}`)}
             </button>
           ))}
         </div>

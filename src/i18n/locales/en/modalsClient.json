@@ -194,5 +194,10 @@
     "delete": "Delete",
     "deleting": "Deleting…",
     "deleteAndMove": "Delete and move"
+  },
+  "groupBilling": {
+    "package": "Per package",
+    "per_session": "Per session",
+    "none": "No fixed price"
   }
 }

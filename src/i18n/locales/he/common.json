@@ -7,5 +7,19 @@
   "language": "שפה",
   "tryAgain": "נסה/י שוב",
   "tryAgain_male": "נסה שוב",
-  "tryAgain_female": "נסי שוב"
+  "tryAgain_female": "נסי שוב",
+  "roles": {
+    "therapist": "מטפל/ת",
+    "therapist_male": "מטפל",
+    "therapist_female": "מטפלת",
+    "coach": "מאמן/ת",
+    "coach_male": "מאמן",
+    "coach_female": "מאמנת",
+    "facilitator": "מנחה",
+    "teacher": "מורה",
+    "instructor": "מדריך/ה",
+    "instructor_male": "מדריך",
+    "instructor_female": "מדריכה",
+    "other": "אחר"
+  }
 }

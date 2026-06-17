@@ -5,5 +5,13 @@
   "close": "Close",
   "back": "Back",
   "language": "Language",
-  "tryAgain": "Try again"
+  "tryAgain": "Try again",
+  "roles": {
+    "therapist": "Therapist",
+    "coach": "Coach",
+    "facilitator": "Facilitator",
+    "teacher": "Teacher",
+    "instructor": "Instructor",
+    "other": "Other"
+  }
 }

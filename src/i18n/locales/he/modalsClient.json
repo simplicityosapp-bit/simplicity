@@ -222,5 +222,10 @@
     "deleteAndMove": "מחק והעבר",
     "affected_two": "{{count}} שיוכים פעילים יושפעו מהמחיקה.",
     "affected_many": "{{count}} שיוכים פעילים יושפעו מהמחיקה."
+  },
+  "groupBilling": {
+    "package": "מחיר לחבילה",
+    "per_session": "מחיר לפגישה",
+    "none": "ללא מחיר קבוע"
   }
 }

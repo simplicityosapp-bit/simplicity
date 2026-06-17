@@ -6,7 +6,7 @@
    localStorage (mg-reports-config) — will be migrated here later.
    ════════════════════════════════════════════════════════════════ */
 
-import { addressUser } from './address'
+import i18n from '../i18n'
 
 /* Registry of home widgets. Order here = default order. Each widget
    in DEFAULT_WIDGETS.list mirrors registry entries. */
@@ -60,12 +60,13 @@ export const ROLE_LABELS = {
   other:       'אחר',
 }
 
-/* Resolve a role key to its label for the given form of address. Plain
-   strings return as-is; variant objects pick via addressUser (gender
-   omitted → neutral/slash form, so legacy callers are unchanged). */
+/* Resolve a role key to its label for the given form of address, via i18n
+   (common:roles.*). Gender male/female → the gendered variant; anything else
+   → the neutral base. Callers are unchanged (still pass key + gender). */
 export function roleLabel(key, gender) {
-  const v = ROLE_LABELS[key]
-  return v && typeof v === 'object' ? addressUser(gender, v) : (v || '')
+  if (!key) return ''
+  const context = gender === 'male' || gender === 'female' ? gender : undefined
+  return i18n.t('common:roles.' + key, { context })
 }
 
 export const CURRENCY_OPTIONS = [

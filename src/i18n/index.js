@@ -74,12 +74,14 @@ import heModalsTask from './locales/he/modalsTask.json'
 import enModalsTask from './locales/en/modalsTask.json'
 import heModalsSystem from './locales/he/modalsSystem.json'
 import enModalsSystem from './locales/en/modalsSystem.json'
+import heHelp from './locales/he/help.json'
+import enHelp from './locales/en/help.json'
 
-export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'settings', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing', 'insights', 'reports', 'moon', 'components', 'onboarding', 'onboardingSteps', 'modalsClient', 'modalsData', 'modalsTask', 'modalsSystem', 'questions']
+export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'settings', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing', 'insights', 'reports', 'moon', 'components', 'onboarding', 'onboardingSteps', 'modalsClient', 'modalsData', 'modalsTask', 'modalsSystem', 'questions', 'help']
 
 const resources = {
-  he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, settings: heSettings, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads, projects: heProjects, tasks: heTasks, connections: heConnections, admin: heAdmin, landing: heLanding, insights: heInsights, reports: heReports, moon: heMoon, components: heComponents, onboarding: heOnboarding, onboardingSteps: heOnboardingSteps, modalsClient: heModalsClient, modalsData: heModalsData, modalsTask: heModalsTask, modalsSystem: heModalsSystem, questions: heQuestions },
-  en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, settings: enSettings, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads, projects: enProjects, tasks: enTasks, connections: enConnections, admin: enAdmin, landing: enLanding, insights: enInsights, reports: enReports, moon: enMoon, components: enComponents, onboarding: enOnboarding, onboardingSteps: enOnboardingSteps, modalsClient: enModalsClient, modalsData: enModalsData, modalsTask: enModalsTask, modalsSystem: enModalsSystem, questions: enQuestions },
+  he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, settings: heSettings, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads, projects: heProjects, tasks: heTasks, connections: heConnections, admin: heAdmin, landing: heLanding, insights: heInsights, reports: heReports, moon: heMoon, components: heComponents, onboarding: heOnboarding, onboardingSteps: heOnboardingSteps, modalsClient: heModalsClient, modalsData: heModalsData, modalsTask: heModalsTask, modalsSystem: heModalsSystem, questions: heQuestions, help: heHelp },
+  en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, settings: enSettings, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads, projects: enProjects, tasks: enTasks, connections: enConnections, admin: enAdmin, landing: enLanding, insights: enInsights, reports: enReports, moon: enMoon, components: enComponents, onboarding: enOnboarding, onboardingSteps: enOnboardingSteps, modalsClient: enModalsClient, modalsData: enModalsData, modalsTask: enModalsTask, modalsSystem: enModalsSystem, questions: enQuestions, help: enHelp },
   es: { common: esCommon, auth: esAuth },
   fr: { common: frCommon, auth: frAuth },
 }
@@ -101,7 +103,6 @@ i18n
        production (saveMissing false → handler never fires). */
     saveMissing: import.meta.env.DEV,
     missingKeyHandler: (lngs, ns, key) => {
-      // eslint-disable-next-line no-console
       console.warn(`[i18n missing] ${ns}:${key} (${lngs?.join(',')})`)
     },
     detection: {

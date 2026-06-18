@@ -4,7 +4,7 @@ import {
   HelpCircle, X, LayoutGrid, Lightbulb, MessageCircleQuestion,
   ChevronDown, BookOpen,
 } from 'lucide-react'
-import { HELP_SCREENS } from '../lib/helpContent'
+import { getHelpScreen } from '../lib/helpContent'
 import { ROUTES } from '../lib/routes'
 import { useT } from '../i18n/useT'
 import MG from './MG'
@@ -26,7 +26,7 @@ export default function HelpFab({ screenKey }) {
   const { t } = useT('components')
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
-  const help = HELP_SCREENS[screenKey] || HELP_SCREENS.home
+  const help = getHelpScreen(screenKey) || getHelpScreen('home')
 
   /* Close on Escape while open. */
   useEffect(() => {
@@ -54,6 +54,7 @@ export default function HelpFab({ screenKey }) {
       />
 
       <HelpSheet
+        key={screenKey || 'home'}
         open={open}
         help={help}
         onClose={() => setOpen(false)}
@@ -69,12 +70,6 @@ export default function HelpFab({ screenKey }) {
 function HelpSheet({ open, help, onClose, onOpenGuide }) {
   const { t } = useT('components')
   const [tab, setTab] = useState('features')
-
-  /* Reset to the first tab each time the sheet re-opens (or the screen,
-     hence the help entry, changes underneath it). */
-  useEffect(() => {
-    if (open) setTab('features')
-  }, [open, help])
 
   const counts = {
     features: help.features?.length || 0,

@@ -14,13 +14,17 @@ import {
   goals as mockGoals, goal_categories as mockCategories,
   group_members as mockMembers, groups as mockGroups,
 } from '../data/mock'
+import i18n from '../i18n'
 import { ROUTES } from './routes'
 import { financeQuery, currentMonthRange } from './finance'
 import { clientBalance } from './clients'
 
 const DAY = 86400000
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
-const ils = (n) => `${Math.round(Math.abs(n)).toLocaleString('en-US')} ₪`
+const ils = (n) => {
+  const locale = i18n.language === 'he' ? 'he-IL' : (i18n.language || 'he-IL')
+  return `${Math.round(Math.abs(n)).toLocaleString(locale)} ₪`
+}
 
 /* ── Money ─────────────────────────────────────────────────────── */
 export function monthNet(now = new Date(), data) {

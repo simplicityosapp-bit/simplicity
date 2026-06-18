@@ -43,7 +43,7 @@ import ExportDataModal from '../../modals/ExportDataModal'
 import { defaultOnboarding } from '../../lib/preferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
 import QuestionScheduleEditor from './QuestionScheduleEditor'
-import { HELP_SCREENS, GLOBAL_FAQ, ABOUT_CONTENT } from '../../lib/helpContent'
+import { getHelpScreen, getGlobalFaq, getAboutContent } from '../../lib/helpContent'
 import MG from '../../components/MG'
 import './SettingsScreen.css'
 
@@ -400,13 +400,14 @@ function AboutBody({ initialTab }) {
 
 function AboutInfo({ navigate }) {
   const { t } = useT('settings')
+  const about = getAboutContent()
   return (
     <div className="set-about">
       <p className="set-about-name">Simplicity</p>
-      <p className="set-about-tag">{ABOUT_CONTENT.tagline}</p>
-      <p className="set-about-desc"><MG text={ABOUT_CONTENT.description} /></p>
+      <p className="set-about-tag">{about.tagline}</p>
+      <p className="set-about-desc"><MG text={about.description} /></p>
       <div className="set-about-principles">
-        {ABOUT_CONTENT.principles.map((p, i) => (
+        {about.principles.map((p, i) => (
           <div key={i} className="set-about-principle">
             <p className="set-about-principle-t">{p.title}</p>
             <p className="set-about-principle-b"><MG text={p.body} /></p>
@@ -414,11 +415,11 @@ function AboutInfo({ navigate }) {
         ))}
       </div>
       <div className="set-about-meta">
-        <span>{t('about.version', { version: ABOUT_CONTENT.version })}</span>
+        <span>{t('about.version', { version: about.version })}</span>
         <span className="set-about-dot">·</span>
         <span>2026</span>
       </div>
-      <p className="set-about-credit">{ABOUT_CONTENT.built_with}</p>
+      <p className="set-about-credit">{about.built_with}</p>
       {/* Legal documents — the desktop sidebar surfaces these too, but this is
           the only path on mobile (no sidebar). Opens the public /legal page. */}
       <div className="set-about-legal">
@@ -438,7 +439,7 @@ function AboutGuide() {
     <div className="set-guide">
       <p className="set-sub-intro">{t('about.guideIntro')}</p>
       {GUIDE_ORDER.map((key) => {
-        const s = HELP_SCREENS[key]
+        const s = getHelpScreen(key)
         if (!s) return null
         return (
           <details key={key} className="set-guide-screen">
@@ -491,7 +492,7 @@ function AboutGuide() {
 function AboutFaq() {
   return (
     <div className="set-faq">
-      {GLOBAL_FAQ.map((cat, ci) => (
+      {getGlobalFaq().map((cat, ci) => (
         <div key={ci} className="set-faq-group">
           <p className="set-faq-cat">{cat.category}</p>
           {cat.items.map((item, i) => (

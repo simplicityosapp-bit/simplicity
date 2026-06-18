@@ -13,5 +13,10 @@
     "teacher": "Teacher",
     "instructor": "Instructor",
     "other": "Other"
+  },
+  "time": {
+    "now": "now",
+    "today": "Today",
+    "tomorrow": "Tomorrow"
   }
 }

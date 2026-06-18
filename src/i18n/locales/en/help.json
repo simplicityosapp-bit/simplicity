@@ -1,0 +1,1383 @@
+{
+  "screens": {
+    "home": {
+      "title": "Home",
+      "intro": "Home is your personal dashboard. It's made up of widgets you can turn on, turn off, and rearrange however you like. Each one gives you a quick look at a different area of your work and a shortcut to get there.",
+      "features": [
+        {
+          "title": "The widgets that make up the screen",
+          "body": "The screen is built from eight widgets: daily quote, overview, daily check-in, quick transaction / quick update, alerts (sessions, payments), upcoming reminders, next tasks, and status cards (clients / net / tasks). Each one can be turned on, turned off, and reordered under Settings → Widgets & Display."
+        },
+        {
+          "title": "Overview widget",
+          "body": "A circle that shows whether you're on pace: how much of your daily goal you've already hit. 100% means you're exactly on track. Below the circle you'll also see \"X% of goal\" — how much of your overall goal you've completed. Tapping the circle expands it with a summary sentence, a progress bar for each active goal, and a \"Full details\" link to the Overview screen. If you haven't set any goals yet, a \"Set a goal\" prompt will appear that takes you straight to the Goals screen."
+        },
+        {
+          "title": "Daily quote widget",
+          "body": "One inspirational quote per day. Tapping it opens the Quotes panel, where you choose the source — \"System quotes\" or \"My quotes\" — and can add or delete your own. As long as you haven't added any personal quotes, a quote from the general library is shown."
+        },
+        {
+          "title": "Daily check-in widget",
+          "body": "Shows the next unanswered daily question. Answer on a 1–10 scale (drag the slider and save with ✓) or with yes/no, depending on the question. After answering, you move to the next question; when you're done, \"You're done for today — great\" appears. If you've turned on a daily reminder and its time has passed, a gentle nudge appears: \"You haven't answered today — take a moment for yourself?\" You can dismiss it, and tapping the question takes you to the Daily Check-In screen."
+        },
+        {
+          "title": "Quick transaction / quick update widget",
+          "body": "Two buttons: \"Quick add\" opens shortcuts to add a transaction, client, lead, task, project, goal, reminder, or session — all right from Home. \"Update goal\" lets you pick a goal category and manually log progress."
+        },
+        {
+          "title": "Alerts widget (needs attention)",
+          "body": "A card that collects everything waiting for you in one place: transactions to confirm, sessions you haven't marked yet, clients with an outstanding balance, a gap from the monthly goal, urgent tasks, clients you haven't spoken to in 45 days, leads with no activity, follow-ups due today, and duplicates against Google Calendar. Transactions and sessions open a confirmation window (confirm / skip / delete); everything else takes you to the relevant screen."
+        },
+        {
+          "title": "Confirming sessions from Home",
+          "body": "In the \"Sessions to confirm\" window inside the alerts card, you can mark each session as \"Took place\" (which creates a real session in the client or group card), \"Did not take place\", or delete it. You can also confirm, decline, or delete an expense linked to that session."
+        },
+        {
+          "title": "Upcoming reminders widget",
+          "body": "A card showing all your upcoming reminders from today through 60 days out, in date order, highlighting how many are \"today\". Each row opens the calendar, and the ✓ button marks a reminder as done. A recurring reminder simply jumps to its next date; you can undo with \"Cancel\"."
+        },
+        {
+          "title": "Next tasks widget",
+          "body": "A card with all your open tasks, sorted by urgency. The summary shows how many are urgent out of the total. A red dot marks an urgent task, tapping a row opens the Tasks screen, and ✓ marks the task as done (you can undo with \"Cancel\")."
+        },
+        {
+          "title": "Status cards widget",
+          "body": "Three cards — Tasks · Net · Clients — each with a live number on top. Tapping one opens a filter and detail window (by time, type, status, urgency, project, category, group) with a trend chart, and the number updates to match your filter. \"Open in full\" takes you to the full screen. Net counts only confirmed transactions, and the card title switches to \"Income\" or \"Expenses\" if you filter to a single type."
+        },
+        {
+          "title": "First-time welcome card",
+          "body": "Until you have at least one client, a \"Everything starts here\" card sits at the top of the screen with three steps — first client, first task, and first lead — each linking to the screen with the add button highlighted. You can hide it with X, and it disappears on its own once your first client is created."
+        },
+        {
+          "title": "Customizing the display and sending feedback",
+          "body": "Under Settings → Widgets & Display you can change card style (frosted / flat / outlined), text weight (regular / bold), and density (compact / regular / spacious). You can also toggle \"compact\" mode or a separate density on widgets that support it. At the bottom of Home there's a \"Got feedback?\" card for submitting suggestions and bug reports."
+        }
+      ],
+      "tips": [
+        "Want to redesign Home? Go to Settings → Widgets & Display — that's where you turn widgets on and off, and choose style, text weight, and density.",
+        "You set the order of widgets by dragging the row in Settings, or using the up/down arrows. The quote and overview widgets always sit in the top row when they're on.",
+        "Tapping the Tasks / Net / Clients card doesn't just show a number — it opens a full filter, and your settings are saved for next time.",
+        "\"Quick add\" on Home is a shortcut to add anything in the app (transaction, client, lead, task, project, goal, reminder, session) without switching screens.",
+        "Marked a reminder or task by accident? You can undo it immediately using the \"Cancel\" notification that pops up after the action.",
+        "Marking a session as \"Took place\" in the session confirmation window creates a real session in the client card — it doesn't just clear the alert."
+      ],
+      "faq": [
+        {
+          "q": "How do I add or remove a widget from Home?",
+          "a": "Go to Settings → Widgets & Display → open the \"Widgets\" list and toggle each one on or off. You can't add widgets directly from the Home screen itself."
+        },
+        {
+          "q": "What does the percentage in the Overview circle mean?",
+          "a": "It's how much of your daily goal you've hit so far — not a grade. 100% means you're exactly on pace. Tapping the circle shows a breakdown for each goal."
+        },
+        {
+          "q": "I tapped the \"Clients\" / \"Net\" / \"Tasks\" card and got a filter window — where's the full screen?",
+          "a": "The cards open a detail and filter window. To get to the full screen, tap \"Open in full\" at the bottom of the window."
+        },
+        {
+          "q": "Why doesn't the \"Net\" number on the status cards match what I entered?",
+          "a": "The card counts only confirmed transactions (not pending or skipped ones) and shows net for the time range you selected in the filter window (default: this month). Pending transactions appear separately under \"Needs attention\"."
+        },
+        {
+          "q": "I marked a recurring reminder as done — did it disappear?",
+          "a": "No. A recurring reminder isn't deleted — it just jumps to its next date. If that was a mistake, tap \"Cancel\" in the notification that pops up to bring it back."
+        },
+        {
+          "q": "How do I change the daily quote or add my own?",
+          "a": "Tap the quote widget to open the Quotes panel. There you choose the source — \"System quotes\" or \"My quotes\" — and add or delete your own."
+        }
+      ]
+    },
+    "clients": {
+      "title": "Clients",
+      "intro": "This is where you manage all your clients. Each client has a card with their sessions, payments, and status. You can group, sort, and perform actions on multiple clients at once.",
+      "features": [
+        {
+          "title": "Adding a client",
+          "body": "The \"+ New Client\" button at the top of the screen opens a form where only the name is required. You can also fill in status and sub-status, billing method (package / per session), number of sessions, price per session, phone, email, project, and a recurring session (day + time). Everything else can always be filled in later from within the client card."
+        },
+        {
+          "title": "Client statuses",
+          "body": "Every client belongs to one of four groups: Active, In-between, Former, No status. The tabs at the top of the list show the groups with a count for each. The \"No status\" tab only appears if there are clients in it. In Settings you can add your own sub-statuses to each group, and they'll appear in the status picker in the client form."
+        },
+        {
+          "title": "Sorting the list",
+          "body": "The \"Sort\" button orders the list by name, balance, paid, sessions, date added, or seniority (oldest first), in ascending or descending order. Your selection is saved and restored every time you open the screen."
+        },
+        {
+          "title": "Grouping by status or project",
+          "body": "The \"Status / Project\" toggle switches the display layout. In \"Project\" mode, clients are organized under each project name (including a \"No project\" group), and the tabs and top summary disappear in that view."
+        },
+        {
+          "title": "Search and balance filter",
+          "body": "The search bar searches by client name. The \"Open balance\" button shows only clients who still owe you money (balance above zero), and next to it you can see how many clients match that in the current view."
+        },
+        {
+          "title": "Top summary (monthly / cumulative)",
+          "body": "Above the list (when grouping by status) a summary of the open group is shown: sessions, paid, and open balance. The \"Monthly / Cumulative\" toggle determines whether the sessions and amounts are for the current month or from the beginning. In the \"Former\" and \"No status\" tabs the summary is always cumulative and the toggle is locked."
+        },
+        {
+          "title": "Client card (client profile)",
+          "body": "Tapping a client opens a side drawer with all their details: billing summary (sessions / paid / balance), quick actions, and expandable sections — fixed weekly session, sessions and summaries, payments, open tasks, timeline, notes, linked reminders, and groups. In each section you can tap the pencil icon to enter edit mode and open an item."
+        },
+        {
+          "title": "Quick actions in the card",
+          "body": "Three buttons sit at the top of the card: \"Log session\" to record a session that already happened (date, summary, private notes), \"Schedule session\" to set up a future appointment — one-time or a recurring \"fixed slot\" weekly, and \"Payment received\" to record income."
+        },
+        {
+          "title": "Changing status in the card",
+          "body": "The status label in the card is a button — tap it and choose a different group, with an option to undo. A client who belongs to a group gets their status from the group, shown as \"· From group\", and their status can't be changed manually."
+        },
+        {
+          "title": "Editing details and billing",
+          "body": "The \"Edit\" button opens the full form: name, status and sub-status, billing method, individual sessions (\"Scheduled\" and \"Completed\"), price, \"Total due\" which overrides the automatic calculation, and \"Paid\" and \"Balance\" fields for manual editing, plus phone, email, project, group, recurring session, and notes. Changing \"Paid\" offers to add a real financial transaction; changing \"Balance\" logs an adjustment only, with no transaction."
+        },
+        {
+          "title": "Multi-select and bulk actions",
+          "body": "The \"Select\" button activates selection mode: mark several clients, and in the toolbar at the bottom you can \"Change status\" to move them all to a different group, or \"Delete\". Both actions can be undone with a single undo tap."
+        },
+        {
+          "title": "Deleting a client and handling transactions",
+          "body": "Deleting (from the card or the selection toolbar) opens a choice window: \"Keep transactions\" leaves the payments in Finance with a \"[Name] · deleted\" label, or \"Delete transactions too\" sends them to the Trash as well. Every item can be restored from the Trash within 30 days."
+        },
+        {
+          "title": "Sessions and groups in balance calculation",
+          "body": "Individual sessions count toward the calculation, and in \"per session\" mode the balance accumulates based on the number of logged sessions × the price. A client who is a member of a group also sees that group's sessions and charges, which are counted in the summary accordingly."
+        }
+      ],
+      "tips": [
+        "Sorting, grouping, the monthly/cumulative toggle, and the \"Open balance\" filter are all saved per user — whatever you chose will be restored next time you open the screen.",
+        "Moving several clients to \"Former\" at the end of a season? Tap \"Select\" → check the clients → \"Change status\" in the toolbar at the bottom.",
+        "To keep things precise, add sub-statuses in Settings (e.g. \"Short break\", \"Waiting for confirmation\") — they'll appear in the status picker in the client form.",
+        "Imported data and the amounts don't add up? Use \"Total due\" or the \"Paid\" / \"Balance\" fields in edit mode to straighten out the card without disrupting future session calculations.",
+        "A client assigned to a group gets their status from the group — if you can't change their status manually, that's why (shown as \"· From group\").",
+        "To set a fixed weekly session: open the card → \"Schedule session\" → \"Fixed slot\". The day is set based on the date you picked, and you can change or cancel it later in client edit."
+      ],
+      "faq": [
+        {
+          "q": "Searching by phone or email doesn't find the client — why?",
+          "a": "Search only works by client name. To find someone by other details, sort or browse the list and open the card to see the phone number and email."
+        },
+        {
+          "q": "Is client data encrypted?",
+          "a": "Currently client details (name, phone, email, notes, and summaries) are stored as plain text, not encrypted. Access is protected solely by your account permissions."
+        },
+        {
+          "q": "I deleted a client by accident — can I restore them?",
+          "a": "Yes. Right after deletion an undo option appears, and in any case the client is kept in the Trash for 30 days. Note: if you chose \"Delete transactions too\", restoring the client alone does not bring back the transactions that were deleted with them — choose \"Keep transactions\" if preserving payment history matters to you."
+        },
+        {
+          "q": "I changed \"Paid\" in client edit but nothing was recorded in Finance?",
+          "a": "Changing \"Paid\" asks you: \"Add transaction\" creates a real income entry in Finance, and \"Card only\" updates the display only, with no transaction. Changing \"Balance\", on the other hand, is always recorded as an adjustment only, with no Finance transaction."
+        },
+        {
+          "q": "Why does the top summary show zero sessions or ₪0 this month?",
+          "a": "When the toggle is set to \"Monthly\", the summary only counts sessions and payments for the current month. Switch to \"Cumulative\" to see everything from the beginning. In the \"Former\" and \"No status\" tabs the view is always cumulative."
+        },
+        {
+          "q": "What's the difference between \"Package\" and \"Per session\" billing?",
+          "a": "With \"Package\", the balance is calculated based on the number of scheduled sessions × the price per session. With \"Per session\" there's no fixed quantity upfront — the balance accumulates based on the number of sessions you've actually logged × the price per session."
+        }
+      ]
+    },
+    "leads": {
+      "title": "Leads",
+      "intro": "A board for managing all your inquiries. Track every lead from the moment it's \"In progress\" until it becomes a client — with sources, sub-statuses, and follow-ups.",
+      "features": [
+        {
+          "title": "Two views: Leads and Statuses",
+          "body": "Two tabs sit at the top of the screen. \"Leads\" shows the kanban board. \"Statuses\" opens a panel for managing sub-statuses without leaving the screen. Your selection is saved, and the screen opens in the same view next time."
+        },
+        {
+          "title": "Kanban board with three columns",
+          "body": "Leads are organized in three fixed columns: In progress, Converted, Not relevant. Each column shows how many leads are in it, and tapping a card opens the \"Edit lead\" window."
+        },
+        {
+          "title": "Dragging between columns",
+          "body": "You can drag a lead card from one column to another, by touch or with a mouse. If the column you dragged to has two or more sub-statuses, you'll be asked \"Which sub-status should this go under?\" (with a \"No sub-status\" option). If there's only one, it's selected automatically. Right after the move, \"Undo\" appears to go back to the previous status."
+        },
+        {
+          "title": "Adding a lead",
+          "body": "Tap \"+ New Lead\" to add an inquiry. Fill in name (required), phone, source, project, group (only shown when the project has groups), sub-status (when you've set up sub-statuses for \"In progress\"), inquiry date, follow-up date, and notes. A new lead always goes into the \"In progress\" column."
+        },
+        {
+          "title": "Editing a lead",
+          "body": "In the edit window you can update all the details, and also move the lead between columns using the status buttons (In progress / Converted / Not relevant) and choose a matching sub-status. Changing the status resets the sub-status, and changing the project resets the group."
+        },
+        {
+          "title": "Converting to a client",
+          "body": "In the card of a lead that hasn't been converted yet, tap \"Convert to client\". A \"Convert lead to client\" window opens, already loaded with the name and phone. You can choose a project, group, and \"Converted\" sub-status. On save, a new active client is created (with no sessions or price yet), the notes are transferred to them, and the lead moves to the \"Converted\" column with a link to the client. If you selected a group, the client is added to it as a member."
+        },
+        {
+          "title": "Lead sources",
+          "body": "Every lead can be tagged with a source — referral, Instagram, website, etc. In the add and edit windows you can create a new source on the spot without leaving: choose \"+ New source…\", type a name, and it's saved and selected immediately. A card without a source is labeled \"No source\"."
+        },
+        {
+          "title": "Sub-statuses",
+          "body": "In the \"Statuses\" view you can add, delete, and reorder (by dragging) sub-statuses under each column. They appear as a colored dot on the lead card and are used for filtering and charts. A default sub-status can't be deleted. When you delete another one, leads remain without a sub-status."
+        },
+        {
+          "title": "Filtering and sorting",
+          "body": "Filter pills sit above the board. Tapping a sub-status shows only leads tagged with it (\"All\" clears the filter, and tapping again turns it off). The sort button cycles through \"By date\" → \"Newest first\" → \"Oldest first\", based on inquiry date. Your selections are saved."
+        },
+        {
+          "title": "Follow-ups",
+          "body": "When you fill in the \"Follow-up\" field on a lead, a reminder is set. The \"Follow-ups due today\" strip at the top of the screen counts leads it's time to get back to (that are still in progress). Tapping it opens \"Open follow-ups\" — a list where you can open a lead or mark the follow-up as done (which clears the date). An overdue follow-up is highlighted in red on the card."
+        },
+        {
+          "title": "This month's stats",
+          "body": "Three numbers sit at the top of the screen: \"Inquiries this month\", \"Converted to clients\", and \"Conversion rate\". All are calculated automatically from the leads opened this month."
+        },
+        {
+          "title": "Deleting a lead",
+          "body": "Every card has a delete button (X) in the corner. The lead goes to the Trash and can be restored within 30 days."
+        }
+      ],
+      "tips": [
+        "Fill in a \"Follow-up\" date so the lead shows up in the follow-ups strip on the day you need to get back to it. That way no inquiry slips through.",
+        "Tag each lead with the right source. The conversion rate and other stats rely on this to show you where your best-fit clients are coming from.",
+        "Instead of opening the edit window, just drag a card to another column to advance a lead. Made a mistake? Tap \"Undo\" that appears right after the drag.",
+        "Set up your own sub-statuses in the \"Statuses\" view (e.g. \"Waiting for a callback\", \"Intro call scheduled\"), then filter by them on the board to stay focused.",
+        "When converting to a client you can already assign them to a project and group. Notes from the lead transfer automatically to the new client card."
+      ],
+      "faq": [
+        {
+          "q": "How do I add or color a lead source?",
+          "a": "You can create a new source directly from the add or edit lead window using \"+ New source…\" (it gets a default color). For full name and color management, tap \"Lead sources\" in the screen toolbar — it takes you to Settings → Lead settings."
+        },
+        {
+          "q": "A lead I converted to a client still shows on the board — is that normal?",
+          "a": "Yes. Converted leads move to the \"Converted\" column and stay there, labeled \"Converted to client\" with a link to the client. You can filter by sub-status to focus your view."
+        },
+        {
+          "q": "I dragged a lead to another column and was asked which sub-status — why?",
+          "a": "When the column you dragged to has two or more sub-statuses, the app asks which one to assign (or \"No sub-status\"). If there's only one, it's selected automatically. If there are none, the lead moves without a sub-status."
+        },
+        {
+          "q": "I deleted a lead by accident — can I restore it?",
+          "a": "Yes. The lead goes to the Trash and can be restored within 30 days. The same goes for a deleted sub-status or source — \"Undo\" appears for immediate restoration, and they can also be restored from the Trash."
+        },
+        {
+          "q": "Does converting to a client set a price or number of sessions?",
+          "a": "No. The conversion creates an active client with only the name, phone, and notes. The number of sessions and price start at zero and are filled in from the client card."
+        },
+        {
+          "q": "Why does \"Conversion rate\" show a dash (—) or look off to me?",
+          "a": "The number is calculated from the leads opened this month — how many of them are now in the \"Converted\" column. If there are no new inquiries this month, \"—\" is shown. And a lead moved back from \"Converted\" to another column is no longer counted as a conversion."
+        }
+      ]
+    },
+    "finance": {
+      "title": "Finance",
+      "intro": "The Finance screen is your central hub for all business income and expenses, month by month: transactions, recurring templates, categories, summaries and profit, and invoice imports from your external service.",
+      "features": [
+        {
+          "title": "New Transaction (Income / Expense)",
+          "body": "The \"+ New Transaction\" button opens a window where you choose \"+ Income\" or \"− Expense\" and fill in the amount, date, description, and client/project. For expenses, you can select a category (or create a new one on the spot). The transaction is saved to the month of the date you chose."
+        },
+        {
+          "title": "Future Date Saves as Pending",
+          "body": "A transaction with a future date is automatically saved as \"Pending\" until that day arrives, and sits in the pending-approval card. A transaction dated today or in the past is saved as \"Approved\" and goes straight into the summary."
+        },
+        {
+          "title": "Issue a Receipt on Save",
+          "body": "For income linked to a client that isn't future-dated, a \"Issue receipt on save\" checkbox appears (only if you've connected a valid invoicing service). Check it, choose a document type (tax invoice receipt / receipt / tax invoice), and for receipt-type documents also choose a payment method — the document is issued the moment the transaction is saved."
+        },
+        {
+          "title": "Monthly Summary and Month Navigation",
+          "body": "At the top of the screen you'll see \"Net This Month\", \"Income\", and \"Expenses\" for the selected month, with arrows to go to the previous or next month. Each number also shows the percentage change from the previous month. The summary counts only approved transactions — pending, skipped, or credit-note-cancelled transactions are not included."
+        },
+        {
+          "title": "Cumulative Income Chart",
+          "body": "A chart showing how approved income accumulated day by day over the selected month, with a dot on the current day. If you've set a monthly income goal in the Goals screen, a dashed target line and achievement percentage are shown. If not, a link to set a monthly income goal appears instead."
+        },
+        {
+          "title": "Pending Transactions and Bulk Approval",
+          "body": "All pending transactions for the month sit in a separate card, showing the total pending income and expenses. Each row has \"Approve\" (the transaction happened) and \"Skip\" (it didn't). Clicking a row opens editing, and above a list of more than one there's an \"Approve All\" button."
+        },
+        {
+          "title": "Transaction List: Approved and Skipped",
+          "body": "Below the pending card, transactions are grouped into \"Approved\" and \"Skipped\". A skipped transaction shows a \"Skipped\" tag with a strikethrough amount, and you can return it to pending. When there are skipped transactions, a button appears to show or hide them (\"Show N skipped\" / \"Hide skipped\")."
+        },
+        {
+          "title": "Deleting a Transaction from the List or Edit View",
+          "body": "Every approved or skipped transaction has a delete button in the list, and the edit window also has a \"Delete\" button. Right after deletion, an undo notification pops up so you can restore the transaction."
+        },
+        {
+          "title": "Recurring Templates (Standing Orders)",
+          "body": "In the \"Recurring Templates\" section you set up transactions that repeat automatically: \"By schedule\" (monthly on a specific day, or weekly on a specific day of the week, with an optional end date) or \"After a session\" (creates a pending transaction for every session with the client you choose, and closes automatically if the session is skipped). The system generates pending transactions from these that you need to approve."
+        },
+        {
+          "title": "Pausing, Editing, and Deleting a Template",
+          "body": "Each template has a pause/resume button — a paused template doesn't generate new transactions and is marked \"Paused\". You can edit a template or delete it (with confirmation). Transactions already generated from it remain even after deletion."
+        },
+        {
+          "title": "Expense Categories",
+          "body": "In the \"Expense Categories\" section you manage your expense categories: type a name, choose a color, and click \"Add\". Deleting a category (with confirmation) doesn't delete the expenses — they simply remain without a category."
+        },
+        {
+          "title": "Income by Project / Expenses by Category",
+          "body": "Two cards show a column breakdown: \"Income by Project\" splits approved income across projects (income with no project goes into \"No Project\"), and \"Expenses by Category\" splits approved expenses by category (\"No Category\" for anything untagged)."
+        },
+        {
+          "title": "Pending Import from Invoices",
+          "body": "If you've connected Green Invoice or SUMIT, invoices you've issued in the external service appear in the \"Pending Import\" section. Each invoice has a \"View\" link to the document, and you can import it as income (with a two-step confirmation) or dismiss it. If there's already an income entry for the same client and amount, a \"Possible duplicate\" warning appears with an extra confirmation before importing."
+        },
+        {
+          "title": "Issuing an Invoice and Credit Note from the Edit View",
+          "body": "Clicking on an income entry opens editing, and there — if you've connected an invoicing service — \"Issue Invoice\" appears: choose a document type, a product from the provider's catalog or free text, and a payment method (for receipt-type documents). After issuing, you'll see the document number and a view link, and a \"Credit / Cancel\" button that issues a credit note — this cancels the document and removes the income from summaries (the transaction is marked \"Cancelled\")."
+        },
+        {
+          "title": "CSV Export",
+          "body": "The \"Export CSV\" button at the top of the screen downloads a file with all transactions in the currently displayed month (date, type, amount, description, status, client, project, and category). The button is active only when there's at least one transaction in the month."
+        }
+      ],
+      "tips": [
+        "All numbers on the screen — the summary, chart, and breakdowns — are for the month shown at the top. If a transaction seems missing, check that you're on the right month based on its date.",
+        "Only \"Approved\" transactions count toward the summary and chart. Pending transactions appear separately until you approve them, and skipped or cancelled transactions are excluded from the totals.",
+        "For fixed expenses like rent, subscriptions, or supplies — set up a recurring template so the transaction is created automatically each month and you never forget to log it.",
+        "You can create a new expense category directly from the transaction window (\"+ New category...\") without leaving it.",
+        "Deleted a transaction? You can restore it immediately via the undo notification that appears right after deletion."
+      ],
+      "faq": [
+        {
+          "q": "I logged a transaction but it doesn't show in the list or summary?",
+          "a": "First check that you're on the right month (based on the transaction's date). A transaction with a future date is saved as \"Pending\" and sits in the pending card separately until you approve it — only an approved transaction counts toward the summary."
+        },
+        {
+          "q": "Why doesn't the summary at the top match what I expect?",
+          "a": "The summary counts only \"Approved\" transactions. Pending transactions, ones you've skipped, or those cancelled by a credit note — none of them are counted in the net, income, or expenses totals."
+        },
+        {
+          "q": "How do I set up a standing order?",
+          "a": "In the \"Recurring Templates\" section, click \"+ New Template\", choose \"By schedule\" (monthly or weekly) or \"After a session\", and set the amount, day, and end date. The system will generate pending transactions based on your settings, which you then approve."
+        },
+        {
+          "q": "I deleted a recurring template — what happens to transactions already generated from it?",
+          "a": "They remain. Deleting a template only stops future transactions from being created; every transaction already generated stays as normal. If you just want to pause it temporarily, use the pause button instead of deleting."
+        },
+        {
+          "q": "Where do I download the data to Excel?",
+          "a": "Use the \"Export CSV\" button at the top of the Finance screen — it downloads all transactions from the currently displayed month. To export a different month, navigate to it with the arrows and then click the button."
+        },
+        {
+          "q": "I deleted a transaction by mistake — can I get it back?",
+          "a": "Yes. Right after deletion, an undo notification pops up so you can restore the transaction. You can also undo a \"skipped\" mark on a transaction and return it to pending."
+        }
+      ]
+    },
+    "projects": {
+      "title": "Projects",
+      "intro": "The Projects screen organizes your work by area. Each project groups clients, groups, tasks, and transactions together, and shows how many clients it has, how much revenue it brings in, and how many open tasks it has.",
+      "features": [
+        {
+          "title": "New Project",
+          "body": "Click \"+ New Project\" (or \"Add Project\" when the screen is empty) to open the \"New Project\" window. All you define is a project name and a color from a palette of eight. There are no date, budget, or description fields."
+        },
+        {
+          "title": "Project Card",
+          "body": "Each project is displayed as a card with a color dot, name, and three numbers: how many clients, how much revenue (in the range you've selected), and how many open tasks. Clicking the card opens the full project screen."
+        },
+        {
+          "title": "Monthly or Cumulative",
+          "body": "At the top of the screen there's a \"Monthly\" / \"Cumulative\" toggle that changes the revenue range. In \"Monthly\" mode the numbers show the current month's income. In \"Cumulative\" mode they show all income from the beginning to today."
+        },
+        {
+          "title": "Projects Summary",
+          "body": "The \"Projects Summary\" card at the top of the screen shows how many projects exist, how many clients are assigned to them, and total revenue (\"Monthly Income\" or \"Cumulative Income\", depending on the toggle)."
+        },
+        {
+          "title": "Automatic Revenue by Project",
+          "body": "The revenue on each card is calculated automatically from income transactions linked to the project — or linked to a client who belongs to the project. You don't need to enter amounts manually on the project itself. The open task count also comes from tasks belonging to the project or its clients."
+        },
+        {
+          "title": "Edit and Delete from the Card",
+          "body": "Each card has a pencil button (\"Edit Project\") that opens the \"Edit Project\" window to change the name and color, and an X button (\"Delete Project\"). Deletion asks for confirmation and notes that clients and transactions will remain — just without the project assignment."
+        },
+        {
+          "title": "Project Screen: Header and Stats",
+          "body": "Inside the project, the header shows the number of active clients (and \"In-between\" clients if any) and the number of groups, along with three stats: clients, \"Income This Month\", and groups. The pencil button at the top opens \"Edit Project\". Note: \"Income This Month\" inside the project screen always shows the current month — it is not affected by the monthly/cumulative toggle on the main screen."
+        },
+        {
+          "title": "Quick Add Inside a Project",
+          "body": "Every project screen has a row with \"Quick Add\" and \"Update Goal\". \"Quick Add\" opens a selection tray, and when you choose a transaction, client, task, goal, reminder, or session — they open already linked to the current project, so you don't need to select it again. \"Update Goal\" opens a list of goals for a quick update."
+        },
+        {
+          "title": "Cumulative Income Chart",
+          "body": "Below the add row there's a \"Cumulative Income — This Month\" chart showing how the project's income accumulated over the month, with the total beside the heading. If there's no income this month, \"No income for this project this month.\" is shown."
+        },
+        {
+          "title": "Groups in a Project",
+          "body": "In the \"Groups\" section you can create a new group (\"+ New Group\") with a name, color, pricing (\"Package price\", \"Per-session price\", or \"No fixed price\"), and optional day, start time, end time, and start/end dates. Each group displays the number of members, pricing, recurring session, a members list, and buttons to \"Add Member\", \"Log Session\", view past sessions, and delete. You can also edit a group via the pencil button in its header, and remove an individual member by clicking the X on their tag."
+        },
+        {
+          "title": "Past Sessions for a Group",
+          "body": "The calendar button on a group card opens the \"Past Sessions\" list, where each session is numbered automatically. You can change a session's date directly in the list, or delete an individual session — deletion asks for confirmation and removes the session from all group members."
+        },
+        {
+          "title": "Group Status and Its Effect on Clients",
+          "body": "Each group has three status buttons: Active, In Development, Ended. Switching to \"Active\" or \"Ended\" may also move group members to the appropriate client status (Active / Former) — the system asks for confirmation and shows how many clients will be affected. Switching to \"In Development\" doesn't change client statuses."
+        },
+        {
+          "title": "Assigning a Client to a Group by Dragging",
+          "body": "In the \"Clients\" section you can drag a client onto a group card. If the client already belongs to another group, a \"Assign to Group\" window opens letting you choose between \"Move here\" and \"Add (both)\". If the client isn't in another group, they're added directly."
+        },
+        {
+          "title": "Project Clients",
+          "body": "The \"Clients\" section shows all clients in the project, with their group tag or a \"Private\" tag if they're not in a group. Clicking a client opens their client card, and \"+ Add Client to Project\" adds a new client who is pre-linked to the project."
+        },
+        {
+          "title": "Linked Reminders",
+          "body": "The \"Linked Reminders\" section gathers all reminders linked to the project, shows how many are active out of the total, and lets you mark a reminder as done, delete it (with confirmation), or add a new reminder to the project. An overdue reminder is marked \"Overdue\", and a completed one is marked \"Done\"."
+        }
+      ],
+      "tips": [
+        "For income and clients to appear in a project — link transactions, clients, and sessions to it. Revenue is also calculated from transactions belonging to linked clients, not just transactions tagged directly to the project.",
+        "Toggle between \"Monthly\" and \"Cumulative\" on the main screen to see either this month's income or all-time income. Note that inside the project screen, the \"Income This Month\" stat always shows the current month.",
+        "Deleted a project by mistake? An undo notification appears right after deletion, and either way the clients and transactions remain in the system.",
+        "Add clients, transactions, and reminders via \"Quick Add\" inside the project — everything will automatically be linked to the current project, no manual selection needed.",
+        "Before changing a group's status to \"Ended\", be aware that it may move all group members to \"Former\" status. The system will ask for confirmation and show how many clients will be affected."
+      ],
+      "faq": [
+        {
+          "q": "How do I set a budget, start/end dates, or description for a project?",
+          "a": "You can't — a project only has a name and a color. There are no budget, date, or description fields for projects. Financial tracking comes automatically from linked transactions. (Start and end dates exist only for groups within a project, not for the project itself.)"
+        },
+        {
+          "q": "How do I filter projects by status (active/completed)?",
+          "a": "Projects don't have a status, and you can't filter by status. Status (Active / In Development / Ended) exists only for groups within a project. The \"Active\" label on a project card is fixed — it's not a changeable status."
+        },
+        {
+          "q": "The revenue in a project doesn't look right — why?",
+          "a": "Revenue sums income transactions linked to the project or to a client in the project, within the range you've selected (monthly or cumulative on the main screen, current month inside the project screen). Transactions not linked to the project or one of its clients won't be included."
+        },
+        {
+          "q": "What happens to clients and transactions when a project is deleted?",
+          "a": "They stay in the system — they just lose their project assignment. An undo notification also appears right after deletion."
+        },
+        {
+          "q": "I deleted a group — what happens to its members, sessions, and reminders?",
+          "a": "When you delete a group, a window opens where you choose, for each type of linked data (members, upcoming sessions, past sessions, linked reminders), whether to keep or delete it. Members who are kept remain as private clients in the project. If the group has no linked data, it's simply deleted. You can cancel the entire action with one click."
+        },
+        {
+          "q": "How do I add a group session?",
+          "a": "Inside the project screen, on the group card, click \"Log Session\". The session is logged for all group members and numbered automatically. You can see the list of past sessions via the calendar button on the card, and from there edit a session's date or delete an individual session."
+        }
+      ]
+    },
+    "tasks": {
+      "title": "Tasks",
+      "intro": "One screen for two types of to-dos. \"Tasks\" are things to do with no specific date. \"Reminders\" are anything tied to a day and time. Switch between them with a single tap on the toggle at the top.",
+      "features": [
+        {
+          "title": "Switching Between Tasks and Reminders",
+          "body": "Below the title is a toggle with two buttons: Tasks and Reminders. A task is something to do, with no date. A reminder is anything tied to a day and time. Each side has its own summary, filter, and list, and the add button changes accordingly (\"+ New Task\" / \"+ New Reminder\"). Switching sides also resets the filter to \"Open\"."
+        },
+        {
+          "title": "Adding a Task",
+          "body": "On the Tasks side, click \"+ New Task\". Fill in \"What needs to be done?\" (required) and choose a priority (Urgent / Normal / Low). You can link it to a project and client, and if you've defined statuses or categories you can select those too. Tasks have no due date — the screen notes this and suggests adding a reminder if you need a specific day."
+        },
+        {
+          "title": "Priority and Grouping",
+          "body": "There are three priority levels: Urgent, Normal, and Low. Tasks are sorted in that order, and each group gets its own color dot and counter — Urgent in red, Normal in amber, Low in green."
+        },
+        {
+          "title": "Completing a Task and Undoing",
+          "body": "Clicking the circle next to a task marks it as done; clicking again brings it back. After each action, an undo notification pops up (\"Task completed\" / \"Task restored\") in case you clicked by mistake. Marking a task as done clears any open custom status from it. Restoring it to active doesn't restore the status — you can choose it again in editing."
+        },
+        {
+          "title": "Editing a Task",
+          "body": "Clicking the pencil icon on a task row opens the \"Edit Task\" window. It has exactly the same fields as when adding — title, priority, project, client, and if you've set them up, status and category."
+        },
+        {
+          "title": "Filtering Tasks",
+          "body": "Below the summary there are three tabs: Open, Completed, All. If you have categories, a row of pills also appears for filtering by category (including an \"All\" pill). Clicking the same category a second time clears the filter."
+        },
+        {
+          "title": "Statuses and Categories",
+          "body": "The \"Statuses & Categories\" button (on the Tasks side) opens a window where you add and delete your own statuses and categories, each with a name and color. Each status is linked to either \"Open\" or \"Completed\" so that the counts on the Home screen stay accurate. Deletion asks for confirmation first, and doesn't delete the tasks themselves — they simply remain without that tag. There's also an undo option here for immediate recovery."
+        },
+        {
+          "title": "Delete All Completed",
+          "body": "In the \"Completed\" tab there's a \"Delete All\" button that deletes all completed items at once (after confirmation). They go to the Trash and can be restored within 30 days. There is no delete button for an individual task here."
+        },
+        {
+          "title": "Adding a Reminder",
+          "body": "On the Reminders side, click \"+ New Reminder\". Fill in \"What should I be reminded about?\", choose how often it repeats (One-time / Weekly / Monthly / Every X days), and set the timing. For recurring reminders you can add an end date, link it to a client, and write additional details."
+        },
+        {
+          "title": "Timing Changes Based on Recurrence",
+          "body": "First choose how often the reminder repeats, then the appropriate timing field appears. One-time asks for a date and time. Weekly asks for a day of the week and time. Monthly asks for a day of the month (1–31) and time. Every X days asks for a start date, time, and number of days."
+        },
+        {
+          "title": "Completing and Advancing Reminders",
+          "body": "When you mark a one-time reminder as done, it moves to \"Completed\". A recurring reminder isn't marked as done — it automatically jumps to the next occurrence (\"Reminder advanced\"). It keeps jumping until the next occurrence falls after the end date you set. There's an undo option here too."
+        },
+        {
+          "title": "Reminder Tabs and Grouping",
+          "body": "Reminders have three tabs: Open, Recurring, Completed. \"Open\" sorts by urgency — Overdue, Today, This Week, Later. \"Recurring\" shows the fixed schedule, sorted by day of week, monthly, and every X days."
+        },
+        {
+          "title": "Summary Card",
+          "body": "Above the list is a summary card with three numbers: Open, a number that switches depending on which side you're on — \"Urgent\" for tasks (Urgent priority) or \"Overdue\" for reminders (a reminder whose time has passed and is still open) — and Completed."
+        }
+      ],
+      "tips": [
+        "A task is for something with no date. The moment you need a specific day and time, switch to Reminders and add one there. That's also what will appear in the Upcoming Reminders widget on the Home screen.",
+        "Link a task to a client to connect it to them. Sessions with a date are managed in the Calendar, not here.",
+        "Set up your statuses and categories once in \"Statuses & Categories\", then easily filter by category using the pills above the list.",
+        "A recurring reminder doesn't disappear when you mark it — it jumps to the next occurrence. If several missed occurrences have built up, you'll see an ×N badge next to the title in the \"Open\" tab.",
+        "Marked something by mistake? An undo window pops up right after every circle click to restore the previous state.",
+        "To stop a recurring reminder after a certain date, add an \"End Date\" to it — either when adding or in editing."
+      ],
+      "faq": [
+        {
+          "q": "Where do I set a due date for a task?",
+          "a": "Tasks don't have due dates at all — that's the difference from reminders. If something needs to happen on a specific day, switch to the Reminders side and add a reminder with a date and time."
+        },
+        {
+          "q": "How do I delete a single task?",
+          "a": "There's no delete button for an individual row here. Mark it as done, go to the \"Completed\" tab, and click \"Delete All\". Everything deleted goes to the Trash and can be restored within 30 days."
+        },
+        {
+          "q": "I marked a recurring reminder as done — why didn't it move to \"Completed\"?",
+          "a": "That's how it's supposed to work. A recurring reminder jumps to the next occurrence instead of being marked as done, so it keeps coming back. It only stops when the next occurrence falls after the end date you set."
+        },
+        {
+          "q": "I deleted a status or category — what happens to tasks assigned to them?",
+          "a": "The tasks remain. They simply lose that tag and appear without a status or category. The status or category itself can be restored immediately via the undo window."
+        },
+        {
+          "q": "How do I sort the task list?",
+          "a": "Tasks are automatically sorted by priority — Urgent, then Normal, then Low — with a counter for each group. There's no sorting by date, because tasks don't have dates."
+        },
+        {
+          "q": "What's the difference between \"Urgent\" and \"Overdue\" in the summary?",
+          "a": "It's the same spot in the summary card, but it switches based on which side you're viewing. For tasks it counts open tasks with \"Urgent\" priority. For reminders it counts open reminders whose time has already passed."
+        }
+      ]
+    },
+    "calendar": {
+      "title": "Calendar",
+      "intro": "The Calendar brings everything you have planned into one place — sessions, reminders, tasks, financial transactions, lead follow-ups, and events synced from Google. You can view it four ways: Board, Day, Week, and Month.",
+      "features": [
+        {
+          "title": "Four views",
+          "body": "At the top of the screen there are four tabs. \"Board\" is a list of upcoming events. \"Day\" shows a detailed hourly timeline. \"Week\" shows seven columns, one per day. \"Month\" is a monthly calendar with color dots. Your chosen view is saved and will open again next time."
+        },
+        {
+          "title": "Navigating between dates",
+          "body": "In \"Day\" view, use the arrows to move one day forward or back, with the date shown in the middle. In \"Week\" and \"Month\" views, the arrows jump a full month, and there is a month and year picker in the middle. The \"Today\" button brings you back to today's date (in Week and Month it also jumps to the Day view). In \"Board\" view there is no date navigation — it always shows events from today onward."
+        },
+        {
+          "title": "Adding via \"+ New Event\"",
+          "body": "The \"+ New Event\" button opens a window called \"New Event\" with four options: \"Client Session\", \"Reminder\", \"Task\", and \"Transaction\" (income or expense). Each choice opens the appropriate add form."
+        },
+        {
+          "title": "Scheduling a client session",
+          "body": "In the \"Schedule Session\" window, choose a client, date, and time. Clicking \"Save\" creates a session that is pending confirmation. Sessions added here are one-time only. For a recurring weekly slot, set it from within the client card edit, not here."
+        },
+        {
+          "title": "Clicking an event — details and actions",
+          "body": "Clicking an event opens \"Event Details\". For a pending session you will be asked \"Did this session take place?\" — \"Yes\" confirms it and \"No\" skips it. For a session already confirmed, you will see \"Session confirmed.\". For a reminder you can \"Mark as done\" or \"Delete\" (deletion requires two clicks — you need to confirm \"Sure? Delete\"). For a lead follow-up you can click \"Follow-up done\"."
+        },
+        {
+          "title": "Google Calendar events",
+          "body": "Events from Google are marked with a \"Calendar\" tag and appear alongside your other events. In the details window you can click \"Edit\" (title, start time, and end time) or \"Delete\" (two clicks — \"Sure? Delete\"). The change only affects Simplicity, not your Google Calendar itself. An event you have edited is labeled \"Your event (edited in Simplicity)\", and your changes are preserved through future syncs."
+        },
+        {
+          "title": "View filter",
+          "body": "The filter button at the top of the screen opens \"View Filter\". There you choose which event types to show: \"Sessions\", \"Reminders\", \"Lead Follow-ups\", and \"Google Calendar Events\". When you have hidden a type, the button is highlighted so you know the filter is active."
+        },
+        {
+          "title": "Duplicates with Google",
+          "body": "Sometimes a recurring session in the app conflicts with a Google event for the same client or group — on the same day, within an hour and a half of each other. In that case a banner appears: \"1 calendar duplicate with Google\" (or \"N calendar duplicates with Google\"). Clicking it opens \"Calendar Duplicates\", where for each pair you choose what to hide — the app session or the Google event — by clicking \"Hide\"."
+        },
+        {
+          "title": "Lead follow-ups and reminders",
+          "body": "An active lead with a follow-up date appears in the calendar at 09:00 on that day (without a tag). Clicking \"Follow-up done\" clears the follow-up date and removes the event from the calendar, but the lead itself stays in its column. Reminders — both one-time and recurring — appear with a \"Reminder\" tag."
+        },
+        {
+          "title": "Connecting Google Calendar",
+          "body": "In Connections > Google Calendar, choose from which date to sync (up to one year back) and click \"Connect Google Calendar\". You can then click \"Sync now\", assign each event to a client, project, lead, or group via \"+ Assign to…\" (each event is marked \"Identified\" or \"Unidentified\"), or click \"Disconnect\"."
+        }
+      ],
+      "tips": [
+        "In \"Board\" view you only see events from today onward. If the list is long, click \"Load more\" to see additional events.",
+        "\"Day\" view shows hours from 06:00 to 22:00 on a timeline. Events outside that range do not disappear — they appear in \"Before 06:00\" and \"After 22:00\" strips above and below the timeline, and all-day events appear in the \"All day\" strip at the top.",
+        "In \"Month\" view each dot is colored by type: sessions, reminders, and calendar events (see the legend below the calendar). Clicking a day automatically jumps to its Day view.",
+        "A weekly recurring slot you set in the client card is automatically spread out as sessions in the calendar. Each time the calendar opens it fills in any missing sessions in the background, rolling forward.",
+        "If you chose to hide a Google event to resolve a duplicate, it may come back on the next sync because the sync is one-directional. It is usually better to hide the app session instead. (Editing or deleting a Google event from \"Event Details\" does persist through future syncs.)"
+      ],
+      "faq": [
+        {
+          "q": "How many views does the calendar have?",
+          "a": "Four: \"Board\" (list of upcoming events), \"Day\" (hourly timeline), \"Week\" (seven columns), and \"Month\" (calendar with dots). Switch between them using the tabs at the top of the screen — your choice is saved for next time."
+        },
+        {
+          "q": "I clicked \"+ New Event\" — why is there no name or duration field?",
+          "a": "\"+ New Event\" first asks what you want to add: a client session, reminder, task, or transaction. A session is set by client, date, and time — there is no free-text name field or duration here."
+        },
+        {
+          "q": "Does scheduling a session in the calendar automatically record it as income in Finance?",
+          "a": "No. Scheduling a session here only creates a session pending confirmation, and confirming it (\"Yes\") only marks it as having taken place. Recording income is done separately — it does not happen automatically when you schedule a session."
+        },
+        {
+          "q": "How do I set a recurring weekly session?",
+          "a": "Sessions added via the calendar are one-time only. To set a recurring weekly slot, edit the client card and set it there — the calendar then spreads it out automatically into future sessions."
+        },
+        {
+          "q": "I edited or deleted a Google event in the calendar — does that change it in Google too?",
+          "a": "No. Editing or deleting a synced event from \"Event Details\" only affects Simplicity, but those changes do persist through future syncs (the event becomes \"your event\"). Only hiding a Google event to resolve a duplicate might revert on the next sync."
+        },
+        {
+          "q": "Why is a certain event not showing in the calendar?",
+          "a": "Check \"View Filter\" — you may have turned off that event type (sessions, reminders, lead follow-ups, or Google Calendar events). Google events only appear after you have connected and synced in the Connections screen."
+        }
+      ]
+    },
+    "goals": {
+      "title": "Goals",
+      "intro": "Here you set measurable goals for your practice. Progress is tracked automatically from data already in the system, or entered manually. Each goal has a card showing how much has been achieved and whether you are on pace.",
+      "features": [
+        {
+          "title": "New goal",
+          "body": "Clicking \"+ New Goal\" opens a window where you choose a metric, give the goal a name (optional), set a time frame, a numeric target, and an importance level. You can also link it to a project and group. Each goal appears on the screen under the category of the metric you chose."
+        },
+        {
+          "title": "Choosing a metric",
+          "body": "Some metrics are tracked automatically — \"Revenue\", \"Active Clients\", \"Leads\", \"Closings\", and \"Group Members\" — and there is also \"Other — Manual Updates\" for tracking you manage yourself. You do not need to set up categories separately: the category is created automatically from the metric you choose."
+        },
+        {
+          "title": "Time frame",
+          "body": "Choose between \"Monthly\", \"Weekly\", or \"By Date\". \"Monthly\" is measured over a full calendar month, \"Weekly\" over the current week. With \"By Date\" you add a target date, and progress is measured from the day you created the goal up to that date."
+        },
+        {
+          "title": "Automatic tracking",
+          "body": "\"Revenue\" goals sum income transactions in the period. \"Leads\" and \"Closings\" are counted from your leads (leads by inquiry date, closings by leads converted to clients). \"Active Clients\" and \"Group Members\" reflect the current count. All of these update automatically — there is nothing to enter manually."
+        },
+        {
+          "title": "Manual tracking (\"Other\")",
+          "body": "When you choose the \"Other — Manual Updates\" metric, you also choose how to track it: \"Manual Entry\" or \"Daily Check-In Question\". A manual goal card has an \"Enter\" button to log progress, and a \"History\" button with the entry count that opens all entries to view or delete."
+        },
+        {
+          "title": "Linking to a daily check-in question",
+          "body": "For a manual goal you can choose \"Daily Check-In Question\": link an existing question, or write a new one — including the wording, answer type (\"Scale 1–10\" or \"Yes / No\"), icon, and when it appears. Numeric answers accumulate toward the goal: a score of 7 on the scale adds 7, and a \"Yes\" answer adds 1."
+        },
+        {
+          "title": "Cap for a yes/no question goal",
+          "body": "When the daily check-in question is \"Yes / No\" type, the system calculates how many times the question will appear in the period and does not let you set a target higher than that. A message shows how many times the question will appear, and that you can aim for fewer but not more. Scale questions have no such cap."
+        },
+        {
+          "title": "Entering progress",
+          "body": "The \"Enter Progress\" window asks for a numeric value, a date (defaults to today, future dates are not allowed), and an optional note. Entries accumulate toward the goal's result for that period."
+        },
+        {
+          "title": "Each goal's card",
+          "body": "Each card shows the goal's name, category, and time frame, the overall achievement percentage (with \"+\" when it exceeds 100%), and two bars — \"of Goal\" (how much has been achieved) and \"of Pace\" (how on-pace you are relative to time elapsed). Next to them are the value versus the target and an importance rating in stars."
+        },
+        {
+          "title": "Editing and deleting",
+          "body": "Each card has an edit button (pencil) to change the name, time frame, target, importance, project and group assignment, and tracking method (you can also swap the linked daily question), and a delete button (trash). Deleting a goal asks for confirmation and notes that you can restore it from Trash within 30 days."
+        }
+      ],
+      "tips": [
+        "Give your goal a clear number — \"20 active clients\" works much better than \"grow my practice\".",
+        "The two bars mean different things: \"of Goal\" shows how much has been achieved in total, and \"of Pace\" shows whether you are on track relative to how much time has already passed in the period. If \"of Pace\" is below 100%, you are behind — even if \"of Goal\" is moving forward.",
+        "For a yes/no question goal you can aim for fewer days than the question is asked (for example, target 3 per week even if the question appears 5 times), but not for more.",
+        "Even for a goal linked to a daily question, the \"Enter\" button is still there — a manual entry counts on top of question answers, not instead of them.",
+        "Importance (1–5) determines how much weight the goal carries in the overall score in Moon View — a more important goal pulls the score more strongly.",
+        "If you accidentally deleted a goal or an entry, the Trash has a 30-day window for recovery, and deleting an entry also shows an immediate Undo option."
+      ],
+      "faq": [
+        {
+          "q": "Where do I manage goal categories?",
+          "a": "There is no separate category management here. The category is set by the metric you choose when creating the goal, and it is created automatically — all goals are grouped by it. Automatic metrics are tracked on their own, and every manual goal falls under the \"Other\" category."
+        },
+        {
+          "q": "Why is my goal's progress not updating?",
+          "a": "It depends on the metric: \"Revenue\" only sums confirmed income transactions in the period, \"Leads\" are counted by the lead's inquiry date, \"Closings\" only count leads converted to clients, and \"Active Clients\" only counts clients with an active status. For a manual goal you need to log values via \"Enter\", or answer the linked daily check-in question."
+        },
+        {
+          "q": "What is the difference between \"of Goal\" and \"of Pace\" on the card?",
+          "a": "\"of Goal\" is the achievement percentage against the full target. \"of Pace\" compares your progress to the expected pace based on how much time has already passed in the period — if you are halfway through the month and have reached 50% of your target, \"of Pace\" shows 100%. For metrics that are a current count (active clients, group members) and for \"By Date\" goals with a target of 1, there is no separate pace calculation, and both bars show the same value."
+        },
+        {
+          "q": "I linked a daily question to my goal — how does it accumulate?",
+          "a": "Every numeric answer in the period is added to the result: for a 1–10 scale question the value itself accumulates (answer 7 = 7), and for a yes/no question each \"Yes\" adds 1. Days you did not answer add nothing."
+        },
+        {
+          "q": "I accidentally deleted a goal — can I get it back?",
+          "a": "Yes. Deleting a goal sends it to Trash, and you can restore it within 30 days. Deleting a manual entry can also be undone — an Undo option appears immediately after deletion."
+        },
+        {
+          "q": "Can I link a goal to a project or group?",
+          "a": "Yes. The goal window has a \"Project (optional)\" selector, and if that project has groups a \"Group (optional)\" selector appears too. For a \"Group Members\" goal, the assignment also narrows the count to that specific group or project."
+        }
+      ]
+    },
+    "insights": {
+      "title": "Daily Check-In",
+      "intro": "This is your daily personal check-in screen. Answer each question on its card, and you get a reflection, averages, a trend chart, and six months of history for each question.",
+      "features": [
+        {
+          "title": "Daily reflection",
+          "body": "The \"Daily Reflection\" card at the top of the screen shows up to three sentences written automatically from your answers — a streak of days you have answered, a weekly high or low for a specific question, a rise or drop compared to last week, or an encouraging stability note when there is no major change. It relies only on active questions and updates on its own."
+        },
+        {
+          "title": "A card for each question",
+          "body": "Every question you have set up appears as its own card with its icon and wording. Disabled questions also appear, in a muted style, so you can turn them on or off right here."
+        },
+        {
+          "title": "Daily answer",
+          "body": "For a 1–10 scale question, move the slider and click the checkmark to save. For a \"Yes / No\" question, click Yes or No. You can only answer a question that is active, scheduled for today, and that you have not yet answered today."
+        },
+        {
+          "title": "Skipping a question",
+          "body": "The \"Skip\" button leaves the question unanswered for today. No answer is recorded, so your streak, averages, and trends are not affected. The skip resets automatically the next day."
+        },
+        {
+          "title": "Restoring skipped questions",
+          "body": "If you skipped questions you can still answer today, a button appears below the cards: \"Answer N skipped questions\" (or \"Answer 1 skipped question\" when there is only one), which brings all of them back to answer."
+        },
+        {
+          "title": "Toggle for each question",
+          "body": "Each card has a toggle that enables or disables the question directly from this screen. A disabled question stays on the screen but cannot be answered and does not count toward the reflection or your streak."
+        },
+        {
+          "title": "Averages and change",
+          "body": "Each card shows a \"7-day average\", with a tag next to it showing the change compared to the seven days before that, and also a \"30-day average\". Averages do not count days without an answer."
+        },
+        {
+          "title": "Trend chart",
+          "body": "Under \"Last 30 days\" a line chart appears showing your answers over the past month. A day without an answer is drawn as a gap and is not connected by a line — you need at least two data points for the chart to appear."
+        },
+        {
+          "title": "Six-month heat map",
+          "body": "\"Last 6 months\" shows a grid of 26 weeks, one cell per day. The higher the answer, the darker and fuller the cell. For yes/no questions the cell is full for \"Yes\" and light for \"No\". Hovering over a cell shows the date and value."
+        },
+        {
+          "title": "History",
+          "body": "At the bottom of the screen you can expand \"History\" to see the last 30 answers, newest first, with the icon, question wording, date, and value. If you opened it, it stays open on your next visits."
+        },
+        {
+          "title": "Managing questions in Settings",
+          "body": "Add, delete, and schedule questions in Settings > Daily Check-In Questions. There you can add a question from a ready-made template or write your own (text, answer type, and icon), and set whether it appears \"Every day\", on \"Specific days\", or \"Every X days\"."
+        }
+      ],
+      "tips": [
+        "Answer every day — even one question keeps your streak alive. The charts and reflection start getting interesting after about three weeks of data.",
+        "If a question is not relevant today, it is better to click \"Skip\" than to give an inaccurate answer. Skipping does not affect your averages or trends.",
+        "Weekly highs and lows appear in the reflection only for 1–10 scale questions, and only when there are enough answers in that week. Yes/no questions are not included in that calculation.",
+        "A question you disabled stays on the screen in a muted style with all its history — you can re-enable it at any time using the toggle on the card.",
+        "To change which days a question appears, open the scheduling row in Settings > Daily Check-In Questions and choose \"Specific days\" or \"Every X days\"."
+      ],
+      "faq": [
+        {
+          "q": "Can I write a free-text answer?",
+          "a": "Not on this screen. Answers are only given with a 1–10 slider or yes/no buttons, depending on the answer type you set for the question in Settings."
+        },
+        {
+          "q": "I already answered today — how do I change my answer?",
+          "a": "Once you answer, the card shows a \"Today · N\" tag and the answer row disappears, so you cannot change today's answer from this screen."
+        },
+        {
+          "q": "The questions are not showing up to answer?",
+          "a": "The answer row only appears when the question is active (toggle is on), today is a day it is scheduled to appear, and you have not already answered it today. If you skipped it, it will come back via the \"Answer skipped questions\" button."
+        },
+        {
+          "q": "Where do I add or delete questions?",
+          "a": "In Settings > Daily Check-In Questions. On the Daily Check-In screen you can only enable, disable, answer, and skip — not add or delete."
+        },
+        {
+          "q": "Are there correlations between metrics here?",
+          "a": "No. Cross-metric relationships and combined charts are in the Moon View screen. Here each question stands on its own, with its own average, trend, and heat map."
+        },
+        {
+          "q": "What do the colors in the heat map mean?",
+          "a": "There is no green or red here. Cell intensity shows how high the value is: a higher value looks fuller and darker, a lower value looks lighter, and a day with no answer stays empty."
+        }
+      ]
+    },
+    "moon": {
+      "title": "Moon View",
+      "intro": "A single high-level view of your entire practice: one weighted score, a breakdown by goal category, a trend over time, and connections between different areas. Everything is based on the goals you've set.",
+      "features": [
+        {
+          "title": "The Main Score (On Pace)",
+          "body": "At the center of the screen is a ring with a large percentage and the label \"On Pace\" below it. This shows how much progress you've made relative to what's expected so far within each goal's period. Below that you'll see \"X% of target\" — your achievement against the full target. The score is weighted by goal importance, and each goal is capped at 100 before weighting."
+        },
+        {
+          "title": "Reflection Sentence",
+          "body": "Below the ring is a short sentence that changes based on your score — for example, \"You're on a great track this month\" for a high score, or \"Let's build some momentum — one small step forward\" for a low score. This isn't a judgment of good or bad; it's just a hint about your current pace."
+        },
+        {
+          "title": "Breakdown by Category",
+          "body": "Each goal category that has goals gets a card with two bars side by side: \"On Pace\" (how you're doing relative to the expected pace) and \"Of Target\" (percentage of the full target). This lets you see which areas are pulling your score up and which are pulling it down. Values above 100% are shown as a number, but the bar itself stops at 100%."
+        },
+        {
+          "title": "Trend Over Time",
+          "body": "A line graph of your score over the last 30 days, with three metrics alongside it: \"Average\", \"Peak\", and \"Today\". The graph relies on a daily snapshot saved each day. If you're new and there isn't enough history yet (fewer than two saved days), it's recalculated from the current data."
+        },
+        {
+          "title": "Cross-Module Trends",
+          "body": "A graph that displays several metrics together on the same axis. Use the buttons to choose what to show: revenue, leads, sessions, score, or daily check-in. By default, revenue and score are shown. Each line is scaled to its own range (0–100), so you can compare the shape of the trend even across things measured differently (₪, counts, 1–10). If there isn't enough data, you'll see \"Not enough data for the graph yet\"."
+        },
+        {
+          "title": "Selecting a Daily Check-In in the Graph",
+          "body": "The \"Daily Check-In\" button is only active if you have active daily check-in questions set up. When you select it, a list opens to choose which question to display on the graph. Days you didn't answer appear as a gap in the line (not as zero), so the data isn't misleading."
+        },
+        {
+          "title": "Connections to Explore",
+          "body": "The system automatically checks whether there's a connection between numerical daily check-in questions (scale 1–10) — primarily between two daily questions, and in principle also against revenue, leads, and sessions. Most of the time you'll see \"No significant connection in the data right now\", and that's completely fine. When a stable pattern appears, it's shown as a card describing that the metrics \"tend to move together\" or \"move inversely\", with a strength label (strong, moderate, or subtle), a point count, and a small scatter plot."
+        },
+        {
+          "title": "Navigating to Reports and Goals",
+          "body": "The \"Reports\" button at the top of the screen takes you to the Reports screen for deeper analysis. At the bottom of the screen, \"Edit your goals →\" takes you to the Goals screen — that's where you change the data that feeds into this entire score."
+        }
+      ],
+      "tips": [
+        "This entire screen is based on your goals — without at least one goal defined, you'll only see an empty message. Go to the Goals screen, set a goal, and come back.",
+        "The difference between \"On Pace\" and \"Of Target\" matters: \"Of Target\" tells you how much of the full goal has been achieved, while \"On Pace\" tells you whether you're moving at the right speed for the time that's passed in the period. You can be 40% of your target but 100% on pace if it's still early in the month.",
+        "Watch the line in \"Trend Over Time\" over weeks, not day by day — a single point tells you less than a trend.",
+        "In the \"Cross-Module Trends\" graph, each line is scaled to its own range, so you're comparing the shape of the trend, not the absolute values. The actual values appear in the graph legend (window sum for revenue, leads, and sessions; the last answered value for score and daily check-in).",
+        "A connection you see here — visual or statistical — is not cause and effect. The cards are intentionally phrased as \"tend to move together\", not \"X causes Y\"."
+      ],
+      "faq": [
+        {
+          "q": "The screen is empty and says there are no goals — why?",
+          "a": "The entire score is calculated from your goals. Without at least one goal, there's nothing to calculate, which is why you see \"No goals yet\". Go to the Goals screen, set a goal, and come back."
+        },
+        {
+          "q": "What's the difference between the large percentage (On Pace) and the \"X% of target\" below it?",
+          "a": "The large percentage is \"On Pace\" — how much progress you've made relative to what's expected so far in the period. \"X% of target\" is your achievement against the full target. At the start of a month, you can be high on pace but still low against the full target."
+        },
+        {
+          "q": "Do the bars in each category compare this week to last week?",
+          "a": "No. The two bars in each category are \"On Pace\" and \"Of Target\" for that category — there's no week-over-week comparison on this screen. Period comparisons are available in the Reports screen."
+        },
+        {
+          "q": "Why does it say \"No significant connection in the data right now\" in Connections to Explore?",
+          "a": "That's the normal, expected result. The system only shows a connection if it's stable and statistically reliable enough (including checking whether the connection is real, comparing the two halves of the period, and correcting for multiple comparisons). In a 30-day window, what typically clears the bar is a connection between two numerical daily check-in questions, and it usually takes a few weeks of answers before anything appears."
+        },
+        {
+          "q": "Why is the \"Daily Check-In\" button in the graph disabled?",
+          "a": "The button only becomes active if you have active daily check-in questions. Enable or create a question in Settings → Daily Check-In Questions, and then you'll be able to select it and see it on the graph."
+        },
+        {
+          "q": "The score isn't changing — why?",
+          "a": "The score updates when the data feeding your goals changes: confirmed income transactions (not pending or skipped), daily check-in answers, number of active clients, leads and lead conversions, group member counts, and manual entries you've logged in goals. Update those and the score will move."
+        }
+      ]
+    },
+    "reports": {
+      "title": "Reports",
+      "intro": "The Reports screen shows you 13 numbers that summarize your practice month by month — leads, clients, sessions, finances, and tasks. You can view a single month in list mode, or compare multiple months side by side in table mode. And you can click any number to see exactly which records make it up.",
+      "features": [
+        {
+          "title": "Two Views — List and Table",
+          "body": "At the top is a toggle between \"List\" and \"Table\". \"List\" shows one month at a time, with numbers organized by topic. \"Table\" spreads them all out side by side, one column per month. Your choice is saved and restored next time."
+        },
+        {
+          "title": "12-Month Bar (List View)",
+          "body": "In list view there's a bar showing the last 12 months. Click a month to see all its numbers. The current month is selected by default."
+        },
+        {
+          "title": "Month Range in Table View",
+          "body": "In table view you choose how many months back to show — 3, 6, or 12. There's a column for each month (the current month is highlighted) and a \"Summary\" column at the end. Your selection is saved automatically."
+        },
+        {
+          "title": "The Summary Column",
+          "body": "The \"Summary\" column in the table sums up the entire range, but not everything works the same way. Things that flow over time (leads, sessions, revenue) are simply added up. End-of-month snapshots (active clients at end, open tasks at end) are averaged. And percentages (conversion rate, mid-journey drop-offs) are recalculated across the full range."
+        },
+        {
+          "title": "The 13 Numbers by Group",
+          "body": "The numbers are organized into five groups: Leads (new leads, leads closed, converted to clients, conversion rate), Clients (new clients, active clients at end, mid-journey drop-offs), Sessions (sessions held), Finances (revenue, expenses, net), and Tasks (tasks completed, open tasks at end)."
+        },
+        {
+          "title": "Drilling Down to Records",
+          "body": "Click a number in list view, or a non-empty cell in table view, and a panel opens showing you the actual records behind it — leads, clients, sessions, transactions, or tasks — along with their total count."
+        },
+        {
+          "title": "Navigating from the Drill-Down to the Screen",
+          "body": "Each row in the drill-down panel is a link. Clicking it takes you to the relevant screen — Leads, Clients, Calendar, Finance, or Tasks. Note: the link takes you to the screen, not always to the specific record."
+        },
+        {
+          "title": "Choosing Numbers and Order",
+          "body": "The gear button \"Customize view\" opens a panel where you toggle which numbers to show (a switch for each) and drag a handle to change the order. Your choices and order apply to both views."
+        },
+        {
+          "title": "Restoring Defaults",
+          "body": "In the customization panel there's a \"Default\" button that restores all 13 numbers in their original order with one click."
+        },
+        {
+          "title": "Explanations for the Numbers",
+          "body": "Next to \"Leads closed\" there's a \"?\" icon. Hover over it or tap it to see a short explanation: \"Leads closed\" counts everyone who exited the process — whether converted to a client or marked as not relevant. \"Converted to clients\" counts only those who actually became clients."
+        },
+        {
+          "title": "Month with No Data",
+          "body": "If the month you selected has no data, you'll see \"No data for this month\". If another month has activity, you'll be offered a button to jump to it (\"Go to...\") — the most recent month that has something."
+        },
+        {
+          "title": "Link to Moon View",
+          "body": "At the top there's a \"Moon View\" link that takes you to the Moon screen for a broader picture of your activity."
+        }
+      ],
+      "tips": [
+        "Revenue, expenses, and net only count transactions you've confirmed. A transaction that hasn't been confirmed won't appear in the report.",
+        "The Summary column in the table isn't always a simple sum: the \"at end\" numbers are averages, and percentages are recalculated. So don't expect the summary to be exactly the sum of the columns.",
+        "A cell or number that equals 0 can't be clicked. You can only drill down into numbers that have something behind them.",
+        "Use the gear button to hide numbers you don't care about and keep the report focused. Hiding doesn't delete anything — it just removes it from view. And if you hide everything, the table will let you know there are no active numbers.",
+        "\"Active clients at end\" and \"Open tasks at end\" are snapshots of how things looked at the end of the month — not a count of everything that happened during it.",
+        "List view only shows the last 12 months. Want a different range? Switch to table view and choose 3, 6, or 12 months."
+      ],
+      "faq": [
+        {
+          "q": "Where do I choose a custom date range?",
+          "a": "There's no custom date range here. In list view you pick one month from the 12-month bar, and in table view you choose how many months back — 3, 6, or 12. This screen doesn't have a line graph or a revenue breakdown by category."
+        },
+        {
+          "q": "The report shows 0 revenue even though I have transactions?",
+          "a": "Only confirmed transactions are counted, based on their date. Check that the transactions are confirmed and that their dates fall within the month you selected. If the number is still 0 — it might be hidden, so check the gear button to make sure it's toggled on."
+        },
+        {
+          "q": "What's the difference between \"Leads closed\" and \"Converted to clients\"?",
+          "a": "\"Leads closed\" counts every lead that exited the process — converted to a client, marked as not relevant, or deleted. \"Converted to clients\" counts only those who actually became clients, so it's usually a lower number."
+        },
+        {
+          "q": "Why doesn't the summary in the table equal the sum of the columns?",
+          "a": "It depends on the number. Things that flow (leads, sessions, money) are truly summed. But \"end of month\" numbers are averaged, and conversion rate and drop-off rate are recalculated across the full range — because you can't simply add percentages."
+        },
+        {
+          "q": "I changed which numbers are shown and their order — will it be saved?",
+          "a": "Yes. Your choices, order, view (list or table), and range are all saved automatically and restored next time, even from a different device. The \"Default\" button resets the selection and order back to the original."
+        },
+        {
+          "q": "What happens when I click a number in the report?",
+          "a": "A panel opens showing you the actual records behind the number, along with their count. Clicking a row in the panel takes you to the relevant screen — Leads, Clients, Calendar, Finance, or Tasks."
+        }
+      ]
+    },
+    "connections": {
+      "title": "Connections",
+      "intro": "The Connections screen is where you manage Simplicity's integrations with external services — Google Calendar and invoicing (Green Invoice or SUMIT). Each has its own page where you can connect, disconnect, and manage the integration.",
+      "features": [
+        {
+          "title": "The Connections List",
+          "body": "The screen shows two rows: Google Calendar and Invoicing. Each row shows its current status — the calendar shows \"Connected\" or \"Not connected\", and invoicing shows \"Not connected\", \"Connected\" with the provider name, or \"Reconnection required\". Click a row to enter its management page. The connect and disconnect buttons are inside the page, so clicking a row won't accidentally disconnect anything."
+        },
+        {
+          "title": "Coming Soon Connections",
+          "body": "Below the two active rows there are two rows marked \"Coming soon\" — WhatsApp and Claude. These are just placeholders for what's on the way. Their toggles are currently off and can't be clicked."
+        },
+        {
+          "title": "Connecting Google Calendar",
+          "body": "On the Google Calendar page, choose how far back to start syncing (\"Sync from date\"). The default is one year back, and you can't go further than that. Click \"Connect Google Calendar\", and Google's permissions screen will open. Once you approve, events will start coming into the app automatically."
+        },
+        {
+          "title": "Syncing and Disconnecting the Calendar",
+          "body": "When the calendar is connected, you can see when it was last synced. The \"Sync now\" button pulls in events again and tells you how many were added and how many were removed. The \"Disconnect\" button requires a second click to confirm (\"Are you sure? Disconnect\")."
+        },
+        {
+          "title": "Synced Events and How They're Identified",
+          "body": "Under \"Synced events\" you can see your events, grouped by clients, projects, leads, groups, and \"Unidentified\". Each event is marked \"Identified\" or \"Unidentified\" based on its association, with the date, time, and session length shown alongside."
+        },
+        {
+          "title": "Manually Associating an Event",
+          "body": "For any event you can click \"+ Associate with…\", choose what to link it to (client, project, lead, or group), and then select the specific record from the list. You can also remove an existing association with the X on its tag. Associations you set manually are saved and won't be overwritten by future syncs."
+        },
+        {
+          "title": "Connecting Invoicing (Green Invoice / SUMIT)",
+          "body": "On the Invoicing page, choose a provider — \"Green Invoice\" or \"SUMIT\" — and paste in your credentials. For Green Invoice: API Key and Secret (the key and secret from your service account). For SUMIT: Company ID and API Key. The \"How do I get these?\" button walks you through exactly where to find them in each service."
+        },
+        {
+          "title": "Testing, Disconnecting, and Reconnecting",
+          "body": "After connecting, the status shows \"Connected\" with the provider name. \"Test connection\" verifies with the service that your credentials are still valid, and \"Disconnect\" requires a second click. If the key was revoked or replaced, you'll see \"Reconnection required\" with a \"Reconnect\" button to enter new credentials."
+        },
+        {
+          "title": "Auto-Importing Revenue",
+          "body": "When invoicing is connected, you can turn on the \"Auto-import revenue?\" checkbox. When it's on, the system detects invoices you've issued in your invoicing software and asks whether to record them as revenue here too. It won't record anything without your confirmation."
+        },
+        {
+          "title": "Pending Imports",
+          "body": "Below the invoicing card there's a \"Pending imports\" list — invoices you've issued in the external service that are waiting for your approval. Each row shows the document type and number, amount, client name, a \"View\" link to the document (if available), and a confirmation button (\"Import as revenue\", requires two clicks) or a reject button. If it looks like a duplicate of an existing transaction, a soft warning appears before you confirm."
+        }
+      ],
+      "tips": [
+        "For Google Calendar, if you choose an earlier start date before connecting, you'll pull in a longer history of events. After connecting, you can't extend the range further back without disconnecting and reconnecting (and even then, no more than one year back).",
+        "Events the system didn't recognize (\"Unidentified\") are worth associating manually — with a client, project, lead, or group. The association is saved and won't be overwritten by future syncs.",
+        "Not sure if your invoicing credentials are still valid? Click \"Test connection\" on the Invoicing page. It checks with the service without disconnecting anything.",
+        "The Secret for Green Invoice is only shown once, when you create the key. Copy it right away, before you close the window.",
+        "If you've already recorded revenue manually and it also appears in \"Pending imports\" with a \"Possible duplicate\" label — reject the import so it doesn't get recorded twice.",
+        "For SUMIT you need the private API key, not the public one. Otherwise the connection will fail."
+      ],
+      "faq": [
+        {
+          "q": "I connected Google Calendar but the events aren't showing up?",
+          "a": "Go to the Google Calendar page and click \"Sync now\". If events still don't appear, they may be outside the date range you chose when connecting — disconnect and reconnect with an earlier start date."
+        },
+        {
+          "q": "Can I connect both Green Invoice and SUMIT at the same time?",
+          "a": "No. The Invoicing page supports one active provider at a time, and connecting a different provider replaces the previous one. Choose the service you work with."
+        },
+        {
+          "q": "Can I issue an invoice to a client from this screen?",
+          "a": "Not directly. This screen is only for connecting the service. To issue an invoice or receipt, go to a revenue transaction in the Finance screen — the connection is what enables that option there."
+        },
+        {
+          "q": "What do I do when it says \"Reconnection required\"?",
+          "a": "It means the service rejected the credentials you saved — they were probably revoked or replaced. Click \"Reconnect\", enter new credentials, and click connect."
+        },
+        {
+          "q": "The \"Auto-import revenue?\" checkbox — does it record revenue without asking me?",
+          "a": "No. When it's on, it detects invoices you've issued in your invoicing software and adds them to \"Pending imports\". But they're only recorded as revenue after you confirm each one yourself."
+        },
+        {
+          "q": "Where are the credentials I entered stored?",
+          "a": "Your credentials are stored on our servers and are linked only to your account. The browser doesn't read them back, and there's no way to view them again from the screen — not even for you."
+        }
+      ]
+    },
+    "settings": {
+      "title": "Settings",
+      "intro": "Settings is where you customize the app to fit your workflow. It's divided into nine sections — from your profile and preferred form of address, through widgets, statuses, daily questions and design, to export, import and account deletion.",
+      "features": [
+        {
+          "title": "How the screen is organized — nine collapsible sections",
+          "body": "Settings are divided into sections that open one at a time: Profile, Widgets & Display, Clients & Statuses, Payments & Currency, Daily Questions, Lead Settings, Design, Data, and About. All sections start collapsed. When you open one, the previous one closes."
+        },
+        {
+          "title": "Profile — name, form of address and profession",
+          "body": "Fill in your full name, choose your preferred form of address (feminine, masculine or neutral), and select your profession from the available options (therapist, coach, facilitator, teacher, instructor, other). Choosing \"Other\" opens a free-text field — \"What do you do?\" — for your own description. Your form of address changes the wording throughout the entire app."
+        },
+        {
+          "title": "Auto-save in Profile",
+          "body": "There is no Save button here. Your name and free-text field are saved as soon as you click out of the field, and a small \"· Saved\" note appears next to them. Even if you close the section before clicking out — what you typed is saved. Choosing a form of address or profession is saved immediately on click."
+        },
+        {
+          "title": "Widgets & Display — general display settings",
+          "body": "At the top of this section are three controls that affect all cards on the Home screen: \"Card Style\" (blurred, flat or outlined), \"Text Weight\" (normal or bold) and \"Density\" (compact, normal or spacious)."
+        },
+        {
+          "title": "Managing Home widgets",
+          "body": "Below the general controls is a collapsible section called \"Widgets\". There you can toggle each widget on or off and reorder them by dragging or using the arrow buttons. Each active widget gets its own density control (global, compact, normal or spacious), and some have a \"Compact\" mode as well. The list includes the daily quote, overview ring, Daily Check-In, quick add / goal update, alerts, upcoming reminders, next tasks and status cards."
+        },
+        {
+          "title": "Clients & Statuses — custom sub-statuses",
+          "body": "Here you add and delete sub-statuses for each client group (active, in-between, former, no status). Type a name and press the plus button or Enter. If you delete a sub-status that has clients in it, a window opens letting you move them to another sub-status or leave them without one. You can also undo if you make a mistake."
+        },
+        {
+          "title": "Payments & Currency",
+          "body": "Choose your currency (₪ Shekel, $ Dollar or € Euro), date format (DD/MM/YY, MM/DD/YY or YYYY-MM-DD), time format (24-hour or 12h AM/PM), and which day the week starts on (Sunday or Monday). The currency you choose changes how amounts are displayed throughout the app."
+        },
+        {
+          "title": "Daily Questions — adding, disabling and deleting",
+          "body": "You start with no questions and add them yourself via \"Add Question\". You can choose from a ready-made template (mood, energy, sleep, focus, nutrition, movement, stillness), or write your own with free text, answer type (scale 1–10 or yes/no) and an icon. Each question can be disabled, enabled or deleted. A question linked to a goal is marked with a target icon."
+        },
+        {
+          "title": "Question schedule",
+          "body": "Clicking the schedule label on a question opens an editor with three options: \"Every day\", \"Specific days\" (choose days of the week) and \"Every X days\" (every 2 to 30 days). This way a question can appear only on the days you choose. Click \"Save\" to confirm, or \"Cancel\" to exit without changes."
+        },
+        {
+          "title": "Daily reminder for questions",
+          "body": "At the bottom of the Questions section, under \"Daily Reminder\", you can turn on a reminder and set a time. If you haven't answered by that time, a gentle nudge appears in the Daily Check-In widget on the Home screen. The time field only appears when the reminder is on."
+        },
+        {
+          "title": "Lead Settings — lead sources and sub-statuses",
+          "body": "Under \"Lead Sources\" you add new sources with a color and delete existing ones. Under \"Sub-Statuses\" you manage the sub-statuses for the lead board columns (in progress, converted, not relevant) — also with colors, and the same delete-with-reassign flow as for clients."
+        },
+        {
+          "title": "Design — light/dark mode and text size",
+          "body": "Here you choose light/dark mode (day or night) and text size (small, normal or large). Text size only changes the font, not the screen layout. To change your form of address, go to the Profile section, not here."
+        },
+        {
+          "title": "Data — summary, export and import",
+          "body": "At the top of this section you can see how many of each item you have (clients, transactions, leads, tasks, projects, categories). \"Export Data\" opens one dialog: either an Excel file with a sheet for each type, or a separate export of transactions / clients / projects as a CSV. \"Import from File\" accepts CSV, TSV and Excel files — including multiple files and sheets at once — auto-detects columns, and lets you review and adjust the mapping before anything is imported."
+        },
+        {
+          "title": "Exporting sensitive data (optional)",
+          "body": "The export dialog has checkboxes for sensitive data — sessions, goals, daily answers and reflections. They are off by default and reset every time you open the dialog. Checking a box adds more sheets to the Excel file, and the data exports as plain text — so keep the file somewhere safe."
+        },
+        {
+          "title": "Restart the onboarding flow",
+          "body": "This restarts the onboarding wizard from the beginning — useful if you skipped through it. It is non-destructive: the wizard steps reset, but everything you already created (clients, projects, etc.) stays. You'll see a short confirmation before proceeding."
+        },
+        {
+          "title": "Reset account — delete all data",
+          "body": "\"Delete all data and start over\" removes everything in your account (clients, projects, groups, leads, transactions and recurring expenses, categories, tasks, goals, questions and answers, sessions, notes, reminders, statuses and sources) and restarts the onboarding. You need to confirm twice — first a warning, then type the word \"delete\". This cannot be undone."
+        },
+        {
+          "title": "Delete account permanently",
+          "body": "\"Delete account permanently\" marks your entire account for deletion — including your login itself, not just the data. You need to confirm twice and type \"delete account\". It does not happen immediately: a 30-day grace period begins during which you can change your mind and cancel on any login. Only after that grace period is everything permanently deleted."
+        },
+        {
+          "title": "About — three tabs",
+          "body": "The \"About\" section has three tabs: \"About\" (what the app is, its principles, version and credits) with links to the Privacy Policy, Terms of Use and Data Processing Agreement; \"Guide\" — the full explanation for every screen (the same help that appears in the ? button); and \"FAQ\"."
+        }
+      ],
+      "tips": [
+        "It's worth setting your form of address in the Profile section first — it changes the wording throughout the entire app, including text on other screens.",
+        "Your profile saves automatically: just click out of the field (or close the section) and the change is captured. There is no Save button.",
+        "It's worth exporting all your data to Excel at least once a month as a backup. The client and project files are saved in a format that can be re-imported.",
+        "Before deleting a sub-status that has clients or leads in it — choose in the dialog where to move them, so you don't leave records without a label. And even if you make a mistake, there's an undo option.",
+        "Want a daily question that only appears on weekdays? Open the question's schedule, choose \"Specific days\" and check the days.",
+        "Don't confuse \"Reset account\" (deletes data, you type \"delete\") with \"Delete account permanently\" (deletes your login too, you type \"delete account\", with 30 days to change your mind)."
+      ],
+      "faq": [
+        {
+          "q": "I changed my name or profession and didn't see a Save button — was it saved?",
+          "a": "Yes. There is no Save button in Profile. Your name and free-text field are saved as soon as you click out of the field (and even if you close the section mid-edit), and selecting a form of address or profession saves immediately on click. A \"· Saved\" note appears next to a field that has been saved."
+        },
+        {
+          "q": "Why don't I have any daily questions in the Questions section?",
+          "a": "That's expected — the app doesn't set up questions in advance. Click \"Add Question\" and choose a ready-made template or create your own. Once you've added questions, you can set a schedule for each one and enable or disable them."
+        },
+        {
+          "q": "What's the difference between \"Reset account\" and \"Delete account permanently\"?",
+          "a": "Resetting your account deletes all your data and restarts the onboarding, but your login stays. Deleting your account marks your login itself for deletion — with a 30-day grace period to cancel before everything is permanently deleted. Both actions require double confirmation and typing a different word (\"delete\" vs. \"delete account\")."
+        },
+        {
+          "q": "If I restart the onboarding, will I lose the data I already entered?",
+          "a": "No. \"Restart onboarding\" only resets the wizard steps to the beginning. The clients, projects and data you already created stay. If you want to delete the data itself, that's \"Reset account\" in the danger section."
+        },
+        {
+          "q": "Does the export include my sensitive sessions and reflections?",
+          "a": "Only if you check the boxes. The export dialog has checkboxes for sensitive data (sessions, goals, daily answers, reflections), and they are off by default. When you check them, they are added to the Excel file as plain text — so keep the file somewhere safe."
+        },
+        {
+          "q": "Where do I change dark mode or text size?",
+          "a": "In the \"Design\" section. There you choose light/dark mode and text size (small, normal, large). Text size only changes the font, not the screen layout. To change your form of address (masculine/feminine/neutral), go to the Profile section instead."
+        }
+      ]
+    },
+    "trash": {
+      "title": "Trash",
+      "intro": "Here you can view and restore items you've deleted — clients, transactions, sessions, tasks, leads, goals and more — before they're gone for good.",
+      "features": [
+        {
+          "title": "Every deletion here is still reversible",
+          "body": "Almost every deletion in the app doesn't remove the item immediately — it moves here, to the Trash. At the top you can see how many items are here (\"N items\"), alongside the reminder \"Kept for 30 days\" and the message \"Every deletion here is still reversible.\""
+        },
+        {
+          "title": "Items are organized by type",
+          "body": "Deleted items are grouped by type, and each group shows an icon, name and item count. Types include: clients, projects, groups, tasks, leads, lead sources, lead sub-statuses, transactions, expense categories, recurring templates, sessions, reminders, goals, goal metrics, goal entries, daily questions and daily answers."
+        },
+        {
+          "title": "Restoring an item",
+          "body": "Every item has a \"Restore\" button. Clicking it returns the item to the screen it was deleted from, with all its data. During the operation the button shows \"Restoring…\". You don't need to select an item first — the button acts directly on that row."
+        },
+        {
+          "title": "When each item was deleted",
+          "body": "Below each item's name it shows \"Deleted\" and how long ago that happened (e.g. \"Deleted 3 days ago\"). This makes it easy to know how much time is left before it disappears from the Trash."
+        },
+        {
+          "title": "Kept for 30 days",
+          "body": "The Trash only shows items deleted in the last 30 days. An item deleted more than 30 days ago no longer appears here and is on its way to being permanently removed from the system — so restore it in time."
+        },
+        {
+          "title": "Empty trash",
+          "body": "When there's nothing to restore, you'll see a message that \"The trash is empty\", with a note that anything you delete in the future will wait here for 30 days. There's nothing to do here — it simply means nothing has been deleted recently."
+        }
+      ],
+      "tips": [
+        "Restoring returns the item exactly to the place it was deleted from (clients, transactions, goals, etc.) with all its data. No need to re-enter anything.",
+        "If you just deleted something by mistake, it's faster to click \"Undo\" on the brief notification that pops up after the deletion (for about 6 seconds). The Trash is your safety net for when that notification is already gone.",
+        "Items you want to keep — restore them within 30 days of deletion. After that they disappear from the Trash and cannot be recovered.",
+        "Before deleting your account or doing a major cleanup, back up your data via Settings → Data → Export Data."
+      ],
+      "faq": [
+        {
+          "q": "How do I permanently delete an item from the Trash?",
+          "a": "There is no permanent-delete button here — the only action is \"Restore\". Items are permanently deleted automatically after 30 days, and there's no way to speed that up manually from here."
+        },
+        {
+          "q": "I can't find an item I deleted?",
+          "a": "More than 30 days may have passed since the deletion, in which case it's no longer shown in the Trash. Another possibility: the item is restored together with its parent (like group members), or one of the groups failed to load — in which case an error message appears at the top."
+        },
+        {
+          "q": "What happens when an item is restored?",
+          "a": "It returns immediately to the screen it was deleted from, with all its data, and disappears from the Trash. The update is instant visually, and syncs to the server in the background. If the server returns an error, the Trash reloads so what you see stays accurate."
+        },
+        {
+          "q": "Does everything deleted in the app end up here?",
+          "a": "Almost every soft deletion lands in the Trash — clients, transactions, sessions, tasks, leads, goals and more. Some related items (like group members) are restored through their parent item, so they don't appear here separately."
+        },
+        {
+          "q": "There's an error message at the top — what does that mean?",
+          "a": "It means one of the item groups failed to load. The other groups still display — one failed load doesn't empty the whole Trash. Try refreshing the page, and if the error persists, contact support."
+        }
+      ]
+    },
+    "admin": {
+      "title": "Admin Console",
+      "intro": "Management tools for the system owner: users, feedback and analytics.",
+      "features": [
+        {
+          "title": "User management",
+          "body": "View all registered users, grant admin permissions, and delete accounts."
+        },
+        {
+          "title": "Feedback",
+          "body": "All feedback submitted via the \"Talk to us\" button — read and respond."
+        },
+        {
+          "title": "Analytics",
+          "body": "Usage data: number of active users, popular screens, and more."
+        }
+      ],
+      "tips": [],
+      "faq": []
+    }
+  },
+  "globalFaq": [
+    {
+      "category": "Login & Account",
+      "items": [
+        {
+          "q": "I forgot my password — how do I reset it?",
+          "a": "On the login screen, click \"Forgot password?\". Enter your email address and click \"Send link\". If the address is registered with us, we'll send a link to it. The link takes you to the \"Choose a new password\" screen, where you pick a new password (at least 6 characters) and confirm it."
+        },
+        {
+          "q": "How do I change my password when I'm already logged in?",
+          "a": "Use the same \"Choose a new password\" screen. You can reach it via \"Forgot password?\" on the login screen, or via the reset link sent to your email."
+        },
+        {
+          "q": "How do I change my email address?",
+          "a": "Currently, changing your account email address is only possible by contacting support."
+        },
+        {
+          "q": "I signed in with Google — do I need a password too?",
+          "a": "No. With Google you don't need a password. Just click \"Sign in with Google\" each time."
+        },
+        {
+          "q": "Do I need to agree to anything when signing up?",
+          "a": "Yes. When signing up (both with email and with Google) you check two boxes: one to accept the Privacy Policy and Data Processing Agreement, and one to accept the Terms of Use. There's also an optional box for marketing emails — it's not required and you can uncheck it at any time."
+        }
+      ]
+    },
+    {
+      "category": "Data & Privacy",
+      "items": [
+        {
+          "q": "Who can see my data?",
+          "a": "Only you. Each account is completely separate, and only you can see your account's data. The connection to the server is secure. We do not sell your data or share it with anyone."
+        },
+        {
+          "q": "Are sensitive fields encrypted in the database?",
+          "a": "Notes, session summaries and reflections are stored on our end as plain text. What protects them: only you access your account, and the connection is secure. If you used early beta versions, some fields may still be stored in encrypted form from the past — they are decrypted automatically for you."
+        },
+        {
+          "q": "What happens to my Green Invoice / SUMIT API keys?",
+          "a": "Your connection credentials (the identifier and key) are stored on our server only. They are never shown in the browser — not even to you. The system uses them only when it issues an invoice or pulls income on your behalf."
+        },
+        {
+          "q": "How do I back up my data?",
+          "a": "Settings → Data → Export Data. You can download all your data in a single Excel file (one sheet per type: transactions, clients, projects, leads, tasks, categories). You can also export clients, transactions or projects separately as CSV files."
+        },
+        {
+          "q": "Can I include sensitive data (sessions, goals, daily answers, reflections) in the export?",
+          "a": "Yes. The export dialog has checkboxes for this, and they are off by default. They add extra sheets to the full Excel file. Sensitive data exports as plain text, so keep the file somewhere safe."
+        },
+        {
+          "q": "How do I import data from Excel / Google Sheets?",
+          "a": "Settings → Data → Import from File (CSV / Excel). You can upload CSV, TSV and Excel files (xlsx/xls), including files with multiple sheets. The system auto-detects the columns, and you can manually correct the mapping before importing."
+        },
+        {
+          "q": "How do I delete my account?",
+          "a": "Settings → Data → Delete account permanently. This deletes the entire account, including your login, and requires two confirmations with typed input. After deletion there is a 30-day grace period — during that time you can change your mind and cancel."
+        }
+      ]
+    },
+    {
+      "category": "Display & Design",
+      "items": [
+        {
+          "q": "How do I switch to dark mode?",
+          "a": "Open the menu (\"More\" in the navigation) and click the \"Dark mode\" toggle (when it's on it's called \"Light mode\"). You can also go to Settings → Design → Light/Dark Mode."
+        },
+        {
+          "q": "How do I make the text larger?",
+          "a": "Settings → Design → Text Size. There are three options: small, normal, large."
+        },
+        {
+          "q": "How do I set my preferred form of address (masculine/feminine/neutral)?",
+          "a": "Settings → Profile → Form of Address. Your choice (neutral / feminine / masculine) changes the wording throughout the entire app."
+        },
+        {
+          "q": "Can I change the order of screens in the navigation?",
+          "a": "The screen order in navigation is fixed for now. You can customize the Home screen: Settings → Widgets & Display. There you enable and disable widgets, change their order and choose a display style."
+        }
+      ]
+    },
+    {
+      "category": "Common Issues",
+      "items": [
+        {
+          "q": "The app is frozen / not loading?",
+          "a": "Refresh the page (F5 on desktop, or pull down on mobile). If it continues — log out and log back in."
+        },
+        {
+          "q": "Data I saved isn't showing up?",
+          "a": "Refresh the page. If something is still missing, check that you have an internet connection. If it continues, contact us via \"Talk to us\" in the menu."
+        },
+        {
+          "q": "The + button isn't responding?",
+          "a": "There's probably a dialog or drawer open in the background. Close any open dialogs and try again."
+        }
+      ]
+    },
+    {
+      "category": "Connections & Integrations",
+      "items": [
+        {
+          "q": "Which services can I connect?",
+          "a": "Currently two: Google Calendar (pulls events from your calendar and identifies sessions with clients), and an invoicing service — Green Invoice or SUMIT (issues invoices and receipts and imports income). WhatsApp and Claude are marked \"Coming soon\" and are not yet active."
+        },
+        {
+          "q": "How do I get to the Connections screen?",
+          "a": "Via the \"Connections\" tab in the navigation. The screen shows a list: Google Calendar, Invoicing, and \"Coming soon\" rows. Each active row opens to its own screen where you connect and manage it."
+        },
+        {
+          "q": "How do I connect Google Calendar?",
+          "a": "Connections → Google Calendar. Choose which date to sync from, click \"Connect Google Calendar\", and approve the permissions in the Google dialog. After that you can sync any time by clicking \"Sync Now\", and assign events to a client, project, lead or group."
+        },
+        {
+          "q": "How do I connect an invoicing service?",
+          "a": "Connections → Invoicing. Choose a provider (Green Invoice or SUMIT), paste your credentials from your account with that service, and click \"Connect\". The \"How do I get these?\" button has step-by-step instructions."
+        },
+        {
+          "q": "Can I connect both Green Invoice and SUMIT?",
+          "a": "Only one invoicing service at a time. To switch providers, disconnect the current one and connect the new one."
+        },
+        {
+          "q": "My invoicing service credentials aren't being accepted?",
+          "a": "Make sure you copied the identifier and key in full, without spaces, and that you're using the private API key (not the public one). After connecting, you can verify with the \"Check Connection\" button. If the connection suddenly stopped working (\"Reconnection required\"), the key was probably revoked or replaced — click \"Reconnect\" and enter it again."
+        },
+        {
+          "q": "What does \"Auto-import income\" mean?",
+          "a": "When this is turned on, the system detects income you've recorded in your invoicing software and shows it to you for approval. Nothing is recorded in your account without your confirmation."
+        }
+      ]
+    }
+  ],
+  "about": {
+    "tagline": "Practice OS — at your own pace",
+    "description": "Simplicity was built for therapists, coaches, facilitators, teachers, instructors and consultants in Israel. One place for your entire practice: clients, leads, sessions and calendar, finance, projects, tasks, goals and your own personal process. All in Hebrew, in your preferred form of address (masculine/feminine/neutral), and without the clutter.",
+    "principles": [
+      {
+        "title": "Privacy first",
+        "body": "Your data is yours alone. Only you access your account, and the connection to the server is secure. Your invoicing service credentials are stored on our server and are never shown in the browser — not even to you. We do not sell data or rank you."
+      },
+      {
+        "title": "An interface that respects you",
+        "body": "No noise. No \"Premium\" pop-ups. No unnecessary alerts. Just what you need to run a practice — at your own pace."
+      },
+      {
+        "title": "Made in Israel",
+        "body": "Built in Hebrew, with a form of address that fits you (masculine/feminine/neutral), for the community of therapists, coaches and consultants here."
+      }
+    ],
+    "version": "0.1.0",
+    "built_with": "Built in collaboration with Claude (Anthropic)."
+  }
+}

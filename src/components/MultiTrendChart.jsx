@@ -1,3 +1,4 @@
+import i18n from '../i18n'
 import { useT } from '../i18n/useT'
 import './MultiTrendChart.css'
 
@@ -29,7 +30,8 @@ function pathFor(norm) {
 
 function fmtRaw(v, unit) {
   if (v == null) return '—'
-  const num = unit === '₪' ? Math.round(v).toLocaleString('en-US') : Math.round(v * 10) / 10
+  const locale = i18n.language === 'he' ? 'he-IL' : (i18n.language || 'he-IL')
+  const num = unit === '₪' ? Math.round(v).toLocaleString(locale) : Math.round(v * 10) / 10
   return unit ? `${num} ${unit}` : `${num}`
 }
 

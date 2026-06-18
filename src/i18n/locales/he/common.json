@@ -21,5 +21,10 @@
     "instructor_male": "מדריך",
     "instructor_female": "מדריכה",
     "other": "אחר"
+  },
+  "time": {
+    "now": "כעת",
+    "today": "היום",
+    "tomorrow": "מחר"
   }
 }

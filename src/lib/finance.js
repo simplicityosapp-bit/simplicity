@@ -7,6 +7,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { transactions } from '../data/mock'
+import i18n from '../i18n'
 
 const CURRENCY_SYMBOL = { ILS: '₪', USD: '$', EUR: '€' }
 
@@ -23,7 +24,8 @@ export function getCurrentCurrency() { return CURRENT_CURRENCY }
 export function isr(n) {
   const sym = CURRENCY_SYMBOL[CURRENT_CURRENCY] || '₪'
   const v = Math.round(n || 0)
-  return (v < 0 ? '-' : '') + sym + Math.abs(v).toLocaleString('he-IL')
+  const locale = i18n.language === 'he' ? 'he-IL' : (i18n.language || 'he-IL')
+  return (v < 0 ? '-' : '') + sym + Math.abs(v).toLocaleString(locale)
 }
 
 /* Confirmed = not pending and not skipped. */

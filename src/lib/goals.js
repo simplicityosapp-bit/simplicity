@@ -2,6 +2,7 @@
    GOALS — grouping + value formatting (uses the moon score engine).
    ════════════════════════════════════════════════════════════════ */
 
+import i18n from '../i18n'
 import { moonGetData } from './moon'
 import { isr } from './finance'
 import { fmtShortDate } from './dates'
@@ -20,7 +21,8 @@ export function formatGoalValue(v, cat) {
   const n = Number(v)
   const safe = Number.isFinite(n) ? n : 0
   if (cat && cat.measurement_type === 'auto' && cat.data_source === 'transactions') return isr(safe)
-  return Math.round(safe).toLocaleString('he-IL')
+  const locale = i18n.language === 'he' ? 'he-IL' : (i18n.language || 'he-IL')
+  return Math.round(safe).toLocaleString(locale)
 }
 
 /* ════════════════════════════════════════════════════════════════

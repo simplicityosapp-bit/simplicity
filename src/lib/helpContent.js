@@ -7,7 +7,11 @@
    פשוט, יומיומי ואנושי. שמות-עצם דו-מגדריים: ׌ = יחיד "/ה", ׊׉ = רבים
    "ים/ות"; מרונדר דרך <MG text> שמספק צורת-לוכסן נגישה לקוראי-מסך.
    עדכון תוכן? כאן בלבד.
+   i18n: ns='help', getters below delegate to i18n.t(returnObjects) with
+   fallback to the Hebrew raw data when a translation isn't available.
    ════════════════════════════════════════════════════════════════════ */
+
+import i18n from '../i18n'
 
 export const HELP_SCREENS = {
   "home": {
@@ -1391,4 +1395,25 @@ export const ABOUT_CONTENT = {
   ],
   "version": "0.1.0",
   "built_with": "נבנתה בשיתוף פעולה עם Claude (Anthropic)."
+}
+
+/* ── i18n accessors ──────────────────────────────────────────────────
+   Call these instead of reading HELP_SCREENS/GLOBAL_FAQ/ABOUT_CONTENT
+   directly so you always get the active language's strings.
+   Falls back to Hebrew raw data when a translation is not yet available. */
+
+export function getHelpScreen(key) {
+  const s = i18n.t('help:screens.' + key, { returnObjects: true })
+  if (s && typeof s === 'object' && !Array.isArray(s) && s.title) return s
+  return HELP_SCREENS[key] || null
+}
+
+export function getGlobalFaq() {
+  const f = i18n.t('help:globalFaq', { returnObjects: true })
+  return Array.isArray(f) ? f : GLOBAL_FAQ
+}
+
+export function getAboutContent() {
+  const a = i18n.t('help:about', { returnObjects: true })
+  return (a && typeof a === 'object' && !Array.isArray(a) && a.tagline) ? a : ABOUT_CONTENT
 }

@@ -153,7 +153,8 @@
     "dailyQuestion": "Daily question",
     "pickQuestion": "Pick a question",
     "noActiveQuestions": "No active daily questions — add one in settings.",
-    "deleteGoal": "Delete goal"
+    "deleteGoal": "Delete goal",
+    "editQuestion": "Edit question"
   },
   "goalEntry": {
     "title": "Log progress",

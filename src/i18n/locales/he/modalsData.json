@@ -173,7 +173,8 @@
     "noActiveQuestions": "אין שאלות יומיות פעילות — הוסף/י שאלה בהגדרות.",
     "noActiveQuestions_male": "אין שאלות יומיות פעילות — הוסף שאלה בהגדרות.",
     "noActiveQuestions_female": "אין שאלות יומיות פעילות — הוסיפי שאלה בהגדרות.",
-    "deleteGoal": "מחיקת היעד"
+    "deleteGoal": "מחיקת היעד",
+    "editQuestion": "עריכת השאלה"
   },
   "goalEntry": {
     "title": "הזנת התקדמות",

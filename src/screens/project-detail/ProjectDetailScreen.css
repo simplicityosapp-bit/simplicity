@@ -142,65 +142,35 @@
   color: var(--stone);
 }
 
-/* ── At-a-glance ring for this project's goals (#7) ──────────────── */
-.pd-moon {
+/* ── Top row: title card (left) + at-a-glance ring (right) (#7) ───
+   The ring chip mirrors the home moon-glance and locks to the right (RTL
+   start); the title card fills the space to its left; the expanded goal
+   breakdown wraps to its own full-width line beneath both. */
+.pd-headrow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 18px;
-  padding: 16px 20px;
+  gap: 12px;
   margin-bottom: 14px;
-  border-radius: var(--mg-card-radius);
-  border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  backdrop-filter: var(--mg-card-blur);
 }
-.pd-moon-svg {
-  width: 72px;
-  height: 72px;
+.pd-headrow .pd-head {
+  order: 1;
+  flex: 1 1 200px;
+  min-width: 0;
+  margin: 0;
+}
+.pd-moon-chip {
+  order: 0;
   flex-shrink: 0;
+  width: 112px;
+  height: 112px;
+  margin: 0;
+  padding: 0;
+  font: inherit;
 }
-.pd-moon-track {
-  fill: none;
-  stroke: rgba(42, 37, 32, 0.08);
-  stroke-width: 5;
-}
-[data-theme="dark"] .pd-moon-track {
-  stroke: rgba(240, 235, 224, 0.10);
-}
-.pd-moon-arc {
-  fill: none;
-  color: var(--sage);
-  stroke: currentColor;
-  stroke-width: 7;
-  stroke-linecap: round;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
-  transition: stroke-dasharray 0.4s ease;
-}
-.pd-moon-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.pd-moon-num {
-  font-family: var(--mg-font-num);
-  font-size: calc(24px * var(--text-scale));
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: var(--espresso);
-}
-.pd-moon-kicker {
-  font-family: var(--mg-font);
-  font-size: calc(10px * var(--text-scale));
-  font-weight: 500;
-  color: var(--stone);
-}
-.pd-moon-label {
-  margin-top: 3px;
-  font-family: var(--mg-font);
-  font-size: calc(12px * var(--text-scale));
-  color: var(--stone);
+.pd-moon-expanded {
+  order: 2;
+  flex-basis: 100%;
 }
 
 /* ── Section accordion ─────────────────────────────────── */

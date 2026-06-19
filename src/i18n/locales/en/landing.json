@@ -27,8 +27,8 @@
   },
   "demo": {
     "eyebrow": "The home screen",
-    "title": "Your whole day, on one screen",
-    "sub": "Open it in the morning and see exactly what matters: where you stand, and what needs your attention right now.",
+    "title": "Everything your practice needs, at a glance",
+    "sub": "We built Simplicity to make managing your practice easy, engaging and even playful — which is why it gives you maximum clarity for minimum effort.",
     "deviceAria": "A preview of the Simplicity home screen: a big-picture view with a score of 78 percent on pace, and a list of items that need attention.",
     "moonTitle": "Big picture",
     "moonLine": "You're <0>on pace</0> to hit this month's goals — keep it up.",
@@ -56,16 +56,16 @@
     }
   },
   "values": {
-    "eyebrow": "Why Simplicity",
-    "title": "Less clutter. More presence.",
-    "sub": "Three things that make Simplicity a place you'll actually enjoy running your practice from — not just another app, but a home.",
+    "eyebrow": "Why Simplicity?",
+    "title": "Because managing your information and finances doesn't have to be boring or stressful",
+    "sub": "Three things we did to make this a home for your growth.",
     "allInOne": {
       "title": "Everything in one place",
       "text": "Clients, calendar, finances, tasks and goals — no more jumping between spreadsheets, WhatsApp and a notebook. One complete picture of your practice, always up to date."
     },
     "clarity": {
-      "title": "Clarity and ease",
-      "text": "We built Simplicity so that managing your information and finances feels nourishing and even fun — freeing you up to focus on what you came here to do: your own growth and the work you love."
+      "title": "Security and privacy",
+      "text": "We'll do our very best to protect your information and privacy — and your clients'. Every single user matters to us — and gets treated like royalty."
     },
     "growth": {
       "title": "Goals and growth",
@@ -73,7 +73,7 @@
     }
   },
   "features": {
-    "eyebrow": "What's inside",
+    "eyebrow": "What's inside?",
     "title": "Everything you need to run your practice",
     "sub": "Six tools that work together — from the first inquiry to the big picture at month's end.",
     "calendar": {
@@ -106,9 +106,9 @@
     "text": "Wide-open access to give feedback — anytime, on anything. Because good software isn't built in an ivory tower, but together with the people who use it. Every word from you helps Simplicity shape itself around you — and we're here to listen."
   },
   "trust": {
-    "eyebrow": "Privacy and peace of mind",
-    "title": "Your data — yours alone.",
-    "sub": "Privacy isn't just another setting. It's part of the calm.",
+    "eyebrow": "",
+    "title": "What else?",
+    "sub": "",
     "secure": {
       "title": "Protected and safe",
       "text": "Your data is stored on servers in Ireland (EU), protected at the infrastructure level, and fully isolated — only you can reach your data."
@@ -124,7 +124,7 @@
   },
   "faq": {
     "eyebrow": "Frequently asked",
-    "title": "Everything you wanted to know",
+    "title": "Did we miss something?",
     "fit": {
       "q": "Who is Simplicity for?",
       "a": "For {{therapist}}, {{teacher}} and {{facilitator}} — and anyone who guides people and runs their own practice, solo or in groups. It fits even if you're just starting out."
@@ -159,7 +159,7 @@
   },
   "footer": {
     "tagline": "An operating system for your practice — for {{roles}}. Built with love, to help create a little more good in the world.",
-    "colProduct": "Product",
+    "colProduct": "Service",
     "signup": "Sign up",
     "login": "Log in",
     "colLegal": "Legal",

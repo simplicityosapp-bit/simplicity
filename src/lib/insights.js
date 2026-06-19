@@ -156,18 +156,21 @@ export function extremesForWindow(idx, qId, daysBack, now = new Date()) {
 /* Rule-based mirror — short reflection sentences. Ported from the
    prototype's mirror logic (streak / today-extreme / change /
    stability). Returns up to 3 messages. */
-export function mirrorReflections(questions, idx, now = new Date()) {
+export function mirrorReflections(questions, idx, now = new Date(), gender) {
   const out = []
   const active = (questions || []).filter((q) => q.active && !q.deleted_at)
 
   /* Label for a question — its custom text, else the localized template
-     text (template_key is a raw key like 'mood'), else nothing. */
-  const qLabel = (q) => q.custom_text || qtext(q.template_key) || q.template_key
+     text (gendered to the user's form of address), else the raw key. */
+  const qLabel = (q) => q.custom_text || qtext(q.template_key, gender) || q.template_key
+  /* Some reflection sentences address the user directly ("את/ה כותב/ת"),
+     so they resolve to the gendered variant when a form of address is set. */
+  const gctx = gender === 'male' || gender === 'female' ? { context: gender } : undefined
 
   /* 1. Streak — celebrate consecutive engagement. */
   const streak = streakDaysAny(active, idx, now)
   if (streak >= 3) {
-    out.push({ kind: 'streak', text: i18n.t('reflections:mirror.streak', { count: streak }) })
+    out.push({ kind: 'streak', text: i18n.t('reflections:mirror.streak', { count: streak, ...gctx }) })
   }
 
   /* 2. Today extremes — surface the question whose today reading is
@@ -209,7 +212,7 @@ export function mirrorReflections(questions, idx, now = new Date()) {
     if (hasMonthHistory) {
       out.push({ kind: 'stable', text: i18n.t('reflections:mirror.stable') })
     } else {
-      out.push({ kind: 'welcome', text: i18n.t('reflections:mirror.welcome') })
+      out.push({ kind: 'welcome', text: i18n.t('reflections:mirror.welcome', gctx) })
     }
   }
 

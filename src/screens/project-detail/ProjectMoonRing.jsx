@@ -24,7 +24,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS
    Returns a fragment (chip + expanded panel) so the parent can lay the chip out
    on the top row (locked right) and let the panel wrap full-width beneath it. */
 export default function ProjectMoonRing({ projectId }) {
-  const { t } = useT('projects')
+  const { t, gender } = useT('projects')
   const { goals } = useGoals()
   const { categories } = useGoalCategories()
   const { entries } = useGoalEntries()
@@ -74,7 +74,7 @@ export default function ProjectMoonRing({ projectId }) {
 
       {expanded && (
         <div className="moon-expanded pd-moon-expanded">
-          <p className="moon-expanded-reflection">{moonReflection(conf)}</p>
+          <p className="moon-expanded-reflection">{moonReflection(conf, gender)}</p>
           {scored.length === 0 ? (
             <p className="moon-expanded-empty">{t('detail.moon.expandedEmpty')}</p>
           ) : (

@@ -28,7 +28,7 @@ const patternToSched = (p) => {
    the linked question can be re-picked, created fresh inline, or edited in
    place (text / answer type / icon / schedule). */
 export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, categories = [], projects = [], groups = [], questions = [], onAddQuestion, onUpdateQuestion }) {
-  const { t } = useT('modalsData')
+  const { t, gender } = useT('modalsData')
   const TIME_FRAMES = [
     { k: 'monthly', l: t('editGoal.tf.monthly') },
     { k: 'weekly', l: t('editGoal.tf.weekly') },
@@ -92,7 +92,7 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, c
     setForm((f) => ({
       ...f,
       question_mode: 'edit',
-      question_text: questionText(linkedQuestion),
+      question_text: questionText(linkedQuestion, gender),
       question_scale: linkedQuestion.scale_type || '1-10',
       question_icon: linkedQuestion.icon || QUESTION_ICONS[0],
       sched_mode: s.mode,
@@ -270,7 +270,7 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, c
             hasActiveQ ? (
               <select className="m-select" value={form.tracked_by_question_id} onChange={(e) => { set('tracked_by_question_id', e.target.value); if (err) setErr('') }}>
                 <option value="">{t('editGoal.pickQuestion')}</option>
-                {activeQuestions.map((q) => <option key={q.id} value={q.id}>{q.icon ? q.icon + ' ' : ''}{questionText(q)}</option>)}
+                {activeQuestions.map((q) => <option key={q.id} value={q.id}>{q.icon ? q.icon + ' ' : ''}{questionText(q, gender)}</option>)}
               </select>
             ) : (
               <p className="m-error">{t('editGoal.noActiveQuestions')}</p>

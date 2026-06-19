@@ -94,7 +94,7 @@ function DeltaPill({ delta }) {
   return <span className={`ins-delta ${tone} mono`}>{sign}{Math.abs(delta).toFixed(1)}</span>
 }
 
-function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle, skipped, onSkip, t }) {
+function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle, skipped, onSkip, t, gender }) {
   const avg7 = averageForWindow(idx, question.id, 7)
   const avg30 = averageForWindow(idx, question.id, 30)
   const d7 = deltaVsPrevWindow(idx, question.id, 7)
@@ -107,13 +107,13 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
     <section className={`ins-q-card${active ? '' : ' inactive'}`}>
       <div className="ins-q-head">
         <span className="ins-q-icon">{question.icon || '🫧'}</span>
-        <p className="ins-q-text">{questionText(question)}</p>
+        <p className="ins-q-text">{questionText(question, gender)}</p>
         {latestAnswerToday != null && <span className="ins-q-today-pill mono">{t('card.todayPill', { value: latestAnswerToday })}</span>}
         <button
           type="button"
           role="switch"
           aria-checked={active}
-          aria-label={active ? t('card.turnOffAria', { question: questionText(question) }) : t('card.turnOnAria', { question: questionText(question) })}
+          aria-label={active ? t('card.turnOffAria', { question: questionText(question, gender) }) : t('card.turnOnAria', { question: questionText(question, gender) })}
           title={active ? t('card.turnOffTitle') : t('card.turnOnTitle')}
           className={`ins-q-toggle${active ? ' on' : ''}`}
           onClick={onToggle}
@@ -199,7 +199,7 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
 }
 
 export default function InsightsScreen() {
-  const { t } = useT('insights')
+  const { t, gender } = useT('insights')
   const { questions, loading: questionsLoading, error: questionsError, addQuestion: _add, updateQuestion, toggleActive } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
   const { prefs, update: updatePrefs } = useUserPreferences()
@@ -221,7 +221,7 @@ export default function InsightsScreen() {
     for (const q of visible) m.set(q.id, q.active && isQuestionDueToday(q, today))
     return m
   }, [visible, today])
-  const reflections = useMemo(() => mirrorReflections(questions || [], idx, today), [questions, idx, today])
+  const reflections = useMemo(() => mirrorReflections(questions || [], idx, today, gender), [questions, idx, today, gender])
 
   /* Per-day skip set (beta 07/06/2026). Stored as a single-day object in
      prefs JSONB ({date, ids}) so it auto-expires next day and never grows —
@@ -343,6 +343,7 @@ export default function InsightsScreen() {
               skipped={skippedSet.has(q.id)}
               onSkip={() => skipQuestion(q.id)}
               t={t}
+              gender={gender}
             />
           ))}
         </div>
@@ -376,7 +377,7 @@ export default function InsightsScreen() {
                   return (
                     <div key={a.id} className="ins-history-row">
                       <span className="ins-history-icon">{q?.icon || '🫧'}</span>
-                      <span className="ins-history-text">{q ? questionText(q) : t('history.deletedQuestion')}</span>
+                      <span className="ins-history-text">{q ? questionText(q, gender) : t('history.deletedQuestion')}</span>
                       <span className="ins-history-meta">
                         <span className="ins-history-date">{fmtShortDate(a.date)}</span>
                         <span className="ins-history-val mono">{a.value_num != null ? a.value_num : (a.value_text || '—')}</span>

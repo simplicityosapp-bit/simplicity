@@ -207,11 +207,13 @@ export function moonHomeStats(now = new Date(), data) {
   return { monthIncome, sessionsCount, onTrack, total: scored.length }
 }
 
-export function moonReflection(confidence) {
-  if (confidence >= 90) return i18n.t('reflections:moon.excellent')
-  if (confidence >= 65) return i18n.t('reflections:moon.good')
-  if (confidence >= 40) return i18n.t('reflections:moon.behind')
-  return i18n.t('reflections:moon.low')
+export function moonReflection(confidence, gender) {
+  /* Address the user in their form of address (some strings carry "את/ה"). */
+  const opts = gender === 'male' || gender === 'female' ? { context: gender } : undefined
+  if (confidence >= 90) return i18n.t('reflections:moon.excellent', opts)
+  if (confidence >= 65) return i18n.t('reflections:moon.good', opts)
+  if (confidence >= 40) return i18n.t('reflections:moon.behind', opts)
+  return i18n.t('reflections:moon.low', opts)
 }
 
 /* Per-category breakdown: importance-weighted, pace-capped confidence + the

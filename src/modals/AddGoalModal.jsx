@@ -41,7 +41,7 @@ const blank = () => ({
    goal. For the manual metric ("אחר") the user picks a tracking method: manual
    entries, or linked to a daily question (yes/no or slider). */
 export default function AddGoalModal({ open, onClose, onSave, projects = [], groups = [], questions = [], onAddQuestion }) {
-  const { t } = useT('modalsData')
+  const { t, gender } = useT('modalsData')
   const TIME_FRAMES = [
     { k: 'monthly', l: t('addGoal.tf.monthly') },
     { k: 'weekly', l: t('addGoal.tf.weekly') },
@@ -229,7 +229,7 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
             hasActiveQ ? (
               <select className="m-select" value={form.tracked_by_question_id} onChange={(e) => { set('tracked_by_question_id', e.target.value); if (err) setErr('') }}>
                 <option value="">{t('addGoal.pickQuestion')}</option>
-                {activeQuestions.map((q) => <option key={q.id} value={q.id}>{q.icon ? q.icon + ' ' : ''}{questionText(q)}</option>)}
+                {activeQuestions.map((q) => <option key={q.id} value={q.id}>{q.icon ? q.icon + ' ' : ''}{questionText(q, gender)}</option>)}
               </select>
             ) : (
               <p className="m-error">{t('addGoal.noActiveQuestions')}</p>

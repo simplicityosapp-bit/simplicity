@@ -3,6 +3,7 @@ import { AlertTriangle, ArrowLeft } from 'lucide-react'
 import { remindersUpcoming } from '../../lib/homeData'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
+import { useSessions } from '../../hooks/useSessions'
 import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetingsGeneration'
 import { useCalendarDuplicates } from '../../hooks/useCalendarDuplicates'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
@@ -36,6 +37,7 @@ export default function CalendarScreen() {
   const { t } = useT('calendar')
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
+  const { sessions, addSession } = useSessions()
   const { events: calendarEvents, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
   const { clients } = useClients()
   const { groups } = useGroups()
@@ -188,6 +190,34 @@ export default function CalendarScreen() {
      stays purely declarative. */
   const confirmMeeting = (ev) => updateMeeting(ev.id, { status: 'confirmed' }).catch(() => {})
   const skipMeeting = (ev) => updateMeeting(ev.id, { status: 'skipped' }).catch(() => {})
+
+  /* "Did the meeting happen?" for a per-session client → offer a one-off charge.
+     Billing a per-session client = logging the meeting as a held session
+     (clientBalance accrues held × price_per_session). Only surfaced for a
+     meeting whose subject is a per-session client. */
+  const meetingClientFor = (ev) =>
+    ev?.kind === 'meeting' && ev.raw?.subject_type === 'client'
+      ? clients.find((c) => c.id === ev.raw.subject_id)
+      : null
+  const billClient = (() => {
+    const c = meetingClientFor(selectedEvent)
+    return c && c.billing_mode === 'per_session' ? c : null
+  })()
+  const billSession = (ev) => {
+    const c = meetingClientFor(ev)
+    if (!c) return Promise.resolve()
+    const num = sessions.filter((s) => !s.deleted_at && s.client_id === c.id).length + 1
+    return addSession({
+      date: new Date(ev.when).toISOString(),
+      summary: null,
+      notes: null,
+      client_id: c.id,
+      group_id: null,
+      subject_type: 'client',
+      subject_id: c.id,
+      num,
+    }).catch(() => {})
+  }
   const completeReminderHandler = (ev) => completeReminder(ev.id)
   const removeReminderHandler = (ev) => removeReminder(ev.id)
 
@@ -294,8 +324,10 @@ export default function CalendarScreen() {
         open={!!selectedEvent}
         onClose={() => setSelectedEvent(null)}
         event={selectedEvent}
+        billClient={billClient}
         onConfirmMeeting={confirmMeeting}
         onSkipMeeting={skipMeeting}
+        onBillSession={billSession}
         onCompleteReminder={completeReminderHandler}
         onRemoveReminder={removeReminderHandler}
         onUpdateEvent={updateEvent}

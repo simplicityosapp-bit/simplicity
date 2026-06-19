@@ -191,7 +191,11 @@
     "end": "סיום",
     "followupStatus": "פולואו-אפ ליד — {{title}}.",
     "followupDone": "פולואפ בוצע",
-    "markDone": "סמן כבוצע"
+    "markDone": "סמן כבוצע",
+    "billOneOff": "לחייב את {{name}} על הפגישה? ({{amount}})",
+    "billOneOffNoPrice": "לספור את הפגישה של {{name}} כפגישה שהתקיימה?",
+    "billYes": "כן, חייב/י",
+    "billNo": "לא, תודה"
   },
   "followups": {
     "title": "פולואו-אפים פתוחים",

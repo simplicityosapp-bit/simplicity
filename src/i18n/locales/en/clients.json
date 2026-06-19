@@ -95,6 +95,7 @@
     "logSession": "Log session",
     "scheduleMeeting": "Schedule meeting",
     "receivedPayment": "Got paid",
+    "requestPayment": "Request payment on WhatsApp",
     "statusChanged": "Status changed",
     "paymentDefaultDesc": "Payment update",
     "manualPayTitle": "Manual payment update",

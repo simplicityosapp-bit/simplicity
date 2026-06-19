@@ -68,5 +68,23 @@
   "errorBoundary": {
     "message": "Something went wrong. Try again?",
     "retry": "Reload"
+  },
+  "whatsapp": {
+    "title": "Send via WhatsApp",
+    "recipient": "Recipient",
+    "recipientPlaceholder": "Leave empty to pick a recipient in WhatsApp",
+    "message": "Message",
+    "send": "Send via WhatsApp",
+    "defaults": {
+      "client": "Hi {{name}}, ",
+      "reminder": "Hi {{name}}, just a reminder: {{title}}",
+      "reminderNoName": "Reminder: {{title}}",
+      "meeting": "Hi {{name}}, a reminder for our meeting on {{date}} at {{time}}.",
+      "meetingNoName": "Reminder for the meeting on {{date}} at {{time}}.",
+      "receipt": "Hi {{name}}, here's receipt #{{number}}.\n{{url}}",
+      "receiptNoName": "Here's receipt #{{number}}.\n{{url}}",
+      "lead": "Hi {{name}}, ",
+      "payment": "Hi {{name}}, there's an outstanding balance of {{balance}}. We'd appreciate settling it — thank you!"
+    }
   }
 }

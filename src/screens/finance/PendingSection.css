@@ -183,6 +183,12 @@
   background: rgba(181, 99, 78, 0.1);
   border-color: rgba(181, 99, 78, 0.28);
 }
+/* WhatsApp "send receipt" — sage accent, matching the approve identity. */
+.f-tx-btn.wa {
+  color: var(--sage);
+  background: var(--val-chip-bg);
+  border-color: rgba(139, 168, 136, 0.32);
+}
 /* The coloured action icons (✓ approve, ✕ skip/delete) were faint tints over
    the photo and blended in. Lift them onto the white .val-chip backdrop so the
    icon colour pops; the coloured border keeps the approve/delete identity

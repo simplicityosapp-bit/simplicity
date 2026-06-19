@@ -1,0 +1,140 @@
+/* ════════════════════════════════════════════════════════════════
+   WhatsAppConnection — the message-template editor sub-screen.
+   Tokens only; matches the connections / card glass language.
+   ════════════════════════════════════════════════════════════════ */
+
+/* The explanatory line sits under the title; allow it to wrap to a few
+   lines and breathe rather than render as a single muted caption. */
+.wa-subtitle {
+  max-width: 52ch;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+.wa-fields {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wa-field {
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  border: var(--mg-card-border);
+  border-radius: var(--mg-card-radius);
+  box-shadow: var(--mg-card-shadow);
+  padding: 16px 18px;
+}
+
+.wa-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.wa-field-label {
+  font: 600 var(--mg-heading) / 1.2 var(--mg-font);
+  color: var(--espresso);
+}
+.wa-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--stone);
+  font: 500 var(--mg-caption) / 1 var(--mg-font);
+}
+.wa-reset:hover { color: var(--terracotta); }
+
+.wa-field-hint {
+  margin: 4px 0 10px;
+  font: 400 var(--mg-caption) / 1.4 var(--mg-font);
+  color: var(--stone);
+}
+
+.wa-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--g3);
+  border: 1px solid var(--b1);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  font: 400 var(--mg-body) / 1.5 var(--mg-font);
+  color: var(--espresso);
+  resize: vertical;
+  min-height: 56px;
+  transition: border-color 0.15s ease;
+}
+.wa-textarea::placeholder { color: var(--mist); }
+.wa-textarea:focus { outline: none; border-color: var(--sage); }
+
+.wa-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.wa-tokens-label {
+  font: 500 var(--mg-micro) / 1 var(--mg-font);
+  color: var(--mist);
+  margin-inline-end: 2px;
+}
+.wa-token {
+  border: 0.5px solid rgba(139, 168, 136, 0.4);
+  background: var(--val-chip-bg);
+  color: var(--sage);
+  border-radius: var(--mg-chip-radius);
+  padding: 4px 10px;
+  cursor: pointer;
+  font: 500 var(--mg-micro) / 1 var(--mg-font);
+  transition: background 0.15s ease;
+}
+.wa-token:hover { background: rgba(139, 168, 136, 0.16); }
+
+.wa-preview {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--divider);
+  font: 400 var(--mg-caption) / 1.5 var(--mg-font);
+  color: var(--stone);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.wa-preview-label {
+  font-weight: 600;
+  color: var(--mist);
+  margin-inline-end: 4px;
+}
+
+.wa-save-bar {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 18px;
+}
+.wa-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--mg-btn-h);
+  padding: var(--mg-btn-pad);
+  border: none;
+  border-radius: var(--mg-btn-radius);
+  background: var(--mg-btn-primary-bg);
+  color: var(--on-accent);
+  font: var(--mg-btn-weight) var(--mg-body) / 1 var(--mg-font);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+.wa-save:hover { background: var(--mg-btn-primary-bg-hover); }
+.wa-save:active { transform: scale(0.98); }
+/* Dark mode flips the primary accent to a LIGHT Moonglow → use dark ink on
+   it (mirrors .mg-toggle-btn.on). The saved (sage) state keeps light text. */
+[data-theme="dark"] .wa-save:not(.is-saved) { color: var(--ink-on-accent); }
+.wa-save.is-saved {
+  background: var(--sage);
+  color: var(--on-accent);
+}

@@ -1,0 +1,119 @@
+/* ════════════════════════════════════════════════════════════════
+   WhatsAppButton — round trigger + portal composer popover.
+   Tokens only (tokens.css). Light/dark parity via --modal-bg / remapped
+   text tokens. Accent uses --sage (the app's green) to read as
+   "messaging" without importing WhatsApp's own brand hex.
+   ════════════════════════════════════════════════════════════════ */
+
+.wab {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ── Trigger ─────────────────────────────────────────────────────── */
+.wab-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: var(--mg-icon-btn);
+  height: var(--mg-icon-btn);
+  border-radius: 50%;
+  border: var(--mg-card-border);
+  background: var(--mg-btn-secondary-bg);
+  color: var(--sage);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+.wab-trigger.has-label {
+  width: auto;
+  border-radius: var(--mg-btn-radius);
+  padding: 8px 14px;
+  font: 500 var(--mg-caption) / 1 var(--mg-font);
+}
+.wab-trigger:hover { background: var(--mg-btn-secondary-bg-hover); }
+.wab-trigger:active { transform: scale(0.95); }
+.wab-trigger:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
+
+/* ── Composer popover (portaled to <body>) ───────────────────────── */
+.wab-pop {
+  z-index: 1250; /* above modals (1100/1200), below the topmost layer (1300) */
+  width: 288px;
+  max-width: calc(100vw - 24px);
+  box-sizing: border-box;
+  background: var(--modal-bg);
+  backdrop-filter: var(--bl);
+  -webkit-backdrop-filter: var(--bl);
+  border: var(--mg-card-border);
+  border-radius: var(--rm);
+  box-shadow: var(--elev-3);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wab-pop-title {
+  font: 600 var(--mg-body) / 1.3 var(--mg-font);
+  color: var(--espresso);
+}
+
+.wab-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.wab-label {
+  font: 500 var(--mg-micro) / 1 var(--mg-font);
+  color: var(--stone);
+}
+
+.wab-input,
+.wab-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--g3);
+  border: 1px solid var(--b1);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  font: 400 var(--mg-body) / 1.4 var(--mg-font);
+  color: var(--espresso);
+  transition: border-color 0.15s ease;
+}
+.wab-input::placeholder,
+.wab-textarea::placeholder { color: var(--mist); }
+.wab-input:focus,
+.wab-textarea:focus {
+  outline: none;
+  border-color: var(--sage);
+}
+.wab-textarea {
+  resize: vertical;
+  min-height: 76px;
+}
+
+/* ── Send (primary action) ───────────────────────────────────────── */
+.wab-send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  border: none;
+  border-radius: var(--mg-btn-radius);
+  background: var(--sage);
+  color: var(--on-accent);
+  font: 600 var(--mg-body) / 1 var(--mg-font);
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.12s ease;
+}
+.wab-send:hover { filter: brightness(0.94); }
+.wab-send:active { transform: scale(0.98); }
+.wab-send:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}

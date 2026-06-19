@@ -267,7 +267,7 @@ export function remindersUpcoming(now = new Date(), remindersData = mockReminder
     if (!['pending', 'triggered'].includes(r.status)) return
     if (r.end_date && new Date(r.end_date) < start) return
     const occ = nextReminderOccurrence(r, start)
-    if (occ && occ >= start && occ <= end) out.push({ id: r.id, title: r.title, when: occ })
+    if (occ && occ >= start && occ <= end) out.push({ id: r.id, title: r.title, when: occ, linked_to_type: r.linked_to_type, linked_to_id: r.linked_to_id })
   })
   out.sort((a, b) => a.when - b.when)
   return limit ? out.slice(0, limit) : out

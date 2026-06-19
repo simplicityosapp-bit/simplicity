@@ -56,6 +56,7 @@ const InsightsScreen = lazyWithRetry(() => import('./screens/insights'))
 const ConnectionsScreen = lazyWithRetry(() => import('./screens/connections'))
 const CalendarConnectionScreen = lazyWithRetry(() => import('./screens/connections/CalendarConnection'))
 const InvoiceConnectionScreen = lazyWithRetry(() => import('./screens/connections/InvoiceConnection'))
+const WhatsAppConnectionScreen = lazyWithRetry(() => import('./screens/connections/WhatsAppConnection'))
 /* Owner-only admin console — its own route tree + chrome, gated below. */
 const AdminApp = lazyWithRetry(() => import('./screens/admin'))
 /* Public marketing landing — served at "/" to logged-out visitors (and
@@ -204,6 +205,7 @@ function AppShell() {
             <Route path={ROUTES.CONNECTIONS} element={<ConnectionsScreen />} />
             <Route path={ROUTES.CONNECTION_CALENDAR} element={<CalendarConnectionScreen />} />
             <Route path={ROUTES.CONNECTION_INVOICES} element={<InvoiceConnectionScreen />} />
+            <Route path={ROUTES.CONNECTION_WHATSAPP} element={<WhatsAppConnectionScreen />} />
             <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
           </Routes>
         </Suspense>

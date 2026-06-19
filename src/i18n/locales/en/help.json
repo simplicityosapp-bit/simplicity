@@ -967,8 +967,8 @@
           "body": "The screen shows two rows: Google Calendar and Invoicing. Each row shows its current status — the calendar shows \"Connected\" or \"Not connected\", and invoicing shows \"Not connected\", \"Connected\" with the provider name, or \"Reconnection required\". Click a row to enter its management page. The connect and disconnect buttons are inside the page, so clicking a row won't accidentally disconnect anything."
         },
         {
-          "title": "Coming Soon Connections",
-          "body": "Below the two active rows there are two rows marked \"Coming soon\" — WhatsApp and Claude. These are just placeholders for what's on the way. Their toggles are currently off and can't be clicked."
+          "title": "WhatsApp and Claude",
+          "body": "WhatsApp is now a live row — manual sending of messages to clients: a WhatsApp button appears on the client card, in the calendar, on lead follow-ups, and on receipts. Tapping it opens a ready-made message you can edit before sending, and inside the page you can set the default wording for each message type. Below it one row is marked \"Coming soon\" — Claude; its toggle is off and can't be clicked."
         },
         {
           "title": "Connecting Google Calendar",
@@ -1331,7 +1331,7 @@
       "items": [
         {
           "q": "Which services can I connect?",
-          "a": "Currently two: Google Calendar (pulls events from your calendar and identifies sessions with clients), and an invoicing service — Green Invoice or SUMIT (issues invoices and receipts and imports income). WhatsApp and Claude are marked \"Coming soon\" and are not yet active."
+          "a": "Currently: Google Calendar (pulls events from your calendar and identifies sessions with clients), an invoicing service — Green Invoice or SUMIT (issues invoices and receipts and imports income), and WhatsApp (manual sending of messages to clients, with wording you can customise). Claude is marked \"Coming soon\" and is not yet active."
         },
         {
           "q": "How do I get to the Connections screen?",

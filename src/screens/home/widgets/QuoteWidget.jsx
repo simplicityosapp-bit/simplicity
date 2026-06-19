@@ -10,8 +10,18 @@ import { useT } from '../../../i18n/useT'
    'personal'). System picks once per session from the `quotes` table;
    personal picks from the user's own pool and falls back to the
    system quote while the pool is still empty. */
+/* Resolve a quote to the reader's form of address. System quotes carry
+   optional text_male/text_female; personal quotes (and untouched system
+   ones) only have `text`, so they fall back cleanly. */
+const quoteText = (q, gender) => {
+  if (!q) return ''
+  if (gender === 'male' && q.text_male) return q.text_male
+  if (gender === 'female' && q.text_female) return q.text_female
+  return q.text
+}
+
 export default function QuoteWidget() {
-  const { t } = useT('home')
+  const { t, gender } = useT('home')
   const { quote } = useQuote()
   const { userQuotes, addUserQuote, removeUserQuote } = useUserQuotes()
   const { prefs, update } = useUserPreferences()
@@ -48,7 +58,7 @@ export default function QuoteWidget() {
       >
         {shown ? (
           <>
-            <p className="h-quote-text">{shown.text}</p>
+            <p className="h-quote-text">{quoteText(shown, gender)}</p>
             {shown.author && <p className="h-quote-author">— {shown.author}</p>}
           </>
         ) : (

@@ -249,6 +249,7 @@ export default function CalendarScreen() {
           date={date}
           events={allEvents}
           onSelect={setSelectedEvent}
+          onPickDay={(d) => { setDate(d); setView('day') }}
           weekStart={weekStart}
         />
       )}

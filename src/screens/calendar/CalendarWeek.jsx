@@ -4,9 +4,10 @@ import { fmtTime } from '../../lib/dates'
 
 /* 7 vertical strips, one per day in the week containing `date`.
    Each strip stacks the day's events as compact chips. Tap a chip
-   to surface the event details. The current day is tinted to
-   anchor the user. */
-export default function CalendarWeek({ date, events, onSelect, weekStart = 'sunday' }) {
+   to surface the event details, or tap the day header to jump to
+   that day's view (parity with the month grid). The current day is
+   tinted to anchor the user. */
+export default function CalendarWeek({ date, events, onSelect, onPickDay, weekStart = 'sunday' }) {
   const days = useMemo(() => {
     const s = startOfWeek(date, weekStart)
     return Array.from({ length: 7 }, (_, i) => addDays(s, i))
@@ -22,10 +23,15 @@ export default function CalendarWeek({ date, events, onSelect, weekStart = 'sund
         const isToday = isSameDay(d, today)
         return (
           <div key={d.toISOString()} className={`cal-week-col${isToday ? ' today' : ''}`}>
-            <div className="cal-week-head">
+            <button
+              type="button"
+              className="cal-week-head"
+              onClick={() => onPickDay?.(d)}
+              aria-label={d.toDateString()}
+            >
               <span className="cal-week-dow">{DAY_NAMES_SHORT[d.getDay()]}</span>
               <span className="cal-week-date mono">{d.getDate()}</span>
-            </div>
+            </button>
             <div className="cal-week-body">
               {/* All-day band first — no time, distinct tint. */}
               {allDay.map((ev) => (

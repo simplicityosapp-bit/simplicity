@@ -518,8 +518,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: 6px;
+  width: 100%;
+  padding: 2px 0 6px;
+  background: transparent;
+  border: none;
   border-bottom: 1px solid var(--divider);
+  border-radius: var(--mg-chip-radius) var(--mg-chip-radius) 0 0;
+  cursor: pointer;
+  font: inherit;
+  transition: background 0.15s ease;
+}
+.cal-week-head:hover {
+  background: var(--mg-row-hover-bg);
+}
+.cal-week-head:active {
+  background: var(--mg-row-active-bg);
 }
 .cal-week-dow {
   font-family: var(--mg-font);

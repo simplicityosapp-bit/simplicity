@@ -194,8 +194,14 @@
   transition: transform 0.2s ease;
 }
 .t-group-chev:not(.open) { transform: rotate(-90deg); }
-/* Group-by selector sits tight under the filter tabs. */
+/* Group-by selector sits tight under the filter tabs. The three
+   segments share the toggle width equally instead of bunching at the
+   RTL start edge. */
 .t-groupby { margin-bottom: 10px; }
+.t-groupby .mg-toggle-btn {
+  flex: 1;
+  text-align: center;
+}
 
 /* ── Task card ─────────────────────────────────────────────────── */
 .tc {

@@ -26,7 +26,7 @@ const STATUS_KEY = {
 const initials = (name) =>
   (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], categories = [], clients = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient, onUpdateMember, onEditTransaction, onEditSession, onEditTask, onEditReminder, onIssued }) {
+export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], categories = [], clients = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient, onUpdateMember, onEditTransaction, onRemoveTransaction, onEditSession, onEditTask, onEditReminder, onIssued }) {
   const { t } = useT('clients')
   const open = !!client
   const [actionModal, setActionModal] = useState(null)
@@ -277,6 +277,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         categories={categories}
         onSave={onEditTransaction}
         onIssued={onIssued}
+        onDelete={onRemoveTransaction}
       />
 
       {/* Edit an existing session / task / reminder from its panel. */}

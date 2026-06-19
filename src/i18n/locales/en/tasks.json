@@ -97,5 +97,13 @@
     "editTask": "Edit task",
     "editReminder": "Edit reminder",
     "pendingOccurrences": "{{n}} occurrences still pending"
+  },
+  "groupBy": {
+    "aria": "Group tasks",
+    "priority": "Priority",
+    "project": "Project",
+    "category": "Category",
+    "noProject": "No project",
+    "noCategory": "No category"
   }
 }

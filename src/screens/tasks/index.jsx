@@ -80,7 +80,14 @@ export default function TasksScreen() {
   const [editItem, setEditItem] = useState(null)
   const [confirmClear, setConfirmClear] = useState(false)
   const [showTaxonomy, setShowTaxonomy] = useState(false)
-  const [categoryFilter, setCategoryFilter] = useState('') /* '' = all categories */
+  /* Multi-select category filter — empty set = all categories. Several pills
+     can be active at once (a task shows if its category is in the set). */
+  const [categoryFilters, setCategoryFilters] = useState(() => new Set())
+  const toggleCategoryFilter = (id) => setCategoryFilters((prev) => {
+    const next = new Set(prev)
+    if (next.has(id)) next.delete(id); else next.add(id)
+    return next
+  })
   const [groupBy, setGroupBy] = useState('priority')
   const [collapsed, setCollapsed] = useState(() => new Set()) /* collapsed group keys */
   const toggleGroup = (key) => setCollapsed((prev) => {
@@ -137,9 +144,9 @@ export default function TasksScreen() {
     let list = tasks
     if (filter === 'todo') list = list.filter((t) => t.status !== 'done')
     else if (filter === 'done') list = list.filter((t) => t.status === 'done')
-    if (categoryFilter) list = list.filter((t) => t.category_id === categoryFilter)
+    if (categoryFilters.size) list = list.filter((t) => categoryFilters.has(t.category_id))
     return list
-  }, [tasks, filter, categoryFilter])
+  }, [tasks, filter, categoryFilters])
 
   /* Build collapsible groups for the filtered tasks per the chosen groupBy.
      Priority keeps the original fixed order; project/category order follows
@@ -317,13 +324,14 @@ export default function TasksScreen() {
         <div className="t-tax-bar">
           {taskCategories.length > 0 ? (
             <div className="t-cat-filter">
-              <button type="button" className={`t-cat-pill${!categoryFilter ? ' on' : ''}`} onClick={() => setCategoryFilter('')}>{t('taxonomy.all')}</button>
+              <button type="button" className={`t-cat-pill${categoryFilters.size === 0 ? ' on' : ''}`} onClick={() => setCategoryFilters(new Set())}>{t('taxonomy.all')}</button>
               {taskCategories.map((c) => (
                 <button
                   key={c.id}
                   type="button"
-                  className={`t-cat-pill${categoryFilter === c.id ? ' on' : ''}`}
-                  onClick={() => setCategoryFilter(categoryFilter === c.id ? '' : c.id)}
+                  className={`t-cat-pill${categoryFilters.has(c.id) ? ' on' : ''}`}
+                  aria-pressed={categoryFilters.has(c.id)}
+                  onClick={() => toggleCategoryFilter(c.id)}
                 >
                   <span className="t-cat-dot" style={{ background: c.color || 'var(--stone)' }} />
                   {c.name}

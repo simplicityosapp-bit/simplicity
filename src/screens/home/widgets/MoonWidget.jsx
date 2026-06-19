@@ -32,7 +32,7 @@ const RADIUS = 42
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS   /* ~263.89 */
 
 export default function MoonWidget() {
-  const { t } = useT('home')
+  const { t, gender } = useT('home')
   const navigate = useNavigate()
   const { goals } = useGoals()
   const { categories } = useGoalCategories()
@@ -134,7 +134,7 @@ export default function MoonWidget() {
 
       {expanded && (
         <div className="moon-expanded">
-          <p className="moon-expanded-reflection">{moonReflection(conf)}</p>
+          <p className="moon-expanded-reflection">{moonReflection(conf, gender)}</p>
           {scored.length === 0 ? (
             <p className="moon-expanded-empty">{t('widgets.moon.expandedEmpty')}</p>
           ) : (

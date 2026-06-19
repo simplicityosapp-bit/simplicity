@@ -33,7 +33,7 @@ function HeartQIcon() {
 /* Daily-question widget: next unanswered active question for today + live input.
    Answers persist to Supabase; once answered the widget advances. */
 export default function InsightsWidget() {
-  const { t } = useT('home')
+  const { t, gender } = useT('home')
   const navigate = useNavigate()
   const { questions } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
@@ -122,7 +122,7 @@ export default function InsightsWidget() {
     )
   }
 
-  const text = questionText(q)
+  const text = questionText(q, gender)
   const yAns = answers.find((a) => a.user_question_id === q.id && a.date === dayStr(-1))
   const yVal = yAns && typeof yAns.value_num === 'number' ? Number(yAns.value_num) : null
 

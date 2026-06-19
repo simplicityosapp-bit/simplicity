@@ -101,7 +101,7 @@ function TrendChart({ data }) {
 }
 
 export default function MoonGlanceScreen() {
-  const { t } = useT('moon')
+  const { t, gender } = useT('moon')
   const navigate = useNavigate()
   const { goals } = useGoals()
   const { categories } = useGoalCategories()
@@ -157,8 +157,8 @@ export default function MoonGlanceScreen() {
   const overview = useMemo(
     () => buildOverviewTrend(overviewKeys, {
       transactions, leads, sessions, answers, scoreByDay, questionId: questionId || null,
-    }, { window: OV_WINDOW, questionLabel: selectedQuestion ? questionText(selectedQuestion) : undefined }),
-    [overviewKeys, transactions, leads, sessions, answers, scoreByDay, questionId, selectedQuestion],
+    }, { window: OV_WINDOW, questionLabel: selectedQuestion ? questionText(selectedQuestion, gender) : undefined }),
+    [overviewKeys, transactions, leads, sessions, answers, scoreByDay, questionId, selectedQuestion, gender],
   )
   /* Guarded correlations (§8.2) — Spearman + permutation + split-half;
      the common result is an honest "no significant link". Same window as the
@@ -200,7 +200,7 @@ export default function MoonGlanceScreen() {
           <div className="mg-ring-kicker">{t('ring.kicker')}</div>
           <div className="mg-ring-sub">{t('ring.sub', { pct: overall.pure })}</div>
         </div>
-        <p className="mg-reflection">{moonReflection(conf)}</p>
+        <p className="mg-reflection">{moonReflection(conf, gender)}</p>
       </div>
 
       <p className="mg-section-h">{t('section.byCategory')}</p>
@@ -260,7 +260,7 @@ export default function MoonGlanceScreen() {
         </div>
         {overviewKeys.includes('question') && activeQuestions.length > 0 && (
           <select className="mg-ov-select" value={questionId} onChange={(e) => setQuestionId(e.target.value)}>
-            {activeQuestions.map((q) => <option key={q.id} value={q.id}>{questionText(q)}</option>)}
+            {activeQuestions.map((q) => <option key={q.id} value={q.id}>{questionText(q, gender)}</option>)}
           </select>
         )}
         <MultiTrendChart days={overview.days} series={overview.series} />
@@ -277,8 +277,8 @@ export default function MoonGlanceScreen() {
               <CorrCard
                 key={c.key}
                 c={c}
-                driverText={questionText(c.driverLabel)}
-                outcomeText={c.outcomeLabel || (c.outcomeQ ? questionText(c.outcomeQ) : '')}
+                driverText={questionText(c.driverLabel, gender)}
+                outcomeText={c.outcomeLabel || (c.outcomeQ ? questionText(c.outcomeQ, gender) : '')}
               />
             ))}
             <p className="mg-ov-note">{t('corr.note')}</p>

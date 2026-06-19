@@ -874,7 +874,7 @@ export default function SettingsScreen() {
               <div key={q.id} className={`set-q-block${q.active ? '' : ' off'}`}>
                 <div className={`set-q-row`}>
                   <span className="set-q-icon">{q.icon || '🫧'}</span>
-                  <span className="set-q-text">{questionText(q)}</span>
+                  <span className="set-q-text">{questionText(q, gender)}</span>
                   {goalLinkedQ.has(q.id) && (
                     <span className="set-q-goal" title={t('questions.linkedToGoal')} aria-label={t('questions.linkedToGoal')}>
                       <Target size={12} strokeWidth={1.9} aria-hidden="true" />

@@ -38,6 +38,7 @@ import DateField from '../../components/DateField'
 import MG from '../../components/MG'
 import ProjectQuickRow from './ProjectQuickRow'
 import ProjectIncomeChart from './ProjectIncomeChart'
+import ProjectMoonRing from './ProjectMoonRing'
 import './ProjectDetailScreen.css'
 
 const GSTATUS_KEYS = ['active', 'in_development', 'ended']
@@ -415,6 +416,10 @@ export default function ProjectDetailScreen() {
           <p className="pd-stat-l">{t('detail.stats.groups')}</p>
         </div>
       </section>
+
+      {/* At-a-glance ring for this project's goals (renders only when the
+          project actually has goals). */}
+      <ProjectMoonRing projectId={id} />
 
       {/* Quick-action row — same shape as Home's QuickRow, but every
           Add* opened from here pre-binds to the current project. */}

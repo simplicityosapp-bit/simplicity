@@ -394,7 +394,12 @@ export default function ProjectDetailScreen() {
 
   return (
     <div className="screen pd-screen">
-      <header className="pd-head">
+      {/* Top row: the at-a-glance ring locks to the right (like home), the
+          title card fills the space to its left, and the expanded breakdown
+          (when open) wraps full-width beneath both. */}
+      <div className="pd-headrow">
+        <ProjectMoonRing projectId={id} />
+        <header className="pd-head">
         <button type="button" className="pd-back" onClick={() => navigate(-1)} aria-label={t('detail.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
         </button>
@@ -412,7 +417,8 @@ export default function ProjectDetailScreen() {
         <button type="button" className="pd-edit" onClick={() => setEditProjectOpen(true)} aria-label={t('detail.editAria')}>
           <Pencil size={15} strokeWidth={1.6} aria-hidden="true" />
         </button>
-      </header>
+        </header>
+      </div>
 
       <section className="pd-stats">
         <div className="pd-stat">
@@ -428,10 +434,6 @@ export default function ProjectDetailScreen() {
           <p className="pd-stat-l">{t('detail.stats.groups')}</p>
         </div>
       </section>
-
-      {/* At-a-glance ring for this project's goals (renders only when the
-          project actually has goals). */}
-      <ProjectMoonRing projectId={id} />
 
       {/* Quick-action row — same shape as Home's QuickRow, but every
           Add* opened from here pre-binds to the current project. */}

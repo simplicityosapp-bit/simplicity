@@ -150,7 +150,8 @@
     "moon": {
       "aria": "מבט על הפרויקט {{percent}}%",
       "ofPace": "מהקצב",
-      "percentOfGoal": "{{percent}}% מהיעד"
+      "percentOfGoal": "{{percent}}% מהיעד",
+      "expandedEmpty": "אין עדיין יעדים פעילים עם נתונים החודש."
     },
     "tasks": {
       "title": "משימות",

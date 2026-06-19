@@ -146,7 +146,8 @@
     "moon": {
       "aria": "Project at-a-glance {{percent}}%",
       "ofPace": "of pace",
-      "percentOfGoal": "{{percent}}% of goal"
+      "percentOfGoal": "{{percent}}% of goal",
+      "expandedEmpty": "No active goals with data this month yet."
     },
     "tasks": {
       "title": "Tasks",

@@ -101,5 +101,13 @@
     "editTask": "עריכת משימה",
     "editReminder": "עריכת תזכורת",
     "pendingOccurrences": "{{n}} מופעים שטרם בוצעו"
+  },
+  "groupBy": {
+    "aria": "קיבוץ משימות",
+    "priority": "עדיפות",
+    "project": "פרויקט",
+    "category": "קטגוריה",
+    "noProject": "ללא פרויקט",
+    "noCategory": "ללא קטגוריה"
   }
 }

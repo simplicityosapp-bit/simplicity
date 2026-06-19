@@ -183,6 +183,19 @@
   font-weight: 500;
   color: var(--mist);
 }
+/* Collapsible group header — the glass pill (.t-group-lbl) becomes a button. */
+.t-group-toggle {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.t-group-toggle:hover { background: var(--mg-btn-secondary-bg-hover); }
+.t-group-chev {
+  color: var(--mist);
+  transition: transform 0.2s ease;
+}
+.t-group-chev:not(.open) { transform: rotate(-90deg); }
+/* Group-by selector sits tight under the filter tabs. */
+.t-groupby { margin-bottom: 10px; }
 
 /* ── Task card ─────────────────────────────────────────────────── */
 .tc {

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ListTodo, Plus, Trash2, Tags } from 'lucide-react'
+import { ListTodo, Plus, Trash2, Tags, ChevronDown } from 'lucide-react'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
 import { useProjects } from '../../hooks/useProjects'
@@ -30,6 +30,11 @@ const PRIORITY_COLOR = {
    (the constants live at module scope where t isn't available). */
 const PRIORITY_GROUPS = ['high', 'medium', 'low']
 const FILTERS = ['todo', 'done', 'all']
+/* How the task list is grouped (collapsible sections). Priority is the
+   default (preserves the original layout); project/category let the user
+   re-slice the same tasks. */
+const GROUP_BY = ['priority', 'project', 'category']
+const GROUP_FALLBACK_COLOR = 'var(--mist)'
 /* Reminders get their own tabs: open, the recurring schedule, and completed. */
 const REM_FILTERS = ['todo', 'recurring', 'done']
 
@@ -76,6 +81,13 @@ export default function TasksScreen() {
   const [confirmClear, setConfirmClear] = useState(false)
   const [showTaxonomy, setShowTaxonomy] = useState(false)
   const [categoryFilter, setCategoryFilter] = useState('') /* '' = all categories */
+  const [groupBy, setGroupBy] = useState('priority')
+  const [collapsed, setCollapsed] = useState(() => new Set()) /* collapsed group keys */
+  const toggleGroup = (key) => setCollapsed((prev) => {
+    const next = new Set(prev)
+    if (next.has(key)) next.delete(key); else next.add(key)
+    return next
+  })
 
   const statusById = useMemo(() => {
     const m = new Map(); taskStatuses.forEach((s) => m.set(s.id, s)); return m
@@ -128,6 +140,43 @@ export default function TasksScreen() {
     if (categoryFilter) list = list.filter((t) => t.category_id === categoryFilter)
     return list
   }, [tasks, filter, categoryFilter])
+
+  /* Build collapsible groups for the filtered tasks per the chosen groupBy.
+     Priority keeps the original fixed order; project/category order follows
+     the user's own project/category list, with an "unassigned" bucket last. */
+  const taskGroups = useMemo(() => {
+    if (groupBy === 'project') {
+      const groups = projects.map((p) => ({
+        key: `p-${p.id}`,
+        label: p.name,
+        color: p.color || GROUP_FALLBACK_COLOR,
+        items: filteredTasks.filter((task) => task.project_id === p.id),
+      }))
+      const none = filteredTasks.filter((task) => !task.project_id || !projects.some((p) => p.id === task.project_id))
+      if (none.length) groups.push({ key: 'p-none', label: t('groupBy.noProject'), color: GROUP_FALLBACK_COLOR, items: none })
+      return groups.filter((g) => g.items.length)
+    }
+    if (groupBy === 'category') {
+      const groups = taskCategories.map((c) => ({
+        key: `c-${c.id}`,
+        label: c.name,
+        color: c.color || GROUP_FALLBACK_COLOR,
+        items: filteredTasks.filter((task) => task.category_id === c.id),
+      }))
+      const none = filteredTasks.filter((task) => !task.category_id || !taskCategories.some((c) => c.id === task.category_id))
+      if (none.length) groups.push({ key: 'c-none', label: t('groupBy.noCategory'), color: GROUP_FALLBACK_COLOR, items: none })
+      return groups.filter((g) => g.items.length)
+    }
+    /* default: priority */
+    return PRIORITY_GROUPS
+      .map((g) => ({
+        key: `pri-${g}`,
+        label: t(`priority.${g}`),
+        color: PRIORITY_COLOR[g],
+        items: filteredTasks.filter((task) => (task.priority || 'medium') === g),
+      }))
+      .filter((g) => g.items.length)
+  }, [groupBy, filteredTasks, projects, taskCategories, t])
 
   const filteredReminders = useMemo(() => {
     if (filter === 'done') return reminders.filter((r) => r.status === 'completed')
@@ -248,6 +297,23 @@ export default function TasksScreen() {
       </div>
 
       {isTasks && (
+        <div className="mg-toggle t-groupby" role="tablist" aria-label={t('groupBy.aria')}>
+          {GROUP_BY.map((gb) => (
+            <button
+              key={gb}
+              type="button"
+              className={`mg-toggle-btn${groupBy === gb ? ' on' : ''}`}
+              onClick={() => setGroupBy(gb)}
+              role="tab"
+              aria-selected={groupBy === gb}
+            >
+              {t(`groupBy.${gb}`)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {isTasks && (
         <div className="t-tax-bar">
           {taskCategories.length > 0 ? (
             <div className="t-cat-filter">
@@ -304,17 +370,22 @@ export default function TasksScreen() {
               <div className="empty"><p className="empty-text">{emptyMsg}</p></div>
             )
           ) : (
-            PRIORITY_GROUPS.map((g) => {
-              const items = filteredTasks.filter((task) => (task.priority || 'medium') === g)
-              if (!items.length) return null
+            taskGroups.map((g) => {
+              const isCollapsed = collapsed.has(g.key)
               return (
-                <div key={g} className="t-group">
-                  <p className="t-group-lbl">
-                    <span className="t-group-dot" style={{ background: PRIORITY_COLOR[g] }} />
-                    {t(`priority.${g}`)}
-                    <span className="t-group-count">{items.length}</span>
-                  </p>
-                  {items.map((task, i) => (
+                <div key={g.key} className="t-group">
+                  <button
+                    type="button"
+                    className="t-group-lbl t-group-toggle"
+                    onClick={() => toggleGroup(g.key)}
+                    aria-expanded={!isCollapsed}
+                  >
+                    <span className="t-group-dot" style={{ background: g.color }} />
+                    {g.label}
+                    <span className="t-group-count">{g.items.length}</span>
+                    <ChevronDown size={14} strokeWidth={1.6} className={`t-group-chev${isCollapsed ? '' : ' open'}`} aria-hidden="true" />
+                  </button>
+                  {!isCollapsed && g.items.map((task, i) => (
                     <TaskItem
                       key={task.id}
                       task={task}

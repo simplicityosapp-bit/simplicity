@@ -11,6 +11,7 @@ import { ROUTES } from '../../lib/routes'
 import MG from '../../components/MG'
 import { mgToReadable } from '../../lib/multiGender'
 import { useT } from '../../i18n/useT'
+import { dirFor } from '../../i18n/config'
 import './LandingScreen.css'
 
 /* ════════════════════════════════════════════════════════════════════
@@ -35,7 +36,11 @@ import './LandingScreen.css'
    ════════════════════════════════════════════════════════════════════ */
 
 export default function LandingScreen() {
-  const { t } = useT('landing')
+  const { t, lang } = useT('landing')
+  /* Follow the active language's direction (Hebrew → rtl, English/es/fr → ltr).
+     Mirrors DirManager's <html dir>; without this the landing forced rtl, which
+     left LTR languages right-aligned and mangled their punctuation. */
+  const dir = dirFor((lang || 'he').split('-')[0])
   const rootRef = useRef(null)
   const veilRef = useRef(null)
   const [scrolled, setScrolled] = useState(false)
@@ -167,7 +172,7 @@ export default function LandingScreen() {
   }, [])
 
   return (
-    <div className="lp-root" dir="rtl" ref={rootRef}>
+    <div className="lp-root" dir={dir} ref={rootRef}>
       <div className="lp-bg" aria-hidden="true" />
       <div className="lp-veil" aria-hidden="true" ref={veilRef} />
 
@@ -372,9 +377,7 @@ export default function LandingScreen() {
         {/* ── Trust / privacy ──────────────────────────────────── */}
         <section className="lp-section lp-wrap" aria-labelledby="lp-trust-h">
           <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">{t('trust.eyebrow')}</span>
             <h2 className="lp-section-title" id="lp-trust-h">{t('trust.title')}</h2>
-            <p className="lp-section-sub">{t('trust.sub')}</p>
           </div>
           <div className="lp-values">
             {TRUST.map(({ icon: Icon, title, text }) => (

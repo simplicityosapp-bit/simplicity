@@ -48,7 +48,7 @@ export default function GoalsScreen() {
   const { members } = useGroupMembers()
   const { clients } = useClients()
   const { leads } = useLeads()
-  const { questions, addQuestion } = useUserQuestions()
+  const { questions, addQuestion, updateQuestion } = useUserQuestions()
   const { answers } = useDailyAnswers()
   const { prefs } = useUserPreferences()
   const [showAddGoal, setShowAddGoal] = useState(false)
@@ -171,6 +171,8 @@ export default function GoalsScreen() {
         projects={projects}
         groups={clientGroups}
         questions={questions}
+        onAddQuestion={addQuestion}
+        onUpdateQuestion={updateQuestion}
         onSave={updateGoal}
         onDelete={(g) => { setEditGoalState(null); setPendingDeleteGoal(g) }}
       />

@@ -151,6 +151,20 @@
       "aria": "מבט על הפרויקט {{percent}}%",
       "ofPace": "מהקצב",
       "percentOfGoal": "{{percent}}% מהיעד"
+    },
+    "tasks": {
+      "title": "משימות",
+      "empty": "אין משימות משויכות לפרויקט.",
+      "add": "הוספת משימה",
+      "done": "הושלמה",
+      "completeAria": "סמן כהושלמה",
+      "reopenAria": "החזר לפתוחה",
+      "deleteAria": "מחיקת משימה",
+      "priority": {
+        "high": "דחוף",
+        "medium": "רגיל",
+        "low": "נמוך"
+      }
     }
   }
 }

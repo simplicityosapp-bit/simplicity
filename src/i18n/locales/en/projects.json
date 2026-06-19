@@ -147,6 +147,20 @@
       "aria": "Project at-a-glance {{percent}}%",
       "ofPace": "of pace",
       "percentOfGoal": "{{percent}}% of goal"
+    },
+    "tasks": {
+      "title": "Tasks",
+      "empty": "No tasks linked to this project.",
+      "add": "Add task",
+      "done": "Done",
+      "completeAria": "Mark as done",
+      "reopenAria": "Reopen",
+      "deleteAria": "Delete task",
+      "priority": {
+        "high": "High",
+        "medium": "Normal",
+        "low": "Low"
+      }
     }
   }
 }

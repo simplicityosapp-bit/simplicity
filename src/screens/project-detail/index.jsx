@@ -10,6 +10,7 @@ import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useSessions } from '../../hooks/useSessions'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useReminders } from '../../hooks/useReminders'
+import { useTasks } from '../../hooks/useTasks'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { useT } from '../../i18n/useT'
@@ -31,6 +32,7 @@ import AddGroupMemberModal from '../../modals/AddGroupMemberModal'
 import AddSessionModal from '../../modals/AddSessionModal'
 import AddClientModal from '../../modals/AddClientModal'
 import AddReminderModal from '../../modals/AddReminderModal'
+import AddTaskModal from '../../modals/AddTaskModal'
 import DeleteGroupModal from '../../modals/DeleteGroupModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Modal from '../../modals/Modal'
@@ -64,6 +66,7 @@ export default function ProjectDetailScreen() {
   const { sessions, addSession, updateSession, removeSession, refetch: refetchSessions } = useSessions()
   const { transactions } = useTransactions()
   const { reminders, addReminder, completeReminder, removeReminder, refetch: refetchReminders } = useReminders()
+  const { tasks, addTask, toggleTask, removeTask } = useTasks()
   const { meetings: scheduledMeetings, removeMeeting, refetch: refetchMeetings } = useScheduledMeetings()
 
   const DAYS = t('detail.days', { returnObjects: true })
@@ -76,7 +79,7 @@ export default function ProjectDetailScreen() {
   const META_LABEL = { active: t('detail.meta.active'), past: t('detail.meta.past') }
 
   /* Section accordion + per-group sessions expand state. */
-  const [openSec, setOpenSec] = useState({ groups: true, clients: true, reminders: false })
+  const [openSec, setOpenSec] = useState({ groups: true, clients: true, tasks: false, reminders: false })
   const [openGroupSessions, setOpenGroupSessions] = useState(() => new Set())
 
   /* Modal/dialog state. */
@@ -88,6 +91,7 @@ export default function ProjectDetailScreen() {
   const [editProjectOpen, setEditProjectOpen] = useState(false)
   const [showAddClient, setShowAddClient] = useState(false)
   const [showAddReminder, setShowAddReminder] = useState(false)
+  const [showAddTask, setShowAddTask] = useState(false)
   const [pendingDeleteSession, setPendingDeleteSession] = useState(null)
   const [pendingDeleteReminder, setPendingDeleteReminder] = useState(null)
   /* Pending group status change (when ≥1 client will flip) → confirm dialog. */
@@ -133,6 +137,14 @@ export default function ProjectDetailScreen() {
     [reminders, id],
   )
   const activeReminders = projectReminders.filter((r) => r.status === 'pending' || r.status === 'triggered')
+
+  /* Tasks tied to this project (any status). Open count drives the section
+     badge; completed ones still list (struck through) so nothing is hidden. */
+  const projectTasks = useMemo(
+    () => tasks.filter((t) => !t.deleted_at && t.project_id === id),
+    [tasks, id],
+  )
+  const openTaskCount = projectTasks.filter((t) => t.status !== 'done').length
 
   /* Touch+mouse drag of a project client onto a group (zone = group id).
      Declared before the early return so the hook order stays stable; the
@@ -615,6 +627,63 @@ export default function ProjectDetailScreen() {
         )}
       </section>
 
+      {/* ── Tasks section ─────────────────────────────────── */}
+      <section className="pd-section">
+        <button type="button" className="pd-sec-head" onClick={() => toggleSec('tasks')}>
+          <p className="pd-sec-title">
+            {t('detail.tasks.title')}{' '}
+            <span className="pd-sec-count">
+              {openTaskCount}
+              {projectTasks.length > openTaskCount ? ` / ${projectTasks.length}` : ''}
+            </span>
+          </p>
+          <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.tasks ? ' open' : ''}`} aria-hidden="true" />
+        </button>
+        {openSec.tasks && (
+          <div className="pd-sec-body">
+            {projectTasks.length === 0 ? (
+              <p className="pd-empty">{t('detail.tasks.empty')}</p>
+            ) : (
+              projectTasks.map((tk) => {
+                const isDone = tk.status === 'done'
+                return (
+                  <div key={tk.id} className="pd-rem-row">
+                    <div className="pd-rem-id">
+                      <p className={`pd-rem-title${isDone ? ' done' : ''}`}>{tk.title}</p>
+                      <p className="pd-rem-meta">
+                        {t(`detail.tasks.priority.${tk.priority || 'medium'}`)}
+                        {isDone && ` · ${t('detail.tasks.done')}`}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="pd-rem-btn"
+                      onClick={() => toggleTask(tk)}
+                      aria-label={isDone ? t('detail.tasks.reopenAria') : t('detail.tasks.completeAria')}
+                      title={isDone ? t('detail.tasks.reopenAria') : t('detail.tasks.completeAria')}
+                    >
+                      <Check size={13} strokeWidth={1.8} aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      className="pd-rem-btn danger"
+                      onClick={() => removeTask(tk.id)}
+                      aria-label={t('detail.tasks.deleteAria')}
+                      title={t('detail.tasks.deleteAria')}
+                    >
+                      <X size={13} strokeWidth={1.8} aria-hidden="true" />
+                    </button>
+                  </div>
+                )
+              })
+            )}
+            <button className="pd-add-btn" type="button" onClick={() => setShowAddTask(true)}>
+              <Plus size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.tasks.add')}
+            </button>
+          </div>
+        )}
+      </section>
+
       {/* ── Reminders section ─────────────────────────────── */}
       <section className="pd-section">
         <button type="button" className="pd-sec-head" onClick={() => toggleSec('reminders')}>
@@ -732,6 +801,13 @@ export default function ProjectDetailScreen() {
         defaultLinkedTo={{ type: 'project', id }}
         linkedSubjectName={project.name}
         onSave={addReminder}
+      />
+      <AddTaskModal
+        open={showAddTask}
+        onClose={() => setShowAddTask(false)}
+        projects={projects}
+        clients={clients}
+        onSave={async (payload) => addTask({ ...payload, project_id: id })}
       />
       <DeleteGroupModal
         key={pendingDeleteGroup?.id}

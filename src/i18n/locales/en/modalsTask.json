@@ -177,7 +177,11 @@
     "end": "End",
     "followupStatus": "Lead follow-up — {{title}}.",
     "followupDone": "Follow-up done",
-    "markDone": "Mark as done"
+    "markDone": "Mark as done",
+    "billOneOff": "Charge {{name}} for this session? ({{amount}})",
+    "billOneOffNoPrice": "Count {{name}}’s session as held?",
+    "billYes": "Yes, charge",
+    "billNo": "No thanks"
   },
   "followups": {
     "title": "Open follow-ups",

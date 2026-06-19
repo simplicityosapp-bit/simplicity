@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Check, X, CalendarDays, Clock, Pencil, Trash2 } from 'lucide-react'
 import Modal from './Modal'
 import { formatWhen, fmtTime } from '../lib/dates'
+import { isr } from '../lib/finance'
 import { useT } from '../i18n/useT'
 
 /* datetime-local helpers — show/parse the browser's local wall-clock value
@@ -19,7 +20,7 @@ const toLocalInput = (d) =>
    decides whether confirming a meeting also touches linked transactions.
    Google-synced events can be CLAIMED here: editing or deleting one owns
    it (owned=true), so the change survives future syncs (migration 0023). */
-export default function EventDetailsModal({ open, onClose, event, onConfirmMeeting, onSkipMeeting, onCompleteReminder, onRemoveReminder, onUpdateEvent, onDeleteEvent, onFollowupDone }) {
+export default function EventDetailsModal({ open, onClose, event, billClient, onConfirmMeeting, onSkipMeeting, onBillSession, onCompleteReminder, onRemoveReminder, onUpdateEvent, onDeleteEvent, onFollowupDone }) {
   const { t } = useT('modalsTask')
   /* Two-step delete confirm (resets per event — parent keys the modal on
      event.id). No undo path here, so the second tap is the safety net. */
@@ -27,7 +28,18 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ title: '', start: '', end: '' })
   const [editErr, setEditErr] = useState('')
+  /* After confirming a per-session client's meeting happened, offer a one-off
+     charge — logging it as a held session (which is what bills a per-session
+     client). Only this step keeps the modal open; everything else closes. */
+  const [billStep, setBillStep] = useState(false)
   if (!event) return <Modal open={open} onClose={onClose} title={t('event.title')} />
+
+  const confirmHappened = async () => {
+    try { await onConfirmMeeting?.(event) } catch { /* parent surfaces errors */ }
+    if (billClient) setBillStep(true)
+    else onClose()
+  }
+  const doBill = async () => { try { await onBillSession?.(event) } finally { onClose() } }
 
   const isMeeting = event.kind === 'meeting'
   const isCalendar = event.kind === 'calendar'
@@ -70,11 +82,11 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
         </div>
       </div>
 
-      {isMeeting && event.status === 'pending' && (
+      {isMeeting && event.status === 'pending' && !billStep && (
         <div className="evt-detail-row">
           <p className="evt-detail-question">{t('event.meetingHappened')}</p>
           <div className="evt-detail-actions">
-            <button type="button" className="evt-detail-btn approve" onClick={handle(onConfirmMeeting)}>
+            <button type="button" className="evt-detail-btn approve" onClick={confirmHappened}>
               <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('event.yes')}
             </button>
             <button type="button" className="evt-detail-btn skip" onClick={handle(onSkipMeeting)}>
@@ -84,7 +96,28 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
         </div>
       )}
 
-      {isMeeting && event.status === 'confirmed' && (
+      {/* One-off charge prompt — only for a per-session client, after the
+          meeting is confirmed. "Yes" logs a held session (the per-session
+          bill); "No" just keeps the confirmation. */}
+      {isMeeting && billStep && billClient && (
+        <div className="evt-detail-row">
+          <p className="evt-detail-question">
+            {billClient.price_per_session > 0
+              ? t('event.billOneOff', { name: billClient.name, amount: isr(billClient.price_per_session) })
+              : t('event.billOneOffNoPrice', { name: billClient.name })}
+          </p>
+          <div className="evt-detail-actions">
+            <button type="button" className="evt-detail-btn approve" onClick={doBill}>
+              <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('event.billYes')}
+            </button>
+            <button type="button" className="evt-detail-btn skip" onClick={onClose}>
+              <X size={15} strokeWidth={2} aria-hidden="true" /> {t('event.billNo')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isMeeting && event.status === 'confirmed' && !billStep && (
         <p className="evt-detail-status sage">{t('event.meetingConfirmed')}</p>
       )}
 

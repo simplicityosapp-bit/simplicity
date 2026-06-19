@@ -162,6 +162,20 @@ export function defaultPreferences() {
        When set: { requested_at, scheduled_for } (ISO). Preserved across
        loads by the `...cur` spread in migratePreferences — no migration. */
     accountDeletion: null,
+    /* WhatsApp click-to-chat message templates the coach can customise
+       (edited in /connections/whatsapp). Empty string per key = fall back
+       to the built-in i18n default. Stored in this JSONB blob, so no
+       schema migration. See lib/whatsapp.js fillTemplate(). */
+    whatsapp: defaultWhatsApp(),
+  }
+}
+
+/* Default WhatsApp message templates — one per send surface. Empty = the
+   surface uses its built-in localized default. Placeholders use {{token}}
+   syntax (name / date / time / number / url), filled per surface. */
+export function defaultWhatsApp() {
+  return {
+    templates: { client: '', reminder: '', meeting: '', receipt: '', lead: '', payment: '' },
   }
 }
 
@@ -244,8 +258,15 @@ export function migratePreferences(input) {
     tours: (cur.tours && typeof cur.tours === 'object' && !Array.isArray(cur.tours))
       ? cur.tours
       : {},
+    whatsapp: migrateWhatsApp(cur.whatsapp),
   }
   return out
+}
+
+function migrateWhatsApp(input) {
+  const base = defaultWhatsApp()
+  const cur = input && typeof input === 'object' ? input : {}
+  return { templates: { ...base.templates, ...(cur.templates || {}) } }
 }
 
 function migrateOnboarding(input) {

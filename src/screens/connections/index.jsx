@@ -29,9 +29,9 @@ function ConnRow({ icon: Icon, title, loading, connected, warn, statusText, onOp
 }
 
 /* Not-yet-available integrations — shown as a disabled row with an
-   Anthropic-style toggle (off) + a "בקרוב" tag. Non-interactive. */
+   Anthropic-style toggle (off) + a "בקרוב" tag. Non-interactive.
+   (WhatsApp graduated to a live row — manual click-to-chat send.) */
 const SOON = [
-  { key: 'whatsapp', title: 'WhatsApp', icon: MessageCircle },
   { key: 'claude', title: 'Claude', icon: Sparkles },
 ]
 function SoonRow({ icon: Icon, title, soonLabel, ariaLabel }) {
@@ -129,6 +129,16 @@ export default function ConnectionsScreen() {
           loadingLabel={t('loading')}
           ariaLabel={t('list.rowAria', { title: t('list.invoices'), status: inv.loading ? t('loading') : invStatusText })}
           onOpen={() => navigate(ROUTES.CONNECTION_INVOICES)}
+        />
+        <ConnRow
+          icon={MessageCircle}
+          title="WhatsApp"
+          loading={false}
+          connected
+          statusText={t('list.whatsappStatus')}
+          loadingLabel={t('loading')}
+          ariaLabel={t('list.rowAria', { title: 'WhatsApp', status: t('list.whatsappStatus') })}
+          onOpen={() => navigate(ROUTES.CONNECTION_WHATSAPP)}
         />
         {SOON.map((s) => (
           <SoonRow

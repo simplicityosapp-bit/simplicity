@@ -322,6 +322,32 @@
   color: var(--espresso);
 }
 .cd-action:hover { background: var(--mg-row-hover-bg); }
+/* WhatsApp send sits in the actions row as a compact, fixed-width icon
+   button (the three primary actions keep flexing to fill the rest). It
+   matches the 40px action height rather than the default 34px. */
+.cd-actions .wab-trigger {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+}
+/* "Payment request" — a labeled WhatsApp action shown under the balance
+   hero when the client owes money. Sage accent, distinct from the round
+   quick-send icon. */
+.cd-pay-request {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 9px 16px;
+  border-radius: var(--mg-btn-radius);
+  border: 0.5px solid rgba(139, 168, 136, 0.4);
+  background: var(--val-chip-bg);
+  color: var(--sage);
+  font: 500 var(--mg-caption) / 1 var(--mg-font);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.cd-pay-request:hover { background: rgba(139, 168, 136, 0.14); }
 
 /* ── Categories + sections ─────────────────────────────────────── */
 .cd-group {

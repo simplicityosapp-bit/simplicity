@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AlertTriangle, ArrowLeft } from 'lucide-react'
 import { remindersUpcoming } from '../../lib/homeData'
+import { fmtShortDate, fmtTime } from '../../lib/dates'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useSessions } from '../../hooks/useSessions'
@@ -124,6 +125,9 @@ export default function CalendarScreen() {
       .filter((m) => ['pending', 'confirmed'].includes(m.status))
       .map((m) => {
         const when = new Date(m.scheduled_at)
+        /* Only 1-on-1 (client) meetings can be reminded over WhatsApp —
+           a group meeting has no single recipient number. */
+        const client = m.subject_type === 'client' ? clients.find((c) => c.id === m.subject_id) : null
         return {
           id: m.id,
           kind: 'meeting',
@@ -132,17 +136,26 @@ export default function CalendarScreen() {
           end: subjectEnd(m, when),
           status: m.status,
           raw: m,
+          whatsapp: client
+            ? { phone: client.phone, key: 'meeting', vars: { name: client.name, date: fmtShortDate(when), time: fmtTime(when) } }
+            : null,
         }
       })
     /* Pull a wider reminder horizon for the grid views, with no
        cap on count (the widget default of 5 wouldn't fill a month). */
-    const reminderItems = remindersUpcoming(new Date(), reminders, 365, 0).map((r) => ({
-      id: r.id,
-      kind: 'reminder',
-      title: r.title,
-      when: r.when,
-      raw: r,
-    }))
+    const reminderItems = remindersUpcoming(new Date(), reminders, 365, 0).map((r) => {
+      /* A reminder may be linked to a client; if so we can prefill their
+         number. Otherwise the button still works (WhatsApp picker). */
+      const client = r.linked_to_type === 'client' ? clients.find((c) => c.id === r.linked_to_id) : null
+      return {
+        id: r.id,
+        kind: 'reminder',
+        title: r.title,
+        when: r.when,
+        raw: r,
+        whatsapp: { phone: client?.phone || '', key: client?.name ? 'reminder' : 'reminderNoName', vars: { name: client?.name, title: r.title } },
+      }
+    })
     /* Synced Google Calendar events — read-only, identified to a client
        where the fuzzy match (or a manual assignment) found one. */
     const calendarItems = (calendarEvents || [])
@@ -171,6 +184,7 @@ export default function CalendarScreen() {
         title: l.name || t('fallback.lead'),
         when: new Date(`${String(l.follow_up_date).slice(0, 10)}T09:00:00`),
         raw: l,
+        whatsapp: { phone: l.phone || '', key: 'lead', vars: { name: l.name } },
       }))
     const byKind = { meeting: fMeeting, reminder: fReminder, calendar: fCalendar, leadFollowup: fLeadFollowup }
     return [...meetingItems, ...reminderItems, ...calendarItems, ...leadFollowupItems]

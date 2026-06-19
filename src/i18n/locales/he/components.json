@@ -73,5 +73,27 @@
   "errorBoundary": {
     "message": "משהו השתבש. ננסה שוב?",
     "retry": "רענון"
+  },
+  "whatsapp": {
+    "title": "שליחה בוואטסאפ",
+    "recipient": "נמען",
+    "recipientPlaceholder": "השאר/י ריק לבחירת נמען דרך וואטסאפ",
+    "recipientPlaceholder_male": "השאר ריק לבחירת נמען דרך וואטסאפ",
+    "recipientPlaceholder_female": "השאירי ריק לבחירת נמען דרך וואטסאפ",
+    "message": "הודעה",
+    "send": "שלח/י בוואטסאפ",
+    "send_male": "שלח בוואטסאפ",
+    "send_female": "שלחי בוואטסאפ",
+    "defaults": {
+      "client": "שלום {{name}}, ",
+      "reminder": "שלום {{name}}, רק תזכורת: {{title}}",
+      "reminderNoName": "תזכורת: {{title}}",
+      "meeting": "שלום {{name}}, תזכורת לפגישה שלנו ב-{{date}} בשעה {{time}}.",
+      "meetingNoName": "תזכורת לפגישה ב-{{date}} בשעה {{time}}.",
+      "receipt": "שלום {{name}}, מצורפת קבלה מס׳ {{number}}.\n{{url}}",
+      "receiptNoName": "מצורפת קבלה מס׳ {{number}}.\n{{url}}",
+      "lead": "שלום {{name}}, ",
+      "payment": "שלום {{name}}, נותרה יתרה לתשלום בסך {{balance}}. נשמח להסדרה — תודה!"
+    }
   }
 }

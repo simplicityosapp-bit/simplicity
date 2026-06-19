@@ -362,13 +362,16 @@
 [data-theme="dark"] .cal-monthpick-cell.on { color: var(--ink-on-accent); }
 
 
-/* Buttons in the schedule list — match the existing card styling
-   when used as <button>, no special tweaks needed beyond a reset. */
-.cal-list button.cal-item {
+/* Rows in the schedule list — a clickable card (a <div role="button"> so
+   the trailing WhatsApp action can nest without invalid button-in-button). */
+.cal-list .cal-item {
   text-align: start;
   font: inherit;
   cursor: pointer;
 }
+/* WhatsApp send is a fixed-width trailing action; the row's body keeps
+   flexing so the button sits at the inline end. */
+.cal-item .wab-trigger { flex: 0 0 auto; }
 
 /* ────────────────────────────────────────────────────────────────
    DAY VIEW — hour rows + event chips

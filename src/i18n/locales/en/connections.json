@@ -20,6 +20,7 @@
     "needsReconnect": "Needs reconnecting",
     "connectedTo": "Connected · {{provider}}",
     "invoices": "Invoices",
+    "whatsappStatus": "Manual send · edit messages",
     "soon": "Coming soon",
     "soonAria": "{{title}} — coming soon"
   },
@@ -78,6 +79,33 @@
     "back": "Back",
     "title": "Invoices",
     "subtitle": "Issue invoices and receipts, and import income from your receipts software."
+  },
+  "whatsappScreen": {
+    "back": "Back",
+    "title": "WhatsApp",
+    "subtitle": "Tapping the WhatsApp button opens a ready-made message you can edit before sending. Here you can set the default wording for each \"message type\".",
+    "tokensLabel": "Insert:",
+    "tokens": {
+      "name": "Client name",
+      "title": "Reminder text",
+      "date": "Date",
+      "time": "Time",
+      "number": "Receipt no.",
+      "url": "Receipt link",
+      "balance": "Balance due"
+    },
+    "fields": {
+      "client": { "label": "Client message", "hint": "From the client card — an opener for a free chat." },
+      "reminder": { "label": "Reminder", "hint": "Send a reminder to the client from the calendar." },
+      "meeting": { "label": "Meeting reminder", "hint": "A reminder before a scheduled meeting, from the calendar." },
+      "receipt": { "label": "Send receipt", "hint": "Once a receipt is issued — send it to the client with a link." },
+      "lead": { "label": "Lead follow-up", "hint": "Following up a lead from the follow-ups list." },
+      "payment": { "label": "Payment request", "hint": "From the client card when there's a balance — the amount fills in automatically." }
+    },
+    "reset": "Default",
+    "preview": "Preview:",
+    "save": "Save messages",
+    "saved": "Saved"
   },
   "invoiceCard": {
     "fields": {

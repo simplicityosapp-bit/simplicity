@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Clock, CalendarDays } from 'lucide-react'
 import { formatWhen } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
+import WhatsAppButton from '../../components/WhatsAppButton'
+import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 
 const PAGE = 30
 
@@ -11,6 +13,7 @@ const PAGE = 30
    from the agenda view remounts this and resets to the first page. */
 export default function CalendarSchedule({ items, onSelect }) {
   const { t } = useT('calendar')
+  const waMsg = useWhatsAppMessage()
   const [limit, setLimit] = useState(PAGE)
 
   if (!items.length) {
@@ -25,11 +28,13 @@ export default function CalendarSchedule({ items, onSelect }) {
   return (
     <section className="cal-list">
       {shown.map((it) => (
-        <button
+        <div
           key={`${it.kind}-${it.id}-${+it.when}`}
-          type="button"
           className="cal-item"
+          role="button"
+          tabIndex={0}
           onClick={() => onSelect?.(it)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect?.(it) } }}
         >
           <span className={`cal-icon ${it.kind}`}>
             {it.kind === 'reminder'
@@ -43,7 +48,10 @@ export default function CalendarSchedule({ items, onSelect }) {
           {it.kind === 'meeting' && it.status === 'pending' && <span className="cal-tag">{t('tag.pending')}</span>}
           {it.kind === 'reminder' && <span className="cal-tag rem">{t('tag.reminder')}</span>}
           {it.kind === 'calendar' && <span className="cal-tag cal">{t('tag.calendar')}</span>}
-        </button>
+          {it.whatsapp && (
+            <WhatsAppButton phone={it.whatsapp.phone} message={waMsg(it.whatsapp.key, it.whatsapp.vars)} />
+          )}
+        </div>
       ))}
       {remaining > 0 && (
         <button type="button" className="cal-load-more" onClick={() => setLimit((n) => n + PAGE)}>

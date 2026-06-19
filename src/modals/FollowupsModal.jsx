@@ -1,5 +1,7 @@
 import { Check } from 'lucide-react'
 import Modal from './Modal'
+import WhatsAppButton from '../components/WhatsAppButton'
+import { useWhatsAppMessage } from '../hooks/useWhatsAppMessage'
 import { useT } from '../i18n/useT'
 
 /* "פולואו-אפים פתוחים" — the leads whose follow-up is due (date ≤ today,
@@ -12,6 +14,7 @@ const ddmm = (d) => {
 
 export default function FollowupsModal({ open, onClose, leads = [], onOpenLead, onMarkDone }) {
   const { t } = useT('modalsTask')
+  const waMsg = useWhatsAppMessage()
   return (
     <Modal open={open} onClose={onClose} title={t('followups.title')}>
       {leads.length === 0 ? (
@@ -24,6 +27,7 @@ export default function FollowupsModal({ open, onClose, leads = [], onOpenLead, 
                 <span className="fu-name">{l.name}</span>
                 <span className="fu-date mono">{ddmm(l.follow_up_date)}</span>
               </button>
+              <WhatsAppButton phone={l.phone} message={waMsg('lead', { name: l.name })} />
               <button type="button" className="fu-done" onClick={() => onMarkDone?.(l)} aria-label={t('followups.doneAria')} title={t('followups.doneTitle')}>
                 <Check size={15} strokeWidth={2} aria-hidden="true" />
               </button>

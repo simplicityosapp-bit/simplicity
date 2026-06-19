@@ -4,6 +4,8 @@ import { clientBalance, effectiveClientMeta, isGroupDriven } from '../../lib/cli
 import MG from '../../components/MG'
 import { isr } from '../../lib/finance'
 import ClientDrawerSections from './ClientDrawerSections'
+import WhatsAppButton from '../../components/WhatsAppButton'
+import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import AddSessionModal from '../../modals/AddSessionModal'
 import AddTaskModal from '../../modals/AddTaskModal'
 import AddReminderModal from '../../modals/AddReminderModal'
@@ -28,6 +30,7 @@ const initials = (name) =>
 
 export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], categories = [], clients = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient, onUpdateMember, onEditTransaction, onRemoveTransaction, onEditSession, onEditTask, onEditReminder, onIssued }) {
   const { t } = useT('clients')
+  const waMsg = useWhatsAppMessage()
   const open = !!client
   const [actionModal, setActionModal] = useState(null)
   /* A transaction picked for editing from the payments panel. */
@@ -197,6 +200,18 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 </div>
               )}
 
+              {/* Payment request — only when the client owes money. The
+                 outstanding balance fills the message automatically. */}
+              {balance.balance > 0 && (
+                <WhatsAppButton
+                  showLabel
+                  triggerClassName="cd-pay-request"
+                  label={t('drawer.requestPayment')}
+                  phone={client.phone}
+                  message={waMsg('payment', { name: client.name, balance: isr(balance.balance) })}
+                />
+              )}
+
               {/* Quick actions — ALWAYS shown on every client card (global). */}
               <div className="cd-actions">
                 <button type="button" className="cd-action" onClick={() => setActionModal('session')}>
@@ -208,6 +223,10 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 <button type="button" className="cd-action" onClick={() => { setPaymentAmount(null); setActionModal('payment') }}>
                   <Banknote size={15} strokeWidth={1.8} aria-hidden="true" /> {t('drawer.receivedPayment')}
                 </button>
+                <WhatsAppButton
+                  phone={client.phone}
+                  message={waMsg('client', { name: client.name })}
+                />
               </div>
 
               <ClientDrawerSections client={client} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} />

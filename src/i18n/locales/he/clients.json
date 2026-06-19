@@ -101,6 +101,7 @@
     "logSession": "תיעוד פגישה",
     "scheduleMeeting": "קביעת פגישה",
     "receivedPayment": "קיבלתי תשלום",
+    "requestPayment": "דרישת תשלום בוואטסאפ",
     "statusChanged": "הסטטוס שונה",
     "paymentDefaultDesc": "עדכון תשלום",
     "manualPayTitle": "עדכון תשלום ידני",

@@ -531,6 +531,7 @@ export default function ClientsScreen() {
         onUpdateClient={updateClient}
         onUpdateMember={updateMember}
         onEditTransaction={editTransaction}
+        onRemoveTransaction={removeTransaction}
         onIssued={refetch}
         onEditSession={updateSession}
         onEditTask={editTask}

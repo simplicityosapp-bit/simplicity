@@ -1,7 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, ArrowUpDown } from 'lucide-react'
-import { ROUTES } from '../../lib/routes'
 import { useLeads } from '../../hooks/useLeads'
 import { useLeadSources } from '../../hooks/useLeadSources'
 import { useLeadStatuses } from '../../hooks/useLeadStatuses'
@@ -16,6 +14,7 @@ import { LEAD_META, statusMetaOfLead, metaColor, isConvertedLead } from '../../l
 import { pushUndo } from '../../lib/undo'
 import LeadColumn from './LeadColumn'
 import LeadStatusesPanel from './LeadStatusesPanel'
+import LeadSourcesModal from '../../modals/LeadSourcesModal'
 import AddLeadModal from '../../modals/AddLeadModal'
 import EditLeadModal from '../../modals/EditLeadModal'
 import ConvertLeadModal from '../../modals/ConvertLeadModal'
@@ -41,9 +40,9 @@ function computeStats(list, now = new Date()) {
 
 export default function LeadsScreen() {
   const { t } = useT('leads')
-  const navigate = useNavigate()
   const { leads: leadList, loading, error, addLead, updateLead, removeLead } = useLeads()
-  const { sources, addSource } = useLeadSources()
+  const { sources, addSource, removeSource } = useLeadSources()
+  const [showSources, setShowSources] = useState(false)
   const { statuses: leadStatuses, loading: statusesLoading, addStatus: addLeadStatus, updateStatus: updateLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
   const { addClient } = useClients()
   const { projects } = useProjects()
@@ -186,11 +185,10 @@ export default function LeadsScreen() {
         <button
           type="button"
           className="l-sources-link"
-          onClick={() => navigate(ROUTES.SETTINGS, { state: { openSection: 'leads' } })}
+          onClick={() => setShowSources(true)}
         >
           <Leaf size={14} strokeWidth={1.7} aria-hidden="true" />
           {t('sourcesLink')}
-          <ChevronLeft size={15} strokeWidth={1.7} aria-hidden="true" />
         </button>
       </div>
 
@@ -284,6 +282,13 @@ export default function LeadsScreen() {
         </>
       )}
 
+      <LeadSourcesModal
+        open={showSources}
+        onClose={() => setShowSources(false)}
+        sources={sources}
+        onAdd={addSource}
+        onRemove={removeSource}
+      />
       <AddLeadModal open={showAdd} onClose={() => setShowAdd(false)} sources={sources} statuses={leadStatuses} projects={projects} groups={groups} onAddSource={handleAddSource} onSave={addLead} />
       <EditLeadModal
         key={editLead?.id}

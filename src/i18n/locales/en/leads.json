@@ -48,6 +48,21 @@
     "converted": "Converted to client",
     "convert": "Convert to client"
   },
+  "sourcesModal": {
+    "title": "Lead sources",
+    "hint": "Where the inquiry came from. Pick a color and name, and the source shows on lead cards and in filters.",
+    "empty": "No sources yet. Add your first.",
+    "newSource": "New source",
+    "placeholder": "Source name",
+    "addAria": "Add source",
+    "addFailed": "Couldn't add the source.",
+    "deleteAria": "Delete {{name}}",
+    "deleteHint": "Delete",
+    "deleteTitle": "Delete source",
+    "deleteMessage": "Delete \"{{name}}\"? Leads with this source will be left without one. You can restore it from the recycle bin within 30 days.",
+    "deleteConfirm": "Delete",
+    "close": "Close"
+  },
   "statusesPanel": {
     "intro": "Manage sub-statuses under each top-level category. Sub-statuses appear when you set a color dot on a lead card, and are used for filtering and charts.",
     "addPlaceholder": "Sub-status for \"{{meta}}\"",

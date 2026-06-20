@@ -380,6 +380,9 @@
   align-items: center;
   gap: 8px;
   margin-top: 8px;
+  /* Separate the controls row from the status tabs / search row below — it
+     had no bottom margin, so the two rows sat flush against each other. */
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 .c-sort-wrap {

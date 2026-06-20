@@ -243,7 +243,7 @@
       "faq": [
         {
           "q": "How do I add or color a lead source?",
-          "a": "You can create a new source directly from the add or edit lead window using \"+ New source…\" (it gets a default color). For full name and color management, tap \"Lead sources\" in the screen toolbar — it takes you to Settings → Lead settings."
+          "a": "You can create a new source directly from the add or edit lead window using \"+ New source…\" (it gets a default color). For full name and color management, tap \"Lead sources\" in the screen toolbar — it opens a dedicated panel to add, color and delete sources."
         },
         {
           "q": "A lead I converted to a client still shows on the board — is that normal?",

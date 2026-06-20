@@ -171,6 +171,9 @@ export default function InsightsWidget() {
            shown as a fixed number stacked above the check (no floating pill),
            which lets the row keep a single, short height. */
         <div className="ins-slider-wrap">
+          {/* Centred just above the slider (out of flow), sharing the top gap
+              with the floating value number on the inline-end side. */}
+          {compare && <p className="ins-compare">{compare}</p>}
           {collapseBtn}
           <input
             type="range"
@@ -190,8 +193,6 @@ export default function InsightsWidget() {
           </div>
         </div>
       )}
-
-      {compare && <p className="ins-compare">{compare}</p>}
     </div>
   )
 }

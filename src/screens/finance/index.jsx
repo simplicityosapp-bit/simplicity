@@ -112,20 +112,21 @@ export default function FinanceScreen() {
           </div>
           <p className="t-screen">{t('title')}</p>
         </header>
-        <div className="f-top-actions">
-          <button
-            type="button"
-            className="f-export-btn"
-            onClick={() => exportTransactionsCSV({ transactions: monthTxs, clients, projects, categories, monthDate: month })}
-            disabled={monthTxs.length === 0}
-            aria-label={t('exportCsvAria')}
-          >
-            {t('exportCsv')}
-          </button>
-          <Coachmark id="add-transaction" radius="50%">
+        <Coachmark id="add-transaction" radius="50%">
           <button className="cta-add" type="button" aria-label={t('newTxAria')} onClick={() => setShowAdd(true)}>{t('newTx')}</button>
         </Coachmark>
-        </div>
+      </div>
+
+      <div className="f-export-row">
+        <button
+          type="button"
+          className="f-export-btn"
+          onClick={() => exportTransactionsCSV({ transactions: monthTxs, clients, projects, categories, monthDate: month })}
+          disabled={monthTxs.length === 0}
+          aria-label={t('exportCsvAria')}
+        >
+          {t('exportCsv')}
+        </button>
       </div>
 
       <MonthSummary

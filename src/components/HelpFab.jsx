@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { createPortal } from 'react-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   HelpCircle, X, LayoutGrid, Lightbulb, MessageCircleQuestion,
   ChevronDown, BookOpen,
@@ -22,11 +23,38 @@ const TABS = [
   { key: 'faq',      labelKey: 'help.tabs.faq',      icon: MessageCircleQuestion },
 ]
 
+/* Finds the current screen's header card so the "?" button can be portaled
+   INTO it (and thus scroll with it) instead of floating over the viewport.
+   The screen mounts async (lazy routes), so we poll a few frames until the
+   header appears, then settle on 'found' or 'none' (e.g. home has no header).
+   Returning a status — not just the node — lets the caller render nothing
+   while searching, avoiding a flash of the fallback position on navigation. */
+function useHeaderAnchor(pathname, screenKey) {
+  const [state, setState] = useState({ status: 'searching', node: null })
+  useEffect(() => {
+    if (screenKey === 'home') { setState({ status: 'none', node: null }); return undefined }
+    setState({ status: 'searching', node: null })
+    let raf
+    let tries = 0
+    const find = () => {
+      const el = document.querySelector('.screen-head, .moon-head')
+      if (el) { setState({ status: 'found', node: el }); return }
+      if (tries++ > 90) { setState({ status: 'none', node: null }); return }
+      raf = requestAnimationFrame(find)
+    }
+    find()
+    return () => { if (raf) cancelAnimationFrame(raf) }
+  }, [pathname, screenKey])
+  return state
+}
+
 export default function HelpFab({ screenKey }) {
   const { t } = useT('components')
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
   const help = getHelpScreen(screenKey) || getHelpScreen('home')
+  const { status, node } = useHeaderAnchor(location.pathname, screenKey)
 
   /* Close on Escape while open. */
   useEffect(() => {
@@ -36,16 +64,26 @@ export default function HelpFab({ screenKey }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
+  const fab = (
+    <button
+      type="button"
+      className={`help-fab${status === 'found' ? ' in-header' : ''}`}
+      onClick={() => setOpen(true)}
+      aria-label={t('help.fabAria', { title: help.title })}
+    >
+      <HelpCircle size={20} strokeWidth={1.7} aria-hidden="true" />
+    </button>
+  )
+
   return (
     <>
-      <button
-        type="button"
-        className="help-fab"
-        onClick={() => setOpen(true)}
-        aria-label={t('help.fabAria', { title: help.title })}
-      >
-        <HelpCircle size={22} strokeWidth={1.7} aria-hidden="true" />
-      </button>
+      {/* In the header card (portaled there so it scrolls with the card) when
+          one exists; otherwise the fallback corner (e.g. home). Render nothing
+          while still locating the header, to avoid a position flash. The
+          isConnected guard skips a node detached mid-navigation. */}
+      {status === 'found' && node && node.isConnected
+        ? createPortal(fab, node)
+        : status === 'none' ? fab : null}
 
       <div
         className={`help-overlay${open ? ' open' : ''}`}

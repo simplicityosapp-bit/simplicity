@@ -136,7 +136,7 @@ export default function InsightsWidget() {
   const isYesNo = q.scale_type === 'yes_no'
 
   return (
-    <div className={`ins-widget${isYesNo ? ' has-collapse' : ''}`}>
+    <div className={`ins-widget${isYesNo ? ' has-collapse' : ' ins-slider-mode'}`}>
       {/* Yes/no keeps the floating collapse toggle; the slider layout folds
           the toggle into the control row so it sits inline beside the
           slider (see below). */}

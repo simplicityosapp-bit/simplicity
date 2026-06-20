@@ -547,7 +547,14 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 12px;
+  /* room above for the floating value number */
+  margin-top: 24px;
+}
+/* Slider variant reserves a bottom strip so the comparison line can appear,
+   centred, without ever growing the widget downward (it is absolutely
+   positioned within this reserved space — see .ins-compare below). */
+.ins-slider-mode {
+  padding-bottom: 34px;
 }
 /* In the slider row the collapse toggle is folded inline (instead of the
    absolutely-positioned floating button used by the other states), so it
@@ -561,15 +568,22 @@
 .ins-slider-wrap .ins-collapse-btn:active {
   transform: scale(0.9);
 }
-/* Value + save check stacked at the inline-end end. The number shows the
-   current slider position in the gap above the check (replaces the old pill
-   that rode above the thumb). */
+/* Value + save check at the inline-end end. The check stays vertically
+   centred on the slider line; the value number floats out of flow above it,
+   rising into the empty space between the question and the slider (so it
+   never pushes the check off the line). */
 .ins-save-col {
+  position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
   flex-shrink: 0;
+}
+.ins-save-col .ins-slider-val {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 .ins-slider {
   flex: 1;
@@ -646,6 +660,15 @@
   font-size: calc(12px * var(--text-scale));
   font-weight: 500;
   color: var(--moon-deep);
+}
+/* In the slider layout the comparison sits centred in the reserved bottom
+   strip, out of flow, so showing it doesn't lengthen the widget. */
+.ins-slider-mode .ins-compare {
+  position: absolute;
+  inset-inline: 28px;
+  bottom: 12px;
+  margin: 0;
+  text-align: center;
 }
 [data-theme="dark"] .ins-compare {
   color: var(--moon-hi);

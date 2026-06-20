@@ -544,17 +544,13 @@
   color: var(--ink-on-accent);
 }
 .ins-slider-wrap {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
-  /* room above for the floating value number */
-  margin-top: 24px;
-}
-/* Slider variant reserves a bottom strip so the comparison line can appear,
-   centred, without ever growing the widget downward (it is absolutely
-   positioned within this reserved space — see .ins-compare below). */
-.ins-slider-mode {
-  padding-bottom: 34px;
+  /* room above for the floating value number + the comparison line, which
+     both live out of flow in this gap (number inline-end, comparison centred) */
+  margin-top: 30px;
 }
 /* In the slider row the collapse toggle is folded inline (instead of the
    absolutely-positioned floating button used by the other states), so it
@@ -661,12 +657,13 @@
   font-weight: 500;
   color: var(--moon-deep);
 }
-/* In the slider layout the comparison sits centred in the reserved bottom
-   strip, out of flow, so showing it doesn't lengthen the widget. */
+/* In the slider layout the comparison sits centred just above the slider,
+   out of flow in the top gap, so showing it neither collides with the slider
+   nor lengthens the widget. */
 .ins-slider-mode .ins-compare {
   position: absolute;
-  inset-inline: 28px;
-  bottom: 12px;
+  inset-inline: 0;
+  bottom: calc(100% + 7px);
   margin: 0;
   text-align: center;
 }

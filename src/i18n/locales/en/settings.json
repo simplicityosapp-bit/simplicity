@@ -10,7 +10,7 @@
     "profile": { "title": "Profile", "sub": "Name, profession and focus" },
     "widgets": { "title": "Widgets & display", "sub": "What shows on your home screen" },
     "clients": { "title": "Clients & statuses", "sub": "Your own sub-statuses" },
-    "payments": { "title": "Payments & currency", "sub": "Currency and amount formats" },
+    "payments": { "title": "Currency, date & time", "sub": "Amount, date & time formats and week start" },
     "questions": { "title": "Daily questions", "sub": "What you're asked each day" },
     "leads": { "title": "Lead settings", "sub": "Sources and statuses" },
     "design": { "title": "Appearance", "sub": "Light/dark mode, text size" },

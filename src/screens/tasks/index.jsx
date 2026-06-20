@@ -381,7 +381,7 @@ export default function TasksScreen() {
             taskGroups.map((g) => {
               const isCollapsed = collapsed.has(g.key)
               return (
-                <div key={g.key} className="t-group">
+                <div key={g.key} className={`t-group t-group-card${isCollapsed ? '' : ' open'}`}>
                   <button
                     type="button"
                     className="t-group-lbl t-group-toggle"
@@ -393,20 +393,24 @@ export default function TasksScreen() {
                     <span className="t-group-count">{g.items.length}</span>
                     <ChevronDown size={14} strokeWidth={1.6} className={`t-group-chev${isCollapsed ? '' : ' open'}`} aria-hidden="true" />
                   </button>
-                  {!isCollapsed && g.items.map((task, i) => (
-                    <TaskItem
-                      key={task.id}
-                      task={task}
-                      project={projOf(task.project_id)}
-                      clientName={clientNameOf(task.client_id)}
-                      dotColor={PRIORITY_COLOR[task.priority || 'medium']}
-                      onToggle={() => toggleTask(task)}
-                      onEdit={setEditItem}
-                      index={i}
-                      taskStatus={task.status_id ? statusById.get(task.status_id) : null}
-                      category={task.category_id ? categoryById.get(task.category_id) : null}
-                    />
-                  ))}
+                  {!isCollapsed && (
+                    <div className="t-group-body">
+                      {g.items.map((task, i) => (
+                        <TaskItem
+                          key={task.id}
+                          task={task}
+                          project={projOf(task.project_id)}
+                          clientName={clientNameOf(task.client_id)}
+                          dotColor={PRIORITY_COLOR[task.priority || 'medium']}
+                          onToggle={() => toggleTask(task)}
+                          onEdit={setEditItem}
+                          index={i}
+                          taskStatus={task.status_id ? statusById.get(task.status_id) : null}
+                          category={task.category_id ? categoryById.get(task.category_id) : null}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               )
             })

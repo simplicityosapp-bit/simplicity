@@ -194,6 +194,44 @@
   transition: transform 0.2s ease;
 }
 .t-group-chev:not(.open) { transform: rotate(-90deg); }
+
+/* ── Task groups as subtle collapsible panels (à la Settings, but thinner
+   and more delicate — a hairline frame around a translucent surface). The
+   header spans the full width; expanding reveals the tasks inside it. ── */
+.t-group-card {
+  margin-bottom: 12px;
+  border-radius: 14px;
+  border: 0.5px solid color-mix(in srgb, var(--espresso) 9%, transparent);
+  background: color-mix(in srgb, var(--mg-card-bg) 55%, transparent);
+  backdrop-filter: var(--mg-card-blur);
+  overflow: hidden;
+}
+/* Override the fit-content glass pill → flush, full-width panel header. */
+.t-group-card > .t-group-toggle {
+  display: flex;
+  width: 100%;
+  margin: 0;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+.t-group-card > .t-group-toggle:hover {
+  background: color-mix(in srgb, var(--mg-card-bg) 45%, transparent);
+}
+/* Push the chevron to the trailing end, like the Settings panel header. */
+.t-group-card > .t-group-toggle .t-group-chev {
+  margin-inline-start: auto;
+}
+.t-group-body {
+  padding: 8px 10px;
+  border-top: 0.5px solid color-mix(in srgb, var(--espresso) 7%, transparent);
+}
+/* The task cards sit flush inside the panel — drop the last gap. */
+.t-group-body .tc:last-child {
+  margin-bottom: 0;
+}
 /* Group-by selector sits tight under the filter tabs. The three
    segments share the toggle width equally instead of bunching at the
    RTL start edge. */

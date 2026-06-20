@@ -17,6 +17,13 @@
     "data": { "title": "Data", "sub": "Export, import, reset" },
     "about": { "title": "About", "sub": "Version and info" }
   },
+  "groups": {
+    "personal": { "title": "Personal", "sub": "Your profile and language settings" },
+    "display": { "title": "Display", "sub": "Home screen design and date/time preferences" },
+    "workflow": { "title": "Workflow", "sub": "Clients, leads and daily routines" },
+    "data": { "title": "Data", "sub": "Export, import and account controls" },
+    "about": { "title": "About", "sub": "App information and help" }
+  },
   "common": {
     "loading": "Loading…",
     "soon": "More settings coming soon.",

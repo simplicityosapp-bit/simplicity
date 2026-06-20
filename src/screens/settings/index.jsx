@@ -49,16 +49,49 @@ import './SettingsScreen.css'
 
 /* Section identity (key + icon). Titles + subtitles are translated at
    render time via t(`sections.${key}.title` / `.sub`). */
-const SECTIONS = [
-  { key: 'profile', icon: User },
-  { key: 'widgets', icon: LayoutGrid },
-  { key: 'clients', icon: Users },
-  { key: 'payments', icon: Wallet },
-  { key: 'questions', icon: Sparkles },
-  { key: 'leads', icon: Leaf },
-  { key: 'design', icon: Palette },
-  { key: 'data', icon: Database },
-  { key: 'about', icon: Info },
+const SECTION_DEFS = {
+  profile: { key: 'profile', icon: User, titleKey: 'sections.profile.title', subKey: 'sections.profile.sub' },
+  widgets: { key: 'widgets', icon: LayoutGrid, titleKey: 'sections.widgets.title', subKey: 'sections.widgets.sub' },
+  clients: { key: 'clients', icon: Users, titleKey: 'sections.clients.title', subKey: 'sections.clients.sub' },
+  payments: { key: 'payments', icon: Wallet, titleKey: 'sections.payments.title', subKey: 'sections.payments.sub' },
+  questions: { key: 'questions', icon: Sparkles, titleKey: 'sections.questions.title', subKey: 'sections.questions.sub' },
+  leads: { key: 'leads', icon: Leaf, titleKey: 'sections.leads.title', subKey: 'sections.leads.sub' },
+  design: { key: 'design', icon: Palette, titleKey: 'sections.design.title', subKey: 'sections.design.sub' },
+  data: { key: 'data', icon: Database, titleKey: 'sections.data.title', subKey: 'sections.data.sub' },
+  about: { key: 'about', icon: Info, titleKey: 'sections.about.title', subKey: 'sections.about.sub' },
+}
+
+const SECTION_GROUPS = [
+  {
+    key: 'personal',
+    titleKey: 'groups.personal.title',
+    subKey: 'groups.personal.sub',
+    items: ['profile', 'design'],
+  },
+  {
+    key: 'display',
+    titleKey: 'groups.display.title',
+    subKey: 'groups.display.sub',
+    items: ['widgets', 'payments'],
+  },
+  {
+    key: 'workflow',
+    titleKey: 'groups.workflow.title',
+    subKey: 'groups.workflow.sub',
+    items: ['clients', 'leads', 'questions'],
+  },
+  {
+    key: 'data',
+    titleKey: 'groups.data.title',
+    subKey: 'groups.data.sub',
+    items: ['data'],
+  },
+  {
+    key: 'about',
+    titleKey: 'groups.about.title',
+    subKey: 'groups.about.sub',
+    items: ['about'],
+  },
 ]
 
 /* Meta-category keys; labels are translated via t(`clientMetas.${k}`) /
@@ -675,7 +708,10 @@ export default function SettingsScreen() {
   /* Sections start CLOSED. Only open 'profile' up-front when arriving via
      the menu's "edit profile" chip (which navigates with this state). */
   const location = useLocation()
-  const [open, setOpen] = useState(location.state?.openSection || null)
+  const [open, setOpen] = useState(() => {
+    const section = location.state?.openSection
+    return section ? { [section]: true } : {}
+  })
   const [showAddQ, setShowAddQ] = useState(false)
   const [newSourceName, setNewSourceName] = useState('')
   const [newSourceColor, setNewSourceColor] = useState(CATEGORY_COLORS[0])
@@ -833,7 +869,7 @@ export default function SettingsScreen() {
     }
   }
   const navigate = useNavigate()
-  const toggle = (key) => setOpen((cur) => (cur === key ? null : key))
+  const toggle = (key) => setOpen((cur) => ({ ...cur, [key]: !cur[key] }))
 
   const setClientDraft = (k, v) => setClientDrafts((d) => ({ ...d, [k]: v }))
   const setLeadDraft = (k, v) => setLeadDrafts((d) => ({ ...d, [k]: v }))
@@ -1163,7 +1199,7 @@ export default function SettingsScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{t('header.areas', { count: SECTIONS.length })}</p>
+              <p className="lbl">{t('header.areas', { count: SECTION_GROUPS.length })}</p>
               <span className="lbl dot">·</span>
               <p className="lbl">{t('header.customization')}</p>
             </div>
@@ -1174,23 +1210,37 @@ export default function SettingsScreen() {
       </div>
 
       <div className="set-list">
-        {SECTIONS.map((s) => {
-          const Icon = s.icon
-          const isOpen = open === s.key
-          return (
-            <div key={s.key} className={`set-acc${isOpen ? ' open' : ''}`}>
-              <button type="button" className="set-acc-head" onClick={() => toggle(s.key)} aria-expanded={isOpen}>
-                <span className="set-acc-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></span>
-                <span className="set-acc-text">
-                  <span className="set-acc-title">{t(`sections.${s.key}.title`)}</span>
-                  <span className="set-acc-sub">{t(`sections.${s.key}.sub`)}</span>
-                </span>
-                <ChevronDown size={18} strokeWidth={1.6} className="set-acc-chev" aria-hidden="true" />
-              </button>
-              {isOpen && <div className="set-acc-body">{renderBody(s.key)}</div>}
+        {SECTION_GROUPS.map((group) => (
+          <div key={group.key} className="set-group">
+            <div className="set-group-head">
+              <div className="set-group-text">
+                <p className="set-group-title">{t(group.titleKey)}</p>
+                <p className="set-group-sub">{t(group.subKey)}</p>
+              </div>
             </div>
-          )
-        })}
+            <div className="set-group-children">
+              {group.items.map((key) => {
+                const section = SECTION_DEFS[key]
+                if (!section) return null
+                const Icon = section.icon
+                const isOpen = !!open[key]
+                return (
+                  <div key={key} className={`set-acc${isOpen ? ' open' : ''}`}>
+                    <button type="button" className="set-acc-head" onClick={() => toggle(key)} aria-expanded={isOpen}>
+                      <span className="set-acc-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></span>
+                      <span className="set-acc-text">
+                        <span className="set-acc-title">{t(section.titleKey)}</span>
+                        <span className="set-acc-sub">{t(section.subKey)}</span>
+                      </span>
+                      <ChevronDown size={18} strokeWidth={1.6} className="set-acc-chev" aria-hidden="true" />
+                    </button>
+                    {isOpen && <div className="set-acc-body">{renderBody(key)}</div>}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       <AddQuestionModal

@@ -10,10 +10,13 @@
 /* ── Floating "?" button ───────────────────────────────────────── */
 .help-fab {
   position: absolute;
-  /* Sits above the 84px bottom bar (mobile). On the physical-left so it
-     never collides with the per-screen header (RTL start = right). */
-  bottom: calc(94px + env(safe-area-inset-bottom, 0px));
-  left: 20px;
+  /* Tucked into the empty top-left of every screen's header card. The card is
+     flush to the RTL start (right) with width 62% (max 280px), so its top /
+     inline-end corner is free. Anchoring to that 62% geometry lands the button
+     on the same spot on every screen (the moon-glance .moon-head shares it).
+     Home has no header card → see the override below. */
+  top: 20px;
+  inset-inline-start: calc(62% - 56px);
   z-index: 180;                 /* above screen content, below drawer/modals */
   width: 44px;
   height: 44px;
@@ -38,9 +41,21 @@
 .help-fab:active {
   transform: scale(0.92);
 }
-/* Desktop: no bottom bar — drop the button to the corner. */
+/* Home has no header card — keep the button above the bottom bar, on the
+   physical-left, as it was. */
+.app[data-screen="home"] .help-fab {
+  top: auto;
+  inset-inline-start: auto;
+  bottom: calc(94px + env(safe-area-inset-bottom, 0px));
+  left: 20px;
+}
+/* Desktop: the app becomes a sidebar + screen flex, so the card's 62% no
+   longer maps onto the screen — keep the button in the bottom corner. */
 @media (min-width: 768px) {
-  .help-fab {
+  .help-fab,
+  .app[data-screen="home"] .help-fab {
+    top: auto;
+    inset-inline-start: auto;
     bottom: 24px;
     left: 24px;
     width: 48px;

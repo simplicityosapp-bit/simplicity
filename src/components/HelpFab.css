@@ -10,16 +10,15 @@
 /* ── Floating "?" button ───────────────────────────────────────── */
 .help-fab {
   position: absolute;
-  /* Tucked into the empty top-left of every screen's header card. The card is
-     flush to the RTL start (right) with width 62% (max 280px), so its top /
-     inline-end corner is free. Anchoring to that 62% geometry lands the button
-     on the same spot on every screen (the moon-glance .moon-head shares it).
-     Home has no header card → see the override below. */
-  top: 20px;
-  inset-inline-start: calc(62% - 56px);
+  /* Fallback position (screens with no header card, e.g. home): above the
+     bottom bar, on the physical-left. Screens with a header card portal the
+     button INTO the card and switch to .in-header below, so it scrolls with
+     the card and stays pinned to its corner. */
+  bottom: calc(94px + env(safe-area-inset-bottom, 0px));
+  left: 20px;
   z-index: 180;                 /* above screen content, below drawer/modals */
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -41,21 +40,25 @@
 .help-fab:active {
   transform: scale(0.92);
 }
-/* Home has no header card — keep the button above the bottom bar, on the
-   physical-left, as it was. */
-.app[data-screen="home"] .help-fab {
-  top: auto;
-  inset-inline-start: auto;
-  bottom: calc(94px + env(safe-area-inset-bottom, 0px));
-  left: 20px;
+/* Header cards become the positioning context for the docked button. */
+.screen-head,
+.moon-head {
+  position: relative;
 }
-/* Desktop: the app becomes a sidebar + screen flex, so the card's 62% no
-   longer maps onto the screen — keep the button in the bottom corner. */
+/* Docked into a screen's header card (portaled there) — pinned to its
+   top-left corner (RTL: inline-end). Scrolls with the card. */
+.help-fab.in-header {
+  top: 12px;
+  bottom: auto;
+  left: auto;
+  inset-inline-start: auto;
+  inset-inline-end: 12px;
+  z-index: 3;
+}
+/* Desktop: the app becomes a sidebar + screen flex; the fallback button (when
+   not docked in a header) keeps the bottom corner. */
 @media (min-width: 768px) {
-  .help-fab,
-  .app[data-screen="home"] .help-fab {
-    top: auto;
-    inset-inline-start: auto;
+  .help-fab:not(.in-header) {
     bottom: 24px;
     left: 24px;
     width: 48px;

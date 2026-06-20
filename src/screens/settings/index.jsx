@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ChevronDown, ChevronUp, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
   Plus, Trash2, Leaf, GripVertical, CalendarDays, Database, Download, Upload,
-  BookOpen, HelpCircle, Lightbulb,
+  BookOpen, HelpCircle, Lightbulb, Eye, Layers,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { buildSheetsFromFiles, ACCEPT } from '../../lib/importFlow'
@@ -64,30 +64,35 @@ const SECTION_DEFS = {
 const SECTION_GROUPS = [
   {
     key: 'personal',
+    icon: User,
     titleKey: 'groups.personal.title',
     subKey: 'groups.personal.sub',
     items: ['profile', 'design'],
   },
   {
     key: 'display',
+    icon: Eye,
     titleKey: 'groups.display.title',
     subKey: 'groups.display.sub',
     items: ['widgets', 'payments'],
   },
   {
     key: 'workflow',
+    icon: Layers,
     titleKey: 'groups.workflow.title',
     subKey: 'groups.workflow.sub',
     items: ['clients', 'leads', 'questions'],
   },
   {
     key: 'data',
+    icon: Database,
     titleKey: 'groups.data.title',
     subKey: 'groups.data.sub',
     items: ['data'],
   },
   {
     key: 'about',
+    icon: Info,
     titleKey: 'groups.about.title',
     subKey: 'groups.about.sub',
     items: ['about'],
@@ -1217,6 +1222,7 @@ export default function SettingsScreen() {
       <div className="set-list">
         {SECTION_GROUPS.map((group) => {
           const groupOpen = !!openGroups[group.key]
+          const GroupIcon = group.icon
           return (
             <div key={group.key} className="set-group">
               <button
@@ -1225,6 +1231,7 @@ export default function SettingsScreen() {
                 onClick={() => toggleGroup(group.key)}
                 aria-expanded={groupOpen}
               >
+                <span className="set-group-icon"><GroupIcon size={18} strokeWidth={1.6} aria-hidden="true" /></span>
                 <div className="set-group-text">
                   <p className="set-group-title">{t(group.titleKey)}</p>
                   <p className="set-group-sub">{t(group.subKey)}</p>

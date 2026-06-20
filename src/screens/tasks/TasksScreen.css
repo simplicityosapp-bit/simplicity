@@ -90,7 +90,9 @@
 /* ── Taxonomy bar — category filter + manage button ────────────── */
 .t-tax-bar {
   display: flex;
-  align-items: center;
+  /* Top-align so the manage pill stays on the first line of the category grid
+     (with center, it dropped to the vertical middle once the pills wrapped). */
+  align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
   margin: 0 2px 14px;
@@ -134,7 +136,8 @@
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
-  padding: 6px 12px;
+  /* Match the category pill's vertical padding so both sit on the same line. */
+  padding: 5px 12px;
   border-radius: 999px;
   border: var(--mg-card-border);
   background: var(--mg-card-bg);

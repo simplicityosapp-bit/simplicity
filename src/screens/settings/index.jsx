@@ -705,12 +705,16 @@ function StatusGroups({ metas, metaNs, statuses, drafts, setDraft, onAdd, onRemo
 
 export default function SettingsScreen() {
   const { t } = useT('settings')
-  /* Sections start CLOSED. Only open 'profile' up-front when arriving via
-     the menu's "edit profile" chip (which navigates with this state). */
+  /* Groups and sections start CLOSED. Only open a group or section when the
+     user explicitly taps it, or when navigation state requests a specific one. */
   const location = useLocation()
   const [open, setOpen] = useState(() => {
     const section = location.state?.openSection
     return section ? { [section]: true } : {}
+  })
+  const [openGroups, setOpenGroups] = useState(() => {
+    const group = location.state?.openGroup
+    return group ? { [group]: true } : {}
   })
   const [showAddQ, setShowAddQ] = useState(false)
   const [newSourceName, setNewSourceName] = useState('')
@@ -870,6 +874,7 @@ export default function SettingsScreen() {
   }
   const navigate = useNavigate()
   const toggle = (key) => setOpen((cur) => ({ ...cur, [key]: !cur[key] }))
+  const toggleGroup = (key) => setOpenGroups((cur) => ({ ...cur, [key]: !cur[key] }))
 
   const setClientDraft = (k, v) => setClientDrafts((d) => ({ ...d, [k]: v }))
   const setLeadDraft = (k, v) => setLeadDrafts((d) => ({ ...d, [k]: v }))
@@ -1210,37 +1215,48 @@ export default function SettingsScreen() {
       </div>
 
       <div className="set-list">
-        {SECTION_GROUPS.map((group) => (
-          <div key={group.key} className="set-group">
-            <div className="set-group-head">
-              <div className="set-group-text">
-                <p className="set-group-title">{t(group.titleKey)}</p>
-                <p className="set-group-sub">{t(group.subKey)}</p>
-              </div>
+        {SECTION_GROUPS.map((group) => {
+          const groupOpen = !!openGroups[group.key]
+          return (
+            <div key={group.key} className="set-group">
+              <button
+                type="button"
+                className={`set-group-head${groupOpen ? ' open' : ''}`}
+                onClick={() => toggleGroup(group.key)}
+                aria-expanded={groupOpen}
+              >
+                <div className="set-group-text">
+                  <p className="set-group-title">{t(group.titleKey)}</p>
+                  <p className="set-group-sub">{t(group.subKey)}</p>
+                </div>
+                <ChevronDown size={18} strokeWidth={1.6} className="set-group-chev" aria-hidden="true" />
+              </button>
+              {groupOpen && (
+                <div className="set-group-children">
+                  {group.items.map((key) => {
+                    const section = SECTION_DEFS[key]
+                    if (!section) return null
+                    const Icon = section.icon
+                    const isOpen = !!open[key]
+                    return (
+                      <div key={key} className={`set-acc${isOpen ? ' open' : ''}`}>
+                        <button type="button" className="set-acc-head" onClick={() => toggle(key)} aria-expanded={isOpen}>
+                          <span className="set-acc-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></span>
+                          <span className="set-acc-text">
+                            <span className="set-acc-title">{t(section.titleKey)}</span>
+                            <span className="set-acc-sub">{t(section.subKey)}</span>
+                          </span>
+                          <ChevronDown size={18} strokeWidth={1.6} className="set-acc-chev" aria-hidden="true" />
+                        </button>
+                        {isOpen && <div className="set-acc-body">{renderBody(key)}</div>}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
-            <div className="set-group-children">
-              {group.items.map((key) => {
-                const section = SECTION_DEFS[key]
-                if (!section) return null
-                const Icon = section.icon
-                const isOpen = !!open[key]
-                return (
-                  <div key={key} className={`set-acc${isOpen ? ' open' : ''}`}>
-                    <button type="button" className="set-acc-head" onClick={() => toggle(key)} aria-expanded={isOpen}>
-                      <span className="set-acc-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></span>
-                      <span className="set-acc-text">
-                        <span className="set-acc-title">{t(section.titleKey)}</span>
-                        <span className="set-acc-sub">{t(section.subKey)}</span>
-                      </span>
-                      <ChevronDown size={18} strokeWidth={1.6} className="set-acc-chev" aria-hidden="true" />
-                    </button>
-                    {isOpen && <div className="set-acc-body">{renderBody(key)}</div>}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <AddQuestionModal

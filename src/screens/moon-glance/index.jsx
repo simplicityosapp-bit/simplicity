@@ -203,8 +203,8 @@ export default function MoonGlanceScreen() {
         <p className="mg-reflection">{moonReflection(conf, gender)}</p>
       </div>
 
-      <p className="mg-section-h">{t('section.byCategory')}</p>
       <div className="mg-cats">
+        <p className="mg-section-h">{t('section.byCategory')}</p>
         {cats.map((c) => (
           <div key={c.category.id} className="mg-cat">
             <div className="mg-cat-head">
@@ -219,8 +219,8 @@ export default function MoonGlanceScreen() {
         ))}
       </div>
 
-      <p className="mg-section-h">{t('section.trend')}</p>
       <div className="mg-trend">
+        <p className="mg-section-h">{t('section.trend')}</p>
         <TrendChart data={trend} />
         <div className="mg-trend-stats">
           <div className="mg-trend-stat">
@@ -238,8 +238,8 @@ export default function MoonGlanceScreen() {
         </div>
       </div>
 
-      <p className="mg-section-h">{t('section.crossModule')}</p>
       <div className="mg-overview">
+        <p className="mg-section-h">{t('section.crossModule')}</p>
         <div className="mg-ov-pills">
           {OVERVIEW_PILLS.map((m) => {
             const on = overviewKeys.includes(m.key)
@@ -267,8 +267,8 @@ export default function MoonGlanceScreen() {
         <p className="mg-ov-note">{t('overview.note')}</p>
       </div>
 
-      <p className="mg-section-h">{t('section.correlations')}</p>
       <div className="mg-overview">
+        <p className="mg-section-h">{t('section.correlations')}</p>
         {correlations.length === 0 ? (
           <p className="mg-corr-empty">{t('corr.empty')}</p>
         ) : (

@@ -137,24 +137,36 @@
 }
 
 /* ── Section heading ───────────────────────────────────────────── */
+/* Each heading now sits INSIDE the card it describes, as a pill pinned to the
+   top (inline-start). Sized to the text so it reads as a chip. */
 .mg-section-h {
-  margin: 22px 2px 10px;
+  margin: 0 0 14px;
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   font-weight: 600;
   color: var(--stone);
   letter-spacing: 0.06em;
-  /* These headings sit directly on the moon photo background (not inside a
-     card like every other prominent label), so the text blended in and was
-     hard to read (beta 11/06). Lift each onto the same --val-chip-bg backdrop
-     used for coloured values, sized to the text so it reads as a chip. */
   width: fit-content;
   background: var(--val-chip-bg);
   padding: 3px 12px;
   border-radius: 999px;
 }
 
+/* Inter-card spacing — the section headings used to provide this via their
+   top margin; now that they live inside the cards, the cards space themselves.
+   (Adjacent vertical margins collapse, so stacked cards keep an even gap.) */
+.mg-cats,
+.mg-trend,
+.mg-overview {
+  margin-top: 16px;
+}
+
 /* ── Category breakdown ────────────────────────────────────────── */
+/* Flex column with its own gap, so the heading drops its bottom margin and
+   lets the gap space it from the first category. */
+.mg-cats > .mg-section-h {
+  margin-bottom: 0;
+}
 .mg-cats {
   display: flex;
   flex-direction: column;

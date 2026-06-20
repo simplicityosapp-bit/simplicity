@@ -357,17 +357,16 @@ export default function ClientsScreen() {
         <ClientTabs active={tab} counts={counts} showNoStatus={counts.no_status > 0} onChange={setTab} />
       )}
 
-      <div className="c-search">
-        <Search size={16} strokeWidth={1.6} aria-hidden="true" />
-        <input
-          type="search"
-          placeholder={t('search')}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-      </div>
-
-      <div className="c-filter-row">
+      <div className="c-search-row">
+        <div className="c-search">
+          <Search size={16} strokeWidth={1.6} aria-hidden="true" />
+          <input
+            type="search"
+            placeholder={t('search')}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
         <button
           type="button"
           className={`c-bal-filter${balanceOnly ? ' on' : ''}`}

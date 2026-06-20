@@ -49,13 +49,22 @@
 }
 
 /* ── Search ────────────────────────────────────────────────────── */
+/* Search + open-balance filter share one row — the search bar flexes to fill
+   and the filter pill sits beside it at the same height. */
+.c-search-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 12px;
+}
 .c-search {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 0 14px;
   height: 42px;
-  margin-bottom: 12px;
   border-radius: var(--mg-btn-radius);
   border: 0.5px solid rgba(42, 37, 32, 0.1);
   background: var(--mg-card-bg);
@@ -77,16 +86,13 @@
 }
 
 /* ── "יתרה פתוחה" filter pill ───────────────────────────────────── */
-.c-filter-row {
-  display: flex;
-  gap: 8px;
-  margin: -4px 0 12px;
-}
 .c-bal-filter {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 14px;
+  padding: 0 16px;
+  white-space: nowrap;
   border-radius: 999px;
   border: 0.5px solid rgba(42, 37, 32, 0.14);
   background: var(--mg-card-bg);

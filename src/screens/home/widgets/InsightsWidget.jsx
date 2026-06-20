@@ -133,9 +133,14 @@ export default function InsightsWidget() {
     else compare = t('widgets.insights.lower')
   }
 
+  const isYesNo = q.scale_type === 'yes_no'
+
   return (
-    <div className="ins-widget has-collapse">
-      {collapseBtn}
+    <div className={`ins-widget${isYesNo ? ' has-collapse' : ''}`}>
+      {/* Yes/no keeps the floating collapse toggle; the slider layout folds
+          the toggle into the control row so it sits inline beside the
+          slider (see below). */}
+      {isYesNo && collapseBtn}
       {isOverdue && (
         <p className="ins-reminder">
           <Bell size={12} strokeWidth={1.8} aria-hidden="true" /> {t('widgets.insights.reminder')}
@@ -155,37 +160,34 @@ export default function InsightsWidget() {
         />
       </p>
 
-      {q.scale_type === 'yes_no' ? (
+      {isYesNo ? (
         <div className="ins-yn">
           <button type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(1)}>{t('widgets.insights.yes')}</button>
           <button type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(0)}>{t('widgets.insights.no')}</button>
         </div>
       ) : (
+        /* One compact line: collapse toggle and the save check sit at the two
+           ends with the slider stretched between them. The current value is
+           shown as a fixed number stacked above the check (no floating pill),
+           which lets the row keep a single, short height. */
         <div className="ins-slider-wrap">
-          <div className="ins-slider-track">
-            <input
-              type="range"
-              min="1"
-              max="10"
-              step="1"
-              value={val ?? 5}
-              className="ins-slider"
-              aria-label={text}
-              onChange={(e) => setVal(parseInt(e.target.value, 10))}
-            />
-            {/* Value pill that rides above the thumb (RTL: value grows
-                right→left, so anchor from the right). 9px = half the 18px
-                thumb, keeping the pill centred over it at both ends. */}
-            <span
-              className="ins-slider-bubble mono"
-              style={{ right: `calc(${(((val ?? 5) - 1) / 9)} * (100% - 18px) + 9px)` }}
-            >
-              {val ?? '—'}
-            </span>
+          {collapseBtn}
+          <input
+            type="range"
+            min="1"
+            max="10"
+            step="1"
+            value={val ?? 5}
+            className="ins-slider"
+            aria-label={text}
+            onChange={(e) => setVal(parseInt(e.target.value, 10))}
+          />
+          <div className="ins-save-col">
+            <span className="ins-slider-val mono" aria-hidden="true">{val ?? '—'}</span>
+            <button type="button" className="ins-save-btn" disabled={busy || val == null} onClick={() => save(val)} aria-label={t('widgets.insights.saveAria')}>
+              <Check size={15} strokeWidth={2} aria-hidden="true" />
+            </button>
           </div>
-          <button type="button" className="ins-save-btn" disabled={busy || val == null} onClick={() => save(val)} aria-label={t('widgets.insights.saveAria')}>
-            <Check size={15} strokeWidth={2} aria-hidden="true" />
-          </button>
         </div>
       )}
 

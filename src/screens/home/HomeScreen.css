@@ -547,36 +547,29 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  /* extra top room so the value pill that floats above the thumb clears
-     the question text above it */
-  margin-top: 26px;
+  margin-top: 12px;
 }
-.ins-slider-track {
-  position: relative;
-  flex: 1;
+/* In the slider row the collapse toggle is folded inline (instead of the
+   absolutely-positioned floating button used by the other states), so it
+   sits at the inline-start end with the save check at the inline-end end and
+   the slider stretched between them. */
+.ins-slider-wrap .ins-collapse-btn {
+  position: static;
+  transform: none;
+  flex-shrink: 0;
+}
+.ins-slider-wrap .ins-collapse-btn:active {
+  transform: scale(0.9);
+}
+/* Value + save check stacked at the inline-end end. The number shows the
+   current slider position in the gap above the check (replaces the old pill
+   that rode above the thumb). */
+.ins-save-col {
   display: flex;
+  flex-direction: column;
   align-items: center;
-}
-/* Number pill ("גלולה") riding above the slider thumb — its horizontal
-   position is set inline from the current value (see InsightsWidget). */
-.ins-slider-bubble {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  transform: translateX(50%);
-  min-width: 22px;
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: var(--moon-deep);
-  color: var(--on-accent);
-  font-weight: 500;
-  font-size: calc(12px * var(--text-scale));
-  text-align: center;
-  pointer-events: none;
-  box-shadow: 0 2px 6px rgba(42, 37, 32, 0.18);
-}
-[data-theme="dark"] .ins-slider-bubble {
-  background: var(--moon-hi);
-  color: var(--ink-on-accent);
+  gap: 3px;
+  flex-shrink: 0;
 }
 .ins-slider {
   flex: 1;
@@ -610,10 +603,11 @@
 }
 .ins-slider-val {
   font-family: var(--mg-font-num);
-  font-weight: 500;
-  font-size: calc(18px * var(--text-scale));
+  font-weight: 600;
+  font-size: calc(14px * var(--text-scale));
+  line-height: 1;
   color: var(--moon-deep);
-  min-width: 24px;
+  min-width: 18px;
   text-align: center;
 }
 [data-theme="dark"] .ins-slider-val {

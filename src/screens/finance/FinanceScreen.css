@@ -736,14 +736,14 @@
 }
 
 /* ── Top actions row (export + add) ─────────────────────────── */
-.f-top-actions {
+/* Export sits in its own thin row below the header, so the header keeps the
+   standard layout (title card + centred add button) and the same height as
+   every other screen — which is what the docked help button aligns to. */
+.f-export-row {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 8px;
-  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin: -2px 2px 14px;
 }
-.f-top-actions .cta-add { margin: 0; }
 .f-export-btn {
   padding: 7px 14px;
   border-radius: 999px;

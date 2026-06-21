@@ -234,6 +234,7 @@ export const lead_pages = [
     content: {
       logoText: 'הסטודיו של דנה', heading: 'רוצים לשמוע עוד?',
       body: 'השאירו פרטים ונחזור אליכם בהקדם.', brandColor: '#C97B5E',
+      background: 'leads', cardOpacity: 62, cardBlur: 16, bold: true, textColor: 'light', textAlign: 'start',
       thankYou: { mode: 'message', message: 'תודה! נחזור אליך בהקדם.', url: '' },
     },
     fields: [

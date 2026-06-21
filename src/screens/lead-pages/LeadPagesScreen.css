@@ -408,3 +408,41 @@
   background: transparent; color: var(--ink); cursor: pointer;
 }
 .lpe-add-option:hover { background: color-mix(in srgb, var(--lp-brand) 8%, transparent); }
+
+/* Advanced-design controls (background gallery, sliders, segments). */
+.lpe-design { display: flex; flex-direction: column; gap: 14px; }
+.lpe-design-lbl { font-size: 13px; color: var(--stone); margin: 0; flex: none; }
+
+.lpe-bg-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.lpe-bg-swatch {
+  width: 56px; height: 40px;
+  border-radius: 9px;
+  border: 2px solid transparent;
+  box-shadow: 0 0 0 1px rgba(44, 38, 33, 0.12);
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  padding: 0;
+}
+.lpe-bg-swatch.on { border-color: var(--mg-btn-primary-bg); }
+.lpe-bg-none {
+  display: inline-flex; align-items: center; justify-content: center;
+  font: inherit; font-size: 12px; color: var(--stone);
+  background: rgba(44, 38, 33, 0.05);
+}
+
+.lpe-slider-row { display: flex; align-items: center; gap: 12px; }
+.lpe-slider-row input[type="range"] { flex: 1 1 auto; min-width: 0; accent-color: var(--mg-btn-primary-bg); cursor: pointer; }
+.lpe-slider-val { flex: none; font-size: 13px; color: var(--stone); min-width: 44px; text-align: end; }
+
+.lpe-design-toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer; }
+.lpe-design-toggle input { width: 17px; height: 17px; accent-color: var(--mg-btn-primary-bg); }
+
+.lpe-seg-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.lpe-seg { display: inline-flex; border: 1px solid rgba(44, 38, 33, 0.14); border-radius: 10px; overflow: hidden; flex: none; }
+.lpe-seg-btn {
+  font: inherit; font-size: 13px; font-weight: 500;
+  padding: 7px 16px; border: none; background: transparent;
+  color: var(--stone); cursor: pointer;
+}
+.lpe-seg-btn.on { background: var(--mg-btn-primary-bg); color: var(--ink-on-accent, #fff); }

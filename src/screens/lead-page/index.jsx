@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { fetchLeadPageConfig, submitLead } from '../../lib/api/leadIntake'
-import { DEFAULT_BRAND_COLOR, isChoiceType } from '../../lib/leadPageSchema'
+import { isChoiceType, leadPageSurface } from '../../lib/leadPageSchema'
 import './LeadPage.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -39,7 +39,6 @@ export default function LeadPage() {
 
   const content = config?.content ?? {}
   const fields = useMemo(() => (Array.isArray(config?.fields) ? config.fields : []), [config])
-  const brand = str(content.brandColor) || DEFAULT_BRAND_COLOR
 
   const setField = (key, v) => {
     setValues((prev) => ({ ...prev, [key]: v }))
@@ -89,11 +88,12 @@ export default function LeadPage() {
     }
   }
 
-  const rootStyle = { '--lp-brand': brand }
+  const { style: rootStyle, cls: surfaceCls } = leadPageSurface(content)
+  const rootClass = `lp-root lp-surface${surfaceCls ? ` ${surfaceCls}` : ''}`
 
   if (status === 'loading') {
     return (
-      <div className="lp-root" dir="rtl" style={rootStyle}>
+      <div className={rootClass} dir="rtl" style={rootStyle}>
         <div className="lp-card lp-state"><p className="lp-muted">טוען…</p></div>
       </div>
     )
@@ -101,7 +101,7 @@ export default function LeadPage() {
 
   if (status === 'notfound') {
     return (
-      <div className="lp-root" dir="rtl" style={rootStyle}>
+      <div className={rootClass} dir="rtl" style={rootStyle}>
         <div className="lp-card lp-state">
           <h1 className="lp-heading">הדף לא נמצא</h1>
           <p className="lp-muted">ייתכן שהקישור שגוי או שהדף אינו פעיל יותר.</p>
@@ -112,7 +112,7 @@ export default function LeadPage() {
 
   if (status === 'done') {
     return (
-      <div className="lp-root" dir="rtl" style={rootStyle}>
+      <div className={rootClass} dir="rtl" style={rootStyle}>
         <div className="lp-card lp-state">
           {content.logoText ? <div className="lp-logo">{content.logoText}</div> : null}
           <div className="lp-check" aria-hidden="true">✓</div>
@@ -123,7 +123,7 @@ export default function LeadPage() {
   }
 
   return (
-    <div className="lp-root" dir="rtl" style={rootStyle}>
+    <div className={rootClass} dir="rtl" style={rootStyle}>
       <form className="lp-card" onSubmit={handleSubmit} noValidate>
         {content.logoText ? <div className="lp-logo">{content.logoText}</div> : null}
         {content.heading ? <h1 className="lp-heading">{content.heading}</h1> : null}

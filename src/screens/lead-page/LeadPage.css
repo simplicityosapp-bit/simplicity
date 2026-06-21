@@ -19,10 +19,15 @@
 }
 
 .lp-card {
+  --lp-card-base: #fffdf9;
   width: 100%;
   max-width: 520px;
   box-sizing: border-box;
-  background: #fffdf9;
+  /* Opacity (0–100% via --lp-card-opacity) lets the background show through;
+     the blur frosts it. Defaults (100% / no effect) keep the solid look. */
+  background: color-mix(in srgb, var(--lp-card-base) var(--lp-card-opacity, 100%), transparent);
+  backdrop-filter: blur(var(--lp-card-blur, 0px));
+  -webkit-backdrop-filter: blur(var(--lp-card-blur, 0px));
   border: 1px solid rgba(44, 38, 33, 0.08);
   border-radius: 24px;
   box-shadow: 0 1px 2px rgba(42, 37, 32, 0.04), 0 12px 32px rgba(42, 37, 32, 0.10);
@@ -157,7 +162,7 @@
       radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--lp-brand) 16%, #1a1f26) 0%, #161a20 60%, #12161b 100%);
     color: #f0ebe0;
   }
-  .lp-card { background: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
+  .lp-card { --lp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
   .lp-heading, .lp-label { color: #f0ebe0; }
   .lp-body { color: #b8b0a4; }
   .lp-muted { color: #b8b0a4; }
@@ -191,3 +196,43 @@
 @media (prefers-color-scheme: dark) {
   .lp-choice { color: #f0ebe0; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   ADVANCED DISPLAY — shared by the public page (.lp-root) and the
+   builder canvas (.lpe-canvas); both carry .lp-surface + the classes
+   from leadPageSurface(). Keeps the builder true WYSIWYG.
+   ════════════════════════════════════════════════════════════════ */
+
+/* Background image (a Simplicity scene), day/night via OS preference. */
+.lp-surface.has-bg {
+  background-image: var(--lp-bg-day);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+@media (prefers-color-scheme: dark) {
+  .lp-surface.has-bg { background-image: var(--lp-bg-night); }
+}
+
+/* Bold — heavier heading + text. */
+.lp-surface.is-bold .lp-heading { font-weight: 800; }
+.lp-surface.is-bold .lp-body,
+.lp-surface.is-bold .lp-label,
+.lp-surface.is-bold .lp-choice,
+.lp-surface.is-bold .lp-thankyou { font-weight: 600; }
+
+/* Light text — for dark backgrounds. A soft shadow keeps it legible even
+   where the card is transparent and the text sits over the photo. */
+.lp-surface.text-light .lp-heading,
+.lp-surface.text-light .lp-body,
+.lp-surface.text-light .lp-label,
+.lp-surface.text-light .lp-choice,
+.lp-surface.text-light .lp-thankyou,
+.lp-surface.text-light .lp-muted {
+  color: #f7f3ec;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Centered text. */
+.lp-surface.align-center .lp-card { text-align: center; }
+.lp-surface.align-center .lp-choices { align-items: center; }

@@ -11,6 +11,7 @@ import InfoPopover from '../../components/InfoPopover'
 import {
   FIELD_TYPES, DEFAULT_CONTENT, newLeadPageDraft, freeFieldKey,
   publicLeadPageUrl, normalizeSlug, isValidSlug, isChoiceType, defaultChoiceOptions,
+  LEAD_PAGE_BACKGROUNDS, leadPageBgUrl, leadPageSurface,
 } from '../../lib/leadPageSchema'
 import { ROUTES } from '../../lib/routes'
 import '../lead-page/LeadPage.css' // WYSIWYG: the canvas reuses the public page's look
@@ -251,7 +252,8 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
   }
 
   const c = draft.content
-  const canvasStyle = { '--lp-brand': c.brandColor || DEFAULT_CONTENT.brandColor }
+  const { style: canvasStyle, cls: surfaceCls } = leadPageSurface(c)
+  const canvasClass = `lpe-canvas lp-surface${surfaceCls ? ` ${surfaceCls}` : ''}`
 
   return (
     <div className="screen lpe-screen">
@@ -319,6 +321,57 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
             </div>
           </div>
           <div className="m-field">
+            <label className="m-label">עיצוב מתקדם</label>
+            <div className="lpe-design">
+              <p className="lpe-design-lbl">רקע</p>
+              <div className="lpe-bg-grid">
+                <button type="button" className={`lpe-bg-swatch lpe-bg-none${!c.background ? ' on' : ''}`} onClick={() => setContent({ background: '' })}>ללא</button>
+                {LEAD_PAGE_BACKGROUNDS.map((b) => (
+                  <button
+                    key={b.key}
+                    type="button"
+                    className={`lpe-bg-swatch${c.background === b.key ? ' on' : ''}`}
+                    style={{ backgroundImage: `url(${leadPageBgUrl(b.key)})` }}
+                    onClick={() => setContent({ background: b.key })}
+                    aria-label={b.label}
+                    title={b.label}
+                  />
+                ))}
+              </div>
+
+              <div className="lpe-slider-row">
+                <span className="lpe-design-lbl">שקיפות הכרטיס</span>
+                <input type="range" min="0" max="100" value={100 - (c.cardOpacity ?? 100)} onChange={(e) => setContent({ cardOpacity: 100 - Number(e.target.value) })} />
+                <span className="lpe-slider-val mono">{100 - (c.cardOpacity ?? 100)}%</span>
+              </div>
+              <div className="lpe-slider-row">
+                <span className="lpe-design-lbl">טשטוש רקע</span>
+                <input type="range" min="0" max="30" value={c.cardBlur ?? 14} onChange={(e) => setContent({ cardBlur: Number(e.target.value) })} />
+                <span className="lpe-slider-val mono">{c.cardBlur ?? 14}px</span>
+              </div>
+
+              <label className="lpe-design-toggle">
+                <input type="checkbox" checked={!!c.bold} onChange={(e) => setContent({ bold: e.target.checked })} />
+                טקסט מודגש
+              </label>
+
+              <div className="lpe-seg-row">
+                <span className="lpe-design-lbl">צבע טקסט</span>
+                <div className="lpe-seg">
+                  <button type="button" className={`lpe-seg-btn${c.textColor !== 'light' ? ' on' : ''}`} onClick={() => setContent({ textColor: 'dark' })}>כהה</button>
+                  <button type="button" className={`lpe-seg-btn${c.textColor === 'light' ? ' on' : ''}`} onClick={() => setContent({ textColor: 'light' })}>בהיר</button>
+                </div>
+              </div>
+              <div className="lpe-seg-row">
+                <span className="lpe-design-lbl">יישור טקסט</span>
+                <div className="lpe-seg">
+                  <button type="button" className={`lpe-seg-btn${c.textAlign !== 'center' ? ' on' : ''}`} onClick={() => setContent({ textAlign: 'start' })}>ימין</button>
+                  <button type="button" className={`lpe-seg-btn${c.textAlign === 'center' ? ' on' : ''}`} onClick={() => setContent({ textAlign: 'center' })}>מרכז</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="m-field">
             <label className="m-label">אחרי השליחה</label>
             <div className="lpb-radio-group">
               <label className="lpb-radio">
@@ -358,7 +411,7 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
       {err && <p className="m-error lpe-err">{err}</p>}
 
       {/* Live canvas — edit texts & fields inline, exactly as they'll appear */}
-      <div className="lpe-canvas" style={canvasStyle}>
+      <div className={canvasClass} style={canvasStyle}>
         <div className="lp-card" onClick={(e) => { if (e.target === e.currentTarget) setActiveKey(null) }}>
           <input
             className="lp-logo lpe-edit lpe-center"

@@ -5,6 +5,7 @@ import { Mail, Lock, Eye, EyeOff, MailCheck, Check } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
+import { checkPasswordStrength } from '../../lib/passwordStrength'
 import GoogleButton from '../../auth/GoogleButton'
 import { useT } from '../../i18n/useT'
 import { buildConsent, stashPendingConsent } from '../../lib/legal'
@@ -32,8 +33,13 @@ export default function SignupScreen() {
       setError(t('fillEmailPassword'))
       return
     }
-    if (password.length < 6) {
-      setError(t('signupScreen.passwordMin6'))
+    const pwIssue = checkPasswordStrength(password)
+    if (pwIssue === 'tooShort') {
+      setError(t('signupScreen.passwordMin8'))
+      return
+    }
+    if (pwIssue === 'tooCommon') {
+      setError(t('signupScreen.passwordTooCommon'))
       return
     }
     if (!canConsent) {
@@ -112,7 +118,7 @@ export default function SignupScreen() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('min6chars')}
+              placeholder={t('min8chars')}
             />
             <button
               type="button"

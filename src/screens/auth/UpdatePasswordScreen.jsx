@@ -4,6 +4,7 @@ import { Lock, Eye, EyeOff, CheckCircle2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
+import { checkPasswordStrength } from '../../lib/passwordStrength'
 import { useAuth } from '../../auth/AuthContext'
 import { useT } from '../../i18n/useT'
 import './AuthScreen.css'
@@ -28,7 +29,9 @@ export default function UpdatePasswordScreen() {
   const submit = async (e) => {
     e.preventDefault()
     setError('')
-    if (password.length < 6) { setError(t('update.pwTooShort')); return }
+    const pwIssue = checkPasswordStrength(password)
+    if (pwIssue === 'tooShort') { setError(t('update.pwTooShort')); return }
+    if (pwIssue === 'tooCommon') { setError(t('update.pwTooCommon')); return }
     if (password !== confirm) { setError(t('update.mismatch')); return }
     setBusy(true)
     const { error } = await supabase.auth.updateUser({ password })
@@ -85,7 +88,7 @@ export default function UpdatePasswordScreen() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('min6chars')}
+              placeholder={t('min8chars')}
             />
             <button
               type="button"

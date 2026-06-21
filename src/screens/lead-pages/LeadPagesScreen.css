@@ -358,3 +358,53 @@
   .lpe-preview { background: rgba(255, 255, 255, 0.05); }
   .lpe-ctrl-btn { background: rgba(255, 255, 255, 0.06); }
 }
+
+/* Custom-slug field — domain prefix + the editable slug. */
+.lpe-slug-row { display: flex; align-items: stretch; gap: 0; }
+.lpe-slug-prefix {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--stone);
+  background: rgba(44, 38, 33, 0.05);
+  border: 1px solid rgba(44, 38, 33, 0.16);
+  border-inline-end: none;
+  border-radius: 0 12px 12px 0;
+  white-space: nowrap;
+  flex: none;
+}
+.lpe-slug-input { border-radius: 12px 0 0 12px; flex: 1 1 auto; min-width: 0; }
+
+/* Choice field — canvas preview marks + the options editor. */
+.lpe-choice-preview { display: flex; flex-direction: column; gap: 9px; padding: 4px 2px; }
+.lpe-choice-opt { display: flex; align-items: center; gap: 9px; }
+.lpe-choice-opt-label { font-size: 15px; color: var(--ink); }
+.lpe-choice-mark {
+  width: 17px; height: 17px; flex: none;
+  border: 2px solid color-mix(in srgb, var(--lp-brand) 55%, var(--stone));
+  border-radius: 5px;
+  background: transparent;
+}
+.lpe-choice-mark.radio { border-radius: 50%; }
+
+.lpe-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(44, 38, 33, 0.08);
+}
+.lpe-option-row { display: flex; align-items: center; gap: 8px; }
+.lpe-option-row .lpe-choice-mark { width: 15px; height: 15px; }
+.lpe-option-input { flex: 1 1 auto; min-width: 0; }
+.lpe-add-option {
+  align-self: flex-start;
+  display: inline-flex; align-items: center; gap: 5px;
+  font: inherit; font-size: 13px; font-weight: 500;
+  padding: 6px 12px; border-radius: 9px;
+  border: 1px dashed color-mix(in srgb, var(--lp-brand) 40%, rgba(44, 38, 33, 0.2));
+  background: transparent; color: var(--ink); cursor: pointer;
+}
+.lpe-add-option:hover { background: color-mix(in srgb, var(--lp-brand) 8%, transparent); }

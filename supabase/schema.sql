@@ -340,6 +340,7 @@ CREATE TABLE lead_pages (
   content jsonb DEFAULT '{}'::jsonb NOT NULL,
   fields jsonb DEFAULT '[]'::jsonb NOT NULL,
   project_id uuid,
+  slug text,
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
   deleted_at timestamp with time zone
@@ -658,6 +659,7 @@ ALTER TABLE lead_statuses ADD CONSTRAINT lead_statuses_user_id_fkey FOREIGN KEY 
 ALTER TABLE lead_pages ADD CONSTRAINT lead_pages_pkey PRIMARY KEY (id);
 ALTER TABLE lead_pages ADD CONSTRAINT lead_pages_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE lead_pages ADD CONSTRAINT lead_pages_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
+ALTER TABLE lead_pages ADD CONSTRAINT lead_pages_slug_format CHECK ((slug IS NULL OR (slug ~ '^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$'::text)));
 ALTER TABLE leads ADD CONSTRAINT leads_pkey PRIMARY KEY (id);
 ALTER TABLE leads ADD CONSTRAINT leads_status_check CHECK ((status = ANY (ARRAY['new'::text, 'in_contact'::text, 'intro_call'::text, 'pending_decision'::text, 'closed'::text])));
 ALTER TABLE leads ADD CONSTRAINT leads_status_meta_check CHECK ((status_meta = ANY (ARRAY['in_process'::text, 'converted'::text, 'not_relevant'::text])));
@@ -794,6 +796,7 @@ CREATE INDEX idx_lead_status_log_user_changed ON public.lead_status_log USING bt
 CREATE INDEX idx_lead_statuses_user ON public.lead_statuses USING btree (user_id);
 CREATE INDEX idx_lead_pages_user ON public.lead_pages USING btree (user_id);
 CREATE INDEX idx_lead_pages_project ON public.lead_pages USING btree (project_id);
+CREATE UNIQUE INDEX idx_lead_pages_slug_unique ON public.lead_pages USING btree (lower(slug)) WHERE ((slug IS NOT NULL) AND (deleted_at IS NULL));
 CREATE INDEX idx_leads_converted ON public.leads USING btree (converted_to_client_id);
 CREATE INDEX idx_leads_page ON public.leads USING btree (page_id);
 CREATE INDEX idx_leads_pending_review ON public.leads USING btree (user_id) WHERE pending_review;

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { fetchLeadPageConfig, submitLead } from '../../lib/api/leadIntake'
-import { DEFAULT_BRAND_COLOR } from '../../lib/leadPageSchema'
+import { DEFAULT_BRAND_COLOR, isChoiceType } from '../../lib/leadPageSchema'
 import './LeadPage.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -45,18 +45,36 @@ export default function LeadPage() {
     setValues((prev) => ({ ...prev, [key]: v }))
     setErrors((prev) => (prev[key] ? { ...prev, [key]: false } : prev))
   }
+  /* Multi-select (checkbox): toggle an option in the value array. */
+  const toggleChoice = (key, opt) => {
+    setValues((prev) => {
+      const arr = Array.isArray(prev[key]) ? prev[key] : []
+      return { ...prev, [key]: arr.includes(opt) ? arr.filter((o) => o !== opt) : [...arr, opt] }
+    })
+    setErrors((prev) => (prev[key] ? { ...prev, [key]: false } : prev))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitError(null)
     // Client-side required check (the server re-validates authoritatively).
+    const isEmpty = (f) => (f.type === 'checkbox'
+      ? !(Array.isArray(values[f.key]) && values[f.key].length)
+      : !str(values[f.key]))
     const nextErrors = {}
-    fields.forEach((f) => { if (f.required && !str(values[f.key])) nextErrors[f.key] = true })
+    fields.forEach((f) => { if (f.required && isEmpty(f)) nextErrors[f.key] = true })
     if (Object.keys(nextErrors).length) { setErrors(nextErrors); return }
+
+    // Flatten answers to strings (multi-select arrays → comma-joined).
+    const answers = { _hp: hp.current }
+    fields.forEach((f) => {
+      const v = values[f.key]
+      answers[f.key] = f.type === 'checkbox' ? (Array.isArray(v) ? v.join(', ') : '') : (v ?? '')
+    })
 
     setSubmitting(true)
     try {
-      const res = await submitLead(pageId, { ...values, _hp: hp.current })
+      const res = await submitLead(pageId, answers)
       const ty = res?.thankYou || content.thankYou || null
       if (ty?.mode === 'redirect' && str(ty.url)) {
         window.location.href = ty.url
@@ -112,32 +130,60 @@ export default function LeadPage() {
         {content.body ? <p className="lp-body">{content.body}</p> : null}
 
         <div className="lp-fields">
-          {fields.map((f) => (
-            <label key={f.key} className="lp-field">
+          {fields.map((f) => {
+            const labelNode = (
               <span className="lp-label">
                 {f.label || f.key}
                 {f.required ? <span className="lp-req" aria-hidden="true"> *</span> : null}
               </span>
-              {f.type === 'textarea' ? (
-                <textarea
-                  className={`lp-input lp-textarea${errors[f.key] ? ' is-error' : ''}`}
-                  value={values[f.key] ?? ''}
-                  onChange={(e) => setField(f.key, e.target.value)}
-                  rows={4}
-                  required={!!f.required}
-                />
-              ) : (
-                <input
-                  className={`lp-input${errors[f.key] ? ' is-error' : ''}`}
-                  type={f.type === 'email' ? 'email' : f.type === 'tel' ? 'tel' : 'text'}
-                  value={values[f.key] ?? ''}
-                  onChange={(e) => setField(f.key, e.target.value)}
-                  required={!!f.required}
-                />
-              )}
-              {errors[f.key] ? <span className="lp-field-error">שדה חובה</span> : null}
-            </label>
-          ))}
+            )
+            if (isChoiceType(f.type)) {
+              return (
+                <div key={f.key} className="lp-field" role="group" aria-label={f.label || f.key}>
+                  {labelNode}
+                  <div className={`lp-choices${errors[f.key] ? ' is-error' : ''}`}>
+                    {(f.options || []).map((opt, oi) => (
+                      <label className="lp-choice" key={oi}>
+                        <input
+                          type={f.type === 'select' ? 'radio' : 'checkbox'}
+                          name={f.key}
+                          checked={f.type === 'select'
+                            ? values[f.key] === opt
+                            : (Array.isArray(values[f.key]) && values[f.key].includes(opt))}
+                          onChange={() => (f.type === 'select' ? setField(f.key, opt) : toggleChoice(f.key, opt))}
+                        />
+                        <span>{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {errors[f.key] ? <span className="lp-field-error">שדה חובה</span> : null}
+                </div>
+              )
+            }
+            return (
+              <label key={f.key} className="lp-field">
+                {labelNode}
+                {f.type === 'textarea' ? (
+                  <textarea
+                    className={`lp-input lp-textarea${errors[f.key] ? ' is-error' : ''}`}
+                    value={values[f.key] ?? ''}
+                    onChange={(e) => setField(f.key, e.target.value)}
+                    rows={4}
+                    required={!!f.required}
+                  />
+                ) : (
+                  <input
+                    className={`lp-input${errors[f.key] ? ' is-error' : ''}`}
+                    type={f.type === 'email' ? 'email' : f.type === 'tel' ? 'tel' : 'text'}
+                    value={values[f.key] ?? ''}
+                    onChange={(e) => setField(f.key, e.target.value)}
+                    required={!!f.required}
+                  />
+                )}
+                {errors[f.key] ? <span className="lp-field-error">שדה חובה</span> : null}
+              </label>
+            )
+          })}
         </div>
 
         {/* Honeypot — visually hidden; bots fill it, humans don't. */}

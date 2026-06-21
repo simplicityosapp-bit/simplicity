@@ -29,6 +29,7 @@ import AccountDeletionPending from './components/AccountDeletionPending'
 import { CryptoProvider, useCrypto } from './context/CryptoContext'
 import EncryptionMigrator from './components/EncryptionMigrator'
 import ConsentSync from './components/ConsentSync'
+import CookieBanner from './components/CookieBanner'
 import PolicyUpdateModal from './components/legal/PolicyUpdateModal'
 import LegalPage from './components/legal/LegalPage'
 import { needsReacceptance, readPendingConsent, clearPendingConsent, consentRowsFromMetadata } from './lib/legal'
@@ -384,6 +385,7 @@ export default function App() {
       <AuthProvider>
         <DirManager />
         <Root />
+        <CookieBanner />
       </AuthProvider>
     </BrowserRouter>
   )

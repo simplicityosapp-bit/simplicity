@@ -1,0 +1,127 @@
+/* ════════════════════════════════════════════════════════════════
+   COOKIE BANNER — fixed glass bar at the bottom of public pages.
+   Sits above page chrome (landing nav = 200) but below the legal
+   modals (LegalModal = 1200), so opening the policy still covers it.
+   Non-blocking: no scrim, the page stays usable behind it.
+   ════════════════════════════════════════════════════════════════ */
+.cookie-banner {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1100;
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  pointer-events: none;            /* only the card itself is interactive */
+  animation: cookie-banner-in 280ms ease-out;
+}
+
+@keyframes cookie-banner-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cookie-banner-card {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  border: var(--mg-card-border);
+  border-radius: var(--mg-card-radius);
+  box-shadow: var(--mg-card-shadow);
+}
+
+.cookie-banner-icon {
+  flex: none;
+  color: var(--terracotta);
+  margin-top: 2px;
+}
+
+.cookie-banner-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cookie-banner-title {
+  margin: 0 0 4px;
+  font-size: var(--mg-heading);
+  font-weight: 600;
+  color: var(--espresso);
+}
+
+.cookie-banner-body {
+  margin: 0;
+  font-size: var(--mg-body);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--stone);
+}
+
+.cookie-banner-link {
+  color: var(--terracotta);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.cookie-banner-actions {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cookie-banner-btn {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: var(--mg-btn-radius);
+  font-size: var(--mg-body);
+  font-weight: var(--mg-btn-weight);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.cookie-banner-btn--accept {
+  border: 1px solid transparent;
+  background: var(--mg-btn-primary-bg);
+  color: var(--cream);
+}
+.cookie-banner-btn--accept:hover {
+  background: var(--mg-btn-primary-bg-hover);
+}
+
+.cookie-banner-btn--reject {
+  border: var(--mg-btn-secondary-border);
+  background: var(--mg-btn-secondary-bg);
+  color: var(--espresso);
+}
+.cookie-banner-btn--reject:hover {
+  background: var(--mg-btn-secondary-bg-hover);
+}
+
+/* In dark mode the primary button is a light Moonglow swatch, so its label
+   must be dark (not cream) to stay legible. */
+[data-theme='dark'] .cookie-banner-btn--accept {
+  color: var(--espresso-on-light, #2A2520);
+}
+
+/* Stack on narrow screens so the buttons don't squeeze the text. */
+@media (max-width: 560px) {
+  .cookie-banner-card {
+    flex-wrap: wrap;
+  }
+  .cookie-banner-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .cookie-banner-btn {
+    flex: 1 1 0;
+  }
+}

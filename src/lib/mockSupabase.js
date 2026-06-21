@@ -317,14 +317,15 @@ export function makeMockClient() {
         // accept a submission (POST) so /lead/<id> renders end-to-end.
         if (name.startsWith('lead-intake')) {
           const pages = MOCK_DB.lead_pages || []
+          const match = (key) => pages.find((p) => p.published && (p.id === key || p.slug === key))
           if ((opts?.method || 'POST') === 'GET') {
             const q = name.split('?')[1] || ''
             const pageId = new URLSearchParams(q).get('page')
-            const page = pages.find((p) => p.id === pageId && p.published)
+            const page = match(pageId)
             if (!page) return { data: null, error: { message: 'not_found' } }
             return { data: { id: page.id, content: page.content, fields: page.fields }, error: null }
           }
-          const page = pages.find((p) => p.id === opts?.body?.page)
+          const page = match(opts?.body?.page)
           return { data: { ok: true, thankYou: page?.content?.thankYou ?? null }, error: null }
         }
         return { data: { ok: true }, error: null }

@@ -83,15 +83,15 @@ function publicConfig(page: any) {
   }
 }
 
-async function loadPublishedPage(pageId: string) {
-  if (!pageId) return null
-  const { data, error } = await admin
-    .from('lead_pages')
-    .select('*')
-    .eq('id', pageId)
-    .eq('published', true)
-    .is('deleted_at', null)
-    .maybeSingle()
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/* Resolve the /lead/<x> path param as a uuid OR a custom slug. Querying
+   id.eq with a non-uuid string errors in Postgres, so branch on the shape. */
+async function loadPublishedPage(idOrSlug: string) {
+  if (!idOrSlug) return null
+  let q = admin.from('lead_pages').select('*').eq('published', true).is('deleted_at', null)
+  q = UUID_RE.test(idOrSlug) ? q.eq('id', idOrSlug) : q.eq('slug', idOrSlug.toLowerCase())
+  const { data, error } = await q.maybeSingle()
   if (error) { console.error('lead-intake load error:', error); return null }
   return data
 }

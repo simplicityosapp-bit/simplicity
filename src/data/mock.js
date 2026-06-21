@@ -229,7 +229,7 @@ export const pending_invoice_imports = [
 /* Lead pages (preview): one published page the pending lead above came from. */
 export const lead_pages = [
   {
-    id: 'mock-lead-page-1', user_id: USER, title: 'דף קמפיין אינסטגרם',
+    id: 'mock-lead-page-1', user_id: USER, title: 'דף קמפיין אינסטגרם', slug: 'dana-instagram',
     published: true, auto_approve: false,
     content: {
       logoText: 'הסטודיו של דנה', heading: 'רוצים לשמוע עוד?',
@@ -241,6 +241,8 @@ export const lead_pages = [
       { key: 'phone', label: 'טלפון', type: 'tel', required: false, builtin: true },
       { key: 'email', label: 'אימייל', type: 'email', required: false, builtin: true },
       { key: 'field_1', label: 'איך הגעת אלינו?', type: 'text', required: false, builtin: false },
+      { key: 'field_2', label: 'באיזה תחום?', type: 'select', required: false, builtin: false, options: ['אימון אישי', 'ייעוץ עסקי', 'סדנאות'] },
+      { key: 'field_3', label: 'ימים מועדפים', type: 'checkbox', required: false, builtin: false, options: ['ראשון', 'שלישי', 'חמישי'] },
     ],
     created_at: daysAgo(1),
   },

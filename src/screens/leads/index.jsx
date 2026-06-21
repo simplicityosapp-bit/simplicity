@@ -1,6 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, ArrowUpDown } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, ArrowUpDown, Link2 } from 'lucide-react'
+import { ROUTES } from '../../lib/routes'
 import { useLeads } from '../../hooks/useLeads'
+import { useLeadPages } from '../../hooks/useLeadPages'
 import { useLeadSources } from '../../hooks/useLeadSources'
 import { useLeadStatuses } from '../../hooks/useLeadStatuses'
 import { useClients } from '../../hooks/useClients'
@@ -10,7 +13,8 @@ import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
-import { LEAD_META, statusMetaOfLead, metaColor, isConvertedLead } from '../../lib/leads'
+import { LEAD_META, statusMetaOfLead, metaColor, isConvertedLead, isPendingReview } from '../../lib/leads'
+import PendingLeadsSection from './PendingLeadsSection'
 import { pushUndo } from '../../lib/undo'
 import LeadColumn from './LeadColumn'
 import LeadStatusesPanel from './LeadStatusesPanel'
@@ -40,7 +44,9 @@ function computeStats(list, now = new Date()) {
 
 export default function LeadsScreen() {
   const { t } = useT('leads')
+  const navigate = useNavigate()
   const { leads: leadList, loading, error, addLead, updateLead, removeLead } = useLeads()
+  const { pages: leadPages } = useLeadPages()
   const { sources, addSource, removeSource } = useLeadSources()
   const [showSources, setShowSources] = useState(false)
   const { statuses: leadStatuses, loading: statusesLoading, addStatus: addLeadStatus, updateStatus: updateLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
@@ -72,21 +78,27 @@ export default function LeadsScreen() {
   const [dropPicker, setDropPicker] = useState(null) // { leadId, newMeta, subs }
   const [showFollowups, setShowFollowups] = useState(false)
 
+  /* Leads from public pages await manual approval (pending_review). They are
+     kept OUT of the kanban, the stats, and the follow-ups — they live only in
+     the review section + the home "דורש תשומת לב" widget until approved. */
+  const pendingReview = useMemo(() => (leadList || []).filter(isPendingReview), [leadList])
+  const officialLeads = useMemo(() => (leadList || []).filter((l) => !isPendingReview(l)), [leadList])
+
   /* Open lead follow-ups — date ≤ today AND still in_process (a closed lead's
      follow-up is moot). Drives the banner + the follow-ups panel. */
   const dueFollowups = useMemo(() => {
     const t = new Date()
     const ymd = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
-    return (leadList || []).filter(
+    return officialLeads.filter(
       (l) => !l.deleted_at && l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= ymd,
     )
-  }, [leadList])
+  }, [officialLeads])
   const markFollowupDone = (lead) => updateLead(lead.id, { follow_up_date: null }).catch(() => {})
 
   const buckets = useMemo(() => {
     const g = {}
     LEAD_META.forEach((m) => { g[m.key] = [] })
-    const src = subFilter ? leadList.filter((l) => l.status_id === subFilter) : leadList
+    const src = subFilter ? officialLeads.filter((l) => l.status_id === subFilter) : officialLeads
     src.forEach((l) => { (g[statusMetaOfLead(l)] || g.in_process).push(l) })
     if (dateSort) {
       const dir = dateSort === 'old' ? 1 : -1
@@ -94,8 +106,12 @@ export default function LeadsScreen() {
       LEAD_META.forEach((m) => { g[m.key].sort((a, b) => keyOf(a).localeCompare(keyOf(b)) * dir) })
     }
     return g
-  }, [leadList, subFilter, dateSort])
-  const stats = useMemo(() => computeStats(leadList), [leadList])
+  }, [officialLeads, subFilter, dateSort])
+  const stats = useMemo(() => computeStats(officialLeads), [officialLeads])
+
+  /* Approve = move into the official list; reject = soft-delete (undoable). */
+  const approveLead = useCallback((id) => updateLead(id, { pending_review: false }).catch(() => {}), [updateLead])
+  const rejectLead = useCallback((id) => removeLead(id), [removeLead])
   const total = LEAD_META.reduce((s, m) => s + (buckets[m.key]?.length || 0), 0)
 
   /* Commit a column move (+ optional sub-status). status_id is always set
@@ -190,7 +206,22 @@ export default function LeadsScreen() {
           <Leaf size={14} strokeWidth={1.7} aria-hidden="true" />
           {t('sourcesLink')}
         </button>
+        <button
+          type="button"
+          className="l-sources-link"
+          onClick={() => navigate(ROUTES.LEAD_PAGES)}
+        >
+          <Link2 size={14} strokeWidth={1.7} aria-hidden="true" />
+          {t('leadPagesLink')}
+        </button>
       </div>
+
+      <PendingLeadsSection
+        pending={pendingReview}
+        pages={leadPages}
+        onApprove={approveLead}
+        onReject={rejectLead}
+      />
 
       <div className="l-stats">
         <div className="l-stat">

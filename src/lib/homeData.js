@@ -195,14 +195,20 @@ export function attentionItems(now = new Date(), data) {
   const staleClients = clientsNeedingAttention(45, now, { clients, sessions })
   if (staleClients.length) items.push({ icon: 'Clock', text: `${staleClients.length} לקוח${staleClients.length > 1 ? 'ות' : ''} לא יצרו קשר`, to: ROUTES.CLIENTS })
 
-  const staleLeads = leadsNeedingAttention(45, now, leads)
+  /* Leads from public lead-pages awaiting manual approval. Kept orthogonal:
+     pending leads are excluded from the stale / follow-up rules below. */
+  const officialLeads = live(leads).filter((l) => !l.pending_review)
+  const pendingLeads = live(leads).filter((l) => l.pending_review)
+  if (pendingLeads.length) items.push({ icon: 'Bell', text: `${pendingLeads.length} ליד${pendingLeads.length > 1 ? 'ים' : ''} ממתינים לאישור`, to: ROUTES.LEADS, kind: 'pendingLeads' })
+
+  const staleLeads = leadsNeedingAttention(45, now, officialLeads)
   if (staleLeads.length) items.push({ icon: 'Clock', text: `${staleLeads.length} ליד${staleLeads.length > 1 ? 'ים' : ''} ללא תנועה`, to: ROUTES.LEADS })
 
   /* Lead follow-ups due — date ≤ today AND still in_process (closed metas
      suppress, the follow-up is moot). follow_up_date is a 'YYYY-MM-DD' string
      so a lexical compare against today's local YYYY-MM-DD is correct. */
   const todayYmd = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-  const dueFollowups = live(leads).filter(
+  const dueFollowups = officialLeads.filter(
     (l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= todayYmd,
   )
   if (dueFollowups.length) items.push({ icon: 'Bell', text: `${dueFollowups.length} פולואו-אפ${dueFollowups.length > 1 ? 'ים' : ''} להיום`, to: ROUTES.LEADS, kind: 'leadFollowups' })

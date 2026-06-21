@@ -45,6 +45,7 @@ const ClientsScreen = lazyWithRetry(() => import('./screens/clients'))
 const FinanceScreen = lazyWithRetry(() => import('./screens/finance'))
 const TasksScreen = lazyWithRetry(() => import('./screens/tasks'))
 const LeadsScreen = lazyWithRetry(() => import('./screens/leads'))
+const LeadPagesScreen = lazyWithRetry(() => import('./screens/lead-pages'))
 const CalendarScreen = lazyWithRetry(() => import('./screens/calendar'))
 const GoalsScreen = lazyWithRetry(() => import('./screens/goals'))
 const MoonGlanceScreen = lazyWithRetry(() => import('./screens/moon-glance'))
@@ -64,6 +65,9 @@ const AdminApp = lazyWithRetry(() => import('./screens/admin'))
    crawlers) instead of bouncing them to /login. Lazy so it never weighs
    down the authenticated app bundle; a logged-in "/" still renders Home. */
 const LandingScreen = lazyWithRetry(() => import('./screens/landing'))
+/* Public lead-capture landing page — served at /lead/<id> to logged-out
+   visitors (the coach's prospects). Lazy so it never weighs down the app. */
+const LeadPageScreen = lazyWithRetry(() => import('./screens/lead-page'))
 
 import LoginScreen from './screens/auth/LoginScreen'
 import SignupScreen from './screens/auth/SignupScreen'
@@ -193,6 +197,7 @@ function AppShell() {
             <Route path={ROUTES.CLIENT} element={<ClientsScreen />} />
             <Route path={ROUTES.FINANCE} element={<FinanceScreen />} />
             <Route path={ROUTES.TASKS} element={<TasksScreen />} />
+            <Route path={ROUTES.LEAD_PAGES} element={<LeadPagesScreen />} />
             <Route path={ROUTES.LEADS} element={<LeadsScreen />} />
             <Route path={ROUTES.CALENDAR} element={<CalendarScreen />} />
             <Route path={ROUTES.GOALS} element={<GoalsScreen />} />
@@ -337,6 +342,17 @@ const PUBLIC_PATHS = new Set([ROUTES.LEGAL, ROUTES.PRIVACY, ROUTES.TERMS, ROUTES
 function Root() {
   const { session, loading, recovery } = useAuth()
   const { pathname } = useLocation()
+  /* Public lead-capture pages (/lead/<id>) — dynamic path, served before the
+     auth gate so the coach's prospects reach the form with no login / shell. */
+  if (pathname.startsWith('/lead/')) {
+    return (
+      <Suspense fallback={<LoadingSplash />}>
+        <Routes>
+          <Route path={ROUTES.LEAD_PAGE} element={<LeadPageScreen />} />
+        </Routes>
+      </Suspense>
+    )
+  }
   if (PUBLIC_PATHS.has(pathname)) return <PublicRoute />
   if (loading || (!session && urlHasOAuthCallback())) {
     return <LoadingSplash />

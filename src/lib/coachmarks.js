@@ -25,7 +25,7 @@ import enGuidance from '../i18n/locales/en/guidance.json'
 i18n.addResourceBundle('he', 'guidance', heGuidance, true, false)
 i18n.addResourceBundle('en', 'guidance', enGuidance, true, false)
 
-const COACHMARK_IDS = ['add-task', 'add-lead', 'add-project', 'add-goal', 'add-transaction', 'add-meeting']
+const COACHMARK_IDS = ['add-task', 'add-lead', 'add-lead-page', 'add-project', 'add-goal', 'add-transaction', 'add-meeting']
 
 export function coachmarkText(id, gender) {
   if (!COACHMARK_IDS.includes(id)) return { bubble: '', detail: '' }

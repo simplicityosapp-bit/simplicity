@@ -120,6 +120,9 @@ export const leads = [
   { id: uid(), user_id: USER, name: 'מירב כהן', phone: '054-1112233', source_id: lead_sources[0].id, status: 'new', status_id: lead_statuses[0].id, status_meta: 'in_process', inquiry_date: dateAgo(5), follow_up_date: dateFromNow(2), last_status_changed_at: daysAgo(5), notes: 'מעוניינת בליווי אישי.', created_at: daysAgo(5), converted_to_client_id: null, converted_at: null },
   { id: uid(), user_id: USER, name: 'תום לוי', phone: '050-9998877', source_id: lead_sources[1].id, status: 'closed', status_id: lead_statuses[1].id, status_meta: 'converted', inquiry_date: dateAgo(60), follow_up_date: null, last_status_changed_at: daysAgo(40), notes: null, created_at: daysAgo(60), converted_to_client_id: clients[0].id, converted_at: daysAgo(40) },
   { id: uid(), user_id: USER, name: 'נועה שחר', phone: null, source_id: lead_sources[0].id, status: 'new', status_id: lead_statuses[3].id, status_meta: 'not_relevant', inquiry_date: dateAgo(80), follow_up_date: null, last_status_changed_at: daysAgo(50), notes: 'לא הגיבה לפניות.', created_at: daysAgo(80), converted_to_client_id: null, converted_at: null },
+  /* Pending public-page submission (preview): surfaces in the review section
+     + the home "דורש תשומת לב" widget, NOT in the kanban / stats. */
+  { id: uid(), user_id: USER, name: 'דניאל אברהם', phone: '052-7654321', email: 'daniel@example.com', page_id: 'mock-lead-page-1', pending_review: true, data: { field_1: 'אינסטגרם' }, source_id: null, status: 'new', status_id: null, status_meta: 'in_process', inquiry_date: dateAgo(0), follow_up_date: null, last_status_changed_at: daysAgo(0), notes: 'הגעתי דרך הסטורי שלכם', created_at: daysAgo(0), converted_to_client_id: null, converted_at: null },
 ]
 
 /* ── sessions — פרטי + קבוצתי (polymorphic subject_type/subject_id) ── */
@@ -223,8 +226,29 @@ export const pending_invoice_imports = [
   { id: uid(), user_id: USER, provider: 'sumit', external_document_id: '900124', document_type: 'receipt', document_number: '1043', amount: 520, currency: 'ILS', doc_date: new Date().toISOString().slice(0, 10), customer_name: 'לקוח מזדמן', document_url: null, client_id: null, status: 'pending', created_at: daysAgo(0) },
 ]
 
+/* Lead pages (preview): one published page the pending lead above came from. */
+export const lead_pages = [
+  {
+    id: 'mock-lead-page-1', user_id: USER, title: 'דף קמפיין אינסטגרם',
+    published: true, auto_approve: false,
+    content: {
+      logoText: 'הסטודיו של דנה', heading: 'רוצים לשמוע עוד?',
+      body: 'השאירו פרטים ונחזור אליכם בהקדם.', brandColor: '#C97B5E',
+      thankYou: { mode: 'message', message: 'תודה! נחזור אליך בהקדם.', url: '' },
+    },
+    fields: [
+      { key: 'name', label: 'שם', type: 'text', required: true, builtin: true },
+      { key: 'phone', label: 'טלפון', type: 'tel', required: false, builtin: true },
+      { key: 'email', label: 'אימייל', type: 'email', required: false, builtin: true },
+      { key: 'field_1', label: 'איך הגעת אלינו?', type: 'text', required: false, builtin: false },
+    ],
+    created_at: daysAgo(1),
+  },
+]
+
 export const MOCK_DB = {
   pending_invoice_imports,
+  lead_pages,
   projects,
   groups,
   group_members,

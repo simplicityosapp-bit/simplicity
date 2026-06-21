@@ -627,3 +627,69 @@
   background: color-mix(in srgb, var(--sage) 18%, transparent);
   border-color: color-mix(in srgb, var(--sage) 40%, transparent);
 }
+
+/* ── Pending leads (public-page submissions awaiting approval) ─────────── */
+.l-pending {
+  margin-bottom: 20px;
+  background: color-mix(in srgb, var(--terracotta) 12%, var(--mg-card-bg));
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  border: 1px solid color-mix(in srgb, var(--terracotta) 30%, transparent);
+  border-radius: 18px;
+  box-shadow: var(--mg-card-shadow);
+  padding: 16px 18px;
+}
+.l-pending-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+.l-pending-title { font-size: 15px; font-weight: 600; }
+.l-pending-count {
+  margin-inline-start: auto;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--terracotta) 20%, transparent);
+  color: var(--ink);
+}
+.l-pending-list { display: flex; flex-direction: column; gap: 10px; }
+.l-pending-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: var(--mg-card-bg);
+  border: 1px solid rgba(44, 38, 33, 0.08);
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+.l-pending-info { min-width: 0; flex: 1 1 240px; }
+.l-pending-source { font-size: 12px; color: var(--stone); margin: 0 0 6px; }
+.l-pending-fields { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0; }
+.l-pending-field { display: flex; gap: 6px; align-items: baseline; }
+.l-pending-field dt { font-size: 12px; color: var(--stone); margin: 0; flex: none; }
+.l-pending-field dd { font-size: 14px; color: var(--ink); margin: 0; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.l-pending-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+.l-pending-approve {
+  display: inline-flex; align-items: center; gap: 5px;
+  font: inherit; font-size: 14px; font-weight: 500;
+  padding: 8px 16px; border-radius: 10px; border: none;
+  background: color-mix(in srgb, var(--sage) 26%, transparent);
+  color: var(--ink); cursor: pointer;
+}
+.l-pending-approve:hover { background: color-mix(in srgb, var(--sage) 38%, transparent); }
+.l-pending-reject {
+  display: inline-grid; place-items: center;
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid rgba(44, 38, 33, 0.14);
+  background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
+  color: var(--stone); cursor: pointer;
+}
+.l-pending-reject:hover { color: var(--terracotta); border-color: color-mix(in srgb, var(--terracotta) 40%, transparent); }

@@ -313,6 +313,20 @@ export function makeMockClient() {
           if (a === 'catalog') return { data: { items: [{ id: '1', name: 'אימון אישי', price: 380 }, { id: '2', name: 'ייעוץ זוגי', price: 450 }] }, error: null }
           return { data: { status: { connected: true, provider: 'sumit', environment: 'production', connected_at: new Date().toISOString(), auto_import: true, webhook_url: 'https://rdurkakzyymxhocvhufw.supabase.co/functions/v1/invoice-webhook?t=mock-token' }, ok: true }, error: null }
         }
+        // Public lead pages in preview: serve the mock page config (GET) and
+        // accept a submission (POST) so /lead/<id> renders end-to-end.
+        if (name.startsWith('lead-intake')) {
+          const pages = MOCK_DB.lead_pages || []
+          if ((opts?.method || 'POST') === 'GET') {
+            const q = name.split('?')[1] || ''
+            const pageId = new URLSearchParams(q).get('page')
+            const page = pages.find((p) => p.id === pageId && p.published)
+            if (!page) return { data: null, error: { message: 'not_found' } }
+            return { data: { id: page.id, content: page.content, fields: page.fields }, error: null }
+          }
+          const page = pages.find((p) => p.id === opts?.body?.page)
+          return { data: { ok: true, thankYou: page?.content?.thankYou ?? null }, error: null }
+        }
         return { data: { ok: true }, error: null }
       },
     },

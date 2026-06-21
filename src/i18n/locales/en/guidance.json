@@ -8,6 +8,10 @@
       "bubble": "Add your first lead",
       "detail": "Leads are inquiries that haven't become clients yet."
     },
+    "add-lead-page": {
+      "bubble": "Create your first lead page",
+      "detail": "A public lead page collects inquiries straight into your leads — no login needed for the visitor."
+    },
     "add-project": {
       "bubble": "Start your first project",
       "detail": "Projects group clients and tasks under one shared goal."
@@ -104,6 +108,12 @@
       "add": {
         "title": "New lead",
         "body": "This is where you add a new lead."
+      }
+    },
+    "leadPages": {
+      "add": {
+        "title": "New lead page",
+        "body": "Create a public lead page here — build the form, publish it, and share a link that collects leads straight to you."
       }
     },
     "projects": {

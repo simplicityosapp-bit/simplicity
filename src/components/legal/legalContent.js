@@ -15,7 +15,10 @@ export const DPA_META = `Data Processing Agreement · גרסה ${DPA_VERSION} ·
    source doc into the app-accurate structure. 3 corrections vs source: no
    Anthropic/Claude vendor, analytics marked future, AI-training reframed to
    "we do NOT train on personal data". Selling-aggregated-data clause and
-   7yr/24mo retention from the source were intentionally NOT adopted (owner). */
+   7yr/24mo retention from the source were intentionally NOT adopted (owner).
+   v2.1 (2026-06-21): §11 reworded to consent-gated analytics + advertising
+   cookies (incl. retargeting), matching the public cookie banner — see
+   lib/legal.js changelog. Same change mirrored in the en/es/fr content. */
 export const PRIVACY_BLOCKS = [
   { h: '1. מבוא' },
   { t: 'סימפליסיטי ("השירות", "האפליקציה") היא מערכת ניהול פרקטיקה (Practice OS) המיועדת למאמנים, מנטורים ומטפלים. השירות מופעל על ידי בניה דור ("אנחנו", "המפעיל").' },
@@ -111,9 +114,9 @@ export const PRIVACY_BLOCKS = [
   { t: 'משתמש שלא הסכים לא ייכלל בכל פעולה שיווקית מסוג זה.' },
 
   { h: '11. עוגיות ומעקב' },
-  { t: 'האפליקציה משתמשת ב-cookies טכניים הנחוצים לפעולתה (שמירת מצב התחברות). אין שימוש ב-cookies פרסומיים או כלי מעקב צד שלישי.' },
+  { t: 'האפליקציה משתמשת ב-cookies טכניים הנחוצים לפעולתה (שמירת מצב התחברות). cookies אלו פטורים מהסכמה.' },
+  { t: 'בכפוף להסכמתך — הניתנת דרך באנר העוגיות באתר — אנו עשויים להשתמש גם ב-cookies של אנליטיקה ופרסום, לרבות עוגיות לצורך מדידת שימוש, הצגת מודעות רלוונטיות ופנייה חוזרת (retargeting) למבקרי דף הנחיתה. cookies לא-חיוניים אלו אינם נטענים עד לקבלת הסכמתך, וניתן לסרב או לחזור בך מההסכמה בכל עת דרך הבאנר.' },
   { t: 'גופני האפליקציה נטענים מ-Google Fonts — פעולה זו חושפת את כתובת ה-IP של המשתמש לשרתי Google. לא נאסף מידע נוסף.' },
-  { t: 'כיום איננו משתמשים בכלי אנליטיקה של צד שלישי. עם הפעלת שירות אנליטיקה בעתיד, נעדכן מדיניות זו בהתאם.' },
 
   { h: '12. הודעה על אירוע אבטחה' },
   { t: 'בהתאם לתקנות הגנת הפרטיות (אבטחת מידע), התשע"ז-2017, במקרה של אירוע אבטחה חמור העלול לגרום לפגיעה ממשית בפרטיות, נדווח לרשות להגנת הפרטיות ללא דיחוי, ונודיע לנושאי המידע שנפגעו ככל שהאירוע עלול לגרום להם נזק ממשי.' },

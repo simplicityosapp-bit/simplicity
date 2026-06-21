@@ -29,8 +29,14 @@
    DPA 1.3→2.0: full upgrade to match privacy/terms — תיקון 13 + level-3/DPO
    security, sub-processor binding + change-notice, breach reporting to the
    Authority + assist, assist-controller with data-subject requests, intl
-   transfer, staff confidentiality. */
-export const PRIVACY_VERSION = '2.0'
+   transfer, staff confidentiality.
+   2026-06-21: privacy §11 (cookies) reworded — the absolute "no advertising /
+   third-party tracking cookies" claim replaced with consent-gated language:
+   essential cookies are exempt, and analytics + advertising cookies (incl.
+   retargeting landing-page visitors) are used only with consent given via the
+   site cookie banner, are not loaded until consent, and are revocable. Matches
+   the new public cookie banner. Privacy 2.0→2.1 (forces re-acceptance). */
+export const PRIVACY_VERSION = '2.1'
 export const DPA_VERSION = '2.0'
 export const TERMS_VERSION = '2.0'
 

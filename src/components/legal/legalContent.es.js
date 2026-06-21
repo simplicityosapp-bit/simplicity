@@ -100,9 +100,9 @@ export const PRIVACY_BLOCKS = [
   { t: "Un usuario que no haya dado su consentimiento no será incluido en ninguna acción de marketing de este tipo." },
 
   { h: "11. Cookies y rastreo" },
-  { t: "La Aplicación utiliza cookies técnicas necesarias para su funcionamiento (mantener el estado de la sesión). No se utilizan cookies publicitarias ni herramientas de rastreo de terceros." },
+  { t: "La Aplicación utiliza cookies técnicas necesarias para su funcionamiento (mantener el estado de la sesión). Estas cookies están exentas de consentimiento." },
+  { t: "Sujeto a tu consentimiento — otorgado a través del banner de cookies del sitio — también podemos utilizar cookies de analítica y publicidad, incluidas cookies para medir el uso, mostrar anuncios relevantes y realizar retargeting a los visitantes de la página de aterrizaje. Estas cookies no esenciales no se cargan hasta que des tu consentimiento, y puedes rechazarlas o retirar tu consentimiento en cualquier momento a través del banner." },
   { t: "Las fuentes tipográficas de la Aplicación se cargan desde Google Fonts; esta operación expone la dirección IP del Usuario a los servidores de Google. No se recopila información adicional." },
-  { t: "Actualmente no utilizamos herramientas de analítica de terceros. Cuando se active un servicio de analítica en el futuro, actualizaremos esta política en consecuencia." },
 
   { h: "12. Notificación de incidente de seguridad" },
   { t: "De conformidad con el Reglamento de Protección de la Privacidad (Seguridad de la Información), 5777-2017, en caso de un incidente de seguridad grave que pueda causar un daño real a la privacidad, lo informaremos a la Autoridad de Protección de la Privacidad sin demora, y notificaremos a los sujetos de los datos afectados en la medida en que el incidente pueda causarles un daño real." },

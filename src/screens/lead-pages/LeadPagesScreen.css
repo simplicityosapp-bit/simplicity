@@ -27,9 +27,8 @@
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  /* Stronger frost than the 30% card glass — reads solid over the busy
-     forest background on desktop (the 30% glass washed out). */
-  background: rgba(255, 252, 247, 0.72);
+  /* Standard app card glass (same tokens as every other screen). */
+  background: var(--mg-card-bg);
   border: var(--mg-card-border);
   border-radius: 20px;
   box-shadow: var(--mg-card-shadow);
@@ -37,7 +36,6 @@
   -webkit-backdrop-filter: var(--mg-card-blur);
   padding: 18px 22px;
 }
-[data-theme="dark"] .lpm-card { background: rgba(26, 31, 38, 0.78); }
 
 .lpm-card-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .lpm-card-title { font-size: 17px; font-weight: 600; margin: 0; }
@@ -218,7 +216,7 @@
 }
 
 .lpe-settings {
-  background: rgba(255, 252, 247, 0.72);
+  background: var(--mg-card-bg);
   border: var(--mg-card-border);
   border-radius: 18px;
   box-shadow: var(--mg-card-shadow);
@@ -227,7 +225,6 @@
   padding: 20px 22px;
   margin-bottom: 16px;
 }
-[data-theme="dark"] .lpe-settings { background: rgba(26, 31, 38, 0.78); }
 .lpe-settings-row { display: flex; flex-wrap: wrap; gap: 6px 28px; margin: 6px 0; }
 .lpe-settings-row .lpb-toggle { flex: 1 1 220px; }
 .lpe-err { margin: 0 0 14px; }

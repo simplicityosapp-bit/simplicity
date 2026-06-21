@@ -42,11 +42,62 @@ export const DEFAULT_CONTENT = {
   heading: '',
   body: '',
   brandColor: DEFAULT_BRAND_COLOR,
+  // Advanced display (all optional; defaults keep the current look):
+  background: '',      // '' = default gradient; else a Simplicity scene key
+  cardOpacity: 100,    // 0–100 — how solid the form card is over the background
+  cardBlur: 14,        // px — glass blur behind a transparent card
+  bold: false,         // heavier heading + text
+  textColor: 'dark',   // 'dark' | 'light' (light for dark backgrounds)
+  textAlign: 'start',  // 'start' (right, RTL) | 'center'
   thankYou: {
     mode: 'message', // 'message' | 'redirect'
     message: 'תודה! קיבלנו את הפנייה ונחזור אליך בהקדם.',
     url: '',
   },
+}
+
+/* Curated Simplicity nature scenes the coach can pick as a page background.
+   Each maps to /backgrounds/desktop/<day|night>/<key>.webp. */
+export const LEAD_PAGE_BACKGROUNDS = [
+  { key: 'home', label: 'שדה' },
+  { key: 'leads', label: 'נהר' },
+  { key: 'clients', label: 'יער' },
+  { key: 'finance', label: 'הרים' },
+  { key: 'projects', label: 'אגם' },
+  { key: 'goals', label: 'שביל' },
+  { key: 'calendar', label: 'בוקר' },
+  { key: 'moon', label: 'לילה' },
+  { key: 'reports', label: 'ערפל' },
+  { key: 'tasks', label: 'עצים' },
+]
+
+export const leadPageBgUrl = (key, variant = 'day') => `/backgrounds/desktop/${variant}/${key}.webp`
+
+/* Shared surface styling for the public page AND the builder canvas, so the
+   builder is true WYSIWYG. Returns inline CSS vars + a className string; both
+   are applied to a `.lp-surface` element (the public `.lp-root` and the
+   builder `.lpe-canvas`). */
+export function leadPageSurface(content = {}) {
+  const c = content || {}
+  const bg = (c.background || '').toString().trim()
+  const opacity = typeof c.cardOpacity === 'number' ? c.cardOpacity : 100
+  const blur = typeof c.cardBlur === 'number' ? c.cardBlur : 14
+  const style = {
+    '--lp-brand': c.brandColor || DEFAULT_BRAND_COLOR,
+    '--lp-card-opacity': `${Math.max(0, Math.min(100, opacity))}%`,
+    '--lp-card-blur': `${Math.max(0, blur)}px`,
+  }
+  if (bg) {
+    style['--lp-bg-day'] = `url(${leadPageBgUrl(bg, 'day')})`
+    style['--lp-bg-night'] = `url(${leadPageBgUrl(bg, 'night')})`
+  }
+  const cls = [
+    bg ? 'has-bg' : '',
+    c.bold ? 'is-bold' : '',
+    c.textColor === 'light' ? 'text-light' : '',
+    c.textAlign === 'center' ? 'align-center' : '',
+  ].filter(Boolean).join(' ')
+  return { style, cls }
 }
 
 /* A fresh page's starting config (before the coach edits anything). */

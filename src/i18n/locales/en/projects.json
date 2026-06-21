@@ -107,6 +107,15 @@
       "deleteAria": "Delete reminder",
       "add": "Project reminder +"
     },
+    "leadPages": {
+      "title": "Lead pages",
+      "empty": "No linked lead pages.",
+      "create": "Create one",
+      "untitled": "Untitled page",
+      "live": "Live",
+      "draft": "Draft",
+      "openAria": "Open page {{name}}"
+    },
     "deleteSession": {
       "title": "Delete session",
       "message": "Delete this group session? It will be removed for all members.",

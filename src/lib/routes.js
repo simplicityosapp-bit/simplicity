@@ -27,6 +27,7 @@ export const ROUTES = {
   FINANCE: '/finance',
   TASKS: '/tasks',
   LEADS: '/leads',
+  LEAD_PAGES: '/leads/pages', // in-app builder + management for public lead pages
   CALENDAR: '/calendar',
   GOALS: '/goals',
   MOON_GLANCE: '/moon',
@@ -47,6 +48,11 @@ export const ROUTES = {
   ADMIN_USERS: '/admin/users',
   ADMIN_FEEDBACK: '/admin/feedback',
   ADMIN_ANALYTICS: '/admin/analytics',
+
+  // Public lead-capture landing page — reachable WITHOUT login (served
+  // before the auth gate, like /legal and /landing). The :pageId is the
+  // lead_pages row uuid; the page talks only to the `lead-intake` edge fn.
+  LEAD_PAGE: '/lead/:pageId',
 
   // Dynamic routes
   CLIENT: '/clients/:id',

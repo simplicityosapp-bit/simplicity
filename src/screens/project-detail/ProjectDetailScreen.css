@@ -591,3 +591,45 @@
   color: var(--stone);
 }
 .gc-btn:active { transform: scale(0.97); }
+
+/* ── Lead pages section ──────────────────────────────────────────── */
+.pd-link-inline {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--terracotta);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.pd-leadpage-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: start;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(44, 38, 33, 0.08);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.pd-leadpage-row:hover { background: var(--mg-row-hover-bg); }
+.pd-leadpage-icon { color: var(--stone); flex: none; }
+.pd-leadpage-name { flex: 1 1 auto; min-width: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pd-leadpage-badge {
+  flex: none;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(44, 38, 33, 0.07);
+  color: var(--stone);
+}
+.pd-leadpage-badge.live { background: color-mix(in srgb, var(--sage) 24%, transparent); color: var(--ink); }
+.pd-leadpage-chev { color: var(--stone); flex: none; }

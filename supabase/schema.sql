@@ -324,7 +324,25 @@ CREATE TABLE leads (
   deleted_at timestamp with time zone,
   closed_at timestamp with time zone,
   project_id uuid,
-  group_id uuid
+  group_id uuid,
+  page_id uuid,
+  email text,
+  data jsonb DEFAULT '{}'::jsonb NOT NULL,
+  pending_review boolean DEFAULT false NOT NULL
+);
+
+CREATE TABLE lead_pages (
+  id uuid DEFAULT gen_random_uuid() NOT NULL,
+  user_id uuid NOT NULL,
+  title text DEFAULT ''::text NOT NULL,
+  published boolean DEFAULT false NOT NULL,
+  auto_approve boolean DEFAULT false NOT NULL,
+  content jsonb DEFAULT '{}'::jsonb NOT NULL,
+  fields jsonb DEFAULT '[]'::jsonb NOT NULL,
+  project_id uuid,
+  created_at timestamp with time zone DEFAULT now() NOT NULL,
+  updated_at timestamp with time zone DEFAULT now() NOT NULL,
+  deleted_at timestamp with time zone
 );
 
 CREATE TABLE moon_snapshots (
@@ -637,6 +655,9 @@ ALTER TABLE lead_status_log ADD CONSTRAINT lead_status_log_user_id_fkey FOREIGN 
 ALTER TABLE lead_statuses ADD CONSTRAINT lead_statuses_pkey PRIMARY KEY (id);
 ALTER TABLE lead_statuses ADD CONSTRAINT lead_statuses_meta_category_check CHECK ((meta_category = ANY (ARRAY['in_process'::text, 'converted'::text, 'not_relevant'::text])));
 ALTER TABLE lead_statuses ADD CONSTRAINT lead_statuses_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE lead_pages ADD CONSTRAINT lead_pages_pkey PRIMARY KEY (id);
+ALTER TABLE lead_pages ADD CONSTRAINT lead_pages_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE lead_pages ADD CONSTRAINT lead_pages_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE leads ADD CONSTRAINT leads_pkey PRIMARY KEY (id);
 ALTER TABLE leads ADD CONSTRAINT leads_status_check CHECK ((status = ANY (ARRAY['new'::text, 'in_contact'::text, 'intro_call'::text, 'pending_decision'::text, 'closed'::text])));
 ALTER TABLE leads ADD CONSTRAINT leads_status_meta_check CHECK ((status_meta = ANY (ARRAY['in_process'::text, 'converted'::text, 'not_relevant'::text])));
@@ -645,6 +666,7 @@ ALTER TABLE leads ADD CONSTRAINT leads_group_id_fkey FOREIGN KEY (group_id) REFE
 ALTER TABLE leads ADD CONSTRAINT leads_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE leads ADD CONSTRAINT leads_source_id_fkey FOREIGN KEY (source_id) REFERENCES lead_sources(id) ON DELETE SET NULL;
 ALTER TABLE leads ADD CONSTRAINT leads_status_id_fkey FOREIGN KEY (status_id) REFERENCES lead_statuses(id) ON DELETE SET NULL;
+ALTER TABLE leads ADD CONSTRAINT leads_page_id_fkey FOREIGN KEY (page_id) REFERENCES lead_pages(id) ON DELETE SET NULL;
 ALTER TABLE leads ADD CONSTRAINT leads_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE moon_snapshots ADD CONSTRAINT moon_snapshots_pkey PRIMARY KEY (id);
 ALTER TABLE moon_snapshots ADD CONSTRAINT moon_snapshots_user_date_uniq UNIQUE (user_id, date);
@@ -770,7 +792,11 @@ CREATE INDEX idx_lead_status_log_to ON public.lead_status_log USING btree (to_st
 CREATE INDEX idx_lead_status_log_user ON public.lead_status_log USING btree (user_id);
 CREATE INDEX idx_lead_status_log_user_changed ON public.lead_status_log USING btree (user_id, changed_at);
 CREATE INDEX idx_lead_statuses_user ON public.lead_statuses USING btree (user_id);
+CREATE INDEX idx_lead_pages_user ON public.lead_pages USING btree (user_id);
+CREATE INDEX idx_lead_pages_project ON public.lead_pages USING btree (project_id);
 CREATE INDEX idx_leads_converted ON public.leads USING btree (converted_to_client_id);
+CREATE INDEX idx_leads_page ON public.leads USING btree (page_id);
+CREATE INDEX idx_leads_pending_review ON public.leads USING btree (user_id) WHERE pending_review;
 CREATE INDEX idx_leads_group ON public.leads USING btree (group_id);
 CREATE INDEX idx_leads_project ON public.leads USING btree (project_id);
 CREATE INDEX idx_leads_source ON public.leads USING btree (source_id);
@@ -839,6 +865,7 @@ ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE lead_sources ENABLE ROW LEVEL SECURITY;
 ALTER TABLE lead_status_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE lead_statuses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lead_pages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE moon_snapshots ENABLE ROW LEVEL SECURITY;
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
@@ -877,6 +904,7 @@ CREATE POLICY lead_sources_own ON lead_sources FOR ALL TO authenticated USING ((
 CREATE POLICY lead_status_log_insert ON lead_status_log FOR INSERT TO authenticated WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY lead_status_log_select ON lead_status_log FOR SELECT TO authenticated USING ((user_id = auth.uid()));
 CREATE POLICY lead_statuses_own ON lead_statuses FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
+CREATE POLICY lead_pages_own ON lead_pages FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY leads_own ON leads FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY moon_snapshots_own ON moon_snapshots FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY projects_own ON projects FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
@@ -909,6 +937,7 @@ CREATE TRIGGER trg_group_members_updated BEFORE UPDATE ON public.group_members F
 CREATE TRIGGER trg_groups_updated BEFORE UPDATE ON public.groups FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_lead_sources_updated BEFORE UPDATE ON public.lead_sources FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_lead_statuses_updated BEFORE UPDATE ON public.lead_statuses FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_lead_pages_updated BEFORE UPDATE ON public.lead_pages FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_leads_updated BEFORE UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_moon_snapshots_updated BEFORE UPDATE ON public.moon_snapshots FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_projects_updated BEFORE UPDATE ON public.projects FOR EACH ROW EXECUTE FUNCTION set_updated_at();

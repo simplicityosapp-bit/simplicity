@@ -24,6 +24,10 @@ export const statusMetaOfLead = (l) => l.status_meta || 'in_process'
    this so a reverted conversion drops out of the rate. Mirrors the LeadCard
    badge (meta === 'converted' && converted_to_client_id). */
 export const isConvertedLead = (l) => statusMetaOfLead(l) === 'converted' && !!l.converted_at
+/* A lead from a public page awaiting manual approval. Pending leads are
+   hidden from the kanban + stats and surface only in the review section +
+   the home "דורש תשומת לב" widget until approved (pending_review → false). */
+export const isPendingReview = (l) => !!l.pending_review
 export const sourceOf = (id) => lead_sources.find((s) => s.id === id)
 export const subStatusOf = (id) => lead_statuses.find((s) => s.id === id)
 

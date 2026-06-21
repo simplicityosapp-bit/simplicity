@@ -1,0 +1,347 @@
+/* ════════════════════════════════════════════════════════════════
+   LEAD PAGES — builder + management screen. Reuses modal field
+   primitives (.m-field/.m-input/.m-select/.m-textarea) where possible.
+   ════════════════════════════════════════════════════════════════ */
+
+.lp-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--stone);
+  font: inherit;
+  font-size: 14px;
+  padding: 4px 0;
+  margin-bottom: 16px;
+}
+.lp-back-link:hover { color: var(--ink); }
+
+/* ── Management list ──────────────────────────────────────────────── */
+.lpm-list { display: flex; flex-direction: column; gap: 12px; }
+
+.lpm-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  border-radius: 20px;
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  padding: 18px 22px;
+}
+
+.lpm-card-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.lpm-card-title { font-size: 17px; font-weight: 600; margin: 0; }
+
+.lpm-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.lpm-badge {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(44, 38, 33, 0.07);
+  color: var(--stone);
+}
+.lpm-badge.is-live { background: color-mix(in srgb, var(--sage) 24%, transparent); color: var(--ink); }
+.lpm-badge.is-auto { background: color-mix(in srgb, var(--terracotta) 18%, transparent); color: var(--ink); }
+
+.lpm-card-actions { display: flex; align-items: center; gap: 8px; }
+
+.lpm-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--mg-card-border-color, rgba(44, 38, 33, 0.12));
+  background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
+  color: var(--stone);
+  cursor: pointer;
+  text-decoration: none;
+}
+.lpm-icon-btn:hover { background: var(--mg-btn-secondary-bg-hover); color: var(--ink); }
+.lpm-icon-btn.danger:hover { color: var(--terracotta); }
+
+.lpm-edit-btn {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--mg-card-border-color, rgba(44, 38, 33, 0.12));
+  background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
+  color: var(--ink);
+  cursor: pointer;
+}
+.lpm-edit-btn:hover { background: var(--mg-btn-secondary-bg-hover); }
+
+.lpm-empty-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  background: var(--mg-btn-primary-bg);
+  color: var(--ink-on-accent, #fff);
+  cursor: pointer;
+}
+
+/* ── Builder form ─────────────────────────────────────────────────── */
+.lpb-form { display: flex; flex-direction: column; gap: 20px; max-width: 680px; }
+
+.lpb-section {
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  border-radius: 20px;
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  padding: 22px 24px;
+}
+.lpb-section-title { font-size: 15px; font-weight: 600; margin: 0 0 16px; }
+
+.lpb-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.lpb-toggle input { margin-top: 3px; flex: none; width: 18px; height: 18px; accent-color: var(--mg-btn-primary-bg); }
+.lpb-toggle span { display: flex; flex-direction: column; gap: 2px; }
+.lpb-toggle strong { font-weight: 600; font-size: 15px; }
+.lpb-toggle em { font-style: normal; font-size: 13px; color: var(--stone); line-height: 1.5; }
+
+.lpb-color { display: flex; align-items: center; gap: 12px; }
+.lpb-color input[type="color"] {
+  width: 48px; height: 38px; padding: 0; border: 1px solid rgba(44, 38, 33, 0.16);
+  border-radius: 10px; background: none; cursor: pointer;
+}
+.lpb-color-hex { font-size: 14px; color: var(--stone); text-transform: uppercase; }
+
+/* Fields editor */
+.lpb-fields { display: flex; flex-direction: column; gap: 10px; }
+.lpb-field-row { display: flex; align-items: center; gap: 8px; }
+.lpb-field-reorder { display: flex; flex-direction: column; gap: 2px; flex: none; }
+.lpb-mini {
+  display: grid; place-items: center;
+  width: 22px; height: 18px; padding: 0;
+  border: 1px solid rgba(44, 38, 33, 0.12); border-radius: 6px;
+  background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
+  color: var(--stone); cursor: pointer;
+}
+.lpb-mini:disabled { opacity: 0.35; cursor: default; }
+.lpb-field-label { flex: 1 1 auto; min-width: 0; }
+.lpb-field-type { flex: 0 0 130px; }
+.lpb-req-toggle {
+  display: inline-flex; align-items: center; gap: 5px; flex: none;
+  font-size: 13px; color: var(--stone); cursor: pointer; white-space: nowrap;
+}
+.lpb-req-toggle input { width: 16px; height: 16px; accent-color: var(--mg-btn-primary-bg); }
+
+.lpb-add-field {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+  font: inherit; font-size: 14px; font-weight: 500;
+  padding: 9px 16px; border-radius: 10px;
+  border: 1px dashed rgba(44, 38, 33, 0.24); background: none;
+  color: var(--ink); cursor: pointer;
+}
+.lpb-add-field:hover { background: rgba(44, 38, 33, 0.04); }
+
+/* After-submit */
+.lpb-radio-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.lpb-radio { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer; }
+.lpb-radio input { width: 17px; height: 17px; accent-color: var(--mg-btn-primary-bg); }
+
+/* Public link */
+.lpb-link-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 12px 14px; border-radius: 12px;
+  background: rgba(44, 38, 33, 0.04); color: var(--stone);
+}
+.lpb-link-url { flex: 1 1 240px; min-width: 0; font-size: 13px; overflow-wrap: anywhere; color: var(--ink); }
+.lpb-copy-btn {
+  display: inline-flex; align-items: center; gap: 5px; flex: none;
+  font: inherit; font-size: 13px; font-weight: 500;
+  padding: 7px 14px; border-radius: 9px; border: none;
+  background: var(--mg-btn-primary-bg); color: var(--ink-on-accent, #fff); cursor: pointer;
+}
+
+.lpb-actions { display: flex; justify-content: flex-end; gap: 12px; }
+
+/* ════════════════════════════════════════════════════════════════
+   LIVE BUILDER — Google-Forms-style inline editing on a canvas that
+   mirrors the public page (LeadPage.css is imported by the screen).
+   ════════════════════════════════════════════════════════════════ */
+.lpe-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.lpe-topbar .lp-back-link { margin-bottom: 0; }
+.lpe-topbar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-inline-end: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lpe-topbar-actions { display: flex; align-items: center; gap: 10px; flex: none; }
+.lpe-settings-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: inherit; font-size: 14px; font-weight: 500;
+  padding: 8px 14px; border-radius: 10px;
+  border: 1px solid var(--mg-card-border-color, rgba(44, 38, 33, 0.12));
+  background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
+  color: var(--ink); cursor: pointer;
+}
+.lpe-settings-btn:hover { background: var(--mg-btn-secondary-bg-hover); }
+.lpe-settings-btn.is-on {
+  background: color-mix(in srgb, var(--terracotta) 14%, transparent);
+  border-color: color-mix(in srgb, var(--terracotta) 32%, transparent);
+}
+
+.lpe-settings {
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  border-radius: 18px;
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+.lpe-settings-row { display: flex; flex-wrap: wrap; gap: 6px 28px; margin: 6px 0; }
+.lpe-settings-row .lpb-toggle { flex: 1 1 220px; }
+.lpe-err { margin: 0 0 14px; }
+
+/* Canvas — centers the public-page card; --lp-brand makes it live. */
+.lpe-canvas {
+  display: flex;
+  justify-content: center;
+  padding: 24px 12px 32px;
+  border-radius: 24px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--lp-brand) 9%, transparent) 0%, transparent 70%),
+    rgba(44, 38, 33, 0.03);
+}
+.lpe-canvas .lp-card { width: 100%; max-width: 520px; }
+
+/* Inline-editable text — borderless until hover/focus. The .lp-* class
+   supplies font-size/weight/color; .lpe-edit only strips chrome. */
+.lpe-edit {
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  padding: 3px 8px;
+  resize: none;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.lpe-edit:hover { background: rgba(44, 38, 33, 0.04); }
+.lpe-edit:focus {
+  outline: none;
+  background: var(--mg-card-bg, #fff);
+  border-color: color-mix(in srgb, var(--lp-brand) 45%, transparent);
+}
+.lpe-edit::placeholder { color: #9b9389; opacity: 1; }
+.lpe-center { text-align: center; }
+
+.lpe-fields { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
+
+/* Field card — calm by default, lifts + shows accent when active. */
+.lpe-field {
+  position: relative;
+  padding: 12px 12px 12px 14px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+.lpe-field:hover { background: rgba(44, 38, 33, 0.025); }
+.lpe-field.is-active {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(44, 38, 33, 0.1);
+  box-shadow: 0 2px 14px rgba(42, 37, 32, 0.07);
+}
+/* Accent bar on the active card (inline-start = right in RTL). */
+.lpe-field.is-active::before {
+  content: '';
+  position: absolute;
+  inset-block: 10px;
+  inset-inline-start: 0;
+  width: 4px;
+  border-radius: 4px;
+  background: var(--lp-brand);
+}
+.lpe-field-label { font-weight: 500; margin-bottom: 8px; }
+
+/* Disabled answer-area preview — clearly inert. */
+.lpe-preview {
+  pointer-events: none;
+  background: rgba(44, 38, 33, 0.03);
+  opacity: 0.7;
+}
+
+.lpe-field-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(44, 38, 33, 0.08);
+}
+.lpe-type { flex: 0 0 130px; }
+.lpe-req {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; color: var(--stone); cursor: pointer; white-space: nowrap;
+}
+.lpe-req input { width: 16px; height: 16px; accent-color: var(--lp-brand); }
+.lpe-ctrl-spacer { flex: 1 1 auto; }
+.lpe-ctrl-btn {
+  display: grid; place-items: center;
+  width: 32px; height: 32px; padding: 0;
+  border: 1px solid rgba(44, 38, 33, 0.12); border-radius: 8px;
+  background: rgba(255, 252, 247, 0.7); color: var(--stone); cursor: pointer;
+}
+.lpe-ctrl-btn:hover:not(:disabled) { background: #fff; color: var(--ink); }
+.lpe-ctrl-btn:disabled { opacity: 0.35; cursor: default; }
+.lpe-ctrl-btn.danger:hover { color: var(--terracotta); border-color: color-mix(in srgb, var(--terracotta) 40%, transparent); }
+
+.lpe-add {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin: 4px auto 20px;
+  font: inherit; font-size: 14px; font-weight: 500;
+  padding: 9px 18px; border-radius: 10px;
+  border: 1px dashed color-mix(in srgb, var(--lp-brand) 40%, rgba(44, 38, 33, 0.2));
+  background: transparent; color: var(--ink); cursor: pointer;
+}
+.lpe-add:hover { background: color-mix(in srgb, var(--lp-brand) 8%, transparent); }
+
+.lpe-submit-preview { cursor: default; text-align: center; opacity: 0.92; }
+
+.lpe-bottom-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
+
+/* The canvas card is solid cream (LeadPage.css). In dark OS preference it
+   flips dark via LeadPage.css — keep the editable chrome legible there. */
+@media (prefers-color-scheme: dark) {
+  .lpe-edit:hover { background: rgba(255, 255, 255, 0.06); }
+  .lpe-edit:focus { background: rgba(255, 255, 255, 0.08); }
+  .lpe-field.is-active { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.12); }
+  .lpe-preview { background: rgba(255, 255, 255, 0.05); }
+  .lpe-ctrl-btn { background: rgba(255, 255, 255, 0.06); }
+}

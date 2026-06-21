@@ -12,6 +12,9 @@ export function screenKeyFromPath(pathname) {
   if (pathname.startsWith('/clients')) return 'clients'
   if (pathname.startsWith('/finance')) return 'finance'
   if (pathname.startsWith('/tasks')) return 'tasks'
+  /* /leads/pages is a distinct screen (its own help + tour); check it
+     before the /leads prefix so it doesn't inherit the leads guidance. */
+  if (pathname.startsWith('/leads/pages')) return 'leadPages'
   if (pathname.startsWith('/leads')) return 'leads'
   if (pathname.startsWith('/calendar')) return 'calendar'
   if (pathname.startsWith('/goals')) return 'goals'

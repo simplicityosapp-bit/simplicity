@@ -67,6 +67,10 @@ const LEADS_TOUR = [
   { target: '.cta-add',       title: 'guidance:tour.leads.add.title',    body: 'guidance:tour.leads.add.body', radius: '50%', accent: 'sage' },
 ]
 
+const LEAD_PAGES_TOUR = [
+  { target: '.cta-add', title: 'guidance:tour.leadPages.add.title', body: 'guidance:tour.leadPages.add.body', radius: '50%', accent: 'sage' },
+]
+
 const PROJECTS_TOUR = [
   { target: '.p-hero', title: 'guidance:tour.projects.hero.title', body: 'guidance:tour.projects.hero.body' },
   { target: '.p-list', title: 'guidance:tour.projects.list.title', body: 'guidance:tour.projects.list.body' },
@@ -86,6 +90,7 @@ export const TOURS = {
   clients:  CLIENTS_TOUR,
   tasks:    TASKS_TOUR,
   leads:    LEADS_TOUR,
+  leadPages: LEAD_PAGES_TOUR,
   projects: PROJECTS_TOUR,
   finance:  FINANCE_TOUR,
 }

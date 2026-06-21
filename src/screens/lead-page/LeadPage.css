@@ -1,0 +1,165 @@
+/* ════════════════════════════════════════════════════════════════
+   PUBLIC LEAD PAGE — self-contained styling (no app shell / tokens
+   dependency beyond the inherited font). Accent driven by --lp-brand,
+   set inline from the page's brandColor. RTL.
+   ════════════════════════════════════════════════════════════════ */
+
+.lp-root {
+  --lp-brand: #C97B5E;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(16px, 6vw, 56px) 16px;
+  background:
+    radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--lp-brand) 12%, #faf7f2) 0%, #f4f1ec 60%, #efece6 100%);
+  color: #2c2621;
+}
+
+.lp-card {
+  width: 100%;
+  max-width: 520px;
+  box-sizing: border-box;
+  background: #fffdf9;
+  border: 1px solid rgba(44, 38, 33, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 1px 2px rgba(42, 37, 32, 0.04), 0 12px 32px rgba(42, 37, 32, 0.10);
+  padding: clamp(24px, 5vw, 40px);
+}
+
+.lp-state {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.lp-logo {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--lp-brand);
+  margin-bottom: 6px;
+}
+
+.lp-heading {
+  font-size: clamp(22px, 4vw, 28px);
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0 0 10px;
+}
+
+.lp-body {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #5a534b;
+  margin: 0 0 22px;
+  white-space: pre-line;
+}
+
+.lp-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.lp-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c2621;
+}
+
+.lp-req { color: var(--lp-brand); }
+
+.lp-input {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 16px; /* ≥16px → iOS doesn't zoom on focus */
+  color: #2c2621;
+  background: #fff;
+  border: 1px solid rgba(44, 38, 33, 0.16);
+  border-radius: 12px;
+  padding: 12px 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.lp-input:focus {
+  outline: none;
+  border-color: var(--lp-brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lp-brand) 22%, transparent);
+}
+.lp-input.is-error {
+  border-color: #c0432e;
+  box-shadow: 0 0 0 3px rgba(192, 67, 46, 0.14);
+}
+.lp-textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
+
+.lp-field-error { font-size: 13px; color: #c0432e; }
+
+.lp-submit {
+  width: 100%;
+  margin-top: 24px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--lp-brand);
+  border: none;
+  border-radius: 14px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: filter 0.15s ease, opacity 0.15s ease;
+}
+.lp-submit:hover:not(:disabled) { filter: brightness(0.93); }
+.lp-submit:disabled { opacity: 0.6; cursor: default; }
+
+.lp-submit-error { margin: 16px 0 0; font-size: 14px; color: #c0432e; text-align: center; }
+
+.lp-muted { color: #6b6358; font-size: 16px; }
+
+.lp-thankyou { font-size: 18px; line-height: 1.7; margin: 0; white-space: pre-line; }
+
+.lp-check {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  color: #fff;
+  background: var(--lp-brand);
+}
+
+/* Honeypot — kept in the DOM + focusable by bots, invisible to humans.
+   `display:none` is skipped by some bots, so move it off-screen instead. */
+.lp-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Dark-mode respect for the public page (visitor's OS preference). */
+@media (prefers-color-scheme: dark) {
+  .lp-root {
+    background:
+      radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--lp-brand) 16%, #1a1f26) 0%, #161a20 60%, #12161b 100%);
+    color: #f0ebe0;
+  }
+  .lp-card { background: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
+  .lp-heading, .lp-label { color: #f0ebe0; }
+  .lp-body { color: #b8b0a4; }
+  .lp-muted { color: #b8b0a4; }
+  .lp-input { background: #12161b; color: #f0ebe0; border-color: rgba(240, 235, 224, 0.18); }
+}

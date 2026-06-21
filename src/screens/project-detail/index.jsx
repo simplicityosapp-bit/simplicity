@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
-  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarPlus, X, Trash2, Bell, GripVertical,
+  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarPlus, X, Trash2, Bell, GripVertical, Link2, ChevronLeft,
 } from 'lucide-react'
 import { useProjects } from '../../hooks/useProjects'
+import { useLeadPages } from '../../hooks/useLeadPages'
 import { useClients } from '../../hooks/useClients'
 import { useGroups } from '../../hooks/useGroups'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
@@ -60,6 +61,7 @@ export default function ProjectDetailScreen() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { projects, updateProject } = useProjects()
+  const { pages: leadPages } = useLeadPages()
   const { clients, addClient, updateClient, removeClient, refetch: refetchClients } = useClients()
   const { groups, addGroup, updateGroup, removeGroup, refetch: refetchGroups } = useGroups()
   const { members, addMember, removeMember, refetch: refetchMembers } = useGroupMembers()
@@ -79,7 +81,7 @@ export default function ProjectDetailScreen() {
   const META_LABEL = { active: t('detail.meta.active'), past: t('detail.meta.past') }
 
   /* Section accordion + per-group sessions expand state. */
-  const [openSec, setOpenSec] = useState({ groups: true, clients: true, tasks: false, reminders: false })
+  const [openSec, setOpenSec] = useState({ groups: true, clients: true, tasks: false, reminders: false, leadPages: false })
   const [openGroupSessions, setOpenGroupSessions] = useState(() => new Set())
 
   /* Modal/dialog state. */
@@ -112,6 +114,10 @@ export default function ProjectDetailScreen() {
     [members, clientById],
   )
   const projectClients = useMemo(() => clients.filter((c) => c.project_id === id), [clients, id])
+  const projectLeadPages = useMemo(
+    () => (leadPages || []).filter((p) => p.project_id === id && !p.deleted_at),
+    [leadPages, id],
+  )
 
   /* Active / wandering split — same logic as the prototype's pd-header sub. */
   const { activeCount, wanderingCount } = useMemo(() => {
@@ -743,6 +749,45 @@ export default function ProjectDetailScreen() {
             <button className="pd-add-btn" type="button" onClick={() => setShowAddReminder(true)}>
               <Bell size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.reminders.add')}
             </button>
+          </div>
+        )}
+      </section>
+
+      {/* ── Lead pages section ────────────────────────────── */}
+      <section className="pd-section">
+        <button type="button" className="pd-sec-head" onClick={() => toggleSec('leadPages')}>
+          <p className="pd-sec-title">
+            {t('detail.leadPages.title')} {projectLeadPages.length > 0 && <span className="pd-sec-count">{projectLeadPages.length}</span>}
+          </p>
+          <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.leadPages ? ' open' : ''}`} aria-hidden="true" />
+        </button>
+        {openSec.leadPages && (
+          <div className="pd-sec-body">
+            {projectLeadPages.length === 0 ? (
+              <p className="pd-empty">
+                {t('detail.leadPages.empty')}{' '}
+                <button type="button" className="pd-link-inline" onClick={() => navigate(ROUTES.LEAD_PAGES)}>
+                  {t('detail.leadPages.create')}
+                </button>
+              </p>
+            ) : (
+              projectLeadPages.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className="pd-leadpage-row"
+                  onClick={() => navigate(ROUTES.LEAD_PAGES, { state: { editPageId: p.id } })}
+                  aria-label={t('detail.leadPages.openAria', { name: p.title || t('detail.leadPages.untitled') })}
+                >
+                  <Link2 size={15} strokeWidth={1.7} className="pd-leadpage-icon" aria-hidden="true" />
+                  <span className="pd-leadpage-name">{p.title || t('detail.leadPages.untitled')}</span>
+                  <span className={`pd-leadpage-badge${p.published ? ' live' : ''}`}>
+                    {p.published ? t('detail.leadPages.live') : t('detail.leadPages.draft')}
+                  </span>
+                  <ChevronLeft size={15} strokeWidth={1.7} className="pd-leadpage-chev" aria-hidden="true" />
+                </button>
+              ))
+            )}
           </div>
         )}
       </section>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield, Plug, FileText,
+  Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield, Plug, FileText, Link2,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
@@ -24,6 +24,7 @@ const RING_C = 2 * Math.PI * RING_R
 /* Extras — screens that aren't in the main bottom-nav set. Surface
    from a slide-up panel anchored over the "עוד" button. */
 const EXTRAS = [
+  { key: 'leadPages', labelKey: 'extras.leadPages', icon: Link2,     to: ROUTES.LEAD_PAGES },
   { key: 'moon',     labelKey: 'extras.moon',     icon: Moon,       to: ROUTES.MOON_GLANCE },
   { key: 'reports',  labelKey: 'extras.reports',  icon: BarChart3,  to: ROUTES.REPORTS },
   { key: 'insights', labelKey: 'extras.insights', icon: Sparkles,   to: ROUTES.INSIGHTS },

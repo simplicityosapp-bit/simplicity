@@ -366,6 +366,14 @@ const THEME_OPTIONS = [
   { v: 'dark' },
 ]
 
+/* Background mode — applied to <html data-bg> by PrefsApplier (see
+   index.css [data-bg] rules). 'nature' keeps the per-screen photos. */
+const BACKGROUND_OPTIONS = [
+  { v: 'nature' },
+  { v: 'simple' },
+  { v: 'blank' },
+]
+
 function DesignBody({ prefs, onUpdate }) {
   const d = prefs?.design || {}
   /* Namespaced to 'settings'; the language label lives in 'common', so it's
@@ -380,6 +388,7 @@ function DesignBody({ prefs, onUpdate }) {
     <div className="set-profile-body">
       <Segmented label={t('common:language')} value={activeLang} options={LANGUAGE_OPTIONS} onChange={setLanguage} />
       <Segmented label={t('design.theme')} value={d.theme || 'light'} options={THEME_OPTIONS.map((o) => ({ ...o, l: t(`options.theme.${o.v}`) }))} onChange={setVal('theme')} />
+      <Segmented label={t('design.background')} value={d.background || 'nature'} options={BACKGROUND_OPTIONS.map((o) => ({ ...o, l: t(`options.background.${o.v}`) }))} onChange={setVal('background')} />
       <Segmented label={t('design.textSize')} value={d.text_size || 'normal'} options={TEXT_SIZE_OPTIONS.map((o) => ({ ...o, l: t(`options.textSize.${o.v}`) }))} onChange={setVal('text_size')} />
     </div>
   )

@@ -145,6 +145,12 @@ export function defaultPreferences() {
          default Hebrew); set to a code ('he'|'en'|'es'|'fr') once the user
          picks one, so it syncs across devices via <I18nSync/>. */
       language: null,
+      /* Background mode (applied to <html data-bg> by PrefsApplier):
+         'nature' = the per-screen nature photos (default — existing users
+         migrate to this with no visual change), 'simple' = the Reports
+         background on every screen, 'blank' = no image, a flat soft-cream
+         surface (inverts in dark mode). See src/index.css [data-bg] rules. */
+      background: 'nature',
     },
     widgets: defaultWidgetsConfig(),
     reports: null,

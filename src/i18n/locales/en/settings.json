@@ -13,7 +13,7 @@
     "payments": { "title": "Currency, date & time", "sub": "Amount, date & time formats and week start" },
     "questions": { "title": "Daily questions", "sub": "What you're asked each day" },
     "leads": { "title": "Lead settings", "sub": "Sources and statuses" },
-    "design": { "title": "Appearance", "sub": "Light/dark mode, text size" },
+    "design": { "title": "Appearance", "sub": "Light/dark mode, background, text size" },
     "data": { "title": "Data", "sub": "Export, import, reset" },
     "about": { "title": "About", "sub": "Version and info" }
   },
@@ -69,6 +69,7 @@
   },
   "design": {
     "theme": "Light / dark mode",
+    "background": "Background",
     "textSize": "Text size"
   },
   "about": {
@@ -225,6 +226,11 @@
     "theme": {
       "light": "Day",
       "dark": "Night"
+    },
+    "background": {
+      "nature": "Nature",
+      "simple": "Simple",
+      "blank": "Blank"
     },
     "cardStyle": {
       "frosted": "Frosted",

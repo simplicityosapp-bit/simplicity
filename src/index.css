@@ -355,6 +355,23 @@ textarea:focus-visible,
 .app[data-screen="tasks"]    { background: var(--bg-tasks); }
 .app[data-screen="leads"]    { background: var(--bg-leads); }
 .app[data-screen="leadPages"]{ background: var(--bg-home); }
+/* REAL frosted glass on the lead-pages screen. App-wide, the per-screen photo
+   lives on .app::before — OUTSIDE the .screen backdrop root (.screen has
+   isolation:isolate) — so a card's backdrop-filter has nothing to blur and the
+   photo shows through sharp. Here we paint the photo INSIDE .screen instead, so
+   the cards' backdrop-filter genuinely frosts it (anchored, behind content). */
+.app[data-screen="leadPages"]::before { background-image: none; }
+.app[data-screen="leadPages"] .screen::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: var(--screen-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+  pointer-events: none;
+}
 .app[data-screen="projects"] { background: var(--bg-projects); }
 .app[data-screen="goals"]    { background: var(--bg-goals); }
 .app[data-screen="moon"]     { background: var(--bg-moon); }
@@ -447,6 +464,47 @@ textarea:focus-visible,
   [data-theme="dark"] .app[data-screen="insights"]  { --screen-bg: url('/backgrounds/desktop/night/moon.webp'); }
   [data-theme="dark"] .app[data-screen="onboarding"]{ --screen-bg: url('/backgrounds/desktop/night/onboarding.webp'); }
   [data-theme="dark"] .app[data-screen="admin"]     { --screen-bg: url('/backgrounds/desktop/night/home.webp'); }
+}
+
+/* ── Background mode (Settings → עיצוב → רקע) ─────────────────────
+   A user preference (prefs.design.background → <html data-bg>) that
+   overrides the per-screen nature photos above:
+     • 'nature' (default) — no rules here; the per-screen photos win.
+     • 'simple' — the Reports photo on every screen (calm, uniform).
+     • 'blank'  — no photo at all; a flat soft-cream surface that
+                  inverts to the dark page colour at night.
+   Both data-bg and data-theme live on <html>, so the dark variants use
+   a compound `html[data-bg=…][data-theme="dark"]` selector — its higher
+   specificity (and the html type bump) beats the per-screen rules above.
+   Onboarding is excluded everywhere so its immersive forest is untouched. */
+
+/* SIMPLE — force the Reports background on all screens (mobile). */
+html[data-bg="simple"] .app:not([data-screen="onboarding"])                    { --screen-bg: url('/backgrounds/mobile/day/reports.webp'); }
+html[data-bg="simple"][data-theme="dark"] .app:not([data-screen="onboarding"]) { --screen-bg: url('/backgrounds/mobile/night/reports.webp'); }
+
+/* BLANK — drop the image (.app::before) and paint a uniform soft-cream
+   surface; the per-screen tint underneath is overridden to one flat tone. */
+html[data-bg="blank"] .app:not([data-screen="onboarding"])                    { background: var(--bone); }
+html[data-bg="blank"][data-theme="dark"] .app:not([data-screen="onboarding"]) { background: var(--bg); }
+html[data-bg="blank"] .app:not([data-screen="onboarding"])::before            { background-image: none; }
+
+/* Both reduced modes bump the glass-card opacity: at 30% the cards lean on
+   a photo behind them, so over a calm/flat surface they read too transparent.
+   Lifting --mg-card-bg on .app cascades to every card (they resolve the var
+   at use-site). Values match the pre-backgrounds card opacity. */
+html[data-bg="simple"] .app:not([data-screen="onboarding"]),
+html[data-bg="blank"]  .app:not([data-screen="onboarding"]) {
+  --mg-card-bg: rgba(255, 252, 247, 0.55);
+}
+html[data-bg="simple"][data-theme="dark"] .app:not([data-screen="onboarding"]),
+html[data-bg="blank"][data-theme="dark"]  .app:not([data-screen="onboarding"]) {
+  --mg-card-bg: rgba(26, 31, 38, 0.70);
+}
+
+@media (min-width: 768px) {
+  /* SIMPLE — desktop Reports photo. */
+  html[data-bg="simple"] .app:not([data-screen="onboarding"])                    { --screen-bg: url('/backgrounds/desktop/day/reports.webp'); }
+  html[data-bg="simple"][data-theme="dark"] .app:not([data-screen="onboarding"]) { --screen-bg: url('/backgrounds/desktop/night/reports.webp'); }
 }
 
 /* ── Screen scroll container ─────────────────────────────────────

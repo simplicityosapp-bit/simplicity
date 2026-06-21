@@ -43,9 +43,16 @@ BEGIN
 END;
 $function$;
 
+-- Event-trigger function: invoked only by the DDL-event machinery, never called
+-- directly. Revoke EXECUTE from clients (Security Advisor hardening, migration 0045).
+REVOKE EXECUTE ON FUNCTION public.rls_auto_enable() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.rls_auto_enable() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.rls_auto_enable() FROM authenticated;
+
 CREATE OR REPLACE FUNCTION public.set_updated_at()
  RETURNS trigger
  LANGUAGE plpgsql
+ SET search_path = ''
 AS $function$
 BEGIN
   NEW.updated_at = now();

@@ -43,5 +43,15 @@ export default function PrefsApplier() {
     try { localStorage.setItem('mg-text-size', prefs.design.text_size) } catch { /* noop */ }
   }, [prefs?.design?.text_size])
 
+  /* Background mode → <html data-bg>. 'nature' (default) has no matching CSS,
+     so it keeps the per-screen photos; 'simple'/'blank' are handled by the
+     [data-bg] rules in index.css. Mirrored to localStorage so the inline
+     script in index.html restores it before first paint (no flash). */
+  useEffect(() => {
+    const bg = prefs?.design?.background || 'nature'
+    document.documentElement.setAttribute('data-bg', bg)
+    try { localStorage.setItem('mg-bg', bg) } catch { /* noop */ }
+  }, [prefs?.design?.background])
+
   return null
 }

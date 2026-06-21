@@ -98,6 +98,10 @@
           if (s === 'small' || s === 'normal' || s === 'large') {
             document.documentElement.setAttribute('data-text-size', s);
           }
+          var b = localStorage.getItem('mg-bg');
+          if (b === 'nature' || b === 'simple' || b === 'blank') {
+            document.documentElement.setAttribute('data-bg', b);
+          }
         } catch (e) { /* private mode — non-fatal */ }
       })();
     </script>

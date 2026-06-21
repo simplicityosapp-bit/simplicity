@@ -151,6 +151,8 @@
     "perSessionNote": "Balance accrues by logged sessions × price per session.",
     "sessionsCount": "Number of sessions",
     "pricePerSession": "Price per session ₪",
+    "meetingType": "Meeting type",
+    "manageMeetingTypes": "Manage types",
     "phone": "Phone",
     "project": "Project",
     "email": "Email (optional)",

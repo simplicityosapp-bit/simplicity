@@ -167,6 +167,9 @@
     "restartConfirm": "Restart",
     "restartMessage": "Restart the intro? The steps reset to the beginning — data you've already created (clients, projects, etc.) stays put."
   },
+  "clients": {
+    "meetingTypesHeading": "Meeting types & prices"
+  },
   "leads": {
     "sources": "Lead sources",
     "sourcesLoadError": "Couldn't load sources: {{error}}",

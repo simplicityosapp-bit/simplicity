@@ -197,6 +197,9 @@
     "restartConfirm_female": "התחילי מחדש",
     "restartMessage": "להתחיל מחדש את ההכרות? הצעדים יחזרו לאפס — הנתונים שכבר נוצרו (לקוחות, פרויקטים וכו') יישארו."
   },
+  "clients": {
+    "meetingTypesHeading": "סוגי פגישה ומחירים"
+  },
   "leads": {
     "sources": "מקורות פנייה",
     "sourcesLoadError": "שגיאה בטעינת המקורות: {{error}}",

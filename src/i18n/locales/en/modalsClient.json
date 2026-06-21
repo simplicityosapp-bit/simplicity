@@ -3,6 +3,8 @@
     "cancel": "Cancel",
     "save": "Save",
     "saving": "Saving…",
+    "done": "Done",
+    "loading": "Loading…",
     "none": "None",
     "saveFailed": "Couldn't save: {{error}}",
     "tryAgain": "try again",
@@ -68,7 +70,22 @@
     "fixedDay": "Fixed meeting — day",
     "fixedTime": "Fixed meeting — time",
     "clearFixed": "Clear fixed meeting",
-    "noGroup": "No group"
+    "noGroup": "No group",
+    "meetingType": "Meeting type",
+    "manageMeetingTypes": "Manage types"
+  },
+  "meetingTypes": {
+    "title": "Meeting types",
+    "empty": "No meeting types yet. Add your first one below.",
+    "namePlaceholder": "Type name (e.g. In person)",
+    "pricePlaceholder": "Price",
+    "noPrice": "No price",
+    "add": "Add type",
+    "priceHint": "A price you set on a type applies automatically to clients linked to it — unless they have a manually-set price.",
+    "addFailed": "Couldn't add the type.",
+    "nameAria": "Meeting type name",
+    "priceAria": "Default price for the type",
+    "deleteAria": "Delete meeting type"
   },
   "deleteClient": {
     "title": "Delete client",

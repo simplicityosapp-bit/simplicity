@@ -157,6 +157,8 @@
     "perSessionNote": "היתרה נצברת לפי פגישות שתועדו × מחיר לפגישה.",
     "sessionsCount": "מספר פגישות",
     "pricePerSession": "מחיר לפגישה ₪",
+    "meetingType": "סוג פגישה",
+    "manageMeetingTypes": "ניהול סוגים",
     "phone": "טלפון",
     "project": "פרויקט",
     "email": "אימייל (אופציונלי)",

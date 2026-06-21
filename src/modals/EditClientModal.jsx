@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import MeetingTypesModal from './MeetingTypesModal'
 import { isr } from '../lib/finance'
+import { useMeetingTypes } from '../hooks/useMeetingTypes'
 import { useT } from '../i18n/useT'
 
 const STATUSES = [
@@ -45,7 +47,11 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     recurring_end_time: client?.recurring_end_time || '',
     recurring_start_date: client?.recurring_start_date || '',
     recurring_end_date: client?.recurring_end_date || '',
+    meeting_type_id: client?.meeting_type_id || '',
+    price_overridden: client?.price_overridden ?? false,
   }))
+  const { types: meetingTypes, refetch: refetchMeetingTypes } = useMeetingTypes()
+  const [manageTypes, setManageTypes] = useState(false)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   /* Which billing cell the user last touched — decides save behaviour:
@@ -53,6 +59,18 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   const [lastBillEdit, setLastBillEdit] = useState(null)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const setMeta = (k) => setForm((f) => ({ ...f, status: k, status_id: '' }))
+  /* Picking a type auto-fills price_per_session from its default and re-attaches
+     the price to the type; a hand-edited price detaches it (price_overridden). */
+  const pickMeetingType = (id) => {
+    const type = meetingTypes.find((mt) => mt.id === id)
+    setForm((f) => ({
+      ...f,
+      meeting_type_id: id,
+      price_overridden: false,
+      price_per_session: type && type.default_price != null ? String(type.default_price) : f.price_per_session,
+    }))
+  }
+  const setPrice = (v) => setForm((f) => ({ ...f, price_per_session: v, price_overridden: true }))
 
   if (!client) return <Modal open={open} onClose={onClose} title={t('editClient.title')} />
   const subStatuses = statuses.filter((s) => s.meta_category === form.status)
@@ -105,6 +123,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         recurring_end_time: form.recurring_day !== '' ? (form.recurring_end_time || null) : null,
         recurring_start_date: form.recurring_start_date || null,
         recurring_end_date: form.recurring_end_date || null,
+        meeting_type_id: form.meeting_type_id || null,
+        price_overridden: !!form.price_overridden,
       }
       /* "נעשה" manual edit → store the delta as sessions_done_adjustment;
          only when it actually changes, so it never depends on migration
@@ -209,7 +229,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       </div>
       <div className="m-field">
         <label className="m-label">{t('editClient.pricePerSession')}</label>
-        <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => set('price_per_session', e.target.value)} />
+        <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} />
       </div>
       <div className="m-field">
         <label className="m-label">{t('editClient.totalDueOptional')}</label>
@@ -275,6 +295,20 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </div>
       </div>
       <div className="m-field">
+        <div className="m-label-row">
+          <label className="m-label">{t('editClient.meetingType')}</label>
+          <button type="button" className="m-clear-link" onClick={() => setManageTypes(true)}>{t('editClient.manageMeetingTypes')}</button>
+        </div>
+        <select className="m-select" value={form.meeting_type_id || ''} onChange={(e) => pickMeetingType(e.target.value)}>
+          <option value="">{t('common.none')}</option>
+          {meetingTypes.map((mt) => (
+            <option key={mt.id} value={mt.id}>
+              {mt.name}{mt.default_price != null ? ` · ₪${mt.default_price}` : ''}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="m-field">
         <label className="m-label">{t('common.email')}</label>
         <input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder={t('common.emailPlaceholder')} dir="ltr" />
       </div>
@@ -323,6 +357,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
         <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
       </div>
+
+      <MeetingTypesModal open={manageTypes} onClose={() => { setManageTypes(false); refetchMeetingTypes() }} />
     </Modal>
   )
 }

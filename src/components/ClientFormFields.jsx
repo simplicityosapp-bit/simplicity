@@ -31,9 +31,13 @@ const STATUSES = [
 ]
 const DAY_KEYS = [0, 1, 2, 3, 4, 5, 6]
 
-export default function ClientFormFields({ form, set, setMeta, projects = [], statuses = [], groups = [], err }) {
+export default function ClientFormFields({ form, set, setMeta, projects = [], statuses = [], groups = [], err, meetingTypes = null, onPickMeetingType, onPriceChange, onManageMeetingTypes }) {
   const { t } = useT('clients')
   const subStatuses = statuses.filter((s) => s.meta_category === form.status)
+  /* Meeting-type select is opt-in: only the in-app add/edit modals pass
+     `meetingTypes`, so the onboarding step's layout stays unchanged. */
+  const showMeetingTypes = Array.isArray(meetingTypes)
+  const setPrice = onPriceChange || ((v) => set('price_per_session', v))
   const nameMissing = !!err && !form.name.trim()
 
   return (
@@ -110,9 +114,32 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
         )}
         <div className="m-field">
           <label className="m-label">{t('form.pricePerSession')}</label>
-          <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => set('price_per_session', e.target.value)} placeholder="0" />
+          <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} placeholder="0" />
         </div>
       </div>
+
+      {showMeetingTypes && (
+        <div className="m-field">
+          <div className="m-label-row">
+            <label className="m-label">{t('form.meetingType')}</label>
+            {onManageMeetingTypes && (
+              <button type="button" className="m-clear-link" onClick={onManageMeetingTypes}>{t('form.manageMeetingTypes')}</button>
+            )}
+          </div>
+          <select
+            className="m-select"
+            value={form.meeting_type_id || ''}
+            onChange={(e) => (onPickMeetingType ? onPickMeetingType(e.target.value) : set('meeting_type_id', e.target.value))}
+          >
+            <option value="">{t('form.none')}</option>
+            {meetingTypes.map((mt) => (
+              <option key={mt.id} value={mt.id}>
+                {mt.name}{mt.default_price != null ? ` · ₪${mt.default_price}` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="m-row2">
         <div className="m-field">

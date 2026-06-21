@@ -1,0 +1,15 @@
+/* Meeting-types manager rows — name + default price + delete. Mirrors the
+   compact list style used for lead sources in Settings, kept here so the
+   modal and the Settings section render identically. */
+.mt-mng { display: flex; flex-direction: column; gap: 8px; }
+
+.mt-row,
+.mt-add {
+  display: grid;
+  grid-template-columns: 1fr 110px auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.mt-row-price,
+.mt-add-price { text-align: start; }

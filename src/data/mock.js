@@ -70,12 +70,18 @@ export const lead_sources = [
   { id: uid(), user_id: USER, name: 'המלצה', color: '#8BA888', created_at: daysAgo(150) },
 ]
 
+/* ── meeting_types (migration 0043 — FK של clients.meeting_type_id) ── */
+export const meeting_types = [
+  { id: uid(), user_id: USER, name: 'פיזית', default_price: 380, color: null, sort_order: 0, created_at: daysAgo(150), updated_at: daysAgo(150), deleted_at: null },
+  { id: uid(), user_id: USER, name: 'אונליין', default_price: 300, color: null, sort_order: 1, created_at: daysAgo(150), updated_at: daysAgo(150), deleted_at: null },
+]
+
 /* ── clients — 5 מצבים שונים ── */
 export const clients = [
   // 0 — פעיל, פרטי, חשבון חלקי (12 פגישות, חלקן שולמו)
-  { id: uid(), user_id: USER, name: 'רעות מדיון', status: 'active', status_id: client_statuses[0].id, status_meta: 'active', project_id: projects[0].id, group_id: null, sessions: 12, price_per_session: 380, total_override: null, has_custom_price: false, recurring_day: 1, recurring_time: '18:00', left_mid_process: false, phone: '052-1234567', notes: 'עובדים על קצב פנימי.', notes_updated_at: daysAgo(5), created_at: daysAgo(220) },
+  { id: uid(), user_id: USER, name: 'רעות מדיון', status: 'active', status_id: client_statuses[0].id, status_meta: 'active', project_id: projects[0].id, group_id: null, sessions: 12, price_per_session: 380, total_override: null, has_custom_price: false, meeting_type_id: meeting_types[0].id, price_overridden: false, recurring_day: 1, recurring_time: '18:00', left_mid_process: false, phone: '052-1234567', notes: 'עובדים על קצב פנימי.', notes_updated_at: daysAgo(5), created_at: daysAgo(220) },
   // 1 — ביניים
-  { id: uid(), user_id: USER, name: 'יעל אריאל', status: 'wandering', status_id: client_statuses[1].id, status_meta: 'wandering', project_id: projects[0].id, group_id: null, sessions: 6, price_per_session: 380, total_override: null, has_custom_price: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '052-7778899', notes: 'סיימה חבילה — לא חזרה לחדש.', notes_updated_at: daysAgo(40), created_at: daysAgo(150) },
+  { id: uid(), user_id: USER, name: 'יעל אריאל', status: 'wandering', status_id: client_statuses[1].id, status_meta: 'wandering', project_id: projects[0].id, group_id: null, sessions: 6, price_per_session: 380, total_override: null, has_custom_price: false, meeting_type_id: meeting_types[0].id, price_overridden: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '052-7778899', notes: 'סיימה חבילה — לא חזרה לחדש.', notes_updated_at: daysAgo(40), created_at: daysAgo(150) },
   // 2 — לשעבר
   { id: uid(), user_id: USER, name: 'אסף ברק', status: 'past', status_id: client_statuses[2].id, status_meta: 'past', project_id: projects[0].id, group_id: null, sessions: 20, price_per_session: 350, total_override: null, has_custom_price: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: null, notes: 'סיים מסע של 20 פגישות.', notes_updated_at: daysAgo(60), created_at: daysAgo(330) },
   // 3 — ללא סטטוס (פנייה טרייה)
@@ -229,6 +235,7 @@ export const MOCK_DB = {
   recurring_templates,
   tasks,
   lead_sources,
+  meeting_types,
   leads,
   lead_statuses,
   sessions,

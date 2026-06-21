@@ -221,6 +221,17 @@
   text-decoration: underline;
 }
 
+/* A field label paired with an inline action link (e.g. "manage types")
+   on the same baseline. Keeps the .m-clear-link's negative margins inert
+   here by overriding to sit flush with the label. */
+.m-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.m-label-row .m-clear-link { margin: 0; }
+
 /* Inline help text under a field — used for explaining linked-meeting
    mode in the RecurringModal and similar contextual hints. */
 .m-hint {

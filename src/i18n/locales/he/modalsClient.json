@@ -3,6 +3,8 @@
     "cancel": "ביטול",
     "save": "שמירה",
     "saving": "שומר…",
+    "done": "סיום",
+    "loading": "טוען…",
     "none": "ללא",
     "saveFailed": "השמירה נכשלה: {{error}}",
     "tryAgain": "נסה/י שוב",
@@ -74,7 +76,22 @@
     "fixedDay": "פגישה קבועה — יום",
     "fixedTime": "פגישה קבועה — שעה",
     "clearFixed": "ניקוי פגישה קבועה",
-    "noGroup": "ללא קבוצה"
+    "noGroup": "ללא קבוצה",
+    "meetingType": "סוג פגישה",
+    "manageMeetingTypes": "ניהול סוגים"
+  },
+  "meetingTypes": {
+    "title": "סוגי פגישה",
+    "empty": "עוד אין סוגי פגישה. הוסף/י סוג ראשון למטה.",
+    "namePlaceholder": "שם הסוג (למשל פיזית)",
+    "pricePlaceholder": "מחיר",
+    "noPrice": "ללא מחיר",
+    "add": "הוספת סוג",
+    "priceHint": "מחיר שתקבע/י לסוג יחול אוטומטית על לקוחות שמשויכים אליו — אלא אם נקבע להם מחיר ידני.",
+    "addFailed": "הוספת הסוג נכשלה.",
+    "nameAria": "שם סוג הפגישה",
+    "priceAria": "מחיר ברירת מחדל לסוג",
+    "deleteAria": "מחיקת סוג הפגישה"
   },
   "deleteClient": {
     "title": "מחיקת לקוח",

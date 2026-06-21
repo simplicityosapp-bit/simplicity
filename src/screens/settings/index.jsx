@@ -23,6 +23,7 @@ import { useGoals } from '../../hooks/useGoals'
 import { countClientsByStatus, reassignClientsStatus, reassignClientsStatusByIds, restoreClientStatus } from '../../lib/api/clientStatuses'
 import { countLeadsByStatus, reassignLeadsStatus, reassignLeadsStatusByIds, restoreLeadStatus } from '../../lib/api/leadStatuses'
 import { pushUndo } from '../../lib/undo'
+import { MeetingTypesManager } from '../../modals/MeetingTypesModal'
 import DeleteSubStatusModal from '../../modals/DeleteSubStatusModal'
 import ResetAccountModal from '../../modals/ResetAccountModal'
 import ConfirmModal from '../../modals/ConfirmModal'
@@ -1124,17 +1125,23 @@ export default function SettingsScreen() {
     }
     if (key === 'clients') {
       return (
-        <StatusGroups
-          metas={CLIENT_METAS}
-          metaNs="clientMetas"
-          statuses={clientStatuses}
-          drafts={clientDrafts}
-          setDraft={setClientDraft}
-          onAdd={addClientStatus}
-          onRemove={(status, peers) => setPendingDelete({ kind: 'client', status, peers })}
-          loading={clientStatusesLoading}
-          error={clientStatusesError}
-        />
+        <>
+          <StatusGroups
+            metas={CLIENT_METAS}
+            metaNs="clientMetas"
+            statuses={clientStatuses}
+            drafts={clientDrafts}
+            setDraft={setClientDraft}
+            onAdd={addClientStatus}
+            onRemove={(status, peers) => setPendingDelete({ kind: 'client', status, peers })}
+            loading={clientStatusesLoading}
+            error={clientStatusesError}
+          />
+          <div className="set-q" style={{ marginTop: 14 }}>
+            <p className="set-sub-h">{t('clients.meetingTypesHeading')}</p>
+            <MeetingTypesManager onChanged={refetchClients} />
+          </div>
+        </>
       )
     }
     if (key === 'leads') {

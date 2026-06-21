@@ -487,6 +487,9 @@ html[data-bg="simple"][data-theme="dark"] .app:not([data-screen="onboarding"]) {
 html[data-bg="blank"] .app:not([data-screen="onboarding"])                    { background: var(--bone); }
 html[data-bg="blank"][data-theme="dark"] .app:not([data-screen="onboarding"]) { background: var(--bg); }
 html[data-bg="blank"] .app:not([data-screen="onboarding"])::before            { background-image: none; }
+/* Lead-pages paints its photo on .screen::before (so its cards can blur it),
+   so the blank-mode .app::before suppression above misses it — drop it too. */
+html[data-bg="blank"] .app[data-screen="leadPages"] .screen::before           { background-image: none; }
 
 /* Both reduced modes bump the glass-card opacity: at 30% the cards lean on
    a photo behind them, so over a calm/flat surface they read too transparent.

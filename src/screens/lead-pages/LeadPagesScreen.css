@@ -27,7 +27,9 @@
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  background: var(--mg-card-bg);
+  /* Stronger frost than the 30% card glass — reads solid over the busy
+     forest background on desktop (the 30% glass washed out). */
+  background: rgba(255, 252, 247, 0.72);
   border: var(--mg-card-border);
   border-radius: 20px;
   box-shadow: var(--mg-card-shadow);
@@ -35,6 +37,7 @@
   -webkit-backdrop-filter: var(--mg-card-blur);
   padding: 18px 22px;
 }
+[data-theme="dark"] .lpm-card { background: rgba(26, 31, 38, 0.78); }
 
 .lpm-card-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .lpm-card-title { font-size: 17px; font-weight: 600; margin: 0; }
@@ -215,7 +218,7 @@
 }
 
 .lpe-settings {
-  background: var(--mg-card-bg);
+  background: rgba(255, 252, 247, 0.72);
   border: var(--mg-card-border);
   border-radius: 18px;
   box-shadow: var(--mg-card-shadow);
@@ -224,6 +227,7 @@
   padding: 20px 22px;
   margin-bottom: 16px;
 }
+[data-theme="dark"] .lpe-settings { background: rgba(26, 31, 38, 0.78); }
 .lpe-settings-row { display: flex; flex-wrap: wrap; gap: 6px 28px; margin: 6px 0; }
 .lpe-settings-row .lpb-toggle { flex: 1 1 220px; }
 .lpe-err { margin: 0 0 14px; }
@@ -234,9 +238,18 @@
   justify-content: center;
   padding: 24px 12px 32px;
   border-radius: 24px;
+  /* Frosted workspace tray: the white page card floats on a blurred,
+     semi-opaque surface instead of bare (unblurred) background. */
   background:
-    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--lp-brand) 9%, transparent) 0%, transparent 70%),
-    rgba(44, 38, 33, 0.03);
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--lp-brand) 10%, transparent) 0%, transparent 70%),
+    rgba(255, 252, 247, 0.55);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+[data-theme="dark"] .lpe-canvas {
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--lp-brand) 16%, transparent) 0%, transparent 70%),
+    rgba(26, 31, 38, 0.6);
 }
 .lpe-canvas .lp-card { width: 100%; max-width: 520px; }
 

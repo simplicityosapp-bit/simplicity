@@ -355,6 +355,22 @@ textarea:focus-visible,
 .app[data-screen="tasks"]    { background: var(--bg-tasks); }
 .app[data-screen="leads"]    { background: var(--bg-leads); }
 .app[data-screen="leadPages"]{ background: var(--bg-leads); }
+/* Lead-pages is a sparse management list over the (bright, busy) forest, so
+   the standard 30% glass cards washed out + read sharp (the per-screen image
+   lives on .app::before, outside the .screen backdrop root, so card
+   backdrop-filter can't blur it). A gentle veil over the bg calms it, letting
+   the standard app glass read as a frosted surface — consistent with every
+   other screen. */
+.app[data-screen="leadPages"]::before {
+  background-image:
+    linear-gradient(rgba(247, 243, 235, 0.55), rgba(247, 243, 235, 0.55)),
+    var(--screen-bg);
+}
+[data-theme="dark"] .app[data-screen="leadPages"]::before {
+  background-image:
+    linear-gradient(rgba(18, 22, 27, 0.58), rgba(18, 22, 27, 0.58)),
+    var(--screen-bg);
+}
 .app[data-screen="projects"] { background: var(--bg-projects); }
 .app[data-screen="goals"]    { background: var(--bg-goals); }
 .app[data-screen="moon"]     { background: var(--bg-moon); }

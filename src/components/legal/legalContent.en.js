@@ -100,9 +100,9 @@ export const PRIVACY_BLOCKS = [
   { t: "A User who has not consented will not be included in any marketing activity of this kind." },
 
   { h: "11. Cookies and Tracking" },
-  { t: "The Application uses technical cookies necessary for its operation (saving login state). No advertising cookies or third-party tracking tools are used." },
+  { t: "The Application uses technical cookies necessary for its operation (saving login state). These cookies are exempt from consent." },
+  { t: "Subject to your consent — given through the cookie banner on the site — we may also use analytics and advertising cookies, including cookies for usage measurement, showing relevant ads, and retargeting landing-page visitors. These non-essential cookies are not loaded until you consent, and you can refuse or withdraw your consent at any time through the banner." },
   { t: "The Application's fonts are loaded from Google Fonts — this action exposes the User's IP address to Google's servers. No additional information is collected." },
-  { t: "We currently do not use any third-party analytics tools. When an analytics service is activated in the future, we will update this policy accordingly." },
 
   { h: "12. Notification of a Security Incident" },
   { t: "In accordance with the Privacy Protection (Information Security) Regulations, 5777-2017, in the event of a severe security incident that may cause substantial harm to privacy, we will report to the Privacy Protection Authority without delay, and will notify the affected data subjects to the extent the incident may cause them substantial damage." },

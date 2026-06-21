@@ -100,9 +100,9 @@ export const PRIVACY_BLOCKS = [
   { t: `Un Utilisateur qui n'a pas consenti ne sera inclus dans aucune action marketing de ce type.` },
 
   { h: `11. Cookies et suivi` },
-  { t: `L'Application utilise des cookies techniques nécessaires à son fonctionnement (conservation de l'état de connexion). Il n'y a aucun usage de cookies publicitaires ni d'outils de suivi tiers.` },
+  { t: `L'Application utilise des cookies techniques nécessaires à son fonctionnement (conservation de l'état de connexion). Ces cookies sont exemptés de consentement.` },
+  { t: `Sous réserve de votre consentement — donné via la bannière de cookies du site — nous pouvons également utiliser des cookies d'analyse et de publicité, y compris des cookies destinés à mesurer l'utilisation, afficher des publicités pertinentes et effectuer du reciblage (retargeting) des visiteurs de la page d'accueil. Ces cookies non essentiels ne sont pas chargés tant que vous n'avez pas consenti, et vous pouvez les refuser ou retirer votre consentement à tout moment via la bannière.` },
   { t: `Les polices de caractères de l'Application sont chargées depuis Google Fonts — cette opération expose l'adresse IP de l'Utilisateur aux serveurs de Google. Aucune information supplémentaire n'est collectée.` },
-  { t: `Aujourd'hui, nous n'utilisons aucun outil d'analytique tiers. Lors de l'activation future d'un service d'analytique, nous mettrons à jour la présente politique en conséquence.` },
 
   { h: `12. Notification d'un incident de sécurité` },
   { t: `Conformément au règlement sur la protection de la vie privée (sécurité de l'information), 5777-2017, en cas d'incident de sécurité grave susceptible de porter une atteinte réelle à la vie privée, nous le signalerons à l'Autorité de protection de la vie privée sans délai, et nous en informerons les personnes concernées affectées dans la mesure où l'incident est susceptible de leur causer un préjudice réel.` },

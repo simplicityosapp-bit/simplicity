@@ -37,7 +37,11 @@ function json(body: unknown, status = 200) {
   })
 }
 
-const TYPES = new Set(['view', 'signup_start'])
+const TYPES = new Set([
+  'view', 'signup_start',
+  // engagement signals (migration 0051)
+  'scroll_50', 'scroll_75', 'scroll_100', 'faq_open', 'engaged',
+])
 
 /* Per-IP rate limit (best-effort, per warm isolate; resets on cold start). */
 const RL = new Map<string, number[]>()

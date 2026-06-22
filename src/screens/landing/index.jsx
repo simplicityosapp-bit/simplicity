@@ -53,6 +53,13 @@ export default function LandingScreen() {
      dedupes). The signup_start stage fires from the CTA onClick below. */
   useEffect(() => { trackLandingEvent('view') }, [])
 
+  /* "Read" signal — still on the page ~30s after load = a visitor who stopped
+     to actually read, not a bounce. Fires once per session. */
+  useEffect(() => {
+    const id = window.setTimeout(() => trackLandingEvent('engaged'), 30_000)
+    return () => window.clearTimeout(id)
+  }, [])
+
   /* The three role nouns shared by hero / CTA / footer / FAQ, pre-joined per
      the active language ("מטפלים/ות, מורים/ות ומנחים/ות" / "therapists,
      teachers and facilitators"). The Hebrew nouns carry merge glyphs. */
@@ -141,6 +148,13 @@ export default function LandingScreen() {
       const vh = window.innerHeight || 1
       const t = Math.min(1, Math.max(0, (y - vh * 0.2) / (vh * 0.6)))
       if (veilRef.current) veilRef.current.style.opacity = (0.12 + t * 0.83).toFixed(3)
+      /* Anonymous scroll-depth funnel — each threshold fires once per session
+         (the helper dedupes), so we can call it freely on every frame. */
+      const docH = document.documentElement.scrollHeight || 1
+      const depth = (y + vh) / docH
+      if (depth >= 0.5) trackLandingEvent('scroll_50')
+      if (depth >= 0.75) trackLandingEvent('scroll_75')
+      if (depth >= 0.98) trackLandingEvent('scroll_100')
     }
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update) }
     update()
@@ -403,7 +417,7 @@ export default function LandingScreen() {
           </div>
           <div className="lp-faq">
             {FAQS.map(({ q, a }) => (
-              <details className="lp-faq-item lp-reveal" key={q}>
+              <details className="lp-faq-item lp-reveal" key={q} onToggle={(e) => { if (e.currentTarget.open) trackLandingEvent('faq_open') }}>
                 <summary className="lp-faq-q">
                   {q}
                   <Plus className="lp-faq-q-ic" size={20} strokeWidth={2} aria-hidden="true" />

@@ -8,7 +8,6 @@ import { useProjects } from '../../hooks/useProjects'
 import { useTasks } from '../../hooks/useTasks'
 import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
-import { useGoalEntries } from '../../hooks/useGoalEntries'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
@@ -20,15 +19,12 @@ import AddTaskModal from '../../modals/AddTaskModal'
 import AddGoalModal from '../../modals/AddGoalModal'
 import AddReminderModal from '../../modals/AddReminderModal'
 import ScheduleMeetingModal from '../../modals/ScheduleMeetingModal'
-import AddGoalEntryModal from '../../modals/AddGoalEntryModal'
-import QuickGoalUpdatePicker from '../../modals/QuickGoalUpdatePicker'
 import { useT } from '../../i18n/useT'
 
-/* Project-scoped twin of the home QuickRow. Same two CTAs ("תנועה
-   מהירה" + "עדכון זריז") and the same launcher → Add* modal flow,
-   but every Add* opened from here pre-fills the current project so
-   the user doesn't have to re-pick the binding they're clearly
-   already in. Filtering rules:
+/* Project-scoped twin of the home QuickRow. A single "תנועה מהירה" CTA
+   drives the launcher → Add* modal flow, where every Add* opened from
+   here pre-fills the current project so the user doesn't have to re-pick
+   the binding they're clearly already in. Filtering rules:
      - transaction: defaults.project_id = projectId
      - client: onSave wraps payload with project_id
      - task: onSave wraps payload with project_id
@@ -37,7 +33,12 @@ import { useT } from '../../i18n/useT'
      - meeting: not project-scoped (meetings bind to a client)
      - lead / new project: not surfaced — they don't fit this
        context, but the home QuickRow still covers them.
-*/
+   The home QuickRow's second "עדכון זריז" goal-update CTA is deliberately
+   NOT mirrored here: goal entries are written through useGoalEntries
+   (local component state, not the shared cache), so an update made from
+   this row never reached ProjectMoonRing's own instance — the ring went
+   stale. Goal updates belong on the goals screen, whose dialogs stay the
+   canonical (and synced) place to record progress. */
 export default function ProjectQuickRow({ projectId, projectName }) {
   const { t } = useT('projects')
   const { addTransaction } = useTransactions()
@@ -46,16 +47,13 @@ export default function ProjectQuickRow({ projectId, projectName }) {
   const { projects } = useProjects()
   const { addTask } = useTasks()
   const { categories } = useGoalCategories()
-  const { goals, addGoal } = useGoals()
-  const { addEntry } = useGoalEntries()
+  const { addGoal } = useGoals()
   const { addReminder } = useReminders()
   const { addMeeting } = useScheduledMeetings()
   const { questions } = useUserQuestions()
 
   const [showLauncher, setShowLauncher] = useState(false)
   const [active, setActive] = useState(null)
-  const [showPicker, setShowPicker] = useState(false)
-  const [entryCategory, setEntryCategory] = useState(null)
   const close = () => setActive(null)
 
   return (
@@ -67,14 +65,6 @@ export default function ProjectQuickRow({ projectId, projectName }) {
       >
         <Plus size={18} strokeWidth={2} aria-hidden="true" />
         <span>{t('detail.quick.add')}</span>
-      </button>
-      <button
-        type="button"
-        className="h-quick-btn h-quick-secondary"
-        onClick={() => setShowPicker(true)}
-      >
-        <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        <span>{t('detail.quick.updateGoal')}</span>
       </button>
 
       <QuickActionsModal
@@ -126,20 +116,6 @@ export default function ProjectQuickRow({ projectId, projectName }) {
         onClose={close}
         clients={clients}
         onSave={addMeeting}
-      />
-
-      <QuickGoalUpdatePicker
-        open={showPicker}
-        onClose={() => setShowPicker(false)}
-        categories={categories}
-        goals={goals.filter((g) => !g.project_id || g.project_id === projectId)}
-        onPick={(cat) => setEntryCategory(cat)}
-      />
-      <AddGoalEntryModal
-        open={!!entryCategory}
-        onClose={() => setEntryCategory(null)}
-        category={entryCategory}
-        onSave={addEntry}
       />
     </div>
   )

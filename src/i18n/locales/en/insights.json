@@ -8,7 +8,10 @@
   },
   "loading": "Loading…",
   "loadError": "Couldn't load your questions. Try refreshing.",
-  "empty": "No daily questions yet. You can add some in settings.",
+  "empty": "No daily questions yet.",
+  "emptyAdd": "Add your first question",
+  "addQuestion": "+ Add question",
+  "addQuestionAria": "Add a daily question",
   "trend": {
     "notEnough": "Not enough data",
     "aria": "Question trend over the last 30 days"

@@ -224,6 +224,26 @@
 }
 .ins-unskip-btn:hover { background: color-mix(in srgb, var(--terracotta) 6%, var(--mg-card-bg)); }
 
+/* Empty-state "add first question" button */
+.ins-empty-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.ins-empty-add:hover { border-color: var(--espresso); }
+
 /* Stats row */
 .ins-q-stats {
   display: grid;

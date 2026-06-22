@@ -94,16 +94,6 @@ export default function MeetingConfirmList() {
     if (m.session_id) removeSession(m.session_id)
     for (const tx of linked) setTxStatus(tx.id, 'skipped')
   }
-  const deleteMeeting = (m) => {
-    /* scheduled_meetings is hard-delete only, and a meeting whose slot still
-       matches the subject's recurring schedule gets recreated by the generation
-       engine on the next home mount — that's why deleted pending meetings
-       "popped back". Tombstone it with a terminal status instead: the engine
-       then treats the slot as already handled, and a skipped meeting is hidden
-       from the review list + the calendar and produces no expense. */
-    if (m.session_id) removeSession(m.session_id)
-    updateMeeting(m.id, { status: 'skipped', session_id: null }).catch(() => {})
-  }
   const confirmTx = (tx) => setTxStatus(tx.id, 'confirmed')
   const skipTx = (tx) => setTxStatus(tx.id, 'skipped')
   const deleteTx = (tx) => removeTransaction(tx.id)
@@ -129,9 +119,6 @@ export default function MeetingConfirmList() {
                 </button>
                 <button type="button" className="mtg-confirm-btn skip" onClick={() => skipMeeting(m)} aria-label={t('widgets.meetingConfirm.meetingSkipped')}>
                   <X size={15} strokeWidth={2} aria-hidden="true" />
-                </button>
-                <button type="button" className="mtg-confirm-btn delete" onClick={() => deleteMeeting(m)} aria-label={t('widgets.meetingConfirm.meetingDelete')}>
-                  <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
                 </button>
               </div>
             </div>

@@ -10,6 +10,7 @@ import {
 import { ROUTES } from '../../lib/routes'
 import MG from '../../components/MG'
 import { mgToReadable } from '../../lib/multiGender'
+import { trackLandingEvent } from '../../lib/api/landingEvents'
 import { useT } from '../../i18n/useT'
 import { dirFor } from '../../i18n/config'
 import './LandingScreen.css'
@@ -47,6 +48,10 @@ export default function LandingScreen() {
   const [theme, setTheme] = useState(() =>
     (typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark') ? 'dark' : 'light'
   )
+
+  /* Anonymous funnel: count one landing view per tab-session (the helper
+     dedupes). The signup_start stage fires from the CTA onClick below. */
+  useEffect(() => { trackLandingEvent('view') }, [])
 
   /* The three role nouns shared by hero / CTA / footer / FAQ, pre-joined per
      the active language ("מטפלים/ות, מורים/ות ומנחים/ות" / "therapists,
@@ -226,7 +231,7 @@ export default function LandingScreen() {
             {t('hero.subBody')}
           </p>
           <div className="lp-hero-cta">
-            <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg">{t('hero.ctaPrimary')}</Link>
+            <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg" onClick={() => trackLandingEvent('signup_start')}>{t('hero.ctaPrimary')}</Link>
             <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-secondary">{t('hero.ctaSecondary')}</Link>
           </div>
           <p className="lp-hero-trust">{t('hero.trust')}</p>
@@ -417,7 +422,7 @@ export default function LandingScreen() {
               <MG text={t('cta.sub', { roles: roleList })} />
             </p>
             <div className="lp-cta-actions">
-              <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg">{t('cta.ctaPrimary')}</Link>
+              <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg" onClick={() => trackLandingEvent('signup_start')}>{t('cta.ctaPrimary')}</Link>
               <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-secondary">{t('cta.ctaSecondary')}</Link>
             </div>
             <p className="lp-cta-micro">{t('cta.micro')}</p>

@@ -56,6 +56,13 @@ export default function AdminAnalytics() {
           </section>
 
           <section className="admin-section">
+            <div className="admin-section-head"><h2>{t('analytics.landingFunnel')}</h2></div>
+            <div className="admin-card admin-chart-card">
+              <FunnelBars data={data.landingFunnel || []} />
+            </div>
+          </section>
+
+          <section className="admin-section">
             <div className="admin-section-head"><h2>{t('analytics.topUsers')}</h2></div>
             <div className="admin-card admin-table-wrap">
               <table className="admin-table">

@@ -179,6 +179,7 @@
     "sessionsOverTime": "Sessions over time",
     "reflectionsOverTime": "Reflections over time",
     "onboardingFunnel": "Onboarding funnel",
+    "landingFunnel": "Landing page funnel",
     "topUsers": "Most active users",
     "topUsersEmpty": "No data in this range",
     "rank": "#",

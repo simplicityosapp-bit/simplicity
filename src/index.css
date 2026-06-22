@@ -376,6 +376,19 @@ textarea:focus-visible,
   z-index: -1;
   pointer-events: none;
 }
+/* The fixed .screen::before photo lives in .screen's stacking context, which
+   paints AFTER the (earlier-in-DOM) sidebar — so it would cover the desktop
+   nav rail. Lift the sidebar above it on these two screens. (Rail is 80px on
+   the edge; content never overlaps it, so this is safe.) */
+.app[data-screen="leadPages"] .mg-sidebar,
+.app[data-screen="bookingPages"] .mg-sidebar { z-index: 1; }
+/* These builder screens sit over a bright, sharp photo, so the default 30%
+   glass cards read as nearly transparent. Bump the card opacity (cascades to
+   every card via --mg-card-bg) so panels stay solid and legible. */
+.app[data-screen="leadPages"],
+.app[data-screen="bookingPages"] { --mg-card-bg: rgba(255, 252, 247, 0.80); }
+[data-theme="dark"] .app[data-screen="leadPages"],
+[data-theme="dark"] .app[data-screen="bookingPages"] { --mg-card-bg: rgba(26, 31, 38, 0.80); }
 .app[data-screen="projects"] { background: var(--bg-projects); }
 .app[data-screen="goals"]    { background: var(--bg-goals); }
 .app[data-screen="moon"]     { background: var(--bg-moon); }

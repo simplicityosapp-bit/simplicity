@@ -433,6 +433,7 @@ export default function InsightsScreen() {
         onClose={() => setShowAddQuestion(false)}
         onSave={addQuestion}
         nextOrder={(questions || []).length}
+        usedTemplateKeys={(questions || []).filter((q) => q.template_key).map((q) => q.template_key)}
       />
       <EditQuestionModal
         key={editQuestion?.id}

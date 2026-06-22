@@ -13,7 +13,7 @@ const SCALES = [
 
 /* Add a daily question — from a ready template or custom (text + scale + icon).
    No questions are seeded; this is how the user builds their set. */
-export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0 }) {
+export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0, usedTemplateKeys = [] }) {
   const { prefs } = useUserPreferences()
   const gender = prefs?.design?.gender
   const { t } = useT('modalsTask')
@@ -25,9 +25,16 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => { setMode('template'); setTmplKey(''); setForm({ text: '', scale_type: '1-10', icon: ICONS[0] }); setErr(''); setBusy(false); onClose() }
 
+  /* Only offer ready templates the user doesn't already have — once mood,
+     sleep, etc. are added they drop off the list. When none are left the
+     picker is custom-only (the template/custom toggle is hidden). */
+  const availableTemplates = QUESTION_TEMPLATES.filter((tmpl) => !usedTemplateKeys.includes(tmpl.key))
+  const onlyCustom = availableTemplates.length === 0
+  const effMode = onlyCustom ? 'custom' : mode
+
   const submit = async () => {
     let row
-    if (mode === 'template') {
+    if (effMode === 'template') {
       const tmpl = QUESTION_TEMPLATES.find((x) => x.key === tmplKey)
       if (!tmpl) { setErr(t('question.questionRequired')); return }
       row = { template_key: tmpl.key, custom_text: null, scale_type: tmpl.scale_type, icon: tmpl.icon, active: true, order: nextOrder }
@@ -48,18 +55,20 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0 
 
   return (
     <Modal open={open} onClose={close} title={t('question.title')}>
-      <div className="m-field">
-        <div className="m-pills">
-          <button type="button" className={`m-pill${mode === 'template' ? ' on' : ''}`} onClick={() => { setMode('template'); setErr('') }}>{t('question.modeTemplate')}</button>
-          <button type="button" className={`m-pill${mode === 'custom' ? ' on' : ''}`} onClick={() => { setMode('custom'); setErr('') }}>{t('question.modeCustom')}</button>
+      {!onlyCustom && (
+        <div className="m-field">
+          <div className="m-pills">
+            <button type="button" className={`m-pill${effMode === 'template' ? ' on' : ''}`} onClick={() => { setMode('template'); setErr('') }}>{t('question.modeTemplate')}</button>
+            <button type="button" className={`m-pill${effMode === 'custom' ? ' on' : ''}`} onClick={() => { setMode('custom'); setErr('') }}>{t('question.modeCustom')}</button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {mode === 'template' ? (
+      {effMode === 'template' ? (
         <div className="m-field">
           <label className="m-label">{t('question.pickQuestion')}</label>
           <div className="q-tmpl-list">
-            {QUESTION_TEMPLATES.map((tmpl) => (
+            {availableTemplates.map((tmpl) => (
               <button key={tmpl.key} type="button" className={`q-tmpl${tmplKey === tmpl.key ? ' on' : ''}`} onClick={() => { setTmplKey(tmpl.key); if (err) setErr('') }}>
                 <span className="q-tmpl-ic">{tmpl.icon}</span>
                 <span className="q-tmpl-text">{qtext(tmpl.key, gender)}</span>

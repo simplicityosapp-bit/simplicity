@@ -380,7 +380,9 @@ Deno.serve(async (req) => {
     // server-side only (it can embed the upstream response body).
     if (e instanceof ProviderError) {
       console.error('invoices provider error:', e.code, e.message)
-      return json({ error: e.code }, e.code === 'invalid_credentials' ? 400 : 502)
+      // `detail` is a sanitized one-liner (the provider's own errorMessage for
+      // the user's account) — safe to surface so a failed issuance is actionable.
+      return json({ error: e.code, ...(e.detail ? { detail: e.detail } : {}) }, e.code === 'invalid_credentials' ? 400 : 502)
     }
     console.error('invoices error:', e)
     return json({ error: 'request_failed' }, 500)

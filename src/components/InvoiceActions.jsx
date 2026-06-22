@@ -33,6 +33,13 @@ function errMsg(code, t) {
   }
 }
 
+/* Append the provider's own one-line reason (when the function surfaced one)
+   so a failed issuance is actionable instead of a generic "תקלה בספק". */
+function errMsgWithDetail(e, t) {
+  const base = errMsg(e?.message, t)
+  return e?.detail ? `${base} (${e.detail})` : base
+}
+
 /* "הפק חשבונית" for an income transaction. Renders nothing unless an invoice
    provider is connected. The user picks document type, the product/service
    line, and (for receipts) the payment method. Once issued, shows the number
@@ -101,7 +108,7 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
       showToast(doc?.number ? t('actions.creditedToastNumbered', { number: doc.number }) : t('actions.creditedToast'))
       onIssued?.() // refresh transactions → totals drop it + the list shows "בוטלה"
     } catch (e) {
-      setCreditErr(errMsg(e.message, t))
+      setCreditErr(errMsgWithDetail(e, t))
     }
   }
 
@@ -215,7 +222,7 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
         : t('actions.issuedToast', { docType: docTypeLabel(type) }))
       onIssued?.()
     } catch (e) {
-      setErr(errMsg(e.message, t))
+      setErr(errMsgWithDetail(e, t))
     } finally {
       setBusy(false)
     }

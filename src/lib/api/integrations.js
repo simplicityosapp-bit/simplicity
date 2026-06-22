@@ -25,6 +25,13 @@ export async function callInvoices(action, params = {}) {
     body: { action, ...params },
   })
   if (error) throw error
-  if (data && data.error) throw new Error(data.error)
+  if (data && data.error) {
+    // The coarse code stays the Error message (the UI maps it to Hebrew); any
+    // sanitized provider `detail` rides along so the UI can append the real
+    // reason a document failed to issue.
+    const err = new Error(data.error)
+    if (data.detail) err.detail = data.detail
+    throw err
+  }
   return data
 }

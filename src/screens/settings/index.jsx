@@ -1287,6 +1287,7 @@ export default function SettingsScreen() {
         onClose={() => setShowAddQ(false)}
         nextOrder={questions.length}
         onSave={addQuestion}
+        usedTemplateKeys={questions.filter((q) => q.template_key).map((q) => q.template_key)}
       />
 
       <DeleteSubStatusModal

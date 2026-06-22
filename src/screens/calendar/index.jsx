@@ -8,6 +8,9 @@ import { useSessions } from '../../hooks/useSessions'
 import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetingsGeneration'
 import { useCalendarDuplicates } from '../../hooks/useCalendarDuplicates'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
+import { useBookings } from '../../hooks/useBookings'
+import { useBookingPages } from '../../hooks/useBookingPages'
+import { useMeetingTypes } from '../../hooks/useMeetingTypes'
 import { useClients } from '../../hooks/useClients'
 import { useGroups } from '../../hooks/useGroups'
 import { useLeads } from '../../hooks/useLeads'
@@ -40,6 +43,9 @@ export default function CalendarScreen() {
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
   const { sessions, addSession } = useSessions()
   const { events: calendarEvents, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
+  const { bookings } = useBookings()
+  const { pages: bookingPages } = useBookingPages()
+  const { types: meetingTypes } = useMeetingTypes()
   const { clients } = useClients()
   const { groups } = useGroups()
 
@@ -156,23 +162,39 @@ export default function CalendarScreen() {
         whatsapp: { phone: client?.phone || '', key: client?.name ? 'reminder' : 'reminderNoName', vars: { name: client?.name, title: r.title } },
       }
     })
+    /* Owned events created from a booking carry the booking context (who +
+       which page + what they filled). The booking points back at its event
+       via event_id, so match on that — no extra column needed. */
+    const bookingByEvent = new Map((bookings || []).filter((b) => b.event_id).map((b) => [b.event_id, b]))
     /* Synced Google Calendar events — read-only, identified to a client
        where the fuzzy match (or a manual assignment) found one. */
     const calendarItems = (calendarEvents || [])
       .filter((ev) => ev.start_time)
-      .map((ev) => ({
-        id: ev.id,
-        kind: 'calendar',
-        title: ev.title || t('fallback.event'),
-        when: new Date(ev.start_time),
-        end: ev.end_time ? new Date(ev.end_time) : null,
-        allDay: !!ev.all_day,
-        clientName: ev.client_id ? (clients.find((c) => c.id === ev.client_id)?.name || null) : null,
-        projectName: ev.project_id ? (projects.find((p) => p.id === ev.project_id)?.name || null) : null,
-        leadName: ev.lead_id ? (leads.find((l) => l.id === ev.lead_id)?.name || null) : null,
-        groupName: ev.group_id ? (groups.find((g) => g.id === ev.group_id)?.name || null) : null,
-        raw: ev,
-      }))
+      .map((ev) => {
+        const bk = bookingByEvent.get(ev.id)
+        const booking = bk ? {
+          name: bk.name,
+          phone: bk.phone || null,
+          email: bk.email || null,
+          note: bk.note || null,
+          pageName: (bookingPages || []).find((p) => p.id === bk.page_id)?.title?.trim() || 'דף קביעת פגישות',
+          meetingTypeName: bk.meeting_type_id ? ((meetingTypes || []).find((mt) => mt.id === bk.meeting_type_id)?.name || null) : null,
+        } : null
+        return {
+          id: ev.id,
+          kind: 'calendar',
+          title: ev.title || t('fallback.event'),
+          when: new Date(ev.start_time),
+          end: ev.end_time ? new Date(ev.end_time) : null,
+          allDay: !!ev.all_day,
+          clientName: ev.client_id ? (clients.find((c) => c.id === ev.client_id)?.name || null) : null,
+          projectName: ev.project_id ? (projects.find((p) => p.id === ev.project_id)?.name || null) : null,
+          leadName: ev.lead_id ? (leads.find((l) => l.id === ev.lead_id)?.name || null) : null,
+          groupName: ev.group_id ? (groups.find((g) => g.id === ev.group_id)?.name || null) : null,
+          booking,
+          raw: ev,
+        }
+      })
     /* Lead follow-ups — a soft follow_up_date on an active (in_process) lead,
        shown at 09:00 that day. Closed leads (converted/irrelevant/ghost)
        drop off. Tapping opens the lead-followup detail (mark done). */
@@ -190,7 +212,7 @@ export default function CalendarScreen() {
     return [...meetingItems, ...reminderItems, ...calendarItems, ...leadFollowupItems]
       .filter((e) => byKind[e.kind] !== false)
       .sort((a, b) => a.when - b.when)
-  }, [meetings, reminders, calendarEvents, clients, groups, leads, projects, fMeeting, fReminder, fCalendar, fLeadFollowup, t])
+  }, [meetings, reminders, calendarEvents, bookings, bookingPages, meetingTypes, clients, groups, leads, projects, fMeeting, fReminder, fCalendar, fLeadFollowup, t])
 
   const scheduleItems = useMemo(() => {
     const startOfToday = new Date()

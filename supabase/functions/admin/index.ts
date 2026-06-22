@@ -434,10 +434,12 @@ Deno.serve(async (req) => {
       const users = await fetchAllUsers(admin)
       const emailById = new Map(users.map((u) => [u.id, u.email]))
 
-      const [{ data: sess }, { data: moon }, { data: prefs }] = await Promise.all([
+      const [{ data: sess }, { data: moon }, { data: prefs }, { data: landing }] = await Promise.all([
         admin.from('sessions').select('user_id, created_at, deleted_at'),
         admin.from('moon_snapshots').select('reflection, date, created_at'),
         admin.from('user_preferences').select('user_id, preferences'),
+        // Anonymous landing funnel events (null if migration 0050 hasn't run yet).
+        admin.from('landing_events').select('type, created_at'),
       ])
 
       // Empty daily buckets across the span, oldest → newest.
@@ -492,6 +494,23 @@ Deno.serve(async (req) => {
         .sort((a, b) => b.sessions - a.sessions)
         .slice(0, 10)
 
+      // Marketing landing funnel — anonymous page views + signup-starts in
+      // range, plus completed signups (auth.users created in range). The
+      // drop-off the owner asked about = signup_starts − completed signups.
+      let lpViews = 0
+      let lpStarts = 0
+      for (const e of landing ?? []) {
+        if (new Date(e.created_at).getTime() < startMs) continue
+        if (e.type === 'view') lpViews += 1
+        else if (e.type === 'signup_start') lpStarts += 1
+      }
+      const lpSignups = users.filter((u) => u.created_at && new Date(u.created_at).getTime() >= startMs).length
+      const landingFunnel = [
+        { label: 'כניסות לדף', count: lpViews },
+        { label: 'התחילו הרשמה', count: lpStarts },
+        { label: 'השלימו הרשמה', count: lpSignups },
+      ]
+
       return json({
         ok: true,
         range,
@@ -499,6 +518,7 @@ Deno.serve(async (req) => {
         sessionsOverTime,
         reflectionsOverTime,
         funnel,
+        landingFunnel,
         topUsers,
       })
     }

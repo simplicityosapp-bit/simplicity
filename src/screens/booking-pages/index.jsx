@@ -522,6 +522,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
         </div>
       </div>
 
+      {err && <p className="m-error lpe-err lpe-err-bottom">{err}</p>}
       <div className="lpe-bottom-actions">
         <button type="button" className="m-btn-cancel" onClick={onBack}>ביטול</button>
         <button type="button" className="m-btn-save" onClick={save} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>

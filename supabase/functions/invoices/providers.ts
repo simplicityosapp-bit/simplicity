@@ -207,6 +207,7 @@ class GreenInvoiceProvider implements InvoiceProvider {
       vatType: 0, // apply the business's default VAT config
       client: {
         name: doc.customer.name,
+        country: 'IL', // morning expects an ISO-2 country on the inline client
         emails: doc.send && doc.customer.email ? [doc.customer.email] : [],
       },
       income: [{ description: doc.itemName || doc.description, quantity: 1, price: doc.amount, currency: 'ILS', vatType: 0 }],

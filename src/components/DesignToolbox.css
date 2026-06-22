@@ -56,9 +56,9 @@
   z-index: 61;
   display: flex;
   flex-direction: column;
-  background: color-mix(in srgb, var(--cream, #fffcf7) 92%, transparent);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
+  background: var(--modal-bg);
+  -webkit-backdrop-filter: var(--bl);
+  backdrop-filter: var(--bl);
   border-inline-end: var(--mg-card-border);
   box-shadow: 4px 0 28px rgba(42, 37, 32, 0.16);
   transform: translateX(-104%);

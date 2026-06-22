@@ -381,6 +381,15 @@ textarea:focus-visible,
    never overlaps content, so this is safe). */
 .app[data-screen="leadPages"] .mg-sidebar,
 .app[data-screen="bookingPages"] .mg-sidebar { z-index: 1; }
+/* These are editing surfaces (forms, settings, builder canvas). Make every
+   card read EXACTLY like the app's popovers/modals — same opacity + same blur
+   — by pointing the card tokens at the modal tokens (--modal-bg / --bl, both
+   already themed light+dark). Solid frosted glass, identical to the dialogs. */
+.app[data-screen="leadPages"],
+.app[data-screen="bookingPages"] {
+  --mg-card-bg: var(--modal-bg);
+  --mg-card-blur: var(--bl);
+}
 .app[data-screen="projects"] { background: var(--bg-projects); }
 .app[data-screen="goals"]    { background: var(--bg-goals); }
 .app[data-screen="moon"]     { background: var(--bg-moon); }

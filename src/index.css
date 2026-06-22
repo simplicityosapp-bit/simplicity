@@ -355,13 +355,17 @@ textarea:focus-visible,
 .app[data-screen="tasks"]    { background: var(--bg-tasks); }
 .app[data-screen="leads"]    { background: var(--bg-leads); }
 .app[data-screen="leadPages"]{ background: var(--bg-home); }
+.app[data-screen="bookingPages"]{ background: var(--bg-home); }
 /* REAL frosted glass on the lead-pages screen. App-wide, the per-screen photo
    lives on .app::before — OUTSIDE the .screen backdrop root (.screen has
    isolation:isolate) — so a card's backdrop-filter has nothing to blur and the
    photo shows through sharp. Here we paint the photo INSIDE .screen instead, so
-   the cards' backdrop-filter genuinely frosts it (anchored, behind content). */
-.app[data-screen="leadPages"]::before { background-image: none; }
-.app[data-screen="leadPages"] .screen::before {
+   the cards' backdrop-filter genuinely frosts it (anchored, behind content).
+   The booking-pages builder shares the same treatment. */
+.app[data-screen="leadPages"]::before,
+.app[data-screen="bookingPages"]::before { background-image: none; }
+.app[data-screen="leadPages"] .screen::before,
+.app[data-screen="bookingPages"] .screen::before {
   content: '';
   position: fixed;
   inset: 0;
@@ -396,6 +400,7 @@ textarea:focus-visible,
 .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/mobile/day/tasks.webp'); }
 .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/mobile/day/leads.webp'); }
 .app[data-screen="leadPages"] { --screen-bg: url('/backgrounds/mobile/day/home.webp'); }
+.app[data-screen="bookingPages"] { --screen-bg: url('/backgrounds/mobile/day/home.webp'); }
 .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/mobile/day/projects.webp'); }
 .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/day/goals.webp'); }
 .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/day/moon.webp'); }
@@ -416,6 +421,7 @@ textarea:focus-visible,
 [data-theme="dark"] .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/mobile/night/tasks.webp'); }
 [data-theme="dark"] .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/mobile/night/leads.webp'); }
 [data-theme="dark"] .app[data-screen="leadPages"] { --screen-bg: url('/backgrounds/mobile/night/home.webp'); }
+[data-theme="dark"] .app[data-screen="bookingPages"] { --screen-bg: url('/backgrounds/mobile/night/home.webp'); }
 [data-theme="dark"] .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/mobile/night/projects.webp'); }
 [data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/night/goals.webp'); }
 [data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/night/moon.webp'); }
@@ -435,6 +441,7 @@ textarea:focus-visible,
   .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/desktop/day/tasks.webp'); }
   .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/desktop/day/leads.webp'); }
   .app[data-screen="leadPages"] { --screen-bg: url('/backgrounds/desktop/day/home.webp'); }
+  .app[data-screen="bookingPages"] { --screen-bg: url('/backgrounds/desktop/day/home.webp'); }
   .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/desktop/day/projects.webp'); }
   .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/day/goals.webp'); }
   .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/day/moon.webp'); }
@@ -453,6 +460,7 @@ textarea:focus-visible,
   [data-theme="dark"] .app[data-screen="tasks"]     { --screen-bg: url('/backgrounds/desktop/night/tasks.webp'); }
   [data-theme="dark"] .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/desktop/night/leads.webp'); }
   [data-theme="dark"] .app[data-screen="leadPages"] { --screen-bg: url('/backgrounds/desktop/night/home.webp'); }
+  [data-theme="dark"] .app[data-screen="bookingPages"] { --screen-bg: url('/backgrounds/desktop/night/home.webp'); }
   [data-theme="dark"] .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/desktop/night/projects.webp'); }
   [data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/night/goals.webp'); }
   [data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/night/moon.webp'); }
@@ -490,6 +498,7 @@ html[data-bg="blank"] .app:not([data-screen="onboarding"])::before            { 
 /* Lead-pages paints its photo on .screen::before (so its cards can blur it),
    so the blank-mode .app::before suppression above misses it — drop it too. */
 html[data-bg="blank"] .app[data-screen="leadPages"] .screen::before           { background-image: none; }
+html[data-bg="blank"] .app[data-screen="bookingPages"] .screen::before        { background-image: none; }
 
 /* Both reduced modes bump the glass-card opacity: at 30% the cards lean on
    a photo behind them, so over a calm/flat surface they read too transparent.

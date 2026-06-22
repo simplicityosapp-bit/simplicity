@@ -69,6 +69,14 @@
   opacity: 0.75;
 }
 
+/* Validation message above the bottom save button — aligned to the card column
+   so it's visible right where the save action is. */
+.lpe-err-bottom {
+  max-width: 720px;
+  margin: 16px auto 0;
+  text-align: center;
+}
+
 /* ── Meeting-type rows ────────────────────────────────────────────── */
 .bk-type-list {
   display: flex;

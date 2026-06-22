@@ -22,7 +22,10 @@
       "empty": "Nothing needs your attention right now.",
       "txModalTitle": "Transactions awaiting approval",
       "txEmpty": "All done — no pending transactions. You can close this.",
-      "meetingsModalTitle": "Meetings to confirm"
+      "meetingsModalTitle": "Meetings to confirm",
+      "bookings_one": "New booking to confirm",
+      "bookings_other": "{{count}} new bookings to confirm",
+      "bookingsModalTitle": "Bookings to confirm"
     },
     "chips": {
       "tasks": "Tasks",

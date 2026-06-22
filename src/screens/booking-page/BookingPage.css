@@ -1,0 +1,111 @@
+/* ════════════════════════════════════════════════════════════════
+   PUBLIC BOOKING PAGE — step-flow styles (bk2-*). The surface, card,
+   inputs, and submit button are shared with the lead page (lp-*). Accent
+   follows --lp-brand so coach branding applies automatically.
+   ════════════════════════════════════════════════════════════════ */
+
+.bk2-section { margin-top: 22px; }
+.bk2-section + .bk2-section { border-top: 1px solid rgba(44, 38, 33, 0.08); padding-top: 18px; }
+
+.bk2-step-label {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* ── Meeting types ────────────────────────────────────────────────── */
+.bk2-types { display: flex; flex-direction: column; gap: 10px; }
+.bk2-type {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1.5px solid rgba(44, 38, 33, 0.14);
+  border-radius: 14px;
+  background: transparent;
+  cursor: pointer;
+  text-align: start;
+  font: inherit;
+  color: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+.bk2-type:hover { border-color: color-mix(in srgb, var(--lp-brand) 45%, transparent); }
+.bk2-type.on {
+  border-color: var(--lp-brand);
+  background: color-mix(in srgb, var(--lp-brand) 8%, transparent);
+}
+.bk2-type-name { font-size: 16px; font-weight: 500; }
+.bk2-type-meta { font-size: 13px; opacity: 0.7; }
+
+/* ── Day picker ───────────────────────────────────────────────────── */
+.bk2-days {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 14px;
+  scrollbar-width: thin;
+}
+.bk2-day {
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  border: 1.5px solid rgba(44, 38, 33, 0.14);
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.bk2-day:hover { border-color: color-mix(in srgb, var(--lp-brand) 45%, transparent); }
+.bk2-day.on { border-color: var(--lp-brand); background: var(--lp-brand); color: #fff; }
+
+/* ── Time slots ───────────────────────────────────────────────────── */
+.bk2-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+}
+.bk2-slot {
+  padding: 11px 8px;
+  border: 1.5px solid rgba(44, 38, 33, 0.14);
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--mg-font-num, monospace);
+  font-size: 15px;
+  color: inherit;
+  text-align: center;
+}
+.bk2-slot:hover { border-color: color-mix(in srgb, var(--lp-brand) 45%, transparent); }
+.bk2-slot.on { border-color: var(--lp-brand); background: var(--lp-brand); color: #fff; }
+
+/* ── Chosen summary + confirmation ────────────────────────────────── */
+.bk2-chosen {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--lp-brand) 10%, transparent);
+  font-size: 14px;
+  font-weight: 500;
+}
+.bk2-confirm-when {
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+/* ── Dark surface / light-text parity ─────────────────────────────── */
+.lp-surface.text-light .bk2-type,
+.lp-surface.text-light .bk2-day,
+.lp-surface.text-light .bk2-slot { border-color: rgba(240, 235, 224, 0.25); }
+.lp-surface.text-light .bk2-section + .bk2-section { border-top-color: rgba(240, 235, 224, 0.16); }
+
+@media (prefers-color-scheme: dark) {
+  .bk2-type, .bk2-day, .bk2-slot { border-color: rgba(240, 235, 224, 0.22); }
+  .bk2-section + .bk2-section { border-top-color: rgba(240, 235, 224, 0.14); }
+}

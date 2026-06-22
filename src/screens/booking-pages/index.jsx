@@ -1,37 +1,34 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
-  ArrowRight, Plus, Trash2, Copy, Check, ChevronUp, ChevronDown, ExternalLink,
-  Settings, Link2, X,
+  ArrowRight, Plus, Trash2, Copy, Check, ExternalLink, Settings, Link2, X,
+  Clock, CalendarClock,
 } from 'lucide-react'
-import { useLeadPages } from '../../hooks/useLeadPages'
 import { useBookingPages } from '../../hooks/useBookingPages'
+import { useMeetingTypes } from '../../hooks/useMeetingTypes'
 import { useProjects } from '../../hooks/useProjects'
 import Coachmark from '../../components/Coachmark'
 import InfoPopover from '../../components/InfoPopover'
 import {
-  FIELD_TYPES, DEFAULT_CONTENT, newLeadPageDraft, freeFieldKey,
-  publicLeadPageUrl, normalizeSlug, isValidSlug, isChoiceType, defaultChoiceOptions,
+  DEFAULT_CONTENT, DEFAULT_AVAILABILITY, newBookingPageDraft, WEEKDAYS,
+  publicBookingPageUrl, normalizeSlug, isValidSlug,
   LEAD_PAGE_BACKGROUNDS, leadPageBgUrl, leadPageSurface,
-} from '../../lib/leadPageSchema'
+} from '../../lib/bookingPageSchema'
 import { ROUTES } from '../../lib/routes'
-import '../lead-page/LeadPage.css' // WYSIWYG: the canvas reuses the public page's look
-import './LeadPagesScreen.css'
-
-const FIELD_TYPE_LABELS = { text: 'טקסט', tel: 'טלפון', email: 'אימייל', textarea: 'טקסט ארוך', select: 'בחירה יחידה', checkbox: 'בחירה מרובה' }
+import '../lead-page/LeadPage.css'        // shared public-page look (lp-*)
+import '../lead-pages/LeadPagesScreen.css' // shared builder chrome (lpe-*, lpm-*)
+import './BookingPagesScreen.css'          // booking-specific (bk-*)
 
 /* ════════════════════════════════════════════════════════════════
-   LEAD PAGES — in-app builder + management for public lead pages.
-   Reached from the Leads screen header. A list view ↔ a live builder
-   (Google-Forms-style inline editing) toggled by local state.
+   BOOKING PAGES — in-app builder + management for public booking pages.
+   Sibling of the Lead Pages builder: a list view ↔ a live builder, with
+   a branding canvas + meeting-type picker + weekly-availability editor.
    ════════════════════════════════════════════════════════════════ */
-export default function LeadPagesScreen() {
+export default function BookingPagesScreen() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { pages, loading, error, addPage, updatePage, removePage } = useLeadPages()
-  /* Deep-link from the project detail screen: { state: { editPageId } } opens
-     that page's builder directly. */
-  const [editingId, setEditingId] = useState(() => location.state?.editPageId ?? null) // page id, or 'new', or null (list)
+  const { pages, loading, error, addPage, updatePage, removePage } = useBookingPages()
+  const [editingId, setEditingId] = useState(() => location.state?.editPageId ?? null)
 
   const editing = useMemo(() => {
     if (editingId === 'new') return null
@@ -40,7 +37,7 @@ export default function LeadPagesScreen() {
 
   if (editingId) {
     return (
-      <LeadPageBuilder
+      <BookingPageBuilder
         key={editingId}
         page={editing}
         isNew={editingId === 'new'}
@@ -60,17 +57,17 @@ export default function LeadPagesScreen() {
             <div className="screen-head-meta">
               <p className="lbl">{pages.length} דפים</p>
             </div>
-            <p className="lbl-sm">דפי נחיתה ציבוריים לאיסוף לידים</p>
+            <p className="lbl-sm">דפים ציבוריים לקביעת פגישות, מסונכרנים ליומן</p>
           </div>
-          <p className="t-screen">דפי נחיתה</p>
+          <p className="t-screen">דפי קביעת פגישות</p>
         </header>
-        <Coachmark id="add-lead-page" radius="50%">
+        <Coachmark id="add-booking-page" radius="50%">
           <button className="cta-add" type="button" onClick={() => setEditingId('new')}>דף חדש</button>
         </Coachmark>
       </div>
 
-      <button type="button" className="lp-back-link" onClick={() => navigate(ROUTES.LEADS)}>
-        <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> חזרה ללידים
+      <button type="button" className="lp-back-link" onClick={() => navigate(ROUTES.CALENDAR)}>
+        <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> חזרה ליומן
       </button>
 
       {loading ? (
@@ -79,7 +76,7 @@ export default function LeadPagesScreen() {
         <div className="empty"><p className="empty-text">שגיאה בטעינה: {error}</p></div>
       ) : pages.length === 0 ? (
         <div className="empty">
-          <p className="empty-text">עוד אין דפי נחיתה. צרו דף ראשון כדי לאסוף לידים אוטומטית.</p>
+          <p className="empty-text">עוד אין דפי קביעת פגישות. צרו דף ראשון כדי לקבל תורים אוטומטית ליומן.</p>
           <button type="button" className="lpm-empty-cta" onClick={() => setEditingId('new')}>
             <Plus size={16} strokeWidth={1.8} aria-hidden="true" /> דף חדש
           </button>
@@ -102,7 +99,7 @@ export default function LeadPagesScreen() {
 
 function PageCard({ page, onEdit, onDelete }) {
   const [copied, setCopied] = useState(false)
-  const url = publicLeadPageUrl(page.slug || page.id)
+  const url = publicBookingPageUrl(page.slug || page.id)
   const copy = async () => {
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { /* noop */ }
   }
@@ -112,14 +109,14 @@ function PageCard({ page, onEdit, onDelete }) {
         <p className="lpm-card-title">{page.title?.trim() || 'דף ללא שם'}</p>
         <div className="lpm-badges">
           <span className={`lpm-badge${page.published ? ' is-live' : ''}`}>{page.published ? 'פעיל' : 'טיוטה'}</span>
-          {page.auto_approve
-            ? <span className="lpm-badge is-auto">הזנה אוטומטית</span>
+          {page.auto_confirm
+            ? <span className="lpm-badge is-auto">אישור אוטומטי</span>
             : <span className="lpm-badge">דורש אישור</span>}
           <InfoPopover
-            label="הסבר על אופן כניסת הלידים"
-            text={page.auto_approve
-              ? 'לידים מהדף הזה נכנסים ישר ללוח הלידים, בלי אישור. אפשר לשנות ל"דורש אישור" בהגדרות הדף.'
-              : 'לידים מהדף הזה לא נכנסים ישר — הם ממתינים ב"ממתינים לאישור" (וב"דורש תשומת לב" בבית), ונכנסים ללוח רק אחרי שתאשר/י. אפשר לשנות ל"הזנה אוטומטית" בהגדרות הדף.'}
+            label="הסבר על אופן אישור התורים"
+            text={page.auto_confirm
+              ? 'תורים מהדף הזה מאושרים אוטומטית ונכנסים ישר ליומן. אפשר לשנות ל"דורש אישור" בהגדרות הדף.'
+              : 'תורים מהדף הזה ממתינים לאישורך ("דורש תשומת לב" בבית), ותופסים את הזמן עד שתאשר/י או תדחה/י. אפשר לשנות ל"אישור אוטומטי" בהגדרות הדף.'}
           />
         </div>
       </div>
@@ -143,88 +140,80 @@ function PageCard({ page, onEdit, onDelete }) {
   )
 }
 
-/* ── Builder — live, Google-Forms-style inline editing on the canvas ──── */
-function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
+/* ── Builder ─────────────────────────────────────────────────────────── */
+function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
   const [draft, setDraft] = useState(() => {
-    if (isNew || !page) return newLeadPageDraft()
+    if (isNew || !page) return newBookingPageDraft()
     return {
       title: page.title ?? '',
       published: !!page.published,
-      auto_approve: !!page.auto_approve,
+      auto_confirm: !!page.auto_confirm,
       project_id: page.project_id ?? '',
       slug: page.slug ?? '',
       content: { ...DEFAULT_CONTENT, ...(page.content || {}), thankYou: { ...DEFAULT_CONTENT.thankYou, ...(page.content?.thankYou || {}) } },
-      fields: Array.isArray(page.fields) && page.fields.length ? page.fields : newLeadPageDraft().fields,
+      availability: { ...DEFAULT_AVAILABILITY, ...(page.availability || {}), weekly: { ...DEFAULT_AVAILABILITY.weekly, ...((page.availability || {}).weekly || {}) } },
+      meeting_type_ids: Array.isArray(page.meeting_type_ids) ? page.meeting_type_ids : [],
     }
   })
   const { projects } = useProjects()
-  const { pages: bookingPages } = useBookingPages()
+  const { types, addType, updateType } = useMeetingTypes()
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const [copied, setCopied] = useState(false)
-  const [showSettings, setShowSettings] = useState(isNew) // a new page needs a name first
-  const [activeKey, setActiveKey] = useState(null) // the field card being edited
+  const [showSettings, setShowSettings] = useState(isNew)
 
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
   const setContent = (patch) => setDraft((d) => ({ ...d, content: { ...d.content, ...patch } }))
   const setThankYou = (patch) => setDraft((d) => ({ ...d, content: { ...d.content, thankYou: { ...d.content.thankYou, ...patch } } }))
+  const setAvail = (patch) => setDraft((d) => ({ ...d, availability: { ...d.availability, ...patch } }))
+  const setWeekly = (day, windows) => setDraft((d) => ({ ...d, availability: { ...d.availability, weekly: { ...d.availability.weekly, [day]: windows } } }))
 
-  const setFields = (next) => setDraft((d) => ({ ...d, fields: next }))
-  const updateField = (i, patch) => setFields(draft.fields.map((f, idx) => (idx === i ? { ...f, ...patch } : f)))
-  /* Switching to a choice type seeds default options; switching away keeps
-     them (harmless) but they're stripped on save for non-choice types. */
-  const changeFieldType = (i, type) => {
-    const f = draft.fields[i]
-    const patch = { type }
-    if (isChoiceType(type) && !(Array.isArray(f.options) && f.options.length)) patch.options = defaultChoiceOptions()
-    updateField(i, patch)
+  const availTypes = (types || []).filter((t) => !t.deleted_at)
+  const toggleType = (id) => setDraft((d) => {
+    const has = d.meeting_type_ids.includes(id)
+    return { ...d, meeting_type_ids: has ? d.meeting_type_ids.filter((x) => x !== id) : [...d.meeting_type_ids, id] }
+  })
+
+  const dayWindows = (day) => {
+    const w = draft.availability.weekly?.[day]
+    return Array.isArray(w) ? w : []
   }
-  const updateOption = (i, oi, value) => {
-    const opts = [...(draft.fields[i].options || [])]
-    opts[oi] = value
-    updateField(i, { options: opts })
-  }
-  const addOption = (i) => updateField(i, { options: [...(draft.fields[i].options || []), ''] })
-  const removeOption = (i, oi) => updateField(i, { options: (draft.fields[i].options || []).filter((_, idx) => idx !== oi) })
-  const removeField = (i) => setFields(draft.fields.filter((_, idx) => idx !== i))
-  const moveField = (i, dir) => {
-    const j = i + dir
-    if (j < 0 || j >= draft.fields.length) return
-    const next = [...draft.fields]
-    ;[next[i], next[j]] = [next[j], next[i]]
-    setFields(next)
-  }
-  const addFreeField = () => {
-    const key = freeFieldKey(draft.fields)
-    setFields([...draft.fields, { key, label: '', type: 'text', required: false, builtin: false }])
-    setActiveKey(key)
+  const addWindow = (day) => setWeekly(day, [...dayWindows(day), { start: '09:00', end: '17:00' }])
+  const updateWindow = (day, i, patch) => setWeekly(day, dayWindows(day).map((w, idx) => (idx === i ? { ...w, ...patch } : w)))
+  const removeWindow = (day, i) => setWeekly(day, dayWindows(day).filter((_, idx) => idx !== i))
+
+  const addQuickType = async () => {
+    const name = (window.prompt('שם סוג הפגישה החדש:') || '').trim()
+    if (!name) return
+    try {
+      const row = await addType({ name, sort_order: availTypes.length, duration_minutes: draft.availability.defaultDurationMinutes })
+      toggleType(row.id)
+    } catch (e) { setErr(`הוספת סוג נכשלה: ${e.message || ''}`) }
   }
 
   const save = async () => {
     setErr('')
     if (!draft.title.trim()) { setShowSettings(true); setErr('יש לתת שם פנימי לדף (לזיהוי בלבד).'); return }
-    if (draft.fields.some((f) => !f.label.trim())) { setErr('לכל שדה צריך להיות תווית.'); return }
-    if (draft.fields.some((f) => isChoiceType(f.type) && (f.options || []).map((o) => o.trim()).filter(Boolean).length < 2)) {
-      setErr('לשדה בחירה צריך לפחות שתי אפשרויות.'); return
-    }
     const slug = normalizeSlug(draft.slug)
     if (draft.slug.trim() && !isValidSlug(slug)) {
       setShowSettings(true)
       setErr('הקישור הקצר חייב להיות 3–40 תווים: אותיות אנגלית קטנות, ספרות ומקפים.')
       return
     }
+    // Sanity: an active page with no availability has no slots to offer.
+    const anyAvail = WEEKDAYS.some((_, d) => dayWindows(d).length > 0)
+    if (draft.published && !anyAvail) { setErr('אין שעות זמינות מוגדרות — הוסיפו לפחות חלון זמן אחד לפני פרסום.'); return }
+
     setBusy(true)
     const payload = {
       title: draft.title.trim(),
       published: draft.published,
-      auto_approve: draft.auto_approve,
+      auto_confirm: draft.auto_confirm,
       project_id: draft.project_id || null,
       slug: slug || null,
       content: draft.content,
-      fields: draft.fields.map((f) => ({
-        key: f.key, label: f.label.trim(), type: f.type, required: !!f.required, builtin: !!f.builtin,
-        ...(isChoiceType(f.type) ? { options: (f.options || []).map((o) => o.trim()).filter(Boolean) } : {}),
-      })),
+      availability: draft.availability,
+      meeting_type_ids: draft.meeting_type_ids,
     }
     try {
       if (isNew) {
@@ -236,8 +225,7 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
       }
     } catch (e) {
       setShowSettings(true)
-      // A duplicate slug surfaces as a Postgres 23505 unique-violation.
-      if (e?.code === '23505' || /duplicate|unique|idx_lead_pages_slug/i.test(e?.message || '')) {
+      if (e?.code === '23505' || /duplicate|unique|idx_booking_pages_slug/i.test(e?.message || '')) {
         setErr('הקישור הקצר הזה כבר תפוס — בחר/י אחר.')
       } else {
         setErr(`שמירה נכשלה: ${e.message || 'נסו שוב'}`)
@@ -247,7 +235,7 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
     }
   }
 
-  const url = page?.id ? publicLeadPageUrl(page.slug || page.id) : null
+  const url = page?.id ? publicBookingPageUrl(page.slug || page.id) : null
   const copyLink = async () => {
     if (!url) return
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { /* noop */ }
@@ -259,7 +247,6 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
 
   return (
     <div className="screen lpe-screen">
-      {/* Top bar */}
       <div className="lpe-topbar">
         <button type="button" className="lp-back-link" onClick={onBack}>
           <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> חזרה
@@ -273,12 +260,11 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
         </div>
       </div>
 
-      {/* Settings panel (page-level — not part of the form body) */}
       {showSettings && (
         <div className="lpe-settings">
           <div className="m-field">
             <label className="m-label">שם פנימי (לזיהוי, לא מוצג בדף)</label>
-            <input className="m-input" value={draft.title} onChange={(e) => set({ title: e.target.value })} placeholder="לדוגמה: דף קמפיין אינסטגרם" />
+            <input className="m-input" value={draft.title} onChange={(e) => set({ title: e.target.value })} placeholder="לדוגמה: פגישות היכרות" />
           </div>
           <div className="lpe-settings-row">
             <label className="lpb-toggle">
@@ -286,8 +272,8 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
               <span><strong>פרסום הדף</strong><em>כשכבוי — טיוטה, לא נגיש לציבור.</em></span>
             </label>
             <label className="lpb-toggle">
-              <input type="checkbox" checked={draft.auto_approve} onChange={(e) => set({ auto_approve: e.target.checked })} />
-              <span><strong>הזנה אוטומטית</strong><em>כשכבוי — לידים ממתינים לאישור ידני.</em></span>
+              <input type="checkbox" checked={draft.auto_confirm} onChange={(e) => set({ auto_confirm: e.target.checked })} />
+              <span><strong>אישור אוטומטי</strong><em>כשכבוי — תורים ממתינים לאישור ידני.</em></span>
             </label>
           </div>
           <div className="m-field">
@@ -298,22 +284,11 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
-            <p className="lbl-sm">לידים מהדף יקושרו לפרויקט, ובמסך הפרויקט יופיע קישור לדף.</p>
-          </div>
-          <div className="m-field">
-            <label className="m-label">כפתור קביעת פגישה (אופציונלי)</label>
-            <select className="m-select" value={c.bookingPageRef || ''} onChange={(e) => setContent({ bookingPageRef: e.target.value })}>
-              <option value="">ללא</option>
-              {(bookingPages || []).filter((p) => p.published).map((p) => (
-                <option key={p.id} value={p.slug || p.id}>{p.title?.trim() || 'דף קביעת פגישות'}</option>
-              ))}
-            </select>
-            <p className="lbl-sm">בתחתית הדף יופיע כפתור שמוביל לדף קביעת הפגישות שתבחר/י (רק דפים שפורסמו).</p>
           </div>
           <div className="m-field">
             <label className="m-label">קישור קצר (אופציונלי)</label>
             <div className="lpe-slug-row">
-              <span className="lpe-slug-prefix mono" dir="ltr">{window.location.host}/lead/</span>
+              <span className="lpe-slug-prefix mono" dir="ltr">{window.location.host}/book/</span>
               <input
                 className="m-input lpe-slug-input"
                 dir="ltr"
@@ -350,7 +325,6 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
                   />
                 ))}
               </div>
-
               <div className="lpe-slider-row">
                 <span className="lpe-design-lbl">שקיפות הכרטיס</span>
                 <input type="range" min="0" max="100" value={100 - (c.cardOpacity ?? 100)} onChange={(e) => setContent({ cardOpacity: 100 - Number(e.target.value) })} />
@@ -361,12 +335,10 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
                 <input type="range" min="0" max="30" value={c.cardBlur ?? 14} onChange={(e) => setContent({ cardBlur: Number(e.target.value) })} />
                 <span className="lpe-slider-val mono">{c.cardBlur ?? 14}px</span>
               </div>
-
               <label className="lpe-design-toggle">
                 <input type="checkbox" checked={!!c.bold} onChange={(e) => setContent({ bold: e.target.checked })} />
                 טקסט מודגש
               </label>
-
               <div className="lpe-seg-row">
                 <span className="lpe-design-lbl">צבע טקסט</span>
                 <div className="lpe-seg">
@@ -384,14 +356,14 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
             </div>
           </div>
           <div className="m-field">
-            <label className="m-label">אחרי השליחה</label>
+            <label className="m-label">אחרי הקביעה</label>
             <div className="lpb-radio-group">
               <label className="lpb-radio">
-                <input type="radio" name="thankyou" checked={c.thankYou.mode === 'message'} onChange={() => setThankYou({ mode: 'message' })} />
+                <input type="radio" name="bk-thankyou" checked={c.thankYou.mode === 'message'} onChange={() => setThankYou({ mode: 'message' })} />
                 הצגת הודעת תודה
               </label>
               <label className="lpb-radio">
-                <input type="radio" name="thankyou" checked={c.thankYou.mode === 'redirect'} onChange={() => setThankYou({ mode: 'redirect' })} />
+                <input type="radio" name="bk-thankyou" checked={c.thankYou.mode === 'redirect'} onChange={() => setThankYou({ mode: 'redirect' })} />
                 הפניה לקישור חיצוני
               </label>
             </div>
@@ -422,9 +394,9 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
 
       {err && <p className="m-error lpe-err">{err}</p>}
 
-      {/* Live canvas — edit texts & fields inline, exactly as they'll appear */}
+      {/* Branding preview canvas (logo / heading / body inline) */}
       <div className={canvasClass} style={canvasStyle}>
-        <div className="lp-card" onClick={(e) => { if (e.target === e.currentTarget) setActiveKey(null) }}>
+        <div className="lp-card">
           <input
             className="lp-logo lpe-edit lpe-center"
             value={c.logoText}
@@ -447,91 +419,106 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
             rows={2}
             aria-label="טקסט"
           />
+          <div className="bk-preview-hint" aria-hidden="true">
+            <CalendarClock size={15} strokeWidth={1.6} /> כאן המבקר יבחר סוג פגישה, יום ושעה
+          </div>
+          <div className="lp-submit lpe-submit-preview" aria-hidden="true">קביעת הפגישה</div>
+        </div>
+      </div>
 
-          <div className="lpe-fields">
-            {draft.fields.map((f, i) => {
-              const active = activeKey === f.key
+      {/* Meeting types */}
+      <div className="bk-config-card">
+        <div className="bk-config-head">
+          <h3 className="bk-config-title"><CalendarClock size={17} strokeWidth={1.7} aria-hidden="true" /> סוגי פגישה שהדף מציע</h3>
+          <button type="button" className="bk-mini-btn" onClick={addQuickType}><Plus size={14} strokeWidth={1.9} /> סוג חדש</button>
+        </div>
+        <p className="lbl-sm">בחרו אילו סוגי פגישה יוצגו למבקר. המשך של כל סוג קובע את אורך הפגישה ביומן.</p>
+        {availTypes.length === 0 ? (
+          <p className="bk-empty-note">עוד אין סוגי פגישה. הוסיפו סוג חדש (או דרך ההגדרות), או שהדף יציע "פגישה" באורך ברירת המחדל.</p>
+        ) : (
+          <div className="bk-type-list">
+            {availTypes.map((t) => {
+              const on = draft.meeting_type_ids.includes(t.id)
               return (
-                <div
-                  key={f.key}
-                  className={`lpe-field${active ? ' is-active' : ''}`}
-                  onMouseDown={() => setActiveKey(f.key)}
-                >
-                  <input
-                    className="lp-label lpe-edit lpe-field-label"
-                    value={f.label}
-                    onChange={(e) => updateField(i, { label: e.target.value })}
-                    onFocus={() => setActiveKey(f.key)}
-                    placeholder="תווית השדה"
-                    aria-label="תווית השדה"
-                  />
-                  {/* Non-interactive preview of the answer area */}
-                  {isChoiceType(f.type) ? (
-                    <div className="lpe-choice-preview">
-                      {(f.options || []).map((opt, oi) => (
-                        <span className="lpe-choice-opt" key={oi}>
-                          <span className={`lpe-choice-mark${f.type === 'select' ? ' radio' : ''}`} aria-hidden="true" />
-                          <span className="lpe-choice-opt-label">{opt || `אפשרות ${oi + 1}`}</span>
-                        </span>
-                      ))}
-                    </div>
-                  ) : f.type === 'textarea'
-                    ? <textarea className="lp-input lp-textarea lpe-preview" rows={3} disabled tabIndex={-1} />
-                    : <input className="lp-input lpe-preview" type="text" disabled tabIndex={-1} />}
-
-                  {active && (
-                    <>
-                      <div className="lpe-field-controls">
-                        <select
-                          className="m-select lpe-type"
-                          value={f.type}
-                          onChange={(e) => changeFieldType(i, e.target.value)}
-                          disabled={f.builtin}
-                          title={f.builtin ? 'שדה קבוע' : 'סוג השאלה'}
-                        >
-                          {FIELD_TYPES.map((tp) => <option key={tp} value={tp}>{FIELD_TYPE_LABELS[tp]}</option>)}
-                        </select>
-                        <label className="lpe-req">
-                          <input type="checkbox" checked={!!f.required} onChange={(e) => updateField(i, { required: e.target.checked })} />
-                          חובה
-                        </label>
-                        <span className="lpe-ctrl-spacer" />
-                        <button type="button" className="lpe-ctrl-btn" onClick={() => moveField(i, -1)} disabled={i === 0} aria-label="העלאה"><ChevronUp size={16} /></button>
-                        <button type="button" className="lpe-ctrl-btn" onClick={() => moveField(i, 1)} disabled={i === draft.fields.length - 1} aria-label="הורדה"><ChevronDown size={16} /></button>
-                        <button type="button" className="lpe-ctrl-btn danger" onClick={() => removeField(i)} aria-label="הסרת שדה"><Trash2 size={15} /></button>
-                      </div>
-                      {isChoiceType(f.type) && (
-                        <div className="lpe-options">
-                          {(f.options || []).map((opt, oi) => (
-                            <div className="lpe-option-row" key={oi}>
-                              <span className={`lpe-choice-mark${f.type === 'select' ? ' radio' : ''}`} aria-hidden="true" />
-                              <input
-                                className="m-input lpe-option-input"
-                                value={opt}
-                                onChange={(e) => updateOption(i, oi, e.target.value)}
-                                placeholder={`אפשרות ${oi + 1}`}
-                              />
-                              <button type="button" className="lpe-ctrl-btn danger" onClick={() => removeOption(i, oi)} disabled={(f.options || []).length <= 1} aria-label="הסרת אפשרות"><X size={14} /></button>
-                            </div>
-                          ))}
-                          <button type="button" className="lpe-add-option" onClick={() => addOption(i)}>
-                            <Plus size={14} strokeWidth={1.8} aria-hidden="true" /> הוספת אפשרות
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
+                <div key={t.id} className={`bk-type-row${on ? ' on' : ''}`}>
+                  <label className="bk-type-pick">
+                    <input type="checkbox" checked={on} onChange={() => toggleType(t.id)} />
+                    <span className="bk-type-name">{t.name}</span>
+                  </label>
+                  <div className="bk-type-dur">
+                    <Clock size={14} strokeWidth={1.6} aria-hidden="true" />
+                    <input
+                      type="number" min="5" step="5"
+                      className="bk-dur-input"
+                      value={t.duration_minutes ?? ''}
+                      placeholder={String(draft.availability.defaultDurationMinutes)}
+                      onChange={(e) => updateType(t.id, { duration_minutes: e.target.value === '' ? null : Number(e.target.value) })}
+                      aria-label={`משך ${t.name} בדקות`}
+                    />
+                    <span className="bk-dur-unit">דק׳</span>
+                  </div>
                 </div>
               )
             })}
           </div>
+        )}
+      </div>
 
-          <button type="button" className="lpe-add" onClick={addFreeField}>
-            <Plus size={16} strokeWidth={1.8} aria-hidden="true" /> הוספת שדה
-          </button>
+      {/* Availability */}
+      <div className="bk-config-card">
+        <h3 className="bk-config-title"><Clock size={17} strokeWidth={1.7} aria-hidden="true" /> זמינות</h3>
+        <div className="bk-settings-grid">
+          <label className="bk-num-field">
+            <span>מרווח בין מועדים (דק׳)</span>
+            <input type="number" min="5" step="5" value={draft.availability.slotMinutes} onChange={(e) => setAvail({ slotMinutes: Number(e.target.value) })} />
+          </label>
+          <label className="bk-num-field">
+            <span>אורך ברירת מחדל (דק׳)</span>
+            <input type="number" min="5" step="5" value={draft.availability.defaultDurationMinutes} onChange={(e) => setAvail({ defaultDurationMinutes: Number(e.target.value) })} />
+          </label>
+          <label className="bk-num-field">
+            <span>מרווח אחרי פגישה (דק׳)</span>
+            <input type="number" min="0" step="5" value={draft.availability.bufferMinutes} onChange={(e) => setAvail({ bufferMinutes: Number(e.target.value) })} />
+          </label>
+          <label className="bk-num-field">
+            <span>התראה מוקדמת (שעות)</span>
+            <input type="number" min="0" step="1" value={draft.availability.minNoticeHours} onChange={(e) => setAvail({ minNoticeHours: Number(e.target.value) })} />
+          </label>
+          <label className="bk-num-field">
+            <span>טווח קדימה (ימים)</span>
+            <input type="number" min="1" step="1" value={draft.availability.maxDaysAhead} onChange={(e) => setAvail({ maxDaysAhead: Number(e.target.value) })} />
+          </label>
+        </div>
 
-          {/* Preview of the public submit button (brand-colored, not clickable) */}
-          <div className="lp-submit lpe-submit-preview" aria-hidden="true">שליחה</div>
+        <div className="bk-week">
+          {WEEKDAYS.map((label, day) => {
+            const windows = dayWindows(day)
+            const open = windows.length > 0
+            return (
+              <div key={day} className={`bk-day${open ? ' open' : ''}`}>
+                <div className="bk-day-head">
+                  <span className="bk-day-name">{label}</span>
+                  {open ? (
+                    <button type="button" className="bk-mini-btn" onClick={() => addWindow(day)}><Plus size={13} strokeWidth={1.9} /> חלון</button>
+                  ) : (
+                    <button type="button" className="bk-day-add" onClick={() => addWindow(day)}>הוספת זמינות</button>
+                  )}
+                </div>
+                {open && (
+                  <div className="bk-windows">
+                    {windows.map((w, i) => (
+                      <div className="bk-window" key={i}>
+                        <input type="time" value={w.start} onChange={(e) => updateWindow(day, i, { start: e.target.value })} />
+                        <span className="bk-window-sep">–</span>
+                        <input type="time" value={w.end} onChange={(e) => updateWindow(day, i, { end: e.target.value })} />
+                        <button type="button" className="lpe-ctrl-btn danger" onClick={() => removeWindow(day, i)} aria-label="הסרת חלון"><X size={14} /></button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
 

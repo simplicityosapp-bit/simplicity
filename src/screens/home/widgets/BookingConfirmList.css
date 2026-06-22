@@ -1,0 +1,59 @@
+/* Pending-booking review list inside the home attention popup. */
+.bk-confirm-list { display: flex; flex-direction: column; gap: 10px; }
+
+.bk-confirm-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(44, 38, 33, 0.10);
+  border-radius: 14px;
+  background: var(--cream, #fffcf7);
+}
+
+.bk-confirm-main { min-width: 0; }
+.bk-confirm-name { margin: 0; font-size: var(--mg-body, 15px); font-weight: 600; }
+.bk-confirm-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 3px 0 0;
+  font-size: var(--mg-caption, 13px);
+  opacity: 0.8;
+}
+.bk-confirm-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 5px 0 0;
+  font-size: var(--mg-caption, 13px);
+}
+.bk-confirm-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--terracotta, #c97b5e);
+  text-decoration: none;
+}
+.bk-confirm-contact a:hover { text-decoration: underline; }
+.bk-confirm-note {
+  margin: 6px 0 0;
+  font-size: var(--mg-caption, 13px);
+  opacity: 0.7;
+}
+
+.bk-confirm-actions { display: flex; gap: 8px; flex: 0 0 auto; }
+.bk-confirm-btn {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(44, 38, 33, 0.14);
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+}
+.bk-confirm-btn.approve:hover { background: rgba(139, 168, 136, 0.18); border-color: var(--sage, #8ba888); color: var(--sage, #8ba888); }
+.bk-confirm-btn.reject:hover { background: rgba(181, 99, 78, 0.14); border-color: var(--clay, #b5634e); color: var(--clay, #b5634e); }

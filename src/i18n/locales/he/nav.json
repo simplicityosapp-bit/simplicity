@@ -9,6 +9,7 @@
   "drawerSubtitle": "תפריט · העדפות וכלים אישיים",
   "extras": {
     "leadPages": "דפי נחיתה",
+    "bookingPages": "קביעת פגישות",
     "moon": "מבט על",
     "reports": "דוחות",
     "insights": "מה איתך היום?",
@@ -48,7 +49,8 @@
     "reportsSub": "מדדים לאורך תקופות",
     "feedbackSub": "מה עובד, מה חסר, ומה אפשר לשפר",
     "trashSub": "שחזור פריטים שנמחקו · 30 יום",
-    "leadPagesSub": "טפסים ציבוריים לאיסוף לידים"
+    "leadPagesSub": "טפסים ציבוריים לאיסוף לידים",
+    "bookingPagesSub": "דף ציבורי לקביעת תורים, מסונכרן ליומן"
   },
   "signOut": "התנתקות",
   "profile": {

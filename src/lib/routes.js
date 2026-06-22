@@ -28,6 +28,7 @@ export const ROUTES = {
   TASKS: '/tasks',
   LEADS: '/leads',
   LEAD_PAGES: '/leads/pages', // in-app builder + management for public lead pages
+  BOOKING_PAGES: '/bookings/pages', // in-app builder + management for public booking pages
   CALENDAR: '/calendar',
   GOALS: '/goals',
   MOON_GLANCE: '/moon',
@@ -53,6 +54,11 @@ export const ROUTES = {
   // before the auth gate, like /legal and /landing). The :pageId is the
   // lead_pages row uuid; the page talks only to the `lead-intake` edge fn.
   LEAD_PAGE: '/lead/:pageId',
+
+  // Public appointment-booking page — reachable WITHOUT login (served before
+  // the auth gate, like /lead). The :pageId is the booking_pages uuid OR its
+  // custom slug; the page talks only to the `booking-intake` edge fn.
+  BOOKING_PAGE: '/book/:pageId',
 
   // Dynamic routes
   CLIENT: '/clients/:id',

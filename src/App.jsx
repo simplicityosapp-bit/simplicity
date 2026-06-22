@@ -46,6 +46,7 @@ const FinanceScreen = lazyWithRetry(() => import('./screens/finance'))
 const TasksScreen = lazyWithRetry(() => import('./screens/tasks'))
 const LeadsScreen = lazyWithRetry(() => import('./screens/leads'))
 const LeadPagesScreen = lazyWithRetry(() => import('./screens/lead-pages'))
+const BookingPagesScreen = lazyWithRetry(() => import('./screens/booking-pages'))
 const CalendarScreen = lazyWithRetry(() => import('./screens/calendar'))
 const GoalsScreen = lazyWithRetry(() => import('./screens/goals'))
 const MoonGlanceScreen = lazyWithRetry(() => import('./screens/moon-glance'))
@@ -68,6 +69,9 @@ const LandingScreen = lazyWithRetry(() => import('./screens/landing'))
 /* Public lead-capture landing page — served at /lead/<id> to logged-out
    visitors (the coach's prospects). Lazy so it never weighs down the app. */
 const LeadPageScreen = lazyWithRetry(() => import('./screens/lead-page'))
+/* Public appointment-booking page — served at /book/<id> to logged-out
+   visitors. Lazy so it never weighs down the authenticated app. */
+const BookingPageScreen = lazyWithRetry(() => import('./screens/booking-page'))
 
 import LoginScreen from './screens/auth/LoginScreen'
 import SignupScreen from './screens/auth/SignupScreen'
@@ -198,6 +202,7 @@ function AppShell() {
             <Route path={ROUTES.FINANCE} element={<FinanceScreen />} />
             <Route path={ROUTES.TASKS} element={<TasksScreen />} />
             <Route path={ROUTES.LEAD_PAGES} element={<LeadPagesScreen />} />
+            <Route path={ROUTES.BOOKING_PAGES} element={<BookingPagesScreen />} />
             <Route path={ROUTES.LEADS} element={<LeadsScreen />} />
             <Route path={ROUTES.CALENDAR} element={<CalendarScreen />} />
             <Route path={ROUTES.GOALS} element={<GoalsScreen />} />
@@ -349,6 +354,17 @@ function Root() {
       <Suspense fallback={<LoadingSplash />}>
         <Routes>
           <Route path={ROUTES.LEAD_PAGE} element={<LeadPageScreen />} />
+        </Routes>
+      </Suspense>
+    )
+  }
+  /* Public appointment-booking pages (/book/<id>) — served before the auth
+     gate, like /lead/<id>. */
+  if (pathname.startsWith('/book/')) {
+    return (
+      <Suspense fallback={<LoadingSplash />}>
+        <Routes>
+          <Route path={ROUTES.BOOKING_PAGE} element={<BookingPageScreen />} />
         </Routes>
       </Suspense>
     )

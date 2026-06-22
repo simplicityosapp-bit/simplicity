@@ -9,6 +9,7 @@
   "drawerSubtitle": "Menu · personal preferences and tools",
   "extras": {
     "leadPages": "Lead pages",
+    "bookingPages": "Booking pages",
     "moon": "Overview",
     "reports": "Reports",
     "insights": "How are you today?",
@@ -48,7 +49,8 @@
     "reportsSub": "Metrics across periods",
     "feedbackSub": "What works, what's missing, and what can improve",
     "trashSub": "Restore deleted items · 30 days",
-    "leadPagesSub": "Public lead-capture forms"
+    "leadPagesSub": "Public lead-capture forms",
+    "bookingPagesSub": "Public appointment-booking page, synced to your calendar"
   },
   "signOut": "Sign out",
   "profile": {

@@ -210,7 +210,11 @@ class GreenInvoiceProvider implements InvoiceProvider {
         country: 'IL', // morning expects an ISO-2 country on the inline client
         emails: doc.send && doc.customer.email ? [doc.customer.email] : [],
       },
-      income: [{ description: doc.itemName || doc.description, quantity: 1, price: doc.amount, currency: 'ILS', vatType: 0 }],
+      // No row-level vatType: morning treats 0 as "auto" only at the DOCUMENT
+      // level; on an income row it's not a valid override (1/2 only), and sending
+      // it triggers errorCode 2403 ("לא נשלח או אינו נתמך"). Let the row inherit
+      // the document's vatType (same VAT result, no override).
+      income: [{ description: doc.itemName || doc.description, quantity: 1, price: doc.amount, currency: 'ILS' }],
     }
     if (isReceipt) {
       // morning requires a `date` on each payment line for receipt-type docs
@@ -247,7 +251,7 @@ class GreenInvoiceProvider implements InvoiceProvider {
       currency: 'ILS',
       vatType: 0,
       client: { name: input.customer.name, country: 'IL' }, // match createDocument's inline client
-      income: [{ description: input.itemName || input.description || 'זיכוי', quantity: 1, price: input.amount, currency: 'ILS', vatType: 0 }],
+      income: [{ description: input.itemName || input.description || 'זיכוי', quantity: 1, price: input.amount, currency: 'ILS' }], // no row-level vatType (see createDocument)
       linkedDocumentIds: [input.originalExternalId],
       linkType: 'cancel',
     }

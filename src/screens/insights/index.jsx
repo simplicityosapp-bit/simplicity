@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Sparkles, Check, ChevronDown, ChevronUp, RotateCcw, SkipForward } from 'lucide-react'
+import { Sparkles, Check, ChevronDown, ChevronUp, RotateCcw, SkipForward, Plus } from 'lucide-react'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
+import AddQuestionModal from '../../modals/AddQuestionModal'
 import { questionText, isQuestionDueToday } from '../../lib/questionTemplates'
 import {
   averageForWindow, deltaVsPrevWindow, trendPoints, heatmapWeeks,
@@ -200,12 +201,13 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
 
 export default function InsightsScreen() {
   const { t, gender } = useT('insights')
-  const { questions, loading: questionsLoading, error: questionsError, addQuestion: _add, updateQuestion, toggleActive } = useUserQuestions()
+  const { questions, loading: questionsLoading, error: questionsError, addQuestion, toggleActive } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [drafts, setDrafts] = useState({}) /* qId → slider draft */
   const [busy, setBusy] = useState({})     /* qId → bool */
   const [historyOpen, setHistoryOpen] = useState(!!prefs?.insShowHistory)
+  const [showAddQuestion, setShowAddQuestion] = useState(false)
 
   /* Keep the controlled toggle in sync if prefs hydrate after mount. */
   useEffect(() => { setHistoryOpen(!!prefs?.insShowHistory) }, [prefs?.insShowHistory])
@@ -297,6 +299,14 @@ export default function InsightsScreen() {
           </div>
           <p className="t-screen">{t('title')}</p>
         </header>
+        <button
+          className="cta-add"
+          type="button"
+          aria-label={t('addQuestionAria')}
+          onClick={() => setShowAddQuestion(true)}
+        >
+          {t('addQuestion')}
+        </button>
       </div>
 
       {/* Reflections card */}
@@ -322,6 +332,10 @@ export default function InsightsScreen() {
       ) : visible.length === 0 ? (
         <div className="empty">
           <p className="empty-text">{t('empty')}</p>
+          <button type="button" className="ins-empty-add" onClick={() => setShowAddQuestion(true)}>
+            <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
+            {t('emptyAdd')}
+          </button>
         </div>
       ) : (
         <div className="ins-q-grid">
@@ -389,6 +403,13 @@ export default function InsightsScreen() {
             )
         )}
       </section>
+
+      <AddQuestionModal
+        open={showAddQuestion}
+        onClose={() => setShowAddQuestion(false)}
+        onSave={addQuestion}
+        nextOrder={(questions || []).length}
+      />
     </div>
   )
 }

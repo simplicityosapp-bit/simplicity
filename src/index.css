@@ -354,42 +354,12 @@ textarea:focus-visible,
 .app[data-screen="finance"]  { background: var(--bg-finance); }
 .app[data-screen="tasks"]    { background: var(--bg-tasks); }
 .app[data-screen="leads"]    { background: var(--bg-leads); }
+/* lead-pages + booking-pages render exactly like every other screen: the
+   per-screen photo on .app::before + the standard cream card glass
+   (--mg-card-bg / --mg-card-blur). No bespoke .screen::before or token
+   overrides — identical to e.g. the Clients screen. */
 .app[data-screen="leadPages"]{ background: var(--bg-home); }
 .app[data-screen="bookingPages"]{ background: var(--bg-home); }
-/* Frosted glass for the builder screens. .screen has isolation:isolate, so a
-   card's backdrop-filter only frosts backdrop within .screen — and the app-wide
-   photo lives on .app::before, OUTSIDE .screen, where it stays sharp (the 30%
-   cards then read as transparent-over-photo, not frosted). Painting the photo
-   INSIDE .screen here gives the cards' blur(24px) something real to frost, so
-   the panels become proper frosted glass at the same 30% opacity as Home. */
-.app[data-screen="leadPages"]::before,
-.app[data-screen="bookingPages"]::before { background-image: none; }
-.app[data-screen="leadPages"] .screen::before,
-.app[data-screen="bookingPages"] .screen::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: var(--screen-bg);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  z-index: -1;
-  pointer-events: none;
-}
-/* The fixed .screen::before sits in .screen's stacking context, which paints
-   after the earlier-in-DOM sidebar — lift the nav rail above it (the 80px rail
-   never overlaps content, so this is safe). */
-.app[data-screen="leadPages"] .mg-sidebar,
-.app[data-screen="bookingPages"] .mg-sidebar { z-index: 1; }
-/* These are editing surfaces (forms, settings, builder canvas). Make every
-   card read EXACTLY like the app's popovers/modals — same opacity + same blur
-   — by pointing the card tokens at the modal tokens (--modal-bg / --bl, both
-   already themed light+dark). Solid frosted glass, identical to the dialogs. */
-.app[data-screen="leadPages"],
-.app[data-screen="bookingPages"] {
-  --mg-card-bg: var(--modal-bg);
-  --mg-card-blur: var(--bl);
-}
 .app[data-screen="projects"] { background: var(--bg-projects); }
 .app[data-screen="goals"]    { background: var(--bg-goals); }
 .app[data-screen="moon"]     { background: var(--bg-moon); }
@@ -509,10 +479,6 @@ html[data-bg="simple"][data-theme="dark"] .app:not([data-screen="onboarding"]) {
 html[data-bg="blank"] .app:not([data-screen="onboarding"])                    { background: var(--bone); }
 html[data-bg="blank"][data-theme="dark"] .app:not([data-screen="onboarding"]) { background: var(--bg); }
 html[data-bg="blank"] .app:not([data-screen="onboarding"])::before            { background-image: none; }
-/* The builder screens paint their photo on .screen::before, which the app-wide
-   suppression above misses — drop it too so blank mode stays flat. */
-html[data-bg="blank"] .app[data-screen="leadPages"] .screen::before,
-html[data-bg="blank"] .app[data-screen="bookingPages"] .screen::before         { background-image: none; }
 
 /* Both reduced modes bump the glass-card opacity: at 30% the cards lean on
    a photo behind them, so over a calm/flat surface they read too transparent.

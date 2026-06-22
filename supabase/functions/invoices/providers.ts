@@ -105,13 +105,26 @@ function todayISO(): string {
 function providerErrorDetail(bodyText: string): string | undefined {
   try {
     const j = JSON.parse(bodyText) as any
-    const msg = j?.errorMessage ?? j?.message ?? j?.error ?? (Array.isArray(j?.errors) ? j.errors.join('; ') : null)
-    if (typeof msg === 'string' && msg.trim()) {
-      return j?.errorCode != null ? `[${j.errorCode}] ${msg.trim()}`.slice(0, 200) : msg.trim().slice(0, 200)
+    const parts: string[] = []
+    const msg = j?.errorMessage ?? j?.message ?? (typeof j?.error === 'string' ? j.error : null)
+    if (typeof msg === 'string' && msg.trim()) parts.push(msg.trim())
+    // morning reports field-level validation under `errors` — which may be an
+    // array OR an object KEYED BY FIELD NAME (e.g. { "payment.0.type": ["..."] }).
+    // Surface the field name(s) — that's what pinpoints a 2403 ("not supported").
+    const errs = j?.errors
+    if (Array.isArray(errs)) {
+      parts.push(...errs.map((e: any) => (typeof e === 'string' ? e : JSON.stringify(e))))
+    } else if (errs && typeof errs === 'object') {
+      for (const [field, val] of Object.entries(errs)) {
+        parts.push(`${field}: ${Array.isArray(val) ? val.join(', ') : String(val)}`)
+      }
     }
+    const code = j?.errorCode != null ? `[${j.errorCode}] ` : ''
+    const out = (code + parts.join(' — ')).trim()
+    if (out) return out.slice(0, 300)
   } catch { /* not JSON — fall through */ }
   const t = (bodyText || '').trim()
-  return t ? t.slice(0, 200) : undefined
+  return t ? t.slice(0, 300) : undefined
 }
 
 /* A document re-fetched by id (Route B) — never trust the webhook body,

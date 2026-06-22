@@ -80,13 +80,38 @@ export interface CreditNoteInput {
 }
 
 /* A thrown ProviderError carries a coarse `code` the HTTP layer maps to a
-   safe client message — the raw upstream body is NEVER sent to the browser. */
+   safe client message — the raw upstream body is NEVER sent to the browser.
+   `detail` is an OPTIONAL, already-sanitized one-liner (e.g. the provider's own
+   errorMessage for the user's OWN account) that the HTTP layer may surface to
+   help the user understand a failed issuance — never the raw response body. */
 export class ProviderError extends Error {
   code: 'invalid_credentials' | 'provider_unreachable' | 'provider_error'
-  constructor(code: ProviderError['code'], message: string) {
+  detail?: string
+  constructor(code: ProviderError['code'], message: string, detail?: string) {
     super(message)
     this.code = code
+    this.detail = detail
   }
+}
+
+/* Today as YYYY-MM-DD (document/payment date for a freshly-issued doc). */
+function todayISO(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+/* Pull a short, safe human message out of a provider error body. Green Invoice
+   returns JSON like { "errorCode": 1234, "errorMessage": "..." }; fall back to a
+   trimmed snippet. Never returns the whole body. */
+function providerErrorDetail(bodyText: string): string | undefined {
+  try {
+    const j = JSON.parse(bodyText) as any
+    const msg = j?.errorMessage ?? j?.message ?? j?.error ?? (Array.isArray(j?.errors) ? j.errors.join('; ') : null)
+    if (typeof msg === 'string' && msg.trim()) {
+      return j?.errorCode != null ? `[${j.errorCode}] ${msg.trim()}`.slice(0, 200) : msg.trim().slice(0, 200)
+    }
+  } catch { /* not JSON — fall through */ }
+  const t = (bodyText || '').trim()
+  return t ? t.slice(0, 200) : undefined
 }
 
 /* A document re-fetched by id (Route B) — never trust the webhook body,
@@ -187,7 +212,9 @@ class GreenInvoiceProvider implements InvoiceProvider {
       income: [{ description: doc.itemName || doc.description, quantity: 1, price: doc.amount, currency: 'ILS', vatType: 0 }],
     }
     if (isReceipt) {
-      body.payment = [{ type: GI_PAYMENT[doc.paymentMethod] ?? GI_PAYMENT.other, price: doc.amount, currency: 'ILS' }]
+      // morning requires a `date` on each payment line for receipt-type docs
+      // (305 has none; 320/400/405 do) — issued now, so today.
+      body.payment = [{ date: todayISO(), type: GI_PAYMENT[doc.paymentMethod] ?? GI_PAYMENT.other, price: doc.amount, currency: 'ILS' }]
     }
     let res: Response
     try {
@@ -199,7 +226,10 @@ class GreenInvoiceProvider implements InvoiceProvider {
     } catch (e) {
       throw new ProviderError('provider_unreachable', `green-invoice unreachable: ${e}`)
     }
-    if (!res.ok) throw new ProviderError('provider_error', `green-invoice create error ${res.status}: ${await res.text()}`)
+    if (!res.ok) {
+      const bodyText = await res.text()
+      throw new ProviderError('provider_error', `green-invoice create error ${res.status}: ${bodyText}`, providerErrorDetail(bodyText))
+    }
     const data = (await res.json().catch(() => ({}))) as any
     if (!data.id) throw new ProviderError('provider_error', 'green-invoice returned no document id')
     const url = data?.url?.origin ?? data?.url?.he ?? (typeof data?.url === 'string' ? data.url : null)
@@ -230,7 +260,10 @@ class GreenInvoiceProvider implements InvoiceProvider {
     } catch (e) {
       throw new ProviderError('provider_unreachable', `green-invoice unreachable: ${e}`)
     }
-    if (!res.ok) throw new ProviderError('provider_error', `green-invoice credit error ${res.status}: ${await res.text()}`)
+    if (!res.ok) {
+      const bodyText = await res.text()
+      throw new ProviderError('provider_error', `green-invoice credit error ${res.status}: ${bodyText}`, providerErrorDetail(bodyText))
+    }
     const data = (await res.json().catch(() => ({}))) as any
     if (!data.id) throw new ProviderError('provider_error', 'green-invoice credit returned no document id')
     const url = data?.url?.origin ?? data?.url?.he ?? (typeof data?.url === 'string' ? data.url : null)

@@ -20,6 +20,7 @@ import { useT } from '../../i18n/useT'
 import { Trans } from 'react-i18next'
 import { statusMetaOf } from '../../lib/clients'
 import { LEAD_META, statusMetaOfLead, isPendingReview } from '../../lib/leads'
+import { staleScheduledMeetingIds } from '../../lib/scheduledMeetings'
 import { financeQuery, currentMonthRange, isr } from '../../lib/finance'
 import { buildRoute, ROUTES } from '../../lib/routes'
 import { restoreGroup } from '../../lib/api/groups'
@@ -75,6 +76,24 @@ export default function ProjectDetailScreen() {
   const { reminders, addReminder, completeReminder, removeReminder, refetch: refetchReminders } = useReminders()
   const { tasks, addTask, toggleTask, removeTask } = useTasks()
   const { meetings: scheduledMeetings, removeMeeting, refetch: refetchMeetings } = useScheduledMeetings()
+
+  /* When a group's recurring slot changes or is cleared, drop the future
+     pending meetings generated for the OLD slot so stale occurrences don't
+     linger (same rationale as the client path in the clients screen). */
+  const handleUpdateGroup = async (gid, patch) => {
+    const prev = groups.find((g) => g.id === gid)
+    const result = await updateGroup(gid, patch)
+    if (prev && ('recurring_day' in patch || 'recurring_time' in patch)) {
+      const stale = staleScheduledMeetingIds(
+        'group', gid,
+        { day: prev.recurring_day, time: prev.recurring_time },
+        { day: patch.recurring_day, time: patch.recurring_time },
+        scheduledMeetings,
+      )
+      for (const mid of stale) removeMeeting(mid).catch(() => {})
+    }
+    return result
+  }
 
   const DAYS = t('detail.days', { returnObjects: true })
   const GSTATUS = GSTATUS_KEYS.map((k) => ({ k, l: t(`detail.status.${k}`) }))
@@ -852,7 +871,7 @@ export default function ProjectDetailScreen() {
         open={!!editGroup}
         onClose={() => setEditGroup(null)}
         group={editGroup}
-        onSave={updateGroup}
+        onSave={handleUpdateGroup}
         onDelete={(g) => { setEditGroup(null); setPendingDeleteGroup(g) }}
       />
       <EditProjectModal

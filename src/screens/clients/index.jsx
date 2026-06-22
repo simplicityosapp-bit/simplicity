@@ -10,6 +10,7 @@ import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
 import { useSessions } from '../../hooks/useSessions'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
+import { staleScheduledMeetingIds } from '../../lib/scheduledMeetings'
 import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useGroups } from '../../hooks/useGroups'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
@@ -92,8 +93,29 @@ export default function ClientsScreen() {
   const { tasks, editTask } = useTasks()
   const { reminders, editReminder } = useReminders()
   const { sessions, addSession, updateSession } = useSessions()
-  const { addMeeting } = useScheduledMeetings()
+  const { meetings, addMeeting, removeMeeting } = useScheduledMeetings()
   const { groups } = useGroups()
+
+  /* When a client's recurring slot changes or is cleared, drop the future
+     pending meetings generated for the OLD slot so stale occurrences don't
+     linger on the calendar (one-off meetings never matched the recurring slot,
+     so they're left alone; past pending meetings are kept for confirming).
+     Hard-delete is safe here — once the schedule changed, the generation engine
+     won't recreate the old slot. Wraps updateClient as onUpdateClient. */
+  const handleUpdateClient = async (id, patch) => {
+    const prev = clientList.find((c) => c.id === id)
+    const result = await updateClient(id, patch)
+    if (prev && ('recurring_day' in patch || 'recurring_time' in patch)) {
+      const stale = staleScheduledMeetingIds(
+        'client', id,
+        { day: prev.recurring_day, time: prev.recurring_time },
+        { day: patch.recurring_day, time: patch.recurring_time },
+        meetings,
+      )
+      for (const mid of stale) removeMeeting(mid).catch(() => {})
+    }
+    return result
+  }
   const { members, updateMember } = useGroupMembers()
   const { statuses: clientStatuses } = useClientStatuses()
   const { categories } = useCategories()
@@ -527,7 +549,7 @@ export default function ClientsScreen() {
         onLogSession={addSession}
         onScheduleMeeting={addMeeting}
         onAddPayment={addTransaction}
-        onUpdateClient={updateClient}
+        onUpdateClient={handleUpdateClient}
         onUpdateMember={updateMember}
         onEditTransaction={editTransaction}
         onRemoveTransaction={removeTransaction}

@@ -122,6 +122,31 @@ export function generateScheduledMeetings(
   return out
 }
 
+/* Ids of FUTURE pending scheduled meetings that were generated for a subject's
+   OLD recurring slot but no longer fit the NEW one — i.e. stale occurrences to
+   drop after the recurring day/time changes or is cleared on a client/group.
+   Keyed on the OLD slot so genuinely one-off meetings (which never matched the
+   recurring slot) are left alone, and PAST pending rows are kept (they may
+   still need confirming). schedule = { day: number|string|null, time:
+   'HH:MM'|null }; a null/empty schedule matches nothing (so clearing the
+   recurring time drops every old-slot future occurrence). */
+export function staleScheduledMeetingIds(subjectType, subjectId, oldSchedule, newSchedule, meetings, now = new Date()) {
+  const matchesSlot = (m, sched) => {
+    const day = sched?.day
+    if (day == null || day === '') return false
+    const hhmm = parseHHMM(sched.time)
+    if (!hhmm) return false
+    const d = new Date(m.scheduled_at)
+    return d.getDay() === Number(day) && d.getHours() === hhmm[0] && d.getMinutes() === hhmm[1]
+  }
+  return (meetings || [])
+    .filter((m) => m.subject_type === subjectType && m.subject_id === subjectId)
+    .filter((m) => m.status === 'pending')
+    .filter((m) => new Date(m.scheduled_at) > now)
+    .filter((m) => matchesSlot(m, oldSchedule) && !matchesSlot(m, newSchedule))
+    .map((m) => m.id)
+}
+
 /* Visible-in-widget filter: a meeting that's already in the past, no
    older than 14 days, and still pending. Sorted oldest-first so the
    user clears them in chronological order. */

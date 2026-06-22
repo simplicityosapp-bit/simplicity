@@ -23,7 +23,7 @@ export default function MeetingConfirmList() {
   const { t } = useT('home')
   const { clients } = useClients()
   const { groups } = useGroups()
-  const { meetings, updateMeeting, removeMeeting } = useScheduledMeetings()
+  const { meetings, updateMeeting } = useScheduledMeetings()
   const { sessions, addSession, removeSession } = useSessions()
   const { transactions, setStatus: setTxStatus, removeTransaction } = useTransactions()
   const { templates } = useRecurring()
@@ -95,8 +95,14 @@ export default function MeetingConfirmList() {
     for (const tx of linked) setTxStatus(tx.id, 'skipped')
   }
   const deleteMeeting = (m) => {
+    /* scheduled_meetings is hard-delete only, and a meeting whose slot still
+       matches the subject's recurring schedule gets recreated by the generation
+       engine on the next home mount — that's why deleted pending meetings
+       "popped back". Tombstone it with a terminal status instead: the engine
+       then treats the slot as already handled, and a skipped meeting is hidden
+       from the review list + the calendar and produces no expense. */
     if (m.session_id) removeSession(m.session_id)
-    removeMeeting(m.id)
+    updateMeeting(m.id, { status: 'skipped', session_id: null }).catch(() => {})
   }
   const confirmTx = (tx) => setTxStatus(tx.id, 'confirmed')
   const skipTx = (tx) => setTxStatus(tx.id, 'skipped')

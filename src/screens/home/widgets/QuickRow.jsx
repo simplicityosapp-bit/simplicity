@@ -47,7 +47,7 @@ export default function QuickRow() {
   const { addEntry } = useGoalEntries()
   const { addReminder } = useReminders()
   const { addMeeting } = useScheduledMeetings()
-  const { questions } = useUserQuestions()
+  const { questions, addQuestion } = useUserQuestions()
 
   const [showLauncher, setShowLauncher] = useState(false)
   const [active, setActive] = useState(null)  // 'transaction' | 'client' | ...
@@ -124,6 +124,7 @@ export default function QuickRow() {
         categories={categories}
         projects={projects}
         questions={questions}
+        onAddQuestion={addQuestion}
         onSave={addGoal}
       />
       <AddReminderModal

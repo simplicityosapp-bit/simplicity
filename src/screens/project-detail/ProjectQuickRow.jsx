@@ -50,7 +50,7 @@ export default function ProjectQuickRow({ projectId, projectName }) {
   const { addGoal } = useGoals()
   const { addReminder } = useReminders()
   const { addMeeting } = useScheduledMeetings()
-  const { questions } = useUserQuestions()
+  const { questions, addQuestion } = useUserQuestions()
 
   const [showLauncher, setShowLauncher] = useState(false)
   const [active, setActive] = useState(null)
@@ -101,6 +101,7 @@ export default function ProjectQuickRow({ projectId, projectName }) {
         categories={categories}
         projects={projects}
         questions={questions}
+        onAddQuestion={addQuestion}
         onSave={async (payload) => addGoal({ ...payload, project_id: projectId })}
       />
       <AddReminderModal

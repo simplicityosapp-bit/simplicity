@@ -132,13 +132,17 @@ export default function CalendarDay({ date, events, onSelect, dayViewStart = DEF
                 width: `calc(${(1 / cols) * 100}% - 6px)`,
               }}
             >
-              <span className="cal-day-evt-time mono">
-                {fmtTime(ev.when)}{ev.end ? `–${fmtTime(ev.end)}` : ''}
+              {/* Time + status share the top row so the tag is always visible
+                  and never sits on top of the title below it. */}
+              <span className="cal-day-evt-head">
+                <span className="cal-day-evt-time mono">
+                  {fmtTime(ev.when)}{ev.end ? `–${fmtTime(ev.end)}` : ''}
+                </span>
+                {ev.kind === 'meeting' && ev.status === 'pending' && <span className="cal-tag">{t('tag.pending')}</span>}
+                {ev.kind === 'reminder' && <span className="cal-tag rem">{t('tag.reminder')}</span>}
+                {ev.kind === 'calendar' && <span className="cal-tag cal">{t('tag.calendar')}</span>}
               </span>
               <span className="cal-day-evt-title">{ev.title}</span>
-              {ev.kind === 'meeting' && ev.status === 'pending' && <span className="cal-tag">{t('tag.pending')}</span>}
-              {ev.kind === 'reminder' && <span className="cal-tag rem">{t('tag.reminder')}</span>}
-              {ev.kind === 'calendar' && <span className="cal-tag cal">{t('tag.calendar')}</span>}
             </button>
           ))}
         </div>

@@ -117,6 +117,9 @@ export default function LeadPage() {
           {content.logoText ? <div className="lp-logo">{content.logoText}</div> : null}
           <div className="lp-check" aria-hidden="true">✓</div>
           <p className="lp-thankyou">{str(thankYou?.message) || 'תודה! קיבלנו את הפנייה ונחזור אליך בהקדם.'}</p>
+          {str(content.bookingPageRef) ? (
+            <a className="lp-book-cta" href={`/book/${content.bookingPageRef}`}>קביעת פגישה</a>
+          ) : null}
         </div>
       </div>
     )
@@ -201,6 +204,11 @@ export default function LeadPage() {
         <button type="submit" className="lp-submit" disabled={submitting}>
           {submitting ? 'שולח…' : 'שליחה'}
         </button>
+
+        {/* Optional CTA to the coach's booking page (attached at the foot). */}
+        {str(content.bookingPageRef) ? (
+          <a className="lp-book-cta" href={`/book/${content.bookingPageRef}`}>קביעת פגישה</a>
+        ) : null}
       </form>
     </div>
   )

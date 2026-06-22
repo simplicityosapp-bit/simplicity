@@ -127,6 +127,27 @@
 .lp-submit:hover:not(:disabled) { filter: brightness(0.93); }
 .lp-submit:disabled { opacity: 0.6; cursor: default; }
 
+/* Optional booking CTA at the foot of a lead page — outline variant so it
+   reads as secondary to the form's primary submit. */
+.lp-book-cta {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  color: var(--lp-brand);
+  background: transparent;
+  border: 1.5px solid var(--lp-brand);
+  border-radius: 14px;
+  padding: 13px 20px;
+  transition: background 0.15s ease;
+}
+.lp-book-cta:hover { background: color-mix(in srgb, var(--lp-brand) 10%, transparent); }
+
 .lp-submit-error { margin: 16px 0 0; font-size: 14px; color: #c0432e; text-align: center; }
 
 .lp-muted { color: #6b6358; font-size: 16px; }

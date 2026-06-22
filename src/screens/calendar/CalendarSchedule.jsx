@@ -7,6 +7,16 @@ import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 
 const PAGE = 30
 
+/* Context line for a calendar event: a booking shows its source page (+ type);
+   otherwise the linked client / project / lead. */
+function calContext(it) {
+  if (it.kind !== 'calendar') return ''
+  if (it.booking) {
+    return [it.booking.pageName, it.booking.meetingTypeName].filter(Boolean).join(' · ')
+  }
+  return it.clientName || it.projectName || it.leadName || ''
+}
+
 /* The agenda list view (merged meetings + reminders + synced events, sorted).
    Paginates with "טען עוד" so a long horizon isn't silently truncated. The
    window only grows; a shrinking feed is handled by slice, and switching away
@@ -43,7 +53,7 @@ export default function CalendarSchedule({ items, onSelect }) {
           </span>
           <div className="cal-body">
             <p className="cal-title">{it.title}</p>
-            <p className="cal-when">{it.allDay ? t('allDay') : formatWhen(it.when)}{it.kind === 'calendar' && (it.clientName || it.projectName) ? ` · ${it.clientName || it.projectName}` : ''}</p>
+            <p className="cal-when">{it.allDay ? t('allDay') : formatWhen(it.when)}{calContext(it) ? ` · ${calContext(it)}` : ''}</p>
           </div>
           {it.kind === 'meeting' && it.status === 'pending' && <span className="cal-tag">{t('tag.pending')}</span>}
           {it.kind === 'reminder' && <span className="cal-tag rem">{t('tag.reminder')}</span>}

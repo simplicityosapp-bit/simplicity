@@ -121,6 +121,26 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
         <p className="evt-detail-status sage">{t('event.meetingConfirmed')}</p>
       )}
 
+      {isCalendar && !editing && event.booking && (
+        <div className="evt-detail-booking">
+          <p className="evt-detail-booking-head">{t('event.bookingHeading')}</p>
+          <p className="evt-detail-booking-row">{t('event.bookingName', { name: event.booking.name })}</p>
+          {event.booking.meetingTypeName && (
+            <p className="evt-detail-booking-row">{t('event.bookingType', { type: event.booking.meetingTypeName })}</p>
+          )}
+          <p className="evt-detail-booking-row">{t('event.bookingFromPage', { page: event.booking.pageName })}</p>
+          {event.booking.phone && (
+            <p className="evt-detail-booking-row"><a href={`tel:${event.booking.phone}`} dir="ltr">{t('event.bookingPhone')}: {event.booking.phone}</a></p>
+          )}
+          {event.booking.email && (
+            <p className="evt-detail-booking-row"><a href={`mailto:${event.booking.email}`} dir="ltr">{t('event.bookingEmail')}: {event.booking.email}</a></p>
+          )}
+          {event.booking.note && (
+            <p className="evt-detail-booking-row">{t('event.bookingNote', { note: event.booking.note })}</p>
+          )}
+        </div>
+      )}
+
       {isCalendar && !editing && (
         <>
           <p className="evt-detail-status">

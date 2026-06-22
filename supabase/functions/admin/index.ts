@@ -494,21 +494,27 @@ Deno.serve(async (req) => {
         .sort((a, b) => b.sessions - a.sessions)
         .slice(0, 10)
 
-      // Marketing landing funnel — anonymous page views + signup-starts in
-      // range, plus completed signups (auth.users created in range). The
-      // drop-off the owner asked about = signup_starts − completed signups.
-      let lpViews = 0
-      let lpStarts = 0
+      // Marketing landing — anonymous events bucketed by type within range.
+      const lpCounts: Record<string, number> = {}
       for (const e of landing ?? []) {
         if (new Date(e.created_at).getTime() < startMs) continue
-        if (e.type === 'view') lpViews += 1
-        else if (e.type === 'signup_start') lpStarts += 1
+        lpCounts[e.type] = (lpCounts[e.type] ?? 0) + 1
       }
       const lpSignups = users.filter((u) => u.created_at && new Date(u.created_at).getTime() >= startMs).length
+      // Funnel: view → signup_start → completed signup (drop-off = starts − signups).
       const landingFunnel = [
-        { label: 'כניסות לדף', count: lpViews },
-        { label: 'התחילו הרשמה', count: lpStarts },
+        { label: 'כניסות לדף', count: lpCounts['view'] ?? 0 },
+        { label: 'התחילו הרשמה', count: lpCounts['signup_start'] ?? 0 },
         { label: 'השלימו הרשמה', count: lpSignups },
+      ]
+      // Engagement: how deep visitors went (scroll), whether they opened the
+      // FAQ, and whether they stayed to read (~30s).
+      const landingEngagement = [
+        { label: 'גללו לאמצע', count: lpCounts['scroll_50'] ?? 0 },
+        { label: 'גללו לרובו', count: lpCounts['scroll_75'] ?? 0 },
+        { label: 'הגיעו לתחתית', count: lpCounts['scroll_100'] ?? 0 },
+        { label: 'פתחו שאלות נפוצות', count: lpCounts['faq_open'] ?? 0 },
+        { label: 'קראו לעומק (30ש+)', count: lpCounts['engaged'] ?? 0 },
       ]
 
       return json({
@@ -519,6 +525,7 @@ Deno.serve(async (req) => {
         reflectionsOverTime,
         funnel,
         landingFunnel,
+        landingEngagement,
         topUsers,
       })
     }

@@ -11,9 +11,9 @@ import Coachmark from '../../components/Coachmark'
 import InfoPopover from '../../components/InfoPopover'
 import {
   DEFAULT_CONTENT, DEFAULT_AVAILABILITY, newBookingPageDraft, WEEKDAYS,
-  publicBookingPageUrl, normalizeSlug, isValidSlug,
-  LEAD_PAGE_BACKGROUNDS, leadPageBgUrl, leadPageSurface,
+  publicBookingPageUrl, normalizeSlug, isValidSlug, leadPageSurface,
 } from '../../lib/bookingPageSchema'
+import DesignToolbox from '../../components/DesignToolbox'
 import { ROUTES } from '../../lib/routes'
 import '../lead-page/LeadPage.css'        // shared public-page look (lp-*)
 import '../lead-pages/LeadPagesScreen.css' // shared builder chrome (lpe-*, lpm-*)
@@ -247,6 +247,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
 
   return (
     <div className="screen lpe-screen">
+      <DesignToolbox content={draft.content} onChange={setContent} />
       <div className="lpe-topbar">
         <button type="button" className="lp-back-link" onClick={onBack}>
           <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> חזרה
@@ -300,61 +301,8 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
             </div>
             <p className="lbl-sm">קישור קצר וקריא במקום המזהה הארוך. אותיות אנגלית קטנות, ספרות ומקפים (3–40). אם ריק — נשתמש במזהה.</p>
           </div>
-          <div className="m-field">
-            <label className="m-label">צבע מותג</label>
-            <div className="lpb-color">
-              <input type="color" value={c.brandColor} onChange={(e) => setContent({ brandColor: e.target.value })} />
-              <span className="lpb-color-hex mono">{c.brandColor}</span>
-            </div>
-          </div>
-          <div className="m-field">
-            <label className="m-label">עיצוב מתקדם</label>
-            <div className="lpe-design">
-              <p className="lpe-design-lbl">רקע</p>
-              <div className="lpe-bg-grid">
-                <button type="button" className={`lpe-bg-swatch lpe-bg-none${!c.background ? ' on' : ''}`} onClick={() => setContent({ background: '' })}>ללא</button>
-                {LEAD_PAGE_BACKGROUNDS.map((b) => (
-                  <button
-                    key={b.key}
-                    type="button"
-                    className={`lpe-bg-swatch${c.background === b.key ? ' on' : ''}`}
-                    style={{ backgroundImage: `url(${leadPageBgUrl(b.key)})` }}
-                    onClick={() => setContent({ background: b.key })}
-                    aria-label={b.label}
-                    title={b.label}
-                  />
-                ))}
-              </div>
-              <div className="lpe-slider-row">
-                <span className="lpe-design-lbl">שקיפות הכרטיס</span>
-                <input type="range" min="0" max="100" value={100 - (c.cardOpacity ?? 100)} onChange={(e) => setContent({ cardOpacity: 100 - Number(e.target.value) })} />
-                <span className="lpe-slider-val mono">{100 - (c.cardOpacity ?? 100)}%</span>
-              </div>
-              <div className="lpe-slider-row">
-                <span className="lpe-design-lbl">טשטוש רקע</span>
-                <input type="range" min="0" max="30" value={c.cardBlur ?? 14} onChange={(e) => setContent({ cardBlur: Number(e.target.value) })} />
-                <span className="lpe-slider-val mono">{c.cardBlur ?? 14}px</span>
-              </div>
-              <label className="lpe-design-toggle">
-                <input type="checkbox" checked={!!c.bold} onChange={(e) => setContent({ bold: e.target.checked })} />
-                טקסט מודגש
-              </label>
-              <div className="lpe-seg-row">
-                <span className="lpe-design-lbl">צבע טקסט</span>
-                <div className="lpe-seg">
-                  <button type="button" className={`lpe-seg-btn${c.textColor !== 'light' ? ' on' : ''}`} onClick={() => setContent({ textColor: 'dark' })}>כהה</button>
-                  <button type="button" className={`lpe-seg-btn${c.textColor === 'light' ? ' on' : ''}`} onClick={() => setContent({ textColor: 'light' })}>בהיר</button>
-                </div>
-              </div>
-              <div className="lpe-seg-row">
-                <span className="lpe-design-lbl">יישור טקסט</span>
-                <div className="lpe-seg">
-                  <button type="button" className={`lpe-seg-btn${c.textAlign !== 'center' ? ' on' : ''}`} onClick={() => setContent({ textAlign: 'start' })}>ימין</button>
-                  <button type="button" className={`lpe-seg-btn${c.textAlign === 'center' ? ' on' : ''}`} onClick={() => setContent({ textAlign: 'center' })}>מרכז</button>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Appearance (colour, background, opacity, blur, bold, text) lives in
+              the left-side "ארגז כלים" toolbox — kept out of settings on purpose. */}
           <div className="m-field">
             <label className="m-label">אחרי הקביעה</label>
             <div className="lpb-radio-group">

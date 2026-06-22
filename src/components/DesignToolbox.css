@@ -1,0 +1,117 @@
+/* ════════════════════════════════════════════════════════════════
+   DESIGN TOOLBOX — floating left-side button + slide-out panel.
+   The inner controls reuse the builder's shared lpe-design / lpe-bg / lpe-seg
+   classes (loaded by the host screens); only the FAB + panel chrome
+   live here.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Floating button (left edge) ──────────────────────────────────── */
+.dtb-fab {
+  position: fixed;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: var(--mg-card-border);
+  border-radius: 16px;
+  background: var(--terracotta);
+  color: #fff;
+  font: inherit;
+  font-size: var(--mg-caption, 13px);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(42, 37, 32, 0.18);
+  transition: filter 0.15s ease, opacity 0.15s ease;
+}
+.dtb-fab:hover { filter: brightness(0.94); }
+.dtb-fab.is-open { opacity: 0; pointer-events: none; }
+.dtb-fab-label { white-space: nowrap; }
+
+/* Clear the 80px desktop sidebar rail. */
+@media (min-width: 768px) {
+  .dtb-fab { left: 96px; }
+}
+
+/* ── Scrim ────────────────────────────────────────────────────────── */
+.dtb-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(42, 37, 32, 0.18);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+/* ── Slide-out panel ──────────────────────────────────────────────── */
+.dtb-panel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(330px, 86vw);
+  z-index: 61;
+  display: flex;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--cream, #fffcf7) 92%, transparent);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border-inline-end: var(--mg-card-border);
+  box-shadow: 4px 0 28px rgba(42, 37, 32, 0.16);
+  transform: translateX(-104%);
+  transition: transform 240ms ease;
+  overflow: hidden;
+}
+.dtb-panel.open { transform: translateX(0); }
+/* Start after the desktop rail so it doesn't sit under the nav. */
+@media (min-width: 768px) {
+  .dtb-panel { left: 80px; }
+}
+
+.dtb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 18px 12px;
+  border-bottom: 1px solid rgba(44, 38, 33, 0.10);
+  flex: none;
+}
+.dtb-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--mg-heading, 17px);
+  font-weight: 600;
+  color: var(--ink, #181410);
+}
+.dtb-close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+}
+.dtb-close:hover { background: rgba(44, 38, 33, 0.06); }
+
+.dtb-body {
+  padding: 16px 18px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.dtb-group { display: flex; flex-direction: column; gap: 10px; }
+.dtb-group + .dtb-group { border-top: 1px solid rgba(44, 38, 33, 0.08); padding-top: 16px; }
+.dtb-group-lbl {
+  margin: 0;
+  font-size: var(--mg-caption, 13px);
+  font-weight: 600;
+  color: var(--stone);
+}

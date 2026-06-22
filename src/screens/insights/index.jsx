@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Sparkles, Check, ChevronDown, ChevronUp, RotateCcw, SkipForward, Plus } from 'lucide-react'
+import { Sparkles, Check, ChevronDown, ChevronUp, RotateCcw, SkipForward, Plus, Pencil, Trash2 } from 'lucide-react'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
+import EditQuestionModal from '../../modals/EditQuestionModal'
+import ConfirmModal from '../../modals/ConfirmModal'
 import { questionText, isQuestionDueToday } from '../../lib/questionTemplates'
 import {
   averageForWindow, deltaVsPrevWindow, trendPoints, heatmapWeeks,
@@ -95,7 +97,7 @@ function DeltaPill({ delta }) {
   return <span className={`ins-delta ${tone} mono`}>{sign}{Math.abs(delta).toFixed(1)}</span>
 }
 
-function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle, skipped, onSkip, t, gender }) {
+function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle, onEdit, onDelete, skipped, onSkip, t, gender }) {
   const avg7 = averageForWindow(idx, question.id, 7)
   const avg30 = averageForWindow(idx, question.id, 30)
   const d7 = deltaVsPrevWindow(idx, question.id, 7)
@@ -120,6 +122,24 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
           onClick={onToggle}
         >
           <span className="ins-q-toggle-knob" />
+        </button>
+        <button
+          type="button"
+          className="ins-q-icon-btn"
+          onClick={onEdit}
+          aria-label={t('card.editAria', { question: questionText(question, gender) })}
+          title={t('card.editTitle')}
+        >
+          <Pencil size={14} strokeWidth={1.7} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className="ins-q-icon-btn danger"
+          onClick={onDelete}
+          aria-label={t('card.deleteAria', { question: questionText(question, gender) })}
+          title={t('card.deleteTitle')}
+        >
+          <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
         </button>
       </div>
 
@@ -201,13 +221,15 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
 
 export default function InsightsScreen() {
   const { t, gender } = useT('insights')
-  const { questions, loading: questionsLoading, error: questionsError, addQuestion, toggleActive } = useUserQuestions()
+  const { questions, loading: questionsLoading, error: questionsError, addQuestion, updateQuestion, toggleActive, removeQuestion } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [drafts, setDrafts] = useState({}) /* qId → slider draft */
   const [busy, setBusy] = useState({})     /* qId → bool */
   const [historyOpen, setHistoryOpen] = useState(!!prefs?.insShowHistory)
   const [showAddQuestion, setShowAddQuestion] = useState(false)
+  const [editQuestion, setEditQuestion] = useState(null)
+  const [pendingDelete, setPendingDelete] = useState(null)
 
   /* Keep the controlled toggle in sync if prefs hydrate after mount. */
   useEffect(() => { setHistoryOpen(!!prefs?.insShowHistory) }, [prefs?.insShowHistory])
@@ -346,6 +368,8 @@ export default function InsightsScreen() {
               idx={idx}
               canAnswer={!!canAnswer.get(q.id)}
               onToggle={() => toggleActive(q)}
+              onEdit={() => setEditQuestion(q)}
+              onDelete={() => setPendingDelete(q)}
               latestAnswerToday={(() => {
                 const v = idx.get(q.id)?.get(todayKey)
                 return v && v.value_num != null ? Number(v.value_num) : null
@@ -409,6 +433,22 @@ export default function InsightsScreen() {
         onClose={() => setShowAddQuestion(false)}
         onSave={addQuestion}
         nextOrder={(questions || []).length}
+      />
+      <EditQuestionModal
+        key={editQuestion?.id}
+        open={!!editQuestion}
+        onClose={() => setEditQuestion(null)}
+        question={editQuestion}
+        onSave={updateQuestion}
+      />
+      <ConfirmModal
+        open={!!pendingDelete}
+        onClose={() => setPendingDelete(null)}
+        title={t('delete.title')}
+        message={pendingDelete ? t('delete.message', { question: questionText(pendingDelete, gender) }) : ''}
+        confirmLabel={t('delete.confirm')}
+        danger
+        onConfirm={() => { if (pendingDelete) removeQuestion(pendingDelete.id) }}
       />
     </div>
   )

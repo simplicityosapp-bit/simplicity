@@ -26,6 +26,10 @@
     "turnOffAria": "כיבוי השאלה \"{{question}}\"",
     "turnOnTitle": "הפעלת השאלה",
     "turnOffTitle": "כיבוי השאלה",
+    "editTitle": "עריכת השאלה",
+    "editAria": "עריכת השאלה \"{{question}}\"",
+    "deleteTitle": "מחיקת השאלה",
+    "deleteAria": "מחיקת השאלה \"{{question}}\"",
     "yes": "כן",
     "no": "לא",
     "save": "שמור",
@@ -53,5 +57,10 @@
     "title": "היסטוריה",
     "empty": "אין עדיין תשובות בהיסטוריה.",
     "deletedQuestion": "שאלה שנמחקה"
+  },
+  "delete": {
+    "title": "מחיקת שאלה",
+    "message": "למחוק את \"{{question}}\"? היסטוריית התשובות שלה תוסתר. ניתן לשחזר מסל המיחזור תוך 30 יום.",
+    "confirm": "מחק"
   }
 }

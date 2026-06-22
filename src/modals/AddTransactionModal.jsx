@@ -98,8 +98,10 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
           const r = await inv.issueDocument(row.id, issueDocType, { itemId: null, itemName: form.desc.trim(), paymentMethod: issuePayment })
           const num = r?.document?.number
           showToast(t('tx.savedAndIssued', { doc: docTypeLabel(issueDocType), num: num ? t('tx.numPrefix', { num }) : '' }))
-        } catch {
-          showToast(t('tx.issueFailed'), 'error')
+        } catch (e) {
+          // Surface the provider's real reason (e.detail) when present, instead
+          // of a bare "issue failed" — same actionable detail the per-tx flow shows.
+          showToast(e?.detail ? `${t('tx.issueFailed')} (${e.detail})` : t('tx.issueFailed'), 'error')
         }
       } else {
         showToast(t('tx.saved'))

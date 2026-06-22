@@ -246,7 +246,7 @@ class GreenInvoiceProvider implements InvoiceProvider {
       lang: 'he',
       currency: 'ILS',
       vatType: 0,
-      client: { name: input.customer.name },
+      client: { name: input.customer.name, country: 'IL' }, // match createDocument's inline client
       income: [{ description: input.itemName || input.description || 'זיכוי', quantity: 1, price: input.amount, currency: 'ILS', vatType: 0 }],
       linkedDocumentIds: [input.originalExternalId],
       linkType: 'cancel',

@@ -124,6 +124,24 @@
 }
 .ins-q-toggle.on .ins-q-toggle-knob { right: calc(100% - 18px); }
 
+/* Edit / delete icon buttons in the card head. */
+.ins-q-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.ins-q-icon-btn:hover { background: var(--mg-card-bg); color: var(--espresso); }
+.ins-q-icon-btn.danger:hover { color: var(--clay); }
+
 /* Off questions stay visible but greyed; the toggle is still tappable. */
 .ins-q-card.inactive { opacity: 0.62; }
 

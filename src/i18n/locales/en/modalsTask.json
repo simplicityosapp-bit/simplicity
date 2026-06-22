@@ -114,7 +114,10 @@
     "answerType": "Answer type",
     "scaleRange": "Scale 1–10",
     "scaleYesNo": "Yes / No",
-    "icon": "Icon"
+    "icon": "Icon",
+    "editTitle": "Edit question",
+    "scaleLockedRange": "The answer type (scale 1–10) is kept so your answer history stays intact.",
+    "scaleLockedYesNo": "The answer type (Yes / No) is kept so your answer history stays intact."
   },
   "duplicate": {
     "title": "Calendar duplicates",

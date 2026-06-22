@@ -26,6 +26,10 @@
     "turnOffAria": "Turn off the question \"{{question}}\"",
     "turnOnTitle": "Turn on question",
     "turnOffTitle": "Turn off question",
+    "editTitle": "Edit question",
+    "editAria": "Edit the question \"{{question}}\"",
+    "deleteTitle": "Delete question",
+    "deleteAria": "Delete the question \"{{question}}\"",
     "yes": "Yes",
     "no": "No",
     "save": "Save",
@@ -43,5 +47,10 @@
     "title": "History",
     "empty": "No answers in your history yet.",
     "deletedQuestion": "Deleted question"
+  },
+  "delete": {
+    "title": "Delete question",
+    "message": "Delete \"{{question}}\"? Its answer history will be hidden. You can restore it from the recycle bin within 30 days.",
+    "confirm": "Delete"
   }
 }

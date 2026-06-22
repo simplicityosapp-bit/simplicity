@@ -107,6 +107,11 @@
       "deleteAria": "Delete reminder",
       "add": "Project reminder +"
     },
+    "leads": {
+      "title": "Leads",
+      "empty": "No leads linked to this project.",
+      "openAria": "Open the leads screen — {{name}}"
+    },
     "leadPages": {
       "title": "Lead pages",
       "empty": "No linked lead pages.",

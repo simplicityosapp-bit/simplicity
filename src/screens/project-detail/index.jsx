@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
-  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarPlus, X, Trash2, Bell, GripVertical, Link2, ChevronLeft,
+  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarPlus, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout,
 } from 'lucide-react'
 import { useProjects } from '../../hooks/useProjects'
 import { useLeadPages } from '../../hooks/useLeadPages'
+import { useLeads } from '../../hooks/useLeads'
+import { useLeadStatuses } from '../../hooks/useLeadStatuses'
 import { useClients } from '../../hooks/useClients'
 import { useGroups } from '../../hooks/useGroups'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
@@ -17,6 +19,7 @@ import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { useT } from '../../i18n/useT'
 import { Trans } from 'react-i18next'
 import { statusMetaOf } from '../../lib/clients'
+import { LEAD_META, statusMetaOfLead, isPendingReview } from '../../lib/leads'
 import { financeQuery, currentMonthRange, isr } from '../../lib/finance'
 import { buildRoute, ROUTES } from '../../lib/routes'
 import { restoreGroup } from '../../lib/api/groups'
@@ -62,6 +65,8 @@ export default function ProjectDetailScreen() {
   const navigate = useNavigate()
   const { projects, updateProject } = useProjects()
   const { pages: leadPages } = useLeadPages()
+  const { leads: leadList } = useLeads()
+  const { statuses: leadStatuses } = useLeadStatuses()
   const { clients, addClient, updateClient, removeClient, refetch: refetchClients } = useClients()
   const { groups, addGroup, updateGroup, removeGroup, refetch: refetchGroups } = useGroups()
   const { members, addMember, removeMember, refetch: refetchMembers } = useGroupMembers()
@@ -81,7 +86,7 @@ export default function ProjectDetailScreen() {
   const META_LABEL = { active: t('detail.meta.active'), past: t('detail.meta.past') }
 
   /* Section accordion + per-group sessions expand state. */
-  const [openSec, setOpenSec] = useState({ groups: true, clients: true, tasks: false, reminders: false, leadPages: false })
+  const [openSec, setOpenSec] = useState({ groups: true, clients: true, leads: false, tasks: false, reminders: false, leadPages: false })
   const [openGroupSessions, setOpenGroupSessions] = useState(() => new Set())
 
   /* Modal/dialog state. */
@@ -117,6 +122,12 @@ export default function ProjectDetailScreen() {
   const projectLeadPages = useMemo(
     () => (leadPages || []).filter((p) => p.project_id === id && !p.deleted_at),
     [leadPages, id],
+  )
+  /* Leads tied to this project (excludes public submissions still awaiting
+     approval, which live in the leads-screen review section, not here). */
+  const projectLeads = useMemo(
+    () => (leadList || []).filter((l) => l.project_id === id && !isPendingReview(l)),
+    [leadList, id],
   )
 
   /* Active / wandering split — same logic as the prototype's pd-header sub. */
@@ -749,6 +760,43 @@ export default function ProjectDetailScreen() {
             <button className="pd-add-btn" type="button" onClick={() => setShowAddReminder(true)}>
               <Bell size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.reminders.add')}
             </button>
+          </div>
+        )}
+      </section>
+
+      {/* ── Leads section ─────────────────────────────────── */}
+      <section className="pd-section">
+        <button type="button" className="pd-sec-head" onClick={() => toggleSec('leads')}>
+          <p className="pd-sec-title">
+            {t('detail.leads.title')} {projectLeads.length > 0 && <span className="pd-sec-count">{projectLeads.length}</span>}
+          </p>
+          <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.leads ? ' open' : ''}`} aria-hidden="true" />
+        </button>
+        {openSec.leads && (
+          <div className="pd-sec-body">
+            {projectLeads.length === 0 ? (
+              <p className="pd-empty">{t('detail.leads.empty')}</p>
+            ) : (
+              projectLeads.map((l) => {
+                const meta = statusMetaOfLead(l)
+                const sub = l.status_id ? leadStatuses.find((s) => s.id === l.status_id && !s.deleted_at) : null
+                const label = sub?.display_name || LEAD_META.find((m) => m.key === meta)?.title || ''
+                return (
+                  <button
+                    key={l.id}
+                    type="button"
+                    className="pd-leadpage-row"
+                    onClick={() => navigate(ROUTES.LEADS)}
+                    aria-label={t('detail.leads.openAria', { name: l.name })}
+                  >
+                    <Sprout size={15} strokeWidth={1.7} className="pd-leadpage-icon" aria-hidden="true" />
+                    <span className="pd-leadpage-name">{l.name}</span>
+                    {label && <span className="pd-leadpage-badge">{label}</span>}
+                    <ChevronLeft size={15} strokeWidth={1.7} className="pd-leadpage-chev" aria-hidden="true" />
+                  </button>
+                )
+              })
+            )}
           </div>
         )}
       </section>

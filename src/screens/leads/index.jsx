@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, ArrowUpDown, Link2 } from 'lucide-react'
+import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, SlidersHorizontal, Link2 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useLeads } from '../../hooks/useLeads'
 import { useLeadPages } from '../../hooks/useLeadPages'
@@ -23,11 +23,14 @@ import AddLeadModal from '../../modals/AddLeadModal'
 import EditLeadModal from '../../modals/EditLeadModal'
 import ConvertLeadModal from '../../modals/ConvertLeadModal'
 import FollowupsModal from '../../modals/FollowupsModal'
+import LeadsFilterModal from '../../modals/LeadsFilterModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Modal from '../../modals/Modal'
 import Coachmark from '../../components/Coachmark'
 import { useT } from '../../i18n/useT'
 import './LeadsScreen.css'
+
+const DEFAULT_LEADS_FILTER = { period: 'all', project: '', group: '', status: '', source: '', sort: '' }
 
 function computeStats(list, now = new Date()) {
   const inMonth = (d) => {
@@ -60,17 +63,32 @@ export default function LeadsScreen() {
   const { prefs, update: updatePrefs } = useUserPreferences()
   const view = prefs?.leadsView === 'statuses' ? 'statuses' : 'kanban'
   const setView = (v) => updatePrefs?.({ leadsView: v })
-  /* Kanban sub-status filter + date sort (persisted, like the view choice).
-     subFilter = a status_id ('' = all); dateSort = '' | 'new' | 'old'. */
+  /* Consolidated leads-board filter (persisted in prefs.leadsFilter): period,
+     project, group, sub-status, source, date-sort. Legacy prefs.leadsSubFilter /
+     leadsSort seed the status/sort fields so existing users keep their active
+     filter after the upgrade. Special select values: '' = all, '__none__' =
+     unassigned. */
+  const leadsFilter = useMemo(() => ({
+    ...DEFAULT_LEADS_FILTER,
+    status: prefs?.leadsSubFilter || '',
+    sort: prefs?.leadsSort || '',
+    ...(prefs?.leadsFilter || {}),
+  }), [prefs?.leadsFilter, prefs?.leadsSubFilter, prefs?.leadsSort])
   /* If the sub-status we're filtering by was deleted, fall back to "all" so the
-     kanban doesn't stay filtered with no visible active chip. While statuses are
-     still loading we keep the stored value so an active filter doesn't flash. */
-  const rawSubFilter = prefs?.leadsSubFilter || ''
-  const subFilter = (rawSubFilter && (statusesLoading || leadStatuses.some((s) => s.id === rawSubFilter))) ? rawSubFilter : ''
-  const dateSort = prefs?.leadsSort || ''
-  const setSubFilter = (v) => updatePrefs?.({ leadsSubFilter: v })
-  const cycleSort = () => updatePrefs?.({ leadsSort: dateSort === '' ? 'new' : dateSort === 'new' ? 'old' : '' })
-  const sortLabel = dateSort === 'new' ? t('sort.newOld') : dateSort === 'old' ? t('sort.oldNew') : t('sort.byDate')
+     board doesn't stay filtered with no matching status. While statuses are still
+     loading we keep the stored value so an active filter doesn't flash. */
+  const effectiveStatus = (leadsFilter.status && (statusesLoading || leadStatuses.some((s) => s.id === leadsFilter.status)))
+    ? leadsFilter.status : ''
+  const setLeadsFilter = (patch) => updatePrefs?.({ leadsFilter: { ...leadsFilter, ...patch } })
+  /* Changing the project clears the group — a group only belongs inside it. */
+  const handleFilterChange = (key, value) => (
+    key === 'project' ? setLeadsFilter({ project: value, group: '' }) : setLeadsFilter({ [key]: value })
+  )
+  const clearLeadsFilter = () => updatePrefs?.({ leadsFilter: { ...DEFAULT_LEADS_FILTER } })
+  const activeFilterCount = (leadsFilter.period !== 'all' ? 1 : 0)
+    + (leadsFilter.project ? 1 : 0) + (leadsFilter.group ? 1 : 0)
+    + (effectiveStatus ? 1 : 0) + (leadsFilter.source ? 1 : 0) + (leadsFilter.sort ? 1 : 0)
+  const [showFilter, setShowFilter] = useState(false)
   const [showAdd, setShowAdd] = useState(false)
   const [editLead, setEditLead] = useState(null)
   const [convertLead, setConvertLead] = useState(null)
@@ -96,17 +114,39 @@ export default function LeadsScreen() {
   const markFollowupDone = (lead) => updateLead(lead.id, { follow_up_date: null }).catch(() => {})
 
   const buckets = useMemo(() => {
+    const f = leadsFilter
+    const now = new Date()
+    const inPeriod = (l) => {
+      if (!f.period || f.period === 'all') return true
+      const raw = l.inquiry_date || l.created_at
+      if (!raw) return false
+      const d = new Date(raw)
+      if (f.period === 'month') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+      if (f.period === 'last30') { const c = new Date(now); c.setDate(c.getDate() - 30); return d >= c }
+      if (f.period === 'lastMonth') {
+        const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+        return d.getFullYear() === lm.getFullYear() && d.getMonth() === lm.getMonth()
+      }
+      return true
+    }
+    /* '' = all · '__none__' = unassigned (no id) · otherwise exact id match. */
+    const matchRef = (val, sel) => (!sel ? true : sel === '__none__' ? !val : val === sel)
     const g = {}
     LEAD_META.forEach((m) => { g[m.key] = [] })
-    const src = subFilter ? officialLeads.filter((l) => l.status_id === subFilter) : officialLeads
-    src.forEach((l) => { (g[statusMetaOfLead(l)] || g.in_process).push(l) })
-    if (dateSort) {
-      const dir = dateSort === 'old' ? 1 : -1
+    officialLeads
+      .filter((l) => inPeriod(l)
+        && matchRef(l.project_id, f.project)
+        && matchRef(l.group_id, f.group)
+        && matchRef(l.source_id, f.source)
+        && (!effectiveStatus || l.status_id === effectiveStatus))
+      .forEach((l) => { (g[statusMetaOfLead(l)] || g.in_process).push(l) })
+    if (f.sort) {
+      const dir = f.sort === 'old' ? 1 : -1
       const keyOf = (l) => String(l.inquiry_date || l.created_at || '')
       LEAD_META.forEach((m) => { g[m.key].sort((a, b) => keyOf(a).localeCompare(keyOf(b)) * dir) })
     }
     return g
-  }, [officialLeads, subFilter, dateSort])
+  }, [officialLeads, leadsFilter, effectiveStatus])
   const stats = useMemo(() => computeStats(officialLeads), [officialLeads])
 
   /* Approve = move into the official list; reject = soft-delete (undoable). */
@@ -274,23 +314,15 @@ export default function LeadsScreen() {
       ) : (
         <>
           <div className="l-filterbar">
-            <div className="l-subfilter" role="tablist" aria-label={t('subFilterAria')}>
-              <button type="button" className={`l-subpill${!subFilter ? ' on' : ''}`} onClick={() => setSubFilter('')}>{t('all')}</button>
-              {leadStatuses.map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  className={`l-subpill${subFilter === s.id ? ' on' : ''}`}
-                  onClick={() => setSubFilter(subFilter === s.id ? '' : s.id)}
-                >
-                  <span className="l-subpill-dot" style={{ background: s.color || 'var(--stone)' }} />
-                  {s.display_name}
-                </button>
-              ))}
-            </div>
-            <button type="button" className={`l-sort-btn${dateSort ? ' on' : ''}`} onClick={cycleSort} aria-label={t('sort.aria', { label: sortLabel })}>
-              <ArrowUpDown size={14} strokeWidth={1.7} aria-hidden="true" />
-              {sortLabel}
+            <button
+              type="button"
+              className={`l-filter-btn${activeFilterCount ? ' on' : ''}`}
+              onClick={() => setShowFilter(true)}
+              aria-label={t('filter.btnAria')}
+            >
+              <SlidersHorizontal size={14} strokeWidth={1.7} aria-hidden="true" />
+              {t('filter.btn')}
+              {activeFilterCount > 0 && <span className="l-filter-count mono">{activeFilterCount}</span>}
             </button>
           </div>
           <div className="lead-board">
@@ -351,6 +383,17 @@ export default function LeadsScreen() {
         leads={dueFollowups}
         onOpenLead={(lead) => { setShowFollowups(false); setEditLead(lead) }}
         onMarkDone={markFollowupDone}
+      />
+      <LeadsFilterModal
+        open={showFilter}
+        onClose={() => setShowFilter(false)}
+        filter={leadsFilter}
+        onChange={handleFilterChange}
+        onClear={clearLeadsFilter}
+        projects={projects}
+        groups={groups}
+        statuses={leadStatuses}
+        sources={sources}
       />
 
       <ConfirmModal

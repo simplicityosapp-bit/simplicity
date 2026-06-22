@@ -3,6 +3,7 @@ import Modal from './Modal'
 import { QUESTION_TEMPLATES, qtext } from '../lib/questionTemplates'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useT } from '../i18n/useT'
+import './AddQuestionModal.css'
 
 const ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 const SCALES = [

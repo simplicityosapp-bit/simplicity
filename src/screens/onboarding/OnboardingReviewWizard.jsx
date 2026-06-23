@@ -453,6 +453,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                   {invalid && <span className="obrw-invalid">{t('review.client.missingName')}</span>}
                   {c.status_unsure && inc && <span className="obrw-unsure">{t('review.client.statusUnsure')}</span>}
                   {projectOrphan && <span className="obrw-invalid">{t('review.client.projectOrphan')}</span>}
+                  {Number(c.num_installments) >= 2 && <span className="obrw-plan-note">{t('review.client.planBadge', { count: Number(c.num_installments) })}</span>}
                 </div>
                 {exists ? <span className="obrw-badge">{t('review.badge.exists')}</span>
                   : dup ? <span className="obrw-badge dup">{t('review.badge.duplicate')}</span> : null}

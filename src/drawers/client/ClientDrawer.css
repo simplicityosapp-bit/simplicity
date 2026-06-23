@@ -269,6 +269,14 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
+.cd-plan-hint {
+  margin: -4px 0 12px;
+  text-align: center;
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  font-weight: 500;
+  color: var(--sage);
+}
 /* Group-session rows (read-only) — shown under the hero in the full
    profile, one per group the client belongs to. */
 .cd-grp-sessions {

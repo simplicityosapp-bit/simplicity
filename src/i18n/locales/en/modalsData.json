@@ -38,6 +38,7 @@
     "paymentMethodAria": "Payment method",
     "paymentMethod": "Payment method",
     "paymentMethodNone": "Not specified",
+    "receiptUsesMethod": "The receipt will use the selected payment method: {{method}}",
     "saved": "Transaction saved",
     "savedAndIssued": "Transaction saved and {{doc}} issued{{num}}",
     "numPrefix": " no. {{num}}",

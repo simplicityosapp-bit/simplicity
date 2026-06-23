@@ -72,7 +72,8 @@
       "statusUnsure": "לא היינו בטוחים בסטטוס — כדאי לבדוק",
       "statusUnsure_male": "לא היינו בטוחים בסטטוס — כדאי שתבדוק",
       "statusUnsure_female": "לא היינו בטוחים בסטטוס — כדאי שתבדקי",
-      "projectOrphan": "הפרויקט לא ייווצר"
+      "projectOrphan": "הפרויקט לא ייווצר",
+      "planBadge": "פריסה: {{count}} תשלומים"
     },
     "project": {
       "namePlaceholder": "שם הפרויקט",

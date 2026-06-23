@@ -233,10 +233,18 @@ class GreenInvoiceProvider implements InvoiceProvider {
       // morning requires a `date` on each payment line for receipt-type docs
       // (305 has none; 320/400/405 do) — issued now, so today.
       const payment: Record<string, unknown> = { date: todayISO(), type: GI_PAYMENT[doc.paymentMethod] ?? GI_PAYMENT.other, price: doc.amount, currency: 'ILS' }
-      // payment-app (type 10) additionally REQUIRES appType (1=Bit, 2=Pepper,
-      // 3=PayBox) or morning rejects with errorCode 2438. The UI bundles the apps
-      // into one option, so default to Bit (the most common); split per-app later.
+      // morning requires a type-specific selector for some payment types or it
+      // rejects (errorCode 24xx). Provide safe defaults for the ones that need no
+      // instrument data we don't collect:
+      //   app (10)         → appType  (1=Bit, 2=Pepper, 3=PayBox) — UI bundles apps, default Bit  [was 2438]
+      //   other (11)       → subType  (1=Bitcoin, 2=money-equiv, 3=v-check) — default money-equiv [was 2439]
+      //   credit_card (3)  → dealType (1=regular, 2=installments, …) — default regular
+      // cheque (2) hard-requires bankName/Branch/Account + chequeNum, which we don't
+      // collect, so it was removed from the UI payment-method picker (lib/invoiceDocs)
+      // — no 'cheque' value reaches here in practice.
       if (doc.paymentMethod === 'app') payment.appType = 1
+      else if (doc.paymentMethod === 'other') payment.subType = 2
+      else if (doc.paymentMethod === 'credit_card') payment.dealType = 1
       body.payment = [payment]
     }
     let res: Response

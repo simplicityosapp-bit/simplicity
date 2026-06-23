@@ -36,6 +36,10 @@ function errMsg(code, t) {
 /* Append the provider's own one-line reason (when the function surfaced one)
    so a failed issuance is actionable instead of a generic "תקלה בספק". */
 function errMsgWithDetail(e, t) {
+  // morning errorCode 2403 = the chosen document type isn't allowed for this
+  // business type (a VAT-exempt עוסק פטור can't issue a tax invoice/receipt) —
+  // give a precise "pick קבלה" instruction instead of the raw provider text.
+  if (e?.detail && /\b2403\b/.test(e.detail)) return t('actions.err.docTypeForBusiness')
   const base = errMsg(e?.message, t)
   return e?.detail ? `${base} (${e.detail})` : base
 }
@@ -196,7 +200,12 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
       const list = await inv.loadItems()
       const arr = Array.isArray(list) ? list : []
       setItems(arr)
-      if (arr.length) setItemId(String(arr[0].id)) // default to a real catalog item, not free-text
+      // Only SUMIT uses the catalog item id (Item.ID links to a real income item).
+      // Green Invoice's createDocument ignores the id and uses the name AS the line
+      // description, so auto-picking the first catalog item replaces the actual
+      // transaction description with a generic catalog name on the receipt. For GI,
+      // default to free text (= tx.desc) so the real service detail is what's billed.
+      if (arr.length && inv.status?.provider === 'sumit') setItemId(String(arr[0].id))
     } catch {
       setItems([])
       setCatalogErr(t('actions.catalogError'))

@@ -184,6 +184,7 @@
       "invalidCredentials": "The service credentials are incorrect — check them on the Connections screen.",
       "providerUnreachable": "The service is unavailable right now. {{retry}} in a moment.",
       "providerError": "The service couldn't issue the document. Check the details and try again.",
+      "docTypeForBusiness": "Your business type can't issue the selected document type (a VAT-exempt business can only issue a receipt). Choose \"Receipt\" and try again.",
       "generic": "Issuing failed. {{retry}}.",
       "retry": "Try again"
     },

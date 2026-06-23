@@ -5,6 +5,7 @@ import { getClientMemberships } from '../../lib/clients'
 import { financeQuery, isConfirmedTx, isr } from '../../lib/finance'
 import { fmtShortDate, fmtTime } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
+import PaymentPlanSection from './PaymentPlanSection'
 
 const PRIORITY_COLOR = { high: 'var(--clay)', medium: 'var(--amber-warn)', low: 'var(--sage)' }
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
@@ -174,6 +175,8 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
             <p className="cd-empty">{t('sections.noPayments')}</p>
           )}
         </Section>
+
+        <PaymentPlanSection client={c} />
 
         <Section
           title={t('sections.openTasks')}

@@ -23,6 +23,7 @@
     "filePickerAria": "Choose a CSV or Excel file to import",
     "processing": "Reading your file…",
     "readNote": "We've only read the file — nothing is saved yet. In the next step you'll review it all and approve.",
+    "reopenRecognize": "Recognition summary",
     "noData": "We read the file but didn't find any data to import. If this is the right file, try exporting it again as CSV — or we can keep going from scratch.",
     "truncated": "Some tables were trimmed to the first {{cap}} rows to keep things fast. You can import the rest separately later.",
     "errUnsupported": "That format can't be imported. You can bring in CSV or Excel (xlsx/xls) — if your file is in Numbers or Google Sheets, export it to CSV and try again.",

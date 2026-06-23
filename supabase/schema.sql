@@ -523,6 +523,7 @@ CREATE TABLE transactions (
   category_id uuid,
   recurring_id uuid,
   orphaned_from jsonb,
+  payment_method text,
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
   deleted_at timestamp with time zone

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { Upload, FileSpreadsheet } from 'lucide-react'
+import { Upload, FileSpreadsheet, Sparkles } from 'lucide-react'
 import { ROW_CAP } from '../../../lib/csvImport'
 import { projectSheet } from '../../../lib/sheetMapper'
 import { buildSheetsFromFiles, ACCEPT } from '../../../lib/importFlow'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import { useT } from '../../../i18n/useT'
 import UnifiedSheetImporter from '../UnifiedSheetImporter'
+import RecognitionWizard from '../RecognitionWizard'
 
 /* Step 2 — paths A (import) vs B (start fresh). Path A reads EVERY file
    the user picks (multiple) and EVERY sheet inside each (one per year).
@@ -24,6 +25,9 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
   const [, setRowCount] = useState(null)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
+  /* The adaptive recognition wizard — a centered "what did we find?" dialog
+     shown right after a file is read, before the detailed column mapping. */
+  const [showWizard, setShowWizard] = useState(false)
 
   /* Handle one or more picked files. Reads every sheet of every file;
      matrix sheets become editable sources, a single flat file keeps the
@@ -56,6 +60,9 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
       await ob.setAnswers('data_import', {
         mode: 'A', file_name: names, parsed_at: new Date().toISOString(), sheet_count: sheets.length,
       })
+      /* Open the recognition wizard so the user confirms our reading before
+         the detailed mapping — only when there's actually something to show. */
+      if (sheets.length > 0) setShowWizard(true)
     } catch {
       setErr(t('step2.errReadFail', { verb: t('step2.errReadFailVerb') }))
     } finally {
@@ -162,14 +169,28 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
       </div>
 
       {/* One editable card per sheet: detected entity type + column
-          mapping. Anything unrecognised is surfaced for the user to set. */}
+          mapping. Anything unrecognised is surfaced for the user to set.
+          The recognition wizard sits above it as a confirm-first overlay. */}
       {sheets.length > 0 && (
         <>
+          <button type="button" className="ob-btn ghost" onClick={() => setShowWizard(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, margin: '0 auto 12px' }}>
+            <Sparkles size={14} strokeWidth={1.8} aria-hidden="true" /> {t('step2.reopenRecognize')}
+          </button>
           <UnifiedSheetImporter sheets={ob.state.parsed_data.sheets} onChange={onSheetsChange} gender={gender} />
           <p className="ob-intro-sub" style={{ textAlign: 'center' }}>
             {t('step2.readNote')}
           </p>
         </>
+      )}
+
+      {showWizard && sheets.length > 0 && (
+        <RecognitionWizard
+          sheets={ob.state.parsed_data.sheets}
+          onChange={onSheetsChange}
+          onConfirm={() => setShowWizard(false)}
+          onEditManually={() => setShowWizard(false)}
+        />
       )}
 
       {/* File read OK but nothing to import (empty / all sheets ignored). */}

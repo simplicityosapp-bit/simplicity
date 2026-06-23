@@ -1,0 +1,125 @@
+/* Payment-plan section inside the client drawer. Reuses the .cd-section
+   collapsible shell (ClientDrawer.css); these style the plan-specific body. */
+
+.pp-summary {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.pp-sum-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 10px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--sage) 7%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--sage) 18%, transparent);
+}
+.pp-sum-l { font-size: calc(10.5px * var(--text-scale)); color: var(--stone); }
+.pp-sum-v { font-size: calc(14px * var(--text-scale)); font-weight: 600; color: var(--espresso); }
+
+.pp-list { display: flex; flex-direction: column; gap: 7px; }
+
+.pp-inst {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 11px;
+  border: 0.5px solid rgba(42, 37, 32, 0.1);
+  background: rgba(255, 252, 245, 0.5);
+}
+[data-theme="dark"] .pp-inst { border-color: rgba(240, 235, 224, 0.1); background: rgba(240, 235, 224, 0.03); }
+.pp-inst.paid { background: color-mix(in srgb, var(--sage) 9%, transparent); border-color: color-mix(in srgb, var(--sage) 22%, transparent); }
+
+.pp-inst-num {
+  flex-shrink: 0;
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  color: var(--stone);
+  min-width: 34px;
+}
+.pp-inst-mid { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.pp-inst-amt { font-size: calc(13px * var(--text-scale)); font-weight: 600; color: var(--espresso); }
+.pp-inst-date { font-size: calc(10.5px * var(--text-scale)); color: var(--stone); }
+
+.pp-receive { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.pp-method {
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(42, 37, 32, 0.18);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--espresso);
+}
+[data-theme="dark"] .pp-method { background: rgba(20, 18, 14, 0.5); border-color: rgba(240, 235, 224, 0.18); color: var(--cream); }
+
+.pp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+.pp-btn:disabled { opacity: 0.55; cursor: default; }
+.pp-btn.mark { color: var(--sage); background: color-mix(in srgb, var(--sage) 12%, transparent); border-color: color-mix(in srgb, var(--sage) 28%, transparent); }
+.pp-btn.primary { color: #fff; background: var(--sage); }
+.pp-btn.ghost { color: var(--stone); background: transparent; border-color: rgba(42, 37, 32, 0.16); }
+[data-theme="dark"] .pp-btn.ghost { border-color: rgba(240, 235, 224, 0.18); }
+.pp-btn.danger { color: #fff; background: var(--clay); }
+
+.pp-del {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.pp-del:hover { color: var(--clay); }
+.pp-del-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--espresso);
+}
+
+/* create form */
+.pp-create { display: flex; flex-direction: column; gap: 10px; }
+.pp-create-intro { margin: 0; font-size: calc(12px * var(--text-scale)); color: var(--stone); line-height: 1.5; }
+.pp-create-row { display: flex; gap: 10px; }
+.pp-field { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.pp-field-l { font-size: calc(11px * var(--text-scale)); color: var(--stone); }
+.pp-input {
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  padding: 7px 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(42, 37, 32, 0.18);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--espresso);
+  width: 100%;
+}
+[data-theme="dark"] .pp-input { background: rgba(20, 18, 14, 0.5); border-color: rgba(240, 235, 224, 0.18); color: var(--cream); }
+.pp-create-go { align-self: flex-start; }
+.pp-create-note {
+  display: flex; align-items: center; gap: 5px;
+  margin: 0;
+  font-size: calc(10.5px * var(--text-scale));
+  color: var(--stone);
+}

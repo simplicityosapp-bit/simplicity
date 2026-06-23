@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import InvoiceActions from '../components/InvoiceActions'
+import { PAY_METHODS } from '../lib/invoiceDocs'
 import { useT } from '../i18n/useT'
 
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
@@ -22,6 +23,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
     client_id: tx?.client_id || '',
     project_id: tx?.project_id || '',
     category_id: tx?.category_id || '',
+    payment_method: tx?.payment_method || '',
   }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -41,6 +43,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       client_id: tx.client_id || '',
       project_id: tx.project_id || '',
       category_id: tx.category_id || '',
+      payment_method: tx.payment_method || '',
     }
     return form.type !== orig.type
       || String(form.amount) !== String(orig.amount)
@@ -50,6 +53,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       || form.client_id !== orig.client_id
       || form.project_id !== orig.project_id
       || form.category_id !== orig.category_id
+      || form.payment_method !== orig.payment_method
   }, [form, tx])
 
   if (!tx) return <Modal open={open} onClose={onClose} title={t('editTx.title')} />
@@ -70,6 +74,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
         client_id: form.client_id || null,
         project_id: form.project_id || null,
         category_id: form.type === 'expense' ? (form.category_id || null) : null,
+        payment_method: form.payment_method || null,
       })
       onClose()
     } catch (e) {
@@ -105,6 +110,13 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       <div className="m-field">
         <label className="m-label">{t('common.description')}</label>
         <input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} />
+      </div>
+      <div className="m-field">
+        <label className="m-label">{t('tx.paymentMethod')}</label>
+        <select className="m-select" value={form.payment_method} onChange={(e) => set('payment_method', e.target.value)}>
+          <option value="">{t('tx.paymentMethodNone')}</option>
+          {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+        </select>
       </div>
       <div className="m-field">
         <label className="m-label">{t('editTx.status')}</label>

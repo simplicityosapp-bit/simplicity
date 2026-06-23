@@ -20,6 +20,7 @@ const blank = (defaults = {}) => ({
   client_id: defaults.client_id || '',
   project_id: defaults.project_id || '',
   category_id: '',
+  payment_method: defaults.payment_method || '',
 })
 
 /* onSave is async (Supabase insert). When `client` is provided the client is
@@ -90,6 +91,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
         project_id: form.project_id || null,
         client_id: clientId,
         category_id: form.type === 'expense' ? (form.category_id || null) : null,
+        payment_method: form.payment_method || null,
         recurring_id: null,
         orphaned_from: null,
       })
@@ -98,7 +100,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
           // Clamp to what this business may issue — the toggle's default can be
           // stale if status loaded after it was checked (would 2403 post-save).
           const docType = clampDocType(inv.status?.business_type, issueDocType)
-          const r = await inv.issueDocument(row.id, docType, { itemId: null, itemName: form.desc.trim(), paymentMethod: issuePayment })
+          const r = await inv.issueDocument(row.id, docType, { itemId: null, itemName: form.desc.trim(), paymentMethod: form.payment_method || issuePayment })
           const num = r?.document?.number
           showToast(t('tx.savedAndIssued', { doc: docTypeLabel(docType), num: num ? t('tx.numPrefix', { num }) : '' }))
         } catch (e) {
@@ -160,6 +162,13 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       <div className="m-field">
         <label className="m-label">{t('common.description')}</label>
         <input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} placeholder={t('tx.descPlaceholder')} />
+      </div>
+      <div className="m-field">
+        <label className="m-label">{t('tx.paymentMethod')}</label>
+        <select className="m-select" value={form.payment_method} onChange={(e) => set('payment_method', e.target.value)}>
+          <option value="">{t('tx.paymentMethodNone')}</option>
+          {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+        </select>
       </div>
       {client ? (
         <div className="m-field">

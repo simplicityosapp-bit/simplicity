@@ -9,6 +9,10 @@
    shared lead-pages builder untouched.
    ════════════════════════════════════════════════════════════════ */
 
+/* Google-write toggle when no calendar is connected — clearly inert. */
+.lpb-toggle.is-disabled { opacity: 0.55; }
+.lpb-toggle.is-disabled input { cursor: default; }
+
 .bk-preview-hint {
   display: flex;
   align-items: center;

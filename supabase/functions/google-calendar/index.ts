@@ -26,7 +26,12 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-const SCOPE = 'https://www.googleapis.com/auth/calendar.readonly'
+// calendar.events grants read (events.list — the one-way sync) AND write
+// (creating/deleting the booking events below). It REPLACES the old
+// calendar.readonly: existing connections keep their readonly grant and keep
+// SYNCING fine, but WRITES return 403 until the coach reconnects once (the
+// push/unpush paths surface that as reason:'reconnect_needed', never a crash).
+const SCOPE = 'https://www.googleapis.com/auth/calendar.events'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -309,13 +314,125 @@ async function runSync(userId: string) {
   return { synced: upserts.length, removed: cancelled.length, last_synced_at, sync_from: integration.sync_from }
 }
 
+// ── Booking → Google Calendar write (Phase 6) ───────────────────
+/* Load the user's google_calendar integration row (tokens), or null. */
+async function getIntegration(userId: string) {
+  const { data } = await admin.from('user_integrations')
+    .select('*').eq('user_id', userId).eq('provider', 'google_calendar').maybeSingle()
+  return data
+}
+
+/* Create a Google Calendar event for a CONFIRMED booking and remember its id.
+   All-or-nothing best-effort: returns a structured { written, reason } and
+   NEVER throws to the caller, so confirming a booking never fails because of
+   Google. The owner controls this per page (booking_pages.write_to_google /
+   invite_client) — the flags are read here server-side, never trusted from
+   the client. Idempotent: a booking that already has a google_event_id is a
+   no-op. */
+async function pushBooking(userId: string, bookingId: string) {
+  const { data: booking } = await admin.from('bookings')
+    .select('*').eq('id', bookingId).eq('user_id', userId).maybeSingle()
+  if (!booking) return { written: false, reason: 'not_found' }
+  if (booking.status !== 'confirmed') return { written: false, reason: 'not_confirmed' }
+  if (booking.google_event_id) return { written: true, reason: 'already', google_event_id: booking.google_event_id }
+  if (!booking.page_id) return { written: false, reason: 'no_page' }
+
+  // Authoritative per-page opt-in (never trust the browser).
+  const { data: page } = await admin.from('booking_pages')
+    .select('write_to_google, invite_client').eq('id', booking.page_id).maybeSingle()
+  if (!page?.write_to_google) return { written: false, reason: 'disabled' }
+
+  const integration = await getIntegration(userId)
+  if (!integration?.refresh_token) return { written: false, reason: 'not_connected' }
+
+  // Meeting-type name → goes into the title only. meeting_types carries no
+  // structured physical/online flag or address, so there is no real location.
+  let typeName = ''
+  if (booking.meeting_type_id) {
+    const { data: mt } = await admin.from('meeting_types').select('name').eq('id', booking.meeting_type_id).maybeSingle()
+    typeName = mt?.name ?? ''
+  }
+  const title = typeName ? `${booking.name} — ${typeName}` : (booking.name || 'פגישה')
+  const descParts: string[] = []
+  if (booking.note) descParts.push(booking.note)
+  descParts.push('נקבע דרך דף קביעת פגישות')
+
+  // A single Google event shows ONE description to every attendee, so we keep
+  // the body to title + note + source only — the visitor's phone/email are
+  // deliberately NOT written to the event (the coach has them in the CRM).
+  const event: Record<string, unknown> = {
+    summary: title,
+    description: descParts.join('\n\n'),
+    start: { dateTime: new Date(booking.starts_at).toISOString() },
+    end: { dateTime: new Date(booking.ends_at).toISOString() },
+  }
+  const invite = !!(page.invite_client && booking.email)
+  if (invite) event.attendees = [{ email: booking.email, displayName: booking.name || undefined }]
+
+  let accessToken: string
+  try { accessToken = await freshAccessToken(integration) }
+  catch { return { written: false, reason: 'reconnect_needed' } }
+
+  const p = new URLSearchParams()
+  if (invite) p.set('sendUpdates', 'all')
+  const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${p}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(event),
+  })
+  // 403 = the granted token still only has the old readonly scope → reconnect.
+  if (res.status === 401 || res.status === 403) return { written: false, reason: 'reconnect_needed' }
+  if (!res.ok) { console.error('push-booking events.insert failed:', res.status, await res.text()); return { written: false, reason: 'google_error' } }
+  const created = await res.json()
+  const gid = created.id as string
+  if (!gid) return { written: false, reason: 'google_error' }
+
+  // Remember the real id on the booking, and RETAG the owned calendar_event
+  // (it held the sentinel 'booking:<id>') with the real id. The read-sync skips
+  // owned events, so the next sync recognises this event and never duplicates
+  // it. (user_id, google_event_id) is unique and gid is brand-new → no clash.
+  await admin.from('bookings').update({ google_event_id: gid }).eq('id', bookingId)
+  if (booking.event_id) {
+    await admin.from('calendar_events').update({ google_event_id: gid })
+      .eq('id', booking.event_id).eq('user_id', userId)
+  }
+  return { written: true, google_event_id: gid }
+}
+
+/* Delete the Google event for a booking (on cancel). Best-effort + idempotent:
+   a 404/410 (already gone) is treated as success, and our pointer is cleared
+   regardless. The local owned calendar_event is removed by the browser (RLS)
+   in the cancel flow — here we only touch Google + the booking pointer. */
+async function unpushBooking(userId: string, bookingId: string) {
+  const { data: booking } = await admin.from('bookings')
+    .select('id, google_event_id').eq('id', bookingId).eq('user_id', userId).maybeSingle()
+  if (!booking) return { ok: false, reason: 'not_found' }
+  if (!booking.google_event_id) return { ok: true, reason: 'nothing_to_delete' }
+
+  const integration = await getIntegration(userId)
+  if (integration?.refresh_token) {
+    try {
+      const accessToken = await freshAccessToken(integration)
+      const res = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(booking.google_event_id)}?sendUpdates=all`,
+        { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
+      )
+      if (!res.ok && res.status !== 404 && res.status !== 410) {
+        console.error('unpush-booking events.delete failed:', res.status, await res.text())
+      }
+    } catch (e) { console.error('unpush-booking error:', e) }
+  }
+  await admin.from('bookings').update({ google_event_id: null }).eq('id', bookingId)
+  return { ok: true }
+}
+
 // ── HTTP entry ──────────────────────────────────────────────────
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   try {
     const userId = await getUserId(req)
     if (!userId) return json({ error: 'unauthorized' }, 401)
-    const { action, code, redirect_uri, sync_from, state } = await req.json().catch(() => ({}))
+    const { action, code, redirect_uri, sync_from, state, bookingId } = await req.json().catch(() => ({}))
 
     if (action === 'auth-url') {
       if (!redirect_uri) return json({ error: 'redirect_uri required' }, 400)
@@ -358,6 +475,16 @@ Deno.serve(async (req) => {
     if (action === 'sync') {
       const result = await runSync(userId)
       return json({ status: { connected: true, sync_from: result.sync_from, last_synced_at: result.last_synced_at }, ...result })
+    }
+
+    if (action === 'push-booking') {
+      if (!bookingId) return json({ error: 'bookingId required' }, 400)
+      return json(await pushBooking(userId, bookingId))
+    }
+
+    if (action === 'unpush-booking') {
+      if (!bookingId) return json({ error: 'bookingId required' }, 400)
+      return json(await unpushBooking(userId, bookingId))
     }
 
     if (action === 'status') {

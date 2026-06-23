@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   listBookings, confirmBooking as apiConfirm, rejectBooking as apiReject,
-  materializeBooking as apiMaterialize,
+  materializeBooking as apiMaterialize, cancelBooking as apiCancel,
 } from '../lib/api/bookings'
 import { showError } from '../lib/toast'
 
@@ -41,5 +41,14 @@ export function useBookings() {
     return row
   }, [qc]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { bookings, loading: isLoading, error: error?.message ?? null, confirm, reject, materialize, refetch }
+  /* Cancel a confirmed booking (deletes its Google event + frees the slot). */
+  const cancel = useCallback(async (booking) => {
+    try {
+      const row = await apiCancel(booking)
+      replace(row)
+      return row
+    } catch (e) { showError(e.message || 'ביטול התור נכשל'); throw e }
+  }, [qc]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return { bookings, loading: isLoading, error: error?.message ?? null, confirm, reject, materialize, cancel, refetch }
 }

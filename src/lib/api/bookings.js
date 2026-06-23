@@ -19,6 +19,30 @@
 
 import { supabase } from '../supabase'
 import { selectAllRows } from './paginate'
+import { callGoogleCalendar } from './integrations'
+import { showToast } from '../toast'
+
+/* Best-effort mirror of a confirmed booking to the coach's Google Calendar.
+   The edge function enforces the page's write_to_google flag, so calling it
+   for every confirm is safe — it no-ops (reason:'disabled') when the page
+   isn't opted in, or when Google isn't connected. NEVER throws: a Google
+   hiccup must not fail the local confirmation. When `notify` is set, the one
+   actionable failure (token still on the old read-only scope) nudges a
+   reconnect; all other outcomes stay silent. */
+async function pushBookingToGoogle(bookingId, { notify = false } = {}) {
+  try {
+    const r = await callGoogleCalendar('push-booking', { bookingId })
+    if (notify && r && r.written === false && r.reason === 'reconnect_needed') {
+      showToast('כדי לכתוב תורים ליומן Google יש לחבר מחדש את היומן ב"חיבורים".', 'error')
+    }
+  } catch { /* best-effort — the local confirmation already succeeded */ }
+}
+
+/* Best-effort delete of a booking's Google event (on cancel). Reads the stored
+   google_event_id server-side; idempotent and silent. */
+async function unpushBookingFromGoogle(bookingId) {
+  try { await callGoogleCalendar('unpush-booking', { bookingId }) } catch { /* best-effort */ }
+}
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at']
 const sanitize = (input) => {
@@ -86,23 +110,41 @@ async function createLeadAndEvent(booking, userId) {
   return { lead_id: lead.id, event_id: ev.id }
 }
 
-/* Manual approve: convert + flip to confirmed. */
+/* Manual approve: convert + flip to confirmed, then mirror to Google (if the
+   page opted in). The Google write is awaited so a stale-scope account gets a
+   one-time "reconnect" nudge, but it never blocks the confirmation. */
 export async function confirmBooking(booking) {
   const userId = await requireUserId()
   const { lead_id, event_id } = await createLeadAndEvent(booking, userId)
-  return updateBooking(booking.id, { status: 'confirmed', lead_id, event_id })
+  const row = await updateBooking(booking.id, { status: 'confirmed', lead_id, event_id })
+  await pushBookingToGoogle(row.id, { notify: true })
+  return row
 }
 
-/* Backfill an already-confirmed (auto) booking that has no lead/event yet. */
+/* Backfill an already-confirmed (auto) booking that has no lead/event yet.
+   Runs in a loop on home, so the Google mirror here is fire-and-forget +
+   silent (no per-row toasts). */
 export async function materializeBooking(booking) {
   if (booking.lead_id && booking.event_id) return booking
   const userId = await requireUserId()
   const { lead_id, event_id } = await createLeadAndEvent(booking, userId)
-  return updateBooking(booking.id, { lead_id, event_id })
+  const row = await updateBooking(booking.id, { lead_id, event_id })
+  pushBookingToGoogle(row.id)
+  return row
 }
 
-/* Reject (frees the slot). The created lead/event (if any) are NOT removed —
-   rejection just declines the appointment; cleanup is the owner's call. */
+/* Reject (frees the slot). Applies to PENDING bookings (before any Google
+   event exists), so there's nothing to delete from Google. The created lead/
+   event (if any) are NOT removed — rejection just declines the appointment. */
 export async function rejectBooking(id) {
   return updateBooking(id, { status: 'rejected' })
+}
+
+/* Cancel a CONFIRMED booking: delete its Google event (if written) and flip
+   status → 'cancelled', which frees the slot via the no-overlap constraint.
+   The local owned calendar_event is removed by the caller through the
+   calendar's own cache-aware deleteEvent. The lead stays in the CRM. */
+export async function cancelBooking(booking) {
+  await unpushBookingFromGoogle(booking.id)
+  return updateBooking(booking.id, { status: 'cancelled' })
 }

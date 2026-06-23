@@ -33,6 +33,7 @@ export const DEFAULT_CONTENT = {
   background: '',      // '' = default gradient; else a Simplicity scene key
   cardOpacity: 100,
   cardBlur: 14,
+  cardRadius: 24,      // px — card corner roundness (24 = the original look)
   bold: false,
   textColor: 'dark',
   textAlign: 'start',

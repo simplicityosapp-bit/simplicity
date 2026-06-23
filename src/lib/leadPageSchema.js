@@ -46,6 +46,7 @@ export const DEFAULT_CONTENT = {
   background: '',      // '' = default gradient; else a Simplicity scene key
   cardOpacity: 100,    // 0–100 — how solid the form card is over the background
   cardBlur: 14,        // px — glass blur behind a transparent card
+  cardRadius: 24,      // px — card corner roundness (24 = the original look)
   bold: false,         // heavier heading + text
   textColor: 'dark',   // 'dark' | 'light' (light for dark backgrounds)
   textAlign: 'start',  // 'start' (right, RTL) | 'center'
@@ -82,10 +83,12 @@ export function leadPageSurface(content = {}) {
   const bg = (c.background || '').toString().trim()
   const opacity = typeof c.cardOpacity === 'number' ? c.cardOpacity : 100
   const blur = typeof c.cardBlur === 'number' ? c.cardBlur : 14
+  const radius = typeof c.cardRadius === 'number' ? c.cardRadius : 24
   const style = {
     '--lp-brand': c.brandColor || DEFAULT_BRAND_COLOR,
     '--lp-card-opacity': `${Math.max(0, Math.min(100, opacity))}%`,
     '--lp-card-blur': `${Math.max(0, blur)}px`,
+    '--lp-radius': `${Math.max(8, Math.min(48, radius))}px`,
   }
   if (bg) {
     style['--lp-bg-day'] = `url(${leadPageBgUrl(bg, 'day')})`

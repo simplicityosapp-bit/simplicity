@@ -3,6 +3,27 @@ import { SlidersHorizontal, X } from 'lucide-react'
 import { LEAD_PAGE_BACKGROUNDS, leadPageBgUrl } from '../lib/leadPageSchema'
 import './DesignToolbox.css'
 
+/* Curated on-brand quick-pick palette — leans on the Mångata accent family
+   (warm clays → sage → dusk) so a one-tap colour always reads premium.
+   The full colour picker stays available for anything off-palette. */
+const BRAND_PRESETS = [
+  '#C97B5E', // terracotta (default brand)
+  '#B0654F', // rosewood clay
+  '#D08A4E', // amber
+  '#C8A84E', // gold
+  '#8BA888', // sage
+  '#5AA89C', // teal
+  '#6E8CA8', // dusk blue
+  '#8A6BA8', // plum
+]
+
+/* Card-corner steps — named + precise. 24 = the original look (default). */
+const RADII = [
+  { v: 14, label: 'חד' },
+  { v: 24, label: 'רגיל' },
+  { v: 34, label: 'רך' },
+]
+
 /* ════════════════════════════════════════════════════════════════
    DESIGN TOOLBOX — "ארגז כלים"
    ════════════════════════════════════════════════════════════════
@@ -23,6 +44,8 @@ export default function DesignToolbox({ content, onChange }) {
   const [open, setOpen] = useState(false)
   const c = content || {}
   const set = (patch) => onChange?.(patch)
+  const curBrand = (c.brandColor || '#C97B5E').toLowerCase()
+  const curRadius = typeof c.cardRadius === 'number' ? c.cardRadius : 24
 
   return (
     <>
@@ -48,6 +71,23 @@ export default function DesignToolbox({ content, onChange }) {
         <div className="dtb-body">
           <div className="dtb-group">
             <p className="dtb-group-lbl">צבע מותג</p>
+            <div className="dtb-presets" role="group" aria-label="צבעים מוכנים">
+              {BRAND_PRESETS.map((hex) => {
+                const on = curBrand === hex.toLowerCase()
+                return (
+                  <button
+                    key={hex}
+                    type="button"
+                    className={`dtb-preset${on ? ' on' : ''}`}
+                    style={{ '--sw': hex }}
+                    onClick={() => set({ brandColor: hex })}
+                    aria-label={`צבע ${hex}`}
+                    aria-pressed={on}
+                    title={hex}
+                  />
+                )
+              })}
+            </div>
             <div className="lpb-color">
               <input type="color" value={c.brandColor || '#C97B5E'} onChange={(e) => set({ brandColor: e.target.value })} />
               <span className="lpb-color-hex mono">{c.brandColor || '#C97B5E'}</span>
@@ -82,6 +122,24 @@ export default function DesignToolbox({ content, onChange }) {
               <span className="lpe-design-lbl">טשטוש רקע</span>
               <input type="range" min="0" max="30" value={c.cardBlur ?? 14} onChange={(e) => set({ cardBlur: Number(e.target.value) })} />
               <span className="lpe-slider-val mono">{c.cardBlur ?? 14}px</span>
+            </div>
+          </div>
+
+          <div className="dtb-group">
+            <div className="lpe-seg-row">
+              <span className="lpe-design-lbl">פינות הכרטיס</span>
+              <div className="lpe-seg">
+                {RADII.map((r) => (
+                  <button
+                    key={r.v}
+                    type="button"
+                    className={`lpe-seg-btn${curRadius === r.v ? ' on' : ''}`}
+                    onClick={() => set({ cardRadius: r.v })}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

@@ -148,7 +148,7 @@ export default function BookingPage() {
   }
 
   const { style: rootStyle, cls: surfaceCls } = leadPageSurface(content)
-  const rootClass = `lp-root lp-surface${surfaceCls ? ` ${surfaceCls}` : ''}`
+  const rootClass = `lp-root lp-surface bk2-page${surfaceCls ? ` ${surfaceCls}` : ''}`
 
   if (status === 'loading') {
     return <div className={rootClass} dir="rtl" style={rootStyle}><div className="lp-card lp-state"><p className="lp-muted">טוען…</p></div></div>

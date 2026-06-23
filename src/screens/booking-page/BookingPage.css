@@ -8,10 +8,22 @@
 .bk2-section + .bk2-section { border-top: 1px solid rgba(44, 38, 33, 0.08); padding-top: 18px; }
 
 .bk2-step-label {
-  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 14px;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.01em;
+}
+/* A small brand tick before each step label — quiet wayfinding, premium feel. */
+.bk2-step-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lp-brand);
+  flex: none;
 }
 
 /* ── Meeting types ────────────────────────────────────────────────── */
@@ -21,20 +33,25 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px;
-  border: 1.5px solid rgba(44, 38, 33, 0.14);
-  border-radius: 14px;
+  padding: 15px 18px;
+  border: 1.5px solid rgba(44, 38, 33, 0.12);
+  border-radius: 16px;
   background: transparent;
   cursor: pointer;
   text-align: start;
   font: inherit;
   color: inherit;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease, transform 0.12s ease;
 }
-.bk2-type:hover { border-color: color-mix(in srgb, var(--lp-brand) 45%, transparent); }
+.bk2-type:hover {
+  border-color: color-mix(in srgb, var(--lp-brand) 45%, transparent);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--lp-brand) 14%, transparent);
+}
 .bk2-type.on {
   border-color: var(--lp-brand);
   background: color-mix(in srgb, var(--lp-brand) 8%, transparent);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--lp-brand) 18%, transparent);
 }
 .bk2-type-name { font-size: 16px; font-weight: 500; }
 .bk2-type-meta { font-size: 13px; opacity: 0.7; }
@@ -50,18 +67,27 @@
 }
 .bk2-day {
   flex: 0 0 auto;
-  padding: 10px 14px;
-  border: 1.5px solid rgba(44, 38, 33, 0.14);
-  border-radius: 12px;
+  padding: 11px 16px;
+  border: 1.5px solid rgba(44, 38, 33, 0.12);
+  border-radius: 14px;
   background: transparent;
   cursor: pointer;
   font: inherit;
   color: inherit;
   font-size: 14px;
   white-space: nowrap;
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease, transform 0.12s ease;
 }
-.bk2-day:hover { border-color: color-mix(in srgb, var(--lp-brand) 45%, transparent); }
-.bk2-day.on { border-color: var(--lp-brand); background: var(--lp-brand); color: #fff; }
+.bk2-day:hover {
+  border-color: color-mix(in srgb, var(--lp-brand) 45%, transparent);
+  transform: translateY(-1px);
+}
+.bk2-day.on {
+  border-color: var(--lp-brand);
+  background: var(--lp-brand);
+  color: #fff;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--lp-brand) 30%, transparent);
+}
 
 /* ── Time slots ───────────────────────────────────────────────────── */
 /* Google-Calendar-style time pills: a wrap of clickable rounded chips, each a
@@ -83,25 +109,63 @@
   font-size: 15px;
   color: var(--lp-brand);
   text-align: center;
-  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease, transform 0.12s ease;
 }
-.bk2-slot:hover { background: color-mix(in srgb, var(--lp-brand) 12%, transparent); }
-.bk2-slot.on { border-color: var(--lp-brand); background: var(--lp-brand); color: #fff; }
+.bk2-slot:hover {
+  background: color-mix(in srgb, var(--lp-brand) 12%, transparent);
+  transform: translateY(-1px);
+}
+.bk2-slot.on {
+  border-color: var(--lp-brand);
+  background: var(--lp-brand);
+  color: #fff;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--lp-brand) 32%, transparent);
+}
 
 /* ── Chosen summary + confirmation ────────────────────────────────── */
 .bk2-chosen {
-  margin: 0 0 16px;
-  padding: 10px 14px;
-  border-radius: 12px;
+  position: relative;
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border-radius: 14px;
   background: color-mix(in srgb, var(--lp-brand) 10%, transparent);
   font-size: 14px;
   font-weight: 500;
+  overflow: hidden;
+}
+/* Accent bar on the inline-start edge (right in RTL) — frames the chosen slot. */
+.bk2-chosen::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 4px;
+  background: var(--lp-brand);
 }
 .bk2-confirm-when {
   margin: 8px 0 0;
   font-size: 15px;
   font-weight: 500;
   opacity: 0.85;
+}
+
+/* ── Scoped premium chrome (booking page only — lead pages untouched) ─ */
+/* Primary CTA: rounder + a soft brand-tinted lift so the final action feels
+   tactile and considered. */
+.bk2-page .lp-submit {
+  border-radius: 16px;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--lp-brand) 30%, transparent);
+  transition: filter 0.15s ease, transform 0.14s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+.bk2-page .lp-submit:hover:not(:disabled) {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--lp-brand) 36%, transparent);
+}
+.bk2-page .lp-submit:active:not(:disabled) { transform: translateY(0); }
+/* Success tick: a soft halo so the confirmation lands warmly. */
+.bk2-page .lp-check {
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--lp-brand) 34%, transparent);
 }
 
 /* ── Dark surface / light-text parity ─────────────────────────────── */

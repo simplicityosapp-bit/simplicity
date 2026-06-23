@@ -136,6 +136,7 @@ export default function OnboardingScreen() {
         <OnboardingReviewWizard
           parsed={review}
           mode={reviewMode === 'step2' ? 'approve' : 'create'}
+          allowSkipImport={reviewMode === 'finish'}
           onConfirm={onReviewConfirm}
           onComplete={onReviewComplete}
           onCancel={() => setReview(null)}

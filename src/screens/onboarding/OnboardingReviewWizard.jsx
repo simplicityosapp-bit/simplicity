@@ -64,7 +64,7 @@ const CLIENT_STATUS_DEFAULTS = ['פעיל׌', 'ביניים', 'לשעבר', 'ל�
    (step 2 — only records the user's approval; step 9 leans on it and is
    the single place data is created). The two differ only in wording; the
    confirm flow is identical (onConfirm decides whether to write). */
-export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, onCancel, mode = 'create' }) {
+export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, onCancel, mode = 'create', allowSkipImport = false }) {
   const { t } = useT('onboarding')
   const { clients: existingClients, loading: clientsLoading } = useClients()
   const { projects: existingProjects, loading: projectsLoading } = useProjects()
@@ -263,6 +263,25 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
         : 0
       if (summary?.fatal || failed > 0) setResult(summary)
       else await onComplete()
+    } finally {
+      setBusy(false)
+      confirmingRef.current = false
+    }
+  }
+
+  /* "Start without importing" — finish onboarding and enter the app WITHOUT
+     running the import. Keeps everything the user already set up (profile,
+     projects, clients from the earlier steps); the uploaded file is simply
+     not imported (they can import later from Settings → ייבוא). Only offered
+     at the final step ('create'); step 2's "approve" has no creation to skip.
+     Guarded by the same synchronous ref as confirm so a double-tap can't
+     finish twice. */
+  const handleSkipImport = async () => {
+    if (busy || confirmingRef.current) return
+    confirmingRef.current = true
+    setBusy(true)
+    try {
+      await onComplete()
     } finally {
       setBusy(false)
       confirmingRef.current = false
@@ -594,6 +613,12 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
             <button type="button" className="ob-btn ghost" onClick={requestClose} disabled={busy}>
               {t('common.back')}
             </button>
+            {allowSkipImport && (
+              <button type="button" className="ob-btn ghost" onClick={handleSkipImport} disabled={busy}
+                title={t('review.confirm.skipImportHint')}>
+                {t('review.confirm.skipImport')}
+              </button>
+            )}
             <button type="button" className="ob-btn primary" onClick={handleConfirm} disabled={busy}>
               {busy
                 ? (mode === 'approve' ? t('review.confirm.savingApprove') : t('review.confirm.savingCreate'))

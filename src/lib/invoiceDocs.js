@@ -24,3 +24,13 @@ export const PAY_METHODS = [
 
 export const docTypeLabel = (k) => DOC_TYPES.find((d) => d.key === k)?.label || k
 export const isReceiptType = (t) => t === 'invoice_receipt' || t === 'receipt'
+
+/* Document types a business may issue. A VAT-exempt עוסק פטור can ONLY issue a
+   receipt (a tax invoice / חשבונית מס fails at the provider, GI errorCode 2403);
+   an עוסק מורשה (or an unset business type) can issue all three. Drives the issue
+   picker's options + default so users never hit 2403. */
+export const allowedDocTypes = (businessType) =>
+  businessType === 'exempt' ? DOC_TYPES.filter((d) => d.key === 'receipt') : DOC_TYPES
+
+export const defaultDocType = (businessType) =>
+  businessType === 'exempt' ? 'receipt' : 'invoice_receipt'

@@ -4,7 +4,7 @@ import Modal from './Modal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
-import { DOC_TYPES, PAY_METHODS, docTypeLabel, isReceiptType } from '../lib/invoiceDocs'
+import { PAY_METHODS, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType } from '../lib/invoiceDocs'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
    Israeli evenings, flipping a same-day tx to pending. */
@@ -231,13 +231,13 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
           ) : (
             <>
               <label className="m-issue-toggle">
-                <input type="checkbox" checked={issueOnCreate} onChange={(e) => setIssueOnCreate(e.target.checked)} />
+                <input type="checkbox" checked={issueOnCreate} onChange={(e) => { const on = e.target.checked; setIssueOnCreate(on); if (on) setIssueDocType(defaultDocType(inv.status?.business_type)) }} />
                 <span>{t('tx.issueOnSave')}</span>
               </label>
               {issueOnCreate && (
                 <div className="m-issue-opts">
                   <div className="m-pills m-issue-types">
-                    {DOC_TYPES.map((d) => (
+                    {allowedDocTypes(inv.status?.business_type).map((d) => (
                       <button key={d.key} type="button" className={`m-pill${issueDocType === d.key ? ' on' : ''}`} onClick={() => setIssueDocType(d.key)}>{d.label}</button>
                     ))}
                   </div>

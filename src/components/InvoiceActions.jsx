@@ -6,7 +6,7 @@ import IssueGuardModal from '../modals/IssueGuardModal'
 import ConfirmModal from '../modals/ConfirmModal'
 import { isr } from '../lib/finance'
 import { showToast } from '../lib/toast'
-import { DOC_TYPES, PAY_METHODS, docTypeLabel, isReceiptType } from '../lib/invoiceDocs'
+import { PAY_METHODS, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType } from '../lib/invoiceDocs'
 import { useT } from '../i18n/useT'
 import './InvoiceActions.css'
 
@@ -22,6 +22,7 @@ function errMsg(code, t) {
     case 'already_credited': return t('actions.err.alreadyCredited')
     case 'not_issued': return t('actions.err.notIssued')
     case 'no_client': return t('actions.err.noClient')
+    case 'doctype_for_business': return t('actions.err.docTypeForBusiness')
     case 'not_connected': return t('actions.err.notConnected')
     case 'not_income': return t('actions.err.notIncome')
     case 'bad_amount': return t('actions.err.badAmount')
@@ -190,7 +191,7 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
 
   const openPicker = async () => {
     setErr(''); setCatalogErr(''); setConfirmIssue(false)
-    setDocType('invoice_receipt')
+    setDocType(defaultDocType(inv.status?.business_type)) // עוסק פטור → קבלה
     setItemName(tx.desc || '')
     setItemId('')
     setPaymentMethod('bank_transfer')
@@ -271,7 +272,7 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
         <div className="inv-act-picker" ref={pickerRef} tabIndex={-1} role="group" aria-labelledby={lblId} onKeyDown={onPickerKeyDown}>
           <span id={lblId} className="inv-act-picker-lbl">{clientName ? t('actions.pickerLabelNamed', { client: clientName }) : t('actions.pickerLabel')}</span>
           <div className="inv-act-types" role="radiogroup" aria-label={t('actions.docTypeAria')}>
-            {DOC_TYPES.map((d) => (
+            {allowedDocTypes(inv.status?.business_type).map((d) => (
               <button key={d.key} type="button" role="radio" aria-checked={docType === d.key} className={`inv-act-type${docType === d.key ? ' on' : ''}`} onClick={() => setDocType(d.key)}>{d.label}</button>
             ))}
           </div>

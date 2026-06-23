@@ -118,6 +118,21 @@ export function useInvoiceProvider() {
     }
   }, [setStatus])
 
+  /* Set the business type ('exempt' עוסק פטור / 'licensed' עוסק מורשה) — drives
+     the issue doc-type picker. Confirmed by the user (no accidental change). */
+  const setBusinessType = useCallback(async (value) => {
+    setBusy(true); setActionError(null)
+    try {
+      const r = await callInvoices('set-business-type', { value })
+      if (r?.status) setStatus(r.status)
+      return r
+    } catch (e) {
+      setActionError(e.message); throw e
+    } finally {
+      setBusy(false)
+    }
+  }, [setStatus])
+
   return {
     status,
     loading,
@@ -131,5 +146,6 @@ export function useInvoiceProvider() {
     creditDocument,
     loadItems,
     setAutoImport,
+    setBusinessType,
   }
 }

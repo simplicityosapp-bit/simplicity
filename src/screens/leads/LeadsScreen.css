@@ -638,8 +638,8 @@
 .l-pending {
   margin-bottom: 20px;
   background: color-mix(in srgb, var(--terracotta) 12%, var(--mg-card-bg));
-  backdrop-filter: var(--mg-card-blur);
   -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
   border: 1px solid color-mix(in srgb, var(--terracotta) 30%, transparent);
   border-radius: 18px;
   box-shadow: var(--mg-card-shadow);

@@ -47,8 +47,8 @@
   background: var(--mg-card-bg);
   border: var(--mg-card-border);
   box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
   -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
   pointer-events: auto;
   animation: tourBubbleIn 0.3s ease both;
 }

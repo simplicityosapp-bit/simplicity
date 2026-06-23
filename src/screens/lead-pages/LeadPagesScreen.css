@@ -32,8 +32,8 @@
   border: var(--mg-card-border);
   border-radius: 20px;
   box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
   -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
   padding: 18px 22px;
 }
 
@@ -105,8 +105,8 @@
   border: var(--mg-card-border);
   border-radius: 20px;
   box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
   -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
   padding: 22px 24px;
 }
 .lpb-section-title { font-size: 15px; font-weight: 600; margin: 0 0 16px; }
@@ -220,8 +220,8 @@
   border: var(--mg-card-border);
   border-radius: var(--mg-card-radius);
   box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
   -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
   padding: 20px 22px;
   margin-bottom: 16px;
 }
@@ -242,8 +242,8 @@
   border: var(--mg-card-border);
   border-radius: var(--mg-card-radius);
   box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
   -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
 }
 .lpe-canvas .lp-card { width: 100%; max-width: 520px; }
 

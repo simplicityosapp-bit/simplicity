@@ -49,8 +49,8 @@ body[data-tour-active] .coachmark-bubble {
   color: var(--espresso);
   border: var(--mg-card-border);
   box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
   -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: calc(12.5px * var(--text-scale));
   font-weight: 500;
@@ -66,8 +66,8 @@ body[data-tour-active] .coachmark-bubble {
   width: 9px;
   height: 9px;
   background: var(--mg-card-bg);
-  backdrop-filter: var(--mg-card-blur);
   -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
   border-right: var(--mg-card-border);
   border-bottom: var(--mg-card-border);
 }

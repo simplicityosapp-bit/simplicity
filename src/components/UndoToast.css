@@ -28,8 +28,8 @@
   padding: 11px 14px 11px 16px;
   border-radius: 14px;
   background: rgba(42, 37, 32, 0.62);
-  backdrop-filter: blur(28px) saturate(140%);
   -webkit-backdrop-filter: blur(28px) saturate(140%);
+  backdrop-filter: blur(28px) saturate(140%);
   border: 1px solid rgba(240, 235, 224, 0.12);
   box-shadow: 0 8px 28px rgba(42, 37, 32, 0.28);
   color: #F0EBE0;

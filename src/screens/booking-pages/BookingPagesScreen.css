@@ -2,6 +2,11 @@
    BOOKING PAGES — builder-specific styles (bk-*). Shared chrome comes
    from LeadPagesScreen.css (lpe-*, lpm-*) + LeadPage.css (lp-*). Only the
    meeting-type picker + weekly-availability editor live here.
+
+   Premium pass (2026-06-23): rounder corners, calmer surfaces, refined
+   hover/active/focus, layered shadows + brand focus rings. Scoped overrides
+   sit under .bk-screen so they elevate ONLY the booking builder, leaving the
+   shared lead-pages builder untouched.
    ════════════════════════════════════════════════════════════════ */
 
 .bk-preview-hint {
@@ -9,25 +14,33 @@
   align-items: center;
   gap: 8px;
   justify-content: center;
-  margin: 14px 0 4px;
-  padding: 12px;
-  border: 1px dashed rgba(44, 38, 33, 0.25);
-  border-radius: var(--mg-chip-radius);
+  margin: 16px 0 4px;
+  padding: 12px 14px;
+  /* Soft tinted pill instead of a hard dashed box — quieter, more premium. */
+  border: 1px solid color-mix(in srgb, var(--terracotta) 18%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--terracotta) 6%, transparent);
+  color: var(--stone);
   font-size: var(--mg-caption);
-  opacity: 0.75;
+  opacity: 0.92;
 }
+.bk-preview-hint svg { color: var(--terracotta); }
 
 /* ── Config cards (meeting types + availability) ──────────────────── */
 .bk-config-card {
   max-width: 720px;
-  margin: 16px auto 0;
-  padding: 20px 22px;
+  margin: 20px auto 0;
+  padding: 24px 26px;
   background: var(--mg-card-bg);
   -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
   border: var(--mg-card-border);
-  border-radius: var(--mg-card-radius);
-  box-shadow: var(--mg-card-shadow);
+  border-radius: 22px;
+  /* Layered shadow + faint top sheen → premium frosted card. */
+  box-shadow:
+    0 1px 2px rgba(42, 37, 32, 0.04),
+    0 10px 30px rgba(42, 37, 32, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .bk-config-head {
@@ -40,31 +53,40 @@
 .bk-config-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   margin: 0 0 2px;
   font-size: var(--mg-heading);
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
+.bk-config-title svg { color: var(--terracotta); }
 
 .bk-mini-btn,
 .bk-day-add {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
+  padding: 7px 14px;
   border: var(--mg-card-border);
-  border-radius: 12px;
+  border-radius: 999px;
   background: var(--mg-btn-secondary-bg);
   font-size: var(--mg-caption);
   font-weight: 500;
   cursor: pointer;
   color: inherit;
+  transition: background 0.14s ease, transform 0.12s ease, box-shadow 0.14s ease;
 }
 .bk-mini-btn:hover,
-.bk-day-add:hover { background: var(--mg-btn-secondary-bg-hover); }
+.bk-day-add:hover {
+  background: var(--mg-btn-secondary-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(42, 37, 32, 0.08);
+}
+.bk-mini-btn:active,
+.bk-day-add:active { transform: translateY(0); }
 
 .bk-empty-note {
-  margin: 10px 0 0;
+  margin: 12px 0 0;
   font-size: var(--mg-caption);
   opacity: 0.75;
 }
@@ -81,28 +103,34 @@
 .bk-type-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 9px;
+  margin-top: 14px;
 }
 .bk-type-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 12px;
-  border: 1px solid rgba(44, 38, 33, 0.10);
-  border-radius: 12px;
-  background: rgba(255, 252, 247, 0.4);
+  padding: 12px 14px;
+  border: 1px solid rgba(44, 38, 33, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 252, 247, 0.45);
+  transition: border-color 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
 }
-.bk-type-row.on { border-color: var(--terracotta); background: rgba(201, 123, 94, 0.06); }
+.bk-type-row:hover { background: rgba(255, 252, 247, 0.7); }
+.bk-type-row.on {
+  border-color: color-mix(in srgb, var(--terracotta) 55%, transparent);
+  background: color-mix(in srgb, var(--terracotta) 7%, rgba(255, 252, 247, 0.6));
+  box-shadow: 0 2px 12px rgba(201, 123, 94, 0.1);
+}
 .bk-type-pick {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   cursor: pointer;
   flex: 1;
 }
-.bk-type-pick input { width: 17px; height: 17px; accent-color: var(--terracotta); }
+.bk-type-pick input { width: 18px; height: 18px; accent-color: var(--terracotta); }
 .bk-type-name { font-size: var(--mg-body); font-weight: 500; }
 .bk-type-dur {
   display: flex;
@@ -111,15 +139,16 @@
   opacity: 0.85;
 }
 .bk-dur-input {
-  width: 58px;
-  padding: 5px 8px;
-  border: var(--mg-card-border);
-  border-radius: 10px;
+  width: 60px;
+  padding: 6px 9px;
+  border: 1px solid rgba(44, 38, 33, 0.14);
+  border-radius: 12px;
   background: var(--cream);
   font-family: var(--mg-font-num);
   font-size: var(--mg-caption);
   text-align: center;
   color: inherit;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
 }
 .bk-dur-unit { font-size: var(--mg-micro); opacity: 0.7; }
 
@@ -127,39 +156,44 @@
 .bk-settings-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
-  margin: 14px 0 18px;
+  gap: 14px;
+  margin: 16px 0 20px;
 }
 .bk-num-field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   font-size: var(--mg-caption);
   font-weight: 500;
 }
 .bk-num-field input {
-  padding: 9px 11px;
-  border: var(--mg-card-border);
-  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(44, 38, 33, 0.14);
+  border-radius: 14px;
   background: var(--cream);
   font-family: var(--mg-font-num);
   font-size: var(--mg-body);
   color: inherit;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
 }
 
 /* ── Weekly availability ──────────────────────────────────────────── */
 .bk-week {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 9px;
 }
 .bk-day {
-  padding: 10px 12px;
-  border: 1px solid rgba(44, 38, 33, 0.10);
-  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(44, 38, 33, 0.08);
+  border-radius: 16px;
   background: rgba(255, 252, 247, 0.4);
+  transition: background 0.14s ease, border-color 0.14s ease;
 }
-.bk-day.open { background: rgba(255, 252, 247, 0.6); }
+.bk-day.open {
+  background: rgba(255, 252, 247, 0.66);
+  border-color: rgba(44, 38, 33, 0.12);
+}
 .bk-day-head {
   display: flex;
   align-items: center;
@@ -171,7 +205,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 .bk-window {
   display: flex;
@@ -179,16 +213,76 @@
   gap: 8px;
 }
 .bk-window input[type="time"] {
-  padding: 7px 10px;
-  border: var(--mg-card-border);
-  border-radius: 10px;
+  padding: 8px 11px;
+  border: 1px solid rgba(44, 38, 33, 0.14);
+  border-radius: 12px;
   background: var(--cream);
   font-family: var(--mg-font-num);
   font-size: var(--mg-body);
   color: inherit;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
 }
 .bk-window-sep { opacity: 0.55; }
 
+/* ── Unified brand focus ring across every builder input ──────────── */
+.bk-dur-input:focus,
+.bk-num-field input:focus,
+.bk-window input[type="time"]:focus {
+  outline: none;
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 18%, transparent);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Scoped premium overrides — elevate ONLY the booking builder's shared
+   chrome (settings panel, canvas, top-bar buttons) without touching the
+   lead-pages builder that shares these classes.
+   ════════════════════════════════════════════════════════════════ */
+.bk-screen .lpe-settings {
+  border-radius: 22px;
+  padding: 22px 24px;
+  box-shadow:
+    0 1px 2px rgba(42, 37, 32, 0.04),
+    0 10px 30px rgba(42, 37, 32, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.bk-screen .lpe-canvas { border-radius: 26px; }
+.bk-screen .lpe-settings-btn,
+.bk-screen .lpe-topbar .lp-back-link { border-radius: 999px; }
+.bk-screen .lpe-settings-btn { padding: 8px 16px; }
+
+/* ── Management list cards — premium pass (booking screen only) ────── */
+.bk-screen .lpm-card {
+  border-radius: 22px;
+  padding: 20px 24px;
+  box-shadow:
+    0 1px 2px rgba(42, 37, 32, 0.04),
+    0 8px 24px rgba(42, 37, 32, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.bk-screen .lpm-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 4px rgba(42, 37, 32, 0.05),
+    0 14px 36px rgba(42, 37, 32, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+/* Round the action chips to match the rest of the premium booking surface. */
+.bk-screen .lpm-edit-btn,
+.bk-screen .lpm-empty-cta { border-radius: 999px; }
+.bk-screen .lpm-icon-btn { border-radius: 50%; }
+
 @media (max-width: 640px) {
   .bk-settings-grid { grid-template-columns: repeat(2, 1fr); }
+  .bk-config-card { padding: 20px 18px; border-radius: 20px; }
 }
+
+/* Dark-mode legibility for the tinted booking surfaces (rows read on glass). */
+[data-theme="dark"] .bk-type-row,
+[data-theme="dark"] .bk-day { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.1); }
+[data-theme="dark"] .bk-type-row:hover { background: rgba(255, 255, 255, 0.07); }
+[data-theme="dark"] .bk-day.open { background: rgba(255, 255, 255, 0.06); }
+[data-theme="dark"] .bk-dur-input,
+[data-theme="dark"] .bk-num-field input,
+[data-theme="dark"] .bk-window input[type="time"] { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.14); }

@@ -50,7 +50,7 @@ export default function BookingPagesScreen() {
   }
 
   return (
-    <div className="screen">
+    <div className="screen bk-screen">
       <div className="screen-top">
         <header className="screen-head">
           <div>
@@ -246,7 +246,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
   const canvasClass = `lpe-canvas lp-surface${surfaceCls ? ` ${surfaceCls}` : ''}`
 
   return (
-    <div className="screen lpe-screen">
+    <div className="screen lpe-screen bk-screen">
       <DesignToolbox content={draft.content} onChange={setContent} />
       <div className="lpe-topbar">
         <button type="button" className="lp-back-link" onClick={onBack}>

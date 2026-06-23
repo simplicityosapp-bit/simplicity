@@ -5,10 +5,10 @@
    live here.
    ════════════════════════════════════════════════════════════════ */
 
-/* ── Floating button (left edge) ──────────────────────────────────── */
+/* ── Floating button (right edge) ─────────────────────────────────── */
 .dtb-fab {
   position: fixed;
-  left: 16px;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 60;
@@ -43,10 +43,8 @@
 .dtb-fab.is-open { opacity: 0; pointer-events: none; }
 .dtb-fab-label { white-space: nowrap; letter-spacing: 0.01em; }
 
-/* Clear the 80px desktop sidebar rail. */
-@media (min-width: 768px) {
-  .dtb-fab { left: 96px; }
-}
+/* The FAB lives on the RIGHT edge, clear of the left nav rail (which expands
+   to 240px on hover); no desktop offset needed. */
 
 /* ── Scrim ────────────────────────────────────────────────────────── */
 .dtb-scrim {
@@ -63,7 +61,7 @@
   position: fixed;
   top: 0;
   bottom: 0;
-  left: 0;
+  right: 0;
   width: min(330px, 86vw);
   z-index: 61;
   display: flex;
@@ -71,19 +69,15 @@
   background: var(--modal-bg);
   -webkit-backdrop-filter: var(--bl);
   backdrop-filter: var(--bl);
-  border-inline-end: var(--mg-card-border);
-  /* Soft-rounded outer edge so the drawer reads as a premium panel, not a slab. */
-  border-radius: 0 22px 22px 0;
-  box-shadow: 8px 0 40px rgba(42, 37, 32, 0.18);
-  transform: translateX(-104%);
+  border-inline-start: var(--mg-card-border);
+  /* Soft-rounded inner edge so the drawer reads as a premium panel, not a slab. */
+  border-radius: 22px 0 0 22px;
+  box-shadow: -8px 0 40px rgba(42, 37, 32, 0.18);
+  transform: translateX(104%);
   transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
   overflow: hidden;
 }
 .dtb-panel.open { transform: translateX(0); }
-/* Start after the desktop rail so it doesn't sit under the nav. */
-@media (min-width: 768px) {
-  .dtb-panel { left: 80px; }
-}
 
 .dtb-head {
   display: flex;

@@ -41,6 +41,7 @@ export interface InvoiceDocInput {
   paymentMethod: PaymentMethod // only used by receipt-type docs
   customer: { name: string; email: string | null; phone: string | null }
   send: boolean // ask the provider to send the doc to the customer (only acts if contact info exists)
+  businessType?: 'exempt' | 'licensed' | null // drives VAT treatment of the price (see createDocument)
 }
 
 // Payment-method code per provider.
@@ -77,6 +78,7 @@ export interface CreditNoteInput {
   itemName: string
   customer: { name: string; email: string | null; phone: string | null }
   reason: string
+  businessType?: 'exempt' | 'licensed' | null // mirror the original document's VAT treatment
 }
 
 /* A thrown ProviderError carries a coarse `code` the HTTP layer maps to a
@@ -223,11 +225,17 @@ class GreenInvoiceProvider implements InvoiceProvider {
         country: 'IL', // morning expects an ISO-2 country on the inline client
         emails: doc.send && doc.customer.email ? [doc.customer.email] : [],
       },
-      // No row-level vatType: morning treats 0 as "auto" only at the DOCUMENT
-      // level; on an income row it's not a valid override (1/2 only), and sending
-      // it triggers errorCode 2403 ("לא נשלח או אינו נתמך"). Let the row inherit
-      // the document's vatType (same VAT result, no override).
-      income: [{ description: doc.itemName || doc.description, quantity: 1, price: doc.amount, currency: 'ILS' }],
+      // Income-row VAT (morning IncomeVatType): 1 = INCLUDED ("VAT is factored
+      // into the stated price"), 2 = EXEMPT, 0/absent = DEFAULT ("VAT added by
+      // business type"). Our `amount` is ALWAYS the gross received (like SUMIT's
+      // VATIncluded:true), so for a עוסק מורשה we must say INCLUDED — otherwise GI
+      // adds VAT on top and the document total becomes amount×1.18. Exempt has no
+      // VAT (omit → default is correct); unknown business type → leave to the GI
+      // account setting (legacy behaviour) until the user sets their type.
+      income: [{
+        description: doc.itemName || doc.description, quantity: 1, price: doc.amount, currency: 'ILS',
+        ...(doc.businessType === 'licensed' ? { vatType: 1 } : {}),
+      }],
     }
     if (isReceipt) {
       // morning requires a `date` on each payment line for receipt-type docs
@@ -277,7 +285,12 @@ class GreenInvoiceProvider implements InvoiceProvider {
       currency: 'ILS',
       vatType: 0,
       client: { name: input.customer.name, country: 'IL' }, // match createDocument's inline client
-      income: [{ description: input.itemName || input.description || 'זיכוי', quantity: 1, price: input.amount, currency: 'ILS' }], // no row-level vatType (see createDocument)
+      // Match the original document's VAT treatment (see createDocument): a
+      // licensed business's amount is gross/VAT-included, so the credit must be too.
+      income: [{
+        description: input.itemName || input.description || 'זיכוי', quantity: 1, price: input.amount, currency: 'ILS',
+        ...(input.businessType === 'licensed' ? { vatType: 1 } : {}),
+      }],
       linkedDocumentIds: [input.originalExternalId],
       linkType: 'cancel',
     }

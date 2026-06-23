@@ -314,7 +314,12 @@
   .app[data-screen="connections"] .screen > *,
   .app[data-screen="trash"] .screen > *,
   .app[data-screen="moon"] .screen > *,
-  .app[data-screen="goals"] .screen > * {
+  .app[data-screen="goals"] .screen > *,
+  /* lead/booking builders are form-like editors → narrow tier, so their
+     top-level blocks (top-bar, settings, canvas, config cards) cap + centre
+     uniformly on desktop instead of sprawling full-width. */
+  .app[data-screen="leadPages"] .screen > *,
+  .app[data-screen="bookingPages"] .screen > * {
     max-width: var(--mg-content-narrow);
     margin-inline: auto;
   }

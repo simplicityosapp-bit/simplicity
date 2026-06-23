@@ -257,6 +257,7 @@ Deno.serve(async (req) => {
             paymentMethod: ['cash', 'bank_transfer', 'credit_card', 'app', 'other'].includes(body.payment_method) ? body.payment_method : 'other',
             customer: { name: client.name, email: client.email, phone: client.phone },
             send: true, // auto-send; the provider only acts if the customer has contact info
+            businessType: integ.business_type ?? null, // licensed → price is VAT-inclusive
           },
         )
       } catch (e) {
@@ -321,6 +322,7 @@ Deno.serve(async (req) => {
             itemName: tx.desc || `זיכוי — ${client?.name ?? ''}`.trim(),
             customer: { name: client?.name ?? '', email: client?.email ?? null, phone: client?.phone ?? null },
             reason: (body.reason ?? '').toString().trim() || 'ביטול / זיכוי',
+            businessType: integ.business_type ?? null, // mirror the issued doc's VAT treatment
           },
         )
       } catch (e) {

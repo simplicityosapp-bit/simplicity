@@ -6,6 +6,7 @@ import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useSessions } from '../../hooks/useSessions'
 import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetingsGeneration'
+import { confirmScheduledMeeting, skipScheduledMeeting } from '../../lib/scheduledMeetings'
 import { useCalendarDuplicates } from '../../hooks/useCalendarDuplicates'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
 import { useBookings } from '../../hooks/useBookings'
@@ -41,7 +42,7 @@ export default function CalendarScreen() {
   const { t } = useT('calendar')
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
-  const { sessions, addSession } = useSessions()
+  const { sessions, addSession, removeSession } = useSessions()
   const { events: calendarEvents, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
   const { bookings, cancel: cancelBookingFn } = useBookings()
   const { pages: bookingPages } = useBookingPages()
@@ -226,8 +227,18 @@ export default function CalendarScreen() {
 
   /* Event action handlers — passed into EventDetailsModal so it
      stays purely declarative. */
-  const confirmMeeting = (ev) => updateMeeting(ev.id, { status: 'confirmed' }).catch(() => {})
-  const skipMeeting = (ev) => updateMeeting(ev.id, { status: 'skipped' }).catch(() => {})
+  /* "Did it happen? → yes" mirrors the home review widget: materialise + link a
+     session so the meeting lands on the client/group card and counts toward
+     sessions. Per-session clients are the exception — they log their session
+     through the one-off charge prompt (billSession) below, so auto-materialising
+     here too would double-count; for them we just flip the status. */
+  const confirmMeeting = (ev) => {
+    const m = ev.raw
+    const c = m?.subject_type === 'client' ? clients.find((x) => x.id === m.subject_id) : null
+    if (c?.billing_mode === 'per_session') return updateMeeting(m.id, { status: 'confirmed' }).catch(() => {})
+    return confirmScheduledMeeting({ meeting: m, sessions, addSession, updateMeeting })
+  }
+  const skipMeeting = (ev) => skipScheduledMeeting({ meeting: ev.raw, updateMeeting, removeSession })
 
   /* "Did the meeting happen?" for a per-session client → offer a one-off charge.
      Billing a per-session client = logging the meeting as a held session

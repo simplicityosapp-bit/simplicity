@@ -46,8 +46,8 @@
   max-width: calc(100vw - 24px);
   box-sizing: border-box;
   background: var(--modal-bg);
-  backdrop-filter: var(--bl);
   -webkit-backdrop-filter: var(--bl);
+  backdrop-filter: var(--bl);
   border: var(--mg-card-border);
   border-radius: var(--rm);
   box-shadow: var(--elev-3);

@@ -30,8 +30,8 @@
   gap: 14px;
   padding: 16px 20px;
   background: var(--mg-card-bg);
-  backdrop-filter: var(--mg-card-blur);
   -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
   border: var(--mg-card-border);
   border-radius: var(--mg-card-radius);
   box-shadow: var(--mg-card-shadow);

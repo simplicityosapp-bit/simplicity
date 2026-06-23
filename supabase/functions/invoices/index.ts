@@ -62,6 +62,9 @@ const statusOf = (row: any) =>
     ? {
         connected: true, provider: row.provider, environment: row.environment,
         connected_at: row.created_at, auto_import: !!row.auto_import,
+        // Invoice business type (עוסק פטור 'exempt' / עוסק מורשה 'licensed' / null
+        // = not set) — drives the doc-type picker. Migration 0053.
+        business_type: row.business_type ?? null,
         // Durable "credentials rejected" marker (migration 0038) — drives the
         // UI's reconnect prompt. Cleared on any successful call / reconnect.
         credentials_invalid: !!row.credentials_invalid_at,
@@ -115,6 +118,9 @@ Deno.serve(async (req) => {
 
       // One invoice provider per user: clear any prior invoice row first so
       // switching greeninvoice↔sumit never leaves a stale connection behind.
+      // Carry over the business type (it describes the user's business, not the
+      // provider) so a reconnect doesn't lose it.
+      const prior = await loadInvoiceIntegration(userId)
       await admin.from('user_integrations').delete().eq('user_id', userId).in('provider', INVOICE_PROVIDERS)
       const { data: row, error } = await admin.from('user_integrations').insert({
         user_id: userId,
@@ -122,6 +128,7 @@ Deno.serve(async (req) => {
         api_key,
         api_secret,
         environment,
+        business_type: prior?.business_type ?? null,
         // Income import is ON by default — incoming docs stage in "ייבוא ממתין"
         // for the user's approval (they can turn it off on the card).
         auto_import: true,
@@ -181,6 +188,16 @@ Deno.serve(async (req) => {
       return json({ status: statusOf(updated) })
     }
 
+    if (action === 'set-business-type') {
+      const value = String(body.value ?? '')
+      if (value !== 'exempt' && value !== 'licensed') return json({ error: 'bad_business_type' }, 400)
+      const row = await loadInvoiceIntegration(userId)
+      if (!row) return json({ error: 'not_connected' }, 400)
+      const { data: updated } = await admin.from('user_integrations')
+        .update({ business_type: value }).eq('id', row.id).select('*').maybeSingle()
+      return json({ status: statusOf(updated) })
+    }
+
     if (action === 'issue') {
       const transaction_id = String(body.transaction_id ?? '')
       const doc_type = String(body.doc_type ?? '')
@@ -189,6 +206,12 @@ Deno.serve(async (req) => {
 
       const integ = await loadInvoiceIntegration(userId)
       if (!integ) return json({ error: 'not_connected' }, 400)
+
+      // A VAT-exempt business (עוסק פטור) can only issue a receipt — a tax invoice
+      // / חשבונית מס/קבלה is rejected by the provider (GI errorCode 2403). Block it
+      // here so the UI shows the clear "pick קבלה" message without a provider round
+      // trip (the picker also filters to receipt-only when business_type=exempt).
+      if (integ.business_type === 'exempt' && doc_type !== 'receipt') return json({ error: 'doctype_for_business' }, 400)
 
       // Load the transaction — scoped to the caller (defence in depth atop RLS).
       const { data: tx } = await admin.from('transactions')

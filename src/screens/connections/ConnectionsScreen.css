@@ -498,6 +498,13 @@
   color: var(--stone);
 }
 
+/* Business-type setting — separated from the auto-import block, with the
+   confirm button only appearing once the selection changes. */
+.conn-biztype { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--mg-hairline, rgba(0, 0, 0, 0.07)); }
+.conn-biztype .conn-pills { margin-top: 8px; }
+.conn-biztype-unset { color: var(--terracotta); }
+.conn-biztype-save { margin-top: 10px; }
+
 /* Spinner glyph on connect/test/disconnect buttons while an action runs. */
 .conn-spin { animation: conn-spin 1s linear infinite; }
 @keyframes conn-spin { to { transform: rotate(360deg); } }

@@ -54,6 +54,17 @@ export default function InvoiceCard() {
   const [busyAction, setBusyAction] = useState(null) // 'connect' | 'test' | 'disconnect'
   const [confirmDisc, setConfirmDisc] = useState(false)
   const discTimer = useRef(0)
+  /* Business type (עוסק פטור / מורשה) — picked locally; only WRITTEN on an explicit
+     confirm so it never changes by accident. `pendingBiz` tracks the selection,
+     synced to the saved value during render (no effect) so it resets after a save
+     and once the status first loads. */
+  const [bizBusy, setBizBusy] = useState(false)
+  const [pendingBiz, setPendingBiz] = useState(status?.business_type ?? null)
+  const [bizSynced, setBizSynced] = useState(status?.business_type ?? null)
+  if ((status?.business_type ?? null) !== bizSynced) {
+    setBizSynced(status?.business_type ?? null)
+    setPendingBiz(status?.business_type ?? null)
+  }
   /* Clear the 2-step-confirm auto-disarm timer if we unmount mid-confirm. */
   useEffect(() => () => window.clearTimeout(discTimer.current), [])
 
@@ -122,6 +133,22 @@ export default function InvoiceCard() {
       setOkMsg(value ? t('invoiceCard.autoImportOn') : t('invoiceCard.autoImportOff'))
     } catch (e) {
       setLocalErr(errMsg(e.message, t))
+    }
+  }
+
+  /* Save the business type — only when it actually changed (the confirm button
+     is shown only then), so an accidental tap can't rewrite it. */
+  const bizDirty = !!pendingBiz && pendingBiz !== (status?.business_type ?? null)
+  const onSaveBiz = async () => {
+    if (!bizDirty) return
+    setLocalErr(''); setOkMsg(''); setBizBusy(true)
+    try {
+      await inv.setBusinessType(pendingBiz)
+      setOkMsg(t('invoiceCard.businessType.saved'))
+    } catch (e) {
+      setLocalErr(errMsg(e.message, t))
+    } finally {
+      setBizBusy(false)
     }
   }
 
@@ -236,6 +263,37 @@ export default function InvoiceCard() {
             <span>{t('invoiceCard.autoImportLabel')}</span>
           </label>
           <p className="conn-autoimport-note">{t('invoiceCard.autoImportNote')}</p>
+
+          {/* Business type — drives which document types the issue picker offers.
+              Editable any time; a change is committed only on the confirm button. */}
+          <div className="conn-biztype">
+            <span className="conn-field-lbl">{t('invoiceCard.businessType.label')}</span>
+            <p className="conn-autoimport-note">{t('invoiceCard.businessType.note')}</p>
+            <div className="conn-pills" role="group" aria-label={t('invoiceCard.businessType.label')}>
+              {['exempt', 'licensed'].map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  className={`conn-type-pill${pendingBiz === v ? ' on' : ''}`}
+                  aria-pressed={pendingBiz === v}
+                  disabled={bizBusy || inv.busy}
+                  onClick={() => setPendingBiz(v)}
+                >
+                  {t(`invoiceCard.businessType.${v}`)}
+                </button>
+              ))}
+            </div>
+            {!status?.business_type && !bizDirty && (
+              <p className="conn-autoimport-note conn-biztype-unset">{t('invoiceCard.businessType.unsetHint')}</p>
+            )}
+            {bizDirty && (
+              <button type="button" className="conn-btn primary conn-biztype-save" disabled={bizBusy} aria-busy={bizBusy} onClick={onSaveBiz}>
+                {bizBusy
+                  ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> {t('invoiceCard.businessType.saving')}</>
+                  : t('invoiceCard.businessType.confirm')}
+              </button>
+            )}
+          </div>
         </>
       )}
 

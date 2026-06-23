@@ -169,7 +169,17 @@
     "autoImportLabel": "Import income automatically?",
     "autoImportNote": "We'll spot the income you've entered in your receipts software — and ask whether to record it here too.",
     "autoImportOn": "Income import turned on.",
-    "autoImportOff": "Income import turned off."
+    "autoImportOff": "Income import turned off.",
+    "businessType": {
+      "label": "Your business type",
+      "note": "Determines which documents you can issue: a VAT-exempt business issues receipts only; a licensed dealer can also issue tax invoices. You can change this any time.",
+      "exempt": "VAT-exempt (עוסק פטור)",
+      "licensed": "Licensed dealer (עוסק מורשה)",
+      "unsetHint": "Choose your business type so we offer the right document types.",
+      "confirm": "Confirm business type",
+      "saving": "Saving…",
+      "saved": "Business type saved."
+    }
   },
   "actions": {
     "err": {

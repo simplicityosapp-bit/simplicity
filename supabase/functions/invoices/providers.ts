@@ -232,7 +232,12 @@ class GreenInvoiceProvider implements InvoiceProvider {
     if (isReceipt) {
       // morning requires a `date` on each payment line for receipt-type docs
       // (305 has none; 320/400/405 do) — issued now, so today.
-      body.payment = [{ date: todayISO(), type: GI_PAYMENT[doc.paymentMethod] ?? GI_PAYMENT.other, price: doc.amount, currency: 'ILS' }]
+      const payment: Record<string, unknown> = { date: todayISO(), type: GI_PAYMENT[doc.paymentMethod] ?? GI_PAYMENT.other, price: doc.amount, currency: 'ILS' }
+      // payment-app (type 10) additionally REQUIRES appType (1=Bit, 2=Pepper,
+      // 3=PayBox) or morning rejects with errorCode 2438. The UI bundles the apps
+      // into one option, so default to Bit (the most common); split per-app later.
+      if (doc.paymentMethod === 'app') payment.appType = 1
+      body.payment = [payment]
     }
     let res: Response
     try {

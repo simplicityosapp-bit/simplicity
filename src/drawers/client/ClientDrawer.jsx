@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { X, Pencil, Trash2, Check, CalendarPlus, Banknote, ChevronDown } from 'lucide-react'
 import { clientBalance, effectiveClientMeta, isGroupDriven } from '../../lib/clients'
+import { usePaymentPlans } from '../../hooks/usePaymentPlans'
+import { planInstallments, planBalance } from '../../lib/paymentPlans'
 import MG from '../../components/MG'
 import { isr } from '../../lib/finance'
 import ClientDrawerSections from './ClientDrawerSections'
@@ -75,6 +77,13 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
       redo: async () => { await onUpdateClient?.(client.id, next) },
     })
   }
+
+  /* Active payment plan (if any) — surfaced as a hint in the billing hero so
+     the plan's remaining and the client's balance read as ONE system, not two
+     competing numbers. */
+  const { plans, installments } = usePaymentPlans()
+  const clientPlan = client ? (plans.find((p) => p.client_id === client.id) || null) : null
+  const planBal = clientPlan ? planBalance(clientPlan, planInstallments(clientPlan.id, installments)) : null
 
   const meta = client ? effectiveClientMeta(client, members, groups) : null
   const groupDriven = isGroupDriven(client, members)
@@ -184,6 +193,12 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                  balance after each logged meeting is self-explanatory. */}
               {balance.perSession && (
                 <p className="cd-billmode">{t('drawer.perSessionNote', { price: isr(client.price_per_session || 0) })}</p>
+              )}
+
+              {/* Payment-plan hint — links the hero balance to the plan so the
+                  two don't read as separate "balances". */}
+              {clientPlan && planBal && (
+                <p className="cd-plan-hint">{t('drawer.planHint', { received: planBal.receivedCount, total: planBal.count, remaining: isr(planBal.remaining) })}</p>
               )}
 
               {/* Group sessions — read-only breakdown, one row per group.

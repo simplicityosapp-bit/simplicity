@@ -90,6 +90,7 @@
     "paid": "Paid",
     "balance": "Balance",
     "perSessionNote": "Billed per session · {{price}} per session",
+    "planHint": "Payment plan · {{received}}/{{total}} paid · {{remaining}} left",
     "groupSessions": "Sessions · {{name}}",
     "groupEnded": " (ended)",
     "logSession": "Log session",
@@ -160,6 +161,8 @@
     "startLabel": "First payment",
     "create": "Create plan",
     "createNote": "Each received installment is recorded as income automatically.",
+    "previewEven": "{{count}} payments × {{amount}}",
+    "previewUneven": "{{count}} payments × {{amount}} (last {{last}})",
     "cancel": "Cancel"
   },
   "form": {

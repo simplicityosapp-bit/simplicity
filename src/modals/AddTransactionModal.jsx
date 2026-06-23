@@ -4,7 +4,7 @@ import Modal from './Modal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
-import { PAY_METHODS, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '../lib/invoiceDocs'
+import { PAY_METHODS, payMethodLabel, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '../lib/invoiceDocs'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
    Israeli evenings, flipping a same-day tx to pending. */
@@ -253,10 +253,17 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                       <button key={d.key} type="button" className={`m-pill${issueDocType === d.key ? ' on' : ''}`} onClick={() => setIssueDocType(d.key)}>{d.label}</button>
                     ))}
                   </div>
+                  {/* Receipt payment method: the transaction's own אמצעי תשלום
+                      drives the receipt when set (no duplicate picker); only
+                      ask here when the transaction left it blank. */}
                   {isReceiptType(issueDocType) && (
-                    <select className="m-select" value={issuePayment} onChange={(e) => setIssuePayment(e.target.value)} aria-label={t('tx.paymentMethodAria')}>
-                      {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
-                    </select>
+                    form.payment_method ? (
+                      <p className="m-hint">{t('tx.receiptUsesMethod', { method: payMethodLabel(form.payment_method) })}</p>
+                    ) : (
+                      <select className="m-select" value={issuePayment} onChange={(e) => setIssuePayment(e.target.value)} aria-label={t('tx.paymentMethodAria')}>
+                        {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+                      </select>
+                    )
                   )}
                 </div>
               )}

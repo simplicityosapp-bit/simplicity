@@ -270,6 +270,18 @@
   color: var(--amber-warn);
   white-space: nowrap;
 }
+/* "Plan: N installments" — a payment plan will be built for this client on
+   import. A calm sage info chip (not a warning). */
+.obrw-plan-note {
+  font-size: calc(10.5px * var(--text-scale));
+  font-weight: 500;
+  color: var(--sage);
+  background: color-mix(in srgb, var(--sage) 10%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--sage) 24%, transparent);
+  padding: 1px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
 /* Recurring (rate-table) transactions repeat monthly — shown as a chip
    instead of a one-off date field. */
 .obrw-recurring {

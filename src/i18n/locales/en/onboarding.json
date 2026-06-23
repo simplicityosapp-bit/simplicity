@@ -70,7 +70,8 @@
       "priceTitle": "Price per session",
       "missingName": "Name missing",
       "statusUnsure": "We weren't sure about the status — worth a quick check",
-      "projectOrphan": "This project won't be created"
+      "projectOrphan": "This project won't be created",
+      "planBadge": "Plan: {{count}} installments"
     },
     "project": {
       "namePlaceholder": "Project name",

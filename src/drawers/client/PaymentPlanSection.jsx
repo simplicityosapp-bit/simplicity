@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { ChevronDown, Plus, Check, RotateCcw, Trash2, CreditCard } from 'lucide-react'
 import DateField from '../../components/DateField'
 import { usePaymentPlans } from '../../hooks/usePaymentPlans'
-import { planInstallments, planBalance, firstOfNextMonth } from '../../lib/paymentPlans'
+import { planInstallments, planBalance, firstOfNextMonth, generateInstallments } from '../../lib/paymentPlans'
 import { PAY_METHODS, payMethodLabel } from '../../lib/invoiceDocs'
 import { isr } from '../../lib/finance'
 import { fmtShortDate } from '../../lib/dates'
@@ -29,6 +29,22 @@ export default function PaymentPlanSection({ client }) {
   const plan = plans.find((p) => p.client_id === client.id) || null
   const rows = plan ? planInstallments(plan.id, installments) : []
   const bal = plan ? planBalance(plan, rows) : null
+
+  /* Auto-open the section ONCE when a plan is found, so a client with an
+     active plan surfaces it without a manual tap (respects later toggles). */
+  const autoOpenedRef = useRef(false)
+  useEffect(() => {
+    if (plan && !autoOpenedRef.current) { setOpen(true); autoOpenedRef.current = true }
+  }, [plan])
+
+  /* Live preview of the schedule the create form will generate, so the user
+     sees "6 × ₪600" before committing. */
+  const preview = useMemo(() => {
+    const total = parseFloat(form.total); const count = parseInt(form.count, 10)
+    if (!(total > 0) || !(count >= 1)) return null
+    const gen = generateInstallments({ total, count, startDate: form.startDate || undefined })
+    return { count, first: gen[0].amount, last: gen[gen.length - 1].amount }
+  }, [form.total, form.count, form.startDate])
 
   const submitCreate = async () => {
     const total = parseFloat(form.total)
@@ -144,6 +160,13 @@ export default function PaymentPlanSection({ client }) {
                 <span className="pp-field-l">{t('plan.startLabel')}</span>
                 <DateField value={form.startDate} onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))} />
               </label>
+              {preview && (
+                <p className="pp-preview">
+                  {isr(preview.first) === isr(preview.last)
+                    ? t('plan.previewEven', { count: preview.count, amount: isr(preview.first) })
+                    : t('plan.previewUneven', { count: preview.count, amount: isr(preview.first), last: isr(preview.last) })}
+                </p>
+              )}
               <button type="button" className="pp-btn primary pp-create-go" disabled={busy || !(parseFloat(form.total) > 0)} onClick={submitCreate}>
                 <Plus size={14} strokeWidth={2} aria-hidden="true" /> {t('plan.create')}
               </button>

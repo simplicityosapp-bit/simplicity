@@ -40,6 +40,7 @@
     "paymentMethodAria": "אמצעי תשלום",
     "paymentMethod": "אמצעי תשלום",
     "paymentMethodNone": "לא צוין",
+    "receiptUsesMethod": "הקבלה תופק עם אמצעי התשלום שנבחר: {{method}}",
     "saved": "התנועה נשמרה",
     "savedAndIssued": "התנועה נשמרה והופקה {{doc}}{{num}}",
     "numPrefix": " מס׳ {{num}}",

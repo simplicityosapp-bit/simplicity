@@ -96,6 +96,7 @@
     "paid": "שולם",
     "balance": "יתרה",
     "perSessionNote": "חיוב לפי פגישה · {{price}} לפגישה",
+    "planHint": "פריסת תשלומים · {{received}}/{{total}} שולמו · נותר {{remaining}}",
     "groupSessions": "פגישות · {{name}}",
     "groupEnded": " (הסתיימה)",
     "logSession": "תיעוד פגישה",
@@ -166,6 +167,8 @@
     "startLabel": "תשלום ראשון",
     "create": "צור פריסה",
     "createNote": "כל תשלום שיתקבל יירשם אוטומטית כהכנסה.",
+    "previewEven": "{{count}} תשלומים × {{amount}}",
+    "previewUneven": "{{count}} תשלומים × {{amount}} (אחרון {{last}})",
     "cancel": "ביטול"
   },
   "form": {

@@ -10,12 +10,14 @@ export const DOC_TYPES = [
   { key: 'invoice', label: 'חשבונית מס' },
 ]
 
-/* Payment methods (shown for receipt-type docs). Map to provider codes server-side. */
+/* Payment methods (shown for receipt-type docs). Map to provider codes server-side.
+   NOTE: 'cheque' is intentionally NOT offered — Green Invoice requires the cheque
+   number + bank (name/branch/account) on the receipt, which we don't collect, so a
+   cheque receipt can't be issued correctly. Coaches paid by cheque pick "אחר". */
 export const PAY_METHODS = [
   { key: 'bank_transfer', label: 'העברה בנקאית' },
   { key: 'cash', label: 'מזומן' },
   { key: 'credit_card', label: 'כרטיס אשראי' },
-  { key: 'cheque', label: 'צ׳ק' },
   { key: 'app', label: 'אפליקציה (ביט/פייבוקס)' },
   { key: 'other', label: 'אחר' },
 ]

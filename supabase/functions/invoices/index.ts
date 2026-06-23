@@ -183,8 +183,9 @@ Deno.serve(async (req) => {
     if (action === 'set-auto-import') {
       const row = await loadInvoiceIntegration(userId)
       if (!row) return json({ error: 'not_connected' }, 400)
-      const { data: updated } = await admin.from('user_integrations')
+      const { data: updated, error: updErr } = await admin.from('user_integrations')
         .update({ auto_import: !!body.value }).eq('id', row.id).select('*').maybeSingle()
+      if (updErr || !updated) throw updErr ?? new Error('auto_import update failed')
       return json({ status: statusOf(updated) })
     }
 
@@ -193,8 +194,11 @@ Deno.serve(async (req) => {
       if (value !== 'exempt' && value !== 'licensed') return json({ error: 'bad_business_type' }, 400)
       const row = await loadInvoiceIntegration(userId)
       if (!row) return json({ error: 'not_connected' }, 400)
-      const { data: updated } = await admin.from('user_integrations')
+      const { data: updated, error: updErr } = await admin.from('user_integrations')
         .update({ business_type: value }).eq('id', row.id).select('*').maybeSingle()
+      // Surface a real failure instead of statusOf(undefined) → a misleading
+      // "disconnected" status (e.g. if the column/migration were missing).
+      if (updErr || !updated) throw updErr ?? new Error('business_type update failed')
       return json({ status: statusOf(updated) })
     }
 
@@ -248,7 +252,9 @@ Deno.serve(async (req) => {
             description: tx.desc || `תשלום — ${client.name}`,
             itemName: (body.item_name ?? '').toString().trim() || tx.desc || `תשלום — ${client.name}`,
             itemId: body.item_id ? String(body.item_id) : null,
-            paymentMethod: ['cash', 'bank_transfer', 'credit_card', 'cheque', 'app', 'other'].includes(body.payment_method) ? body.payment_method : 'other',
+            // 'cheque' intentionally excluded (removed from the UI; GI hard-requires
+            // cheque/bank details we don't collect) — a stray value degrades to 'other'.
+            paymentMethod: ['cash', 'bank_transfer', 'credit_card', 'app', 'other'].includes(body.payment_method) ? body.payment_method : 'other',
             customer: { name: client.name, email: client.email, phone: client.phone },
             send: true, // auto-send; the provider only acts if the customer has contact info
           },
@@ -318,9 +324,11 @@ Deno.serve(async (req) => {
           },
         )
       } catch (e) {
-        // Release the claim so a retry is possible (no credit document recorded).
+        // Release the claim so a retry is possible — but ONLY while no credit
+        // document was recorded (parity with issue()'s guarded release), so we
+        // never reopen a claim once a real credit note exists.
         await admin.from('transactions').update({ invoice_credited_at: null })
-          .eq('id', transaction_id).eq('user_id', userId)
+          .eq('id', transaction_id).eq('user_id', userId).is('invoice_credit_document_id', null)
         if (e instanceof ProviderError && e.code === 'invalid_credentials') await setCredsInvalid(integ.id, true, integ.credentials_invalid_at)
         throw e
       }

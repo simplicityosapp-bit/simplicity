@@ -254,7 +254,6 @@ export async function finalizeOnboardingImport(input = {}) {
             let transaction_id = null; let received_date = null
             if (i < covered) {
               const txDate = c.pay_date || estimatedDate
-              // eslint-disable-next-line no-await-in-loop
               const tx = await insertTransaction({
                 amount: Math.abs(g.amount), type: 'income', desc: `תשלום ${g.num}/${nInst} — ${c.name}`,
                 date: txDate, status: 'confirmed', project_id, client_id: row.id,

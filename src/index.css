@@ -354,18 +354,11 @@ textarea:focus-visible,
 .app[data-screen="finance"]  { background: var(--bg-finance); }
 .app[data-screen="tasks"]    { background: var(--bg-tasks); }
 .app[data-screen="leads"]    { background: var(--bg-leads); }
-/* lead-pages + booking-pages use the per-screen photo on .app::before like
-   every screen, but their cards are wide and sit over a busy part of the photo
-   where the default 30% cream washes out. Lift the card opacity to the SAME
-   cream value the reduced background modes use (--mg-card-bg 0.55 / dark 0.70)
-   — a documented solid-card value, not an invented one — so the cards read
-   solid like the header regardless of what's behind them. */
+/* lead-pages + booking-pages render exactly like every other screen: the
+   per-screen photo on .app::before plus the default cream card glass
+   (--mg-card-bg + --mg-card-blur from tokens). No bespoke opacity override. */
 .app[data-screen="leadPages"]{ background: var(--bg-home); }
 .app[data-screen="bookingPages"]{ background: var(--bg-home); }
-.app[data-screen="leadPages"],
-.app[data-screen="bookingPages"] { --mg-card-bg: rgba(255, 252, 247, 0.55); }
-[data-theme="dark"] .app[data-screen="leadPages"],
-[data-theme="dark"] .app[data-screen="bookingPages"] { --mg-card-bg: rgba(26, 31, 38, 0.70); }
 .app[data-screen="projects"] { background: var(--bg-projects); }
 .app[data-screen="goals"]    { background: var(--bg-goals); }
 .app[data-screen="moon"]     { background: var(--bg-moon); }

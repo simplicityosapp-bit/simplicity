@@ -61,9 +61,15 @@ export default function InvoiceCard() {
   const [bizBusy, setBizBusy] = useState(false)
   const [pendingBiz, setPendingBiz] = useState(status?.business_type ?? null)
   const [bizSynced, setBizSynced] = useState(status?.business_type ?? null)
-  if ((status?.business_type ?? null) !== bizSynced) {
-    setBizSynced(status?.business_type ?? null)
-    setPendingBiz(status?.business_type ?? null)
+  {
+    const serverBiz = status?.business_type ?? null
+    if (serverBiz !== bizSynced) {
+      // Adopt the server value ONLY if the user hasn't made an unsaved pick
+      // (pendingBiz still matches the last-synced value) — a background status
+      // refetch must never clobber a selection the user is about to confirm.
+      if (pendingBiz === bizSynced) setPendingBiz(serverBiz)
+      setBizSynced(serverBiz)
+    }
   }
   /* Clear the 2-step-confirm auto-disarm timer if we unmount mid-confirm. */
   useEffect(() => () => window.clearTimeout(discTimer.current), [])
@@ -122,8 +128,13 @@ export default function InvoiceCard() {
     }
     window.clearTimeout(discTimer.current); setConfirmDisc(false)
     setLocalErr(''); setOkMsg(''); setBusyAction('disconnect')
-    await inv.disconnect()
-    setBusyAction(null)
+    try {
+      await inv.disconnect()
+    } catch (e) {
+      setLocalErr(errMsg(e.message, t))
+    } finally {
+      setBusyAction(null)
+    }
   }
 
   const onToggleAutoImport = async (value) => {

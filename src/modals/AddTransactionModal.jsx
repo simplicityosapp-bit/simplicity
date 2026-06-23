@@ -4,7 +4,7 @@ import Modal from './Modal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
-import { PAY_METHODS, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType } from '../lib/invoiceDocs'
+import { PAY_METHODS, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '../lib/invoiceDocs'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
    Israeli evenings, flipping a same-day tx to pending. */
@@ -95,9 +95,12 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       })
       if (wantIssue && row?.id) {
         try {
-          const r = await inv.issueDocument(row.id, issueDocType, { itemId: null, itemName: form.desc.trim(), paymentMethod: issuePayment })
+          // Clamp to what this business may issue — the toggle's default can be
+          // stale if status loaded after it was checked (would 2403 post-save).
+          const docType = clampDocType(inv.status?.business_type, issueDocType)
+          const r = await inv.issueDocument(row.id, docType, { itemId: null, itemName: form.desc.trim(), paymentMethod: issuePayment })
           const num = r?.document?.number
-          showToast(t('tx.savedAndIssued', { doc: docTypeLabel(issueDocType), num: num ? t('tx.numPrefix', { num }) : '' }))
+          showToast(t('tx.savedAndIssued', { doc: docTypeLabel(docType), num: num ? t('tx.numPrefix', { num }) : '' }))
         } catch (e) {
           // Surface the provider's real reason (e.detail) when present, instead
           // of a bare "issue failed" — same actionable detail the per-tx flow shows.

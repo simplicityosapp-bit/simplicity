@@ -41,7 +41,11 @@ export async function callInvoices(action, params = {}) {
     let body = null
     const ctx = error.context
     if (ctx && typeof ctx.json === 'function') {
-      try { body = await ctx.json() } catch { /* not JSON — fall through */ }
+      // Clone before reading: if supabase-js (or a future version) already
+      // consumed the Response stream, a bare .json() throws "body already read"
+      // and we'd lose the real code + detail. Clone (when possible) avoids that.
+      const src = (typeof ctx.clone === 'function' && !ctx.bodyUsed) ? ctx.clone() : ctx
+      try { body = await src.json() } catch { /* not JSON / already read — fall through */ }
     } else if (ctx && typeof ctx === 'object') {
       body = ctx // some versions hand back an already-parsed body
     }

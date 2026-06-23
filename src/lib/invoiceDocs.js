@@ -34,3 +34,11 @@ export const allowedDocTypes = (businessType) =>
 
 export const defaultDocType = (businessType) =>
   businessType === 'exempt' ? 'receipt' : 'invoice_receipt'
+
+/* Clamp a chosen doc type to what the business may issue — guards against a
+   stale selection (e.g. picked before the business type loaded) reaching the
+   provider and 2403-ing AFTER the income was already saved. */
+export const clampDocType = (businessType, docType) => {
+  const allowed = allowedDocTypes(businessType).map((d) => d.key)
+  return allowed.includes(docType) ? docType : defaultDocType(businessType)
+}

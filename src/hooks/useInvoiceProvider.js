@@ -72,7 +72,7 @@ export function useInvoiceProvider() {
       setStatus(r.status)
       qc.removeQueries({ queryKey: CATALOG_KEY })
     } catch (e) {
-      setActionError(e.message)
+      setActionError(e.message); throw e // let the caller surface the failure
     } finally {
       setBusy(false)
     }

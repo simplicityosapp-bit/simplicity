@@ -6,7 +6,7 @@ import IssueGuardModal from '../modals/IssueGuardModal'
 import ConfirmModal from '../modals/ConfirmModal'
 import { isr } from '../lib/finance'
 import { showToast } from '../lib/toast'
-import { PAY_METHODS, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType } from '../lib/invoiceDocs'
+import { PAY_METHODS, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '../lib/invoiceDocs'
 import { useT } from '../i18n/useT'
 import './InvoiceActions.css'
 
@@ -217,7 +217,9 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
     setErr(''); setBusy(true)
     const selected = items.find((it) => String(it.id) === String(itemId))
     try {
-      const r = await inv.issueDocument(tx.id, docType, {
+      // Defensive clamp: if the business type changed while the picker was open,
+      // never submit a doc type the business can't issue.
+      const r = await inv.issueDocument(tx.id, clampDocType(inv.status?.business_type, docType), {
         itemId: itemId || null,
         itemName: itemId ? (selected?.name || '') : itemName.trim(),
         paymentMethod,

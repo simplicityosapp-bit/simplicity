@@ -218,7 +218,7 @@
 .lpe-settings {
   background: var(--mg-card-bg);
   border: var(--mg-card-border);
-  border-radius: 18px;
+  border-radius: var(--mg-card-radius);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
   -webkit-backdrop-filter: var(--mg-card-blur);
@@ -229,24 +229,21 @@
 .lpe-settings-row .lpb-toggle { flex: 1 1 220px; }
 .lpe-err { margin: 0 0 14px; }
 
-/* Canvas — centers the public-page card; --lp-brand makes it live. */
+/* Canvas — centers the public-page preview card. The frame itself wears the
+   EXACT same glass as every other app card (same --mg-card-* tokens as Home /
+   Clients): cream @ 30%, 24px blur, standard border + shadow + radius. No
+   bespoke opacity or gradient — the photo on .app::before frosts through
+   identically to the rest of the app. */
 .lpe-canvas {
   display: flex;
   justify-content: center;
   padding: 24px 12px 32px;
-  border-radius: 24px;
-  /* Frosted workspace tray: the white page card floats on a blurred,
-     semi-opaque surface instead of bare (unblurred) background. */
-  background:
-    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--lp-brand) 10%, transparent) 0%, transparent 70%),
-    rgba(255, 252, 247, 0.55);
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  border-radius: var(--mg-card-radius);
+  box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
   -webkit-backdrop-filter: var(--mg-card-blur);
-}
-[data-theme="dark"] .lpe-canvas {
-  background:
-    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--lp-brand) 16%, transparent) 0%, transparent 70%),
-    rgba(26, 31, 38, 0.6);
 }
 .lpe-canvas .lp-card { width: 100%; max-width: 520px; }
 

@@ -36,6 +36,8 @@
     "issueNeedsClient": "Link a client to the transaction to issue a receipt on save.",
     "issueFutureBlocked": "A future transaction can't be issued yet — you can issue it once it comes in.",
     "paymentMethodAria": "Payment method",
+    "paymentMethod": "Payment method",
+    "paymentMethodNone": "Not specified",
     "saved": "Transaction saved",
     "savedAndIssued": "Transaction saved and {{doc}} issued{{num}}",
     "numPrefix": " no. {{num}}",

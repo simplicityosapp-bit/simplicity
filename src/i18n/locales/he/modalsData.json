@@ -38,6 +38,8 @@
     "issueNeedsClient": "שייכו לקוח לתנועה כדי להפיק קבלה עם השמירה.",
     "issueFutureBlocked": "לתנועה עתידית אי-אפשר להפיק קבלה כעת — אפשר להפיק כשתתקבל.",
     "paymentMethodAria": "אמצעי תשלום",
+    "paymentMethod": "אמצעי תשלום",
+    "paymentMethodNone": "לא צוין",
     "saved": "התנועה נשמרה",
     "savedAndIssued": "התנועה נשמרה והופקה {{doc}}{{num}}",
     "numPrefix": " מס׳ {{num}}",

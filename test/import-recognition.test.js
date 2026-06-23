@@ -11,6 +11,7 @@ import * as st from '../src/lib/statusImport'
 import * as pv from '../src/lib/pivotImport'
 import * as sm from '../src/lib/sheetMapper'
 import { buildReviewFromSheets } from '../src/lib/importFlow'
+import { parsePayMethod } from '../src/lib/invoiceDocs'
 
 /* header→field for the flat path (blank value isolates header mapping). */
 const flatField = (h) => csv.buildParsedFromRows([[h], ['']], 'p.csv').mapping[0] || null
@@ -214,5 +215,86 @@ describe('clients entity: real per-session price column', () => {
     ])
     const { clients } = sm.projectSheet(sheet)
     expect(clients[0].price_per_session).toBe(350)
+  })
+})
+
+describe('payment method: free-text → PAY_METHODS key (import-safe)', () => {
+  const cases = {
+    'מזומן': 'cash', 'cash': 'cash',
+    'העברה': 'bank_transfer', 'העברה בנקאית': 'bank_transfer', 'Bank Transfer': 'bank_transfer',
+    'אשראי': 'credit_card', 'כרטיס אשראי': 'credit_card', 'Visa': 'credit_card',
+    'ביט': 'app', 'bit': 'app', 'פייבוקס': 'app', 'אפליקציה': 'app',
+  }
+  for (const [raw, want] of Object.entries(cases)) {
+    it(`"${raw}" → ${want}`, () => expect(parsePayMethod(raw)).toBe(want))
+  }
+  it('unrecognized non-empty → other (never violates the DB CHECK)', () => expect(parsePayMethod("צ'ק")).toBe('other'))
+  it('empty → null (not set)', () => { expect(parsePayMethod('')).toBe(null); expect(parsePayMethod(null)).toBe(null) })
+})
+
+describe('single sheet → clients + enriched payment (#3)', () => {
+  it('a clients sheet recognizes payment method + date columns', () => {
+    const sheet = sm.buildSheetMapping('all.xlsx', 'לקוחות', [
+      ['שם', 'שולם', 'אמצעי תשלום', 'תאריך תשלום'],
+      ['דנה', '1200', 'העברה בנקאית', '2026-03-01'],
+    ])
+    expect(sheet.type).toBe('clients')
+    expect(sheet.mapping[sheet.headers.indexOf('אמצעי תשלום')]).toBe('payment_method')
+    expect(sheet.mapping[sheet.headers.indexOf('תאריך תשלום')]).toBe('payment_date')
+    const { clients } = sm.projectSheet(sheet)
+    expect(clients[0].paid).toBe(1200)
+    expect(clients[0].pay_method).toBe('bank_transfer') /* mapped to a key, not raw text */
+    expect(clients[0].pay_date).toBe('2026-03-01')
+  })
+  it('a transactions sheet carries the payment method as a key', () => {
+    const sheet = sm.buildSheetMapping('inc.xlsx', 'תשלומים', [
+      ['תאריך', 'סכום', 'אמצעי תשלום'],
+      ['2026-03-01', '500', 'מזומן'],
+    ])
+    expect(sheet.type).toBe('transactions')
+    const { transactions } = sm.projectSheet(sheet)
+    expect(transactions[0].amount).toBe(500)
+    expect(transactions[0].payment_method).toBe('cash')
+  })
+})
+
+describe('recognition wizard summary (sheetRecognitionInfo)', () => {
+  it('a clients sheet with payment columns reads as "includes payments" + method', () => {
+    const sheet = sm.buildSheetMapping('all.xlsx', 'לקוחות', [
+      ['שם', 'שולם', 'אמצעי תשלום', 'תאריך תשלום'],
+      ['דנה', '1200', 'מזומן', '2026-03-01'],
+    ])
+    const info = sm.sheetRecognitionInfo(sheet)
+    expect(info.yieldCount).toBe(1)
+    expect(info.empty).toBe(false)
+    expect(info.hasPayments).toBe(true)
+    expect(info.hasMethod).toBe(true)
+  })
+  it('a name-only clients sheet has no payment signals', () => {
+    const sheet = sm.buildSheetMapping('c.xlsx', 'לקוחות', [['שם'], ['דנה']])
+    const info = sm.sheetRecognitionInfo(sheet)
+    expect(info.hasPayments).toBe(false)
+    expect(info.hasMethod).toBe(false)
+    expect(info.empty).toBe(false)
+  })
+  it('flags a sheet that yields nothing as empty (wrong type)', () => {
+    const sheet = sm.buildSheetMapping('e.xlsx', 'לקוחות', [['שם', 'שולם'], ['', '100']])
+    const info = sm.sheetRecognitionInfo(sheet)
+    expect(info.yieldCount).toBe(0)
+    expect(info.empty).toBe(true)
+  })
+})
+
+describe('clients sheet: number-of-installments column (#2b import)', () => {
+  it('recognizes "מספר תשלומים" and projects it onto the client', () => {
+    const sheet = sm.buildSheetMapping('p.xlsx', 'לקוחות', [
+      ['שם', 'סה״כ לתשלום', 'מספר תשלומים'],
+      ['דנה', '3600', '6'],
+    ])
+    expect(sheet.type).toBe('clients')
+    expect(sheet.mapping[sheet.headers.indexOf('מספר תשלומים')]).toBe('num_installments')
+    const { clients } = sm.projectSheet(sheet)
+    expect(clients[0].num_installments).toBe(6)
+    expect(clients[0].total_due).toBe(3600)
   })
 })

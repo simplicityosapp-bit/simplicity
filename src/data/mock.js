@@ -102,7 +102,7 @@ export const recurring_templates = [
 
 /* ── transactions — confirmed income / pending income / confirmed expense / skipped ── */
 export const transactions = [
-  { id: uid(), user_id: USER, amount: 380, type: 'income', desc: 'פגישה — רעות', date: dateAgo(3), created_at: daysAgo(3), status: 'confirmed', project_id: projects[0].id, client_id: clients[0].id, category_id: categories[0].id, recurring_id: null, orphaned_from: null },
+  { id: uid(), user_id: USER, amount: 380, type: 'income', desc: 'פגישה — רעות', date: dateAgo(3), created_at: daysAgo(3), status: 'confirmed', project_id: projects[0].id, client_id: clients[0].id, category_id: categories[0].id, payment_method: 'bank_transfer', recurring_id: null, orphaned_from: null },
   { id: uid(), user_id: USER, amount: 380, type: 'income', desc: 'מנוי חודשי — ממתין לאישור', date: dateAgo(0), created_at: daysAgo(0), status: 'pending', project_id: projects[0].id, client_id: clients[0].id, category_id: categories[0].id, recurring_id: recurring_templates[0].id, orphaned_from: null },
   { id: uid(), user_id: USER, amount: 1200, type: 'expense', desc: 'שכירות סטודיו', date: dateAgo(15), created_at: daysAgo(15), status: 'confirmed', project_id: null, client_id: null, category_id: categories[1].id, recurring_id: null, orphaned_from: null },
   { id: uid(), user_id: USER, amount: 380, type: 'income', desc: 'מנוי שדולג', date: dateAgo(33), created_at: daysAgo(33), status: 'skipped', project_id: projects[0].id, client_id: clients[1].id, category_id: categories[0].id, recurring_id: recurring_templates[0].id, orphaned_from: null },
@@ -249,6 +249,25 @@ export const lead_pages = [
   },
 ]
 
+/* ── payment plans — clients[0] has a 6-installment plan, 2 received ── */
+export const payment_plans = [
+  { id: uid(), user_id: USER, client_id: clients[0].id, project_id: projects[0].id, total_amount: 3600, num_installments: 6, notes: null, created_at: daysAgo(40), updated_at: daysAgo(5) },
+]
+export const payment_installments = [1, 2, 3, 4, 5, 6].map((n) => ({
+  id: uid(),
+  user_id: USER,
+  plan_id: payment_plans[0].id,
+  num: n,
+  due_date: dateAgo(60 - n * 30),
+  amount: 600,
+  received: n <= 2,
+  received_date: n <= 2 ? dateAgo((3 - n) * 30) : null,
+  payment_method: n === 1 ? 'bank_transfer' : n === 2 ? 'cash' : null,
+  transaction_id: null,
+  created_at: daysAgo(40),
+  updated_at: daysAgo(5),
+}))
+
 export const MOCK_DB = {
   pending_invoice_imports,
   lead_pages,
@@ -277,4 +296,6 @@ export const MOCK_DB = {
   quotes,
   user_quotes,
   user_preferences,
+  payment_plans,
+  payment_installments,
 }

@@ -18,6 +18,8 @@
 import { insertClient, listClients } from './api/clients'
 import { insertProject, listProjects } from './api/projects'
 import { insertTransaction, listTransactions } from './api/transactions'
+import { insertPaymentPlan, insertPaymentInstallments, listPaymentPlans } from './api/paymentPlans'
+import { generateInstallments, installmentsCoveredByPaid } from './paymentPlans'
 import { insertRecurring, listRecurring } from './api/recurring'
 import { insertClientStatus, listClientStatuses } from './api/clientStatuses'
 import { insertLeadStatus, listLeadStatuses } from './api/leadStatuses'
@@ -33,6 +35,10 @@ export async function finalizeOnboardingImport(input = {}) {
   /* Clock for dated derived rows (client payments). Caller may pass
      input.nowIso; default to the real now (app runtime, not a workflow). */
   const nowIso = input.nowIso || new Date().toISOString()
+  /* Placeholder date for amounts the file gave us with no real date — the
+     last day of the previous year (clear, non-distorting). Defined up here
+     because the payment-plan path (inside the client loop) needs it too. */
+  const estimatedDate = `${new Date(nowIso).getFullYear() - 1}-12-31`
   const summary = {
     projects:       { created: 0, skipped: 0, failed: 0 },
     clients:        { created: 0, skipped: 0, failed: 0 },
@@ -41,6 +47,7 @@ export async function finalizeOnboardingImport(input = {}) {
     leads:          { created: 0, skipped: 0, failed: 0 },
     clientStatuses: { created: 0, skipped: 0, failed: 0 },
     leadStatuses:   { created: 0, skipped: 0, failed: 0 },
+    paymentPlans:   { created: 0, skipped: 0, failed: 0 },
     errors:         [],
   }
 
@@ -103,6 +110,10 @@ export async function finalizeOnboardingImport(input = {}) {
   try { existingProjects = await listProjects() } catch { /* assume empty */ }
   try { existingClientStatuses = await listClientStatuses() } catch { /* assume empty */ }
   try { existingLeadStatuses = await listLeadStatuses() } catch { /* assume empty */ }
+  /* Clients that already have a payment plan — so a re-import never builds a
+     second plan for the same client. */
+  const clientsWithPlan = new Set()
+  try { (await listPaymentPlans()).forEach((p) => { if (p?.client_id) clientsWithPlan.add(p.client_id) }) } catch { /* assume none */ }
 
   /* ── Statuses first — clients & leads link to them by name. Dedup by
      display_name (case-insensitive) so re-import doesn't duplicate. ── */
@@ -195,6 +206,13 @@ export async function finalizeOnboardingImport(input = {}) {
     const totalDue = Number(c.total_due) > 0
       ? Number(c.total_due)
       : (Number(c.paid) > 0 && calcTotal === 0 ? Number(c.paid) : null)
+    /* Payment PLAN (פריסת תשלומים): a "מספר תשלומים" ≥ 2 + a total → build a
+       plan instead of a single lump payment. The plan defines the client's
+       total (decision), so total_override = the plan total. */
+    const nInst = Math.floor(Number(c.num_installments) || 0)
+    const planTotal = totalDue != null ? totalDue : (calcTotal > 0 ? calcTotal : (Number(c.paid) > 0 ? Number(c.paid) : 0))
+    const willPlan = nInst >= 2 && planTotal > 0
+    const clientTotal = willPlan ? planTotal : totalDue
     try {
       const row = await insertClient({
         name: c.name.trim(),
@@ -208,8 +226,8 @@ export async function finalizeOnboardingImport(input = {}) {
         /* Imported "סה״כ לתשלום" → the client's total due. When present it
            overrides sessions×price so the balance (total − paid) matches
            what the coach already tracks. */
-        total_override: totalDue,
-        has_custom_price: totalDue != null,
+        total_override: clientTotal,
+        has_custom_price: clientTotal != null,
         recurring_day: null,
         recurring_time: null,
         left_mid_process: false,
@@ -219,10 +237,48 @@ export async function finalizeOnboardingImport(input = {}) {
       })
       clientIdByName.set(key, row.id)
       summary.clients.created += 1
-      /* Carry the client's already-paid amount into a real payment so the
-         client arrives with paid history, not just a hollow shell. */
       const paid = Number(c.paid)
-      if (paid > 0) clientPayments.push({ client_id: row.id, project_id, amount: paid, name: c.name })
+      /* Build a payment plan when the file asked for one (num_installments ≥ 2).
+         The installments the `paid` amount already covers are created RECEIVED
+         — each with its own linked income transaction — so the paid history is
+         preserved through the plan, NOT the lump push below (no double count). */
+      let planned = false
+      if (willPlan && !clientsWithPlan.has(row.id)) {
+        try {
+          const plan = await insertPaymentPlan({ client_id: row.id, project_id, total_amount: planTotal, num_installments: nInst, notes: null })
+          const gen = generateInstallments({ total: planTotal, count: nInst, startDate: c.pay_date || undefined })
+          const covered = installmentsCoveredByPaid(gen.map((g) => g.amount), paid)
+          const instRows = []
+          for (let i = 0; i < gen.length; i += 1) {
+            const g = gen[i]
+            let transaction_id = null; let received_date = null
+            if (i < covered) {
+              const txDate = c.pay_date || estimatedDate
+              // eslint-disable-next-line no-await-in-loop
+              const tx = await insertTransaction({
+                amount: Math.abs(g.amount), type: 'income', desc: `תשלום ${g.num}/${nInst} — ${c.name}`,
+                date: txDate, status: 'confirmed', project_id, client_id: row.id,
+                category_id: null, payment_method: c.pay_method || null,
+                recurring_id: null, orphaned_from: c.pay_date ? null : { date_estimated: true },
+              })
+              transaction_id = tx.id; received_date = txDate
+              summary.transactions.created += 1
+              if (!c.pay_date) summary.transactions.dateEstimated += 1
+            }
+            instRows.push({ plan_id: plan.id, num: g.num, due_date: g.due_date, amount: g.amount, received: i < covered, received_date, payment_method: i < covered ? (c.pay_method || null) : null, transaction_id })
+          }
+          await insertPaymentInstallments(instRows)
+          clientsWithPlan.add(row.id)
+          summary.paymentPlans.created += 1
+          planned = true
+        } catch (e) {
+          summary.paymentPlans.failed += 1
+          summary.errors.push(`payment plan "${c.name}": ${e.message || 'unknown'}`)
+        }
+      }
+      /* Carry the client's already-paid amount into a real payment so the
+         client arrives with paid history — UNLESS a plan already did it. */
+      if (paid > 0 && !planned) clientPayments.push({ client_id: row.id, project_id, amount: paid, name: c.name, payment_method: c.pay_method || null, pay_date: c.pay_date || null })
       /* O2: a "פגישות שנעשו" count → that many logged sessions. */
       const done = Math.floor(Number(c.sessions_done) || 0)
       if (done > 0) clientSessions.push({ client_id: row.id, count: done, name: c.name })
@@ -320,23 +376,27 @@ export async function finalizeOnboardingImport(input = {}) {
   /* Imported "amount paid so far" totals + any dateless transactions carry
      no real date. Rather than dropping them (lost revenue) or dating them
      today (pollutes the current month's reports), park them on the last
-     day of the PREVIOUS year — a clear, non-distorting placeholder — and
-     count them so the user can be told to fix the dates in Finance. */
-  const estimatedDate = `${new Date(nowIso).getFullYear() - 1}-12-31`
+     day of the PREVIOUS year — a clear, non-distorting placeholder (defined
+     near the top) — and count them so the user can fix the dates in Finance. */
   for (const pmt of clientPayments) {
     const desc = `תשלום מיובא — ${pmt.name}`
     const pk = payKey(pmt.client_id, pmt.amount, desc)
     if (seenPay.has(pk)) { summary.transactions.skipped += 1; continue }
+    /* A recognized payment date wins; without one, park on the placeholder and
+       flag it as estimated so the user can fix it in Finance. */
+    const payDate = pmt.pay_date || estimatedDate
+    const payEstimated = !pmt.pay_date
     try {
       await insertTransaction({
         amount: Math.abs(pmt.amount), type: 'income', desc,
-        date: estimatedDate, status: 'confirmed', project_id: pmt.project_id, client_id: pmt.client_id,
-        category_id: null, recurring_id: null, orphaned_from: { date_estimated: true },
+        date: payDate, status: 'confirmed', project_id: pmt.project_id, client_id: pmt.client_id,
+        category_id: null, payment_method: pmt.payment_method || null,
+        recurring_id: null, orphaned_from: payEstimated ? { date_estimated: true } : null,
       })
       seenPay.add(pk)
-      seenTxns.add(txnKey(pmt.amount, 'income', estimatedDate, pmt.client_id, pmt.project_id))
+      seenTxns.add(txnKey(pmt.amount, 'income', payDate, pmt.client_id, pmt.project_id))
       summary.transactions.created += 1
-      summary.transactions.dateEstimated += 1
+      if (payEstimated) summary.transactions.dateEstimated += 1
     } catch (e) {
       summary.transactions.failed += 1
       summary.errors.push(`payment "${pmt.name}": ${e.message || 'unknown'}`)
@@ -430,6 +490,7 @@ export async function finalizeOnboardingImport(input = {}) {
         project_id,
         client_id,
         category_id,
+        payment_method: t.payment_method || null,
         recurring_id: null,
         orphaned_from: dateEstimated ? { date_estimated: true } : null,
       })

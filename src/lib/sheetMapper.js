@@ -20,6 +20,7 @@ import { detectMatrix } from './pivotImport'
 import { detectColumnType, parseAmount, findHeaderRow } from './columnDetect'
 import { normalizeDate } from './csvImport'
 import { mapValueToMetaConfident } from './statusImport'
+import { parsePayMethod } from './invoiceDocs'
 
 /* Re-exported from columnDetect (its canonical home) so existing importers
    of sheetMapper.findHeaderRow keep working. */
@@ -31,7 +32,7 @@ const norm = (s) => String(s == null ? '' : s).trim().toLowerCase().replace(/["'
    entity. e.g. a 'phone' column → the entity's `phone` field. Returns
    null when the entity has no field for that type. */
 const CONTENT_TYPE_FIELD = {
-  clients:      { phone: 'phone', email: 'email', status: 'status', date: null,  amount: 'income', name: 'name' },
+  clients:      { phone: 'phone', email: 'email', status: 'status', date: 'payment_date',  amount: 'income', name: 'name' },
   projects:     { phone: null,    email: null,    status: null,     date: null,  amount: null,     name: 'name' },
   leads:        { phone: 'phone', email: 'email', status: 'status', date: 'date', amount: null,    name: 'name' },
   transactions: { phone: null,    email: null,    status: 'status', date: 'date', amount: 'amount', name: 'client' },
@@ -96,6 +97,15 @@ export const ENTITY_FIELDS = {
        app computes balance itself (total − paid). Mapping a column here
        tells the user "we see this column, and we compute it ourselves". */
     { key: 'computed_balance', label: 'יתרה לתשלום (מחושב אוטומטית)', syn: ['יתרהלתשלום', 'יתרה', 'נותרלתשלום', 'יתרתחוב', 'חוב', 'balance', 'outstanding', 'remaining', 'owed', 'due'] },
+    /* Payment method + date — NOT stored on the client; they enrich the income
+       transaction derived from `paid` at import (real date + method instead of a
+       placeholder). A single "everything" sheet thus yields a dated, methoded
+       payment per client, not a hollow lump. */
+    { key: 'payment_method', label: 'אמצעי תשלום', syn: ['אמצעיתשלום', 'אמצעי', 'אופןתשלום', 'דרךתשלום', 'paymentmethod', 'payment', 'method'] },
+    { key: 'payment_date',   label: 'תאריך תשלום', syn: ['תאריךתשלום', 'מועדתשלום', 'תאריךקבלה', 'תאריך', 'paymentdate', 'datepaid', 'date'] },
+    /* Number of installments — when >1 (and there's a total), import builds a
+       payment PLAN (פריסת תשלומים) for the client instead of a single payment. */
+    { key: 'num_installments', label: 'מספר תשלומים', syn: ['מספרתשלומים', 'מסתשלומים', 'כמותתשלומים', 'מספרתשלום', 'פריסהלתשלומים', 'פריסה', 'installments', 'numpayments', 'numinstallments'] },
     { key: 'project',   label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'תוכנית', 'תכנית', 'מסלול', 'שירות', 'חבילה', 'project', 'program', 'package'] },
     { key: 'notes',     label: 'הערות',           syn: ['הערות', 'הערה', 'תיאור', 'פירוט', 'notes', 'note', 'comment'] },
   ],
@@ -124,6 +134,7 @@ export const ENTITY_FIELDS = {
     { key: 'status',   label: 'סטטוס',           syn: ['סטטוס', 'סטאטוס', 'status', 'סטטוסלקוח'] },
     { key: 'type',     label: 'סוג (הכנסה/הוצאה)', syn: ['סוג', 'type', 'kind', 'סוגתנועה', 'סוגעסקה'] },
     { key: 'category', label: 'קטגוריה',         syn: ['קטגוריה', 'category', 'סעיף', 'סעיףהוצאה', 'סוגהוצאה', 'סיווג', 'tag'] },
+    { key: 'payment_method', label: 'אמצעי תשלום', syn: ['אמצעיתשלום', 'אמצעי', 'אופןתשלום', 'דרךתשלום', 'paymentmethod', 'method'] },
     { key: 'date',     label: 'תאריך',           syn: ['תאריך', 'date', 'תאריךתשלום', 'תאריךעסקה', 'מועד'] },
     { key: 'project',  label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'תוכנית', 'project'] },
     { key: 'notes',    label: 'הערות',           syn: ['הערות', 'הערה', 'תיאור', 'פירוט', 'notes'] },
@@ -309,6 +320,30 @@ export function setSheetType(sheet, type) {
   return { ...sheet, type, mapping, unmappedCount: unmapped }
 }
 
+/* Columns that mark a sheet as carrying money — drives the wizard's "includes
+   payments" reassurance (a clients sheet that will ALSO yield income, which is
+   exactly the "one sheet with everything" case the import now extracts). */
+const PAY_MARK_FIELDS = ['paid', 'income', 'amount', 'total_due', 'payment_method', 'payment_date']
+
+/* Summarise a sheet for the recognition wizard: how many records it yields,
+   and whether it carries payment data / a payment-method column. Pure +
+   deterministic, mirroring projectSheet's view of the sheet. Type correction
+   itself is the dropdown in the wizard — this only drives the badges/nudge. */
+export function sheetRecognitionInfo(sheet) {
+  if (!sheet || sheet.type === 'matrix') {
+    return { yieldCount: (sheet?.pivotTransactions || []).length, hasPayments: true, hasMethod: false, empty: false }
+  }
+  if (sheet.type === 'ignore') {
+    return { yieldCount: 0, hasPayments: false, hasMethod: false, empty: false }
+  }
+  const p = projectSheet(sheet)
+  const yieldCount = p.clients.length + p.projects.length + p.leads.length + p.transactions.length + (p.sessions?.length || 0)
+  const mapped = new Set((sheet.mapping || []).filter(Boolean))
+  const hasPayments = PAY_MARK_FIELDS.some((f) => mapped.has(f))
+  const hasMethod = mapped.has('payment_method')
+  return { yieldCount, hasPayments, hasMethod, empty: yieldCount === 0 }
+}
+
 /* Project a mapped flat sheet into entity rows for the review wizard.
    Returns { clients, projects, leads, transactions } slices (only the
    one matching the sheet type is populated). Pure + deterministic. */
@@ -350,6 +385,12 @@ export function projectSheet(sheet) {
            coach already tracks carries over verbatim. */
         total_due: num(r, 'total_due'),
         price_per_session: price,
+        /* Enrich the import-derived payment (from `paid`): a recognized method
+           column → a PAY_METHODS key (free-text mapped, never raw); a payment
+           date → the real transaction date instead of the placeholder. */
+        pay_method: parsePayMethod(val(r, 'payment_method')),
+        pay_date: (() => { const d = val(r, 'payment_date'); return d ? (normalizeDate(d) || null) : null })(),
+        num_installments: Math.floor(num(r, 'num_installments')) || 0,
         project_name: val(r, 'project') || null,
         notes: val(r, 'notes') || null,
       })
@@ -392,6 +433,7 @@ export function projectSheet(sheet) {
         client_name: val(r, 'client') || null,
         project_name: val(r, 'project') || null,
         category: val(r, 'category') || null, /* expense category → category_id on import */
+        payment_method: parsePayMethod(val(r, 'payment_method')),
         desc: val(r, 'notes') || null,
       })
     } else if (sheet.type === 'sessions') {

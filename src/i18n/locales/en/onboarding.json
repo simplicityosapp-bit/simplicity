@@ -234,6 +234,30 @@
       "transactions": "transactions"
     }
   },
+  "recognize": {
+    "title": "What did we find in your file?",
+    "sub": "Take a moment to confirm we read it right — you can fix anything here.",
+    "closeAria": "Close",
+    "summaryLead": "We found:",
+    "summaryEmpty": "No data to import yet — check the table types below.",
+    "sum": {
+      "clients": "{{count}} clients",
+      "payments": "{{count}} payments",
+      "leads": "{{count}} leads",
+      "projects": "{{count}} projects"
+    },
+    "detectedAs": "Detected as:",
+    "typeAria": "Table type for {{name}}",
+    "badge": {
+      "method": "Payment method detected",
+      "payments": "Includes payments"
+    },
+    "nudge": {
+      "empty": "We didn't find anything to import in this table — pick another type, or leave it as “Don't import”."
+    },
+    "editManually": "Advanced editing",
+    "confirm": "Looks good, continue"
+  },
   "csvMap": {
     "title": "From your file — confirm the column mapping",
     "detected": "We recognized {{count}} columns automatically. ",

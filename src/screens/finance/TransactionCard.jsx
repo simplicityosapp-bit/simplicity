@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import { Check, X, RotateCcw, Trash2 } from 'lucide-react'
 import { isr } from '../../lib/finance'
+import { payMethodLabel } from '../../lib/invoiceDocs'
 import { fmtShortDate } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
 import WhatsAppButton from '../../components/WhatsAppButton'
@@ -39,6 +40,7 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
           {isSkipped && <span className="f-tx-tag skip">{t('tx.skipped')}</span>}
           {isCredited && <span className="f-tx-tag credited">{t('tx.credited')}</span>}
           {meta && <span className="f-tx-meta-text">· {meta}</span>}
+          {tx.payment_method && <span className="f-tx-tag pay">{payMethodLabel(tx.payment_method)}</span>}
           {category && (
             <span className="f-tx-cat">
               <span className="f-tx-cat-dot" style={{ background: category.color || 'var(--stone)' }} />

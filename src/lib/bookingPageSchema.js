@@ -72,6 +72,9 @@ export const newBookingPageDraft = () => ({
   auto_confirm: false,
   project_id: '',
   slug: '',
+  // Phase 6 — per-page Google Calendar write opt-in (both off by default).
+  write_to_google: false,
+  invite_client: false,
   content: structuredClone(DEFAULT_CONTENT),
   availability: structuredClone(DEFAULT_AVAILABILITY),
   meeting_type_ids: [],

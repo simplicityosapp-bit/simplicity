@@ -7,6 +7,7 @@ import {
 import { useBookingPages } from '../../hooks/useBookingPages'
 import { useMeetingTypes } from '../../hooks/useMeetingTypes'
 import { useProjects } from '../../hooks/useProjects'
+import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import Coachmark from '../../components/Coachmark'
 import InfoPopover from '../../components/InfoPopover'
 import {
@@ -148,6 +149,8 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       title: page.title ?? '',
       published: !!page.published,
       auto_confirm: !!page.auto_confirm,
+      write_to_google: !!page.write_to_google,
+      invite_client: !!page.invite_client,
       project_id: page.project_id ?? '',
       slug: page.slug ?? '',
       content: { ...DEFAULT_CONTENT, ...(page.content || {}), thankYou: { ...DEFAULT_CONTENT.thankYou, ...(page.content?.thankYou || {}) } },
@@ -157,6 +160,8 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
   })
   const { projects } = useProjects()
   const { types, addType, updateType } = useMeetingTypes()
+  const { status: gcalStatus } = useGoogleCalendar()
+  const gcalConnected = !!gcalStatus?.connected
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const [copied, setCopied] = useState(false)
@@ -209,6 +214,8 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       title: draft.title.trim(),
       published: draft.published,
       auto_confirm: draft.auto_confirm,
+      write_to_google: draft.write_to_google,
+      invite_client: draft.write_to_google && draft.invite_client, // invite only meaningful when writing
       project_id: draft.project_id || null,
       slug: slug || null,
       content: draft.content,
@@ -276,6 +283,30 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
               <input type="checkbox" checked={draft.auto_confirm} onChange={(e) => set({ auto_confirm: e.target.checked })} />
               <span><strong>אישור אוטומטי</strong><em>כשכבוי — תורים ממתינים לאישור ידני.</em></span>
             </label>
+          </div>
+
+          <div className="m-field">
+            <label className="m-label">יומן Google</label>
+            <label className={`lpb-toggle${gcalConnected ? '' : ' is-disabled'}`}>
+              <input
+                type="checkbox"
+                checked={draft.write_to_google}
+                disabled={!gcalConnected}
+                onChange={(e) => set({ write_to_google: e.target.checked })}
+              />
+              <span>
+                <strong>כתיבת תורים מאושרים ליומן Google שלי</strong>
+                <em>{gcalConnected
+                  ? 'כל תור מאושר מהדף (ידני או אוטומטי) ייכתב כאירוע ביומן שלך.'
+                  : 'יש לחבר יומן Google ב"חיבורים" כדי להפעיל.'}</em>
+              </span>
+            </label>
+            {gcalConnected && draft.write_to_google && (
+              <label className="lpb-toggle">
+                <input type="checkbox" checked={draft.invite_client} onChange={(e) => set({ invite_client: e.target.checked })} />
+                <span><strong>הזמן את הלקוח לאירוע</strong><em>אם הלקוח השאיר מייל — Google ישלח לו הזמנה.</em></span>
+              </label>
+            )}
           </div>
           <div className="m-field">
             <label className="m-label">שיוך לפרויקט (אופציונלי)</label>

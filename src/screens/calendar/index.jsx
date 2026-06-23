@@ -43,7 +43,7 @@ export default function CalendarScreen() {
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
   const { sessions, addSession } = useSessions()
   const { events: calendarEvents, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
-  const { bookings } = useBookings()
+  const { bookings, cancel: cancelBookingFn } = useBookings()
   const { pages: bookingPages } = useBookingPages()
   const { types: meetingTypes } = useMeetingTypes()
   const { clients } = useClients()
@@ -173,6 +173,8 @@ export default function CalendarScreen() {
       .map((ev) => {
         const bk = bookingByEvent.get(ev.id)
         const booking = bk ? {
+          id: bk.id,
+          event_id: bk.event_id,
           name: bk.name,
           phone: bk.phone || null,
           email: bk.email || null,
@@ -256,6 +258,18 @@ export default function CalendarScreen() {
   }
   const completeReminderHandler = (ev) => completeReminder(ev.id)
   const removeReminderHandler = (ev) => removeReminder(ev.id)
+
+  /* Cancel a confirmed booking from its calendar event: drop the Google event
+     + free the slot (cancelBookingFn), then remove the owned event from the
+     calendar (cache-aware deleteEvent), and close the detail. */
+  const cancelBookingHandler = async (ev) => {
+    if (!ev?.booking?.id) return
+    try {
+      await cancelBookingFn(ev.booking)
+      await deleteEvent(ev.id)
+    } catch { /* surfaced via toast in the hook */ }
+    setSelectedEvent(null)
+  }
 
   return (
     <div className="screen">
@@ -368,6 +382,7 @@ export default function CalendarScreen() {
         onRemoveReminder={removeReminderHandler}
         onUpdateEvent={updateEvent}
         onDeleteEvent={deleteEvent}
+        onCancelBooking={cancelBookingHandler}
         onFollowupDone={markFollowupDone}
       />
       <CalendarDuplicateModal

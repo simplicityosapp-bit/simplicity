@@ -858,3 +858,5 @@
 }
 .evt-detail-booking-row a { color: var(--terracotta); text-decoration: none; }
 .evt-detail-booking-row a:hover { text-decoration: underline; }
+/* "ביטול תור" — sits under the booking detail, separated from its rows. */
+.evt-detail-cancel-booking { margin-top: 10px; }

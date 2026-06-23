@@ -20,11 +20,12 @@ const toLocalInput = (d) =>
    decides whether confirming a meeting also touches linked transactions.
    Google-synced events can be CLAIMED here: editing or deleting one owns
    it (owned=true), so the change survives future syncs (migration 0023). */
-export default function EventDetailsModal({ open, onClose, event, billClient, onConfirmMeeting, onSkipMeeting, onBillSession, onCompleteReminder, onRemoveReminder, onUpdateEvent, onDeleteEvent, onFollowupDone }) {
+export default function EventDetailsModal({ open, onClose, event, billClient, onConfirmMeeting, onSkipMeeting, onBillSession, onCompleteReminder, onRemoveReminder, onUpdateEvent, onDeleteEvent, onCancelBooking, onFollowupDone }) {
   const { t } = useT('modalsTask')
   /* Two-step delete confirm (resets per event — parent keys the modal on
      event.id). No undo path here, so the second tap is the safety net. */
   const [confirmDel, setConfirmDel] = useState(false)
+  const [confirmCancelBk, setConfirmCancelBk] = useState(false) // two-step "cancel booking"
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ title: '', start: '', end: '' })
   const [editErr, setEditErr] = useState('')
@@ -137,6 +138,15 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
           )}
           {event.booking.note && (
             <p className="evt-detail-booking-row">{t('event.bookingNote', { note: event.booking.note })}</p>
+          )}
+          {onCancelBooking && event.booking.id && (
+            <button
+              type="button"
+              className="evt-detail-btn skip evt-detail-cancel-booking"
+              onClick={confirmCancelBk ? handle(onCancelBooking) : () => setConfirmCancelBk(true)}
+            >
+              <X size={15} strokeWidth={2} aria-hidden="true" /> {confirmCancelBk ? 'לבטל את התור?' : 'ביטול תור'}
+            </button>
           )}
         </div>
       )}

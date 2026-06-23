@@ -128,7 +128,9 @@
       "approveEmpty": "Confirm and continue",
       "createEmpty": "Finish without importing",
       "approve": "Confirm and continue ({{count}})",
-      "create": "Confirm and create ({{count}})"
+      "create": "Confirm and create ({{count}})",
+      "skipImport": "Start without importing",
+      "skipImportHint": "What you've already set up is saved. You can import the file later from Settings."
     },
     "dirty": {
       "ariaLabel": "Leave without saving?",

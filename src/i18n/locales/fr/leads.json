@@ -1,0 +1,100 @@
+{
+  "countLabel": "{{count}} prospects",
+  "tabLeads": "Prospects",
+  "tabStatuses": "Statuts",
+  "tagline": "Cultiver les relations mène aux résultats.",
+  "title": "Prospects",
+  "newLeadAria": "Nouveau prospect",
+  "newLead": "+ Nouveau prospect",
+  "viewToggleAria": "Affichage",
+  "sourcesLink": "Sources de prospects",
+  "leadPagesLink": "Pages de prospects",
+  "stats": {
+    "newThisMonth": "Demandes ce mois-ci",
+    "converted": "Convertis en clients",
+    "convRate": "Taux de conversion"
+  },
+  "sort": {
+    "newOld": "Du plus récent",
+    "oldNew": "Du plus ancien",
+    "byDate": "Par date",
+    "aria": "Tri : {{label}}"
+  },
+  "followups": {
+    "empty": "Aucun rappel prévu aujourd'hui",
+    "due": "Rappels prévus aujourd'hui"
+  },
+  "filter": {
+    "btn": "Filtrer",
+    "btnAria": "Filtrer les prospects",
+    "title": "Filtrer les prospects",
+    "hint": "Affinez le tableau des prospects par période, projet, groupe, sous-statut et source.",
+    "period": "Période",
+    "period_all": "Toutes",
+    "period_month": "Ce mois-ci",
+    "period_last30": "30 derniers jours",
+    "period_lastMonth": "Le mois dernier",
+    "project": "Projet",
+    "group": "Groupe",
+    "status": "Sous-statut",
+    "source": "Source",
+    "all": "Tous",
+    "unassigned": "Non attribué",
+    "sort": "Trier par date",
+    "sort_none": "Aucun",
+    "sort_new": "Du plus récent",
+    "sort_old": "Du plus ancien",
+    "clear": "Tout effacer",
+    "close": "Fermer"
+  },
+  "loading": "Chargement des prospects…",
+  "loadError": "Impossible de charger les prospects : {{error}}",
+  "subFilterAria": "Filtrer par sous-statut",
+  "all": "Tous",
+  "undoStatusChanged": "Statut modifié",
+  "delete": {
+    "title": "Supprimer le prospect",
+    "message": "Supprimer « {{name}} » ? Le prospect sera déplacé vers la corbeille et pourra être restauré sous 30 jours.",
+    "confirm": "Supprimer"
+  },
+  "dropPicker": {
+    "title": "Vers quel sous-statut le déplacer ?",
+    "none": "Aucun sous-statut"
+  },
+  "column": {
+    "empty": "Aucun prospect dans cette colonne"
+  },
+  "card": {
+    "deleteAria": "Supprimer le prospect {{name}}",
+    "deleteTitle": "Supprimer le prospect",
+    "noSource": "Aucune source",
+    "inquiry": "Demande {{date}}",
+    "converted": "Converti en client",
+    "convert": "Convertir en client"
+  },
+  "sourcesModal": {
+    "title": "Sources de prospects",
+    "hint": "D'où provient la demande. Choisissez une couleur et un nom, et la source apparaîtra sur les fiches des prospects et dans les filtres.",
+    "empty": "Aucune source pour l'instant. Ajoutez votre première.",
+    "newSource": "Nouvelle source",
+    "placeholder": "Nom de la source",
+    "addAria": "Ajouter une source",
+    "addFailed": "Impossible d'ajouter la source.",
+    "deleteAria": "Supprimer {{name}}",
+    "deleteHint": "Supprimer",
+    "deleteTitle": "Supprimer la source",
+    "deleteMessage": "Supprimer « {{name}} » ? Les prospects ayant cette source se retrouveront sans source. Vous pouvez la restaurer depuis la corbeille sous 30 jours.",
+    "deleteConfirm": "Supprimer",
+    "close": "Fermer"
+  },
+  "statusesPanel": {
+    "intro": "Gérez les sous-statuts au sein de chaque catégorie principale. Les sous-statuts apparaissent lorsque vous définissez une pastille de couleur sur une fiche de prospect, et servent au filtrage et aux graphiques.",
+    "addPlaceholder": "Sous-statut pour « {{meta}} »",
+    "addAria": "Ajouter",
+    "deleteChipAria": "Supprimer {{name}}",
+    "deleteChipTitle": "Supprimer",
+    "deleteTitle": "Supprimer le sous-statut",
+    "deleteMessage": "Supprimer « {{name}} » ? Les prospects qui en sont marqués se retrouveront sans sous-statut. Vous pouvez le restaurer depuis la corbeille sous 30 jours.",
+    "deleteConfirm": "Supprimer"
+  }
+}

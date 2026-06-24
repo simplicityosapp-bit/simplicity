@@ -1,0 +1,172 @@
+{
+  "roles": {
+    "therapists": "thérapeutes",
+    "advisors": "conseillers",
+    "teachers": "enseignants",
+    "facilitators": "facilitateurs",
+    "list": "{{therapist}}, {{teacher}} et {{facilitator}}"
+  },
+  "brand": "Simplicity",
+  "nav": {
+    "home": "Simplicity — accueil",
+    "accountActions": "Actions du compte",
+    "toDay": "Passer en mode jour",
+    "toNight": "Passer en mode nuit",
+    "login": "Se connecter",
+    "startFree": "Commencer gratuitement"
+  },
+  "hero": {
+    "eyebrow": "Un système d'exploitation pour votre activité",
+    "title1": "Toute votre activité,",
+    "title2": "dans un seul espace serein.",
+    "subAddress": "Pour les {{therapist}}, {{advisor}}, {{teacher}} et {{facilitator}} :",
+    "subBody": "Projets, finances, clients, séances, objectifs — tout dans un espace clair et accueillant. Une seule vue d'ensemble qui vous montre exactement ce dont ce mois-ci a besoin.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "J'ai déjà un compte",
+    "trust": "Inscription gratuite · Partez quand vous voulez · Importez et exportez toutes vos données"
+  },
+  "demo": {
+    "eyebrow": "L'écran d'accueil",
+    "title": "Tout ce dont votre activité a besoin, en un coup d'œil",
+    "sub": "Nous avons conçu Simplicity pour rendre la gestion de votre activité simple, agréable et même ludique — c'est pourquoi il vous offre un maximum de clarté pour un minimum d'effort.",
+    "deviceAria": "Un aperçu de l'écran d'accueil de Simplicity : une vue d'ensemble avec un score de 78 pour cent dans les temps, et une liste d'éléments qui demandent votre attention.",
+    "moonTitle": "Vue d'ensemble",
+    "moonLine": "Vous êtes <0>dans les temps</0> pour atteindre les objectifs de ce mois-ci — continuez comme ça.",
+    "attentionTitle": "Demande votre attention",
+    "attentionCount": "{{count}} éléments",
+    "row1Title": "3 transactions en attente d'approbation",
+    "row1Sub": "Finances",
+    "row2Title": "Séance aujourd'hui à <0>17:00</0>",
+    "row2Sub": "Calendrier · Daniel Cohen",
+    "row3Title": "Aucun contact depuis <0>45</0> jours",
+    "row3Sub": "Suivi · Michal Levi",
+    "points": {
+      "score": {
+        "title": "Vue d'ensemble — un seul score qui dit tout",
+        "text": "Au lieu de dix rapports, un seul chiffre qui vous montre exactement où vous en êtes par rapport à vos objectifs."
+      },
+      "attention": {
+        "title": "Demande votre attention",
+        "text": "Simplicity garde une longueur d'avance et fait remonter ce qui demande une action — un paiement bloqué, une séance à venir, un client qui s'est fait discret."
+      },
+      "tailored": {
+        "title": "Adapté à vous",
+        "text": "Vous choisissez quoi voir, comment et quand."
+      }
+    }
+  },
+  "values": {
+    "eyebrow": "Pourquoi Simplicity ?",
+    "title": "Parce que gérer vos informations et vos finances n'a pas à être ennuyeux ou stressant",
+    "sub": "Trois choses que nous avons faites pour en faire un foyer pour votre épanouissement.",
+    "allInOne": {
+      "title": "Tout au même endroit",
+      "text": "Clients, calendrier, finances, tâches et objectifs — fini de jongler entre tableurs, WhatsApp et carnet. Une image complète de votre activité, toujours à jour."
+    },
+    "clarity": {
+      "title": "Sécurité et confidentialité",
+      "text": "Nous ferons de notre mieux pour protéger vos informations et votre vie privée — ainsi que celles de vos clients. Chaque utilisateur compte pour nous — et est traité comme un roi."
+    },
+    "growth": {
+      "title": "Objectifs et croissance",
+      "text": "Simplicity ne se contente pas de vous montrer où vous en êtes — il vous garde en lien direct avec là où vous voulez aller."
+    }
+  },
+  "features": {
+    "eyebrow": "Qu'y a-t-il à l'intérieur ?",
+    "title": "Tout ce qu'il vous faut pour gérer votre activité",
+    "sub": "Six outils qui fonctionnent ensemble — de la première demande à la vue d'ensemble en fin de mois.",
+    "calendar": {
+      "title": "Séances et calendrier",
+      "text": "Synchronisation avec Google Calendar, alertes pour les séances récurrentes ou planifiées, rappels, et revenus et dépenses par date — tout ce qui a une date."
+    },
+    "finance": {
+      "title": "Finances",
+      "text": "Connectez SUMIT et Green Invoice, configurez des revenus et dépenses récurrents, classez par catégories — et organisez votre flux de trésorerie exactement comme vous le souhaitez."
+    },
+    "clients": {
+      "title": "Prospects et clients",
+      "text": "Nous vous aidons à entretenir la relation de la première demande à la dernière séance, pour que tout reste sans effort, autant pour vous que pour vos clients."
+    },
+    "insights": {
+      "title": "Aperçus quotidiens",
+      "text": "Sachant qu'il s'agit d'une personne et pas seulement d'une activité, nous avons conçu un système qui voit l'image complète — holistique et personnel."
+    },
+    "projects": {
+      "title": "Projets",
+      "text": "Cohortes de groupe, clients en tête-à-tête ; construisez et adaptez un mini-système pour chaque projet à part — pour que ampleur et concentration ne fassent que se renforcer mutuellement."
+    },
+    "goals": {
+      "title": "Objectifs et vue d'ensemble",
+      "text": "Fixez des objectifs mensuels et voyez en un coup d'œil si vous êtes dans les temps pour les atteindre."
+    }
+  },
+  "feedback": {
+    "title": "Vous êtes le cœur de Simplicity",
+    "text": "Un accès grand ouvert pour donner votre avis — à tout moment, sur tout. Parce qu'un bon logiciel ne se construit pas dans une tour d'ivoire, mais avec les personnes qui l'utilisent. Chacun de vos mots aide Simplicity à se façonner autour de vous — et nous sommes là pour écouter."
+  },
+  "trust": {
+    "eyebrow": "",
+    "title": "Quoi d'autre ?",
+    "sub": "",
+    "secure": {
+      "title": "Protégé et en sécurité",
+      "text": "Vos données sont stockées sur des serveurs en Irlande (UE), protégées au niveau de l'infrastructure, et entièrement isolées — vous seul pouvez accéder à vos données."
+    },
+    "hebrew": {
+      "title": "Conçu en hébreu",
+      "text": "De droite à gauche dès le départ, avec une adresse au masculin, au féminin ou au neutre — à votre choix."
+    },
+    "noAds": {
+      "title": "Pas de publicités, pas de vente de vos données",
+      "text": "Vos informations ne sont jamais transmises à qui que ce soit. Elles sont à vous, point final."
+    }
+  },
+  "faq": {
+    "eyebrow": "Questions fréquentes",
+    "title": "Avons-nous oublié quelque chose ?",
+    "fit": {
+      "q": "À qui s'adresse Simplicity ?",
+      "a": "Aux {{therapist}}, {{teacher}} et {{facilitator}} — et à toute personne qui accompagne les autres et gère sa propre activité, en solo ou en groupe. Cela convient même si vous débutez tout juste."
+    },
+    "start": {
+      "q": "Combien de temps faut-il pour démarrer ?",
+      "a": "Quelques minutes. Inscrivez-vous, parlez-nous de votre activité, et vous pouvez même importer vos clients et finances existants depuis un tableur — Simplicity reconnaît les colonnes automatiquement."
+    },
+    "privacy": {
+      "q": "Qu'en est-il de la confidentialité de mes clients ?",
+      "a": "Vos données sont stockées sur des serveurs en Irlande (UE), protégées au niveau de l'infrastructure, et isolées de sorte que vous seul puissiez y accéder — nous ne les vendons ni ne les partageons jamais avec qui que ce soit."
+    },
+    "price": {
+      "q": "Combien ça coûte ?",
+      "a": "Vous pouvez commencer gratuitement et créer un compte sans carte de crédit, pour découvrir Simplicity à votre rythme."
+    },
+    "install": {
+      "q": "Dois-je installer quelque chose ?",
+      "a": "Non. Simplicity fonctionne dans votre navigateur et sur mobile, et vous pouvez l'ajouter à votre écran d'accueil comme une application — sans téléchargement ni mise à jour."
+    },
+    "hebrew": {
+      "q": "Est-ce vraiment conçu pour l'hébreu et pour moi ?",
+      "a": "Absolument. Conçu dès le départ en hébreu intégral et de droite à gauche, avec les shekels, les dates hébraïques, et une adresse au masculin, au féminin ou au neutre."
+    }
+  },
+  "cta": {
+    "title": "Tout commence ici.",
+    "sub": "Rejoignez les {{roles}} qui gèrent déjà leur activité avec sérénité — le tout au même endroit.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "J'ai déjà un compte",
+    "micro": "Inscription gratuite · Partez quand vous voulez · Importez et exportez toutes vos données"
+  },
+  "footer": {
+    "tagline": "Un système d'exploitation pour votre activité — pour les {{roles}}. Conçu avec amour, pour aider à créer un peu plus de bien dans le monde.",
+    "colProduct": "Service",
+    "signup": "S'inscrire",
+    "login": "Se connecter",
+    "colLegal": "Mentions légales",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "colContact": "Contact",
+    "contact": "Nous contacter",
+    "copyright": "© 2026 Simplicity. Tous droits réservés."
+  }
+}

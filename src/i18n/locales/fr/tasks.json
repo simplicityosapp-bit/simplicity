@@ -1,0 +1,109 @@
+{
+  "tasks": "Tâches",
+  "reminders": "Rappels",
+  "tagline": "Faites le prochain pas.",
+  "meta": {
+    "open": "{{n}} ouvertes",
+    "openReminders": "{{n}} rappels",
+    "done": "{{n}} terminées"
+  },
+  "add": {
+    "task": "+ Nouvelle tâche",
+    "reminder": "+ Nouveau rappel",
+    "taskAria": "Ajouter une tâche",
+    "reminderAria": "Ajouter un rappel"
+  },
+  "view": {
+    "aria": "Affichage"
+  },
+  "filter": {
+    "aria": "Filtrer par statut",
+    "todo": "Ouvertes",
+    "done": "Terminées",
+    "all": "Toutes",
+    "recurring": "Récurrentes"
+  },
+  "priority": {
+    "high": "Urgent",
+    "medium": "Normal",
+    "low": "Faible"
+  },
+  "buckets": {
+    "overdue": "En retard",
+    "today": "Aujourd'hui",
+    "week": "Cette semaine",
+    "later": "Plus tard"
+  },
+  "recurring": {
+    "weekday": "{{day}}",
+    "monthly": "Mensuel",
+    "everyXDays": "Tous les quelques jours"
+  },
+  "days": {
+    "0": "dimanche",
+    "1": "lundi",
+    "2": "mardi",
+    "3": "mercredi",
+    "4": "jeudi",
+    "5": "vendredi",
+    "6": "samedi"
+  },
+  "hero": {
+    "tasksTitle": "Résumé des tâches",
+    "remindersTitle": "Résumé des rappels",
+    "open": "Ouvertes",
+    "urgentTasks": "Urgentes",
+    "overdueReminders": "En retard",
+    "done": "Terminées"
+  },
+  "taxonomy": {
+    "all": "Tous",
+    "manage": "Statuts et catégories"
+  },
+  "clearAll": "Tout effacer",
+  "doneGroup": "Terminées",
+  "loading": {
+    "tasks": "Chargement des tâches…",
+    "reminders": "Chargement des rappels…"
+  },
+  "loadError": {
+    "tasks": "Impossible de charger les tâches : {{error}}",
+    "reminders": "Impossible de charger les rappels : {{error}}"
+  },
+  "empty": {
+    "tasksDone": "Aucune tâche terminée pour l'instant.",
+    "tasksTodo": "Aucune tâche ouverte. Beau travail !",
+    "remindersDone": "Aucun rappel terminé pour l'instant.",
+    "remindersTodo": "Aucun rappel ouvert. Tout est calme.",
+    "firstTask": "Aucune tâche pour l'instant. Votre première tâche commence ici.",
+    "addTask": "Ajouter une tâche",
+    "whyImportant": "Pourquoi est-ce important ?",
+    "noRecurring": "Aucun rappel récurrent pour l'instant."
+  },
+  "clearConfirm": {
+    "tasksTitle": "Supprimer les tâches terminées",
+    "tasksMessageOne": "Supprimer cette tâche terminée ? Vous pouvez la restaurer depuis la corbeille pendant 30 jours.",
+    "tasksMessageMany": "Supprimer {{count}} tâches terminées ? Vous pouvez les restaurer depuis la corbeille pendant 30 jours.",
+    "remindersTitle": "Supprimer les rappels terminés",
+    "remindersMessageOne": "Supprimer ce rappel terminé ? Vous pouvez le restaurer depuis la corbeille pendant 30 jours.",
+    "remindersMessageMany": "Supprimer {{count}} rappels terminés ? Vous pouvez les restaurer depuis la corbeille pendant 30 jours.",
+    "confirm": "Tout effacer"
+  },
+  "item": {
+    "uncheck": "Annuler l'achèvement",
+    "checkTask": "Marquer comme terminée",
+    "checkReminder": "Marquer comme terminé",
+    "reminderDone": "Terminé",
+    "editTask": "Modifier la tâche",
+    "editReminder": "Modifier le rappel",
+    "pendingOccurrences": "{{n}} occurrences encore en attente"
+  },
+  "groupBy": {
+    "aria": "Grouper les tâches",
+    "priority": "Priorité",
+    "project": "Projet",
+    "category": "Catégorie",
+    "noProject": "Aucun projet",
+    "noCategory": "Aucune catégorie"
+  }
+}

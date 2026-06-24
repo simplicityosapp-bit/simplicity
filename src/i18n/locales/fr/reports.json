@@ -1,0 +1,42 @@
+{
+  "title": "Rapports",
+  "moonGlance": "Vue d'ensemble",
+  "view": {
+    "selectAria": "Choisir l'affichage",
+    "list": "Liste",
+    "table": "Tableau"
+  },
+  "customize": {
+    "label": "Personnaliser l'affichage",
+    "title": "Personnaliser l'affichage",
+    "regionAria": "Personnaliser l'affichage",
+    "reset": "Par défaut",
+    "resetTitle": "Réinitialiser par défaut",
+    "close": "Fermer",
+    "hint": "Choisissez les indicateurs à afficher et faites-les glisser pour les réorganiser.",
+    "show": "Afficher {{label}}",
+    "hide": "Masquer {{label}}"
+  },
+  "list": {
+    "selectMonthAria": "Choisir le mois",
+    "empty": "Aucune donnée pour ce mois",
+    "goToMonth": "← Aller à {{label}}"
+  },
+  "table": {
+    "noMetrics": "Aucun indicateur actif — touchez la roue dentée pour afficher des indicateurs",
+    "monthsBack": "Mois en arrière :",
+    "metric": "Indicateur",
+    "summary": "Résumé"
+  },
+  "info": "À propos de {{label}}",
+  "drill": {
+    "title": "Détails",
+    "count_one": "{{count}} enregistrement",
+    "count_other": "{{count}} enregistrements",
+    "empty": "Aucun enregistrement pour cette période"
+  },
+  "trend": {
+    "empty": "Données encore insuffisantes pour un graphique.",
+    "aria": "Tendances multi-indicateurs"
+  }
+}

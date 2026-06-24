@@ -1,0 +1,45 @@
+{
+  "mirror": {
+    "streak": "Belle série — {{count}} jours à écrire pour vous-même.",
+    "high": "Sommet de la semaine pour « {{question}} » — {{value}}.",
+    "low": "Un point bas pour « {{question}} » — {{value}}.",
+    "deltaUp": "En hausse de {{amount}} points cette semaine par rapport à la semaine dernière pour « {{question}} ».",
+    "deltaDown": "En baisse de {{amount}} points cette semaine par rapport à la semaine dernière pour « {{question}} ».",
+    "stable": "Une semaine régulière — jour après jour, le rythme se maintient.",
+    "welcome": "Chaque jour où vous écrivez, les données commencent à parler."
+  },
+  "moon": {
+    "excellent": "Vous êtes parfaitement sur la bonne voie ce mois-ci.",
+    "good": "Bonne progression — vous allez dans la bonne direction.",
+    "behind": "Il y a un écart, et il reste du temps pour le combler.",
+    "low": "Prenons un peu d'élan — un petit pas en avant."
+  },
+  "health": {
+    "check": {
+      "profileName": "Ajoutez votre nom",
+      "profileRole": "Choisissez votre rôle et votre spécialité",
+      "clientsPriced_one": "Un client n'a pas de tarif",
+      "clientsPriced_other": "{{count}} clients n'ont pas de tarif",
+      "answersRecent": "Vous n'avez pas répondu aux questions quotidiennes de cette semaine",
+      "clientsExist": "Vous n'avez pas encore ajouté de clients",
+      "transactionsExist": "Vous n'avez pas encore enregistré de transactions",
+      "recurringExist": "Vous n'avez pas encore configuré de dépense récurrente",
+      "projectsExist": "Vous n'avez pas encore créé de projet",
+      "tasksExist": "Vous n'avez aucune tâche en cours",
+      "remindersExist": "Vous n'avez défini aucun rappel",
+      "goalsExist": "Vous n'avez défini aucun objectif",
+      "questionsExist": "Vous n'avez aucune question quotidienne",
+      "leadsExist": "Vous n'avez pas encore enregistré de prospects"
+    },
+    "action": {
+      "complete": "Compléter",
+      "choose": "Choisir",
+      "price": "Définir le tarif",
+      "answer": "Répondre",
+      "add": "Ajouter",
+      "record": "Enregistrer",
+      "setup": "Configurer",
+      "create": "Créer"
+    }
+  }
+}

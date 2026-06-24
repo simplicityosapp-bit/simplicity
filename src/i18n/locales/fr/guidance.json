@@ -1,0 +1,156 @@
+{
+  "coachmark": {
+    "add-task": {
+      "bubble": "Créez votre première tâche",
+      "detail": "Les tâches n'ont pas de date. Les rappels sont tout ce qui a une date (ponctuel, ou récurrent et fixe)."
+    },
+    "add-lead": {
+      "bubble": "Ajoutez votre premier prospect",
+      "detail": "Les prospects sont des demandes qui ne sont pas encore devenues des clients."
+    },
+    "add-lead-page": {
+      "bubble": "Créez votre première page de prospects",
+      "detail": "Une page de prospects publique recueille les demandes directement dans vos prospects — sans que le visiteur ait besoin de se connecter."
+    },
+    "add-project": {
+      "bubble": "Démarrez votre premier projet",
+      "detail": "Les projets regroupent clients et tâches sous un objectif commun."
+    },
+    "add-goal": {
+      "bubble": "Fixez votre premier objectif",
+      "detail": "Les objectifs aident à s'assurer que vous avancez à votre propre rythme et dans votre propre direction."
+    },
+    "add-transaction": {
+      "bubble": "Enregistrez votre première transaction",
+      "detail": "Chaque revenu ou dépense que vous enregistrez alimente votre image financière."
+    },
+    "add-meeting": {
+      "bubble": "Planifiez votre premier rendez-vous",
+      "detail": "Les rendez-vous du calendrier se synchronisent avec vos clients et apparaissent dans les rappels de votre écran d'accueil."
+    }
+  },
+  "tour": {
+    "home": {
+      "moon": {
+        "title": "Vue d'ensemble",
+        "body": "Un aperçu rapide de la progression de vos objectifs. Touchez pour voir chaque objectif séparément — et accéder à l'écran complet."
+      },
+      "insights": {
+        "title": "Questions quotidiennes",
+        "body": "Ce sont les questions que vous avez choisies. Vous pouvez suivre vos réponses au fil du temps sur l'écran « Comment allez-vous aujourd'hui », et associer de nouvelles questions à des objectifs sur l'écran Objectifs."
+      },
+      "quick-row": {
+        "title": "Ajout rapide",
+        "body": "L'ajout rapide est un raccourci vers tous les boutons d'ajout (tâches, revenus, prospects…). « Mettre à jour un objectif » vous permet de mettre à jour rapidement les objectifs qui demandent une saisie manuelle."
+      },
+      "attention": {
+        "title": "Demande attention",
+        "body": "Confirmer les rendez-vous qui ont eu lieu, les paiements qui devraient arriver, les doublons du calendrier — et d'autres choses que vous ne voulez pas laisser passer entre les mailles du filet."
+      },
+      "reminders": {
+        "title": "Rappels",
+        "body": "Tâches récurrentes, ou tout ce que vous voulez vous rappeler de temps en temps."
+      },
+      "next-tasks": {
+        "title": "Tâches",
+        "body": "Vos tâches urgentes apparaissent ici."
+      },
+      "chips": {
+        "title": "Cartes d'état",
+        "body": "Une vue ciblée et personnalisée — touchez ici pour ouvrir un menu et la personnaliser."
+      }
+    },
+    "clients": {
+      "tabs": {
+        "title": "Statut des clients",
+        "body": "Actifs, intermédiaires et anciens sont les trois grandes catégories, et au sein de chacune vous pouvez définir autant de statuts que vous le souhaitez."
+      },
+      "groupby": {
+        "title": "Grouper par",
+        "body": "Vous pouvez voir vos clients par statut, par projet, par solde — comme vous le souhaitez."
+      },
+      "hero": {
+        "title": "Résumé rapide",
+        "body": "Un résumé général — « Mensuel » montre l'image de ce mois-ci, et « Cumulé » montre tout depuis le début."
+      },
+      "select": {
+        "title": "Sélection multiple",
+        "body": "Vous pouvez sélectionner plusieurs clients à la fois pour changer leur statut ensemble, ou les supprimer en une seule fois."
+      },
+      "add": {
+        "title": "Ajouter un client",
+        "body": "C'est ici que vous ajoutez un nouveau client."
+      }
+    },
+    "tasks": {
+      "view": {
+        "title": "Tâches et rappels",
+        "body": "Les tâches n'ont pas de date. Les rappels sont tout ce qui a une date (ponctuel, ou récurrent et fixe) — basculez entre les deux ici."
+      },
+      "add": {
+        "title": "Ajouter",
+        "body": "C'est ici que vous ajoutez une nouvelle tâche ou un nouveau rappel."
+      }
+    },
+    "leads": {
+      "toggle": {
+        "title": "Prospects et statuts",
+        "body": "« Prospects » affiche vos prospects en colonnes selon leur statut. Sur l'écran Statuts, vous pouvez modifier et ajouter les différents statuts de vos prospects."
+      },
+      "stats": {
+        "title": "Instantané",
+        "body": "Combien de demandes sont arrivées ce mois-ci, combien sont devenues des clients, et quel est votre taux de conversion."
+      },
+      "board": {
+        "title": "Tableau des prospects",
+        "body": "Vous pouvez faire glisser un prospect d'une colonne à l'autre pour mettre à jour où il en est."
+      },
+      "add": {
+        "title": "Nouveau prospect",
+        "body": "C'est ici que vous ajoutez un nouveau prospect."
+      }
+    },
+    "leadPages": {
+      "add": {
+        "title": "Nouvelle page de prospects",
+        "body": "Créez une page de prospects publique ici — construisez le formulaire, publiez-le, et partagez un lien qui recueille les prospects directement chez vous."
+      }
+    },
+    "projects": {
+      "hero": {
+        "title": "Résumé des projets",
+        "body": "Un résumé général — « Mensuel » montre ce mois-ci, « Cumulé » depuis le début."
+      },
+      "list": {
+        "title": "Cartes de projet",
+        "body": "Chaque panneau réunit les groupes, les clients, les revenus et les tâches qui appartiennent à ce projet."
+      },
+      "add": {
+        "title": "Nouveau projet",
+        "body": "C'est ici que vous démarrez un nouveau projet."
+      }
+    },
+    "finance": {
+      "chart": {
+        "title": "Revenu cumulé",
+        "body": "La courbe se construit jour après jour par rapport à l'objectif de revenu mensuel (la ligne en pointillés). C'est ainsi que vous voyez si le rythme tient."
+      },
+      "breakdown": {
+        "title": "D'où, vers où",
+        "body": "Revenus par projet et dépenses par catégorie — d'où vient l'argent et où il va."
+      },
+      "recurring": {
+        "title": "Modèles récurrents",
+        "body": "Des transactions qui reviennent chaque mois ou chaque semaine. Configurez-les une fois et le système les crée tout seul — vous n'avez plus qu'à approuver."
+      },
+      "list": {
+        "title": "Transactions",
+        "body": "Toutes les transactions de ce mois-ci. Celles en attente d'approbation sont signalées séparément."
+      },
+      "add": {
+        "title": "Nouvelle transaction",
+        "body": "C'est ici que vous ajoutez un revenu ou une dépense."
+      }
+    }
+  }
+}

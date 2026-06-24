@@ -1,0 +1,52 @@
+{
+  "title": "Vue d'ensemble",
+  "reports": "Rapports",
+  "ring": {
+    "kicker": "Du rythme",
+    "sub": "{{pct}} % de l'objectif"
+  },
+  "section": {
+    "byCategory": "Répartition par catégorie",
+    "trend": "Tendance dans le temps",
+    "crossModule": "Tendances inter-modules",
+    "correlations": "Liens à explorer"
+  },
+  "trend": {
+    "aria": "Tendance du score sur les 30 derniers jours",
+    "avg": "Moyenne",
+    "peak": "Maximum",
+    "today": "Aujourd'hui"
+  },
+  "pills": {
+    "income": "Revenus",
+    "leads": "Prospects",
+    "sessions": "Séances",
+    "score": "Score",
+    "question": "Question quotidienne"
+  },
+  "overview": {
+    "note": "Tendances relatives · 30 derniers jours — chaque courbe sur sa propre échelle (0–100). Un lien visuel n'est pas une causalité."
+  },
+  "corr": {
+    "moveTogether": "<0>{{driver}}</0> et <1>{{outcome}}</1> ont tendance à évoluer ensemble (quand l'un est élevé, l'autre l'est aussi).",
+    "moveOpposite": "<0>{{driver}}</0> et <1>{{outcome}}</1> ont tendance à évoluer en sens inverse (quand l'un est élevé, l'autre est bas).",
+    "sub": "Lien {{strength}} · {{n}} points · observation, pas causalité",
+    "empty": "Il n'y a aucun lien significatif dans les données pour le moment — et le plus souvent il n'y en a tout simplement pas, ce qui est normal. Si un schéma stable et suffisamment significatif apparaît, nous le ferons remonter ici pour l'explorer.",
+    "note": "Premières observations uniquement — corrélation n'est pas causalité. Les données sont agrégées et filtrées statistiquement pour plus de fiabilité."
+  },
+  "scatter": {
+    "aria": "Nuage de points : axe horizontal {{driver}}, axe vertical {{outcome}}",
+    "title": "Axe horizontal : {{driver}} · axe vertical : {{outcome}}",
+    "xFallback": "Indicateur A",
+    "yFallback": "Indicateur B"
+  },
+  "empty": {
+    "noGoals": "Aucun objectif pour l'instant. {{action}} un objectif pour voir le score.",
+    "action": "Définir"
+  },
+  "footerLink": "Modifier vos objectifs ←",
+  "dualBars": {
+    "pace": "Du rythme",
+    "goal": "De l'objectif"
+  }
+}

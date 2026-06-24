@@ -2,6 +2,7 @@ import i18n from '../i18n'
 import heGuidance from '../i18n/locales/he/guidance.json'
 import enGuidance from '../i18n/locales/en/guidance.json'
 import esGuidance from '../i18n/locales/es/guidance.json'
+import frGuidance from '../i18n/locales/fr/guidance.json'
 
 /* ════════════════════════════════════════════════════════════════
    Guided tour registry — per-screen, multi-step spotlight walkthrough.
@@ -32,6 +33,7 @@ import esGuidance from '../i18n/locales/es/guidance.json'
 i18n.addResourceBundle('he', 'guidance', heGuidance, true, false)
 i18n.addResourceBundle('en', 'guidance', enGuidance, true, false)
 i18n.addResourceBundle('es', 'guidance', esGuidance, true, false)
+i18n.addResourceBundle('fr', 'guidance', frGuidance, true, false)
 
 /* The home dashboard reuses the existing data-widget-id hooks as tour
    targets — no extra markup needed. Order follows top-to-bottom layout;

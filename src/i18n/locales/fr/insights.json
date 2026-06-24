@@ -1,0 +1,56 @@
+{
+  "title": "Comment allez-vous aujourd'hui",
+  "activeCount": "{{count}} actives",
+  "dailyInsights": "Observations quotidiennes",
+  "tagline": "S'écouter soi-même, un jour à la fois.",
+  "mirror": {
+    "title": "Réflexion quotidienne"
+  },
+  "loading": "Chargement…",
+  "loadError": "Impossible de charger vos questions. Essayez d'actualiser.",
+  "empty": "Aucune question quotidienne pour l'instant.",
+  "emptyAdd": "Ajoutez votre première question",
+  "addQuestion": "+ Ajouter une question",
+  "addQuestionAria": "Ajouter une question quotidienne",
+  "trend": {
+    "notEnough": "Données insuffisantes",
+    "aria": "Tendance de la question sur les 30 derniers jours"
+  },
+  "heatmap": {
+    "aria": "Historique annuel des réponses",
+    "heading": "Six derniers mois"
+  },
+  "card": {
+    "todayPill": "Aujourd'hui · {{value}}",
+    "turnOnAria": "Activer la question « {{question}} »",
+    "turnOffAria": "Désactiver la question « {{question}} »",
+    "turnOnTitle": "Activer la question",
+    "turnOffTitle": "Désactiver la question",
+    "editTitle": "Modifier la question",
+    "editAria": "Modifier la question « {{question}} »",
+    "deleteTitle": "Supprimer la question",
+    "deleteAria": "Supprimer la question « {{question}} »",
+    "yes": "Oui",
+    "no": "Non",
+    "save": "Enregistrer",
+    "skip": "Passer",
+    "skipAria": "Passer cette question pour aujourd'hui",
+    "avg7": "Moyenne sur 7 jours",
+    "avg30": "Moyenne sur 30 jours",
+    "last30": "30 derniers jours"
+  },
+  "unskip": {
+    "one": "Répondez à la question passée",
+    "many": "Répondez aux {{count}} questions passées"
+  },
+  "history": {
+    "title": "Historique",
+    "empty": "Aucune réponse dans votre historique pour l'instant.",
+    "deletedQuestion": "Question supprimée"
+  },
+  "delete": {
+    "title": "Supprimer la question",
+    "message": "Supprimer « {{question}} » ? L'historique de ses réponses sera masqué. Vous pouvez la restaurer depuis la corbeille sous 30 jours.",
+    "confirm": "Supprimer"
+  }
+}

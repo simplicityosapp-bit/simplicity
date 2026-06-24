@@ -27,9 +27,9 @@ import heCookies from './locales/he/cookies.json'
 import enCookies from './locales/en/cookies.json'
 import esCookies from './locales/es/cookies.json'
 import frCookies from './locales/fr/cookies.json'
-/* Rollout namespaces — he (source) + en, now also fully translated to es.
-   fr still has only common/auth/cookies/settings/components and falls back to
-   he (fallbackLng) for the rest until its language pass fills the JSON. */
+/* Rollout namespaces — he (source) + en, now also FULLY translated to es and fr.
+   All four languages cover every active namespace below. (The 3 dynamically
+   registered namespaces — guidance/presets/reflections — live in their libs.) */
 import heNav from './locales/he/nav.json'
 import enNav from './locales/en/nav.json'
 import heGoals from './locales/he/goals.json'
@@ -112,6 +112,32 @@ import esModalsData from './locales/es/modalsData.json'
 import esModalsTask from './locales/es/modalsTask.json'
 import esModalsSystem from './locales/es/modalsSystem.json'
 import esHelp from './locales/es/help.json'
+/* French (fr) — full language pass: every active namespace translated.
+   (common/auth/cookies/settings/components are imported above with their pairs.) */
+import frNav from './locales/fr/nav.json'
+import frGoals from './locales/fr/goals.json'
+import frQuestions from './locales/fr/questions.json'
+import frTrash from './locales/fr/trash.json'
+import frHome from './locales/fr/home.json'
+import frClients from './locales/fr/clients.json'
+import frFinance from './locales/fr/finance.json'
+import frCalendar from './locales/fr/calendar.json'
+import frLeads from './locales/fr/leads.json'
+import frProjects from './locales/fr/projects.json'
+import frTasks from './locales/fr/tasks.json'
+import frConnections from './locales/fr/connections.json'
+import frAdmin from './locales/fr/admin.json'
+import frLanding from './locales/fr/landing.json'
+import frInsights from './locales/fr/insights.json'
+import frReports from './locales/fr/reports.json'
+import frMoon from './locales/fr/moon.json'
+import frOnboarding from './locales/fr/onboarding.json'
+import frOnboardingSteps from './locales/fr/onboardingSteps.json'
+import frModalsClient from './locales/fr/modalsClient.json'
+import frModalsData from './locales/fr/modalsData.json'
+import frModalsTask from './locales/fr/modalsTask.json'
+import frModalsSystem from './locales/fr/modalsSystem.json'
+import frHelp from './locales/fr/help.json'
 
 export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'settings', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing', 'insights', 'reports', 'moon', 'components', 'onboarding', 'onboardingSteps', 'modalsClient', 'modalsData', 'modalsTask', 'modalsSystem', 'questions', 'help', 'cookies']
 
@@ -119,7 +145,7 @@ const resources = {
   he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, settings: heSettings, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads, projects: heProjects, tasks: heTasks, connections: heConnections, admin: heAdmin, landing: heLanding, insights: heInsights, reports: heReports, moon: heMoon, components: heComponents, onboarding: heOnboarding, onboardingSteps: heOnboardingSteps, modalsClient: heModalsClient, modalsData: heModalsData, modalsTask: heModalsTask, modalsSystem: heModalsSystem, questions: heQuestions, help: heHelp, cookies: heCookies },
   en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, settings: enSettings, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads, projects: enProjects, tasks: enTasks, connections: enConnections, admin: enAdmin, landing: enLanding, insights: enInsights, reports: enReports, moon: enMoon, components: enComponents, onboarding: enOnboarding, onboardingSteps: enOnboardingSteps, modalsClient: enModalsClient, modalsData: enModalsData, modalsTask: enModalsTask, modalsSystem: enModalsSystem, questions: enQuestions, help: enHelp, cookies: enCookies },
   es: { common: esCommon, auth: esAuth, nav: esNav, goals: esGoals, settings: esSettings, trash: esTrash, home: esHome, clients: esClients, finance: esFinance, calendar: esCalendar, leads: esLeads, projects: esProjects, tasks: esTasks, connections: esConnections, admin: esAdmin, landing: esLanding, insights: esInsights, reports: esReports, moon: esMoon, components: esComponents, onboarding: esOnboarding, onboardingSteps: esOnboardingSteps, modalsClient: esModalsClient, modalsData: esModalsData, modalsTask: esModalsTask, modalsSystem: esModalsSystem, questions: esQuestions, help: esHelp, cookies: esCookies },
-  fr: { common: frCommon, auth: frAuth, settings: frSettings, components: frComponents, cookies: frCookies },
+  fr: { common: frCommon, auth: frAuth, nav: frNav, goals: frGoals, settings: frSettings, trash: frTrash, home: frHome, clients: frClients, finance: frFinance, calendar: frCalendar, leads: frLeads, projects: frProjects, tasks: frTasks, connections: frConnections, admin: frAdmin, landing: frLanding, insights: frInsights, reports: frReports, moon: frMoon, components: frComponents, onboarding: frOnboarding, onboardingSteps: frOnboardingSteps, modalsClient: frModalsClient, modalsData: frModalsData, modalsTask: frModalsTask, modalsSystem: frModalsSystem, questions: frQuestions, help: frHelp, cookies: frCookies },
 }
 
 i18n

@@ -5,5 +5,18 @@
   "close": "Fermer",
   "back": "Retour",
   "language": "Langue",
-  "tryAgain": "Réessayer"
+  "tryAgain": "Réessayer",
+  "roles": {
+    "therapist": "Thérapeute",
+    "coach": "Coach",
+    "facilitator": "Facilitateur",
+    "teacher": "Enseignant",
+    "instructor": "Instructeur",
+    "other": "Autre"
+  },
+  "time": {
+    "now": "maintenant",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain"
+  }
 }

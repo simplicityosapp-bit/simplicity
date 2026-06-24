@@ -1,0 +1,123 @@
+{
+  "welcome": {
+    "close": "Masquer la carte de bienvenue",
+    "eyebrow": "Bienvenue sur Simplicity",
+    "title": "Tout commence ici",
+    "sub": "Trois courtes étapes pour démarrer. Les boutons lumineux sur chaque écran vous guideront.",
+    "addClient": "Ajoutez votre premier client",
+    "addTask": "Créez une tâche",
+    "addLead": "Ajoutez un prospect"
+  },
+  "widgets": {
+    "attention": {
+      "title": "Nécessite votre attention",
+      "infoLabel": "À propos de « Nécessite votre attention »",
+      "infoText": "Éléments qui nécessitent une action : transactions en attente d'approbation, rendez-vous pas encore marqués, clients sans contact depuis 45 jours et objectifs en retard sur le rythme.",
+      "count_one": "{{count}} élément",
+      "count_other": "{{count}} éléments",
+      "dup_one": "Conflit de calendrier avec Google",
+      "dup_other": "{{count}} conflits de calendrier avec Google",
+      "more": "et {{count}} de plus",
+      "allClear": "Tout est sous contrôle — rien en attente",
+      "empty": "Rien ne nécessite votre attention pour le moment.",
+      "txModalTitle": "Transactions en attente d'approbation",
+      "txEmpty": "C'est terminé — aucune transaction en attente. Vous pouvez fermer.",
+      "meetingsModalTitle": "Rendez-vous à confirmer",
+      "bookings_one": "Nouvelle réservation à confirmer",
+      "bookings_other": "{{count}} nouvelles réservations à confirmer",
+      "bookingsModalTitle": "Réservations à confirmer"
+    },
+    "chips": {
+      "tasks": "Tâches",
+      "tasksInfoLabel": "À propos des tâches",
+      "tasksInfoText_pre": "Touchez",
+      "tasksInfoText_post": " la carte pour filtrer et voir les détails. Par défaut : uniquement les tâches ouvertes.",
+      "income": "Revenus",
+      "expense": "Dépenses",
+      "net": "Net",
+      "netInfoLabel": "À propos du net",
+      "netInfoText_pre": "Touchez",
+      "netInfoText_post": " la carte pour filtrer par période, type, projet et catégorie. Ne compte que les transactions approuvées.",
+      "clients": "Clients",
+      "clientsInfoLabel": "À propos des clients",
+      "clientsInfoText_pre": "Touchez",
+      "clientsInfoText_post": " la carte pour filtrer par statut, projet et groupe. Par défaut : actifs + intermédiaires."
+    },
+    "insights": {
+      "expand": "Ouvrir « Comment allez-vous aujourd'hui »",
+      "collapse": "Réduire « Comment allez-vous aujourd'hui »",
+      "prompt": "Comment allez-vous aujourd'hui ?",
+      "addQuestion": "Ajouter une question quotidienne ←",
+      "done": "Terminé pour aujourd'hui — parfait.",
+      "improved": "En hausse par rapport à hier",
+      "stable": "Stable depuis hier",
+      "lower": "Un peu plus bas qu'hier",
+      "reminder": "Vous n'avez pas encore répondu aujourd'hui — un petit moment pour vous ?",
+      "infoLabel": "À propos de la question quotidienne",
+      "infoText": "La question quotidienne suit votre ressenti au fil du temps. L'échelle va de 1 à 10 (10 = le mieux). Les réponses sont enregistrées par jour et alimentent des analyses sur l'écran « Comment allez-vous aujourd'hui ».",
+      "yes": "Oui",
+      "no": "Non",
+      "saveAria": "Enregistrer la réponse"
+    },
+    "moon": {
+      "percentOfGoal": "{{percent}} % de l'objectif",
+      "glance": "Coup d'œil",
+      "setGoal": "Définir un objectif ←",
+      "setGoalAria": "Définir un objectif",
+      "glanceAria": "Coup d'œil {{percent}} %",
+      "ofPace": "du rythme",
+      "infoLabel": "À propos du coup d'œil",
+      "infoText": "Le score pondéré de tous vos objectifs ce mois-ci, tenant compte du rythme — quelle part de l'objectif quotidien attendu vous avez couverte jusqu'à présent. 100 % = pile dans le rythme.",
+      "expandedEmpty": "Aucun objectif actif avec des données ce mois-ci pour l'instant.",
+      "fullDetail": "Détail complet"
+    },
+    "nextTasks": {
+      "title": "Prochaines tâches",
+      "link_one": "{{count}} tâche",
+      "link_other": "{{count}} tâches",
+      "noOpen": "Aucune tâche ouverte",
+      "urgentOf_one": "{{urgentText}} sur {{count}} ouverte",
+      "urgentOf_other": "{{urgentText}} sur {{count}} ouvertes",
+      "urgent_one": "{{count}} urgente",
+      "urgent_other": "{{count}} urgentes",
+      "openSummary_one": "{{count}} tâche ouverte",
+      "openSummary_other": "{{count}} tâches ouvertes",
+      "allDone": "Toutes les tâches sont terminées. {{add}} une tâche dès qu'elle se présente.",
+      "addWord": "Ajoutez",
+      "markDone": "Marquer comme terminée"
+    },
+    "quick": {
+      "quickAdd": "Ajout rapide",
+      "goalUpdate": "Mettre à jour l'objectif"
+    },
+    "quote": {
+      "sourceAria": "Choisir la source des citations",
+      "fallback": "Aujourd'hui est un nouveau jour. Tout est possible."
+    },
+    "reminders": {
+      "title": "Rappels à venir",
+      "link_one": "{{count}} rappel",
+      "link_other": "{{count}} rappels",
+      "none": "Aucun rappel à venir",
+      "todaySummary_one": "{{today}} aujourd'hui · {{count}} à venir",
+      "todaySummary_other": "{{today}} aujourd'hui · {{count}} à venir",
+      "soonSummary_one": "{{count}} rappel à venir",
+      "soonSummary_other": "{{count}} rappels à venir",
+      "empty": "Aucun rappel à venir — tout est calme.",
+      "markDone": "Terminé",
+      "markDoneAria": "Marquer comme terminé"
+    },
+    "meetingConfirm": {
+      "subjectClient": "Client",
+      "subjectGroup": "Groupe",
+      "meetingHappened": "Le rendez-vous a eu lieu",
+      "meetingSkipped": "N'a pas eu lieu",
+      "meetingDelete": "Supprimer le rendez-vous",
+      "linkedExpense": "Dépense du rendez-vous",
+      "txPaid": "Payé",
+      "txNotPaid": "Non payé",
+      "txDelete": "Supprimer la transaction",
+      "empty": "Aucun rendez-vous en attente d'approbation."
+    }
+  }
+}

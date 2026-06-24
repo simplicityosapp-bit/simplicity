@@ -1,0 +1,1383 @@
+{
+  "screens": {
+    "home": {
+      "title": "Accueil",
+      "intro": "L'Accueil est votre tableau de bord personnel. Il est composé de widgets que vous pouvez activer, désactiver et réorganiser à votre guise. Chacun vous donne un aperçu rapide d'un domaine de votre travail et un raccourci pour y accéder.",
+      "features": [
+        {
+          "title": "Les widgets qui composent l'écran",
+          "body": "L'écran est constitué de huit widgets : citation du jour, vue d'ensemble, point quotidien, transaction rapide / mise à jour rapide, alertes (séances, paiements), rappels à venir, prochaines tâches et cartes de statut (clients / net / tâches). Chacun peut être activé, désactivé et réorganisé dans Paramètres → Widgets et affichage."
+        },
+        {
+          "title": "Widget Vue d'ensemble",
+          "body": "Un cercle qui indique si vous êtes dans les temps : quelle part de votre objectif quotidien vous avez déjà atteinte. 100 % signifie que vous êtes exactement dans les temps. Sous le cercle, vous verrez aussi « X % de l'objectif » — quelle part de votre objectif global vous avez accomplie. Appuyer sur le cercle l'agrandit avec une phrase de synthèse, une barre de progression pour chaque objectif actif et un lien « Détails complets » vers l'écran Vue d'ensemble. Si vous n'avez encore défini aucun objectif, une invite « Définir un objectif » apparaît et vous mène directement à l'écran Objectifs."
+        },
+        {
+          "title": "Widget Citation du jour",
+          "body": "Une citation inspirante par jour. Appuyer dessus ouvre le panneau Citations, où vous choisissez la source — « Citations du système » ou « Mes citations » — et pouvez ajouter ou supprimer les vôtres. Tant que vous n'avez ajouté aucune citation personnelle, une citation de la bibliothèque générale s'affiche."
+        },
+        {
+          "title": "Widget Point quotidien",
+          "body": "Affiche la prochaine question quotidienne sans réponse. Répondez sur une échelle de 1 à 10 (faites glisser le curseur et enregistrez avec ✓) ou par oui/non, selon la question. Après avoir répondu, vous passez à la question suivante ; une fois terminé, « Vous avez terminé pour aujourd'hui — bravo » apparaît. Si vous avez activé un rappel quotidien et que son heure est passée, un petit rappel bienveillant apparaît : « Vous n'avez pas encore répondu aujourd'hui — un instant pour vous ? » Vous pouvez le masquer, et appuyer sur la question vous mène à l'écran Point quotidien."
+        },
+        {
+          "title": "Widget Transaction rapide / mise à jour rapide",
+          "body": "Deux boutons : « Ajout rapide » ouvre des raccourcis pour ajouter une transaction, un client, un prospect, une tâche, un projet, un objectif, un rappel ou une séance — le tout directement depuis l'Accueil. « Mettre à jour un objectif » vous permet de choisir une catégorie d'objectif et d'enregistrer manuellement la progression."
+        },
+        {
+          "title": "Widget Alertes (nécessite votre attention)",
+          "body": "Une carte qui rassemble en un seul endroit tout ce qui vous attend : transactions à confirmer, séances que vous n'avez pas encore marquées, clients avec un solde impayé, écart par rapport à l'objectif mensuel, tâches urgentes, clients à qui vous n'avez pas parlé depuis 45 jours, prospects sans activité, relances dues aujourd'hui et doublons avec Google Calendar. Les transactions et les séances ouvrent une fenêtre de confirmation (confirmer / passer / supprimer) ; tout le reste vous mène à l'écran concerné."
+        },
+        {
+          "title": "Confirmer des séances depuis l'Accueil",
+          "body": "Dans la fenêtre « Séances à confirmer » de la carte d'alertes, vous pouvez marquer chaque séance comme « A eu lieu » (ce qui crée une séance réelle dans la fiche du client ou du groupe), « N'a pas eu lieu », ou la supprimer. Vous pouvez aussi confirmer, refuser ou supprimer une dépense liée à cette séance."
+        },
+        {
+          "title": "Widget Rappels à venir",
+          "body": "Une carte affichant tous vos rappels à venir, d'aujourd'hui jusqu'à 60 jours plus tard, par ordre de date, en mettant en évidence le nombre de rappels « aujourd'hui ». Chaque ligne ouvre le calendrier, et le bouton ✓ marque un rappel comme terminé. Un rappel récurrent passe simplement à sa prochaine date ; vous pouvez annuler avec « Annuler »."
+        },
+        {
+          "title": "Widget Prochaines tâches",
+          "body": "Une carte avec toutes vos tâches ouvertes, triées par urgence. Le résumé indique combien sont urgentes sur le total. Un point rouge marque une tâche urgente, appuyer sur une ligne ouvre l'écran Tâches, et ✓ marque la tâche comme terminée (vous pouvez annuler avec « Annuler »)."
+        },
+        {
+          "title": "Widget Cartes de statut",
+          "body": "Trois cartes — Tâches · Net · Clients — chacune avec un chiffre en direct en haut. En appuyer sur une ouvre une fenêtre de filtre et de détails (par période, type, statut, urgence, projet, catégorie, groupe) avec un graphique de tendance, et le chiffre se met à jour selon votre filtre. « Ouvrir en grand » vous mène à l'écran complet. Le net ne compte que les transactions confirmées, et le titre de la carte devient « Revenu » ou « Dépenses » si vous filtrez sur un seul type."
+        },
+        {
+          "title": "Carte de bienvenue pour la première fois",
+          "body": "Tant que vous n'avez pas au moins un client, une carte « Tout commence ici » se trouve en haut de l'écran avec trois étapes — premier client, première tâche et premier prospect — chacune menant à l'écran avec le bouton d'ajout mis en évidence. Vous pouvez la masquer avec le X, et elle disparaît d'elle-même une fois votre premier client créé."
+        },
+        {
+          "title": "Personnaliser l'affichage et envoyer un commentaire",
+          "body": "Dans Paramètres → Widgets et affichage, vous pouvez changer le style des cartes (givré / plat / contour), l'épaisseur du texte (normal / gras) et la densité (compact / normal / spacieux). Vous pouvez aussi activer le mode « compact » ou une densité distincte sur les widgets qui le permettent. En bas de l'Accueil, une carte « Un commentaire ? » permet d'envoyer des suggestions et des rapports de bugs."
+        }
+      ],
+      "tips": [
+        "Vous voulez réaménager l'Accueil ? Allez dans Paramètres → Widgets et affichage — c'est là que vous activez et désactivez les widgets, et que vous choisissez le style, l'épaisseur du texte et la densité.",
+        "Vous définissez l'ordre des widgets en faisant glisser la ligne dans les Paramètres, ou avec les flèches haut/bas. Les widgets citation et vue d'ensemble se placent toujours sur la ligne du haut lorsqu'ils sont activés.",
+        "Appuyer sur la carte Tâches / Net / Clients ne fait pas qu'afficher un chiffre — cela ouvre un filtre complet, et vos réglages sont enregistrés pour la prochaine fois.",
+        "« Ajout rapide » sur l'Accueil est un raccourci pour ajouter n'importe quoi dans l'application (transaction, client, prospect, tâche, projet, objectif, rappel, séance) sans changer d'écran.",
+        "Vous avez marqué un rappel ou une tâche par erreur ? Vous pouvez annuler immédiatement grâce à la notification « Annuler » qui apparaît après l'action.",
+        "Marquer une séance comme « A eu lieu » dans la fenêtre de confirmation de séance crée une séance réelle dans la fiche du client — cela ne fait pas que retirer l'alerte."
+      ],
+      "faq": [
+        {
+          "q": "Comment ajouter ou retirer un widget de l'Accueil ?",
+          "a": "Allez dans Paramètres → Widgets et affichage → ouvrez la liste « Widgets » et activez ou désactivez chacun. Vous ne pouvez pas ajouter de widgets directement depuis l'écran d'accueil lui-même."
+        },
+        {
+          "q": "Que signifie le pourcentage dans le cercle de Vue d'ensemble ?",
+          "a": "C'est la part de votre objectif quotidien que vous avez atteinte jusqu'à présent — pas une note. 100 % signifie que vous êtes exactement dans les temps. Appuyer sur le cercle affiche une répartition pour chaque objectif."
+        },
+        {
+          "q": "J'ai appuyé sur la carte « Clients » / « Net » / « Tâches » et j'ai obtenu une fenêtre de filtre — où est l'écran complet ?",
+          "a": "Les cartes ouvrent une fenêtre de détails et de filtre. Pour accéder à l'écran complet, appuyez sur « Ouvrir en grand » en bas de la fenêtre."
+        },
+        {
+          "q": "Pourquoi le chiffre « Net » des cartes de statut ne correspond-il pas à ce que j'ai saisi ?",
+          "a": "La carte ne compte que les transactions confirmées (ni en attente ni passées) et affiche le net pour la période que vous avez sélectionnée dans la fenêtre de filtre (par défaut : ce mois-ci). Les transactions en attente apparaissent séparément sous « Nécessite votre attention »."
+        },
+        {
+          "q": "J'ai marqué un rappel récurrent comme terminé — a-t-il disparu ?",
+          "a": "Non. Un rappel récurrent n'est pas supprimé — il passe simplement à sa prochaine date. Si c'était une erreur, appuyez sur « Annuler » dans la notification qui apparaît pour le rétablir."
+        },
+        {
+          "q": "Comment changer la citation du jour ou ajouter la mienne ?",
+          "a": "Appuyez sur le widget citation pour ouvrir le panneau Citations. Vous y choisissez la source — « Citations du système » ou « Mes citations » — et ajoutez ou supprimez les vôtres."
+        }
+      ]
+    },
+    "clients": {
+      "title": "Clients",
+      "intro": "C'est ici que vous gérez tous vos clients. Chaque client a une fiche avec ses séances, ses paiements et son statut. Vous pouvez les grouper, les trier et effectuer des actions sur plusieurs clients à la fois.",
+      "features": [
+        {
+          "title": "Ajouter un client",
+          "body": "Le bouton « + Nouveau client » en haut de l'écran ouvre un formulaire où seul le nom est requis. Vous pouvez aussi renseigner le statut et le sous-statut, le mode de facturation (forfait / à la séance), le nombre de séances, le prix par séance, le téléphone, l'e-mail, le projet et une séance récurrente (jour + heure). Tout le reste peut toujours être complété ultérieurement depuis la fiche du client."
+        },
+        {
+          "title": "Statuts des clients",
+          "body": "Chaque client appartient à l'un des quatre groupes : Actif, En pause, Ancien, Sans statut. Les onglets en haut de la liste affichent les groupes avec un compteur pour chacun. L'onglet « Sans statut » n'apparaît que s'il contient des clients. Dans les Paramètres, vous pouvez ajouter vos propres sous-statuts à chaque groupe, et ils apparaîtront dans le sélecteur de statut du formulaire client."
+        },
+        {
+          "title": "Trier la liste",
+          "body": "Le bouton « Trier » ordonne la liste par nom, solde, payé, séances, date d'ajout ou ancienneté (les plus anciens d'abord), par ordre croissant ou décroissant. Votre sélection est enregistrée et restaurée à chaque ouverture de l'écran."
+        },
+        {
+          "title": "Grouper par statut ou par projet",
+          "body": "Le sélecteur « Statut / Projet » modifie la disposition de l'affichage. En mode « Projet », les clients sont organisés sous chaque nom de projet (y compris un groupe « Sans projet »), et les onglets et le résumé du haut disparaissent dans cette vue."
+        },
+        {
+          "title": "Recherche et filtre de solde",
+          "body": "La barre de recherche cherche par nom de client. Le bouton « Solde impayé » n'affiche que les clients qui vous doivent encore de l'argent (solde supérieur à zéro), et à côté vous pouvez voir combien de clients correspondent dans la vue actuelle."
+        },
+        {
+          "title": "Résumé du haut (mensuel / cumulé)",
+          "body": "Au-dessus de la liste (lors d'un groupement par statut), un résumé du groupe ouvert s'affiche : séances, payé et solde impayé. Le sélecteur « Mensuel / Cumulé » détermine si les séances et les montants concernent le mois en cours ou depuis le début. Dans les onglets « Ancien » et « Sans statut », le résumé est toujours cumulé et le sélecteur est verrouillé."
+        },
+        {
+          "title": "Fiche client (profil du client)",
+          "body": "Appuyer sur un client ouvre un panneau latéral avec tous ses détails : résumé de facturation (séances / payé / solde), actions rapides et sections dépliables — séance hebdomadaire fixe, séances et résumés, paiements, tâches ouvertes, chronologie, notes, rappels liés et groupes. Dans chaque section, vous pouvez appuyer sur l'icône crayon pour passer en mode modification et ouvrir un élément."
+        },
+        {
+          "title": "Actions rapides dans la fiche",
+          "body": "Trois boutons se trouvent en haut de la fiche : « Enregistrer une séance » pour consigner une séance déjà passée (date, résumé, notes privées), « Planifier une séance » pour fixer un rendez-vous à venir — ponctuel ou un « créneau fixe » hebdomadaire récurrent, et « Paiement reçu » pour enregistrer un revenu."
+        },
+        {
+          "title": "Changer le statut dans la fiche",
+          "body": "L'étiquette de statut dans la fiche est un bouton — appuyez dessus et choisissez un autre groupe, avec une option d'annulation. Un client qui appartient à un groupe tient son statut du groupe, affiché comme « · Du groupe », et son statut ne peut pas être modifié manuellement."
+        },
+        {
+          "title": "Modifier les détails et la facturation",
+          "body": "Le bouton « Modifier » ouvre le formulaire complet : nom, statut et sous-statut, mode de facturation, séances individuelles (« Planifiées » et « Effectuées »), prix, « Total dû » qui remplace le calcul automatique, et les champs « Payé » et « Solde » à modifier manuellement, ainsi que téléphone, e-mail, projet, groupe, séance récurrente et notes. Modifier « Payé » propose d'ajouter une transaction financière réelle ; modifier « Solde » consigne uniquement un ajustement, sans transaction."
+        },
+        {
+          "title": "Sélection multiple et actions groupées",
+          "body": "Le bouton « Sélectionner » active le mode sélection : cochez plusieurs clients, et dans la barre d'outils en bas vous pouvez « Changer le statut » pour les déplacer tous vers un autre groupe, ou « Supprimer ». Les deux actions peuvent être annulées d'un seul appui sur annuler."
+        },
+        {
+          "title": "Supprimer un client et gérer les transactions",
+          "body": "La suppression (depuis la fiche ou la barre d'outils de sélection) ouvre une fenêtre de choix : « Conserver les transactions » laisse les paiements dans Argent avec une étiquette « [Nom] · supprimé », ou « Supprimer aussi les transactions » les envoie également à la Corbeille. Chaque élément peut être restauré depuis la Corbeille sous 30 jours."
+        },
+        {
+          "title": "Séances et groupes dans le calcul du solde",
+          "body": "Les séances individuelles comptent dans le calcul, et en mode « à la séance » le solde s'accumule en fonction du nombre de séances enregistrées × le prix. Un client membre d'un groupe voit aussi les séances et les charges de ce groupe, qui sont comptées dans le résumé en conséquence."
+        }
+      ],
+      "tips": [
+        "Le tri, le groupement, le sélecteur mensuel/cumulé et le filtre « Solde impayé » sont tous enregistrés par utilisateur — ce que vous avez choisi sera restauré la prochaine fois que vous ouvrirez l'écran.",
+        "Vous déplacez plusieurs clients vers « Ancien » à la fin d'une saison ? Appuyez sur « Sélectionner » → cochez les clients → « Changer le statut » dans la barre d'outils en bas.",
+        "Pour rester précis, ajoutez des sous-statuts dans les Paramètres (par ex. « Pause courte », « En attente de confirmation ») — ils apparaîtront dans le sélecteur de statut du formulaire client.",
+        "Des données importées et des montants qui ne tombent pas juste ? Utilisez « Total dû » ou les champs « Payé » / « Solde » en mode modification pour rectifier la fiche sans perturber les calculs des séances à venir.",
+        "Un client affecté à un groupe tient son statut du groupe — si vous ne pouvez pas changer son statut manuellement, c'est pour cela (affiché comme « · Du groupe »).",
+        "Pour définir une séance hebdomadaire fixe : ouvrez la fiche → « Planifier une séance » → « Créneau fixe ». Le jour est défini d'après la date que vous avez choisie, et vous pouvez le modifier ou l'annuler plus tard en modifiant le client."
+      ],
+      "faq": [
+        {
+          "q": "La recherche par téléphone ou e-mail ne trouve pas le client — pourquoi ?",
+          "a": "La recherche fonctionne uniquement par nom de client. Pour trouver quelqu'un par d'autres détails, triez ou parcourez la liste et ouvrez la fiche pour voir le numéro de téléphone et l'e-mail."
+        },
+        {
+          "q": "Les données des clients sont-elles chiffrées ?",
+          "a": "Actuellement, les détails des clients (nom, téléphone, e-mail, notes et résumés) sont stockés en texte clair, non chiffrés. L'accès est protégé uniquement par les autorisations de votre compte."
+        },
+        {
+          "q": "J'ai supprimé un client par erreur — puis-je le restaurer ?",
+          "a": "Oui. Juste après la suppression, une option d'annulation apparaît, et de toute façon le client est conservé dans la Corbeille pendant 30 jours. Note : si vous avez choisi « Supprimer aussi les transactions », restaurer le client seul ne ramène pas les transactions supprimées avec lui — choisissez « Conserver les transactions » si l'historique des paiements vous importe."
+        },
+        {
+          "q": "J'ai modifié « Payé » dans la modification du client mais rien n'a été enregistré dans Argent ?",
+          "a": "Modifier « Payé » vous demande : « Ajouter une transaction » crée une véritable entrée de revenu dans Argent, et « Fiche uniquement » met à jour l'affichage seulement, sans transaction. Modifier « Solde », en revanche, est toujours consigné comme un simple ajustement, sans transaction dans Argent."
+        },
+        {
+          "q": "Pourquoi le résumé du haut affiche-t-il zéro séance ou ₪0 ce mois-ci ?",
+          "a": "Lorsque le sélecteur est réglé sur « Mensuel », le résumé ne compte que les séances et les paiements du mois en cours. Passez à « Cumulé » pour voir tout depuis le début. Dans les onglets « Ancien » et « Sans statut », la vue est toujours cumulée."
+        },
+        {
+          "q": "Quelle est la différence entre la facturation « Forfait » et « À la séance » ?",
+          "a": "Avec « Forfait », le solde est calculé en fonction du nombre de séances planifiées × le prix par séance. Avec « À la séance », il n'y a pas de quantité fixe à l'avance — le solde s'accumule en fonction du nombre de séances que vous avez réellement enregistrées × le prix par séance."
+        }
+      ]
+    },
+    "leads": {
+      "title": "Prospects",
+      "intro": "Un tableau pour gérer toutes vos demandes. Suivez chaque prospect du moment où il est « En cours » jusqu'à ce qu'il devienne client — avec sources, sous-statuts et relances.",
+      "features": [
+        {
+          "title": "Deux vues : Prospects et Statuts",
+          "body": "Deux onglets se trouvent en haut de l'écran. « Prospects » affiche le tableau kanban. « Statuts » ouvre un panneau pour gérer les sous-statuts sans quitter l'écran. Votre sélection est enregistrée, et l'écran s'ouvre dans la même vue la prochaine fois."
+        },
+        {
+          "title": "Tableau kanban à trois colonnes",
+          "body": "Les prospects sont organisés en trois colonnes fixes : En cours, Convertis, Non pertinents. Chaque colonne indique combien de prospects elle contient, et appuyer sur une carte ouvre la fenêtre « Modifier le prospect »."
+        },
+        {
+          "title": "Glisser entre les colonnes",
+          "body": "Vous pouvez faire glisser une carte de prospect d'une colonne à une autre, au doigt ou à la souris. Si la colonne vers laquelle vous l'avez glissée a deux sous-statuts ou plus, on vous demandera « Sous quel sous-statut le classer ? » (avec une option « Sans sous-statut »). S'il n'y en a qu'un, il est sélectionné automatiquement. Juste après le déplacement, « Annuler » apparaît pour revenir au statut précédent."
+        },
+        {
+          "title": "Ajouter un prospect",
+          "body": "Appuyez sur « + Nouveau prospect » pour ajouter une demande. Renseignez le nom (requis), le téléphone, la source, le projet, le groupe (affiché uniquement lorsque le projet a des groupes), le sous-statut (lorsque vous avez configuré des sous-statuts pour « En cours »), la date de la demande, la date de relance et des notes. Un nouveau prospect va toujours dans la colonne « En cours »."
+        },
+        {
+          "title": "Modifier un prospect",
+          "body": "Dans la fenêtre de modification, vous pouvez mettre à jour tous les détails, et aussi déplacer le prospect entre les colonnes à l'aide des boutons de statut (En cours / Converti / Non pertinent) et choisir un sous-statut correspondant. Changer le statut réinitialise le sous-statut, et changer le projet réinitialise le groupe."
+        },
+        {
+          "title": "Convertir en client",
+          "body": "Dans la fiche d'un prospect pas encore converti, appuyez sur « Convertir en client ». Une fenêtre « Convertir le prospect en client » s'ouvre, déjà préremplie avec le nom et le téléphone. Vous pouvez choisir un projet, un groupe et un sous-statut « Converti ». À l'enregistrement, un nouveau client actif est créé (sans séances ni prix pour l'instant), les notes lui sont transférées, et le prospect passe dans la colonne « Convertis » avec un lien vers le client. Si vous avez sélectionné un groupe, le client y est ajouté comme membre."
+        },
+        {
+          "title": "Sources de prospects",
+          "body": "Chaque prospect peut être étiqueté avec une source — recommandation, Instagram, site web, etc. Dans les fenêtres d'ajout et de modification, vous pouvez créer une nouvelle source sur le moment sans quitter : choisissez « + Nouvelle source… », saisissez un nom, et elle est enregistrée et sélectionnée immédiatement. Une carte sans source est étiquetée « Sans source »."
+        },
+        {
+          "title": "Sous-statuts",
+          "body": "Dans la vue « Statuts », vous pouvez ajouter, supprimer et réorganiser (par glissement) les sous-statuts sous chaque colonne. Ils apparaissent comme un point coloré sur la carte du prospect et servent au filtrage et aux graphiques. Un sous-statut par défaut ne peut pas être supprimé. Quand vous en supprimez un autre, les prospects restent sans sous-statut."
+        },
+        {
+          "title": "Filtrer et trier",
+          "body": "Des pastilles de filtre se trouvent au-dessus du tableau. Appuyer sur un sous-statut n'affiche que les prospects étiquetés avec lui (« Tous » efface le filtre, et appuyer de nouveau le désactive). Le bouton de tri alterne entre « Par date » → « Plus récents d'abord » → « Plus anciens d'abord », selon la date de la demande. Vos sélections sont enregistrées."
+        },
+        {
+          "title": "Relances",
+          "body": "Lorsque vous renseignez le champ « Relance » d'un prospect, un rappel est défini. Le bandeau « Relances dues aujourd'hui » en haut de l'écran compte les prospects qu'il est temps de recontacter (et qui sont encore en cours). Appuyer dessus ouvre « Relances ouvertes » — une liste où vous pouvez ouvrir un prospect ou marquer la relance comme effectuée (ce qui efface la date). Une relance en retard est mise en évidence en rouge sur la carte."
+        },
+        {
+          "title": "Statistiques de ce mois-ci",
+          "body": "Trois chiffres se trouvent en haut de l'écran : « Demandes ce mois-ci », « Convertis en clients » et « Taux de conversion ». Tous sont calculés automatiquement à partir des prospects ouverts ce mois-ci."
+        },
+        {
+          "title": "Supprimer un prospect",
+          "body": "Chaque carte a un bouton de suppression (X) dans le coin. Le prospect va à la Corbeille et peut être restauré sous 30 jours."
+        }
+      ],
+      "tips": [
+        "Renseignez une date de « Relance » pour que le prospect apparaisse dans le bandeau des relances le jour où vous devez le recontacter. Ainsi aucune demande ne passe entre les mailles du filet.",
+        "Étiquetez chaque prospect avec la bonne source. Le taux de conversion et les autres statistiques s'appuient là-dessus pour vous montrer d'où viennent vos clients les plus adaptés.",
+        "Au lieu d'ouvrir la fenêtre de modification, faites simplement glisser une carte vers une autre colonne pour faire avancer un prospect. Vous vous êtes trompé ? Appuyez sur « Annuler » qui apparaît juste après le glissement.",
+        "Configurez vos propres sous-statuts dans la vue « Statuts » (par ex. « En attente d'un rappel », « Appel de découverte planifié »), puis filtrez par eux sur le tableau pour rester concentré.",
+        "Lors de la conversion en client, vous pouvez déjà l'affecter à un projet et à un groupe. Les notes du prospect sont transférées automatiquement vers la nouvelle fiche client."
+      ],
+      "faq": [
+        {
+          "q": "Comment ajouter ou colorer une source de prospects ?",
+          "a": "Vous pouvez créer une nouvelle source directement depuis la fenêtre d'ajout ou de modification du prospect avec « + Nouvelle source… » (elle reçoit une couleur par défaut). Pour la gestion complète du nom et de la couleur, appuyez sur « Sources de prospects » dans la barre d'outils de l'écran — cela ouvre un panneau dédié pour ajouter, colorer et supprimer des sources."
+        },
+        {
+          "q": "Un prospect que j'ai converti en client apparaît toujours sur le tableau — est-ce normal ?",
+          "a": "Oui. Les prospects convertis passent dans la colonne « Convertis » et y restent, étiquetés « Converti en client » avec un lien vers le client. Vous pouvez filtrer par sous-statut pour concentrer votre vue."
+        },
+        {
+          "q": "J'ai glissé un prospect vers une autre colonne et on m'a demandé quel sous-statut — pourquoi ?",
+          "a": "Lorsque la colonne vers laquelle vous l'avez glissé a deux sous-statuts ou plus, l'application demande lequel attribuer (ou « Sans sous-statut »). S'il n'y en a qu'un, il est sélectionné automatiquement. S'il n'y en a aucun, le prospect est déplacé sans sous-statut."
+        },
+        {
+          "q": "J'ai supprimé un prospect par erreur — puis-je le restaurer ?",
+          "a": "Oui. Le prospect va à la Corbeille et peut être restauré sous 30 jours. Il en va de même pour un sous-statut ou une source supprimés — « Annuler » apparaît pour une restauration immédiate, et ils peuvent aussi être restaurés depuis la Corbeille."
+        },
+        {
+          "q": "La conversion en client fixe-t-elle un prix ou un nombre de séances ?",
+          "a": "Non. La conversion crée un client actif avec uniquement le nom, le téléphone et les notes. Le nombre de séances et le prix démarrent à zéro et sont renseignés depuis la fiche client."
+        },
+        {
+          "q": "Pourquoi le « Taux de conversion » affiche-t-il un tiret (—) ou me semble-t-il erroné ?",
+          "a": "Le chiffre est calculé à partir des prospects ouverts ce mois-ci — combien d'entre eux sont maintenant dans la colonne « Convertis ». S'il n'y a aucune nouvelle demande ce mois-ci, « — » s'affiche. Et un prospect ramené de « Convertis » vers une autre colonne n'est plus compté comme une conversion."
+        }
+      ]
+    },
+    "finance": {
+      "title": "Argent",
+      "intro": "L'écran Argent est votre centre névralgique pour tous les revenus et dépenses de votre activité, mois par mois : transactions, modèles récurrents, catégories, résumés et bénéfice, et imports de factures depuis votre service externe.",
+      "features": [
+        {
+          "title": "Nouvelle transaction (Revenu / Dépense)",
+          "body": "Le bouton « + Nouvelle transaction » ouvre une fenêtre où vous choisissez « + Revenu » ou « − Dépense » et renseignez le montant, la date, la description et le client/projet. Pour les dépenses, vous pouvez sélectionner une catégorie (ou en créer une nouvelle sur le moment). La transaction est enregistrée dans le mois de la date que vous avez choisie."
+        },
+        {
+          "title": "Une date future est enregistrée comme En attente",
+          "body": "Une transaction avec une date future est automatiquement enregistrée comme « En attente » jusqu'à ce que ce jour arrive, et se place dans la carte des éléments à approuver. Une transaction datée d'aujourd'hui ou du passé est enregistrée comme « Approuvée » et entre directement dans le résumé."
+        },
+        {
+          "title": "Émettre un reçu à l'enregistrement",
+          "body": "Pour un revenu lié à un client et non daté dans le futur, une case « Émettre un reçu à l'enregistrement » apparaît (uniquement si vous avez connecté un service de facturation valide). Cochez-la, choisissez un type de document (facture-reçu / reçu / facture), et pour les documents de type reçu choisissez aussi un mode de paiement — le document est émis au moment où la transaction est enregistrée."
+        },
+        {
+          "title": "Résumé mensuel et navigation entre les mois",
+          "body": "En haut de l'écran, vous verrez « Net ce mois-ci », « Revenu » et « Dépenses » pour le mois sélectionné, avec des flèches pour passer au mois précédent ou suivant. Chaque chiffre affiche aussi le pourcentage de variation par rapport au mois précédent. Le résumé ne compte que les transactions approuvées — les transactions en attente, passées ou annulées par un avoir ne sont pas incluses."
+        },
+        {
+          "title": "Graphique du revenu cumulé",
+          "body": "Un graphique montrant comment le revenu approuvé s'est accumulé jour après jour sur le mois sélectionné, avec un point sur le jour actuel. Si vous avez défini un objectif de revenu mensuel dans l'écran Objectifs, une ligne cible en pointillés et un pourcentage d'atteinte sont affichés. Sinon, un lien pour définir un objectif de revenu mensuel apparaît à la place."
+        },
+        {
+          "title": "Transactions en attente et approbation groupée",
+          "body": "Toutes les transactions en attente du mois se trouvent dans une carte distincte, indiquant le total des revenus et des dépenses en attente. Chaque ligne dispose de « Approuver » (la transaction a eu lieu) et « Passer » (elle n'a pas eu lieu). Cliquer sur une ligne ouvre la modification, et au-dessus d'une liste de plusieurs éléments figure un bouton « Tout approuver »."
+        },
+        {
+          "title": "Liste des transactions : Approuvées et Passées",
+          "body": "Sous la carte des éléments en attente, les transactions sont regroupées en « Approuvées » et « Passées ». Une transaction passée affiche une étiquette « Passée » avec un montant barré, et vous pouvez la remettre en attente. Lorsqu'il y a des transactions passées, un bouton apparaît pour les afficher ou les masquer (« Afficher N passées » / « Masquer les passées »)."
+        },
+        {
+          "title": "Supprimer une transaction depuis la liste ou la vue de modification",
+          "body": "Chaque transaction approuvée ou passée a un bouton de suppression dans la liste, et la fenêtre de modification comporte aussi un bouton « Supprimer ». Juste après la suppression, une notification d'annulation apparaît pour que vous puissiez restaurer la transaction."
+        },
+        {
+          "title": "Modèles récurrents (ordres permanents)",
+          "body": "Dans la section « Modèles récurrents », vous configurez des transactions qui se répètent automatiquement : « Selon un calendrier » (mensuel un jour précis, ou hebdomadaire un jour de la semaine précis, avec une date de fin facultative) ou « Après une séance » (crée une transaction en attente pour chaque séance avec le client que vous choisissez, et se ferme automatiquement si la séance est passée). Le système génère à partir de ces modèles des transactions en attente que vous devez approuver."
+        },
+        {
+          "title": "Mettre en pause, modifier et supprimer un modèle",
+          "body": "Chaque modèle a un bouton pause/reprise — un modèle en pause ne génère pas de nouvelles transactions et est marqué « En pause ». Vous pouvez modifier un modèle ou le supprimer (avec confirmation). Les transactions déjà générées à partir de lui demeurent même après la suppression."
+        },
+        {
+          "title": "Catégories de dépenses",
+          "body": "Dans la section « Catégories de dépenses », vous gérez vos catégories de dépenses : saisissez un nom, choisissez une couleur et cliquez sur « Ajouter ». Supprimer une catégorie (avec confirmation) ne supprime pas les dépenses — elles restent simplement sans catégorie."
+        },
+        {
+          "title": "Revenus par projet / Dépenses par catégorie",
+          "body": "Deux cartes affichent une répartition en colonnes : « Revenus par projet » répartit le revenu approuvé entre les projets (le revenu sans projet va dans « Sans projet »), et « Dépenses par catégorie » répartit les dépenses approuvées par catégorie (« Sans catégorie » pour tout ce qui n'est pas étiqueté)."
+        },
+        {
+          "title": "Import en attente depuis les factures",
+          "body": "Si vous avez connecté Green Invoice ou SUMIT, les factures que vous avez émises dans le service externe apparaissent dans la section « Import en attente ». Chaque facture a un lien « Afficher » vers le document, et vous pouvez l'importer comme revenu (avec une confirmation en deux étapes) ou l'écarter. S'il existe déjà une entrée de revenu pour le même client et le même montant, un avertissement « Doublon possible » apparaît avec une confirmation supplémentaire avant l'import."
+        },
+        {
+          "title": "Émettre une facture et un avoir depuis la vue de modification",
+          "body": "Cliquer sur une entrée de revenu ouvre la modification, et là — si vous avez connecté un service de facturation — « Émettre une facture » apparaît : choisissez un type de document, un produit du catalogue du fournisseur ou du texte libre, et un mode de paiement (pour les documents de type reçu). Après l'émission, vous verrez le numéro du document et un lien d'affichage, ainsi qu'un bouton « Avoir / Annuler » qui émet un avoir — cela annule le document et retire le revenu des résumés (la transaction est marquée « Annulée »)."
+        },
+        {
+          "title": "Export CSV",
+          "body": "Le bouton « Exporter en CSV » en haut de l'écran télécharge un fichier avec toutes les transactions du mois actuellement affiché (date, type, montant, description, statut, client, projet et catégorie). Le bouton n'est actif que lorsqu'il y a au moins une transaction dans le mois."
+        }
+      ],
+      "tips": [
+        "Tous les chiffres de l'écran — le résumé, le graphique et les répartitions — concernent le mois affiché en haut. Si une transaction semble manquante, vérifiez que vous êtes sur le bon mois d'après sa date.",
+        "Seules les transactions « Approuvées » comptent dans le résumé et le graphique. Les transactions en attente apparaissent séparément jusqu'à ce que vous les approuviez, et les transactions passées ou annulées sont exclues des totaux.",
+        "Pour les dépenses fixes comme le loyer, les abonnements ou les fournitures — configurez un modèle récurrent afin que la transaction soit créée automatiquement chaque mois et que vous n'oubliiez jamais de la consigner.",
+        "Vous pouvez créer une nouvelle catégorie de dépenses directement depuis la fenêtre de transaction (« + Nouvelle catégorie… ») sans la quitter.",
+        "Vous avez supprimé une transaction ? Vous pouvez la restaurer immédiatement via la notification d'annulation qui apparaît juste après la suppression."
+      ],
+      "faq": [
+        {
+          "q": "J'ai consigné une transaction mais elle n'apparaît pas dans la liste ou le résumé ?",
+          "a": "Vérifiez d'abord que vous êtes sur le bon mois (d'après la date de la transaction). Une transaction avec une date future est enregistrée comme « En attente » et se place séparément dans la carte des éléments en attente jusqu'à ce que vous l'approuviez — seule une transaction approuvée compte dans le résumé."
+        },
+        {
+          "q": "Pourquoi le résumé du haut ne correspond-il pas à ce que j'attends ?",
+          "a": "Le résumé ne compte que les transactions « Approuvées ». Les transactions en attente, celles que vous avez passées, ou celles annulées par un avoir — aucune n'est comptée dans les totaux du net, des revenus ou des dépenses."
+        },
+        {
+          "q": "Comment configurer un ordre permanent ?",
+          "a": "Dans la section « Modèles récurrents », cliquez sur « + Nouveau modèle », choisissez « Selon un calendrier » (mensuel ou hebdomadaire) ou « Après une séance », et définissez le montant, le jour et la date de fin. Le système générera des transactions en attente selon vos réglages, que vous approuverez ensuite."
+        },
+        {
+          "q": "J'ai supprimé un modèle récurrent — qu'advient-il des transactions déjà générées à partir de lui ?",
+          "a": "Elles demeurent. Supprimer un modèle empêche seulement la création de transactions futures ; toute transaction déjà générée reste normale. Si vous voulez simplement le mettre en pause temporairement, utilisez le bouton pause plutôt que de le supprimer."
+        },
+        {
+          "q": "Où puis-je télécharger les données vers Excel ?",
+          "a": "Utilisez le bouton « Exporter en CSV » en haut de l'écran Argent — il télécharge toutes les transactions du mois actuellement affiché. Pour exporter un autre mois, naviguez-y avec les flèches puis cliquez sur le bouton."
+        },
+        {
+          "q": "J'ai supprimé une transaction par erreur — puis-je la récupérer ?",
+          "a": "Oui. Juste après la suppression, une notification d'annulation apparaît pour que vous puissiez restaurer la transaction. Vous pouvez aussi annuler une marque « passée » sur une transaction et la remettre en attente."
+        }
+      ]
+    },
+    "projects": {
+      "title": "Projets",
+      "intro": "L'écran Projets organise votre travail par domaine. Chaque projet regroupe clients, groupes, tâches et transactions, et indique combien de clients il a, combien de revenus il génère et combien de tâches ouvertes il comporte.",
+      "features": [
+        {
+          "title": "Nouveau projet",
+          "body": "Cliquez sur « + Nouveau projet » (ou « Ajouter un projet » lorsque l'écran est vide) pour ouvrir la fenêtre « Nouveau projet ». Tout ce que vous définissez, c'est un nom de projet et une couleur parmi une palette de huit. Il n'y a pas de champs de date, de budget ou de description."
+        },
+        {
+          "title": "Carte de projet",
+          "body": "Chaque projet est affiché comme une carte avec un point de couleur, un nom et trois chiffres : combien de clients, combien de revenus (sur la période sélectionnée) et combien de tâches ouvertes. Cliquer sur la carte ouvre l'écran complet du projet."
+        },
+        {
+          "title": "Mensuel ou cumulé",
+          "body": "En haut de l'écran, un sélecteur « Mensuel » / « Cumulé » modifie la période des revenus. En mode « Mensuel », les chiffres affichent le revenu du mois en cours. En mode « Cumulé », ils affichent tous les revenus depuis le début jusqu'à aujourd'hui."
+        },
+        {
+          "title": "Résumé des projets",
+          "body": "La carte « Résumé des projets » en haut de l'écran indique combien de projets existent, combien de clients leur sont affectés et le revenu total (« Revenu mensuel » ou « Revenu cumulé », selon le sélecteur)."
+        },
+        {
+          "title": "Revenu automatique par projet",
+          "body": "Le revenu de chaque carte est calculé automatiquement à partir des transactions de revenu liées au projet — ou liées à un client qui appartient au projet. Vous n'avez pas besoin de saisir des montants manuellement sur le projet lui-même. Le nombre de tâches ouvertes provient aussi des tâches appartenant au projet ou à ses clients."
+        },
+        {
+          "title": "Modifier et supprimer depuis la carte",
+          "body": "Chaque carte a un bouton crayon (« Modifier le projet ») qui ouvre la fenêtre « Modifier le projet » pour changer le nom et la couleur, et un bouton X (« Supprimer le projet »). La suppression demande confirmation et note que les clients et les transactions demeureront — simplement sans l'affectation au projet."
+        },
+        {
+          "title": "Écran du projet : en-tête et statistiques",
+          "body": "À l'intérieur du projet, l'en-tête indique le nombre de clients actifs (et les clients « En pause » s'il y en a) et le nombre de groupes, avec trois statistiques : clients, « Revenu ce mois-ci » et groupes. Le bouton crayon en haut ouvre « Modifier le projet ». Note : « Revenu ce mois-ci » à l'intérieur de l'écran du projet affiche toujours le mois en cours — il n'est pas affecté par le sélecteur mensuel/cumulé de l'écran principal."
+        },
+        {
+          "title": "Ajout rapide dans un projet",
+          "body": "Chaque écran de projet comporte une ligne avec « Ajout rapide » et « Mettre à jour un objectif ». « Ajout rapide » ouvre un volet de sélection, et lorsque vous choisissez une transaction, un client, une tâche, un objectif, un rappel ou une séance — ils s'ouvrent déjà liés au projet actuel, sans que vous ayez à le resélectionner. « Mettre à jour un objectif » ouvre une liste d'objectifs pour une mise à jour rapide."
+        },
+        {
+          "title": "Graphique du revenu cumulé",
+          "body": "Sous la ligne d'ajout, un graphique « Revenu cumulé — Ce mois-ci » montre comment le revenu du projet s'est accumulé au cours du mois, avec le total à côté du titre. S'il n'y a pas de revenu ce mois-ci, « Aucun revenu pour ce projet ce mois-ci. » s'affiche."
+        },
+        {
+          "title": "Groupes dans un projet",
+          "body": "Dans la section « Groupes », vous pouvez créer un nouveau groupe (« + Nouveau groupe ») avec un nom, une couleur, une tarification (« Prix forfaitaire », « Prix à la séance » ou « Sans prix fixe ») et, en option, un jour, une heure de début, une heure de fin et des dates de début/fin. Chaque groupe affiche le nombre de membres, la tarification, la séance récurrente, une liste de membres, et des boutons pour « Ajouter un membre », « Enregistrer une séance », voir les séances passées et supprimer. Vous pouvez aussi modifier un groupe via le bouton crayon de son en-tête, et retirer un membre individuel en cliquant sur le X de son étiquette."
+        },
+        {
+          "title": "Séances passées d'un groupe",
+          "body": "Le bouton calendrier d'une carte de groupe ouvre la liste « Séances passées », où chaque séance est numérotée automatiquement. Vous pouvez changer la date d'une séance directement dans la liste, ou supprimer une séance individuelle — la suppression demande confirmation et retire la séance de tous les membres du groupe."
+        },
+        {
+          "title": "Statut du groupe et son effet sur les clients",
+          "body": "Chaque groupe a trois boutons de statut : Actif, En développement, Terminé. Passer à « Actif » ou « Terminé » peut aussi déplacer les membres du groupe vers le statut client approprié (Actif / Ancien) — le système demande confirmation et indique combien de clients seront concernés. Passer à « En développement » ne change pas les statuts des clients."
+        },
+        {
+          "title": "Affecter un client à un groupe par glissement",
+          "body": "Dans la section « Clients », vous pouvez faire glisser un client sur une carte de groupe. Si le client appartient déjà à un autre groupe, une fenêtre « Affecter au groupe » s'ouvre vous laissant choisir entre « Déplacer ici » et « Ajouter (les deux) ». Si le client n'est pas dans un autre groupe, il est ajouté directement."
+        },
+        {
+          "title": "Clients du projet",
+          "body": "La section « Clients » affiche tous les clients du projet, avec leur étiquette de groupe ou une étiquette « Privé » s'ils ne sont pas dans un groupe. Cliquer sur un client ouvre sa fiche client, et « + Ajouter un client au projet » ajoute un nouveau client préalablement lié au projet."
+        },
+        {
+          "title": "Rappels liés",
+          "body": "La section « Rappels liés » rassemble tous les rappels liés au projet, indique combien sont actifs sur le total, et permet de marquer un rappel comme effectué, de le supprimer (avec confirmation) ou d'ajouter un nouveau rappel au projet. Un rappel en retard est marqué « En retard », et un rappel terminé est marqué « Effectué »."
+        }
+      ],
+      "tips": [
+        "Pour que les revenus et les clients apparaissent dans un projet — liez-y des transactions, des clients et des séances. Le revenu est aussi calculé à partir des transactions appartenant aux clients liés, pas seulement des transactions étiquetées directement au projet.",
+        "Alternez entre « Mensuel » et « Cumulé » sur l'écran principal pour voir le revenu de ce mois-ci ou le revenu de tous les temps. Notez qu'à l'intérieur de l'écran du projet, la statistique « Revenu ce mois-ci » affiche toujours le mois en cours.",
+        "Vous avez supprimé un projet par erreur ? Une notification d'annulation apparaît juste après la suppression, et de toute façon les clients et les transactions demeurent dans le système.",
+        "Ajoutez des clients, des transactions et des rappels via « Ajout rapide » à l'intérieur du projet — tout sera automatiquement lié au projet actuel, sans sélection manuelle.",
+        "Avant de changer le statut d'un groupe en « Terminé », sachez que cela peut déplacer tous les membres du groupe vers le statut « Ancien ». Le système demandera confirmation et indiquera combien de clients seront concernés."
+      ],
+      "faq": [
+        {
+          "q": "Comment définir un budget, des dates de début/fin ou une description pour un projet ?",
+          "a": "Vous ne pouvez pas — un projet n'a qu'un nom et une couleur. Il n'y a pas de champs de budget, de date ou de description pour les projets. Le suivi financier provient automatiquement des transactions liées. (Les dates de début et de fin n'existent que pour les groupes au sein d'un projet, pas pour le projet lui-même.)"
+        },
+        {
+          "q": "Comment filtrer les projets par statut (actif/terminé) ?",
+          "a": "Les projets n'ont pas de statut, et vous ne pouvez pas filtrer par statut. Le statut (Actif / En développement / Terminé) n'existe que pour les groupes au sein d'un projet. L'étiquette « Actif » sur une carte de projet est fixe — ce n'est pas un statut modifiable."
+        },
+        {
+          "q": "Le revenu d'un projet ne semble pas correct — pourquoi ?",
+          "a": "Le revenu additionne les transactions de revenu liées au projet ou à un client du projet, sur la période sélectionnée (mensuel ou cumulé sur l'écran principal, mois en cours à l'intérieur de l'écran du projet). Les transactions non liées au projet ou à l'un de ses clients ne sont pas incluses."
+        },
+        {
+          "q": "Qu'advient-il des clients et des transactions lorsqu'un projet est supprimé ?",
+          "a": "Ils restent dans le système — ils perdent simplement leur affectation au projet. Une notification d'annulation apparaît également juste après la suppression."
+        },
+        {
+          "q": "J'ai supprimé un groupe — qu'advient-il de ses membres, de ses séances et de ses rappels ?",
+          "a": "Quand vous supprimez un groupe, une fenêtre s'ouvre où vous choisissez, pour chaque type de données liées (membres, séances à venir, séances passées, rappels liés), de les conserver ou de les supprimer. Les membres conservés restent comme clients privés dans le projet. Si le groupe n'a aucune donnée liée, il est simplement supprimé. Vous pouvez annuler toute l'action d'un seul clic."
+        },
+        {
+          "q": "Comment ajouter une séance de groupe ?",
+          "a": "À l'intérieur de l'écran du projet, sur la carte du groupe, cliquez sur « Enregistrer une séance ». La séance est enregistrée pour tous les membres du groupe et numérotée automatiquement. Vous pouvez voir la liste des séances passées via le bouton calendrier de la carte, et de là modifier la date d'une séance ou supprimer une séance individuelle."
+        }
+      ]
+    },
+    "tasks": {
+      "title": "Tâches",
+      "intro": "Un seul écran pour deux types de choses à faire. Les « Tâches » sont des choses à faire sans date précise. Les « Rappels » sont tout ce qui est lié à un jour et une heure. Basculez entre eux d'un seul appui sur le sélecteur en haut.",
+      "features": [
+        {
+          "title": "Basculer entre Tâches et Rappels",
+          "body": "Sous le titre se trouve un sélecteur à deux boutons : Tâches et Rappels. Une tâche est une chose à faire, sans date. Un rappel est tout ce qui est lié à un jour et une heure. Chaque côté a son propre résumé, son filtre et sa liste, et le bouton d'ajout change en conséquence (« + Nouvelle tâche » / « + Nouveau rappel »). Basculer de côté réinitialise aussi le filtre sur « Ouvertes »."
+        },
+        {
+          "title": "Ajouter une tâche",
+          "body": "Du côté Tâches, cliquez sur « + Nouvelle tâche ». Renseignez « Que faut-il faire ? » (requis) et choisissez une priorité (Urgente / Normale / Faible). Vous pouvez la lier à un projet et à un client, et si vous avez défini des statuts ou des catégories, vous pouvez aussi les sélectionner. Les tâches n'ont pas d'échéance — l'écran le note et suggère d'ajouter un rappel si vous avez besoin d'un jour précis."
+        },
+        {
+          "title": "Priorité et regroupement",
+          "body": "Il y a trois niveaux de priorité : Urgente, Normale et Faible. Les tâches sont triées dans cet ordre, et chaque groupe a son propre point de couleur et son compteur — Urgente en rouge, Normale en ambre, Faible en vert."
+        },
+        {
+          "title": "Terminer une tâche et annuler",
+          "body": "Cliquer sur le cercle à côté d'une tâche la marque comme terminée ; cliquer de nouveau la ramène. Après chaque action, une notification d'annulation apparaît (« Tâche terminée » / « Tâche rétablie ») au cas où vous auriez cliqué par erreur. Marquer une tâche comme terminée efface tout statut personnalisé ouvert qui lui est associé. La rétablir comme active ne restaure pas le statut — vous pouvez le choisir à nouveau en modification."
+        },
+        {
+          "title": "Modifier une tâche",
+          "body": "Cliquer sur l'icône crayon sur une ligne de tâche ouvre la fenêtre « Modifier la tâche ». Elle a exactement les mêmes champs que lors de l'ajout — titre, priorité, projet, client, et si vous les avez configurés, statut et catégorie."
+        },
+        {
+          "title": "Filtrer les tâches",
+          "body": "Sous le résumé, il y a trois onglets : Ouvertes, Terminées, Toutes. Si vous avez des catégories, une rangée de pastilles apparaît aussi pour filtrer par catégorie (y compris une pastille « Toutes »). Cliquer une deuxième fois sur la même catégorie efface le filtre."
+        },
+        {
+          "title": "Statuts et catégories",
+          "body": "Le bouton « Statuts et catégories » (du côté Tâches) ouvre une fenêtre où vous ajoutez et supprimez vos propres statuts et catégories, chacun avec un nom et une couleur. Chaque statut est lié soit à « Ouvertes » soit à « Terminées » afin que les compteurs de l'écran d'accueil restent exacts. La suppression demande d'abord confirmation, et ne supprime pas les tâches elles-mêmes — elles restent simplement sans cette étiquette. Il y a aussi ici une option d'annulation pour une récupération immédiate."
+        },
+        {
+          "title": "Tout supprimer les terminées",
+          "body": "Dans l'onglet « Terminées », un bouton « Tout supprimer » supprime tous les éléments terminés en une fois (après confirmation). Ils vont à la Corbeille et peuvent être restaurés sous 30 jours. Il n'y a pas de bouton de suppression pour une tâche individuelle ici."
+        },
+        {
+          "title": "Ajouter un rappel",
+          "body": "Du côté Rappels, cliquez sur « + Nouveau rappel ». Renseignez « De quoi dois-je me souvenir ? », choisissez la fréquence de répétition (Ponctuel / Hebdomadaire / Mensuel / Tous les X jours), et réglez le moment. Pour les rappels récurrents, vous pouvez ajouter une date de fin, le lier à un client et écrire des détails supplémentaires."
+        },
+        {
+          "title": "Le moment change selon la récurrence",
+          "body": "Choisissez d'abord la fréquence de répétition du rappel, puis le champ de moment approprié apparaît. Ponctuel demande une date et une heure. Hebdomadaire demande un jour de la semaine et une heure. Mensuel demande un jour du mois (1 à 31) et une heure. Tous les X jours demande une date de début, une heure et un nombre de jours."
+        },
+        {
+          "title": "Terminer et faire avancer les rappels",
+          "body": "Lorsque vous marquez un rappel ponctuel comme effectué, il passe dans « Terminés ». Un rappel récurrent n'est pas marqué comme effectué — il passe automatiquement à la prochaine occurrence (« Rappel avancé »). Il continue de sauter jusqu'à ce que la prochaine occurrence tombe après la date de fin que vous avez définie. Il y a aussi une option d'annulation ici."
+        },
+        {
+          "title": "Onglets et regroupement des rappels",
+          "body": "Les rappels ont trois onglets : Ouverts, Récurrents, Terminés. « Ouverts » trie par urgence — En retard, Aujourd'hui, Cette semaine, Plus tard. « Récurrents » affiche le calendrier fixe, trié par jour de la semaine, mensuel et tous les X jours."
+        },
+        {
+          "title": "Carte de résumé",
+          "body": "Au-dessus de la liste se trouve une carte de résumé avec trois chiffres : Ouvertes, un chiffre qui change selon le côté où vous êtes — « Urgentes » pour les tâches (priorité Urgente) ou « En retard » pour les rappels (un rappel dont l'heure est passée et qui est encore ouvert) — et Terminées."
+        }
+      ],
+      "tips": [
+        "Une tâche, c'est pour quelque chose sans date. Dès que vous avez besoin d'un jour et d'une heure précis, basculez vers Rappels et ajoutez-en un là. C'est aussi ce qui apparaîtra dans le widget Rappels à venir sur l'écran d'accueil.",
+        "Liez une tâche à un client pour l'y rattacher. Les séances avec une date sont gérées dans le Calendrier, pas ici.",
+        "Configurez vos statuts et catégories une fois dans « Statuts et catégories », puis filtrez facilement par catégorie à l'aide des pastilles au-dessus de la liste.",
+        "Un rappel récurrent ne disparaît pas quand vous le marquez — il passe à la prochaine occurrence. Si plusieurs occurrences manquées se sont accumulées, vous verrez un badge ×N à côté du titre dans l'onglet « Ouverts ».",
+        "Vous avez marqué quelque chose par erreur ? Une fenêtre d'annulation apparaît juste après chaque clic sur le cercle pour rétablir l'état précédent.",
+        "Pour arrêter un rappel récurrent après une certaine date, ajoutez-lui une « Date de fin » — soit lors de l'ajout, soit en modification."
+      ],
+      "faq": [
+        {
+          "q": "Où définir une échéance pour une tâche ?",
+          "a": "Les tâches n'ont pas d'échéance du tout — c'est là la différence avec les rappels. Si quelque chose doit se passer un jour précis, basculez du côté Rappels et ajoutez un rappel avec une date et une heure."
+        },
+        {
+          "q": "Comment supprimer une seule tâche ?",
+          "a": "Il n'y a pas de bouton de suppression pour une ligne individuelle ici. Marquez-la comme terminée, allez dans l'onglet « Terminées » et cliquez sur « Tout supprimer ». Tout ce qui est supprimé va à la Corbeille et peut être restauré sous 30 jours."
+        },
+        {
+          "q": "J'ai marqué un rappel récurrent comme effectué — pourquoi n'est-il pas passé dans « Terminés » ?",
+          "a": "C'est ainsi que cela doit fonctionner. Un rappel récurrent passe à la prochaine occurrence au lieu d'être marqué comme effectué, de sorte qu'il revient sans cesse. Il ne s'arrête que lorsque la prochaine occurrence tombe après la date de fin que vous avez définie."
+        },
+        {
+          "q": "J'ai supprimé un statut ou une catégorie — qu'advient-il des tâches qui leur sont affectées ?",
+          "a": "Les tâches demeurent. Elles perdent simplement cette étiquette et apparaissent sans statut ni catégorie. Le statut ou la catégorie lui-même peut être restauré immédiatement via la fenêtre d'annulation."
+        },
+        {
+          "q": "Comment trier la liste des tâches ?",
+          "a": "Les tâches sont automatiquement triées par priorité — Urgente, puis Normale, puis Faible — avec un compteur pour chaque groupe. Il n'y a pas de tri par date, car les tâches n'ont pas de dates."
+        },
+        {
+          "q": "Quelle est la différence entre « Urgentes » et « En retard » dans le résumé ?",
+          "a": "C'est le même emplacement dans la carte de résumé, mais il change selon le côté que vous consultez. Pour les tâches, il compte les tâches ouvertes de priorité « Urgente ». Pour les rappels, il compte les rappels ouverts dont l'heure est déjà passée."
+        }
+      ]
+    },
+    "calendar": {
+      "title": "Calendrier",
+      "intro": "Le Calendrier réunit en un seul endroit tout ce que vous avez prévu — séances, rappels, tâches, transactions financières, relances de prospects et événements synchronisés depuis Google. Vous pouvez l'afficher de quatre façons : Liste, Jour, Semaine et Mois.",
+      "features": [
+        {
+          "title": "Quatre vues",
+          "body": "En haut de l'écran, il y a quatre onglets. « Liste » est une liste des événements à venir. « Jour » affiche une chronologie détaillée par heure. « Semaine » affiche sept colonnes, une par jour. « Mois » est un calendrier mensuel avec des points de couleur. La vue que vous choisissez est enregistrée et s'ouvrira de nouveau la prochaine fois."
+        },
+        {
+          "title": "Naviguer entre les dates",
+          "body": "En vue « Jour », utilisez les flèches pour avancer ou reculer d'un jour, avec la date affichée au milieu. En vues « Semaine » et « Mois », les flèches sautent un mois entier, et il y a un sélecteur de mois et d'année au milieu. Le bouton « Aujourd'hui » vous ramène à la date du jour (en Semaine et Mois, il saute aussi vers la vue Jour). En vue « Liste », il n'y a pas de navigation par date — elle affiche toujours les événements à partir d'aujourd'hui."
+        },
+        {
+          "title": "Ajouter via « + Nouvel événement »",
+          "body": "Le bouton « + Nouvel événement » ouvre une fenêtre appelée « Nouvel événement » avec quatre options : « Séance client », « Rappel », « Tâche » et « Transaction » (revenu ou dépense). Chaque choix ouvre le formulaire d'ajout approprié."
+        },
+        {
+          "title": "Planifier une séance client",
+          "body": "Dans la fenêtre « Planifier une séance », choisissez un client, une date et une heure. Cliquer sur « Enregistrer » crée une séance en attente de confirmation. Les séances ajoutées ici sont ponctuelles uniquement. Pour un créneau hebdomadaire récurrent, définissez-le depuis la modification de la fiche client, pas ici."
+        },
+        {
+          "title": "Cliquer sur un événement — détails et actions",
+          "body": "Cliquer sur un événement ouvre « Détails de l'événement ». Pour une séance en attente, on vous demandera « Cette séance a-t-elle eu lieu ? » — « Oui » la confirme et « Non » la passe. Pour une séance déjà confirmée, vous verrez « Séance confirmée. ». Pour un rappel, vous pouvez « Marquer comme effectué » ou « Supprimer » (la suppression requiert deux clics — vous devez confirmer « Sûr ? Supprimer »). Pour une relance de prospect, vous pouvez cliquer sur « Relance effectuée »."
+        },
+        {
+          "title": "Événements Google Calendar",
+          "body": "Les événements de Google sont marqués d'une étiquette « Calendrier » et apparaissent aux côtés de vos autres événements. Dans la fenêtre de détails, vous pouvez cliquer sur « Modifier » (titre, heure de début et heure de fin) ou « Supprimer » (deux clics — « Sûr ? Supprimer »). Le changement n'affecte que Simplicity, pas votre Google Calendar lui-même. Un événement que vous avez modifié est étiqueté « Votre événement (modifié dans Simplicity) », et vos modifications sont préservées lors des synchronisations futures."
+        },
+        {
+          "title": "Filtre d'affichage",
+          "body": "Le bouton de filtre en haut de l'écran ouvre « Filtre d'affichage ». Là, vous choisissez quels types d'événements afficher : « Séances », « Rappels », « Relances de prospects » et « Événements Google Calendar ». Lorsque vous avez masqué un type, le bouton est mis en évidence pour que vous sachiez que le filtre est actif."
+        },
+        {
+          "title": "Doublons avec Google",
+          "body": "Parfois, une séance récurrente dans l'application entre en conflit avec un événement Google pour le même client ou groupe — le même jour, à moins d'une heure et demie d'écart. Dans ce cas, un bandeau apparaît : « 1 doublon de calendrier avec Google » (ou « N doublons de calendrier avec Google »). Cliquer dessus ouvre « Doublons de calendrier », où pour chaque paire vous choisissez quoi masquer — la séance de l'application ou l'événement Google — en cliquant sur « Masquer »."
+        },
+        {
+          "title": "Relances de prospects et rappels",
+          "body": "Un prospect actif avec une date de relance apparaît dans le calendrier à 09:00 ce jour-là (sans étiquette). Cliquer sur « Relance effectuée » efface la date de relance et retire l'événement du calendrier, mais le prospect lui-même reste dans sa colonne. Les rappels — ponctuels comme récurrents — apparaissent avec une étiquette « Rappel »."
+        },
+        {
+          "title": "Connecter Google Calendar",
+          "body": "Dans Connexions > Google Calendar, choisissez à partir de quelle date synchroniser (jusqu'à un an en arrière) et cliquez sur « Connecter Google Calendar ». Vous pouvez ensuite cliquer sur « Synchroniser maintenant », affecter chaque événement à un client, un projet, un prospect ou un groupe via « + Affecter à… » (chaque événement est marqué « Identifié » ou « Non identifié »), ou cliquer sur « Déconnecter »."
+        }
+      ],
+      "tips": [
+        "En vue « Liste », vous ne voyez que les événements à partir d'aujourd'hui. Si la liste est longue, cliquez sur « Charger plus » pour voir d'autres événements.",
+        "La vue « Jour » affiche les heures de 06:00 à 22:00 sur une chronologie. Les événements hors de cette plage ne disparaissent pas — ils apparaissent dans les bandeaux « Avant 06:00 » et « Après 22:00 » au-dessus et au-dessous de la chronologie, et les événements sur toute la journée apparaissent dans le bandeau « Toute la journée » en haut.",
+        "En vue « Mois », chaque point est coloré par type : séances, rappels et événements de calendrier (voir la légende sous le calendrier). Cliquer sur un jour saute automatiquement vers sa vue Jour.",
+        "Un créneau hebdomadaire récurrent que vous définissez dans la fiche client est automatiquement réparti en séances dans le calendrier. À chaque ouverture du calendrier, il complète en arrière-plan les séances manquantes, en avançant dans le temps.",
+        "Si vous avez choisi de masquer un événement Google pour résoudre un doublon, il peut revenir à la prochaine synchronisation car la synchronisation est unidirectionnelle. Il vaut généralement mieux masquer la séance de l'application à la place. (Modifier ou supprimer un événement Google depuis « Détails de l'événement » persiste, lui, lors des synchronisations futures.)"
+      ],
+      "faq": [
+        {
+          "q": "Combien de vues le calendrier a-t-il ?",
+          "a": "Quatre : « Liste » (liste des événements à venir), « Jour » (chronologie par heure), « Semaine » (sept colonnes) et « Mois » (calendrier avec des points). Basculez entre elles à l'aide des onglets en haut de l'écran — votre choix est enregistré pour la prochaine fois."
+        },
+        {
+          "q": "J'ai cliqué sur « + Nouvel événement » — pourquoi n'y a-t-il pas de champ de nom ou de durée ?",
+          "a": "« + Nouvel événement » demande d'abord ce que vous voulez ajouter : une séance client, un rappel, une tâche ou une transaction. Une séance est définie par client, date et heure — il n'y a pas ici de champ de nom en texte libre ni de durée."
+        },
+        {
+          "q": "Planifier une séance dans le calendrier l'enregistre-t-il automatiquement comme revenu dans Argent ?",
+          "a": "Non. Planifier une séance ici ne crée qu'une séance en attente de confirmation, et la confirmer (« Oui ») ne fait que la marquer comme ayant eu lieu. L'enregistrement d'un revenu se fait séparément — il ne se produit pas automatiquement quand vous planifiez une séance."
+        },
+        {
+          "q": "Comment définir une séance hebdomadaire récurrente ?",
+          "a": "Les séances ajoutées via le calendrier sont ponctuelles uniquement. Pour définir un créneau hebdomadaire récurrent, modifiez la fiche client et définissez-le là — le calendrier le répartit ensuite automatiquement en séances futures."
+        },
+        {
+          "q": "J'ai modifié ou supprimé un événement Google dans le calendrier — cela le change-t-il aussi dans Google ?",
+          "a": "Non. Modifier ou supprimer un événement synchronisé depuis « Détails de l'événement » n'affecte que Simplicity, mais ces modifications persistent lors des synchronisations futures (l'événement devient « votre événement »). Seul le masquage d'un événement Google pour résoudre un doublon pourrait être annulé à la prochaine synchronisation."
+        },
+        {
+          "q": "Pourquoi un certain événement n'apparaît-il pas dans le calendrier ?",
+          "a": "Vérifiez le « Filtre d'affichage » — vous avez peut-être désactivé ce type d'événement (séances, rappels, relances de prospects ou événements Google Calendar). Les événements Google n'apparaissent qu'après vous être connecté et avoir synchronisé dans l'écran Connexions."
+        }
+      ]
+    },
+    "goals": {
+      "title": "Objectifs",
+      "intro": "C'est ici que vous définissez des objectifs mesurables pour votre activité. La progression est suivie automatiquement à partir des données déjà présentes dans le système, ou saisie manuellement. Chaque objectif a une carte indiquant la part atteinte et si vous êtes dans les temps.",
+      "features": [
+        {
+          "title": "Nouvel objectif",
+          "body": "Cliquer sur « + Nouvel objectif » ouvre une fenêtre où vous choisissez une mesure, donnez un nom à l'objectif (facultatif), définissez une période, une cible numérique et un niveau d'importance. Vous pouvez aussi le lier à un projet et à un groupe. Chaque objectif apparaît à l'écran sous la catégorie de la mesure que vous avez choisie."
+        },
+        {
+          "title": "Choisir une mesure",
+          "body": "Certaines mesures sont suivies automatiquement — « Revenu », « Clients actifs », « Prospects », « Conclusions » et « Membres de groupe » — et il y a aussi « Autre — mises à jour manuelles » pour un suivi que vous gérez vous-même. Vous n'avez pas besoin de configurer des catégories séparément : la catégorie est créée automatiquement à partir de la mesure que vous choisissez."
+        },
+        {
+          "title": "Période",
+          "body": "Choisissez entre « Mensuelle », « Hebdomadaire » ou « Par date ». « Mensuelle » se mesure sur un mois calendaire complet, « Hebdomadaire » sur la semaine en cours. Avec « Par date », vous ajoutez une date cible, et la progression est mesurée depuis le jour où vous avez créé l'objectif jusqu'à cette date."
+        },
+        {
+          "title": "Suivi automatique",
+          "body": "Les objectifs « Revenu » additionnent les transactions de revenu sur la période. Les « Prospects » et les « Conclusions » sont comptés à partir de vos prospects (les prospects par date de demande, les conclusions par prospects convertis en clients). « Clients actifs » et « Membres de groupe » reflètent le décompte actuel. Tous ces éléments se mettent à jour automatiquement — il n'y a rien à saisir manuellement."
+        },
+        {
+          "title": "Suivi manuel (« Autre »)",
+          "body": "Lorsque vous choisissez la mesure « Autre — mises à jour manuelles », vous choisissez aussi comment la suivre : « Saisie manuelle » ou « Question du point quotidien ». Une carte d'objectif manuel a un bouton « Saisir » pour consigner la progression, et un bouton « Historique » avec le nombre d'entrées qui ouvre toutes les entrées pour les consulter ou les supprimer."
+        },
+        {
+          "title": "Lier à une question du point quotidien",
+          "body": "Pour un objectif manuel, vous pouvez choisir « Question du point quotidien » : lier une question existante, ou en écrire une nouvelle — y compris la formulation, le type de réponse (« Échelle 1–10 » ou « Oui / Non »), l'icône et quand elle apparaît. Les réponses numériques s'accumulent vers l'objectif : un score de 7 sur l'échelle ajoute 7, et une réponse « Oui » ajoute 1."
+        },
+        {
+          "title": "Plafond pour un objectif de question oui/non",
+          "body": "Lorsque la question du point quotidien est de type « Oui / Non », le système calcule combien de fois la question apparaîtra sur la période et ne vous laisse pas définir une cible supérieure à ce nombre. Un message indique combien de fois la question apparaîtra, et que vous pouvez viser moins mais pas plus. Les questions à échelle n'ont pas un tel plafond."
+        },
+        {
+          "title": "Saisir la progression",
+          "body": "La fenêtre « Saisir la progression » demande une valeur numérique, une date (par défaut aujourd'hui, les dates futures ne sont pas autorisées) et une note facultative. Les entrées s'accumulent vers le résultat de l'objectif pour cette période."
+        },
+        {
+          "title": "La carte de chaque objectif",
+          "body": "Chaque carte affiche le nom de l'objectif, sa catégorie et sa période, le pourcentage global d'atteinte (avec « + » lorsqu'il dépasse 100 %), et deux barres — « de l'objectif » (la part atteinte) et « du rythme » (à quel point vous êtes dans les temps par rapport au temps écoulé). À côté se trouvent la valeur par rapport à la cible et une note d'importance en étoiles."
+        },
+        {
+          "title": "Modifier et supprimer",
+          "body": "Chaque carte a un bouton de modification (crayon) pour changer le nom, la période, la cible, l'importance, l'affectation au projet et au groupe, et la méthode de suivi (vous pouvez aussi changer la question quotidienne liée), et un bouton de suppression (corbeille). Supprimer un objectif demande confirmation et note que vous pouvez le restaurer depuis la Corbeille sous 30 jours."
+        }
+      ],
+      "tips": [
+        "Donnez à votre objectif un chiffre clair — « 20 clients actifs » fonctionne bien mieux que « développer mon activité ».",
+        "Les deux barres signifient des choses différentes : « de l'objectif » montre la part totale atteinte, et « du rythme » montre si vous êtes dans les temps par rapport à la part de temps déjà écoulée dans la période. Si « du rythme » est inférieur à 100 %, vous êtes en retard — même si « de l'objectif » progresse.",
+        "Pour un objectif de question oui/non, vous pouvez viser moins de jours que ceux où la question est posée (par exemple, viser 3 par semaine même si la question apparaît 5 fois), mais pas plus.",
+        "Même pour un objectif lié à une question quotidienne, le bouton « Saisir » reste présent — une saisie manuelle compte en plus des réponses aux questions, pas à leur place.",
+        "L'importance (1–5) détermine le poids de l'objectif dans le score global de la Vue Lune — un objectif plus important tire le score plus fortement.",
+        "Si vous avez supprimé un objectif ou une entrée par erreur, la Corbeille offre une fenêtre de 30 jours pour la récupération, et supprimer une entrée affiche aussi une option d'annulation immédiate."
+      ],
+      "faq": [
+        {
+          "q": "Où gérer les catégories d'objectifs ?",
+          "a": "Il n'y a pas de gestion de catégories distincte ici. La catégorie est définie par la mesure que vous choisissez en créant l'objectif, et elle est créée automatiquement — tous les objectifs sont regroupés par elle. Les mesures automatiques sont suivies d'elles-mêmes, et chaque objectif manuel relève de la catégorie « Autre »."
+        },
+        {
+          "q": "Pourquoi la progression de mon objectif ne se met-elle pas à jour ?",
+          "a": "Cela dépend de la mesure : « Revenu » n'additionne que les transactions de revenu confirmées sur la période, les « Prospects » sont comptés par la date de demande du prospect, les « Conclusions » ne comptent que les prospects convertis en clients, et « Clients actifs » ne compte que les clients ayant un statut actif. Pour un objectif manuel, vous devez consigner des valeurs via « Saisir », ou répondre à la question du point quotidien liée."
+        },
+        {
+          "q": "Quelle est la différence entre « de l'objectif » et « du rythme » sur la carte ?",
+          "a": "« de l'objectif » est le pourcentage d'atteinte par rapport à la cible complète. « du rythme » compare votre progression au rythme attendu en fonction de la part de temps déjà écoulée dans la période — si vous êtes à la moitié du mois et que vous avez atteint 50 % de votre cible, « du rythme » affiche 100 %. Pour les mesures qui sont un décompte actuel (clients actifs, membres de groupe) et pour les objectifs « Par date » avec une cible de 1, il n'y a pas de calcul de rythme distinct, et les deux barres affichent la même valeur."
+        },
+        {
+          "q": "J'ai lié une question quotidienne à mon objectif — comment s'accumule-t-elle ?",
+          "a": "Chaque réponse numérique de la période est ajoutée au résultat : pour une question à échelle 1–10, la valeur elle-même s'accumule (réponse 7 = 7), et pour une question oui/non, chaque « Oui » ajoute 1. Les jours où vous n'avez pas répondu n'ajoutent rien."
+        },
+        {
+          "q": "J'ai supprimé un objectif par erreur — puis-je le récupérer ?",
+          "a": "Oui. Supprimer un objectif l'envoie à la Corbeille, et vous pouvez le restaurer sous 30 jours. Supprimer une entrée manuelle peut aussi être annulé — une option d'annulation apparaît immédiatement après la suppression."
+        },
+        {
+          "q": "Puis-je lier un objectif à un projet ou à un groupe ?",
+          "a": "Oui. La fenêtre d'objectif a un sélecteur « Projet (facultatif) », et si ce projet a des groupes, un sélecteur « Groupe (facultatif) » apparaît aussi. Pour un objectif « Membres de groupe », l'affectation restreint aussi le décompte à ce groupe ou projet spécifique."
+        }
+      ]
+    },
+    "insights": {
+      "title": "Point quotidien",
+      "intro": "Ceci est votre écran de point quotidien personnel. Répondez à chaque question sur sa carte, et vous obtenez une réflexion, des moyennes, un graphique de tendance et six mois d'historique pour chaque question.",
+      "features": [
+        {
+          "title": "Réflexion quotidienne",
+          "body": "La carte « Réflexion quotidienne » en haut de l'écran affiche jusqu'à trois phrases rédigées automatiquement à partir de vos réponses — une série de jours où vous avez répondu, un pic ou un creux hebdomadaire pour une question précise, une hausse ou une baisse par rapport à la semaine dernière, ou une note de stabilité encourageante lorsqu'il n'y a pas de changement majeur. Elle s'appuie uniquement sur les questions actives et se met à jour d'elle-même."
+        },
+        {
+          "title": "Une carte pour chaque question",
+          "body": "Chaque question que vous avez configurée apparaît comme sa propre carte avec son icône et sa formulation. Les questions désactivées apparaissent aussi, dans un style atténué, pour que vous puissiez les activer ou les désactiver directement ici."
+        },
+        {
+          "title": "Réponse quotidienne",
+          "body": "Pour une question à échelle 1–10, déplacez le curseur et cliquez sur la coche pour enregistrer. Pour une question « Oui / Non », cliquez sur Oui ou Non. Vous ne pouvez répondre qu'à une question qui est active, programmée pour aujourd'hui, et à laquelle vous n'avez pas encore répondu aujourd'hui."
+        },
+        {
+          "title": "Passer une question",
+          "body": "Le bouton « Passer » laisse la question sans réponse pour aujourd'hui. Aucune réponse n'est enregistrée, donc votre série, vos moyennes et vos tendances ne sont pas affectées. Le saut se réinitialise automatiquement le lendemain."
+        },
+        {
+          "title": "Rétablir les questions passées",
+          "body": "Si vous avez passé des questions auxquelles vous pouvez encore répondre aujourd'hui, un bouton apparaît sous les cartes : « Répondre aux N questions passées » (ou « Répondre à 1 question passée » lorsqu'il n'y en a qu'une), qui les ramène toutes pour y répondre."
+        },
+        {
+          "title": "Interrupteur pour chaque question",
+          "body": "Chaque carte a un interrupteur qui active ou désactive la question directement depuis cet écran. Une question désactivée reste à l'écran mais ne peut pas recevoir de réponse et ne compte ni dans la réflexion ni dans votre série."
+        },
+        {
+          "title": "Moyennes et variation",
+          "body": "Chaque carte affiche une « moyenne sur 7 jours », avec à côté une étiquette indiquant la variation par rapport aux sept jours précédents, ainsi qu'une « moyenne sur 30 jours ». Les moyennes ne comptent pas les jours sans réponse."
+        },
+        {
+          "title": "Graphique de tendance",
+          "body": "Sous « 30 derniers jours », un graphique en ligne apparaît montrant vos réponses du mois écoulé. Un jour sans réponse est dessiné comme une interruption et n'est pas relié par une ligne — il faut au moins deux points de données pour que le graphique apparaisse."
+        },
+        {
+          "title": "Carte de chaleur sur six mois",
+          "body": "« 6 derniers mois » affiche une grille de 26 semaines, une case par jour. Plus la réponse est élevée, plus la case est foncée et pleine. Pour les questions oui/non, la case est pleine pour « Oui » et claire pour « Non ». Survoler une case affiche la date et la valeur."
+        },
+        {
+          "title": "Historique",
+          "body": "En bas de l'écran, vous pouvez déplier « Historique » pour voir les 30 dernières réponses, les plus récentes d'abord, avec l'icône, la formulation de la question, la date et la valeur. Si vous l'avez ouvert, il reste ouvert lors de vos prochaines visites."
+        },
+        {
+          "title": "Gérer les questions dans les Paramètres",
+          "body": "Ajoutez, supprimez et programmez des questions dans Paramètres > Questions du point quotidien. Là, vous pouvez ajouter une question à partir d'un modèle prêt à l'emploi ou écrire la vôtre (texte, type de réponse et icône), et définir si elle apparaît « Tous les jours », des « Jours précis » ou « Tous les X jours »."
+        }
+      ],
+      "tips": [
+        "Répondez chaque jour — même une seule question maintient votre série en vie. Les graphiques et la réflexion commencent à devenir intéressants après environ trois semaines de données.",
+        "Si une question n'est pas pertinente aujourd'hui, mieux vaut cliquer sur « Passer » que de donner une réponse inexacte. Passer n'affecte ni vos moyennes ni vos tendances.",
+        "Les pics et les creux hebdomadaires apparaissent dans la réflexion uniquement pour les questions à échelle 1–10, et seulement lorsqu'il y a assez de réponses dans cette semaine. Les questions oui/non ne sont pas incluses dans ce calcul.",
+        "Une question que vous avez désactivée reste à l'écran dans un style atténué avec tout son historique — vous pouvez la réactiver à tout moment à l'aide de l'interrupteur de la carte.",
+        "Pour changer les jours où une question apparaît, ouvrez la ligne de programmation dans Paramètres > Questions du point quotidien et choisissez « Jours précis » ou « Tous les X jours »."
+      ],
+      "faq": [
+        {
+          "q": "Puis-je écrire une réponse en texte libre ?",
+          "a": "Pas sur cet écran. Les réponses se donnent uniquement avec un curseur 1–10 ou des boutons oui/non, selon le type de réponse que vous avez défini pour la question dans les Paramètres."
+        },
+        {
+          "q": "J'ai déjà répondu aujourd'hui — comment changer ma réponse ?",
+          "a": "Une fois que vous avez répondu, la carte affiche une étiquette « Aujourd'hui · N » et la ligne de réponse disparaît, vous ne pouvez donc pas changer la réponse du jour depuis cet écran."
+        },
+        {
+          "q": "Les questions ne s'affichent pas pour y répondre ?",
+          "a": "La ligne de réponse n'apparaît que lorsque la question est active (l'interrupteur est activé), qu'aujourd'hui est un jour où elle est programmée pour apparaître, et que vous n'y avez pas déjà répondu aujourd'hui. Si vous l'avez passée, elle reviendra via le bouton « Répondre aux questions passées »."
+        },
+        {
+          "q": "Où ajouter ou supprimer des questions ?",
+          "a": "Dans Paramètres > Questions du point quotidien. Sur l'écran Point quotidien, vous pouvez seulement activer, désactiver, répondre et passer — pas ajouter ni supprimer."
+        },
+        {
+          "q": "Y a-t-il des corrélations entre les mesures ici ?",
+          "a": "Non. Les relations entre mesures et les graphiques combinés se trouvent dans l'écran Vue Lune. Ici, chaque question se tient seule, avec sa propre moyenne, sa tendance et sa carte de chaleur."
+        },
+        {
+          "q": "Que signifient les couleurs dans la carte de chaleur ?",
+          "a": "Il n'y a ici ni vert ni rouge. L'intensité de la case indique la hauteur de la valeur : une valeur plus élevée paraît plus pleine et plus foncée, une valeur plus faible paraît plus claire, et un jour sans réponse reste vide."
+        }
+      ]
+    },
+    "moon": {
+      "title": "Vue Lune",
+      "intro": "Une vue unique et globale de toute votre activité : un score pondéré, une répartition par catégorie d'objectif, une tendance dans le temps et des liens entre différents domaines. Tout repose sur les objectifs que vous avez définis.",
+      "features": [
+        {
+          "title": "Le score principal (Dans les temps)",
+          "body": "Au centre de l'écran se trouve un anneau avec un grand pourcentage et l'étiquette « Dans les temps » en dessous. Cela indique la progression réalisée par rapport à ce qui est attendu jusqu'à présent au sein de la période de chaque objectif. En dessous, vous verrez « X % de la cible » — votre atteinte par rapport à la cible complète. Le score est pondéré par l'importance des objectifs, et chaque objectif est plafonné à 100 avant pondération."
+        },
+        {
+          "title": "Phrase de réflexion",
+          "body": "Sous l'anneau se trouve une courte phrase qui change selon votre score — par exemple, « Vous êtes sur une excellente voie ce mois-ci » pour un score élevé, ou « Donnons un peu d'élan — un petit pas en avant » pour un score faible. Ce n'est pas un jugement de bon ou mauvais ; c'est juste un indice sur votre rythme actuel."
+        },
+        {
+          "title": "Répartition par catégorie",
+          "body": "Chaque catégorie d'objectif qui comporte des objectifs reçoit une carte avec deux barres côte à côte : « Dans les temps » (où vous en êtes par rapport au rythme attendu) et « De la cible » (pourcentage de la cible complète). Cela vous permet de voir quels domaines tirent votre score vers le haut et lesquels le tirent vers le bas. Les valeurs supérieures à 100 % sont affichées comme un nombre, mais la barre elle-même s'arrête à 100 %."
+        },
+        {
+          "title": "Tendance dans le temps",
+          "body": "Un graphique en ligne de votre score sur les 30 derniers jours, avec trois mesures à côté : « Moyenne », « Pic » et « Aujourd'hui ». Le graphique s'appuie sur un instantané quotidien enregistré chaque jour. Si vous êtes nouveau et qu'il n'y a pas encore assez d'historique (moins de deux jours enregistrés), il est recalculé à partir des données actuelles."
+        },
+        {
+          "title": "Tendances inter-domaines",
+          "body": "Un graphique qui affiche plusieurs mesures ensemble sur le même axe. Utilisez les boutons pour choisir quoi afficher : revenu, prospects, séances, score ou point quotidien. Par défaut, le revenu et le score sont affichés. Chaque ligne est mise à l'échelle de sa propre plage (0–100), de sorte que vous pouvez comparer la forme de la tendance même entre des éléments mesurés différemment (₪, décomptes, 1–10). S'il n'y a pas assez de données, vous verrez « Pas encore assez de données pour le graphique »."
+        },
+        {
+          "title": "Sélectionner un point quotidien dans le graphique",
+          "body": "Le bouton « Point quotidien » n'est actif que si vous avez configuré des questions de point quotidien actives. Lorsque vous le sélectionnez, une liste s'ouvre pour choisir quelle question afficher sur le graphique. Les jours où vous n'avez pas répondu apparaissent comme une interruption dans la ligne (pas comme zéro), pour que les données ne soient pas trompeuses."
+        },
+        {
+          "title": "Liens à explorer",
+          "body": "Le système vérifie automatiquement s'il existe un lien entre les questions numériques du point quotidien (échelle 1–10) — principalement entre deux questions quotidiennes, et en principe aussi avec le revenu, les prospects et les séances. La plupart du temps, vous verrez « Aucun lien significatif dans les données pour le moment », et c'est tout à fait normal. Lorsqu'un schéma stable apparaît, il est présenté comme une carte décrivant que les mesures « ont tendance à évoluer ensemble » ou « évoluent en sens inverse », avec une étiquette de force (fort, modéré ou subtil), un nombre de points et un petit nuage de points."
+        },
+        {
+          "title": "Naviguer vers Rapports et Objectifs",
+          "body": "Le bouton « Rapports » en haut de l'écran vous mène à l'écran Rapports pour une analyse plus approfondie. En bas de l'écran, « Modifier vos objectifs → » vous mène à l'écran Objectifs — c'est là que vous changez les données qui alimentent l'ensemble de ce score."
+        }
+      ],
+      "tips": [
+        "Tout cet écran repose sur vos objectifs — sans au moins un objectif défini, vous ne verrez qu'un message vide. Allez à l'écran Objectifs, définissez un objectif, et revenez.",
+        "La différence entre « Dans les temps » et « De la cible » a son importance : « De la cible » vous dit quelle part de l'objectif complet a été atteinte, tandis que « Dans les temps » vous dit si vous avancez au bon rythme pour le temps écoulé dans la période. Vous pouvez être à 40 % de votre cible mais à 100 % dans les temps s'il est encore tôt dans le mois.",
+        "Observez la ligne de « Tendance dans le temps » sur des semaines, pas jour après jour — un seul point vous en dit moins qu'une tendance.",
+        "Dans le graphique « Tendances inter-domaines », chaque ligne est mise à l'échelle de sa propre plage, vous comparez donc la forme de la tendance, pas les valeurs absolues. Les valeurs réelles apparaissent dans la légende du graphique (somme de la fenêtre pour le revenu, les prospects et les séances ; la dernière valeur répondue pour le score et le point quotidien).",
+        "Un lien que vous voyez ici — visuel ou statistique — n'est pas une relation de cause à effet. Les cartes sont volontairement formulées « ont tendance à évoluer ensemble », pas « X cause Y »."
+      ],
+      "faq": [
+        {
+          "q": "L'écran est vide et indique qu'il n'y a pas d'objectifs — pourquoi ?",
+          "a": "L'ensemble du score est calculé à partir de vos objectifs. Sans au moins un objectif, il n'y a rien à calculer, c'est pourquoi vous voyez « Aucun objectif pour l'instant ». Allez à l'écran Objectifs, définissez un objectif, et revenez."
+        },
+        {
+          "q": "Quelle est la différence entre le grand pourcentage (Dans les temps) et le « X % de la cible » en dessous ?",
+          "a": "Le grand pourcentage est « Dans les temps » — la progression réalisée par rapport à ce qui est attendu jusqu'à présent dans la période. « X % de la cible » est votre atteinte par rapport à la cible complète. En début de mois, vous pouvez être bien dans les temps tout en étant encore loin de la cible complète."
+        },
+        {
+          "q": "Les barres de chaque catégorie comparent-elles cette semaine à la semaine dernière ?",
+          "a": "Non. Les deux barres de chaque catégorie sont « Dans les temps » et « De la cible » pour cette catégorie — il n'y a pas de comparaison d'une semaine à l'autre sur cet écran. Les comparaisons de périodes sont disponibles dans l'écran Rapports."
+        },
+        {
+          "q": "Pourquoi est-il indiqué « Aucun lien significatif dans les données pour le moment » dans Liens à explorer ?",
+          "a": "C'est le résultat normal et attendu. Le système n'affiche un lien que s'il est suffisamment stable et statistiquement fiable (y compris en vérifiant si le lien est réel, en comparant les deux moitiés de la période, et en corrigeant pour les comparaisons multiples). Dans une fenêtre de 30 jours, ce qui franchit généralement la barre, c'est un lien entre deux questions numériques du point quotidien, et il faut habituellement quelques semaines de réponses avant que quoi que ce soit n'apparaisse."
+        },
+        {
+          "q": "Pourquoi le bouton « Point quotidien » du graphique est-il désactivé ?",
+          "a": "Le bouton ne devient actif que si vous avez des questions de point quotidien actives. Activez ou créez une question dans Paramètres → Questions du point quotidien, et vous pourrez alors la sélectionner et la voir sur le graphique."
+        },
+        {
+          "q": "Le score ne change pas — pourquoi ?",
+          "a": "Le score se met à jour lorsque les données qui alimentent vos objectifs changent : transactions de revenu confirmées (ni en attente ni passées), réponses au point quotidien, nombre de clients actifs, prospects et conversions de prospects, décomptes de membres de groupe, et entrées manuelles que vous avez consignées dans les objectifs. Mettez-les à jour et le score bougera."
+        }
+      ]
+    },
+    "reports": {
+      "title": "Rapports",
+      "intro": "L'écran Rapports vous présente 13 chiffres qui résument votre activité mois par mois — prospects, clients, séances, finances et tâches. Vous pouvez consulter un seul mois en mode liste, ou comparer plusieurs mois côte à côte en mode tableau. Et vous pouvez cliquer sur n'importe quel chiffre pour voir exactement quels enregistrements le composent.",
+      "features": [
+        {
+          "title": "Deux vues — Liste et Tableau",
+          "body": "En haut, un sélecteur entre « Liste » et « Tableau ». « Liste » affiche un mois à la fois, avec les chiffres organisés par thème. « Tableau » les déploie tous côte à côte, une colonne par mois. Votre choix est enregistré et restauré la prochaine fois."
+        },
+        {
+          "title": "Barre des 12 mois (vue Liste)",
+          "body": "En vue liste, une barre affiche les 12 derniers mois. Cliquez sur un mois pour voir tous ses chiffres. Le mois en cours est sélectionné par défaut."
+        },
+        {
+          "title": "Plage de mois en vue Tableau",
+          "body": "En vue tableau, vous choisissez combien de mois en arrière afficher — 3, 6 ou 12. Il y a une colonne pour chaque mois (le mois en cours est mis en évidence) et une colonne « Résumé » à la fin. Votre sélection est enregistrée automatiquement."
+        },
+        {
+          "title": "La colonne Résumé",
+          "body": "La colonne « Résumé » du tableau additionne toute la plage, mais tout ne fonctionne pas de la même façon. Les éléments qui s'écoulent dans le temps (prospects, séances, revenu) sont simplement additionnés. Les instantanés de fin de mois (clients actifs en fin de mois, tâches ouvertes en fin de mois) sont moyennés. Et les pourcentages (taux de conversion, abandons en cours de parcours) sont recalculés sur toute la plage."
+        },
+        {
+          "title": "Les 13 chiffres par groupe",
+          "body": "Les chiffres sont organisés en cinq groupes : Prospects (nouveaux prospects, prospects clôturés, convertis en clients, taux de conversion), Clients (nouveaux clients, clients actifs en fin de mois, abandons en cours de parcours), Séances (séances tenues), Finances (revenu, dépenses, net) et Tâches (tâches terminées, tâches ouvertes en fin de mois)."
+        },
+        {
+          "title": "Explorer le détail des enregistrements",
+          "body": "Cliquez sur un chiffre en vue liste, ou sur une cellule non vide en vue tableau, et un panneau s'ouvre vous montrant les enregistrements réels qui le composent — prospects, clients, séances, transactions ou tâches — avec leur nombre total."
+        },
+        {
+          "title": "Naviguer du détail vers l'écran",
+          "body": "Chaque ligne du panneau de détail est un lien. Cliquer dessus vous mène à l'écran concerné — Prospects, Clients, Calendrier, Argent ou Tâches. Note : le lien vous mène à l'écran, pas toujours à l'enregistrement précis."
+        },
+        {
+          "title": "Choisir les chiffres et l'ordre",
+          "body": "Le bouton engrenage « Personnaliser la vue » ouvre un panneau où vous activez les chiffres à afficher (un interrupteur pour chacun) et glissez une poignée pour changer l'ordre. Vos choix et votre ordre s'appliquent aux deux vues."
+        },
+        {
+          "title": "Rétablir les valeurs par défaut",
+          "body": "Dans le panneau de personnalisation, un bouton « Par défaut » rétablit les 13 chiffres dans leur ordre d'origine en un clic."
+        },
+        {
+          "title": "Explications des chiffres",
+          "body": "À côté de « Prospects clôturés » se trouve une icône « ? ». Survolez-la ou appuyez dessus pour voir une courte explication : « Prospects clôturés » compte tous ceux qui ont quitté le processus — qu'ils soient convertis en client ou marqués comme non pertinents. « Convertis en clients » ne compte que ceux qui sont réellement devenus clients."
+        },
+        {
+          "title": "Mois sans données",
+          "body": "Si le mois que vous avez sélectionné n'a pas de données, vous verrez « Aucune donnée pour ce mois ». Si un autre mois a de l'activité, un bouton vous sera proposé pour y sauter (« Aller à… ») — le mois le plus récent qui contient quelque chose."
+        },
+        {
+          "title": "Lien vers la Vue Lune",
+          "body": "En haut, un lien « Vue Lune » vous mène à l'écran Lune pour une image plus large de votre activité."
+        }
+      ],
+      "tips": [
+        "Le revenu, les dépenses et le net ne comptent que les transactions que vous avez confirmées. Une transaction non confirmée n'apparaîtra pas dans le rapport.",
+        "La colonne Résumé du tableau n'est pas toujours une simple somme : les chiffres « en fin de mois » sont des moyennes, et les pourcentages sont recalculés. Ne vous attendez donc pas à ce que le résumé soit exactement la somme des colonnes.",
+        "Une cellule ou un chiffre égal à 0 ne peut pas être cliqué. Vous ne pouvez explorer que les chiffres qui ont quelque chose derrière eux.",
+        "Utilisez le bouton engrenage pour masquer les chiffres qui ne vous intéressent pas et garder le rapport ciblé. Masquer ne supprime rien — cela le retire seulement de la vue. Et si vous masquez tout, le tableau vous indiquera qu'il n'y a aucun chiffre actif.",
+        "« Clients actifs en fin de mois » et « Tâches ouvertes en fin de mois » sont des instantanés de l'état des choses à la fin du mois — pas un décompte de tout ce qui s'est passé pendant celui-ci.",
+        "La vue liste n'affiche que les 12 derniers mois. Vous voulez une plage différente ? Passez en vue tableau et choisissez 3, 6 ou 12 mois."
+      ],
+      "faq": [
+        {
+          "q": "Où choisir une plage de dates personnalisée ?",
+          "a": "Il n'y a pas de plage de dates personnalisée ici. En vue liste, vous choisissez un mois dans la barre des 12 mois, et en vue tableau vous choisissez combien de mois en arrière — 3, 6 ou 12. Cet écran n'a ni graphique en ligne ni répartition du revenu par catégorie."
+        },
+        {
+          "q": "Le rapport affiche 0 revenu alors que j'ai des transactions ?",
+          "a": "Seules les transactions confirmées sont comptées, d'après leur date. Vérifiez que les transactions sont confirmées et que leurs dates tombent dans le mois que vous avez sélectionné. Si le chiffre est toujours à 0 — il est peut-être masqué, alors vérifiez le bouton engrenage pour vous assurer qu'il est activé."
+        },
+        {
+          "q": "Quelle est la différence entre « Prospects clôturés » et « Convertis en clients » ?",
+          "a": "« Prospects clôturés » compte chaque prospect qui a quitté le processus — converti en client, marqué comme non pertinent ou supprimé. « Convertis en clients » ne compte que ceux qui sont réellement devenus clients, c'est donc généralement un chiffre plus faible."
+        },
+        {
+          "q": "Pourquoi le résumé du tableau n'est-il pas égal à la somme des colonnes ?",
+          "a": "Cela dépend du chiffre. Les éléments qui s'écoulent (prospects, séances, argent) sont véritablement additionnés. Mais les chiffres « en fin de mois » sont moyennés, et le taux de conversion et le taux d'abandon sont recalculés sur toute la plage — car on ne peut pas simplement additionner des pourcentages."
+        },
+        {
+          "q": "J'ai changé les chiffres affichés et leur ordre — cela sera-t-il enregistré ?",
+          "a": "Oui. Vos choix, votre ordre, votre vue (liste ou tableau) et votre plage sont tous enregistrés automatiquement et restaurés la prochaine fois, même depuis un autre appareil. Le bouton « Par défaut » réinitialise la sélection et l'ordre à l'original."
+        },
+        {
+          "q": "Que se passe-t-il lorsque je clique sur un chiffre dans le rapport ?",
+          "a": "Un panneau s'ouvre vous montrant les enregistrements réels derrière le chiffre, avec leur nombre. Cliquer sur une ligne du panneau vous mène à l'écran concerné — Prospects, Clients, Calendrier, Argent ou Tâches."
+        }
+      ]
+    },
+    "connections": {
+      "title": "Connexions",
+      "intro": "L'écran Connexions est l'endroit où vous gérez les intégrations de Simplicity avec des services externes — Google Calendar et la facturation (Green Invoice ou SUMIT). Chacun a sa propre page où vous pouvez connecter, déconnecter et gérer l'intégration.",
+      "features": [
+        {
+          "title": "La liste des connexions",
+          "body": "L'écran affiche deux lignes : Google Calendar et Facturation. Chaque ligne indique son statut actuel — le calendrier affiche « Connecté » ou « Non connecté », et la facturation affiche « Non connectée », « Connectée » avec le nom du fournisseur, ou « Reconnexion requise ». Cliquez sur une ligne pour entrer dans sa page de gestion. Les boutons de connexion et de déconnexion sont à l'intérieur de la page, donc cliquer sur une ligne ne déconnectera rien par accident."
+        },
+        {
+          "title": "WhatsApp et Claude",
+          "body": "WhatsApp est désormais une ligne active — envoi manuel de messages aux clients : un bouton WhatsApp apparaît sur la fiche client, dans le calendrier, sur les relances de prospects et sur les reçus. Appuyer dessus ouvre un message prêt à l'emploi que vous pouvez modifier avant l'envoi, et à l'intérieur de la page vous pouvez définir le texte par défaut pour chaque type de message. En dessous, une ligne est marquée « Bientôt disponible » — Claude ; son interrupteur est désactivé et ne peut pas être cliqué."
+        },
+        {
+          "title": "Connecter Google Calendar",
+          "body": "Sur la page Google Calendar, choisissez jusqu'où en arrière commencer la synchronisation (« Synchroniser à partir de la date »). La valeur par défaut est un an en arrière, et vous ne pouvez pas aller au-delà. Cliquez sur « Connecter Google Calendar », et l'écran d'autorisations de Google s'ouvrira. Une fois que vous approuvez, les événements commenceront à arriver automatiquement dans l'application."
+        },
+        {
+          "title": "Synchroniser et déconnecter le calendrier",
+          "body": "Lorsque le calendrier est connecté, vous pouvez voir quand il a été synchronisé pour la dernière fois. Le bouton « Synchroniser maintenant » récupère à nouveau les événements et vous indique combien ont été ajoutés et combien ont été retirés. Le bouton « Déconnecter » requiert un second clic pour confirmer (« Êtes-vous sûr ? Déconnecter »)."
+        },
+        {
+          "title": "Événements synchronisés et comment ils sont identifiés",
+          "body": "Sous « Événements synchronisés », vous pouvez voir vos événements, regroupés par clients, projets, prospects, groupes et « Non identifiés ». Chaque événement est marqué « Identifié » ou « Non identifié » selon son association, avec la date, l'heure et la durée de la séance affichées à côté."
+        },
+        {
+          "title": "Associer manuellement un événement",
+          "body": "Pour tout événement, vous pouvez cliquer sur « + Associer à… », choisir à quoi le lier (client, projet, prospect ou groupe), puis sélectionner l'enregistrement précis dans la liste. Vous pouvez aussi retirer une association existante avec le X de son étiquette. Les associations que vous définissez manuellement sont enregistrées et ne seront pas écrasées par les synchronisations futures."
+        },
+        {
+          "title": "Connecter la facturation (Green Invoice / SUMIT)",
+          "body": "Sur la page Facturation, choisissez un fournisseur — « Green Invoice » ou « SUMIT » — et collez vos identifiants. Pour Green Invoice : clé API et secret (la clé et le secret de votre compte de service). Pour SUMIT : identifiant d'entreprise et clé API. Le bouton « Comment les obtenir ? » vous guide pour savoir exactement où les trouver dans chaque service."
+        },
+        {
+          "title": "Tester, déconnecter et reconnecter",
+          "body": "Après la connexion, le statut affiche « Connectée » avec le nom du fournisseur. « Tester la connexion » vérifie auprès du service que vos identifiants sont toujours valides, et « Déconnecter » requiert un second clic. Si la clé a été révoquée ou remplacée, vous verrez « Reconnexion requise » avec un bouton « Reconnecter » pour saisir de nouveaux identifiants."
+        },
+        {
+          "title": "Import automatique des revenus",
+          "body": "Lorsque la facturation est connectée, vous pouvez activer la case « Importer automatiquement les revenus ? ». Quand elle est activée, le système détecte les factures que vous avez émises dans votre logiciel de facturation et demande s'il faut les enregistrer aussi comme revenu ici. Il n'enregistrera rien sans votre confirmation."
+        },
+        {
+          "title": "Imports en attente",
+          "body": "Sous la carte de facturation, une liste « Imports en attente » — les factures que vous avez émises dans le service externe qui attendent votre approbation. Chaque ligne affiche le type et le numéro du document, le montant, le nom du client, un lien « Afficher » vers le document (s'il est disponible), et un bouton de confirmation (« Importer comme revenu », requiert deux clics) ou un bouton de rejet. Si cela ressemble à un doublon d'une transaction existante, un avertissement discret apparaît avant que vous ne confirmiez."
+        }
+      ],
+      "tips": [
+        "Pour Google Calendar, si vous choisissez une date de début plus ancienne avant de connecter, vous récupérerez un historique d'événements plus long. Après la connexion, vous ne pouvez pas étendre la plage davantage en arrière sans déconnecter et reconnecter (et même alors, pas plus d'un an en arrière).",
+        "Les événements que le système n'a pas reconnus (« Non identifiés ») méritent d'être associés manuellement — à un client, un projet, un prospect ou un groupe. L'association est enregistrée et ne sera pas écrasée par les synchronisations futures.",
+        "Vous n'êtes pas sûr que vos identifiants de facturation soient toujours valides ? Cliquez sur « Tester la connexion » sur la page Facturation. Cela vérifie auprès du service sans rien déconnecter.",
+        "Le secret de Green Invoice n'est affiché qu'une seule fois, lorsque vous créez la clé. Copiez-le tout de suite, avant de fermer la fenêtre.",
+        "Si vous avez déjà enregistré un revenu manuellement et qu'il apparaît aussi dans « Imports en attente » avec une étiquette « Doublon possible » — rejetez l'import pour qu'il ne soit pas enregistré deux fois.",
+        "Pour SUMIT, vous avez besoin de la clé API privée, pas de la publique. Sinon la connexion échouera."
+      ],
+      "faq": [
+        {
+          "q": "J'ai connecté Google Calendar mais les événements n'apparaissent pas ?",
+          "a": "Allez sur la page Google Calendar et cliquez sur « Synchroniser maintenant ». Si les événements n'apparaissent toujours pas, ils sont peut-être hors de la plage de dates que vous avez choisie lors de la connexion — déconnectez et reconnectez avec une date de début plus ancienne."
+        },
+        {
+          "q": "Puis-je connecter Green Invoice et SUMIT en même temps ?",
+          "a": "Non. La page Facturation prend en charge un seul fournisseur actif à la fois, et connecter un autre fournisseur remplace le précédent. Choisissez le service avec lequel vous travaillez."
+        },
+        {
+          "q": "Puis-je émettre une facture à un client depuis cet écran ?",
+          "a": "Pas directement. Cet écran sert uniquement à connecter le service. Pour émettre une facture ou un reçu, allez sur une transaction de revenu dans l'écran Argent — c'est la connexion qui y active cette option."
+        },
+        {
+          "q": "Que faire quand il est indiqué « Reconnexion requise » ?",
+          "a": "Cela signifie que le service a rejeté les identifiants que vous avez enregistrés — ils ont probablement été révoqués ou remplacés. Cliquez sur « Reconnecter », saisissez de nouveaux identifiants et cliquez sur connecter."
+        },
+        {
+          "q": "La case « Importer automatiquement les revenus ? » — enregistre-t-elle des revenus sans me demander ?",
+          "a": "Non. Quand elle est activée, elle détecte les factures que vous avez émises dans votre logiciel de facturation et les ajoute à « Imports en attente ». Mais elles ne sont enregistrées comme revenu qu'après que vous avez confirmé chacune vous-même."
+        },
+        {
+          "q": "Où sont stockés les identifiants que j'ai saisis ?",
+          "a": "Vos identifiants sont stockés sur nos serveurs et sont liés uniquement à votre compte. Le navigateur ne les relit pas, et il n'y a aucun moyen de les revoir depuis l'écran — pas même pour vous."
+        }
+      ]
+    },
+    "settings": {
+      "title": "Paramètres",
+      "intro": "Les Paramètres sont l'endroit où vous adaptez l'application à votre façon de travailler. Ils sont divisés en neuf sections — de votre profil et de votre forme d'adresse préférée, en passant par les widgets, les statuts, les questions quotidiennes et l'apparence, jusqu'à l'export, l'import et la suppression du compte.",
+      "features": [
+        {
+          "title": "Comment l'écran est organisé — neuf sections repliables",
+          "body": "Les Paramètres sont divisés en sections qui s'ouvrent une à la fois : Profil, Widgets et affichage, Clients et statuts, Paiements et devise, Questions quotidiennes, Paramètres des prospects, Apparence, Données et À propos. Toutes les sections sont repliées au départ. Quand vous en ouvrez une, la précédente se ferme."
+        },
+        {
+          "title": "Profil — nom, forme d'adresse et profession",
+          "body": "Renseignez votre nom complet, choisissez votre forme d'adresse préférée (féminine, masculine ou neutre) et sélectionnez votre profession parmi les options disponibles (thérapeute, coach, facilitateur, enseignant, instructeur, autre). Choisir « Autre » ouvre un champ de texte libre — « Que faites-vous ? » — pour votre propre description. Votre forme d'adresse modifie la formulation dans toute l'application."
+        },
+        {
+          "title": "Enregistrement automatique dans le Profil",
+          "body": "Il n'y a pas de bouton Enregistrer ici. Votre nom et votre champ de texte libre sont enregistrés dès que vous cliquez en dehors du champ, et une petite note « · Enregistré » apparaît à côté. Même si vous fermez la section avant de cliquer en dehors — ce que vous avez saisi est enregistré. Choisir une forme d'adresse ou une profession est enregistré immédiatement au clic."
+        },
+        {
+          "title": "Widgets et affichage — réglages d'affichage généraux",
+          "body": "En haut de cette section, trois contrôles affectent toutes les cartes de l'écran d'accueil : « Style des cartes » (givré, plat ou contour), « Épaisseur du texte » (normal ou gras) et « Densité » (compact, normal ou spacieux)."
+        },
+        {
+          "title": "Gérer les widgets de l'Accueil",
+          "body": "Sous les contrôles généraux se trouve une section repliable appelée « Widgets ». Là, vous pouvez activer ou désactiver chaque widget et les réorganiser par glissement ou à l'aide des boutons fléchés. Chaque widget actif reçoit son propre contrôle de densité (global, compact, normal ou spacieux), et certains ont aussi un mode « Compact ». La liste comprend la citation du jour, l'anneau de vue d'ensemble, le Point quotidien, l'ajout rapide / mise à jour d'objectif, les alertes, les rappels à venir, les prochaines tâches et les cartes de statut."
+        },
+        {
+          "title": "Clients et statuts — sous-statuts personnalisés",
+          "body": "Ici, vous ajoutez et supprimez des sous-statuts pour chaque groupe de clients (actif, en pause, ancien, sans statut). Saisissez un nom et appuyez sur le bouton plus ou sur Entrée. Si vous supprimez un sous-statut qui contient des clients, une fenêtre s'ouvre vous permettant de les déplacer vers un autre sous-statut ou de les laisser sans aucun. Vous pouvez aussi annuler en cas d'erreur."
+        },
+        {
+          "title": "Paiements et devise",
+          "body": "Choisissez votre devise (₪ Shekel, $ Dollar ou € Euro), le format de date (DD/MM/YY, MM/DD/YY ou YYYY-MM-DD), le format de l'heure (24 heures ou 12h AM/PM), et le jour où la semaine commence (dimanche ou lundi). La devise que vous choisissez modifie l'affichage des montants dans toute l'application."
+        },
+        {
+          "title": "Questions quotidiennes — ajouter, désactiver et supprimer",
+          "body": "Vous commencez sans aucune question et les ajoutez vous-même via « Ajouter une question ». Vous pouvez choisir parmi un modèle prêt à l'emploi (humeur, énergie, sommeil, concentration, nutrition, mouvement, calme) ou écrire la vôtre avec du texte libre, un type de réponse (échelle 1–10 ou oui/non) et une icône. Chaque question peut être désactivée, activée ou supprimée. Une question liée à un objectif est marquée d'une icône de cible."
+        },
+        {
+          "title": "Programmation des questions",
+          "body": "Cliquer sur l'étiquette de programmation d'une question ouvre un éditeur avec trois options : « Tous les jours », « Jours précis » (choisir des jours de la semaine) et « Tous les X jours » (tous les 2 à 30 jours). Ainsi, une question peut n'apparaître que les jours que vous choisissez. Cliquez sur « Enregistrer » pour confirmer, ou sur « Annuler » pour quitter sans changement."
+        },
+        {
+          "title": "Rappel quotidien pour les questions",
+          "body": "En bas de la section Questions, sous « Rappel quotidien », vous pouvez activer un rappel et définir une heure. Si vous n'avez pas répondu avant cette heure, un petit rappel bienveillant apparaît dans le widget Point quotidien sur l'écran d'accueil. Le champ d'heure n'apparaît que lorsque le rappel est activé."
+        },
+        {
+          "title": "Paramètres des prospects — sources et sous-statuts",
+          "body": "Sous « Sources de prospects », vous ajoutez de nouvelles sources avec une couleur et supprimez celles qui existent. Sous « Sous-statuts », vous gérez les sous-statuts pour les colonnes du tableau des prospects (en cours, convertis, non pertinents) — également avec des couleurs, et le même flux de suppression avec réaffectation que pour les clients."
+        },
+        {
+          "title": "Apparence — mode clair/sombre et taille du texte",
+          "body": "Ici, vous choisissez le mode clair/sombre (jour ou nuit) et la taille du texte (petite, normale ou grande). La taille du texte ne change que la police, pas la mise en page de l'écran. Pour changer votre forme d'adresse, allez dans la section Profil, pas ici."
+        },
+        {
+          "title": "Données — résumé, export et import",
+          "body": "En haut de cette section, vous pouvez voir combien d'éléments de chaque type vous avez (clients, transactions, prospects, tâches, projets, catégories). « Exporter les données » ouvre une seule boîte de dialogue : soit un fichier Excel avec une feuille par type, soit un export séparé des transactions / clients / projets en CSV. « Importer depuis un fichier » accepte les fichiers CSV, TSV et Excel — y compris plusieurs fichiers et feuilles à la fois — détecte automatiquement les colonnes et vous permet de revoir et d'ajuster la correspondance avant tout import."
+        },
+        {
+          "title": "Exporter des données sensibles (facultatif)",
+          "body": "La boîte de dialogue d'export comporte des cases pour les données sensibles — séances, objectifs, réponses quotidiennes et réflexions. Elles sont désactivées par défaut et se réinitialisent à chaque ouverture de la boîte de dialogue. Cocher une case ajoute des feuilles supplémentaires au fichier Excel, et les données s'exportent en texte clair — conservez donc le fichier en lieu sûr."
+        },
+        {
+          "title": "Redémarrer le flux d'introduction",
+          "body": "Cela redémarre l'assistant d'introduction depuis le début — utile si vous l'avez parcouru à la hâte. C'est non destructif : les étapes de l'assistant sont réinitialisées, mais tout ce que vous avez déjà créé (clients, projets, etc.) demeure. Vous verrez une courte confirmation avant de continuer."
+        },
+        {
+          "title": "Réinitialiser le compte — supprimer toutes les données",
+          "body": "« Supprimer toutes les données et recommencer » retire tout ce qui se trouve dans votre compte (clients, projets, groupes, prospects, transactions et dépenses récurrentes, catégories, tâches, objectifs, questions et réponses, séances, notes, rappels, statuts et sources) et redémarre l'introduction. Vous devez confirmer deux fois — d'abord un avertissement, puis taper le mot « supprimer ». Cela ne peut pas être annulé."
+        },
+        {
+          "title": "Supprimer le compte définitivement",
+          "body": "« Supprimer le compte définitivement » marque l'ensemble de votre compte pour suppression — y compris votre identifiant de connexion lui-même, pas seulement les données. Vous devez confirmer deux fois et taper « supprimer le compte ». Cela ne se produit pas immédiatement : une période de grâce de 30 jours commence, durant laquelle vous pouvez changer d'avis et annuler à n'importe quelle connexion. Ce n'est qu'après cette période de grâce que tout est définitivement supprimé."
+        },
+        {
+          "title": "À propos — trois onglets",
+          "body": "La section « À propos » a trois onglets : « À propos » (ce qu'est l'application, ses principes, sa version et ses crédits) avec des liens vers la Politique de confidentialité, les Conditions d'utilisation et l'Accord de traitement des données ; « Guide » — l'explication complète de chaque écran (la même aide qui apparaît dans le bouton ?) ; et « FAQ »."
+        }
+      ],
+      "tips": [
+        "Il vaut la peine de définir votre forme d'adresse dans la section Profil en premier — elle modifie la formulation dans toute l'application, y compris le texte des autres écrans.",
+        "Votre profil s'enregistre automatiquement : cliquez simplement en dehors du champ (ou fermez la section) et la modification est saisie. Il n'y a pas de bouton Enregistrer.",
+        "Il vaut la peine d'exporter toutes vos données vers Excel au moins une fois par mois comme sauvegarde. Les fichiers clients et projets sont enregistrés dans un format réimportable.",
+        "Avant de supprimer un sous-statut qui contient des clients ou des prospects — choisissez dans la boîte de dialogue où les déplacer, pour ne pas laisser d'enregistrements sans étiquette. Et même en cas d'erreur, il y a une option d'annulation.",
+        "Vous voulez une question quotidienne qui n'apparaît que les jours de semaine ? Ouvrez la programmation de la question, choisissez « Jours précis » et cochez les jours.",
+        "Ne confondez pas « Réinitialiser le compte » (supprime les données, vous tapez « supprimer ») et « Supprimer le compte définitivement » (supprime aussi votre identifiant de connexion, vous tapez « supprimer le compte », avec 30 jours pour changer d'avis)."
+      ],
+      "faq": [
+        {
+          "q": "J'ai changé mon nom ou ma profession et je n'ai pas vu de bouton Enregistrer — a-t-il été enregistré ?",
+          "a": "Oui. Il n'y a pas de bouton Enregistrer dans le Profil. Votre nom et votre champ de texte libre sont enregistrés dès que vous cliquez en dehors du champ (et même si vous fermez la section en cours de modification), et sélectionner une forme d'adresse ou une profession est enregistré immédiatement au clic. Une note « · Enregistré » apparaît à côté d'un champ qui a été enregistré."
+        },
+        {
+          "q": "Pourquoi n'ai-je aucune question quotidienne dans la section Questions ?",
+          "a": "C'est normal — l'application ne configure pas de questions à l'avance. Cliquez sur « Ajouter une question » et choisissez un modèle prêt à l'emploi ou créez la vôtre. Une fois que vous avez ajouté des questions, vous pouvez définir une programmation pour chacune et les activer ou les désactiver."
+        },
+        {
+          "q": "Quelle est la différence entre « Réinitialiser le compte » et « Supprimer le compte définitivement » ?",
+          "a": "Réinitialiser votre compte supprime toutes vos données et redémarre l'introduction, mais votre identifiant de connexion demeure. Supprimer votre compte marque votre identifiant de connexion lui-même pour suppression — avec une période de grâce de 30 jours pour annuler avant que tout ne soit définitivement supprimé. Les deux actions requièrent une double confirmation et la saisie d'un mot différent (« supprimer » ou « supprimer le compte »)."
+        },
+        {
+          "q": "Si je redémarre l'introduction, vais-je perdre les données que j'ai déjà saisies ?",
+          "a": "Non. « Redémarrer l'introduction » ne réinitialise que les étapes de l'assistant au début. Les clients, projets et données que vous avez déjà créés demeurent. Si vous voulez supprimer les données elles-mêmes, c'est « Réinitialiser le compte » dans la section dangereuse."
+        },
+        {
+          "q": "L'export inclut-il mes séances et réflexions sensibles ?",
+          "a": "Seulement si vous cochez les cases. La boîte de dialogue d'export comporte des cases pour les données sensibles (séances, objectifs, réponses quotidiennes, réflexions), et elles sont désactivées par défaut. Quand vous les cochez, elles sont ajoutées au fichier Excel en texte clair — conservez donc le fichier en lieu sûr."
+        },
+        {
+          "q": "Où changer le mode sombre ou la taille du texte ?",
+          "a": "Dans la section « Apparence ». Là, vous choisissez le mode clair/sombre et la taille du texte (petite, normale, grande). La taille du texte ne change que la police, pas la mise en page de l'écran. Pour changer votre forme d'adresse (masculine/féminine/neutre), allez plutôt dans la section Profil."
+        }
+      ]
+    },
+    "trash": {
+      "title": "Corbeille",
+      "intro": "Ici, vous pouvez consulter et restaurer les éléments que vous avez supprimés — clients, transactions, séances, tâches, prospects, objectifs et plus — avant qu'ils ne disparaissent pour de bon.",
+      "features": [
+        {
+          "title": "Toute suppression ici est encore réversible",
+          "body": "Presque toute suppression dans l'application ne retire pas l'élément immédiatement — il est déplacé ici, dans la Corbeille. En haut, vous pouvez voir combien d'éléments s'y trouvent (« N éléments »), à côté du rappel « Conservés 30 jours » et du message « Toute suppression ici est encore réversible. »"
+        },
+        {
+          "title": "Les éléments sont organisés par type",
+          "body": "Les éléments supprimés sont regroupés par type, et chaque groupe affiche une icône, un nom et un nombre d'éléments. Les types comprennent : clients, projets, groupes, tâches, prospects, sources de prospects, sous-statuts de prospects, transactions, catégories de dépenses, modèles récurrents, séances, rappels, objectifs, mesures d'objectifs, entrées d'objectifs, questions quotidiennes et réponses quotidiennes."
+        },
+        {
+          "title": "Restaurer un élément",
+          "body": "Chaque élément a un bouton « Restaurer ». Cliquer dessus renvoie l'élément à l'écran d'où il a été supprimé, avec toutes ses données. Pendant l'opération, le bouton affiche « Restauration… ». Vous n'avez pas besoin de sélectionner un élément au préalable — le bouton agit directement sur cette ligne."
+        },
+        {
+          "title": "Quand chaque élément a été supprimé",
+          "body": "Sous le nom de chaque élément s'affiche « Supprimé » et il y a combien de temps cela s'est produit (par ex. « Supprimé il y a 3 jours »). Cela permet de savoir facilement combien de temps il reste avant qu'il ne disparaisse de la Corbeille."
+        },
+        {
+          "title": "Conservés 30 jours",
+          "body": "La Corbeille n'affiche que les éléments supprimés au cours des 30 derniers jours. Un élément supprimé il y a plus de 30 jours n'apparaît plus ici et est en voie d'être définitivement retiré du système — restaurez-le donc à temps."
+        },
+        {
+          "title": "Corbeille vide",
+          "body": "Quand il n'y a rien à restaurer, vous verrez un message indiquant que « La corbeille est vide », avec une note que tout ce que vous supprimerez à l'avenir attendra ici pendant 30 jours. Il n'y a rien à faire ici — cela signifie simplement que rien n'a été supprimé récemment."
+        }
+      ],
+      "tips": [
+        "Restaurer renvoie l'élément exactement à l'endroit d'où il a été supprimé (clients, transactions, objectifs, etc.) avec toutes ses données. Pas besoin de ressaisir quoi que ce soit.",
+        "Si vous venez de supprimer quelque chose par erreur, il est plus rapide de cliquer sur « Annuler » sur la brève notification qui apparaît après la suppression (pendant environ 6 secondes). La Corbeille est votre filet de sécurité une fois cette notification disparue.",
+        "Les éléments que vous voulez conserver — restaurez-les dans les 30 jours suivant la suppression. Après cela, ils disparaissent de la Corbeille et ne peuvent pas être récupérés.",
+        "Avant de supprimer votre compte ou de faire un grand ménage, sauvegardez vos données via Paramètres → Données → Exporter les données."
+      ],
+      "faq": [
+        {
+          "q": "Comment supprimer définitivement un élément de la Corbeille ?",
+          "a": "Il n'y a pas de bouton de suppression définitive ici — la seule action est « Restaurer ». Les éléments sont définitivement supprimés automatiquement après 30 jours, et il n'y a aucun moyen d'accélérer cela manuellement d'ici."
+        },
+        {
+          "q": "Je ne trouve pas un élément que j'ai supprimé ?",
+          "a": "Plus de 30 jours se sont peut-être écoulés depuis la suppression, auquel cas il n'apparaît plus dans la Corbeille. Autre possibilité : l'élément est restauré avec son élément parent (comme les membres de groupe), ou l'un des groupes n'a pas pu se charger — auquel cas un message d'erreur apparaît en haut."
+        },
+        {
+          "q": "Que se passe-t-il lorsqu'un élément est restauré ?",
+          "a": "Il revient immédiatement à l'écran d'où il a été supprimé, avec toutes ses données, et disparaît de la Corbeille. La mise à jour est instantanée visuellement, et se synchronise avec le serveur en arrière-plan. Si le serveur renvoie une erreur, la Corbeille se recharge pour que ce que vous voyez reste exact."
+        },
+        {
+          "q": "Tout ce qui est supprimé dans l'application aboutit-il ici ?",
+          "a": "Presque toute suppression réversible aboutit dans la Corbeille — clients, transactions, séances, tâches, prospects, objectifs et plus. Certains éléments liés (comme les membres de groupe) sont restaurés via leur élément parent, ils n'apparaissent donc pas ici séparément."
+        },
+        {
+          "q": "Il y a un message d'erreur en haut — qu'est-ce que cela signifie ?",
+          "a": "Cela signifie que l'un des groupes d'éléments n'a pas pu se charger. Les autres groupes s'affichent quand même — un échec de chargement ne vide pas toute la Corbeille. Essayez de rafraîchir la page, et si l'erreur persiste, contactez le support."
+        }
+      ]
+    },
+    "admin": {
+      "title": "Console d'administration",
+      "intro": "Outils de gestion pour le propriétaire du système : utilisateurs, commentaires et analyses.",
+      "features": [
+        {
+          "title": "Gestion des utilisateurs",
+          "body": "Consultez tous les utilisateurs inscrits, accordez des autorisations d'administration et supprimez des comptes."
+        },
+        {
+          "title": "Commentaires",
+          "body": "Tous les commentaires envoyés via le bouton « Parlez-nous » — lisez-les et répondez-y."
+        },
+        {
+          "title": "Analyses",
+          "body": "Données d'utilisation : nombre d'utilisateurs actifs, écrans populaires et plus encore."
+        }
+      ],
+      "tips": [],
+      "faq": []
+    }
+  },
+  "globalFaq": [
+    {
+      "category": "Connexion et compte",
+      "items": [
+        {
+          "q": "J'ai oublié mon mot de passe — comment le réinitialiser ?",
+          "a": "Sur l'écran de connexion, cliquez sur « Mot de passe oublié ? ». Saisissez votre adresse e-mail et cliquez sur « Envoyer le lien ». Si l'adresse est enregistrée chez nous, nous y enverrons un lien. Le lien vous mène à l'écran « Choisir un nouveau mot de passe », où vous choisissez un nouveau mot de passe (au moins 6 caractères) et le confirmez."
+        },
+        {
+          "q": "Comment changer mon mot de passe quand je suis déjà connecté ?",
+          "a": "Utilisez le même écran « Choisir un nouveau mot de passe ». Vous pouvez y accéder via « Mot de passe oublié ? » sur l'écran de connexion, ou via le lien de réinitialisation envoyé à votre e-mail."
+        },
+        {
+          "q": "Comment changer mon adresse e-mail ?",
+          "a": "Actuellement, le changement de l'adresse e-mail du compte n'est possible qu'en contactant le support."
+        },
+        {
+          "q": "Je me suis connecté avec Google — ai-je aussi besoin d'un mot de passe ?",
+          "a": "Non. Avec Google, vous n'avez pas besoin de mot de passe. Cliquez simplement sur « Se connecter avec Google » à chaque fois."
+        },
+        {
+          "q": "Dois-je accepter quelque chose lors de l'inscription ?",
+          "a": "Oui. Lors de l'inscription (à la fois par e-mail et avec Google), vous cochez deux cases : une pour accepter la Politique de confidentialité et l'Accord de traitement des données, et une pour accepter les Conditions d'utilisation. Il y a aussi une case facultative pour les e-mails marketing — elle n'est pas obligatoire et vous pouvez la décocher à tout moment."
+        }
+      ]
+    },
+    {
+      "category": "Données et confidentialité",
+      "items": [
+        {
+          "q": "Qui peut voir mes données ?",
+          "a": "Vous seul. Chaque compte est complètement distinct, et vous seul pouvez voir les données de votre compte. La connexion au serveur est sécurisée. Nous ne vendons pas vos données et ne les partageons avec personne."
+        },
+        {
+          "q": "Les champs sensibles sont-ils chiffrés dans la base de données ?",
+          "a": "Les notes, les résumés de séances et les réflexions sont stockés chez nous en texte clair. Ce qui les protège : vous seul accédez à votre compte, et la connexion est sécurisée. Si vous avez utilisé d'anciennes versions bêta, certains champs peuvent encore être stockés sous forme chiffrée du passé — ils sont déchiffrés automatiquement pour vous."
+        },
+        {
+          "q": "Qu'advient-il de mes clés API Green Invoice / SUMIT ?",
+          "a": "Vos identifiants de connexion (l'identifiant et la clé) sont stockés uniquement sur notre serveur. Ils ne sont jamais affichés dans le navigateur — pas même à vous. Le système ne les utilise que lorsqu'il émet une facture ou récupère un revenu en votre nom."
+        },
+        {
+          "q": "Comment sauvegarder mes données ?",
+          "a": "Paramètres → Données → Exporter les données. Vous pouvez télécharger toutes vos données dans un seul fichier Excel (une feuille par type : transactions, clients, projets, prospects, tâches, catégories). Vous pouvez aussi exporter les clients, les transactions ou les projets séparément en fichiers CSV."
+        },
+        {
+          "q": "Puis-je inclure des données sensibles (séances, objectifs, réponses quotidiennes, réflexions) dans l'export ?",
+          "a": "Oui. La boîte de dialogue d'export comporte des cases pour cela, et elles sont désactivées par défaut. Elles ajoutent des feuilles supplémentaires au fichier Excel complet. Les données sensibles s'exportent en texte clair, conservez donc le fichier en lieu sûr."
+        },
+        {
+          "q": "Comment importer des données depuis Excel / Google Sheets ?",
+          "a": "Paramètres → Données → Importer depuis un fichier (CSV / Excel). Vous pouvez téléverser des fichiers CSV, TSV et Excel (xlsx/xls), y compris des fichiers avec plusieurs feuilles. Le système détecte automatiquement les colonnes, et vous pouvez corriger manuellement la correspondance avant l'import."
+        },
+        {
+          "q": "Comment supprimer mon compte ?",
+          "a": "Paramètres → Données → Supprimer le compte définitivement. Cela supprime l'ensemble du compte, y compris votre identifiant de connexion, et requiert deux confirmations avec saisie au clavier. Après la suppression, il y a une période de grâce de 30 jours — pendant ce temps, vous pouvez changer d'avis et annuler."
+        }
+      ]
+    },
+    {
+      "category": "Affichage et apparence",
+      "items": [
+        {
+          "q": "Comment passer en mode sombre ?",
+          "a": "Ouvrez le menu (« Plus » dans la navigation) et cliquez sur l'interrupteur « Mode sombre » (lorsqu'il est activé, il s'appelle « Mode clair »). Vous pouvez aussi aller dans Paramètres → Apparence → Mode clair/sombre."
+        },
+        {
+          "q": "Comment agrandir le texte ?",
+          "a": "Paramètres → Apparence → Taille du texte. Il y a trois options : petite, normale, grande."
+        },
+        {
+          "q": "Comment définir ma forme d'adresse préférée (masculine/féminine/neutre) ?",
+          "a": "Paramètres → Profil → Forme d'adresse. Votre choix (neutre / féminine / masculine) modifie la formulation dans toute l'application."
+        },
+        {
+          "q": "Puis-je changer l'ordre des écrans dans la navigation ?",
+          "a": "L'ordre des écrans dans la navigation est fixe pour l'instant. Vous pouvez personnaliser l'écran d'accueil : Paramètres → Widgets et affichage. Là, vous activez et désactivez les widgets, changez leur ordre et choisissez un style d'affichage."
+        }
+      ]
+    },
+    {
+      "category": "Problèmes courants",
+      "items": [
+        {
+          "q": "L'application est figée / ne se charge pas ?",
+          "a": "Rafraîchissez la page (F5 sur ordinateur, ou tirez vers le bas sur mobile). Si cela continue — déconnectez-vous et reconnectez-vous."
+        },
+        {
+          "q": "Des données que j'ai enregistrées n'apparaissent pas ?",
+          "a": "Rafraîchissez la page. S'il manque encore quelque chose, vérifiez que vous avez une connexion Internet. Si cela continue, contactez-nous via « Parlez-nous » dans le menu."
+        },
+        {
+          "q": "Le bouton + ne répond pas ?",
+          "a": "Il y a probablement une boîte de dialogue ou un panneau ouvert en arrière-plan. Fermez toutes les boîtes de dialogue ouvertes et réessayez."
+        }
+      ]
+    },
+    {
+      "category": "Connexions et intégrations",
+      "items": [
+        {
+          "q": "Quels services puis-je connecter ?",
+          "a": "Actuellement : Google Calendar (récupère les événements de votre calendrier et identifie les séances avec les clients), un service de facturation — Green Invoice ou SUMIT (émet des factures et des reçus et importe les revenus), et WhatsApp (envoi manuel de messages aux clients, avec un texte que vous pouvez personnaliser). Claude est marqué « Bientôt disponible » et n'est pas encore actif."
+        },
+        {
+          "q": "Comment accéder à l'écran Connexions ?",
+          "a": "Via l'onglet « Connexions » dans la navigation. L'écran affiche une liste : Google Calendar, Facturation et des lignes « Bientôt disponible ». Chaque ligne active s'ouvre sur son propre écran où vous la connectez et la gérez."
+        },
+        {
+          "q": "Comment connecter Google Calendar ?",
+          "a": "Connexions → Google Calendar. Choisissez à partir de quelle date synchroniser, cliquez sur « Connecter Google Calendar » et approuvez les autorisations dans la boîte de dialogue Google. Après cela, vous pouvez synchroniser à tout moment en cliquant sur « Synchroniser maintenant », et affecter des événements à un client, un projet, un prospect ou un groupe."
+        },
+        {
+          "q": "Comment connecter un service de facturation ?",
+          "a": "Connexions → Facturation. Choisissez un fournisseur (Green Invoice ou SUMIT), collez vos identifiants de votre compte avec ce service, et cliquez sur « Connecter ». Le bouton « Comment les obtenir ? » contient des instructions étape par étape."
+        },
+        {
+          "q": "Puis-je connecter à la fois Green Invoice et SUMIT ?",
+          "a": "Un seul service de facturation à la fois. Pour changer de fournisseur, déconnectez le service actuel et connectez le nouveau."
+        },
+        {
+          "q": "Les identifiants de mon service de facturation ne sont pas acceptés ?",
+          "a": "Assurez-vous d'avoir copié l'identifiant et la clé en entier, sans espaces, et que vous utilisez la clé API privée (pas la publique). Après la connexion, vous pouvez vérifier avec le bouton « Tester la connexion ». Si la connexion a soudainement cessé de fonctionner (« Reconnexion requise »), la clé a probablement été révoquée ou remplacée — cliquez sur « Reconnecter » et saisissez-la à nouveau."
+        },
+        {
+          "q": "Que signifie « Import automatique des revenus » ?",
+          "a": "Lorsque cela est activé, le système détecte les revenus que vous avez enregistrés dans votre logiciel de facturation et vous les présente pour approbation. Rien n'est enregistré dans votre compte sans votre confirmation."
+        }
+      ]
+    }
+  ],
+  "about": {
+    "tagline": "Practice OS — à votre rythme",
+    "description": "Simplicity a été conçu pour les thérapeutes, coachs, facilitateurs, enseignants, instructeurs et consultants en Israël. Un seul endroit pour toute votre activité : clients, prospects, séances et calendrier, finances, projets, tâches, objectifs et votre propre processus personnel. Le tout en hébreu, dans votre forme d'adresse préférée (masculine/féminine/neutre), et sans l'encombrement.",
+    "principles": [
+      {
+        "title": "La confidentialité d'abord",
+        "body": "Vos données n'appartiennent qu'à vous. Vous seul accédez à votre compte, et la connexion au serveur est sécurisée. Les identifiants de votre service de facturation sont stockés sur notre serveur et ne sont jamais affichés dans le navigateur — pas même à vous. Nous ne vendons pas de données et ne vous classons pas."
+      },
+      {
+        "title": "Une interface qui vous respecte",
+        "body": "Pas de bruit. Pas de fenêtres surgissantes « Premium ». Pas d'alertes inutiles. Juste ce dont vous avez besoin pour gérer une activité — à votre rythme."
+      },
+      {
+        "title": "Conçu en Israël",
+        "body": "Construit en hébreu, avec une forme d'adresse qui vous convient (masculine/féminine/neutre), pour la communauté des thérapeutes, coachs et consultants d'ici."
+      }
+    ],
+    "version": "0.1.0",
+    "built_with": "Conçu en collaboration avec Claude (Anthropic)."
+  }
+}

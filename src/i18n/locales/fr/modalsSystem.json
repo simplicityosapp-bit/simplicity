@@ -1,0 +1,215 @@
+{
+  "modal": {
+    "close": "Fermer"
+  },
+  "confirm": {
+    "title": "Confirmer",
+    "confirm": "Confirmer",
+    "cancel": "Annuler"
+  },
+  "common": {
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "back": "Retour",
+    "tryAgain": "réessayer"
+  },
+  "deleteAccount": {
+    "title": "Supprimer le compte définitivement",
+    "confirmPhrase": "supprimer le compte",
+    "step1": "Cette action marquera <0>l'intégralité de votre compte</0> pour suppression : votre profil, toutes vos données (clients, projets, prospects, transactions, objectifs, séances, rappels, etc.)<1> ainsi que votre connexion elle-même</1>.",
+    "step1b": "Vous disposez de <0>{{days}} jours</0> pour changer d'avis : à chaque connexion durant cette période, vous pouvez annuler et revenir à une utilisation normale. Passé ce délai, tout est supprimé définitivement et <1>ne peut pas être récupéré</1> — et vous ne pourrez plus vous reconnecter avec le même compte.",
+    "step2": "Pour confirmer, {{type}} <0>{{phrase}}</0> dans le champ. Le décompte de {{days}} jours commence aussitôt après.",
+    "typeVerb": "saisissez la phrase",
+    "inputLabel": "Saisissez :",
+    "genericError": "Une erreur s'est produite — {{tryAgain}}.",
+    "continue": "Continuer vers la suppression",
+    "deleting": "Marquage pour suppression…",
+    "confirmBtn": "Supprimer le compte"
+  },
+  "resetAccount": {
+    "title": "Réinitialiser le compte — supprimer toutes les données",
+    "confirmWord": "supprimer",
+    "step1": "Cette action supprimera <0>toutes les données de votre compte</0> : clients, projets, groupes, prospects, transactions et dépenses récurrentes, catégories, tâches, objectifs et entrées d'objectifs, questions quotidiennes et leurs réponses, séances enregistrées, notes, rappels, statuts et sources.",
+    "step1b": "<0>Cette action est irréversible.</0> L'intégration recommencera depuis le début afin que vous puissiez repartir de zéro.",
+    "step2": "Pour confirmer définitivement, {{type}} <0>{{word}}</0> dans le champ. Ceci est la confirmation finale — tout est supprimé aussitôt après.",
+    "typeVerb": "saisissez le mot",
+    "inputLabel": "Saisissez :",
+    "genericError": "Une erreur s'est produite — {{tryAgain}}.",
+    "continue": "Continuer vers la suppression",
+    "deleting": "Suppression…",
+    "confirmBtn": "Tout supprimer définitivement"
+  },
+  "export": {
+    "title": "Exporter les données",
+    "intro": "Toutes vos données se téléchargent ensemble dans un seul fichier Excel avec une feuille par type ; les exports individuels sont des fichiers CSV séparés.",
+    "exporting": "Exportation…",
+    "exportAll": "Exporter toutes les données (Excel)",
+    "exportAllHint": "Un fichier avec une feuille par type : transactions, clients, projets, prospects, tâches, catégories.",
+    "sensitiveHeading": "Inclure aussi les données sensibles ?",
+    "sensitiveSub": "Non incluses par défaut. Les données sensibles sont exportées en texte clair — conservez le fichier en lieu sûr.",
+    "failed": "L'exportation a échoué. Veuillez réessayer.",
+    "exportTransactions": "Exporter les transactions (CSV)",
+    "exportClients": "Exporter les clients (CSV)",
+    "exportProjects": "Exporter les projets (CSV)",
+    "reimportHint": "Les fichiers de clients et de projets sont enregistrés dans un format réimportable (les mêmes en-têtes que le système reconnaît).",
+    "sensitive": {
+      "sessions": "Séances",
+      "sessionsSub": "Notes et résumés de séances",
+      "goals": "Objectifs",
+      "goalsSub": "Objectifs et entrées de progression",
+      "dailyAnswers": "Réponses quotidiennes",
+      "dailyAnswersSub": "Réponses aux questions quotidiennes",
+      "moon": "Réflexions",
+      "moonSub": "Réflexions quotidiennes (déchiffrées)"
+    }
+  },
+  "feedback": {
+    "title": "Parlez-nous",
+    "thanks": "Merci ! Votre retour a été envoyé.",
+    "lead": "Nous aimerions beaucoup vous lire — chaque remarque nous aide à nous améliorer.",
+    "typeLabel": "Type de retour (facultatif)",
+    "placeholder": "{{write}}-nous tout ce qui vous passe par la tête…",
+    "writeVerb": "Écrivez",
+    "privacyHint": "Pour protéger la confidentialité de vos clients — n'incluez pas de détails qui les identifient (nom complet, téléphone).",
+    "sendFailed": "Une erreur s'est produite lors de l'envoi. Vous pouvez réessayer.",
+    "sending": "Envoi…",
+    "send": "Envoyer",
+    "types": {
+      "bug": "Bug",
+      "idea": "Idée",
+      "praise": "Compliment",
+      "other": "Autre"
+    }
+  },
+  "profileHealth": {
+    "title": "Santé du profil",
+    "calculating": "Un instant, calcul de votre score…",
+    "loadingData": "Chargement de vos données…",
+    "noGaps": "Aucun point ouvert — tout est utilisé.",
+    "editProfile": "Modifier le profil",
+    "lead": {
+      "full": "Tout est utilisé — vous tirez le meilleur du système.",
+      "high": "Presque tout est en place. Encore une petite touche et vous y êtes.",
+      "mid": "Vous êtes sur la bonne voie — quelques étapes et votre profil est complet.",
+      "low": "Il y a ici une vraie occasion de tirer davantage du système."
+    }
+  },
+  "issueGuard": {
+    "title1": "Un instant avant d'émettre",
+    "title2": "Confirmation finale",
+    "sure": "Oui, j'en suis sûr(e)",
+    "finalMsg": "Cette action émettra un véritable document fiscal qui ne peut pas être annulé. Émettre pour {{amount}} ?",
+    "issue": "Oui, l'émettre"
+  },
+  "quickActions": {
+    "title": "Ajout rapide",
+    "actions": {
+      "transaction": "Transaction",
+      "client": "Client",
+      "lead": "Prospect",
+      "task": "Tâche",
+      "project": "Projet",
+      "goal": "Objectif",
+      "reminder": "Rappel",
+      "meeting": "Séance"
+    }
+  },
+  "quoteSource": {
+    "title": "Citations",
+    "writeFirst": "Écrivez d'abord une citation.",
+    "saveFailed": "Impossible d'enregistrer : {{error}}",
+    "tryAgain": "réessayer",
+    "pickLabel": "D'où doit provenir la citation quotidienne ?",
+    "sourceSystem": "Depuis le système",
+    "sourcePersonal": "Les miennes",
+    "emptyPersonal": "Aucune citation personnelle pour l'instant — jusqu'à ce que vous en ajoutiez, une citation de la bibliothèque s'affichera.",
+    "addLabel": "Ajouter une citation personnelle",
+    "addPlaceholder": "Écrivez une phrase qui vous parle…",
+    "addAria": "Ajouter une citation",
+    "myQuotes": "Mes citations ({{count}})",
+    "removeAria": "Supprimer la citation"
+  },
+  "tileDrill": {
+    "close": "Fermer",
+    "openFull": "Ouvrir en plein écran",
+    "dayLabels": ["D", "L", "M", "M", "J", "V", "S"],
+    "titles": {
+      "clients": "Clients",
+      "net": "Net",
+      "tasks": "Tâches"
+    },
+    "status": {
+      "active": "Actif",
+      "wandering": "Entre-deux",
+      "past": "Ancien",
+      "no_status": "Aucun"
+    },
+    "netRanges": {
+      "thisWeek": "Cette semaine",
+      "thisMonth": "Ce mois-ci",
+      "last30days": "30 derniers jours"
+    },
+    "netTypes": {
+      "both": "Net (revenus − dépenses)",
+      "income": "Revenus uniquement",
+      "expense": "Dépenses uniquement"
+    },
+    "taskStatus": {
+      "open": "Ouvertes",
+      "done": "Terminées",
+      "both": "Toutes"
+    },
+    "priorities": {
+      "high": "Élevée",
+      "medium": "Moyenne",
+      "low": "Faible"
+    },
+    "taskClientScope": {
+      "all": "Toutes",
+      "linked": "Liées à un client"
+    },
+    "all": "Toutes",
+    "none": "Aucun",
+    "clients": {
+      "matchingNum": "clients correspondants",
+      "trendLbl": "Base de clients · 30 jours",
+      "statusLbl": "Statut",
+      "projectLbl": "Projet",
+      "groupLbl": "Groupe",
+      "matchingSection": "Correspondants ({{count}})",
+      "emptyFilter": "Aucun client ne correspond au filtre.",
+      "moreCount": "+{{count}} de plus",
+      "noProjects": "Aucun projet pour l'instant",
+      "noGroups": "Aucun groupe pour l'instant"
+    },
+    "net": {
+      "income": "Revenus",
+      "expense": "Dépenses",
+      "net": "Net",
+      "trendLbl": "Revenus contre dépenses · 30 jours",
+      "legendIncome": "Revenus",
+      "legendExpense": "Dépenses",
+      "timeRangeLbl": "Plage de temps",
+      "typeLbl": "Type",
+      "projectLbl": "Projet",
+      "categoryLbl": "Catégorie",
+      "miniIncome": "Revenus",
+      "miniExpense": "Dépenses",
+      "miniTx": "Transactions",
+      "noProjects": "Aucun projet pour l'instant",
+      "noCategories": "Aucune catégorie pour l'instant"
+    },
+    "tasks": {
+      "matchingNum": "tâches correspondantes",
+      "trendLbl": "Tâches terminées · 7 jours",
+      "statusLbl": "Statut",
+      "priorityLbl": "Priorité",
+      "projectLbl": "Projet",
+      "clientScopeLbl": "Lien avec un client",
+      "upcomingSection": "Tâches à venir",
+      "emptyFilter": "Aucune tâche ne correspond au filtre.",
+      "moreCount": "+{{count}} de plus",
+      "noProjects": "Aucun projet pour l'instant"
+    }
+  }
+}

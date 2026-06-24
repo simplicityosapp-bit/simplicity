@@ -50,6 +50,16 @@
   },
   "widgets": {
     "globalView": "Global display",
+    "names": {
+      "quote": "Daily quote",
+      "moon": "Overview",
+      "insights": "How are you today",
+      "quick-row": "Quick action / update",
+      "attention": "Alerts (meetings, payments)",
+      "reminders": "Upcoming reminders",
+      "next-tasks": "Next tasks",
+      "chips": "Status cards (clients/net/tasks)"
+    },
     "cardStyle": "Card style",
     "textStrength": "Text weight",
     "density": "Density",

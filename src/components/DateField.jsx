@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronRight, ChevronLeft, ChevronsRight, ChevronsLeft } from 'lucide-react'
 import {
-  monthGrid, MONTH_NAMES_HE, DAY_NAMES_SHORT, isSameDay, weekStartIndex,
+  monthGrid, monthNamesLong, weekdayNamesShort, isSameDay, weekStartIndex,
   hebrewMonthGrid, hebrewParts, hebrewMonthLabel, stepHebrewMonth, stepHebrewYear,
 } from '../lib/calendar'
 import { fmtDateInput } from '../lib/dates'
@@ -41,7 +41,7 @@ const clipEdges = (el) => {
 const POPUP_H = 330 /* approx calendar height — enough to choose a side */
 
 export default function DateField({ value, onChange, className = '', disabled = false, placeholder }) {
-  const { t } = useT('components')
+  const { t, lang } = useT('components')
   const ph = placeholder ?? t('dateField.placeholder')
   const { prefs } = useUserPreferences()
   const weekStart = prefs?.format?.week_start || 'sunday'
@@ -96,11 +96,12 @@ export default function DateField({ value, onChange, className = '', disabled = 
     return monthGrid(view, weekStart).map((d) => ({ d, inMonth: d.getMonth() === m, label: String(d.getDate()) }))
   }, [view, weekStart, hebrew])
   const headDays = useMemo(() => {
+    const names = weekdayNamesShort(lang)
     const start = weekStartIndex(weekStart)
-    return Array.from({ length: 7 }, (_, i) => DAY_NAMES_SHORT[(start + i) % 7])
-  }, [weekStart])
+    return Array.from({ length: 7 }, (_, i) => names[(start + i) % 7])
+  }, [weekStart, lang])
 
-  const headerLabel = hebrew ? hebrewMonthLabel(view) : `${MONTH_NAMES_HE[view.getMonth()]} ${view.getFullYear()}`
+  const headerLabel = hebrew ? hebrewMonthLabel(view) : `${monthNamesLong()[view.getMonth()]} ${view.getFullYear()}`
   /* Trigger button text — Hebrew (optionally with the Gregorian date when the
      dual display setting is on) or the plain Gregorian per the date_format pref. */
   const triggerText = () => {

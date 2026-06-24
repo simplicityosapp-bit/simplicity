@@ -144,8 +144,8 @@ export default function ReportsScreen() {
    12-month pill row + a single-month detail card. Empty months
    suggest navigating to the most recent month with data. */
 function ListView({ config, data, onDrill }) {
-  const { t } = useT('reports')
-  const months = useMemo(() => getLast12Months(), [])
+  const { t, lang } = useT('reports')
+  const months = useMemo(() => getLast12Months(undefined, lang), [lang])
   const [selected, setSelected] = useState(months[months.length - 1])
 
   const selectedReport = useMemo(
@@ -226,7 +226,7 @@ function ListView({ config, data, onDrill }) {
         <div className="rep-groups">
           {grouped.map((g) => (
             <div key={g.id} className="rep-group">
-              <p className="rep-group-head">{g.label}</p>
+              <p className="rep-group-head">{t(`groups.${g.id}`)}</p>
               <div className="rep-list">
                 {g.items.map((m) => {
                   const v = selectedReport.metrics[m.id]
@@ -240,10 +240,10 @@ function ListView({ config, data, onDrill }) {
                         disabled={empty}
                       >
                         <span className="rep-row-icon"><MetricIcon id={m.id} /></span>
-                        <span className="rep-row-label">{m.label}</span>
+                        <span className="rep-row-label">{t(`metrics.${m.id}`)}</span>
                         <span className="rep-row-value mono">{formatReportValue(m, v)}</span>
                       </button>
-                      {m.desc && <span className="rep-row-info"><InfoPopover label={t('info', { label: m.label })} text={m.desc} /></span>}
+                      {m.info && <span className="rep-row-info"><InfoPopover label={t('info', { label: t(`metrics.${m.id}`) })} text={t(`metricsDesc.${m.id}`)} /></span>}
                     </div>
                   )
                 })}
@@ -261,16 +261,16 @@ function ListView({ config, data, onDrill }) {
    one column per period, plus a summary column. Group-header rows
    appear above each contiguous run of metrics from the same group. */
 function TableView({ config, data, onSetRange, onDrill }) {
-  const { t } = useT('reports')
-  const periods = useMemo(() => getPeriodsForMonths(config.range), [config.range])
+  const { t, lang } = useT('reports')
+  const periods = useMemo(() => getPeriodsForMonths(config.range, undefined, lang), [config.range, lang])
   const periodReports = useMemo(
     () => periods.map((p) => ({ ...p, data: computeReportForRange(p.start, p.end, data) })),
     [periods, data],
   )
   const ordered = useMemo(() => getOrderedVisibleMetrics(config), [config])
   const groupLabels = useMemo(
-    () => Object.fromEntries(REPORT_GROUPS.map((g) => [g.id, g.label])),
-    [],
+    () => Object.fromEntries(REPORT_GROUPS.map((g) => [g.id, t(`groups.${g.id}`)])),
+    [t],
   )
 
   const periodLabel = periods.length > 1
@@ -333,8 +333,8 @@ function TableView({ config, data, onSetRange, onDrill }) {
                 <tr key={m.id} className="rep-tr-metric">
                   <td className="rep-td-metric">
                     <span className="rep-td-metric-icon"><MetricIcon id={m.id} size={13} /></span>
-                    <span className="rep-td-metric-name">{m.label}</span>
-                    {m.desc && <InfoPopover label={t('info', { label: m.label })} text={m.desc} />}
+                    <span className="rep-td-metric-name">{t(`metrics.${m.id}`)}</span>
+                    {m.info && <InfoPopover label={t('info', { label: t(`metrics.${m.id}`) })} text={t(`metricsDesc.${m.id}`)} />}
                   </td>
                   {periodReports.map((p) => {
                     const v = p.data.metrics[m.id]
@@ -439,11 +439,11 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
                 <GripVertical size={14} strokeWidth={1.5} />
               </span>
               <span className="rep-cust-icon"><MetricIcon id={m.id} /></span>
-              <span className="rep-cust-label">{m.label}</span>
+              <span className="rep-cust-label">{t(`metrics.${m.id}`)}</span>
               <button
                 type="button"
                 className={`rep-cust-toggle${on ? ' on' : ''}`}
-                aria-label={on ? t('customize.hide', { label: m.label }) : t('customize.show', { label: m.label })}
+                aria-label={on ? t('customize.hide', { label: t(`metrics.${m.id}`) }) : t('customize.show', { label: t(`metrics.${m.id}`) })}
                 onClick={() => onToggle(m.id)}
               >
                 <span className="rep-cust-toggle-knob" />
@@ -486,7 +486,7 @@ function DrillModal({ open, onClose, drill, data, onNavigate }) {
   }, [drill, data])
 
   const metric = drill ? REPORT_METRICS.find((m) => m.id === drill.metricId) : null
-  const title = metric && drill ? `${metric.label} · ${drill.period.label}` : t('drill.title')
+  const title = metric && drill ? `${t(`metrics.${metric.id}`)} · ${drill.period.label}` : t('drill.title')
 
   return (
     <Modal open={open} onClose={onClose} title={title}>

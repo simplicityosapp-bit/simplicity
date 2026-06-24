@@ -1,0 +1,87 @@
+{
+  "sheets": {
+    "transactions": "Transacciones",
+    "clients": "Clientes",
+    "projects": "Proyectos",
+    "leads": "Prospectos",
+    "tasks": "Tareas",
+    "categories": "Categorías",
+    "sessions": "Sesiones",
+    "goals": "Objetivos",
+    "goalEntries": "Registros de objetivos",
+    "dailyAnswers": "Respuestas diarias",
+    "reflections": "Reflexiones"
+  },
+  "headers": {
+    "date": "Fecha",
+    "type": "Tipo",
+    "amount": "Importe",
+    "desc": "Descripción",
+    "status": "Estado",
+    "client": "Cliente",
+    "project": "Proyecto",
+    "category": "Categoría",
+    "name": "Nombre",
+    "phone": "Teléfono",
+    "email": "Correo",
+    "sessions": "Sesiones",
+    "pricePerSession": "Precio por sesión",
+    "notes": "Notas",
+    "color": "Color",
+    "inquiryDate": "Fecha de consulta",
+    "title": "Título",
+    "priority": "Prioridad",
+    "dueDate": "Fecha objetivo",
+    "subject": "Asunto",
+    "sessionNum": "N.º de sesión",
+    "summary": "Resumen",
+    "goal": "Objetivo",
+    "timeFrame": "Periodo",
+    "targetValue": "Valor objetivo",
+    "targetDate": "Fecha objetivo",
+    "importance": "Importancia",
+    "value": "Valor",
+    "note": "Nota",
+    "question": "Pregunta",
+    "answer": "Respuesta",
+    "reflection": "Reflexión",
+    "score": "Puntuación"
+  },
+  "txType": {
+    "income": "Ingreso",
+    "expense": "Gasto"
+  },
+  "txStatus": {
+    "confirmed": "Confirmada",
+    "pending": "Pendiente",
+    "skipped": "Omitida"
+  },
+  "clientStatus": {
+    "active": "Activo",
+    "wandering": "Indeciso",
+    "past": "Anterior",
+    "no_status": "Sin estado"
+  },
+  "leadStatus": {
+    "in_process": "En proceso",
+    "converted": "Convertido",
+    "not_relevant": "No relevante"
+  },
+  "taskStatus": {
+    "todo": "Por hacer",
+    "in_progress": "En progreso",
+    "done": "Hecha"
+  },
+  "priority": {
+    "high": "Alta",
+    "normal": "Normal",
+    "low": "Baja"
+  },
+  "timeFrame": {
+    "deadline": "Fecha límite",
+    "monthly": "Mensual",
+    "weekly": "Semanal"
+  },
+  "groupFallback": "Grupo",
+  "decryptFail": "(no se pudo descifrar)"
+}

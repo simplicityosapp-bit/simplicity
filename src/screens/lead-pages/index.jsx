@@ -4,6 +4,7 @@ import {
   ArrowRight, Plus, Trash2, Copy, Check, ChevronUp, ChevronDown, ExternalLink,
   Settings, Link2, X,
 } from 'lucide-react'
+import { useT } from '../../i18n/useT'
 import { useLeadPages } from '../../hooks/useLeadPages'
 import { useBookingPages } from '../../hooks/useBookingPages'
 import { useProjects } from '../../hooks/useProjects'
@@ -21,7 +22,8 @@ import { showError } from '../../lib/toast'
 import '../lead-page/LeadPage.css' // WYSIWYG: the canvas reuses the public page's look
 import './LeadPagesScreen.css'
 
-const FIELD_TYPE_LABELS = { text: 'טקסט', tel: 'טלפון', email: 'אימייל', textarea: 'טקסט ארוך', select: 'בחירה יחידה', checkbox: 'בחירה מרובה' }
+/* Field-type display labels resolve via i18n at render time
+   (leads:pages.fieldTypes.<type>); see useT inside the builder. */
 
 /* ════════════════════════════════════════════════════════════════
    LEAD PAGES — in-app builder + management for public lead pages.
@@ -29,6 +31,7 @@ const FIELD_TYPE_LABELS = { text: 'טקסט', tel: 'טלפון', email: 'אימ�
    (Google-Forms-style inline editing) toggled by local state.
    ════════════════════════════════════════════════════════════════ */
 export default function LeadPagesScreen() {
+  const { t } = useT('leads')
   const navigate = useNavigate()
   const location = useLocation()
   const { pages, loading, error, addPage, updatePage, removePage } = useLeadPages()
@@ -61,30 +64,30 @@ export default function LeadPagesScreen() {
         <header className="screen-head">
           <div>
             <div className="screen-head-meta">
-              <p className="lbl">{pages.length} דפים</p>
+              <p className="lbl">{t('pages.count', { count: pages.length })}</p>
             </div>
-            <p className="lbl-sm">דפי נחיתה ציבוריים לאיסוף לידים</p>
+            <p className="lbl-sm">{t('pages.subtitle')}</p>
           </div>
-          <p className="t-screen">דפי נחיתה</p>
+          <p className="t-screen">{t('pages.title')}</p>
         </header>
         <Coachmark id="add-lead-page" radius="50%">
-          <button className="cta-add" type="button" onClick={() => setEditingId('new')}>דף חדש</button>
+          <button className="cta-add" type="button" onClick={() => setEditingId('new')}>{t('pages.newPage')}</button>
         </Coachmark>
       </div>
 
       <button type="button" className="lp-back-link" onClick={() => navigate(ROUTES.LEADS)}>
-        <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> חזרה ללידים
+        <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> {t('pages.backToLeads')}
       </button>
 
       {loading ? (
-        <div className="empty"><p className="empty-text">טוען…</p></div>
+        <div className="empty"><p className="empty-text">{t('pages.loading')}</p></div>
       ) : error ? (
-        <div className="empty"><p className="empty-text">שגיאה בטעינה: {error}</p></div>
+        <div className="empty"><p className="empty-text">{t('pages.loadError', { error })}</p></div>
       ) : pages.length === 0 ? (
         <div className="empty">
-          <p className="empty-text">עוד אין דפי נחיתה. צרו דף ראשון כדי לאסוף לידים אוטומטית.</p>
+          <p className="empty-text">{t('pages.empty')}</p>
           <button type="button" className="lpm-empty-cta" onClick={() => setEditingId('new')}>
-            <Plus size={16} strokeWidth={1.8} aria-hidden="true" /> דף חדש
+            <Plus size={16} strokeWidth={1.8} aria-hidden="true" /> {t('pages.newPage')}
           </button>
         </div>
       ) : (
@@ -104,42 +107,41 @@ export default function LeadPagesScreen() {
 }
 
 function PageCard({ page, onEdit, onDelete }) {
+  const { t } = useT('leads')
   const [copied, setCopied] = useState(false)
   const url = publicLeadPageUrl(page.slug || page.id)
   const copy = async () => {
     if (await copyText(url)) { setCopied(true); setTimeout(() => setCopied(false), 1600) }
-    else showError('לא ניתן להעתיק אוטומטית — סמנו והעתיקו את הקישור ידנית.')
+    else showError(t('pages.copyFailed'))
   }
   return (
     <div className="lpm-card">
       <div className="lpm-card-main">
-        <p className="lpm-card-title">{page.title?.trim() || 'דף ללא שם'}</p>
+        <p className="lpm-card-title">{page.title?.trim() || t('pages.untitled')}</p>
         <div className="lpm-badges">
-          <span className={`lpm-badge${page.published ? ' is-live' : ''}`}>{page.published ? 'פעיל' : 'טיוטה'}</span>
+          <span className={`lpm-badge${page.published ? ' is-live' : ''}`}>{page.published ? t('pages.badgeLive') : t('pages.badgeDraft')}</span>
           {page.auto_approve
-            ? <span className="lpm-badge is-auto">הזנה אוטומטית</span>
-            : <span className="lpm-badge">דורש אישור</span>}
+            ? <span className="lpm-badge is-auto">{t('pages.badgeAuto')}</span>
+            : <span className="lpm-badge">{t('pages.badgeManual')}</span>}
           <InfoPopover
-            label="הסבר על אופן כניסת הלידים"
-            text={page.auto_approve
-              ? 'לידים מהדף הזה נכנסים ישר ללוח הלידים, בלי אישור. אפשר לשנות ל"דורש אישור" בהגדרות הדף.'
-              : 'לידים מהדף הזה לא נכנסים ישר — הם ממתינים ב"ממתינים לאישור" (וב"דורש תשומת לב" בבית), ונכנסים ללוח רק אחרי שתאשר/י. אפשר לשנות ל"הזנה אוטומטית" בהגדרות הדף.'}
+            label={t('pages.intakeInfoLabel')}
+            text={page.auto_approve ? t('pages.intakeInfoAuto') : t('pages.intakeInfoManual')}
           />
         </div>
       </div>
       <div className="lpm-card-actions">
         {page.published && (
           <>
-            <button type="button" className="lpm-icon-btn" onClick={copy} aria-label="העתקת קישור" title="העתקת קישור">
+            <button type="button" className="lpm-icon-btn" onClick={copy} aria-label={t('pages.copyLink')} title={t('pages.copyLink')}>
               {copied ? <Check size={16} strokeWidth={2} /> : <Copy size={16} strokeWidth={1.7} />}
             </button>
-            <a className="lpm-icon-btn" href={url} target="_blank" rel="noreferrer" aria-label="פתיחת הדף" title="פתיחת הדף">
+            <a className="lpm-icon-btn" href={url} target="_blank" rel="noreferrer" aria-label={t('pages.openPage')} title={t('pages.openPage')}>
               <ExternalLink size={16} strokeWidth={1.7} />
             </a>
           </>
         )}
-        <button type="button" className="lpm-edit-btn" onClick={onEdit}>עריכה</button>
-        <button type="button" className="lpm-icon-btn danger" onClick={onDelete} aria-label="מחיקה" title="מחיקה">
+        <button type="button" className="lpm-edit-btn" onClick={onEdit}>{t('pages.edit')}</button>
+        <button type="button" className="lpm-icon-btn danger" onClick={onDelete} aria-label={t('pages.delete')} title={t('pages.delete')}>
           <Trash2 size={16} strokeWidth={1.7} />
         </button>
       </div>
@@ -149,6 +151,7 @@ function PageCard({ page, onEdit, onDelete }) {
 
 /* ── Builder — live, Google-Forms-style inline editing on the canvas ──── */
 function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
+  const { t } = useT('leads')
   const [draft, setDraft] = useState(() => {
     if (isNew || !page) return newLeadPageDraft()
     return {
@@ -207,15 +210,15 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
   const save = async () => {
     if (busy) return // guard against a fast double-click across the two save buttons
     setErr('')
-    if (!draft.title.trim()) { setShowSettings(true); setErr('יש לתת שם פנימי לדף (לזיהוי בלבד).'); return }
-    if (draft.fields.some((f) => !f.label.trim())) { setErr('לכל שדה צריך להיות תווית.'); return }
+    if (!draft.title.trim()) { setShowSettings(true); setErr(t('pages.errNeedTitle')); return }
+    if (draft.fields.some((f) => !f.label.trim())) { setErr(t('pages.errFieldLabel')); return }
     if (draft.fields.some((f) => isChoiceType(f.type) && (f.options || []).map((o) => o.trim()).filter(Boolean).length < 2)) {
-      setErr('לשדה בחירה צריך לפחות שתי אפשרויות.'); return
+      setErr(t('pages.errChoiceOptions')); return
     }
     const slug = normalizeSlug(draft.slug)
     if (draft.slug.trim() && !isValidSlug(slug)) {
       setShowSettings(true)
-      setErr('הקישור הקצר חייב להיות 3–40 תווים: אותיות אנגלית קטנות, ספרות ומקפים.')
+      setErr(t('pages.errSlugInvalid'))
       return
     }
     setBusy(true)
@@ -243,9 +246,9 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
       setShowSettings(true)
       // A duplicate slug surfaces as a Postgres 23505 unique-violation.
       if (e?.code === '23505' || /duplicate|unique|idx_lead_pages_slug/i.test(e?.message || '')) {
-        setErr('הקישור הקצר הזה כבר תפוס — בחר/י אחר.')
+        setErr(t('pages.errSlugTaken'))
       } else {
-        setErr(`שמירה נכשלה: ${e.message || 'נסו שוב'}`)
+        setErr(t('pages.errSaveFailed', { error: e.message || t('pages.errRetry') }))
       }
     } finally {
       setBusy(false)
@@ -256,7 +259,7 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
   const copyLink = async () => {
     if (!url) return
     if (await copyText(url)) { setCopied(true); setTimeout(() => setCopied(false), 1600) }
-    else showError('לא ניתן להעתיק אוטומטית — סמנו והעתיקו את הקישור ידנית.')
+    else showError(t('pages.copyFailed'))
   }
 
   const c = draft.content
@@ -269,14 +272,14 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
       {/* Top bar */}
       <div className="lpe-topbar">
         <button type="button" className="lp-back-link" onClick={onBack}>
-          <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> חזרה
+          <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> {t('pages.back')}
         </button>
-        <span className="lpe-topbar-title">{draft.title.trim() || (isNew ? 'דף חדש' : 'עריכת דף')}</span>
+        <span className="lpe-topbar-title">{draft.title.trim() || (isNew ? t('pages.builderNewTitle') : t('pages.builderEditTitle'))}</span>
         <div className="lpe-topbar-actions">
           <button type="button" className={`lpe-settings-btn${showSettings ? ' is-on' : ''}`} onClick={() => setShowSettings((v) => !v)}>
-            <Settings size={16} strokeWidth={1.7} aria-hidden="true" /> הגדרות
+            <Settings size={16} strokeWidth={1.7} aria-hidden="true" /> {t('pages.settings')}
           </button>
-          <button type="button" className="m-btn-save" onClick={save} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+          <button type="button" className="m-btn-save" onClick={save} disabled={busy}>{busy ? t('pages.saving') : t('pages.save')}</button>
         </div>
       </div>
 
@@ -284,41 +287,41 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
       {showSettings && (
         <div className="lpe-settings">
           <div className="m-field">
-            <label className="m-label">שם פנימי (לזיהוי, לא מוצג בדף)</label>
-            <input className="m-input" value={draft.title} onChange={(e) => set({ title: e.target.value })} placeholder="לדוגמה: דף קמפיין אינסטגרם" />
+            <label className="m-label">{t('pages.internalName')}</label>
+            <input className="m-input" value={draft.title} onChange={(e) => set({ title: e.target.value })} placeholder={t('pages.internalNamePlaceholder')} />
           </div>
           <div className="lpe-settings-row">
             <label className="lpb-toggle">
               <input type="checkbox" checked={draft.published} onChange={(e) => set({ published: e.target.checked })} />
-              <span><strong>פרסום הדף</strong><em>כשכבוי — טיוטה, לא נגיש לציבור.</em></span>
+              <span><strong>{t('pages.publishLabel')}</strong><em>{t('pages.publishHint')}</em></span>
             </label>
             <label className="lpb-toggle">
               <input type="checkbox" checked={draft.auto_approve} onChange={(e) => set({ auto_approve: e.target.checked })} />
-              <span><strong>הזנה אוטומטית</strong><em>כשכבוי — לידים ממתינים לאישור ידני.</em></span>
+              <span><strong>{t('pages.autoApproveLabel')}</strong><em>{t('pages.autoApproveHint')}</em></span>
             </label>
           </div>
           <div className="m-field">
-            <label className="m-label">שיוך לפרויקט (אופציונלי)</label>
+            <label className="m-label">{t('pages.projectLabel')}</label>
             <select className="m-select" value={draft.project_id} onChange={(e) => set({ project_id: e.target.value })}>
-              <option value="">ללא</option>
+              <option value="">{t('pages.none')}</option>
               {(projects || []).filter((p) => !p.deleted_at).map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
-            <p className="lbl-sm">לידים מהדף יקושרו לפרויקט, ובמסך הפרויקט יופיע קישור לדף.</p>
+            <p className="lbl-sm">{t('pages.projectHint')}</p>
           </div>
           <div className="m-field">
-            <label className="m-label">כפתור קביעת פגישה (אופציונלי)</label>
+            <label className="m-label">{t('pages.bookingLabel')}</label>
             <select className="m-select" value={c.bookingPageRef || ''} onChange={(e) => setContent({ bookingPageRef: e.target.value })}>
-              <option value="">ללא</option>
+              <option value="">{t('pages.none')}</option>
               {(bookingPages || []).filter((p) => p.published).map((p) => (
-                <option key={p.id} value={p.slug || p.id}>{p.title?.trim() || 'דף קביעת פגישות'}</option>
+                <option key={p.id} value={p.slug || p.id}>{p.title?.trim() || t('pages.bookingFallbackTitle')}</option>
               ))}
             </select>
-            <p className="lbl-sm">בתחתית הדף יופיע כפתור שמוביל לדף קביעת הפגישות שתבחר/י (רק דפים שפורסמו).</p>
+            <p className="lbl-sm">{t('pages.bookingHint')}</p>
           </div>
           <div className="m-field">
-            <label className="m-label">קישור קצר (אופציונלי)</label>
+            <label className="m-label">{t('pages.slugLabel')}</label>
             <div className="lpe-slug-row">
               <span className="lpe-slug-prefix mono" dir="ltr">{window.location.host}/lead/</span>
               <input
@@ -330,20 +333,20 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
                 maxLength={40}
               />
             </div>
-            <p className="lbl-sm">קישור קצר וקריא במקום המזהה הארוך. אותיות אנגלית קטנות, ספרות ומקפים (3–40). אם ריק — נשתמש במזהה.</p>
+            <p className="lbl-sm">{t('pages.slugHint')}</p>
           </div>
           {/* Appearance (colour, background, opacity, blur, bold, text) lives in
               the left-side "ארגז כלים" toolbox — kept out of settings on purpose. */}
           <div className="m-field">
-            <label className="m-label">אחרי השליחה</label>
+            <label className="m-label">{t('pages.afterSubmit')}</label>
             <div className="lpb-radio-group">
               <label className="lpb-radio">
                 <input type="radio" name="thankyou" checked={c.thankYou.mode === 'message'} onChange={() => setThankYou({ mode: 'message' })} />
-                הצגת הודעת תודה
+                {t('pages.thankYouMode')}
               </label>
               <label className="lpb-radio">
                 <input type="radio" name="thankyou" checked={c.thankYou.mode === 'redirect'} onChange={() => setThankYou({ mode: 'redirect' })} />
-                הפניה לקישור חיצוני
+                {t('pages.redirectMode')}
               </label>
             </div>
             {c.thankYou.mode === 'redirect' ? (
@@ -354,17 +357,17 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
           </div>
           {url && (
             <div className="m-field">
-              <label className="m-label">הקישור הציבורי</label>
+              <label className="m-label">{t('pages.publicLink')}</label>
               {draft.published ? (
                 <div className="lpb-link-row">
                   <Link2 size={15} strokeWidth={1.7} aria-hidden="true" />
                   <span className="lpb-link-url mono" dir="ltr">{url}</span>
                   <button type="button" className="lpb-copy-btn" onClick={copyLink}>
-                    {copied ? <><Check size={14} strokeWidth={2} /> הועתק</> : <><Copy size={14} strokeWidth={1.7} /> העתקה</>}
+                    {copied ? <><Check size={14} strokeWidth={2} /> {t('pages.copied')}</> : <><Copy size={14} strokeWidth={1.7} /> {t('pages.copy')}</>}
                   </button>
                 </div>
               ) : (
-                <p className="lbl-sm">פרסמו את הדף כדי לקבל קישור ציבורי.</p>
+                <p className="lbl-sm">{t('pages.publishForLink')}</p>
               )}
             </div>
           )}
@@ -380,23 +383,23 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
             className="lp-logo lpe-edit lpe-center"
             value={c.logoText}
             onChange={(e) => setContent({ logoText: e.target.value })}
-            placeholder="לוגו (טקסט)"
-            aria-label="לוגו"
+            placeholder={t('pages.logoPlaceholder')}
+            aria-label={t('pages.logoAria')}
           />
           <input
             className="lp-heading lpe-edit"
             value={c.heading}
             onChange={(e) => setContent({ heading: e.target.value })}
-            placeholder="כותרת ראשית"
-            aria-label="כותרת"
+            placeholder={t('pages.headingPlaceholder')}
+            aria-label={t('pages.headingAria')}
           />
           <textarea
             className="lp-body lpe-edit"
             value={c.body}
             onChange={(e) => setContent({ body: e.target.value })}
-            placeholder="טקסט הסבר (אופציונלי)"
+            placeholder={t('pages.bodyPlaceholder')}
             rows={2}
-            aria-label="טקסט"
+            aria-label={t('pages.bodyAria')}
           />
 
           <div className="lpe-fields">
@@ -413,8 +416,8 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
                     value={f.label}
                     onChange={(e) => updateField(i, { label: e.target.value })}
                     onFocus={() => setActiveKey(f.key)}
-                    placeholder="תווית השדה"
-                    aria-label="תווית השדה"
+                    placeholder={t('pages.fieldLabelPlaceholder')}
+                    aria-label={t('pages.fieldLabelPlaceholder')}
                   />
                   {/* Non-interactive preview of the answer area */}
                   {isChoiceType(f.type) ? (
@@ -422,7 +425,7 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
                       {(f.options || []).map((opt, oi) => (
                         <span className="lpe-choice-opt" key={oi}>
                           <span className={`lpe-choice-mark${f.type === 'select' ? ' radio' : ''}`} aria-hidden="true" />
-                          <span className="lpe-choice-opt-label">{opt || `אפשרות ${oi + 1}`}</span>
+                          <span className="lpe-choice-opt-label">{opt || t('pages.optionPlaceholder', { num: oi + 1 })}</span>
                         </span>
                       ))}
                     </div>
@@ -438,18 +441,18 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
                           value={f.type}
                           onChange={(e) => changeFieldType(i, e.target.value)}
                           disabled={f.builtin}
-                          title={f.builtin ? 'שדה קבוע' : 'סוג השאלה'}
+                          title={f.builtin ? t('pages.fixedField') : t('pages.fieldType')}
                         >
-                          {FIELD_TYPES.map((tp) => <option key={tp} value={tp}>{FIELD_TYPE_LABELS[tp]}</option>)}
+                          {FIELD_TYPES.map((tp) => <option key={tp} value={tp}>{t(`pages.fieldTypes.${tp}`)}</option>)}
                         </select>
                         <label className="lpe-req">
                           <input type="checkbox" checked={!!f.required} onChange={(e) => updateField(i, { required: e.target.checked })} />
-                          חובה
+                          {t('pages.required')}
                         </label>
                         <span className="lpe-ctrl-spacer" />
-                        <button type="button" className="lpe-ctrl-btn" onClick={() => moveField(i, -1)} disabled={i === 0} aria-label="העלאה"><ChevronUp size={16} /></button>
-                        <button type="button" className="lpe-ctrl-btn" onClick={() => moveField(i, 1)} disabled={i === draft.fields.length - 1} aria-label="הורדה"><ChevronDown size={16} /></button>
-                        <button type="button" className="lpe-ctrl-btn danger" onClick={() => removeField(i)} aria-label="הסרת שדה"><Trash2 size={15} /></button>
+                        <button type="button" className="lpe-ctrl-btn" onClick={() => moveField(i, -1)} disabled={i === 0} aria-label={t('pages.moveUp')}><ChevronUp size={16} /></button>
+                        <button type="button" className="lpe-ctrl-btn" onClick={() => moveField(i, 1)} disabled={i === draft.fields.length - 1} aria-label={t('pages.moveDown')}><ChevronDown size={16} /></button>
+                        <button type="button" className="lpe-ctrl-btn danger" onClick={() => removeField(i)} aria-label={t('pages.removeField')}><Trash2 size={15} /></button>
                       </div>
                       {isChoiceType(f.type) && (
                         <div className="lpe-options">
@@ -460,13 +463,13 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
                                 className="m-input lpe-option-input"
                                 value={opt}
                                 onChange={(e) => updateOption(i, oi, e.target.value)}
-                                placeholder={`אפשרות ${oi + 1}`}
+                                placeholder={t('pages.optionPlaceholder', { num: oi + 1 })}
                               />
-                              <button type="button" className="lpe-ctrl-btn danger" onClick={() => removeOption(i, oi)} disabled={(f.options || []).length <= 1} aria-label="הסרת אפשרות"><X size={14} /></button>
+                              <button type="button" className="lpe-ctrl-btn danger" onClick={() => removeOption(i, oi)} disabled={(f.options || []).length <= 1} aria-label={t('pages.removeOption')}><X size={14} /></button>
                             </div>
                           ))}
                           <button type="button" className="lpe-add-option" onClick={() => addOption(i)}>
-                            <Plus size={14} strokeWidth={1.8} aria-hidden="true" /> הוספת אפשרות
+                            <Plus size={14} strokeWidth={1.8} aria-hidden="true" /> {t('pages.addOption')}
                           </button>
                         </div>
                       )}
@@ -478,17 +481,17 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
           </div>
 
           <button type="button" className="lpe-add" onClick={addFreeField}>
-            <Plus size={16} strokeWidth={1.8} aria-hidden="true" /> הוספת שדה
+            <Plus size={16} strokeWidth={1.8} aria-hidden="true" /> {t('pages.addField')}
           </button>
 
           {/* Preview of the public submit button (brand-colored, not clickable) */}
-          <div className="lp-submit lpe-submit-preview" aria-hidden="true">שליחה</div>
+          <div className="lp-submit lpe-submit-preview" aria-hidden="true">{t('pages.submitPreview')}</div>
         </div>
       </div>
 
       <div className="lpe-bottom-actions">
-        <button type="button" className="m-btn-cancel" onClick={onBack}>ביטול</button>
-        <button type="button" className="m-btn-save" onClick={save} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
+        <button type="button" className="m-btn-cancel" onClick={onBack}>{t('pages.cancel')}</button>
+        <button type="button" className="m-btn-save" onClick={save} disabled={busy}>{busy ? t('pages.saving') : t('pages.save')}</button>
       </div>
     </div>
   )

@@ -3,7 +3,7 @@ import { Trash2 } from 'lucide-react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import InvoiceActions from '../components/InvoiceActions'
-import { PAY_METHODS } from '../lib/invoiceDocs'
+import { PAY_METHODS, payMethodLabel } from '../lib/invoiceDocs'
 import { useT } from '../i18n/useT'
 
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
@@ -115,7 +115,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
         <label className="m-label">{t('tx.paymentMethod')}</label>
         <select className="m-select" value={form.payment_method} onChange={(e) => set('payment_method', e.target.value)}>
           <option value="">{t('tx.paymentMethodNone')}</option>
-          {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+          {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
         </select>
       </div>
       <div className="m-field">

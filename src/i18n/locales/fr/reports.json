@@ -33,7 +33,57 @@
     "title": "Détails",
     "count_one": "{{count}} enregistrement",
     "count_other": "{{count}} enregistrements",
-    "empty": "Aucun enregistrement pour cette période"
+    "empty": "Aucun enregistrement pour cette période",
+    "noName": "(sans nom)",
+    "noDesc": "(sans description)",
+    "noTitle": "(sans titre)",
+    "unknownClient": "(client inconnu)",
+    "converted": "Converti",
+    "notRelevant": "Non pertinent",
+    "ghost": "Sans réponse",
+    "closed": "Fermé",
+    "inquiry": "Demande",
+    "activeAtEnd": "Actif le {{date}}",
+    "leftGroup": "A quitté le groupe • {{date}}",
+    "personalSeriesEnded": "Série personnelle terminée • {{date}}",
+    "session": "Séance",
+    "groupLabel": "Groupe : {{name}}",
+    "sessionNum": "Séance {{num}}",
+    "completedOn": "Terminée • {{date}}",
+    "openAtEnd": "Ouverte le {{date}}",
+    "urgent": "Urgent"
+  },
+  "metrics": {
+    "newInquiries": "Nouvelles demandes",
+    "leadsClosed": "Prospects clôturés",
+    "leadsConverted": "Convertis en clients",
+    "conversionRate": "Taux de conversion",
+    "newClients": "Nouveaux clients",
+    "activeClientsAtEnd": "Clients actifs à la fin",
+    "leftMidProcessPct": "Partis en cours de parcours",
+    "sessions": "Séances réalisées",
+    "income": "Revenus",
+    "expense": "Dépenses",
+    "net": "Net",
+    "tasksCompleted": "Tâches terminées",
+    "openTasksAtEnd": "Tâches ouvertes à la fin"
+  },
+  "metricsDesc": {
+    "leadsClosed": "Tous les prospects sortis du processus — convertis en clients ou marqués non pertinents. (Contrairement à « Convertis en clients », qui ne compte que ceux devenus clients.)"
+  },
+  "groups": {
+    "leads": "Prospects",
+    "clients": "Clients",
+    "sessions": "Séances",
+    "finance": "Argent",
+    "tasks": "Tâches"
+  },
+  "trendSeries": {
+    "income": "Revenus",
+    "leads": "Demandes",
+    "sessions": "Séances",
+    "score": "Score global",
+    "question": "Question quotidienne"
   },
   "trend": {
     "empty": "Données encore insuffisantes pour un graphique.",

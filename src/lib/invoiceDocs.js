@@ -1,13 +1,16 @@
 /* Shared invoice document-type + payment-method options, used by both the
    per-transaction issue picker (InvoiceActions) and the issue-on-creation
-   toggle (AddTransactionModal). Single source of truth so the two never drift. */
+   toggle (AddTransactionModal). Single source of truth so the two never drift.
+   Display labels resolve via i18n (finance:docTypes.* / finance:payMethods.*) so
+   they follow the active language; the option lists stay language-agnostic. */
+import i18n from '../i18n'
 
 /* The three document types the user picks per issuance (covers עוסק פטור →
    receipt and עוסק מורשה → invoice_receipt without assuming a tax status). */
 export const DOC_TYPES = [
-  { key: 'invoice_receipt', label: 'חשבונית מס קבלה' },
-  { key: 'receipt', label: 'קבלה' },
-  { key: 'invoice', label: 'חשבונית מס' },
+  { key: 'invoice_receipt' },
+  { key: 'receipt' },
+  { key: 'invoice' },
 ]
 
 /* Payment methods (shown for receipt-type docs). Map to provider codes server-side.
@@ -15,19 +18,19 @@ export const DOC_TYPES = [
    number + bank (name/branch/account) on the receipt, which we don't collect, so a
    cheque receipt can't be issued correctly. Coaches paid by cheque pick "אחר". */
 export const PAY_METHODS = [
-  { key: 'bank_transfer', label: 'העברה בנקאית' },
-  { key: 'cash', label: 'מזומן' },
-  { key: 'credit_card', label: 'כרטיס אשראי' },
-  { key: 'app', label: 'אפליקציה (ביט/פייבוקס)' },
-  { key: 'other', label: 'אחר' },
+  { key: 'bank_transfer' },
+  { key: 'cash' },
+  { key: 'credit_card' },
+  { key: 'app' },
+  { key: 'other' },
 ]
 
-export const docTypeLabel = (k) => DOC_TYPES.find((d) => d.key === k)?.label || k
+export const docTypeLabel = (k) => (k ? i18n.t(`finance:docTypes.${k}`, { defaultValue: k }) : k)
 export const isReceiptType = (t) => t === 'invoice_receipt' || t === 'receipt'
 
 /* Label for a stored transaction payment_method key (transactions.payment_method).
    Falls back to the raw key for forward-compatibility, '' for unset. */
-export const payMethodLabel = (k) => (k ? (PAY_METHODS.find((m) => m.key === k)?.label || k) : '')
+export const payMethodLabel = (k) => (k ? i18n.t(`finance:payMethods.${k}`, { defaultValue: k }) : '')
 
 /* Free-text → payment_method KEY, for imports. A "אמצעי תשלום" column carries
    human text ("מזומן" / "העברה בנקאית" / "ביט") but the DB CHECK only accepts the

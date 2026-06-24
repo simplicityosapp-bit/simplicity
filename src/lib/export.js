@@ -5,18 +5,34 @@
    right encoding (Hebrew survives the round-trip). Each cell is
    wrapped in double quotes and any embedded quotes are escaped per
    RFC 4180.
-   The clients/projects exports use header names the CSV importer
-   recognises (שם / טלפון / פרויקט / סטטוס / מספר פגישות / מחיר לפגישה /
-   הערות / צבע), so an export can be re-imported cleanly (round-trip).
+   Headers, sheet names and enum values resolve via i18n (the 'export'
+   namespace, self-registered below) so the file is written in the active
+   language. The CSV importer recognises both Hebrew AND English column /
+   value synonyms (see sheetMapper/statusImport), so a Hebrew- or English-
+   language export still re-imports cleanly (round-trip); a Spanish export
+   reads naturally for humans but the importer has no Spanish synonyms yet.
    ════════════════════════════════════════════════════════════════ */
 
+import i18n from '../i18n'
+import heExport from '../i18n/locales/he/export.json'
+import enExport from '../i18n/locales/en/export.json'
+import esExport from '../i18n/locales/es/export.json'
+import frExport from '../i18n/locales/fr/export.json'
 import { isEncrypted } from './crypto'
 import { questionText } from './questionTemplates'
 
-const TYPE_HE = { income: 'הכנסה', expense: 'הוצאה' }
-const STATUS_HE = { confirmed: 'אושרה', pending: 'ממתינה', skipped: 'דולגה' }
-/* status_meta → Hebrew the importer's STATUS_MAP can read back. */
-const STATUS_META_HE = { active: 'פעיל', wandering: 'ביניים', past: 'לשעבר', no_status: 'ללא סטטוס' }
+/* Self-register the 'export' namespace (he/en/es/fr). Idempotent — no central
+   i18n init change needed. */
+i18n.addResourceBundle('he', 'export', heExport, true, false)
+i18n.addResourceBundle('en', 'export', enExport, true, false)
+i18n.addResourceBundle('es', 'export', esExport, true, false)
+i18n.addResourceBundle('fr', 'export', frExport, true, false)
+
+/* Column header / sheet name, in the active language. */
+const h = (k) => i18n.t(`export:headers.${k}`)
+const sheet = (k) => i18n.t(`export:sheets.${k}`)
+/* Enum value → localized label (raw key kept for forward-compat; '' for unset). */
+const vlabel = (group, k) => (k ? i18n.t(`export:${group}.${k}`, { defaultValue: k }) : '')
 
 /* Neutralize spreadsheet formula injection (CWE-1236). A cell whose first
    character is = + - @ or a leading TAB/CR is interpreted as a live formula
@@ -87,13 +103,13 @@ function downloadCsv(headers, rows, filename) {
 /* Transactions — caller passes the month so the filename reads, e.g.,
    "mangata-2026-05.csv". */
 export function exportTransactionsCSV({ transactions, clients, projects, categories, monthDate }) {
-  const headers = ['תאריך', 'סוג', 'סכום', 'תיאור', 'סטטוס', 'לקוח', 'פרויקט', 'קטגוריה']
+  const headers = [h('date'), h('type'), h('amount'), h('desc'), h('status'), h('client'), h('project'), h('category')]
   const rows = (transactions || []).map((t) => [
     fmtDate(t.date),
-    TYPE_HE[t.type] || t.type || '',
+    vlabel('txType', t.type),
     fmtAmount(Number(t.amount || 0)),
     t.desc || '',
-    STATUS_HE[t.status] || t.status || '',
+    vlabel('txStatus', t.status),
     nameById(clients, t.client_id),
     nameById(projects, t.project_id),
     nameById(categories, t.category_id),
@@ -105,7 +121,7 @@ export function exportTransactionsCSV({ transactions, clients, projects, categor
 
 /* Clients — round-trip-friendly columns (re-importable). */
 export function exportClientsCSV({ clients, projects, now }) {
-  const headers = ['שם', 'טלפון', 'אימייל', 'פרויקט', 'סטטוס', 'מספר פגישות', 'מחיר לפגישה', 'הערות']
+  const headers = [h('name'), h('phone'), h('email'), h('project'), h('status'), h('sessions'), h('pricePerSession'), h('notes')]
   const rows = (clients || [])
     .filter((c) => !c.deleted_at)
     .map((c) => [
@@ -113,7 +129,7 @@ export function exportClientsCSV({ clients, projects, now }) {
       c.phone || '',
       c.email || '',
       nameById(projects, c.project_id),
-      STATUS_META_HE[c.status_meta] || '',
+      vlabel('clientStatus', c.status_meta),
       c.sessions != null ? String(c.sessions) : '',
       fmtAmount(Number(c.price_per_session || 0)),
       decOrFlag(c.notes),
@@ -123,17 +139,12 @@ export function exportClientsCSV({ clients, projects, now }) {
 
 /* Projects — name + colour (re-importable; colour is ignored on import). */
 export function exportProjectsCSV({ projects, now }) {
-  const headers = ['שם', 'צבע']
+  const headers = [h('name'), h('color')]
   const rows = (projects || [])
     .filter((p) => !p.deleted_at)
     .map((p) => [p.name || '', p.color || ''])
   downloadCsv(headers, rows, `mangata-projects-${ymd(now)}.csv`)
 }
-
-const LEAD_META_HE = { in_process: 'בתהליך', converted: 'הומר', not_relevant: 'לא רלוונטי' }
-const TASK_STATUS_HE = { todo: 'לביצוע', in_progress: 'בתהליך', done: 'הושלמה' }
-const PRIORITY_HE = { high: 'גבוהה', normal: 'רגילה', low: 'נמוכה' }
-const TIMEFRAME_HE = { deadline: 'דדליין', monthly: 'חודשי', weekly: 'שבועי' }
 
 /* id → row map, for resolving foreign keys to readable names in export sheets. */
 function mapById(arr) {
@@ -146,7 +157,7 @@ function mapById(arr) {
    failed the value is still an "ENC:" blob (lib/crypto.js returns the raw value
    on failure, never throws). Never write that to the file — show a marker. */
 function decOrFlag(v) {
-  if (isEncrypted(v)) return '(לא ניתן לפענח)'
+  if (isEncrypted(v)) return i18n.t('export:decryptFail')
   return v == null ? '' : String(v)
 }
 
@@ -165,41 +176,41 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
     XLSX.utils.book_append_sheet(wb, ws, name)
   }
 
-  addSheet('תנועות',
-    ['תאריך', 'סוג', 'סכום', 'תיאור', 'סטטוס', 'לקוח', 'פרויקט', 'קטגוריה'],
+  addSheet(sheet('transactions'),
+    [h('date'), h('type'), h('amount'), h('desc'), h('status'), h('client'), h('project'), h('category')],
     (transactions || []).filter((t) => !t.deleted_at).map((t) => [
-      fmtDate(t.date), TYPE_HE[t.type] || t.type || '', fmtAmount(Number(t.amount || 0)),
-      t.desc || '', STATUS_HE[t.status] || t.status || '',
+      fmtDate(t.date), vlabel('txType', t.type), fmtAmount(Number(t.amount || 0)),
+      t.desc || '', vlabel('txStatus', t.status),
       nameById(clients, t.client_id), nameById(projects, t.project_id), nameById(categories, t.category_id),
     ]))
 
-  addSheet('לקוחות',
-    ['שם', 'טלפון', 'אימייל', 'פרויקט', 'סטטוס', 'מספר פגישות', 'מחיר לפגישה', 'הערות'],
+  addSheet(sheet('clients'),
+    [h('name'), h('phone'), h('email'), h('project'), h('status'), h('sessions'), h('pricePerSession'), h('notes')],
     (clients || []).filter((c) => !c.deleted_at).map((c) => [
-      c.name || '', c.phone || '', c.email || '', nameById(projects, c.project_id), STATUS_META_HE[c.status_meta] || '',
+      c.name || '', c.phone || '', c.email || '', nameById(projects, c.project_id), vlabel('clientStatus', c.status_meta),
       c.sessions != null ? String(c.sessions) : '', fmtAmount(Number(c.price_per_session || 0)), decOrFlag(c.notes),
     ]))
 
-  addSheet('פרויקטים',
-    ['שם', 'צבע'],
+  addSheet(sheet('projects'),
+    [h('name'), h('color')],
     (projects || []).filter((p) => !p.deleted_at).map((p) => [p.name || '', p.color || '']))
 
-  addSheet('לידים',
-    ['שם', 'טלפון', 'סטטוס', 'תאריך פנייה', 'הערות'],
+  addSheet(sheet('leads'),
+    [h('name'), h('phone'), h('status'), h('inquiryDate'), h('notes')],
     (leads || []).filter((l) => !l.deleted_at).map((l) => [
-      l.name || '', l.phone || '', LEAD_META_HE[l.status_meta] || l.status_meta || '',
+      l.name || '', l.phone || '', vlabel('leadStatus', l.status_meta),
       fmtDate(l.inquiry_date), l.notes || '',
     ]))
 
-  addSheet('משימות',
-    ['כותרת', 'סטטוס', 'עדיפות', 'תאריך יעד'],
+  addSheet(sheet('tasks'),
+    [h('title'), h('status'), h('priority'), h('dueDate')],
     (tasks || []).filter((t) => !t.deleted_at).map((t) => [
-      t.title || '', TASK_STATUS_HE[t.status] || t.status || '', PRIORITY_HE[t.priority] || t.priority || '',
+      t.title || '', vlabel('taskStatus', t.status), vlabel('priority', t.priority),
       fmtDate(t.due_date),
     ]))
 
-  addSheet('קטגוריות',
-    ['שם', 'צבע'],
+  addSheet(sheet('categories'),
+    [h('name'), h('color')],
     (categories || []).filter((c) => !c.deleted_at).map((c) => [c.name || '', c.color || '']))
 
   /* ── Sensitive categories (opt-in; present only for the boxes the user
@@ -214,11 +225,11 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
     const questionsById = mapById(sensitive.questions)
 
     if (sensitive.sessions) {
-      addSheet('פגישות',
-        ['תאריך', 'נושא', 'מס׳ פגישה', 'הערות', 'סיכום'],
+      addSheet(sheet('sessions'),
+        [h('date'), h('subject'), h('sessionNum'), h('notes'), h('summary')],
         sensitive.sessions.filter((s) => !s.deleted_at).map((s) => [
           fmtDate(s.date),
-          s.group_id ? (groupsById.get(s.group_id)?.name || 'קבוצה') : (clientsById.get(s.client_id)?.name || ''),
+          s.group_id ? (groupsById.get(s.group_id)?.name || i18n.t('export:groupFallback')) : (clientsById.get(s.client_id)?.name || ''),
           s.num != null ? String(s.num) : '',
           decOrFlag(s.notes),
           decOrFlag(s.summary),
@@ -226,12 +237,12 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
     }
 
     if (sensitive.goals) {
-      addSheet('יעדים',
-        ['יעד', 'קטגוריה', 'מסגרת זמן', 'יעד מספרי', 'תאריך יעד', 'חשיבות', 'פרויקט'],
+      addSheet(sheet('goals'),
+        [h('goal'), h('category'), h('timeFrame'), h('targetValue'), h('targetDate'), h('importance'), h('project')],
         sensitive.goals.filter((g) => !g.deleted_at).map((g) => [
           g.label || '',
           goalCatsById.get(g.category_id)?.name || '',
-          TIMEFRAME_HE[g.time_frame] || g.time_frame || '',
+          vlabel('timeFrame', g.time_frame),
           g.target_value != null ? String(g.target_value) : '',
           fmtDate(g.target_date),
           g.importance != null ? String(g.importance) : '',
@@ -240,8 +251,8 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
     }
 
     if (sensitive.goalEntries) {
-      addSheet('רישומי יעדים',
-        ['תאריך', 'קטגוריה', 'ערך', 'הערה', 'פרויקט'],
+      addSheet(sheet('goalEntries'),
+        [h('date'), h('category'), h('value'), h('note'), h('project')],
         sensitive.goalEntries.filter((e) => !e.deleted_at).map((e) => [
           fmtDate(e.date),
           goalCatsById.get(e.category_id)?.name || '',
@@ -252,8 +263,8 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
     }
 
     if (sensitive.dailyAnswers) {
-      addSheet('תשובות יומיות',
-        ['תאריך', 'שאלה', 'תשובה', 'הערה'],
+      addSheet(sheet('dailyAnswers'),
+        [h('date'), h('question'), h('answer'), h('note')],
         sensitive.dailyAnswers.filter((a) => !a.deleted_at).map((a) => {
           const q = questionsById.get(a.user_question_id)
           return [
@@ -266,8 +277,8 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
     }
 
     if (sensitive.moonSnapshots) {
-      addSheet('רפלקציות',
-        ['תאריך', 'רפלקציה', 'ציון'],
+      addSheet(sheet('reflections'),
+        [h('date'), h('reflection'), h('score')],
         sensitive.moonSnapshots
           .filter((m) => m.reflection != null && m.reflection !== '')
           .map((m) => [fmtDate(m.date), decOrFlag(m.reflection), m.score != null ? String(m.score) : '']))

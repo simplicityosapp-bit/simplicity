@@ -4,14 +4,29 @@
    10:00" matches the date the user is looking at, regardless of UTC.
    ════════════════════════════════════════════════════════════════ */
 
+import i18n from '../i18n'
+
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
+/* Legacy Hebrew constants — kept for the Jewish-calendar day label (which is
+   inherently Hebrew) and any consumer that still reads them directly. The
+   Gregorian calendar UI resolves day/month names via i18n instead (see the
+   *Names() helpers below) so it follows the active language. */
 export const DAY_NAMES_SHORT = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳']
 export const DAY_NAMES_FULL  = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 export const MONTH_NAMES_HE  = [
   'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
   'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר',
 ]
+
+/* Language-aware Gregorian name lists (he/en/es; fr falls back to he until its
+   language pass fills calendar). Resolved fresh per call so they reflect the
+   active language; callers re-render via useT on a language switch. Pass an
+   explicit `lng` (e.g. from useT().lang) to make a memo recompute on a switch. */
+export const weekdayNamesShort = (lng) => i18n.t('calendar:greg.weekdaysShort', { returnObjects: true, lng })
+export const weekdayNamesLong  = (lng) => i18n.t('calendar:greg.weekdaysLong', { returnObjects: true, lng })
+export const monthNamesLong    = (lng) => i18n.t('calendar:greg.monthsLong', { returnObjects: true, lng })
+export const monthNamesShort   = (lng) => i18n.t('calendar:greg.monthsShort', { returnObjects: true, lng })
 
 export function startOfDay(d) {
   const x = new Date(d)
@@ -91,10 +106,15 @@ export function dateKey(d) {
   return `${x.getFullYear()}-${x.getMonth()}-${x.getDate()}`
 }
 
-/* Formatted labels for the header (date range under the toggle). */
+/* Formatted labels for the header (date range under the toggle). Language-aware
+   via the calendar namespace (he keeps the original "יום … · … …" form). */
 export function fmtDayLabel(date) {
   const d = new Date(date)
-  return `יום ${DAY_NAMES_FULL[d.getDay()]} · ${d.getDate()} ${MONTH_NAMES_HE[d.getMonth()]}`
+  return i18n.t('calendar:greg.dayLabel', {
+    weekday: weekdayNamesLong()[d.getDay()],
+    day: d.getDate(),
+    month: monthNamesLong()[d.getMonth()],
+  })
 }
 
 /* ════════════════════════════════════════════════════════════════

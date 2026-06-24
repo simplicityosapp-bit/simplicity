@@ -50,6 +50,16 @@
   },
   "widgets": {
     "globalView": "Affichage global",
+    "names": {
+      "quote": "Citation du jour",
+      "moon": "Aperçu",
+      "insights": "Comment vas-tu aujourd'hui",
+      "quick-row": "Action rapide / mise à jour",
+      "attention": "Alertes (rendez-vous, paiements)",
+      "reminders": "Rappels à venir",
+      "next-tasks": "Prochaines tâches",
+      "chips": "Cartes d'état (clients/net/tâches)"
+    },
     "cardStyle": "Style des cartes",
     "textStrength": "Épaisseur du texte",
     "density": "Densité",

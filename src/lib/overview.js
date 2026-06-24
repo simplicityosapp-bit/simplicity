@@ -10,6 +10,8 @@
    missing day is a gap, not a zero.
    ════════════════════════════════════════════════════════════════ */
 
+import i18n from '../i18n'
+
 const pad2 = (n) => String(n).padStart(2, '0')
 /* Local calendar-day key — a date-only string is already a day; a full
    timestamp is bucketed by LOCAL parts (toISOString would shift to UTC). */
@@ -22,12 +24,14 @@ function dayKey(d) {
 /* Concrete hex (NOT var()) — Chromium mis-resolves var() in an SVG stroke
    in dark mode (see reference_svg_stroke_var_dark_bug). These mid-tones
    stay legible on the glass card in both themes. */
+/* Display labels resolve via i18n (reports:trendSeries.<key>) at build time so
+   the legend follows the active language; the registry stays language-agnostic. */
 export const OVERVIEW_METRICS = {
-  income:   { key: 'income',   label: 'הכנסות',      color: '#8BA888', unit: '₪',  missingZero: true },
-  leads:    { key: 'leads',    label: 'פניות',       color: '#C97B5E', unit: '',   missingZero: true },
-  sessions: { key: 'sessions', label: 'פגישות',      color: '#D4A574', unit: '',   missingZero: true },
-  score:    { key: 'score',    label: 'ציון מבט-על', color: '#7a5cb8', unit: '%',  missingZero: false },
-  question: { key: 'question', label: 'שאלה יומית',  color: '#B5634E', unit: '',   missingZero: false },
+  income:   { key: 'income',   color: '#8BA888', unit: '₪',  missingZero: true },
+  leads:    { key: 'leads',    color: '#C97B5E', unit: '',   missingZero: true },
+  sessions: { key: 'sessions', color: '#D4A574', unit: '',   missingZero: true },
+  score:    { key: 'score',    color: '#7a5cb8', unit: '%',  missingZero: false },
+  question: { key: 'question', color: '#B5634E', unit: '',   missingZero: false },
 }
 
 /* Last `window` calendar days, oldest-first, as day keys. */
@@ -358,7 +362,7 @@ export function buildOverviewTrend(selectedKeys, ctx, { window = 30, now = new D
         : (lastRaw == null ? null : lastRaw)
       return {
         key: m.key,
-        label: m.key === 'question' && questionLabel ? questionLabel : m.label,
+        label: m.key === 'question' && questionLabel ? questionLabel : i18n.t(`reports:trendSeries.${m.key}`),
         color: m.color,
         unit: m.unit,
         raw,

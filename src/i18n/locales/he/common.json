@@ -26,5 +26,12 @@
     "now": "כעת",
     "today": "היום",
     "tomorrow": "מחר"
+  },
+  "mgWords": {
+    "client": "לקוח/ה",
+    "client_new": "לקוח/ה חדש/ה",
+    "agree": "מסכים/ה",
+    "agree_male": "מסכים",
+    "agree_female": "מסכימה"
   }
 }

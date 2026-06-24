@@ -98,6 +98,27 @@ describe('stepHebrewYear — whole-year navigation', () => {
   it('lands on day 1 of the target month', () => {
     expect(hebrewParts(stepHebrewYear(tammuz, +1)).day).toBe(1)
   })
+
+  /* The Adar edge — the only month that differs between common and leap
+     years. Anchors: 2024-03-15 = אדר ב׳ 5784 (leap), 2025-03-15 = אדר 5785. */
+  it('leaving a leap year maps אדר ב׳ → the lone אדר', () => {
+    const adarII = new Date(2024, 2, 15) // אדר ב׳ 5784
+    const next = stepHebrewYear(adarII, +1)
+    expect(hebrewParts(next).month).toBe('אדר')
+    expect(hebrewParts(next).year).toBe(5785)
+  })
+  it('entering a leap year maps the lone אדר → אדר ב׳ (festive Adar)', () => {
+    const adar = new Date(2025, 2, 15) // אדר 5785
+    const prev = stepHebrewYear(adar, -1)
+    expect(hebrewParts(prev).month).toBe('אדר ב׳')
+    expect(hebrewParts(prev).year).toBe(5784)
+  })
+  it('round-trips an Adar jump across the leap boundary', () => {
+    const adarII = new Date(2024, 2, 15)
+    const there = stepHebrewYear(adarII, +1)        // → אדר 5785
+    const back = stepHebrewYear(there, -1)          // → אדר ב׳ 5784
+    expect(isSameHebrewMonth(back, adarII)).toBe(true)
+  })
 })
 
 describe('hebrewMonthGrid — 42-cell grid', () => {

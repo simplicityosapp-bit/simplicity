@@ -395,7 +395,15 @@ function DesignBody({ prefs, onUpdate }) {
         checked={!!d.hebrew_calendar}
         onChange={setVal('hebrew_calendar')}
       />
-      {d.hebrew_calendar && (
+      <SwitchField
+        label={t('design.hebrewDateInput')}
+        hint={t('design.hebrewDateInputHint')}
+        checked={!!d.hebrew_date_input}
+        onChange={setVal('hebrew_date_input')}
+      />
+      {/* Dual display is shared — it affects both the calendar view and the
+          date-input field, so surface it whenever either Hebrew mode is on. */}
+      {(d.hebrew_calendar || d.hebrew_date_input) && (
         <SwitchField
           nested
           label={t('design.hebrewCalendarDual')}
@@ -404,12 +412,6 @@ function DesignBody({ prefs, onUpdate }) {
           onChange={setVal('hebrew_calendar_dual')}
         />
       )}
-      <SwitchField
-        label={t('design.hebrewDateInput')}
-        hint={t('design.hebrewDateInputHint')}
-        checked={!!d.hebrew_date_input}
-        onChange={setVal('hebrew_date_input')}
-      />
       <Segmented label={t('design.textSize')} value={d.text_size || 'normal'} options={TEXT_SIZE_OPTIONS.map((o) => ({ ...o, l: t(`options.textSize.${o.v}`) }))} onChange={setVal('text_size')} />
     </div>
   )

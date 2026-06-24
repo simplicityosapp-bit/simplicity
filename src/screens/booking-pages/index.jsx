@@ -12,10 +12,13 @@ import Coachmark from '../../components/Coachmark'
 import InfoPopover from '../../components/InfoPopover'
 import {
   DEFAULT_CONTENT, DEFAULT_AVAILABILITY, newBookingPageDraft, WEEKDAYS,
-  publicBookingPageUrl, normalizeSlug, isValidSlug, leadPageSurface,
+  publicBookingPageUrl, normalizeSlug, isValidSlug, slugifyInput, leadPageSurface,
+  sanitizeAvailability, findInvalidWindow,
 } from '../../lib/bookingPageSchema'
 import DesignToolbox from '../../components/DesignToolbox'
 import { ROUTES } from '../../lib/routes'
+import { copyText } from '../../lib/clipboard'
+import { showError } from '../../lib/toast'
 import '../lead-page/LeadPage.css'        // shared public-page look (lp-*)
 import '../lead-pages/LeadPagesScreen.css' // shared builder chrome (lpe-*, lpm-*)
 import './BookingPagesScreen.css'          // booking-specific (bk-*)
@@ -102,7 +105,8 @@ function PageCard({ page, onEdit, onDelete }) {
   const [copied, setCopied] = useState(false)
   const url = publicBookingPageUrl(page.slug || page.id)
   const copy = async () => {
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { /* noop */ }
+    if (await copyText(url)) { setCopied(true); setTimeout(() => setCopied(false), 1600) }
+    else showError('לא ניתן להעתיק אוטומטית — סמנו והעתיקו את הקישור ידנית.')
   }
   return (
     <div className="lpm-card">
@@ -156,16 +160,21 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       content: { ...DEFAULT_CONTENT, ...(page.content || {}), thankYou: { ...DEFAULT_CONTENT.thankYou, ...(page.content?.thankYou || {}) } },
       availability: { ...DEFAULT_AVAILABILITY, ...(page.availability || {}), weekly: { ...DEFAULT_AVAILABILITY.weekly, ...((page.availability || {}).weekly || {}) } },
       meeting_type_ids: Array.isArray(page.meeting_type_ids) ? page.meeting_type_ids : [],
+      meeting_type_durations: (page.meeting_type_durations && typeof page.meeting_type_durations === 'object') ? page.meeting_type_durations : {},
     }
   })
   const { projects } = useProjects()
-  const { types, addType, updateType } = useMeetingTypes()
+  const { types, addType } = useMeetingTypes()
   const { status: gcalStatus } = useGoogleCalendar()
   const gcalConnected = !!gcalStatus?.connected
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const [copied, setCopied] = useState(false)
   const [showSettings, setShowSettings] = useState(isNew)
+  // In-app "new meeting type" dialog (replaces window.prompt, blocked on mobile).
+  const [newTypeOpen, setNewTypeOpen] = useState(false)
+  const [newTypeName, setNewTypeName] = useState('')
+  const [addingType, setAddingType] = useState(false)
 
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
   const setContent = (patch) => setDraft((d) => ({ ...d, content: { ...d.content, ...patch } }))
@@ -178,6 +187,16 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
     const has = d.meeting_type_ids.includes(id)
     return { ...d, meeting_type_ids: has ? d.meeting_type_ids.filter((x) => x !== id) : [...d.meeting_type_ids, id] }
   })
+  // Per-PAGE duration override (migration 0059): stored on the draft and saved
+  // with the page — NOT written to the shared meeting_types row, so it never
+  // affects other pages. Empty clears the override (falls back to the type's
+  // own default, then the page default).
+  const setTypeDuration = (id, minutes) => setDraft((d) => {
+    const next = { ...d.meeting_type_durations }
+    if (minutes === '' || minutes == null) delete next[id]
+    else next[id] = Number(minutes)
+    return { ...d, meeting_type_durations: next }
+  })
 
   const dayWindows = (day) => {
     const w = draft.availability.weekly?.[day]
@@ -187,16 +206,22 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
   const updateWindow = (day, i, patch) => setWeekly(day, dayWindows(day).map((w, idx) => (idx === i ? { ...w, ...patch } : w)))
   const removeWindow = (day, i) => setWeekly(day, dayWindows(day).filter((_, idx) => idx !== i))
 
-  const addQuickType = async () => {
-    const name = (window.prompt('שם סוג הפגישה החדש:') || '').trim()
+  const openNewType = () => { setNewTypeName(''); setNewTypeOpen(true) }
+  const submitNewType = async () => {
+    if (addingType) return
+    const name = newTypeName.trim()
     if (!name) return
+    setAddingType(true)
     try {
       const row = await addType({ name, sort_order: availTypes.length, duration_minutes: draft.availability.defaultDurationMinutes })
       toggleType(row.id)
+      setNewTypeOpen(false)
     } catch (e) { setErr(`הוספת סוג נכשלה: ${e.message || ''}`) }
+    finally { setAddingType(false) }
   }
 
   const save = async () => {
+    if (busy) return // guard against a fast double-click across the two save buttons
     setErr('')
     if (!draft.title.trim()) { setShowSettings(true); setErr('יש לתת שם פנימי לדף (לזיהוי בלבד).'); return }
     const slug = normalizeSlug(draft.slug)
@@ -209,6 +234,10 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
     const anyAvail = WEEKDAYS.some((_, d) => dayWindows(d).length > 0)
     if (draft.published && !anyAvail) { setErr('אין שעות זמינות מוגדרות — הוסיפו לפחות חלון זמן אחד לפני פרסום.'); return }
 
+    // Reject reversed/empty windows (e.g. 17:00–09:00) — they yield no slots.
+    const bad = findInvalidWindow(draft.availability)
+    if (bad) { setErr(`חלון הזמינות ב${WEEKDAYS[bad.day]} שגוי — שעת הסיום חייבת להיות אחרי שעת ההתחלה.`); return }
+
     setBusy(true)
     const payload = {
       title: draft.title.trim(),
@@ -219,8 +248,14 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       project_id: draft.project_id || null,
       slug: slug || null,
       content: draft.content,
-      availability: draft.availability,
+      // Clamp numeric fields: a cleared <input type=number> is 0/NaN, which
+      // would break public slot generation if saved verbatim.
+      availability: sanitizeAvailability(draft.availability),
       meeting_type_ids: draft.meeting_type_ids,
+      // Per-page duration overrides, pruned to currently-offered types only.
+      meeting_type_durations: Object.fromEntries(
+        Object.entries(draft.meeting_type_durations).filter(([id]) => draft.meeting_type_ids.includes(id)),
+      ),
     }
     try {
       if (isNew) {
@@ -245,7 +280,8 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
   const url = page?.id ? publicBookingPageUrl(page.slug || page.id) : null
   const copyLink = async () => {
     if (!url) return
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { /* noop */ }
+    if (await copyText(url)) { setCopied(true); setTimeout(() => setCopied(false), 1600) }
+    else showError('לא ניתן להעתיק אוטומטית — סמנו והעתיקו את הקישור ידנית.')
   }
 
   const c = draft.content
@@ -325,7 +361,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
                 className="m-input lpe-slug-input"
                 dir="ltr"
                 value={draft.slug}
-                onChange={(e) => set({ slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-') })}
+                onChange={(e) => set({ slug: slugifyInput(e.target.value) })}
                 placeholder="dana-coaching"
                 maxLength={40}
               />
@@ -409,7 +445,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       <div className="bk-config-card">
         <div className="bk-config-head">
           <h3 className="bk-config-title"><CalendarClock size={17} strokeWidth={1.7} aria-hidden="true" /> סוגי פגישה שהדף מציע</h3>
-          <button type="button" className="bk-mini-btn" onClick={addQuickType}><Plus size={14} strokeWidth={1.9} /> סוג חדש</button>
+          <button type="button" className="bk-mini-btn" onClick={openNewType}><Plus size={14} strokeWidth={1.9} /> סוג חדש</button>
         </div>
         <p className="lbl-sm">בחרו אילו סוגי פגישה יוצגו למבקר. המשך של כל סוג קובע את אורך הפגישה ביומן.</p>
         {availTypes.length === 0 ? (
@@ -429,9 +465,9 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
                     <input
                       type="number" min="5" step="5"
                       className="bk-dur-input"
-                      value={t.duration_minutes ?? ''}
-                      placeholder={String(draft.availability.defaultDurationMinutes)}
-                      onChange={(e) => updateType(t.id, { duration_minutes: e.target.value === '' ? null : Number(e.target.value) })}
+                      value={draft.meeting_type_durations[t.id] ?? ''}
+                      placeholder={String(t.duration_minutes || draft.availability.defaultDurationMinutes)}
+                      onChange={(e) => setTypeDuration(t.id, e.target.value)}
                       aria-label={`משך ${t.name} בדקות`}
                     />
                     <span className="bk-dur-unit">דק׳</span>
@@ -506,6 +542,40 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
         <button type="button" className="m-btn-cancel" onClick={onBack}>ביטול</button>
         <button type="button" className="m-btn-save" onClick={save} disabled={busy}>{busy ? 'שומר…' : 'שמירה'}</button>
       </div>
+
+      {newTypeOpen && (
+        <div
+          className="bk-tm-overlay"
+          dir="rtl"
+          role="dialog"
+          aria-modal="true"
+          aria-label="סוג פגישה חדש"
+          onClick={(e) => { if (e.target === e.currentTarget && !addingType) setNewTypeOpen(false) }}
+        >
+          <div className="bk-tm-card">
+            <h3 className="bk-tm-title">סוג פגישה חדש</h3>
+            <input
+              className="bk-tm-input"
+              type="text"
+              value={newTypeName}
+              autoFocus
+              maxLength={60}
+              placeholder="לדוגמה: שיחת היכרות"
+              onChange={(e) => setNewTypeName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') { e.preventDefault(); submitNewType() }
+                if (e.key === 'Escape' && !addingType) setNewTypeOpen(false)
+              }}
+            />
+            <div className="bk-tm-actions">
+              <button type="button" className="m-btn-cancel" onClick={() => setNewTypeOpen(false)} disabled={addingType}>ביטול</button>
+              <button type="button" className="m-btn-save" onClick={submitNewType} disabled={addingType || !newTypeName.trim()}>
+                {addingType ? 'מוסיף…' : 'הוספה'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

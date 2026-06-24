@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { fetchBookingPageConfig, fetchBookingSlots, submitBooking } from '../../lib/api/bookingIntake'
-import { leadPageSurface } from '../../lib/bookingPageSchema'
+import { leadPageSurface, safeRedirectUrl } from '../../lib/bookingPageSchema'
 import '../lead-page/LeadPage.css' // shared surface + card + inputs (lp-*)
 import './BookingPage.css'         // booking-specific step flow (bk2-*)
 
@@ -54,6 +54,11 @@ export default function BookingPage() {
 
   useEffect(() => {
     let active = true
+    // Reset all per-page state so navigating between two /book/<id> pages (same
+    // component instance) never carries over the previous page's selections.
+    setStatus('loading'); setConfig(null); setTypeId(null); setSlots(null)
+    setDayKey(null); setSlot(null); setValues({ name: '', phone: '', email: '', note: '' })
+    setErrors({}); setSubmitError(null); setThankYou(null); hp.current = ''
     ;(async () => {
       try {
         const cfg = await fetchBookingPageConfig(pageId)
@@ -120,7 +125,11 @@ export default function BookingPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitError(null)
-    if (!str(values.name)) { setErrors({ name: true }); return }
+    // The form is noValidate, so type="email" isn't enforced — validate here.
+    const nextErrors = {}
+    if (!str(values.name)) nextErrors.name = true
+    if (str(values.email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) nextErrors.email = true
+    if (Object.keys(nextErrors).length) { setErrors(nextErrors); return }
     setSubmitting(true)
     try {
       const res = await submitBooking(pageId, {
@@ -129,7 +138,8 @@ export default function BookingPage() {
         answers: { ...values, _hp: hp.current },
       })
       const ty = res?.thankYou || content.thankYou || null
-      if (ty?.mode === 'redirect' && str(ty.url)) { window.location.href = ty.url; return }
+      const redirect = ty?.mode === 'redirect' ? safeRedirectUrl(ty.url) : null
+      if (redirect) { window.location.href = redirect; return }
       setThankYou(ty)
       setStatus('done')
     } catch (e2) {
@@ -266,7 +276,8 @@ export default function BookingPage() {
               </label>
               <label className="lp-field">
                 <span className="lp-label">אימייל</span>
-                <input className="lp-input" type="email" value={values.email} onChange={(e) => setField('email', e.target.value)} />
+                <input className={`lp-input${errors.email ? ' is-error' : ''}`} type="email" value={values.email} onChange={(e) => setField('email', e.target.value)} />
+                {errors.email ? <span className="lp-field-error">כתובת אימייל לא תקינה</span> : null}
               </label>
               <label className="lp-field">
                 <span className="lp-label">הערה</span>

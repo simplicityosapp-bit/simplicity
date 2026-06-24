@@ -12,10 +12,12 @@ import InfoPopover from '../../components/InfoPopover'
 import DesignToolbox from '../../components/DesignToolbox'
 import {
   FIELD_TYPES, DEFAULT_CONTENT, newLeadPageDraft, freeFieldKey,
-  publicLeadPageUrl, normalizeSlug, isValidSlug, isChoiceType, defaultChoiceOptions,
+  publicLeadPageUrl, normalizeSlug, isValidSlug, slugifyInput, isChoiceType, defaultChoiceOptions,
   leadPageSurface,
 } from '../../lib/leadPageSchema'
 import { ROUTES } from '../../lib/routes'
+import { copyText } from '../../lib/clipboard'
+import { showError } from '../../lib/toast'
 import '../lead-page/LeadPage.css' // WYSIWYG: the canvas reuses the public page's look
 import './LeadPagesScreen.css'
 
@@ -105,7 +107,8 @@ function PageCard({ page, onEdit, onDelete }) {
   const [copied, setCopied] = useState(false)
   const url = publicLeadPageUrl(page.slug || page.id)
   const copy = async () => {
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { /* noop */ }
+    if (await copyText(url)) { setCopied(true); setTimeout(() => setCopied(false), 1600) }
+    else showError('לא ניתן להעתיק אוטומטית — סמנו והעתיקו את הקישור ידנית.')
   }
   return (
     <div className="lpm-card">
@@ -202,6 +205,7 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
   }
 
   const save = async () => {
+    if (busy) return // guard against a fast double-click across the two save buttons
     setErr('')
     if (!draft.title.trim()) { setShowSettings(true); setErr('יש לתת שם פנימי לדף (לזיהוי בלבד).'); return }
     if (draft.fields.some((f) => !f.label.trim())) { setErr('לכל שדה צריך להיות תווית.'); return }
@@ -251,7 +255,8 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
   const url = page?.id ? publicLeadPageUrl(page.slug || page.id) : null
   const copyLink = async () => {
     if (!url) return
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { /* noop */ }
+    if (await copyText(url)) { setCopied(true); setTimeout(() => setCopied(false), 1600) }
+    else showError('לא ניתן להעתיק אוטומטית — סמנו והעתיקו את הקישור ידנית.')
   }
 
   const c = draft.content
@@ -320,7 +325,7 @@ function LeadPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
                 className="m-input lpe-slug-input"
                 dir="ltr"
                 value={draft.slug}
-                onChange={(e) => set({ slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-') })}
+                onChange={(e) => set({ slug: slugifyInput(e.target.value) })}
                 placeholder="dana-coaching"
                 maxLength={40}
               />

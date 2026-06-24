@@ -98,9 +98,9 @@ function DeltaPill({ delta }) {
 }
 
 function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle, onEdit, onDelete, skipped, onSkip, t, gender }) {
-  const avg7 = averageForWindow(idx, question.id, 7)
-  const avg30 = averageForWindow(idx, question.id, 30)
-  const d7 = deltaVsPrevWindow(idx, question.id, 7)
+  const avg7 = useMemo(() => averageForWindow(idx, question.id, 7), [idx, question.id])
+  const avg30 = useMemo(() => averageForWindow(idx, question.id, 30), [idx, question.id])
+  const d7 = useMemo(() => deltaVsPrevWindow(idx, question.id, 7), [idx, question.id])
   const points = useMemo(() => trendPoints(idx, question.id, 30), [idx, question.id])
   const heat  = useMemo(() => heatmapWeeks(idx, question.id, new Date(), 26), [idx, question.id])
   const isYn = question.scale_type === 'yes_no'
@@ -339,8 +339,8 @@ export default function InsightsScreen() {
             <p className="ins-mirror-title">{t('mirror.title')}</p>
           </div>
           <ul className="ins-mirror-list">
-            {reflections.map((r, i) => (
-              <li key={i} className={`ins-mirror-line ${r.kind}`}>{r.text}</li>
+            {reflections.map((r) => (
+              <li key={`${r.kind}-${r.text}`} className={`ins-mirror-line ${r.kind}`}>{r.text}</li>
             ))}
           </ul>
         </section>

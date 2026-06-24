@@ -495,9 +495,25 @@ export function getDrillRecords(metricId, start, end, data = {}) {
     default:
       break
   }
-  /* Sort by secondary desc — naive but works because secondary contains a date. */
-  out.sort((a, b) => String(b.secondary).localeCompare(String(a.secondary)))
+  /* Sort newest-first by the DD/MM/YY date fmtDay embeds in `secondary`,
+     compared as a real date (lexical compare ordered by day-of-month, not
+     chronologically). Same-date rows keep a stable secondary tie-break. */
+  out.sort((a, b) => {
+    const ka = drillSortKey(a.secondary)
+    const kb = drillSortKey(b.secondary)
+    if (kb !== ka) return kb - ka
+    return String(b.secondary).localeCompare(String(a.secondary))
+  })
   return out
+}
+
+/* Extract fmtDay's DD/MM/YY token from a drill record's `secondary` and turn
+   it into a sortable YYYYMMDD number; 0 when there's no date (sinks to the end). */
+function drillSortKey(secondary) {
+  const m = String(secondary).match(/(\d{2})\/(\d{2})\/(\d{2})/)
+  if (!m) return 0
+  const [, dd, mm, yy] = m
+  return Number(`20${yy}${mm}${dd}`)
 }
 
 /* ── Date helpers (local) ──────────────────────────────────────── */

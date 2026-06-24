@@ -53,6 +53,7 @@ export default function InvoiceCard() {
 
   const [busyAction, setBusyAction] = useState(null) // 'connect' | 'test' | 'disconnect'
   const [confirmDisc, setConfirmDisc] = useState(false)
+  const [togglingAuto, setTogglingAuto] = useState(false)
   const discTimer = useRef(0)
   /* Business type (עוסק פטור / מורשה) — picked locally; only WRITTEN on an explicit
      confirm so it never changes by accident. `pendingBiz` tracks the selection,
@@ -138,12 +139,15 @@ export default function InvoiceCard() {
   }
 
   const onToggleAutoImport = async (value) => {
-    setLocalErr(''); setOkMsg('')
+    if (togglingAuto) return /* ignore rapid double-toggles — they can desync the checkbox from the server */
+    setLocalErr(''); setOkMsg(''); setTogglingAuto(true)
     try {
       await inv.setAutoImport(value)
       setOkMsg(value ? t('invoiceCard.autoImportOn') : t('invoiceCard.autoImportOff'))
     } catch (e) {
       setLocalErr(errMsg(e.message, t))
+    } finally {
+      setTogglingAuto(false)
     }
   }
 
@@ -270,7 +274,7 @@ export default function InvoiceCard() {
             <span className="sr-only" role="status">{t('invoiceCard.disconnectConfirmSr')}</span>
           )}
           <label className="conn-autoimport">
-            <input type="checkbox" checked={!!status?.auto_import} onChange={(e) => onToggleAutoImport(e.target.checked)} disabled={inv.busy} />
+            <input type="checkbox" checked={!!status?.auto_import} onChange={(e) => onToggleAutoImport(e.target.checked)} disabled={inv.busy || togglingAuto} />
             <span>{t('invoiceCard.autoImportLabel')}</span>
           </label>
           <p className="conn-autoimport-note">{t('invoiceCard.autoImportNote')}</p>

@@ -19,7 +19,11 @@ export function useBookingsGeneration({ bookings, loading, materialize }) {
     ;(async () => {
       for (const b of pending) {
         inFlight.current.add(b.id)
-        try { await materialize(b) } catch { /* surfaced by the hook; retry next load */ }
+        /* On failure, drop the id so the next bookings change retries it
+           (materializeBooking is idempotent — it early-returns once the
+           lead + event exist). Otherwise a transient failure would strand the
+           booking until a full remount. */
+        try { await materialize(b) } catch { inFlight.current.delete(b.id) }
       }
     })()
   }, [bookings, loading, materialize])

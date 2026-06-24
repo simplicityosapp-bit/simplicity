@@ -52,22 +52,20 @@ const DEFAULT_SORT = { field: 'name', dir: 'asc' }
 
 function sortClients(arr, sort, ctx) {
   const dir = sort.dir === 'desc' ? -1 : 1
-  const { transactions, sessions, members, groups } = ctx
+  /* Balances/paid are precomputed once per data change into maps (see
+     balanceByClient / paidByClient) — the comparator only does O(1) lookups,
+     never re-scanning transactions per comparison. */
+  const { balanceByClient, paidByClient } = ctx
+  const bal = (c) => balanceByClient.get(c.id) || {}
   return [...arr].sort((a, b) => {
     let av, bv
     switch (sort.field) {
       case 'balance':
-        av = clientBalance(a, transactions, sessions, members, groups).balance
-        bv = clientBalance(b, transactions, sessions, members, groups).balance
-        return (av - bv) * dir
+        return ((bal(a).balance || 0) - (bal(b).balance || 0)) * dir
       case 'sessions':
-        av = clientBalance(a, transactions, sessions, members, groups).sessionsPaid
-        bv = clientBalance(b, transactions, sessions, members, groups).sessionsPaid
-        return (av - bv) * dir
+        return ((bal(a).sessionsPaid || 0) - (bal(b).sessionsPaid || 0)) * dir
       case 'paid':
-        av = financeQuery({ type: 'income', clientId: a.id, source: transactions }).reduce((s, f) => s + f.amount, 0)
-        bv = financeQuery({ type: 'income', clientId: b.id, source: transactions }).reduce((s, f) => s + f.amount, 0)
-        return (av - bv) * dir
+        return ((paidByClient.get(a.id) || 0) - (paidByClient.get(b.id) || 0)) * dir
       case 'created':
         av = new Date(a.created_at || 0).getTime()
         bv = new Date(b.created_at || 0).getTime()
@@ -154,6 +152,21 @@ export default function ClientsScreen() {
 
   const sort = useMemo(() => ({ ...DEFAULT_SORT, ...(prefs?.clientsSort || {}) }), [prefs?.clientsSort])
 
+  /* Precompute every client's balance + total-paid ONCE per data change, so the
+     sort comparator, the balance filter, the hero totals and each card all read
+     an O(1) map lookup instead of re-scanning the full transactions array per
+     client (which was O(clients × transactions), re-run on every keystroke). */
+  const balanceByClient = useMemo(() => {
+    const m = new Map()
+    clientList.forEach((c) => m.set(c.id, clientBalance(c, transactions, sessions, members, groups)))
+    return m
+  }, [clientList, transactions, sessions, members, groups])
+  const paidByClient = useMemo(() => {
+    const m = new Map()
+    clientList.forEach((c) => m.set(c.id, financeQuery({ type: 'income', clientId: c.id, source: transactions }).reduce((s, f) => s + f.amount, 0)))
+    return m
+  }, [clientList, transactions])
+
   const byMeta = useMemo(() => {
     const g = { active: [], wandering: [], past: [], no_status: [] }
     clientList.forEach((c) => { (g[effectiveClientMeta(c, members, groups)] || g.no_status).push(c) })
@@ -176,14 +189,14 @@ export default function ClientsScreen() {
     const q = query.trim()
     let filtered = q ? sourceClients.filter((c) => (c.name || '').includes(q)) : sourceClients
     /* "יתרה פתוחה" filter — only clients who still owe (balance > 0). */
-    if (balanceOnly) filtered = filtered.filter((c) => clientBalance(c, transactions, sessions, members, groups).balance > 0)
-    return sortClients(filtered, sort, { transactions, sessions, members, groups })
-  }, [sourceClients, query, sort, balanceOnly, transactions, sessions, members, groups])
+    if (balanceOnly) filtered = filtered.filter((c) => (balanceByClient.get(c.id)?.balance || 0) > 0)
+    return sortClients(filtered, sort, { balanceByClient, paidByClient })
+  }, [sourceClients, query, sort, balanceOnly, balanceByClient, paidByClient])
 
   /* How many clients in the current view still owe — shown on the filter pill. */
   const openBalanceCount = useMemo(
-    () => sourceClients.filter((c) => clientBalance(c, transactions, sessions, members, groups).balance > 0).length,
-    [sourceClients, transactions, sessions, members, groups],
+    () => sourceClients.filter((c) => (balanceByClient.get(c.id)?.balance || 0) > 0).length,
+    [sourceClients, balanceByClient],
   )
 
   /* Project bucket lookup for the grouped view. Includes a "no project"
@@ -275,7 +288,7 @@ export default function ClientsScreen() {
   const hero = useMemo(() => {
     const range = effScope === 'monthly' ? currentMonthRange() : {}
     const paid = paidForClients(tabClients, range, transactions)
-    const balance = tabClients.reduce((s, c) => s + clientBalance(c, transactions, sessions, members, groups).balance, 0)
+    const balance = tabClients.reduce((s, c) => s + (balanceByClient.get(c.id)?.balance || 0), 0)
     if (tab === 'past' || tab === 'no_status') {
       return [
         { l: t('hero.clients'), v: tabClients.length },
@@ -287,7 +300,7 @@ export default function ClientsScreen() {
     if (effScope === 'monthly') {
       sessionsLabel = String(sessionsCountForClients(tabClients, range, sessions, members, groups))
     } else {
-      const done = tabClients.reduce((s, c) => s + clientBalance(c, transactions, sessions, members, groups).sessionsPaid, 0)
+      const done = tabClients.reduce((s, c) => s + (balanceByClient.get(c.id)?.sessionsPaid || 0), 0)
       const allot = tabClients.reduce((s, c) => s + (c.sessions || 0), 0)
       sessionsLabel = `${done}/${allot}`
     }
@@ -296,7 +309,7 @@ export default function ClientsScreen() {
       { l: t('hero.paid'), v: isr(paid) },
       { l: t('hero.openBalance'), v: isr(balance) },
     ]
-  }, [tab, effScope, tabClients, transactions, sessions, members, groups, t])
+  }, [tab, effScope, tabClients, transactions, sessions, members, groups, balanceByClient, t])
 
   return (
     <div className={`screen${selectMode ? ' has-bulk-bar' : ''}`}>
@@ -469,6 +482,7 @@ export default function ClientsScreen() {
                   members={members}
                   groups={groups}
                   statuses={clientStatuses}
+                  bal={balanceByClient.get(c.id)}
                 />
               ))}
             </div>
@@ -489,6 +503,7 @@ export default function ClientsScreen() {
               members={members}
               groups={groups}
               statuses={clientStatuses}
+              bal={balanceByClient.get(c.id)}
             />
           ))
         )}
@@ -564,7 +579,7 @@ export default function ClientsScreen() {
         onClose={() => setShowAdd(false)}
         projects={projects}
         statuses={clientStatuses}
-        onSave={async (c) => { await addClient(c); setTab(c.status_meta) }}
+        onSave={async (c) => { await addClient(c); setTab(c.status_meta || 'no_status') }}
       />
 
       <DeleteClientModal

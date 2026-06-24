@@ -23,7 +23,7 @@ const initials = (name) =>
 function ClientCard({
   client, index, onOpen,
   selectMode = false, selected = false, onToggleSelect,
-  projects = [], txns, sessions, members, groups, statuses = [],
+  projects = [], txns, sessions, members, groups, statuses = [], bal,
 }) {
   const { t } = useT('clients')
   const isMember = !!members?.some((m) => m.client_id === client.id && !m.left_at)
@@ -36,7 +36,10 @@ function ClientCard({
   const sub = !isMember && client.status_id ? statuses.find((s) => s.id === client.status_id) : null
   const statusLabel = sub ? `${sub.icon ? sub.icon + ' ' : ''}${sub.display_name}` : t(status.labelKey)
   const project = projects.find((p) => p.id === client.project_id)
-  const { paid, balance, hasPersonal, personalDone, personalQuota, groupSessions } = clientBalance(client, txns, sessions, members, groups)
+  /* `bal` is the precomputed balance from the clients screen's balanceByClient
+     map (avoids re-scanning transactions per card); fall back to computing it
+     for any caller that doesn't pass it. */
+  const { paid, balance, hasPersonal, personalDone, personalQuota, groupSessions } = bal || clientBalance(client, txns, sessions, members, groups)
   /* Compact card shows PERSONAL sessions only; a pure group member shows
      the group summary instead. (The full profile shows both.) */
   const sessLabel = hasPersonal

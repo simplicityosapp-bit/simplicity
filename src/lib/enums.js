@@ -16,29 +16,14 @@
 /* ── Clients ──────────────────────────────────────────────────── */
 export const CLIENT_STATUSES = ['active', 'wandering', 'past', 'no_status'] // D18: נוסף 'no_status'
 export const CLIENT_STATUS_META = ['active', 'wandering', 'past', 'no_status']
-export const CLIENT_STATUS_LABELS = {
-  active: 'פעיל',
-  wandering: 'ביניים', // לפי D18 (data-model / product-spec); היה 'נודד'
-  past: 'לשעבר',
-  no_status: 'ללא סטטוס',
-}
 
 /* ── Tasks ────────────────────────────────────────────────────── */
 export const TASK_STATUSES = ['todo', 'done']
 export const TASK_PRIORITIES = ['high', 'medium', 'low']
-export const TASK_PRIORITY_LABELS = {
-  high: 'דחוף',
-  medium: 'רגיל',
-  low: 'נמוך',
-}
 
 /* ── Finance ──────────────────────────────────────────────────── */
 export const TX_TYPES = ['income', 'expense']
 export const TX_STATUSES = ['confirmed', 'pending', 'skipped'] // D4: נוסף 'skipped'
-export const TX_TYPE_LABELS = {
-  income: 'הכנסה',
-  expense: 'הוצאה',
-}
 
 /* ── Scheduled meetings + sessions ────────────────────────────── */
 export const MEETING_STATUSES = ['pending', 'confirmed', 'skipped', 'expired']
@@ -52,11 +37,6 @@ export const LEAD_STATUS_META = ['in_process', 'converted', 'not_relevant'] // D
 /* ── Groups ───────────────────────────────────────────────────── */
 export const GROUP_STATUSES = ['active', 'in_development', 'ended'] // סטטוס מחזור קבוצה
 export const GROUP_BILLING_MODES = ['package', 'per_session', 'none'] // groups.billing_mode (migration 0005)
-export const GROUP_BILLING_LABELS = {
-  package:     'מחיר לחבילה',
-  per_session: 'מחיר לפגישה',
-  none:        'ללא מחיר קבוע',
-}
 
 /* ── Recurrence — שני enums נפרדים לפי data-model.md ───────────── */
 export const REMINDER_RECURRENCE_TYPES = ['none', 'weekly', 'monthly_date', 'every_x_days'] // reminders.recurrence_type
@@ -74,11 +54,6 @@ export const TRACKING_METHODS = ['manual', 'daily_question'] // goals.tracking_m
 
 /* ── Daily questions / answers ────────────────────────────────── */
 export const QUESTION_SCALE_TYPES = ['1-10', 'yes_no', 'free_text'] // נוסף 'free_text'
-export const QUESTION_SCALE_LABELS = {
-  '1-10': '1–10',
-  yes_no: 'כן/לא',
-  free_text: 'טקסט חופשי',
-}
 
 /* ── User preferences ─────────────────────────────────────────── */
 export const PREF_CURRENCIES = ['ILS', 'USD', 'EUR']
@@ -87,11 +62,6 @@ export const PREF_TIME_FORMATS = ['24h', '12h']
 export const PREF_WEEK_STARTS = ['sunday', 'monday']
 export const PREF_TEXT_SIZES = ['small', 'normal', 'large']
 export const PREF_GENDERS = ['male', 'female', 'neutral']
-export const PREF_GENDER_LABELS = {
-  male: 'זכר · מלך',
-  female: 'נקבה · מלכה',
-  neutral: 'ניטרלי · יופי',
-}
 export const PREF_CALENDAR_DEFAULT_VIEWS = ['schedule', 'day', 'week', 'month']
 export const PREF_ROLES = ['therapist', 'coach', 'facilitator', 'teacher', 'instructor', 'other']
 

@@ -305,7 +305,7 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
           <button
             type="button"
             className="set-w-move-btn"
-            aria-label={t('widgets.moveUp', { label: reg.label })}
+            aria-label={t('widgets.moveUp', { label: t(`widgets.names.${reg.id}`) })}
             disabled={index === 0}
             onClick={() => onMove(cfg.id, -1)}
           >
@@ -314,18 +314,18 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
           <button
             type="button"
             className="set-w-move-btn"
-            aria-label={t('widgets.moveDown', { label: reg.label })}
+            aria-label={t('widgets.moveDown', { label: t(`widgets.names.${reg.id}`) })}
             disabled={index === total - 1}
             onClick={() => onMove(cfg.id, 1)}
           >
             <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
           </button>
         </span>
-        <span className="set-w-row-name">{reg.label}</span>
+        <span className="set-w-row-name">{t(`widgets.names.${reg.id}`)}</span>
         <Switch
           checked={cfg.enabled}
           onChange={(v) => onUpdate({ enabled: v })}
-          label={t('widgets.toggle', { label: reg.label, state: cfg.enabled ? t('widgets.off') : t('widgets.on') })}
+          label={t('widgets.toggle', { label: t(`widgets.names.${reg.id}`), state: cfg.enabled ? t('widgets.off') : t('widgets.on') })}
         />
       </div>
       {cfg.enabled && (

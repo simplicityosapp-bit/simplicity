@@ -6,7 +6,7 @@ import IssueGuardModal from '../modals/IssueGuardModal'
 import ConfirmModal from '../modals/ConfirmModal'
 import { isr } from '../lib/finance'
 import { showToast } from '../lib/toast'
-import { PAY_METHODS, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '../lib/invoiceDocs'
+import { PAY_METHODS, docTypeLabel, payMethodLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '../lib/invoiceDocs'
 import { useT } from '../i18n/useT'
 import './InvoiceActions.css'
 
@@ -275,7 +275,7 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
           <span id={lblId} className="inv-act-picker-lbl">{clientName ? t('actions.pickerLabelNamed', { client: clientName }) : t('actions.pickerLabel')}</span>
           <div className="inv-act-types" role="radiogroup" aria-label={t('actions.docTypeAria')}>
             {allowedDocTypes(inv.status?.business_type).map((d) => (
-              <button key={d.key} type="button" role="radio" aria-checked={docType === d.key} className={`inv-act-type${docType === d.key ? ' on' : ''}`} onClick={() => setDocType(d.key)}>{d.label}</button>
+              <button key={d.key} type="button" role="radio" aria-checked={docType === d.key} className={`inv-act-type${docType === d.key ? ' on' : ''}`} onClick={() => setDocType(d.key)}>{docTypeLabel(d.key)}</button>
             ))}
           </div>
           <label className="inv-act-field">
@@ -299,7 +299,7 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
             <label className="inv-act-field">
               <span className="inv-act-field-lbl">{t('actions.payMethodLabel')}</span>
               <select className="inv-act-select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-                {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+                {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
               </select>
             </label>
           )}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { useT } from '../../i18n/useT'
 import { fetchLeadPageConfig, submitLead } from '../../lib/api/leadIntake'
 import { isChoiceType, leadPageSurface, safeRedirectUrl } from '../../lib/leadPageSchema'
 import './LeadPage.css'
@@ -7,13 +8,17 @@ import './LeadPage.css'
 /* ════════════════════════════════════════════════════════════════
    PUBLIC LEAD PAGE — /lead/<id>, reachable WITHOUT login.
    ════════════════════════════════════════════════════════════════
-   Self-contained: no app shell, no auth, no i18n provider. Talks only
-   to the `lead-intake` edge function (config + submit). Hebrew/RTL
-   chrome; all visible copy beyond the chrome is coach-authored. */
+   Self-contained: no app shell, no auth, no prefs provider. The global
+   i18n instance IS initialised (main.jsx), so useT('leads') resolves
+   chrome in the saved UI language; gender falls back to neutral without
+   the prefs provider. Talks only to the `lead-intake` edge function
+   (config + submit). RTL by default; all visible copy beyond the chrome
+   is coach-authored. */
 
 const str = (v) => (v == null ? '' : String(v)).trim()
 
 export default function LeadPage() {
+  const { t } = useT('leads')
   const { pageId } = useParams()
   const [status, setStatus] = useState('loading') // loading | ready | notfound | done
   const [config, setConfig] = useState(null)
@@ -87,7 +92,7 @@ export default function LeadPage() {
       setThankYou(ty)
       setStatus('done')
     } catch {
-      setSubmitError('אירעה שגיאה בשליחה. נסו שוב בעוד רגע.')
+      setSubmitError(t('publicPage.submitError'))
     } finally {
       setSubmitting(false)
     }
@@ -99,7 +104,7 @@ export default function LeadPage() {
   if (status === 'loading') {
     return (
       <div className={rootClass} dir="rtl" style={rootStyle}>
-        <div className="lp-card lp-state"><p className="lp-muted">טוען…</p></div>
+        <div className="lp-card lp-state"><p className="lp-muted">{t('publicPage.loading')}</p></div>
       </div>
     )
   }
@@ -108,8 +113,8 @@ export default function LeadPage() {
     return (
       <div className={rootClass} dir="rtl" style={rootStyle}>
         <div className="lp-card lp-state">
-          <h1 className="lp-heading">הדף לא נמצא</h1>
-          <p className="lp-muted">ייתכן שהקישור שגוי או שהדף אינו פעיל יותר.</p>
+          <h1 className="lp-heading">{t('publicPage.notFoundTitle')}</h1>
+          <p className="lp-muted">{t('publicPage.notFoundBody')}</p>
         </div>
       </div>
     )
@@ -121,9 +126,9 @@ export default function LeadPage() {
         <div className="lp-card lp-state">
           {content.logoText ? <div className="lp-logo">{content.logoText}</div> : null}
           <div className="lp-check" aria-hidden="true">✓</div>
-          <p className="lp-thankyou">{str(thankYou?.message) || 'תודה! קיבלנו את הפנייה ונחזור אליך בהקדם.'}</p>
+          <p className="lp-thankyou">{str(thankYou?.message) || t('publicPage.thankYouFallback')}</p>
           {str(content.bookingPageRef) ? (
-            <a className="lp-book-cta" href={`/book/${content.bookingPageRef}`}>קביעת פגישה</a>
+            <a className="lp-book-cta" href={`/book/${content.bookingPageRef}`}>{t('publicPage.bookCta')}</a>
           ) : null}
         </div>
       </div>
@@ -164,7 +169,7 @@ export default function LeadPage() {
                       </label>
                     ))}
                   </div>
-                  {errors[f.key] ? <span className="lp-field-error">שדה חובה</span> : null}
+                  {errors[f.key] ? <span className="lp-field-error">{t('publicPage.requiredError')}</span> : null}
                 </div>
               )
             }
@@ -188,7 +193,7 @@ export default function LeadPage() {
                     required={!!f.required}
                   />
                 )}
-                {errors[f.key] ? <span className="lp-field-error">שדה חובה</span> : null}
+                {errors[f.key] ? <span className="lp-field-error">{t('publicPage.requiredError')}</span> : null}
               </label>
             )
           })}
@@ -207,12 +212,12 @@ export default function LeadPage() {
         {submitError ? <p className="lp-submit-error">{submitError}</p> : null}
 
         <button type="submit" className="lp-submit" disabled={submitting}>
-          {submitting ? 'שולח…' : 'שליחה'}
+          {submitting ? t('publicPage.submitting') : t('publicPage.submit')}
         </button>
 
         {/* Optional CTA to the coach's booking page (attached at the foot). */}
         {str(content.bookingPageRef) ? (
-          <a className="lp-book-cta" href={`/book/${content.bookingPageRef}`}>קביעת פגישה</a>
+          <a className="lp-book-cta" href={`/book/${content.bookingPageRef}`}>{t('publicPage.bookCta')}</a>
         ) : null}
       </form>
     </div>

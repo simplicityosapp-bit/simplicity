@@ -120,5 +120,17 @@
     "dupForName": " a {{name}}",
     "dupConfirm": "Sí, importar",
     "cancel": "Cancelar"
+  },
+  "docTypes": {
+    "invoice_receipt": "Factura/recibo",
+    "receipt": "Recibo",
+    "invoice": "Factura"
+  },
+  "payMethods": {
+    "bank_transfer": "Transferencia bancaria",
+    "cash": "Efectivo",
+    "credit_card": "Tarjeta de crédito",
+    "app": "App (Bit/Paybox)",
+    "other": "Otro"
   }
 }

@@ -130,5 +130,17 @@
     "cancel": "ביטול",
     "countAria_two": "{{count}} חשבוניות לאישור",
     "countAria_many": "{{count}} חשבוניות לאישור"
+  },
+  "docTypes": {
+    "invoice_receipt": "חשבונית מס קבלה",
+    "receipt": "קבלה",
+    "invoice": "חשבונית מס"
+  },
+  "payMethods": {
+    "bank_transfer": "העברה בנקאית",
+    "cash": "מזומן",
+    "credit_card": "כרטיס אשראי",
+    "app": "אפליקציה (ביט/פייבוקס)",
+    "other": "אחר"
   }
 }

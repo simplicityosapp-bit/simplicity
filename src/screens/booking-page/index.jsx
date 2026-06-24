@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { fetchBookingPageConfig, fetchBookingSlots, submitBooking } from '../../lib/api/bookingIntake'
 import { leadPageSurface, safeRedirectUrl } from '../../lib/bookingPageSchema'
+import { useT } from '../../i18n/useT'
+import '../booking-pages/bookingI18n'      // self-registers the 'booking' namespace
 import '../lead-page/LeadPage.css' // shared surface + card + inputs (lp-*)
 import './BookingPage.css'         // booking-specific step flow (bk2-*)
 
@@ -32,6 +34,7 @@ const addDays = (ymd, n) => {
 
 export default function BookingPage() {
   const { pageId } = useParams()
+  const { t } = useT('booking')
   const [status, setStatus] = useState('loading') // loading | ready | notfound | done
   const [config, setConfig] = useState(null)
   const [typeId, setTypeId] = useState(null)
@@ -146,11 +149,11 @@ export default function BookingPage() {
       // 409 → the slot was taken between listing and submit.
       const msg = e2?.message || ''
       if (/409|slot_taken/i.test(msg) || e2?.context?.status === 409) {
-        setSubmitError('המועד נתפס הרגע. בחרו מועד אחר.')
+        setSubmitError(t('publicPage.errSlotTaken'))
         setSlot(null)
         setRefreshKey((k) => k + 1) // re-fetch slots so the taken one drops off
       } else {
-        setSubmitError('אירעה שגיאה בקביעת הפגישה. נסו שוב בעוד רגע.')
+        setSubmitError(t('publicPage.errGeneric'))
       }
     } finally {
       setSubmitting(false)
@@ -161,14 +164,14 @@ export default function BookingPage() {
   const rootClass = `lp-root lp-surface bk2-page${surfaceCls ? ` ${surfaceCls}` : ''}`
 
   if (status === 'loading') {
-    return <div className={rootClass} dir="rtl" style={rootStyle}><div className="lp-card lp-state"><p className="lp-muted">טוען…</p></div></div>
+    return <div className={rootClass} dir="rtl" style={rootStyle}><div className="lp-card lp-state"><p className="lp-muted">{t('publicPage.loading')}</p></div></div>
   }
   if (status === 'notfound') {
     return (
       <div className={rootClass} dir="rtl" style={rootStyle}>
         <div className="lp-card lp-state">
-          <h1 className="lp-heading">הדף לא נמצא</h1>
-          <p className="lp-muted">ייתכן שהקישור שגוי או שהדף אינו פעיל יותר.</p>
+          <h1 className="lp-heading">{t('publicPage.notFoundTitle')}</h1>
+          <p className="lp-muted">{t('publicPage.notFoundBody')}</p>
         </div>
       </div>
     )
@@ -179,7 +182,7 @@ export default function BookingPage() {
         <div className="lp-card lp-state">
           {content.logoText ? <div className="lp-logo">{content.logoText}</div> : null}
           <div className="lp-check" aria-hidden="true">✓</div>
-          <p className="lp-thankyou">{str(thankYou?.message) || 'תודה! הפגישה נקבעה.'}</p>
+          <p className="lp-thankyou">{str(thankYou?.message) || t('publicPage.thankYouDefault')}</p>
           {slot ? <p className="bk2-confirm-when">{fmtDayLabel(slot.start, tz)} · {fmtTime(slot.start, tz)}</p> : null}
         </div>
       </div>
@@ -196,10 +199,10 @@ export default function BookingPage() {
         {/* Step 1 — meeting type */}
         {types.length > 1 && (
           <div className="bk2-section">
-            <p className="bk2-step-label">בחירת סוג פגישה</p>
+            <p className="bk2-step-label">{t('publicPage.stepType')}</p>
             <div className="bk2-types">
-              {types.map((t) => {
-                const id = t.id ?? '__d'
+              {types.map((mt) => {
+                const id = mt.id ?? '__d'
                 return (
                   <button
                     key={id}
@@ -207,8 +210,8 @@ export default function BookingPage() {
                     className={`bk2-type${typeId === id ? ' on' : ''}`}
                     onClick={() => setTypeId(id)}
                   >
-                    <span className="bk2-type-name">{t.name}</span>
-                    <span className="bk2-type-meta">{t.duration_minutes} דק׳{t.default_price ? ` · ₪${t.default_price}` : ''}</span>
+                    <span className="bk2-type-name">{mt.name}</span>
+                    <span className="bk2-type-meta">{t('minutes', { count: mt.duration_minutes })}{mt.default_price ? ` · ₪${mt.default_price}` : ''}</span>
                   </button>
                 )
               })}
@@ -219,11 +222,11 @@ export default function BookingPage() {
         {/* Step 2 — day + time */}
         {typeId != null && (
           <div className="bk2-section">
-            <p className="bk2-step-label">בחירת מועד</p>
+            <p className="bk2-step-label">{t('publicPage.stepWhen')}</p>
             {slotsLoading ? (
-              <p className="lp-muted">טוען מועדים…</p>
+              <p className="lp-muted">{t('publicPage.slotsLoading')}</p>
             ) : days.length === 0 ? (
-              <p className="lp-muted">אין מועדים פנויים כרגע. נסו שוב מאוחר יותר.</p>
+              <p className="lp-muted">{t('publicPage.noSlots')}</p>
             ) : (
               <>
                 <div className="bk2-days">
@@ -260,27 +263,27 @@ export default function BookingPage() {
         {/* Step 3 — details */}
         {slot && (
           <form className="bk2-section bk2-form" onSubmit={handleSubmit} noValidate>
-            <p className="bk2-step-label">הפרטים שלך</p>
+            <p className="bk2-step-label">{t('publicPage.stepDetails')}</p>
             <p className="bk2-chosen">
               {chosenType?.name ? `${chosenType.name} · ` : ''}{fmtDayLabel(slot.start, tz)} · {fmtTime(slot.start, tz)}
             </p>
             <div className="lp-fields">
               <label className="lp-field">
-                <span className="lp-label">שם<span className="lp-req" aria-hidden="true"> *</span></span>
+                <span className="lp-label">{t('publicPage.fieldName')}<span className="lp-req" aria-hidden="true"> *</span></span>
                 <input className={`lp-input${errors.name ? ' is-error' : ''}`} value={values.name} onChange={(e) => setField('name', e.target.value)} required />
-                {errors.name ? <span className="lp-field-error">שדה חובה</span> : null}
+                {errors.name ? <span className="lp-field-error">{t('publicPage.requiredField')}</span> : null}
               </label>
               <label className="lp-field">
-                <span className="lp-label">טלפון</span>
+                <span className="lp-label">{t('publicPage.fieldPhone')}</span>
                 <input className="lp-input" type="tel" value={values.phone} onChange={(e) => setField('phone', e.target.value)} />
               </label>
               <label className="lp-field">
-                <span className="lp-label">אימייל</span>
+                <span className="lp-label">{t('publicPage.fieldEmail')}</span>
                 <input className={`lp-input${errors.email ? ' is-error' : ''}`} type="email" value={values.email} onChange={(e) => setField('email', e.target.value)} />
-                {errors.email ? <span className="lp-field-error">כתובת אימייל לא תקינה</span> : null}
+                {errors.email ? <span className="lp-field-error">{t('publicPage.invalidEmail')}</span> : null}
               </label>
               <label className="lp-field">
-                <span className="lp-label">הערה</span>
+                <span className="lp-label">{t('publicPage.fieldNote')}</span>
                 <textarea className="lp-input lp-textarea" rows={3} value={values.note} onChange={(e) => setField('note', e.target.value)} />
               </label>
             </div>
@@ -288,7 +291,7 @@ export default function BookingPage() {
             <input type="text" tabIndex={-1} autoComplete="off" className="lp-hp" aria-hidden="true" onChange={(e) => { hp.current = e.target.value }} />
             {submitError ? <p className="lp-submit-error">{submitError}</p> : null}
             <button type="submit" className="lp-submit" disabled={submitting}>
-              {submitting ? 'קובע…' : 'קביעת הפגישה'}
+              {submitting ? t('publicPage.submitting') : t('publicPage.submit')}
             </button>
           </form>
         )}

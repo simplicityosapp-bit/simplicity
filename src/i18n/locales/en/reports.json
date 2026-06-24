@@ -33,7 +33,57 @@
     "title": "Details",
     "count_one": "{{count}} record",
     "count_other": "{{count}} records",
-    "empty": "No records for this period"
+    "empty": "No records for this period",
+    "noName": "(no name)",
+    "noDesc": "(no description)",
+    "noTitle": "(no title)",
+    "unknownClient": "(unknown client)",
+    "converted": "Converted",
+    "notRelevant": "Not relevant",
+    "ghost": "Ghosted",
+    "closed": "Closed",
+    "inquiry": "Inquiry",
+    "activeAtEnd": "Active at {{date}}",
+    "leftGroup": "Left the group • {{date}}",
+    "personalSeriesEnded": "Personal series ended • {{date}}",
+    "session": "Session",
+    "groupLabel": "Group: {{name}}",
+    "sessionNum": "Session {{num}}",
+    "completedOn": "Completed • {{date}}",
+    "openAtEnd": "Open at {{date}}",
+    "urgent": "Urgent"
+  },
+  "metrics": {
+    "newInquiries": "New inquiries",
+    "leadsClosed": "Leads closed",
+    "leadsConverted": "Converted to clients",
+    "conversionRate": "Conversion rate",
+    "newClients": "New clients",
+    "activeClientsAtEnd": "Active clients at end",
+    "leftMidProcessPct": "Left mid-process",
+    "sessions": "Sessions held",
+    "income": "Income",
+    "expense": "Expenses",
+    "net": "Net",
+    "tasksCompleted": "Tasks completed",
+    "openTasksAtEnd": "Open tasks at end"
+  },
+  "metricsDesc": {
+    "leadsClosed": "All leads that left the pipeline — converted to clients or marked not relevant. (Versus \"Converted to clients\", which counts only those who became clients.)"
+  },
+  "groups": {
+    "leads": "Leads",
+    "clients": "Clients",
+    "sessions": "Sessions",
+    "finance": "Money",
+    "tasks": "Tasks"
+  },
+  "trendSeries": {
+    "income": "Income",
+    "leads": "Inquiries",
+    "sessions": "Sessions",
+    "score": "Overview score",
+    "question": "Daily question"
   },
   "trend": {
     "empty": "Not enough data for a chart yet.",

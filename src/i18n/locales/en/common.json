@@ -18,5 +18,10 @@
     "now": "now",
     "today": "Today",
     "tomorrow": "Tomorrow"
+  },
+  "mgWords": {
+    "client": "client",
+    "client_new": "New client",
+    "agree": "agree"
   }
 }

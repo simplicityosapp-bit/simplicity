@@ -14,25 +14,28 @@
      (good-enough heuristic until we ship a log).
    ════════════════════════════════════════════════════════════════ */
 
+import i18n from '../i18n'
 import { isr, isConfirmedTx } from './finance'
 import { isConvertedLead } from './leads'
+import { monthNamesShort } from './calendar'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 
 /* ── Period engine ─────────────────────────────────────────────── */
 
-const MONTHS_S = ['ינו', 'פבר', 'מרץ', 'אפר', 'מאי', 'יונ', 'יול', 'אוג', 'ספט', 'אוק', 'נוב', 'דצמ']
-
-/* Last N months including current, oldest → newest. */
-export function getPeriodsForMonths(count, now = new Date()) {
+/* Last N months including current, oldest → newest. Pass `lng` (the active
+   language) so month labels follow it — callers thread it through a useMemo
+   dependency to recompute the pills/headers on a language switch. */
+export function getPeriodsForMonths(count, now = new Date(), lng) {
   const n = Math.max(1, count | 0)
+  const months = monthNamesShort(lng)
   const out = []
   for (let i = n - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
     out.push({
       start: new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0, 0),
       end: new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999),
-      label: `${MONTHS_S[d.getMonth()]} ${String(d.getFullYear()).slice(-2)}`,
+      label: `${months[d.getMonth()]} ${String(d.getFullYear()).slice(-2)}`,
       year: d.getFullYear(),
       month: d.getMonth(),
       isCurrent: i === 0,
@@ -42,8 +45,8 @@ export function getPeriodsForMonths(count, now = new Date()) {
 }
 
 /* 12-month strip used by the list view's pills. */
-export function getLast12Months(now = new Date()) {
-  return getPeriodsForMonths(12, now)
+export function getLast12Months(now = new Date(), lng) {
+  return getPeriodsForMonths(12, now, lng)
 }
 
 /* ── Snapshot helpers ──────────────────────────────────────────── */
@@ -186,34 +189,38 @@ export function computeReportForRange(start, end, data = {}) {
    - id: matches computeReportForRange().metrics
    - group: row-grouping (REPORT_GROUPS)
    - kind: 'flow' | 'snapshot' | 'cohortPct' — drives summary semantics.
-   - format: 'count' | 'money' | 'pct'                                 */
+   - format: 'count' | 'money' | 'pct'
+   - info:  true when the metric has an explanatory description.
+   Display strings (label/desc/group name) resolve via i18n at the call site
+   (reports:metrics.<id> / reports:metricsDesc.<id> / reports:groups.<id>) so
+   the registry stays language-agnostic and follows the active language. */
 export const REPORT_METRICS = [
   /* Leads */
-  { id: 'newInquiries',       label: 'פניות חדשות',           group: 'leads',    kind: 'flow',      format: 'count' },
-  { id: 'leadsClosed',        label: 'לידים נסגרו',           desc: 'כל הלידים שיצאו מהתהליך — הומרו ללקוחות או סומנו לא רלוונטי. (לעומת "הומרו ללקוחות" שסופר רק את אלה שהפכו ללקוחות.)', group: 'leads', kind: 'flow', format: 'count' },
-  { id: 'leadsConverted',     label: 'הומרו ללקוחות',         group: 'leads',    kind: 'flow',      format: 'count' },
-  { id: 'conversionRate',     label: 'אחוז המרה',             group: 'leads',    kind: 'cohortPct', format: 'pct' },
+  { id: 'newInquiries',       group: 'leads',    kind: 'flow',      format: 'count' },
+  { id: 'leadsClosed',        group: 'leads',    kind: 'flow',      format: 'count', info: true },
+  { id: 'leadsConverted',     group: 'leads',    kind: 'flow',      format: 'count' },
+  { id: 'conversionRate',     group: 'leads',    kind: 'cohortPct', format: 'pct' },
   /* Clients */
-  { id: 'newClients',         label: 'לקוחות חדשים',          group: 'clients',  kind: 'flow',      format: 'count' },
-  { id: 'activeClientsAtEnd', label: 'לקוחות פעיל׊׉ בסוף',    group: 'clients',  kind: 'snapshot',  format: 'count' },
-  { id: 'leftMidProcessPct',  label: 'עזבו באמצע מסלול',      group: 'clients',  kind: 'cohortPct', format: 'pct' },
+  { id: 'newClients',         group: 'clients',  kind: 'flow',      format: 'count' },
+  { id: 'activeClientsAtEnd', group: 'clients',  kind: 'snapshot',  format: 'count' },
+  { id: 'leftMidProcessPct',  group: 'clients',  kind: 'cohortPct', format: 'pct' },
   /* Sessions */
-  { id: 'sessions',           label: 'פגישות שהתקיימו',       group: 'sessions', kind: 'flow',      format: 'count' },
+  { id: 'sessions',           group: 'sessions', kind: 'flow',      format: 'count' },
   /* Finance */
-  { id: 'income',             label: 'הכנסות',                group: 'finance',  kind: 'flow',      format: 'money' },
-  { id: 'expense',            label: 'הוצאות',                group: 'finance',  kind: 'flow',      format: 'money' },
-  { id: 'net',                label: 'נטו',                   group: 'finance',  kind: 'flow',      format: 'money' },
+  { id: 'income',             group: 'finance',  kind: 'flow',      format: 'money' },
+  { id: 'expense',            group: 'finance',  kind: 'flow',      format: 'money' },
+  { id: 'net',                group: 'finance',  kind: 'flow',      format: 'money' },
   /* Tasks */
-  { id: 'tasksCompleted',     label: 'משימות שהושלמו',        group: 'tasks',    kind: 'flow',      format: 'count' },
-  { id: 'openTasksAtEnd',     label: 'משימות פתוחות בסוף',    group: 'tasks',    kind: 'snapshot',  format: 'count' },
+  { id: 'tasksCompleted',     group: 'tasks',    kind: 'flow',      format: 'count' },
+  { id: 'openTasksAtEnd',     group: 'tasks',    kind: 'snapshot',  format: 'count' },
 ]
 
 export const REPORT_GROUPS = [
-  { id: 'leads',    label: 'לידים' },
-  { id: 'clients',  label: 'לקוחות' },
-  { id: 'sessions', label: 'פגישות' },
-  { id: 'finance',  label: 'כסף' },
-  { id: 'tasks',    label: 'משימות' },
+  { id: 'leads' },
+  { id: 'clients' },
+  { id: 'sessions' },
+  { id: 'finance' },
+  { id: 'tasks' },
 ]
 
 /* ── Formatting ────────────────────────────────────────────────── */
@@ -334,13 +341,13 @@ export function getDrillRecords(metricId, start, end, data = {}) {
 
   const leadRow = (l, secondary) => ({
     icon: 'leaf',
-    primary: l.name || '(ללא שם)',
+    primary: l.name || i18n.t('reports:drill.noName'),
     secondary,
     navigateTo: '/leads',
   })
   const clientRow = (c, secondary, icon = 'user') => ({
     icon,
-    primary: c.name || '(ללא שם)',
+    primary: c.name || i18n.t('reports:drill.noName'),
     secondary,
     navigateTo: '/clients',
   })
@@ -357,7 +364,9 @@ export function getDrillRecords(metricId, start, end, data = {}) {
       liveLeads.forEach((l) => {
         if (!inRangeTs(l.closed_at)) return
         const meta = l.status_meta || 'in_process'
-        const label = meta === 'converted' ? 'הומר' : meta === 'not_relevant' ? 'לא רלוונטי' : meta === 'ghost' ? 'רפאים' : 'נסגר'
+        const label = meta === 'converted' ? i18n.t('reports:drill.converted')
+          : meta === 'not_relevant' ? i18n.t('reports:drill.notRelevant')
+            : meta === 'ghost' ? i18n.t('reports:drill.ghost') : i18n.t('reports:drill.closed')
         out.push({ ...leadRow(l, `${label} • ${fmtDay(l.closed_at)}`), icon: 'x' })
       })
       break
@@ -365,7 +374,7 @@ export function getDrillRecords(metricId, start, end, data = {}) {
     case 'leadsConverted': {
       liveLeads.forEach((l) => {
         if (!isConvertedLead(l) || !inRangeTs(l.converted_at)) return
-        out.push({ ...leadRow(l, `הומר • ${fmtDay(l.converted_at)}`), icon: 'arrow' })
+        out.push({ ...leadRow(l, `${i18n.t('reports:drill.converted')} • ${fmtDay(l.converted_at)}`), icon: 'arrow' })
       })
       break
     }
@@ -376,9 +385,9 @@ export function getDrillRecords(metricId, start, end, data = {}) {
         if (!inCohort) return
         const converted = isConvertedLead(l)
         out.push({
-          ...leadRow(l, converted ? `הומר • ${fmtDay(l.converted_at)}` : `פנייה • ${fmtDay(l.inquiry_date || l.created_at)}`),
+          ...leadRow(l, converted ? `${i18n.t('reports:drill.converted')} • ${fmtDay(l.converted_at)}` : `${i18n.t('reports:drill.inquiry')} • ${fmtDay(l.inquiry_date || l.created_at)}`),
           icon: converted ? 'arrow' : 'leaf',
-          primary: (converted ? '✓ ' : '') + (l.name || '(ללא שם)'),
+          primary: (converted ? '✓ ' : '') + (l.name || i18n.t('reports:drill.noName')),
         })
       })
       break
@@ -396,7 +405,7 @@ export function getDrillRecords(metricId, start, end, data = {}) {
         if ((c.status_meta || c.status || 'no_status') !== 'active') return
         const created = c.created_at ? new Date(c.created_at).getTime() : 0
         if (created > t) return
-        out.push(clientRow(c, `פעיל/ה בסוף ${fmtDay(end)}`, 'check'))
+        out.push(clientRow(c, i18n.t('reports:drill.activeAtEnd', { date: fmtDay(end) }), 'check'))
       })
       break
     }
@@ -406,11 +415,11 @@ export function getDrillRecords(metricId, start, end, data = {}) {
         if (!inRangeTs(m.left_at)) return
         const cli = liveClients.find((x) => x.id === m.client_id)
         const grp = groups.find((x) => x.id === m.group_id)
-        const name = (cli?.name || '(לקוח לא ידוע)') + (grp ? ` · ${grp.name}` : '')
+        const name = (cli?.name || i18n.t('reports:drill.unknownClient')) + (grp ? ` · ${grp.name}` : '')
         out.push({
           icon: 'x',
           primary: name,
-          secondary: `עזב/ה את הקבוצה • ${fmtDay(m.left_at)}`,
+          secondary: i18n.t('reports:drill.leftGroup', { date: fmtDay(m.left_at) }),
           navigateTo: '/clients',
         })
       })
@@ -418,24 +427,24 @@ export function getDrillRecords(metricId, start, end, data = {}) {
         if ((c.status_meta || c.status) !== 'past') return
         if (!c.left_mid_process || !(c.sessions > 0)) return
         if (!inRangeTs(c.last_status_changed_at)) return
-        out.push(clientRow(c, `סדרה אישית הסתיימה • ${fmtDay(c.last_status_changed_at)}`, 'x'))
+        out.push(clientRow(c, i18n.t('reports:drill.personalSeriesEnded', { date: fmtDay(c.last_status_changed_at) }), 'x'))
       })
       break
     }
     case 'sessions': {
       liveSessions.forEach((s) => {
         if (!inRangeTs(s.date)) return
-        let label = 'פגישה'
+        let label = i18n.t('reports:drill.session')
         if (s.client_id) {
           const c = liveClients.find((x) => x.id === s.client_id)
           if (c) label = c.name
         } else if (s.group_id) {
           const g = groups.find((x) => x.id === s.group_id)
-          if (g) label = `קבוצה: ${g.name}`
+          if (g) label = i18n.t('reports:drill.groupLabel', { name: g.name })
         }
         out.push({
           icon: 'calendar',
-          primary: label + (s.num ? ` · פגישה ${s.num}` : ''),
+          primary: label + (s.num ? ` · ${i18n.t('reports:drill.sessionNum', { num: s.num })}` : ''),
           secondary: fmtDay(s.date),
           navigateTo: '/calendar',
         })
@@ -456,7 +465,7 @@ export function getDrillRecords(metricId, start, end, data = {}) {
         const sign = f.type === 'income' ? '+' : '−'
         out.push({
           icon: f.type === 'income' ? 'arrowDown' : 'arrowUp',
-          primary: f.desc || '(ללא תיאור)',
+          primary: f.desc || i18n.t('reports:drill.noDesc'),
           secondary: `${sign}${isr(f.amount)} • ${fmtDay(f.date)}`,
           navigateTo: '/finance',
         })
@@ -468,8 +477,8 @@ export function getDrillRecords(metricId, start, end, data = {}) {
         if (!inRangeTs(t.completed_at)) return
         out.push({
           icon: 'check',
-          primary: t.title || '(ללא כותרת)',
-          secondary: `הושלמה • ${fmtDay(t.completed_at)}`,
+          primary: t.title || i18n.t('reports:drill.noTitle'),
+          secondary: i18n.t('reports:drill.completedOn', { date: fmtDay(t.completed_at) }),
           navigateTo: '/tasks',
         })
       })
@@ -485,8 +494,8 @@ export function getDrillRecords(metricId, start, end, data = {}) {
         if (!task.completed_at && task.status === 'done') return
         out.push({
           icon: 'circleAlert',
-          primary: task.title || '(ללא כותרת)',
-          secondary: `פתוחה בסוף ${fmtDay(end)}${task.priority === 'high' ? ' • דחוף' : ''}`,
+          primary: task.title || i18n.t('reports:drill.noTitle'),
+          secondary: `${i18n.t('reports:drill.openAtEnd', { date: fmtDay(end) })}${task.priority === 'high' ? ` • ${i18n.t('reports:drill.urgent')}` : ''}`,
           navigateTo: '/tasks',
         })
       })

@@ -50,6 +50,16 @@
   },
   "widgets": {
     "globalView": "Visualización global",
+    "names": {
+      "quote": "Cita diaria",
+      "moon": "Resumen",
+      "insights": "¿Cómo estás hoy?",
+      "quick-row": "Acción rápida / actualización",
+      "attention": "Avisos (citas, pagos)",
+      "reminders": "Recordatorios próximos",
+      "next-tasks": "Próximas tareas",
+      "chips": "Tarjetas de estado (clientes/neto/tareas)"
+    },
     "cardStyle": "Estilo de las tarjetas",
     "textStrength": "Grosor del texto",
     "density": "Densidad",

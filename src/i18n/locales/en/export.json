@@ -1,0 +1,87 @@
+{
+  "sheets": {
+    "transactions": "Transactions",
+    "clients": "Clients",
+    "projects": "Projects",
+    "leads": "Leads",
+    "tasks": "Tasks",
+    "categories": "Categories",
+    "sessions": "Sessions",
+    "goals": "Goals",
+    "goalEntries": "Goal entries",
+    "dailyAnswers": "Daily answers",
+    "reflections": "Reflections"
+  },
+  "headers": {
+    "date": "Date",
+    "type": "Type",
+    "amount": "Amount",
+    "desc": "Description",
+    "status": "Status",
+    "client": "Client",
+    "project": "Project",
+    "category": "Category",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "sessions": "Sessions",
+    "pricePerSession": "Price per session",
+    "notes": "Notes",
+    "color": "Color",
+    "inquiryDate": "Inquiry date",
+    "title": "Title",
+    "priority": "Priority",
+    "dueDate": "Due date",
+    "subject": "Subject",
+    "sessionNum": "Session #",
+    "summary": "Summary",
+    "goal": "Goal",
+    "timeFrame": "Time frame",
+    "targetValue": "Target value",
+    "targetDate": "Target date",
+    "importance": "Importance",
+    "value": "Value",
+    "note": "Note",
+    "question": "Question",
+    "answer": "Answer",
+    "reflection": "Reflection",
+    "score": "Score"
+  },
+  "txType": {
+    "income": "Income",
+    "expense": "Expense"
+  },
+  "txStatus": {
+    "confirmed": "Confirmed",
+    "pending": "Pending",
+    "skipped": "Skipped"
+  },
+  "clientStatus": {
+    "active": "Active",
+    "wandering": "On the fence",
+    "past": "Former",
+    "no_status": "No status"
+  },
+  "leadStatus": {
+    "in_process": "In process",
+    "converted": "Converted",
+    "not_relevant": "Not relevant"
+  },
+  "taskStatus": {
+    "todo": "To do",
+    "in_progress": "In progress",
+    "done": "Done"
+  },
+  "priority": {
+    "high": "High",
+    "normal": "Normal",
+    "low": "Low"
+  },
+  "timeFrame": {
+    "deadline": "Deadline",
+    "monthly": "Monthly",
+    "weekly": "Weekly"
+  },
+  "groupFallback": "Group",
+  "decryptFail": "(could not decrypt)"
+}

@@ -33,7 +33,57 @@
     "title": "Detalles",
     "count_one": "{{count}} registro",
     "count_other": "{{count}} registros",
-    "empty": "No hay registros para este periodo"
+    "empty": "No hay registros para este periodo",
+    "noName": "(sin nombre)",
+    "noDesc": "(sin descripción)",
+    "noTitle": "(sin título)",
+    "unknownClient": "(cliente desconocido)",
+    "converted": "Convertido",
+    "notRelevant": "No relevante",
+    "ghost": "Sin respuesta",
+    "closed": "Cerrado",
+    "inquiry": "Consulta",
+    "activeAtEnd": "Activo el {{date}}",
+    "leftGroup": "Dejó el grupo • {{date}}",
+    "personalSeriesEnded": "Serie personal finalizada • {{date}}",
+    "session": "Sesión",
+    "groupLabel": "Grupo: {{name}}",
+    "sessionNum": "Sesión {{num}}",
+    "completedOn": "Completada • {{date}}",
+    "openAtEnd": "Abierta el {{date}}",
+    "urgent": "Urgente"
+  },
+  "metrics": {
+    "newInquiries": "Consultas nuevas",
+    "leadsClosed": "Prospectos cerrados",
+    "leadsConverted": "Convertidos en clientes",
+    "conversionRate": "Tasa de conversión",
+    "newClients": "Clientes nuevos",
+    "activeClientsAtEnd": "Clientes activos al final",
+    "leftMidProcessPct": "Abandonaron a mitad de proceso",
+    "sessions": "Sesiones realizadas",
+    "income": "Ingresos",
+    "expense": "Gastos",
+    "net": "Neto",
+    "tasksCompleted": "Tareas completadas",
+    "openTasksAtEnd": "Tareas abiertas al final"
+  },
+  "metricsDesc": {
+    "leadsClosed": "Todos los prospectos que salieron del proceso — convertidos en clientes o marcados como no relevantes. (A diferencia de \"Convertidos en clientes\", que cuenta solo a quienes se convirtieron en clientes.)"
+  },
+  "groups": {
+    "leads": "Prospectos",
+    "clients": "Clientes",
+    "sessions": "Sesiones",
+    "finance": "Dinero",
+    "tasks": "Tareas"
+  },
+  "trendSeries": {
+    "income": "Ingresos",
+    "leads": "Consultas",
+    "sessions": "Sesiones",
+    "score": "Puntuación general",
+    "question": "Pregunta diaria"
   },
   "trend": {
     "empty": "Aún no hay datos suficientes para un gráfico.",

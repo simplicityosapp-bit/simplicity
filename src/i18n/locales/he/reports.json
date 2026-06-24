@@ -39,7 +39,57 @@
     "count_other": "{{count}} רשומות",
     "empty": "אין רשומות לתקופה הזו",
     "count_two": "{{count}} רשומות",
-    "count_many": "{{count}} רשומות"
+    "count_many": "{{count}} רשומות",
+    "noName": "(ללא שם)",
+    "noDesc": "(ללא תיאור)",
+    "noTitle": "(ללא כותרת)",
+    "unknownClient": "(לקוח לא ידוע)",
+    "converted": "הומר",
+    "notRelevant": "לא רלוונטי",
+    "ghost": "רפאים",
+    "closed": "נסגר",
+    "inquiry": "פנייה",
+    "activeAtEnd": "פעיל/ה בסוף {{date}}",
+    "leftGroup": "עזב/ה את הקבוצה • {{date}}",
+    "personalSeriesEnded": "סדרה אישית הסתיימה • {{date}}",
+    "session": "פגישה",
+    "groupLabel": "קבוצה: {{name}}",
+    "sessionNum": "פגישה {{num}}",
+    "completedOn": "הושלמה • {{date}}",
+    "openAtEnd": "פתוחה בסוף {{date}}",
+    "urgent": "דחוף"
+  },
+  "metrics": {
+    "newInquiries": "פניות חדשות",
+    "leadsClosed": "לידים נסגרו",
+    "leadsConverted": "הומרו ללקוחות",
+    "conversionRate": "אחוז המרה",
+    "newClients": "לקוחות חדשים",
+    "activeClientsAtEnd": "לקוחות פעיל׊׉ בסוף",
+    "leftMidProcessPct": "עזבו באמצע מסלול",
+    "sessions": "פגישות שהתקיימו",
+    "income": "הכנסות",
+    "expense": "הוצאות",
+    "net": "נטו",
+    "tasksCompleted": "משימות שהושלמו",
+    "openTasksAtEnd": "משימות פתוחות בסוף"
+  },
+  "metricsDesc": {
+    "leadsClosed": "כל הלידים שיצאו מהתהליך — הומרו ללקוחות או סומנו לא רלוונטי. (לעומת \"הומרו ללקוחות\" שסופר רק את אלה שהפכו ללקוחות.)"
+  },
+  "groups": {
+    "leads": "לידים",
+    "clients": "לקוחות",
+    "sessions": "פגישות",
+    "finance": "כסף",
+    "tasks": "משימות"
+  },
+  "trendSeries": {
+    "income": "הכנסות",
+    "leads": "פניות",
+    "sessions": "פגישות",
+    "score": "ציון מבט-על",
+    "question": "שאלה יומית"
   },
   "trend": {
     "empty": "אין מספיק נתונים לגרף עדיין.",

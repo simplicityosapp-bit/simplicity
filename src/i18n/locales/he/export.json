@@ -1,0 +1,87 @@
+{
+  "sheets": {
+    "transactions": "תנועות",
+    "clients": "לקוחות",
+    "projects": "פרויקטים",
+    "leads": "לידים",
+    "tasks": "משימות",
+    "categories": "קטגוריות",
+    "sessions": "פגישות",
+    "goals": "יעדים",
+    "goalEntries": "רישומי יעדים",
+    "dailyAnswers": "תשובות יומיות",
+    "reflections": "רפלקציות"
+  },
+  "headers": {
+    "date": "תאריך",
+    "type": "סוג",
+    "amount": "סכום",
+    "desc": "תיאור",
+    "status": "סטטוס",
+    "client": "לקוח",
+    "project": "פרויקט",
+    "category": "קטגוריה",
+    "name": "שם",
+    "phone": "טלפון",
+    "email": "אימייל",
+    "sessions": "מספר פגישות",
+    "pricePerSession": "מחיר לפגישה",
+    "notes": "הערות",
+    "color": "צבע",
+    "inquiryDate": "תאריך פנייה",
+    "title": "כותרת",
+    "priority": "עדיפות",
+    "dueDate": "תאריך יעד",
+    "subject": "נושא",
+    "sessionNum": "מס׳ פגישה",
+    "summary": "סיכום",
+    "goal": "יעד",
+    "timeFrame": "מסגרת זמן",
+    "targetValue": "יעד מספרי",
+    "targetDate": "תאריך יעד",
+    "importance": "חשיבות",
+    "value": "ערך",
+    "note": "הערה",
+    "question": "שאלה",
+    "answer": "תשובה",
+    "reflection": "רפלקציה",
+    "score": "ציון"
+  },
+  "txType": {
+    "income": "הכנסה",
+    "expense": "הוצאה"
+  },
+  "txStatus": {
+    "confirmed": "אושרה",
+    "pending": "ממתינה",
+    "skipped": "דולגה"
+  },
+  "clientStatus": {
+    "active": "פעיל",
+    "wandering": "ביניים",
+    "past": "לשעבר",
+    "no_status": "ללא סטטוס"
+  },
+  "leadStatus": {
+    "in_process": "בתהליך",
+    "converted": "הומר",
+    "not_relevant": "לא רלוונטי"
+  },
+  "taskStatus": {
+    "todo": "לביצוע",
+    "in_progress": "בתהליך",
+    "done": "הושלמה"
+  },
+  "priority": {
+    "high": "גבוהה",
+    "normal": "רגילה",
+    "low": "נמוכה"
+  },
+  "timeFrame": {
+    "deadline": "דדליין",
+    "monthly": "חודשי",
+    "weekly": "שבועי"
+  },
+  "groupFallback": "קבוצה",
+  "decryptFail": "(לא ניתן לפענח)"
+}

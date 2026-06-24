@@ -52,5 +52,13 @@
     "meetings": "Citas",
     "reminders": "Recordatorios",
     "calendar": "Calendario"
+  },
+  "greg": {
+    "weekdaysShort": ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"],
+    "weekdaysLong": ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"],
+    "monthsLong": ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+    "monthsShort": ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
+    "dayLabel": "{{weekday}}, {{day}} de {{month}}",
+    "monthYear": "{{month}} {{year}}"
   }
 }

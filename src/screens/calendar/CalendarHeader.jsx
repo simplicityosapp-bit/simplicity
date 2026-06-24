@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronRight, ChevronLeft, ChevronDown, SlidersHorizontal } from 'lucide-react'
 import {
-  fmtDayLabel, fmtHebrewDayLabel, hebrewMonthLabel,
+  fmtDayLabel, fmtHebrewDayLabel, hebrewMonthLabel, monthNamesLong,
   hebrewMonthsOfYear, hebrewParts, isSameHebrewMonth, stepHebrewMonth,
 } from '../../lib/calendar'
 import { useT } from '../../i18n/useT'
 
 const VIEW_KEYS = ['schedule', 'day', 'week', 'month']
-const MONTHS = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר']
 
 /* Compact Gregorian date piece, e.g. "24 יוני" — used in dual mode. */
-const gregPiece = (d) => `${d.getDate()} ${MONTHS[d.getMonth()]}`
+const gregPiece = (d) => `${d.getDate()} ${monthNamesLong()[d.getMonth()]}`
 
 /* Week + month views step by MONTH (the user navigates between months);
    day + schedule step by day. In Hebrew mode the month step follows the
@@ -53,7 +52,7 @@ function MonthPicker({ date, onPick }) {
   return (
     <div className="cal-monthpick" ref={ref}>
       <button type="button" className="cal-monthpick-btn" onClick={toggle} aria-expanded={open} aria-haspopup="dialog">
-        {MONTHS[date.getMonth()]} {date.getFullYear()}
+        {monthNamesLong()[date.getMonth()]} {date.getFullYear()}
         <ChevronDown size={14} strokeWidth={1.7} aria-hidden="true" />
       </button>
       {open && (
@@ -64,7 +63,7 @@ function MonthPicker({ date, onPick }) {
             <button type="button" onClick={() => setYear((y) => y + 1)} aria-label={t('monthPicker.nextYear')}><ChevronLeft size={15} strokeWidth={1.7} aria-hidden="true" /></button>
           </div>
           <div className="cal-monthpick-grid">
-            {MONTHS.map((m, i) => {
+            {monthNamesLong().map((m, i) => {
               const on = i === date.getMonth() && year === date.getFullYear()
               return (
                 <button key={m} type="button" className={`cal-monthpick-cell${on ? ' on' : ''}`} onClick={() => pick(i)}>{m}</button>

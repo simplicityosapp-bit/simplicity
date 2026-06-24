@@ -167,7 +167,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
         <label className="m-label">{t('tx.paymentMethod')}</label>
         <select className="m-select" value={form.payment_method} onChange={(e) => set('payment_method', e.target.value)}>
           <option value="">{t('tx.paymentMethodNone')}</option>
-          {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+          {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
         </select>
       </div>
       {client ? (
@@ -250,7 +250,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                 <div className="m-issue-opts">
                   <div className="m-pills m-issue-types">
                     {allowedDocTypes(inv.status?.business_type).map((d) => (
-                      <button key={d.key} type="button" className={`m-pill${issueDocType === d.key ? ' on' : ''}`} onClick={() => setIssueDocType(d.key)}>{d.label}</button>
+                      <button key={d.key} type="button" className={`m-pill${issueDocType === d.key ? ' on' : ''}`} onClick={() => setIssueDocType(d.key)}>{docTypeLabel(d.key)}</button>
                     ))}
                   </div>
                   {/* Receipt payment method: the transaction's own אמצעי תשלום
@@ -261,7 +261,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                       <p className="m-hint">{t('tx.receiptUsesMethod', { method: payMethodLabel(form.payment_method) })}</p>
                     ) : (
                       <select className="m-select" value={issuePayment} onChange={(e) => setIssuePayment(e.target.value)} aria-label={t('tx.paymentMethodAria')}>
-                        {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+                        {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
                       </select>
                     )
                   )}

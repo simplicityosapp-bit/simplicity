@@ -9,16 +9,18 @@
 import i18n from '../i18n'
 
 /* Registry of home widgets. Order here = default order. Each widget
-   in DEFAULT_WIDGETS.list mirrors registry entries. */
+   in DEFAULT_WIDGETS.list mirrors registry entries. Display names resolve
+   via i18n at the call site (settings:widgets.names.<id>) so they follow
+   the active language; the registry stays language-agnostic. */
 export const WIDGET_REGISTRY = [
-  { id: 'quote',           label: 'ציטוט יומי',          defaultAccent: 'blush',      supportsCompact: false },
-  { id: 'moon',            label: 'מבט על',              defaultAccent: 'sage',       supportsCompact: true },
-  { id: 'insights',        label: 'מה איתך היום',        defaultAccent: 'sage',       supportsCompact: false },
-  { id: 'quick-row',       label: 'תנועה / עדכון מהיר',  defaultAccent: 'terracotta', supportsCompact: false },
-  { id: 'attention',       label: 'התראות (פגישות, תשלומים)', defaultAccent: 'amber', supportsCompact: true },
-  { id: 'reminders',       label: 'תזכורות קרובות',       defaultAccent: 'amber',      supportsCompact: true },
-  { id: 'next-tasks',      label: 'המשימות הבאות',        defaultAccent: 'terracotta', supportsCompact: false },
-  { id: 'chips',           label: 'כרטיסי-מצב (לקוחות/נטו/משימות)', defaultAccent: 'sage', supportsCompact: false },
+  { id: 'quote',           defaultAccent: 'blush',      supportsCompact: false },
+  { id: 'moon',            defaultAccent: 'sage',       supportsCompact: true },
+  { id: 'insights',        defaultAccent: 'sage',       supportsCompact: false },
+  { id: 'quick-row',       defaultAccent: 'terracotta', supportsCompact: false },
+  { id: 'attention',       defaultAccent: 'amber',      supportsCompact: true },
+  { id: 'reminders',       defaultAccent: 'amber',      supportsCompact: true },
+  { id: 'next-tasks',      defaultAccent: 'terracotta', supportsCompact: false },
+  { id: 'chips',           defaultAccent: 'sage',       supportsCompact: false },
 ]
 
 /* 5-color brand palette (design-tokens.md §1 — Brand & States). The

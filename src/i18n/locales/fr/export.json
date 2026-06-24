@@ -1,0 +1,87 @@
+{
+  "sheets": {
+    "transactions": "Transactions",
+    "clients": "Clients",
+    "projects": "Projets",
+    "leads": "Prospects",
+    "tasks": "Tâches",
+    "categories": "Catégories",
+    "sessions": "Séances",
+    "goals": "Objectifs",
+    "goalEntries": "Relevés d'objectifs",
+    "dailyAnswers": "Réponses quotidiennes",
+    "reflections": "Réflexions"
+  },
+  "headers": {
+    "date": "Date",
+    "type": "Type",
+    "amount": "Montant",
+    "desc": "Description",
+    "status": "Statut",
+    "client": "Client",
+    "project": "Projet",
+    "category": "Catégorie",
+    "name": "Nom",
+    "phone": "Téléphone",
+    "email": "E-mail",
+    "sessions": "Séances",
+    "pricePerSession": "Prix par séance",
+    "notes": "Notes",
+    "color": "Couleur",
+    "inquiryDate": "Date de demande",
+    "title": "Titre",
+    "priority": "Priorité",
+    "dueDate": "Date d'échéance",
+    "subject": "Sujet",
+    "sessionNum": "N° de séance",
+    "summary": "Résumé",
+    "goal": "Objectif",
+    "timeFrame": "Période",
+    "targetValue": "Valeur cible",
+    "targetDate": "Date cible",
+    "importance": "Importance",
+    "value": "Valeur",
+    "note": "Note",
+    "question": "Question",
+    "answer": "Réponse",
+    "reflection": "Réflexion",
+    "score": "Score"
+  },
+  "txType": {
+    "income": "Revenu",
+    "expense": "Dépense"
+  },
+  "txStatus": {
+    "confirmed": "Confirmée",
+    "pending": "En attente",
+    "skipped": "Ignorée"
+  },
+  "clientStatus": {
+    "active": "Actif",
+    "wandering": "Indécis",
+    "past": "Ancien",
+    "no_status": "Sans statut"
+  },
+  "leadStatus": {
+    "in_process": "En cours",
+    "converted": "Converti",
+    "not_relevant": "Non pertinent"
+  },
+  "taskStatus": {
+    "todo": "À faire",
+    "in_progress": "En cours",
+    "done": "Terminée"
+  },
+  "priority": {
+    "high": "Haute",
+    "normal": "Normale",
+    "low": "Basse"
+  },
+  "timeFrame": {
+    "deadline": "Échéance",
+    "monthly": "Mensuel",
+    "weekly": "Hebdomadaire"
+  },
+  "groupFallback": "Groupe",
+  "decryptFail": "(déchiffrement impossible)"
+}

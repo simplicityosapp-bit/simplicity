@@ -115,7 +115,7 @@ export default function PaymentPlanSection({ client }) {
                       <span className="pp-receive">
                         <select className="pp-method" value={receiving.method || ''} onChange={(e) => setReceiving({ id: inst.id, method: e.target.value })} aria-label={t('plan.methodAria')}>
                           <option value="">{t('plan.methodNone')}</option>
-                          {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+                          {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
                         </select>
                         <button type="button" className="pp-btn primary" disabled={busy} onClick={() => confirmReceived(inst)}>{t('plan.confirmReceived')}</button>
                         <button type="button" className="pp-btn ghost" disabled={busy} onClick={() => setReceiving(null)}>{t('plan.cancel')}</button>

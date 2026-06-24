@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import {
   monthGrid, hebrewMonthGrid, hebrewParts,
-  eventsByDate, isSameDay, dateKey, DAY_NAMES_SHORT, weekStartIndex,
+  eventsByDate, isSameDay, dateKey, weekdayNamesShort, weekStartIndex,
 } from '../../lib/calendar'
 import { useT } from '../../i18n/useT'
 
@@ -13,7 +13,7 @@ const MAX_DOTS = 3
    moon = synced calendar) — keyed by the legend below the grid.
    Tap a cell → switch to the day view on that date. */
 export default function CalendarMonth({ date, events, onPickDay, weekStart = 'sunday', hebrew = false, dual = false }) {
-  const { t } = useT('calendar')
+  const { t, lang } = useT('calendar')
   /* Enriched cells — Hebrew parts (gematria day, in-month flag, aria label)
      are derived ONCE per date/weekStart change here, not recomputed for all
      42 cells on every render. The reference month is read a single time. */
@@ -33,11 +33,12 @@ export default function CalendarMonth({ date, events, onPickDay, weekStart = 'su
 
   /* Re-order the weekday header to match the user's weekStart. */
   const weekdayHeader = useMemo(() => {
+    const names = weekdayNamesShort(lang)
     const start = weekStartIndex(weekStart)
     const out = []
-    for (let i = 0; i < 7; i++) out.push(DAY_NAMES_SHORT[(start + i) % 7])
+    for (let i = 0; i < 7; i++) out.push(names[(start + i) % 7])
     return out
-  }, [weekStart])
+  }, [weekStart, lang])
 
   return (
     <div className="cal-month">

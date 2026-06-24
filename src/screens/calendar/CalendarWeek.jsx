@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { startOfWeek, addDays, eventsForDay, isSameDay, hebrewDayNum, DAY_NAMES_SHORT } from '../../lib/calendar'
+import { startOfWeek, addDays, eventsForDay, isSameDay, hebrewDayNum, weekdayNamesShort } from '../../lib/calendar'
 import { fmtTime } from '../../lib/dates'
 
 /* 7 vertical strips, one per day in the week containing `date`.
@@ -29,7 +29,7 @@ export default function CalendarWeek({ date, events, onSelect, onPickDay, weekSt
               onClick={() => onPickDay?.(d)}
               aria-label={d.toDateString()}
             >
-              <span className="cal-week-dow">{DAY_NAMES_SHORT[d.getDay()]}</span>
+              <span className="cal-week-dow">{weekdayNamesShort()[d.getDay()]}</span>
               {hebrew ? (
                 <span className="cal-week-date heb">
                   {hebrewDayNum(d)}

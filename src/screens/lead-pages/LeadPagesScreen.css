@@ -207,6 +207,10 @@
   padding: 8px 14px; border-radius: 10px;
   border: 1px solid var(--mg-card-border-color, rgba(44, 38, 33, 0.12));
   background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
+  /* Frost the translucent pill so it reads as system glass (matches the
+     .lpe-settings panel below it), not flat transparency. */
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
   color: var(--ink); cursor: pointer;
 }
 .lpe-settings-btn:hover { background: var(--mg-btn-secondary-bg-hover); }

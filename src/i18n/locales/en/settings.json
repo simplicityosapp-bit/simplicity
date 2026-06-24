@@ -13,7 +13,7 @@
     "payments": { "title": "Currency, date & time", "sub": "Amount, date & time formats and week start" },
     "questions": { "title": "Daily questions", "sub": "What you're asked each day" },
     "leads": { "title": "Lead settings", "sub": "Sources and statuses" },
-    "design": { "title": "Appearance", "sub": "Light/dark mode, background, text size" },
+    "design": { "title": "Appearance", "sub": "Light/dark mode, background, Hebrew calendar, text size" },
     "data": { "title": "Data", "sub": "Export, import, reset" },
     "about": { "title": "About", "sub": "Version and info" }
   },
@@ -70,7 +70,13 @@
   "design": {
     "theme": "Light / dark mode",
     "background": "Background",
-    "textSize": "Text size"
+    "textSize": "Text size",
+    "hebrewCalendar": "Hebrew calendar",
+    "hebrewCalendarHint": "Show calendar months in the Hebrew calendar (Tishrei, Nisan…), with dates in Hebrew letter-numerals.",
+    "hebrewCalendarDual": "Show Gregorian date alongside",
+    "hebrewCalendarDualHint": "Dual view — each day also shows its Gregorian date.",
+    "hebrewDateInput": "Hebrew date picker",
+    "hebrewDateInputHint": "Pick dates by the Hebrew calendar everywhere in the app. The date itself is stored normally."
   },
   "about": {
     "tabsAria": "About and help",

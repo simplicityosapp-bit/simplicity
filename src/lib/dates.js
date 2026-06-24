@@ -3,6 +3,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import i18n from '../i18n'
+import { hebrewParts } from './calendar'
 
 const pad = (n) => String(n).padStart(2, '0')
 
@@ -14,6 +15,23 @@ let timeFmt = '24h'        /* 24h | 12h */
 export function setDateTimeFormat({ date_format, time_format } = {}) {
   if (date_format) dateFmt = date_format
   if (time_format) timeFmt = time_format
+}
+
+/* Hebrew-calendar display flag — set from PrefsApplier (Settings →
+   Appearance). Only the agenda-style formatWhen() honours it; the broad
+   fmtShortDate stays Gregorian so finance / records / exports are
+   unaffected. `dual` appends the Gregorian date alongside the Hebrew. */
+let hebrewCal = false
+let hebrewDual = false
+export function setHebrewCalendar({ enabled, dual } = {}) {
+  hebrewCal = !!enabled
+  hebrewDual = !!dual
+}
+
+/* "כ״ג תמוז" — gematria day + Hebrew month, for the agenda. */
+function hebShortDate(d) {
+  const p = hebrewParts(d)
+  return `${p.dayText} ${p.month}`
 }
 
 /* "May 2026" / "מאי 2026" */
@@ -87,5 +105,9 @@ export function formatWhen(date, now = new Date()) {
   const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
   if (sameDay(d, now)) return `${i18n.t('common:time.today')} ${fmtTime(d)}`
   if (sameDay(d, tomorrow)) return `${i18n.t('common:time.tomorrow')} ${fmtTime(d)}`
-  return `${fmtShortDate(d)} · ${fmtTime(d)}`
+  /* Hebrew agenda date when the mode is on (dual → Hebrew · Gregorian). */
+  const datePart = hebrewCal
+    ? (hebrewDual ? `${hebShortDate(d)} · ${fmtShortDate(d)}` : hebShortDate(d))
+    : fmtShortDate(d)
+  return `${datePart} · ${fmtTime(d)}`
 }

@@ -1,5 +1,8 @@
 import { useMemo } from 'react'
-import { monthGrid, eventsByDate, isSameDay, dateKey, DAY_NAMES_SHORT, weekStartIndex } from '../../lib/calendar'
+import {
+  monthGrid, hebrewMonthGrid, hebrewParts,
+  eventsByDate, isSameDay, dateKey, DAY_NAMES_SHORT, weekStartIndex,
+} from '../../lib/calendar'
 import { useT } from '../../i18n/useT'
 
 const MAX_DOTS = 3
@@ -9,12 +12,24 @@ const MAX_DOTS = 3
    3 dots tinted by event kind (sage = meeting, amber = reminder,
    moon = synced calendar) — keyed by the legend below the grid.
    Tap a cell → switch to the day view on that date. */
-export default function CalendarMonth({ date, events, onPickDay, weekStart = 'sunday' }) {
+export default function CalendarMonth({ date, events, onPickDay, weekStart = 'sunday', hebrew = false, dual = false }) {
   const { t } = useT('calendar')
-  const grid = useMemo(() => monthGrid(date, weekStart), [date, weekStart])
+  /* Enriched cells — Hebrew parts (gematria day, in-month flag, aria label)
+     are derived ONCE per date/weekStart change here, not recomputed for all
+     42 cells on every render. The reference month is read a single time. */
+  const cells = useMemo(() => {
+    if (!hebrew) {
+      const m = date.getMonth()
+      return monthGrid(date, weekStart).map((d) => ({ d, inMonth: d.getMonth() === m, num: String(d.getDate()), aria: d.toDateString() }))
+    }
+    const ref = hebrewParts(date)
+    return hebrewMonthGrid(date, weekStart).map((d) => {
+      const p = hebrewParts(d)
+      return { d, inMonth: p.month === ref.month && p.year === ref.year, num: p.dayText, aria: `${p.dayText} ב${p.month} ${p.yearText}` }
+    })
+  }, [date, weekStart, hebrew])
   const eventsMap = useMemo(() => eventsByDate(events), [events])
   const today = new Date()
-  const month = date.getMonth()
 
   /* Re-order the weekday header to match the user's weekStart. */
   const weekdayHeader = useMemo(() => {
@@ -32,8 +47,7 @@ export default function CalendarMonth({ date, events, onPickDay, weekStart = 'su
         ))}
       </div>
       <div className="cal-month-grid">
-        {grid.map((d) => {
-          const inMonth = d.getMonth() === month
+        {cells.map(({ d, inMonth, num, aria }) => {
           const isToday = isSameDay(d, today)
           const dayEvents = eventsMap.get(dateKey(d)) || []
           return (
@@ -42,9 +56,16 @@ export default function CalendarMonth({ date, events, onPickDay, weekStart = 'su
               type="button"
               className={`cal-month-cell${inMonth ? '' : ' dim'}${isToday ? ' today' : ''}`}
               onClick={() => onPickDay?.(d)}
-              aria-label={d.toDateString()}
+              aria-label={aria}
             >
-              <span className="cal-month-num mono">{d.getDate()}</span>
+              {hebrew ? (
+                <span className="cal-month-num heb">
+                  {num}
+                  {dual && <span className="cal-month-num-greg mono">{d.getDate()}</span>}
+                </span>
+              ) : (
+                <span className="cal-month-num mono">{num}</span>
+              )}
               {dayEvents.length > 0 && (
                 <span className="cal-month-dots">
                   {dayEvents.slice(0, MAX_DOTS).map((ev, i) => (

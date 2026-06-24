@@ -1053,3 +1053,34 @@
   color: var(--stone);
   line-height: 1.5;
 }
+
+/* ── Switch field (design body: Hebrew calendar toggles) ──────────
+   Labeled on/off row. `.nested` indents the dependent sub-toggle
+   under its parent so the relationship reads at a glance. */
+.set-switch-field {
+  margin-bottom: 14px;
+}
+.set-switch-field.nested {
+  margin-top: -4px;
+  padding-inline-start: 14px;
+  border-inline-start: 2px solid var(--divider);
+}
+.set-switch-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.set-switch-field-label {
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+}
+.set-switch-field-hint {
+  margin: 4px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  line-height: 1.45;
+}

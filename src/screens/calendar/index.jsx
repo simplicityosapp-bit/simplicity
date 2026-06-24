@@ -95,6 +95,10 @@ export default function CalendarScreen() {
   const weekStart = prefs?.format?.week_start || prefs?.weekStart || 'sunday'
   const dayViewStart = Number.isFinite(prefs?.dayViewStart) ? prefs.dayViewStart : 6
   const dayViewEnd = Number.isFinite(prefs?.dayViewEnd) ? prefs.dayViewEnd : 22
+  /* Hebrew-calendar display mode (Settings → Appearance). `dual` shows the
+     Gregorian date alongside; it only matters while `hebrew` is on. */
+  const hebrew = !!prefs?.design?.hebrew_calendar
+  const hebrewDual = hebrew && !!prefs?.design?.hebrew_calendar_dual
 
   /* Persist the view choice so the next visit opens in the same
      mode. updatePrefs may be a no-op stub on the auth screen. */
@@ -319,6 +323,8 @@ export default function CalendarScreen() {
         date={date}
         onDateChange={setDate}
         weekStart={weekStart}
+        hebrew={hebrew}
+        dual={hebrewDual}
         onOpenFilter={() => setShowFilter(true)}
         filterActive={filterActive}
       />
@@ -342,6 +348,8 @@ export default function CalendarScreen() {
           onSelect={setSelectedEvent}
           onPickDay={(d) => { setDate(d); setView('day') }}
           weekStart={weekStart}
+          hebrew={hebrew}
+          dual={hebrewDual}
         />
       )}
       {view === 'month' && (
@@ -349,6 +357,8 @@ export default function CalendarScreen() {
           date={date}
           events={allEvents}
           weekStart={weekStart}
+          hebrew={hebrew}
+          dual={hebrewDual}
           onPickDay={(d) => { setDate(d); setView('day') }}
         />
       )}

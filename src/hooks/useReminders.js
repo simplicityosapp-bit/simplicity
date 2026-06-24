@@ -1,53 +1,30 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listReminders, insertReminder, updateReminder, removeReminder as apiRemove, restoreReminder } from '../lib/api/reminders'
 import { isRecurring, nextScheduledAt } from '../lib/reminders'
 import { pushUndo } from '../lib/undo'
 
+/* React-Query-backed: home mounts this in BOTH QuickRow and RemindersWidget —
+   one shared cache instead of a fetch per consumer. Public API unchanged. */
+const KEY = ['reminders']
 const bySchedule = (a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at)
 
 export function useReminders() {
-  const [reminders, setReminders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setReminders(await listReminders())
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await listReminders()
-        if (active) { setReminders(data); setError(null) }
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    })()
-    return () => { active = false }
-  }, [])
+  const qc = useQueryClient()
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listReminders })
+  const reminders = data ?? []
 
   const addReminder = useCallback(async (payload) => {
     const row = await insertReminder(payload)
-    setReminders((prev) => [...prev, row].sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at)))
+    qc.setQueryData(KEY, (prev) => [...(prev ?? []), row].sort(bySchedule))
     return row
-  }, [])
+  }, [qc])
 
   /* Accepts a reminder object (preferred) or an id. A recurring reminder
      ADVANCES to its next occurrence (so it actually recurs) instead of being
      marked done — unless it passed its end_date, then it stops. */
   const completeReminder = useCallback(async (arg) => {
-    const r = (arg && typeof arg === 'object') ? arg : reminders.find((x) => x.id === arg)
+    const r = (arg && typeof arg === 'object') ? arg : (qc.getQueryData(KEY) ?? []).find((x) => x.id === arg)
     if (!r) return
     let patch
     if (isRecurring(r)) {
@@ -61,8 +38,8 @@ export function useReminders() {
     const advanced = !patch.status /* recurring → bumped to next slot, not done */
     const prev = { status: r.status, scheduled_at: r.scheduled_at }
     const apply = async (p) => {
-      setReminders((prevR) => prevR.map((x) => (x.id === r.id ? { ...x, ...p } : x)).sort(bySchedule))
-      try { await updateReminder(r.id, p) } catch (e) { setError(e.message); refetch() }
+      qc.setQueryData(KEY, (prevR) => (prevR ?? []).map((x) => (x.id === r.id ? { ...x, ...p } : x)).sort(bySchedule))
+      try { await updateReminder(r.id, p) } catch { qc.invalidateQueries({ queryKey: KEY }) }
     }
     await apply(patch)
     /* Undo an accidental ✓ — restores the prior status/slot (a recurring
@@ -72,49 +49,46 @@ export function useReminders() {
       undo: () => apply(prev),
       redo: () => apply(patch),
     })
-  }, [reminders, refetch])
+  }, [qc])
 
   const editReminder = useCallback(async (id, patch) => {
-    setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)).sort(bySchedule))
+    qc.setQueryData(KEY, (prev) => (prev ?? []).map((r) => (r.id === id ? { ...r, ...patch } : r)).sort(bySchedule))
     try {
       const row = await updateReminder(id, patch)
-      setReminders((prev) => prev.map((r) => (r.id === id ? row : r)).sort(bySchedule))
+      qc.setQueryData(KEY, (prev) => (prev ?? []).map((r) => (r.id === id ? row : r)).sort(bySchedule))
       return row
-    } catch (e) {
-      setError(e.message)
-      refetch()
-    }
-  }, [refetch])
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
 
   const removeReminder = useCallback(async (id) => {
-    const row = reminders.find((r) => r.id === id)
-    setReminders((prev) => prev.filter((r) => r.id !== id))
+    const row = (qc.getQueryData(KEY) ?? []).find((r) => r.id === id)
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((r) => r.id !== id))
     try {
       await apiRemove(id)
       if (row) pushUndo({
         label: 'התזכורת נמחקה',
-        undo: async () => { try { await restoreReminder(id) } finally { refetch() } },
+        undo: async () => { try { await restoreReminder(id) } finally { qc.invalidateQueries({ queryKey: KEY }) } },
         redo: async () => {
-          setReminders((prev) => prev.filter((r) => r.id !== id))
-          try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
+          qc.setQueryData(KEY, (prev) => (prev ?? []).filter((r) => r.id !== id))
+          try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
         },
       })
-    } catch (e) { setError(e.message); refetch() }
-  }, [reminders, refetch])
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
 
   /* Bulk-clear every completed reminder (soft-delete → Trash, restorable 30
      days — the safety net, like useTasks.clearCompleted). Recurring reminders
      never sit in 'completed' (they advance to the next slot), so this only
      sweeps real done rows. */
   const clearCompleted = useCallback(async () => {
-    const done = reminders.filter((r) => r.status === 'completed')
+    const done = (qc.getQueryData(KEY) ?? []).filter((r) => r.status === 'completed')
     if (!done.length) return 0
-    setReminders((prev) => prev.filter((r) => r.status !== 'completed'))
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((r) => r.status !== 'completed'))
     try {
       await Promise.all(done.map((r) => apiRemove(r.id)))
-    } catch (e) { setError(e.message); refetch() }
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
     return done.length
-  }, [reminders, refetch])
+  }, [qc])
 
-  return { reminders, loading, error, addReminder, completeReminder, editReminder, removeReminder, clearCompleted, refetch }
+  return { reminders, loading: isLoading, error: error?.message ?? null, addReminder, completeReminder, editReminder, removeReminder, clearCompleted, refetch }
 }

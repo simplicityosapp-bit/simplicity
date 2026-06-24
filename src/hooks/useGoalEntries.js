@@ -1,60 +1,37 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listGoalEntries, insertGoalEntry, removeGoalEntry as apiRemove, restoreGoalEntry } from '../lib/api/goalEntries'
 import { pushUndo } from '../lib/undo'
 
+/* React-Query-backed: shared across moon + quick-update widgets. Public API unchanged. */
+const KEY = ['goalEntries']
+
 export function useGoalEntries() {
-  const [entries, setEntries] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setEntries(await listGoalEntries())
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await listGoalEntries()
-        if (active) { setEntries(data); setError(null) }
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    })()
-    return () => { active = false }
-  }, [])
+  const qc = useQueryClient()
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listGoalEntries })
+  const entries = data ?? []
 
   const addEntry = useCallback(async (payload) => {
     const row = await insertGoalEntry(payload)
-    setEntries((prev) => [row, ...prev])
+    qc.setQueryData(KEY, (prev) => [row, ...(prev ?? [])])
     return row
-  }, [])
+  }, [qc])
 
   const removeEntry = useCallback(async (id) => {
-    const row = entries.find((en) => en.id === id)
-    setEntries((prev) => prev.filter((e) => e.id !== id))
+    const row = (qc.getQueryData(KEY) ?? []).find((en) => en.id === id)
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((e) => e.id !== id))
     try {
       await apiRemove(id)
       if (row) pushUndo({
         label: 'העדכון נמחק',
-        undo: async () => { try { await restoreGoalEntry(id) } finally { refetch() } },
+        undo: async () => { try { await restoreGoalEntry(id) } finally { qc.invalidateQueries({ queryKey: KEY }) } },
         redo: async () => {
-          setEntries((prev) => prev.filter((e) => e.id !== id))
-          try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
+          qc.setQueryData(KEY, (prev) => (prev ?? []).filter((e) => e.id !== id))
+          try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
         },
       })
-    } catch (e) { setError(e.message); refetch() }
-  }, [entries, refetch])
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
 
-  return { entries, loading, error, addEntry, removeEntry, refetch }
+  return { entries, loading: isLoading, error: error?.message ?? null, addEntry, removeEntry, refetch }
 }

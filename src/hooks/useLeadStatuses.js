@@ -1,66 +1,43 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listLeadStatuses, insertLeadStatus, updateLeadStatus as apiUpdate, removeLeadStatus as apiRemove, restoreLeadStatus } from '../lib/api/leadStatuses'
 import { pushUndo } from '../lib/undo'
 
+/* React-Query-backed: read on the leads screen + per card. Public API unchanged. */
+const KEY = ['leadStatuses']
+
 export function useLeadStatuses() {
-  const [statuses, setStatuses] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setStatuses(await listLeadStatuses())
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await listLeadStatuses()
-        if (active) { setStatuses(data); setError(null) }
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    })()
-    return () => { active = false }
-  }, [])
+  const qc = useQueryClient()
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listLeadStatuses })
+  const statuses = data ?? []
 
   const addStatus = useCallback(async (payload) => {
     const row = await insertLeadStatus(payload)
-    setStatuses((prev) => [...prev, row])
+    qc.setQueryData(KEY, (prev) => [...(prev ?? []), row])
     return row
-  }, [])
+  }, [qc])
 
   const removeStatus = useCallback(async (id) => {
-    const row = statuses.find((s) => s.id === id)
-    setStatuses((prev) => prev.filter((s) => s.id !== id))
+    const row = (qc.getQueryData(KEY) ?? []).find((s) => s.id === id)
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((s) => s.id !== id))
     try {
       await apiRemove(id)
       if (row) pushUndo({
         label: 'תת-הסטטוס נמחק',
-        undo: async () => { try { await restoreLeadStatus(id) } finally { refetch() } },
+        undo: async () => { try { await restoreLeadStatus(id) } finally { qc.invalidateQueries({ queryKey: KEY }) } },
         redo: async () => {
-          setStatuses((prev) => prev.filter((s) => s.id !== id))
-          try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
+          qc.setQueryData(KEY, (prev) => (prev ?? []).filter((s) => s.id !== id))
+          try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
         },
       })
-    } catch (e) { setError(e.message); refetch() }
-  }, [statuses, refetch])
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
 
   /* Optimistic patch (used for drag-reorder sort_order). */
   const updateStatus = useCallback(async (id, patch) => {
-    setStatuses((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)))
-    try { await apiUpdate(id, patch) } catch (e) { setError(e.message); refetch() }
-  }, [refetch])
+    qc.setQueryData(KEY, (prev) => (prev ?? []).map((s) => (s.id === id ? { ...s, ...patch } : s)))
+    try { await apiUpdate(id, patch) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
 
-  return { statuses, loading, error, addStatus, updateStatus, removeStatus, refetch }
+  return { statuses, loading: isLoading, error: error?.message ?? null, addStatus, updateStatus, removeStatus, refetch }
 }

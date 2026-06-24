@@ -51,8 +51,9 @@ export function usePaymentPlans() {
      money record), then link it onto the installment. If the transaction
      fails we DON'T flip the flag, so the ledger and the plan never diverge. */
   const markReceived = useCallback(async (inst, { plan, clientName, date, paymentMethod }) => {
+    let tx = null
     try {
-      const tx = await insertTransaction({
+      tx = await insertTransaction({
         amount: Math.abs(Number(inst.amount) || 0),
         type: 'income',
         desc: installmentDesc(inst, plan, clientName),
@@ -72,6 +73,10 @@ export function usePaymentPlans() {
       refreshMoney()
       return row
     } catch (e) {
+      /* The income tx was created but linking it to the installment failed:
+         roll the tx back so the installment still shows unpaid and the next
+         retry doesn't create a SECOND income transaction (double-counting). */
+      if (tx?.id) { try { await removeTransaction(tx.id) } catch { /* best-effort */ } }
       showError('סימון התשלום נכשל — נסה/י שוב')
       throw e
     }

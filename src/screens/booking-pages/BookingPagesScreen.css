@@ -115,13 +115,15 @@
   padding: 12px 14px;
   border: 1px solid rgba(44, 38, 33, 0.08);
   border-radius: 16px;
-  background: rgba(255, 252, 247, 0.45);
+  /* Same cream glass token as every other app surface (matches the lead-pages
+     builder) — no bespoke opacity, so the rows read as system glass. */
+  background: var(--mg-btn-secondary-bg);
   transition: border-color 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
 }
-.bk-type-row:hover { background: rgba(255, 252, 247, 0.7); }
+.bk-type-row:hover { background: var(--mg-btn-secondary-bg-hover); }
 .bk-type-row.on {
   border-color: color-mix(in srgb, var(--terracotta) 55%, transparent);
-  background: color-mix(in srgb, var(--terracotta) 7%, rgba(255, 252, 247, 0.6));
+  background: color-mix(in srgb, var(--terracotta) 7%, var(--mg-btn-secondary-bg));
   box-shadow: 0 2px 12px rgba(201, 123, 94, 0.1);
 }
 .bk-type-pick {
@@ -188,11 +190,12 @@
   padding: 12px 14px;
   border: 1px solid rgba(44, 38, 33, 0.08);
   border-radius: 16px;
-  background: rgba(255, 252, 247, 0.4);
+  /* System cream glass token — matches the lead-pages builder. */
+  background: var(--mg-btn-secondary-bg);
   transition: background 0.14s ease, border-color 0.14s ease;
 }
 .bk-day.open {
-  background: rgba(255, 252, 247, 0.66);
+  background: var(--mg-btn-secondary-bg-hover);
   border-color: rgba(44, 38, 33, 0.12);
 }
 .bk-day-head {

@@ -16,7 +16,12 @@ const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100
    (no UTC shift) so a due date never slips a day on Israeli evenings. */
 export function addMonths(isoDate, n) {
   const [y, m, d] = String(isoDate).split('-').map(Number)
-  const base = new Date(y, (m - 1) + n, d || 1)
+  const day = d || 1
+  /* Clamp the day to the TARGET month's last day so a 29th–31st start never
+     overflows into the following month (Jan 31 +1 → Feb 28, not Mar 3).
+     Matches recurring.js monthlyDateFor / reminders.js. */
+  const daysInTarget = new Date(y, (m - 1) + n + 1, 0).getDate()
+  const base = new Date(y, (m - 1) + n, Math.min(day, daysInTarget))
   return `${base.getFullYear()}-${String(base.getMonth() + 1).padStart(2, '0')}-${String(base.getDate()).padStart(2, '0')}`
 }
 
@@ -32,7 +37,8 @@ export function firstOfNextMonth(now = new Date()) {
    (default: the 1st of next month). Returns [{ num, due_date, amount }]. */
 export function generateInstallments({ total, count, startDate } = {}) {
   const n = Math.max(1, Math.floor(Number(count) || 1))
-  const sum = round2(total)
+  /* Never produce negative installments — a plan total is always ≥ 0. */
+  const sum = Math.max(0, round2(total))
   const start = startDate || firstOfNextMonth()
   const base = round2(sum / n)
   const rows = []

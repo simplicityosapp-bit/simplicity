@@ -116,7 +116,10 @@ export function generateScheduledMeetings(
           session_id: null,
         })
       }
-      occ = new Date(occ.getTime() + 7 * MS_PER_DAY)
+      /* Step a calendar week, NOT a fixed 7×24h — setDate preserves the local
+         wall-clock time so a 10:00 meeting stays 10:00 across DST boundaries
+         (a fixed-ms step would drift it to 11:00). Matches recurring.js. */
+      occ.setDate(occ.getDate() + 7)
     }
   }
   return out

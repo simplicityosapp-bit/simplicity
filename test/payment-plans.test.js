@@ -10,6 +10,28 @@ describe('addMonths', () => {
     expect(addMonths('2026-01-01', 1)).toBe('2026-02-01')
     expect(addMonths('2026-11-15', 2)).toBe('2027-01-15')
   })
+  it('clamps month-end starts to the target month\'s last day (no overflow)', () => {
+    // Jan 31 must NOT spill into March — it clamps to Feb 28, then Mar 31, Apr 30.
+    expect(addMonths('2026-01-31', 1)).toBe('2026-02-28')
+    expect(addMonths('2026-01-31', 2)).toBe('2026-03-31')
+    expect(addMonths('2026-01-31', 3)).toBe('2026-04-30')
+    // Leap February clamps to the 29th.
+    expect(addMonths('2028-01-31', 1)).toBe('2028-02-29')
+    // 30th-of-month start clamps in February but is preserved elsewhere.
+    expect(addMonths('2026-01-30', 1)).toBe('2026-02-28')
+    expect(addMonths('2026-03-31', 1)).toBe('2026-04-30')
+  })
+})
+
+describe('generateInstallments — month-end & guard behaviour', () => {
+  it('generates clamped monthly due dates for a 31st start (no skipped/duplicate months)', () => {
+    const rows = generateInstallments({ total: 4000, count: 4, startDate: '2026-01-31' })
+    expect(rows.map((r) => r.due_date)).toEqual(['2026-01-31', '2026-02-28', '2026-03-31', '2026-04-30'])
+  })
+  it('never produces negative installments for a negative total', () => {
+    const rows = generateInstallments({ total: -100, count: 3, startDate: '2026-07-01' })
+    expect(rows.every((r) => r.amount === 0)).toBe(true)
+  })
 })
 
 describe('generateInstallments', () => {

@@ -49,7 +49,8 @@ export async function removePaymentPlan(id) {
      never leaves orphan installments behind in the cache or reports. */
   const { error } = await supabase.from('payment_plans').update({ deleted_at: stamp }).eq('id', id)
   if (error) throw error
-  await supabase.from('payment_installments').update({ deleted_at: stamp }).eq('plan_id', id)
+  const { error: instErr } = await supabase.from('payment_installments').update({ deleted_at: stamp }).eq('plan_id', id)
+  if (instErr) throw instErr
 }
 
 /* ── installments ── */

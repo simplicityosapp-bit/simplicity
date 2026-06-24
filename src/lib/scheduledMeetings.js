@@ -150,6 +150,50 @@ export function staleScheduledMeetingIds(subjectType, subjectId, oldSchedule, ne
     .map((m) => m.id)
 }
 
+/* Next session number for a meeting's subject — count of the subject's
+   existing sessions + 1 (mirrors ClientDrawer / project-detail). */
+function nextSessionNum(sessions, m) {
+  const owned = m.subject_type === 'group'
+    ? (sessions || []).filter((s) => s.group_id === m.subject_id)
+    : (sessions || []).filter((s) => s.client_id === m.subject_id)
+  return owned.length + 1
+}
+
+/* Confirming a scheduled meeting "happened" MATERIALISES a real session and
+   links it via scheduled_meetings.session_id — the schema link that was
+   designed but never wired, which is why a confirmed meeting never showed up
+   in the client/group card or counted toward sessions. Dedup: if a session is
+   already linked, just flip the status. Best-effort: if the session insert
+   fails, still mark confirmed so the row doesn't get stuck. Shared by the home
+   review widget and the calendar event-details flow so both surfaces update
+   the card identically. */
+export async function confirmScheduledMeeting({ meeting, sessions, addSession, updateMeeting }) {
+  if (meeting.session_id) { await updateMeeting(meeting.id, { status: 'confirmed' }).catch(() => {}); return }
+  const isGroup = meeting.subject_type === 'group'
+  try {
+    const session = await addSession({
+      date: meeting.scheduled_at,
+      summary: null,
+      notes: null,
+      client_id: isGroup ? null : meeting.subject_id,
+      group_id: isGroup ? meeting.subject_id : null,
+      subject_type: meeting.subject_type,
+      subject_id: meeting.subject_id,
+      num: nextSessionNum(sessions, meeting),
+    })
+    await updateMeeting(meeting.id, { status: 'confirmed', session_id: session.id })
+  } catch {
+    updateMeeting(meeting.id, { status: 'confirmed' }).catch(() => {})
+  }
+}
+
+/* Didn't happen: mark skipped and drop any session we materialised for it
+   (clearing the link). Linked-expense handling stays with the caller. */
+export async function skipScheduledMeeting({ meeting, updateMeeting, removeSession }) {
+  await updateMeeting(meeting.id, { status: 'skipped', session_id: null }).catch(() => {})
+  if (meeting.session_id) removeSession(meeting.session_id)
+}
+
 /* Visible-in-widget filter: a meeting that's already in the past, no
    older than 14 days, and still pending. Sorted oldest-first so the
    user clears them in chronological order. */

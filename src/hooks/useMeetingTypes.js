@@ -48,16 +48,24 @@ export function useMeetingTypes() {
      caller passes onPriceApplied to refetch the clients list afterwards. */
   const updateType = useCallback(async (id, patch, onPriceApplied) => {
     const prev = types.find((t) => t.id === id)
-    const row = await updateMeetingType(id, patch)
-    setTypes((list) => list.map((t) => (t.id === id ? row : t)))
-    const priceChanged = patch.default_price !== undefined
-      && Number(patch.default_price) !== Number(prev?.default_price)
-    if (priceChanged && row.default_price != null) {
-      await applyMeetingTypePrice(id, row.default_price)
-      await onPriceApplied?.()
+    try {
+      const row = await updateMeetingType(id, patch)
+      setTypes((list) => list.map((t) => (t.id === id ? row : t)))
+      const priceChanged = patch.default_price !== undefined
+        && Number(patch.default_price) !== Number(prev?.default_price)
+      if (priceChanged && row.default_price != null) {
+        await applyMeetingTypePrice(id, row.default_price)
+        await onPriceApplied?.()
+      }
+      return row
+    } catch (e) {
+      /* The type update or the price propagation to clients failed — resync
+         from source so the UI never shows a price that didn't propagate. */
+      setError(e.message)
+      refetch()
+      throw e
     }
-    return row
-  }, [types])
+  }, [types, refetch])
 
   const removeType = useCallback(async (id) => {
     const row = types.find((t) => t.id === id)

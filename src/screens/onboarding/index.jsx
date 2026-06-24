@@ -61,11 +61,21 @@ export default function OnboardingScreen() {
   onDoneInputs.current = { ob, navigate }
 
   /* Finish: complete() clears the raw CSV from prefs (personal client
-     data we only kept for the review) in the same write, then land home. */
+     data we only kept for the review) in the same write, then land home.
+     A ref latch guards the no-import-data path (Step 9's CTA stays enabled),
+     where a double-tap would otherwise fire complete()+navigate twice. */
+  const finishingRef = useRef(false)
   const finishAndGoHome = useCallback(async () => {
+    if (finishingRef.current) return
+    finishingRef.current = true
     const cur = onDoneInputs.current
-    await cur.ob.complete()
-    cur.navigate(ROUTES.HOME, { replace: true })
+    try {
+      await cur.ob.complete()
+      cur.navigate(ROUTES.HOME, { replace: true })
+    } catch (e) {
+      finishingRef.current = false /* completing failed — allow a retry */
+      throw e
+    }
   }, [])
 
   /* Merged review object from parsed_data (sheets → entities) is built by

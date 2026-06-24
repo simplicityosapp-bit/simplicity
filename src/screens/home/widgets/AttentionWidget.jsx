@@ -150,10 +150,10 @@ export default function AttentionWidget() {
               </button>
             )}
             {items.length ? (
-              items.map((it, i) => {
+              items.map((it) => {
                 const Icon = ICONS[it.icon] || Bell
                 return (
-                  <button key={i} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); onRow(it) }}>
+                  <button key={it.icon + it.text} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); onRow(it) }}>
                     <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
                     <span className="h-attn-text">{it.text}</span>
                     <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />

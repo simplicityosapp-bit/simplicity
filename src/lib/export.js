@@ -130,7 +130,7 @@ export function exportProjectsCSV({ projects, now }) {
   downloadCsv(headers, rows, `mangata-projects-${ymd(now)}.csv`)
 }
 
-const LEAD_META_HE = { in_process: 'בתהליך', converted: 'הומר', irrelevant: 'לא רלוונטי', ghost: 'רפאים' }
+const LEAD_META_HE = { in_process: 'בתהליך', converted: 'הומר', not_relevant: 'לא רלוונטי' }
 const TASK_STATUS_HE = { todo: 'לביצוע', in_progress: 'בתהליך', done: 'הושלמה' }
 const PRIORITY_HE = { high: 'גבוהה', normal: 'רגילה', low: 'נמוכה' }
 const TIMEFRAME_HE = { deadline: 'דדליין', monthly: 'חודשי', weekly: 'שבועי' }

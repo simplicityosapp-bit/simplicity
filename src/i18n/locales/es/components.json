@@ -1,0 +1,92 @@
+{
+  "dateField": {
+    "placeholder": "Elige una fecha",
+    "dialogLabel": "Selector de fecha",
+    "prevMonth": "Mes anterior",
+    "nextMonth": "Mes siguiente",
+    "prevYear": "Año anterior",
+    "nextYear": "Año siguiente",
+    "today": "Hoy"
+  },
+  "schedule": {
+    "everyDay": "Cada día",
+    "specificDays": "Días concretos",
+    "everyXDays": "Cada X días",
+    "every": "Cada",
+    "days": "días",
+    "dayShort": {
+      "sun": "D",
+      "mon": "L",
+      "tue": "M",
+      "wed": "X",
+      "thu": "J",
+      "fri": "V",
+      "sat": "S"
+    }
+  },
+  "undo": {
+    "undo": "Deshacer",
+    "dismiss": "Descartar",
+    "undone": "Deshecho"
+  },
+  "feedback": {
+    "title": "¿Tienes comentarios?",
+    "sub": "Qué funciona, qué falta, qué podríamos mejorar — habla con nosotros"
+  },
+  "help": {
+    "fabAria": "Ayuda — {{title}}",
+    "eyebrow": "Ayuda",
+    "close": "Cerrar",
+    "tabsAria": "Categorías de ayuda",
+    "tabs": {
+      "features": "Funciones",
+      "tips": "Consejos",
+      "faq": "Preguntas frecuentes"
+    },
+    "fullGuide": "La guía completa de cada pantalla",
+    "emptyFeatures": "Aún no hay explicación para esta pantalla.",
+    "emptyTips": "No hay consejos para esta pantalla.",
+    "emptyFaq": "No hay preguntas frecuentes para esta pantalla."
+  },
+  "infoPopover": {
+    "label": "Explicación"
+  },
+  "tour": {
+    "done": "Listo",
+    "gotIt": "Entendido",
+    "skipAll": "Omitir todo"
+  },
+  "deletion": {
+    "title": "Tu cuenta está programada para eliminarse",
+    "dayUnit": "día hasta la eliminación",
+    "daysUnit": "días hasta la eliminación",
+    "bodyLead": "Pediste eliminar tu cuenta. Todos tus datos siguen guardados — si has cambiado de opinión, puedes cancelar ahora y volver a usarla con normalidad.",
+    "bodyDeadline": "De lo contrario, el <0>{{date}}</0> todo se eliminará de forma permanente, sin posibilidad de recuperarlo ni de volver a iniciar sesión.",
+    "cancelFailed": "La cancelación falló — {{tryAgain}}.",
+    "canceling": "Cancelando…",
+    "cancel": "Cancelar la eliminación y restaurar mi cuenta",
+    "logout": "Cerrar sesión"
+  },
+  "errorBoundary": {
+    "message": "Algo salió mal. ¿Reintentar?",
+    "retry": "Recargar"
+  },
+  "whatsapp": {
+    "title": "Enviar por WhatsApp",
+    "recipient": "Destinatario",
+    "recipientPlaceholder": "Déjalo vacío para elegir un destinatario en WhatsApp",
+    "message": "Mensaje",
+    "send": "Enviar por WhatsApp",
+    "defaults": {
+      "client": "Hola {{name}}, ",
+      "reminder": "Hola {{name}}, solo un recordatorio: {{title}}",
+      "reminderNoName": "Recordatorio: {{title}}",
+      "meeting": "Hola {{name}}, un recordatorio de nuestra cita el {{date}} a las {{time}}.",
+      "meetingNoName": "Recordatorio de la cita el {{date}} a las {{time}}.",
+      "receipt": "Hola {{name}}, aquí tienes el recibo n.º {{number}}.\n{{url}}",
+      "receiptNoName": "Aquí tienes el recibo n.º {{number}}.\n{{url}}",
+      "lead": "Hola {{name}}, ",
+      "payment": "Hola {{name}}, hay un saldo pendiente de {{balance}}. Te agradeceríamos que lo liquidaras — ¡gracias!"
+    }
+  }
+}

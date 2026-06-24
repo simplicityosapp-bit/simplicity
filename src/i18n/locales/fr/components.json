@@ -1,0 +1,92 @@
+{
+  "dateField": {
+    "placeholder": "Choisissez une date",
+    "dialogLabel": "Sélecteur de date",
+    "prevMonth": "Mois précédent",
+    "nextMonth": "Mois suivant",
+    "prevYear": "Année précédente",
+    "nextYear": "Année suivante",
+    "today": "Aujourd'hui"
+  },
+  "schedule": {
+    "everyDay": "Chaque jour",
+    "specificDays": "Jours précis",
+    "everyXDays": "Tous les X jours",
+    "every": "Tous les",
+    "days": "jours",
+    "dayShort": {
+      "sun": "D",
+      "mon": "L",
+      "tue": "M",
+      "wed": "M",
+      "thu": "J",
+      "fri": "V",
+      "sat": "S"
+    }
+  },
+  "undo": {
+    "undo": "Annuler",
+    "dismiss": "Ignorer",
+    "undone": "Annulé"
+  },
+  "feedback": {
+    "title": "Un retour à partager ?",
+    "sub": "Ce qui marche, ce qui manque, ce qu'on pourrait améliorer — parlez-nous"
+  },
+  "help": {
+    "fabAria": "Aide — {{title}}",
+    "eyebrow": "Aide",
+    "close": "Fermer",
+    "tabsAria": "Catégories d'aide",
+    "tabs": {
+      "features": "Fonctionnalités",
+      "tips": "Astuces",
+      "faq": "FAQ"
+    },
+    "fullGuide": "Le guide complet de chaque écran",
+    "emptyFeatures": "Pas encore d'explication pour cet écran.",
+    "emptyTips": "Aucune astuce pour cet écran.",
+    "emptyFaq": "Aucune question fréquente pour cet écran."
+  },
+  "infoPopover": {
+    "label": "Explication"
+  },
+  "tour": {
+    "done": "Terminé",
+    "gotIt": "Compris",
+    "skipAll": "Tout ignorer"
+  },
+  "deletion": {
+    "title": "Votre compte est programmé pour suppression",
+    "dayUnit": "jour avant la suppression",
+    "daysUnit": "jours avant la suppression",
+    "bodyLead": "Vous avez demandé à supprimer votre compte. Toutes vos données sont encore enregistrées — si vous avez changé d'avis, vous pouvez annuler maintenant et reprendre une utilisation normale.",
+    "bodyDeadline": "Sinon, le <0>{{date}}</0> tout sera définitivement supprimé, sans possibilité de récupération ni de reconnexion.",
+    "cancelFailed": "L'annulation a échoué — {{tryAgain}}.",
+    "canceling": "Annulation…",
+    "cancel": "Annuler la suppression et restaurer mon compte",
+    "logout": "Se déconnecter"
+  },
+  "errorBoundary": {
+    "message": "Une erreur s'est produite. Réessayer ?",
+    "retry": "Recharger"
+  },
+  "whatsapp": {
+    "title": "Envoyer via WhatsApp",
+    "recipient": "Destinataire",
+    "recipientPlaceholder": "Laissez vide pour choisir un destinataire dans WhatsApp",
+    "message": "Message",
+    "send": "Envoyer via WhatsApp",
+    "defaults": {
+      "client": "Bonjour {{name}}, ",
+      "reminder": "Bonjour {{name}}, juste un rappel : {{title}}",
+      "reminderNoName": "Rappel : {{title}}",
+      "meeting": "Bonjour {{name}}, un rappel pour notre rendez-vous le {{date}} à {{time}}.",
+      "meetingNoName": "Rappel pour le rendez-vous le {{date}} à {{time}}.",
+      "receipt": "Bonjour {{name}}, voici le reçu n° {{number}}.\n{{url}}",
+      "receiptNoName": "Voici le reçu n° {{number}}.\n{{url}}",
+      "lead": "Bonjour {{name}}, ",
+      "payment": "Bonjour {{name}}, il reste un solde impayé de {{balance}}. Nous vous serions reconnaissants de le régler — merci !"
+    }
+  }
+}

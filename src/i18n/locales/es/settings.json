@@ -1,0 +1,256 @@
+{
+  "header": {
+    "areas_one": "1 área",
+    "areas_other": "{{count}} áreas",
+    "customization": "Personalización",
+    "tagline": "Valores predeterminados sensatos, totalmente flexibles.",
+    "title": "Ajustes"
+  },
+  "sections": {
+    "profile": { "title": "Perfil", "sub": "Nombre, profesión y enfoque" },
+    "widgets": { "title": "Widgets y visualización", "sub": "Qué se muestra en tu pantalla de inicio" },
+    "clients": { "title": "Clientes y estados", "sub": "Tus propios subestados" },
+    "payments": { "title": "Moneda, fecha y hora", "sub": "Formatos de importe, fecha y hora, e inicio de semana" },
+    "questions": { "title": "Preguntas diarias", "sub": "Lo que se te pregunta cada día" },
+    "leads": { "title": "Ajustes de prospectos", "sub": "Fuentes y estados" },
+    "design": { "title": "Apariencia", "sub": "Modo claro/oscuro, fondo, calendario hebreo, tamaño del texto" },
+    "data": { "title": "Datos", "sub": "Exportar, importar, restablecer" },
+    "about": { "title": "Acerca de", "sub": "Versión e información" }
+  },
+  "groups": {
+    "personal": { "title": "Personal", "sub": "Tu perfil y ajustes de idioma" },
+    "display": { "title": "Visualización", "sub": "Diseño de la pantalla de inicio y preferencias de fecha/hora" },
+    "workflow": { "title": "Flujo de trabajo", "sub": "Clientes, prospectos y rutinas diarias" },
+    "data": { "title": "Datos", "sub": "Exportar, importar y controles de la cuenta" },
+    "about": { "title": "Acerca de", "sub": "Información de la app y ayuda" }
+  },
+  "common": {
+    "loading": "Cargando…",
+    "soon": "Pronto habrá más ajustes.",
+    "delete": "Eliminar",
+    "color": "Color",
+    "colorNamed": "Color {{color}}"
+  },
+  "clientMetas": {
+    "active": "Activo",
+    "wandering": "Indeciso",
+    "past": "Anterior",
+    "no_status": "Sin estado"
+  },
+  "leadMetas": {
+    "in_process": "En curso",
+    "converted": "Convertido",
+    "not_relevant": "No encaja"
+  },
+  "payments": {
+    "currency": "Moneda",
+    "dateFormat": "Formato de fecha",
+    "timeFormat": "Formato de hora",
+    "weekStart": "Primer día de la semana"
+  },
+  "widgets": {
+    "globalView": "Visualización global",
+    "cardStyle": "Estilo de las tarjetas",
+    "textStrength": "Grosor del texto",
+    "density": "Densidad",
+    "widgets": "Widgets",
+    "moveUp": "{{label}} — subir",
+    "moveDown": "{{label}} — bajar",
+    "toggle": "{{label}} — {{state}}",
+    "on": "activar",
+    "off": "desactivar",
+    "compact": "Compacto",
+    "rowDensity": {
+      "global": "Global",
+      "compact": "Compacto",
+      "comfortable": "Normal",
+      "spacious": "Amplio"
+    }
+  },
+  "design": {
+    "theme": "Modo claro / oscuro",
+    "background": "Fondo",
+    "textSize": "Tamaño del texto",
+    "hebrewCalendar": "Calendario hebreo",
+    "hebrewCalendarHint": "Mostrar los meses del calendario en el calendario hebreo (Tishréi, Nisán…), con las fechas en numerales hebreos.",
+    "hebrewCalendarDual": "Mostrar también la fecha gregoriana",
+    "hebrewCalendarDualHint": "Vista dual: cada día muestra también su fecha gregoriana.",
+    "hebrewDateInput": "Selector de fecha hebreo",
+    "hebrewDateInputHint": "Elige las fechas según el calendario hebreo en toda la app. La fecha en sí se guarda de forma normal."
+  },
+  "about": {
+    "tabsAria": "Acerca de y ayuda",
+    "tabs": {
+      "about": "Acerca de",
+      "guide": "Guía",
+      "faq": "Preguntas frecuentes"
+    },
+    "version": "Versión {{version}}",
+    "privacy": "Política de privacidad",
+    "terms": "Condiciones de uso",
+    "dpa": "Tratamiento de datos",
+    "guideIntro": "Un recorrido completo por cada pantalla: qué hace, consejos y preguntas habituales.",
+    "guideTips": "Consejos",
+    "guideFaq": "Preguntas habituales"
+  },
+  "profile": {
+    "fullName": "Nombre completo",
+    "saved": "· guardado",
+    "namePlaceholder": "¿Cómo quieres que te llame?",
+    "address": "Forma de tratamiento",
+    "genders": {
+      "female": "Ella",
+      "male": "Él",
+      "neutral": "Neutro"
+    },
+    "role": "Profesión",
+    "roleOther": "¿A qué te dedicas?",
+    "roleOtherPlaceholder": "p. ej. terapeuta de yoga, profesor de matemáticas"
+  },
+  "status": {
+    "loadError": "No se pudo cargar: {{error}}",
+    "empty": "—",
+    "deleteAria": "Eliminar",
+    "subStatusDeleted": "Subestado eliminado",
+    "subStatusPlaceholder": "Subestado para «{{meta}}»",
+    "addFailed": "No se pudo añadir; inténtalo de nuevo."
+  },
+  "questions": {
+    "loadError": "No se pudieron cargar tus preguntas: {{error}}",
+    "empty": "Aún no hay preguntas diarias. Añade la primera.",
+    "linkedToGoal": "Vinculada a un objetivo",
+    "toggleOn": "Activar la pregunta",
+    "toggleOff": "Desactivar la pregunta",
+    "deleteAria": "Eliminar la pregunta",
+    "add": "Añadir pregunta",
+    "reminderTitle": "Recordatorio diario",
+    "reminderToggle": "Recordatorio diario",
+    "reminderLabel": "Recuérdame responder si no lo he hecho antes de",
+    "reminderHint": "Si no has respondido a la hora que elijas, aparecerá un recordatorio suave en el widget «¿Cómo estás hoy?» de tu pantalla de inicio."
+  },
+  "data": {
+    "intro": "Un resumen de tus datos, además de importar y exportar desde un archivo CSV / Excel.",
+    "counts": {
+      "clients": "Clientes",
+      "transactions": "Transacciones",
+      "leads": "Prospectos",
+      "tasks": "Tareas",
+      "projects": "Proyectos",
+      "categories": "Categorías"
+    },
+    "export": "Exportar datos",
+    "exportHint": "Un único lugar para todas las exportaciones: todo junto en un archivo Excel (una hoja por tipo), o una exportación individual de transacciones / clientes / proyectos a CSV.",
+    "import": "Importar desde un archivo (CSV / Excel)",
+    "importHint": "Admite CSV, TSV y Excel — varios archivos y hojas a la vez no son problema. Detecta automáticamente las columnas (nombre, teléfono, correo, proyecto, importe, fecha y más), te deja asignarlas a mano y revisarlo todo antes de guardar nada.",
+    "importProcessing": "Procesando el archivo…",
+    "importUnsupported": "No se pudo leer el archivo — ese formato no es compatible. Puedes importar CSV o Excel (xlsx/xls); un archivo de Numbers o Google Sheets se puede exportar a CSV.",
+    "importFailed": "No se pudo leer el archivo — asegúrate de que sea un CSV o Excel válido y de que no esté abierto en otro programa.",
+    "importErrorPrefix": "No se pudo leer el archivo",
+    "importNone": "No se crearon registros nuevos (puede que ya existan).",
+    "importSuccess": "Importado correctamente: {{parts}}.{{estNote}}",
+    "importEstNote_one": " 1 de ellos con una fecha estimada — puedes editarlo en la pantalla de dinero.",
+    "importEstNote_other": " {{count}} de ellos con una fecha estimada — puedes editarlos en la pantalla de dinero.",
+    "importClients_one": "{{count}} cliente",
+    "importClients_other": "{{count}} clientes",
+    "importProjects_one": "{{count}} proyecto",
+    "importProjects_other": "{{count}} proyectos",
+    "importLeads_one": "{{count}} prospecto",
+    "importLeads_other": "{{count}} prospectos",
+    "importTransactions_one": "{{count}} transacción",
+    "importTransactions_other": "{{count}} transacciones",
+    "importSessions_one": "{{count}} sesión",
+    "importSessions_other": "{{count}} sesiones",
+    "restartOnboarding": "Reiniciar la introducción",
+    "restartHint": "Vuelve a abrir el asistente de configuración desde el primer paso. Útil si lo saltaste a la mitad."
+  },
+  "danger": {
+    "resetTitle": "Restablecer la cuenta",
+    "resetAction": "Eliminar todos los datos y empezar de nuevo",
+    "resetHint": "Elimina todos los datos de tu cuenta (clientes, proyectos, prospectos, transacciones, objetivos, recordatorios y más) y reinicia la introducción. Requiere doble confirmación y no se puede deshacer.",
+    "deleteTitle": "Eliminar la cuenta",
+    "deleteAction": "Eliminar la cuenta de forma permanente",
+    "deleteHint": "Elimina toda la cuenta — incluido el propio acceso — no solo los datos. Hay un periodo de gracia de 30 días para cambiar de opinión y cancelar; después, todo se elimina de forma permanente y no podrás volver a iniciar sesión. Requiere doble confirmación escrita.",
+    "restartTitle": "Reiniciar la introducción",
+    "restartConfirm": "Reiniciar",
+    "restartMessage": "¿Reiniciar la introducción? Los pasos vuelven al principio — los datos que ya hayas creado (clientes, proyectos, etc.) se mantienen."
+  },
+  "clients": {
+    "meetingTypesHeading": "Tipos de cita y precios"
+  },
+  "leads": {
+    "sources": "Fuentes de prospectos",
+    "sourcesLoadError": "No se pudieron cargar las fuentes: {{error}}",
+    "sourcesEmpty": "Aún no hay fuentes. Añade la primera.",
+    "deleteSourceAria": "Eliminar fuente",
+    "newSourcePlaceholder": "Nombre de la nueva fuente",
+    "addSourceFailed": "No se pudo añadir la fuente; inténtalo de nuevo.",
+    "subStatuses": "Subestados"
+  },
+  "schedule": {
+    "everyDay": "Cada día",
+    "daysOfWeek": "Días concretos",
+    "everyXDays": "Cada X días",
+    "every": "Cada",
+    "days": "días",
+    "cancel": "Cancelar",
+    "saving": "Guardando…",
+    "save": "Guardar",
+    "weekdays": {
+      "0": "Dom",
+      "1": "Lun",
+      "2": "Mar",
+      "3": "Mié",
+      "4": "Jue",
+      "5": "Vie",
+      "6": "Sáb"
+    }
+  },
+  "options": {
+    "currency": {
+      "ILS": "₪ Séquel",
+      "USD": "$ Dólar",
+      "EUR": "€ Euro"
+    },
+    "dateFormat": {
+      "DD/MM/YY": "DD/MM/YY",
+      "MM/DD/YY": "MM/DD/YY",
+      "YYYY-MM-DD": "YYYY-MM-DD"
+    },
+    "timeFormat": {
+      "24h": "24 horas",
+      "12h": "12 horas (AM/PM)"
+    },
+    "weekStart": {
+      "sunday": "Domingo",
+      "monday": "Lunes"
+    },
+    "textSize": {
+      "small": "Pequeño",
+      "normal": "Normal",
+      "large": "Grande"
+    },
+    "theme": {
+      "light": "Día",
+      "dark": "Noche"
+    },
+    "background": {
+      "nature": "Naturaleza",
+      "simple": "Sencillo",
+      "blank": "Liso"
+    },
+    "cardStyle": {
+      "frosted": "Esmerilado",
+      "flat": "Plano",
+      "outlined": "Con contorno"
+    },
+    "textStrength": {
+      "normal": "Normal",
+      "bold": "Negrita"
+    },
+    "density": {
+      "compact": "Compacto",
+      "comfortable": "Normal",
+      "spacious": "Amplio"
+    }
+  }
+}

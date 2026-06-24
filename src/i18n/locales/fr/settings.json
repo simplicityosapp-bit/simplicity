@@ -1,0 +1,256 @@
+{
+  "header": {
+    "areas_one": "1 domaine",
+    "areas_other": "{{count}} domaines",
+    "customization": "Personnalisation",
+    "tagline": "Des réglages par défaut pertinents, entièrement flexibles.",
+    "title": "Paramètres"
+  },
+  "sections": {
+    "profile": { "title": "Profil", "sub": "Nom, profession et spécialité" },
+    "widgets": { "title": "Widgets et affichage", "sub": "Ce qui s'affiche sur votre écran d'accueil" },
+    "clients": { "title": "Clients et statuts", "sub": "Vos propres sous-statuts" },
+    "payments": { "title": "Devise, date et heure", "sub": "Formats des montants, de la date et de l'heure, et début de semaine" },
+    "questions": { "title": "Questions quotidiennes", "sub": "Ce qui vous est demandé chaque jour" },
+    "leads": { "title": "Paramètres des prospects", "sub": "Sources et statuts" },
+    "design": { "title": "Apparence", "sub": "Mode clair/sombre, fond, calendrier hébraïque, taille du texte" },
+    "data": { "title": "Données", "sub": "Exporter, importer, réinitialiser" },
+    "about": { "title": "À propos", "sub": "Version et informations" }
+  },
+  "groups": {
+    "personal": { "title": "Personnel", "sub": "Votre profil et vos préférences de langue" },
+    "display": { "title": "Affichage", "sub": "Conception de l'écran d'accueil et préférences de date/heure" },
+    "workflow": { "title": "Flux de travail", "sub": "Clients, prospects et routines quotidiennes" },
+    "data": { "title": "Données", "sub": "Exportation, importation et gestion du compte" },
+    "about": { "title": "À propos", "sub": "Informations sur l'application et aide" }
+  },
+  "common": {
+    "loading": "Chargement…",
+    "soon": "D'autres paramètres arrivent bientôt.",
+    "delete": "Supprimer",
+    "color": "Couleur",
+    "colorNamed": "Couleur {{color}}"
+  },
+  "clientMetas": {
+    "active": "Actif",
+    "wandering": "Hésitant",
+    "past": "Ancien",
+    "no_status": "Sans statut"
+  },
+  "leadMetas": {
+    "in_process": "En cours",
+    "converted": "Converti",
+    "not_relevant": "Ne correspond pas"
+  },
+  "payments": {
+    "currency": "Devise",
+    "dateFormat": "Format de date",
+    "timeFormat": "Format d'heure",
+    "weekStart": "Premier jour de la semaine"
+  },
+  "widgets": {
+    "globalView": "Affichage global",
+    "cardStyle": "Style des cartes",
+    "textStrength": "Épaisseur du texte",
+    "density": "Densité",
+    "widgets": "Widgets",
+    "moveUp": "{{label}} — monter",
+    "moveDown": "{{label}} — descendre",
+    "toggle": "{{label}} — {{state}}",
+    "on": "activer",
+    "off": "désactiver",
+    "compact": "Compact",
+    "rowDensity": {
+      "global": "Global",
+      "compact": "Compact",
+      "comfortable": "Normal",
+      "spacious": "Spacieux"
+    }
+  },
+  "design": {
+    "theme": "Mode clair / sombre",
+    "background": "Fond",
+    "textSize": "Taille du texte",
+    "hebrewCalendar": "Calendrier hébraïque",
+    "hebrewCalendarHint": "Afficher les mois du calendrier dans le calendrier hébraïque (Tishri, Nissan…), avec les dates en chiffres hébraïques.",
+    "hebrewCalendarDual": "Afficher aussi la date grégorienne",
+    "hebrewCalendarDualHint": "Vue double : chaque jour affiche aussi sa date grégorienne.",
+    "hebrewDateInput": "Sélecteur de date hébraïque",
+    "hebrewDateInputHint": "Choisissez les dates selon le calendrier hébraïque partout dans l'application. La date elle-même est enregistrée normalement."
+  },
+  "about": {
+    "tabsAria": "À propos et aide",
+    "tabs": {
+      "about": "À propos",
+      "guide": "Guide",
+      "faq": "FAQ"
+    },
+    "version": "Version {{version}}",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "dpa": "Traitement des données",
+    "guideIntro": "Une présentation complète de chaque écran : son rôle, des astuces et les questions fréquentes.",
+    "guideTips": "Astuces",
+    "guideFaq": "Questions fréquentes"
+  },
+  "profile": {
+    "fullName": "Nom complet",
+    "saved": "· enregistré",
+    "namePlaceholder": "Comment voulez-vous que je vous appelle ?",
+    "address": "Forme d'adresse",
+    "genders": {
+      "female": "Elle",
+      "male": "Il",
+      "neutral": "Neutre"
+    },
+    "role": "Profession",
+    "roleOther": "Que faites-vous ?",
+    "roleOtherPlaceholder": "p. ex. yogathérapeute, professeur de mathématiques"
+  },
+  "status": {
+    "loadError": "Impossible de charger : {{error}}",
+    "empty": "—",
+    "deleteAria": "Supprimer",
+    "subStatusDeleted": "Sous-statut supprimé",
+    "subStatusPlaceholder": "Sous-statut pour « {{meta}} »",
+    "addFailed": "Impossible de l'ajouter — réessayez."
+  },
+  "questions": {
+    "loadError": "Impossible de charger vos questions : {{error}}",
+    "empty": "Aucune question quotidienne pour l'instant. Ajoutez la première.",
+    "linkedToGoal": "Liée à un objectif",
+    "toggleOn": "Activer la question",
+    "toggleOff": "Désactiver la question",
+    "deleteAria": "Supprimer la question",
+    "add": "Ajouter une question",
+    "reminderTitle": "Rappel quotidien",
+    "reminderToggle": "Rappel quotidien",
+    "reminderLabel": "Me rappeler de répondre si je ne l'ai pas fait avant",
+    "reminderHint": "Si vous n'avez pas répondu à l'heure que vous choisissez, un rappel discret apparaît dans le widget « Comment allez-vous aujourd'hui ? » de votre écran d'accueil."
+  },
+  "data": {
+    "intro": "Un aperçu de vos données, ainsi que l'importation et l'exportation depuis un fichier CSV / Excel.",
+    "counts": {
+      "clients": "Clients",
+      "transactions": "Transactions",
+      "leads": "Prospects",
+      "tasks": "Tâches",
+      "projects": "Projets",
+      "categories": "Catégories"
+    },
+    "export": "Exporter les données",
+    "exportHint": "Un seul endroit pour toutes les exportations : tout ensemble dans un fichier Excel (une feuille par type), ou une exportation individuelle des transactions / clients / projets au format CSV.",
+    "import": "Importer depuis un fichier (CSV / Excel)",
+    "importHint": "Prend en charge CSV, TSV et Excel — plusieurs fichiers et feuilles à la fois, c'est possible. Détecte automatiquement les colonnes (nom, téléphone, e-mail, projet, montant, date et plus), vous laisse les associer à la main et tout vérifier avant que rien ne soit enregistré.",
+    "importProcessing": "Traitement du fichier…",
+    "importUnsupported": "Impossible de lire le fichier — ce format n'est pas pris en charge. Vous pouvez importer du CSV ou de l'Excel (xlsx/xls) ; un fichier Numbers ou Google Sheets peut être exporté au format CSV.",
+    "importFailed": "Impossible de lire le fichier — assurez-vous qu'il s'agit d'un CSV ou d'un Excel valide et qu'il n'est pas ouvert dans un autre programme.",
+    "importErrorPrefix": "Impossible de lire le fichier",
+    "importNone": "Aucun nouvel enregistrement n'a été créé (ils existent peut-être déjà).",
+    "importSuccess": "Importé avec succès : {{parts}}.{{estNote}}",
+    "importEstNote_one": " dont 1 avec une date estimée — vous pouvez la modifier sur l'écran des finances.",
+    "importEstNote_other": " dont {{count}} avec une date estimée — vous pouvez les modifier sur l'écran des finances.",
+    "importClients_one": "{{count}} client",
+    "importClients_other": "{{count}} clients",
+    "importProjects_one": "{{count}} projet",
+    "importProjects_other": "{{count}} projets",
+    "importLeads_one": "{{count}} prospect",
+    "importLeads_other": "{{count}} prospects",
+    "importTransactions_one": "{{count}} transaction",
+    "importTransactions_other": "{{count}} transactions",
+    "importSessions_one": "{{count}} séance",
+    "importSessions_other": "{{count}} séances",
+    "restartOnboarding": "Recommencer l'introduction",
+    "restartHint": "Rouvre l'assistant de configuration depuis la première étape. Pratique si vous l'avez sauté en cours de route."
+  },
+  "danger": {
+    "resetTitle": "Réinitialiser le compte",
+    "resetAction": "Supprimer toutes les données et tout recommencer",
+    "resetHint": "Supprime toutes les données de votre compte (clients, projets, prospects, transactions, objectifs, rappels et plus) et relance l'introduction. Cette action nécessite une double confirmation et est irréversible.",
+    "deleteTitle": "Supprimer le compte",
+    "deleteAction": "Supprimer définitivement le compte",
+    "deleteHint": "Supprime tout le compte — y compris l'accès lui-même — et pas seulement les données. Vous disposez d'un délai de grâce de 30 jours pour changer d'avis et annuler ; passé ce délai, tout est définitivement supprimé et vous ne pourrez plus vous reconnecter. Nécessite une double confirmation saisie.",
+    "restartTitle": "Recommencer l'introduction",
+    "restartConfirm": "Recommencer",
+    "restartMessage": "Recommencer l'introduction ? Les étapes reviennent au début — les données déjà créées (clients, projets, etc.) sont conservées."
+  },
+  "clients": {
+    "meetingTypesHeading": "Types de rendez-vous et tarifs"
+  },
+  "leads": {
+    "sources": "Sources de prospects",
+    "sourcesLoadError": "Impossible de charger les sources : {{error}}",
+    "sourcesEmpty": "Aucune source pour l'instant. Ajoutez la première.",
+    "deleteSourceAria": "Supprimer la source",
+    "newSourcePlaceholder": "Nom de la nouvelle source",
+    "addSourceFailed": "Impossible d'ajouter la source — réessayez.",
+    "subStatuses": "Sous-statuts"
+  },
+  "schedule": {
+    "everyDay": "Chaque jour",
+    "daysOfWeek": "Jours précis",
+    "everyXDays": "Tous les X jours",
+    "every": "Tous les",
+    "days": "jours",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer",
+    "weekdays": {
+      "0": "Dim",
+      "1": "Lun",
+      "2": "Mar",
+      "3": "Mer",
+      "4": "Jeu",
+      "5": "Ven",
+      "6": "Sam"
+    }
+  },
+  "options": {
+    "currency": {
+      "ILS": "₪ Shekel",
+      "USD": "$ Dollar",
+      "EUR": "€ Euro"
+    },
+    "dateFormat": {
+      "DD/MM/YY": "DD/MM/YY",
+      "MM/DD/YY": "MM/DD/YY",
+      "YYYY-MM-DD": "YYYY-MM-DD"
+    },
+    "timeFormat": {
+      "24h": "24 heures",
+      "12h": "12 heures (AM/PM)"
+    },
+    "weekStart": {
+      "sunday": "Dimanche",
+      "monday": "Lundi"
+    },
+    "textSize": {
+      "small": "Petit",
+      "normal": "Normal",
+      "large": "Grand"
+    },
+    "theme": {
+      "light": "Jour",
+      "dark": "Nuit"
+    },
+    "background": {
+      "nature": "Nature",
+      "simple": "Simple",
+      "blank": "Uni"
+    },
+    "cardStyle": {
+      "frosted": "Givré",
+      "flat": "Plat",
+      "outlined": "Contour"
+    },
+    "textStrength": {
+      "normal": "Normal",
+      "bold": "Gras"
+    },
+    "density": {
+      "compact": "Compact",
+      "comfortable": "Normal",
+      "spacious": "Spacieux"
+    }
+  }
+}

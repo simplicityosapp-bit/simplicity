@@ -35,6 +35,8 @@ import heGoals from './locales/he/goals.json'
 import enGoals from './locales/en/goals.json'
 import heSettings from './locales/he/settings.json'
 import enSettings from './locales/en/settings.json'
+import esSettings from './locales/es/settings.json'
+import frSettings from './locales/fr/settings.json'
 import heQuestions from './locales/he/questions.json'
 import enQuestions from './locales/en/questions.json'
 import heTrash from './locales/he/trash.json'
@@ -67,6 +69,8 @@ import heMoon from './locales/he/moon.json'
 import enMoon from './locales/en/moon.json'
 import heComponents from './locales/he/components.json'
 import enComponents from './locales/en/components.json'
+import esComponents from './locales/es/components.json'
+import frComponents from './locales/fr/components.json'
 import heOnboarding from './locales/he/onboarding.json'
 import enOnboarding from './locales/en/onboarding.json'
 import heOnboardingSteps from './locales/he/onboardingSteps.json'
@@ -87,8 +91,8 @@ export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'settings', 'trash'
 const resources = {
   he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, settings: heSettings, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads, projects: heProjects, tasks: heTasks, connections: heConnections, admin: heAdmin, landing: heLanding, insights: heInsights, reports: heReports, moon: heMoon, components: heComponents, onboarding: heOnboarding, onboardingSteps: heOnboardingSteps, modalsClient: heModalsClient, modalsData: heModalsData, modalsTask: heModalsTask, modalsSystem: heModalsSystem, questions: heQuestions, help: heHelp, cookies: heCookies },
   en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, settings: enSettings, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads, projects: enProjects, tasks: enTasks, connections: enConnections, admin: enAdmin, landing: enLanding, insights: enInsights, reports: enReports, moon: enMoon, components: enComponents, onboarding: enOnboarding, onboardingSteps: enOnboardingSteps, modalsClient: enModalsClient, modalsData: enModalsData, modalsTask: enModalsTask, modalsSystem: enModalsSystem, questions: enQuestions, help: enHelp, cookies: enCookies },
-  es: { common: esCommon, auth: esAuth, cookies: esCookies },
-  fr: { common: frCommon, auth: frAuth, cookies: frCookies },
+  es: { common: esCommon, auth: esAuth, settings: esSettings, components: esComponents, cookies: esCookies },
+  fr: { common: frCommon, auth: frAuth, settings: frSettings, components: frComponents, cookies: frCookies },
 }
 
 i18n

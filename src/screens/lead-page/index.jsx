@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { fetchLeadPageConfig, submitLead } from '../../lib/api/leadIntake'
-import { isChoiceType, leadPageSurface } from '../../lib/leadPageSchema'
+import { isChoiceType, leadPageSurface, safeRedirectUrl } from '../../lib/leadPageSchema'
 import './LeadPage.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -26,6 +26,10 @@ export default function LeadPage() {
 
   useEffect(() => {
     let active = true
+    // Reset all per-page state so navigating between two /lead/<id> pages (same
+    // component instance) never shows the previous page's answers / thank-you.
+    setStatus('loading'); setConfig(null); setValues({}); setErrors({})
+    setSubmitError(null); setThankYou(null); hp.current = ''
     ;(async () => {
       try {
         const cfg = await fetchLeadPageConfig(pageId)
@@ -75,8 +79,9 @@ export default function LeadPage() {
     try {
       const res = await submitLead(pageId, answers)
       const ty = res?.thankYou || content.thankYou || null
-      if (ty?.mode === 'redirect' && str(ty.url)) {
-        window.location.href = ty.url
+      const redirect = ty?.mode === 'redirect' ? safeRedirectUrl(ty.url) : null
+      if (redirect) {
+        window.location.href = redirect
         return
       }
       setThankYou(ty)

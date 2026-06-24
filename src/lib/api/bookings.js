@@ -105,7 +105,13 @@ async function createLeadAndEvent(booking, userId) {
     confidence_score: 1,
     lead_id: lead.id,
   }).select('id').single()
-  if (evErr) throw evErr
+  if (evErr) {
+    // No transaction across the two inserts: if the event fails we must undo
+    // the lead, otherwise the booking stays unlinked and the next retry
+    // (materializeBooking runs in a loop on home) creates a DUPLICATE lead.
+    await supabase.from('leads').delete().eq('id', lead.id)
+    throw evErr
+  }
 
   return { lead_id: lead.id, event_id: ev.id }
 }

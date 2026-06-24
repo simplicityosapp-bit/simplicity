@@ -12,13 +12,13 @@
 
 import {
   DEFAULT_BRAND_COLOR, LEAD_PAGE_BACKGROUNDS, leadPageBgUrl,
-  leadPageSurface, normalizeSlug, isValidSlug,
+  leadPageSurface, normalizeSlug, isValidSlug, slugifyInput, safeRedirectUrl,
 } from './leadPageSchema'
 
 /* Re-export the shared bits so booking screens import from one place. */
 export {
   DEFAULT_BRAND_COLOR, LEAD_PAGE_BACKGROUNDS, leadPageBgUrl,
-  leadPageSurface, normalizeSlug, isValidSlug,
+  leadPageSurface, normalizeSlug, isValidSlug, slugifyInput, safeRedirectUrl,
 }
 
 /* Hebrew weekday labels, index 0=Sunday … 6=Saturday (JS getDay order). */
@@ -78,12 +78,48 @@ export const newBookingPageDraft = () => ({
   content: structuredClone(DEFAULT_CONTENT),
   availability: structuredClone(DEFAULT_AVAILABILITY),
   meeting_type_ids: [],
+  meeting_type_durations: {},
 })
 
 /* "HH:MM" → minutes since midnight (NaN-safe). */
 export const hmToMinutes = (hm) => {
   const [h, m] = String(hm || '').split(':').map((n) => parseInt(n, 10))
   return (Number.isFinite(h) ? h : 0) * 60 + (Number.isFinite(m) ? m : 0)
+}
+
+/* Clamp the numeric availability fields to sane minimums, replacing empty /
+   NaN inputs (a cleared <input type="number"> yields Number('')===0) with the
+   schema default. Returns a NEW availability object; never mutates. Without
+   this, slotMinutes:0 / maxDaysAhead:0 can be saved and break public slot
+   generation. */
+const clampInt = (v, min, fallback) => {
+  const n = Math.round(Number(v))
+  return Number.isFinite(n) && n >= min ? n : fallback
+}
+export const sanitizeAvailability = (av) => {
+  const a = av || {}
+  return {
+    ...a,
+    slotMinutes: clampInt(a.slotMinutes, 5, DEFAULT_AVAILABILITY.slotMinutes),
+    defaultDurationMinutes: clampInt(a.defaultDurationMinutes, 5, DEFAULT_AVAILABILITY.defaultDurationMinutes),
+    bufferMinutes: clampInt(a.bufferMinutes, 0, DEFAULT_AVAILABILITY.bufferMinutes),
+    minNoticeHours: clampInt(a.minNoticeHours, 0, DEFAULT_AVAILABILITY.minNoticeHours),
+    maxDaysAhead: clampInt(a.maxDaysAhead, 1, DEFAULT_AVAILABILITY.maxDaysAhead),
+  }
+}
+
+/* Find the first weekly window whose start is not strictly before its end
+   (e.g. 17:00–09:00, which yields zero or broken slots). Returns { day } of
+   the offending window, or null when every window is valid. */
+export const findInvalidWindow = (av) => {
+  const weekly = av?.weekly || {}
+  for (let day = 0; day < 7; day += 1) {
+    const windows = Array.isArray(weekly[day]) ? weekly[day] : []
+    for (const w of windows) {
+      if (hmToMinutes(w.start) >= hmToMinutes(w.end)) return { day }
+    }
+  }
+  return null
 }
 
 /* The duration (minutes) of a meeting type, falling back to the page default. */

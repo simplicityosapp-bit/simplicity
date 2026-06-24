@@ -94,17 +94,28 @@ async function resolveMeetingTypes(page: any) {
     .eq('user_id', page.user_id)
     .is('deleted_at', null)
     .in('id', ids)
+  // Per-PAGE duration overrides (migration 0059). A page's stored length for a
+  // type wins over the type's own default, so editing duration on one page
+  // never affects another page that offers the same type.
+  const overrides = (page.meeting_type_durations && typeof page.meeting_type_durations === 'object')
+    ? page.meeting_type_durations : {}
   const byId = new Map((data ?? []).map((m: any) => [m.id, m]))
   const resolved = ids
     .map((id: string) => byId.get(id))
     .filter(Boolean)
-    .map((m: any) => ({
-      id: m.id,
-      name: m.name,
-      duration_minutes: Number(m.duration_minutes) > 0 ? Number(m.duration_minutes) : defDur,
-      default_price: m.default_price ?? null,
-      color: m.color ?? null,
-    }))
+    .map((m: any) => {
+      const override = Number(overrides[m.id])
+      const dur = override > 0
+        ? override
+        : (Number(m.duration_minutes) > 0 ? Number(m.duration_minutes) : defDur)
+      return {
+        id: m.id,
+        name: m.name,
+        duration_minutes: dur,
+        default_price: m.default_price ?? null,
+        color: m.color ?? null,
+      }
+    })
   // All selected types were deleted → fall back to a generic slot so the page
   // still works rather than offering nothing.
   if (!resolved.length) {

@@ -281,3 +281,58 @@
 [data-theme="dark"] .bk-dur-input,
 [data-theme="dark"] .bk-num-field input,
 [data-theme="dark"] .bk-window input[type="time"] { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.14); }
+
+/* ── "New meeting type" dialog (replaces window.prompt) ──────────────── */
+.bk-tm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: var(--overlay-bg);
+  backdrop-filter: var(--bs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.bk-tm-card {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+  border-radius: var(--rl);
+  background: var(--modal-bg);
+  backdrop-filter: var(--bl);
+  border: 1px solid var(--divider);
+  box-shadow: var(--elev-3);
+  font-family: var(--mg-font);
+}
+.bk-tm-title {
+  margin: 0;
+  font-size: var(--mg-heading);
+  font-weight: 600;
+  color: var(--espresso);
+}
+.bk-tm-input {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid rgba(44, 38, 33, 0.14);
+  border-radius: 12px;
+  background: var(--cream);
+  font-family: var(--mg-font);
+  font-size: var(--mg-body);
+  color: inherit;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+.bk-tm-input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--terracotta) 55%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 16%, transparent);
+}
+.bk-tm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+[data-theme="dark"] .bk-tm-input { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.14); }

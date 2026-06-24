@@ -103,6 +103,19 @@ export function leadPageSurface(content = {}) {
   return { style, cls }
 }
 
+/* Validate a coach-authored "thank you" redirect URL before navigating to it.
+   The URL is page config (not visitor input), but a compromised account could
+   set a `javascript:`/`data:` payload that would run in the visitor's browser.
+   Returns the URL only when it is a well-formed http(s) link, else null. */
+export function safeRedirectUrl(url) {
+  const raw = (url || '').toString().trim()
+  if (!raw) return null
+  try {
+    const u = new URL(raw)
+    return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : null
+  } catch { return null }
+}
+
 /* A fresh page's starting config (before the coach edits anything). */
 export const newLeadPageDraft = () => ({
   title: '',
@@ -122,6 +135,19 @@ export const normalizeSlug = (s) => (s || '')
   .replace(/^-+|-+$/g, '')
   .slice(0, 40)
   .replace(/-+$/g, '') // re-trim if the slice landed on a hyphen
+
+/* Live (per-keystroke) slug cleanup for the builder input. Matches
+   normalizeSlug's character rules — collapses runs of non-alnum to a single
+   hyphen and drops leading hyphens — but tolerates ONE trailing hyphen so the
+   user can keep typing "my-page-…". This keeps what's shown in the box in sync
+   with what normalizeSlug saves, so isValidSlug no longer fires on input that
+   looks fine. */
+export const slugifyInput = (s) => (s || '')
+  .toString().toLowerCase()
+  .replace(/[^a-z0-9-]+/g, '-')
+  .replace(/-{2,}/g, '-')
+  .replace(/^-+/, '')
+  .slice(0, 40)
 
 /* A normalized slug is valid when it's 3–40 chars (the DB CHECK range). */
 export const isValidSlug = (s) => /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$/.test(s)

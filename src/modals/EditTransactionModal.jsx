@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import InvoiceActions from '../components/InvoiceActions'
+import GrowPayButton from '../components/GrowPayButton'
 import { PAY_METHODS, payMethodLabel } from '../lib/invoiceDocs'
 import { useT } from '../i18n/useT'
 
@@ -157,6 +158,20 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
           when an invoice provider is connected; based on the SAVED transaction. */}
       {tx.type === 'income' && (
         <InvoiceActions tx={tx} clientName={clientName} onIssued={onIssued} formDirty={formDirty} />
+      )}
+
+      {/* Online payment via Grow for this income — renders only when the gateway
+          is enabled + connected (hidden while locked). On payment the webhook
+          confirms THIS transaction (no second income row is created). */}
+      {tx.type === 'income' && (
+        <GrowPayButton
+          source="transaction"
+          transactionId={tx.id}
+          clientId={tx.client_id}
+          amount={Number(tx.amount)}
+          description={tx.desc || clientName}
+          clientName={clientName}
+        />
       )}
 
       {err && <p className="m-error">{err}</p>}

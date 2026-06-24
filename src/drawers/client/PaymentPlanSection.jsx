@@ -4,6 +4,7 @@ import DateField from '../../components/DateField'
 import { usePaymentPlans } from '../../hooks/usePaymentPlans'
 import { planInstallments, planBalance, firstOfNextMonth, generateInstallments } from '../../lib/paymentPlans'
 import { PAY_METHODS, payMethodLabel } from '../../lib/invoiceDocs'
+import GrowPayButton from '../../components/GrowPayButton'
 import { isr } from '../../lib/finance'
 import { fmtShortDate } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
@@ -97,7 +98,8 @@ export default function PaymentPlanSection({ client }) {
 
               <div className="pp-list">
                 {rows.map((inst) => (
-                  <div key={inst.id} className={`pp-inst${inst.received ? ' paid' : ''}`}>
+                  <div key={inst.id} className="pp-inst-wrap">
+                    <div className={`pp-inst${inst.received ? ' paid' : ''}`}>
                     <span className="pp-inst-num">{inst.num}/{plan.num_installments}</span>
                     <div className="pp-inst-mid">
                       <span className="pp-inst-amt mono">{isr(inst.amount)}</span>
@@ -124,6 +126,20 @@ export default function PaymentPlanSection({ client }) {
                       <button type="button" className="pp-btn mark" disabled={busy} onClick={() => setReceiving({ id: inst.id, method: '' })}>
                         <Check size={13} strokeWidth={2} aria-hidden="true" /> {t('plan.markReceived')}
                       </button>
+                    )}
+                    </div>
+                    {/* Online payment for this installment — hidden while Grow is
+                        locked/disconnected; on payment the webhook marks it received. */}
+                    {!inst.received && (
+                      <GrowPayButton
+                        source="installment"
+                        installmentId={inst.id}
+                        clientId={client.id}
+                        amount={inst.amount}
+                        description={t('plan.title')}
+                        clientName={client.name}
+                        clientPhone={client.phone}
+                      />
                     )}
                   </div>
                 ))}

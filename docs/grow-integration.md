@@ -1,7 +1,13 @@
 # Grow (גרו / Meshulam) payment-gateway integration — plan & status
 
-**Status: Phase 1 built + edge fn deployed; NOT merged to main; parked on Grow sandbox credentials for live verification.**
+**Status: Phases 1–2 built behind a master lock (`GROW_ENABLED=false`). The connect entry shows "בקרוב" and is closed; no code path reaches Grow. Safe to merge while locked. A real Grow account will verify the full flow at the end, then the flag is flipped on.**
 Last updated: 2026-06-24.
+
+## Master lock — `src/lib/grow.js`
+`export const GROW_ENABLED = false`. While false: the Connections row renders as a
+disabled "בקרוב" row, `/connections/grow` redirects to `/connections`, and
+`useGrowGateway` makes NO network call (always "not connected"), which hides every
+payment-link button automatically. Flip to `true` (one line) once verified.
 
 Grow (גרו, formerly Meshulam) is an Israeli credit-card **clearing / סליקה** gateway: it lets a coach
 collect money online (credit card, Bit, Apple/Google Pay). This is distinct from the existing invoice
@@ -60,7 +66,17 @@ RLS unchanged: service-role only, no `authenticated` policy.
 2. If it errors, capture Grow's exact message (the UI surfaces the `detail`) and tighten `gateway.ts` envelope parsing.
 3. Once "מחובר · Sandbox" shows: create `feat/grow-integration` → commit → `git merge --no-ff` to main → push. Then start Phase 2.
 
-## Phase 2 — design (ready to build once Phase 1 is verified)
+## Phase 2 — BUILT (behind the lock; mock-verified, UNVERIFIED vs live Grow)
+- Migration `0061_grow_payment_requests.sql` — the `payment_requests` table below.
+- `grow` edge fn: `create-payment-link` action (creates a pending row, calls Grow, returns the URL); `webhook_token` now set on connect.
+- `gateway.ts`: `createPaymentLink` (createPaymentProcess), `getPaymentInfo` (inquiry), `approveTransaction` — all UNVERIFIED.
+- New public fn `grow-webhook` (`--no-verify-jwt`): verify-with-Grow → atomic claim → record ONE income (context-aware per source) → approveTransaction. Idempotent on `grow_transaction_id`.
+- `useGrowGateway.createPaymentLink`; reusable `GrowPayButton` (component + CSS) wired into the client-drawer payment seam; i18n `growPay.*` ×4.
+- Mock-verified: connected → button appears beside the WhatsApp request → click → link + copy + WhatsApp send. Locked state verified (row "בקרוב", screen redirects).
+- ⚠️ Still UNVERIFIED vs a live Grow account: the createPaymentProcess link lifetime (10 min — may need the Payment-Link product for send-later), the callback field names, and the inquiry/approve envelopes. Calibrate when the real Grow user tests.
+- **Remaining surfaces (next):** wire `GrowPayButton` into the transaction modals + payment-plan installment rows (component is ready; just needs mounting).
+
+### Phase 2 data model (built)
 **`payment_requests` table** (additive migration; owner RLS SELECT, writes service-role only):
 `id, user_id, client_id?, transaction_id?, installment_id?, source ('client'|'transaction'|'installment'|'booking'),
 amount, description, status ('pending'|'paid'|'expired'|'cancelled'|'failed'), grow_process_id, grow_process_token,

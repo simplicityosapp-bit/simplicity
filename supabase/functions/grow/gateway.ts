@@ -32,6 +32,38 @@ export interface GrowCredentials {
   environment: GrowEnv
 }
 
+/* Reference to a created payment process — returned by createPaymentLink and
+   fed back to getPaymentInfo / approveTransaction. */
+export interface GrowProcessRef {
+  processId?: string | null
+  processToken?: string | null
+}
+
+export interface PaymentLinkInput {
+  amount: number
+  description: string
+  customerName: string
+  customerPhone?: string | null
+  customerEmail?: string | null
+  successUrl: string
+  cancelUrl: string
+  notifyUrl: string       // our grow-webhook URL (carries the per-user token)
+  correlationId: string   // our payment_requests.id — echoed back in the callback (cField1)
+}
+
+export interface PaymentLinkResult {
+  url: string
+  processId: string | null
+  processToken: string | null
+}
+
+export interface PaymentInfo {
+  paid: boolean
+  transactionId: string | null
+  amount: number | null
+  raw: unknown
+}
+
 /* A thrown GrowError carries a coarse `code` the HTTP layer maps to a safe
    client message — the raw upstream body is NEVER sent to the browser.
    Mirrors invoices/providers.ts ProviderError. `detail` is an OPTIONAL,
@@ -107,6 +139,86 @@ export class GrowGateway {
     // Failure → most likely bad credentials for a fully-formed probe. Surface
     // Grow's own message so the user can see the real reason.
     throw new GrowError('invalid_credentials', 'grow rejected the request', growErrorDetail(data))
+  }
+
+  /* Create a hosted payment page for `input.amount` and return its URL.
+     Uses createPaymentProcess; passes our notifyUrl (the grow-webhook) and our
+     correlationId (cField1) so the server callback can be tied back to the
+     payment_requests row. ⚠️ UNVERIFIED — field names + success envelope must be
+     confirmed against a live account. NOTE: the createPaymentProcess URL is valid
+     ~10 minutes; for "send a link to pay later" we may need Grow's long-lived
+     Payment-Link product (swap this one call when verified). */
+  async createPaymentLink(creds: GrowCredentials, input: PaymentLinkInput): Promise<PaymentLinkResult> {
+    const form = new FormData()
+    form.append('pageCode', creds.pageCode)
+    form.append('userId', creds.userId)
+    if (creds.apiKey) form.append('apiKey', creds.apiKey)
+    form.append('sum', String(input.amount))
+    form.append('description', input.description || 'תשלום')
+    form.append('pageField[fullName]', input.customerName || 'לקוח')
+    if (input.customerPhone) form.append('pageField[phone]', input.customerPhone)
+    if (input.customerEmail) form.append('pageField[email]', input.customerEmail)
+    form.append('successUrl', input.successUrl)
+    form.append('cancelUrl', input.cancelUrl)
+    form.append('notifyUrl', input.notifyUrl)
+    form.append('cField1', input.correlationId)
+
+    let res: Response
+    try {
+      res = await fetch(`${BASE[creds.environment]}/createPaymentProcess`, { method: 'POST', body: form })
+    } catch (e) {
+      throw new GrowError('provider_unreachable', `grow unreachable: ${e}`)
+    }
+    if (res.status === 401 || res.status === 403) throw new GrowError('invalid_credentials', `grow rejected credentials (${res.status})`)
+    if (!res.ok) throw new GrowError('provider_error', `grow http ${res.status}`)
+    const data = (await res.json().catch(() => ({}))) as any
+    const d = data?.data ?? {}
+    const url = d.url ?? d.paymentUrl ?? (typeof data?.url === 'string' ? data.url : null)
+    if (data?.status !== 1 || !url) throw new GrowError('provider_error', 'grow createPaymentProcess failed', growErrorDetail(data))
+    return {
+      url: String(url),
+      processId: d.processId != null ? String(d.processId) : (d.processToken ? null : null),
+      processToken: d.processToken ?? d.token ?? null,
+    }
+  }
+
+  /* Re-fetch the authoritative status of a payment process — the webhook calls
+     this so it NEVER trusts the callback body for money. ⚠️ UNVERIFIED. */
+  async getPaymentInfo(creds: GrowCredentials, ref: GrowProcessRef): Promise<PaymentInfo> {
+    const form = new FormData()
+    form.append('pageCode', creds.pageCode)
+    form.append('userId', creds.userId)
+    if (creds.apiKey) form.append('apiKey', creds.apiKey)
+    if (ref.processId) form.append('processId', ref.processId)
+    if (ref.processToken) form.append('processToken', ref.processToken)
+    let res: Response
+    try {
+      res = await fetch(`${BASE[creds.environment]}/getPaymentProcessInfo`, { method: 'POST', body: form })
+    } catch (e) {
+      throw new GrowError('provider_unreachable', `grow unreachable: ${e}`)
+    }
+    if (!res.ok) throw new GrowError('provider_error', `grow http ${res.status}`)
+    const data = (await res.json().catch(() => ({}))) as any
+    const d = data?.data ?? {}
+    const txId = d.transactionId ?? d.transactionID ?? d.asmachta ?? null
+    const amount = Number.isFinite(Number(d.sum ?? d.amount)) ? Number(d.sum ?? d.amount) : null
+    return { paid: data?.status === 1 && !!txId, transactionId: txId != null ? String(txId) : null, amount, raw: data }
+  }
+
+  /* Acknowledge a transaction back to Grow — MANDATORY (many integrations miss
+     it). Best-effort; throws only on a network failure. ⚠️ UNVERIFIED params. */
+  async approveTransaction(creds: GrowCredentials, ref: GrowProcessRef): Promise<void> {
+    const form = new FormData()
+    form.append('pageCode', creds.pageCode)
+    form.append('userId', creds.userId)
+    if (creds.apiKey) form.append('apiKey', creds.apiKey)
+    if (ref.processId) form.append('processId', ref.processId)
+    if (ref.processToken) form.append('processToken', ref.processToken)
+    try {
+      await fetch(`${BASE[creds.environment]}/approveTransaction`, { method: 'POST', body: form })
+    } catch (e) {
+      throw new GrowError('provider_unreachable', `grow approve unreachable: ${e}`)
+    }
   }
 }
 

@@ -230,6 +230,22 @@
     "disconnectConfirm": "¿Seguro? Desconectar",
     "disconnectConfirmSr": "Pulsa de nuevo para confirmar la desconexión"
   },
+  "growPay": {
+    "create": "Crear enlace de pago (Grow)",
+    "creating": "Creando enlace…",
+    "linkReady": "Enlace de pago listo:",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "send": "Enviar por WhatsApp",
+    "waMessage": "Hola {{name}}, puedes pagar de forma segura con tarjeta aquí: {{url}}",
+    "err": {
+      "notConnected": "No hay una conexión activa con Grow.",
+      "badAmount": "No hay un importe válido para crear un enlace.",
+      "invalidCredentials": "Tus credenciales de Grow son incorrectas — compruébalas en la pantalla de Conexiones.",
+      "providerUnreachable": "El servicio no está disponible en este momento. Inténtalo de nuevo en un momento.",
+      "generic": "No se pudo crear el enlace. Inténtalo de nuevo."
+    }
+  },
   "actions": {
     "err": {
       "alreadyIssued": "Ya se ha emitido una factura para esta transacción.",

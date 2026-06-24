@@ -230,6 +230,22 @@
     "disconnectConfirm": "Sure? Disconnect",
     "disconnectConfirmSr": "Tap again to confirm disconnecting"
   },
+  "growPay": {
+    "create": "Create payment link (Grow)",
+    "creating": "Creating link…",
+    "linkReady": "Payment link ready:",
+    "copy": "Copy",
+    "copied": "Copied",
+    "send": "Send on WhatsApp",
+    "waMessage": "Hi {{name}}, you can pay securely by credit card here: {{url}}",
+    "err": {
+      "notConnected": "No active Grow connection.",
+      "badAmount": "No valid amount to create a link.",
+      "invalidCredentials": "Your Grow credentials are incorrect — check them on the Connections screen.",
+      "providerUnreachable": "The service is unavailable right now. Please try again in a moment.",
+      "generic": "Creating the link failed. Please try again."
+    }
+  },
   "actions": {
     "err": {
       "alreadyIssued": "An invoice has already been issued for this transaction.",

@@ -270,6 +270,34 @@
     "disconnectConfirm_female": "בטוחה? נתק",
     "disconnectConfirmSr": "לחצו שוב לאישור הניתוק"
   },
+  "growPay": {
+    "create": "צור/צרי לינק תשלום (Grow)",
+    "create_male": "צור לינק תשלום (Grow)",
+    "create_female": "צרי לינק תשלום (Grow)",
+    "creating": "יוצר לינק…",
+    "linkReady": "לינק התשלום מוכן:",
+    "copy": "העתק/י",
+    "copy_male": "העתק",
+    "copy_female": "העתקי",
+    "copied": "הועתק",
+    "send": "שלח/י בוואטסאפ",
+    "send_male": "שלח בוואטסאפ",
+    "send_female": "שלחי בוואטסאפ",
+    "waMessage": "היי {{name}}, לתשלום מאובטח בכרטיס אשראי דרך הקישור: {{url}}",
+    "err": {
+      "notConnected": "אין חיבור פעיל ל-Grow.",
+      "badAmount": "אין סכום תקין ליצירת לינק.",
+      "invalidCredentials": "פרטי ההתחברות ל-Grow שגויים — בדוק/י במסך החיבורים.",
+      "invalidCredentials_male": "פרטי ההתחברות ל-Grow שגויים — בדוק במסך החיבורים.",
+      "invalidCredentials_female": "פרטי ההתחברות ל-Grow שגויים — בדקי במסך החיבורים.",
+      "providerUnreachable": "השירות לא זמין כרגע. נסה/י שוב בעוד רגע.",
+      "providerUnreachable_male": "השירות לא זמין כרגע. נסה שוב בעוד רגע.",
+      "providerUnreachable_female": "השירות לא זמין כרגע. נסי שוב בעוד רגע.",
+      "generic": "יצירת הלינק נכשלה. נסה/י שוב.",
+      "generic_male": "יצירת הלינק נכשלה. נסה שוב.",
+      "generic_female": "יצירת הלינק נכשלה. נסי שוב."
+    }
+  },
   "actions": {
     "err": {
       "alreadyIssued": "כבר הופקה חשבונית לתנועה הזו.",

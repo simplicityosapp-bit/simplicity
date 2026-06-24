@@ -1,6 +1,8 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { ChevronRight, CreditCard } from 'lucide-react'
 import GrowCard from './GrowCard'
+import { ROUTES } from '../../lib/routes'
+import { GROW_ENABLED } from '../../lib/grow'
 import { useT } from '../../i18n/useT'
 import './ConnectionsScreen.css'
 
@@ -10,6 +12,8 @@ import './ConnectionsScreen.css'
 export default function GrowConnectionScreen() {
   const { t } = useT('connections')
   const navigate = useNavigate()
+  // Locked → the screen is closed; bounce back to the connections list.
+  if (!GROW_ENABLED) return <Navigate to={ROUTES.CONNECTIONS} replace />
   return (
     <div className="screen">
       <header className="screen-head conn-head conn-detail-head">

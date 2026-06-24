@@ -321,7 +321,8 @@ export function makeMockClient() {
           if (a === 'connect') return { data: { status: { connected: true, provider: 'grow', environment: opts?.body?.environment, connected_at: new Date().toISOString() } }, error: null }
           if (a === 'test') return { data: { ok: true, status: { connected: true, provider: 'grow', environment: 'sandbox', connected_at: new Date().toISOString() } }, error: null }
           if (a === 'disconnect') return { data: { ok: true, status: { connected: false } }, error: null }
-          return { data: { status: { connected: false } }, error: null } // status
+          if (a === 'create-payment-link') return { data: { ok: true, payment: { id: 'mock-pr-1', url: 'https://sandbox.meshulam.co.il/p/mock-payment-link' } }, error: null }
+          return { data: { status: { connected: false } }, error: null } // status (not connected by default — connect/test flip it)
         }
         // Public lead pages in preview: serve the mock page config (GET) and
         // accept a submission (POST) so /lead/<id> renders end-to-end.

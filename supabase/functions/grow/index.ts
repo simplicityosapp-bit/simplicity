@@ -123,6 +123,9 @@ Deno.serve(async (req) => {
         page_code: pageCode,   // column page_code ← Grow pageCode
         api_secret: apiKey,    // column api_secret← Grow apiKey (sensitive)
         environment,
+        // Per-connection token that identifies the tenant in the grow-webhook
+        // URL (notifyUrl) — the public callback has no auth header.
+        webhook_token: crypto.randomUUID(),
       }).select('*').single()
       if (error) throw error
       return json({ status: statusOf(row) })
@@ -144,6 +147,66 @@ Deno.serve(async (req) => {
       }
       await setCredsInvalid(row.id, false, row.credentials_invalid_at)
       return json({ ok: true, status: statusOf({ ...row, credentials_invalid_at: null }) })
+    }
+
+    if (action === 'create-payment-link') {
+      const row = await loadGrowIntegration(userId)
+      if (!row) return json({ error: 'not_connected' }, 400)
+      const source = String(body.source ?? '')
+      if (!['client', 'transaction', 'installment'].includes(source)) return json({ error: 'bad_source' }, 400)
+      const amount = Number(body.amount)
+      if (!Number.isFinite(amount) || amount <= 0) return json({ error: 'bad_amount' }, 400)
+      const clientId = body.client_id ? String(body.client_id) : null
+      const transactionId = body.transaction_id ? String(body.transaction_id) : null
+      const installmentId = body.installment_id ? String(body.installment_id) : null
+      const description = (body.description ?? '').toString().trim().slice(0, 200) || 'תשלום'
+
+      // Customer details for the Grow page (best-effort, scoped to the caller).
+      let customer = { name: 'לקוח', phone: null as string | null, email: null as string | null }
+      if (clientId) {
+        const { data: c } = await admin.from('clients').select('name, phone, email').eq('id', clientId).eq('user_id', userId).maybeSingle()
+        if (c) customer = { name: c.name ?? 'לקוח', phone: c.phone ?? null, email: c.email ?? null }
+      }
+
+      // Ensure a webhook token exists (backfill for pre-existing connections).
+      let token = row.webhook_token
+      if (!token) {
+        const { data: upd } = await admin.from('user_integrations').update({ webhook_token: crypto.randomUUID() }).eq('id', row.id).select('webhook_token').maybeSingle()
+        token = upd?.webhook_token
+      }
+
+      // Create the pending row first so we have a correlation id for Grow.
+      const { data: pr, error: prErr } = await admin.from('payment_requests').insert({
+        user_id: userId, client_id: clientId, transaction_id: transactionId, installment_id: installmentId,
+        source, amount, description, status: 'pending',
+      }).select('*').single()
+      if (prErr) throw prErr
+
+      const origin = (body.return_origin ?? '').toString().trim()
+      const base = /^https?:\/\//.test(origin) ? origin : 'https://simplicity-os.com'
+      const notifyUrl = `${SUPABASE_URL}/functions/v1/grow-webhook?t=${token}`
+      let link
+      try {
+        link = await gateway.createPaymentLink(
+          { userId: row.api_key, pageCode: row.page_code, apiKey: row.api_secret, environment: row.environment },
+          {
+            amount, description,
+            customerName: customer.name, customerPhone: customer.phone, customerEmail: customer.email,
+            successUrl: `${base}/?grow=success`, cancelUrl: `${base}/?grow=cancel`,
+            notifyUrl, correlationId: pr.id,
+          },
+        )
+      } catch (e) {
+        await admin.from('payment_requests').update({ status: 'failed', updated_at: new Date().toISOString() }).eq('id', pr.id)
+        if (e instanceof GrowError && e.code === 'invalid_credentials') await setCredsInvalid(row.id, true, row.credentials_invalid_at)
+        throw e
+      }
+      await setCredsInvalid(row.id, false, row.credentials_invalid_at)
+      await admin.from('payment_requests').update({
+        payment_url: link.url, grow_process_id: link.processId, grow_process_token: link.processToken,
+        updated_at: new Date().toISOString(),
+      }).eq('id', pr.id)
+      return json({ ok: true, payment: { id: pr.id, url: link.url } })
     }
 
     if (action === 'disconnect') {

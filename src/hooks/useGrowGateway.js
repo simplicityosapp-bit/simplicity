@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { callGrow } from '../lib/api/integrations'
+import { GROW_ENABLED } from '../lib/grow'
 
 /* Client over the `grow` edge function — the Grow (גרו / Meshulam) payment
    gateway. Like the invoice provider (and unlike Google Calendar) there is no
@@ -19,6 +20,9 @@ export function useGrowGateway() {
   const { data: status = null, isLoading: loading, error: queryError } = useQuery({
     queryKey: STATUS_KEY,
     queryFn: () => callGrow('status').then((r) => r.status),
+    // Feature locked → make NO network call; the gateway reports "not
+    // connected", which hides every downstream payment-link button.
+    enabled: GROW_ENABLED,
   })
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState(null)
@@ -69,6 +73,22 @@ export function useGrowGateway() {
     }
   }, [setStatus])
 
+  /* Create a Grow payment link for a balance / transaction / installment.
+     Returns { payment: { id, url } }. The income is recorded server-side by the
+     grow-webhook when the customer actually pays — never here. The caller
+     tracks its own busy/error state. */
+  const createPaymentLink = useCallback(async ({ source, clientId, transactionId, installmentId, amount, description }) => {
+    return callGrow('create-payment-link', {
+      source,
+      client_id: clientId,
+      transaction_id: transactionId,
+      installment_id: installmentId,
+      amount,
+      description,
+      return_origin: typeof window !== 'undefined' ? window.location.origin : '',
+    })
+  }, [])
+
   return {
     status,
     loading,
@@ -78,5 +98,6 @@ export function useGrowGateway() {
     test,
     disconnect,
     loadStatus,
+    createPaymentLink,
   }
 }

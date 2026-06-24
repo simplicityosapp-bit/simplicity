@@ -7,6 +7,7 @@ import MG from '../../components/MG'
 import { isr } from '../../lib/finance'
 import ClientDrawerSections from './ClientDrawerSections'
 import WhatsAppButton from '../../components/WhatsAppButton'
+import GrowPayButton from '../../components/GrowPayButton'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import AddSessionModal from '../../modals/AddSessionModal'
 import AddTaskModal from '../../modals/AddTaskModal'
@@ -218,13 +219,25 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
               {/* Payment request — only when the client owes money. The
                  outstanding balance fills the message automatically. */}
               {balance.balance > 0 && (
-                <WhatsAppButton
-                  showLabel
-                  triggerClassName="cd-pay-request"
-                  label={t('drawer.requestPayment')}
-                  phone={client.phone}
-                  message={waMsg('payment', { name: client.name, balance: isr(balance.balance) })}
-                />
+                <>
+                  <WhatsAppButton
+                    showLabel
+                    triggerClassName="cd-pay-request"
+                    label={t('drawer.requestPayment')}
+                    phone={client.phone}
+                    message={waMsg('payment', { name: client.name, balance: isr(balance.balance) })}
+                  />
+                  {/* Online payment via Grow — only renders when the gateway is
+                      enabled + connected (hidden while locked). */}
+                  <GrowPayButton
+                    source="client"
+                    clientId={client.id}
+                    amount={balance.balance}
+                    description={t('drawer.requestPayment')}
+                    clientName={client.name}
+                    clientPhone={client.phone}
+                  />
+                </>
               )}
 
               {/* Quick actions — ALWAYS shown on every client card (global). */}

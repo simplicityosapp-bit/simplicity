@@ -5,6 +5,7 @@ import { ROUTES } from '../../lib/routes'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useGrowGateway } from '../../hooks/useGrowGateway'
+import { GROW_ENABLED } from '../../lib/grow'
 import { useT } from '../../i18n/useT'
 import './ConnectionsScreen.css'
 
@@ -139,17 +140,28 @@ export default function ConnectionsScreen() {
           ariaLabel={t('list.rowAria', { title: t('list.invoices'), status: inv.loading ? t('loading') : invStatusText })}
           onOpen={() => navigate(ROUTES.CONNECTION_INVOICES)}
         />
-        <ConnRow
-          icon={CreditCard}
-          title={t('list.grow')}
-          loading={grow.loading}
-          connected={growConnected}
-          warn={growWarn}
-          statusText={growStatusText}
-          loadingLabel={t('loading')}
-          ariaLabel={t('list.rowAria', { title: t('list.grow'), status: grow.loading ? t('loading') : growStatusText })}
-          onOpen={() => navigate(ROUTES.CONNECTION_GROW)}
-        />
+        {GROW_ENABLED ? (
+          <ConnRow
+            icon={CreditCard}
+            title={t('list.grow')}
+            loading={grow.loading}
+            connected={growConnected}
+            warn={growWarn}
+            statusText={growStatusText}
+            loadingLabel={t('loading')}
+            ariaLabel={t('list.rowAria', { title: t('list.grow'), status: grow.loading ? t('loading') : growStatusText })}
+            onOpen={() => navigate(ROUTES.CONNECTION_GROW)}
+          />
+        ) : (
+          /* Locked until a real Grow account verifies the flow — shown as a
+             disabled "בקרוב" row (the full feature is built behind GROW_ENABLED). */
+          <SoonRow
+            icon={CreditCard}
+            title={t('list.grow')}
+            soonLabel={t('list.soon')}
+            ariaLabel={t('list.soonAria', { title: t('list.grow') })}
+          />
+        )}
         <ConnRow
           icon={MessageCircle}
           title="WhatsApp"

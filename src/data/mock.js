@@ -87,12 +87,16 @@ export const clients = [
   // 3 — ללא סטטוס (פנייה טרייה)
   { id: uid(), user_id: USER, name: 'דניאל רגב', status: 'no_status', status_id: client_statuses[3].id, status_meta: 'no_status', project_id: null, group_id: null, sessions: 0, price_per_session: 0, total_override: null, has_custom_price: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '050-1239876', notes: null, notes_updated_at: null, created_at: daysAgo(10) },
   // 4 — חבר קבוצה (מעגל בוקר)
-  { id: uid(), user_id: USER, name: 'נופר אדמון', status: 'active', status_id: client_statuses[0].id, status_meta: 'active', project_id: projects[1].id, group_id: groups[0].id, sessions: 8, price_per_session: 0, total_override: 1600, has_custom_price: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '052-3334455', notes: null, notes_updated_at: null, created_at: daysAgo(90) },
+  { id: uid(), user_id: USER, name: 'נופר אדמון', status: 'active', status_id: client_statuses[0].id, status_meta: 'active', status_overridden: false, project_id: projects[1].id, group_id: groups[0].id, sessions: 8, price_per_session: 0, total_override: 1600, has_custom_price: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '052-3334455', notes: null, notes_updated_at: null, created_at: daysAgo(90) },
+  // 5 — הייתה בקבוצה שהסתיימה (סדנת חורף) ועברה לתהליך אישי; הסטטוס נדרס ידנית ל'פעיל' (הקבוצה הייתה נותנת 'לשעבר'), והנתונים מהקבוצה נשמרים
+  { id: uid(), user_id: USER, name: 'שירה כהן', status: 'active', status_id: client_statuses[0].id, status_meta: 'active', status_overridden: true, project_id: projects[1].id, group_id: groups[1].id, sessions: 4, price_per_session: 380, total_override: null, has_custom_price: false, meeting_type_id: meeting_types[0].id, price_overridden: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '053-2223344', notes: 'סיימה את סדנת החורף, ממשיכה בתהליך אישי.', notes_updated_at: daysAgo(8), created_at: daysAgo(200) },
 ]
 
 /* ── group_members (נוסף — D20, חברות של נופר במעגל בוקר) ── */
 export const group_members = [
   { id: uid(), user_id: USER, group_id: groups[0].id, client_id: clients[4].id, joined_at: daysAgo(90), left_at: null, total_override: 1600, has_custom_price: false, package_sessions_override: 8, left_mid_process: false, created_at: daysAgo(90), updated_at: daysAgo(90), deleted_at: null },
+  // שירה — חברה בקבוצה שהסתיימה (סדנת חורף); נשארת חברה כדי שהנתונים יישמרו, אך הסטטוס נדרס ידנית
+  { id: uid(), user_id: USER, group_id: groups[1].id, client_id: clients[5].id, joined_at: daysAgo(200), left_at: null, total_override: null, has_custom_price: false, package_sessions_override: null, left_mid_process: false, created_at: daysAgo(200), updated_at: daysAgo(60), deleted_at: null },
 ]
 
 /* ── recurring_templates — תבנית חודשית פעילה ── */

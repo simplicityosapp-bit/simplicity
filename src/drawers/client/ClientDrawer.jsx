@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { X, Pencil, Trash2, Check, CalendarPlus, Banknote, ChevronDown } from 'lucide-react'
-import { clientBalance, effectiveClientMeta, isGroupDriven } from '../../lib/clients'
+import { X, Pencil, Trash2, Check, CalendarPlus, Banknote, ChevronDown, RotateCcw } from 'lucide-react'
+import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden } from '../../lib/clients'
 import { usePaymentPlans } from '../../hooks/usePaymentPlans'
 import { planInstallments, planBalance } from '../../lib/paymentPlans'
 import MG from '../../components/MG'
@@ -64,17 +64,35 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = 0 }, [client?.id])
 
   /* Change the client's status with a one-step undo (restores the prior
-     status_meta + status_id). No-op if the status didn't actually change. */
+     status_meta + status_id + override flag). Picking a status manually
+     ALWAYS sets status_overridden = true so the choice wins over any group
+     the client belongs to (migration 0062). No-op only when the manual
+     value is already the active one. */
   const changeStatus = (k) => {
-    if (!client || client.status_meta === k) { setStatusMenu(false); return }
-    const prev = { status_meta: client.status_meta ?? null, status_id: client.status_id ?? null }
-    const next = { status_meta: k, status_id: null }
+    if (!client) { setStatusMenu(false); return }
+    if (client.status_meta === k && client.status_overridden) { setStatusMenu(false); return }
+    const prev = { status_meta: client.status_meta ?? null, status_id: client.status_id ?? null, status_overridden: !!client.status_overridden }
+    const next = { status_meta: k, status_id: null, status_overridden: true }
     onUpdateClient?.(client.id, next)
     setStatusMenu(false)
     pushUndo({
       label: t('drawer.statusChanged'),
       undo: async () => { await onUpdateClient?.(client.id, prev) },
       redo: async () => { await onUpdateClient?.(client.id, next) },
+    })
+  }
+
+  /* Clear a manual override so the status goes back to being driven by the
+     client's group(s). status_meta is left untouched — effectiveClientMeta
+     ignores it while the client is a (non-overridden) group member. */
+  const revertToGroup = () => {
+    if (!client || !client.status_overridden) return
+    onUpdateClient?.(client.id, { status_overridden: false })
+    setStatusMenu(false)
+    pushUndo({
+      label: t('drawer.statusReverted'),
+      undo: async () => { await onUpdateClient?.(client.id, { status_overridden: true }) },
+      redo: async () => { await onUpdateClient?.(client.id, { status_overridden: false }) },
     })
   }
 
@@ -87,6 +105,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
 
   const meta = client ? effectiveClientMeta(client, members, groups) : null
   const groupDriven = isGroupDriven(client, members)
+  const overridden = isStatusOverridden(client)
   const project = client ? projects.find((p) => p.id === client.project_id) : null
   const balance = client ? clientBalance(client, txns, sessions, members, groups) : null
   const isMember = !!client && members.some((m) => m.client_id === client.id && !m.left_at)
@@ -115,44 +134,52 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 <div className="cd-h-id">
                   <p className="cd-h-name">{client.name}</p>
                   <div className="cd-h-sub">
-                    {groupDriven ? (
-                      <span className={`cd-h-status cd-status-${meta}`} title={t('drawer.statusByGroup')}>
+                    <span className="cd-status-pick">
+                      <button
+                        type="button"
+                        className={`cd-h-status cd-status-${meta} is-btn`}
+                        aria-haspopup="menu"
+                        aria-expanded={statusMenu}
+                        onClick={() => setStatusMenu((o) => !o)}
+                      >
                         <MG text={t(STATUS_KEY[meta] || STATUS_KEY.no_status)} />
-                        <span className="cd-h-status-by">{t('drawer.byGroup')}</span>
-                      </span>
-                    ) : (
-                      <span className="cd-status-pick">
-                        <button
-                          type="button"
-                          className={`cd-h-status cd-status-${meta} is-btn`}
-                          aria-haspopup="menu"
-                          aria-expanded={statusMenu}
-                          onClick={() => setStatusMenu((o) => !o)}
-                        >
-                          <MG text={t(STATUS_KEY[meta] || STATUS_KEY.no_status)} />
-                          <ChevronDown size={12} strokeWidth={2} aria-hidden="true" />
+                        <ChevronDown size={12} strokeWidth={2} aria-hidden="true" />
+                      </button>
+                      {statusMenu && (
+                        <>
+                          <button type="button" className="cd-status-backdrop" aria-hidden="true" tabIndex={-1} onClick={() => setStatusMenu(false)} />
+                          <div className="cd-status-menu" role="menu">
+                            {Object.entries(STATUS_KEY).map(([k, labelKey]) => (
+                              <button
+                                key={k}
+                                type="button"
+                                role="menuitemradio"
+                                aria-checked={meta === k}
+                                className={`cd-status-opt${meta === k ? ' on' : ''}`}
+                                onClick={() => changeStatus(k)}
+                              >
+                                <span className={`cd-status-dot cd-status-${k}`} aria-hidden="true" />
+                                {t(labelKey)}
+                                {meta === k && <Check size={13} strokeWidth={2} aria-hidden="true" className="cd-status-check" />}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </span>
+                    {/* Group member, status still group-driven → muted hint that
+                        picking a status will override it. Once overridden → a
+                        "manual" tag + one-tap revert back to the group status. */}
+                    {groupDriven && (
+                      <span className="cd-h-status-by" title={t('drawer.statusByGroup')}>{t('drawer.byGroup')}</span>
+                    )}
+                    {isMember && overridden && (
+                      <span className="cd-status-manual">
+                        <span className="cd-status-manual-tag">{t('drawer.statusManual')}</span>
+                        <button type="button" className="cd-status-revert" onClick={revertToGroup} title={t('drawer.revertHint')}>
+                          <RotateCcw size={11} strokeWidth={1.8} aria-hidden="true" />
+                          {t('drawer.revertToGroup')}
                         </button>
-                        {statusMenu && (
-                          <>
-                            <button type="button" className="cd-status-backdrop" aria-hidden="true" tabIndex={-1} onClick={() => setStatusMenu(false)} />
-                            <div className="cd-status-menu" role="menu">
-                              {Object.entries(STATUS_KEY).map(([k, labelKey]) => (
-                                <button
-                                  key={k}
-                                  type="button"
-                                  role="menuitemradio"
-                                  aria-checked={meta === k}
-                                  className={`cd-status-opt${meta === k ? ' on' : ''}`}
-                                  onClick={() => changeStatus(k)}
-                                >
-                                  <span className={`cd-status-dot cd-status-${k}`} aria-hidden="true" />
-                                  {t(labelKey)}
-                                  {meta === k && <Check size={13} strokeWidth={2} aria-hidden="true" className="cd-status-check" />}
-                                </button>
-                              ))}
-                            </div>
-                          </>
-                        )}
                       </span>
                     )}
                     {project && <span className="cd-h-proj">· {project.name}</span>}

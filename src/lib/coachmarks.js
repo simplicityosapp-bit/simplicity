@@ -1,6 +1,7 @@
 import i18n from '../i18n'
 import heGuidance from '../i18n/locales/he/guidance.json'
 import enGuidance from '../i18n/locales/en/guidance.json'
+import esGuidance from '../i18n/locales/es/guidance.json'
 
 /* ════════════════════════════════════════════════════════════════
    Coachmark registry — first-touch guidance copy.
@@ -24,6 +25,7 @@ import enGuidance from '../i18n/locales/en/guidance.json'
 
 i18n.addResourceBundle('he', 'guidance', heGuidance, true, false)
 i18n.addResourceBundle('en', 'guidance', enGuidance, true, false)
+i18n.addResourceBundle('es', 'guidance', esGuidance, true, false)
 
 const COACHMARK_IDS = ['add-task', 'add-lead', 'add-lead-page', 'add-project', 'add-goal', 'add-transaction', 'add-meeting']
 

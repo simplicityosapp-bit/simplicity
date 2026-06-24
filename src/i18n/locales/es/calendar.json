@@ -1,0 +1,56 @@
+{
+  "title": "Calendario",
+  "upcomingCount": "{{count}} próximos",
+  "schedule": "Agenda",
+  "tagline": "Día tras día, paso a paso.",
+  "newEventAria": "Nuevo evento",
+  "newEvent": "+ Nuevo evento",
+  "dup": {
+    "one": "Un duplicado de calendario con Google",
+    "many": "{{count}} duplicados de calendario con Google",
+    "cta": "Resolver duplicados"
+  },
+  "fallback": {
+    "client": "Cliente",
+    "group": "Grupo",
+    "event": "Evento",
+    "lead": "Prospecto"
+  },
+  "views": {
+    "schedule": "Agenda",
+    "day": "Día",
+    "week": "Semana",
+    "month": "Mes"
+  },
+  "nav": {
+    "tablistAria": "Vista",
+    "prevMonth": "Mes anterior",
+    "prev": "Anterior",
+    "nextMonth": "Mes siguiente",
+    "next": "Siguiente",
+    "today": "Hoy"
+  },
+  "monthPicker": {
+    "dialogAria": "Elegir un mes",
+    "prevYear": "Año anterior",
+    "nextYear": "Año siguiente"
+  },
+  "filter": "Filtro de vista",
+  "list": {
+    "empty": "No hay eventos próximos — tu calendario está despejado.",
+    "loadMore": "Cargar más ({{count}})"
+  },
+  "allDay": "Todo el día",
+  "before": "Antes de {{time}}",
+  "after": "Después de {{time}}",
+  "tag": {
+    "pending": "Pendiente",
+    "reminder": "Recordatorio",
+    "calendar": "Calendario"
+  },
+  "legend": {
+    "meetings": "Citas",
+    "reminders": "Recordatorios",
+    "calendar": "Calendario"
+  }
+}

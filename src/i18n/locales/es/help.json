@@ -1,0 +1,1383 @@
+{
+  "screens": {
+    "home": {
+      "title": "Inicio",
+      "intro": "Inicio es tu panel personal. Está formado por widgets que puedes activar, desactivar y reorganizar como prefieras. Cada uno te da un vistazo rápido a un área distinta de tu trabajo y un acceso directo para llegar a ella.",
+      "features": [
+        {
+          "title": "Los widgets que componen la pantalla",
+          "body": "La pantalla se compone de ocho widgets: cita diaria, resumen, registro diario, transacción rápida / actualización rápida, alertas (sesiones, pagos), próximos recordatorios, próximas tareas y tarjetas de estado (clientes / neto / tareas). Cada uno se puede activar, desactivar y reordenar en Ajustes → Widgets y visualización."
+        },
+        {
+          "title": "Widget de resumen",
+          "body": "Un círculo que muestra si vas al ritmo previsto: cuánto de tu objetivo diario ya has alcanzado. 100 % significa que vas justo según lo previsto. Debajo del círculo también verás «X % del objetivo», es decir, cuánto de tu objetivo global has completado. Al tocar el círculo se expande con una frase de resumen, una barra de progreso por cada objetivo activo y un enlace «Detalles completos» a la pantalla de Resumen. Si aún no has fijado ningún objetivo, aparecerá un aviso «Fija un objetivo» que te lleva directamente a la pantalla de Objetivos."
+        },
+        {
+          "title": "Widget de cita diaria",
+          "body": "Una cita inspiradora al día. Al tocarla se abre el panel de Citas, donde eliges la fuente —«Citas del sistema» o «Mis citas»— y puedes añadir o eliminar las tuyas. Mientras no hayas añadido ninguna cita personal, se muestra una cita de la biblioteca general."
+        },
+        {
+          "title": "Widget de registro diario",
+          "body": "Muestra la próxima pregunta diaria sin responder. Responde en una escala de 1 a 10 (arrastra el control deslizante y guarda con ✓) o con sí/no, según la pregunta. Tras responder, pasas a la siguiente pregunta; cuando terminas, aparece «Has terminado por hoy — genial». Si has activado un recordatorio diario y ha pasado su hora, aparece un aviso suave: «No has respondido hoy — ¿un momento para ti?». Puedes descartarlo, y al tocar la pregunta vas a la pantalla de Registro diario."
+        },
+        {
+          "title": "Widget de transacción rápida / actualización rápida",
+          "body": "Dos botones: «Añadir rápido» abre accesos directos para añadir una transacción, cliente, prospecto, tarea, proyecto, objetivo, recordatorio o sesión, todo desde Inicio. «Actualizar objetivo» te permite elegir una categoría de objetivo y registrar el progreso manualmente."
+        },
+        {
+          "title": "Widget de alertas (necesita atención)",
+          "body": "Una tarjeta que reúne en un solo lugar todo lo que te espera: transacciones por confirmar, sesiones que aún no has marcado, clientes con saldo pendiente, una diferencia respecto al objetivo mensual, tareas urgentes, clientes con los que no has hablado en 45 días, prospectos sin actividad, seguimientos para hoy y duplicados con Google Calendar. Las transacciones y sesiones abren una ventana de confirmación (confirmar / saltar / eliminar); todo lo demás te lleva a la pantalla correspondiente."
+        },
+        {
+          "title": "Confirmar sesiones desde Inicio",
+          "body": "En la ventana «Sesiones por confirmar» dentro de la tarjeta de alertas, puedes marcar cada sesión como «Se realizó» (lo que crea una sesión real en la ficha del cliente o del grupo), «No se realizó» o eliminarla. También puedes confirmar, rechazar o eliminar un gasto vinculado a esa sesión."
+        },
+        {
+          "title": "Widget de próximos recordatorios",
+          "body": "Una tarjeta que muestra todos tus próximos recordatorios, desde hoy hasta 60 días vista, en orden de fecha, destacando cuántos son «para hoy». Cada fila abre el calendario, y el botón ✓ marca un recordatorio como hecho. Un recordatorio recurrente simplemente salta a su siguiente fecha; puedes deshacerlo con «Cancelar»."
+        },
+        {
+          "title": "Widget de próximas tareas",
+          "body": "Una tarjeta con todas tus tareas abiertas, ordenadas por urgencia. El resumen muestra cuántas son urgentes del total. Un punto rojo marca una tarea urgente, al tocar una fila se abre la pantalla de Tareas, y ✓ marca la tarea como hecha (puedes deshacerlo con «Cancelar»)."
+        },
+        {
+          "title": "Widget de tarjetas de estado",
+          "body": "Tres tarjetas —Tareas · Neto · Clientes— cada una con un número en vivo arriba. Al tocar una se abre una ventana de filtro y detalle (por tiempo, tipo, estado, urgencia, proyecto, categoría, grupo) con un gráfico de tendencia, y el número se actualiza según tu filtro. «Abrir completo» te lleva a la pantalla completa. El neto cuenta solo transacciones confirmadas, y el título de la tarjeta cambia a «Ingresos» o «Gastos» si filtras por un solo tipo."
+        },
+        {
+          "title": "Tarjeta de bienvenida la primera vez",
+          "body": "Hasta que tengas al menos un cliente, una tarjeta «Todo empieza aquí» se sitúa arriba en la pantalla con tres pasos —primer cliente, primera tarea y primer prospecto—, cada uno enlazando a la pantalla con el botón de añadir resaltado. Puedes ocultarla con la X, y desaparece sola en cuanto se crea tu primer cliente."
+        },
+        {
+          "title": "Personalizar la visualización y enviar comentarios",
+          "body": "En Ajustes → Widgets y visualización puedes cambiar el estilo de tarjeta (esmerilado / plano / con borde), el grosor del texto (normal / negrita) y la densidad (compacta / normal / amplia). También puedes activar el modo «compacto» o una densidad aparte en los widgets que lo admitan. Al final de Inicio hay una tarjeta «¿Tienes comentarios?» para enviar sugerencias e informes de errores."
+        }
+      ],
+      "tips": [
+        "¿Quieres rediseñar Inicio? Ve a Ajustes → Widgets y visualización: ahí activas y desactivas widgets, y eliges estilo, grosor de texto y densidad.",
+        "El orden de los widgets se establece arrastrando la fila en Ajustes, o usando las flechas arriba/abajo. Los widgets de cita y resumen siempre están en la fila superior cuando están activados.",
+        "Tocar la tarjeta de Tareas / Neto / Clientes no solo muestra un número: abre un filtro completo, y tus ajustes se guardan para la próxima vez.",
+        "«Añadir rápido» en Inicio es un acceso directo para añadir cualquier cosa en la app (transacción, cliente, prospecto, tarea, proyecto, objetivo, recordatorio, sesión) sin cambiar de pantalla.",
+        "¿Marcaste un recordatorio o una tarea sin querer? Puedes deshacerlo de inmediato con la notificación «Cancelar» que aparece tras la acción.",
+        "Marcar una sesión como «Se realizó» en la ventana de confirmación de sesiones crea una sesión real en la ficha del cliente, no solo borra la alerta."
+      ],
+      "faq": [
+        {
+          "q": "¿Cómo añado o quito un widget de Inicio?",
+          "a": "Ve a Ajustes → Widgets y visualización → abre la lista «Widgets» y activa o desactiva cada uno. No puedes añadir widgets directamente desde la propia pantalla de Inicio."
+        },
+        {
+          "q": "¿Qué significa el porcentaje del círculo de Resumen?",
+          "a": "Es cuánto de tu objetivo diario has alcanzado hasta ahora, no una nota. 100 % significa que vas justo según lo previsto. Al tocar el círculo verás un desglose por cada objetivo."
+        },
+        {
+          "q": "Toqué la tarjeta «Clientes» / «Neto» / «Tareas» y me salió una ventana de filtro, ¿dónde está la pantalla completa?",
+          "a": "Las tarjetas abren una ventana de detalle y filtro. Para llegar a la pantalla completa, toca «Abrir completo» en la parte inferior de la ventana."
+        },
+        {
+          "q": "¿Por qué el número «Neto» de las tarjetas de estado no coincide con lo que introduje?",
+          "a": "La tarjeta cuenta solo transacciones confirmadas (no las pendientes ni las saltadas) y muestra el neto del rango de tiempo que seleccionaste en la ventana de filtro (por defecto: este mes). Las transacciones pendientes aparecen aparte en «Necesita atención»."
+        },
+        {
+          "q": "Marqué un recordatorio recurrente como hecho, ¿desapareció?",
+          "a": "No. Un recordatorio recurrente no se elimina: solo salta a su siguiente fecha. Si fue un error, toca «Cancelar» en la notificación que aparece para recuperarlo."
+        },
+        {
+          "q": "¿Cómo cambio la cita diaria o añado la mía?",
+          "a": "Toca el widget de la cita para abrir el panel de Citas. Ahí eliges la fuente —«Citas del sistema» o «Mis citas»— y añades o eliminas las tuyas."
+        }
+      ]
+    },
+    "clients": {
+      "title": "Clientes",
+      "intro": "Aquí gestionas todos tus clientes. Cada cliente tiene una ficha con sus sesiones, pagos y estado. Puedes agruparlos, ordenarlos y realizar acciones sobre varios clientes a la vez.",
+      "features": [
+        {
+          "title": "Añadir un cliente",
+          "body": "El botón «+ Nuevo cliente» en la parte superior de la pantalla abre un formulario donde solo el nombre es obligatorio. También puedes rellenar el estado y subestado, el método de facturación (paquete / por sesión), el número de sesiones, el precio por sesión, el teléfono, el correo, el proyecto y una sesión recurrente (día + hora). Todo lo demás siempre se puede rellenar más tarde desde dentro de la ficha del cliente."
+        },
+        {
+          "title": "Estados de cliente",
+          "body": "Cada cliente pertenece a uno de cuatro grupos: Activo, Intermedio, Antiguo, Sin estado. Las pestañas en la parte superior de la lista muestran los grupos con un recuento de cada uno. La pestaña «Sin estado» solo aparece si hay clientes en ella. En Ajustes puedes añadir tus propios subestados a cada grupo, y aparecerán en el selector de estado del formulario de cliente."
+        },
+        {
+          "title": "Ordenar la lista",
+          "body": "El botón «Ordenar» organiza la lista por nombre, saldo, pagado, sesiones, fecha de alta o antigüedad (más antiguos primero), en orden ascendente o descendente. Tu selección se guarda y se restaura cada vez que abres la pantalla."
+        },
+        {
+          "title": "Agrupar por estado o proyecto",
+          "body": "El interruptor «Estado / Proyecto» cambia el diseño de la visualización. En modo «Proyecto», los clientes se organizan bajo el nombre de cada proyecto (incluido un grupo «Sin proyecto»), y las pestañas y el resumen superior desaparecen en esa vista."
+        },
+        {
+          "title": "Búsqueda y filtro de saldo",
+          "body": "La barra de búsqueda busca por nombre de cliente. El botón «Saldo pendiente» muestra solo los clientes que aún te deben dinero (saldo mayor que cero), y junto a él puedes ver cuántos clientes coinciden con eso en la vista actual."
+        },
+        {
+          "title": "Resumen superior (mensual / acumulado)",
+          "body": "Sobre la lista (al agrupar por estado) se muestra un resumen del grupo abierto: sesiones, pagado y saldo pendiente. El interruptor «Mensual / Acumulado» determina si las sesiones e importes son del mes actual o desde el principio. En las pestañas «Antiguo» y «Sin estado» el resumen es siempre acumulado y el interruptor está bloqueado."
+        },
+        {
+          "title": "Ficha del cliente (perfil del cliente)",
+          "body": "Al tocar un cliente se abre un panel lateral con todos sus datos: resumen de facturación (sesiones / pagado / saldo), acciones rápidas y secciones desplegables: sesión fija semanal, sesiones y resúmenes, pagos, tareas abiertas, cronología, notas, recordatorios vinculados y grupos. En cada sección puedes tocar el icono del lápiz para entrar en modo edición y abrir un elemento."
+        },
+        {
+          "title": "Acciones rápidas en la ficha",
+          "body": "Tres botones se sitúan en la parte superior de la ficha: «Registrar sesión» para anotar una sesión que ya ocurrió (fecha, resumen, notas privadas), «Programar sesión» para crear una cita futura —única o una «franja fija» semanal recurrente— y «Pago recibido» para registrar un ingreso."
+        },
+        {
+          "title": "Cambiar el estado en la ficha",
+          "body": "La etiqueta de estado en la ficha es un botón: tócala y elige un grupo diferente, con opción de deshacer. Un cliente que pertenece a un grupo obtiene su estado del grupo, mostrado como «· Del grupo», y su estado no se puede cambiar manualmente."
+        },
+        {
+          "title": "Editar datos y facturación",
+          "body": "El botón «Editar» abre el formulario completo: nombre, estado y subestado, método de facturación, sesiones individuales («Programadas» y «Completadas»), precio, «Total a cobrar» que anula el cálculo automático, y los campos «Pagado» y «Saldo» para edición manual, además de teléfono, correo, proyecto, grupo, sesión recurrente y notas. Cambiar «Pagado» ofrece añadir una transacción financiera real; cambiar «Saldo» registra solo un ajuste, sin transacción."
+        },
+        {
+          "title": "Selección múltiple y acciones en lote",
+          "body": "El botón «Seleccionar» activa el modo de selección: marca varios clientes, y en la barra de herramientas inferior puedes «Cambiar estado» para moverlos a todos a un grupo diferente, o «Eliminar». Ambas acciones se pueden deshacer con un solo toque."
+        },
+        {
+          "title": "Eliminar un cliente y gestionar las transacciones",
+          "body": "Al eliminar (desde la ficha o desde la barra de selección) se abre una ventana de elección: «Conservar transacciones» deja los pagos en Dinero con una etiqueta «[Nombre] · eliminado», o «Eliminar también las transacciones» las envía también a la Papelera. Todo elemento se puede restaurar desde la Papelera dentro de 30 días."
+        },
+        {
+          "title": "Sesiones y grupos en el cálculo del saldo",
+          "body": "Las sesiones individuales cuentan para el cálculo, y en el modo «por sesión» el saldo se acumula según el número de sesiones registradas × el precio. Un cliente que es miembro de un grupo también ve las sesiones y cargos de ese grupo, que se cuentan en el resumen en consecuencia."
+        }
+      ],
+      "tips": [
+        "El orden, la agrupación, el interruptor mensual/acumulado y el filtro «Saldo pendiente» se guardan por usuario: lo que elijas se restaurará la próxima vez que abras la pantalla.",
+        "¿Mueves varios clientes a «Antiguo» al final de una temporada? Toca «Seleccionar» → marca los clientes → «Cambiar estado» en la barra de herramientas inferior.",
+        "Para ser más preciso, añade subestados en Ajustes (por ejemplo «Pausa breve», «Esperando confirmación»): aparecerán en el selector de estado del formulario de cliente.",
+        "¿Importaste datos y los importes no cuadran? Usa «Total a cobrar» o los campos «Pagado» / «Saldo» en modo edición para arreglar la ficha sin alterar los cálculos de sesiones futuras.",
+        "Un cliente asignado a un grupo obtiene su estado del grupo: si no puedes cambiar su estado manualmente, esa es la razón (se muestra como «· Del grupo»).",
+        "Para fijar una sesión semanal fija: abre la ficha → «Programar sesión» → «Franja fija». El día se establece según la fecha que elegiste, y puedes cambiarlo o cancelarlo más tarde en la edición del cliente."
+      ],
+      "faq": [
+        {
+          "q": "Buscar por teléfono o correo no encuentra al cliente, ¿por qué?",
+          "a": "La búsqueda solo funciona por nombre de cliente. Para encontrar a alguien por otros datos, ordena o navega por la lista y abre la ficha para ver el teléfono y el correo."
+        },
+        {
+          "q": "¿Los datos del cliente están cifrados?",
+          "a": "Actualmente los datos del cliente (nombre, teléfono, correo, notas y resúmenes) se almacenan como texto sin cifrar. El acceso está protegido únicamente por los permisos de tu cuenta."
+        },
+        {
+          "q": "Eliminé un cliente sin querer, ¿puedo restaurarlo?",
+          "a": "Sí. Justo después de eliminarlo aparece una opción de deshacer, y en cualquier caso el cliente se conserva en la Papelera durante 30 días. Nota: si elegiste «Eliminar también las transacciones», restaurar solo al cliente no recupera las transacciones que se eliminaron con él; elige «Conservar transacciones» si te importa preservar el historial de pagos."
+        },
+        {
+          "q": "Cambié «Pagado» en la edición del cliente pero no se registró nada en Dinero, ¿por qué?",
+          "a": "Cambiar «Pagado» te pregunta: «Añadir transacción» crea un ingreso real en Dinero, y «Solo en la ficha» actualiza únicamente la visualización, sin transacción. Cambiar «Saldo», en cambio, siempre se registra solo como un ajuste, sin transacción en Dinero."
+        },
+        {
+          "q": "¿Por qué el resumen superior muestra cero sesiones o 0 € este mes?",
+          "a": "Cuando el interruptor está en «Mensual», el resumen solo cuenta sesiones y pagos del mes actual. Cambia a «Acumulado» para ver todo desde el principio. En las pestañas «Antiguo» y «Sin estado» la vista es siempre acumulada."
+        },
+        {
+          "q": "¿Cuál es la diferencia entre la facturación «Paquete» y «Por sesión»?",
+          "a": "Con «Paquete», el saldo se calcula según el número de sesiones programadas × el precio por sesión. Con «Por sesión» no hay una cantidad fija de antemano: el saldo se acumula según el número de sesiones que has registrado realmente × el precio por sesión."
+        }
+      ]
+    },
+    "leads": {
+      "title": "Prospectos",
+      "intro": "Un tablero para gestionar todas tus consultas. Sigue cada prospecto desde el momento en que está «En curso» hasta que se convierte en cliente, con fuentes, subestados y seguimientos.",
+      "features": [
+        {
+          "title": "Dos vistas: Prospectos y Estados",
+          "body": "Dos pestañas se sitúan en la parte superior de la pantalla. «Prospectos» muestra el tablero kanban. «Estados» abre un panel para gestionar subestados sin salir de la pantalla. Tu selección se guarda, y la pantalla se abre en la misma vista la próxima vez."
+        },
+        {
+          "title": "Tablero kanban con tres columnas",
+          "body": "Los prospectos se organizan en tres columnas fijas: En curso, Convertido, No relevante. Cada columna muestra cuántos prospectos hay en ella, y al tocar una tarjeta se abre la ventana «Editar prospecto»."
+        },
+        {
+          "title": "Arrastrar entre columnas",
+          "body": "Puedes arrastrar una tarjeta de prospecto de una columna a otra, con el dedo o con el ratón. Si la columna a la que arrastraste tiene dos o más subestados, se te preguntará «¿Bajo qué subestado va esto?» (con una opción «Sin subestado»). Si solo hay uno, se selecciona automáticamente. Justo después del movimiento aparece «Deshacer» para volver al estado anterior."
+        },
+        {
+          "title": "Añadir un prospecto",
+          "body": "Toca «+ Nuevo prospecto» para añadir una consulta. Rellena el nombre (obligatorio), teléfono, fuente, proyecto, grupo (solo se muestra cuando el proyecto tiene grupos), subestado (cuando has configurado subestados para «En curso»), fecha de consulta, fecha de seguimiento y notas. Un prospecto nuevo siempre va a la columna «En curso»."
+        },
+        {
+          "title": "Editar un prospecto",
+          "body": "En la ventana de edición puedes actualizar todos los datos, y también mover el prospecto entre columnas usando los botones de estado (En curso / Convertido / No relevante) y elegir un subestado correspondiente. Cambiar el estado restablece el subestado, y cambiar el proyecto restablece el grupo."
+        },
+        {
+          "title": "Convertir en cliente",
+          "body": "En la ficha de un prospecto que aún no se ha convertido, toca «Convertir en cliente». Se abre una ventana «Convertir prospecto en cliente», ya cargada con el nombre y el teléfono. Puedes elegir un proyecto, un grupo y un subestado «Convertido». Al guardar, se crea un nuevo cliente activo (todavía sin sesiones ni precio), las notas se transfieren a él, y el prospecto se mueve a la columna «Convertido» con un enlace al cliente. Si seleccionaste un grupo, el cliente se añade a él como miembro."
+        },
+        {
+          "title": "Fuentes de prospectos",
+          "body": "Cada prospecto se puede etiquetar con una fuente: recomendación, Instagram, sitio web, etc. En las ventanas de añadir y editar puedes crear una nueva fuente al instante sin salir: elige «+ Nueva fuente…», escribe un nombre, y se guarda y selecciona de inmediato. Una tarjeta sin fuente se etiqueta como «Sin fuente»."
+        },
+        {
+          "title": "Subestados",
+          "body": "En la vista «Estados» puedes añadir, eliminar y reordenar (arrastrando) los subestados de cada columna. Aparecen como un punto de color en la tarjeta del prospecto y se usan para filtrar y para los gráficos. Un subestado por defecto no se puede eliminar. Cuando eliminas otro, los prospectos se quedan sin subestado."
+        },
+        {
+          "title": "Filtrar y ordenar",
+          "body": "Las píldoras de filtro se sitúan sobre el tablero. Al tocar un subestado se muestran solo los prospectos etiquetados con él («Todos» borra el filtro, y al tocar de nuevo se desactiva). El botón de ordenar alterna entre «Por fecha» → «Más recientes primero» → «Más antiguos primero», según la fecha de consulta. Tus selecciones se guardan."
+        },
+        {
+          "title": "Seguimientos",
+          "body": "Cuando rellenas el campo «Seguimiento» de un prospecto, se fija un recordatorio. La franja «Seguimientos para hoy» en la parte superior de la pantalla cuenta los prospectos a los que toca volver (que sigan en curso). Al tocarla se abre «Seguimientos abiertos», una lista donde puedes abrir un prospecto o marcar el seguimiento como hecho (lo que borra la fecha). Un seguimiento vencido se resalta en rojo en la tarjeta."
+        },
+        {
+          "title": "Estadísticas de este mes",
+          "body": "Tres números se sitúan en la parte superior de la pantalla: «Consultas este mes», «Convertidos en clientes» y «Tasa de conversión». Todos se calculan automáticamente a partir de los prospectos abiertos este mes."
+        },
+        {
+          "title": "Eliminar un prospecto",
+          "body": "Cada tarjeta tiene un botón de eliminar (X) en la esquina. El prospecto va a la Papelera y se puede restaurar dentro de 30 días."
+        }
+      ],
+      "tips": [
+        "Rellena una fecha de «Seguimiento» para que el prospecto aparezca en la franja de seguimientos el día en que toca volver. Así no se te escapa ninguna consulta.",
+        "Etiqueta cada prospecto con la fuente correcta. La tasa de conversión y otras estadísticas dependen de esto para mostrarte de dónde vienen tus clientes más afines.",
+        "En lugar de abrir la ventana de edición, simplemente arrastra una tarjeta a otra columna para hacer avanzar un prospecto. ¿Te equivocaste? Toca «Deshacer» que aparece justo después de arrastrar.",
+        "Configura tus propios subestados en la vista «Estados» (por ejemplo «Esperando que devuelvan la llamada», «Llamada de presentación agendada»), y luego filtra por ellos en el tablero para mantenerte enfocado.",
+        "Al convertir en cliente ya puedes asignarlo a un proyecto y un grupo. Las notas del prospecto se transfieren automáticamente a la nueva ficha de cliente."
+      ],
+      "faq": [
+        {
+          "q": "¿Cómo añado o doy color a una fuente de prospectos?",
+          "a": "Puedes crear una nueva fuente directamente desde la ventana de añadir o editar prospecto con «+ Nueva fuente…» (recibe un color por defecto). Para gestionar el nombre y el color por completo, toca «Fuentes de prospectos» en la barra de herramientas de la pantalla: abre un panel dedicado para añadir, dar color y eliminar fuentes."
+        },
+        {
+          "q": "Un prospecto que convertí en cliente sigue apareciendo en el tablero, ¿es normal?",
+          "a": "Sí. Los prospectos convertidos se mueven a la columna «Convertido» y permanecen ahí, etiquetados como «Convertido en cliente» con un enlace al cliente. Puedes filtrar por subestado para enfocar tu vista."
+        },
+        {
+          "q": "Arrastré un prospecto a otra columna y me preguntó qué subestado, ¿por qué?",
+          "a": "Cuando la columna a la que arrastraste tiene dos o más subestados, la app pregunta cuál asignar (o «Sin subestado»). Si solo hay uno, se selecciona automáticamente. Si no hay ninguno, el prospecto se mueve sin subestado."
+        },
+        {
+          "q": "Eliminé un prospecto sin querer, ¿puedo restaurarlo?",
+          "a": "Sí. El prospecto va a la Papelera y se puede restaurar dentro de 30 días. Lo mismo ocurre con un subestado o una fuente eliminados: aparece «Deshacer» para restaurarlos de inmediato, y también se pueden restaurar desde la Papelera."
+        },
+        {
+          "q": "¿Convertir en cliente fija un precio o un número de sesiones?",
+          "a": "No. La conversión crea un cliente activo solo con el nombre, el teléfono y las notas. El número de sesiones y el precio empiezan en cero y se rellenan desde la ficha del cliente."
+        },
+        {
+          "q": "¿Por qué la «Tasa de conversión» muestra un guion (—) o me parece extraña?",
+          "a": "El número se calcula a partir de los prospectos abiertos este mes: cuántos de ellos están ahora en la columna «Convertido». Si no hay nuevas consultas este mes, se muestra «—». Y un prospecto movido de «Convertido» de vuelta a otra columna ya no se cuenta como conversión."
+        }
+      ]
+    },
+    "finance": {
+      "title": "Dinero",
+      "intro": "La pantalla de Dinero es tu centro neurálgico para todos los ingresos y gastos del negocio, mes a mes: transacciones, plantillas recurrentes, categorías, resúmenes y beneficio, e importación de facturas desde tu servicio externo.",
+      "features": [
+        {
+          "title": "Nueva transacción (Ingreso / Gasto)",
+          "body": "El botón «+ Nueva transacción» abre una ventana donde eliges «+ Ingreso» o «− Gasto» y rellenas el importe, la fecha, la descripción y el cliente/proyecto. Para los gastos, puedes seleccionar una categoría (o crear una nueva al instante). La transacción se guarda en el mes de la fecha que elegiste."
+        },
+        {
+          "title": "Una fecha futura se guarda como pendiente",
+          "body": "Una transacción con fecha futura se guarda automáticamente como «Pendiente» hasta que llega ese día, y se sitúa en la tarjeta de pendientes de aprobación. Una transacción con fecha de hoy o del pasado se guarda como «Aprobada» y entra directamente en el resumen."
+        },
+        {
+          "title": "Emitir un recibo al guardar",
+          "body": "Para un ingreso vinculado a un cliente que no tenga fecha futura, aparece una casilla «Emitir recibo al guardar» (solo si has conectado un servicio de facturación válido). Márcala, elige un tipo de documento (factura-recibo fiscal / recibo / factura fiscal), y para los documentos de tipo recibo elige también un método de pago: el documento se emite en el momento en que se guarda la transacción."
+        },
+        {
+          "title": "Resumen mensual y navegación entre meses",
+          "body": "En la parte superior de la pantalla verás «Neto este mes», «Ingresos» y «Gastos» del mes seleccionado, con flechas para ir al mes anterior o siguiente. Cada número también muestra el cambio porcentual respecto al mes anterior. El resumen cuenta solo transacciones aprobadas: las pendientes, saltadas o canceladas por una nota de crédito no se incluyen."
+        },
+        {
+          "title": "Gráfico de ingresos acumulados",
+          "body": "Un gráfico que muestra cómo se acumularon los ingresos aprobados día a día a lo largo del mes seleccionado, con un punto en el día actual. Si has fijado un objetivo de ingresos mensual en la pantalla de Objetivos, se muestran una línea de objetivo discontinua y el porcentaje de logro. Si no, aparece en su lugar un enlace para fijar un objetivo de ingresos mensual."
+        },
+        {
+          "title": "Transacciones pendientes y aprobación en lote",
+          "body": "Todas las transacciones pendientes del mes se sitúan en una tarjeta aparte, mostrando el total de ingresos y gastos pendientes. Cada fila tiene «Aprobar» (la transacción ocurrió) y «Saltar» (no ocurrió). Al hacer clic en una fila se abre la edición, y sobre una lista de más de una hay un botón «Aprobar todas»."
+        },
+        {
+          "title": "Lista de transacciones: aprobadas y saltadas",
+          "body": "Debajo de la tarjeta de pendientes, las transacciones se agrupan en «Aprobadas» y «Saltadas». Una transacción saltada muestra una etiqueta «Saltada» con el importe tachado, y puedes devolverla a pendiente. Cuando hay transacciones saltadas, aparece un botón para mostrarlas u ocultarlas («Mostrar N saltadas» / «Ocultar saltadas»)."
+        },
+        {
+          "title": "Eliminar una transacción desde la lista o la edición",
+          "body": "Cada transacción aprobada o saltada tiene un botón de eliminar en la lista, y la ventana de edición también tiene un botón «Eliminar». Justo después de eliminarla, aparece una notificación de deshacer para que puedas restaurar la transacción."
+        },
+        {
+          "title": "Plantillas recurrentes (órdenes permanentes)",
+          "body": "En la sección «Plantillas recurrentes» configuras transacciones que se repiten automáticamente: «Por calendario» (mensual en un día concreto, o semanal en un día de la semana concreto, con una fecha de fin opcional) o «Tras una sesión» (crea una transacción pendiente por cada sesión con el cliente que elijas, y se cierra automáticamente si la sesión se salta). El sistema genera transacciones pendientes a partir de estas que tienes que aprobar."
+        },
+        {
+          "title": "Pausar, editar y eliminar una plantilla",
+          "body": "Cada plantilla tiene un botón de pausar/reanudar: una plantilla en pausa no genera nuevas transacciones y se marca como «En pausa». Puedes editar una plantilla o eliminarla (con confirmación). Las transacciones ya generadas a partir de ella permanecen incluso tras eliminarla."
+        },
+        {
+          "title": "Categorías de gastos",
+          "body": "En la sección «Categorías de gastos» gestionas tus categorías de gastos: escribe un nombre, elige un color y haz clic en «Añadir». Eliminar una categoría (con confirmación) no elimina los gastos: simplemente se quedan sin categoría."
+        },
+        {
+          "title": "Ingresos por proyecto / Gastos por categoría",
+          "body": "Dos tarjetas muestran un desglose en columnas: «Ingresos por proyecto» reparte los ingresos aprobados entre los proyectos (los ingresos sin proyecto van a «Sin proyecto»), y «Gastos por categoría» reparte los gastos aprobados por categoría («Sin categoría» para lo que no esté etiquetado)."
+        },
+        {
+          "title": "Importación pendiente desde facturas",
+          "body": "Si has conectado Green Invoice o SUMIT, las facturas que has emitido en el servicio externo aparecen en la sección «Importación pendiente». Cada factura tiene un enlace «Ver» al documento, y puedes importarla como ingreso (con una confirmación en dos pasos) o descartarla. Si ya hay un ingreso para el mismo cliente e importe, aparece una advertencia «Posible duplicado» con una confirmación adicional antes de importar."
+        },
+        {
+          "title": "Emitir una factura y una nota de crédito desde la edición",
+          "body": "Al hacer clic en un ingreso se abre la edición, y ahí —si has conectado un servicio de facturación— aparece «Emitir factura»: elige un tipo de documento, un producto del catálogo del proveedor o texto libre, y un método de pago (para los documentos de tipo recibo). Tras emitir, verás el número del documento y un enlace para verlo, y un botón «Abonar / Cancelar» que emite una nota de crédito: esto cancela el documento y elimina el ingreso de los resúmenes (la transacción se marca como «Cancelada»)."
+        },
+        {
+          "title": "Exportar a CSV",
+          "body": "El botón «Exportar CSV» en la parte superior de la pantalla descarga un archivo con todas las transacciones del mes mostrado actualmente (fecha, tipo, importe, descripción, estado, cliente, proyecto y categoría). El botón solo está activo cuando hay al menos una transacción en el mes."
+        }
+      ],
+      "tips": [
+        "Todos los números de la pantalla —el resumen, el gráfico y los desgloses— son del mes mostrado arriba. Si parece que falta una transacción, comprueba que estás en el mes correcto según su fecha.",
+        "Solo las transacciones «Aprobadas» cuentan para el resumen y el gráfico. Las pendientes aparecen aparte hasta que las apruebas, y las saltadas o canceladas quedan excluidas de los totales.",
+        "Para gastos fijos como el alquiler, las suscripciones o los suministros, configura una plantilla recurrente para que la transacción se cree automáticamente cada mes y nunca olvides registrarla.",
+        "Puedes crear una nueva categoría de gastos directamente desde la ventana de transacción («+ Nueva categoría...») sin salir de ella.",
+        "¿Eliminaste una transacción? Puedes restaurarla de inmediato con la notificación de deshacer que aparece justo después de eliminarla."
+      ],
+      "faq": [
+        {
+          "q": "Registré una transacción pero no aparece en la lista ni en el resumen, ¿por qué?",
+          "a": "Primero comprueba que estás en el mes correcto (según la fecha de la transacción). Una transacción con fecha futura se guarda como «Pendiente» y se sitúa aparte en la tarjeta de pendientes hasta que la apruebas: solo una transacción aprobada cuenta para el resumen."
+        },
+        {
+          "q": "¿Por qué el resumen de arriba no coincide con lo que espero?",
+          "a": "El resumen cuenta solo transacciones «Aprobadas». Las pendientes, las que has saltado o las canceladas por una nota de crédito no se cuentan en los totales de neto, ingresos o gastos."
+        },
+        {
+          "q": "¿Cómo configuro una orden permanente?",
+          "a": "En la sección «Plantillas recurrentes», haz clic en «+ Nueva plantilla», elige «Por calendario» (mensual o semanal) o «Tras una sesión», y fija el importe, el día y la fecha de fin. El sistema generará transacciones pendientes según tu configuración, que luego apruebas."
+        },
+        {
+          "q": "Eliminé una plantilla recurrente, ¿qué pasa con las transacciones ya generadas a partir de ella?",
+          "a": "Permanecen. Eliminar una plantilla solo detiene la creación de transacciones futuras; toda transacción ya generada se queda con normalidad. Si solo quieres pausarla temporalmente, usa el botón de pausa en lugar de eliminarla."
+        },
+        {
+          "q": "¿Dónde descargo los datos a Excel?",
+          "a": "Usa el botón «Exportar CSV» en la parte superior de la pantalla de Dinero: descarga todas las transacciones del mes mostrado actualmente. Para exportar un mes diferente, navega hasta él con las flechas y luego haz clic en el botón."
+        },
+        {
+          "q": "Eliminé una transacción por error, ¿puedo recuperarla?",
+          "a": "Sí. Justo después de eliminarla, aparece una notificación de deshacer para que puedas restaurar la transacción. También puedes deshacer la marca de «saltada» de una transacción y devolverla a pendiente."
+        }
+      ]
+    },
+    "projects": {
+      "title": "Proyectos",
+      "intro": "La pantalla de Proyectos organiza tu trabajo por área. Cada proyecto agrupa clientes, grupos, tareas y transacciones, y muestra cuántos clientes tiene, cuántos ingresos genera y cuántas tareas abiertas tiene.",
+      "features": [
+        {
+          "title": "Nuevo proyecto",
+          "body": "Haz clic en «+ Nuevo proyecto» (o «Añadir proyecto» cuando la pantalla está vacía) para abrir la ventana «Nuevo proyecto». Solo defines un nombre de proyecto y un color de una paleta de ocho. No hay campos de fecha, presupuesto ni descripción."
+        },
+        {
+          "title": "Tarjeta de proyecto",
+          "body": "Cada proyecto se muestra como una tarjeta con un punto de color, el nombre y tres números: cuántos clientes, cuántos ingresos (en el rango que hayas seleccionado) y cuántas tareas abiertas. Al hacer clic en la tarjeta se abre la pantalla completa del proyecto."
+        },
+        {
+          "title": "Mensual o acumulado",
+          "body": "En la parte superior de la pantalla hay un interruptor «Mensual» / «Acumulado» que cambia el rango de los ingresos. En modo «Mensual» los números muestran los ingresos del mes actual. En modo «Acumulado» muestran todos los ingresos desde el principio hasta hoy."
+        },
+        {
+          "title": "Resumen de proyectos",
+          "body": "La tarjeta «Resumen de proyectos» en la parte superior de la pantalla muestra cuántos proyectos existen, cuántos clientes están asignados a ellos y los ingresos totales («Ingresos mensuales» o «Ingresos acumulados», según el interruptor)."
+        },
+        {
+          "title": "Ingresos automáticos por proyecto",
+          "body": "Los ingresos de cada tarjeta se calculan automáticamente a partir de las transacciones de ingreso vinculadas al proyecto, o vinculadas a un cliente que pertenece al proyecto. No necesitas introducir importes manualmente en el propio proyecto. El recuento de tareas abiertas también proviene de las tareas que pertenecen al proyecto o a sus clientes."
+        },
+        {
+          "title": "Editar y eliminar desde la tarjeta",
+          "body": "Cada tarjeta tiene un botón de lápiz («Editar proyecto») que abre la ventana «Editar proyecto» para cambiar el nombre y el color, y un botón X («Eliminar proyecto»). La eliminación pide confirmación y advierte de que los clientes y las transacciones permanecerán, solo que sin la asignación del proyecto."
+        },
+        {
+          "title": "Pantalla del proyecto: encabezado y estadísticas",
+          "body": "Dentro del proyecto, el encabezado muestra el número de clientes activos (y los clientes «Intermedio» si los hay) y el número de grupos, junto con tres estadísticas: clientes, «Ingresos este mes» y grupos. El botón de lápiz en la parte superior abre «Editar proyecto». Nota: «Ingresos este mes» dentro de la pantalla del proyecto siempre muestra el mes actual; no se ve afectado por el interruptor mensual/acumulado de la pantalla principal."
+        },
+        {
+          "title": "Añadir rápido dentro de un proyecto",
+          "body": "Cada pantalla de proyecto tiene una fila con «Añadir rápido» y «Actualizar objetivo». «Añadir rápido» abre una bandeja de selección, y cuando eliges una transacción, cliente, tarea, objetivo, recordatorio o sesión, se abren ya vinculados al proyecto actual, así que no necesitas seleccionarlo de nuevo. «Actualizar objetivo» abre una lista de objetivos para una actualización rápida."
+        },
+        {
+          "title": "Gráfico de ingresos acumulados",
+          "body": "Debajo de la fila de añadir hay un gráfico «Ingresos acumulados — este mes» que muestra cómo se acumularon los ingresos del proyecto a lo largo del mes, con el total junto al encabezado. Si no hay ingresos este mes, se muestra «No hay ingresos para este proyecto este mes.»."
+        },
+        {
+          "title": "Grupos en un proyecto",
+          "body": "En la sección «Grupos» puedes crear un nuevo grupo («+ Nuevo grupo») con un nombre, color, precio («Precio de paquete», «Precio por sesión» o «Sin precio fijo») y, de forma opcional, día, hora de inicio, hora de fin y fechas de inicio/fin. Cada grupo muestra el número de miembros, el precio, la sesión recurrente, una lista de miembros y botones para «Añadir miembro», «Registrar sesión», ver sesiones pasadas y eliminar. También puedes editar un grupo con el botón de lápiz de su encabezado, y quitar a un miembro concreto haciendo clic en la X de su etiqueta."
+        },
+        {
+          "title": "Sesiones pasadas de un grupo",
+          "body": "El botón de calendario en una tarjeta de grupo abre la lista «Sesiones pasadas», donde cada sesión se numera automáticamente. Puedes cambiar la fecha de una sesión directamente en la lista, o eliminar una sesión concreta: la eliminación pide confirmación y quita la sesión de todos los miembros del grupo."
+        },
+        {
+          "title": "Estado del grupo y su efecto en los clientes",
+          "body": "Cada grupo tiene tres botones de estado: Activo, En desarrollo, Finalizado. Cambiar a «Activo» o «Finalizado» también puede mover a los miembros del grupo al estado de cliente correspondiente (Activo / Antiguo): el sistema pide confirmación y muestra a cuántos clientes afectará. Cambiar a «En desarrollo» no cambia los estados de los clientes."
+        },
+        {
+          "title": "Asignar un cliente a un grupo arrastrando",
+          "body": "En la sección «Clientes» puedes arrastrar un cliente sobre una tarjeta de grupo. Si el cliente ya pertenece a otro grupo, se abre una ventana «Asignar a grupo» que te permite elegir entre «Mover aquí» y «Añadir (a ambos)». Si el cliente no está en otro grupo, se añade directamente."
+        },
+        {
+          "title": "Clientes del proyecto",
+          "body": "La sección «Clientes» muestra todos los clientes del proyecto, con su etiqueta de grupo o una etiqueta «Privado» si no están en un grupo. Al hacer clic en un cliente se abre su ficha, y «+ Añadir cliente al proyecto» añade un nuevo cliente que queda vinculado al proyecto de antemano."
+        },
+        {
+          "title": "Recordatorios vinculados",
+          "body": "La sección «Recordatorios vinculados» reúne todos los recordatorios vinculados al proyecto, muestra cuántos están activos del total, y te permite marcar un recordatorio como hecho, eliminarlo (con confirmación) o añadir un nuevo recordatorio al proyecto. Un recordatorio vencido se marca como «Vencido», y uno completado se marca como «Hecho»."
+        }
+      ],
+      "tips": [
+        "Para que los ingresos y los clientes aparezcan en un proyecto, vincula transacciones, clientes y sesiones a él. Los ingresos también se calculan a partir de las transacciones que pertenecen a clientes vinculados, no solo de las transacciones etiquetadas directamente al proyecto.",
+        "Alterna entre «Mensual» y «Acumulado» en la pantalla principal para ver los ingresos de este mes o de todo el tiempo. Ten en cuenta que dentro de la pantalla del proyecto, la estadística «Ingresos este mes» siempre muestra el mes actual.",
+        "¿Eliminaste un proyecto por error? Aparece una notificación de deshacer justo después de eliminarlo, y en cualquier caso los clientes y las transacciones permanecen en el sistema.",
+        "Añade clientes, transacciones y recordatorios con «Añadir rápido» dentro del proyecto: todo quedará vinculado automáticamente al proyecto actual, sin selección manual.",
+        "Antes de cambiar el estado de un grupo a «Finalizado», ten en cuenta que puede mover a todos los miembros del grupo al estado «Antiguo». El sistema pedirá confirmación y mostrará a cuántos clientes afectará."
+      ],
+      "faq": [
+        {
+          "q": "¿Cómo fijo un presupuesto, fechas de inicio/fin o una descripción para un proyecto?",
+          "a": "No puedes: un proyecto solo tiene un nombre y un color. No hay campos de presupuesto, fecha ni descripción para los proyectos. El seguimiento financiero proviene automáticamente de las transacciones vinculadas. (Las fechas de inicio y fin existen solo para los grupos dentro de un proyecto, no para el proyecto en sí.)"
+        },
+        {
+          "q": "¿Cómo filtro los proyectos por estado (activo/completado)?",
+          "a": "Los proyectos no tienen estado, y no puedes filtrar por estado. El estado (Activo / En desarrollo / Finalizado) existe solo para los grupos dentro de un proyecto. La etiqueta «Activo» en una tarjeta de proyecto es fija; no es un estado que se pueda cambiar."
+        },
+        {
+          "q": "Los ingresos de un proyecto no parecen correctos, ¿por qué?",
+          "a": "Los ingresos suman las transacciones de ingreso vinculadas al proyecto o a un cliente del proyecto, dentro del rango que hayas seleccionado (mensual o acumulado en la pantalla principal, mes actual dentro de la pantalla del proyecto). Las transacciones no vinculadas al proyecto ni a uno de sus clientes no se incluirán."
+        },
+        {
+          "q": "¿Qué pasa con los clientes y las transacciones cuando se elimina un proyecto?",
+          "a": "Permanecen en el sistema: solo pierden la asignación del proyecto. También aparece una notificación de deshacer justo después de eliminarlo."
+        },
+        {
+          "q": "Eliminé un grupo, ¿qué pasa con sus miembros, sesiones y recordatorios?",
+          "a": "Cuando eliminas un grupo, se abre una ventana donde eliges, para cada tipo de dato vinculado (miembros, próximas sesiones, sesiones pasadas, recordatorios vinculados), si conservarlo o eliminarlo. Los miembros que se conservan permanecen como clientes privados en el proyecto. Si el grupo no tiene datos vinculados, simplemente se elimina. Puedes cancelar toda la acción con un solo clic."
+        },
+        {
+          "q": "¿Cómo añado una sesión de grupo?",
+          "a": "Dentro de la pantalla del proyecto, en la tarjeta del grupo, haz clic en «Registrar sesión». La sesión se registra para todos los miembros del grupo y se numera automáticamente. Puedes ver la lista de sesiones pasadas con el botón de calendario de la tarjeta, y desde ahí editar la fecha de una sesión o eliminar una sesión concreta."
+        }
+      ]
+    },
+    "tasks": {
+      "title": "Tareas",
+      "intro": "Una pantalla para dos tipos de pendientes. Las «Tareas» son cosas por hacer sin una fecha concreta. Los «Recordatorios» son cualquier cosa atada a un día y una hora. Cambia entre ellos con un solo toque en el interruptor de arriba.",
+      "features": [
+        {
+          "title": "Cambiar entre Tareas y Recordatorios",
+          "body": "Debajo del título hay un interruptor con dos botones: Tareas y Recordatorios. Una tarea es algo por hacer, sin fecha. Un recordatorio es cualquier cosa atada a un día y una hora. Cada lado tiene su propio resumen, filtro y lista, y el botón de añadir cambia en consecuencia («+ Nueva tarea» / «+ Nuevo recordatorio»). Cambiar de lado también restablece el filtro a «Abiertos»."
+        },
+        {
+          "title": "Añadir una tarea",
+          "body": "En el lado de Tareas, haz clic en «+ Nueva tarea». Rellena «¿Qué hay que hacer?» (obligatorio) y elige una prioridad (Urgente / Normal / Baja). Puedes vincularla a un proyecto y a un cliente, y si has definido estados o categorías, también puedes seleccionarlos. Las tareas no tienen fecha de vencimiento: la pantalla lo indica y sugiere añadir un recordatorio si necesitas un día concreto."
+        },
+        {
+          "title": "Prioridad y agrupación",
+          "body": "Hay tres niveles de prioridad: Urgente, Normal y Baja. Las tareas se ordenan en ese orden, y cada grupo tiene su propio punto de color y contador: Urgente en rojo, Normal en ámbar, Baja en verde."
+        },
+        {
+          "title": "Completar una tarea y deshacer",
+          "body": "Al hacer clic en el círculo junto a una tarea se marca como hecha; al hacer clic de nuevo, vuelve. Tras cada acción, aparece una notificación de deshacer («Tarea completada» / «Tarea restaurada») por si tocaste por error. Marcar una tarea como hecha borra de ella cualquier estado personalizado abierto. Restaurarla a activa no restaura el estado: puedes elegirlo de nuevo en la edición."
+        },
+        {
+          "title": "Editar una tarea",
+          "body": "Al hacer clic en el icono del lápiz en la fila de una tarea se abre la ventana «Editar tarea». Tiene exactamente los mismos campos que al añadir: título, prioridad, proyecto, cliente y, si los has configurado, estado y categoría."
+        },
+        {
+          "title": "Filtrar tareas",
+          "body": "Debajo del resumen hay tres pestañas: Abiertas, Completadas, Todas. Si tienes categorías, también aparece una fila de píldoras para filtrar por categoría (incluida una píldora «Todas»). Al hacer clic en la misma categoría una segunda vez se borra el filtro."
+        },
+        {
+          "title": "Estados y categorías",
+          "body": "El botón «Estados y categorías» (en el lado de Tareas) abre una ventana donde añades y eliminas tus propios estados y categorías, cada uno con un nombre y un color. Cada estado está vinculado a «Abiertas» o «Completadas» para que los recuentos de la pantalla de Inicio sigan siendo exactos. La eliminación pide confirmación primero, y no elimina las tareas en sí: simplemente se quedan sin esa etiqueta. Aquí también hay una opción de deshacer para recuperación inmediata."
+        },
+        {
+          "title": "Eliminar todas las completadas",
+          "body": "En la pestaña «Completadas» hay un botón «Eliminar todas» que elimina todos los elementos completados de una vez (tras confirmación). Van a la Papelera y se pueden restaurar dentro de 30 días. Aquí no hay un botón de eliminar para una tarea individual."
+        },
+        {
+          "title": "Añadir un recordatorio",
+          "body": "En el lado de Recordatorios, haz clic en «+ Nuevo recordatorio». Rellena «¿De qué quieres que te recuerde?», elige con qué frecuencia se repite (Una vez / Semanal / Mensual / Cada X días), y fija la programación. Para los recordatorios recurrentes puedes añadir una fecha de fin, vincularlo a un cliente y escribir detalles adicionales."
+        },
+        {
+          "title": "La programación cambia según la recurrencia",
+          "body": "Primero elige con qué frecuencia se repite el recordatorio, y luego aparece el campo de programación adecuado. Una vez pide una fecha y una hora. Semanal pide un día de la semana y una hora. Mensual pide un día del mes (1–31) y una hora. Cada X días pide una fecha de inicio, una hora y un número de días."
+        },
+        {
+          "title": "Completar y avanzar recordatorios",
+          "body": "Cuando marcas un recordatorio único como hecho, pasa a «Completados». Un recordatorio recurrente no se marca como hecho: salta automáticamente a la siguiente vez («Recordatorio avanzado»). Sigue saltando hasta que la siguiente vez caiga después de la fecha de fin que fijaste. Aquí también hay una opción de deshacer."
+        },
+        {
+          "title": "Pestañas y agrupación de recordatorios",
+          "body": "Los recordatorios tienen tres pestañas: Abiertos, Recurrentes, Completados. «Abiertos» ordena por urgencia: Vencidos, Hoy, Esta semana, Más adelante. «Recurrentes» muestra la programación fija, ordenada por día de la semana, mensual y cada X días."
+        },
+        {
+          "title": "Tarjeta de resumen",
+          "body": "Sobre la lista hay una tarjeta de resumen con tres números: Abiertos, un número que cambia según el lado en el que estés —«Urgentes» para las tareas (prioridad Urgente) o «Vencidos» para los recordatorios (un recordatorio cuya hora ha pasado y sigue abierto)— y Completados."
+        }
+      ],
+      "tips": [
+        "Una tarea es para algo sin fecha. En el momento en que necesites un día y una hora concretos, cambia a Recordatorios y añade uno ahí. Eso es también lo que aparecerá en el widget de Próximos recordatorios de la pantalla de Inicio.",
+        "Vincula una tarea a un cliente para conectarla con él. Las sesiones con fecha se gestionan en el Calendario, no aquí.",
+        "Configura tus estados y categorías una vez en «Estados y categorías», y luego filtra fácilmente por categoría usando las píldoras sobre la lista.",
+        "Un recordatorio recurrente no desaparece cuando lo marcas: salta a la siguiente vez. Si se han acumulado varias veces no atendidas, verás una insignia ×N junto al título en la pestaña «Abiertos».",
+        "¿Marcaste algo por error? Una ventana de deshacer aparece justo después de cada clic en el círculo para restaurar el estado anterior.",
+        "Para detener un recordatorio recurrente tras una fecha determinada, añádele una «Fecha de fin», ya sea al añadirlo o en la edición."
+      ],
+      "faq": [
+        {
+          "q": "¿Dónde fijo una fecha de vencimiento para una tarea?",
+          "a": "Las tareas no tienen fecha de vencimiento en absoluto: esa es la diferencia con los recordatorios. Si algo tiene que ocurrir en un día concreto, cambia al lado de Recordatorios y añade un recordatorio con una fecha y una hora."
+        },
+        {
+          "q": "¿Cómo elimino una sola tarea?",
+          "a": "Aquí no hay un botón de eliminar para una fila individual. Márcala como hecha, ve a la pestaña «Completadas» y haz clic en «Eliminar todas». Todo lo eliminado va a la Papelera y se puede restaurar dentro de 30 días."
+        },
+        {
+          "q": "Marqué un recordatorio recurrente como hecho, ¿por qué no pasó a «Completados»?",
+          "a": "Así es como debe funcionar. Un recordatorio recurrente salta a la siguiente vez en lugar de marcarse como hecho, de modo que sigue volviendo. Solo se detiene cuando la siguiente vez cae después de la fecha de fin que fijaste."
+        },
+        {
+          "q": "Eliminé un estado o una categoría, ¿qué pasa con las tareas asignadas a ellos?",
+          "a": "Las tareas permanecen. Simplemente pierden esa etiqueta y aparecen sin estado ni categoría. El propio estado o categoría se puede restaurar de inmediato con la ventana de deshacer."
+        },
+        {
+          "q": "¿Cómo ordeno la lista de tareas?",
+          "a": "Las tareas se ordenan automáticamente por prioridad —Urgente, luego Normal, luego Baja—, con un contador para cada grupo. No hay ordenación por fecha, porque las tareas no tienen fechas."
+        },
+        {
+          "q": "¿Cuál es la diferencia entre «Urgentes» y «Vencidos» en el resumen?",
+          "a": "Es el mismo lugar en la tarjeta de resumen, pero cambia según el lado que estés viendo. Para las tareas cuenta las tareas abiertas con prioridad «Urgente». Para los recordatorios cuenta los recordatorios abiertos cuya hora ya ha pasado."
+        }
+      ]
+    },
+    "calendar": {
+      "title": "Calendario",
+      "intro": "El Calendario reúne todo lo que tienes planificado en un solo lugar: sesiones, recordatorios, tareas, transacciones financieras, seguimientos de prospectos y eventos sincronizados desde Google. Puedes verlo de cuatro maneras: Agenda, Día, Semana y Mes.",
+      "features": [
+        {
+          "title": "Cuatro vistas",
+          "body": "En la parte superior de la pantalla hay cuatro pestañas. «Agenda» es una lista de próximos eventos. «Día» muestra una línea de tiempo detallada por horas. «Semana» muestra siete columnas, una por día. «Mes» es un calendario mensual con puntos de color. La vista que elijas se guarda y se abrirá de nuevo la próxima vez."
+        },
+        {
+          "title": "Navegar entre fechas",
+          "body": "En la vista «Día», usa las flechas para avanzar o retroceder un día, con la fecha mostrada en el centro. En las vistas «Semana» y «Mes», las flechas saltan un mes completo, y hay un selector de mes y año en el centro. El botón «Hoy» te devuelve a la fecha de hoy (en Semana y Mes también salta a la vista de Día). En la vista «Agenda» no hay navegación de fechas: siempre muestra eventos desde hoy en adelante."
+        },
+        {
+          "title": "Añadir con «+ Nuevo evento»",
+          "body": "El botón «+ Nuevo evento» abre una ventana llamada «Nuevo evento» con cuatro opciones: «Sesión con cliente», «Recordatorio», «Tarea» y «Transacción» (ingreso o gasto). Cada elección abre el formulario de añadir correspondiente."
+        },
+        {
+          "title": "Programar una sesión con cliente",
+          "body": "En la ventana «Programar sesión», elige un cliente, una fecha y una hora. Al hacer clic en «Guardar» se crea una sesión pendiente de confirmación. Las sesiones añadidas aquí son únicas. Para una franja semanal recurrente, configúrala desde la edición de la ficha del cliente, no aquí."
+        },
+        {
+          "title": "Hacer clic en un evento: detalles y acciones",
+          "body": "Al hacer clic en un evento se abre «Detalles del evento». Para una sesión pendiente se te preguntará «¿Se realizó esta sesión?»: «Sí» la confirma y «No» la salta. Para una sesión ya confirmada, verás «Sesión confirmada.». Para un recordatorio puedes «Marcar como hecho» o «Eliminar» (la eliminación requiere dos clics: tienes que confirmar «¿Seguro? Eliminar»). Para un seguimiento de prospecto puedes hacer clic en «Seguimiento hecho»."
+        },
+        {
+          "title": "Eventos de Google Calendar",
+          "body": "Los eventos de Google se marcan con una etiqueta «Calendario» y aparecen junto a tus demás eventos. En la ventana de detalles puedes hacer clic en «Editar» (título, hora de inicio y hora de fin) o «Eliminar» (dos clics: «¿Seguro? Eliminar»). El cambio solo afecta a Simplicity, no a tu Google Calendar. Un evento que has editado se etiqueta como «Tu evento (editado en Simplicity)», y tus cambios se conservan en las sincronizaciones futuras."
+        },
+        {
+          "title": "Filtro de vista",
+          "body": "El botón de filtro en la parte superior de la pantalla abre «Filtro de vista». Ahí eliges qué tipos de evento mostrar: «Sesiones», «Recordatorios», «Seguimientos de prospectos» y «Eventos de Google Calendar». Cuando has ocultado un tipo, el botón se resalta para que sepas que el filtro está activo."
+        },
+        {
+          "title": "Duplicados con Google",
+          "body": "A veces una sesión recurrente en la app entra en conflicto con un evento de Google del mismo cliente o grupo, en el mismo día y dentro de una hora y media uno del otro. En ese caso aparece un aviso: «1 duplicado de calendario con Google» (o «N duplicados de calendario con Google»). Al hacer clic se abre «Duplicados de calendario», donde para cada par eliges qué ocultar —la sesión de la app o el evento de Google— haciendo clic en «Ocultar»."
+        },
+        {
+          "title": "Seguimientos de prospectos y recordatorios",
+          "body": "Un prospecto activo con una fecha de seguimiento aparece en el calendario a las 09:00 de ese día (sin etiqueta). Al hacer clic en «Seguimiento hecho» se borra la fecha de seguimiento y se quita el evento del calendario, pero el prospecto en sí permanece en su columna. Los recordatorios —únicos y recurrentes— aparecen con una etiqueta «Recordatorio»."
+        },
+        {
+          "title": "Conectar Google Calendar",
+          "body": "En Conexiones > Google Calendar, elige desde qué fecha sincronizar (hasta un año atrás) y haz clic en «Conectar Google Calendar». Luego puedes hacer clic en «Sincronizar ahora», asignar cada evento a un cliente, proyecto, prospecto o grupo con «+ Asignar a…» (cada evento se marca como «Identificado» o «Sin identificar»), o hacer clic en «Desconectar»."
+        }
+      ],
+      "tips": [
+        "En la vista «Agenda» solo ves eventos desde hoy en adelante. Si la lista es larga, haz clic en «Cargar más» para ver eventos adicionales.",
+        "La vista «Día» muestra las horas de 06:00 a 22:00 en una línea de tiempo. Los eventos fuera de ese rango no desaparecen: aparecen en las franjas «Antes de las 06:00» y «Después de las 22:00» encima y debajo de la línea de tiempo, y los eventos de todo el día aparecen en la franja «Todo el día» de arriba.",
+        "En la vista «Mes» cada punto se colorea por tipo: sesiones, recordatorios y eventos de calendario (consulta la leyenda debajo del calendario). Al hacer clic en un día se salta automáticamente a su vista de Día.",
+        "Una franja semanal recurrente que fijes en la ficha del cliente se distribuye automáticamente como sesiones en el calendario. Cada vez que se abre el calendario, rellena en segundo plano las sesiones que falten, avanzando en el tiempo.",
+        "Si elegiste ocultar un evento de Google para resolver un duplicado, puede volver en la siguiente sincronización porque la sincronización es unidireccional. Suele ser mejor ocultar la sesión de la app en su lugar. (Editar o eliminar un evento de Google desde «Detalles del evento» sí se conserva en las sincronizaciones futuras.)"
+      ],
+      "faq": [
+        {
+          "q": "¿Cuántas vistas tiene el calendario?",
+          "a": "Cuatro: «Agenda» (lista de próximos eventos), «Día» (línea de tiempo por horas), «Semana» (siete columnas) y «Mes» (calendario con puntos). Cambia entre ellas con las pestañas de la parte superior de la pantalla: tu elección se guarda para la próxima vez."
+        },
+        {
+          "q": "Hice clic en «+ Nuevo evento», ¿por qué no hay campo de nombre ni de duración?",
+          "a": "«+ Nuevo evento» primero pregunta qué quieres añadir: una sesión con cliente, un recordatorio, una tarea o una transacción. Una sesión se define por cliente, fecha y hora: aquí no hay un campo de nombre de texto libre ni de duración."
+        },
+        {
+          "q": "¿Programar una sesión en el calendario la registra automáticamente como ingreso en Dinero?",
+          "a": "No. Programar una sesión aquí solo crea una sesión pendiente de confirmación, y confirmarla («Sí») solo la marca como realizada. El registro de ingresos se hace por separado: no ocurre automáticamente al programar una sesión."
+        },
+        {
+          "q": "¿Cómo fijo una sesión semanal recurrente?",
+          "a": "Las sesiones añadidas desde el calendario son únicas. Para fijar una franja semanal recurrente, edita la ficha del cliente y configúrala ahí: el calendario la distribuye luego automáticamente en sesiones futuras."
+        },
+        {
+          "q": "Edité o eliminé un evento de Google en el calendario, ¿eso lo cambia también en Google?",
+          "a": "No. Editar o eliminar un evento sincronizado desde «Detalles del evento» solo afecta a Simplicity, pero esos cambios sí se conservan en las sincronizaciones futuras (el evento pasa a ser «tu evento»). Solo ocultar un evento de Google para resolver un duplicado podría revertirse en la siguiente sincronización."
+        },
+        {
+          "q": "¿Por qué no se muestra un evento determinado en el calendario?",
+          "a": "Comprueba el «Filtro de vista»: puede que hayas desactivado ese tipo de evento (sesiones, recordatorios, seguimientos de prospectos o eventos de Google Calendar). Los eventos de Google solo aparecen después de que hayas conectado y sincronizado en la pantalla de Conexiones."
+        }
+      ]
+    },
+    "goals": {
+      "title": "Objetivos",
+      "intro": "Aquí fijas objetivos medibles para tu actividad. El progreso se sigue automáticamente a partir de los datos que ya hay en el sistema, o se introduce manualmente. Cada objetivo tiene una tarjeta que muestra cuánto se ha logrado y si vas al ritmo previsto.",
+      "features": [
+        {
+          "title": "Nuevo objetivo",
+          "body": "Al hacer clic en «+ Nuevo objetivo» se abre una ventana donde eliges una métrica, das un nombre al objetivo (opcional), fijas un marco temporal, una meta numérica y un nivel de importancia. También puedes vincularlo a un proyecto y un grupo. Cada objetivo aparece en la pantalla bajo la categoría de la métrica que elegiste."
+        },
+        {
+          "title": "Elegir una métrica",
+          "body": "Algunas métricas se siguen automáticamente —«Ingresos», «Clientes activos», «Prospectos», «Cierres» y «Miembros de grupo»—, y también está «Otro — Actualizaciones manuales» para un seguimiento que gestionas tú mismo. No necesitas configurar categorías por separado: la categoría se crea automáticamente a partir de la métrica que elijas."
+        },
+        {
+          "title": "Marco temporal",
+          "body": "Elige entre «Mensual», «Semanal» o «Por fecha». «Mensual» se mide a lo largo de un mes natural completo, «Semanal» a lo largo de la semana actual. Con «Por fecha» añades una fecha meta, y el progreso se mide desde el día en que creaste el objetivo hasta esa fecha."
+        },
+        {
+          "title": "Seguimiento automático",
+          "body": "Los objetivos de «Ingresos» suman las transacciones de ingreso del periodo. Los «Prospectos» y «Cierres» se cuentan a partir de tus prospectos (los prospectos por fecha de consulta, los cierres por prospectos convertidos en clientes). «Clientes activos» y «Miembros de grupo» reflejan el recuento actual. Todos estos se actualizan automáticamente: no hay nada que introducir manualmente."
+        },
+        {
+          "title": "Seguimiento manual («Otro»)",
+          "body": "Cuando eliges la métrica «Otro — Actualizaciones manuales», también eliges cómo seguirla: «Entrada manual» o «Pregunta del registro diario». Una tarjeta de objetivo manual tiene un botón «Introducir» para registrar el progreso, y un botón «Historial» con el recuento de entradas que abre todas las entradas para verlas o eliminarlas."
+        },
+        {
+          "title": "Vincular a una pregunta del registro diario",
+          "body": "Para un objetivo manual puedes elegir «Pregunta del registro diario»: vincula una pregunta existente, o escribe una nueva, incluyendo la redacción, el tipo de respuesta («Escala 1–10» o «Sí / No»), el icono y cuándo aparece. Las respuestas numéricas se acumulan hacia el objetivo: una puntuación de 7 en la escala suma 7, y una respuesta «Sí» suma 1."
+        },
+        {
+          "title": "Tope para un objetivo con pregunta de sí/no",
+          "body": "Cuando la pregunta del registro diario es de tipo «Sí / No», el sistema calcula cuántas veces aparecerá la pregunta en el periodo y no te deja fijar una meta mayor que eso. Un mensaje muestra cuántas veces aparecerá la pregunta, y que puedes aspirar a menos pero no a más. Las preguntas de escala no tienen ese tope."
+        },
+        {
+          "title": "Introducir progreso",
+          "body": "La ventana «Introducir progreso» pide un valor numérico, una fecha (por defecto hoy, no se permiten fechas futuras) y una nota opcional. Las entradas se acumulan hacia el resultado del objetivo para ese periodo."
+        },
+        {
+          "title": "La tarjeta de cada objetivo",
+          "body": "Cada tarjeta muestra el nombre del objetivo, la categoría y el marco temporal, el porcentaje de logro global (con «+» cuando supera el 100 %), y dos barras: «del objetivo» (cuánto se ha logrado) y «del ritmo» (cómo de en ritmo vas en relación con el tiempo transcurrido). Junto a ellas están el valor frente a la meta y una valoración de importancia en estrellas."
+        },
+        {
+          "title": "Editar y eliminar",
+          "body": "Cada tarjeta tiene un botón de editar (lápiz) para cambiar el nombre, el marco temporal, la meta, la importancia, la asignación de proyecto y grupo, y el método de seguimiento (también puedes cambiar la pregunta diaria vinculada), y un botón de eliminar (papelera). Eliminar un objetivo pide confirmación y advierte de que puedes restaurarlo desde la Papelera dentro de 30 días."
+        }
+      ],
+      "tips": [
+        "Dale a tu objetivo un número claro: «20 clientes activos» funciona mucho mejor que «hacer crecer mi actividad».",
+        "Las dos barras significan cosas distintas: «del objetivo» muestra cuánto se ha logrado en total, y «del ritmo» muestra si vas al ritmo previsto en relación con cuánto tiempo ya ha transcurrido en el periodo. Si «del ritmo» está por debajo del 100 %, vas con retraso, aunque «del objetivo» siga avanzando.",
+        "Para un objetivo con pregunta de sí/no puedes aspirar a menos días de los que se hace la pregunta (por ejemplo, una meta de 3 por semana aunque la pregunta aparezca 5 veces), pero no a más.",
+        "Incluso para un objetivo vinculado a una pregunta diaria, el botón «Introducir» sigue ahí: una entrada manual cuenta además de las respuestas a la pregunta, no en lugar de ellas.",
+        "La importancia (1–5) determina cuánto peso tiene el objetivo en la puntuación global de la Vista lunar: un objetivo más importante tira de la puntuación con más fuerza.",
+        "Si eliminaste un objetivo o una entrada sin querer, la Papelera tiene una ventana de 30 días para recuperarlo, y eliminar una entrada también muestra una opción de Deshacer inmediata."
+      ],
+      "faq": [
+        {
+          "q": "¿Dónde gestiono las categorías de objetivos?",
+          "a": "Aquí no hay una gestión de categorías aparte. La categoría la determina la métrica que eliges al crear el objetivo, y se crea automáticamente: todos los objetivos se agrupan por ella. Las métricas automáticas se siguen por sí solas, y todo objetivo manual cae bajo la categoría «Otro»."
+        },
+        {
+          "q": "¿Por qué no se actualiza el progreso de mi objetivo?",
+          "a": "Depende de la métrica: «Ingresos» solo suma las transacciones de ingreso confirmadas del periodo, los «Prospectos» se cuentan por la fecha de consulta del prospecto, los «Cierres» solo cuentan los prospectos convertidos en clientes, y «Clientes activos» solo cuenta los clientes con estado activo. Para un objetivo manual tienes que registrar valores con «Introducir», o responder la pregunta del registro diario vinculada."
+        },
+        {
+          "q": "¿Cuál es la diferencia entre «del objetivo» y «del ritmo» en la tarjeta?",
+          "a": "«del objetivo» es el porcentaje de logro frente a la meta completa. «del ritmo» compara tu progreso con el ritmo esperado según cuánto tiempo ya ha transcurrido en el periodo: si estás a mitad del mes y has alcanzado el 50 % de tu meta, «del ritmo» muestra 100 %. Para las métricas que son un recuento actual (clientes activos, miembros de grupo) y para los objetivos «Por fecha» con una meta de 1, no hay un cálculo de ritmo aparte, y ambas barras muestran el mismo valor."
+        },
+        {
+          "q": "Vinculé una pregunta diaria a mi objetivo, ¿cómo se acumula?",
+          "a": "Cada respuesta numérica del periodo se suma al resultado: para una pregunta de escala 1–10 se acumula el propio valor (respuesta 7 = 7), y para una pregunta de sí/no cada «Sí» suma 1. Los días que no respondiste no suman nada."
+        },
+        {
+          "q": "Eliminé un objetivo sin querer, ¿puedo recuperarlo?",
+          "a": "Sí. Eliminar un objetivo lo envía a la Papelera, y puedes restaurarlo dentro de 30 días. Eliminar una entrada manual también se puede deshacer: aparece una opción de Deshacer justo después de eliminarla."
+        },
+        {
+          "q": "¿Puedo vincular un objetivo a un proyecto o grupo?",
+          "a": "Sí. La ventana del objetivo tiene un selector «Proyecto (opcional)», y si ese proyecto tiene grupos también aparece un selector «Grupo (opcional)». Para un objetivo de «Miembros de grupo», la asignación también acota el recuento a ese grupo o proyecto concreto."
+        }
+      ]
+    },
+    "insights": {
+      "title": "Registro diario",
+      "intro": "Esta es tu pantalla de registro personal diario. Responde a cada pregunta en su tarjeta, y obtienes una reflexión, promedios, un gráfico de tendencia y seis meses de historial de cada pregunta.",
+      "features": [
+        {
+          "title": "Reflexión diaria",
+          "body": "La tarjeta «Reflexión diaria» en la parte superior de la pantalla muestra hasta tres frases escritas automáticamente a partir de tus respuestas: una racha de días que has respondido, un máximo o mínimo semanal de una pregunta concreta, una subida o bajada respecto a la semana pasada, o una nota alentadora de estabilidad cuando no hay un cambio importante. Se basa solo en las preguntas activas y se actualiza por sí sola."
+        },
+        {
+          "title": "Una tarjeta por cada pregunta",
+          "body": "Cada pregunta que has configurado aparece como su propia tarjeta con su icono y redacción. Las preguntas desactivadas también aparecen, en un estilo atenuado, para que puedas activarlas o desactivarlas aquí mismo."
+        },
+        {
+          "title": "Respuesta diaria",
+          "body": "Para una pregunta de escala 1–10, mueve el control deslizante y haz clic en la marca de verificación para guardar. Para una pregunta de «Sí / No», haz clic en Sí o No. Solo puedes responder una pregunta que esté activa, programada para hoy y que aún no hayas respondido hoy."
+        },
+        {
+          "title": "Saltar una pregunta",
+          "body": "El botón «Saltar» deja la pregunta sin responder por hoy. No se registra ninguna respuesta, así que tu racha, promedios y tendencias no se ven afectados. El salto se restablece automáticamente al día siguiente."
+        },
+        {
+          "title": "Recuperar preguntas saltadas",
+          "body": "Si saltaste preguntas que aún puedes responder hoy, aparece un botón debajo de las tarjetas: «Responder N preguntas saltadas» (o «Responder 1 pregunta saltada» cuando solo hay una), que las trae todas de vuelta para responderlas."
+        },
+        {
+          "title": "Interruptor para cada pregunta",
+          "body": "Cada tarjeta tiene un interruptor que activa o desactiva la pregunta directamente desde esta pantalla. Una pregunta desactivada permanece en la pantalla pero no se puede responder y no cuenta para la reflexión ni para tu racha."
+        },
+        {
+          "title": "Promedios y cambio",
+          "body": "Cada tarjeta muestra un «promedio de 7 días», con una etiqueta al lado que muestra el cambio respecto a los siete días anteriores, y también un «promedio de 30 días». Los promedios no cuentan los días sin respuesta."
+        },
+        {
+          "title": "Gráfico de tendencia",
+          "body": "Bajo «Últimos 30 días» aparece un gráfico de líneas que muestra tus respuestas del último mes. Un día sin respuesta se dibuja como un hueco y no se conecta con una línea: necesitas al menos dos puntos de datos para que aparezca el gráfico."
+        },
+        {
+          "title": "Mapa de calor de seis meses",
+          "body": "«Últimos 6 meses» muestra una cuadrícula de 26 semanas, una celda por día. Cuanto más alta sea la respuesta, más oscura y llena estará la celda. Para las preguntas de sí/no la celda está llena para «Sí» y clara para «No». Al pasar el cursor sobre una celda se muestran la fecha y el valor."
+        },
+        {
+          "title": "Historial",
+          "body": "En la parte inferior de la pantalla puedes desplegar «Historial» para ver las últimas 30 respuestas, las más recientes primero, con el icono, la redacción de la pregunta, la fecha y el valor. Si lo abriste, permanece abierto en tus próximas visitas."
+        },
+        {
+          "title": "Gestionar preguntas en Ajustes",
+          "body": "Añade, elimina y programa preguntas en Ajustes > Preguntas del registro diario. Ahí puedes añadir una pregunta a partir de una plantilla lista o escribir la tuya (texto, tipo de respuesta e icono), y establecer si aparece «Cada día», en «Días concretos» o «Cada X días»."
+        }
+      ],
+      "tips": [
+        "Responde cada día: aunque sea una sola pregunta, mantiene viva tu racha. Los gráficos y la reflexión empiezan a ponerse interesantes después de unas tres semanas de datos.",
+        "Si una pregunta no es relevante hoy, es mejor hacer clic en «Saltar» que dar una respuesta inexacta. Saltar no afecta a tus promedios ni a tus tendencias.",
+        "Los máximos y mínimos semanales aparecen en la reflexión solo para preguntas de escala 1–10, y solo cuando hay suficientes respuestas en esa semana. Las preguntas de sí/no no se incluyen en ese cálculo.",
+        "Una pregunta que desactivaste permanece en la pantalla en un estilo atenuado con todo su historial: puedes reactivarla en cualquier momento con el interruptor de la tarjeta.",
+        "Para cambiar en qué días aparece una pregunta, abre la fila de programación en Ajustes > Preguntas del registro diario y elige «Días concretos» o «Cada X días»."
+      ],
+      "faq": [
+        {
+          "q": "¿Puedo escribir una respuesta de texto libre?",
+          "a": "En esta pantalla no. Las respuestas solo se dan con un deslizador de 1 a 10 o con botones de sí/no, según el tipo de respuesta que hayas fijado para la pregunta en Ajustes."
+        },
+        {
+          "q": "Ya respondí hoy, ¿cómo cambio mi respuesta?",
+          "a": "Una vez que respondes, la tarjeta muestra una etiqueta «Hoy · N» y la fila de respuesta desaparece, así que no puedes cambiar la respuesta de hoy desde esta pantalla."
+        },
+        {
+          "q": "¿Las preguntas no aparecen para responder?",
+          "a": "La fila de respuesta solo aparece cuando la pregunta está activa (el interruptor está encendido), hoy es un día en que está programada para aparecer, y aún no la has respondido hoy. Si la saltaste, volverá con el botón «Responder preguntas saltadas»."
+        },
+        {
+          "q": "¿Dónde añado o elimino preguntas?",
+          "a": "En Ajustes > Preguntas del registro diario. En la pantalla de Registro diario solo puedes activar, desactivar, responder y saltar, no añadir ni eliminar."
+        },
+        {
+          "q": "¿Hay correlaciones entre métricas aquí?",
+          "a": "No. Las relaciones entre métricas y los gráficos combinados están en la pantalla de Vista lunar. Aquí cada pregunta va por su cuenta, con su propio promedio, tendencia y mapa de calor."
+        },
+        {
+          "q": "¿Qué significan los colores del mapa de calor?",
+          "a": "Aquí no hay verde ni rojo. La intensidad de la celda muestra cómo de alto es el valor: un valor más alto se ve más lleno y oscuro, uno más bajo se ve más claro, y un día sin respuesta queda vacío."
+        }
+      ]
+    },
+    "moon": {
+      "title": "Vista lunar",
+      "intro": "Una única vista de alto nivel de toda tu actividad: una puntuación ponderada, un desglose por categoría de objetivo, una tendencia a lo largo del tiempo y conexiones entre distintas áreas. Todo se basa en los objetivos que has fijado.",
+      "features": [
+        {
+          "title": "La puntuación principal (En ritmo)",
+          "body": "En el centro de la pantalla hay un anillo con un porcentaje grande y la etiqueta «En ritmo» debajo. Esto muestra cuánto progreso has hecho en relación con lo esperado hasta ahora dentro del periodo de cada objetivo. Debajo verás «X % de la meta», tu logro frente a la meta completa. La puntuación se pondera según la importancia de los objetivos, y cada objetivo se limita a 100 antes de ponderar."
+        },
+        {
+          "title": "Frase de reflexión",
+          "body": "Debajo del anillo hay una frase corta que cambia según tu puntuación; por ejemplo, «Vas por un gran camino este mes» para una puntuación alta, o «Vamos a coger impulso — un pequeño paso adelante» para una puntuación baja. No es un juicio de bueno o malo; es solo una pista sobre tu ritmo actual."
+        },
+        {
+          "title": "Desglose por categoría",
+          "body": "Cada categoría de objetivo que tiene objetivos recibe una tarjeta con dos barras una al lado de la otra: «En ritmo» (cómo vas en relación con el ritmo esperado) y «De la meta» (porcentaje de la meta completa). Esto te permite ver qué áreas tiran de tu puntuación hacia arriba y cuáles hacia abajo. Los valores por encima del 100 % se muestran como un número, pero la barra en sí se detiene en el 100 %."
+        },
+        {
+          "title": "Tendencia a lo largo del tiempo",
+          "body": "Un gráfico de líneas de tu puntuación en los últimos 30 días, con tres métricas a su lado: «Promedio», «Máximo» y «Hoy». El gráfico se basa en una instantánea diaria guardada cada día. Si eres nuevo y aún no hay suficiente historial (menos de dos días guardados), se recalcula a partir de los datos actuales."
+        },
+        {
+          "title": "Tendencias entre módulos",
+          "body": "Un gráfico que muestra varias métricas juntas en el mismo eje. Usa los botones para elegir qué mostrar: ingresos, prospectos, sesiones, puntuación o registro diario. Por defecto se muestran los ingresos y la puntuación. Cada línea se escala a su propio rango (0–100), de modo que puedes comparar la forma de la tendencia incluso entre cosas medidas de forma distinta (€, recuentos, 1–10). Si no hay suficientes datos, verás «Aún no hay datos suficientes para el gráfico»."
+        },
+        {
+          "title": "Seleccionar un registro diario en el gráfico",
+          "body": "El botón «Registro diario» solo está activo si tienes preguntas de registro diario activas configuradas. Cuando lo seleccionas, se abre una lista para elegir qué pregunta mostrar en el gráfico. Los días que no respondiste aparecen como un hueco en la línea (no como cero), para que los datos no induzcan a error."
+        },
+        {
+          "title": "Conexiones por explorar",
+          "body": "El sistema comprueba automáticamente si hay una conexión entre las preguntas numéricas del registro diario (escala 1–10), principalmente entre dos preguntas diarias, y en principio también frente a ingresos, prospectos y sesiones. La mayoría de las veces verás «No hay una conexión significativa en los datos ahora mismo», y eso está perfectamente bien. Cuando aparece un patrón estable, se muestra como una tarjeta que describe que las métricas «tienden a moverse juntas» o «se mueven a la inversa», con una etiqueta de fuerza (fuerte, moderada o sutil), un recuento de puntos y un pequeño diagrama de dispersión."
+        },
+        {
+          "title": "Navegar a Informes y Objetivos",
+          "body": "El botón «Informes» en la parte superior de la pantalla te lleva a la pantalla de Informes para un análisis más profundo. En la parte inferior de la pantalla, «Edita tus objetivos →» te lleva a la pantalla de Objetivos: ahí cambias los datos que alimentan toda esta puntuación."
+        }
+      ],
+      "tips": [
+        "Toda esta pantalla se basa en tus objetivos: sin al menos un objetivo definido, solo verás un mensaje vacío. Ve a la pantalla de Objetivos, fija un objetivo y vuelve.",
+        "La diferencia entre «En ritmo» y «De la meta» importa: «De la meta» te dice cuánto del objetivo completo se ha logrado, mientras que «En ritmo» te dice si te mueves a la velocidad adecuada para el tiempo transcurrido en el periodo. Puedes estar al 40 % de tu meta pero al 100 % en ritmo si aún es pronto en el mes.",
+        "Observa la línea de «Tendencia a lo largo del tiempo» a lo largo de las semanas, no día a día: un solo punto te dice menos que una tendencia.",
+        "En el gráfico de «Tendencias entre módulos», cada línea se escala a su propio rango, así que estás comparando la forma de la tendencia, no los valores absolutos. Los valores reales aparecen en la leyenda del gráfico (suma de la ventana para ingresos, prospectos y sesiones; el último valor respondido para la puntuación y el registro diario).",
+        "Una conexión que ves aquí —visual o estadística— no es causa y efecto. Las tarjetas están redactadas a propósito como «tienden a moverse juntas», no «X causa Y»."
+      ],
+      "faq": [
+        {
+          "q": "La pantalla está vacía y dice que no hay objetivos, ¿por qué?",
+          "a": "Toda la puntuación se calcula a partir de tus objetivos. Sin al menos un objetivo, no hay nada que calcular, por eso ves «Aún no hay objetivos». Ve a la pantalla de Objetivos, fija un objetivo y vuelve."
+        },
+        {
+          "q": "¿Cuál es la diferencia entre el porcentaje grande (En ritmo) y el «X % de la meta» de debajo?",
+          "a": "El porcentaje grande es «En ritmo»: cuánto progreso has hecho en relación con lo esperado hasta ahora en el periodo. «X % de la meta» es tu logro frente a la meta completa. Al inicio de un mes, puedes ir alto en ritmo pero aún bajo frente a la meta completa."
+        },
+        {
+          "q": "¿Las barras de cada categoría comparan esta semana con la semana pasada?",
+          "a": "No. Las dos barras de cada categoría son «En ritmo» y «De la meta» para esa categoría: no hay comparación semana a semana en esta pantalla. Las comparaciones entre periodos están disponibles en la pantalla de Informes."
+        },
+        {
+          "q": "¿Por qué dice «No hay una conexión significativa en los datos ahora mismo» en Conexiones por explorar?",
+          "a": "Es el resultado normal y esperado. El sistema solo muestra una conexión si es lo bastante estable y estadísticamente fiable (incluyendo comprobar si la conexión es real, comparar las dos mitades del periodo y corregir por comparaciones múltiples). En una ventana de 30 días, lo que normalmente supera el listón es una conexión entre dos preguntas numéricas del registro diario, y suele hacer falta unas semanas de respuestas antes de que aparezca algo."
+        },
+        {
+          "q": "¿Por qué está desactivado el botón «Registro diario» en el gráfico?",
+          "a": "El botón solo se activa si tienes preguntas de registro diario activas. Activa o crea una pregunta en Ajustes → Preguntas del registro diario, y entonces podrás seleccionarla y verla en el gráfico."
+        },
+        {
+          "q": "La puntuación no cambia, ¿por qué?",
+          "a": "La puntuación se actualiza cuando cambian los datos que alimentan tus objetivos: transacciones de ingreso confirmadas (no pendientes ni saltadas), respuestas del registro diario, número de clientes activos, prospectos y conversiones de prospectos, recuentos de miembros de grupo, y entradas manuales que has registrado en los objetivos. Actualiza esos datos y la puntuación se moverá."
+        }
+      ]
+    },
+    "reports": {
+      "title": "Informes",
+      "intro": "La pantalla de Informes te muestra 13 números que resumen tu actividad mes a mes: prospectos, clientes, sesiones, finanzas y tareas. Puedes ver un solo mes en modo lista, o comparar varios meses uno al lado del otro en modo tabla. Y puedes hacer clic en cualquier número para ver exactamente qué registros lo componen.",
+      "features": [
+        {
+          "title": "Dos vistas: Lista y Tabla",
+          "body": "Arriba hay un interruptor entre «Lista» y «Tabla». «Lista» muestra un mes a la vez, con los números organizados por tema. «Tabla» los despliega todos uno al lado del otro, una columna por mes. Tu elección se guarda y se restaura la próxima vez."
+        },
+        {
+          "title": "Barra de 12 meses (vista de lista)",
+          "body": "En la vista de lista hay una barra que muestra los últimos 12 meses. Haz clic en un mes para ver todos sus números. El mes actual está seleccionado por defecto."
+        },
+        {
+          "title": "Rango de meses en la vista de tabla",
+          "body": "En la vista de tabla eliges cuántos meses atrás mostrar: 3, 6 o 12. Hay una columna por cada mes (el mes actual está resaltado) y una columna «Resumen» al final. Tu selección se guarda automáticamente."
+        },
+        {
+          "title": "La columna de resumen",
+          "body": "La columna «Resumen» de la tabla suma todo el rango, pero no todo funciona igual. Las cosas que fluyen a lo largo del tiempo (prospectos, sesiones, ingresos) simplemente se suman. Las instantáneas de fin de mes (clientes activos al final, tareas abiertas al final) se promedian. Y los porcentajes (tasa de conversión, abandonos a mitad del recorrido) se recalculan sobre todo el rango."
+        },
+        {
+          "title": "Los 13 números por grupo",
+          "body": "Los números se organizan en cinco grupos: Prospectos (nuevos prospectos, prospectos cerrados, convertidos en clientes, tasa de conversión), Clientes (nuevos clientes, clientes activos al final, abandonos a mitad del recorrido), Sesiones (sesiones realizadas), Finanzas (ingresos, gastos, neto) y Tareas (tareas completadas, tareas abiertas al final)."
+        },
+        {
+          "title": "Profundizar hasta los registros",
+          "body": "Haz clic en un número en la vista de lista, o en una celda no vacía en la vista de tabla, y se abre un panel que te muestra los registros reales que hay detrás —prospectos, clientes, sesiones, transacciones o tareas—, junto con su recuento total."
+        },
+        {
+          "title": "Navegar del desglose a la pantalla",
+          "body": "Cada fila del panel de desglose es un enlace. Al hacer clic te lleva a la pantalla correspondiente: Prospectos, Clientes, Calendario, Dinero o Tareas. Nota: el enlace te lleva a la pantalla, no siempre al registro concreto."
+        },
+        {
+          "title": "Elegir números y orden",
+          "body": "El botón de engranaje «Personalizar vista» abre un panel donde activas qué números mostrar (un interruptor por cada uno) y arrastras un tirador para cambiar el orden. Tus elecciones y el orden se aplican a ambas vistas."
+        },
+        {
+          "title": "Restablecer valores por defecto",
+          "body": "En el panel de personalización hay un botón «Por defecto» que restaura los 13 números en su orden original con un solo clic."
+        },
+        {
+          "title": "Explicaciones de los números",
+          "body": "Junto a «Prospectos cerrados» hay un icono «?». Pasa el cursor por encima o tócalo para ver una breve explicación: «Prospectos cerrados» cuenta a todos los que salieron del proceso, ya sea convertidos en cliente o marcados como no relevantes. «Convertidos en clientes» cuenta solo a los que realmente se hicieron clientes."
+        },
+        {
+          "title": "Mes sin datos",
+          "body": "Si el mes que seleccionaste no tiene datos, verás «No hay datos para este mes». Si otro mes tiene actividad, se te ofrecerá un botón para saltar a él («Ir a...»): el mes más reciente que tenga algo."
+        },
+        {
+          "title": "Enlace a la Vista lunar",
+          "body": "Arriba hay un enlace «Vista lunar» que te lleva a la pantalla Lunar para una imagen más amplia de tu actividad."
+        }
+      ],
+      "tips": [
+        "Los ingresos, gastos y neto solo cuentan las transacciones que has confirmado. Una transacción que no se ha confirmado no aparecerá en el informe.",
+        "La columna de resumen de la tabla no siempre es una suma simple: los números «al final» son promedios, y los porcentajes se recalculan. Así que no esperes que el resumen sea exactamente la suma de las columnas.",
+        "Una celda o número que sea igual a 0 no se puede tocar. Solo puedes profundizar en números que tengan algo detrás.",
+        "Usa el botón de engranaje para ocultar los números que no te importan y mantener el informe enfocado. Ocultar no elimina nada: solo lo quita de la vista. Y si lo ocultas todo, la tabla te avisará de que no hay números activos.",
+        "«Clientes activos al final» y «Tareas abiertas al final» son instantáneas de cómo estaban las cosas al final del mes, no un recuento de todo lo que ocurrió durante él.",
+        "La vista de lista solo muestra los últimos 12 meses. ¿Quieres un rango diferente? Cambia a la vista de tabla y elige 3, 6 o 12 meses."
+      ],
+      "faq": [
+        {
+          "q": "¿Dónde elijo un rango de fechas personalizado?",
+          "a": "Aquí no hay un rango de fechas personalizado. En la vista de lista eliges un mes de la barra de 12 meses, y en la vista de tabla eliges cuántos meses atrás: 3, 6 o 12. Esta pantalla no tiene un gráfico de líneas ni un desglose de ingresos por categoría."
+        },
+        {
+          "q": "El informe muestra 0 ingresos aunque tengo transacciones, ¿por qué?",
+          "a": "Solo se cuentan las transacciones confirmadas, según su fecha. Comprueba que las transacciones están confirmadas y que sus fechas caen dentro del mes que seleccionaste. Si el número sigue siendo 0, puede que esté oculto, así que comprueba el botón de engranaje para asegurarte de que está activado."
+        },
+        {
+          "q": "¿Cuál es la diferencia entre «Prospectos cerrados» y «Convertidos en clientes»?",
+          "a": "«Prospectos cerrados» cuenta cada prospecto que salió del proceso: convertido en cliente, marcado como no relevante o eliminado. «Convertidos en clientes» cuenta solo a los que realmente se hicieron clientes, así que suele ser un número menor."
+        },
+        {
+          "q": "¿Por qué el resumen de la tabla no es igual a la suma de las columnas?",
+          "a": "Depende del número. Las cosas que fluyen (prospectos, sesiones, dinero) se suman de verdad. Pero los números «de fin de mes» se promedian, y la tasa de conversión y la tasa de abandono se recalculan sobre todo el rango, porque no se pueden sumar porcentajes sin más."
+        },
+        {
+          "q": "Cambié qué números se muestran y su orden, ¿se guardará?",
+          "a": "Sí. Tus elecciones, el orden, la vista (lista o tabla) y el rango se guardan todos automáticamente y se restauran la próxima vez, incluso desde otro dispositivo. El botón «Por defecto» restablece la selección y el orden a los originales."
+        },
+        {
+          "q": "¿Qué pasa cuando hago clic en un número del informe?",
+          "a": "Se abre un panel que te muestra los registros reales que hay detrás del número, junto con su recuento. Al hacer clic en una fila del panel te lleva a la pantalla correspondiente: Prospectos, Clientes, Calendario, Dinero o Tareas."
+        }
+      ]
+    },
+    "connections": {
+      "title": "Conexiones",
+      "intro": "La pantalla de Conexiones es donde gestionas las integraciones de Simplicity con servicios externos: Google Calendar y la facturación (Green Invoice o SUMIT). Cada una tiene su propia página donde puedes conectar, desconectar y gestionar la integración.",
+      "features": [
+        {
+          "title": "La lista de conexiones",
+          "body": "La pantalla muestra dos filas: Google Calendar y Facturación. Cada fila muestra su estado actual: el calendario muestra «Conectado» o «No conectado», y la facturación muestra «No conectado», «Conectado» con el nombre del proveedor, o «Se requiere reconexión». Haz clic en una fila para entrar en su página de gestión. Los botones de conectar y desconectar están dentro de la página, así que hacer clic en una fila no desconectará nada por accidente."
+        },
+        {
+          "title": "WhatsApp y Claude",
+          "body": "WhatsApp es ahora una fila activa: envío manual de mensajes a los clientes. Aparece un botón de WhatsApp en la ficha del cliente, en el calendario, en los seguimientos de prospectos y en los recibos. Al tocarlo se abre un mensaje listo que puedes editar antes de enviar, y dentro de la página puedes fijar la redacción por defecto de cada tipo de mensaje. Debajo hay una fila marcada «Próximamente» — Claude; su interruptor está apagado y no se puede pulsar."
+        },
+        {
+          "title": "Conectar Google Calendar",
+          "body": "En la página de Google Calendar, elige desde cuándo empezar a sincronizar («Sincronizar desde la fecha»). El valor por defecto es un año atrás, y no puedes ir más allá. Haz clic en «Conectar Google Calendar», y se abrirá la pantalla de permisos de Google. Una vez que apruebes, los eventos empezarán a entrar en la app automáticamente."
+        },
+        {
+          "title": "Sincronizar y desconectar el calendario",
+          "body": "Cuando el calendario está conectado, puedes ver cuándo se sincronizó por última vez. El botón «Sincronizar ahora» vuelve a traer eventos y te dice cuántos se añadieron y cuántos se quitaron. El botón «Desconectar» requiere un segundo clic para confirmar («¿Seguro? Desconectar»)."
+        },
+        {
+          "title": "Eventos sincronizados y cómo se identifican",
+          "body": "Bajo «Eventos sincronizados» puedes ver tus eventos, agrupados por clientes, proyectos, prospectos, grupos y «Sin identificar». Cada evento se marca como «Identificado» o «Sin identificar» según su asociación, con la fecha, la hora y la duración de la sesión mostradas al lado."
+        },
+        {
+          "title": "Asociar un evento manualmente",
+          "body": "Para cualquier evento puedes hacer clic en «+ Asociar con…», elegir a qué vincularlo (cliente, proyecto, prospecto o grupo) y luego seleccionar el registro concreto de la lista. También puedes quitar una asociación existente con la X de su etiqueta. Las asociaciones que estableces manualmente se guardan y no serán sobrescritas por futuras sincronizaciones."
+        },
+        {
+          "title": "Conectar la facturación (Green Invoice / SUMIT)",
+          "body": "En la página de Facturación, elige un proveedor —«Green Invoice» o «SUMIT»— y pega tus credenciales. Para Green Invoice: API Key y Secret (la clave y el secreto de tu cuenta del servicio). Para SUMIT: ID de empresa y API Key. El botón «¿Cómo consigo esto?» te guía exactamente por dónde encontrarlas en cada servicio."
+        },
+        {
+          "title": "Probar, desconectar y reconectar",
+          "body": "Tras conectar, el estado muestra «Conectado» con el nombre del proveedor. «Probar conexión» verifica con el servicio que tus credenciales siguen siendo válidas, y «Desconectar» requiere un segundo clic. Si la clave fue revocada o reemplazada, verás «Se requiere reconexión» con un botón «Reconectar» para introducir nuevas credenciales."
+        },
+        {
+          "title": "Importación automática de ingresos",
+          "body": "Cuando la facturación está conectada, puedes activar la casilla «¿Importar ingresos automáticamente?». Cuando está activada, el sistema detecta las facturas que has emitido en tu software de facturación y pregunta si registrarlas también aquí como ingresos. No registrará nada sin tu confirmación."
+        },
+        {
+          "title": "Importaciones pendientes",
+          "body": "Debajo de la tarjeta de facturación hay una lista «Importaciones pendientes»: facturas que has emitido en el servicio externo y que esperan tu aprobación. Cada fila muestra el tipo y número de documento, el importe, el nombre del cliente, un enlace «Ver» al documento (si está disponible), y un botón de confirmación («Importar como ingreso», requiere dos clics) o un botón de rechazo. Si parece un duplicado de una transacción existente, aparece una advertencia suave antes de que confirmes."
+        }
+      ],
+      "tips": [
+        "Para Google Calendar, si eliges una fecha de inicio más temprana antes de conectar, traerás un historial de eventos más largo. Tras conectar, no puedes ampliar el rango más hacia atrás sin desconectar y volver a conectar (y aun así, no más de un año atrás).",
+        "Vale la pena asociar manualmente los eventos que el sistema no reconoció («Sin identificar»), con un cliente, proyecto, prospecto o grupo. La asociación se guarda y no será sobrescrita por futuras sincronizaciones.",
+        "¿No estás seguro de si tus credenciales de facturación siguen siendo válidas? Haz clic en «Probar conexión» en la página de Facturación. Comprueba con el servicio sin desconectar nada.",
+        "El Secret de Green Invoice solo se muestra una vez, cuando creas la clave. Cópialo de inmediato, antes de cerrar la ventana.",
+        "Si ya registraste un ingreso manualmente y también aparece en «Importaciones pendientes» con una etiqueta «Posible duplicado», rechaza la importación para que no se registre dos veces.",
+        "Para SUMIT necesitas la API key privada, no la pública. De lo contrario la conexión fallará."
+      ],
+      "faq": [
+        {
+          "q": "Conecté Google Calendar pero los eventos no aparecen, ¿por qué?",
+          "a": "Ve a la página de Google Calendar y haz clic en «Sincronizar ahora». Si los eventos siguen sin aparecer, puede que estén fuera del rango de fechas que elegiste al conectar: desconecta y vuelve a conectar con una fecha de inicio más temprana."
+        },
+        {
+          "q": "¿Puedo conectar Green Invoice y SUMIT a la vez?",
+          "a": "No. La página de Facturación admite un proveedor activo a la vez, y conectar un proveedor diferente reemplaza al anterior. Elige el servicio con el que trabajas."
+        },
+        {
+          "q": "¿Puedo emitir una factura a un cliente desde esta pantalla?",
+          "a": "No directamente. Esta pantalla es solo para conectar el servicio. Para emitir una factura o un recibo, ve a una transacción de ingreso en la pantalla de Dinero: la conexión es lo que habilita esa opción ahí."
+        },
+        {
+          "q": "¿Qué hago cuando dice «Se requiere reconexión»?",
+          "a": "Significa que el servicio rechazó las credenciales que guardaste: probablemente fueron revocadas o reemplazadas. Haz clic en «Reconectar», introduce nuevas credenciales y haz clic en conectar."
+        },
+        {
+          "q": "La casilla «¿Importar ingresos automáticamente?», ¿registra ingresos sin preguntarme?",
+          "a": "No. Cuando está activada, detecta las facturas que has emitido en tu software de facturación y las añade a «Importaciones pendientes». Pero solo se registran como ingresos después de que confirmes cada una tú mismo."
+        },
+        {
+          "q": "¿Dónde se almacenan las credenciales que introduje?",
+          "a": "Tus credenciales se almacenan en nuestros servidores y están vinculadas solo a tu cuenta. El navegador no las lee de vuelta, y no hay forma de volver a verlas desde la pantalla, ni siquiera tú."
+        }
+      ]
+    },
+    "settings": {
+      "title": "Ajustes",
+      "intro": "Ajustes es donde personalizas la app para que se adapte a tu forma de trabajar. Está dividido en nueve secciones: desde tu perfil y la forma de tratamiento que prefieres, pasando por los widgets, los estados, las preguntas diarias y el diseño, hasta la exportación, la importación y la eliminación de la cuenta.",
+      "features": [
+        {
+          "title": "Cómo se organiza la pantalla — nueve secciones desplegables",
+          "body": "Los ajustes se dividen en secciones que se abren de una en una: Perfil, Widgets y visualización, Clientes y estados, Pagos y moneda, Preguntas diarias, Ajustes de prospectos, Diseño, Datos y Acerca de. Todas las secciones empiezan plegadas. Cuando abres una, la anterior se cierra."
+        },
+        {
+          "title": "Perfil — nombre, forma de tratamiento y profesión",
+          "body": "Rellena tu nombre completo, elige la forma de tratamiento que prefieres (femenino, masculino o neutro) y selecciona tu profesión entre las opciones disponibles (terapeuta, coach, facilitador, profesor, instructor, otro). Elegir «Otro» abre un campo de texto libre —«¿A qué te dedicas?»— para tu propia descripción. La forma de tratamiento cambia la redacción en toda la app."
+        },
+        {
+          "title": "Guardado automático en Perfil",
+          "body": "Aquí no hay botón de Guardar. Tu nombre y el campo de texto libre se guardan en cuanto haces clic fuera del campo, y aparece junto a ellos una pequeña nota «· Guardado». Aunque cierres la sección antes de hacer clic fuera, lo que escribiste se guarda. Elegir una forma de tratamiento o una profesión se guarda de inmediato al hacer clic."
+        },
+        {
+          "title": "Widgets y visualización — ajustes generales de visualización",
+          "body": "En la parte superior de esta sección hay tres controles que afectan a todas las tarjetas de la pantalla de Inicio: «Estilo de tarjeta» (esmerilado, plano o con borde), «Grosor del texto» (normal o negrita) y «Densidad» (compacta, normal o amplia)."
+        },
+        {
+          "title": "Gestionar los widgets de Inicio",
+          "body": "Debajo de los controles generales hay una sección desplegable llamada «Widgets». Ahí puedes activar o desactivar cada widget y reordenarlos arrastrando o usando los botones de flecha. Cada widget activo tiene su propio control de densidad (global, compacta, normal o amplia), y algunos también tienen un modo «Compacto». La lista incluye la cita diaria, el anillo de resumen, el Registro diario, añadir rápido / actualización de objetivo, las alertas, los próximos recordatorios, las próximas tareas y las tarjetas de estado."
+        },
+        {
+          "title": "Clientes y estados — subestados personalizados",
+          "body": "Aquí añades y eliminas subestados para cada grupo de clientes (activo, intermedio, antiguo, sin estado). Escribe un nombre y pulsa el botón más o Enter. Si eliminas un subestado que tiene clientes en él, se abre una ventana que te permite moverlos a otro subestado o dejarlos sin ninguno. También puedes deshacer si te equivocas."
+        },
+        {
+          "title": "Pagos y moneda",
+          "body": "Elige tu moneda (₪ Séquel, $ Dólar o € Euro), el formato de fecha (DD/MM/YY, MM/DD/YY o YYYY-MM-DD), el formato de hora (24 horas o 12h AM/PM) y en qué día empieza la semana (domingo o lunes). La moneda que elijas cambia cómo se muestran los importes en toda la app."
+        },
+        {
+          "title": "Preguntas diarias — añadir, desactivar y eliminar",
+          "body": "Empiezas sin preguntas y las añades tú mismo con «Añadir pregunta». Puedes elegir entre una plantilla lista (ánimo, energía, sueño, concentración, alimentación, movimiento, calma) o escribir la tuya con texto libre, tipo de respuesta (escala 1–10 o sí/no) y un icono. Cada pregunta se puede desactivar, activar o eliminar. Una pregunta vinculada a un objetivo se marca con un icono de diana."
+        },
+        {
+          "title": "Programación de la pregunta",
+          "body": "Al hacer clic en la etiqueta de programación de una pregunta se abre un editor con tres opciones: «Cada día», «Días concretos» (elige días de la semana) y «Cada X días» (cada 2 a 30 días). Así una pregunta puede aparecer solo en los días que elijas. Haz clic en «Guardar» para confirmar, o «Cancelar» para salir sin cambios."
+        },
+        {
+          "title": "Recordatorio diario para las preguntas",
+          "body": "En la parte inferior de la sección Preguntas, bajo «Recordatorio diario», puedes activar un recordatorio y fijar una hora. Si no has respondido para esa hora, aparece un aviso suave en el widget de Registro diario de la pantalla de Inicio. El campo de hora solo aparece cuando el recordatorio está activado."
+        },
+        {
+          "title": "Ajustes de prospectos — fuentes de prospectos y subestados",
+          "body": "Bajo «Fuentes de prospectos» añades nuevas fuentes con un color y eliminas las existentes. Bajo «Subestados» gestionas los subestados de las columnas del tablero de prospectos (en curso, convertido, no relevante), también con colores, y con el mismo flujo de eliminar con reasignación que para los clientes."
+        },
+        {
+          "title": "Diseño — modo claro/oscuro y tamaño del texto",
+          "body": "Aquí eliges el modo claro/oscuro (día o noche) y el tamaño del texto (pequeño, normal o grande). El tamaño del texto solo cambia la fuente, no el diseño de la pantalla. Para cambiar tu forma de tratamiento, ve a la sección Perfil, no aquí."
+        },
+        {
+          "title": "Datos — resumen, exportación e importación",
+          "body": "En la parte superior de esta sección puedes ver cuántos elementos tienes de cada tipo (clientes, transacciones, prospectos, tareas, proyectos, categorías). «Exportar datos» abre un único diálogo: o bien un archivo de Excel con una hoja por cada tipo, o bien una exportación aparte de transacciones / clientes / proyectos como CSV. «Importar desde archivo» admite archivos CSV, TSV y Excel —incluidos varios archivos y hojas a la vez—, detecta las columnas automáticamente, y te deja revisar y ajustar la correspondencia antes de importar nada."
+        },
+        {
+          "title": "Exportar datos sensibles (opcional)",
+          "body": "El diálogo de exportación tiene casillas para datos sensibles: sesiones, objetivos, respuestas diarias y reflexiones. Están desactivadas por defecto y se restablecen cada vez que abres el diálogo. Marcar una casilla añade más hojas al archivo de Excel, y los datos se exportan como texto sin cifrar, así que guarda el archivo en un lugar seguro."
+        },
+        {
+          "title": "Reiniciar el flujo de introducción",
+          "body": "Esto reinicia el asistente de introducción desde el principio, útil si lo saltaste. No es destructivo: los pasos del asistente se restablecen, pero todo lo que ya creaste (clientes, proyectos, etc.) se queda. Verás una breve confirmación antes de continuar."
+        },
+        {
+          "title": "Restablecer cuenta — eliminar todos los datos",
+          "body": "«Eliminar todos los datos y empezar de cero» quita todo lo que hay en tu cuenta (clientes, proyectos, grupos, prospectos, transacciones y gastos recurrentes, categorías, tareas, objetivos, preguntas y respuestas, sesiones, notas, recordatorios, estados y fuentes) y reinicia la introducción. Tienes que confirmar dos veces: primero una advertencia, luego escribe la palabra «eliminar». Esto no se puede deshacer."
+        },
+        {
+          "title": "Eliminar la cuenta de forma permanente",
+          "body": "«Eliminar la cuenta de forma permanente» marca toda tu cuenta para su eliminación, incluido tu propio inicio de sesión, no solo los datos. Tienes que confirmar dos veces y escribir «eliminar cuenta». No ocurre de inmediato: comienza un periodo de gracia de 30 días durante el cual puedes cambiar de opinión y cancelar en cualquier inicio de sesión. Solo después de ese periodo de gracia se elimina todo de forma permanente."
+        },
+        {
+          "title": "Acerca de — tres pestañas",
+          "body": "La sección «Acerca de» tiene tres pestañas: «Acerca de» (qué es la app, sus principios, la versión y los créditos) con enlaces a la Política de privacidad, las Condiciones de uso y el Acuerdo de tratamiento de datos; «Guía» —la explicación completa de cada pantalla (la misma ayuda que aparece en el botón ?)—; y «Preguntas frecuentes»."
+        }
+      ],
+      "tips": [
+        "Vale la pena fijar primero tu forma de tratamiento en la sección Perfil: cambia la redacción en toda la app, incluido el texto de otras pantallas.",
+        "Tu perfil se guarda automáticamente: solo haz clic fuera del campo (o cierra la sección) y el cambio queda capturado. No hay botón de Guardar.",
+        "Vale la pena exportar todos tus datos a Excel al menos una vez al mes como copia de seguridad. Los archivos de clientes y proyectos se guardan en un formato que se puede volver a importar.",
+        "Antes de eliminar un subestado que tiene clientes o prospectos en él, elige en el diálogo a dónde moverlos, para no dejar registros sin etiqueta. Y aunque te equivoques, hay una opción de deshacer.",
+        "¿Quieres una pregunta diaria que solo aparezca entre semana? Abre la programación de la pregunta, elige «Días concretos» y marca los días.",
+        "No confundas «Restablecer cuenta» (elimina los datos, escribes «eliminar») con «Eliminar la cuenta de forma permanente» (elimina también tu inicio de sesión, escribes «eliminar cuenta», con 30 días para cambiar de opinión)."
+      ],
+      "faq": [
+        {
+          "q": "Cambié mi nombre o profesión y no vi un botón de Guardar, ¿se guardó?",
+          "a": "Sí. No hay botón de Guardar en Perfil. Tu nombre y el campo de texto libre se guardan en cuanto haces clic fuera del campo (e incluso si cierras la sección a mitad de la edición), y seleccionar una forma de tratamiento o una profesión se guarda de inmediato al hacer clic. Aparece una nota «· Guardado» junto a un campo que se ha guardado."
+        },
+        {
+          "q": "¿Por qué no tengo ninguna pregunta diaria en la sección Preguntas?",
+          "a": "Es lo esperado: la app no configura preguntas de antemano. Haz clic en «Añadir pregunta» y elige una plantilla lista o crea la tuya. Una vez que hayas añadido preguntas, puedes fijar una programación para cada una y activarlas o desactivarlas."
+        },
+        {
+          "q": "¿Cuál es la diferencia entre «Restablecer cuenta» y «Eliminar la cuenta de forma permanente»?",
+          "a": "Restablecer tu cuenta elimina todos tus datos y reinicia la introducción, pero tu inicio de sesión se queda. Eliminar tu cuenta marca tu propio inicio de sesión para su eliminación, con un periodo de gracia de 30 días para cancelar antes de que todo se elimine de forma permanente. Ambas acciones requieren doble confirmación y escribir una palabra diferente («eliminar» frente a «eliminar cuenta»)."
+        },
+        {
+          "q": "Si reinicio la introducción, ¿perderé los datos que ya introduje?",
+          "a": "No. «Reiniciar la introducción» solo restablece los pasos del asistente al principio. Los clientes, proyectos y datos que ya creaste se quedan. Si quieres eliminar los datos en sí, eso es «Restablecer cuenta» en la sección de peligro."
+        },
+        {
+          "q": "¿La exportación incluye mis sesiones y reflexiones sensibles?",
+          "a": "Solo si marcas las casillas. El diálogo de exportación tiene casillas para datos sensibles (sesiones, objetivos, respuestas diarias, reflexiones), y están desactivadas por defecto. Cuando las marcas, se añaden al archivo de Excel como texto sin cifrar, así que guarda el archivo en un lugar seguro."
+        },
+        {
+          "q": "¿Dónde cambio el modo oscuro o el tamaño del texto?",
+          "a": "En la sección «Diseño». Ahí eliges el modo claro/oscuro y el tamaño del texto (pequeño, normal, grande). El tamaño del texto solo cambia la fuente, no el diseño de la pantalla. Para cambiar tu forma de tratamiento (masculino/femenino/neutro), ve a la sección Perfil en su lugar."
+        }
+      ]
+    },
+    "trash": {
+      "title": "Papelera",
+      "intro": "Aquí puedes ver y restaurar elementos que has eliminado —clientes, transacciones, sesiones, tareas, prospectos, objetivos y más— antes de que desaparezcan para siempre.",
+      "features": [
+        {
+          "title": "Toda eliminación aquí es aún reversible",
+          "body": "Casi toda eliminación en la app no quita el elemento de inmediato: lo mueve aquí, a la Papelera. Arriba puedes ver cuántos elementos hay («N elementos»), junto con el recordatorio «Se conserva durante 30 días» y el mensaje «Toda eliminación aquí es aún reversible.»."
+        },
+        {
+          "title": "Los elementos se organizan por tipo",
+          "body": "Los elementos eliminados se agrupan por tipo, y cada grupo muestra un icono, un nombre y un recuento de elementos. Los tipos incluyen: clientes, proyectos, grupos, tareas, prospectos, fuentes de prospectos, subestados de prospectos, transacciones, categorías de gastos, plantillas recurrentes, sesiones, recordatorios, objetivos, métricas de objetivo, entradas de objetivo, preguntas diarias y respuestas diarias."
+        },
+        {
+          "title": "Restaurar un elemento",
+          "body": "Cada elemento tiene un botón «Restaurar». Al hacer clic devuelve el elemento a la pantalla de la que se eliminó, con todos sus datos. Durante la operación el botón muestra «Restaurando…». No necesitas seleccionar un elemento primero: el botón actúa directamente sobre esa fila."
+        },
+        {
+          "title": "Cuándo se eliminó cada elemento",
+          "body": "Debajo del nombre de cada elemento muestra «Eliminado» y hace cuánto ocurrió (por ejemplo «Eliminado hace 3 días»). Esto facilita saber cuánto tiempo queda antes de que desaparezca de la Papelera."
+        },
+        {
+          "title": "Se conserva durante 30 días",
+          "body": "La Papelera solo muestra los elementos eliminados en los últimos 30 días. Un elemento eliminado hace más de 30 días ya no aparece aquí y está en camino de eliminarse de forma permanente del sistema, así que restáuralo a tiempo."
+        },
+        {
+          "title": "Papelera vacía",
+          "body": "Cuando no hay nada que restaurar, verás un mensaje de que «La papelera está vacía», con una nota de que cualquier cosa que elimines en el futuro esperará aquí durante 30 días. No hay nada que hacer aquí: simplemente significa que no se ha eliminado nada recientemente."
+        }
+      ],
+      "tips": [
+        "Restaurar devuelve el elemento exactamente al lugar del que se eliminó (clientes, transacciones, objetivos, etc.) con todos sus datos. No hace falta volver a introducir nada.",
+        "Si acabas de eliminar algo por error, es más rápido hacer clic en «Deshacer» en la breve notificación que aparece tras la eliminación (durante unos 6 segundos). La Papelera es tu red de seguridad para cuando esa notificación ya ha desaparecido.",
+        "Los elementos que quieres conservar, restáuralos dentro de los 30 días de la eliminación. Después de eso desaparecen de la Papelera y no se pueden recuperar.",
+        "Antes de eliminar tu cuenta o hacer una limpieza importante, haz una copia de seguridad de tus datos en Ajustes → Datos → Exportar datos."
+      ],
+      "faq": [
+        {
+          "q": "¿Cómo elimino un elemento de la Papelera de forma permanente?",
+          "a": "Aquí no hay un botón de eliminación permanente: la única acción es «Restaurar». Los elementos se eliminan de forma permanente automáticamente tras 30 días, y no hay forma de acelerar eso manualmente desde aquí."
+        },
+        {
+          "q": "No encuentro un elemento que eliminé, ¿qué pasa?",
+          "a": "Puede que hayan pasado más de 30 días desde la eliminación, en cuyo caso ya no se muestra en la Papelera. Otra posibilidad: el elemento se restaura junto con su elemento padre (como los miembros de un grupo), o uno de los grupos falló al cargar, en cuyo caso aparece un mensaje de error arriba."
+        },
+        {
+          "q": "¿Qué pasa cuando se restaura un elemento?",
+          "a": "Vuelve de inmediato a la pantalla de la que se eliminó, con todos sus datos, y desaparece de la Papelera. La actualización es instantánea visualmente, y se sincroniza con el servidor en segundo plano. Si el servidor devuelve un error, la Papelera se recarga para que lo que ves siga siendo exacto."
+        },
+        {
+          "q": "¿Todo lo que se elimina en la app acaba aquí?",
+          "a": "Casi toda eliminación reversible llega a la Papelera: clientes, transacciones, sesiones, tareas, prospectos, objetivos y más. Algunos elementos relacionados (como los miembros de un grupo) se restauran a través de su elemento padre, así que no aparecen aquí por separado."
+        },
+        {
+          "q": "Hay un mensaje de error arriba, ¿qué significa?",
+          "a": "Significa que uno de los grupos de elementos falló al cargar. Los demás grupos siguen mostrándose: un fallo de carga no vacía toda la Papelera. Intenta actualizar la página, y si el error persiste, contacta con soporte."
+        }
+      ]
+    },
+    "admin": {
+      "title": "Consola de administración",
+      "intro": "Herramientas de gestión para el propietario del sistema: usuarios, comentarios y analíticas.",
+      "features": [
+        {
+          "title": "Gestión de usuarios",
+          "body": "Ver todos los usuarios registrados, conceder permisos de administración y eliminar cuentas."
+        },
+        {
+          "title": "Comentarios",
+          "body": "Todos los comentarios enviados con el botón «Habla con nosotros»: leer y responder."
+        },
+        {
+          "title": "Analíticas",
+          "body": "Datos de uso: número de usuarios activos, pantallas populares y más."
+        }
+      ],
+      "tips": [],
+      "faq": []
+    }
+  },
+  "globalFaq": [
+    {
+      "category": "Inicio de sesión y cuenta",
+      "items": [
+        {
+          "q": "Olvidé mi contraseña, ¿cómo la restablezco?",
+          "a": "En la pantalla de inicio de sesión, haz clic en «¿Olvidaste tu contraseña?». Introduce tu dirección de correo y haz clic en «Enviar enlace». Si la dirección está registrada con nosotros, te enviaremos un enlace a ella. El enlace te lleva a la pantalla «Elige una nueva contraseña», donde eliges una contraseña nueva (al menos 6 caracteres) y la confirmas."
+        },
+        {
+          "q": "¿Cómo cambio mi contraseña cuando ya he iniciado sesión?",
+          "a": "Usa la misma pantalla «Elige una nueva contraseña». Puedes llegar a ella con «¿Olvidaste tu contraseña?» en la pantalla de inicio de sesión, o con el enlace de restablecimiento enviado a tu correo."
+        },
+        {
+          "q": "¿Cómo cambio mi dirección de correo?",
+          "a": "Actualmente, cambiar la dirección de correo de la cuenta solo es posible contactando con soporte."
+        },
+        {
+          "q": "Inicié sesión con Google, ¿necesito también una contraseña?",
+          "a": "No. Con Google no necesitas contraseña. Solo haz clic en «Iniciar sesión con Google» cada vez."
+        },
+        {
+          "q": "¿Tengo que aceptar algo al registrarme?",
+          "a": "Sí. Al registrarte (tanto con correo como con Google) marcas dos casillas: una para aceptar la Política de privacidad y el Acuerdo de tratamiento de datos, y otra para aceptar las Condiciones de uso. También hay una casilla opcional para correos de marketing: no es obligatoria y puedes desmarcarla en cualquier momento."
+        }
+      ]
+    },
+    {
+      "category": "Datos y privacidad",
+      "items": [
+        {
+          "q": "¿Quién puede ver mis datos?",
+          "a": "Solo tú. Cada cuenta es completamente independiente, y solo tú puedes ver los datos de tu cuenta. La conexión con el servidor es segura. No vendemos tus datos ni los compartimos con nadie."
+        },
+        {
+          "q": "¿Los campos sensibles están cifrados en la base de datos?",
+          "a": "Las notas, los resúmenes de sesión y las reflexiones se almacenan en nuestro lado como texto sin cifrar. Lo que los protege: solo tú accedes a tu cuenta, y la conexión es segura. Si usaste versiones beta tempranas, algunos campos pueden seguir almacenados en forma cifrada del pasado: se descifran automáticamente para ti."
+        },
+        {
+          "q": "¿Qué pasa con mis claves de API de Green Invoice / SUMIT?",
+          "a": "Tus credenciales de conexión (el identificador y la clave) se almacenan solo en nuestro servidor. Nunca se muestran en el navegador, ni siquiera a ti. El sistema las usa únicamente cuando emite una factura o trae ingresos en tu nombre."
+        },
+        {
+          "q": "¿Cómo hago una copia de seguridad de mis datos?",
+          "a": "Ajustes → Datos → Exportar datos. Puedes descargar todos tus datos en un único archivo de Excel (una hoja por tipo: transacciones, clientes, proyectos, prospectos, tareas, categorías). También puedes exportar clientes, transacciones o proyectos por separado como archivos CSV."
+        },
+        {
+          "q": "¿Puedo incluir datos sensibles (sesiones, objetivos, respuestas diarias, reflexiones) en la exportación?",
+          "a": "Sí. El diálogo de exportación tiene casillas para esto, y están desactivadas por defecto. Añaden hojas adicionales al archivo de Excel completo. Los datos sensibles se exportan como texto sin cifrar, así que guarda el archivo en un lugar seguro."
+        },
+        {
+          "q": "¿Cómo importo datos de Excel / Google Sheets?",
+          "a": "Ajustes → Datos → Importar desde archivo (CSV / Excel). Puedes subir archivos CSV, TSV y Excel (xlsx/xls), incluidos archivos con varias hojas. El sistema detecta las columnas automáticamente, y puedes corregir la correspondencia manualmente antes de importar."
+        },
+        {
+          "q": "¿Cómo elimino mi cuenta?",
+          "a": "Ajustes → Datos → Eliminar la cuenta de forma permanente. Esto elimina toda la cuenta, incluido tu inicio de sesión, y requiere dos confirmaciones con entrada escrita. Tras la eliminación hay un periodo de gracia de 30 días: durante ese tiempo puedes cambiar de opinión y cancelar."
+        }
+      ]
+    },
+    {
+      "category": "Visualización y diseño",
+      "items": [
+        {
+          "q": "¿Cómo cambio al modo oscuro?",
+          "a": "Abre el menú («Más» en la navegación) y haz clic en el interruptor «Modo oscuro» (cuando está activado se llama «Modo claro»). También puedes ir a Ajustes → Diseño → Modo claro/oscuro."
+        },
+        {
+          "q": "¿Cómo hago el texto más grande?",
+          "a": "Ajustes → Diseño → Tamaño del texto. Hay tres opciones: pequeño, normal, grande."
+        },
+        {
+          "q": "¿Cómo fijo mi forma de tratamiento preferida (masculino/femenino/neutro)?",
+          "a": "Ajustes → Perfil → Forma de tratamiento. Tu elección (neutro / femenino / masculino) cambia la redacción en toda la app."
+        },
+        {
+          "q": "¿Puedo cambiar el orden de las pantallas en la navegación?",
+          "a": "El orden de las pantallas en la navegación es fijo por ahora. Puedes personalizar la pantalla de Inicio: Ajustes → Widgets y visualización. Ahí activas y desactivas widgets, cambias su orden y eliges un estilo de visualización."
+        }
+      ]
+    },
+    {
+      "category": "Problemas comunes",
+      "items": [
+        {
+          "q": "¿La app está congelada / no carga?",
+          "a": "Actualiza la página (F5 en el ordenador, o tira hacia abajo en el móvil). Si continúa, cierra sesión y vuelve a iniciar sesión."
+        },
+        {
+          "q": "¿Los datos que guardé no aparecen?",
+          "a": "Actualiza la página. Si sigue faltando algo, comprueba que tienes conexión a internet. Si continúa, contáctanos con «Habla con nosotros» en el menú."
+        },
+        {
+          "q": "¿El botón + no responde?",
+          "a": "Probablemente haya un diálogo o un panel abierto en segundo plano. Cierra cualquier diálogo abierto e inténtalo de nuevo."
+        }
+      ]
+    },
+    {
+      "category": "Conexiones e integraciones",
+      "items": [
+        {
+          "q": "¿Qué servicios puedo conectar?",
+          "a": "Actualmente: Google Calendar (trae eventos de tu calendario e identifica sesiones con clientes), un servicio de facturación —Green Invoice o SUMIT— (emite facturas y recibos e importa ingresos), y WhatsApp (envío manual de mensajes a los clientes, con una redacción que puedes personalizar). Claude está marcado como «Próximamente» y aún no está activo."
+        },
+        {
+          "q": "¿Cómo llego a la pantalla de Conexiones?",
+          "a": "Con la pestaña «Conexiones» en la navegación. La pantalla muestra una lista: Google Calendar, Facturación y filas «Próximamente». Cada fila activa se abre a su propia pantalla donde la conectas y la gestionas."
+        },
+        {
+          "q": "¿Cómo conecto Google Calendar?",
+          "a": "Conexiones → Google Calendar. Elige desde qué fecha sincronizar, haz clic en «Conectar Google Calendar» y aprueba los permisos en el diálogo de Google. Después puedes sincronizar en cualquier momento haciendo clic en «Sincronizar ahora», y asignar eventos a un cliente, proyecto, prospecto o grupo."
+        },
+        {
+          "q": "¿Cómo conecto un servicio de facturación?",
+          "a": "Conexiones → Facturación. Elige un proveedor (Green Invoice o SUMIT), pega tus credenciales de tu cuenta con ese servicio y haz clic en «Conectar». El botón «¿Cómo consigo esto?» tiene instrucciones paso a paso."
+        },
+        {
+          "q": "¿Puedo conectar Green Invoice y SUMIT?",
+          "a": "Solo un servicio de facturación a la vez. Para cambiar de proveedor, desconecta el actual y conecta el nuevo."
+        },
+        {
+          "q": "¿No se aceptan las credenciales de mi servicio de facturación?",
+          "a": "Asegúrate de haber copiado el identificador y la clave completos, sin espacios, y de que estás usando la API key privada (no la pública). Tras conectar, puedes verificar con el botón «Comprobar conexión». Si la conexión dejó de funcionar de repente («Se requiere reconexión»), probablemente la clave fue revocada o reemplazada: haz clic en «Reconectar» e introdúcela de nuevo."
+        },
+        {
+          "q": "¿Qué significa «Importar ingresos automáticamente»?",
+          "a": "Cuando esto está activado, el sistema detecta los ingresos que has registrado en tu software de facturación y te los muestra para que los apruebes. No se registra nada en tu cuenta sin tu confirmación."
+        }
+      ]
+    }
+  ],
+  "about": {
+    "tagline": "Practice OS — a tu propio ritmo",
+    "description": "Simplicity se creó para terapeutas, coaches, facilitadores, profesores, instructores y consultores en Israel. Un solo lugar para toda tu actividad: clientes, prospectos, sesiones y calendario, finanzas, proyectos, tareas, objetivos y tu propio proceso personal. Todo en hebreo, en tu forma de tratamiento preferida (masculino/femenino/neutro), y sin el ruido.",
+    "principles": [
+      {
+        "title": "La privacidad primero",
+        "body": "Tus datos son solo tuyos. Solo tú accedes a tu cuenta, y la conexión con el servidor es segura. Las credenciales de tu servicio de facturación se almacenan en nuestro servidor y nunca se muestran en el navegador, ni siquiera a ti. No vendemos datos ni te clasificamos."
+      },
+      {
+        "title": "Una interfaz que te respeta",
+        "body": "Sin ruido. Sin ventanas emergentes «Premium». Sin alertas innecesarias. Solo lo que necesitas para llevar una actividad, a tu propio ritmo."
+      },
+      {
+        "title": "Hecho en Israel",
+        "body": "Creado en hebreo, con una forma de tratamiento que te encaja (masculino/femenino/neutro), para la comunidad de terapeutas, coaches y consultores de aquí."
+      }
+    ],
+    "version": "0.1.0",
+    "built_with": "Creado en colaboración con Claude (Anthropic)."
+  }
+}

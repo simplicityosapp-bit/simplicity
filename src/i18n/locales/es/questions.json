@@ -1,0 +1,27 @@
+{
+  "fallback": "Pregunta de hoy",
+  "template": {
+    "mood": "¿Cómo está tu ánimo hoy?",
+    "energy": "¿Cuánta energía tienes hoy?",
+    "sleep": "¿Cómo dormiste anoche?",
+    "focus": "¿Qué tan concentrado te sentiste hoy?",
+    "nutrition": "¿Cómo comiste hoy?",
+    "movement": "¿Cuánto te moviste hoy?",
+    "quiet": "¿Cuánta calma encontraste hoy?"
+  },
+  "schedule": {
+    "everyDay": "Todos los días",
+    "everyXDays_one": "Todos los días",
+    "everyXDays_other": "Cada {{count}} días",
+    "dayShort": {
+      "0": "Dom",
+      "1": "Lun",
+      "2": "Mar",
+      "3": "Mié",
+      "4": "Jue",
+      "5": "Vie",
+      "6": "Sáb"
+    },
+    "daySeparator": ", "
+  }
+}

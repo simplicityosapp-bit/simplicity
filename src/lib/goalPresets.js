@@ -18,12 +18,14 @@
 import i18n from '../i18n'
 import hePresets from '../i18n/locales/he/presets.json'
 import enPresets from '../i18n/locales/en/presets.json'
+import esPresets from '../i18n/locales/es/presets.json'
 
 /* Self-register the 'presets' namespace (idempotent — addResourceBundle with
    deep+overwrite false is a no-op if already present), so consumers resolve
    presets:category.* without touching the central i18n init. */
 i18n.addResourceBundle('he', 'presets', hePresets, true, false)
 i18n.addResourceBundle('en', 'presets', enPresets, true, false)
+i18n.addResourceBundle('es', 'presets', esPresets, true, false)
 
 export const presetName = (key) => i18n.t(`presets:category.${key}.name`)
 export const presetHint = (key) => i18n.t(`presets:category.${key}.hint`)

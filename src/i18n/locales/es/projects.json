@@ -1,0 +1,181 @@
+{
+  "count": "{{count}} proyectos",
+  "phase": "En construcción",
+  "tagline": "El enfoque crea resultados.",
+  "title": "Proyectos",
+  "newAria": "Nuevo proyecto",
+  "new": "+ Nuevo proyecto",
+  "range": {
+    "aria": "Rango de importes",
+    "monthly": "Mensual",
+    "cumulative": "Acumulado"
+  },
+  "hero": {
+    "title": "Resumen de proyectos",
+    "projects": "Proyectos",
+    "clients": "Clientes",
+    "incomeMonthly": "Ingresos este mes",
+    "incomeCumulative": "Ingresos totales"
+  },
+  "cardIncome": {
+    "monthly": "Este mes",
+    "cumulative": "Total"
+  },
+  "loading": "Cargando proyectos…",
+  "loadError": "No se pudieron cargar los proyectos: {{error}}",
+  "empty": {
+    "text": "Aún no hay proyectos. Tu primer proyecto empieza aquí.",
+    "add": "Añadir un proyecto",
+    "whyImportant": "¿Por qué es importante?"
+  },
+  "delete": {
+    "title": "Eliminar proyecto",
+    "message": "¿Eliminar «{{name}}»? Sus clientes y transacciones se mantendrán (sin proyecto).",
+    "confirm": "Eliminar"
+  },
+  "card": {
+    "active": "Activo",
+    "editTitle": "Editar proyecto",
+    "deleteTitle": "Eliminar proyecto",
+    "clients": "Clientes",
+    "tasks": "Tareas"
+  },
+  "detail": {
+    "days": [
+      "Domingo",
+      "Lunes",
+      "Martes",
+      "Miércoles",
+      "Jueves",
+      "Viernes",
+      "Sábado"
+    ],
+    "notFound": "Proyecto no encontrado.",
+    "back": "Atrás",
+    "editAria": "Editar proyecto",
+    "metaActive": "activos",
+    "metaWandering": "{{count}} indecisos",
+    "metaGroups": "{{count}} grupos",
+    "stats": {
+      "clients": "Clientes",
+      "incomeMonth": "Ingresos este mes",
+      "groups": "Grupos"
+    },
+    "undo": {
+      "groupDeleted": "Grupo eliminado",
+      "memberRemoved": "Miembro eliminado del grupo"
+    },
+    "groups": {
+      "title": "Grupos",
+      "empty": "Aún no hay grupos. {{add}} un grupo para empezar.",
+      "add": "Añadir",
+      "editAria": "Editar grupo",
+      "members": "{{count}} miembros",
+      "pricePerSession": "{{price}} por sesión",
+      "pricePackage": "{{price}} / {{count}} sesiones",
+      "noMembers": "Aún no hay miembros",
+      "fallbackClient": "(cliente)",
+      "removeMemberAria": "Eliminar {{name}}",
+      "removeMemberFallback": "miembro",
+      "addMember": "Añadir miembro",
+      "logSession": "Registrar sesión",
+      "pastSessions": "Sesiones pasadas",
+      "deleteGroup": "Eliminar grupo",
+      "pastSessionsTitle": "Sesiones pasadas",
+      "pastSessionsCount": "Sesiones pasadas ({{count}})",
+      "noSessions": "Aún no hay sesiones registradas",
+      "deleteSessionAria": "Eliminar sesión",
+      "newGroup": "+ Nuevo grupo"
+    },
+    "status": {
+      "active": "Activo",
+      "in_development": "En desarrollo",
+      "ended": "Finalizado"
+    },
+    "clients": {
+      "title": "Clientes",
+      "empty": "No hay clientes en este proyecto",
+      "private": "Privado",
+      "addToProject": "+ Añadir <mg>cliente</mg> al proyecto"
+    },
+    "reminders": {
+      "title": "Recordatorios vinculados",
+      "empty": "No hay recordatorios vinculados",
+      "done": "Hecho",
+      "overdue": "Atrasado",
+      "completeAria": "Marcar como hecho",
+      "deleteAria": "Eliminar recordatorio",
+      "add": "Recordatorio del proyecto +"
+    },
+    "leads": {
+      "title": "Prospectos",
+      "empty": "No hay prospectos vinculados a este proyecto.",
+      "openAria": "Abrir la pantalla de prospectos — {{name}}"
+    },
+    "leadPages": {
+      "title": "Páginas de captación",
+      "empty": "No hay páginas de captación vinculadas.",
+      "create": "Crear una",
+      "untitled": "Página sin título",
+      "live": "Publicada",
+      "draft": "Borrador",
+      "openAria": "Abrir página {{name}}"
+    },
+    "deleteSession": {
+      "title": "Eliminar sesión",
+      "message": "¿Eliminar esta sesión de grupo? Se eliminará para todos los miembros.",
+      "confirm": "Eliminar"
+    },
+    "deleteReminder": {
+      "title": "Eliminar recordatorio",
+      "message": "¿Eliminar «{{title}}»?",
+      "confirm": "Eliminar"
+    },
+    "statusChange": {
+      "title": "Cambiar estado del grupo",
+      "messageOne": "Cambiar el estado a «{{status}}» moverá {{count}} cliente a «{{meta}}». ¿Continuar?",
+      "messageMany": "Cambiar el estado a «{{status}}» moverá {{count}} clientes a «{{meta}}». ¿Continuar?",
+      "confirm": "Cambiar estado"
+    },
+    "meta": {
+      "active": "activo",
+      "past": "anterior"
+    },
+    "assign": {
+      "title": "Asignar a grupo",
+      "message": "<0>{{name}}</0> ya está asignado a otro grupo. ¿Moverlo a «{{group}}», o añadirlo a este además del otro?",
+      "cancel": "Cancelar",
+      "addBoth": "Añadir (ambos)",
+      "moveHere": "Mover aquí"
+    },
+    "chart": {
+      "title": "Ingresos acumulados — este mes",
+      "empty": "No hay ingresos para este proyecto este mes.",
+      "aria": "Ingresos acumulados del proyecto por día del mes"
+    },
+    "quick": {
+      "add": "Añadir rápido",
+      "updateGoal": "Actualizar objetivo"
+    },
+    "moon": {
+      "aria": "Vista rápida del proyecto {{percent}}%",
+      "ofPace": "del ritmo",
+      "percentOfGoal": "{{percent}}% del objetivo",
+      "expandedEmpty": "Aún no hay objetivos activos con datos este mes."
+    },
+    "tasks": {
+      "title": "Tareas",
+      "empty": "No hay tareas vinculadas a este proyecto.",
+      "add": "Añadir tarea",
+      "done": "Hecho",
+      "completeAria": "Marcar como hecho",
+      "reopenAria": "Reabrir",
+      "deleteAria": "Eliminar tarea",
+      "priority": {
+        "high": "Alta",
+        "medium": "Normal",
+        "low": "Baja"
+      }
+    }
+  }
+}

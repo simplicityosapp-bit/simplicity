@@ -1,0 +1,109 @@
+{
+  "tasks": "Tareas",
+  "reminders": "Recordatorios",
+  "tagline": "Da el siguiente paso.",
+  "meta": {
+    "open": "{{n}} abiertas",
+    "openReminders": "{{n}} recordatorios",
+    "done": "{{n}} hechas"
+  },
+  "add": {
+    "task": "+ Nueva tarea",
+    "reminder": "+ Nuevo recordatorio",
+    "taskAria": "Añadir tarea",
+    "reminderAria": "Añadir recordatorio"
+  },
+  "view": {
+    "aria": "Vista"
+  },
+  "filter": {
+    "aria": "Filtrar por estado",
+    "todo": "Abiertas",
+    "done": "Hechas",
+    "all": "Todas",
+    "recurring": "Recurrentes"
+  },
+  "priority": {
+    "high": "Urgente",
+    "medium": "Normal",
+    "low": "Baja"
+  },
+  "buckets": {
+    "overdue": "Atrasadas",
+    "today": "Hoy",
+    "week": "Esta semana",
+    "later": "Más tarde"
+  },
+  "recurring": {
+    "weekday": "{{day}}",
+    "monthly": "Mensual",
+    "everyXDays": "Cada pocos días"
+  },
+  "days": {
+    "0": "domingo",
+    "1": "lunes",
+    "2": "martes",
+    "3": "miércoles",
+    "4": "jueves",
+    "5": "viernes",
+    "6": "sábado"
+  },
+  "hero": {
+    "tasksTitle": "Resumen de tareas",
+    "remindersTitle": "Resumen de recordatorios",
+    "open": "Abiertas",
+    "urgentTasks": "Urgentes",
+    "overdueReminders": "Atrasados",
+    "done": "Hechas"
+  },
+  "taxonomy": {
+    "all": "Todas",
+    "manage": "Estados y categorías"
+  },
+  "clearAll": "Borrar todo",
+  "doneGroup": "Hechas",
+  "loading": {
+    "tasks": "Cargando tareas…",
+    "reminders": "Cargando recordatorios…"
+  },
+  "loadError": {
+    "tasks": "No se pudieron cargar las tareas: {{error}}",
+    "reminders": "No se pudieron cargar los recordatorios: {{error}}"
+  },
+  "empty": {
+    "tasksDone": "Aún no hay tareas completadas.",
+    "tasksTodo": "No hay tareas abiertas. ¡Buen trabajo!",
+    "remindersDone": "Aún no hay recordatorios completados.",
+    "remindersTodo": "No hay recordatorios abiertos. Todo en calma.",
+    "firstTask": "Aún no hay tareas. Tu primera tarea empieza aquí.",
+    "addTask": "Añadir tarea",
+    "whyImportant": "¿Por qué importa esto?",
+    "noRecurring": "Aún no hay recordatorios recurrentes."
+  },
+  "clearConfirm": {
+    "tasksTitle": "Eliminar tareas completadas",
+    "tasksMessageOne": "¿Eliminar esta tarea completada? Puedes restaurarla desde la papelera durante 30 días.",
+    "tasksMessageMany": "¿Eliminar {{count}} tareas completadas? Puedes restaurarlas desde la papelera durante 30 días.",
+    "remindersTitle": "Eliminar recordatorios completados",
+    "remindersMessageOne": "¿Eliminar este recordatorio completado? Puedes restaurarlo desde la papelera durante 30 días.",
+    "remindersMessageMany": "¿Eliminar {{count}} recordatorios completados? Puedes restaurarlos desde la papelera durante 30 días.",
+    "confirm": "Borrar todo"
+  },
+  "item": {
+    "uncheck": "Quitar la marca de hecho",
+    "checkTask": "Marcar como hecha",
+    "checkReminder": "Marcar como hecho",
+    "reminderDone": "Hecho",
+    "editTask": "Editar tarea",
+    "editReminder": "Editar recordatorio",
+    "pendingOccurrences": "{{n}} repeticiones aún pendientes"
+  },
+  "groupBy": {
+    "aria": "Agrupar tareas",
+    "priority": "Prioridad",
+    "project": "Proyecto",
+    "category": "Categoría",
+    "noProject": "Sin proyecto",
+    "noCategory": "Sin categoría"
+  }
+}

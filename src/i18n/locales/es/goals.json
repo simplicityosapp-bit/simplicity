@@ -1,0 +1,32 @@
+{
+  "countLabel": "{{count}} objetivos",
+  "movement": "Movimiento",
+  "tagline": "Cada objetivo es una dirección, no una presión.",
+  "title": "Objetivos",
+  "newGoalAria": "Nuevo objetivo",
+  "newGoal": "+ Nuevo objetivo",
+  "loading": "Cargando objetivos…",
+  "loadError": "No se pudieron cargar los objetivos: {{error}}",
+  "empty": {
+    "firstGoal": "Define tu primer objetivo.",
+    "setGoal": "Define un objetivo",
+    "whyImportant": "¿Por qué importa esto?"
+  },
+  "delete": {
+    "title": "Eliminar objetivo",
+    "messageNamed": "¿Eliminar el objetivo «{{label}}»? Puedes restaurarlo desde la papelera en un plazo de 30 días.",
+    "message": "¿Eliminar este objetivo? Puedes restaurarlo desde la papelera en un plazo de 30 días.",
+    "confirm": "Eliminar"
+  },
+  "card": {
+    "editAria": "Editar objetivo",
+    "deleteAria": "Eliminar objetivo",
+    "importanceAria": "Importancia {{importance}} de 5",
+    "addEntry": "Añadir registro",
+    "history": "Historial",
+    "deleteEntryAria": "Eliminar registro",
+    "deleteEntryTitle": "Eliminar registro",
+    "deleteEntryMessage": "¿Eliminar este registro ({{value}} · {{date}})?",
+    "deleteEntryConfirm": "Eliminar"
+  }
+}

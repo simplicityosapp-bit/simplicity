@@ -1,0 +1,190 @@
+{
+  "nav": {
+    "label": "Navegación de administración",
+    "title": "Administración",
+    "dashboard": "Panel",
+    "users": "Usuarios",
+    "feedback": "Opiniones",
+    "analytics": "Analíticas",
+    "sendFeedback": "Enviar opiniones",
+    "feedbackAction": "Opiniones",
+    "backToApp": "Volver a la app"
+  },
+  "state": {
+    "loading": "Cargando…",
+    "loadError": "No se pudieron cargar los datos"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "subtitle": "Una instantánea en vivo del sistema",
+    "targets": {
+      "totalUsers": "Usuarios registrados",
+      "active7d": "Activos en los últimos 7 días",
+      "sessionsThisWeek": "Sesiones esta semana"
+    },
+    "stats": {
+      "totalUsers": "Usuarios registrados",
+      "subscribers": "Suscriptores",
+      "subscribersSub": "Marcados manualmente",
+      "active7d": "Activos en los últimos 7 días",
+      "openFeedback": "Opiniones pendientes",
+      "sessionsThisWeek": "Sesiones esta semana"
+    },
+    "signupsOverTime": "Registros a lo largo del tiempo",
+    "goalsHeading": "Objetivos",
+    "targetPlaceholder": "Objetivo"
+  },
+  "users": {
+    "title": "Usuarios",
+    "subtitle": "Todos los que se han registrado — agrupados por tipo, los más recientes primero",
+    "searchPlaceholder": "Buscar por correo…",
+    "summary": {
+      "total": "Total",
+      "subscribers": "Suscriptores",
+      "manual": "Manual",
+      "regular": "Normal"
+    },
+    "sections": {
+      "all": "Todos los usuarios",
+      "subscribers": "Suscriptores",
+      "manual": "Suscripción manual",
+      "regular": "Suscripción normal"
+    },
+    "empty": {
+      "manual": "No hay suscriptores manuales",
+      "regular": "No hay suscriptores normales (se rellenará cuando la facturación esté activa)",
+      "default": "No se encontraron usuarios"
+    },
+    "table": {
+      "email": "Correo",
+      "subscriber": "Suscriptor",
+      "joined": "Se unió",
+      "onboardingStage": "Etapa de incorporación",
+      "reflections": "Reflexiones",
+      "sessions": "Sesiones",
+      "marketing": "Marketing",
+      "lastActive": "Última actividad",
+      "expandAria": "Expandir"
+    },
+    "date": {
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "daysAgo": "hace {{count}} días"
+    },
+    "consent": {
+      "version": "Versión {{version}} · ",
+      "agreed": "Aceptó",
+      "declined": "No"
+    },
+    "sub": {
+      "regularBadge": "Suscriptor normal",
+      "subscribed": "Suscriptor",
+      "askCancel": "¿Cancelar suscripción?",
+      "askMark": "¿Marcar como suscriptor?",
+      "confirmAria": "Confirmar",
+      "cancelAria": "Cancelar",
+      "titleCancel": "Haz clic para cancelar la suscripción",
+      "titleMark": "Marcar como suscriptor",
+      "mark": "Marcar"
+    },
+    "role": {
+      "ownerChip": "Propietario",
+      "ownerTitle": "Propietario principal",
+      "adminChip": "Administrador",
+      "adminTitle": "Administrador"
+    },
+    "marketingConsentAria": "Aceptó marketing",
+    "detail": {
+      "subscriber": "Suscriptor",
+      "subscriberRegular": "Suscriptor normal (de pago)",
+      "subscriberManual": "Suscriptor manual",
+      "subscriberNone": "No",
+      "onboardingStage": "Etapa de incorporación",
+      "onboardingStopped": "Se detuvo en: {{label}}",
+      "feedbackLeft": "Opiniones dejadas",
+      "feedbackCount": "{{count}} elemento(s)",
+      "feedbackNone": "Ninguna",
+      "reflections": "Reflexiones",
+      "sessions": "Sesiones",
+      "joined": "Se registró",
+      "lastSignIn": "Último inicio de sesión",
+      "consentsHeading": "Consentimientos legales",
+      "privacy": "Privacidad",
+      "dpa": "Tratamiento de datos (DPA)",
+      "terms": "Condiciones de uso",
+      "marketing": "Marketing"
+    },
+    "perms": {
+      "deleteUsers": "Eliminar usuarios",
+      "setSubscriber": "Marcar suscriptores",
+      "manageAdmins": "Gestionar administradores"
+    },
+    "manage": {
+      "heading": "Permisos de administración",
+      "tag": "Administrador",
+      "hintIsAdmin": "Este usuario es administrador. Puedes actualizar sus permisos o quitarle el acceso de administrador.",
+      "hintNotAdmin": "Elige los permisos y convierte a este usuario en administrador. Todos los administradores obtienen acceso a la consola y pueden ver todos los datos de los usuarios.",
+      "update": "Actualizar permisos",
+      "makeAdmin": "Convertir en administrador",
+      "removeAdmin": "Quitar administrador",
+      "grantWarnUpdatePre": "¿Actualizar los permisos de ",
+      "grantWarnMakePre": "¿Convertir a ",
+      "grantWarnUpdatePost": "? Un administrador puede ver todos los datos de los usuarios en la consola. El acceso se hará efectivo en su próximo inicio de sesión.",
+      "grantWarnMakePost": " en administrador? Un administrador puede ver todos los datos de los usuarios en la consola. El acceso se hará efectivo en su próximo inicio de sesión.",
+      "revokeWarnPre": "¿Quitar el acceso de administrador de ",
+      "revokeWarnPost": "? El acceso a la consola se bloqueará en su próximo inicio de sesión.",
+      "actionFailed": "No funcionó. Inténtalo de nuevo.",
+      "cancel": "Cancelar",
+      "saving": "Guardando…",
+      "confirm": "Confirmar",
+      "removing": "Quitando…"
+    },
+    "delete": {
+      "button": "Eliminar usuario",
+      "warnPre": "Eliminar ",
+      "warnPost": " y todos sus datos — de forma permanente, sin posibilidad de deshacer. Para continuar, escribe el correo completo:",
+      "failed": "La eliminación ha fallado. Inténtalo de nuevo.",
+      "cancel": "Cancelar",
+      "deleting": "Eliminando…",
+      "confirm": "Eliminar permanentemente"
+    }
+  },
+  "feedback": {
+    "title": "Opiniones",
+    "subtitle": "Todas las opiniones y errores en un solo lugar — los más recientes primero",
+    "types": {
+      "bug": "Error",
+      "idea": "Idea",
+      "praise": "Elogio",
+      "other": "Otro"
+    },
+    "statuses": {
+      "new": "Nuevo",
+      "in_progress": "En curso",
+      "done": "Hecho"
+    },
+    "filterAll": "Todos",
+    "empty": "No hay opiniones que mostrar",
+    "unknownUser": "Usuario desconocido",
+    "statusGroupAria": "Estado"
+  },
+  "analytics": {
+    "title": "Analíticas",
+    "subtitle": "Preguntas concretas sobre el producto — no Google Analytics",
+    "ranges": {
+      "week": "Semana",
+      "month": "Mes",
+      "all": "Todo"
+    },
+    "sessionsOverTime": "Sesiones a lo largo del tiempo",
+    "reflectionsOverTime": "Reflexiones a lo largo del tiempo",
+    "onboardingFunnel": "Embudo de incorporación",
+    "landingFunnel": "Embudo de la página de aterrizaje",
+    "landingEngagement": "Interacción con la página de aterrizaje",
+    "topUsers": "Usuarios más activos",
+    "topUsersEmpty": "No hay datos en este rango",
+    "rank": "#",
+    "email": "Correo",
+    "sessions": "Sesiones"
+  }
+}

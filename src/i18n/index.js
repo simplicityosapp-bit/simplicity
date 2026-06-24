@@ -27,8 +27,9 @@ import heCookies from './locales/he/cookies.json'
 import enCookies from './locales/en/cookies.json'
 import esCookies from './locales/es/cookies.json'
 import frCookies from './locales/fr/cookies.json'
-/* English-first rollout namespaces — he (source) + en only; es/fr fall back
-   to he (fallbackLng) until their language pass fills the JSON. */
+/* Rollout namespaces — he (source) + en, now also fully translated to es.
+   fr still has only common/auth/cookies/settings/components and falls back to
+   he (fallbackLng) for the rest until its language pass fills the JSON. */
 import heNav from './locales/he/nav.json'
 import enNav from './locales/en/nav.json'
 import heGoals from './locales/he/goals.json'
@@ -85,13 +86,39 @@ import heModalsSystem from './locales/he/modalsSystem.json'
 import enModalsSystem from './locales/en/modalsSystem.json'
 import heHelp from './locales/he/help.json'
 import enHelp from './locales/en/help.json'
+/* Spanish (es) — full language pass: every active namespace translated.
+   (common/auth/cookies/settings/components are imported above with their pairs.) */
+import esNav from './locales/es/nav.json'
+import esGoals from './locales/es/goals.json'
+import esQuestions from './locales/es/questions.json'
+import esTrash from './locales/es/trash.json'
+import esHome from './locales/es/home.json'
+import esClients from './locales/es/clients.json'
+import esFinance from './locales/es/finance.json'
+import esCalendar from './locales/es/calendar.json'
+import esLeads from './locales/es/leads.json'
+import esProjects from './locales/es/projects.json'
+import esTasks from './locales/es/tasks.json'
+import esConnections from './locales/es/connections.json'
+import esAdmin from './locales/es/admin.json'
+import esLanding from './locales/es/landing.json'
+import esInsights from './locales/es/insights.json'
+import esReports from './locales/es/reports.json'
+import esMoon from './locales/es/moon.json'
+import esOnboarding from './locales/es/onboarding.json'
+import esOnboardingSteps from './locales/es/onboardingSteps.json'
+import esModalsClient from './locales/es/modalsClient.json'
+import esModalsData from './locales/es/modalsData.json'
+import esModalsTask from './locales/es/modalsTask.json'
+import esModalsSystem from './locales/es/modalsSystem.json'
+import esHelp from './locales/es/help.json'
 
 export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'settings', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing', 'insights', 'reports', 'moon', 'components', 'onboarding', 'onboardingSteps', 'modalsClient', 'modalsData', 'modalsTask', 'modalsSystem', 'questions', 'help', 'cookies']
 
 const resources = {
   he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, settings: heSettings, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads, projects: heProjects, tasks: heTasks, connections: heConnections, admin: heAdmin, landing: heLanding, insights: heInsights, reports: heReports, moon: heMoon, components: heComponents, onboarding: heOnboarding, onboardingSteps: heOnboardingSteps, modalsClient: heModalsClient, modalsData: heModalsData, modalsTask: heModalsTask, modalsSystem: heModalsSystem, questions: heQuestions, help: heHelp, cookies: heCookies },
   en: { common: enCommon, auth: enAuth, nav: enNav, goals: enGoals, settings: enSettings, trash: enTrash, home: enHome, clients: enClients, finance: enFinance, calendar: enCalendar, leads: enLeads, projects: enProjects, tasks: enTasks, connections: enConnections, admin: enAdmin, landing: enLanding, insights: enInsights, reports: enReports, moon: enMoon, components: enComponents, onboarding: enOnboarding, onboardingSteps: enOnboardingSteps, modalsClient: enModalsClient, modalsData: enModalsData, modalsTask: enModalsTask, modalsSystem: enModalsSystem, questions: enQuestions, help: enHelp, cookies: enCookies },
-  es: { common: esCommon, auth: esAuth, settings: esSettings, components: esComponents, cookies: esCookies },
+  es: { common: esCommon, auth: esAuth, nav: esNav, goals: esGoals, settings: esSettings, trash: esTrash, home: esHome, clients: esClients, finance: esFinance, calendar: esCalendar, leads: esLeads, projects: esProjects, tasks: esTasks, connections: esConnections, admin: esAdmin, landing: esLanding, insights: esInsights, reports: esReports, moon: esMoon, components: esComponents, onboarding: esOnboarding, onboardingSteps: esOnboardingSteps, modalsClient: esModalsClient, modalsData: esModalsData, modalsTask: esModalsTask, modalsSystem: esModalsSystem, questions: esQuestions, help: esHelp, cookies: esCookies },
   fr: { common: frCommon, auth: frAuth, settings: frSettings, components: frComponents, cookies: frCookies },
 }
 

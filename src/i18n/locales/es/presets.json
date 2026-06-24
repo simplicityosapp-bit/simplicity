@@ -1,0 +1,24 @@
+{
+  "category": {
+    "income": {
+      "name": "Ingresos",
+      "hint": "Se actualiza automáticamente a partir de tus transacciones"
+    },
+    "clients_active": {
+      "name": "Clientes activos",
+      "hint": "Se cuentan automáticamente a partir de tus clientes"
+    },
+    "leads_inquiries": {
+      "name": "Consultas",
+      "hint": "Se cuentan automáticamente a partir de tus prospectos"
+    },
+    "leads_closings": {
+      "name": "Cierres",
+      "hint": "Prospectos convertidos en clientes"
+    },
+    "group_members": {
+      "name": "Miembros del grupo",
+      "hint": "Se cuentan automáticamente a partir de los miembros del grupo (se puede vincular a un proyecto)"
+    }
+  }
+}

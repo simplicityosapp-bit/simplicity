@@ -1,0 +1,42 @@
+{
+  "title": "Informes",
+  "moonGlance": "Resumen",
+  "view": {
+    "selectAria": "Elegir vista",
+    "list": "Lista",
+    "table": "Tabla"
+  },
+  "customize": {
+    "label": "Personalizar vista",
+    "title": "Personalizar vista",
+    "regionAria": "Personalizar vista",
+    "reset": "Predeterminado",
+    "resetTitle": "Restablecer a los valores predeterminados",
+    "close": "Cerrar",
+    "hint": "Elige qué métricas mostrar y arrastra para reordenarlas.",
+    "show": "Mostrar {{label}}",
+    "hide": "Ocultar {{label}}"
+  },
+  "list": {
+    "selectMonthAria": "Elegir mes",
+    "empty": "No hay datos para este mes",
+    "goToMonth": "← Ir a {{label}}"
+  },
+  "table": {
+    "noMetrics": "No hay métricas activas — toca el engranaje para mostrar métricas",
+    "monthsBack": "Meses atrás:",
+    "metric": "Métrica",
+    "summary": "Resumen"
+  },
+  "info": "Acerca de {{label}}",
+  "drill": {
+    "title": "Detalles",
+    "count_one": "{{count}} registro",
+    "count_other": "{{count}} registros",
+    "empty": "No hay registros para este periodo"
+  },
+  "trend": {
+    "empty": "Aún no hay datos suficientes para un gráfico.",
+    "aria": "Tendencias de varias métricas"
+  }
+}

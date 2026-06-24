@@ -1,0 +1,100 @@
+{
+  "countLabel": "{{count}} prospectos",
+  "tabLeads": "Prospectos",
+  "tabStatuses": "Estados",
+  "tagline": "Cultivar relaciones lleva a resultados.",
+  "title": "Prospectos",
+  "newLeadAria": "Nuevo prospecto",
+  "newLead": "+ Nuevo prospecto",
+  "viewToggleAria": "Vista",
+  "sourcesLink": "Fuentes de prospectos",
+  "leadPagesLink": "Páginas de prospectos",
+  "stats": {
+    "newThisMonth": "Consultas este mes",
+    "converted": "Convertidos en clientes",
+    "convRate": "Tasa de conversión"
+  },
+  "sort": {
+    "newOld": "Más recientes primero",
+    "oldNew": "Más antiguos primero",
+    "byDate": "Por fecha",
+    "aria": "Orden: {{label}}"
+  },
+  "followups": {
+    "empty": "No hay seguimientos pendientes para hoy",
+    "due": "Seguimientos para hoy"
+  },
+  "filter": {
+    "btn": "Filtrar",
+    "btnAria": "Filtrar prospectos",
+    "title": "Filtrar prospectos",
+    "hint": "Acota el tablero de prospectos por periodo, proyecto, grupo, subestado y fuente.",
+    "period": "Periodo",
+    "period_all": "Todo",
+    "period_month": "Este mes",
+    "period_last30": "Últimos 30 días",
+    "period_lastMonth": "Mes pasado",
+    "project": "Proyecto",
+    "group": "Grupo",
+    "status": "Subestado",
+    "source": "Fuente",
+    "all": "Todo",
+    "unassigned": "Sin asignar",
+    "sort": "Ordenar por fecha",
+    "sort_none": "Ninguno",
+    "sort_new": "Más recientes primero",
+    "sort_old": "Más antiguos primero",
+    "clear": "Borrar todo",
+    "close": "Cerrar"
+  },
+  "loading": "Cargando prospectos…",
+  "loadError": "No se pudieron cargar los prospectos: {{error}}",
+  "subFilterAria": "Filtrar por subestado",
+  "all": "Todo",
+  "undoStatusChanged": "Estado cambiado",
+  "delete": {
+    "title": "Eliminar prospecto",
+    "message": "¿Eliminar «{{name}}»? El prospecto pasará a la papelera y podrás restaurarlo en un plazo de 30 días.",
+    "confirm": "Eliminar"
+  },
+  "dropPicker": {
+    "title": "¿A qué subestado debe ir?",
+    "none": "Sin subestado"
+  },
+  "column": {
+    "empty": "No hay prospectos en esta columna"
+  },
+  "card": {
+    "deleteAria": "Eliminar prospecto {{name}}",
+    "deleteTitle": "Eliminar prospecto",
+    "noSource": "Sin fuente",
+    "inquiry": "Consulta {{date}}",
+    "converted": "Convertido en cliente",
+    "convert": "Convertir en cliente"
+  },
+  "sourcesModal": {
+    "title": "Fuentes de prospectos",
+    "hint": "De dónde llegó la consulta. Elige un color y un nombre, y la fuente aparecerá en las fichas de prospectos y en los filtros.",
+    "empty": "Aún no hay fuentes. Añade la primera.",
+    "newSource": "Nueva fuente",
+    "placeholder": "Nombre de la fuente",
+    "addAria": "Añadir fuente",
+    "addFailed": "No se pudo añadir la fuente.",
+    "deleteAria": "Eliminar {{name}}",
+    "deleteHint": "Eliminar",
+    "deleteTitle": "Eliminar fuente",
+    "deleteMessage": "¿Eliminar «{{name}}»? Los prospectos con esta fuente quedarán sin ninguna. Puedes restaurarla desde la papelera en un plazo de 30 días.",
+    "deleteConfirm": "Eliminar",
+    "close": "Cerrar"
+  },
+  "statusesPanel": {
+    "intro": "Gestiona los subestados bajo cada categoría principal. Los subestados aparecen cuando marcas un punto de color en una ficha de prospecto, y se usan para filtrar y en los gráficos.",
+    "addPlaceholder": "Subestado para «{{meta}}»",
+    "addAria": "Añadir",
+    "deleteChipAria": "Eliminar {{name}}",
+    "deleteChipTitle": "Eliminar",
+    "deleteTitle": "Eliminar subestado",
+    "deleteMessage": "¿Eliminar «{{name}}»? Los prospectos marcados con él quedarán sin subestado. Puedes restaurarlo desde la papelera en un plazo de 30 días.",
+    "deleteConfirm": "Eliminar"
+  }
+}

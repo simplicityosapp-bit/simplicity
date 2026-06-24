@@ -1,0 +1,62 @@
+{
+  "ariaMainNav": "Navegación principal",
+  "ariaBottomNav": "Navegación inferior",
+  "ariaDrawerNav": "Menú Más",
+  "ariaScreensNav": "Navegación de pantallas",
+  "more": "Más",
+  "menu": "Menú",
+  "close": "Cerrar",
+  "drawerSubtitle": "Menú · preferencias y herramientas personales",
+  "extras": {
+    "leadPages": "Páginas de prospectos",
+    "bookingPages": "Páginas de reservas",
+    "moon": "Resumen",
+    "reports": "Informes",
+    "insights": "¿Cómo estás hoy?",
+    "trash": "Papelera",
+    "legal": "Políticas y condiciones"
+  },
+  "feedback": "Habla con nosotros",
+  "admin": {
+    "label": "Administración",
+    "console": "Consola de administración",
+    "consoleSub": "Usuarios · comentarios · analíticas"
+  },
+  "theme": {
+    "toLight": "Modo claro",
+    "toDark": "Modo oscuro",
+    "toDarkAlt": "Modo oscuro",
+    "sub": "Cambia entre día y noche"
+  },
+  "logout": "Cerrar sesión",
+  "sections": {
+    "personal": "Personal",
+    "settings": "Ajustes"
+  },
+  "items": {
+    "home": "Inicio",
+    "clients": "Clientes",
+    "tasks": "Tareas",
+    "finance": "Dinero",
+    "leads": "Prospectos",
+    "projects": "Proyectos",
+    "goals": "Objetivos",
+    "calendar": "Calendario",
+    "connections": "Conexiones",
+    "settings": "Ajustes",
+    "insightsSub": "Tus preguntas diarias + ideas",
+    "moonSub": "Tu puntuación ponderada y tu progreso",
+    "reportsSub": "Métricas a lo largo de los periodos",
+    "feedbackSub": "Qué funciona, qué falta y qué se puede mejorar",
+    "trashSub": "Restaura elementos eliminados · 30 días",
+    "leadPagesSub": "Formularios públicos de captación de prospectos",
+    "bookingPagesSub": "Página pública de reserva de citas, sincronizada con tu calendario"
+  },
+  "signOut": "Cerrar sesión",
+  "profile": {
+    "myProfile": "Mi perfil",
+    "score": "Puntuación del perfil",
+    "healthAria": "Salud del perfil — abrir desglose",
+    "healthAriaWithScore": "Salud del perfil {{score}} por ciento — abrir desglose"
+  }
+}

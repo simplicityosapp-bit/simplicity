@@ -220,7 +220,10 @@ export default function ProjectDetailScreen() {
     if (newStatus === 'active') targetMeta = 'active'
     if (newStatus === 'ended') targetMeta = 'past'
     if (!targetMeta) return 0
-    const memberClients = groupMemberClients(gid).filter((c) => statusMetaOf(c) !== targetMeta)
+    /* Skip clients whose status the coach has manually overridden
+       (status_overridden, migration 0062) — a group active/ended flip must
+       never clobber a deliberate manual status. */
+    const memberClients = groupMemberClients(gid).filter((c) => !c.status_overridden && statusMetaOf(c) !== targetMeta)
     for (const c of memberClients) {
       // eslint-disable-next-line no-await-in-loop
       await updateClient(c.id, { status: targetMeta, status_meta: targetMeta }).catch(() => {})
@@ -235,7 +238,7 @@ export default function ProjectDetailScreen() {
     if (newStatus === 'active') targetMeta = 'active'
     if (newStatus === 'ended') targetMeta = 'past'
     const willFlip = targetMeta
-      ? groupMemberClients(g.id).filter((c) => statusMetaOf(c) !== targetMeta)
+      ? groupMemberClients(g.id).filter((c) => !c.status_overridden && statusMetaOf(c) !== targetMeta)
       : []
     if (willFlip.length === 0) {
       /* Silent — only the group's status flips, no client churn. */

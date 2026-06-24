@@ -103,6 +103,12 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         status: form.status,
         status_meta: form.status,
         status_id: form.status_id || null,
+        /* Editing the status by hand is a manual override that wins over the
+           client's group(s) (migration 0062). Only flip the flag when the
+           status actually changed — saving the modal without touching the
+           status must never silently override a still-group-driven client.
+           A no-change save preserves whatever override state already exists. */
+        status_overridden: form.status !== client.status_meta ? true : !!client.status_overridden,
         billing_mode: form.billing_mode || 'package',
         sessions: Number(form.sessions) || 0,
         price_per_session: Number(form.price_per_session) || 0,

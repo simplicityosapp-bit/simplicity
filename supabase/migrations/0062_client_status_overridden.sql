@@ -1,0 +1,35 @@
+-- ════════════════════════════════════════════════════════════════
+-- Migration 0062 — client manual status override
+-- Date: 2026-06-24
+-- ════════════════════════════════════════════════════════════════
+-- Background
+--   A client who belongs to one or more groups currently derives their
+--   status from those groups (src/lib/clients.js → effectiveClientMeta):
+--   the group owns the client's lifecycle, and any manually stored
+--   status_meta is ignored while the client is a member. Coaches need to
+--   override this by hand — e.g. a client who finished a group and moved
+--   into a personal 1-on-1 process should be markable as "active" even
+--   though her (now ended) group would otherwise read "past". She stays a
+--   member, so all her group history (sessions, payments, open balance,
+--   status log) remains visible exactly as before — only the displayed
+--   status flips to the manual choice.
+--
+--   This mirrors the existing price_overridden pattern (migration 0043):
+--   a boolean "the user took manual control" flag. effectiveClientMeta
+--   returns the stored status_meta when status_overridden = true; the
+--   group-status propagation (project-detail → propagateToClients) skips
+--   overridden clients so a group active/ended flip never clobbers a
+--   deliberate manual status. A one-tap "back to group status" action in
+--   the client drawer clears the flag.
+--
+-- Additive + data-preserving
+--   One new boolean column on clients, defaulted to false. No column is
+--   dropped or rewritten. Every existing client gets
+--   status_overridden = false, so their effective status keeps deriving
+--   from their groups exactly as it does today — zero behavioural change
+--   until a coach explicitly overrides a status. Re-running is a no-op
+--   (ADD COLUMN IF NOT EXISTS).
+-- ════════════════════════════════════════════════════════════════
+
+ALTER TABLE clients
+  ADD COLUMN IF NOT EXISTS status_overridden boolean NOT NULL DEFAULT false;

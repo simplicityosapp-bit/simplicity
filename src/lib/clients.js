@@ -17,13 +17,21 @@ export function getClientMemberships(clientId, membersData = mockMembers) {
   return live(membersData).filter((m) => m.client_id === clientId && !m.left_at)
 }
 
+/* True when the coach has taken manual control of this client's status
+   (migration 0062). When set, the stored status_meta wins over whatever
+   the client's groups would otherwise dictate. Only meaningful for group
+   members — a non-member's status is always their own stored value. */
+export const isStatusOverridden = (c) => !!c?.status_overridden
+
 /* C1 — a client who belongs to one or more groups derives their status
    from those groups (the group owns the client's lifecycle). "Active wins
    over ended": if ANY of their groups is not ended → 'active'; if they
-   only sit in ended groups → 'past'. A client with no group membership
-   keeps their own stored status_meta. */
+   only sit in ended groups → 'past'. A client with no group membership —
+   OR one whose status the coach has manually overridden (status_overridden,
+   migration 0062) — keeps their own stored status_meta. */
 export function effectiveClientMeta(c, membersData = mockMembers, groupsData = mockGroups) {
   if (!c) return 'no_status'
+  if (isStatusOverridden(c)) return statusMetaOf(c)
   const memberships = getClientMemberships(c.id, membersData)
   if (!memberships.length) return statusMetaOf(c)
   const statuses = memberships
@@ -34,10 +42,12 @@ export function effectiveClientMeta(c, membersData = mockMembers, groupsData = m
   return statuses.some((s) => s !== 'ended') ? 'active' : 'past'
 }
 
-/* True when the client's status is being driven by a group (so manual
-   status editing in the card is disabled). */
+/* True when the client's status is currently being driven by a group:
+   they're a member AND haven't been manually overridden. The card shows a
+   read-only "by group" hint in this state; once overridden, the manual
+   picker takes over. */
 export function isGroupDriven(c, membersData = mockMembers) {
-  return !!c && getClientMemberships(c.id, membersData).length > 0
+  return !!c && !isStatusOverridden(c) && getClientMemberships(c.id, membersData).length > 0
 }
 
 /* Total owed for one group membership. A per-member override always

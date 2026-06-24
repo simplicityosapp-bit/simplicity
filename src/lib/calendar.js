@@ -174,16 +174,30 @@ export function stepHebrewMonth(date, dir) {
   return dir > 0 ? startOfHebrewMonth(addDays(start, 31)) : startOfHebrewMonth(addDays(start, -1))
 }
 
-/* Step a whole Hebrew year, landing on the same-named month when it
-   exists in the target year (else that year's תשרי). Gracefully handles
-   common↔leap transitions (e.g. אדר ↔ אדר ב׳) without any molad math. */
+/* The only month whose name varies between common and leap years is Adar —
+   אדר / אדר א׳ / אדר ב׳ all share this base, so a year-jump can match across
+   the leap boundary instead of falling back to תשרי. */
+function hebrewMonthBase(name) {
+  return name.startsWith('אדר') ? 'אדר' : name
+}
+
+/* Step a whole Hebrew year, landing on the same month in the target year.
+   When the exact name is absent (an Adar variant crossing a common↔leap
+   boundary) fall back to the same base month — preferring the LAST one, so
+   entering a leap year lands on אדר ב׳ (the festive Adar) and leaving one
+   lands on the lone אדר. No molad math — purely the platform calendar. */
 export function stepHebrewYear(date, dir) {
   const name = hebrewParts(date).month
   const months = hebrewMonthsOfYear(date)
   const edge = dir > 0 ? months[months.length - 1].date : months[0].date
   const inTargetYear = stepHebrewMonth(edge, dir)   /* Tishrei fwd / Elul back */
   const target = hebrewMonthsOfYear(inTargetYear)
-  const match = target.find((m) => m.name === name)
+  let match = target.find((m) => m.name === name)
+  if (!match) {
+    const base = hebrewMonthBase(name)
+    const baseMatches = target.filter((m) => hebrewMonthBase(m.name) === base)
+    match = baseMatches[baseMatches.length - 1]
+  }
   return (match || target[0]).date
 }
 

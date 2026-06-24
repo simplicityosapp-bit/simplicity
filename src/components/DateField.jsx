@@ -104,7 +104,7 @@ export default function DateField({ value, onChange, className = '', disabled = 
   /* Trigger button text — Hebrew (optionally with the Gregorian date when the
      dual display setting is on) or the plain Gregorian per the date_format pref. */
   const triggerText = () => {
-    if (!value) return ph
+    if (!value || !selected) return ph
     if (!hebrew) return fmtDateInput(selected)
     const p = hebrewParts(selected)
     const heb = `${p.dayText} ב${p.month} ${p.yearText}`

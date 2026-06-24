@@ -33,25 +33,27 @@ export function screenKeyFromPath(pathname) {
 }
 
 /* Bottom tab bar — 4 quick screens + the menu button (handled separately).
-   Order chosen 25.05.26 (matches the prototype's .mg-bottombar). */
+   Order chosen 25.05.26 (matches the prototype's .mg-bottombar). Display
+   labels resolve via i18n at the call site (nav:items.<key>). */
 export const BOTTOM_NAV = [
-  { key: 'clients', label: 'לקוחות', icon: 'Users', to: ROUTES.CLIENTS },
-  { key: 'tasks', label: 'משימות', icon: 'ClipboardList', to: ROUTES.TASKS },
-  { key: 'home', label: 'בית', icon: 'Home', to: ROUTES.HOME },
-  { key: 'finance', label: 'כסף', icon: 'Wallet', to: ROUTES.FINANCE },
+  { key: 'clients', icon: 'Users', to: ROUTES.CLIENTS },
+  { key: 'tasks', icon: 'ClipboardList', to: ROUTES.TASKS },
+  { key: 'home', icon: 'Home', to: ROUTES.HOME },
+  { key: 'finance', icon: 'Wallet', to: ROUTES.FINANCE },
 ]
 
 /* Drawer nav grid — every reachable screen (the bottom bar only holds 4).
-   Order matches the prototype drawer grid. */
+   Order matches the prototype drawer grid. Display labels resolve via i18n
+   at the call site (nav:items.<key>). */
 export const DRAWER_NAV = [
-  { key: 'home', label: 'בית', icon: 'Home', to: ROUTES.HOME },
-  { key: 'clients', label: 'לקוחות', icon: 'Users', to: ROUTES.CLIENTS },
-  { key: 'leads', label: 'לידים', icon: 'Heart', to: ROUTES.LEADS },
-  { key: 'finance', label: 'כסף', icon: 'Wallet', to: ROUTES.FINANCE },
-  { key: 'projects', label: 'פרויקטים', icon: 'Folder', to: ROUTES.PROJECTS },
-  { key: 'tasks', label: 'משימות', icon: 'ClipboardList', to: ROUTES.TASKS },
-  { key: 'goals', label: 'יעדים', icon: 'Target', to: ROUTES.GOALS },
-  { key: 'calendar', label: 'יומן', icon: 'Calendar', to: ROUTES.CALENDAR },
-  { key: 'connections', label: 'חיבורים', icon: 'Plug', to: ROUTES.CONNECTIONS },
-  { key: 'settings', label: 'הגדרות', icon: 'Settings', to: ROUTES.SETTINGS },
+  { key: 'home', icon: 'Home', to: ROUTES.HOME },
+  { key: 'clients', icon: 'Users', to: ROUTES.CLIENTS },
+  { key: 'leads', icon: 'Heart', to: ROUTES.LEADS },
+  { key: 'finance', icon: 'Wallet', to: ROUTES.FINANCE },
+  { key: 'projects', icon: 'Folder', to: ROUTES.PROJECTS },
+  { key: 'tasks', icon: 'ClipboardList', to: ROUTES.TASKS },
+  { key: 'goals', icon: 'Target', to: ROUTES.GOALS },
+  { key: 'calendar', icon: 'Calendar', to: ROUTES.CALENDAR },
+  { key: 'connections', icon: 'Plug', to: ROUTES.CONNECTIONS },
+  { key: 'settings', icon: 'Settings', to: ROUTES.SETTINGS },
 ]

@@ -4,6 +4,8 @@
     "dialogLabel": "Date picker",
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
+    "prevYear": "Previous year",
+    "nextYear": "Next year",
     "today": "Today"
   },
   "schedule": {

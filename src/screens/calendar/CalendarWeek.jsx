@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { startOfWeek, addDays, eventsForDay, isSameDay, DAY_NAMES_SHORT } from '../../lib/calendar'
+import { startOfWeek, addDays, eventsForDay, isSameDay, hebrewDayNum, DAY_NAMES_SHORT } from '../../lib/calendar'
 import { fmtTime } from '../../lib/dates'
 
 /* 7 vertical strips, one per day in the week containing `date`.
@@ -7,7 +7,7 @@ import { fmtTime } from '../../lib/dates'
    to surface the event details, or tap the day header to jump to
    that day's view (parity with the month grid). The current day is
    tinted to anchor the user. */
-export default function CalendarWeek({ date, events, onSelect, onPickDay, weekStart = 'sunday' }) {
+export default function CalendarWeek({ date, events, onSelect, onPickDay, weekStart = 'sunday', hebrew = false, dual = false }) {
   const days = useMemo(() => {
     const s = startOfWeek(date, weekStart)
     return Array.from({ length: 7 }, (_, i) => addDays(s, i))
@@ -30,7 +30,14 @@ export default function CalendarWeek({ date, events, onSelect, onPickDay, weekSt
               aria-label={d.toDateString()}
             >
               <span className="cal-week-dow">{DAY_NAMES_SHORT[d.getDay()]}</span>
-              <span className="cal-week-date mono">{d.getDate()}</span>
+              {hebrew ? (
+                <span className="cal-week-date heb">
+                  {hebrewDayNum(d)}
+                  {dual && <span className="cal-week-date-greg mono">{d.getDate()}</span>}
+                </span>
+              ) : (
+                <span className="cal-week-date mono">{d.getDate()}</span>
+              )}
             </button>
             <div className="cal-week-body">
               {/* All-day band first — no time, distinct tint. */}

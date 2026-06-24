@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { setCurrentCurrency } from '../lib/finance'
-import { setDateTimeFormat } from '../lib/dates'
+import { setDateTimeFormat, setHebrewCalendar } from '../lib/dates'
 
 /* ════════════════════════════════════════════════════════════════
    PrefsApplier — one-way bridge from user_preferences to side-effects.
@@ -25,6 +25,14 @@ export default function PrefsApplier() {
       time_format: prefs?.format?.time_format,
     })
   }, [prefs?.format?.date_format, prefs?.format?.time_format])
+
+  /* Hebrew calendar → lib/dates (drives the agenda formatWhen()) */
+  useEffect(() => {
+    setHebrewCalendar({
+      enabled: prefs?.design?.hebrew_calendar,
+      dual: prefs?.design?.hebrew_calendar_dual,
+    })
+  }, [prefs?.design?.hebrew_calendar, prefs?.design?.hebrew_calendar_dual])
 
   /* Theme → <html data-theme>. Mirrored to localStorage so a refresh
      before prefs load shows the right theme. */

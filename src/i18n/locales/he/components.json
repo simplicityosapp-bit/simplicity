@@ -6,6 +6,8 @@
     "dialogLabel": "בחירת תאריך",
     "prevMonth": "חודש קודם",
     "nextMonth": "חודש הבא",
+    "prevYear": "שנה קודמת",
+    "nextYear": "שנה הבאה",
     "today": "היום"
   },
   "schedule": {

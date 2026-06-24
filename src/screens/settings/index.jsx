@@ -389,7 +389,42 @@ function DesignBody({ prefs, onUpdate }) {
       <Segmented label={t('common:language')} value={activeLang} options={LANGUAGE_OPTIONS} onChange={setLanguage} />
       <Segmented label={t('design.theme')} value={d.theme || 'light'} options={THEME_OPTIONS.map((o) => ({ ...o, l: t(`options.theme.${o.v}`) }))} onChange={setVal('theme')} />
       <Segmented label={t('design.background')} value={d.background || 'nature'} options={BACKGROUND_OPTIONS.map((o) => ({ ...o, l: t(`options.background.${o.v}`) }))} onChange={setVal('background')} />
+      <SwitchField
+        label={t('design.hebrewCalendar')}
+        hint={t('design.hebrewCalendarHint')}
+        checked={!!d.hebrew_calendar}
+        onChange={setVal('hebrew_calendar')}
+      />
+      {d.hebrew_calendar && (
+        <SwitchField
+          nested
+          label={t('design.hebrewCalendarDual')}
+          hint={t('design.hebrewCalendarDualHint')}
+          checked={!!d.hebrew_calendar_dual}
+          onChange={setVal('hebrew_calendar_dual')}
+        />
+      )}
+      <SwitchField
+        label={t('design.hebrewDateInput')}
+        hint={t('design.hebrewDateInputHint')}
+        checked={!!d.hebrew_date_input}
+        onChange={setVal('hebrew_date_input')}
+      />
       <Segmented label={t('design.textSize')} value={d.text_size || 'normal'} options={TEXT_SIZE_OPTIONS.map((o) => ({ ...o, l: t(`options.textSize.${o.v}`) }))} onChange={setVal('text_size')} />
+    </div>
+  )
+}
+
+/* Labeled on/off row for the design body — a <Switch> with a leading
+   label + optional hint. `nested` indents it under its parent toggle. */
+function SwitchField({ label, hint, checked, onChange, nested = false }) {
+  return (
+    <div className={`set-switch-field${nested ? ' nested' : ''}`}>
+      <div className="set-switch-field-row">
+        <span className="set-switch-field-label">{label}</span>
+        <Switch checked={checked} onChange={onChange} label={label} />
+      </div>
+      {hint && <p className="set-switch-field-hint">{hint}</p>}
     </div>
   )
 }

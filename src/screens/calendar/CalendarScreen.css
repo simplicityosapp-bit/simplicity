@@ -860,3 +860,29 @@
 .evt-detail-booking-row a:hover { text-decoration: underline; }
 /* "ביטול תור" — sits under the booking detail, separated from its rows. */
 .evt-detail-cancel-booking { margin-top: 10px; }
+
+/* ── Hebrew calendar display mode ─────────────────────────────────
+   Gematria day numbers use the Hebrew text font (not the numeric one),
+   and in dual mode a small Gregorian number sits beneath. The month
+   picker grid keeps 3 columns — it absorbs the 13th month (Adar II)
+   in leap years by wrapping to an extra row. */
+.cal-month-num.heb,
+.cal-week-date.heb {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  font-family: var(--mg-font);
+  font-weight: 600;
+}
+.cal-month-num.heb { font-size: calc(13px * var(--text-scale)); }
+.cal-week-date.heb { font-size: calc(15px * var(--text-scale)); }
+.cal-month-num-greg,
+.cal-week-date-greg {
+  font-family: var(--mg-font-num);
+  font-weight: 400;
+  font-size: calc(9px * var(--text-scale));
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}

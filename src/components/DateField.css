@@ -28,7 +28,14 @@
   box-shadow: 0 0 0 2px var(--blush);
 }
 .datefield-ph { color: var(--mist); }
-.datefield-val { font-variant-numeric: tabular-nums; }
+/* Truncate rather than overflow — the Hebrew (esp. dual) value can be long. */
+.datefield-val {
+  font-variant-numeric: tabular-nums;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .datefield-pop {
   position: absolute;
@@ -110,6 +117,12 @@
   color: var(--espresso);
   cursor: pointer;
   font-variant-numeric: tabular-nums;
+}
+/* Gematria day labels are Hebrew letters, not digits — use the text font. */
+.datefield-day.heb {
+  font-family: var(--mg-font);
+  font-variant-numeric: normal;
+  font-weight: 500;
 }
 .datefield-day:hover { background: var(--mg-row-hover-bg); }
 .datefield-day.out { color: var(--mist); opacity: 0.6; }

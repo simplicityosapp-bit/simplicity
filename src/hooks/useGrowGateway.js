@@ -1,0 +1,82 @@
+import { useCallback, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { callGrow } from '../lib/api/integrations'
+
+/* Client over the `grow` edge function — the Grow (גרו / Meshulam) payment
+   gateway. Like the invoice provider (and unlike Google Calendar) there is no
+   OAuth redirect: the user pastes their Grow userId + pageCode + apiKey and we
+   POST them to the function, which validates them server-side. Status never
+   includes any of the three (the browser can't read them at all).
+
+   Status is read through React Query so it's fetched ONCE and shared across
+   every mount (the connections row + the GrowCard). connect/test/disconnect
+   write the fresh status straight back into the cache, so a just-connected
+   gateway lights up everywhere immediately. */
+const STATUS_KEY = ['grow_status']
+
+export function useGrowGateway() {
+  const qc = useQueryClient()
+  const { data: status = null, isLoading: loading, error: queryError } = useQuery({
+    queryKey: STATUS_KEY,
+    queryFn: () => callGrow('status').then((r) => r.status),
+  })
+  const [busy, setBusy] = useState(false)
+  const [actionError, setActionError] = useState(null)
+  const setStatus = useCallback((s) => qc.setQueryData(STATUS_KEY, s), [qc])
+
+  const loadStatus = useCallback(async () => {
+    await qc.invalidateQueries({ queryKey: STATUS_KEY })
+  }, [qc])
+
+  /* Connect (and validate) the gateway. creds: { userId, pageCode, apiKey,
+     environment }. Throws on failure (the caller shows the mapped message). */
+  const connect = useCallback(async ({ userId, pageCode, apiKey, environment }) => {
+    setBusy(true); setActionError(null)
+    try {
+      const r = await callGrow('connect', { userId, pageCode, apiKey, environment })
+      setStatus(r.status)
+      return r
+    } catch (e) {
+      setActionError(e.message); throw e
+    } finally {
+      setBusy(false)
+    }
+  }, [setStatus])
+
+  /* Re-validate the stored credentials (a real round-trip to Grow). */
+  const test = useCallback(async () => {
+    setBusy(true); setActionError(null)
+    try {
+      const r = await callGrow('test')
+      if (r.status) setStatus(r.status)
+      return r
+    } catch (e) {
+      setActionError(e.message); throw e
+    } finally {
+      setBusy(false)
+    }
+  }, [setStatus])
+
+  const disconnect = useCallback(async () => {
+    setBusy(true); setActionError(null)
+    try {
+      const r = await callGrow('disconnect')
+      setStatus(r.status)
+    } catch (e) {
+      setActionError(e.message); throw e
+    } finally {
+      setBusy(false)
+    }
+  }, [setStatus])
+
+  return {
+    status,
+    loading,
+    busy,
+    error: actionError ?? (queryError?.message ?? null),
+    connect,
+    test,
+    disconnect,
+    loadStatus,
+  }
+}

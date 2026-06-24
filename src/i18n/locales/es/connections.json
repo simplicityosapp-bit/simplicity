@@ -1,7 +1,8 @@
 {
   "providers": {
     "sumit": "SUMIT",
-    "greeninvoice": "Green Invoice"
+    "greeninvoice": "Green Invoice",
+    "grow": "Grow"
   },
   "env": {
     "production": "Producción",
@@ -20,6 +21,7 @@
     "needsReconnect": "Requiere reconexión",
     "connectedTo": "Conectado · {{provider}}",
     "invoices": "Facturas",
+    "grow": "Pagos · Grow",
     "whatsappStatus": "Envío manual · editar mensajes",
     "soon": "Próximamente",
     "soonAria": "{{title}} — próximamente"
@@ -180,6 +182,53 @@
       "saving": "Guardando…",
       "saved": "Tipo de negocio guardado."
     }
+  },
+  "growScreen": {
+    "back": "Atrás",
+    "title": "Pagos · Grow",
+    "subtitle": "Conecta tu cuenta de Grow para cobrar en línea — tarjeta de crédito, Bit y monederos digitales — y crea enlaces de pago para los clientes."
+  },
+  "growCard": {
+    "fields": {
+      "userId": "ID de usuario (User ID)",
+      "pageCode": "Código de página (Page Code)",
+      "apiKey": "Clave API (API Key)"
+    },
+    "help": "Obtienes estos datos de Grow: el ID de usuario y el código de página desde los ajustes de API de tu cuenta; la clave API desde el soporte de Grow.",
+    "steps": [
+      "Inicia sesión en tu cuenta de Grow (Meshulam).",
+      "Abre los ajustes de API / pagos en línea.",
+      "Copia tu ID de usuario y tu código de página.",
+      "Consigue tu clave API — desde el soporte de Grow si hace falta.",
+      "Elige un entorno (Producción para un negocio real, Sandbox para pruebas), pega los tres y pulsa «Conectar»."
+    ],
+    "err": {
+      "invalidCredentials": "Esas credenciales son incorrectas. Compruébalas y cópialas de nuevo.",
+      "missingFields": "Rellena los tres campos.",
+      "providerUnreachable": "El servicio no está disponible en este momento. Inténtalo de nuevo en un momento.",
+      "generic": "La conexión ha fallado. Inténtalo de nuevo."
+    },
+    "title": "Pagos · Grow",
+    "needsReconnectStatus": "Requiere reconexión",
+    "connectedStatus": "Conectado · {{env}}",
+    "notConnectedHint": "Sin conectar — conecta Grow para cobrar en línea a los clientes.",
+    "brokenMsg": "Tus credenciales de Grow ya no son válidas — puede que la clave se haya revocado o reemplazado. Para continuar, vuelve a conectar.",
+    "reconnect": "Reconectar",
+    "howTo": "¿Cómo las consigo?",
+    "envGroupAria": "Entorno de Grow",
+    "pickEnv": "Elige un entorno",
+    "pastePlaceholder": "Pega aquí",
+    "connecting": "Conectando…",
+    "connect": "Conectar",
+    "cancel": "Cancelar",
+    "connectSuccess": "Conectado correctamente.",
+    "testing": "Comprobando…",
+    "testConnection": "Probar conexión",
+    "testOk": "La conexión funciona.",
+    "disconnecting": "Desconectando…",
+    "disconnect": "Desconectar",
+    "disconnectConfirm": "¿Seguro? Desconectar",
+    "disconnectConfirmSr": "Pulsa de nuevo para confirmar la desconexión"
   },
   "actions": {
     "err": {

@@ -9,6 +9,7 @@
 import i18n from '../i18n'
 import heReflections from '../i18n/locales/he/reflections.json'
 import enReflections from '../i18n/locales/en/reflections.json'
+import esReflections from '../i18n/locales/es/reflections.json'
 import { goals as allGoals, goal_categories, goal_entries, sessions, clients as mockClients, leads as mockLeads, daily_answers as mockAnswers, group_members as mockMembers, groups as mockGroups } from '../data/mock'
 import { financeQuery, currentMonthRange } from './finance'
 import { isConvertedLead } from './leads'
@@ -18,6 +19,7 @@ import { isConvertedLead } from './leads'
    (e.g. the home MoonWidget). Idempotent deep-merge. */
 if (!i18n.hasResourceBundle('he', 'reflections')) i18n.addResourceBundle('he', 'reflections', heReflections, true, true)
 if (!i18n.hasResourceBundle('en', 'reflections')) i18n.addResourceBundle('en', 'reflections', enReflections, true, true)
+if (!i18n.hasResourceBundle('es', 'reflections')) i18n.addResourceBundle('es', 'reflections', esReflections, true, true)
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 const isActiveClient = (c) => (c.status_meta || c.status || 'no_status') === 'active'

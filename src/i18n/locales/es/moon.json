@@ -1,0 +1,52 @@
+{
+  "title": "Resumen",
+  "reports": "Informes",
+  "ring": {
+    "kicker": "Del ritmo",
+    "sub": "{{pct}}% del objetivo"
+  },
+  "section": {
+    "byCategory": "Desglose por categoría",
+    "trend": "Tendencia a lo largo del tiempo",
+    "crossModule": "Tendencias entre módulos",
+    "correlations": "Vínculos por explorar"
+  },
+  "trend": {
+    "aria": "Tendencia de la puntuación en los últimos 30 días",
+    "avg": "Media",
+    "peak": "Máximo",
+    "today": "Hoy"
+  },
+  "pills": {
+    "income": "Ingresos",
+    "leads": "Prospectos",
+    "sessions": "Sesiones",
+    "score": "Puntuación",
+    "question": "Pregunta diaria"
+  },
+  "overview": {
+    "note": "Tendencias relativas · últimos 30 días — cada línea en su propia escala (0–100). Un vínculo visual no es causalidad."
+  },
+  "corr": {
+    "moveTogether": "<0>{{driver}}</0> y <1>{{outcome}}</1> tienden a moverse juntos (cuando uno es alto, el otro también).",
+    "moveOpposite": "<0>{{driver}}</0> y <1>{{outcome}}</1> tienden a moverse de forma inversa (cuando uno es alto, el otro es bajo).",
+    "sub": "Vínculo {{strength}} · {{n}} puntos · observación, no causalidad",
+    "empty": "Ahora mismo no hay ningún vínculo significativo en los datos — y normalmente simplemente no lo hay, y eso está bien. Si aparece un patrón estable y suficientemente significativo, lo mostraremos aquí para explorarlo.",
+    "note": "Solo observaciones iniciales — la correlación no es causalidad. Los datos se agregan y se filtran estadísticamente para mayor fiabilidad."
+  },
+  "scatter": {
+    "aria": "Dispersión de puntos: eje horizontal {{driver}}, eje vertical {{outcome}}",
+    "title": "Eje horizontal: {{driver}} · eje vertical: {{outcome}}",
+    "xFallback": "Métrica A",
+    "yFallback": "Métrica B"
+  },
+  "empty": {
+    "noGoals": "Aún no hay objetivos. {{action}} un objetivo para ver la puntuación.",
+    "action": "Define"
+  },
+  "footerLink": "Edita tus objetivos ←",
+  "dualBars": {
+    "pace": "Del ritmo",
+    "goal": "Del objetivo"
+  }
+}

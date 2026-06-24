@@ -19,12 +19,14 @@
 import i18n from '../i18n'
 import heReflections from '../i18n/locales/he/reflections.json'
 import enReflections from '../i18n/locales/en/reflections.json'
+import esReflections from '../i18n/locales/es/reflections.json'
 import { ROUTES } from './routes'
 
 /* 'reflections' namespace is owned by these libs, not i18n/index.js — register
    on import so i18n.t resolves wherever this lib loads first. Idempotent. */
 if (!i18n.hasResourceBundle('he', 'reflections')) i18n.addResourceBundle('he', 'reflections', heReflections, true, true)
 if (!i18n.hasResourceBundle('en', 'reflections')) i18n.addResourceBundle('en', 'reflections', enReflections, true, true)
+if (!i18n.hasResourceBundle('es', 'reflections')) i18n.addResourceBundle('es', 'reflections', esReflections, true, true)
 
 /* Tier thresholds — colour + key by score. Low stays on the soft
    warning amber rather than danger clay until it's really sparse, so a

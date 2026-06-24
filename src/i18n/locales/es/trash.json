@@ -1,0 +1,41 @@
+{
+  "title": "Papelera",
+  "itemCount_one": "{{count}} elemento",
+  "itemCount_other": "{{count}} elementos",
+  "keptDays": "Se conservan durante 30 días",
+  "stillReversible": "Cada eliminación aquí todavía se puede revertir.",
+  "error": "Error: {{error}}",
+  "loading": "Cargando…",
+  "empty": {
+    "body": "La papelera está vacía 🌱<br />Todo lo que {{deleteVerb}} esperará aquí durante 30 días."
+  },
+  "deleteVerb": "elimines",
+  "entities": {
+    "clients": "Clientes",
+    "projects": "Proyectos",
+    "groups": "Grupos",
+    "tasks": "Tareas",
+    "leads": "Prospectos",
+    "leadSources": "Fuentes de prospectos",
+    "leadStatuses": "Subestados de prospectos",
+    "transactions": "Transacciones",
+    "categories": "Categorías de gastos",
+    "recurring": "Plantillas recurrentes",
+    "sessions": "Sesiones",
+    "reminders": "Recordatorios",
+    "goals": "Objetivos",
+    "goalCategories": "Métricas de objetivos",
+    "goalEntries": "Registros de objetivos",
+    "userQuestions": "Preguntas diarias",
+    "dailyAnswers": "Respuestas diarias"
+  },
+  "item": {
+    "goalFallback": "Objetivo {{value}}",
+    "session": "Sesión",
+    "sessionNum": "Sesión {{num}}",
+    "deletedAgo": "Eliminado {{ago}}",
+    "restoreLabel": "Restaurar {{label}}",
+    "restoring": "Restaurando…",
+    "restore": "Restaurar"
+  }
+}

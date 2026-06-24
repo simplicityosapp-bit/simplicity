@@ -1,0 +1,215 @@
+{
+  "modal": {
+    "close": "Cerrar"
+  },
+  "confirm": {
+    "title": "Confirmar",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "tryAgain": "inténtalo de nuevo"
+  },
+  "deleteAccount": {
+    "title": "Eliminar la cuenta permanentemente",
+    "confirmPhrase": "eliminar cuenta",
+    "step1": "Esto marcará <0>toda tu cuenta</0> para su eliminación: tu perfil, todos tus datos (clientes, proyectos, prospectos, transacciones, objetivos, sesiones, recordatorios, etc.)<1> y tu propio acceso</1>.",
+    "step1b": "Tienes <0>{{days}} días</0> para cambiar de opinión: en cada inicio de sesión durante este periodo puedes cancelar y volver al uso normal. Después de eso, todo se elimina permanentemente y <1>no se puede recuperar</1>, y ya no podrás volver a iniciar sesión con la misma cuenta.",
+    "step2": "Para confirmar, {{type}} <0>{{phrase}}</0> en el cuadro. La cuenta atrás de {{days}} días empieza justo después.",
+    "typeVerb": "escribe la frase",
+    "inputLabel": "Escribe:",
+    "genericError": "Algo salió mal — {{tryAgain}}.",
+    "continue": "Continuar con la eliminación",
+    "deleting": "Marcando para eliminar…",
+    "confirmBtn": "Eliminar la cuenta"
+  },
+  "resetAccount": {
+    "title": "Restablecer la cuenta — eliminar todos los datos",
+    "confirmWord": "eliminar",
+    "step1": "Esto eliminará <0>todos los datos de tu cuenta</0>: clientes, proyectos, grupos, prospectos, transacciones y gastos recurrentes, categorías, tareas, objetivos y registros de objetivos, preguntas diarias y sus respuestas, sesiones registradas, notas, recordatorios, estados y fuentes.",
+    "step1b": "<0>Esta acción no se puede deshacer.</0> La introducción empezará de nuevo para que puedas comenzar desde cero.",
+    "step2": "Para confirmar definitivamente, {{type}} <0>{{word}}</0> en el cuadro. Esta es la confirmación final: todo se elimina justo después.",
+    "typeVerb": "escribe la palabra",
+    "inputLabel": "Escribe:",
+    "genericError": "Algo salió mal — {{tryAgain}}.",
+    "continue": "Continuar con la eliminación",
+    "deleting": "Eliminando…",
+    "confirmBtn": "Eliminar todo permanentemente"
+  },
+  "export": {
+    "title": "Exportar datos",
+    "intro": "Todos tus datos se descargan juntos como un único archivo de Excel con una hoja por cada tipo; las exportaciones individuales son archivos CSV separados.",
+    "exporting": "Exportando…",
+    "exportAll": "Exportar todos los datos (Excel)",
+    "exportAllHint": "Un archivo con una hoja por cada tipo: transacciones, clientes, proyectos, prospectos, tareas, categorías.",
+    "sensitiveHeading": "¿Incluir también datos sensibles?",
+    "sensitiveSub": "No se incluyen de forma predeterminada. Los datos sensibles se exportan como texto sin cifrar — guarda el archivo en un lugar seguro.",
+    "failed": "La exportación falló. Inténtalo de nuevo.",
+    "exportTransactions": "Exportar transacciones (CSV)",
+    "exportClients": "Exportar clientes (CSV)",
+    "exportProjects": "Exportar proyectos (CSV)",
+    "reimportHint": "Los archivos de clientes y proyectos se guardan en un formato que se puede volver a importar (las mismas cabeceras que el sistema reconoce).",
+    "sensitive": {
+      "sessions": "Sesiones",
+      "sessionsSub": "Notas y resúmenes de sesiones",
+      "goals": "Objetivos",
+      "goalsSub": "Objetivos y registros de progreso",
+      "dailyAnswers": "Respuestas diarias",
+      "dailyAnswersSub": "Respuestas a las preguntas diarias",
+      "moon": "Reflexiones",
+      "moonSub": "Reflexiones diarias (descifradas)"
+    }
+  },
+  "feedback": {
+    "title": "Habla con nosotros",
+    "thanks": "¡Gracias! Tu comentario se ha enviado.",
+    "lead": "Nos encantaría saber de ti — cada comentario nos ayuda a mejorar.",
+    "typeLabel": "Tipo de comentario (opcional)",
+    "placeholder": "{{write}} cualquier cosa que tengas en mente…",
+    "writeVerb": "Escríbenos",
+    "privacyHint": "Para proteger la privacidad de tus clientes — no incluyas datos que los identifiquen (nombre completo, teléfono).",
+    "sendFailed": "Algo salió mal al enviar. Puedes intentarlo de nuevo.",
+    "sending": "Enviando…",
+    "send": "Enviar",
+    "types": {
+      "bug": "Error",
+      "idea": "Idea",
+      "praise": "Elogio",
+      "other": "Otro"
+    }
+  },
+  "profileHealth": {
+    "title": "Estado del perfil",
+    "calculating": "Un momento, calculando tu puntuación…",
+    "loadingData": "Cargando tus datos…",
+    "noGaps": "No hay huecos abiertos — todo está en uso.",
+    "editProfile": "Editar perfil",
+    "lead": {
+      "full": "Todo está en uso — estás aprovechando al máximo el sistema.",
+      "high": "Casi todo está en su sitio. Un pequeño retoque más y ya estás.",
+      "mid": "Vas por buen camino — unos pasos más y tu perfil estará completo.",
+      "low": "Aquí hay una oportunidad real de sacar más partido al sistema."
+    }
+  },
+  "issueGuard": {
+    "title1": "Un momento antes de emitir",
+    "title2": "Confirmación final",
+    "sure": "Sí, estoy seguro",
+    "finalMsg": "Esto emitirá un documento fiscal real que no se puede cancelar. ¿Emitir por {{amount}}?",
+    "issue": "Sí, emitirlo"
+  },
+  "quickActions": {
+    "title": "Añadir rápido",
+    "actions": {
+      "transaction": "Transacción",
+      "client": "Cliente",
+      "lead": "Prospecto",
+      "task": "Tarea",
+      "project": "Proyecto",
+      "goal": "Objetivo",
+      "reminder": "Recordatorio",
+      "meeting": "Sesión"
+    }
+  },
+  "quoteSource": {
+    "title": "Citas",
+    "writeFirst": "Escribe primero una cita.",
+    "saveFailed": "No se pudo guardar: {{error}}",
+    "tryAgain": "inténtalo de nuevo",
+    "pickLabel": "¿De dónde debe salir la cita diaria?",
+    "sourceSystem": "Del sistema",
+    "sourcePersonal": "Mías",
+    "emptyPersonal": "Aún no tienes citas personales — hasta que añadas algunas, se mostrará una cita de la biblioteca.",
+    "addLabel": "Añadir una cita personal",
+    "addPlaceholder": "Escribe una frase que te inspire…",
+    "addAria": "Añadir cita",
+    "myQuotes": "Mis citas ({{count}})",
+    "removeAria": "Eliminar cita"
+  },
+  "tileDrill": {
+    "close": "Cerrar",
+    "openFull": "Abrir en pantalla completa",
+    "dayLabels": ["D", "L", "M", "X", "J", "V", "S"],
+    "titles": {
+      "clients": "Clientes",
+      "net": "Neto",
+      "tasks": "Tareas"
+    },
+    "status": {
+      "active": "Activo",
+      "wandering": "Intermedio",
+      "past": "Antiguo",
+      "no_status": "Ninguno"
+    },
+    "netRanges": {
+      "thisWeek": "Esta semana",
+      "thisMonth": "Este mes",
+      "last30days": "Últimos 30 días"
+    },
+    "netTypes": {
+      "both": "Neto (ingresos − gastos)",
+      "income": "Solo ingresos",
+      "expense": "Solo gastos"
+    },
+    "taskStatus": {
+      "open": "Abiertas",
+      "done": "Hechas",
+      "both": "Todas"
+    },
+    "priorities": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
+    },
+    "taskClientScope": {
+      "all": "Todas",
+      "linked": "Vinculadas a un cliente"
+    },
+    "all": "Todos",
+    "none": "Ninguno",
+    "clients": {
+      "matchingNum": "clientes coincidentes",
+      "trendLbl": "Base de clientes · 30 días",
+      "statusLbl": "Estado",
+      "projectLbl": "Proyecto",
+      "groupLbl": "Grupo",
+      "matchingSection": "Coincidentes ({{count}})",
+      "emptyFilter": "Ningún cliente coincide con el filtro.",
+      "moreCount": "+{{count}} más",
+      "noProjects": "Aún no hay proyectos",
+      "noGroups": "Aún no hay grupos"
+    },
+    "net": {
+      "income": "Ingresos",
+      "expense": "Gastos",
+      "net": "Neto",
+      "trendLbl": "Ingresos frente a gastos · 30 días",
+      "legendIncome": "Ingresos",
+      "legendExpense": "Gastos",
+      "timeRangeLbl": "Periodo de tiempo",
+      "typeLbl": "Tipo",
+      "projectLbl": "Proyecto",
+      "categoryLbl": "Categoría",
+      "miniIncome": "Ingresos",
+      "miniExpense": "Gastos",
+      "miniTx": "Transacciones",
+      "noProjects": "Aún no hay proyectos",
+      "noCategories": "Aún no hay categorías"
+    },
+    "tasks": {
+      "matchingNum": "tareas coincidentes",
+      "trendLbl": "Tareas completadas · 7 días",
+      "statusLbl": "Estado",
+      "priorityLbl": "Prioridad",
+      "projectLbl": "Proyecto",
+      "clientScopeLbl": "Vínculo con cliente",
+      "upcomingSection": "Próximas tareas",
+      "emptyFilter": "Ninguna tarea coincide con el filtro.",
+      "moreCount": "+{{count}} más",
+      "noProjects": "Aún no hay proyectos"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "title": "¿Cómo estás hoy?",
+  "activeCount": "{{count}} activas",
+  "dailyInsights": "Ideas diarias",
+  "tagline": "Escucharte, un día a la vez.",
+  "mirror": {
+    "title": "Reflexión diaria"
+  },
+  "loading": "Cargando…",
+  "loadError": "No se pudieron cargar tus preguntas. Prueba a actualizar.",
+  "empty": "Aún no hay preguntas diarias.",
+  "emptyAdd": "Añade tu primera pregunta",
+  "addQuestion": "+ Añadir pregunta",
+  "addQuestionAria": "Añadir una pregunta diaria",
+  "trend": {
+    "notEnough": "No hay datos suficientes",
+    "aria": "Tendencia de la pregunta en los últimos 30 días"
+  },
+  "heatmap": {
+    "aria": "Historial anual de respuestas",
+    "heading": "Últimos seis meses"
+  },
+  "card": {
+    "todayPill": "Hoy · {{value}}",
+    "turnOnAria": "Activar la pregunta «{{question}}»",
+    "turnOffAria": "Desactivar la pregunta «{{question}}»",
+    "turnOnTitle": "Activar pregunta",
+    "turnOffTitle": "Desactivar pregunta",
+    "editTitle": "Editar pregunta",
+    "editAria": "Editar la pregunta «{{question}}»",
+    "deleteTitle": "Eliminar pregunta",
+    "deleteAria": "Eliminar la pregunta «{{question}}»",
+    "yes": "Sí",
+    "no": "No",
+    "save": "Guardar",
+    "skip": "Omitir",
+    "skipAria": "Omitir esta pregunta por hoy",
+    "avg7": "Media de 7 días",
+    "avg30": "Media de 30 días",
+    "last30": "Últimos 30 días"
+  },
+  "unskip": {
+    "one": "Responde la pregunta omitida",
+    "many": "Responde las {{count}} preguntas omitidas"
+  },
+  "history": {
+    "title": "Historial",
+    "empty": "Aún no hay respuestas en tu historial.",
+    "deletedQuestion": "Pregunta eliminada"
+  },
+  "delete": {
+    "title": "Eliminar pregunta",
+    "message": "¿Eliminar «{{question}}»? Su historial de respuestas se ocultará. Puedes restaurarla desde la papelera en un plazo de 30 días.",
+    "confirm": "Eliminar"
+  }
+}

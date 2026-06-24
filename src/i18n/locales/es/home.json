@@ -1,0 +1,123 @@
+{
+  "welcome": {
+    "close": "Ocultar la tarjeta de bienvenida",
+    "eyebrow": "Te damos la bienvenida a Simplicity",
+    "title": "Todo empieza aquí",
+    "sub": "Tres pasos breves para empezar. Los botones que brillan en cada pantalla te guiarán.",
+    "addClient": "Añade tu primer cliente",
+    "addTask": "Crea una tarea",
+    "addLead": "Añade un prospecto"
+  },
+  "widgets": {
+    "attention": {
+      "title": "Necesita atención",
+      "infoLabel": "Acerca de «Necesita atención»",
+      "infoText": "Elementos que requieren acción: transacciones pendientes de aprobación, citas aún sin marcar, clientes sin contacto durante 45 días y objetivos por debajo del ritmo.",
+      "count_one": "{{count}} elemento",
+      "count_other": "{{count}} elementos",
+      "dup_one": "Conflicto de calendario con Google",
+      "dup_other": "{{count}} conflictos de calendario con Google",
+      "more": "y {{count}} más",
+      "allClear": "Todo bajo control — nada pendiente",
+      "empty": "Nada necesita tu atención ahora mismo.",
+      "txModalTitle": "Transacciones pendientes de aprobación",
+      "txEmpty": "Todo hecho — no hay transacciones pendientes. Puedes cerrar.",
+      "meetingsModalTitle": "Citas por confirmar",
+      "bookings_one": "Nueva reserva por confirmar",
+      "bookings_other": "{{count}} reservas nuevas por confirmar",
+      "bookingsModalTitle": "Reservas por confirmar"
+    },
+    "chips": {
+      "tasks": "Tareas",
+      "tasksInfoLabel": "Acerca de las tareas",
+      "tasksInfoText_pre": "Toca",
+      "tasksInfoText_post": " la tarjeta para filtrar y ver los detalles. Por defecto: solo tareas abiertas.",
+      "income": "Ingresos",
+      "expense": "Gastos",
+      "net": "Neto",
+      "netInfoLabel": "Acerca del neto",
+      "netInfoText_pre": "Toca",
+      "netInfoText_post": " la tarjeta para filtrar por periodo, tipo, proyecto y categoría. Cuenta solo las transacciones aprobadas.",
+      "clients": "Clientes",
+      "clientsInfoLabel": "Acerca de los clientes",
+      "clientsInfoText_pre": "Toca",
+      "clientsInfoText_post": " la tarjeta para filtrar por estado, proyecto y grupo. Por defecto: activo + medio."
+    },
+    "insights": {
+      "expand": "Abrir «¿Cómo estás hoy?»",
+      "collapse": "Contraer «¿Cómo estás hoy?»",
+      "prompt": "¿Cómo estás hoy?",
+      "addQuestion": "Añade una pregunta diaria ←",
+      "done": "Listo por hoy — genial.",
+      "improved": "Mejor que ayer",
+      "stable": "Igual que ayer",
+      "lower": "Un poco más bajo que ayer",
+      "reminder": "Aún no has respondido hoy — ¿un momento para ti?",
+      "infoLabel": "Acerca de la pregunta diaria",
+      "infoText": "La pregunta diaria registra cómo te sientes a lo largo del tiempo. La escala es de 1 a 10 (10 = lo mejor). Las respuestas se guardan por día y generan información en la pantalla «¿Cómo estás hoy?».",
+      "yes": "Sí",
+      "no": "No",
+      "saveAria": "Guardar respuesta"
+    },
+    "moon": {
+      "percentOfGoal": "{{percent}}% del objetivo",
+      "glance": "Vistazo",
+      "setGoal": "Define un objetivo ←",
+      "setGoalAria": "Define un objetivo",
+      "glanceAria": "Vistazo {{percent}}%",
+      "ofPace": "del ritmo",
+      "infoLabel": "Acerca de Vistazo",
+      "infoText": "La puntuación ponderada de todos tus objetivos de este mes, según el ritmo — cuánto del objetivo diario previsto has cubierto hasta ahora. 100% = justo en el ritmo.",
+      "expandedEmpty": "Aún no hay objetivos activos con datos este mes.",
+      "fullDetail": "Detalle completo"
+    },
+    "nextTasks": {
+      "title": "Próximas tareas",
+      "link_one": "{{count}} tarea",
+      "link_other": "{{count}} tareas",
+      "noOpen": "No hay tareas abiertas",
+      "urgentOf_one": "{{urgentText}} de {{count}} abierta",
+      "urgentOf_other": "{{urgentText}} de {{count}} abiertas",
+      "urgent_one": "{{count}} urgente",
+      "urgent_other": "{{count}} urgentes",
+      "openSummary_one": "{{count}} tarea abierta",
+      "openSummary_other": "{{count}} tareas abiertas",
+      "allDone": "Todas las tareas hechas. {{add}} una tarea cuando surja.",
+      "addWord": "Añade",
+      "markDone": "Marcar como hecha"
+    },
+    "quick": {
+      "quickAdd": "Añadir rápido",
+      "goalUpdate": "Actualizar objetivo"
+    },
+    "quote": {
+      "sourceAria": "Elegir fuente de las citas",
+      "fallback": "Hoy es un nuevo día. Todo es posible."
+    },
+    "reminders": {
+      "title": "Próximos recordatorios",
+      "link_one": "{{count}} recordatorio",
+      "link_other": "{{count}} recordatorios",
+      "none": "No hay recordatorios próximos",
+      "todaySummary_one": "{{today}} hoy · {{count}} próximo",
+      "todaySummary_other": "{{today}} hoy · {{count}} próximos",
+      "soonSummary_one": "{{count}} recordatorio próximo",
+      "soonSummary_other": "{{count}} recordatorios próximos",
+      "empty": "No hay recordatorios próximos — todo en calma.",
+      "markDone": "Hecho",
+      "markDoneAria": "Marcar como hecho"
+    },
+    "meetingConfirm": {
+      "subjectClient": "Cliente",
+      "subjectGroup": "Grupo",
+      "meetingHappened": "La cita tuvo lugar",
+      "meetingSkipped": "No tuvo lugar",
+      "meetingDelete": "Eliminar cita",
+      "linkedExpense": "Gasto de la cita",
+      "txPaid": "Pagado",
+      "txNotPaid": "No pagado",
+      "txDelete": "Eliminar transacción",
+      "empty": "No hay citas pendientes de aprobación."
+    }
+  }
+}

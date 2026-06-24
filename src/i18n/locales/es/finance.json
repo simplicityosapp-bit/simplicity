@@ -1,0 +1,124 @@
+{
+  "countLabel": "{{count}} transacciones",
+  "snapshot": "Resumen",
+  "tagline": "Tus acciones generan buenos resultados.",
+  "title": "Dinero",
+  "exportCsv": "Exportar CSV",
+  "exportCsvAria": "Exportar a archivo CSV",
+  "newTxAria": "Nueva transacción",
+  "newTx": "+ Nueva transacción",
+  "loading": "Cargando transacciones…",
+  "loadError": "No se pudieron cargar las transacciones: {{error}}",
+  "hideSkipped": "Ocultar omitidas",
+  "showSkipped": "Mostrar {{count}} omitidas",
+  "deleteRecurring": {
+    "title": "Eliminar plantilla recurrente",
+    "message": "¿Eliminar «{{name}}»? Las transacciones ya creadas a partir de ella se mantendrán.",
+    "income": "Ingreso",
+    "expense": "Gasto",
+    "confirm": "Eliminar"
+  },
+  "summary": {
+    "prevMonth": "Mes anterior",
+    "nextMonth": "Mes siguiente",
+    "netThisMonth": "Neto este mes",
+    "income": "Ingresos",
+    "expenses": "Gastos",
+    "changeAria": "Cambiar {{value}}",
+    "new": "+nuevo"
+  },
+  "tx": {
+    "noDesc": "Sin descripción",
+    "skipped": "Omitida",
+    "credited": "Cancelada",
+    "approveTitle": "Confirmar — ocurrió",
+    "skipTitle": "Omitir — no ocurrió",
+    "restore": "Volver a pendiente",
+    "delete": "Eliminar transacción"
+  },
+  "list": {
+    "empty": "No hay transacciones este mes.",
+    "confirmed": "Confirmadas",
+    "skipped": "Omitidas"
+  },
+  "pending": {
+    "count": "{{count}} transacciones pendientes",
+    "income": "Ingresos {{amount}}",
+    "expenses": "Gastos {{amount}}",
+    "approving": "Confirmando…",
+    "approveAll": "Confirmar todas",
+    "noDesc": "Sin descripción",
+    "approve": "Confirmar",
+    "skip": "Omitir",
+    "delete": "Eliminar"
+  },
+  "recurring": {
+    "title": "Plantillas recurrentes",
+    "add": "+ Nueva plantilla",
+    "empty": "Aún no hay plantillas recurrentes. Al añadir una se crearán transacciones pendientes automáticamente cada mes o semana.",
+    "income": "Ingreso",
+    "expense": "Gasto",
+    "paused": "Pausada",
+    "resume": "Reanudar",
+    "pause": "Pausar",
+    "edit": "Editar",
+    "delete": "Eliminar"
+  },
+  "categories": {
+    "title": "Categorías de gastos",
+    "empty": "Aún no hay categorías. Añade una categoría para etiquetar gastos (suscripciones, consultoría, etc.).",
+    "add": "Añadir",
+    "namePlaceholder": "Nombre de la categoría",
+    "colorGroupAria": "Color de la categoría",
+    "colorAria": "Color {{number}}",
+    "deleteChipAria": "Eliminar {{name}}",
+    "deleteTitle": "Eliminar categoría",
+    "deleteAria": "Eliminar",
+    "deleteConfirm": "Eliminar",
+    "deleteMessage": "¿Eliminar «{{name}}»? Los gastos etiquetados con ella quedarán sin categoría."
+  },
+  "incomeByProject": {
+    "title": "Ingresos por proyecto",
+    "noProject": "Sin proyecto",
+    "empty": "No hay ingresos clasificados este mes."
+  },
+  "expensesByCategory": {
+    "title": "Gastos por categoría",
+    "noCategory": "Sin categoría",
+    "empty": "No hay gastos clasificados este mes."
+  },
+  "chart": {
+    "title": "Ingresos acumulados",
+    "infoLabel": "Explicación del gráfico de ingresos acumulados",
+    "infoText": "El gráfico suma tus ingresos (confirmados) día a día durante el mes seleccionado. La línea discontinua es el objetivo de ingresos mensual definido en la pantalla «Objetivos» — si no hay objetivo, no se muestra. El punto marca el día de hoy.",
+    "svgAria": "Gráfico de ingresos acumulados por día del mes",
+    "setGoal": "Define un objetivo de ingresos mensual"
+  },
+  "imports": {
+    "typeInvoiceReceipt": "Factura-recibo fiscal",
+    "typeReceipt": "Recibo",
+    "typeInvoice": "Factura fiscal",
+    "typeDoc": "Documento",
+    "heading": "Importación pendiente",
+    "countAria_one": "{{count}} factura por aprobar",
+    "countAria_other": "{{count}} facturas por aprobar",
+    "sub": "Facturas emitidas en el servicio externo — ¿importar como ingreso?",
+    "docNumber": "n.º",
+    "noName": "Sin nombre",
+    "view": "Ver",
+    "possibleDup": "Posible duplicado",
+    "importedToast": "Factura importada como ingreso.",
+    "dismissedToast": "Factura descartada.",
+    "importingAria": "Importando…",
+    "confirmAria": "Confirmar la importación de {{amount}} como ingreso",
+    "sure": "¿Seguro?",
+    "importAria": "Importar como ingreso",
+    "importTitle": "Importar como ingreso",
+    "dismiss": "Descartar",
+    "dupTitle": "Esto podría ser un duplicado",
+    "dupMessage": "Ya tienes una transacción de ingreso por {{amount}}{{forName}}. ¿Importarla de todos modos como ingreso adicional?",
+    "dupForName": " a {{name}}",
+    "dupConfirm": "Sí, importar",
+    "cancel": "Cancelar"
+  }
+}

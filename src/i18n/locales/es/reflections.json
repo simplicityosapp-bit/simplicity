@@ -1,0 +1,45 @@
+{
+  "mirror": {
+    "streak": "Buena racha — {{count}} días escribiendo para ti.",
+    "high": "Máximo semanal en «{{question}}» — {{value}}.",
+    "low": "Un punto bajo en «{{question}}» — {{value}}.",
+    "deltaUp": "Subiste {{amount}} puntos esta semana respecto a la anterior en «{{question}}».",
+    "deltaDown": "Bajaste {{amount}} puntos esta semana respecto a la anterior en «{{question}}».",
+    "stable": "Una semana estable — día tras día, el ritmo se mantiene.",
+    "welcome": "Cada día que escribes, los datos empiezan a hablar."
+  },
+  "moon": {
+    "excellent": "Vas perfectamente encaminado este mes.",
+    "good": "Buen progreso — vas por el camino correcto.",
+    "behind": "Hay una brecha, y todavía hay tiempo para cerrarla.",
+    "low": "Vamos a tomar impulso — un pequeño paso adelante."
+  },
+  "health": {
+    "check": {
+      "profileName": "Añade tu nombre",
+      "profileRole": "Elige tu rol y especialidad",
+      "clientsPriced_one": "A un cliente le falta un precio",
+      "clientsPriced_other": "A {{count}} clientes les falta un precio",
+      "answersRecent": "No has respondido las preguntas diarias de esta semana",
+      "clientsExist": "Todavía no has añadido ningún cliente",
+      "transactionsExist": "Todavía no has registrado ninguna transacción",
+      "recurringExist": "Todavía no has configurado un gasto recurrente",
+      "projectsExist": "Todavía no has creado ningún proyecto",
+      "tasksExist": "No tienes tareas abiertas",
+      "remindersExist": "No has configurado ningún recordatorio",
+      "goalsExist": "No has fijado ningún objetivo",
+      "questionsExist": "No tienes preguntas diarias",
+      "leadsExist": "Todavía no has registrado ningún prospecto"
+    },
+    "action": {
+      "complete": "Completar",
+      "choose": "Elegir",
+      "price": "Fijar precio",
+      "answer": "Responder",
+      "add": "Añadir",
+      "record": "Registrar",
+      "setup": "Configurar",
+      "create": "Crear"
+    }
+  }
+}

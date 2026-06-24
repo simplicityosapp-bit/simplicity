@@ -1,0 +1,274 @@
+{
+  "common": {
+    "back": "Atrás",
+    "next": "Siguiente",
+    "saving": "Guardando…",
+    "cancel": "Cancelar",
+    "continue": "Continuar"
+  },
+  "welcome": {
+    "tagline": "Practice OS",
+    "startTitle": "Haz el recorrido",
+    "startSub": "Una introducción breve y cuidada, y unos cuantos toques personales",
+    "skipTitle": "Solo déjame entrar",
+    "skipSub": "Ya lo iré descubriendo sobre la marcha"
+  },
+  "shell": {
+    "progressAria": "Progreso: paso {{current}} de {{total}}",
+    "stepCounter": "Paso {{current}} de {{total}}",
+    "dayMode": "Modo claro",
+    "nightMode": "Modo oscuro",
+    "helpAria": "Acerca de esta pantalla",
+    "back": "Atrás",
+    "saving": "Guardando…",
+    "next": "Siguiente",
+    "skip": "Omitir",
+    "finishing": "Finalizando…"
+  },
+  "help": {
+    "closeAria": "Cerrar la ayuda"
+  },
+  "review": {
+    "title": "Revisa antes de que creemos nada",
+    "subApprove": "Echa un vistazo a lo que encontramos en tu archivo. Por ahora solo estás eligiendo qué traer — no se crea nada hasta el último paso, tras una confirmación final. Puedes editar, incluir o dejar cosas fuera.",
+    "subCreate": "Echa un vistazo a lo que encontramos en tu archivo. Edita, incluye o deja cosas fuera — solo se guardará lo que esté marcado.",
+    "dialogAria": "Revisar antes de crear",
+    "closeAria": "Atrás",
+    "loading": "Cargando lo que ya tienes…",
+    "tabAria": "{{label}}: se incluirán {{included}} de {{total}}",
+    "includeAll": "Incluir todo",
+    "clearAll": "Borrar todo",
+    "txIssues": "{{count}} filas con un importe o una fecha no válidos no se importarán como transacciones",
+    "truncated": "El archivo se recortó a las primeras {{cap}} filas (de {{raw}})",
+    "loadMore": "Mostrar {{count}} más (de {{total}})",
+    "tabs": {
+      "clients": "Clientes",
+      "projects": "Proyectos",
+      "leads": "Prospectos",
+      "transactions": "Transacciones",
+      "sessions": "Sesiones"
+    },
+    "toggle": {
+      "includedAria": "Incluido — toca para dejarlo fuera",
+      "excludedAria": "No incluido — toca para incluirlo"
+    },
+    "badge": {
+      "exists": "Ya existe",
+      "duplicate": "Duplicado en el archivo"
+    },
+    "client": {
+      "namePlaceholder": "Nombre",
+      "nameAria": "Nombre del cliente",
+      "projectTitle": "Proyecto",
+      "noProject": "Sin proyecto",
+      "statusTitle": "Estado del cliente",
+      "statusAria": "Estado del cliente",
+      "statusDefault": "Estado: activo",
+      "sessionsPlaceholder": "Sesiones",
+      "sessionsTitle": "Número de sesiones",
+      "pricePlaceholder": "Precio",
+      "priceTitle": "Precio por sesión",
+      "missingName": "Falta el nombre",
+      "statusUnsure": "No estábamos seguros del estado — conviene comprobarlo",
+      "projectOrphan": "Este proyecto no se creará",
+      "planBadge": "Plan: {{count}} plazos"
+    },
+    "project": {
+      "namePlaceholder": "Nombre del proyecto",
+      "missingName": "Falta el nombre"
+    },
+    "lead": {
+      "namePlaceholder": "Nombre del prospecto",
+      "nameAria": "Nombre del prospecto",
+      "statusPlaceholder": "Estado",
+      "statusTitle": "Estado del prospecto",
+      "statusAria": "Estado del prospecto",
+      "missingName": "Falta el nombre",
+      "statusUnsure": "No estábamos seguros del estado — conviene comprobarlo"
+    },
+    "tx": {
+      "type": "Tipo",
+      "income": "Ingreso",
+      "expense": "Gasto",
+      "amount": "Importe",
+      "amountPlaceholder": "Importe",
+      "frequency": "Frecuencia",
+      "date": "Fecha",
+      "recurringTitle": "Gasto recurrente — se crea automáticamente cada mes",
+      "recurringMonthly": "Mensual",
+      "project": "Proyecto",
+      "noProject": "Sin proyecto",
+      "desc": "Descripción",
+      "descPlaceholder": "Descripción (opcional)",
+      "clientOrphanTitle": "Este cliente no se incluirá — la transacción se creará sin enlace",
+      "noLink": "(sin enlace)",
+      "invalid": "Falta el importe o la fecha",
+      "projectOrphan": "Este proyecto no se creará"
+    },
+    "session": {
+      "client": "Cliente",
+      "pickClient": "— Elige un cliente",
+      "date": "Fecha",
+      "summary": "Resumen",
+      "summaryPlaceholder": "Resumen (opcional)",
+      "missingClient": "Falta el cliente",
+      "clientOrphan": "Este cliente no se creará — la sesión se omitirá",
+      "noDate": "Sin fecha — la colocaremos en una fecha estimada"
+    },
+    "summary": {
+      "willApprove": "Se aprobarán",
+      "willCreate": "Se crearán",
+      "clients": "clientes",
+      "projects": "proyectos",
+      "leads": "prospectos",
+      "transactions": "transacciones"
+    },
+    "confirm": {
+      "savingApprove": "Guardando…",
+      "savingCreate": "Creando…",
+      "approveEmpty": "Confirmar y continuar",
+      "createEmpty": "Finalizar sin importar",
+      "approve": "Confirmar y continuar ({{count}})",
+      "create": "Confirmar y crear ({{count}})",
+      "skipImport": "Empezar sin importar",
+      "skipImportHint": "Lo que ya has configurado queda guardado. Puedes importar el archivo más tarde desde Ajustes."
+    },
+    "dirty": {
+      "ariaLabel": "¿Salir sin guardar?",
+      "text": "¿Salir sin guardar? Se perderán todas las ediciones que hiciste aquí.",
+      "stay": "Quedarme",
+      "leave": "Salir sin guardar"
+    },
+    "result": {
+      "dialogAria": "Resultado de la importación",
+      "fatalTitle": "No pudimos importar tus datos",
+      "fatalBody": "Algo salió mal antes de crear nada — no se guardó nada. Puedes intentarlo de nuevo, y si sigue pasando estaremos encantados de ayudarte.",
+      "whatHappened": "Qué pasó: {{detail}}",
+      "partialTitle": "La importación terminó — pero algunas filas no entraron",
+      "noneTitle": "No entró ninguna fila",
+      "createdLine": "Creados correctamente: {{parts}}.",
+      "failedLine": "{{count}} filas no entraron. Aquí está el motivo:",
+      "moreErrors": "y {{count}} filas similares más…",
+      "partialHint": "Lo que sí entró ya está guardado. Puedes continuar, o volver atrás y corregir las filas que fallaron.",
+      "backToList": "Volver a la lista",
+      "continue": "Continuar",
+      "created": {
+        "clients": "{{count}} clientes",
+        "projects": "{{count}} proyectos",
+        "leads": "{{count}} prospectos",
+        "transactions": "{{count}} transacciones",
+        "recurring": "{{count}} gastos recurrentes"
+      }
+    },
+    "error": {
+      "who": {
+        "client": "Cliente",
+        "project": "Proyecto",
+        "lead": "Prospecto",
+        "transaction": "Transacción"
+      },
+      "withWho": "{{who}}: {{why}}",
+      "unexpected": "Error inesperado",
+      "why": {
+        "schema": "Un campo que no existe aquí — probablemente una columna asignada al lugar equivocado.",
+        "duplicate": "Ya tienes un elemento idéntico.",
+        "check": "Uno de los valores no es válido (por ejemplo, una fecha o un estado desconocidos).",
+        "foreignKey": "Este elemento está enlazado a algo que no se creó.",
+        "notNull": "Un campo obligatorio está vacío.",
+        "date": "La fecha no es válida.",
+        "noConnection": "Se perdió la conexión — tendrás que volver a conectarte.",
+        "generic": "Algo no funcionó en esta fila — puedes omitirla y continuar, o corregirla e intentarlo de nuevo."
+      }
+    }
+  },
+  "modal": {
+    "title": "Importar desde un archivo",
+    "dialogAria": "Importar desde un archivo",
+    "subSheets": "{{count}} hojas. ",
+    "subBody": "Elige qué hay en cada hoja y empareja las columnas — luego pasaremos a una revisión antes de guardar nada.",
+    "closeAria": "Cerrar",
+    "noData": "No encontramos datos en el archivo — asegúrate de que no esté vacío y de que esté guardado como CSV o Excel.",
+    "truncated": "Algunas hojas se recortaron a sus primeras filas para mantener la rapidez. Puedes importar el resto en un archivo aparte más tarde.",
+    "ready": "Listo para la revisión antes de que creemos nada.",
+    "notReady": "Elige qué hay en cada hoja y asigna las columnas de nombre / importe.",
+    "pickYear": "Elige un año para cada hoja mensual",
+    "toReview": "Continuar a la revisión"
+  },
+  "sheet": {
+    "removeAria": "Quitar hoja",
+    "rawShow": "Mostrar",
+    "rawHide": "Ocultar",
+    "rawToggle": "vista previa del archivo (para comprobar que se leyó correctamente)",
+    "rawEmpty": "—",
+    "whatsHere": "¿Qué hay en esta hoja?",
+    "colsIntro": "El valor en gris es una muestra de la primera fila. En el siguiente paso verás una revisión completa de todos los datos antes de guardar nada.",
+    "noCols": "No reconocimos ninguna columna en esta hoja. Puede que la fila de encabezado no se haya leído bien — prueba a abrir «Mostrar vista previa del archivo» para comprobarlo, o cambia el tipo a «Ignorar».",
+    "unmapped": "Hay {{count}} columnas que dejaremos a un lado a menos que les elijas un campo — no pasa nada por ignorarlas.",
+    "recognizedShow": "Mostrar {{count}} columnas reconocidas automáticamente",
+    "recognizedHide": "Ocultar {{count}} columnas reconocidas automáticamente",
+    "colSample": "p. ej. ",
+    "colMapAria": "Asignación de la columna {{header}}",
+    "colIgnore": "— No importar esta columna",
+    "yearLabel": "Año",
+    "yearDetected": "Año (detectado del archivo)",
+    "yearAria": "Año",
+    "pickYear": "Elige un año",
+    "yearMissing": "Por favor, elige un año.",
+    "matrixIntro": "Marca cada fila como ingreso o gasto. «Omitir» deja una fila fuera (una fila de totales, por ejemplo).",
+    "rowTypeAria": "Tipo de fila: {{label}}",
+    "income": "Ingreso",
+    "expense": "Gasto",
+    "skip": "Omitir",
+    "yieldField": {
+      "clients": "nombre",
+      "leads": "nombre",
+      "projects": "nombre",
+      "transactions": "importe",
+      "sessions": "cliente y fecha",
+      "default": "clave"
+    },
+    "noYield": "De esta hoja aún no se creará nada — asegúrate de que el tipo sea correcto y de que la columna de {{field}} esté asignada.",
+    "summaryEmpty": "Aún no se ha reconocido nada para importar. Elige qué hay en cada hoja y asigna las columnas de nombre / importe.",
+    "summaryLead": "En total crearemos (después de que confirmes en la revisión):",
+    "summary": {
+      "clients": "clientes",
+      "projects": "proyectos",
+      "leads": "prospectos",
+      "transactions": "transacciones"
+    }
+  },
+  "recognize": {
+    "title": "¿Qué encontramos en tu archivo?",
+    "sub": "Tómate un momento para confirmar que lo leímos bien — puedes corregir lo que sea aquí.",
+    "closeAria": "Cerrar",
+    "summaryLead": "Encontramos:",
+    "summaryEmpty": "Aún no hay datos para importar — revisa los tipos de tabla de abajo.",
+    "sum": {
+      "clients": "{{count}} clientes",
+      "payments": "{{count}} pagos",
+      "leads": "{{count}} prospectos",
+      "projects": "{{count}} proyectos"
+    },
+    "detectedAs": "Detectado como:",
+    "typeAria": "Tipo de tabla para {{name}}",
+    "badge": {
+      "method": "Método de pago detectado",
+      "payments": "Incluye pagos"
+    },
+    "nudge": {
+      "empty": "No encontramos nada para importar en esta tabla — elige otro tipo, o déjala como «No importar»."
+    },
+    "editManually": "Edición avanzada",
+    "confirm": "Se ve bien, continuar"
+  },
+  "csvMap": {
+    "title": "De tu archivo — confirma la asignación de columnas",
+    "detected": "Reconocimos {{count}} columnas automáticamente. ",
+    "someUnmapped": "{{count}} columnas no se reconocieron — elígeles un campo u omítelas.",
+    "allMapped": "Puedes corregir lo que sea manualmente si algo no cuadra.",
+    "colFallback": "Columna {{num}}",
+    "colSample": "p. ej. ",
+    "colMapAria": "Asignación de la columna {{header}}",
+    "ignore": "— Ignorar"
+  }
+}

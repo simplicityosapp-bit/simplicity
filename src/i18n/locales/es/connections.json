@@ -1,0 +1,236 @@
+{
+  "providers": {
+    "sumit": "SUMIT",
+    "greeninvoice": "Green Invoice"
+  },
+  "env": {
+    "production": "Producción",
+    "sandbox": "Sandbox"
+  },
+  "loading": "Cargando…",
+  "list": {
+    "title": "Conexiones",
+    "subtitle": "Conecta servicios externos para importar datos automáticamente.",
+    "connecting": "Conectando y sincronizando…",
+    "connectCancelled": "La conexión se canceló o se denegó.",
+    "connectFailed": "La conexión ha fallado. Inténtalo de nuevo.",
+    "rowAria": "{{title}} — {{status}}",
+    "notConnected": "Sin conectar",
+    "connected": "Conectado",
+    "needsReconnect": "Requiere reconexión",
+    "connectedTo": "Conectado · {{provider}}",
+    "invoices": "Facturas",
+    "whatsappStatus": "Envío manual · editar mensajes",
+    "soon": "Próximamente",
+    "soonAria": "{{title}} — próximamente"
+  },
+  "calendar": {
+    "back": "Atrás",
+    "subtitle": "Importa eventos del calendario y detecta reuniones con clientes.",
+    "connected": "Conectado",
+    "connectedSynced": "Conectado · sincronizado {{date}}",
+    "notConnectedHint": "Sin conectar — importa eventos del calendario y detecta reuniones con clientes.",
+    "syncFromLabel": "¿Desde qué fecha sincronizar?",
+    "opening": "Abriendo…",
+    "connect": "Conectar Google Calendar",
+    "syncing": "Sincronizando…",
+    "syncNow": "Sincronizar ahora",
+    "disconnecting": "Desconectando…",
+    "disconnect": "Desconectar",
+    "disconnectConfirm": "¿Seguro? Desconectar",
+    "syncResult": "Se sincronizaron {{synced}} eventos{{removed}}.",
+    "syncRemoved": ", se eliminaron {{count}}",
+    "eventsTitle": "Eventos sincronizados",
+    "loadingEvents": "Cargando eventos…",
+    "noEventsInRange": "No hay eventos en el rango seleccionado. {{retry}} a sincronizar de nuevo, o vuelve a conectar con un rango de fechas anterior.",
+    "retry": "Intenta",
+    "cats": {
+      "clients": "Clientes",
+      "projects": "Proyectos",
+      "leads": "Prospectos",
+      "groups": "Grupos",
+      "unmatched": "Sin coincidencia"
+    },
+    "fb": {
+      "client": "Cliente",
+      "project": "Proyecto",
+      "lead": "Prospecto",
+      "group": "Grupo"
+    },
+    "minutes": "{{count}} min",
+    "hours": "{{count}} h",
+    "hoursMinutes": "{{h}} h {{m}} min",
+    "assignTypes": {
+      "client": "Cliente",
+      "project": "Proyecto",
+      "lead": "Prospecto",
+      "group": "Grupo"
+    },
+    "removeLinkAria": "Quitar vínculo de {{type}}",
+    "remove": "Quitar",
+    "assignTo": "+ Vincular a…",
+    "assignAria": "Vincular {{type}}",
+    "pick": "— Elegir —",
+    "close": "Cerrar",
+    "identified": "Vinculado",
+    "notIdentified": "Sin vincular"
+  },
+  "invoiceScreen": {
+    "back": "Atrás",
+    "title": "Facturas",
+    "subtitle": "Emite facturas y recibos, e importa ingresos desde tu software de recibos."
+  },
+  "whatsappScreen": {
+    "back": "Atrás",
+    "title": "WhatsApp",
+    "subtitle": "Al pulsar el botón de WhatsApp se abre un mensaje ya preparado que puedes editar antes de enviarlo. Aquí puedes establecer el texto predeterminado para cada «tipo de mensaje».",
+    "tokensLabel": "Insertar:",
+    "tokens": {
+      "name": "Nombre del cliente",
+      "title": "Texto del recordatorio",
+      "date": "Fecha",
+      "time": "Hora",
+      "number": "N.º de recibo",
+      "url": "Enlace al recibo",
+      "balance": "Saldo pendiente"
+    },
+    "fields": {
+      "client": { "label": "Mensaje al cliente", "hint": "Desde la ficha del cliente — una apertura para una conversación libre." },
+      "reminder": { "label": "Recordatorio", "hint": "Envía un recordatorio al cliente desde el calendario." },
+      "meeting": { "label": "Recordatorio de reunión", "hint": "Un recordatorio antes de una reunión programada, desde el calendario." },
+      "receipt": { "label": "Enviar recibo", "hint": "Una vez emitido un recibo — envíalo al cliente con un enlace." },
+      "lead": { "label": "Seguimiento de prospecto", "hint": "Seguimiento de un prospecto desde la lista de seguimientos." },
+      "payment": { "label": "Solicitud de pago", "hint": "Desde la ficha del cliente cuando hay saldo — el importe se rellena automáticamente." }
+    },
+    "reset": "Predeterminado",
+    "preview": "Vista previa:",
+    "save": "Guardar mensajes",
+    "saved": "Guardado"
+  },
+  "invoiceCard": {
+    "fields": {
+      "gi": {
+        "apiKey": "Clave API (ID de la clave)",
+        "apiSecret": "Secreto API"
+      },
+      "sumit": {
+        "apiKey": "ID de empresa",
+        "apiSecret": "Clave API"
+      }
+    },
+    "help": {
+      "gi": "Estas credenciales se generan en tu cuenta de Green Invoice: Ajustes → Herramientas para desarrolladores → Claves API. El secreto se muestra solo una vez — asegúrate de guardarlo.",
+      "sumit": "Estas credenciales se generan en tu cuenta de SUMIT: Ajustes → Desarrolladores y propietarios de sitios → Claves API (ID de empresa + clave API)."
+    },
+    "steps": {
+      "gi": [
+        "Inicia sesión en tu cuenta de Green Invoice.",
+        "Ajustes → Herramientas para desarrolladores → Claves API.",
+        "Crea una clave nueva — obtendrás una clave API (ID) y un secreto.",
+        "El secreto se muestra solo una vez — cópialo de inmediato.",
+        "Pega aquí el ID y el secreto, y luego pulsa «Conectar»."
+      ],
+      "sumit": [
+        "Inicia sesión en tu cuenta de SUMIT.",
+        "Ajustes → Desarrolladores y propietarios de sitios → Claves API.",
+        "Copia tu ID de empresa.",
+        "Usa tu clave API privada — ¡no la pública!",
+        "Pega ambos aquí, y luego pulsa «Conectar»."
+      ]
+    },
+    "err": {
+      "invalidCredentials": "Esas credenciales son incorrectas. Compruébalas y cópialas de nuevo.",
+      "missingFields": "Rellena ambos campos.",
+      "providerUnreachable": "El servicio no está disponible en este momento. Inténtalo de nuevo en un momento.",
+      "generic": "La conexión ha fallado. Inténtalo de nuevo."
+    },
+    "title": "Facturas",
+    "needsReconnectStatus": "Requiere reconexión · {{provider}}",
+    "connectedStatus": "Conectado · {{provider}} · {{env}}",
+    "notConnectedHint": "Sin conectar — emite facturas y recibos directamente desde Simplicity.",
+    "brokenMsg": "Tus credenciales ya no son válidas — puede que la clave se haya revocado o reemplazado. Para seguir emitiendo facturas, vuelve a conectar.",
+    "reconnect": "Reconectar",
+    "pickProvider": "Elige un proveedor",
+    "howTo": "¿Cómo las consigo?",
+    "providerGroupAria": "Proveedor de facturas",
+    "soon": "Próximamente",
+    "pastePlaceholder": "Pega aquí",
+    "connecting": "Conectando…",
+    "connect": "Conectar",
+    "cancel": "Cancelar",
+    "connectSuccess": "Conectado correctamente.",
+    "testing": "Comprobando…",
+    "testConnection": "Probar conexión",
+    "testOk": "La conexión funciona.",
+    "disconnecting": "Desconectando…",
+    "disconnect": "Desconectar",
+    "disconnectConfirm": "¿Seguro? Desconectar",
+    "disconnectConfirmSr": "Pulsa de nuevo para confirmar la desconexión",
+    "autoImportLabel": "¿Importar ingresos automáticamente?",
+    "autoImportNote": "Detectaremos los ingresos que has introducido en tu software de recibos — y te preguntaremos si quieres registrarlos también aquí.",
+    "autoImportOn": "Importación de ingresos activada.",
+    "autoImportOff": "Importación de ingresos desactivada.",
+    "businessType": {
+      "label": "Tu tipo de negocio",
+      "note": "Determina qué documentos puedes emitir: un negocio exento de IVA solo emite recibos; un comerciante autorizado también puede emitir facturas fiscales. Puedes cambiarlo en cualquier momento.",
+      "exempt": "Exento de IVA (עוסק פטור)",
+      "licensed": "Comerciante autorizado (עוסק מורשה)",
+      "unsetHint": "Elige tu tipo de negocio para que te ofrezcamos los tipos de documento correctos.",
+      "confirm": "Confirmar tipo de negocio",
+      "saving": "Guardando…",
+      "saved": "Tipo de negocio guardado."
+    }
+  },
+  "actions": {
+    "err": {
+      "alreadyIssued": "Ya se ha emitido una factura para esta transacción.",
+      "alreadyCredited": "Ya se ha emitido una nota de crédito para esta transacción.",
+      "notIssued": "No hay ningún documento al que aplicar una nota de crédito.",
+      "noClient": "Para emitir una factura, vincula un cliente a la transacción y guarda.",
+      "notConnected": "No hay ningún servicio de facturas conectado — conecta uno en la pantalla de Conexiones.",
+      "notIncome": "Las facturas solo se pueden emitir para transacciones de ingreso.",
+      "badAmount": "Esta transacción no tiene un importe positivo — actualiza el importe y guarda.",
+      "transactionNotFound": "Transacción no encontrada — actualiza e inténtalo de nuevo.",
+      "invalidCredentials": "Las credenciales del servicio son incorrectas — compruébalas en la pantalla de Conexiones.",
+      "providerUnreachable": "El servicio no está disponible en este momento. {{retry}} en un momento.",
+      "providerError": "El servicio no pudo emitir el documento. Comprueba los datos e inténtalo de nuevo.",
+      "docTypeForBusiness": "Tu tipo de negocio no puede emitir el tipo de documento seleccionado (un negocio exento de IVA solo puede emitir un recibo). Elige «Recibo» e inténtalo de nuevo.",
+      "generic": "La emisión ha fallado. {{retry}}.",
+      "retry": "Inténtalo de nuevo"
+    },
+    "creditedToast": "Nota de crédito emitida",
+    "creditedToastNumbered": "Nota de crédito n.º {{number}} emitida",
+    "issuedLabel": "{{docType}} emitido",
+    "issuedNumber": "n.º",
+    "view": "Ver",
+    "cancelled": "· cancelada",
+    "creditNumber": "· crédito",
+    "creditBtn": "Acreditar / cancelar",
+    "creditModalTitle": "Nota de crédito",
+    "creditModalMessage": "¿Emitir una nota de crédito que cancele {{doc}} por {{amount}}? Se crea un documento fiscal real y el ingreso sale de tus totales.",
+    "creditConfirm": "Sí, acreditar",
+    "credsInvalidHint": "La conexión de facturas ya no es válida — renuévala en la pantalla de Conexiones para poder emitir.",
+    "needClientHint": "Para emitir una factura — vincula un cliente a la transacción y guarda.",
+    "dupReason": "Ya se emitió una factura para {{client}} por {{amount}}{{date}} — puede que sea un duplicado.",
+    "dupReasonDate": " el {{date}}",
+    "dupClientFallback": "el cliente",
+    "dirtyReason": "Esta transacción tiene cambios sin guardar. El documento se emite a partir de los datos guardados, no de tus ediciones — mejor guarda primero.",
+    "catalogError": "No pudimos cargar la lista de productos — puedes escribir una descripción manualmente.",
+    "issuedToast": "{{docType}} emitido",
+    "issuedToastNumbered": "{{docType}} n.º {{number}} emitido",
+    "issueBtn": "Emitir factura",
+    "pickerLabel": "Emitir documento",
+    "pickerLabelNamed": "Emitir documento · {{client}}",
+    "docTypeAria": "Tipo de documento",
+    "itemFieldLabel": "Producto / servicio",
+    "loadingItems": "Cargando productos…",
+    "itemOther": "Otro (texto libre)",
+    "itemPlaceholder": "p. ej. coaching personal",
+    "itemHint": "Elige un artículo del catálogo del proveedor, o escribe una descripción en texto libre.",
+    "payMethodLabel": "Método de pago",
+    "issuing": "Emitiendo…",
+    "issueConfirm": "¿Seguro? Emitir por {{amount}}",
+    "issue": "Emitir",
+    "cancel": "Cancelar"
+  }
+}

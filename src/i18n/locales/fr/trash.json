@@ -1,0 +1,41 @@
+{
+  "title": "Corbeille",
+  "itemCount_one": "{{count}} élément",
+  "itemCount_other": "{{count}} éléments",
+  "keptDays": "Conservés pendant 30 jours",
+  "stillReversible": "Toute suppression ici est encore réversible.",
+  "error": "Erreur : {{error}}",
+  "loading": "Chargement…",
+  "empty": {
+    "body": "La corbeille est vide 🌱<br />Tout ce que vous {{deleteVerb}} attendra ici pendant 30 jours."
+  },
+  "deleteVerb": "supprimez",
+  "entities": {
+    "clients": "Clients",
+    "projects": "Projets",
+    "groups": "Groupes",
+    "tasks": "Tâches",
+    "leads": "Prospects",
+    "leadSources": "Sources de prospects",
+    "leadStatuses": "Sous-statuts de prospects",
+    "transactions": "Transactions",
+    "categories": "Catégories de dépenses",
+    "recurring": "Modèles récurrents",
+    "sessions": "Séances",
+    "reminders": "Rappels",
+    "goals": "Objectifs",
+    "goalCategories": "Indicateurs d'objectifs",
+    "goalEntries": "Saisies d'objectifs",
+    "userQuestions": "Questions quotidiennes",
+    "dailyAnswers": "Réponses quotidiennes"
+  },
+  "item": {
+    "goalFallback": "Objectif {{value}}",
+    "session": "Séance",
+    "sessionNum": "Séance {{num}}",
+    "deletedAgo": "Supprimé {{ago}}",
+    "restoreLabel": "Restaurer {{label}}",
+    "restoring": "Restauration…",
+    "restore": "Restaurer"
+  }
+}

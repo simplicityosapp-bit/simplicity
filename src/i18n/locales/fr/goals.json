@@ -1,0 +1,32 @@
+{
+  "countLabel": "{{count}} objectifs",
+  "movement": "Évolution",
+  "tagline": "Chaque objectif est une direction, pas une pression.",
+  "title": "Objectifs",
+  "newGoalAria": "Nouvel objectif",
+  "newGoal": "+ Nouvel objectif",
+  "loading": "Chargement des objectifs…",
+  "loadError": "Impossible de charger les objectifs : {{error}}",
+  "empty": {
+    "firstGoal": "Définissez votre premier objectif.",
+    "setGoal": "Définir un objectif",
+    "whyImportant": "Pourquoi est-ce important ?"
+  },
+  "delete": {
+    "title": "Supprimer l'objectif",
+    "messageNamed": "Supprimer l'objectif « {{label}} » ? Vous pouvez le restaurer depuis la corbeille sous 30 jours.",
+    "message": "Supprimer cet objectif ? Vous pouvez le restaurer depuis la corbeille sous 30 jours.",
+    "confirm": "Supprimer"
+  },
+  "card": {
+    "editAria": "Modifier l'objectif",
+    "deleteAria": "Supprimer l'objectif",
+    "importanceAria": "Importance {{importance}} sur 5",
+    "addEntry": "Ajouter une entrée",
+    "history": "Historique",
+    "deleteEntryAria": "Supprimer l'entrée",
+    "deleteEntryTitle": "Supprimer l'entrée",
+    "deleteEntryMessage": "Supprimer cette entrée ({{value}} · {{date}}) ?",
+    "deleteEntryConfirm": "Supprimer"
+  }
+}

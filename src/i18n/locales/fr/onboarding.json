@@ -1,0 +1,274 @@
+{
+  "common": {
+    "back": "Retour",
+    "next": "Suivant",
+    "saving": "Enregistrement…",
+    "cancel": "Annuler",
+    "continue": "Continuer"
+  },
+  "welcome": {
+    "tagline": "Practice OS",
+    "startTitle": "Suivre l'introduction",
+    "startSub": "Une introduction courte et soignée, et quelques touches personnelles",
+    "skipTitle": "Laissez-moi simplement entrer",
+    "skipSub": "Je me débrouillerai en chemin"
+  },
+  "shell": {
+    "progressAria": "Progression : étape {{current}} sur {{total}}",
+    "stepCounter": "Étape {{current}} sur {{total}}",
+    "dayMode": "Mode clair",
+    "nightMode": "Mode sombre",
+    "helpAria": "À propos de cet écran",
+    "back": "Retour",
+    "saving": "Enregistrement…",
+    "next": "Suivant",
+    "skip": "Passer",
+    "finishing": "Finalisation…"
+  },
+  "help": {
+    "closeAria": "Fermer l'aide"
+  },
+  "review": {
+    "title": "Vérification avant de créer quoi que ce soit",
+    "subApprove": "Examinez ce que nous avons trouvé dans votre fichier. Pour l'instant, vous choisissez seulement ce que vous voulez importer — rien n'est créé avant l'étape finale, après une dernière confirmation. Vous pouvez modifier, inclure ou laisser de côté des éléments.",
+    "subCreate": "Examinez ce que nous avons trouvé dans votre fichier. Modifiez, incluez ou laissez de côté des éléments — seul ce qui est coché sera enregistré.",
+    "dialogAria": "Vérification avant la création",
+    "closeAria": "Retour",
+    "loading": "Chargement de ce que vous avez déjà…",
+    "tabAria": "{{label}} : {{included}} sur {{total}} seront inclus",
+    "includeAll": "Tout inclure",
+    "clearAll": "Tout désélectionner",
+    "txIssues": "{{count}} lignes avec un montant ou une date invalide ne seront pas importées comme transactions",
+    "truncated": "Le fichier a été limité aux {{cap}} premières lignes (sur {{raw}})",
+    "loadMore": "Afficher {{count}} de plus (sur {{total}})",
+    "tabs": {
+      "clients": "Clients",
+      "projects": "Projets",
+      "leads": "Prospects",
+      "transactions": "Transactions",
+      "sessions": "Séances"
+    },
+    "toggle": {
+      "includedAria": "Inclus — appuyez pour le laisser de côté",
+      "excludedAria": "Non inclus — appuyez pour l'inclure"
+    },
+    "badge": {
+      "exists": "Existe déjà",
+      "duplicate": "Doublon dans le fichier"
+    },
+    "client": {
+      "namePlaceholder": "Nom",
+      "nameAria": "Nom du client",
+      "projectTitle": "Projet",
+      "noProject": "Aucun projet",
+      "statusTitle": "Statut du client",
+      "statusAria": "Statut du client",
+      "statusDefault": "Statut : actif",
+      "sessionsPlaceholder": "Séances",
+      "sessionsTitle": "Nombre de séances",
+      "pricePlaceholder": "Prix",
+      "priceTitle": "Prix par séance",
+      "missingName": "Nom manquant",
+      "statusUnsure": "Nous n'étions pas sûrs du statut — un coup d'œil rapide ne ferait pas de mal",
+      "projectOrphan": "Ce projet ne sera pas créé",
+      "planBadge": "Échéancier : {{count}} versements"
+    },
+    "project": {
+      "namePlaceholder": "Nom du projet",
+      "missingName": "Nom manquant"
+    },
+    "lead": {
+      "namePlaceholder": "Nom du prospect",
+      "nameAria": "Nom du prospect",
+      "statusPlaceholder": "Statut",
+      "statusTitle": "Statut du prospect",
+      "statusAria": "Statut du prospect",
+      "missingName": "Nom manquant",
+      "statusUnsure": "Nous n'étions pas sûrs du statut — un coup d'œil rapide ne ferait pas de mal"
+    },
+    "tx": {
+      "type": "Type",
+      "income": "Revenu",
+      "expense": "Dépense",
+      "amount": "Montant",
+      "amountPlaceholder": "Montant",
+      "frequency": "Fréquence",
+      "date": "Date",
+      "recurringTitle": "Dépense récurrente — créée automatiquement chaque mois",
+      "recurringMonthly": "Mensuelle",
+      "project": "Projet",
+      "noProject": "Aucun projet",
+      "desc": "Description",
+      "descPlaceholder": "Description (facultatif)",
+      "clientOrphanTitle": "Ce client ne sera pas inclus — la transaction sera créée sans lien",
+      "noLink": "(aucun lien)",
+      "invalid": "Montant ou date manquant",
+      "projectOrphan": "Ce projet ne sera pas créé"
+    },
+    "session": {
+      "client": "Client",
+      "pickClient": "— Choisissez un client",
+      "date": "Date",
+      "summary": "Résumé",
+      "summaryPlaceholder": "Résumé (facultatif)",
+      "missingClient": "Client manquant",
+      "clientOrphan": "Ce client ne sera pas créé — la séance sera ignorée",
+      "noDate": "Aucune date — nous la placerons à une date estimée"
+    },
+    "summary": {
+      "willApprove": "Seront approuvés",
+      "willCreate": "Seront créés",
+      "clients": "clients",
+      "projects": "projets",
+      "leads": "prospects",
+      "transactions": "transactions"
+    },
+    "confirm": {
+      "savingApprove": "Enregistrement…",
+      "savingCreate": "Création…",
+      "approveEmpty": "Confirmer et continuer",
+      "createEmpty": "Terminer sans importer",
+      "approve": "Confirmer et continuer ({{count}})",
+      "create": "Confirmer et créer ({{count}})",
+      "skipImport": "Commencer sans importer",
+      "skipImportHint": "Ce que vous avez déjà configuré est enregistré. Vous pourrez importer le fichier plus tard depuis les Paramètres."
+    },
+    "dirty": {
+      "ariaLabel": "Quitter sans enregistrer ?",
+      "text": "Quitter sans enregistrer ? Toutes les modifications faites ici seront perdues.",
+      "stay": "Rester",
+      "leave": "Quitter sans enregistrer"
+    },
+    "result": {
+      "dialogAria": "Résultat de l'importation",
+      "fatalTitle": "Nous n'avons pas pu importer vos données",
+      "fatalBody": "Un problème est survenu avant que quoi que ce soit ne soit créé — rien n'a été enregistré. Vous pouvez réessayer, et si cela persiste nous serons ravis de vous aider.",
+      "whatHappened": "Ce qui s'est passé : {{detail}}",
+      "partialTitle": "Importation terminée — mais certaines lignes n'ont pas été retenues",
+      "noneTitle": "Aucune ligne n'a été retenue",
+      "createdLine": "Créé avec succès : {{parts}}.",
+      "failedLine": "{{count}} lignes n'ont pas été retenues. Voici pourquoi :",
+      "moreErrors": "et {{count}} autres lignes similaires…",
+      "partialHint": "Tout ce qui a été retenu est déjà enregistré. Vous pouvez continuer, ou revenir en arrière et corriger les lignes en échec.",
+      "backToList": "Retour à la liste",
+      "continue": "Continuer",
+      "created": {
+        "clients": "{{count}} clients",
+        "projects": "{{count}} projets",
+        "leads": "{{count}} prospects",
+        "transactions": "{{count}} transactions",
+        "recurring": "{{count}} dépenses récurrentes"
+      }
+    },
+    "error": {
+      "who": {
+        "client": "Client",
+        "project": "Projet",
+        "lead": "Prospect",
+        "transaction": "Transaction"
+      },
+      "withWho": "{{who}} : {{why}}",
+      "unexpected": "Erreur inattendue",
+      "why": {
+        "schema": "Un champ qui n'existe pas ici — sans doute une colonne associée au mauvais endroit.",
+        "duplicate": "Vous avez déjà un élément identique.",
+        "check": "L'une des valeurs n'est pas valide (par exemple une date ou un statut inconnu).",
+        "foreignKey": "Cet élément est lié à quelque chose qui n'a pas été créé.",
+        "notNull": "Un champ obligatoire est vide.",
+        "date": "La date n'est pas valide.",
+        "noConnection": "La connexion a été perdue — vous devrez vous reconnecter.",
+        "generic": "Quelque chose n'a pas fonctionné sur cette ligne — vous pouvez l'ignorer et continuer, ou la corriger et réessayer."
+      }
+    }
+  },
+  "modal": {
+    "title": "Importer depuis un fichier",
+    "dialogAria": "Importer depuis un fichier",
+    "subSheets": "{{count}} feuilles. ",
+    "subBody": "Choisissez ce que contient chaque feuille et faites correspondre les colonnes — puis nous passerons à une vérification avant que quoi que ce soit ne soit enregistré.",
+    "closeAria": "Fermer",
+    "noData": "Nous n'avons trouvé aucune donnée dans le fichier — vérifiez qu'il n'est pas vide et qu'il est enregistré au format CSV ou Excel.",
+    "truncated": "Certaines feuilles ont été limitées à leurs premières lignes pour rester rapides. Vous pourrez importer le reste dans un fichier séparé plus tard.",
+    "ready": "Prêt pour la vérification avant de créer quoi que ce soit.",
+    "notReady": "Choisissez ce que contient chaque feuille et associez les colonnes du nom / du montant.",
+    "pickYear": "Choisissez une année pour chaque feuille mensuelle",
+    "toReview": "Continuer vers la vérification"
+  },
+  "sheet": {
+    "removeAria": "Retirer la feuille",
+    "rawShow": "Afficher",
+    "rawHide": "Masquer",
+    "rawToggle": "l'aperçu du fichier (pour vérifier qu'il a bien été lu)",
+    "rawEmpty": "—",
+    "whatsHere": "Que contient cette feuille ?",
+    "colsIntro": "La valeur en gris est un exemple tiré de la première ligne. À l'étape suivante, vous verrez une vérification complète de toutes les données avant que quoi que ce soit ne soit enregistré.",
+    "noCols": "Nous n'avons reconnu aucune colonne dans cette feuille. La ligne d'en-tête n'a peut-être pas été lue correctement — essayez d'ouvrir « Afficher l'aperçu du fichier » pour vérifier, ou changez le type en « Ignorer ».",
+    "unmapped": "Il y a {{count}} colonnes que nous laisserons de côté à moins que vous ne leur choisissiez un champ — vous pouvez tout à fait les ignorer.",
+    "recognizedShow": "Afficher les {{count}} colonnes reconnues automatiquement",
+    "recognizedHide": "Masquer les {{count}} colonnes reconnues automatiquement",
+    "colSample": "ex. ",
+    "colMapAria": "Correspondance pour la colonne {{header}}",
+    "colIgnore": "— Ne pas importer cette colonne",
+    "yearLabel": "Année",
+    "yearDetected": "Année (détectée à partir du fichier)",
+    "yearAria": "Année",
+    "pickYear": "Choisissez une année",
+    "yearMissing": "Veuillez choisir une année.",
+    "matrixIntro": "Marquez chaque ligne comme revenu ou dépense. « Passer » laisse une ligne de côté (une ligne de totaux, par exemple).",
+    "rowTypeAria": "Type de ligne : {{label}}",
+    "income": "Revenu",
+    "expense": "Dépense",
+    "skip": "Passer",
+    "yieldField": {
+      "clients": "nom",
+      "leads": "nom",
+      "projects": "nom",
+      "transactions": "montant",
+      "sessions": "client et date",
+      "default": "clé"
+    },
+    "noYield": "Rien ne sera encore créé à partir de cette feuille — vérifiez que le type est correct et que la colonne {{field}} est associée.",
+    "summaryEmpty": "Aucun élément à importer reconnu pour l'instant. Choisissez ce que contient chaque feuille, et associez les colonnes du nom / du montant.",
+    "summaryLead": "Au total, nous créerons (après votre confirmation lors de la vérification) :",
+    "summary": {
+      "clients": "clients",
+      "projects": "projets",
+      "leads": "prospects",
+      "transactions": "transactions"
+    }
+  },
+  "recognize": {
+    "title": "Qu'avons-nous trouvé dans votre fichier ?",
+    "sub": "Prenez un instant pour confirmer que nous l'avons bien lu — vous pouvez tout corriger ici.",
+    "closeAria": "Fermer",
+    "summaryLead": "Nous avons trouvé :",
+    "summaryEmpty": "Aucune donnée à importer pour l'instant — vérifiez les types de tableaux ci-dessous.",
+    "sum": {
+      "clients": "{{count}} clients",
+      "payments": "{{count}} paiements",
+      "leads": "{{count}} prospects",
+      "projects": "{{count}} projets"
+    },
+    "detectedAs": "Détecté comme :",
+    "typeAria": "Type de tableau pour {{name}}",
+    "badge": {
+      "method": "Mode de paiement détecté",
+      "payments": "Inclut des paiements"
+    },
+    "nudge": {
+      "empty": "Nous n'avons rien trouvé à importer dans ce tableau — choisissez un autre type, ou laissez-le sur « Ne pas importer »."
+    },
+    "editManually": "Modification avancée",
+    "confirm": "Tout est bon, continuer"
+  },
+  "csvMap": {
+    "title": "Depuis votre fichier — confirmez la correspondance des colonnes",
+    "detected": "Nous avons reconnu {{count}} colonnes automatiquement. ",
+    "someUnmapped": "{{count}} colonnes n'ont pas été reconnues — choisissez-leur un champ ou passez-les.",
+    "allMapped": "Vous pouvez tout corriger manuellement si quelque chose ne va pas.",
+    "colFallback": "Colonne {{num}}",
+    "colSample": "ex. ",
+    "colMapAria": "Correspondance pour la colonne {{header}}",
+    "ignore": "— Ignorer"
+  }
+}

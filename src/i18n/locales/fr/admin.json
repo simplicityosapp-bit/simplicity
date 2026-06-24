@@ -1,0 +1,190 @@
+{
+  "nav": {
+    "label": "Navigation d'administration",
+    "title": "Administration",
+    "dashboard": "Tableau de bord",
+    "users": "Utilisateurs",
+    "feedback": "Retours",
+    "analytics": "Statistiques",
+    "sendFeedback": "Envoyer un retour",
+    "feedbackAction": "Retours",
+    "backToApp": "Retour à l'application"
+  },
+  "state": {
+    "loading": "Chargement…",
+    "loadError": "Impossible de charger les données"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "subtitle": "Un aperçu en temps réel du système",
+    "targets": {
+      "totalUsers": "Utilisateurs inscrits",
+      "active7d": "Actifs ces 7 derniers jours",
+      "sessionsThisWeek": "Séances cette semaine"
+    },
+    "stats": {
+      "totalUsers": "Utilisateurs inscrits",
+      "subscribers": "Abonnés",
+      "subscribersSub": "Marqués manuellement",
+      "active7d": "Actifs ces 7 derniers jours",
+      "openFeedback": "Retours en attente",
+      "sessionsThisWeek": "Séances cette semaine"
+    },
+    "signupsOverTime": "Inscriptions au fil du temps",
+    "goalsHeading": "Objectifs",
+    "targetPlaceholder": "Objectif"
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "subtitle": "Tous les inscrits — regroupés par type, les plus récents d'abord",
+    "searchPlaceholder": "Rechercher par e-mail…",
+    "summary": {
+      "total": "Total",
+      "subscribers": "Abonnés",
+      "manual": "Manuel",
+      "regular": "Régulier"
+    },
+    "sections": {
+      "all": "Tous les utilisateurs",
+      "subscribers": "Abonnés",
+      "manual": "Abonnement manuel",
+      "regular": "Abonnement régulier"
+    },
+    "empty": {
+      "manual": "Aucun abonné manuel",
+      "regular": "Aucun abonné régulier (se remplira une fois la facturation en place)",
+      "default": "Aucun utilisateur trouvé"
+    },
+    "table": {
+      "email": "E-mail",
+      "subscriber": "Abonné",
+      "joined": "Inscription",
+      "onboardingStage": "Étape d'intégration",
+      "reflections": "Réflexions",
+      "sessions": "Séances",
+      "marketing": "Marketing",
+      "lastActive": "Dernière activité",
+      "expandAria": "Développer"
+    },
+    "date": {
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "daysAgo": "il y a {{count}} jours"
+    },
+    "consent": {
+      "version": "Version {{version}} · ",
+      "agreed": "Accepté",
+      "declined": "Non"
+    },
+    "sub": {
+      "regularBadge": "Abonné régulier",
+      "subscribed": "Abonné",
+      "askCancel": "Annuler l'abonnement ?",
+      "askMark": "Marquer comme abonné ?",
+      "confirmAria": "Confirmer",
+      "cancelAria": "Annuler",
+      "titleCancel": "Cliquez pour annuler l'abonnement",
+      "titleMark": "Marquer comme abonné",
+      "mark": "Marquer"
+    },
+    "role": {
+      "ownerChip": "Propriétaire",
+      "ownerTitle": "Propriétaire principal",
+      "adminChip": "Administrateur",
+      "adminTitle": "Administrateur"
+    },
+    "marketingConsentAria": "A accepté le marketing",
+    "detail": {
+      "subscriber": "Abonné",
+      "subscriberRegular": "Abonné régulier (payant)",
+      "subscriberManual": "Abonné manuel",
+      "subscriberNone": "Non",
+      "onboardingStage": "Étape d'intégration",
+      "onboardingStopped": "Arrêté à : {{label}}",
+      "feedbackLeft": "Retours laissés",
+      "feedbackCount": "{{count}} élément(s)",
+      "feedbackNone": "Aucun",
+      "reflections": "Réflexions",
+      "sessions": "Séances",
+      "joined": "Inscrit",
+      "lastSignIn": "Dernière connexion",
+      "consentsHeading": "Consentements juridiques",
+      "privacy": "Confidentialité",
+      "dpa": "Traitement des données (DPA)",
+      "terms": "Conditions d'utilisation",
+      "marketing": "Marketing"
+    },
+    "perms": {
+      "deleteUsers": "Supprimer des utilisateurs",
+      "setSubscriber": "Marquer les abonnés",
+      "manageAdmins": "Gérer les administrateurs"
+    },
+    "manage": {
+      "heading": "Autorisations d'administration",
+      "tag": "Administrateur",
+      "hintIsAdmin": "Cet utilisateur est administrateur. Vous pouvez mettre à jour ses autorisations ou retirer son accès d'administrateur.",
+      "hintNotAdmin": "Choisissez des autorisations et faites de cet utilisateur un administrateur. Chaque administrateur a accès à la console et peut voir toutes les données des utilisateurs.",
+      "update": "Mettre à jour les autorisations",
+      "makeAdmin": "Nommer administrateur",
+      "removeAdmin": "Retirer le statut d'administrateur",
+      "grantWarnUpdatePre": "Mettre à jour les autorisations de ",
+      "grantWarnMakePre": "Faire de ",
+      "grantWarnUpdatePost": " ? Un administrateur peut voir toutes les données des utilisateurs dans la console. L'accès prend effet à sa prochaine connexion.",
+      "grantWarnMakePost": " un administrateur ? Un administrateur peut voir toutes les données des utilisateurs dans la console. L'accès prend effet à sa prochaine connexion.",
+      "revokeWarnPre": "Retirer l'accès d'administrateur de ",
+      "revokeWarnPost": " ? L'accès à la console sera bloqué à sa prochaine connexion.",
+      "actionFailed": "Cela n'a pas fonctionné. Réessayez.",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "confirm": "Confirmer",
+      "removing": "Suppression…"
+    },
+    "delete": {
+      "button": "Supprimer l'utilisateur",
+      "warnPre": "Supprimer ",
+      "warnPost": " et toutes ses données — définitivement, sans possibilité d'annulation. Pour continuer, saisissez l'adresse e-mail complète :",
+      "failed": "La suppression a échoué. Réessayez.",
+      "cancel": "Annuler",
+      "deleting": "Suppression…",
+      "confirm": "Supprimer définitivement"
+    }
+  },
+  "feedback": {
+    "title": "Retours",
+    "subtitle": "Tous les retours et bugs au même endroit — les plus récents d'abord",
+    "types": {
+      "bug": "Bug",
+      "idea": "Idée",
+      "praise": "Compliment",
+      "other": "Autre"
+    },
+    "statuses": {
+      "new": "Nouveau",
+      "in_progress": "En cours",
+      "done": "Terminé"
+    },
+    "filterAll": "Tous",
+    "empty": "Aucun retour à afficher",
+    "unknownUser": "Utilisateur inconnu",
+    "statusGroupAria": "Statut"
+  },
+  "analytics": {
+    "title": "Statistiques",
+    "subtitle": "Questions précises sur le produit — pas Google Analytics",
+    "ranges": {
+      "week": "Semaine",
+      "month": "Mois",
+      "all": "Tout"
+    },
+    "sessionsOverTime": "Séances au fil du temps",
+    "reflectionsOverTime": "Réflexions au fil du temps",
+    "onboardingFunnel": "Tunnel d'intégration",
+    "landingFunnel": "Tunnel de la page de destination",
+    "landingEngagement": "Engagement sur la page de destination",
+    "topUsers": "Utilisateurs les plus actifs",
+    "topUsersEmpty": "Aucune donnée dans cette plage",
+    "rank": "#",
+    "email": "E-mail",
+    "sessions": "Séances"
+  }
+}

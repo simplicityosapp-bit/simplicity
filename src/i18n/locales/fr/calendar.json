@@ -1,0 +1,56 @@
+{
+  "title": "Calendrier",
+  "upcomingCount": "{{count}} à venir",
+  "schedule": "Emploi du temps",
+  "tagline": "Jour après jour, pas à pas.",
+  "newEventAria": "Nouvel événement",
+  "newEvent": "+ Nouvel événement",
+  "dup": {
+    "one": "Un doublon de calendrier avec Google",
+    "many": "{{count}} doublons de calendrier avec Google",
+    "cta": "Résoudre les doublons"
+  },
+  "fallback": {
+    "client": "Client",
+    "group": "Groupe",
+    "event": "Événement",
+    "lead": "Prospect"
+  },
+  "views": {
+    "schedule": "Agenda",
+    "day": "Jour",
+    "week": "Semaine",
+    "month": "Mois"
+  },
+  "nav": {
+    "tablistAria": "Affichage",
+    "prevMonth": "Mois précédent",
+    "prev": "Précédent",
+    "nextMonth": "Mois suivant",
+    "next": "Suivant",
+    "today": "Aujourd'hui"
+  },
+  "monthPicker": {
+    "dialogAria": "Choisir un mois",
+    "prevYear": "Année précédente",
+    "nextYear": "Année suivante"
+  },
+  "filter": "Filtre d'affichage",
+  "list": {
+    "empty": "Aucun événement à venir — votre calendrier est vide.",
+    "loadMore": "Charger plus ({{count}})"
+  },
+  "allDay": "Toute la journée",
+  "before": "Avant {{time}}",
+  "after": "Après {{time}}",
+  "tag": {
+    "pending": "En attente",
+    "reminder": "Rappel",
+    "calendar": "Calendrier"
+  },
+  "legend": {
+    "meetings": "Rendez-vous",
+    "reminders": "Rappels",
+    "calendar": "Calendrier"
+  }
+}

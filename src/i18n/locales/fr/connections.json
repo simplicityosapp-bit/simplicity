@@ -1,0 +1,236 @@
+{
+  "providers": {
+    "sumit": "SUMIT",
+    "greeninvoice": "Green Invoice"
+  },
+  "env": {
+    "production": "Production",
+    "sandbox": "Sandbox"
+  },
+  "loading": "Chargement…",
+  "list": {
+    "title": "Connexions",
+    "subtitle": "Connectez des services externes pour importer des données automatiquement.",
+    "connecting": "Connexion et synchronisation…",
+    "connectCancelled": "La connexion a été annulée ou refusée.",
+    "connectFailed": "La connexion a échoué. Veuillez réessayer.",
+    "rowAria": "{{title}} — {{status}}",
+    "notConnected": "Non connecté",
+    "connected": "Connecté",
+    "needsReconnect": "Reconnexion requise",
+    "connectedTo": "Connecté · {{provider}}",
+    "invoices": "Factures",
+    "whatsappStatus": "Envoi manuel · modifier les messages",
+    "soon": "Bientôt disponible",
+    "soonAria": "{{title}} — bientôt disponible"
+  },
+  "calendar": {
+    "back": "Retour",
+    "subtitle": "Importez les événements de l'agenda et repérez les rendez-vous avec les clients.",
+    "connected": "Connecté",
+    "connectedSynced": "Connecté · synchronisé le {{date}}",
+    "notConnectedHint": "Non connecté — importez les événements de l'agenda et repérez les rendez-vous avec les clients.",
+    "syncFromLabel": "À partir de quelle date synchroniser ?",
+    "opening": "Ouverture…",
+    "connect": "Connecter Google Calendar",
+    "syncing": "Synchronisation…",
+    "syncNow": "Synchroniser maintenant",
+    "disconnecting": "Déconnexion…",
+    "disconnect": "Déconnecter",
+    "disconnectConfirm": "Sûr ? Déconnecter",
+    "syncResult": "{{synced}} événements synchronisés{{removed}}.",
+    "syncRemoved": ", {{count}} supprimés",
+    "eventsTitle": "Événements synchronisés",
+    "loadingEvents": "Chargement des événements…",
+    "noEventsInRange": "Aucun événement dans la plage sélectionnée. {{retry}} de synchroniser à nouveau, ou reconnectez-vous avec une plage de dates antérieure.",
+    "retry": "Essayez",
+    "cats": {
+      "clients": "Clients",
+      "projects": "Projets",
+      "leads": "Prospects",
+      "groups": "Groupes",
+      "unmatched": "Non associés"
+    },
+    "fb": {
+      "client": "Client",
+      "project": "Projet",
+      "lead": "Prospect",
+      "group": "Groupe"
+    },
+    "minutes": "{{count}} min",
+    "hours": "{{count}} h",
+    "hoursMinutes": "{{h}} h {{m}} min",
+    "assignTypes": {
+      "client": "Client",
+      "project": "Projet",
+      "lead": "Prospect",
+      "group": "Groupe"
+    },
+    "removeLinkAria": "Supprimer le lien {{type}}",
+    "remove": "Supprimer",
+    "assignTo": "+ Associer à…",
+    "assignAria": "Associer {{type}}",
+    "pick": "— Choisir —",
+    "close": "Fermer",
+    "identified": "Associé",
+    "notIdentified": "Non associé"
+  },
+  "invoiceScreen": {
+    "back": "Retour",
+    "title": "Factures",
+    "subtitle": "Émettez des factures et des reçus, et importez vos revenus depuis votre logiciel de reçus."
+  },
+  "whatsappScreen": {
+    "back": "Retour",
+    "title": "WhatsApp",
+    "subtitle": "En appuyant sur le bouton WhatsApp, un message prêt à l'emploi s'ouvre et peut être modifié avant l'envoi. Vous pouvez définir ici le texte par défaut de chaque « type de message ».",
+    "tokensLabel": "Insérer :",
+    "tokens": {
+      "name": "Nom du client",
+      "title": "Texte du rappel",
+      "date": "Date",
+      "time": "Heure",
+      "number": "N° de reçu",
+      "url": "Lien du reçu",
+      "balance": "Solde dû"
+    },
+    "fields": {
+      "client": { "label": "Message au client", "hint": "Depuis la fiche client — une amorce de conversation libre." },
+      "reminder": { "label": "Rappel", "hint": "Envoyez un rappel au client depuis l'agenda." },
+      "meeting": { "label": "Rappel de rendez-vous", "hint": "Un rappel avant un rendez-vous programmé, depuis l'agenda." },
+      "receipt": { "label": "Envoyer le reçu", "hint": "Une fois un reçu émis — envoyez-le au client avec un lien." },
+      "lead": { "label": "Suivi du prospect", "hint": "Suivi d'un prospect depuis la liste des suivis." },
+      "payment": { "label": "Demande de paiement", "hint": "Depuis la fiche client lorsqu'il y a un solde — le montant se remplit automatiquement." }
+    },
+    "reset": "Par défaut",
+    "preview": "Aperçu :",
+    "save": "Enregistrer les messages",
+    "saved": "Enregistré"
+  },
+  "invoiceCard": {
+    "fields": {
+      "gi": {
+        "apiKey": "Clé API (ID de la clé)",
+        "apiSecret": "Secret API"
+      },
+      "sumit": {
+        "apiKey": "ID de l'entreprise",
+        "apiSecret": "Clé API"
+      }
+    },
+    "help": {
+      "gi": "Vous les générez dans votre compte Green Invoice : Paramètres → Outils pour développeurs → Clés API. Le secret n'est affiché qu'une seule fois — pensez à l'enregistrer.",
+      "sumit": "Vous les générez dans votre compte SUMIT : Paramètres → Développeurs et propriétaires de sites → Clés API (ID de l'entreprise + clé API)."
+    },
+    "steps": {
+      "gi": [
+        "Connectez-vous à votre compte Green Invoice.",
+        "Paramètres → Outils pour développeurs → Clés API.",
+        "Créez une nouvelle clé — vous obtiendrez une clé API (ID) et un secret.",
+        "Le secret n'est affiché qu'une seule fois — copiez-le immédiatement.",
+        "Collez l'ID et le secret ici, puis appuyez sur « Connecter »."
+      ],
+      "sumit": [
+        "Connectez-vous à votre compte SUMIT.",
+        "Paramètres → Développeurs et propriétaires de sites → Clés API.",
+        "Copiez l'ID de votre entreprise.",
+        "Utilisez votre clé API privée — pas la publique !",
+        "Collez les deux ici, puis appuyez sur « Connecter »."
+      ]
+    },
+    "err": {
+      "invalidCredentials": "Ces identifiants sont incorrects. Veuillez les vérifier et les copier à nouveau.",
+      "missingFields": "Veuillez remplir les deux champs.",
+      "providerUnreachable": "Le service est indisponible pour le moment. Veuillez réessayer dans un instant.",
+      "generic": "La connexion a échoué. Veuillez réessayer."
+    },
+    "title": "Factures",
+    "needsReconnectStatus": "Reconnexion requise · {{provider}}",
+    "connectedStatus": "Connecté · {{provider}} · {{env}}",
+    "notConnectedHint": "Non connecté — émettez des factures et des reçus directement depuis Simplicity.",
+    "brokenMsg": "Vos identifiants ne sont plus valides — la clé a peut-être été révoquée ou remplacée. Pour continuer à émettre des factures, reconnectez-vous.",
+    "reconnect": "Se reconnecter",
+    "pickProvider": "Choisissez un fournisseur",
+    "howTo": "Comment les obtenir ?",
+    "providerGroupAria": "Fournisseur de factures",
+    "soon": "Bientôt disponible",
+    "pastePlaceholder": "Collez ici",
+    "connecting": "Connexion…",
+    "connect": "Connecter",
+    "cancel": "Annuler",
+    "connectSuccess": "Connexion réussie.",
+    "testing": "Vérification…",
+    "testConnection": "Tester la connexion",
+    "testOk": "La connexion fonctionne.",
+    "disconnecting": "Déconnexion…",
+    "disconnect": "Déconnecter",
+    "disconnectConfirm": "Sûr ? Déconnecter",
+    "disconnectConfirmSr": "Appuyez à nouveau pour confirmer la déconnexion",
+    "autoImportLabel": "Importer les revenus automatiquement ?",
+    "autoImportNote": "Nous repérerons les revenus que vous avez saisis dans votre logiciel de reçus — et vous demanderons si vous souhaitez aussi les enregistrer ici.",
+    "autoImportOn": "Import des revenus activé.",
+    "autoImportOff": "Import des revenus désactivé.",
+    "businessType": {
+      "label": "Votre type d'activité",
+      "note": "Détermine les documents que vous pouvez émettre : un exonéré de TVA n'émet que des reçus ; un commerçant agréé peut aussi émettre des factures fiscales. Vous pouvez le modifier à tout moment.",
+      "exempt": "Exonéré de TVA (עוסק פטור)",
+      "licensed": "Commerçant agréé (עוסק מורשה)",
+      "unsetHint": "Choisissez votre type d'activité pour que nous vous proposions les bons types de documents.",
+      "confirm": "Confirmer le type d'activité",
+      "saving": "Enregistrement…",
+      "saved": "Type d'activité enregistré."
+    }
+  },
+  "actions": {
+    "err": {
+      "alreadyIssued": "Une facture a déjà été émise pour cette transaction.",
+      "alreadyCredited": "Un avoir a déjà été émis pour cette transaction.",
+      "notIssued": "Aucun document à créditer.",
+      "noClient": "Pour émettre une facture, associez un client à la transaction et enregistrez.",
+      "notConnected": "Aucun service de facturation connecté — connectez-en un sur l'écran Connexions.",
+      "notIncome": "Les factures ne peuvent être émises que pour les transactions de revenu.",
+      "badAmount": "Cette transaction n'a pas de montant positif — mettez à jour le montant et enregistrez.",
+      "transactionNotFound": "Transaction introuvable — actualisez et réessayez.",
+      "invalidCredentials": "Les identifiants du service sont incorrects — vérifiez-les sur l'écran Connexions.",
+      "providerUnreachable": "Le service est indisponible pour le moment. {{retry}} dans un instant.",
+      "providerError": "Le service n'a pas pu émettre le document. Vérifiez les informations et réessayez.",
+      "docTypeForBusiness": "Votre type d'activité ne permet pas d'émettre le type de document sélectionné (un exonéré de TVA ne peut émettre qu'un reçu). Choisissez « Reçu » et réessayez.",
+      "generic": "L'émission a échoué. {{retry}}.",
+      "retry": "Réessayer"
+    },
+    "creditedToast": "Avoir émis",
+    "creditedToastNumbered": "Avoir n° {{number}} émis",
+    "issuedLabel": "{{docType}} émis",
+    "issuedNumber": "n°",
+    "view": "Voir",
+    "cancelled": "· annulé",
+    "creditNumber": "· avoir",
+    "creditBtn": "Créditer / annuler",
+    "creditModalTitle": "Avoir",
+    "creditModalMessage": "Émettre un avoir qui annule {{doc}} pour {{amount}} ? Un véritable document fiscal est créé, et le revenu disparaît de vos totaux.",
+    "creditConfirm": "Oui, créditer",
+    "credsInvalidHint": "La connexion à la facturation n'est plus valide — renouvelez-la sur l'écran Connexions pour émettre.",
+    "needClientHint": "Pour émettre une facture — associez un client à la transaction et enregistrez.",
+    "dupReason": "Une facture a déjà été émise pour {{client}} pour {{amount}}{{date}} — il s'agit peut-être d'un doublon.",
+    "dupReasonDate": " le {{date}}",
+    "dupClientFallback": "le client",
+    "dirtyReason": "Cette transaction comporte des modifications non enregistrées. Le document est émis à partir des données enregistrées, pas de vos modifications — mieux vaut enregistrer d'abord.",
+    "catalogError": "Nous n'avons pas pu charger la liste des produits — vous pouvez saisir une description manuellement.",
+    "issuedToast": "{{docType}} émis",
+    "issuedToastNumbered": "{{docType}} n° {{number}} émis",
+    "issueBtn": "Émettre une facture",
+    "pickerLabel": "Émettre un document",
+    "pickerLabelNamed": "Émettre un document · {{client}}",
+    "docTypeAria": "Type de document",
+    "itemFieldLabel": "Produit / service",
+    "loadingItems": "Chargement des produits…",
+    "itemOther": "Autre (texte libre)",
+    "itemPlaceholder": "ex. coaching individuel",
+    "itemHint": "Choisissez un article dans le catalogue du fournisseur, ou rédigez une description en texte libre.",
+    "payMethodLabel": "Mode de paiement",
+    "issuing": "Émission…",
+    "issueConfirm": "Sûr ? Émettre pour {{amount}}",
+    "issue": "Émettre",
+    "cancel": "Annuler"
+  }
+}

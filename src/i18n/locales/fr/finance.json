@@ -1,0 +1,124 @@
+{
+  "countLabel": "{{count}} transactions",
+  "snapshot": "Aperçu",
+  "tagline": "Vos actions créent de bons résultats.",
+  "title": "Argent",
+  "exportCsv": "Exporter en CSV",
+  "exportCsvAria": "Exporter vers un fichier CSV",
+  "newTxAria": "Nouvelle transaction",
+  "newTx": "+ Nouvelle transaction",
+  "loading": "Chargement des transactions…",
+  "loadError": "Impossible de charger les transactions : {{error}}",
+  "hideSkipped": "Masquer les ignorées",
+  "showSkipped": "Afficher {{count}} ignorées",
+  "deleteRecurring": {
+    "title": "Supprimer le modèle récurrent",
+    "message": "Supprimer « {{name}} » ? Les transactions déjà créées à partir de ce modèle seront conservées.",
+    "income": "Revenu",
+    "expense": "Dépense",
+    "confirm": "Supprimer"
+  },
+  "summary": {
+    "prevMonth": "Mois précédent",
+    "nextMonth": "Mois suivant",
+    "netThisMonth": "Net ce mois-ci",
+    "income": "Revenus",
+    "expenses": "Dépenses",
+    "changeAria": "Changer {{value}}",
+    "new": "+nouveau"
+  },
+  "tx": {
+    "noDesc": "Aucune description",
+    "skipped": "Ignorée",
+    "credited": "Annulée",
+    "approveTitle": "Confirmer — elle a eu lieu",
+    "skipTitle": "Ignorer — n'a pas eu lieu",
+    "restore": "Remettre en attente",
+    "delete": "Supprimer la transaction"
+  },
+  "list": {
+    "empty": "Aucune transaction ce mois-ci.",
+    "confirmed": "Confirmées",
+    "skipped": "Ignorées"
+  },
+  "pending": {
+    "count": "{{count}} transactions en attente",
+    "income": "Revenus {{amount}}",
+    "expenses": "Dépenses {{amount}}",
+    "approving": "Confirmation…",
+    "approveAll": "Tout confirmer",
+    "noDesc": "Aucune description",
+    "approve": "Confirmer",
+    "skip": "Ignorer",
+    "delete": "Supprimer"
+  },
+  "recurring": {
+    "title": "Modèles récurrents",
+    "add": "+ Nouveau modèle",
+    "empty": "Aucun modèle récurrent pour l'instant. En ajouter un créera automatiquement des transactions en attente chaque mois ou chaque semaine.",
+    "income": "Revenu",
+    "expense": "Dépense",
+    "paused": "En pause",
+    "resume": "Reprendre",
+    "pause": "Mettre en pause",
+    "edit": "Modifier",
+    "delete": "Supprimer"
+  },
+  "categories": {
+    "title": "Catégories de dépenses",
+    "empty": "Aucune catégorie pour l'instant. Ajoutez une catégorie pour étiqueter les dépenses (abonnements, conseil, etc.).",
+    "add": "Ajouter",
+    "namePlaceholder": "Nom de la catégorie",
+    "colorGroupAria": "Couleur de la catégorie",
+    "colorAria": "Couleur {{number}}",
+    "deleteChipAria": "Supprimer {{name}}",
+    "deleteTitle": "Supprimer la catégorie",
+    "deleteAria": "Supprimer",
+    "deleteConfirm": "Supprimer",
+    "deleteMessage": "Supprimer « {{name}} » ? Les dépenses étiquetées avec cette catégorie resteront sans catégorie."
+  },
+  "incomeByProject": {
+    "title": "Revenus par projet",
+    "noProject": "Aucun projet",
+    "empty": "Aucun revenu classé ce mois-ci."
+  },
+  "expensesByCategory": {
+    "title": "Dépenses par catégorie",
+    "noCategory": "Sans catégorie",
+    "empty": "Aucune dépense classée ce mois-ci."
+  },
+  "chart": {
+    "title": "Revenu cumulé",
+    "infoLabel": "Explication du graphique des revenus cumulés",
+    "infoText": "Le graphique additionne vos revenus (confirmés) jour après jour pour le mois sélectionné. La ligne en pointillés correspond à l'objectif de revenu mensuel défini sur l'écran « Objectifs » — s'il n'y a pas d'objectif, elle ne s'affiche pas. Le point marque aujourd'hui.",
+    "svgAria": "Graphique des revenus cumulés par jour du mois",
+    "setGoal": "Définir un objectif de revenu mensuel"
+  },
+  "imports": {
+    "typeInvoiceReceipt": "Reçu de facture fiscale",
+    "typeReceipt": "Reçu",
+    "typeInvoice": "Facture fiscale",
+    "typeDoc": "Document",
+    "heading": "Importation en attente",
+    "countAria_one": "{{count}} facture à approuver",
+    "countAria_other": "{{count}} factures à approuver",
+    "sub": "Factures émises dans le service externe — les importer comme revenu ?",
+    "docNumber": "n°",
+    "noName": "Sans nom",
+    "view": "Voir",
+    "possibleDup": "Possible doublon",
+    "importedToast": "Facture importée comme revenu.",
+    "dismissedToast": "Facture rejetée.",
+    "importingAria": "Importation…",
+    "confirmAria": "Confirmer l'importation de {{amount}} comme revenu",
+    "sure": "Sûr ?",
+    "importAria": "Importer comme revenu",
+    "importTitle": "Importer comme revenu",
+    "dismiss": "Rejeter",
+    "dupTitle": "Il pourrait s'agir d'un doublon",
+    "dupMessage": "Vous avez déjà une transaction de revenu pour {{amount}}{{forName}}. L'importer quand même comme revenu supplémentaire ?",
+    "dupForName": " à {{name}}",
+    "dupConfirm": "Oui, importer",
+    "cancel": "Annuler"
+  }
+}

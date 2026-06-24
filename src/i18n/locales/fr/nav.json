@@ -1,0 +1,62 @@
+{
+  "ariaMainNav": "Navigation principale",
+  "ariaBottomNav": "Navigation inférieure",
+  "ariaDrawerNav": "Menu Plus",
+  "ariaScreensNav": "Navigation entre écrans",
+  "more": "Plus",
+  "menu": "Menu",
+  "close": "Fermer",
+  "drawerSubtitle": "Menu · préférences et outils personnels",
+  "extras": {
+    "leadPages": "Pages de prospects",
+    "bookingPages": "Pages de réservation",
+    "moon": "Vue d'ensemble",
+    "reports": "Rapports",
+    "insights": "Comment allez-vous aujourd'hui ?",
+    "trash": "Corbeille",
+    "legal": "Politiques et conditions"
+  },
+  "feedback": "Contactez-nous",
+  "admin": {
+    "label": "Administration",
+    "console": "Console d'administration",
+    "consoleSub": "Utilisateurs · retours · statistiques"
+  },
+  "theme": {
+    "toLight": "Mode clair",
+    "toDark": "Mode sombre",
+    "toDarkAlt": "Mode sombre",
+    "sub": "Basculer entre jour et nuit"
+  },
+  "logout": "Se déconnecter",
+  "sections": {
+    "personal": "Personnel",
+    "settings": "Paramètres"
+  },
+  "items": {
+    "home": "Accueil",
+    "clients": "Clients",
+    "tasks": "Tâches",
+    "finance": "Argent",
+    "leads": "Prospects",
+    "projects": "Projets",
+    "goals": "Objectifs",
+    "calendar": "Calendrier",
+    "connections": "Connexions",
+    "settings": "Paramètres",
+    "insightsSub": "Vos questions et observations quotidiennes",
+    "moonSub": "Votre score pondéré et votre progression",
+    "reportsSub": "Indicateurs sur plusieurs périodes",
+    "feedbackSub": "Ce qui fonctionne, ce qui manque et ce qui peut s'améliorer",
+    "trashSub": "Restaurer les éléments supprimés · 30 jours",
+    "leadPagesSub": "Formulaires publics de capture de prospects",
+    "bookingPagesSub": "Page publique de réservation de rendez-vous, synchronisée avec votre calendrier"
+  },
+  "signOut": "Se déconnecter",
+  "profile": {
+    "myProfile": "Mon profil",
+    "score": "Score du profil",
+    "healthAria": "Santé du profil — ouvrir le détail",
+    "healthAriaWithScore": "Santé du profil {{score}} pour cent — ouvrir le détail"
+  }
+}

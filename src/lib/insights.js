@@ -12,6 +12,7 @@ import i18n from '../i18n'
 import heReflections from '../i18n/locales/he/reflections.json'
 import enReflections from '../i18n/locales/en/reflections.json'
 import esReflections from '../i18n/locales/es/reflections.json'
+import frReflections from '../i18n/locales/fr/reflections.json'
 import { qtext } from './questionTemplates'
 
 /* The 'reflections' namespace lives in these three libs (insights / moon /
@@ -21,6 +22,7 @@ import { qtext } from './questionTemplates'
 if (!i18n.hasResourceBundle('he', 'reflections')) i18n.addResourceBundle('he', 'reflections', heReflections, true, true)
 if (!i18n.hasResourceBundle('en', 'reflections')) i18n.addResourceBundle('en', 'reflections', enReflections, true, true)
 if (!i18n.hasResourceBundle('es', 'reflections')) i18n.addResourceBundle('es', 'reflections', esReflections, true, true)
+if (!i18n.hasResourceBundle('fr', 'reflections')) i18n.addResourceBundle('fr', 'reflections', frReflections, true, true)
 
 const MS_PER_DAY = 86400000
 

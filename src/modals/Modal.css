@@ -133,7 +133,11 @@
 [data-theme="dark"] .m-input,
 [data-theme="dark"] .m-select,
 [data-theme="dark"] .m-textarea {
-  background: rgba(36, 42, 51, 0.6);
+  /* background-color, NOT the `background` shorthand: the shorthand resets
+     background-repeat/position/size to their initials (repeat / 0% 0% / auto),
+     which outranks the .m-select chevron longhands below and tiles the arrow
+     across the whole control in dark mode. (Same trap noted in index.css.) */
+  background-color: rgba(36, 42, 51, 0.6);
   border-color: rgba(240, 235, 224, 0.12);
 }
 .m-textarea {

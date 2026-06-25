@@ -258,26 +258,28 @@ const BLOCK_COMPONENT = {
   testimonial: TestimonialBlock, cta: CtaBlock, spacer: SpacerBlock,
 }
 
-/* One section → its block, wrapped so the canvas can target it (id, type). */
-function Section({ section, interactive, runtime }) {
+/* One section → its block, wrapped so the canvas can target it (id, type).
+   `sel` marks the editor-selected section so the canvas can draw a ring. */
+function Section({ section, interactive, runtime, selectedId }) {
   const type = section.type
   const wrapCls = `sp-block sp-block-${type}`
+  const sel = section.id === selectedId ? '' : undefined
   if (type === 'form') {
-    return <section className={wrapCls} data-sid={section.id}><FormBlock section={section} interactive={interactive} runtime={runtime} /></section>
+    return <section className={wrapCls} data-sid={section.id} data-selected={sel}><FormBlock section={section} interactive={interactive} runtime={runtime} /></section>
   }
   if (type === 'booking') {
-    return <section className={wrapCls} data-sid={section.id}><BookingBlock props={section.props || {}} interactive={interactive} /></section>
+    return <section className={wrapCls} data-sid={section.id} data-selected={sel}><BookingBlock props={section.props || {}} interactive={interactive} /></section>
   }
   const Comp = BLOCK_COMPONENT[type]
   if (!Comp) return null
   return (
-    <section className={wrapCls} data-sid={section.id}>
+    <section className={wrapCls} data-sid={section.id} data-selected={sel}>
       <Comp props={section.props || {}} interactive={interactive} />
     </section>
   )
 }
 
-export default function SiteRenderer({ theme, sections, interactive = false, runtime, className = '' }) {
+export default function SiteRenderer({ theme, sections, interactive = false, runtime, className = '', selectedId }) {
   const { t } = useT('siteBuilder')
   const { style, cls } = sitePageSurface(theme)
   const list = Array.isArray(sections) ? sections : []
@@ -285,7 +287,7 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
     <div className={`sp-root ${cls} ${className}`} dir="rtl" style={style}>
       <div className="sp-page">
         {list.map((s) => (
-          <Section key={s.id} section={s} interactive={interactive} runtime={runtime} />
+          <Section key={s.id} section={s} interactive={interactive} runtime={runtime} selectedId={selectedId} />
         ))}
         {list.length === 0 ? <div className="sp-empty">{t('renderer.empty')}</div> : null}
       </div>

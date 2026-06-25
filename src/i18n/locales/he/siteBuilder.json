@@ -48,7 +48,12 @@
     "cardRadius": "עיגול פינות",
     "textLight": "טקסט בהיר (לרקע כהה)",
     "bold": "מודגש",
-    "center": "מרכוז"
+    "center": "מרכוז",
+    "grpAddress": "כתובת",
+    "grpTypography": "טיפוגרפיה וצבע",
+    "grpBackground": "רקע",
+    "grpCards": "כרטיסים",
+    "grpText": "טקסט"
   },
   "settings": {
     "title": "הגדרות טופס",

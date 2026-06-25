@@ -48,7 +48,12 @@
     "cardRadius": "Arrondi des coins",
     "textLight": "Texte clair (pour arrière-plans sombres)",
     "bold": "Gras",
-    "center": "Centrer"
+    "center": "Centrer",
+    "grpAddress": "Adresse",
+    "grpTypography": "Typographie et couleur",
+    "grpBackground": "Arrière-plan",
+    "grpCards": "Cartes",
+    "grpText": "Texte"
   },
   "settings": {
     "title": "Réglages du formulaire",

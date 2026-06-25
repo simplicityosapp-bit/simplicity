@@ -53,6 +53,8 @@ export default function Editor({ page, onSave, onBack }) {
   const [dirty, setDirty] = useState(false)
   const [saveError, setSaveError] = useState(null)
   const dragIndex = useRef(null)
+  const [dragging, setDragging] = useState(null)   // index being dragged
+  const [dragOver, setDragOver] = useState(null)   // index hovered as drop target
 
   const selected = useMemo(
     () => draft.sections.find((s) => s.id === selectedId) || null,
@@ -118,7 +120,7 @@ export default function Editor({ page, onSave, onBack }) {
     <div className="spe">
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <div className="spe-top">
-        <button className="spe-icon-btn" onClick={onBack} title={t('editor.back')}><ArrowRight size={18} /></button>
+        <button className="spe-icon-btn" onClick={onBack} title={t('editor.back')} aria-label={t('editor.back')}><ArrowRight size={18} /></button>
         <input
           className="spe-title-input"
           value={draft.title}
@@ -127,8 +129,8 @@ export default function Editor({ page, onSave, onBack }) {
         />
         <div className="spe-top-spacer" />
         <div className="spe-device">
-          <button className={device === 'desktop' ? 'is-on' : ''} onClick={() => setDevice('desktop')} title={t('editor.desktop')}><Monitor size={16} /></button>
-          <button className={device === 'mobile' ? 'is-on' : ''} onClick={() => setDevice('mobile')} title={t('editor.mobile')}><Smartphone size={16} /></button>
+          <button className={device === 'desktop' ? 'is-on' : ''} onClick={() => setDevice('desktop')} title={t('editor.desktop')} aria-label={t('editor.desktop')}><Monitor size={16} /></button>
+          <button className={device === 'mobile' ? 'is-on' : ''} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></button>
         </div>
         <label className="spe-pub">
           <input type="checkbox" checked={draft.published} onChange={(e) => mutate((d) => ({ ...d, published: e.target.checked }))} />
@@ -164,16 +166,17 @@ export default function Editor({ page, onSave, onBack }) {
             {draft.sections.map((s, i) => (
               <li
                 key={s.id}
-                className={`spe-secitem${selectedId === s.id ? ' is-sel' : ''}`}
+                className={`spe-secitem${selectedId === s.id ? ' is-sel' : ''}${dragging === i ? ' is-dragging' : ''}${dragOver === i && dragging !== i ? ' is-drop-target' : ''}`}
                 draggable
-                onDragStart={() => { dragIndex.current = i }}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => { reorder(dragIndex.current, i); dragIndex.current = null }}
+                onDragStart={() => { dragIndex.current = i; setDragging(i) }}
+                onDragOver={(e) => { e.preventDefault(); if (dragOver !== i) setDragOver(i) }}
+                onDragEnd={() => { setDragging(null); setDragOver(null) }}
+                onDrop={() => { reorder(dragIndex.current, i); dragIndex.current = null; setDragging(null); setDragOver(null) }}
                 onClick={() => setSelectedId(s.id)}
               >
                 <GripVertical size={14} className="spe-grip" />
                 <span className="spe-sec-label">{t('blocks.' + s.type, { defaultValue: BLOCK_TYPES[s.type]?.label || s.type })}</span>
-                <button className="spe-sec-del" onClick={(e) => { e.stopPropagation(); deleteSection(s.id) }} title={t('editor.deleteSection')}><Trash2 size={13} /></button>
+                <button className="spe-sec-del" onClick={(e) => { e.stopPropagation(); deleteSection(s.id) }} title={t('editor.deleteSection')} aria-label={t('editor.deleteSection')}><Trash2 size={13} /></button>
               </li>
             ))}
             {draft.sections.length === 0 ? <li className="spe-rail-empty">{t('editor.railEmpty')}</li> : null}
@@ -186,7 +189,7 @@ export default function Editor({ page, onSave, onBack }) {
         {/* ── Canvas ────────────────────────────────────────────── */}
         <div className="spe-canvas-wrap">
           <div className={`spe-frame spe-frame-${device}`} onClick={onCanvasClick}>
-            <SiteRenderer theme={draft.theme} sections={draft.sections} interactive={false} />
+            <SiteRenderer theme={draft.theme} sections={draft.sections} interactive={false} selectedId={selectedId} />
           </div>
         </div>
 
@@ -213,25 +216,30 @@ function DesignPanel({ theme, setTheme, slug, onSlug, kind, config, setConfig })
     <div className="spe-panel">
       <h3 className="spe-panel-title">{t('design.title')}</h3>
 
-      <label className="spe-f">
-        <span>{t('design.publicUrl')}</span>
-        <input value={slug || ''} placeholder="my-page" onChange={(e) => onSlug(slugifyInput(e.target.value))} />
-      </label>
+      <div className="spe-group">
+        <p className="spe-group-lbl">{t('design.grpAddress')}</p>
+        <label className="spe-f">
+          <span>{t('design.publicUrl')}</span>
+          <input value={slug || ''} placeholder="my-page" onChange={(e) => onSlug(slugifyInput(e.target.value))} />
+        </label>
+      </div>
 
-      <label className="spe-f">
-        <span>{t('design.font')}</span>
-        <select value={theme.font} onChange={(e) => setTheme({ font: e.target.value })}>
-          {SITE_FONTS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
-        </select>
-      </label>
+      <div className="spe-group">
+        <p className="spe-group-lbl">{t('design.grpTypography')}</p>
+        <label className="spe-f">
+          <span>{t('design.font')}</span>
+          <select value={theme.font} onChange={(e) => setTheme({ font: e.target.value })}>
+            {SITE_FONTS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
+          </select>
+        </label>
+        <label className="spe-f spe-f-row">
+          <span>{t('design.brandColor')}</span>
+          <input type="color" value={theme.brandColor} onChange={(e) => setTheme({ brandColor: e.target.value })} />
+        </label>
+      </div>
 
-      <label className="spe-f spe-f-row">
-        <span>{t('design.brandColor')}</span>
-        <input type="color" value={theme.brandColor} onChange={(e) => setTheme({ brandColor: e.target.value })} />
-      </label>
-
-      <div className="spe-f">
-        <span>{t('design.background')}</span>
+      <div className="spe-group">
+        <p className="spe-group-lbl">{t('design.grpBackground')}</p>
         <div className="spe-seg">
           {[['scene', t('design.bgScene')], ['flat', t('design.bgFlat')], ['image', t('design.bgImage')]].map(([k, lbl]) => (
             <button key={k} className={bg.type === k ? 'is-on' : ''}
@@ -240,43 +248,48 @@ function DesignPanel({ theme, setTheme, slug, onSlug, kind, config, setConfig })
             </button>
           ))}
         </div>
+        {bg.type === 'scene' ? (
+          <div className="spe-scenes">
+            {LEAD_PAGE_BACKGROUNDS.map((s) => (
+              <button key={s.key} className={`spe-scene${bg.value === s.key ? ' is-on' : ''}`}
+                onClick={() => setTheme({ background: { type: 'scene', value: s.key } })} title={s.label} aria-label={s.label}>
+                <img src={`/backgrounds/desktop/day/${s.key}.webp`} alt={s.label} loading="lazy" />
+              </button>
+            ))}
+          </div>
+        ) : null}
+        {bg.type === 'flat' ? (
+          <label className="spe-f spe-f-row"><span>{t('design.bgFlatColor')}</span>
+            <input type="color" value={bg.value || '#f7f3ee'} onChange={(e) => setTheme({ background: { type: 'flat', value: e.target.value } })} />
+          </label>
+        ) : null}
+        {bg.type === 'image' ? (
+          <ImageField value={bg.value} onChange={(url) => setTheme({ background: { type: 'image', value: url } })} />
+        ) : null}
       </div>
 
-      {bg.type === 'scene' ? (
-        <div className="spe-scenes">
-          {LEAD_PAGE_BACKGROUNDS.map((s) => (
-            <button key={s.key} className={`spe-scene${bg.value === s.key ? ' is-on' : ''}`}
-              onClick={() => setTheme({ background: { type: 'scene', value: s.key } })} title={s.label}>
-              <img src={`/backgrounds/desktop/day/${s.key}.webp`} alt={s.label} loading="lazy" />
-            </button>
-          ))}
-        </div>
-      ) : null}
-      {bg.type === 'flat' ? (
-        <label className="spe-f spe-f-row"><span>{t('design.bgFlatColor')}</span>
-          <input type="color" value={bg.value || '#f7f3ee'} onChange={(e) => setTheme({ background: { type: 'flat', value: e.target.value } })} />
+      <div className="spe-group">
+        <p className="spe-group-lbl">{t('design.grpCards')}</p>
+        <Slider label={t('design.cardOpacity')} min={0} max={100} value={theme.cardOpacity} onChange={(v) => setTheme({ cardOpacity: v })} />
+        <Slider label={t('design.cardBlur')} min={0} max={40} value={theme.cardBlur} onChange={(v) => setTheme({ cardBlur: v })} />
+        <Slider label={t('design.cardRadius')} min={8} max={40} value={theme.cardRadius} onChange={(v) => setTheme({ cardRadius: v })} />
+      </div>
+
+      <div className="spe-group">
+        <p className="spe-group-lbl">{t('design.grpText')}</p>
+        <label className="spe-f spe-f-row"><span>{t('design.textLight')}</span>
+          <input type="checkbox" checked={theme.textColor === 'light'} onChange={(e) => setTheme({ textColor: e.target.checked ? 'light' : 'dark' })} />
         </label>
-      ) : null}
-      {bg.type === 'image' ? (
-        <ImageField value={bg.value} onChange={(url) => setTheme({ background: { type: 'image', value: url } })} />
-      ) : null}
-
-      <Slider label={t('design.cardOpacity')} min={0} max={100} value={theme.cardOpacity} onChange={(v) => setTheme({ cardOpacity: v })} />
-      <Slider label={t('design.cardBlur')} min={0} max={40} value={theme.cardBlur} onChange={(v) => setTheme({ cardBlur: v })} />
-      <Slider label={t('design.cardRadius')} min={8} max={40} value={theme.cardRadius} onChange={(v) => setTheme({ cardRadius: v })} />
-
-      <label className="spe-f spe-f-row"><span>{t('design.textLight')}</span>
-        <input type="checkbox" checked={theme.textColor === 'light'} onChange={(e) => setTheme({ textColor: e.target.checked ? 'light' : 'dark' })} />
-      </label>
-      <label className="spe-f spe-f-row"><span>{t('design.bold')}</span>
-        <input type="checkbox" checked={!!theme.bold} onChange={(e) => setTheme({ bold: e.target.checked })} />
-      </label>
-      <label className="spe-f spe-f-row"><span>{t('design.center')}</span>
-        <input type="checkbox" checked={theme.textAlign === 'center'} onChange={(e) => setTheme({ textAlign: e.target.checked ? 'center' : 'start' })} />
-      </label>
+        <label className="spe-f spe-f-row"><span>{t('design.bold')}</span>
+          <input type="checkbox" checked={!!theme.bold} onChange={(e) => setTheme({ bold: e.target.checked })} />
+        </label>
+        <label className="spe-f spe-f-row"><span>{t('design.center')}</span>
+          <input type="checkbox" checked={theme.textAlign === 'center'} onChange={(e) => setTheme({ textAlign: e.target.checked ? 'center' : 'start' })} />
+        </label>
+      </div>
 
       {/* Lead-capture settings (config) — pages with a form section. */}
-      {kind === 'lead' ? <LeadSettings config={config || {}} setConfig={setConfig} /> : null}
+      {kind === 'lead' ? <div className="spe-group"><LeadSettings config={config || {}} setConfig={setConfig} /></div> : null}
     </div>
   )
 }

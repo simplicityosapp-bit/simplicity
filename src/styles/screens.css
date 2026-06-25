@@ -305,7 +305,9 @@
   .app[data-screen="reports"] .screen > *,
   .app[data-screen="leads"] .screen > *,
   .app[data-screen="insights"] .screen > *,
-  .app[data-screen="calendar"] .screen > * {
+  .app[data-screen="calendar"] .screen > *,
+  /* page-builder hub — a card grid → wide tier (the editor is full-bleed .spe). */
+  .app[data-screen="sitePages"] .screen > * {
     max-width: var(--mg-content-wide);
     margin-inline: auto;
   }

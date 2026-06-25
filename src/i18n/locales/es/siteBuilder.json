@@ -48,7 +48,12 @@
     "cardRadius": "Redondeo de esquinas",
     "textLight": "Texto claro (para fondos oscuros)",
     "bold": "Negrita",
-    "center": "Centrar"
+    "center": "Centrar",
+    "grpAddress": "Dirección",
+    "grpTypography": "Tipografía y color",
+    "grpBackground": "Fondo",
+    "grpCards": "Tarjetas",
+    "grpText": "Texto"
   },
   "settings": {
     "title": "Ajustes del formulario",

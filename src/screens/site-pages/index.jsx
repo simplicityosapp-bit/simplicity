@@ -72,14 +72,15 @@ export default function SitePagesScreen() {
       {ENGINE_KINDS.has(kind) ? (
         <>
           <div className="spg-toolbar">
-            <button className="cta-add" onClick={createPage}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
+            <button className="spg-new" onClick={createPage}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
           </div>
           {loading ? (
             <p className="spg-muted">{t('hub.loading')}</p>
           ) : list.length === 0 ? (
-            <div className="spg-empty">
-              <LayoutTemplate size={32} />
-              <p>{t('hub.emptyText')}</p>
+            <div className="empty">
+              <span className="empty-icon"><LayoutTemplate size={28} /></span>
+              <p className="empty-text">{t('hub.emptyText')}</p>
+              <button className="empty-action" onClick={createPage}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
             </div>
           ) : (
             <ul className="spg-grid">
@@ -90,10 +91,10 @@ export default function SitePagesScreen() {
                     <span className={`spg-badge${p.published ? ' is-pub' : ''}`}>{p.published ? t('hub.badgePublished') : t('hub.badgeDraft')}</span>
                   </div>
                   <div className="spg-card-actions">
-                    <button onClick={() => setEditingId(p.id)} title={t('hub.edit')}><Pencil size={15} /></button>
-                    <button onClick={() => copyLink(p)} title={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</button>
-                    {p.published ? <a href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')}><ExternalLink size={15} /></a> : null}
-                    <button onClick={() => removePage(p.id)} title={t('hub.delete')}><Trash2 size={15} /></button>
+                    <button onClick={() => setEditingId(p.id)} title={t('hub.edit')} aria-label={t('hub.edit')}><Pencil size={15} /></button>
+                    <button onClick={() => copyLink(p)} title={t('hub.copyLink')} aria-label={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</button>
+                    {p.published ? <a href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')} aria-label={t('hub.open')}><ExternalLink size={15} /></a> : null}
+                    <button onClick={() => removePage(p.id)} title={t('hub.delete')} aria-label={t('hub.delete')}><Trash2 size={15} /></button>
                   </div>
                 </li>
               ))}

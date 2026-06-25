@@ -634,6 +634,35 @@
   border-color: color-mix(in srgb, var(--sage) 40%, transparent);
 }
 
+/* Card footer — holds the convert chip / converted badge alongside the
+   direct WhatsApp action so neither overlaps the corner delete X. */
+.lead-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+.lead-card-foot .lead-convert-btn { flex: 1; justify-content: center; margin-top: 0; }
+.lead-card-foot .lead-converted { margin-top: 0; }
+.lead-wa-btn {
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  color: var(--sage);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.lead-wa-btn:hover {
+  background: color-mix(in srgb, var(--sage) 16%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+}
+
 /* ── Pending leads (public-page submissions awaiting approval) ─────────── */
 .l-pending {
   margin-bottom: 20px;
@@ -699,3 +728,13 @@
   color: var(--stone); cursor: pointer;
 }
 .l-pending-reject:hover { color: var(--terracotta); border-color: color-mix(in srgb, var(--terracotta) 40%, transparent); }
+/* WhatsApp the hot lead before approving — same footprint as reject, sage tint. */
+.l-pending-wa {
+  display: inline-grid;
+  place-items: center;
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--sage) 40%, transparent);
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
+  color: var(--sage); cursor: pointer;
+}
+.l-pending-wa:hover { background: color-mix(in srgb, var(--sage) 22%, transparent); }

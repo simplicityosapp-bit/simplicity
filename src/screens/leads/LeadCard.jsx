@@ -2,10 +2,13 @@ import { memo } from 'react'
 import { Clock, Check, CalendarDays, ArrowLeft, X } from 'lucide-react'
 import { statusMetaOfLead } from '../../lib/leads'
 import { fmtShortDate } from '../../lib/dates'
+import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
+import WhatsAppButton from '../../components/WhatsAppButton'
 import { useT } from '../../i18n/useT'
 
 function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = [], dragProps = null, dragging = false }) {
   const { t } = useT('leads')
+  const waMsg = useWhatsAppMessage()
   const meta = statusMetaOfLead(lead)
   const source = lead.source_id ? sources.find((s) => s.id === lead.source_id) : null
   const sub = lead.status_id ? statuses.find((s) => s.id === lead.status_id) : null
@@ -62,20 +65,32 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
         </div>
       )}
 
-      {isConverted && (
-        <div className="lead-converted">
-          <Check size={12} strokeWidth={2} aria-hidden="true" /> {t('card.converted')}
+      {(isConverted || onConvert || lead.phone) && (
+        <div className="lead-card-foot">
+          {isConverted && (
+            <div className="lead-converted">
+              <Check size={12} strokeWidth={2} aria-hidden="true" /> {t('card.converted')}
+            </div>
+          )}
+          {!isConverted && onConvert && (
+            <button
+              type="button"
+              className="lead-convert-btn"
+              onClick={(e) => { e.stopPropagation(); onConvert(lead) }}
+            >
+              <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" /> {t('card.convert')}
+            </button>
+          )}
+          {/* Direct WhatsApp — the daily action for a coach; stops propagation
+             so it doesn't open edit or start a drag (usePointerDnd ignores buttons). */}
+          {lead.phone && (
+            <WhatsAppButton
+              phone={lead.phone}
+              message={waMsg('lead', { name: lead.name })}
+              triggerClassName="lead-wa-btn"
+            />
+          )}
         </div>
-      )}
-
-      {!isConverted && onConvert && (
-        <button
-          type="button"
-          className="lead-convert-btn"
-          onClick={(e) => { e.stopPropagation(); onConvert(lead) }}
-        >
-          <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" /> {t('card.convert')}
-        </button>
       )}
     </div>
   )

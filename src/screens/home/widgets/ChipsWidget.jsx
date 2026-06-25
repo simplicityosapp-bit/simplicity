@@ -25,11 +25,11 @@ import { useT } from '../../../i18n/useT'
    to the corresponding screen for full management. */
 export default function ChipsWidget() {
   const { t } = useT('home')
-  const { clients } = useClients()
+  const { clients, loading: clientsLoading } = useClients()
   const { groups } = useGroups()
   const { projects } = useProjects()
   const { tasks } = useTasks()
-  const { transactions } = useTransactions()
+  const { transactions, loading: txLoading } = useTransactions()
   const { categories } = useCategories()
   const { meetings, updateMeeting } = useScheduledMeetings()
   const { events: calendarEvents } = useCalendarEvents()
@@ -50,6 +50,9 @@ export default function ChipsWidget() {
     () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }, filters.today),
     [meetings, calendarEvents, leads, clients, groups, filters.today],
   )
+  /* First-load gate: show a soft placeholder instead of flashing 0 / 0₪ while
+     the core data is still arriving (the numbers then settle without a jump). */
+  const coreLoading = clientsLoading || txLoading
   const numLocale = i18n.language === 'he' ? 'he-IL' : (i18n.language || 'he-IL')
   const netStr = `${summary.net < 0 ? '−' : ''}${Math.round(Math.abs(summary.net)).toLocaleString(numLocale)} ₪`
   /* Long amounts overflowed the narrow mobile chip and ran over the wallet
@@ -72,7 +75,7 @@ export default function ChipsWidget() {
       <div className="h-chips">
         <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('today')} onKeyDown={onTileKey(() => setOpenTile('today'))}>
           <CalendarClock size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-          <span className="h-stat-num mono">{today.length}</span>
+          <span className="h-stat-num mono">{coreLoading ? '··' : today.length}</span>
           <span className="h-stat-lbl">
             {t('widgets.chips.meetings')}
             <InfoPopover label={t('widgets.chips.meetingsInfoLabel')} text={t('widgets.chips.meetingsInfoText_pre') + t('widgets.chips.meetingsInfoText_post')} placement="top" />
@@ -80,7 +83,7 @@ export default function ChipsWidget() {
         </div>
         <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('net')} onKeyDown={onTileKey(() => setOpenTile('net'))}>
           <Wallet size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-          <span className={`h-stat-num mono${netSizeCls}`}>{netStr}</span>
+          <span className={`h-stat-num mono${netSizeCls}`}>{coreLoading ? '··' : netStr}</span>
           <span className="h-stat-lbl">
             {netLbl}
             <InfoPopover label={t('widgets.chips.netInfoLabel')} text={t('widgets.chips.netInfoText_pre') + t('widgets.chips.netInfoText_post')} placement="top" />
@@ -88,7 +91,7 @@ export default function ChipsWidget() {
         </div>
         <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('clients')} onKeyDown={onTileKey(() => setOpenTile('clients'))}>
           <Users size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-          <span className="h-stat-num mono">{summary.activeClients}</span>
+          <span className="h-stat-num mono">{coreLoading ? '··' : summary.activeClients}</span>
           <span className="h-stat-lbl">
             {t('widgets.chips.clients')}
             <InfoPopover label={t('widgets.chips.clientsInfoLabel')} text={t('widgets.chips.clientsInfoText_pre') + t('widgets.chips.clientsInfoText_post')} placement="top" />

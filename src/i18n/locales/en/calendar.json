@@ -103,5 +103,6 @@
     "dayLabel": "{{weekday}}, {{month}} {{day}}",
     "monthYear": "{{month}} {{year}}"
   },
-  "scheduleAt": "Schedule a meeting at {{time}}"
+  "scheduleAt": "Schedule a meeting at {{time}}",
+  "loading": "Loading…"
 }

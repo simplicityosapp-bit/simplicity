@@ -72,7 +72,16 @@
     "clearFixed": "Clear fixed meeting",
     "noGroup": "No group",
     "meetingType": "Meeting type",
-    "manageMeetingTypes": "Manage types"
+    "manageMeetingTypes": "Manage types",
+    "secDetails": "Details",
+    "secScheduling": "Sessions & scheduling",
+    "secBilling": "Billing & payments",
+    "secGroups": "Groups",
+    "fPersonal": "Personal",
+    "fGroups": "Groups",
+    "fDiscount": "Written off",
+    "confirmBalanceTitle": "Update balance",
+    "confirmBalanceMsg": "The balance changed to {{balance}}. Save?"
   },
   "meetingTypes": {
     "title": "Meeting types",

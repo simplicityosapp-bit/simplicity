@@ -72,7 +72,16 @@
     "clearFixed": "Effacer le rendez-vous fixe",
     "noGroup": "Aucun groupe",
     "meetingType": "Type de rendez-vous",
-    "manageMeetingTypes": "Gérer les types"
+    "manageMeetingTypes": "Gérer les types",
+    "secDetails": "Détails",
+    "secScheduling": "Séances et planning",
+    "secBilling": "Facturation et paiements",
+    "secGroups": "Groupes",
+    "fPersonal": "Individuel",
+    "fGroups": "Groupes",
+    "fDiscount": "Annulé",
+    "confirmBalanceTitle": "Mettre à jour le solde",
+    "confirmBalanceMsg": "Le solde est passé à {{balance}}. Enregistrer ?"
   },
   "meetingTypes": {
     "title": "Types de rendez-vous",

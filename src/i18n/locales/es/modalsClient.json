@@ -72,7 +72,16 @@
     "clearFixed": "Borrar cita fija",
     "noGroup": "Sin grupo",
     "meetingType": "Tipo de cita",
-    "manageMeetingTypes": "Gestionar tipos"
+    "manageMeetingTypes": "Gestionar tipos",
+    "secDetails": "Detalles",
+    "secScheduling": "Sesiones y horario",
+    "secBilling": "Cobros y pagos",
+    "secGroups": "Grupos",
+    "fPersonal": "Individual",
+    "fGroups": "Grupos",
+    "fDiscount": "Condonado",
+    "confirmBalanceTitle": "Actualizar saldo",
+    "confirmBalanceMsg": "El saldo cambió a {{balance}}. ¿Guardar?"
   },
   "meetingTypes": {
     "title": "Tipos de cita",

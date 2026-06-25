@@ -1,12 +1,17 @@
 import { useMemo, useState } from 'react'
-import { ClipboardList, Wallet, Users } from 'lucide-react'
-import { homeChips, getTileFilters } from '../../../lib/homeData'
+import { CalendarClock, Wallet, Users } from 'lucide-react'
+import { homeChips, getTileFilters, todayItems } from '../../../lib/homeData'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
 import { useProjects } from '../../../hooks/useProjects'
 import { useTasks } from '../../../hooks/useTasks'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useCategories } from '../../../hooks/useCategories'
+import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
+import { useCalendarEvents } from '../../../hooks/useCalendarEvents'
+import { useLeads } from '../../../hooks/useLeads'
+import { useSessions } from '../../../hooks/useSessions'
+import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import InfoPopover from '../../../components/InfoPopover'
 import TileDrillModal from '../../../modals/TileDrillModal'
@@ -26,6 +31,11 @@ export default function ChipsWidget() {
   const { tasks } = useTasks()
   const { transactions } = useTransactions()
   const { categories } = useCategories()
+  const { meetings, updateMeeting } = useScheduledMeetings()
+  const { events: calendarEvents } = useCalendarEvents()
+  const { leads } = useLeads()
+  const { sessions, addSession } = useSessions()
+  const waMsg = useWhatsAppMessage()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [openTile, setOpenTile] = useState(null)
 
@@ -33,6 +43,12 @@ export default function ChipsWidget() {
   const summary = useMemo(
     () => homeChips(new Date(), { clients, tasks, transactions }, filters),
     [clients, tasks, transactions, filters],
+  )
+  /* Today's agenda count drives the bottom chip; the same list feeds the
+     drill panel. Sources + which-kinds-count are controlled by filters.today. */
+  const today = useMemo(
+    () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }, filters.today),
+    [meetings, calendarEvents, leads, clients, groups, filters.today],
   )
   const numLocale = i18n.language === 'he' ? 'he-IL' : (i18n.language || 'he-IL')
   const netStr = `${summary.net < 0 ? '−' : ''}${Math.round(Math.abs(summary.net)).toLocaleString(numLocale)} ₪`
@@ -54,12 +70,12 @@ export default function ChipsWidget() {
   return (
     <>
       <div className="h-chips">
-        <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('tasks')} onKeyDown={onTileKey(() => setOpenTile('tasks'))}>
-          <ClipboardList size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-          <span className="h-stat-num mono">{summary.openTasks}</span>
+        <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('today')} onKeyDown={onTileKey(() => setOpenTile('today'))}>
+          <CalendarClock size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
+          <span className="h-stat-num mono">{today.length}</span>
           <span className="h-stat-lbl">
-            {t('widgets.chips.tasks')}
-            <InfoPopover label={t('widgets.chips.tasksInfoLabel')} text={t('widgets.chips.tasksInfoText_pre') + t('widgets.chips.tasksInfoText_post')} placement="top" />
+            {t('widgets.chips.meetings')}
+            <InfoPopover label={t('widgets.chips.meetingsInfoLabel')} text={t('widgets.chips.meetingsInfoText_pre') + t('widgets.chips.meetingsInfoText_post')} placement="top" />
           </span>
         </div>
         <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('net')} onKeyDown={onTileKey(() => setOpenTile('net'))}>
@@ -94,6 +110,13 @@ export default function ChipsWidget() {
         tasks={tasks}
         transactions={transactions}
         netSummary={summary}
+        meetings={meetings}
+        calendarEvents={calendarEvents}
+        leads={leads}
+        sessions={sessions}
+        addSession={addSession}
+        updateMeeting={updateMeeting}
+        waMsg={waMsg}
       />
     </>
   )

@@ -61,7 +61,13 @@
       "clientsInfoText_pre": "לחץ/י",
       "clientsInfoText_pre_male": "לחץ",
       "clientsInfoText_pre_female": "לחצי",
-      "clientsInfoText_post": " על הכרטיס כדי לסנן לפי סטטוס, פרויקט וקבוצה. ברירת מחדל: פעיל + ביניים."
+      "clientsInfoText_post": " על הכרטיס כדי לסנן לפי סטטוס, פרויקט וקבוצה. ברירת מחדל: פעיל + ביניים.",
+      "meetings": "פגישות היום",
+      "meetingsInfoLabel": "הסבר פגישות היום",
+      "meetingsInfoText_pre": "לחץ/י",
+      "meetingsInfoText_pre_male": "לחץ",
+      "meetingsInfoText_pre_female": "לחצי",
+      "meetingsInfoText_post": " על הכרטיס כדי לראות את פגישות היום, אירועי היומן ומעקבי הלידים — ולשלוט במה שנכלל."
     },
     "insights": {
       "expand": "פתיחת מה איתך היום",

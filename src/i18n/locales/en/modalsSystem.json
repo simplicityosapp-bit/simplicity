@@ -132,11 +132,20 @@
   "tileDrill": {
     "close": "Close",
     "openFull": "Open in full",
-    "dayLabels": ["S", "M", "T", "W", "T", "F", "S"],
+    "dayLabels": [
+      "S",
+      "M",
+      "T",
+      "W",
+      "T",
+      "F",
+      "S"
+    ],
     "titles": {
       "clients": "Clients",
       "net": "Net",
-      "tasks": "Tasks"
+      "tasks": "Tasks",
+      "today": "Today"
     },
     "status": {
       "active": "Active",
@@ -210,6 +219,19 @@
       "emptyFilter": "No tasks match the filter.",
       "moreCount": "+{{count}} more",
       "noProjects": "No projects yet"
+    },
+    "today": {
+      "matchingNum": "items today",
+      "kindsLbl": "What to show",
+      "listSection": "Today",
+      "empty": "Nothing scheduled for today",
+      "allDay": "All day",
+      "markHappened": "Mark as happened"
+    },
+    "todayKinds": {
+      "meeting": "Meeting",
+      "calendar": "Calendar",
+      "followup": "Follow-up"
     }
   }
 }

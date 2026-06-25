@@ -132,11 +132,20 @@
   "tileDrill": {
     "close": "Cerrar",
     "openFull": "Abrir en pantalla completa",
-    "dayLabels": ["D", "L", "M", "X", "J", "V", "S"],
+    "dayLabels": [
+      "D",
+      "L",
+      "M",
+      "X",
+      "J",
+      "V",
+      "S"
+    ],
     "titles": {
       "clients": "Clientes",
       "net": "Neto",
-      "tasks": "Tareas"
+      "tasks": "Tareas",
+      "today": "Hoy"
     },
     "status": {
       "active": "Activo",
@@ -210,6 +219,19 @@
       "emptyFilter": "Ninguna tarea coincide con el filtro.",
       "moreCount": "+{{count}} más",
       "noProjects": "Aún no hay proyectos"
+    },
+    "today": {
+      "matchingNum": "elementos hoy",
+      "kindsLbl": "Qué mostrar",
+      "listSection": "Hoy",
+      "empty": "Nada programado para hoy",
+      "allDay": "Todo el día",
+      "markHappened": "Marcar como realizada"
+    },
+    "todayKinds": {
+      "meeting": "Reunión",
+      "calendar": "Calendario",
+      "followup": "Seguimiento"
     }
   }
 }

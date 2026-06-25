@@ -41,7 +41,11 @@
       "clients": "Clients",
       "clientsInfoLabel": "About clients",
       "clientsInfoText_pre": "Tap",
-      "clientsInfoText_post": " the card to filter by status, project and group. Default: active + mid."
+      "clientsInfoText_post": " the card to filter by status, project and group. Default: active + mid.",
+      "meetings": "Today's meetings",
+      "meetingsInfoLabel": "About today's meetings",
+      "meetingsInfoText_pre": "Tap",
+      "meetingsInfoText_post": " the card to see today's meetings, calendar events, and lead follow-ups — and control what's included."
     },
     "insights": {
       "expand": "Open \"How are you today\"",

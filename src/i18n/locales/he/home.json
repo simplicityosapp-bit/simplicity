@@ -39,7 +39,8 @@
       "count_two": "{{count}} פריטים",
       "count_many": "{{count}} פריטים",
       "dup_two": "{{count}} כפילויות ביומן מול גוגל",
-      "dup_many": "{{count}} כפילויות ביומן מול גוגל"
+      "dup_many": "{{count}} כפילויות ביומן מול גוגל",
+      "reachOut": "פנייה מהירה"
     },
     "chips": {
       "tasks": "משימות",

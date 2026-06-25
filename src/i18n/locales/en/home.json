@@ -25,7 +25,8 @@
       "meetingsModalTitle": "Meetings to confirm",
       "bookings_one": "New booking to confirm",
       "bookings_other": "{{count}} new bookings to confirm",
-      "bookingsModalTitle": "Bookings to confirm"
+      "bookingsModalTitle": "Bookings to confirm",
+      "reachOut": "Quick reach-out"
     },
     "chips": {
       "tasks": "Tasks",

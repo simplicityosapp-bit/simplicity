@@ -232,6 +232,7 @@ export async function finalizeOnboardingImport(input = {}) {
         recurring_time: null,
         left_mid_process: false,
         phone: c.phone || null,
+        email: c.email || null,
         address: c.address || null,
         birth_date: c.birth_date || null,
         notes: c.notes || null,

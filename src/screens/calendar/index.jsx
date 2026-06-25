@@ -7,6 +7,7 @@ import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useSessions } from '../../hooks/useSessions'
 import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetingsGeneration'
 import { confirmScheduledMeeting, skipScheduledMeeting } from '../../lib/scheduledMeetings'
+import { showToast, showError } from '../../lib/toast'
 import { useCalendarDuplicates } from '../../hooks/useCalendarDuplicates'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
 import { useBookings } from '../../hooks/useBookings'
@@ -91,7 +92,9 @@ export default function CalendarScreen() {
 
   /* Mark a lead's follow-up as done from the calendar — clears the date so
      the event drops off (the lead itself stays in its column). */
-  const markFollowupDone = (ev) => updateLead(ev.raw.id, { follow_up_date: null }).catch(() => {})
+  const markFollowupDone = (ev) => updateLead(ev.raw.id, { follow_up_date: null })
+    .then(() => showToast(t('toast.followupDone')))
+    .catch(() => showError(t('toast.actionFailed')))
 
   /* Calendar duplicates: an app recurring meeting that collides with a synced
      Google event for the same subject/day/time. Surfaced as a banner here +
@@ -247,7 +250,7 @@ export default function CalendarScreen() {
   const confirmMeeting = (ev) => {
     const m = ev.raw
     const c = m?.subject_type === 'client' ? clients.find((x) => x.id === m.subject_id) : null
-    if (c?.billing_mode === 'per_session') return updateMeeting(m.id, { status: 'confirmed' }).catch(() => {})
+    if (c?.billing_mode === 'per_session') return updateMeeting(m.id, { status: 'confirmed' }).then(() => showToast(t('toast.meetingConfirmed'))).catch(() => showError(t('toast.actionFailed')))
     return confirmScheduledMeeting({ meeting: m, sessions, addSession, updateMeeting })
   }
   const skipMeeting = (ev) => skipScheduledMeeting({ meeting: ev.raw, updateMeeting, removeSession })
@@ -277,7 +280,7 @@ export default function CalendarScreen() {
       subject_type: 'client',
       subject_id: c.id,
       num,
-    }).catch(() => {})
+    }).then(() => showToast(t('toast.meetingConfirmed'))).catch(() => showError(t('toast.actionFailed')))
   }
   const completeReminderHandler = (ev) => completeReminder(ev.id)
   const removeReminderHandler = (ev) => removeReminder(ev.id)

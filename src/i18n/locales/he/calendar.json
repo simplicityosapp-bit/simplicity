@@ -104,5 +104,11 @@
     "monthYear": "{{month}} {{year}}"
   },
   "scheduleAt": "קבע פגישה ב-{{time}}",
-  "loading": "טוען…"
+  "loading": "טוען…",
+  "toast": {
+    "meetingConfirmed": "הפגישה סומנה כהתקיימה",
+    "meetingSkipped": "הפגישה דולגה",
+    "followupDone": "המעקב סומן כבוצע",
+    "actionFailed": "הפעולה נכשלה. נסו שוב."
+  }
 }

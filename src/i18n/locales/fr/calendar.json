@@ -104,5 +104,11 @@
     "monthYear": "{{month}} {{year}}"
   },
   "scheduleAt": "Planifier un rendez-vous à {{time}}",
-  "loading": "Chargement…"
+  "loading": "Chargement…",
+  "toast": {
+    "meetingConfirmed": "Rendez-vous marqué comme effectué",
+    "meetingSkipped": "Rendez-vous ignoré",
+    "followupDone": "Relance marquée comme faite",
+    "actionFailed": "L'action a échoué. Réessayez."
+  }
 }

@@ -183,8 +183,11 @@ export default function ClientsScreen() {
   const tabClients = useMemo(() => byMeta[tab] || [], [byMeta, tab])
   /* Source list — when grouping by project, all live clients participate
      (so projects with mixed-meta clients still show); the tab filter applies
-     only inside the status mode. */
-  const sourceClients = groupBy === 'project' ? clientList : tabClients
+     only inside the status mode.
+     The "יתרה פתוחה" filter is cross-status by design: when ON it surfaces
+     EVERY client who still owes — active, wandering AND past — not just the
+     current tab (beta feedback 24/06; owner chose to include past too). */
+  const sourceClients = (groupBy === 'project' || balanceOnly) ? clientList : tabClients
   const list = useMemo(() => {
     const q = query.trim()
     let filtered = q ? sourceClients.filter((c) => (c.name || '').includes(q)) : sourceClients
@@ -193,10 +196,12 @@ export default function ClientsScreen() {
     return sortClients(filtered, sort, { balanceByClient, paidByClient })
   }, [sourceClients, query, sort, balanceOnly, balanceByClient, paidByClient])
 
-  /* How many clients in the current view still owe — shown on the filter pill. */
+  /* How many clients still owe — shown on the filter pill. Counted across ALL
+     statuses (not just the current tab) so the pill is a stable "N owe you" CTA
+     that matches what the cross-status balance filter surfaces when toggled on. */
   const openBalanceCount = useMemo(
-    () => sourceClients.filter((c) => (balanceByClient.get(c.id)?.balance || 0) > 0).length,
-    [sourceClients, balanceByClient],
+    () => clientList.filter((c) => (balanceByClient.get(c.id)?.balance || 0) > 0).length,
+    [clientList, balanceByClient],
   )
 
   /* Project bucket lookup for the grouped view. Includes a "no project"

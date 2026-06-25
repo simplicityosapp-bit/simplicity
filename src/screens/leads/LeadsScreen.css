@@ -548,7 +548,7 @@
   margin-bottom: 8px;
   padding: 2px 9px;
   border-radius: 10px;
-  background: rgba(122, 92, 184, 0.1);
+  background: var(--purple-faint);
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   font-weight: 500;
@@ -650,7 +650,7 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
-  color: var(--ink);
+  color: var(--espresso);
 }
 .l-pending-title { font-size: 15px; font-weight: 600; }
 .l-pending-count {
@@ -662,7 +662,7 @@
   padding: 2px 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--terracotta) 20%, transparent);
-  color: var(--ink);
+  color: var(--espresso);
 }
 .l-pending-list { display: flex; flex-direction: column; gap: 10px; }
 .l-pending-card {
@@ -681,14 +681,14 @@
 .l-pending-fields { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0; }
 .l-pending-field { display: flex; gap: 6px; align-items: baseline; }
 .l-pending-field dt { font-size: 12px; color: var(--stone); margin: 0; flex: none; }
-.l-pending-field dd { font-size: 14px; color: var(--ink); margin: 0; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.l-pending-field dd { font-size: 14px; color: var(--espresso); margin: 0; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .l-pending-actions { display: flex; align-items: center; gap: 8px; flex: none; }
 .l-pending-approve {
   display: inline-flex; align-items: center; gap: 5px;
   font: inherit; font-size: 14px; font-weight: 500;
   padding: 8px 16px; border-radius: 10px; border: none;
   background: color-mix(in srgb, var(--sage) 26%, transparent);
-  color: var(--ink); cursor: pointer;
+  color: var(--espresso); cursor: pointer;
 }
 .l-pending-approve:hover { background: color-mix(in srgb, var(--sage) 38%, transparent); }
 .l-pending-reject {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Search, ArrowUpDown, X, UserPlus, Wallet, ChevronLeft } from 'lucide-react'
 import { effectiveClientMeta, paidForClients, sessionsCountForClients, clientBalance } from '../../lib/clients'
@@ -247,13 +247,13 @@ export default function ClientsScreen() {
 
   const setSort = (patch) => updatePrefs?.({ clientsSort: { ...sort, ...patch } })
 
-  const toggleSelect = (id) => {
+  const toggleSelect = useCallback((id) => {
     setSelectedIds((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id); else next.add(id)
       return next
     })
-  }
+  }, [])
 
   const selectedClients = useMemo(
     () => list.filter((c) => selectedIds.has(c.id)),

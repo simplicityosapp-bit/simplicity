@@ -59,8 +59,8 @@ export default function PendingLeadsSection({ pending = [], pages = [], onApprov
               <div className="l-pending-info">
                 {page?.title ? <p className="l-pending-source">מתוך: {page.title}</p> : null}
                 <dl className="l-pending-fields">
-                  {rowsFor(lead).map((r, i) => (
-                    <div className="l-pending-field" key={i}>
+                  {rowsFor(lead).map((r) => (
+                    <div className="l-pending-field" key={`${lead.id}-${r.label}`}>
                       <dt>{r.label}</dt>
                       <dd>{r.value}</dd>
                     </div>

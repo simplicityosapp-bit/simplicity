@@ -161,12 +161,15 @@ export default function LeadsScreen() {
   const applyLeadMove = useCallback((leadId, newMeta, statusId) => {
     const lead = leadList.find((l) => l.id === leadId)
     const prev = lead
-      ? { status_meta: lead.status_meta ?? null, status_id: lead.status_id ?? null, last_status_changed_at: lead.last_status_changed_at ?? null }
+      ? { status_meta: lead.status_meta ?? null, status_id: lead.status_id ?? null, last_status_changed_at: lead.last_status_changed_at ?? null, converted_at: lead.converted_at ?? null, converted_to_client_id: lead.converted_to_client_id ?? null }
       : null
     const next = {
       status_meta: newMeta,
       status_id: statusId ?? null,
       last_status_changed_at: new Date().toISOString(),
+      /* Moving OUT of "converted" clears the conversion stamp so the drag path
+         matches EditLeadModal — analytics never see an orphaned converted_at. */
+      ...(newMeta !== 'converted' ? { converted_at: null, converted_to_client_id: null } : {}),
     }
     updateLead(leadId, next, { source: 'manual_drag' })
       .then(() => {
@@ -179,7 +182,7 @@ export default function LeadsScreen() {
         }
       })
       .catch(() => { /* error surfaces via useLeads state */ })
-  }, [leadList, updateLead])
+  }, [leadList, updateLead, t])
 
   /* Drag-drop between meta columns. No-op on same column. If the target
      column has 2+ sub-statuses, ask which one; exactly 1 → auto-assign;

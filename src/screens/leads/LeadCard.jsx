@@ -10,7 +10,7 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
   const source = lead.source_id ? sources.find((s) => s.id === lead.source_id) : null
   const sub = lead.status_id ? statuses.find((s) => s.id === lead.status_id) : null
   const today = new Date().toISOString().slice(0, 10)
-  const overdue = lead.follow_up_date && lead.follow_up_date <= today && meta === 'in_process'
+  const overdue = lead.follow_up_date && String(lead.follow_up_date).slice(0, 10) <= today && meta === 'in_process'
   const isConverted = meta === 'converted' && lead.converted_to_client_id
 
   return (

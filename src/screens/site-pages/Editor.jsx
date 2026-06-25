@@ -363,8 +363,6 @@ function Descriptor({ d, value, onChange }) {
       return <ListField d={d} value={value} onChange={onChange} />
     case 'formFields':
       return <FormFieldsEditor value={value} onChange={onChange} />
-    case 'availability':
-      return <div className="spe-f"><span>{label}</span><p className="spe-note">{t('inspector.availabilityNote')}</p></div>
     default:
       return null
   }

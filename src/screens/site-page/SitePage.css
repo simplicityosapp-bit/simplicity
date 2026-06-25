@@ -160,6 +160,10 @@
 .sp-form-error { margin: 16px 0 0; font-size: 14px; color: #c0432e; text-align: center; }
 .sp-muted { color: #6b6358; font-size: 15px; }
 
+/* Booking block — a link-out card. */
+.sp-booking .sp-btn { margin-top: 14px; }
+.sp-booking-hint { margin-top: 12px; }
+
 /* Form success state (public page, after submit). */
 .sp-form-done { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .sp-check { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-size: 28px; color: #fff; background: var(--sp-brand); }

@@ -231,14 +231,23 @@ function FormBlock({ section, interactive, runtime }) {
   )
 }
 
-/* Booking block — visual shell for phase 1.2. The live slot-picker + submit is
-   wired in a later sub-task (it needs the booking-intake edge function). */
-function BookingBlock({ props }) {
+/* Booking block — a branded card that links out to the coach's existing
+   booking page (/book/<slug>). A native in-page slot-picker is a future phase. */
+function BookingBlock({ props, interactive }) {
   const { t } = useT('siteBuilder')
+  const slug = str(props.bookingSlug)
+  const href = slug ? `${window.location.origin}/book/${encodeURIComponent(slug)}` : null
   return (
     <div className="sp-card sp-booking">
       {str(props.heading) ? <h2 className="sp-h2">{props.heading}</h2> : null}
-      <p className="sp-muted">{t('renderer.bookingPlaceholder')}</p>
+      {str(props.subheading) ? <p className="sp-sub">{props.subheading}</p> : null}
+      {href ? (
+        <a className="sp-btn sp-btn-primary" href={interactive ? href : undefined}
+          target="_blank" rel="noopener noreferrer"
+          onClick={(e) => { if (!interactive) e.preventDefault() }}>
+          {str(props.buttonLabel) || t('renderer.bookingButton')}
+        </a>
+      ) : (!interactive ? <p className="sp-muted sp-booking-hint">{t('renderer.bookingHint')}</p> : null)}
     </div>
   )
 }
@@ -256,7 +265,7 @@ function Section({ section, interactive, runtime }) {
     return <section className={wrapCls} data-sid={section.id}><FormBlock section={section} interactive={interactive} runtime={runtime} /></section>
   }
   if (type === 'booking') {
-    return <section className={wrapCls} data-sid={section.id}><BookingBlock props={section.props || {}} /></section>
+    return <section className={wrapCls} data-sid={section.id}><BookingBlock props={section.props || {}} interactive={interactive} /></section>
   }
   const Comp = BLOCK_COMPONENT[type]
   if (!Comp) return null

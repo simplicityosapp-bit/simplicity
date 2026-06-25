@@ -201,12 +201,15 @@ export const BLOCK_TYPES = {
   },
   booking: {
     label: 'תיאום תור', icon: 'CalendarClock',
-    // The booking block references the booking contract (availability + meeting
-    // types live in the page `config`, mirroring booking_pages today).
-    defaultProps: { heading: 'קביעת פגישה' },
+    // Links out to the coach's existing booking page (/book/<slug>), which is
+    // served by the robust booking system. A native in-page slot-picker is a
+    // future phase; this safely connects a landing page to booking today.
+    defaultProps: { heading: 'קביעת פגישה', subheading: '', bookingSlug: '', buttonLabel: 'לקביעת תור' },
     editable: [
       { key: 'heading', label: 'כותרת', type: 'text' },
-      { key: 'availability', label: 'זמינות', type: 'availability' },
+      { key: 'subheading', label: 'תיאור', type: 'textarea' },
+      { key: 'bookingSlug', label: 'כתובת דף הפגישות (הסלאג מ-/book/…)', type: 'text' },
+      { key: 'buttonLabel', label: 'טקסט הכפתור', type: 'text' },
     ],
   },
   spacer: {

@@ -87,7 +87,8 @@
   },
   "renderer": {
     "imageEmpty": "Imagen",
-    "bookingPlaceholder": "El selector de horario aparecerá aquí.",
+    "bookingButton": "Reservar una cita",
+    "bookingHint": "Introduce el slug de tu página de reservas en el panel lateral.",
     "thankYouDefault": "¡Gracias! Recibimos tus datos y te contactaremos.",
     "submit": "Enviar",
     "empty": "La página está vacía — añade tu primera sección."

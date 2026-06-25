@@ -87,7 +87,8 @@
   },
   "renderer": {
     "imageEmpty": "Image",
-    "bookingPlaceholder": "The time picker will appear here.",
+    "bookingButton": "Book a time",
+    "bookingHint": "Enter your booking page slug in the side panel.",
     "thankYouDefault": "Thanks! We got your details and will be in touch.",
     "submit": "Submit",
     "empty": "The page is empty — add your first section."

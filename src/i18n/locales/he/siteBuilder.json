@@ -87,7 +87,8 @@
   },
   "renderer": {
     "imageEmpty": "תמונה",
-    "bookingPlaceholder": "בחירת מועד תופיע כאן.",
+    "bookingButton": "לקביעת תור",
+    "bookingHint": "הזינו בפאנל הצד את הסלאג של דף הפגישות שלכם.",
     "thankYouDefault": "תודה! קיבלנו את הפרטים ונחזור אליכם.",
     "submit": "שליחה",
     "empty": "הדף ריק — הוסיפו סקשן ראשון."

@@ -87,7 +87,8 @@
   },
   "renderer": {
     "imageEmpty": "Image",
-    "bookingPlaceholder": "Le sélecteur de créneau apparaîtra ici.",
+    "bookingButton": "Prendre rendez-vous",
+    "bookingHint": "Saisissez le slug de votre page de réservation dans le panneau latéral.",
     "thankYouDefault": "Merci ! Nous avons reçu vos coordonnées et reviendrons vers vous.",
     "submit": "Envoyer",
     "empty": "La page est vide — ajoutez votre première section."

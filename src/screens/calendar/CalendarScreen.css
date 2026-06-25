@@ -423,15 +423,15 @@
   gap: 8px;
   padding: 6px 10px;
   border-radius: var(--mg-chip-radius);
-  border: 0.5px solid rgba(139, 168, 136, 0.35);
-  background: rgba(139, 168, 136, 0.10);
+  border: 0.5px solid color-mix(in srgb, var(--sage) 35%, transparent);
+  background: color-mix(in srgb, var(--sage) 10%, transparent);
   text-align: start;
   cursor: pointer;
   font-family: var(--mg-font);
 }
 .cal-day-evt.reminder {
-  border-color: rgba(212, 165, 116, 0.40);
-  background: rgba(212, 165, 116, 0.10);
+  border-color: color-mix(in srgb, var(--amber-warn) 40%, transparent);
+  background: color-mix(in srgb, var(--amber-warn) 10%, transparent);
 }
 .cal-day-evt-time {
   font-family: var(--mg-font-num);
@@ -588,15 +588,15 @@
   gap: 1px;
   padding: 5px 6px;
   border-radius: var(--mg-chip-radius);
-  border: 0.5px solid rgba(139, 168, 136, 0.32);
-  background: rgba(139, 168, 136, 0.08);
+  border: 0.5px solid color-mix(in srgb, var(--sage) 32%, transparent);
+  background: color-mix(in srgb, var(--sage) 8%, transparent);
   text-align: start;
   cursor: pointer;
   min-width: 0;
 }
 .cal-week-evt.reminder {
-  border-color: rgba(212, 165, 116, 0.35);
-  background: rgba(212, 165, 116, 0.08);
+  border-color: color-mix(in srgb, var(--amber-warn) 35%, transparent);
+  background: color-mix(in srgb, var(--amber-warn) 8%, transparent);
 }
 /* All-day chip — dashed edge signals it spans the whole day (no time). */
 .cal-week-evt.allday {

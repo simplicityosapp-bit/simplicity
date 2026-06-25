@@ -161,9 +161,10 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       )}
 
       {/* Online payment via Grow for this income — renders only when the gateway
-          is enabled + connected (hidden while locked). On payment the webhook
-          confirms THIS transaction (no second income row is created). */}
-      {tx.type === 'income' && (
+          is enabled + connected (hidden while locked), and only for income still
+          PENDING (not yet received), so we never offer a pay link for money
+          already collected. On payment the webhook confirms THIS transaction. */}
+      {tx.type === 'income' && tx.status === 'pending' && (
         <GrowPayButton
           source="transaction"
           transactionId={tx.id}

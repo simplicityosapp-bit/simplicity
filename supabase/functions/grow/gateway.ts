@@ -177,7 +177,7 @@ export class GrowGateway {
     if (data?.status !== 1 || !url) throw new GrowError('provider_error', 'grow createPaymentProcess failed', growErrorDetail(data))
     return {
       url: String(url),
-      processId: d.processId != null ? String(d.processId) : (d.processToken ? null : null),
+      processId: d.processId != null ? String(d.processId) : null,
       processToken: d.processToken ?? d.token ?? null,
     }
   }

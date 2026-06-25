@@ -161,6 +161,24 @@ Deno.serve(async (req) => {
       const installmentId = body.installment_id ? String(body.installment_id) : null
       const description = (body.description ?? '').toString().trim().slice(0, 200) || 'תשלום'
 
+      // Validate ownership of every referenced record (defence in depth) — never
+      // store a foreign id, so the webhook can trust pr's references blindly.
+      if (clientId) {
+        const { data: c } = await admin.from('clients').select('id').eq('id', clientId).eq('user_id', userId).maybeSingle()
+        if (!c) return json({ error: 'client_not_found' }, 404)
+      }
+      if (transactionId) {
+        const { data: txOwn } = await admin.from('transactions').select('id').eq('id', transactionId).eq('user_id', userId).is('deleted_at', null).maybeSingle()
+        if (!txOwn) return json({ error: 'transaction_not_found' }, 404)
+      }
+      if (installmentId) {
+        const { data: inst } = await admin.from('payment_installments').select('plan_id').eq('id', installmentId).maybeSingle()
+        const { data: pl } = inst?.plan_id
+          ? await admin.from('payment_plans').select('user_id').eq('id', inst.plan_id).maybeSingle()
+          : { data: null }
+        if (!pl || pl.user_id !== userId) return json({ error: 'installment_not_found' }, 404)
+      }
+
       // Customer details for the Grow page (best-effort, scoped to the caller).
       let customer = { name: 'לקוח', phone: null as string | null, email: null as string | null }
       if (clientId) {

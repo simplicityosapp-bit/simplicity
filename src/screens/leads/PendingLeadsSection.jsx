@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
 import { Inbox, Check, X } from 'lucide-react'
+import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
+import WhatsAppButton from '../../components/WhatsAppButton'
 
 /* ════════════════════════════════════════════════════════════════
    PENDING LEADS — public-page submissions awaiting manual approval.
@@ -14,6 +16,7 @@ const COLUMN_VALUE = (lead, col) => {
 }
 
 export default function PendingLeadsSection({ pending = [], pages = [], onApprove, onReject }) {
+  const waMsg = useWhatsAppMessage()
   const pageById = useMemo(() => {
     const m = {}
     ;(pages || []).forEach((p) => { m[p.id] = p })
@@ -68,6 +71,13 @@ export default function PendingLeadsSection({ pending = [], pages = [], onApprov
                 </dl>
               </div>
               <div className="l-pending-actions">
+                {lead.phone && (
+                  <WhatsAppButton
+                    phone={lead.phone}
+                    message={waMsg('lead', { name: lead.name })}
+                    triggerClassName="l-pending-wa"
+                  />
+                )}
                 <button type="button" className="l-pending-approve" onClick={() => onApprove(lead.id)}>
                   <Check size={15} strokeWidth={2} aria-hidden="true" /> אישור
                 </button>

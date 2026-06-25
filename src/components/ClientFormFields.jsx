@@ -160,6 +160,11 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
         <input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder="name@example.com" dir="ltr" />
       </div>
 
+      <div className="m-field">
+        <label className="m-label">{t('form.address')}</label>
+        <input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('form.addressPlaceholder')} />
+      </div>
+
       {groups.length > 0 && (
         <div className="m-field">
           <label className="m-label">{t('form.group')}</label>

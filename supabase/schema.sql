@@ -153,7 +153,8 @@ CREATE TABLE clients (
   sessions_done_adjustment integer DEFAULT 0 NOT NULL,
   paid_adjustment numeric DEFAULT 0 NOT NULL,
   billing_mode text DEFAULT 'package'::text NOT NULL,
-  email text
+  email text,
+  address text
 );
 
 CREATE TABLE daily_answers (

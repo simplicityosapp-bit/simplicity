@@ -24,6 +24,7 @@
     "name": "Nom",
     "phone": "Téléphone",
     "email": "E-mail",
+    "address": "Adresse",
     "sessions": "Séances",
     "pricePerSession": "Prix par séance",
     "notes": "Notes",

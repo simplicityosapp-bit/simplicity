@@ -14,6 +14,8 @@
     "phonePlaceholder": "050-0000000",
     "email": "Correo",
     "emailPlaceholder": "nombre@ejemplo.com",
+    "address": "Dirección",
+    "addressPlaceholder": "Calle, ciudad",
     "project": "Proyecto",
     "projectOptional": "Proyecto (opcional)",
     "groupOptional": "Grupo (opcional)",

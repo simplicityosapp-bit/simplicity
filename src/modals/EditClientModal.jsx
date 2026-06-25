@@ -62,6 +62,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     adjustment: String(Number(client?.balance_adjustment) || 0),
     phone: client?.phone || '',
     email: client?.email || '',
+    address: client?.address || '',
     project_id: client?.project_id || '',
     group_id: client?.group_id || '',
     notes: client?.notes || '',
@@ -162,6 +163,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         has_custom_price: form.total_due !== '',
         phone: form.phone.trim() || null,
         email: form.email?.trim() || null,
+        address: form.address?.trim() || null,
         project_id: form.project_id || null,
         group_id: form.group_id || null,
         notes: form.notes.trim() || null,
@@ -287,6 +289,10 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         <div className="m-field">
           <label className="m-label">{t('common.email')}</label>
           <input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder={t('common.emailPlaceholder')} dir="ltr" />
+        </div>
+        <div className="m-field">
+          <label className="m-label">{t('common.address')}</label>
+          <input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('common.addressPlaceholder')} />
         </div>
         <div className="m-field">
           <label className="m-label">{t('common.notesOptional')}</label>

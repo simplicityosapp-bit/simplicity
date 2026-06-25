@@ -1,0 +1,11 @@
+-- 0064_clients_address.sql
+-- Add a plaintext `address` column to clients. Requested by a beta user who
+-- wanted to store a client's address on the client card.
+--
+-- Intentionally NOT encrypted: address is a basic contact detail, stored
+-- plaintext like `name`, `phone` and `email` (see 0026_clients_email.sql).
+-- Field-level encryption was removed in 2026-06 (ENCRYPTED_FIELDS = {}); at-rest
+-- protection here is account isolation (RLS) + encrypted transport (HTTPS).
+--
+-- Additive, nullable, IF NOT EXISTS → no backfill, no data change, no DROP.
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS address text;

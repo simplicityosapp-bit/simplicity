@@ -35,11 +35,39 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
     })
   }
 
+  /* Drop a chip onto a group's "add" row → move it INTO that meta group,
+     appended at the end. This is the "שחרר כאן" target the create row exposes,
+     so a status can be dropped at a new position even across groups / into an
+     empty group (beta feedback 25/06). Cross-meta only relabels the taxonomy
+     chip — leads keep their own status_meta, so they stay in their kanban
+     column (no lead data is touched). */
+  const moveToMeta = (fromId, meta) => {
+    if (!onUpdate || !fromId) return
+    const from = (statuses || []).find((s) => s.id === fromId)
+    if (!from) return
+    const target = (statuses || [])
+      .filter((s) => s.meta_category === meta)
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+    if (from.meta_category === meta) {
+      /* same group — just send it to the end (drop past the last chip). */
+      if (target.length <= 1) return
+      reorder(target, fromId, target[target.length - 1].id)
+      return
+    }
+    const lastSort = target.length ? (target[target.length - 1].sort_order || target.length * 10) : 0
+    onUpdate(fromId, { meta_category: meta, sort_order: lastSort + 10 })
+  }
+
   /* Touch+mouse reorder: each chip is both draggable and a drop zone; the
-     drop resolves the meta group from the two ids and reorders within it. */
+     drop resolves the meta group from the two ids and reorders within it.
+     The add row is also a drop zone (id "add:<meta>") for cross-group moves. */
   const dnd = usePointerDnd({
     onDrop: (fromId, toId) => {
       if (!fromId || !toId || fromId === toId) return
+      if (typeof toId === 'string' && toId.startsWith('add:')) {
+        moveToMeta(fromId, toId.slice(4))
+        return
+      }
       const from = (statuses || []).find((s) => s.id === fromId)
       const to = (statuses || []).find((s) => s.id === toId)
       if (!from || !to || from.meta_category !== to.meta_category) return
@@ -103,7 +131,10 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                 ))}
               </div>
             )}
-            <div className="lead-statuses-add">
+            <div
+              className={`lead-statuses-add${dnd.overZone === `add:${m.key}` && dnd.dragId ? ' drop-target' : ''}`}
+              {...dnd.dropZoneProps(`add:${m.key}`)}
+            >
               <input
                 className="m-input"
                 value={drafts[m.key] || ''}

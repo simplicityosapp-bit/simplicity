@@ -45,14 +45,14 @@
     "savedAndIssued": "התנועה נשמרה והופקה {{doc}}{{num}}",
     "numPrefix": " מס׳ {{num}}",
     "issueFailed": "התנועה נשמרה, אך ההפקה נכשלה — אפשר להפיק מהעריכה",
-    "recipientAdHoc": "נמען חד-פעמי (ללא לקוח)",
-    "recipientHint": "פרטי הנמען לקבלה — ללא שמירה כלקוח.",
+    "recipientAdHoc": "לקוח חדש",
+    "recipientHint": "מלא/י פרטים להפקת קבלה — אפשר לשמור כלקוח בהמשך.",
     "recipientNamePlaceholder": "שם הנמען",
     "recipientEmailPlaceholder": "אימייל (לשליחת הקבלה)",
     "recipientPhonePlaceholder": "טלפון",
     "recipientTaxIdPlaceholder": "ת.ז / ח.פ",
     "recipientNameRequired": "יש להזין שם נמען.",
-    "recipientSectionLabel": "נמען חד-פעמי",
+    "recipientSectionLabel": "לקוח חדש",
     "saveAsClient": "שמור כלקוח"
   },
   "editTx": {

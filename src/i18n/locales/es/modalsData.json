@@ -43,14 +43,14 @@
     "savedAndIssued": "Transacción guardada y {{doc}} emitido{{num}}",
     "numPrefix": " n.º {{num}}",
     "issueFailed": "Transacción guardada, pero la emisión ha fallado — puedes emitirla desde la edición",
-    "recipientAdHoc": "Destinatario puntual (sin cliente)",
-    "recipientHint": "Datos del destinatario para el recibo — no se guarda como cliente.",
+    "recipientAdHoc": "Cliente nuevo",
+    "recipientHint": "Rellena los datos para emitir un recibo — puedes guardarlo como cliente después.",
     "recipientNamePlaceholder": "Nombre del destinatario",
     "recipientEmailPlaceholder": "Correo (para enviar el recibo)",
     "recipientPhonePlaceholder": "Teléfono",
     "recipientTaxIdPlaceholder": "NIF / CIF",
     "recipientNameRequired": "Introduce un nombre de destinatario.",
-    "recipientSectionLabel": "Destinatario puntual",
+    "recipientSectionLabel": "Cliente nuevo",
     "saveAsClient": "Guardar como cliente"
   },
   "editTx": {

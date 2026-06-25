@@ -48,7 +48,7 @@ export default function CalendarScreen() {
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
   const { sessions, addSession, removeSession } = useSessions()
-  const { events: calendarEvents, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
+  const { events: calendarEvents, loading: calendarEventsLoading, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
   const { bookings, cancel: cancelBookingFn } = useBookings()
   const { pages: bookingPages } = useBookingPages()
   const { types: meetingTypes } = useMeetingTypes()
@@ -337,39 +337,48 @@ export default function CalendarScreen() {
         filterActive={filterActive}
       />
 
-      {view === 'schedule' && (
-        <CalendarSchedule items={scheduleItems} onSelect={setSelectedEvent} />
-      )}
-      {view === 'day' && (
-        <CalendarDay
-          date={date}
-          events={allEvents}
-          onSelect={setSelectedEvent}
-          onPickSlot={(d) => { setScheduleAt(d); setShowGate(true) }}
-          dayViewStart={dayViewStart}
-          dayViewEnd={dayViewEnd}
-        />
-      )}
-      {view === 'week' && (
-        <CalendarWeek
-          date={date}
-          events={allEvents}
-          onSelect={setSelectedEvent}
-          onPickDay={(d) => { setDate(d); setView('day') }}
-          weekStart={weekStart}
-          hebrew={hebrew}
-          dual={hebrewDual}
-        />
-      )}
-      {view === 'month' && (
-        <CalendarMonth
-          date={date}
-          events={allEvents}
-          weekStart={weekStart}
-          hebrew={hebrew}
-          dual={hebrewDual}
-          onPickDay={(d) => { setDate(d); setView('day') }}
-        />
+      {/* While the meeting + synced-event fetches are still in flight AND nothing
+          has arrived yet, show a loading line instead of the views' "no events"
+          empty state — which otherwise flashes as if the day were empty. */}
+      {(meetingsLoading || calendarEventsLoading) && allEvents.length === 0 ? (
+        <div className="empty"><p className="empty-text">{t('loading')}</p></div>
+      ) : (
+        <>
+          {view === 'schedule' && (
+            <CalendarSchedule items={scheduleItems} onSelect={setSelectedEvent} />
+          )}
+          {view === 'day' && (
+            <CalendarDay
+              date={date}
+              events={allEvents}
+              onSelect={setSelectedEvent}
+              onPickSlot={(d) => { setScheduleAt(d); setShowGate(true) }}
+              dayViewStart={dayViewStart}
+              dayViewEnd={dayViewEnd}
+            />
+          )}
+          {view === 'week' && (
+            <CalendarWeek
+              date={date}
+              events={allEvents}
+              onSelect={setSelectedEvent}
+              onPickDay={(d) => { setDate(d); setView('day') }}
+              weekStart={weekStart}
+              hebrew={hebrew}
+              dual={hebrewDual}
+            />
+          )}
+          {view === 'month' && (
+            <CalendarMonth
+              date={date}
+              events={allEvents}
+              weekStart={weekStart}
+              hebrew={hebrew}
+              dual={hebrewDual}
+              onPickDay={(d) => { setDate(d); setView('day') }}
+            />
+          )}
+        </>
       )}
 
       <CalendarAddGate open={showGate} onClose={() => setShowGate(false)} onPick={setActiveModal} />

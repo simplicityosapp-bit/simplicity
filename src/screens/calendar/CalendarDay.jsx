@@ -44,7 +44,7 @@ function assignColumns(items) {
    (height ∝ duration) instead of sitting only in their start hour. Overlapping
    events share the width in side-by-side columns. All-day events get a band
    above; events that start outside the visible window keep the edge bands. */
-export default function CalendarDay({ date, events, onSelect, dayViewStart = DEFAULT_START, dayViewEnd = DEFAULT_END }) {
+export default function CalendarDay({ date, events, onSelect, onPickSlot, dayViewStart = DEFAULT_START, dayViewEnd = DEFAULT_END }) {
   const { t } = useT('calendar')
   const startH = Math.max(0, Math.min(23, dayViewStart))
   const endH = Math.max(startH, Math.min(23, dayViewEnd))
@@ -114,9 +114,16 @@ export default function CalendarDay({ date, events, onSelect, dayViewStart = DEF
 
       <div className="cal-day-grid" style={{ height: `${gridH}px` }}>
         {hours.map((h, i) => (
-          <div key={h} className="cal-day-hourline" style={{ top: `${i * HOUR_H}px` }}>
+          <button
+            key={h}
+            type="button"
+            className="cal-day-hourline"
+            style={{ top: `${i * HOUR_H}px`, height: `${HOUR_H}px` }}
+            onClick={onPickSlot ? () => { const s = new Date(date); s.setHours(h, 0, 0, 0); onPickSlot(s) } : undefined}
+            aria-label={onPickSlot ? t('scheduleAt', { time: `${String(h).padStart(2, '0')}:00` }) : undefined}
+          >
             <span className="cal-day-hour mono">{String(h).padStart(2, '0')}:00</span>
-          </div>
+          </button>
         ))}
         <div className="cal-day-events">
           {boxes.map(({ ev, top, height, col, cols }) => (

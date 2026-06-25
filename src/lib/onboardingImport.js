@@ -233,6 +233,7 @@ export async function finalizeOnboardingImport(input = {}) {
         left_mid_process: false,
         phone: c.phone || null,
         address: c.address || null,
+        birth_date: c.birth_date || null,
         notes: c.notes || null,
         notes_updated_at: null,
       })

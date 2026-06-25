@@ -35,8 +35,12 @@
    essential cookies are exempt, and analytics + advertising cookies (incl.
    retargeting landing-page visitors) are used only with consent given via the
    site cookie banner, are not loaded until consent, and are revocable. Matches
-   the new public cookie banner. Privacy 2.0→2.1 (forces re-acceptance). */
-export const PRIVACY_VERSION = '2.1'
+   the new public cookie banner. Privacy 2.0→2.1 (forces re-acceptance).
+   2026-06-25: end-client data list (§4.2) extended — client address + date of
+   birth added as optional fields (both plaintext, like name/phone/email; stored
+   behind a "more details" toggle in the client card). Privacy 2.1→2.2 (forces
+   re-acceptance) — rule: any policy text change must bump version. */
+export const PRIVACY_VERSION = '2.2'
 export const DPA_VERSION = '2.0'
 export const TERMS_VERSION = '2.0'
 

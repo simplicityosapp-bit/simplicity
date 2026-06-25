@@ -560,6 +560,79 @@
   margin: 4px 0 0;
 }
 
+/* ── Today's-agenda rows (the "פגישות היום" tile) ──────────────────
+   A tappable main area (time · name · kind) plus a compact action
+   cluster (WhatsApp / "happened"). Uses the same divider/token system
+   as .td-list-row above. */
+.td-today-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--divider);
+}
+.td-today-row:first-child { border-top: none; }
+.td-today-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: start;
+  font-family: var(--mg-font);
+}
+.td-today-main:disabled { cursor: default; }
+.td-today-time {
+  flex-shrink: 0;
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  min-width: 44px;
+}
+.td-today-name {
+  flex: 1;
+  min-width: 0;
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.td-today-kind {
+  flex-shrink: 0;
+  font-size: calc(10px * var(--text-scale));
+  font-weight: 500;
+  padding: 1px 7px;
+  border-radius: var(--mg-chip-radius);
+  color: var(--stone);
+  background: color-mix(in srgb, var(--stone) 10%, transparent);
+}
+.td-today-kind.kind-meeting { color: var(--sage); background: color-mix(in srgb, var(--sage) 14%, transparent); }
+.td-today-kind.kind-calendar { color: var(--moon-deep); background: color-mix(in srgb, var(--moon-deep) 14%, transparent); }
+.td-today-kind.kind-followup { color: var(--amber-warn); background: color-mix(in srgb, var(--amber-warn) 16%, transparent); }
+.td-today-acts {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.td-today-act {
+  display: inline-grid;
+  place-items: center;
+  width: var(--mg-icon-btn);
+  height: var(--mg-icon-btn);
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  color: var(--stone);
+  cursor: pointer;
+}
+.td-today-act:hover { color: var(--terracotta); border-color: color-mix(in srgb, var(--terracotta) 40%, transparent); }
+.td-today-act.confirm:hover { color: var(--sage); border-color: color-mix(in srgb, var(--sage) 45%, transparent); }
+
 /* ── Pills (type / priority) ───────────────────────────────────── */
 .m-pills {
   display: flex;

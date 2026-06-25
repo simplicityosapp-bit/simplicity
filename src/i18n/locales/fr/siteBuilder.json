@@ -25,6 +25,7 @@
     "saving": "Enregistrement…",
     "save": "Enregistrer",
     "saved": "Enregistré",
+    "saveError": "Échec de l'enregistrement — l'adresse (slug) est peut-être déjà utilisée.",
     "sections": "Sections",
     "add": "Ajouter",
     "railEmpty": "Aucune section pour l'instant",

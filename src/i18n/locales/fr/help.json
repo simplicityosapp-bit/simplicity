@@ -1,5 +1,23 @@
 {
   "screens": {
+    "sitePages": {
+      "title": "Créateur de pages",
+      "intro": "Un seul système pour créer des pages publiques : pages d'atterrissage, pages de capture de prospects et pages de réservation. Construisez par sections en glissant, concevez librement et publiez sous votre propre lien.",
+      "features": [
+        { "title": "Construction par sections", "body": "Ajoutez des sections depuis la palette (en-tête, texte, image, avantages, témoignage, bouton, formulaire), glissez pour réorganiser et cliquez sur une section pour la modifier dans le panneau latéral. L'aperçu central correspond exactement à ce que verra le visiteur." },
+        { "title": "Conception flexible", "body": "Dans le panneau « Conception de la page », choisissez une police, une couleur de marque, un arrière-plan (photo de nature / couleur / votre propre image), l'opacité et le flou des cartes, et l'alignement. Vous pouvez téléverser des images et choisir des icônes." },
+        { "title": "Ordinateur et mobile", "body": "Un bouton en haut de l'éditeur bascule entre l'aperçu ordinateur et mobile, pour vérifier que la page s'affiche bien sur les deux." },
+        { "title": "Formulaire et réservation", "body": "Une section formulaire recueille les coordonnées directement en tant que prospect — avec approbation manuelle ou automatique et un message de remerciement. Un bouton peut renvoyer vers un site externe, défiler jusqu'au formulaire ou mener à la réservation." }
+      ],
+      "tips": [
+        "Publiez la page (le bouton « Publier » dans l'éditeur) pour obtenir un lien public — une page en brouillon n'est pas accessible.",
+        "Définissez une adresse courte dans le champ « Adresse publique » pour un lien facile à partager."
+      ],
+      "faq": [
+        { "q": "Le visiteur doit-il se connecter ?", "a": "Non. Les pages sont entièrement publiques. Vous seul voyez les envois reçus." },
+        { "q": "Quelle est la différence entre les trois types ?", "a": "Page d'atterrissage — une page marketing complète ; Capture — une page centrée sur le formulaire ; Réservation — choisir un créneau dans votre agenda. Toutes sur le même moteur de conception." }
+      ]
+    },
     "home": {
       "title": "Accueil",
       "intro": "L'Accueil est votre tableau de bord personnel. Il est composé de widgets que vous pouvez activer, désactiver et réorganiser à votre guise. Chacun vous donne un aperçu rapide d'un domaine de votre travail et un raccourci pour y accéder.",

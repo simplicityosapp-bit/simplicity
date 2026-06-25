@@ -25,6 +25,7 @@
     "saving": "Saving…",
     "save": "Save",
     "saved": "Saved",
+    "saveError": "Save failed — the address (slug) may already be in use.",
     "sections": "Sections",
     "add": "Add",
     "railEmpty": "No sections yet",

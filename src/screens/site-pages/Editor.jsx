@@ -51,6 +51,7 @@ export default function Editor({ page, onSave, onBack }) {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
+  const [saveError, setSaveError] = useState(null)
   const dragIndex = useRef(null)
 
   const selected = useMemo(
@@ -92,13 +93,15 @@ export default function Editor({ page, onSave, onBack }) {
   }
 
   const save = async () => {
-    setSaving(true)
+    setSaving(true); setSaveError(null)
     try {
       await onSave({
         title: draft.title, published: draft.published, slug: draft.slug || null,
         kind: draft.kind, theme: draft.theme, sections: draft.sections, config: draft.config,
       })
       setDirty(false)
+    } catch {
+      setSaveError(t('editor.saveError'))
     } finally { setSaving(false) }
   }
 
@@ -128,6 +131,7 @@ export default function Editor({ page, onSave, onBack }) {
           <input type="checkbox" checked={draft.published} onChange={(e) => mutate((d) => ({ ...d, published: e.target.checked }))} />
           <span>{t('editor.publish')}</span>
         </label>
+        {saveError ? <span className="spe-save-err" title={saveError}>{saveError}</span> : null}
         <button className="spe-save" onClick={save} disabled={saving || !dirty}>
           {saving ? t('editor.saving') : dirty ? t('editor.save') : t('editor.saved')}
         </button>

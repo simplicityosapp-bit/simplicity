@@ -25,6 +25,7 @@
     "saving": "Guardando…",
     "save": "Guardar",
     "saved": "Guardado",
+    "saveError": "Error al guardar — la dirección (slug) puede estar en uso.",
     "sections": "Secciones",
     "add": "Añadir",
     "railEmpty": "Aún no hay secciones",

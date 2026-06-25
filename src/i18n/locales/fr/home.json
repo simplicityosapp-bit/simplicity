@@ -25,7 +25,8 @@
       "meetingsModalTitle": "Rendez-vous à confirmer",
       "bookings_one": "Nouvelle réservation à confirmer",
       "bookings_other": "{{count}} nouvelles réservations à confirmer",
-      "bookingsModalTitle": "Réservations à confirmer"
+      "bookingsModalTitle": "Réservations à confirmer",
+      "reachOut": "Contact rapide"
     },
     "chips": {
       "tasks": "Tâches",

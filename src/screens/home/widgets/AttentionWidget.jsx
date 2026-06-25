@@ -2,6 +2,9 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock } from 'lucide-react'
 import { attentionItems } from '../../../lib/homeData'
+import { ROUTES } from '../../../lib/routes'
+import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
+import WhatsAppButton from '../../../components/WhatsAppButton'
 import InfoPopover from '../../../components/InfoPopover'
 import Modal from '../../../modals/Modal'
 import PendingSection from '../../finance/PendingSection'
@@ -40,6 +43,7 @@ const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
 export default function AttentionWidget() {
   const { t } = useT('home')
   const navigate = useNavigate()
+  const waMsg = useWhatsAppMessage()
   const { transactions, setStatus: setTxStatus, removeTransaction, addTransaction, loading: transactionsLoading } = useTransactions()
   const { meetings, addMeeting, updateMeeting, loading: meetingsLoading } = useScheduledMeetings()
   const { clients } = useClients()
@@ -85,6 +89,9 @@ export default function AttentionWidget() {
   /* Closed = title + summary of what's inside; click opens the full list. */
   const [open, setOpen] = useState(false)
   const [popup, setPopup] = useState(null) /* 'tx' | 'meetings' | null */
+  /* A clicked contact-row (stale clients / stale leads / today's follow-ups)
+     opens a small people list with a direct WhatsApp send per person. */
+  const [peopleRow, setPeopleRow] = useState(null)
 
   const pendingTxs = useMemo(
     () => (transactions || []).filter((t) => !t.deleted_at && t.status === 'pending'),
@@ -113,7 +120,14 @@ export default function AttentionWidget() {
   const onRow = (it) => {
     if (it.kind === 'pendingTx') setPopup('tx')
     else if (it.kind === 'pendingMeetings') setPopup('meetings')
+    else if (it.kind === 'people') setPeopleRow(it)
     else if (it.to) navigate(it.to)
+  }
+  /* Tap a person → open their card (client) or the leads board (lead). */
+  const openPerson = (p) => {
+    if (!peopleRow) return
+    navigate(peopleRow.entity === 'client' ? ROUTES.CLIENT.replace(':id', p.id) : ROUTES.LEADS)
+    setPeopleRow(null)
   }
 
   return (
@@ -201,6 +215,24 @@ export default function AttentionWidget() {
         onHideMeeting={hideMeeting}
         onHideEvent={hideEvent}
       />
+
+      <Modal open={!!peopleRow} onClose={() => setPeopleRow(null)} title={peopleRow?.text || t('widgets.attention.reachOut')}>
+        <div className="h-people-list">
+          {(peopleRow?.people || []).map((p) => (
+            <div key={p.id} className="h-people-row">
+              <button type="button" className="h-people-main" onClick={() => openPerson(p)}>
+                <span className="h-people-name">{p.name}</span>
+              </button>
+              {/* Always shown — an empty phone opens WhatsApp's own picker. */}
+              <WhatsAppButton
+                phone={p.phone || ''}
+                message={waMsg(peopleRow.waKey, { name: p.name })}
+                triggerClassName="h-people-wa"
+              />
+            </div>
+          ))}
+        </div>
+      </Modal>
     </>
   )
 }

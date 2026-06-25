@@ -253,7 +253,7 @@ export function attentionItems(now = new Date(), data) {
   if (urgent) items.push({ icon: 'AlertCircle', text: `${urgent} משימות דחופות`, to: ROUTES.TASKS })
 
   const staleClients = clientsNeedingAttention(45, now, { clients, sessions })
-  if (staleClients.length) items.push({ icon: 'Clock', text: `${staleClients.length} לקוח${staleClients.length > 1 ? 'ות' : ''} לא יצרו קשר`, to: ROUTES.CLIENTS })
+  if (staleClients.length) items.push({ icon: 'Clock', text: `${staleClients.length} לקוח${staleClients.length > 1 ? 'ות' : ''} לא יצרו קשר`, to: ROUTES.CLIENTS, kind: 'people', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
 
   /* Leads from public lead-pages awaiting manual approval. Kept orthogonal:
      pending leads are excluded from the stale / follow-up rules below. */
@@ -262,7 +262,7 @@ export function attentionItems(now = new Date(), data) {
   if (pendingLeads.length) items.push({ icon: 'Bell', text: `${pendingLeads.length} ליד${pendingLeads.length > 1 ? 'ים' : ''} ממתינים לאישור`, to: ROUTES.LEADS, kind: 'pendingLeads' })
 
   const staleLeads = leadsNeedingAttention(45, now, officialLeads)
-  if (staleLeads.length) items.push({ icon: 'Clock', text: `${staleLeads.length} ליד${staleLeads.length > 1 ? 'ים' : ''} ללא תנועה`, to: ROUTES.LEADS })
+  if (staleLeads.length) items.push({ icon: 'Clock', text: `${staleLeads.length} ליד${staleLeads.length > 1 ? 'ים' : ''} ללא תנועה`, to: ROUTES.LEADS, kind: 'people', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
   /* Lead follow-ups due — date ≤ today AND still in_process (closed metas
      suppress, the follow-up is moot). follow_up_date is a 'YYYY-MM-DD' string
@@ -271,7 +271,7 @@ export function attentionItems(now = new Date(), data) {
   const dueFollowups = officialLeads.filter(
     (l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= todayYmd,
   )
-  if (dueFollowups.length) items.push({ icon: 'Bell', text: `${dueFollowups.length} פולואו-אפ${dueFollowups.length > 1 ? 'ים' : ''} להיום`, to: ROUTES.LEADS, kind: 'leadFollowups' })
+  if (dueFollowups.length) items.push({ icon: 'Bell', text: `${dueFollowups.length} פולואו-אפ${dueFollowups.length > 1 ? 'ים' : ''} להיום`, to: ROUTES.LEADS, kind: 'people', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
   return items
 }

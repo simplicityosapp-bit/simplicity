@@ -328,6 +328,21 @@ export function makeMockClient() {
           const page = match(opts?.body?.page)
           return { data: { ok: true, thankYou: page?.content?.thankYou ?? null }, error: null }
         }
+        // Public builder pages in preview: serve the mock site_pages config (GET)
+        // and accept a form submission (POST) so /p/<id> renders end-to-end.
+        if (name.startsWith('site-intake')) {
+          const pages = MOCK_DB.site_pages || []
+          const match = (key, kind) => pages.find((p) => p.published && (p.id === key || p.slug === key) && (!kind || p.kind === kind))
+          if ((opts?.method || 'POST') === 'GET') {
+            const q = new URLSearchParams(name.split('?')[1] || '')
+            const page = match(q.get('page'), q.get('kind'))
+            if (!page) return { data: null, error: { message: 'not_found' } }
+            return { data: { id: page.id, kind: page.kind, theme: page.theme, sections: page.sections, config: { thankYou: page.config?.thankYou ?? null } }, error: null }
+          }
+          const page = match(opts?.body?.page, opts?.body?.kind)
+          const section = (page?.sections || []).find((s) => s.type === 'form')
+          return { data: { ok: true, thankYou: section?.props?.thankYou ?? page?.config?.thankYou ?? null }, error: null }
+        }
         return { data: { ok: true }, error: null }
       },
     },

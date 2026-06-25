@@ -1,5 +1,23 @@
 {
   "screens": {
+    "sitePages": {
+      "title": "Creador de páginas",
+      "intro": "Un sistema para crear páginas públicas: páginas de aterrizaje, de captación de datos y de reservas. Construye con secciones arrastrando, diseña con libertad y publica con tu propio enlace.",
+      "features": [
+        { "title": "Construcción por secciones", "body": "Añade secciones desde la paleta (encabezado, texto, imagen, beneficios, testimonio, botón, formulario), arrastra para reordenar y haz clic en una sección para editarla en el panel lateral. La vista central es exactamente lo que verá el visitante." },
+        { "title": "Diseño flexible", "body": "En el panel 'Diseño de la página' elige fuente, color de marca, fondo (foto de naturaleza / color / tu propia imagen), opacidad y desenfoque de las tarjetas, y alineación. Puedes subir imágenes y elegir iconos." },
+        { "title": "Escritorio y móvil", "body": "Un interruptor en la parte superior del editor cambia entre la vista de escritorio y móvil para comprobar que la página se vea bien en ambas." },
+        { "title": "Formulario y reservas", "body": "Una sección de formulario recoge los datos directamente como prospecto — con aprobación manual o automática y un mensaje de agradecimiento. Un botón puede enlazar a un sitio externo, desplazarse al formulario o llevar a la reserva." }
+      ],
+      "tips": [
+        "Publica la página (el interruptor 'Publicar' en el editor) para obtener un enlace público — una página en borrador no es accesible.",
+        "Define una dirección corta en el campo 'Dirección pública' para un enlace fácil de compartir."
+      ],
+      "faq": [
+        { "q": "¿El visitante debe iniciar sesión?", "a": "No. Las páginas son totalmente públicas. Solo tú ves los envíos que llegan." },
+        { "q": "¿Cuál es la diferencia entre los tres tipos?", "a": "Página de aterrizaje — una página de marketing completa; Captación — una página centrada en el formulario; Reservas — elegir una hora de tu calendario. Todas sobre el mismo motor de diseño." }
+      ]
+    },
     "home": {
       "title": "Inicio",
       "intro": "Inicio es tu panel personal. Está formado por widgets que puedes activar, desactivar y reorganizar como prefieras. Cada uno te da un vistazo rápido a un área distinta de tu trabajo y un acceso directo para llegar a ella.",

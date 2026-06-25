@@ -272,9 +272,44 @@ export const payment_installments = [1, 2, 3, 4, 5, 6].map((n) => ({
   updated_at: daysAgo(5),
 }))
 
+/* Page-builder demo (kind='landing') so /pages renders end-to-end in preview. */
+const site_pages = [{
+  id: 'sp-demo-1',
+  user_id: 'mock-user-001',
+  kind: 'landing',
+  title: 'דף לדוגמה',
+  published: true,
+  slug: 'demo',
+  theme: { font: 'heebo', brandColor: '#C97B5E', textColor: 'dark', textAlign: 'start', bold: false, background: { type: 'scene', value: 'clients' }, cardOpacity: 92, cardBlur: 14, cardRadius: 24 },
+  sections: [
+    { id: 's_1', type: 'hero', props: { eyebrow: 'אימון אישי', heading: 'הצעד הראשון לשינוי', subheading: 'מרחב בטוח לצמיחה אישית', ctaLabel: 'לשיחת היכרות', ctaAction: { type: 'scrollToForm', url: '' } }, style: {} },
+    { id: 's_2', type: 'iconText', props: { items: [{ icon: 'Compass', title: 'כיוון ברור', body: 'נמצא יחד את היעד' }, { icon: 'Heart', title: 'יחס אישי', body: 'תהליך מותאם לך' }, { icon: 'Target', title: 'תוצאות', body: 'צעדים מעשיים' }, { icon: 'Sun', title: 'אנרגיה', body: 'מוטיבציה מתחדשת' }] }, style: {} },
+    { id: 's_3', type: 'form', props: { heading: 'השאירו פרטים', submitLabel: 'שליחה', fields: [{ key: 'name', label: 'שם', type: 'text', required: true, builtin: true }, { key: 'phone', label: 'טלפון', type: 'tel', required: false, builtin: true }] }, style: {} },
+  ],
+  config: {},
+  created_at: new Date().toISOString(),
+}, {
+  // Simulates a migrated lead page (kind='lead') so /lead/<slug> renders on
+  // the engine in preview (phase 2 read-path switch).
+  id: 'sp-lead-1',
+  user_id: 'mock-user-001',
+  kind: 'lead',
+  title: 'השארת פרטים לדוגמה',
+  published: true,
+  slug: 'demo-lead',
+  theme: { font: 'heebo', brandColor: '#8BA888', textColor: 'dark', textAlign: 'start', bold: false, background: { type: 'scene', value: 'leads' }, cardOpacity: 96, cardBlur: 14, cardRadius: 24 },
+  sections: [
+    { id: 's_1', type: 'hero', props: { eyebrow: 'דנה קואצ׳', heading: 'בואו נדבר', subheading: 'השאירו פרטים ואחזור אליכם.', ctaLabel: '', ctaAction: { type: 'scrollToForm', url: '' } }, style: {} },
+    { id: 's_2', type: 'form', props: { heading: '', submitLabel: 'שליחה', fields: [{ key: 'name', label: 'שם', type: 'text', required: true, builtin: true }, { key: 'phone', label: 'טלפון', type: 'tel', required: false, builtin: true }, { key: 'email', label: 'אימייל', type: 'email', required: false, builtin: true }] }, style: {} },
+  ],
+  config: { autoApprove: false, thankYou: { mode: 'message', message: 'תודה! קיבלנו את הפנייה.', url: '' } },
+  created_at: new Date().toISOString(),
+}]
+
 export const MOCK_DB = {
   pending_invoice_imports,
   lead_pages,
+  site_pages,
   projects,
   groups,
   group_members,

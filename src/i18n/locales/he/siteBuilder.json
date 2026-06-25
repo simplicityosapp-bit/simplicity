@@ -1,0 +1,157 @@
+{
+  "hub": {
+    "title": "בנאי דפים",
+    "subtitle": "בנו דפי נחיתה, טפסים ודפי תיאום — בגרירה, עם סקשנים, רקעים ואייקונים.",
+    "newLanding": "דף נחיתה חדש",
+    "newLead": "דף השארת פרטים חדש",
+    "loading": "טוען…",
+    "emptyText": "אין עדיין דפים. צרו את הראשון.",
+    "untitled": "דף ללא שם",
+    "badgePublished": "מפורסם",
+    "badgeDraft": "טיוטה",
+    "edit": "עריכה",
+    "copyLink": "העתקת קישור",
+    "open": "פתיחה",
+    "delete": "מחיקה",
+    "legacyText": "הבנאי של «{{kind}}» על המנוע החדש מגיע בקרוב.",
+    "legacyLink": "למעבר לבנאי הקיים →"
+  },
+  "editor": {
+    "back": "חזרה",
+    "titlePlaceholder": "שם הדף (פנימי)",
+    "desktop": "דסקטופ",
+    "mobile": "מובייל",
+    "publish": "פרסום",
+    "saving": "שומר…",
+    "save": "שמירה",
+    "saved": "נשמר",
+    "saveError": "השמירה נכשלה — ייתכן שהכתובת (slug) כבר בשימוש.",
+    "slugInvalid": "כתובת לא תקינה — 3 עד 40 תווים: אותיות לטיניות קטנות, ספרות ומקפים.",
+    "sections": "סקשנים",
+    "add": "הוסף",
+    "railEmpty": "אין סקשנים עדיין",
+    "deleteSection": "מחיקה",
+    "designPage": "עיצוב הדף"
+  },
+  "design": {
+    "title": "עיצוב הדף",
+    "publicUrl": "כתובת ציבורית (/p/…)",
+    "font": "פונט",
+    "brandColor": "צבע מותג",
+    "background": "רקע",
+    "bgScene": "תמונה",
+    "bgFlat": "צבע",
+    "bgImage": "העלאה",
+    "bgFlatColor": "צבע רקע",
+    "cardOpacity": "שקיפות כרטיס",
+    "cardBlur": "טשטוש זכוכית",
+    "cardRadius": "עיגול פינות",
+    "textLight": "טקסט בהיר (לרקע כהה)",
+    "bold": "מודגש",
+    "center": "מרכוז"
+  },
+  "settings": {
+    "title": "הגדרות טופס",
+    "autoApprove": "אישור אוטומטי (דילוג על בדיקה ידנית)",
+    "afterSubmit": "אחרי שליחה",
+    "modeMessage": "הצגת הודעת תודה",
+    "modeRedirect": "הפניה לכתובת",
+    "redirectUrl": "כתובת הפניה",
+    "thankYouMessage": "הודעת תודה"
+  },
+  "inspector": {
+    "removeImage": "הסרה",
+    "uploading": "מעלה…",
+    "replaceImage": "החלפה",
+    "uploadImage": "העלאת תמונה",
+    "uploadFailed": "ההעלאה נכשלה",
+    "addItem": "הוספת פריט"
+  },
+  "action": {
+    "link": "קישור חיצוני",
+    "scrollToForm": "גלילה לטופס",
+    "booking": "קביעת פגישה"
+  },
+  "fields": {
+    "formFields": "שדות הטופס",
+    "newField": "שדה חדש",
+    "required": "חובה",
+    "optionsPlaceholder": "אפשרויות, מופרדות בפסיק",
+    "addField": "הוספת שדה"
+  },
+  "public": {
+    "loading": "טוען…",
+    "notFoundTitle": "הדף לא נמצא",
+    "notFoundBody": "ייתכן שהקישור שגוי או שהדף אינו מפורסם.",
+    "submitFailed": "השליחה נכשלה, נסו שוב."
+  },
+  "renderer": {
+    "imageEmpty": "תמונה",
+    "bookingButton": "לקביעת תור",
+    "bookingHint": "הזינו בפאנל הצד את הסלאג של דף הפגישות שלכם.",
+    "thankYouDefault": "תודה! קיבלנו את הפרטים ונחזור אליכם.",
+    "submit": "שליחה",
+    "empty": "הדף ריק — הוסיפו סקשן ראשון."
+  },
+  "kinds": {
+    "landing": "דף נחיתה",
+    "lead": "השארת פרטים",
+    "booking": "תיאום תורים"
+  },
+  "blocks": {
+    "hero": "כותרת ראשית",
+    "text": "טקסט",
+    "image": "תמונה",
+    "iconText": "יתרונות",
+    "testimonial": "המלצה",
+    "cta": "כפתור",
+    "form": "טופס השארת פרטים",
+    "booking": "תיאום תור",
+    "spacer": "רווח"
+  },
+  "labels": {
+    "eyebrow": "טקסט עליון",
+    "heading": "כותרת",
+    "subheading": "תת-כותרת",
+    "ctaLabel": "כפתור",
+    "ctaAction": "פעולת הכפתור",
+    "text": "תוכן",
+    "url": "תמונה",
+    "alt": "טקסט חלופי",
+    "width": "רוחב",
+    "items": "פריטים",
+    "icon": "אייקון",
+    "title": "כותרת",
+    "body": "תיאור",
+    "quote": "ציטוט",
+    "author": "שם",
+    "role": "תפקיד",
+    "avatar": "תמונה",
+    "label": "טקסט",
+    "action": "פעולה",
+    "style": "סגנון",
+    "fields": "שדות",
+    "submitLabel": "כפתור שליחה",
+    "size": "גודל",
+    "bookingSlug": "כתובת דף הפגישות",
+    "buttonLabel": "טקסט הכפתור"
+  },
+  "fieldTypes": {
+    "text": "טקסט",
+    "tel": "טלפון",
+    "email": "אימייל",
+    "textarea": "טקסט ארוך",
+    "select": "בחירה יחידה",
+    "checkbox": "בחירה מרובה"
+  },
+  "options": {
+    "full": "מלא",
+    "wide": "רחב",
+    "narrow": "צר",
+    "primary": "ראשי",
+    "secondary": "משני",
+    "sm": "קטן",
+    "md": "בינוני",
+    "lg": "גדול"
+  }
+}

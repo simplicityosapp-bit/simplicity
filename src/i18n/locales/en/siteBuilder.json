@@ -1,0 +1,157 @@
+{
+  "hub": {
+    "title": "Page builder",
+    "subtitle": "Build landing pages, forms and booking pages — by dragging, with sections, backgrounds and icons.",
+    "newLanding": "New landing page",
+    "newLead": "New lead page",
+    "loading": "Loading…",
+    "emptyText": "No pages yet. Create your first one.",
+    "untitled": "Untitled page",
+    "badgePublished": "Published",
+    "badgeDraft": "Draft",
+    "edit": "Edit",
+    "copyLink": "Copy link",
+    "open": "Open",
+    "delete": "Delete",
+    "legacyText": "The new-engine builder for «{{kind}}» is coming soon.",
+    "legacyLink": "Go to the current builder →"
+  },
+  "editor": {
+    "back": "Back",
+    "titlePlaceholder": "Page name (internal)",
+    "desktop": "Desktop",
+    "mobile": "Mobile",
+    "publish": "Publish",
+    "saving": "Saving…",
+    "save": "Save",
+    "saved": "Saved",
+    "saveError": "Save failed — the address (slug) may already be in use.",
+    "slugInvalid": "Invalid address — 3 to 40 characters: lowercase Latin letters, digits and hyphens.",
+    "sections": "Sections",
+    "add": "Add",
+    "railEmpty": "No sections yet",
+    "deleteSection": "Delete",
+    "designPage": "Page design"
+  },
+  "design": {
+    "title": "Page design",
+    "publicUrl": "Public address (/p/…)",
+    "font": "Font",
+    "brandColor": "Brand color",
+    "background": "Background",
+    "bgScene": "Photo",
+    "bgFlat": "Color",
+    "bgImage": "Upload",
+    "bgFlatColor": "Background color",
+    "cardOpacity": "Card opacity",
+    "cardBlur": "Glass blur",
+    "cardRadius": "Corner radius",
+    "textLight": "Light text (for dark backgrounds)",
+    "bold": "Bold",
+    "center": "Center"
+  },
+  "settings": {
+    "title": "Form settings",
+    "autoApprove": "Auto-approve (skip manual review)",
+    "afterSubmit": "After submit",
+    "modeMessage": "Show a thank-you message",
+    "modeRedirect": "Redirect to a URL",
+    "redirectUrl": "Redirect URL",
+    "thankYouMessage": "Thank-you message"
+  },
+  "inspector": {
+    "removeImage": "Remove",
+    "uploading": "Uploading…",
+    "replaceImage": "Replace",
+    "uploadImage": "Upload image",
+    "uploadFailed": "Upload failed",
+    "addItem": "Add item"
+  },
+  "action": {
+    "link": "External link",
+    "scrollToForm": "Scroll to form",
+    "booking": "Book a meeting"
+  },
+  "fields": {
+    "formFields": "Form fields",
+    "newField": "New field",
+    "required": "Required",
+    "optionsPlaceholder": "Options, comma-separated",
+    "addField": "Add field"
+  },
+  "public": {
+    "loading": "Loading…",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The link may be wrong, or the page isn't published.",
+    "submitFailed": "Submission failed, please try again."
+  },
+  "renderer": {
+    "imageEmpty": "Image",
+    "bookingButton": "Book a time",
+    "bookingHint": "Enter your booking page slug in the side panel.",
+    "thankYouDefault": "Thanks! We got your details and will be in touch.",
+    "submit": "Submit",
+    "empty": "The page is empty — add your first section."
+  },
+  "kinds": {
+    "landing": "Landing page",
+    "lead": "Lead page",
+    "booking": "Booking page"
+  },
+  "blocks": {
+    "hero": "Hero",
+    "text": "Text",
+    "image": "Image",
+    "iconText": "Benefits",
+    "testimonial": "Testimonial",
+    "cta": "Button",
+    "form": "Lead form",
+    "booking": "Booking",
+    "spacer": "Spacer"
+  },
+  "labels": {
+    "eyebrow": "Eyebrow text",
+    "heading": "Heading",
+    "subheading": "Subheading",
+    "ctaLabel": "Button",
+    "ctaAction": "Button action",
+    "text": "Content",
+    "url": "Image",
+    "alt": "Alt text",
+    "width": "Width",
+    "items": "Items",
+    "icon": "Icon",
+    "title": "Title",
+    "body": "Description",
+    "quote": "Quote",
+    "author": "Name",
+    "role": "Role",
+    "avatar": "Image",
+    "label": "Text",
+    "action": "Action",
+    "style": "Style",
+    "fields": "Fields",
+    "submitLabel": "Submit button",
+    "size": "Size",
+    "bookingSlug": "Booking page address",
+    "buttonLabel": "Button text"
+  },
+  "fieldTypes": {
+    "text": "Text",
+    "tel": "Phone",
+    "email": "Email",
+    "textarea": "Long text",
+    "select": "Single choice",
+    "checkbox": "Multiple choice"
+  },
+  "options": {
+    "full": "Full",
+    "wide": "Wide",
+    "narrow": "Narrow",
+    "primary": "Primary",
+    "secondary": "Secondary",
+    "sm": "Small",
+    "md": "Medium",
+    "lg": "Large"
+  }
+}

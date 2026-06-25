@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sparkles, Moon, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug, Link2, CalendarClock,
+  Sparkles, Moon, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug, Link2, CalendarClock, LayoutTemplate,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
@@ -119,6 +119,14 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
         )}
 
         <p className="drawer-section-lbl">{t('sections.personal')}</p>
+
+        <button className="drawer-link" onClick={() => goTo(ROUTES.SITE_PAGES)}>
+          <span className="drawer-link-icon"><LayoutTemplate size={18} strokeWidth={1.5} /></span>
+          <span className="drawer-link-text">
+            {t('extras.sitePages')}
+            <span className="drawer-link-text-sub">{t('items.sitePagesSub')}</span>
+          </span>
+        </button>
 
         <button className="drawer-link" onClick={() => goTo(ROUTES.LEAD_PAGES)}>
           <span className="drawer-link-icon"><Link2 size={18} strokeWidth={1.5} /></span>

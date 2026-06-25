@@ -78,7 +78,16 @@
     "clearFixed": "ניקוי פגישה קבועה",
     "noGroup": "ללא קבוצה",
     "meetingType": "סוג פגישה",
-    "manageMeetingTypes": "ניהול סוגים"
+    "manageMeetingTypes": "ניהול סוגים",
+    "secDetails": "פרטים",
+    "secScheduling": "פגישות ותזמון",
+    "secBilling": "חיוב ותשלומים",
+    "secGroups": "קבוצות",
+    "fPersonal": "אישי",
+    "fGroups": "קבוצות",
+    "fDiscount": "מחיקת חוב",
+    "confirmBalanceTitle": "עדכון יתרה",
+    "confirmBalanceMsg": "היתרה עודכנה ל-{{balance}}. לשמור?"
   },
   "meetingTypes": {
     "title": "סוגי פגישה",

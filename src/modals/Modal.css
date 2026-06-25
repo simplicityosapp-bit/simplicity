@@ -950,6 +950,85 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ── Collapsible sections (EditClientModal) — group the long client form
+   into 4 titled, foldable cards so it reads top-down instead of as one
+   flat 17-field scroll. Only "details" is open by default; each closed
+   header shows a one-line live summary (balance / day / group count). ── */
+.ec-acc {
+  border: 1px solid var(--divider);
+  border-radius: var(--mg-card-radius);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.ec-acc-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: start;
+  font-family: var(--mg-font);
+}
+.ec-acc-head:hover { background: rgba(42, 37, 32, 0.03); }
+[data-theme="dark"] .ec-acc-head:hover { background: rgba(240, 235, 224, 0.04); }
+.ec-acc-ic {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--terracotta);
+}
+.ec-acc-title {
+  flex: 1;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.ec-acc-sum {
+  margin-inline-start: auto;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 52%;
+  text-align: end;
+}
+.ec-acc-chev {
+  flex-shrink: 0;
+  color: var(--stone);
+  transition: transform 0.18s ease;
+}
+.ec-acc.open .ec-acc-chev { transform: rotate(180deg); }
+.ec-acc-body { padding: 6px 14px 14px; }
+.ec-acc-body > .m-field:last-child { margin-bottom: 0; }
+
+/* Visible billing breakdown — spells out the formula behind שולם/יתרה so
+   the numbers stop being magic (e.g. "אישי ₪400 · קבוצות ₪200"). */
+.ec-formula {
+  margin: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: center;
+}
+.ec-formula-row {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--stone);
+  line-height: 1.5;
+}
+.ec-formula-row .num {
+  font-family: var(--mg-font-num);
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Inline "new category" creator (expense category field) ─────── */
 .m-cat-create {
   display: flex;

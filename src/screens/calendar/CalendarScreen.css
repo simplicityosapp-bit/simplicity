@@ -395,8 +395,17 @@
 .cal-day-hourline {
   position: absolute;
   inset-inline: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
   border-top: 1px solid var(--divider);
+  text-align: start;
+  cursor: pointer;
+  transition: background 0.12s ease;
 }
+/* Tap an empty hour band to schedule a meeting at that time. */
+.cal-day-hourline:hover { background: var(--mg-row-hover-bg); }
 .cal-day-hourline:first-child {
   border-top: none;
 }
@@ -416,7 +425,11 @@
   inset: 0;
   inset-inline-start: 56px;
   border-inline-start: 1px solid var(--divider);
+  /* Let taps on empty timeline fall THROUGH to the hour-band buttons
+     beneath; the event chips re-enable pointer events for themselves. */
+  pointer-events: none;
 }
+.cal-day-events .cal-day-evt { pointer-events: auto; }
 .cal-day-evt {
   display: inline-flex;
   align-items: center;

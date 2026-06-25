@@ -37,6 +37,11 @@ import { useT } from '../../i18n/useT'
 import './CalendarScreen.css'
 
 const VALID_VIEWS = new Set(['schedule', 'day', 'week', 'month'])
+/* Local (not UTC) Y-M-D / H:M for prefilling the schedule modal from a tapped
+   slot — toISOString() would shift the day/hour across the timezone offset. */
+const pad2 = (n) => String(n).padStart(2, '0')
+const localDateStr = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+const localTimeStr = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`
 
 export default function CalendarScreen() {
   const { t } = useT('calendar')
@@ -66,6 +71,9 @@ export default function CalendarScreen() {
   const [date, setDate] = useState(() => new Date())
   const [showGate, setShowGate] = useState(false)
   const [activeModal, setActiveModal] = useState(null)
+  /* When a meeting is started by tapping an empty day-grid slot, this holds
+     the tapped Date so the modal opens prefilled with that day + hour. */
+  const [scheduleAt, setScheduleAt] = useState(null)
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [showDuplicates, setShowDuplicates] = useState(false)
   const [showFilter, setShowFilter] = useState(false)
@@ -337,6 +345,7 @@ export default function CalendarScreen() {
           date={date}
           events={allEvents}
           onSelect={setSelectedEvent}
+          onPickSlot={(d) => { setScheduleAt(d); setActiveModal('meeting') }}
           dayViewStart={dayViewStart}
           dayViewEnd={dayViewEnd}
         />
@@ -365,10 +374,13 @@ export default function CalendarScreen() {
 
       <CalendarAddGate open={showGate} onClose={() => setShowGate(false)} onPick={setActiveModal} />
       <ScheduleMeetingModal
+        key={scheduleAt ? scheduleAt.getTime() : 'new'}
         open={activeModal === 'meeting'}
-        onClose={() => setActiveModal(null)}
+        onClose={() => { setActiveModal(null); setScheduleAt(null) }}
         clients={clients}
         onSave={addMeeting}
+        initialDate={scheduleAt ? localDateStr(scheduleAt) : undefined}
+        initialTime={scheduleAt ? localTimeStr(scheduleAt) : undefined}
       />
       <AddReminderModal
         open={activeModal === 'reminder'}

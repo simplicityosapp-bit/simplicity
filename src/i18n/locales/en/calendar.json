@@ -104,5 +104,11 @@
     "monthYear": "{{month}} {{year}}"
   },
   "scheduleAt": "Schedule a meeting at {{time}}",
-  "loading": "Loading…"
+  "loading": "Loading…",
+  "toast": {
+    "meetingConfirmed": "Meeting marked as held",
+    "meetingSkipped": "Meeting skipped",
+    "followupDone": "Follow-up marked done",
+    "actionFailed": "Action failed — please try again."
+  }
 }

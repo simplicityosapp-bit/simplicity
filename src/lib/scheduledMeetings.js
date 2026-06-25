@@ -11,6 +11,9 @@
    scheduled_at) — existing rows are skipped.
    ════════════════════════════════════════════════════════════════ */
 
+import i18n from '../i18n'
+import { showToast, showError } from './toast'
+
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const DEFAULT_WEEKS_AHEAD = 4
 const PAST_LOOKBACK_DAYS = 14
@@ -168,30 +171,45 @@ function nextSessionNum(sessions, m) {
    review widget and the calendar event-details flow so both surfaces update
    the card identically. */
 export async function confirmScheduledMeeting({ meeting, sessions, addSession, updateMeeting }) {
-  if (meeting.session_id) { await updateMeeting(meeting.id, { status: 'confirmed' }).catch(() => {}); return }
-  const isGroup = meeting.subject_type === 'group'
   try {
-    const session = await addSession({
-      date: meeting.scheduled_at,
-      summary: null,
-      notes: null,
-      client_id: isGroup ? null : meeting.subject_id,
-      group_id: isGroup ? meeting.subject_id : null,
-      subject_type: meeting.subject_type,
-      subject_id: meeting.subject_id,
-      num: nextSessionNum(sessions, meeting),
-    })
-    await updateMeeting(meeting.id, { status: 'confirmed', session_id: session.id })
+    if (meeting.session_id) {
+      await updateMeeting(meeting.id, { status: 'confirmed' })
+    } else {
+      const isGroup = meeting.subject_type === 'group'
+      let session = null
+      /* Best-effort: if the session insert fails we still mark the meeting
+         confirmed (just without a link) — only a failure of that final write
+         is a real failure worth surfacing. */
+      try {
+        session = await addSession({
+          date: meeting.scheduled_at,
+          summary: null,
+          notes: null,
+          client_id: isGroup ? null : meeting.subject_id,
+          group_id: isGroup ? meeting.subject_id : null,
+          subject_type: meeting.subject_type,
+          subject_id: meeting.subject_id,
+          num: nextSessionNum(sessions, meeting),
+        })
+      } catch { /* session insert failed — fall through to mark confirmed */ }
+      await updateMeeting(meeting.id, session ? { status: 'confirmed', session_id: session.id } : { status: 'confirmed' })
+    }
+    showToast(i18n.t('calendar:toast.meetingConfirmed'))
   } catch {
-    updateMeeting(meeting.id, { status: 'confirmed' }).catch(() => {})
+    showError(i18n.t('calendar:toast.actionFailed'))
   }
 }
 
 /* Didn't happen: mark skipped and drop any session we materialised for it
    (clearing the link). Linked-expense handling stays with the caller. */
 export async function skipScheduledMeeting({ meeting, updateMeeting, removeSession }) {
-  await updateMeeting(meeting.id, { status: 'skipped', session_id: null }).catch(() => {})
-  if (meeting.session_id) removeSession(meeting.session_id)
+  try {
+    await updateMeeting(meeting.id, { status: 'skipped', session_id: null })
+    if (meeting.session_id) removeSession(meeting.session_id)
+    showToast(i18n.t('calendar:toast.meetingSkipped'))
+  } catch {
+    showError(i18n.t('calendar:toast.actionFailed'))
+  }
 }
 
 /* Visible-in-widget filter: a meeting that's already in the past, no

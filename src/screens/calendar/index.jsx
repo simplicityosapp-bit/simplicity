@@ -309,7 +309,7 @@ export default function CalendarScreen() {
           <p className="t-screen">{t('title')}</p>
         </header>
         <Coachmark id="add-meeting" radius="50%">
-          <button className="cta-add" type="button" aria-label={t('newEventAria')} onClick={() => setShowGate(true)}>{t('newEvent')}</button>
+          <button className="cta-add" type="button" aria-label={t('newEventAria')} onClick={() => { setScheduleAt(null); setShowGate(true) }}>{t('newEvent')}</button>
         </Coachmark>
       </div>
 
@@ -345,7 +345,7 @@ export default function CalendarScreen() {
           date={date}
           events={allEvents}
           onSelect={setSelectedEvent}
-          onPickSlot={(d) => { setScheduleAt(d); setActiveModal('meeting') }}
+          onPickSlot={(d) => { setScheduleAt(d); setShowGate(true) }}
           dayViewStart={dayViewStart}
           dayViewEnd={dayViewEnd}
         />
@@ -383,21 +383,24 @@ export default function CalendarScreen() {
         initialTime={scheduleAt ? localTimeStr(scheduleAt) : undefined}
       />
       <AddReminderModal
+        key={scheduleAt ? `r-${scheduleAt.getTime()}` : 'r-new'}
         open={activeModal === 'reminder'}
-        onClose={() => setActiveModal(null)}
+        onClose={() => { setActiveModal(null); setScheduleAt(null) }}
         clients={clients}
         onSave={addReminder}
+        initialDate={scheduleAt ? localDateStr(scheduleAt) : undefined}
+        initialTime={scheduleAt ? localTimeStr(scheduleAt) : undefined}
       />
       <AddTaskModal
         open={activeModal === 'task'}
-        onClose={() => setActiveModal(null)}
+        onClose={() => { setActiveModal(null); setScheduleAt(null) }}
         projects={projects}
         clients={clients}
         onSave={addTask}
       />
       <AddTransactionModal
         open={activeModal === 'transaction'}
-        onClose={() => setActiveModal(null)}
+        onClose={() => { setActiveModal(null); setScheduleAt(null) }}
         clients={clients}
         projects={projects}
         onSave={addTransaction}

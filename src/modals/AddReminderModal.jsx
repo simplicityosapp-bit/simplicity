@@ -8,9 +8,9 @@ const todayStr = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 const now = () => new Date()
-const blank = () => ({
+const blank = (date, time) => ({
   title: '', description: '',
-  date: todayStr(), time: '09:00',
+  date: date || todayStr(), time: time || '09:00',
   client_id: '',
   recurrence: 'none',
   day_of_week: String(new Date().getDay()),   // weekly: 0=ראשון … 6=שבת
@@ -54,8 +54,8 @@ function nextMonthly(dom, time) {
 }
 
 /* Reverse-map an existing reminder into the form shape (for editing). */
-function fromReminder(r) {
-  if (!r) return blank()
+function fromReminder(r, date, time) {
+  if (!r) return blank(date, time)
   const d = new Date(r.scheduled_at)
   const pad = (x) => String(x).padStart(2, '0')
   const rec = r.recurrence_type || 'none'
@@ -80,14 +80,16 @@ function fromReminder(r) {
    (which silently defaulted to today → everything showed "היום").
    `defaultLinkedTo` pre-binds the reminder to a project/group/etc. and hides
    the client selector — used when opened from a project drawer. */
-export default function AddReminderModal({ open, onClose, onSave, clients = [], defaultLinkedTo = null, linkedSubjectName = '', reminder = null }) {
+export default function AddReminderModal({ open, onClose, onSave, clients = [], defaultLinkedTo = null, linkedSubjectName = '', reminder = null, initialDate, initialTime }) {
   const isEdit = !!reminder
   const { t } = useT('modalsTask')
-  const [form, setForm] = useState(() => fromReminder(reminder))
+  /* initialDate/initialTime prefill a NEW one-off reminder when opened from a
+     tapped calendar slot (parent remounts via key); ignored when editing. */
+  const [form, setForm] = useState(() => fromReminder(reminder, initialDate, initialTime))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(fromReminder(reminder)); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(fromReminder(reminder, initialDate, initialTime)); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
     if (!form.title.trim()) { setErr(t('reminder.titleRequired')); return }

@@ -200,5 +200,6 @@
       "5": "Viernes",
       "6": "Sábado"
     }
-  }
+  },
+  "dataWarning": "Algunos datos no se cargaron — los saldos pueden estar incompletos."
 }

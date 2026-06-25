@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Search, ArrowUpDown, X, UserPlus, Wallet, ChevronLeft } from 'lucide-react'
+import { Search, ArrowUpDown, X, UserPlus, Wallet, ChevronLeft, AlertTriangle } from 'lucide-react'
 import { effectiveClientMeta, paidForClients, sessionsCountForClients, clientBalance } from '../../lib/clients'
 import { currentMonthRange, isr, financeQuery } from '../../lib/finance'
 import { useClients } from '../../hooks/useClients'
@@ -87,12 +87,12 @@ export default function ClientsScreen() {
   const { t } = useT('clients')
   const { clients: clientList, loading, error, addClient, updateClient, removeClient } = useClients()
   const { projects } = useProjects()
-  const { transactions, addTransaction, editTransaction, removeTransaction, refetch } = useTransactions()
+  const { transactions, addTransaction, editTransaction, removeTransaction, refetch, error: txError } = useTransactions()
   const { tasks, editTask } = useTasks()
   const { reminders, editReminder } = useReminders()
-  const { sessions, addSession, updateSession } = useSessions()
+  const { sessions, addSession, updateSession, error: sessionsError } = useSessions()
   const { meetings, addMeeting, removeMeeting } = useScheduledMeetings()
-  const { groups } = useGroups()
+  const { groups, error: groupsError } = useGroups()
 
   /* When a client's recurring slot changes or is cleared, drop the future
      pending meetings generated for the OLD slot so stale occurrences don't
@@ -114,7 +114,7 @@ export default function ClientsScreen() {
     }
     return result
   }
-  const { members, updateMember } = useGroupMembers()
+  const { members, updateMember, error: membersError } = useGroupMembers()
   const { statuses: clientStatuses } = useClientStatuses()
   const { categories } = useCategories()
   const { prefs, update: updatePrefs } = useUserPreferences()
@@ -311,6 +311,11 @@ export default function ClientsScreen() {
     ]
   }, [tab, effScope, tabClients, transactions, sessions, members, groups, balanceByClient, t])
 
+  /* Balances are derived from transactions/sessions/memberships. If the
+     clients list loaded but any of those failed, the totals are partial —
+     warn instead of silently showing wrong ₪0 (review finding #18). */
+  const balanceDataError = !loading && !error && !!(txError || sessionsError || groupsError || membersError)
+
   return (
     <div className={`screen${selectMode ? ' has-bulk-bar' : ''}`}>
       <div className="screen-top">
@@ -412,6 +417,13 @@ export default function ClientsScreen() {
           {t('balanceFilter')}{openBalanceCount > 0 ? ` · ${openBalanceCount}` : ''}
         </button>
       </div>
+
+      {balanceDataError && (
+        <div className="c-data-warning" role="status">
+          <AlertTriangle size={15} strokeWidth={1.8} aria-hidden="true" />
+          <span>{t('dataWarning')}</span>
+        </div>
+      )}
 
       {groupBy === 'status' && (
         <section className="c-hero">

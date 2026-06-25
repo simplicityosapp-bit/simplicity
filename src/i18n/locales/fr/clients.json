@@ -200,5 +200,6 @@
       "5": "Vendredi",
       "6": "Samedi"
     }
-  }
+  },
+  "dataWarning": "Certaines données ne se sont pas chargées — les soldes peuvent être incomplets."
 }

@@ -200,5 +200,6 @@
       "5": "Friday",
       "6": "Saturday"
     }
-  }
+  },
+  "dataWarning": "Some data didn't load — balances may be incomplete."
 }

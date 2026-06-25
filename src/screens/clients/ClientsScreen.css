@@ -112,6 +112,23 @@
 }
 [data-theme="dark"] .c-bal-filter.on { color: var(--ink-on-accent); }
 
+/* Partial-data warning — balances are derived from transactions/sessions/
+   memberships; if those failed to load we say so instead of showing wrong ₪0. */
+.c-data-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 9px 14px;
+  border-radius: var(--mg-card-radius);
+  border: 1px solid color-mix(in srgb, var(--amber-warn) 40%, var(--divider));
+  background: color-mix(in srgb, var(--amber-warn) 10%, var(--mg-card-bg));
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  color: var(--espresso);
+}
+.c-data-warning > svg { color: var(--amber-warn); flex-shrink: 0; }
+
 /* ── Hero ──────────────────────────────────────────────────────── */
 .c-hero {
   margin-bottom: 16px;

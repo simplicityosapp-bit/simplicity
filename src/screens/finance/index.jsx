@@ -240,9 +240,12 @@ export default function FinanceScreen() {
         onIssued={refetch}
         onDelete={removeTransaction}
         onSaveAsClient={async (tx) => {
-          /* Promote an ad-hoc receipt recipient into a real client, then link
-             the transaction to it (tax id isn't a client field — name/email/phone). */
-          const c = await addClient({ name: tx.recipient_name, email: tx.recipient_email || null, phone: tx.recipient_phone || null })
+          /* Promote an ad-hoc receipt recipient into a real ACTIVE client, then
+             link the transaction to it. status + status_meta are NOT NULL on
+             clients (no DB default), and a freshly-saved client should be active
+             like one added via the normal form — so both are set explicitly.
+             (tax id isn't a client field — name/email/phone only.) */
+          const c = await addClient({ name: tx.recipient_name, email: tx.recipient_email || null, phone: tx.recipient_phone || null, status: 'active', status_meta: 'active' })
           if (c?.id) await editTransaction(tx.id, { client_id: c.id })
           refetch()
         }}

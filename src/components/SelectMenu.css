@@ -1,0 +1,116 @@
+/* ════════════════════════════════════════════════════════════════
+   SelectMenu — standard styled dropdown for modal forms.
+   Trigger mirrors .m-select; the open menu mirrors the app's popover
+   language (.c-sort-pop): cream-glass card, terracotta hover rows,
+   sage ✓ on the selected row. Inline-expands (in flow) so it is never
+   clipped by the scrollable modal body.
+   ════════════════════════════════════════════════════════════════ */
+.sel { position: relative; width: 100%; }
+
+.sel-trigger {
+  width: 100%;
+  height: var(--mg-btn-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 14px;
+  border-radius: var(--mg-btn-radius);
+  border: 1px solid rgba(42, 37, 32, 0.12);
+  background: var(--cream);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  cursor: pointer;
+  text-align: start;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+[data-theme="dark"] .sel-trigger {
+  background-color: rgba(36, 42, 51, 0.6);
+  border-color: rgba(240, 235, 224, 0.12);
+}
+.sel-trigger.open,
+.sel-trigger:focus-visible {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 2px var(--blush);
+  outline: none;
+}
+.sel-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sel-value.placeholder { color: var(--mist); }
+.sel-chev { color: var(--stone); flex-shrink: 0; transition: transform 0.15s; }
+.sel-trigger.open .sel-chev { transform: rotate(180deg); }
+.sel.disabled { opacity: 0.6; }
+.sel.disabled .sel-trigger { cursor: default; }
+
+.sel-menu {
+  margin-top: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--b1);
+  background: var(--pure-white);
+  box-shadow: var(--elev-2);
+  overflow: hidden;
+}
+[data-theme="dark"] .sel-menu {
+  background: var(--card-surface);
+  border-color: var(--card-border);
+}
+.sel-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--divider);
+  color: var(--stone);
+}
+.sel-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+}
+.sel-options {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 6px;
+}
+.sel-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  text-align: start;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+  cursor: pointer;
+}
+.sel-opt-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sel-opt:hover { background: var(--mg-row-hover-bg); }
+.sel-opt.on {
+  background: rgba(139, 168, 136, 0.15);
+  color: var(--sage);
+  font-weight: 600;
+}
+.sel-opt.accent { color: var(--terracotta); font-weight: 600; }
+.sel-empty {
+  margin: 0;
+  padding: 10px;
+  text-align: center;
+  color: var(--mist);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+}

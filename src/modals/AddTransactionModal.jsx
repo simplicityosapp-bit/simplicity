@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import DateField from '../components/DateField'
+import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
+import { effectiveClientMeta } from '../lib/clients'
 import { PAY_METHODS, payMethodLabel, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '../lib/invoiceDocs'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
@@ -28,7 +30,7 @@ const blank = (defaults = {}) => ({
    `defaults` lets callers pre-fill any blank() field — used by the
    project-detail QuickRow to pre-bind project_id so the user doesn't
    have to re-pick the project they're clearly already on. */
-export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {} }) {
+export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {}, members = [], groups = [] }) {
   const { t } = useT('modalsData')
   const inv = useInvoiceProvider()
   const lockedClientId = client?.id || ''
@@ -146,6 +148,23 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   const hasClient = !!(lockedClientId || (form.client_id && form.client_id !== '__adhoc__') || (adHoc && recipient.name.trim()))
   const futureDate = form.date > todayStr()
 
+  /* Standard-dropdown option lists. The client picker shows ACTIVE clients on
+     first open and reveals the rest only via search (searchOnly), then the
+     "new client" action row; the others mirror their old <select>s. */
+  const payOptions = [{ value: '', label: t('tx.paymentMethodNone') }, ...PAY_METHODS.map((m) => ({ value: m.key, label: payMethodLabel(m.key) }))]
+  const projectOptions = [{ value: '', label: t('common.none') }, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  const clientOptions = useMemo(() => {
+    const opts = [{ value: '', label: t('common.none') }]
+    clients.forEach((c) => opts.push({ value: c.id, label: c.name, searchOnly: effectiveClientMeta(c, members, groups) !== 'active' }))
+    if (form.type === 'income') opts.push({ value: '__adhoc__', label: t('tx.recipientAdHoc'), accent: true })
+    return opts
+  }, [clients, members, groups, form.type, t])
+  const categoryOptions = [
+    { value: '', label: t('common.noCategory') },
+    ...categories.map((c) => ({ value: c.id, label: c.name })),
+    ...(onCreateCategory ? [{ value: '__new__', label: t('tx.newCatOption'), accent: true }] : []),
+  ]
+
   return (
     <Modal open={open} onClose={close} title={client ? t('tx.titlePayment') : t('tx.titleNew')}>
       {client && (
@@ -186,37 +205,32 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       </div>
       <div className="m-field">
         <label className="m-label">{t('tx.paymentMethod')}</label>
-        <select className="m-select" value={form.payment_method} onChange={(e) => set('payment_method', e.target.value)}>
-          <option value="">{t('tx.paymentMethodNone')}</option>
-          {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
-        </select>
+        <SelectMenu value={form.payment_method} onChange={(v) => set('payment_method', v)} options={payOptions} placeholder={t('tx.paymentMethodNone')} ariaLabel={t('tx.paymentMethod')} />
       </div>
       {client ? (
         <div className="m-field">
           <label className="m-label">{t('common.project')}</label>
-          <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
+          <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
         </div>
       ) : (
-        <div className="m-row2">
+        <>
           <div className="m-field">
             <label className="m-label">{t('common.client')}</label>
-            <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
-              <option value="">{t('common.none')}</option>
-              {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              {form.type === 'income' && <option value="__adhoc__">{t('tx.recipientAdHoc')}</option>}
-            </select>
+            <SelectMenu
+              value={form.client_id}
+              onChange={(v) => set('client_id', v)}
+              options={clientOptions}
+              placeholder={t('common.none')}
+              ariaLabel={t('common.client')}
+              searchable
+              searchPlaceholder={t('common.client')}
+            />
           </div>
           <div className="m-field">
             <label className="m-label">{t('common.project')}</label>
-            <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-              <option value="">{t('common.none')}</option>
-              {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
+            <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
           </div>
-        </div>
+        </>
       )}
 
       {adHoc && (
@@ -257,18 +271,13 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
               </button>
             </div>
           ) : (
-            <select
-              className="m-select"
+            <SelectMenu
               value={form.category_id}
-              onChange={(e) => {
-                if (e.target.value === '__new__') { setCreatingCat(true); return }
-                set('category_id', e.target.value)
-              }}
-            >
-              <option value="">{t('common.noCategory')}</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              {onCreateCategory && <option value="__new__">{t('tx.newCatOption')}</option>}
-            </select>
+              onChange={(v) => { if (v === '__new__') { setCreatingCat(true); return } set('category_id', v) }}
+              options={categoryOptions}
+              placeholder={t('common.noCategory')}
+              ariaLabel={t('common.category')}
+            />
           )}
         </div>
       )}
@@ -299,9 +308,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                     form.payment_method ? (
                       <p className="m-hint">{t('tx.receiptUsesMethod', { method: payMethodLabel(form.payment_method) })}</p>
                     ) : (
-                      <select className="m-select" value={issuePayment} onChange={(e) => setIssuePayment(e.target.value)} aria-label={t('tx.paymentMethodAria')}>
-                        {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
-                      </select>
+                      <SelectMenu value={issuePayment} onChange={setIssuePayment} options={PAY_METHODS.map((m) => ({ value: m.key, label: payMethodLabel(m.key) }))} ariaLabel={t('tx.paymentMethodAria')} />
                     )
                   )}
                 </div>

@@ -10,7 +10,7 @@ import { useT } from '../i18n/useT'
 const blank = () => ({
   name: '', status: 'active', status_id: '', sessions: '', price_per_session: '',
   billing_mode: 'package',
-  phone: '', email: '', address: '', project_id: '', group_id: '',
+  phone: '', email: '', address: '', birth_date: '', project_id: '', group_id: '',
   recurring_day: '', recurring_time: '',
   meeting_type_id: '', price_overridden: false,
 })
@@ -71,6 +71,7 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
         phone: form.phone.trim() || null,
         email: form.email?.trim() || null,
         address: form.address?.trim() || null,
+        birth_date: form.birth_date || null,
         notes: null,
         notes_updated_at: null,
       })

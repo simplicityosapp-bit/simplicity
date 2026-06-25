@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, CalendarDays, Wallet, Users, ChevronDown } from 'lucide-react'
+import { User, CalendarDays, Wallet, Users, ChevronDown, MapPin } from 'lucide-react'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import MeetingTypesModal from './MeetingTypesModal'
@@ -63,6 +63,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     phone: client?.phone || '',
     email: client?.email || '',
     address: client?.address || '',
+    birth_date: client?.birth_date || '',
     project_id: client?.project_id || '',
     group_id: client?.group_id || '',
     notes: client?.notes || '',
@@ -164,6 +165,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         phone: form.phone.trim() || null,
         email: form.email?.trim() || null,
         address: form.address?.trim() || null,
+        birth_date: form.birth_date || null,
         project_id: form.project_id || null,
         group_id: form.group_id || null,
         notes: form.notes.trim() || null,
@@ -291,12 +293,25 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           <input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder={t('common.emailPlaceholder')} dir="ltr" />
         </div>
         <div className="m-field">
+          <label className="m-label">{t('common.notesOptional')}</label>
+          <textarea className="m-textarea" rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
+        </div>
+      </Section>
+
+      <Section
+        icon={<MapPin size={17} strokeWidth={1.7} />}
+        title={t('editClient.secMoreDetails')}
+        summary={form.address || ''}
+        open={openSecs.has('more')}
+        onToggle={() => toggleSec('more')}
+      >
+        <div className="m-field">
           <label className="m-label">{t('common.address')}</label>
           <input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('common.addressPlaceholder')} />
         </div>
         <div className="m-field">
-          <label className="m-label">{t('common.notesOptional')}</label>
-          <textarea className="m-textarea" rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
+          <label className="m-label">{t('common.birthDate')}</label>
+          <input type="date" className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} />
         </div>
       </Section>
 

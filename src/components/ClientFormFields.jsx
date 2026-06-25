@@ -21,6 +21,8 @@
      - err:      current error string (drives the name's error ring).
    ════════════════════════════════════════════════════════════════ */
 
+import { useState } from 'react'
+import { ChevronDown, MapPin } from 'lucide-react'
 import { useT } from '../i18n/useT'
 
 const STATUSES = [
@@ -39,6 +41,9 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
   const showMeetingTypes = Array.isArray(meetingTypes)
   const setPrice = onPriceChange || ((v) => set('price_per_session', v))
   const nameMissing = !!err && !form.name.trim()
+  /* "More details" (address + birth date) starts open only if one already has a
+     value, so an edited client surfaces them; a fresh form keeps them tucked. */
+  const [moreOpen, setMoreOpen] = useState(!!(form.address || form.birth_date))
 
   return (
     <>
@@ -160,9 +165,24 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
         <input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder="name@example.com" dir="ltr" />
       </div>
 
-      <div className="m-field">
-        <label className="m-label">{t('form.address')}</label>
-        <input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('form.addressPlaceholder')} />
+      <div className={`ec-acc${moreOpen ? ' open' : ''}`}>
+        <button type="button" className="ec-acc-head" onClick={() => setMoreOpen((o) => !o)} aria-expanded={moreOpen}>
+          <span className="ec-acc-ic" aria-hidden="true"><MapPin size={17} strokeWidth={1.7} /></span>
+          <span className="ec-acc-title">{t('form.moreDetails')}</span>
+          <ChevronDown size={16} strokeWidth={1.8} className="ec-acc-chev" aria-hidden="true" />
+        </button>
+        {moreOpen && (
+          <div className="ec-acc-body">
+            <div className="m-field">
+              <label className="m-label">{t('form.address')}</label>
+              <input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('form.addressPlaceholder')} />
+            </div>
+            <div className="m-field">
+              <label className="m-label">{t('form.birthDate')}</label>
+              <input type="date" className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} />
+            </div>
+          </div>
+        )}
       </div>
 
       {groups.length > 0 && (

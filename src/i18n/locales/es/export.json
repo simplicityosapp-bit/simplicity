@@ -25,6 +25,7 @@
     "phone": "Teléfono",
     "email": "Correo",
     "address": "Dirección",
+    "birthDate": "Fecha de nacimiento",
     "sessions": "Sesiones",
     "pricePerSession": "Precio por sesión",
     "notes": "Notas",

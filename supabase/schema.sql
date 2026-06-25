@@ -154,7 +154,8 @@ CREATE TABLE clients (
   paid_adjustment numeric DEFAULT 0 NOT NULL,
   billing_mode text DEFAULT 'package'::text NOT NULL,
   email text,
-  address text
+  address text,
+  birth_date date
 );
 
 CREATE TABLE daily_answers (

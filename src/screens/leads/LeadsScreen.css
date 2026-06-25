@@ -395,6 +395,12 @@
   align-items: center;
   gap: 6px;
 }
+/* "שחרר כאן" — drop a status chip here to move it into this meta group (25/06). */
+.lead-statuses-add.drop-target {
+  outline: 2px dashed color-mix(in srgb, var(--sage) 60%, transparent);
+  outline-offset: 3px;
+  border-radius: var(--mg-chip-radius);
+}
 .lead-statuses-add .m-input {
   flex: 1;
   font-size: calc(12px * var(--text-scale));

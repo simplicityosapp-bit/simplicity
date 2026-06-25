@@ -39,7 +39,7 @@ export interface InvoiceDocInput {
   itemName: string // the product/service line on the document
   itemId?: string | null // optional catalog item id (SUMIT income item) — overrides the ad-hoc name
   paymentMethod: PaymentMethod // only used by receipt-type docs
-  customer: { name: string; email: string | null; phone: string | null }
+  customer: { name: string; email: string | null; phone: string | null; taxId?: string | null } // taxId = ת.ז/ח.פ for an ad-hoc recipient
   send: boolean // ask the provider to send the doc to the customer (only acts if contact info exists)
   businessType?: 'exempt' | 'licensed' | null // drives VAT treatment of the price (see createDocument)
 }
@@ -76,7 +76,7 @@ export interface CreditNoteInput {
   amount: number
   description: string
   itemName: string
-  customer: { name: string; email: string | null; phone: string | null }
+  customer: { name: string; email: string | null; phone: string | null; taxId?: string | null }
   reason: string
   businessType?: 'exempt' | 'licensed' | null // mirror the original document's VAT treatment
 }
@@ -224,6 +224,8 @@ class GreenInvoiceProvider implements InvoiceProvider {
         name: doc.customer.name,
         country: 'IL', // morning expects an ISO-2 country on the inline client
         emails: doc.send && doc.customer.email ? [doc.customer.email] : [],
+        // ת.ז/ח.פ of an ad-hoc recipient (morning `client.taxId`). Omitted when absent.
+        ...(doc.customer.taxId ? { taxId: doc.customer.taxId } : {}),
       },
       // Income-row VAT (morning IncomeVatType): 1 = INCLUDED ("VAT is factored
       // into the stated price"), 2 = EXEMPT, 0/absent = DEFAULT ("VAT added by
@@ -284,7 +286,7 @@ class GreenInvoiceProvider implements InvoiceProvider {
       lang: 'he',
       currency: 'ILS',
       vatType: 0,
-      client: { name: input.customer.name, country: 'IL' }, // match createDocument's inline client
+      client: { name: input.customer.name, country: 'IL', ...(input.customer.taxId ? { taxId: input.customer.taxId } : {}) }, // match createDocument's inline client
       // Match the original document's VAT treatment (see createDocument): a
       // licensed business's amount is gross/VAT-included, so the credit must be too.
       income: [{

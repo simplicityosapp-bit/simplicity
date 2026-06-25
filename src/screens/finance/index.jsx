@@ -31,7 +31,7 @@ const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1)
 export default function FinanceScreen() {
   const { t } = useT('finance')
   const { transactions, loading, error, addTransaction, editTransaction, setStatus, removeTransaction, refetch } = useTransactions()
-  const { clients } = useClients()
+  const { clients, addClient } = useClients()
   const { projects } = useProjects()
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
   const { categories, addCategory, removeCategory } = useCategories()
@@ -233,6 +233,13 @@ export default function FinanceScreen() {
         onSave={editTransaction}
         onIssued={refetch}
         onDelete={removeTransaction}
+        onSaveAsClient={async (tx) => {
+          /* Promote an ad-hoc receipt recipient into a real client, then link
+             the transaction to it (tax id isn't a client field — name/email/phone). */
+          const c = await addClient({ name: tx.recipient_name, email: tx.recipient_email || null, phone: tx.recipient_phone || null })
+          if (c?.id) await editTransaction(tx.id, { client_id: c.id })
+          refetch()
+        }}
       />
 
       <RecurringModal

@@ -26,6 +26,7 @@
     "save": "Enregistrer",
     "saved": "Enregistré",
     "saveError": "Échec de l'enregistrement — l'adresse (slug) est peut-être déjà utilisée.",
+    "slugInvalid": "Adresse invalide — de 3 à 40 caractères : lettres latines minuscules, chiffres et tirets.",
     "sections": "Sections",
     "add": "Ajouter",
     "railEmpty": "Aucune section pour l'instant",
@@ -59,7 +60,6 @@
     "thankYouMessage": "Message de remerciement"
   },
   "inspector": {
-    "availabilityNote": "L'éditeur de disponibilités arrive bientôt (intégration des pages de réservation au moteur).",
     "removeImage": "Retirer",
     "uploading": "Téléversement…",
     "replaceImage": "Remplacer",
@@ -132,7 +132,26 @@
     "style": "Style",
     "fields": "Champs",
     "submitLabel": "Bouton d'envoi",
-    "availability": "Disponibilité",
-    "size": "Taille"
+    "size": "Taille",
+    "bookingSlug": "Adresse de la page de réservation",
+    "buttonLabel": "Texte du bouton"
+  },
+  "fieldTypes": {
+    "text": "Texte",
+    "tel": "Téléphone",
+    "email": "E-mail",
+    "textarea": "Texte long",
+    "select": "Choix unique",
+    "checkbox": "Choix multiple"
+  },
+  "options": {
+    "full": "Plein",
+    "wide": "Large",
+    "narrow": "Étroit",
+    "primary": "Principal",
+    "secondary": "Secondaire",
+    "sm": "Petit",
+    "md": "Moyen",
+    "lg": "Grand"
   }
 }

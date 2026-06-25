@@ -26,6 +26,7 @@
     "save": "שמירה",
     "saved": "נשמר",
     "saveError": "השמירה נכשלה — ייתכן שהכתובת (slug) כבר בשימוש.",
+    "slugInvalid": "כתובת לא תקינה — 3 עד 40 תווים: אותיות לטיניות קטנות, ספרות ומקפים.",
     "sections": "סקשנים",
     "add": "הוסף",
     "railEmpty": "אין סקשנים עדיין",
@@ -59,7 +60,6 @@
     "thankYouMessage": "הודעת תודה"
   },
   "inspector": {
-    "availabilityNote": "עורך הזמינות מגיע בשלב הבא (קיפול דפי הפגישות למנוע).",
     "removeImage": "הסרה",
     "uploading": "מעלה…",
     "replaceImage": "החלפה",
@@ -132,7 +132,26 @@
     "style": "סגנון",
     "fields": "שדות",
     "submitLabel": "כפתור שליחה",
-    "availability": "זמינות",
-    "size": "גודל"
+    "size": "גודל",
+    "bookingSlug": "כתובת דף הפגישות",
+    "buttonLabel": "טקסט הכפתור"
+  },
+  "fieldTypes": {
+    "text": "טקסט",
+    "tel": "טלפון",
+    "email": "אימייל",
+    "textarea": "טקסט ארוך",
+    "select": "בחירה יחידה",
+    "checkbox": "בחירה מרובה"
+  },
+  "options": {
+    "full": "מלא",
+    "wide": "רחב",
+    "narrow": "צר",
+    "primary": "ראשי",
+    "secondary": "משני",
+    "sm": "קטן",
+    "md": "בינוני",
+    "lg": "גדול"
   }
 }

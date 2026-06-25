@@ -26,6 +26,7 @@
     "save": "Guardar",
     "saved": "Guardado",
     "saveError": "Error al guardar — la dirección (slug) puede estar en uso.",
+    "slugInvalid": "Dirección no válida — de 3 a 40 caracteres: letras latinas minúsculas, dígitos y guiones.",
     "sections": "Secciones",
     "add": "Añadir",
     "railEmpty": "Aún no hay secciones",
@@ -59,7 +60,6 @@
     "thankYouMessage": "Mensaje de agradecimiento"
   },
   "inspector": {
-    "availabilityNote": "El editor de disponibilidad llegará pronto (integración de las páginas de reserva en el motor).",
     "removeImage": "Quitar",
     "uploading": "Subiendo…",
     "replaceImage": "Reemplazar",
@@ -132,7 +132,26 @@
     "style": "Estilo",
     "fields": "Campos",
     "submitLabel": "Botón de envío",
-    "availability": "Disponibilidad",
-    "size": "Tamaño"
+    "size": "Tamaño",
+    "bookingSlug": "Dirección de la página de reservas",
+    "buttonLabel": "Texto del botón"
+  },
+  "fieldTypes": {
+    "text": "Texto",
+    "tel": "Teléfono",
+    "email": "Correo",
+    "textarea": "Texto largo",
+    "select": "Selección única",
+    "checkbox": "Selección múltiple"
+  },
+  "options": {
+    "full": "Completo",
+    "wide": "Ancho",
+    "narrow": "Estrecho",
+    "primary": "Principal",
+    "secondary": "Secundario",
+    "sm": "Pequeño",
+    "md": "Mediano",
+    "lg": "Grande"
   }
 }

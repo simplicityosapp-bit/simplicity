@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import {
   BLOCK_TYPES, BLOCK_PALETTE, newSection, sitePageSurface,
-  SITE_FONTS, LEAD_PAGE_BACKGROUNDS, DEFAULT_THEME, slugifyInput,
+  SITE_FONTS, LEAD_PAGE_BACKGROUNDS, DEFAULT_THEME, slugifyInput, isValidSlug,
   FIELD_TYPES, isChoiceType, defaultChoiceOptions, freeFieldKey,
 } from '../../lib/sitePageSchema'
 
@@ -93,6 +93,9 @@ export default function Editor({ page, onSave, onBack }) {
   }
 
   const save = async () => {
+    // A 1–2 char slug passes the live input cleanup but fails the DB CHECK
+    // (3–40). Catch it here with a clear message instead of a generic failure.
+    if (draft.slug && !isValidSlug(draft.slug)) { setSaveError(t('editor.slugInvalid')); return }
     setSaving(true); setSaveError(null)
     try {
       await onSave({
@@ -349,7 +352,7 @@ function Descriptor({ d, value, onChange }) {
       return (
         <label className="spe-f"><span>{label}</span>
           <select value={value ?? d.options[0]} onChange={(e) => onChange(e.target.value)}>
-            {d.options.map((o) => <option key={o} value={o}>{o}</option>)}
+            {d.options.map((o) => <option key={o} value={o}>{t('options.' + o, { defaultValue: o })}</option>)}
           </select>
         </label>
       )
@@ -377,9 +380,13 @@ function ImageField({ value, onChange }) {
     const file = e.target.files?.[0]
     if (!file) return
     setErr(''); setBusy(true)
+    const prev = value
     try {
       const { url } = await uploadPageAsset(file)
       onChange(url)
+      // Replacing an image: clean up the previous asset so it doesn't orphan.
+      const prevPath = assetPathFromUrl(prev)
+      if (prevPath) removePageAsset(prevPath)
     } catch (ex) { setErr(ex.message || t('inspector.uploadFailed')) } finally { setBusy(false); if (inputRef.current) inputRef.current.value = '' }
   }
   const clear = () => {
@@ -472,7 +479,7 @@ function FormFieldsEditor({ value, onChange }) {
           </div>
           <div className="spe-field-row">
             <select value={f.type} disabled={f.builtin} onChange={(e) => setField(i, { type: e.target.value, ...(isChoiceType(e.target.value) && !f.options ? { options: defaultChoiceOptions() } : {}) })}>
-              {FIELD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              {FIELD_TYPES.map((ft) => <option key={ft} value={ft}>{t('fieldTypes.' + ft)}</option>)}
             </select>
             <label className="spe-req-toggle"><input type="checkbox" checked={!!f.required} onChange={(e) => setField(i, { required: e.target.checked })} /> {t('fields.required')}</label>
           </div>

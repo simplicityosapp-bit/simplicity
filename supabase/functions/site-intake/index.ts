@@ -108,7 +108,11 @@ Deno.serve(async (req) => {
     if (req.method === 'GET') {
       if (overLimit(`get:${ip}`, 120, 60_000)) return json({ error: 'rate_limited' }, 429)
       const url = new URL(req.url)
-      const page = await loadPublishedPage(str(url.searchParams.get('page')), str(url.searchParams.get('kind')) || undefined)
+      // `kind` is REQUIRED + server-authoritative: a slug is unique only per
+      // kind, so without it a crafted request could resolve to the wrong page.
+      const kind = str(url.searchParams.get('kind'))
+      if (!kind) return json({ error: 'bad_request' }, 400)
+      const page = await loadPublishedPage(str(url.searchParams.get('page')), kind)
       if (!page) return json({ error: 'not_found' }, 404)
       return json(publicConfig(page))
     }
@@ -119,7 +123,9 @@ Deno.serve(async (req) => {
     if (overLimit(`post:${ip}`, 20, 60_000)) return json({ error: 'rate_limited' }, 429)
 
     const body = await req.json().catch(() => ({}))
-    const page = await loadPublishedPage(str(body?.page), str(body?.kind) || undefined)
+    const kind = str(body?.kind)
+    if (!kind) return json({ error: 'bad_request' }, 400)
+    const page = await loadPublishedPage(str(body?.page), kind)
     if (!page) return json({ error: 'not_found' }, 404)
 
     const answers = (body?.answers && typeof body.answers === 'object') ? body.answers : {}

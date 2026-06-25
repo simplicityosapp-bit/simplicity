@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { sitePageSurface, safeRedirectUrl } from '../../lib/sitePageSchema'
+import { sitePageSurface, safeRedirectUrl, safeImageUrl } from '../../lib/sitePageSchema'
 import { isChoiceType } from '../../lib/leadPageSchema'
 import { iconByName } from '../../lib/pageIcons'
 import { useT } from '../../i18n/useT'
@@ -75,10 +75,11 @@ function TextBlock({ props }) {
 
 function ImageBlock({ props }) {
   const { t } = useT('siteBuilder')
-  if (!str(props.url)) return <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
+  const src = safeImageUrl(props.url)
+  if (!src) return <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
   return (
     <figure className={`sp-figure sp-w-${props.width || 'full'}`}>
-      <img className="sp-img" src={props.url} alt={props.alt || ''} loading="lazy" />
+      <img className="sp-img" src={src} alt={props.alt || ''} loading="lazy" />
     </figure>
   )
 }
@@ -108,7 +109,7 @@ function TestimonialBlock({ props }) {
     <figure className="sp-testimonial">
       {str(props.quote) ? <blockquote className="sp-quote">{props.quote}</blockquote> : null}
       <figcaption className="sp-cite">
-        {str(props.avatar) ? <img className="sp-avatar" src={props.avatar} alt="" loading="lazy" /> : null}
+        {safeImageUrl(props.avatar) ? <img className="sp-avatar" src={safeImageUrl(props.avatar)} alt="" loading="lazy" /> : null}
         <span>
           {str(props.author) ? <strong>{props.author}</strong> : null}
           {str(props.role) ? <em> · {props.role}</em> : null}
@@ -174,7 +175,7 @@ function FormBlock({ section, interactive, runtime }) {
     return (
       <div className="sp-card sp-form sp-form-done">
         <div className="sp-check" aria-hidden="true">✓</div>
-        <p className="sp-thanks">{str(runtime.thankYou?.message) || t('renderer.thankYouDefault')}</p>
+        <p className="sp-thanks">{str(runtime.thankYouBySection?.[section.id]?.message) || t('renderer.thankYouDefault')}</p>
       </div>
     )
   }
@@ -223,8 +224,8 @@ function FormBlock({ section, interactive, runtime }) {
       </div>
       <input type="text" tabIndex={-1} autoComplete="off" className="sp-hp" aria-hidden="true"
         onChange={(e) => { hpRef.current = e.target.value }} />
-      {runtime?.submitError ? <p className="sp-form-error">{runtime.submitError}</p> : null}
-      <button type="submit" className="sp-btn sp-btn-primary sp-form-submit" disabled={!interactive || runtime?.submitting}>
+      {runtime?.errorBySection?.[section.id] ? <p className="sp-form-error">{runtime.errorBySection[section.id]}</p> : null}
+      <button type="submit" className="sp-btn sp-btn-primary sp-form-submit" disabled={!interactive || runtime?.submittingId === section.id}>
         {str(props.submitLabel) || t('renderer.submit')}
       </button>
     </form>

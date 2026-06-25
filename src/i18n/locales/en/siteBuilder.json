@@ -26,6 +26,7 @@
     "save": "Save",
     "saved": "Saved",
     "saveError": "Save failed — the address (slug) may already be in use.",
+    "slugInvalid": "Invalid address — 3 to 40 characters: lowercase Latin letters, digits and hyphens.",
     "sections": "Sections",
     "add": "Add",
     "railEmpty": "No sections yet",
@@ -59,7 +60,6 @@
     "thankYouMessage": "Thank-you message"
   },
   "inspector": {
-    "availabilityNote": "The availability editor is coming next (folding booking pages onto the engine).",
     "removeImage": "Remove",
     "uploading": "Uploading…",
     "replaceImage": "Replace",
@@ -132,7 +132,26 @@
     "style": "Style",
     "fields": "Fields",
     "submitLabel": "Submit button",
-    "availability": "Availability",
-    "size": "Size"
+    "size": "Size",
+    "bookingSlug": "Booking page address",
+    "buttonLabel": "Button text"
+  },
+  "fieldTypes": {
+    "text": "Text",
+    "tel": "Phone",
+    "email": "Email",
+    "textarea": "Long text",
+    "select": "Single choice",
+    "checkbox": "Multiple choice"
+  },
+  "options": {
+    "full": "Full",
+    "wide": "Wide",
+    "narrow": "Narrow",
+    "primary": "Primary",
+    "secondary": "Secondary",
+    "sm": "Small",
+    "md": "Medium",
+    "lg": "Large"
   }
 }

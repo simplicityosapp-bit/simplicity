@@ -20,14 +20,17 @@ export default function SitePage({ kind = 'landing' }) {
   const { pageId } = useParams()
   const [status, setStatus] = useState('loading') // loading | ready | notfound
   const [config, setConfig] = useState(null)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState(null)
+  // Per-section state, so two form blocks on one page never share submit /
+  // error / thank-you (keyed by section id).
+  const [submittingId, setSubmittingId] = useState(null)
+  const [errorBySection, setErrorBySection] = useState({})
   const [submittedForms, setSubmittedForms] = useState(() => new Set())
-  const [thankYou, setThankYou] = useState(null)
+  const [thankYouBySection, setThankYouBySection] = useState({})
 
   useEffect(() => {
     let active = true
-    setStatus('loading'); setConfig(null); setSubmittedForms(new Set()); setThankYou(null); setSubmitError(null)
+    setStatus('loading'); setConfig(null)
+    setSubmittedForms(new Set()); setThankYouBySection({}); setErrorBySection({}); setSubmittingId(null)
     ;(async () => {
       try {
         const cfg = await fetchSitePageConfig(pageId, kind)
@@ -40,17 +43,17 @@ export default function SitePage({ kind = 'landing' }) {
   }, [pageId, kind])
 
   const onSubmitForm = async (answers, sectionId) => {
-    setSubmitError(null); setSubmitting(true)
+    setErrorBySection((p) => ({ ...p, [sectionId]: null })); setSubmittingId(sectionId)
     try {
       const res = await submitSiteForm(pageId, sectionId, answers, kind)
       const ty = res?.thankYou || null
       const redirect = ty?.mode === 'redirect' ? safeRedirectUrl(ty.url) : null
       if (redirect) { window.location.href = redirect; return }
-      setThankYou(ty)
+      setThankYouBySection((p) => ({ ...p, [sectionId]: ty }))
       setSubmittedForms((prev) => new Set(prev).add(sectionId))
     } catch {
-      setSubmitError(t('public.submitFailed'))
-    } finally { setSubmitting(false) }
+      setErrorBySection((p) => ({ ...p, [sectionId]: t('public.submitFailed') }))
+    } finally { setSubmittingId(null) }
   }
 
   if (status === 'loading') {
@@ -72,7 +75,7 @@ export default function SitePage({ kind = 'landing' }) {
       theme={config.theme}
       sections={config.sections}
       interactive
-      runtime={{ onSubmitForm, submitting, submitError, submittedForms, thankYou }}
+      runtime={{ onSubmitForm, submittingId, errorBySection, submittedForms, thankYouBySection }}
     />
   )
 }

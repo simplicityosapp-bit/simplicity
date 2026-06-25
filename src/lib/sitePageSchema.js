@@ -70,6 +70,16 @@ export const DEFAULT_THEME = {
   cardRadius: 24,      // px — card corner roundness
 }
 
+/* Allowlist a coach-authored image/background URL before binding it to an
+   <img src> or a CSS url(). Permits only http(s) and same-origin root-relative
+   paths — blocks javascript:/data:/other schemes as defense-in-depth (these
+   render in a visitor's browser). Returns '' when not allowed. */
+export function safeImageUrl(url) {
+  const raw = (url || '').toString().trim()
+  if (!raw) return ''
+  return (/^https?:\/\//i.test(raw) || raw.startsWith('/')) ? raw : ''
+}
+
 /* Theme → inline CSS vars + className, applied to the `.sp-surface` root used
    by BOTH the builder canvas and the public page (true WYSIWYG). Generalizes
    leadPageSurface(): adds `font` and the three background types. */
@@ -92,10 +102,11 @@ export function sitePageSurface(theme = {}) {
     style['--sp-bg-day'] = `url(${leadPageBgUrl(bg.value, 'day')})`
     style['--sp-bg-night'] = `url(${leadPageBgUrl(bg.value, 'night')})`
     cls.push('has-bg')
-  } else if (bg.type === 'image' && bg.value) {
+  } else if (bg.type === 'image' && safeImageUrl(bg.value)) {
     // Uploaded image has no night variant — reuse it for both.
-    style['--sp-bg-day'] = `url(${bg.value})`
-    style['--sp-bg-night'] = `url(${bg.value})`
+    const safe = safeImageUrl(bg.value)
+    style['--sp-bg-day'] = `url("${safe}")`
+    style['--sp-bg-night'] = `url("${safe}")`
     cls.push('has-bg')
   } else if (bg.type === 'flat') {
     style['--sp-bg-flat'] = bg.value || 'var(--bone)'

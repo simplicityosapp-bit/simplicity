@@ -166,10 +166,21 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  /* Allow the field to shrink inside the grid track so its label/input
+     never push past the card edge on narrow screens. */
+  min-width: 0;
   font-size: var(--mg-caption);
   font-weight: 500;
 }
+.bk-num-field span {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
 .bk-num-field input {
+  width: 100%;
+  min-width: 0;
+  /* Keep inputs aligned across a row when neighbouring labels wrap. */
+  margin-top: auto;
   padding: 10px 12px;
   border: 1px solid rgba(44, 38, 33, 0.14);
   border-radius: 14px;

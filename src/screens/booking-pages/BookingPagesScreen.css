@@ -225,16 +225,7 @@
   font-size: var(--mg-body);
   color: inherit;
   transition: border-color 0.14s ease, box-shadow 0.14s ease;
-  /* Native time controls default to min-width:auto (their intrinsic width),
-     so on narrow mobile the two inputs refuse to shrink and spill out of the
-     card. Let them shrink to share the row; desktop keeps the natural width
-     since flex-shrink only kicks in when space is tight. */
-  min-width: 0;
 }
-/* Keep the separator + delete button at their natural size so only the two
-   time fields absorb the squeeze. */
-.bk-window .bk-window-sep,
-.bk-window .lpe-ctrl-btn { flex: none; }
 .bk-window-sep { opacity: 0.55; }
 
 /* ── Unified brand focus ring across every builder input ──────────── */

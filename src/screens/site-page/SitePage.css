@@ -1,0 +1,193 @@
+/* ════════════════════════════════════════════════════════════════
+   SITE PAGE — shared styling for the renderer (builder canvas + public
+   page). Self-contained; accent via --sp-brand, font via --sp-font, both
+   set inline by sitePageSurface(). RTL.
+
+   Layout reflows by CONTAINER width (not viewport), so the builder's
+   desktop/mobile toggle — which just resizes the canvas frame — produces a
+   real responsive preview without faking the viewport.
+   ════════════════════════════════════════════════════════════════ */
+
+.sp-root {
+  --sp-brand: #C97B5E;
+  --sp-font: 'Heebo', 'Assistant', sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  font-family: var(--sp-font);
+  color: #2c2621;
+  background:
+    radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 12%, #faf7f2) 0%, #f4f1ec 60%, #efece6 100%);
+}
+.sp-surface.has-bg {
+  background-image: var(--sp-bg-day);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+.sp-surface.bg-flat { background: var(--sp-bg-flat, #f7f3ee); }
+
+/* The content column + the responsive container. */
+.sp-page {
+  container-type: inline-size;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: clamp(20px, 5cqi, 56px) clamp(16px, 4cqi, 32px) 64px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 4cqi, 40px);
+}
+
+.sp-empty {
+  text-align: center;
+  color: #8a8278;
+  padding: 48px 0;
+  font-size: 15px;
+}
+
+/* ── Cards (glass) — same recipe as the lead page card ───────────────────── */
+.sp-card {
+  --sp-card-base: #fffdf9;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--sp-card-base) var(--sp-card-opacity, 100%), transparent);
+  -webkit-backdrop-filter: blur(var(--sp-card-blur, 0px));
+  backdrop-filter: blur(var(--sp-card-blur, 0px));
+  border: 1px solid rgba(44, 38, 33, 0.08);
+  border-radius: var(--sp-radius, 24px);
+  box-shadow: 0 1px 2px rgba(42, 37, 32, 0.04), 0 12px 32px rgba(42, 37, 32, 0.10);
+  padding: clamp(22px, 4cqi, 36px);
+}
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+.sp-hero { text-align: start; }
+.sp-eyebrow {
+  font-size: 14px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--sp-brand); margin-bottom: 10px;
+}
+.sp-h1 {
+  font-size: clamp(28px, 7cqi, 46px);
+  font-weight: 700; line-height: 1.2; margin: 0 0 14px;
+}
+.sp-sub {
+  font-size: clamp(16px, 2.6cqi, 20px);
+  line-height: 1.6; color: #5a534b; margin: 0 0 22px; white-space: pre-line;
+}
+
+/* ── Text block (coach rich text) ────────────────────────────────────────── */
+.sp-text { font-size: 16px; line-height: 1.75; color: #4a443c; white-space: pre-line; }
+.sp-text :is(h2, h3) { line-height: 1.3; margin: 0 0 10px; }
+.sp-text p { margin: 0 0 12px; }
+.sp-text a { color: var(--sp-brand); }
+.sp-text ul, .sp-text ol { margin: 0 0 12px; padding-inline-start: 22px; }
+
+/* ── Image ───────────────────────────────────────────────────────────────── */
+.sp-figure { margin: 0; }
+.sp-figure.sp-w-narrow { max-width: 360px; margin-inline: auto; }
+.sp-figure.sp-w-wide { max-width: 100%; }
+.sp-img { display: block; width: 100%; height: auto; border-radius: var(--sp-radius, 24px); }
+.sp-img-empty {
+  border: 1.5px dashed rgba(44, 38, 33, 0.22); border-radius: var(--sp-radius, 24px);
+  padding: 48px; text-align: center; color: #8a8278; font-size: 14px;
+}
+
+/* ── Icon + text (feature list) ──────────────────────────────────────────── */
+.sp-icontext { display: grid; grid-template-columns: 1fr; gap: 18px; }
+@container (min-width: 540px) {
+  .sp-icontext { grid-template-columns: 1fr 1fr; gap: 22px 28px; }
+}
+.sp-feature { display: flex; gap: 14px; align-items: flex-start; }
+.sp-feature-icon {
+  flex: none; width: 44px; height: 44px; border-radius: 12px;
+  display: grid; place-items: center;
+  color: var(--sp-brand);
+  background: color-mix(in srgb, var(--sp-brand) 12%, transparent);
+}
+.sp-feature-title { font-size: 17px; font-weight: 600; margin-bottom: 3px; }
+.sp-feature-text { font-size: 15px; line-height: 1.6; color: #5a534b; margin: 0; }
+
+/* ── Testimonial ─────────────────────────────────────────────────────────── */
+.sp-testimonial {
+  margin: 0; padding: clamp(20px, 4cqi, 32px);
+  border-inline-start: 3px solid var(--sp-brand);
+  background: color-mix(in srgb, var(--sp-brand) 6%, transparent);
+  border-radius: var(--sp-radius, 24px);
+}
+.sp-quote { font-size: clamp(17px, 2.6cqi, 21px); line-height: 1.6; margin: 0 0 16px; font-style: italic; }
+.sp-cite { display: flex; align-items: center; gap: 12px; font-size: 15px; color: #5a534b; }
+.sp-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+
+/* ── Buttons (hero + cta) ────────────────────────────────────────────────── */
+.sp-cta { text-align: start; }
+.sp-btn {
+  display: inline-block; font: inherit; font-size: 16px; font-weight: 600;
+  text-decoration: none; text-align: center; cursor: pointer;
+  border-radius: 14px; padding: 14px 28px; transition: filter 0.15s ease, background 0.15s ease;
+}
+.sp-btn-primary { color: #fff; background: var(--sp-brand); border: none; }
+.sp-btn-primary:hover { filter: brightness(0.93); }
+.sp-btn-secondary {
+  color: var(--sp-brand); background: transparent; border: 1.5px solid var(--sp-brand);
+}
+.sp-btn-secondary:hover { background: color-mix(in srgb, var(--sp-brand) 10%, transparent); }
+
+/* ── Spacer ──────────────────────────────────────────────────────────────── */
+.sp-spacer-sm { height: 8px; }
+.sp-spacer-md { height: 28px; }
+.sp-spacer-lg { height: 60px; }
+
+/* ── Form block ──────────────────────────────────────────────────────────── */
+.sp-h2 { font-size: clamp(20px, 3cqi, 26px); font-weight: 600; line-height: 1.3; margin: 0 0 18px; }
+.sp-fields { display: flex; flex-direction: column; gap: 16px; }
+.sp-field { display: flex; flex-direction: column; gap: 7px; }
+.sp-label { font-size: 14px; font-weight: 500; color: #2c2621; }
+.sp-req { color: var(--sp-brand); }
+.sp-input {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; color: #2c2621;
+  background: #fff; border: 1px solid rgba(44, 38, 33, 0.16); border-radius: 12px;
+  padding: 12px 14px; transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.sp-input:focus { outline: none; border-color: var(--sp-brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sp-brand) 22%, transparent); }
+.sp-input.is-error { border-color: #c0432e; box-shadow: 0 0 0 3px rgba(192, 67, 46, 0.14); }
+.sp-input:disabled { background: #f6f3ee; color: #6b6358; }
+.sp-textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
+.sp-choices { display: flex; flex-direction: column; gap: 10px; padding: 4px 2px; border-radius: 12px; }
+.sp-choices.is-error { box-shadow: 0 0 0 2px rgba(192, 67, 46, 0.35); }
+.sp-choice { display: flex; align-items: center; gap: 10px; font-size: 16px; cursor: pointer; }
+.sp-choice input { width: 19px; height: 19px; flex: none; accent-color: var(--sp-brand); cursor: pointer; }
+.sp-form-submit { width: 100%; margin-top: 24px; }
+.sp-form-error { margin: 16px 0 0; font-size: 14px; color: #c0432e; text-align: center; }
+.sp-muted { color: #6b6358; font-size: 15px; }
+
+/* Form success state (public page, after submit). */
+.sp-form-done { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.sp-check { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-size: 28px; color: #fff; background: var(--sp-brand); }
+.sp-thanks { font-size: 18px; line-height: 1.7; margin: 0; white-space: pre-line; }
+
+/* Honeypot — off-screen, focusable by bots only. */
+.sp-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+/* ── Surface modifiers (from sitePageSurface classes) ────────────────────── */
+.sp-surface.is-bold .sp-h1 { font-weight: 800; }
+.sp-surface.is-bold :is(.sp-sub, .sp-text, .sp-label, .sp-feature-title, .sp-quote) { font-weight: 600; }
+.sp-surface.text-light :is(.sp-h1, .sp-sub, .sp-text, .sp-eyebrow, .sp-feature-title, .sp-feature-text, .sp-quote, .sp-cite, .sp-label, .sp-muted) {
+  color: #f7f3ec; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+.sp-surface.align-center :is(.sp-hero, .sp-cta, .sp-h2) { text-align: center; }
+.sp-surface.align-center .sp-icontext .sp-feature { justify-content: center; }
+
+/* ── Visitor dark mode (public page; OS preference) ──────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .sp-root {
+    color: #f0ebe0;
+    background:
+      radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 16%, #1a1f26) 0%, #161a20 60%, #12161b 100%);
+  }
+  .sp-surface.has-bg { background-image: var(--sp-bg-night); }
+  .sp-card { --sp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
+  .sp-sub, .sp-text, .sp-feature-text, .sp-cite, .sp-muted { color: #b8b0a4; }
+  .sp-h1, .sp-h2, .sp-feature-title, .sp-label, .sp-quote, .sp-choice { color: #f0ebe0; }
+  .sp-input { background: #12161b; color: #f0ebe0; border-color: rgba(240, 235, 224, 0.18); }
+  .sp-input:disabled { background: #181d23; }
+}

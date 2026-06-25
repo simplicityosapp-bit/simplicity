@@ -19,6 +19,8 @@ export function screenKeyFromPath(pathname) {
   /* /bookings/pages mirrors leadPages: its own frosted-glass screen so the
      config cards' backdrop-filter has a photo to blur (see index.css). */
   if (pathname.startsWith('/bookings/pages')) return 'bookingPages'
+  /* /pages — the unified page-builder hub (its own screen key for tint/help). */
+  if (pathname.startsWith('/pages')) return 'sitePages'
   if (pathname.startsWith('/calendar')) return 'calendar'
   if (pathname.startsWith('/goals')) return 'goals'
   if (pathname.startsWith('/moon')) return 'moon'

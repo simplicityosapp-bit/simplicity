@@ -121,13 +121,14 @@ export function exportTransactionsCSV({ transactions, clients, projects, categor
 
 /* Clients — round-trip-friendly columns (re-importable). */
 export function exportClientsCSV({ clients, projects, now }) {
-  const headers = [h('name'), h('phone'), h('email'), h('project'), h('status'), h('sessions'), h('pricePerSession'), h('notes')]
+  const headers = [h('name'), h('phone'), h('email'), h('address'), h('project'), h('status'), h('sessions'), h('pricePerSession'), h('notes')]
   const rows = (clients || [])
     .filter((c) => !c.deleted_at)
     .map((c) => [
       c.name || '',
       c.phone || '',
       c.email || '',
+      c.address || '',
       nameById(projects, c.project_id),
       vlabel('clientStatus', c.status_meta),
       c.sessions != null ? String(c.sessions) : '',
@@ -185,9 +186,9 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
     ]))
 
   addSheet(sheet('clients'),
-    [h('name'), h('phone'), h('email'), h('project'), h('status'), h('sessions'), h('pricePerSession'), h('notes')],
+    [h('name'), h('phone'), h('email'), h('address'), h('project'), h('status'), h('sessions'), h('pricePerSession'), h('notes')],
     (clients || []).filter((c) => !c.deleted_at).map((c) => [
-      c.name || '', c.phone || '', c.email || '', nameById(projects, c.project_id), vlabel('clientStatus', c.status_meta),
+      c.name || '', c.phone || '', c.email || '', c.address || '', nameById(projects, c.project_id), vlabel('clientStatus', c.status_meta),
       c.sessions != null ? String(c.sessions) : '', fmtAmount(Number(c.price_per_session || 0)), decOrFlag(c.notes),
     ]))
 

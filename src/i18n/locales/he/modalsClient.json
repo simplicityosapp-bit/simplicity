@@ -16,6 +16,8 @@
     "phonePlaceholder": "050-0000000",
     "email": "אימייל (אופציונלי)",
     "emailPlaceholder": "name@example.com",
+    "address": "כתובת",
+    "addressPlaceholder": "רחוב, עיר",
     "project": "פרויקט",
     "projectOptional": "פרויקט (אופציונלי)",
     "groupOptional": "קבוצה (אופציונלי)",

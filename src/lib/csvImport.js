@@ -41,6 +41,7 @@ export const CSV_FIELDS = [
   { key: 'price',     label: 'מחיר לפגישה',     step: 'clients'  },
   { key: 'email',     label: 'מייל',            step: null       },
   { key: 'phone',     label: 'טלפון',           step: null       },
+  { key: 'address',   label: 'כתובת',           step: null       },
   { key: 'status',    label: 'סטטוס',           step: null       },
   { key: 'amount',    label: 'סכום (תנועה)',    step: null       },
   { key: 'date',      label: 'תאריך (תנועה)',   step: null       },
@@ -98,6 +99,10 @@ const HEADER_SYNONYMS = {
   email:      ['email', 'mail', 'emailaddress', 'e-mail', 'אימייל', 'מייל', 'דוארא', 'דואראלקטרוני', 'דואל', 'דוארל', 'כתובתמייל', 'כתובתאימייל', 'אימל', 'דואראלקטרוני'],
   phone:      ['phone', 'mobile', 'tel', 'telephone', 'phonenumber', 'cell', 'cellphone', 'whatsapp', 'וואטסאפ', 'ווצאפ', 'ואטסאפ', 'וואצאפ', 'ווטסאפ', 'וואטס',
     'טלפון', 'טל', 'נייד', 'סלולרי', 'סלולארי', 'מספרטלפון', 'מספרנייד', 'מסטלפון', 'מסנייד', 'טלנייד', 'פלאפון', 'פלפון'],
+  /* 'כתובתמייל'/'כתובתאימייל' deliberately stay under `email` above — they
+     win at exact-match before any partial 'כתובת' root is consulted. */
+  address:    ['address', 'addr', 'location', 'streetaddress', 'homeaddress', 'mailingaddress',
+    'כתובת', 'כתובתמלאה', 'כתובתמגורים', 'כתובתלמשלוח', 'מען', 'עיר', 'רחוב', 'ישוב', 'יישוב'],
   project:    ['project', 'projectname', 'program', 'service', 'package', 'פרויקט', 'פרוייקט', 'תוכנית', 'תכנית', 'מסלול', 'שירות', 'חבילה', 'תכנית ליווי'],
   status:     ['status', 'state', 'stage', 'סטטוס', 'סטאטוס', 'מצב', 'שלב', 'מצבלקוח', 'סטטוסלקוח'],
   sessions:   ['sessions', 'session', 'totalsessions', 'meetings', 'numsessions', 'numberofsessions',
@@ -138,6 +143,9 @@ const PARTIAL_ROOTS = [
   ['פרוייקט', 'project'], ['פרויקט', 'project'], ['תוכנית', 'project'], ['תכנית', 'project'], ['מסלול', 'project'],
   ['קטגורי', 'category'], ['סעיף', 'category'], ['סיווג', 'category'],
   ['אימייל', 'email'], ['דואל', 'email'], ['דואר', 'email'], ['מייל', 'email'],
+  /* AFTER the email roots on purpose: "כתובת מייל"/"כתובת אימייל" hit the
+     email root first and win; a bare "כתובת"/"כתובת מגורים" falls to address. */
+  ['כתובת', 'address'], ['מען', 'address'],
   ['פלאפון', 'phone'], ['סלולר', 'phone'], ['וואטסאפ', 'phone'], ['whatsapp', 'phone'], ['טלפון', 'phone'], ['נייד', 'phone'],
   ['מחיר', 'price'], ['תעריף', 'price'], ['עלות', 'price'],
   ['תאריך', 'date'], ['מועד', 'date'],
@@ -325,6 +333,7 @@ export function projectEntities(headers, rows, mapping) {
         name: obj.name,
         email: obj.email || null,
         phone: obj.phone || null,
+        address: obj.address || null,
         project_name: obj.project || null,
         status_meta,
         sessions: Math.abs(Math.trunc(toNum(obj.sessions))) || 0,

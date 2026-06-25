@@ -235,6 +235,14 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
       <div className="cd-group">
         <p className="cd-group-title">{t('sections.contactEnv')}</p>
 
+        <Section title={t('sections.address')} onEdit={onEditClient}>
+          {c.address ? (
+            <p className="cd-note">{c.address}</p>
+          ) : (
+            <p className="cd-empty">{t('sections.noAddress')}</p>
+          )}
+        </Section>
+
         <Section title={t('sections.notes')} onEdit={onEditClient}>
           {c.notes ? (
             <>

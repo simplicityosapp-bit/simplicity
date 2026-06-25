@@ -91,6 +91,7 @@
     "intro": "Manage sub-statuses under each top-level category. Sub-statuses appear when you set a color dot on a lead card, and are used for filtering and charts.",
     "addPlaceholder": "Sub-status for \"{{meta}}\"",
     "addAria": "Add",
+    "dropHere": "Drop here",
     "deleteChipAria": "Delete {{name}}",
     "deleteChipTitle": "Delete",
     "deleteTitle": "Delete sub-status",

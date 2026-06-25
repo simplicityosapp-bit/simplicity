@@ -91,6 +91,7 @@
     "intro": "Gérez les sous-statuts au sein de chaque catégorie principale. Les sous-statuts apparaissent lorsque vous définissez une pastille de couleur sur une fiche de prospect, et servent au filtrage et aux graphiques.",
     "addPlaceholder": "Sous-statut pour « {{meta}} »",
     "addAria": "Ajouter",
+    "dropHere": "Déposez ici",
     "deleteChipAria": "Supprimer {{name}}",
     "deleteChipTitle": "Supprimer",
     "deleteTitle": "Supprimer le sous-statut",

@@ -401,6 +401,18 @@
   outline-offset: 3px;
   border-radius: var(--mg-chip-radius);
 }
+/* Mid-drag the create row swaps its input for this "drop here" prompt. */
+.lead-statuses-drop-hint {
+  flex: 1;
+  text-align: center;
+  padding: 12px 8px;
+  border: 1px dashed var(--divider);
+  border-radius: var(--mg-chip-radius);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 600;
+  color: var(--sage);
+}
 .lead-statuses-add .m-input {
   flex: 1;
   font-size: calc(12px * var(--text-scale));

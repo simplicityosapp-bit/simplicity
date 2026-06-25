@@ -135,22 +135,29 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
               className={`lead-statuses-add${dnd.overZone === `add:${m.key}` && dnd.dragId ? ' drop-target' : ''}`}
               {...dnd.dropZoneProps(`add:${m.key}`)}
             >
-              <input
-                className="m-input"
-                value={drafts[m.key] || ''}
-                onChange={(e) => setDraft(m.key, e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') submit(m.key) }}
-                placeholder={t('statusesPanel.addPlaceholder', { meta: m.title })}
-              />
-              <button
-                type="button"
-                className="lead-statuses-add-btn"
-                onClick={() => submit(m.key)}
-                disabled={!(drafts[m.key] || '').trim() || busy[m.key]}
-                aria-label={t('statusesPanel.addAria')}
-              >
-                <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
-              </button>
+              {dnd.dragId ? (
+                /* Mid-drag the create row becomes the "drop here" target. */
+                <span className="lead-statuses-drop-hint">{t('statusesPanel.dropHere')}</span>
+              ) : (
+                <>
+                  <input
+                    className="m-input"
+                    value={drafts[m.key] || ''}
+                    onChange={(e) => setDraft(m.key, e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') submit(m.key) }}
+                    placeholder={t('statusesPanel.addPlaceholder', { meta: m.title })}
+                  />
+                  <button
+                    type="button"
+                    className="lead-statuses-add-btn"
+                    onClick={() => submit(m.key)}
+                    disabled={!(drafts[m.key] || '').trim() || busy[m.key]}
+                    aria-label={t('statusesPanel.addAria')}
+                  >
+                    <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )

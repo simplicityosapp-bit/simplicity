@@ -91,6 +91,7 @@
     "intro": "Gestiona los subestados bajo cada categoría principal. Los subestados aparecen cuando marcas un punto de color en una ficha de prospecto, y se usan para filtrar y en los gráficos.",
     "addPlaceholder": "Subestado para «{{meta}}»",
     "addAria": "Añadir",
+    "dropHere": "Suelta aquí",
     "deleteChipAria": "Eliminar {{name}}",
     "deleteChipTitle": "Eliminar",
     "deleteTitle": "Eliminar subestado",

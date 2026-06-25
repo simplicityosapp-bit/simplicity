@@ -65,33 +65,29 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
         </div>
       )}
 
-      {(isConverted || onConvert || lead.phone) && (
-        <div className="lead-card-foot">
-          {isConverted && (
-            <div className="lead-converted">
-              <Check size={12} strokeWidth={2} aria-hidden="true" /> {t('card.converted')}
-            </div>
-          )}
-          {!isConverted && onConvert && (
-            <button
-              type="button"
-              className="lead-convert-btn"
-              onClick={(e) => { e.stopPropagation(); onConvert(lead) }}
-            >
-              <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" /> {t('card.convert')}
-            </button>
-          )}
-          {/* Direct WhatsApp — the daily action for a coach; stops propagation
-             so it doesn't open edit or start a drag (usePointerDnd ignores buttons). */}
-          {lead.phone && (
-            <WhatsAppButton
-              phone={lead.phone}
-              message={waMsg('lead', { name: lead.name })}
-              triggerClassName="lead-wa-btn"
-            />
-          )}
-        </div>
-      )}
+      <div className="lead-card-foot">
+        {isConverted && (
+          <div className="lead-converted">
+            <Check size={12} strokeWidth={2} aria-hidden="true" /> {t('card.converted')}
+          </div>
+        )}
+        {!isConverted && onConvert && (
+          <button
+            type="button"
+            className="lead-convert-btn"
+            onClick={(e) => { e.stopPropagation(); onConvert(lead) }}
+          >
+            <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" /> {t('card.convert')}
+          </button>
+        )}
+        {/* Direct WhatsApp on EVERY lead. With no phone, wa.me opens WhatsApp's
+           own contact picker. Stops propagation so it won't open edit/drag. */}
+        <WhatsAppButton
+          phone={lead.phone || ''}
+          message={waMsg('lead', { name: lead.name })}
+          triggerClassName="lead-wa-btn"
+        />
+      </div>
     </div>
   )
 }

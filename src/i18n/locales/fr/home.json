@@ -42,8 +42,8 @@
       "clientsInfoLabel": "À propos des clients",
       "clientsInfoText_pre": "Touchez",
       "clientsInfoText_post": " la carte pour filtrer par statut, projet et groupe. Par défaut : actifs + intermédiaires.",
-      "meetings": "RDV du jour",
-      "meetingsInfoLabel": "À propos des RDV du jour",
+      "meetings": "Agenda",
+      "meetingsInfoLabel": "À propos du planning",
       "meetingsInfoText_pre": "Appuyez sur",
       "meetingsInfoText_post": " la carte pour voir les rendez-vous du jour, les événements de l'agenda et les relances de prospects — et choisir ce qui est inclus."
     },

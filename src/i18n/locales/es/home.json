@@ -42,8 +42,8 @@
       "clientsInfoLabel": "Acerca de los clientes",
       "clientsInfoText_pre": "Toca",
       "clientsInfoText_post": " la tarjeta para filtrar por estado, proyecto y grupo. Por defecto: activo + medio.",
-      "meetings": "Reuniones de hoy",
-      "meetingsInfoLabel": "Acerca de las reuniones de hoy",
+      "meetings": "Agenda",
+      "meetingsInfoLabel": "Acerca de la agenda",
       "meetingsInfoText_pre": "Toca",
       "meetingsInfoText_post": " la tarjeta para ver las reuniones de hoy, los eventos del calendario y los seguimientos de leads, y controlar qué se incluye."
     },

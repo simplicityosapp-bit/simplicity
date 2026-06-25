@@ -71,13 +71,11 @@ export default function PendingLeadsSection({ pending = [], pages = [], onApprov
                 </dl>
               </div>
               <div className="l-pending-actions">
-                {lead.phone && (
-                  <WhatsAppButton
-                    phone={lead.phone}
-                    message={waMsg('lead', { name: lead.name })}
-                    triggerClassName="l-pending-wa"
-                  />
-                )}
+                <WhatsAppButton
+                  phone={lead.phone || ''}
+                  message={waMsg('lead', { name: lead.name })}
+                  triggerClassName="l-pending-wa"
+                />
                 <button type="button" className="l-pending-approve" onClick={() => onApprove(lead.id)}>
                   <Check size={15} strokeWidth={2} aria-hidden="true" /> אישור
                 </button>

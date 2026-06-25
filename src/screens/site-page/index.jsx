@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { fetchSitePageConfig, submitSiteForm } from '../../lib/api/siteIntake'
 import { safeRedirectUrl } from '../../lib/sitePageSchema'
+import { useT } from '../../i18n/useT'
+import '../site-pages/siteBuilderI18n'
 import SiteRenderer from './SiteRenderer'
 import './SitePage.css'
 
@@ -14,6 +16,7 @@ import './SitePage.css'
    so what the coach built is exactly what visitors get. RTL by default. */
 
 export default function SitePage({ kind = 'landing' }) {
+  const { t } = useT('siteBuilder')
   const { pageId } = useParams()
   const [status, setStatus] = useState('loading') // loading | ready | notfound
   const [config, setConfig] = useState(null)
@@ -46,19 +49,19 @@ export default function SitePage({ kind = 'landing' }) {
       setThankYou(ty)
       setSubmittedForms((prev) => new Set(prev).add(sectionId))
     } catch {
-      setSubmitError('השליחה נכשלה, נסו שוב.')
+      setSubmitError(t('public.submitFailed'))
     } finally { setSubmitting(false) }
   }
 
   if (status === 'loading') {
-    return <div className="sp-root" dir="rtl"><div className="sp-page"><p className="sp-muted">טוען…</p></div></div>
+    return <div className="sp-root" dir="rtl"><div className="sp-page"><p className="sp-muted">{t('public.loading')}</p></div></div>
   }
   if (status === 'notfound') {
     return (
       <div className="sp-root" dir="rtl">
         <div className="sp-page"><div className="sp-card sp-form-done">
-          <h1 className="sp-h2">הדף לא נמצא</h1>
-          <p className="sp-muted">ייתכן שהקישור שגוי או שהדף אינו מפורסם.</p>
+          <h1 className="sp-h2">{t('public.notFoundTitle')}</h1>
+          <p className="sp-muted">{t('public.notFoundBody')}</p>
         </div></div>
       </div>
     )

@@ -20,6 +20,8 @@ const BLOCK_ICON = {
 }
 import { ICON_NAMES, iconByName } from '../../lib/pageIcons'
 import { uploadPageAsset, assetPathFromUrl, removePageAsset } from '../../lib/pageAssets'
+import { useT } from '../../i18n/useT'
+import './siteBuilderI18n'
 import SiteRenderer from '../site-page/SiteRenderer'
 import './SitePagesScreen.css'
 
@@ -34,6 +36,7 @@ import './SitePagesScreen.css'
 const clone = (v) => structuredClone(v)
 
 export default function Editor({ page, onSave, onBack }) {
+  const { t } = useT('siteBuilder')
   const [draft, setDraft] = useState(() => ({
     title: page.title || '',
     published: !!page.published,
@@ -109,24 +112,24 @@ export default function Editor({ page, onSave, onBack }) {
     <div className="spe">
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <div className="spe-top">
-        <button className="spe-icon-btn" onClick={onBack} title="חזרה"><ArrowRight size={18} /></button>
+        <button className="spe-icon-btn" onClick={onBack} title={t('editor.back')}><ArrowRight size={18} /></button>
         <input
           className="spe-title-input"
           value={draft.title}
-          placeholder="שם הדף (פנימי)"
+          placeholder={t('editor.titlePlaceholder')}
           onChange={(e) => mutate((d) => ({ ...d, title: e.target.value }))}
         />
         <div className="spe-top-spacer" />
         <div className="spe-device">
-          <button className={device === 'desktop' ? 'is-on' : ''} onClick={() => setDevice('desktop')} title="דסקטופ"><Monitor size={16} /></button>
-          <button className={device === 'mobile' ? 'is-on' : ''} onClick={() => setDevice('mobile')} title="מובייל"><Smartphone size={16} /></button>
+          <button className={device === 'desktop' ? 'is-on' : ''} onClick={() => setDevice('desktop')} title={t('editor.desktop')}><Monitor size={16} /></button>
+          <button className={device === 'mobile' ? 'is-on' : ''} onClick={() => setDevice('mobile')} title={t('editor.mobile')}><Smartphone size={16} /></button>
         </div>
         <label className="spe-pub">
           <input type="checkbox" checked={draft.published} onChange={(e) => mutate((d) => ({ ...d, published: e.target.checked }))} />
-          <span>פרסום</span>
+          <span>{t('editor.publish')}</span>
         </label>
         <button className="spe-save" onClick={save} disabled={saving || !dirty}>
-          {saving ? 'שומר…' : dirty ? 'שמירה' : 'נשמר'}
+          {saving ? t('editor.saving') : dirty ? t('editor.save') : t('editor.saved')}
         </button>
       </div>
 
@@ -134,8 +137,8 @@ export default function Editor({ page, onSave, onBack }) {
         {/* ── Sections rail ─────────────────────────────────────── */}
         <aside className="spe-rail">
           <div className="spe-rail-head">
-            <span>סקשנים</span>
-            <button className="spe-add" onClick={() => setPaletteOpen((v) => !v)}><Plus size={15} /> הוסף</button>
+            <span>{t('editor.sections')}</span>
+            <button className="spe-add" onClick={() => setPaletteOpen((v) => !v)}><Plus size={15} /> {t('editor.add')}</button>
           </div>
           {paletteOpen ? (
             <div className="spe-palette">
@@ -144,7 +147,7 @@ export default function Editor({ page, onSave, onBack }) {
                 const Icon = BLOCK_ICON[type] || Sparkles
                 return (
                   <button key={type} className="spe-palette-item" onClick={() => addSection(type)}>
-                    <Icon size={16} /><span>{def.label}</span>
+                    <Icon size={16} /><span>{t('blocks.' + type, { defaultValue: def.label })}</span>
                   </button>
                 )
               })}
@@ -162,14 +165,14 @@ export default function Editor({ page, onSave, onBack }) {
                 onClick={() => setSelectedId(s.id)}
               >
                 <GripVertical size={14} className="spe-grip" />
-                <span className="spe-sec-label">{BLOCK_TYPES[s.type]?.label || s.type}</span>
-                <button className="spe-sec-del" onClick={(e) => { e.stopPropagation(); deleteSection(s.id) }} title="מחיקה"><Trash2 size={13} /></button>
+                <span className="spe-sec-label">{t('blocks.' + s.type, { defaultValue: BLOCK_TYPES[s.type]?.label || s.type })}</span>
+                <button className="spe-sec-del" onClick={(e) => { e.stopPropagation(); deleteSection(s.id) }} title={t('editor.deleteSection')}><Trash2 size={13} /></button>
               </li>
             ))}
-            {draft.sections.length === 0 ? <li className="spe-rail-empty">אין סקשנים עדיין</li> : null}
+            {draft.sections.length === 0 ? <li className="spe-rail-empty">{t('editor.railEmpty')}</li> : null}
           </ul>
           <button className={`spe-design-btn${!selected ? ' is-on' : ''}`} onClick={() => setSelectedId(null)}>
-            <Palette size={15} /> עיצוב הדף
+            <Palette size={15} /> {t('editor.designPage')}
           </button>
         </aside>
 
@@ -197,32 +200,33 @@ export default function Editor({ page, onSave, onBack }) {
    DESIGN PANEL — page-level theme (font / brand / background / glass).
    ════════════════════════════════════════════════════════════════ */
 function DesignPanel({ theme, setTheme, slug, onSlug, kind, config, setConfig }) {
+  const { t } = useT('siteBuilder')
   const bg = theme.background || DEFAULT_THEME.background
   return (
     <div className="spe-panel">
-      <h3 className="spe-panel-title">עיצוב הדף</h3>
+      <h3 className="spe-panel-title">{t('design.title')}</h3>
 
       <label className="spe-f">
-        <span>כתובת ציבורית (/p/…)</span>
+        <span>{t('design.publicUrl')}</span>
         <input value={slug || ''} placeholder="my-page" onChange={(e) => onSlug(slugifyInput(e.target.value))} />
       </label>
 
       <label className="spe-f">
-        <span>פונט</span>
+        <span>{t('design.font')}</span>
         <select value={theme.font} onChange={(e) => setTheme({ font: e.target.value })}>
           {SITE_FONTS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
         </select>
       </label>
 
       <label className="spe-f spe-f-row">
-        <span>צבע מותג</span>
+        <span>{t('design.brandColor')}</span>
         <input type="color" value={theme.brandColor} onChange={(e) => setTheme({ brandColor: e.target.value })} />
       </label>
 
       <div className="spe-f">
-        <span>רקע</span>
+        <span>{t('design.background')}</span>
         <div className="spe-seg">
-          {[['scene', 'תמונה'], ['flat', 'צבע'], ['image', 'העלאה']].map(([k, lbl]) => (
+          {[['scene', t('design.bgScene')], ['flat', t('design.bgFlat')], ['image', t('design.bgImage')]].map(([k, lbl]) => (
             <button key={k} className={bg.type === k ? 'is-on' : ''}
               onClick={() => setTheme({ background: { type: k, value: k === 'flat' ? '#f7f3ee' : (k === 'scene' ? 'home' : '') } })}>
               {lbl}
@@ -242,7 +246,7 @@ function DesignPanel({ theme, setTheme, slug, onSlug, kind, config, setConfig })
         </div>
       ) : null}
       {bg.type === 'flat' ? (
-        <label className="spe-f spe-f-row"><span>צבע רקע</span>
+        <label className="spe-f spe-f-row"><span>{t('design.bgFlatColor')}</span>
           <input type="color" value={bg.value || '#f7f3ee'} onChange={(e) => setTheme({ background: { type: 'flat', value: e.target.value } })} />
         </label>
       ) : null}
@@ -250,17 +254,17 @@ function DesignPanel({ theme, setTheme, slug, onSlug, kind, config, setConfig })
         <ImageField value={bg.value} onChange={(url) => setTheme({ background: { type: 'image', value: url } })} />
       ) : null}
 
-      <Slider label="שקיפות כרטיס" min={0} max={100} value={theme.cardOpacity} onChange={(v) => setTheme({ cardOpacity: v })} />
-      <Slider label="טשטוש זכוכית" min={0} max={40} value={theme.cardBlur} onChange={(v) => setTheme({ cardBlur: v })} />
-      <Slider label="עיגול פינות" min={8} max={40} value={theme.cardRadius} onChange={(v) => setTheme({ cardRadius: v })} />
+      <Slider label={t('design.cardOpacity')} min={0} max={100} value={theme.cardOpacity} onChange={(v) => setTheme({ cardOpacity: v })} />
+      <Slider label={t('design.cardBlur')} min={0} max={40} value={theme.cardBlur} onChange={(v) => setTheme({ cardBlur: v })} />
+      <Slider label={t('design.cardRadius')} min={8} max={40} value={theme.cardRadius} onChange={(v) => setTheme({ cardRadius: v })} />
 
-      <label className="spe-f spe-f-row"><span>טקסט בהיר (לרקע כהה)</span>
+      <label className="spe-f spe-f-row"><span>{t('design.textLight')}</span>
         <input type="checkbox" checked={theme.textColor === 'light'} onChange={(e) => setTheme({ textColor: e.target.checked ? 'light' : 'dark' })} />
       </label>
-      <label className="spe-f spe-f-row"><span>מודגש</span>
+      <label className="spe-f spe-f-row"><span>{t('design.bold')}</span>
         <input type="checkbox" checked={!!theme.bold} onChange={(e) => setTheme({ bold: e.target.checked })} />
       </label>
-      <label className="spe-f spe-f-row"><span>מרכוז</span>
+      <label className="spe-f spe-f-row"><span>{t('design.center')}</span>
         <input type="checkbox" checked={theme.textAlign === 'center'} onChange={(e) => setTheme({ textAlign: e.target.checked ? 'center' : 'start' })} />
       </label>
 
@@ -273,23 +277,24 @@ function DesignPanel({ theme, setTheme, slug, onSlug, kind, config, setConfig })
 /* Lead-page settings that live in page `config` (not a visual section):
    the manual-approval gate + the post-submit thank-you. */
 function LeadSettings({ config, setConfig }) {
+  const { t } = useT('siteBuilder')
   const ty = config.thankYou || { mode: 'message', message: '', url: '' }
   const setTy = (patch) => setConfig({ thankYou: { ...ty, ...patch } })
   return (
     <>
-      <h3 className="spe-panel-title" style={{ marginTop: 8 }}>הגדרות טופס</h3>
-      <label className="spe-f spe-f-row"><span>אישור אוטומטי (דילוג על בדיקה ידנית)</span>
+      <h3 className="spe-panel-title" style={{ marginTop: 8 }}>{t('settings.title')}</h3>
+      <label className="spe-f spe-f-row"><span>{t('settings.autoApprove')}</span>
         <input type="checkbox" checked={!!config.autoApprove} onChange={(e) => setConfig({ autoApprove: e.target.checked })} />
       </label>
-      <label className="spe-f"><span>אחרי שליחה</span>
+      <label className="spe-f"><span>{t('settings.afterSubmit')}</span>
         <select value={ty.mode || 'message'} onChange={(e) => setTy({ mode: e.target.value })}>
-          <option value="message">הצגת הודעת תודה</option>
-          <option value="redirect">הפניה לכתובת</option>
+          <option value="message">{t('settings.modeMessage')}</option>
+          <option value="redirect">{t('settings.modeRedirect')}</option>
         </select>
       </label>
       {ty.mode === 'redirect'
-        ? <label className="spe-f"><span>כתובת הפניה</span><input placeholder="https://…" value={ty.url || ''} onChange={(e) => setTy({ url: e.target.value })} /></label>
-        : <label className="spe-f"><span>הודעת תודה</span><textarea rows={2} value={ty.message || ''} onChange={(e) => setTy({ message: e.target.value })} /></label>}
+        ? <label className="spe-f"><span>{t('settings.redirectUrl')}</span><input placeholder="https://…" value={ty.url || ''} onChange={(e) => setTy({ url: e.target.value })} /></label>
+        : <label className="spe-f"><span>{t('settings.thankYouMessage')}</span><textarea rows={2} value={ty.message || ''} onChange={(e) => setTy({ message: e.target.value })} /></label>}
     </>
   )
 }
@@ -307,12 +312,13 @@ function Slider({ label, min, max, value, onChange }) {
    SECTION INSPECTOR — renders inputs from BLOCK_TYPES[type].editable.
    ════════════════════════════════════════════════════════════════ */
 function SectionInspector({ section, onChange }) {
+  const { t } = useT('siteBuilder')
   const def = BLOCK_TYPES[section.type]
   if (!def) return null
   const props = section.props || {}
   return (
     <div className="spe-panel">
-      <h3 className="spe-panel-title">{def.label}</h3>
+      <h3 className="spe-panel-title">{t('blocks.' + section.type, { defaultValue: def.label })}</h3>
       {def.editable.map((d) => (
         <Descriptor key={d.key} d={d} value={props[d.key]} onChange={(v) => onChange({ [d.key]: v })} />
       ))}
@@ -321,44 +327,47 @@ function SectionInspector({ section, onChange }) {
 }
 
 function Descriptor({ d, value, onChange }) {
+  const { t } = useT('siteBuilder')
+  const label = t('labels.' + d.key, { defaultValue: d.label })
   switch (d.type) {
     case 'text':
-      return <label className="spe-f"><span>{d.label}</span><input value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></label>
+      return <label className="spe-f"><span>{label}</span><input value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></label>
     case 'textarea':
     case 'richtext':
-      return <label className="spe-f"><span>{d.label}</span><textarea rows={d.type === 'richtext' ? 5 : 3} value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></label>
+      return <label className="spe-f"><span>{label}</span><textarea rows={d.type === 'richtext' ? 5 : 3} value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></label>
     case 'number':
-      return <label className="spe-f"><span>{d.label}</span><input type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} /></label>
+      return <label className="spe-f"><span>{label}</span><input type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} /></label>
     case 'toggle':
-      return <label className="spe-f spe-f-row"><span>{d.label}</span><input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} /></label>
+      return <label className="spe-f spe-f-row"><span>{label}</span><input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} /></label>
     case 'color':
-      return <label className="spe-f spe-f-row"><span>{d.label}</span><input type="color" value={value || '#000000'} onChange={(e) => onChange(e.target.value)} /></label>
+      return <label className="spe-f spe-f-row"><span>{label}</span><input type="color" value={value || '#000000'} onChange={(e) => onChange(e.target.value)} /></label>
     case 'select':
       return (
-        <label className="spe-f"><span>{d.label}</span>
+        <label className="spe-f"><span>{label}</span>
           <select value={value ?? d.options[0]} onChange={(e) => onChange(e.target.value)}>
             {d.options.map((o) => <option key={o} value={o}>{o}</option>)}
           </select>
         </label>
       )
     case 'image':
-      return <div className="spe-f"><span>{d.label}</span><ImageField value={value} onChange={onChange} /></div>
+      return <div className="spe-f"><span>{label}</span><ImageField value={value} onChange={onChange} /></div>
     case 'icon':
-      return <div className="spe-f"><span>{d.label}</span><IconPicker value={value} onChange={onChange} /></div>
+      return <div className="spe-f"><span>{label}</span><IconPicker value={value} onChange={onChange} /></div>
     case 'action':
-      return <div className="spe-f"><span>{d.label}</span><ActionField value={value} onChange={onChange} /></div>
+      return <div className="spe-f"><span>{label}</span><ActionField value={value} onChange={onChange} /></div>
     case 'list':
       return <ListField d={d} value={value} onChange={onChange} />
     case 'formFields':
       return <FormFieldsEditor value={value} onChange={onChange} />
     case 'availability':
-      return <div className="spe-f"><span>{d.label}</span><p className="spe-note">עורך הזמינות מגיע בשלב הבא (קיפול דפי הפגישות למנוע).</p></div>
+      return <div className="spe-f"><span>{label}</span><p className="spe-note">{t('inspector.availabilityNote')}</p></div>
     default:
       return null
   }
 }
 
 function ImageField({ value, onChange }) {
+  const { t } = useT('siteBuilder')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const inputRef = useRef(null)
@@ -369,7 +378,7 @@ function ImageField({ value, onChange }) {
     try {
       const { url } = await uploadPageAsset(file)
       onChange(url)
-    } catch (ex) { setErr(ex.message || 'ההעלאה נכשלה') } finally { setBusy(false); if (inputRef.current) inputRef.current.value = '' }
+    } catch (ex) { setErr(ex.message || t('inspector.uploadFailed')) } finally { setBusy(false); if (inputRef.current) inputRef.current.value = '' }
   }
   const clear = () => {
     const path = assetPathFromUrl(value)
@@ -378,9 +387,9 @@ function ImageField({ value, onChange }) {
   }
   return (
     <div className="spe-image">
-      {value ? <div className="spe-image-prev"><img src={value} alt="" /><button onClick={clear} title="הסרה"><X size={14} /></button></div> : null}
+      {value ? <div className="spe-image-prev"><img src={value} alt="" /><button onClick={clear} title={t('inspector.removeImage')}><X size={14} /></button></div> : null}
       <button className="spe-upload" onClick={() => inputRef.current?.click()} disabled={busy}>
-        <Upload size={14} /> {busy ? 'מעלה…' : value ? 'החלפה' : 'העלאת תמונה'}
+        <Upload size={14} /> {busy ? t('inspector.uploading') : value ? t('inspector.replaceImage') : t('inspector.uploadImage')}
       </button>
       <input ref={inputRef} type="file" accept="image/*" hidden onChange={pick} />
       {err ? <p className="spe-err">{err}</p> : null}
@@ -404,13 +413,14 @@ function IconPicker({ value, onChange }) {
 }
 
 function ActionField({ value, onChange }) {
+  const { t } = useT('siteBuilder')
   const a = value || { type: 'link', url: '' }
   return (
     <div className="spe-action">
       <select value={a.type} onChange={(e) => onChange({ ...a, type: e.target.value })}>
-        <option value="link">קישור חיצוני</option>
-        <option value="scrollToForm">גלילה לטופס</option>
-        <option value="booking">קביעת פגישה</option>
+        <option value="link">{t('action.link')}</option>
+        <option value="scrollToForm">{t('action.scrollToForm')}</option>
+        <option value="booking">{t('action.booking')}</option>
       </select>
       {a.type === 'link' ? (
         <input placeholder="https://…" value={a.url || ''} onChange={(e) => onChange({ ...a, url: e.target.value })} />
@@ -420,13 +430,14 @@ function ActionField({ value, onChange }) {
 }
 
 function ListField({ d, value, onChange }) {
+  const { t } = useT('siteBuilder')
   const items = Array.isArray(value) ? value : []
   const setItem = (i, patch) => onChange(items.map((it, j) => (j === i ? { ...it, ...patch } : it)))
   const add = () => onChange([...items, Object.fromEntries(d.item.map((f) => [f.key, f.type === 'icon' ? 'Check' : '']))])
   const remove = (i) => onChange(items.filter((_, j) => j !== i))
   return (
     <div className="spe-f">
-      <span>{d.label}</span>
+      <span>{t('labels.' + d.key, { defaultValue: d.label })}</span>
       {items.map((it, i) => (
         <div className="spe-listitem" key={i}>
           <div className="spe-listitem-head"><span>#{i + 1}</span><button onClick={() => remove(i)}><Trash2 size={13} /></button></div>
@@ -435,7 +446,7 @@ function ListField({ d, value, onChange }) {
           ))}
         </div>
       ))}
-      <button className="spe-add-row" onClick={add}><Plus size={14} /> הוספת פריט</button>
+      <button className="spe-add-row" onClick={add}><Plus size={14} /> {t('inspector.addItem')}</button>
     </div>
   )
 }
@@ -443,13 +454,14 @@ function ListField({ d, value, onChange }) {
 /* Compact lead-form field editor (label + type + required), reusing the
    lead-page field model. Builtin fields keep their key; free fields get one. */
 function FormFieldsEditor({ value, onChange }) {
+  const { t } = useT('siteBuilder')
   const fields = Array.isArray(value) ? value : []
   const setField = (i, patch) => onChange(fields.map((f, j) => (j === i ? { ...f, ...patch } : f)))
   const remove = (i) => onChange(fields.filter((_, j) => j !== i))
-  const add = () => onChange([...fields, { key: freeFieldKey(fields), label: 'שדה חדש', type: 'text', required: false, builtin: false }])
+  const add = () => onChange([...fields, { key: freeFieldKey(fields), label: t('fields.newField'), type: 'text', required: false, builtin: false }])
   return (
     <div className="spe-f">
-      <span>שדות הטופס</span>
+      <span>{t('fields.formFields')}</span>
       {fields.map((f, i) => (
         <div className="spe-listitem" key={f.key}>
           <div className="spe-listitem-head">
@@ -460,16 +472,16 @@ function FormFieldsEditor({ value, onChange }) {
             <select value={f.type} disabled={f.builtin} onChange={(e) => setField(i, { type: e.target.value, ...(isChoiceType(e.target.value) && !f.options ? { options: defaultChoiceOptions() } : {}) })}>
               {FIELD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
-            <label className="spe-req-toggle"><input type="checkbox" checked={!!f.required} onChange={(e) => setField(i, { required: e.target.checked })} /> חובה</label>
+            <label className="spe-req-toggle"><input type="checkbox" checked={!!f.required} onChange={(e) => setField(i, { required: e.target.checked })} /> {t('fields.required')}</label>
           </div>
           {isChoiceType(f.type) ? (
-            <input className="spe-flex" placeholder="אפשרויות, מופרדות בפסיק"
+            <input className="spe-flex" placeholder={t('fields.optionsPlaceholder')}
               value={(f.options || []).join(', ')}
               onChange={(e) => setField(i, { options: e.target.value.split(',').map((o) => o.trim()).filter(Boolean) })} />
           ) : null}
         </div>
       ))}
-      <button className="spe-add-row" onClick={add}><Plus size={14} /> הוספת שדה</button>
+      <button className="spe-add-row" onClick={add}><Plus size={14} /> {t('fields.addField')}</button>
     </div>
   )
 }

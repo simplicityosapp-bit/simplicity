@@ -1,0 +1,136 @@
+{
+  "hub": {
+    "title": "Créateur de pages",
+    "subtitle": "Créez des pages d'atterrissage, des formulaires et des pages de réservation — par glisser-déposer, avec sections, arrière-plans et icônes.",
+    "newLanding": "Nouvelle page d'atterrissage",
+    "newLead": "Nouvelle page de contact",
+    "loading": "Chargement…",
+    "emptyText": "Aucune page pour l'instant. Créez la première.",
+    "untitled": "Page sans titre",
+    "badgePublished": "Publiée",
+    "badgeDraft": "Brouillon",
+    "edit": "Modifier",
+    "copyLink": "Copier le lien",
+    "open": "Ouvrir",
+    "delete": "Supprimer",
+    "legacyText": "Le créateur de «{{kind}}» sur le nouveau moteur arrive bientôt.",
+    "legacyLink": "Aller au créateur actuel →"
+  },
+  "editor": {
+    "back": "Retour",
+    "titlePlaceholder": "Nom de la page (interne)",
+    "desktop": "Ordinateur",
+    "mobile": "Mobile",
+    "publish": "Publier",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "sections": "Sections",
+    "add": "Ajouter",
+    "railEmpty": "Aucune section pour l'instant",
+    "deleteSection": "Supprimer",
+    "designPage": "Design de la page"
+  },
+  "design": {
+    "title": "Design de la page",
+    "publicUrl": "Adresse publique (/p/…)",
+    "font": "Police",
+    "brandColor": "Couleur de marque",
+    "background": "Arrière-plan",
+    "bgScene": "Photo",
+    "bgFlat": "Couleur",
+    "bgImage": "Téléverser",
+    "bgFlatColor": "Couleur d'arrière-plan",
+    "cardOpacity": "Opacité de la carte",
+    "cardBlur": "Flou de verre",
+    "cardRadius": "Arrondi des coins",
+    "textLight": "Texte clair (pour arrière-plans sombres)",
+    "bold": "Gras",
+    "center": "Centrer"
+  },
+  "settings": {
+    "title": "Réglages du formulaire",
+    "autoApprove": "Approbation automatique (ignorer la vérification manuelle)",
+    "afterSubmit": "Après l'envoi",
+    "modeMessage": "Afficher un message de remerciement",
+    "modeRedirect": "Rediriger vers une URL",
+    "redirectUrl": "URL de redirection",
+    "thankYouMessage": "Message de remerciement"
+  },
+  "inspector": {
+    "availabilityNote": "L'éditeur de disponibilités arrive bientôt (intégration des pages de réservation au moteur).",
+    "removeImage": "Retirer",
+    "uploading": "Téléversement…",
+    "replaceImage": "Remplacer",
+    "uploadImage": "Téléverser une image",
+    "uploadFailed": "Le téléversement a échoué",
+    "addItem": "Ajouter un élément"
+  },
+  "action": {
+    "link": "Lien externe",
+    "scrollToForm": "Défiler vers le formulaire",
+    "booking": "Prendre rendez-vous"
+  },
+  "fields": {
+    "formFields": "Champs du formulaire",
+    "newField": "Nouveau champ",
+    "required": "Obligatoire",
+    "optionsPlaceholder": "Options, séparées par des virgules",
+    "addField": "Ajouter un champ"
+  },
+  "public": {
+    "loading": "Chargement…",
+    "notFoundTitle": "Page introuvable",
+    "notFoundBody": "Le lien est peut-être incorrect, ou la page n'est pas publiée.",
+    "submitFailed": "L'envoi a échoué, veuillez réessayer."
+  },
+  "renderer": {
+    "imageEmpty": "Image",
+    "bookingPlaceholder": "Le sélecteur de créneau apparaîtra ici.",
+    "thankYouDefault": "Merci ! Nous avons reçu vos coordonnées et reviendrons vers vous.",
+    "submit": "Envoyer",
+    "empty": "La page est vide — ajoutez votre première section."
+  },
+  "kinds": {
+    "landing": "Page d'atterrissage",
+    "lead": "Page de contact",
+    "booking": "Page de réservation"
+  },
+  "blocks": {
+    "hero": "En-tête",
+    "text": "Texte",
+    "image": "Image",
+    "iconText": "Avantages",
+    "testimonial": "Témoignage",
+    "cta": "Bouton",
+    "form": "Formulaire de contact",
+    "booking": "Réservation",
+    "spacer": "Espacement"
+  },
+  "labels": {
+    "eyebrow": "Texte d'accroche",
+    "heading": "Titre",
+    "subheading": "Sous-titre",
+    "ctaLabel": "Bouton",
+    "ctaAction": "Action du bouton",
+    "text": "Contenu",
+    "url": "Image",
+    "alt": "Texte alternatif",
+    "width": "Largeur",
+    "items": "Éléments",
+    "icon": "Icône",
+    "title": "Titre",
+    "body": "Description",
+    "quote": "Citation",
+    "author": "Nom",
+    "role": "Rôle",
+    "avatar": "Image",
+    "label": "Texte",
+    "action": "Action",
+    "style": "Style",
+    "fields": "Champs",
+    "submitLabel": "Bouton d'envoi",
+    "availability": "Disponibilité",
+    "size": "Taille"
+  }
+}

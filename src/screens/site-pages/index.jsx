@@ -4,6 +4,8 @@ import { Plus, Pencil, Trash2, ExternalLink, Copy, Check, LayoutTemplate } from 
 import { useSitePages } from '../../hooks/useSitePages'
 import { newSitePageDraft, publicSitePageUrl, KIND_LABEL } from '../../lib/sitePageSchema'
 import { ROUTES } from '../../lib/routes'
+import { useT } from '../../i18n/useT'
+import './siteBuilderI18n'
 import Editor from './Editor'
 import './SitePagesScreen.css'
 
@@ -19,9 +21,10 @@ const KINDS = ['landing', 'lead', 'booking']
 /* Engine-backed kinds (landing + lead after phase 2); booking still legacy. */
 const ENGINE_KINDS = new Set(['landing', 'lead'])
 const LEGACY_ROUTE = { booking: ROUTES.BOOKING_PAGES }
-const NEW_LABEL = { landing: 'דף נחיתה חדש', lead: 'דף השארת פרטים חדש' }
+const NEW_LABEL = { landing: 'hub.newLanding', lead: 'hub.newLead' }
 
 export default function SitePagesScreen() {
+  const { t } = useT('siteBuilder')
   const { pages, loading, addPage, updatePage, removePage } = useSitePages()
   const [kind, setKind] = useState('landing')
   const [editingId, setEditingId] = useState(null)
@@ -54,14 +57,14 @@ export default function SitePagesScreen() {
   return (
     <div className="screen" data-screen="sitePages">
       <div className="screen-top">
-        <h1 className="s-hero">בנאי דפים</h1>
-        <p className="s-sub">בנו דפי נחיתה, טפסים ודפי תיאום — בגרירה, עם סקשנים, רקעים ואייקונים.</p>
+        <h1 className="s-hero">{t('hub.title')}</h1>
+        <p className="s-sub">{t('hub.subtitle')}</p>
       </div>
 
       <div className="spg-tabs">
         {KINDS.map((k) => (
           <button key={k} className={`spg-tab${kind === k ? ' is-on' : ''}`} onClick={() => setKind(k)}>
-            {KIND_LABEL[k]}
+            {t('kinds.' + k, { defaultValue: KIND_LABEL[k] })}
           </button>
         ))}
       </div>
@@ -69,28 +72,28 @@ export default function SitePagesScreen() {
       {ENGINE_KINDS.has(kind) ? (
         <>
           <div className="spg-toolbar">
-            <button className="cta-add" onClick={createPage}><Plus size={16} /> {NEW_LABEL[kind]}</button>
+            <button className="cta-add" onClick={createPage}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
           </div>
           {loading ? (
-            <p className="spg-muted">טוען…</p>
+            <p className="spg-muted">{t('hub.loading')}</p>
           ) : list.length === 0 ? (
             <div className="spg-empty">
               <LayoutTemplate size={32} />
-              <p>אין עדיין דפים. צרו את הראשון.</p>
+              <p>{t('hub.emptyText')}</p>
             </div>
           ) : (
             <ul className="spg-grid">
               {list.map((p) => (
                 <li key={p.id} className="spg-card">
                   <div className="spg-card-main" onClick={() => setEditingId(p.id)}>
-                    <span className="spg-card-title">{p.title || 'דף ללא שם'}</span>
-                    <span className={`spg-badge${p.published ? ' is-pub' : ''}`}>{p.published ? 'מפורסם' : 'טיוטה'}</span>
+                    <span className="spg-card-title">{p.title || t('hub.untitled')}</span>
+                    <span className={`spg-badge${p.published ? ' is-pub' : ''}`}>{p.published ? t('hub.badgePublished') : t('hub.badgeDraft')}</span>
                   </div>
                   <div className="spg-card-actions">
-                    <button onClick={() => setEditingId(p.id)} title="עריכה"><Pencil size={15} /></button>
-                    <button onClick={() => copyLink(p)} title="העתקת קישור">{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</button>
-                    {p.published ? <a href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title="פתיחה"><ExternalLink size={15} /></a> : null}
-                    <button onClick={() => removePage(p.id)} title="מחיקה"><Trash2 size={15} /></button>
+                    <button onClick={() => setEditingId(p.id)} title={t('hub.edit')}><Pencil size={15} /></button>
+                    <button onClick={() => copyLink(p)} title={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</button>
+                    {p.published ? <a href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')}><ExternalLink size={15} /></a> : null}
+                    <button onClick={() => removePage(p.id)} title={t('hub.delete')}><Trash2 size={15} /></button>
                   </div>
                 </li>
               ))}
@@ -99,8 +102,8 @@ export default function SitePagesScreen() {
         </>
       ) : (
         <div className="spg-legacy">
-          <p>הבנאי של «{KIND_LABEL[kind]}» על המנוע החדש מגיע בקרוב.</p>
-          <Link className="spg-legacy-link" to={LEGACY_ROUTE[kind]}>למעבר לבנאי הקיים →</Link>
+          <p>{t('hub.legacyText', { kind: t('kinds.' + kind, { defaultValue: KIND_LABEL[kind] }) })}</p>
+          <Link className="spg-legacy-link" to={LEGACY_ROUTE[kind]}>{t('hub.legacyLink')}</Link>
         </div>
       )}
     </div>

@@ -2,6 +2,8 @@ import { useState, useRef } from 'react'
 import { sitePageSurface, safeRedirectUrl } from '../../lib/sitePageSchema'
 import { isChoiceType } from '../../lib/leadPageSchema'
 import { iconByName } from '../../lib/pageIcons'
+import { useT } from '../../i18n/useT'
+import '../site-pages/siteBuilderI18n'
 import './SitePage.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -72,7 +74,8 @@ function TextBlock({ props }) {
 }
 
 function ImageBlock({ props }) {
-  if (!str(props.url)) return <div className="sp-img-empty">תמונה</div>
+  const { t } = useT('siteBuilder')
+  if (!str(props.url)) return <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
   return (
     <figure className={`sp-figure sp-w-${props.width || 'full'}`}>
       <img className="sp-img" src={props.url} alt={props.alt || ''} loading="lazy" />
@@ -131,6 +134,7 @@ function SpacerBlock({ props }) {
    the submit is inert. On the public page the parent passes `runtime` and we
    manage answer state locally, then hand a flat answers map up to submit. */
 function FormBlock({ section, interactive, runtime }) {
+  const { t } = useT('siteBuilder')
   const props = section.props || {}
   const fields = Array.isArray(props.fields) ? props.fields : []
   const [values, setValues] = useState({})
@@ -170,7 +174,7 @@ function FormBlock({ section, interactive, runtime }) {
     return (
       <div className="sp-card sp-form sp-form-done">
         <div className="sp-check" aria-hidden="true">✓</div>
-        <p className="sp-thanks">{str(runtime.thankYou?.message) || 'תודה! קיבלנו את הפרטים ונחזור אליכם.'}</p>
+        <p className="sp-thanks">{str(runtime.thankYou?.message) || t('renderer.thankYouDefault')}</p>
       </div>
     )
   }
@@ -221,7 +225,7 @@ function FormBlock({ section, interactive, runtime }) {
         onChange={(e) => { hpRef.current = e.target.value }} />
       {runtime?.submitError ? <p className="sp-form-error">{runtime.submitError}</p> : null}
       <button type="submit" className="sp-btn sp-btn-primary sp-form-submit" disabled={!interactive || runtime?.submitting}>
-        {str(props.submitLabel) || 'שליחה'}
+        {str(props.submitLabel) || t('renderer.submit')}
       </button>
     </form>
   )
@@ -230,10 +234,11 @@ function FormBlock({ section, interactive, runtime }) {
 /* Booking block — visual shell for phase 1.2. The live slot-picker + submit is
    wired in a later sub-task (it needs the booking-intake edge function). */
 function BookingBlock({ props }) {
+  const { t } = useT('siteBuilder')
   return (
     <div className="sp-card sp-booking">
       {str(props.heading) ? <h2 className="sp-h2">{props.heading}</h2> : null}
-      <p className="sp-muted">בחירת מועד תופיע כאן.</p>
+      <p className="sp-muted">{t('renderer.bookingPlaceholder')}</p>
     </div>
   )
 }
@@ -263,6 +268,7 @@ function Section({ section, interactive, runtime }) {
 }
 
 export default function SiteRenderer({ theme, sections, interactive = false, runtime, className = '' }) {
+  const { t } = useT('siteBuilder')
   const { style, cls } = sitePageSurface(theme)
   const list = Array.isArray(sections) ? sections : []
   return (
@@ -271,7 +277,7 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
         {list.map((s) => (
           <Section key={s.id} section={s} interactive={interactive} runtime={runtime} />
         ))}
-        {list.length === 0 ? <div className="sp-empty">הדף ריק — הוסיפו סקשן ראשון.</div> : null}
+        {list.length === 0 ? <div className="sp-empty">{t('renderer.empty')}</div> : null}
       </div>
     </div>
   )

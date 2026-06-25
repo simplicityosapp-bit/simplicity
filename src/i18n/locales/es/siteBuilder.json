@@ -1,0 +1,136 @@
+{
+  "hub": {
+    "title": "Creador de páginas",
+    "subtitle": "Crea páginas de aterrizaje, formularios y páginas de reserva — arrastrando, con secciones, fondos e iconos.",
+    "newLanding": "Nueva página de aterrizaje",
+    "newLead": "Nueva página de contacto",
+    "loading": "Cargando…",
+    "emptyText": "Aún no hay páginas. Crea la primera.",
+    "untitled": "Página sin título",
+    "badgePublished": "Publicada",
+    "badgeDraft": "Borrador",
+    "edit": "Editar",
+    "copyLink": "Copiar enlace",
+    "open": "Abrir",
+    "delete": "Eliminar",
+    "legacyText": "El creador de «{{kind}}» en el nuevo motor llegará pronto.",
+    "legacyLink": "Ir al creador actual →"
+  },
+  "editor": {
+    "back": "Volver",
+    "titlePlaceholder": "Nombre de la página (interno)",
+    "desktop": "Escritorio",
+    "mobile": "Móvil",
+    "publish": "Publicar",
+    "saving": "Guardando…",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "sections": "Secciones",
+    "add": "Añadir",
+    "railEmpty": "Aún no hay secciones",
+    "deleteSection": "Eliminar",
+    "designPage": "Diseño de la página"
+  },
+  "design": {
+    "title": "Diseño de la página",
+    "publicUrl": "Dirección pública (/p/…)",
+    "font": "Fuente",
+    "brandColor": "Color de marca",
+    "background": "Fondo",
+    "bgScene": "Foto",
+    "bgFlat": "Color",
+    "bgImage": "Subir",
+    "bgFlatColor": "Color de fondo",
+    "cardOpacity": "Opacidad de la tarjeta",
+    "cardBlur": "Desenfoque de cristal",
+    "cardRadius": "Redondeo de esquinas",
+    "textLight": "Texto claro (para fondos oscuros)",
+    "bold": "Negrita",
+    "center": "Centrar"
+  },
+  "settings": {
+    "title": "Ajustes del formulario",
+    "autoApprove": "Aprobación automática (omitir revisión manual)",
+    "afterSubmit": "Tras enviar",
+    "modeMessage": "Mostrar un mensaje de agradecimiento",
+    "modeRedirect": "Redirigir a una URL",
+    "redirectUrl": "URL de redirección",
+    "thankYouMessage": "Mensaje de agradecimiento"
+  },
+  "inspector": {
+    "availabilityNote": "El editor de disponibilidad llegará pronto (integración de las páginas de reserva en el motor).",
+    "removeImage": "Quitar",
+    "uploading": "Subiendo…",
+    "replaceImage": "Reemplazar",
+    "uploadImage": "Subir imagen",
+    "uploadFailed": "La subida falló",
+    "addItem": "Añadir elemento"
+  },
+  "action": {
+    "link": "Enlace externo",
+    "scrollToForm": "Desplazar al formulario",
+    "booking": "Reservar una cita"
+  },
+  "fields": {
+    "formFields": "Campos del formulario",
+    "newField": "Nuevo campo",
+    "required": "Obligatorio",
+    "optionsPlaceholder": "Opciones, separadas por comas",
+    "addField": "Añadir campo"
+  },
+  "public": {
+    "loading": "Cargando…",
+    "notFoundTitle": "Página no encontrada",
+    "notFoundBody": "Es posible que el enlace sea incorrecto o que la página no esté publicada.",
+    "submitFailed": "El envío falló, inténtalo de nuevo."
+  },
+  "renderer": {
+    "imageEmpty": "Imagen",
+    "bookingPlaceholder": "El selector de horario aparecerá aquí.",
+    "thankYouDefault": "¡Gracias! Recibimos tus datos y te contactaremos.",
+    "submit": "Enviar",
+    "empty": "La página está vacía — añade tu primera sección."
+  },
+  "kinds": {
+    "landing": "Página de aterrizaje",
+    "lead": "Página de contacto",
+    "booking": "Página de reserva"
+  },
+  "blocks": {
+    "hero": "Encabezado",
+    "text": "Texto",
+    "image": "Imagen",
+    "iconText": "Ventajas",
+    "testimonial": "Testimonio",
+    "cta": "Botón",
+    "form": "Formulario de contacto",
+    "booking": "Reserva",
+    "spacer": "Espaciador"
+  },
+  "labels": {
+    "eyebrow": "Texto superior",
+    "heading": "Título",
+    "subheading": "Subtítulo",
+    "ctaLabel": "Botón",
+    "ctaAction": "Acción del botón",
+    "text": "Contenido",
+    "url": "Imagen",
+    "alt": "Texto alternativo",
+    "width": "Ancho",
+    "items": "Elementos",
+    "icon": "Icono",
+    "title": "Título",
+    "body": "Descripción",
+    "quote": "Cita",
+    "author": "Nombre",
+    "role": "Cargo",
+    "avatar": "Imagen",
+    "label": "Texto",
+    "action": "Acción",
+    "style": "Estilo",
+    "fields": "Campos",
+    "submitLabel": "Botón de envío",
+    "availability": "Disponibilidad",
+    "size": "Tamaño"
+  }
+}

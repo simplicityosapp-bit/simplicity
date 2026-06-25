@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Trash2, UserPlus } from 'lucide-react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import InvoiceActions from '../components/InvoiceActions'
@@ -7,7 +7,7 @@ import { PAY_METHODS, payMethodLabel } from '../lib/invoiceDocs'
 import { useT } from '../i18n/useT'
 
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
-export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [], onDelete }) {
+export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [], onDelete, onSaveAsClient }) {
   const { t } = useT('modalsData')
   const STATUSES = [
     { k: 'confirmed', l: t('editTx.statusConfirmed') },
@@ -27,7 +27,17 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
   }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [savingClient, setSavingClient] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  /* Ad-hoc recipient = a receipt was (or will be) issued to a non-client whose
+     details live on the tx. Offer to promote them to a real client. */
+  const isAdHoc = !!tx?.recipient_name && !tx?.client_id
+  const saveAsClient = async () => {
+    if (!onSaveAsClient || savingClient) return
+    setSavingClient(true)
+    try { await onSaveAsClient(tx); onClose() }
+    catch (e) { setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') })); setSavingClient(false) }
+  }
   /* Resolved once per (clients, client_id) instead of re-scanning on every keystroke. */
   const clientName = useMemo(() => clients.find((c) => c.id === tx?.client_id)?.name, [clients, tx?.client_id])
   /* Whether the form has unsaved edits vs the saved transaction — issuance is
@@ -142,6 +152,21 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
           </select>
         </div>
       </div>
+
+      {isAdHoc && (
+        <div className="m-field m-recipient">
+          <p className="m-label">{t('tx.recipientSectionLabel')}</p>
+          <p className="m-recipient-name">{tx.recipient_name}</p>
+          {(tx.recipient_email || tx.recipient_phone || tx.recipient_tax_id) && (
+            <p className="m-recipient-meta">{[tx.recipient_email, tx.recipient_phone, tx.recipient_tax_id].filter(Boolean).join(' · ')}</p>
+          )}
+          {onSaveAsClient && (
+            <button type="button" className="m-recipient-save" onClick={saveAsClient} disabled={savingClient}>
+              <UserPlus size={15} strokeWidth={1.8} aria-hidden="true" /> {savingClient ? t('common.saving') : t('tx.saveAsClient')}
+            </button>
+          )}
+        </div>
+      )}
 
       {form.type === 'expense' && (
         <div className="m-field">

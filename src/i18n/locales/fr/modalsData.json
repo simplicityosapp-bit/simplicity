@@ -42,7 +42,16 @@
     "saved": "Transaction enregistrée",
     "savedAndIssued": "Transaction enregistrée et {{doc}} émis{{num}}",
     "numPrefix": " n° {{num}}",
-    "issueFailed": "Transaction enregistrée, mais l'émission a échoué — vous pouvez l'émettre depuis la modification"
+    "issueFailed": "Transaction enregistrée, mais l'émission a échoué — vous pouvez l'émettre depuis la modification",
+    "recipientAdHoc": "Destinataire ponctuel (sans client)",
+    "recipientHint": "Coordonnées du destinataire pour le reçu — non enregistré comme client.",
+    "recipientNamePlaceholder": "Nom du destinataire",
+    "recipientEmailPlaceholder": "E-mail (pour envoyer le reçu)",
+    "recipientPhonePlaceholder": "Téléphone",
+    "recipientTaxIdPlaceholder": "N° fiscal / SIRET",
+    "recipientNameRequired": "Saisissez un nom de destinataire.",
+    "recipientSectionLabel": "Destinataire ponctuel",
+    "saveAsClient": "Enregistrer comme client"
   },
   "editTx": {
     "title": "Modifier la transaction",

@@ -45,13 +45,24 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   const [issueOnCreate, setIssueOnCreate] = useState(false)
   const [issueDocType, setIssueDocType] = useState('invoice_receipt')
   const [issuePayment, setIssuePayment] = useState('bank_transfer')
+  /* Ad-hoc recipient — issue a receipt for someone who ISN'T a client. Active
+     when the client select is the "__adhoc__" sentinel (income only, standalone
+     add flow). The details are saved on the transaction (recipient_*). */
+  const [recipient, setRecipient] = useState({ name: '', email: '', phone: '', tax_id: '' })
+  const setRcp = (k, v) => setRecipient((r) => ({ ...r, [k]: v }))
+  const adHoc = form.type === 'income' && !lockedClientId && form.client_id === '__adhoc__'
   const set = (k, v) => {
     /* Leaving the expense type unmounts the inline category-creator block —
        reset its state so switching back to הוצאה shows the normal <select>. */
     if (k === 'type' && v !== 'expense') { setCreatingCat(false); setNewCatName('') }
-    setForm((f) => ({ ...f, [k]: v }))
+    setForm((f) => {
+      const next = { ...f, [k]: v }
+      /* Leaving income → the ad-hoc recipient option no longer applies. */
+      if (k === 'type' && v !== 'income' && f.client_id === '__adhoc__') next.client_id = ''
+      return next
+    })
   }
-  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); onClose() }
+  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); setRecipient({ name: '', email: '', phone: '', tax_id: '' }); onClose() }
 
   /* Inline "new category" creation (Option C1): only when the parent passes
      onCreateCategory. Creating one selects it immediately so the user never
@@ -75,11 +86,12 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   const submit = async () => {
     const amount = parseFloat(form.amount)
     if (!amount || amount <= 0) { setErr(t('common.amountPositive')); return }
+    if (adHoc && !recipient.name.trim()) { setErr(t('tx.recipientNameRequired')); return }
     setBusy(true)
     setErr('')
     const isFuture = form.date > todayStr()
-    const clientId = lockedClientId || form.client_id || null
-    const wantIssue = issueOnCreate && form.type === 'income' && !!clientId && !isFuture
+    const clientId = lockedClientId || (form.client_id && form.client_id !== '__adhoc__' ? form.client_id : null)
+    const wantIssue = issueOnCreate && form.type === 'income' && (!!clientId || adHoc) && !isFuture
       && !!inv.status?.connected && !inv.status?.credentials_invalid
     try {
       const row = await onSave({
@@ -94,6 +106,14 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
         payment_method: form.payment_method || null,
         recurring_id: null,
         orphaned_from: null,
+        /* Ad-hoc recipient details ride on the income tx (only when in ad-hoc
+           mode — normal client-linked inserts are byte-identical to before). */
+        ...(adHoc ? {
+          recipient_name: recipient.name.trim(),
+          recipient_email: recipient.email.trim() || null,
+          recipient_phone: recipient.phone.trim() || null,
+          recipient_tax_id: recipient.tax_id.trim() || null,
+        } : {}),
       })
       if (wantIssue && row?.id) {
         try {
@@ -122,7 +142,8 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   /* Issue-on-creation is offered only for income when a usable provider is
      connected; the body explains the missing piece (client / future date). */
   const issuable = form.type === 'income' && !!inv.status?.connected && !inv.status?.credentials_invalid
-  const hasClient = !!(lockedClientId || form.client_id)
+  /* An issuable target = a real client OR a named ad-hoc recipient. */
+  const hasClient = !!(lockedClientId || (form.client_id && form.client_id !== '__adhoc__') || (adHoc && recipient.name.trim()))
   const futureDate = form.date > todayStr()
 
   return (
@@ -185,6 +206,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
             <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
               <option value="">{t('common.none')}</option>
               {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {form.type === 'income' && <option value="__adhoc__">{t('tx.recipientAdHoc')}</option>}
             </select>
           </div>
           <div className="m-field">
@@ -194,6 +216,23 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
+        </div>
+      )}
+
+      {adHoc && (
+        <div className="m-field m-recipient">
+          <p className="m-hint">{t('tx.recipientHint')}</p>
+          <input
+            className="m-input"
+            value={recipient.name}
+            onChange={(e) => setRcp('name', e.target.value)}
+            placeholder={t('tx.recipientNamePlaceholder')}
+          />
+          <div className="m-row2">
+            <input className="m-input" type="email" value={recipient.email} onChange={(e) => setRcp('email', e.target.value)} placeholder={t('tx.recipientEmailPlaceholder')} />
+            <input className="m-input" value={recipient.phone} onChange={(e) => setRcp('phone', e.target.value)} placeholder={t('tx.recipientPhonePlaceholder')} />
+          </div>
+          <input className="m-input" value={recipient.tax_id} onChange={(e) => setRcp('tax_id', e.target.value)} placeholder={t('tx.recipientTaxIdPlaceholder')} />
         </div>
       )}
 

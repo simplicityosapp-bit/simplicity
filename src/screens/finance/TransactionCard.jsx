@@ -14,7 +14,10 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
   const client = tx.client_id ? clients.find((c) => c.id === tx.client_id) : null
   const project = tx.project_id ? projects.find((p) => p.id === tx.project_id) : null
   const category = tx.category_id ? categories.find((c) => c.id === tx.category_id) : null
-  const meta = [client?.name, project?.name].filter(Boolean).join(' · ')
+  /* Ad-hoc receipt recipient (no client) — show their name where the client name would be. */
+  const recipientName = !client && tx.recipient_name ? tx.recipient_name : null
+  const partyName = client?.name || recipientName
+  const meta = [partyName, project?.name].filter(Boolean).join(' · ')
   const isExpense = tx.type === 'expense'
   const isPending = tx.status === 'pending'
   const isSkipped = tx.status === 'skipped'
@@ -22,8 +25,8 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
   /* A receipt/invoice was issued and we hold its public document link →
      offer to send it to the client over WhatsApp (not credited). */
   const hasReceipt = !!tx.invoice_document_url && !isCredited
-  const waVars = { name: client?.name, number: tx.invoice_document_number, url: tx.invoice_document_url }
-  const waMessage = hasReceipt ? waMsg(client?.name ? 'receipt' : 'receiptNoName', waVars) : ''
+  const waVars = { name: partyName, number: tx.invoice_document_number, url: tx.invoice_document_url }
+  const waMessage = hasReceipt ? waMsg(partyName ? 'receipt' : 'receiptNoName', waVars) : ''
 
   return (
     <div
@@ -72,7 +75,7 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
               </button>
             )}
             {hasReceipt && (
-              <WhatsAppButton phone={client?.phone} message={waMessage} triggerClassName="f-tx-btn wa" />
+              <WhatsAppButton phone={client?.phone || tx.recipient_phone} message={waMessage} triggerClassName="f-tx-btn wa" />
             )}
             {onDelete && (
               <button type="button" className="f-tx-btn delete" onClick={stop(() => onDelete(tx.id))} title={t('tx.delete')} aria-label={t('tx.delete')}>

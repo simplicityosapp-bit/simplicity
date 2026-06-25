@@ -42,7 +42,16 @@
     "saved": "Transaction saved",
     "savedAndIssued": "Transaction saved and {{doc}} issued{{num}}",
     "numPrefix": " no. {{num}}",
-    "issueFailed": "Transaction saved, but issuing failed — you can issue it from edit"
+    "issueFailed": "Transaction saved, but issuing failed — you can issue it from edit",
+    "recipientAdHoc": "One-off recipient (no client)",
+    "recipientHint": "Recipient details for the receipt — not saved as a client.",
+    "recipientNamePlaceholder": "Recipient name",
+    "recipientEmailPlaceholder": "Email (to send the receipt)",
+    "recipientPhonePlaceholder": "Phone",
+    "recipientTaxIdPlaceholder": "Tax ID / Company no.",
+    "recipientNameRequired": "Enter a recipient name.",
+    "recipientSectionLabel": "One-off recipient",
+    "saveAsClient": "Save as client"
   },
   "editTx": {
     "title": "Edit transaction",

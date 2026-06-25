@@ -524,6 +524,10 @@ CREATE TABLE transactions (
   recurring_id uuid,
   orphaned_from jsonb,
   payment_method text,
+  recipient_name text,
+  recipient_email text,
+  recipient_phone text,
+  recipient_tax_id text,
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
   deleted_at timestamp with time zone

@@ -247,6 +247,43 @@
   color: var(--stone);
 }
 
+/* ── Ad-hoc receipt recipient (Add/Edit transaction) ────────────── */
+.m-recipient { display: flex; flex-direction: column; gap: 8px; }
+.m-recipient .m-row2 { margin: 0; }
+.m-recipient .m-hint { margin: 0 0 2px; }
+.m-recipient-name {
+  margin: 2px 0 0;
+  font-family: var(--mg-font);
+  font-weight: 600;
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+}
+.m-recipient-meta {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+.m-recipient-save {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 8px 16px;
+  border: var(--mg-card-border);
+  border-radius: var(--mg-btn-radius);
+  background: var(--mg-btn-secondary-bg);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.m-recipient-save:hover:not(:disabled) { background: var(--mg-btn-secondary-bg-hover); }
+.m-recipient-save:disabled { opacity: 0.6; cursor: default; }
+
 /* ── Taxonomy manager (TaskTaxonomyModal) — section title + chips ── */
 .m-section-title {
   margin: 18px 0 2px;

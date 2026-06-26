@@ -73,6 +73,64 @@ export const TEMPLATES = [
       { id: 's3', type: 'form', style: {}, props: { heading: 'השאירו פרטים', submitLabel: 'שליחה', fields: FIELDS() } },
     ],
   },
+  {
+    id: 'event', kind: 'landing',
+    theme: theme({ brandColor: '#C97B5E', background: { type: 'scene', value: 'goals' }, cardOpacity: 93 }),
+    sections: [
+      { id: 's1', type: 'hero', style: {}, props: { eyebrow: 'אירוע מיוחד', heading: 'שמרו את התאריך', subheading: 'מפגש אחד שלא כדאי לפספס — מספר המקומות מוגבל.', ctaLabel: 'אני רוצה מקום', ctaAction: { type: 'scrollToForm', url: '' } } },
+      { id: 's2', type: 'image', style: {}, props: { url: '', alt: 'תמונת האירוע', width: 'wide' } },
+      { id: 's3', type: 'iconText', style: {}, props: { items: [
+        { icon: 'Calendar', title: 'מתי', body: 'הוסיפו כאן את התאריך והשעה.' },
+        { icon: 'MapPin', title: 'איפה', body: 'מיקום פיזי או קישור לאונליין.' },
+        { icon: 'Gift', title: 'מה כולל', body: 'מה המשתתפים מקבלים.' },
+      ] } },
+      { id: 's4', type: 'cta', style: {}, props: { label: 'להרשמה לאירוע', action: { type: 'scrollToForm', url: '' }, style: 'primary' } },
+      { id: 's5', type: 'form', style: {}, props: { heading: 'הרשמה לאירוע', submitLabel: 'שמרו לי מקום', fields: FIELDS() } },
+    ],
+  },
+  {
+    id: 'pricing', kind: 'landing',
+    theme: theme({ brandColor: '#8BA888', background: { type: 'scene', value: 'finance' }, cardOpacity: 95 }),
+    sections: [
+      { id: 's1', type: 'hero', style: {}, props: { eyebrow: 'חבילות', heading: 'בחרו את מה שמתאים לכם', subheading: 'מסלולים ברורים, בלי הפתעות.', ctaLabel: 'דברו איתי', ctaAction: { type: 'scrollToForm', url: '' } } },
+      { id: 's2', type: 'cards', style: {}, props: { columns: 'auto', items: [
+        { icon: 'Leaf', title: 'בסיסי', body: 'להתחלה — הליווי החיוני.', link: '' },
+        { icon: 'Star', title: 'מומלץ', body: 'התמורה הטובה ביותר.', link: '' },
+        { icon: 'Award', title: 'פרימיום', body: 'ליווי צמוד ומקיף.', link: '' },
+      ] } },
+      { id: 's3', type: 'faq', style: {}, props: { items: [
+        { q: 'אפשר לשנות מסלול?', a: 'בהחלט — אפשר לשדרג או להתאים בכל שלב.' },
+        { q: 'יש התחייבות?', a: 'מתחילים בלי התחייבות. נמשיך רק אם מתאים לכם.' },
+      ] } },
+      { id: 's4', type: 'divider', style: {}, props: { width: 'narrow' } },
+      { id: 's5', type: 'form', style: {}, props: { heading: 'לא בטוחים מה מתאים? השאירו פרטים', submitLabel: 'שליחה', fields: FIELDS() } },
+    ],
+  },
+  {
+    id: 'video', kind: 'landing',
+    theme: theme({ brandColor: '#B5634E', background: { type: 'scene', value: 'clients' }, cardOpacity: 92 }),
+    sections: [
+      { id: 's1', type: 'hero', style: {}, props: { eyebrow: '', heading: 'צפו בסרטון הקצר', subheading: 'דקה אחת שתסביר בדיוק איך אני יכול לעזור לכם.', ctaLabel: 'דברו איתי', ctaAction: { type: 'scrollToForm', url: '' } } },
+      { id: 's2', type: 'video', style: {}, props: { url: '' } },
+      { id: 's3', type: 'iconText', style: {}, props: { items: [
+        { icon: 'Smile', title: 'פשוט', body: 'תהליך ברור מהרגע הראשון.' },
+        { icon: 'Shield', title: 'בטוח', body: 'יחס אישי ודיסקרטי.' },
+        { icon: 'Zap', title: 'מהיר', body: 'מתחילים כבר השבוע.' },
+      ] } },
+      { id: 's4', type: 'form', style: {}, props: { heading: 'מעוניינים? השאירו פרטים', submitLabel: 'שליחה', fields: FIELDS() } },
+    ],
+  },
+  {
+    id: 'story', kind: 'landing',
+    theme: theme({ font: 'frank', brandColor: '#C97B5E', background: { type: 'flat', value: '#f7f3ee' }, cardOpacity: 100 }),
+    sections: [
+      { id: 's1', type: 'hero', style: {}, props: { eyebrow: 'נעים להכיר', heading: 'הסיפור שלי', subheading: 'קצת על מי שאני ועל הדרך שהביאה אותי לכאן.', ctaLabel: '', ctaAction: { type: 'scrollToForm', url: '' } } },
+      { id: 's2', type: 'image', style: {}, props: { url: '', alt: 'תמונה אישית', width: 'narrow' } },
+      { id: 's3', type: 'text', style: {}, props: { text: 'כאן מקום לספר את הסיפור שלכם — מאיפה התחלתם, מה הוביל אתכם לתחום, ולמה זה חשוב לכם. אנשים מתחברים לאנשים, אז דברו בגובה העיניים.' } },
+      { id: 's4', type: 'gallery', style: {}, props: { columns: 'auto', items: [{ url: '' }, { url: '' }, { url: '' }] } },
+      { id: 's5', type: 'form', style: {}, props: { heading: 'רוצים ליצור קשר?', submitLabel: 'שליחה', fields: FIELDS() } },
+    ],
+  },
   /* ── Lead capture ────────────────────────────────────────────────────── */
   {
     id: 'quickLead', kind: 'lead',
@@ -93,6 +151,19 @@ export const TEMPLATES = [
         { icon: 'Gift', title: 'חינם', body: 'נשלח ישר למייל.', link: '' },
       ] } },
       { id: 's3', type: 'form', style: {}, props: { heading: 'קבלו את המדריך למייל', submitLabel: 'שלחו לי את המדריך', fields: FIELDS() } },
+    ],
+  },
+  {
+    id: 'webinar', kind: 'lead',
+    theme: theme({ brandColor: '#B5634E', background: { type: 'scene', value: 'reports' }, cardOpacity: 94 }),
+    sections: [
+      { id: 's1', type: 'hero', style: {}, props: { eyebrow: 'וובינר חינמי', heading: 'הצטרפו למפגש החי', subheading: 'נרשמים, מקבלים קישור, ומתחילים ללמוד.', ctaLabel: '', ctaAction: { type: 'scrollToForm', url: '' } } },
+      { id: 's2', type: 'iconText', style: {}, props: { items: [
+        { icon: 'BookOpen', title: 'מה תלמדו', body: 'הנקודות המרכזיות שתיקחו איתכם.' },
+        { icon: 'Clock', title: 'כמה זמן', body: 'מפגש ממוקד של 45 דקות.' },
+        { icon: 'Users', title: 'למי מתאים', body: 'לכל מי שרוצה להתחיל נכון.' },
+      ] } },
+      { id: 's3', type: 'form', style: {}, props: { heading: 'הרשמה לוובינר', submitLabel: 'שמרו לי מקום', fields: FIELDS() } },
     ],
   },
 ]

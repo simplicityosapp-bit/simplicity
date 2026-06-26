@@ -31,7 +31,12 @@
     "service": "Servicio profesional",
     "simple": "Simple y limpio",
     "quickLead": "Captación rápida",
-    "leadMagnet": "Oferta / lead magnet"
+    "leadMagnet": "Oferta / lead magnet",
+    "event": "Evento / lanzamiento",
+    "pricing": "Precios y paquetes",
+    "video": "Página con vídeo",
+    "story": "Historia personal",
+    "webinar": "Registro a webinar"
   },
   "editor": {
     "back": "Volver",

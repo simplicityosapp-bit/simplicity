@@ -45,7 +45,6 @@ const ClientsScreen = lazyWithRetry(() => import('./screens/clients'))
 const FinanceScreen = lazyWithRetry(() => import('./screens/finance'))
 const TasksScreen = lazyWithRetry(() => import('./screens/tasks'))
 const LeadsScreen = lazyWithRetry(() => import('./screens/leads'))
-const LeadPagesScreen = lazyWithRetry(() => import('./screens/lead-pages'))
 const BookingPagesScreen = lazyWithRetry(() => import('./screens/booking-pages'))
 const SitePagesScreen = lazyWithRetry(() => import('./screens/site-pages'))
 const SitePagesBuilder = lazyWithRetry(() => import('./screens/site-pages/Builder'))
@@ -68,9 +67,6 @@ const AdminApp = lazyWithRetry(() => import('./screens/admin'))
    crawlers) instead of bouncing them to /login. Lazy so it never weighs
    down the authenticated app bundle; a logged-in "/" still renders Home. */
 const LandingScreen = lazyWithRetry(() => import('./screens/landing'))
-/* Public lead-capture landing page — served at /lead/<id> to logged-out
-   visitors (the coach's prospects). Lazy so it never weighs down the app. */
-const LeadPageScreen = lazyWithRetry(() => import('./screens/lead-page'))
 /* Public appointment-booking page — served at /book/<id> to logged-out
    visitors. Lazy so it never weighs down the authenticated app. */
 const BookingPageScreen = lazyWithRetry(() => import('./screens/booking-page'))
@@ -361,8 +357,8 @@ function Root() {
     return (
       <Suspense fallback={<LoadingSplash />}>
         <Routes>
-          {/* Phase 2: lead pages now render on the unified engine (kind='lead');
-              the legacy LeadPageScreen + lead-intake stay as backup. */}
+          {/* Lead pages render on the unified engine (kind='lead'); the legacy
+              LeadPageScreen + lead-intake have been retired. */}
           <Route path={ROUTES.LEAD_PAGE} element={<SitePagePublicScreen kind="lead" />} />
         </Routes>
       </Suspense>

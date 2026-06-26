@@ -1,6 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
+    { "source": "/p/:slug", "destination": "/api/page?kind=landing&slug=:slug" },
+    { "source": "/lead/:slug", "destination": "/api/page?kind=lead&slug=:slug" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

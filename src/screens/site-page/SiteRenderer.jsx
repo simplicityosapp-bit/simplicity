@@ -1,6 +1,8 @@
 import { useState, useRef, Component } from 'react'
 import { sitePageSurface, safeRedirectUrl, safeImageUrl, safeVideoEmbed } from '../../lib/sitePageSchema'
 import { renderRichText } from '../../lib/richText'
+import { useBookingFlow } from './useBookingFlow'
+import '../booking-pages/bookingI18n'   // self-registers the 'booking' namespace (inline picker labels)
 import { isChoiceType } from '../../lib/leadPageSchema'
 import { iconByName } from '../../lib/pageIcons'
 import { useT } from '../../i18n/useT'
@@ -322,23 +324,138 @@ function FormBlock({ section, interactive, runtime }) {
   )
 }
 
-/* Booking block — a branded card that links out to the coach's existing
-   booking page (/book/<slug>). A native in-page slot-picker is a future phase. */
+/* tz/locale-aware display helpers for the inline booking picker. */
+const fmtTime = (iso, tz, lang) =>
+  new Intl.DateTimeFormat(lang || 'he', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(iso))
+const fmtDayLabel = (iso, tz, lang) =>
+  new Intl.DateTimeFormat(lang || 'he', { timeZone: tz, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(iso))
+
+/* Booking block — shows the coach's existing booking page's slot-picker INLINE
+   (type → day → time → details → done), driven by useBookingFlow over the same
+   `booking-intake` edge function the standalone /book page uses (so anti-double-
+   booking + calendar + Google write are unchanged). In the editor canvas it
+   renders a static, inert preview and makes no network calls. */
 function BookingBlock({ props, interactive }) {
   const { t } = useT('siteBuilder')
   const slug = str(props.bookingSlug)
-  const href = slug ? `${window.location.origin}/book/${encodeURIComponent(slug)}` : null
-  return (
-    <div className="sp-card sp-booking">
+  const head = (
+    <>
       {str(props.heading) ? <h2 className="sp-h2">{props.heading}</h2> : null}
       {str(props.subheading) ? <p className="sp-sub">{props.subheading}</p> : null}
-      {href ? (
-        <a className="sp-btn sp-btn-primary" href={interactive ? href : undefined}
-          target="_blank" rel="noopener noreferrer"
-          onClick={(e) => { if (!interactive) e.preventDefault() }}>
-          {str(props.buttonLabel) || t('renderer.bookingButton')}
-        </a>
-      ) : (!interactive ? <p className="sp-muted sp-booking-hint">{t('renderer.bookingHint')}</p> : null)}
+    </>
+  )
+  if (!interactive) {
+    // Editor preview: a representative, inert sketch of the picker.
+    return (
+      <div className="sp-card sp-booking">
+        {head}
+        {slug ? (
+          <div className="sp-bk-preview" aria-hidden="true">
+            <p className="sp-bk-steplabel">{t('renderer.bkWhen', { defaultValue: 'בחרו מועד' })}</p>
+            <div className="sp-bk-row">{['א׳', 'ב׳', 'ג׳'].map((d) => <span key={d} className="sp-bk-chip">{d}</span>)}</div>
+            <div className="sp-bk-row">{['09:00', '10:30', '12:00'].map((h) => <span key={h} className="sp-bk-chip">{h}</span>)}</div>
+            <p className="sp-muted sp-booking-hint">{t('renderer.bkPreviewNote', { defaultValue: 'הלוח האמיתי מעמוד התורים יוצג כאן למבקרים.' })}</p>
+          </div>
+        ) : (
+          <p className="sp-muted sp-booking-hint">{t('renderer.bookingHint')}</p>
+        )}
+      </div>
+    )
+  }
+  if (!slug) return null
+  return <div className="sp-card sp-booking">{head}<BookingInline pageId={slug} /></div>
+}
+
+function BookingInline({ pageId }) {
+  const { t, lang } = useT('booking')
+  const f = useBookingFlow(pageId, { enabled: true })
+  if (f.status === 'loading') return <p className="sp-muted">{t('publicPage.loading')}</p>
+  if (f.status === 'notfound') return <p className="sp-muted">{t('publicPage.notFoundBody')}</p>
+  if (f.status === 'done') {
+    return (
+      <div className="sp-bk-done">
+        <div className="sp-check" aria-hidden="true">✓</div>
+        <p className="sp-bk-thankyou">{str(f.thankYou?.message) || t('publicPage.thankYouDefault')}</p>
+        {f.slot ? <p className="sp-bk-when">{fmtDayLabel(f.slot.start, f.tz, lang)} · {fmtTime(f.slot.start, f.tz, lang)}</p> : null}
+      </div>
+    )
+  }
+  return (
+    <div className="sp-bk">
+      {f.types.length > 1 && (
+        <div className="sp-bk-section">
+          <p className="sp-bk-steplabel">{t('publicPage.stepType')}</p>
+          <div className="sp-bk-row">
+            {f.types.map((mt) => {
+              const id = mt.id ?? '__d'
+              return (
+                <button key={id} type="button" className={`sp-bk-type${f.typeId === id ? ' on' : ''}`} onClick={() => f.setTypeId(id)}>
+                  <span className="sp-bk-type-name">{mt.name}</span>
+                  <span className="sp-bk-type-meta">{t('minutes', { count: mt.duration_minutes })}{mt.default_price ? ` · ₪${mt.default_price}` : ''}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {f.typeId != null && (
+        <div className="sp-bk-section">
+          <p className="sp-bk-steplabel">{t('publicPage.stepWhen')}</p>
+          {f.slotsLoading ? (
+            <p className="sp-muted">{t('publicPage.slotsLoading')}</p>
+          ) : f.days.length === 0 ? (
+            <p className="sp-muted">{t('publicPage.noSlots')}</p>
+          ) : (
+            <>
+              <div className="sp-bk-row">
+                {f.days.map((d) => (
+                  <button key={d.key} type="button" className={`sp-bk-chip${f.dayKey === d.key ? ' on' : ''}`} onClick={() => { f.setDayKey(d.key); f.setSlot(null) }}>
+                    {fmtDayLabel(d.list[0].start, f.tz, lang)}
+                  </button>
+                ))}
+              </div>
+              {f.dayKey && (
+                <div className="sp-bk-row">
+                  {f.daySlots.map((s) => (
+                    <button key={s.start} type="button" className={`sp-bk-chip${f.slot?.start === s.start ? ' on' : ''}`} onClick={() => f.setSlot(s)}>
+                      {fmtTime(s.start, f.tz, lang)}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {f.slot && (
+        <form className="sp-bk-section sp-bk-form" onSubmit={f.submit} noValidate>
+          <p className="sp-bk-steplabel">{t('publicPage.stepDetails')}</p>
+          <p className="sp-bk-chosen">{f.chosenType?.name ? `${f.chosenType.name} · ` : ''}{fmtDayLabel(f.slot.start, f.tz, lang)} · {fmtTime(f.slot.start, f.tz, lang)}</p>
+          <label className="sp-field">
+            <span className="sp-label">{t('publicPage.fieldName')} *</span>
+            <input className={`sp-input${f.errors.name ? ' is-error' : ''}`} value={f.values.name} onChange={(e) => f.setField('name', e.target.value)} required />
+          </label>
+          <label className="sp-field">
+            <span className="sp-label">{t('publicPage.fieldPhone')}</span>
+            <input className="sp-input" type="tel" value={f.values.phone} onChange={(e) => f.setField('phone', e.target.value)} />
+          </label>
+          <label className="sp-field">
+            <span className="sp-label">{t('publicPage.fieldEmail')}</span>
+            <input className={`sp-input${f.errors.email ? ' is-error' : ''}`} type="email" value={f.values.email} onChange={(e) => f.setField('email', e.target.value)} />
+          </label>
+          <label className="sp-field">
+            <span className="sp-label">{t('publicPage.fieldNote')}</span>
+            <textarea className="sp-input sp-textarea" rows={3} value={f.values.note} onChange={(e) => f.setField('note', e.target.value)} />
+          </label>
+          <input type="text" tabIndex={-1} autoComplete="off" className="sp-hp" aria-hidden="true" onChange={(e) => { f.hp.current = e.target.value }} />
+          {f.submitError ? <p className="sp-form-error">{t('publicPage.errGeneric')}</p> : null}
+          <button type="submit" className="sp-btn sp-btn-primary sp-bk-submit" disabled={f.submitting}>
+            {f.submitting ? t('publicPage.submitting') : t('publicPage.submit')}
+          </button>
+        </form>
+      )}
     </div>
   )
 }

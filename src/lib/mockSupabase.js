@@ -313,6 +313,33 @@ export function makeMockClient() {
           if (a === 'catalog') return { data: { items: [{ id: '1', name: 'אימון אישי', price: 380 }, { id: '2', name: 'ייעוץ זוגי', price: 450 }] }, error: null }
           return { data: { status: { connected: true, provider: 'sumit', environment: 'production', connected_at: new Date().toISOString(), auto_import: true, webhook_url: 'https://rdurkakzyymxhocvhufw.supabase.co/functions/v1/invoice-webhook?t=mock-token' }, ok: true }, error: null }
         }
+        // Inline booking block in preview: serve a booking page config + sample
+        // future slots (GET) and accept a booking (POST) so the picker works.
+        if (name.startsWith('booking-intake')) {
+          const q = new URLSearchParams(name.split('?')[1] || '')
+          const method = opts?.method || 'POST'
+          const pages = MOCK_DB.booking_pages || []
+          const match = (key) => pages.find((p) => p.published && (p.id === key || p.slug === key))
+          if (method === 'GET' && q.get('action') === 'slots') {
+            const slots = []
+            const base = new Date(); base.setHours(0, 0, 0, 0)
+            for (let d = 1; d <= 3; d++) for (const h of [9, 10.5, 12]) {
+              const s = new Date(base); s.setDate(s.getDate() + d); s.setHours(Math.floor(h), (h % 1) * 60, 0, 0)
+              slots.push({ start: s.toISOString(), end: new Date(s.getTime() + 45 * 60000).toISOString() })
+            }
+            return { data: { slots, timezone: 'Asia/Jerusalem' }, error: null }
+          }
+          if (method === 'GET') {
+            const page = match(q.get('page'))
+            if (!page) return { data: null, error: { message: 'not_found' } }
+            return { data: { id: page.id, content: page.content, meetingTypes: [
+              { id: 't1', name: 'פגישת אונליין', duration_minutes: 45, default_price: 0 },
+              { id: 't2', name: 'פגישה פיזית', duration_minutes: 60, default_price: 250 },
+            ], availability: { timezone: 'Asia/Jerusalem', maxDaysAhead: 14 } }, error: null }
+          }
+          const page = match(opts?.body?.page)
+          return { data: { ok: true, thankYou: page?.content?.thankYou ?? { message: 'נתראה!' } }, error: null }
+        }
         // Public builder pages in preview: serve the mock site_pages config (GET)
         // and accept a form submission (POST) so /p/<id> renders end-to-end.
         if (name.startsWith('site-intake')) {

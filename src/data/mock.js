@@ -285,6 +285,7 @@ const site_pages = [{
     { id: 's_1', type: 'hero', props: { eyebrow: 'אימון אישי', heading: 'הצעד הראשון לשינוי', subheading: 'מרחב בטוח לצמיחה אישית', ctaLabel: 'לשיחת היכרות', ctaAction: { type: 'scrollToForm', url: '' } }, style: {} },
     { id: 's_2', type: 'iconText', props: { items: [{ icon: 'Compass', title: 'כיוון ברור', body: 'נמצא יחד את היעד' }, { icon: 'Heart', title: 'יחס אישי', body: 'תהליך מותאם לך' }, { icon: 'Target', title: 'תוצאות', body: 'צעדים מעשיים' }, { icon: 'Sun', title: 'אנרגיה', body: 'מוטיבציה מתחדשת' }] }, style: {} },
     { id: 's_3', type: 'form', props: { heading: 'השאירו פרטים', submitLabel: 'שליחה', fields: [{ key: 'name', label: 'שם', type: 'text', required: true, builtin: true }, { key: 'phone', label: 'טלפון', type: 'tel', required: false, builtin: true }] }, style: {} },
+    { id: 's_4', type: 'booking', props: { heading: 'קביעת פגישה', subheading: 'בחרו מועד שנוח לכם', bookingSlug: 'demo-book' }, style: {} },
   ],
   config: {},
   created_at: new Date().toISOString(),
@@ -306,7 +307,21 @@ const site_pages = [{
   created_at: new Date().toISOString(),
 }]
 
+/* A published booking page so the page-builder's inline booking block has a
+   real target in preview (the booking-intake mock serves its config + slots). */
+const booking_pages = [{
+  id: 'bp-demo-1',
+  user_id: 'mock-user-001',
+  slug: 'demo-book',
+  title: 'פגישת היכרות',
+  published: true,
+  deleted_at: null,
+  content: { heading: 'קביעת פגישה', thankYou: { mode: 'message', message: 'נתראה! נשלח אישור במייל.' } },
+  created_at: new Date().toISOString(),
+}]
+
 export const MOCK_DB = {
+  booking_pages,
   pending_invoice_imports,
   lead_pages,
   site_pages,

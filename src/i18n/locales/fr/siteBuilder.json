@@ -114,7 +114,9 @@
     "uploadImage": "Téléverser une image",
     "uploadFailed": "Le téléversement a échoué",
     "addItem": "Ajouter un élément",
-    "noTargetHint": "Aucune section cible pour ce bouton sur la page — ajoutez-en une."
+    "noTargetHint": "Aucune section cible pour ce bouton sur la page — ajoutez-en une.",
+    "noBookingPages": "Aucune page de réservation publiée — créez-en et publiez-en une d'abord.",
+    "chooseBookingPage": "Choisir une page de réservation"
   },
   "assets": {
     "no-file": "Aucun fichier sélectionné",
@@ -153,7 +155,9 @@
   "renderer": {
     "imageEmpty": "Image",
     "bookingButton": "Prendre rendez-vous",
-    "bookingHint": "Saisissez le slug de votre page de réservation dans le panneau latéral.",
+    "bookingHint": "Choisissez dans le panneau latéral la page de réservation à afficher.",
+    "bkWhen": "Choisissez un créneau",
+    "bkPreviewNote": "Le vrai calendrier de votre page de réservation s'affiche ici pour les visiteurs.",
     "thankYouDefault": "Merci ! Nous avons reçu vos coordonnées et reviendrons vers vous.",
     "submit": "Envoyer",
     "empty": "La page est vide — ajoutez votre première section.",

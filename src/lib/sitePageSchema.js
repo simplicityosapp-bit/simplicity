@@ -245,15 +245,13 @@ export const BLOCK_TYPES = {
   },
   booking: {
     label: 'תיאום פגישה', icon: 'CalendarClock',
-    // Links out to the coach's existing booking page (/book/<slug>), which is
-    // served by the robust booking system. A native in-page slot-picker is a
-    // future phase; this safely connects a landing page to booking today.
+    // Shows the chosen booking page's slot-picker INLINE, served by the same
+    // robust booking-intake edge function as the standalone /book page.
     defaultProps: { heading: 'קביעת פגישה', subheading: '', bookingSlug: '', buttonLabel: 'לקביעת תור' },
     editable: [
       { key: 'heading', label: 'כותרת', type: 'text' },
       { key: 'subheading', label: 'תיאור', type: 'textarea' },
-      { key: 'bookingSlug', label: 'כתובת דף הפגישות (הסלאג מ-/book/…)', type: 'text' },
-      { key: 'buttonLabel', label: 'טקסט הכפתור', type: 'text' },
+      { key: 'bookingSlug', label: 'עמוד הפגישות', type: 'bookingPage' },
     ],
   },
   cards: {

@@ -42,6 +42,7 @@ const BLOCK_ICON = {
 import { ICON_NAMES, iconByName } from '../../lib/pageIcons'
 import { uploadPageAsset, assetPathFromUrl, removePageAsset } from '../../lib/pageAssets'
 import { useProjects } from '../../hooks/useProjects'
+import { useBookingPages } from '../../hooks/useBookingPages'
 import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
 import SiteRenderer from '../site-page/SiteRenderer'
@@ -550,6 +551,8 @@ function Descriptor({ d, value, targets, onChange }) {
       return <div className="spe-f"><span>{label}</span><ActionField value={value} targets={targets} onChange={onChange} /></div>
     case 'list':
       return <ListField d={d} value={value} onChange={onChange} />
+    case 'bookingPage':
+      return <div className="spe-f"><span>{label}</span><BookingPageField value={value} onChange={onChange} /></div>
     case 'formFields':
       return <FormFieldsEditor value={value} onChange={onChange} />
     default:
@@ -607,6 +610,25 @@ function RichTextField({ d, value, onChange }) {
       <textarea ref={ref} rows={6} value={v} onChange={(e) => onChange(e.target.value)} />
       <p className="spe-rich-hint">{t('rich.hint')}</p>
     </div>
+  )
+}
+
+/* Booking-page picker — choose which existing booking page's slot-picker the
+   block embeds. Stores the page's public ref (slug, or id). Only published
+   pages are offered (the inline picker needs a live booking-intake config). */
+function BookingPageField({ value, onChange }) {
+  const { t } = useT('siteBuilder')
+  const { pages, loading } = useBookingPages()
+  const published = (pages || []).filter((p) => p.published)
+  if (loading) return <p className="spe-note">{t('hub.loading')}</p>
+  if (!published.length) return <p className="spe-note spe-err">{t('inspector.noBookingPages')}</p>
+  return (
+    <select value={value || ''} onChange={(e) => onChange(e.target.value)}>
+      <option value="">{t('inspector.chooseBookingPage')}</option>
+      {published.map((p) => (
+        <option key={p.id} value={p.slug || p.id}>{p.title || p.slug || p.id}</option>
+      ))}
+    </select>
   )
 }
 

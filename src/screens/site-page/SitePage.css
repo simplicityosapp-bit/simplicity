@@ -227,6 +227,37 @@
 .sp-booking .sp-btn { margin-top: 14px; }
 .sp-booking-hint { margin-top: 12px; }
 
+/* Inline booking picker (type → day → time → details) */
+.sp-bk { display: flex; flex-direction: column; gap: 18px; margin-top: 6px; }
+.sp-bk-section { display: flex; flex-direction: column; gap: 10px; }
+.sp-bk-steplabel { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: var(--sp-brand); }
+.sp-bk-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.sp-bk-chip {
+  font: inherit; font-size: 14px; color: #4a443c; background: color-mix(in srgb, #fffdf9 70%, transparent);
+  border: 1px solid rgba(44, 38, 33, 0.16); border-radius: 999px; padding: 8px 16px; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.sp-bk-chip:hover { border-color: var(--sp-brand); }
+.sp-bk-chip.on { background: var(--sp-brand); border-color: var(--sp-brand); color: #fff; }
+.sp-bk-type {
+  font: inherit; text-align: start; display: flex; flex-direction: column; gap: 3px; min-width: 160px;
+  background: color-mix(in srgb, #fffdf9 70%, transparent); border: 1px solid rgba(44, 38, 33, 0.16);
+  border-radius: 14px; padding: 12px 16px; cursor: pointer; transition: border-color 0.15s, background 0.15s;
+}
+.sp-bk-type:hover { border-color: var(--sp-brand); }
+.sp-bk-type.on { border-color: var(--sp-brand); background: color-mix(in srgb, var(--sp-brand) 8%, #fffdf9); }
+.sp-bk-type-name { font-weight: 600; color: #2c2621; }
+.sp-bk-type-meta { font-size: 13px; color: #6b6358; }
+.sp-bk-form { gap: 14px; margin-top: 2px; }
+.sp-bk-chosen { margin: 0; font-size: 14px; font-weight: 600; color: var(--sp-brand); }
+.sp-bk-submit { margin-top: 6px; }
+.sp-bk-done { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 12px 0; }
+.sp-bk-thankyou { margin: 0; font-size: 17px; color: #2c2621; }
+.sp-bk-when { margin: 0; font-size: 15px; font-weight: 600; color: var(--sp-brand); }
+/* editor preview (inert) */
+.sp-bk-preview { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; opacity: 0.9; }
+.sp-bk-preview .sp-bk-chip { pointer-events: none; }
+
 /* Form success state (public page, after submit). */
 .sp-form-done { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .sp-check { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-size: 28px; color: #fff; background: var(--sp-brand); }

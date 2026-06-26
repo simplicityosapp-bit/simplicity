@@ -114,7 +114,9 @@
     "uploadImage": "Subir imagen",
     "uploadFailed": "La subida falló",
     "addItem": "Añadir elemento",
-    "noTargetHint": "No hay una sección de destino para este botón en la página — añádela."
+    "noTargetHint": "No hay una sección de destino para este botón en la página — añádela.",
+    "noBookingPages": "No hay páginas de reserva publicadas — crea y publica una primero.",
+    "chooseBookingPage": "Elige una página de reserva"
   },
   "assets": {
     "no-file": "No se seleccionó ningún archivo",
@@ -153,7 +155,9 @@
   "renderer": {
     "imageEmpty": "Imagen",
     "bookingButton": "Reservar una cita",
-    "bookingHint": "Introduce el slug de tu página de reservas en el panel lateral.",
+    "bookingHint": "Elige en el panel lateral qué página de reserva mostrar.",
+    "bkWhen": "Elige una hora",
+    "bkPreviewNote": "El calendario real de tu página de reserva se muestra aquí para los visitantes.",
     "thankYouDefault": "¡Gracias! Recibimos tus datos y te contactaremos.",
     "submit": "Enviar",
     "empty": "La página está vacía — añade tu primera sección.",

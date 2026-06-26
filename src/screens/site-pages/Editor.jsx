@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight, Plus, Trash2, Monitor, Smartphone, GripVertical,
-  Palette, Upload, X,
+  Palette, Upload, X, ChevronUp, ChevronDown,
   LayoutTemplate, Type, Image as ImageIcon, Sparkles, Quote,
   MousePointerClick, ClipboardList, CalendarClock, Minus,
 } from 'lucide-react'
@@ -20,6 +20,7 @@ const BLOCK_ICON = {
 }
 import { ICON_NAMES, iconByName } from '../../lib/pageIcons'
 import { uploadPageAsset, assetPathFromUrl, removePageAsset } from '../../lib/pageAssets'
+import { useProjects } from '../../hooks/useProjects'
 import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
 import SiteRenderer from '../site-page/SiteRenderer'
@@ -37,11 +38,13 @@ const clone = (v) => structuredClone(v)
 
 export default function Editor({ page, onSave, onBack }) {
   const { t } = useT('siteBuilder')
+  const { projects } = useProjects()
   const [draft, setDraft] = useState(() => ({
     title: page.title || '',
     published: !!page.published,
     slug: page.slug || '',
     kind: page.kind || 'landing',
+    project_id: page.project_id || '',
     theme: { ...DEFAULT_THEME, ...(page.theme || {}) },
     sections: Array.isArray(page.sections) ? clone(page.sections) : [],
     config: page.config || {},
@@ -61,17 +64,33 @@ export default function Editor({ page, onSave, onBack }) {
     [draft.sections, selectedId],
   )
 
+  /* Warn before losing unsaved edits on browser refresh / tab close. */
+  useEffect(() => {
+    if (!dirty) return undefined
+    const onBeforeUnload = (e) => { e.preventDefault(); e.returnValue = '' }
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+  }, [dirty])
+
+  /* Back arrow — confirm if there are unsaved edits. */
+  const handleBack = () => {
+    if (dirty && !window.confirm(t('editor.confirmDiscard'))) return
+    onBack()
+  }
+
   const mutate = (fn) => { setDraft((d) => { const next = fn(d); return next }); setDirty(true) }
 
   const setTheme = (patch) => mutate((d) => ({ ...d, theme: { ...d.theme, ...patch } }))
   const setConfig = (patch) => mutate((d) => ({ ...d, config: { ...d.config, ...patch } }))
 
   const addSection = (type) => {
-    mutate((d) => {
-      const sec = newSection(type, d.sections)
-      return { ...d, sections: [...d.sections, sec] }
-    })
+    const sec = newSection(type, draft.sections)
+    if (!sec) return
+    mutate((d) => ({ ...d, sections: [...d.sections, sec] }))
+    setSelectedId(sec.id)               // auto-select the new section
     setPaletteOpen(false)
+    // bring it into view after the render commits
+    setTimeout(() => document.querySelector(`[data-sid="${sec.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60)
   }
 
   const deleteSection = (id) => {
@@ -102,7 +121,8 @@ export default function Editor({ page, onSave, onBack }) {
     try {
       await onSave({
         title: draft.title, published: draft.published, slug: draft.slug || null,
-        kind: draft.kind, theme: draft.theme, sections: draft.sections, config: draft.config,
+        kind: draft.kind, project_id: draft.project_id || null,
+        theme: draft.theme, sections: draft.sections, config: draft.config,
       })
       setDirty(false)
     } catch {
@@ -120,7 +140,7 @@ export default function Editor({ page, onSave, onBack }) {
     <div className="spe">
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <div className="spe-top">
-        <button className="spe-icon-btn" onClick={onBack} title={t('editor.back')} aria-label={t('editor.back')}><ArrowRight size={18} /></button>
+        <button className="spe-icon-btn" onClick={handleBack} title={t('editor.back')} aria-label={t('editor.back')}><ArrowRight size={18} /></button>
         <input
           className="spe-title-input"
           value={draft.title}
@@ -132,8 +152,9 @@ export default function Editor({ page, onSave, onBack }) {
           <button className={device === 'desktop' ? 'is-on' : ''} onClick={() => setDevice('desktop')} title={t('editor.desktop')} aria-label={t('editor.desktop')}><Monitor size={16} /></button>
           <button className={device === 'mobile' ? 'is-on' : ''} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></button>
         </div>
-        <label className="spe-pub">
-          <input type="checkbox" checked={draft.published} onChange={(e) => mutate((d) => ({ ...d, published: e.target.checked }))} />
+        <label className="spe-pub" title={draft.sections.length === 0 ? t('editor.publishEmpty') : undefined}>
+          <input type="checkbox" checked={draft.published} disabled={draft.sections.length === 0}
+            onChange={(e) => mutate((d) => ({ ...d, published: e.target.checked }))} />
           <span>{t('editor.publish')}</span>
         </label>
         {saveError ? <span className="spe-save-err" title={saveError}>{saveError}</span> : null}
@@ -168,14 +189,20 @@ export default function Editor({ page, onSave, onBack }) {
                 key={s.id}
                 className={`spe-secitem${selectedId === s.id ? ' is-sel' : ''}${dragging === i ? ' is-dragging' : ''}${dragOver === i && dragging !== i ? ' is-drop-target' : ''}`}
                 draggable
+                role="button"
+                tabIndex={0}
+                aria-pressed={selectedId === s.id}
                 onDragStart={() => { dragIndex.current = i; setDragging(i) }}
                 onDragOver={(e) => { e.preventDefault(); if (dragOver !== i) setDragOver(i) }}
                 onDragEnd={() => { setDragging(null); setDragOver(null) }}
                 onDrop={() => { reorder(dragIndex.current, i); dragIndex.current = null; setDragging(null); setDragOver(null) }}
                 onClick={() => setSelectedId(s.id)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(s.id) } }}
               >
                 <GripVertical size={14} className="spe-grip" />
                 <span className="spe-sec-label">{t('blocks.' + s.type, { defaultValue: BLOCK_TYPES[s.type]?.label || s.type })}</span>
+                <button className="spe-sec-move" disabled={i === 0} onClick={(e) => { e.stopPropagation(); reorder(i, i - 1) }} title={t('editor.moveUp')} aria-label={t('editor.moveUp')}><ChevronUp size={13} /></button>
+                <button className="spe-sec-move" disabled={i === draft.sections.length - 1} onClick={(e) => { e.stopPropagation(); reorder(i, i + 1) }} title={t('editor.moveDown')} aria-label={t('editor.moveDown')}><ChevronDown size={13} /></button>
                 <button className="spe-sec-del" onClick={(e) => { e.stopPropagation(); deleteSection(s.id) }} title={t('editor.deleteSection')} aria-label={t('editor.deleteSection')}><Trash2 size={13} /></button>
               </li>
             ))}
@@ -196,9 +223,10 @@ export default function Editor({ page, onSave, onBack }) {
         {/* ── Right panel: inspector OR design ──────────────────── */}
         <aside className="spe-inspector">
           {selected
-            ? <SectionInspector section={selected} onChange={(patch) => updateProps(selected.id, patch)} />
+            ? <SectionInspector section={selected} sections={draft.sections} onChange={(patch) => updateProps(selected.id, patch)} />
             : <DesignPanel theme={draft.theme} setTheme={setTheme}
                 slug={draft.slug} onSlug={(v) => mutate((d) => ({ ...d, slug: v }))}
+                projects={projects} projectId={draft.project_id} onProject={(v) => mutate((d) => ({ ...d, project_id: v }))}
                 kind={draft.kind} config={draft.config} setConfig={setConfig} />}
         </aside>
       </div>
@@ -209,7 +237,7 @@ export default function Editor({ page, onSave, onBack }) {
 /* ════════════════════════════════════════════════════════════════
    DESIGN PANEL — page-level theme (font / brand / background / glass).
    ════════════════════════════════════════════════════════════════ */
-function DesignPanel({ theme, setTheme, slug, onSlug, kind, config, setConfig }) {
+function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onProject, kind, config, setConfig }) {
   const { t } = useT('siteBuilder')
   const bg = theme.background || DEFAULT_THEME.background
   return (
@@ -221,6 +249,13 @@ function DesignPanel({ theme, setTheme, slug, onSlug, kind, config, setConfig })
         <label className="spe-f">
           <span>{t('design.publicUrl')}</span>
           <input value={slug || ''} placeholder="my-page" onChange={(e) => onSlug(slugifyInput(e.target.value))} />
+        </label>
+        <label className="spe-f">
+          <span>{t('design.project')}</span>
+          <select value={projectId || ''} onChange={(e) => onProject(e.target.value)}>
+            <option value="">{t('design.projectNone')}</option>
+            {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.name || p.title}</option>)}
+          </select>
         </label>
       </div>
 
@@ -331,22 +366,24 @@ function Slider({ label, min, max, value, onChange }) {
 /* ════════════════════════════════════════════════════════════════
    SECTION INSPECTOR — renders inputs from BLOCK_TYPES[type].editable.
    ════════════════════════════════════════════════════════════════ */
-function SectionInspector({ section, onChange }) {
+function SectionInspector({ section, sections, onChange }) {
   const { t } = useT('siteBuilder')
   const def = BLOCK_TYPES[section.type]
   if (!def) return null
   const props = section.props || {}
+  const list = Array.isArray(sections) ? sections : []
+  const targets = { form: list.some((s) => s.type === 'form'), booking: list.some((s) => s.type === 'booking') }
   return (
     <div className="spe-panel">
       <h3 className="spe-panel-title">{t('blocks.' + section.type, { defaultValue: def.label })}</h3>
       {def.editable.map((d) => (
-        <Descriptor key={d.key} d={d} value={props[d.key]} onChange={(v) => onChange({ [d.key]: v })} />
+        <Descriptor key={d.key} d={d} value={props[d.key]} targets={targets} onChange={(v) => onChange({ [d.key]: v })} />
       ))}
     </div>
   )
 }
 
-function Descriptor({ d, value, onChange }) {
+function Descriptor({ d, value, targets, onChange }) {
   const { t } = useT('siteBuilder')
   const label = t('labels.' + d.key, { defaultValue: d.label })
   switch (d.type) {
@@ -374,7 +411,7 @@ function Descriptor({ d, value, onChange }) {
     case 'icon':
       return <div className="spe-f"><span>{label}</span><IconPicker value={value} onChange={onChange} /></div>
     case 'action':
-      return <div className="spe-f"><span>{label}</span><ActionField value={value} onChange={onChange} /></div>
+      return <div className="spe-f"><span>{label}</span><ActionField value={value} targets={targets} onChange={onChange} /></div>
     case 'list':
       return <ListField d={d} value={value} onChange={onChange} />
     case 'formFields':
@@ -400,7 +437,7 @@ function ImageField({ value, onChange }) {
       // Replacing an image: clean up the previous asset so it doesn't orphan.
       const prevPath = assetPathFromUrl(prev)
       if (prevPath) removePageAsset(prevPath)
-    } catch (ex) { setErr(ex.message || t('inspector.uploadFailed')) } finally { setBusy(false); if (inputRef.current) inputRef.current.value = '' }
+    } catch (ex) { setErr(t('assets.' + ex.message, { defaultValue: t('inspector.uploadFailed') })) } finally { setBusy(false); if (inputRef.current) inputRef.current.value = '' }
   }
   const clear = () => {
     const path = assetPathFromUrl(value)
@@ -434,9 +471,12 @@ function IconPicker({ value, onChange }) {
   )
 }
 
-function ActionField({ value, onChange }) {
+function ActionField({ value, targets, onChange }) {
   const { t } = useT('siteBuilder')
   const a = value || { type: 'link', url: '' }
+  // Warn when the button points to a block that doesn't exist on the page.
+  const missing = (a.type === 'scrollToForm' && targets && !targets.form)
+    || (a.type === 'booking' && targets && !targets.booking)
   return (
     <div className="spe-action">
       <select value={a.type} onChange={(e) => onChange({ ...a, type: e.target.value })}>
@@ -447,6 +487,7 @@ function ActionField({ value, onChange }) {
       {a.type === 'link' ? (
         <input placeholder="https://…" value={a.url || ''} onChange={(e) => onChange({ ...a, url: e.target.value })} />
       ) : null}
+      {missing ? <p className="spe-note spe-err">{t('inspector.noTargetHint')}</p> : null}
     </div>
   )
 }

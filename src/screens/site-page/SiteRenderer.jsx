@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, Component } from 'react'
 import { sitePageSurface, safeRedirectUrl, safeImageUrl } from '../../lib/sitePageSchema'
 import { isChoiceType } from '../../lib/leadPageSchema'
 import { iconByName } from '../../lib/pageIcons'
@@ -20,6 +20,15 @@ import './SitePage.css'
    In the editor it's omitted and every block renders inert. */
 
 const str = (v) => (v == null ? '' : String(v)).trim()
+
+/* Isolates a single section: if a block throws on malformed data it degrades to
+   a skipped block instead of blanking the whole public page. */
+class SectionErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { failed: false } }
+  static getDerivedStateFromError() { return { failed: true } }
+  componentDidCatch() { /* swallow — one bad block must not kill the page */ }
+  render() { return this.state.failed ? null : this.props.children }
+}
 
 /* Smoothly scroll to the first block of a kind (used by scrollToForm/booking
    CTAs). No-op in the editor (interactive=false). */
@@ -287,7 +296,9 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
     <div className={`sp-root ${cls} ${className}`} dir="rtl" style={style}>
       <div className="sp-page">
         {list.map((s) => (
-          <Section key={s.id} section={s} interactive={interactive} runtime={runtime} selectedId={selectedId} />
+          <SectionErrorBoundary key={s.id}>
+            <Section section={s} interactive={interactive} runtime={runtime} selectedId={selectedId} />
+          </SectionErrorBoundary>
         ))}
         {list.length === 0 ? <div className="sp-empty">{t('renderer.empty')}</div> : null}
       </div>

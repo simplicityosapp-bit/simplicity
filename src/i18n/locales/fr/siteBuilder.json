@@ -14,7 +14,9 @@
     "open": "Ouvrir",
     "delete": "Supprimer",
     "legacyText": "Le créateur de «{{kind}}» sur le nouveau moteur arrive bientôt.",
-    "legacyLink": "Aller au créateur actuel →"
+    "legacyLink": "Aller au créateur actuel →",
+    "duplicate": "Dupliquer",
+    "copySuffix": "(copie)"
   },
   "editor": {
     "back": "Retour",
@@ -31,7 +33,11 @@
     "add": "Ajouter",
     "railEmpty": "Aucune section pour l'instant",
     "deleteSection": "Supprimer",
-    "designPage": "Design de la page"
+    "designPage": "Design de la page",
+    "confirmDiscard": "Des modifications ne sont pas enregistrées. Quitter sans enregistrer ?",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "publishEmpty": "Ajoutez au moins une section avant de publier"
   },
   "design": {
     "title": "Design de la page",
@@ -53,7 +59,9 @@
     "grpTypography": "Typographie et couleur",
     "grpBackground": "Arrière-plan",
     "grpCards": "Cartes",
-    "grpText": "Texte"
+    "grpText": "Texte",
+    "project": "Projet",
+    "projectNone": "Aucun projet"
   },
   "settings": {
     "title": "Réglages du formulaire",
@@ -70,7 +78,14 @@
     "replaceImage": "Remplacer",
     "uploadImage": "Téléverser une image",
     "uploadFailed": "Le téléversement a échoué",
-    "addItem": "Ajouter un élément"
+    "addItem": "Ajouter un élément",
+    "noTargetHint": "Aucune section cible pour ce bouton sur la page — ajoutez-en une."
+  },
+  "assets": {
+    "no-file": "Aucun fichier sélectionné",
+    "bad-type": "Format non pris en charge — JPG, PNG, WEBP, GIF ou SVG",
+    "too-big": "Fichier trop volumineux — jusqu'à 5 Mo",
+    "no-session": "Aucune session active — veuillez vous reconnecter"
   },
   "action": {
     "link": "Lien externe",

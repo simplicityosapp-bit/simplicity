@@ -14,7 +14,9 @@
     "open": "פתיחה",
     "delete": "מחיקה",
     "legacyText": "הבנאי של «{{kind}}» על המנוע החדש מגיע בקרוב.",
-    "legacyLink": "למעבר לבנאי הקיים →"
+    "legacyLink": "למעבר לבנאי הקיים →",
+    "duplicate": "שכפול",
+    "copySuffix": "(עותק)"
   },
   "editor": {
     "back": "חזרה",
@@ -31,7 +33,11 @@
     "add": "הוסף",
     "railEmpty": "אין סקשנים עדיין",
     "deleteSection": "מחיקה",
-    "designPage": "עיצוב הדף"
+    "designPage": "עיצוב הדף",
+    "confirmDiscard": "יש שינויים שלא נשמרו. לצאת בלי לשמור?",
+    "moveUp": "הזזה למעלה",
+    "moveDown": "הזזה למטה",
+    "publishEmpty": "הוסיפו סקשן אחד לפחות לפני פרסום"
   },
   "design": {
     "title": "עיצוב הדף",
@@ -53,7 +59,9 @@
     "grpTypography": "טיפוגרפיה וצבע",
     "grpBackground": "רקע",
     "grpCards": "כרטיסים",
-    "grpText": "טקסט"
+    "grpText": "טקסט",
+    "project": "פרויקט",
+    "projectNone": "ללא פרויקט"
   },
   "settings": {
     "title": "הגדרות טופס",
@@ -70,7 +78,14 @@
     "replaceImage": "החלפה",
     "uploadImage": "העלאת תמונה",
     "uploadFailed": "ההעלאה נכשלה",
-    "addItem": "הוספת פריט"
+    "addItem": "הוספת פריט",
+    "noTargetHint": "אין בדף סקשן יעד לכפתור הזה — הוסיפו אותו."
+  },
+  "assets": {
+    "no-file": "לא נבחר קובץ",
+    "bad-type": "פורמט לא נתמך — JPG, PNG, WEBP, GIF או SVG",
+    "too-big": "הקובץ גדול מדי — עד 5MB",
+    "no-session": "אין חיבור פעיל — התחבר/י מחדש"
   },
   "action": {
     "link": "קישור חיצוני",

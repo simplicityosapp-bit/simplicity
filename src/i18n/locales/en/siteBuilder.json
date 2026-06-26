@@ -14,7 +14,9 @@
     "open": "Open",
     "delete": "Delete",
     "legacyText": "The new-engine builder for «{{kind}}» is coming soon.",
-    "legacyLink": "Go to the current builder →"
+    "legacyLink": "Go to the current builder →",
+    "duplicate": "Duplicate",
+    "copySuffix": "(copy)"
   },
   "editor": {
     "back": "Back",
@@ -31,7 +33,11 @@
     "add": "Add",
     "railEmpty": "No sections yet",
     "deleteSection": "Delete",
-    "designPage": "Page design"
+    "designPage": "Page design",
+    "confirmDiscard": "You have unsaved changes. Leave without saving?",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "publishEmpty": "Add at least one section before publishing"
   },
   "design": {
     "title": "Page design",
@@ -53,7 +59,9 @@
     "grpTypography": "Type & color",
     "grpBackground": "Background",
     "grpCards": "Cards",
-    "grpText": "Text"
+    "grpText": "Text",
+    "project": "Project",
+    "projectNone": "No project"
   },
   "settings": {
     "title": "Form settings",
@@ -70,7 +78,14 @@
     "replaceImage": "Replace",
     "uploadImage": "Upload image",
     "uploadFailed": "Upload failed",
-    "addItem": "Add item"
+    "addItem": "Add item",
+    "noTargetHint": "There's no target section for this button on the page — add one."
+  },
+  "assets": {
+    "no-file": "No file selected",
+    "bad-type": "Unsupported format — JPG, PNG, WEBP, GIF or SVG",
+    "too-big": "File too large — up to 5MB",
+    "no-session": "No active session — please sign in again"
   },
   "action": {
     "link": "External link",

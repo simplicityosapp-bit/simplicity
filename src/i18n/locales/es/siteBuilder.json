@@ -14,7 +14,9 @@
     "open": "Abrir",
     "delete": "Eliminar",
     "legacyText": "El creador de «{{kind}}» en el nuevo motor llegará pronto.",
-    "legacyLink": "Ir al creador actual →"
+    "legacyLink": "Ir al creador actual →",
+    "duplicate": "Duplicar",
+    "copySuffix": "(copia)"
   },
   "editor": {
     "back": "Volver",
@@ -31,7 +33,11 @@
     "add": "Añadir",
     "railEmpty": "Aún no hay secciones",
     "deleteSection": "Eliminar",
-    "designPage": "Diseño de la página"
+    "designPage": "Diseño de la página",
+    "confirmDiscard": "Tienes cambios sin guardar. ¿Salir sin guardar?",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
+    "publishEmpty": "Añade al menos una sección antes de publicar"
   },
   "design": {
     "title": "Diseño de la página",
@@ -53,7 +59,9 @@
     "grpTypography": "Tipografía y color",
     "grpBackground": "Fondo",
     "grpCards": "Tarjetas",
-    "grpText": "Texto"
+    "grpText": "Texto",
+    "project": "Proyecto",
+    "projectNone": "Sin proyecto"
   },
   "settings": {
     "title": "Ajustes del formulario",
@@ -70,7 +78,14 @@
     "replaceImage": "Reemplazar",
     "uploadImage": "Subir imagen",
     "uploadFailed": "La subida falló",
-    "addItem": "Añadir elemento"
+    "addItem": "Añadir elemento",
+    "noTargetHint": "No hay una sección de destino para este botón en la página — añádela."
+  },
+  "assets": {
+    "no-file": "No se seleccionó ningún archivo",
+    "bad-type": "Formato no admitido — JPG, PNG, WEBP, GIF o SVG",
+    "too-big": "Archivo demasiado grande — hasta 5MB",
+    "no-session": "Sin sesión activa — inicia sesión de nuevo"
   },
   "action": {
     "link": "Enlace externo",

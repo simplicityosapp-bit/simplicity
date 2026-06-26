@@ -18,15 +18,13 @@ export const ALLOWED_MIME = [
   'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml',
 ]
 
-/* Throw a friendly (Hebrew) error if the file is the wrong type or too big. */
+/* Throw a stable error CODE (not prose) so the UI can translate it — the lib
+   has no i18n. Codes: no-file | bad-type | too-big | no-session. The editor
+   maps them via t('assets.<code>') with a generic upload-failed fallback. */
 export function validateAssetFile(file) {
-  if (!file) throw new Error('לא נבחר קובץ')
-  if (!ALLOWED_MIME.includes(file.type)) {
-    throw new Error('פורמט לא נתמך — יש להעלות תמונה (JPG, PNG, WEBP, GIF או SVG)')
-  }
-  if (file.size > MAX_BYTES) {
-    throw new Error('הקובץ גדול מדי — עד 5MB')
-  }
+  if (!file) throw new Error('no-file')
+  if (!ALLOWED_MIME.includes(file.type)) throw new Error('bad-type')
+  if (file.size > MAX_BYTES) throw new Error('too-big')
 }
 
 /* A safe, unique object name under the user's folder. Keeps the original
@@ -40,7 +38,7 @@ function objectPath(userId, file) {
 export async function uploadPageAsset(file) {
   validateAssetFile(file)
   const { data: { session } } = await supabase.auth.getSession()
-  if (!session) throw new Error('אין חיבור פעיל — התחבר/י מחדש')
+  if (!session) throw new Error('no-session')
   const path = objectPath(session.user.id, file)
   const { error } = await supabase.storage
     .from(BUCKET)

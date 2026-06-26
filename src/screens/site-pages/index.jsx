@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Pencil, Trash2, ExternalLink, Copy, Check, LayoutTemplate } from 'lucide-react'
+import { Plus, Pencil, Trash2, ExternalLink, Copy, Check, LayoutTemplate, Files } from 'lucide-react'
 import { useSitePages } from '../../hooks/useSitePages'
 import { newSitePageDraft, publicSitePageUrl, KIND_LABEL } from '../../lib/sitePageSchema'
 import { ROUTES } from '../../lib/routes'
@@ -42,6 +42,16 @@ export default function SitePagesScreen() {
     const url = publicSitePageUrl(p.kind, p.slug || p.id)
     navigator.clipboard?.writeText(url)
     setCopied(p.id); setTimeout(() => setCopied(null), 1500)
+  }
+
+  /* Clone a page as a fresh draft (new slug, unpublished) to use as a start. */
+  const duplicatePage = async (p) => {
+    const row = await addPage({
+      kind: p.kind, title: `${p.title || ''} ${t('hub.copySuffix')}`.trim(),
+      published: false, slug: null, project_id: p.project_id || null,
+      theme: p.theme || {}, sections: p.sections || [], config: p.config || {},
+    })
+    setEditingId(row.id)
   }
 
   if (editing) {
@@ -92,6 +102,7 @@ export default function SitePagesScreen() {
                   </div>
                   <div className="spg-card-actions">
                     <button onClick={() => setEditingId(p.id)} title={t('hub.edit')} aria-label={t('hub.edit')}><Pencil size={15} /></button>
+                    <button onClick={() => duplicatePage(p)} title={t('hub.duplicate')} aria-label={t('hub.duplicate')}><Files size={15} /></button>
                     <button onClick={() => copyLink(p)} title={t('hub.copyLink')} aria-label={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</button>
                     {p.published ? <a href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')} aria-label={t('hub.open')}><ExternalLink size={15} /></a> : null}
                     <button onClick={() => removePage(p.id)} title={t('hub.delete')} aria-label={t('hub.delete')}><Trash2 size={15} /></button>

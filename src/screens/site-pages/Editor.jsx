@@ -4,7 +4,7 @@ import {
   Palette, Upload, X, ChevronUp, ChevronDown,
   LayoutTemplate, Type, Image as ImageIcon, Sparkles, Quote,
   MousePointerClick, ClipboardList, CalendarClock, Minus,
-  LayoutGrid, Smile, Images, Video, HelpCircle, SeparatorHorizontal,
+  LayoutGrid, Smile, Images, Video, HelpCircle, SeparatorHorizontal, Copy,
 } from 'lucide-react'
 import {
   BLOCK_TYPES, BLOCK_PALETTE, newSection, sitePageSurface,
@@ -18,6 +18,16 @@ const sortKeys = (v) => Array.isArray(v) ? v.map(sortKeys)
   : (v && typeof v === 'object') ? Object.keys(v).sort().reduce((o, k) => { o[k] = sortKeys(v[k]); return o }, {})
   : v
 const canon = (v) => JSON.stringify(sortKeys(v))
+
+/* Walk any props value and collect the storage paths of every uploaded asset it
+   references (image url, testimonial avatar, gallery items…). External links
+   aren't page-assets, so assetPathFromUrl returns null and skips them. */
+const collectAssetPaths = (val, acc = []) => {
+  if (typeof val === 'string') { const p = assetPathFromUrl(val); if (p) acc.push(p) }
+  else if (Array.isArray(val)) val.forEach((v) => collectAssetPaths(v, acc))
+  else if (val && typeof val === 'object') Object.values(val).forEach((v) => collectAssetPaths(v, acc))
+  return acc
+}
 
 /* Chrome icons for the "add section" palette (distinct from the curated
    CONTENT icon set in pageIcons that users pick inside icon/iconText blocks). */
@@ -69,6 +79,10 @@ export default function Editor({ page, onSave, onBack }) {
   const dragIndex = useRef(null)
   const [dragging, setDragging] = useState(null)   // index being dragged
   const [dragOver, setDragOver] = useState(null)   // index hovered as drop target
+  const [pendingDel, setPendingDel] = useState(null) // { section, index, paths } awaiting undo
+  const delTimer = useRef(null)
+  const draftRef = useRef(draft)                   // latest draft for deferred asset cleanup
+  useEffect(() => { draftRef.current = draft }, [draft])
 
   const selected = useMemo(
     () => draft.sections.find((s) => s.id === selectedId) || null,
@@ -104,9 +118,59 @@ export default function Editor({ page, onSave, onBack }) {
     setTimeout(() => document.querySelector(`[data-sid="${sec.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60)
   }
 
+  /* Remove only the asset paths that NO remaining section references — so a delete
+     never orphans an upload, and never breaks an image shared with a duplicate. */
+  const cleanupAssets = (paths, sections) => {
+    const used = new Set(sections.flatMap((s) => collectAssetPaths(s.props)))
+    paths.forEach((p) => { if (!used.has(p)) removePageAsset(p) })
+  }
+  /* Settle a pending delete now: actually clean up its (still-unused) assets. */
+  const commitPendingDelete = () => {
+    if (delTimer.current) { clearTimeout(delTimer.current); delTimer.current = null }
+    if (pendingDel) cleanupAssets(pendingDel.paths, draftRef.current.sections)
+    setPendingDel(null)
+  }
+
   const deleteSection = (id) => {
+    commitPendingDelete()                       // settle any earlier pending delete first
+    const index = draft.sections.findIndex((s) => s.id === id)
+    if (index < 0) return
+    const removed = draft.sections[index]
     mutate((d) => ({ ...d, sections: d.sections.filter((s) => s.id !== id) }))
     if (selectedId === id) setSelectedId(null)
+    const paths = collectAssetPaths(removed.props)
+    setPendingDel({ section: removed, index, paths })
+    // Defer asset cleanup so an undo can restore the section with its images intact.
+    delTimer.current = setTimeout(() => {
+      cleanupAssets(paths, draftRef.current.sections)
+      delTimer.current = null; setPendingDel(null)
+    }, 7000)
+  }
+
+  const undoDelete = () => {
+    const pd = pendingDel
+    if (!pd) return
+    if (delTimer.current) { clearTimeout(delTimer.current); delTimer.current = null }
+    mutate((d) => {
+      const arr = [...d.sections]
+      arr.splice(Math.min(pd.index, arr.length), 0, pd.section)
+      return { ...d, sections: arr }
+    })
+    setSelectedId(pd.section.id)
+    setPendingDel(null)
+  }
+
+  const duplicateSection = (id) => {
+    const orig = draft.sections.find((s) => s.id === id)
+    if (!orig) return
+    const seed = newSection(orig.type, draft.sections)
+    const copy = { ...structuredClone(orig), id: seed ? seed.id : `${orig.id}_copy` }
+    mutate((d) => {
+      const i = d.sections.findIndex((s) => s.id === id)
+      const arr = [...d.sections]; arr.splice(i < 0 ? arr.length : i + 1, 0, copy)
+      return { ...d, sections: arr }
+    })
+    setSelectedId(copy.id)
   }
 
   const updateProps = (id, patch) => mutate((d) => ({
@@ -239,7 +303,7 @@ export default function Editor({ page, onSave, onBack }) {
                 onDragStart={() => { dragIndex.current = i; setDragging(i) }}
                 onDragOver={(e) => { e.preventDefault(); if (dragOver !== i) setDragOver(i) }}
                 onDragEnd={() => { setDragging(null); setDragOver(null) }}
-                onDrop={() => { reorder(dragIndex.current, i); dragIndex.current = null; setDragging(null); setDragOver(null) }}
+                onDrop={() => { const from = dragIndex.current; if (from != null) reorder(from, from < i ? i - 1 : i); dragIndex.current = null; setDragging(null); setDragOver(null) }}
                 onClick={() => setSelectedId(s.id)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(s.id) } }}
               >
@@ -247,6 +311,7 @@ export default function Editor({ page, onSave, onBack }) {
                 <span className="spe-sec-label">{t('blocks.' + s.type, { defaultValue: BLOCK_TYPES[s.type]?.label || s.type })}</span>
                 <button className="spe-sec-move" disabled={i === 0} onClick={(e) => { e.stopPropagation(); reorder(i, i - 1) }} title={t('editor.moveUp')} aria-label={t('editor.moveUp')}><ChevronUp size={13} /></button>
                 <button className="spe-sec-move" disabled={i === draft.sections.length - 1} onClick={(e) => { e.stopPropagation(); reorder(i, i + 1) }} title={t('editor.moveDown')} aria-label={t('editor.moveDown')}><ChevronDown size={13} /></button>
+                <button className="spe-sec-move" onClick={(e) => { e.stopPropagation(); duplicateSection(s.id) }} title={t('editor.duplicateSection')} aria-label={t('editor.duplicateSection')}><Copy size={13} /></button>
                 <button className="spe-sec-del" onClick={(e) => { e.stopPropagation(); deleteSection(s.id) }} title={t('editor.deleteSection')} aria-label={t('editor.deleteSection')}><Trash2 size={13} /></button>
               </li>
             ))}
@@ -274,6 +339,13 @@ export default function Editor({ page, onSave, onBack }) {
                 kind={draft.kind} config={draft.config} setConfig={setConfig} />}
         </aside>
       </div>
+
+      {pendingDel ? (
+        <div className="spe-toast" role="status">
+          <span>{t('editor.sectionDeleted')}</span>
+          <button onClick={undoDelete}>{t('editor.undo')}</button>
+        </div>
+      ) : null}
     </div>
   )
 }

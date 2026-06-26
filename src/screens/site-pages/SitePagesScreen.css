@@ -172,6 +172,18 @@
 .spe-design-btn { margin-top: auto; display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: var(--mg-caption); color: var(--stone); background: var(--pure-white); border: 1px solid var(--divider); border-radius: var(--mg-chip-radius); padding: 10px 12px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
 .spe-design-btn.is-on { border-color: var(--terracotta); color: var(--terracotta); }
 
+/* Undo toast (section delete) */
+.spe-toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 14px;
+  background: var(--espresso); color: var(--cream);
+  padding: 10px 14px 10px 18px; border-radius: var(--mg-chip-radius);
+  box-shadow: var(--elev-3); font-size: var(--mg-caption); z-index: 90;
+  animation: mgFadeUp 0.2s ease;
+}
+.spe-toast button { font: inherit; font-weight: 600; color: var(--cream); background: transparent; border: 1px solid color-mix(in srgb, var(--cream) 45%, transparent); border-radius: var(--mg-chip-radius); padding: 5px 12px; cursor: pointer; transition: background 0.15s; }
+.spe-toast button:hover { background: color-mix(in srgb, var(--cream) 16%, transparent); }
+
 /* Canvas */
 .spe-canvas-wrap { flex: 1; overflow: auto; background: var(--bone); padding: 24px; display: flex; justify-content: center; }
 .spe-frame { background: var(--cream); box-shadow: var(--elev-3); border-radius: 14px; overflow: hidden; align-self: flex-start; width: 100%; transition: max-width 0.3s ease; }

@@ -337,7 +337,8 @@ export function makeMockClient() {
             const q = new URLSearchParams(name.split('?')[1] || '')
             const page = match(q.get('page'), q.get('kind'))
             if (!page) return { data: null, error: { message: 'not_found' } }
-            return { data: { id: page.id, kind: page.kind, theme: page.theme, sections: page.sections, config: { thankYou: page.config?.thankYou ?? null, seo: page.config?.seo ?? null } }, error: null }
+            const v = page.published_snapshot || { theme: page.theme, sections: page.sections, config: page.config }
+            return { data: { id: page.id, kind: page.kind, theme: v.theme, sections: v.sections, config: { thankYou: v.config?.thankYou ?? null, seo: v.config?.seo ?? null } }, error: null }
           }
           const page = match(opts?.body?.page, opts?.body?.kind)
           const section = (page?.sections || []).find((s) => s.type === 'form')

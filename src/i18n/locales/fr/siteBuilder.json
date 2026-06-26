@@ -52,7 +52,12 @@
     "confirmDiscard": "Des modifications ne sont pas enregistrées. Quitter sans enregistrer ?",
     "moveUp": "Monter",
     "moveDown": "Descendre",
-    "publishEmpty": "Ajoutez au moins une section avant de publier"
+    "publishEmpty": "Ajoutez au moins une section avant de publier",
+    "saveDraft": "Enregistrer le brouillon",
+    "statusDraft": "Brouillon",
+    "statusPublished": "Publié",
+    "statusUnpublished": "Modifications non publiées",
+    "unpublish": "Dépublier"
   },
   "seo": {
     "group": "SEO et partage",

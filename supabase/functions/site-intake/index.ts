@@ -64,23 +64,33 @@ function overLimit(key: string, max: number, windowMs: number): boolean {
 
 const str = (v: unknown) => (v == null ? '' : String(v)).trim()
 
-/* Strip a page row down to what the public page may see. */
+/* The PUBLISHED version a visitor sees: the snapshot if present, else the live
+   fields (covers pages published before the snapshot column + backfill). */
+function served(page: any) {
+  const s = page.published_snapshot
+  if (s && typeof s === 'object') {
+    return { theme: s.theme ?? {}, sections: Array.isArray(s.sections) ? s.sections : [], config: s.config ?? {} }
+  }
+  return { theme: page.theme ?? {}, sections: Array.isArray(page.sections) ? page.sections : [], config: page.config ?? {} }
+}
+
+/* Strip a page row down to what the public page may see (from the served version). */
 function publicConfig(page: any) {
+  const v = served(page)
   return {
     id: page.id,
     kind: page.kind,
-    theme: page.theme ?? {},
-    sections: Array.isArray(page.sections) ? page.sections : [],
+    theme: v.theme,
+    sections: v.sections,
     // never leak internal config — expose only what the public page needs.
-    config: { thankYou: page.config?.thankYou ?? null, seo: page.config?.seo ?? null },
+    config: { thankYou: v.config?.thankYou ?? null, seo: v.config?.seo ?? null },
   }
 }
 
 /* Pick the form section to submit into: the one whose id matches, else the
    first form section on the page. */
-function findFormSection(page: any, sectionId: string) {
-  const sections = Array.isArray(page.sections) ? page.sections : []
-  const forms = sections.filter((s: any) => s?.type === 'form')
+function findFormSection(sections: any[], sectionId: string) {
+  const forms = (Array.isArray(sections) ? sections : []).filter((s: any) => s?.type === 'form')
   if (sectionId) return forms.find((s: any) => s.id === sectionId) ?? null
   return forms[0] ?? null
 }
@@ -130,10 +140,11 @@ Deno.serve(async (req) => {
     if (!page) return json({ error: 'not_found' }, 404)
 
     const answers = (body?.answers && typeof body.answers === 'object') ? body.answers : {}
-    const section = findFormSection(page, str(body?.section))
+    const v = served(page)
+    const section = findFormSection(v.sections, str(body?.section))
     if (!section) return json({ error: 'no_form' }, 400)
 
-    const sectionThankYou = section.props?.thankYou ?? page.config?.thankYou ?? null
+    const sectionThankYou = section.props?.thankYou ?? v.config?.thankYou ?? null
 
     // Honeypot: a hidden field bots fill in. Silently pretend success.
     if (str(answers._hp)) return json({ ok: true, thankYou: sectionThankYou })
@@ -153,7 +164,7 @@ Deno.serve(async (req) => {
       project_id: page.project_id ?? null,
       status: 'new',
       status_meta: 'in_process',
-      pending_review: !(section.props?.autoApprove ?? page.config?.autoApprove ?? false),
+      pending_review: !(section.props?.autoApprove ?? v.config?.autoApprove ?? false),
       data: {},
     }
     const data: Record<string, string> = {}

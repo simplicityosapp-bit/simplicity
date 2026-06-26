@@ -133,6 +133,14 @@
 .spe-save:disabled { opacity: 0.5; cursor: default; }
 [data-theme="dark"] .spe-save { color: var(--espresso); }
 .spe-save-err { font-size: var(--mg-micro); color: var(--clay-on-dark); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.spe-status { font-size: var(--mg-micro); font-weight: 600; padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, var(--stone) 10%, transparent); color: var(--stone); white-space: nowrap; }
+.spe-status.is-live { background: color-mix(in srgb, var(--sage) 16%, transparent); color: var(--sage); }
+.spe-status.is-pending { background: color-mix(in srgb, var(--amber-warn) 20%, transparent); color: var(--amber-warn); }
+.spe-save-draft { font: inherit; font-size: var(--mg-caption); font-weight: 600; color: var(--espresso); background: var(--mg-card-bg); -webkit-backdrop-filter: var(--mg-card-blur); backdrop-filter: var(--mg-card-blur); border: 1px solid var(--divider); border-radius: var(--mg-chip-radius); padding: 9px 16px; cursor: pointer; transition: background 0.15s; }
+.spe-save-draft:hover:not(:disabled) { background: var(--mg-row-active-bg); }
+.spe-save-draft:disabled { opacity: 0.5; cursor: default; }
+.spe-unpub { font: inherit; font-size: var(--mg-caption); color: var(--stone); background: transparent; border: none; cursor: pointer; padding: 6px 8px; border-radius: var(--mg-chip-radius); transition: color 0.15s, background 0.15s; }
+.spe-unpub:hover:not(:disabled) { color: var(--clay); background: color-mix(in srgb, var(--clay) 8%, transparent); }
 
 .spe-body { flex: 1; display: flex; min-height: 0; }
 

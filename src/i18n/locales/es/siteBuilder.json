@@ -52,7 +52,12 @@
     "confirmDiscard": "Tienes cambios sin guardar. ¿Salir sin guardar?",
     "moveUp": "Subir",
     "moveDown": "Bajar",
-    "publishEmpty": "Añade al menos una sección antes de publicar"
+    "publishEmpty": "Añade al menos una sección antes de publicar",
+    "saveDraft": "Guardar borrador",
+    "statusDraft": "Borrador",
+    "statusPublished": "Publicado",
+    "statusUnpublished": "Cambios sin publicar",
+    "unpublish": "Despublicar"
   },
   "seo": {
     "group": "SEO y compartir",

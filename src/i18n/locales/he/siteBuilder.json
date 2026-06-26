@@ -52,7 +52,12 @@
     "confirmDiscard": "יש שינויים שלא נשמרו. לצאת בלי לשמור?",
     "moveUp": "הזזה למעלה",
     "moveDown": "הזזה למטה",
-    "publishEmpty": "הוסיפו סקשן אחד לפחות לפני פרסום"
+    "publishEmpty": "הוסיפו סקשן אחד לפחות לפני פרסום",
+    "saveDraft": "שמירת טיוטה",
+    "statusDraft": "טיוטה",
+    "statusPublished": "מפורסם",
+    "statusUnpublished": "שינויים לא פורסמו",
+    "unpublish": "הסרה מפרסום"
   },
   "seo": {
     "group": "SEO ושיתוף",

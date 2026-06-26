@@ -52,7 +52,12 @@
     "confirmDiscard": "You have unsaved changes. Leave without saving?",
     "moveUp": "Move up",
     "moveDown": "Move down",
-    "publishEmpty": "Add at least one section before publishing"
+    "publishEmpty": "Add at least one section before publishing",
+    "saveDraft": "Save draft",
+    "statusDraft": "Draft",
+    "statusPublished": "Published",
+    "statusUnpublished": "Unpublished changes",
+    "unpublish": "Unpublish"
   },
   "seo": {
     "group": "SEO & sharing",

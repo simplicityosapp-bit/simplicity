@@ -58,6 +58,7 @@ export default function Editor({ page, onSave, onBack }) {
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [saveError, setSaveError] = useState(null)
+  const [publishedSnapshot, setPublishedSnapshot] = useState(() => page.published_snapshot || null)
   const dragIndex = useRef(null)
   const [dragging, setDragging] = useState(null)   // index being dragged
   const [dragOver, setDragOver] = useState(null)   // index hovered as drop target
@@ -116,21 +117,47 @@ export default function Editor({ page, onSave, onBack }) {
     })
   }
 
+  /* The version that defines "what's on the page" (compared to the published
+     snapshot to detect unpublished changes). */
+  const draftVersion = () => JSON.stringify({ theme: draft.theme, sections: draft.sections, config: draft.config })
+  const hasUnpublishedChanges = !!draft.published && draftVersion() !== JSON.stringify(publishedSnapshot || {})
+
+  const baseFields = () => ({
+    title: draft.title, slug: draft.slug || null, kind: draft.kind,
+    project_id: draft.project_id || null, theme: draft.theme, sections: draft.sections, config: draft.config,
+  })
+
+  /* Save the DRAFT only — does not change what visitors see. */
   const save = async () => {
-    // A 1–2 char slug passes the live input cleanup but fails the DB CHECK
-    // (3–40). Catch it here with a clear message instead of a generic failure.
     if (draft.slug && !isValidSlug(draft.slug)) { setSaveError(t('editor.slugInvalid')); return }
     setSaving(true); setSaveError(null)
     try {
-      await onSave({
-        title: draft.title, published: draft.published, slug: draft.slug || null,
-        kind: draft.kind, project_id: draft.project_id || null,
-        theme: draft.theme, sections: draft.sections, config: draft.config,
-      })
+      await onSave(baseFields())
       setDirty(false)
-    } catch {
-      setSaveError(t('editor.saveError'))
-    } finally { setSaving(false) }
+    } catch { setSaveError(t('editor.saveError')) } finally { setSaving(false) }
+  }
+
+  /* Publish — save the draft AND snapshot it as the live version. */
+  const publish = async () => {
+    if (draft.slug && !isValidSlug(draft.slug)) { setSaveError(t('editor.slugInvalid')); return }
+    if (!draft.sections.length) { setSaveError(t('editor.publishEmpty')); return }
+    setSaving(true); setSaveError(null)
+    const snapshot = { theme: draft.theme, sections: draft.sections, config: draft.config }
+    try {
+      await onSave({ ...baseFields(), published: true, published_snapshot: snapshot })
+      setDraft((d) => ({ ...d, published: true }))
+      setPublishedSnapshot(snapshot)
+      setDirty(false)
+    } catch { setSaveError(t('editor.saveError')) } finally { setSaving(false) }
+  }
+
+  /* Take the page offline (keeps the snapshot for a quick re-publish). */
+  const unpublish = async () => {
+    setSaving(true); setSaveError(null)
+    try {
+      await onSave({ published: false })
+      setDraft((d) => ({ ...d, published: false }))
+    } catch { setSaveError(t('editor.saveError')) } finally { setSaving(false) }
   }
 
   /* Canvas click → select the clicked section (reads the nearest [data-sid]). */
@@ -155,14 +182,18 @@ export default function Editor({ page, onSave, onBack }) {
           <button className={device === 'desktop' ? 'is-on' : ''} onClick={() => setDevice('desktop')} title={t('editor.desktop')} aria-label={t('editor.desktop')}><Monitor size={16} /></button>
           <button className={device === 'mobile' ? 'is-on' : ''} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></button>
         </div>
-        <label className="spe-pub" title={draft.sections.length === 0 ? t('editor.publishEmpty') : undefined}>
-          <input type="checkbox" checked={draft.published} disabled={draft.sections.length === 0}
-            onChange={(e) => mutate((d) => ({ ...d, published: e.target.checked }))} />
-          <span>{t('editor.publish')}</span>
-        </label>
         {saveError ? <span className="spe-save-err" title={saveError}>{saveError}</span> : null}
-        <button className="spe-save" onClick={save} disabled={saving || !dirty}>
-          {saving ? t('editor.saving') : dirty ? t('editor.save') : t('editor.saved')}
+        <span className={`spe-status${draft.published ? (hasUnpublishedChanges ? ' is-pending' : ' is-live') : ''}`}>
+          {!draft.published ? t('editor.statusDraft') : hasUnpublishedChanges ? t('editor.statusUnpublished') : t('editor.statusPublished')}
+        </span>
+        {draft.published ? (
+          <button className="spe-unpub" onClick={unpublish} disabled={saving} title={t('editor.unpublish')}>{t('editor.unpublish')}</button>
+        ) : null}
+        <button className="spe-save-draft" onClick={save} disabled={saving || !dirty}>
+          {saving ? t('editor.saving') : t('editor.saveDraft')}
+        </button>
+        <button className="spe-save" onClick={publish} disabled={saving || (draft.published && !hasUnpublishedChanges && !dirty)}>
+          {t('editor.publish')}
         </button>
       </div>
 

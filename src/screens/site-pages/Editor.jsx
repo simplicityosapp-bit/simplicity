@@ -12,6 +12,13 @@ import {
   FIELD_TYPES, isChoiceType, defaultChoiceOptions, freeFieldKey,
 } from '../../lib/sitePageSchema'
 
+/* Key-order-independent serializer — so comparing the draft to a snapshot read
+   back from a Postgres jsonb column (which normalises key order) is stable. */
+const sortKeys = (v) => Array.isArray(v) ? v.map(sortKeys)
+  : (v && typeof v === 'object') ? Object.keys(v).sort().reduce((o, k) => { o[k] = sortKeys(v[k]); return o }, {})
+  : v
+const canon = (v) => JSON.stringify(sortKeys(v))
+
 /* Chrome icons for the "add section" palette (distinct from the curated
    CONTENT icon set in pageIcons that users pick inside icon/iconText blocks). */
 const BLOCK_ICON = {
@@ -118,9 +125,12 @@ export default function Editor({ page, onSave, onBack }) {
   }
 
   /* The version that defines "what's on the page" (compared to the published
-     snapshot to detect unpublished changes). */
-  const draftVersion = () => JSON.stringify({ theme: draft.theme, sections: draft.sections, config: draft.config })
-  const hasUnpublishedChanges = !!draft.published && draftVersion() !== JSON.stringify(publishedSnapshot || {})
+     snapshot to detect unpublished changes). Uses a key-order-independent
+     serializer: the snapshot comes back from a Postgres jsonb column, which
+     normalises key order, so a raw JSON.stringify would always mis-compare and
+     show a freshly-published page as having unpublished changes. */
+  const draftVersion = () => canon({ theme: draft.theme, sections: draft.sections, config: draft.config })
+  const hasUnpublishedChanges = !!draft.published && draftVersion() !== canon(publishedSnapshot || {})
 
   const baseFields = () => ({
     title: draft.title, slug: draft.slug || null, kind: draft.kind,

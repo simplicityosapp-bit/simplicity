@@ -341,8 +341,9 @@ export function makeMockClient() {
             return { data: { id: page.id, kind: page.kind, theme: v.theme, sections: v.sections, config: { thankYou: v.config?.thankYou ?? null, seo: v.config?.seo ?? null } }, error: null }
           }
           const page = match(opts?.body?.page, opts?.body?.kind)
-          const section = (page?.sections || []).find((s) => s.type === 'form')
-          return { data: { ok: true, thankYou: section?.props?.thankYou ?? page?.config?.thankYou ?? null }, error: null }
+          const pv = page && (page.published_snapshot || { sections: page.sections, config: page.config })
+          const section = (pv?.sections || []).find((s) => s.type === 'form')
+          return { data: { ok: true, thankYou: section?.props?.thankYou ?? pv?.config?.thankYou ?? null }, error: null }
         }
         return { data: { ok: true }, error: null }
       },

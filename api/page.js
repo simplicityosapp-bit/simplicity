@@ -10,6 +10,9 @@
    the unmodified index.html. It can never break the public page. */
 
 const SUPABASE_URL = 'https://rdurkakzyymxhocvhufw.supabase.co'
+// Canonical public origin for og:url — fixed, not derived from the (spoofable)
+// Host header. The request host is still used only for the internal self-fetch.
+const CANONICAL = 'https://simplicity-os.com'
 // Publishable (anon) key — the same one shipped in the client bundle; safe to
 // embed. Overridable via a Vercel env var if ever rotated.
 const ANON_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_vr-jk0ptqv6xdF-NRTMQ6w_RIQYkZ5A'
@@ -84,7 +87,7 @@ export default async function handler(req, res) {
       if (r.ok) {
         const seo = resolveSeo(await r.json())
         const original = kind === 'lead' ? `/lead/${slug}` : `/p/${slug}`
-        html = injectMeta(html, seo, `${base}${original}`)
+        html = injectMeta(html, seo, `${CANONICAL}${original}`)
       }
     }
   } catch { /* keep the unmodified shell */ }

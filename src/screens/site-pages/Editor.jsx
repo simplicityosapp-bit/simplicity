@@ -4,6 +4,7 @@ import {
   Palette, Upload, X, ChevronUp, ChevronDown,
   LayoutTemplate, Type, Image as ImageIcon, Sparkles, Quote,
   MousePointerClick, ClipboardList, CalendarClock, Minus,
+  LayoutGrid, Smile, Images, Video, HelpCircle, SeparatorHorizontal,
 } from 'lucide-react'
 import {
   BLOCK_TYPES, BLOCK_PALETTE, newSection, sitePageSurface,
@@ -17,6 +18,8 @@ const BLOCK_ICON = {
   hero: LayoutTemplate, text: Type, image: ImageIcon, iconText: Sparkles,
   testimonial: Quote, cta: MousePointerClick, form: ClipboardList,
   booking: CalendarClock, spacer: Minus,
+  cards: LayoutGrid, icon: Smile, gallery: Images, video: Video,
+  faq: HelpCircle, divider: SeparatorHorizontal,
 }
 import { ICON_NAMES, iconByName } from '../../lib/pageIcons'
 import { uploadPageAsset, assetPathFromUrl, removePageAsset } from '../../lib/pageAssets'

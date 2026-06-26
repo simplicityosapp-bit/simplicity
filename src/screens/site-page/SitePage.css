@@ -137,6 +137,52 @@
 .sp-spacer-md { height: 28px; }
 .sp-spacer-lg { height: 60px; }
 
+/* ── Divider ─────────────────────────────────────────────────────────────── */
+.sp-divider { border: 0; height: 1px; background: rgba(44, 38, 33, 0.14); margin: 0 auto; }
+.sp-divider-full { width: 100%; }
+.sp-divider-narrow { width: 80px; }
+
+/* ── Cards ("חלוניות") ───────────────────────────────────────────────────── */
+.sp-cards { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@container (min-width: 480px) { .sp-cards.sp-cols-auto, .sp-cards.sp-cols-2 { grid-template-columns: 1fr 1fr; } }
+@container (min-width: 720px) { .sp-cards.sp-cols-auto, .sp-cards.sp-cols-3 { grid-template-columns: repeat(3, 1fr); } }
+.sp-cardbox {
+  display: flex; flex-direction: column; gap: 10px; box-sizing: border-box;
+  padding: clamp(18px, 3cqi, 26px);
+  background: color-mix(in srgb, var(--sp-card-base, #fffdf9) 72%, transparent);
+  border: 1px solid rgba(44, 38, 33, 0.08); border-radius: var(--sp-radius, 24px);
+  text-decoration: none; color: inherit;
+}
+.sp-cardbox-link { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.sp-cardbox-link:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(42, 37, 32, 0.12); }
+.sp-cardbox-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: var(--sp-brand); background: color-mix(in srgb, var(--sp-brand) 12%, transparent); }
+.sp-cardbox-title { font-size: 17px; font-weight: 600; }
+.sp-cardbox-text { font-size: 15px; line-height: 1.6; color: #5a534b; margin: 0; }
+
+/* ── Icon block ──────────────────────────────────────────────────────────── */
+.sp-iconblock { display: flex; color: var(--sp-brand); }
+.sp-iconblock.sp-align-center { justify-content: center; }
+.sp-iconblock.sp-align-start { justify-content: flex-start; }
+
+/* ── Gallery ─────────────────────────────────────────────────────────────── */
+.sp-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sp-gallery.sp-cols-2 { grid-template-columns: 1fr 1fr; }
+@container (min-width: 480px) { .sp-gallery.sp-cols-auto, .sp-gallery.sp-cols-3 { grid-template-columns: repeat(3, 1fr); } }
+.sp-gallery-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 14px; display: block; }
+
+/* ── Video (YouTube / Vimeo embed) ───────────────────────────────────────── */
+.sp-video { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--sp-radius, 24px); overflow: hidden; background: #000; }
+.sp-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ── FAQ (accordion) ─────────────────────────────────────────────────────── */
+.sp-faq { display: flex; flex-direction: column; gap: 8px; }
+.sp-faq-item { background: color-mix(in srgb, var(--sp-card-base, #fffdf9) 62%, transparent); border: 1px solid rgba(44, 38, 33, 0.08); border-radius: 14px; padding: 2px 16px; }
+.sp-faq-q { cursor: pointer; font-weight: 600; font-size: 16px; padding: 13px 0; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sp-faq-q::-webkit-details-marker { display: none; }
+.sp-faq-q::after { content: '+'; font-size: 20px; line-height: 1; color: var(--sp-brand); flex: none; }
+.sp-faq-item[open] .sp-faq-q::after { content: '–'; }
+.sp-faq-a { margin: 0 0 14px; font-size: 15px; line-height: 1.65; color: #5a534b; white-space: pre-line; }
+
 /* ── Form block ──────────────────────────────────────────────────────────── */
 .sp-h2 { font-size: clamp(20px, 3cqi, 26px); font-weight: 600; line-height: 1.3; margin: 0 0 18px; }
 .sp-fields { display: flex; flex-direction: column; gap: 16px; }
@@ -190,8 +236,10 @@
   }
   .sp-surface.has-bg { background-image: var(--sp-bg-night); }
   .sp-card { --sp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
-  .sp-sub, .sp-text, .sp-feature-text, .sp-cite, .sp-muted { color: #b8b0a4; }
-  .sp-h1, .sp-h2, .sp-feature-title, .sp-label, .sp-quote, .sp-choice { color: #f0ebe0; }
+  .sp-cardbox, .sp-faq-item { --sp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
+  .sp-sub, .sp-text, .sp-feature-text, .sp-cite, .sp-muted, .sp-cardbox-text, .sp-faq-a { color: #b8b0a4; }
+  .sp-h1, .sp-h2, .sp-feature-title, .sp-label, .sp-quote, .sp-choice, .sp-cardbox-title, .sp-faq-q { color: #f0ebe0; }
   .sp-input { background: #12161b; color: #f0ebe0; border-color: rgba(240, 235, 224, 0.18); }
   .sp-input:disabled { background: #181d23; }
+  .sp-divider { background: rgba(240, 235, 224, 0.14); }
 }

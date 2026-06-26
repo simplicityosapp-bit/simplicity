@@ -115,7 +115,8 @@
     "bookingHint": "Enter your booking page slug in the side panel.",
     "thankYouDefault": "Thanks! We got your details and will be in touch.",
     "submit": "Submit",
-    "empty": "The page is empty — add your first section."
+    "empty": "The page is empty — add your first section.",
+    "videoEmpty": "Paste a YouTube or Vimeo link"
   },
   "kinds": {
     "landing": "Landing pages",
@@ -131,6 +132,12 @@
     "cta": "Button",
     "form": "Lead form",
     "booking": "Appointment",
+    "cards": "Cards",
+    "icon": "Icon",
+    "gallery": "Gallery",
+    "video": "Video",
+    "faq": "FAQ",
+    "divider": "Divider",
     "spacer": "Spacer"
   },
   "labels": {
@@ -158,7 +165,11 @@
     "submitLabel": "Submit button",
     "size": "Size",
     "bookingSlug": "Booking page address",
-    "buttonLabel": "Button text"
+    "buttonLabel": "Button text",
+    "columns": "Columns",
+    "q": "Question",
+    "a": "Answer",
+    "align": "Alignment"
   },
   "fieldTypes": {
     "text": "Text",
@@ -176,6 +187,9 @@
     "secondary": "Secondary",
     "sm": "Small",
     "md": "Medium",
-    "lg": "Large"
+    "lg": "Large",
+    "auto": "Auto",
+    "start": "Start",
+    "center": "Center"
   }
 }

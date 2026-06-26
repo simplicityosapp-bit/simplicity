@@ -115,7 +115,8 @@
     "bookingHint": "Introduce el slug de tu página de reservas en el panel lateral.",
     "thankYouDefault": "¡Gracias! Recibimos tus datos y te contactaremos.",
     "submit": "Enviar",
-    "empty": "La página está vacía — añade tu primera sección."
+    "empty": "La página está vacía — añade tu primera sección.",
+    "videoEmpty": "Pega un enlace de YouTube o Vimeo"
   },
   "kinds": {
     "landing": "Páginas de aterrizaje",
@@ -131,6 +132,12 @@
     "cta": "Botón",
     "form": "Formulario de contacto",
     "booking": "Cita",
+    "cards": "Tarjetas",
+    "icon": "Icono",
+    "gallery": "Galería",
+    "video": "Vídeo",
+    "faq": "Preguntas frecuentes",
+    "divider": "Separador",
     "spacer": "Espaciador"
   },
   "labels": {
@@ -158,7 +165,11 @@
     "submitLabel": "Botón de envío",
     "size": "Tamaño",
     "bookingSlug": "Dirección de la página de reservas",
-    "buttonLabel": "Texto del botón"
+    "buttonLabel": "Texto del botón",
+    "columns": "Columnas",
+    "q": "Pregunta",
+    "a": "Respuesta",
+    "align": "Alineación"
   },
   "fieldTypes": {
     "text": "Texto",
@@ -176,6 +187,9 @@
     "secondary": "Secundario",
     "sm": "Pequeño",
     "md": "Mediano",
-    "lg": "Grande"
+    "lg": "Grande",
+    "auto": "Automático",
+    "start": "Inicio",
+    "center": "Centro"
   }
 }

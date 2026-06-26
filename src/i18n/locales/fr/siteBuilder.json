@@ -115,7 +115,8 @@
     "bookingHint": "Saisissez le slug de votre page de réservation dans le panneau latéral.",
     "thankYouDefault": "Merci ! Nous avons reçu vos coordonnées et reviendrons vers vous.",
     "submit": "Envoyer",
-    "empty": "La page est vide — ajoutez votre première section."
+    "empty": "La page est vide — ajoutez votre première section.",
+    "videoEmpty": "Collez un lien YouTube ou Vimeo"
   },
   "kinds": {
     "landing": "Pages d'atterrissage",
@@ -131,6 +132,12 @@
     "cta": "Bouton",
     "form": "Formulaire de contact",
     "booking": "Rendez-vous",
+    "cards": "Cartes",
+    "icon": "Icône",
+    "gallery": "Galerie",
+    "video": "Vidéo",
+    "faq": "FAQ",
+    "divider": "Séparateur",
     "spacer": "Espacement"
   },
   "labels": {
@@ -158,7 +165,11 @@
     "submitLabel": "Bouton d'envoi",
     "size": "Taille",
     "bookingSlug": "Adresse de la page de réservation",
-    "buttonLabel": "Texte du bouton"
+    "buttonLabel": "Texte du bouton",
+    "columns": "Colonnes",
+    "q": "Question",
+    "a": "Réponse",
+    "align": "Alignement"
   },
   "fieldTypes": {
     "text": "Texte",
@@ -176,6 +187,9 @@
     "secondary": "Secondaire",
     "sm": "Petit",
     "md": "Moyen",
-    "lg": "Grand"
+    "lg": "Grand",
+    "auto": "Auto",
+    "start": "Début",
+    "center": "Centre"
   }
 }

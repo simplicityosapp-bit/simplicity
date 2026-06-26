@@ -1,5 +1,5 @@
 import { useState, useRef, Component } from 'react'
-import { sitePageSurface, safeRedirectUrl, safeImageUrl } from '../../lib/sitePageSchema'
+import { sitePageSurface, safeRedirectUrl, safeImageUrl, safeVideoEmbed } from '../../lib/sitePageSchema'
 import { isChoiceType } from '../../lib/leadPageSchema'
 import { iconByName } from '../../lib/pageIcons'
 import { useT } from '../../i18n/useT'
@@ -140,6 +140,82 @@ function SpacerBlock({ props }) {
   return <div className={`sp-spacer sp-spacer-${props.size || 'md'}`} aria-hidden="true" />
 }
 
+function DividerBlock({ props }) {
+  return <hr className={`sp-divider sp-divider-${props.width || 'full'}`} />
+}
+
+/* "חלוניות" — a responsive grid of cards (icon + title + body + optional link). */
+function CardsBlock({ props }) {
+  const items = Array.isArray(props.items) ? props.items : []
+  const cols = (props.columns && props.columns !== 'auto') ? props.columns : 'auto'
+  return (
+    <div className={`sp-cards sp-cols-${cols}`}>
+      {items.map((it, i) => {
+        const Icon = iconByName(it.icon)
+        const href = safeRedirectUrl(it.url)
+        const inner = (
+          <>
+            {it.icon ? <div className="sp-cardbox-icon"><Icon size={22} strokeWidth={2} /></div> : null}
+            {str(it.title) ? <div className="sp-cardbox-title">{it.title}</div> : null}
+            {str(it.body) ? <p className="sp-cardbox-text">{it.body}</p> : null}
+          </>
+        )
+        return href
+          ? <a key={i} className="sp-cardbox sp-cardbox-link" href={href} target="_blank" rel="noopener noreferrer">{inner}</a>
+          : <div key={i} className="sp-cardbox">{inner}</div>
+      })}
+    </div>
+  )
+}
+
+/* A single decorative icon. */
+function IconBlock({ props }) {
+  const Icon = iconByName(props.icon)
+  const size = props.size === 'sm' ? 28 : props.size === 'lg' ? 64 : 44
+  return <div className={`sp-iconblock sp-align-${props.align || 'center'}`}><Icon size={size} strokeWidth={1.8} /></div>
+}
+
+function GalleryBlock({ props }) {
+  const { t } = useT('siteBuilder')
+  const items = Array.isArray(props.items) ? props.items : []
+  const imgs = items.map((it) => safeImageUrl(it && it.url)).filter(Boolean)
+  const cols = (props.columns && props.columns !== 'auto') ? props.columns : 'auto'
+  if (!imgs.length) return <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
+  return (
+    <div className={`sp-gallery sp-cols-${cols}`}>
+      {imgs.map((u, i) => <img key={i} className="sp-gallery-img" src={u} alt="" loading="lazy" />)}
+    </div>
+  )
+}
+
+/* YouTube / Vimeo embed only (validated src) — no arbitrary iframe. */
+function VideoBlock({ props }) {
+  const { t } = useT('siteBuilder')
+  const src = safeVideoEmbed(props.url)
+  if (!src) return <div className="sp-img-empty">{t('renderer.videoEmpty')}</div>
+  return (
+    <div className="sp-video">
+      <iframe src={src} title="video" loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen />
+    </div>
+  )
+}
+
+function FaqBlock({ props }) {
+  const items = Array.isArray(props.items) ? props.items : []
+  return (
+    <div className="sp-faq">
+      {items.map((it, i) => (
+        <details className="sp-faq-item" key={i}>
+          <summary className="sp-faq-q">{str(it.q) || '—'}</summary>
+          {str(it.a) ? <p className="sp-faq-a">{it.a}</p> : null}
+        </details>
+      ))}
+    </div>
+  )
+}
+
 /* Lead-capture form. In the editor (interactive=false) inputs are disabled and
    the submit is inert. On the public page the parent passes `runtime` and we
    manage answer state locally, then hand a flat answers map up to submit. */
@@ -265,6 +341,8 @@ function BookingBlock({ props, interactive }) {
 const BLOCK_COMPONENT = {
   hero: HeroBlock, text: TextBlock, image: ImageBlock, iconText: IconTextBlock,
   testimonial: TestimonialBlock, cta: CtaBlock, spacer: SpacerBlock,
+  cards: CardsBlock, icon: IconBlock, gallery: GalleryBlock, video: VideoBlock,
+  faq: FaqBlock, divider: DividerBlock,
 }
 
 /* One section → its block, wrapped so the canvas can target it (id, type).

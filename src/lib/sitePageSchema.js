@@ -80,6 +80,18 @@ export function safeImageUrl(url) {
   return (/^https?:\/\//i.test(raw) || raw.startsWith('/')) ? raw : ''
 }
 
+/* Turn a coach-pasted YouTube/Vimeo URL into a safe embed src. Only these two
+   providers are allowed (no arbitrary iframe src). Returns '' if unrecognized. */
+export function safeVideoEmbed(url) {
+  const raw = (url || '').toString().trim()
+  if (!raw) return ''
+  const yt = raw.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/)
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}`
+  const vm = raw.match(/vimeo\.com\/(?:video\/)?(\d{6,})/)
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}`
+  return ''
+}
+
 /* Theme → inline CSS vars + className, applied to the `.sp-surface` root used
    by BOTH the builder canvas and the public page (true WYSIWYG). Generalizes
    leadPageSurface(): adds `font` and the three background types. */
@@ -223,6 +235,61 @@ export const BLOCK_TYPES = {
       { key: 'buttonLabel', label: 'טקסט הכפתור', type: 'text' },
     ],
   },
+  cards: {
+    label: 'חלוניות', icon: 'LayoutGrid',
+    defaultProps: {
+      columns: 'auto',
+      items: [
+        { icon: 'Star', title: 'חלונית ראשונה', body: 'תיאור קצר', url: '' },
+        { icon: 'Heart', title: 'חלונית שנייה', body: 'תיאור קצר', url: '' },
+        { icon: 'Sparkles', title: 'חלונית שלישית', body: 'תיאור קצר', url: '' },
+      ],
+    },
+    editable: [
+      { key: 'columns', label: 'עמודות', type: 'select', options: ['auto', '2', '3'] },
+      { key: 'items', label: 'חלוניות', type: 'list', item: [
+        { key: 'icon', label: 'אייקון', type: 'icon' },
+        { key: 'title', label: 'כותרת', type: 'text' },
+        { key: 'body', label: 'תיאור', type: 'textarea' },
+        { key: 'url', label: 'קישור (לא חובה)', type: 'text' },
+      ] },
+    ],
+  },
+  icon: {
+    label: 'אייקון', icon: 'Smile',
+    defaultProps: { icon: 'Heart', size: 'md', align: 'center' },
+    editable: [
+      { key: 'icon', label: 'אייקון', type: 'icon' },
+      { key: 'size', label: 'גודל', type: 'select', options: ['sm', 'md', 'lg'] },
+      { key: 'align', label: 'יישור', type: 'select', options: ['start', 'center'] },
+    ],
+  },
+  gallery: {
+    label: 'גלריה', icon: 'Images',
+    defaultProps: { columns: 'auto', items: [{ url: '' }, { url: '' }, { url: '' }] },
+    editable: [
+      { key: 'columns', label: 'עמודות', type: 'select', options: ['auto', '2', '3'] },
+      { key: 'items', label: 'תמונות', type: 'list', item: [{ key: 'url', label: 'תמונה', type: 'image' }] },
+    ],
+  },
+  video: {
+    label: 'וידאו', icon: 'Video',
+    defaultProps: { url: '' },
+    editable: [{ key: 'url', label: 'קישור YouTube / Vimeo', type: 'text' }],
+  },
+  faq: {
+    label: 'שאלות ותשובות', icon: 'HelpCircle',
+    defaultProps: { items: [{ q: 'שאלה נפוצה?', a: 'התשובה כאן.' }, { q: 'עוד שאלה?', a: 'עוד תשובה.' }] },
+    editable: [{ key: 'items', label: 'שאלות', type: 'list', item: [
+      { key: 'q', label: 'שאלה', type: 'text' },
+      { key: 'a', label: 'תשובה', type: 'textarea' },
+    ] }],
+  },
+  divider: {
+    label: 'קו מפריד', icon: 'SeparatorHorizontal',
+    defaultProps: { width: 'full' },
+    editable: [{ key: 'width', label: 'רוחב', type: 'select', options: ['full', 'narrow'] }],
+  },
   spacer: {
     label: 'רווח', icon: 'Minus',
     defaultProps: { size: 'md' },
@@ -231,7 +298,7 @@ export const BLOCK_TYPES = {
 }
 
 /* The order sections appear in the "add" palette. */
-export const BLOCK_PALETTE = ['hero', 'text', 'image', 'iconText', 'testimonial', 'cta', 'form', 'booking', 'spacer']
+export const BLOCK_PALETTE = ['hero', 'text', 'image', 'cards', 'iconText', 'icon', 'gallery', 'video', 'testimonial', 'faq', 'cta', 'form', 'booking', 'divider', 'spacer']
 
 /* ── Section + page factories ───────────────────────────────────────────────
    Index-based local ids keep sections stable across reorders without needing a

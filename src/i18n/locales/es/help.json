@@ -1,7 +1,7 @@
 {
   "screens": {
     "sitePages": {
-      "title": "Creador de páginas",
+      "title": "Páginas públicas",
       "intro": "Un sistema para crear páginas públicas: páginas de aterrizaje, de captación de datos y de reservas. Construye con secciones arrastrando, diseña con libertad y publica con tu propio enlace.",
       "features": [
         { "title": "Construcción por secciones", "body": "Añade secciones desde la paleta (encabezado, texto, imagen, beneficios, testimonio, botón, formulario), arrastra para reordenar y haz clic en una sección para editarla en el panel lateral. La vista central es exactamente lo que verá el visitante." },

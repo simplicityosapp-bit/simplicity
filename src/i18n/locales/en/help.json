@@ -1,7 +1,7 @@
 {
   "screens": {
     "sitePages": {
-      "title": "Page builder",
+      "title": "Public pages",
       "intro": "One system for building public pages: landing pages, lead-capture pages and booking pages. Build from sections by dragging, design freely, and publish under your own link.",
       "features": [
         { "title": "Section-based building", "body": "Add sections from the palette (hero, text, image, benefits, testimonial, button, form), drag to reorder, and click a section to edit it in the side panel. The center preview is exactly what visitors see." },

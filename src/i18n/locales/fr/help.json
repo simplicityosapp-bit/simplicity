@@ -1,7 +1,7 @@
 {
   "screens": {
     "sitePages": {
-      "title": "Créateur de pages",
+      "title": "Pages publiques",
       "intro": "Un seul système pour créer des pages publiques : pages d'atterrissage, pages de capture de prospects et pages de réservation. Construisez par sections en glissant, concevez librement et publiez sous votre propre lien.",
       "features": [
         { "title": "Construction par sections", "body": "Ajoutez des sections depuis la palette (en-tête, texte, image, avantages, témoignage, bouton, formulaire), glissez pour réorganiser et cliquez sur une section pour la modifier dans le panneau latéral. L'aperçu central correspond exactement à ce que verra le visiteur." },

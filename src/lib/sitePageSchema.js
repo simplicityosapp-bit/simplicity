@@ -85,7 +85,8 @@ export function safeImageUrl(url) {
 export function safeVideoEmbed(url) {
   const raw = (url || '').toString().trim()
   if (!raw) return ''
-  const yt = raw.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/)
+  const yt = raw.match(/(?:youtube\.com\/(?:embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/)
+    || raw.match(/youtube\.com\/watch\?(?:[^#]*&)?v=([A-Za-z0-9_-]{6,})/)
   if (yt) return `https://www.youtube.com/embed/${yt[1]}`
   const vm = raw.match(/vimeo\.com\/(?:video\/)?(\d{6,})/)
   if (vm) return `https://player.vimeo.com/video/${vm[1]}`
@@ -240,9 +241,9 @@ export const BLOCK_TYPES = {
     defaultProps: {
       columns: 'auto',
       items: [
-        { icon: 'Star', title: 'חלונית ראשונה', body: 'תיאור קצר', url: '' },
-        { icon: 'Heart', title: 'חלונית שנייה', body: 'תיאור קצר', url: '' },
-        { icon: 'Sparkles', title: 'חלונית שלישית', body: 'תיאור קצר', url: '' },
+        { icon: 'Star', title: 'חלונית ראשונה', body: 'תיאור קצר', link: '' },
+        { icon: 'Heart', title: 'חלונית שנייה', body: 'תיאור קצר', link: '' },
+        { icon: 'Sparkles', title: 'חלונית שלישית', body: 'תיאור קצר', link: '' },
       ],
     },
     editable: [
@@ -251,7 +252,7 @@ export const BLOCK_TYPES = {
         { key: 'icon', label: 'אייקון', type: 'icon' },
         { key: 'title', label: 'כותרת', type: 'text' },
         { key: 'body', label: 'תיאור', type: 'textarea' },
-        { key: 'url', label: 'קישור (לא חובה)', type: 'text' },
+        { key: 'link', label: 'קישור', type: 'text' },
       ] },
     ],
   },

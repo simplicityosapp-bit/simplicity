@@ -169,7 +169,8 @@
     "columns": "Columnas",
     "q": "Pregunta",
     "a": "Respuesta",
-    "align": "Alineación"
+    "align": "Alineación",
+    "link": "Enlace"
   },
   "fieldTypes": {
     "text": "Texto",

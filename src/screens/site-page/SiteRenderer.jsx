@@ -145,14 +145,14 @@ function DividerBlock({ props }) {
 }
 
 /* "חלוניות" — a responsive grid of cards (icon + title + body + optional link). */
-function CardsBlock({ props }) {
+function CardsBlock({ props, interactive }) {
   const items = Array.isArray(props.items) ? props.items : []
   const cols = (props.columns && props.columns !== 'auto') ? props.columns : 'auto'
   return (
     <div className={`sp-cards sp-cols-${cols}`}>
       {items.map((it, i) => {
         const Icon = iconByName(it.icon)
-        const href = safeRedirectUrl(it.url)
+        const safe = safeRedirectUrl(it.link)
         const inner = (
           <>
             {it.icon ? <div className="sp-cardbox-icon"><Icon size={22} strokeWidth={2} /></div> : null}
@@ -160,8 +160,11 @@ function CardsBlock({ props }) {
             {str(it.body) ? <p className="sp-cardbox-text">{it.body}</p> : null}
           </>
         )
-        return href
-          ? <a key={i} className="sp-cardbox sp-cardbox-link" href={href} target="_blank" rel="noopener noreferrer">{inner}</a>
+        // A linked card is inert in the editor (interactive=false) so the click
+        // selects the section instead of escaping to a new tab.
+        return safe
+          ? <a key={i} className="sp-cardbox sp-cardbox-link" href={interactive ? safe : undefined}
+              target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!interactive) e.preventDefault() }}>{inner}</a>
           : <div key={i} className="sp-cardbox">{inner}</div>
       })}
     </div>

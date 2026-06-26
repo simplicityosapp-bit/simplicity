@@ -336,8 +336,12 @@ const fmtDayLabel = (iso, tz, lang) =>
    booking + calendar + Google write are unchanged). In the editor canvas it
    renders a static, inert preview and makes no network calls. */
 function BookingBlock({ props, interactive }) {
-  const { t } = useT('siteBuilder')
+  const { t, lang } = useT('siteBuilder')
   const slug = str(props.bookingSlug)
+  const previewDays = [1, 2, 3].map((n) => {
+    const d = new Date(); d.setDate(d.getDate() + n)
+    return new Intl.DateTimeFormat(lang || 'he', { weekday: 'short' }).format(d)
+  })
   const head = (
     <>
       {str(props.heading) ? <h2 className="sp-h2">{props.heading}</h2> : null}
@@ -351,10 +355,10 @@ function BookingBlock({ props, interactive }) {
         {head}
         {slug ? (
           <div className="sp-bk-preview" aria-hidden="true">
-            <p className="sp-bk-steplabel">{t('renderer.bkWhen', { defaultValue: 'בחרו מועד' })}</p>
-            <div className="sp-bk-row">{['א׳', 'ב׳', 'ג׳'].map((d) => <span key={d} className="sp-bk-chip">{d}</span>)}</div>
+            <p className="sp-bk-steplabel">{t('renderer.bkWhen')}</p>
+            <div className="sp-bk-row">{previewDays.map((d, i) => <span key={i} className="sp-bk-chip">{d}</span>)}</div>
             <div className="sp-bk-row">{['09:00', '10:30', '12:00'].map((h) => <span key={h} className="sp-bk-chip">{h}</span>)}</div>
-            <p className="sp-muted sp-booking-hint">{t('renderer.bkPreviewNote', { defaultValue: 'הלוח האמיתי מעמוד התורים יוצג כאן למבקרים.' })}</p>
+            <p className="sp-muted sp-booking-hint">{t('renderer.bkPreviewNote')}</p>
           </div>
         ) : (
           <p className="sp-muted sp-booking-hint">{t('renderer.bookingHint')}</p>
@@ -382,6 +386,7 @@ function BookingInline({ pageId }) {
   }
   return (
     <div className="sp-bk">
+      {f.submitError === 'slot_taken' ? <p className="sp-form-error">{t('publicPage.errSlotTaken')}</p> : null}
       {f.types.length > 1 && (
         <div className="sp-bk-section">
           <p className="sp-bk-steplabel">{t('publicPage.stepType')}</p>
@@ -450,7 +455,7 @@ function BookingInline({ pageId }) {
             <textarea className="sp-input sp-textarea" rows={3} value={f.values.note} onChange={(e) => f.setField('note', e.target.value)} />
           </label>
           <input type="text" tabIndex={-1} autoComplete="off" className="sp-hp" aria-hidden="true" onChange={(e) => { f.hp.current = e.target.value }} />
-          {f.submitError ? <p className="sp-form-error">{t('publicPage.errGeneric')}</p> : null}
+          {f.submitError === 'generic' ? <p className="sp-form-error">{t('publicPage.errGeneric')}</p> : null}
           <button type="submit" className="sp-btn sp-btn-primary sp-bk-submit" disabled={f.submitting}>
             {f.submitting ? t('publicPage.submitting') : t('publicPage.submit')}
           </button>

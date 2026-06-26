@@ -72,7 +72,8 @@ export function useBookingFlow(pageId, { enabled = true } = {}) {
         const from = ymdInTz(new Date(), tz)
         const to = addDays(from, config.availability?.maxDaysAhead || 30)
         const res = await fetchBookingSlots(pageId, chosenType?.id || undefined, from, to)
-        if (active) setSlots(Array.isArray(res?.slots) ? res.slots : [])
+        const valid = Array.isArray(res?.slots) ? res.slots.filter((s) => s && s.start && !Number.isNaN(Date.parse(s.start))) : []
+        if (active) setSlots(valid)
       } catch { if (active) setSlots([]) } finally { if (active) setSlotsLoading(false) }
     })()
     return () => { active = false }
@@ -115,8 +116,10 @@ export function useBookingFlow(pageId, { enabled = true } = {}) {
       return { ok: true, thankYou: res?.thankYou }
     } catch (e2) {
       const msg = e2?.message || ''
-      if (/409|slot_taken/i.test(msg) || e2?.context?.status === 409) {
-        setSlot(null); setRefreshKey((k) => k + 1)
+      const status = e2?.context?.status ?? e2?.status
+      // Slot taken between listing and submit → clear it, re-fetch, tell the user.
+      if (status === 409 || /409|slot[_ ]?taken|conflict/i.test(msg)) {
+        setSubmitError('slot_taken'); setSlot(null); setRefreshKey((k) => k + 1)
         return { error: 'slot_taken' }
       }
       setSubmitError('generic')

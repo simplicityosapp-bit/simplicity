@@ -183,7 +183,7 @@
   position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
   display: inline-flex; align-items: center; gap: 14px;
   background: var(--espresso); color: var(--cream);
-  padding: 10px 14px 10px 18px; border-radius: var(--mg-chip-radius);
+  padding-block: 10px; padding-inline: 18px 14px; border-radius: var(--mg-chip-radius);
   box-shadow: var(--elev-3); font-size: var(--mg-caption); z-index: 90;
   animation: mgFadeUp 0.2s ease;
 }
@@ -194,7 +194,7 @@
 .spe-canvas-wrap { flex: 1; overflow: auto; background: var(--bone); padding: 24px; display: flex; justify-content: center; }
 .spe-frame { background: var(--cream); box-shadow: var(--elev-3); border-radius: 14px; overflow: hidden; align-self: flex-start; width: 100%; transition: max-width 0.3s ease; }
 .spe-frame-desktop { max-width: 1000px; }
-.spe-frame-mobile { max-width: 390px; border-radius: 28px; border: 8px solid var(--espresso); }
+.spe-frame-mobile { max-width: min(390px, 100%); box-sizing: border-box; border-radius: 28px; border: 8px solid var(--espresso); }
 /* Inside the editor the page must NOT force full-viewport height. */
 .spe-frame .sp-root { min-height: 480px; }
 /* Canvas selection + hover feedback (editor only). */

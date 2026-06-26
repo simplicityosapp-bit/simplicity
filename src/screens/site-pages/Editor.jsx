@@ -8,7 +8,7 @@ import {
   Bold, Italic, List, Heading, Link as LinkIcon,
 } from 'lucide-react'
 import {
-  BLOCK_TYPES, BLOCK_PALETTE, newSection, sitePageSurface,
+  BLOCK_TYPES, BLOCK_PALETTE, newSection, newSectionId, sitePageSurface,
   SITE_FONTS, LEAD_PAGE_BACKGROUNDS, DEFAULT_THEME, slugifyInput, isValidSlug,
   FIELD_TYPES, isChoiceType, defaultChoiceOptions, freeFieldKey,
 } from '../../lib/sitePageSchema'
@@ -165,8 +165,7 @@ export default function Editor({ page, onSave, onBack }) {
   const duplicateSection = (id) => {
     const orig = draft.sections.find((s) => s.id === id)
     if (!orig) return
-    const seed = newSection(orig.type, draft.sections)
-    const copy = { ...structuredClone(orig), id: seed ? seed.id : `${orig.id}_copy` }
+    const copy = { ...structuredClone(orig), id: newSectionId(draft.sections) }
     mutate((d) => {
       const i = d.sections.findIndex((s) => s.id === id)
       const arr = [...d.sections]; arr.splice(i < 0 ? arr.length : i + 1, 0, copy)
@@ -278,7 +277,7 @@ export default function Editor({ page, onSave, onBack }) {
         <aside className="spe-rail">
           <div className="spe-rail-head">
             <span>{t('editor.sections')}</span>
-            <button className="spe-add" onClick={() => setPaletteOpen((v) => !v)}><Plus size={15} /> {t('editor.add')}</button>
+            <button className="spe-add" aria-expanded={paletteOpen} onClick={() => setPaletteOpen((v) => !v)}><Plus size={15} /> {t('editor.add')}</button>
           </div>
           {paletteOpen ? (
             <div className="spe-palette">
@@ -657,7 +656,7 @@ function ImageField({ value, onChange }) {
   }
   return (
     <div className="spe-image">
-      {value ? <div className="spe-image-prev"><img src={value} alt="" /><button onClick={clear} title={t('inspector.removeImage')}><X size={14} /></button></div> : null}
+      {value ? <div className="spe-image-prev"><img src={value} alt="" /><button onClick={clear} title={t('inspector.removeImage')} aria-label={t('inspector.removeImage')}><X size={14} /></button></div> : null}
       <button className="spe-upload" onClick={() => inputRef.current?.click()} disabled={busy}>
         <Upload size={14} /> {busy ? t('inspector.uploading') : value ? t('inspector.replaceImage') : t('inspector.uploadImage')}
       </button>

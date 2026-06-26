@@ -40,8 +40,7 @@ export default function SitePagesBuilder() {
     setPicking(false)
     const draft = newSitePageDraft(kind)
     if (tpl) { draft.theme = structuredClone(tpl.theme); draft.sections = structuredClone(tpl.sections) }
-    const row = await addPage(draft)
-    setEditingId(row.id)
+    try { const row = await addPage(draft); if (row?.id) setEditingId(row.id) } catch { /* stay on the list */ }
   }
 
   const copyLink = (p) => {
@@ -52,12 +51,14 @@ export default function SitePagesBuilder() {
 
   /* Clone a page as a fresh draft (new slug, unpublished) to use as a start. */
   const duplicatePage = async (p) => {
-    const row = await addPage({
-      kind: p.kind, title: `${p.title || ''} ${t('hub.copySuffix')}`.trim(),
-      published: false, slug: null, project_id: p.project_id || null,
-      theme: p.theme || {}, sections: p.sections || [], config: p.config || {},
-    })
-    setEditingId(row.id)
+    try {
+      const row = await addPage({
+        kind: p.kind, title: `${p.title || ''} ${t('hub.copySuffix')}`.trim(),
+        published: false, slug: null, project_id: p.project_id || null,
+        theme: p.theme || {}, sections: p.sections || [], config: p.config || {},
+      })
+      if (row?.id) setEditingId(row.id)
+    } catch { /* stay on the list */ }
   }
 
   if (editing) {

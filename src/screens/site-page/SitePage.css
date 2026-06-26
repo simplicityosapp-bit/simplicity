@@ -212,6 +212,10 @@
   padding: 12px 14px; transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .sp-input:focus { outline: none; border-color: var(--sp-brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sp-brand) 22%, transparent); }
+/* Keyboard focus ring for the public page's interactive elements (a11y). */
+.sp-btn:focus-visible, .sp-bk-chip:focus-visible, .sp-bk-type:focus-visible, .sp-faq-q:focus-visible {
+  outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--sp-brand) 38%, transparent);
+}
 .sp-input.is-error { border-color: #c0432e; box-shadow: 0 0 0 3px rgba(192, 67, 46, 0.14); }
 .sp-input:disabled { background: #f6f3ee; color: #6b6358; }
 .sp-textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
@@ -269,7 +273,7 @@
 /* ── Surface modifiers (from sitePageSurface classes) ────────────────────── */
 .sp-surface.is-bold .sp-h1 { font-weight: 800; }
 .sp-surface.is-bold :is(.sp-sub, .sp-text, .sp-label, .sp-feature-title, .sp-quote) { font-weight: 600; }
-.sp-surface.text-light :is(.sp-h1, .sp-sub, .sp-text, .sp-eyebrow, .sp-feature-title, .sp-feature-text, .sp-quote, .sp-cite, .sp-label, .sp-muted) {
+.sp-surface.text-light :is(.sp-h1, .sp-sub, .sp-text, .sp-eyebrow, .sp-feature-title, .sp-feature-text, .sp-quote, .sp-cite, .sp-label, .sp-muted, .sp-empty) {
   color: #f7f3ec; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
 }
 /* …but text inside a card sits on the (light) card, not the photo — keep it dark
@@ -297,4 +301,10 @@
   .sp-input { background: #12161b; color: #f0ebe0; border-color: rgba(240, 235, 224, 0.18); }
   .sp-input:disabled { background: #181d23; }
   .sp-divider { background: rgba(240, 235, 224, 0.14); }
+  /* inline booking picker — chips/types on the (now dark) card */
+  .sp-bk-chip, .sp-bk-type { background: color-mix(in srgb, #1c2128 78%, transparent); border-color: rgba(240, 235, 224, 0.18); color: #d8d0c4; }
+  .sp-bk-chip.on { background: var(--sp-brand); border-color: var(--sp-brand); color: #fff; }
+  .sp-bk-type.on { background: color-mix(in srgb, var(--sp-brand) 22%, #1c2128); border-color: var(--sp-brand); }
+  .sp-bk-type-name, .sp-bk-thankyou { color: #f0ebe0; }
+  .sp-bk-type-meta { color: #b8b0a4; }
 }

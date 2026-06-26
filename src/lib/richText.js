@@ -23,25 +23,36 @@ function safeHref(url) {
   return ''
 }
 
-/* Inline formatting on an ALREADY-ESCAPED string. Order: links → bold → italic
-   (so the italic single-* pass never eats bold's **). */
+/* Bold / italic on an already-escaped string. The `_` italic is intraword-safe
+   (so snake_case / file_name aren't mangled). */
+function emphasis(s) {
+  return s
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+    .replace(/(^|[^\w])_([^_\n]+)_(?=[^\w]|$)/g, '$1<em>$2</em>')
+}
+
+/* Inline formatting on an ALREADY-ESCAPED string. Links are extracted to
+   private-use tokens BEFORE the emphasis passes, so a `*`/`_` inside an href or
+   in `target="_blank"` can never run over (and corrupt) the emitted <a> tag. */
 function inline(s) {
+  const links = []
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, text, url) => {
     const href = safeHref(url)
-    return href
-      ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`
-      : text
+    const inner = emphasis(text)
+    links.push(href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${inner}</a>` : inner)
+    return `${links.length - 1}`
   })
-  s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
-  s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
-  s = s.replace(/_([^_\n]+)_/g, '<em>$1</em>')
-  return s
+  s = emphasis(s)
+  return s.replace(/(\d+)/g, (m, i) => links[Number(i)])
 }
 
 /* Block-level: paragraphs (blank-line separated), ## / ### headings,
    - / * bullet lists, 1. ordered lists; single newlines become <br>. */
 export function renderRichText(md) {
-  const lines = esc(md).split('\n')
+  // Cap length: the link regex is O(n²) on a long run of '[' — bound it so a
+  // pathological paste can't freeze the render (a text block is never this long).
+  const lines = esc(String(md == null ? '' : md).slice(0, 20000)).split('\n')
   const out = []
   let list = null            // 'ul' | 'ol' | null
   let para = []

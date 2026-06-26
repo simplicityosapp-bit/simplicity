@@ -22,6 +22,17 @@
     "descLead": "טופס ממוקד לאיסוף פניות ישירות",
     "descBooking": "דף לבחירת מועד פגישה מהיומן"
   },
+  "templates": {
+    "choose": "בחרו תבנית להתחלה",
+    "blank": "דף ריק",
+    "close": "סגירה",
+    "coaching": "קואצ׳ינג אישי",
+    "workshop": "סדנה / וובינר",
+    "service": "שירות מקצועי",
+    "simple": "פשוט ונקי",
+    "quickLead": "לכידת ליד מהירה",
+    "leadMagnet": "הצעה / לידמגנט"
+  },
   "editor": {
     "back": "חזרה",
     "titlePlaceholder": "שם הדף (פנימי)",

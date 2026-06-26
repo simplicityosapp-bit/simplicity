@@ -22,6 +22,17 @@
     "descLead": "A focused form that captures inquiries directly",
     "descBooking": "A page to pick an appointment time from your calendar"
   },
+  "templates": {
+    "choose": "Choose a template to start",
+    "blank": "Blank page",
+    "close": "Close",
+    "coaching": "Personal coaching",
+    "workshop": "Workshop / webinar",
+    "service": "Professional service",
+    "simple": "Simple & clean",
+    "quickLead": "Quick lead capture",
+    "leadMagnet": "Offer / lead magnet"
+  },
   "editor": {
     "back": "Back",
     "titlePlaceholder": "Page name (internal)",

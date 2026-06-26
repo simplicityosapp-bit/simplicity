@@ -22,6 +22,17 @@
     "descLead": "Un formulaire ciblé qui capte les demandes directement",
     "descBooking": "Une page pour choisir un rendez-vous depuis votre agenda"
   },
+  "templates": {
+    "choose": "Choisissez un modèle pour commencer",
+    "blank": "Page vierge",
+    "close": "Fermer",
+    "coaching": "Coaching personnel",
+    "workshop": "Atelier / webinaire",
+    "service": "Service professionnel",
+    "simple": "Simple et épuré",
+    "quickLead": "Capture rapide de prospect",
+    "leadMagnet": "Offre / lead magnet"
+  },
   "editor": {
     "back": "Retour",
     "titlePlaceholder": "Nom de la page (interne)",

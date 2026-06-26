@@ -7,6 +7,7 @@ import { ROUTES } from '../../lib/routes'
 import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
 import Editor from './Editor'
+import TemplatePicker from './TemplatePicker'
 import './SitePagesScreen.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -26,6 +27,7 @@ export default function SitePagesBuilder() {
   const { pages, loading, addPage, updatePage, removePage } = useSitePages()
   const [editingId, setEditingId] = useState(null)
   const [copied, setCopied] = useState(null)
+  const [picking, setPicking] = useState(false)
 
   // Unknown kind (or booking, which has its own builder) → back to the hub.
   if (!ENGINE_KINDS.has(kind)) return <Navigate to={ROUTES.SITE_PAGES} replace />
@@ -33,8 +35,12 @@ export default function SitePagesBuilder() {
   const editing = editingId ? pages.find((p) => p.id === editingId) : null
   const list = pages.filter((p) => p.kind === kind)
 
-  const createPage = async () => {
-    const row = await addPage(newSitePageDraft(kind))
+  /* New page: open the template picker; the choice seeds theme + sections. */
+  const createFrom = async (tpl) => {
+    setPicking(false)
+    const draft = newSitePageDraft(kind)
+    if (tpl) { draft.theme = structuredClone(tpl.theme); draft.sections = structuredClone(tpl.sections) }
+    const row = await addPage(draft)
     setEditingId(row.id)
   }
 
@@ -74,7 +80,7 @@ export default function SitePagesBuilder() {
       </div>
 
       <div className="spg-toolbar">
-        <button className="spg-new" onClick={createPage}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
+        <button className="spg-new" onClick={() => setPicking(true)}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
       </div>
 
       {loading ? (
@@ -83,7 +89,7 @@ export default function SitePagesBuilder() {
         <div className="empty">
           <span className="empty-icon"><LayoutTemplate size={28} /></span>
           <p className="empty-text">{t('hub.emptyText')}</p>
-          <button className="empty-action" onClick={createPage}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
+          <button className="empty-action" onClick={() => setPicking(true)}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
         </div>
       ) : (
         <ul className="spg-grid">
@@ -104,6 +110,8 @@ export default function SitePagesBuilder() {
           ))}
         </ul>
       )}
+
+      {picking ? <TemplatePicker kind={kind} onPick={createFrom} onClose={() => setPicking(false)} /> : null}
     </div>
   )
 }

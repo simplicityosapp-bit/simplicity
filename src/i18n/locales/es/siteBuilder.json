@@ -22,6 +22,17 @@
     "descLead": "Un formulario centrado que capta consultas directamente",
     "descBooking": "Una página para elegir una cita desde tu calendario"
   },
+  "templates": {
+    "choose": "Elige una plantilla para empezar",
+    "blank": "Página en blanco",
+    "close": "Cerrar",
+    "coaching": "Coaching personal",
+    "workshop": "Taller / webinar",
+    "service": "Servicio profesional",
+    "simple": "Simple y limpio",
+    "quickLead": "Captación rápida",
+    "leadMagnet": "Oferta / lead magnet"
+  },
   "editor": {
     "back": "Volver",
     "titlePlaceholder": "Nombre de la página (interno)",

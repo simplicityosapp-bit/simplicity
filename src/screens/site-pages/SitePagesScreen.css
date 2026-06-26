@@ -30,6 +30,31 @@
 .spg-builder-top { display: flex; align-items: center; gap: 8px; margin: 14px 0 8px; }
 .spg-builder-top .t-screen { margin: 0; }
 
+/* ── Template picker (modal) ─────────────────────────────────────────────── */
+.tpl-overlay {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 20px;
+  background: var(--overlay-bg); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  animation: mgFadeUp 0.18s ease;
+}
+.tpl-modal {
+  width: 100%; max-width: 900px; max-height: 88vh; display: flex; flex-direction: column;
+  background: var(--pure-white); border: var(--mg-card-border); border-radius: var(--mg-card-radius);
+  box-shadow: var(--elev-3); overflow: hidden;
+}
+.tpl-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--divider); }
+.tpl-title { margin: 0; font-size: var(--mg-heading); font-weight: 600; color: var(--espresso); }
+.tpl-close { display: grid; place-items: center; width: var(--mg-icon-btn); height: var(--mg-icon-btn); border: none; background: transparent; color: var(--stone); border-radius: var(--mg-chip-radius); cursor: pointer; transition: background 0.15s, color 0.15s; }
+.tpl-close:hover { background: var(--mg-row-active-bg); color: var(--espresso); }
+.tpl-grid { padding: 18px 20px; overflow: auto; display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, 258px); justify-content: center; }
+.tpl-card { display: flex; flex-direction: column; gap: 8px; padding: 0; background: transparent; border: none; cursor: pointer; text-align: start; }
+.tpl-thumb { position: relative; width: 258px; height: 150px; overflow: hidden; border-radius: 12px; border: 1px solid var(--divider); background: var(--bone); transition: border-color 0.15s, box-shadow 0.15s; }
+.tpl-card:hover .tpl-thumb { border-color: var(--terracotta); box-shadow: 0 6px 18px rgba(42, 37, 32, 0.10); }
+.tpl-thumb-blank { display: grid; place-items: center; color: var(--mist); }
+.tpl-thumb-scale { position: absolute; top: 0; left: 0; width: 760px; transform: scale(0.34); transform-origin: top left; pointer-events: none; }
+.tpl-thumb-scale .sp-root { min-height: 0; }
+.tpl-name { font-size: var(--mg-caption); font-weight: 500; color: var(--espresso); padding-inline: 2px; }
+.tpl-card:focus-visible .tpl-thumb { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 24%, transparent); }
+
 .spg-tabs { display: flex; gap: 8px; margin: 18px 0 6px; flex-wrap: wrap; }
 .spg-tab {
   font: inherit; font-size: var(--mg-caption); font-weight: 500; color: var(--stone);

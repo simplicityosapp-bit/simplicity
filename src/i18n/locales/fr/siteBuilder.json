@@ -16,7 +16,11 @@
     "legacyText": "Le créateur de «{{kind}}» sur le nouveau moteur arrive bientôt.",
     "legacyLink": "Aller au créateur actuel →",
     "duplicate": "Dupliquer",
-    "copySuffix": "(copie)"
+    "copySuffix": "(copie)",
+    "back": "Retour",
+    "descLanding": "Une page marketing complète avec sections, arrière-plans et icônes",
+    "descLead": "Un formulaire ciblé qui capte les demandes directement",
+    "descBooking": "Une page pour choisir un rendez-vous depuis votre agenda"
   },
   "editor": {
     "back": "Retour",
@@ -114,9 +118,9 @@
     "empty": "La page est vide — ajoutez votre première section."
   },
   "kinds": {
-    "landing": "Page d'atterrissage",
+    "landing": "Pages d'atterrissage",
     "lead": "Page de contact",
-    "booking": "Page de réservation"
+    "booking": "Prise de rendez-vous"
   },
   "blocks": {
     "hero": "En-tête",
@@ -126,7 +130,7 @@
     "testimonial": "Témoignage",
     "cta": "Bouton",
     "form": "Formulaire de contact",
-    "booking": "Réservation",
+    "booking": "Rendez-vous",
     "spacer": "Espacement"
   },
   "labels": {

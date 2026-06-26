@@ -1,123 +1,55 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Plus, Pencil, Trash2, ExternalLink, Copy, Check, LayoutTemplate, Files } from 'lucide-react'
-import { useSitePages } from '../../hooks/useSitePages'
-import { newSitePageDraft, publicSitePageUrl, KIND_LABEL } from '../../lib/sitePageSchema'
-import { ROUTES } from '../../lib/routes'
+import { useNavigate } from 'react-router-dom'
+import { LayoutTemplate, ClipboardList, CalendarClock, ChevronLeft } from 'lucide-react'
+import { KIND_LABEL } from '../../lib/sitePageSchema'
+import { ROUTES, buildRoute } from '../../lib/routes'
 import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
-import Editor from './Editor'
 import './SitePagesScreen.css'
 
 /* ════════════════════════════════════════════════════════════════
    PAGE BUILDER HUB — /pages
    ════════════════════════════════════════════════════════════════
-   One hub for three page KINDS (landing / lead / booking) on the shared
-   block engine. Phase 1 ships the LANDING builder fully; the lead/booking
-   tabs point at the existing builders until phases 2-3 fold them onto the
-   engine. Selecting a page opens the inline Editor. */
+   One home for the three building tools (landing / lead / booking),
+   mirroring the Connections screen: a list of tiles, each tapping into its
+   own dedicated builder sub-screen. landing + lead run on the block engine
+   (/pages/<kind>); booking opens its existing builder. */
 
-const KINDS = ['landing', 'lead', 'booking']
-/* Engine-backed kinds (landing + lead after phase 2); booking still legacy. */
-const ENGINE_KINDS = new Set(['landing', 'lead'])
-const LEGACY_ROUTE = { booking: ROUTES.BOOKING_PAGES }
-const NEW_LABEL = { landing: 'hub.newLanding', lead: 'hub.newLead' }
+const TILES = [
+  { kind: 'landing', icon: LayoutTemplate, to: buildRoute(ROUTES.SITE_PAGE_KIND, { kind: 'landing' }), desc: 'descLanding' },
+  { kind: 'lead', icon: ClipboardList, to: buildRoute(ROUTES.SITE_PAGE_KIND, { kind: 'lead' }), desc: 'descLead' },
+  { kind: 'booking', icon: CalendarClock, to: ROUTES.BOOKING_PAGES, desc: 'descBooking' },
+]
 
 export default function SitePagesScreen() {
   const { t } = useT('siteBuilder')
-  const { pages, loading, addPage, updatePage, removePage } = useSitePages()
-  const [kind, setKind] = useState('landing')
-  const [editingId, setEditingId] = useState(null)
-  const [copied, setCopied] = useState(null)
-
-  const editing = editingId ? pages.find((p) => p.id === editingId) : null
-  const list = pages.filter((p) => p.kind === kind)
-
-  const createPage = async () => {
-    const row = await addPage(newSitePageDraft(kind))
-    setEditingId(row.id)
-  }
-
-  const copyLink = (p) => {
-    const url = publicSitePageUrl(p.kind, p.slug || p.id)
-    navigator.clipboard?.writeText(url)
-    setCopied(p.id); setTimeout(() => setCopied(null), 1500)
-  }
-
-  /* Clone a page as a fresh draft (new slug, unpublished) to use as a start. */
-  const duplicatePage = async (p) => {
-    const row = await addPage({
-      kind: p.kind, title: `${p.title || ''} ${t('hub.copySuffix')}`.trim(),
-      published: false, slug: null, project_id: p.project_id || null,
-      theme: p.theme || {}, sections: p.sections || [], config: p.config || {},
-    })
-    setEditingId(row.id)
-  }
-
-  if (editing) {
-    return (
-      <Editor
-        page={editing}
-        onBack={() => setEditingId(null)}
-        onSave={(patch) => updatePage(editing.id, patch)}
-      />
-    )
-  }
+  const navigate = useNavigate()
 
   return (
     <div className="screen" data-screen="sitePages">
-      <div className="screen-top">
-        <h1 className="s-hero">{t('hub.title')}</h1>
-        <p className="s-sub">{t('hub.subtitle')}</p>
-      </div>
-
-      <div className="spg-tabs">
-        {KINDS.map((k) => (
-          <button key={k} className={`spg-tab${kind === k ? ' is-on' : ''}`} onClick={() => setKind(k)}>
-            {t('kinds.' + k, { defaultValue: KIND_LABEL[k] })}
-          </button>
-        ))}
-      </div>
-
-      {ENGINE_KINDS.has(kind) ? (
-        <>
-          <div className="spg-toolbar">
-            <button className="spg-new" onClick={createPage}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
-          </div>
-          {loading ? (
-            <p className="spg-muted">{t('hub.loading')}</p>
-          ) : list.length === 0 ? (
-            <div className="empty">
-              <span className="empty-icon"><LayoutTemplate size={28} /></span>
-              <p className="empty-text">{t('hub.emptyText')}</p>
-              <button className="empty-action" onClick={createPage}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
-            </div>
-          ) : (
-            <ul className="spg-grid">
-              {list.map((p) => (
-                <li key={p.id} className="spg-card">
-                  <div className="spg-card-main" onClick={() => setEditingId(p.id)}>
-                    <span className="spg-card-title">{p.title || t('hub.untitled')}</span>
-                    <span className={`spg-badge${p.published ? ' is-pub' : ''}`}>{p.published ? t('hub.badgePublished') : t('hub.badgeDraft')}</span>
-                  </div>
-                  <div className="spg-card-actions">
-                    <button onClick={() => setEditingId(p.id)} title={t('hub.edit')} aria-label={t('hub.edit')}><Pencil size={15} /></button>
-                    <button onClick={() => duplicatePage(p)} title={t('hub.duplicate')} aria-label={t('hub.duplicate')}><Files size={15} /></button>
-                    <button onClick={() => copyLink(p)} title={t('hub.copyLink')} aria-label={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</button>
-                    {p.published ? <a href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')} aria-label={t('hub.open')}><ExternalLink size={15} /></a> : null}
-                    <button onClick={() => removePage(p.id)} title={t('hub.delete')} aria-label={t('hub.delete')}><Trash2 size={15} /></button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
-      ) : (
-        <div className="spg-legacy">
-          <p>{t('hub.legacyText', { kind: t('kinds.' + kind, { defaultValue: KIND_LABEL[kind] }) })}</p>
-          <Link className="spg-legacy-link" to={LEGACY_ROUTE[kind]}>{t('hub.legacyLink')}</Link>
+      <header className="screen-head">
+        <div>
+          <p className="t-screen"><LayoutTemplate size={20} strokeWidth={1.6} aria-hidden="true" /> {t('hub.title')}</p>
+          <p className="lbl-sm">{t('hub.subtitle')}</p>
         </div>
-      )}
+      </header>
+
+      <div className="spg-tiles">
+        {TILES.map((tile) => {
+          const Icon = tile.icon
+          const title = t('kinds.' + tile.kind, { defaultValue: KIND_LABEL[tile.kind] })
+          return (
+            <button key={tile.kind} type="button" className="spg-tile" onClick={() => navigate(tile.to)}
+              aria-label={`${title} — ${t('hub.' + tile.desc)}`}>
+              <span className="spg-tile-icon"><Icon size={22} strokeWidth={1.6} aria-hidden="true" /></span>
+              <span className="spg-tile-body">
+                <span className="spg-tile-title">{title}</span>
+                <span className="spg-tile-desc">{t('hub.' + tile.desc)}</span>
+              </span>
+              <ChevronLeft size={18} strokeWidth={1.7} aria-hidden="true" className="spg-tile-chevron" />
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }

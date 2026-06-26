@@ -48,6 +48,7 @@ const LeadsScreen = lazyWithRetry(() => import('./screens/leads'))
 const LeadPagesScreen = lazyWithRetry(() => import('./screens/lead-pages'))
 const BookingPagesScreen = lazyWithRetry(() => import('./screens/booking-pages'))
 const SitePagesScreen = lazyWithRetry(() => import('./screens/site-pages'))
+const SitePagesBuilder = lazyWithRetry(() => import('./screens/site-pages/Builder'))
 const CalendarScreen = lazyWithRetry(() => import('./screens/calendar'))
 const GoalsScreen = lazyWithRetry(() => import('./screens/goals'))
 const MoonGlanceScreen = lazyWithRetry(() => import('./screens/moon-glance'))
@@ -209,6 +210,7 @@ function AppShell() {
             <Route path={ROUTES.LEAD_PAGES} element={<Navigate to={ROUTES.SITE_PAGES} replace />} />
             <Route path={ROUTES.BOOKING_PAGES} element={<BookingPagesScreen />} />
             <Route path={ROUTES.SITE_PAGES} element={<SitePagesScreen />} />
+            <Route path={ROUTES.SITE_PAGE_KIND} element={<SitePagesBuilder />} />
             <Route path={ROUTES.LEADS} element={<LeadsScreen />} />
             <Route path={ROUTES.CALENDAR} element={<CalendarScreen />} />
             <Route path={ROUTES.GOALS} element={<GoalsScreen />} />

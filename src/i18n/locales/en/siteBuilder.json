@@ -16,7 +16,11 @@
     "legacyText": "The new-engine builder for «{{kind}}» is coming soon.",
     "legacyLink": "Go to the current builder →",
     "duplicate": "Duplicate",
-    "copySuffix": "(copy)"
+    "copySuffix": "(copy)",
+    "back": "Back",
+    "descLanding": "A full marketing page with sections, backgrounds and icons",
+    "descLead": "A focused form that captures inquiries directly",
+    "descBooking": "A page to pick an appointment time from your calendar"
   },
   "editor": {
     "back": "Back",
@@ -114,9 +118,9 @@
     "empty": "The page is empty — add your first section."
   },
   "kinds": {
-    "landing": "Landing page",
+    "landing": "Landing pages",
     "lead": "Lead page",
-    "booking": "Booking page"
+    "booking": "Appointment booking"
   },
   "blocks": {
     "hero": "Hero",
@@ -126,7 +130,7 @@
     "testimonial": "Testimonial",
     "cta": "Button",
     "form": "Lead form",
-    "booking": "Booking",
+    "booking": "Appointment",
     "spacer": "Spacer"
   },
   "labels": {

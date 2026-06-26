@@ -37,7 +37,7 @@ export {
    The public route differs by kind so slugs live in separate namespaces. */
 export const PAGE_KINDS = ['landing', 'lead', 'booking']
 export const KIND_ROUTE = { landing: 'p', lead: 'lead', booking: 'book' }
-export const KIND_LABEL = { landing: 'דף נחיתה', lead: 'השארת פרטים', booking: 'תיאום תורים' }
+export const KIND_LABEL = { landing: 'דפי נחיתה', lead: 'השארת פרטים', booking: 'תיאום פגישות' }
 
 /* ── Fonts (MVP curated set) ────────────────────────────────────────────────
    A short, intentional list of Hebrew-capable web fonts. The actual font
@@ -211,7 +211,7 @@ export const BLOCK_TYPES = {
     ],
   },
   booking: {
-    label: 'תיאום תור', icon: 'CalendarClock',
+    label: 'תיאום פגישה', icon: 'CalendarClock',
     // Links out to the coach's existing booking page (/book/<slug>), which is
     // served by the robust booking system. A native in-page slot-picker is a
     // future phase; this safely connects a landing page to booking today.

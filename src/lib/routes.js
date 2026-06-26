@@ -29,7 +29,8 @@ export const ROUTES = {
   LEADS: '/leads',
   LEAD_PAGES: '/leads/pages', // in-app builder + management for public lead pages
   BOOKING_PAGES: '/bookings/pages', // in-app builder + management for public booking pages
-  SITE_PAGES: '/pages', // unified page-builder hub (landing / lead / booking)
+  SITE_PAGES: '/pages', // unified page-builder hub (3 tiles → dedicated sub-screens)
+  SITE_PAGE_KIND: '/pages/:kind', // a kind's dedicated builder sub-screen (landing | lead)
   CALENDAR: '/calendar',
   GOALS: '/goals',
   MOON_GLANCE: '/moon',

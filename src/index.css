@@ -359,6 +359,7 @@ textarea:focus-visible,
    (--mg-card-bg + --mg-card-blur from tokens). No bespoke opacity override. */
 .app[data-screen="leadPages"]{ background: var(--bg-home); }
 .app[data-screen="bookingPages"]{ background: var(--bg-home); }
+.app[data-screen="sitePages"]{ background: var(--bg-leads); }
 .app[data-screen="projects"] { background: var(--bg-projects); }
 .app[data-screen="goals"]    { background: var(--bg-goals); }
 .app[data-screen="moon"]     { background: var(--bg-moon); }
@@ -384,6 +385,7 @@ textarea:focus-visible,
 .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/mobile/day/leads.webp'); }
 .app[data-screen="leadPages"] { --screen-bg: url('/backgrounds/mobile/day/home.webp'); }
 .app[data-screen="bookingPages"] { --screen-bg: url('/backgrounds/mobile/day/home.webp'); }
+.app[data-screen="sitePages"] { --screen-bg: url('/backgrounds/mobile/day/leads.webp'); }
 .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/mobile/day/projects.webp'); }
 .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/day/goals.webp'); }
 .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/day/moon.webp'); }
@@ -405,6 +407,7 @@ textarea:focus-visible,
 [data-theme="dark"] .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/mobile/night/leads.webp'); }
 [data-theme="dark"] .app[data-screen="leadPages"] { --screen-bg: url('/backgrounds/mobile/night/home.webp'); }
 [data-theme="dark"] .app[data-screen="bookingPages"] { --screen-bg: url('/backgrounds/mobile/night/home.webp'); }
+[data-theme="dark"] .app[data-screen="sitePages"] { --screen-bg: url('/backgrounds/mobile/night/leads.webp'); }
 [data-theme="dark"] .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/mobile/night/projects.webp'); }
 [data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/mobile/night/goals.webp'); }
 [data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/mobile/night/moon.webp'); }
@@ -425,6 +428,7 @@ textarea:focus-visible,
   .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/desktop/day/leads.webp'); }
   .app[data-screen="leadPages"] { --screen-bg: url('/backgrounds/desktop/day/home.webp'); }
   .app[data-screen="bookingPages"] { --screen-bg: url('/backgrounds/desktop/day/home.webp'); }
+  .app[data-screen="sitePages"] { --screen-bg: url('/backgrounds/desktop/day/leads.webp'); }
   .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/desktop/day/projects.webp'); }
   .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/day/goals.webp'); }
   .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/day/moon.webp'); }
@@ -444,6 +448,7 @@ textarea:focus-visible,
   [data-theme="dark"] .app[data-screen="leads"]     { --screen-bg: url('/backgrounds/desktop/night/leads.webp'); }
   [data-theme="dark"] .app[data-screen="leadPages"] { --screen-bg: url('/backgrounds/desktop/night/home.webp'); }
   [data-theme="dark"] .app[data-screen="bookingPages"] { --screen-bg: url('/backgrounds/desktop/night/home.webp'); }
+  [data-theme="dark"] .app[data-screen="sitePages"] { --screen-bg: url('/backgrounds/desktop/night/leads.webp'); }
   [data-theme="dark"] .app[data-screen="projects"]  { --screen-bg: url('/backgrounds/desktop/night/projects.webp'); }
   [data-theme="dark"] .app[data-screen="goals"]     { --screen-bg: url('/backgrounds/desktop/night/goals.webp'); }
   [data-theme="dark"] .app[data-screen="moon"]      { --screen-bg: url('/backgrounds/desktop/night/moon.webp'); }

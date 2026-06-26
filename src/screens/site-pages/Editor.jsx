@@ -373,7 +373,9 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
       <div className="spe-group">
         <p className="spe-group-lbl">{t('design.grpText')}</p>
         <label className="spe-f spe-f-row"><span>{t('design.textLight')}</span>
-          <input type="checkbox" checked={theme.textColor === 'light'} onChange={(e) => setTheme({ textColor: e.target.checked ? 'light' : 'dark' })} />
+          <input type="checkbox"
+            checked={theme.textColor === 'light' || (theme.textColor !== 'dark' && (theme.background?.type === 'scene' || theme.background?.type === 'image'))}
+            onChange={(e) => setTheme({ textColor: e.target.checked ? 'light' : 'dark' })} />
         </label>
         <label className="spe-f spe-f-row"><span>{t('design.bold')}</span>
           <input type="checkbox" checked={!!theme.bold} onChange={(e) => setTheme({ bold: e.target.checked })} />

@@ -224,6 +224,13 @@
 .sp-surface.text-light :is(.sp-h1, .sp-sub, .sp-text, .sp-eyebrow, .sp-feature-title, .sp-feature-text, .sp-quote, .sp-cite, .sp-label, .sp-muted) {
   color: #f7f3ec; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
 }
+/* …but text inside a card sits on the (light) card, not the photo — keep it dark
+   so forms/labels stay readable. Light mode only; dark mode re-lightens below. */
+@media (prefers-color-scheme: light) {
+  .sp-surface.text-light .sp-card :is(.sp-h1, .sp-h2, .sp-sub, .sp-text, .sp-eyebrow, .sp-feature-title, .sp-feature-text, .sp-quote, .sp-cite, .sp-label, .sp-muted) {
+    color: #2c2621; text-shadow: none;
+  }
+}
 .sp-surface.align-center :is(.sp-hero, .sp-cta, .sp-h2) { text-align: center; }
 .sp-surface.align-center .sp-icontext .sp-feature { justify-content: center; }
 

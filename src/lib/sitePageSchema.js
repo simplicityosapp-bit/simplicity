@@ -59,7 +59,7 @@ export const fontStack = (key) =>
 export const DEFAULT_THEME = {
   font: 'heebo',
   brandColor: DEFAULT_BRAND_COLOR,
-  textColor: 'dark',   // 'dark' | 'light'
+  textColor: 'auto',   // 'auto' (readable per background) | 'dark' | 'light'
   textAlign: 'start',  // 'start' (RTL right) | 'center'
   bold: false,
   // background.type: 'flat' (solid colour) | 'scene' (curated nature photo)
@@ -142,7 +142,11 @@ export function sitePageSurface(theme = {}) {
     cls.push('bg-flat')
   }
   if (t.bold) cls.push('is-bold')
-  if (t.textColor === 'light') cls.push('text-light')
+  // Readability: text sitting directly on a photo background needs to be light
+  // (with a shadow). 'auto' (the default) picks per background — light on a
+  // photo, dark on a flat colour; 'light'/'dark' are explicit coach overrides.
+  const photoBg = bg.type === 'scene' || bg.type === 'image'
+  if (t.textColor === 'light' || (t.textColor !== 'dark' && photoBg)) cls.push('text-light')
   if (t.textAlign === 'center') cls.push('align-center')
   return { style, cls: cls.join(' ') }
 }

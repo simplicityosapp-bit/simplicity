@@ -122,7 +122,23 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
           // Clamp to what this business may issue — the toggle's default can be
           // stale if status loaded after it was checked (would 2403 post-save).
           const docType = clampDocType(inv.status?.business_type, issueDocType)
-          const r = await inv.issueDocument(row.id, docType, { itemId: null, itemName: form.desc.trim(), paymentMethod: form.payment_method || issuePayment })
+          // Mirror the per-tx issue picker (InvoiceActions): for SUMIT, link the
+          // line to a real catalog product/service (Item.ID) by defaulting to the
+          // first catalog item, instead of emitting a free-text-only line. Green
+          // Invoice ignores the id (uses the name as the line), so only SUMIT
+          // needs this; if the catalog can't load we fall back to free text.
+          let itemId = null
+          let itemName = form.desc.trim()
+          if (inv.status?.provider === 'sumit') {
+            try {
+              const items = await inv.loadItems()
+              if (Array.isArray(items) && items.length) {
+                itemId = String(items[0].id)
+                itemName = items[0].name || itemName
+              }
+            } catch { /* catalog unavailable — issue with a free-text line */ }
+          }
+          const r = await inv.issueDocument(row.id, docType, { itemId, itemName, paymentMethod: form.payment_method || issuePayment })
           const num = r?.document?.number
           showToast(t('tx.savedAndIssued', { doc: docTypeLabel(docType), num: num ? t('tx.numPrefix', { num }) : '' }))
         } catch (e) {

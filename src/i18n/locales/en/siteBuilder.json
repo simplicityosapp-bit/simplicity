@@ -54,6 +54,13 @@
     "moveDown": "Move down",
     "publishEmpty": "Add at least one section before publishing"
   },
+  "seo": {
+    "group": "SEO & sharing",
+    "title": "Page title (Google & tab)",
+    "description": "Short description",
+    "image": "Share image",
+    "hint": "How the page looks on Google and social. If empty, we use the heading and the first image."
+  },
   "design": {
     "title": "Page design",
     "publicUrl": "Public address (/p/…)",

@@ -243,6 +243,8 @@ export default function Editor({ page, onSave, onBack }) {
 function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onProject, kind, config, setConfig }) {
   const { t } = useT('siteBuilder')
   const bg = theme.background || DEFAULT_THEME.background
+  const seo = (config && config.seo) || {}
+  const setSeo = (patch) => setConfig({ seo: { ...seo, ...patch } })
   return (
     <div className="spe-panel">
       <h3 className="spe-panel-title">{t('design.title')}</h3>
@@ -260,6 +262,20 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
             {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.name || p.title}</option>)}
           </select>
         </label>
+      </div>
+
+      <div className="spe-group">
+        <p className="spe-group-lbl">{t('seo.group')}</p>
+        <label className="spe-f"><span>{t('seo.title')}</span>
+          <input value={seo.title || ''} onChange={(e) => setSeo({ title: e.target.value })} />
+        </label>
+        <label className="spe-f"><span>{t('seo.description')}</span>
+          <textarea rows={2} value={seo.description || ''} onChange={(e) => setSeo({ description: e.target.value })} />
+        </label>
+        <div className="spe-f"><span>{t('seo.image')}</span>
+          <ImageField value={seo.image} onChange={(url) => setSeo({ image: url })} />
+        </div>
+        <p className="spe-note">{t('seo.hint')}</p>
       </div>
 
       <div className="spe-group">

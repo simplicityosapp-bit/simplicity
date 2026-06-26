@@ -1,11 +1,34 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { fetchSitePageConfig, submitSiteForm } from '../../lib/api/siteIntake'
-import { safeRedirectUrl } from '../../lib/sitePageSchema'
+import { safeRedirectUrl, resolveSeo } from '../../lib/sitePageSchema'
 import { useT } from '../../i18n/useT'
 import '../site-pages/siteBuilderI18n'
 import SiteRenderer from './SiteRenderer'
 import './SitePage.css'
+
+/* Set the document title + meta/og/twitter tags from a page's resolved SEO,
+   overriding the app defaults in index.html. Works for browsers + JS-rendering
+   crawlers (Google); social crawlers that don't run JS fall back to the app
+   defaults (per-page social cards need server-side rendering — a later step). */
+function applyPageMeta(seo) {
+  if (seo.title) document.title = seo.title
+  const upsert = (key, attr, value) => {
+    if (!value) return
+    let el = document.head.querySelector(`meta[${attr}="${key}"]`)
+    if (!el) { el = document.createElement('meta'); el.setAttribute(attr, key); document.head.appendChild(el) }
+    el.setAttribute('content', value)
+  }
+  upsert('description', 'name', seo.description)
+  upsert('og:title', 'property', seo.title)
+  upsert('og:description', 'property', seo.description)
+  upsert('og:image', 'property', seo.image)
+  upsert('og:url', 'property', window.location.href)
+  upsert('twitter:card', 'name', seo.image ? 'summary_large_image' : 'summary')
+  upsert('twitter:title', 'name', seo.title)
+  upsert('twitter:description', 'name', seo.description)
+  upsert('twitter:image', 'name', seo.image)
+}
 
 /* ════════════════════════════════════════════════════════════════
    PUBLIC SITE PAGE — /p/<id>, reachable WITHOUT login.
@@ -41,6 +64,12 @@ export default function SitePage({ kind = 'landing' }) {
     })()
     return () => { active = false }
   }, [pageId, kind])
+
+  /* Apply the page's SEO (title + meta/og/twitter) once it loads. */
+  useEffect(() => {
+    if (status !== 'ready' || !config) return
+    applyPageMeta(resolveSeo({ seo: config.config?.seo, sections: config.sections }))
+  }, [status, config])
 
   const onSubmitForm = async (answers, sectionId) => {
     setErrorBySection((p) => ({ ...p, [sectionId]: null })); setSubmittingId(sectionId)

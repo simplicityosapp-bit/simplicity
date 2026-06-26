@@ -54,6 +54,13 @@
     "moveDown": "Bajar",
     "publishEmpty": "Añade al menos una sección antes de publicar"
   },
+  "seo": {
+    "group": "SEO y compartir",
+    "title": "Título de la página (Google y pestaña)",
+    "description": "Descripción breve",
+    "image": "Imagen para compartir",
+    "hint": "Cómo se ve la página en Google y redes. Si está vacío, usamos el encabezado y la primera imagen."
+  },
   "design": {
     "title": "Diseño de la página",
     "publicUrl": "Dirección pública (/p/…)",

@@ -80,6 +80,22 @@ export function safeImageUrl(url) {
   return (/^https?:\/\//i.test(raw) || raw.startsWith('/')) ? raw : ''
 }
 
+/* Resolve a page's effective SEO from its `config.seo` + content fallbacks:
+   title falls back to the hero heading, description to the hero subheading,
+   image to the first image block. Used to set the public page's meta tags. */
+export function resolveSeo(cfg) {
+  const seo = (cfg && cfg.seo) || {}
+  const sections = Array.isArray(cfg && cfg.sections) ? cfg.sections : []
+  const s = (v) => (v == null ? '' : String(v)).trim()
+  const hero = sections.find((x) => x.type === 'hero')
+  const firstImg = sections.find((x) => x.type === 'image' && x.props && s(x.props.url))
+  return {
+    title: s(seo.title) || s(hero && hero.props && hero.props.heading),
+    description: s(seo.description) || s(hero && hero.props && hero.props.subheading),
+    image: safeImageUrl(seo.image || (firstImg && firstImg.props.url) || ''),
+  }
+}
+
 /* Turn a coach-pasted YouTube/Vimeo URL into a safe embed src. Only these two
    providers are allowed (no arbitrary iframe src). Returns '' if unrecognized. */
 export function safeVideoEmbed(url) {

@@ -71,7 +71,8 @@ function publicConfig(page: any) {
     kind: page.kind,
     theme: page.theme ?? {},
     sections: Array.isArray(page.sections) ? page.sections : [],
-    config: { thankYou: page.config?.thankYou ?? null }, // never leak internal config
+    // never leak internal config — expose only what the public page needs.
+    config: { thankYou: page.config?.thankYou ?? null, seo: page.config?.seo ?? null },
   }
 }
 

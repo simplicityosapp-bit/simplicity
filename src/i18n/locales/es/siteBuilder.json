@@ -134,6 +134,16 @@
     "optionsPlaceholder": "Opciones, separadas por comas",
     "addField": "Añadir campo"
   },
+  "rich": {
+    "bold": "Negrita",
+    "italic": "Cursiva",
+    "link": "Enlace",
+    "list": "Lista",
+    "heading": "Subtítulo",
+    "sample": "texto",
+    "linkText": "texto del enlace",
+    "hint": "Selecciona texto y pulsa un botón de formato — negrita, cursiva, enlaces, listas y subtítulos."
+  },
   "public": {
     "loading": "Cargando…",
     "notFoundTitle": "Página no encontrada",

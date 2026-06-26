@@ -134,6 +134,16 @@
     "optionsPlaceholder": "Options, comma-separated",
     "addField": "Add field"
   },
+  "rich": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "link": "Link",
+    "list": "List",
+    "heading": "Subheading",
+    "sample": "text",
+    "linkText": "link text",
+    "hint": "Select text and click a format button — bold, italic, links, lists and headings."
+  },
   "public": {
     "loading": "Loading…",
     "notFoundTitle": "Page not found",

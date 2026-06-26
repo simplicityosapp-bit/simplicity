@@ -1,5 +1,6 @@
 import { useState, useRef, Component } from 'react'
 import { sitePageSurface, safeRedirectUrl, safeImageUrl, safeVideoEmbed } from '../../lib/sitePageSchema'
+import { renderRichText } from '../../lib/richText'
 import { isChoiceType } from '../../lib/leadPageSchema'
 import { iconByName } from '../../lib/pageIcons'
 import { useT } from '../../i18n/useT'
@@ -74,12 +75,13 @@ function HeroBlock({ props, interactive }) {
   )
 }
 
-/* Coach-authored copy. Rendered as PLAIN text (line breaks preserved via CSS
-   white-space:pre-line) — never dangerouslySetInnerHTML — so a page can't carry
-   script that would run in a visitor's browser. A true rich-text editor (bold/
-   links, with sanitisation) is a phase-4 upgrade. */
+/* Coach-authored copy, written in a safe markdown-lite (**bold**, *italic*,
+   [links](url), - / 1. lists, ## headings). `renderRichText` HTML-escapes the
+   input FIRST and only ever emits a fixed tag set with allow-listed link hrefs,
+   so there is no raw-HTML / script surface — safe to inject. Plain text (no
+   markdown) still renders fine as paragraphs. */
 function TextBlock({ props }) {
-  return <div className="sp-text">{props.text || ''}</div>
+  return <div className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.text) }} />
 }
 
 function ImageBlock({ props }) {

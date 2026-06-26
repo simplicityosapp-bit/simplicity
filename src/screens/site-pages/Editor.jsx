@@ -5,6 +5,7 @@ import {
   LayoutTemplate, Type, Image as ImageIcon, Sparkles, Quote,
   MousePointerClick, ClipboardList, CalendarClock, Minus,
   LayoutGrid, Smile, Images, Video, HelpCircle, SeparatorHorizontal, Copy,
+  Bold, Italic, List, Heading, Link as LinkIcon,
 } from 'lucide-react'
 import {
   BLOCK_TYPES, BLOCK_PALETTE, newSection, sitePageSurface,
@@ -524,8 +525,9 @@ function Descriptor({ d, value, targets, onChange }) {
     case 'text':
       return <label className="spe-f"><span>{label}</span><input value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></label>
     case 'textarea':
+      return <label className="spe-f"><span>{label}</span><textarea rows={3} value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></label>
     case 'richtext':
-      return <label className="spe-f"><span>{label}</span><textarea rows={d.type === 'richtext' ? 5 : 3} value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></label>
+      return <RichTextField d={d} value={value} onChange={onChange} />
     case 'number':
       return <label className="spe-f"><span>{label}</span><input type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} /></label>
     case 'toggle':
@@ -553,6 +555,59 @@ function Descriptor({ d, value, targets, onChange }) {
     default:
       return null
   }
+}
+
+/* Rich-text field — a markdown-lite toolbar over a textarea. Buttons wrap the
+   current selection (or insert a sample) with markdown markers; the canvas shows
+   the rendered result live. Stored as plain markdown, rendered via renderRichText. */
+function RichTextField({ d, value, onChange }) {
+  const { t } = useT('siteBuilder')
+  const ref = useRef(null)
+  const v = value || ''
+  const setSel = (start, end) => requestAnimationFrame(() => {
+    const ta = ref.current; if (!ta) return
+    ta.focus(); ta.selectionStart = start; ta.selectionEnd = end
+  })
+  const wrap = (mark) => {
+    const ta = ref.current; if (!ta) return
+    const s = ta.selectionStart, e = ta.selectionEnd
+    const sel = v.slice(s, e) || t('rich.sample')
+    onChange(v.slice(0, s) + mark + sel + mark + v.slice(e))
+    setSel(s + mark.length, s + mark.length + sel.length)
+  }
+  const link = () => {
+    const ta = ref.current; if (!ta) return
+    const s = ta.selectionStart, e = ta.selectionEnd
+    const sel = v.slice(s, e) || t('rich.linkText')
+    onChange(`${v.slice(0, s)}[${sel}](https://)${v.slice(e)}`)
+    const urlAt = s + sel.length + 3
+    setSel(urlAt, urlAt + 8)            // select the "https://" so they can type the URL
+  }
+  const prefix = (mark) => {
+    const ta = ref.current; if (!ta) return
+    const s = ta.selectionStart, e = ta.selectionEnd
+    const lineStart = v.lastIndexOf('\n', s - 1) + 1
+    const block = v.slice(lineStart, Math.max(e, lineStart))
+    const next = block.split('\n').map((l) => mark + l).join('\n')
+    onChange(v.slice(0, lineStart) + next + v.slice(Math.max(e, lineStart)))
+  }
+  const Btn = ({ on, icon: Ic, label: lbl }) => (
+    <button type="button" className="spe-rich-btn" onMouseDown={(ev) => ev.preventDefault()} onClick={on} title={lbl} aria-label={lbl}><Ic size={14} /></button>
+  )
+  return (
+    <div className="spe-f spe-rich">
+      <span>{t('labels.' + d.key, { defaultValue: d.label })}</span>
+      <div className="spe-rich-bar">
+        <Btn on={() => wrap('**')} icon={Bold} label={t('rich.bold')} />
+        <Btn on={() => wrap('*')} icon={Italic} label={t('rich.italic')} />
+        <Btn on={link} icon={LinkIcon} label={t('rich.link')} />
+        <Btn on={() => prefix('- ')} icon={List} label={t('rich.list')} />
+        <Btn on={() => prefix('## ')} icon={Heading} label={t('rich.heading')} />
+      </div>
+      <textarea ref={ref} rows={6} value={v} onChange={(e) => onChange(e.target.value)} />
+      <p className="spe-rich-hint">{t('rich.hint')}</p>
+    </div>
+  )
 }
 
 function ImageField({ value, onChange }) {

@@ -180,7 +180,7 @@ export const BLOCK_TYPES = {
   text: {
     label: 'טקסט', icon: 'Type',
     defaultProps: { text: 'טקסט חופשי. ספרו על עצמכם, על השירות, ועל מה שחשוב לכם.' },
-    editable: [{ key: 'text', label: 'תוכן', type: 'textarea' }],
+    editable: [{ key: 'text', label: 'תוכן', type: 'richtext' }],
   },
   image: {
     label: 'תמונה', icon: 'Image',

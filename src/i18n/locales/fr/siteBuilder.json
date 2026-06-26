@@ -134,6 +134,16 @@
     "optionsPlaceholder": "Options, séparées par des virgules",
     "addField": "Ajouter un champ"
   },
+  "rich": {
+    "bold": "Gras",
+    "italic": "Italique",
+    "link": "Lien",
+    "list": "Liste",
+    "heading": "Sous-titre",
+    "sample": "texte",
+    "linkText": "texte du lien",
+    "hint": "Sélectionnez du texte et cliquez sur un bouton de mise en forme — gras, italique, liens, listes et sous-titres."
+  },
   "public": {
     "loading": "Chargement…",
     "notFoundTitle": "Page introuvable",

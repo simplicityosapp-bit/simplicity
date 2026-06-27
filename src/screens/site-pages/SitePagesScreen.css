@@ -8,6 +8,11 @@
 /* ── Hub ─────────────────────────────────────────────────────────────────── */
 .s-sub { color: var(--stone); font-size: var(--mg-body); margin-top: 6px; }
 
+/* The hub renders its header bare (no .screen-top wrapper, like Connections),
+   so give it the standard screen-header spacing — otherwise the title card
+   sits flush against the top of the screen. */
+.spg-hub-head { margin: 14px 0 16px; }
+
 /* Hub tiles — one row per builder, Connections-style → its own sub-screen. */
 .spg-tiles { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
 .spg-tile {

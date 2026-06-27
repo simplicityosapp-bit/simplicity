@@ -26,7 +26,7 @@ export default function SitePagesScreen() {
 
   return (
     <div className="screen" data-screen="sitePages">
-      <header className="screen-head">
+      <header className="screen-head spg-hub-head">
         <div>
           <p className="t-screen"><LayoutTemplate size={20} strokeWidth={1.6} aria-hidden="true" /> {t('hub.title')}</p>
           <p className="lbl-sm">{t('hub.subtitle')}</p>

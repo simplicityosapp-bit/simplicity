@@ -123,6 +123,11 @@
       "txNotPaid": "Non payé",
       "txDelete": "Supprimer la transaction",
       "empty": "Aucun rendez-vous en attente d'approbation."
+    },
+    "bookingConfirm": {
+      "empty": "Aucune réservation en attente d'approbation.",
+      "approve": "Approuver",
+      "reject": "Refuser"
     }
   }
 }

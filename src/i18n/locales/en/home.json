@@ -123,6 +123,11 @@
       "txNotPaid": "Not paid",
       "txDelete": "Delete transaction",
       "empty": "No meetings awaiting approval."
+    },
+    "bookingConfirm": {
+      "empty": "No bookings awaiting approval.",
+      "approve": "Approve",
+      "reject": "Reject"
     }
   }
 }

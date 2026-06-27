@@ -123,6 +123,11 @@
       "txNotPaid": "No pagado",
       "txDelete": "Eliminar transacción",
       "empty": "No hay citas pendientes de aprobación."
+    },
+    "bookingConfirm": {
+      "empty": "No hay reservas pendientes de aprobación.",
+      "approve": "Aprobar",
+      "reject": "Rechazar"
     }
   }
 }

@@ -15,7 +15,7 @@ import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import InfoPopover from '../../../components/InfoPopover'
 import TileDrillModal from '../../../modals/TileDrillModal'
-import i18n from '../../../i18n'
+import { isr } from '../../../lib/finance'
 import { useT } from '../../../i18n/useT'
 
 /* Bottom data chips — RTL order: משימות · נטו · לקוחות. Tap opens
@@ -53,8 +53,9 @@ export default function ChipsWidget() {
   /* First-load gate: show a soft placeholder instead of flashing 0 / 0₪ while
      the core data is still arriving (the numbers then settle without a jump). */
   const coreLoading = clientsLoading || txLoading
-  const numLocale = i18n.language === 'he' ? 'he-IL' : (i18n.language || 'he-IL')
-  const netStr = `${summary.net < 0 ? '−' : ''}${Math.round(Math.abs(summary.net)).toLocaleString(numLocale)} ₪`
+  /* Currency-aware (honors the ILS/USD/EUR pref) + matches the app-wide isr()
+     format used everywhere else, instead of a hardcoded ₪. */
+  const netStr = isr(summary.net)
   /* Long amounts overflowed the narrow mobile chip and ran over the wallet
      icon (beta feedback 03/06/2026) — step the font down as the string grows
      so the number always fits inside the card. */

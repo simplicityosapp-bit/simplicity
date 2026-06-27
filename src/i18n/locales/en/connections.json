@@ -16,6 +16,7 @@
     "connectFailed": "The connection failed. Please try again.",
     "rowAria": "{{title}} — {{status}}",
     "notConnected": "Not connected",
+    "statusError": "Couldn't load status",
     "connected": "Connected",
     "needsReconnect": "Needs reconnecting",
     "connectedTo": "Connected · {{provider}}",

@@ -5,6 +5,7 @@ import {
   removeLeadPage as apiRemove, restoreLeadPage,
 } from '../lib/api/leadPages'
 import { registerDeleteUndo } from '../lib/undoActions'
+import i18n from '../i18n'
 
 /* React-Query-backed: shared cache across the builder + lead screens. */
 const KEY = ['leadPages']
@@ -31,7 +32,7 @@ export function useLeadPages() {
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((p) => p.id !== id))
     try {
       await apiRemove(id)
-      registerDeleteUndo({ qc, key: KEY, row, label: 'הדף נמחק', restoreFn: restoreLeadPage, deleteFn: apiRemove })
+      registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.leadPage'), restoreFn: restoreLeadPage, deleteFn: apiRemove })
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 

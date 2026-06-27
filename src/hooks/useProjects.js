@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listProjects, insertProject, updateProject as apiUpdateProject, removeProject as apiRemoveProject, restoreProject } from '../lib/api/projects'
 import { registerDeleteUndo } from '../lib/undoActions'
+import i18n from '../i18n'
 
 /* React-Query-backed: shared cache across screens. Public API unchanged. */
 const KEY = ['projects']
@@ -28,7 +29,7 @@ export function useProjects() {
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((p) => p.id !== id))
     try {
       await apiRemoveProject(id)
-      registerDeleteUndo({ qc, key: KEY, row, label: 'הפרויקט נמחק', restoreFn: restoreProject, deleteFn: apiRemoveProject })
+      registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.project'), restoreFn: restoreProject, deleteFn: apiRemoveProject })
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 

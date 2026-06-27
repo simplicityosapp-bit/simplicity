@@ -5,6 +5,7 @@ import {
   removeSitePage as apiRemove, restoreSitePage,
 } from '../lib/api/sitePages'
 import { registerDeleteUndo } from '../lib/undoActions'
+import i18n from '../i18n'
 
 /* React-Query-backed: shared cache across the hub + editor. Mirrors
    useLeadPages / useBookingPages. One cache holds all kinds; the hub filters
@@ -33,7 +34,7 @@ export function useSitePages() {
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((p) => p.id !== id))
     try {
       await apiRemove(id)
-      registerDeleteUndo({ qc, key: KEY, row, label: 'הדף נמחק', restoreFn: restoreSitePage, deleteFn: apiRemove })
+      registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.sitePage'), restoreFn: restoreSitePage, deleteFn: apiRemove })
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 

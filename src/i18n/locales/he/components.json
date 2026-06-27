@@ -29,7 +29,21 @@
   "undo": {
     "undo": "בטל",
     "dismiss": "סגירה",
-    "undone": "בוטל"
+    "undone": "בוטל",
+    "deleted": {
+      "lead": "הליד נמחק",
+      "bookingPage": "הדף נמחק",
+      "category": "הקטגוריה נמחקה",
+      "goalCategory": "הקטגוריה נמחקה",
+      "goal": "המטרה נמחקה",
+      "group": "הקבוצה נמחקה",
+      "leadPage": "הדף נמחק",
+      "project": "הפרויקט נמחק",
+      "session": "הפגישה נמחקה",
+      "sitePage": "הדף נמחק",
+      "task": "המשימה נמחקה",
+      "transaction": "התנועה נמחקה"
+    }
   },
   "feedback": {
     "title": "יש לך משוב?",

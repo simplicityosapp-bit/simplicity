@@ -16,6 +16,7 @@
     "connectFailed": "La conexión ha fallado. Inténtalo de nuevo.",
     "rowAria": "{{title}} — {{status}}",
     "notConnected": "Sin conectar",
+    "statusError": "No se pudo cargar el estado",
     "connected": "Conectado",
     "needsReconnect": "Requiere reconexión",
     "connectedTo": "Conectado · {{provider}}",

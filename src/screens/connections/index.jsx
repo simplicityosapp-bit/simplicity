@@ -87,11 +87,15 @@ export default function ConnectionsScreen() {
   const calConnected = !!gcal.status?.connected
   const invConnected = !!inv.status?.connected
   const invWarn = invConnected && !!inv.status?.credentials_invalid
-  const invStatusText = !invConnected
-    ? t('list.notConnected')
-    : invWarn
-      ? t('list.needsReconnect')
-      : t('list.connectedTo', { provider: providerLabel(inv.status?.provider) })
+  // A failed status fetch must not masquerade as "not connected" — show a distinct
+  // error so a genuinely-connected user isn't nudged to reconnect over a blip.
+  const invStatusText = inv.error && !invConnected
+    ? t('list.statusError')
+    : !invConnected
+      ? t('list.notConnected')
+      : invWarn
+        ? t('list.needsReconnect')
+        : t('list.connectedTo', { provider: providerLabel(inv.status?.provider) })
   const calStatusText = calConnected ? t('list.connected') : t('list.notConnected')
 
   return (

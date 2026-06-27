@@ -27,7 +27,21 @@
   "undo": {
     "undo": "Deshacer",
     "dismiss": "Descartar",
-    "undone": "Deshecho"
+    "undone": "Deshecho",
+    "deleted": {
+      "lead": "Prospecto eliminado",
+      "bookingPage": "Página eliminada",
+      "category": "Categoría eliminada",
+      "goalCategory": "Categoría eliminada",
+      "goal": "Objetivo eliminado",
+      "group": "Grupo eliminado",
+      "leadPage": "Página eliminada",
+      "project": "Proyecto eliminado",
+      "session": "Sesión eliminada",
+      "sitePage": "Página eliminada",
+      "task": "Tarea eliminada",
+      "transaction": "Transacción eliminada"
+    }
   },
   "feedback": {
     "title": "¿Tienes comentarios?",

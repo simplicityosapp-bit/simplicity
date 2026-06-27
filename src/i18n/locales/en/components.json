@@ -27,7 +27,21 @@
   "undo": {
     "undo": "Undo",
     "dismiss": "Dismiss",
-    "undone": "Undone"
+    "undone": "Undone",
+    "deleted": {
+      "lead": "Lead deleted",
+      "bookingPage": "Page deleted",
+      "category": "Category deleted",
+      "goalCategory": "Category deleted",
+      "goal": "Goal deleted",
+      "group": "Group deleted",
+      "leadPage": "Page deleted",
+      "project": "Project deleted",
+      "session": "Session deleted",
+      "sitePage": "Page deleted",
+      "task": "Task deleted",
+      "transaction": "Transaction deleted"
+    }
   },
   "feedback": {
     "title": "Got feedback?",

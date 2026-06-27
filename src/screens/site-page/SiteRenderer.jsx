@@ -545,10 +545,13 @@ const BLOCK_COMPONENT = {
 
 /* One section → its block, wrapped so the canvas can target it (id, type).
    `sel` marks the editor-selected section so the canvas can draw a ring. */
-/* Editor-only drag handle on a selected section's inline-end edge — drag to set
-   the section's width (as a % of the content column). Width is measured from the
-   column's fixed inline-start edge so it can't oscillate as the box re-aligns. */
-function ResizeHandle({ onResize }) {
+/* Editor-only drag handle on a section's inline-end edge — drag to set the
+   section's width (% of the content column). Rendered for EVERY section in the
+   editor and revealed on hover (or when selected) so it's discoverable straight
+   from the canvas, like inline text editing. Width is measured from the column's
+   fixed inline-start edge so it can't oscillate as the box re-aligns. */
+function ResizeHandle({ width, onResize }) {
+  const [live, setLive] = useState(null)
   const onDown = (e) => {
     e.preventDefault(); e.stopPropagation()
     const section = e.currentTarget.parentElement
@@ -559,16 +562,22 @@ function ResizeHandle({ onResize }) {
     const move = (ev) => {
       const startEdge = rtl ? pageRect.right : pageRect.left
       const dist = rtl ? (startEdge - ev.clientX) : (ev.clientX - startEdge)
-      onResize(Math.max(25, Math.min(100, Math.round((dist / pageRect.width) * 100))))
+      const pct = Math.max(25, Math.min(100, Math.round((dist / pageRect.width) * 100)))
+      setLive(pct); onResize(pct)
     }
     const up = () => {
       window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up)
-      document.body.classList.remove('sp-resizing')
+      document.body.classList.remove('sp-resizing'); setLive(null)
     }
     document.body.classList.add('sp-resizing')
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
   }
-  return <span className="sp-resize-handle" onPointerDown={onDown} aria-hidden="true" />
+  return (
+    <span className="sp-resize-handle" onPointerDown={onDown} title="גרור לשינוי רוחב השדה">
+      <span className="sp-resize-grip" />
+      <span className="sp-resize-badge">{live != null ? live : (Number(width) || 100)}%</span>
+    </span>
+  )
 }
 
 function Section({ section, interactive, runtime, selectedId, onEdit }) {
@@ -606,7 +615,7 @@ function Section({ section, interactive, runtime, selectedId, onEdit }) {
   return (
     <section className={wrapCls} style={styleProp} data-sid={section.id} data-selected={sel}>
       {inner}
-      {edit && isSel ? <ResizeHandle onResize={(w) => edit('width', w)} /> : null}
+      {edit ? <ResizeHandle width={width} onResize={(w) => edit('width', w)} /> : null}
     </section>
   )
 }

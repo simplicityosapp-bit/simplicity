@@ -529,6 +529,34 @@ function SectionInspector({ section, sections, onChange }) {
       {def.editable.filter((d) => !d.showWhen || props[d.showWhen]).map((d) => (
         <Descriptor key={d.key} d={d} value={props[d.key]} targets={targets} onChange={(v) => onChange({ [d.key]: v })} />
       ))}
+      <SizePosition props={props} onChange={onChange} />
+    </div>
+  )
+}
+
+/* Universal per-section size + position (every block). Width is also draggable on
+   the canvas; align places a narrower section within the column. */
+function SizePosition({ props, onChange }) {
+  const { t } = useT('siteBuilder')
+  const width = Number(props.width) || 100
+  const align = props.align || 'center'
+  return (
+    <div className="spe-group">
+      <p className="spe-group-lbl">{t('design.grpSize', { defaultValue: 'גודל ומיקום' })}</p>
+      <label className="spe-f"><span>{t('design.width', { defaultValue: 'רוחב' })} — {width}%</span>
+        <input type="range" min={25} max={100} value={width} onChange={(e) => onChange({ width: Number(e.target.value) })} />
+      </label>
+      {width < 100 ? (
+        <div className="spe-f spe-f-row"><span>{t('labels.align')}</span>
+          <div className="spe-align">
+            {['start', 'center', 'end'].map((a) => (
+              <button key={a} type="button" className={`spe-align-btn${align === a ? ' is-on' : ''}`} onClick={() => onChange({ align: a })}>
+                {t('options.' + a, { defaultValue: a })}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

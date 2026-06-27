@@ -92,6 +92,8 @@
     "bold": "Negrita",
     "center": "Centrar",
     "colorAuto": "Auto",
+    "width": "Ancho",
+    "grpSize": "Tamaño y posición",
     "grpAddress": "Dirección",
     "grpTypography": "Tipografía y color",
     "grpBackground": "Fondo",
@@ -241,6 +243,7 @@
     "lg": "Grande",
     "auto": "Automático",
     "start": "Inicio",
-    "center": "Centro"
+    "center": "Centro",
+    "end": "Fin"
   }
 }

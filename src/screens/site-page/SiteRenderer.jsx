@@ -545,29 +545,68 @@ const BLOCK_COMPONENT = {
 
 /* One section → its block, wrapped so the canvas can target it (id, type).
    `sel` marks the editor-selected section so the canvas can draw a ring. */
+/* Editor-only drag handle on a selected section's inline-end edge — drag to set
+   the section's width (as a % of the content column). Width is measured from the
+   column's fixed inline-start edge so it can't oscillate as the box re-aligns. */
+function ResizeHandle({ onResize }) {
+  const onDown = (e) => {
+    e.preventDefault(); e.stopPropagation()
+    const section = e.currentTarget.parentElement
+    const page = section && section.closest('.sp-page')
+    if (!page) return
+    const pageRect = page.getBoundingClientRect()
+    const rtl = getComputedStyle(page).direction === 'rtl'
+    const move = (ev) => {
+      const startEdge = rtl ? pageRect.right : pageRect.left
+      const dist = rtl ? (startEdge - ev.clientX) : (ev.clientX - startEdge)
+      onResize(Math.max(25, Math.min(100, Math.round((dist / pageRect.width) * 100))))
+    }
+    const up = () => {
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up)
+      document.body.classList.remove('sp-resizing')
+    }
+    document.body.classList.add('sp-resizing')
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
+  }
+  return <span className="sp-resize-handle" onPointerDown={onDown} aria-hidden="true" />
+}
+
 function Section({ section, interactive, runtime, selectedId, onEdit }) {
   const type = section.type
-  const sel = section.id === selectedId ? '' : undefined
-  // In the editor, `onEdit` enables click-to-edit text in place (form/booking are
-  // edited via the inspector only). `edit(key, value)` patches this section's prop.
+  const isSel = section.id === selectedId
+  const sel = isSel ? '' : undefined
+  // In the editor, `onEdit` enables click-to-edit text in place + the resize handle.
   const edit = onEdit ? (key, value) => onEdit(section.id, key, value) : null
-  // Per-section text color (replaces the old global light/dark toggle). 'auto' (or
-  // unset) keeps the readable default; a hex paints this section's text via a var.
+
+  // Per-section text color ('auto'/unset = readable default; a hex paints the text).
   const color = section.props?.color
   const colored = typeof color === 'string' && color !== 'auto' && color.trim() !== ''
-  const wrapCls = `sp-block sp-block-${type}${colored ? ' sp-colored' : ''}`
-  const wrapStyle = colored ? { '--sp-text-color': color } : undefined
-  if (type === 'form') {
-    return <section className={wrapCls} data-sid={section.id} data-selected={sel}><FormBlock section={section} interactive={interactive} runtime={runtime} /></section>
+  // Per-section width (% of the column) + horizontal alignment. Reflows to full
+  // width on a narrow container (mobile) via CSS so the page stays responsive.
+  const width = Number(section.props?.width) || 100
+  const align = section.props?.align || 'center'
+  const sized = width > 0 && width < 100
+
+  const wrapCls = `sp-block sp-block-${type}${colored ? ' sp-colored' : ''}${sized ? ' sp-sized' : ''}`
+  const style = {
+    ...(colored ? { '--sp-text-color': color } : {}),
+    ...(sized ? { maxWidth: `${width}%`, alignSelf: align === 'start' ? 'flex-start' : align === 'end' ? 'flex-end' : 'center' } : {}),
   }
-  if (type === 'booking') {
-    return <section className={wrapCls} data-sid={section.id} data-selected={sel}><BookingBlock props={section.props || {}} interactive={interactive} /></section>
+  const styleProp = Object.keys(style).length ? style : undefined
+
+  let inner
+  if (type === 'form') inner = <FormBlock section={section} interactive={interactive} runtime={runtime} />
+  else if (type === 'booking') inner = <BookingBlock props={section.props || {}} interactive={interactive} />
+  else {
+    const Comp = BLOCK_COMPONENT[type]
+    if (!Comp) return null
+    inner = <Comp props={section.props || {}} interactive={interactive} edit={edit} />
   }
-  const Comp = BLOCK_COMPONENT[type]
-  if (!Comp) return null
+
   return (
-    <section className={wrapCls} style={wrapStyle} data-sid={section.id} data-selected={sel}>
-      <Comp props={section.props || {}} interactive={interactive} edit={edit} />
+    <section className={wrapCls} style={styleProp} data-sid={section.id} data-selected={sel}>
+      {inner}
+      {edit && isSel ? <ResizeHandle onResize={(w) => edit('width', w)} /> : null}
     </section>
   )
 }

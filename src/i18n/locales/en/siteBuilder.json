@@ -92,6 +92,8 @@
     "bold": "Bold",
     "center": "Center",
     "colorAuto": "Auto",
+    "width": "Width",
+    "grpSize": "Size & position",
     "grpAddress": "Address",
     "grpTypography": "Type & color",
     "grpBackground": "Background",
@@ -241,6 +243,7 @@
     "lg": "Large",
     "auto": "Auto",
     "start": "Start",
-    "center": "Center"
+    "center": "Center",
+    "end": "End"
   }
 }

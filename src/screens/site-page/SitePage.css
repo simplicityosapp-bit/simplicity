@@ -278,6 +278,23 @@
 .sp-editable:empty::before { content: attr(data-ph); opacity: 0.45; }
 .sp-text-raw { white-space: pre-wrap; }
 
+/* Per-section width + alignment (editor-controlled). Reflows to full width when
+   the content column is narrow (mobile / the editor's mobile frame) so the page
+   stays responsive — free-feeling editing without breaking the phone layout. */
+.sp-block { position: relative; }
+.sp-sized { box-sizing: border-box; }
+@container (max-width: 480px) {
+  .sp-sized { max-width: 100% !important; align-self: stretch !important; }
+}
+/* Drag handle — only rendered for the selected section in the editor. */
+.sp-resize-handle { position: absolute; inset-inline-end: -7px; top: 0; bottom: 0; width: 14px; cursor: ew-resize; z-index: 4; touch-action: none; }
+.sp-resize-handle::before {
+  content: ''; position: absolute; inset-inline-end: 5px; top: 50%; transform: translateY(-50%);
+  width: 4px; height: 44px; max-height: 60%; border-radius: 4px;
+  background: var(--sp-brand); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.65);
+}
+body.sp-resizing { cursor: ew-resize !important; user-select: none; }
+
 /* ── Surface modifiers (from sitePageSurface classes) ────────────────────── */
 .sp-surface.is-bold .sp-h1 { font-weight: 800; }
 .sp-surface.is-bold :is(.sp-sub, .sp-text, .sp-label, .sp-feature-title, .sp-quote) { font-weight: 600; }

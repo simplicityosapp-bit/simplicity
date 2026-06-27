@@ -92,6 +92,8 @@
     "bold": "Gras",
     "center": "Centrer",
     "colorAuto": "Auto",
+    "width": "Largeur",
+    "grpSize": "Taille et position",
     "grpAddress": "Adresse",
     "grpTypography": "Typographie et couleur",
     "grpBackground": "Arrière-plan",
@@ -241,6 +243,7 @@
     "lg": "Grand",
     "auto": "Auto",
     "start": "Début",
-    "center": "Centre"
+    "center": "Centre",
+    "end": "Fin"
   }
 }

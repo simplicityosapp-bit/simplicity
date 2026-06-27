@@ -92,6 +92,8 @@
     "bold": "מודגש",
     "center": "מרכוז",
     "colorAuto": "אוטומטי",
+    "width": "רוחב",
+    "grpSize": "גודל ומיקום",
     "grpAddress": "כתובת",
     "grpTypography": "טיפוגרפיה וצבע",
     "grpBackground": "רקע",
@@ -241,6 +243,7 @@
     "lg": "גדול",
     "auto": "אוטומטי",
     "start": "התחלה",
-    "center": "מרכז"
+    "center": "מרכז",
+    "end": "סוף"
   }
 }

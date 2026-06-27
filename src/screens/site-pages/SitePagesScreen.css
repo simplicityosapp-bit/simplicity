@@ -193,6 +193,11 @@
 .spe-tc-auto.is-on { border-color: var(--terracotta); color: var(--terracotta); }
 .spe-textcolor input[type="color"] { width: 38px; height: 28px; padding: 0; border: 1px solid var(--divider); border-radius: 8px; background: none; cursor: pointer; }
 
+/* Section align buttons (size & position group) */
+.spe-align { display: inline-flex; gap: 4px; }
+.spe-align-btn { font: inherit; font-size: var(--mg-caption); color: var(--stone); background: var(--pure-white); border: 1px solid var(--divider); border-radius: var(--mg-chip-radius); padding: 5px 10px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+.spe-align-btn.is-on { border-color: var(--terracotta); color: var(--terracotta); }
+
 /* Undo toast (section delete) */
 .spe-toast {
   position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);

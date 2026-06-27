@@ -114,6 +114,10 @@
 .spg-legacy-link:hover { text-decoration: underline; }
 
 /* ── Editor shell ────────────────────────────────────────────────────────── */
+/* In the editor, blank out the app's decorative nature background (painted on
+   .app::before) so the focus is purely the page being built — not the scene
+   showing through the glass chrome. Scoped to when the editor (.spe) is open. */
+.app:has(.spe)::before { background: var(--bone); }
 /* Fill the app content row (.app is a flex container) instead of shrinking to
    content width — otherwise the canvas collapses between the fixed rails. */
 .spe { display: flex; flex-direction: column; min-height: 100vh; flex: 1; min-width: 0; width: 100%; }

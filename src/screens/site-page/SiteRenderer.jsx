@@ -552,6 +552,10 @@ const BLOCK_COMPONENT = {
    fixed inline-start edge so it can't oscillate as the box re-aligns. */
 function ResizeHandle({ width, onResize }) {
   const [live, setLive] = useState(null)
+  const cleanupRef = useRef(null)
+  // Tear down an in-flight drag if the section unmounts mid-resize (e.g. it gets
+  // deleted) so the window listeners + body cursor class never leak.
+  useEffect(() => () => { if (cleanupRef.current) cleanupRef.current() }, [])
   const onDown = (e) => {
     e.preventDefault(); e.stopPropagation()
     const section = e.currentTarget.parentElement
@@ -565,16 +569,17 @@ function ResizeHandle({ width, onResize }) {
       const pct = Math.max(25, Math.min(100, Math.round((dist / pageRect.width) * 100)))
       setLive(pct); onResize(pct)
     }
-    const up = () => {
-      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up)
-      document.body.classList.remove('sp-resizing'); setLive(null)
+    const end = () => {
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', end)
+      document.body.classList.remove('sp-resizing'); cleanupRef.current = null; setLive(null)
     }
+    cleanupRef.current = end
     document.body.classList.add('sp-resizing')
-    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', end)
   }
   return (
-    <span className="sp-resize-handle" onPointerDown={onDown} title="גרור לשינוי רוחב השדה">
-      <span className="sp-resize-grip" />
+    <span className="sp-resize-handle" onPointerDown={onDown} aria-hidden="true">
+      <span className="sp-resize-grip" title="גרור לשינוי רוחב השדה" />
       <span className="sp-resize-badge">{live != null ? live : (Number(width) || 100)}%</span>
     </span>
   )

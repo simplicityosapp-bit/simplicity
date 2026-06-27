@@ -292,22 +292,26 @@
 }
 /* Drag handle — rendered for every section in the editor, revealed on hover (or
    when selected) so resizing is discoverable straight from the canvas. */
+/* The wrapper positions the grip/badge over the inline-end edge but is itself
+   click-through (pointer-events:none) — only the centered grip captures the
+   drag, so the rest of the edge stays clickable for select/inline-edit. */
 .sp-resize-handle {
   position: absolute; inset-inline-end: -6px; top: 0; bottom: 0; width: 22px;
   display: flex; align-items: center; justify-content: center;
-  cursor: ew-resize; z-index: 5; touch-action: none;
+  z-index: 5; touch-action: none;
   opacity: 0; pointer-events: none; transition: opacity 0.12s;
 }
 .sp-block:hover > .sp-resize-handle,
-.sp-block[data-selected=""] > .sp-resize-handle { opacity: 1; pointer-events: auto; }
+.sp-block[data-selected=""] > .sp-resize-handle { opacity: 1; }
 .sp-resize-grip {
-  width: 8px; height: 52px; max-height: 62%; border-radius: 6px;
+  pointer-events: auto; cursor: ew-resize;
+  width: 10px; height: 52px; max-height: 62%; border-radius: 6px;
   background: var(--sp-brand);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7), 0 2px 8px rgba(42, 37, 32, 0.28);
   transition: height 0.12s, width 0.12s;
 }
-.sp-resize-handle:hover .sp-resize-grip,
-body.sp-resizing .sp-resize-grip { width: 10px; max-height: 78%; }
+.sp-resize-grip:hover,
+body.sp-resizing .sp-resize-grip { width: 12px; max-height: 78%; }
 .sp-resize-badge {
   position: absolute; top: -30px; inset-inline-end: 0;
   background: var(--espresso, #2c2620); color: #fff;

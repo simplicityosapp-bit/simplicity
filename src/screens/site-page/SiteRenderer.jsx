@@ -135,10 +135,10 @@ function ImageBlock({ props }) {
   const { t } = useT('siteBuilder')
   const src = safeImageUrl(props.url)
   if (!src) return <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
-  return (
+  return withCard(props,
     <figure className={`sp-figure sp-w-${props.width || 'full'}`}>
       <img className="sp-img" src={src} alt={props.alt || ''} loading="lazy" />
-    </figure>
+    </figure>,
   )
 }
 
@@ -202,12 +202,12 @@ function TestimonialBlock({ props, edit }) {
 function CtaBlock({ props, interactive, edit }) {
   if (edit) {
     const cls = `sp-btn sp-btn-${props.style === 'secondary' ? 'secondary' : 'primary'}`
-    return <div className="sp-cta"><Editable as="span" className={cls} value={props.label} placeholder="כפתור" onCommit={(v) => edit('label', v)} /></div>
+    return withCard(props, <div className="sp-cta"><Editable as="span" className={cls} value={props.label} placeholder="כפתור" onCommit={(v) => edit('label', v)} /></div>)
   }
-  return (
+  return withCard(props,
     <div className="sp-cta">
       <ActionButton label={props.label} action={props.action} style={props.style} interactive={interactive} />
-    </div>
+    </div>,
   )
 }
 
@@ -223,7 +223,7 @@ function DividerBlock({ props }) {
 function CardsBlock({ props, interactive }) {
   const items = Array.isArray(props.items) ? props.items : []
   const cols = (props.columns && props.columns !== 'auto') ? props.columns : 'auto'
-  return (
+  return withCard(props,
     <div className={`sp-cards sp-cols-${cols}`}>
       {items.map((it, i) => {
         const Icon = iconByName(it.icon)
@@ -242,7 +242,7 @@ function CardsBlock({ props, interactive }) {
               target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!interactive) e.preventDefault() }}>{inner}</a>
           : <div key={i} className="sp-cardbox">{inner}</div>
       })}
-    </div>
+    </div>,
   )
 }
 
@@ -282,7 +282,7 @@ function VideoBlock({ props }) {
 
 function FaqBlock({ props }) {
   const items = Array.isArray(props.items) ? props.items : []
-  return (
+  return withCard(props,
     <div className="sp-faq">
       {items.map((it, i) => (
         <details className="sp-faq-item" key={i}>
@@ -290,7 +290,7 @@ function FaqBlock({ props }) {
           {str(it.a) ? <p className="sp-faq-a">{it.a}</p> : null}
         </details>
       ))}
-    </div>
+    </div>,
   )
 }
 
@@ -595,10 +595,12 @@ function Section({ section, interactive, runtime, selectedId, onEdit }) {
   // Per-section text color ('auto'/unset = readable default; a hex paints the text).
   const color = section.props?.color
   const colored = typeof color === 'string' && color !== 'auto' && color.trim() !== ''
-  // Per-section width (% of the column) + horizontal alignment. Reflows to full
-  // width on a narrow container (mobile) via CSS so the page stays responsive.
-  const width = Number(section.props?.width) || 100
-  const align = section.props?.align || 'center'
+  // Per-section box width (% of the column) + horizontal alignment. Named
+  // boxWidth/boxAlign (not width/align) so they never collide with a block's own
+  // width prop (image/divider: full/wide/narrow) or align prop (icon: start/center).
+  // Reflows to full width on a narrow container (mobile) via CSS so it stays responsive.
+  const width = Number(section.props?.boxWidth) || 100
+  const align = section.props?.boxAlign || 'center'
   const sized = width > 0 && width < 100
 
   const wrapCls = `sp-block sp-block-${type}${colored ? ' sp-colored' : ''}${sized ? ' sp-sized' : ''}`
@@ -620,7 +622,7 @@ function Section({ section, interactive, runtime, selectedId, onEdit }) {
   return (
     <section className={wrapCls} style={styleProp} data-sid={section.id} data-selected={sel}>
       {inner}
-      {edit ? <ResizeHandle width={width} onResize={(w) => edit('width', w)} /> : null}
+      {edit ? <ResizeHandle width={width} onResize={(w) => edit('boxWidth', w)} /> : null}
     </section>
   )
 }

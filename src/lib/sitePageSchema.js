@@ -199,11 +199,13 @@ export const BLOCK_TYPES = {
   },
   image: {
     label: 'תמונה', icon: 'Image',
-    defaultProps: { url: '', alt: '', width: 'full' },
+    defaultProps: { url: '', alt: '', width: 'full', card: false, cardOpacity: 100 },
     editable: [
       { key: 'url', label: 'תמונה', type: 'image' },
       { key: 'alt', label: 'טקסט חלופי', type: 'text' },
       { key: 'width', label: 'רוחב', type: 'select', options: ['full', 'wide', 'narrow'] },
+      { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
     ],
   },
   iconText: {
@@ -245,11 +247,14 @@ export const BLOCK_TYPES = {
     label: 'כפתור', icon: 'MousePointerClick',
     defaultProps: {
       label: 'לחצו כאן', action: { type: 'link', url: '' }, style: 'primary',
+      card: false, cardOpacity: 100,
     },
     editable: [
       { key: 'label', label: 'טקסט', type: 'text' },
       { key: 'action', label: 'פעולה', type: 'action' },
       { key: 'style', label: 'סגנון', type: 'select', options: ['primary', 'secondary'] },
+      { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
     ],
   },
   form: {
@@ -285,6 +290,7 @@ export const BLOCK_TYPES = {
         { icon: 'Heart', title: 'חלונית שנייה', body: 'תיאור קצר', link: '' },
         { icon: 'Sparkles', title: 'חלונית שלישית', body: 'תיאור קצר', link: '' },
       ],
+      color: 'auto', card: false, cardOpacity: 100,
     },
     editable: [
       { key: 'columns', label: 'עמודות', type: 'select', options: ['auto', '2', '3'] },
@@ -294,6 +300,9 @@ export const BLOCK_TYPES = {
         { key: 'body', label: 'תיאור', type: 'textarea' },
         { key: 'link', label: 'קישור', type: 'text' },
       ] },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+      { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
     ],
   },
   icon: {
@@ -320,11 +329,19 @@ export const BLOCK_TYPES = {
   },
   faq: {
     label: 'שאלות ותשובות', icon: 'HelpCircle',
-    defaultProps: { items: [{ q: 'שאלה נפוצה?', a: 'התשובה כאן.' }, { q: 'עוד שאלה?', a: 'עוד תשובה.' }] },
-    editable: [{ key: 'items', label: 'שאלות', type: 'list', item: [
-      { key: 'q', label: 'שאלה', type: 'text' },
-      { key: 'a', label: 'תשובה', type: 'textarea' },
-    ] }],
+    defaultProps: {
+      items: [{ q: 'שאלה נפוצה?', a: 'התשובה כאן.' }, { q: 'עוד שאלה?', a: 'עוד תשובה.' }],
+      color: 'auto', card: false, cardOpacity: 100,
+    },
+    editable: [
+      { key: 'items', label: 'שאלות', type: 'list', item: [
+        { key: 'q', label: 'שאלה', type: 'text' },
+        { key: 'a', label: 'תשובה', type: 'textarea' },
+      ] },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+      { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
+    ],
   },
   divider: {
     label: 'קו מפריד', icon: 'SeparatorHorizontal',

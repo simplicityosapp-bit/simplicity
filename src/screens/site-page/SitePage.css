@@ -341,7 +341,8 @@ body.sp-resizing { cursor: ew-resize !important; user-select: none; }
    Links are left out so they keep the brand colour. */
 .sp-colored :is(.sp-h1, .sp-h2, .sp-sub, .sp-eyebrow, .sp-feature-title, .sp-feature-text,
   .sp-quote, .sp-cite, .sp-cite em, .sp-cite strong, .sp-text, .sp-text p, .sp-text li,
-  .sp-text h2, .sp-text h3, .sp-text strong) {
+  .sp-text h2, .sp-text h3, .sp-text strong,
+  .sp-cardbox-title, .sp-cardbox-text, .sp-faq-q, .sp-faq-a) {
   color: var(--sp-text-color) !important;
   text-shadow: none !important;
 }

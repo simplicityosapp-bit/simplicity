@@ -543,19 +543,21 @@ function SectionInspector({ section, sections, onChange }) {
    the canvas; align places a narrower section within the column. */
 function SizePosition({ props, onChange }) {
   const { t } = useT('siteBuilder')
-  const width = Number(props.width) || 100
-  const align = props.align || 'center'
+  // boxWidth/boxAlign (not width/align) so they never clash with a block's own
+  // width prop (image/divider) or align prop (icon).
+  const width = Number(props.boxWidth) || 100
+  const align = props.boxAlign || 'center'
   return (
     <div className="spe-group">
       <p className="spe-group-lbl">{t('design.grpSize', { defaultValue: 'גודל ומיקום' })}</p>
       <label className="spe-f"><span>{t('design.width', { defaultValue: 'רוחב' })} — {width}%</span>
-        <input type="range" min={25} max={100} value={width} onChange={(e) => onChange({ width: Number(e.target.value) })} />
+        <input type="range" min={25} max={100} value={width} onChange={(e) => onChange({ boxWidth: Number(e.target.value) })} />
       </label>
       {width < 100 ? (
         <div className="spe-f spe-f-row"><span>{t('labels.align')}</span>
           <div className="spe-align">
             {['start', 'center', 'end'].map((a) => (
-              <button key={a} type="button" className={`spe-align-btn${align === a ? ' is-on' : ''}`} onClick={() => onChange({ align: a })}>
+              <button key={a} type="button" className={`spe-align-btn${align === a ? ' is-on' : ''}`} onClick={() => onChange({ boxAlign: a })}>
                 {t('options.' + a, { defaultValue: a })}
               </button>
             ))}

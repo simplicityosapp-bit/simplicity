@@ -275,3 +275,26 @@
   .spe-body { flex-direction: column; }
   .spe-rail, .spe-inspector { width: auto; border: none; border-top: 1px solid var(--divider); }
 }
+
+/* Mobile app shell: .app is a fixed-height (100dvh), overflow:hidden frame and
+   every screen is its OWN absolutely-positioned scroll container (.screen) that
+   pads past the fixed bottom nav. The editor isn't a .screen, so as a normal
+   in-flow block its min-height:100vh overflowed the frame — the lower panes (and
+   the bottom nav) ended up unreachable and the page wouldn't scroll. Below the
+   app's mobile breakpoint, make .spe fill the frame and BE the scroll container:
+   its panes stack in a single scroll, with room to clear the bottom nav. */
+@media (max-width: 767px) {
+  .spe {
+    position: absolute;
+    inset: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+  /* Size the panes to their content so the whole .spe scrolls as one — no nested
+     scroller fighting the page scroll on touch. */
+  .spe-body { flex: 0 0 auto; }
+  .spe-canvas-wrap { overflow: visible; }
+}

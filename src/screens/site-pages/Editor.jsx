@@ -74,6 +74,7 @@ export default function Editor({ page, onSave, onBack }) {
   const [selectedId, setSelectedId] = useState(null)
   const [device, setDevice] = useState('desktop')
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const [mobileSheet, setMobileSheet] = useState(false) // inspector bottom-sheet (mobile)
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [saveError, setSaveError] = useState(null)
@@ -85,6 +86,14 @@ export default function Editor({ page, onSave, onBack }) {
   const delTimer = useRef(null)
   const draftRef = useRef(draft)                   // latest draft for deferred asset cleanup
   useEffect(() => { draftRef.current = draft }, [draft])
+
+  /* On mobile, scroll the section being edited into the canvas sliver that shows
+     above the bottom sheet, so its live changes are visible while you edit. */
+  useEffect(() => {
+    if (!mobileSheet || !selectedId || !window.matchMedia('(max-width: 900px)').matches) return
+    const el = document.querySelector(`.spe-frame [data-sid="${selectedId}"]`)
+    if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
+  }, [selectedId, mobileSheet])
 
   const selected = useMemo(
     () => draft.sections.find((s) => s.id === selectedId) || null,
@@ -115,6 +124,7 @@ export default function Editor({ page, onSave, onBack }) {
     if (!sec) return
     mutate((d) => ({ ...d, sections: [...d.sections, sec] }))
     setSelectedId(sec.id)               // auto-select the new section
+    setMobileSheet(true)                // …and open the editor sheet on mobile
     setPaletteOpen(false)
     // bring it into view after the render commits
     setTimeout(() => document.querySelector(`[data-sid="${sec.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60)
@@ -238,7 +248,7 @@ export default function Editor({ page, onSave, onBack }) {
   /* Canvas click → select the clicked section (reads the nearest [data-sid]). */
   const onCanvasClick = (e) => {
     const el = e.target.closest('[data-sid]')
-    if (el) setSelectedId(el.getAttribute('data-sid'))
+    if (el) { setSelectedId(el.getAttribute('data-sid')); setMobileSheet(true) }
   }
 
   return (
@@ -305,8 +315,8 @@ export default function Editor({ page, onSave, onBack }) {
                 onDragOver={(e) => { e.preventDefault(); if (dragOver !== i) setDragOver(i) }}
                 onDragEnd={() => { setDragging(null); setDragOver(null) }}
                 onDrop={() => { const from = dragIndex.current; if (from != null) reorder(from, from < i ? i - 1 : i); dragIndex.current = null; setDragging(null); setDragOver(null) }}
-                onClick={() => setSelectedId(s.id)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(s.id) } }}
+                onClick={() => { setSelectedId(s.id); setMobileSheet(true) }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(s.id); setMobileSheet(true) } }}
               >
                 <GripVertical size={14} className="spe-grip" />
                 <span className="spe-sec-label">{t('blocks.' + s.type, { defaultValue: BLOCK_TYPES[s.type]?.label || s.type })}</span>
@@ -318,7 +328,7 @@ export default function Editor({ page, onSave, onBack }) {
             ))}
             {draft.sections.length === 0 ? <li className="spe-rail-empty">{t('editor.railEmpty')}</li> : null}
           </ul>
-          <button className={`spe-design-btn${!selected ? ' is-on' : ''}`} onClick={() => setSelectedId(null)}>
+          <button className={`spe-design-btn${!selected ? ' is-on' : ''}`} onClick={() => { setSelectedId(null); setMobileSheet(true) }}>
             <Palette size={15} /> {t('editor.designPage')}
           </button>
         </aside>
@@ -330,8 +340,13 @@ export default function Editor({ page, onSave, onBack }) {
           </div>
         </div>
 
-        {/* ── Right panel: inspector OR design ──────────────────── */}
-        <aside className="spe-inspector">
+        {/* ── Right panel: inspector OR design (a bottom sheet on mobile) ── */}
+        {mobileSheet ? <div className="spe-sheet-backdrop" onClick={() => setMobileSheet(false)} /> : null}
+        <aside className={`spe-inspector${mobileSheet ? ' is-open' : ''}`}>
+          <div className="spe-sheet-head">
+            <span className="spe-sheet-title">{selected ? t('blocks.' + selected.type, { defaultValue: BLOCK_TYPES[selected.type]?.label || selected.type }) : t('editor.designPage')}</span>
+            <button className="spe-sheet-close" onClick={() => setMobileSheet(false)}>{t('editor.done')}</button>
+          </div>
           {selected
             ? <SectionInspector section={selected} sections={draft.sections} onChange={(patch) => updateProps(selected.id, patch)} />
             : <DesignPanel theme={draft.theme} setTheme={setTheme}

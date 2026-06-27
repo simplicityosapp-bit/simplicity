@@ -209,6 +209,8 @@
 
 /* Inspector */
 .spe-inspector { width: 300px; flex: none; border-inline-start: 1px solid var(--divider); background: var(--mg-card-bg); -webkit-backdrop-filter: var(--mg-card-blur); backdrop-filter: var(--mg-card-blur); overflow: auto; }
+/* The bottom-sheet header + backdrop are mobile-only — hidden on desktop. */
+.spe-sheet-head, .spe-sheet-backdrop { display: none; }
 .spe-panel { padding: 16px; display: flex; flex-direction: column; gap: 14px; animation: mgFadeUp 0.2s ease; }
 .spe-panel-title { font-size: var(--mg-heading); font-weight: 600; color: var(--espresso); margin: 0; }
 /* Grouping inside the design panel — a hairline + caption per cluster. */
@@ -275,10 +277,40 @@
   border-color: var(--terracotta);
 }
 
-/* Editor responsive: stack the rails under the canvas on narrow screens. */
-@media (max-width: 900px) {
+/* ── Editor on a phone: canvas-first, with the inspector as a bottom sheet ──
+   The 3-pane desktop layout doesn't fit a phone, and editing a section while the
+   inspector lives far below the canvas is unusable. So on narrow screens: the
+   top bar wraps (so Save/Publish stay reachable), the sections rail sits in a
+   short scroller above a tall canvas, and tapping a section slides the inspector
+   up as a sheet OVER the canvas — you edit while seeing the page react live. */
+@media (max-width: 767px) {
+  .spe-top { flex-wrap: wrap; height: auto; padding: 8px 12px; gap: 8px; }
+  .spe-title-input { order: -1; flex-basis: 100%; }
   .spe-body { flex-direction: column; }
-  .spe-rail, .spe-inspector { width: auto; border: none; border-top: 1px solid var(--divider); }
+  .spe-rail { width: auto; flex: none; border-inline-end: none; border-bottom: 1px solid var(--divider); }
+  .spe-canvas-wrap { padding: 14px; }
+
+  /* Light scrim — keeps the canvas above the sheet visible so edits read live.
+     z above the app's bottom bar (z 200) so the sheet covers it while editing. */
+  .spe-sheet-backdrop { display: block; position: fixed; inset: 0; z-index: 209; background: rgba(28, 24, 20, 0.16); }
+  .spe-inspector {
+    position: fixed; inset-inline: 0; bottom: 0; z-index: 210; width: auto;
+    max-height: 76vh; border: none; padding-bottom: 28px;
+    border-start-start-radius: 20px; border-start-end-radius: 20px;
+    box-shadow: 0 -10px 40px rgba(28, 24, 20, 0.22);
+    transform: translateY(101%); transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+    overscroll-behavior: contain;
+  }
+  .spe-inspector.is-open { transform: translateY(0); }
+  .spe-sheet-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    position: sticky; top: 0; z-index: 1; padding: 14px 16px 10px;
+    background: var(--mg-card-bg); -webkit-backdrop-filter: var(--mg-card-blur); backdrop-filter: var(--mg-card-blur);
+    border-bottom: 1px solid var(--divider);
+  }
+  .spe-sheet-head::before { content: ''; position: absolute; top: 6px; inset-inline: 0; margin: 0 auto; width: 36px; height: 4px; border-radius: 99px; background: var(--divider); }
+  .spe-sheet-title { font-size: var(--mg-body); font-weight: 600; color: var(--espresso); }
+  .spe-sheet-close { font: inherit; font-size: var(--mg-caption); font-weight: 600; color: var(--terracotta); background: transparent; border: none; padding: 6px 8px; cursor: pointer; }
 }
 
 /* Mobile app shell: .app is a fixed-height (100dvh), overflow:hidden frame and

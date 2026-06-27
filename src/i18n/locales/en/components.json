@@ -43,6 +43,17 @@
       "transaction": "Transaction deleted"
     }
   },
+  "errors": {
+    "importFailed": "Import failed — please try again",
+    "actionFailed": "Action failed — please try again",
+    "eventAssign": "Couldn't assign the event — please try again",
+    "eventHide": "Couldn't hide the event — please try again",
+    "eventUpdate": "Couldn't update the event — please try again",
+    "eventDelete": "Couldn't delete the event — please try again",
+    "bookingConfirm": "Couldn't confirm the booking",
+    "bookingReject": "Couldn't reject the booking",
+    "bookingCancel": "Couldn't cancel the booking"
+  },
   "feedback": {
     "title": "Got feedback?",
     "sub": "What works, what's missing, what we could improve — talk to us"

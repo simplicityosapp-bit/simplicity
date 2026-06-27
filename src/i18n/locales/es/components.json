@@ -43,6 +43,17 @@
       "transaction": "Transacción eliminada"
     }
   },
+  "errors": {
+    "importFailed": "La importación falló — inténtalo de nuevo",
+    "actionFailed": "La acción falló — inténtalo de nuevo",
+    "eventAssign": "No se pudo asignar el evento — inténtalo de nuevo",
+    "eventHide": "No se pudo ocultar el evento — inténtalo de nuevo",
+    "eventUpdate": "No se pudo actualizar el evento — inténtalo de nuevo",
+    "eventDelete": "No se pudo eliminar el evento — inténtalo de nuevo",
+    "bookingConfirm": "No se pudo confirmar la cita",
+    "bookingReject": "No se pudo rechazar la cita",
+    "bookingCancel": "No se pudo cancelar la cita"
+  },
   "feedback": {
     "title": "¿Tienes comentarios?",
     "sub": "Qué funciona, qué falta, qué podríamos mejorar — habla con nosotros"

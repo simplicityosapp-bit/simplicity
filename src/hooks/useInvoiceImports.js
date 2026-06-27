@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listPendingInvoiceImports } from '../lib/api/invoiceImports'
 import { callInvoices } from '../lib/api/integrations'
 import { showError } from '../lib/toast'
+import i18n from '../i18n'
 
 /* Route-B pending imports. Approve creates an income transaction server-side
    (the `invoices` function); dismiss marks the staged row dismissed. */
@@ -22,7 +23,7 @@ export function useInvoiceImports() {
     } catch (e) {
       // Already handled elsewhere → just reconcile; otherwise surface the failure.
       if (e?.message === 'already_handled') drop(id)
-      else showError('הייבוא נכשל — נסה/י שוב')
+      else showError(i18n.t('components:errors.importFailed'))
       throw e
     }
   }, [qc])
@@ -32,7 +33,7 @@ export function useInvoiceImports() {
       await callInvoices('import-dismiss', { import_id: id })
       drop(id)
     } catch (e) {
-      showError('הפעולה נכשלה — נסה/י שוב')
+      showError(i18n.t('components:errors.actionFailed'))
       throw e
     }
   }, [qc])

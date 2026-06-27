@@ -5,6 +5,7 @@ import {
   materializeBooking as apiMaterialize, cancelBooking as apiCancel,
 } from '../lib/api/bookings'
 import { showError } from '../lib/toast'
+import i18n from '../i18n'
 
 /* React-Query-backed owner view of bookings (pending review + confirmed).
    Shared by the attention widget + its confirm list. */
@@ -23,7 +24,7 @@ export function useBookings() {
       const row = await apiConfirm(booking)
       replace(row)
       return row
-    } catch (e) { showError(e.message || 'אישור התור נכשל'); throw e }
+    } catch (e) { showError(e.message || i18n.t('components:errors.bookingConfirm')); throw e }
   }, [qc]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const reject = useCallback(async (id) => {
@@ -31,7 +32,7 @@ export function useBookings() {
       const row = await apiReject(id)
       replace(row)
       return row
-    } catch (e) { showError(e.message || 'דחיית התור נכשלה'); throw e }
+    } catch (e) { showError(e.message || i18n.t('components:errors.bookingReject')); throw e }
   }, [qc]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Backfill an auto-confirmed booking with its lead + calendar event. */
@@ -47,7 +48,7 @@ export function useBookings() {
       const row = await apiCancel(booking)
       replace(row)
       return row
-    } catch (e) { showError(e.message || 'ביטול התור נכשל'); throw e }
+    } catch (e) { showError(e.message || i18n.t('components:errors.bookingCancel')); throw e }
   }, [qc]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { bookings, loading: isLoading, error: error?.message ?? null, confirm, reject, materialize, cancel, refetch }

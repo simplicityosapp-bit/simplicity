@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { showError } from '../lib/toast'
 import { selectAllRows } from '../lib/api/paginate'
+import i18n from '../i18n'
 
 /* Reads the synced `calendar_events` (own rows via RLS) and lets the user
    assign an entity by hand to an unmatched event. The sync upsert itself
@@ -65,7 +66,7 @@ export function useCalendarEvents() {
       .from('calendar_events')
       .update({ [field]: next, matched_manually: stillManual })
       .eq('id', ev.id)
-    if (e) { setError(e.message); showError('שיוך האירוע נכשל — נסה/י שוב'); refetch() }
+    if (e) { setError(e.message); showError(i18n.t('components:errors.eventAssign')); refetch() }
   }, [refetch])
 
   const assignClient = useCallback((ev, clientId) => assignMatch(ev, 'client_id', clientId), [assignMatch])
@@ -83,7 +84,7 @@ export function useCalendarEvents() {
       .from('calendar_events')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', ev.id)
-    if (e) { setError(e.message); showError('הסתרת האירוע נכשלה — נסה/י שוב'); refetch() }
+    if (e) { setError(e.message); showError(i18n.t('components:errors.eventHide')); refetch() }
   }, [refetch])
 
   /* OWN + edit a synced event: setting owned=true detaches it from the
@@ -97,7 +98,7 @@ export function useCalendarEvents() {
       .from('calendar_events')
       .update(next)
       .eq('id', ev.id)
-    if (e) { setError(e.message); showError('עדכון האירוע נכשל — נסה/י שוב'); refetch() }
+    if (e) { setError(e.message); showError(i18n.t('components:errors.eventUpdate')); refetch() }
   }, [refetch])
 
   /* OWN + delete a synced event for good. owned=true makes the soft-delete
@@ -109,7 +110,7 @@ export function useCalendarEvents() {
       .from('calendar_events')
       .update({ owned: true, deleted_at: new Date().toISOString() })
       .eq('id', ev.id)
-    if (e) { setError(e.message); showError('מחיקת האירוע נכשלה — נסה/י שוב'); refetch() }
+    if (e) { setError(e.message); showError(i18n.t('components:errors.eventDelete')); refetch() }
   }, [refetch])
 
   return { events, loading, error, refetch, assignClient, assignProject, assignLead, assignGroup, dismissEvent, updateEvent, deleteEvent }

@@ -15,7 +15,9 @@ export default function IncomeByProject({ monthTxs, clients = [], projects = [] 
     const totals = new Map() /* projectId | null → number */
     monthTxs.forEach((tx) => {
       if (tx.type !== 'income') return
-      if (tx.status !== 'confirmed') return
+      // Match the hero summary / net (sumConfirmed): exclude credited (cancelled
+      // by a credit note) txs, else this breakdown overstates vs the total above.
+      if (tx.status !== 'confirmed' || tx.invoice_credited_at) return
       const pid = tx.project_id || (tx.client_id ? clientProj.get(tx.client_id) : null) || null
       totals.set(pid, (totals.get(pid) || 0) + Number(tx.amount || 0))
     })

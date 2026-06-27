@@ -12,7 +12,10 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
   const meta = statusMetaOfLead(lead)
   const source = lead.source_id ? sources.find((s) => s.id === lead.source_id) : null
   const sub = lead.status_id ? statuses.find((s) => s.id === lead.status_id) : null
-  const today = new Date().toISOString().slice(0, 10)
+  // Local date (mirror LeadsScreen.dueFollowups) — UTC toISOString would flip the
+  // overdue highlight near midnight and disagree with the follow-ups banner/list.
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   const overdue = lead.follow_up_date && String(lead.follow_up_date).slice(0, 10) <= today && meta === 'in_process'
   const isConverted = meta === 'converted' && lead.converted_to_client_id
 

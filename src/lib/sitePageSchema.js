@@ -168,6 +168,7 @@ export const BLOCK_TYPES = {
     defaultProps: {
       eyebrow: '', heading: 'הכותרת שלך כאן', subheading: '',
       ctaLabel: '', ctaAction: { type: 'scrollToForm', url: '' }, color: 'auto',
+      card: false, cardOpacity: 100,
     },
     editable: [
       { key: 'eyebrow', label: 'טקסט עליון', type: 'text' },
@@ -176,6 +177,8 @@ export const BLOCK_TYPES = {
       { key: 'ctaLabel', label: 'כפתור', type: 'text' },
       { key: 'ctaAction', label: 'פעולת הכפתור', type: 'action' },
       { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+      { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
     ],
   },
   text: {
@@ -205,7 +208,7 @@ export const BLOCK_TYPES = {
         { icon: 'Check', title: 'יתרון שני', body: '' },
         { icon: 'Check', title: 'יתרון שלישי', body: '' },
       ],
-      color: 'auto',
+      color: 'auto', card: false, cardOpacity: 100,
     },
     editable: [
       {
@@ -217,6 +220,8 @@ export const BLOCK_TYPES = {
         ],
       },
       { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+      { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
     ],
   },
   testimonial: {

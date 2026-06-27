@@ -86,26 +86,35 @@ function Editable({ as: Tag = 'div', className, value, placeholder, onCommit }) 
   )
 }
 
+/* Optionally wrap a block's content in a translucent panel so text stands out
+   over a busy photo. Per-block opacity (0 = transparent … 100 = solid). */
+function withCard(props, inner) {
+  if (!props.card) return inner
+  return <div className="sp-card sp-block-card" style={{ '--sp-card-opacity': `${props.cardOpacity ?? 100}%` }}>{inner}</div>
+}
+
 /* ── Visual blocks ───────────────────────────────────────────────────────── */
 function HeroBlock({ props, interactive, edit }) {
-  if (edit) {
-    return (
-      <div className="sp-hero">
-        <Editable as="div" className="sp-eyebrow" value={props.eyebrow} placeholder="טקסט עליון" onCommit={(v) => edit('eyebrow', v)} />
-        <Editable as="h1" className="sp-h1" value={props.heading} placeholder="כותרת" onCommit={(v) => edit('heading', v)} />
-        <Editable as="p" className="sp-sub" value={props.subheading} placeholder="תת-כותרת" onCommit={(v) => edit('subheading', v)} />
-        <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={false} />
-      </div>
-    )
-  }
-  return (
+  const inner = (
     <div className="sp-hero">
-      {str(props.eyebrow) ? <div className="sp-eyebrow">{props.eyebrow}</div> : null}
-      {str(props.heading) ? <h1 className="sp-h1">{props.heading}</h1> : null}
-      {str(props.subheading) ? <p className="sp-sub">{props.subheading}</p> : null}
-      <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={interactive} />
+      {edit ? (
+        <>
+          <Editable as="div" className="sp-eyebrow" value={props.eyebrow} placeholder="טקסט עליון" onCommit={(v) => edit('eyebrow', v)} />
+          <Editable as="h1" className="sp-h1" value={props.heading} placeholder="כותרת" onCommit={(v) => edit('heading', v)} />
+          <Editable as="p" className="sp-sub" value={props.subheading} placeholder="תת-כותרת" onCommit={(v) => edit('subheading', v)} />
+          <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={false} />
+        </>
+      ) : (
+        <>
+          {str(props.eyebrow) ? <div className="sp-eyebrow">{props.eyebrow}</div> : null}
+          {str(props.heading) ? <h1 className="sp-h1">{props.heading}</h1> : null}
+          {str(props.subheading) ? <p className="sp-sub">{props.subheading}</p> : null}
+          <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={interactive} />
+        </>
+      )}
     </div>
   )
+  return withCard(props, inner)
 }
 
 /* Coach-authored copy, written in a safe markdown-lite (**bold**, *italic*,
@@ -119,12 +128,7 @@ function TextBlock({ props, edit }) {
   const body = edit
     ? <Editable as="div" className="sp-text sp-text-raw" value={props.text} placeholder="טקסט" onCommit={(v) => edit('text', v)} />
     : <div className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.text) }} />
-  // Optional panel behind the text — its own opacity (0 = transparent, 100 = solid)
-  // so a coach can sit text on a readable card over a busy photo background.
-  if (props.card) {
-    return <div className="sp-card sp-text-card" style={{ '--sp-card-opacity': `${props.cardOpacity ?? 100}%` }}>{body}</div>
-  }
-  return body
+  return withCard(props, body)
 }
 
 function ImageBlock({ props }) {
@@ -141,7 +145,7 @@ function ImageBlock({ props }) {
 function IconTextBlock({ props, edit }) {
   const items = Array.isArray(props.items) ? props.items : []
   const setItem = (i, patch) => edit('items', items.map((it, j) => (j === i ? { ...it, ...patch } : it)))
-  return (
+  return withCard(props,
     <div className="sp-icontext">
       {items.map((it, i) => {
         const Icon = iconByName(it.icon)

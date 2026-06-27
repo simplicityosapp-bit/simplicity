@@ -104,6 +104,7 @@
     "monthYear": "{{month}} {{year}}"
   },
   "scheduleAt": "קבע פגישה ב-{{time}}",
+  "bookingPageFallback": "דף קביעת פגישות",
   "loading": "טוען…",
   "toast": {
     "meetingConfirmed": "הפגישה סומנה כהתקיימה",

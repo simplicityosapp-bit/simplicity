@@ -104,6 +104,7 @@
     "monthYear": "{{month}} {{year}}"
   },
   "scheduleAt": "Planifier un rendez-vous à {{time}}",
+  "bookingPageFallback": "Page de réservation",
   "loading": "Chargement…",
   "toast": {
     "meetingConfirmed": "Rendez-vous marqué comme effectué",

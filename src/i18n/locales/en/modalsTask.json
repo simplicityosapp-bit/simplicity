@@ -178,6 +178,8 @@
     "bookingPhone": "Phone",
     "bookingEmail": "Email",
     "bookingNote": "Note: {{note}}",
+    "cancelBooking": "Cancel booking",
+    "cancelBookingConfirm": "Cancel the booking?",
     "edit": "Edit",
     "delete": "Delete",
     "deleteConfirm": "Sure? Delete",

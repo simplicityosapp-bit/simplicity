@@ -104,6 +104,7 @@
     "monthYear": "{{month}} {{year}}"
   },
   "scheduleAt": "Programar una reunión a las {{time}}",
+  "bookingPageFallback": "Página de reservas",
   "loading": "Cargando…",
   "toast": {
     "meetingConfirmed": "Reunión marcada como realizada",

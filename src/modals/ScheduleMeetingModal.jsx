@@ -3,7 +3,12 @@ import DateField from '../components/DateField'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
 
-const todayStr = () => new Date().toISOString().slice(0, 10)
+/* Local YYYY-MM-DD — UTC toISOString would roll over to "tomorrow" on an
+   Israeli evening, defaulting the date field to the wrong day. */
+const todayStr = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 const blank = (clientId = '', date, time) => ({ client_id: clientId, date: date || todayStr(), time: time || '09:00' })
 const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 

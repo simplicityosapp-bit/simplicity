@@ -104,6 +104,7 @@
     "monthYear": "{{month}} {{year}}"
   },
   "scheduleAt": "Schedule a meeting at {{time}}",
+  "bookingPageFallback": "Booking page",
   "loading": "Loading…",
   "toast": {
     "meetingConfirmed": "Meeting marked as held",

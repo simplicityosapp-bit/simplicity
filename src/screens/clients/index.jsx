@@ -267,18 +267,21 @@ export default function ClientsScreen() {
 
   const bulkChangeMeta = async (newMeta) => {
     setBulkMetaOpen(false)
-    /* Snapshot each client's prior status so one Undo reverts them all. */
-    const snapshots = selectedClients.map((c) => ({ id: c.id, status_meta: c.status_meta ?? null, status: c.status ?? null }))
+    /* Snapshot each client's prior status so one Undo reverts them all. Capture
+       status_overridden too: a bulk status is a manual choice that must win over
+       a group-derived status (migration 0062) — otherwise it's silently ignored
+       for group members, exactly the gap the single-client path avoids. */
+    const snapshots = selectedClients.map((c) => ({ id: c.id, status_meta: c.status_meta ?? null, status: c.status ?? null, status_overridden: !!c.status_overridden }))
     for (const c of selectedClients) {
-      await updateClient(c.id, { status_meta: newMeta, status: newMeta }).catch(() => {})
+      await updateClient(c.id, { status_meta: newMeta, status: newMeta, status_overridden: true }).catch(() => {})
     }
     setSelectedIds(new Set())
     setSelectMode(false)
     if (snapshots.length) {
       pushUndo({
         label: snapshots.length === 1 ? t('bulk.statusChanged') : t('bulk.statusChangedMany', { count: snapshots.length }),
-        undo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: s.status_meta, status: s.status }).catch(() => {}) },
-        redo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: newMeta, status: newMeta }).catch(() => {}) },
+        undo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: s.status_meta, status: s.status, status_overridden: s.status_overridden }).catch(() => {}) },
+        redo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: newMeta, status: newMeta, status_overridden: true }).catch(() => {}) },
       })
     }
   }

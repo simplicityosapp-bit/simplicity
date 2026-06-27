@@ -195,7 +195,7 @@ export default function CalendarScreen() {
           phone: bk.phone || null,
           email: bk.email || null,
           note: bk.note || null,
-          pageName: (bookingPages || []).find((p) => p.id === bk.page_id)?.title?.trim() || 'דף קביעת פגישות',
+          pageName: (bookingPages || []).find((p) => p.id === bk.page_id)?.title?.trim() || t('bookingPageFallback'),
           meetingTypeName: bk.meeting_type_id ? ((meetingTypes || []).find((mt) => mt.id === bk.meeting_type_id)?.name || null) : null,
         } : null
         return {

@@ -83,7 +83,13 @@ function HeroBlock({ props, interactive }) {
    so there is no raw-HTML / script surface — safe to inject. Plain text (no
    markdown) still renders fine as paragraphs. */
 function TextBlock({ props }) {
-  return <div className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.text) }} />
+  const body = <div className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.text) }} />
+  // Optional panel behind the text — its own opacity (0 = transparent, 100 = solid)
+  // so a coach can sit text on a readable card over a busy photo background.
+  if (props.card) {
+    return <div className="sp-card sp-text-card" style={{ '--sp-card-opacity': `${props.cardOpacity ?? 100}%` }}>{body}</div>
+  }
+  return body
 }
 
 function ImageBlock({ props }) {

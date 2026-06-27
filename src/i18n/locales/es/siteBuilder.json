@@ -216,7 +216,9 @@
     "q": "Pregunta",
     "a": "Respuesta",
     "align": "Alineación",
-    "link": "Enlace"
+    "link": "Enlace",
+    "card": "Panel detrás del texto",
+    "cardOpacity": "Opacidad del panel"
   },
   "fieldTypes": {
     "text": "Texto",

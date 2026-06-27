@@ -179,8 +179,12 @@ export const BLOCK_TYPES = {
   },
   text: {
     label: 'טקסט', icon: 'Type',
-    defaultProps: { text: 'טקסט חופשי. ספרו על עצמכם, על השירות, ועל מה שחשוב לכם.' },
-    editable: [{ key: 'text', label: 'תוכן', type: 'richtext' }],
+    defaultProps: { text: 'טקסט חופשי. ספרו על עצמכם, על השירות, ועל מה שחשוב לכם.', card: false, cardOpacity: 100 },
+    editable: [
+      { key: 'text', label: 'תוכן', type: 'richtext' },
+      { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
+    ],
   },
   image: {
     label: 'תמונה', icon: 'Image',

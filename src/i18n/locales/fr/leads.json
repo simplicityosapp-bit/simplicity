@@ -9,6 +9,17 @@
   "viewToggleAria": "Affichage",
   "sourcesLink": "Sources de prospects",
   "leadPagesLink": "Pages de prospects",
+  "pending": {
+    "aria": "Prospects en attente d'approbation",
+    "title": "En attente d'approbation",
+    "from": "De : {{page}}",
+    "approve": "Approuver",
+    "reject": "Refuser",
+    "fName": "Nom",
+    "fPhone": "Téléphone",
+    "fEmail": "E-mail",
+    "fNotes": "Note"
+  },
   "stats": {
     "newThisMonth": "Demandes ce mois-ci",
     "converted": "Convertis en clients",

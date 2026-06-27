@@ -9,6 +9,17 @@
   "viewToggleAria": "View",
   "sourcesLink": "Lead sources",
   "leadPagesLink": "Lead pages",
+  "pending": {
+    "aria": "Leads awaiting approval",
+    "title": "Awaiting approval",
+    "from": "From: {{page}}",
+    "approve": "Approve",
+    "reject": "Reject",
+    "fName": "Name",
+    "fPhone": "Phone",
+    "fEmail": "Email",
+    "fNotes": "Note"
+  },
   "stats": {
     "newThisMonth": "Inquiries this month",
     "converted": "Converted to clients",

@@ -86,8 +86,8 @@ export default function OnboardingShell({ ob, cta, children }) {
               type="button"
               className="ob-help-btn"
               onClick={() => setHelpOpen(true)}
-              aria-label="הסבר על המסך הזה"
-              title="הסבר על המסך הזה"
+              aria-label={t('shell.helpAria')}
+              title={t('shell.helpAria')}
             >
               <HelpCircle size={16} strokeWidth={1.5} aria-hidden="true" />
             </button>
@@ -106,7 +106,7 @@ export default function OnboardingShell({ ob, cta, children }) {
             onClick={ob.back}
             disabled={isFirst}
           >
-            <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" /> חזרה
+            <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" /> {t('shell.back')}
           </button>
         </div>
 
@@ -120,7 +120,7 @@ export default function OnboardingShell({ ob, cta, children }) {
             onClick={cta?.onNext}
             disabled={!cta?.canAdvance || cta?.busy || !cta?.onNext}
           >
-            {cta?.busy ? 'שומר…' : (cta?.nextLabel || 'הלאה')}
+            {cta?.busy ? t('shell.saving') : (cta?.nextLabel || t('shell.next'))}
           </button>
           {!isLast && (
             <button
@@ -129,7 +129,7 @@ export default function OnboardingShell({ ob, cta, children }) {
               onClick={onSkip}
               disabled={skipping}
             >
-              {skipping ? 'מסיים…' : 'דלג'} <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
+              {skipping ? t('shell.finishing') : t('shell.skip')} <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
             </button>
           )}
         </div>

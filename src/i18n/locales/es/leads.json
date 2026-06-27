@@ -9,6 +9,17 @@
   "viewToggleAria": "Vista",
   "sourcesLink": "Fuentes de prospectos",
   "leadPagesLink": "Páginas de prospectos",
+  "pending": {
+    "aria": "Leads en espera de aprobación",
+    "title": "En espera de aprobación",
+    "from": "De: {{page}}",
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "fName": "Nombre",
+    "fPhone": "Teléfono",
+    "fEmail": "Correo",
+    "fNotes": "Nota"
+  },
   "stats": {
     "newThisMonth": "Consultas este mes",
     "converted": "Convertidos en clientes",

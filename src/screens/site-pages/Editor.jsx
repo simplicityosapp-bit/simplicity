@@ -336,7 +336,8 @@ export default function Editor({ page, onSave, onBack }) {
         {/* ── Canvas ────────────────────────────────────────────── */}
         <div className="spe-canvas-wrap">
           <div className={`spe-frame spe-frame-${device}`} onClick={onCanvasClick}>
-            <SiteRenderer theme={draft.theme} sections={draft.sections} interactive={false} selectedId={selectedId} />
+            <SiteRenderer theme={draft.theme} sections={draft.sections} interactive={false} selectedId={selectedId}
+              onEdit={(id, key, value) => updateProps(id, { [key]: value })} />
           </div>
         </div>
 

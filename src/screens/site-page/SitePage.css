@@ -270,6 +270,14 @@
 /* Honeypot — off-screen, focusable by bots only. */
 .sp-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
+/* Inline editing (editor canvas only — .sp-editable is never rendered publicly).
+   A hover/focus ring signals "click to edit"; empty fields show a placeholder. */
+.sp-editable { cursor: text; outline: none; border-radius: 7px; transition: box-shadow 0.12s ease; }
+.sp-editable:hover { box-shadow: 0 0 0 2px color-mix(in srgb, var(--sp-brand) 24%, transparent); }
+.sp-editable:focus { box-shadow: 0 0 0 2px var(--sp-brand); }
+.sp-editable:empty::before { content: attr(data-ph); opacity: 0.45; }
+.sp-text-raw { white-space: pre-wrap; }
+
 /* ── Surface modifiers (from sitePageSurface classes) ────────────────────── */
 .sp-surface.is-bold .sp-h1 { font-weight: 800; }
 .sp-surface.is-bold :is(.sp-sub, .sp-text, .sp-label, .sp-feature-title, .sp-quote) { font-weight: 600; }

@@ -1,4 +1,4 @@
-import { useState, useRef, Component } from 'react'
+import { useState, useRef, useEffect, Component } from 'react'
 import { sitePageSurface, safeRedirectUrl, safeImageUrl, safeVideoEmbed } from '../../lib/sitePageSchema'
 import { renderRichText } from '../../lib/richText'
 import { useBookingFlow } from './useBookingFlow'
@@ -65,8 +65,39 @@ function ActionButton({ label, action, style = 'primary', interactive }) {
   )
 }
 
+/* ── Inline editing ──────────────────────────────────────────────────────────
+   In the editor canvas (when an `edit` callback is threaded in) plain-text fields
+   become click-to-edit in place. Uncontrolled contentEditable: the value is set
+   into the DOM only while NOT focused, so React re-renders never reset the caret
+   mid-typing; it commits to the draft on blur. Empty fields show a placeholder so
+   they stay clickable. Never rendered on the public page (edit is null there). */
+function Editable({ as: Tag = 'div', className, value, placeholder, onCommit }) {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current
+    if (el && document.activeElement !== el && el.textContent !== (value || '')) el.textContent = value || ''
+  }, [value])
+  return (
+    <Tag ref={ref} className={`${className || ''} sp-editable`} data-ph={placeholder || ''}
+      contentEditable suppressContentEditableWarning spellCheck={false}
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => { if (e.key === 'Escape') e.currentTarget.blur() }}
+      onBlur={(e) => onCommit(e.currentTarget.textContent)} />
+  )
+}
+
 /* ── Visual blocks ───────────────────────────────────────────────────────── */
-function HeroBlock({ props, interactive }) {
+function HeroBlock({ props, interactive, edit }) {
+  if (edit) {
+    return (
+      <div className="sp-hero">
+        <Editable as="div" className="sp-eyebrow" value={props.eyebrow} placeholder="טקסט עליון" onCommit={(v) => edit('eyebrow', v)} />
+        <Editable as="h1" className="sp-h1" value={props.heading} placeholder="כותרת" onCommit={(v) => edit('heading', v)} />
+        <Editable as="p" className="sp-sub" value={props.subheading} placeholder="תת-כותרת" onCommit={(v) => edit('subheading', v)} />
+        <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={false} />
+      </div>
+    )
+  }
   return (
     <div className="sp-hero">
       {str(props.eyebrow) ? <div className="sp-eyebrow">{props.eyebrow}</div> : null}
@@ -82,8 +113,12 @@ function HeroBlock({ props, interactive }) {
    input FIRST and only ever emits a fixed tag set with allow-listed link hrefs,
    so there is no raw-HTML / script surface — safe to inject. Plain text (no
    markdown) still renders fine as paragraphs. */
-function TextBlock({ props }) {
-  const body = <div className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.text) }} />
+function TextBlock({ props, edit }) {
+  // In the editor, click-to-edit the raw text in place (markdown shows as typed);
+  // on the public page it's rendered. Formatting help stays in the inspector.
+  const body = edit
+    ? <Editable as="div" className="sp-text sp-text-raw" value={props.text} placeholder="טקסט" onCommit={(v) => edit('text', v)} />
+    : <div className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.text) }} />
   // Optional panel behind the text — its own opacity (0 = transparent, 100 = solid)
   // so a coach can sit text on a readable card over a busy photo background.
   if (props.card) {
@@ -103,8 +138,9 @@ function ImageBlock({ props }) {
   )
 }
 
-function IconTextBlock({ props }) {
+function IconTextBlock({ props, edit }) {
   const items = Array.isArray(props.items) ? props.items : []
+  const setItem = (i, patch) => edit('items', items.map((it, j) => (j === i ? { ...it, ...patch } : it)))
   return (
     <div className="sp-icontext">
       {items.map((it, i) => {
@@ -113,8 +149,17 @@ function IconTextBlock({ props }) {
           <div className="sp-feature" key={i}>
             <div className="sp-feature-icon"><Icon size={22} strokeWidth={2} /></div>
             <div className="sp-feature-body">
-              {str(it.title) ? <div className="sp-feature-title">{it.title}</div> : null}
-              {str(it.body) ? <p className="sp-feature-text">{it.body}</p> : null}
+              {edit ? (
+                <>
+                  <Editable as="div" className="sp-feature-title" value={it.title} placeholder="כותרת" onCommit={(v) => setItem(i, { title: v })} />
+                  <Editable as="p" className="sp-feature-text" value={it.body} placeholder="תיאור" onCommit={(v) => setItem(i, { body: v })} />
+                </>
+              ) : (
+                <>
+                  {str(it.title) ? <div className="sp-feature-title">{it.title}</div> : null}
+                  {str(it.body) ? <p className="sp-feature-text">{it.body}</p> : null}
+                </>
+              )}
             </div>
           </div>
         )
@@ -123,22 +168,38 @@ function IconTextBlock({ props }) {
   )
 }
 
-function TestimonialBlock({ props }) {
+function TestimonialBlock({ props, edit }) {
   return (
     <figure className="sp-testimonial">
-      {str(props.quote) ? <blockquote className="sp-quote">{props.quote}</blockquote> : null}
+      {edit
+        ? <Editable as="blockquote" className="sp-quote" value={props.quote} placeholder="ציטוט" onCommit={(v) => edit('quote', v)} />
+        : (str(props.quote) ? <blockquote className="sp-quote">{props.quote}</blockquote> : null)}
       <figcaption className="sp-cite">
         {safeImageUrl(props.avatar) ? <img className="sp-avatar" src={safeImageUrl(props.avatar)} alt="" loading="lazy" /> : null}
         <span>
-          {str(props.author) ? <strong>{props.author}</strong> : null}
-          {str(props.role) ? <em> · {props.role}</em> : null}
+          {edit ? (
+            <>
+              <Editable as="strong" value={props.author} placeholder="שם" onCommit={(v) => edit('author', v)} />
+              {' · '}
+              <Editable as="em" value={props.role} placeholder="תפקיד" onCommit={(v) => edit('role', v)} />
+            </>
+          ) : (
+            <>
+              {str(props.author) ? <strong>{props.author}</strong> : null}
+              {str(props.role) ? <em> · {props.role}</em> : null}
+            </>
+          )}
         </span>
       </figcaption>
     </figure>
   )
 }
 
-function CtaBlock({ props, interactive }) {
+function CtaBlock({ props, interactive, edit }) {
+  if (edit) {
+    const cls = `sp-btn sp-btn-${props.style === 'secondary' ? 'secondary' : 'primary'}`
+    return <div className="sp-cta"><Editable as="span" className={cls} value={props.label} placeholder="כפתור" onCommit={(v) => edit('label', v)} /></div>
+  }
   return (
     <div className="sp-cta">
       <ActionButton label={props.label} action={props.action} style={props.style} interactive={interactive} />
@@ -480,10 +541,13 @@ const BLOCK_COMPONENT = {
 
 /* One section → its block, wrapped so the canvas can target it (id, type).
    `sel` marks the editor-selected section so the canvas can draw a ring. */
-function Section({ section, interactive, runtime, selectedId }) {
+function Section({ section, interactive, runtime, selectedId, onEdit }) {
   const type = section.type
   const wrapCls = `sp-block sp-block-${type}`
   const sel = section.id === selectedId ? '' : undefined
+  // In the editor, `onEdit` enables click-to-edit text in place (form/booking are
+  // edited via the inspector only). `edit(key, value)` patches this section's prop.
+  const edit = onEdit ? (key, value) => onEdit(section.id, key, value) : null
   if (type === 'form') {
     return <section className={wrapCls} data-sid={section.id} data-selected={sel}><FormBlock section={section} interactive={interactive} runtime={runtime} /></section>
   }
@@ -494,12 +558,12 @@ function Section({ section, interactive, runtime, selectedId }) {
   if (!Comp) return null
   return (
     <section className={wrapCls} data-sid={section.id} data-selected={sel}>
-      <Comp props={section.props || {}} interactive={interactive} />
+      <Comp props={section.props || {}} interactive={interactive} edit={edit} />
     </section>
   )
 }
 
-export default function SiteRenderer({ theme, sections, interactive = false, runtime, className = '', selectedId }) {
+export default function SiteRenderer({ theme, sections, interactive = false, runtime, className = '', selectedId, onEdit }) {
   const { t } = useT('siteBuilder')
   const { style, cls } = sitePageSurface(theme)
   const list = Array.isArray(sections) ? sections : []
@@ -508,7 +572,7 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
       <div className="sp-page">
         {list.map((s) => (
           <SectionErrorBoundary key={s.id}>
-            <Section section={s} interactive={interactive} runtime={runtime} selectedId={selectedId} />
+            <Section section={s} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} />
           </SectionErrorBoundary>
         ))}
         {list.length === 0 ? <div className="sp-empty">{t('renderer.empty')}</div> : null}

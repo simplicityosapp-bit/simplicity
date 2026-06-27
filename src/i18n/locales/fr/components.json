@@ -27,7 +27,21 @@
   "undo": {
     "undo": "Annuler",
     "dismiss": "Ignorer",
-    "undone": "Annulé"
+    "undone": "Annulé",
+    "deleted": {
+      "lead": "Prospect supprimé",
+      "bookingPage": "Page supprimée",
+      "category": "Catégorie supprimée",
+      "goalCategory": "Catégorie supprimée",
+      "goal": "Objectif supprimé",
+      "group": "Groupe supprimé",
+      "leadPage": "Page supprimée",
+      "project": "Projet supprimé",
+      "session": "Séance supprimée",
+      "sitePage": "Page supprimée",
+      "task": "Tâche supprimée",
+      "transaction": "Transaction supprimée"
+    }
   },
   "feedback": {
     "title": "Un retour à partager ?",

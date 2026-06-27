@@ -5,6 +5,7 @@ import {
   removeBookingPage as apiRemove, restoreBookingPage,
 } from '../lib/api/bookingPages'
 import { registerDeleteUndo } from '../lib/undoActions'
+import i18n from '../i18n'
 
 /* React-Query-backed: shared cache across the builder + booking screens.
    Mirrors useLeadPages. */
@@ -32,7 +33,7 @@ export function useBookingPages() {
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((p) => p.id !== id))
     try {
       await apiRemove(id)
-      registerDeleteUndo({ qc, key: KEY, row, label: 'הדף נמחק', restoreFn: restoreBookingPage, deleteFn: apiRemove })
+      registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.bookingPage'), restoreFn: restoreBookingPage, deleteFn: apiRemove })
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 

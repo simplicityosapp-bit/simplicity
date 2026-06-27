@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listTasks, insertTask, updateTask, removeTask as apiRemoveTask, restoreTask } from '../lib/api/tasks'
 import { registerDeleteUndo } from '../lib/undoActions'
+import i18n from '../i18n'
 import { pushUndo } from '../lib/undo'
 
 /* React-Query-backed: home widgets (attention, chips, next-tasks) shared
@@ -75,7 +76,7 @@ export function useTasks() {
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => t.id !== id))
     try {
       await apiRemoveTask(id)
-      registerDeleteUndo({ qc, key: KEY, row, label: 'המשימה נמחקה', restoreFn: restoreTask, deleteFn: apiRemoveTask })
+      registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.task'), restoreFn: restoreTask, deleteFn: apiRemoveTask })
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 

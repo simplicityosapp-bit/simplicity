@@ -54,13 +54,17 @@ export default function ReportsScreen() {
   const { config, setView, setRange, toggleMetric, reorderMetric, resetConfig } = useReportsConfig()
   const [customizeOpen, setCustomizeOpen] = useState(false)
   const [drill, setDrill] = useState(null)  /* { metricId, period } | null */
-  const { leads } = useLeads()
-  const { clients } = useClients()
-  const { sessions } = useSessions()
-  const { transactions } = useTransactions()
-  const { tasks } = useTasks()
-  const { members: groupMembers } = useGroupMembers()
-  const { groups } = useGroups()
+  const { leads, loading: leadsLoading } = useLeads()
+  const { clients, loading: clientsLoading } = useClients()
+  const { sessions, loading: sessionsLoading } = useSessions()
+  const { transactions, loading: txLoading } = useTransactions()
+  const { tasks, loading: tasksLoading } = useTasks()
+  const { members: groupMembers, loading: gmLoading } = useGroupMembers()
+  const { groups, loading: groupsLoading } = useGroups()
+  /* First-load gate: until the core data arrives every metric computes as 0, so
+     the screen would flash the "no activity" empty state + a misleading
+     "go to month X" suggestion. Hold a loading placeholder instead. */
+  const loading = leadsLoading || clientsLoading || sessionsLoading || txLoading || tasksLoading || gmLoading || groupsLoading
 
   const data = useMemo(
     () => ({ leads, clients, sessions, transactions, tasks, groupMembers, groups }),
@@ -123,7 +127,12 @@ export default function ReportsScreen() {
         />
       )}
 
-      {config.view === 'list' ? (
+      {loading ? (
+        <div className="rep-empty">
+          <span className="rep-empty-icon"><BarChart3 size={28} strokeWidth={1.3} aria-hidden="true" /></span>
+          <p className="rep-empty-text">{t('loading')}</p>
+        </div>
+      ) : config.view === 'list' ? (
         <ListView config={config} data={data} onDrill={openDrill} />
       ) : (
         <TableView config={config} data={data} onSetRange={setRange} onDrill={openDrill} />

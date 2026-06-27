@@ -91,6 +91,7 @@
     "textLight": "Texto claro (para fondos oscuros)",
     "bold": "Negrita",
     "center": "Centrar",
+    "colorAuto": "Auto",
     "grpAddress": "Dirección",
     "grpTypography": "Tipografía y color",
     "grpBackground": "Fondo",
@@ -218,7 +219,8 @@
     "align": "Alineación",
     "link": "Enlace",
     "card": "Panel detrás del texto",
-    "cardOpacity": "Opacidad del panel"
+    "cardOpacity": "Opacidad del panel",
+    "color": "Color del texto"
   },
   "fieldTypes": {
     "text": "Texto",

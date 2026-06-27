@@ -187,6 +187,12 @@
 .spe-rich-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
 .spe-rich-hint { margin: 6px 0 0; color: var(--mist); font-size: var(--mg-caption); line-height: 1.5; }
 
+/* Per-section text-color control (auto chip + colour swatch) */
+.spe-textcolor { display: inline-flex; align-items: center; gap: 8px; }
+.spe-tc-auto { font: inherit; font-size: var(--mg-caption); color: var(--stone); background: var(--pure-white); border: 1px solid var(--divider); border-radius: var(--mg-chip-radius); padding: 5px 12px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+.spe-tc-auto.is-on { border-color: var(--terracotta); color: var(--terracotta); }
+.spe-textcolor input[type="color"] { width: 38px; height: 28px; padding: 0; border: 1px solid var(--divider); border-radius: 8px; background: none; cursor: pointer; }
+
 /* Undo toast (section delete) */
 .spe-toast {
   position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);

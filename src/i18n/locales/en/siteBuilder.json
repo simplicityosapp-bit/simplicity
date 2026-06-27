@@ -91,6 +91,7 @@
     "textLight": "Light text (for dark backgrounds)",
     "bold": "Bold",
     "center": "Center",
+    "colorAuto": "Auto",
     "grpAddress": "Address",
     "grpTypography": "Type & color",
     "grpBackground": "Background",
@@ -218,7 +219,8 @@
     "align": "Alignment",
     "link": "Link",
     "card": "Panel behind the text",
-    "cardOpacity": "Panel opacity"
+    "cardOpacity": "Panel opacity",
+    "color": "Text color"
   },
   "fieldTypes": {
     "text": "Text",

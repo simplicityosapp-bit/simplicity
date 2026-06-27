@@ -543,11 +543,16 @@ const BLOCK_COMPONENT = {
    `sel` marks the editor-selected section so the canvas can draw a ring. */
 function Section({ section, interactive, runtime, selectedId, onEdit }) {
   const type = section.type
-  const wrapCls = `sp-block sp-block-${type}`
   const sel = section.id === selectedId ? '' : undefined
   // In the editor, `onEdit` enables click-to-edit text in place (form/booking are
   // edited via the inspector only). `edit(key, value)` patches this section's prop.
   const edit = onEdit ? (key, value) => onEdit(section.id, key, value) : null
+  // Per-section text color (replaces the old global light/dark toggle). 'auto' (or
+  // unset) keeps the readable default; a hex paints this section's text via a var.
+  const color = section.props?.color
+  const colored = typeof color === 'string' && color !== 'auto' && color.trim() !== ''
+  const wrapCls = `sp-block sp-block-${type}${colored ? ' sp-colored' : ''}`
+  const wrapStyle = colored ? { '--sp-text-color': color } : undefined
   if (type === 'form') {
     return <section className={wrapCls} data-sid={section.id} data-selected={sel}><FormBlock section={section} interactive={interactive} runtime={runtime} /></section>
   }
@@ -557,7 +562,7 @@ function Section({ section, interactive, runtime, selectedId, onEdit }) {
   const Comp = BLOCK_COMPONENT[type]
   if (!Comp) return null
   return (
-    <section className={wrapCls} data-sid={section.id} data-selected={sel}>
+    <section className={wrapCls} style={wrapStyle} data-sid={section.id} data-selected={sel}>
       <Comp props={section.props || {}} interactive={interactive} edit={edit} />
     </section>
   )

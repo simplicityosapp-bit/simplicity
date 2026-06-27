@@ -167,7 +167,7 @@ export const BLOCK_TYPES = {
     label: 'כותרת ראשית', icon: 'LayoutTemplate',
     defaultProps: {
       eyebrow: '', heading: 'הכותרת שלך כאן', subheading: '',
-      ctaLabel: '', ctaAction: { type: 'scrollToForm', url: '' },
+      ctaLabel: '', ctaAction: { type: 'scrollToForm', url: '' }, color: 'auto',
     },
     editable: [
       { key: 'eyebrow', label: 'טקסט עליון', type: 'text' },
@@ -175,13 +175,15 @@ export const BLOCK_TYPES = {
       { key: 'subheading', label: 'תת-כותרת', type: 'textarea' },
       { key: 'ctaLabel', label: 'כפתור', type: 'text' },
       { key: 'ctaAction', label: 'פעולת הכפתור', type: 'action' },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
     ],
   },
   text: {
     label: 'טקסט', icon: 'Type',
-    defaultProps: { text: 'טקסט חופשי. ספרו על עצמכם, על השירות, ועל מה שחשוב לכם.', card: false, cardOpacity: 100 },
+    defaultProps: { text: 'טקסט חופשי. ספרו על עצמכם, על השירות, ועל מה שחשוב לכם.', card: false, cardOpacity: 100, color: 'auto' },
     editable: [
       { key: 'text', label: 'תוכן', type: 'richtext' },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
       { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },
       { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
     ],
@@ -203,24 +205,29 @@ export const BLOCK_TYPES = {
         { icon: 'Check', title: 'יתרון שני', body: '' },
         { icon: 'Check', title: 'יתרון שלישי', body: '' },
       ],
+      color: 'auto',
     },
-    editable: [{
-      key: 'items', label: 'פריטים', type: 'list',
-      item: [
-        { key: 'icon', label: 'אייקון', type: 'icon' },
-        { key: 'title', label: 'כותרת', type: 'text' },
-        { key: 'body', label: 'תיאור', type: 'textarea' },
-      ],
-    }],
+    editable: [
+      {
+        key: 'items', label: 'פריטים', type: 'list',
+        item: [
+          { key: 'icon', label: 'אייקון', type: 'icon' },
+          { key: 'title', label: 'כותרת', type: 'text' },
+          { key: 'body', label: 'תיאור', type: 'textarea' },
+        ],
+      },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+    ],
   },
   testimonial: {
     label: 'המלצה', icon: 'Quote',
-    defaultProps: { quote: 'מה שאמרו עליי…', author: '', role: '', avatar: '' },
+    defaultProps: { quote: 'מה שאמרו עליי…', author: '', role: '', avatar: '', color: 'auto' },
     editable: [
       { key: 'quote', label: 'ציטוט', type: 'textarea' },
       { key: 'author', label: 'שם', type: 'text' },
       { key: 'role', label: 'תפקיד', type: 'text' },
       { key: 'avatar', label: 'תמונה', type: 'image' },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
     ],
   },
   cta: {

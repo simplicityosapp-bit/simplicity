@@ -87,13 +87,19 @@ export default function Editor({ page, onSave, onBack }) {
   const draftRef = useRef(draft)                   // latest draft for deferred asset cleanup
   useEffect(() => { draftRef.current = draft }, [draft])
 
-  /* On mobile, scroll the section being edited into the canvas sliver that shows
-     above the bottom sheet, so its live changes are visible while you edit. */
+  /* Scroll the selected (or just-added) section into view — desktop: only if
+     off-screen; mobile: to the top of the canvas sliver above the sheet. ONE
+     instant scroll via rAF, cancelled on change. (Two competing *smooth*
+     scrollIntoView calls on add were leaving the canvas scroll stuck at the top
+     until a refresh.) */
   useEffect(() => {
-    if (!mobileSheet || !selectedId || !window.matchMedia('(max-width: 900px)').matches) return
-    const el = document.querySelector(`.spe-frame [data-sid="${selectedId}"]`)
-    if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
-  }, [selectedId, mobileSheet])
+    if (!selectedId) return undefined
+    const id = setTimeout(() => {            // wait for the add/reorder layout to settle
+      const el = document.querySelector(`.spe-frame [data-sid="${selectedId}"]`)
+      if (el) el.scrollIntoView({ block: window.matchMedia('(max-width: 767px)').matches ? 'start' : 'nearest' })
+    }, 60)
+    return () => clearTimeout(id)
+  }, [selectedId])
 
   const selected = useMemo(
     () => draft.sections.find((s) => s.id === selectedId) || null,
@@ -123,11 +129,9 @@ export default function Editor({ page, onSave, onBack }) {
     const sec = newSection(type, draft.sections)
     if (!sec) return
     mutate((d) => ({ ...d, sections: [...d.sections, sec] }))
-    setSelectedId(sec.id)               // auto-select the new section
+    setSelectedId(sec.id)               // auto-select → the scroll-into-view effect brings it into view
     setMobileSheet(true)                // …and open the editor sheet on mobile
     setPaletteOpen(false)
-    // bring it into view after the render commits
-    setTimeout(() => document.querySelector(`[data-sid="${sec.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60)
   }
 
   /* Remove only the asset paths that NO remaining section references — so a delete
@@ -461,11 +465,6 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
 
       <div className="spe-group">
         <p className="spe-group-lbl">{t('design.grpText')}</p>
-        <label className="spe-f spe-f-row"><span>{t('design.textLight')}</span>
-          <input type="checkbox"
-            checked={theme.textColor === 'light' || (theme.textColor !== 'dark' && (theme.background?.type === 'scene' || theme.background?.type === 'image'))}
-            onChange={(e) => setTheme({ textColor: e.target.checked ? 'light' : 'dark' })} />
-        </label>
         <label className="spe-f spe-f-row"><span>{t('design.bold')}</span>
           <input type="checkbox" checked={!!theme.bold} onChange={(e) => setTheme({ bold: e.target.checked })} />
         </label>
@@ -552,6 +551,8 @@ function Descriptor({ d, value, targets, onChange }) {
       return <label className="spe-f spe-f-row"><span>{label}</span><input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} /></label>
     case 'color':
       return <label className="spe-f spe-f-row"><span>{label}</span><input type="color" value={value || '#000000'} onChange={(e) => onChange(e.target.value)} /></label>
+    case 'textColor':
+      return <div className="spe-f spe-f-row"><span>{label}</span><TextColorField value={value} onChange={onChange} /></div>
     case 'select':
       return (
         <label className="spe-f"><span>{label}</span>
@@ -626,6 +627,19 @@ function RichTextField({ d, value, onChange }) {
       </div>
       <textarea ref={ref} rows={6} value={v} onChange={(e) => onChange(e.target.value)} />
       <p className="spe-rich-hint">{t('rich.hint')}</p>
+    </div>
+  )
+}
+
+/* Per-section text color — "auto" (readable per the page background) or a custom
+   colour. Replaces the old global light/dark toggle. */
+function TextColorField({ value, onChange }) {
+  const { t } = useT('siteBuilder')
+  const isAuto = !value || value === 'auto'
+  return (
+    <div className="spe-textcolor">
+      <button type="button" className={`spe-tc-auto${isAuto ? ' is-on' : ''}`} onClick={() => onChange('auto')}>{t('design.colorAuto')}</button>
+      <input type="color" value={isAuto ? '#2c2621' : value} onChange={(e) => onChange(e.target.value)} aria-label={t('labels.color')} />
     </div>
   )
 }

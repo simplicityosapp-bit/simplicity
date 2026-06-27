@@ -91,6 +91,7 @@
     "textLight": "טקסט בהיר (לרקע כהה)",
     "bold": "מודגש",
     "center": "מרכוז",
+    "colorAuto": "אוטומטי",
     "grpAddress": "כתובת",
     "grpTypography": "טיפוגרפיה וצבע",
     "grpBackground": "רקע",
@@ -218,7 +219,8 @@
     "align": "יישור",
     "link": "קישור",
     "card": "רקע חלונית מאחורי הטקסט",
-    "cardOpacity": "אטימות החלונית"
+    "cardOpacity": "אטימות החלונית",
+    "color": "צבע טקסט"
   },
   "fieldTypes": {
     "text": "טקסט",

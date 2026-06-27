@@ -291,6 +291,16 @@
     color: #2c2621; text-shadow: none;
   }
 }
+/* Per-section text color override (the section sets --sp-text-color). Wins over
+   the readable default / card-darkening / dark mode — it's an explicit choice.
+   Links are left out so they keep the brand colour. */
+.sp-colored :is(.sp-h1, .sp-h2, .sp-sub, .sp-eyebrow, .sp-feature-title, .sp-feature-text,
+  .sp-quote, .sp-cite, .sp-cite em, .sp-cite strong, .sp-text, .sp-text p, .sp-text li,
+  .sp-text h2, .sp-text h3, .sp-text strong) {
+  color: var(--sp-text-color) !important;
+  text-shadow: none !important;
+}
+
 .sp-surface.align-center :is(.sp-hero, .sp-cta, .sp-h2) { text-align: center; }
 .sp-surface.align-center .sp-icontext .sp-feature { justify-content: center; }
 

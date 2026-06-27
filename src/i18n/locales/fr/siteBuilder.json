@@ -91,6 +91,7 @@
     "textLight": "Texte clair (pour arrière-plans sombres)",
     "bold": "Gras",
     "center": "Centrer",
+    "colorAuto": "Auto",
     "grpAddress": "Adresse",
     "grpTypography": "Typographie et couleur",
     "grpBackground": "Arrière-plan",
@@ -218,7 +219,8 @@
     "align": "Alignement",
     "link": "Lien",
     "card": "Panneau derrière le texte",
-    "cardOpacity": "Opacité du panneau"
+    "cardOpacity": "Opacité du panneau",
+    "color": "Couleur du texte"
   },
   "fieldTypes": {
     "text": "Texte",

@@ -16,32 +16,32 @@
   box-sizing: border-box;
   font-family: var(--sp-font);
   color: #2c2621;
-  position: relative;   /* containing block for the bg layer */
-  isolation: isolate;   /* own stacking context, so the -1 bg layer stays inside */
+  position: relative;
   background:
     radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 12%, #faf7f2) 0%, #f4f1ec 60%, #efece6 100%);
 }
-/* The photo sits on its OWN layer behind the content (z-index 0), not as the
-   element's own background. Putting it on the element broke inside the editor's
-   overflow:hidden + border-radius canvas frame — Chrome composited the photo
-   ABOVE the section content, so the page looked empty (only the photo showed).
-   An explicit ::before layer + z-index on the content guarantees paint order. */
-.sp-surface.has-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-image: var(--sp-bg-day);
-  background-size: cover;
-  background-position: center;
-  pointer-events: none;
+/* The photo is the .sp-root element's OWN background, layered over the gradient
+   (which stays as a fallback until the image loads). An element background always
+   covers the element's full content box — however tall the page grows as sections
+   are added — and is anchored to that box, so it can't be left short of the
+   content the way an absolutely-positioned layer was: on iOS, inside the editor's
+   rounded + overflow:hidden, scrolling canvas frame, that absolute layer stopped
+   extending past the first screenful, so newly-added sections lost their photo
+   and the page looked broken mid-scroll. `cover` keeps the photo filling the
+   frame at any height. */
+.sp-surface.has-bg {
+  background-image:
+    var(--sp-bg-day),
+    radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 12%, #faf7f2) 0%, #f4f1ec 60%, #efece6 100%);
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
 }
 .sp-surface.bg-flat { background: var(--sp-bg-flat, #f7f3ee); }
 
 /* The content column + the responsive container. */
 .sp-page {
   position: relative;
-  z-index: 1;            /* always above the .has-bg photo layer */
   container-type: inline-size;
   width: 100%;
   max-width: 760px;
@@ -293,7 +293,12 @@
     background:
       radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 16%, #1a1f26) 0%, #161a20 60%, #12161b 100%);
   }
-  .sp-surface.has-bg::before { background-image: var(--sp-bg-night); }
+  /* Swap to the night photo; size/position/repeat carry over from the light rule. */
+  .sp-surface.has-bg {
+    background-image:
+      var(--sp-bg-night),
+      radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 16%, #1a1f26) 0%, #161a20 60%, #12161b 100%);
+  }
   .sp-card { --sp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
   .sp-cardbox, .sp-faq-item { --sp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
   .sp-sub, .sp-text, .sp-feature-text, .sp-cite, .sp-muted, .sp-cardbox-text, .sp-faq-a { color: #b8b0a4; }

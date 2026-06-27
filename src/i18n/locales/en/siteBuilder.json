@@ -94,6 +94,7 @@
     "colorAuto": "Auto",
     "width": "Width",
     "grpSize": "Size & position",
+    "freezeBg": "Freeze background (prevents re-crop)",
     "grpAddress": "Address",
     "grpTypography": "Type & color",
     "grpBackground": "Background",

@@ -94,6 +94,7 @@
     "colorAuto": "אוטומטי",
     "width": "רוחב",
     "grpSize": "גודל ומיקום",
+    "freezeBg": "הקפא רקע (מונע חיתוך בהארכת הדף)",
     "grpAddress": "כתובת",
     "grpTypography": "טיפוגרפיה וצבע",
     "grpBackground": "רקע",

@@ -454,6 +454,11 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
         {bg.type === 'image' ? (
           <ImageField value={bg.value} onChange={(url) => setTheme({ background: { type: 'image', value: url } })} />
         ) : null}
+        {bg.type === 'scene' || bg.type === 'image' ? (
+          <label className="spe-f spe-f-row"><span>{t('design.freezeBg')}</span>
+            <input type="checkbox" checked={!!theme.freezeBg} onChange={(e) => setTheme({ freezeBg: e.target.checked })} />
+          </label>
+        ) : null}
       </div>
 
       <div className="spe-group">

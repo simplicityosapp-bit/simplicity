@@ -68,6 +68,9 @@ export const DEFAULT_THEME = {
   cardOpacity: 100,    // 0–100 — how solid section cards sit over the bg
   cardBlur: 14,        // px — glass blur behind a transparent card
   cardRadius: 24,      // px — card corner roundness
+  freezeBg: false,     // photo bg pinned to the viewport (background-attachment:
+                       // fixed) so it doesn't re-scale/crop as the page grows;
+                       // opt-in (iOS Safari treats fixed as scroll → degrades).
 }
 
 /* Allowlist a coach-authored image/background URL before binding it to an
@@ -148,6 +151,9 @@ export function sitePageSurface(theme = {}) {
   const photoBg = bg.type === 'scene' || bg.type === 'image'
   if (t.textColor === 'light' || (t.textColor !== 'dark' && photoBg)) cls.push('text-light')
   if (t.textAlign === 'center') cls.push('align-center')
+  // Freeze the photo background to the viewport so it keeps a constant crop as
+  // the page grows (instead of `cover` re-scaling over a taller element).
+  if (t.freezeBg && photoBg) cls.push('bg-fixed')
   return { style, cls: cls.join(' ') }
 }
 

@@ -94,6 +94,7 @@
     "colorAuto": "Auto",
     "width": "Largeur",
     "grpSize": "Taille et position",
+    "freezeBg": "Figer l'arrière-plan (évite le recadrage)",
     "grpAddress": "Adresse",
     "grpTypography": "Typographie et couleur",
     "grpBackground": "Arrière-plan",

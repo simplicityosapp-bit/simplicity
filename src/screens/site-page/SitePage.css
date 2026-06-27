@@ -37,6 +37,10 @@
   background-position: center, center;
   background-repeat: no-repeat, no-repeat;
 }
+/* Freeze (opt-in): pin the photo to the viewport so a growing page keeps a
+   constant crop instead of `cover` re-scaling over a taller element. iOS Safari
+   ignores `fixed` (treats it as scroll) — graceful degradation, never breaks. */
+.sp-surface.has-bg.bg-fixed { background-attachment: fixed, fixed; }
 .sp-surface.bg-flat { background: var(--sp-bg-flat, #f7f3ee); }
 
 /* The content column + the responsive container. */

@@ -94,6 +94,7 @@
     "colorAuto": "Auto",
     "width": "Ancho",
     "grpSize": "Tamaño y posición",
+    "freezeBg": "Congelar fondo (evita el recorte)",
     "grpAddress": "Dirección",
     "grpTypography": "Tipografía y color",
     "grpBackground": "Fondo",

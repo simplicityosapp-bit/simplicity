@@ -16,6 +16,7 @@
     "connectFailed": "החיבור נכשל. נסו שוב.",
     "rowAria": "{{title}} — {{status}}",
     "notConnected": "לא מחובר",
+    "statusError": "שגיאה בטעינת הסטטוס",
     "connected": "מחובר",
     "needsReconnect": "דורש חיבור מחדש",
     "connectedTo": "מחובר · {{provider}}",

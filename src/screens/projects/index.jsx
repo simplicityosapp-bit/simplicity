@@ -37,11 +37,15 @@ export default function ProjectsScreen() {
     /* groups aren't migrated yet → 0 for now. */
     const cards = projects.map((p) => {
       const projClientIds = new Set(clients.filter((c) => c.project_id === p.id).map((c) => c.id))
+      // An explicit project_id wins (same precedence as IncomeByProject): only
+      // fall back to the client's project when the row has NO project_id of its
+      // own — otherwise a row tagged to project A but whose client sits in
+      // project B would be counted in BOTH cards.
       const income = allIncome
-        .filter((f) => f.project_id === p.id || (f.client_id && projClientIds.has(f.client_id)))
+        .filter((f) => f.project_id === p.id || (!f.project_id && f.client_id && projClientIds.has(f.client_id)))
         .reduce((s, f) => s + f.amount, 0)
       const openTasks = tasks.filter(
-        (t) => t.status !== 'done' && (t.project_id === p.id || (t.client_id && projClientIds.has(t.client_id))),
+        (t) => t.status !== 'done' && (t.project_id === p.id || (!t.project_id && t.client_id && projClientIds.has(t.client_id))),
       ).length
       return { project: p, clientsCount: projClientIds.size, income, openTasks, groupsCount: 0 }
     })

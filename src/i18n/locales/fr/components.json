@@ -28,6 +28,8 @@
     "undo": "Annuler",
     "dismiss": "Ignorer",
     "undone": "Annulé",
+    "taskCompleted": "Tâche terminée",
+    "taskReopened": "Tâche rouverte",
     "deleted": {
       "lead": "Prospect supprimé",
       "bookingPage": "Page supprimée",

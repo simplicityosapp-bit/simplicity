@@ -39,7 +39,7 @@ export function useTasks() {
     }
     await apply(patch)
     pushUndo({
-      label: done ? 'המשימה הוחזרה' : 'המשימה הושלמה',
+      label: done ? i18n.t('components:undo.taskReopened') : i18n.t('components:undo.taskCompleted'),
       undo: () => apply(prev),
       redo: () => apply(patch),
     })

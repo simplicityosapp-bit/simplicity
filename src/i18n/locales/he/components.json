@@ -30,6 +30,8 @@
     "undo": "בטל",
     "dismiss": "סגירה",
     "undone": "בוטל",
+    "taskCompleted": "המשימה הושלמה",
+    "taskReopened": "המשימה הוחזרה",
     "deleted": {
       "lead": "הליד נמחק",
       "bookingPage": "הדף נמחק",

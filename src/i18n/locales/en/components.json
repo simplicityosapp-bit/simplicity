@@ -28,6 +28,8 @@
     "undo": "Undo",
     "dismiss": "Dismiss",
     "undone": "Undone",
+    "taskCompleted": "Task completed",
+    "taskReopened": "Task reopened",
     "deleted": {
       "lead": "Lead deleted",
       "bookingPage": "Page deleted",

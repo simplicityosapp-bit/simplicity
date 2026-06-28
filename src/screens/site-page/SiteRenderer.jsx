@@ -972,7 +972,8 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
   // Reflows to full width on a narrow container (mobile) via CSS so it stays responsive.
   const width = Number(section.props?.boxWidth) || 100
   const align = section.props?.boxAlign || 'center'
-  const sized = width > 0 && width < 100
+  // The banner is an edge-to-edge strip — never cap it with a per-section box width.
+  const sized = type !== 'banner' && width > 0 && width < 100
 
   // FREE mode: absolute layout from props[layoutKey] (layout for desktop,
   // layoutMobile for mobile), merged OVER the default-stack so every key (x/y/w/h)

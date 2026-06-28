@@ -10,7 +10,7 @@ import {
   MoreHorizontal, CheckCircle2,
 } from 'lucide-react'
 import {
-  BLOCK_TYPES, BLOCK_PALETTE, BLOCK_CATEGORIES, newSection, newSectionId, sitePageSurface,
+  BLOCK_TYPES, BLOCK_PALETTE, BLOCK_CATEGORIES, newSection, newSectionId,
   SITE_FONTS, LEAD_PAGE_BACKGROUNDS, DEFAULT_THEME, slugifyInput, isValidSlug,
   FIELD_TYPES, isChoiceType, defaultChoiceOptions, freeFieldKey,
 } from '../../lib/sitePageSchema'
@@ -81,6 +81,9 @@ export default function Editor({ page, onSave, onBack }) {
   const [focusMode, setFocusMode] = useState(false) // hide rail+inspector → full-size page view
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [paletteQuery, setPaletteQuery] = useState('') // "add section" search filter
+  // Collapsible palette categories — the two most-used groups start open, the rest
+  // collapsed so the (now 26-block) palette stays compact; each header toggles.
+  const [openCats, setOpenCats] = useState(() => Object.fromEntries(BLOCK_CATEGORIES.slice(0, 2).map((c) => [c.key, true])))
   const [overflowOpen, setOverflowOpen] = useState(false) // top-bar "⋯" menu (unpublish…)
   const [publishOk, setPublishOk] = useState(false)       // brief "published!" confirmation toast
   const overflowRef = useRef(null)
@@ -223,7 +226,9 @@ export default function Editor({ page, onSave, onBack }) {
   /* Remove only the asset paths that NO remaining section references — so a delete
      never orphans an upload, and never breaks an image shared with a duplicate. */
   const cleanupAssets = (paths, sections) => {
-    const used = new Set(sections.flatMap((s) => collectAssetPaths(s.props)))
+    // Walk the WHOLE section (props AND style) — section.style.bgImage is a real
+    // upload too. id/type are non-URL strings that assetPathFromUrl safely ignores.
+    const used = new Set(sections.flatMap((s) => collectAssetPaths(s)))
     paths.forEach((p) => { if (!used.has(p)) removePageAsset(p) })
   }
   /* Settle a pending delete now: actually clean up its (still-unused) assets. */
@@ -240,7 +245,7 @@ export default function Editor({ page, onSave, onBack }) {
     const removed = draft.sections[index]
     mutate((d) => ({ ...d, sections: d.sections.filter((s) => s.id !== id) }), true)
     if (selectedId === id) setSelectedId(null)
-    const paths = collectAssetPaths(removed.props)
+    const paths = collectAssetPaths(removed)        // props + style (bg image)
     setPendingDel({ section: removed, index, paths })
     // Defer asset cleanup so an undo can restore the section with its images intact.
     delTimer.current = setTimeout(() => {
@@ -468,12 +473,20 @@ export default function Editor({ page, onSave, onBack }) {
                     ? <div className="spe-palette-grid">{hits.map(item)}</div>
                     : <p className="spe-palette-empty">{t('palette.noResults', { defaultValue: 'לא נמצאו סקשנים' })}</p>
                 }
-                return BLOCK_CATEGORIES.map((cat) => (
-                  <div className="spe-palette-cat" key={cat.key}>
-                    <p className="spe-palette-cat-lbl">{t('palette.cat.' + cat.key, { defaultValue: cat.key })}</p>
-                    <div className="spe-palette-grid">{cat.blocks.map(item)}</div>
-                  </div>
-                ))
+                return BLOCK_CATEGORIES.map((cat) => {
+                  const open = !!openCats[cat.key]
+                  return (
+                    <div className={`spe-palette-cat${open ? ' is-open' : ''}`} key={cat.key}>
+                      <button type="button" className="spe-palette-cat-toggle" aria-expanded={open}
+                        onClick={() => setOpenCats((s) => ({ ...s, [cat.key]: !open }))}>
+                        <ChevronDown size={14} className="spe-palette-cat-chev" />
+                        <span className="spe-palette-cat-name">{t('palette.cat.' + cat.key, { defaultValue: cat.key })}</span>
+                        <span className="spe-palette-cat-count">{cat.blocks.length}</span>
+                      </button>
+                      {open ? <div className="spe-palette-grid">{cat.blocks.map(item)}</div> : null}
+                    </div>
+                  )
+                })
               })()}
             </div>
           ) : null}

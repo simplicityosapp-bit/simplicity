@@ -237,6 +237,7 @@
     "link": "Link",
     "card": "Panel behind the text",
     "cardOpacity": "Panel opacity",
+    "cardBlur": "Panel blur",
     "color": "Text color"
   },
   "fieldTypes": {

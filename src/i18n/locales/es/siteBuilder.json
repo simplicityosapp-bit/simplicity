@@ -237,6 +237,7 @@
     "link": "Enlace",
     "card": "Panel detrás del texto",
     "cardOpacity": "Opacidad del panel",
+    "cardBlur": "Desenfoque del panel",
     "color": "Color del texto"
   },
   "fieldTypes": {

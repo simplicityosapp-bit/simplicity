@@ -628,8 +628,10 @@ function Descriptor({ d, value, targets, onChange }) {
       return <RichTextField d={d} value={value} onChange={onChange} />
     case 'number':
       return <label className="spe-f"><span>{label}</span><input type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} /></label>
-    case 'range':
-      return <label className="spe-f"><span>{label} — {value ?? d.max ?? 100}%</span><input type="range" min={d.min ?? 0} max={d.max ?? 100} value={value ?? d.max ?? 100} onChange={(e) => onChange(Number(e.target.value))} /></label>
+    case 'range': {
+      const rv = value ?? d.def ?? d.max ?? 100
+      return <label className="spe-f"><span>{label} — {rv}{d.unit ?? '%'}</span><input type="range" min={d.min ?? 0} max={d.max ?? 100} value={rv} onChange={(e) => onChange(Number(e.target.value))} /></label>
+    }
     case 'toggle':
       return <label className="spe-f spe-f-row"><span>{label}</span><input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} /></label>
     case 'color':

@@ -214,7 +214,11 @@
 .spe-canvas-wrap { flex: 1; overflow: auto; background: var(--bone); padding: 24px; display: flex; justify-content: center; }
 .spe-frame { background: var(--cream); box-shadow: var(--elev-3); border-radius: 14px; overflow: hidden; align-self: flex-start; width: 100%; transition: max-width 0.3s ease; }
 .spe-frame-desktop { max-width: 1000px; }
-.spe-frame-mobile { max-width: min(390px, 100%); box-sizing: border-box; border-radius: 28px; border: 8px solid var(--espresso); }
+/* Width chosen so the INNER content area equals the free mobile canvas
+   (FREE_CANVAS_MOBILE_W = 390): 390 + 2×8px bezel = 406. Otherwise the 390px
+   free canvas overflowed the 374px inner frame and the page + its background
+   were clipped 16px on the inline edge ("the mobile bg doesn't fill"). */
+.spe-frame-mobile { max-width: min(406px, 100%); box-sizing: border-box; border-radius: 28px; border: 8px solid var(--espresso); }
 /* Inside the editor the page must NOT force full-viewport height. */
 .spe-frame .sp-root { min-height: 480px; }
 /* Canvas selection + hover feedback (editor only). */

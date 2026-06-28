@@ -342,13 +342,24 @@ body.sp-resizing { cursor: ew-resize !important; user-select: none; }
    Thin/centered blocks (divider/spacer/icon) keep their natural height, centered —
    stretching them to full box height made a divider a tall bar / icon off-centre. */
 .sp-free-block > :first-child { width: 100%; box-sizing: border-box; }
-.sp-free-block:not(.sp-block-divider):not(.sp-block-spacer):not(.sp-block-icon) > :first-child { height: 100%; }
+.sp-free-block:not(.sp-block-divider):not(.sp-block-spacer):not(.sp-block-icon):not(.sp-block-faq) > :first-child { height: 100%; }
 .sp-free-block:is(.sp-block-divider, .sp-block-spacer, .sp-block-icon) { display: flex; flex-direction: column; justify-content: center; }
 .sp-free-block .sp-img { height: 100%; object-fit: cover; }
+/* FAQ (and other accordions) expand when an item opens. In free layout the box
+   is given a MIN-height (see Section freeStyle) and lets content grow instead of
+   clipping it — so the coach sizes the closed state and opened answers are never
+   cut off (previously overflow:hidden + a fixed height clipped them). */
+.sp-free-block.sp-block-faq { overflow: visible; }
 /* EDITOR ONLY (.sp-free-edit): the whole block body drags to move (cursor hint)
    and touch-action:none lets a finger drag the block instead of scrolling. On the
    PUBLIC page these are NOT applied, so touch-scroll over blocks works normally. */
-.sp-free-edit { cursor: move; touch-action: none; }
+/* Touch: a finger over a block must still SCROLL the canvas (pan-y) — otherwise
+   the editor felt "stuck" on mobile (you couldn't scroll past the blocks). The
+   block becomes finger-draggable only once SELECTED (tap-then-drag), so a single
+   touch scrolls and a deliberate drag-after-select moves it. Mouse drag (desktop)
+   is unaffected — touch-action only gates touch. */
+.sp-free-edit { cursor: move; touch-action: pan-y; }
+.sp-free-edit[data-selected=""] { touch-action: none; }
 .sp-free-edit :is(.sp-editable, input, textarea) { cursor: text; }
 .sp-free-edit :is(button, a) { cursor: pointer; }
 .sp-free-block[data-selected=""] { outline: 2px solid var(--sp-brand); outline-offset: 1px; }

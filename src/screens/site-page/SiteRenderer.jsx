@@ -90,7 +90,8 @@ function Editable({ as: Tag = 'div', className, value, placeholder, onCommit }) 
    over a busy photo. Per-block opacity (0 = transparent … 100 = solid). */
 function withCard(props, inner) {
   if (!props.card) return inner
-  return <div className="sp-card sp-block-card" style={{ '--sp-card-opacity': `${props.cardOpacity ?? 100}%` }}>{inner}</div>
+  // Opacity AND blur are per-section (each card overrides the page-global var).
+  return <div className="sp-card sp-block-card" style={{ '--sp-card-opacity': `${props.cardOpacity ?? 100}%`, '--sp-card-blur': `${props.cardBlur ?? 14}px` }}>{inner}</div>
 }
 
 /* ── Visual blocks ───────────────────────────────────────────────────────── */
@@ -687,9 +688,11 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
   // layoutMobile for mobile), merged OVER the default-stack so every key (x/y/w/h)
   // is always present — a partial/corrupt layout can't yield NaN downstream.
   const layout = free ? { ...freeDefaultLayout(index, canvasW), ...(section.props?.[layoutKey] || {}) } : (section.props?.[layoutKey] || null)
+  // FAQ (accordion) grows when an item opens, so reserve its box with min-height
+  // and let it expand instead of clipping; every other block keeps a fixed height.
   const freeStyle = free ? {
-    position: 'absolute', left: `${layout.x}px`, top: `${layout.y}px`,
-    width: `${layout.w}px`, height: `${layout.h}px`,
+    position: 'absolute', left: `${layout.x}px`, top: `${layout.y}px`, width: `${layout.w}px`,
+    ...(type === 'faq' ? { minHeight: `${layout.h}px` } : { height: `${layout.h}px` }),
   } : null
 
   // FREE drag: the whole block body MOVES (skipping text/buttons/the resize handle

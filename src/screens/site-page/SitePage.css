@@ -488,9 +488,11 @@ body.sp-moving { cursor: move !important; user-select: none; }
 /* ── Split (media + text) ────────────────────────────────────────────────── */
 .sp-split { display: grid; grid-template-columns: 1fr; gap: clamp(18px, 4cqi, 38px); align-items: center; }
 @container (min-width: 620px) {
-  .sp-split { grid-template-columns: 1fr 1fr; }
+  .sp-split:not(.sp-split-solo) { grid-template-columns: 1fr 1fr; }
   .sp-split-end .sp-split-media { order: 2; }
 }
+/* No image on a published split → text takes the full width (no empty cell). */
+.sp-split-solo { grid-template-columns: 1fr; }
 .sp-split-media { border-radius: var(--sp-radius, 24px); overflow: hidden; }
 .sp-split-img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .sp-split-media .sp-img-m { display: none; }

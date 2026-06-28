@@ -97,11 +97,16 @@ export default function Editor({ page, onSave, onBack }) {
   const [dragOver, setDragOver] = useState(null)   // index hovered as drop target
   const [pendingDel, setPendingDel] = useState(null) // { section, index, paths } awaiting undo
   const delTimer = useRef(null)
+  const okTimer = useRef(null)                     // "published ✓" toast auto-dismiss
   const draftRef = useRef(draft)                   // latest draft for deferred asset cleanup
   useEffect(() => { draftRef.current = draft }, [draft])
   // Cancel a pending delete's deferred asset-cleanup on unmount — otherwise leaving
   // the editor (Back) before saving could remove an asset the SAVED page still uses.
-  useEffect(() => () => { if (delTimer.current) clearTimeout(delTimer.current) }, [])
+  // Also clear the publish-toast timer so it can't setState on an unmounted editor.
+  useEffect(() => () => {
+    if (delTimer.current) clearTimeout(delTimer.current)
+    if (okTimer.current) clearTimeout(okTimer.current)
+  }, [])
 
   /* Close the top-bar "⋯" overflow menu on outside-click / Escape. */
   useEffect(() => {
@@ -250,7 +255,12 @@ export default function Editor({ page, onSave, onBack }) {
     if (selectedId === id) setSelectedId(null)
     const paths = collectAssetPaths(removed)        // props + style (bg image)
     setPendingDel({ section: removed, index, paths })
-    // Defer asset cleanup so an undo can restore the section with its images intact.
+    // Defer asset cleanup 7s so an undo (toast OR Ctrl+Z) can restore the section
+    // with its images intact — cleanupAssets re-checks the LIVE sections at fire
+    // time, so any restore within the window keeps the asset. Trade-off: an undo
+    // AFTER the window references a since-purged image (rare; the coach re-uploads).
+    // We purge here rather than holding assets in undo history indefinitely, which
+    // would leak every deleted-section image on the common "delete and move on" path.
     delTimer.current = setTimeout(() => {
       cleanupAssets(paths, draftRef.current.sections)
       delTimer.current = null; setPendingDel(null)
@@ -364,7 +374,9 @@ export default function Editor({ page, onSave, onBack }) {
       setDraft((d) => ({ ...d, published: true }))
       setPublishedSnapshot(snapshot)
       setDirty(false)
-      setPublishOk(true); setTimeout(() => setPublishOk(false), 2600)
+      setPublishOk(true)
+      if (okTimer.current) clearTimeout(okTimer.current)
+      okTimer.current = setTimeout(() => { setPublishOk(false); okTimer.current = null }, 2600)
     } catch { setSaveError(t('editor.saveError')) } finally { setSaving(false) }
   }
 
@@ -404,11 +416,12 @@ export default function Editor({ page, onSave, onBack }) {
             <button className="spe-icon-btn" onClick={redo} disabled={!canRedo} title={t('editor.redo')} aria-label={t('editor.redo')}><Redo2 size={16} /></button>
           </div>
           <div className="spe-device">
-            <button className={device === 'desktop' ? 'is-on' : ''} onClick={() => setDevice('desktop')} title={t('editor.desktop')} aria-label={t('editor.desktop')}><Monitor size={16} /></button>
-            <button className={device === 'mobile' ? 'is-on' : ''} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></button>
+            <button className={device === 'desktop' ? 'is-on' : ''} aria-pressed={device === 'desktop'} onClick={() => setDevice('desktop')} title={t('editor.desktop')} aria-label={t('editor.desktop')}><Monitor size={16} /></button>
+            <button className={device === 'mobile' ? 'is-on' : ''} aria-pressed={device === 'mobile'} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></button>
           </div>
           <button
             className={`spe-icon-btn spe-focus-btn${focusMode ? ' is-on' : ''}`}
+            aria-pressed={focusMode}
             onClick={() => setFocusMode((v) => !v)}
             title={focusMode ? t('editor.exitFocus') : t('editor.focusView')}
             aria-label={focusMode ? t('editor.exitFocus') : t('editor.focusView')}
@@ -640,7 +653,7 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
         <p className="spe-group-lbl">{t('design.grpBackground')}</p>
         <div className="spe-seg">
           {[['scene', t('design.bgScene')], ['flat', t('design.bgFlat')], ['image', t('design.bgImage')]].map(([k, lbl]) => (
-            <button key={k} className={bg.type === k ? 'is-on' : ''}
+            <button key={k} className={bg.type === k ? 'is-on' : ''} aria-pressed={bg.type === k}
               onClick={() => setTheme({ background: { type: k, value: k === 'flat' ? '#f7f3ee' : (k === 'scene' ? 'home' : '') } })}>
               {lbl}
             </button>
@@ -649,7 +662,7 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
         {bg.type === 'scene' ? (
           <div className="spe-scenes">
             {LEAD_PAGE_BACKGROUNDS.map((s) => (
-              <button key={s.key} className={`spe-scene${bg.value === s.key ? ' is-on' : ''}`}
+              <button key={s.key} className={`spe-scene${bg.value === s.key ? ' is-on' : ''}`} aria-pressed={bg.value === s.key}
                 onClick={() => setTheme({ background: { type: 'scene', value: s.key } })} title={s.label} aria-label={s.label}>
                 <img src={`/backgrounds/desktop/day/${s.key}.webp`} alt={s.label} loading="lazy" />
               </button>
@@ -762,7 +775,9 @@ function SectionInspector({ section, sections, free, onChange, onStyle }) {
         <Descriptor key={d.key} d={d} value={props[d.key]} targets={targets} onChange={(v) => onChange({ [d.key]: v })} />
       ))}
       <SizePosition props={props} onChange={onChange} free={free} section={section} sections={sections} />
-      {!free ? <SectionDesign style={section.style || {}} onStyle={onStyle} /> : null}
+      {/* Banner renders as its own sticky row and ignores section.style, so the
+          background/padding/full-bleed controls would be dead — hide them for it. */}
+      {!free && section.type !== 'banner' ? <SectionDesign style={section.style || {}} onStyle={onStyle} /> : null}
     </div>
   )
 }
@@ -852,7 +867,7 @@ function SizePosition({ props, onChange, free, section, sections }) {
         <div className="spe-f spe-f-row"><span>{t('labels.align')}</span>
           <div className="spe-align">
             {['start', 'center', 'end'].map((a) => (
-              <button key={a} type="button" className={`spe-align-btn${align === a ? ' is-on' : ''}`} onClick={() => onChange({ boxAlign: a })}>
+              <button key={a} type="button" className={`spe-align-btn${align === a ? ' is-on' : ''}`} aria-pressed={align === a} onClick={() => onChange({ boxAlign: a })}>
                 {t('options.' + a, { defaultValue: a })}
               </button>
             ))}
@@ -875,8 +890,20 @@ function Descriptor({ d, value, targets, onChange }) {
       return <RichTextField d={d} value={value} onChange={onChange} />
     case 'number':
       return <label className="spe-f"><span>{label}</span><input type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} /></label>
-    case 'datetime':
-      return <label className="spe-f"><span>{label}</span><input type="datetime-local" value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></label>
+    case 'datetime': {
+      // Store an absolute instant (ISO) so a countdown ends at the SAME moment for
+      // every visitor, regardless of their timezone — display it back in the editor's
+      // local time. Tolerates legacy zoneless values (new Date parses them as local).
+      const toInput = (v) => {
+        if (!v) return ''
+        const dt = new Date(v)
+        if (isNaN(dt.getTime())) return ''
+        const p = (n) => String(n).padStart(2, '0')
+        return `${dt.getFullYear()}-${p(dt.getMonth() + 1)}-${p(dt.getDate())}T${p(dt.getHours())}:${p(dt.getMinutes())}`
+      }
+      return <label className="spe-f"><span>{label}</span><input type="datetime-local" value={toInput(value)}
+        onChange={(e) => { const v = e.target.value; if (!v) return onChange(''); const dt = new Date(v); onChange(isNaN(dt.getTime()) ? v : dt.toISOString()) }} /></label>
+    }
     case 'range': {
       const rv = value ?? d.def ?? d.max ?? 100
       return <label className="spe-f"><span>{label} — {rv}{d.unit ?? '%'}</span><input type="range" min={d.min ?? 0} max={d.max ?? 100} value={rv} onChange={(e) => onChange(Number(e.target.value))} /></label>
@@ -890,7 +917,7 @@ function Descriptor({ d, value, targets, onChange }) {
     case 'select':
       return (
         <label className="spe-f"><span>{label}</span>
-          <select value={value ?? d.options[0]} onChange={(e) => onChange(e.target.value)}>
+          <select value={value || d.options[0]} onChange={(e) => onChange(e.target.value)}>
             {d.options.map((o) => <option key={o} value={o}>{t('options.' + o, { defaultValue: o })}</option>)}
           </select>
         </label>
@@ -972,7 +999,7 @@ function TextColorField({ value, onChange }) {
   const isAuto = !value || value === 'auto'
   return (
     <div className="spe-textcolor">
-      <button type="button" className={`spe-tc-auto${isAuto ? ' is-on' : ''}`} onClick={() => onChange('auto')}>{t('design.colorAuto')}</button>
+      <button type="button" className={`spe-tc-auto${isAuto ? ' is-on' : ''}`} aria-pressed={isAuto} onClick={() => onChange('auto')}>{t('design.colorAuto')}</button>
       <input type="color" value={isAuto ? '#2c2621' : value} onChange={(e) => onChange(e.target.value)} aria-label={t('labels.color')} />
     </div>
   )
@@ -1142,7 +1169,10 @@ function ListField({ d, value, onChange }) {
   const { t } = useT('siteBuilder')
   const items = Array.isArray(value) ? value : []
   const setItem = (i, patch) => onChange(items.map((it, j) => (j === i ? { ...it, ...patch } : it)))
-  const add = () => onChange([...items, Object.fromEntries(d.item.map((f) => [f.key, f.type === 'icon' ? 'Check' : '']))])
+  const add = () => onChange([...items, Object.fromEntries(d.item.map((f) => [f.key,
+    f.type === 'icon' ? 'Check'
+      : (f.type === 'select' && Array.isArray(f.options) && f.options.length) ? f.options[0]
+      : '']))])
   const remove = (i) => onChange(items.filter((_, j) => j !== i))
   return (
     <div className="spe-f">

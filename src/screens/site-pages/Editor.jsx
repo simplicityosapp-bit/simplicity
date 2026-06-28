@@ -5,10 +5,12 @@ import {
   LayoutTemplate, Type, Image as ImageIcon, Sparkles, Quote,
   MousePointerClick, ClipboardList, CalendarClock, Minus,
   LayoutGrid, Smile, Images, Video, HelpCircle, SeparatorHorizontal, Copy,
-  Bold, Italic, List, Heading, Link as LinkIcon, Undo2, Redo2,
+  Bold, Italic, List, Heading, Link as LinkIcon, Undo2, Redo2, Search,
+  Columns2, BarChart3, Tag, Building2, ListOrdered, Megaphone, Share2, Mail, Map as MapIcon, Flag, Timer,
+  MoreHorizontal, CheckCircle2,
 } from 'lucide-react'
 import {
-  BLOCK_TYPES, BLOCK_PALETTE, newSection, newSectionId, sitePageSurface,
+  BLOCK_TYPES, BLOCK_PALETTE, BLOCK_CATEGORIES, newSection, newSectionId, sitePageSurface,
   SITE_FONTS, LEAD_PAGE_BACKGROUNDS, DEFAULT_THEME, slugifyInput, isValidSlug,
   FIELD_TYPES, isChoiceType, defaultChoiceOptions, freeFieldKey,
 } from '../../lib/sitePageSchema'
@@ -38,6 +40,9 @@ const BLOCK_ICON = {
   booking: CalendarClock, spacer: Minus,
   cards: LayoutGrid, icon: Smile, gallery: Images, video: Video,
   faq: HelpCircle, divider: SeparatorHorizontal,
+  split: Columns2, stats: BarChart3, pricing: Tag, logos: Building2,
+  steps: ListOrdered, ctaBand: Megaphone, social: Share2, contact: Mail,
+  map: MapIcon, banner: Flag, countdown: Timer,
 }
 import { ICON_NAMES, iconByName } from '../../lib/pageIcons'
 import { uploadPageAsset, assetPathFromUrl, removePageAsset } from '../../lib/pageAssets'
@@ -75,6 +80,10 @@ export default function Editor({ page, onSave, onBack }) {
   const [device, setDevice] = useState('desktop')
   const [focusMode, setFocusMode] = useState(false) // hide rail+inspector → full-size page view
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const [paletteQuery, setPaletteQuery] = useState('') // "add section" search filter
+  const [overflowOpen, setOverflowOpen] = useState(false) // top-bar "⋯" menu (unpublish…)
+  const [publishOk, setPublishOk] = useState(false)       // brief "published!" confirmation toast
+  const overflowRef = useRef(null)
   const [mobileSheet, setMobileSheet] = useState(false) // inspector bottom-sheet (mobile)
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
@@ -87,6 +96,16 @@ export default function Editor({ page, onSave, onBack }) {
   const delTimer = useRef(null)
   const draftRef = useRef(draft)                   // latest draft for deferred asset cleanup
   useEffect(() => { draftRef.current = draft }, [draft])
+
+  /* Close the top-bar "⋯" overflow menu on outside-click / Escape. */
+  useEffect(() => {
+    if (!overflowOpen) return undefined
+    const onDoc = (e) => { if (overflowRef.current && !overflowRef.current.contains(e.target)) setOverflowOpen(false) }
+    const onKey = (e) => { if (e.key === 'Escape') setOverflowOpen(false) }
+    document.addEventListener('mousedown', onDoc)
+    document.addEventListener('keydown', onKey)
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey) }
+  }, [overflowOpen])
 
   /* Scroll the selected (or just-added) section into view — desktop: only if
      off-screen; mobile: to the top of the canvas sliver above the sheet. ONE
@@ -282,6 +301,13 @@ export default function Editor({ page, onSave, onBack }) {
     sections: d.sections.map((s) => (s.id === id ? { ...s, props: { ...s.props, ...patch } } : s)),
   }))
 
+  // Section-level DESIGN (background band / vertical rhythm) lives on section.style,
+  // separate from the block's content props.
+  const updateStyle = (id, patch) => mutate((d) => ({
+    ...d,
+    sections: d.sections.map((s) => (s.id === id ? { ...s, style: { ...(s.style || {}), ...patch } } : s)),
+  }))
+
   const reorder = (from, to) => {
     if (from == null || to == null || from === to) return
     mutate((d) => {
@@ -330,6 +356,7 @@ export default function Editor({ page, onSave, onBack }) {
       setDraft((d) => ({ ...d, published: true }))
       setPublishedSnapshot(snapshot)
       setDirty(false)
+      setPublishOk(true); setTimeout(() => setPublishOk(false), 2600)
     } catch { setSaveError(t('editor.saveError')) } finally { setSaving(false) }
   }
 
@@ -352,41 +379,58 @@ export default function Editor({ page, onSave, onBack }) {
     <div className={`spe${focusMode ? ' is-focus' : ''}`}>
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <div className="spe-top">
-        <button className="spe-icon-btn" onClick={handleBack} title={t('editor.back')} aria-label={t('editor.back')}><ArrowRight size={18} /></button>
-        <input
-          className="spe-title-input"
-          value={draft.title}
-          placeholder={t('editor.titlePlaceholder')}
-          onChange={(e) => mutate((d) => ({ ...d, title: e.target.value }))}
-        />
-        <div className="spe-top-spacer" />
-        <button className="spe-icon-btn" onClick={undo} disabled={!canUndo} title={t('editor.undo')} aria-label={t('editor.undo')}><Undo2 size={16} /></button>
-        <button className="spe-icon-btn" onClick={redo} disabled={!canRedo} title={t('editor.redo')} aria-label={t('editor.redo')}><Redo2 size={16} /></button>
-        <div className="spe-device">
-          <button className={device === 'desktop' ? 'is-on' : ''} onClick={() => setDevice('desktop')} title={t('editor.desktop')} aria-label={t('editor.desktop')}><Monitor size={16} /></button>
-          <button className={device === 'mobile' ? 'is-on' : ''} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></button>
+        {/* nav */}
+        <div className="spe-top-nav">
+          <button className="spe-icon-btn" onClick={handleBack} title={t('editor.back')} aria-label={t('editor.back')}><ArrowRight size={18} /></button>
+          <input
+            className="spe-title-input"
+            value={draft.title}
+            placeholder={t('editor.titlePlaceholder')}
+            onChange={(e) => mutate((d) => ({ ...d, title: e.target.value }))}
+          />
         </div>
-        <button
-          className={`spe-icon-btn spe-focus-btn${focusMode ? ' is-on' : ''}`}
-          onClick={() => setFocusMode((v) => !v)}
-          title={focusMode ? t('editor.exitFocus') : t('editor.focusView')}
-          aria-label={focusMode ? t('editor.exitFocus') : t('editor.focusView')}
-        >
-          {focusMode ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-        </button>
-        {saveError ? <span className="spe-save-err" title={saveError}>{saveError}</span> : null}
-        <span className={`spe-status${draft.published ? (hasUnpublishedChanges ? ' is-pending' : ' is-live') : ''}`}>
-          {!draft.published ? t('editor.statusDraft') : hasUnpublishedChanges ? t('editor.statusUnpublished') : t('editor.statusPublished')}
-        </span>
-        {draft.published ? (
-          <button className="spe-unpub" onClick={unpublish} disabled={saving} title={t('editor.unpublish')}>{t('editor.unpublish')}</button>
-        ) : null}
-        <button className="spe-save-draft" onClick={save} disabled={saving || !dirty}>
-          {saving ? t('editor.saving') : t('editor.saveDraft')}
-        </button>
-        <button className="spe-save" onClick={publish} disabled={saving || (draft.published && !hasUnpublishedChanges && !dirty)}>
-          {t('editor.publish')}
-        </button>
+        {/* center tools */}
+        <div className="spe-top-tools">
+          <div className="spe-toolgroup">
+            <button className="spe-icon-btn" onClick={undo} disabled={!canUndo} title={t('editor.undo')} aria-label={t('editor.undo')}><Undo2 size={16} /></button>
+            <button className="spe-icon-btn" onClick={redo} disabled={!canRedo} title={t('editor.redo')} aria-label={t('editor.redo')}><Redo2 size={16} /></button>
+          </div>
+          <div className="spe-device">
+            <button className={device === 'desktop' ? 'is-on' : ''} onClick={() => setDevice('desktop')} title={t('editor.desktop')} aria-label={t('editor.desktop')}><Monitor size={16} /></button>
+            <button className={device === 'mobile' ? 'is-on' : ''} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></button>
+          </div>
+          <button
+            className={`spe-icon-btn spe-focus-btn${focusMode ? ' is-on' : ''}`}
+            onClick={() => setFocusMode((v) => !v)}
+            title={focusMode ? t('editor.exitFocus') : t('editor.focusView')}
+            aria-label={focusMode ? t('editor.exitFocus') : t('editor.focusView')}
+          >
+            {focusMode ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+        </div>
+        {/* publish */}
+        <div className="spe-top-actions">
+          {saveError ? <span className="spe-save-err" title={saveError}>{saveError}</span> : null}
+          <span className={`spe-status${draft.published ? (hasUnpublishedChanges ? ' is-pending' : ' is-live') : ''}`}>
+            {!draft.published ? t('editor.statusDraft') : hasUnpublishedChanges ? t('editor.statusUnpublished') : t('editor.statusPublished')}
+          </span>
+          <button className="spe-save-draft" onClick={save} disabled={saving || !dirty}>
+            {saving ? t('editor.saving') : t('editor.saveDraft')}
+          </button>
+          <button className="spe-save" onClick={publish} disabled={saving || (draft.published && !hasUnpublishedChanges && !dirty)}>
+            {t('editor.publish')}
+          </button>
+          {draft.published ? (
+            <div className="spe-overflow" ref={overflowRef}>
+              <button className="spe-icon-btn" onClick={() => setOverflowOpen((v) => !v)} aria-haspopup="menu" aria-expanded={overflowOpen} title={t('editor.more', { defaultValue: 'עוד' })} aria-label={t('editor.more', { defaultValue: 'עוד' })}><MoreHorizontal size={18} /></button>
+              {overflowOpen ? (
+                <div className="spe-overflow-menu" role="menu">
+                  <button role="menuitem" onClick={() => { setOverflowOpen(false); unpublish() }} disabled={saving}>{t('editor.unpublish')}</button>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="spe-body">
@@ -394,23 +438,49 @@ export default function Editor({ page, onSave, onBack }) {
         <aside className="spe-rail">
           <div className="spe-rail-head">
             <span>{t('editor.sections')}</span>
-            <button className="spe-add" aria-expanded={paletteOpen} onClick={() => setPaletteOpen((v) => !v)}><Plus size={15} /> {t('editor.add')}</button>
+            <button className="spe-add" aria-expanded={paletteOpen} onClick={() => { setPaletteOpen((v) => !v); setPaletteQuery('') }}><Plus size={15} /> {t('editor.add')}</button>
           </div>
           {paletteOpen ? (
             <div className="spe-palette">
-              {BLOCK_PALETTE.map((type) => {
-                const def = BLOCK_TYPES[type]
-                const Icon = BLOCK_ICON[type] || Sparkles
-                return (
-                  <button key={type} className="spe-palette-item" onClick={() => addSection(type)}>
-                    <Icon size={16} /><span>{t('blocks.' + type, { defaultValue: def.label })}</span>
-                  </button>
-                )
-              })}
+              <div className="spe-palette-search">
+                <Search size={14} />
+                <input autoFocus value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)}
+                  placeholder={t('palette.search', { defaultValue: 'חיפוש סקשן…' })}
+                  aria-label={t('palette.search', { defaultValue: 'חיפוש סקשן' })} />
+              </div>
+              {(() => {
+                const q = paletteQuery.trim().toLowerCase()
+                const item = (type) => {
+                  const def = BLOCK_TYPES[type]
+                  const Icon = BLOCK_ICON[type] || Sparkles
+                  const label = t('blocks.' + type, { defaultValue: def.label })
+                  return (
+                    <button key={type} className="spe-palette-item" onClick={() => addSection(type)} title={label}>
+                      <span className="spe-palette-ico"><Icon size={17} /></span>
+                      <span>{label}</span>
+                    </button>
+                  )
+                }
+                if (q) {
+                  const hits = BLOCK_PALETTE.filter((type) =>
+                    type.toLowerCase().includes(q) || t('blocks.' + type, { defaultValue: BLOCK_TYPES[type].label }).toLowerCase().includes(q))
+                  return hits.length
+                    ? <div className="spe-palette-grid">{hits.map(item)}</div>
+                    : <p className="spe-palette-empty">{t('palette.noResults', { defaultValue: 'לא נמצאו סקשנים' })}</p>
+                }
+                return BLOCK_CATEGORIES.map((cat) => (
+                  <div className="spe-palette-cat" key={cat.key}>
+                    <p className="spe-palette-cat-lbl">{t('palette.cat.' + cat.key, { defaultValue: cat.key })}</p>
+                    <div className="spe-palette-grid">{cat.blocks.map(item)}</div>
+                  </div>
+                ))
+              })()}
             </div>
           ) : null}
           <ul className="spe-seclist">
-            {draft.sections.map((s, i) => (
+            {draft.sections.map((s, i) => {
+              const Ico = BLOCK_ICON[s.type] || Sparkles
+              return (
               <li
                 key={s.id}
                 className={`spe-secitem${selectedId === s.id ? ' is-sel' : ''}${dragging === i ? ' is-dragging' : ''}${dragOver === i && dragging !== i ? ' is-drop-target' : ''}`}
@@ -426,13 +496,17 @@ export default function Editor({ page, onSave, onBack }) {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(s.id); setMobileSheet(true) } }}
               >
                 <GripVertical size={14} className="spe-grip" />
+                <span className="spe-sec-ico" aria-hidden="true"><Ico size={14} /></span>
                 <span className="spe-sec-label">{t('blocks.' + s.type, { defaultValue: BLOCK_TYPES[s.type]?.label || s.type })}</span>
-                <button className="spe-sec-move" disabled={i === 0} onClick={(e) => { e.stopPropagation(); reorder(i, i - 1) }} title={t('editor.moveUp')} aria-label={t('editor.moveUp')}><ChevronUp size={13} /></button>
-                <button className="spe-sec-move" disabled={i === draft.sections.length - 1} onClick={(e) => { e.stopPropagation(); reorder(i, i + 1) }} title={t('editor.moveDown')} aria-label={t('editor.moveDown')}><ChevronDown size={13} /></button>
-                <button className="spe-sec-move" onClick={(e) => { e.stopPropagation(); duplicateSection(s.id) }} title={t('editor.duplicateSection')} aria-label={t('editor.duplicateSection')}><Copy size={13} /></button>
-                <button className="spe-sec-del" onClick={(e) => { e.stopPropagation(); deleteSection(s.id) }} title={t('editor.deleteSection')} aria-label={t('editor.deleteSection')}><Trash2 size={13} /></button>
+                <span className="spe-sec-actions">
+                  <button className="spe-sec-move" disabled={i === 0} onClick={(e) => { e.stopPropagation(); reorder(i, i - 1) }} title={t('editor.moveUp')} aria-label={t('editor.moveUp')}><ChevronUp size={13} /></button>
+                  <button className="spe-sec-move" disabled={i === draft.sections.length - 1} onClick={(e) => { e.stopPropagation(); reorder(i, i + 1) }} title={t('editor.moveDown')} aria-label={t('editor.moveDown')}><ChevronDown size={13} /></button>
+                  <button className="spe-sec-move" onClick={(e) => { e.stopPropagation(); duplicateSection(s.id) }} title={t('editor.duplicateSection')} aria-label={t('editor.duplicateSection')}><Copy size={13} /></button>
+                  <button className="spe-sec-del" onClick={(e) => { e.stopPropagation(); deleteSection(s.id) }} title={t('editor.deleteSection')} aria-label={t('editor.deleteSection')}><Trash2 size={13} /></button>
+                </span>
               </li>
-            ))}
+              )
+            })}
             {draft.sections.length === 0 ? <li className="spe-rail-empty">{t('editor.railEmpty')}</li> : null}
           </ul>
           <button className={`spe-design-btn${!selected ? ' is-on' : ''}`} onClick={() => { setSelectedId(null); setMobileSheet(true) }}>
@@ -456,7 +530,7 @@ export default function Editor({ page, onSave, onBack }) {
             <button className="spe-sheet-close" onClick={() => setMobileSheet(false)}>{t('editor.done')}</button>
           </div>
           {selected
-            ? <SectionInspector section={selected} sections={draft.sections} free={draft.theme?.layoutMode === 'free'} onChange={(patch) => updateProps(selected.id, patch)} />
+            ? <SectionInspector section={selected} sections={draft.sections} free={draft.theme?.layoutMode === 'free'} onChange={(patch) => updateProps(selected.id, patch)} onStyle={(patch) => updateStyle(selected.id, patch)} />
             : <DesignPanel theme={draft.theme} setTheme={setTheme}
                 slug={draft.slug} onSlug={(v) => mutate((d) => ({ ...d, slug: v }))}
                 projects={projects} projectId={draft.project_id} onProject={(v) => mutate((d) => ({ ...d, project_id: v }))}
@@ -468,6 +542,13 @@ export default function Editor({ page, onSave, onBack }) {
         <div className="spe-toast" role="status">
           <span>{t('editor.sectionDeleted')}</span>
           <button onClick={undoDelete}>{t('editor.undo')}</button>
+        </div>
+      ) : null}
+
+      {publishOk ? (
+        <div className="spe-toast spe-toast-ok" role="status">
+          <CheckCircle2 size={17} />
+          <span>{t('editor.publishedToast', { defaultValue: 'הדף פורסם!' })}</span>
         </div>
       ) : null}
     </div>
@@ -571,9 +652,14 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
           </>
         ) : null}
         {bg.type === 'scene' || bg.type === 'image' || (theme.mobileBgOn && theme.mobileBg) ? (
-          <label className="spe-f spe-f-row"><span>{t('design.freezeBg')}</span>
-            <input type="checkbox" checked={!!theme.freezeBg} onChange={(e) => setTheme({ freezeBg: e.target.checked })} />
-          </label>
+          <>
+            <Slider label={t('design.scrim')} min={0} max={70}
+              value={theme.scrim ?? (theme.textColor !== 'dark' ? 30 : 0)}
+              onChange={(v) => setTheme({ scrim: v })} />
+            <label className="spe-f spe-f-row"><span>{t('design.freezeBg')}</span>
+              <input type="checkbox" checked={!!theme.freezeBg} onChange={(e) => setTheme({ freezeBg: e.target.checked })} />
+            </label>
+          </>
         ) : null}
         <label className="spe-f spe-f-row"><span>{t('design.mobileBg')}</span>
           <input type="checkbox" checked={!!theme.mobileBgOn} onChange={(e) => setTheme({ mobileBgOn: e.target.checked })} />
@@ -646,7 +732,7 @@ function Slider({ label, min, max, value, onChange }) {
 /* ════════════════════════════════════════════════════════════════
    SECTION INSPECTOR — renders inputs from BLOCK_TYPES[type].editable.
    ════════════════════════════════════════════════════════════════ */
-function SectionInspector({ section, sections, free, onChange }) {
+function SectionInspector({ section, sections, free, onChange, onStyle }) {
   const { t } = useT('siteBuilder')
   const def = BLOCK_TYPES[section.type]
   if (!def) return null
@@ -660,6 +746,56 @@ function SectionInspector({ section, sections, free, onChange }) {
         <Descriptor key={d.key} d={d} value={props[d.key]} targets={targets} onChange={(v) => onChange({ [d.key]: v })} />
       ))}
       <SizePosition props={props} onChange={onChange} free={free} section={section} sections={sections} />
+      {!free ? <SectionDesign style={section.style || {}} onStyle={onStyle} /> : null}
+    </div>
+  )
+}
+
+/* Per-section DESIGN — background band + vertical rhythm (stack mode). Edits
+   section.style (not props). Lets a coach turn a flat stack into alternating
+   full-width bands — the biggest lever for a "designed" look. */
+function SectionDesign({ style, onStyle }) {
+  const { t } = useT('siteBuilder')
+  const st = style || {}
+  const bg = st.bg || 'none'
+  return (
+    <div className="spe-group">
+      <p className="spe-group-lbl">{t('section.group', { defaultValue: 'עיצוב הסקשן' })}</p>
+      <label className="spe-f"><span>{t('section.bg', { defaultValue: 'רקע הסקשן' })}</span>
+        <select value={bg} onChange={(e) => onStyle({ bg: e.target.value })}>
+          <option value="none">{t('section.bgNone', { defaultValue: 'ללא (שקוף)' })}</option>
+          <option value="tint">{t('section.bgTint', { defaultValue: 'גוון עדין' })}</option>
+          <option value="brand">{t('section.bgBrand', { defaultValue: 'גוון מותג' })}</option>
+          <option value="solid">{t('section.bgSolid', { defaultValue: 'צבע מלא' })}</option>
+          <option value="image">{t('section.bgImage', { defaultValue: 'תמונה' })}</option>
+        </select>
+      </label>
+      {bg === 'solid' ? (
+        <label className="spe-f spe-f-row"><span>{t('section.bgColor', { defaultValue: 'צבע' })}</span>
+          <input type="color" value={st.bgColor || '#fffdf9'} onChange={(e) => onStyle({ bgColor: e.target.value })} />
+        </label>
+      ) : null}
+      {bg === 'image' ? (
+        <>
+          <ImageField value={st.bgImage} onChange={(url) => onStyle({ bgImage: url })} />
+          <Slider label={t('section.overlay', { defaultValue: 'כהות מעל התמונה' })} min={0} max={80} value={st.bgOverlay ?? 0} onChange={(v) => onStyle({ bgOverlay: v })} />
+        </>
+      ) : null}
+      {bg !== 'none' ? (
+        <Slider label={t('section.bgOpacity', { defaultValue: 'שקיפות הרקע' })} min={0} max={100} value={st.bgOpacity ?? 100} onChange={(v) => onStyle({ bgOpacity: v })} />
+      ) : null}
+      {bg !== 'none' ? (
+        <label className="spe-f spe-f-row"><span>{t('section.fullBleed', { defaultValue: 'רוחב מלא (רצועה)' })}</span>
+          <input type="checkbox" checked={!!st.fullBleed} onChange={(e) => onStyle({ fullBleed: e.target.checked })} />
+        </label>
+      ) : null}
+      <label className="spe-f"><span>{t('section.padY', { defaultValue: 'ריווח אנכי' })}</span>
+        <select value={st.padY || 'md'} onChange={(e) => onStyle({ padY: e.target.value })}>
+          {['none', 'sm', 'md', 'lg', 'xl'].map((p) => (
+            <option key={p} value={p}>{t('section.pad_' + p, { defaultValue: p })}</option>
+          ))}
+        </select>
+      </label>
     </div>
   )
 }
@@ -723,6 +859,8 @@ function Descriptor({ d, value, targets, onChange }) {
       return <RichTextField d={d} value={value} onChange={onChange} />
     case 'number':
       return <label className="spe-f"><span>{label}</span><input type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} /></label>
+    case 'datetime':
+      return <label className="spe-f"><span>{label}</span><input type="datetime-local" value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></label>
     case 'range': {
       const rv = value ?? d.def ?? d.max ?? 100
       return <label className="spe-f"><span>{label} — {rv}{d.unit ?? '%'}</span><input type="range" min={d.min ?? 0} max={d.max ?? 100} value={rv} onChange={(e) => onChange(Number(e.target.value))} /></label>
@@ -878,17 +1016,87 @@ function ImageField({ value, onChange }) {
   )
 }
 
+/* Localized search keywords for the curated icon set (he + en) so a coach can
+   find an icon by meaning ("לב" / "heart") instead of scanning the whole grid. */
+const ICON_KEYWORDS = {
+  Check: 'וי אישור נכון בוצע check ok done',
+  Star: 'כוכב מועדף דירוג איכות star favorite rating',
+  Heart: 'לב אהבה אכפתיות חמלה heart love care',
+  Sparkles: 'ניצוצות קסם נצנוץ ייחודי sparkle magic shine',
+  Sun: 'שמש יום אור אנרגיה sun day light',
+  Moon: 'ירח לילה רוגע moon night calm',
+  Leaf: 'עלה טבע צמיחה אקולוגי leaf nature growth',
+  Target: 'מטרה יעד פוקוס מיקוד target goal focus',
+  Award: 'פרס הצטיינות מדליה איכות award medal quality',
+  Clock: 'שעון זמן מהירות זמינות clock time',
+  Calendar: 'יומן לוח תאריך פגישה calendar date schedule',
+  Phone: 'טלפון שיחה חיוג phone call',
+  Mail: 'מייל אימייל דואר הודעה mail email',
+  MapPin: 'מיקום כתובת מפה סיכה location map address pin',
+  MessageCircle: 'הודעה צ׳אט שיחה ווטסאפ message chat whatsapp',
+  Users: 'אנשים קבוצה לקוחות קהילה users people group community',
+  BookOpen: 'ספר לימוד קריאה ידע book learn read',
+  Compass: 'מצפן כיוון ניווט הכוונה compass direction',
+  Smile: 'חיוך שמחה רגש פשטות smile happy',
+  Shield: 'מגן ביטחון אמינות הגנה shield trust security',
+  Zap: 'ברק מהירות אנרגיה זריזות zap fast energy',
+  Coffee: 'קפה פגישה הפסקה coffee meeting',
+  Feather: 'נוצה קלילות עדינות feather light',
+  Gift: 'מתנה הפתעה בונוס gift present bonus',
+}
+
+/* Icon picker — a compact swatch showing the current icon that opens a searchable
+   popover. (Was an always-open 24-cell grid that rendered inline for EVERY list
+   item, turning the inspector into a wall of repeated icon grids.) Collapsed by
+   default; the popover closes on pick / outside-click / Escape. */
 function IconPicker({ value, onChange }) {
+  const { t } = useT('siteBuilder')
+  const [open, setOpen] = useState(false)
+  const [q, setQ] = useState('')
+  const ref = useRef(null)
+  const Current = iconByName(value)
+  useEffect(() => {
+    if (!open) return undefined
+    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', onDoc)
+    document.addEventListener('keydown', onKey)
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey) }
+  }, [open])
+  const needle = q.trim().toLowerCase()
+  const names = needle
+    ? ICON_NAMES.filter((n) => n.toLowerCase().includes(needle) || (ICON_KEYWORDS[n] || '').toLowerCase().includes(needle))
+    : ICON_NAMES
   return (
-    <div className="spe-iconpick">
-      {ICON_NAMES.map((name) => {
-        const Icon = iconByName(name)
-        return (
-          <button key={name} className={`spe-iconcell${value === name ? ' is-on' : ''}`} onClick={() => onChange(name)} title={name}>
-            <Icon size={18} />
-          </button>
-        )
-      })}
+    <div className="spe-iconpick" ref={ref}>
+      <button type="button" className={`spe-iconswatch${open ? ' is-open' : ''}`} onClick={() => setOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={open}>
+        <span className="spe-iconswatch-icn"><Current size={18} /></span>
+        <span className="spe-iconswatch-name">{value || t('inspector.pickIcon', { defaultValue: 'בחרו אייקון' })}</span>
+        <ChevronDown size={15} className="spe-iconswatch-chev" />
+      </button>
+      {open ? (
+        <div className="spe-iconpop">
+          <div className="spe-iconpop-search">
+            <Search size={14} />
+            <input autoFocus value={q} onChange={(e) => setQ(e.target.value)}
+              placeholder={t('inspector.searchIcon', { defaultValue: 'חיפוש אייקון…' })}
+              aria-label={t('inspector.searchIcon', { defaultValue: 'חיפוש אייקון' })} />
+          </div>
+          <div className="spe-iconpop-grid" role="listbox">
+            {names.map((name) => {
+              const Icon = iconByName(name)
+              return (
+                <button key={name} type="button" role="option" aria-selected={value === name}
+                  className={`spe-iconcell${value === name ? ' is-on' : ''}`}
+                  onClick={() => { onChange(name); setOpen(false); setQ('') }} title={name} aria-label={name}>
+                  <Icon size={18} />
+                </button>
+              )
+            })}
+            {names.length === 0 ? <p className="spe-iconpop-empty">{t('inspector.noIcons', { defaultValue: 'לא נמצאו אייקונים' })}</p> : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

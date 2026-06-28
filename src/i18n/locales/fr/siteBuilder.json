@@ -29,6 +29,9 @@
     "choose": "Choisissez un modèle pour commencer",
     "blank": "Page vierge",
     "close": "Fermer",
+    "coachPro": "Coach — page complète",
+    "localBiz": "Entreprise locale",
+    "webinarPro": "Webinaire + compte à rebours",
     "coaching": "Coaching personnel",
     "workshop": "Atelier / webinaire",
     "service": "Service professionnel",
@@ -73,7 +76,9 @@
     "statusDraft": "Brouillon",
     "statusPublished": "Publié",
     "statusUnpublished": "Modifications non publiées",
-    "unpublish": "Dépublier"
+    "unpublish": "Dépublier",
+    "more": "Plus",
+    "publishedToast": "Page publiée !"
   },
   "seo": {
     "group": "SEO et partage",
@@ -109,6 +114,7 @@
     "sendBack": "Envoyer à l'arrière",
     "freeSizeHint": "La taille et la position se règlent en glissant sur le canevas.",
     "freezeBg": "Figer l'arrière-plan (évite le recadrage)",
+    "scrim": "Assombrir le fond (lisibilité)",
     "mobileBg": "Arrière-plan mobile séparé",
     "bgImageHint": "Image paysage plein écran — 1920×1080 ou plus recommandé.",
     "mobileBgHint": "Image portrait — 1080×1920 recommandé.",
@@ -129,6 +135,37 @@
     "redirectUrl": "URL de redirection",
     "thankYouMessage": "Message de remerciement"
   },
+  "section": {
+    "group": "Design de la section",
+    "bg": "Fond de la section",
+    "bgNone": "Aucun (transparent)",
+    "bgTint": "Teinte subtile",
+    "bgBrand": "Teinte de marque",
+    "bgSolid": "Couleur unie",
+    "bgImage": "Image",
+    "bgColor": "Couleur",
+    "overlay": "Assombrir l'image",
+    "bgOpacity": "Opacité du fond",
+    "fullBleed": "Pleine largeur (bande)",
+    "padY": "Espacement vertical",
+    "pad_none": "Aucun",
+    "pad_sm": "Petit",
+    "pad_md": "Moyen",
+    "pad_lg": "Grand",
+    "pad_xl": "Très grand"
+  },
+  "palette": {
+    "search": "Rechercher des sections…",
+    "noResults": "Aucune section trouvée",
+    "cat": {
+      "basics": "Basiques",
+      "content": "Contenu",
+      "social": "Preuve sociale",
+      "convert": "Conversion",
+      "contact": "Contact",
+      "layout": "Mise en page"
+    }
+  },
   "inspector": {
     "removeImage": "Retirer",
     "uploading": "Téléversement…",
@@ -138,7 +175,10 @@
     "addItem": "Ajouter un élément",
     "noTargetHint": "Aucune section cible pour ce bouton sur la page — ajoutez-en une.",
     "noBookingPages": "Aucune page de réservation publiée — créez-en et publiez-en une d'abord.",
-    "chooseBookingPage": "Choisir une page de réservation"
+    "chooseBookingPage": "Choisir une page de réservation",
+    "pickIcon": "Choisir une icône",
+    "searchIcon": "Rechercher des icônes…",
+    "noIcons": "Aucune icône trouvée"
   },
   "assets": {
     "no-file": "Aucun fichier sélectionné",
@@ -184,7 +224,15 @@
     "submit": "Envoyer",
     "empty": "La page est vide — ajoutez votre première section.",
     "videoEmpty": "Collez un lien YouTube ou Vimeo",
-    "videoTitle": "Vidéo"
+    "videoTitle": "Vidéo",
+    "mapEmpty": "Ajoutez une adresse pour afficher une carte",
+    "mapTitle": "Carte",
+    "countdownHint": "Définissez une date et une heure cibles",
+    "countdownDone": "Terminé",
+    "cdDays": "jours",
+    "cdHours": "heures",
+    "cdMin": "min",
+    "cdSec": "sec"
   },
   "kinds": {
     "landing": "Pages d'atterrissage",
@@ -206,7 +254,18 @@
     "video": "Vidéo",
     "faq": "FAQ",
     "divider": "Séparateur",
-    "spacer": "Espacement"
+    "spacer": "Espacement",
+    "split": "Image et texte",
+    "stats": "Chiffres",
+    "pricing": "Tarifs",
+    "logos": "Logos",
+    "steps": "Étapes",
+    "ctaBand": "Bandeau CTA",
+    "social": "Réseaux sociaux",
+    "contact": "Contact",
+    "map": "Carte",
+    "banner": "Barre d'annonce",
+    "countdown": "Compte à rebours"
   },
   "labels": {
     "eyebrow": "Texte d'accroche",

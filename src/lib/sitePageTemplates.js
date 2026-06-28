@@ -18,6 +18,42 @@ const FIELDS = () => structuredClone(DEFAULT_FIELDS)
 export const TEMPLATES = [
   /* ── Landing ─────────────────────────────────────────────────────────── */
   {
+    id: 'coachPro', kind: 'landing',
+    theme: theme({ brandColor: '#C97B5E', background: { type: 'scene', value: 'clients' }, cardOpacity: 94, scrim: 26 }),
+    sections: [
+      { id: 's1', type: 'hero', style: {}, props: { eyebrow: 'ליווי אישי', heading: 'הזמן שלך להתקדם הגיע', subheading: 'תהליך קואצ׳ינג ממוקד שמחזיר בהירות, ביטחון וכיוון.', ctaLabel: 'לשיחת היכרות חינם', ctaAction: { type: 'scrollToForm', url: '' } } },
+      { id: 's2', type: 'stats', style: { bg: 'brand', fullBleed: true, padY: 'lg' }, props: { columns: 'auto', color: 'auto', items: [
+        { value: '+200', label: 'לקוחות בתהליך' }, { value: '12', label: 'שנות ניסיון' }, { value: '97%', label: 'ממליצים' },
+      ] } },
+      { id: 's3', type: 'split', style: { padY: 'lg' }, props: { image: '', mediaSide: 'start', heading: 'נעים להכיר', body: 'קצת על הדרך שלי, על הגישה, ולמה היא עובדת. אנשים מתחברים לאנשים — אז בואו נדבר בגובה העיניים.', ctaLabel: '', ctaAction: { type: 'link', url: '' }, color: 'auto' } },
+      { id: 's4', type: 'steps', style: { bg: 'tint', fullBleed: true, padY: 'lg' }, props: { color: 'auto', items: [
+        { title: 'שיחת היכרות', body: 'מבינים יחד לאן רוצים להגיע.' }, { title: 'בונים תוכנית', body: 'צעדים מעשיים שמתאימים בדיוק לכם.' }, { title: 'מתקדמים יחד', body: 'ליווי שבועי עד התוצאה.' },
+      ] } },
+      { id: 's5', type: 'pricing', style: { padY: 'lg' }, props: { color: 'auto', items: [
+        { name: 'בסיסי', price: '₪290', period: 'לחודש', features: 'פגישה שבועית\nתמיכה במייל', ctaLabel: 'בחירה', ctaAction: { type: 'scrollToForm', url: '' }, featured: false },
+        { name: 'מומלץ', price: '₪490', period: 'לחודש', features: 'הכל בבסיסי\nשתי פגישות בשבוע\nליווי בוואטסאפ', ctaLabel: 'בחירה', ctaAction: { type: 'scrollToForm', url: '' }, featured: true },
+        { name: 'פרימיום', price: '₪790', period: 'לחודש', features: 'ליווי צמוד\nזמינות מלאה', ctaLabel: 'בחירה', ctaAction: { type: 'scrollToForm', url: '' }, featured: false },
+      ] } },
+      { id: 's6', type: 'testimonial', style: {}, props: { quote: 'תוך שלושה חודשים הרגשתי שינוי שלא האמנתי שאפשרי.', author: 'מאיה ל.', role: 'לקוחה', avatar: '' } },
+      { id: 's7', type: 'ctaBand', style: { padY: 'md' }, props: { heading: 'מוכנים לצעד הראשון?', subheading: 'נשמח לשמוע מכם — בלי התחייבות.', ctaLabel: 'לשיחת היכרות', ctaAction: { type: 'scrollToForm', url: '' }, style: 'brand', color: 'auto' } },
+      { id: 's8', type: 'form', style: {}, props: { heading: 'השאירו פרטים ואחזור אליכם', submitLabel: 'שליחה', fields: FIELDS() } },
+    ],
+  },
+  {
+    id: 'localBiz', kind: 'landing',
+    theme: theme({ brandColor: '#B5634E', background: { type: 'flat', value: '#f7f3ee' }, textAlign: 'start', cardOpacity: 100 }),
+    sections: [
+      { id: 's1', type: 'hero', style: {}, props: { eyebrow: 'שירות מקצועי', heading: 'הפתרון שחיכיתם לו', subheading: 'ניסיון, מקצועיות ויחס אישי — הכל במקום אחד.', ctaLabel: 'דברו איתי', ctaAction: { type: 'scrollToForm', url: '' } } },
+      { id: 's2', type: 'logos', style: { bg: 'tint', fullBleed: true, padY: 'md' }, props: { grayscale: true, items: [{ url: '' }, { url: '' }, { url: '' }, { url: '' }] } },
+      { id: 's3', type: 'split', style: { padY: 'lg' }, props: { image: '', mediaSide: 'end', heading: 'איך אנחנו עובדים', body: 'תהליך ברור ושקוף מהרגע הראשון, עם ליווי צמוד לאורך כל הדרך.', ctaLabel: '', ctaAction: { type: 'link', url: '' }, color: 'auto' } },
+      { id: 's4', type: 'stats', style: { padY: 'md' }, props: { columns: 'auto', color: 'auto', items: [{ value: '+500', label: 'פרויקטים' }, { value: '4.9', label: 'דירוג ממוצע' }, { value: '24/7', label: 'זמינות' }] } },
+      { id: 's5', type: 'faq', style: { bg: 'tint', fullBleed: true, padY: 'lg' }, props: { color: 'auto', items: [{ q: 'כמה זה עולה?', a: 'תלוי בהיקף — נשמח לתת הצעה מותאמת.' }, { q: 'תוך כמה זמן מתחילים?', a: 'בדרך כלל תוך כמה ימים מהפנייה.' }] } },
+      { id: 's6', type: 'contact', style: { padY: 'lg' }, props: { phone: '', whatsapp: '', email: '', address: '', hours: '', color: 'auto', card: true, cardOpacity: 100, cardBlur: 14 } },
+      { id: 's7', type: 'map', style: {}, props: { query: '', height: 'md' } },
+      { id: 's8', type: 'form', style: {}, props: { heading: 'השאירו פרטים לקבלת הצעה', submitLabel: 'שליחה', fields: FIELDS() } },
+    ],
+  },
+  {
     id: 'coaching', kind: 'landing',
     theme: theme({ brandColor: '#C97B5E', background: { type: 'scene', value: 'clients' }, cardOpacity: 92 }),
     sections: [
@@ -132,6 +168,19 @@ export const TEMPLATES = [
     ],
   },
   /* ── Lead capture ────────────────────────────────────────────────────── */
+  {
+    id: 'webinarPro', kind: 'lead',
+    theme: theme({ brandColor: '#8BA888', background: { type: 'scene', value: 'reports' }, cardOpacity: 95, scrim: 24 }),
+    sections: [
+      { id: 's1', type: 'banner', style: {}, props: { text: 'הוובינר מתחיל בקרוב — מספר המקומות מוגבל', ctaLabel: '', ctaAction: { type: 'link', url: '' }, sticky: false, style: 'brand' } },
+      { id: 's2', type: 'hero', style: {}, props: { eyebrow: 'וובינר חינמי', heading: 'הצטרפו למפגש החי', subheading: 'נרשמים, מקבלים קישור, ומתחילים ללמוד.', ctaLabel: 'להרשמה', ctaAction: { type: 'scrollToForm', url: '' } } },
+      { id: 's3', type: 'countdown', style: { bg: 'tint', fullBleed: true, padY: 'lg' }, props: { target: '', heading: 'נשאר זמן עד הוובינר', expiredText: 'הוובינר התחיל', color: 'auto', card: false, cardOpacity: 100, cardBlur: 14 } },
+      { id: 's4', type: 'iconText', style: { padY: 'lg' }, props: { color: 'auto', items: [
+        { icon: 'BookOpen', title: 'מה תלמדו', body: 'הנקודות המרכזיות שתיקחו איתכם.' }, { icon: 'Clock', title: 'כמה זמן', body: 'מפגש ממוקד של 45 דקות.' }, { icon: 'Users', title: 'למי מתאים', body: 'לכל מי שרוצה להתחיל נכון.' },
+      ] } },
+      { id: 's5', type: 'form', style: {}, props: { heading: 'הרשמה לוובינר', submitLabel: 'שמרו לי מקום', fields: FIELDS() } },
+    ],
+  },
   {
     id: 'quickLead', kind: 'lead',
     theme: theme({ brandColor: '#C97B5E', background: { type: 'scene', value: 'leads' }, cardOpacity: 95 }),

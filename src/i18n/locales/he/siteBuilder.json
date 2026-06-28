@@ -29,6 +29,9 @@
     "choose": "בחרו תבנית להתחלה",
     "blank": "דף ריק",
     "close": "סגירה",
+    "coachPro": "מאמן — דף מלא",
+    "localBiz": "עסק מקומי",
+    "webinarPro": "וובינר עם ספירה לאחור",
     "coaching": "קואצ׳ינג אישי",
     "workshop": "סדנה / וובינר",
     "service": "שירות מקצועי",
@@ -73,7 +76,9 @@
     "statusDraft": "טיוטה",
     "statusPublished": "מפורסם",
     "statusUnpublished": "שינויים לא פורסמו",
-    "unpublish": "הסרה מפרסום"
+    "unpublish": "הסרה מפרסום",
+    "more": "עוד",
+    "publishedToast": "הדף פורסם!"
   },
   "seo": {
     "group": "SEO ושיתוף",
@@ -109,6 +114,7 @@
     "sendBack": "שלח לאחור",
     "freeSizeHint": "גודל ומיקום נקבעים בגרירה על הקנבס.",
     "freezeBg": "הקפא רקע (מונע חיתוך בהארכת הדף)",
+    "scrim": "כהות רקע (קריאוּת)",
     "mobileBg": "רקע נפרד למובייל",
     "bgImageHint": "תמונה רוחבית למסך מלא — מומלץ 1920×1080 או יותר.",
     "mobileBgHint": "תמונה אנכית (פורטרט) — מומלץ 1080×1920.",
@@ -129,6 +135,37 @@
     "redirectUrl": "כתובת הפניה",
     "thankYouMessage": "הודעת תודה"
   },
+  "section": {
+    "group": "עיצוב הסקשן",
+    "bg": "רקע הסקשן",
+    "bgNone": "ללא (שקוף)",
+    "bgTint": "גוון עדין",
+    "bgBrand": "גוון מותג",
+    "bgSolid": "צבע מלא",
+    "bgImage": "תמונה",
+    "bgColor": "צבע",
+    "overlay": "כהות מעל התמונה",
+    "bgOpacity": "שקיפות הרקע",
+    "fullBleed": "רוחב מלא (רצועה)",
+    "padY": "ריווח אנכי",
+    "pad_none": "ללא",
+    "pad_sm": "קטן",
+    "pad_md": "בינוני",
+    "pad_lg": "גדול",
+    "pad_xl": "גדול מאוד"
+  },
+  "palette": {
+    "search": "חיפוש סקשן…",
+    "noResults": "לא נמצאו סקשנים",
+    "cat": {
+      "basics": "בסיס",
+      "content": "תוכן",
+      "social": "הוכחה חברתית",
+      "convert": "המרה",
+      "contact": "יצירת קשר",
+      "layout": "מבנה"
+    }
+  },
   "inspector": {
     "removeImage": "הסרה",
     "uploading": "מעלה…",
@@ -138,7 +175,10 @@
     "addItem": "הוספת פריט",
     "noTargetHint": "אין בדף סקשן יעד לכפתור הזה — הוסיפו אותו.",
     "noBookingPages": "אין עמודי פגישות מפורסמים — צרו וּפרסמו אחד קודם.",
-    "chooseBookingPage": "בחרו עמוד פגישות"
+    "chooseBookingPage": "בחרו עמוד פגישות",
+    "pickIcon": "בחרו אייקון",
+    "searchIcon": "חיפוש אייקון…",
+    "noIcons": "לא נמצאו אייקונים"
   },
   "assets": {
     "no-file": "לא נבחר קובץ",
@@ -184,7 +224,15 @@
     "submit": "שליחה",
     "empty": "הדף ריק — הוסיפו סקשן ראשון.",
     "videoEmpty": "הדביקו קישור YouTube או Vimeo",
-    "videoTitle": "וידאו"
+    "videoTitle": "וידאו",
+    "mapEmpty": "הוסיפו כתובת להצגת מפה",
+    "mapTitle": "מפה",
+    "countdownHint": "הגדירו תאריך ושעת יעד",
+    "countdownDone": "הסתיים",
+    "cdDays": "ימים",
+    "cdHours": "שעות",
+    "cdMin": "דקות",
+    "cdSec": "שניות"
   },
   "kinds": {
     "landing": "דפי נחיתה",
@@ -206,7 +254,18 @@
     "video": "וידאו",
     "faq": "שאלות ותשובות",
     "divider": "קו מפריד",
-    "spacer": "רווח"
+    "spacer": "רווח",
+    "split": "תמונה וטקסט",
+    "stats": "מספרים",
+    "pricing": "מסלולים",
+    "logos": "לוגואים",
+    "steps": "שלבים",
+    "ctaBand": "רצועת פעולה",
+    "social": "רשתות חברתיות",
+    "contact": "פרטי קשר",
+    "map": "מפה",
+    "banner": "רצועת הודעה",
+    "countdown": "ספירה לאחור"
   },
   "labels": {
     "eyebrow": "טקסט עליון",

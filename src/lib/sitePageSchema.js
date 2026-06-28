@@ -178,6 +178,10 @@ export function sitePageSurface(theme = {}, mobile = false) {
   // Freeze the photo background to the viewport so it keeps a constant crop as
   // the page grows (instead of `cover` re-scaling over a taller element).
   if (t.freezeBg && photoBg) cls.push('bg-fixed')
+  // Readability scrim — a translucent veil over a photo background so text keeps
+  // contrast over busy/bright photos. Only set when the coach picks a value; the
+  // CSS provides a sensible default for light-text-on-photo pages otherwise.
+  if (t.scrim != null && Number.isFinite(Number(t.scrim))) style['--sp-scrim'] = `${clamp(t.scrim, 0, 70, 0)}%`
   return { style, cls: cls.join(' ') }
 }
 
@@ -391,10 +395,199 @@ export const BLOCK_TYPES = {
     defaultProps: { size: 'md' },
     editable: [{ key: 'size', label: 'גודל', type: 'select', options: ['sm', 'md', 'lg'] }],
   },
+  /* ── Phase 2 blocks (additive) ───────────────────────────────────────────── */
+  split: {
+    label: 'תמונה וטקסט', icon: 'Columns2',
+    defaultProps: {
+      image: '', mobileUrl: '', alt: '', mediaSide: 'start',
+      heading: 'כותרת לצד התמונה', body: 'ספרו כאן על מה שחשוב — לצד תמונה שמחזקת את המסר.',
+      ctaLabel: '', ctaAction: { type: 'link', url: '' }, color: 'auto',
+    },
+    editable: [
+      { key: 'image', label: 'תמונה', type: 'image' },
+      { key: 'mobileUrl', label: 'תמונה למובייל (לא חובה)', type: 'image' },
+      { key: 'heading', label: 'כותרת', type: 'text' },
+      { key: 'body', label: 'טקסט', type: 'richtext' },
+      { key: 'ctaLabel', label: 'כפתור', type: 'text' },
+      { key: 'ctaAction', label: 'פעולת הכפתור', type: 'action' },
+      { key: 'mediaSide', label: 'צד התמונה', type: 'select', options: ['start', 'end'] },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+    ],
+  },
+  stats: {
+    label: 'מספרים', icon: 'BarChart3',
+    defaultProps: {
+      items: [
+        { value: '+200', label: 'לקוחות מרוצים' },
+        { value: '15', label: 'שנות ניסיון' },
+        { value: '98%', label: 'ממליצים עליי' },
+      ],
+      columns: 'auto', color: 'auto', card: false, cardOpacity: 100, cardBlur: 14,
+    },
+    editable: [
+      { key: 'items', label: 'מספרים', type: 'list', item: [
+        { key: 'value', label: 'מספר', type: 'text' },
+        { key: 'label', label: 'תיאור', type: 'text' },
+      ] },
+      { key: 'columns', label: 'עמודות', type: 'select', options: ['auto', '2', '3', '4'] },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+      { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
+      { key: 'cardBlur', label: 'טשטוש החלונית', type: 'range', min: 0, max: 40, def: 14, unit: 'px', showWhen: 'card' },
+    ],
+  },
+  pricing: {
+    label: 'מסלולים', icon: 'Tag',
+    defaultProps: {
+      items: [
+        { name: 'בסיסי', price: '₪290', period: 'לחודש', features: 'פגישה שבועית\nתמיכה במייל', ctaLabel: 'בחירה', ctaAction: { type: 'scrollToForm', url: '' }, featured: false },
+        { name: 'מומלץ', price: '₪490', period: 'לחודש', features: 'כל מה שבבסיסי\nשתי פגישות בשבוע\nליווי בוואטסאפ', ctaLabel: 'בחירה', ctaAction: { type: 'scrollToForm', url: '' }, featured: true },
+        { name: 'פרימיום', price: '₪790', period: 'לחודש', features: 'ליווי צמוד\nזמינות מלאה', ctaLabel: 'בחירה', ctaAction: { type: 'scrollToForm', url: '' }, featured: false },
+      ],
+      color: 'auto',
+    },
+    editable: [
+      { key: 'items', label: 'מסלולים', type: 'list', item: [
+        { key: 'name', label: 'שם', type: 'text' },
+        { key: 'price', label: 'מחיר', type: 'text' },
+        { key: 'period', label: 'תקופה', type: 'text' },
+        { key: 'features', label: 'מה כלול (שורה לכל פריט)', type: 'textarea' },
+        { key: 'ctaLabel', label: 'כפתור', type: 'text' },
+        { key: 'ctaAction', label: 'פעולה', type: 'action' },
+        { key: 'featured', label: 'מסלול מודגש', type: 'toggle' },
+      ] },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+    ],
+  },
+  logos: {
+    label: 'לוגואים', icon: 'Building2',
+    defaultProps: { items: [{ url: '' }, { url: '' }, { url: '' }, { url: '' }], grayscale: true },
+    editable: [
+      { key: 'items', label: 'לוגואים', type: 'list', item: [{ key: 'url', label: 'לוגו', type: 'image' }] },
+      { key: 'grayscale', label: 'גווני אפור', type: 'toggle' },
+    ],
+  },
+  steps: {
+    label: 'שלבים', icon: 'ListOrdered',
+    defaultProps: {
+      items: [
+        { title: 'שלב ראשון', body: 'מה קורה בהתחלה.' },
+        { title: 'שלב שני', body: 'איך ממשיכים מכאן.' },
+        { title: 'שלב שלישי', body: 'לאן מגיעים בסוף.' },
+      ],
+      color: 'auto', card: false, cardOpacity: 100, cardBlur: 14,
+    },
+    editable: [
+      { key: 'items', label: 'שלבים', type: 'list', item: [
+        { key: 'title', label: 'כותרת', type: 'text' },
+        { key: 'body', label: 'תיאור', type: 'textarea' },
+      ] },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+      { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
+      { key: 'cardBlur', label: 'טשטוש החלונית', type: 'range', min: 0, max: 40, def: 14, unit: 'px', showWhen: 'card' },
+    ],
+  },
+  ctaBand: {
+    label: 'רצועת פעולה', icon: 'Megaphone',
+    defaultProps: {
+      heading: 'מוכנים להתחיל?', subheading: 'השאירו פרטים ונחזור אליכם בהקדם.',
+      ctaLabel: 'דברו איתי', ctaAction: { type: 'scrollToForm', url: '' }, style: 'brand', color: 'auto',
+    },
+    editable: [
+      { key: 'heading', label: 'כותרת', type: 'text' },
+      { key: 'subheading', label: 'תת-כותרת', type: 'textarea' },
+      { key: 'ctaLabel', label: 'כפתור', type: 'text' },
+      { key: 'ctaAction', label: 'פעולת הכפתור', type: 'action' },
+      { key: 'style', label: 'סגנון', type: 'select', options: ['brand', 'soft', 'plain'] },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+    ],
+  },
+  social: {
+    label: 'רשתות חברתיות', icon: 'Share2',
+    defaultProps: {
+      items: [
+        { platform: 'whatsapp', url: '' },
+        { platform: 'instagram', url: '' },
+        { platform: 'facebook', url: '' },
+      ],
+      align: 'center', size: 'md',
+    },
+    editable: [
+      { key: 'items', label: 'קישורים', type: 'list', item: [
+        { key: 'platform', label: 'רשת', type: 'select', options: ['whatsapp', 'instagram', 'facebook', 'tiktok', 'youtube', 'linkedin', 'telegram', 'email', 'phone', 'website'] },
+        { key: 'url', label: 'קישור / מספר / אימייל', type: 'text' },
+      ] },
+      { key: 'align', label: 'יישור', type: 'select', options: ['start', 'center', 'end'] },
+      { key: 'size', label: 'גודל', type: 'select', options: ['sm', 'md', 'lg'] },
+    ],
+  },
+  contact: {
+    label: 'פרטי קשר', icon: 'Mail',
+    defaultProps: { phone: '', whatsapp: '', email: '', address: '', hours: '', color: 'auto', card: true, cardOpacity: 100, cardBlur: 14 },
+    editable: [
+      { key: 'phone', label: 'טלפון', type: 'text' },
+      { key: 'whatsapp', label: 'וואטסאפ (מספר)', type: 'text' },
+      { key: 'email', label: 'אימייל', type: 'text' },
+      { key: 'address', label: 'כתובת', type: 'text' },
+      { key: 'hours', label: 'שעות פעילות', type: 'textarea' },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+      { key: 'card', label: 'רקע חלונית', type: 'toggle' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
+      { key: 'cardBlur', label: 'טשטוש החלונית', type: 'range', min: 0, max: 40, def: 14, unit: 'px', showWhen: 'card' },
+    ],
+  },
+  map: {
+    label: 'מפה', icon: 'Map',
+    defaultProps: { query: '', height: 'md' },
+    editable: [
+      { key: 'query', label: 'כתובת או שם מקום', type: 'text' },
+      { key: 'height', label: 'גובה', type: 'select', options: ['sm', 'md', 'lg'] },
+    ],
+  },
+  banner: {
+    label: 'רצועת הודעה', icon: 'Flag',
+    defaultProps: {
+      text: 'מבצע מיוחד — הצטרפו עכשיו וקבלו 20% הנחה', ctaLabel: '', ctaAction: { type: 'link', url: '' }, sticky: false, style: 'brand',
+    },
+    editable: [
+      { key: 'text', label: 'טקסט', type: 'text' },
+      { key: 'ctaLabel', label: 'כפתור', type: 'text' },
+      { key: 'ctaAction', label: 'פעולה', type: 'action' },
+      { key: 'sticky', label: 'נצמד לראש העמוד', type: 'toggle' },
+      { key: 'style', label: 'סגנון', type: 'select', options: ['brand', 'dark', 'soft'] },
+    ],
+  },
+  countdown: {
+    label: 'ספירה לאחור', icon: 'Timer',
+    defaultProps: { target: '', heading: 'נשאר זמן עד הסגירה', expiredText: 'ההרשמה נסגרה', color: 'auto', card: false, cardOpacity: 100, cardBlur: 14 },
+    editable: [
+      { key: 'heading', label: 'כותרת', type: 'text' },
+      { key: 'target', label: 'תאריך ושעת יעד', type: 'datetime' },
+      { key: 'expiredText', label: 'טקסט בסיום', type: 'text' },
+      { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+      { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100, showWhen: 'card' },
+      { key: 'cardBlur', label: 'טשטוש החלונית', type: 'range', min: 0, max: 40, def: 14, unit: 'px', showWhen: 'card' },
+    ],
+  },
 }
 
-/* The order sections appear in the "add" palette. */
-export const BLOCK_PALETTE = ['hero', 'text', 'image', 'cards', 'iconText', 'icon', 'gallery', 'video', 'testimonial', 'faq', 'cta', 'form', 'booking', 'divider', 'spacer']
+/* The order sections appear in the "add" palette (also the search index). */
+export const BLOCK_PALETTE = ['hero', 'text', 'image', 'split', 'cards', 'iconText', 'steps', 'icon', 'gallery', 'video', 'testimonial', 'stats', 'logos', 'faq', 'cta', 'ctaBand', 'pricing', 'form', 'booking', 'banner', 'countdown', 'social', 'contact', 'map', 'divider', 'spacer']
+
+/* The "add" palette grouped into categories (labels via i18n `palette.cat.<key>`).
+   Order here = order shown. Every BLOCK_PALETTE type must appear in exactly one
+   category; new block types slot into the right group so the palette scales past a
+   flat 15-cell grid. */
+export const BLOCK_CATEGORIES = [
+  { key: 'basics', blocks: ['hero', 'text', 'image', 'icon'] },
+  { key: 'content', blocks: ['iconText', 'cards', 'split', 'steps', 'faq', 'gallery', 'video'] },
+  { key: 'social', blocks: ['testimonial', 'stats', 'logos'] },
+  { key: 'convert', blocks: ['cta', 'ctaBand', 'pricing', 'form', 'booking', 'banner', 'countdown'] },
+  { key: 'contact', blocks: ['social', 'contact', 'map'] },
+  { key: 'layout', blocks: ['divider', 'spacer'] },
+]
 
 /* ── Section + page factories ───────────────────────────────────────────────
    Index-based local ids keep sections stable across reorders without needing a

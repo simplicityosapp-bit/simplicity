@@ -546,11 +546,297 @@ function BookingInline({ pageId }) {
   )
 }
 
+/* ── Phase 2 blocks ──────────────────────────────────────────────────────── */
+
+/* Image + text side by side (stacks on a narrow container). */
+function SplitBlock({ props, interactive, edit }) {
+  const { t } = useT('siteBuilder')
+  const src = safeImageUrl(props.image)
+  const mobileSrc = safeImageUrl(props.mobileUrl)
+  const side = props.mediaSide === 'end' ? 'end' : 'start'
+  const media = src ? (
+    <div className={`sp-split-media${mobileSrc ? ' has-mobile' : ''}`}>
+      <img className="sp-split-img sp-img-d" src={src} alt={props.alt || ''} loading="lazy" />
+      {mobileSrc ? <img className="sp-split-img sp-img-m" src={mobileSrc} alt={props.alt || ''} loading="lazy" /> : null}
+    </div>
+  ) : <div className="sp-split-media sp-img-empty">{t('renderer.imageEmpty')}</div>
+  return (
+    <div className={`sp-split sp-split-${side}`}>
+      {media}
+      <div className="sp-split-body">
+        {edit ? (
+          <>
+            <Editable as="h2" className="sp-h2" value={props.heading} placeholder={t('labels.heading')} onCommit={(v) => edit('heading', v)} />
+            <Editable as="div" className="sp-text sp-text-raw" value={props.body} placeholder={t('labels.text')} onCommit={(v) => edit('body', v)} />
+            <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={false} />
+          </>
+        ) : (
+          <>
+            {str(props.heading) ? <h2 className="sp-h2">{props.heading}</h2> : null}
+            {str(props.body) ? <div className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.body) }} /> : null}
+            <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={interactive} />
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* Big-number stats / counters. */
+function StatsBlock({ props }) {
+  const items = Array.isArray(props.items) ? props.items : []
+  const cols = (props.columns && props.columns !== 'auto') ? props.columns : 'auto'
+  return withCard(props,
+    <div className={`sp-stats sp-stats-${cols}`}>
+      {items.map((it, i) => (
+        <div className="sp-stat" key={i}>
+          {str(it.value) ? <div className="sp-stat-value">{it.value}</div> : null}
+          {str(it.label) ? <div className="sp-stat-label">{it.label}</div> : null}
+        </div>
+      ))}
+    </div>,
+  )
+}
+
+/* Pricing tiers (the middle/featured plan is highlighted). */
+function PricingBlock({ props, interactive }) {
+  const items = Array.isArray(props.items) ? props.items : []
+  return (
+    <div className="sp-pricing">
+      {items.map((it, i) => {
+        const feats = String(it.features || '').split('\n').map((s) => s.trim()).filter(Boolean)
+        return (
+          <div className={`sp-price${it.featured ? ' is-featured' : ''}`} key={i}>
+            {str(it.name) ? <div className="sp-price-name">{it.name}</div> : null}
+            <div className="sp-price-amount">
+              <span className="sp-price-value">{it.price}</span>
+              {str(it.period) ? <span className="sp-price-period"> {it.period}</span> : null}
+            </div>
+            {feats.length ? <ul className="sp-price-feats">{feats.map((f, j) => <li key={j}>{f}</li>)}</ul> : null}
+            <ActionButton label={it.ctaLabel} action={it.ctaAction} style={it.featured ? 'primary' : 'secondary'} interactive={interactive} />
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+/* Logo / "as seen in" strip (grayscale by default). */
+function LogosBlock({ props }) {
+  const { t } = useT('siteBuilder')
+  const items = Array.isArray(props.items) ? props.items : []
+  const imgs = items.map((it) => safeImageUrl(it && it.url)).filter(Boolean)
+  if (!imgs.length) return <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
+  return (
+    <div className={`sp-logos${props.grayscale !== false ? ' is-gray' : ''}`}>
+      {imgs.map((u, i) => <img key={i} className="sp-logo" src={u} alt="" loading="lazy" />)}
+    </div>
+  )
+}
+
+/* Numbered "how it works" steps. */
+function StepsBlock({ props, edit }) {
+  const { t } = useT('siteBuilder')
+  const items = Array.isArray(props.items) ? props.items : []
+  const setItem = (i, patch) => edit('items', items.map((it, j) => (j === i ? { ...it, ...patch } : it)))
+  return withCard(props,
+    <ol className="sp-steps">
+      {items.map((it, i) => (
+        <li className="sp-step" key={i}>
+          <div className="sp-step-num" aria-hidden="true">{i + 1}</div>
+          <div className="sp-step-body">
+            {edit ? (
+              <>
+                <Editable as="div" className="sp-step-title" value={it.title} placeholder={t('labels.title')} onCommit={(v) => setItem(i, { title: v })} />
+                <Editable as="p" className="sp-step-text" value={it.body} placeholder={t('labels.body')} onCommit={(v) => setItem(i, { body: v })} />
+              </>
+            ) : (
+              <>
+                {str(it.title) ? <div className="sp-step-title">{it.title}</div> : null}
+                {str(it.body) ? <p className="sp-step-text">{it.body}</p> : null}
+              </>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>,
+  )
+}
+
+/* Rich CTA section (a brand-tinted band with heading + sub + button). */
+function CtaBandBlock({ props, interactive, edit }) {
+  const { t } = useT('siteBuilder')
+  const style = props.style || 'brand'
+  return (
+    <div className={`sp-ctaband sp-ctaband-${style}`}>
+      {edit ? (
+        <>
+          <Editable as="h2" className="sp-ctaband-h" value={props.heading} placeholder={t('labels.heading')} onCommit={(v) => edit('heading', v)} />
+          <Editable as="p" className="sp-ctaband-sub" value={props.subheading} placeholder={t('labels.subheading')} onCommit={(v) => edit('subheading', v)} />
+          <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={false} />
+        </>
+      ) : (
+        <>
+          {str(props.heading) ? <h2 className="sp-ctaband-h">{props.heading}</h2> : null}
+          {str(props.subheading) ? <p className="sp-ctaband-sub">{props.subheading}</p> : null}
+          <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={interactive} />
+        </>
+      )}
+    </div>
+  )
+}
+
+/* ── Social + contact glyphs (inline SVG; no brand-icon dependency) ───────── */
+const SOCIAL_COLOR = {
+  whatsapp: '#25D366', instagram: '#E1306C', facebook: '#1877F2', tiktok: '#111111',
+  youtube: '#FF0000', linkedin: '#0A66C2', telegram: '#26A5E4',
+  email: '#7c6f63', phone: '#7c6f63', website: 'var(--sp-brand)',
+}
+function socialGlyph(p) {
+  switch (p) {
+    case 'whatsapp': return <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a9.9 9.9 0 0 0-8.5 15L2.2 22l5-1.3A10 10 0 1 0 12 2Zm5.5 14c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.4-1.1-2.7 0-1.3.7-1.9.9-2.2.2-.2.5-.3.6-.3h.5c.2 0 .4 0 .6.4l.7 1.8c.1.1.1.3 0 .5l-.3.4-.3.3c-.1.1-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.6 1.6.3.1.5.1.7-.1l.7-.9c.2-.2.4-.2.6-.1l1.7.8c.2.1.4.2.5.3.1.1.1.7-.2 1.3Z"/></svg>
+    case 'instagram': return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+    case 'facebook': return <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7h2.3l.4-2.8h-2.7V9.4c0-.8.2-1.3 1.4-1.3h1.4V5.6c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2H8.1V14h2.3v7h3.1Z"/></svg>
+    case 'tiktok': return <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.5 3c.4 2 1.6 3.5 3.7 3.7v2.5c-1.3 0-2.5-.4-3.6-1.1v5.7a5.3 5.3 0 1 1-5.3-5.3c.3 0 .5 0 .8.1v2.6a2.7 2.7 0 1 0 1.9 2.6V3h2.5Z"/></svg>
+    case 'youtube': return <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 8.2a2.6 2.6 0 0 0-1.8-1.8C18.6 6 12 6 12 6s-6.6 0-8.2.4A2.6 2.6 0 0 0 2 8.2 27 27 0 0 0 1.7 12 27 27 0 0 0 2 15.8a2.6 2.6 0 0 0 1.8 1.8C5.4 18 12 18 12 18s6.6 0 8.2-.4a2.6 2.6 0 0 0 1.8-1.8A27 27 0 0 0 22.3 12 27 27 0 0 0 22 8.2ZM10 15V9l5.2 3L10 15Z"/></svg>
+    case 'linkedin': return <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 9.5V19H4V9.5h3ZM5.5 4.5A1.75 1.75 0 1 1 5.5 8a1.75 1.75 0 0 1 0-3.5ZM20 19h-3v-5c0-1.4-1.5-1.3-1.5 0v5h-3V9.5h3v1.1A3.2 3.2 0 0 1 20 12.4V19Z"/></svg>
+    case 'telegram': return <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m21.5 4-18 7c-.9.4-.9 1.2 0 1.5l4.5 1.4 1.7 5.3c.2.6.5.7 1 .3l2.6-2.4 4.4 3.2c.5.3 1 .1 1.1-.5L23 5c.2-.7-.3-1.3-1.5-1Zm-3.3 4.2-7 6.3-.3 3.3-1.4-4.4 8.7-5.2Z"/></svg>
+    case 'email': return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
+    case 'phone': return <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 3c.5 0 .9.3 1.1.8l1.2 3c.2.5.1 1-.3 1.4L7.2 9.4a13 13 0 0 0 5.4 5.4l1.2-1.4c.4-.4.9-.5 1.4-.3l3 1.2c.5.2.8.6.8 1.1V20c0 .6-.5 1.1-1.1 1A17 17 0 0 1 4 5.1C3.9 4.5 4.4 4 5 4h1.6Z"/></svg>
+    default: return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z"/></svg>
+  }
+}
+
+/* Social links row — circular brand-coloured buttons. */
+function SocialBlock({ props, interactive }) {
+  const items = Array.isArray(props.items) ? props.items : []
+  const shown = items.filter((it) => it && SOCIAL_COLOR[it.platform] && (!interactive || str(it.url)))
+  const hrefFor = (it) => {
+    if (it.platform === 'email') return `mailto:${str(it.url)}`
+    if (it.platform === 'phone') return `tel:${String(it.url).replace(/[^0-9+]/g, '')}`
+    if (it.platform === 'whatsapp') return `https://wa.me/${String(it.url).replace(/[^0-9]/g, '')}`
+    return safeRedirectUrl(it.url)
+  }
+  return (
+    <div className={`sp-social sp-social-${props.align || 'center'} sp-social-${props.size || 'md'}`}>
+      {shown.map((it, i) => {
+        const href = interactive ? hrefFor(it) : null
+        const common = { className: 'sp-social-btn', style: { '--sp-social-c': SOCIAL_COLOR[it.platform] }, title: it.platform, 'aria-label': it.platform }
+        return href
+          ? <a key={i} href={href} target="_blank" rel="noopener noreferrer" {...common}>{socialGlyph(it.platform)}</a>
+          : <span key={i} {...common}>{socialGlyph(it.platform)}</span>
+      })}
+    </div>
+  )
+}
+
+/* Contact details card (tap-to-call / mail / map). */
+function ContactBlock({ props }) {
+  const rows = []
+  if (str(props.phone)) rows.push({ g: 'phone', label: props.phone, href: `tel:${String(props.phone).replace(/[^0-9+]/g, '')}` })
+  if (str(props.whatsapp)) rows.push({ g: 'whatsapp', label: props.whatsapp, href: `https://wa.me/${String(props.whatsapp).replace(/[^0-9]/g, '')}` })
+  if (str(props.email)) rows.push({ g: 'email', label: props.email, href: `mailto:${str(props.email)}` })
+  if (str(props.address)) rows.push({ g: 'address', label: props.address, href: `https://www.google.com/maps?q=${encodeURIComponent(str(props.address))}` })
+  const addrGlyph = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>
+  const hoursGlyph = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+  const glyph = (g) => (g === 'address' ? addrGlyph : socialGlyph(g))
+  return withCard(props,
+    <div className="sp-contact">
+      {rows.map((r, i) => (
+        <a key={i} className="sp-contact-row" href={r.href} target="_blank" rel="noopener noreferrer">
+          <span className="sp-contact-ic">{glyph(r.g)}</span>
+          <span className="sp-contact-val">{r.label}</span>
+        </a>
+      ))}
+      {str(props.hours) ? (
+        <div className="sp-contact-row sp-contact-static">
+          <span className="sp-contact-ic">{hoursGlyph}</span>
+          <span className="sp-contact-val sp-contact-hours">{props.hours}</span>
+        </div>
+      ) : null}
+    </div>,
+  )
+}
+
+/* Google Maps embed — built only from the coach's query (no arbitrary src). */
+function MapBlock({ props }) {
+  const { t } = useT('siteBuilder')
+  const q = str(props.query)
+  if (!q) return <div className="sp-img-empty">{t('renderer.mapEmpty', { defaultValue: 'הוסיפו כתובת להצגת מפה' })}</div>
+  const src = `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`
+  return (
+    <div className={`sp-map sp-map-${props.height || 'md'}`}>
+      <iframe src={src} title={t('renderer.mapTitle', { defaultValue: 'מפה' })} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+    </div>
+  )
+}
+
+/* Announcement bar — full-width strip (the Section renders it edge-to-edge). */
+function BannerBlock({ props, interactive, edit }) {
+  const { t } = useT('siteBuilder')
+  const style = props.style || 'brand'
+  return (
+    <div className={`sp-banner sp-banner-${style}${props.sticky ? ' is-sticky' : ''}`}>
+      <div className="sp-banner-inner">
+        {edit
+          ? <Editable as="span" className="sp-banner-text" value={props.text} placeholder={t('labels.text')} onCommit={(v) => edit('text', v)} />
+          : (str(props.text) ? <span className="sp-banner-text">{props.text}</span> : null)}
+        {str(props.ctaLabel) ? <ActionButton label={props.ctaLabel} action={props.ctaAction} style="secondary" interactive={interactive} /> : null}
+      </div>
+    </div>
+  )
+}
+
+/* Countdown timer — ticks live in both the editor preview and the public page. */
+function CountdownBlock({ props }) {
+  const { t } = useT('siteBuilder')
+  const target = str(props.target) ? new Date(props.target).getTime() : 0
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    if (!target) return undefined
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [target])
+  let body
+  if (!target) {
+    body = <p className="sp-muted">{t('renderer.countdownHint', { defaultValue: 'הגדירו תאריך ושעת יעד' })}</p>
+  } else if (target - now <= 0) {
+    body = <p className="sp-countdown-expired">{str(props.expiredText) || t('renderer.countdownDone', { defaultValue: 'הסתיים' })}</p>
+  } else {
+    const diff = target - now
+    const units = [
+      [Math.floor(diff / 86400000), t('renderer.cdDays', { defaultValue: 'ימים' })],
+      [Math.floor(diff / 3600000) % 24, t('renderer.cdHours', { defaultValue: 'שעות' })],
+      [Math.floor(diff / 60000) % 60, t('renderer.cdMin', { defaultValue: 'דקות' })],
+      [Math.floor(diff / 1000) % 60, t('renderer.cdSec', { defaultValue: 'שניות' })],
+    ]
+    body = (
+      <div className="sp-countdown-grid">
+        {units.map(([v, l], i) => (
+          <div className="sp-cd-unit" key={i}>
+            <div className="sp-cd-num">{String(v).padStart(2, '0')}</div>
+            <div className="sp-cd-lbl">{l}</div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+  return withCard(props,
+    <div className="sp-countdown">
+      {str(props.heading) ? <h2 className="sp-h2">{props.heading}</h2> : null}
+      {body}
+    </div>,
+  )
+}
+
 const BLOCK_COMPONENT = {
   hero: HeroBlock, text: TextBlock, image: ImageBlock, iconText: IconTextBlock,
   testimonial: TestimonialBlock, cta: CtaBlock, spacer: SpacerBlock,
   cards: CardsBlock, icon: IconBlock, gallery: GalleryBlock, video: VideoBlock,
   faq: FaqBlock, divider: DividerBlock,
+  split: SplitBlock, stats: StatsBlock, pricing: PricingBlock, logos: LogosBlock,
+  steps: StepsBlock, ctaBand: CtaBandBlock, social: SocialBlock, contact: ContactBlock,
+  map: MapBlock, banner: BannerBlock, countdown: CountdownBlock,
 }
 
 /* One section → its block, wrapped so the canvas can target it (id, type).
@@ -570,7 +856,9 @@ function ResizeHandle({ width, onResize }) {
   const onDown = (e) => {
     e.preventDefault(); e.stopPropagation()
     const section = e.currentTarget.parentElement
-    const page = section && section.closest('.sp-page')
+    // Measure the % against the CONTENT COLUMN (.sp-row-inner), not the now
+    // full-width .sp-page — so "100%" still means the column edge.
+    const page = section && (section.closest('.sp-row-inner') || section.closest('.sp-page'))
     if (!page) return
     const pageRect = page.getBoundingClientRect()
     const rtl = getComputedStyle(page).direction === 'rtl'
@@ -771,7 +1059,7 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
     inner = <Comp props={section.props || {}} interactive={interactive} edit={edit} />
   }
 
-  return (
+  const sectionEl = (
     <section className={wrapCls} style={styleProp} data-sid={section.id} data-selected={sel}
       onPointerDown={free && edit ? (e) => startFreeDrag(e, 'move') : undefined}>
       {inner}
@@ -783,6 +1071,27 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
       ) : null}
       {edit && !free ? <ResizeHandle width={width} onResize={(w) => edit('boxWidth', w)} /> : null}
     </section>
+  )
+  if (free) return sectionEl
+  // Banner is an edge-to-edge strip — skip the centred content column.
+  if (type === 'banner') return <div className="sp-row sp-row-banner sp-pad-none">{sectionEl}</div>
+  // STACK mode: wrap the block in a full-width row carrying the optional section
+  // background (band) + vertical rhythm, with content kept in a centred max-width
+  // column (.sp-row-inner). Section design lives on section.style (not props), so
+  // existing pages (style:{}) get bg:none + padY:md by default — backward-safe.
+  const st = section.style || {}
+  const bgKind = st.bg || 'none'
+  const padY = st.padY || 'md'
+  const rowCls = `sp-row sp-row-bg-${bgKind} sp-pad-${padY}${st.fullBleed && bgKind !== 'none' ? ' sp-row-bleed' : ''}`
+  const rowStyle = {}
+  if (bgKind === 'solid' && st.bgColor) rowStyle['--sp-row-bg'] = st.bgColor
+  if (bgKind === 'image') { const u = safeImageUrl(st.bgImage); if (u) rowStyle['--sp-row-img'] = `url("${u}")` }
+  if (st.bgOverlay != null) rowStyle['--sp-row-overlay'] = Math.max(0, Math.min(80, Number(st.bgOverlay) || 0)) / 100
+  if (st.bgOpacity != null) rowStyle['--sp-row-opacity'] = Math.max(0, Math.min(100, Number(st.bgOpacity) || 0)) / 100
+  return (
+    <div className={rowCls} style={Object.keys(rowStyle).length ? rowStyle : undefined}>
+      <div className="sp-row-inner">{sectionEl}</div>
+    </div>
   )
 }
 

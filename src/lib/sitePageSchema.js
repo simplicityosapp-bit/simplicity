@@ -187,8 +187,8 @@ export function sitePageSurface(theme = {}, mobile = false) {
      • defaultProps  — a fresh block's starting content
      • editable      — ordered descriptors that DRIVE the auto-generated edit
                        form in phase 1 (and document the prop shape here).
-   Descriptor `type` ∈ text | textarea | richtext | image | icon | color
-     | select | number | toggle | list | action | formFields | availability.
+   Descriptor `type` ∈ text | textarea | richtext | image | icon | textColor
+     | select | range | toggle | list | action | formFields | bookingPage.
    `cta` actions: { type:'link'|'scrollToForm'|'booking', url } — `link` opens
    an external URL (validated via safeRedirectUrl), the others scroll to / open
    the page's own form / booking section. */

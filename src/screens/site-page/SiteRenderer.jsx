@@ -48,13 +48,11 @@ function ActionButton({ label, action, style = 'primary', interactive }) {
   const a = action || {}
   if (a.type === 'link') {
     const href = interactive ? safeRedirectUrl(a.url) : null
-    return (
-      <a className={cls} href={href || undefined}
-        target="_blank" rel="noopener noreferrer"
-        onClick={(e) => { if (!href) e.preventDefault() }}>
-        {text}
-      </a>
-    )
+    // No real destination (editor preview, or a missing/blocked URL on the live page)
+    // → render a real <button>, not an <a> with no href (which isn't focusable and
+    // reads as a broken link). It's inert on the live page, a plain preview in the editor.
+    if (!href) return <button type="button" className={cls} disabled={interactive}>{text}</button>
+    return <a className={cls} href={href} target="_blank" rel="noopener noreferrer">{text}</a>
   }
   const target = a.type === 'booking' ? 'booking' : 'form'
   return (
@@ -690,8 +688,11 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
   const layout = free ? { ...freeDefaultLayout(index, canvasW), ...(section.props?.[layoutKey] || {}) } : (section.props?.[layoutKey] || null)
   // FAQ (accordion) grows when an item opens, so reserve its box with min-height
   // and let it expand instead of clipping; every other block keeps a fixed height.
+  // Stacking: explicit props.z (set by Bring-to-front / Send-to-back) wins, else the
+  // section's order — so overlapping blocks have a predictable, controllable z-order.
   const freeStyle = free ? {
     position: 'absolute', left: `${layout.x}px`, top: `${layout.y}px`, width: `${layout.w}px`,
+    zIndex: section.props?.z != null ? section.props.z : index,
     ...(type === 'faq' ? { minHeight: `${layout.h}px` } : { height: `${layout.h}px` }),
   } : null
 

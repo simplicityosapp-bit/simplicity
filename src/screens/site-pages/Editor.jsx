@@ -446,7 +446,7 @@ export default function Editor({ page, onSave, onBack }) {
             <button className="spe-sheet-close" onClick={() => setMobileSheet(false)}>{t('editor.done')}</button>
           </div>
           {selected
-            ? <SectionInspector section={selected} sections={draft.sections} onChange={(patch) => updateProps(selected.id, patch)} />
+            ? <SectionInspector section={selected} sections={draft.sections} free={draft.theme?.layoutMode === 'free'} onChange={(patch) => updateProps(selected.id, patch)} />
             : <DesignPanel theme={draft.theme} setTheme={setTheme}
                 slug={draft.slug} onSlug={(v) => mutate((d) => ({ ...d, slug: v }))}
                 projects={projects} projectId={draft.project_id} onProject={(v) => mutate((d) => ({ ...d, project_id: v }))}
@@ -555,7 +555,10 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
           </label>
         ) : null}
         {bg.type === 'image' ? (
-          <ImageField value={bg.value} onChange={(url) => setTheme({ background: { type: 'image', value: url } })} />
+          <>
+            <ImageField value={bg.value} onChange={(url) => setTheme({ background: { type: 'image', value: url } })} />
+            <p className="spe-note">{t('design.bgImageHint')}</p>
+          </>
         ) : null}
         {bg.type === 'scene' || bg.type === 'image' || (theme.mobileBgOn && theme.mobileBg) ? (
           <label className="spe-f spe-f-row"><span>{t('design.freezeBg')}</span>
@@ -566,7 +569,10 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
           <input type="checkbox" checked={!!theme.mobileBgOn} onChange={(e) => setTheme({ mobileBgOn: e.target.checked })} />
         </label>
         {theme.mobileBgOn ? (
-          <ImageField value={theme.mobileBg} onChange={(url) => setTheme({ mobileBg: url })} />
+          <>
+            <ImageField value={theme.mobileBg} onChange={(url) => setTheme({ mobileBg: url })} />
+            <p className="spe-note">{t('design.mobileBgHint')}</p>
+          </>
         ) : null}
       </div>
 
@@ -630,7 +636,7 @@ function Slider({ label, min, max, value, onChange }) {
 /* ════════════════════════════════════════════════════════════════
    SECTION INSPECTOR — renders inputs from BLOCK_TYPES[type].editable.
    ════════════════════════════════════════════════════════════════ */
-function SectionInspector({ section, sections, onChange }) {
+function SectionInspector({ section, sections, free, onChange }) {
   const { t } = useT('siteBuilder')
   const def = BLOCK_TYPES[section.type]
   if (!def) return null
@@ -643,15 +649,33 @@ function SectionInspector({ section, sections, onChange }) {
       {def.editable.filter((d) => !d.showWhen || props[d.showWhen]).map((d) => (
         <Descriptor key={d.key} d={d} value={props[d.key]} targets={targets} onChange={(v) => onChange({ [d.key]: v })} />
       ))}
-      <SizePosition props={props} onChange={onChange} />
+      <SizePosition props={props} onChange={onChange} free={free} section={section} sections={sections} />
     </div>
   )
 }
 
-/* Universal per-section size + position (every block). Width is also draggable on
-   the canvas; align places a narrower section within the column. */
-function SizePosition({ props, onChange }) {
+/* Per-section size + position. In STACK mode: a width slider + alignment within the
+   column (width is also draggable on the canvas). In FREE mode size/position come
+   from dragging, so instead we expose LAYERING (bring to front / send to back) for
+   overlapping blocks. */
+function SizePosition({ props, onChange, free, section, sections }) {
   const { t } = useT('siteBuilder')
+  if (free) {
+    const list = Array.isArray(sections) ? sections : []
+    const zs = list.map((s, i) => (s.props?.z != null ? s.props.z : i))
+    const bringFront = () => onChange({ z: (zs.length ? Math.max(...zs) : 0) + 1 })
+    const sendBack = () => onChange({ z: (zs.length ? Math.min(...zs) : 0) - 1 })
+    return (
+      <div className="spe-group">
+        <p className="spe-group-lbl">{t('design.grpLayering', { defaultValue: 'שכבות' })}</p>
+        <div className="spe-layer-btns">
+          <button type="button" className="spe-layer-btn" onClick={bringFront}><ChevronUp size={15} /> {t('design.bringFront', { defaultValue: 'הבא לחזית' })}</button>
+          <button type="button" className="spe-layer-btn" onClick={sendBack}><ChevronDown size={15} /> {t('design.sendBack', { defaultValue: 'שלח לאחור' })}</button>
+        </div>
+        <p className="spe-note">{t('design.freeSizeHint', { defaultValue: 'גודל ומיקום נקבעים בגרירה על הקנבס.' })}</p>
+      </div>
+    )
+  }
   // boxWidth/boxAlign (not width/align) so they never clash with a block's own
   // width prop (image/divider) or align prop (icon).
   const width = Number(props.boxWidth) || 100

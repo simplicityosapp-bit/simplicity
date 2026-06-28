@@ -263,13 +263,15 @@ export const BLOCK_TYPES = {
   },
   testimonial: {
     label: 'המלצה', icon: 'Quote',
-    defaultProps: { quote: 'מה שאמרו עליי…', author: '', role: '', avatar: '', color: 'auto' },
+    defaultProps: { quote: 'מה שאמרו עליי…', author: '', role: '', avatar: '', color: 'auto', cardOpacity: 100, cardBlur: 14 },
     editable: [
       { key: 'quote', label: 'ציטוט', type: 'textarea' },
       { key: 'author', label: 'שם', type: 'text' },
       { key: 'role', label: 'תפקיד', type: 'text' },
       { key: 'avatar', label: 'תמונה', type: 'image' },
       { key: 'color', label: 'צבע טקסט', type: 'textColor' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100 },
+      { key: 'cardBlur', label: 'טשטוש החלונית', type: 'range', min: 0, max: 40, def: 14, unit: 'px' },
     ],
   },
   cta: {
@@ -292,23 +294,27 @@ export const BLOCK_TYPES = {
     // The form block references the lead-form contract: its FIELDS reuse
     // leadPageSchema's field model, submissions go through the edge function.
     defaultProps: {
-      heading: 'השאירו פרטים', submitLabel: 'שליחה', fields: DEFAULT_FIELDS,
+      heading: 'השאירו פרטים', submitLabel: 'שליחה', fields: DEFAULT_FIELDS, cardOpacity: 100, cardBlur: 14,
     },
     editable: [
       { key: 'heading', label: 'כותרת', type: 'text' },
       { key: 'fields', label: 'שדות', type: 'formFields' },
       { key: 'submitLabel', label: 'כפתור שליחה', type: 'text' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100 },
+      { key: 'cardBlur', label: 'טשטוש החלונית', type: 'range', min: 0, max: 40, def: 14, unit: 'px' },
     ],
   },
   booking: {
     label: 'תיאום פגישה', icon: 'CalendarClock',
     // Shows the chosen booking page's slot-picker INLINE, served by the same
     // robust booking-intake edge function as the standalone /book page.
-    defaultProps: { heading: 'קביעת פגישה', subheading: '', bookingSlug: '', buttonLabel: 'לקביעת תור' },
+    defaultProps: { heading: 'קביעת פגישה', subheading: '', bookingSlug: '', buttonLabel: 'לקביעת תור', cardOpacity: 100, cardBlur: 14 },
     editable: [
       { key: 'heading', label: 'כותרת', type: 'text' },
       { key: 'subheading', label: 'תיאור', type: 'textarea' },
       { key: 'bookingSlug', label: 'עמוד הפגישות', type: 'bookingPage' },
+      { key: 'cardOpacity', label: 'אטימות החלונית', type: 'range', min: 0, max: 100 },
+      { key: 'cardBlur', label: 'טשטוש החלונית', type: 'range', min: 0, max: 40, def: 14, unit: 'px' },
     ],
   },
   cards: {

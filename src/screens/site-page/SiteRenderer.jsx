@@ -86,10 +86,14 @@ function Editable({ as: Tag = 'div', className, value, placeholder, onCommit }) 
 
 /* Optionally wrap a block's content in a translucent panel so text stands out
    over a busy photo. Per-block opacity (0 = transparent … 100 = solid). */
+// Per-section glass: opacity + blur as CSS vars that override the page-global ones.
+// Used by withCard (opt-in cards) AND by the always-card blocks (form/booking/
+// testimonial) so every card surface is individually adjustable.
+const cardVars = (props) => ({ '--sp-card-opacity': `${props.cardOpacity ?? 100}%`, '--sp-card-blur': `${props.cardBlur ?? 14}px` })
+
 function withCard(props, inner) {
   if (!props.card) return inner
-  // Opacity AND blur are per-section (each card overrides the page-global var).
-  return <div className="sp-card sp-block-card" style={{ '--sp-card-opacity': `${props.cardOpacity ?? 100}%`, '--sp-card-blur': `${props.cardBlur ?? 14}px` }}>{inner}</div>
+  return <div className="sp-card sp-block-card" style={cardVars(props)}>{inner}</div>
 }
 
 /* ── Visual blocks ───────────────────────────────────────────────────────── */
@@ -179,7 +183,7 @@ function IconTextBlock({ props, edit }) {
 function TestimonialBlock({ props, edit }) {
   const { t } = useT('siteBuilder')
   return (
-    <figure className="sp-testimonial">
+    <figure className="sp-testimonial" style={cardVars(props)}>
       {edit
         ? <Editable as="blockquote" className="sp-quote" value={props.quote} placeholder={t('labels.quote')} onCommit={(v) => edit('quote', v)} />
         : (str(props.quote) ? <blockquote className="sp-quote">{props.quote}</blockquote> : null)}
@@ -342,7 +346,7 @@ function FormBlock({ section, interactive, runtime }) {
   // After a successful submit the public page flags this form's id as done.
   if (interactive && runtime?.submittedForms?.has(section.id)) {
     return (
-      <div className="sp-card sp-form sp-form-done">
+      <div className="sp-card sp-form sp-form-done" style={cardVars(props)}>
         <div className="sp-check" aria-hidden="true">✓</div>
         <p className="sp-thanks">{str(runtime.thankYouBySection?.[section.id]?.message) || t('renderer.thankYouDefault')}</p>
       </div>
@@ -350,7 +354,7 @@ function FormBlock({ section, interactive, runtime }) {
   }
 
   return (
-    <form className="sp-card sp-form" onSubmit={submit} noValidate>
+    <form className="sp-card sp-form" onSubmit={submit} noValidate style={cardVars(props)}>
       {str(props.heading) ? <h2 className="sp-h2">{props.heading}</h2> : null}
       <div className="sp-fields">
         {fields.map((f) => {
@@ -428,7 +432,7 @@ function BookingBlock({ props, interactive }) {
   if (!interactive) {
     // Editor preview: a representative, inert sketch of the picker.
     return (
-      <div className="sp-card sp-booking">
+      <div className="sp-card sp-booking" style={cardVars(props)}>
         {head}
         {slug ? (
           <div className="sp-bk-preview" aria-hidden="true">
@@ -444,7 +448,7 @@ function BookingBlock({ props, interactive }) {
     )
   }
   if (!slug) return null
-  return <div className="sp-card sp-booking">{head}<BookingInline pageId={slug} /></div>
+  return <div className="sp-card sp-booking" style={cardVars(props)}>{head}<BookingInline pageId={slug} /></div>
 }
 
 function BookingInline({ pageId }) {

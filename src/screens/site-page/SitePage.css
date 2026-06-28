@@ -151,7 +151,11 @@
 .sp-testimonial {
   margin: 0; padding: clamp(20px, 4cqi, 32px);
   border-inline-start: 3px solid var(--sp-brand);
-  background: color-mix(in srgb, var(--sp-brand) 6%, transparent);
+  /* A brand-tinted glass card whose solidity (opacity) + blur are per-section
+     adjustable, like every other card surface. */
+  background: color-mix(in srgb, color-mix(in srgb, var(--sp-brand) 8%, #fffdf9) var(--sp-card-opacity, 100%), transparent);
+  -webkit-backdrop-filter: blur(var(--sp-card-blur, 0px));
+  backdrop-filter: blur(var(--sp-card-blur, 0px));
   border-radius: var(--sp-radius, 24px);
 }
 .sp-quote { font-size: clamp(17px, 2.6cqi, 21px); line-height: 1.6; margin: 0 0 16px; font-style: italic; }

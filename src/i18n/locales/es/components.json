@@ -28,6 +28,8 @@
     "undo": "Deshacer",
     "dismiss": "Descartar",
     "undone": "Deshecho",
+    "taskCompleted": "Tarea completada",
+    "taskReopened": "Tarea reabierta",
     "deleted": {
       "lead": "Prospecto eliminado",
       "bookingPage": "Página eliminada",

@@ -20,6 +20,8 @@
    Trash drawer remains the safety net.
    ════════════════════════════════════════════════════════════════ */
 
+import i18n from '../i18n'
+
 const OFFER_MS = 6000   /* how long "בטל" is offered after an action */
 const UNDONE_MS = 3500  /* brief confirm window after undo (redo lives here) */
 
@@ -70,7 +72,7 @@ export async function performUndo() {
   const action = pending
   pending = null
   redoable = action
-  state = { phase: 'undone', label: 'בוטל', duration: UNDONE_MS, seq: state.seq + 1 }
+  state = { phase: 'undone', label: i18n.t('components:undo.undone'), duration: UNDONE_MS, seq: state.seq + 1 }
   timer = setTimeout(expire, UNDONE_MS)
   emit()
   try { await action.undo() } catch { /* best-effort; Trash remains the fallback */ }

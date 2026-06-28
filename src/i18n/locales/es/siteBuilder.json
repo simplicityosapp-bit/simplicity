@@ -100,6 +100,7 @@
     "freeLayout": "Posición libre (beta)",
     "freeLayoutHint": "Arrastra bloques libremente. Cambia a vista móvil (icono del teléfono) para organizar el móvil por separado.",
     "freezeBg": "Congelar fondo (evita el recorte)",
+    "mobileBg": "Fondo aparte para móvil",
     "grpAddress": "Dirección",
     "grpTypography": "Tipografía y color",
     "grpBackground": "Fondo",

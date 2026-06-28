@@ -100,6 +100,7 @@
     "freeLayout": "Free positioning (beta)",
     "freeLayoutHint": "Drag blocks freely. Switch to mobile view (phone icon) to arrange the phone layout separately.",
     "freezeBg": "Freeze background (prevents re-crop)",
+    "mobileBg": "Separate mobile background",
     "grpAddress": "Address",
     "grpTypography": "Type & color",
     "grpBackground": "Background",

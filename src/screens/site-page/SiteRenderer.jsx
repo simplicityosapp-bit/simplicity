@@ -738,9 +738,8 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
 
 export default function SiteRenderer({ theme, sections, interactive = false, runtime, className = '', selectedId, onEdit, device }) {
   const { t } = useT('siteBuilder')
-  const { style, cls } = sitePageSurface(theme)
   const [guides, setGuides] = useState(null) // free-mode smart guides: { x, y } | null
-  // When no explicit device (public page), pick layout by viewport width.
+  // When no explicit device (public page), pick layout + bg by viewport width.
   const [vw, setVw] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1200))
   useEffect(() => {
     if (device != null || typeof window === 'undefined') return undefined
@@ -748,11 +747,12 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
     window.addEventListener('resize', on)
     return () => window.removeEventListener('resize', on)
   }, [device])
+  const mobile = device != null ? device === 'mobile' : vw < 600
+  const { style, cls } = sitePageSurface(theme, mobile) // mobile may swap to a separate bg
   const list = Array.isArray(sections) ? sections : []
   // FREE mode: the page is a fixed-width positioning canvas; its height grows to
   // the lowest block bottom. Desktop vs mobile use SEPARATE layouts/canvas widths.
   const free = theme?.layoutMode === 'free'
-  const mobile = device != null ? device === 'mobile' : vw < 600
   const layoutKey = freeLayoutKey(mobile)
   const canvasW = mobile ? FREE_CANVAS_MOBILE_W : FREE_CANVAS_W
   const onGuides = (free && onEdit) ? setGuides : undefined

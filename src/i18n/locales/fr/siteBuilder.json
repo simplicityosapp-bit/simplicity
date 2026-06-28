@@ -100,6 +100,7 @@
     "freeLayout": "Position libre (bêta)",
     "freeLayoutHint": "Glissez les blocs librement. Passez en vue mobile (icône téléphone) pour organiser le téléphone séparément.",
     "freezeBg": "Figer l'arrière-plan (évite le recadrage)",
+    "mobileBg": "Arrière-plan mobile séparé",
     "grpAddress": "Adresse",
     "grpTypography": "Typographie et couleur",
     "grpBackground": "Arrière-plan",

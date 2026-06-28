@@ -497,6 +497,12 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
             <input type="checkbox" checked={!!theme.freezeBg} onChange={(e) => setTheme({ freezeBg: e.target.checked })} />
           </label>
         ) : null}
+        <label className="spe-f spe-f-row"><span>{t('design.mobileBg')}</span>
+          <input type="checkbox" checked={!!theme.mobileBgOn} onChange={(e) => setTheme({ mobileBgOn: e.target.checked })} />
+        </label>
+        {theme.mobileBgOn ? (
+          <ImageField value={theme.mobileBg} onChange={(url) => setTheme({ mobileBg: url })} />
+        ) : null}
       </div>
 
       <div className="spe-group">

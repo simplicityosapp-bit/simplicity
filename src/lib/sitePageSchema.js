@@ -71,6 +71,8 @@ export const DEFAULT_THEME = {
   freezeBg: false,     // photo bg pinned to the viewport (background-attachment:
                        // fixed) so it doesn't re-scale/crop as the page grows;
                        // opt-in (iOS Safari treats fixed as scroll → degrades).
+  mobileBgOn: false,   // use a separate uploaded background on mobile (mobileBg)
+  mobileBg: '',        // mobile-only background image url (when mobileBgOn)
   layoutMode: 'stack', // 'stack' (default responsive vertical sections) | 'free'
                        // (PROTOTYPE: desktop free-positioning — each section has a
                        // layout {x,y,w,h} in px on a fixed FREE_CANVAS_W canvas).
@@ -131,7 +133,7 @@ export function safeVideoEmbed(url) {
 /* Theme → inline CSS vars + className, applied to the `.sp-surface` root used
    by BOTH the builder canvas and the public page (true WYSIWYG). Generalizes
    leadPageSurface(): adds `font` and the three background types. */
-export function sitePageSurface(theme = {}) {
+export function sitePageSurface(theme = {}, mobile = false) {
   const t = { ...DEFAULT_THEME, ...(theme || {}) }
   const bg = t.background || DEFAULT_THEME.background
   const clamp = (v, lo, hi, d) => {
@@ -146,7 +148,13 @@ export function sitePageSurface(theme = {}) {
     '--sp-radius': `${clamp(t.cardRadius, 8, 48, 24)}px`,
   }
   const cls = ['sp-surface']
-  if (bg.type === 'scene' && bg.value) {
+  // A coach-uploaded MOBILE background overrides everything on a narrow screen.
+  const mobileSrc = (mobile && t.mobileBgOn) ? safeImageUrl(t.mobileBg) : ''
+  if (mobileSrc) {
+    style['--sp-bg-day'] = `url("${mobileSrc}")`
+    style['--sp-bg-night'] = `url("${mobileSrc}")`
+    cls.push('has-bg')
+  } else if (bg.type === 'scene' && bg.value) {
     style['--sp-bg-day'] = `url(${leadPageBgUrl(bg.value, 'day')})`
     style['--sp-bg-night'] = `url(${leadPageBgUrl(bg.value, 'night')})`
     cls.push('has-bg')
@@ -164,7 +172,7 @@ export function sitePageSurface(theme = {}) {
   // Readability: text sitting directly on a photo background needs to be light
   // (with a shadow). 'auto' (the default) picks per background — light on a
   // photo, dark on a flat colour; 'light'/'dark' are explicit coach overrides.
-  const photoBg = bg.type === 'scene' || bg.type === 'image'
+  const photoBg = !!mobileSrc || bg.type === 'scene' || bg.type === 'image'
   if (t.textColor === 'light' || (t.textColor !== 'dark' && photoBg)) cls.push('text-light')
   if (t.textAlign === 'center') cls.push('align-center')
   // Freeze the photo background to the viewport so it keeps a constant crop as

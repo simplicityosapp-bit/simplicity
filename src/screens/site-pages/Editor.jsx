@@ -228,8 +228,12 @@ export default function Editor({ page, onSave, onBack }) {
      serializer: the snapshot comes back from a Postgres jsonb column, which
      normalises key order, so a raw JSON.stringify would always mis-compare and
      show a freshly-published page as having unpublished changes. */
-  const draftVersion = () => canon({ theme: draft.theme, sections: draft.sections, config: draft.config })
-  const hasUnpublishedChanges = !!draft.published && draftVersion() !== canon(publishedSnapshot || {})
+  // Memoized: canon() deep-sorts + stringifies the whole page, so don't re-run it
+  // on every keystroke render — only when the draft content or snapshot changes.
+  const hasUnpublishedChanges = useMemo(
+    () => !!draft.published && canon({ theme: draft.theme, sections: draft.sections, config: draft.config }) !== canon(publishedSnapshot || {}),
+    [draft.published, draft.theme, draft.sections, draft.config, publishedSnapshot],
+  )
 
   const baseFields = () => ({
     title: draft.title, slug: draft.slug || null, kind: draft.kind,

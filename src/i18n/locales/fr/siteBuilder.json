@@ -98,7 +98,7 @@
     "grpSize": "Taille et position",
     "grpLayout": "Disposition",
     "freeLayout": "Position libre (bêta)",
-    "freeLayoutHint": "Glissez les blocs librement sur ordinateur. Mise en page mobile séparée — bientôt.",
+    "freeLayoutHint": "Glissez les blocs librement. Passez en vue mobile (icône téléphone) pour organiser le téléphone séparément.",
     "freezeBg": "Figer l'arrière-plan (évite le recadrage)",
     "grpAddress": "Adresse",
     "grpTypography": "Typographie et couleur",

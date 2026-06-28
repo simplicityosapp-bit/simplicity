@@ -78,9 +78,16 @@ export const DEFAULT_THEME = {
 }
 
 // Free-layout (prototype) design canvas width in px — section x/y/w/h are relative
-// to this. A fresh free block + the on-toggle stacking both use these defaults.
+// to this. Desktop uses props.layout on FREE_CANVAS_W; mobile (Phase 2) uses a
+// SEPARATE props.layoutMobile on the narrower FREE_CANVAS_MOBILE_W canvas.
 export const FREE_CANVAS_W = 960
-export const freeDefaultLayout = (i = 0) => ({ x: 80, y: 40 + i * 180, w: FREE_CANVAS_W - 160, h: 150 })
+export const FREE_CANVAS_MOBILE_W = 390
+export const freeDefaultLayout = (i = 0, canvasW = FREE_CANVAS_W) => {
+  const pad = canvasW < 500 ? 16 : 80
+  return { x: pad, y: 40 + i * 180, w: canvasW - 2 * pad, h: 150 }
+}
+// The section prop key holding the free layout for the active device.
+export const freeLayoutKey = (mobile) => (mobile ? 'layoutMobile' : 'layout')
 
 /* Allowlist a coach-authored image/background URL before binding it to an
    <img src> or a CSS url(). Permits only http(s) and same-origin root-relative

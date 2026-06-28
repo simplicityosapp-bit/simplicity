@@ -98,7 +98,7 @@
     "grpSize": "Size & position",
     "grpLayout": "Layout",
     "freeLayout": "Free positioning (beta)",
-    "freeLayoutHint": "Drag blocks freely on desktop. Separate mobile layout — coming soon.",
+    "freeLayoutHint": "Drag blocks freely. Switch to mobile view (phone icon) to arrange the phone layout separately.",
     "freezeBg": "Freeze background (prevents re-crop)",
     "grpAddress": "Address",
     "grpTypography": "Type & color",

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, Component } from 'react'
-import { sitePageSurface, safeRedirectUrl, safeImageUrl, safeVideoEmbed, FREE_CANVAS_W, freeDefaultLayout } from '../../lib/sitePageSchema'
+import { sitePageSurface, safeRedirectUrl, safeImageUrl, safeVideoEmbed, FREE_CANVAS_W, FREE_CANVAS_MOBILE_W, freeDefaultLayout, freeLayoutKey } from '../../lib/sitePageSchema'
 import { renderRichText } from '../../lib/richText'
 import { useBookingFlow } from './useBookingFlow'
 import '../booking-pages/bookingI18n'   // self-registers the 'booking' namespace (inline picker labels)
@@ -642,7 +642,7 @@ function snapMove(rawX, rawY, w, h, page, self) {
   return { x: Math.round(x), y: Math.round(y), gx, gy, spacers }
 }
 
-function Section({ section, index = 0, free, interactive, runtime, selectedId, onEdit, onGuides }) {
+function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FREE_CANVAS_W, interactive, runtime, selectedId, onEdit, onGuides }) {
   const type = section.type
   const isSel = section.id === selectedId
   const sel = isSel ? '' : undefined
@@ -663,9 +663,9 @@ function Section({ section, index = 0, free, interactive, runtime, selectedId, o
   const align = section.props?.boxAlign || 'center'
   const sized = width > 0 && width < 100
 
-  // FREE mode (prototype): absolute layout from props.layout (default-stacked by
-  // index until the coach drags it) overrides the responsive stack.
-  const layout = section.props?.layout || (free ? freeDefaultLayout(index) : null)
+  // FREE mode: absolute layout from props[layoutKey] (layout for desktop,
+  // layoutMobile for mobile — default-stacked by index until the coach drags it).
+  const layout = section.props?.[layoutKey] || (free ? freeDefaultLayout(index, canvasW) : null)
   const freeStyle = free ? {
     position: 'absolute', left: `${layout?.x || 0}px`, top: `${layout?.y || 0}px`,
     width: `${layout?.w || 240}px`, height: `${layout?.h || 120}px`,
@@ -686,10 +686,10 @@ function Section({ section, index = 0, free, interactive, runtime, selectedId, o
       if (mode === 'move') {
         const s = page ? snapMove(base.x + dx, base.y + dy, base.w, base.h, page, self)
           : { x: Math.round(base.x + dx), y: Math.round(base.y + dy), gx: null, gy: null }
-        edit('layout', { ...base, x: s.x, y: s.y })
+        edit(layoutKey, { ...base, x: s.x, y: s.y })
         if (onGuides) onGuides({ x: s.gx, y: s.gy, spacers: s.spacers })
       } else {
-        edit('layout', { ...base, w: Math.max(60, Math.round(base.w + dx)), h: Math.max(40, Math.round(base.h + dy)) })
+        edit(layoutKey, { ...base, w: Math.max(60, Math.round(base.w + dx)), h: Math.max(40, Math.round(base.h + dy)) })
       }
     }
     const up = () => {
@@ -736,18 +736,29 @@ function Section({ section, index = 0, free, interactive, runtime, selectedId, o
   )
 }
 
-export default function SiteRenderer({ theme, sections, interactive = false, runtime, className = '', selectedId, onEdit }) {
+export default function SiteRenderer({ theme, sections, interactive = false, runtime, className = '', selectedId, onEdit, device }) {
   const { t } = useT('siteBuilder')
   const { style, cls } = sitePageSurface(theme)
   const [guides, setGuides] = useState(null) // free-mode smart guides: { x, y } | null
+  // When no explicit device (public page), pick layout by viewport width.
+  const [vw, setVw] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1200))
+  useEffect(() => {
+    if (device != null || typeof window === 'undefined') return undefined
+    const on = () => setVw(window.innerWidth)
+    window.addEventListener('resize', on)
+    return () => window.removeEventListener('resize', on)
+  }, [device])
   const list = Array.isArray(sections) ? sections : []
-  // FREE mode (prototype): the page is a fixed-width positioning canvas; its
-  // height grows to the lowest block bottom so everything is contained.
+  // FREE mode: the page is a fixed-width positioning canvas; its height grows to
+  // the lowest block bottom. Desktop vs mobile use SEPARATE layouts/canvas widths.
   const free = theme?.layoutMode === 'free'
+  const mobile = device != null ? device === 'mobile' : vw < 600
+  const layoutKey = freeLayoutKey(mobile)
+  const canvasW = mobile ? FREE_CANVAS_MOBILE_W : FREE_CANVAS_W
   const onGuides = (free && onEdit) ? setGuides : undefined
-  const layoutOf = (s, i) => s.props?.layout || freeDefaultLayout(i)
+  const layoutOf = (s, i) => s.props?.[layoutKey] || freeDefaultLayout(i, canvasW)
   const pageStyle = free ? {
-    width: `${FREE_CANVAS_W}px`, maxWidth: '100%', position: 'relative',
+    width: `${canvasW}px`, maxWidth: '100%', position: 'relative',
     minHeight: `${list.reduce((m, s, i) => Math.max(m, layoutOf(s, i).y + layoutOf(s, i).h), 0) + 80}px`,
   } : undefined
   return (
@@ -755,7 +766,7 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
       <div className={`sp-page${free ? ' sp-free' : ''}`} style={pageStyle}>
         {list.map((s, i) => (
           <SectionErrorBoundary key={s.id}>
-            <Section section={s} index={i} free={free} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} onGuides={onGuides} />
+            <Section section={s} index={i} free={free} layoutKey={layoutKey} canvasW={canvasW} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} onGuides={onGuides} />
           </SectionErrorBoundary>
         ))}
         {free && guides && guides.x != null ? <div className="sp-guide sp-guide-v" style={{ left: `${guides.x}px` }} aria-hidden="true" /> : null}

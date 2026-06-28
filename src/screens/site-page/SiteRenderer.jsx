@@ -641,7 +641,21 @@ function snapMove(rawX, rawY, w, h, blocks, cw) {
   return { x: Math.round(x), y: Math.round(y), gx, gy, spacers }
 }
 
-function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FREE_CANVAS_W, interactive, runtime, selectedId, onEdit, onGuides }) {
+/* Imperative free-drag guides — appended/removed straight in .sp-page (editor only)
+   so they don't go through React state during a drag. Cleared before the drop commit. */
+function clearGuides(page) { if (page) page.querySelectorAll('.sp-guide, .sp-spacer').forEach((el) => el.remove()) }
+function drawGuides(page, gx, gy, spacers) {
+  if (!page) return
+  clearGuides(page)
+  const add = (cls, st) => { const d = document.createElement('div'); d.className = cls; d.setAttribute('aria-hidden', 'true'); Object.assign(d.style, st); page.appendChild(d) }
+  if (gx != null) add('sp-guide sp-guide-v', { left: `${gx}px` })
+  if (gy != null) add('sp-guide sp-guide-h', { top: `${gy}px` })
+  ;(spacers || []).forEach((sp) => add(`sp-spacer ${sp.v ? 'sp-spacer-v' : 'sp-spacer-h'}`,
+    sp.v ? { left: `${sp.left}px`, top: `${sp.top}px`, height: `${Math.max(0, sp.h)}px` }
+      : { left: `${sp.left}px`, top: `${sp.top}px`, width: `${Math.max(0, sp.w)}px` }))
+}
+
+function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FREE_CANVAS_W, interactive, runtime, selectedId, onEdit }) {
   const type = section.type
   const isSel = section.id === selectedId
   const sel = isSel ? '' : undefined
@@ -674,6 +688,9 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
   // FREE drag: the whole block body MOVES (skipping text/buttons/the resize handle
   // so those stay editable/clickable); the corner handle RESIZES. Px deltas in the
   // 1:1 free canvas. A plain click (no movement past a threshold) just selects.
+  // IMPERATIVE: during the drag the block + guides are moved straight in the DOM, so
+  // a pointermove does NOT re-render every section — React state is committed once on
+  // drop. (drawGuides/clearGuides append/remove plain divs; cleared before the commit.)
   const startFreeDrag = (e, mode) => {
     if (mode === 'move' && e.target.closest('.sp-editable, input, textarea, button, a, .sp-free-resize')) return
     if (mode === 'resize') { e.preventDefault(); e.stopPropagation() }
@@ -689,25 +706,29 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
     })
     const sx = e.clientX, sy = e.clientY
     const base = { x: layout.x, y: layout.y, w: layout.w, h: layout.h }
-    let moved = false
+    let moved = false, last = base
     const mv = (ev) => {
       const dx = ev.clientX - sx, dy = ev.clientY - sy
       if (!moved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return // a click, not a drag → don't dirty the page
       moved = true
       if (mode === 'move') {
         const s = snapMove(base.x + dx, base.y + dy, base.w, base.h, neighbors, cw)
-        edit(layoutKey, { ...base, x: s.x, y: s.y })
-        if (onGuides) onGuides({ x: s.gx, y: s.gy, spacers: s.spacers })
+        last = { ...base, x: s.x, y: s.y }
+        self.style.left = `${s.x}px`; self.style.top = `${s.y}px`
+        drawGuides(page, s.gx, s.gy, s.spacers)
       } else {
-        edit(layoutKey, { ...base, w: Math.max(60, Math.round(base.w + dx)), h: Math.max(40, Math.round(base.h + dy)) })
+        last = { ...base, w: Math.max(60, Math.round(base.w + dx)), h: Math.max(40, Math.round(base.h + dy)) }
+        self.style.width = `${last.w}px`; self.style.height = `${last.h}px`
       }
     }
-    const up = () => {
+    const end = (commit) => {
       window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up)
       document.body.classList.remove('sp-moving'); dragRef.current = null
-      if (onGuides) onGuides(null)
+      clearGuides(page)
+      if (commit && moved) edit(layoutKey, last)
     }
-    dragRef.current = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); document.body.classList.remove('sp-moving'); if (onGuides) onGuides(null) }
+    const up = () => end(true)
+    dragRef.current = () => end(false)
     document.body.classList.add('sp-moving')
     window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up)
   }
@@ -748,7 +769,6 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
 
 export default function SiteRenderer({ theme, sections, interactive = false, runtime, className = '', selectedId, onEdit, device }) {
   const { t } = useT('siteBuilder')
-  const [guides, setGuides] = useState(null) // free-mode smart guides: { x, y } | null
   // When no explicit device (public page), pick layout + bg by viewport width.
   const [vw, setVw] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1200))
   useEffect(() => {
@@ -765,7 +785,6 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
   const free = theme?.layoutMode === 'free'
   const layoutKey = freeLayoutKey(mobile)
   const canvasW = mobile ? FREE_CANVAS_MOBILE_W : FREE_CANVAS_W
-  const onGuides = (free && onEdit) ? setGuides : undefined
   const layoutOf = (s, i) => ({ ...freeDefaultLayout(i, canvasW), ...(s.props?.[layoutKey] || {}) })
   // FREE mode is a fixed-width (canvasW) absolute canvas. On the PUBLIC page, when
   // the viewport is narrower than canvasW (tablet / small window), scale the whole
@@ -791,15 +810,9 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
     <div className={`sp-page${free ? ' sp-free' : ''}`} style={pageStyle}>
       {list.map((s, i) => (
         <SectionErrorBoundary key={s.id}>
-          <Section section={s} index={i} free={free} layoutKey={layoutKey} canvasW={canvasW} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} onGuides={onGuides} />
+          <Section section={s} index={i} free={free} layoutKey={layoutKey} canvasW={canvasW} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} />
         </SectionErrorBoundary>
       ))}
-      {free && guides && guides.x != null ? <div className="sp-guide sp-guide-v" style={{ left: `${guides.x}px` }} aria-hidden="true" /> : null}
-      {free && guides && guides.y != null ? <div className="sp-guide sp-guide-h" style={{ top: `${guides.y}px` }} aria-hidden="true" /> : null}
-      {free && guides && guides.spacers ? guides.spacers.map((sp, i) => (
-        <div key={`sp${i}`} className={`sp-spacer ${sp.v ? 'sp-spacer-v' : 'sp-spacer-h'}`} aria-hidden="true"
-          style={sp.v ? { left: `${sp.left}px`, top: `${sp.top}px`, height: `${Math.max(0, sp.h)}px` } : { left: `${sp.left}px`, top: `${sp.top}px`, width: `${Math.max(0, sp.w)}px` }} />
-      )) : null}
       {list.length === 0 ? <div className="sp-empty">{t('renderer.empty')}</div> : null}
     </div>
   )

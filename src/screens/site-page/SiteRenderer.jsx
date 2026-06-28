@@ -587,7 +587,26 @@ function ResizeHandle({ width, onResize }) {
   )
 }
 
-function Section({ section, index = 0, free, interactive, runtime, selectedId, onEdit }) {
+/* Smart-guide snapping (free proto): snap the dragged block's edges/center to other
+   blocks' edges/centers + the canvas edges/center (within T px) and report the guide
+   line position. All in .sp-page layout-space (offsetLeft/Top — no scaling issues). */
+function snapMove(rawX, rawY, w, h, page, self) {
+  const T = 6
+  const cw = page.clientWidth || FREE_CANVAS_W
+  const xT = [0, cw / 2, cw]
+  const yT = [0]
+  page.querySelectorAll('.sp-free-block').forEach((b) => {
+    if (b === self) return
+    xT.push(b.offsetLeft, b.offsetLeft + b.offsetWidth / 2, b.offsetLeft + b.offsetWidth)
+    yT.push(b.offsetTop, b.offsetTop + b.offsetHeight / 2, b.offsetTop + b.offsetHeight)
+  })
+  let x = rawX, y = rawY, gx = null, gy = null, bx = T + 1, by = T + 1
+  for (const off of [0, w / 2, w]) for (const t of xT) { const d = Math.abs(rawX + off - t); if (d <= T && d < bx) { bx = d; x = t - off; gx = t } }
+  for (const off of [0, h / 2, h]) for (const t of yT) { const d = Math.abs(rawY + off - t); if (d <= T && d < by) { by = d; y = t - off; gy = t } }
+  return { x: Math.round(x), y: Math.round(y), gx, gy }
+}
+
+function Section({ section, index = 0, free, interactive, runtime, selectedId, onEdit, onGuides }) {
   const type = section.type
   const isSel = section.id === selectedId
   const sel = isSel ? '' : undefined
@@ -622,18 +641,27 @@ function Section({ section, index = 0, free, interactive, runtime, selectedId, o
   const startFreeDrag = (e, mode) => {
     if (mode === 'move' && e.target.closest('.sp-editable, input, textarea, button, a, .sp-free-resize')) return
     if (mode === 'resize') { e.preventDefault(); e.stopPropagation() }
+    const self = e.currentTarget.closest('.sp-block')
+    const page = self && self.closest('.sp-page')
     const sx = e.clientX, sy = e.clientY
     const base = { x: layout?.x || 0, y: layout?.y || 0, w: layout?.w || 240, h: layout?.h || 120 }
     const mv = (ev) => {
       const dx = ev.clientX - sx, dy = ev.clientY - sy
-      if (mode === 'move') edit('layout', { ...base, x: Math.round(base.x + dx), y: Math.round(base.y + dy) })
-      else edit('layout', { ...base, w: Math.max(60, Math.round(base.w + dx)), h: Math.max(40, Math.round(base.h + dy)) })
+      if (mode === 'move') {
+        const s = page ? snapMove(base.x + dx, base.y + dy, base.w, base.h, page, self)
+          : { x: Math.round(base.x + dx), y: Math.round(base.y + dy), gx: null, gy: null }
+        edit('layout', { ...base, x: s.x, y: s.y })
+        if (onGuides) onGuides({ x: s.gx, y: s.gy })
+      } else {
+        edit('layout', { ...base, w: Math.max(60, Math.round(base.w + dx)), h: Math.max(40, Math.round(base.h + dy)) })
+      }
     }
     const up = () => {
       window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up)
       document.body.classList.remove('sp-moving'); dragRef.current = null
+      if (onGuides) onGuides(null)
     }
-    dragRef.current = up
+    dragRef.current = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); document.body.classList.remove('sp-moving'); if (onGuides) onGuides(null) }
     document.body.classList.add('sp-moving')
     window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up)
   }
@@ -675,10 +703,12 @@ function Section({ section, index = 0, free, interactive, runtime, selectedId, o
 export default function SiteRenderer({ theme, sections, interactive = false, runtime, className = '', selectedId, onEdit }) {
   const { t } = useT('siteBuilder')
   const { style, cls } = sitePageSurface(theme)
+  const [guides, setGuides] = useState(null) // free-mode smart guides: { x, y } | null
   const list = Array.isArray(sections) ? sections : []
   // FREE mode (prototype): the page is a fixed-width positioning canvas; its
   // height grows to the lowest block bottom so everything is contained.
   const free = theme?.layoutMode === 'free'
+  const onGuides = (free && onEdit) ? setGuides : undefined
   const layoutOf = (s, i) => s.props?.layout || freeDefaultLayout(i)
   const pageStyle = free ? {
     width: `${FREE_CANVAS_W}px`, maxWidth: '100%', position: 'relative',
@@ -689,9 +719,11 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
       <div className={`sp-page${free ? ' sp-free' : ''}`} style={pageStyle}>
         {list.map((s, i) => (
           <SectionErrorBoundary key={s.id}>
-            <Section section={s} index={i} free={free} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} />
+            <Section section={s} index={i} free={free} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} onGuides={onGuides} />
           </SectionErrorBoundary>
         ))}
+        {free && guides && guides.x != null ? <div className="sp-guide sp-guide-v" style={{ left: `${guides.x}px` }} aria-hidden="true" /> : null}
+        {free && guides && guides.y != null ? <div className="sp-guide sp-guide-h" style={{ top: `${guides.y}px` }} aria-hidden="true" /> : null}
         {list.length === 0 ? <div className="sp-empty">{t('renderer.empty')}</div> : null}
       </div>
     </div>

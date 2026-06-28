@@ -360,6 +360,11 @@ body.sp-resizing { cursor: ew-resize !important; user-select: none; }
 .sp-free-block:hover > .sp-free-resize,
 .sp-free-block[data-selected=""] > .sp-free-resize { opacity: 1; }
 body.sp-moving { cursor: move !important; user-select: none; }
+/* Smart guides — appear while dragging when the block aligns with another block's
+   edge/center or the canvas edge/center. Distinct colour so they read over any bg. */
+.sp-guide { position: absolute; z-index: 7; pointer-events: none; background: #ff2d78; box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.5); }
+.sp-guide-v { top: 0; bottom: 0; width: 1px; margin-inline-start: -0.5px; }
+.sp-guide-h { left: 0; right: 0; height: 1px; margin-top: -0.5px; }
 
 /* ── Surface modifiers (from sitePageSurface classes) ────────────────────── */
 .sp-surface.is-bold .sp-h1 { font-weight: 800; }

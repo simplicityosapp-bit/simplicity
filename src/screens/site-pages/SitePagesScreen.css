@@ -226,6 +226,13 @@
 .spe-inspector { width: 300px; flex: none; border-inline-start: 1px solid var(--divider); background: var(--mg-card-bg); -webkit-backdrop-filter: var(--mg-card-blur); backdrop-filter: var(--mg-card-blur); overflow: auto; }
 /* The bottom-sheet header + backdrop are mobile-only — hidden on desktop. */
 .spe-sheet-head, .spe-sheet-backdrop { display: none; }
+
+/* Focus view — hide the work panels so the page shows at full size; the canvas
+   (flex:1) expands to fill. Toggled from the top bar; toggle back to edit. */
+.spe.is-focus .spe-rail,
+.spe.is-focus .spe-inspector { display: none; }
+.spe-focus-btn.is-on { background: var(--terracotta); color: var(--pure-white); }
+.spe-focus-btn.is-on:hover { background: var(--terracotta); }
 .spe-panel { padding: 16px; display: flex; flex-direction: column; gap: 14px; animation: mgFadeUp 0.2s ease; }
 .spe-panel-title { font-size: var(--mg-heading); font-weight: 600; color: var(--espresso); margin: 0; }
 /* Grouping inside the design panel — a hairline + caption per cluster. */

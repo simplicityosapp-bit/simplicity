@@ -134,10 +134,12 @@ function TextBlock({ props, edit }) {
 function ImageBlock({ props }) {
   const { t } = useT('siteBuilder')
   const src = safeImageUrl(props.url)
+  const mobileSrc = safeImageUrl(props.mobileUrl)
   if (!src) return <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
   return withCard(props,
-    <figure className={`sp-figure sp-w-${props.width || 'full'}`}>
-      <img className="sp-img" src={src} alt={props.alt || ''} loading="lazy" />
+    <figure className={`sp-figure sp-w-${props.width || 'full'}${mobileSrc ? ' has-mobile' : ''}`}>
+      <img className="sp-img sp-img-d" src={src} alt={props.alt || ''} loading="lazy" />
+      {mobileSrc ? <img className="sp-img sp-img-m" src={mobileSrc} alt={props.alt || ''} loading="lazy" /> : null}
     </figure>,
   )
 }

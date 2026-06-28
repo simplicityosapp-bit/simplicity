@@ -108,6 +108,14 @@
 .sp-figure.sp-w-narrow { max-width: 360px; margin-inline: auto; }
 .sp-figure.sp-w-wide { max-width: 100%; }
 .sp-img { display: block; width: 100%; height: auto; border-radius: var(--sp-radius, 24px); }
+/* Optional separate mobile image: show the desktop one by default; on a narrow
+   container (real phone OR the editor's mobile frame, since .sp-page is the
+   query container) swap to the mobile image. No mobile image → desktop always. */
+.sp-figure .sp-img-m { display: none; }
+@container (max-width: 480px) {
+  .sp-figure.has-mobile .sp-img-d { display: none; }
+  .sp-figure.has-mobile .sp-img-m { display: block; }
+}
 .sp-img-empty {
   border: 1.5px dashed rgba(44, 38, 33, 0.22); border-radius: var(--sp-radius, 24px);
   padding: 48px; text-align: center; color: #8a8278; font-size: 14px;

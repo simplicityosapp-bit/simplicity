@@ -199,9 +199,10 @@ export const BLOCK_TYPES = {
   },
   image: {
     label: 'תמונה', icon: 'Image',
-    defaultProps: { url: '', alt: '', width: 'full', card: false, cardOpacity: 100 },
+    defaultProps: { url: '', mobileUrl: '', alt: '', width: 'full', card: false, cardOpacity: 100 },
     editable: [
       { key: 'url', label: 'תמונה', type: 'image' },
+      { key: 'mobileUrl', label: 'תמונה למובייל (לא חובה)', type: 'image' },
       { key: 'alt', label: 'טקסט חלופי', type: 'text' },
       { key: 'width', label: 'רוחב', type: 'select', options: ['full', 'wide', 'narrow'] },
       { key: 'card', label: 'רקע חלונית מאחורי הטקסט', type: 'toggle' },

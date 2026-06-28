@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight, Plus, Trash2, Monitor, Smartphone, GripVertical,
-  Palette, Upload, X, ChevronUp, ChevronDown,
+  Palette, Upload, X, ChevronUp, ChevronDown, Maximize2, Minimize2,
   LayoutTemplate, Type, Image as ImageIcon, Sparkles, Quote,
   MousePointerClick, ClipboardList, CalendarClock, Minus,
   LayoutGrid, Smile, Images, Video, HelpCircle, SeparatorHorizontal, Copy,
@@ -73,6 +73,7 @@ export default function Editor({ page, onSave, onBack }) {
   }))
   const [selectedId, setSelectedId] = useState(null)
   const [device, setDevice] = useState('desktop')
+  const [focusMode, setFocusMode] = useState(false) // hide rail+inspector → full-size page view
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [mobileSheet, setMobileSheet] = useState(false) // inspector bottom-sheet (mobile)
   const [saving, setSaving] = useState(false)
@@ -256,7 +257,7 @@ export default function Editor({ page, onSave, onBack }) {
   }
 
   return (
-    <div className="spe">
+    <div className={`spe${focusMode ? ' is-focus' : ''}`}>
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <div className="spe-top">
         <button className="spe-icon-btn" onClick={handleBack} title={t('editor.back')} aria-label={t('editor.back')}><ArrowRight size={18} /></button>
@@ -271,6 +272,14 @@ export default function Editor({ page, onSave, onBack }) {
           <button className={device === 'desktop' ? 'is-on' : ''} onClick={() => setDevice('desktop')} title={t('editor.desktop')} aria-label={t('editor.desktop')}><Monitor size={16} /></button>
           <button className={device === 'mobile' ? 'is-on' : ''} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></button>
         </div>
+        <button
+          className={`spe-icon-btn spe-focus-btn${focusMode ? ' is-on' : ''}`}
+          onClick={() => setFocusMode((v) => !v)}
+          title={focusMode ? t('editor.exitFocus') : t('editor.focusView')}
+          aria-label={focusMode ? t('editor.exitFocus') : t('editor.focusView')}
+        >
+          {focusMode ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+        </button>
         {saveError ? <span className="spe-save-err" title={saveError}>{saveError}</span> : null}
         <span className={`spe-status${draft.published ? (hasUnpublishedChanges ? ' is-pending' : ' is-live') : ''}`}>
           {!draft.published ? t('editor.statusDraft') : hasUnpublishedChanges ? t('editor.statusUnpublished') : t('editor.statusPublished')}

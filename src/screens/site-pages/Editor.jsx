@@ -99,6 +99,9 @@ export default function Editor({ page, onSave, onBack }) {
   const delTimer = useRef(null)
   const draftRef = useRef(draft)                   // latest draft for deferred asset cleanup
   useEffect(() => { draftRef.current = draft }, [draft])
+  // Cancel a pending delete's deferred asset-cleanup on unmount — otherwise leaving
+  // the editor (Back) before saving could remove an asset the SAVED page still uses.
+  useEffect(() => () => { if (delTimer.current) clearTimeout(delTimer.current) }, [])
 
   /* Close the top-bar "⋯" overflow menu on outside-click / Escape. */
   useEffect(() => {

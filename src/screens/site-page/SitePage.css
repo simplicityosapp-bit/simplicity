@@ -578,7 +578,8 @@ a.sp-contact-row:hover { background: color-mix(in srgb, var(--sp-brand) 8%, tran
 
 /* ── Banner (announcement bar) ───────────────────────────────────────────── */
 .sp-banner { width: 100%; }
-.sp-banner.is-sticky { position: sticky; top: 0; z-index: 20; }
+/* Sticky lives on the row wrapper (real scroll range within .sp-page). */
+.sp-row-banner.is-sticky { position: sticky; top: 0; z-index: 20; }
 .sp-banner-inner { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 16px; padding: 11px clamp(16px, 4cqi, 32px); text-align: center; }
 .sp-banner-text { font-size: 15px; font-weight: 500; }
 .sp-banner-brand { background: var(--sp-brand); color: #fff; }
@@ -599,13 +600,16 @@ a.sp-contact-row:hover { background: color-mix(in srgb, var(--sp-brand) 8%, tran
 /* ── Surface modifiers (from sitePageSurface classes) ────────────────────── */
 .sp-surface.is-bold .sp-h1 { font-weight: 800; }
 .sp-surface.is-bold :is(.sp-sub, .sp-text, .sp-label, .sp-feature-title, .sp-quote) { font-weight: 600; }
-.sp-surface.text-light :is(.sp-h1, .sp-h2, .sp-sub, .sp-text, .sp-eyebrow, .sp-feature-title, .sp-feature-text, .sp-quote, .sp-cite, .sp-label, .sp-muted, .sp-empty, .sp-stat-label, .sp-step-title, .sp-step-text, .sp-contact-val, .sp-price-period, .sp-cd-lbl) {
+/* NB: .sp-price-period / .sp-cd-lbl are intentionally NOT here — pricing tiers and
+   countdown units are their OWN always-light cards (not .sp-card), so lightening
+   them would make them invisible on a photo page. They keep their dark color. */
+.sp-surface.text-light :is(.sp-h1, .sp-h2, .sp-sub, .sp-text, .sp-eyebrow, .sp-feature-title, .sp-feature-text, .sp-quote, .sp-cite, .sp-label, .sp-muted, .sp-empty, .sp-stat-label, .sp-step-title, .sp-step-text, .sp-contact-val) {
   color: #f7f3ec; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
 }
 /* …but text inside a card sits on the (light) card, not the photo — keep it dark
    so forms/labels stay readable. Light mode only; dark mode re-lightens below. */
 @media (prefers-color-scheme: light) {
-  .sp-surface.text-light .sp-card :is(.sp-h1, .sp-h2, .sp-sub, .sp-text, .sp-eyebrow, .sp-feature-title, .sp-feature-text, .sp-quote, .sp-cite, .sp-label, .sp-muted, .sp-stat-label, .sp-step-title, .sp-step-text, .sp-contact-val, .sp-price-period, .sp-cd-lbl) {
+  .sp-surface.text-light .sp-card :is(.sp-h1, .sp-h2, .sp-sub, .sp-text, .sp-eyebrow, .sp-feature-title, .sp-feature-text, .sp-quote, .sp-cite, .sp-label, .sp-muted, .sp-stat-label, .sp-step-title, .sp-step-text, .sp-contact-val) {
     color: #2c2621; text-shadow: none;
   }
 }

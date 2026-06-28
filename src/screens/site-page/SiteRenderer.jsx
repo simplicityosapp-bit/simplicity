@@ -622,11 +622,13 @@ function PricingBlock({ props, interactive }) {
 }
 
 /* Logo / "as seen in" strip (grayscale by default). */
-function LogosBlock({ props }) {
+function LogosBlock({ props, interactive }) {
   const { t } = useT('siteBuilder')
   const items = Array.isArray(props.items) ? props.items : []
   const imgs = items.map((it) => safeImageUrl(it && it.url)).filter(Boolean)
-  if (!imgs.length) return <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
+  // Public page: an unfilled block is simply absent (no placeholder hint to visitors);
+  // the editor still shows the empty state so the coach knows to fill it.
+  if (!imgs.length) return interactive ? null : <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
   return (
     <div className={`sp-logos${props.grayscale !== false ? ' is-gray' : ''}`}>
       {imgs.map((u, i) => <img key={i} className="sp-logo" src={u} alt="" loading="lazy" />)}
@@ -731,12 +733,14 @@ function SocialBlock({ props, interactive }) {
 }
 
 /* Contact details card (tap-to-call / mail / map). */
-function ContactBlock({ props }) {
+function ContactBlock({ props, interactive }) {
   const rows = []
   if (str(props.phone)) rows.push({ g: 'phone', label: props.phone, href: `tel:${String(props.phone).replace(/[^0-9+]/g, '')}` })
   if (str(props.whatsapp)) rows.push({ g: 'whatsapp', label: props.whatsapp, href: `https://wa.me/${String(props.whatsapp).replace(/[^0-9]/g, '')}` })
   if (str(props.email)) rows.push({ g: 'email', label: props.email, href: `mailto:${str(props.email)}` })
   if (str(props.address)) rows.push({ g: 'address', label: props.address, href: `https://www.google.com/maps?q=${encodeURIComponent(str(props.address))}` })
+  // Nothing filled in → absent on the public page (no empty card to visitors).
+  if (interactive && !rows.length && !str(props.hours)) return null
   const addrGlyph = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>
   const hoursGlyph = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
   const glyph = (g) => (g === 'address' ? addrGlyph : socialGlyph(g))
@@ -759,10 +763,10 @@ function ContactBlock({ props }) {
 }
 
 /* Google Maps embed — built only from the coach's query (no arbitrary src). */
-function MapBlock({ props }) {
+function MapBlock({ props, interactive }) {
   const { t } = useT('siteBuilder')
   const q = str(props.query)
-  if (!q) return <div className="sp-img-empty">{t('renderer.mapEmpty', { defaultValue: 'הוסיפו כתובת להצגת מפה' })}</div>
+  if (!q) return interactive ? null : <div className="sp-img-empty">{t('renderer.mapEmpty', { defaultValue: 'הוסיפו כתובת להצגת מפה' })}</div>
   const src = `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`
   return (
     <div className={`sp-map sp-map-${props.height || 'md'}`}>
@@ -787,16 +791,18 @@ function BannerBlock({ props, interactive, edit }) {
   )
 }
 
-/* Countdown timer — ticks live in both the editor preview and the public page. */
-function CountdownBlock({ props }) {
+/* Countdown timer — ticks live on the PUBLIC page; in the editor/thumbnail it
+   renders a static snapshot (no 1s interval, so a hub of N pages with countdowns
+   doesn't run N clocks re-rendering scaled thumbnails every second). */
+function CountdownBlock({ props, interactive }) {
   const { t } = useT('siteBuilder')
   const target = str(props.target) ? new Date(props.target).getTime() : 0
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
-    if (!target) return undefined
+    if (!target || !interactive) return undefined
     const id = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(id)
-  }, [target])
+  }, [target, interactive])
   let body
   if (!target) {
     body = <p className="sp-muted">{t('renderer.countdownHint', { defaultValue: 'הגדירו תאריך ושעת יעד' })}</p>
@@ -1075,7 +1081,9 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
   )
   if (free) return sectionEl
   // Banner is an edge-to-edge strip — skip the centred content column.
-  if (type === 'banner') return <div className="sp-row sp-row-banner sp-pad-none">{sectionEl}</div>
+  // Sticky must live on the ROW (a flex child of the page with real scroll range),
+  // not the banner itself (whose parent is exactly its own height → 0 sticky range).
+  if (type === 'banner') return <div className={`sp-row sp-row-banner sp-pad-none${section.props?.sticky ? ' is-sticky' : ''}`}>{sectionEl}</div>
   // STACK mode: wrap the block in a full-width row carrying the optional section
   // background (band) + vertical rhythm, with content kept in a centred max-width
   // column (.sp-row-inner). Section design lives on section.style (not props), so

@@ -9,6 +9,7 @@ import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
 import Editor from './Editor'
 import TemplatePicker from './TemplatePicker'
+import SiteRenderer from '../site-page/SiteRenderer'
 import './SitePagesScreen.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -86,7 +87,17 @@ export default function SitePagesBuilder() {
       </div>
 
       {loading ? (
-        <p className="spg-muted">{t('hub.loading')}</p>
+        <ul className="spg-grid" aria-hidden="true">
+          {[0, 1, 2, 3].map((i) => (
+            <li key={i} className="spg-card spg-card-skel">
+              <div className="spg-card-thumb spg-skel" />
+              <div className="spg-card-body">
+                <div className="spg-skel-line" />
+                <div className="spg-skel-line spg-skel-line-sm" />
+              </div>
+            </li>
+          ))}
+        </ul>
       ) : error ? (
         <div className="empty">
           <span className="empty-icon"><LayoutTemplate size={28} /></span>
@@ -103,16 +114,29 @@ export default function SitePagesBuilder() {
         <ul className="spg-grid">
           {list.map((p) => (
             <li key={p.id} className="spg-card">
-              <div className="spg-card-main" onClick={() => setEditingId(p.id)}>
-                <span className="spg-card-title">{p.title || t('hub.untitled')}</span>
-                <span className={`spg-badge${p.published ? ' is-pub' : ''}`}>{p.published ? t('hub.badgePublished') : t('hub.badgeDraft')}</span>
+              <div className="spg-card-thumb" onClick={() => setEditingId(p.id)} role="button" tabIndex={0}
+                aria-label={`${p.title || t('hub.untitled')} — ${t('hub.edit')}`}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setEditingId(p.id) } }}>
+                {p.sections && p.sections.length ? (
+                  <div className="spg-card-thumb-scale" aria-hidden="true">
+                    <SiteRenderer theme={p.theme} sections={p.sections} interactive={false} />
+                  </div>
+                ) : (
+                  <div className="spg-card-thumb-empty"><LayoutTemplate size={24} /></div>
+                )}
               </div>
-              <div className="spg-card-actions">
-                <button onClick={() => setEditingId(p.id)} title={t('hub.edit')} aria-label={t('hub.edit')}><Pencil size={15} /></button>
-                <button onClick={() => duplicatePage(p)} title={t('hub.duplicate')} aria-label={t('hub.duplicate')}><Files size={15} /></button>
-                <button onClick={() => copyLink(p)} title={t('hub.copyLink')} aria-label={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</button>
-                {p.published ? <a href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')} aria-label={t('hub.open')}><ExternalLink size={15} /></a> : null}
-                <button onClick={() => removePage(p.id)} title={t('hub.delete')} aria-label={t('hub.delete')}><Trash2 size={15} /></button>
+              <div className="spg-card-body">
+                <div className="spg-card-main" onClick={() => setEditingId(p.id)}>
+                  <span className="spg-card-title">{p.title || t('hub.untitled')}</span>
+                  <span className={`spg-badge${p.published ? ' is-pub' : ''}`}>{p.published ? t('hub.badgePublished') : t('hub.badgeDraft')}</span>
+                </div>
+                <div className="spg-card-actions">
+                  <button onClick={() => setEditingId(p.id)} title={t('hub.edit')} aria-label={t('hub.edit')}><Pencil size={15} /></button>
+                  <button onClick={() => duplicatePage(p)} title={t('hub.duplicate')} aria-label={t('hub.duplicate')}><Files size={15} /></button>
+                  <button onClick={() => copyLink(p)} title={t('hub.copyLink')} aria-label={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</button>
+                  {p.published ? <a href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')} aria-label={t('hub.open')}><ExternalLink size={15} /></a> : null}
+                  <button onClick={() => removePage(p.id)} title={t('hub.delete')} aria-label={t('hub.delete')}><Trash2 size={15} /></button>
+                </div>
               </div>
             </li>
           ))}

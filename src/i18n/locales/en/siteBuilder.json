@@ -29,6 +29,9 @@
     "choose": "Choose a template to start",
     "blank": "Blank page",
     "close": "Close",
+    "coachPro": "Coach — full page",
+    "localBiz": "Local business",
+    "webinarPro": "Webinar + countdown",
     "coaching": "Personal coaching",
     "workshop": "Workshop / webinar",
     "service": "Professional service",
@@ -73,7 +76,9 @@
     "statusDraft": "Draft",
     "statusPublished": "Published",
     "statusUnpublished": "Unpublished changes",
-    "unpublish": "Unpublish"
+    "unpublish": "Unpublish",
+    "more": "More",
+    "publishedToast": "Page published!"
   },
   "seo": {
     "group": "SEO & sharing",
@@ -109,6 +114,7 @@
     "sendBack": "Send to back",
     "freeSizeHint": "Size and position are set by dragging on the canvas.",
     "freezeBg": "Freeze background (prevents re-crop)",
+    "scrim": "Background dimming (readability)",
     "mobileBg": "Separate mobile background",
     "bgImageHint": "Landscape image for full-screen — 1920×1080 or larger recommended.",
     "mobileBgHint": "Portrait image — 1080×1920 recommended.",
@@ -129,6 +135,37 @@
     "redirectUrl": "Redirect URL",
     "thankYouMessage": "Thank-you message"
   },
+  "section": {
+    "group": "Section design",
+    "bg": "Section background",
+    "bgNone": "None (transparent)",
+    "bgTint": "Subtle tint",
+    "bgBrand": "Brand tint",
+    "bgSolid": "Solid color",
+    "bgImage": "Image",
+    "bgColor": "Color",
+    "overlay": "Image dimming",
+    "bgOpacity": "Background opacity",
+    "fullBleed": "Full width (band)",
+    "padY": "Vertical spacing",
+    "pad_none": "None",
+    "pad_sm": "Small",
+    "pad_md": "Medium",
+    "pad_lg": "Large",
+    "pad_xl": "Extra large"
+  },
+  "palette": {
+    "search": "Search sections…",
+    "noResults": "No sections found",
+    "cat": {
+      "basics": "Basics",
+      "content": "Content",
+      "social": "Social proof",
+      "convert": "Conversion",
+      "contact": "Contact",
+      "layout": "Layout"
+    }
+  },
   "inspector": {
     "removeImage": "Remove",
     "uploading": "Uploading…",
@@ -138,7 +175,10 @@
     "addItem": "Add item",
     "noTargetHint": "There's no target section for this button on the page — add one.",
     "noBookingPages": "No published booking pages — create and publish one first.",
-    "chooseBookingPage": "Choose a booking page"
+    "chooseBookingPage": "Choose a booking page",
+    "pickIcon": "Choose an icon",
+    "searchIcon": "Search icons…",
+    "noIcons": "No icons found"
   },
   "assets": {
     "no-file": "No file selected",
@@ -184,7 +224,15 @@
     "submit": "Submit",
     "empty": "The page is empty — add your first section.",
     "videoEmpty": "Paste a YouTube or Vimeo link",
-    "videoTitle": "Video"
+    "videoTitle": "Video",
+    "mapEmpty": "Add an address to show a map",
+    "mapTitle": "Map",
+    "countdownHint": "Set a target date and time",
+    "countdownDone": "Ended",
+    "cdDays": "days",
+    "cdHours": "hours",
+    "cdMin": "min",
+    "cdSec": "sec"
   },
   "kinds": {
     "landing": "Landing pages",
@@ -206,7 +254,18 @@
     "video": "Video",
     "faq": "FAQ",
     "divider": "Divider",
-    "spacer": "Spacer"
+    "spacer": "Spacer",
+    "split": "Image & text",
+    "stats": "Stats",
+    "pricing": "Pricing",
+    "logos": "Logos",
+    "steps": "Steps",
+    "ctaBand": "CTA band",
+    "social": "Social links",
+    "contact": "Contact",
+    "map": "Map",
+    "banner": "Announcement bar",
+    "countdown": "Countdown"
   },
   "labels": {
     "eyebrow": "Eyebrow text",

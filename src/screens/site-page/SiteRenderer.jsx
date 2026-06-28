@@ -767,26 +767,47 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
   const canvasW = mobile ? FREE_CANVAS_MOBILE_W : FREE_CANVAS_W
   const onGuides = (free && onEdit) ? setGuides : undefined
   const layoutOf = (s, i) => ({ ...freeDefaultLayout(i, canvasW), ...(s.props?.[layoutKey] || {}) })
+  // FREE mode is a fixed-width (canvasW) absolute canvas. On the PUBLIC page, when
+  // the viewport is narrower than canvasW (tablet / small window), scale the whole
+  // canvas down to fit so blocks don't overflow/clip. NOT scaled in the editor —
+  // there drag math is 1:1 and the device frames already match the canvas widths.
+  const rootRef = useRef(null)
+  const [availW, setAvailW] = useState(0)
+  useEffect(() => {
+    if (!free || device != null || typeof ResizeObserver === 'undefined') return undefined
+    const el = rootRef.current
+    if (!el) return undefined
+    const ro = new ResizeObserver(() => setAvailW(el.clientWidth))
+    ro.observe(el); setAvailW(el.clientWidth)
+    return () => ro.disconnect()
+  }, [free, device])
+  const pageMinH = free ? list.reduce((m, s, i) => Math.max(m, layoutOf(s, i).y + layoutOf(s, i).h), 0) + 80 : 0
+  const scale = (free && device == null && availW > 0 && availW < canvasW) ? availW / canvasW : 1
   const pageStyle = free ? {
-    width: `${canvasW}px`, maxWidth: '100%', position: 'relative',
-    minHeight: `${list.reduce((m, s, i) => Math.max(m, layoutOf(s, i).y + layoutOf(s, i).h), 0) + 80}px`,
+    width: `${canvasW}px`, position: 'relative', minHeight: `${pageMinH}px`,
+    ...(scale < 1 ? { transform: `scale(${scale})`, transformOrigin: 'top left' } : {}),
   } : undefined
+  const pageEl = (
+    <div className={`sp-page${free ? ' sp-free' : ''}`} style={pageStyle}>
+      {list.map((s, i) => (
+        <SectionErrorBoundary key={s.id}>
+          <Section section={s} index={i} free={free} layoutKey={layoutKey} canvasW={canvasW} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} onGuides={onGuides} />
+        </SectionErrorBoundary>
+      ))}
+      {free && guides && guides.x != null ? <div className="sp-guide sp-guide-v" style={{ left: `${guides.x}px` }} aria-hidden="true" /> : null}
+      {free && guides && guides.y != null ? <div className="sp-guide sp-guide-h" style={{ top: `${guides.y}px` }} aria-hidden="true" /> : null}
+      {free && guides && guides.spacers ? guides.spacers.map((sp, i) => (
+        <div key={`sp${i}`} className={`sp-spacer ${sp.v ? 'sp-spacer-v' : 'sp-spacer-h'}`} aria-hidden="true"
+          style={sp.v ? { left: `${sp.left}px`, top: `${sp.top}px`, height: `${Math.max(0, sp.h)}px` } : { left: `${sp.left}px`, top: `${sp.top}px`, width: `${Math.max(0, sp.w)}px` }} />
+      )) : null}
+      {list.length === 0 ? <div className="sp-empty">{t('renderer.empty')}</div> : null}
+    </div>
+  )
   return (
-    <div className={`sp-root ${cls} ${className}`} dir="rtl" style={style}>
-      <div className={`sp-page${free ? ' sp-free' : ''}`} style={pageStyle}>
-        {list.map((s, i) => (
-          <SectionErrorBoundary key={s.id}>
-            <Section section={s} index={i} free={free} layoutKey={layoutKey} canvasW={canvasW} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} onGuides={onGuides} />
-          </SectionErrorBoundary>
-        ))}
-        {free && guides && guides.x != null ? <div className="sp-guide sp-guide-v" style={{ left: `${guides.x}px` }} aria-hidden="true" /> : null}
-        {free && guides && guides.y != null ? <div className="sp-guide sp-guide-h" style={{ top: `${guides.y}px` }} aria-hidden="true" /> : null}
-        {free && guides && guides.spacers ? guides.spacers.map((sp, i) => (
-          <div key={`sp${i}`} className={`sp-spacer ${sp.v ? 'sp-spacer-v' : 'sp-spacer-h'}`} aria-hidden="true"
-            style={sp.v ? { left: `${sp.left}px`, top: `${sp.top}px`, height: `${Math.max(0, sp.h)}px` } : { left: `${sp.left}px`, top: `${sp.top}px`, width: `${Math.max(0, sp.w)}px` }} />
-        )) : null}
-        {list.length === 0 ? <div className="sp-empty">{t('renderer.empty')}</div> : null}
-      </div>
+    <div className={`sp-root ${cls} ${className}`} ref={rootRef} dir="rtl" style={style}>
+      {free && scale < 1
+        ? <div className="sp-free-scaler" style={{ height: `${Math.round(pageMinH * scale)}px` }}>{pageEl}</div>
+        : pageEl}
     </div>
   )
 }

@@ -132,20 +132,27 @@ export default function Editor({ page, onSave, onBack }) {
   const hist = useRef({ past: [], future: [], lastT: 0 })
   const snapshot = (d) => ({ title: d.title, slug: d.slug, kind: d.kind, project_id: d.project_id, theme: d.theme, sections: d.sections, config: d.config })
 
-  const mutate = (fn) => {
+  // `immediate` = a STRUCTURAL edit (add / delete / duplicate / reorder / layering):
+  // always its own history step, never coalesced into a neighbouring value edit.
+  const mutate = (fn, immediate) => {
     const h = hist.current
     const now = Date.now()
-    if (h.past.length === 0 || now - h.lastT > COALESCE_MS) {
+    if (immediate || h.past.length === 0 || now - h.lastT > COALESCE_MS) {
       h.past.push(snapshot(draft))
       if (h.past.length > HISTORY_CAP) h.past.shift()
     }
-    h.lastT = now
+    h.lastT = immediate ? 0 : now                 // structural step: the NEXT edit also starts fresh
     h.future = []                                 // a fresh edit discards the redo branch
     setDraft((d) => fn(d))
     setDirty(true)
   }
 
-  const restore = (snap) => { setDraft((d) => ({ ...d, ...snap })); setDirty(true) }
+  const restore = (snap) => {
+    setDraft((d) => ({ ...d, ...snap }))
+    if (selectedId && !snap.sections.some((s) => s.id === selectedId)) setSelectedId(null)
+    setPendingDel(null)                           // a stale "deleted" toast must not re-insert (→ duplicate id)
+    setDirty(true)
+  }
   const undo = () => {
     const h = hist.current
     if (!h.past.length) return
@@ -188,7 +195,7 @@ export default function Editor({ page, onSave, onBack }) {
   const addSection = (type) => {
     const sec = newSection(type, draft.sections)
     if (!sec) return
-    mutate((d) => ({ ...d, sections: [...d.sections, sec] }))
+    mutate((d) => ({ ...d, sections: [...d.sections, sec] }), true)
     setSelectedId(sec.id)               // auto-select → the scroll-into-view effect brings it into view
     setMobileSheet(true)                // …and open the editor sheet on mobile
     setPaletteOpen(false)
@@ -212,7 +219,7 @@ export default function Editor({ page, onSave, onBack }) {
     const index = draft.sections.findIndex((s) => s.id === id)
     if (index < 0) return
     const removed = draft.sections[index]
-    mutate((d) => ({ ...d, sections: d.sections.filter((s) => s.id !== id) }))
+    mutate((d) => ({ ...d, sections: d.sections.filter((s) => s.id !== id) }), true)
     if (selectedId === id) setSelectedId(null)
     const paths = collectAssetPaths(removed.props)
     setPendingDel({ section: removed, index, paths })
@@ -227,11 +234,14 @@ export default function Editor({ page, onSave, onBack }) {
     const pd = pendingDel
     if (!pd) return
     if (delTimer.current) { clearTimeout(delTimer.current); delTimer.current = null }
+    // If a general undo (Ctrl+Z) already restored this section, don't re-insert it
+    // (that would create a duplicate id).
+    if (draft.sections.some((s) => s.id === pd.section.id)) { setPendingDel(null); return }
     mutate((d) => {
       const arr = [...d.sections]
       arr.splice(Math.min(pd.index, arr.length), 0, pd.section)
       return { ...d, sections: arr }
-    })
+    }, true)
     setSelectedId(pd.section.id)
     setPendingDel(null)
   }
@@ -263,7 +273,7 @@ export default function Editor({ page, onSave, onBack }) {
       const i = d.sections.findIndex((s) => s.id === id)
       const arr = [...d.sections]; arr.splice(i < 0 ? arr.length : i + 1, 0, copy)
       return { ...d, sections: arr }
-    })
+    }, true)
     setSelectedId(copy.id)
   }
 
@@ -279,7 +289,7 @@ export default function Editor({ page, onSave, onBack }) {
       const [moved] = arr.splice(from, 1)
       arr.splice(to, 0, moved)
       return { ...d, sections: arr }
-    })
+    }, true)
   }
 
   /* The version that defines "what's on the page" (compared to the published

@@ -241,6 +241,10 @@
   .spe-frame-desktop { aspect-ratio: 16 / 10; height: auto; }
   .spe-frame-mobile { aspect-ratio: 39 / 84; height: auto; }
   .spe-frame > .sp-root { flex: 1 1 auto; min-height: 0; height: auto; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  /* Lock the frame's scroll while dragging/resizing a free block: the drag uses
+     viewport-relative pointer deltas, so a scroll mid-drag would offset the drop. */
+  body.sp-moving .spe-frame > .sp-root,
+  body.sp-resizing .spe-frame > .sp-root { overflow-y: hidden; }
 }
 /* Phone-sized editor (single page scroll, no per-frame viewport): a frozen wallpaper
    can't pin, so preview ONE device-screen of it (cover, frame width, top) at the

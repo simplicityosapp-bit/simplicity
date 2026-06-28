@@ -724,8 +724,12 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
       moved = true
       if (mode === 'move') {
         const s = snapMove(base.x + dx, base.y + dy, base.w, base.h, neighbors, cw)
-        last = { ...base, x: s.x, y: s.y }
-        self.style.left = `${s.x}px`; self.style.top = `${s.y}px`
+        // Keep the block's top-left grip on the canvas so it can never be dragged
+        // fully off-screen (above y=0 is unreachable in the editor) and lost.
+        const cx = Math.max(0, Math.min(s.x, Math.max(0, cw - 40)))
+        const cy = Math.max(0, s.y)
+        last = { ...base, x: cx, y: cy }
+        self.style.left = `${cx}px`; self.style.top = `${cy}px`
         drawGuides(page, s.gx, s.gy, s.spacers)
       } else {
         last = { ...base, w: Math.max(60, Math.round(base.w + dx)), h: Math.max(40, Math.round(base.h + dy)) }
@@ -802,7 +806,9 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
   // canvas down to fit so blocks don't overflow/clip. NOT scaled in the editor —
   // there drag math is 1:1 and the device frames already match the canvas widths.
   const rootRef = useRef(null)
+  const pageRef = useRef(null)
   const [availW, setAvailW] = useState(0)
+  const [pageH, setPageH] = useState(0) // actual rendered page height (grows when a FAQ opens)
   useEffect(() => {
     if (!free || device != null || typeof ResizeObserver === 'undefined') return undefined
     const el = rootRef.current
@@ -811,6 +817,17 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
     ro.observe(el); setAvailW(el.clientWidth)
     return () => ro.disconnect()
   }, [free, device])
+  // Track the page's true height so the scaler reserves room for content that grows
+  // past its laid-out height (an opened FAQ) — otherwise the scaler's overflow:hidden
+  // clips the expanded answer on a scaled public page.
+  useEffect(() => {
+    if (!free || typeof ResizeObserver === 'undefined') return undefined
+    const el = pageRef.current
+    if (!el) return undefined
+    const ro = new ResizeObserver(() => setPageH(el.offsetHeight))
+    ro.observe(el); setPageH(el.offsetHeight)
+    return () => ro.disconnect()
+  }, [free])
   const pageMinH = free ? list.reduce((m, s, i) => Math.max(m, layoutOf(s, i).y + layoutOf(s, i).h), 0) + 80 : 0
   const scale = (free && device == null && availW > 0 && availW < canvasW) ? availW / canvasW : 1
   const pageStyle = free ? {
@@ -818,7 +835,7 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
     ...(scale < 1 ? { transform: `scale(${scale})`, transformOrigin: 'top left' } : {}),
   } : undefined
   const pageEl = (
-    <div className={`sp-page${free ? ' sp-free' : ''}`} style={pageStyle}>
+    <div ref={pageRef} className={`sp-page${free ? ' sp-free' : ''}`} style={pageStyle}>
       {list.map((s, i) => (
         <SectionErrorBoundary key={s.id}>
           <Section section={s} index={i} free={free} layoutKey={layoutKey} canvasW={canvasW} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} />
@@ -835,7 +852,7 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
           a mobile-resolution image came out heavily zoomed). */}
       {cls.includes('has-bg') ? <div className="sp-bg" aria-hidden="true" /> : null}
       {free && scale < 1
-        ? <div className="sp-free-scaler" style={{ height: `${Math.round(pageMinH * scale)}px` }}>{pageEl}</div>
+        ? <div className="sp-free-scaler" style={{ height: `${Math.round(Math.max(pageMinH, pageH) * scale)}px` }}>{pageEl}</div>
         : pageEl}
     </div>
   )

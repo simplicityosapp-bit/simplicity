@@ -334,22 +334,32 @@ body.sp-resizing { cursor: ew-resize !important; user-select: none; }
 /* ── FREE layout (PROTOTYPE) — desktop free-positioning canvas ────────────── */
 .sp-page.sp-free { display: block; margin-inline: auto; padding: 0; gap: 0; }
 .sp-free-block { box-sizing: border-box; overflow: hidden; }
-/* Editor-only move (top bar) + resize (corner) affordances, revealed on hover/select. */
-.sp-free-move {
-  position: absolute; inset-inline: 0; top: 0; height: 18px; cursor: move;
-  z-index: 6; touch-action: none; opacity: 0; transition: opacity 0.12s;
-  background: color-mix(in srgb, var(--sp-brand) 22%, transparent);
+/* The whole block body drags to move (cursor hint); text/controls keep their own
+   cursor + stay interactive (the move handler skips them). */
+.sp-free-block { cursor: move; touch-action: none; }
+.sp-free-block :is(.sp-editable, input, textarea) { cursor: text; }
+.sp-free-block :is(button, a) { cursor: pointer; }
+.sp-free-block[data-selected=""] { outline: 2px solid var(--sp-brand); outline-offset: 1px; }
+/* Visible grip badge (top-inline-start) — an unmistakable "drag me" cue. Purely
+   visual: pointer-events:none, so the pointerdown falls to the block's move drag. */
+.sp-free-grip {
+  position: absolute; top: 6px; inset-inline-start: 6px; width: 26px; height: 18px;
+  border-radius: 6px; z-index: 6; pointer-events: none; opacity: 0; transition: opacity 0.12s;
+  background: var(--sp-brand);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.92) 1.4px, transparent 1.5px);
+  background-size: 6px 6px;
 }
 .sp-free-resize {
-  position: absolute; right: -5px; bottom: -5px; width: 16px; height: 16px;
+  position: absolute; right: 2px; bottom: 2px; width: 16px; height: 16px;
   cursor: nwse-resize; z-index: 6; touch-action: none; border-radius: 4px;
   background: var(--sp-brand); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
   opacity: 0; transition: opacity 0.12s;
 }
-.sp-free-block:hover > .sp-free-move,
-.sp-free-block[data-selected=""] > .sp-free-move,
+.sp-free-block:hover > .sp-free-grip,
+.sp-free-block[data-selected=""] > .sp-free-grip,
 .sp-free-block:hover > .sp-free-resize,
 .sp-free-block[data-selected=""] > .sp-free-resize { opacity: 1; }
+body.sp-moving { cursor: move !important; user-select: none; }
 
 /* ── Surface modifiers (from sitePageSurface classes) ────────────────────── */
 .sp-surface.is-bold .sp-h1 { font-weight: 800; }

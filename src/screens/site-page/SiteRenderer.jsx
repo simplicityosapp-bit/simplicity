@@ -587,39 +587,15 @@ function ResizeHandle({ width, onResize }) {
   )
 }
 
-/* Free-layout (prototype) move + resize handles. Drag the top grip to reposition
-   the block (x/y), the corner to resize (w/h). Physical px deltas in a 1:1 canvas. */
-function FreeHandles({ layout, onChange }) {
-  const start = (e, mode) => {
-    e.preventDefault(); e.stopPropagation()
-    const startX = e.clientX, startY = e.clientY
-    const base = { x: layout?.x || 0, y: layout?.y || 0, w: layout?.w || 240, h: layout?.h || 120 }
-    const move = (ev) => {
-      const dx = ev.clientX - startX, dy = ev.clientY - startY
-      if (mode === 'move') onChange({ ...base, x: Math.round(base.x + dx), y: Math.round(base.y + dy) })
-      else onChange({ ...base, w: Math.max(60, Math.round(base.w + dx)), h: Math.max(40, Math.round(base.h + dy)) })
-    }
-    const up = () => {
-      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up)
-      document.body.classList.remove('sp-resizing')
-    }
-    document.body.classList.add('sp-resizing')
-    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
-  }
-  return (
-    <>
-      <span className="sp-free-move" onPointerDown={(e) => start(e, 'move')} title="גרור להזזה" aria-hidden="true" />
-      <span className="sp-free-resize" onPointerDown={(e) => start(e, 'resize')} title="גרור לשינוי גודל" aria-hidden="true" />
-    </>
-  )
-}
-
 function Section({ section, index = 0, free, interactive, runtime, selectedId, onEdit }) {
   const type = section.type
   const isSel = section.id === selectedId
   const sel = isSel ? '' : undefined
   // In the editor, `onEdit` enables click-to-edit text in place + the resize handle.
   const edit = onEdit ? (key, value) => onEdit(section.id, key, value) : null
+  // Tear down an in-flight free drag if the block unmounts mid-drag.
+  const dragRef = useRef(null)
+  useEffect(() => () => { if (dragRef.current) dragRef.current() }, [])
 
   // Per-section text color ('auto'/unset = readable default; a hex paints the text).
   const color = section.props?.color
@@ -639,6 +615,28 @@ function Section({ section, index = 0, free, interactive, runtime, selectedId, o
     position: 'absolute', left: `${layout?.x || 0}px`, top: `${layout?.y || 0}px`,
     width: `${layout?.w || 240}px`, height: `${layout?.h || 120}px`,
   } : null
+
+  // FREE drag: the whole block body MOVES (skipping text/buttons/the resize handle
+  // so those stay editable/clickable); the corner handle RESIZES. Px deltas in the
+  // 1:1 free canvas. A plain click (no movement) still falls through to select.
+  const startFreeDrag = (e, mode) => {
+    if (mode === 'move' && e.target.closest('.sp-editable, input, textarea, button, a, .sp-free-resize')) return
+    if (mode === 'resize') { e.preventDefault(); e.stopPropagation() }
+    const sx = e.clientX, sy = e.clientY
+    const base = { x: layout?.x || 0, y: layout?.y || 0, w: layout?.w || 240, h: layout?.h || 120 }
+    const mv = (ev) => {
+      const dx = ev.clientX - sx, dy = ev.clientY - sy
+      if (mode === 'move') edit('layout', { ...base, x: Math.round(base.x + dx), y: Math.round(base.y + dy) })
+      else edit('layout', { ...base, w: Math.max(60, Math.round(base.w + dx)), h: Math.max(40, Math.round(base.h + dy)) })
+    }
+    const up = () => {
+      window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up)
+      document.body.classList.remove('sp-moving'); dragRef.current = null
+    }
+    dragRef.current = up
+    document.body.classList.add('sp-moving')
+    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up)
+  }
 
   const wrapCls = `sp-block sp-block-${type}${colored ? ' sp-colored' : ''}`
     + `${!free && sized ? ' sp-sized' : ''}${free ? ' sp-free-block' : ''}`
@@ -660,9 +658,15 @@ function Section({ section, index = 0, free, interactive, runtime, selectedId, o
   }
 
   return (
-    <section className={wrapCls} style={styleProp} data-sid={section.id} data-selected={sel}>
+    <section className={wrapCls} style={styleProp} data-sid={section.id} data-selected={sel}
+      onPointerDown={free && edit ? (e) => startFreeDrag(e, 'move') : undefined}>
       {inner}
-      {edit && free ? <FreeHandles layout={layout} onChange={(l) => edit('layout', l)} /> : null}
+      {edit && free ? (
+        <>
+          <span className="sp-free-grip" aria-hidden="true" title="גרור להזזה" />
+          <span className="sp-free-resize" onPointerDown={(e) => startFreeDrag(e, 'resize')} aria-hidden="true" title="גרור לשינוי גודל" />
+        </>
+      ) : null}
       {edit && !free ? <ResizeHandle width={width} onResize={(w) => edit('boxWidth', w)} /> : null}
     </section>
   )

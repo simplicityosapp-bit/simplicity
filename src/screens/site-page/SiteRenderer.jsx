@@ -592,30 +592,28 @@ function ResizeHandle({ width, onResize }) {
    align is found on an axis — snap to EQUAL SPACING between the nearest neighbours on
    that axis. Reports guide-line positions + spacing markers. All in .sp-page layout-
    space (offsetLeft/Top — no scaling issues). */
-function snapMove(rawX, rawY, w, h, page, self) {
+function snapMove(rawX, rawY, w, h, blocks, cw) {
   const T = 6
-  const cw = page.clientWidth || FREE_CANVAS_W
-  const blocks = []
-  page.querySelectorAll('.sp-free-block').forEach((b) => {
-    if (b === self) return
-    blocks.push({ left: b.offsetLeft, right: b.offsetLeft + b.offsetWidth, cx: b.offsetLeft + b.offsetWidth / 2,
-      top: b.offsetTop, bottom: b.offsetTop + b.offsetHeight, cy: b.offsetTop + b.offsetHeight / 2 })
-  })
   // ── edge / center alignment ──
   const xT = [0, cw / 2, cw], yT = [0]
   blocks.forEach((b) => { xT.push(b.left, b.cx, b.right); yT.push(b.top, b.cy, b.bottom) })
   let x = rawX, y = rawY, gx = null, gy = null, bx = T + 1, by = T + 1
   for (const off of [0, w / 2, w]) for (const t of xT) { const d = Math.abs(rawX + off - t); if (d <= T && d < bx) { bx = d; x = t - off; gx = t } }
   for (const off of [0, h / 2, h]) for (const t of yT) { const d = Math.abs(rawY + off - t); if (d <= T && d < by) { by = d; y = t - off; gy = t } }
-  // ── equal spacing (only on an axis without an alignment snap) ──
+  // ── equal spacing: only on an axis with no alignment snap, only between
+  //    neighbours that overlap on the OTHER axis (same column/row), and only when
+  //    the gap is big enough to hold the block (so it can't overlap them) ──
   const spacers = []
+  const xOverlap = (b) => rawX < b.right && rawX + w > b.left
+  const yOverlap = (b) => rawY < b.bottom && rawY + h > b.top
   if (gy == null) {
     let a = null, bel = null
     blocks.forEach((b) => {
+      if (!xOverlap(b)) return
       if (b.bottom <= rawY + 2 && (!a || b.bottom > a.bottom)) a = b
       if (b.top >= rawY + h - 2 && (!bel || b.top < bel.top)) bel = b
     })
-    if (a && bel) {
+    if (a && bel && bel.top - a.bottom >= h) {
       const eq = (a.bottom + bel.top - h) / 2
       if (Math.abs(rawY - eq) <= T) {
         y = Math.round(eq); const cx = Math.round(x + w / 2)
@@ -627,10 +625,11 @@ function snapMove(rawX, rawY, w, h, page, self) {
   if (gx == null) {
     let l = null, r = null
     blocks.forEach((b) => {
+      if (!yOverlap(b)) return
       if (b.right <= rawX + 2 && (!l || b.right > l.right)) l = b
       if (b.left >= rawX + w - 2 && (!r || b.left < r.left)) r = b
     })
-    if (l && r) {
+    if (l && r && r.left - l.right >= w) {
       const eq = (l.right + r.left - w) / 2
       if (Math.abs(rawX - eq) <= T) {
         x = Math.round(eq); const cy = Math.round(y + h / 2)
@@ -664,28 +663,39 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
   const sized = width > 0 && width < 100
 
   // FREE mode: absolute layout from props[layoutKey] (layout for desktop,
-  // layoutMobile for mobile — default-stacked by index until the coach drags it).
-  const layout = section.props?.[layoutKey] || (free ? freeDefaultLayout(index, canvasW) : null)
+  // layoutMobile for mobile), merged OVER the default-stack so every key (x/y/w/h)
+  // is always present — a partial/corrupt layout can't yield NaN downstream.
+  const layout = free ? { ...freeDefaultLayout(index, canvasW), ...(section.props?.[layoutKey] || {}) } : (section.props?.[layoutKey] || null)
   const freeStyle = free ? {
-    position: 'absolute', left: `${layout?.x || 0}px`, top: `${layout?.y || 0}px`,
-    width: `${layout?.w || 240}px`, height: `${layout?.h || 120}px`,
+    position: 'absolute', left: `${layout.x}px`, top: `${layout.y}px`,
+    width: `${layout.w}px`, height: `${layout.h}px`,
   } : null
 
   // FREE drag: the whole block body MOVES (skipping text/buttons/the resize handle
   // so those stay editable/clickable); the corner handle RESIZES. Px deltas in the
-  // 1:1 free canvas. A plain click (no movement) still falls through to select.
+  // 1:1 free canvas. A plain click (no movement past a threshold) just selects.
   const startFreeDrag = (e, mode) => {
     if (mode === 'move' && e.target.closest('.sp-editable, input, textarea, button, a, .sp-free-resize')) return
     if (mode === 'resize') { e.preventDefault(); e.stopPropagation() }
     const self = e.currentTarget.closest('.sp-block')
     const page = self && self.closest('.sp-page')
+    const cw = page ? (page.clientWidth || canvasW) : canvasW
+    // Snapshot neighbour geometry ONCE at pointerdown (no layout-thrashing DOM read per move).
+    const neighbors = []
+    if (page) page.querySelectorAll('.sp-free-block').forEach((b) => {
+      if (b === self) return
+      neighbors.push({ left: b.offsetLeft, right: b.offsetLeft + b.offsetWidth, cx: b.offsetLeft + b.offsetWidth / 2,
+        top: b.offsetTop, bottom: b.offsetTop + b.offsetHeight, cy: b.offsetTop + b.offsetHeight / 2 })
+    })
     const sx = e.clientX, sy = e.clientY
-    const base = { x: layout?.x || 0, y: layout?.y || 0, w: layout?.w || 240, h: layout?.h || 120 }
+    const base = { x: layout.x, y: layout.y, w: layout.w, h: layout.h }
+    let moved = false
     const mv = (ev) => {
       const dx = ev.clientX - sx, dy = ev.clientY - sy
+      if (!moved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return // a click, not a drag → don't dirty the page
+      moved = true
       if (mode === 'move') {
-        const s = page ? snapMove(base.x + dx, base.y + dy, base.w, base.h, page, self)
-          : { x: Math.round(base.x + dx), y: Math.round(base.y + dy), gx: null, gy: null }
+        const s = snapMove(base.x + dx, base.y + dy, base.w, base.h, neighbors, cw)
         edit(layoutKey, { ...base, x: s.x, y: s.y })
         if (onGuides) onGuides({ x: s.gx, y: s.gy, spacers: s.spacers })
       } else {
@@ -756,7 +766,7 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
   const layoutKey = freeLayoutKey(mobile)
   const canvasW = mobile ? FREE_CANVAS_MOBILE_W : FREE_CANVAS_W
   const onGuides = (free && onEdit) ? setGuides : undefined
-  const layoutOf = (s, i) => s.props?.[layoutKey] || freeDefaultLayout(i, canvasW)
+  const layoutOf = (s, i) => ({ ...freeDefaultLayout(i, canvasW), ...(s.props?.[layoutKey] || {}) })
   const pageStyle = free ? {
     width: `${canvasW}px`, maxWidth: '100%', position: 'relative',
     minHeight: `${list.reduce((m, s, i) => Math.max(m, layoutOf(s, i).y + layoutOf(s, i).h), 0) + 80}px`,

@@ -334,9 +334,13 @@ body.sp-resizing { cursor: ew-resize !important; user-select: none; }
 /* ── FREE layout (PROTOTYPE) — desktop free-positioning canvas ────────────── */
 .sp-page.sp-free { display: block; margin-inline: auto; padding: 0; gap: 0; }
 .sp-free-block { box-sizing: border-box; overflow: hidden; }
-/* Resize works for EVERY block type: the content fills the box, so dragging the
-   corner resizes what's inside (images cover-crop, cards/text/forms stretch). */
-.sp-free-block > :first-child { width: 100%; height: 100%; box-sizing: border-box; }
+/* Resize works for EVERY block type: the content fills the box width, so dragging
+   the corner resizes what's inside (images cover-crop, cards/text/forms stretch).
+   Thin/centered blocks (divider/spacer/icon) keep their natural height, centered —
+   stretching them to full box height made a divider a tall bar / icon off-centre. */
+.sp-free-block > :first-child { width: 100%; box-sizing: border-box; }
+.sp-free-block:not(.sp-block-divider):not(.sp-block-spacer):not(.sp-block-icon) > :first-child { height: 100%; }
+.sp-free-block:is(.sp-block-divider, .sp-block-spacer, .sp-block-icon) { display: flex; flex-direction: column; justify-content: center; }
 .sp-free-block .sp-img { height: 100%; object-fit: cover; }
 /* EDITOR ONLY (.sp-free-edit): the whole block body drags to move (cursor hint)
    and touch-action:none lets a finger drag the block instead of scrolling. On the

@@ -177,6 +177,25 @@ export default function Editor({ page, onSave, onBack }) {
     setPendingDel(null)
   }
 
+  /* Delete / Backspace removes the SELECTED block straight from the canvas — but
+     never while typing in a field / editing text in place (ref keeps the handler
+     reading the latest selectedId + deleteSection without re-binding each render). */
+  const keyDelRef = useRef({})
+  keyDelRef.current = { selectedId, deleteSection }
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return
+      const { selectedId: sid, deleteSection: del } = keyDelRef.current
+      if (!sid) return
+      const a = document.activeElement
+      if (a && (a.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(a.tagName))) return
+      e.preventDefault()
+      del(sid)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   const duplicateSection = (id) => {
     const orig = draft.sections.find((s) => s.id === id)
     if (!orig) return

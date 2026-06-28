@@ -334,6 +334,10 @@ body.sp-resizing { cursor: ew-resize !important; user-select: none; }
 /* ── FREE layout (PROTOTYPE) — desktop free-positioning canvas ────────────── */
 .sp-page.sp-free { display: block; margin-inline: auto; padding: 0; gap: 0; }
 .sp-free-block { box-sizing: border-box; overflow: hidden; }
+/* Resize works for EVERY block type: the content fills the box, so dragging the
+   corner resizes what's inside (images cover-crop, cards/text/forms stretch). */
+.sp-free-block > :first-child { width: 100%; height: 100%; box-sizing: border-box; }
+.sp-free-block .sp-img { height: 100%; object-fit: cover; }
 /* The whole block body drags to move (cursor hint); text/controls keep their own
    cursor + stay interactive (the move handler skips them). */
 .sp-free-block { cursor: move; touch-action: none; }

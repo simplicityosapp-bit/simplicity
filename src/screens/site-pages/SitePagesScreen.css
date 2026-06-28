@@ -227,10 +227,13 @@
 /* The bottom-sheet header + backdrop are mobile-only — hidden on desktop. */
 .spe-sheet-head, .spe-sheet-backdrop { display: none; }
 
-/* Focus view — hide the work panels so the page shows at full size; the canvas
-   (flex:1) expands to fill. Toggled from the top bar; toggle back to edit. */
+/* Focus view — hide the work panels AND let the page fill the screen at its true
+   full-desktop size (bg full-bleed, content in its column), still fully editable
+   (no scaling, so drag + inline edit keep working). Toggle back from the top bar. */
 .spe.is-focus .spe-rail,
 .spe.is-focus .spe-inspector { display: none; }
+.spe.is-focus .spe-canvas-wrap { padding: 0; }
+.spe.is-focus .spe-frame-desktop { max-width: none; border-radius: 0; box-shadow: none; }
 .spe-focus-btn.is-on { background: var(--terracotta); color: var(--pure-white); }
 .spe-focus-btn.is-on:hover { background: var(--terracotta); }
 .spe-panel { padding: 16px; display: flex; flex-direction: column; gap: 14px; animation: mgFadeUp 0.2s ease; }

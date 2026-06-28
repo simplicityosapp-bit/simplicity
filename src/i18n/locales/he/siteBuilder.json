@@ -46,6 +46,8 @@
     "titlePlaceholder": "שם הדף (פנימי)",
     "desktop": "דסקטופ",
     "mobile": "מובייל",
+    "undo": "ביטול",
+    "redo": "ביצוע מחדש",
     "focusView": "תצוגה מלאה",
     "exitFocus": "חזרה לעריכה",
     "publish": "פרסום",

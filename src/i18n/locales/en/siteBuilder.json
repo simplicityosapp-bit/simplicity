@@ -46,6 +46,8 @@
     "titlePlaceholder": "Page name (internal)",
     "desktop": "Desktop",
     "mobile": "Mobile",
+    "undo": "Undo",
+    "redo": "Redo",
     "focusView": "Full view",
     "exitFocus": "Back to editing",
     "publish": "Publish",

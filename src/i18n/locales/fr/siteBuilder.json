@@ -46,6 +46,8 @@
     "titlePlaceholder": "Nom de la page (interne)",
     "desktop": "Ordinateur",
     "mobile": "Mobile",
+    "undo": "Annuler",
+    "redo": "Rétablir",
     "focusView": "Vue plein écran",
     "exitFocus": "Retour à l'édition",
     "publish": "Publier",

@@ -46,6 +46,8 @@
     "titlePlaceholder": "Nombre de la página (interno)",
     "desktop": "Escritorio",
     "mobile": "Móvil",
+    "undo": "Deshacer",
+    "redo": "Rehacer",
     "focusView": "Vista completa",
     "exitFocus": "Volver a editar",
     "publish": "Publicar",

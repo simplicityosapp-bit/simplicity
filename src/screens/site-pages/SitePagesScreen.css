@@ -128,6 +128,8 @@
 }
 .spe-icon-btn { display: grid; place-items: center; width: var(--mg-icon-btn); height: var(--mg-icon-btn); border: none; background: transparent; color: var(--espresso); border-radius: var(--mg-chip-radius); cursor: pointer; transition: background 0.15s; }
 .spe-icon-btn:hover { background: var(--mg-row-active-bg); }
+.spe-icon-btn:disabled { opacity: 0.32; cursor: default; }
+.spe-icon-btn:disabled:hover { background: transparent; }
 .spe-title-input { font: inherit; font-size: var(--mg-body); font-weight: 600; color: var(--espresso); border: 1px solid transparent; background: transparent; border-radius: 8px; padding: 7px 10px; min-width: 180px; transition: border-color 0.15s, background 0.15s; }
 .spe-title-input:hover { background: color-mix(in srgb, var(--espresso) 4%, transparent); }
 .spe-title-input:focus { outline: none; border-color: var(--terracotta); background: var(--pure-white); }

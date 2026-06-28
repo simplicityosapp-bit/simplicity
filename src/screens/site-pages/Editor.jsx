@@ -5,7 +5,7 @@ import {
   LayoutTemplate, Type, Image as ImageIcon, Sparkles, Quote,
   MousePointerClick, ClipboardList, CalendarClock, Minus,
   LayoutGrid, Smile, Images, Video, HelpCircle, SeparatorHorizontal, Copy,
-  Bold, Italic, List, Heading, Link as LinkIcon,
+  Bold, Italic, List, Heading, Link as LinkIcon, Undo2, Redo2,
 } from 'lucide-react'
 import {
   BLOCK_TYPES, BLOCK_PALETTE, newSection, newSectionId, sitePageSurface,
@@ -121,7 +121,66 @@ export default function Editor({ page, onSave, onBack }) {
     onBack()
   }
 
-  const mutate = (fn) => { setDraft((d) => { const next = fn(d); return next }); setDirty(true) }
+  /* ── Undo / redo ───────────────────────────────────────────────────────────
+     Every content edit funnels through mutate(), so history hangs off it. Each
+     entry snapshots the editable content (NOT `published`/UI flags). Rapid edits
+     within COALESCE_MS (a slider drag, fast typing) fold into ONE step so undo
+     doesn't crawl value-by-value. All draft objects are replaced immutably, so a
+     snapshot can hold references safely (the old objects are never mutated). */
+  const HISTORY_CAP = 100
+  const COALESCE_MS = 450
+  const hist = useRef({ past: [], future: [], lastT: 0 })
+  const snapshot = (d) => ({ title: d.title, slug: d.slug, kind: d.kind, project_id: d.project_id, theme: d.theme, sections: d.sections, config: d.config })
+
+  const mutate = (fn) => {
+    const h = hist.current
+    const now = Date.now()
+    if (h.past.length === 0 || now - h.lastT > COALESCE_MS) {
+      h.past.push(snapshot(draft))
+      if (h.past.length > HISTORY_CAP) h.past.shift()
+    }
+    h.lastT = now
+    h.future = []                                 // a fresh edit discards the redo branch
+    setDraft((d) => fn(d))
+    setDirty(true)
+  }
+
+  const restore = (snap) => { setDraft((d) => ({ ...d, ...snap })); setDirty(true) }
+  const undo = () => {
+    const h = hist.current
+    if (!h.past.length) return
+    h.future.push(snapshot(draft))
+    restore(h.past.pop())
+    h.lastT = 0                                   // next edit starts a new step (no coalesce across an undo)
+  }
+  const redo = () => {
+    const h = hist.current
+    if (!h.future.length) return
+    h.past.push(snapshot(draft))
+    restore(h.future.pop())
+    h.lastT = 0
+  }
+  const canUndo = hist.current.past.length > 0
+  const canRedo = hist.current.future.length > 0
+
+  /* Ctrl/⌘+Z = undo, Ctrl/⌘+Shift+Z or Ctrl+Y = redo. Skipped while a text field
+     is focused so the browser's native text undo still works there. */
+  const histKeyRef = useRef({})
+  histKeyRef.current = { undo, redo }
+  useEffect(() => {
+    const onKey = (e) => {
+      if (!(e.ctrlKey || e.metaKey)) return
+      const k = e.key.toLowerCase()
+      if (k !== 'z' && k !== 'y') return
+      const a = document.activeElement
+      if (a && (a.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(a.tagName))) return
+      e.preventDefault()
+      if (k === 'y' || (k === 'z' && e.shiftKey)) histKeyRef.current.redo()
+      else histKeyRef.current.undo()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   const setTheme = (patch) => mutate((d) => ({ ...d, theme: { ...d.theme, ...patch } }))
   const setConfig = (patch) => mutate((d) => ({ ...d, config: { ...d.config, ...patch } }))
@@ -291,6 +350,8 @@ export default function Editor({ page, onSave, onBack }) {
           onChange={(e) => mutate((d) => ({ ...d, title: e.target.value }))}
         />
         <div className="spe-top-spacer" />
+        <button className="spe-icon-btn" onClick={undo} disabled={!canUndo} title={t('editor.undo')} aria-label={t('editor.undo')}><Undo2 size={16} /></button>
+        <button className="spe-icon-btn" onClick={redo} disabled={!canRedo} title={t('editor.redo')} aria-label={t('editor.redo')}><Redo2 size={16} /></button>
         <div className="spe-device">
           <button className={device === 'desktop' ? 'is-on' : ''} onClick={() => setDevice('desktop')} title={t('editor.desktop')} aria-label={t('editor.desktop')}><Monitor size={16} /></button>
           <button className={device === 'mobile' ? 'is-on' : ''} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></button>

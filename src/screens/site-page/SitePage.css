@@ -365,6 +365,16 @@ body.sp-moving { cursor: move !important; user-select: none; }
 .sp-guide { position: absolute; z-index: 7; pointer-events: none; background: #ff2d78; box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.5); }
 .sp-guide-v { top: 0; bottom: 0; width: 1px; margin-inline-start: -0.5px; }
 .sp-guide-h { left: 0; right: 0; height: 1px; margin-top: -0.5px; }
+/* Equal-spacing markers — a short bar across each equal gap, with end caps so it
+   reads as a measured distance (the dragged block sits at an equal gap between its
+   nearest neighbours on that axis). */
+.sp-spacer { position: absolute; z-index: 7; pointer-events: none; background: #ff2d78; }
+.sp-spacer-v { width: 2px; margin-inline-start: -1px; }
+.sp-spacer-h { height: 2px; margin-top: -1px; }
+.sp-spacer-v::before, .sp-spacer-v::after { content: ''; position: absolute; left: -3px; width: 8px; height: 2px; background: #ff2d78; }
+.sp-spacer-v::before { top: 0; } .sp-spacer-v::after { bottom: 0; }
+.sp-spacer-h::before, .sp-spacer-h::after { content: ''; position: absolute; top: -3px; height: 8px; width: 2px; background: #ff2d78; }
+.sp-spacer-h::before { left: 0; } .sp-spacer-h::after { right: 0; }
 
 /* ── Surface modifiers (from sitePageSurface classes) ────────────────────── */
 .sp-surface.is-bold .sp-h1 { font-weight: 800; }

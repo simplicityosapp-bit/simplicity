@@ -588,22 +588,58 @@ function ResizeHandle({ width, onResize }) {
 }
 
 /* Smart-guide snapping (free proto): snap the dragged block's edges/center to other
-   blocks' edges/centers + the canvas edges/center (within T px) and report the guide
-   line position. All in .sp-page layout-space (offsetLeft/Top — no scaling issues). */
+   blocks' edges/centers + the canvas edges/center (within T px); and — when no edge
+   align is found on an axis — snap to EQUAL SPACING between the nearest neighbours on
+   that axis. Reports guide-line positions + spacing markers. All in .sp-page layout-
+   space (offsetLeft/Top — no scaling issues). */
 function snapMove(rawX, rawY, w, h, page, self) {
   const T = 6
   const cw = page.clientWidth || FREE_CANVAS_W
-  const xT = [0, cw / 2, cw]
-  const yT = [0]
+  const blocks = []
   page.querySelectorAll('.sp-free-block').forEach((b) => {
     if (b === self) return
-    xT.push(b.offsetLeft, b.offsetLeft + b.offsetWidth / 2, b.offsetLeft + b.offsetWidth)
-    yT.push(b.offsetTop, b.offsetTop + b.offsetHeight / 2, b.offsetTop + b.offsetHeight)
+    blocks.push({ left: b.offsetLeft, right: b.offsetLeft + b.offsetWidth, cx: b.offsetLeft + b.offsetWidth / 2,
+      top: b.offsetTop, bottom: b.offsetTop + b.offsetHeight, cy: b.offsetTop + b.offsetHeight / 2 })
   })
+  // ── edge / center alignment ──
+  const xT = [0, cw / 2, cw], yT = [0]
+  blocks.forEach((b) => { xT.push(b.left, b.cx, b.right); yT.push(b.top, b.cy, b.bottom) })
   let x = rawX, y = rawY, gx = null, gy = null, bx = T + 1, by = T + 1
   for (const off of [0, w / 2, w]) for (const t of xT) { const d = Math.abs(rawX + off - t); if (d <= T && d < bx) { bx = d; x = t - off; gx = t } }
   for (const off of [0, h / 2, h]) for (const t of yT) { const d = Math.abs(rawY + off - t); if (d <= T && d < by) { by = d; y = t - off; gy = t } }
-  return { x: Math.round(x), y: Math.round(y), gx, gy }
+  // ── equal spacing (only on an axis without an alignment snap) ──
+  const spacers = []
+  if (gy == null) {
+    let a = null, bel = null
+    blocks.forEach((b) => {
+      if (b.bottom <= rawY + 2 && (!a || b.bottom > a.bottom)) a = b
+      if (b.top >= rawY + h - 2 && (!bel || b.top < bel.top)) bel = b
+    })
+    if (a && bel) {
+      const eq = (a.bottom + bel.top - h) / 2
+      if (Math.abs(rawY - eq) <= T) {
+        y = Math.round(eq); const cx = Math.round(x + w / 2)
+        spacers.push({ v: true, left: cx, top: a.bottom, h: y - a.bottom })
+        spacers.push({ v: true, left: cx, top: y + h, h: bel.top - (y + h) })
+      }
+    }
+  }
+  if (gx == null) {
+    let l = null, r = null
+    blocks.forEach((b) => {
+      if (b.right <= rawX + 2 && (!l || b.right > l.right)) l = b
+      if (b.left >= rawX + w - 2 && (!r || b.left < r.left)) r = b
+    })
+    if (l && r) {
+      const eq = (l.right + r.left - w) / 2
+      if (Math.abs(rawX - eq) <= T) {
+        x = Math.round(eq); const cy = Math.round(y + h / 2)
+        spacers.push({ v: false, top: cy, left: l.right, w: x - l.right })
+        spacers.push({ v: false, top: cy, left: x + w, w: r.left - (x + w) })
+      }
+    }
+  }
+  return { x: Math.round(x), y: Math.round(y), gx, gy, spacers }
 }
 
 function Section({ section, index = 0, free, interactive, runtime, selectedId, onEdit, onGuides }) {
@@ -651,7 +687,7 @@ function Section({ section, index = 0, free, interactive, runtime, selectedId, o
         const s = page ? snapMove(base.x + dx, base.y + dy, base.w, base.h, page, self)
           : { x: Math.round(base.x + dx), y: Math.round(base.y + dy), gx: null, gy: null }
         edit('layout', { ...base, x: s.x, y: s.y })
-        if (onGuides) onGuides({ x: s.gx, y: s.gy })
+        if (onGuides) onGuides({ x: s.gx, y: s.gy, spacers: s.spacers })
       } else {
         edit('layout', { ...base, w: Math.max(60, Math.round(base.w + dx)), h: Math.max(40, Math.round(base.h + dy)) })
       }
@@ -724,6 +760,10 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
         ))}
         {free && guides && guides.x != null ? <div className="sp-guide sp-guide-v" style={{ left: `${guides.x}px` }} aria-hidden="true" /> : null}
         {free && guides && guides.y != null ? <div className="sp-guide sp-guide-h" style={{ top: `${guides.y}px` }} aria-hidden="true" /> : null}
+        {free && guides && guides.spacers ? guides.spacers.map((sp, i) => (
+          <div key={`sp${i}`} className={`sp-spacer ${sp.v ? 'sp-spacer-v' : 'sp-spacer-h'}`} aria-hidden="true"
+            style={sp.v ? { left: `${sp.left}px`, top: `${sp.top}px`, height: `${Math.max(0, sp.h)}px` } : { left: `${sp.left}px`, top: `${sp.top}px`, width: `${Math.max(0, sp.w)}px` }} />
+        )) : null}
         {list.length === 0 ? <div className="sp-empty">{t('renderer.empty')}</div> : null}
       </div>
     </div>

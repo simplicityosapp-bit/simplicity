@@ -5,6 +5,9 @@
     "newLanding": "Nouvelle page d'atterrissage",
     "newLead": "Nouvelle page de contact",
     "loading": "Chargement…",
+    "loadError": "Impossible de charger les pages.",
+    "retry": "Réessayer",
+    "actionFailed": "L'action a échoué, réessayez.",
     "emptyText": "Aucune page pour l'instant. Créez la première.",
     "untitled": "Page sans titre",
     "badgePublished": "Publiée",
@@ -172,7 +175,8 @@
     "thankYouDefault": "Merci ! Nous avons reçu vos coordonnées et reviendrons vers vous.",
     "submit": "Envoyer",
     "empty": "La page est vide — ajoutez votre première section.",
-    "videoEmpty": "Collez un lien YouTube ou Vimeo"
+    "videoEmpty": "Collez un lien YouTube ou Vimeo",
+    "videoTitle": "Vidéo"
   },
   "kinds": {
     "landing": "Pages d'atterrissage",
@@ -201,6 +205,9 @@
     "heading": "Titre",
     "subheading": "Sous-titre",
     "ctaLabel": "Bouton",
+    "dragMove": "Glisser pour déplacer",
+    "dragResize": "Glisser pour redimensionner",
+    "dragWidth": "Glisser pour ajuster la largeur",
     "ctaAction": "Action du bouton",
     "text": "Contenu",
     "url": "Image",

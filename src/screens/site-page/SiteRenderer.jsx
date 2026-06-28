@@ -95,13 +95,14 @@ function withCard(props, inner) {
 
 /* ── Visual blocks ───────────────────────────────────────────────────────── */
 function HeroBlock({ props, interactive, edit }) {
+  const { t } = useT('siteBuilder')
   const inner = (
     <div className="sp-hero">
       {edit ? (
         <>
-          <Editable as="div" className="sp-eyebrow" value={props.eyebrow} placeholder="טקסט עליון" onCommit={(v) => edit('eyebrow', v)} />
-          <Editable as="h1" className="sp-h1" value={props.heading} placeholder="כותרת" onCommit={(v) => edit('heading', v)} />
-          <Editable as="p" className="sp-sub" value={props.subheading} placeholder="תת-כותרת" onCommit={(v) => edit('subheading', v)} />
+          <Editable as="div" className="sp-eyebrow" value={props.eyebrow} placeholder={t('labels.eyebrow')} onCommit={(v) => edit('eyebrow', v)} />
+          <Editable as="h1" className="sp-h1" value={props.heading} placeholder={t('labels.heading')} onCommit={(v) => edit('heading', v)} />
+          <Editable as="p" className="sp-sub" value={props.subheading} placeholder={t('labels.subheading')} onCommit={(v) => edit('subheading', v)} />
           <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={false} />
         </>
       ) : (
@@ -123,10 +124,11 @@ function HeroBlock({ props, interactive, edit }) {
    so there is no raw-HTML / script surface — safe to inject. Plain text (no
    markdown) still renders fine as paragraphs. */
 function TextBlock({ props, edit }) {
+  const { t } = useT('siteBuilder')
   // In the editor, click-to-edit the raw text in place (markdown shows as typed);
   // on the public page it's rendered. Formatting help stays in the inspector.
   const body = edit
-    ? <Editable as="div" className="sp-text sp-text-raw" value={props.text} placeholder="טקסט" onCommit={(v) => edit('text', v)} />
+    ? <Editable as="div" className="sp-text sp-text-raw" value={props.text} placeholder={t('labels.text')} onCommit={(v) => edit('text', v)} />
     : <div className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.text) }} />
   return withCard(props, body)
 }
@@ -145,6 +147,7 @@ function ImageBlock({ props }) {
 }
 
 function IconTextBlock({ props, edit }) {
+  const { t } = useT('siteBuilder')
   const items = Array.isArray(props.items) ? props.items : []
   const setItem = (i, patch) => edit('items', items.map((it, j) => (j === i ? { ...it, ...patch } : it)))
   return withCard(props,
@@ -153,12 +156,12 @@ function IconTextBlock({ props, edit }) {
         const Icon = iconByName(it.icon)
         return (
           <div className="sp-feature" key={i}>
-            <div className="sp-feature-icon"><Icon size={22} strokeWidth={2} /></div>
+            <div className="sp-feature-icon"><Icon size={22} strokeWidth={2} aria-hidden="true" /></div>
             <div className="sp-feature-body">
               {edit ? (
                 <>
-                  <Editable as="div" className="sp-feature-title" value={it.title} placeholder="כותרת" onCommit={(v) => setItem(i, { title: v })} />
-                  <Editable as="p" className="sp-feature-text" value={it.body} placeholder="תיאור" onCommit={(v) => setItem(i, { body: v })} />
+                  <Editable as="div" className="sp-feature-title" value={it.title} placeholder={t('labels.title')} onCommit={(v) => setItem(i, { title: v })} />
+                  <Editable as="p" className="sp-feature-text" value={it.body} placeholder={t('labels.body')} onCommit={(v) => setItem(i, { body: v })} />
                 </>
               ) : (
                 <>
@@ -175,19 +178,20 @@ function IconTextBlock({ props, edit }) {
 }
 
 function TestimonialBlock({ props, edit }) {
+  const { t } = useT('siteBuilder')
   return (
     <figure className="sp-testimonial">
       {edit
-        ? <Editable as="blockquote" className="sp-quote" value={props.quote} placeholder="ציטוט" onCommit={(v) => edit('quote', v)} />
+        ? <Editable as="blockquote" className="sp-quote" value={props.quote} placeholder={t('labels.quote')} onCommit={(v) => edit('quote', v)} />
         : (str(props.quote) ? <blockquote className="sp-quote">{props.quote}</blockquote> : null)}
       <figcaption className="sp-cite">
         {safeImageUrl(props.avatar) ? <img className="sp-avatar" src={safeImageUrl(props.avatar)} alt="" loading="lazy" /> : null}
         <span>
           {edit ? (
             <>
-              <Editable as="strong" value={props.author} placeholder="שם" onCommit={(v) => edit('author', v)} />
+              <Editable as="strong" value={props.author} placeholder={t('labels.author')} onCommit={(v) => edit('author', v)} />
               {' · '}
-              <Editable as="em" value={props.role} placeholder="תפקיד" onCommit={(v) => edit('role', v)} />
+              <Editable as="em" value={props.role} placeholder={t('labels.role')} onCommit={(v) => edit('role', v)} />
             </>
           ) : (
             <>
@@ -202,9 +206,10 @@ function TestimonialBlock({ props, edit }) {
 }
 
 function CtaBlock({ props, interactive, edit }) {
+  const { t } = useT('siteBuilder')
   if (edit) {
     const cls = `sp-btn sp-btn-${props.style === 'secondary' ? 'secondary' : 'primary'}`
-    return withCard(props, <div className="sp-cta"><Editable as="span" className={cls} value={props.label} placeholder="כפתור" onCommit={(v) => edit('label', v)} /></div>)
+    return withCard(props, <div className="sp-cta"><Editable as="span" className={cls} value={props.label} placeholder={t('labels.ctaLabel')} onCommit={(v) => edit('label', v)} /></div>)
   }
   return withCard(props,
     <div className="sp-cta">
@@ -232,7 +237,7 @@ function CardsBlock({ props, interactive }) {
         const safe = safeRedirectUrl(it.link)
         const inner = (
           <>
-            {it.icon ? <div className="sp-cardbox-icon"><Icon size={22} strokeWidth={2} /></div> : null}
+            {it.icon ? <div className="sp-cardbox-icon"><Icon size={22} strokeWidth={2} aria-hidden="true" /></div> : null}
             {str(it.title) ? <div className="sp-cardbox-title">{it.title}</div> : null}
             {str(it.body) ? <p className="sp-cardbox-text">{it.body}</p> : null}
           </>
@@ -252,7 +257,7 @@ function CardsBlock({ props, interactive }) {
 function IconBlock({ props }) {
   const Icon = iconByName(props.icon)
   const size = props.size === 'sm' ? 28 : props.size === 'lg' ? 64 : 44
-  return <div className={`sp-iconblock sp-align-${props.align || 'center'}`}><Icon size={size} strokeWidth={1.8} /></div>
+  return <div className={`sp-iconblock sp-align-${props.align || 'center'}`}><Icon size={size} strokeWidth={1.8} aria-hidden="true" /></div>
 }
 
 function GalleryBlock({ props }) {
@@ -275,7 +280,7 @@ function VideoBlock({ props }) {
   if (!src) return <div className="sp-img-empty">{t('renderer.videoEmpty')}</div>
   return (
     <div className="sp-video">
-      <iframe src={src} title="video" loading="lazy"
+      <iframe src={src} title={t('renderer.videoTitle')} loading="lazy"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen />
     </div>
@@ -553,6 +558,7 @@ const BLOCK_COMPONENT = {
    from the canvas, like inline text editing. Width is measured from the column's
    fixed inline-start edge so it can't oscillate as the box re-aligns. */
 function ResizeHandle({ width, onResize }) {
+  const { t } = useT('siteBuilder')
   const [live, setLive] = useState(null)
   const cleanupRef = useRef(null)
   // Tear down an in-flight drag if the section unmounts mid-resize (e.g. it gets
@@ -581,7 +587,7 @@ function ResizeHandle({ width, onResize }) {
   }
   return (
     <span className="sp-resize-handle" onPointerDown={onDown} aria-hidden="true">
-      <span className="sp-resize-grip" title="גרור לשינוי רוחב השדה" />
+      <span className="sp-resize-grip" title={t('labels.dragWidth')} />
       <span className="sp-resize-badge">{live != null ? live : (Number(width) || 100)}%</span>
     </span>
   )
@@ -656,6 +662,7 @@ function drawGuides(page, gx, gy, spacers) {
 }
 
 function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FREE_CANVAS_W, interactive, runtime, selectedId, onEdit }) {
+  const { t } = useT('siteBuilder')
   const type = section.type
   const isSel = section.id === selectedId
   const sel = isSel ? '' : undefined
@@ -758,8 +765,8 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
       {inner}
       {edit && free ? (
         <>
-          <span className="sp-free-grip" aria-hidden="true" title="גרור להזזה" />
-          <span className="sp-free-resize" onPointerDown={(e) => startFreeDrag(e, 'resize')} aria-hidden="true" title="גרור לשינוי גודל" />
+          <span className="sp-free-grip" aria-hidden="true" title={t('labels.dragMove')} />
+          <span className="sp-free-resize" onPointerDown={(e) => startFreeDrag(e, 'resize')} aria-hidden="true" title={t('labels.dragResize')} />
         </>
       ) : null}
       {edit && !free ? <ResizeHandle width={width} onResize={(w) => edit('boxWidth', w)} /> : null}

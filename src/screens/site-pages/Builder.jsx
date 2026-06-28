@@ -4,6 +4,7 @@ import { ArrowRight, Plus, Pencil, Trash2, ExternalLink, Copy, Check, LayoutTemp
 import { useSitePages } from '../../hooks/useSitePages'
 import { newSitePageDraft, publicSitePageUrl, KIND_LABEL } from '../../lib/sitePageSchema'
 import { ROUTES } from '../../lib/routes'
+import { showError } from '../../lib/toast'
 import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
 import Editor from './Editor'
@@ -24,7 +25,7 @@ export default function SitePagesBuilder() {
   const { t } = useT('siteBuilder')
   const navigate = useNavigate()
   const { kind } = useParams()
-  const { pages, loading, addPage, updatePage, removePage } = useSitePages()
+  const { pages, loading, error, refetch, addPage, updatePage, removePage } = useSitePages()
   const [editingId, setEditingId] = useState(null)
   const [copied, setCopied] = useState(null)
   const [picking, setPicking] = useState(false)
@@ -40,7 +41,7 @@ export default function SitePagesBuilder() {
     setPicking(false)
     const draft = newSitePageDraft(kind)
     if (tpl) { draft.theme = structuredClone(tpl.theme); draft.sections = structuredClone(tpl.sections) }
-    try { const row = await addPage(draft); if (row?.id) setEditingId(row.id) } catch { /* stay on the list */ }
+    try { const row = await addPage(draft); if (row?.id) setEditingId(row.id) } catch { showError(t('hub.actionFailed')) }
   }
 
   const copyLink = (p) => {
@@ -58,7 +59,7 @@ export default function SitePagesBuilder() {
         theme: p.theme || {}, sections: p.sections || [], config: p.config || {},
       })
       if (row?.id) setEditingId(row.id)
-    } catch { /* stay on the list */ }
+    } catch { showError(t('hub.actionFailed')) }
   }
 
   if (editing) {
@@ -86,6 +87,12 @@ export default function SitePagesBuilder() {
 
       {loading ? (
         <p className="spg-muted">{t('hub.loading')}</p>
+      ) : error ? (
+        <div className="empty">
+          <span className="empty-icon"><LayoutTemplate size={28} /></span>
+          <p className="empty-text">{t('hub.loadError')}</p>
+          <button className="empty-action" onClick={() => refetch?.()}>{t('hub.retry')}</button>
+        </div>
       ) : list.length === 0 ? (
         <div className="empty">
           <span className="empty-icon"><LayoutTemplate size={28} /></span>

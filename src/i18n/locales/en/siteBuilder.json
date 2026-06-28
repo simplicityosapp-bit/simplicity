@@ -5,6 +5,9 @@
     "newLanding": "New landing page",
     "newLead": "New lead page",
     "loading": "Loading…",
+    "loadError": "Couldn't load your pages.",
+    "retry": "Try again",
+    "actionFailed": "Action failed, please try again.",
     "emptyText": "No pages yet. Create your first one.",
     "untitled": "Untitled page",
     "badgePublished": "Published",
@@ -172,7 +175,8 @@
     "thankYouDefault": "Thanks! We got your details and will be in touch.",
     "submit": "Submit",
     "empty": "The page is empty — add your first section.",
-    "videoEmpty": "Paste a YouTube or Vimeo link"
+    "videoEmpty": "Paste a YouTube or Vimeo link",
+    "videoTitle": "Video"
   },
   "kinds": {
     "landing": "Landing pages",
@@ -201,6 +205,9 @@
     "heading": "Heading",
     "subheading": "Subheading",
     "ctaLabel": "Button",
+    "dragMove": "Drag to move",
+    "dragResize": "Drag to resize",
+    "dragWidth": "Drag to resize width",
     "ctaAction": "Button action",
     "text": "Content",
     "url": "Image",

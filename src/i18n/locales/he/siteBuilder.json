@@ -5,6 +5,9 @@
     "newLanding": "דף נחיתה חדש",
     "newLead": "דף השארת פרטים חדש",
     "loading": "טוען…",
+    "loadError": "טעינת הדפים נכשלה.",
+    "retry": "נסה שוב",
+    "actionFailed": "הפעולה נכשלה, נסה שוב.",
     "emptyText": "אין עדיין דפים. צרו את הראשון.",
     "untitled": "דף ללא שם",
     "badgePublished": "מפורסם",
@@ -172,7 +175,8 @@
     "thankYouDefault": "תודה! קיבלנו את הפרטים ונחזור אליכם.",
     "submit": "שליחה",
     "empty": "הדף ריק — הוסיפו סקשן ראשון.",
-    "videoEmpty": "הדביקו קישור YouTube או Vimeo"
+    "videoEmpty": "הדביקו קישור YouTube או Vimeo",
+    "videoTitle": "וידאו"
   },
   "kinds": {
     "landing": "דפי נחיתה",
@@ -201,6 +205,9 @@
     "heading": "כותרת",
     "subheading": "תת-כותרת",
     "ctaLabel": "כפתור",
+    "dragMove": "גרור להזזה",
+    "dragResize": "גרור לשינוי גודל",
+    "dragWidth": "גרור לשינוי רוחב השדה",
     "ctaAction": "פעולת הכפתור",
     "text": "תוכן",
     "url": "תמונה",

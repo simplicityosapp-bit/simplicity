@@ -338,11 +338,12 @@ body.sp-resizing { cursor: ew-resize !important; user-select: none; }
    corner resizes what's inside (images cover-crop, cards/text/forms stretch). */
 .sp-free-block > :first-child { width: 100%; height: 100%; box-sizing: border-box; }
 .sp-free-block .sp-img { height: 100%; object-fit: cover; }
-/* The whole block body drags to move (cursor hint); text/controls keep their own
-   cursor + stay interactive (the move handler skips them). */
-.sp-free-block { cursor: move; touch-action: none; }
-.sp-free-block :is(.sp-editable, input, textarea) { cursor: text; }
-.sp-free-block :is(button, a) { cursor: pointer; }
+/* EDITOR ONLY (.sp-free-edit): the whole block body drags to move (cursor hint)
+   and touch-action:none lets a finger drag the block instead of scrolling. On the
+   PUBLIC page these are NOT applied, so touch-scroll over blocks works normally. */
+.sp-free-edit { cursor: move; touch-action: none; }
+.sp-free-edit :is(.sp-editable, input, textarea) { cursor: text; }
+.sp-free-edit :is(button, a) { cursor: pointer; }
 .sp-free-block[data-selected=""] { outline: 2px solid var(--sp-brand); outline-offset: 1px; }
 /* Visible grip badge (top-inline-start) — an unmistakable "drag me" cue. Purely
    visual: pointer-events:none, so the pointerdown falls to the block's move drag. */

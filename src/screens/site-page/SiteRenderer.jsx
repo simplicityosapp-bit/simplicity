@@ -703,7 +703,7 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
   }
 
   const wrapCls = `sp-block sp-block-${type}${colored ? ' sp-colored' : ''}`
-    + `${!free && sized ? ' sp-sized' : ''}${free ? ' sp-free-block' : ''}`
+    + `${!free && sized ? ' sp-sized' : ''}${free ? ' sp-free-block' : ''}${free && edit ? ' sp-free-edit' : ''}`
   const style = free
     ? { ...(colored ? { '--sp-text-color': color } : {}), ...freeStyle }
     : {

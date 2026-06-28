@@ -393,6 +393,16 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
       <h3 className="spe-panel-title">{t('design.title')}</h3>
 
       <div className="spe-group">
+        <p className="spe-group-lbl">{t('design.grpLayout')}</p>
+        <label className="spe-f spe-f-row"><span>{t('design.freeLayout')}</span>
+          <input type="checkbox" checked={theme.layoutMode === 'free'} onChange={(e) => setTheme({ layoutMode: e.target.checked ? 'free' : 'stack' })} />
+        </label>
+        {theme.layoutMode === 'free'
+          ? <p style={{ fontSize: 'var(--mg-caption)', color: 'var(--stone)', margin: 0, lineHeight: 1.4 }}>{t('design.freeLayoutHint')}</p>
+          : null}
+      </div>
+
+      <div className="spe-group">
         <p className="spe-group-lbl">{t('design.grpAddress')}</p>
         <label className="spe-f">
           <span>{t('design.publicUrl')}</span>

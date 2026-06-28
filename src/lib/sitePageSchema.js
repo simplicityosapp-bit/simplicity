@@ -71,7 +71,16 @@ export const DEFAULT_THEME = {
   freezeBg: false,     // photo bg pinned to the viewport (background-attachment:
                        // fixed) so it doesn't re-scale/crop as the page grows;
                        // opt-in (iOS Safari treats fixed as scroll → degrades).
+  layoutMode: 'stack', // 'stack' (default responsive vertical sections) | 'free'
+                       // (PROTOTYPE: desktop free-positioning — each section has a
+                       // layout {x,y,w,h} in px on a fixed FREE_CANVAS_W canvas).
+                       // Mobile layout for free mode = Phase 2.
 }
+
+// Free-layout (prototype) design canvas width in px — section x/y/w/h are relative
+// to this. A fresh free block + the on-toggle stacking both use these defaults.
+export const FREE_CANVAS_W = 960
+export const freeDefaultLayout = (i = 0) => ({ x: 80, y: 40 + i * 180, w: FREE_CANVAS_W - 160, h: 150 })
 
 /* Allowlist a coach-authored image/background URL before binding it to an
    <img src> or a CSS url(). Permits only http(s) and same-origin root-relative

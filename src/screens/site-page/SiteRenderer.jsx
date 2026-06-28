@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, Component } from 'react'
-import { sitePageSurface, safeRedirectUrl, safeImageUrl, safeVideoEmbed } from '../../lib/sitePageSchema'
+import { sitePageSurface, safeRedirectUrl, safeImageUrl, safeVideoEmbed, FREE_CANVAS_W, freeDefaultLayout } from '../../lib/sitePageSchema'
 import { renderRichText } from '../../lib/richText'
 import { useBookingFlow } from './useBookingFlow'
 import '../booking-pages/bookingI18n'   // self-registers the 'booking' namespace (inline picker labels)
@@ -587,7 +587,34 @@ function ResizeHandle({ width, onResize }) {
   )
 }
 
-function Section({ section, interactive, runtime, selectedId, onEdit }) {
+/* Free-layout (prototype) move + resize handles. Drag the top grip to reposition
+   the block (x/y), the corner to resize (w/h). Physical px deltas in a 1:1 canvas. */
+function FreeHandles({ layout, onChange }) {
+  const start = (e, mode) => {
+    e.preventDefault(); e.stopPropagation()
+    const startX = e.clientX, startY = e.clientY
+    const base = { x: layout?.x || 0, y: layout?.y || 0, w: layout?.w || 240, h: layout?.h || 120 }
+    const move = (ev) => {
+      const dx = ev.clientX - startX, dy = ev.clientY - startY
+      if (mode === 'move') onChange({ ...base, x: Math.round(base.x + dx), y: Math.round(base.y + dy) })
+      else onChange({ ...base, w: Math.max(60, Math.round(base.w + dx)), h: Math.max(40, Math.round(base.h + dy)) })
+    }
+    const up = () => {
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up)
+      document.body.classList.remove('sp-resizing')
+    }
+    document.body.classList.add('sp-resizing')
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
+  }
+  return (
+    <>
+      <span className="sp-free-move" onPointerDown={(e) => start(e, 'move')} title="גרור להזזה" aria-hidden="true" />
+      <span className="sp-free-resize" onPointerDown={(e) => start(e, 'resize')} title="גרור לשינוי גודל" aria-hidden="true" />
+    </>
+  )
+}
+
+function Section({ section, index = 0, free, interactive, runtime, selectedId, onEdit }) {
   const type = section.type
   const isSel = section.id === selectedId
   const sel = isSel ? '' : undefined
@@ -605,11 +632,22 @@ function Section({ section, interactive, runtime, selectedId, onEdit }) {
   const align = section.props?.boxAlign || 'center'
   const sized = width > 0 && width < 100
 
-  const wrapCls = `sp-block sp-block-${type}${colored ? ' sp-colored' : ''}${sized ? ' sp-sized' : ''}`
-  const style = {
-    ...(colored ? { '--sp-text-color': color } : {}),
-    ...(sized ? { maxWidth: `${width}%`, alignSelf: align === 'start' ? 'flex-start' : align === 'end' ? 'flex-end' : 'center' } : {}),
-  }
+  // FREE mode (prototype): absolute layout from props.layout (default-stacked by
+  // index until the coach drags it) overrides the responsive stack.
+  const layout = section.props?.layout || (free ? freeDefaultLayout(index) : null)
+  const freeStyle = free ? {
+    position: 'absolute', left: `${layout?.x || 0}px`, top: `${layout?.y || 0}px`,
+    width: `${layout?.w || 240}px`, height: `${layout?.h || 120}px`,
+  } : null
+
+  const wrapCls = `sp-block sp-block-${type}${colored ? ' sp-colored' : ''}`
+    + `${!free && sized ? ' sp-sized' : ''}${free ? ' sp-free-block' : ''}`
+  const style = free
+    ? { ...(colored ? { '--sp-text-color': color } : {}), ...freeStyle }
+    : {
+        ...(colored ? { '--sp-text-color': color } : {}),
+        ...(sized ? { maxWidth: `${width}%`, alignSelf: align === 'start' ? 'flex-start' : align === 'end' ? 'flex-end' : 'center' } : {}),
+      }
   const styleProp = Object.keys(style).length ? style : undefined
 
   let inner
@@ -624,7 +662,8 @@ function Section({ section, interactive, runtime, selectedId, onEdit }) {
   return (
     <section className={wrapCls} style={styleProp} data-sid={section.id} data-selected={sel}>
       {inner}
-      {edit ? <ResizeHandle width={width} onResize={(w) => edit('boxWidth', w)} /> : null}
+      {edit && free ? <FreeHandles layout={layout} onChange={(l) => edit('layout', l)} /> : null}
+      {edit && !free ? <ResizeHandle width={width} onResize={(w) => edit('boxWidth', w)} /> : null}
     </section>
   )
 }
@@ -633,12 +672,20 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
   const { t } = useT('siteBuilder')
   const { style, cls } = sitePageSurface(theme)
   const list = Array.isArray(sections) ? sections : []
+  // FREE mode (prototype): the page is a fixed-width positioning canvas; its
+  // height grows to the lowest block bottom so everything is contained.
+  const free = theme?.layoutMode === 'free'
+  const layoutOf = (s, i) => s.props?.layout || freeDefaultLayout(i)
+  const pageStyle = free ? {
+    width: `${FREE_CANVAS_W}px`, maxWidth: '100%', position: 'relative',
+    minHeight: `${list.reduce((m, s, i) => Math.max(m, layoutOf(s, i).y + layoutOf(s, i).h), 0) + 80}px`,
+  } : undefined
   return (
     <div className={`sp-root ${cls} ${className}`} dir="rtl" style={style}>
-      <div className="sp-page">
-        {list.map((s) => (
+      <div className={`sp-page${free ? ' sp-free' : ''}`} style={pageStyle}>
+        {list.map((s, i) => (
           <SectionErrorBoundary key={s.id}>
-            <Section section={s} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} />
+            <Section section={s} index={i} free={free} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} />
           </SectionErrorBoundary>
         ))}
         {list.length === 0 ? <div className="sp-empty">{t('renderer.empty')}</div> : null}

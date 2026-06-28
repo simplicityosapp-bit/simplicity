@@ -331,6 +331,26 @@ body.sp-resizing .sp-resize-grip { width: 12px; max-height: 78%; }
 body.sp-resizing .sp-resize-badge { opacity: 1; }
 body.sp-resizing { cursor: ew-resize !important; user-select: none; }
 
+/* ── FREE layout (PROTOTYPE) — desktop free-positioning canvas ────────────── */
+.sp-page.sp-free { display: block; margin-inline: auto; padding: 0; gap: 0; }
+.sp-free-block { box-sizing: border-box; overflow: hidden; }
+/* Editor-only move (top bar) + resize (corner) affordances, revealed on hover/select. */
+.sp-free-move {
+  position: absolute; inset-inline: 0; top: 0; height: 18px; cursor: move;
+  z-index: 6; touch-action: none; opacity: 0; transition: opacity 0.12s;
+  background: color-mix(in srgb, var(--sp-brand) 22%, transparent);
+}
+.sp-free-resize {
+  position: absolute; right: -5px; bottom: -5px; width: 16px; height: 16px;
+  cursor: nwse-resize; z-index: 6; touch-action: none; border-radius: 4px;
+  background: var(--sp-brand); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
+  opacity: 0; transition: opacity 0.12s;
+}
+.sp-free-block:hover > .sp-free-move,
+.sp-free-block[data-selected=""] > .sp-free-move,
+.sp-free-block:hover > .sp-free-resize,
+.sp-free-block[data-selected=""] > .sp-free-resize { opacity: 1; }
+
 /* ── Surface modifiers (from sitePageSurface classes) ────────────────────── */
 .sp-surface.is-bold .sp-h1 { font-weight: 800; }
 .sp-surface.is-bold :is(.sp-sub, .sp-text, .sp-label, .sp-feature-title, .sp-quote) { font-weight: 600; }

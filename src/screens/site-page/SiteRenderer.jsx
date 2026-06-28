@@ -136,11 +136,11 @@ function TextBlock({ props, edit }) {
   return withCard(props, body)
 }
 
-function ImageBlock({ props }) {
+function ImageBlock({ props, interactive }) {
   const { t } = useT('siteBuilder')
   const src = safeImageUrl(props.url)
   const mobileSrc = safeImageUrl(props.mobileUrl)
-  if (!src) return <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
+  if (!src) return interactive ? null : <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
   return withCard(props,
     <figure className={`sp-figure sp-w-${props.width || 'full'}${mobileSrc ? ' has-mobile' : ''}`}>
       <img className="sp-img sp-img-d" src={src} alt={props.alt || ''} loading="lazy" />
@@ -263,12 +263,12 @@ function IconBlock({ props }) {
   return <div className={`sp-iconblock sp-align-${props.align || 'center'}`}><Icon size={size} strokeWidth={1.8} aria-hidden="true" /></div>
 }
 
-function GalleryBlock({ props }) {
+function GalleryBlock({ props, interactive }) {
   const { t } = useT('siteBuilder')
   const items = Array.isArray(props.items) ? props.items : []
   const imgs = items.map((it) => safeImageUrl(it && it.url)).filter(Boolean)
   const cols = (props.columns && props.columns !== 'auto') ? props.columns : 'auto'
-  if (!imgs.length) return <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
+  if (!imgs.length) return interactive ? null : <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
   return (
     <div className={`sp-gallery sp-cols-${cols}`}>
       {imgs.map((u, i) => <img key={i} className="sp-gallery-img" src={u} alt="" loading="lazy" />)}
@@ -277,10 +277,10 @@ function GalleryBlock({ props }) {
 }
 
 /* YouTube / Vimeo embed only (validated src) — no arbitrary iframe. */
-function VideoBlock({ props }) {
+function VideoBlock({ props, interactive }) {
   const { t } = useT('siteBuilder')
   const src = safeVideoEmbed(props.url)
-  if (!src) return <div className="sp-img-empty">{t('renderer.videoEmpty')}</div>
+  if (!src) return interactive ? null : <div className="sp-img-empty">{t('renderer.videoEmpty')}</div>
   return (
     <div className="sp-video">
       <iframe src={src} title={t('renderer.videoTitle')} loading="lazy"
@@ -559,9 +559,9 @@ function SplitBlock({ props, interactive, edit }) {
       <img className="sp-split-img sp-img-d" src={src} alt={props.alt || ''} loading="lazy" />
       {mobileSrc ? <img className="sp-split-img sp-img-m" src={mobileSrc} alt={props.alt || ''} loading="lazy" /> : null}
     </div>
-  ) : <div className="sp-split-media sp-img-empty">{t('renderer.imageEmpty')}</div>
+  ) : (interactive ? null : <div className="sp-split-media sp-img-empty">{t('renderer.imageEmpty')}</div>)
   return (
-    <div className={`sp-split sp-split-${side}`}>
+    <div className={`sp-split sp-split-${side}${!media ? ' sp-split-solo' : ''}`}>
       {media}
       <div className="sp-split-body">
         {edit ? (
@@ -694,6 +694,13 @@ const SOCIAL_COLOR = {
   youtube: '#FF0000', linkedin: '#0A66C2', telegram: '#26A5E4',
   email: '#7c6f63', phone: '#7c6f63', website: 'var(--sp-brand)',
 }
+// Brand names are the same across languages → a stable accessible name for the
+// icon-only buttons (vs the raw lowercase platform key).
+const SOCIAL_LABEL = {
+  whatsapp: 'WhatsApp', instagram: 'Instagram', facebook: 'Facebook', tiktok: 'TikTok',
+  youtube: 'YouTube', linkedin: 'LinkedIn', telegram: 'Telegram',
+  email: 'Email', phone: 'Phone', website: 'Website',
+}
 function socialGlyph(p) {
   switch (p) {
     case 'whatsapp': return <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a9.9 9.9 0 0 0-8.5 15L2.2 22l5-1.3A10 10 0 1 0 12 2Zm5.5 14c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.4-1.1-2.7 0-1.3.7-1.9.9-2.2.2-.2.5-.3.6-.3h.5c.2 0 .4 0 .6.4l.7 1.8c.1.1.1.3 0 .5l-.3.4-.3.3c-.1.1-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.6 1.6.3.1.5.1.7-.1l.7-.9c.2-.2.4-.2.6-.1l1.7.8c.2.1.4.2.5.3.1.1.1.7-.2 1.3Z"/></svg>
@@ -717,13 +724,17 @@ function SocialBlock({ props, interactive }) {
     if (it.platform === 'email') return `mailto:${str(it.url)}`
     if (it.platform === 'phone') return `tel:${String(it.url).replace(/[^0-9+]/g, '')}`
     if (it.platform === 'whatsapp') return `https://wa.me/${String(it.url).replace(/[^0-9]/g, '')}`
-    return safeRedirectUrl(it.url)
+    // Coaches usually type a bare domain (instagram.com/me) — upgrade to https
+    // so safeRedirectUrl (which needs a scheme) doesn't reject it into a dead link.
+    const u = str(it.url)
+    return safeRedirectUrl(/^https?:\/\//i.test(u) ? u : `https://${u}`)
   }
   return (
     <div className={`sp-social sp-social-${props.align || 'center'} sp-social-${props.size || 'md'}`}>
       {shown.map((it, i) => {
         const href = interactive ? hrefFor(it) : null
-        const common = { className: 'sp-social-btn', style: { '--sp-social-c': SOCIAL_COLOR[it.platform] }, title: it.platform, 'aria-label': it.platform }
+        const label = SOCIAL_LABEL[it.platform] || it.platform
+        const common = { className: 'sp-social-btn', style: { '--sp-social-c': SOCIAL_COLOR[it.platform] }, title: label, 'aria-label': label }
         return href
           ? <a key={i} href={href} target="_blank" rel="noopener noreferrer" {...common}>{socialGlyph(it.platform)}</a>
           : <span key={i} {...common}>{socialGlyph(it.platform)}</span>
@@ -1093,7 +1104,9 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
   const padY = st.padY || 'md'
   const rowCls = `sp-row sp-row-bg-${bgKind} sp-pad-${padY}${st.fullBleed && bgKind !== 'none' ? ' sp-row-bleed' : ''}`
   const rowStyle = {}
-  if (bgKind === 'solid' && st.bgColor) rowStyle['--sp-row-bg'] = st.bgColor
+  // Gate the color to a hex literal (the inspector uses <input type="color">) so a
+  // tampered value can't smuggle url(...)/var() into the --sp-row-bg → background.
+  if (bgKind === 'solid' && /^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(String(st.bgColor || ''))) rowStyle['--sp-row-bg'] = st.bgColor
   if (bgKind === 'image') { const u = safeImageUrl(st.bgImage); if (u) rowStyle['--sp-row-img'] = `url("${u}")` }
   if (st.bgOverlay != null) rowStyle['--sp-row-overlay'] = Math.max(0, Math.min(80, Number(st.bgOverlay) || 0)) / 100
   if (st.bgOpacity != null) rowStyle['--sp-row-opacity'] = Math.max(0, Math.min(100, Number(st.bgOpacity) || 0)) / 100

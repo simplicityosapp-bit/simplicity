@@ -31,6 +31,16 @@
 [data-theme="dark"] :is(.spe, .spg-grid, .spg-tiles, .screen[data-screen="sitePages"], .tpl-modal) {
   --spb-glass: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
   --spb-hairline: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  /* Dark-tuned elevations (the warm rgba(42,37,32,…) ones vanish on a dark
+     backdrop — use black with raised alpha, like the app's --elev-* dark). */
+  --spb-elev-panel: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 26px rgba(0, 0, 0, 0.5);
+  --spb-elev-pop: 0 6px 18px rgba(0, 0, 0, 0.5), 0 18px 44px rgba(0, 0, 0, 0.55);
+  /* The builder CHROME runs in dark mode (data-theme on <html>). Many controls
+     use var(--pure-white) as a surface with var(--espresso) text — both go light
+     in dark → white-on-white. Remap --pure-white to a lifted dark control surface
+     in the builder ONLY (the canvas/device-frame use --cream/--bone and stay light
+     on purpose, like a Figma artboard). Text tokens already lighten in dark. */
+  --pure-white: #262c36;
 }
 [data-theme="dark"] :is(.spe, .spg-builder-top, .spg-grid, .spg-tiles, .spg-hub-head, .tpl-modal, .screen[data-screen="sitePages"]) {
   --spb-text-2: #B8B0A4;
@@ -114,7 +124,7 @@
 }
 .spg-new:hover { background: var(--spb-primary-grad-hover); transform: translateY(-1px); box-shadow: var(--spb-primary-glow-hover); }
 .spg-new:active { transform: translateY(0) scale(0.975); box-shadow: var(--spb-primary-glow); }
-[data-theme="dark"] .spg-new { color: var(--espresso); }
+[data-theme="dark"] .spg-new { color: var(--ink-on-accent); }
 
 .spg-muted { color: var(--spb-text-2, var(--stone)); }
 
@@ -210,7 +220,7 @@
 .spe-save:hover:not(:disabled) { background: var(--spb-primary-grad-hover); transform: translateY(-1px); box-shadow: var(--spb-primary-glow-hover); }
 .spe-save:active:not(:disabled) { transform: translateY(0) scale(0.975); box-shadow: var(--spb-primary-glow); }
 .spe-save:disabled { opacity: 0.45; cursor: default; box-shadow: none; }
-[data-theme="dark"] .spe-save { color: var(--espresso); }
+[data-theme="dark"] .spe-save { color: var(--ink-on-accent); }
 .spe-save-err { font-size: var(--mg-micro); color: var(--clay-on-dark); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .spe-status { font-size: var(--mg-micro); font-weight: 600; padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, var(--stone) 10%, transparent); color: var(--spb-text-2, var(--stone)); white-space: nowrap; }
 .spe-status.is-live { background: color-mix(in srgb, var(--sage) 16%, transparent); color: var(--sage); }
@@ -256,7 +266,7 @@
 .spe-seclist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
 .spe-secitem { position: relative; display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--pure-white); border: 1px solid var(--divider); border-radius: var(--mg-chip-radius); cursor: pointer; font-size: var(--mg-caption); color: var(--espresso); transition: border-color 0.15s, box-shadow 0.15s, opacity 0.15s; }
 .spe-secitem:hover { border-color: color-mix(in srgb, var(--terracotta) 40%, var(--divider)); }
-.spe-secitem.is-sel { border-color: var(--terracotta); background: color-mix(in srgb, var(--terracotta) 4%, var(--pure-white)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 16%, transparent), 0 4px 12px -4px color-mix(in srgb, var(--terracotta) 30%, transparent); }
+.spe-secitem.is-sel { border-color: var(--terracotta); background: color-mix(in srgb, var(--terracotta) 4%, var(--pure-white)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 16%, transparent), 0 2px 6px -2px color-mix(in srgb, var(--terracotta) 26%, transparent); }
 .spe-secitem.is-dragging { opacity: 0.45; }
 .spe-secitem.is-drop-target { border-top: 2px solid var(--terracotta); }
 .spe-grip { color: var(--spb-text-3, var(--mist)); cursor: grab; flex: none; }
@@ -371,7 +381,9 @@
 .spe.is-focus .spe-inspector { display: none; }
 .spe.is-focus .spe-canvas-wrap { padding: 0; }
 .spe.is-focus .spe-frame-desktop { max-width: none; border-radius: 0; box-shadow: none; }
-.spe-focus-btn.is-on { background: var(--terracotta); color: var(--pure-white); }
+/* Literal white icon on the saturated terracotta (NOT --pure-white, which is
+   remapped to a dark control surface in the builder's dark mode). */
+.spe-focus-btn.is-on { background: var(--terracotta); color: #fff; }
 .spe-focus-btn.is-on:hover { background: var(--terracotta); }
 .spe-panel { padding: 16px; display: flex; flex-direction: column; gap: 14px; animation: mgFadeUp 0.2s ease; }
 .spe-panel-title { font-size: var(--mg-heading); font-weight: 600; color: var(--espresso); margin: 0; }

@@ -44,15 +44,12 @@
   background-image: var(--sp-bg-day);
   background-size: cover; background-position: center top; background-repeat: no-repeat;
 }
-/* Freeze (opt-in): the photo becomes a ONE-screen sticky wallpaper pinned to the
-   top of the scroll viewport (the negative margin removes its flow space so the
-   page overlays it). Unlike background-attachment:fixed this works on iOS and, in
-   the editor, fills the device frame — so a mobile-resolution image sits 1:1
-   instead of being blown up to cover the whole (browser-sized) viewport. */
-.sp-surface.bg-fixed .sp-bg {
-  position: sticky; inset: auto; top: 0;
-  height: 100vh; height: 100svh; margin-bottom: -100vh; margin-bottom: -100svh;
-}
+/* Freeze (opt-in) on the real published page: a TRUE fixed wallpaper — it covers
+   the viewport and the whole page scrolls over it (`position:fixed` works on iOS,
+   unlike background-attachment:fixed). In the editor's framed preview (.sp-framed)
+   it stays `absolute` so it covers the device frame instead of escaping to the
+   browser window. */
+.sp-surface.bg-fixed:not(.sp-framed) .sp-bg { position: fixed; }
 .sp-root > .sp-page, .sp-root > .sp-free-scaler { position: relative; z-index: 1; }
 .sp-surface.bg-flat { background: var(--sp-bg-flat, #f7f3ee); }
 

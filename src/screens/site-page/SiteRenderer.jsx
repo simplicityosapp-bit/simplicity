@@ -827,7 +827,7 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
     </div>
   )
   return (
-    <div className={`sp-root ${cls} ${className}`} ref={rootRef} dir="rtl" style={style}>
+    <div className={`sp-root ${cls} ${device != null ? 'sp-framed' : ''} ${className}`} ref={rootRef} dir="rtl" style={style}>
       {/* Photo bg on its OWN layer so "freeze" can pin it to one screen as a real
           sticky wallpaper (CSS), instead of background-attachment:fixed (ignored on
           iOS; in the editor it pinned to the browser window, not the device frame —

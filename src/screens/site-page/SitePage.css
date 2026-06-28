@@ -29,18 +29,31 @@
    extending past the first screenful, so newly-added sections lost their photo
    and the page looked broken mid-scroll. `cover` keeps the photo filling the
    frame at any height. */
+/* The root keeps only the brand gradient as a base; the photo lives on its own
+   `.sp-bg` layer (below) so freeze can pin it independently of page height. */
 .sp-surface.has-bg {
   background-image:
-    var(--sp-bg-day),
     radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 12%, #faf7f2) 0%, #f4f1ec 60%, #efece6 100%);
-  background-size: cover, cover;
-  background-position: center, center;
-  background-repeat: no-repeat, no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
-/* Freeze (opt-in): pin the photo to the viewport so a growing page keeps a
-   constant crop instead of `cover` re-scaling over a taller element. iOS Safari
-   ignores `fixed` (treats it as scroll) — graceful degradation, never breaks. */
-.sp-surface.has-bg.bg-fixed { background-attachment: fixed, fixed; }
+.sp-root { position: relative; }
+.sp-bg {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: var(--sp-bg-day);
+  background-size: cover; background-position: center top; background-repeat: no-repeat;
+}
+/* Freeze (opt-in): the photo becomes a ONE-screen sticky wallpaper pinned to the
+   top of the scroll viewport (the negative margin removes its flow space so the
+   page overlays it). Unlike background-attachment:fixed this works on iOS and, in
+   the editor, fills the device frame — so a mobile-resolution image sits 1:1
+   instead of being blown up to cover the whole (browser-sized) viewport. */
+.sp-surface.bg-fixed .sp-bg {
+  position: sticky; inset: auto; top: 0;
+  height: 100vh; height: 100svh; margin-bottom: -100vh; margin-bottom: -100svh;
+}
+.sp-root > .sp-page, .sp-root > .sp-free-scaler { position: relative; z-index: 1; }
 .sp-surface.bg-flat { background: var(--sp-bg-flat, #f7f3ee); }
 
 /* The content column + the responsive container. */
@@ -433,12 +446,12 @@ body.sp-moving { cursor: move !important; user-select: none; }
     background:
       radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 16%, #1a1f26) 0%, #161a20 60%, #12161b 100%);
   }
-  /* Swap to the night photo; size/position/repeat carry over from the light rule. */
+  /* Dark base gradient on the root; the photo layer swaps to the night variant. */
   .sp-surface.has-bg {
     background-image:
-      var(--sp-bg-night),
       radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 16%, #1a1f26) 0%, #161a20 60%, #12161b 100%);
   }
+  .sp-bg { background-image: var(--sp-bg-night); }
   .sp-card { --sp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
   .sp-cardbox, .sp-faq-item { --sp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
   .sp-sub, .sp-text, .sp-feature-text, .sp-cite, .sp-muted, .sp-cardbox-text, .sp-faq-a { color: #b8b0a4; }

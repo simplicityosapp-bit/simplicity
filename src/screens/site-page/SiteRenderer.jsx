@@ -828,6 +828,11 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
   )
   return (
     <div className={`sp-root ${cls} ${className}`} ref={rootRef} dir="rtl" style={style}>
+      {/* Photo bg on its OWN layer so "freeze" can pin it to one screen as a real
+          sticky wallpaper (CSS), instead of background-attachment:fixed (ignored on
+          iOS; in the editor it pinned to the browser window, not the device frame —
+          a mobile-resolution image came out heavily zoomed). */}
+      {cls.includes('has-bg') ? <div className="sp-bg" aria-hidden="true" /> : null}
       {free && scale < 1
         ? <div className="sp-free-scaler" style={{ height: `${Math.round(pageMinH * scale)}px` }}>{pageEl}</div>
         : pageEl}

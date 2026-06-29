@@ -35,6 +35,8 @@
     "publishHint": "When off — a draft, not accessible to the public.",
     "autoConfirmTitle": "Auto-confirm",
     "autoConfirmHint": "When off — appointments wait for manual approval.",
+    "requirePaymentTitle": "Require payment to confirm (Grow)",
+    "requirePaymentHint": "The slot is held temporarily and confirmed only after online payment, at the meeting type's price.",
     "googleCalendar": "Google Calendar",
     "writeToGoogleTitle": "Write confirmed appointments to my Google Calendar",
     "writeToGoogleHintConnected": "Every confirmed appointment from the page (manual or automatic) is written as an event in your calendar.",

@@ -139,7 +139,12 @@ export default function BookingPage() {
         meetingTypeId: chosenType?.id || undefined,
         start: slot.start,
         answers: { ...values, _hp: hp.current },
+        origin: typeof window !== 'undefined' ? window.location.origin : undefined,
       })
+      // Payment-required booking → Grow returns a hosted-payment URL; send the
+      // visitor there to pay (their slot is held meanwhile). On return they land
+      // back here with ?paid=1 / ?cancelled=1 (handled on mount).
+      if (res?.payment?.url) { window.location.href = res.payment.url; return }
       const ty = res?.thankYou || content.thankYou || null
       const redirect = ty?.mode === 'redirect' ? safeRedirectUrl(ty.url) : null
       if (redirect) { window.location.href = redirect; return }

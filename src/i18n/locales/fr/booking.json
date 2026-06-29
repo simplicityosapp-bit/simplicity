@@ -35,6 +35,8 @@
     "publishHint": "Quand c'est désactivé — un brouillon, non accessible au public.",
     "autoConfirmTitle": "Confirmation automatique",
     "autoConfirmHint": "Quand c'est désactivé — les rendez-vous attendent une approbation manuelle.",
+    "requirePaymentTitle": "Exiger le paiement pour confirmer (Grow)",
+    "requirePaymentHint": "Le créneau est réservé temporairement et confirmé seulement après le paiement en ligne, au prix du type de rendez-vous.",
     "googleCalendar": "Google Agenda",
     "writeToGoogleTitle": "Écrire les rendez-vous confirmés dans mon Google Agenda",
     "writeToGoogleHintConnected": "Chaque rendez-vous confirmé de la page (manuel ou automatique) est écrit comme événement dans votre calendrier.",

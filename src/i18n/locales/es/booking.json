@@ -35,6 +35,8 @@
     "publishHint": "Cuando está apagado — borrador, no accesible al público.",
     "autoConfirmTitle": "Confirmación automática",
     "autoConfirmHint": "Cuando está apagado — las citas esperan aprobación manual.",
+    "requirePaymentTitle": "Requerir pago para confirmar (Grow)",
+    "requirePaymentHint": "La franja se reserva temporalmente y se confirma solo tras el pago en línea, según el precio del tipo de reunión.",
     "googleCalendar": "Google Calendar",
     "writeToGoogleTitle": "Escribir las citas confirmadas en mi Google Calendar",
     "writeToGoogleHintConnected": "Cada cita confirmada de la página (manual o automática) se escribe como evento en tu calendario.",

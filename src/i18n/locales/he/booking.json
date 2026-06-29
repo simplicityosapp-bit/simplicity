@@ -37,6 +37,8 @@
     "publishHint": "כשכבוי — טיוטה, לא נגיש לציבור.",
     "autoConfirmTitle": "אישור אוטומטי",
     "autoConfirmHint": "כשכבוי — תורים ממתינים לאישור ידני.",
+    "requirePaymentTitle": "דרוש תשלום לאישור (Grow)",
+    "requirePaymentHint": "התור נתפס זמנית ומאושר רק לאחר תשלום מקוון, לפי מחיר סוג הפגישה.",
     "googleCalendar": "יומן Google",
     "writeToGoogleTitle": "כתיבת תורים מאושרים ליומן Google שלי",
     "writeToGoogleHintConnected": "כל תור מאושר מהדף (ידני או אוטומטי) ייכתב כאירוע ביומן שלך.",

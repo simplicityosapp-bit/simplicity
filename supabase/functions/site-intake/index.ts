@@ -172,8 +172,13 @@ Deno.serve(async (req) => {
     for (const f of fields) {
       if (count >= MAX_FIELDS) break
       if (!f?.key) continue
-      const val = str(answers[f.key]).slice(0, MAX_ANSWER_LEN)
-      if (!val) continue
+      const submitted = str(answers[f.key])
+      if (!submitted) continue
+      // Consent fields: a non-empty submission is just the TICK signal, but the
+      // stored value is SERVER-DERIVED from the page's own consent sentence
+      // (f.label). So a forged POST can't write arbitrary "proof of consent"
+      // text, and a multi-thousand-char client payload can't be smuggled in.
+      const val = (f.type === 'consent' ? str(f.label || f.key) : submitted).slice(0, MAX_ANSWER_LEN)
       count += 1
       const col = BUILTIN_COLUMN[f.key]
       if (col) row[col] = val

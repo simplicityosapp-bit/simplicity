@@ -196,6 +196,8 @@
     "newField": "Nouveau champ",
     "required": "Obligatoire",
     "optionsPlaceholder": "Options, séparées par des virgules",
+    "consentLinkUrl": "Lien (facultatif)",
+    "consentLinkText": "Texte du lien",
     "addField": "Ajouter un champ"
   },
   "rich": {
@@ -220,6 +222,7 @@
     "bookingHint": "Choisissez dans le panneau latéral la page de réservation à afficher.",
     "bkWhen": "Choisissez un créneau",
     "bkPreviewNote": "Le vrai calendrier de votre page de réservation s'affiche ici pour les visiteurs.",
+    "consentLinkDefault": "En savoir plus",
     "thankYouDefault": "Merci ! Nous avons reçu vos coordonnées et reviendrons vers vous.",
     "submit": "Envoyer",
     "empty": "La page est vide — ajoutez votre première section.",
@@ -313,7 +316,8 @@
     "email": "E-mail",
     "textarea": "Texte long",
     "select": "Choix unique",
-    "checkbox": "Choix multiple"
+    "checkbox": "Choix multiple",
+    "consent": "Consentement"
   },
   "options": {
     "full": "Plein",

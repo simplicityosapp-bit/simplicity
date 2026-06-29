@@ -196,6 +196,8 @@
     "newField": "New field",
     "required": "Required",
     "optionsPlaceholder": "Options, comma-separated",
+    "consentLinkUrl": "Link (optional)",
+    "consentLinkText": "Link text",
     "addField": "Add field"
   },
   "rich": {
@@ -220,6 +222,7 @@
     "bookingHint": "Choose which booking page to show in the side panel.",
     "bkWhen": "Pick a time",
     "bkPreviewNote": "The real calendar from your booking page shows here for visitors.",
+    "consentLinkDefault": "Learn more",
     "thankYouDefault": "Thanks! We got your details and will be in touch.",
     "submit": "Submit",
     "empty": "The page is empty — add your first section.",
@@ -313,7 +316,8 @@
     "email": "Email",
     "textarea": "Long text",
     "select": "Single choice",
-    "checkbox": "Multiple choice"
+    "checkbox": "Multiple choice",
+    "consent": "Consent"
   },
   "options": {
     "full": "Full",

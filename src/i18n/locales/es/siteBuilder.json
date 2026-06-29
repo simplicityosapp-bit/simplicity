@@ -196,6 +196,8 @@
     "newField": "Nuevo campo",
     "required": "Obligatorio",
     "optionsPlaceholder": "Opciones, separadas por comas",
+    "consentLinkUrl": "Enlace (opcional)",
+    "consentLinkText": "Texto del enlace",
     "addField": "Añadir campo"
   },
   "rich": {
@@ -220,6 +222,7 @@
     "bookingHint": "Elige en el panel lateral qué página de reserva mostrar.",
     "bkWhen": "Elige una hora",
     "bkPreviewNote": "El calendario real de tu página de reserva se muestra aquí para los visitantes.",
+    "consentLinkDefault": "Más información",
     "thankYouDefault": "¡Gracias! Recibimos tus datos y te contactaremos.",
     "submit": "Enviar",
     "empty": "La página está vacía — añade tu primera sección.",
@@ -313,7 +316,8 @@
     "email": "Correo",
     "textarea": "Texto largo",
     "select": "Selección única",
-    "checkbox": "Selección múltiple"
+    "checkbox": "Selección múltiple",
+    "consent": "Consentimiento"
   },
   "options": {
     "full": "Completo",

@@ -196,6 +196,8 @@
     "newField": "שדה חדש",
     "required": "חובה",
     "optionsPlaceholder": "אפשרויות, מופרדות בפסיק",
+    "consentLinkUrl": "קישור (אופציונלי)",
+    "consentLinkText": "טקסט הקישור",
     "addField": "הוספת שדה"
   },
   "rich": {
@@ -220,6 +222,7 @@
     "bookingHint": "בחרו בפאנל הצד את עמוד הפגישות שתרצו להציג.",
     "bkWhen": "בחרו מועד",
     "bkPreviewNote": "הלוח האמיתי מעמוד הפגישות יוצג כאן למבקרים.",
+    "consentLinkDefault": "קראו עוד",
     "thankYouDefault": "תודה! קיבלנו את הפרטים ונחזור אליכם.",
     "submit": "שליחה",
     "empty": "הדף ריק — הוסיפו סקשן ראשון.",
@@ -313,7 +316,8 @@
     "email": "אימייל",
     "textarea": "טקסט ארוך",
     "select": "בחירה יחידה",
-    "checkbox": "בחירה מרובה"
+    "checkbox": "בחירה מרובה",
+    "consent": "אישור"
   },
   "options": {
     "full": "מלא",

@@ -3,7 +3,7 @@ import { sitePageSurface, safeRedirectUrl, safeImageUrl, safeVideoEmbed, FREE_CA
 import { renderRichText } from '../../lib/richText'
 import { useBookingFlow } from './useBookingFlow'
 import '../booking-pages/bookingI18n'   // self-registers the 'booking' namespace (inline picker labels)
-import { isChoiceType } from '../../lib/leadPageSchema'
+import { isChoiceType, isConsentType } from '../../lib/leadPageSchema'
 import { iconByName } from '../../lib/pageIcons'
 import { useT } from '../../i18n/useT'
 import '../site-pages/siteBuilderI18n'
@@ -329,16 +329,19 @@ function FormBlock({ section, interactive, runtime }) {
   const submit = (e) => {
     e.preventDefault()
     if (!interactive || !runtime) return
-    const isEmpty = (f) => (f.type === 'checkbox'
-      ? !(Array.isArray(values[f.key]) && values[f.key].length)
-      : !str(values[f.key]))
+    const isEmpty = (f) => (
+      f.type === 'checkbox' ? !(Array.isArray(values[f.key]) && values[f.key].length)
+        : f.type === 'consent' ? !values[f.key]
+          : !str(values[f.key]))
     const next = {}
     fields.forEach((f) => { if (f.required && isEmpty(f)) next[f.key] = true })
     if (Object.keys(next).length) { setErrors(next); return }
     const answers = { _hp: hpRef.current }
     fields.forEach((f) => {
       const v = values[f.key]
-      answers[f.key] = f.type === 'checkbox' ? (Array.isArray(v) ? v.join(', ') : '') : (v ?? '')
+      answers[f.key] = f.type === 'checkbox' ? (Array.isArray(v) ? v.join(', ') : '')
+        : f.type === 'consent' ? (v ? str(f.label || f.key) : '')
+          : (v ?? '')
     })
     runtime.onSubmitForm(answers, section.id)
   }
@@ -361,6 +364,22 @@ function FormBlock({ section, interactive, runtime }) {
           const label = (
             <span className="sp-label">{f.label || f.key}{f.required ? <span className="sp-req"> *</span> : null}</span>
           )
+          if (isConsentType(f.type)) {
+            const href = safeRedirectUrl(f.link)
+            return (
+              <label key={f.key} className={`sp-field sp-consent${errors[f.key] ? ' is-error' : ''}`}>
+                <input type="checkbox" className="sp-consent-box" name={f.key}
+                  disabled={!interactive}
+                  checked={!!values[f.key]}
+                  onChange={(e) => setField(f.key, e.target.checked)} />
+                <span className="sp-consent-text">
+                  {f.label || f.key}
+                  {href ? <>{' '}<a href={href} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>{f.linkText || t('renderer.consentLinkDefault')}</a></> : null}
+                  {f.required ? <span className="sp-req"> *</span> : null}
+                </span>
+              </label>
+            )
+          }
           if (isChoiceType(f.type)) {
             return (
               <div key={f.key} className="sp-field" role="group" aria-label={f.label || f.key}>

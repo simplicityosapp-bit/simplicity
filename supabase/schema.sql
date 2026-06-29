@@ -509,7 +509,8 @@ CREATE TABLE tasks (
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
   deleted_at timestamp with time zone,
   status_id uuid,
-  category_id uuid
+  category_id uuid,
+  due_at timestamp with time zone
 );
 
 CREATE TABLE transactions (

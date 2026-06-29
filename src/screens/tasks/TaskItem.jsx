@@ -2,10 +2,10 @@ import { memo } from 'react'
 import { Check, Pencil } from 'lucide-react'
 import { useT } from '../../i18n/useT'
 
-function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, index, taskStatus, category }) {
+function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, index, taskStatus, category, dueLabel }) {
   const { t } = useT('tasks')
   const isDone = task.status === 'done'
-  const meta = [clientName, project?.name].filter(Boolean).join(' · ')
+  const meta = [dueLabel, clientName, project?.name].filter(Boolean).join(' · ')
 
   return (
     <div className={`tc anim${isDone ? ' is-done' : ''}`} style={{ animationDelay: `${index * 0.04}s` }}>

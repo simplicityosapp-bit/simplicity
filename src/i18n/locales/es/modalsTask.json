@@ -22,6 +22,8 @@
     "client": "Cliente",
     "status": "Estado",
     "category": "Categoría",
+    "dueDate": "Fecha límite",
+    "dueTime": "Hora",
     "noDueDateHint": "Las tareas no tienen fecha límite. ¿Necesitas un recordatorio para un día concreto? Añade un <0>recordatorio</0> en su lugar."
   },
   "reminder": {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Trans } from 'react-i18next'
 import Modal from './Modal'
+import DateField from '../components/DateField'
 import { useT } from '../i18n/useT'
 
 const PRIORITIES = [
@@ -8,9 +8,20 @@ const PRIORITIES = [
   { k: 'medium', l: 'priorityMedium' },
   { k: 'low', l: 'priorityLow' },
 ]
-const blank = () => ({ title: '', priority: 'medium', project_id: '', client_id: '', status_id: '', category_id: '' })
+const pad = (x) => String(x).padStart(2, '0')
+/* Split a stored due_at ISO into the form's date + time inputs (local time). */
+const dueParts = (iso) => {
+  if (!iso) return { due_date: '', due_time: '' }
+  const d = new Date(iso)
+  if (Number.isNaN(+d)) return { due_date: '', due_time: '' }
+  return {
+    due_date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    due_time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+  }
+}
+const blank = () => ({ title: '', priority: 'medium', project_id: '', client_id: '', status_id: '', category_id: '', due_date: '', due_time: '' })
 const fromTask = (t) => (t
-  ? { title: t.title || '', priority: t.priority || 'medium', project_id: t.project_id || '', client_id: t.client_id || '', status_id: t.status_id || '', category_id: t.category_id || '' }
+  ? { title: t.title || '', priority: t.priority || 'medium', project_id: t.project_id || '', client_id: t.client_id || '', status_id: t.status_id || '', category_id: t.category_id || '', ...dueParts(t.due_at) }
   : blank())
 
 /* onSave is async (Supabase insert/update). Pass `task` to edit an existing one. */
@@ -34,6 +45,11 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
          custom status we keep the create default / leave an edit's status. */
       const chosen = statuses.find((s) => s.id === form.status_id)
       const metaStatus = chosen ? (chosen.meta_category === 'done' ? 'done' : 'todo') : null
+      /* A date alone is enough — default the time to 09:00 so it lands on the
+         day. No date → clear the due_at (also lets an edit remove it). */
+      const due_at = form.due_date
+        ? new Date(`${form.due_date}T${form.due_time || '09:00'}`).toISOString()
+        : null
       await onSave({
         title: form.title.trim(),
         priority: form.priority,
@@ -41,6 +57,7 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
         client_id: form.client_id || null,
         status_id: form.status_id || null,
         category_id: form.category_id || null,
+        due_at,
         ...(metaStatus ? { status: metaStatus } : (isEdit ? {} : { status: 'todo', completed_at: null })),
       })
       close()
@@ -88,6 +105,23 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
         </div>
       </div>
 
+      <div className="m-row2">
+        <div className="m-field">
+          <label className="m-label">{t('task.dueDate')}</label>
+          <DateField value={form.due_date} onChange={(e) => set('due_date', e.target.value)} />
+        </div>
+        <div className="m-field">
+          <label className="m-label">{t('task.dueTime')}</label>
+          <input
+            type="time"
+            className="m-input"
+            value={form.due_time}
+            onChange={(e) => set('due_time', e.target.value)}
+            disabled={!form.due_date}
+          />
+        </div>
+      </div>
+
       {(statuses.length > 0 || categories.length > 0) && (
         <div className="m-row2">
           {statuses.length > 0 && (
@@ -109,10 +143,6 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
             </div>
           )}
         </div>
-      )}
-
-      {!isEdit && (
-        <p className="m-hint"><Trans t={t} i18nKey="task.noDueDateHint" components={[<strong key="r" />]} /></p>
       )}
 
       {err && <p className="m-error">{err}</p>}

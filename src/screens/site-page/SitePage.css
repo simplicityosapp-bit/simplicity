@@ -315,6 +315,12 @@
 .sp-choices.is-error { box-shadow: 0 0 0 2px rgba(192, 67, 46, 0.35); }
 .sp-choice { display: flex; align-items: center; gap: 10px; font-size: 16px; cursor: pointer; }
 .sp-choice input { width: 19px; height: 19px; flex: none; accent-color: var(--sp-brand); cursor: pointer; }
+/* Consent opt-in — single tick + statement on one row (overrides the column .sp-field). */
+.sp-consent { flex-direction: row; align-items: flex-start; gap: 10px; cursor: pointer; }
+.sp-consent-box { width: 19px; height: 19px; flex: none; margin-top: 1px; accent-color: var(--sp-brand); cursor: pointer; }
+.sp-consent-text { font-size: 14px; line-height: 1.5; color: #2c2621; }
+.sp-consent-text a { color: var(--sp-brand); text-decoration: underline; }
+.sp-consent.is-error .sp-consent-box { outline: 2px solid rgba(192, 67, 46, 0.55); outline-offset: 2px; border-radius: 4px; }
 .sp-form-submit { width: 100%; margin-top: 24px; }
 .sp-form-error { margin: 16px 0 0; font-size: 14px; color: #c0432e; text-align: center; }
 .sp-muted { color: #6b6358; font-size: 15px; }
@@ -646,7 +652,7 @@ a.sp-contact-row:hover { background: color-mix(in srgb, var(--sp-brand) 8%, tran
   .sp-card { --sp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
   .sp-cardbox, .sp-faq-item { --sp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
   .sp-sub, .sp-text, .sp-feature-text, .sp-cite, .sp-muted, .sp-cardbox-text, .sp-faq-a { color: #b8b0a4; }
-  .sp-h1, .sp-h2, .sp-feature-title, .sp-label, .sp-quote, .sp-choice, .sp-cardbox-title, .sp-faq-q { color: #f0ebe0; }
+  .sp-h1, .sp-h2, .sp-feature-title, .sp-label, .sp-quote, .sp-choice, .sp-consent-text, .sp-cardbox-title, .sp-faq-q { color: #f0ebe0; }
   .sp-input { background: #12161b; color: #f0ebe0; border-color: rgba(240, 235, 224, 0.18); }
   .sp-input:disabled { background: #181d23; }
   .sp-divider { background: rgba(240, 235, 224, 0.14); }

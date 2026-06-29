@@ -12,7 +12,7 @@ import {
 import {
   BLOCK_TYPES, BLOCK_PALETTE, BLOCK_CATEGORIES, newSection, newSectionId,
   SITE_FONTS, LEAD_PAGE_BACKGROUNDS, DEFAULT_THEME, slugifyInput, isValidSlug,
-  FIELD_TYPES, isChoiceType, defaultChoiceOptions, freeFieldKey,
+  FIELD_TYPES, isChoiceType, isConsentType, defaultChoiceOptions, freeFieldKey,
 } from '../../lib/sitePageSchema'
 
 /* Key-order-independent serializer — so comparing the draft to a snapshot read
@@ -1293,6 +1293,13 @@ function FormFieldsEditor({ value, onChange }) {
             <input className="spe-flex" placeholder={t('fields.optionsPlaceholder')}
               value={(f.options || []).join(', ')}
               onChange={(e) => setField(i, { options: e.target.value.split(',').map((o) => o.trim()).filter(Boolean) })} />
+          ) : isConsentType(f.type) ? (
+            <>
+              <input className="spe-flex" placeholder={t('fields.consentLinkUrl')}
+                value={f.link || ''} onChange={(e) => setField(i, { link: e.target.value })} />
+              <input className="spe-flex" placeholder={t('fields.consentLinkText')}
+                value={f.linkText || ''} onChange={(e) => setField(i, { linkText: e.target.value })} />
+            </>
           ) : null}
         </div>
       ))}

@@ -12,11 +12,18 @@ export const DEFAULT_BRAND_COLOR = '#C97B5E'
 /* Supported field types for the form builder. `key` is what the public
    page submits; `builtin` fields map to real `leads` columns, the rest
    land in `leads.data` (JSONB). */
-export const FIELD_TYPES = ['text', 'tel', 'email', 'textarea', 'select', 'checkbox']
+export const FIELD_TYPES = ['text', 'tel', 'email', 'textarea', 'select', 'checkbox', 'consent']
 
 /* Choice types carry an `options` array. 'select' = single choice (radio),
    'checkbox' = multiple choice. */
 export const isChoiceType = (type) => type === 'select' || type === 'checkbox'
+
+/* 'consent' = a single opt-in tick (newsletter / marketing). The field `label`
+   is the consent sentence; optional `link` + `linkText` append a hyperlink
+   (e.g. to a privacy policy). The submitted value is the consent text when
+   ticked, '' when not — so `required` enforcement (client + edge) works as-is
+   and the stored value in leads.data reads back as a human sentence. */
+export const isConsentType = (type) => type === 'consent'
 export const defaultChoiceOptions = () => ['אפשרות 1', 'אפשרות 2']
 
 /* The four default fields. A coach can toggle their `required` flag and

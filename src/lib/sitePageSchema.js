@@ -22,14 +22,14 @@
 import {
   DEFAULT_BRAND_COLOR, LEAD_PAGE_BACKGROUNDS, leadPageBgUrl,
   normalizeSlug, isValidSlug, slugifyInput, safeRedirectUrl,
-  DEFAULT_FIELDS, FIELD_TYPES, isChoiceType, defaultChoiceOptions, freeFieldKey,
+  DEFAULT_FIELDS, FIELD_TYPES, isChoiceType, isConsentType, defaultChoiceOptions, freeFieldKey,
 } from './leadPageSchema'
 
 /* Re-export the shared bits so builder screens import from one place. */
 export {
   DEFAULT_BRAND_COLOR, LEAD_PAGE_BACKGROUNDS, leadPageBgUrl,
   normalizeSlug, isValidSlug, slugifyInput, safeRedirectUrl,
-  DEFAULT_FIELDS, FIELD_TYPES, isChoiceType, defaultChoiceOptions, freeFieldKey,
+  DEFAULT_FIELDS, FIELD_TYPES, isChoiceType, isConsentType, defaultChoiceOptions, freeFieldKey,
 }
 
 /* ── Page kinds ─────────────────────────────────────────────────────────────

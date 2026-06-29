@@ -12,6 +12,7 @@ const blank = (date, time) => ({
   title: '', description: '',
   date: date || todayStr(), time: time || '09:00',
   client_id: '',
+  category_id: '',
   recurrence: 'none',
   day_of_week: String(new Date().getDay()),   // weekly: 0=ראשון … 6=שבת
   day_of_month: String(new Date().getDate()),  // monthly: 1–31
@@ -65,6 +66,7 @@ function fromReminder(r, date, time) {
     date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
     time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
     client_id: (r.linked_to_type === 'client' && r.linked_to_id) ? r.linked_to_id : '',
+    category_id: r.category_id || '',
     recurrence: rec,
     day_of_week: String(r.recurrence_pattern?.dayOfWeek ?? new Date().getDay()),
     day_of_month: String(r.recurrence_pattern?.dayOfMonth ?? new Date().getDate()),
@@ -80,7 +82,7 @@ function fromReminder(r, date, time) {
    (which silently defaulted to today → everything showed "היום").
    `defaultLinkedTo` pre-binds the reminder to a project/group/etc. and hides
    the client selector — used when opened from a project drawer. */
-export default function AddReminderModal({ open, onClose, onSave, clients = [], defaultLinkedTo = null, linkedSubjectName = '', reminder = null, initialDate, initialTime }) {
+export default function AddReminderModal({ open, onClose, onSave, clients = [], categories = [], defaultLinkedTo = null, linkedSubjectName = '', reminder = null, initialDate, initialTime }) {
   const isEdit = !!reminder
   const { t } = useT('modalsTask')
   /* initialDate/initialTime prefill a NEW one-off reminder when opened from a
@@ -152,6 +154,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
         end_date: form.recurrence !== 'none' && form.end_date ? form.end_date : null,
         linked_to_type: defaultLinkedTo?.type || (form.client_id ? 'client' : null),
         linked_to_id: defaultLinkedTo?.id || form.client_id || null,
+        category_id: form.category_id || null,
         ...(isEdit ? {} : { status: 'pending', type: null, channel: null }),
       })
       close()
@@ -270,6 +273,15 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
           <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </div>
+      )}
+      {categories.length > 0 && (
+        <div className="m-field">
+          <label className="m-label">{t('reminder.category')}</label>
+          <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
+            <option value="">{t('common.none')}</option>
+            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
       )}

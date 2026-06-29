@@ -202,21 +202,26 @@ export default function TasksScreen() {
   }, [groupBy, filteredTasks, projects, taskCategories, t])
 
   const filteredReminders = useMemo(() => {
-    if (filter === 'done') return reminders.filter((r) => r.status === 'completed')
+    /* The shared category-filter pills apply to reminders too (a reminder
+       shows if its category is in the set; empty set = all). */
+    const inCategory = (r) => !categoryFilters.size || categoryFilters.has(r.category_id)
+    if (filter === 'done') return reminders.filter((r) => r.status === 'completed' && inCategory(r))
     /* "פתוחות" = open one-off + recurring whose occurrence has come due. */
     return reminders.filter((r) => {
-      if (!isActiveReminder(r)) return false
+      if (!isActiveReminder(r) || !inCategory(r)) return false
       return isRecurring(r) ? dueOccurrenceCount(r, now) >= 1 : true
     })
-  }, [reminders, now, filter])
+  }, [reminders, now, filter, categoryFilters])
 
   /* Dated tasks that "pop" onto the reminders view — open tasks with a due_at,
-     shown only on the open ("פתוחות") tab, bucketed by their due date. */
+     shown only on the open ("פתוחות") tab, bucketed by their due date. The
+     shared category filter applies here as well. */
   const datedTasks = useMemo(() => (
     (view === 'reminders' && filter === 'todo')
-      ? tasks.filter((task) => task.due_at && task.status !== 'done')
+      ? tasks.filter((task) => task.due_at && task.status !== 'done'
+          && (!categoryFilters.size || categoryFilters.has(task.category_id)))
       : []
-  ), [view, filter, tasks])
+  ), [view, filter, tasks, categoryFilters])
 
   /* "חוזרות" tab — all active recurring reminders, grouped: weekly by
      day-of-week, monthly together, every-X-days together. */
@@ -344,7 +349,9 @@ export default function TasksScreen() {
         </div>
       )}
 
-      {isTasks && (
+      {/* Category filter + manage — shared across tasks AND reminders so the
+          same categories/filter drive both views. */}
+      {(
         <div className="t-tax-bar">
           {taskCategories.length > 0 ? (
             <div className="t-cat-filter">
@@ -457,6 +464,7 @@ export default function TasksScreen() {
                       key={r.id}
                       reminder={r}
                       clientName={clientNameOf(r.client_id)}
+                      category={r.category_id ? categoryById.get(r.category_id) : null}
                       dotColor={g.color}
                       onComplete={completeReminder}
                       onEdit={setEditItem}
@@ -480,6 +488,7 @@ export default function TasksScreen() {
                   key={r.id}
                   reminder={r}
                   clientName={clientNameOf(r.client_id)}
+                  category={r.category_id ? categoryById.get(r.category_id) : null}
                   dotColor="var(--stone)"
                   onComplete={completeReminder}
                   onEdit={setEditItem}
@@ -504,6 +513,7 @@ export default function TasksScreen() {
                       key={r.id}
                       reminder={r}
                       clientName={clientNameOf(r.client_id)}
+                      category={r.category_id ? categoryById.get(r.category_id) : null}
                       dotColor={b.color}
                       onComplete={completeReminder}
                       onEdit={setEditItem}
@@ -548,6 +558,19 @@ export default function TasksScreen() {
         onSave={(patch) => editDatedTask && editTask(editDatedTask.id, patch)}
       />
 
+      {/* Category/status taxonomy — shared, so the manage button works from
+          both the tasks and reminders views. */}
+      <TaskTaxonomyModal
+        open={showTaxonomy}
+        onClose={() => setShowTaxonomy(false)}
+        statuses={taskStatuses}
+        categories={taskCategories}
+        onAddStatus={addStatus}
+        onRemoveStatus={handleRemoveStatus}
+        onAddCategory={addCategory}
+        onRemoveCategory={handleRemoveCategory}
+      />
+
       {isTasks ? (
         <>
           <AddTaskModal
@@ -579,16 +602,6 @@ export default function TasksScreen() {
             danger
             onConfirm={() => clearCompleted()}
           />
-          <TaskTaxonomyModal
-            open={showTaxonomy}
-            onClose={() => setShowTaxonomy(false)}
-            statuses={taskStatuses}
-            categories={taskCategories}
-            onAddStatus={addStatus}
-            onRemoveStatus={handleRemoveStatus}
-            onAddCategory={addCategory}
-            onRemoveCategory={handleRemoveCategory}
-          />
         </>
       ) : (
         <>
@@ -596,6 +609,7 @@ export default function TasksScreen() {
             open={showAdd}
             onClose={() => setShowAdd(false)}
             clients={clients}
+            categories={taskCategories}
             onSave={addReminder}
           />
           <AddReminderModal
@@ -604,6 +618,7 @@ export default function TasksScreen() {
             onClose={() => setEditItem(null)}
             reminder={editItem}
             clients={clients}
+            categories={taskCategories}
             onSave={(patch) => editItem && editReminder(editItem.id, patch)}
           />
           <ConfirmModal

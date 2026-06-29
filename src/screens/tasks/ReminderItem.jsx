@@ -8,7 +8,7 @@ import { useT } from '../../i18n/useT'
    The meta line shows the scheduled date/time and (optional) linked
    client. Dot color signals urgency: clay if overdue, amber if today,
    sage otherwise. */
-function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, count = 1, index }) {
+function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, count = 1, index, category }) {
   const { t } = useT('tasks')
   const isDone = reminder.status === 'completed'
   const meta = [clientName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
@@ -30,6 +30,14 @@ function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, coun
           {count > 1 && <span className="tc-recur-count" title={t('item.pendingOccurrences', { n: count })}>×{count}</span>}
         </p>
         {meta && <p className="tc-meta">{meta}</p>}
+        {category && (
+          <div className="tc-tags">
+            <span className="tc-tag">
+              <span className="tc-tag-dot" style={{ background: category.color || 'var(--stone)' }} />
+              {category.name}
+            </span>
+          </div>
+        )}
       </div>
       {onEdit && (
         <button type="button" className="tc-edit" onClick={() => onEdit(reminder)} aria-label={t('item.editReminder')}>

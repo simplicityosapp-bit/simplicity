@@ -61,5 +61,29 @@ export default function PrefsApplier() {
     try { localStorage.setItem('mg-bg', bg) } catch { /* noop */ }
   }, [prefs?.design?.background])
 
+  /* Global display (Settings → Widgets & Display) → <html> attributes.
+     These used to live on .home-screen only, so the choice was invisible
+     everywhere else. Promoted to the root so the --mg-card-* token + weight
+     overrides in tokens.css reach every screen. Mirrored to localStorage for
+     the index.html first-paint restore. The retired 'outlined' style folds
+     back to 'frosted' for any pref saved before it was removed. */
+  const g = prefs?.widgets?.global
+  useEffect(() => {
+    const raw = g?.cardStyle || 'frosted'
+    const cardStyle = raw === 'outlined' ? 'frosted' : raw
+    document.documentElement.setAttribute('data-card-style', cardStyle)
+    try { localStorage.setItem('mg-card-style', cardStyle) } catch { /* noop */ }
+  }, [g?.cardStyle])
+  useEffect(() => {
+    const strength = g?.textStrength || 'normal'
+    document.documentElement.setAttribute('data-text-strength', strength)
+    try { localStorage.setItem('mg-text-strength', strength) } catch { /* noop */ }
+  }, [g?.textStrength])
+  useEffect(() => {
+    const density = g?.density || 'comfortable'
+    document.documentElement.setAttribute('data-density', density)
+    try { localStorage.setItem('mg-density', density) } catch { /* noop */ }
+  }, [g?.density])
+
   return null
 }

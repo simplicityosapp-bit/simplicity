@@ -153,26 +153,15 @@
   box-shadow: var(--mg-card-shadow);
 }
 
-/* Card-style is driven by CSS variables on `.home-screen` so the cards
-   themselves only read the variables — no comma-separated selector lists
-   that esbuild's CSS minifier can merge incorrectly (it was dropping the
-   `[data-card-style="flat"]` prefix off the first selector in the list,
-   killing blur on ALL home cards). */
+/* Card-style is now global: PrefsApplier sets <html data-card-style> and
+   tokens.css overrides the --mg-card-* tokens accordingly. Home cards just
+   read those tokens through this indirection, so the choice (frosted /
+   flat) reaches Home like every other screen — no home-local style blocks. */
 .home-screen {
   --home-card-bg:     var(--mg-card-bg);
   --home-card-border: var(--mg-card-border);
   --home-card-shadow: var(--mg-card-shadow);
   --home-card-blur:   var(--mg-card-blur);
-}
-.home-screen[data-card-style="flat"] {
-  --home-card-shadow: none;
-  --home-card-blur:   none;
-}
-.home-screen[data-card-style="outlined"] {
-  --home-card-bg:     transparent;
-  --home-card-border: 1px solid var(--divider);
-  --home-card-shadow: none;
-  --home-card-blur:   none;
 }
 
 /* Shared glass card surface. */

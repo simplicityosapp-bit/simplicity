@@ -57,6 +57,7 @@
     "endDate": "תאריך סיום (אופציונלי)",
     "linkedTo": "מקושרת ל",
     "linkedClient": "לקוח מקושר (אופציונלי)",
+    "category": "קטגוריה (אופציונלי)",
     "details": "פרטים (אופציונלי)",
     "detailsPlaceholder": "פרטים נוספים",
     "project": "פרויקט"

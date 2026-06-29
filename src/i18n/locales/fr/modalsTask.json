@@ -53,6 +53,7 @@
     "endDate": "Date de fin (facultatif)",
     "linkedTo": "Lié à",
     "linkedClient": "Client lié (facultatif)",
+    "category": "Catégorie (facultatif)",
     "details": "Détails (facultatif)",
     "detailsPlaceholder": "Plus de détails",
     "project": "Projet"

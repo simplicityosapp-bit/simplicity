@@ -53,6 +53,7 @@
     "endDate": "End date (optional)",
     "linkedTo": "Linked to",
     "linkedClient": "Linked client (optional)",
+    "category": "Category (optional)",
     "details": "Details (optional)",
     "detailsPlaceholder": "More details",
     "project": "Project"

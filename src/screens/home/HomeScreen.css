@@ -1038,3 +1038,49 @@
   background: rgba(181, 99, 78, 0.1);
   border-color: rgba(181, 99, 78, 0.28);
 }
+
+/* ── "דרושה תשומת לב" → reach-out people list (WhatsApp per person) ── */
+.h-people-list { display: flex; flex-direction: column; }
+.h-people-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--divider);
+}
+.h-people-row:first-child { border-top: none; }
+.h-people-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  text-align: start;
+  cursor: pointer;
+}
+.h-people-name {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.h-people-wa {
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--sage) 40%, transparent);
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
+  color: var(--sage);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.h-people-wa:hover { background: color-mix(in srgb, var(--sage) 22%, transparent); }

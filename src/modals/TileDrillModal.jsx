@@ -1,10 +1,13 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Check } from 'lucide-react'
 import Modal from './Modal'
 import { ROUTES } from '../lib/routes'
 import { isr } from '../lib/finance'
-import { getTileFilters } from '../lib/homeData'
+import { fmtTime } from '../lib/dates'
+import { getTileFilters, todayItems } from '../lib/homeData'
+import { confirmScheduledMeeting } from '../lib/scheduledMeetings'
+import WhatsAppButton from '../components/WhatsAppButton'
 import { useT } from '../i18n/useT'
 import { ClientsTrend, NetBars, TasksBars } from './TileDrillCharts'
 
@@ -18,6 +21,7 @@ const TASK_PRIORITIES = ['high', 'medium', 'low']
 /* One general client toggle instead of a pill-per-client list (beta
    07/06/2026): 'all' = no filter, 'linked' = only tasks tied to a client. */
 const TASK_CLIENT_SCOPE = ['all', 'linked']
+const TODAY_KINDS = ['meeting', 'calendar', 'followup']
 
 function toggleInList(list, value) {
   const arr = list || []
@@ -335,6 +339,67 @@ function TasksPanel({ filters, setFilter, tasks, projects, t }) {
   )
 }
 
+/* Today's agenda panel — the "פגישות היום" tile. Filters control which
+   kinds are counted/shown (meeting / Google event / lead follow-up), and
+   each row carries kind-aware actions: WhatsApp reminder, open the
+   client/lead, and (meetings only) mark "happened". */
+function MeetingsPanel({ filters, setFilter, items, onConfirm, onOpen, waMsg, t }) {
+  const kinds = filters.kinds && filters.kinds.length ? filters.kinds : TODAY_KINDS
+  return (
+    <>
+      <p className="td-num mono">{items.length}</p>
+      <p className="td-num-lbl">{t('tileDrill.today.matchingNum')}</p>
+
+      <p className="td-field-lbl">{t('tileDrill.today.kindsLbl')}</p>
+      <Pills options={TODAY_KINDS} value={kinds} multi
+             label={(k) => t(`tileDrill.todayKinds.${k}`)}
+             onChange={(v) => setFilter('kinds', v.length ? v : TODAY_KINDS)} />
+
+      <p className="td-section-lbl">{t('tileDrill.today.listSection')}</p>
+      <div className="td-list">
+        {items.length === 0 ? (
+          <p className="td-empty">{t('tileDrill.today.empty')}</p>
+        ) : (
+          items.map((it) => (
+            <div key={it.id} className={`td-today-row kind-${it.kind}`}>
+              <button
+                type="button"
+                className="td-today-main"
+                onClick={() => onOpen(it)}
+                disabled={it.kind === 'calendar'}
+              >
+                <span className="td-today-time mono">{it.allDay ? t('tileDrill.today.allDay') : fmtTime(it.when)}</span>
+                <span className="td-today-name">{it.title || t(`tileDrill.todayKinds.${it.kind}`)}</span>
+                <span className={`td-today-kind kind-${it.kind}`}>{t(`tileDrill.todayKinds.${it.kind}`)}</span>
+              </button>
+              <div className="td-today-acts">
+                {it.phone && (
+                  <WhatsAppButton
+                    phone={it.phone}
+                    message={waMsg(it.kind === 'followup' ? 'lead' : 'client', { name: it.title })}
+                    triggerClassName="td-today-act"
+                  />
+                )}
+                {it.kind === 'meeting' && (
+                  <button
+                    type="button"
+                    className="td-today-act confirm"
+                    onClick={() => onConfirm(it)}
+                    aria-label={t('tileDrill.today.markHappened')}
+                    title={t('tileDrill.today.markHappened')}
+                  >
+                    <Check size={15} strokeWidth={2} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </>
+  )
+}
+
 /* Drill-down modal opened by tapping a tile in ChipsWidget. Holds
    the per-tile filter state in userPreferences.tileFilters and
    dispatches to the right panel. The "פתיחה במלא ←" link routes
@@ -345,6 +410,7 @@ export default function TileDrillModal({
   clients = [], groups = [], projects = [], categories = [],
   tasks = [], transactions = [],
   netSummary = {},
+  meetings = [], calendarEvents = [], leads = [], sessions = [], addSession, updateMeeting, waMsg,
 }) {
   const { t } = useT('modalsSystem')
   const navigate = useNavigate()
@@ -356,10 +422,36 @@ export default function TileDrillModal({
     updatePrefs?.({ tileFilters: { ...(prefs?.tileFilters || {}), [tile]: nextTile } })
   }
 
+  /* todayItems only reads `kinds`; depend on that stable array (from
+     getTileFilters → prefs or the module default) rather than the
+     per-render `filters` object, so the memo actually memoizes. */
+  const todayKinds = filters.kinds
+  const todayList = useMemo(
+    () => (tile === 'today' ? todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }, { kinds: todayKinds }) : []),
+    [tile, meetings, calendarEvents, leads, clients, groups, todayKinds],
+  )
+  /* "Happened" materializes a session + flips the meeting to confirmed —
+     the shared helper used by the home review widget and the calendar. */
+  const confirmToday = (it) => {
+    if (it.meeting && addSession && updateMeeting) {
+      confirmScheduledMeeting({ meeting: it.meeting, sessions, addSession, updateMeeting })
+    }
+  }
+  /* Tap a row → jump to where it lives. Google events are read-only (the
+     row's main button is disabled), so only meetings/follow-ups route. */
+  const openToday = (it) => {
+    if (it.kind === 'meeting' && it.subjectType === 'client') navigate(ROUTES.CLIENT.replace(':id', it.subjectId))
+    else if (it.kind === 'meeting') navigate(ROUTES.CLIENTS)
+    else if (it.kind === 'followup') navigate(ROUTES.LEADS)
+    else return
+    onClose()
+  }
+
   const routes = {
     clients: ROUTES.CLIENTS,
     net: ROUTES.FINANCE,
     tasks: ROUTES.TASKS,
+    today: ROUTES.CALENDAR,
   }
 
   return (
@@ -392,6 +484,17 @@ export default function TileDrillModal({
             setFilter={setFilter}
             tasks={tasks}
             projects={projects}
+            t={t}
+          />
+        )}
+        {tile === 'today' && (
+          <MeetingsPanel
+            filters={filters}
+            setFilter={setFilter}
+            items={todayList}
+            onConfirm={confirmToday}
+            onOpen={openToday}
+            waMsg={waMsg}
             t={t}
           />
         )}

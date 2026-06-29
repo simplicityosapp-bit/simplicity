@@ -46,6 +46,28 @@
 /* The FAB lives on the RIGHT edge, clear of the left nav rail (which expands
    to 240px on hover); no desktop offset needed. */
 
+/* ── Mobile: compact icon-only circle pinned bottom-right ─────────────
+   The labelled mid-edge pill is too heavy on small screens, so collapse it
+   to a round icon button in the bottom-right corner. It sits at the same
+   height as the help "?" FAB (which lives bottom-LEFT), both clearing the
+   bottom nav bar. */
+@media (max-width: 767px) {
+  .dtb-fab {
+    top: auto;
+    bottom: calc(94px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    transform: none;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+  }
+  .dtb-fab-label { display: none; }
+  .dtb-fab:hover { transform: scale(1.03); }
+  .dtb-fab:active { transform: scale(0.97); }
+}
+
 /* ── Scrim ────────────────────────────────────────────────────────── */
 .dtb-scrim {
   position: fixed;

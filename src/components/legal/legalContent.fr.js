@@ -29,7 +29,7 @@ export const PRIVACY_BLOCKS = [
   { t: `Données d'utilisation — activité générale aux fins de l'exploitation et de l'amélioration du Service.` },
   { h2: `4.2 Données des clients finals (saisies par l'Utilisateur)` },
   { t: `L'Utilisateur saisit manuellement des données sur ses clients finals. Ces données peuvent inclure :` },
-  { t: `Nom complet, téléphone, adresse de courriel.` },
+  { t: `Nom complet, téléphone, adresse de courriel, adresse postale, date de naissance.` },
   { t: `Notes, comptes rendus de séances et réflexions — ceux-ci peuvent contenir des informations sensibles.` },
   { t: `Données financières — coût par séance, historique des paiements.` },
   { t: `Ces données sont stockées sur des serveurs de l'Union européenne, isolées pour chaque Utilisateur séparément (Row-Level Security — chaque Utilisateur n'accède qu'à ses propres données), et protégées par un chiffrement au stockage au niveau de l'infrastructure (at-rest) et par un chiffrement en transit (HTTPS/TLS). Il existe un accès technique limité à l'infrastructure aux seules fins d'exploitation, de support et de sauvegarde.` },

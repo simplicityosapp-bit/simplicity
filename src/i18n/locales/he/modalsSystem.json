@@ -155,11 +155,20 @@
   "tileDrill": {
     "close": "סגירה",
     "openFull": "פתיחה במלא",
-    "dayLabels": ["א", "ב", "ג", "ד", "ה", "ו", "ש"],
+    "dayLabels": [
+      "א",
+      "ב",
+      "ג",
+      "ד",
+      "ה",
+      "ו",
+      "ש"
+    ],
     "titles": {
       "clients": "לקוחות",
       "net": "נטו",
-      "tasks": "משימות"
+      "tasks": "משימות",
+      "today": "לו\"ז"
     },
     "status": {
       "active": "פעיל׌",
@@ -233,6 +242,19 @@
       "emptyFilter": "אין משימות שתואמות לפילטר.",
       "moreCount": "+{{count}} נוספות",
       "noProjects": "אין פרויקטים עדיין"
+    },
+    "today": {
+      "matchingNum": "פריטים היום",
+      "kindsLbl": "מה להציג",
+      "listSection": "היום",
+      "empty": "אין פגישות או אירועים להיום",
+      "allDay": "כל היום",
+      "markHappened": "סמן שהתקיימה"
+    },
+    "todayKinds": {
+      "meeting": "פגישה",
+      "calendar": "יומן",
+      "followup": "מעקב"
     }
   }
 }

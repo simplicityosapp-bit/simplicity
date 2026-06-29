@@ -1,5 +1,23 @@
 {
   "screens": {
+    "sitePages": {
+      "title": "Public pages",
+      "intro": "One system for building public pages: landing pages, lead-capture pages and booking pages. Build from sections by dragging, design freely, and publish under your own link.",
+      "features": [
+        { "title": "Section-based building", "body": "Add sections from the palette (hero, text, image, benefits, testimonial, button, form), drag to reorder, and click a section to edit it in the side panel. The center preview is exactly what visitors see." },
+        { "title": "Flexible design", "body": "In the 'Page design' panel choose a font, brand color, background (nature photo / color / your own upload), card opacity and blur, and alignment. You can upload images and pick icons." },
+        { "title": "Desktop and mobile", "body": "A toggle at the top of the editor switches between desktop and mobile preview, so you can check the page looks good on both." },
+        { "title": "Form and booking", "body": "A form section collects details straight into your leads — with manual or automatic approval and a thank-you message. A button can link to an external site, scroll to the form, or lead to booking." }
+      ],
+      "tips": [
+        "Publish the page (the 'Publish' toggle in the editor) to get a public link — a draft page isn't reachable.",
+        "Set a short slug in the 'Public address' field for an easy link to share."
+      ],
+      "faq": [
+        { "q": "Does the visitor need to log in?", "a": "No. The pages are fully public. Only you see the submissions that come in." },
+        { "q": "What's the difference between the three kinds?", "a": "Landing page — a full marketing page; Lead page — a form-focused page; Booking — pick a time from your calendar. All on the same design engine." }
+      ]
+    },
     "home": {
       "title": "Home",
       "intro": "Home is your personal dashboard. It's made up of widgets you can turn on, turn off, and rearrange however you like. Each one gives you a quick look at a different area of your work and a shortcut to get there.",

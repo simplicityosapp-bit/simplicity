@@ -42,7 +42,16 @@
     "saved": "Transaction enregistrée",
     "savedAndIssued": "Transaction enregistrée et {{doc}} émis{{num}}",
     "numPrefix": " n° {{num}}",
-    "issueFailed": "Transaction enregistrée, mais l'émission a échoué — vous pouvez l'émettre depuis la modification"
+    "issueFailed": "Transaction enregistrée, mais l'émission a échoué — vous pouvez l'émettre depuis la modification",
+    "recipientAdHoc": "Nouveau client",
+    "recipientHint": "Renseignez les informations pour émettre un reçu — vous pourrez l'enregistrer comme client ensuite.",
+    "recipientNamePlaceholder": "Nom du destinataire",
+    "recipientEmailPlaceholder": "E-mail (pour envoyer le reçu)",
+    "recipientPhonePlaceholder": "Téléphone",
+    "recipientTaxIdPlaceholder": "N° fiscal / SIRET",
+    "recipientNameRequired": "Saisissez un nom de destinataire.",
+    "recipientSectionLabel": "Nouveau client",
+    "saveAsClient": "Enregistrer comme client"
   },
   "editTx": {
     "title": "Modifier la transaction",

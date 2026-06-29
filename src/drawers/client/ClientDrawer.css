@@ -144,7 +144,34 @@
 .cd-status-past { color: var(--espresso); background: rgba(42, 37, 32, 0.06); }
 .cd-status-no_status { color: var(--espresso); background: rgba(42, 37, 32, 0.06); }
 .cd-h-status-by { font-weight: 400; opacity: 0.6; }
-/* C2 — clickable status control (private clients only) */
+/* Manual override (migration 0062): a small "ידני" tag + one-tap revert
+   back to the group-driven status. Shown only for group members whose
+   status the coach has overridden by hand. */
+.cd-status-manual { display: inline-flex; align-items: center; gap: 5px; }
+.cd-status-manual-tag {
+  font-family: var(--mg-font);
+  font-size: calc(9px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+  background: rgba(212, 165, 116, 0.16);
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+.cd-status-revert {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 2px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: calc(10px * var(--text-scale));
+  color: var(--stone);
+  transition: color 0.15s ease;
+}
+.cd-status-revert:hover { color: var(--espresso); }
+/* C2 — clickable status control (now available to group members too) */
 .cd-status-pick { position: relative; display: inline-flex; }
 .cd-h-status.is-btn {
   display: inline-flex;

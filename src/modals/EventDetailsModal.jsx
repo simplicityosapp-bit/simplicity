@@ -145,7 +145,7 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
               className="evt-detail-btn skip evt-detail-cancel-booking"
               onClick={confirmCancelBk ? handle(onCancelBooking) : () => setConfirmCancelBk(true)}
             >
-              <X size={15} strokeWidth={2} aria-hidden="true" /> {confirmCancelBk ? 'לבטל את התור?' : 'ביטול תור'}
+              <X size={15} strokeWidth={2} aria-hidden="true" /> {confirmCancelBk ? t('event.cancelBookingConfirm') : t('event.cancelBooking')}
             </button>
           )}
         </div>

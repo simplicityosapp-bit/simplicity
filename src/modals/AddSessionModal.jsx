@@ -4,7 +4,12 @@ import Modal from './Modal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 
-const todayStr = () => new Date().toISOString().slice(0, 10)
+/* Local YYYY-MM-DD — UTC toISOString would roll over to "tomorrow" on an
+   Israeli evening, defaulting a new session's date to the wrong day. */
+const todayStr = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 const blank = () => ({ date: todayStr(), summary: '', notes: '' })
 const fromSession = (s) => (s
   ? { date: s.date ? new Date(s.date).toISOString().slice(0, 10) : todayStr(), summary: s.summary || '', notes: s.notes || '' }

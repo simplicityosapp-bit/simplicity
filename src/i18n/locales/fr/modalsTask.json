@@ -178,6 +178,8 @@
     "bookingPhone": "Téléphone",
     "bookingEmail": "E-mail",
     "bookingNote": "Note : {{note}}",
+    "cancelBooking": "Annuler le RDV",
+    "cancelBookingConfirm": "Annuler le rendez-vous ?",
     "edit": "Modifier",
     "delete": "Supprimer",
     "deleteConfirm": "Sûr ? Supprimer",

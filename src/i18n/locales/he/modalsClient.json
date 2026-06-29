@@ -16,6 +16,9 @@
     "phonePlaceholder": "050-0000000",
     "email": "אימייל (אופציונלי)",
     "emailPlaceholder": "name@example.com",
+    "address": "כתובת",
+    "addressPlaceholder": "רחוב, עיר",
+    "birthDate": "תאריך לידה",
     "project": "פרויקט",
     "projectOptional": "פרויקט (אופציונלי)",
     "groupOptional": "קבוצה (אופציונלי)",
@@ -78,7 +81,17 @@
     "clearFixed": "ניקוי פגישה קבועה",
     "noGroup": "ללא קבוצה",
     "meetingType": "סוג פגישה",
-    "manageMeetingTypes": "ניהול סוגים"
+    "manageMeetingTypes": "ניהול סוגים",
+    "secDetails": "פרטים",
+    "secMoreDetails": "פרטים נוספים",
+    "secScheduling": "פגישות ותזמון",
+    "secBilling": "חיוב ותשלומים",
+    "secGroups": "קבוצות",
+    "fPersonal": "אישי",
+    "fGroups": "קבוצות",
+    "fDiscount": "מחיקת חוב",
+    "confirmBalanceTitle": "עדכון יתרה",
+    "confirmBalanceMsg": "היתרה עודכנה ל-{{balance}}. לשמור?"
   },
   "meetingTypes": {
     "title": "סוגי פגישה",

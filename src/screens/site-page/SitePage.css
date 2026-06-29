@@ -1,0 +1,659 @@
+/* ════════════════════════════════════════════════════════════════
+   SITE PAGE — shared styling for the renderer (builder canvas + public
+   page). Self-contained; accent via --sp-brand, font via --sp-font, both
+   set inline by sitePageSurface(). RTL.
+
+   Layout reflows by CONTAINER width (not viewport), so the builder's
+   desktop/mobile toggle — which just resizes the canvas frame — produces a
+   real responsive preview without faking the viewport.
+   ════════════════════════════════════════════════════════════════ */
+
+.sp-root {
+  --sp-brand: #C97B5E;
+  --sp-font: 'Heebo', 'Assistant', sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  font-family: var(--sp-font);
+  color: #2c2621;
+  position: relative;
+  background:
+    radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 12%, #faf7f2) 0%, #f4f1ec 60%, #efece6 100%);
+}
+/* The photo is the .sp-root element's OWN background, layered over the gradient
+   (which stays as a fallback until the image loads). An element background always
+   covers the element's full content box — however tall the page grows as sections
+   are added — and is anchored to that box, so it can't be left short of the
+   content the way an absolutely-positioned layer was: on iOS, inside the editor's
+   rounded + overflow:hidden, scrolling canvas frame, that absolute layer stopped
+   extending past the first screenful, so newly-added sections lost their photo
+   and the page looked broken mid-scroll. `cover` keeps the photo filling the
+   frame at any height. */
+/* The root keeps only the brand gradient as a base; the photo lives on its own
+   `.sp-bg` layer (below) so freeze can pin it independently of page height. */
+.sp-surface.has-bg {
+  background-image:
+    radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 12%, #faf7f2) 0%, #f4f1ec 60%, #efece6 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.sp-root { position: relative; }
+.sp-bg {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: var(--sp-bg-day);
+  background-size: cover; background-position: center top; background-repeat: no-repeat;
+}
+/* Readability scrim — a soft, top-weighted veil between the photo and the content
+   so light text keeps contrast over busy/bright photos (a text-shadow alone wasn't
+   enough). Default kicks in only on light-text-on-photo pages; the Design panel
+   dials --sp-scrim 0–70% (inline value wins over the default below). */
+.sp-bg::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, #17120d var(--sp-scrim, 0%), transparent),
+    color-mix(in srgb, #17120d calc(var(--sp-scrim, 0%) * 0.55), transparent));
+}
+.sp-surface.text-light { --sp-scrim: 30%; }
+/* Freeze (opt-in): a TRUE fixed wallpaper — it covers the viewport and the whole
+   page scrolls over it (`position:fixed` works on iOS, unlike background-attachment:
+   fixed). On the published page it pins to the window; in the editor the device
+   frame is `transform`ed into the containing block (and made a fixed-height scroller),
+   so the same `fixed` layer pins to the FRAME's viewport instead of the browser
+   window — the wallpaper stays frozen behind the scrolling page at 1:1. */
+.sp-surface.bg-fixed .sp-bg { position: fixed; }
+.sp-root > .sp-page, .sp-root > .sp-free-scaler { position: relative; z-index: 1; }
+.sp-surface.bg-flat { background: var(--sp-bg-flat, #f7f3ee); }
+
+/* The page is a stack of full-width section ROWS; each row owns its optional
+   background (band) + vertical rhythm, and centres its content in a max-width
+   column (.sp-row-inner). `container-type` stays on .sp-page (free mode's blocks
+   query it at canvas width) AND on .sp-row-inner (stack blocks query the column).
+   Free mode keeps its own .sp-page.sp-free overrides further below. */
+.sp-page {
+  position: relative;
+  container-type: inline-size;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+.sp-page:not(.sp-free) {
+  max-width: none; margin: 0; gap: 0;
+  padding: clamp(10px, 2.5cqi, 28px) 0 clamp(40px, 5cqi, 64px);
+}
+.sp-row { position: relative; box-sizing: border-box; --sp-row-paint: transparent; }
+.sp-row-inner {
+  position: relative; box-sizing: border-box;
+  width: 100%; max-width: 760px; margin-inline: auto;
+  container-type: inline-size;
+  padding-inline: clamp(16px, 4cqi, 32px);
+  padding-block: clamp(16px, 3cqi, 30px);
+  display: flex; flex-direction: column;
+}
+/* Per-section vertical rhythm (style.padY) */
+.sp-pad-none > .sp-row-inner { padding-block: 0; }
+.sp-pad-sm > .sp-row-inner { padding-block: clamp(8px, 1.6cqi, 16px); }
+.sp-pad-md > .sp-row-inner { padding-block: clamp(16px, 3cqi, 30px); }
+.sp-pad-lg > .sp-row-inner { padding-block: clamp(28px, 5cqi, 52px); }
+.sp-pad-xl > .sp-row-inner { padding-block: clamp(44px, 7cqi, 80px); }
+/* Section background (style.bg). 'none' is transparent → the page bg shows through.
+   The paint/image live on a ::before LAYER so a single per-section opacity
+   (--sp-row-opacity, from style.bgOpacity) makes ANY background type — tint /
+   brand / solid / image — translucent over the page background (glass). The
+   image darken overlay is a separate ::after. Content sits above (z-index 1). */
+.sp-row-bg-tint { --sp-row-paint: color-mix(in srgb, var(--sp-brand) 5%, #fffdf9); }
+.sp-row-bg-brand { --sp-row-paint: color-mix(in srgb, var(--sp-brand) 13%, #fffdf9); }
+.sp-row-bg-solid { --sp-row-paint: var(--sp-row-bg, #fffdf9); }
+/* host = the centred column (non-bleed) */
+.sp-row:not(.sp-row-bleed):not(.sp-row-bg-none) > .sp-row-inner { border-radius: var(--sp-radius, 24px); }
+.sp-row:not(.sp-row-bleed):not(.sp-row-bg-none) > .sp-row-inner::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit;
+  background: var(--sp-row-paint, transparent); opacity: var(--sp-row-opacity, 1);
+}
+.sp-row-bg-image:not(.sp-row-bleed) > .sp-row-inner::before {
+  background-image: var(--sp-row-img); background-size: cover; background-position: center;
+}
+.sp-row-bg-image:not(.sp-row-bleed) > .sp-row-inner::after {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit;
+  background: rgba(20, 16, 12, var(--sp-row-overlay, 0));
+}
+.sp-row:not(.sp-row-bleed):not(.sp-row-bg-none) > .sp-row-inner > * { position: relative; z-index: 1; }
+/* host = the full-width row (full-bleed band) */
+.sp-row-bleed:not(.sp-row-bg-none)::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: var(--sp-row-paint, transparent); opacity: var(--sp-row-opacity, 1);
+}
+.sp-row-bleed.sp-row-bg-image::before {
+  background-image: var(--sp-row-img); background-size: cover; background-position: center;
+}
+.sp-row-bleed.sp-row-bg-image::after {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: rgba(20, 16, 12, var(--sp-row-overlay, 0));
+}
+.sp-row-bleed:not(.sp-row-bg-none) > .sp-row-inner { position: relative; z-index: 1; }
+
+.sp-empty {
+  text-align: center;
+  color: #8a8278;
+  padding: 48px 0;
+  font-size: 15px;
+}
+
+/* ── Cards (glass) — same recipe as the lead page card ───────────────────── */
+.sp-card {
+  --sp-card-base: #fffdf9;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--sp-card-base) var(--sp-card-opacity, 100%), transparent);
+  -webkit-backdrop-filter: blur(var(--sp-card-blur, 0px));
+  backdrop-filter: blur(var(--sp-card-blur, 0px));
+  border: 1px solid rgba(44, 38, 33, 0.08);
+  border-radius: var(--sp-radius, 24px);
+  box-shadow: 0 1px 2px rgba(42, 37, 32, 0.04), 0 12px 32px rgba(42, 37, 32, 0.10);
+  padding: clamp(22px, 4cqi, 36px);
+}
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+.sp-hero { text-align: start; }
+.sp-eyebrow {
+  font-size: 14px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--sp-brand); margin-bottom: 10px;
+}
+.sp-h1 {
+  font-size: clamp(30px, 7.6cqi, 56px);
+  font-weight: 700; line-height: 1.12; letter-spacing: -0.01em; margin: 0 0 14px;
+}
+.sp-sub {
+  font-size: clamp(16px, 2.6cqi, 20px);
+  line-height: 1.6; color: #5a534b; margin: 0 0 22px; white-space: pre-line;
+}
+
+/* ── Text block (coach rich text) ────────────────────────────────────────── */
+.sp-text { font-size: 16px; line-height: 1.75; color: #4a443c; }
+.sp-text :first-child { margin-top: 0; }
+.sp-text :last-child { margin-bottom: 0; }
+.sp-text strong { font-weight: 700; }
+.sp-text li { margin: 0 0 4px; }
+.sp-text :is(h2, h3) { line-height: 1.3; margin: 0 0 10px; }
+.sp-text p { margin: 0 0 12px; }
+.sp-text a { color: var(--sp-brand); }
+.sp-text ul, .sp-text ol { margin: 0 0 12px; padding-inline-start: 22px; }
+
+/* ── Image ───────────────────────────────────────────────────────────────── */
+.sp-figure { margin: 0; }
+.sp-figure.sp-w-narrow { max-width: 360px; margin-inline: auto; }
+.sp-figure.sp-w-wide { max-width: 100%; }
+.sp-img { display: block; width: 100%; height: auto; border-radius: var(--sp-radius, 24px); }
+/* Optional separate mobile image: show the desktop one by default; on a narrow
+   container (real phone OR the editor's mobile frame, since .sp-page is the
+   query container) swap to the mobile image. No mobile image → desktop always. */
+.sp-figure .sp-img-m { display: none; }
+@container (max-width: 480px) {
+  .sp-figure.has-mobile .sp-img-d { display: none; }
+  .sp-figure.has-mobile .sp-img-m { display: block; }
+}
+.sp-img-empty {
+  border: 1.5px dashed rgba(44, 38, 33, 0.22); border-radius: var(--sp-radius, 24px);
+  padding: 48px; text-align: center; color: #8a8278; font-size: 14px;
+}
+
+/* ── Icon + text (feature list) ──────────────────────────────────────────── */
+.sp-icontext { display: grid; grid-template-columns: 1fr; gap: 18px; }
+@container (min-width: 540px) {
+  .sp-icontext { grid-template-columns: 1fr 1fr; gap: 22px 28px; }
+}
+.sp-feature { display: flex; gap: 14px; align-items: flex-start; }
+.sp-feature-icon {
+  flex: none; width: 44px; height: 44px; border-radius: 12px;
+  display: grid; place-items: center;
+  color: var(--sp-brand);
+  background: color-mix(in srgb, var(--sp-brand) 12%, transparent);
+}
+.sp-feature-title { font-size: 17px; font-weight: 600; margin-bottom: 3px; }
+.sp-feature-text { font-size: 15px; line-height: 1.6; color: #5a534b; margin: 0; }
+
+/* ── Testimonial ─────────────────────────────────────────────────────────── */
+.sp-testimonial {
+  margin: 0; padding: clamp(20px, 4cqi, 32px);
+  border-inline-start: 3px solid var(--sp-brand);
+  /* A brand-tinted glass card whose solidity (opacity) + blur are per-section
+     adjustable, like every other card surface. */
+  background: color-mix(in srgb, color-mix(in srgb, var(--sp-brand) 8%, #fffdf9) var(--sp-card-opacity, 100%), transparent);
+  -webkit-backdrop-filter: blur(var(--sp-card-blur, 0px));
+  backdrop-filter: blur(var(--sp-card-blur, 0px));
+  border-radius: var(--sp-radius, 24px);
+}
+.sp-quote { font-size: clamp(17px, 2.6cqi, 21px); line-height: 1.6; margin: 0 0 16px; font-style: italic; }
+.sp-cite { display: flex; align-items: center; gap: 12px; font-size: 15px; color: #5a534b; }
+.sp-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+
+/* ── Buttons (hero + cta) ────────────────────────────────────────────────── */
+.sp-cta { text-align: start; }
+.sp-btn {
+  display: inline-block; font: inherit; font-size: 16px; font-weight: 600;
+  text-decoration: none; text-align: center; cursor: pointer;
+  border-radius: 14px; padding: 14px 28px; transition: filter 0.15s ease, background 0.15s ease;
+}
+.sp-btn-primary { color: #fff; background: var(--sp-brand); border: none; }
+.sp-btn-primary:hover { filter: brightness(0.93); }
+.sp-btn-secondary {
+  color: var(--sp-brand); background: transparent; border: 1.5px solid var(--sp-brand);
+}
+.sp-btn-secondary:hover { background: color-mix(in srgb, var(--sp-brand) 10%, transparent); }
+
+/* ── Spacer ──────────────────────────────────────────────────────────────── */
+.sp-spacer-sm { height: 8px; }
+.sp-spacer-md { height: 28px; }
+.sp-spacer-lg { height: 60px; }
+
+/* ── Divider ─────────────────────────────────────────────────────────────── */
+.sp-divider { border: 0; height: 1px; background: rgba(44, 38, 33, 0.14); margin: 0 auto; }
+.sp-divider-full { width: 100%; }
+.sp-divider-narrow { width: 80px; }
+
+/* ── Cards ("חלוניות") ───────────────────────────────────────────────────── */
+.sp-cards { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@container (min-width: 480px) { .sp-cards.sp-cols-auto, .sp-cards.sp-cols-2 { grid-template-columns: 1fr 1fr; } }
+@container (min-width: 720px) { .sp-cards.sp-cols-auto, .sp-cards.sp-cols-3 { grid-template-columns: repeat(3, 1fr); } }
+.sp-cardbox {
+  display: flex; flex-direction: column; gap: 10px; box-sizing: border-box;
+  padding: clamp(18px, 3cqi, 26px);
+  background: color-mix(in srgb, var(--sp-card-base, #fffdf9) 72%, transparent);
+  border: 1px solid rgba(44, 38, 33, 0.08); border-radius: var(--sp-radius, 24px);
+  text-decoration: none; color: inherit;
+}
+.sp-cardbox-link { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.sp-cardbox-link:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(42, 37, 32, 0.12); }
+.sp-cardbox-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: var(--sp-brand); background: color-mix(in srgb, var(--sp-brand) 12%, transparent); }
+.sp-cardbox-title { font-size: 17px; font-weight: 600; }
+.sp-cardbox-text { font-size: 15px; line-height: 1.6; color: #5a534b; margin: 0; }
+
+/* ── Icon block ──────────────────────────────────────────────────────────── */
+.sp-iconblock { display: flex; color: var(--sp-brand); }
+.sp-iconblock.sp-align-center { justify-content: center; }
+.sp-iconblock.sp-align-start { justify-content: flex-start; }
+
+/* ── Gallery ─────────────────────────────────────────────────────────────── */
+.sp-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sp-gallery.sp-cols-2 { grid-template-columns: 1fr 1fr; }
+@container (min-width: 480px) { .sp-gallery.sp-cols-auto, .sp-gallery.sp-cols-3 { grid-template-columns: repeat(3, 1fr); } }
+.sp-gallery-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 14px; display: block; }
+
+/* ── Video (YouTube / Vimeo embed) ───────────────────────────────────────── */
+.sp-video { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--sp-radius, 24px); overflow: hidden; background: #000; }
+.sp-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ── FAQ (accordion) ─────────────────────────────────────────────────────── */
+.sp-faq { display: flex; flex-direction: column; gap: 8px; }
+.sp-faq-item { background: color-mix(in srgb, var(--sp-card-base, #fffdf9) 62%, transparent); border: 1px solid rgba(44, 38, 33, 0.08); border-radius: 14px; padding: 2px 16px; }
+.sp-faq-q { cursor: pointer; font-weight: 600; font-size: 16px; padding: 13px 0; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sp-faq-q::-webkit-details-marker { display: none; }
+.sp-faq-q::after { content: '+'; font-size: 20px; line-height: 1; color: var(--sp-brand); flex: none; }
+.sp-faq-item[open] .sp-faq-q::after { content: '–'; }
+.sp-faq-a { margin: 0 0 14px; font-size: 15px; line-height: 1.65; color: #5a534b; white-space: pre-line; }
+
+/* ── Form block ──────────────────────────────────────────────────────────── */
+.sp-h2 { font-size: clamp(21px, 3.4cqi, 30px); font-weight: 600; line-height: 1.25; margin: 0 0 18px; }
+.sp-fields { display: flex; flex-direction: column; gap: 16px; }
+.sp-field { display: flex; flex-direction: column; gap: 7px; }
+.sp-label { font-size: 14px; font-weight: 500; color: #2c2621; }
+.sp-req { color: var(--sp-brand); }
+.sp-input {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; color: #2c2621;
+  background: #fff; border: 1px solid rgba(44, 38, 33, 0.16); border-radius: 12px;
+  padding: 12px 14px; transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.sp-input:focus { outline: none; border-color: var(--sp-brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sp-brand) 22%, transparent); }
+/* Keyboard focus ring for the public page's interactive elements (a11y). */
+.sp-btn:focus-visible, .sp-bk-chip:focus-visible, .sp-bk-type:focus-visible, .sp-faq-q:focus-visible {
+  outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--sp-brand) 38%, transparent);
+}
+.sp-input.is-error { border-color: #c0432e; box-shadow: 0 0 0 3px rgba(192, 67, 46, 0.14); }
+.sp-input:disabled { background: #f6f3ee; color: #6b6358; }
+.sp-textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
+.sp-choices { display: flex; flex-direction: column; gap: 10px; padding: 4px 2px; border-radius: 12px; }
+.sp-choices.is-error { box-shadow: 0 0 0 2px rgba(192, 67, 46, 0.35); }
+.sp-choice { display: flex; align-items: center; gap: 10px; font-size: 16px; cursor: pointer; }
+.sp-choice input { width: 19px; height: 19px; flex: none; accent-color: var(--sp-brand); cursor: pointer; }
+.sp-form-submit { width: 100%; margin-top: 24px; }
+.sp-form-error { margin: 16px 0 0; font-size: 14px; color: #c0432e; text-align: center; }
+.sp-muted { color: #6b6358; font-size: 15px; }
+
+/* Booking block — a link-out card. */
+.sp-booking .sp-btn { margin-top: 14px; }
+.sp-booking-hint { margin-top: 12px; }
+
+/* Inline booking picker (type → day → time → details) */
+.sp-bk { display: flex; flex-direction: column; gap: 18px; margin-top: 6px; }
+.sp-bk-section { display: flex; flex-direction: column; gap: 10px; }
+.sp-bk-steplabel { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: var(--sp-brand); }
+.sp-bk-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.sp-bk-chip {
+  font: inherit; font-size: 14px; color: #4a443c; background: color-mix(in srgb, #fffdf9 70%, transparent);
+  border: 1px solid rgba(44, 38, 33, 0.16); border-radius: 999px; padding: 8px 16px; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.sp-bk-chip:hover { border-color: var(--sp-brand); }
+.sp-bk-chip.on { background: var(--sp-brand); border-color: var(--sp-brand); color: #fff; }
+.sp-bk-type {
+  font: inherit; text-align: start; display: flex; flex-direction: column; gap: 3px; min-width: 160px;
+  background: color-mix(in srgb, #fffdf9 70%, transparent); border: 1px solid rgba(44, 38, 33, 0.16);
+  border-radius: 14px; padding: 12px 16px; cursor: pointer; transition: border-color 0.15s, background 0.15s;
+}
+.sp-bk-type:hover { border-color: var(--sp-brand); }
+.sp-bk-type.on { border-color: var(--sp-brand); background: color-mix(in srgb, var(--sp-brand) 8%, #fffdf9); }
+.sp-bk-type-name { font-weight: 600; color: #2c2621; }
+.sp-bk-type-meta { font-size: 13px; color: #6b6358; }
+.sp-bk-form { gap: 14px; margin-top: 2px; }
+.sp-bk-chosen { margin: 0; font-size: 14px; font-weight: 600; color: var(--sp-brand); }
+.sp-bk-submit { margin-top: 6px; }
+.sp-bk-done { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 12px 0; }
+.sp-bk-thankyou { margin: 0; font-size: 17px; color: #2c2621; }
+.sp-bk-when { margin: 0; font-size: 15px; font-weight: 600; color: var(--sp-brand); }
+/* editor preview (inert) */
+.sp-bk-preview { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; opacity: 0.9; }
+.sp-bk-preview .sp-bk-chip { pointer-events: none; }
+
+/* Form success state (public page, after submit). */
+.sp-form-done { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.sp-check { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-size: 28px; color: #fff; background: var(--sp-brand); }
+.sp-thanks { font-size: 18px; line-height: 1.7; margin: 0; white-space: pre-line; }
+
+/* Honeypot — off-screen, focusable by bots only. */
+/* Honeypot — kept in the DOM (bots fill it) but visually hidden via clip rather
+   than left:-9999px, which in RTL pushed 9999px of horizontal overflow into the
+   page (a stray canvas/page scrollbar). */
+.sp-hp { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; opacity: 0; pointer-events: none; }
+
+/* Inline editing (editor canvas only — .sp-editable is never rendered publicly).
+   A hover/focus ring signals "click to edit"; empty fields show a placeholder. */
+.sp-editable { cursor: text; outline: none; border-radius: 7px; transition: box-shadow 0.12s ease; }
+.sp-editable:hover { box-shadow: 0 0 0 2px color-mix(in srgb, var(--sp-brand) 24%, transparent); }
+.sp-editable:focus { box-shadow: 0 0 0 2px var(--sp-brand); }
+.sp-editable:empty::before { content: attr(data-ph); opacity: 0.45; }
+.sp-text-raw { white-space: pre-wrap; }
+
+/* Per-section width + alignment (editor-controlled). Reflows to full width when
+   the content column is narrow (mobile / the editor's mobile frame) so the page
+   stays responsive — free-feeling editing without breaking the phone layout. */
+.sp-block { position: relative; }
+.sp-sized { box-sizing: border-box; }
+@container (max-width: 480px) {
+  .sp-sized { max-width: 100% !important; align-self: stretch !important; }
+}
+/* Drag handle — rendered for every section in the editor, revealed on hover (or
+   when selected) so resizing is discoverable straight from the canvas. */
+/* The wrapper positions the grip/badge over the inline-end edge but is itself
+   click-through (pointer-events:none) — only the centered grip captures the
+   drag, so the rest of the edge stays clickable for select/inline-edit. */
+.sp-resize-handle {
+  position: absolute; inset-inline-end: -6px; top: 0; bottom: 0; width: 22px;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 5; touch-action: none;
+  opacity: 0; pointer-events: none; transition: opacity 0.12s;
+}
+.sp-block:hover > .sp-resize-handle,
+.sp-block[data-selected=""] > .sp-resize-handle { opacity: 1; }
+.sp-resize-grip {
+  pointer-events: auto; cursor: ew-resize;
+  width: 10px; height: 52px; max-height: 62%; border-radius: 6px;
+  background: var(--sp-brand);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7), 0 2px 8px rgba(42, 37, 32, 0.28);
+  transition: height 0.12s, width 0.12s;
+}
+.sp-resize-grip:hover,
+body.sp-resizing .sp-resize-grip { width: 12px; max-height: 78%; }
+.sp-resize-badge {
+  position: absolute; top: -30px; inset-inline-end: 0;
+  background: var(--espresso, #2c2620); color: #fff;
+  font-size: 12px; font-weight: 600; line-height: 1;
+  padding: 4px 8px; border-radius: 8px; white-space: nowrap;
+  pointer-events: none; opacity: 0; transition: opacity 0.12s;
+}
+.sp-resize-handle:hover .sp-resize-badge,
+body.sp-resizing .sp-resize-badge { opacity: 1; }
+body.sp-resizing { cursor: ew-resize !important; user-select: none; }
+
+/* ── FREE layout (PROTOTYPE) — desktop free-positioning canvas ────────────── */
+.sp-page.sp-free { display: block; max-width: none; margin-inline: auto; padding: 0; gap: 0; }
+/* Public scale-to-fit wrapper: clips the canvasW-wide page that's transform-scaled
+   down to the viewport, and reserves the scaled height so there's no gap below. */
+.sp-free-scaler { position: relative; overflow: hidden; }
+.sp-free-block { box-sizing: border-box; overflow: hidden; }
+/* Resize works for EVERY block type: the content fills the box width, so dragging
+   the corner resizes what's inside (images cover-crop, cards/text/forms stretch).
+   Thin/centered blocks (divider/spacer/icon) keep their natural height, centered —
+   stretching them to full box height made a divider a tall bar / icon off-centre. */
+.sp-free-block > :first-child { width: 100%; box-sizing: border-box; }
+.sp-free-block:not(.sp-block-divider):not(.sp-block-spacer):not(.sp-block-icon):not(.sp-block-faq) > :first-child { height: 100%; }
+.sp-free-block:is(.sp-block-divider, .sp-block-spacer, .sp-block-icon) { display: flex; flex-direction: column; justify-content: center; }
+.sp-free-block .sp-img { height: 100%; object-fit: cover; }
+/* FAQ (and other accordions) expand when an item opens. In free layout the box
+   is given a MIN-height (see Section freeStyle) and lets content grow instead of
+   clipping it — so the coach sizes the closed state and opened answers are never
+   cut off (previously overflow:hidden + a fixed height clipped them). */
+.sp-free-block.sp-block-faq { overflow: visible; }
+/* EDITOR ONLY (.sp-free-edit): the whole block body drags to move (cursor hint)
+   and touch-action:none lets a finger drag the block instead of scrolling. On the
+   PUBLIC page these are NOT applied, so touch-scroll over blocks works normally. */
+/* Touch: a finger over a block must still SCROLL the canvas (pan-y) — otherwise
+   the editor felt "stuck" on mobile (you couldn't scroll past the blocks). The
+   block becomes finger-draggable only once SELECTED (tap-then-drag), so a single
+   touch scrolls and a deliberate drag-after-select moves it. Mouse drag (desktop)
+   is unaffected — touch-action only gates touch. */
+.sp-free-edit { cursor: move; touch-action: pan-y; }
+.sp-free-edit[data-selected=""] { touch-action: none; }
+.sp-free-edit :is(.sp-editable, input, textarea) { cursor: text; }
+.sp-free-edit :is(button, a) { cursor: pointer; }
+.sp-free-block[data-selected=""] { outline: 2px solid var(--sp-brand); outline-offset: 1px; }
+/* Visible grip badge (top-inline-start) — an unmistakable "drag me" cue. Purely
+   visual: pointer-events:none, so the pointerdown falls to the block's move drag. */
+.sp-free-grip {
+  position: absolute; top: 6px; inset-inline-start: 6px; width: 26px; height: 18px;
+  border-radius: 6px; z-index: 6; pointer-events: none; opacity: 0; transition: opacity 0.12s;
+  background: var(--sp-brand);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.92) 1.4px, transparent 1.5px);
+  background-size: 6px 6px;
+}
+.sp-free-resize {
+  position: absolute; right: 2px; bottom: 2px; width: 16px; height: 16px;
+  cursor: nwse-resize; z-index: 6; touch-action: none; border-radius: 4px;
+  background: var(--sp-brand); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
+  opacity: 0; transition: opacity 0.12s;
+}
+.sp-free-block:hover > .sp-free-grip,
+.sp-free-block[data-selected=""] > .sp-free-grip,
+.sp-free-block:hover > .sp-free-resize,
+.sp-free-block[data-selected=""] > .sp-free-resize { opacity: 1; }
+body.sp-moving { cursor: move !important; user-select: none; }
+/* Smart guides — appear while dragging when the block aligns with another block's
+   edge/center or the canvas edge/center. Distinct colour so they read over any bg. */
+.sp-guide { position: absolute; z-index: 7; pointer-events: none; background: #5b7cff; box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.5); }
+.sp-guide-v { top: 0; bottom: 0; width: 1px; margin-inline-start: -0.5px; }
+.sp-guide-h { left: 0; right: 0; height: 1px; margin-top: -0.5px; }
+/* Equal-spacing markers — a short bar across each equal gap, with end caps so it
+   reads as a measured distance (the dragged block sits at an equal gap between its
+   nearest neighbours on that axis). */
+.sp-spacer { position: absolute; z-index: 7; pointer-events: none; background: #5b7cff; }
+.sp-spacer-v { width: 2px; margin-inline-start: -1px; }
+.sp-spacer-h { height: 2px; margin-top: -1px; }
+.sp-spacer-v::before, .sp-spacer-v::after { content: ''; position: absolute; left: -3px; width: 8px; height: 2px; background: #5b7cff; }
+.sp-spacer-v::before { top: 0; } .sp-spacer-v::after { bottom: 0; }
+.sp-spacer-h::before, .sp-spacer-h::after { content: ''; position: absolute; top: -3px; height: 8px; width: 2px; background: #5b7cff; }
+.sp-spacer-h::before { left: 0; } .sp-spacer-h::after { right: 0; }
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 2 BLOCKS
+   ════════════════════════════════════════════════════════════════ */
+/* ── Split (media + text) ────────────────────────────────────────────────── */
+.sp-split { display: grid; grid-template-columns: 1fr; gap: clamp(18px, 4cqi, 38px); align-items: center; }
+@container (min-width: 620px) {
+  .sp-split:not(.sp-split-solo) { grid-template-columns: 1fr 1fr; }
+  .sp-split-end .sp-split-media { order: 2; }
+}
+/* No image on a published split → text takes the full width (no empty cell). */
+.sp-split-solo { grid-template-columns: 1fr; }
+.sp-split-media { border-radius: var(--sp-radius, 24px); overflow: hidden; }
+.sp-split-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sp-split-media .sp-img-m { display: none; }
+@container (max-width: 480px) {
+  .sp-split-media.has-mobile .sp-img-d { display: none; }
+  .sp-split-media.has-mobile .sp-img-m { display: block; }
+}
+.sp-split-body { display: flex; flex-direction: column; gap: 12px; }
+.sp-split-body .sp-btn { align-self: flex-start; margin-top: 4px; }
+
+/* ── Stats / counters ────────────────────────────────────────────────────── */
+.sp-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(16px, 3cqi, 30px); text-align: center; }
+@container (min-width: 560px) {
+  .sp-stats-auto, .sp-stats-3 { grid-template-columns: repeat(3, 1fr); }
+  .sp-stats-4 { grid-template-columns: repeat(4, 1fr); }
+}
+.sp-stat-value { font-size: clamp(30px, 6cqi, 46px); font-weight: 800; line-height: 1.05; color: var(--sp-brand); }
+.sp-stat-label { font-size: 15px; color: #5a534b; margin-top: 4px; }
+
+/* ── Pricing tiers ───────────────────────────────────────────────────────── */
+.sp-pricing { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: stretch; }
+@container (min-width: 640px) { .sp-pricing { grid-template-columns: repeat(3, 1fr); } }
+.sp-price { display: flex; flex-direction: column; gap: 12px; padding: clamp(20px, 3cqi, 28px); background: color-mix(in srgb, var(--sp-card-base, #fffdf9) 80%, transparent); border: 1px solid rgba(44, 38, 33, 0.1); border-radius: var(--sp-radius, 24px); }
+.sp-price.is-featured { border-color: var(--sp-brand); box-shadow: 0 0 0 1.5px var(--sp-brand), 0 14px 36px rgba(42, 37, 32, 0.12); }
+.sp-price-name { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--sp-brand); }
+.sp-price-amount { display: flex; align-items: baseline; gap: 4px; }
+.sp-price-value { font-size: clamp(28px, 5cqi, 40px); font-weight: 800; color: #2c2621; }
+.sp-price-period { font-size: 14px; color: #6b6358; }
+.sp-price-feats { list-style: none; margin: 4px 0 8px; padding: 0; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.sp-price-feats li { position: relative; padding-inline-start: 22px; font-size: 15px; color: #4a443c; line-height: 1.5; }
+.sp-price-feats li::before { content: '✓'; position: absolute; inset-inline-start: 0; color: var(--sp-brand); font-weight: 700; }
+.sp-price .sp-btn { width: 100%; margin-top: auto; }
+
+/* ── Logo strip ──────────────────────────────────────────────────────────── */
+.sp-logos { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: clamp(20px, 5cqi, 52px); }
+.sp-logo { height: clamp(28px, 5cqi, 44px); width: auto; max-width: 150px; object-fit: contain; }
+.sp-logos.is-gray .sp-logo { filter: grayscale(1); opacity: 0.62; transition: filter 0.2s, opacity 0.2s; }
+.sp-logos.is-gray .sp-logo:hover { filter: none; opacity: 1; }
+
+/* ── Steps ───────────────────────────────────────────────────────────────── */
+.sp-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: clamp(16px, 3cqi, 26px); }
+.sp-step { display: flex; gap: 16px; align-items: flex-start; }
+.sp-step-num { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; background: var(--sp-brand); }
+.sp-step-title { font-size: 17px; font-weight: 600; margin-bottom: 3px; }
+.sp-step-text { font-size: 15px; line-height: 1.6; color: #5a534b; margin: 0; }
+
+/* ── CTA band ────────────────────────────────────────────────────────────── */
+.sp-ctaband { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: clamp(28px, 5cqi, 52px) clamp(20px, 4cqi, 40px); border-radius: var(--sp-radius, 24px); }
+.sp-ctaband-brand { background: linear-gradient(135deg, var(--sp-brand), color-mix(in srgb, var(--sp-brand) 68%, #2c2621)); color: #fff; }
+.sp-ctaband-soft { background: color-mix(in srgb, var(--sp-brand) 12%, #fffdf9); }
+.sp-ctaband-plain { background: transparent; }
+.sp-ctaband-h { font-size: clamp(22px, 4cqi, 32px); font-weight: 700; line-height: 1.2; margin: 0; }
+.sp-ctaband-sub { font-size: clamp(15px, 2.4cqi, 18px); line-height: 1.55; margin: 0; max-width: 540px; }
+.sp-ctaband-brand .sp-ctaband-sub { opacity: 0.92; }
+.sp-ctaband-brand .sp-btn-primary { background: #fff; color: var(--sp-brand); }
+.sp-ctaband-brand .sp-btn-primary:hover { filter: brightness(0.95); }
+.sp-ctaband .sp-btn { margin-top: 6px; }
+
+/* ── Social links ────────────────────────────────────────────────────────── */
+.sp-social { display: flex; flex-wrap: wrap; gap: 12px; }
+.sp-social-center { justify-content: center; }
+.sp-social-start { justify-content: flex-start; }
+.sp-social-end { justify-content: flex-end; }
+.sp-social-btn { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: #fff; background: var(--sp-social-c, var(--sp-brand)); text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; }
+.sp-social-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(42, 37, 32, 0.2); }
+.sp-social-btn svg { width: 52%; height: 52%; }
+.sp-social-sm .sp-social-btn { width: 40px; height: 40px; }
+.sp-social-lg .sp-social-btn { width: 58px; height: 58px; }
+
+/* ── Contact ─────────────────────────────────────────────────────────────── */
+.sp-contact { display: flex; flex-direction: column; gap: 6px; }
+.sp-contact-row { display: flex; align-items: center; gap: 12px; padding: 10px 6px; border-radius: 12px; color: inherit; text-decoration: none; transition: background 0.15s; }
+a.sp-contact-row:hover { background: color-mix(in srgb, var(--sp-brand) 8%, transparent); }
+.sp-contact-ic { flex: none; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; color: var(--sp-brand); background: color-mix(in srgb, var(--sp-brand) 12%, transparent); }
+.sp-contact-ic svg { width: 19px; height: 19px; }
+.sp-contact-val { font-size: 16px; }
+.sp-contact-hours { white-space: pre-line; line-height: 1.5; }
+
+/* ── Map ─────────────────────────────────────────────────────────────────── */
+.sp-map { border-radius: var(--sp-radius, 24px); overflow: hidden; background: #e8e3db; }
+.sp-map iframe { display: block; width: 100%; border: 0; }
+.sp-map-sm iframe { height: 220px; }
+.sp-map-md iframe { height: 340px; }
+.sp-map-lg iframe { height: 460px; }
+
+/* ── Banner (announcement bar) ───────────────────────────────────────────── */
+.sp-banner { width: 100%; }
+/* Sticky lives on the row wrapper (real scroll range within .sp-page). */
+.sp-row-banner.is-sticky { position: sticky; top: 0; z-index: 20; }
+.sp-banner-inner { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 16px; padding: 11px clamp(16px, 4cqi, 32px); text-align: center; }
+.sp-banner-text { font-size: 15px; font-weight: 500; }
+.sp-banner-brand { background: var(--sp-brand); color: #fff; }
+.sp-banner-dark { background: #2c2621; color: #f7f3ec; }
+.sp-banner-soft { background: color-mix(in srgb, var(--sp-brand) 14%, #fffdf9); color: #2c2621; }
+.sp-banner .sp-btn { padding: 7px 16px; font-size: 14px; border-radius: 999px; }
+.sp-banner-brand .sp-btn-secondary { color: #fff; border-color: rgba(255, 255, 255, 0.6); }
+.sp-banner-brand .sp-btn-secondary:hover { background: rgba(255, 255, 255, 0.16); }
+
+/* ── Countdown ───────────────────────────────────────────────────────────── */
+.sp-countdown { text-align: center; }
+.sp-countdown-grid { display: flex; justify-content: center; flex-wrap: wrap; gap: clamp(10px, 2cqi, 18px); direction: ltr; }
+.sp-cd-unit { min-width: 64px; padding: 12px 10px; border-radius: 14px; background: color-mix(in srgb, var(--sp-card-base, #fffdf9) 80%, transparent); border: 1px solid rgba(44, 38, 33, 0.1); }
+.sp-cd-num { font-size: clamp(26px, 5cqi, 40px); font-weight: 800; line-height: 1; color: var(--sp-brand); font-variant-numeric: tabular-nums; }
+.sp-cd-lbl { font-size: 12px; color: #6b6358; margin-top: 4px; }
+.sp-countdown-expired { font-size: 18px; font-weight: 600; color: var(--sp-brand); margin: 8px 0 0; }
+
+/* ── Surface modifiers (from sitePageSurface classes) ────────────────────── */
+.sp-surface.is-bold .sp-h1 { font-weight: 800; }
+.sp-surface.is-bold :is(.sp-sub, .sp-text, .sp-label, .sp-feature-title, .sp-quote) { font-weight: 600; }
+/* NB: .sp-price-period / .sp-cd-lbl are intentionally NOT here — pricing tiers and
+   countdown units are their OWN always-light cards (not .sp-card), so lightening
+   them would make them invisible on a photo page. They keep their dark color. */
+.sp-surface.text-light :is(.sp-h1, .sp-h2, .sp-sub, .sp-text, .sp-eyebrow, .sp-feature-title, .sp-feature-text, .sp-quote, .sp-cite, .sp-label, .sp-muted, .sp-empty, .sp-stat-label, .sp-step-title, .sp-step-text, .sp-contact-val) {
+  color: #f7f3ec; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+/* …but text inside a card sits on the (light) card, not the photo — keep it dark
+   so forms/labels stay readable. Light mode only; dark mode re-lightens below. */
+@media (prefers-color-scheme: light) {
+  .sp-surface.text-light .sp-card :is(.sp-h1, .sp-h2, .sp-sub, .sp-text, .sp-eyebrow, .sp-feature-title, .sp-feature-text, .sp-quote, .sp-cite, .sp-label, .sp-muted, .sp-stat-label, .sp-step-title, .sp-step-text, .sp-contact-val) {
+    color: #2c2621; text-shadow: none;
+  }
+}
+/* Per-section text color override (the section sets --sp-text-color). Wins over
+   the readable default / card-darkening / dark mode — it's an explicit choice.
+   Links are left out so they keep the brand colour. */
+.sp-colored :is(.sp-h1, .sp-h2, .sp-sub, .sp-eyebrow, .sp-feature-title, .sp-feature-text,
+  .sp-quote, .sp-cite, .sp-cite em, .sp-cite strong, .sp-text, .sp-text p, .sp-text li,
+  .sp-text h2, .sp-text h3, .sp-text strong,
+  .sp-cardbox-title, .sp-cardbox-text, .sp-faq-q, .sp-faq-a,
+  .sp-stat-label, .sp-step-title, .sp-step-text, .sp-contact-val, .sp-price-period, .sp-cd-lbl) {
+  color: var(--sp-text-color) !important;
+  text-shadow: none !important;
+}
+
+.sp-surface.align-center :is(.sp-hero, .sp-cta, .sp-h2) { text-align: center; }
+.sp-surface.align-center .sp-icontext .sp-feature { justify-content: center; }
+
+/* ── Visitor dark mode (public page; OS preference) ──────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .sp-root {
+    color: #f0ebe0;
+    background:
+      radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 16%, #1a1f26) 0%, #161a20 60%, #12161b 100%);
+  }
+  /* Dark base gradient on the root; the photo layer swaps to the night variant. */
+  .sp-surface.has-bg {
+    background-image:
+      radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--sp-brand) 16%, #1a1f26) 0%, #161a20 60%, #12161b 100%);
+  }
+  .sp-bg { background-image: var(--sp-bg-night); }
+  .sp-card { --sp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
+  .sp-cardbox, .sp-faq-item { --sp-card-base: #1c2128; border-color: rgba(240, 235, 224, 0.12); }
+  .sp-sub, .sp-text, .sp-feature-text, .sp-cite, .sp-muted, .sp-cardbox-text, .sp-faq-a { color: #b8b0a4; }
+  .sp-h1, .sp-h2, .sp-feature-title, .sp-label, .sp-quote, .sp-choice, .sp-cardbox-title, .sp-faq-q { color: #f0ebe0; }
+  .sp-input { background: #12161b; color: #f0ebe0; border-color: rgba(240, 235, 224, 0.18); }
+  .sp-input:disabled { background: #181d23; }
+  .sp-divider { background: rgba(240, 235, 224, 0.14); }
+  /* inline booking picker — chips/types on the (now dark) card */
+  .sp-bk-chip, .sp-bk-type { background: color-mix(in srgb, #1c2128 78%, transparent); border-color: rgba(240, 235, 224, 0.18); color: #d8d0c4; }
+  .sp-bk-chip.on { background: var(--sp-brand); border-color: var(--sp-brand); color: #fff; }
+  .sp-bk-type.on { background: color-mix(in srgb, var(--sp-brand) 22%, #1c2128); border-color: var(--sp-brand); }
+  .sp-bk-type-name, .sp-bk-thankyou { color: #f0ebe0; }
+  .sp-bk-type-meta { color: #b8b0a4; }
+}

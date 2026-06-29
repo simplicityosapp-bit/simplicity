@@ -1,5 +1,6 @@
 {
   "title": "Rapports",
+  "loading": "Chargement…",
   "moonGlance": "Vue d'ensemble",
   "view": {
     "selectAria": "Choisir l'affichage",

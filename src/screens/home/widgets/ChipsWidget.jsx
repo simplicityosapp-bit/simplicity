@@ -1,16 +1,21 @@
 import { useMemo, useState } from 'react'
-import { ClipboardList, Wallet, Users } from 'lucide-react'
-import { homeChips, getTileFilters } from '../../../lib/homeData'
+import { CalendarClock, Wallet, Users } from 'lucide-react'
+import { homeChips, getTileFilters, todayItems } from '../../../lib/homeData'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
 import { useProjects } from '../../../hooks/useProjects'
 import { useTasks } from '../../../hooks/useTasks'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useCategories } from '../../../hooks/useCategories'
+import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
+import { useCalendarEvents } from '../../../hooks/useCalendarEvents'
+import { useLeads } from '../../../hooks/useLeads'
+import { useSessions } from '../../../hooks/useSessions'
+import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import InfoPopover from '../../../components/InfoPopover'
 import TileDrillModal from '../../../modals/TileDrillModal'
-import i18n from '../../../i18n'
+import { isr } from '../../../lib/finance'
 import { useT } from '../../../i18n/useT'
 
 /* Bottom data chips — RTL order: משימות · נטו · לקוחות. Tap opens
@@ -20,12 +25,17 @@ import { useT } from '../../../i18n/useT'
    to the corresponding screen for full management. */
 export default function ChipsWidget() {
   const { t } = useT('home')
-  const { clients } = useClients()
+  const { clients, loading: clientsLoading } = useClients()
   const { groups } = useGroups()
   const { projects } = useProjects()
   const { tasks } = useTasks()
-  const { transactions } = useTransactions()
+  const { transactions, loading: txLoading } = useTransactions()
   const { categories } = useCategories()
+  const { meetings, updateMeeting } = useScheduledMeetings()
+  const { events: calendarEvents } = useCalendarEvents()
+  const { leads } = useLeads()
+  const { sessions, addSession } = useSessions()
+  const waMsg = useWhatsAppMessage()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [openTile, setOpenTile] = useState(null)
 
@@ -34,8 +44,18 @@ export default function ChipsWidget() {
     () => homeChips(new Date(), { clients, tasks, transactions }, filters),
     [clients, tasks, transactions, filters],
   )
-  const numLocale = i18n.language === 'he' ? 'he-IL' : (i18n.language || 'he-IL')
-  const netStr = `${summary.net < 0 ? '−' : ''}${Math.round(Math.abs(summary.net)).toLocaleString(numLocale)} ₪`
+  /* Today's agenda count drives the bottom chip; the same list feeds the
+     drill panel. Sources + which-kinds-count are controlled by filters.today. */
+  const today = useMemo(
+    () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }, filters.today),
+    [meetings, calendarEvents, leads, clients, groups, filters.today],
+  )
+  /* First-load gate: show a soft placeholder instead of flashing 0 / 0₪ while
+     the core data is still arriving (the numbers then settle without a jump). */
+  const coreLoading = clientsLoading || txLoading
+  /* Currency-aware (honors the ILS/USD/EUR pref) + matches the app-wide isr()
+     format used everywhere else, instead of a hardcoded ₪. */
+  const netStr = isr(summary.net)
   /* Long amounts overflowed the narrow mobile chip and ran over the wallet
      icon (beta feedback 03/06/2026) — step the font down as the string grows
      so the number always fits inside the card. */
@@ -54,17 +74,17 @@ export default function ChipsWidget() {
   return (
     <>
       <div className="h-chips">
-        <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('tasks')} onKeyDown={onTileKey(() => setOpenTile('tasks'))}>
-          <ClipboardList size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-          <span className="h-stat-num mono">{summary.openTasks}</span>
+        <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('today')} onKeyDown={onTileKey(() => setOpenTile('today'))}>
+          <CalendarClock size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
+          <span className="h-stat-num mono">{coreLoading ? '··' : today.length}</span>
           <span className="h-stat-lbl">
-            {t('widgets.chips.tasks')}
-            <InfoPopover label={t('widgets.chips.tasksInfoLabel')} text={t('widgets.chips.tasksInfoText_pre') + t('widgets.chips.tasksInfoText_post')} placement="top" />
+            {t('widgets.chips.meetings')}
+            <InfoPopover label={t('widgets.chips.meetingsInfoLabel')} text={t('widgets.chips.meetingsInfoText_pre') + t('widgets.chips.meetingsInfoText_post')} placement="top" />
           </span>
         </div>
         <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('net')} onKeyDown={onTileKey(() => setOpenTile('net'))}>
           <Wallet size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-          <span className={`h-stat-num mono${netSizeCls}`}>{netStr}</span>
+          <span className={`h-stat-num mono${netSizeCls}`}>{coreLoading ? '··' : netStr}</span>
           <span className="h-stat-lbl">
             {netLbl}
             <InfoPopover label={t('widgets.chips.netInfoLabel')} text={t('widgets.chips.netInfoText_pre') + t('widgets.chips.netInfoText_post')} placement="top" />
@@ -72,7 +92,7 @@ export default function ChipsWidget() {
         </div>
         <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('clients')} onKeyDown={onTileKey(() => setOpenTile('clients'))}>
           <Users size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-          <span className="h-stat-num mono">{summary.activeClients}</span>
+          <span className="h-stat-num mono">{coreLoading ? '··' : summary.activeClients}</span>
           <span className="h-stat-lbl">
             {t('widgets.chips.clients')}
             <InfoPopover label={t('widgets.chips.clientsInfoLabel')} text={t('widgets.chips.clientsInfoText_pre') + t('widgets.chips.clientsInfoText_post')} placement="top" />
@@ -94,6 +114,13 @@ export default function ChipsWidget() {
         tasks={tasks}
         transactions={transactions}
         netSummary={summary}
+        meetings={meetings}
+        calendarEvents={calendarEvents}
+        leads={leads}
+        sessions={sessions}
+        addSession={addSession}
+        updateMeeting={updateMeeting}
+        waMsg={waMsg}
       />
     </>
   )

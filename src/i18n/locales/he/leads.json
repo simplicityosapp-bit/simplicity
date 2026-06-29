@@ -9,6 +9,17 @@
   "viewToggleAria": "תצוגה",
   "sourcesLink": "מקורות לידים",
   "leadPagesLink": "דפי נחיתה",
+  "pending": {
+    "aria": "לידים הממתינים לאישור",
+    "title": "ממתינים לאישור",
+    "from": "מתוך: {{page}}",
+    "approve": "אישור",
+    "reject": "דחייה",
+    "fName": "שם",
+    "fPhone": "טלפון",
+    "fEmail": "אימייל",
+    "fNotes": "הערה"
+  },
   "stats": {
     "newThisMonth": "פניות החודש",
     "converted": "הומרו ללקוחות",
@@ -91,6 +102,7 @@
     "intro": "ניהול תתי-סטטוסים תחת כל קטגוריית-על. תתי-סטטוסים מופיעים כשמסמנים נקודת צבע על כרטיס ליד, ומשמשים לסינון ולגרפים.",
     "addPlaceholder": "תת-סטטוס ל\"{{meta}}\"",
     "addAria": "הוספה",
+    "dropHere": "שחרר כאן",
     "deleteChipAria": "מחיקת {{name}}",
     "deleteChipTitle": "מחיקה",
     "deleteTitle": "מחיקת תת-סטטוס",

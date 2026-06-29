@@ -7,6 +7,7 @@ import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useSessions } from '../../hooks/useSessions'
 import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetingsGeneration'
 import { confirmScheduledMeeting, skipScheduledMeeting } from '../../lib/scheduledMeetings'
+import { showToast, showError } from '../../lib/toast'
 import { useCalendarDuplicates } from '../../hooks/useCalendarDuplicates'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
 import { useBookings } from '../../hooks/useBookings'
@@ -37,13 +38,18 @@ import { useT } from '../../i18n/useT'
 import './CalendarScreen.css'
 
 const VALID_VIEWS = new Set(['schedule', 'day', 'week', 'month'])
+/* Local (not UTC) Y-M-D / H:M for prefilling the schedule modal from a tapped
+   slot — toISOString() would shift the day/hour across the timezone offset. */
+const pad2 = (n) => String(n).padStart(2, '0')
+const localDateStr = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+const localTimeStr = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`
 
 export default function CalendarScreen() {
   const { t } = useT('calendar')
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
   const { sessions, addSession, removeSession } = useSessions()
-  const { events: calendarEvents, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
+  const { events: calendarEvents, loading: calendarEventsLoading, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
   const { bookings, cancel: cancelBookingFn } = useBookings()
   const { pages: bookingPages } = useBookingPages()
   const { types: meetingTypes } = useMeetingTypes()
@@ -66,6 +72,9 @@ export default function CalendarScreen() {
   const [date, setDate] = useState(() => new Date())
   const [showGate, setShowGate] = useState(false)
   const [activeModal, setActiveModal] = useState(null)
+  /* When a meeting is started by tapping an empty day-grid slot, this holds
+     the tapped Date so the modal opens prefilled with that day + hour. */
+  const [scheduleAt, setScheduleAt] = useState(null)
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [showDuplicates, setShowDuplicates] = useState(false)
   const [showFilter, setShowFilter] = useState(false)
@@ -83,7 +92,9 @@ export default function CalendarScreen() {
 
   /* Mark a lead's follow-up as done from the calendar — clears the date so
      the event drops off (the lead itself stays in its column). */
-  const markFollowupDone = (ev) => updateLead(ev.raw.id, { follow_up_date: null }).catch(() => {})
+  const markFollowupDone = (ev) => updateLead(ev.raw.id, { follow_up_date: null })
+    .then(() => showToast(t('toast.followupDone')))
+    .catch(() => showError(t('toast.actionFailed')))
 
   /* Calendar duplicates: an app recurring meeting that collides with a synced
      Google event for the same subject/day/time. Surfaced as a banner here +
@@ -184,7 +195,7 @@ export default function CalendarScreen() {
           phone: bk.phone || null,
           email: bk.email || null,
           note: bk.note || null,
-          pageName: (bookingPages || []).find((p) => p.id === bk.page_id)?.title?.trim() || 'דף קביעת פגישות',
+          pageName: (bookingPages || []).find((p) => p.id === bk.page_id)?.title?.trim() || t('bookingPageFallback'),
           meetingTypeName: bk.meeting_type_id ? ((meetingTypes || []).find((mt) => mt.id === bk.meeting_type_id)?.name || null) : null,
         } : null
         return {
@@ -239,7 +250,7 @@ export default function CalendarScreen() {
   const confirmMeeting = (ev) => {
     const m = ev.raw
     const c = m?.subject_type === 'client' ? clients.find((x) => x.id === m.subject_id) : null
-    if (c?.billing_mode === 'per_session') return updateMeeting(m.id, { status: 'confirmed' }).catch(() => {})
+    if (c?.billing_mode === 'per_session') return updateMeeting(m.id, { status: 'confirmed' }).then(() => showToast(t('toast.meetingConfirmed'))).catch(() => showError(t('toast.actionFailed')))
     return confirmScheduledMeeting({ meeting: m, sessions, addSession, updateMeeting })
   }
   const skipMeeting = (ev) => skipScheduledMeeting({ meeting: ev.raw, updateMeeting, removeSession })
@@ -269,7 +280,7 @@ export default function CalendarScreen() {
       subject_type: 'client',
       subject_id: c.id,
       num,
-    }).catch(() => {})
+    }).then(() => showToast(t('toast.meetingConfirmed'))).catch(() => showError(t('toast.actionFailed')))
   }
   const completeReminderHandler = (ev) => completeReminder(ev.id)
   const removeReminderHandler = (ev) => removeReminder(ev.id)
@@ -301,7 +312,7 @@ export default function CalendarScreen() {
           <p className="t-screen">{t('title')}</p>
         </header>
         <Coachmark id="add-meeting" radius="50%">
-          <button className="cta-add" type="button" aria-label={t('newEventAria')} onClick={() => setShowGate(true)}>{t('newEvent')}</button>
+          <button className="cta-add" type="button" aria-label={t('newEventAria')} onClick={() => { setScheduleAt(null); setShowGate(true) }}>{t('newEvent')}</button>
         </Coachmark>
       </div>
 
@@ -329,63 +340,79 @@ export default function CalendarScreen() {
         filterActive={filterActive}
       />
 
-      {view === 'schedule' && (
-        <CalendarSchedule items={scheduleItems} onSelect={setSelectedEvent} />
-      )}
-      {view === 'day' && (
-        <CalendarDay
-          date={date}
-          events={allEvents}
-          onSelect={setSelectedEvent}
-          dayViewStart={dayViewStart}
-          dayViewEnd={dayViewEnd}
-        />
-      )}
-      {view === 'week' && (
-        <CalendarWeek
-          date={date}
-          events={allEvents}
-          onSelect={setSelectedEvent}
-          onPickDay={(d) => { setDate(d); setView('day') }}
-          weekStart={weekStart}
-          hebrew={hebrew}
-          dual={hebrewDual}
-        />
-      )}
-      {view === 'month' && (
-        <CalendarMonth
-          date={date}
-          events={allEvents}
-          weekStart={weekStart}
-          hebrew={hebrew}
-          dual={hebrewDual}
-          onPickDay={(d) => { setDate(d); setView('day') }}
-        />
+      {/* While the meeting + synced-event fetches are still in flight AND nothing
+          has arrived yet, show a loading line instead of the views' "no events"
+          empty state — which otherwise flashes as if the day were empty. */}
+      {(meetingsLoading || calendarEventsLoading) && allEvents.length === 0 ? (
+        <div className="empty"><p className="empty-text">{t('loading')}</p></div>
+      ) : (
+        <>
+          {view === 'schedule' && (
+            <CalendarSchedule items={scheduleItems} onSelect={setSelectedEvent} />
+          )}
+          {view === 'day' && (
+            <CalendarDay
+              date={date}
+              events={allEvents}
+              onSelect={setSelectedEvent}
+              onPickSlot={(d) => { setScheduleAt(d); setShowGate(true) }}
+              dayViewStart={dayViewStart}
+              dayViewEnd={dayViewEnd}
+            />
+          )}
+          {view === 'week' && (
+            <CalendarWeek
+              date={date}
+              events={allEvents}
+              onSelect={setSelectedEvent}
+              onPickDay={(d) => { setDate(d); setView('day') }}
+              weekStart={weekStart}
+              hebrew={hebrew}
+              dual={hebrewDual}
+            />
+          )}
+          {view === 'month' && (
+            <CalendarMonth
+              date={date}
+              events={allEvents}
+              weekStart={weekStart}
+              hebrew={hebrew}
+              dual={hebrewDual}
+              onPickDay={(d) => { setDate(d); setView('day') }}
+            />
+          )}
+        </>
       )}
 
       <CalendarAddGate open={showGate} onClose={() => setShowGate(false)} onPick={setActiveModal} />
       <ScheduleMeetingModal
+        key={scheduleAt ? scheduleAt.getTime() : 'new'}
         open={activeModal === 'meeting'}
-        onClose={() => setActiveModal(null)}
+        onClose={() => { setActiveModal(null); setScheduleAt(null) }}
         clients={clients}
         onSave={addMeeting}
+        initialDate={scheduleAt ? localDateStr(scheduleAt) : undefined}
+        initialTime={scheduleAt ? localTimeStr(scheduleAt) : undefined}
       />
       <AddReminderModal
+        key={scheduleAt ? `r-${scheduleAt.getTime()}` : 'r-new'}
         open={activeModal === 'reminder'}
-        onClose={() => setActiveModal(null)}
+        onClose={() => { setActiveModal(null); setScheduleAt(null) }}
         clients={clients}
         onSave={addReminder}
+        initialDate={scheduleAt ? localDateStr(scheduleAt) : undefined}
+        initialTime={scheduleAt ? localTimeStr(scheduleAt) : undefined}
       />
       <AddTaskModal
         open={activeModal === 'task'}
-        onClose={() => setActiveModal(null)}
+        onClose={() => { setActiveModal(null); setScheduleAt(null) }}
         projects={projects}
         clients={clients}
         onSave={addTask}
       />
       <AddTransactionModal
         open={activeModal === 'transaction'}
-        onClose={() => setActiveModal(null)}
+        onClose={() => { setActiveModal(null); setScheduleAt(null) }}
         clients={clients}
         projects={projects}
         onSave={addTransaction}

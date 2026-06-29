@@ -45,8 +45,9 @@ const ClientsScreen = lazyWithRetry(() => import('./screens/clients'))
 const FinanceScreen = lazyWithRetry(() => import('./screens/finance'))
 const TasksScreen = lazyWithRetry(() => import('./screens/tasks'))
 const LeadsScreen = lazyWithRetry(() => import('./screens/leads'))
-const LeadPagesScreen = lazyWithRetry(() => import('./screens/lead-pages'))
 const BookingPagesScreen = lazyWithRetry(() => import('./screens/booking-pages'))
+const SitePagesScreen = lazyWithRetry(() => import('./screens/site-pages'))
+const SitePagesBuilder = lazyWithRetry(() => import('./screens/site-pages/Builder'))
 const CalendarScreen = lazyWithRetry(() => import('./screens/calendar'))
 const GoalsScreen = lazyWithRetry(() => import('./screens/goals'))
 const MoonGlanceScreen = lazyWithRetry(() => import('./screens/moon-glance'))
@@ -67,12 +68,11 @@ const AdminApp = lazyWithRetry(() => import('./screens/admin'))
    crawlers) instead of bouncing them to /login. Lazy so it never weighs
    down the authenticated app bundle; a logged-in "/" still renders Home. */
 const LandingScreen = lazyWithRetry(() => import('./screens/landing'))
-/* Public lead-capture landing page — served at /lead/<id> to logged-out
-   visitors (the coach's prospects). Lazy so it never weighs down the app. */
-const LeadPageScreen = lazyWithRetry(() => import('./screens/lead-page'))
 /* Public appointment-booking page — served at /book/<id> to logged-out
    visitors. Lazy so it never weighs down the authenticated app. */
 const BookingPageScreen = lazyWithRetry(() => import('./screens/booking-page'))
+/* Public page-builder page — served at /p/<id> to logged-out visitors. */
+const SitePagePublicScreen = lazyWithRetry(() => import('./screens/site-page'))
 
 import LoginScreen from './screens/auth/LoginScreen'
 import SignupScreen from './screens/auth/SignupScreen'
@@ -202,8 +202,12 @@ function AppShell() {
             <Route path={ROUTES.CLIENT} element={<ClientsScreen />} />
             <Route path={ROUTES.FINANCE} element={<FinanceScreen />} />
             <Route path={ROUTES.TASKS} element={<TasksScreen />} />
-            <Route path={ROUTES.LEAD_PAGES} element={<LeadPagesScreen />} />
+            {/* Phase 2: the legacy lead-pages builder is retired — redirect to
+                the unified page-builder hub so it's the single write path. */}
+            <Route path={ROUTES.LEAD_PAGES} element={<Navigate to={ROUTES.SITE_PAGES} replace />} />
             <Route path={ROUTES.BOOKING_PAGES} element={<BookingPagesScreen />} />
+            <Route path={ROUTES.SITE_PAGES} element={<SitePagesScreen />} />
+            <Route path={ROUTES.SITE_PAGE_KIND} element={<SitePagesBuilder />} />
             <Route path={ROUTES.LEADS} element={<LeadsScreen />} />
             <Route path={ROUTES.CALENDAR} element={<CalendarScreen />} />
             <Route path={ROUTES.GOALS} element={<GoalsScreen />} />
@@ -355,7 +359,9 @@ function Root() {
     return (
       <Suspense fallback={<LoadingSplash />}>
         <Routes>
-          <Route path={ROUTES.LEAD_PAGE} element={<LeadPageScreen />} />
+          {/* Lead pages render on the unified engine (kind='lead'); the legacy
+              LeadPageScreen + lead-intake have been retired. */}
+          <Route path={ROUTES.LEAD_PAGE} element={<SitePagePublicScreen kind="lead" />} />
         </Routes>
       </Suspense>
     )
@@ -367,6 +373,16 @@ function Root() {
       <Suspense fallback={<LoadingSplash />}>
         <Routes>
           <Route path={ROUTES.BOOKING_PAGE} element={<BookingPageScreen />} />
+        </Routes>
+      </Suspense>
+    )
+  }
+  /* Public page-builder pages (/p/<id>) — served before the auth gate. */
+  if (pathname.startsWith('/p/')) {
+    return (
+      <Suspense fallback={<LoadingSplash />}>
+        <Routes>
+          <Route path={ROUTES.SITE_PAGE} element={<SitePagePublicScreen kind="landing" />} />
         </Routes>
       </Suspense>
     )

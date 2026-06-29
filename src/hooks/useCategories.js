@@ -6,6 +6,7 @@ import {
   removeCategory as apiRemoveCategory, restoreCategory,
 } from '../lib/api/categories'
 import { registerDeleteUndo } from '../lib/undoActions'
+import i18n from '../i18n'
 
 /* React-Query-backed: shared across meeting-confirm + chips widgets + finance. Public API unchanged. */
 const KEY = ['categories']
@@ -32,7 +33,7 @@ export function useCategories() {
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((c) => c.id !== id))
     try {
       await apiRemoveCategory(id)
-      registerDeleteUndo({ qc, key: KEY, row, label: 'הקטגוריה נמחקה', restoreFn: restoreCategory, deleteFn: apiRemoveCategory })
+      registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.category'), restoreFn: restoreCategory, deleteFn: apiRemoveCategory })
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 

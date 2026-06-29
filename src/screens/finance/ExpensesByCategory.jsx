@@ -13,7 +13,9 @@ export default function ExpensesByCategory({ monthTxs, categories = [] }) {
     const totals = new Map() /* categoryId | null → number */
     monthTxs.forEach((tx) => {
       if (tx.type !== 'expense') return
-      if (tx.status !== 'confirmed') return
+      // Match the hero summary / net (sumConfirmed): exclude credited (cancelled
+      // by a credit note) txs, else this breakdown overstates vs the total above.
+      if (tx.status !== 'confirmed' || tx.invoice_credited_at) return
       const cid = tx.category_id || null
       totals.set(cid, (totals.get(cid) || 0) + Number(tx.amount || 0))
     })

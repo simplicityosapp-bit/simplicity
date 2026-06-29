@@ -14,6 +14,9 @@
     "phonePlaceholder": "050-0000000",
     "email": "Email",
     "emailPlaceholder": "name@example.com",
+    "address": "Address",
+    "addressPlaceholder": "Street, city",
+    "birthDate": "Date of birth",
     "project": "Project",
     "projectOptional": "Project (optional)",
     "groupOptional": "Group (optional)",
@@ -72,7 +75,17 @@
     "clearFixed": "Clear fixed meeting",
     "noGroup": "No group",
     "meetingType": "Meeting type",
-    "manageMeetingTypes": "Manage types"
+    "manageMeetingTypes": "Manage types",
+    "secDetails": "Details",
+    "secMoreDetails": "More details",
+    "secScheduling": "Sessions & scheduling",
+    "secBilling": "Billing & payments",
+    "secGroups": "Groups",
+    "fPersonal": "Personal",
+    "fGroups": "Groups",
+    "fDiscount": "Written off",
+    "confirmBalanceTitle": "Update balance",
+    "confirmBalanceMsg": "The balance changed to {{balance}}. Save?"
   },
   "meetingTypes": {
     "title": "Meeting types",

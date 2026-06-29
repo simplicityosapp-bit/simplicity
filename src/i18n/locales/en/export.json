@@ -24,6 +24,8 @@
     "name": "Name",
     "phone": "Phone",
     "email": "Email",
+    "address": "Address",
+    "birthDate": "Date of birth",
     "sessions": "Sessions",
     "pricePerSession": "Price per session",
     "notes": "Notes",

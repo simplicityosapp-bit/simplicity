@@ -133,22 +133,26 @@
   font-size: calc(12px * var(--text-scale));
   color: var(--stone);
 }
+/* Association pills (meeting=sage, reminder=amber, calendar=moon) — solid
+   accent fill + white text, mirroring the canonical accent-button treatment
+   (--on-accent, flips to --ink-on-accent in dark where the accents lighten).
+   Hues track the week-chip + month-dot scheme so the calendar reads one
+   colour language. */
 .cal-tag {
   flex-shrink: 0;
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
-  font-weight: 500;
+  font-weight: 600;
   padding: 2px 9px;
   border-radius: var(--mg-chip-radius);
-  color: var(--amber-warn);
-  background: rgba(212, 165, 116, 0.14);
+  color: var(--on-accent);
+  background: var(--sage);
 }
 .cal-tag.rem {
-  color: var(--stone);
-  background: rgba(42, 37, 32, 0.06);
+  background: var(--amber-warn);
 }
-[data-theme="dark"] .cal-tag.rem {
-  background: rgba(240, 235, 224, 0.06);
+[data-theme="dark"] .cal-tag {
+  color: var(--ink-on-accent);
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -395,8 +399,17 @@
 .cal-day-hourline {
   position: absolute;
   inset-inline: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
   border-top: 1px solid var(--divider);
+  text-align: start;
+  cursor: pointer;
+  transition: background 0.12s ease;
 }
+/* Tap an empty hour band to schedule a meeting at that time. */
+.cal-day-hourline:hover { background: var(--mg-row-hover-bg); }
 .cal-day-hourline:first-child {
   border-top: none;
 }
@@ -416,22 +429,26 @@
   inset: 0;
   inset-inline-start: 56px;
   border-inline-start: 1px solid var(--divider);
+  /* Let taps on empty timeline fall THROUGH to the hour-band buttons
+     beneath; the event chips re-enable pointer events for themselves. */
+  pointer-events: none;
 }
+.cal-day-events .cal-day-evt { pointer-events: auto; }
 .cal-day-evt {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
   border-radius: var(--mg-chip-radius);
-  border: 0.5px solid rgba(139, 168, 136, 0.35);
-  background: rgba(139, 168, 136, 0.10);
+  border: 0.5px solid color-mix(in srgb, var(--sage) 35%, transparent);
+  background: color-mix(in srgb, var(--sage) 10%, transparent);
   text-align: start;
   cursor: pointer;
   font-family: var(--mg-font);
 }
 .cal-day-evt.reminder {
-  border-color: rgba(212, 165, 116, 0.40);
-  background: rgba(212, 165, 116, 0.10);
+  border-color: color-mix(in srgb, var(--amber-warn) 40%, transparent);
+  background: color-mix(in srgb, var(--amber-warn) 10%, transparent);
 }
 .cal-day-evt-time {
   font-family: var(--mg-font-num);
@@ -588,15 +605,15 @@
   gap: 1px;
   padding: 5px 6px;
   border-radius: var(--mg-chip-radius);
-  border: 0.5px solid rgba(139, 168, 136, 0.32);
-  background: rgba(139, 168, 136, 0.08);
+  border: 0.5px solid color-mix(in srgb, var(--sage) 32%, transparent);
+  background: color-mix(in srgb, var(--sage) 8%, transparent);
   text-align: start;
   cursor: pointer;
   min-width: 0;
 }
 .cal-week-evt.reminder {
-  border-color: rgba(212, 165, 116, 0.35);
-  background: rgba(212, 165, 116, 0.08);
+  border-color: color-mix(in srgb, var(--amber-warn) 35%, transparent);
+  background: color-mix(in srgb, var(--amber-warn) 8%, transparent);
 }
 /* All-day chip — dashed edge signals it spans the whole day (no time). */
 .cal-week-evt.allday {
@@ -726,8 +743,7 @@
   color: var(--moon-deep);
 }
 .cal-tag.cal {
-  color: var(--moon-deep);
-  background: color-mix(in srgb, var(--moon-deep) 12%, transparent);
+  background: var(--moon-deep);
 }
 .cal-day-evt.calendar {
   border-color: color-mix(in srgb, var(--moon-deep) 38%, transparent);

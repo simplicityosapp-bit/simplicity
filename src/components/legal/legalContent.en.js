@@ -29,7 +29,7 @@ export const PRIVACY_BLOCKS = [
   { t: "Usage data — general activity for operating and improving the Service." },
   { h2: "4.2 End-client data (entered by the User)" },
   { t: "The User manually enters data about their end clients. Such data may include:" },
-  { t: "Full name, phone, email address." },
+  { t: "Full name, phone, email address, postal address, date of birth." },
   { t: "Notes, session summaries, and reflections — these may contain sensitive information." },
   { t: "Financial data — cost per session, payment history." },
   { t: "This data is stored on European Union servers, isolated separately for each User (Row-Level Security — each User accesses only their own data), and protected by at-rest storage encryption at the infrastructure level and by transport encryption (HTTPS/TLS). Limited technical access to the infrastructure exists for operational, support, and backup purposes only." },

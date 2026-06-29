@@ -27,7 +27,34 @@
   "undo": {
     "undo": "Annuler",
     "dismiss": "Ignorer",
-    "undone": "Annulé"
+    "undone": "Annulé",
+    "taskCompleted": "Tâche terminée",
+    "taskReopened": "Tâche rouverte",
+    "deleted": {
+      "lead": "Prospect supprimé",
+      "bookingPage": "Page supprimée",
+      "category": "Catégorie supprimée",
+      "goalCategory": "Catégorie supprimée",
+      "goal": "Objectif supprimé",
+      "group": "Groupe supprimé",
+      "leadPage": "Page supprimée",
+      "project": "Projet supprimé",
+      "session": "Séance supprimée",
+      "sitePage": "Page supprimée",
+      "task": "Tâche supprimée",
+      "transaction": "Transaction supprimée"
+    }
+  },
+  "errors": {
+    "importFailed": "Échec de l'import — réessayez",
+    "actionFailed": "Échec de l'action — réessayez",
+    "eventAssign": "Impossible d'associer l'événement — réessayez",
+    "eventHide": "Impossible de masquer l'événement — réessayez",
+    "eventUpdate": "Impossible de mettre à jour l'événement — réessayez",
+    "eventDelete": "Impossible de supprimer l'événement — réessayez",
+    "bookingConfirm": "Impossible de confirmer le rendez-vous",
+    "bookingReject": "Impossible de refuser le rendez-vous",
+    "bookingCancel": "Impossible d'annuler le rendez-vous"
   },
   "feedback": {
     "title": "Un retour à partager ?",

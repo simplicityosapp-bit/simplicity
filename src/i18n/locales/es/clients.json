@@ -83,8 +83,12 @@
     "title": "Ficha del cliente",
     "closeAria": "Cerrar",
     "deleteAria": "Eliminar cliente",
-    "statusByGroup": "El estado se establece automáticamente según el grupo",
+    "statusByGroup": "El estado se establece automáticamente según el grupo — elegirlo manualmente lo anula",
     "byGroup": " · según el grupo",
+    "statusManual": "Manual",
+    "revertToGroup": "Volver al estado del grupo",
+    "revertHint": "Quitar la anulación manual — que el grupo defina el estado de nuevo",
+    "statusReverted": "El estado vuelve a definirse según el grupo",
     "edit": "Editar",
     "sessions": "Sesiones",
     "paid": "Pagado",
@@ -130,6 +134,11 @@
     "notes": "Notas",
     "notesUpdated": "Actualizado {{date}}",
     "noNotes": "Aún no hay notas",
+    "address": "Dirección",
+    "noAddress": "Sin dirección",
+    "moreDetails": "Más detalles",
+    "birthDate": "Fecha de nacimiento",
+    "noMoreDetails": "Sin detalles adicionales",
     "reminders": "Recordatorios vinculados",
     "noReminders": "No hay recordatorios vinculados",
     "memberships": "Pertenencia a grupos",
@@ -182,6 +191,10 @@
     "phone": "Teléfono",
     "project": "Proyecto",
     "email": "Correo (opcional)",
+    "address": "Dirección",
+    "addressPlaceholder": "Calle, ciudad",
+    "moreDetails": "Más detalles",
+    "birthDate": "Fecha de nacimiento",
     "group": "Grupo (opcional)",
     "noGroup": "Sin grupo",
     "recurringDay": "Cita recurrente — día",
@@ -196,5 +209,6 @@
       "5": "Viernes",
       "6": "Sábado"
     }
-  }
+  },
+  "dataWarning": "Algunos datos no se cargaron — los saldos pueden estar incompletos."
 }

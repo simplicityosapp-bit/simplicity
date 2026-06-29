@@ -153,7 +153,9 @@ CREATE TABLE clients (
   sessions_done_adjustment integer DEFAULT 0 NOT NULL,
   paid_adjustment numeric DEFAULT 0 NOT NULL,
   billing_mode text DEFAULT 'package'::text NOT NULL,
-  email text
+  email text,
+  address text,
+  birth_date date
 );
 
 CREATE TABLE daily_answers (
@@ -524,6 +526,10 @@ CREATE TABLE transactions (
   recurring_id uuid,
   orphaned_from jsonb,
   payment_method text,
+  recipient_name text,
+  recipient_email text,
+  recipient_phone text,
+  recipient_tax_id text,
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
   deleted_at timestamp with time zone

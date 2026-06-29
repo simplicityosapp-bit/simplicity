@@ -9,6 +9,17 @@
   "viewToggleAria": "Vista",
   "sourcesLink": "Fuentes de prospectos",
   "leadPagesLink": "Páginas de prospectos",
+  "pending": {
+    "aria": "Leads en espera de aprobación",
+    "title": "En espera de aprobación",
+    "from": "De: {{page}}",
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "fName": "Nombre",
+    "fPhone": "Teléfono",
+    "fEmail": "Correo",
+    "fNotes": "Nota"
+  },
   "stats": {
     "newThisMonth": "Consultas este mes",
     "converted": "Convertidos en clientes",
@@ -91,6 +102,7 @@
     "intro": "Gestiona los subestados bajo cada categoría principal. Los subestados aparecen cuando marcas un punto de color en una ficha de prospecto, y se usan para filtrar y en los gráficos.",
     "addPlaceholder": "Subestado para «{{meta}}»",
     "addAria": "Añadir",
+    "dropHere": "Suelta aquí",
     "deleteChipAria": "Eliminar {{name}}",
     "deleteChipTitle": "Eliminar",
     "deleteTitle": "Eliminar subestado",

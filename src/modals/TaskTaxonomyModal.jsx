@@ -54,31 +54,9 @@ export default function TaskTaxonomyModal({
   return (
     <Modal open={open} onClose={onClose} title={t('taxonomy.title')}>
       {/* ── Statuses ───────────────────────────────────────────── */}
+      {/* The "add" form sits first; the existing pills are listed BELOW it. */}
       <p className="m-section-title">{t('taxonomy.statuses')}</p>
       <p className="m-hint">{t('taxonomy.statusesHint')}</p>
-      {META.map((m) => {
-        const list = statuses.filter((s) => s.meta_category === m.key)
-        return (
-          <div key={m.key} className="m-field">
-            <label className="m-label">{t(`taxonomy.${m.label}`)}</label>
-            {list.length === 0 ? (
-              <p className="m-hint">—</p>
-            ) : (
-              <div className="m-tax-chips">
-                {list.map((s) => (
-                  <span key={s.id} className="m-tax-chip">
-                    <span className="m-tax-dot" style={{ background: s.color || 'var(--stone)' }} />
-                    <span>{s.display_name}</span>
-                    <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'status', id: s.id, name: s.display_name })} aria-label={t('taxonomy.deleteAria', { name: s.display_name })} title={t('taxonomy.deleteHint')}>
-                      <X size={11} strokeWidth={2} aria-hidden="true" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      })}
       <div className="m-field">
         <label className="m-label">{t('taxonomy.newStatus')}</label>
         <div className="m-pills">
@@ -104,24 +82,33 @@ export default function TaskTaxonomyModal({
           </button>
         </div>
       </div>
+      {META.map((m) => {
+        const list = statuses.filter((s) => s.meta_category === m.key)
+        return (
+          <div key={m.key} className="m-field">
+            <label className="m-label">{t(`taxonomy.${m.label}`)}</label>
+            {list.length === 0 ? (
+              <p className="m-hint">—</p>
+            ) : (
+              <div className="m-tax-chips">
+                {list.map((s) => (
+                  <span key={s.id} className="m-tax-chip">
+                    <span className="m-tax-dot" style={{ background: s.color || 'var(--stone)' }} />
+                    <span>{s.display_name}</span>
+                    <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'status', id: s.id, name: s.display_name })} aria-label={t('taxonomy.deleteAria', { name: s.display_name })} title={t('taxonomy.deleteHint')}>
+                      <X size={11} strokeWidth={2} aria-hidden="true" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )
+      })}
 
       {/* ── Categories ─────────────────────────────────────────── */}
+      {/* The "add" form sits first; the existing pills are listed BELOW it. */}
       <p className="m-section-title">{t('taxonomy.categories')}</p>
-      {categories.length === 0 ? (
-        <p className="m-hint">—</p>
-      ) : (
-        <div className="m-tax-chips">
-          {categories.map((c) => (
-            <span key={c.id} className="m-tax-chip">
-              <span className="m-tax-dot" style={{ background: c.color || 'var(--stone)' }} />
-              <span>{c.name}</span>
-              <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'category', id: c.id, name: c.name })} aria-label={t('taxonomy.deleteAria', { name: c.name })} title={t('taxonomy.deleteHint')}>
-                <X size={11} strokeWidth={2} aria-hidden="true" />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
       <div className="m-field">
         <label className="m-label">{t('taxonomy.newCategory')}</label>
         <div className="m-colors">
@@ -142,6 +129,21 @@ export default function TaskTaxonomyModal({
           </button>
         </div>
       </div>
+      {categories.length === 0 ? (
+        <p className="m-hint">—</p>
+      ) : (
+        <div className="m-tax-chips">
+          {categories.map((c) => (
+            <span key={c.id} className="m-tax-chip">
+              <span className="m-tax-dot" style={{ background: c.color || 'var(--stone)' }} />
+              <span>{c.name}</span>
+              <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'category', id: c.id, name: c.name })} aria-label={t('taxonomy.deleteAria', { name: c.name })} title={t('taxonomy.deleteHint')}>
+                <X size={11} strokeWidth={2} aria-hidden="true" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className="m-actions">
         <button type="button" className="m-btn-save" onClick={onClose}>{t('common.close')}</button>

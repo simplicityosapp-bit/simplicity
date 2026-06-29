@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Search, ArrowUpDown, X, UserPlus, Wallet, ChevronLeft } from 'lucide-react'
+import { Search, ArrowUpDown, X, UserPlus, Wallet, ChevronLeft, AlertTriangle } from 'lucide-react'
 import { effectiveClientMeta, paidForClients, sessionsCountForClients, clientBalance } from '../../lib/clients'
 import { currentMonthRange, isr, financeQuery } from '../../lib/finance'
 import { useClients } from '../../hooks/useClients'
@@ -87,12 +87,12 @@ export default function ClientsScreen() {
   const { t } = useT('clients')
   const { clients: clientList, loading, error, addClient, updateClient, removeClient } = useClients()
   const { projects } = useProjects()
-  const { transactions, addTransaction, editTransaction, removeTransaction, refetch } = useTransactions()
+  const { transactions, addTransaction, editTransaction, removeTransaction, refetch, error: txError } = useTransactions()
   const { tasks, editTask } = useTasks()
   const { reminders, editReminder } = useReminders()
-  const { sessions, addSession, updateSession } = useSessions()
+  const { sessions, addSession, updateSession, error: sessionsError } = useSessions()
   const { meetings, addMeeting, removeMeeting } = useScheduledMeetings()
-  const { groups } = useGroups()
+  const { groups, error: groupsError } = useGroups()
 
   /* When a client's recurring slot changes or is cleared, drop the future
      pending meetings generated for the OLD slot so stale occurrences don't
@@ -114,7 +114,7 @@ export default function ClientsScreen() {
     }
     return result
   }
-  const { members, updateMember } = useGroupMembers()
+  const { members, updateMember, error: membersError } = useGroupMembers()
   const { statuses: clientStatuses } = useClientStatuses()
   const { categories } = useCategories()
   const { prefs, update: updatePrefs } = useUserPreferences()
@@ -183,8 +183,11 @@ export default function ClientsScreen() {
   const tabClients = useMemo(() => byMeta[tab] || [], [byMeta, tab])
   /* Source list — when grouping by project, all live clients participate
      (so projects with mixed-meta clients still show); the tab filter applies
-     only inside the status mode. */
-  const sourceClients = groupBy === 'project' ? clientList : tabClients
+     only inside the status mode.
+     The "יתרה פתוחה" filter is cross-status by design: when ON it surfaces
+     EVERY client who still owes — active, wandering AND past — not just the
+     current tab (beta feedback 24/06; owner chose to include past too). */
+  const sourceClients = (groupBy === 'project' || balanceOnly) ? clientList : tabClients
   const list = useMemo(() => {
     const q = query.trim()
     let filtered = q ? sourceClients.filter((c) => (c.name || '').includes(q)) : sourceClients
@@ -193,10 +196,12 @@ export default function ClientsScreen() {
     return sortClients(filtered, sort, { balanceByClient, paidByClient })
   }, [sourceClients, query, sort, balanceOnly, balanceByClient, paidByClient])
 
-  /* How many clients in the current view still owe — shown on the filter pill. */
+  /* How many clients still owe — shown on the filter pill. Counted across ALL
+     statuses (not just the current tab) so the pill is a stable "N owe you" CTA
+     that matches what the cross-status balance filter surfaces when toggled on. */
   const openBalanceCount = useMemo(
-    () => sourceClients.filter((c) => (balanceByClient.get(c.id)?.balance || 0) > 0).length,
-    [sourceClients, balanceByClient],
+    () => clientList.filter((c) => (balanceByClient.get(c.id)?.balance || 0) > 0).length,
+    [clientList, balanceByClient],
   )
 
   /* Project bucket lookup for the grouped view. Includes a "no project"
@@ -247,13 +252,13 @@ export default function ClientsScreen() {
 
   const setSort = (patch) => updatePrefs?.({ clientsSort: { ...sort, ...patch } })
 
-  const toggleSelect = (id) => {
+  const toggleSelect = useCallback((id) => {
     setSelectedIds((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id); else next.add(id)
       return next
     })
-  }
+  }, [])
 
   const selectedClients = useMemo(
     () => list.filter((c) => selectedIds.has(c.id)),
@@ -262,18 +267,21 @@ export default function ClientsScreen() {
 
   const bulkChangeMeta = async (newMeta) => {
     setBulkMetaOpen(false)
-    /* Snapshot each client's prior status so one Undo reverts them all. */
-    const snapshots = selectedClients.map((c) => ({ id: c.id, status_meta: c.status_meta ?? null, status: c.status ?? null }))
+    /* Snapshot each client's prior status so one Undo reverts them all. Capture
+       status_overridden too: a bulk status is a manual choice that must win over
+       a group-derived status (migration 0062) — otherwise it's silently ignored
+       for group members, exactly the gap the single-client path avoids. */
+    const snapshots = selectedClients.map((c) => ({ id: c.id, status_meta: c.status_meta ?? null, status: c.status ?? null, status_overridden: !!c.status_overridden }))
     for (const c of selectedClients) {
-      await updateClient(c.id, { status_meta: newMeta, status: newMeta }).catch(() => {})
+      await updateClient(c.id, { status_meta: newMeta, status: newMeta, status_overridden: true }).catch(() => {})
     }
     setSelectedIds(new Set())
     setSelectMode(false)
     if (snapshots.length) {
       pushUndo({
         label: snapshots.length === 1 ? t('bulk.statusChanged') : t('bulk.statusChangedMany', { count: snapshots.length }),
-        undo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: s.status_meta, status: s.status }).catch(() => {}) },
-        redo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: newMeta, status: newMeta }).catch(() => {}) },
+        undo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: s.status_meta, status: s.status, status_overridden: s.status_overridden }).catch(() => {}) },
+        redo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: newMeta, status: newMeta, status_overridden: true }).catch(() => {}) },
       })
     }
   }
@@ -310,6 +318,11 @@ export default function ClientsScreen() {
       { l: t('hero.openBalance'), v: isr(balance) },
     ]
   }, [tab, effScope, tabClients, transactions, sessions, members, groups, balanceByClient, t])
+
+  /* Balances are derived from transactions/sessions/memberships. If the
+     clients list loaded but any of those failed, the totals are partial —
+     warn instead of silently showing wrong ₪0 (review finding #18). */
+  const balanceDataError = !loading && !error && !!(txError || sessionsError || groupsError || membersError)
 
   return (
     <div className={`screen${selectMode ? ' has-bulk-bar' : ''}`}>
@@ -412,6 +425,13 @@ export default function ClientsScreen() {
           {t('balanceFilter')}{openBalanceCount > 0 ? ` · ${openBalanceCount}` : ''}
         </button>
       </div>
+
+      {balanceDataError && (
+        <div className="c-data-warning" role="status">
+          <AlertTriangle size={15} strokeWidth={1.8} aria-hidden="true" />
+          <span>{t('dataWarning')}</span>
+        </div>
+      )}
 
       {groupBy === 'status' && (
         <section className="c-hero">

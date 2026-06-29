@@ -29,7 +29,34 @@
   "undo": {
     "undo": "בטל",
     "dismiss": "סגירה",
-    "undone": "בוטל"
+    "undone": "בוטל",
+    "taskCompleted": "המשימה הושלמה",
+    "taskReopened": "המשימה הוחזרה",
+    "deleted": {
+      "lead": "הליד נמחק",
+      "bookingPage": "הדף נמחק",
+      "category": "הקטגוריה נמחקה",
+      "goalCategory": "הקטגוריה נמחקה",
+      "goal": "המטרה נמחקה",
+      "group": "הקבוצה נמחקה",
+      "leadPage": "הדף נמחק",
+      "project": "הפרויקט נמחק",
+      "session": "הפגישה נמחקה",
+      "sitePage": "הדף נמחק",
+      "task": "המשימה נמחקה",
+      "transaction": "התנועה נמחקה"
+    }
+  },
+  "errors": {
+    "importFailed": "הייבוא נכשל — נסה/י שוב",
+    "actionFailed": "הפעולה נכשלה — נסה/י שוב",
+    "eventAssign": "שיוך האירוע נכשל — נסה/י שוב",
+    "eventHide": "הסתרת האירוע נכשלה — נסה/י שוב",
+    "eventUpdate": "עדכון האירוע נכשל — נסה/י שוב",
+    "eventDelete": "מחיקת האירוע נכשלה — נסה/י שוב",
+    "bookingConfirm": "אישור התור נכשל",
+    "bookingReject": "דחיית התור נכשלה",
+    "bookingCancel": "ביטול התור נכשל"
   },
   "feedback": {
     "title": "יש לך משוב?",

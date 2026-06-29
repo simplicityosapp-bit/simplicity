@@ -1,5 +1,6 @@
 {
   "title": "Reports",
+  "loading": "Loading…",
   "moonGlance": "Overview",
   "view": {
     "selectAria": "Choose view",

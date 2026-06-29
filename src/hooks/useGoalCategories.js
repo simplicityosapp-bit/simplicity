@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listGoalCategories, insertGoalCategory, updateGoalCategory, removeGoalCategory as apiRemove, restoreGoalCategory } from '../lib/api/goalCategories'
 import { registerDeleteUndo } from '../lib/undoActions'
+import i18n from '../i18n'
 
 /* React-Query-backed: shared across moon/attention/quick-row widgets +
    moon-glance + finance chart. Public API unchanged. */
@@ -29,7 +30,7 @@ export function useGoalCategories() {
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((c) => c.id !== id))
     try {
       await apiRemove(id)
-      registerDeleteUndo({ qc, key: KEY, row, label: 'הקטגוריה נמחקה', restoreFn: restoreGoalCategory, deleteFn: apiRemove })
+      registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.goalCategory'), restoreFn: restoreGoalCategory, deleteFn: apiRemove })
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 

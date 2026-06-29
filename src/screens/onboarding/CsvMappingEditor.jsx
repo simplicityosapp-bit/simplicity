@@ -59,17 +59,17 @@ export default function CsvMappingEditor({ parsed, onChange: onParsedChange, ste
                 {field
                   ? <CheckCircle2 size={13} strokeWidth={2} aria-hidden="true" />
                   : <HelpCircle size={13} strokeWidth={2} aria-hidden="true" />}
-                <bdi>{header || `עמודה ${colIdx + 1}`}</bdi>
+                <bdi>{header || t('csvMap.colFallback', { num: colIdx + 1 })}</bdi>
               </span>
-              {sample && <span className="ob-map-sample" title={sample}>לדוגמה: <bdi>{sample}</bdi></span>}
+              {sample && <span className="ob-map-sample" title={sample}>{t('csvMap.colSample')}<bdi>{sample}</bdi></span>}
             </div>
             <select
               className="ob-select ob-map-select"
               value={field || ''}
               onChange={(e) => onChange(colIdx, e.target.value)}
-              aria-label={`מיפוי לעמודה ${header}`}
+              aria-label={t('csvMap.colMapAria', { header })}
             >
-              <option value="">— התעלם</option>
+              <option value="">{t('csvMap.ignore')}</option>
               {allowed.map((f) => (
                 <option key={f} value={f}>{FIELD_LABEL[f]}</option>
               ))}

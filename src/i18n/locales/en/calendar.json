@@ -25,8 +25,10 @@
   "nav": {
     "tablistAria": "View",
     "prevMonth": "Previous month",
+    "prevWeek": "Previous week",
     "prev": "Previous",
     "nextMonth": "Next month",
+    "nextWeek": "Next week",
     "next": "Next",
     "today": "Today"
   },
@@ -54,11 +56,62 @@
     "calendar": "Calendar"
   },
   "greg": {
-    "weekdaysShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    "weekdaysLong": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-    "monthsLong": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-    "monthsShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    "weekdaysShort": [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ],
+    "weekdaysLong": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "monthsLong": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
+    "monthsShort": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ],
     "dayLabel": "{{weekday}}, {{month}} {{day}}",
     "monthYear": "{{month}} {{year}}"
+  },
+  "scheduleAt": "Schedule a meeting at {{time}}",
+  "bookingPageFallback": "Booking page",
+  "loading": "Loading…",
+  "toast": {
+    "meetingConfirmed": "Meeting marked as held",
+    "meetingSkipped": "Meeting skipped",
+    "followupDone": "Follow-up marked done",
+    "actionFailed": "Action failed — please try again."
   }
 }

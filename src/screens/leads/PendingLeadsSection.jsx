@@ -1,5 +1,8 @@
 import { useMemo } from 'react'
 import { Inbox, Check, X } from 'lucide-react'
+import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
+import WhatsAppButton from '../../components/WhatsAppButton'
+import { useT } from '../../i18n/useT'
 
 /* ════════════════════════════════════════════════════════════════
    PENDING LEADS — public-page submissions awaiting manual approval.
@@ -14,6 +17,8 @@ const COLUMN_VALUE = (lead, col) => {
 }
 
 export default function PendingLeadsSection({ pending = [], pages = [], onApprove, onReject }) {
+  const { t } = useT('leads')
+  const waMsg = useWhatsAppMessage()
   const pageById = useMemo(() => {
     const m = {}
     ;(pages || []).forEach((p) => { m[p.id] = p })
@@ -24,7 +29,7 @@ export default function PendingLeadsSection({ pending = [], pages = [], onApprov
 
   /* Build display rows: [{ label, value }] for each lead, resolving free-field
      keys to their page label where possible, builtins to a fixed label. */
-  const BUILTIN_LABEL = { name: 'שם', phone: 'טלפון', email: 'אימייל', notes: 'הערה' }
+  const BUILTIN_LABEL = { name: t('pending.fName'), phone: t('pending.fPhone'), email: t('pending.fEmail'), notes: t('pending.fNotes') }
 
   const rowsFor = (lead) => {
     const page = lead.page_id ? pageById[lead.page_id] : null
@@ -45,10 +50,10 @@ export default function PendingLeadsSection({ pending = [], pages = [], onApprov
   }
 
   return (
-    <section className="l-pending" aria-label="לידים הממתינים לאישור">
+    <section className="l-pending" aria-label={t('pending.aria')}>
       <div className="l-pending-head">
         <Inbox size={16} strokeWidth={1.7} aria-hidden="true" />
-        <span className="l-pending-title">ממתינים לאישור</span>
+        <span className="l-pending-title">{t('pending.title')}</span>
         <span className="l-pending-count mono">{pending.length}</span>
       </div>
       <div className="l-pending-list">
@@ -57,10 +62,10 @@ export default function PendingLeadsSection({ pending = [], pages = [], onApprov
           return (
             <div className="l-pending-card" key={lead.id}>
               <div className="l-pending-info">
-                {page?.title ? <p className="l-pending-source">מתוך: {page.title}</p> : null}
+                {page?.title ? <p className="l-pending-source">{t('pending.from', { page: page.title })}</p> : null}
                 <dl className="l-pending-fields">
-                  {rowsFor(lead).map((r, i) => (
-                    <div className="l-pending-field" key={i}>
+                  {rowsFor(lead).map((r) => (
+                    <div className="l-pending-field" key={`${lead.id}-${r.label}`}>
                       <dt>{r.label}</dt>
                       <dd>{r.value}</dd>
                     </div>
@@ -68,10 +73,15 @@ export default function PendingLeadsSection({ pending = [], pages = [], onApprov
                 </dl>
               </div>
               <div className="l-pending-actions">
+                <WhatsAppButton
+                  phone={lead.phone || ''}
+                  message={waMsg('lead', { name: lead.name })}
+                  triggerClassName="l-pending-wa"
+                />
                 <button type="button" className="l-pending-approve" onClick={() => onApprove(lead.id)}>
-                  <Check size={15} strokeWidth={2} aria-hidden="true" /> אישור
+                  <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('pending.approve')}
                 </button>
-                <button type="button" className="l-pending-reject" onClick={() => onReject(lead.id)} aria-label="דחייה">
+                <button type="button" className="l-pending-reject" onClick={() => onReject(lead.id)} aria-label={t('pending.reject')}>
                   <X size={15} strokeWidth={2} aria-hidden="true" />
                 </button>
               </div>

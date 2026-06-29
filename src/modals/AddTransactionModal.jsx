@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import DateField from '../components/DateField'
+import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
+import { effectiveClientMeta } from '../lib/clients'
 import { PAY_METHODS, payMethodLabel, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '../lib/invoiceDocs'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
@@ -28,7 +30,7 @@ const blank = (defaults = {}) => ({
    `defaults` lets callers pre-fill any blank() field — used by the
    project-detail QuickRow to pre-bind project_id so the user doesn't
    have to re-pick the project they're clearly already on. */
-export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {} }) {
+export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {}, members = [], groups = [] }) {
   const { t } = useT('modalsData')
   const inv = useInvoiceProvider()
   const lockedClientId = client?.id || ''
@@ -45,13 +47,24 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   const [issueOnCreate, setIssueOnCreate] = useState(false)
   const [issueDocType, setIssueDocType] = useState('invoice_receipt')
   const [issuePayment, setIssuePayment] = useState('bank_transfer')
+  /* Ad-hoc recipient — issue a receipt for someone who ISN'T a client. Active
+     when the client select is the "__adhoc__" sentinel (income only, standalone
+     add flow). The details are saved on the transaction (recipient_*). */
+  const [recipient, setRecipient] = useState({ name: '', email: '', phone: '', tax_id: '' })
+  const setRcp = (k, v) => setRecipient((r) => ({ ...r, [k]: v }))
+  const adHoc = form.type === 'income' && !lockedClientId && form.client_id === '__adhoc__'
   const set = (k, v) => {
     /* Leaving the expense type unmounts the inline category-creator block —
        reset its state so switching back to הוצאה shows the normal <select>. */
     if (k === 'type' && v !== 'expense') { setCreatingCat(false); setNewCatName('') }
-    setForm((f) => ({ ...f, [k]: v }))
+    setForm((f) => {
+      const next = { ...f, [k]: v }
+      /* Leaving income → the ad-hoc recipient option no longer applies. */
+      if (k === 'type' && v !== 'income' && f.client_id === '__adhoc__') next.client_id = ''
+      return next
+    })
   }
-  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); onClose() }
+  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); setRecipient({ name: '', email: '', phone: '', tax_id: '' }); onClose() }
 
   /* Inline "new category" creation (Option C1): only when the parent passes
      onCreateCategory. Creating one selects it immediately so the user never
@@ -75,11 +88,12 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   const submit = async () => {
     const amount = parseFloat(form.amount)
     if (!amount || amount <= 0) { setErr(t('common.amountPositive')); return }
+    if (adHoc && !recipient.name.trim()) { setErr(t('tx.recipientNameRequired')); return }
     setBusy(true)
     setErr('')
     const isFuture = form.date > todayStr()
-    const clientId = lockedClientId || form.client_id || null
-    const wantIssue = issueOnCreate && form.type === 'income' && !!clientId && !isFuture
+    const clientId = lockedClientId || (form.client_id && form.client_id !== '__adhoc__' ? form.client_id : null)
+    const wantIssue = issueOnCreate && form.type === 'income' && (!!clientId || adHoc) && !isFuture
       && !!inv.status?.connected && !inv.status?.credentials_invalid
     try {
       const row = await onSave({
@@ -94,13 +108,37 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
         payment_method: form.payment_method || null,
         recurring_id: null,
         orphaned_from: null,
+        /* Ad-hoc recipient details ride on the income tx (only when in ad-hoc
+           mode — normal client-linked inserts are byte-identical to before). */
+        ...(adHoc ? {
+          recipient_name: recipient.name.trim(),
+          recipient_email: recipient.email.trim() || null,
+          recipient_phone: recipient.phone.trim() || null,
+          recipient_tax_id: recipient.tax_id.trim() || null,
+        } : {}),
       })
       if (wantIssue && row?.id) {
         try {
           // Clamp to what this business may issue — the toggle's default can be
           // stale if status loaded after it was checked (would 2403 post-save).
           const docType = clampDocType(inv.status?.business_type, issueDocType)
-          const r = await inv.issueDocument(row.id, docType, { itemId: null, itemName: form.desc.trim(), paymentMethod: form.payment_method || issuePayment })
+          // Mirror the per-tx issue picker (InvoiceActions): for SUMIT, link the
+          // line to a real catalog product/service (Item.ID) by defaulting to the
+          // first catalog item, instead of emitting a free-text-only line. Green
+          // Invoice ignores the id (uses the name as the line), so only SUMIT
+          // needs this; if the catalog can't load we fall back to free text.
+          let itemId = null
+          let itemName = form.desc.trim()
+          if (inv.status?.provider === 'sumit') {
+            try {
+              const items = await inv.loadItems()
+              if (Array.isArray(items) && items.length) {
+                itemId = String(items[0].id)
+                itemName = items[0].name || itemName
+              }
+            } catch { /* catalog unavailable — issue with a free-text line */ }
+          }
+          const r = await inv.issueDocument(row.id, docType, { itemId, itemName, paymentMethod: form.payment_method || issuePayment })
           const num = r?.document?.number
           showToast(t('tx.savedAndIssued', { doc: docTypeLabel(docType), num: num ? t('tx.numPrefix', { num }) : '' }))
         } catch (e) {
@@ -122,8 +160,26 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   /* Issue-on-creation is offered only for income when a usable provider is
      connected; the body explains the missing piece (client / future date). */
   const issuable = form.type === 'income' && !!inv.status?.connected && !inv.status?.credentials_invalid
-  const hasClient = !!(lockedClientId || form.client_id)
+  /* An issuable target = a real client OR a named ad-hoc recipient. */
+  const hasClient = !!(lockedClientId || (form.client_id && form.client_id !== '__adhoc__') || (adHoc && recipient.name.trim()))
   const futureDate = form.date > todayStr()
+
+  /* Standard-dropdown option lists. The client picker shows ACTIVE clients on
+     first open and reveals the rest only via search (searchOnly), then the
+     "new client" action row; the others mirror their old <select>s. */
+  const payOptions = [{ value: '', label: t('tx.paymentMethodNone') }, ...PAY_METHODS.map((m) => ({ value: m.key, label: payMethodLabel(m.key) }))]
+  const projectOptions = [{ value: '', label: t('common.none') }, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  const clientOptions = useMemo(() => {
+    const opts = [{ value: '', label: t('common.none') }]
+    clients.forEach((c) => opts.push({ value: c.id, label: c.name, searchOnly: effectiveClientMeta(c, members, groups) !== 'active' }))
+    if (form.type === 'income') opts.push({ value: '__adhoc__', label: t('tx.recipientAdHoc'), accent: true })
+    return opts
+  }, [clients, members, groups, form.type, t])
+  const categoryOptions = [
+    { value: '', label: t('common.noCategory') },
+    ...categories.map((c) => ({ value: c.id, label: c.name })),
+    ...(onCreateCategory ? [{ value: '__new__', label: t('tx.newCatOption'), accent: true }] : []),
+  ]
 
   return (
     <Modal open={open} onClose={close} title={client ? t('tx.titlePayment') : t('tx.titleNew')}>
@@ -165,35 +221,48 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       </div>
       <div className="m-field">
         <label className="m-label">{t('tx.paymentMethod')}</label>
-        <select className="m-select" value={form.payment_method} onChange={(e) => set('payment_method', e.target.value)}>
-          <option value="">{t('tx.paymentMethodNone')}</option>
-          {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
-        </select>
+        <SelectMenu value={form.payment_method} onChange={(v) => set('payment_method', v)} options={payOptions} placeholder={t('tx.paymentMethodNone')} ariaLabel={t('tx.paymentMethod')} />
       </div>
       {client ? (
         <div className="m-field">
           <label className="m-label">{t('common.project')}</label>
-          <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
+          <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
         </div>
       ) : (
-        <div className="m-row2">
+        <>
           <div className="m-field">
             <label className="m-label">{t('common.client')}</label>
-            <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
-              <option value="">{t('common.none')}</option>
-              {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
+            <SelectMenu
+              value={form.client_id}
+              onChange={(v) => set('client_id', v)}
+              options={clientOptions}
+              placeholder={t('common.none')}
+              ariaLabel={t('common.client')}
+              searchable
+              searchPlaceholder={t('common.client')}
+            />
           </div>
           <div className="m-field">
             <label className="m-label">{t('common.project')}</label>
-            <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-              <option value="">{t('common.none')}</option>
-              {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
+            <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
           </div>
+        </>
+      )}
+
+      {adHoc && (
+        <div className="m-field m-recipient">
+          <p className="m-hint">{t('tx.recipientHint')}</p>
+          <input
+            className="m-input"
+            value={recipient.name}
+            onChange={(e) => setRcp('name', e.target.value)}
+            placeholder={t('tx.recipientNamePlaceholder')}
+          />
+          <div className="m-row2">
+            <input className="m-input" type="email" value={recipient.email} onChange={(e) => setRcp('email', e.target.value)} placeholder={t('tx.recipientEmailPlaceholder')} />
+            <input className="m-input" value={recipient.phone} onChange={(e) => setRcp('phone', e.target.value)} placeholder={t('tx.recipientPhonePlaceholder')} />
+          </div>
+          <input className="m-input" value={recipient.tax_id} onChange={(e) => setRcp('tax_id', e.target.value)} placeholder={t('tx.recipientTaxIdPlaceholder')} />
         </div>
       )}
 
@@ -218,18 +287,13 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
               </button>
             </div>
           ) : (
-            <select
-              className="m-select"
+            <SelectMenu
               value={form.category_id}
-              onChange={(e) => {
-                if (e.target.value === '__new__') { setCreatingCat(true); return }
-                set('category_id', e.target.value)
-              }}
-            >
-              <option value="">{t('common.noCategory')}</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              {onCreateCategory && <option value="__new__">{t('tx.newCatOption')}</option>}
-            </select>
+              onChange={(v) => { if (v === '__new__') { setCreatingCat(true); return } set('category_id', v) }}
+              options={categoryOptions}
+              placeholder={t('common.noCategory')}
+              ariaLabel={t('common.category')}
+            />
           )}
         </div>
       )}
@@ -260,9 +324,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                     form.payment_method ? (
                       <p className="m-hint">{t('tx.receiptUsesMethod', { method: payMethodLabel(form.payment_method) })}</p>
                     ) : (
-                      <select className="m-select" value={issuePayment} onChange={(e) => setIssuePayment(e.target.value)} aria-label={t('tx.paymentMethodAria')}>
-                        {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
-                      </select>
+                      <SelectMenu value={issuePayment} onChange={setIssuePayment} options={PAY_METHODS.map((m) => ({ value: m.key, label: payMethodLabel(m.key) }))} ariaLabel={t('tx.paymentMethodAria')} />
                     )
                   )}
                 </div>

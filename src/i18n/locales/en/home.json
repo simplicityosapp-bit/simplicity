@@ -25,7 +25,8 @@
       "meetingsModalTitle": "Meetings to confirm",
       "bookings_one": "New booking to confirm",
       "bookings_other": "{{count}} new bookings to confirm",
-      "bookingsModalTitle": "Bookings to confirm"
+      "bookingsModalTitle": "Bookings to confirm",
+      "reachOut": "Quick reach-out"
     },
     "chips": {
       "tasks": "Tasks",
@@ -41,7 +42,11 @@
       "clients": "Clients",
       "clientsInfoLabel": "About clients",
       "clientsInfoText_pre": "Tap",
-      "clientsInfoText_post": " the card to filter by status, project and group. Default: active + mid."
+      "clientsInfoText_post": " the card to filter by status, project and group. Default: active + mid.",
+      "meetings": "Agenda",
+      "meetingsInfoLabel": "About the agenda",
+      "meetingsInfoText_pre": "Tap",
+      "meetingsInfoText_post": " the card to see today's meetings, calendar events, and lead follow-ups — and control what's included."
     },
     "insights": {
       "expand": "Open \"How are you today\"",
@@ -118,6 +123,11 @@
       "txNotPaid": "Not paid",
       "txDelete": "Delete transaction",
       "empty": "No meetings awaiting approval."
+    },
+    "bookingConfirm": {
+      "empty": "No bookings awaiting approval.",
+      "approve": "Approve",
+      "reject": "Reject"
     }
   }
 }

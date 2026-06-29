@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
+import { useGroups } from '../../hooks/useGroups'
+import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useRecurring } from '../../hooks/useRecurring'
 import { useRecurringGeneration } from '../../hooks/useRecurringGeneration'
 import { useCategories } from '../../hooks/useCategories'
@@ -31,8 +33,10 @@ const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1)
 export default function FinanceScreen() {
   const { t } = useT('finance')
   const { transactions, loading, error, addTransaction, editTransaction, setStatus, removeTransaction, refetch } = useTransactions()
-  const { clients } = useClients()
+  const { clients, addClient } = useClients()
   const { projects } = useProjects()
+  const { groups } = useGroups()
+  const { members } = useGroupMembers()
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
   const { categories, addCategory, removeCategory } = useCategories()
   const { meetings: scheduledMeetings, loading: scheduledMeetingsLoading } = useScheduledMeetings()
@@ -215,6 +219,8 @@ export default function FinanceScreen() {
         clients={clients}
         projects={projects}
         categories={categories}
+        members={members}
+        groups={groups}
         onCreateCategory={(name) => addCategory({ name, color: CATEGORY_COLORS[categories.length % CATEGORY_COLORS.length] })}
         onSave={async (tx) => {
           const row = await addTransaction(tx)
@@ -233,6 +239,16 @@ export default function FinanceScreen() {
         onSave={editTransaction}
         onIssued={refetch}
         onDelete={removeTransaction}
+        onSaveAsClient={async (tx) => {
+          /* Promote an ad-hoc receipt recipient into a real ACTIVE client, then
+             link the transaction to it. status + status_meta are NOT NULL on
+             clients (no DB default), and a freshly-saved client should be active
+             like one added via the normal form — so both are set explicitly.
+             (tax id isn't a client field — name/email/phone only.) */
+          const c = await addClient({ name: tx.recipient_name, email: tx.recipient_email || null, phone: tx.recipient_phone || null, status: 'active', status_meta: 'active' })
+          if (c?.id) await editTransaction(tx.id, { client_id: c.id })
+          refetch()
+        }}
       />
 
       <RecurringModal

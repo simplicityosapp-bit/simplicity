@@ -41,6 +41,8 @@ export const CSV_FIELDS = [
   { key: 'price',     label: 'מחיר לפגישה',     step: 'clients'  },
   { key: 'email',     label: 'מייל',            step: null       },
   { key: 'phone',     label: 'טלפון',           step: null       },
+  { key: 'address',   label: 'כתובת',           step: null       },
+  { key: 'birth_date', label: 'תאריך לידה',      step: null       },
   { key: 'status',    label: 'סטטוס',           step: null       },
   { key: 'amount',    label: 'סכום (תנועה)',    step: null       },
   { key: 'date',      label: 'תאריך (תנועה)',   step: null       },
@@ -98,6 +100,14 @@ const HEADER_SYNONYMS = {
   email:      ['email', 'mail', 'emailaddress', 'e-mail', 'אימייל', 'מייל', 'דוארא', 'דואראלקטרוני', 'דואל', 'דוארל', 'כתובתמייל', 'כתובתאימייל', 'אימל', 'דואראלקטרוני'],
   phone:      ['phone', 'mobile', 'tel', 'telephone', 'phonenumber', 'cell', 'cellphone', 'whatsapp', 'וואטסאפ', 'ווצאפ', 'ואטסאפ', 'וואצאפ', 'ווטסאפ', 'וואטס',
     'טלפון', 'טל', 'נייד', 'סלולרי', 'סלולארי', 'מספרטלפון', 'מספרנייד', 'מסטלפון', 'מסנייד', 'טלנייד', 'פלאפון', 'פלפון'],
+  /* 'כתובתמייל'/'כתובתאימייל' deliberately stay under `email` above — they
+     win at exact-match before any partial 'כתובת' root is consulted. */
+  address:    ['address', 'addr', 'location', 'streetaddress', 'homeaddress', 'mailingaddress',
+    'כתובת', 'כתובתמלאה', 'כתובתמגורים', 'כתובתלמשלוח', 'מען', 'עיר', 'רחוב', 'ישוב', 'יישוב'],
+  /* birth_date wins at exact-match over the transaction 'date' field — a header
+     "תאריך לידה"→"תאריךלידה" matches here exactly, before any partial 'תאריך' root. */
+  birth_date: ['birthdate', 'dob', 'dateofbirth', 'birthday',
+    'תאריךלידה', 'תאלידה', 'יוםהולדת', 'יוםהולדה', 'לידה'],
   project:    ['project', 'projectname', 'program', 'service', 'package', 'פרויקט', 'פרוייקט', 'תוכנית', 'תכנית', 'מסלול', 'שירות', 'חבילה', 'תכנית ליווי'],
   status:     ['status', 'state', 'stage', 'סטטוס', 'סטאטוס', 'מצב', 'שלב', 'מצבלקוח', 'סטטוסלקוח'],
   sessions:   ['sessions', 'session', 'totalsessions', 'meetings', 'numsessions', 'numberofsessions',
@@ -138,8 +148,14 @@ const PARTIAL_ROOTS = [
   ['פרוייקט', 'project'], ['פרויקט', 'project'], ['תוכנית', 'project'], ['תכנית', 'project'], ['מסלול', 'project'],
   ['קטגורי', 'category'], ['סעיף', 'category'], ['סיווג', 'category'],
   ['אימייל', 'email'], ['דואל', 'email'], ['דואר', 'email'], ['מייל', 'email'],
+  /* AFTER the email roots on purpose: "כתובת מייל"/"כתובת אימייל" hit the
+     email root first and win; a bare "כתובת"/"כתובת מגורים" falls to address. */
+  ['כתובת', 'address'], ['מען', 'address'],
   ['פלאפון', 'phone'], ['סלולר', 'phone'], ['וואטסאפ', 'phone'], ['whatsapp', 'phone'], ['טלפון', 'phone'], ['נייד', 'phone'],
   ['מחיר', 'price'], ['תעריף', 'price'], ['עלות', 'price'],
+  /* BEFORE the date roots: "תאריך לידה"/"יום הולדת" must map to birth_date, not
+     the transaction date. A bare "תאריך"/"מועד" still falls through to date. */
+  ['לידה', 'birth_date'], ['הולדת', 'birth_date'], ['birthday', 'birth_date'], ['birth', 'birth_date'],
   ['תאריך', 'date'], ['מועד', 'date'],
   /* 'תקבול'/'הכנסה' are unambiguously income; 'תשלום' is NOT a partial
      root on purpose — "לתשלום"/"סה״כ לתשלום"/"יתרה לתשלום" are totals &
@@ -325,6 +341,8 @@ export function projectEntities(headers, rows, mapping) {
         name: obj.name,
         email: obj.email || null,
         phone: obj.phone || null,
+        address: obj.address || null,
+        birth_date: obj.birth_date ? normalizeDate(obj.birth_date) : null,
         project_name: obj.project || null,
         status_meta,
         sessions: Math.abs(Math.trunc(toNum(obj.sessions))) || 0,

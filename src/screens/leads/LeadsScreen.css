@@ -395,6 +395,24 @@
   align-items: center;
   gap: 6px;
 }
+/* "שחרר כאן" — drop a status chip here to move it into this meta group (25/06). */
+.lead-statuses-add.drop-target {
+  outline: 2px dashed color-mix(in srgb, var(--sage) 60%, transparent);
+  outline-offset: 3px;
+  border-radius: var(--mg-chip-radius);
+}
+/* Mid-drag the create row swaps its input for this "drop here" prompt. */
+.lead-statuses-drop-hint {
+  flex: 1;
+  text-align: center;
+  padding: 12px 8px;
+  border: 1px dashed var(--divider);
+  border-radius: var(--mg-chip-radius);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 600;
+  color: var(--sage);
+}
 .lead-statuses-add .m-input {
   flex: 1;
   font-size: calc(12px * var(--text-scale));
@@ -548,7 +566,7 @@
   margin-bottom: 8px;
   padding: 2px 9px;
   border-radius: 10px;
-  background: rgba(122, 92, 184, 0.1);
+  background: var(--purple-faint);
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   font-weight: 500;
@@ -634,6 +652,35 @@
   border-color: color-mix(in srgb, var(--sage) 40%, transparent);
 }
 
+/* Card footer — holds the convert chip / converted badge alongside the
+   direct WhatsApp action so neither overlaps the corner delete X. */
+.lead-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+.lead-card-foot .lead-convert-btn { flex: 1; justify-content: center; margin-top: 0; }
+.lead-card-foot .lead-converted { margin-top: 0; }
+.lead-wa-btn {
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  color: var(--sage);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.lead-wa-btn:hover {
+  background: color-mix(in srgb, var(--sage) 16%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+}
+
 /* ── Pending leads (public-page submissions awaiting approval) ─────────── */
 .l-pending {
   margin-bottom: 20px;
@@ -650,7 +697,7 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
-  color: var(--ink);
+  color: var(--espresso);
 }
 .l-pending-title { font-size: 15px; font-weight: 600; }
 .l-pending-count {
@@ -662,7 +709,7 @@
   padding: 2px 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--terracotta) 20%, transparent);
-  color: var(--ink);
+  color: var(--espresso);
 }
 .l-pending-list { display: flex; flex-direction: column; gap: 10px; }
 .l-pending-card {
@@ -681,14 +728,14 @@
 .l-pending-fields { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0; }
 .l-pending-field { display: flex; gap: 6px; align-items: baseline; }
 .l-pending-field dt { font-size: 12px; color: var(--stone); margin: 0; flex: none; }
-.l-pending-field dd { font-size: 14px; color: var(--ink); margin: 0; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.l-pending-field dd { font-size: 14px; color: var(--espresso); margin: 0; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .l-pending-actions { display: flex; align-items: center; gap: 8px; flex: none; }
 .l-pending-approve {
   display: inline-flex; align-items: center; gap: 5px;
   font: inherit; font-size: 14px; font-weight: 500;
   padding: 8px 16px; border-radius: 10px; border: none;
   background: color-mix(in srgb, var(--sage) 26%, transparent);
-  color: var(--ink); cursor: pointer;
+  color: var(--espresso); cursor: pointer;
 }
 .l-pending-approve:hover { background: color-mix(in srgb, var(--sage) 38%, transparent); }
 .l-pending-reject {
@@ -699,3 +746,13 @@
   color: var(--stone); cursor: pointer;
 }
 .l-pending-reject:hover { color: var(--terracotta); border-color: color-mix(in srgb, var(--terracotta) 40%, transparent); }
+/* WhatsApp the hot lead before approving — same footprint as reject, sage tint. */
+.l-pending-wa {
+  display: inline-grid;
+  place-items: center;
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--sage) 40%, transparent);
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
+  color: var(--sage); cursor: pointer;
+}
+.l-pending-wa:hover { background: color-mix(in srgb, var(--sage) 22%, transparent); }

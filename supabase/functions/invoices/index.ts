@@ -223,13 +223,23 @@ Deno.serve(async (req) => {
       if (!tx) return json({ error: 'transaction_not_found' }, 404)
       if (tx.type !== 'income') return json({ error: 'not_income' }, 400)
       if (tx.invoice_document_id) return json({ error: 'already_issued' }, 409)
-      if (!tx.client_id) return json({ error: 'no_client' }, 400)
       const amount = Number(tx.amount)
       if (!Number.isFinite(amount) || amount <= 0) return json({ error: 'bad_amount' }, 400)
 
-      const { data: client } = await admin.from('clients')
-        .select('name, email, phone').eq('id', tx.client_id).eq('user_id', userId).maybeSingle()
-      if (!client?.name) return json({ error: 'no_client' }, 400)
+      // Recipient: a linked client, OR an ad-hoc recipient stored on the tx
+      // (issue a receipt for someone who isn't a client — beta 25/06). One of
+      // the two must carry a name, else there's no one to bill.
+      let customer: { name: string; email: string | null; phone: string | null; taxId: string | null }
+      if (tx.client_id) {
+        const { data: client } = await admin.from('clients')
+          .select('name, email, phone').eq('id', tx.client_id).eq('user_id', userId).maybeSingle()
+        if (!client?.name) return json({ error: 'no_client' }, 400)
+        customer = { name: client.name, email: client.email, phone: client.phone, taxId: null }
+      } else if (tx.recipient_name) {
+        customer = { name: tx.recipient_name, email: tx.recipient_email ?? null, phone: tx.recipient_phone ?? null, taxId: tx.recipient_tax_id ?? null }
+      } else {
+        return json({ error: 'no_client' }, 400)
+      }
 
       // Atomic claim — sets invoice_synced_at as an in-flight marker ONLY if the
       // tx isn't already issued/issuing. Blocks a concurrent double-issue of a
@@ -249,13 +259,13 @@ Deno.serve(async (req) => {
           {
             docType: doc_type as any,
             amount,
-            description: tx.desc || `תשלום — ${client.name}`,
-            itemName: (body.item_name ?? '').toString().trim() || tx.desc || `תשלום — ${client.name}`,
+            description: tx.desc || `תשלום — ${customer.name}`,
+            itemName: (body.item_name ?? '').toString().trim() || tx.desc || `תשלום — ${customer.name}`,
             itemId: body.item_id ? String(body.item_id) : null,
             // 'cheque' intentionally excluded (removed from the UI; GI hard-requires
             // cheque/bank details we don't collect) — a stray value degrades to 'other'.
             paymentMethod: ['cash', 'bank_transfer', 'credit_card', 'app', 'other'].includes(body.payment_method) ? body.payment_method : 'other',
-            customer: { name: client.name, email: client.email, phone: client.phone },
+            customer,
             send: true, // auto-send; the provider only acts if the customer has contact info
             businessType: integ.business_type ?? null, // licensed → price is VAT-inclusive
           },
@@ -307,8 +317,16 @@ Deno.serve(async (req) => {
         .select('id').maybeSingle()
       if (!claimed) return json({ error: 'already_credited' }, 409)
 
-      const { data: client } = await admin.from('clients')
-        .select('name, email, phone').eq('id', tx.client_id).eq('user_id', userId).maybeSingle()
+      let client = null
+      if (tx.client_id) {
+        const { data } = await admin.from('clients')
+          .select('name, email, phone').eq('id', tx.client_id).eq('user_id', userId).maybeSingle()
+        client = data
+      }
+      // Mirror the issued doc's recipient — a client, or the ad-hoc recipient on the tx.
+      const creditCustomer = client?.name
+        ? { name: client.name, email: client.email, phone: client.phone, taxId: null }
+        : { name: tx.recipient_name ?? '', email: tx.recipient_email ?? null, phone: tx.recipient_phone ?? null, taxId: tx.recipient_tax_id ?? null }
 
       let result
       try {
@@ -319,8 +337,8 @@ Deno.serve(async (req) => {
             docType: tx.invoice_document_type ?? 'invoice_receipt',
             amount: Number(tx.amount),
             description: tx.desc || '',
-            itemName: tx.desc || `זיכוי — ${client?.name ?? ''}`.trim(),
-            customer: { name: client?.name ?? '', email: client?.email ?? null, phone: client?.phone ?? null },
+            itemName: tx.desc || `זיכוי — ${creditCustomer.name}`.trim(),
+            customer: creditCustomer,
             reason: (body.reason ?? '').toString().trim() || 'ביטול / זיכוי',
             businessType: integ.business_type ?? null, // mirror the issued doc's VAT treatment
           },

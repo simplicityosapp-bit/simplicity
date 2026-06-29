@@ -3,8 +3,13 @@ import DateField from '../components/DateField'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
 
-const todayStr = () => new Date().toISOString().slice(0, 10)
-const blank = (clientId = '') => ({ client_id: clientId, date: todayStr(), time: '09:00' })
+/* Local YYYY-MM-DD — UTC toISOString would roll over to "tomorrow" on an
+   Israeli evening, defaulting the date field to the wrong day. */
+const todayStr = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+const blank = (clientId = '', date, time) => ({ client_id: clientId, date: date || todayStr(), time: time || '09:00' })
 const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
 /* Schedule a future client meeting. If `client` is given the client is locked
@@ -16,16 +21,19 @@ const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמיש�
    existing scheduled-meetings engine fans the series across its rolling window
    — perpetual until changed or cleared in the client editor. Replacing an
    existing slot asks once before overwriting. */
-export default function ScheduleMeetingModal({ open, onClose, onSave, client, clients = [], onSetRecurringSlot }) {
+export default function ScheduleMeetingModal({ open, onClose, onSave, client, clients = [], onSetRecurringSlot, initialDate, initialTime }) {
   const { t } = useT('modalsTask')
-  const [form, setForm] = useState(() => blank(client?.id || ''))
+  /* initialDate/initialTime prefill the form when opened from a tapped
+     calendar slot (the parent remounts via `key` so this initializer
+     re-runs per slot). Falls back to today/09:00 for the + flow. */
+  const [form, setForm] = useState(() => blank(client?.id || '', initialDate, initialTime))
   const [recurring, setRecurring] = useState(false)
   const [confirmReplace, setConfirmReplace] = useState(false)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => {
-    setForm(blank(client?.id || ''))
+    setForm(blank(client?.id || '', initialDate, initialTime))
     setRecurring(false)
     setConfirmReplace(false)
     setErr('')

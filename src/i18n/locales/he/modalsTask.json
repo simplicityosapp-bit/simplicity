@@ -192,6 +192,8 @@
     "bookingPhone": "טלפון",
     "bookingEmail": "אימייל",
     "bookingNote": "הערה: {{note}}",
+    "cancelBooking": "ביטול תור",
+    "cancelBookingConfirm": "לבטל את התור?",
     "edit": "עריכה",
     "delete": "מחיקה",
     "deleteConfirm": "בטוח? מחק",

@@ -14,6 +14,9 @@
     "phonePlaceholder": "050-0000000",
     "email": "Correo",
     "emailPlaceholder": "nombre@ejemplo.com",
+    "address": "Dirección",
+    "addressPlaceholder": "Calle, ciudad",
+    "birthDate": "Fecha de nacimiento",
     "project": "Proyecto",
     "projectOptional": "Proyecto (opcional)",
     "groupOptional": "Grupo (opcional)",
@@ -72,7 +75,17 @@
     "clearFixed": "Borrar cita fija",
     "noGroup": "Sin grupo",
     "meetingType": "Tipo de cita",
-    "manageMeetingTypes": "Gestionar tipos"
+    "manageMeetingTypes": "Gestionar tipos",
+    "secDetails": "Detalles",
+    "secMoreDetails": "Más detalles",
+    "secScheduling": "Sesiones y horario",
+    "secBilling": "Cobros y pagos",
+    "secGroups": "Grupos",
+    "fPersonal": "Individual",
+    "fGroups": "Grupos",
+    "fDiscount": "Condonado",
+    "confirmBalanceTitle": "Actualizar saldo",
+    "confirmBalanceMsg": "El saldo cambió a {{balance}}. ¿Guardar?"
   },
   "meetingTypes": {
     "title": "Tipos de cita",

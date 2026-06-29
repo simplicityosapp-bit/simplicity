@@ -8,6 +8,7 @@
   "close": "Cerrar",
   "drawerSubtitle": "Menú · preferencias y herramientas personales",
   "extras": {
+    "sitePages": "Páginas públicas",
     "leadPages": "Páginas de prospectos",
     "bookingPages": "Páginas de reservas",
     "moon": "Resumen",
@@ -49,6 +50,7 @@
     "reportsSub": "Métricas a lo largo de los periodos",
     "feedbackSub": "Qué funciona, qué falta y qué se puede mejorar",
     "trashSub": "Restaura elementos eliminados · 30 días",
+    "sitePagesSub": "Crea páginas, formularios y reservas — un sistema",
     "leadPagesSub": "Formularios públicos de captación de prospectos",
     "bookingPagesSub": "Página pública de reserva de citas, sincronizada con tu calendario"
   },

@@ -44,7 +44,16 @@
     "saved": "התנועה נשמרה",
     "savedAndIssued": "התנועה נשמרה והופקה {{doc}}{{num}}",
     "numPrefix": " מס׳ {{num}}",
-    "issueFailed": "התנועה נשמרה, אך ההפקה נכשלה — אפשר להפיק מהעריכה"
+    "issueFailed": "התנועה נשמרה, אך ההפקה נכשלה — אפשר להפיק מהעריכה",
+    "recipientAdHoc": "לקוח חדש",
+    "recipientHint": "מלא/י פרטים להפקת קבלה — אפשר לשמור כלקוח בהמשך.",
+    "recipientNamePlaceholder": "שם הנמען",
+    "recipientEmailPlaceholder": "אימייל (לשליחת הקבלה)",
+    "recipientPhonePlaceholder": "טלפון",
+    "recipientTaxIdPlaceholder": "ת.ז / ח.פ",
+    "recipientNameRequired": "יש להזין שם נמען.",
+    "recipientSectionLabel": "לקוח חדש",
+    "saveAsClient": "שמור כלקוח"
   },
   "editTx": {
     "title": "עריכת תנועה",

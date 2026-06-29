@@ -87,12 +87,16 @@ export const clients = [
   // 3 — ללא סטטוס (פנייה טרייה)
   { id: uid(), user_id: USER, name: 'דניאל רגב', status: 'no_status', status_id: client_statuses[3].id, status_meta: 'no_status', project_id: null, group_id: null, sessions: 0, price_per_session: 0, total_override: null, has_custom_price: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '050-1239876', notes: null, notes_updated_at: null, created_at: daysAgo(10) },
   // 4 — חבר קבוצה (מעגל בוקר)
-  { id: uid(), user_id: USER, name: 'נופר אדמון', status: 'active', status_id: client_statuses[0].id, status_meta: 'active', project_id: projects[1].id, group_id: groups[0].id, sessions: 8, price_per_session: 0, total_override: 1600, has_custom_price: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '052-3334455', notes: null, notes_updated_at: null, created_at: daysAgo(90) },
+  { id: uid(), user_id: USER, name: 'נופר אדמון', status: 'active', status_id: client_statuses[0].id, status_meta: 'active', status_overridden: false, project_id: projects[1].id, group_id: groups[0].id, sessions: 8, price_per_session: 0, total_override: 1600, has_custom_price: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '052-3334455', notes: null, notes_updated_at: null, created_at: daysAgo(90) },
+  // 5 — הייתה בקבוצה שהסתיימה (סדנת חורף) ועברה לתהליך אישי; הסטטוס נדרס ידנית ל'פעיל' (הקבוצה הייתה נותנת 'לשעבר'), והנתונים מהקבוצה נשמרים
+  { id: uid(), user_id: USER, name: 'שירה כהן', status: 'active', status_id: client_statuses[0].id, status_meta: 'active', status_overridden: true, project_id: projects[1].id, group_id: groups[1].id, sessions: 4, price_per_session: 380, total_override: null, has_custom_price: false, meeting_type_id: meeting_types[0].id, price_overridden: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '053-2223344', notes: 'סיימה את סדנת החורף, ממשיכה בתהליך אישי.', notes_updated_at: daysAgo(8), created_at: daysAgo(200) },
 ]
 
 /* ── group_members (נוסף — D20, חברות של נופר במעגל בוקר) ── */
 export const group_members = [
   { id: uid(), user_id: USER, group_id: groups[0].id, client_id: clients[4].id, joined_at: daysAgo(90), left_at: null, total_override: 1600, has_custom_price: false, package_sessions_override: 8, left_mid_process: false, created_at: daysAgo(90), updated_at: daysAgo(90), deleted_at: null },
+  // שירה — חברה בקבוצה שהסתיימה (סדנת חורף); נשארת חברה כדי שהנתונים יישמרו, אך הסטטוס נדרס ידנית
+  { id: uid(), user_id: USER, group_id: groups[1].id, client_id: clients[5].id, joined_at: daysAgo(200), left_at: null, total_override: null, has_custom_price: false, package_sessions_override: null, left_mid_process: false, created_at: daysAgo(200), updated_at: daysAgo(60), deleted_at: null },
 ]
 
 /* ── recurring_templates — תבנית חודשית פעילה ── */
@@ -268,9 +272,59 @@ export const payment_installments = [1, 2, 3, 4, 5, 6].map((n) => ({
   updated_at: daysAgo(5),
 }))
 
+/* Page-builder demo (kind='landing') so /pages renders end-to-end in preview. */
+const site_pages = [{
+  id: 'sp-demo-1',
+  user_id: 'mock-user-001',
+  kind: 'landing',
+  title: 'דף לדוגמה',
+  published: true,
+  slug: 'demo',
+  theme: { font: 'heebo', brandColor: '#C97B5E', textColor: 'dark', textAlign: 'start', bold: false, background: { type: 'scene', value: 'clients' }, cardOpacity: 92, cardBlur: 14, cardRadius: 24 },
+  sections: [
+    { id: 's_1', type: 'hero', props: { eyebrow: 'אימון אישי', heading: 'הצעד הראשון לשינוי', subheading: 'מרחב בטוח לצמיחה אישית', ctaLabel: 'לשיחת היכרות', ctaAction: { type: 'scrollToForm', url: '' } }, style: {} },
+    { id: 's_2', type: 'iconText', props: { items: [{ icon: 'Compass', title: 'כיוון ברור', body: 'נמצא יחד את היעד' }, { icon: 'Heart', title: 'יחס אישי', body: 'תהליך מותאם לך' }, { icon: 'Target', title: 'תוצאות', body: 'צעדים מעשיים' }, { icon: 'Sun', title: 'אנרגיה', body: 'מוטיבציה מתחדשת' }] }, style: {} },
+    { id: 's_3', type: 'form', props: { heading: 'השאירו פרטים', submitLabel: 'שליחה', fields: [{ key: 'name', label: 'שם', type: 'text', required: true, builtin: true }, { key: 'phone', label: 'טלפון', type: 'tel', required: false, builtin: true }] }, style: {} },
+    { id: 's_4', type: 'booking', props: { heading: 'קביעת פגישה', subheading: 'בחרו מועד שנוח לכם', bookingSlug: 'demo-book' }, style: {} },
+  ],
+  config: {},
+  created_at: new Date().toISOString(),
+}, {
+  // Simulates a migrated lead page (kind='lead') so /lead/<slug> renders on
+  // the engine in preview (phase 2 read-path switch).
+  id: 'sp-lead-1',
+  user_id: 'mock-user-001',
+  kind: 'lead',
+  title: 'השארת פרטים לדוגמה',
+  published: true,
+  slug: 'demo-lead',
+  theme: { font: 'heebo', brandColor: '#8BA888', textColor: 'dark', textAlign: 'start', bold: false, background: { type: 'scene', value: 'leads' }, cardOpacity: 96, cardBlur: 14, cardRadius: 24 },
+  sections: [
+    { id: 's_1', type: 'hero', props: { eyebrow: 'דנה קואצ׳', heading: 'בואו נדבר', subheading: 'השאירו פרטים ואחזור אליכם.', ctaLabel: '', ctaAction: { type: 'scrollToForm', url: '' } }, style: {} },
+    { id: 's_2', type: 'form', props: { heading: '', submitLabel: 'שליחה', fields: [{ key: 'name', label: 'שם', type: 'text', required: true, builtin: true }, { key: 'phone', label: 'טלפון', type: 'tel', required: false, builtin: true }, { key: 'email', label: 'אימייל', type: 'email', required: false, builtin: true }] }, style: {} },
+  ],
+  config: { autoApprove: false, thankYou: { mode: 'message', message: 'תודה! קיבלנו את הפנייה.', url: '' } },
+  created_at: new Date().toISOString(),
+}]
+
+/* A published booking page so the page-builder's inline booking block has a
+   real target in preview (the booking-intake mock serves its config + slots). */
+const booking_pages = [{
+  id: 'bp-demo-1',
+  user_id: 'mock-user-001',
+  slug: 'demo-book',
+  title: 'פגישת היכרות',
+  published: true,
+  deleted_at: null,
+  content: { heading: 'קביעת פגישה', thankYou: { mode: 'message', message: 'נתראה! נשלח אישור במייל.' } },
+  created_at: new Date().toISOString(),
+}]
+
 export const MOCK_DB = {
+  booking_pages,
   pending_invoice_imports,
   lead_pages,
+  site_pages,
   projects,
   groups,
   group_members,

@@ -2,15 +2,21 @@ import { memo } from 'react'
 import { Clock, Check, CalendarDays, ArrowLeft, X } from 'lucide-react'
 import { statusMetaOfLead } from '../../lib/leads'
 import { fmtShortDate } from '../../lib/dates'
+import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
+import WhatsAppButton from '../../components/WhatsAppButton'
 import { useT } from '../../i18n/useT'
 
 function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = [], dragProps = null, dragging = false }) {
   const { t } = useT('leads')
+  const waMsg = useWhatsAppMessage()
   const meta = statusMetaOfLead(lead)
   const source = lead.source_id ? sources.find((s) => s.id === lead.source_id) : null
   const sub = lead.status_id ? statuses.find((s) => s.id === lead.status_id) : null
-  const today = new Date().toISOString().slice(0, 10)
-  const overdue = lead.follow_up_date && lead.follow_up_date <= today && meta === 'in_process'
+  // Local date (mirror LeadsScreen.dueFollowups) — UTC toISOString would flip the
+  // overdue highlight near midnight and disagree with the follow-ups banner/list.
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const overdue = lead.follow_up_date && String(lead.follow_up_date).slice(0, 10) <= today && meta === 'in_process'
   const isConverted = meta === 'converted' && lead.converted_to_client_id
 
   return (
@@ -62,21 +68,29 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
         </div>
       )}
 
-      {isConverted && (
-        <div className="lead-converted">
-          <Check size={12} strokeWidth={2} aria-hidden="true" /> {t('card.converted')}
-        </div>
-      )}
-
-      {!isConverted && onConvert && (
-        <button
-          type="button"
-          className="lead-convert-btn"
-          onClick={(e) => { e.stopPropagation(); onConvert(lead) }}
-        >
-          <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" /> {t('card.convert')}
-        </button>
-      )}
+      <div className="lead-card-foot">
+        {isConverted && (
+          <div className="lead-converted">
+            <Check size={12} strokeWidth={2} aria-hidden="true" /> {t('card.converted')}
+          </div>
+        )}
+        {!isConverted && onConvert && (
+          <button
+            type="button"
+            className="lead-convert-btn"
+            onClick={(e) => { e.stopPropagation(); onConvert(lead) }}
+          >
+            <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" /> {t('card.convert')}
+          </button>
+        )}
+        {/* Direct WhatsApp on EVERY lead. With no phone, wa.me opens WhatsApp's
+           own contact picker. Stops propagation so it won't open edit/drag. */}
+        <WhatsAppButton
+          phone={lead.phone || ''}
+          message={waMsg('lead', { name: lead.name })}
+          triggerClassName="lead-wa-btn"
+        />
+      </div>
     </div>
   )
 }

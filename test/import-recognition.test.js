@@ -34,6 +34,8 @@ describe('flat header synonyms', () => {
     'סטטוס': 'status', 'מצב': 'status', 'סטאטוס': 'status', 'שלב': 'status',
     'קטגוריה': 'category', 'קטגוריית הוצאה': 'category', 'סוג הוצאה': 'category',
     'הערות': 'notes', 'תיאור': 'notes', 'פירוט': 'notes',
+    'כתובת': 'address', 'כתובת מגורים': 'address', 'מען': 'address', 'Address': 'address',
+    'תאריך לידה': 'birth_date', 'יום הולדת': 'birth_date', 'Date of Birth': 'birth_date', 'DOB': 'birth_date',
   }
   for (const [h, want] of Object.entries(cases)) {
     it(`"${h}" → ${want}`, () => expect(flatField(h)).toBe(want))

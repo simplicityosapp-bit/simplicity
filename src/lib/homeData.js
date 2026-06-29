@@ -72,6 +72,7 @@ const DEFAULT_TILE_FILTERS = {
   clients: { statuses: ['active', 'wandering'], projectIds: [], groupIds: [] },
   net:     { timeRange: 'thisMonth', type: 'both', projectIds: [], groupIds: [], categoryIds: [] },
   tasks:   { status: 'open', priorities: [], projectIds: [], clientScope: 'all' },
+  today:   { kinds: ['meeting', 'calendar', 'followup'] },
 }
 
 export function getTileFilters(prefs) {
@@ -80,7 +81,66 @@ export function getTileFilters(prefs) {
     clients: { ...DEFAULT_TILE_FILTERS.clients, ...(fromPrefs.clients || {}) },
     net:     { ...DEFAULT_TILE_FILTERS.net,     ...(fromPrefs.net     || {}) },
     tasks:   { ...DEFAULT_TILE_FILTERS.tasks,   ...(fromPrefs.tasks   || {}) },
+    today:   { ...DEFAULT_TILE_FILTERS.today,   ...(fromPrefs.today   || {}) },
   }
+}
+
+/* ── Today's agenda (home "פגישות היום" chip + drill panel) ─────────
+   Merge the day's scheduled meetings, synced Google events, and lead
+   follow-ups into ONE time-sorted list. `filter.kinds` controls which
+   sources are included — it drives both the chip number and the panel
+   list. Pure + no mock fallback: a cold load reads empty, never
+   fabricated rows. Returns normalized items: { id, kind, when, title,
+   phone?, subjectType?, subjectId?, leadId?, allDay?, meeting? }. */
+const TODAY_KINDS = ['meeting', 'calendar', 'followup']
+export function todayItems(now = new Date(), data = {}, filter = {}) {
+  const { meetings = [], calendarEvents = [], leads = [], clients = [], groups = [] } = data
+  const kinds = filter.kinds && filter.kinds.length ? filter.kinds : TODAY_KINDS
+  const pad = (n) => String(n).padStart(2, '0')
+  const todayKey = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+  const sameDay = (val) => {
+    if (!val) return false
+    const dt = new Date(val)
+    return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}` === todayKey
+  }
+  const out = []
+
+  if (kinds.includes('meeting')) {
+    live(meetings)
+      .filter((mt) => mt.status !== 'skipped' && sameDay(mt.scheduled_at))
+      .forEach((mt) => {
+        const isGroup = mt.subject_type === 'group'
+        const subject = isGroup
+          ? (groups || []).find((g) => g.id === mt.subject_id)
+          : (clients || []).find((c) => c.id === mt.subject_id)
+        out.push({
+          id: `mtg-${mt.id}`, kind: 'meeting', when: mt.scheduled_at,
+          title: subject?.name || '', phone: isGroup ? '' : (subject?.phone || ''),
+          subjectType: mt.subject_type, subjectId: mt.subject_id, status: mt.status, meeting: mt,
+        })
+      })
+  }
+
+  if (kinds.includes('calendar')) {
+    ;(calendarEvents || [])
+      .filter((ev) => !ev.deleted_at && sameDay(ev.start_time))
+      .forEach((ev) => out.push({
+        id: `cal-${ev.id}`, kind: 'calendar', when: ev.start_time,
+        title: ev.title || ev.summary || '', allDay: !!ev.all_day,
+      }))
+  }
+
+  if (kinds.includes('followup')) {
+    live(leads)
+      .filter((l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) === todayKey)
+      .forEach((l) => out.push({
+        /* follow-ups carry no time — pin to 09:00, matching the calendar feed. */
+        id: `fu-${l.id}`, kind: 'followup', when: `${todayKey}T09:00:00`,
+        title: l.name || '', phone: l.phone || '', leadId: l.id,
+      }))
+  }
+
+  return out.sort((a, b) => new Date(a.when) - new Date(b.when))
 }
 
 function rangeFromKey(key, now) {
@@ -193,7 +253,7 @@ export function attentionItems(now = new Date(), data) {
   if (urgent) items.push({ icon: 'AlertCircle', text: `${urgent} משימות דחופות`, to: ROUTES.TASKS })
 
   const staleClients = clientsNeedingAttention(45, now, { clients, sessions })
-  if (staleClients.length) items.push({ icon: 'Clock', text: `${staleClients.length} לקוח${staleClients.length > 1 ? 'ות' : ''} לא יצרו קשר`, to: ROUTES.CLIENTS })
+  if (staleClients.length) items.push({ icon: 'Clock', text: `${staleClients.length} לקוח${staleClients.length > 1 ? 'ות' : ''} לא יצרו קשר`, to: ROUTES.CLIENTS, kind: 'people', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
 
   /* Leads from public lead-pages awaiting manual approval. Kept orthogonal:
      pending leads are excluded from the stale / follow-up rules below. */
@@ -202,7 +262,7 @@ export function attentionItems(now = new Date(), data) {
   if (pendingLeads.length) items.push({ icon: 'Bell', text: `${pendingLeads.length} ליד${pendingLeads.length > 1 ? 'ים' : ''} ממתינים לאישור`, to: ROUTES.LEADS, kind: 'pendingLeads' })
 
   const staleLeads = leadsNeedingAttention(45, now, officialLeads)
-  if (staleLeads.length) items.push({ icon: 'Clock', text: `${staleLeads.length} ליד${staleLeads.length > 1 ? 'ים' : ''} ללא תנועה`, to: ROUTES.LEADS })
+  if (staleLeads.length) items.push({ icon: 'Clock', text: `${staleLeads.length} ליד${staleLeads.length > 1 ? 'ים' : ''} ללא תנועה`, to: ROUTES.LEADS, kind: 'people', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
   /* Lead follow-ups due — date ≤ today AND still in_process (closed metas
      suppress, the follow-up is moot). follow_up_date is a 'YYYY-MM-DD' string
@@ -211,7 +271,7 @@ export function attentionItems(now = new Date(), data) {
   const dueFollowups = officialLeads.filter(
     (l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= todayYmd,
   )
-  if (dueFollowups.length) items.push({ icon: 'Bell', text: `${dueFollowups.length} פולואו-אפ${dueFollowups.length > 1 ? 'ים' : ''} להיום`, to: ROUTES.LEADS, kind: 'leadFollowups' })
+  if (dueFollowups.length) items.push({ icon: 'Bell', text: `${dueFollowups.length} פולואו-אפ${dueFollowups.length > 1 ? 'ים' : ''} להיום`, to: ROUTES.LEADS, kind: 'people', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
   return items
 }

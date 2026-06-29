@@ -324,20 +324,49 @@ export function makeMockClient() {
           if (a === 'create-payment-link') return { data: { ok: true, payment: { id: 'mock-pr-1', url: 'https://sandbox.meshulam.co.il/p/mock-payment-link' } }, error: null }
           return { data: { status: { connected: false } }, error: null } // status (not connected by default — connect/test flip it)
         }
-        // Public lead pages in preview: serve the mock page config (GET) and
-        // accept a submission (POST) so /lead/<id> renders end-to-end.
-        if (name.startsWith('lead-intake')) {
-          const pages = MOCK_DB.lead_pages || []
+        // Inline booking block in preview: serve a booking page config + sample
+        // future slots (GET) and accept a booking (POST) so the picker works.
+        if (name.startsWith('booking-intake')) {
+          const q = new URLSearchParams(name.split('?')[1] || '')
+          const method = opts?.method || 'POST'
+          const pages = MOCK_DB.booking_pages || []
           const match = (key) => pages.find((p) => p.published && (p.id === key || p.slug === key))
-          if ((opts?.method || 'POST') === 'GET') {
-            const q = name.split('?')[1] || ''
-            const pageId = new URLSearchParams(q).get('page')
-            const page = match(pageId)
+          if (method === 'GET' && q.get('action') === 'slots') {
+            const slots = []
+            const base = new Date(); base.setHours(0, 0, 0, 0)
+            for (let d = 1; d <= 3; d++) for (const h of [9, 10.5, 12]) {
+              const s = new Date(base); s.setDate(s.getDate() + d); s.setHours(Math.floor(h), (h % 1) * 60, 0, 0)
+              slots.push({ start: s.toISOString(), end: new Date(s.getTime() + 45 * 60000).toISOString() })
+            }
+            return { data: { slots, timezone: 'Asia/Jerusalem' }, error: null }
+          }
+          if (method === 'GET') {
+            const page = match(q.get('page'))
             if (!page) return { data: null, error: { message: 'not_found' } }
-            return { data: { id: page.id, content: page.content, fields: page.fields }, error: null }
+            return { data: { id: page.id, content: page.content, meetingTypes: [
+              { id: 't1', name: 'פגישת אונליין', duration_minutes: 45, default_price: 0 },
+              { id: 't2', name: 'פגישה פיזית', duration_minutes: 60, default_price: 250 },
+            ], availability: { timezone: 'Asia/Jerusalem', maxDaysAhead: 14 } }, error: null }
           }
           const page = match(opts?.body?.page)
-          return { data: { ok: true, thankYou: page?.content?.thankYou ?? null }, error: null }
+          return { data: { ok: true, thankYou: page?.content?.thankYou ?? { message: 'נתראה!' } }, error: null }
+        }
+        // Public builder pages in preview: serve the mock site_pages config (GET)
+        // and accept a form submission (POST) so /p/<id> renders end-to-end.
+        if (name.startsWith('site-intake')) {
+          const pages = MOCK_DB.site_pages || []
+          const match = (key, kind) => pages.find((p) => p.published && (p.id === key || p.slug === key) && (!kind || p.kind === kind))
+          if ((opts?.method || 'POST') === 'GET') {
+            const q = new URLSearchParams(name.split('?')[1] || '')
+            const page = match(q.get('page'), q.get('kind'))
+            if (!page) return { data: null, error: { message: 'not_found' } }
+            const v = page.published_snapshot || { theme: page.theme, sections: page.sections, config: page.config }
+            return { data: { id: page.id, kind: page.kind, theme: v.theme, sections: v.sections, config: { thankYou: v.config?.thankYou ?? null, seo: v.config?.seo ?? null } }, error: null }
+          }
+          const page = match(opts?.body?.page, opts?.body?.kind)
+          const pv = page && (page.published_snapshot || { sections: page.sections, config: page.config })
+          const section = (pv?.sections || []).find((s) => s.type === 'form')
+          return { data: { ok: true, thankYou: section?.props?.thankYou ?? pv?.config?.thankYou ?? null }, error: null }
         }
         return { data: { ok: true }, error: null }
       },

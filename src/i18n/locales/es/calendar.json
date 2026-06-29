@@ -25,8 +25,10 @@
   "nav": {
     "tablistAria": "Vista",
     "prevMonth": "Mes anterior",
+    "prevWeek": "Semana anterior",
     "prev": "Anterior",
     "nextMonth": "Mes siguiente",
+    "nextWeek": "Semana siguiente",
     "next": "Siguiente",
     "today": "Hoy"
   },
@@ -54,11 +56,62 @@
     "calendar": "Calendario"
   },
   "greg": {
-    "weekdaysShort": ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"],
-    "weekdaysLong": ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"],
-    "monthsLong": ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
-    "monthsShort": ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
+    "weekdaysShort": [
+      "dom",
+      "lun",
+      "mar",
+      "mié",
+      "jue",
+      "vie",
+      "sáb"
+    ],
+    "weekdaysLong": [
+      "domingo",
+      "lunes",
+      "martes",
+      "miércoles",
+      "jueves",
+      "viernes",
+      "sábado"
+    ],
+    "monthsLong": [
+      "enero",
+      "febrero",
+      "marzo",
+      "abril",
+      "mayo",
+      "junio",
+      "julio",
+      "agosto",
+      "septiembre",
+      "octubre",
+      "noviembre",
+      "diciembre"
+    ],
+    "monthsShort": [
+      "ene",
+      "feb",
+      "mar",
+      "abr",
+      "may",
+      "jun",
+      "jul",
+      "ago",
+      "sep",
+      "oct",
+      "nov",
+      "dic"
+    ],
     "dayLabel": "{{weekday}}, {{day}} de {{month}}",
     "monthYear": "{{month}} {{year}}"
+  },
+  "scheduleAt": "Programar una reunión a las {{time}}",
+  "bookingPageFallback": "Página de reservas",
+  "loading": "Cargando…",
+  "toast": {
+    "meetingConfirmed": "Reunión marcada como realizada",
+    "meetingSkipped": "Reunión omitida",
+    "followupDone": "Seguimiento marcado como hecho",
+    "actionFailed": "La acción falló. Inténtalo de nuevo."
   }
 }

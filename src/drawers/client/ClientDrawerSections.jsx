@@ -235,6 +235,31 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
       <div className="cd-group">
         <p className="cd-group-title">{t('sections.contactEnv')}</p>
 
+        <Section title={t('sections.moreDetails')} onEdit={onEditClient}>
+          {(c.address || c.birth_date) ? (
+            <>
+              {c.address && (
+                <div className="cd-row">
+                  <div className="cd-row-body">
+                    <p className="cd-row-title">{c.address}</p>
+                    <p className="cd-row-sub">{t('sections.address')}</p>
+                  </div>
+                </div>
+              )}
+              {c.birth_date && (
+                <div className="cd-row">
+                  <div className="cd-row-body">
+                    <p className="cd-row-title">{fmtShortDate(c.birth_date)}</p>
+                    <p className="cd-row-sub">{t('sections.birthDate')}</p>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <p className="cd-empty">{t('sections.noMoreDetails')}</p>
+          )}
+        </Section>
+
         <Section title={t('sections.notes')} onEdit={onEditClient}>
           {c.notes ? (
             <>

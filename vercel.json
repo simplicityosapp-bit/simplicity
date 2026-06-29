@@ -1,6 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
+    { "source": "/p/:slug", "destination": "/api/page?kind=landing&slug=:slug" },
+    { "source": "/lead/:slug", "destination": "/api/page?kind=lead&slug=:slug" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
@@ -12,7 +14,7 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()" },
-        { "key": "Content-Security-Policy-Report-Only", "value": "default-src 'self'; script-src 'self' 'sha256-b4NESq1Vad1tk5EaWaWdFGxHQoPNRLv97rhJ/N9Y9go='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://rdurkakzyymxhocvhufw.supabase.co wss://rdurkakzyymxhocvhufw.supabase.co; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" }
+        { "key": "Content-Security-Policy-Report-Only", "value": "default-src 'self'; script-src 'self' 'sha256-b4NESq1Vad1tk5EaWaWdFGxHQoPNRLv97rhJ/N9Y9go='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://rdurkakzyymxhocvhufw.supabase.co wss://rdurkakzyymxhocvhufw.supabase.co; worker-src 'self' blob:; frame-src 'self' https://www.youtube.com https://player.vimeo.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" }
       ]
     }
   ]

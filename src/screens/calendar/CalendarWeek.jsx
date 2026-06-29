@@ -13,11 +13,14 @@ export default function CalendarWeek({ date, events, onSelect, onPickDay, weekSt
     return Array.from({ length: 7 }, (_, i) => addDays(s, i))
   }, [date, weekStart])
   const today = new Date()
+  /* Bucket events per day ONCE per [days, events] change instead of running
+     eventsForDay (filter+sort over the full feed) 7× on every render. */
+  const lists = useMemo(() => days.map((d) => eventsForDay(events, d)), [days, events])
 
   return (
     <div className="cal-week">
-      {days.map((d) => {
-        const list = eventsForDay(events, d)
+      {days.map((d, i) => {
+        const list = lists[i]
         const allDay = list.filter((e) => e.allDay)
         const timed = list.filter((e) => !e.allDay)
         const isToday = isSameDay(d, today)

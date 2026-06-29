@@ -27,7 +27,34 @@
   "undo": {
     "undo": "Undo",
     "dismiss": "Dismiss",
-    "undone": "Undone"
+    "undone": "Undone",
+    "taskCompleted": "Task completed",
+    "taskReopened": "Task reopened",
+    "deleted": {
+      "lead": "Lead deleted",
+      "bookingPage": "Page deleted",
+      "category": "Category deleted",
+      "goalCategory": "Category deleted",
+      "goal": "Goal deleted",
+      "group": "Group deleted",
+      "leadPage": "Page deleted",
+      "project": "Project deleted",
+      "session": "Session deleted",
+      "sitePage": "Page deleted",
+      "task": "Task deleted",
+      "transaction": "Transaction deleted"
+    }
+  },
+  "errors": {
+    "importFailed": "Import failed — please try again",
+    "actionFailed": "Action failed — please try again",
+    "eventAssign": "Couldn't assign the event — please try again",
+    "eventHide": "Couldn't hide the event — please try again",
+    "eventUpdate": "Couldn't update the event — please try again",
+    "eventDelete": "Couldn't delete the event — please try again",
+    "bookingConfirm": "Couldn't confirm the booking",
+    "bookingReject": "Couldn't reject the booking",
+    "bookingCancel": "Couldn't cancel the booking"
   },
   "feedback": {
     "title": "Got feedback?",

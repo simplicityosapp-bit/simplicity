@@ -24,6 +24,8 @@
     "name": "שם",
     "phone": "טלפון",
     "email": "אימייל",
+    "address": "כתובת",
+    "birthDate": "תאריך לידה",
     "sessions": "מספר פגישות",
     "pricePerSession": "מחיר לפגישה",
     "notes": "הערות",

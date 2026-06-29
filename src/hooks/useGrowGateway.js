@@ -89,6 +89,21 @@ export function useGrowGateway() {
     })
   }, [])
 
+  /* Toggle auto-issuing a receipt via the connected invoice provider on a Grow
+     payment (opt-in). Writes the fresh status straight back to the cache. */
+  const setAutoReceipt = useCallback(async (value) => {
+    setBusy(true); setActionError(null)
+    try {
+      const r = await callGrow('set-auto-receipt', { value: !!value })
+      if (r?.status) setStatus(r.status)
+      return r
+    } catch (e) {
+      setActionError(e.message); throw e
+    } finally {
+      setBusy(false)
+    }
+  }, [setStatus])
+
   return {
     status,
     loading,
@@ -99,5 +114,6 @@ export function useGrowGateway() {
     disconnect,
     loadStatus,
     createPaymentLink,
+    setAutoReceipt,
   }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { CreditCard, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, Loader2, TriangleAlert } from 'lucide-react'
 import { useGrowGateway } from '../../hooks/useGrowGateway'
+import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useT } from '../../i18n/useT'
 
 /* The three credential SLOTS Grow needs: userId + pageCode + apiKey. All three
@@ -40,6 +41,9 @@ export default function GrowCard() {
   const status = grow.status
   const connected = !!status?.connected
   const credsInvalid = connected && !!status?.credentials_invalid // gateway rejected the stored key
+  const inv = useInvoiceProvider()
+  const invConnected = !!inv.status?.connected // an invoice provider is required for auto-receipt
+  const autoReceipt = !!status?.auto_receipt
 
   const [environment, setEnvironment] = useState('production')
   const [creds, setCreds] = useState({ userId: '', pageCode: '', apiKey: '' })
@@ -50,9 +54,23 @@ export default function GrowCard() {
 
   const [busyAction, setBusyAction] = useState(null) // 'connect' | 'test' | 'disconnect'
   const [confirmDisc, setConfirmDisc] = useState(false)
+  const [togglingReceipt, setTogglingReceipt] = useState(false)
   const discTimer = useRef(0)
   /* Clear the 2-step-confirm auto-disarm timer if we unmount mid-confirm. */
   useEffect(() => () => window.clearTimeout(discTimer.current), [])
+
+  const onToggleAutoReceipt = async (value) => {
+    if (togglingReceipt) return /* ignore rapid double-toggles */
+    setLocalErr(''); setOkMsg(''); setTogglingReceipt(true)
+    try {
+      await grow.setAutoReceipt(value)
+      setOkMsg(value ? t('growCard.autoReceiptOn') : t('growCard.autoReceiptOff'))
+    } catch (e) {
+      setLocalErr(errMsg(e.message, t))
+    } finally {
+      setTogglingReceipt(false)
+    }
+  }
 
   /* Broken connection → re-enter credentials. */
   const startReconnect = () => {
@@ -199,6 +217,7 @@ export default function GrowCard() {
           <p className="conn-note">{t('growCard.help')}</p>
         </div>
       ) : (
+        <>
         <div className="conn-actions">
           <button type="button" className="conn-btn primary" disabled={grow.busy} aria-busy={busyAction === 'test'} onClick={onTest}>
             {busyAction === 'test'
@@ -214,6 +233,20 @@ export default function GrowCard() {
             <span className="sr-only" role="status">{t('growCard.disconnectConfirmSr')}</span>
           )}
         </div>
+        {/* Auto-receipt opt-in — only meaningful when an invoice provider is
+            also connected (otherwise there's nothing to issue with). */}
+        {invConnected ? (
+          <>
+            <label className="conn-autoimport">
+              <input type="checkbox" checked={autoReceipt} onChange={(e) => onToggleAutoReceipt(e.target.checked)} disabled={grow.busy || togglingReceipt} />
+              <span>{t('growCard.autoReceiptLabel')}</span>
+            </label>
+            <p className="conn-autoimport-note">{t('growCard.autoReceiptNote')}</p>
+          </>
+        ) : (
+          <p className="conn-autoimport-note">{t('growCard.autoReceiptNeedsInvoice')}</p>
+        )}
+        </>
       )}
 
       {okMsg && !localErr && <p className="conn-note" role="status" aria-live="polite">{okMsg}</p>}

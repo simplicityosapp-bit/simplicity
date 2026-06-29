@@ -229,7 +229,12 @@
     "disconnecting": "Disconnecting…",
     "disconnect": "Disconnect",
     "disconnectConfirm": "Sure? Disconnect",
-    "disconnectConfirmSr": "Tap again to confirm disconnecting"
+    "disconnectConfirmSr": "Tap again to confirm disconnecting",
+    "autoReceiptLabel": "Auto-issue a receipt on payment",
+    "autoReceiptNote": "When a Grow payment arrives, a receipt is issued automatically via your connected invoice provider and linked to the transaction.",
+    "autoReceiptOn": "Auto-receipt turned on.",
+    "autoReceiptOff": "Auto-receipt turned off.",
+    "autoReceiptNeedsInvoice": "To auto-issue a receipt, also connect an invoice provider (Green Invoice / SUMIT) on the Connections screen."
   },
   "growPay": {
     "create": "Create payment link (Grow)",

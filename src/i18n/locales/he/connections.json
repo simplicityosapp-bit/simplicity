@@ -269,7 +269,12 @@
     "disconnectConfirm": "בטוח/ה? נתק",
     "disconnectConfirm_male": "בטוח? נתק",
     "disconnectConfirm_female": "בטוחה? נתק",
-    "disconnectConfirmSr": "לחצו שוב לאישור הניתוק"
+    "disconnectConfirmSr": "לחצו שוב לאישור הניתוק",
+    "autoReceiptLabel": "הפקת קבלה אוטומטית בעת תשלום",
+    "autoReceiptNote": "כשמתקבל תשלום ב-Grow תופק אוטומטית קבלה דרך ספק החשבוניות המחובר, ותקושר לעסקה.",
+    "autoReceiptOn": "הפקת קבלה אוטומטית הופעלה.",
+    "autoReceiptOff": "הפקת קבלה אוטומטית כובתה.",
+    "autoReceiptNeedsInvoice": "כדי להפיק קבלה אוטומטית — חברו גם ספק חשבוניות (חשבונית ירוקה / סאמיט) במסך החיבורים."
   },
   "growPay": {
     "create": "צור/צרי לינק תשלום (Grow)",

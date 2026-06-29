@@ -69,6 +69,8 @@ const statusOf = (row: any) =>
         // Durable "credentials rejected" marker (migration 0038) — drives the
         // UI's reconnect prompt. Cleared on any successful call / reconnect.
         credentials_invalid: !!row.credentials_invalid_at,
+        // Opt-in: auto-issue a receipt via the invoice provider on payment (0063).
+        auto_receipt: !!row.grow_auto_receipt,
       }
     : { connected: false }
 
@@ -225,6 +227,15 @@ Deno.serve(async (req) => {
         updated_at: new Date().toISOString(),
       }).eq('id', pr.id)
       return json({ ok: true, payment: { id: pr.id, url: link.url } })
+    }
+
+    if (action === 'set-auto-receipt') {
+      const row = await loadGrowIntegration(userId)
+      if (!row) return json({ error: 'not_connected' }, 400)
+      const { data: updated, error: updErr } = await admin.from('user_integrations')
+        .update({ grow_auto_receipt: !!body.value }).eq('id', row.id).select('*').maybeSingle()
+      if (updErr || !updated) throw updErr ?? new Error('auto_receipt update failed')
+      return json({ status: statusOf(updated) })
     }
 
     if (action === 'disconnect') {

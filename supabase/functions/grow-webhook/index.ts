@@ -22,10 +22,66 @@
 //  never invoked until a real Grow account verifies the flow.
 // ════════════════════════════════════════════════════════════════
 import { createClient } from 'jsr:@supabase/supabase-js@2'
+// Reuse the invoices function's provider layer (no duplication) to issue the
+// auto-receipt — SUMIT is verified there; Green Invoice is documented-but-not.
+import { getProvider } from '../invoices/providers.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const admin = createClient(SUPABASE_URL, SERVICE_ROLE)
+
+const INVOICE_PROVIDERS = ['greeninvoice', 'sumit']
+
+/* Opt-in auto-receipt: issue a RECEIPT for a Grow-paid income tx via the coach's
+   connected invoice provider, and link the document onto the tx. Skips silently
+   when there's no invoice provider, no customer name, or the tx already has a
+   document. Atomic claim mirrors the invoices `issue` action's double-issue
+   guard. ⚠️ The provider call itself is UNVERIFIED for Grow's flow. */
+async function maybeIssueReceipt(userId: string, txId: string, pr: any) {
+  const { data: tx } = await admin.from('transactions').select('*').eq('id', txId).eq('user_id', userId).maybeSingle()
+  if (!tx || tx.invoice_document_id) return
+  const { data: inv } = await admin.from('user_integrations')
+    .select('*').eq('user_id', userId).in('provider', INVOICE_PROVIDERS)
+    .order('updated_at', { ascending: false }).limit(1).maybeSingle()
+  if (!inv) return // no invoice provider connected → nothing to issue with
+
+  let customer = { name: '', email: null as string | null, phone: null as string | null }
+  if (tx.client_id) {
+    const { data: c } = await admin.from('clients').select('name,email,phone').eq('id', tx.client_id).maybeSingle()
+    if (c) customer = { name: c.name ?? '', email: c.email ?? null, phone: c.phone ?? null }
+  } else if (pr?.source === 'booking' && pr?.booking_id) {
+    const { data: bk } = await admin.from('bookings').select('name,email,phone').eq('id', pr.booking_id).maybeSingle()
+    if (bk) customer = { name: bk.name ?? '', email: bk.email ?? null, phone: bk.phone ?? null }
+  }
+  if (!customer.name) return // the provider requires a customer name
+
+  // Atomic claim — set invoice_synced_at only if no doc / not in-flight.
+  const { data: claimed } = await admin.from('transactions')
+    .update({ invoice_synced_at: new Date().toISOString() })
+    .eq('id', txId).eq('user_id', userId).is('invoice_document_id', null).is('invoice_synced_at', null)
+    .select('id').maybeSingle()
+  if (!claimed) return
+
+  try {
+    const doc = await getProvider(inv.provider).createDocument(
+      { apiKey: inv.api_key, apiSecret: inv.api_secret, environment: inv.environment },
+      {
+        docType: 'receipt', amount: Number(tx.amount),
+        description: tx.desc || 'תשלום', itemName: tx.desc || 'תשלום', itemId: null,
+        paymentMethod: 'credit_card', customer, send: true, businessType: inv.business_type ?? null,
+      },
+    )
+    await admin.from('transactions').update({
+      invoice_provider: inv.provider, invoice_document_id: doc.id, invoice_document_number: doc.number,
+      invoice_document_type: doc.type, invoice_document_url: doc.url, invoice_synced_at: new Date().toISOString(),
+    }).eq('id', txId).eq('user_id', userId)
+  } catch (e) {
+    // Release the claim so a later retry/poll can re-issue (no doc recorded).
+    await admin.from('transactions').update({ invoice_synced_at: null })
+      .eq('id', txId).eq('user_id', userId).is('invoice_document_id', null)
+    throw e
+  }
+}
 
 const BASE: Record<string, string> = {
   sandbox: 'https://sandbox.meshulam.co.il/api/light/server/1.0',
@@ -172,6 +228,16 @@ Deno.serve(async (req) => {
       // The payment is real and claimed — log loudly, still ack so Grow stops
       // retrying; reconciliation (Phase 4 polling) can repair a missed record.
       console.error('grow-webhook: paid but failed to record income', pr.id, e)
+    }
+
+    // Opt-in: auto-issue a receipt for the recorded income via the connected
+    // invoice provider. Separate try — a receipt failure must never block the
+    // mandatory ack below (the income is already recorded).
+    if (integ.grow_auto_receipt) {
+      try {
+        const { data: prNow } = await admin.from('payment_requests').select('transaction_id').eq('id', pr.id).maybeSingle()
+        if (prNow?.transaction_id) await maybeIssueReceipt(integ.user_id, prNow.transaction_id, pr)
+      } catch (e) { console.error('grow-webhook auto-receipt failed', pr.id, e) }
     }
 
     await approveTransaction(integ, { processId: processId ?? pr.grow_process_id, processToken: processToken ?? pr.grow_process_token })

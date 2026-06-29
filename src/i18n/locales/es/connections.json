@@ -229,7 +229,12 @@
     "disconnecting": "Desconectando…",
     "disconnect": "Desconectar",
     "disconnectConfirm": "¿Seguro? Desconectar",
-    "disconnectConfirmSr": "Pulsa de nuevo para confirmar la desconexión"
+    "disconnectConfirmSr": "Pulsa de nuevo para confirmar la desconexión",
+    "autoReceiptLabel": "Emitir un recibo automáticamente al pagar",
+    "autoReceiptNote": "Cuando llega un pago de Grow, se emite automáticamente un recibo a través de tu proveedor de facturas conectado y se vincula a la transacción.",
+    "autoReceiptOn": "Recibo automático activado.",
+    "autoReceiptOff": "Recibo automático desactivado.",
+    "autoReceiptNeedsInvoice": "Para emitir un recibo automáticamente, conecta también un proveedor de facturas (Green Invoice / SUMIT) en la pantalla de Conexiones."
   },
   "growPay": {
     "create": "Crear enlace de pago (Grow)",

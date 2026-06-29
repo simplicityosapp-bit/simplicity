@@ -1,7 +1,15 @@
 # Grow (גרו / Meshulam) payment-gateway integration — plan & status
 
-**Status: Phases 1–2 built behind a master lock (`GROW_ENABLED=false`). The connect entry shows "בקרוב" and is closed; no code path reaches Grow. Safe to merge while locked. A real Grow account will verify the full flow at the end, then the flag is flipped on.**
-Last updated: 2026-06-24.
+**Status: Phases 1–4 built behind a master lock (`GROW_ENABLED=false`). The connect entry shows "בקרוב" and is closed; no code path reaches Grow. Safe to merge while locked. A real Grow account verifies the full flow at the end, then the flag is flipped on. ONLY external-charge polling import is deferred until Grow's transactions API is confirmed.**
+Last updated: 2026-06-28.
+
+## Done so far (branch `feat/grow-integration`, merged up to date with main)
+- **Phase 1 — connect/status/test/disconnect** (migration 0060 `page_code`). Edge fn `grow` + `useGrowGateway` + Connections row + GrowConnection/GrowCard + i18n ×4.
+- **Phase 2 — payment links + webhook** (migration 0061 `payment_requests`). `create-payment-link` + `grow-webhook` (verify→claim→record ONE income context-aware→approve). `GrowPayButton` wired into client drawer + transaction modal + payment-plan installments.
+- **Phase 3 — pay-at-booking** (migration 0062). `require_payment` per page; booking held pending+awaiting with a 20-min TTL (lazy release, no cron); public page redirects to Grow; builder toggle.
+- **Phase 4 — auto-receipt** (migration 0063 `grow_auto_receipt`, opt-in). `grow-webhook` issues a receipt via the connected invoice provider (reuses `invoices/providers.ts`); GrowCard toggle.
+- All Grow API calls UNVERIFIED vs a live account; everything gated by the lock.
+- **Deferred:** external-charge polling import (Grow transactions API unconfirmed); public booking page `?paid=1/?cancelled=1` return banner (minor).
 
 ## Master lock — `src/lib/grow.js`
 `export const GROW_ENABLED = false`. While false: the Connections row renders as a

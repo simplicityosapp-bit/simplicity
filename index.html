@@ -102,6 +102,18 @@
           if (b === 'nature' || b === 'simple' || b === 'blank') {
             document.documentElement.setAttribute('data-bg', b);
           }
+          var cs = localStorage.getItem('mg-card-style');
+          if (cs === 'frosted' || cs === 'flat') {
+            document.documentElement.setAttribute('data-card-style', cs);
+          }
+          var ts = localStorage.getItem('mg-text-strength');
+          if (ts === 'normal' || ts === 'bold') {
+            document.documentElement.setAttribute('data-text-strength', ts);
+          }
+          var dn = localStorage.getItem('mg-density');
+          if (dn === 'compact' || dn === 'comfortable' || dn === 'spacious') {
+            document.documentElement.setAttribute('data-density', dn);
+          }
         } catch (e) { /* private mode — non-fatal */ }
       })();
     </script>

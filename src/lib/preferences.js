@@ -108,7 +108,6 @@ export const GENDER_OPTIONS = [
 export const CARD_STYLE_OPTIONS = [
   { v: 'frosted',  l: 'מעורפל' },
   { v: 'flat',     l: 'שטוח' },
-  { v: 'outlined', l: 'מתואר' },
 ]
 
 export const TEXT_STRENGTH_OPTIONS = [

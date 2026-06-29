@@ -252,7 +252,7 @@ function WidgetsBody({ prefs, onUpdate }) {
   return (
     <div className="set-w-body">
       <p className="set-sub-h">{t('widgets.globalView')}</p>
-      <Segmented label={t('widgets.cardStyle')} value={global.cardStyle || 'frosted'} options={CARD_STYLE_OPTIONS.map((o) => ({ ...o, l: t(`options.cardStyle.${o.v}`) }))} onChange={setGlobal('cardStyle')} />
+      <Segmented label={t('widgets.cardStyle')} value={(global.cardStyle === 'outlined' || !global.cardStyle) ? 'frosted' : global.cardStyle} options={CARD_STYLE_OPTIONS.map((o) => ({ ...o, l: t(`options.cardStyle.${o.v}`) }))} onChange={setGlobal('cardStyle')} />
       <Segmented label={t('widgets.textStrength')} value={global.textStrength || 'normal'} options={TEXT_STRENGTH_OPTIONS.map((o) => ({ ...o, l: t(`options.textStrength.${o.v}`) }))} onChange={setGlobal('textStrength')} />
       <Segmented label={t('widgets.density')} value={global.density || 'comfortable'} options={DENSITY_OPTIONS.map((o) => ({ ...o, l: t(`options.density.${o.v}`) }))} onChange={setGlobal('density')} />
 

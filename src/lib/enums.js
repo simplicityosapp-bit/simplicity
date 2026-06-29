@@ -66,7 +66,7 @@ export const PREF_CALENDAR_DEFAULT_VIEWS = ['schedule', 'day', 'week', 'month']
 export const PREF_ROLES = ['therapist', 'coach', 'facilitator', 'teacher', 'instructor', 'other']
 
 /* ── Widgets config ───────────────────────────────────────────── */
-export const WIDGET_CARD_STYLES = ['frosted', 'flat', 'outlined']
+export const WIDGET_CARD_STYLES = ['frosted', 'flat']
 export const WIDGET_DENSITIES = ['compact', 'comfortable', 'spacious']
 export const WIDGET_TEXT_STRENGTHS = ['normal', 'bold']
 

@@ -278,3 +278,37 @@
   --mg-card-shadow: 0 1px 2px rgba(0,0,0,0.30), 0 8px 24px rgba(0,0,0,0.42);
   --mg-btn-secondary-bg-hover: rgba(36, 42, 51, 0.85);
 }
+
+/* ════════════════════════════════════════════════════════════════
+   GLOBAL DISPLAY — Settings → Widgets & Display (now app-wide)
+   ════════════════════════════════════════════════════════════════
+   PrefsApplier mirrors the choice onto <html data-card-style / -density /
+   -text-strength>. Because every card reads the --mg-card-* tokens, we
+   override the tokens here and the style reaches every screen — not just
+   Home. Each selector stands alone (no comma lists) so the CSS minifier
+   can't drop an attribute prefix. */
+
+/* Flat — fully opaque surface, no blur/shadow. The fill is a natural warm
+   greige derived from the brand tokens (cream softened toward espresso), so
+   it reads as a solid card that belongs to the palette rather than a flat
+   white sheet. Frosted (the default) is untouched. */
+[data-card-style="flat"] {
+  --mg-card-bg:     #F5EFE2;   /* warm "dirty" cream — light, leans toward white, not grey */
+  --mg-card-blur:   none;
+  --mg-card-shadow: none;
+}
+[data-theme="dark"][data-card-style="flat"] {
+  --mg-card-bg:     #262B33;
+  --mg-card-blur:   none;
+  --mg-card-shadow: none;
+}
+
+/* Density tunes the shared card padding token, so every card that uses
+   --mg-card-pad breathes (or tightens) with the setting. Comfortable is
+   the base token (no override). */
+[data-density="compact"]  { --mg-card-pad: 16px 18px; }
+[data-density="spacious"] { --mg-card-pad: 30px 34px; }
+
+/* Text strength — a gentle global base-weight bump for "bold". Per-screen
+   emphasis (e.g. Home titles) can still layer on top. */
+[data-text-strength="bold"] { font-weight: 500; }

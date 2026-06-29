@@ -69,7 +69,7 @@ const statusOf = (row: any) =>
         // Durable "credentials rejected" marker (migration 0038) — drives the
         // UI's reconnect prompt. Cleared on any successful call / reconnect.
         credentials_invalid: !!row.credentials_invalid_at,
-        // Opt-in: auto-issue a receipt via the invoice provider on payment (0063).
+        // Opt-in: auto-issue a receipt via the invoice provider on payment (0072).
         auto_receipt: !!row.grow_auto_receipt,
       }
     : { connected: false }

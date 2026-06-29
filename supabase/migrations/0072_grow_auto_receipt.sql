@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════════════════════════════
--- Migration 0063 — Grow auto-receipt opt-in (Phase 4)
+-- Migration 0072 — Grow auto-receipt opt-in (Phase 4)
 -- Date: 2026-06-28
 -- ════════════════════════════════════════════════════════════════
 -- Per-coach opt-in: when a Grow payment is recorded, ALSO auto-issue a

@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════════════════════════════
--- Migration 0062 — Grow pay-at-booking (Phase 3)
+-- Migration 0071 — Grow pay-at-booking (Phase 3)
 -- Date: 2026-06-28
 -- ════════════════════════════════════════════════════════════════
 -- Lets a booking page REQUIRE online payment (via Grow) to secure a slot.

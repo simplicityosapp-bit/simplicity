@@ -11,15 +11,18 @@ const VIEW_KEYS = ['schedule', 'day', 'week', 'month']
 /* Compact Gregorian date piece, e.g. "24 יוני" — used in dual mode. */
 const gregPiece = (d) => `${d.getDate()} ${monthNamesLong()[d.getMonth()]}`
 
-/* Week + month views step by MONTH (the user navigates between months);
-   day + schedule step by day. In Hebrew mode the month step follows the
-   Hebrew calendar (Sivan → Tammuz → Av), not the Gregorian one. */
+/* The arrow step matches the view: month steps a whole month, week steps
+   a week (7 civil days), day + schedule step a day. In Hebrew mode the
+   month step follows the Hebrew calendar (Sivan → Tammuz → Av), not the
+   Gregorian one; a week is 7 days regardless of calendar. */
 function stepDate(view, date, dir, hebrew) {
   const d = new Date(date)
-  if (view === 'week' || view === 'month') {
+  if (view === 'month') {
     if (hebrew) return stepHebrewMonth(d, dir)
     d.setDate(1) // normalize first so Jan 31 + 1mo → Feb, not Mar
     d.setMonth(d.getMonth() + dir)
+  } else if (view === 'week') {
+    d.setDate(d.getDate() + dir * 7)
   } else {
     d.setDate(d.getDate() + dir)
   }
@@ -138,6 +141,9 @@ export default function CalendarHeader({ view, onViewChange, date, onDateChange,
   const monthish = view === 'week' || view === 'month'
   const goPrev = () => onDateChange(stepDate(view, date, -1, hebrew))
   const goNext = () => onDateChange(stepDate(view, date, +1, hebrew))
+  /* Arrow labels track the step size: month / week / day. */
+  const prevLabel = view === 'month' ? t('nav.prevMonth') : view === 'week' ? t('nav.prevWeek') : t('nav.prev')
+  const nextLabel = view === 'month' ? t('nav.nextMonth') : view === 'week' ? t('nav.nextWeek') : t('nav.next')
   /* Day-view label: Hebrew (optionally with the Gregorian date alongside
      in dual mode) or plain Gregorian. */
   const dayLabel = hebrew
@@ -166,7 +172,7 @@ export default function CalendarHeader({ view, onViewChange, date, onDateChange,
 
       {view !== 'schedule' && (
         <div className="cal-nav">
-          <button type="button" className="cal-nav-btn" onClick={goPrev} aria-label={monthish ? t('nav.prevMonth') : t('nav.prev')}>
+          <button type="button" className="cal-nav-btn" onClick={goPrev} aria-label={prevLabel}>
             <ChevronRight size={16} strokeWidth={1.6} aria-hidden="true" />
           </button>
           {monthish
@@ -174,7 +180,7 @@ export default function CalendarHeader({ view, onViewChange, date, onDateChange,
                 ? <HebrewMonthPicker date={date} onPick={onDateChange} />
                 : <MonthPicker date={date} onPick={onDateChange} />)
             : <span className="cal-nav-label">{dayLabel}</span>}
-          <button type="button" className="cal-nav-btn" onClick={goNext} aria-label={monthish ? t('nav.nextMonth') : t('nav.next')}>
+          <button type="button" className="cal-nav-btn" onClick={goNext} aria-label={nextLabel}>
             <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
           </button>
           <button type="button" className="cal-nav-today" onClick={goToday}>{t('nav.today')}</button>

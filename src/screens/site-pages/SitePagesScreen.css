@@ -76,11 +76,13 @@
 .spg-tile-desc {
   display: inline-flex; align-self: flex-start; max-width: 100%;
   margin-top: 2px; padding: 3px 11px; border-radius: 999px;
-  background: color-mix(in srgb, var(--pure-white) 80%, transparent);
-  -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
-  border: 1px solid color-mix(in srgb, var(--espresso) 7%, transparent);
+  /* Translucent (was near-solid 0.8 white) so the card/photo texture reads
+     through it as glass; a nested backdrop-blur can't stack inside the card's
+     own blur, so transparency + a soft lift do the work instead. */
+  background: color-mix(in srgb, var(--pure-white) 55%, transparent);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-size: var(--mg-caption); font-weight: 500; line-height: 1.35;
-  color: color-mix(in srgb, var(--espresso) 88%, transparent);
+  color: color-mix(in srgb, var(--espresso) 90%, transparent);
 }
 .spg-tile-chevron { color: var(--spb-text-3, var(--mist)); flex: none; }
 .spg-tile:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 24%, transparent); }

@@ -497,6 +497,22 @@ html[data-bg="blank"][data-theme="dark"]  .app:not([data-screen="onboarding"]) {
   --mg-card-bg: rgba(26, 31, 38, 0.70);
 }
 
+/* Flat card style must win over the reduced-background opacity bump above:
+   that rule sets --mg-card-bg on .app (nearer the card than the <html> token
+   override in tokens.css), so flat is re-applied here at the same .app level
+   (matching the bg-rule specificity, placed after so it wins). Keeps flat
+   fully opaque + un-blurred on every background. Values match tokens.css. */
+html[data-card-style="flat"] .app:not([data-screen="onboarding"]) {
+  --mg-card-bg: #F5EFE2;
+  --mg-card-blur: none;
+  --mg-card-shadow: none;
+}
+html[data-theme="dark"][data-card-style="flat"] .app:not([data-screen="onboarding"]) {
+  --mg-card-bg: #262B33;
+  --mg-card-blur: none;
+  --mg-card-shadow: none;
+}
+
 @media (min-width: 768px) {
   /* SIMPLE — desktop Reports photo. */
   html[data-bg="simple"] .app:not([data-screen="onboarding"])                    { --screen-bg: url('/backgrounds/desktop/day/reports.webp'); }

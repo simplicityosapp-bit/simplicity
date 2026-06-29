@@ -22,6 +22,8 @@
     "client": "Client",
     "status": "Status",
     "category": "Category",
+    "dueDate": "Due date",
+    "dueTime": "Time",
     "noDueDateHint": "Tasks have no due date — need a reminder for a specific day? Add a <0>reminder</0> instead."
   },
   "reminder": {

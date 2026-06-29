@@ -22,6 +22,8 @@
     "client": "Client",
     "status": "Statut",
     "category": "Catégorie",
+    "dueDate": "Échéance",
+    "dueTime": "Heure",
     "noDueDateHint": "Les tâches n'ont pas d'échéance — besoin d'un rappel pour un jour précis ? Ajoutez plutôt un <0>rappel</0>."
   },
   "reminder": {

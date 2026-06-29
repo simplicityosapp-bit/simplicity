@@ -17,6 +17,7 @@ import TaskTaxonomyModal from '../../modals/TaskTaxonomyModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
 import { isRecurring, isActiveReminder, dueOccurrenceCount } from '../../lib/reminders'
+import { formatWhen } from '../../lib/dates'
 import { reassignTasksStatus } from '../../lib/api/taskStatuses'
 import { reassignTasksCategory } from '../../lib/api/taskCategories'
 import './TasksScreen.css'
@@ -49,9 +50,10 @@ const REM_BUCKETS = [
   { key: 'later',   color: 'var(--mist)' },
 ]
 
-function reminderBucket(rem, now) {
-  if (rem.status === 'completed') return null
-  const due = new Date(rem.scheduled_at)
+/* Map a due Date → bucket key against now. Shared by reminders and dated
+   tasks so both land in the same overdue/today/week/later sections. */
+function dateToBucket(due, now) {
+  if (Number.isNaN(+due)) return null
   if (due < now) return 'overdue'
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1)
@@ -59,6 +61,17 @@ function reminderBucket(rem, now) {
   if (due < tomorrow) return 'today'
   if (due < weekEnd)  return 'week'
   return 'later'
+}
+
+function reminderBucket(rem, now) {
+  if (rem.status === 'completed') return null
+  return dateToBucket(new Date(rem.scheduled_at), now)
+}
+
+/* A dated, still-open task surfaces on the reminders view in its due bucket. */
+function taskDueBucket(task, now) {
+  if (!task.due_at || task.status === 'done') return null
+  return dateToBucket(new Date(task.due_at), now)
 }
 
 export default function TasksScreen() {
@@ -80,6 +93,9 @@ export default function TasksScreen() {
   const [editItem, setEditItem] = useState(null)
   const [confirmClear, setConfirmClear] = useState(false)
   const [showTaxonomy, setShowTaxonomy] = useState(false)
+  /* A dated task tapped from the reminders view opens its own task editor,
+     independent of the reminders edit state (different entity + modal). */
+  const [editDatedTask, setEditDatedTask] = useState(null)
   /* Multi-select category filter — empty set = all categories. Several pills
      can be active at once (a task shows if its category is in the set). */
   const [categoryFilters, setCategoryFilters] = useState(() => new Set())
@@ -193,6 +209,14 @@ export default function TasksScreen() {
       return isRecurring(r) ? dueOccurrenceCount(r, now) >= 1 : true
     })
   }, [reminders, now, filter])
+
+  /* Dated tasks that "pop" onto the reminders view — open tasks with a due_at,
+     shown only on the open ("פתוחות") tab, bucketed by their due date. */
+  const datedTasks = useMemo(() => (
+    (view === 'reminders' && filter === 'todo')
+      ? tasks.filter((task) => task.due_at && task.status !== 'done')
+      : []
+  ), [view, filter, tasks])
 
   /* "חוזרות" tab — all active recurring reminders, grouped: weekly by
      day-of-week, monthly together, every-X-days together. */
@@ -442,7 +466,7 @@ export default function TasksScreen() {
                 </div>
               ))
             )
-          ) : filteredReminders.length === 0 ? (
+          ) : (filteredReminders.length === 0 && datedTasks.length === 0) ? (
             <div className="empty"><p className="empty-text">{filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo')}</p></div>
           ) : filter === 'done' ? (
             <div className="t-group">
@@ -466,13 +490,14 @@ export default function TasksScreen() {
           ) : (
             REM_BUCKETS.map((b) => {
               const items = filteredReminders.filter((r) => reminderBucket(r, now) === b.key)
-              if (!items.length) return null
+              const dueTasks = datedTasks.filter((task) => taskDueBucket(task, now) === b.key)
+              if (!items.length && !dueTasks.length) return null
               return (
                 <div key={b.key} className="t-group">
                   <p className="t-group-lbl">
                     <span className="t-group-dot" style={{ background: b.color }} />
                     {t(`buckets.${b.key}`)}
-                    <span className="t-group-count">{items.length}</span>
+                    <span className="t-group-count">{items.length + dueTasks.length}</span>
                   </p>
                   {items.map((r, i) => (
                     <ReminderItem
@@ -486,12 +511,42 @@ export default function TasksScreen() {
                       index={i}
                     />
                   ))}
+                  {/* Dated tasks pop in here, distinguished by the task check-circle. */}
+                  {dueTasks.map((task, i) => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      project={projOf(task.project_id)}
+                      clientName={clientNameOf(task.client_id)}
+                      dueLabel={formatWhen(task.due_at)}
+                      dotColor={b.color}
+                      onToggle={() => toggleTask(task)}
+                      onEdit={setEditDatedTask}
+                      index={items.length + i}
+                      taskStatus={task.status_id ? statusById.get(task.status_id) : null}
+                      category={task.category_id ? categoryById.get(task.category_id) : null}
+                    />
+                  ))}
                 </div>
               )
             })
           )
         )}
       </section>
+
+      {/* Edit a dated task tapped from the reminders view — its own task modal,
+          rendered regardless of the active view. */}
+      <AddTaskModal
+        key={editDatedTask?.id || 'edit-dated-task'}
+        open={!!editDatedTask}
+        onClose={() => setEditDatedTask(null)}
+        task={editDatedTask}
+        projects={projects}
+        clients={clients}
+        statuses={taskStatuses}
+        categories={taskCategories}
+        onSave={(patch) => editDatedTask && editTask(editDatedTask.id, patch)}
+      />
 
       {isTasks ? (
         <>

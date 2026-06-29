@@ -155,6 +155,18 @@ Deno.serve(async (req) => {
           received: true, received_date: todayISO(), payment_method: 'credit_card', transaction_id: tx?.id ?? null,
         }).eq('id', pr.installment_id)
         if (tx) await admin.from('payment_requests').update({ transaction_id: tx.id, updated_at: nowISO() }).eq('id', pr.id)
+      } else if (pr.source === 'booking' && pr.booking_id) {
+        // Pay-at-booking: payment secures the slot — clear the TTL hold so the
+        // booking is now a permanent pending row (the coach confirms it as
+        // usual, which creates the lead + calendar event). Then record income.
+        await admin.from('bookings').update({ payment_status: 'paid', payment_deadline: null })
+          .eq('id', pr.booking_id).eq('user_id', integ.user_id)
+        const { data: tx } = await admin.from('transactions').insert({
+          user_id: integ.user_id, type: 'income', amount: pr.amount,
+          desc: pr.description || 'תשלום עבור פגישה', date: todayISO(), status: 'confirmed',
+          client_id: pr.client_id, payment_method: 'credit_card',
+        }).select('id').single()
+        if (tx) await admin.from('payment_requests').update({ transaction_id: tx.id, updated_at: nowISO() }).eq('id', pr.id)
       }
     } catch (e) {
       // The payment is real and claimed — log loudly, still ack so Grow stops

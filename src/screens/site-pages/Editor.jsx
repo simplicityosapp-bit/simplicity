@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight, Plus, Trash2, Monitor, Smartphone, GripVertical,
   Palette, Upload, X, ChevronUp, ChevronDown, Maximize2, Minimize2,
@@ -31,6 +31,12 @@ const collectAssetPaths = (val, acc = []) => {
   else if (val && typeof val === 'object') Object.values(val).forEach((v) => collectAssetPaths(v, acc))
   return acc
 }
+const collectAll = (sections) => (Array.isArray(sections) ? sections : []).flatMap((s) => collectAssetPaths(s))
+
+/* Lets a deeply-nested ImageField register a freshly-uploaded asset path with the
+   editor's session tracker (knownAssets) without prop-drilling — so an upload that
+   is later replaced/removed before any save still gets garbage-collected. */
+const AssetSinkContext = createContext(null)
 
 /* Chrome icons for the "add section" palette (distinct from the curated
    CONTENT icon set in pageIcons that users pick inside icon/iconText blocks). */
@@ -88,6 +94,14 @@ export default function Editor({ page, onSave, onBack }) {
   const [publishOk, setPublishOk] = useState(false)       // brief "published!" confirmation toast
   const overflowRef = useRef(null)
   const [mobileSheet, setMobileSheet] = useState(false) // inspector bottom-sheet (mobile)
+  // The inspector is a static side panel on desktop but a MODAL bottom-sheet at
+  // ≤767px (the CSS breakpoint). Track that breakpoint so the dialog semantics +
+  // focus trap apply ONLY when it's actually acting as a modal.
+  const [isMobileView, setIsMobileView] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches,
+  )
+  const sheetRef = useRef(null)          // the bottom-sheet aside (focus target/trap)
+  const sheetReturnRef = useRef(null)    // element to restore focus to when it closes
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [saveError, setSaveError] = useState(null)
@@ -95,18 +109,73 @@ export default function Editor({ page, onSave, onBack }) {
   const dragIndex = useRef(null)
   const [dragging, setDragging] = useState(null)   // index being dragged
   const [dragOver, setDragOver] = useState(null)   // index hovered as drop target
-  const [pendingDel, setPendingDel] = useState(null) // { section, index, paths } awaiting undo
+  const [pendingDel, setPendingDel] = useState(null) // { section, index } awaiting undo
   const delTimer = useRef(null)
   const okTimer = useRef(null)                     // "published ✓" toast auto-dismiss
   const draftRef = useRef(draft)                   // latest draft for deferred asset cleanup
   useEffect(() => { draftRef.current = draft }, [draft])
-  // Cancel a pending delete's deferred asset-cleanup on unmount — otherwise leaving
-  // the editor (Back) before saving could remove an asset the SAVED page still uses.
-  // Also clear the publish-toast timer so it can't setState on an unmounted editor.
-  useEffect(() => () => {
-    if (delTimer.current) clearTimeout(delTimer.current)
-    if (okTimer.current) clearTimeout(okTimer.current)
+  // Asset GC is reconciled at SAVE, never mid-edit, so an undo (toast OR Ctrl+Z) can
+  // always restore a section/image without 404-ing. knownAssets = every path we've
+  // seen (loaded + this session's uploads); savedAssets = what the last save actually
+  // persisted (draft ∪ still-live published snapshot — never purge those).
+  const knownAssets = useRef(null)
+  const savedAssets = useRef(null)
+  const snapshotRef = useRef(publishedSnapshot)    // live snapshot, for the reconcile/unmount closures
+  useEffect(() => { snapshotRef.current = publishedSnapshot }, [publishedSnapshot])
+  const registerAsset = useCallback((path) => { if (path) knownAssets.current?.add(path) }, [])
+  // Seed the asset trackers from the loaded page (in an effect, not during render),
+  // then on unmount clear timers (so they can't setState on a dead editor) and purge
+  // assets uploaded THIS session but never persisted — leaving (Back) discards the
+  // draft, so a draft-only upload is a true orphan. savedAssets holds exactly what
+  // the last save persisted, so subtracting it can never touch a live image.
+  useEffect(() => {
+    const init = new Set([...collectAll(page.sections), ...collectAll(page.published_snapshot?.sections)])
+    knownAssets.current = init
+    savedAssets.current = new Set(init)
+    return () => {
+      if (delTimer.current) clearTimeout(delTimer.current)
+      if (okTimer.current) clearTimeout(okTimer.current)
+      knownAssets.current?.forEach((p) => { if (!savedAssets.current?.has(p)) removePageAsset(p) })
+    }
   }, [])
+
+  /* Track the bottom-sheet breakpoint so dialog semantics apply only when modal. */
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const mq = window.matchMedia('(max-width: 767px)')
+    const on = () => setIsMobileView(mq.matches)
+    on()
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [])
+
+  /* When the inspector is acting as a modal sheet (mobile + open): move focus into
+     it, trap Tab inside, close on Escape, and restore focus to the trigger on close. */
+  const sheetModal = isMobileView && mobileSheet
+  useEffect(() => {
+    if (!sheetModal) return undefined
+    const node = sheetRef.current
+    sheetReturnRef.current = document.activeElement
+    const focusables = () => Array.from(
+      node?.querySelectorAll('button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])') || [],
+    ).filter((el) => !el.disabled && el.offsetParent !== null)
+    ;(focusables()[0] || node)?.focus()
+    const onKey = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); setMobileSheet(false); return }
+      if (e.key !== 'Tab' || !node) return
+      const list = focusables()
+      if (!list.length) return
+      const first = list[0], last = list[list.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      const ret = sheetReturnRef.current
+      if (ret && typeof ret.focus === 'function' && document.body.contains(ret)) ret.focus()
+    }
+  }, [sheetModal])
 
   /* Close the top-bar "⋯" overflow menu on outside-click / Escape. */
   useEffect(() => {
@@ -136,6 +205,9 @@ export default function Editor({ page, onSave, onBack }) {
     () => draft.sections.find((s) => s.id === selectedId) || null,
     [draft.sections, selectedId],
   )
+  const sheetTitle = selected
+    ? t('blocks.' + selected.type, { defaultValue: BLOCK_TYPES[selected.type]?.label || selected.type })
+    : t('editor.designPage')
 
   /* Warn before losing unsaved edits on browser refresh / tab close. */
   useEffect(() => {
@@ -231,18 +303,22 @@ export default function Editor({ page, onSave, onBack }) {
     setPaletteOpen(false)
   }
 
-  /* Remove only the asset paths that NO remaining section references — so a delete
-     never orphans an upload, and never breaks an image shared with a duplicate. */
-  const cleanupAssets = (paths, sections) => {
-    // Walk the WHOLE section (props AND style) — section.style.bgImage is a real
-    // upload too. id/type are non-URL strings that assetPathFromUrl safely ignores.
-    const used = new Set(sections.flatMap((s) => collectAssetPaths(s)))
-    paths.forEach((p) => { if (!used.has(p)) removePageAsset(p) })
+  /* Garbage-collect orphaned uploads at a SAVE checkpoint (the only safe time —
+     mid-edit, an undo could still bring any of them back). "Live" = everything the
+     just-saved draft references PLUS the still-online published snapshot, so this
+     never deletes an image visitors are currently seeing. Anything in knownAssets
+     that's no longer live (deleted section, replaced/cleared image, removed gallery
+     item) is purged; knownAssets/savedAssets then collapse to exactly what's live. */
+  const reconcileAssets = () => {
+    const live = new Set([...collectAll(draftRef.current.sections), ...collectAll(snapshotRef.current?.sections)])
+    knownAssets.current?.forEach((p) => { if (!live.has(p)) removePageAsset(p) })
+    knownAssets.current = new Set(live)
+    savedAssets.current = new Set(live)
   }
-  /* Settle a pending delete now: actually clean up its (still-unused) assets. */
+  /* Settle a pending delete now: just dismiss its undo toast (no asset work — GC
+     happens at save). Called before starting a new delete. */
   const commitPendingDelete = () => {
     if (delTimer.current) { clearTimeout(delTimer.current); delTimer.current = null }
-    if (pendingDel) cleanupAssets(pendingDel.paths, draftRef.current.sections)
     setPendingDel(null)
   }
 
@@ -253,17 +329,11 @@ export default function Editor({ page, onSave, onBack }) {
     const removed = draft.sections[index]
     mutate((d) => ({ ...d, sections: d.sections.filter((s) => s.id !== id) }), true)
     if (selectedId === id) setSelectedId(null)
-    const paths = collectAssetPaths(removed)        // props + style (bg image)
-    setPendingDel({ section: removed, index, paths })
-    // Defer asset cleanup 7s so an undo (toast OR Ctrl+Z) can restore the section
-    // with its images intact — cleanupAssets re-checks the LIVE sections at fire
-    // time, so any restore within the window keeps the asset. Trade-off: an undo
-    // AFTER the window references a since-purged image (rare; the coach re-uploads).
-    // We purge here rather than holding assets in undo history indefinitely, which
-    // would leak every deleted-section image on the common "delete and move on" path.
+    // No asset cleanup here — the section's images stay in storage so a toast/Ctrl+Z
+    // undo restores it intact. Orphaned uploads are reconciled at the next save.
+    setPendingDel({ section: removed, index })
     delTimer.current = setTimeout(() => {
-      cleanupAssets(paths, draftRef.current.sections)
-      delTimer.current = null; setPendingDel(null)
+      delTimer.current = null; setPendingDel(null)   // auto-dismiss the undo toast
     }, 7000)
   }
 
@@ -360,6 +430,7 @@ export default function Editor({ page, onSave, onBack }) {
     try {
       await onSave(baseFields())
       setDirty(false)
+      reconcileAssets()                 // GC uploads orphaned since the last save
     } catch { setSaveError(t('editor.saveError')) } finally { setSaving(false) }
   }
 
@@ -373,7 +444,9 @@ export default function Editor({ page, onSave, onBack }) {
       await onSave({ ...baseFields(), published: true, published_snapshot: snapshot })
       setDraft((d) => ({ ...d, published: true }))
       setPublishedSnapshot(snapshot)
+      snapshotRef.current = snapshot    // make the new snapshot live for reconcile NOW (effect lags a render)
       setDirty(false)
+      reconcileAssets()                 // GC uploads orphaned by this publish (incl. the replaced live version)
       setPublishOk(true)
       if (okTimer.current) clearTimeout(okTimer.current)
       okTimer.current = setTimeout(() => { setPublishOk(false); okTimer.current = null }, 2600)
@@ -396,6 +469,7 @@ export default function Editor({ page, onSave, onBack }) {
   }
 
   return (
+    <AssetSinkContext.Provider value={registerAsset}>
     <div className={`spe${focusMode ? ' is-focus' : ''}`}>
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <div className="spe-top">
@@ -553,9 +627,13 @@ export default function Editor({ page, onSave, onBack }) {
 
         {/* ── Right panel: inspector OR design (a bottom sheet on mobile) ── */}
         {mobileSheet ? <div className="spe-sheet-backdrop" onClick={() => setMobileSheet(false)} /> : null}
-        <aside className={`spe-inspector${mobileSheet ? ' is-open' : ''}`}>
+        <aside
+          ref={sheetRef}
+          className={`spe-inspector${mobileSheet ? ' is-open' : ''}`}
+          {...(sheetModal ? { role: 'dialog', 'aria-modal': 'true', 'aria-label': sheetTitle, tabIndex: -1 } : {})}
+        >
           <div className="spe-sheet-head">
-            <span className="spe-sheet-title">{selected ? t('blocks.' + selected.type, { defaultValue: BLOCK_TYPES[selected.type]?.label || selected.type }) : t('editor.designPage')}</span>
+            <span className="spe-sheet-title">{sheetTitle}</span>
             <button className="spe-sheet-close" onClick={() => setMobileSheet(false)}>{t('editor.done')}</button>
           </div>
           {selected
@@ -581,6 +659,7 @@ export default function Editor({ page, onSave, onBack }) {
         </div>
       ) : null}
     </div>
+    </AssetSinkContext.Provider>
   )
 }
 
@@ -1026,6 +1105,7 @@ function BookingPageField({ value, onChange }) {
 
 function ImageField({ value, onChange }) {
   const { t } = useT('siteBuilder')
+  const registerAsset = useContext(AssetSinkContext)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const inputRef = useRef(null)
@@ -1033,20 +1113,16 @@ function ImageField({ value, onChange }) {
     const file = e.target.files?.[0]
     if (!file) return
     setErr(''); setBusy(true)
-    const prev = value
     try {
-      const { url } = await uploadPageAsset(file)
+      const { url, path } = await uploadPageAsset(file)
       onChange(url)
-      // Replacing an image: clean up the previous asset so it doesn't orphan.
-      const prevPath = assetPathFromUrl(prev)
-      if (prevPath) removePageAsset(prevPath)
+      // Track the upload but DON'T purge the replaced image — an undo could bring it
+      // back, and it may still be live on the published page. The editor reconciles
+      // every orphan (replaced/cleared/deleted) at the next save.
+      registerAsset?.(path)
     } catch (ex) { setErr(t('assets.' + ex.message, { defaultValue: t('inspector.uploadFailed') })) } finally { setBusy(false); if (inputRef.current) inputRef.current.value = '' }
   }
-  const clear = () => {
-    const path = assetPathFromUrl(value)
-    if (path) removePageAsset(path)
-    onChange('')
-  }
+  const clear = () => { onChange('') }   // asset GC deferred to save (undo-safe)
   return (
     <div className="spe-image">
       {value ? <div className="spe-image-prev"><img src={value} alt="" /><button onClick={clear} title={t('inspector.removeImage')} aria-label={t('inspector.removeImage')}><X size={14} /></button></div> : null}

@@ -12,6 +12,10 @@ import './ConnectionsScreen.css'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const yearAgoStr = () => new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10)
+/* Default look-back for the initial sync: one month. A year of history is
+   still selectable manually (the input's `min` stays a year ago) — most
+   users only need the recent weeks, so a month keeps the first sync light. */
+const monthAgoStr = () => new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
 
 function fmtDateTime(iso, allDay) {
   if (!iso) return ''
@@ -45,7 +49,7 @@ export default function CalendarConnectionScreen() {
   const { projects } = useProjects()
   const { leads } = useLeads()
   const { groups } = useGroups()
-  const [syncFrom, setSyncFrom] = useState(yearAgoStr())
+  const [syncFrom, setSyncFrom] = useState(monthAgoStr())
   const [eventsOpen, setEventsOpen] = useState(true)
   const [openCats, setOpenCats] = useState(() => new Set())
   const [openGroups, setOpenGroups] = useState(() => new Set())

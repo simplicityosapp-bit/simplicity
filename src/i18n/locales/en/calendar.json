@@ -25,8 +25,10 @@
   "nav": {
     "tablistAria": "View",
     "prevMonth": "Previous month",
+    "prevWeek": "Previous week",
     "prev": "Previous",
     "nextMonth": "Next month",
+    "nextWeek": "Next week",
     "next": "Next",
     "today": "Today"
   },

@@ -69,7 +69,18 @@
 .spg-tile-icon { display: grid; place-items: center; width: 46px; height: 46px; flex: none; border-radius: 13px; color: var(--terracotta); background: color-mix(in srgb, var(--terracotta) 12%, transparent); }
 .spg-tile-body { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .spg-tile-title { font-size: var(--mg-heading); font-weight: 600; color: var(--espresso); }
-.spg-tile-desc { font-size: var(--mg-caption); color: var(--spb-text-2, var(--stone)); line-height: 1.4; }
+/* Pill the description so it stays legible over the busy photo backdrop, with
+   dark text (was a muted stone that washed out). --pure-white is remapped to a
+   dark control surface in this screen's dark scope, so the chip + text flip
+   together (light pill/dark text → dark pill/light text). */
+.spg-tile-desc {
+  display: inline-flex; align-self: flex-start; max-width: 100%;
+  margin-top: 2px; padding: 3px 11px; border-radius: 999px;
+  background: color-mix(in srgb, var(--pure-white) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--espresso) 7%, transparent);
+  font-size: var(--mg-caption); font-weight: 500; line-height: 1.35;
+  color: color-mix(in srgb, var(--espresso) 88%, transparent);
+}
 .spg-tile-chevron { color: var(--spb-text-3, var(--mist)); flex: none; }
 .spg-tile:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 24%, transparent); }
 

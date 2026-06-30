@@ -226,7 +226,8 @@
       "listSection": "Hoy",
       "empty": "Nada programado para hoy",
       "allDay": "Todo el día",
-      "markHappened": "Marcar como realizada"
+      "markHappened": "Marcar como realizada",
+      "happened": "Realizada"
     },
     "todayKinds": {
       "meeting": "Reunión",

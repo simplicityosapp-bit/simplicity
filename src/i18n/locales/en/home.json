@@ -26,6 +26,9 @@
       "bookings_one": "New booking to confirm",
       "bookings_other": "{{count}} new bookings to confirm",
       "bookingsModalTitle": "Bookings to confirm",
+      "invoices_one": "New document to import",
+      "invoices_other": "{{count}} new documents to import",
+      "invoicesModalTitle": "Documents to import",
       "reachOut": "Quick reach-out"
     },
     "chips": {

@@ -26,6 +26,9 @@
       "bookings_one": "Nueva reserva por confirmar",
       "bookings_other": "{{count}} reservas nuevas por confirmar",
       "bookingsModalTitle": "Reservas por confirmar",
+      "invoices_one": "Nuevo documento por importar",
+      "invoices_other": "{{count}} documentos nuevos por importar",
+      "invoicesModalTitle": "Documentos por importar",
       "reachOut": "Contacto rápido"
     },
     "chips": {

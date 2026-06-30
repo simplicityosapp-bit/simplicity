@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { queryClient } from '../lib/queryClient'
+import { recordAppSession } from '../lib/api/appSession'
 import { AuthContext } from './AuthContext'
 
 export default function AuthProvider({ children }) {
@@ -16,6 +17,9 @@ export default function AuthProvider({ children }) {
       prevUserId = data.session?.user?.id ?? null
       setSession(data.session)
       setLoading(false)
+      // Record one app-usage session per tab for the admin analytics heartbeat
+      // (deduped in recordAppSession). Covers tabs opened with a live session.
+      if (prevUserId) recordAppSession(prevUserId)
     })
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       // A password-reset link establishes a session AND fires PASSWORD_RECOVERY.
@@ -34,6 +38,9 @@ export default function AuthProvider({ children }) {
         queryClient.clear()
         prevUserId = nextUserId
       }
+      // A fresh sign-in in this tab — record the usage session (deduped, so a
+      // token refresh for the same user won't double-count).
+      if (event === 'SIGNED_IN' && nextUserId) recordAppSession(nextUserId)
       setSession(s)
     })
     return () => {

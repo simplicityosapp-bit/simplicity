@@ -206,6 +206,44 @@ Deno.serve(async (req) => {
       return json({ ok: true, is_subscriber: value })
     }
 
+    // Set a user's subscription TIER and/or BETA EXEMPTION — the new billing
+    // model. Writes the user_subscriptions table (the source of truth that
+    // current_tier() reads for RLS), service-role only. Reads-then-merges so a
+    // tier-only or beta-only update never clobbers the other fields (e.g. a
+    // future Stripe customer id). perm: set_subscriber.
+    if (action === 'set_subscription') {
+      if (!perms.set_subscriber) return json({ error: 'forbidden' }, 403)
+      const uid = body?.user_id as string
+      if (!uid || !UUID_RE.test(uid)) return json({ error: 'bad request' }, 400)
+      const patch: Record<string, unknown> = {}
+      if (body?.tier !== undefined) {
+        if (!['free', 'basic', 'premium'].includes(body.tier)) return json({ error: 'bad tier' }, 400)
+        patch.tier = body.tier
+      }
+      if (body?.beta_exempt_until !== undefined) {
+        const v = body.beta_exempt_until
+        if (v === null || v === '') {
+          patch.beta_exempt_until = null
+        } else {
+          const d = new Date(v as string)
+          if (isNaN(d.getTime())) return json({ error: 'bad date' }, 400)
+          patch.beta_exempt_until = d.toISOString()
+        }
+      }
+      if (!Object.keys(patch).length) return json({ error: 'nothing to update' }, 400)
+      const { data: rows, error: readErr } = await admin
+        .from('user_subscriptions').select('*').eq('user_id', uid).limit(1)
+      if (readErr) return json({ error: 'read failed', detail: readErr.message }, 500)
+      const existing = (rows?.[0] ?? { user_id: uid, tier: 'free' }) as Record<string, unknown>
+      const next: Record<string, unknown> = { ...existing, ...patch, user_id: uid }
+      delete next.created_at
+      delete next.updated_at
+      const { error: upErr } = await admin
+        .from('user_subscriptions').upsert(next, { onConflict: 'user_id' })
+      if (upErr) return json({ error: 'write failed', detail: upErr.message }, 500)
+      return json({ ok: true, tier: next.tier ?? 'free', beta_exempt_until: next.beta_exempt_until ?? null })
+    }
+
     // Permanently delete a user — removes the auth.users row, which cascades
     // to all their app data via ON DELETE CASCADE. Owner-only (verified at the
     // top); deleting the owner's own account is blocked. Destructive +
@@ -302,11 +340,13 @@ Deno.serve(async (req) => {
       const { data: fb } = await admin.from('feedback').select('status')
       const openFeedback = (fb ?? []).filter((r) => r.status !== 'done').length
 
+      // "sessions" here = app-usage opens (app_sessions, migration 0076), NOT
+      // coaching sessions. Empty until the migration runs / sessions accrue.
       const { data: sess } = await admin
-        .from('sessions')
-        .select('created_at, deleted_at')
+        .from('app_sessions')
+        .select('created_at')
       const sessionsThisWeek = (sess ?? []).filter(
-        (s) => !s.deleted_at && new Date(s.created_at).getTime() >= weekAgo,
+        (s) => new Date(s.created_at).getTime() >= weekAgo,
       ).length
 
       // Manually-flagged subscribers (preferences.subscription.manual).
@@ -347,13 +387,18 @@ Deno.serve(async (req) => {
     if (action === 'users') {
       const users = await fetchAllUsers(admin)
 
-      const [{ data: moon }, { data: sess }, { data: prefs }, { data: fb }, { data: consent }] = await Promise.all([
+      const [{ data: moon }, { data: sess }, { data: prefs }, { data: fb }, { data: consent }, { data: subs }] = await Promise.all([
         admin.from('moon_snapshots').select('user_id, reflection'),
-        admin.from('sessions').select('user_id, deleted_at'),
+        admin.from('app_sessions').select('user_id'),
         admin.from('user_preferences').select('user_id, preferences'),
         admin.from('feedback').select('user_id'),
         admin.from('user_consent').select('user_id, kind, version, accepted, accepted_at, created_at'),
+        // New billing model: tier + beta exemption per user (migration 0075).
+        admin.from('user_subscriptions').select('user_id, tier, beta_exempt_until'),
       ])
+
+      const subById = new Map<string, { tier: string; beta_exempt_until: string | null }>()
+      for (const s of subs ?? []) subById.set(s.user_id, { tier: s.tier ?? 'free', beta_exempt_until: s.beta_exempt_until ?? null })
 
       const reflById = new Map<string, number>()
       for (const r of moon ?? []) {
@@ -362,7 +407,6 @@ Deno.serve(async (req) => {
       }
       const sessById = new Map<string, number>()
       for (const s of sess ?? []) {
-        if (s.deleted_at) continue
         sessById.set(s.user_id, (sessById.get(s.user_id) ?? 0) + 1)
       }
       const obById = new Map<string, any>()
@@ -411,6 +455,8 @@ Deno.serve(async (req) => {
             feedback_count: fbById.get(u.id) ?? 0,
             subscriber_kind: kindById.get(u.id) ?? null,
             is_subscriber: !!kindById.get(u.id),
+            subscription_tier: subById.get(u.id)?.tier ?? 'free',
+            beta_exempt_until: subById.get(u.id)?.beta_exempt_until ?? null,
             marketing_consent: u.marketing_consent,
             consent: consentById.get(u.id) ?? {},
             is_owner: (u.email ?? '').toLowerCase() === ADMIN_EMAIL,
@@ -435,7 +481,7 @@ Deno.serve(async (req) => {
       const emailById = new Map(users.map((u) => [u.id, u.email]))
 
       const [{ data: sess }, { data: moon }, { data: prefs }, { data: landing }] = await Promise.all([
-        admin.from('sessions').select('user_id, created_at, deleted_at'),
+        admin.from('app_sessions').select('user_id, created_at'),
         admin.from('moon_snapshots').select('reflection, date, created_at'),
         admin.from('user_preferences').select('user_id, preferences'),
         // Anonymous landing funnel events (null if migration 0050 hasn't run yet).
@@ -460,7 +506,6 @@ Deno.serve(async (req) => {
       const sessionsOverTime = makeBuckets()
       const topMap = new Map<string, number>()
       for (const s of sess ?? []) {
-        if (s.deleted_at) continue
         const t = new Date(s.created_at).getTime()
         if (t >= startMs) {
           bump(sessionsOverTime, dayKey(new Date(s.created_at)))

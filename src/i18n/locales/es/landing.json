@@ -145,10 +145,6 @@
     "install": {
       "q": "¿Necesito instalar algo?",
       "a": "No. Simplicity funciona en tu navegador y en el móvil, y puedes añadirla a tu pantalla de inicio como una app — sin descargas y sin actualizaciones."
-    },
-    "hebrew": {
-      "q": "¿De verdad está hecho para el hebreo y para mí?",
-      "a": "Por supuesto. Creado desde la base en hebreo completo y de derecha a izquierda, con shékels, fechas hebreas y trato en masculino, femenino o neutro."
     }
   },
   "cta": {

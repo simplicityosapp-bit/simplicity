@@ -145,10 +145,6 @@
     "install": {
       "q": "Do I need to install anything?",
       "a": "No. Simplicity works in your browser and on mobile, and you can add it to your home screen as an app — no downloads, no updates."
-    },
-    "hebrew": {
-      "q": "Is it really built for Hebrew and for me?",
-      "a": "Absolutely. Built from the ground up in full Hebrew and right-to-left, with shekels, Hebrew dates, and masculine, feminine or neutral address."
     }
   },
   "cta": {

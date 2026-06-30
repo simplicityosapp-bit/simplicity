@@ -116,7 +116,6 @@ export default function LandingScreen() {
     { q: t('faq.privacy.q'), a: t('faq.privacy.a') },
     { q: t('faq.price.q'), a: t('faq.price.a') },
     { q: t('faq.install.q'), a: t('faq.install.a') },
-    { q: t('faq.hebrew.q'), a: t('faq.hebrew.a') },
   ]
 
   /* FAQ structured data — rendered only on this page (the homepage), built

@@ -228,41 +228,44 @@ export function attentionItems(now = new Date(), data) {
     members = mockMembers,
     groups = mockGroups,
   } = data || {}
+  /* Row labels are localized at compute time via the active i18n language.
+     The widget re-runs this memo on language change so the rows re-render. */
+  const T = (key, opts) => i18n.t(`home:widgets.attention.rows.${key}`, opts)
   const items = []
   const pending = (transactions || []).filter((t) => !t.deleted_at && t.status === 'pending')
-  if (pending.length) items.push({ icon: 'Wallet', text: `${pending.length} תנועות ממתינות לאישור`, to: ROUTES.FINANCE, kind: 'pendingTx' })
+  if (pending.length) items.push({ icon: 'Wallet', text: T('pendingTx', { count: pending.length }), to: ROUTES.FINANCE, kind: 'pendingTx' })
 
   const pastMeetings = (scheduled_meetings || []).filter(
     (m) => m.status === 'pending' && new Date(m.scheduled_at).getTime() <= now.getTime(),
   )
   if (pastMeetings.length) {
-    items.push({ icon: 'Calendar', text: `${pastMeetings.length} ${pastMeetings.length === 1 ? 'פגישה ממתינה' : 'פגישות ממתינות'} לאישור`, to: ROUTES.CALENDAR, kind: 'pendingMeetings' })
+    items.push({ icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), to: ROUTES.CALENDAR, kind: 'pendingMeetings' })
   }
 
   const withBalance = live(clients).filter((c) => c.status !== 'past' && clientBalance(c, transactions, sessions, members, groups).balance > 0)
-  if (withBalance.length) items.push({ icon: 'Wallet', text: `${withBalance.length} לקוח${withBalance.length > 1 ? 'ות' : ''} עם יתרה`, to: ROUTES.CLIENTS })
+  if (withBalance.length) items.push({ icon: 'Wallet', text: T('balance', { count: withBalance.length }), to: ROUTES.CLIENTS })
 
   const goal = monthlyIncomeGoal({ goals, categories })
   const { inc } = monthNet(now, { transactions })
   if (goal > 0 && inc < goal) {
     const daysLeft = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate()
-    items.push({ icon: 'Target', text: `חסר ${ils(goal - inc)} ליעד — ${daysLeft} ימים`, to: ROUTES.GOALS })
+    items.push({ icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), to: ROUTES.GOALS })
   }
 
   const urgent = live(tasks).filter((t) => t.status !== 'done' && t.priority === 'high').length
-  if (urgent) items.push({ icon: 'AlertCircle', text: `${urgent} משימות דחופות`, to: ROUTES.TASKS })
+  if (urgent) items.push({ icon: 'AlertCircle', text: T('urgentTasks', { count: urgent }), to: ROUTES.TASKS })
 
   const staleClients = clientsNeedingAttention(45, now, { clients, sessions })
-  if (staleClients.length) items.push({ icon: 'Clock', text: `${staleClients.length} לקוח${staleClients.length > 1 ? 'ות' : ''} לא יצרו קשר`, to: ROUTES.CLIENTS, kind: 'people', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
+  if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), to: ROUTES.CLIENTS, kind: 'people', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
 
   /* Leads from public lead-pages awaiting manual approval. Kept orthogonal:
      pending leads are excluded from the stale / follow-up rules below. */
   const officialLeads = live(leads).filter((l) => !l.pending_review)
   const pendingLeads = live(leads).filter((l) => l.pending_review)
-  if (pendingLeads.length) items.push({ icon: 'Bell', text: `${pendingLeads.length} ליד${pendingLeads.length > 1 ? 'ים' : ''} ממתינים לאישור`, to: ROUTES.LEADS, kind: 'pendingLeads' })
+  if (pendingLeads.length) items.push({ icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), to: ROUTES.LEADS, kind: 'pendingLeads' })
 
   const staleLeads = leadsNeedingAttention(45, now, officialLeads)
-  if (staleLeads.length) items.push({ icon: 'Clock', text: `${staleLeads.length} ליד${staleLeads.length > 1 ? 'ים' : ''} ללא תנועה`, to: ROUTES.LEADS, kind: 'people', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
+  if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), to: ROUTES.LEADS, kind: 'people', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
   /* Lead follow-ups due — date ≤ today AND still in_process (closed metas
      suppress, the follow-up is moot). follow_up_date is a 'YYYY-MM-DD' string
@@ -271,7 +274,7 @@ export function attentionItems(now = new Date(), data) {
   const dueFollowups = officialLeads.filter(
     (l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= todayYmd,
   )
-  if (dueFollowups.length) items.push({ icon: 'Bell', text: `${dueFollowups.length} פולואו-אפ${dueFollowups.length > 1 ? 'ים' : ''} להיום`, to: ROUTES.LEADS, kind: 'people', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
+  if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), to: ROUTES.LEADS, kind: 'people', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
   return items
 }

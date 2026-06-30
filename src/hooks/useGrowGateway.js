@@ -104,6 +104,21 @@ export function useGrowGateway() {
     }
   }, [setStatus])
 
+  /* Toggle polling-import of external Grow charges (opt-in). Charges are staged
+     as pending imports (grow-poll) for the coach to approve. */
+  const setImport = useCallback(async (value) => {
+    setBusy(true); setActionError(null)
+    try {
+      const r = await callGrow('set-import', { value: !!value })
+      if (r?.status) setStatus(r.status)
+      return r
+    } catch (e) {
+      setActionError(e.message); throw e
+    } finally {
+      setBusy(false)
+    }
+  }, [setStatus])
+
   return {
     status,
     loading,
@@ -115,5 +130,6 @@ export function useGrowGateway() {
     loadStatus,
     createPaymentLink,
     setAutoReceipt,
+    setImport,
   }
 }

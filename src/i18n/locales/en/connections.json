@@ -234,7 +234,23 @@
     "autoReceiptNote": "When a Grow payment arrives, a receipt is issued automatically via your connected invoice provider and linked to the transaction.",
     "autoReceiptOn": "Auto-receipt turned on.",
     "autoReceiptOff": "Auto-receipt turned off.",
-    "autoReceiptNeedsInvoice": "To auto-issue a receipt, also connect an invoice provider (Green Invoice / SUMIT) on the Connections screen."
+    "autoReceiptNeedsInvoice": "To auto-issue a receipt, also connect an invoice provider (Green Invoice / SUMIT) on the Connections screen.",
+    "importLabel": "Import charges from Grow?",
+    "importNote": "A periodic scan spots charges made in Grow (including outside the app) and offers to record them as income — with your approval.",
+    "importOn": "Charge import turned on.",
+    "importOff": "Charge import turned off."
+  },
+  "growImports": {
+    "heading": "Grow charges",
+    "sub": "Charges found in Grow that aren't recorded yet. Approve to record as income, or dismiss.",
+    "charge": "Grow charge",
+    "noName": "No name",
+    "sure": "Sure?",
+    "import": "Import",
+    "dismiss": "Dismiss",
+    "countAria": "{{count}} charges pending",
+    "importingAria": "Importing…",
+    "confirmAria": "Confirm importing {{amount}}"
   },
   "growPay": {
     "create": "Create payment link (Grow)",

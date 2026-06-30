@@ -191,13 +191,13 @@ Deno.serve(async (req) => {
         const { data: tx } = await admin.from('transactions').insert({
           user_id: integ.user_id, type: 'income', amount: pr.amount,
           desc: pr.description || 'תשלום בכרטיס אשראי', date: todayISO(), status: 'confirmed',
-          client_id: pr.client_id, payment_method: 'credit_card',
+          client_id: pr.client_id, payment_method: 'credit_card', grow_transaction_id: growTxId,
         }).select('id').single()
         if (tx) await admin.from('payment_requests').update({ transaction_id: tx.id, updated_at: nowISO() }).eq('id', pr.id)
       } else if (pr.source === 'transaction' && pr.transaction_id) {
         // The income tx already exists (a pending/expected income) — confirm it
         // and tag the method; do NOT create a second income row.
-        await admin.from('transactions').update({ status: 'confirmed', payment_method: 'credit_card' })
+        await admin.from('transactions').update({ status: 'confirmed', payment_method: 'credit_card', grow_transaction_id: growTxId })
           .eq('id', pr.transaction_id).eq('user_id', integ.user_id)
       } else if (pr.source === 'installment' && pr.installment_id) {
         // Mirror usePaymentPlans.markReceived server-side: create the linked
@@ -205,7 +205,7 @@ Deno.serve(async (req) => {
         const { data: tx } = await admin.from('transactions').insert({
           user_id: integ.user_id, type: 'income', amount: pr.amount,
           desc: pr.description || 'תשלום בכרטיס אשראי', date: todayISO(), status: 'confirmed',
-          client_id: pr.client_id, payment_method: 'credit_card',
+          client_id: pr.client_id, payment_method: 'credit_card', grow_transaction_id: growTxId,
         }).select('id').single()
         await admin.from('payment_installments').update({
           received: true, received_date: todayISO(), payment_method: 'credit_card', transaction_id: tx?.id ?? null,
@@ -220,7 +220,7 @@ Deno.serve(async (req) => {
         const { data: tx } = await admin.from('transactions').insert({
           user_id: integ.user_id, type: 'income', amount: pr.amount,
           desc: pr.description || 'תשלום עבור פגישה', date: todayISO(), status: 'confirmed',
-          client_id: pr.client_id, payment_method: 'credit_card',
+          client_id: pr.client_id, payment_method: 'credit_card', grow_transaction_id: growTxId,
         }).select('id').single()
         if (tx) await admin.from('payment_requests').update({ transaction_id: tx.id, updated_at: nowISO() }).eq('id', pr.id)
       }

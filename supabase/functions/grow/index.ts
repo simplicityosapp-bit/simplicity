@@ -71,6 +71,8 @@ const statusOf = (row: any) =>
         credentials_invalid: !!row.credentials_invalid_at,
         // Opt-in: auto-issue a receipt via the invoice provider on payment (0072).
         auto_receipt: !!row.grow_auto_receipt,
+        // Opt-in: poll-import external Grow charges as pending imports (0073).
+        import_enabled: !!row.grow_import_enabled,
       }
     : { connected: false }
 
@@ -236,6 +238,53 @@ Deno.serve(async (req) => {
         .update({ grow_auto_receipt: !!body.value }).eq('id', row.id).select('*').maybeSingle()
       if (updErr || !updated) throw updErr ?? new Error('auto_receipt update failed')
       return json({ status: statusOf(updated) })
+    }
+
+    if (action === 'set-import') {
+      const row = await loadGrowIntegration(userId)
+      if (!row) return json({ error: 'not_connected' }, 400)
+      const { data: updated, error: updErr } = await admin.from('user_integrations')
+        .update({ grow_import_enabled: !!body.value }).eq('id', row.id).select('*').maybeSingle()
+      if (updErr || !updated) throw updErr ?? new Error('import toggle failed')
+      return json({ status: statusOf(updated) })
+    }
+
+    if (action === 'import-approve') {
+      const import_id = String(body.import_id ?? '')
+      if (!import_id) return json({ error: 'missing_import' }, 400)
+      // Atomic claim: pending → imported, blocks a concurrent double-approve.
+      const { data: imp } = await admin.from('pending_grow_imports')
+        .update({ status: 'imported' }).eq('id', import_id).eq('user_id', userId).eq('status', 'pending')
+        .select('*').maybeSingle()
+      if (!imp) return json({ error: 'already_handled' }, 409)
+      // Dedup: a tx already tagged with this Grow id → link, don't duplicate income.
+      const { data: existing } = await admin.from('transactions')
+        .select('id').eq('user_id', userId).eq('grow_transaction_id', imp.grow_transaction_id).is('deleted_at', null).maybeSingle()
+      if (existing) {
+        await admin.from('pending_grow_imports').update({ created_transaction_id: existing.id }).eq('id', import_id).eq('user_id', userId)
+        return json({ ok: true, transaction_id: existing.id, deduped: true })
+      }
+      const descName = imp.customer_name ? ` — ${imp.customer_name}` : ''
+      const { data: tx, error: txErr } = await admin.from('transactions').insert({
+        user_id: userId, type: 'income', amount: imp.amount ?? 0,
+        desc: `תשלום Grow${descName}`.trim(), date: imp.charge_date ?? new Date().toISOString().slice(0, 10),
+        status: 'confirmed', client_id: imp.client_id, payment_method: 'credit_card',
+        grow_transaction_id: imp.grow_transaction_id,
+      }).select('id').single()
+      if (txErr) {
+        await admin.from('pending_grow_imports').update({ status: 'pending', created_transaction_id: null }).eq('id', import_id).eq('user_id', userId)
+        throw txErr
+      }
+      await admin.from('pending_grow_imports').update({ created_transaction_id: tx.id }).eq('id', import_id).eq('user_id', userId)
+      return json({ ok: true, transaction_id: tx.id })
+    }
+
+    if (action === 'import-dismiss') {
+      const import_id = String(body.import_id ?? '')
+      if (!import_id) return json({ error: 'missing_import' }, 400)
+      await admin.from('pending_grow_imports')
+        .update({ status: 'dismissed' }).eq('id', import_id).eq('user_id', userId).eq('status', 'pending')
+      return json({ ok: true })
     }
 
     if (action === 'disconnect') {

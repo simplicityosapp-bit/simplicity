@@ -234,7 +234,23 @@
     "autoReceiptNote": "Quand un paiement Grow arrive, un reçu est émis automatiquement via votre fournisseur de factures connecté et lié à la transaction.",
     "autoReceiptOn": "Reçu automatique activé.",
     "autoReceiptOff": "Reçu automatique désactivé.",
-    "autoReceiptNeedsInvoice": "Pour émettre un reçu automatiquement, connectez aussi un fournisseur de factures (Green Invoice / SUMIT) sur l'écran Connexions."
+    "autoReceiptNeedsInvoice": "Pour émettre un reçu automatiquement, connectez aussi un fournisseur de factures (Green Invoice / SUMIT) sur l'écran Connexions.",
+    "importLabel": "Importer les paiements de Grow ?",
+    "importNote": "Un balayage périodique repère les paiements effectués dans Grow (y compris hors de l'app) et propose de les enregistrer comme revenu — avec votre approbation.",
+    "importOn": "Import des paiements activé.",
+    "importOff": "Import des paiements désactivé."
+  },
+  "growImports": {
+    "heading": "Paiements Grow",
+    "sub": "Paiements détectés dans Grow et pas encore enregistrés. Approuvez pour enregistrer comme revenu, ou ignorez.",
+    "charge": "Paiement Grow",
+    "noName": "Sans nom",
+    "sure": "Sûr ?",
+    "import": "Importer",
+    "dismiss": "Ignorer",
+    "countAria": "{{count}} paiements en attente",
+    "importingAria": "Importation…",
+    "confirmAria": "Confirmer l'import de {{amount}}"
   },
   "growPay": {
     "create": "Créer un lien de paiement (Grow)",

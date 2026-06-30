@@ -44,6 +44,7 @@ export default function GrowCard() {
   const inv = useInvoiceProvider()
   const invConnected = !!inv.status?.connected // an invoice provider is required for auto-receipt
   const autoReceipt = !!status?.auto_receipt
+  const importEnabled = !!status?.import_enabled
 
   const [environment, setEnvironment] = useState('production')
   const [creds, setCreds] = useState({ userId: '', pageCode: '', apiKey: '' })
@@ -55,6 +56,7 @@ export default function GrowCard() {
   const [busyAction, setBusyAction] = useState(null) // 'connect' | 'test' | 'disconnect'
   const [confirmDisc, setConfirmDisc] = useState(false)
   const [togglingReceipt, setTogglingReceipt] = useState(false)
+  const [togglingImport, setTogglingImport] = useState(false)
   const discTimer = useRef(0)
   /* Clear the 2-step-confirm auto-disarm timer if we unmount mid-confirm. */
   useEffect(() => () => window.clearTimeout(discTimer.current), [])
@@ -69,6 +71,19 @@ export default function GrowCard() {
       setLocalErr(errMsg(e.message, t))
     } finally {
       setTogglingReceipt(false)
+    }
+  }
+
+  const onToggleImport = async (value) => {
+    if (togglingImport) return /* ignore rapid double-toggles */
+    setLocalErr(''); setOkMsg(''); setTogglingImport(true)
+    try {
+      await grow.setImport(value)
+      setOkMsg(value ? t('growCard.importOn') : t('growCard.importOff'))
+    } catch (e) {
+      setLocalErr(errMsg(e.message, t))
+    } finally {
+      setTogglingImport(false)
     }
   }
 
@@ -246,6 +261,12 @@ export default function GrowCard() {
         ) : (
           <p className="conn-autoimport-note">{t('growCard.autoReceiptNeedsInvoice')}</p>
         )}
+        {/* External-charge import opt-in (poll) — independent of the invoice provider. */}
+        <label className="conn-autoimport">
+          <input type="checkbox" checked={importEnabled} onChange={(e) => onToggleImport(e.target.checked)} disabled={grow.busy || togglingImport} />
+          <span>{t('growCard.importLabel')}</span>
+        </label>
+        <p className="conn-autoimport-note">{t('growCard.importNote')}</p>
         </>
       )}
 

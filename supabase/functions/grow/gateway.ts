@@ -220,6 +220,41 @@ export class GrowGateway {
       throw new GrowError('provider_unreachable', `grow approve unreachable: ${e}`)
     }
   }
+
+  /* List charges since `sinceISO` for the external-charge import (grow-poll) —
+     includes charges made outside Simplicity. ⚠️ UNVERIFIED: Grow's
+     transactions-list endpoint name + response envelope are a best guess;
+     calibrate against a live account. Degrades to [] on any failure so a bad
+     poll never throws. */
+  async listTransactionsSince(creds: GrowCredentials, sinceISO: string): Promise<Array<{ transactionId: string; amount: number | null; currency: string; date: string | null; customerName: string | null; raw: unknown }>> {
+    const from = (sinceISO || '').slice(0, 10) || new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10)
+    const to = new Date().toISOString().slice(0, 10)
+    try {
+      const form = new FormData()
+      form.append('pageCode', creds.pageCode)
+      form.append('userId', creds.userId)
+      if (creds.apiKey) form.append('apiKey', creds.apiKey)
+      form.append('fromDate', from)
+      form.append('toDate', to)
+      const res = await fetch(`${BASE[creds.environment]}/getTransactions`, { method: 'POST', body: form })
+      if (!res.ok) { console.error('grow listTransactions http', res.status); return [] }
+      const data = (await res.json().catch(() => ({}))) as any
+      const list = Array.isArray(data?.data) ? data.data
+        : Array.isArray(data?.data?.transactions) ? data.data.transactions
+        : Array.isArray(data?.transactions) ? data.transactions : []
+      return list.map((t: any) => ({
+        transactionId: String(t.transactionId ?? t.transactionID ?? t.asmachta ?? t.id ?? ''),
+        amount: Number.isFinite(Number(t.sum ?? t.amount)) ? Number(t.sum ?? t.amount) : null,
+        currency: typeof t.currency === 'string' ? t.currency : 'ILS',
+        date: (t.date ?? t.transactionDate ?? t.createDate) ? String(t.date ?? t.transactionDate ?? t.createDate).slice(0, 10) : null,
+        customerName: t.fullName ?? t.payerName ?? t.customerName ?? null,
+        raw: t,
+      })).filter((c: any) => c.transactionId && Number(c.amount) > 0)
+    } catch (e) {
+      console.error('grow listTransactions failed', e)
+      return []
+    }
+  }
 }
 
 export const gateway = new GrowGateway()

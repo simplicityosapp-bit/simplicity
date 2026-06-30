@@ -1,6 +1,7 @@
 import { useNavigate, Navigate } from 'react-router-dom'
 import { ChevronRight, CreditCard } from 'lucide-react'
 import GrowCard from './GrowCard'
+import GrowImports from './GrowImports'
 import { ROUTES } from '../../lib/routes'
 import { GROW_ENABLED } from '../../lib/grow'
 import { useT } from '../../i18n/useT'
@@ -27,6 +28,7 @@ export default function GrowConnectionScreen() {
       </header>
 
       <GrowCard />
+      <GrowImports />
     </div>
   )
 }

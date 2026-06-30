@@ -234,7 +234,23 @@
     "autoReceiptNote": "Cuando llega un pago de Grow, se emite automáticamente un recibo a través de tu proveedor de facturas conectado y se vincula a la transacción.",
     "autoReceiptOn": "Recibo automático activado.",
     "autoReceiptOff": "Recibo automático desactivado.",
-    "autoReceiptNeedsInvoice": "Para emitir un recibo automáticamente, conecta también un proveedor de facturas (Green Invoice / SUMIT) en la pantalla de Conexiones."
+    "autoReceiptNeedsInvoice": "Para emitir un recibo automáticamente, conecta también un proveedor de facturas (Green Invoice / SUMIT) en la pantalla de Conexiones.",
+    "importLabel": "¿Importar cargos de Grow?",
+    "importNote": "Un escaneo periódico detecta cargos hechos en Grow (incluso fuera de la app) y propone registrarlos como ingreso — con tu aprobación.",
+    "importOn": "Importación de cargos activada.",
+    "importOff": "Importación de cargos desactivada."
+  },
+  "growImports": {
+    "heading": "Cargos de Grow",
+    "sub": "Cargos detectados en Grow que aún no están registrados. Aprueba para registrarlos como ingreso, o descártalos.",
+    "charge": "Cargo de Grow",
+    "noName": "Sin nombre",
+    "sure": "¿Seguro?",
+    "import": "Importar",
+    "dismiss": "Descartar",
+    "countAria": "{{count}} cargos pendientes",
+    "importingAria": "Importando…",
+    "confirmAria": "Confirmar la importación de {{amount}}"
   },
   "growPay": {
     "create": "Crear enlace de pago (Grow)",

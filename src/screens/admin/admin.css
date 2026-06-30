@@ -26,6 +26,10 @@
   color: var(--espresso);
   font-family: var(--mg-font);
   direction: rtl;
+  /* One uniform internal padding for EVERY admin card. Was drifting per
+     screen — stat 18/20, chart 20/22, feedback & goal 16/18 — so cards
+     "breathed" differently when navigating between admin screens. */
+  --admin-card-pad: 18px 20px;
 }
 .admin-root::-webkit-scrollbar { display: none; }
 
@@ -133,6 +137,7 @@
   border: var(--mg-card-border);
   border-radius: var(--mg-card-radius);
   box-shadow: var(--mg-card-shadow);
+  padding: var(--admin-card-pad);
 }
 
 /* ── Stat cards row ────────────────────────────────────────────── */
@@ -142,7 +147,6 @@
   gap: var(--mg-gutter);
 }
 .admin-stat {
-  padding: 18px 20px;
   border-radius: var(--mg-card-radius);
 }
 .admin-stat-label {
@@ -172,7 +176,6 @@
   margin-bottom: 12px;
 }
 .admin-section-head h2 { font-size: var(--mg-heading); font-weight: 600; }
-.admin-chart-card { padding: 20px 22px; }
 
 .admin-chart-svg { display: block; width: 100%; overflow: visible; }
 .admin-chart-bar { fill: var(--terracotta); }
@@ -478,7 +481,6 @@
 /* ── Feedback cards ────────────────────────────────────────────── */
 .admin-fb-filters { display: flex; flex-wrap: wrap; gap: 8px; }
 .admin-fb-list { display: flex; flex-direction: column; gap: var(--mg-row-gap); }
-.admin-fb-card { padding: 16px 18px; }
 .admin-fb-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
 .admin-fb-from { font-size: var(--mg-caption); font-weight: 600; color: var(--espresso); }
 .admin-fb-date { font-size: var(--mg-micro); color: var(--mist); }
@@ -514,7 +516,6 @@
 
 /* ── Goals (targets) ───────────────────────────────────────────── */
 .admin-goals { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--mg-gutter); }
-.admin-goal { padding: 16px 18px; }
 .admin-goal-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
 .admin-goal-label { font-size: var(--mg-caption); color: var(--stone); }
 .admin-goal-now { font-family: var(--mg-font-num); font-size: var(--mg-body); color: var(--espresso); }

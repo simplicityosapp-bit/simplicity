@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Users, MessageSquare, BarChart3, ArrowRight, MessageSquarePlus,
 } from 'lucide-react'
@@ -27,9 +27,18 @@ const NAV = [
 export default function AdminLayout({ children }) {
   const { t } = useT('admin')
   const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const rootRef = useRef(null)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
+  // .admin-root is the scroll container. React Router keeps its scroll offset
+  // across route changes, so switching screens used to land mid-page — the
+  // content appeared to start at a "random" distance from the top. Reset to
+  // the top whenever the admin path changes.
+  useEffect(() => {
+    rootRef.current?.scrollTo({ top: 0 })
+  }, [pathname])
   return (
-    <div className="admin-root" data-admin>
+    <div className="admin-root" data-admin ref={rootRef}>
       <aside className="admin-nav" aria-label={t('nav.label')}>
         <div className="admin-nav-brand">
           <span className="admin-nav-dot" aria-hidden="true" />

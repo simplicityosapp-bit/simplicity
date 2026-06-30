@@ -5,16 +5,25 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { leads, lead_sources, lead_statuses } from '../data/mock'
+import i18n from '../i18n'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 
 /* 3 fixed meta columns. "רפאים" (ghost) is no longer its own column —
-   it became a SUB-status under "לא רלוונטי" (migration 0009). */
+   it became a SUB-status under "לא רלוונטי" (migration 0009). The `title`
+   is the Hebrew fallback; the live label is resolved per-language via
+   metaTitle() so the kanban + statuses panel re-translate on switch. */
 export const LEAD_META = [
   { key: 'in_process', title: 'בתהליך' },
   { key: 'converted', title: 'הומרו' },
   { key: 'not_relevant', title: 'לא רלוונטי' },
 ]
+
+/* Localized column label for a meta key. Components call this at render
+   (they all use useT, so they re-render on language change). Falls back to
+   the Hebrew title baked into LEAD_META if the key/namespace is unresolved. */
+export const metaTitle = (key) =>
+  i18n.t(`leads:meta.${key}`, { defaultValue: LEAD_META.find((m) => m.key === key)?.title || key })
 
 export const statusMetaOfLead = (l) => l.status_meta || 'in_process'
 /* A lead counts as a (real) conversion only while it is CURRENTLY in the

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Plus, X, GripVertical } from 'lucide-react'
-import { LEAD_META } from '../../lib/leads'
+import { LEAD_META, metaTitle } from '../../lib/leads'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import ConfirmModal from '../../modals/ConfirmModal'
 import { useT } from '../../i18n/useT'
@@ -101,7 +101,7 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
           .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
         return (
           <div key={m.key} className="lead-statuses-group">
-            <p className="lead-statuses-meta">{m.title}</p>
+            <p className="lead-statuses-meta">{metaTitle(m.key)}</p>
             {list.length === 0 ? (
               <p className="lead-statuses-empty">—</p>
             ) : (
@@ -145,7 +145,7 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                     value={drafts[m.key] || ''}
                     onChange={(e) => setDraft(m.key, e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') submit(m.key) }}
-                    placeholder={t('statusesPanel.addPlaceholder', { meta: m.title })}
+                    placeholder={t('statusesPanel.addPlaceholder', { meta: metaTitle(m.key) })}
                   />
                   <button
                     type="button"

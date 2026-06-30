@@ -254,6 +254,10 @@
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
+  /* -webkit- prefix is required for the frost to render on Safari/iOS, where
+     the unprefixed property is ignored (matches .l-pending). Without it this
+     bar rendered flat while the prefixed cards around it stayed frosted. */
+  -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
   color: var(--espresso);
   cursor: pointer;

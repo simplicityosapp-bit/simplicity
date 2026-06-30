@@ -1,7 +1,8 @@
 {
   "providers": {
     "sumit": "SUMIT",
-    "greeninvoice": "Green Invoice"
+    "greeninvoice": "Green Invoice",
+    "grow": "Grow"
   },
   "env": {
     "production": "Production",
@@ -21,6 +22,7 @@
     "needsReconnect": "Needs reconnecting",
     "connectedTo": "Connected · {{provider}}",
     "invoices": "Invoices",
+    "grow": "Payments · Grow",
     "whatsappStatus": "Manual send · edit messages",
     "soon": "Coming soon",
     "soonAria": "{{title}} — coming soon"
@@ -186,6 +188,90 @@
       "confirm": "Confirm business type",
       "saving": "Saving…",
       "saved": "Business type saved."
+    }
+  },
+  "growScreen": {
+    "back": "Back",
+    "title": "Payments · Grow",
+    "subtitle": "Connect your Grow account to take payments online — credit card, Bit and digital wallets — and create payment links for clients."
+  },
+  "growCard": {
+    "fields": {
+      "userId": "User ID",
+      "pageCode": "Page Code",
+      "apiKey": "API Key"
+    },
+    "help": "You get these from Grow: the User ID and Page Code from your account's API settings; the API Key from Grow support.",
+    "steps": [
+      "Sign in to your Grow (Meshulam) account.",
+      "Open the API / online-payments settings.",
+      "Copy your User ID and Page Code.",
+      "Get your API Key — from Grow support if needed.",
+      "Pick an environment (Production for a live business, Sandbox for testing), paste all three, then tap \"Connect\"."
+    ],
+    "err": {
+      "invalidCredentials": "Those credentials are incorrect. Please check and copy them again.",
+      "missingFields": "Please fill in all three fields.",
+      "providerUnreachable": "The service is unavailable right now. Please try again in a moment.",
+      "generic": "The connection failed. Please try again."
+    },
+    "title": "Payments · Grow",
+    "needsReconnectStatus": "Needs reconnecting",
+    "connectedStatus": "Connected · {{env}}",
+    "notConnectedHint": "Not connected — connect Grow to take payments online from clients.",
+    "brokenMsg": "Your Grow credentials are no longer valid — the key may have been revoked or replaced. To keep going, reconnect.",
+    "reconnect": "Reconnect",
+    "howTo": "How do I get these?",
+    "envGroupAria": "Grow environment",
+    "pickEnv": "Choose an environment",
+    "pastePlaceholder": "Paste here",
+    "connecting": "Connecting…",
+    "connect": "Connect",
+    "cancel": "Cancel",
+    "connectSuccess": "Connected successfully.",
+    "testing": "Checking…",
+    "testConnection": "Test connection",
+    "testOk": "The connection is working.",
+    "disconnecting": "Disconnecting…",
+    "disconnect": "Disconnect",
+    "disconnectConfirm": "Sure? Disconnect",
+    "disconnectConfirmSr": "Tap again to confirm disconnecting",
+    "autoReceiptLabel": "Auto-issue a receipt on payment",
+    "autoReceiptNote": "When a Grow payment arrives, a receipt is issued automatically via your connected invoice provider and linked to the transaction.",
+    "autoReceiptOn": "Auto-receipt turned on.",
+    "autoReceiptOff": "Auto-receipt turned off.",
+    "autoReceiptNeedsInvoice": "To auto-issue a receipt, also connect an invoice provider (Green Invoice / SUMIT) on the Connections screen.",
+    "importLabel": "Import charges from Grow?",
+    "importNote": "A periodic scan spots charges made in Grow (including outside the app) and offers to record them as income — with your approval.",
+    "importOn": "Charge import turned on.",
+    "importOff": "Charge import turned off."
+  },
+  "growImports": {
+    "heading": "Grow charges",
+    "sub": "Charges found in Grow that aren't recorded yet. Approve to record as income, or dismiss.",
+    "charge": "Grow charge",
+    "noName": "No name",
+    "sure": "Sure?",
+    "import": "Import",
+    "dismiss": "Dismiss",
+    "countAria": "{{count}} charges pending",
+    "importingAria": "Importing…",
+    "confirmAria": "Confirm importing {{amount}}"
+  },
+  "growPay": {
+    "create": "Create payment link (Grow)",
+    "creating": "Creating link…",
+    "linkReady": "Payment link ready:",
+    "copy": "Copy",
+    "copied": "Copied",
+    "send": "Send on WhatsApp",
+    "waMessage": "Hi {{name}}, you can pay securely by credit card here: {{url}}",
+    "err": {
+      "notConnected": "No active Grow connection.",
+      "badAmount": "No valid amount to create a link.",
+      "invalidCredentials": "Your Grow credentials are incorrect — check them on the Connections screen.",
+      "providerUnreachable": "The service is unavailable right now. Please try again in a moment.",
+      "generic": "Creating the link failed. Please try again."
     }
   },
   "actions": {

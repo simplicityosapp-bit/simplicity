@@ -331,6 +331,17 @@ export function makeMockClient() {
           if (a === 'catalog') return { data: { items: [{ id: '1', name: 'אימון אישי', price: 380 }, { id: '2', name: 'ייעוץ זוגי', price: 450 }] }, error: null }
           return { data: { status: { connected: true, provider: 'sumit', environment: 'production', connected_at: new Date().toISOString(), auto_import: true, webhook_url: 'https://rdurkakzyymxhocvhufw.supabase.co/functions/v1/invoice-webhook?t=mock-token' }, ok: true }, error: null }
         }
+        // Grow payment gateway in preview: NOT connected by default so the
+        // connect form renders; connect/test flip to "connected" so the managed
+        // state renders too, and disconnect flips back.
+        if (name === 'grow') {
+          const a = opts?.body?.action
+          if (a === 'connect') return { data: { status: { connected: true, provider: 'grow', environment: opts?.body?.environment, connected_at: new Date().toISOString() } }, error: null }
+          if (a === 'test') return { data: { ok: true, status: { connected: true, provider: 'grow', environment: 'sandbox', connected_at: new Date().toISOString() } }, error: null }
+          if (a === 'disconnect') return { data: { ok: true, status: { connected: false } }, error: null }
+          if (a === 'create-payment-link') return { data: { ok: true, payment: { id: 'mock-pr-1', url: 'https://sandbox.meshulam.co.il/p/mock-payment-link' } }, error: null }
+          return { data: { status: { connected: false } }, error: null } // status (not connected by default — connect/test flip it)
+        }
         // Inline booking block in preview: serve a booking page config + sample
         // future slots (GET) and accept a booking (POST) so the picker works.
         if (name.startsWith('booking-intake')) {

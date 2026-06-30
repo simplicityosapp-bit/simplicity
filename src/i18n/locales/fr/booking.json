@@ -35,6 +35,8 @@
     "publishHint": "Quand c'est désactivé — un brouillon, non accessible au public.",
     "autoConfirmTitle": "Confirmation automatique",
     "autoConfirmHint": "Quand c'est désactivé — les rendez-vous attendent une approbation manuelle.",
+    "requirePaymentTitle": "Exiger le paiement pour confirmer (Grow)",
+    "requirePaymentHint": "Le créneau est réservé temporairement et confirmé seulement après le paiement en ligne, au prix du type de rendez-vous.",
     "googleCalendar": "Google Agenda",
     "writeToGoogleTitle": "Écrire les rendez-vous confirmés dans mon Google Agenda",
     "writeToGoogleHintConnected": "Chaque rendez-vous confirmé de la page (manuel ou automatique) est écrit comme événement dans votre calendrier.",
@@ -109,6 +111,12 @@
     "errSlotTaken": "Ce créneau vient d'être pris. Veuillez en choisir un autre.",
     "errGeneric": "Une erreur s'est produite lors de la réservation du rendez-vous. Veuillez réessayer dans un instant.",
     "submitting": "Réservation…",
-    "submit": "Réserver le rendez-vous"
+    "submit": "Réserver le rendez-vous",
+    "submitPay": "Continuer vers le paiement",
+    "payNote": "Un paiement en ligne est requis pour confirmer — ₪{{amount}}. Vous serez redirigé vers la page de paiement sécurisée de Grow.",
+    "paidThankYou": "Paiement reçu — votre rendez-vous est confirmé ! À bientôt.",
+    "cancelledTitle": "Paiement annulé",
+    "cancelledBody": "Le paiement n'a pas été finalisé, donc le rendez-vous n'a pas été réservé. Le créneau sera libéré automatiquement bientôt — vous pouvez réessayer.",
+    "cancelledRetry": "Retour à la réservation"
   }
 }

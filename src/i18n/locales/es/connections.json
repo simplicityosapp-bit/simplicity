@@ -1,7 +1,8 @@
 {
   "providers": {
     "sumit": "SUMIT",
-    "greeninvoice": "Green Invoice"
+    "greeninvoice": "Green Invoice",
+    "grow": "Grow"
   },
   "env": {
     "production": "Producción",
@@ -21,6 +22,7 @@
     "needsReconnect": "Requiere reconexión",
     "connectedTo": "Conectado · {{provider}}",
     "invoices": "Facturas",
+    "grow": "Pagos · Grow",
     "whatsappStatus": "Envío manual · editar mensajes",
     "soon": "Próximamente",
     "soonAria": "{{title}} — próximamente"
@@ -186,6 +188,90 @@
       "confirm": "Confirmar tipo de negocio",
       "saving": "Guardando…",
       "saved": "Tipo de negocio guardado."
+    }
+  },
+  "growScreen": {
+    "back": "Atrás",
+    "title": "Pagos · Grow",
+    "subtitle": "Conecta tu cuenta de Grow para cobrar en línea — tarjeta de crédito, Bit y monederos digitales — y crea enlaces de pago para los clientes."
+  },
+  "growCard": {
+    "fields": {
+      "userId": "ID de usuario (User ID)",
+      "pageCode": "Código de página (Page Code)",
+      "apiKey": "Clave API (API Key)"
+    },
+    "help": "Obtienes estos datos de Grow: el ID de usuario y el código de página desde los ajustes de API de tu cuenta; la clave API desde el soporte de Grow.",
+    "steps": [
+      "Inicia sesión en tu cuenta de Grow (Meshulam).",
+      "Abre los ajustes de API / pagos en línea.",
+      "Copia tu ID de usuario y tu código de página.",
+      "Consigue tu clave API — desde el soporte de Grow si hace falta.",
+      "Elige un entorno (Producción para un negocio real, Sandbox para pruebas), pega los tres y pulsa «Conectar»."
+    ],
+    "err": {
+      "invalidCredentials": "Esas credenciales son incorrectas. Compruébalas y cópialas de nuevo.",
+      "missingFields": "Rellena los tres campos.",
+      "providerUnreachable": "El servicio no está disponible en este momento. Inténtalo de nuevo en un momento.",
+      "generic": "La conexión ha fallado. Inténtalo de nuevo."
+    },
+    "title": "Pagos · Grow",
+    "needsReconnectStatus": "Requiere reconexión",
+    "connectedStatus": "Conectado · {{env}}",
+    "notConnectedHint": "Sin conectar — conecta Grow para cobrar en línea a los clientes.",
+    "brokenMsg": "Tus credenciales de Grow ya no son válidas — puede que la clave se haya revocado o reemplazado. Para continuar, vuelve a conectar.",
+    "reconnect": "Reconectar",
+    "howTo": "¿Cómo las consigo?",
+    "envGroupAria": "Entorno de Grow",
+    "pickEnv": "Elige un entorno",
+    "pastePlaceholder": "Pega aquí",
+    "connecting": "Conectando…",
+    "connect": "Conectar",
+    "cancel": "Cancelar",
+    "connectSuccess": "Conectado correctamente.",
+    "testing": "Comprobando…",
+    "testConnection": "Probar conexión",
+    "testOk": "La conexión funciona.",
+    "disconnecting": "Desconectando…",
+    "disconnect": "Desconectar",
+    "disconnectConfirm": "¿Seguro? Desconectar",
+    "disconnectConfirmSr": "Pulsa de nuevo para confirmar la desconexión",
+    "autoReceiptLabel": "Emitir un recibo automáticamente al pagar",
+    "autoReceiptNote": "Cuando llega un pago de Grow, se emite automáticamente un recibo a través de tu proveedor de facturas conectado y se vincula a la transacción.",
+    "autoReceiptOn": "Recibo automático activado.",
+    "autoReceiptOff": "Recibo automático desactivado.",
+    "autoReceiptNeedsInvoice": "Para emitir un recibo automáticamente, conecta también un proveedor de facturas (Green Invoice / SUMIT) en la pantalla de Conexiones.",
+    "importLabel": "¿Importar cargos de Grow?",
+    "importNote": "Un escaneo periódico detecta cargos hechos en Grow (incluso fuera de la app) y propone registrarlos como ingreso — con tu aprobación.",
+    "importOn": "Importación de cargos activada.",
+    "importOff": "Importación de cargos desactivada."
+  },
+  "growImports": {
+    "heading": "Cargos de Grow",
+    "sub": "Cargos detectados en Grow que aún no están registrados. Aprueba para registrarlos como ingreso, o descártalos.",
+    "charge": "Cargo de Grow",
+    "noName": "Sin nombre",
+    "sure": "¿Seguro?",
+    "import": "Importar",
+    "dismiss": "Descartar",
+    "countAria": "{{count}} cargos pendientes",
+    "importingAria": "Importando…",
+    "confirmAria": "Confirmar la importación de {{amount}}"
+  },
+  "growPay": {
+    "create": "Crear enlace de pago (Grow)",
+    "creating": "Creando enlace…",
+    "linkReady": "Enlace de pago listo:",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "send": "Enviar por WhatsApp",
+    "waMessage": "Hola {{name}}, puedes pagar de forma segura con tarjeta aquí: {{url}}",
+    "err": {
+      "notConnected": "No hay una conexión activa con Grow.",
+      "badAmount": "No hay un importe válido para crear un enlace.",
+      "invalidCredentials": "Tus credenciales de Grow son incorrectas — compruébalas en la pantalla de Conexiones.",
+      "providerUnreachable": "El servicio no está disponible en este momento. Inténtalo de nuevo en un momento.",
+      "generic": "No se pudo crear el enlace. Inténtalo de nuevo."
     }
   },
   "actions": {

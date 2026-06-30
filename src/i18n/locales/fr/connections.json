@@ -1,7 +1,8 @@
 {
   "providers": {
     "sumit": "SUMIT",
-    "greeninvoice": "Green Invoice"
+    "greeninvoice": "Green Invoice",
+    "grow": "Grow"
   },
   "env": {
     "production": "Production",
@@ -21,6 +22,7 @@
     "needsReconnect": "Reconnexion requise",
     "connectedTo": "Connecté · {{provider}}",
     "invoices": "Factures",
+    "grow": "Paiements · Grow",
     "whatsappStatus": "Envoi manuel · modifier les messages",
     "soon": "Bientôt disponible",
     "soonAria": "{{title}} — bientôt disponible"
@@ -186,6 +188,90 @@
       "confirm": "Confirmer le type d'activité",
       "saving": "Enregistrement…",
       "saved": "Type d'activité enregistré."
+    }
+  },
+  "growScreen": {
+    "back": "Retour",
+    "title": "Paiements · Grow",
+    "subtitle": "Connectez votre compte Grow pour encaisser en ligne — carte bancaire, Bit et portefeuilles numériques — et créez des liens de paiement pour les clients."
+  },
+  "growCard": {
+    "fields": {
+      "userId": "ID utilisateur (User ID)",
+      "pageCode": "Code de page (Page Code)",
+      "apiKey": "Clé API (API Key)"
+    },
+    "help": "Vous obtenez ces informations auprès de Grow : l'ID utilisateur et le code de page depuis les paramètres d'API de votre compte ; la clé API auprès du support Grow.",
+    "steps": [
+      "Connectez-vous à votre compte Grow (Meshulam).",
+      "Ouvrez les paramètres d'API / paiements en ligne.",
+      "Copiez votre ID utilisateur et votre code de page.",
+      "Obtenez votre clé API — auprès du support Grow si nécessaire.",
+      "Choisissez un environnement (Production pour une activité réelle, Sandbox pour les tests), collez les trois, puis appuyez sur « Connecter »."
+    ],
+    "err": {
+      "invalidCredentials": "Ces identifiants sont incorrects. Veuillez les vérifier et les copier à nouveau.",
+      "missingFields": "Veuillez remplir les trois champs.",
+      "providerUnreachable": "Le service est indisponible pour le moment. Veuillez réessayer dans un instant.",
+      "generic": "La connexion a échoué. Veuillez réessayer."
+    },
+    "title": "Paiements · Grow",
+    "needsReconnectStatus": "Reconnexion requise",
+    "connectedStatus": "Connecté · {{env}}",
+    "notConnectedHint": "Non connecté — connectez Grow pour encaisser en ligne auprès des clients.",
+    "brokenMsg": "Vos identifiants Grow ne sont plus valides — la clé a peut-être été révoquée ou remplacée. Pour continuer, reconnectez-vous.",
+    "reconnect": "Se reconnecter",
+    "howTo": "Comment les obtenir ?",
+    "envGroupAria": "Environnement Grow",
+    "pickEnv": "Choisissez un environnement",
+    "pastePlaceholder": "Collez ici",
+    "connecting": "Connexion…",
+    "connect": "Connecter",
+    "cancel": "Annuler",
+    "connectSuccess": "Connexion réussie.",
+    "testing": "Vérification…",
+    "testConnection": "Tester la connexion",
+    "testOk": "La connexion fonctionne.",
+    "disconnecting": "Déconnexion…",
+    "disconnect": "Déconnecter",
+    "disconnectConfirm": "Sûr ? Déconnecter",
+    "disconnectConfirmSr": "Appuyez à nouveau pour confirmer la déconnexion",
+    "autoReceiptLabel": "Émettre un reçu automatiquement au paiement",
+    "autoReceiptNote": "Quand un paiement Grow arrive, un reçu est émis automatiquement via votre fournisseur de factures connecté et lié à la transaction.",
+    "autoReceiptOn": "Reçu automatique activé.",
+    "autoReceiptOff": "Reçu automatique désactivé.",
+    "autoReceiptNeedsInvoice": "Pour émettre un reçu automatiquement, connectez aussi un fournisseur de factures (Green Invoice / SUMIT) sur l'écran Connexions.",
+    "importLabel": "Importer les paiements de Grow ?",
+    "importNote": "Un balayage périodique repère les paiements effectués dans Grow (y compris hors de l'app) et propose de les enregistrer comme revenu — avec votre approbation.",
+    "importOn": "Import des paiements activé.",
+    "importOff": "Import des paiements désactivé."
+  },
+  "growImports": {
+    "heading": "Paiements Grow",
+    "sub": "Paiements détectés dans Grow et pas encore enregistrés. Approuvez pour enregistrer comme revenu, ou ignorez.",
+    "charge": "Paiement Grow",
+    "noName": "Sans nom",
+    "sure": "Sûr ?",
+    "import": "Importer",
+    "dismiss": "Ignorer",
+    "countAria": "{{count}} paiements en attente",
+    "importingAria": "Importation…",
+    "confirmAria": "Confirmer l'import de {{amount}}"
+  },
+  "growPay": {
+    "create": "Créer un lien de paiement (Grow)",
+    "creating": "Création du lien…",
+    "linkReady": "Lien de paiement prêt :",
+    "copy": "Copier",
+    "copied": "Copié",
+    "send": "Envoyer sur WhatsApp",
+    "waMessage": "Bonjour {{name}}, vous pouvez payer en toute sécurité par carte ici : {{url}}",
+    "err": {
+      "notConnected": "Aucune connexion Grow active.",
+      "badAmount": "Aucun montant valide pour créer un lien.",
+      "invalidCredentials": "Vos identifiants Grow sont incorrects — vérifiez-les sur l'écran Connexions.",
+      "providerUnreachable": "Le service est indisponible pour le moment. Veuillez réessayer dans un instant.",
+      "generic": "La création du lien a échoué. Veuillez réessayer."
     }
   },
   "actions": {

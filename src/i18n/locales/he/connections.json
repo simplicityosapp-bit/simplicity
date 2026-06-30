@@ -1,7 +1,8 @@
 {
   "providers": {
     "sumit": "סאמיט",
-    "greeninvoice": "חשבונית ירוקה"
+    "greeninvoice": "חשבונית ירוקה",
+    "grow": "Grow"
   },
   "env": {
     "production": "Production",
@@ -21,6 +22,7 @@
     "needsReconnect": "דורש חיבור מחדש",
     "connectedTo": "מחובר · {{provider}}",
     "invoices": "חשבוניות",
+    "grow": "סליקה · Grow",
     "whatsappStatus": "שליחה ידנית · עריכת הודעות",
     "soon": "בקרוב",
     "soonAria": "{{title}} — בקרוב"
@@ -210,6 +212,118 @@
       "confirm": "אישור סוג העסק",
       "saving": "שומר…",
       "saved": "סוג העסק נשמר."
+    }
+  },
+  "growScreen": {
+    "back": "חזרה",
+    "title": "סליקה · Grow",
+    "subtitle": "חיבור חשבון Grow לקבלת תשלומים אונליין — אשראי, ביט וארנקים דיגיטליים — ויצירת לינקי תשלום ללקוחות."
+  },
+  "growCard": {
+    "fields": {
+      "userId": "מזהה משתמש (User ID)",
+      "pageCode": "קוד עמוד (Page Code)",
+      "apiKey": "מפתח API (API Key)"
+    },
+    "help": "את הפרטים מקבלים מ-Grow: מזהה המשתמש וקוד העמוד מהגדרות ה-API בחשבון; את מפתח ה-API מצוות התמיכה של Grow.",
+    "steps": [
+      "היכנסו לחשבון Grow (משולם) שלכם.",
+      "פתחו את הגדרות ה-API / סליקת אונליין.",
+      "העתיקו את מזהה המשתמש (User ID) ואת קוד העמוד (Page Code).",
+      "השיגו את מפתח ה-API (API Key) — מצוות התמיכה של Grow אם צריך.",
+      "בחרו סביבה (Production לעסק חי, Sandbox לבדיקות), הדביקו את שלושת הפרטים ולחצו \"חבר\"."
+    ],
+    "err": {
+      "invalidCredentials": "פרטי ההזדהות שגויים. בדוק/י והעתק/י שוב.",
+      "invalidCredentials_male": "פרטי ההזדהות שגויים. בדוק והעתק שוב.",
+      "invalidCredentials_female": "פרטי ההזדהות שגויים. בדקי והעתיקי שוב.",
+      "missingFields": "יש למלא את שלושת השדות.",
+      "providerUnreachable": "השירות לא זמין כרגע. נסה/י שוב בעוד רגע.",
+      "providerUnreachable_male": "השירות לא זמין כרגע. נסה שוב בעוד רגע.",
+      "providerUnreachable_female": "השירות לא זמין כרגע. נסי שוב בעוד רגע.",
+      "generic": "החיבור נכשל. נסה/י שוב.",
+      "generic_male": "החיבור נכשל. נסה שוב.",
+      "generic_female": "החיבור נכשל. נסי שוב."
+    },
+    "title": "סליקה · Grow",
+    "needsReconnectStatus": "דורש חיבור מחדש",
+    "connectedStatus": "מחובר · {{env}}",
+    "notConnectedHint": "לא מחובר — חברו את Grow לקבלת תשלומים אונליין מלקוחות.",
+    "brokenMsg": "פרטי ההזדהות ל-Grow אינם תקפים יותר — ייתכן שהמפתח בוטל או הוחלף. כדי להמשיך, התחבר/י מחדש.",
+    "reconnect": "התחבר/י מחדש",
+    "reconnect_male": "התחבר מחדש",
+    "reconnect_female": "התחברי מחדש",
+    "howTo": "איך משיגים?",
+    "envGroupAria": "סביבת Grow",
+    "pickEnv": "בחר/י סביבה",
+    "pickEnv_male": "בחר סביבה",
+    "pickEnv_female": "בחרי סביבה",
+    "pastePlaceholder": "הדבק/י כאן",
+    "connecting": "מתחבר…",
+    "connect": "חבר",
+    "cancel": "ביטול",
+    "connectSuccess": "החיבור הצליח.",
+    "testing": "בודק…",
+    "testConnection": "בדוק/י חיבור",
+    "testConnection_male": "בדוק חיבור",
+    "testConnection_female": "בדקי חיבור",
+    "testOk": "החיבור תקין.",
+    "disconnecting": "מנתק…",
+    "disconnect": "נתק/י",
+    "disconnect_male": "נתק",
+    "disconnect_female": "נתקי",
+    "disconnectConfirm": "בטוח/ה? נתק",
+    "disconnectConfirm_male": "בטוח? נתק",
+    "disconnectConfirm_female": "בטוחה? נתק",
+    "disconnectConfirmSr": "לחצו שוב לאישור הניתוק",
+    "autoReceiptLabel": "הפקת קבלה אוטומטית בעת תשלום",
+    "autoReceiptNote": "כשמתקבל תשלום ב-Grow תופק אוטומטית קבלה דרך ספק החשבוניות המחובר, ותקושר לעסקה.",
+    "autoReceiptOn": "הפקת קבלה אוטומטית הופעלה.",
+    "autoReceiptOff": "הפקת קבלה אוטומטית כובתה.",
+    "autoReceiptNeedsInvoice": "כדי להפיק קבלה אוטומטית — חברו גם ספק חשבוניות (חשבונית ירוקה / סאמיט) במסך החיבורים.",
+    "importLabel": "לייבא חיובים מ-Grow?",
+    "importNote": "סריקה תקופתית תזהה חיובים שבוצעו ב-Grow (כולל מחוץ לאפליקציה) ותציע לרשום אותם כהכנסה — באישורך.",
+    "importOn": "ייבוא חיובים הופעל.",
+    "importOff": "ייבוא חיובים כובה."
+  },
+  "growImports": {
+    "heading": "חיובים מ-Grow",
+    "sub": "חיובים שזוהו ב-Grow וטרם נרשמו. אשרו כדי לרשום כהכנסה, או דחו.",
+    "charge": "חיוב Grow",
+    "noName": "ללא שם",
+    "sure": "בטוח/ה?",
+    "import": "ייבוא",
+    "dismiss": "התעלמות",
+    "countAria": "{{count}} חיובים ממתינים",
+    "importingAria": "מייבא…",
+    "confirmAria": "אישור ייבוא {{amount}}"
+  },
+  "growPay": {
+    "create": "צור/צרי לינק תשלום (Grow)",
+    "create_male": "צור לינק תשלום (Grow)",
+    "create_female": "צרי לינק תשלום (Grow)",
+    "creating": "יוצר לינק…",
+    "linkReady": "לינק התשלום מוכן:",
+    "copy": "העתק/י",
+    "copy_male": "העתק",
+    "copy_female": "העתקי",
+    "copied": "הועתק",
+    "send": "שלח/י בוואטסאפ",
+    "send_male": "שלח בוואטסאפ",
+    "send_female": "שלחי בוואטסאפ",
+    "waMessage": "היי {{name}}, לתשלום מאובטח בכרטיס אשראי דרך הקישור: {{url}}",
+    "err": {
+      "notConnected": "אין חיבור פעיל ל-Grow.",
+      "badAmount": "אין סכום תקין ליצירת לינק.",
+      "invalidCredentials": "פרטי ההתחברות ל-Grow שגויים — בדוק/י במסך החיבורים.",
+      "invalidCredentials_male": "פרטי ההתחברות ל-Grow שגויים — בדוק במסך החיבורים.",
+      "invalidCredentials_female": "פרטי ההתחברות ל-Grow שגויים — בדקי במסך החיבורים.",
+      "providerUnreachable": "השירות לא זמין כרגע. נסה/י שוב בעוד רגע.",
+      "providerUnreachable_male": "השירות לא זמין כרגע. נסה שוב בעוד רגע.",
+      "providerUnreachable_female": "השירות לא זמין כרגע. נסי שוב בעוד רגע.",
+      "generic": "יצירת הלינק נכשלה. נסה/י שוב.",
+      "generic_male": "יצירת הלינק נכשלה. נסה שוב.",
+      "generic_female": "יצירת הלינק נכשלה. נסי שוב."
     }
   },
   "actions": {

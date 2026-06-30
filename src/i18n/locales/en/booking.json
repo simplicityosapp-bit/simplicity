@@ -35,6 +35,8 @@
     "publishHint": "When off — a draft, not accessible to the public.",
     "autoConfirmTitle": "Auto-confirm",
     "autoConfirmHint": "When off — appointments wait for manual approval.",
+    "requirePaymentTitle": "Require payment to confirm (Grow)",
+    "requirePaymentHint": "The slot is held temporarily and confirmed only after online payment, at the meeting type's price.",
     "googleCalendar": "Google Calendar",
     "writeToGoogleTitle": "Write confirmed appointments to my Google Calendar",
     "writeToGoogleHintConnected": "Every confirmed appointment from the page (manual or automatic) is written as an event in your calendar.",
@@ -109,6 +111,12 @@
     "errSlotTaken": "That time was just taken. Please choose another.",
     "errGeneric": "Something went wrong booking the appointment. Please try again in a moment.",
     "submitting": "Booking…",
-    "submit": "Book the appointment"
+    "submit": "Book the appointment",
+    "submitPay": "Continue to payment",
+    "payNote": "Online payment is required to confirm — ₪{{amount}}. You'll be taken to Grow's secure payment page.",
+    "paidThankYou": "Payment received — your appointment is booked! See you then.",
+    "cancelledTitle": "Payment cancelled",
+    "cancelledBody": "The payment wasn't completed, so the appointment wasn't booked. The slot will be released automatically soon — you can try again.",
+    "cancelledRetry": "Back to booking"
   }
 }

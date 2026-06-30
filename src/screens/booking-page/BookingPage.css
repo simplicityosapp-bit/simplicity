@@ -178,3 +178,6 @@
   .bk2-type, .bk2-day, .bk2-slot { border-color: rgba(240, 235, 224, 0.22); }
   .bk2-section + .bk2-section { border-top-color: rgba(240, 235, 224, 0.14); }
 }
+
+/* Pay-at-booking notice (Grow) — shown before the visitor is redirected to pay. */
+.bk2-pay-note{margin:6px 0 2px;padding:10px 14px;border-radius:12px;background:rgba(0,0,0,.06);font-weight:600;line-height:1.4;}

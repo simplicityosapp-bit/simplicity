@@ -35,6 +35,8 @@
     "publishHint": "Cuando está apagado — borrador, no accesible al público.",
     "autoConfirmTitle": "Confirmación automática",
     "autoConfirmHint": "Cuando está apagado — las citas esperan aprobación manual.",
+    "requirePaymentTitle": "Requerir pago para confirmar (Grow)",
+    "requirePaymentHint": "La franja se reserva temporalmente y se confirma solo tras el pago en línea, según el precio del tipo de reunión.",
     "googleCalendar": "Google Calendar",
     "writeToGoogleTitle": "Escribir las citas confirmadas en mi Google Calendar",
     "writeToGoogleHintConnected": "Cada cita confirmada de la página (manual o automática) se escribe como evento en tu calendario.",
@@ -109,6 +111,12 @@
     "errSlotTaken": "Ese horario se acaba de ocupar. Elige otro.",
     "errGeneric": "Ocurrió un error al reservar la cita. Inténtalo de nuevo en un momento.",
     "submitting": "Reservando…",
-    "submit": "Reservar la cita"
+    "submit": "Reservar la cita",
+    "submitPay": "Continuar al pago",
+    "payNote": "Se requiere pago en línea para confirmar — ₪{{amount}}. Te llevaremos a la página de pago segura de Grow.",
+    "paidThankYou": "Pago recibido — ¡tu cita está reservada! Nos vemos.",
+    "cancelledTitle": "Pago cancelado",
+    "cancelledBody": "El pago no se completó, así que la cita no se reservó. La franja se liberará automáticamente pronto — puedes intentarlo de nuevo.",
+    "cancelledRetry": "Volver a reservar"
   }
 }

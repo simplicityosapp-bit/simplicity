@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { Plug, Calendar, FileText, Check, CircleAlert, ChevronLeft, MessageCircle, Sparkles, Lock } from 'lucide-react'
+import { Plug, Calendar, FileText, Check, CircleAlert, ChevronLeft, MessageCircle, Sparkles, Lock, CreditCard } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useSubscription } from '../../hooks/useSubscription'
+import { useGrowGateway } from '../../hooks/useGrowGateway'
+import { GROW_ENABLED } from '../../lib/grow'
 import { useT } from '../../i18n/useT'
 import './ConnectionsScreen.css'
 
@@ -79,6 +81,7 @@ export default function ConnectionsScreen() {
   const [params] = useSearchParams()
   const gcal = useGoogleCalendar()
   const inv = useInvoiceProvider()
+  const grow = useGrowGateway()
   const providerLabel = (p) => (p === 'sumit' || p === 'greeninvoice' ? t(`providers.${p}`) : '')
   const [callbackError, setCallbackError] = useState('')
   const [connecting, setConnecting] = useState(false)
@@ -117,6 +120,13 @@ export default function ConnectionsScreen() {
         ? t('list.needsReconnect')
         : t('list.connectedTo', { provider: providerLabel(inv.status?.provider) })
   const calStatusText = calConnected ? t('list.connected') : t('list.notConnected')
+  const growConnected = !!grow.status?.connected
+  const growWarn = growConnected && !!grow.status?.credentials_invalid
+  const growStatusText = !growConnected
+    ? t('list.notConnected')
+    : growWarn
+      ? t('list.needsReconnect')
+      : t('list.connected')
 
   return (
     <div className="screen">
@@ -162,6 +172,28 @@ export default function ConnectionsScreen() {
             label={ts('locked')}
             onOpen={goUpgrade}
             ariaLabel={t('list.rowAria', { title: t('list.invoices'), status: ts('locked') })}
+          />
+        )}
+        {GROW_ENABLED ? (
+          <ConnRow
+            icon={CreditCard}
+            title={t('list.grow')}
+            loading={grow.loading}
+            connected={growConnected}
+            warn={growWarn}
+            statusText={growStatusText}
+            loadingLabel={t('loading')}
+            ariaLabel={t('list.rowAria', { title: t('list.grow'), status: grow.loading ? t('loading') : growStatusText })}
+            onOpen={() => navigate(ROUTES.CONNECTION_GROW)}
+          />
+        ) : (
+          /* Locked until a real Grow account verifies the flow — shown as a
+             disabled "בקרוב" row (the full feature is built behind GROW_ENABLED). */
+          <SoonRow
+            icon={CreditCard}
+            title={t('list.grow')}
+            soonLabel={t('list.soon')}
+            ariaLabel={t('list.soonAria', { title: t('list.grow') })}
           />
         )}
         <ConnRow

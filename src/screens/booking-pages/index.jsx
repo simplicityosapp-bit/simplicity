@@ -17,6 +17,7 @@ import {
   publicBookingPageUrl, normalizeSlug, isValidSlug, slugifyInput, leadPageSurface,
   sanitizeAvailability, findInvalidWindow,
 } from '../../lib/bookingPageSchema'
+import { GROW_ENABLED } from '../../lib/grow'
 import DesignToolbox from '../../components/DesignToolbox'
 import { ROUTES } from '../../lib/routes'
 import { copyText } from '../../lib/clipboard'
@@ -170,6 +171,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       title: page.title ?? '',
       published: !!page.published,
       auto_confirm: !!page.auto_confirm,
+      require_payment: !!page.require_payment,
       write_to_google: !!page.write_to_google,
       invite_client: !!page.invite_client,
       project_id: page.project_id ?? '',
@@ -260,6 +262,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       title: draft.title.trim(),
       published: draft.published,
       auto_confirm: draft.auto_confirm,
+      require_payment: !!draft.require_payment,
       write_to_google: draft.write_to_google,
       invite_client: draft.write_to_google && draft.invite_client, // invite only meaningful when writing
       project_id: draft.project_id || null,
@@ -336,6 +339,14 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
               <input type="checkbox" checked={draft.auto_confirm} onChange={(e) => set({ auto_confirm: e.target.checked })} />
               <span><strong>{t('pages.autoConfirmTitle')}</strong><em>{t('pages.autoConfirmHint')}</em></span>
             </label>
+            {/* Pay-at-booking — only shown when the Grow gateway is enabled
+                (hidden while GROW_ENABLED is false, so no page can require it). */}
+            {GROW_ENABLED && (
+              <label className="lpb-toggle">
+                <input type="checkbox" checked={!!draft.require_payment} onChange={(e) => set({ require_payment: e.target.checked })} />
+                <span><strong>{t('pages.requirePaymentTitle')}</strong><em>{t('pages.requirePaymentHint')}</em></span>
+              </label>
+            )}
           </div>
 
           <div className="m-field">

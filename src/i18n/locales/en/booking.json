@@ -111,6 +111,12 @@
     "errSlotTaken": "That time was just taken. Please choose another.",
     "errGeneric": "Something went wrong booking the appointment. Please try again in a moment.",
     "submitting": "Booking…",
-    "submit": "Book the appointment"
+    "submit": "Book the appointment",
+    "submitPay": "Continue to payment",
+    "payNote": "Online payment is required to confirm — ₪{{amount}}. You'll be taken to Grow's secure payment page.",
+    "paidThankYou": "Payment received — your appointment is booked! See you then.",
+    "cancelledTitle": "Payment cancelled",
+    "cancelledBody": "The payment wasn't completed, so the appointment wasn't booked. The slot will be released automatically soon — you can try again.",
+    "cancelledRetry": "Back to booking"
   }
 }

@@ -48,12 +48,15 @@ export default function BookingPage() {
   const [submitError, setSubmitError] = useState(null)
   const [thankYou, setThankYou] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0) // bumped to re-fetch slots after a 409 race
+  const [paymentResult, setPaymentResult] = useState(null) // 'paid' | 'cancelled' — set on return from Grow
   const hp = useRef('')
 
   const content = config?.content ?? {}
   const tz = config?.availability?.timezone || 'Asia/Jerusalem'
   const types = useMemo(() => (Array.isArray(config?.meetingTypes) ? config.meetingTypes : []), [config])
   const chosenType = useMemo(() => types.find((t) => (t.id ?? '__d') === typeId) || null, [types, typeId])
+  // Payment is required when the page opted in AND the chosen type has a price.
+  const needsPay = !!config?.requirePayment && Number(chosenType?.default_price) > 0
 
   useEffect(() => {
     let active = true
@@ -84,6 +87,16 @@ export default function BookingPage() {
     })()
     return () => { active = false }
   }, [pageId])
+
+  /* Returning from a Grow payment lands back here as ?paid=1 or ?cancelled=1
+     (the successUrl/cancelUrl we passed). Read once on mount. */
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search)
+      if (p.get('paid')) setPaymentResult('paid')
+      else if (p.get('cancelled')) setPaymentResult('cancelled')
+    } catch { /* ignore */ }
+  }, [])
 
   /* Load slots whenever a meeting type is chosen. */
   useEffect(() => {
@@ -167,6 +180,32 @@ export default function BookingPage() {
 
   const { style: rootStyle, cls: surfaceCls } = leadPageSurface(content)
   const rootClass = `lp-root lp-surface bk2-page${surfaceCls ? ` ${surfaceCls}` : ''}`
+
+  /* Returned from Grow paid → confirm; cancelled → let them try again. These
+     short-circuit the normal flow regardless of the config-load status. */
+  if (paymentResult === 'paid') {
+    return (
+      <div className={rootClass} dir="rtl" style={rootStyle}>
+        <div className="lp-card lp-state">
+          {content.logoText ? <div className="lp-logo">{content.logoText}</div> : null}
+          <div className="lp-check" aria-hidden="true">✓</div>
+          <p className="lp-thankyou">{t('publicPage.paidThankYou')}</p>
+        </div>
+      </div>
+    )
+  }
+  if (paymentResult === 'cancelled') {
+    return (
+      <div className={rootClass} dir="rtl" style={rootStyle}>
+        <div className="lp-card lp-state">
+          {content.logoText ? <div className="lp-logo">{content.logoText}</div> : null}
+          <h1 className="lp-heading">{t('publicPage.cancelledTitle')}</h1>
+          <p className="lp-muted">{t('publicPage.cancelledBody')}</p>
+          <a className="lp-submit" href={typeof window !== 'undefined' ? window.location.pathname : '#'}>{t('publicPage.cancelledRetry')}</a>
+        </div>
+      </div>
+    )
+  }
 
   if (status === 'loading') {
     return <div className={rootClass} dir="rtl" style={rootStyle}><div className="lp-card lp-state"><p className="lp-muted">{t('publicPage.loading')}</p></div></div>
@@ -272,6 +311,7 @@ export default function BookingPage() {
             <p className="bk2-chosen">
               {chosenType?.name ? `${chosenType.name} · ` : ''}{fmtDayLabel(slot.start, tz)} · {fmtTime(slot.start, tz)}
             </p>
+            {needsPay ? <p className="bk2-pay-note">{t('publicPage.payNote', { amount: chosenType.default_price })}</p> : null}
             <div className="lp-fields">
               <label className="lp-field">
                 <span className="lp-label">{t('publicPage.fieldName')}<span className="lp-req" aria-hidden="true"> *</span></span>
@@ -296,7 +336,7 @@ export default function BookingPage() {
             <input type="text" tabIndex={-1} autoComplete="off" className="lp-hp" aria-hidden="true" onChange={(e) => { hp.current = e.target.value }} />
             {submitError ? <p className="lp-submit-error">{submitError}</p> : null}
             <button type="submit" className="lp-submit" disabled={submitting}>
-              {submitting ? t('publicPage.submitting') : t('publicPage.submit')}
+              {submitting ? t('publicPage.submitting') : (needsPay ? t('publicPage.submitPay') : t('publicPage.submit'))}
             </button>
           </form>
         )}

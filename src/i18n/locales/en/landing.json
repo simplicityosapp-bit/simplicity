@@ -10,6 +10,7 @@
   "nav": {
     "home": "Simplicity — home",
     "accountActions": "Account actions",
+    "language": "Choose language",
     "toDay": "Switch to day mode",
     "toNight": "Switch to night mode",
     "login": "Log in",

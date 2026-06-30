@@ -71,7 +71,7 @@ const statusOf = (row: any) =>
         credentials_invalid: !!row.credentials_invalid_at,
         // Opt-in: auto-issue a receipt via the invoice provider on payment (0072).
         auto_receipt: !!row.grow_auto_receipt,
-        // Opt-in: poll-import external Grow charges as pending imports (0073).
+        // Opt-in: poll-import external Grow charges as pending imports (0078).
         import_enabled: !!row.grow_import_enabled,
       }
     : { connected: false }

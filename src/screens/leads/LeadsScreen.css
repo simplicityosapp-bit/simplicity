@@ -156,6 +156,32 @@
   gap: 10px;
   margin-bottom: 14px;
 }
+/* Name search — same shape as the clients screen search field. */
+.l-search {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  height: 42px;
+  border-radius: var(--mg-btn-radius);
+  border: 0.5px solid rgba(42, 37, 32, 0.1);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  color: var(--stone);
+}
+.l-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+}
+.l-search input::placeholder { color: var(--mist); }
 .l-filter-btn {
   display: inline-flex;
   align-items: center;

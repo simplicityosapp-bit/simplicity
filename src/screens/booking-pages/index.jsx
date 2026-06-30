@@ -5,6 +5,8 @@ import {
   Clock, CalendarClock,
 } from 'lucide-react'
 import { useBookingPages } from '../../hooks/useBookingPages'
+import { useSubscription } from '../../hooks/useSubscription'
+import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import { useMeetingTypes } from '../../hooks/useMeetingTypes'
 import { useProjects } from '../../hooks/useProjects'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
@@ -34,13 +36,20 @@ export default function BookingPagesScreen() {
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useT('booking')
+  const { t: ts } = useT('subscription')
   const { pages, loading, error, addPage, updatePage, removePage } = useBookingPages()
+  const { limits } = useSubscription()
+  const goUpgrade = useUpgradeNav()
   const [editingId, setEditingId] = useState(() => location.state?.editPageId ?? null)
 
   const editing = useMemo(() => {
     if (editingId === 'new') return null
     return pages.find((p) => p.id === editingId) || null
   }, [editingId, pages])
+
+  /* Free tier gets ONE booking page — manage it freely, but creating a second
+     is gated. Infinity while billing isn't enforced → never blocks. */
+  const atLimit = (pages?.length || 0) >= limits.bookingPages
 
   if (editingId) {
     return (
@@ -69,9 +78,12 @@ export default function BookingPagesScreen() {
           <p className="t-screen">{t('pages.screenTitle')}</p>
         </header>
         <Coachmark id="add-booking-page" radius="50%">
-          <button className="cta-add" type="button" onClick={() => setEditingId('new')}>{t('pages.newPage')}</button>
+          <button className="cta-add" type="button" onClick={() => (atLimit ? goUpgrade() : setEditingId('new'))}>{t('pages.newPage')}</button>
         </Coachmark>
       </div>
+      {atLimit && (
+        <button type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.pages')} · {ts('limit.upgrade')}</button>
+      )}
 
       <button type="button" className="lp-back-link" onClick={() => navigate(ROUTES.CALENDAR)}>
         <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> {t('pages.backToCalendar')}

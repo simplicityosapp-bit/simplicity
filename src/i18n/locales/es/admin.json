@@ -94,6 +94,19 @@
       "adminTitle": "Administrador"
     },
     "marketingConsentAria": "Aceptó marketing",
+    "subscription": {
+      "heading": "Suscripción",
+      "tier": "Plan",
+      "tiers": { "free": "Gratis", "basic": "Básico", "premium": "Premium" },
+      "betaUntil": "Exención beta hasta",
+      "since": "Suscrito desde",
+      "clearBeta": "Quitar exención",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "saved": "Guardado",
+      "failed": "Error al guardar",
+      "confirmQ": "¿Actualizar el plan a {{tier}}?"
+    },
     "detail": {
       "subscriber": "Suscriptor",
       "subscriberRegular": "Suscriptor normal (de pago)",

@@ -94,6 +94,19 @@
       "adminTitle": "מנהל"
     },
     "marketingConsentAria": "הסכים לשיווק",
+    "subscription": {
+      "heading": "מנוי",
+      "tier": "מסלול",
+      "tiers": { "free": "חינמי", "basic": "בסיסי", "premium": "פרימיום" },
+      "betaUntil": "פטור בטא עד",
+      "since": "מנוי מאז",
+      "clearBeta": "ביטול פטור",
+      "save": "שמירה",
+      "saving": "שומר…",
+      "saved": "נשמר",
+      "failed": "השמירה נכשלה",
+      "confirmQ": "לעדכן את המסלול ל{{tier}}?"
+    },
     "detail": {
       "subscriber": "מנוי",
       "subscriberRegular": "מנוי רגיל (תשלום)",

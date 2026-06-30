@@ -43,6 +43,10 @@ import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 const ADMIN_EMAIL = 'simplicity.os.app@gmail.com'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+// Published monthly prices (ILS) per paid tier — mirrors PRICES in
+// src/lib/subscription.js. Captured into locked_price at subscription time so
+// existing subscribers keep their terms if these change later.
+const TIER_PRICES: Record<string, number> = { basic: 42, premium: 89 }
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -235,13 +239,27 @@ Deno.serve(async (req) => {
         .from('user_subscriptions').select('*').eq('user_id', uid).limit(1)
       if (readErr) return json({ error: 'read failed', detail: readErr.message }, 500)
       const existing = (rows?.[0] ?? { user_id: uid, tier: 'free' }) as Record<string, unknown>
+      // Price grandfathering: when the tier CHANGES, snapshot the terms.
+      //   → a (different) paid tier: stamp subscribed_at + lock the current price.
+      //   → free: clear the locked terms (no active paid subscription).
+      //   → same paid tier re-set: leave the original terms intact.
+      if (patch.tier !== undefined) {
+        const prevTier = (existing.tier as string) ?? 'free'
+        if (patch.tier === 'free') {
+          patch.subscribed_at = null
+          patch.locked_price = null
+        } else if (patch.tier !== prevTier) {
+          patch.subscribed_at = new Date().toISOString()
+          patch.locked_price = TIER_PRICES[patch.tier as string] ?? null
+        }
+      }
       const next: Record<string, unknown> = { ...existing, ...patch, user_id: uid }
       delete next.created_at
       delete next.updated_at
       const { error: upErr } = await admin
         .from('user_subscriptions').upsert(next, { onConflict: 'user_id' })
       if (upErr) return json({ error: 'write failed', detail: upErr.message }, 500)
-      return json({ ok: true, tier: next.tier ?? 'free', beta_exempt_until: next.beta_exempt_until ?? null })
+      return json({ ok: true, tier: next.tier ?? 'free', beta_exempt_until: next.beta_exempt_until ?? null, subscribed_at: next.subscribed_at ?? null, locked_price: next.locked_price ?? null })
     }
 
     // Permanently delete a user — removes the auth.users row, which cascades
@@ -393,12 +411,12 @@ Deno.serve(async (req) => {
         admin.from('user_preferences').select('user_id, preferences'),
         admin.from('feedback').select('user_id'),
         admin.from('user_consent').select('user_id, kind, version, accepted, accepted_at, created_at'),
-        // New billing model: tier + beta exemption per user (migration 0075).
-        admin.from('user_subscriptions').select('user_id, tier, beta_exempt_until'),
+        // New billing model: tier + beta exemption + locked terms (migration 0075).
+        admin.from('user_subscriptions').select('user_id, tier, beta_exempt_until, subscribed_at, locked_price'),
       ])
 
-      const subById = new Map<string, { tier: string; beta_exempt_until: string | null }>()
-      for (const s of subs ?? []) subById.set(s.user_id, { tier: s.tier ?? 'free', beta_exempt_until: s.beta_exempt_until ?? null })
+      const subById = new Map<string, { tier: string; beta_exempt_until: string | null; subscribed_at: string | null; locked_price: number | null }>()
+      for (const s of subs ?? []) subById.set(s.user_id, { tier: s.tier ?? 'free', beta_exempt_until: s.beta_exempt_until ?? null, subscribed_at: s.subscribed_at ?? null, locked_price: s.locked_price ?? null })
 
       const reflById = new Map<string, number>()
       for (const r of moon ?? []) {
@@ -457,6 +475,8 @@ Deno.serve(async (req) => {
             is_subscriber: !!kindById.get(u.id),
             subscription_tier: subById.get(u.id)?.tier ?? 'free',
             beta_exempt_until: subById.get(u.id)?.beta_exempt_until ?? null,
+            subscribed_at: subById.get(u.id)?.subscribed_at ?? null,
+            locked_price: subById.get(u.id)?.locked_price ?? null,
             marketing_consent: u.marketing_consent,
             consent: consentById.get(u.id) ?? {},
             is_owner: (u.email ?? '').toLowerCase() === ADMIN_EMAIL,

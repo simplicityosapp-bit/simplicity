@@ -1,0 +1,143 @@
+/* Settings → מנוי. Uses the standard Mångata glass tokens (no bespoke
+   colors) so the plan cards sit naturally inside the settings accordion. */
+
+.sub-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sub-current {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.sub-current-label {
+  font-size: 0.82rem;
+  color: var(--txt-secondary, var(--stone));
+}
+.sub-current-tier {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  color: var(--terracotta);
+}
+.sub-current-tier svg { color: var(--terracotta); }
+.sub-beta {
+  flex-basis: 100%;
+  font-size: 0.8rem;
+  color: var(--sage);
+  font-weight: 500;
+}
+/* Locked-in terms line (price grandfathering). */
+.sub-locked {
+  flex-basis: 100%;
+  font-size: 0.8rem;
+  color: var(--txt-secondary, var(--stone));
+  font-weight: 500;
+}
+
+.sub-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 720px) {
+  .sub-cards { grid-template-columns: repeat(3, 1fr); }
+}
+
+.sub-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  border: var(--mg-card-border);
+  border-radius: var(--mg-card-radius);
+  box-shadow: var(--mg-card-shadow);
+  padding: 18px 20px;
+}
+/* The plan the user is on — a terracotta edge, no new color. */
+.sub-card.current {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 1px var(--terracotta), var(--mg-card-shadow);
+}
+
+.sub-card-name {
+  font-weight: 600;
+  font-size: 1.02rem;
+}
+.sub-card-tag {
+  font-size: 0.8rem;
+  color: var(--txt-secondary, var(--stone));
+}
+
+.sub-card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.sub-card-amount {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.sub-card-per {
+  font-size: 0.8rem;
+  color: var(--txt-secondary, var(--stone));
+}
+
+.sub-card-benefits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.sub-card-benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+.sub-card-benefits svg {
+  color: var(--sage);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sub-card-cta {
+  height: var(--mg-btn-h, 48px);
+  border-radius: var(--mg-btn-radius, 18px);
+  border: var(--mg-btn-secondary-border, var(--mg-card-border));
+  background: var(--mg-btn-secondary-bg, var(--mg-card-bg));
+  color: var(--txt-primary, var(--espresso));
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.sub-card-cta:hover { filter: brightness(0.98); }
+
+.sub-card-current {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--terracotta);
+  padding: 6px 0;
+}
+
+.sub-upgrade-body {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--txt-primary, var(--espresso));
+}
+.sub-upgrade-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}

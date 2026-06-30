@@ -460,6 +460,11 @@
 }
 .admin-role-hint { margin: 0; font-size: var(--mg-caption); color: var(--mist); line-height: 1.6; }
 .admin-role-perms { display: flex; flex-direction: column; gap: 8px; }
+/* Subscription management (tier pills + beta-exemption date). */
+.admin-sub-tiers { display: flex; gap: 8px; flex-wrap: wrap; }
+.admin-sub-tiers .admin-pill { cursor: pointer; }
+.admin-sub-beta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: var(--mg-body); color: var(--espresso); }
+.admin-sub-beta input[type="date"] { padding: 4px 8px; border: 1px solid var(--divider); border-radius: 8px; background: var(--mg-card-bg); color: var(--espresso); }
 .admin-role-perm {
   display: flex; align-items: center; gap: 8px;
   font-size: var(--mg-body); color: var(--espresso); cursor: pointer;

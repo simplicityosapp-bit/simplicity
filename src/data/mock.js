@@ -352,4 +352,10 @@ export const MOCK_DB = {
   user_preferences,
   payment_plans,
   payment_installments,
+  /* Subscription: a beta-exempt 'free' row — matches what every existing
+     user gets from migration 0075's backfill (premium for the beta window).
+     Lets Settings → מנוי render the real "beta access until <date>" state. */
+  user_subscriptions: [
+    { id: 'sub-001', user_id: USER, tier: 'free', status: null, beta_exempt_until: new Date(now + 90 * 86400000).toISOString(), created_at: new Date(now).toISOString() },
+  ],
 }

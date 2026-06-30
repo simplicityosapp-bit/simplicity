@@ -232,6 +232,10 @@ function adminInvoke(body) {
         ...u,
         subscriber_kind: kindOf(u),
         is_subscriber: !!kindOf(u),
+        subscription_tier: u._tier || (u._paid ? 'premium' : 'free'),
+        beta_exempt_until: u._betaUntil ?? (u._manual ? new Date(Date.now() + 90 * 86400000).toISOString() : null),
+        subscribed_at: u._subAt ?? (u._paid ? new Date(Date.now() - 60 * 86400000).toISOString() : null),
+        locked_price: u._lockedPrice ?? (u._paid ? 89 : null),
         is_owner: false, // none of the example users is the hardcoded owner
         is_admin: !!u._admin,
         admin_perms: u._adminPerms || { delete_users: false, set_subscriber: false, manage_admins: false },
@@ -244,6 +248,20 @@ function adminInvoke(body) {
     const u = fx.users.find((x) => x.id === body.user_id)
     if (u) u._manual = !!body.value
     return { ok: true, is_subscriber: u ? !!kindOf(u) : false }
+  }
+  if (action === 'set_subscription') {
+    const PRICES = { basic: 42, premium: 89 }
+    const u = fx.users.find((x) => x.id === body.user_id)
+    if (u) {
+      if (body.tier !== undefined) {
+        const prev = u._tier || (u._paid ? 'premium' : 'free')
+        u._tier = body.tier
+        if (body.tier === 'free') { u._subAt = null; u._lockedPrice = null }
+        else if (body.tier !== prev) { u._subAt = new Date().toISOString(); u._lockedPrice = PRICES[body.tier] ?? null }
+      }
+      if (body.beta_exempt_until !== undefined) u._betaUntil = body.beta_exempt_until || null
+    }
+    return { ok: true, tier: u?._tier || 'free', beta_exempt_until: u?._betaUntil ?? null, subscribed_at: u?._subAt ?? null, locked_price: u?._lockedPrice ?? null }
   }
   if (action === 'set_admin') {
     const u = fx.users.find((x) => x.id === body.user_id)

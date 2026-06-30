@@ -14,6 +14,8 @@ import { useLeads } from '../../hooks/useLeads'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
+import { useSubscription } from '../../hooks/useSubscription'
+import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import GoalCard from './GoalCard'
 import AddGoalModal, { OTHER_METRIC_KEY } from '../../modals/AddGoalModal'
 import AddGoalEntryModal from '../../modals/AddGoalEntryModal'
@@ -39,7 +41,12 @@ const OTHER_METRIC = {
 
 export default function GoalsScreen() {
   const { t } = useT('goals')
+  const { t: ts } = useT('subscription')
   const { goals, loading: goalsLoading, error: goalsError, addGoal, updateGoal, removeGoal } = useGoals()
+  const { limits } = useSubscription()
+  const goUpgrade = useUpgradeNav()
+  /* Free-tier goal ceiling. Infinity while billing isn't enforced. */
+  const atGoalLimit = (goals?.length || 0) >= limits.goals
   const { categories, loading: catsLoading, error: catsError, addCategory } = useGoalCategories()
   const { entries, addEntry, removeEntry } = useGoalEntries()
   const { transactions } = useTransactions()
@@ -103,11 +110,14 @@ export default function GoalsScreen() {
           <p className="t-screen">{t('title')}</p>
         </header>
         <Coachmark id="add-goal" radius="50%">
-          <button className="cta-add" type="button" aria-label={t('newGoalAria')} onClick={() => setShowAddGoal(true)}>
+          <button className="cta-add" type="button" aria-label={t('newGoalAria')} onClick={() => (atGoalLimit ? goUpgrade() : setShowAddGoal(true))}>
             {t('newGoal')}
           </button>
         </Coachmark>
       </div>
+      {atGoalLimit && (
+        <button type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.goals')} · {ts('limit.upgrade')}</button>
+      )}
 
       {loading ? (
         <div className="empty"><p className="empty-text">{t('loading')}</p></div>

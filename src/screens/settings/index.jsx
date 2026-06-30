@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ChevronDown, ChevronUp, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
   Plus, Trash2, Leaf, GripVertical, CalendarDays, Database, Download, Upload,
-  BookOpen, HelpCircle, Lightbulb, Eye, Layers,
+  BookOpen, HelpCircle, Lightbulb, Eye, Layers, Gem,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { buildSheetsFromFiles, ACCEPT } from '../../lib/importFlow'
@@ -44,6 +44,8 @@ import ExportDataModal from '../../modals/ExportDataModal'
 import { defaultOnboarding } from '../../lib/preferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
 import QuestionScheduleEditor from './QuestionScheduleEditor'
+import SubscriptionBody from './SubscriptionBody'
+import { BILLING_ENABLED } from '../../lib/subscription'
 import { getHelpScreen, getGlobalFaq, getAboutContent } from '../../lib/helpContent'
 import MG from '../../components/MG'
 import './SettingsScreen.css'
@@ -52,6 +54,7 @@ import './SettingsScreen.css'
    render time via t(`sections.${key}.title` / `.sub`). */
 const SECTION_DEFS = {
   profile: { key: 'profile', icon: User, titleKey: 'sections.profile.title', subKey: 'sections.profile.sub' },
+  subscription: { key: 'subscription', icon: Gem, titleKey: 'sections.subscription.title', subKey: 'sections.subscription.sub' },
   widgets: { key: 'widgets', icon: LayoutGrid, titleKey: 'sections.widgets.title', subKey: 'sections.widgets.sub' },
   clients: { key: 'clients', icon: Users, titleKey: 'sections.clients.title', subKey: 'sections.clients.sub' },
   payments: { key: 'payments', icon: Wallet, titleKey: 'sections.payments.title', subKey: 'sections.payments.sub' },
@@ -68,7 +71,11 @@ const SECTION_GROUPS = [
     icon: User,
     titleKey: 'groups.personal.title',
     subKey: 'groups.personal.sub',
-    items: ['profile', 'design'],
+    /* The "מנוי" section only appears once billing is live — while the master
+       switch is off it's infrastructure-only and every user has full access,
+       so showing pricing / upgrade prompts would be premature. (The admin
+       console can still set tiers + beta exemptions to pre-configure.) */
+    items: ['profile', 'design', ...(BILLING_ENABLED ? ['subscription'] : [])],
   },
   {
     key: 'display',
@@ -946,6 +953,9 @@ export default function SettingsScreen() {
     }
     if (key === 'about') {
       return <AboutBody initialTab={location.state?.aboutTab} />
+    }
+    if (key === 'subscription') {
+      return <SubscriptionBody />
     }
     if (key === 'widgets') {
       if (prefsLoading) return <p className="set-soon">{t('common.loading')}</p>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Trans } from 'react-i18next'
 import {
-  Layers, Sun, Moon, TrendingUp, Languages,
+  Layers, Sun, Moon, TrendingUp, Languages, Globe, Check,
   Users, Wallet, CalendarDays, Target, Sparkles, GitBranch,
   Gauge, Bell, SlidersHorizontal,
   Plus, ArrowLeft, ShieldCheck, EyeOff,
@@ -12,7 +12,8 @@ import MG from '../../components/MG'
 import { mgToReadable } from '../../lib/multiGender'
 import { trackLandingEvent } from '../../lib/api/landingEvents'
 import { useT } from '../../i18n/useT'
-import { dirFor } from '../../i18n/config'
+import { dirFor, APP_LANGS } from '../../i18n/config'
+import { useUserPreferences } from '../../hooks/useUserPreferences'
 import './LandingScreen.css'
 
 /* ════════════════════════════════════════════════════════════════════
@@ -37,14 +38,18 @@ import './LandingScreen.css'
    ════════════════════════════════════════════════════════════════════ */
 
 export default function LandingScreen() {
-  const { t, lang } = useT('landing')
+  const { t, lang, i18n } = useT('landing')
+  const { update } = useUserPreferences()
   /* Follow the active language's direction (Hebrew → rtl, English/es/fr → ltr).
      Mirrors DirManager's <html dir>; without this the landing forced rtl, which
      left LTR languages right-aligned and mangled their punctuation. */
-  const dir = dirFor((lang || 'he').split('-')[0])
+  const activeLang = (lang || 'he').split('-')[0]
+  const dir = dirFor(activeLang)
   const rootRef = useRef(null)
   const veilRef = useRef(null)
+  const langRef = useRef(null)
   const [scrolled, setScrolled] = useState(false)
+  const [langOpen, setLangOpen] = useState(false)
   const [theme, setTheme] = useState(() =>
     (typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark') ? 'dark' : 'light'
   )
@@ -136,6 +141,30 @@ export default function LandingScreen() {
     try { localStorage.setItem('mg-theme', next) } catch { /* private mode — non-fatal */ }
   }
 
+  /* Language picker — changes i18next live (the detector caches the choice in
+     localStorage, so it survives reload pre-auth) and persists prefs.design.
+     language when a prefs provider is present; pre-auth `update` is a no-op
+     stub, so this is safe on the logged-out landing page too. */
+  const pickLang = (code) => {
+    setLangOpen(false)
+    if (code === activeLang) return
+    i18n.changeLanguage(code)
+    update({ design: { language: code } })
+  }
+
+  /* Close the language menu on outside-click or Escape. */
+  useEffect(() => {
+    if (!langOpen) return
+    const onDown = (e) => { if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false) }
+    const onKey = (e) => { if (e.key === 'Escape') setLangOpen(false) }
+    document.addEventListener('pointerdown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [langOpen])
+
   /* Sticky-header glass + the fixed forest backdrop whose centre brightens as
      you scroll past the hero: the outer tree-frame stays visible, the middle
      clears so content reads and the centre stays calm. rAF-throttled. */
@@ -204,6 +233,37 @@ export default function LandingScreen() {
             <span className="lp-brand-name">Simplicity</span>
           </a>
           <nav className="lp-header-actions" aria-label={t('nav.accountActions')}>
+            <div className="lp-lang" ref={langRef}>
+              <button
+                type="button"
+                className="lp-lang-btn"
+                aria-haspopup="menu"
+                aria-expanded={langOpen}
+                aria-label={t('nav.language')}
+                onClick={() => setLangOpen((o) => !o)}
+              >
+                <Globe size={15} strokeWidth={2} aria-hidden="true" />
+                <span className="lp-lang-code">{activeLang.toUpperCase()}</span>
+              </button>
+              {langOpen && (
+                <div className="lp-lang-menu" role="menu">
+                  {APP_LANGS.map((l) => (
+                    <button
+                      key={l.code}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={l.code === activeLang}
+                      lang={l.code}
+                      className={`lp-lang-opt${l.code === activeLang ? ' on' : ''}`}
+                      onClick={() => pickLang(l.code)}
+                    >
+                      <span>{l.name}</span>
+                      {l.code === activeLang && <Check size={15} strokeWidth={2.2} aria-hidden="true" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button
               type="button"
               className="lp-switch"

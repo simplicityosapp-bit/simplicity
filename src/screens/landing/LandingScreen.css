@@ -276,6 +276,87 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
 }
 
 /* ════════════════════════════════════════════════════════════════════
+   Language picker — a glass globe button that opens a small menu of the
+   four UI languages. Mirrors the day/night switch's glass treatment.
+   ════════════════════════════════════════════════════════════════════ */
+.lp-lang { position: relative; flex-shrink: 0; }
+.lp-lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(42, 37, 32, 0.16);
+  background: rgba(255, 252, 247, 0.6);
+  backdrop-filter: blur(10px);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.lp-lang-btn:hover { border-color: rgba(42, 37, 32, 0.28); }
+[data-theme="dark"] .lp-lang-btn {
+  background: rgba(36, 42, 41, 0.6);
+  border-color: rgba(240, 235, 224, 0.18);
+}
+[data-theme="dark"] .lp-lang-btn:hover { border-color: rgba(240, 235, 224, 0.32); }
+.lp-lang-code { letter-spacing: 0.02em; }
+
+.lp-lang-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-end: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 150px;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid rgba(42, 37, 32, 0.14);
+  background: rgba(255, 252, 247, 0.86);
+  backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 12px 32px rgba(42, 37, 32, 0.16);
+  animation: lp-lang-in 0.16s ease;
+}
+[data-theme="dark"] .lp-lang-menu {
+  background: rgba(26, 31, 29, 0.86);
+  border-color: rgba(240, 235, 224, 0.16);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+@keyframes lp-lang-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-lang-menu { animation: none; }
+}
+.lp-lang-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 500;
+  text-align: start;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+.lp-lang-opt:hover { background: var(--mg-row-hover-bg); }
+.lp-lang-opt.on { color: var(--terracotta); font-weight: 600; }
+.lp-lang-opt.on svg { color: var(--terracotta); }
+
+/* ════════════════════════════════════════════════════════════════════
    Hero
    ════════════════════════════════════════════════════════════════════ */
 .lp-hero {

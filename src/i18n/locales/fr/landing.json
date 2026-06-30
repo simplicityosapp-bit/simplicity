@@ -10,6 +10,7 @@
   "nav": {
     "home": "Simplicity — accueil",
     "accountActions": "Actions du compte",
+    "language": "Choisir la langue",
     "toDay": "Passer en mode jour",
     "toNight": "Passer en mode nuit",
     "login": "Se connecter",

@@ -2,13 +2,14 @@ import { memo } from 'react'
 import { Check, Pencil } from 'lucide-react'
 import { formatWhen } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
+import InlineTitle from './InlineTitle'
 
 /* Mirrors TaskItem visually so the Tasks ↔ Reminders toggle keeps a
    single look. Status is "pending" → unchecked, "completed" → checked.
    The meta line shows the scheduled date/time and (optional) linked
    client. Dot color signals urgency: clay if overdue, amber if today,
    sage otherwise. */
-function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, count = 1, index, category }) {
+function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, onRename, count = 1, index, category }) {
   const { t } = useT('tasks')
   const isDone = reminder.status === 'completed'
   const meta = [clientName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
@@ -25,10 +26,13 @@ function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, coun
         {isDone && <Check size={13} strokeWidth={2.5} aria-hidden="true" />}
       </button>
       <div className="tc-body">
-        <p className="tc-title">
-          {reminder.title}
+        <InlineTitle
+          className="tc-title"
+          title={reminder.title}
+          onRename={onRename ? (next) => onRename(reminder.id, next) : undefined}
+        >
           {count > 1 && <span className="tc-recur-count" title={t('item.pendingOccurrences', { n: count })}>×{count}</span>}
-        </p>
+        </InlineTitle>
         {meta && <p className="tc-meta">{meta}</p>}
         {category && (
           <div className="tc-tags">

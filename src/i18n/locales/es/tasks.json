@@ -96,7 +96,10 @@
     "reminderDone": "Hecho",
     "editTask": "Editar tarea",
     "editReminder": "Editar recordatorio",
-    "pendingOccurrences": "{{n}} repeticiones aún pendientes"
+    "pendingOccurrences": "{{n}} repeticiones aún pendientes",
+    "renameAria": "Editar título",
+    "renameSave": "Guardar",
+    "renameHint": "Enter para guardar · Esc para cancelar"
   },
   "groupBy": {
     "aria": "Agrupar tareas",

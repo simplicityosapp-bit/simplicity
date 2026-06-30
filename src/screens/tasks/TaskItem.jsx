@@ -1,8 +1,9 @@
 import { memo } from 'react'
 import { Check, Pencil } from 'lucide-react'
 import { useT } from '../../i18n/useT'
+import InlineTitle from './InlineTitle'
 
-function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, index, taskStatus, category, dueLabel }) {
+function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRename, index, taskStatus, category, dueLabel }) {
   const { t } = useT('tasks')
   const isDone = task.status === 'done'
   const meta = [dueLabel, clientName, project?.name].filter(Boolean).join(' · ')
@@ -19,7 +20,11 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, index
         {isDone && <Check size={13} strokeWidth={2.5} aria-hidden="true" />}
       </button>
       <div className="tc-body">
-        <p className="tc-title">{task.title}</p>
+        <InlineTitle
+          className="tc-title"
+          title={task.title}
+          onRename={onRename ? (next) => onRename(task.id, next) : undefined}
+        />
         {meta && <p className="tc-meta">{meta}</p>}
         {(taskStatus || category) && (
           <div className="tc-tags">

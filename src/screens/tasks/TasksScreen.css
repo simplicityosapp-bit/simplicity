@@ -370,3 +370,56 @@
 }
 .tc-edit:hover { color: var(--espresso); opacity: 1; }
 .tc-edit:active { transform: scale(0.9); }
+
+/* ── Inline title rename (double-click / long-press) ───────────────
+   The title becomes editable in place without opening the full modal.
+   Suppress the native long-press text-selection callout on touch so the
+   gesture reads as "edit", not "select". Titles are short, so losing
+   desktop text-selection here is an acceptable trade. */
+.tc-title {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.tc-rename {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.tc-rename-input {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--terracotta);
+  border-radius: 9px;
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+  outline: none;
+}
+.tc-rename-input:focus {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 18%, transparent);
+}
+.tc-rename-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--sage);
+  color: var(--on-accent);
+  cursor: pointer;
+  transition: transform 0.12s, background 0.15s;
+}
+.tc-rename-save:hover { background: color-mix(in srgb, var(--sage) 85%, var(--espresso)); }
+.tc-rename-save:active { transform: scale(0.9); }

@@ -10,6 +10,7 @@ import { confirmScheduledMeeting, skipScheduledMeeting } from '../../lib/schedul
 import { showToast, showError } from '../../lib/toast'
 import { useCalendarDuplicates } from '../../hooks/useCalendarDuplicates'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
+import { useGoogleCalendarAutoSync } from '../../hooks/useGoogleCalendarAutoSync'
 import { useBookings } from '../../hooks/useBookings'
 import { useBookingPages } from '../../hooks/useBookingPages'
 import { useMeetingTypes } from '../../hooks/useMeetingTypes'
@@ -49,7 +50,10 @@ export default function CalendarScreen() {
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
   const { sessions, addSession, removeSession } = useSessions()
-  const { events: calendarEvents, loading: calendarEventsLoading, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
+  const { events: calendarEvents, loading: calendarEventsLoading, refetch: refetchCalendarEvents, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
+  /* Auto-sync Google Calendar on entry + every 10 min while this screen is
+     open (client-side only; reloads the cached events after each pull). */
+  useGoogleCalendarAutoSync({ onSynced: refetchCalendarEvents })
   const { bookings, cancel: cancelBookingFn } = useBookings()
   const { pages: bookingPages } = useBookingPages()
   const { types: meetingTypes } = useMeetingTypes()

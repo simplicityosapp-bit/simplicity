@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Clock, CalendarDays } from 'lucide-react'
 import { formatWhen } from '../../lib/dates'
+import { weekdayNamesShort } from '../../lib/calendar'
 import { useT } from '../../i18n/useT'
+import { useUserPreferences } from '../../hooks/useUserPreferences'
 import WhatsAppButton from '../../components/WhatsAppButton'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 
@@ -24,6 +26,7 @@ function calContext(it) {
 export default function CalendarSchedule({ items, onSelect }) {
   const { t } = useT('calendar')
   const waMsg = useWhatsAppMessage()
+  const { prefs, update: updatePrefs } = useUserPreferences()
   const [limit, setLimit] = useState(PAGE)
 
   if (!items.length) {
@@ -33,9 +36,45 @@ export default function CalendarSchedule({ items, onSelect }) {
       </div>
     )
   }
-  const shown = items.slice(0, limit)
-  const remaining = items.length - shown.length
+
+  // Weekday show/hide chips — a coach can hide non-working days from the agenda.
+  // Stored as the list of HIDDEN weekday indices (0=Sun…6=Sat); absent/empty =
+  // every day shown, mirroring the calendarFilter "absent = shown" convention.
+  const dayLabels = weekdayNamesShort()
+  const hidden = Array.isArray(prefs?.scheduleHiddenDays) ? prefs.scheduleHiddenDays : []
+  const hiddenSet = new Set(hidden)
+  const toggleDay = (d) => {
+    const next = hiddenSet.has(d) ? hidden.filter((x) => x !== d) : [...hidden, d]
+    updatePrefs({ scheduleHiddenDays: next })
+  }
+
+  const filtered = hiddenSet.size
+    ? items.filter((it) => !hiddenSet.has(new Date(it.when).getDay()))
+    : items
+  const shown = filtered.slice(0, limit)
+  const remaining = filtered.length - shown.length
   return (
+    <>
+      {Array.isArray(dayLabels) && dayLabels.length === 7 && (
+        <div className="cal-day-filter" role="group" aria-label={t('filter')}>
+          {dayLabels.map((lbl, d) => (
+            <button
+              key={d}
+              type="button"
+              className={`cal-day-chip${hiddenSet.has(d) ? '' : ' on'}`}
+              aria-pressed={!hiddenSet.has(d)}
+              onClick={() => toggleDay(d)}
+            >
+              {lbl}
+            </button>
+          ))}
+        </div>
+      )}
+      {filtered.length === 0 ? (
+        <div className="empty">
+          <p className="empty-text">{t('list.empty')}</p>
+        </div>
+      ) : (
     <section className="cal-list">
       {shown.map((it) => (
         <div
@@ -69,5 +108,7 @@ export default function CalendarSchedule({ items, onSelect }) {
         </button>
       )}
     </section>
+      )}
+    </>
   )
 }

@@ -70,6 +70,31 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
+/* Agenda weekday show/hide chips — pick which days appear in the "לוח" view. */
+.cal-day-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.cal-day-chip {
+  min-width: 34px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  color: var(--mist);
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.cal-day-chip:hover { background: var(--mg-btn-secondary-bg-hover); }
+.cal-day-chip.on { background: var(--terracotta); color: var(--on-accent); border-color: transparent; }
+[data-theme="dark"] .cal-day-chip.on { color: var(--ink-on-accent); }
+
 .cal-list {
   display: flex;
   flex-direction: column;

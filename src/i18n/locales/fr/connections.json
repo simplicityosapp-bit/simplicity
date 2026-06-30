@@ -149,6 +149,7 @@
     "needsReconnectStatus": "Reconnexion requise · {{provider}}",
     "connectedStatus": "Connecté · {{provider}} · {{env}}",
     "notConnectedHint": "Non connecté — émettez des factures et des reçus directement depuis Simplicity.",
+    "costWarning": "À noter — l'émission de reçus et de factures via Simplicity s'effectue auprès de votre logiciel de facturation via son API. Certains services de facturation facturent un coût supplémentaire pour l'utilisation de l'API. Vérifiez les conditions d'utilisation et la tarification de votre prestataire avant de commencer à émettre.",
     "brokenMsg": "Vos identifiants ne sont plus valides — la clé a peut-être été révoquée ou remplacée. Pour continuer à émettre des factures, reconnectez-vous.",
     "reconnect": "Se reconnecter",
     "pickProvider": "Choisissez un fournisseur",

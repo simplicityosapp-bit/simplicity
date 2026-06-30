@@ -149,6 +149,7 @@
     "needsReconnectStatus": "Requiere reconexión · {{provider}}",
     "connectedStatus": "Conectado · {{provider}} · {{env}}",
     "notConnectedHint": "Sin conectar — emite facturas y recibos directamente desde Simplicity.",
+    "costWarning": "Importante — la emisión de recibos y facturas a través de Simplicity se realiza con tu software de facturación mediante su API. Algunos servicios de facturación cobran un coste adicional por el uso de la API. Revisa los términos de uso y los precios de tu proveedor antes de empezar a emitir.",
     "brokenMsg": "Tus credenciales ya no son válidas — puede que la clave se haya revocado o reemplazado. Para seguir emitiendo facturas, vuelve a conectar.",
     "reconnect": "Reconectar",
     "pickProvider": "Elige un proveedor",

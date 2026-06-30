@@ -186,6 +186,13 @@ export default function InvoiceCard() {
         </div>
       </div>
 
+      {/* Always-on caution: the provider's own API may bill the user for
+          issuing documents — make them check that service's terms first. */}
+      <div className="conn-cost-warning" role="note">
+        <TriangleAlert size={16} strokeWidth={1.8} aria-hidden="true" />
+        <span>{t('invoiceCard.costWarning')}</span>
+      </div>
+
       {localErr && (
         <p className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {localErr}</p>
       )}

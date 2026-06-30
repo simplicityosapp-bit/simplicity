@@ -8,6 +8,7 @@
   },
   "sections": {
     "profile": { "title": "Profil", "sub": "Nom, profession et spécialité" },
+    "subscription": { "title": "Abonnement", "sub": "Votre formule et ce qu'elle inclut" },
     "widgets": { "title": "Widgets et affichage", "sub": "Ce qui s'affiche sur votre écran d'accueil" },
     "clients": { "title": "Clients et statuts", "sub": "Vos propres sous-statuts" },
     "payments": { "title": "Devise, date et heure", "sub": "Formats des montants, de la date et de l'heure, et début de semaine" },

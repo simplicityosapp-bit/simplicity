@@ -1,0 +1,54 @@
+{
+  "section": {
+    "title": "Abonnement",
+    "subtitle": "Votre formule et ce qu'elle inclut"
+  },
+  "current": {
+    "label": "Votre formule actuelle",
+    "betaUntil": "Accès bêta complet jusqu'au {{date}}",
+    "lockedTerms": "Abonné depuis le {{date}} · prix garanti à ₪{{price}}/mois"
+  },
+  "perMonth": "par mois",
+  "tiers": {
+    "free": { "name": "Gratuit", "tagline": "Pour commencer" },
+    "basic": { "name": "Basique", "tagline": "Pour le quotidien" },
+    "premium": { "name": "Premium", "tagline": "Tout, y compris l'IA" }
+  },
+  "benefits": {
+    "tasksRemindersQuestions": "Tâches, rappels et questions quotidiennes — sans limite",
+    "clientsFree": "Jusqu'à 10 clients",
+    "goalsFree": "Jusqu'à 3 objectifs",
+    "projectsFree": "Jusqu'à 2 projets",
+    "googleCalendar": "Connecter Google Calendar",
+    "unlimited": "Utilisation totalement illimitée du système",
+    "invoicing": "Connecter la facturation",
+    "clearing": "Connecter l'encaissement par carte",
+    "pages": "Pages d'atterrissage, de captation et de réservation",
+    "pagesFree": "Pages d'atterrissage, de captation et de réservation — une de chaque",
+    "ai": "Intégration de l'IA",
+    "community": "Réunions communautaires bimensuelles"
+  },
+  "thisIsYourPlan": "Votre formule",
+  "cta": {
+    "upgrade": "Changer de formule",
+    "choose": "Choisir une formule"
+  },
+  "banner": {
+    "ending": "Votre accès bêta se termine le {{date}}. Passez à une formule supérieure pour garder l'accès complet.",
+    "cta": "Mettre à niveau"
+  },
+  "locked": "Formule payante",
+  "limit": {
+    "clients": "Vous avez atteint la limite de la formule gratuite — jusqu'à 10 clients.",
+    "goals": "Vous avez atteint la limite de la formule gratuite — jusqu'à 3 objectifs.",
+    "projects": "Vous avez atteint la limite de la formule gratuite — jusqu'à 2 projets.",
+    "pages": "La formule gratuite inclut une page de chaque type.",
+    "feature": "Cette fonctionnalité est disponible sur une formule payante.",
+    "upgrade": "Passez à une formule supérieure pour débloquer"
+  },
+  "upgradeModal": {
+    "title": "Changer de formule",
+    "body": "La mise à niveau sera bientôt disponible. En attendant, contactez-nous et nous serons ravis de vous aider.",
+    "close": "Fermer"
+  }
+}

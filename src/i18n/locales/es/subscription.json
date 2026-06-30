@@ -1,0 +1,54 @@
+{
+  "section": {
+    "title": "Suscripción",
+    "subtitle": "Tu plan y lo que incluye"
+  },
+  "current": {
+    "label": "Tu plan actual",
+    "betaUntil": "Acceso beta completo hasta el {{date}}",
+    "lockedTerms": "Suscrito desde {{date}} · precio fijado en ₪{{price}}/mes"
+  },
+  "perMonth": "al mes",
+  "tiers": {
+    "free": { "name": "Gratis", "tagline": "Para empezar" },
+    "basic": { "name": "Básico", "tagline": "Para el día a día" },
+    "premium": { "name": "Premium", "tagline": "Todo, incluida la IA" }
+  },
+  "benefits": {
+    "tasksRemindersQuestions": "Tareas, recordatorios y preguntas diarias — sin límite",
+    "clientsFree": "Hasta 10 clientes",
+    "goalsFree": "Hasta 3 objetivos",
+    "projectsFree": "Hasta 2 proyectos",
+    "googleCalendar": "Conectar Google Calendar",
+    "unlimited": "Uso totalmente ilimitado del sistema",
+    "invoicing": "Conectar facturación",
+    "clearing": "Conectar cobro con tarjeta",
+    "pages": "Páginas de aterrizaje, captación y reservas",
+    "pagesFree": "Páginas de aterrizaje, captación y reservas — una de cada",
+    "ai": "Integración de IA",
+    "community": "Reuniones comunitarias quincenales"
+  },
+  "thisIsYourPlan": "Tu plan",
+  "cta": {
+    "upgrade": "Mejorar plan",
+    "choose": "Elegir plan"
+  },
+  "banner": {
+    "ending": "Tu acceso beta termina el {{date}}. Mejora para mantener el acceso completo.",
+    "cta": "Mejorar"
+  },
+  "locked": "Plan de pago",
+  "limit": {
+    "clients": "Has alcanzado el límite del plan gratuito: hasta 10 clientes.",
+    "goals": "Has alcanzado el límite del plan gratuito: hasta 3 objetivos.",
+    "projects": "Has alcanzado el límite del plan gratuito: hasta 2 proyectos.",
+    "pages": "El plan gratuito incluye una página de cada tipo.",
+    "feature": "Esta función está disponible en un plan de pago.",
+    "upgrade": "Mejora para desbloquear"
+  },
+  "upgradeModal": {
+    "title": "Mejorar plan",
+    "body": "La mejora estará disponible pronto. Mientras tanto, escríbenos y con gusto te ayudaremos.",
+    "close": "Cerrar"
+  }
+}

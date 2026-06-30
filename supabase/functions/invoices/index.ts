@@ -107,6 +107,32 @@ Deno.serve(async (req) => {
     const action = body.action
 
     if (action === 'connect') {
+      // Tier gate (billing model, migration 0075): invoicing is a paid
+      // capability. Creds flow through this function, so RLS can't gate it —
+      // this is the real server-side check. Gated by the master switch
+      // billing_enforced() so it's INERT until billing goes live (today it
+      // returns false → the guard never blocks anyone). current_tier() derives
+      // its user from auth.uid(), which is null under the service role here, so
+      // we read the subscription row directly and compute the effective tier.
+      const { data: enforced, error: bfErr } = await admin.rpc('billing_enforced')
+      // If the switch function itself is absent (migration 0075 not deployed),
+      // billing is DEFINITIONALLY off — skip the gate so invoicing never breaks
+      // pre-launch. Any OTHER rpc error means we can't confirm we're NOT
+      // enforcing → fail CLOSED with a retryable 503 (never a wrong "pay" 403).
+      const fnMissing = bfErr && (bfErr.code === 'PGRST202' || /does not exist|not found|schema cache/i.test(bfErr.message || ''))
+      if (bfErr && !fnMissing) return json({ error: 'temporarily_unavailable' }, 503)
+      if (enforced === true) {
+        const { data: sub, error: subErr } = await admin
+          .from('user_subscriptions')
+          .select('tier, beta_exempt_until')
+          .eq('user_id', userId)
+          .maybeSingle()
+        if (subErr) return json({ error: 'temporarily_unavailable' }, 503)
+        const exempt = sub?.beta_exempt_until && new Date(sub.beta_exempt_until) > new Date()
+        const tier = exempt ? 'premium' : (sub?.tier ?? 'free')
+        if (tier === 'free') return json({ error: 'plan_required' }, 403)
+      }
+
       const provider = String(body.provider ?? '')
       const environment = String(body.environment ?? '')
       const api_key = (body.api_key ?? '').toString().trim()

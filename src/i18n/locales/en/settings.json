@@ -8,6 +8,7 @@
   },
   "sections": {
     "profile": { "title": "Profile", "sub": "Name, profession and focus" },
+    "subscription": { "title": "Subscription", "sub": "Your plan and what it includes" },
     "widgets": { "title": "Widgets & display", "sub": "What shows on your home screen" },
     "clients": { "title": "Clients & statuses", "sub": "Your own sub-statuses" },
     "payments": { "title": "Currency, date & time", "sub": "Amount, date & time formats and week start" },

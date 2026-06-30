@@ -5,6 +5,8 @@ import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useTasks } from '../../hooks/useTasks'
+import { useSubscription } from '../../hooks/useSubscription'
+import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import ProjectCard from './ProjectCard'
 import AddProjectModal from '../../modals/AddProjectModal'
 import EditProjectModal from '../../modals/EditProjectModal'
@@ -16,7 +18,12 @@ import './ProjectsScreen.css'
 
 export default function ProjectsScreen() {
   const { t, gender } = useT('projects')
+  const { t: ts } = useT('subscription')
   const { projects, loading, error, addProject, updateProject, removeProject } = useProjects()
+  const { limits } = useSubscription()
+  const goUpgrade = useUpgradeNav()
+  /* Free-tier project ceiling. Infinity while billing isn't enforced. */
+  const atProjectLimit = (projects?.length || 0) >= limits.projects
   const { clients } = useClients()
   const { transactions } = useTransactions()
   const { tasks } = useTasks()
@@ -70,9 +77,12 @@ export default function ProjectsScreen() {
           <p className="t-screen">{t('title')}</p>
         </header>
         <Coachmark id="add-project" radius="50%">
-          <button className="cta-add" type="button" aria-label={t('newAria')} onClick={() => setShowAdd(true)}>{t('new')}</button>
+          <button className="cta-add" type="button" aria-label={t('newAria')} onClick={() => (atProjectLimit ? goUpgrade() : setShowAdd(true))}>{t('new')}</button>
         </Coachmark>
       </div>
+      {atProjectLimit && (
+        <button type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.projects')} · {ts('limit.upgrade')}</button>
+      )}
 
       <section className="p-hero">
         <div className="s-hero">

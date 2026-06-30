@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import { ArrowRight, Plus, Pencil, Trash2, ExternalLink, Copy, Check, LayoutTemplate, Files } from 'lucide-react'
 import { useSitePages } from '../../hooks/useSitePages'
+import { useSubscription } from '../../hooks/useSubscription'
+import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import { newSitePageDraft, publicSitePageUrl, KIND_LABEL } from '../../lib/sitePageSchema'
 import { ROUTES } from '../../lib/routes'
 import { showError } from '../../lib/toast'
@@ -24,9 +26,12 @@ const NEW_LABEL = { landing: 'hub.newLanding', lead: 'hub.newLead' }
 
 export default function SitePagesBuilder() {
   const { t } = useT('siteBuilder')
+  const { t: ts } = useT('subscription')
   const navigate = useNavigate()
   const { kind } = useParams()
   const { pages, loading, error, refetch, addPage, updatePage, removePage } = useSitePages()
+  const { limits } = useSubscription()
+  const goUpgrade = useUpgradeNav()
   const [editingId, setEditingId] = useState(null)
   const [copied, setCopied] = useState(null)
   const [picking, setPicking] = useState(false)
@@ -36,6 +41,10 @@ export default function SitePagesBuilder() {
 
   const editing = editingId ? pages.find((p) => p.id === editingId) : null
   const list = pages.filter((p) => p.kind === kind)
+  /* Free tier gets ONE page of each kind — manage it freely, but creating a
+     second is gated. Infinity while billing isn't enforced → never blocks. */
+  const pageMax = kind === 'lead' ? limits.leadPages : limits.landingPages
+  const atLimit = list.length >= pageMax
 
   /* New page: open the template picker; the choice seeds theme + sections. */
   const createFrom = async (tpl) => {
@@ -53,6 +62,7 @@ export default function SitePagesBuilder() {
 
   /* Clone a page as a fresh draft (new slug, unpublished) to use as a start. */
   const duplicatePage = async (p) => {
+    if (atLimit) { goUpgrade(); return }   // duplicating creates a new page → gated
     try {
       const row = await addPage({
         kind: p.kind, title: `${p.title || ''} ${t('hub.copySuffix')}`.trim(),
@@ -83,8 +93,11 @@ export default function SitePagesBuilder() {
       </div>
 
       <div className="spg-toolbar">
-        <button className="spg-new" onClick={() => setPicking(true)}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
+        <button className="spg-new" onClick={() => (atLimit ? goUpgrade() : setPicking(true))}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
       </div>
+      {atLimit && (
+        <button type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.pages')} · {ts('limit.upgrade')}</button>
+      )}
 
       {loading ? (
         <ul className="spg-grid" aria-hidden="true">

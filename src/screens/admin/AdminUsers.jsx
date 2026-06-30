@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import {
   Search, ChevronDown, BadgeCheck, Plus, Check, X, Users, CreditCard, Hand, Trash2,
-  Shield, ShieldCheck,
+  Shield, ShieldCheck, Gem,
 } from 'lucide-react'
 import { useAdminQuery, callAdmin } from '../../hooks/useAdmin'
 import { ADMIN_EMAIL } from '../../lib/routes'
@@ -123,6 +123,13 @@ export default function AdminUsers() {
     await refetch()
   }
 
+  /* Set a user's subscription tier and/or beta exemption (new billing model —
+     writes user_subscriptions). The edge fn re-checks the set_subscriber perm. */
+  const handleSetSubscription = async (id, patch) => {
+    await callAdmin('set_subscription', { user_id: id, ...patch })
+    await refetch()
+  }
+
   const rowProps = {
     openId: open,
     onToggleRow: (id) => setOpen(open === id ? null : id),
@@ -134,6 +141,7 @@ export default function AdminUsers() {
     onDelete: handleDelete,
     onSetAdmin: handleSetAdmin,
     onRevokeAdmin: handleRevokeAdmin,
+    onSetSubscription: handleSetSubscription,
     viewerPerms,
     viewerId,
     t,
@@ -199,7 +207,7 @@ function Section({ icon: Icon, title, count, open, onToggle, nested, children })
   )
 }
 
-function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, viewerPerms, viewerId, t, emptyText }) {
+function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, onSetSubscription, viewerPerms, viewerId, t, emptyText }) {
   return (
     <div className="admin-card admin-table-wrap">
       <table className="admin-table">
@@ -232,6 +240,7 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
               onDelete={() => onDelete(r.id)}
               onSetAdmin={onSetAdmin}
               onRevokeAdmin={onRevokeAdmin}
+              onSetSubscription={onSetSubscription}
               viewerPerms={viewerPerms}
               viewerId={viewerId}
               t={t}
@@ -276,7 +285,73 @@ function SubCell({ r, confirming, busy, canToggle, onRequestConfirm, onCancelCon
   )
 }
 
-function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, viewerPerms, viewerId, t }) {
+/* Tier + beta-exemption editor (set_subscriber perm). Reads-then-writes via
+   the set_subscription action; resyncs to server state after a refetch. */
+const SUB_TIERS = ['free', 'basic', 'premium']
+function SubscriptionBlock({ r, onSetSubscription, t }) {
+  const [tier, setTier] = useState(r.subscription_tier || 'free')
+  const [beta, setBeta] = useState(r.beta_exempt_until ? r.beta_exempt_until.slice(0, 10) : '')
+  const [busy, setBusy] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [err, setErr] = useState(false)
+  const [confirming, setConfirming] = useState(false) // two-step save (sensitive: changes billing terms)
+  /* Resync local drafts to the server values when they change (after refetch). */
+  const sig = `${r.subscription_tier || 'free'}|${r.beta_exempt_until || ''}`
+  const [syncedSig, setSyncedSig] = useState(sig)
+  if (sig !== syncedSig) {
+    setSyncedSig(sig)
+    setTier(r.subscription_tier || 'free')
+    setBeta(r.beta_exempt_until ? r.beta_exempt_until.slice(0, 10) : '')
+    setConfirming(false)
+  }
+  const save = async () => {
+    setBusy(true); setErr(false); setSaved(false)
+    try {
+      await onSetSubscription(r.id, { tier, beta_exempt_until: beta ? new Date(beta).toISOString() : null })
+      setSaved(true)
+    } catch { setErr(true) } finally { setBusy(false) }
+  }
+  return (
+    <div className="admin-role-block" onClick={(e) => e.stopPropagation()}>
+      <div className="admin-role-head">
+        <Gem size={14} strokeWidth={1.9} aria-hidden="true" />
+        <span>{t('users.subscription.heading')}</span>
+      </div>
+      <div className="admin-sub-tiers">
+        {SUB_TIERS.map((tk) => (
+          <button key={tk} type="button" className={`admin-pill${tier === tk ? ' done' : ''}`} onClick={() => { setTier(tk); setSaved(false); setConfirming(false) }}>
+            {t('users.subscription.tiers.' + tk)}
+          </button>
+        ))}
+      </div>
+      <label className="admin-sub-beta">
+        <span>{t('users.subscription.betaUntil')}</span>
+        <input type="date" value={beta} onChange={(e) => { setBeta(e.target.value); setSaved(false); setConfirming(false) }} />
+        {beta && <button type="button" className="admin-role-cancel" onClick={() => { setBeta(''); setSaved(false); setConfirming(false) }}>{t('users.subscription.clearBeta')}</button>}
+      </label>
+      {err && <p className="admin-role-err">{t('users.subscription.failed')}</p>}
+      {confirming ? (
+        <>
+          <p className="admin-role-warn">{t('users.subscription.confirmQ', { tier: t('users.subscription.tiers.' + tier) })}</p>
+          <div className="admin-role-actions">
+            <button type="button" className="admin-role-cancel" onClick={() => setConfirming(false)}>{t('users.manage.cancel')}</button>
+            <button type="button" className="admin-role-go" disabled={busy} onClick={async () => { await save(); setConfirming(false) }}>
+              {busy ? t('users.subscription.saving') : t('users.manage.confirm')}
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="admin-role-actions">
+          <button type="button" className="admin-role-go" onClick={() => { setErr(false); setConfirming(true) }}>
+            {saved ? t('users.subscription.saved') : t('users.subscription.save')}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, onSetSubscription, viewerPerms, viewerId, t }) {
   const [delOpen, setDelOpen] = useState(false)
   const [delText, setDelText] = useState('')
   const [delBusy, setDelBusy] = useState(false)
@@ -372,6 +447,7 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
           <td colSpan={9}>
             <div className="admin-detail-grid">
               <div><div className="k">{t('users.detail.subscriber')}</div><div className="v">{r.subscriber_kind === 'regular' ? t('users.detail.subscriberRegular') : r.subscriber_kind === 'manual' ? t('users.detail.subscriberManual') : t('users.detail.subscriberNone')}</div></div>
+              <div><div className="k">{t('users.subscription.tier')}</div><div className="v">{t('users.subscription.tiers.' + (r.subscription_tier || 'free'))}{r.beta_exempt_until ? ` · ${t('users.subscription.betaUntil')} ${fmtDate(r.beta_exempt_until)}` : ''}{r.subscribed_at ? ` · ${t('users.subscription.since')} ${fmtDate(r.subscribed_at)}${r.locked_price != null ? ` (₪${r.locked_price})` : ''}` : ''}</div></div>
               <div><div className="k">{t('users.detail.onboardingStage')}</div><div className="v">{r.onboarding_done ? r.onboarding_label : t('users.detail.onboardingStopped', { label: r.onboarding_label })}</div></div>
               <div><div className="k">{t('users.detail.feedbackLeft')}</div><div className="v">{r.feedback_count > 0 ? t('users.detail.feedbackCount', { count: r.feedback_count }) : t('users.detail.feedbackNone')}</div></div>
               <div><div className="k">{t('users.detail.reflections')}</div><div className="v">{r.reflections}</div></div>
@@ -386,6 +462,12 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
               <div><div className="k">{t('users.detail.terms')}</div><div className="v">{fmtConsent(r.consent?.terms, t)}</div></div>
               <div><div className="k">{t('users.detail.marketing')}</div><div className="v">{fmtMarketing(r, t)}</div></div>
             </div>
+
+            {/* Subscription management (tier + beta exemption) — for viewers
+                with the set_subscriber perm. Writes the user_subscriptions table. */}
+            {viewerPerms?.set_subscriber && (
+              <SubscriptionBlock r={r} onSetSubscription={onSetSubscription} t={t} />
+            )}
 
             {/* Admin role management — only for viewers who can manage admins,
                 never on the owner row or your own row. Double confirmation:

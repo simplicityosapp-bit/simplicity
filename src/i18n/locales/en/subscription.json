@@ -1,0 +1,54 @@
+{
+  "section": {
+    "title": "Subscription",
+    "subtitle": "Your plan and what it includes"
+  },
+  "current": {
+    "label": "Your current plan",
+    "betaUntil": "Full beta access until {{date}}",
+    "lockedTerms": "Subscribed since {{date}} · price locked at ₪{{price}}/mo"
+  },
+  "perMonth": "per month",
+  "tiers": {
+    "free": { "name": "Free", "tagline": "To get started" },
+    "basic": { "name": "Basic", "tagline": "For everyday work" },
+    "premium": { "name": "Premium", "tagline": "Everything, including AI" }
+  },
+  "benefits": {
+    "tasksRemindersQuestions": "Tasks, reminders and daily questions — unlimited",
+    "clientsFree": "Up to 10 clients",
+    "goalsFree": "Up to 3 goals",
+    "projectsFree": "Up to 2 projects",
+    "googleCalendar": "Connect Google Calendar",
+    "unlimited": "Fully unlimited use of the system",
+    "invoicing": "Connect invoicing",
+    "clearing": "Connect card clearing",
+    "pages": "Landing, lead and booking pages",
+    "pagesFree": "Landing, lead and booking pages — one of each",
+    "ai": "AI integration",
+    "community": "Biweekly community meetings"
+  },
+  "thisIsYourPlan": "Your plan",
+  "cta": {
+    "upgrade": "Upgrade plan",
+    "choose": "Choose plan"
+  },
+  "banner": {
+    "ending": "Your beta access ends on {{date}}. Upgrade to keep full access.",
+    "cta": "Upgrade"
+  },
+  "locked": "Paid plan",
+  "limit": {
+    "clients": "You've reached the free plan limit — up to 10 clients.",
+    "goals": "You've reached the free plan limit — up to 3 goals.",
+    "projects": "You've reached the free plan limit — up to 2 projects.",
+    "pages": "The free plan includes one page of each kind.",
+    "feature": "This feature is available on a paid plan.",
+    "upgrade": "Upgrade to unlock"
+  },
+  "upgradeModal": {
+    "title": "Upgrade plan",
+    "body": "Upgrading will be available soon. In the meantime, reach out and we'll be happy to help.",
+    "close": "Close"
+  }
+}

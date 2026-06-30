@@ -10,6 +10,7 @@ import RemindersWidget from './widgets/RemindersWidget'
 import NextTasksWidget from './widgets/NextTasksWidget'
 import ChipsWidget from './widgets/ChipsWidget'
 import FeedbackCard from '../../components/FeedbackCard'
+import BetaExpiryBanner from '../../components/BetaExpiryBanner'
 import './HomeScreen.css'
 
 const WIDGET_COMPONENTS = {
@@ -73,6 +74,7 @@ export default function HomeScreen({ onOpenFeedback }) {
     >
       <div className="home-stack">
         {showWelcome && <HomeWelcome onDismiss={() => updatePrefs({ homeWelcomeDismissed: true })} />}
+        <BetaExpiryBanner />
         {(quoteCfg || moonCfg) && (
           <div className="home-row-top">
             {moonCfg  && renderWidget(moonCfg, globalDensity)}

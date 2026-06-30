@@ -145,6 +145,25 @@
 /* Dark mode keeps the same gradient — the four colors stay legible
    against terracotta in both themes. */
 
+/* "You've reached your plan limit" note — a thin tappable banner shown next
+   to the add control when a free-tier ceiling is hit. Routes to upgrade.
+   Inert while billing isn't enforced (the limit is Infinity → never shown). */
+.sub-limit-note {
+  display: block;
+  width: 100%;
+  margin: 8px 0 0;
+  padding: 8px 14px;
+  text-align: start;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--terracotta);
+  background: color-mix(in srgb, var(--terracotta) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--terracotta) 28%, transparent);
+  border-radius: var(--mg-card-radius);
+  cursor: pointer;
+}
+.sub-limit-note:hover { background: color-mix(in srgb, var(--terracotta) 18%, transparent); }
+
 /* ── Summary hero panel ────────────────────────────────────────── */
 .s-hero {
   position: relative;

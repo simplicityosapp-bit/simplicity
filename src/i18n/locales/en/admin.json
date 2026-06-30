@@ -94,6 +94,19 @@
       "adminTitle": "Admin"
     },
     "marketingConsentAria": "Agreed to marketing",
+    "subscription": {
+      "heading": "Subscription",
+      "tier": "Plan",
+      "tiers": { "free": "Free", "basic": "Basic", "premium": "Premium" },
+      "betaUntil": "Beta exemption until",
+      "since": "Subscribed since",
+      "clearBeta": "Clear exemption",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "failed": "Save failed",
+      "confirmQ": "Update the plan to {{tier}}?"
+    },
     "detail": {
       "subscriber": "Subscriber",
       "subscriberRegular": "Regular subscriber (paid)",

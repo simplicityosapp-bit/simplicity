@@ -149,6 +149,7 @@
     "needsReconnectStatus": "Needs reconnecting · {{provider}}",
     "connectedStatus": "Connected · {{provider}} · {{env}}",
     "notConnectedHint": "Not connected — issue invoices and receipts straight from Simplicity.",
+    "costWarning": "Heads up — issuing receipts and invoices through Simplicity works against your invoicing software via its API. Some invoicing services charge extra for API usage. Check your provider's terms of service and pricing before you start issuing.",
     "brokenMsg": "Your credentials are no longer valid — the key may have been revoked or replaced. To keep issuing invoices, reconnect.",
     "reconnect": "Reconnect",
     "pickProvider": "Choose a provider",

@@ -24,9 +24,16 @@ function useMeasuredWidth(fallback = 600) {
 }
 
 const H = 180
-const PAD_X = 14
+const PAD_L = 34          // left gutter for the y-axis value labels
+const PAD_R = 14
 const PAD_TOP = 14
 const PAD_BOT = 26
+
+/* Up to three y-axis ticks (0 … max) so the magnitude is readable. */
+function yTicks(max) {
+  if (max <= 1) return [0, Math.max(1, max)]
+  return [...new Set([0, Math.round(max / 2), max])]
+}
 
 /* Sparse, evenly-spaced x labels (first, ~middles, last) without overlap. */
 function pickLabels(n, max = 6) {
@@ -42,7 +49,7 @@ export function BarChart({ data, alt = false, formatX = (d) => d.label }) {
     return <div ref={ref} className="admin-chart-svg" style={{ height: H }} />
   }
   const max = Math.max(1, ...data.map((d) => d.count))
-  const innerW = W - PAD_X * 2
+  const innerW = W - PAD_L - PAD_R
   const innerH = H - PAD_TOP - PAD_BOT
   const slot = innerW / data.length
   const bw = Math.max(2, Math.min(34, slot * 0.62))
@@ -52,10 +59,15 @@ export function BarChart({ data, alt = false, formatX = (d) => d.label }) {
   return (
     <div ref={ref}>
       <svg viewBox={`0 0 ${W} ${H}`} className="admin-chart-svg" style={{ height: H }} role="img">
-        {/* baseline */}
-        <line x1={PAD_X} y1={PAD_TOP + innerH} x2={W - PAD_X} y2={PAD_TOP + innerH} className="admin-chart-grid" />
+        {/* y-axis — gridlines + value labels (so the magnitude is readable) */}
+        {yTicks(max).map((v) => (
+          <g key={`y${v}`}>
+            <line x1={PAD_L} y1={yOf(v)} x2={W - PAD_R} y2={yOf(v)} className="admin-chart-grid" />
+            <text x={PAD_L - 6} y={yOf(v) + 3.5} textAnchor="end" className="admin-chart-axis">{v}</text>
+          </g>
+        ))}
         {data.map((d, i) => {
-          const x = PAD_X + i * slot + (slot - bw) / 2
+          const x = PAD_L + i * slot + (slot - bw) / 2
           const y = yOf(d.count)
           const h = PAD_TOP + innerH - y
           return (
@@ -82,10 +94,10 @@ export function LineChart({ data, alt = false, formatX = (d) => d.label, gradId 
     return <div ref={ref} className="admin-chart-svg" style={{ height: H }} />
   }
   const max = Math.max(1, ...data.map((d) => d.count))
-  const innerW = W - PAD_X * 2
+  const innerW = W - PAD_L - PAD_R
   const innerH = H - PAD_TOP - PAD_BOT
   const stepX = innerW / Math.max(1, data.length - 1)
-  const xOf = (i) => PAD_X + i * stepX
+  const xOf = (i) => PAD_L + i * stepX
   const yOf = (v) => PAD_TOP + (1 - v / max) * innerH
 
   let path = ''
@@ -107,7 +119,13 @@ export function LineChart({ data, alt = false, formatX = (d) => d.label, gradId 
             <stop offset="100%" className="admin-chart-area-bot" />
           </linearGradient>
         </defs>
-        <line x1={PAD_X} y1={baseY} x2={W - PAD_X} y2={baseY} className="admin-chart-grid" />
+        {/* y-axis — gridlines + value labels (so the magnitude is readable) */}
+        {yTicks(max).map((v) => (
+          <g key={`y${v}`}>
+            <line x1={PAD_L} y1={yOf(v)} x2={W - PAD_R} y2={yOf(v)} className="admin-chart-grid" />
+            <text x={PAD_L - 6} y={yOf(v) + 3.5} textAnchor="end" className="admin-chart-axis">{v}</text>
+          </g>
+        ))}
         {area && <path d={area} fill={`url(#${gradId})`} />}
         {path && <path d={path} className={`admin-chart-line${alt ? ' alt' : ''}`} />}
         {data.map((d, i) => (

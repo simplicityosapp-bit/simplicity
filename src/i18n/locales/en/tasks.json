@@ -96,7 +96,10 @@
     "reminderDone": "Done",
     "editTask": "Edit task",
     "editReminder": "Edit reminder",
-    "pendingOccurrences": "{{n}} occurrences still pending"
+    "pendingOccurrences": "{{n}} occurrences still pending",
+    "renameAria": "Edit title",
+    "renameSave": "Save",
+    "renameHint": "Enter to save · Esc to cancel"
   },
   "groupBy": {
     "aria": "Group tasks",

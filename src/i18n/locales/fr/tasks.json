@@ -96,7 +96,10 @@
     "reminderDone": "Terminé",
     "editTask": "Modifier la tâche",
     "editReminder": "Modifier le rappel",
-    "pendingOccurrences": "{{n}} occurrences encore en attente"
+    "pendingOccurrences": "{{n}} occurrences encore en attente",
+    "renameAria": "Modifier le titre",
+    "renameSave": "Enregistrer",
+    "renameHint": "Entrée pour enregistrer · Échap pour annuler"
   },
   "groupBy": {
     "aria": "Grouper les tâches",

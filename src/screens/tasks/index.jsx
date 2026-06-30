@@ -243,6 +243,11 @@ export default function TasksScreen() {
   const projOf = (id) => projects.find((p) => p.id === id)
   const clientNameOf = (id) => clients.find((c) => c.id === id)?.name
 
+  /* Inline rename — a double-click / long-press on a card title saves just
+     the title via the existing optimistic editTask/editReminder, no modal. */
+  const renameTask = (id, title) => editTask(id, { title })
+  const renameReminder = (id, title) => editReminder(id, { title })
+
   const emptyMsg = isTasks
     ? (filter === 'done' ? t('empty.tasksDone') : t('empty.tasksTodo'))
     : (filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo'))
@@ -435,6 +440,7 @@ export default function TasksScreen() {
                           dotColor={PRIORITY_COLOR[task.priority || 'medium']}
                           onToggle={() => toggleTask(task)}
                           onEdit={setEditItem}
+                          onRename={renameTask}
                           index={i}
                           taskStatus={task.status_id ? statusById.get(task.status_id) : null}
                           category={task.category_id ? categoryById.get(task.category_id) : null}
@@ -468,6 +474,7 @@ export default function TasksScreen() {
                       dotColor={g.color}
                       onComplete={completeReminder}
                       onEdit={setEditItem}
+                      onRename={renameReminder}
                       index={i}
                     />
                   ))}
@@ -492,6 +499,7 @@ export default function TasksScreen() {
                   dotColor="var(--stone)"
                   onComplete={completeReminder}
                   onEdit={setEditItem}
+                  onRename={renameReminder}
                   index={i}
                 />
               ))}
@@ -517,6 +525,7 @@ export default function TasksScreen() {
                       dotColor={b.color}
                       onComplete={completeReminder}
                       onEdit={setEditItem}
+                      onRename={renameReminder}
                       count={dueOccurrenceCount(r, now)}
                       index={i}
                     />
@@ -532,6 +541,7 @@ export default function TasksScreen() {
                       dotColor={b.color}
                       onToggle={() => toggleTask(task)}
                       onEdit={setEditDatedTask}
+                      onRename={renameTask}
                       index={items.length + i}
                       taskStatus={task.status_id ? statusById.get(task.status_id) : null}
                       category={task.category_id ? categoryById.get(task.category_id) : null}

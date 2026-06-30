@@ -100,7 +100,10 @@
     "reminderDone": "בוצעה",
     "editTask": "עריכת משימה",
     "editReminder": "עריכת תזכורת",
-    "pendingOccurrences": "{{n}} מופעים שטרם בוצעו"
+    "pendingOccurrences": "{{n}} מופעים שטרם בוצעו",
+    "renameAria": "עריכת כותרת",
+    "renameSave": "שמירה",
+    "renameHint": "Enter לשמירה · Esc לביטול"
   },
   "groupBy": {
     "aria": "קיבוץ משימות",

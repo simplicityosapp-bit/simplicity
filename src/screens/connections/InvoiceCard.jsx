@@ -54,6 +54,7 @@ export default function InvoiceCard() {
   const [busyAction, setBusyAction] = useState(null) // 'connect' | 'test' | 'disconnect'
   const [confirmDisc, setConfirmDisc] = useState(false)
   const [togglingAuto, setTogglingAuto] = useState(false)
+  const [togglingScan, setTogglingScan] = useState(false)
   const discTimer = useRef(0)
   /* Business type (עוסק פטור / מורשה) — picked locally; only WRITTEN on an explicit
      confirm so it never changes by accident. `pendingBiz` tracks the selection,
@@ -148,6 +149,19 @@ export default function InvoiceCard() {
       setLocalErr(errMsg(e.message, t))
     } finally {
       setTogglingAuto(false)
+    }
+  }
+
+  const onToggleScheduledScan = async (value) => {
+    if (togglingScan) return /* ignore rapid double-toggles — keep the checkbox in sync with the server */
+    setLocalErr(''); setOkMsg(''); setTogglingScan(true)
+    try {
+      await inv.setScheduledScan(value)
+      setOkMsg(value ? t('invoiceCard.scheduledScanOn') : t('invoiceCard.scheduledScanOff'))
+    } catch (e) {
+      setLocalErr(errMsg(e.message, t))
+    } finally {
+      setTogglingScan(false)
     }
   }
 
@@ -285,6 +299,27 @@ export default function InvoiceCard() {
             <span>{t('invoiceCard.autoImportLabel')}</span>
           </label>
           <p className="conn-autoimport-note">{t('invoiceCard.autoImportNote')}</p>
+
+          {/* Opt-in periodic (daily) scan. Real-time import already runs via the
+              provider webhook; this is an extra safety net that calls the
+              provider's API once a day — which some services bill per call, so
+              it's OFF by default and gated behind an explicit warning. Only
+              meaningful while income import is on. */}
+          {status?.auto_import && (
+            <>
+              <label className="conn-autoimport">
+                <input type="checkbox" checked={!!status?.scheduled_scan} onChange={(e) => onToggleScheduledScan(e.target.checked)} disabled={inv.busy || togglingScan} />
+                <span>{t('invoiceCard.scheduledScanLabel')}</span>
+              </label>
+              <p className="conn-autoimport-note">{t('invoiceCard.scheduledScanNote')}</p>
+              {!!status?.scheduled_scan && (
+                <div className="conn-cost-warning" role="note">
+                  <TriangleAlert size={16} strokeWidth={1.8} aria-hidden="true" />
+                  <span>{t('invoiceCard.scheduledScanWarning')}</span>
+                </div>
+              )}
+            </>
+          )}
 
           {/* Business type — drives which document types the issue picker offers.
               Editable any time; a change is committed only on the confirm button. */}

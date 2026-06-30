@@ -172,6 +172,11 @@
     "autoImportNote": "We'll spot the income you've entered in your receipts software — and ask whether to record it here too.",
     "autoImportOn": "Income import turned on.",
     "autoImportOff": "Income import turned off.",
+    "scheduledScanLabel": "Add a daily backup scan?",
+    "scheduledScanNote": "New receipts are normally picked up the moment they're created (in real time). A daily scan is an extra safety net — once a day we check your receipts software for anything that slipped through.",
+    "scheduledScanWarning": "Heads up — the daily scan calls your receipts software's API once a day. Some invoicing services charge for API usage. Make sure your API terms allow it before leaving the scan on.",
+    "scheduledScanOn": "Daily scan turned on.",
+    "scheduledScanOff": "Daily scan turned off.",
     "businessType": {
       "label": "Your business type",
       "note": "Determines which documents you can issue: a VAT-exempt business issues receipts only; a licensed dealer can also issue tax invoices. You can change this any time.",

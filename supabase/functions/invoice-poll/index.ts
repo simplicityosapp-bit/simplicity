@@ -46,8 +46,14 @@ Deno.serve(async (req) => {
   const { data: integs } = await admin.from('user_integrations').select('*').in('provider', POLL_PROVIDERS)
   let staged = 0, scanned = 0
   for (const integ of (integs ?? [])) {
-    // Income import is opt-in: only poll connections the user enabled. OFF = no import.
-    if (!integ.auto_import) continue
+    // Two gates (migration 0077):
+    //   • auto_import   — the income-import switch (also drives the webhook).
+    //   • scheduled_scan — opt-in periodic polling. OFF by default so a
+    //     connected webhook isn't double-scanned and per-call API charges
+    //     don't accrue. Only connections the user explicitly opted into the
+    //     (daily) scan are polled here. (undefined when the column predates
+    //     the migration → treated as OFF, the safe direction.)
+    if (!integ.auto_import || !integ.scheduled_scan) continue
     try {
       const since = integ.last_polled_at ?? new Date(Date.now() - 7 * 86400000).toISOString()
       const docs = await getProvider(integ.provider).listDocumentsSince(

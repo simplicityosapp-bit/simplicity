@@ -62,6 +62,10 @@ const statusOf = (row: any) =>
     ? {
         connected: true, provider: row.provider, environment: row.environment,
         connected_at: row.created_at, auto_import: !!row.auto_import,
+        // Opt-in periodic poll (migration 0077). OFF = webhook-only, no
+        // recurring provider API calls. The card shows the API-cost warning
+        // before the user turns this on.
+        scheduled_scan: !!row.scheduled_scan,
         // Invoice business type (עוסק פטור 'exempt' / עוסק מורשה 'licensed' / null
         // = not set) — drives the doc-type picker. Migration 0053.
         business_type: row.business_type ?? null,
@@ -186,6 +190,18 @@ Deno.serve(async (req) => {
       const { data: updated, error: updErr } = await admin.from('user_integrations')
         .update({ auto_import: !!body.value }).eq('id', row.id).select('*').maybeSingle()
       if (updErr || !updated) throw updErr ?? new Error('auto_import update failed')
+      return json({ status: statusOf(updated) })
+    }
+
+    if (action === 'set-scheduled-scan') {
+      // Opt into / out of the periodic (daily) poll. Independent of the
+      // real-time webhook (auto_import). Default OFF — turning it ON means
+      // the cron will call the provider's documents-list API once a day.
+      const row = await loadInvoiceIntegration(userId)
+      if (!row) return json({ error: 'not_connected' }, 400)
+      const { data: updated, error: updErr } = await admin.from('user_integrations')
+        .update({ scheduled_scan: !!body.value }).eq('id', row.id).select('*').maybeSingle()
+      if (updErr || !updated) throw updErr ?? new Error('scheduled_scan update failed')
       return json({ status: statusOf(updated) })
     }
 

@@ -118,6 +118,22 @@ export function useInvoiceProvider() {
     }
   }, [setStatus])
 
+  /* Toggle the opt-in periodic (daily) scan. Independent of the real-time
+     webhook — ON means the cron calls the provider's documents-list API once
+     a day (the card warns about possible per-call API charges first). */
+  const setScheduledScan = useCallback(async (value) => {
+    setBusy(true); setActionError(null)
+    try {
+      const r = await callInvoices('set-scheduled-scan', { value: !!value })
+      if (r?.status) setStatus(r.status)
+      return r
+    } catch (e) {
+      setActionError(e.message); throw e
+    } finally {
+      setBusy(false)
+    }
+  }, [setStatus])
+
   /* Set the business type ('exempt' עוסק פטור / 'licensed' עוסק מורשה) — drives
      the issue doc-type picker. Confirmed by the user (no accidental change). */
   const setBusinessType = useCallback(async (value) => {
@@ -146,6 +162,7 @@ export function useInvoiceProvider() {
     creditDocument,
     loadItems,
     setAutoImport,
+    setScheduledScan,
     setBusinessType,
   }
 }

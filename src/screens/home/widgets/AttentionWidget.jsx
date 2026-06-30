@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock } from 'lucide-react'
+import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock, FileDown } from 'lucide-react'
 import { attentionItems } from '../../../lib/homeData'
 import { ROUTES } from '../../../lib/routes'
 import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
@@ -30,6 +30,8 @@ import CalendarDuplicateModal from '../../../modals/CalendarDuplicateModal'
 import { useBookings } from '../../../hooks/useBookings'
 import { useBookingsGeneration } from '../../../hooks/useBookingsGeneration'
 import BookingConfirmList from './BookingConfirmList'
+import { useInvoiceImports } from '../../../hooks/useInvoiceImports'
+import InvoiceImports from '../../finance/InvoiceImports'
 import { useT } from '../../../i18n/useT'
 
 const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
@@ -59,6 +61,10 @@ export default function AttentionWidget() {
   const { leads } = useLeads()
   const { events: calendarEvents, dismissEvent } = useCalendarEvents()
   const { bookings, materialize, loading: bookingsLoading } = useBookings()
+  /* Route-B invoice imports staged by the provider webhook (a receipt issued
+     in SUMIT/Green Invoice) — surface them here so a new receipt raises an
+     attention row, not just a section on the finance screen. */
+  const { imports: invoiceImports } = useInvoiceImports()
 
   /* Materialise pending scheduled-meeting rows + their linked on_meeting
      expenses so the attention count + popups are populated on home visit.
@@ -110,8 +116,12 @@ export default function AttentionWidget() {
     ? t('widgets.attention.bookings', { count: pendingBookings.length })
     : null
 
-  const totalCount = items.length + (dupText ? 1 : 0) + (bookingsText ? 1 : 0)
-  const summaryParts = [bookingsText, dupText, ...items.map((it) => it.text)].filter(Boolean)
+  const invoicesText = (invoiceImports?.length || 0) > 0
+    ? t('widgets.attention.invoices', { count: invoiceImports.length })
+    : null
+
+  const totalCount = items.length + (dupText ? 1 : 0) + (bookingsText ? 1 : 0) + (invoicesText ? 1 : 0)
+  const summaryParts = [invoicesText, bookingsText, dupText, ...items.map((it) => it.text)].filter(Boolean)
   const summary = totalCount === 0
     ? t('widgets.attention.allClear')
     : summaryParts.slice(0, 2).join(' · ') + (summaryParts.length > 2 ? ` · ${t('widgets.attention.more', { count: summaryParts.length - 2 })}` : '')
@@ -149,6 +159,13 @@ export default function AttentionWidget() {
         </div>
         {open ? (
           <div className="h-card-list">
+            {(invoiceImports?.length || 0) > 0 && (
+              <button type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('invoices') }}>
+                <FileDown size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
+                <span className="h-attn-text">{invoicesText}</span>
+                <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
+              </button>
+            )}
             {pendingBookings.length > 0 && (
               <button type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('bookings') }}>
                 <Calendar size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
@@ -174,7 +191,7 @@ export default function AttentionWidget() {
                   </button>
                 )
               })
-            ) : (duplicates.length === 0 && pendingBookings.length === 0) ? (
+            ) : (duplicates.length === 0 && pendingBookings.length === 0 && (invoiceImports?.length || 0) === 0) ? (
               <p className="h-card-empty">{t('widgets.attention.empty')}</p>
             ) : null}
           </div>
@@ -206,6 +223,10 @@ export default function AttentionWidget() {
 
       <Modal open={popup === 'bookings'} onClose={() => setPopup(null)} title={t('widgets.attention.bookingsModalTitle')}>
         <BookingConfirmList />
+      </Modal>
+
+      <Modal open={popup === 'invoices'} onClose={() => setPopup(null)} title={t('widgets.attention.invoicesModalTitle')}>
+        <InvoiceImports />
       </Modal>
 
       <CalendarDuplicateModal

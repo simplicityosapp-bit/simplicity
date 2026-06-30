@@ -172,6 +172,11 @@
     "autoImportNote": "Detectaremos los ingresos que has introducido en tu software de recibos — y te preguntaremos si quieres registrarlos también aquí.",
     "autoImportOn": "Importación de ingresos activada.",
     "autoImportOff": "Importación de ingresos desactivada.",
+    "scheduledScanLabel": "¿Añadir un escaneo diario de respaldo?",
+    "scheduledScanNote": "Normalmente los recibos se detectan en el momento en que se crean (en tiempo real). El escaneo diario es una red de seguridad adicional: una vez al día revisamos tu software de recibos por si algo se escapó.",
+    "scheduledScanWarning": "Importante — el escaneo diario llama a la API de tu software de recibos una vez al día. Algunos servicios de facturación cobran por el uso de la API. Asegúrate de que las condiciones de tu API lo permitan antes de dejar el escaneo activado.",
+    "scheduledScanOn": "Escaneo diario activado.",
+    "scheduledScanOff": "Escaneo diario desactivado.",
     "businessType": {
       "label": "Tu tipo de negocio",
       "note": "Determina qué documentos puedes emitir: un negocio exento de IVA solo emite recibos; un comerciante autorizado también puede emitir facturas fiscales. Puedes cambiarlo en cualquier momento.",

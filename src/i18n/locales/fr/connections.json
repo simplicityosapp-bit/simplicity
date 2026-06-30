@@ -172,6 +172,11 @@
     "autoImportNote": "Nous repérerons les revenus que vous avez saisis dans votre logiciel de reçus — et vous demanderons si vous souhaitez aussi les enregistrer ici.",
     "autoImportOn": "Import des revenus activé.",
     "autoImportOff": "Import des revenus désactivé.",
+    "scheduledScanLabel": "Ajouter une analyse quotidienne de secours ?",
+    "scheduledScanNote": "Les nouveaux reçus sont normalement détectés dès leur création (en temps réel). L'analyse quotidienne est un filet de sécurité supplémentaire : une fois par jour, nous vérifions votre logiciel de reçus au cas où quelque chose serait passé entre les mailles.",
+    "scheduledScanWarning": "À noter — l'analyse quotidienne appelle l'API de votre logiciel de reçus une fois par jour. Certains services de facturation facturent l'utilisation de l'API. Assurez-vous que les conditions de votre API l'autorisent avant de laisser l'analyse activée.",
+    "scheduledScanOn": "Analyse quotidienne activée.",
+    "scheduledScanOff": "Analyse quotidienne désactivée.",
     "businessType": {
       "label": "Votre type d'activité",
       "note": "Détermine les documents que vous pouvez émettre : un exonéré de TVA n'émet que des reçus ; un commerçant agréé peut aussi émettre des factures fiscales. Vous pouvez le modifier à tout moment.",

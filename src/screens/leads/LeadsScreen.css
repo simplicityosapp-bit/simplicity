@@ -14,6 +14,7 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
 }
 .l-stat {
@@ -69,6 +70,7 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
   transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
@@ -94,6 +96,7 @@
   border-radius: 999px;
   border: 1px solid var(--divider);
   background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
 }
 .l-view-btn {
@@ -137,6 +140,7 @@
   border-radius: 999px;
   border: 1px solid var(--divider);
   background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));
@@ -168,6 +172,7 @@
   border-radius: var(--mg-btn-radius);
   border: 0.5px solid rgba(42, 37, 32, 0.1);
   background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
   color: var(--stone);
 }
@@ -191,6 +196,7 @@
   border-radius: 999px;
   border: 1px solid var(--divider);
   background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));
@@ -341,6 +347,7 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
+  -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
 }
 .lead-statuses-intro {

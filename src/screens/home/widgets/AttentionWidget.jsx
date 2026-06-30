@@ -43,7 +43,7 @@ const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
    that materialise pending meetings + linked expenses on home (moved here from
    the now-removed meeting-confirm widget). */
 export default function AttentionWidget() {
-  const { t } = useT('home')
+  const { t, lang } = useT('home')
   const navigate = useNavigate()
   const waMsg = useWhatsAppMessage()
   const { transactions, setStatus: setTxStatus, removeTransaction, addTransaction, loading: transactionsLoading } = useTransactions()
@@ -83,7 +83,11 @@ export default function AttentionWidget() {
 
   const items = useMemo(
     () => attentionItems(new Date(), { transactions, scheduled_meetings: meetings, clients, tasks, goals, categories: goalCategories, sessions, leads, members, groups }),
-    [transactions, meetings, clients, tasks, goals, goalCategories, sessions, leads, members, groups],
+    /* `lang` is a dep so row labels recompute when the UI language switches —
+       attentionItems() reads the active language internally via i18n.t, so the
+       linter can't see the use. */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [transactions, meetings, clients, tasks, goals, goalCategories, sessions, leads, members, groups, lang],
   )
 
   /* Calendar duplicates (app recurring meeting ⇄ synced Google event) surface

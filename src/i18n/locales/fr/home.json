@@ -29,7 +29,27 @@
       "invoices_one": "Nouveau document à importer",
       "invoices_other": "{{count}} nouveaux documents à importer",
       "invoicesModalTitle": "Documents à importer",
-      "reachOut": "Contact rapide"
+      "reachOut": "Contact rapide",
+      "rows": {
+        "pendingTx_one": "1 transaction en attente d'approbation",
+        "pendingTx_other": "{{count}} transactions en attente d'approbation",
+        "pendingMeetings_one": "1 rendez-vous à confirmer",
+        "pendingMeetings_other": "{{count}} rendez-vous à confirmer",
+        "balance_one": "1 client avec un solde",
+        "balance_other": "{{count}} clients avec un solde",
+        "goalGap_one": "{{amount}} pour atteindre l'objectif — 1 jour",
+        "goalGap_other": "{{amount}} pour atteindre l'objectif — {{days}} jours",
+        "urgentTasks_one": "1 tâche urgente",
+        "urgentTasks_other": "{{count}} tâches urgentes",
+        "staleClients_one": "1 client sans contact",
+        "staleClients_other": "{{count}} clients sans contact",
+        "pendingLeads_one": "1 prospect en attente d'approbation",
+        "pendingLeads_other": "{{count}} prospects en attente d'approbation",
+        "staleLeads_one": "1 prospect sans activité",
+        "staleLeads_other": "{{count}} prospects sans activité",
+        "dueFollowups_one": "1 relance pour aujourd'hui",
+        "dueFollowups_other": "{{count}} relances pour aujourd'hui"
+      }
     },
     "chips": {
       "tasks": "Tâches",

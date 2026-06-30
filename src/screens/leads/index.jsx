@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, SlidersHorizontal, Link2 } from 'lucide-react'
+import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, SlidersHorizontal, Link2, Search } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useLeads } from '../../hooks/useLeads'
 import { useLeadPages } from '../../hooks/useLeadPages'
@@ -89,6 +89,9 @@ export default function LeadsScreen() {
     + (leadsFilter.project ? 1 : 0) + (leadsFilter.group ? 1 : 0)
     + (effectiveStatus ? 1 : 0) + (leadsFilter.source ? 1 : 0) + (leadsFilter.sort ? 1 : 0)
   const [showFilter, setShowFilter] = useState(false)
+  /* Free-text name search — mirrors the clients screen; filters the board
+     across all columns (the column counts + total update with it). */
+  const [query, setQuery] = useState('')
   const [showAdd, setShowAdd] = useState(false)
   const [editLead, setEditLead] = useState(null)
   const [convertLead, setConvertLead] = useState(null)
@@ -131,10 +134,12 @@ export default function LeadsScreen() {
     }
     /* '' = all · '__none__' = unassigned (no id) · otherwise exact id match. */
     const matchRef = (val, sel) => (!sel ? true : sel === '__none__' ? !val : val === sel)
+    const q = query.trim()
     const g = {}
     LEAD_META.forEach((m) => { g[m.key] = [] })
     officialLeads
       .filter((l) => inPeriod(l)
+        && (!q || (l.name || '').includes(q))
         && matchRef(l.project_id, f.project)
         && matchRef(l.group_id, f.group)
         && matchRef(l.source_id, f.source)
@@ -146,7 +151,7 @@ export default function LeadsScreen() {
       LEAD_META.forEach((m) => { g[m.key].sort((a, b) => keyOf(a).localeCompare(keyOf(b)) * dir) })
     }
     return g
-  }, [officialLeads, leadsFilter, effectiveStatus])
+  }, [officialLeads, leadsFilter, effectiveStatus, query])
   const stats = useMemo(() => computeStats(officialLeads), [officialLeads])
 
   /* Approve = move into the official list; reject = soft-delete (undoable). */
@@ -317,6 +322,15 @@ export default function LeadsScreen() {
       ) : (
         <>
           <div className="l-filterbar">
+            <div className="l-search">
+              <Search size={16} strokeWidth={1.6} aria-hidden="true" />
+              <input
+                type="search"
+                placeholder={t('search')}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
             <button
               type="button"
               className={`l-filter-btn${activeFilterCount ? ' on' : ''}`}

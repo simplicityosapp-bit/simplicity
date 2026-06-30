@@ -171,9 +171,20 @@
 }
 
 /* ── Section + chart card ──────────────────────────────────────── */
+/* The chart title sits on the bare nature-photo background (the chart itself
+   is in a glass card below). Give the title its own glass pill so it stays
+   legible over the photo — otherwise the dark text vanishes and the chart
+   reads as "untitled". Hugs its text (fit-content) rather than stretching. */
 .admin-section-head {
-  display: flex; align-items: center; justify-content: space-between;
+  display: inline-flex; align-items: center; gap: 8px;
+  width: fit-content;
   margin-bottom: 12px;
+  padding: 7px 15px;
+  border-radius: var(--mg-card-radius);
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
 }
 .admin-section-head h2 { font-size: var(--mg-heading); font-weight: 600; }
 

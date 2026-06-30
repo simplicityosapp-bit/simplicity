@@ -361,7 +361,7 @@ function MeetingsPanel({ filters, setFilter, items, onConfirm, onOpen, waMsg, t 
           <p className="td-empty">{t('tileDrill.today.empty')}</p>
         ) : (
           items.map((it) => (
-            <div key={it.id} className={`td-today-row kind-${it.kind}`}>
+            <div key={it.id} className={`td-today-row kind-${it.kind}${it.kind === 'meeting' && it.status === 'confirmed' ? ' is-done' : ''}`}>
               <button
                 type="button"
                 className="td-today-main"
@@ -381,15 +381,22 @@ function MeetingsPanel({ filters, setFilter, items, onConfirm, onOpen, waMsg, t 
                   />
                 )}
                 {it.kind === 'meeting' && (
-                  <button
-                    type="button"
-                    className="td-today-act confirm"
-                    onClick={() => onConfirm(it)}
-                    aria-label={t('tileDrill.today.markHappened')}
-                    title={t('tileDrill.today.markHappened')}
-                  >
-                    <Check size={15} strokeWidth={2} aria-hidden="true" />
-                  </button>
+                  it.status === 'confirmed' ? (
+                    <span className="td-today-done" title={t('tileDrill.today.happened')}>
+                      <Check size={14} strokeWidth={2.4} aria-hidden="true" />
+                      {t('tileDrill.today.happened')}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="td-today-act confirm"
+                      onClick={() => onConfirm(it)}
+                      aria-label={t('tileDrill.today.markHappened')}
+                      title={t('tileDrill.today.markHappened')}
+                    >
+                      <Check size={15} strokeWidth={2} aria-hidden="true" />
+                    </button>
+                  )
                 )}
               </div>
             </div>

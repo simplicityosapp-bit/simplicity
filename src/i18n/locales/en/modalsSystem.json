@@ -226,7 +226,8 @@
       "listSection": "Today",
       "empty": "Nothing scheduled for today",
       "allDay": "All day",
-      "markHappened": "Mark as happened"
+      "markHappened": "Mark as happened",
+      "happened": "Held"
     },
     "todayKinds": {
       "meeting": "Meeting",

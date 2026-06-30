@@ -249,7 +249,8 @@
       "listSection": "היום",
       "empty": "אין פגישות או אירועים להיום",
       "allDay": "כל היום",
-      "markHappened": "סמן שהתקיימה"
+      "markHappened": "סמן שהתקיימה",
+      "happened": "התקיימה"
     },
     "todayKinds": {
       "meeting": "פגישה",

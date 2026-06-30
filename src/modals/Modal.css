@@ -670,6 +670,20 @@
 .td-today-act:hover { color: var(--terracotta); border-color: color-mix(in srgb, var(--terracotta) 40%, transparent); }
 .td-today-act.confirm:hover { color: var(--sage); border-color: color-mix(in srgb, var(--sage) 45%, transparent); }
 
+/* Confirmed meeting — the checkmark button is replaced by a static "התקיימה"
+   marker, so the action reads as done in-place (the toast alone was too easy
+   to miss). The row is gently dimmed to recede from still-pending items. */
+.td-today-done {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 500;
+  color: var(--sage);
+}
+.td-today-row.is-done .td-today-name { color: var(--stone); }
+
 /* ── Pills (type / priority) ───────────────────────────────────── */
 .m-pills {
   display: flex;

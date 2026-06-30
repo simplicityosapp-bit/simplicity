@@ -19,7 +19,7 @@ import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { useT } from '../../i18n/useT'
 import { Trans } from 'react-i18next'
 import { statusMetaOf } from '../../lib/clients'
-import { LEAD_META, statusMetaOfLead, isPendingReview } from '../../lib/leads'
+import { metaTitle, statusMetaOfLead, isPendingReview } from '../../lib/leads'
 import { staleScheduledMeetingIds } from '../../lib/scheduledMeetings'
 import { financeQuery, currentMonthRange, isr } from '../../lib/finance'
 import { buildRoute, ROUTES } from '../../lib/routes'
@@ -802,7 +802,7 @@ export default function ProjectDetailScreen() {
               projectLeads.map((l) => {
                 const meta = statusMetaOfLead(l)
                 const sub = l.status_id ? leadStatuses.find((s) => s.id === l.status_id && !s.deleted_at) : null
-                const label = sub?.display_name || LEAD_META.find((m) => m.key === meta)?.title || ''
+                const label = sub?.display_name || metaTitle(meta)
                 return (
                   <button
                     key={l.id}

@@ -13,7 +13,7 @@ import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
-import { LEAD_META, statusMetaOfLead, metaColor, isConvertedLead, isPendingReview } from '../../lib/leads'
+import { LEAD_META, metaTitle, statusMetaOfLead, metaColor, isConvertedLead, isPendingReview } from '../../lib/leads'
 import PendingLeadsSection from './PendingLeadsSection'
 import { pushUndo } from '../../lib/undo'
 import LeadColumn from './LeadColumn'
@@ -346,7 +346,7 @@ export default function LeadsScreen() {
           {LEAD_META.map((m) => (
             <LeadColumn
               key={m.key}
-              title={m.title}
+              title={metaTitle(m.key)}
               color={metaColor(m.key)}
               metaKey={m.key}
               leads={buckets[m.key] || []}

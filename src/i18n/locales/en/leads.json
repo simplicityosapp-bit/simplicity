@@ -10,6 +10,11 @@
   "viewToggleAria": "View",
   "sourcesLink": "Lead sources",
   "leadPagesLink": "Lead pages",
+  "meta": {
+    "in_process": "In progress",
+    "converted": "Converted",
+    "not_relevant": "Not a fit"
+  },
   "pending": {
     "aria": "Leads awaiting approval",
     "title": "Awaiting approval",

@@ -10,6 +10,11 @@
   "viewToggleAria": "Affichage",
   "sourcesLink": "Sources de prospects",
   "leadPagesLink": "Pages de prospects",
+  "meta": {
+    "in_process": "En cours",
+    "converted": "Converti",
+    "not_relevant": "Ne correspond pas"
+  },
   "pending": {
     "aria": "Prospects en attente d'approbation",
     "title": "En attente d'approbation",

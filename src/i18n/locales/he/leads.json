@@ -10,6 +10,11 @@
   "viewToggleAria": "תצוגה",
   "sourcesLink": "מקורות לידים",
   "leadPagesLink": "דפי נחיתה",
+  "meta": {
+    "in_process": "בתהליך",
+    "converted": "הומרו",
+    "not_relevant": "לא רלוונטי"
+  },
   "pending": {
     "aria": "לידים הממתינים לאישור",
     "title": "ממתינים לאישור",

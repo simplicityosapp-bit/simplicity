@@ -6,7 +6,8 @@ import { finalizeOnboardingImport } from '../../lib/onboardingImport'
 import { buildReviewFromSheets } from '../../lib/importFlow'
 import { useT } from '../../i18n/useT'
 import './OnboardingScreen.css'        /* ob-* primitives (btn / map / input) */
-import './OnboardingReviewWizard.css'  /* obrw-* modal shell */
+import './OnboardingReviewWizard.css'
+import { Box, Txt, Btn } from '../../components/ui'  /* obrw-* modal shell */
 
 /* ════════════════════════════════════════════════════════════════
    IN-APP IMPORT MODAL — Settings → data. Now the SAME engine as
@@ -54,51 +55,51 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
 
   /* ── Mapping phase ── */
   return (
-    <div className="obrw-back" role="dialog" aria-modal="true" aria-label={t('modal.dialogAria')}>
-      <div className="obrw-panel">
-        <header className="obrw-head">
-          <div>
-            <p className="obrw-title">{t('modal.title')}</p>
-            <p className="obrw-sub">
+    <Box className="obrw-back" role="dialog" aria-modal="true" aria-label={t('modal.dialogAria')}>
+      <Box className="obrw-panel">
+        <Box as="header" className="obrw-head">
+          <Box>
+            <Txt as="p" className="obrw-title">{t('modal.title')}</Txt>
+            <Txt as="p" className="obrw-sub">
               {parsed?.file_name ? <><strong>{parsed.file_name}</strong> · </> : null}
               {liveSheets.length > 1 ? t('modal.subSheets', { count: liveSheets.length }) : ''}
               {t('modal.subBody')}
-            </p>
-          </div>
-          <button type="button" className="obrw-x" onClick={onClose} aria-label={t('modal.closeAria')}>
+            </Txt>
+          </Box>
+          <Btn type="button" className="obrw-x" onClick={onClose} aria-label={t('modal.closeAria')}>
             <X size={18} strokeWidth={1.8} aria-hidden="true" />
-          </button>
-        </header>
+          </Btn>
+        </Box>
 
-        <div className="obrw-body">
+        <Box className="obrw-body">
           {liveSheets.length > 0 ? (
             <UnifiedSheetImporter sheets={parsed.sheets} onChange={onSheetsChange} />
           ) : (
-            <p className="obrw-loading-txt" style={{ textAlign: 'center', padding: '32px 0' }}>
+            <Txt as="p" className="obrw-loading-txt" style={{ textAlign: 'center', padding: '32px 0' }}>
               {t('modal.noData')}
-            </p>
+            </Txt>
           )}
           {truncated && (
-            <p className="obrw-warn" style={{ marginTop: 10 }}>
+            <Txt as="p" className="obrw-warn" style={{ marginTop: 10 }}>
               <AlertTriangle size={12} strokeWidth={2} aria-hidden="true" />
               {t('modal.truncated')}
-            </p>
+            </Txt>
           )}
-        </div>
+        </Box>
 
-        <footer className="obrw-foot">
-          <p className="obrw-summary">
+        <Box as="footer" className="obrw-foot">
+          <Txt as="p" className="obrw-summary">
             {reviewObj ? t('modal.ready') : t('modal.notReady')}
-          </p>
-          <div className="obrw-actions">
-            <button type="button" className="ob-btn ghost" onClick={onClose}>{t('common.cancel')}</button>
-            <button type="button" className="ob-btn primary" disabled={!reviewObj || yearMissing}
+          </Txt>
+          <Box className="obrw-actions">
+            <Btn type="button" className="ob-btn ghost" onClick={onClose}>{t('common.cancel')}</Btn>
+            <Btn type="button" className="ob-btn primary" disabled={!reviewObj || yearMissing}
               onClick={() => { setReview(reviewObj); setPhase('review') }}>
               {yearMissing ? t('modal.pickYear') : t('modal.toReview')}
-            </button>
-          </div>
-        </footer>
-      </div>
-    </div>
+            </Btn>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   )
 }

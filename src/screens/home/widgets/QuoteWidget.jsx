@@ -4,6 +4,7 @@ import { useUserQuotes } from '../../../hooks/useUserQuotes'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import QuoteSourceModal from '../../../modals/QuoteSourceModal'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt } from '../../../components/ui'
 
 /* Daily quote — tap opens the source picker + personal pool manager
    (beta request 03/06/2026). Source: prefs.quoteSource ('system' |
@@ -48,7 +49,7 @@ export default function QuoteWidget() {
 
   return (
     <>
-      <div
+      <Box
         className="h-quote h-quote-btn"
         role="button"
         tabIndex={0}
@@ -58,13 +59,13 @@ export default function QuoteWidget() {
       >
         {shown ? (
           <>
-            <p className="h-quote-text">{quoteText(shown, gender)}</p>
-            {shown.author && <p className="h-quote-author">— {shown.author}</p>}
+            <Txt as="p" className="h-quote-text">{quoteText(shown, gender)}</Txt>
+            {shown.author && <Txt as="p" className="h-quote-author">— {shown.author}</Txt>}
           </>
         ) : (
-          <p className="h-quote-text">{t('widgets.quote.fallback')}</p>
+          <Txt as="p" className="h-quote-text">{t('widgets.quote.fallback')}</Txt>
         )}
-      </div>
+      </Box>
 
       <QuoteSourceModal
         open={open}

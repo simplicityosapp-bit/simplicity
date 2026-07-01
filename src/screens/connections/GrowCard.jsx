@@ -3,6 +3,7 @@ import { CreditCard, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, Loader
 import { useGrowGateway } from '../../hooks/useGrowGateway'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 /* The three credential SLOTS Grow needs: userId + pageCode + apiKey. All three
    travel straight to the `grow` edge function; the browser never reads them
@@ -148,52 +149,52 @@ export default function GrowCard() {
   const canConnect = !grow.busy && !!creds.userId.trim() && !!creds.pageCode.trim() && !!creds.apiKey.trim()
 
   return (
-    <section className="conn-card">
-      <div className="conn-card-head">
-        <span className="conn-icon"><CreditCard size={22} strokeWidth={1.6} aria-hidden="true" /></span>
-        <div className="conn-card-titles">
-          <p className="conn-card-title">{t('growCard.title')}</p>
-          <p className="conn-card-sub">
+    <Box as="section" className="conn-card">
+      <Box className="conn-card-head">
+        <Txt className="conn-icon"><CreditCard size={22} strokeWidth={1.6} aria-hidden="true" /></Txt>
+        <Box className="conn-card-titles">
+          <Txt as="p" className="conn-card-title">{t('growCard.title')}</Txt>
+          <Txt as="p" className="conn-card-sub">
             {grow.loading ? t('loading')
               : connected
                 ? (credsInvalid
                     ? <><TriangleAlert size={13} strokeWidth={2} aria-hidden="true" /> {t('growCard.needsReconnectStatus')}</>
                     : <><Check size={13} strokeWidth={2} aria-hidden="true" /> {t('growCard.connectedStatus', { env: envLabel(status.environment) })}</>)
                 : t('growCard.notConnectedHint')}
-          </p>
-        </div>
-      </div>
+          </Txt>
+        </Box>
+      </Box>
 
       {localErr && (
-        <p className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {localErr}</p>
+        <Txt as="p" className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {localErr}</Txt>
       )}
 
       {credsInvalid && !reconnecting && (
-        <div className="conn-broken" role="alert">
+        <Box className="conn-broken" role="alert">
           <TriangleAlert size={16} strokeWidth={1.8} aria-hidden="true" />
-          <span>{t('growCard.brokenMsg')}</span>
-          <button type="button" className="conn-btn primary conn-broken-btn" onClick={startReconnect}>
+          <Txt>{t('growCard.brokenMsg')}</Txt>
+          <Btn type="button" className="conn-btn primary conn-broken-btn" onClick={startReconnect}>
             {t('growCard.reconnect')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
       )}
 
       {(!connected || reconnecting) ? (
-        <div className="conn-connect">
-          <div className="conn-lbl-row">
-            <span className="conn-field-lbl">{t('growCard.pickEnv')}</span>
-            <button type="button" className="conn-help-btn" onClick={() => setShowHelp((v) => !v)} aria-expanded={showHelp}>
+        <Box className="conn-connect">
+          <Box className="conn-lbl-row">
+            <Txt className="conn-field-lbl">{t('growCard.pickEnv')}</Txt>
+            <Btn type="button" className="conn-help-btn" onClick={() => setShowHelp((v) => !v)} aria-expanded={showHelp}>
               <HelpCircle size={15} strokeWidth={1.7} aria-hidden="true" /> {t('growCard.howTo')}
-            </button>
-          </div>
+            </Btn>
+          </Box>
           {showHelp && (
-            <ol className="conn-help-steps">
-              {t('growCard.steps', { returnObjects: true }).map((s, i) => <li key={i}>{s}</li>)}
-            </ol>
+            <Box as="ol" className="conn-help-steps">
+              {t('growCard.steps', { returnObjects: true }).map((s, i) => <Box as="li" key={i}>{s}</Box>)}
+            </Box>
           )}
-          <div className="conn-pills" role="group" aria-label={t('growCard.envGroupAria')}>
+          <Box className="conn-pills" role="group" aria-label={t('growCard.envGroupAria')}>
             {['production', 'sandbox'].map((e) => (
-              <button
+              <Btn
                 key={e}
                 type="button"
                 className={`conn-type-pill${environment === e ? ' on' : ''}`}
@@ -201,14 +202,14 @@ export default function GrowCard() {
                 onClick={() => setEnvironment(e)}
               >
                 {envLabel(e)}
-              </button>
+              </Btn>
             ))}
-          </div>
+          </Box>
 
           {FIELDS.map((f) => (
-            <label key={f.slot} className="conn-field">
-              <span className="conn-field-lbl">{t(`growCard.fields.${f.slot}`)}</span>
-              <input
+            <Box as="label" key={f.slot} className="conn-field">
+              <Txt className="conn-field-lbl">{t(`growCard.fields.${f.slot}`)}</Txt>
+              <Input
                 type={f.type}
                 className="conn-input"
                 value={creds[f.slot]}
@@ -217,60 +218,60 @@ export default function GrowCard() {
                 dir="ltr"
                 placeholder={t('growCard.pastePlaceholder')}
               />
-            </label>
+            </Box>
           ))}
 
-          <button type="button" className="conn-btn primary" disabled={!canConnect} aria-busy={busyAction === 'connect'} onClick={onConnect}>
+          <Btn type="button" className="conn-btn primary" disabled={!canConnect} aria-busy={busyAction === 'connect'} onClick={onConnect}>
             {busyAction === 'connect'
               ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> {t('growCard.connecting')}</>
               : (reconnecting ? t('growCard.reconnect') : t('growCard.connect'))}
-          </button>
+          </Btn>
           {reconnecting && (
-            <button type="button" className="conn-btn ghost" disabled={busyAction === 'connect'} onClick={() => { setReconnecting(false); setLocalErr(''); setOkMsg('') }}>{t('growCard.cancel')}</button>
+            <Btn type="button" className="conn-btn ghost" disabled={busyAction === 'connect'} onClick={() => { setReconnecting(false); setLocalErr(''); setOkMsg('') }}>{t('growCard.cancel')}</Btn>
           )}
 
-          <p className="conn-note">{t('growCard.help')}</p>
-        </div>
+          <Txt as="p" className="conn-note">{t('growCard.help')}</Txt>
+        </Box>
       ) : (
         <>
-        <div className="conn-actions">
-          <button type="button" className="conn-btn primary" disabled={grow.busy} aria-busy={busyAction === 'test'} onClick={onTest}>
+        <Box className="conn-actions">
+          <Btn type="button" className="conn-btn primary" disabled={grow.busy} aria-busy={busyAction === 'test'} onClick={onTest}>
             {busyAction === 'test'
               ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> {t('growCard.testing')}</>
               : <><RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {t('growCard.testConnection')}</>}
-          </button>
-          <button type="button" className="conn-btn ghost danger" disabled={grow.busy} aria-busy={busyAction === 'disconnect'} onClick={onDisconnect}>
+          </Btn>
+          <Btn type="button" className="conn-btn ghost danger" disabled={grow.busy} aria-busy={busyAction === 'disconnect'} onClick={onDisconnect}>
             {busyAction === 'disconnect'
               ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> {t('growCard.disconnecting')}</>
               : <><Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {confirmDisc ? t('growCard.disconnectConfirm') : t('growCard.disconnect')}</>}
-          </button>
+          </Btn>
           {confirmDisc && (
-            <span className="sr-only" role="status">{t('growCard.disconnectConfirmSr')}</span>
+            <Txt className="sr-only" role="status">{t('growCard.disconnectConfirmSr')}</Txt>
           )}
-        </div>
+        </Box>
         {/* Auto-receipt opt-in — only meaningful when an invoice provider is
             also connected (otherwise there's nothing to issue with). */}
         {invConnected ? (
           <>
-            <label className="conn-autoimport">
-              <input type="checkbox" checked={autoReceipt} onChange={(e) => onToggleAutoReceipt(e.target.checked)} disabled={grow.busy || togglingReceipt} />
-              <span>{t('growCard.autoReceiptLabel')}</span>
-            </label>
-            <p className="conn-autoimport-note">{t('growCard.autoReceiptNote')}</p>
+            <Box as="label" className="conn-autoimport">
+              <Input type="checkbox" checked={autoReceipt} onChange={(e) => onToggleAutoReceipt(e.target.checked)} disabled={grow.busy || togglingReceipt} />
+              <Txt>{t('growCard.autoReceiptLabel')}</Txt>
+            </Box>
+            <Txt as="p" className="conn-autoimport-note">{t('growCard.autoReceiptNote')}</Txt>
           </>
         ) : (
-          <p className="conn-autoimport-note">{t('growCard.autoReceiptNeedsInvoice')}</p>
+          <Txt as="p" className="conn-autoimport-note">{t('growCard.autoReceiptNeedsInvoice')}</Txt>
         )}
         {/* External-charge import opt-in (poll) — independent of the invoice provider. */}
-        <label className="conn-autoimport">
-          <input type="checkbox" checked={importEnabled} onChange={(e) => onToggleImport(e.target.checked)} disabled={grow.busy || togglingImport} />
-          <span>{t('growCard.importLabel')}</span>
-        </label>
-        <p className="conn-autoimport-note">{t('growCard.importNote')}</p>
+        <Box as="label" className="conn-autoimport">
+          <Input type="checkbox" checked={importEnabled} onChange={(e) => onToggleImport(e.target.checked)} disabled={grow.busy || togglingImport} />
+          <Txt>{t('growCard.importLabel')}</Txt>
+        </Box>
+        <Txt as="p" className="conn-autoimport-note">{t('growCard.importNote')}</Txt>
         </>
       )}
 
-      {okMsg && !localErr && <p className="conn-note" role="status" aria-live="polite">{okMsg}</p>}
-    </section>
+      {okMsg && !localErr && <Txt as="p" className="conn-note" role="status" aria-live="polite">{okMsg}</Txt>}
+    </Box>
   )
 }

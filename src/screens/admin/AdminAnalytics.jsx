@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAdminQuery } from '../../hooks/useAdmin'
 import { useT } from '../../i18n/useT'
 import { LineChart, FunnelBars } from './AdminCharts'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const RANGES = ['week', 'month', 'all']
 
@@ -18,60 +19,60 @@ export default function AdminAnalytics() {
 
   return (
     <>
-      <header className="admin-head">
-        <h1>{t('analytics.title')}</h1>
-        <p>{t('analytics.subtitle')}</p>
-      </header>
+      <Box as="header" className="admin-head">
+        <Txt as="h1">{t('analytics.title')}</Txt>
+        <Txt as="p">{t('analytics.subtitle')}</Txt>
+      </Box>
 
-      <div className="admin-range admin-range-top">
+      <Box className="admin-range admin-range-top">
         {RANGES.map((r) => (
-          <button key={r} className={range === r ? 'on' : ''} onClick={() => setRange(r)}>{t(`analytics.ranges.${r}`)}</button>
+          <Btn key={r} className={range === r ? 'on' : ''} onClick={() => setRange(r)}>{t(`analytics.ranges.${r}`)}</Btn>
         ))}
-      </div>
+      </Box>
 
-      {loading && <div className="admin-state">{t('state.loading')}</div>}
-      {error && <div className="admin-state err">{t('state.loadError')}</div>}
+      {loading && <Box className="admin-state">{t('state.loading')}</Box>}
+      {error && <Box className="admin-state err">{t('state.loadError')}</Box>}
 
       {data && (
         <>
-          <section className="admin-section">
-            <div className="admin-section-head"><h2>{t('analytics.sessionsOverTime')}</h2></div>
-            <div className="admin-card admin-chart-card">
+          <Box as="section" className="admin-section">
+            <Box className="admin-section-head"><Txt as="h2">{t('analytics.sessionsOverTime')}</Txt></Box>
+            <Box className="admin-card admin-chart-card">
               <LineChart data={data.sessionsOverTime || []} formatX={dayLabel} gradId="admSessions" />
-            </div>
-          </section>
+            </Box>
+          </Box>
 
-          <section className="admin-section">
-            <div className="admin-section-head"><h2>{t('analytics.reflectionsOverTime')}</h2></div>
-            <div className="admin-card admin-chart-card">
+          <Box as="section" className="admin-section">
+            <Box className="admin-section-head"><Txt as="h2">{t('analytics.reflectionsOverTime')}</Txt></Box>
+            <Box className="admin-card admin-chart-card">
               <LineChart data={data.reflectionsOverTime || []} alt formatX={dayLabel} gradId="admReflections" />
-            </div>
-          </section>
+            </Box>
+          </Box>
 
-          <section className="admin-section">
-            <div className="admin-section-head"><h2>{t('analytics.onboardingFunnel')}</h2></div>
-            <div className="admin-card admin-chart-card">
+          <Box as="section" className="admin-section">
+            <Box className="admin-section-head"><Txt as="h2">{t('analytics.onboardingFunnel')}</Txt></Box>
+            <Box className="admin-card admin-chart-card">
               <FunnelBars data={data.funnel || []} />
-            </div>
-          </section>
+            </Box>
+          </Box>
 
-          <section className="admin-section">
-            <div className="admin-section-head"><h2>{t('analytics.landingFunnel')}</h2></div>
-            <div className="admin-card admin-chart-card">
+          <Box as="section" className="admin-section">
+            <Box className="admin-section-head"><Txt as="h2">{t('analytics.landingFunnel')}</Txt></Box>
+            <Box className="admin-card admin-chart-card">
               <FunnelBars data={data.landingFunnel || []} />
-            </div>
-          </section>
+            </Box>
+          </Box>
 
-          <section className="admin-section">
-            <div className="admin-section-head"><h2>{t('analytics.landingEngagement')}</h2></div>
-            <div className="admin-card admin-chart-card">
+          <Box as="section" className="admin-section">
+            <Box className="admin-section-head"><Txt as="h2">{t('analytics.landingEngagement')}</Txt></Box>
+            <Box className="admin-card admin-chart-card">
               <FunnelBars data={data.landingEngagement || []} />
-            </div>
-          </section>
+            </Box>
+          </Box>
 
-          <section className="admin-section">
-            <div className="admin-section-head"><h2>{t('analytics.topUsers')}</h2></div>
-            <div className="admin-card admin-table-wrap">
+          <Box as="section" className="admin-section">
+            <Box className="admin-section-head"><Txt as="h2">{t('analytics.topUsers')}</Txt></Box>
+            <Box className="admin-card admin-table-wrap">
               <table className="admin-table">
                 <thead>
                   <tr><th style={{ width: 40 }}>{t('analytics.rank')}</th><th>{t('analytics.email')}</th><th>{t('analytics.sessions')}</th></tr>
@@ -89,8 +90,8 @@ export default function AdminAnalytics() {
                   ))}
                 </tbody>
               </table>
-            </div>
-          </section>
+            </Box>
+          </Box>
         </>
       )}
     </>

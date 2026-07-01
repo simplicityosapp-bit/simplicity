@@ -6,6 +6,7 @@ import { useT } from '../../i18n/useT'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import WhatsAppButton from '../../components/WhatsAppButton'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const PAGE = 30
 
@@ -31,9 +32,9 @@ export default function CalendarSchedule({ items, onSelect }) {
 
   if (!items.length) {
     return (
-      <div className="empty">
-        <p className="empty-text">{t('list.empty')}</p>
-      </div>
+      <Box className="empty">
+        <Txt as="p" className="empty-text">{t('list.empty')}</Txt>
+      </Box>
     )
   }
 
@@ -56,9 +57,9 @@ export default function CalendarSchedule({ items, onSelect }) {
   return (
     <>
       {Array.isArray(dayLabels) && dayLabels.length === 7 && (
-        <div className="cal-day-filter" role="group" aria-label={t('filter')}>
+        <Box className="cal-day-filter" role="group" aria-label={t('filter')}>
           {dayLabels.map((lbl, d) => (
-            <button
+            <Btn
               key={d}
               type="button"
               className={`cal-day-chip${hiddenSet.has(d) ? '' : ' on'}`}
@@ -66,18 +67,18 @@ export default function CalendarSchedule({ items, onSelect }) {
               onClick={() => toggleDay(d)}
             >
               {lbl}
-            </button>
+            </Btn>
           ))}
-        </div>
+        </Box>
       )}
       {filtered.length === 0 ? (
-        <div className="empty">
-          <p className="empty-text">{t('list.empty')}</p>
-        </div>
+        <Box className="empty">
+          <Txt as="p" className="empty-text">{t('list.empty')}</Txt>
+        </Box>
       ) : (
-    <section className="cal-list">
+    <Box as="section" className="cal-list">
       {shown.map((it) => (
-        <div
+        <Box
           key={`${it.kind}-${it.id}-${+it.when}`}
           className="cal-item"
           role="button"
@@ -85,29 +86,29 @@ export default function CalendarSchedule({ items, onSelect }) {
           onClick={() => onSelect?.(it)}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect?.(it) } }}
         >
-          <span className={`cal-icon ${it.kind}`}>
+          <Txt className={`cal-icon ${it.kind}`}>
             {it.kind === 'reminder'
               ? <Clock size={16} strokeWidth={1.6} aria-hidden="true" />
               : <CalendarDays size={16} strokeWidth={1.6} aria-hidden="true" />}
-          </span>
-          <div className="cal-body">
-            <p className="cal-title">{it.title}</p>
-            <p className="cal-when">{it.allDay ? t('allDay') : formatWhen(it.when)}{calContext(it) ? ` · ${calContext(it)}` : ''}</p>
-          </div>
-          {it.kind === 'meeting' && it.status === 'pending' && <span className="cal-tag">{t('tag.pending')}</span>}
-          {it.kind === 'reminder' && <span className="cal-tag rem">{t('tag.reminder')}</span>}
-          {it.kind === 'calendar' && <span className="cal-tag cal">{t('tag.calendar')}</span>}
+          </Txt>
+          <Box className="cal-body">
+            <Txt as="p" className="cal-title">{it.title}</Txt>
+            <Txt as="p" className="cal-when">{it.allDay ? t('allDay') : formatWhen(it.when)}{calContext(it) ? ` · ${calContext(it)}` : ''}</Txt>
+          </Box>
+          {it.kind === 'meeting' && it.status === 'pending' && <Txt className="cal-tag">{t('tag.pending')}</Txt>}
+          {it.kind === 'reminder' && <Txt className="cal-tag rem">{t('tag.reminder')}</Txt>}
+          {it.kind === 'calendar' && <Txt className="cal-tag cal">{t('tag.calendar')}</Txt>}
           {it.whatsapp && (
             <WhatsAppButton phone={it.whatsapp.phone} message={waMsg(it.whatsapp.key, it.whatsapp.vars)} />
           )}
-        </div>
+        </Box>
       ))}
       {remaining > 0 && (
-        <button type="button" className="cal-load-more" onClick={() => setLimit((n) => n + PAGE)}>
+        <Btn type="button" className="cal-load-more" onClick={() => setLimit((n) => n + PAGE)}>
           {t('list.loadMore', { count: remaining })}
-        </button>
+        </Btn>
       )}
-    </section>
+    </Box>
       )}
     </>
   )

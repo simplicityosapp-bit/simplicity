@@ -6,6 +6,7 @@ import { remindersUpcoming } from '../../../lib/homeData'
 import { formatWhen } from '../../../lib/dates'
 import { useReminders } from '../../../hooks/useReminders'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt, Btn } from '../../../components/ui'
 
 /* Upcoming reminders (today → +60d). The ✓ marks a reminder done. */
 export default function RemindersWidget() {
@@ -29,24 +30,24 @@ export default function RemindersWidget() {
       : t('widgets.reminders.soonSummary', { count: items.length })
 
   return (
-    <div
+    <Box
       className={`h-card is-expandable${open ? ' is-open' : ''}`}
       onClick={() => setOpen((v) => !v)}
     >
-      <div className="h-card-head">
-        <span className="h-card-title">
+      <Box className="h-card-head">
+        <Txt className="h-card-title">
           <Clock size={20} strokeWidth={1.5} aria-hidden="true" /> {t('widgets.reminders.title')}
-        </span>
-        <button type="button" className="h-card-link" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.CALENDAR) }}>
+        </Txt>
+        <Btn type="button" className="h-card-link" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.CALENDAR) }}>
           {t('widgets.reminders.link', { count: items.length })}
           <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-      </div>
+        </Btn>
+      </Box>
       {open ? (
-        <div className="h-card-list">
+        <Box className="h-card-list">
           {items.length ? (
             items.map((r) => (
-              <div
+              <Box
                 key={r.id}
                 className="h-rem-row"
                 role="button"
@@ -54,20 +55,20 @@ export default function RemindersWidget() {
                 onClick={(e) => { e.stopPropagation(); navigate(ROUTES.CALENDAR) }}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); navigate(ROUTES.CALENDAR) } }}
               >
-                <span className="h-rem-text">{r.title}</span>
-                <span className="h-rem-when">{formatWhen(r.when)}</span>
-                <button type="button" className="h-check" title={t('widgets.reminders.markDone')} aria-label={t('widgets.reminders.markDoneAria')} onClick={(e) => { e.stopPropagation(); completeReminder(r.id) }}>
+                <Txt className="h-rem-text">{r.title}</Txt>
+                <Txt className="h-rem-when">{formatWhen(r.when)}</Txt>
+                <Btn type="button" className="h-check" title={t('widgets.reminders.markDone')} aria-label={t('widgets.reminders.markDoneAria')} onClick={(e) => { e.stopPropagation(); completeReminder(r.id) }}>
                   <Check size={13} strokeWidth={2} aria-hidden="true" />
-                </button>
-              </div>
+                </Btn>
+              </Box>
             ))
           ) : (
-            <p className="h-card-empty">{t('widgets.reminders.empty')}</p>
+            <Txt as="p" className="h-card-empty">{t('widgets.reminders.empty')}</Txt>
           )}
-        </div>
+        </Box>
       ) : (
-        <p className="h-card-summary">{summary}</p>
+        <Txt as="p" className="h-card-summary">{summary}</Txt>
       )}
-    </div>
+    </Box>
   )
 }

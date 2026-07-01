@@ -47,6 +47,7 @@ import ProjectQuickRow from './ProjectQuickRow'
 import ProjectIncomeChart from './ProjectIncomeChart'
 import ProjectMoonRing from './ProjectMoonRing'
 import './ProjectDetailScreen.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const GSTATUS_KEYS = ['active', 'in_development', 'ended']
 
@@ -189,9 +190,9 @@ export default function ProjectDetailScreen() {
 
   if (!project) {
     return (
-      <div className="screen">
-        <div className="empty"><p className="empty-text">{t('detail.notFound')}</p></div>
-      </div>
+      <Box className="screen">
+        <Box className="empty"><Txt as="p" className="empty-text">{t('detail.notFound')}</Txt></Box>
+      </Box>
     )
   }
 
@@ -432,69 +433,69 @@ export default function ProjectDetailScreen() {
   /* ── render ─────────────────────────────────────────────── */
 
   return (
-    <div className="screen pd-screen">
+    <Box className="screen pd-screen">
       {/* Top row: the at-a-glance ring locks to the right (like home), the
           title card fills the space to its left, and the expanded breakdown
           (when open) wraps full-width beneath both. */}
-      <div className="pd-headrow">
+      <Box className="pd-headrow">
         <ProjectMoonRing projectId={id} />
-        <header className="pd-head">
-        <button type="button" className="pd-back" onClick={() => navigate(-1)} aria-label={t('detail.back')}>
+        <Box as="header" className="pd-head">
+        <Btn type="button" className="pd-back" onClick={() => navigate(-1)} aria-label={t('detail.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-        <div className="pd-head-id">
-          <div className="pd-h-row">
-            <span className="pd-color" style={{ background: project.color || 'var(--sage)' }} />
-            <p className="pd-name">{project.name}</p>
-          </div>
-          <p className="pd-meta">
+        </Btn>
+        <Box className="pd-head-id">
+          <Box className="pd-h-row">
+            <Txt className="pd-color" style={{ background: project.color || 'var(--sage)' }} />
+            <Txt as="p" className="pd-name">{project.name}</Txt>
+          </Box>
+          <Txt as="p" className="pd-meta">
             {activeCount} <MG text={t('detail.metaActive')} />
             {wanderingCount > 0 && ` · ${t('detail.metaWandering', { count: wanderingCount })}`}
             {' · '}{t('detail.metaGroups', { count: projectGroups.length })}
-          </p>
-        </div>
-        <button type="button" className="pd-edit" onClick={() => setEditProjectOpen(true)} aria-label={t('detail.editAria')}>
+          </Txt>
+        </Box>
+        <Btn type="button" className="pd-edit" onClick={() => setEditProjectOpen(true)} aria-label={t('detail.editAria')}>
           <Pencil size={15} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-        </header>
-      </div>
+        </Btn>
+        </Box>
+      </Box>
 
-      <section className="pd-stats">
-        <div className="pd-stat">
-          <p className="pd-stat-v mono">{projectClients.length}</p>
-          <p className="pd-stat-l">{t('detail.stats.clients')}</p>
-        </div>
-        <div className="pd-stat divided">
-          <p className="pd-stat-v mono">{isr(monthIncome)}</p>
-          <p className="pd-stat-l">{t('detail.stats.incomeMonth')}</p>
-        </div>
-        <div className="pd-stat">
-          <p className="pd-stat-v mono">{projectGroups.length}</p>
-          <p className="pd-stat-l">{t('detail.stats.groups')}</p>
-        </div>
-      </section>
+      <Box as="section" className="pd-stats">
+        <Box className="pd-stat">
+          <Txt as="p" className="pd-stat-v mono">{projectClients.length}</Txt>
+          <Txt as="p" className="pd-stat-l">{t('detail.stats.clients')}</Txt>
+        </Box>
+        <Box className="pd-stat divided">
+          <Txt as="p" className="pd-stat-v mono">{isr(monthIncome)}</Txt>
+          <Txt as="p" className="pd-stat-l">{t('detail.stats.incomeMonth')}</Txt>
+        </Box>
+        <Box className="pd-stat">
+          <Txt as="p" className="pd-stat-v mono">{projectGroups.length}</Txt>
+          <Txt as="p" className="pd-stat-l">{t('detail.stats.groups')}</Txt>
+        </Box>
+      </Box>
 
       {/* Quick-action row — same shape as Home's QuickRow, but every
           Add* opened from here pre-binds to the current project. */}
-      <div className="pd-quick-row-wrap">
+      <Box className="pd-quick-row-wrap">
         <ProjectQuickRow projectId={id} projectName={project.name} />
-      </div>
+      </Box>
 
       {/* Monthly cumulative income chart, scoped to this project. */}
       <ProjectIncomeChart projectId={id} />
 
       {/* ── Groups section ────────────────────────────────── */}
-      <section className="pd-section">
-        <button type="button" className="pd-sec-head" onClick={() => toggleSec('groups')}>
-          <p className="pd-sec-title">
-            {t('detail.groups.title')} {projectGroups.length > 0 && <span className="pd-sec-count">{projectGroups.length}</span>}
-          </p>
+      <Box as="section" className="pd-section">
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('groups')}>
+          <Txt as="p" className="pd-sec-title">
+            {t('detail.groups.title')} {projectGroups.length > 0 && <Txt className="pd-sec-count">{projectGroups.length}</Txt>}
+          </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.groups ? ' open' : ''}`} aria-hidden="true" />
-        </button>
+        </Btn>
         {openSec.groups && (
-          <div className="pd-sec-body">
+          <Box className="pd-sec-body">
             {projectGroups.length === 0 ? (
-              <p className="pd-empty">{t('detail.groups.empty', { add: t('detail.groups.add') })}</p>
+              <Txt as="p" className="pd-empty">{t('detail.groups.empty', { add: t('detail.groups.add') })}</Txt>
             ) : (
               projectGroups.map((g) => {
                 const groupMembers = liveMembers.filter((m) => m.group_id === g.id)
@@ -514,21 +515,21 @@ export default function ProjectDetailScreen() {
                   .filter((s) => s.group_id === g.id)
                   .sort((a, b) => new Date(b.date) - new Date(a.date))
                 return (
-                  <article
+                  <Box as="article"
                     key={g.id}
                     className={`gc${clientDnd.overZone === g.id ? ' drop-target' : ''}`}
                     {...clientDnd.dropZoneProps(g.id)}
                   >
-                    <div className="gc-head">
-                      <span className="gc-color" style={{ background: g.color || 'var(--stone)' }} />
-                      <p className="gc-name">{g.name}</p>
-                      <button type="button" className="gc-icon-btn" onClick={() => setEditGroup(g)} aria-label={t('detail.groups.editAria')}>
+                    <Box className="gc-head">
+                      <Txt className="gc-color" style={{ background: g.color || 'var(--stone)' }} />
+                      <Txt as="p" className="gc-name">{g.name}</Txt>
+                      <Btn type="button" className="gc-icon-btn" onClick={() => setEditGroup(g)} aria-label={t('detail.groups.editAria')}>
                         <Pencil size={13} strokeWidth={1.7} aria-hidden="true" />
-                      </button>
-                    </div>
-                    <div className="gc-status-row">
+                      </Btn>
+                    </Box>
+                    <Box className="gc-status-row">
                       {GSTATUS.map((s) => (
-                        <button
+                        <Btn
                           key={s.k}
                           type="button"
                           className={`gc-status-pill${status === s.k ? ' on' : ''}`}
@@ -536,39 +537,39 @@ export default function ProjectDetailScreen() {
                           onClick={() => requestGroupStatus(g, s.k)}
                         >
                           {s.l}
-                        </button>
+                        </Btn>
                       ))}
-                    </div>
-                    <p className="gc-meta">
-                      <span>{t('detail.groups.members', { count: memberCount })}</span>
-                      {priceLabel && <><span className="gc-dot">·</span><span>{priceLabel}</span></>}
-                      {recurring && <><span className="gc-dot">·</span><span>{recurring}</span></>}
-                    </p>
-                    <div className="gc-members">
+                    </Box>
+                    <Txt as="p" className="gc-meta">
+                      <Txt>{t('detail.groups.members', { count: memberCount })}</Txt>
+                      {priceLabel && <><Txt className="gc-dot">·</Txt><Txt>{priceLabel}</Txt></>}
+                      {recurring && <><Txt className="gc-dot">·</Txt><Txt>{recurring}</Txt></>}
+                    </Txt>
+                    <Box className="gc-members">
                       {groupMembers.length === 0 ? (
-                        <p className="gc-empty">{t('detail.groups.noMembers')}</p>
+                        <Txt as="p" className="gc-empty">{t('detail.groups.noMembers')}</Txt>
                       ) : (
                         groupMembers.map((m) => {
                           const c = clientById.get(m.client_id)
                           return (
-                            <span key={m.id} className="gc-chip">
+                            <Txt key={m.id} className="gc-chip">
                               {c?.name || t('detail.groups.fallbackClient')}
-                              <button type="button" className="gc-chip-x" onClick={() => handleRemoveMember(m)} aria-label={t('detail.groups.removeMemberAria', { name: c?.name || t('detail.groups.removeMemberFallback') })}>
+                              <Btn type="button" className="gc-chip-x" onClick={() => handleRemoveMember(m)} aria-label={t('detail.groups.removeMemberAria', { name: c?.name || t('detail.groups.removeMemberFallback') })}>
                                 <X size={11} strokeWidth={2} aria-hidden="true" />
-                              </button>
-                            </span>
+                              </Btn>
+                            </Txt>
                           )
                         })
                       )}
-                    </div>
-                    <div className="gc-actions">
-                      <button type="button" className="gc-btn" onClick={() => setAddMemberFor(g)}>
+                    </Box>
+                    <Box className="gc-actions">
+                      <Btn type="button" className="gc-btn" onClick={() => setAddMemberFor(g)}>
                         <Plus size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.groups.addMember')}
-                      </button>
-                      <button type="button" className="gc-btn" onClick={() => setLogSessionFor(g)}>
+                      </Btn>
+                      <Btn type="button" className="gc-btn" onClick={() => setLogSessionFor(g)}>
                         <Check size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.groups.logSession')}
-                      </button>
-                      <button
+                      </Btn>
+                      <Btn
                         type="button"
                         className={`gc-btn ghost${sessOpen ? ' on' : ''}`}
                         onClick={() => toggleGroupSessions(g.id)}
@@ -576,8 +577,8 @@ export default function ProjectDetailScreen() {
                         aria-label={t('detail.groups.pastSessions')}
                       >
                         <CalendarPlus size={13} strokeWidth={1.8} aria-hidden="true" />
-                      </button>
-                      <button
+                      </Btn>
+                      <Btn
                         type="button"
                         className="gc-btn ghost danger"
                         onClick={() => setPendingDeleteGroup(g)}
@@ -585,63 +586,63 @@ export default function ProjectDetailScreen() {
                         aria-label={t('detail.groups.deleteGroup')}
                       >
                         <Trash2 size={13} strokeWidth={1.8} aria-hidden="true" />
-                      </button>
-                    </div>
+                      </Btn>
+                    </Box>
                     {sessOpen && (
-                      <div className="gc-sessions">
-                        <p className="gc-section-title">{groupSessions.length ? t('detail.groups.pastSessionsCount', { count: groupSessions.length }) : t('detail.groups.pastSessionsTitle')}</p>
+                      <Box className="gc-sessions">
+                        <Txt as="p" className="gc-section-title">{groupSessions.length ? t('detail.groups.pastSessionsCount', { count: groupSessions.length }) : t('detail.groups.pastSessionsTitle')}</Txt>
                         {groupSessions.length === 0 ? (
-                          <p className="gc-empty">{t('detail.groups.noSessions')}</p>
+                          <Txt as="p" className="gc-empty">{t('detail.groups.noSessions')}</Txt>
                         ) : (
                           groupSessions.map((s) => (
-                            <div key={s.id} className="gc-sess-row">
-                              <span className="gc-sess-num mono">#{s.num}</span>
+                            <Box key={s.id} className="gc-sess-row">
+                              <Txt className="gc-sess-num mono">#{s.num}</Txt>
                               <DateField
                                 className="gc-sess-date"
                                 value={isoDate(s.date)}
                                 onChange={(e) => updateSessionDate(s, e.target.value)}
                               />
-                              <button
+                              <Btn
                                 type="button"
                                 className="gc-chip-x"
                                 onClick={() => setPendingDeleteSession(s)}
                                 aria-label={t('detail.groups.deleteSessionAria')}
                               >
                                 <X size={11} strokeWidth={2} aria-hidden="true" />
-                              </button>
-                            </div>
+                              </Btn>
+                            </Box>
                           ))
                         )}
-                      </div>
+                      </Box>
                     )}
-                  </article>
+                  </Box>
                 )
               })
             )}
-            <button className="pd-add-btn" type="button" onClick={() => setShowAddGroup(true)}>
+            <Btn className="pd-add-btn" type="button" onClick={() => setShowAddGroup(true)}>
               {t('detail.groups.newGroup')}
-            </button>
-          </div>
+            </Btn>
+          </Box>
         )}
-      </section>
+      </Box>
 
       {/* ── Clients section ───────────────────────────────── */}
-      <section className="pd-section">
-        <button type="button" className="pd-sec-head" onClick={() => toggleSec('clients')}>
-          <p className="pd-sec-title">
-            {t('detail.clients.title')} {projectClients.length > 0 && <span className="pd-sec-count">{projectClients.length}</span>}
-          </p>
+      <Box as="section" className="pd-section">
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('clients')}>
+          <Txt as="p" className="pd-sec-title">
+            {t('detail.clients.title')} {projectClients.length > 0 && <Txt className="pd-sec-count">{projectClients.length}</Txt>}
+          </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.clients ? ' open' : ''}`} aria-hidden="true" />
-        </button>
+        </Btn>
         {openSec.clients && (
-          <div className="pd-sec-body">
+          <Box className="pd-sec-body">
             {projectClients.length === 0 ? (
-              <p className="pd-empty">{t('detail.clients.empty')}</p>
+              <Txt as="p" className="pd-empty">{t('detail.clients.empty')}</Txt>
             ) : (
               projectClients.map((c) => {
                 const g = c.group_id ? projectGroups.find((gg) => gg.id === c.group_id) : null
                 return (
-                  <div
+                  <Box
                     key={c.id}
                     role="button"
                     tabIndex={0}
@@ -651,52 +652,52 @@ export default function ProjectDetailScreen() {
                     {...clientDnd.draggableProps(c.id)}
                   >
                     <GripVertical size={16} strokeWidth={1.5} className="pd-client-grip" aria-hidden="true" />
-                    <span className="pd-client-name">{c.name}</span>
+                    <Txt className="pd-client-name">{c.name}</Txt>
                     {g ? (
-                      <span className="pd-client-tag group-member">{g.name}</span>
+                      <Txt className="pd-client-tag group-member">{g.name}</Txt>
                     ) : (
-                      <span className="pd-client-tag private">{t('detail.clients.private')}</span>
+                      <Txt className="pd-client-tag private">{t('detail.clients.private')}</Txt>
                     )}
-                  </div>
+                  </Box>
                 )
               })
             )}
-            <button className="pd-add-btn" type="button" onClick={() => setShowAddClient(true)}>
+            <Btn className="pd-add-btn" type="button" onClick={() => setShowAddClient(true)}>
               <Trans t={t} i18nKey="detail.clients.addToProject" components={{ mg: <MG word="client" /> }} />
-            </button>
-          </div>
+            </Btn>
+          </Box>
         )}
-      </section>
+      </Box>
 
       {/* ── Tasks section ─────────────────────────────────── */}
-      <section className="pd-section">
-        <button type="button" className="pd-sec-head" onClick={() => toggleSec('tasks')}>
-          <p className="pd-sec-title">
+      <Box as="section" className="pd-section">
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('tasks')}>
+          <Txt as="p" className="pd-sec-title">
             {t('detail.tasks.title')}{' '}
-            <span className="pd-sec-count">
+            <Txt className="pd-sec-count">
               {openTaskCount}
               {projectTasks.length > openTaskCount ? ` / ${projectTasks.length}` : ''}
-            </span>
-          </p>
+            </Txt>
+          </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.tasks ? ' open' : ''}`} aria-hidden="true" />
-        </button>
+        </Btn>
         {openSec.tasks && (
-          <div className="pd-sec-body">
+          <Box className="pd-sec-body">
             {projectTasks.length === 0 ? (
-              <p className="pd-empty">{t('detail.tasks.empty')}</p>
+              <Txt as="p" className="pd-empty">{t('detail.tasks.empty')}</Txt>
             ) : (
               projectTasks.map((tk) => {
                 const isDone = tk.status === 'done'
                 return (
-                  <div key={tk.id} className="pd-rem-row">
-                    <div className="pd-rem-id">
-                      <p className={`pd-rem-title${isDone ? ' done' : ''}`}>{tk.title}</p>
-                      <p className="pd-rem-meta">
+                  <Box key={tk.id} className="pd-rem-row">
+                    <Box className="pd-rem-id">
+                      <Txt as="p" className={`pd-rem-title${isDone ? ' done' : ''}`}>{tk.title}</Txt>
+                      <Txt as="p" className="pd-rem-meta">
                         {t(`detail.tasks.priority.${tk.priority || 'medium'}`)}
                         {isDone && ` · ${t('detail.tasks.done')}`}
-                      </p>
-                    </div>
-                    <button
+                      </Txt>
+                    </Box>
+                    <Btn
                       type="button"
                       className="pd-rem-btn"
                       onClick={() => toggleTask(tk)}
@@ -704,8 +705,8 @@ export default function ProjectDetailScreen() {
                       title={isDone ? t('detail.tasks.reopenAria') : t('detail.tasks.completeAria')}
                     >
                       <Check size={13} strokeWidth={1.8} aria-hidden="true" />
-                    </button>
-                    <button
+                    </Btn>
+                    <Btn
                       type="button"
                       className="pd-rem-btn danger"
                       onClick={() => removeTask(tk.id)}
@@ -713,50 +714,50 @@ export default function ProjectDetailScreen() {
                       title={t('detail.tasks.deleteAria')}
                     >
                       <X size={13} strokeWidth={1.8} aria-hidden="true" />
-                    </button>
-                  </div>
+                    </Btn>
+                  </Box>
                 )
               })
             )}
-            <button className="pd-add-btn" type="button" onClick={() => setShowAddTask(true)}>
+            <Btn className="pd-add-btn" type="button" onClick={() => setShowAddTask(true)}>
               <Plus size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.tasks.add')}
-            </button>
-          </div>
+            </Btn>
+          </Box>
         )}
-      </section>
+      </Box>
 
       {/* ── Reminders section ─────────────────────────────── */}
-      <section className="pd-section">
-        <button type="button" className="pd-sec-head" onClick={() => toggleSec('reminders')}>
-          <p className="pd-sec-title">
+      <Box as="section" className="pd-section">
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('reminders')}>
+          <Txt as="p" className="pd-sec-title">
             {t('detail.reminders.title')}{' '}
-            <span className="pd-sec-count">
+            <Txt className="pd-sec-count">
               {activeReminders.length}
               {projectReminders.length > activeReminders.length ? ` / ${projectReminders.length}` : ''}
-            </span>
-          </p>
+            </Txt>
+          </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.reminders ? ' open' : ''}`} aria-hidden="true" />
-        </button>
+        </Btn>
         {openSec.reminders && (
-          <div className="pd-sec-body">
+          <Box className="pd-sec-body">
             {projectReminders.length === 0 ? (
-              <p className="pd-empty">{t('detail.reminders.empty')}</p>
+              <Txt as="p" className="pd-empty">{t('detail.reminders.empty')}</Txt>
             ) : (
               projectReminders.map((r) => {
                 const isCompleted = r.status === 'completed'
                 const isOverdue = r.status === 'pending' && new Date(r.scheduled_at).getTime() < Date.now()
                 return (
-                  <div key={r.id} className="pd-rem-row">
-                    <div className="pd-rem-id">
-                      <p className={`pd-rem-title${isCompleted ? ' done' : ''}`}>{r.title}</p>
-                      <p className="pd-rem-meta">
+                  <Box key={r.id} className="pd-rem-row">
+                    <Box className="pd-rem-id">
+                      <Txt as="p" className={`pd-rem-title${isCompleted ? ' done' : ''}`}>{r.title}</Txt>
+                      <Txt as="p" className="pd-rem-meta">
                         {fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}
                         {isCompleted && ` · ${t('detail.reminders.done')}`}
                         {isOverdue && ` · ${t('detail.reminders.overdue')}`}
-                      </p>
-                    </div>
+                      </Txt>
+                    </Box>
                     {!isCompleted && (
-                      <button
+                      <Btn
                         type="button"
                         className="pd-rem-btn"
                         onClick={() => completeReminder(r.id)}
@@ -764,9 +765,9 @@ export default function ProjectDetailScreen() {
                         title={t('detail.reminders.completeAria')}
                       >
                         <Check size={13} strokeWidth={1.8} aria-hidden="true" />
-                      </button>
+                      </Btn>
                     )}
-                    <button
+                    <Btn
                       type="button"
                       className="pd-rem-btn danger"
                       onClick={() => setPendingDeleteReminder(r)}
@@ -774,37 +775,37 @@ export default function ProjectDetailScreen() {
                       title={t('detail.reminders.deleteAria')}
                     >
                       <X size={13} strokeWidth={1.8} aria-hidden="true" />
-                    </button>
-                  </div>
+                    </Btn>
+                  </Box>
                 )
               })
             )}
-            <button className="pd-add-btn" type="button" onClick={() => setShowAddReminder(true)}>
+            <Btn className="pd-add-btn" type="button" onClick={() => setShowAddReminder(true)}>
               <Bell size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.reminders.add')}
-            </button>
-          </div>
+            </Btn>
+          </Box>
         )}
-      </section>
+      </Box>
 
       {/* ── Leads section ─────────────────────────────────── */}
-      <section className="pd-section">
-        <button type="button" className="pd-sec-head" onClick={() => toggleSec('leads')}>
-          <p className="pd-sec-title">
-            {t('detail.leads.title')} {projectLeads.length > 0 && <span className="pd-sec-count">{projectLeads.length}</span>}
-          </p>
+      <Box as="section" className="pd-section">
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('leads')}>
+          <Txt as="p" className="pd-sec-title">
+            {t('detail.leads.title')} {projectLeads.length > 0 && <Txt className="pd-sec-count">{projectLeads.length}</Txt>}
+          </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.leads ? ' open' : ''}`} aria-hidden="true" />
-        </button>
+        </Btn>
         {openSec.leads && (
-          <div className="pd-sec-body">
+          <Box className="pd-sec-body">
             {projectLeads.length === 0 ? (
-              <p className="pd-empty">{t('detail.leads.empty')}</p>
+              <Txt as="p" className="pd-empty">{t('detail.leads.empty')}</Txt>
             ) : (
               projectLeads.map((l) => {
                 const meta = statusMetaOfLead(l)
                 const sub = l.status_id ? leadStatuses.find((s) => s.id === l.status_id && !s.deleted_at) : null
                 const label = sub?.display_name || metaTitle(meta)
                 return (
-                  <button
+                  <Btn
                     key={l.id}
                     type="button"
                     className="pd-leadpage-row"
@@ -812,37 +813,37 @@ export default function ProjectDetailScreen() {
                     aria-label={t('detail.leads.openAria', { name: l.name })}
                   >
                     <Sprout size={15} strokeWidth={1.7} className="pd-leadpage-icon" aria-hidden="true" />
-                    <span className="pd-leadpage-name">{l.name}</span>
-                    {label && <span className="pd-leadpage-badge">{label}</span>}
+                    <Txt className="pd-leadpage-name">{l.name}</Txt>
+                    {label && <Txt className="pd-leadpage-badge">{label}</Txt>}
                     <ChevronLeft size={15} strokeWidth={1.7} className="pd-leadpage-chev" aria-hidden="true" />
-                  </button>
+                  </Btn>
                 )
               })
             )}
-          </div>
+          </Box>
         )}
-      </section>
+      </Box>
 
       {/* ── Lead pages section ────────────────────────────── */}
-      <section className="pd-section">
-        <button type="button" className="pd-sec-head" onClick={() => toggleSec('leadPages')}>
-          <p className="pd-sec-title">
-            {t('detail.leadPages.title')} {projectLeadPages.length > 0 && <span className="pd-sec-count">{projectLeadPages.length}</span>}
-          </p>
+      <Box as="section" className="pd-section">
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('leadPages')}>
+          <Txt as="p" className="pd-sec-title">
+            {t('detail.leadPages.title')} {projectLeadPages.length > 0 && <Txt className="pd-sec-count">{projectLeadPages.length}</Txt>}
+          </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.leadPages ? ' open' : ''}`} aria-hidden="true" />
-        </button>
+        </Btn>
         {openSec.leadPages && (
-          <div className="pd-sec-body">
+          <Box className="pd-sec-body">
             {projectLeadPages.length === 0 ? (
-              <p className="pd-empty">
+              <Txt as="p" className="pd-empty">
                 {t('detail.leadPages.empty')}{' '}
-                <button type="button" className="pd-link-inline" onClick={() => navigate(ROUTES.LEAD_PAGES)}>
+                <Btn type="button" className="pd-link-inline" onClick={() => navigate(ROUTES.LEAD_PAGES)}>
                   {t('detail.leadPages.create')}
-                </button>
-              </p>
+                </Btn>
+              </Txt>
             ) : (
               projectLeadPages.map((p) => (
-                <button
+                <Btn
                   key={p.id}
                   type="button"
                   className="pd-leadpage-row"
@@ -850,17 +851,17 @@ export default function ProjectDetailScreen() {
                   aria-label={t('detail.leadPages.openAria', { name: p.title || t('detail.leadPages.untitled') })}
                 >
                   <Link2 size={15} strokeWidth={1.7} className="pd-leadpage-icon" aria-hidden="true" />
-                  <span className="pd-leadpage-name">{p.title || t('detail.leadPages.untitled')}</span>
-                  <span className={`pd-leadpage-badge${p.published ? ' live' : ''}`}>
+                  <Txt className="pd-leadpage-name">{p.title || t('detail.leadPages.untitled')}</Txt>
+                  <Txt className={`pd-leadpage-badge${p.published ? ' live' : ''}`}>
                     {p.published ? t('detail.leadPages.live') : t('detail.leadPages.draft')}
-                  </span>
+                  </Txt>
                   <ChevronLeft size={15} strokeWidth={1.7} className="pd-leadpage-chev" aria-hidden="true" />
-                </button>
+                </Btn>
               ))
             )}
-          </div>
+          </Box>
         )}
-      </section>
+      </Box>
 
       {/* ── Modals ────────────────────────────────────────── */}
       <AddGroupModal
@@ -970,34 +971,34 @@ export default function ProjectDetailScreen() {
       <Modal open={!!pendingAssign} onClose={() => setPendingAssign(null)} title={t('detail.assign.title')}>
         {pendingAssign && (
           <>
-            <p className="m-confirm-msg">
+            <Txt as="p" className="m-confirm-msg">
               <Trans
                 t={t}
                 i18nKey="detail.assign.message"
                 values={{ name: pendingAssign.client.name, group: pendingAssign.group.name }}
                 components={[<strong key="n" />]}
               />
-            </p>
-            <div className="m-actions">
-              <button type="button" className="m-btn-cancel" onClick={() => setPendingAssign(null)}>{t('detail.assign.cancel')}</button>
-              <button
+            </Txt>
+            <Box className="m-actions">
+              <Btn type="button" className="m-btn-cancel" onClick={() => setPendingAssign(null)}>{t('detail.assign.cancel')}</Btn>
+              <Btn
                 type="button"
                 className="m-btn-save"
                 onClick={() => { assignToGroup(pendingAssign.client, pendingAssign.group, 'add'); setPendingAssign(null) }}
               >
                 {t('detail.assign.addBoth')}
-              </button>
-              <button
+              </Btn>
+              <Btn
                 type="button"
                 className="m-btn-save"
                 onClick={() => { assignToGroup(pendingAssign.client, pendingAssign.group, 'move'); setPendingAssign(null) }}
               >
                 {t('detail.assign.moveHere')}
-              </button>
-            </div>
+              </Btn>
+            </Box>
           </>
         )}
       </Modal>
-    </div>
+    </Box>
   )
 }

@@ -37,6 +37,7 @@ import CalendarMonth from './CalendarMonth'
 import Coachmark from '../../components/Coachmark'
 import { useT } from '../../i18n/useT'
 import './CalendarScreen.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const VALID_VIEWS = new Set(['schedule', 'day', 'week', 'month'])
 /* Local (not UTC) Y-M-D / H:M for prefilling the schedule modal from a tapped
@@ -302,34 +303,34 @@ export default function CalendarScreen() {
   }
 
   return (
-    <div className="screen">
-      <div className="screen-top">
-        <header className="screen-head">
-          <div>
-            <div className="screen-head-meta">
-              <p className="lbl">{t('upcomingCount', { count: scheduleItems.length })}</p>
-              <span className="lbl dot">·</span>
-              <p className="lbl">{t('schedule')}</p>
-            </div>
-            <p className="lbl-sm">{t('tagline')}</p>
-          </div>
-          <p className="t-screen">{t('title')}</p>
-        </header>
+    <Box className="screen">
+      <Box className="screen-top">
+        <Box as="header" className="screen-head">
+          <Box>
+            <Box className="screen-head-meta">
+              <Txt as="p" className="lbl">{t('upcomingCount', { count: scheduleItems.length })}</Txt>
+              <Txt className="lbl dot">·</Txt>
+              <Txt as="p" className="lbl">{t('schedule')}</Txt>
+            </Box>
+            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
+          </Box>
+          <Txt as="p" className="t-screen">{t('title')}</Txt>
+        </Box>
         <Coachmark id="add-meeting" radius="50%">
-          <button className="cta-add" type="button" aria-label={t('newEventAria')} onClick={() => { setScheduleAt(null); setShowGate(true) }}>{t('newEvent')}</button>
+          <Btn className="cta-add" type="button" aria-label={t('newEventAria')} onClick={() => { setScheduleAt(null); setShowGate(true) }}>{t('newEvent')}</Btn>
         </Coachmark>
-      </div>
+      </Box>
 
       {duplicates.length > 0 && (
-        <button type="button" className="cal-dup-banner" onClick={() => setShowDuplicates(true)}>
+        <Btn type="button" className="cal-dup-banner" onClick={() => setShowDuplicates(true)}>
           <AlertTriangle size={15} strokeWidth={1.8} aria-hidden="true" />
-          <span className="cal-dup-text">
+          <Txt className="cal-dup-text">
             {duplicates.length === 1
               ? t('dup.one')
               : t('dup.many', { count: duplicates.length })}
-          </span>
-          <span className="cal-dup-cta">{t('dup.cta')} <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" /></span>
-        </button>
+          </Txt>
+          <Txt className="cal-dup-cta">{t('dup.cta')} <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" /></Txt>
+        </Btn>
       )}
 
       <CalendarHeader
@@ -348,7 +349,7 @@ export default function CalendarScreen() {
           has arrived yet, show a loading line instead of the views' "no events"
           empty state — which otherwise flashes as if the day were empty. */}
       {(meetingsLoading || calendarEventsLoading) && allEvents.length === 0 ? (
-        <div className="empty"><p className="empty-text">{t('loading')}</p></div>
+        <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
       ) : (
         <>
           {view === 'schedule' && (
@@ -450,6 +451,6 @@ export default function CalendarScreen() {
         filter={{ meeting: fMeeting, reminder: fReminder, calendar: fCalendar, leadFollowup: fLeadFollowup }}
         onChange={setCalFilter}
       />
-    </div>
+    </Box>
   )
 }

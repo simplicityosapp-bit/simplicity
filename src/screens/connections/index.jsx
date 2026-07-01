@@ -9,6 +9,7 @@ import { useGrowGateway } from '../../hooks/useGrowGateway'
 import { GROW_ENABLED } from '../../lib/grow'
 import { useT } from '../../i18n/useT'
 import './ConnectionsScreen.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* One row in the connections list — a status indicator + chevron; tapping it
    opens the connection's own sub-screen (where you connect / manage / view its
@@ -16,18 +17,18 @@ import './ConnectionsScreen.css'
    can never accidentally disconnect. */
 function ConnRow({ icon: Icon, title, loading, connected, warn, statusText, onOpen, loadingLabel, ariaLabel }) {
   return (
-    <button type="button" className="conn-row" onClick={onOpen} aria-label={ariaLabel}>
-      <span className="conn-row-icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></span>
-      <span className="conn-row-body">
-        <span className="conn-row-title">{title}</span>
-        <span className={`conn-row-status${connected ? ' on' : ''}${warn ? ' warn' : ''}`}>
+    <Btn type="button" className="conn-row" onClick={onOpen} aria-label={ariaLabel}>
+      <Txt className="conn-row-icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></Txt>
+      <Txt className="conn-row-body">
+        <Txt className="conn-row-title">{title}</Txt>
+        <Txt className={`conn-row-status${connected ? ' on' : ''}${warn ? ' warn' : ''}`}>
           {!loading && connected && !warn && <Check size={12} strokeWidth={2.2} aria-hidden="true" />}
           {!loading && warn && <CircleAlert size={12} strokeWidth={2} aria-hidden="true" />}
           {loading ? loadingLabel : statusText}
-        </span>
-      </span>
+        </Txt>
+      </Txt>
       <ChevronLeft size={18} strokeWidth={1.7} aria-hidden="true" className="conn-row-chevron" />
-    </button>
+    </Btn>
   )
 }
 
@@ -39,16 +40,16 @@ const SOON = [
 ]
 function SoonRow({ icon: Icon, title, soonLabel, ariaLabel }) {
   return (
-    <div className="conn-row conn-row-soon" aria-disabled="true">
-      <span className="conn-row-icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></span>
-      <span className="conn-row-body">
-        <span className="conn-row-title">{title}</span>
-        <span className="conn-row-status soon">{soonLabel}</span>
-      </span>
-      <span className="conn-toggle" role="switch" aria-checked="false" aria-disabled="true" aria-label={ariaLabel}>
-        <span className="conn-toggle-knob" aria-hidden="true" />
-      </span>
-    </div>
+    <Box className="conn-row conn-row-soon" aria-disabled="true">
+      <Txt className="conn-row-icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></Txt>
+      <Txt className="conn-row-body">
+        <Txt className="conn-row-title">{title}</Txt>
+        <Txt className="conn-row-status soon">{soonLabel}</Txt>
+      </Txt>
+      <Txt className="conn-toggle" role="switch" aria-checked="false" aria-disabled="true" aria-label={ariaLabel}>
+        <Txt className="conn-toggle-knob" aria-hidden="true" />
+      </Txt>
+    </Box>
   )
 }
 
@@ -57,14 +58,14 @@ function SoonRow({ icon: Icon, title, soonLabel, ariaLabel }) {
    enforced (BILLING_ENABLED=false) this never renders — can.* is all true. */
 function LockedRow({ icon: Icon, title, label, onOpen, ariaLabel }) {
   return (
-    <button type="button" className="conn-row conn-row-locked" onClick={onOpen} aria-label={ariaLabel}>
-      <span className="conn-row-icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></span>
-      <span className="conn-row-body">
-        <span className="conn-row-title">{title}</span>
-        <span className="conn-row-status locked"><Lock size={11} strokeWidth={2} aria-hidden="true" /> {label}</span>
-      </span>
+    <Btn type="button" className="conn-row conn-row-locked" onClick={onOpen} aria-label={ariaLabel}>
+      <Txt className="conn-row-icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></Txt>
+      <Txt className="conn-row-body">
+        <Txt className="conn-row-title">{title}</Txt>
+        <Txt className="conn-row-status locked"><Lock size={11} strokeWidth={2} aria-hidden="true" /> {label}</Txt>
+      </Txt>
       <ChevronLeft size={18} strokeWidth={1.7} aria-hidden="true" className="conn-row-chevron" />
-    </button>
+    </Btn>
   )
 }
 
@@ -129,20 +130,20 @@ export default function ConnectionsScreen() {
       : t('list.connected')
 
   return (
-    <div className="screen">
-      <header className="screen-head conn-head">
-        <div>
-          <p className="t-screen"><Plug size={20} strokeWidth={1.6} aria-hidden="true" /> {t('list.title')}</p>
-          <p className="lbl-sm">{t('list.subtitle')}</p>
-        </div>
-      </header>
+    <Box className="screen">
+      <Box as="header" className="screen-head conn-head">
+        <Box>
+          <Txt as="p" className="t-screen"><Plug size={20} strokeWidth={1.6} aria-hidden="true" /> {t('list.title')}</Txt>
+          <Txt as="p" className="lbl-sm">{t('list.subtitle')}</Txt>
+        </Box>
+      </Box>
 
-      {connecting && <p className="conn-note" role="status" aria-live="polite">{t('list.connecting')}</p>}
+      {connecting && <Txt as="p" className="conn-note" role="status" aria-live="polite">{t('list.connecting')}</Txt>}
       {callbackError && (
-        <p className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {callbackError}</p>
+        <Txt as="p" className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {callbackError}</Txt>
       )}
 
-      <div className="conn-list">
+      <Box className="conn-list">
         <ConnRow
           icon={Calendar}
           title="Google Calendar"
@@ -215,7 +216,7 @@ export default function ConnectionsScreen() {
             ariaLabel={t('list.soonAria', { title: s.title })}
           />
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

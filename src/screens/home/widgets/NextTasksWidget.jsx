@@ -5,6 +5,7 @@ import { ROUTES } from '../../../lib/routes'
 import { nextTasks, openTasksCount } from '../../../lib/homeData'
 import { useTasks } from '../../../hooks/useTasks'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt, Btn } from '../../../components/ui'
 
 /* Next 3-5 open tasks by priority. Row → tasks screen; the ✓ marks done. */
 export default function NextTasksWidget() {
@@ -27,24 +28,24 @@ export default function NextTasksWidget() {
       : t('widgets.nextTasks.openSummary', { count: total })
 
   return (
-    <div
+    <Box
       className={`h-card is-expandable${open ? ' is-open' : ''}`}
       onClick={() => setOpen((v) => !v)}
     >
-      <div className="h-card-head">
-        <span className="h-card-title">
+      <Box className="h-card-head">
+        <Txt className="h-card-title">
           <ClipboardList size={20} strokeWidth={1.5} aria-hidden="true" /> {t('widgets.nextTasks.title')}
-        </span>
-        <button type="button" className="h-card-link" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.TASKS) }}>
+        </Txt>
+        <Btn type="button" className="h-card-link" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.TASKS) }}>
           {t('widgets.nextTasks.link', { count: total })}
           <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-      </div>
+        </Btn>
+      </Box>
       {open ? (
-        <div className="h-card-list">
+        <Box className="h-card-list">
           {items.length ? (
             items.map((task) => (
-              <div
+              <Box
                 key={task.id}
                 className="h-task-row"
                 role="button"
@@ -52,22 +53,22 @@ export default function NextTasksWidget() {
                 onClick={(e) => { e.stopPropagation(); navigate(ROUTES.TASKS) }}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); navigate(ROUTES.TASKS) } }}
               >
-                <span className="h-task-content">
-                  <span className={`h-task-dot ${task.priority === 'high' ? 'urgent' : 'regular'}`} />
-                  <span className="h-task-text">{task.title}</span>
-                </span>
-                <button type="button" className="h-check" title={t('widgets.nextTasks.markDone')} aria-label={t('widgets.nextTasks.markDone')} onClick={(e) => { e.stopPropagation(); toggleTask(task) }}>
+                <Txt className="h-task-content">
+                  <Txt className={`h-task-dot ${task.priority === 'high' ? 'urgent' : 'regular'}`} />
+                  <Txt className="h-task-text">{task.title}</Txt>
+                </Txt>
+                <Btn type="button" className="h-check" title={t('widgets.nextTasks.markDone')} aria-label={t('widgets.nextTasks.markDone')} onClick={(e) => { e.stopPropagation(); toggleTask(task) }}>
                   <Check size={13} strokeWidth={2} aria-hidden="true" />
-                </button>
-              </div>
+                </Btn>
+              </Box>
             ))
           ) : (
-            <p className="h-card-empty">{t('widgets.nextTasks.allDone', { add: t('widgets.nextTasks.addWord') })}</p>
+            <Txt as="p" className="h-card-empty">{t('widgets.nextTasks.allDone', { add: t('widgets.nextTasks.addWord') })}</Txt>
           )}
-        </div>
+        </Box>
       ) : (
-        <p className="h-card-summary">{summary}</p>
+        <Txt as="p" className="h-card-summary">{summary}</Txt>
       )}
-    </div>
+    </Box>
   )
 }

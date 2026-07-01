@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { eventsForDay, isSameDay } from '../../lib/calendar'
 import { fmtTime } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const DEFAULT_START = 6
 const DEFAULT_END = 22
@@ -95,26 +96,26 @@ export default function CalendarDay({ date, events, onSelect, onPickSlot, dayVie
   }, [timedEvents, startH, endH, gridStartMin, gridEndMin])
 
   return (
-    <div className="cal-day">
+    <Box className="cal-day">
       {allDayEvents.length > 0 && (
-        <div className="cal-day-allday">
-          <p className="cal-day-edge-lbl">{t('allDay')}</p>
-          <div className="cal-day-allday-items">
+        <Box className="cal-day-allday">
+          <Txt as="p" className="cal-day-edge-lbl">{t('allDay')}</Txt>
+          <Box className="cal-day-allday-items">
             {allDayEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} t={t} />)}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
 
       {earlyEvents.length > 0 && (
-        <div className="cal-day-edge">
-          <p className="cal-day-edge-lbl">{t('before', { time: `${String(hours[0]).padStart(2, '0')}:00` })}</p>
+        <Box className="cal-day-edge">
+          <Txt as="p" className="cal-day-edge-lbl">{t('before', { time: `${String(hours[0]).padStart(2, '0')}:00` })}</Txt>
           {earlyEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} t={t} />)}
-        </div>
+        </Box>
       )}
 
-      <div className="cal-day-grid" style={{ height: `${gridH}px` }}>
+      <Box className="cal-day-grid" style={{ height: `${gridH}px` }}>
         {hours.map((h, i) => (
-          <button
+          <Btn
             key={h}
             type="button"
             className="cal-day-hourline"
@@ -122,12 +123,12 @@ export default function CalendarDay({ date, events, onSelect, onPickSlot, dayVie
             onClick={onPickSlot ? () => { const s = new Date(date); s.setHours(h, 0, 0, 0); onPickSlot(s) } : undefined}
             aria-label={onPickSlot ? t('scheduleAt', { time: `${String(h).padStart(2, '0')}:00` }) : undefined}
           >
-            <span className="cal-day-hour mono">{String(h).padStart(2, '0')}:00</span>
-          </button>
+            <Txt className="cal-day-hour mono">{String(h).padStart(2, '0')}:00</Txt>
+          </Btn>
         ))}
-        <div className="cal-day-events">
+        <Box className="cal-day-events">
           {boxes.map(({ ev, top, height, col, cols }) => (
-            <button
+            <Btn
               key={`${ev.kind}-${ev.id}-${+ev.when}`}
               type="button"
               className={`cal-day-evt placed ${ev.kind}`}
@@ -141,47 +142,47 @@ export default function CalendarDay({ date, events, onSelect, onPickSlot, dayVie
             >
               {/* Time + status share the top row so the tag is always visible
                   and never sits on top of the title below it. */}
-              <span className="cal-day-evt-head">
-                <span className="cal-day-evt-time mono">
+              <Txt className="cal-day-evt-head">
+                <Txt className="cal-day-evt-time mono">
                   {fmtTime(ev.when)}{ev.end ? `–${fmtTime(ev.end)}` : ''}
-                </span>
-                {ev.kind === 'meeting' && ev.status === 'pending' && <span className="cal-tag">{t('tag.pending')}</span>}
-                {ev.kind === 'reminder' && <span className="cal-tag rem">{t('tag.reminder')}</span>}
-                {ev.kind === 'calendar' && <span className="cal-tag cal">{t('tag.calendar')}</span>}
-              </span>
-              <span className="cal-day-evt-title">{ev.title}</span>
-            </button>
+                </Txt>
+                {ev.kind === 'meeting' && ev.status === 'pending' && <Txt className="cal-tag">{t('tag.pending')}</Txt>}
+                {ev.kind === 'reminder' && <Txt className="cal-tag rem">{t('tag.reminder')}</Txt>}
+                {ev.kind === 'calendar' && <Txt className="cal-tag cal">{t('tag.calendar')}</Txt>}
+              </Txt>
+              <Txt className="cal-day-evt-title">{ev.title}</Txt>
+            </Btn>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {lateEvents.length > 0 && (
-        <div className="cal-day-edge">
-          <p className="cal-day-edge-lbl">{t('after', { time: `${String(hours[hours.length - 1]).padStart(2, '0')}:00` })}</p>
+        <Box className="cal-day-edge">
+          <Txt as="p" className="cal-day-edge-lbl">{t('after', { time: `${String(hours[hours.length - 1]).padStart(2, '0')}:00` })}</Txt>
           {lateEvents.map((ev) => <DayEvent key={`${ev.kind}-${ev.id}-${+ev.when}`} event={ev} onSelect={onSelect} t={t} />)}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }
 
 /* Bare (non-positioned) event chip — used in the all-day + early/late bands. */
 function DayEvent({ event, onSelect, t }) {
   return (
-    <button
+    <Btn
       type="button"
       className={`cal-day-evt ${event.kind}`}
       onClick={() => onSelect?.(event)}
     >
       {!event.allDay && (
-        <span className="cal-day-evt-time mono">
+        <Txt className="cal-day-evt-time mono">
           {fmtTime(event.when)}{event.end ? `–${fmtTime(event.end)}` : ''}
-        </span>
+        </Txt>
       )}
-      <span className="cal-day-evt-title">{event.title}</span>
-      {event.kind === 'meeting' && event.status === 'pending' && <span className="cal-tag">{t('tag.pending')}</span>}
-      {event.kind === 'reminder' && <span className="cal-tag rem">{t('tag.reminder')}</span>}
-      {event.kind === 'calendar' && <span className="cal-tag cal">{t('tag.calendar')}</span>}
-    </button>
+      <Txt className="cal-day-evt-title">{event.title}</Txt>
+      {event.kind === 'meeting' && event.status === 'pending' && <Txt className="cal-tag">{t('tag.pending')}</Txt>}
+      {event.kind === 'reminder' && <Txt className="cal-tag rem">{t('tag.reminder')}</Txt>}
+      {event.kind === 'calendar' && <Txt className="cal-tag cal">{t('tag.calendar')}</Txt>}
+    </Btn>
   )
 }

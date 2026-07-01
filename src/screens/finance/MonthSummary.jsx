@@ -2,6 +2,7 @@ import { ChevronRight, ChevronLeft, ArrowUp, ArrowDown, TrendingUp, TrendingDown
 import { fmtMonthYear } from '../../lib/dates'
 import { isr } from '../../lib/finance'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Compute the formatted month-over-month delta. `goodWhenUp` says
    whether an upward change reads as good (income) or bad (expense).
@@ -26,10 +27,10 @@ function DeltaPill({ delta, t }) {
   if (!delta) return null
   const Icon = delta.dir === 'up' ? TrendingUp : delta.dir === 'down' ? TrendingDown : null
   return (
-    <span className={`f-delta ${delta.tone}`} aria-label={t('summary.changeAria', { value: delta.text })}>
+    <Txt className={`f-delta ${delta.tone}`} aria-label={t('summary.changeAria', { value: delta.text })}>
       {Icon && <Icon size={11} strokeWidth={1.8} aria-hidden="true" />}
-      <span className="mono">{delta.text}</span>
-    </span>
+      <Txt className="mono">{delta.text}</Txt>
+    </Txt>
   )
 }
 
@@ -47,49 +48,49 @@ export default function MonthSummary({
   const expenseDelta = deltaInfo(expenses, prevExpenses, false, newLabel)
   const netDelta = deltaInfo(net, prevNet, true, newLabel)
   return (
-    <div className="f-hero">
-      <div className="f-month-nav">
-        <button type="button" className="f-month-btn" onClick={onPrev} aria-label={t('summary.prevMonth')}>
+    <Box className="f-hero">
+      <Box className="f-month-nav">
+        <Btn type="button" className="f-month-btn" onClick={onPrev} aria-label={t('summary.prevMonth')}>
           <ChevronRight size={18} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-        <span className="f-month-label">{fmtMonthYear(month)}</span>
-        <button type="button" className="f-month-btn" onClick={onNext} aria-label={t('summary.nextMonth')}>
+        </Btn>
+        <Txt className="f-month-label">{fmtMonthYear(month)}</Txt>
+        <Btn type="button" className="f-month-btn" onClick={onNext} aria-label={t('summary.nextMonth')}>
           <ChevronLeft size={18} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
-      <div className="f-net-row">
-        <p className="f-net-lbl">{t('summary.netThisMonth')}</p>
+      <Box className="f-net-row">
+        <Txt as="p" className="f-net-lbl">{t('summary.netThisMonth')}</Txt>
         <DeltaPill delta={netDelta} t={t} />
-      </div>
-      <p className={`f-net mono ${net < 0 ? 'neg' : 'pos'}`}>
+      </Box>
+      <Txt as="p" className={`f-net mono ${net < 0 ? 'neg' : 'pos'}`}>
         {net < 0 ? '−' : ''}{isr(Math.abs(net))}
-      </p>
+      </Txt>
 
-      <div className="f-hero-divider" />
+      <Box className="f-hero-divider" />
 
-      <div className="f-io">
-        <div className="f-io-card">
-          <span className="f-io-icon inc"><ArrowUp size={14} strokeWidth={2} aria-hidden="true" /></span>
-          <div>
-            <div className="f-io-head">
-              <p className="f-io-lbl">{t('summary.income')}</p>
+      <Box className="f-io">
+        <Box className="f-io-card">
+          <Txt className="f-io-icon inc"><ArrowUp size={14} strokeWidth={2} aria-hidden="true" /></Txt>
+          <Box>
+            <Box className="f-io-head">
+              <Txt as="p" className="f-io-lbl">{t('summary.income')}</Txt>
               <DeltaPill delta={incomeDelta} t={t} />
-            </div>
-            <p className="f-io-v mono">{isr(income)}</p>
-          </div>
-        </div>
-        <div className="f-io-card">
-          <span className="f-io-icon exp"><ArrowDown size={14} strokeWidth={2} aria-hidden="true" /></span>
-          <div>
-            <div className="f-io-head">
-              <p className="f-io-lbl">{t('summary.expenses')}</p>
+            </Box>
+            <Txt as="p" className="f-io-v mono">{isr(income)}</Txt>
+          </Box>
+        </Box>
+        <Box className="f-io-card">
+          <Txt className="f-io-icon exp"><ArrowDown size={14} strokeWidth={2} aria-hidden="true" /></Txt>
+          <Box>
+            <Box className="f-io-head">
+              <Txt as="p" className="f-io-lbl">{t('summary.expenses')}</Txt>
               <DeltaPill delta={expenseDelta} t={t} />
-            </div>
-            <p className="f-io-v mono">{isr(expenses)}</p>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Box>
+            <Txt as="p" className="f-io-v mono">{isr(expenses)}</Txt>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   )
 }

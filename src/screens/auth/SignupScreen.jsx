@@ -10,6 +10,7 @@ import GoogleButton from '../../auth/GoogleButton'
 import { useT } from '../../i18n/useT'
 import { buildConsent, stashPendingConsent } from '../../lib/legal'
 import './AuthScreen.css'
+import { Box, Txt, Btn, Input, Lnk } from '../../components/ui'
 
 export default function SignupScreen() {
   const { t } = useT('auth')
@@ -62,43 +63,43 @@ export default function SignupScreen() {
 
   if (sent) {
     return (
-      <div className="auth-wrap">
-        <div className="auth-bg" aria-hidden="true" />
-        <div className="auth-stage">
-          <div className="auth-brand">
+      <Box className="auth-wrap">
+        <Box className="auth-bg" aria-hidden="true" />
+        <Box className="auth-stage">
+          <Box className="auth-brand">
             <img className="auth-logo light" src="/logo-dark.png" alt="" aria-hidden="true" />
             <img className="auth-logo dark"  src="/logo-light.png" alt="" aria-hidden="true" />
             <img className="auth-name light" src="/name-dark.png" alt="simplicity" />
             <img className="auth-name dark"  src="/name-light.png" alt="simplicity" />
-          </div>
-          <div className="auth-form auth-msg-card">
-            <span className="auth-msg-icon"><MailCheck size={34} strokeWidth={1.4} aria-hidden="true" /></span>
-            <p className="auth-title">{t('signupScreen.checkEmailTitle')}</p>
-            <p className="auth-sub">{t('signupScreen.sentBody', { email })}</p>
+          </Box>
+          <Box className="auth-form auth-msg-card">
+            <Txt className="auth-msg-icon"><MailCheck size={34} strokeWidth={1.4} aria-hidden="true" /></Txt>
+            <Txt as="p" className="auth-title">{t('signupScreen.checkEmailTitle')}</Txt>
+            <Txt as="p" className="auth-sub">{t('signupScreen.sentBody', { email })}</Txt>
             <Link to={ROUTES.LOGIN} className="auth-btn auth-btn-primary">{t('backToLogin')}</Link>
-          </div>
-        </div>
-      </div>
+          </Box>
+        </Box>
+      </Box>
     )
   }
 
   return (
-    <div className="auth-wrap">
-      <div className="auth-bg" aria-hidden="true" />
-      <div className="auth-stage">
-        <div className="auth-brand">
+    <Box className="auth-wrap">
+      <Box className="auth-bg" aria-hidden="true" />
+      <Box className="auth-stage">
+        <Box className="auth-brand">
           <img className="auth-logo light" src="/logo-dark.png" alt="" aria-hidden="true" />
           <img className="auth-logo dark"  src="/logo-light.png" alt="" aria-hidden="true" />
           <img className="auth-name light" src="/name-dark.png" alt="simplicity" />
           <img className="auth-name dark"  src="/name-light.png" alt="simplicity" />
-        </div>
+        </Box>
 
-        <form className="auth-form" onSubmit={submit}>
-          {error && <p className="auth-error">{error}</p>}
+        <Box as="form" className="auth-form" onSubmit={submit}>
+          {error && <Txt as="p" className="auth-error">{error}</Txt>}
 
-          <label className="auth-field" htmlFor="signup-email">
-            <span className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></span>
-            <input
+          <Box as="label" className="auth-field" htmlFor="signup-email">
+            <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+            <Input
               id="signup-email"
               type="email"
               dir="ltr"
@@ -107,11 +108,11 @@ export default function SignupScreen() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
             />
-          </label>
+          </Box>
 
-          <label className="auth-field" htmlFor="signup-pass">
-            <span className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></span>
-            <input
+          <Box as="label" className="auth-field" htmlFor="signup-pass">
+            <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+            <Input
               id="signup-pass"
               type={showPassword ? 'text' : 'password'}
               dir="ltr"
@@ -120,7 +121,7 @@ export default function SignupScreen() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t('min8chars')}
             />
-            <button
+            <Btn
               type="button"
               className="auth-field-toggle"
               onClick={() => setShowPassword((v) => !v)}
@@ -129,51 +130,51 @@ export default function SignupScreen() {
               {showPassword
                 ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
                 : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
-            </button>
-          </label>
+            </Btn>
+          </Box>
 
-          <div className="auth-checks">
-            <label className="auth-check">
-              <input type="checkbox" checked={agreePolicies} onChange={(e) => setAgreePolicies(e.target.checked)} />
-              <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
-              <span className="auth-check-label">
+          <Box className="auth-checks">
+            <Box as="label" className="auth-check">
+              <Input type="checkbox" checked={agreePolicies} onChange={(e) => setAgreePolicies(e.target.checked)} />
+              <Txt className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></Txt>
+              <Txt className="auth-check-label">
                 <Trans
                   t={t}
                   i18nKey="signupScreen.consentPolicies"
                   components={{
-                    a1: <a className="auth-check-link" href={ROUTES.PRIVACY} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />,
-                    a2: <a className="auth-check-link" href={`${ROUTES.LEGAL}?tab=dpa`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />,
+                    a1: <Lnk className="auth-check-link" href={ROUTES.PRIVACY} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />,
+                    a2: <Lnk className="auth-check-link" href={`${ROUTES.LEGAL}?tab=dpa`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />,
                   }}
                 />
-              </span>
-            </label>
-            <label className="auth-check">
-              <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
-              <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
-              <span className="auth-check-label">
+              </Txt>
+            </Box>
+            <Box as="label" className="auth-check">
+              <Input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
+              <Txt className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></Txt>
+              <Txt className="auth-check-label">
                 <Trans
                   t={t}
                   i18nKey="signupScreen.consentTerms"
                   components={{
-                    a1: <a className="auth-check-link" href={ROUTES.TERMS} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />,
+                    a1: <Lnk className="auth-check-link" href={ROUTES.TERMS} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />,
                   }}
                 />
-              </span>
-            </label>
-            <label className="auth-check">
-              <input type="checkbox" checked={agreeMarketing} onChange={(e) => setAgreeMarketing(e.target.checked)} />
-              <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
-              <span className="auth-check-label">
+              </Txt>
+            </Box>
+            <Box as="label" className="auth-check">
+              <Input type="checkbox" checked={agreeMarketing} onChange={(e) => setAgreeMarketing(e.target.checked)} />
+              <Txt className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></Txt>
+              <Txt className="auth-check-label">
                 {t('signupScreen.consentMarketing')}
-              </span>
-            </label>
-          </div>
+              </Txt>
+            </Box>
+          </Box>
 
-          <button className="auth-btn auth-btn-primary" type="submit" disabled={busy || !canConsent}>
+          <Btn className="auth-btn auth-btn-primary" type="submit" disabled={busy || !canConsent}>
             {busy ? t('signupScreen.creating') : t('signup')}
-          </button>
+          </Btn>
 
-          <div className="auth-divider"><span>{t('or')}</span></div>
+          <Box className="auth-divider"><Txt>{t('or')}</Txt></Box>
 
           <GoogleButton
             onError={setError}
@@ -181,10 +182,10 @@ export default function SignupScreen() {
             disabled={!canConsent}
             onBeforeAuth={() => stashPendingConsent(buildConsent({ marketing: agreeMarketing }))}
           />
-        </form>
+        </Box>
 
-        <p className="auth-foot">{t('signupScreen.haveAccount')} <Link to={ROUTES.LOGIN} className="auth-foot-cta">{t('login')}</Link></p>
-      </div>
-    </div>
+        <Txt as="p" className="auth-foot">{t('signupScreen.haveAccount')} <Link to={ROUTES.LOGIN} className="auth-foot-cta">{t('login')}</Link></Txt>
+      </Box>
+    </Box>
   )
 }

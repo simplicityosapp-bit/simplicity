@@ -8,6 +8,7 @@ import { useTrash, TRASH_ENTITY_TYPES } from '../../hooks/useTrash'
 import { useT } from '../../i18n/useT'
 import TrashItem from './TrashItem'
 import './TrashScreen.css'
+import { Box, Txt } from '../../components/ui'
 
 const ENTITY_ICONS = {
   clients:        User,
@@ -34,48 +35,48 @@ export default function TrashScreen() {
   const { trash, totalCount, loading, error, restore } = useTrash()
 
   return (
-    <div className="screen trash-screen">
-      <div className="screen-top">
-        <header className="screen-head">
-          <div>
-            <div className="screen-head-meta">
-              <p className="lbl">{t('itemCount', { count: totalCount })}</p>
-              <span className="lbl dot">·</span>
-              <p className="lbl">{t('keptDays')}</p>
-            </div>
-            <p className="lbl-sm">{t('stillReversible')}</p>
-          </div>
-          <p className="t-screen">{t('title')}</p>
-        </header>
-      </div>
+    <Box className="screen trash-screen">
+      <Box className="screen-top">
+        <Box as="header" className="screen-head">
+          <Box>
+            <Box className="screen-head-meta">
+              <Txt as="p" className="lbl">{t('itemCount', { count: totalCount })}</Txt>
+              <Txt className="lbl dot">·</Txt>
+              <Txt as="p" className="lbl">{t('keptDays')}</Txt>
+            </Box>
+            <Txt as="p" className="lbl-sm">{t('stillReversible')}</Txt>
+          </Box>
+          <Txt as="p" className="t-screen">{t('title')}</Txt>
+        </Box>
+      </Box>
 
-      {error && <p className="trash-error">{t('error', { error })}</p>}
+      {error && <Txt as="p" className="trash-error">{t('error', { error })}</Txt>}
 
       {loading ? (
-        <div className="empty"><p className="empty-text">{t('loading')}</p></div>
+        <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
       ) : totalCount === 0 ? (
-        <div className="empty">
-          <span className="empty-icon"><Trash2 size={36} strokeWidth={1.4} aria-hidden="true" /></span>
-          <p className="empty-text">
+        <Box className="empty">
+          <Txt className="empty-icon"><Trash2 size={36} strokeWidth={1.4} aria-hidden="true" /></Txt>
+          <Txt as="p" className="empty-text">
             <Trans t={t} i18nKey="empty.body" values={{ deleteVerb: t('deleteVerb') }} components={[<br key="br" />]} />
-          </p>
-        </div>
+          </Txt>
+        </Box>
       ) : (
-        <section className="trash-groups">
+        <Box as="section" className="trash-groups">
           {TRASH_ENTITY_TYPES.map((type) => {
             const items = trash[type]
             if (!items || items.length === 0) return null
             const Icon = ENTITY_ICONS[type]
             return (
-              <div className="trash-group" key={type}>
-                <div className="trash-group-head">
-                  <span className="trash-group-name">
+              <Box className="trash-group" key={type}>
+                <Box className="trash-group-head">
+                  <Txt className="trash-group-name">
                     <Icon size={15} strokeWidth={1.5} aria-hidden="true" />
                     {t(`entities.${type}`)}
-                  </span>
-                  <span className="trash-group-count mono">{items.length}</span>
-                </div>
-                <div className="trash-group-list">
+                  </Txt>
+                  <Txt className="trash-group-count mono">{items.length}</Txt>
+                </Box>
+                <Box className="trash-group-list">
                   {items.map((row) => (
                     <TrashItem
                       key={row.id}
@@ -84,12 +85,12 @@ export default function TrashScreen() {
                       onRestore={() => restore(type, row.id)}
                     />
                   ))}
-                </div>
-              </div>
+                </Box>
+              </Box>
             )
           })}
-        </section>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

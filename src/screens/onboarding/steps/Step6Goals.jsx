@@ -9,6 +9,7 @@ import { CATEGORY_PRESETS, presetToCategory } from '../../../lib/goalPresets'
 import { scheduledOccurrences, buildSchedulePattern } from '../../../lib/goals'
 import { useT } from '../../../i18n/useT'
 import ScheduleDayPicker from '../../../components/ScheduleDayPicker'
+import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* Step 6 — first goal, faithful to the in-app AddGoalModal:
    - every auto category the app supports (derived from CATEGORY_PRESETS,
@@ -230,11 +231,11 @@ export default function Step6Goals({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro">{t('step6.intro')}</p>
-      <p className="ob-intro-sub">{t('step6.introSub', { verb: t('step6.introSubVerb') })}</p>
+      <Txt as="p" className="ob-intro">{t('step6.intro')}</Txt>
+      <Txt as="p" className="ob-intro-sub">{t('step6.introSub', { verb: t('step6.introSubVerb') })}</Txt>
 
-      <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-g-proj">{t('step6.projectLabel')}</label>
+      <Box className="ob-field">
+        <Box as="label" className="ob-label" htmlFor="ob-g-proj">{t('step6.projectLabel')}</Box>
         <select
           id="ob-g-proj"
           className="ob-select"
@@ -244,73 +245,73 @@ export default function Step6Goals({ ob, setCTA }) {
           <option value="">{t('step6.allProjects')}</option>
           {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
-      </div>
+      </Box>
 
       {/* Compact type grid — was full-width cards (too tall for 6 options). */}
-      <div className="ob-field">
-        <p className="ob-label">{t('step6.measureLabel')}</p>
-        <div className="ob-goal-grid">
+      <Box className="ob-field">
+        <Txt as="p" className="ob-label">{t('step6.measureLabel')}</Txt>
+        <Box className="ob-goal-grid">
           {TYPES.map((ty) => (
-            <button
+            <Btn
               key={ty.key}
               type="button"
               className={`ob-goal-type${type === ty.key ? ' on' : ''}`}
               onClick={() => setType(ty.key)}
               title={ty.hint}
             >
-              <span className="ob-goal-type-ic">{ty.icon}</span>
-              <span className="ob-goal-type-l">{ty.label}</span>
-            </button>
+              <Txt className="ob-goal-type-ic">{ty.icon}</Txt>
+              <Txt className="ob-goal-type-l">{ty.label}</Txt>
+            </Btn>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {type && (
         <>
           {isPersonal && (
-            <div className="ob-field">
-              <label className="ob-label" htmlFor="ob-g-label">{t('step6.goalNameLabel')}</label>
-              <input
+            <Box className="ob-field">
+              <Box as="label" className="ob-label" htmlFor="ob-g-label">{t('step6.goalNameLabel')}</Box>
+              <Input
                 id="ob-g-label"
                 className="ob-input"
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
                 placeholder={t('step6.goalNamePlaceholder')}
               />
-            </div>
+            </Box>
           )}
 
           {/* Time frame first (like AddGoalModal: name → time frame → target). */}
-          <div className="ob-field">
-            <p className="ob-label">{t('step6.timeFrameLabel')}</p>
-            <div className="ob-seg">
+          <Box className="ob-field">
+            <Txt as="p" className="ob-label">{t('step6.timeFrameLabel')}</Txt>
+            <Box className="ob-seg">
               {TIME_FRAMES.map((f) => (
-                <button
+                <Btn
                   key={f.k}
                   type="button"
                   className={`ob-seg-btn${timeFrame === f.k ? ' on' : ''}`}
                   onClick={() => setTimeFrame(f.k)}
                 >
                   {t(f.labelKey)}
-                </button>
+                </Btn>
               ))}
-            </div>
-          </div>
+            </Box>
+          </Box>
 
           {isDeadline && (
-            <div className="ob-field">
-              <label className="ob-label" htmlFor="ob-g-date">{t('step6.deadlineLabel')}</label>
+            <Box className="ob-field">
+              <Box as="label" className="ob-label" htmlFor="ob-g-date">{t('step6.deadlineLabel')}</Box>
               <DateField
                 className="ob-input"
                 value={targetDate}
                 onChange={(e) => setTargetDate(e.target.value)}
               />
-            </div>
+            </Box>
           )}
 
-          <div className="ob-field">
-            <label className="ob-label" htmlFor="ob-g-val">{t('step6.targetLabel')}</label>
-            <input
+          <Box className="ob-field">
+            <Box as="label" className="ob-label" htmlFor="ob-g-val">{t('step6.targetLabel')}</Box>
+            <Input
               id="ob-g-val"
               className="ob-input"
               type="number"
@@ -319,15 +320,15 @@ export default function Step6Goals({ ob, setCTA }) {
               onChange={(e) => setTarget(e.target.value)}
               placeholder={type === 'income' ? t('step6.incomePlaceholder') : t('step6.genericPlaceholder')}
             />
-            {targetHelp && <p className="ob-empty-hint">{targetHelp}</p>}
-          </div>
+            {targetHelp && <Txt as="p" className="ob-empty-hint">{targetHelp}</Txt>}
+          </Box>
 
           {/* Importance — stars, matching AddGoalModal (was missing here). */}
-          <div className="ob-field">
-            <p className="ob-label">{t('step6.importanceLabel')}</p>
-            <div className="ob-stars-pick" role="radiogroup" aria-label={t('step6.importanceAria')}>
+          <Box className="ob-field">
+            <Txt as="p" className="ob-label">{t('step6.importanceLabel')}</Txt>
+            <Box className="ob-stars-pick" role="radiogroup" aria-label={t('step6.importanceAria')}>
               {[1, 2, 3, 4, 5].map((n) => (
-                <button
+                <Btn
                   key={n}
                   type="button"
                   className={`ob-star-btn${n <= importance ? ' on' : ''}`}
@@ -337,67 +338,67 @@ export default function Step6Goals({ ob, setCTA }) {
                   role="radio"
                 >
                   <Star size={20} strokeWidth={1.5} fill={n <= importance ? 'currentColor' : 'none'} aria-hidden="true" />
-                </button>
+                </Btn>
               ))}
-            </div>
-            <p className="ob-empty-hint">{t('step6.importanceHint')}</p>
-          </div>
+            </Box>
+            <Txt as="p" className="ob-empty-hint">{t('step6.importanceHint')}</Txt>
+          </Box>
 
           {isPersonal && (
             <>
-              <div className="ob-field">
-                <p className="ob-label">{t('step6.howMeasureLabel')}</p>
-                <div className="ob-seg">
+              <Box className="ob-field">
+                <Txt as="p" className="ob-label">{t('step6.howMeasureLabel')}</Txt>
+                <Box className="ob-seg">
                   {TRACKING.map((tr) => (
-                    <button
+                    <Btn
                       key={tr.k}
                       type="button"
                       className={`ob-seg-btn${tracking === tr.k ? ' on' : ''}`}
                       onClick={() => setTracking(tr.k)}
                     >
                       {t(tr.labelKey)}
-                    </button>
+                    </Btn>
                   ))}
-                </div>
-                <p className="ob-empty-hint">
+                </Box>
+                <Txt as="p" className="ob-empty-hint">
                   {tracking === 'manual'
                     ? t('step6.manualHint')
                     : t('step6.questionHint')}
-                </p>
-              </div>
+                </Txt>
+              </Box>
 
               {byQuestion && (
                 <>
-                  <div className="ob-field">
-                    <label className="ob-label" htmlFor="ob-g-q">{t('step6.questionLabel')}</label>
-                    <input
+                  <Box className="ob-field">
+                    <Box as="label" className="ob-label" htmlFor="ob-g-q">{t('step6.questionLabel')}</Box>
+                    <Input
                       id="ob-g-q"
                       className="ob-input"
                       value={qText}
                       onChange={(e) => setQText(e.target.value)}
                       placeholder={qScale === 'yes_no' ? t('step6.questionPlaceholderYesNo') : t('step6.questionPlaceholderScale')}
                     />
-                  </div>
-                  <div className="ob-field">
-                    <p className="ob-label">{t('step6.answerTypeLabel')}</p>
-                    <div className="ob-seg">
+                  </Box>
+                  <Box className="ob-field">
+                    <Txt as="p" className="ob-label">{t('step6.answerTypeLabel')}</Txt>
+                    <Box className="ob-seg">
                       {SCALES.map((s) => (
-                        <button
+                        <Btn
                           key={s.k}
                           type="button"
                           className={`ob-seg-btn${qScale === s.k ? ' on' : ''}`}
                           onClick={() => setQScale(s.k)}
                         >
                           {t(s.labelKey)}
-                        </button>
+                        </Btn>
                       ))}
-                    </div>
-                  </div>
-                  <div className="ob-field">
-                    <p className="ob-label">{t('step6.iconLabel')}</p>
-                    <div className="ob-pills">
+                    </Box>
+                  </Box>
+                  <Box className="ob-field">
+                    <Txt as="p" className="ob-label">{t('step6.iconLabel')}</Txt>
+                    <Box className="ob-pills">
                       {QUESTION_ICONS.map((ic) => (
-                        <button
+                        <Btn
                           key={ic}
                           type="button"
                           className={`ob-pill${qIcon === ic ? ' on' : ''}`}
@@ -405,17 +406,17 @@ export default function Step6Goals({ ob, setCTA }) {
                           aria-label={t('step6.iconAria', { icon: ic })}
                         >
                           {ic}
-                        </button>
+                        </Btn>
                       ))}
-                    </div>
-                  </div>
+                    </Box>
+                  </Box>
 
                   {/* Pick which days the question is asked — for any
                       daily-question goal (slider or yes/no). For yes/no it
                       also caps the target; a warning shows if the target
                       can't be met by the chosen days. */}
-                  <div className="ob-field">
-                    <p className="ob-label">{t('step6.whenAskLabel')}</p>
+                  <Box className="ob-field">
+                    <Txt as="p" className="ob-label">{t('step6.whenAskLabel')}</Txt>
                     <ScheduleDayPicker
                       mode={schedMode}
                       days={schedDays}
@@ -423,12 +424,12 @@ export default function Step6Goals({ ob, setCTA }) {
                       onChange={({ mode, days, x }) => { setSchedMode(mode); setSchedDays(days); setSchedX(x) }}
                     />
                     {scheduleWarning && (
-                      <p className="ob-sched-warn">
+                      <Txt as="p" className="ob-sched-warn">
                         <AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" />
                         {scheduleWarning}
-                      </p>
+                      </Txt>
                     )}
-                  </div>
+                  </Box>
                 </>
               )}
             </>
@@ -438,35 +439,35 @@ export default function Step6Goals({ ob, setCTA }) {
               category dot + time frame, percent, progress bar, target line,
               and importance stars. Actual is 0 (nothing logged yet). */}
           {targetNum > 0 && (
-            <div className="ob-gcard">
-              <div className="ob-gcard-head">
-                <div className="ob-gcard-titleblock">
-                  <p className="ob-gcard-title">{previewName}</p>
-                  <p className="ob-gcard-cat">
-                    <span className="ob-gcard-cat-dot" style={{ background: catColor }} />
+            <Box className="ob-gcard">
+              <Box className="ob-gcard-head">
+                <Box className="ob-gcard-titleblock">
+                  <Txt as="p" className="ob-gcard-title">{previewName}</Txt>
+                  <Txt as="p" className="ob-gcard-cat">
+                    <Txt className="ob-gcard-cat-dot" style={{ background: catColor }} />
                     {chosenType?.label} · {tfLabel}{isDeadline && targetDate ? ` (${targetDate})` : ''}
                     {projectName ? ` · ${projectName}` : ''}
-                  </p>
-                </div>
-                <p className="ob-gcard-pct">0%</p>
-              </div>
-              <div className="ob-gcard-progress">
-                <div className="ob-gcard-progress-fill" style={{ width: '0%' }} />
-              </div>
-              <div className="ob-gcard-meta">
-                <span className="ob-gcard-target mono">0 / {targetNum.toLocaleString(numLocale)}</span>
-                <span className="ob-gcard-stars" aria-label={`${t('step6.importanceLabel')} ${t('step6.starAria', { n: importance })}`}>
+                  </Txt>
+                </Box>
+                <Txt as="p" className="ob-gcard-pct">0%</Txt>
+              </Box>
+              <Box className="ob-gcard-progress">
+                <Box className="ob-gcard-progress-fill" style={{ width: '0%' }} />
+              </Box>
+              <Box className="ob-gcard-meta">
+                <Txt className="ob-gcard-target mono">0 / {targetNum.toLocaleString(numLocale)}</Txt>
+                <Txt className="ob-gcard-stars" aria-label={`${t('step6.importanceLabel')} ${t('step6.starAria', { n: importance })}`}>
                   {[1, 2, 3, 4, 5].map((i) => (
                     <Star key={i} size={12} strokeWidth={1.5} className={i <= importance ? 'on' : ''} fill={i <= importance ? 'currentColor' : 'none'} aria-hidden="true" />
                   ))}
-                </span>
-              </div>
-            </div>
+                </Txt>
+              </Box>
+            </Box>
           )}
         </>
       )}
 
-      {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
+      {err && <Txt as="p" className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</Txt>}
     </>
   )
 }

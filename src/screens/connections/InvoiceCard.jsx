@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, Loader2, TriangleAlert } from 'lucide-react'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 /* Supported invoice services. Each declares its two credential SLOTS — the
    generic api_key/api_secret slots are LABELLED per provider (Green Invoice:
@@ -184,59 +185,59 @@ export default function InvoiceCard() {
   const canConnect = !inv.busy && !!creds.apiKey.trim() && !!creds.apiSecret.trim()
 
   return (
-    <section className="conn-card">
-      <div className="conn-card-head">
-        <span className="conn-icon"><FileText size={22} strokeWidth={1.6} aria-hidden="true" /></span>
-        <div className="conn-card-titles">
-          <p className="conn-card-title">{t('invoiceCard.title')}</p>
-          <p className="conn-card-sub">
+    <Box as="section" className="conn-card">
+      <Box className="conn-card-head">
+        <Txt className="conn-icon"><FileText size={22} strokeWidth={1.6} aria-hidden="true" /></Txt>
+        <Box className="conn-card-titles">
+          <Txt as="p" className="conn-card-title">{t('invoiceCard.title')}</Txt>
+          <Txt as="p" className="conn-card-sub">
             {inv.loading ? t('loading')
               : connected
                 ? (credsInvalid
                     ? <><TriangleAlert size={13} strokeWidth={2} aria-hidden="true" /> {t('invoiceCard.needsReconnectStatus', { provider: providerLabel(status.provider) })}</>
                     : <><Check size={13} strokeWidth={2} aria-hidden="true" /> {t('invoiceCard.connectedStatus', { provider: providerLabel(status.provider), env: envLabel(status.environment) })}</>)
                 : t('invoiceCard.notConnectedHint')}
-          </p>
-        </div>
-      </div>
+          </Txt>
+        </Box>
+      </Box>
 
       {/* Always-on caution: the provider's own API may bill the user for
           issuing documents — make them check that service's terms first. */}
-      <div className="conn-cost-warning" role="note">
+      <Box className="conn-cost-warning" role="note">
         <TriangleAlert size={16} strokeWidth={1.8} aria-hidden="true" />
-        <span>{t('invoiceCard.costWarning')}</span>
-      </div>
+        <Txt>{t('invoiceCard.costWarning')}</Txt>
+      </Box>
 
       {localErr && (
-        <p className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {localErr}</p>
+        <Txt as="p" className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {localErr}</Txt>
       )}
 
       {credsInvalid && !reconnecting && (
-        <div className="conn-broken" role="alert">
+        <Box className="conn-broken" role="alert">
           <TriangleAlert size={16} strokeWidth={1.8} aria-hidden="true" />
-          <span>{t('invoiceCard.brokenMsg')}</span>
-          <button type="button" className="conn-btn primary conn-broken-btn" onClick={startReconnect}>
+          <Txt>{t('invoiceCard.brokenMsg')}</Txt>
+          <Btn type="button" className="conn-btn primary conn-broken-btn" onClick={startReconnect}>
             {t('invoiceCard.reconnect')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
       )}
 
       {(!connected || reconnecting) ? (
-        <div className="conn-connect">
-          <div className="conn-lbl-row">
-            <span className="conn-field-lbl">{t('invoiceCard.pickProvider')}</span>
-            <button type="button" className="conn-help-btn" onClick={() => setShowHelp((v) => !v)} aria-expanded={showHelp}>
+        <Box className="conn-connect">
+          <Box className="conn-lbl-row">
+            <Txt className="conn-field-lbl">{t('invoiceCard.pickProvider')}</Txt>
+            <Btn type="button" className="conn-help-btn" onClick={() => setShowHelp((v) => !v)} aria-expanded={showHelp}>
               <HelpCircle size={15} strokeWidth={1.7} aria-hidden="true" /> {t('invoiceCard.howTo')}
-            </button>
-          </div>
+            </Btn>
+          </Box>
           {showHelp && (
-            <ol className="conn-help-steps">
-              {t(`invoiceCard.steps.${def.tk}`, { returnObjects: true }).map((s, i) => <li key={i}>{s}</li>)}
-            </ol>
+            <Box as="ol" className="conn-help-steps">
+              {t(`invoiceCard.steps.${def.tk}`, { returnObjects: true }).map((s, i) => <Box as="li" key={i}>{s}</Box>)}
+            </Box>
           )}
-          <div className="conn-pills" role="group" aria-label={t('invoiceCard.providerGroupAria')}>
+          <Box className="conn-pills" role="group" aria-label={t('invoiceCard.providerGroupAria')}>
             {PROVIDERS.map((p) => (
-              <button
+              <Btn
                 key={p.key}
                 type="button"
                 className={`conn-type-pill${provider === p.key ? ' on' : ''}`}
@@ -244,19 +245,19 @@ export default function InvoiceCard() {
                 disabled={!p.enabled}
                 onClick={() => p.enabled && pickProvider(p.key)}
               >
-                {providerLabel(p.key)}{!p.enabled && <span className="conn-soon">{t('invoiceCard.soon')}</span>}
-              </button>
+                {providerLabel(p.key)}{!p.enabled && <Txt className="conn-soon">{t('invoiceCard.soon')}</Txt>}
+              </Btn>
             ))}
-          </div>
+          </Box>
 
           {/* Both providers are production-only (Green Invoice sandbox was
               removed — it never worked reliably), so there's no environment
               choice; `environment` is forced to 'production'. */}
 
           {def.fields.map((f) => (
-            <label key={f.slot} className="conn-field">
-              <span className="conn-field-lbl">{t(`invoiceCard.fields.${def.tk}.${f.slot}`)}</span>
-              <input
+            <Box as="label" key={f.slot} className="conn-field">
+              <Txt className="conn-field-lbl">{t(`invoiceCard.fields.${def.tk}.${f.slot}`)}</Txt>
+              <Input
                 type={f.type}
                 className="conn-input"
                 value={creds[f.slot]}
@@ -265,40 +266,40 @@ export default function InvoiceCard() {
                 dir="ltr"
                 placeholder={t('invoiceCard.pastePlaceholder')}
               />
-            </label>
+            </Box>
           ))}
 
-          <button type="button" className="conn-btn primary" disabled={!canConnect} aria-busy={busyAction === 'connect'} onClick={onConnect}>
+          <Btn type="button" className="conn-btn primary" disabled={!canConnect} aria-busy={busyAction === 'connect'} onClick={onConnect}>
             {busyAction === 'connect' ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> {t('invoiceCard.connecting')}</> : (reconnecting ? t('invoiceCard.reconnect') : t('invoiceCard.connect'))}
-          </button>
+          </Btn>
           {reconnecting && (
-            <button type="button" className="conn-btn ghost" disabled={busyAction === 'connect'} onClick={() => { setReconnecting(false); setLocalErr(''); setOkMsg('') }}>{t('invoiceCard.cancel')}</button>
+            <Btn type="button" className="conn-btn ghost" disabled={busyAction === 'connect'} onClick={() => { setReconnecting(false); setLocalErr(''); setOkMsg('') }}>{t('invoiceCard.cancel')}</Btn>
           )}
 
-          <p className="conn-note">{t(`invoiceCard.help.${def.tk}`)}</p>
-        </div>
+          <Txt as="p" className="conn-note">{t(`invoiceCard.help.${def.tk}`)}</Txt>
+        </Box>
       ) : (
         <>
-          <div className="conn-actions">
-            <button type="button" className="conn-btn primary" disabled={inv.busy} aria-busy={busyAction === 'test'} onClick={onTest}>
+          <Box className="conn-actions">
+            <Btn type="button" className="conn-btn primary" disabled={inv.busy} aria-busy={busyAction === 'test'} onClick={onTest}>
               {busyAction === 'test'
                 ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> {t('invoiceCard.testing')}</>
                 : <><RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {t('invoiceCard.testConnection')}</>}
-            </button>
-            <button type="button" className="conn-btn ghost danger" disabled={inv.busy} aria-busy={busyAction === 'disconnect'} onClick={onDisconnect}>
+            </Btn>
+            <Btn type="button" className="conn-btn ghost danger" disabled={inv.busy} aria-busy={busyAction === 'disconnect'} onClick={onDisconnect}>
               {busyAction === 'disconnect'
                 ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> {t('invoiceCard.disconnecting')}</>
                 : <><Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {confirmDisc ? t('invoiceCard.disconnectConfirm') : t('invoiceCard.disconnect')}</>}
-            </button>
-          </div>
+            </Btn>
+          </Box>
           {confirmDisc && (
-            <span className="sr-only" role="status">{t('invoiceCard.disconnectConfirmSr')}</span>
+            <Txt className="sr-only" role="status">{t('invoiceCard.disconnectConfirmSr')}</Txt>
           )}
-          <label className="conn-autoimport">
-            <input type="checkbox" checked={!!status?.auto_import} onChange={(e) => onToggleAutoImport(e.target.checked)} disabled={inv.busy || togglingAuto} />
-            <span>{t('invoiceCard.autoImportLabel')}</span>
-          </label>
-          <p className="conn-autoimport-note">{t('invoiceCard.autoImportNote')}</p>
+          <Box as="label" className="conn-autoimport">
+            <Input type="checkbox" checked={!!status?.auto_import} onChange={(e) => onToggleAutoImport(e.target.checked)} disabled={inv.busy || togglingAuto} />
+            <Txt>{t('invoiceCard.autoImportLabel')}</Txt>
+          </Box>
+          <Txt as="p" className="conn-autoimport-note">{t('invoiceCard.autoImportNote')}</Txt>
 
           {/* Opt-in periodic (daily) scan. Real-time import already runs via the
               provider webhook; this is an extra safety net that calls the
@@ -307,28 +308,28 @@ export default function InvoiceCard() {
               meaningful while income import is on. */}
           {status?.auto_import && (
             <>
-              <label className="conn-autoimport">
-                <input type="checkbox" checked={!!status?.scheduled_scan} onChange={(e) => onToggleScheduledScan(e.target.checked)} disabled={inv.busy || togglingScan} />
-                <span>{t('invoiceCard.scheduledScanLabel')}</span>
-              </label>
-              <p className="conn-autoimport-note">{t('invoiceCard.scheduledScanNote')}</p>
+              <Box as="label" className="conn-autoimport">
+                <Input type="checkbox" checked={!!status?.scheduled_scan} onChange={(e) => onToggleScheduledScan(e.target.checked)} disabled={inv.busy || togglingScan} />
+                <Txt>{t('invoiceCard.scheduledScanLabel')}</Txt>
+              </Box>
+              <Txt as="p" className="conn-autoimport-note">{t('invoiceCard.scheduledScanNote')}</Txt>
               {!!status?.scheduled_scan && (
-                <div className="conn-cost-warning" role="note">
+                <Box className="conn-cost-warning" role="note">
                   <TriangleAlert size={16} strokeWidth={1.8} aria-hidden="true" />
-                  <span>{t('invoiceCard.scheduledScanWarning')}</span>
-                </div>
+                  <Txt>{t('invoiceCard.scheduledScanWarning')}</Txt>
+                </Box>
               )}
             </>
           )}
 
           {/* Business type — drives which document types the issue picker offers.
               Editable any time; a change is committed only on the confirm button. */}
-          <div className="conn-biztype">
-            <span className="conn-field-lbl">{t('invoiceCard.businessType.label')}</span>
-            <p className="conn-autoimport-note">{t('invoiceCard.businessType.note')}</p>
-            <div className="conn-pills" role="group" aria-label={t('invoiceCard.businessType.label')}>
+          <Box className="conn-biztype">
+            <Txt className="conn-field-lbl">{t('invoiceCard.businessType.label')}</Txt>
+            <Txt as="p" className="conn-autoimport-note">{t('invoiceCard.businessType.note')}</Txt>
+            <Box className="conn-pills" role="group" aria-label={t('invoiceCard.businessType.label')}>
               {['exempt', 'licensed'].map((v) => (
-                <button
+                <Btn
                   key={v}
                   type="button"
                   className={`conn-type-pill${pendingBiz === v ? ' on' : ''}`}
@@ -337,24 +338,24 @@ export default function InvoiceCard() {
                   onClick={() => setPendingBiz(v)}
                 >
                   {t(`invoiceCard.businessType.${v}`)}
-                </button>
+                </Btn>
               ))}
-            </div>
+            </Box>
             {!status?.business_type && !bizDirty && (
-              <p className="conn-autoimport-note conn-biztype-unset">{t('invoiceCard.businessType.unsetHint')}</p>
+              <Txt as="p" className="conn-autoimport-note conn-biztype-unset">{t('invoiceCard.businessType.unsetHint')}</Txt>
             )}
             {bizDirty && (
-              <button type="button" className="conn-btn primary conn-biztype-save" disabled={bizBusy} aria-busy={bizBusy} onClick={onSaveBiz}>
+              <Btn type="button" className="conn-btn primary conn-biztype-save" disabled={bizBusy} aria-busy={bizBusy} onClick={onSaveBiz}>
                 {bizBusy
                   ? <><Loader2 size={15} strokeWidth={1.9} className="conn-spin" aria-hidden="true" /> {t('invoiceCard.businessType.saving')}</>
                   : t('invoiceCard.businessType.confirm')}
-              </button>
+              </Btn>
             )}
-          </div>
+          </Box>
         </>
       )}
 
-      {okMsg && !localErr && <p className="conn-note" role="status" aria-live="polite">{okMsg}</p>}
-    </section>
+      {okMsg && !localErr && <Txt as="p" className="conn-note" role="status" aria-live="polite">{okMsg}</Txt>}
+    </Box>
   )
 }

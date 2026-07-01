@@ -1,6 +1,7 @@
 import { CheckCircle2, HelpCircle } from 'lucide-react'
 import { columnsForStep, fieldsForStep, remapColumn, FIELD_LABEL, CSV_FIELDS } from '../../lib/csvImport'
 import { useT } from '../../i18n/useT'
+import { Box, Txt } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    CSV MAPPING EDITOR — shared per-step column→field confirmation.
@@ -40,29 +41,29 @@ export default function CsvMappingEditor({ parsed, onChange: onParsedChange, ste
   const unmapped = columns.length - detected
 
   return (
-    <div className="ob-field ob-map">
-      <p className="ob-label">
+    <Box className="ob-field ob-map">
+      <Txt as="p" className="ob-label">
         {title || t('csvMap.title')}
-      </p>
-      <p className="ob-map-sub">
+      </Txt>
+      <Txt as="p" className="ob-map-sub">
         {detected > 0 && t('csvMap.detected', { count: detected })}
         {unmapped > 0
           ? t('csvMap.someUnmapped', { count: unmapped })
           : t('csvMap.allMapped')}
-      </p>
+      </Txt>
 
-      <div className="ob-map-rows">
+      <Box className="ob-map-rows">
         {columns.map(({ colIdx, header, field, sample }) => (
-          <div className="ob-map-row" key={colIdx}>
-            <div className="ob-map-col">
-              <span className="ob-map-col-name">
+          <Box className="ob-map-row" key={colIdx}>
+            <Box className="ob-map-col">
+              <Txt className="ob-map-col-name">
                 {field
                   ? <CheckCircle2 size={13} strokeWidth={2} aria-hidden="true" />
                   : <HelpCircle size={13} strokeWidth={2} aria-hidden="true" />}
                 <bdi>{header || t('csvMap.colFallback', { num: colIdx + 1 })}</bdi>
-              </span>
-              {sample && <span className="ob-map-sample" title={sample}>{t('csvMap.colSample')}<bdi>{sample}</bdi></span>}
-            </div>
+              </Txt>
+              {sample && <Txt className="ob-map-sample" title={sample}>{t('csvMap.colSample')}<bdi>{sample}</bdi></Txt>}
+            </Box>
             <select
               className="ob-select ob-map-select"
               value={field || ''}
@@ -74,9 +75,9 @@ export default function CsvMappingEditor({ parsed, onChange: onParsedChange, ste
                 <option key={f} value={f}>{FIELD_LABEL[f]}</option>
               ))}
             </select>
-          </div>
+          </Box>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

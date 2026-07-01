@@ -2,6 +2,7 @@ import { Pencil, Trash2, Pause, Play } from 'lucide-react'
 import { isr } from '../../lib/finance'
 import { describeCadence } from '../../lib/recurring'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* One row in the "תבניות חוזרות" section: the template's identity
    (desc + amount + cadence), an Active toggle (pause/play), and
@@ -17,14 +18,14 @@ export default function RecurringCard({ template, onEdit, onDelete, onToggleActi
   const paused = !template.active
 
   return (
-    <div className={`rec-card${paused ? ' paused' : ''}`}>
-      <div className="rec-card-main">
-        <p className="rec-card-desc">{template.desc || (isIncome ? t('recurring.income') : t('recurring.expense'))}</p>
-        <p className="rec-card-meta">{cadence}{paused ? ` · ${t('recurring.paused')}` : ''}</p>
-      </div>
-      <p className={`rec-card-amount mono${isIncome ? ' income' : ' expense'}`}>{amount}</p>
-      <div className="rec-card-actions">
-        <button
+    <Box className={`rec-card${paused ? ' paused' : ''}`}>
+      <Box className="rec-card-main">
+        <Txt as="p" className="rec-card-desc">{template.desc || (isIncome ? t('recurring.income') : t('recurring.expense'))}</Txt>
+        <Txt as="p" className="rec-card-meta">{cadence}{paused ? ` · ${t('recurring.paused')}` : ''}</Txt>
+      </Box>
+      <Txt as="p" className={`rec-card-amount mono${isIncome ? ' income' : ' expense'}`}>{amount}</Txt>
+      <Box className="rec-card-actions">
+        <Btn
           type="button"
           className="rec-card-btn"
           onClick={() => onToggleActive(template)}
@@ -34,8 +35,8 @@ export default function RecurringCard({ template, onEdit, onDelete, onToggleActi
           {paused
             ? <Play size={14} strokeWidth={1.6} aria-hidden="true" />
             : <Pause size={14} strokeWidth={1.6} aria-hidden="true" />}
-        </button>
-        <button
+        </Btn>
+        <Btn
           type="button"
           className="rec-card-btn"
           onClick={() => onEdit(template)}
@@ -43,8 +44,8 @@ export default function RecurringCard({ template, onEdit, onDelete, onToggleActi
           title={t('recurring.edit')}
         >
           <Pencil size={14} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-        <button
+        </Btn>
+        <Btn
           type="button"
           className="rec-card-btn rec-card-btn-danger"
           onClick={() => onDelete(template)}
@@ -52,8 +53,8 @@ export default function RecurringCard({ template, onEdit, onDelete, onToggleActi
           title={t('recurring.delete')}
         >
           <Trash2 size={14} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-      </div>
-    </div>
+        </Btn>
+      </Box>
+    </Box>
   )
 }

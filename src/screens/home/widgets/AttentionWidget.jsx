@@ -33,6 +33,7 @@ import BookingConfirmList from './BookingConfirmList'
 import { useInvoiceImports } from '../../../hooks/useInvoiceImports'
 import InvoiceImports from '../../finance/InvoiceImports'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt, Btn } from '../../../components/ui'
 
 const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
 
@@ -146,67 +147,67 @@ export default function AttentionWidget() {
 
   return (
     <>
-      <div
+      <Box
         className={`h-card is-expandable${open ? ' is-open' : ''}`}
         onClick={() => setOpen((v) => !v)}
       >
-        <div className="h-card-head">
-          <span className="h-card-title">
+        <Box className="h-card-head">
+          <Txt className="h-card-title">
             <Bell size={20} strokeWidth={1.5} aria-hidden="true" /> {t('widgets.attention.title')}
             <InfoPopover
               label={t('widgets.attention.infoLabel')}
               text={t('widgets.attention.infoText')}
             />
-          </span>
-          <span className="h-card-count">{t('widgets.attention.count', { count: totalCount })}</span>
+          </Txt>
+          <Txt className="h-card-count">{t('widgets.attention.count', { count: totalCount })}</Txt>
           <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
-        </div>
+        </Box>
         {open ? (
-          <div className="h-card-list">
+          <Box className="h-card-list">
             {(invoiceImports?.length || 0) > 0 && (
-              <button type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('invoices') }}>
+              <Btn type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('invoices') }}>
                 <FileDown size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                <span className="h-attn-text">{invoicesText}</span>
+                <Txt className="h-attn-text">{invoicesText}</Txt>
                 <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-              </button>
+              </Btn>
             )}
             {pendingBookings.length > 0 && (
-              <button type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('bookings') }}>
+              <Btn type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('bookings') }}>
                 <Calendar size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                <span className="h-attn-text">{bookingsText}</span>
+                <Txt className="h-attn-text">{bookingsText}</Txt>
                 <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-              </button>
+              </Btn>
             )}
             {duplicates.length > 0 && (
-              <button type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('duplicates') }}>
+              <Btn type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('duplicates') }}>
                 <CalendarClock size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                <span className="h-attn-text">{dupText}</span>
+                <Txt className="h-attn-text">{dupText}</Txt>
                 <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-              </button>
+              </Btn>
             )}
             {items.length ? (
               items.map((it) => {
                 const Icon = ICONS[it.icon] || Bell
                 return (
-                  <button key={it.icon + it.text} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); onRow(it) }}>
+                  <Btn key={it.icon + it.text} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); onRow(it) }}>
                     <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                    <span className="h-attn-text">{it.text}</span>
+                    <Txt className="h-attn-text">{it.text}</Txt>
                     <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-                  </button>
+                  </Btn>
                 )
               })
             ) : (duplicates.length === 0 && pendingBookings.length === 0 && (invoiceImports?.length || 0) === 0) ? (
-              <p className="h-card-empty">{t('widgets.attention.empty')}</p>
+              <Txt as="p" className="h-card-empty">{t('widgets.attention.empty')}</Txt>
             ) : null}
-          </div>
+          </Box>
         ) : (
-          <p className="h-card-summary">{summary}</p>
+          <Txt as="p" className="h-card-summary">{summary}</Txt>
         )}
-      </div>
+      </Box>
 
       <Modal open={popup === 'tx'} onClose={() => setPopup(null)} title={t('widgets.attention.txModalTitle')}>
         {pendingTxs.length === 0 ? (
-          <p className="h-card-empty">{t('widgets.attention.txEmpty')}</p>
+          <Txt as="p" className="h-card-empty">{t('widgets.attention.txEmpty')}</Txt>
         ) : (
           <PendingSection
             embedded
@@ -242,21 +243,21 @@ export default function AttentionWidget() {
       />
 
       <Modal open={!!peopleRow} onClose={() => setPeopleRow(null)} title={peopleRow?.text || t('widgets.attention.reachOut')}>
-        <div className="h-people-list">
+        <Box className="h-people-list">
           {(peopleRow?.people || []).map((p) => (
-            <div key={p.id} className="h-people-row">
-              <button type="button" className="h-people-main" onClick={() => openPerson(p)}>
-                <span className="h-people-name">{p.name}</span>
-              </button>
+            <Box key={p.id} className="h-people-row">
+              <Btn type="button" className="h-people-main" onClick={() => openPerson(p)}>
+                <Txt className="h-people-name">{p.name}</Txt>
+              </Btn>
               {/* Always shown — an empty phone opens WhatsApp's own picker. */}
               <WhatsAppButton
                 phone={p.phone || ''}
                 message={waMsg(peopleRow.waKey, { name: p.name })}
                 triggerClassName="h-people-wa"
               />
-            </div>
+            </Box>
           ))}
-        </div>
+        </Box>
       </Modal>
     </>
   )

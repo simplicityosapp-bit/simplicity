@@ -7,6 +7,7 @@ import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import { useT } from '../../../i18n/useT'
 import UnifiedSheetImporter from '../UnifiedSheetImporter'
 import RecognitionWizard from '../RecognitionWizard'
+import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* Step 2 — paths A (import) vs B (start fresh). Path A reads EVERY file
    the user picks (multiple) and EVERY sheet inside each (one per year).
@@ -127,33 +128,33 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
 
   return (
     <>
-      <p className="ob-intro">{t('step2.intro')}</p>
-      <p className="ob-intro-sub">{t('step2.introSub')}</p>
+      <Txt as="p" className="ob-intro">{t('step2.intro')}</Txt>
+      <Txt as="p" className="ob-intro-sub">{t('step2.introSub')}</Txt>
 
-      <div className="ob-card-options">
-        <button
+      <Box className="ob-card-options">
+        <Btn
           type="button"
           className={`ob-option-card${mode === 'A' ? ' on' : ''}`}
           onClick={onPickPathA}
         >
-          <span className="ob-option-card-l">
+          <Txt className="ob-option-card-l">
             <FileSpreadsheet size={16} strokeWidth={1.7} aria-hidden="true" /> {t('step2.pathAHas')}
-          </span>
-          <p className="ob-option-card-sub">{t('step2.pathASub')}</p>
-        </button>
-        <button
+          </Txt>
+          <Txt as="p" className="ob-option-card-sub">{t('step2.pathASub')}</Txt>
+        </Btn>
+        <Btn
           type="button"
           className={`ob-option-card${mode === 'B' ? ' on' : ''}`}
           onClick={onPickPathB}
         >
-          <span className="ob-option-card-l">
+          <Txt className="ob-option-card-l">
             <Upload size={16} strokeWidth={1.7} aria-hidden="true" /> {t('step2.pathBFresh')}
-          </span>
-          <p className="ob-option-card-sub">{t('step2.pathBSub')}</p>
-        </button>
-      </div>
+          </Txt>
+          <Txt as="p" className="ob-option-card-sub">{t('step2.pathBSub')}</Txt>
+        </Btn>
+      </Box>
 
-      <input
+      <Input
         ref={fileRef}
         type="file"
         accept={ACCEPT}
@@ -163,24 +164,24 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
         onChange={(e) => handleFiles(e.target.files)}
       />
 
-      <div aria-live="polite" aria-atomic="true">
-        {busy && <p className="ob-empty-hint" role="status">{t('step2.processing')}</p>}
-        {err && <p className="ob-empty-hint" role="alert" style={{ color: 'var(--clay)' }}>{err}</p>}
-      </div>
+      <Box aria-live="polite" aria-atomic="true">
+        {busy && <Txt as="p" className="ob-empty-hint" role="status">{t('step2.processing')}</Txt>}
+        {err && <Txt as="p" className="ob-empty-hint" role="alert" style={{ color: 'var(--clay)' }}>{err}</Txt>}
+      </Box>
 
       {/* One editable card per sheet: detected entity type + column
           mapping. Anything unrecognised is surfaced for the user to set.
           The recognition wizard sits above it as a confirm-first overlay. */}
       {sheets.length > 0 && (
         <>
-          <button type="button" className="ob-btn ghost" onClick={() => setShowWizard(true)}
+          <Btn type="button" className="ob-btn ghost" onClick={() => setShowWizard(true)}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, margin: '0 auto 12px' }}>
             <Sparkles size={14} strokeWidth={1.8} aria-hidden="true" /> {t('step2.reopenRecognize')}
-          </button>
+          </Btn>
           <UnifiedSheetImporter sheets={ob.state.parsed_data.sheets} onChange={onSheetsChange} gender={gender} />
-          <p className="ob-intro-sub" style={{ textAlign: 'center' }}>
+          <Txt as="p" className="ob-intro-sub" style={{ textAlign: 'center' }}>
             {t('step2.readNote')}
-          </p>
+          </Txt>
         </>
       )}
 
@@ -195,15 +196,15 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
 
       {/* File read OK but nothing to import (empty / all sheets ignored). */}
       {mode === 'A' && fileName && !busy && !err && sheets.length === 0 && (
-        <p className="ob-empty-hint" role="status">
+        <Txt as="p" className="ob-empty-hint" role="status">
           {t('step2.noData')}
-        </p>
+        </Txt>
       )}
 
       {ob.state.parsed_data?.sheets?.some((s) => s.truncated) && (
-        <p className="ob-empty-hint" style={{ color: 'var(--amber-warn)' }}>
+        <Txt as="p" className="ob-empty-hint" style={{ color: 'var(--amber-warn)' }}>
           {t('step2.truncated', { cap: ROW_CAP })}
-        </p>
+        </Txt>
       )}
 
     </>

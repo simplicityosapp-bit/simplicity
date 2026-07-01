@@ -3,6 +3,7 @@ import { X, FileSpreadsheet, CheckCircle2, AlertTriangle, CreditCard, Sparkles }
 import { SHEET_TYPES, SHEET_TYPE_LABELS, setSheetType, projectSheet, sheetRecognitionInfo } from '../../lib/sheetMapper'
 import { useT } from '../../i18n/useT'
 import './RecognitionWizard.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    RECOGNITION WIZARD — "we read your file; confirm what's in it".
@@ -61,62 +62,62 @@ export default function RecognitionWizard({ sheets, onChange, onConfirm, onEditM
   if (totals.projects) summaryParts.push(t('recognize.sum.projects', { count: totals.projects }))
 
   return (
-    <div className="rw-back" role="dialog" aria-modal="true" aria-label={t('recognize.title')}>
-      <div className="rw-panel" ref={panelRef} tabIndex={-1}>
-        <header className="rw-head">
-          <div className="rw-head-txt">
-            <p className="rw-title"><Sparkles size={16} strokeWidth={1.8} aria-hidden="true" /> {t('recognize.title')}</p>
-            <p className="rw-sub">{t('recognize.sub')}</p>
-          </div>
-          <button type="button" className="rw-x" onClick={onConfirm} aria-label={t('recognize.closeAria')}>
+    <Box className="rw-back" role="dialog" aria-modal="true" aria-label={t('recognize.title')}>
+      <Box className="rw-panel" ref={panelRef} tabIndex={-1}>
+        <Box as="header" className="rw-head">
+          <Box className="rw-head-txt">
+            <Txt as="p" className="rw-title"><Sparkles size={16} strokeWidth={1.8} aria-hidden="true" /> {t('recognize.title')}</Txt>
+            <Txt as="p" className="rw-sub">{t('recognize.sub')}</Txt>
+          </Box>
+          <Btn type="button" className="rw-x" onClick={onConfirm} aria-label={t('recognize.closeAria')}>
             <X size={18} strokeWidth={1.8} aria-hidden="true" />
-          </button>
-        </header>
+          </Btn>
+        </Box>
 
-        <div className="rw-body">
-          <p className="rw-summary">
+        <Box className="rw-body">
+          <Txt as="p" className="rw-summary">
             {summaryParts.length
               ? <>{t('recognize.summaryLead')} <strong>{summaryParts.join(' · ')}</strong></>
               : t('recognize.summaryEmpty')}
-          </p>
+          </Txt>
 
-          <div className="rw-sheets">
+          <Box className="rw-sheets">
             {infos.map(({ sheet, info }) => (
-              <div className={`rw-sheet${info.empty ? ' attention' : ''}`} key={sheet.id}>
-                <div className="rw-sheet-head">
-                  <span className="rw-sheet-ic"><FileSpreadsheet size={15} strokeWidth={1.7} aria-hidden="true" /></span>
-                  <span className="rw-sheet-name" title={sheet.fileName}>{sheet.sheetName || sheet.fileName}</span>
-                  <label className="rw-sheet-type">
-                    <span className="rw-sheet-type-lbl">{t('recognize.detectedAs')}</span>
+              <Box className={`rw-sheet${info.empty ? ' attention' : ''}`} key={sheet.id}>
+                <Box className="rw-sheet-head">
+                  <Txt className="rw-sheet-ic"><FileSpreadsheet size={15} strokeWidth={1.7} aria-hidden="true" /></Txt>
+                  <Txt className="rw-sheet-name" title={sheet.fileName}>{sheet.sheetName || sheet.fileName}</Txt>
+                  <Box as="label" className="rw-sheet-type">
+                    <Txt className="rw-sheet-type-lbl">{t('recognize.detectedAs')}</Txt>
                     <select className="rw-select" value={sheet.type} aria-label={t('recognize.typeAria', { name: sheet.sheetName || sheet.fileName })}
                       onChange={(e) => changeType(sheet.id, e.target.value)}>
                       {SHEET_TYPES.map((st) => <option key={st} value={st}>{SHEET_TYPE_LABELS[st]}</option>)}
                     </select>
-                  </label>
-                </div>
+                  </Box>
+                </Box>
 
-                <div className="rw-sheet-tags">
+                <Box className="rw-sheet-tags">
                   {info.hasMethod && (
-                    <span className="rw-tag"><CreditCard size={11} strokeWidth={2} aria-hidden="true" /> {t('recognize.badge.method')}</span>
+                    <Txt className="rw-tag"><CreditCard size={11} strokeWidth={2} aria-hidden="true" /> {t('recognize.badge.method')}</Txt>
                   )}
                   {sheet.type === 'clients' && info.hasPayments && (
-                    <span className="rw-tag"><CheckCircle2 size={11} strokeWidth={2} aria-hidden="true" /> {t('recognize.badge.payments')}</span>
+                    <Txt className="rw-tag"><CheckCircle2 size={11} strokeWidth={2} aria-hidden="true" /> {t('recognize.badge.payments')}</Txt>
                   )}
-                </div>
+                </Box>
 
                 {info.empty && (
-                  <p className="rw-nudge"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('recognize.nudge.empty')}</p>
+                  <Txt as="p" className="rw-nudge"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('recognize.nudge.empty')}</Txt>
                 )}
-              </div>
+              </Box>
             ))}
-          </div>
-        </div>
+          </Box>
+        </Box>
 
-        <footer className="rw-foot">
-          <button type="button" className="ob-btn ghost" onClick={onEditManually}>{t('recognize.editManually')}</button>
-          <button type="button" className="ob-btn primary" onClick={onConfirm}>{t('recognize.confirm')}</button>
-        </footer>
-      </div>
-    </div>
+        <Box as="footer" className="rw-foot">
+          <Btn type="button" className="ob-btn ghost" onClick={onEditManually}>{t('recognize.editManually')}</Btn>
+          <Btn type="button" className="ob-btn primary" onClick={onConfirm}>{t('recognize.confirm')}</Btn>
+        </Box>
+      </Box>
+    </Box>
   )
 }

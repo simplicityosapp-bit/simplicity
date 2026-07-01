@@ -17,6 +17,7 @@ import { useGroupMembers } from '../../../hooks/useGroupMembers'
 import InfoPopover from '../../../components/InfoPopover'
 import MoonDualBars from '../../../components/MoonDualBars'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt, Btn } from '../../../components/ui'
 
 /* Moon-glance mini — a single chip with the pace-based confidence
    percentage inside a soft circular ring. The progress arc renders
@@ -80,7 +81,7 @@ export default function MoonWidget() {
   /* Empty-state — go straight to /goals; no expansion available. */
   if (!hasGoals) {
     return (
-      <div
+      <Box
         className="moon-chip moon-chip-empty"
         role="button"
         tabIndex={0}
@@ -90,15 +91,15 @@ export default function MoonWidget() {
         <svg className="moon-svg" viewBox="0 0 100 100" aria-hidden="true">
           <circle className="moon-track" cx="50" cy="50" r={RADIUS} />
         </svg>
-        <div className="moon-chip-num mono">—</div>
-        <div className="moon-chip-label">{label}</div>
-      </div>
+        <Box className="moon-chip-num mono">—</Box>
+        <Box className="moon-chip-label">{label}</Box>
+      </Box>
     )
   }
 
   return (
-    <div className={`moon-block${expanded ? ' expanded' : ''}`}>
-      <div
+    <Box className={`moon-block${expanded ? ' expanded' : ''}`}>
+      <Box
         className="moon-chip"
         role="button"
         tabIndex={0}
@@ -116,46 +117,46 @@ export default function MoonWidget() {
             strokeDasharray={`${dash} ${CIRCUMFERENCE}`}
           />
         </svg>
-        <div className="moon-chip-num mono">{`${conf}%`}</div>
+        <Box className="moon-chip-num mono">{`${conf}%`}</Box>
         {/* Beta request 03/06/2026 — the bare percentage was unclear; the
             micro-word ties it to pace: "87% מהקצב / 62% מהיעד". */}
-        <div className="moon-chip-kicker">{t('widgets.moon.ofPace')}</div>
-        <div className="moon-chip-label">
+        <Box className="moon-chip-kicker">{t('widgets.moon.ofPace')}</Box>
+        <Box className="moon-chip-label">
           {label}
           <InfoPopover
             label={t('widgets.moon.infoLabel')}
             text={t('widgets.moon.infoText')}
           />
-        </div>
+        </Box>
         {/* The redundant expand chevron was removed (beta 06/06/2026) — the
             whole chip already toggles expansion via its onClick, and
             aria-expanded lives on the chip itself. */}
-      </div>
+      </Box>
 
       {expanded && (
-        <div className="moon-expanded">
-          <p className="moon-expanded-reflection">{moonReflection(conf, gender)}</p>
+        <Box className="moon-expanded">
+          <Txt as="p" className="moon-expanded-reflection">{moonReflection(conf, gender)}</Txt>
           {scored.length === 0 ? (
-            <p className="moon-expanded-empty">{t('widgets.moon.expandedEmpty')}</p>
+            <Txt as="p" className="moon-expanded-empty">{t('widgets.moon.expandedEmpty')}</Txt>
           ) : (
-            <div className="moon-expanded-cats">
+            <Box className="moon-expanded-cats">
               {scored.map((s) => (
-                <div key={s.goal.id} className="moon-expanded-cat">
-                  <div className="moon-expanded-cat-head">
-                    <span className="moon-expanded-cat-dot" style={{ background: s.cat.color || 'var(--sage)' }} />
-                    <span className="moon-expanded-cat-name">{s.goal.label || s.cat.name}</span>
-                  </div>
+                <Box key={s.goal.id} className="moon-expanded-cat">
+                  <Box className="moon-expanded-cat-head">
+                    <Txt className="moon-expanded-cat-dot" style={{ background: s.cat.color || 'var(--sage)' }} />
+                    <Txt className="moon-expanded-cat-name">{s.goal.label || s.cat.name}</Txt>
+                  </Box>
                   {/* Per-goal: pace + goal-% side by side (was a lone pace bar). */}
                   <MoonDualBars pace={Math.min(100, s.paced)} goal={s.pure} />
-                </div>
+                </Box>
               ))}
-            </div>
+            </Box>
           )}
-          <button type="button" className="moon-expanded-link" onClick={() => navigate(ROUTES.MOON_GLANCE)}>
+          <Btn type="button" className="moon-expanded-link" onClick={() => navigate(ROUTES.MOON_GLANCE)}>
             {t('widgets.moon.fullDetail')} <ArrowLeft size={13} strokeWidth={1.8} aria-hidden="true" />
-          </button>
-        </div>
+          </Btn>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

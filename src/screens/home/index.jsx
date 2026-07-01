@@ -12,6 +12,7 @@ import ChipsWidget from './widgets/ChipsWidget'
 import FeedbackCard from '../../components/FeedbackCard'
 import BetaExpiryBanner from '../../components/BetaExpiryBanner'
 import './HomeScreen.css'
+import { Box } from '../../components/ui'
 
 const WIDGET_COMPONENTS = {
   'quote':            QuoteWidget,
@@ -35,7 +36,7 @@ function renderWidget(w, globalDensity) {
   /* --widget-accent is resolved in CSS from data-accent (HomeScreen.css), so
      it can remap per theme — a light-mode hex no longer leaks into dark. */
   return (
-    <div
+    <Box
       key={w.id}
       className={className}
       data-widget-id={w.id}
@@ -43,7 +44,7 @@ function renderWidget(w, globalDensity) {
       data-accent={w.accent}
     >
       <Comp compact={w.compact} />
-    </div>
+    </Box>
   )
 }
 
@@ -66,24 +67,24 @@ export default function HomeScreen({ onOpenFeedback }) {
   const restList = enabledList.filter((w) => w.id !== 'quote' && w.id !== 'moon')
 
   return (
-    <div
+    <Box
       className="screen home-screen"
       data-card-style={cardStyle}
       data-text-strength={textStrength}
       data-density={globalDensity}
     >
-      <div className="home-stack">
+      <Box className="home-stack">
         {showWelcome && <HomeWelcome onDismiss={() => updatePrefs({ homeWelcomeDismissed: true })} />}
         <BetaExpiryBanner />
         {(quoteCfg || moonCfg) && (
-          <div className="home-row-top">
+          <Box className="home-row-top">
             {moonCfg  && renderWidget(moonCfg, globalDensity)}
             {quoteCfg && renderWidget(quoteCfg, globalDensity)}
-          </div>
+          </Box>
         )}
         {restList.map((w) => renderWidget(w, globalDensity))}
         <FeedbackCard onOpenFeedback={onOpenFeedback} />
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

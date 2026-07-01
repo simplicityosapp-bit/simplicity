@@ -6,6 +6,7 @@ import { useSubscription } from '../../hooks/useSubscription'
 import { ROUTES } from '../../lib/routes'
 import { useT } from '../../i18n/useT'
 import './ConnectionsScreen.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Sub-screen for the invoice connection (Green Invoice / SUMIT): the connect /
    manage card + the "ייבוא ממתין" list (also shown on the finance screen). */
@@ -18,19 +19,19 @@ export default function InvoiceConnectionScreen() {
      true for everyone. Wait for the plan to load before deciding. */
   if (!loading && !can.connectInvoicing) return <Navigate to={ROUTES.CONNECTIONS} replace />
   return (
-    <div className="screen">
-      <header className="screen-head conn-head conn-detail-head">
-        <button type="button" className="conn-back" onClick={() => navigate(-1)} aria-label={t('invoiceScreen.back')}>
+    <Box className="screen">
+      <Box as="header" className="screen-head conn-head conn-detail-head">
+        <Btn type="button" className="conn-back" onClick={() => navigate(-1)} aria-label={t('invoiceScreen.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-        <div>
-          <p className="t-screen"><FileText size={20} strokeWidth={1.6} aria-hidden="true" /> {t('invoiceScreen.title')}</p>
-          <p className="lbl-sm">{t('invoiceScreen.subtitle')}</p>
-        </div>
-      </header>
+        </Btn>
+        <Box>
+          <Txt as="p" className="t-screen"><FileText size={20} strokeWidth={1.6} aria-hidden="true" /> {t('invoiceScreen.title')}</Txt>
+          <Txt as="p" className="lbl-sm">{t('invoiceScreen.subtitle')}</Txt>
+        </Box>
+      </Box>
 
       <InvoiceCard />
       <InvoiceImports />
-    </div>
+    </Box>
   )
 }

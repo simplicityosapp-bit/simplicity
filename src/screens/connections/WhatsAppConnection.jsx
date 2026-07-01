@@ -6,6 +6,7 @@ import { resolveMessage } from '../../lib/whatsapp'
 import { useT } from '../../i18n/useT'
 import './ConnectionsScreen.css'
 import './WhatsAppConnection.css'
+import { Box, Txt, Btn, Textarea } from '../../components/ui'
 
 /* The five customisable send surfaces and the tokens each one offers. The
    keys match components:whatsapp.defaults.* and prefs.whatsapp.templates.*. */
@@ -81,30 +82,30 @@ export default function WhatsAppConnectionScreen() {
   }
 
   return (
-    <div className="screen">
-      <header className="screen-head conn-head conn-detail-head">
-        <button type="button" className="conn-back" onClick={() => navigate(-1)} aria-label={t('whatsappScreen.back')}>
+    <Box className="screen">
+      <Box as="header" className="screen-head conn-head conn-detail-head">
+        <Btn type="button" className="conn-back" onClick={() => navigate(-1)} aria-label={t('whatsappScreen.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-        <div>
-          <p className="t-screen"><MessageCircle size={20} strokeWidth={1.6} aria-hidden="true" /> {t('whatsappScreen.title')}</p>
-          <p className="lbl-sm wa-subtitle">{t('whatsappScreen.subtitle')}</p>
-        </div>
-      </header>
+        </Btn>
+        <Box>
+          <Txt as="p" className="t-screen"><MessageCircle size={20} strokeWidth={1.6} aria-hidden="true" /> {t('whatsappScreen.title')}</Txt>
+          <Txt as="p" className="lbl-sm wa-subtitle">{t('whatsappScreen.subtitle')}</Txt>
+        </Box>
+      </Box>
 
-      <div className="wa-fields">
+      <Box className="wa-fields">
         {FIELDS.map((f) => (
-          <div key={f.key} className="wa-field">
-            <div className="wa-field-head">
-              <label className="wa-field-label" htmlFor={`wa-${f.key}`}>{t(`whatsappScreen.fields.${f.key}.label`)}</label>
+          <Box key={f.key} className="wa-field">
+            <Box className="wa-field-head">
+              <Box as="label" className="wa-field-label" htmlFor={`wa-${f.key}`}>{t(`whatsappScreen.fields.${f.key}.label`)}</Box>
               {(draft[f.key] || '').trim() && (
-                <button type="button" className="wa-reset" onClick={() => resetField(f.key)}>
+                <Btn type="button" className="wa-reset" onClick={() => resetField(f.key)}>
                   <RotateCcw size={12} strokeWidth={1.8} aria-hidden="true" /> {t('whatsappScreen.reset')}
-                </button>
+                </Btn>
               )}
-            </div>
-            <p className="wa-field-hint">{t(`whatsappScreen.fields.${f.key}.hint`)}</p>
-            <textarea
+            </Box>
+            <Txt as="p" className="wa-field-hint">{t(`whatsappScreen.fields.${f.key}.hint`)}</Txt>
+            <Textarea
               id={`wa-${f.key}`}
               ref={(el) => { refs.current[f.key] = el }}
               className="wa-textarea"
@@ -113,24 +114,24 @@ export default function WhatsAppConnectionScreen() {
               onChange={(e) => setField(f.key, e.target.value)}
               placeholder={defaultRaw(f.key)}
             />
-            <div className="wa-tokens">
-              <span className="wa-tokens-label">{t('whatsappScreen.tokensLabel')}</span>
+            <Box className="wa-tokens">
+              <Txt className="wa-tokens-label">{t('whatsappScreen.tokensLabel')}</Txt>
               {f.tokens.map((tok) => (
-                <button key={tok} type="button" className="wa-token" onClick={() => insertToken(f.key, tok)}>
+                <Btn key={tok} type="button" className="wa-token" onClick={() => insertToken(f.key, tok)}>
                   {t(`whatsappScreen.tokens.${tok}`)}
-                </button>
+                </Btn>
               ))}
-            </div>
-            <p className="wa-preview"><span className="wa-preview-label">{t('whatsappScreen.preview')}</span> {previewOf(f.key)}</p>
-          </div>
+            </Box>
+            <Txt as="p" className="wa-preview"><Txt className="wa-preview-label">{t('whatsappScreen.preview')}</Txt> {previewOf(f.key)}</Txt>
+          </Box>
         ))}
-      </div>
+      </Box>
 
-      <div className="wa-save-bar">
-        <button type="button" className={`wa-save${saved ? ' is-saved' : ''}`} onClick={save}>
+      <Box className="wa-save-bar">
+        <Btn type="button" className={`wa-save${saved ? ' is-saved' : ''}`} onClick={save}>
           {saved ? <><Check size={16} strokeWidth={2} aria-hidden="true" /> {t('whatsappScreen.saved')}</> : t('whatsappScreen.save')}
-        </button>
-      </div>
-    </div>
+        </Btn>
+      </Box>
+    </Box>
   )
 }

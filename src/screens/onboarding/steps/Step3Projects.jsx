@@ -7,6 +7,7 @@ import { isr } from '../../../lib/finance'
 import AddGroupModal from '../../../modals/AddGroupModal'
 import CsvMappingEditor from '../CsvMappingEditor'
 import { CATEGORY_SWATCHES as COLORS } from '../../../lib/palette'
+import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* Weekday names, by index, for a group's recurring-time label. */
 const DAY_KEYS = ['daySun', 'dayMon', 'dayTue', 'dayWed', 'dayThu', 'dayFri', 'daySat']
@@ -102,20 +103,20 @@ export default function Step3Projects({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro">{t('step3.intro')}</p>
-      <p className="ob-intro-sub">{t('step3.introSub', { verb: t('step3.introSubVerb') })}</p>
+      <Txt as="p" className="ob-intro">{t('step3.intro')}</Txt>
+      <Txt as="p" className="ob-intro-sub">{t('step3.introSub', { verb: t('step3.introSubVerb') })}</Txt>
 
       {existingHint && (
-        <div className="ob-pre-fill-banner">
+        <Box className="ob-pre-fill-banner">
           {t('step3.existingBanner', { count: projects.length })}
-        </div>
+        </Box>
       )}
 
       <CsvMappingEditor parsed={ob.state.parsed_data} onChange={ob.setParsedData} stepKey="projects" title={t('step3.csvTitle')} />
 
-      <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-p-name">{t('step3.nameLabel')}</label>
-        <input
+      <Box className="ob-field">
+        <Box as="label" className="ob-label" htmlFor="ob-p-name">{t('step3.nameLabel')}</Box>
+        <Input
           id="ob-p-name"
           className="ob-input"
           value={name}
@@ -123,13 +124,13 @@ export default function Step3Projects({ ob, setCTA }) {
           placeholder={t('step3.namePlaceholder')}
           autoFocus
         />
-      </div>
+      </Box>
 
-      <div className="ob-field">
-        <p className="ob-label">{t('step3.colorLabel')}</p>
-        <div className="ob-color-row">
+      <Box className="ob-field">
+        <Txt as="p" className="ob-label">{t('step3.colorLabel')}</Txt>
+        <Box className="ob-color-row">
           {COLORS.map((c) => (
-            <button
+            <Btn
               key={c}
               type="button"
               className={`ob-color-swatch${color === c ? ' on' : ''}`}
@@ -138,73 +139,73 @@ export default function Step3Projects({ ob, setCTA }) {
               aria-label={c}
             />
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* Live project card — appears once the project has a name, mirroring
           the in-app project-detail card so the user sees what they're
           building (groups now, clients next step). */}
       {hasName && (
-        <div className="ob-proj-card">
-          <div className="ob-pc-head">
-            <span className="ob-pc-color" style={{ background: color }} />
-            <p className="ob-pc-name">{name.trim()}</p>
-          </div>
+        <Box className="ob-proj-card">
+          <Box className="ob-pc-head">
+            <Txt className="ob-pc-color" style={{ background: color }} />
+            <Txt as="p" className="ob-pc-name">{name.trim()}</Txt>
+          </Box>
 
           {/* Groups — real, multiple, via the same modal used in-app. */}
-          <section className="ob-pc-section">
-            <p className="ob-pc-sec-title">
-              {t('step3.groupsTitle')} {projectGroups.length > 0 && <span className="ob-pc-count">{projectGroups.length}</span>}
-            </p>
+          <Box as="section" className="ob-pc-section">
+            <Txt as="p" className="ob-pc-sec-title">
+              {t('step3.groupsTitle')} {projectGroups.length > 0 && <Txt className="ob-pc-count">{projectGroups.length}</Txt>}
+            </Txt>
             {projectGroups.length === 0 ? (
-              <p className="ob-pc-empty">{t('step3.groupsEmpty')}</p>
+              <Txt as="p" className="ob-pc-empty">{t('step3.groupsEmpty')}</Txt>
             ) : (
-              <div className="ob-pc-group-list">
+              <Box className="ob-pc-group-list">
                 {projectGroups.map((g) => {
                   const price = groupPriceLabel(g, t)
                   const recurring = g.recurring_day != null && g.recurring_time
                     ? `${t('step3.' + DAY_KEYS[g.recurring_day])} ${g.recurring_time}` : null
                   return (
-                    <div key={g.id} className="ob-pc-group">
-                      <span className="ob-pc-group-color" style={{ background: g.color || color }} />
-                      <div className="ob-pc-group-body">
-                        <p className="ob-pc-group-name">{g.name}</p>
+                    <Box key={g.id} className="ob-pc-group">
+                      <Txt className="ob-pc-group-color" style={{ background: g.color || color }} />
+                      <Box className="ob-pc-group-body">
+                        <Txt as="p" className="ob-pc-group-name">{g.name}</Txt>
                         {(price || recurring) && (
-                          <p className="ob-pc-group-meta">
+                          <Txt as="p" className="ob-pc-group-meta">
                             {price}{price && recurring ? ' · ' : ''}{recurring}
-                          </p>
+                          </Txt>
                         )}
-                      </div>
-                      <button
+                      </Box>
+                      <Btn
                         type="button"
                         className="ob-pc-group-x"
                         onClick={() => removeGroup(g.id)}
                         aria-label={t('step3.removeGroupAria', { name: g.name })}
                       >
                         <X size={13} strokeWidth={2} aria-hidden="true" />
-                      </button>
-                    </div>
+                      </Btn>
+                    </Box>
                   )
                 })}
-              </div>
+              </Box>
             )}
-            <button type="button" className="ob-pc-add" onClick={openAddGroup} disabled={busy}>
+            <Btn type="button" className="ob-pc-add" onClick={openAddGroup} disabled={busy}>
               <Plus size={14} strokeWidth={1.9} aria-hidden="true" /> {t('step3.addGroup')}
-            </button>
-          </section>
+            </Btn>
+          </Box>
 
           {/* Clients — preview only; real assignment happens in step 4. */}
-          <section className="ob-pc-section">
-            <p className="ob-pc-sec-title">{t('step3.clientsTitle')}</p>
-            <div className="ob-pc-teaser">
+          <Box as="section" className="ob-pc-section">
+            <Txt as="p" className="ob-pc-sec-title">{t('step3.clientsTitle')}</Txt>
+            <Box className="ob-pc-teaser">
               <Users size={16} strokeWidth={1.6} aria-hidden="true" />
-              <span>{t('step3.clientsTeaser', { verb: t('step3.clientsTeaserVerb') })}</span>
-            </div>
-          </section>
-        </div>
+              <Txt>{t('step3.clientsTeaser', { verb: t('step3.clientsTeaserVerb') })}</Txt>
+            </Box>
+          </Box>
+        </Box>
       )}
 
-      {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
+      {err && <Txt as="p" className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</Txt>}
 
       <AddGroupModal
         open={addGroupOpen}

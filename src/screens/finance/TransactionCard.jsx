@@ -6,6 +6,7 @@ import { fmtShortDate } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
 import WhatsAppButton from '../../components/WhatsAppButton'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
+import { Box, Txt, Btn } from '../../components/ui'
 
 function TransactionCard({ tx, clients = [], projects = [], categories = [], onApprove, onSkip, onUnskip, onEdit, onDelete }) {
   const { t } = useT('finance')
@@ -29,63 +30,63 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
   const waMessage = hasReceipt ? waMsg(partyName ? 'receipt' : 'receiptNoName', waVars) : ''
 
   return (
-    <div
+    <Box
       className={`f-tx${isSkipped ? ' is-skipped' : ''}`}
       role={onEdit ? 'button' : undefined}
       tabIndex={onEdit ? 0 : undefined}
       onClick={() => onEdit?.(tx)}
       onKeyDown={onEdit ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit(tx) } } : undefined}
     >
-      <div className="f-tx-body">
-        <p className="f-tx-desc">{tx.desc || t('tx.noDesc')}</p>
-        <div className="f-tx-meta">
-          <span className="f-tx-date">{fmtShortDate(tx.date)}</span>
-          {isSkipped && <span className="f-tx-tag skip">{t('tx.skipped')}</span>}
-          {isCredited && <span className="f-tx-tag credited">{t('tx.credited')}</span>}
-          {meta && <span className="f-tx-meta-text">· {meta}</span>}
-          {tx.payment_method && <span className="f-tx-tag pay">{payMethodLabel(tx.payment_method)}</span>}
+      <Box className="f-tx-body">
+        <Txt as="p" className="f-tx-desc">{tx.desc || t('tx.noDesc')}</Txt>
+        <Box className="f-tx-meta">
+          <Txt className="f-tx-date">{fmtShortDate(tx.date)}</Txt>
+          {isSkipped && <Txt className="f-tx-tag skip">{t('tx.skipped')}</Txt>}
+          {isCredited && <Txt className="f-tx-tag credited">{t('tx.credited')}</Txt>}
+          {meta && <Txt className="f-tx-meta-text">· {meta}</Txt>}
+          {tx.payment_method && <Txt className="f-tx-tag pay">{payMethodLabel(tx.payment_method)}</Txt>}
           {category && (
-            <span className="f-tx-cat">
-              <span className="f-tx-cat-dot" style={{ background: category.color || 'var(--stone)' }} />
+            <Txt className="f-tx-cat">
+              <Txt className="f-tx-cat-dot" style={{ background: category.color || 'var(--stone)' }} />
               {category.name}
-            </span>
+            </Txt>
           )}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <p className={`f-tx-amt mono ${isExpense ? 'exp' : 'inc'}${isSkipped || isCredited ? ' strike' : ''}`}>
+      <Txt as="p" className={`f-tx-amt mono ${isExpense ? 'exp' : 'inc'}${isSkipped || isCredited ? ' strike' : ''}`}>
         {isExpense ? '−' : '+'}{isr(tx.amount)}
-      </p>
+      </Txt>
 
       {isPending ? (
-        <div className="f-tx-actions">
-          <button type="button" className="f-tx-btn approve" onClick={stop(() => onApprove(tx.id))} title={t('tx.approveTitle')}>
+        <Box className="f-tx-actions">
+          <Btn type="button" className="f-tx-btn approve" onClick={stop(() => onApprove(tx.id))} title={t('tx.approveTitle')}>
             <Check size={15} strokeWidth={2} aria-hidden="true" />
-          </button>
-          <button type="button" className="f-tx-btn skip" onClick={stop(() => onSkip(tx.id))} title={t('tx.skipTitle')}>
+          </Btn>
+          <Btn type="button" className="f-tx-btn skip" onClick={stop(() => onSkip(tx.id))} title={t('tx.skipTitle')}>
             <X size={15} strokeWidth={2} aria-hidden="true" />
-          </button>
-        </div>
+          </Btn>
+        </Box>
       ) : (
         (isSkipped || hasReceipt || onDelete) && (
-          <div className="f-tx-actions">
+          <Box className="f-tx-actions">
             {isSkipped && (
-              <button type="button" className="f-tx-btn restore" onClick={stop(() => onUnskip(tx.id))} title={t('tx.restore')} aria-label={t('tx.restore')}>
+              <Btn type="button" className="f-tx-btn restore" onClick={stop(() => onUnskip(tx.id))} title={t('tx.restore')} aria-label={t('tx.restore')}>
                 <RotateCcw size={14} strokeWidth={1.8} aria-hidden="true" />
-              </button>
+              </Btn>
             )}
             {hasReceipt && (
               <WhatsAppButton phone={client?.phone || tx.recipient_phone} message={waMessage} triggerClassName="f-tx-btn wa" />
             )}
             {onDelete && (
-              <button type="button" className="f-tx-btn delete" onClick={stop(() => onDelete(tx.id))} title={t('tx.delete')} aria-label={t('tx.delete')}>
+              <Btn type="button" className="f-tx-btn delete" onClick={stop(() => onDelete(tx.id))} title={t('tx.delete')} aria-label={t('tx.delete')}>
                 <Trash2 size={14} strokeWidth={1.8} aria-hidden="true" />
-              </button>
+              </Btn>
             )}
-          </div>
+          </Box>
         )
       )}
-    </div>
+    </Box>
   )
 }
 

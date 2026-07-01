@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
+import { Box, Txt } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    Hand-rolled SVG charts for the admin console — no chart library,
@@ -46,7 +47,7 @@ function pickLabels(n, max = 6) {
 export function BarChart({ data, alt = false, formatX = (d) => d.label }) {
   const [ref, W] = useMeasuredWidth()
   if (!data?.length) {
-    return <div ref={ref} className="admin-chart-svg" style={{ height: H }} />
+    return <Box ref={ref} className="admin-chart-svg" style={{ height: H }} />
   }
   const max = Math.max(1, ...data.map((d) => d.count))
   const innerW = W - PAD_L - PAD_R
@@ -57,7 +58,7 @@ export function BarChart({ data, alt = false, formatX = (d) => d.label }) {
   const labelIdx = new Set(pickLabels(data.length))
 
   return (
-    <div ref={ref}>
+    <Box ref={ref}>
       <svg viewBox={`0 0 ${W} ${H}`} className="admin-chart-svg" style={{ height: H }} role="img">
         {/* y-axis — gridlines + value labels (so the magnitude is readable) */}
         {yTicks(max).map((v) => (
@@ -83,7 +84,7 @@ export function BarChart({ data, alt = false, formatX = (d) => d.label }) {
           )
         })}
       </svg>
-    </div>
+    </Box>
   )
 }
 
@@ -91,7 +92,7 @@ export function BarChart({ data, alt = false, formatX = (d) => d.label }) {
 export function LineChart({ data, alt = false, formatX = (d) => d.label, gradId = 'admChartArea' }) {
   const [ref, W] = useMeasuredWidth()
   if (!data?.length) {
-    return <div ref={ref} className="admin-chart-svg" style={{ height: H }} />
+    return <Box ref={ref} className="admin-chart-svg" style={{ height: H }} />
   }
   const max = Math.max(1, ...data.map((d) => d.count))
   const innerW = W - PAD_L - PAD_R
@@ -111,7 +112,7 @@ export function LineChart({ data, alt = false, formatX = (d) => d.label, gradId 
   const labelIdx = new Set(pickLabels(data.length))
 
   return (
-    <div ref={ref}>
+    <Box ref={ref}>
       <svg viewBox={`0 0 ${W} ${H}`} className="admin-chart-svg" style={{ height: H }} role="img">
         <defs>
           <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
@@ -136,7 +137,7 @@ export function LineChart({ data, alt = false, formatX = (d) => d.label, gradId 
           ) : null
         ))}
       </svg>
-    </div>
+    </Box>
   )
 }
 
@@ -146,16 +147,16 @@ export function FunnelBars({ data }) {
   if (!data?.length) return null
   const max = Math.max(1, ...data.map((d) => d.count))
   return (
-    <div className="admin-funnel">
+    <Box className="admin-funnel">
       {data.map((d, i) => (
-        <div className="admin-funnel-row" key={i}>
-          <span className="admin-funnel-label">{d.label}</span>
-          <div className="admin-funnel-track">
-            <span className="admin-funnel-fill" style={{ width: `${(d.count / max) * 100}%` }} />
-          </div>
-          <span className="admin-funnel-count">{d.count}</span>
-        </div>
+        <Box className="admin-funnel-row" key={i}>
+          <Txt className="admin-funnel-label">{d.label}</Txt>
+          <Box className="admin-funnel-track">
+            <Txt className="admin-funnel-fill" style={{ width: `${(d.count / max) * 100}%` }} />
+          </Box>
+          <Txt className="admin-funnel-count">{d.count}</Txt>
+        </Box>
       ))}
-    </div>
+    </Box>
   )
 }

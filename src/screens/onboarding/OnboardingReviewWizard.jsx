@@ -7,6 +7,7 @@ import { useLeads } from '../../hooks/useLeads'
 import { isr } from '../../lib/finance'
 import { useT } from '../../i18n/useT'
 import './OnboardingReviewWizard.css'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    ONBOARDING REVIEW WIZARD — approve / edit / reject before write.
@@ -289,10 +290,10 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   }
 
   const renderToggle = (type, i, row, inc) => (
-    <button type="button" className={`obrw-toggle${inc ? ' on' : ''}`} onClick={() => toggle(type, i, row)}
+    <Btn type="button" className={`obrw-toggle${inc ? ' on' : ''}`} onClick={() => toggle(type, i, row)}
       aria-pressed={inc} aria-label={inc ? t('review.toggle.includedAria') : t('review.toggle.excludedAria')}>
       {inc ? <Check size={14} strokeWidth={2.4} /> : <RotateCcw size={13} strokeWidth={2} />}
-    </button>
+    </Btn>
   )
 
   /* ── Result / error view (after a confirm that hit failures) ── */
@@ -316,110 +317,110 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     if (created.recurring) parts.push(t('review.result.created.recurring', { count: created.recurring }))
 
     return (
-      <div className="obrw-back" role="dialog" aria-modal="true" aria-label={t('review.result.dialogAria')}>
-        <div className="obrw-panel" ref={panelRef} tabIndex={-1}>
-          <div className="obrw-result">
+      <Box className="obrw-back" role="dialog" aria-modal="true" aria-label={t('review.result.dialogAria')}>
+        <Box className="obrw-panel" ref={panelRef} tabIndex={-1}>
+          <Box className="obrw-result">
             <AlertTriangle size={28} strokeWidth={1.8} className="obrw-result-icon" aria-hidden="true" />
             {result.fatal ? (
               <>
-                <p className="obrw-result-title">{t('review.result.fatalTitle')}</p>
-                <p className="obrw-result-txt">
+                <Txt as="p" className="obrw-result-title">{t('review.result.fatalTitle')}</Txt>
+                <Txt as="p" className="obrw-result-txt">
                   {t('review.result.fatalBody')}
-                </p>
-                <p className="obrw-result-hint">{t('review.result.whatHappened', { detail: humanizeError(result.error, t) })}</p>
+                </Txt>
+                <Txt as="p" className="obrw-result-hint">{t('review.result.whatHappened', { detail: humanizeError(result.error, t) })}</Txt>
               </>
             ) : (
               <>
-                <p className="obrw-result-title">
+                <Txt as="p" className="obrw-result-title">
                   {totalCreated > 0 ? t('review.result.partialTitle') : t('review.result.noneTitle')}
-                </p>
+                </Txt>
                 {totalCreated > 0 && (
-                  <p className="obrw-result-txt">{t('review.result.createdLine', { parts: parts.join(' · ') })}</p>
+                  <Txt as="p" className="obrw-result-txt">{t('review.result.createdLine', { parts: parts.join(' · ') })}</Txt>
                 )}
-                <p className="obrw-result-txt obrw-result-fail">
+                <Txt as="p" className="obrw-result-txt obrw-result-fail">
                   {t('review.result.failedLine', { count: totalFailed })}
-                </p>
+                </Txt>
                 {result.errors?.length > 0 && (
-                  <ul className="obrw-result-errs">
-                    {result.errors.slice(0, 5).map((e, i) => <li key={i}>{humanizeError(e, t)}</li>)}
-                    {result.errors.length > 5 && <li>{t('review.result.moreErrors', { count: result.errors.length - 5 })}</li>}
-                  </ul>
+                  <Box as="ul" className="obrw-result-errs">
+                    {result.errors.slice(0, 5).map((e, i) => <Box as="li" key={i}>{humanizeError(e, t)}</Box>)}
+                    {result.errors.length > 5 && <Box as="li">{t('review.result.moreErrors', { count: result.errors.length - 5 })}</Box>}
+                  </Box>
                 )}
-                <p className="obrw-result-hint">{t('review.result.partialHint')}</p>
+                <Txt as="p" className="obrw-result-hint">{t('review.result.partialHint')}</Txt>
               </>
             )}
-            <div className="obrw-actions">
-              <button type="button" className="ob-btn ghost" onClick={() => setResult(null)} disabled={busy}>
+            <Box className="obrw-actions">
+              <Btn type="button" className="ob-btn ghost" onClick={() => setResult(null)} disabled={busy}>
                 {t('review.result.backToList')}
-              </button>
-              <button type="button" className="ob-btn primary" onClick={onComplete} disabled={busy}>
+              </Btn>
+              <Btn type="button" className="ob-btn primary" onClick={onComplete} disabled={busy}>
                 {t('review.result.continue')}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+              </Btn>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
     )
   }
 
   return (
-    <div className="obrw-back" role="dialog" aria-modal="true" aria-label={t('review.dialogAria')}>
-      <div className="obrw-panel" ref={panelRef} tabIndex={-1}>
-        <header className="obrw-head">
-          <div>
-            <p className="obrw-title">{t('review.title')}</p>
-            <p className="obrw-sub">{mode === 'approve'
+    <Box className="obrw-back" role="dialog" aria-modal="true" aria-label={t('review.dialogAria')}>
+      <Box className="obrw-panel" ref={panelRef} tabIndex={-1}>
+        <Box as="header" className="obrw-head">
+          <Box>
+            <Txt as="p" className="obrw-title">{t('review.title')}</Txt>
+            <Txt as="p" className="obrw-sub">{mode === 'approve'
               ? t('review.subApprove')
-              : t('review.subCreate')}</p>
-          </div>
-          <button type="button" className="obrw-x" onClick={requestClose} aria-label={t('review.closeAria')} disabled={busy}>
+              : t('review.subCreate')}</Txt>
+          </Box>
+          <Btn type="button" className="obrw-x" onClick={requestClose} aria-label={t('review.closeAria')} disabled={busy}>
             <X size={18} strokeWidth={1.8} aria-hidden="true" />
-          </button>
-        </header>
+          </Btn>
+        </Box>
 
         {dataLoading ? (
-          <div className="obrw-loading">
+          <Box className="obrw-loading">
             <img className="obrw-logo obrw-logo-day"   src="/logo-dark.png"  alt="" aria-hidden="true" />
             <img className="obrw-logo obrw-logo-night" src="/logo-light.png" alt="" aria-hidden="true" />
-            <p className="obrw-loading-txt">{t('review.loading')}</p>
-          </div>
+            <Txt as="p" className="obrw-loading-txt">{t('review.loading')}</Txt>
+          </Box>
         ) : (
         <>
-        <div className="obrw-tabs" role="tablist">
+        <Box className="obrw-tabs" role="tablist">
           {TABS.map((tabDef) => {
             const Icon = tabDef.icon
             return (
-              <button key={tabDef.key} type="button" role="tab" id={`obrw-tab-${tabDef.key}`}
+              <Btn key={tabDef.key} type="button" role="tab" id={`obrw-tab-${tabDef.key}`}
                 aria-selected={tab === tabDef.key} aria-controls="obrw-panel"
                 aria-label={t('review.tabAria', { label: tabDef.label, included: counts[tabDef.key], total: state[tabDef.key].length })}
                 className={`obrw-tab${tab === tabDef.key ? ' on' : ''}`} onClick={() => setTab(tabDef.key)}>
                 <Icon size={14} strokeWidth={1.9} aria-hidden="true" />
                 {tabDef.label}
-                <span className="obrw-tab-count" aria-hidden="true">{counts[tabDef.key]}/{state[tabDef.key].length}</span>
-              </button>
+                <Txt className="obrw-tab-count" aria-hidden="true">{counts[tabDef.key]}/{state[tabDef.key].length}</Txt>
+              </Btn>
             )
           })}
-        </div>
+        </Box>
 
-        <div className="obrw-bulk">
-          <button type="button" className="obrw-bulk-btn" onClick={() => setAll(tab, true)}>{t('review.includeAll')}</button>
-          <span className="obrw-bulk-sep">·</span>
-          <button type="button" className="obrw-bulk-btn" onClick={() => setAll(tab, false)}>{t('review.clearAll')}</button>
+        <Box className="obrw-bulk">
+          <Btn type="button" className="obrw-bulk-btn" onClick={() => setAll(tab, true)}>{t('review.includeAll')}</Btn>
+          <Txt className="obrw-bulk-sep">·</Txt>
+          <Btn type="button" className="obrw-bulk-btn" onClick={() => setAll(tab, false)}>{t('review.clearAll')}</Btn>
           {tab === 'transactions' && txIssues > 0 && (
-            <span className="obrw-warn">
+            <Txt className="obrw-warn">
               <AlertTriangle size={12} strokeWidth={2} aria-hidden="true" />
               {t('review.txIssues', { count: txIssues })}
-            </span>
+            </Txt>
           )}
           {tab === 'clients' && parsed?.truncated && (
-            <span className="obrw-warn">
+            <Txt className="obrw-warn">
               <AlertTriangle size={12} strokeWidth={2} aria-hidden="true" />
               {t('review.truncated', { cap: parsed.row_cap, raw: parsed.raw_rows })}
-            </span>
+            </Txt>
           )}
-        </div>
+        </Box>
 
-        <div className="obrw-body" role="tabpanel" id="obrw-panel" aria-labelledby={`obrw-tab-${tab}`}>
+        <Box className="obrw-body" role="tabpanel" id="obrw-panel" aria-labelledby={`obrw-tab-${tab}`}>
           {tab === 'clients' && state.clients.slice(0, visible).map((c, i) => {
             const inc = isIncluded('clients', i, c)
             const exists = existingClientNames.has(norm(c.name))
@@ -431,10 +432,10 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
             const opts = c.project_name && !projectOptions.includes(c.project_name)
               ? [c.project_name, ...projectOptions] : projectOptions
             return (
-              <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
+              <Box className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('clients', i, c, inc)}
-                <div className="obrw-fields">
-                  <input className="obrw-input obrw-grow" value={c.name || ''} placeholder={t('review.client.namePlaceholder')} aria-label={t('review.client.nameAria')} disabled={!inc}
+                <Box className="obrw-fields">
+                  <Input className="obrw-input obrw-grow" value={c.name || ''} placeholder={t('review.client.namePlaceholder')} aria-label={t('review.client.nameAria')} disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { name: e.target.value })} />
                   <select className="obrw-input obrw-cl-proj" value={c.project_name || ''} title={t('review.client.projectTitle')} aria-label={t('review.client.projectTitle')} disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { project_name: e.target.value || null })}>
@@ -446,18 +447,18 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                     <option value="">{t('review.client.statusDefault')}</option>
                     {clientStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
-                  <input className="obrw-input obrw-num" type="number" min="0" value={c.sessions ?? ''} placeholder={t('review.client.sessionsPlaceholder')} title={t('review.client.sessionsTitle')} aria-label={t('review.client.sessionsTitle')} disabled={!inc}
+                  <Input className="obrw-input obrw-num" type="number" min="0" value={c.sessions ?? ''} placeholder={t('review.client.sessionsPlaceholder')} title={t('review.client.sessionsTitle')} aria-label={t('review.client.sessionsTitle')} disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { sessions: Number(e.target.value) || 0 })} />
-                  <input className="obrw-input obrw-num" type="number" min="0" value={c.price_per_session ?? ''} placeholder={t('review.client.pricePlaceholder')} title={t('review.client.priceTitle')} aria-label={t('review.client.priceTitle')} disabled={!inc}
+                  <Input className="obrw-input obrw-num" type="number" min="0" value={c.price_per_session ?? ''} placeholder={t('review.client.pricePlaceholder')} title={t('review.client.priceTitle')} aria-label={t('review.client.priceTitle')} disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { price_per_session: Number(e.target.value) || 0 })} />
-                  {invalid && <span className="obrw-invalid">{t('review.client.missingName')}</span>}
-                  {c.status_unsure && inc && <span className="obrw-unsure">{t('review.client.statusUnsure')}</span>}
-                  {projectOrphan && <span className="obrw-invalid">{t('review.client.projectOrphan')}</span>}
-                  {Number(c.num_installments) >= 2 && <span className="obrw-plan-note">{t('review.client.planBadge', { count: Number(c.num_installments) })}</span>}
-                </div>
-                {exists ? <span className="obrw-badge">{t('review.badge.exists')}</span>
-                  : dup ? <span className="obrw-badge dup">{t('review.badge.duplicate')}</span> : null}
-              </div>
+                  {invalid && <Txt className="obrw-invalid">{t('review.client.missingName')}</Txt>}
+                  {c.status_unsure && inc && <Txt className="obrw-unsure">{t('review.client.statusUnsure')}</Txt>}
+                  {projectOrphan && <Txt className="obrw-invalid">{t('review.client.projectOrphan')}</Txt>}
+                  {Number(c.num_installments) >= 2 && <Txt className="obrw-plan-note">{t('review.client.planBadge', { count: Number(c.num_installments) })}</Txt>}
+                </Box>
+                {exists ? <Txt className="obrw-badge">{t('review.badge.exists')}</Txt>
+                  : dup ? <Txt className="obrw-badge dup">{t('review.badge.duplicate')}</Txt> : null}
+              </Box>
             )
           })}
 
@@ -466,15 +467,15 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
             const exists = existingProjectNames.has(norm(p.name))
             const invalid = inc && !isValid('projects', p)
             return (
-              <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
+              <Box className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('projects', i, p, inc)}
-                <div className="obrw-fields">
-                  <input className="obrw-input obrw-grow" value={p.name || ''} placeholder={t('review.project.namePlaceholder')} disabled={!inc}
+                <Box className="obrw-fields">
+                  <Input className="obrw-input obrw-grow" value={p.name || ''} placeholder={t('review.project.namePlaceholder')} disabled={!inc}
                     onChange={(e) => patchRow('projects', i, { name: e.target.value })} />
-                  {invalid && <span className="obrw-invalid">{t('review.project.missingName')}</span>}
-                </div>
-                {exists && <span className="obrw-badge">{t('review.badge.exists')}</span>}
-              </div>
+                  {invalid && <Txt className="obrw-invalid">{t('review.project.missingName')}</Txt>}
+                </Box>
+                {exists && <Txt className="obrw-badge">{t('review.badge.exists')}</Txt>}
+              </Box>
             )
           })}
 
@@ -484,20 +485,20 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
             const exists = existingLeadNames.has(norm(l.name))
             const dup = dupLeadIdx.has(i)
             return (
-              <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
+              <Box className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('leads', i, l, inc)}
-                <div className="obrw-fields">
-                  <input className="obrw-input obrw-grow" value={l.name || ''} placeholder={t('review.lead.namePlaceholder')} aria-label={t('review.lead.nameAria')} disabled={!inc}
+                <Box className="obrw-fields">
+                  <Input className="obrw-input obrw-grow" value={l.name || ''} placeholder={t('review.lead.namePlaceholder')} aria-label={t('review.lead.nameAria')} disabled={!inc}
                     onChange={(e) => patchRow('leads', i, { name: e.target.value })} />
-                  <input className={`obrw-input obrw-cl-proj${l.status_unsure ? ' unsure' : ''}`} value={l.status_name || ''} placeholder={t('review.lead.statusPlaceholder')} title={t('review.lead.statusTitle')} aria-label={t('review.lead.statusAria')} disabled={!inc}
+                  <Input className={`obrw-input obrw-cl-proj${l.status_unsure ? ' unsure' : ''}`} value={l.status_name || ''} placeholder={t('review.lead.statusPlaceholder')} title={t('review.lead.statusTitle')} aria-label={t('review.lead.statusAria')} disabled={!inc}
                     onChange={(e) => patchRow('leads', i, { status_name: e.target.value || null, status_unsure: false })} />
-                  {invalid && <span className="obrw-invalid">{t('review.lead.missingName')}</span>}
-                  {l.status_unsure && inc && <span className="obrw-unsure">{t('review.lead.statusUnsure')}</span>}
-                </div>
-                {exists ? <span className="obrw-badge">{t('review.badge.exists')}</span>
-                  : dup ? <span className="obrw-badge dup">{t('review.badge.duplicate')}</span>
-                  : l.status_name ? <span className="obrw-badge">{l.status_name}</span> : null}
-              </div>
+                  {invalid && <Txt className="obrw-invalid">{t('review.lead.missingName')}</Txt>}
+                  {l.status_unsure && inc && <Txt className="obrw-unsure">{t('review.lead.statusUnsure')}</Txt>}
+                </Box>
+                {exists ? <Txt className="obrw-badge">{t('review.badge.exists')}</Txt>
+                  : dup ? <Txt className="obrw-badge dup">{t('review.badge.duplicate')}</Txt>
+                  : l.status_name ? <Txt className="obrw-badge">{l.status_name}</Txt> : null}
+              </Box>
             )
           })}
 
@@ -508,56 +509,56 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
             const clientOrphan = inc && tx.client_name && !willClientNames.has(norm(tx.client_name))
             const projectOrphan = inc && tx.project_name && !willProjectNames.has(norm(tx.project_name))
             return (
-              <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
+              <Box className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('transactions', i, tx, inc)}
-                <div className="obrw-fields">
-                  <label className="obrw-tx-field obrw-tx-type">
-                    <span className="obrw-tx-lbl">{t('review.tx.type')}</span>
+                <Box className="obrw-fields">
+                  <Box as="label" className="obrw-tx-field obrw-tx-type">
+                    <Txt className="obrw-tx-lbl">{t('review.tx.type')}</Txt>
                     <select className="obrw-input" value={tx.type || 'income'} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { type: e.target.value })}>
                       <option value="income">{t('review.tx.income')}</option>
                       <option value="expense">{t('review.tx.expense')}</option>
                     </select>
-                  </label>
-                  <label className="obrw-tx-field obrw-tx-amount">
-                    <span className="obrw-tx-lbl">{t('review.tx.amount')}</span>
-                    <input className="obrw-input" type="number" value={tx.amount ?? ''} placeholder={t('review.tx.amountPlaceholder')} disabled={!inc}
+                  </Box>
+                  <Box as="label" className="obrw-tx-field obrw-tx-amount">
+                    <Txt className="obrw-tx-lbl">{t('review.tx.amount')}</Txt>
+                    <Input className="obrw-input" type="number" value={tx.amount ?? ''} placeholder={t('review.tx.amountPlaceholder')} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { amount: Number(e.target.value) || 0 })} />
-                  </label>
-                  <label className="obrw-tx-field obrw-tx-date">
-                    <span className="obrw-tx-lbl">{tx.recurring ? t('review.tx.frequency') : t('review.tx.date')}</span>
+                  </Box>
+                  <Box as="label" className="obrw-tx-field obrw-tx-date">
+                    <Txt className="obrw-tx-lbl">{tx.recurring ? t('review.tx.frequency') : t('review.tx.date')}</Txt>
                     {tx.recurring ? (
-                      <span className="obrw-recurring" title={t('review.tx.recurringTitle')}><Repeat size={12} strokeWidth={1.5} aria-hidden="true" /> {t('review.tx.recurringMonthly')}</span>
+                      <Txt className="obrw-recurring" title={t('review.tx.recurringTitle')}><Repeat size={12} strokeWidth={1.5} aria-hidden="true" /> {t('review.tx.recurringMonthly')}</Txt>
                     ) : (
                       <DateField className="obrw-input" value={tx.date || ''} disabled={!inc}
                         onChange={(e) => patchRow('transactions', i, { date: e.target.value })} />
                     )}
-                  </label>
-                  <label className="obrw-tx-field obrw-tx-proj">
-                    <span className="obrw-tx-lbl">{t('review.tx.project')}</span>
+                  </Box>
+                  <Box as="label" className="obrw-tx-field obrw-tx-proj">
+                    <Txt className="obrw-tx-lbl">{t('review.tx.project')}</Txt>
                     <select className="obrw-input" value={tx.project_name || ''} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { project_name: e.target.value || null })}>
                       <option value="">{t('review.tx.noProject')}</option>
                       {projectOptions.map((n) => <option key={n} value={n}>{n}</option>)}
                     </select>
-                  </label>
-                  <label className="obrw-tx-field obrw-grow">
-                    <span className="obrw-tx-lbl">{t('review.tx.desc')}</span>
-                    <input className="obrw-input" value={tx.desc || ''} placeholder={t('review.tx.descPlaceholder')} disabled={!inc}
+                  </Box>
+                  <Box as="label" className="obrw-tx-field obrw-grow">
+                    <Txt className="obrw-tx-lbl">{t('review.tx.desc')}</Txt>
+                    <Input className="obrw-input" value={tx.desc || ''} placeholder={t('review.tx.descPlaceholder')} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { desc: e.target.value || null })} />
-                  </label>
+                  </Box>
                   {tx.client_name && (
-                    <span className={`obrw-link${clientOrphan ? ' muted' : ''}`} title={clientOrphan ? t('review.tx.clientOrphanTitle') : ''}>
+                    <Txt className={`obrw-link${clientOrphan ? ' muted' : ''}`} title={clientOrphan ? t('review.tx.clientOrphanTitle') : ''}>
                       <CornerDownLeft size={12} strokeWidth={1.5} aria-hidden="true" /> {tx.client_name}{clientOrphan ? ` ${t('review.tx.noLink')}` : ''}
-                    </span>
+                    </Txt>
                   )}
-                  {invalid && <span className="obrw-invalid">{t('review.tx.invalid')}</span>}
-                  {projectOrphan && <span className="obrw-invalid">{t('review.tx.projectOrphan')}</span>}
-                </div>
-                <span className={`obrw-badge${expense ? ' expense' : ' income'}`}>
+                  {invalid && <Txt className="obrw-invalid">{t('review.tx.invalid')}</Txt>}
+                  {projectOrphan && <Txt className="obrw-invalid">{t('review.tx.projectOrphan')}</Txt>}
+                </Box>
+                <Txt className={`obrw-badge${expense ? ' expense' : ' income'}`}>
                   {expense ? '−' : '+'}{isr(Math.abs(Number(tx.amount) || 0))}
-                </span>
-              </div>
+                </Txt>
+              </Box>
             )
           })}
 
@@ -568,81 +569,81 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
             const opts = s.client_name && !clientOptions.includes(s.client_name)
               ? [s.client_name, ...clientOptions] : clientOptions
             return (
-              <div className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
+              <Box className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('sessions', i, s, inc)}
-                <div className="obrw-fields">
-                  <label className="obrw-tx-field obrw-grow">
-                    <span className="obrw-tx-lbl">{t('review.session.client')}</span>
+                <Box className="obrw-fields">
+                  <Box as="label" className="obrw-tx-field obrw-grow">
+                    <Txt className="obrw-tx-lbl">{t('review.session.client')}</Txt>
                     <select className="obrw-input" value={s.client_name || ''} disabled={!inc}
                       onChange={(e) => patchRow('sessions', i, { client_name: e.target.value || null })}>
                       <option value="">{t('review.session.pickClient')}</option>
                       {opts.map((n) => <option key={n} value={n}>{n}</option>)}
                     </select>
-                  </label>
-                  <label className="obrw-tx-field obrw-tx-date">
-                    <span className="obrw-tx-lbl">{t('review.session.date')}</span>
+                  </Box>
+                  <Box as="label" className="obrw-tx-field obrw-tx-date">
+                    <Txt className="obrw-tx-lbl">{t('review.session.date')}</Txt>
                     <DateField className="obrw-input" value={s.date || ''} disabled={!inc}
                       onChange={(e) => patchRow('sessions', i, { date: e.target.value })} />
-                  </label>
-                  <label className="obrw-tx-field obrw-grow">
-                    <span className="obrw-tx-lbl">{t('review.session.summary')}</span>
-                    <input className="obrw-input" value={s.summary || ''} placeholder={t('review.session.summaryPlaceholder')} disabled={!inc}
+                  </Box>
+                  <Box as="label" className="obrw-tx-field obrw-grow">
+                    <Txt className="obrw-tx-lbl">{t('review.session.summary')}</Txt>
+                    <Input className="obrw-input" value={s.summary || ''} placeholder={t('review.session.summaryPlaceholder')} disabled={!inc}
                       onChange={(e) => patchRow('sessions', i, { summary: e.target.value || null })} />
-                  </label>
-                  {invalid && <span className="obrw-invalid">{t('review.session.missingClient')}</span>}
-                  {clientOrphan && <span className="obrw-invalid">{t('review.session.clientOrphan')}</span>}
-                  {inc && !s.date && <span className="obrw-link muted">{t('review.session.noDate')}</span>}
-                </div>
-              </div>
+                  </Box>
+                  {invalid && <Txt className="obrw-invalid">{t('review.session.missingClient')}</Txt>}
+                  {clientOrphan && <Txt className="obrw-invalid">{t('review.session.clientOrphan')}</Txt>}
+                  {inc && !s.date && <Txt className="obrw-link muted">{t('review.session.noDate')}</Txt>}
+                </Box>
+              </Box>
             )
           })}
 
           {state[tab].length > visible && (
-            <button type="button" className="obrw-more" onClick={() => setVisible((v) => v + PAGE)}>
+            <Btn type="button" className="obrw-more" onClick={() => setVisible((v) => v + PAGE)}>
               {t('review.loadMore', { count: Math.min(PAGE, state[tab].length - visible), total: state[tab].length })}
-            </button>
+            </Btn>
           )}
-        </div>
+        </Box>
 
-        <footer className="obrw-foot">
-          <p className="obrw-summary">
+        <Box as="footer" className="obrw-foot">
+          <Txt as="p" className="obrw-summary">
             {mode === 'approve' ? t('review.summary.willApprove') : t('review.summary.willCreate')}: <strong>{counts.clients}</strong> {t('review.summary.clients')} · <strong>{counts.projects}</strong> {t('review.summary.projects')}
             {counts.leads > 0 && <> · <strong>{counts.leads}</strong> {t('review.summary.leads')}</>}
             {' · '}<strong>{counts.transactions}</strong> {t('review.summary.transactions')}
-          </p>
-          <div className="obrw-actions">
-            <button type="button" className="ob-btn ghost" onClick={requestClose} disabled={busy}>
+          </Txt>
+          <Box className="obrw-actions">
+            <Btn type="button" className="ob-btn ghost" onClick={requestClose} disabled={busy}>
               {t('common.back')}
-            </button>
+            </Btn>
             {allowSkipImport && (
-              <button type="button" className="ob-btn ghost" onClick={handleSkipImport} disabled={busy}
+              <Btn type="button" className="ob-btn ghost" onClick={handleSkipImport} disabled={busy}
                 title={t('review.confirm.skipImportHint')}>
                 {t('review.confirm.skipImport')}
-              </button>
+              </Btn>
             )}
-            <button type="button" className="ob-btn primary" onClick={handleConfirm} disabled={busy}>
+            <Btn type="button" className="ob-btn primary" onClick={handleConfirm} disabled={busy}>
               {busy
                 ? (mode === 'approve' ? t('review.confirm.savingApprove') : t('review.confirm.savingCreate'))
                 : totalIncluded === 0
                   ? (mode === 'approve' ? t('review.confirm.approveEmpty') : t('review.confirm.createEmpty'))
                   : (mode === 'approve' ? t('review.confirm.approve', { count: totalIncluded }) : t('review.confirm.create', { count: totalIncluded }))}
-            </button>
-          </div>
-        </footer>
+            </Btn>
+          </Box>
+        </Box>
         </>
         )}
 
         {/* Dirty-close guard */}
         {confirmingClose && (
-          <div className="obrw-confirm" role="alertdialog" aria-modal="true" aria-label={t('review.dirty.ariaLabel')}>
-            <p className="obrw-confirm-txt">{t('review.dirty.text')}</p>
-            <div className="obrw-actions">
-              <button type="button" className="ob-btn ghost" ref={stayBtnRef} onClick={() => setConfirmingClose(false)}>{t('review.dirty.stay')}</button>
-              <button type="button" className="ob-btn danger" onClick={onCancel}>{t('review.dirty.leave')}</button>
-            </div>
-          </div>
+          <Box className="obrw-confirm" role="alertdialog" aria-modal="true" aria-label={t('review.dirty.ariaLabel')}>
+            <Txt as="p" className="obrw-confirm-txt">{t('review.dirty.text')}</Txt>
+            <Box className="obrw-actions">
+              <Btn type="button" className="ob-btn ghost" ref={stayBtnRef} onClick={() => setConfirmingClose(false)}>{t('review.dirty.stay')}</Btn>
+              <Btn type="button" className="ob-btn danger" onClick={onCancel}>{t('review.dirty.leave')}</Btn>
+            </Box>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

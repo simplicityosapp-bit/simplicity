@@ -9,6 +9,7 @@ import { useLeads } from '../../hooks/useLeads'
 import { useGroups } from '../../hooks/useGroups'
 import { useT } from '../../i18n/useT'
 import './ConnectionsScreen.css'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const yearAgoStr = () => new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10)
@@ -140,82 +141,82 @@ export default function CalendarConnectionScreen() {
     const open = picker?.id === ev.id
     const active = open && picker.type ? ASSIGN_TYPES.find((at) => at.key === picker.type) : null
     return (
-      <div key={ev.id} className="conn-event">
-        <div className="conn-event-main">
-          <p className="conn-event-title">{ev.title}</p>
-          <p className="conn-event-meta">
+      <Box key={ev.id} className="conn-event">
+        <Box className="conn-event-main">
+          <Txt as="p" className="conn-event-title">{ev.title}</Txt>
+          <Txt as="p" className="conn-event-meta">
             {fmtDateTime(ev.start_time, ev.all_day)}{!ev.all_day && ev.end_time ? `–${fmtClock(ev.end_time)}` : ''}{ev.duration_minutes ? ` · ${fmtDuration(ev.duration_minutes, t)}` : ''}
-          </p>
-          <div className="conn-assign-row">
+          </Txt>
+          <Box className="conn-assign-row">
             {links.map((at) => (
-              <span key={at.key} className="conn-link-chip">
-                <span className="conn-link-chip-type">{at.label}</span>
+              <Txt key={at.key} className="conn-link-chip">
+                <Txt className="conn-link-chip-type">{at.label}</Txt>
                 {at.name}
-                <button type="button" className="conn-link-chip-x" onClick={() => at.assign(ev, '')} aria-label={t('calendar.removeLinkAria', { type: at.label })} title={t('calendar.remove')}>
+                <Btn type="button" className="conn-link-chip-x" onClick={() => at.assign(ev, '')} aria-label={t('calendar.removeLinkAria', { type: at.label })} title={t('calendar.remove')}>
                   <X size={11} strokeWidth={2} aria-hidden="true" />
-                </button>
-              </span>
+                </Btn>
+              </Txt>
             ))}
             {!open ? (
-              <button type="button" className="conn-assign-add" onClick={() => setPicker({ id: ev.id, type: null })}>{t('calendar.assignTo')}</button>
+              <Btn type="button" className="conn-assign-add" onClick={() => setPicker({ id: ev.id, type: null })}>{t('calendar.assignTo')}</Btn>
             ) : (
-              <div className="conn-assign-picker">
-                <div className="conn-assign-types">
+              <Box className="conn-assign-picker">
+                <Box className="conn-assign-types">
                   {ASSIGN_TYPES.map((at) => (
-                    <button key={at.key} type="button" className={`conn-type-pill${picker.type === at.key ? ' on' : ''}`} onClick={() => setPicker({ id: ev.id, type: at.key })}>{at.label}</button>
+                    <Btn key={at.key} type="button" className={`conn-type-pill${picker.type === at.key ? ' on' : ''}`} onClick={() => setPicker({ id: ev.id, type: at.key })}>{at.label}</Btn>
                   ))}
-                </div>
+                </Box>
                 {active && (
                   <select className="conn-event-select" value={ev[active.field] || ''} onChange={(e) => { active.assign(ev, e.target.value); setPicker(null) }} aria-label={t('calendar.assignAria', { type: active.label })}>
                     <option value="">{t('calendar.pick')}</option>
                     {(active.list || []).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
                   </select>
                 )}
-                <button type="button" className="conn-assign-cancel" onClick={() => setPicker(null)}>{t('calendar.close')}</button>
-              </div>
+                <Btn type="button" className="conn-assign-cancel" onClick={() => setPicker(null)}>{t('calendar.close')}</Btn>
+              </Box>
             )}
-          </div>
-        </div>
-        <span className={`conn-tag${links.length ? ' on' : ''}`}>{links.length ? t('calendar.identified') : t('calendar.notIdentified')}</span>
-      </div>
+          </Box>
+        </Box>
+        <Txt className={`conn-tag${links.length ? ' on' : ''}`}>{links.length ? t('calendar.identified') : t('calendar.notIdentified')}</Txt>
+      </Box>
     )
   }
 
   return (
-    <div className="screen">
-      <header className="screen-head conn-head conn-detail-head">
-        <button type="button" className="conn-back" onClick={() => navigate(-1)} aria-label={t('calendar.back')}>
+    <Box className="screen">
+      <Box as="header" className="screen-head conn-head conn-detail-head">
+        <Btn type="button" className="conn-back" onClick={() => navigate(-1)} aria-label={t('calendar.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-        <div>
-          <p className="t-screen"><Calendar size={20} strokeWidth={1.6} aria-hidden="true" /> Google Calendar</p>
-          <p className="lbl-sm">{t('calendar.subtitle')}</p>
-        </div>
-      </header>
+        </Btn>
+        <Box>
+          <Txt as="p" className="t-screen"><Calendar size={20} strokeWidth={1.6} aria-hidden="true" /> Google Calendar</Txt>
+          <Txt as="p" className="lbl-sm">{t('calendar.subtitle')}</Txt>
+        </Box>
+      </Box>
 
-      <section className="conn-card">
-        <div className="conn-card-head">
-          <span className="conn-icon"><Calendar size={22} strokeWidth={1.6} aria-hidden="true" /></span>
-          <div className="conn-card-titles">
-            <p className="conn-card-title">Google Calendar</p>
-            <p className="conn-card-sub">
+      <Box as="section" className="conn-card">
+        <Box className="conn-card-head">
+          <Txt className="conn-icon"><Calendar size={22} strokeWidth={1.6} aria-hidden="true" /></Txt>
+          <Box className="conn-card-titles">
+            <Txt as="p" className="conn-card-title">Google Calendar</Txt>
+            <Txt as="p" className="conn-card-sub">
               {gcal.loading ? t('loading')
                 : connected
                   ? <><Check size={13} strokeWidth={2} aria-hidden="true" /> {status?.last_synced_at ? t('calendar.connectedSynced', { date: fmtDateTime(status.last_synced_at) }) : t('calendar.connected')}</>
                   : t('calendar.notConnectedHint')}
-            </p>
-          </div>
-        </div>
+            </Txt>
+          </Box>
+        </Box>
 
         {gcal.error && (
-          <p className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {gcal.error}</p>
+          <Txt as="p" className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {gcal.error}</Txt>
         )}
 
         {!connected ? (
-          <div className="conn-connect">
-            <label className="conn-field">
-              <span className="conn-field-lbl">{t('calendar.syncFromLabel')}</span>
-              <input
+          <Box className="conn-connect">
+            <Box as="label" className="conn-field">
+              <Txt className="conn-field-lbl">{t('calendar.syncFromLabel')}</Txt>
+              <Input
                 type="date"
                 className="conn-date"
                 value={syncFrom}
@@ -223,74 +224,74 @@ export default function CalendarConnectionScreen() {
                 max={todayStr()}
                 onChange={(e) => setSyncFrom(e.target.value)}
               />
-            </label>
-            <button type="button" className="conn-btn primary" disabled={gcal.busy} onClick={() => gcal.beginConnect(syncFrom)}>
+            </Box>
+            <Btn type="button" className="conn-btn primary" disabled={gcal.busy} onClick={() => gcal.beginConnect(syncFrom)}>
               {gcal.busy ? t('calendar.opening') : t('calendar.connect')}
-            </button>
-          </div>
+            </Btn>
+          </Box>
         ) : (
-          <div className="conn-actions">
-            <button type="button" className="conn-btn primary" disabled={gcal.busy} onClick={onSync}>
+          <Box className="conn-actions">
+            <Btn type="button" className="conn-btn primary" disabled={gcal.busy} onClick={onSync}>
               <RefreshCw size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'sync' ? t('calendar.syncing') : t('calendar.syncNow')}
-            </button>
-            <button type="button" className="conn-btn ghost danger" disabled={gcal.busy} onClick={onDisconnect}>
+            </Btn>
+            <Btn type="button" className="conn-btn ghost danger" disabled={gcal.busy} onClick={onDisconnect}>
               <Link2Off size={15} strokeWidth={1.8} aria-hidden="true" /> {busyAction === 'disconnect' ? t('calendar.disconnecting') : (confirmDisc ? t('calendar.disconnectConfirm') : t('calendar.disconnect'))}
-            </button>
-          </div>
+            </Btn>
+          </Box>
         )}
-        {syncMsg && !gcal.error && <p className="conn-note" role="status" aria-live="polite">{syncMsg}</p>}
-      </section>
+        {syncMsg && !gcal.error && <Txt as="p" className="conn-note" role="status" aria-live="polite">{syncMsg}</Txt>}
+      </Box>
 
       {connected && (
-        <section className="conn-events">
-          <button type="button" className="conn-acc-head conn-acc-main" onClick={() => setEventsOpen((v) => !v)} aria-expanded={eventsOpen}>
-            <span>{t('calendar.eventsTitle')} {events.length ? `(${events.length})` : ''}</span>
+        <Box as="section" className="conn-events">
+          <Btn type="button" className="conn-acc-head conn-acc-main" onClick={() => setEventsOpen((v) => !v)} aria-expanded={eventsOpen}>
+            <Txt>{t('calendar.eventsTitle')} {events.length ? `(${events.length})` : ''}</Txt>
             {eventsOpen ? <ChevronUp size={16} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={16} strokeWidth={1.7} aria-hidden="true" />}
-          </button>
+          </Btn>
 
           {eventsOpen && (
             eventsLoading ? (
-              <p className="conn-empty">{t('calendar.loadingEvents')}</p>
+              <Txt as="p" className="conn-empty">{t('calendar.loadingEvents')}</Txt>
             ) : events.length === 0 ? (
-              <p className="conn-empty">{t('calendar.noEventsInRange', { retry: t('calendar.retry') })}</p>
+              <Txt as="p" className="conn-empty">{t('calendar.noEventsInRange', { retry: t('calendar.retry') })}</Txt>
             ) : (
-              <div className="conn-cats">
+              <Box className="conn-cats">
                 {eventCategories.map((cat) => {
                   const catOpen = openCats.has(cat.key)
                   return (
-                    <div key={cat.key} className={`conn-cat${cat.key === 'none' ? ' unmatched' : ''}`}>
-                      <button type="button" className="conn-acc-head conn-acc-cat" onClick={() => toggleCat(cat.key)} aria-expanded={catOpen}>
-                        <span className="conn-group-label">{cat.label}<span className="conn-group-count">{cat.count}</span></span>
+                    <Box key={cat.key} className={`conn-cat${cat.key === 'none' ? ' unmatched' : ''}`}>
+                      <Btn type="button" className="conn-acc-head conn-acc-cat" onClick={() => toggleCat(cat.key)} aria-expanded={catOpen}>
+                        <Txt className="conn-group-label">{cat.label}<Txt className="conn-group-count">{cat.count}</Txt></Txt>
                         {catOpen ? <ChevronUp size={16} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={16} strokeWidth={1.7} aria-hidden="true" />}
-                      </button>
+                      </Btn>
                       {catOpen && (
                         cat.leaf
-                          ? <div className="conn-group-events">{cat.items.map(renderEvent)}</div>
+                          ? <Box className="conn-group-events">{cat.items.map(renderEvent)}</Box>
                           : (
-                            <div className="conn-cat-entities">
+                            <Box className="conn-cat-entities">
                               {cat.entities.map((ent) => {
                                 const entOpen = openGroups.has(ent.key)
                                 return (
-                                  <div key={ent.key} className="conn-entity">
-                                    <button type="button" className="conn-acc-head conn-acc-sub" onClick={() => toggleGroup(ent.key)} aria-expanded={entOpen}>
-                                      <span className="conn-group-label">{ent.label}<span className="conn-group-count">{ent.items.length}</span></span>
+                                  <Box key={ent.key} className="conn-entity">
+                                    <Btn type="button" className="conn-acc-head conn-acc-sub" onClick={() => toggleGroup(ent.key)} aria-expanded={entOpen}>
+                                      <Txt className="conn-group-label">{ent.label}<Txt className="conn-group-count">{ent.items.length}</Txt></Txt>
                                       {entOpen ? <ChevronUp size={15} strokeWidth={1.7} aria-hidden="true" /> : <ChevronDown size={15} strokeWidth={1.7} aria-hidden="true" />}
-                                    </button>
-                                    {entOpen && <div className="conn-group-events">{ent.items.map(renderEvent)}</div>}
-                                  </div>
+                                    </Btn>
+                                    {entOpen && <Box className="conn-group-events">{ent.items.map(renderEvent)}</Box>}
+                                  </Box>
                                 )
                               })}
-                            </div>
+                            </Box>
                           )
                       )}
-                    </div>
+                    </Box>
                   )
                 })}
-              </div>
+              </Box>
             )
           )}
-        </section>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

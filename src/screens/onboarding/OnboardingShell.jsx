@@ -7,6 +7,7 @@ import { useT } from '../../i18n/useT'
 import OnboardingTree from './OnboardingTree'
 import OnboardingHelpPanel from './OnboardingHelpPanel'
 import { HELP_BY_STEP } from './helpContent'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Layout (all 9 steps share this frame; only the body changes):
      1. Progress strip (slim, first thing on screen)
@@ -49,28 +50,28 @@ export default function OnboardingShell({ ob, cta, children }) {
   }
 
   return (
-    <div className="ob-frame">
+    <Box className="ob-frame">
       {/* Progress strip — first thing on screen so the user reads
           "where am I in the flow?" before anything else. */}
-      <div className="ob-progress" aria-label={t('shell.progressAria', { current: ob.stepIndex + 1, total: ob.total })}>
-        <div className="ob-progress-track">
-          <div className="ob-progress-fill" style={{ width: `${Math.round(ob.progress * 100)}%` }} />
-        </div>
-      </div>
+      <Box className="ob-progress" aria-label={t('shell.progressAria', { current: ob.stepIndex + 1, total: ob.total })}>
+        <Box className="ob-progress-track">
+          <Box className="ob-progress-fill" style={{ width: `${Math.round(ob.progress * 100)}%` }} />
+        </Box>
+      </Box>
 
-      <header className="ob-head">
+      <Box as="header" className="ob-head">
         {/* Tree + counter share one small panel — the counter sits as
             a tiny line above the tree's crown. */}
-        <div className="ob-head-left">
-          <p className="ob-step-counter">{t('shell.stepCounter', { current: ob.stepIndex + 1, total: ob.total })}</p>
+        <Box className="ob-head-left">
+          <Txt as="p" className="ob-step-counter">{t('shell.stepCounter', { current: ob.stepIndex + 1, total: ob.total })}</Txt>
           <OnboardingTree stepIndex={ob.stepIndex} />
-        </div>
+        </Box>
 
         {/* Top inline-end corner cluster: theme toggle + (optional)
             help button. Pulled out of flow by CSS so the centered
             tree above the progress strip stays optically centered. */}
-        <div className="ob-head-right">
-          <button
+        <Box className="ob-head-right">
+          <Btn
             type="button"
             className="ob-help-btn"
             onClick={handleToggleTheme}
@@ -80,9 +81,9 @@ export default function OnboardingShell({ ob, cta, children }) {
             {isDark
               ? <Sun size={16} strokeWidth={1.5} aria-hidden="true" />
               : <Moon size={16} strokeWidth={1.5} aria-hidden="true" />}
-          </button>
+          </Btn>
           {helpContent && (
-            <button
+            <Btn
               type="button"
               className="ob-help-btn"
               onClick={() => setHelpOpen(true)}
@@ -90,56 +91,56 @@ export default function OnboardingShell({ ob, cta, children }) {
               title={t('shell.helpAria')}
             >
               <HelpCircle size={16} strokeWidth={1.5} aria-hidden="true" />
-            </button>
+            </Btn>
           )}
-        </div>
-      </header>
+        </Box>
+      </Box>
 
-      <main className="ob-body">{children}</main>
+      <Box as="main" className="ob-body">{children}</Box>
 
-      <footer className="ob-foot">
+      <Box as="footer" className="ob-foot">
         {/* "חזרה" first → renders on the inline-start side (right in RTL). */}
-        <div className="ob-foot-back">
-          <button
+        <Box className="ob-foot-back">
+          <Btn
             type="button"
             className="ob-btn ghost"
             onClick={ob.back}
             disabled={isFirst}
           >
             <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" /> {t('shell.back')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
 
         {/* CTA cluster (Next + "דלג") second → renders on inline-end (left in RTL).
             The skip link has its own micro-panel now so it's visible against the bg. */}
-        <div className="ob-foot-cta">
-          {cta?.hint && <p className="ob-empty-hint">{cta.hint}</p>}
-          <button
+        <Box className="ob-foot-cta">
+          {cta?.hint && <Txt as="p" className="ob-empty-hint">{cta.hint}</Txt>}
+          <Btn
             type="button"
             className="ob-btn primary"
             onClick={cta?.onNext}
             disabled={!cta?.canAdvance || cta?.busy || !cta?.onNext}
           >
             {cta?.busy ? t('shell.saving') : (cta?.nextLabel || t('shell.next'))}
-          </button>
+          </Btn>
           {!isLast && (
-            <button
+            <Btn
               type="button"
               className="ob-btn link ob-foot-skip"
               onClick={onSkip}
               disabled={skipping}
             >
               {skipping ? t('shell.finishing') : t('shell.skip')} <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
-            </button>
+            </Btn>
           )}
-        </div>
-      </footer>
+        </Box>
+      </Box>
 
       <OnboardingHelpPanel
         open={helpOpen}
         onClose={() => setHelpOpen(false)}
         content={helpContent}
       />
-    </div>
+    </Box>
   )
 }

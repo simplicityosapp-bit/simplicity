@@ -6,6 +6,7 @@ import { useT } from '../../i18n/useT'
 import { isr } from '../../lib/finance'
 import ConfirmModal from '../../modals/ConfirmModal'
 import './InvoiceImports.css'
+import { Box, Txt, Btn, Lnk } from '../../components/ui'
 
 /* Route B: invoices issued in the external service, staged by the webhook,
    waiting for the user to import them as income. Renders nothing when empty. */
@@ -76,50 +77,50 @@ export default function InvoiceImports() {
 
   if (loading || (imports.length === 0 && !liveMsg)) return null
   /* Queue cleared but a result still needs announcing — keep the live region. */
-  if (imports.length === 0) return <span className="sr-only" role="status" aria-live="polite">{liveMsg}</span>
+  if (imports.length === 0) return <Txt className="sr-only" role="status" aria-live="polite">{liveMsg}</Txt>
 
   return (
-    <section className="inv-imports">
-      <div className="inv-imports-head">
+    <Box as="section" className="inv-imports">
+      <Box className="inv-imports-head">
         <FileDown size={16} strokeWidth={1.7} aria-hidden="true" />
-        <span>{t('imports.heading')}</span>
-        <span className="inv-imports-count" aria-live="polite" aria-label={t('imports.countAria', { count: imports.length })}>{imports.length}</span>
-      </div>
-      <p className="inv-imports-sub">{t('imports.sub')}</p>
-      <div className="inv-imports-list">
+        <Txt>{t('imports.heading')}</Txt>
+        <Txt className="inv-imports-count" aria-live="polite" aria-label={t('imports.countAria', { count: imports.length })}>{imports.length}</Txt>
+      </Box>
+      <Txt as="p" className="inv-imports-sub">{t('imports.sub')}</Txt>
+      <Box className="inv-imports-list">
         {imports.map((imp) => (
-          <div key={imp.id} className="inv-import">
-            <div className="inv-import-main">
-              <p className="inv-import-title">{typeLabel(imp.document_type)}{imp.document_number ? <> {t('imports.docNumber')} <bdi>{imp.document_number}</bdi></> : ''}</p>
-              <p className="inv-import-meta">
+          <Box key={imp.id} className="inv-import">
+            <Box className="inv-import-main">
+              <Txt as="p" className="inv-import-title">{typeLabel(imp.document_type)}{imp.document_number ? <> {t('imports.docNumber')} <bdi>{imp.document_number}</bdi></> : ''}</Txt>
+              <Txt as="p" className="inv-import-meta">
                 {imp.customer_name || t('imports.noName')}{imp.doc_date ? ` · ${imp.doc_date}` : ''}
-                {imp.document_url ? <> · <a href={imp.document_url} target="_blank" rel="noreferrer" className="inv-import-link">{t('imports.view')} <ExternalLink size={11} strokeWidth={1.8} aria-hidden="true" /></a></> : null}
-                {possibleDuplicate(imp) ? <> · <span className="inv-import-dup"><TriangleAlert size={10} strokeWidth={2} aria-hidden="true" /> {t('imports.possibleDup')}</span></> : null}
-              </p>
-            </div>
-            <p className="inv-import-amt mono">+{isr(imp.amount || 0)}</p>
-            <div className="inv-import-actions">
+                {imp.document_url ? <> · <Lnk href={imp.document_url} target="_blank" rel="noreferrer" className="inv-import-link">{t('imports.view')} <ExternalLink size={11} strokeWidth={1.8} aria-hidden="true" /></Lnk></> : null}
+                {possibleDuplicate(imp) ? <> · <Txt className="inv-import-dup"><TriangleAlert size={10} strokeWidth={2} aria-hidden="true" /> {t('imports.possibleDup')}</Txt></> : null}
+              </Txt>
+            </Box>
+            <Txt as="p" className="inv-import-amt mono">+{isr(imp.amount || 0)}</Txt>
+            <Box className="inv-import-actions">
               {busy === imp.id ? (
-                <button type="button" className="inv-import-btn approve" disabled aria-busy="true" aria-label={t('imports.importingAria')}>
+                <Btn type="button" className="inv-import-btn approve" disabled aria-busy="true" aria-label={t('imports.importingAria')}>
                   <Loader2 size={15} strokeWidth={2} className="inv-import-spin" aria-hidden="true" />
-                </button>
+                </Btn>
               ) : confirmId === imp.id ? (
-                <button type="button" className="inv-import-btn approve confirm" onClick={onApprove(imp.id)} aria-label={t('imports.confirmAria', { amount: isr(imp.amount || 0) })}>
+                <Btn type="button" className="inv-import-btn approve confirm" onClick={onApprove(imp.id)} aria-label={t('imports.confirmAria', { amount: isr(imp.amount || 0) })}>
                   <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('imports.sure')}
-                </button>
+                </Btn>
               ) : (
-                <button type="button" className="inv-import-btn approve" onClick={onApprove(imp.id)} title={t('imports.importTitle')} aria-label={t('imports.importAria')}>
+                <Btn type="button" className="inv-import-btn approve" onClick={onApprove(imp.id)} title={t('imports.importTitle')} aria-label={t('imports.importAria')}>
                   <Check size={15} strokeWidth={2} aria-hidden="true" />
-                </button>
+                </Btn>
               )}
-              <button type="button" className="inv-import-btn dismiss" disabled={busy === imp.id} onClick={onDismiss(imp.id)} title={t('imports.dismiss')} aria-label={t('imports.dismiss')}>
+              <Btn type="button" className="inv-import-btn dismiss" disabled={busy === imp.id} onClick={onDismiss(imp.id)} title={t('imports.dismiss')} aria-label={t('imports.dismiss')}>
                 <X size={15} strokeWidth={2} aria-hidden="true" />
-              </button>
-            </div>
-          </div>
+              </Btn>
+            </Box>
+          </Box>
         ))}
-      </div>
-      <span className="sr-only" role="status" aria-live="polite">{liveMsg}</span>
+      </Box>
+      <Txt className="sr-only" role="status" aria-live="polite">{liveMsg}</Txt>
       <ConfirmModal
         open={!!dupConfirm}
         onClose={() => setDupConfirm(null)}
@@ -132,6 +133,6 @@ export default function InvoiceImports() {
         cancelLabel={t('imports.cancel')}
         onConfirm={() => dupConfirm && act(approve, dupConfirm.id, t('imports.importedToast'))()}
       />
-    </section>
+    </Box>
   )
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import { ROLE_LABELS, roleLabel } from '../../../lib/preferences'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* Form-of-address pills — labels resolved from i18n. */
 const GENDER_KEYS = [
@@ -73,12 +74,12 @@ export default function Step1Profile({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro-sub">{welcomeGreeting}</p>
+      <Txt as="p" className="ob-intro-sub">{welcomeGreeting}</Txt>
 
-      <div className="ob-field-row">
-        <div className="ob-field">
-          <label className="ob-label" htmlFor="ob-name">{t('step1.nameLabel')}</label>
-          <input
+      <Box className="ob-field-row">
+        <Box className="ob-field">
+          <Box as="label" className="ob-label" htmlFor="ob-name">{t('step1.nameLabel')}</Box>
+          <Input
             id="ob-name"
             className="ob-input"
             value={name}
@@ -86,45 +87,45 @@ export default function Step1Profile({ ob, setCTA }) {
             placeholder={t('step1.namePlaceholder')}
             autoFocus
           />
-        </div>
+        </Box>
 
-        <div className="ob-field">
-          <p className="ob-label">{t('step1.genderLabel')}</p>
-          <div className="ob-pills">
+        <Box className="ob-field">
+          <Txt as="p" className="ob-label">{t('step1.genderLabel')}</Txt>
+          <Box className="ob-pills">
             {GENDER_KEYS.map((g) => (
-              <button
+              <Btn
                 key={g.k}
                 type="button"
                 className={`ob-pill${gender === g.k ? ' on' : ''}`}
                 onClick={() => setGender(g.k)}
               >
                 {t(g.labelKey)}
-              </button>
+              </Btn>
             ))}
-          </div>
-        </div>
-      </div>
+          </Box>
+        </Box>
+      </Box>
 
-      <div className="ob-field">
-        <p className="ob-label">{t('step1.roleLabel')}</p>
-        <div className="ob-pills">
+      <Box className="ob-field">
+        <Txt as="p" className="ob-label">{t('step1.roleLabel')}</Txt>
+        <Box className="ob-pills">
           {ROLE_KEYS.map((k) => (
-            <button
+            <Btn
               key={k}
               type="button"
               className={`ob-pill${role === k ? ' on' : ''}`}
               onClick={() => setRole(k)}
             >
               {roleLabel(k, gender)}
-            </button>
+            </Btn>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {role === 'other' && (
-        <div className="ob-field ob-other-panel">
-          <label className="ob-label" htmlFor="ob-role-other">{roleOtherLabel}</label>
-          <input
+        <Box className="ob-field ob-other-panel">
+          <Box as="label" className="ob-label" htmlFor="ob-role-other">{roleOtherLabel}</Box>
+          <Input
             id="ob-role-other"
             className="ob-input"
             value={roleOther}
@@ -132,7 +133,7 @@ export default function Step1Profile({ ob, setCTA }) {
             placeholder={t('step1.roleOtherPlaceholder')}
             autoFocus
           />
-        </div>
+        </Box>
       )}
     </>
   )

@@ -7,6 +7,7 @@ import {
 import { flattenMatrix } from '../../lib/pivotImport'
 import { useT } from '../../i18n/useT'
 import './UnifiedSheetImporter.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    UNIFIED SHEET IMPORTER — one card per sheet, "detect + ask".
@@ -67,7 +68,7 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
   if (!live.length) return null
 
   return (
-    <div className="usi">
+    <Box className="usi">
       {live.map((sheet) => {
         const isFlat = sheet.type !== 'matrix' && sheet.type !== 'ignore'
         const fields = ENTITY_FIELDS[sheet.type] || []
@@ -83,25 +84,25 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
         else if (sheet.type !== 'ignore') { const p = projectSheet(sheet); cardYield = p.clients.length + p.projects.length + p.leads.length + p.transactions.length + (p.sessions?.length || 0) }
         const yieldHintField = t(`sheet.yieldField.${sheet.type}`, { defaultValue: t('sheet.yieldField.default') })
         return (
-          <div className="usi-card" key={sheet.id}>
-            <div className="usi-head">
-              <span className="usi-ic"><FileSpreadsheet size={15} strokeWidth={1.7} aria-hidden="true" /></span>
-              <div className="usi-id">
-                <p className="usi-name">{sheet.sheetName || sheet.fileName}</p>
-                {sheet.sheetName && <p className="usi-file">{sheet.fileName}</p>}
-              </div>
-              <button type="button" className="usi-x" onClick={() => remove(sheet.id)} aria-label={t('sheet.removeAria')}><X size={14} strokeWidth={2} aria-hidden="true" /></button>
-            </div>
+          <Box className="usi-card" key={sheet.id}>
+            <Box className="usi-head">
+              <Txt className="usi-ic"><FileSpreadsheet size={15} strokeWidth={1.7} aria-hidden="true" /></Txt>
+              <Box className="usi-id">
+                <Txt as="p" className="usi-name">{sheet.sheetName || sheet.fileName}</Txt>
+                {sheet.sheetName && <Txt as="p" className="usi-file">{sheet.fileName}</Txt>}
+              </Box>
+              <Btn type="button" className="usi-x" onClick={() => remove(sheet.id)} aria-label={t('sheet.removeAria')}><X size={14} strokeWidth={2} aria-hidden="true" /></Btn>
+            </Box>
 
             {/* Raw preview — first rows exactly as read, so the user can
                 spot a mis-read (wrong header row, shifted columns) before
                 trusting the mapping. Collapsed by default. */}
-            <button type="button" className="usi-toggle-cols" aria-expanded={!!sheet._showRaw}
+            <Btn type="button" className="usi-toggle-cols" aria-expanded={!!sheet._showRaw}
               onClick={() => patch(sheet.id, { ...sheet, _showRaw: !sheet._showRaw })}>
               {sheet._showRaw ? t('sheet.rawHide') : t('sheet.rawShow')} {t('sheet.rawToggle')} {sheet._showRaw ? <ChevronUp size={14} strokeWidth={1.5} aria-hidden="true" /> : <ChevronDown size={14} strokeWidth={1.5} aria-hidden="true" />}
-            </button>
+            </Btn>
             {sheet._showRaw && (
-              <div className="usi-raw">
+              <Box className="usi-raw">
                 <table className="usi-raw-table">
                   <thead>
                     <tr>{sheet.headers.map((h, i) => <th key={i}>{h || t('sheet.rawEmpty')}</th>)}</tr>
@@ -112,18 +113,18 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </Box>
             )}
 
             {/* Entity type */}
-            <div className="usi-field">
-              <label className="usi-label" id={`usi-type-${sheet.id}`}>{t('sheet.whatsHere')}</label>
+            <Box className="usi-field">
+              <Box as="label" className="usi-label" id={`usi-type-${sheet.id}`}>{t('sheet.whatsHere')}</Box>
               <select className="usi-select" value={sheet.type} aria-labelledby={`usi-type-${sheet.id}`}
                 onChange={(e) => changeType(sheet, e.target.value)}>
                 {SHEET_TYPES.map((st) => <option key={st} value={st}>{SHEET_TYPE_LABELS[st]}</option>)}
               </select>
-              {SHEET_TYPE_HELP[sheet.type] && <p className="usi-hint">{SHEET_TYPE_HELP[sheet.type]}</p>}
-            </div>
+              {SHEET_TYPE_HELP[sheet.type] && <Txt as="p" className="usi-hint">{SHEET_TYPE_HELP[sheet.type]}</Txt>}
+            </Box>
 
             {/* Flat entity → column mapping. Unmapped columns are shown
                 first and highlighted (they need the user); recognized ones
@@ -139,41 +140,41 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
               const recognized = colData.filter((c) => c.field)
               const showAll = !!sheet._showAllCols
               const renderCol = ({ h, colIdx, field }) => (
-                <div className={`usi-col${field ? '' : ' unmapped'}`} key={colIdx}>
-                  <span className="usi-col-name">
+                <Box className={`usi-col${field ? '' : ' unmapped'}`} key={colIdx}>
+                  <Txt className="usi-col-name">
                     {field ? <CheckCircle2 size={12} strokeWidth={2} aria-hidden="true" /> : <HelpCircle size={12} strokeWidth={2} aria-hidden="true" />}
-                    <span className="usi-col-h" title={h}><bdi>{h}</bdi></span>
-                    {sample(colIdx) && <span className="usi-col-sample" title={sample(colIdx)}>{t('sheet.colSample')}<bdi>{sample(colIdx)}</bdi></span>}
-                  </span>
+                    <Txt className="usi-col-h" title={h}><bdi>{h}</bdi></Txt>
+                    {sample(colIdx) && <Txt className="usi-col-sample" title={sample(colIdx)}>{t('sheet.colSample')}<bdi>{sample(colIdx)}</bdi></Txt>}
+                  </Txt>
                   <select className="usi-select usi-col-select" value={field} aria-label={t('sheet.colMapAria', { header: h })} onChange={(e) => changeColumn(sheet, colIdx, e.target.value)}>
                     <option value="">{t('sheet.colIgnore')}</option>
                     {fields.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
                   </select>
-                </div>
+                </Box>
               )
               return (
-                <div className="usi-cols">
-                  <p className="usi-cols-intro">
+                <Box className="usi-cols">
+                  <Txt as="p" className="usi-cols-intro">
                     {t('sheet.colsIntro')}
-                  </p>
+                  </Txt>
                   {colData.length === 0 && (
-                    <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.noCols')}</p>
+                    <Txt as="p" className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.noCols')}</Txt>
                   )}
                   {unmapped.length > 0 && (
                     <>
-                      <p className="usi-ask"><HelpCircle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.unmapped', { count: unmapped.length })}</p>
+                      <Txt as="p" className="usi-ask"><HelpCircle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.unmapped', { count: unmapped.length })}</Txt>
                       {unmapped.map(renderCol)}
                     </>
                   )}
                   {recognized.length > 0 && (
                     <>
-                      <button type="button" className="usi-toggle-cols" aria-expanded={showAll} onClick={() => patch(sheet.id, { ...sheet, _showAllCols: !showAll })}>
+                      <Btn type="button" className="usi-toggle-cols" aria-expanded={showAll} onClick={() => patch(sheet.id, { ...sheet, _showAllCols: !showAll })}>
                         {showAll ? t('sheet.recognizedHide', { count: recognized.length }) : t('sheet.recognizedShow', { count: recognized.length })} {showAll ? <ChevronUp size={14} strokeWidth={1.5} aria-hidden="true" /> : <ChevronDown size={14} strokeWidth={1.5} aria-hidden="true" />}
-                      </button>
+                      </Btn>
                       {showAll && recognized.map(renderCol)}
                     </>
                   )}
-                </div>
+                </Box>
               )
             })()}
 
@@ -186,60 +187,60 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
               return (
                 <>
                   {hasMonths && (
-                    <div className="usi-field">
-                      <label className="usi-label" id={`usi-year-${sheet.id}`}>{sheet.pivot.year ? t('sheet.yearDetected') : t('sheet.yearLabel')}</label>
+                    <Box className="usi-field">
+                      <Box as="label" className="usi-label" id={`usi-year-${sheet.id}`}>{sheet.pivot.year ? t('sheet.yearDetected') : t('sheet.yearLabel')}</Box>
                       <select className="usi-select" value={sheet.pivot.year || ''} aria-labelledby={`usi-year-${sheet.id}`} onChange={(e) => setYear(sheet, e.target.value)}>
                         <option value="">{t('sheet.pickYear')}</option>
                         {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
                       </select>
-                      {!sheet.pivot.year && <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.yearMissing')}</p>}
-                    </div>
+                      {!sheet.pivot.year && <Txt as="p" className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.yearMissing')}</Txt>}
+                    </Box>
                   )}
-                  <p className="usi-cols-intro">
+                  <Txt as="p" className="usi-cols-intro">
                     {t('sheet.matrixIntro')}
-                  </p>
-                  <div className="usi-rows">
+                  </Txt>
+                  <Box className="usi-rows">
                     {sheet.rows.map((r, rowIdx) => {
                       const label = String(r[labelCol] ?? '').trim()
                       if (!label) return null
                       const isSkip = skip.has(rowIdx)
                       const type = rowTypes[rowIdx] || 'income'
                       return (
-                        <div className={`usi-row${isSkip ? ' skip' : ''}`} key={rowIdx}>
-                          <span className="usi-row-label">{label}</span>
-                          <div className="usi-row-types" role="group" aria-label={t('sheet.rowTypeAria', { label })}>
-                            <button type="button" aria-pressed={!isSkip && type === 'income'} className={`usi-rt${!isSkip && type === 'income' ? ' on income' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'income')}>{t('sheet.income')}</button>
-                            <button type="button" aria-pressed={!isSkip && type === 'expense'} className={`usi-rt${!isSkip && type === 'expense' ? ' on expense' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'expense')}>{t('sheet.expense')}</button>
-                            <button type="button" aria-pressed={isSkip} className={`usi-rt${isSkip ? ' on skip' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'skip')}>{t('sheet.skip')}</button>
-                          </div>
-                        </div>
+                        <Box className={`usi-row${isSkip ? ' skip' : ''}`} key={rowIdx}>
+                          <Txt className="usi-row-label">{label}</Txt>
+                          <Box className="usi-row-types" role="group" aria-label={t('sheet.rowTypeAria', { label })}>
+                            <Btn type="button" aria-pressed={!isSkip && type === 'income'} className={`usi-rt${!isSkip && type === 'income' ? ' on income' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'income')}>{t('sheet.income')}</Btn>
+                            <Btn type="button" aria-pressed={!isSkip && type === 'expense'} className={`usi-rt${!isSkip && type === 'expense' ? ' on expense' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'expense')}>{t('sheet.expense')}</Btn>
+                            <Btn type="button" aria-pressed={isSkip} className={`usi-rt${isSkip ? ' on skip' : ''}`} onClick={() => setRowType(sheet, rowIdx, 'skip')}>{t('sheet.skip')}</Btn>
+                          </Box>
+                        </Box>
                       )
                     })}
-                  </div>
+                  </Box>
                 </>
               )
             })()}
 
             {sheet.type !== 'ignore' && cardYield === 0 && (
-              <p className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.noYield', { field: yieldHintField })}</p>
+              <Txt as="p" className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.noYield', { field: yieldHintField })}</Txt>
             )}
-          </div>
+          </Box>
         )
       })}
 
-      <div className="usi-summary">
+      <Box className="usi-summary">
         {totals.clients + totals.projects + totals.leads + totals.txns === 0 ? (
-          <p className="usi-summary-line">{t('sheet.summaryEmpty')}</p>
+          <Txt as="p" className="usi-summary-line">{t('sheet.summaryEmpty')}</Txt>
         ) : (
-          <p className="usi-summary-line">
+          <Txt as="p" className="usi-summary-line">
             {t('sheet.summaryLead')}
             {totals.clients > 0 && <> <strong>{totals.clients}</strong> {t('sheet.summary.clients')} ·</>}
             {totals.projects > 0 && <> <strong>{totals.projects}</strong> {t('sheet.summary.projects')} ·</>}
             {totals.leads > 0 && <> <strong>{totals.leads}</strong> {t('sheet.summary.leads')} ·</>}
             {' '}<strong>{totals.txns}</strong> {t('sheet.summary.transactions')}
-          </p>
+          </Txt>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

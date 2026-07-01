@@ -3,6 +3,7 @@ import { Tag, X } from 'lucide-react'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useT } from '../../i18n/useT'
 import ConfirmModal from '../../modals/ConfirmModal'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 /* Inline categories manager — ported from the prototype's
    f-cat-list / f-cat-inp / f-cat-colors block. Chip list of
@@ -29,24 +30,24 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
   }
 
   return (
-    <section className="cat-section">
-      <div className="cat-section-head">
-        <span className="cat-section-title">
+    <Box as="section" className="cat-section">
+      <Box className="cat-section-head">
+        <Txt className="cat-section-title">
           <Tag size={15} strokeWidth={1.5} aria-hidden="true" />
           {t('categories.title')}
-          {live.length > 0 && <span className="cat-section-count mono">{live.length}</span>}
-        </span>
-      </div>
+          {live.length > 0 && <Txt className="cat-section-count mono">{live.length}</Txt>}
+        </Txt>
+      </Box>
 
       {live.length === 0 ? (
-        <p className="cat-section-empty">{t('categories.empty')}</p>
+        <Txt as="p" className="cat-section-empty">{t('categories.empty')}</Txt>
       ) : (
-        <div className="cat-chips">
+        <Box className="cat-chips">
           {live.map((c) => (
-            <span key={c.id} className="cat-chip">
-              <span className="cat-chip-dot" style={{ background: c.color || 'var(--stone)' }} />
-              <span className="cat-chip-name">{c.name}</span>
-              <button
+            <Txt key={c.id} className="cat-chip">
+              <Txt className="cat-chip-dot" style={{ background: c.color || 'var(--stone)' }} />
+              <Txt className="cat-chip-name">{c.name}</Txt>
+              <Btn
                 type="button"
                 className="cat-chip-x"
                 onClick={() => setConfirm(c)}
@@ -54,23 +55,23 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
                 title={t('categories.deleteAria')}
               >
                 <X size={11} strokeWidth={2} aria-hidden="true" />
-              </button>
-            </span>
+              </Btn>
+            </Txt>
           ))}
-        </div>
+        </Box>
       )}
 
-      <div className="cat-add-row">
-        <input
+      <Box className="cat-add-row">
+        <Input
           className="cat-add-input"
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
           placeholder={t('categories.namePlaceholder')}
         />
-        <div className="cat-color-picker" role="radiogroup" aria-label={t('categories.colorGroupAria')}>
+        <Box className="cat-color-picker" role="radiogroup" aria-label={t('categories.colorGroupAria')}>
           {CATEGORY_COLORS.map((c, i) => (
-            <button
+            <Btn
               key={c}
               type="button"
               className={`cat-color-dot${i === colorIdx ? ' on' : ''}`}
@@ -81,16 +82,16 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
               aria-label={t('categories.colorAria', { number: i + 1 })}
             />
           ))}
-        </div>
-        <button
+        </Box>
+        <Btn
           type="button"
           className="cat-add-btn"
           onClick={submit}
           disabled={!name.trim() || busy}
         >
           {t('categories.add')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
       <ConfirmModal
         open={!!confirm}
@@ -101,6 +102,6 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
         message={confirm ? t('categories.deleteMessage', { name: confirm.name }) : ''}
         onConfirm={() => { if (confirm) return onDelete(confirm) }}
       />
-    </section>
+    </Box>
   )
 }

@@ -4,6 +4,7 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { useClients } from '../../hooks/useClients'
 import { financeDailyBuckets, isr } from '../../lib/finance'
 import { useT } from '../../i18n/useT'
+import { Box, Txt } from '../../components/ui'
 
 /* Slim project-scoped clone of FinanceChart — a cumulative monthly
    income line (this calendar month) for transactions tagged to this
@@ -80,19 +81,19 @@ export default function ProjectIncomeChart({ projectId }) {
   const labelDays = [...new Set([1, 7, 14, 21, daysInMonth].filter((d) => d >= 1 && d <= daysInMonth))]
 
   return (
-    <section className="pd-chart">
-      <div className="pd-chart-head">
-        <p className="pd-chart-title">
+    <Box as="section" className="pd-chart">
+      <Box className="pd-chart-head">
+        <Txt as="p" className="pd-chart-title">
           <Sparkles size={14} strokeWidth={1.6} aria-hidden="true" />
           {t('detail.chart.title')}
-        </p>
-        <span className="pd-chart-total mono">{isr(total)}</span>
-      </div>
+        </Txt>
+        <Txt className="pd-chart-total mono">{isr(total)}</Txt>
+      </Box>
 
       {total === 0 ? (
-        <p className="pd-empty pd-chart-empty">{t('detail.chart.empty')}</p>
+        <Txt as="p" className="pd-empty pd-chart-empty">{t('detail.chart.empty')}</Txt>
       ) : (
-        <div ref={wrapRef} style={{ width: '100%' }}>
+        <Box ref={wrapRef} style={{ width: '100%' }}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="pd-chart-svg"
@@ -122,8 +123,8 @@ export default function ProjectIncomeChart({ projectId }) {
             </text>
           ))}
         </svg>
-        </div>
+        </Box>
       )}
-    </section>
+    </Box>
   )
 }

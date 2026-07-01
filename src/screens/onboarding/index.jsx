@@ -18,6 +18,7 @@ import Step7Recurring       from './steps/Step7Recurring'
 import Step8Preview         from './steps/Step8Preview'
 import Step9Finish          from './steps/Step9Finish'
 import './OnboardingScreen.css'
+import { Box } from '../../components/ui'
 
 /* Step key → component map. Titles dropped from the shell per design
    pass 2 (the body's own intros do the labelling). */
@@ -138,7 +139,7 @@ export default function OnboardingScreen() {
   }
 
   return (
-    <div className="ob-screen screen">
+    <Box className="ob-screen screen">
       <OnboardingShell ob={ob} cta={cta}>
         <StepComp ob={ob} onDone={onDone} setCTA={setCTA} onReviewFromStep={onReviewFromStep} />
       </OnboardingShell>
@@ -152,6 +153,6 @@ export default function OnboardingScreen() {
           onCancel={() => setReview(null)}
         />
       )}
-    </div>
+    </Box>
   )
 }

@@ -288,6 +288,7 @@ function SubCell({ r, confirming, busy, canToggle, onRequestConfirm, onCancelCon
 /* Tier + beta-exemption editor (set_subscriber perm). Reads-then-writes via
    the set_subscription action; resyncs to server state after a refetch. */
 const SUB_TIERS = ['free', 'basic', 'premium']
+const EXEMPT_MONTHS = [1, 3, 6, 12]   // quick-pick beta-exemption lengths
 function SubscriptionBlock({ r, onSetSubscription, t }) {
   const [tier, setTier] = useState(r.subscription_tier || 'free')
   const [beta, setBeta] = useState(r.beta_exempt_until ? r.beta_exempt_until.slice(0, 10) : '')
@@ -311,6 +312,13 @@ function SubscriptionBlock({ r, onSetSubscription, t }) {
       setSaved(true)
     } catch { setErr(true) } finally { setBusy(false) }
   }
+  /* Grant a beta exemption of N months from now (fills the date below). */
+  const setBetaMonths = (n) => {
+    const d = new Date()
+    d.setMonth(d.getMonth() + n)
+    setBeta(d.toISOString().slice(0, 10))
+    setSaved(false); setConfirming(false)
+  }
   return (
     <div className="admin-role-block" onClick={(e) => e.stopPropagation()}>
       <div className="admin-role-head">
@@ -321,6 +329,14 @@ function SubscriptionBlock({ r, onSetSubscription, t }) {
         {SUB_TIERS.map((tk) => (
           <button key={tk} type="button" className={`admin-pill${tier === tk ? ' done' : ''}`} onClick={() => { setTier(tk); setSaved(false); setConfirming(false) }}>
             {t('users.subscription.tiers.' + tk)}
+          </button>
+        ))}
+      </div>
+      <div className="admin-sub-exempt">
+        <span>{t('users.subscription.grantExempt')}</span>
+        {EXEMPT_MONTHS.map((n) => (
+          <button key={n} type="button" className="admin-pill" onClick={() => setBetaMonths(n)}>
+            {t('users.subscription.exemptM' + n)}
           </button>
         ))}
       </div>

@@ -41,7 +41,10 @@ const SCALES = [
 const QUESTION_ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 
 export default function Step6Goals({ ob, setCTA }) {
-  const { t } = useT('onboardingSteps')
+  const { t, lang } = useT('onboardingSteps')
+  /* Number grouping follows the active UI language (matches lib/goals formatGoal),
+     so a Spanish/English user doesn't see Hebrew-locale formatting. */
+  const numLocale = lang === 'he' ? 'he-IL' : (lang || 'he-IL')
   /* Personal track appended to the auto categories; its label/hint are
      translated (auto types resolve their lib-sourced preset name/hint via
      i18n at render-time, so they follow the active language). */
@@ -451,7 +454,7 @@ export default function Step6Goals({ ob, setCTA }) {
                 <div className="ob-gcard-progress-fill" style={{ width: '0%' }} />
               </div>
               <div className="ob-gcard-meta">
-                <span className="ob-gcard-target mono">0 / {targetNum.toLocaleString('he-IL')}</span>
+                <span className="ob-gcard-target mono">0 / {targetNum.toLocaleString(numLocale)}</span>
                 <span className="ob-gcard-stars" aria-label={`${t('step6.importanceLabel')} ${t('step6.starAria', { n: importance })}`}>
                   {[1, 2, 3, 4, 5].map((i) => (
                     <Star key={i} size={12} strokeWidth={1.5} className={i <= importance ? 'on' : ''} fill={i <= importance ? 'currentColor' : 'none'} aria-hidden="true" />

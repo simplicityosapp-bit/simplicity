@@ -1,15 +1,17 @@
 {
   "expo": {
-    "name": "simplicity-expo",
+    "name": "Simplicity",
     "slug": "simplicity-expo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.simplicityos.app"
     },
     "android": {
+      "package": "com.simplicityos.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -19,6 +21,15 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fd90b664-11d1-4358-822a-a9d70320740b"
+      }
+    },
+    "owner": "simplicity-os",
+    "plugins": [
+      "expo-status-bar"
+    ]
   }
 }

@@ -33,6 +33,11 @@ yarn-error.*
 # local env files
 .env*.local
 
+# secrets — never commit tokens/keys
+expo token.docx
+*token*.docx
+expo_token.txt
+
 # typescript
 *.tsbuildinfo
 

@@ -4,6 +4,7 @@ import Modal from './Modal'
 import { useMeetingTypes } from '../hooks/useMeetingTypes'
 import { useT } from '../i18n/useT'
 import './MeetingTypesModal.css'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    MeetingTypesManager — the add / rename / re-price / delete list for
@@ -35,28 +36,28 @@ export function MeetingTypesManager({ onChanged }) {
   }
 
   return (
-    <div className="mt-mng">
+    <Box className="mt-mng">
       {loading ? (
-        <p className="set-sub-empty">{t('common.loading')}</p>
+        <Txt as="p" className="set-sub-empty">{t('common.loading')}</Txt>
       ) : error ? (
-        <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{error}</p>
+        <Txt as="p" className="set-sub-empty" style={{ color: 'var(--clay)' }}>{error}</Txt>
       ) : types.length === 0 ? (
-        <p className="set-sub-empty">{t('meetingTypes.empty')}</p>
+        <Txt as="p" className="set-sub-empty">{t('meetingTypes.empty')}</Txt>
       ) : (
         types.map((type) => (
           <MeetingTypeRow key={type.id} type={type} onSave={saveRow} onDelete={() => removeType(type.id)} />
         ))
       )}
 
-      <div className="mt-add">
-        <input
+      <Box className="mt-add">
+        <Input
           className="m-input mt-add-name"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder={t('meetingTypes.namePlaceholder')}
           onKeyDown={(e) => { if (e.key === 'Enter') submitNew() }}
         />
-        <input
+        <Input
           type="number"
           min="0"
           className="m-input mt-add-price"
@@ -65,13 +66,13 @@ export function MeetingTypesManager({ onChanged }) {
           placeholder={t('meetingTypes.pricePlaceholder')}
           onKeyDown={(e) => { if (e.key === 'Enter') submitNew() }}
         />
-        <button type="button" className="set-q-add" onClick={submitNew} disabled={!newName.trim()} aria-label={t('meetingTypes.add')}>
+        <Btn type="button" className="set-q-add" onClick={submitNew} disabled={!newName.trim()} aria-label={t('meetingTypes.add')}>
           <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
-        </button>
-      </div>
-      <p className="m-hint">{t('meetingTypes.priceHint')}</p>
-      {addErr && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{addErr}</p>}
-    </div>
+        </Btn>
+      </Box>
+      <Txt as="p" className="m-hint">{t('meetingTypes.priceHint')}</Txt>
+      {addErr && <Txt as="p" className="set-sub-empty" style={{ color: 'var(--clay)' }}>{addErr}</Txt>}
+    </Box>
   )
 }
 
@@ -95,15 +96,15 @@ function MeetingTypeRow({ type, onSave, onDelete }) {
   }
 
   return (
-    <div className="mt-row">
-      <input
+    <Box className="mt-row">
+      <Input
         className="m-input mt-row-name"
         value={name}
         onChange={(e) => setName(e.target.value)}
         onBlur={commitName}
         aria-label={t('meetingTypes.nameAria')}
       />
-      <input
+      <Input
         type="number"
         min="0"
         className="m-input mt-row-price"
@@ -113,10 +114,10 @@ function MeetingTypeRow({ type, onSave, onDelete }) {
         placeholder={t('meetingTypes.noPrice')}
         aria-label={t('meetingTypes.priceAria')}
       />
-      <button type="button" className="set-q-del" onClick={onDelete} aria-label={t('meetingTypes.deleteAria')}>
+      <Btn type="button" className="set-q-del" onClick={onDelete} aria-label={t('meetingTypes.deleteAria')}>
         <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
-      </button>
-    </div>
+      </Btn>
+    </Box>
   )
 }
 
@@ -128,9 +129,9 @@ export default function MeetingTypesModal({ open, onClose, onChanged }) {
   return (
     <Modal open={open} onClose={onClose} title={t('meetingTypes.title')}>
       <MeetingTypesManager onChanged={onChanged} />
-      <div className="m-actions">
-        <button type="button" className="m-btn-save" onClick={onClose}>{t('common.done')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-save" onClick={onClose}>{t('common.done')}</Btn>
+      </Box>
     </Modal>
   )
 }

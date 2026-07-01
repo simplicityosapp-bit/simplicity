@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 const ICONS = ['🎨', '🏃', '📚', '🧘', '✍️', '🌱', '💡', '⭐']
 const blank = () => ({ name: '', icon: ICONS[0], color: COLORS[0] })
@@ -40,28 +41,28 @@ export default function AddGoalCategoryModal({ open, onClose, onSave }) {
 
   return (
     <Modal open={open} onClose={close} title={t('addCat.title')}>
-      <div className="m-field">
-        <label className="m-label">{t('addCat.metricName')}</label>
-        <input
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('addCat.metricName')}</Box>
+        <Input
           className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
           value={form.name}
           onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
           placeholder={t('addCat.namePlaceholder')}
         />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('common.icon')}</label>
-        <div className="m-pills">
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('common.icon')}</Box>
+        <Box className="m-pills">
           {ICONS.map((ic) => (
-            <button key={ic} type="button" className={`m-pill${form.icon === ic ? ' on' : ''}`} onClick={() => set('icon', ic)}>{ic}</button>
+            <Btn key={ic} type="button" className={`m-pill${form.icon === ic ? ' on' : ''}`} onClick={() => set('icon', ic)}>{ic}</Btn>
           ))}
-        </div>
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('common.color')}</label>
-        <div className="m-colors">
+        </Box>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('common.color')}</Box>
+        <Box className="m-colors">
           {COLORS.map((c) => (
-            <button
+            <Btn
               key={c}
               type="button"
               className={`m-color${form.color === c ? ' on' : ''}`}
@@ -70,15 +71,15 @@ export default function AddGoalCategoryModal({ open, onClose, onSave }) {
               onClick={() => set('color', c)}
             />
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
     </Modal>
   )
 }

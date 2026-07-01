@@ -58,6 +58,7 @@ import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
 import SiteRenderer from '../site-page/SiteRenderer'
 import './SitePagesScreen.css'
+import { Box, Txt, Btn, Input, Textarea } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    PAGE EDITOR — the block builder (canvas + inspector + design).
@@ -470,30 +471,30 @@ export default function Editor({ page, onSave, onBack }) {
 
   return (
     <AssetSinkContext.Provider value={registerAsset}>
-    <div className={`spe${focusMode ? ' is-focus' : ''}`}>
+    <Box className={`spe${focusMode ? ' is-focus' : ''}`}>
       {/* ── Top bar ─────────────────────────────────────────────── */}
-      <div className="spe-top">
+      <Box className="spe-top">
         {/* nav */}
-        <div className="spe-top-nav">
-          <button className="spe-icon-btn" onClick={handleBack} title={t('editor.back')} aria-label={t('editor.back')}><ArrowRight size={18} /></button>
-          <input
+        <Box className="spe-top-nav">
+          <Btn className="spe-icon-btn" onClick={handleBack} title={t('editor.back')} aria-label={t('editor.back')}><ArrowRight size={18} /></Btn>
+          <Input
             className="spe-title-input"
             value={draft.title}
             placeholder={t('editor.titlePlaceholder')}
             onChange={(e) => mutate((d) => ({ ...d, title: e.target.value }))}
           />
-        </div>
+        </Box>
         {/* center tools */}
-        <div className="spe-top-tools">
-          <div className="spe-toolgroup">
-            <button className="spe-icon-btn" onClick={undo} disabled={!canUndo} title={t('editor.undo')} aria-label={t('editor.undo')}><Undo2 size={16} /></button>
-            <button className="spe-icon-btn" onClick={redo} disabled={!canRedo} title={t('editor.redo')} aria-label={t('editor.redo')}><Redo2 size={16} /></button>
-          </div>
-          <div className="spe-device">
-            <button className={device === 'desktop' ? 'is-on' : ''} aria-pressed={device === 'desktop'} onClick={() => setDevice('desktop')} title={t('editor.desktop')} aria-label={t('editor.desktop')}><Monitor size={16} /></button>
-            <button className={device === 'mobile' ? 'is-on' : ''} aria-pressed={device === 'mobile'} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></button>
-          </div>
-          <button
+        <Box className="spe-top-tools">
+          <Box className="spe-toolgroup">
+            <Btn className="spe-icon-btn" onClick={undo} disabled={!canUndo} title={t('editor.undo')} aria-label={t('editor.undo')}><Undo2 size={16} /></Btn>
+            <Btn className="spe-icon-btn" onClick={redo} disabled={!canRedo} title={t('editor.redo')} aria-label={t('editor.redo')}><Redo2 size={16} /></Btn>
+          </Box>
+          <Box className="spe-device">
+            <Btn className={device === 'desktop' ? 'is-on' : ''} aria-pressed={device === 'desktop'} onClick={() => setDevice('desktop')} title={t('editor.desktop')} aria-label={t('editor.desktop')}><Monitor size={16} /></Btn>
+            <Btn className={device === 'mobile' ? 'is-on' : ''} aria-pressed={device === 'mobile'} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></Btn>
+          </Box>
+          <Btn
             className={`spe-icon-btn spe-focus-btn${focusMode ? ' is-on' : ''}`}
             aria-pressed={focusMode}
             onClick={() => setFocusMode((v) => !v)}
@@ -501,48 +502,48 @@ export default function Editor({ page, onSave, onBack }) {
             aria-label={focusMode ? t('editor.exitFocus') : t('editor.focusView')}
           >
             {focusMode ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-          </button>
-        </div>
+          </Btn>
+        </Box>
         {/* publish */}
-        <div className="spe-top-actions">
-          {saveError ? <span className="spe-save-err" title={saveError}>{saveError}</span> : null}
-          <span className={`spe-status${draft.published ? (hasUnpublishedChanges ? ' is-pending' : ' is-live') : ''}`}>
+        <Box className="spe-top-actions">
+          {saveError ? <Txt className="spe-save-err" title={saveError}>{saveError}</Txt> : null}
+          <Txt className={`spe-status${draft.published ? (hasUnpublishedChanges ? ' is-pending' : ' is-live') : ''}`}>
             {!draft.published ? t('editor.statusDraft') : hasUnpublishedChanges ? t('editor.statusUnpublished') : t('editor.statusPublished')}
-          </span>
-          <button className="spe-save-draft" onClick={save} disabled={saving || !dirty}>
+          </Txt>
+          <Btn className="spe-save-draft" onClick={save} disabled={saving || !dirty}>
             {saving ? t('editor.saving') : t('editor.saveDraft')}
-          </button>
-          <button className="spe-save" onClick={publish} disabled={saving || (draft.published && !hasUnpublishedChanges && !dirty)}>
+          </Btn>
+          <Btn className="spe-save" onClick={publish} disabled={saving || (draft.published && !hasUnpublishedChanges && !dirty)}>
             {t('editor.publish')}
-          </button>
+          </Btn>
           {draft.published ? (
-            <div className="spe-overflow" ref={overflowRef}>
-              <button className="spe-icon-btn" onClick={() => setOverflowOpen((v) => !v)} aria-haspopup="menu" aria-expanded={overflowOpen} title={t('editor.more', { defaultValue: 'עוד' })} aria-label={t('editor.more', { defaultValue: 'עוד' })}><MoreHorizontal size={18} /></button>
+            <Box className="spe-overflow" ref={overflowRef}>
+              <Btn className="spe-icon-btn" onClick={() => setOverflowOpen((v) => !v)} aria-haspopup="menu" aria-expanded={overflowOpen} title={t('editor.more', { defaultValue: 'עוד' })} aria-label={t('editor.more', { defaultValue: 'עוד' })}><MoreHorizontal size={18} /></Btn>
               {overflowOpen ? (
-                <div className="spe-overflow-menu" role="menu">
-                  <button role="menuitem" onClick={() => { setOverflowOpen(false); unpublish() }} disabled={saving}>{t('editor.unpublish')}</button>
-                </div>
+                <Box className="spe-overflow-menu" role="menu">
+                  <Btn role="menuitem" onClick={() => { setOverflowOpen(false); unpublish() }} disabled={saving}>{t('editor.unpublish')}</Btn>
+                </Box>
               ) : null}
-            </div>
+            </Box>
           ) : null}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <div className="spe-body">
+      <Box className="spe-body">
         {/* ── Sections rail ─────────────────────────────────────── */}
-        <aside className="spe-rail">
-          <div className="spe-rail-head">
-            <span>{t('editor.sections')}</span>
-            <button className="spe-add" aria-expanded={paletteOpen} onClick={() => { setPaletteOpen((v) => !v); setPaletteQuery('') }}><Plus size={15} /> {t('editor.add')}</button>
-          </div>
+        <Box as="aside" className="spe-rail">
+          <Box className="spe-rail-head">
+            <Txt>{t('editor.sections')}</Txt>
+            <Btn className="spe-add" aria-expanded={paletteOpen} onClick={() => { setPaletteOpen((v) => !v); setPaletteQuery('') }}><Plus size={15} /> {t('editor.add')}</Btn>
+          </Box>
           {paletteOpen ? (
-            <div className="spe-palette">
-              <div className="spe-palette-search">
+            <Box className="spe-palette">
+              <Box className="spe-palette-search">
                 <Search size={14} />
-                <input autoFocus value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)}
+                <Input autoFocus value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)}
                   placeholder={t('palette.search', { defaultValue: 'חיפוש סקשן…' })}
                   aria-label={t('palette.search', { defaultValue: 'חיפוש סקשן' })} />
-              </div>
+              </Box>
               {(() => {
                 const q = paletteQuery.trim().toLowerCase()
                 const item = (type) => {
@@ -550,41 +551,41 @@ export default function Editor({ page, onSave, onBack }) {
                   const Icon = BLOCK_ICON[type] || Sparkles
                   const label = t('blocks.' + type, { defaultValue: def.label })
                   return (
-                    <button key={type} className="spe-palette-item" onClick={() => addSection(type)} title={label}>
-                      <span className="spe-palette-ico"><Icon size={17} /></span>
-                      <span>{label}</span>
-                    </button>
+                    <Btn key={type} className="spe-palette-item" onClick={() => addSection(type)} title={label}>
+                      <Txt className="spe-palette-ico"><Icon size={17} /></Txt>
+                      <Txt>{label}</Txt>
+                    </Btn>
                   )
                 }
                 if (q) {
                   const hits = BLOCK_PALETTE.filter((type) =>
                     type.toLowerCase().includes(q) || t('blocks.' + type, { defaultValue: BLOCK_TYPES[type].label }).toLowerCase().includes(q))
                   return hits.length
-                    ? <div className="spe-palette-grid">{hits.map(item)}</div>
-                    : <p className="spe-palette-empty">{t('palette.noResults', { defaultValue: 'לא נמצאו סקשנים' })}</p>
+                    ? <Box className="spe-palette-grid">{hits.map(item)}</Box>
+                    : <Txt as="p" className="spe-palette-empty">{t('palette.noResults', { defaultValue: 'לא נמצאו סקשנים' })}</Txt>
                 }
                 return BLOCK_CATEGORIES.map((cat) => {
                   const open = !!openCats[cat.key]
                   return (
-                    <div className={`spe-palette-cat${open ? ' is-open' : ''}`} key={cat.key}>
-                      <button type="button" className="spe-palette-cat-toggle" aria-expanded={open}
+                    <Box className={`spe-palette-cat${open ? ' is-open' : ''}`} key={cat.key}>
+                      <Btn type="button" className="spe-palette-cat-toggle" aria-expanded={open}
                         onClick={() => setOpenCats((s) => ({ ...s, [cat.key]: !open }))}>
                         <ChevronDown size={14} className="spe-palette-cat-chev" />
-                        <span className="spe-palette-cat-name">{t('palette.cat.' + cat.key, { defaultValue: cat.key })}</span>
-                        <span className="spe-palette-cat-count">{cat.blocks.length}</span>
-                      </button>
-                      {open ? <div className="spe-palette-grid">{cat.blocks.map(item)}</div> : null}
-                    </div>
+                        <Txt className="spe-palette-cat-name">{t('palette.cat.' + cat.key, { defaultValue: cat.key })}</Txt>
+                        <Txt className="spe-palette-cat-count">{cat.blocks.length}</Txt>
+                      </Btn>
+                      {open ? <Box className="spe-palette-grid">{cat.blocks.map(item)}</Box> : null}
+                    </Box>
                   )
                 })
               })()}
-            </div>
+            </Box>
           ) : null}
-          <ul className="spe-seclist">
+          <Box as="ul" className="spe-seclist">
             {draft.sections.map((s, i) => {
               const Ico = BLOCK_ICON[s.type] || Sparkles
               return (
-              <li
+              <Box as="li"
                 key={s.id}
                 className={`spe-secitem${selectedId === s.id ? ' is-sel' : ''}${dragging === i ? ' is-dragging' : ''}${dragOver === i && dragging !== i ? ' is-drop-target' : ''}`}
                 draggable
@@ -599,66 +600,66 @@ export default function Editor({ page, onSave, onBack }) {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(s.id); setMobileSheet(true) } }}
               >
                 <GripVertical size={14} className="spe-grip" />
-                <span className="spe-sec-ico" aria-hidden="true"><Ico size={14} /></span>
-                <span className="spe-sec-label">{t('blocks.' + s.type, { defaultValue: BLOCK_TYPES[s.type]?.label || s.type })}</span>
-                <span className="spe-sec-actions">
-                  <button className="spe-sec-move" disabled={i === 0} onClick={(e) => { e.stopPropagation(); reorder(i, i - 1) }} title={t('editor.moveUp')} aria-label={t('editor.moveUp')}><ChevronUp size={13} /></button>
-                  <button className="spe-sec-move" disabled={i === draft.sections.length - 1} onClick={(e) => { e.stopPropagation(); reorder(i, i + 1) }} title={t('editor.moveDown')} aria-label={t('editor.moveDown')}><ChevronDown size={13} /></button>
-                  <button className="spe-sec-move" onClick={(e) => { e.stopPropagation(); duplicateSection(s.id) }} title={t('editor.duplicateSection')} aria-label={t('editor.duplicateSection')}><Copy size={13} /></button>
-                  <button className="spe-sec-del" onClick={(e) => { e.stopPropagation(); deleteSection(s.id) }} title={t('editor.deleteSection')} aria-label={t('editor.deleteSection')}><Trash2 size={13} /></button>
-                </span>
-              </li>
+                <Txt className="spe-sec-ico" aria-hidden="true"><Ico size={14} /></Txt>
+                <Txt className="spe-sec-label">{t('blocks.' + s.type, { defaultValue: BLOCK_TYPES[s.type]?.label || s.type })}</Txt>
+                <Txt className="spe-sec-actions">
+                  <Btn className="spe-sec-move" disabled={i === 0} onClick={(e) => { e.stopPropagation(); reorder(i, i - 1) }} title={t('editor.moveUp')} aria-label={t('editor.moveUp')}><ChevronUp size={13} /></Btn>
+                  <Btn className="spe-sec-move" disabled={i === draft.sections.length - 1} onClick={(e) => { e.stopPropagation(); reorder(i, i + 1) }} title={t('editor.moveDown')} aria-label={t('editor.moveDown')}><ChevronDown size={13} /></Btn>
+                  <Btn className="spe-sec-move" onClick={(e) => { e.stopPropagation(); duplicateSection(s.id) }} title={t('editor.duplicateSection')} aria-label={t('editor.duplicateSection')}><Copy size={13} /></Btn>
+                  <Btn className="spe-sec-del" onClick={(e) => { e.stopPropagation(); deleteSection(s.id) }} title={t('editor.deleteSection')} aria-label={t('editor.deleteSection')}><Trash2 size={13} /></Btn>
+                </Txt>
+              </Box>
               )
             })}
-            {draft.sections.length === 0 ? <li className="spe-rail-empty">{t('editor.railEmpty')}</li> : null}
-          </ul>
-          <button className={`spe-design-btn${!selected ? ' is-on' : ''}`} onClick={() => { setSelectedId(null); setMobileSheet(true) }}>
+            {draft.sections.length === 0 ? <Box as="li" className="spe-rail-empty">{t('editor.railEmpty')}</Box> : null}
+          </Box>
+          <Btn className={`spe-design-btn${!selected ? ' is-on' : ''}`} onClick={() => { setSelectedId(null); setMobileSheet(true) }}>
             <Palette size={15} /> {t('editor.designPage')}
-          </button>
-        </aside>
+          </Btn>
+        </Box>
 
         {/* ── Canvas ────────────────────────────────────────────── */}
-        <div className="spe-canvas-wrap">
-          <div className={`spe-frame spe-frame-${device}`} onClick={onCanvasClick}>
+        <Box className="spe-canvas-wrap">
+          <Box className={`spe-frame spe-frame-${device}`} onClick={onCanvasClick}>
             <SiteRenderer theme={draft.theme} sections={draft.sections} interactive={false} selectedId={selectedId} device={device}
               onEdit={(id, key, value) => updateProps(id, { [key]: value })} />
-          </div>
-        </div>
+          </Box>
+        </Box>
 
         {/* ── Right panel: inspector OR design (a bottom sheet on mobile) ── */}
-        {mobileSheet ? <div className="spe-sheet-backdrop" onClick={() => setMobileSheet(false)} /> : null}
-        <aside
+        {mobileSheet ? <Box className="spe-sheet-backdrop" onClick={() => setMobileSheet(false)} /> : null}
+        <Box as="aside"
           ref={sheetRef}
           className={`spe-inspector${mobileSheet ? ' is-open' : ''}`}
           {...(sheetModal ? { role: 'dialog', 'aria-modal': 'true', 'aria-label': sheetTitle, tabIndex: -1 } : {})}
         >
-          <div className="spe-sheet-head">
-            <span className="spe-sheet-title">{sheetTitle}</span>
-            <button className="spe-sheet-close" onClick={() => setMobileSheet(false)}>{t('editor.done')}</button>
-          </div>
+          <Box className="spe-sheet-head">
+            <Txt className="spe-sheet-title">{sheetTitle}</Txt>
+            <Btn className="spe-sheet-close" onClick={() => setMobileSheet(false)}>{t('editor.done')}</Btn>
+          </Box>
           {selected
             ? <SectionInspector section={selected} sections={draft.sections} free={draft.theme?.layoutMode === 'free'} onChange={(patch) => updateProps(selected.id, patch)} onStyle={(patch) => updateStyle(selected.id, patch)} />
             : <DesignPanel theme={draft.theme} setTheme={setTheme}
                 slug={draft.slug} onSlug={(v) => mutate((d) => ({ ...d, slug: v }))}
                 projects={projects} projectId={draft.project_id} onProject={(v) => mutate((d) => ({ ...d, project_id: v }))}
                 kind={draft.kind} config={draft.config} setConfig={setConfig} />}
-        </aside>
-      </div>
+        </Box>
+      </Box>
 
       {pendingDel ? (
-        <div className="spe-toast" role="status">
-          <span>{t('editor.sectionDeleted')}</span>
-          <button onClick={undoDelete}>{t('editor.undo')}</button>
-        </div>
+        <Box className="spe-toast" role="status">
+          <Txt>{t('editor.sectionDeleted')}</Txt>
+          <Btn onClick={undoDelete}>{t('editor.undo')}</Btn>
+        </Box>
       ) : null}
 
       {publishOk ? (
-        <div className="spe-toast spe-toast-ok" role="status">
+        <Box className="spe-toast spe-toast-ok" role="status">
           <CheckCircle2 size={17} />
-          <span>{t('editor.publishedToast', { defaultValue: 'הדף פורסם!' })}</span>
-        </div>
+          <Txt>{t('editor.publishedToast', { defaultValue: 'הדף פורסם!' })}</Txt>
+        </Box>
       ) : null}
-    </div>
+    </Box>
     </AssetSinkContext.Provider>
   )
 }
@@ -672,91 +673,91 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
   const seo = (config && config.seo) || {}
   const setSeo = (patch) => setConfig({ seo: { ...seo, ...patch } })
   return (
-    <div className="spe-panel">
-      <h3 className="spe-panel-title">{t('design.title')}</h3>
+    <Box className="spe-panel">
+      <Txt as="h3" className="spe-panel-title">{t('design.title')}</Txt>
 
-      <div className="spe-group">
-        <p className="spe-group-lbl">{t('design.grpLayout')}</p>
-        <label className="spe-f spe-f-row"><span>{t('design.freeLayout')}</span>
-          <input type="checkbox" checked={theme.layoutMode === 'free'} onChange={(e) => setTheme({ layoutMode: e.target.checked ? 'free' : 'stack' })} />
-        </label>
+      <Box className="spe-group">
+        <Txt as="p" className="spe-group-lbl">{t('design.grpLayout')}</Txt>
+        <Box as="label" className="spe-f spe-f-row"><Txt>{t('design.freeLayout')}</Txt>
+          <Input type="checkbox" checked={theme.layoutMode === 'free'} onChange={(e) => setTheme({ layoutMode: e.target.checked ? 'free' : 'stack' })} />
+        </Box>
         {theme.layoutMode === 'free'
-          ? <p style={{ fontSize: 'var(--mg-caption)', color: 'var(--stone)', margin: 0, lineHeight: 1.4 }}>{t('design.freeLayoutHint')}</p>
+          ? <Txt as="p" style={{ fontSize: 'var(--mg-caption)', color: 'var(--stone)', margin: 0, lineHeight: 1.4 }}>{t('design.freeLayoutHint')}</Txt>
           : null}
-      </div>
+      </Box>
 
-      <div className="spe-group">
-        <p className="spe-group-lbl">{t('design.grpAddress')}</p>
-        <label className="spe-f">
-          <span>{t('design.publicUrl')}</span>
-          <input value={slug || ''} placeholder="my-page" onChange={(e) => onSlug(slugifyInput(e.target.value))} />
-        </label>
-        <label className="spe-f">
-          <span>{t('design.project')}</span>
+      <Box className="spe-group">
+        <Txt as="p" className="spe-group-lbl">{t('design.grpAddress')}</Txt>
+        <Box as="label" className="spe-f">
+          <Txt>{t('design.publicUrl')}</Txt>
+          <Input value={slug || ''} placeholder="my-page" onChange={(e) => onSlug(slugifyInput(e.target.value))} />
+        </Box>
+        <Box as="label" className="spe-f">
+          <Txt>{t('design.project')}</Txt>
           <select value={projectId || ''} onChange={(e) => onProject(e.target.value)}>
             <option value="">{t('design.projectNone')}</option>
             {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.name || p.title}</option>)}
           </select>
-        </label>
-      </div>
+        </Box>
+      </Box>
 
-      <div className="spe-group">
-        <p className="spe-group-lbl">{t('seo.group')}</p>
-        <label className="spe-f"><span>{t('seo.title')}</span>
-          <input value={seo.title || ''} onChange={(e) => setSeo({ title: e.target.value })} />
-        </label>
-        <label className="spe-f"><span>{t('seo.description')}</span>
-          <textarea rows={2} value={seo.description || ''} onChange={(e) => setSeo({ description: e.target.value })} />
-        </label>
-        <div className="spe-f"><span>{t('seo.image')}</span>
+      <Box className="spe-group">
+        <Txt as="p" className="spe-group-lbl">{t('seo.group')}</Txt>
+        <Box as="label" className="spe-f"><Txt>{t('seo.title')}</Txt>
+          <Input value={seo.title || ''} onChange={(e) => setSeo({ title: e.target.value })} />
+        </Box>
+        <Box as="label" className="spe-f"><Txt>{t('seo.description')}</Txt>
+          <Textarea rows={2} value={seo.description || ''} onChange={(e) => setSeo({ description: e.target.value })} />
+        </Box>
+        <Box className="spe-f"><Txt>{t('seo.image')}</Txt>
           <ImageField value={seo.image} onChange={(url) => setSeo({ image: url })} />
-        </div>
-        <p className="spe-note">{t('seo.hint')}</p>
-      </div>
+        </Box>
+        <Txt as="p" className="spe-note">{t('seo.hint')}</Txt>
+      </Box>
 
-      <div className="spe-group">
-        <p className="spe-group-lbl">{t('design.grpTypography')}</p>
-        <label className="spe-f">
-          <span>{t('design.font')}</span>
+      <Box className="spe-group">
+        <Txt as="p" className="spe-group-lbl">{t('design.grpTypography')}</Txt>
+        <Box as="label" className="spe-f">
+          <Txt>{t('design.font')}</Txt>
           <select value={theme.font} onChange={(e) => setTheme({ font: e.target.value })}>
             {SITE_FONTS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
           </select>
-        </label>
-        <label className="spe-f spe-f-row">
-          <span>{t('design.brandColor')}</span>
-          <input type="color" value={theme.brandColor} onChange={(e) => setTheme({ brandColor: e.target.value })} />
-        </label>
-      </div>
+        </Box>
+        <Box as="label" className="spe-f spe-f-row">
+          <Txt>{t('design.brandColor')}</Txt>
+          <Input type="color" value={theme.brandColor} onChange={(e) => setTheme({ brandColor: e.target.value })} />
+        </Box>
+      </Box>
 
-      <div className="spe-group">
-        <p className="spe-group-lbl">{t('design.grpBackground')}</p>
-        <div className="spe-seg">
+      <Box className="spe-group">
+        <Txt as="p" className="spe-group-lbl">{t('design.grpBackground')}</Txt>
+        <Box className="spe-seg">
           {[['scene', t('design.bgScene')], ['flat', t('design.bgFlat')], ['image', t('design.bgImage')]].map(([k, lbl]) => (
-            <button key={k} className={bg.type === k ? 'is-on' : ''} aria-pressed={bg.type === k}
+            <Btn key={k} className={bg.type === k ? 'is-on' : ''} aria-pressed={bg.type === k}
               onClick={() => setTheme({ background: { type: k, value: k === 'flat' ? '#f7f3ee' : (k === 'scene' ? 'home' : '') } })}>
               {lbl}
-            </button>
+            </Btn>
           ))}
-        </div>
+        </Box>
         {bg.type === 'scene' ? (
-          <div className="spe-scenes">
+          <Box className="spe-scenes">
             {LEAD_PAGE_BACKGROUNDS.map((s) => (
-              <button key={s.key} className={`spe-scene${bg.value === s.key ? ' is-on' : ''}`} aria-pressed={bg.value === s.key}
+              <Btn key={s.key} className={`spe-scene${bg.value === s.key ? ' is-on' : ''}`} aria-pressed={bg.value === s.key}
                 onClick={() => setTheme({ background: { type: 'scene', value: s.key } })} title={s.label} aria-label={s.label}>
                 <img src={`/backgrounds/desktop/day/${s.key}.webp`} alt={s.label} loading="lazy" />
-              </button>
+              </Btn>
             ))}
-          </div>
+          </Box>
         ) : null}
         {bg.type === 'flat' ? (
-          <label className="spe-f spe-f-row"><span>{t('design.bgFlatColor')}</span>
-            <input type="color" value={bg.value || '#f7f3ee'} onChange={(e) => setTheme({ background: { type: 'flat', value: e.target.value } })} />
-          </label>
+          <Box as="label" className="spe-f spe-f-row"><Txt>{t('design.bgFlatColor')}</Txt>
+            <Input type="color" value={bg.value || '#f7f3ee'} onChange={(e) => setTheme({ background: { type: 'flat', value: e.target.value } })} />
+          </Box>
         ) : null}
         {bg.type === 'image' ? (
           <>
             <ImageField value={bg.value} onChange={(url) => setTheme({ background: { type: 'image', value: url } })} />
-            <p className="spe-note">{t('design.bgImageHint')}</p>
+            <Txt as="p" className="spe-note">{t('design.bgImageHint')}</Txt>
           </>
         ) : null}
         {bg.type === 'scene' || bg.type === 'image' || (theme.mobileBgOn && theme.mobileBg) ? (
@@ -764,42 +765,42 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
             <Slider label={t('design.scrim')} min={0} max={70}
               value={theme.scrim ?? (theme.textColor !== 'dark' ? 30 : 0)}
               onChange={(v) => setTheme({ scrim: v })} />
-            <label className="spe-f spe-f-row"><span>{t('design.freezeBg')}</span>
-              <input type="checkbox" checked={!!theme.freezeBg} onChange={(e) => setTheme({ freezeBg: e.target.checked })} />
-            </label>
+            <Box as="label" className="spe-f spe-f-row"><Txt>{t('design.freezeBg')}</Txt>
+              <Input type="checkbox" checked={!!theme.freezeBg} onChange={(e) => setTheme({ freezeBg: e.target.checked })} />
+            </Box>
           </>
         ) : null}
-        <label className="spe-f spe-f-row"><span>{t('design.mobileBg')}</span>
-          <input type="checkbox" checked={!!theme.mobileBgOn} onChange={(e) => setTheme({ mobileBgOn: e.target.checked })} />
-        </label>
+        <Box as="label" className="spe-f spe-f-row"><Txt>{t('design.mobileBg')}</Txt>
+          <Input type="checkbox" checked={!!theme.mobileBgOn} onChange={(e) => setTheme({ mobileBgOn: e.target.checked })} />
+        </Box>
         {theme.mobileBgOn ? (
           <>
             <ImageField value={theme.mobileBg} onChange={(url) => setTheme({ mobileBg: url })} />
-            <p className="spe-note">{t('design.mobileBgHint')}</p>
+            <Txt as="p" className="spe-note">{t('design.mobileBgHint')}</Txt>
           </>
         ) : null}
-      </div>
+      </Box>
 
-      <div className="spe-group">
-        <p className="spe-group-lbl">{t('design.grpCards')}</p>
+      <Box className="spe-group">
+        <Txt as="p" className="spe-group-lbl">{t('design.grpCards')}</Txt>
         <Slider label={t('design.cardOpacity')} min={0} max={100} value={theme.cardOpacity} onChange={(v) => setTheme({ cardOpacity: v })} />
         <Slider label={t('design.cardBlur')} min={0} max={40} value={theme.cardBlur} onChange={(v) => setTheme({ cardBlur: v })} />
         <Slider label={t('design.cardRadius')} min={8} max={40} value={theme.cardRadius} onChange={(v) => setTheme({ cardRadius: v })} />
-      </div>
+      </Box>
 
-      <div className="spe-group">
-        <p className="spe-group-lbl">{t('design.grpText')}</p>
-        <label className="spe-f spe-f-row"><span>{t('design.bold')}</span>
-          <input type="checkbox" checked={!!theme.bold} onChange={(e) => setTheme({ bold: e.target.checked })} />
-        </label>
-        <label className="spe-f spe-f-row"><span>{t('design.center')}</span>
-          <input type="checkbox" checked={theme.textAlign === 'center'} onChange={(e) => setTheme({ textAlign: e.target.checked ? 'center' : 'start' })} />
-        </label>
-      </div>
+      <Box className="spe-group">
+        <Txt as="p" className="spe-group-lbl">{t('design.grpText')}</Txt>
+        <Box as="label" className="spe-f spe-f-row"><Txt>{t('design.bold')}</Txt>
+          <Input type="checkbox" checked={!!theme.bold} onChange={(e) => setTheme({ bold: e.target.checked })} />
+        </Box>
+        <Box as="label" className="spe-f spe-f-row"><Txt>{t('design.center')}</Txt>
+          <Input type="checkbox" checked={theme.textAlign === 'center'} onChange={(e) => setTheme({ textAlign: e.target.checked ? 'center' : 'start' })} />
+        </Box>
+      </Box>
 
       {/* Lead-capture settings (config) — pages with a form section. */}
-      {kind === 'lead' ? <div className="spe-group"><LeadSettings config={config || {}} setConfig={setConfig} /></div> : null}
-    </div>
+      {kind === 'lead' ? <Box className="spe-group"><LeadSettings config={config || {}} setConfig={setConfig} /></Box> : null}
+    </Box>
   )
 }
 
@@ -811,29 +812,29 @@ function LeadSettings({ config, setConfig }) {
   const setTy = (patch) => setConfig({ thankYou: { ...ty, ...patch } })
   return (
     <>
-      <h3 className="spe-panel-title" style={{ marginTop: 8 }}>{t('settings.title')}</h3>
-      <label className="spe-f spe-f-row"><span>{t('settings.autoApprove')}</span>
-        <input type="checkbox" checked={!!config.autoApprove} onChange={(e) => setConfig({ autoApprove: e.target.checked })} />
-      </label>
-      <label className="spe-f"><span>{t('settings.afterSubmit')}</span>
+      <Txt as="h3" className="spe-panel-title" style={{ marginTop: 8 }}>{t('settings.title')}</Txt>
+      <Box as="label" className="spe-f spe-f-row"><Txt>{t('settings.autoApprove')}</Txt>
+        <Input type="checkbox" checked={!!config.autoApprove} onChange={(e) => setConfig({ autoApprove: e.target.checked })} />
+      </Box>
+      <Box as="label" className="spe-f"><Txt>{t('settings.afterSubmit')}</Txt>
         <select value={ty.mode || 'message'} onChange={(e) => setTy({ mode: e.target.value })}>
           <option value="message">{t('settings.modeMessage')}</option>
           <option value="redirect">{t('settings.modeRedirect')}</option>
         </select>
-      </label>
+      </Box>
       {ty.mode === 'redirect'
-        ? <label className="spe-f"><span>{t('settings.redirectUrl')}</span><input placeholder="https://…" value={ty.url || ''} onChange={(e) => setTy({ url: e.target.value })} /></label>
-        : <label className="spe-f"><span>{t('settings.thankYouMessage')}</span><textarea rows={2} value={ty.message || ''} onChange={(e) => setTy({ message: e.target.value })} /></label>}
+        ? <Box as="label" className="spe-f"><Txt>{t('settings.redirectUrl')}</Txt><Input placeholder="https://…" value={ty.url || ''} onChange={(e) => setTy({ url: e.target.value })} /></Box>
+        : <Box as="label" className="spe-f"><Txt>{t('settings.thankYouMessage')}</Txt><Textarea rows={2} value={ty.message || ''} onChange={(e) => setTy({ message: e.target.value })} /></Box>}
     </>
   )
 }
 
 function Slider({ label, min, max, value, onChange }) {
   return (
-    <label className="spe-f">
-      <span>{label} · {value}</span>
-      <input type="range" min={min} max={max} value={value} onChange={(e) => onChange(Number(e.target.value))} />
-    </label>
+    <Box as="label" className="spe-f">
+      <Txt>{label} · {value}</Txt>
+      <Input type="range" min={min} max={max} value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </Box>
   )
 }
 
@@ -848,8 +849,8 @@ function SectionInspector({ section, sections, free, onChange, onStyle }) {
   const list = Array.isArray(sections) ? sections : []
   const targets = { form: list.some((s) => s.type === 'form'), booking: list.some((s) => s.type === 'booking') }
   return (
-    <div className="spe-panel">
-      <h3 className="spe-panel-title">{t('blocks.' + section.type, { defaultValue: def.label })}</h3>
+    <Box className="spe-panel">
+      <Txt as="h3" className="spe-panel-title">{t('blocks.' + section.type, { defaultValue: def.label })}</Txt>
       {def.editable.filter((d) => !d.showWhen || props[d.showWhen]).map((d) => (
         <Descriptor key={d.key} d={d} value={props[d.key]} targets={targets} onChange={(v) => onChange({ [d.key]: v })} />
       ))}
@@ -857,7 +858,7 @@ function SectionInspector({ section, sections, free, onChange, onStyle }) {
       {/* Banner renders as its own sticky row and ignores section.style, so the
           background/padding/full-bleed controls would be dead — hide them for it. */}
       {!free && section.type !== 'banner' ? <SectionDesign style={section.style || {}} onStyle={onStyle} /> : null}
-    </div>
+    </Box>
   )
 }
 
@@ -869,9 +870,9 @@ function SectionDesign({ style, onStyle }) {
   const st = style || {}
   const bg = st.bg || 'none'
   return (
-    <div className="spe-group">
-      <p className="spe-group-lbl">{t('section.group', { defaultValue: 'עיצוב הסקשן' })}</p>
-      <label className="spe-f"><span>{t('section.bg', { defaultValue: 'רקע הסקשן' })}</span>
+    <Box className="spe-group">
+      <Txt as="p" className="spe-group-lbl">{t('section.group', { defaultValue: 'עיצוב הסקשן' })}</Txt>
+      <Box as="label" className="spe-f"><Txt>{t('section.bg', { defaultValue: 'רקע הסקשן' })}</Txt>
         <select value={bg} onChange={(e) => onStyle({ bg: e.target.value })}>
           <option value="none">{t('section.bgNone', { defaultValue: 'ללא (שקוף)' })}</option>
           <option value="tint">{t('section.bgTint', { defaultValue: 'גוון עדין' })}</option>
@@ -879,11 +880,11 @@ function SectionDesign({ style, onStyle }) {
           <option value="solid">{t('section.bgSolid', { defaultValue: 'צבע מלא' })}</option>
           <option value="image">{t('section.bgImage', { defaultValue: 'תמונה' })}</option>
         </select>
-      </label>
+      </Box>
       {bg === 'solid' ? (
-        <label className="spe-f spe-f-row"><span>{t('section.bgColor', { defaultValue: 'צבע' })}</span>
-          <input type="color" value={st.bgColor || '#fffdf9'} onChange={(e) => onStyle({ bgColor: e.target.value })} />
-        </label>
+        <Box as="label" className="spe-f spe-f-row"><Txt>{t('section.bgColor', { defaultValue: 'צבע' })}</Txt>
+          <Input type="color" value={st.bgColor || '#fffdf9'} onChange={(e) => onStyle({ bgColor: e.target.value })} />
+        </Box>
       ) : null}
       {bg === 'image' ? (
         <>
@@ -895,18 +896,18 @@ function SectionDesign({ style, onStyle }) {
         <Slider label={t('section.bgOpacity', { defaultValue: 'שקיפות הרקע' })} min={0} max={100} value={st.bgOpacity ?? 100} onChange={(v) => onStyle({ bgOpacity: v })} />
       ) : null}
       {bg !== 'none' ? (
-        <label className="spe-f spe-f-row"><span>{t('section.fullBleed', { defaultValue: 'רוחב מלא (רצועה)' })}</span>
-          <input type="checkbox" checked={!!st.fullBleed} onChange={(e) => onStyle({ fullBleed: e.target.checked })} />
-        </label>
+        <Box as="label" className="spe-f spe-f-row"><Txt>{t('section.fullBleed', { defaultValue: 'רוחב מלא (רצועה)' })}</Txt>
+          <Input type="checkbox" checked={!!st.fullBleed} onChange={(e) => onStyle({ fullBleed: e.target.checked })} />
+        </Box>
       ) : null}
-      <label className="spe-f"><span>{t('section.padY', { defaultValue: 'ריווח אנכי' })}</span>
+      <Box as="label" className="spe-f"><Txt>{t('section.padY', { defaultValue: 'ריווח אנכי' })}</Txt>
         <select value={st.padY || 'md'} onChange={(e) => onStyle({ padY: e.target.value })}>
           {['none', 'sm', 'md', 'lg', 'xl'].map((p) => (
             <option key={p} value={p}>{t('section.pad_' + p, { defaultValue: p })}</option>
           ))}
         </select>
-      </label>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
@@ -922,14 +923,14 @@ function SizePosition({ props, onChange, free, section, sections }) {
     const bringFront = () => onChange({ z: (zs.length ? Math.max(...zs) : 0) + 1 })
     const sendBack = () => onChange({ z: (zs.length ? Math.min(...zs) : 0) - 1 })
     return (
-      <div className="spe-group">
-        <p className="spe-group-lbl">{t('design.grpLayering', { defaultValue: 'שכבות' })}</p>
-        <div className="spe-layer-btns">
-          <button type="button" className="spe-layer-btn" onClick={bringFront}><ChevronUp size={15} /> {t('design.bringFront', { defaultValue: 'הבא לחזית' })}</button>
-          <button type="button" className="spe-layer-btn" onClick={sendBack}><ChevronDown size={15} /> {t('design.sendBack', { defaultValue: 'שלח לאחור' })}</button>
-        </div>
-        <p className="spe-note">{t('design.freeSizeHint', { defaultValue: 'גודל ומיקום נקבעים בגרירה על הקנבס.' })}</p>
-      </div>
+      <Box className="spe-group">
+        <Txt as="p" className="spe-group-lbl">{t('design.grpLayering', { defaultValue: 'שכבות' })}</Txt>
+        <Box className="spe-layer-btns">
+          <Btn type="button" className="spe-layer-btn" onClick={bringFront}><ChevronUp size={15} /> {t('design.bringFront', { defaultValue: 'הבא לחזית' })}</Btn>
+          <Btn type="button" className="spe-layer-btn" onClick={sendBack}><ChevronDown size={15} /> {t('design.sendBack', { defaultValue: 'שלח לאחור' })}</Btn>
+        </Box>
+        <Txt as="p" className="spe-note">{t('design.freeSizeHint', { defaultValue: 'גודל ומיקום נקבעים בגרירה על הקנבס.' })}</Txt>
+      </Box>
     )
   }
   // boxWidth/boxAlign (not width/align) so they never clash with a block's own
@@ -937,23 +938,23 @@ function SizePosition({ props, onChange, free, section, sections }) {
   const width = Number(props.boxWidth) || 100
   const align = props.boxAlign || 'center'
   return (
-    <div className="spe-group">
-      <p className="spe-group-lbl">{t('design.grpSize', { defaultValue: 'גודל ומיקום' })}</p>
-      <label className="spe-f"><span>{t('design.width', { defaultValue: 'רוחב' })} — {width}%</span>
-        <input type="range" min={25} max={100} value={width} onChange={(e) => onChange({ boxWidth: Number(e.target.value) })} />
-      </label>
+    <Box className="spe-group">
+      <Txt as="p" className="spe-group-lbl">{t('design.grpSize', { defaultValue: 'גודל ומיקום' })}</Txt>
+      <Box as="label" className="spe-f"><Txt>{t('design.width', { defaultValue: 'רוחב' })} — {width}%</Txt>
+        <Input type="range" min={25} max={100} value={width} onChange={(e) => onChange({ boxWidth: Number(e.target.value) })} />
+      </Box>
       {width < 100 ? (
-        <div className="spe-f spe-f-row"><span>{t('labels.align')}</span>
-          <div className="spe-align">
+        <Box className="spe-f spe-f-row"><Txt>{t('labels.align')}</Txt>
+          <Box className="spe-align">
             {['start', 'center', 'end'].map((a) => (
-              <button key={a} type="button" className={`spe-align-btn${align === a ? ' is-on' : ''}`} aria-pressed={align === a} onClick={() => onChange({ boxAlign: a })}>
+              <Btn key={a} type="button" className={`spe-align-btn${align === a ? ' is-on' : ''}`} aria-pressed={align === a} onClick={() => onChange({ boxAlign: a })}>
                 {t('options.' + a, { defaultValue: a })}
-              </button>
+              </Btn>
             ))}
-          </div>
-        </div>
+          </Box>
+        </Box>
       ) : null}
-    </div>
+    </Box>
   )
 }
 
@@ -962,13 +963,13 @@ function Descriptor({ d, value, targets, onChange }) {
   const label = t('labels.' + d.key, { defaultValue: d.label })
   switch (d.type) {
     case 'text':
-      return <label className="spe-f"><span>{label}</span><input value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></label>
+      return <Box as="label" className="spe-f"><Txt>{label}</Txt><Input value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></Box>
     case 'textarea':
-      return <label className="spe-f"><span>{label}</span><textarea rows={3} value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></label>
+      return <Box as="label" className="spe-f"><Txt>{label}</Txt><Textarea rows={3} value={value ?? ''} onChange={(e) => onChange(e.target.value)} /></Box>
     case 'richtext':
       return <RichTextField d={d} value={value} onChange={onChange} />
     case 'number':
-      return <label className="spe-f"><span>{label}</span><input type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} /></label>
+      return <Box as="label" className="spe-f"><Txt>{label}</Txt><Input type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} /></Box>
     case 'datetime': {
       // Store an absolute instant (ISO) so a countdown ends at the SAME moment for
       // every visitor, regardless of their timezone — display it back in the editor's
@@ -980,37 +981,37 @@ function Descriptor({ d, value, targets, onChange }) {
         const p = (n) => String(n).padStart(2, '0')
         return `${dt.getFullYear()}-${p(dt.getMonth() + 1)}-${p(dt.getDate())}T${p(dt.getHours())}:${p(dt.getMinutes())}`
       }
-      return <label className="spe-f"><span>{label}</span><input type="datetime-local" value={toInput(value)}
-        onChange={(e) => { const v = e.target.value; if (!v) return onChange(''); const dt = new Date(v); onChange(isNaN(dt.getTime()) ? v : dt.toISOString()) }} /></label>
+      return <Box as="label" className="spe-f"><Txt>{label}</Txt><Input type="datetime-local" value={toInput(value)}
+        onChange={(e) => { const v = e.target.value; if (!v) return onChange(''); const dt = new Date(v); onChange(isNaN(dt.getTime()) ? v : dt.toISOString()) }} /></Box>
     }
     case 'range': {
       const rv = value ?? d.def ?? d.max ?? 100
-      return <label className="spe-f"><span>{label} — {rv}{d.unit ?? '%'}</span><input type="range" min={d.min ?? 0} max={d.max ?? 100} value={rv} onChange={(e) => onChange(Number(e.target.value))} /></label>
+      return <Box as="label" className="spe-f"><Txt>{label} — {rv}{d.unit ?? '%'}</Txt><Input type="range" min={d.min ?? 0} max={d.max ?? 100} value={rv} onChange={(e) => onChange(Number(e.target.value))} /></Box>
     }
     case 'toggle':
-      return <label className="spe-f spe-f-row"><span>{label}</span><input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} /></label>
+      return <Box as="label" className="spe-f spe-f-row"><Txt>{label}</Txt><Input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} /></Box>
     case 'color':
-      return <label className="spe-f spe-f-row"><span>{label}</span><input type="color" value={value || '#000000'} onChange={(e) => onChange(e.target.value)} /></label>
+      return <Box as="label" className="spe-f spe-f-row"><Txt>{label}</Txt><Input type="color" value={value || '#000000'} onChange={(e) => onChange(e.target.value)} /></Box>
     case 'textColor':
-      return <div className="spe-f spe-f-row"><span>{label}</span><TextColorField value={value} onChange={onChange} /></div>
+      return <Box className="spe-f spe-f-row"><Txt>{label}</Txt><TextColorField value={value} onChange={onChange} /></Box>
     case 'select':
       return (
-        <label className="spe-f"><span>{label}</span>
+        <Box as="label" className="spe-f"><Txt>{label}</Txt>
           <select value={value || d.options[0]} onChange={(e) => onChange(e.target.value)}>
             {d.options.map((o) => <option key={o} value={o}>{t('options.' + o, { defaultValue: o })}</option>)}
           </select>
-        </label>
+        </Box>
       )
     case 'image':
-      return <div className="spe-f"><span>{label}</span><ImageField value={value} onChange={onChange} /></div>
+      return <Box className="spe-f"><Txt>{label}</Txt><ImageField value={value} onChange={onChange} /></Box>
     case 'icon':
-      return <div className="spe-f"><span>{label}</span><IconPicker value={value} onChange={onChange} /></div>
+      return <Box className="spe-f"><Txt>{label}</Txt><IconPicker value={value} onChange={onChange} /></Box>
     case 'action':
-      return <div className="spe-f"><span>{label}</span><ActionField value={value} targets={targets} onChange={onChange} /></div>
+      return <Box className="spe-f"><Txt>{label}</Txt><ActionField value={value} targets={targets} onChange={onChange} /></Box>
     case 'list':
       return <ListField d={d} value={value} onChange={onChange} />
     case 'bookingPage':
-      return <div className="spe-f"><span>{label}</span><BookingPageField value={value} onChange={onChange} /></div>
+      return <Box className="spe-f"><Txt>{label}</Txt><BookingPageField value={value} onChange={onChange} /></Box>
     case 'formFields':
       return <FormFieldsEditor value={value} onChange={onChange} />
     default:
@@ -1053,21 +1054,21 @@ function RichTextField({ d, value, onChange }) {
     onChange(v.slice(0, lineStart) + next + v.slice(Math.max(e, lineStart)))
   }
   const Btn = ({ on, icon: Ic, label: lbl }) => (
-    <button type="button" className="spe-rich-btn" onMouseDown={(ev) => ev.preventDefault()} onClick={on} title={lbl} aria-label={lbl}><Ic size={14} /></button>
+    <Btn type="button" className="spe-rich-btn" onMouseDown={(ev) => ev.preventDefault()} onClick={on} title={lbl} aria-label={lbl}><Ic size={14} /></Btn>
   )
   return (
-    <div className="spe-f spe-rich">
-      <span>{t('labels.' + d.key, { defaultValue: d.label })}</span>
-      <div className="spe-rich-bar">
+    <Box className="spe-f spe-rich">
+      <Txt>{t('labels.' + d.key, { defaultValue: d.label })}</Txt>
+      <Box className="spe-rich-bar">
         <Btn on={() => wrap('**')} icon={Bold} label={t('rich.bold')} />
         <Btn on={() => wrap('*')} icon={Italic} label={t('rich.italic')} />
         <Btn on={link} icon={LinkIcon} label={t('rich.link')} />
         <Btn on={() => prefix('- ')} icon={List} label={t('rich.list')} />
         <Btn on={() => prefix('## ')} icon={Heading} label={t('rich.heading')} />
-      </div>
-      <textarea ref={ref} rows={6} value={v} onChange={(e) => onChange(e.target.value)} />
-      <p className="spe-rich-hint">{t('rich.hint')}</p>
-    </div>
+      </Box>
+      <Textarea ref={ref} rows={6} value={v} onChange={(e) => onChange(e.target.value)} />
+      <Txt as="p" className="spe-rich-hint">{t('rich.hint')}</Txt>
+    </Box>
   )
 }
 
@@ -1077,10 +1078,10 @@ function TextColorField({ value, onChange }) {
   const { t } = useT('siteBuilder')
   const isAuto = !value || value === 'auto'
   return (
-    <div className="spe-textcolor">
-      <button type="button" className={`spe-tc-auto${isAuto ? ' is-on' : ''}`} aria-pressed={isAuto} onClick={() => onChange('auto')}>{t('design.colorAuto')}</button>
-      <input type="color" value={isAuto ? '#2c2621' : value} onChange={(e) => onChange(e.target.value)} aria-label={t('labels.color')} />
-    </div>
+    <Box className="spe-textcolor">
+      <Btn type="button" className={`spe-tc-auto${isAuto ? ' is-on' : ''}`} aria-pressed={isAuto} onClick={() => onChange('auto')}>{t('design.colorAuto')}</Btn>
+      <Input type="color" value={isAuto ? '#2c2621' : value} onChange={(e) => onChange(e.target.value)} aria-label={t('labels.color')} />
+    </Box>
   )
 }
 
@@ -1091,8 +1092,8 @@ function BookingPageField({ value, onChange }) {
   const { t } = useT('siteBuilder')
   const { pages, loading } = useBookingPages()
   const published = (pages || []).filter((p) => p.published)
-  if (loading) return <p className="spe-note">{t('hub.loading')}</p>
-  if (!published.length) return <p className="spe-note spe-err">{t('inspector.noBookingPages')}</p>
+  if (loading) return <Txt as="p" className="spe-note">{t('hub.loading')}</Txt>
+  if (!published.length) return <Txt as="p" className="spe-note spe-err">{t('inspector.noBookingPages')}</Txt>
   return (
     <select value={value || ''} onChange={(e) => onChange(e.target.value)}>
       <option value="">{t('inspector.chooseBookingPage')}</option>
@@ -1124,14 +1125,14 @@ function ImageField({ value, onChange }) {
   }
   const clear = () => { onChange('') }   // asset GC deferred to save (undo-safe)
   return (
-    <div className="spe-image">
-      {value ? <div className="spe-image-prev"><img src={value} alt="" /><button onClick={clear} title={t('inspector.removeImage')} aria-label={t('inspector.removeImage')}><X size={14} /></button></div> : null}
-      <button className="spe-upload" onClick={() => inputRef.current?.click()} disabled={busy}>
+    <Box className="spe-image">
+      {value ? <Box className="spe-image-prev"><img src={value} alt="" /><Btn onClick={clear} title={t('inspector.removeImage')} aria-label={t('inspector.removeImage')}><X size={14} /></Btn></Box> : null}
+      <Btn className="spe-upload" onClick={() => inputRef.current?.click()} disabled={busy}>
         <Upload size={14} /> {busy ? t('inspector.uploading') : value ? t('inspector.replaceImage') : t('inspector.uploadImage')}
-      </button>
-      <input ref={inputRef} type="file" accept="image/*" hidden onChange={pick} />
-      {err ? <p className="spe-err">{err}</p> : null}
-    </div>
+      </Btn>
+      <Input ref={inputRef} type="file" accept="image/*" hidden onChange={pick} />
+      {err ? <Txt as="p" className="spe-err">{err}</Txt> : null}
+    </Box>
   )
 }
 
@@ -1187,36 +1188,36 @@ function IconPicker({ value, onChange }) {
     ? ICON_NAMES.filter((n) => n.toLowerCase().includes(needle) || (ICON_KEYWORDS[n] || '').toLowerCase().includes(needle))
     : ICON_NAMES
   return (
-    <div className="spe-iconpick" ref={ref}>
-      <button type="button" className={`spe-iconswatch${open ? ' is-open' : ''}`} onClick={() => setOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={open}>
-        <span className="spe-iconswatch-icn"><Current size={18} /></span>
-        <span className="spe-iconswatch-name">{value || t('inspector.pickIcon', { defaultValue: 'בחרו אייקון' })}</span>
+    <Box className="spe-iconpick" ref={ref}>
+      <Btn type="button" className={`spe-iconswatch${open ? ' is-open' : ''}`} onClick={() => setOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={open}>
+        <Txt className="spe-iconswatch-icn"><Current size={18} /></Txt>
+        <Txt className="spe-iconswatch-name">{value || t('inspector.pickIcon', { defaultValue: 'בחרו אייקון' })}</Txt>
         <ChevronDown size={15} className="spe-iconswatch-chev" />
-      </button>
+      </Btn>
       {open ? (
-        <div className="spe-iconpop">
-          <div className="spe-iconpop-search">
+        <Box className="spe-iconpop">
+          <Box className="spe-iconpop-search">
             <Search size={14} />
-            <input autoFocus value={q} onChange={(e) => setQ(e.target.value)}
+            <Input autoFocus value={q} onChange={(e) => setQ(e.target.value)}
               placeholder={t('inspector.searchIcon', { defaultValue: 'חיפוש אייקון…' })}
               aria-label={t('inspector.searchIcon', { defaultValue: 'חיפוש אייקון' })} />
-          </div>
-          <div className="spe-iconpop-grid" role="listbox">
+          </Box>
+          <Box className="spe-iconpop-grid" role="listbox">
             {names.map((name) => {
               const Icon = iconByName(name)
               return (
-                <button key={name} type="button" role="option" aria-selected={value === name}
+                <Btn key={name} type="button" role="option" aria-selected={value === name}
                   className={`spe-iconcell${value === name ? ' is-on' : ''}`}
                   onClick={() => { onChange(name); setOpen(false); setQ('') }} title={name} aria-label={name}>
                   <Icon size={18} />
-                </button>
+                </Btn>
               )
             })}
-            {names.length === 0 ? <p className="spe-iconpop-empty">{t('inspector.noIcons', { defaultValue: 'לא נמצאו אייקונים' })}</p> : null}
-          </div>
-        </div>
+            {names.length === 0 ? <Txt as="p" className="spe-iconpop-empty">{t('inspector.noIcons', { defaultValue: 'לא נמצאו אייקונים' })}</Txt> : null}
+          </Box>
+        </Box>
       ) : null}
-    </div>
+    </Box>
   )
 }
 
@@ -1227,17 +1228,17 @@ function ActionField({ value, targets, onChange }) {
   const missing = (a.type === 'scrollToForm' && targets && !targets.form)
     || (a.type === 'booking' && targets && !targets.booking)
   return (
-    <div className="spe-action">
+    <Box className="spe-action">
       <select value={a.type} onChange={(e) => onChange({ ...a, type: e.target.value })}>
         <option value="link">{t('action.link')}</option>
         <option value="scrollToForm">{t('action.scrollToForm')}</option>
         <option value="booking">{t('action.booking')}</option>
       </select>
       {a.type === 'link' ? (
-        <input placeholder="https://…" value={a.url || ''} onChange={(e) => onChange({ ...a, url: e.target.value })} />
+        <Input placeholder="https://…" value={a.url || ''} onChange={(e) => onChange({ ...a, url: e.target.value })} />
       ) : null}
-      {missing ? <p className="spe-note spe-err">{t('inspector.noTargetHint')}</p> : null}
-    </div>
+      {missing ? <Txt as="p" className="spe-note spe-err">{t('inspector.noTargetHint')}</Txt> : null}
+    </Box>
   )
 }
 
@@ -1251,18 +1252,18 @@ function ListField({ d, value, onChange }) {
       : '']))])
   const remove = (i) => onChange(items.filter((_, j) => j !== i))
   return (
-    <div className="spe-f">
-      <span>{t('labels.' + d.key, { defaultValue: d.label })}</span>
+    <Box className="spe-f">
+      <Txt>{t('labels.' + d.key, { defaultValue: d.label })}</Txt>
       {items.map((it, i) => (
-        <div className="spe-listitem" key={i}>
-          <div className="spe-listitem-head"><span>#{i + 1}</span><button onClick={() => remove(i)}><Trash2 size={13} /></button></div>
+        <Box className="spe-listitem" key={i}>
+          <Box className="spe-listitem-head"><Txt>#{i + 1}</Txt><Btn onClick={() => remove(i)}><Trash2 size={13} /></Btn></Box>
           {d.item.map((f) => (
             <Descriptor key={f.key} d={f} value={it[f.key]} onChange={(v) => setItem(i, { [f.key]: v })} />
           ))}
-        </div>
+        </Box>
       ))}
-      <button className="spe-add-row" onClick={add}><Plus size={14} /> {t('inspector.addItem')}</button>
-    </div>
+      <Btn className="spe-add-row" onClick={add}><Plus size={14} /> {t('inspector.addItem')}</Btn>
+    </Box>
   )
 }
 
@@ -1275,35 +1276,35 @@ function FormFieldsEditor({ value, onChange }) {
   const remove = (i) => onChange(fields.filter((_, j) => j !== i))
   const add = () => onChange([...fields, { key: freeFieldKey(fields), label: t('fields.newField'), type: 'text', required: false, builtin: false }])
   return (
-    <div className="spe-f">
-      <span>{t('fields.formFields')}</span>
+    <Box className="spe-f">
+      <Txt>{t('fields.formFields')}</Txt>
       {fields.map((f, i) => (
-        <div className="spe-listitem" key={f.key}>
-          <div className="spe-listitem-head">
-            <input className="spe-flex" value={f.label} onChange={(e) => setField(i, { label: e.target.value })} />
-            {!f.builtin ? <button onClick={() => remove(i)}><Trash2 size={13} /></button> : null}
-          </div>
-          <div className="spe-field-row">
+        <Box className="spe-listitem" key={f.key}>
+          <Box className="spe-listitem-head">
+            <Input className="spe-flex" value={f.label} onChange={(e) => setField(i, { label: e.target.value })} />
+            {!f.builtin ? <Btn onClick={() => remove(i)}><Trash2 size={13} /></Btn> : null}
+          </Box>
+          <Box className="spe-field-row">
             <select value={f.type} disabled={f.builtin} onChange={(e) => setField(i, { type: e.target.value, ...(isChoiceType(e.target.value) && !f.options ? { options: defaultChoiceOptions() } : {}) })}>
               {FIELD_TYPES.map((ft) => <option key={ft} value={ft}>{t('fieldTypes.' + ft)}</option>)}
             </select>
-            <label className="spe-req-toggle"><input type="checkbox" checked={!!f.required} onChange={(e) => setField(i, { required: e.target.checked })} /> {t('fields.required')}</label>
-          </div>
+            <Box as="label" className="spe-req-toggle"><Input type="checkbox" checked={!!f.required} onChange={(e) => setField(i, { required: e.target.checked })} /> {t('fields.required')}</Box>
+          </Box>
           {isChoiceType(f.type) ? (
-            <input className="spe-flex" placeholder={t('fields.optionsPlaceholder')}
+            <Input className="spe-flex" placeholder={t('fields.optionsPlaceholder')}
               value={(f.options || []).join(', ')}
               onChange={(e) => setField(i, { options: e.target.value.split(',').map((o) => o.trim()).filter(Boolean) })} />
           ) : isConsentType(f.type) ? (
             <>
-              <input className="spe-flex" placeholder={t('fields.consentLinkUrl')}
+              <Input className="spe-flex" placeholder={t('fields.consentLinkUrl')}
                 value={f.link || ''} onChange={(e) => setField(i, { link: e.target.value })} />
-              <input className="spe-flex" placeholder={t('fields.consentLinkText')}
+              <Input className="spe-flex" placeholder={t('fields.consentLinkText')}
                 value={f.linkText || ''} onChange={(e) => setField(i, { linkText: e.target.value })} />
             </>
           ) : null}
-        </div>
+        </Box>
       ))}
-      <button className="spe-add-row" onClick={add}><Plus size={14} /> {t('fields.addField')}</button>
-    </div>
+      <Btn className="spe-add-row" onClick={add}><Plus size={14} /> {t('fields.addField')}</Btn>
+    </Box>
   )
 }

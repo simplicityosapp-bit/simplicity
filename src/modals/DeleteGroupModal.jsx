@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn } from '../components/ui'
 
 /* Cascade-delete modal for groups. Mirrors the prototype's showDeleteOptions:
    for every child-type that has rows (members / future meetings / past sessions /
@@ -76,41 +77,41 @@ export default function DeleteGroupModal({ open, onClose, group, counts, onConfi
 
   return (
     <Modal open={open} onClose={onClose} title={t('deleteGroup.titleNamed', { name: group.name })}>
-      <p className="m-confirm-msg">{t('deleteGroup.intro')}</p>
-      <div className="dg-list">
+      <Txt as="p" className="m-confirm-msg">{t('deleteGroup.intro')}</Txt>
+      <Box className="dg-list">
         {options.length === 0 ? (
-          <p className="m-confirm-msg">{t('deleteGroup.noData')}</p>
+          <Txt as="p" className="m-confirm-msg">{t('deleteGroup.noData')}</Txt>
         ) : (
           options.map((o) => (
-            <div key={o.key} className="dg-row">
-              <div className="dg-row-text">
-                <p className="dg-row-l">{o.label}</p>
-                <p className="dg-row-sub">{o.sub}</p>
-              </div>
-              <div className="dg-row-choice">
-                <button
+            <Box key={o.key} className="dg-row">
+              <Box className="dg-row-text">
+                <Txt as="p" className="dg-row-l">{o.label}</Txt>
+                <Txt as="p" className="dg-row-sub">{o.sub}</Txt>
+              </Box>
+              <Box className="dg-row-choice">
+                <Btn
                   type="button"
                   className={`m-pill${choices[o.key] ? ' on' : ''}`}
                   onClick={() => set(o.key, true)}
                 >
                   {o.keepLabel}
-                </button>
-                <button
+                </Btn>
+                <Btn
                   type="button"
                   className={`m-pill${!choices[o.key] ? ' on' : ''}`}
                   onClick={() => set(o.key, false)}
                 >
                   {o.deleteLabel}
-                </button>
-              </div>
-            </div>
+                </Btn>
+              </Box>
+            </Box>
           ))
         )}
-      </div>
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save danger" onClick={submit}>{t('deleteGroup.confirm')}</button>
-      </div>
+      </Box>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save danger" onClick={submit}>{t('deleteGroup.confirm')}</Btn>
+      </Box>
     </Modal>
   )
 }

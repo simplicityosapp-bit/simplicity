@@ -8,6 +8,7 @@ import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import InfoPopover from '../../../components/InfoPopover'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* LOCAL YYYY-MM-DD — must match how daily answers are bucketed elsewhere
    (profileHealth `ymd`, overview `dayKey`). A UTC `toISOString()` here would
@@ -81,7 +82,7 @@ export default function InsightsWidget() {
   }
 
   const collapseBtn = (
-    <button
+    <Btn
       type="button"
       className="ins-collapse-btn"
       aria-label={collapsed ? t('widgets.insights.expand') : t('widgets.insights.collapse')}
@@ -89,36 +90,36 @@ export default function InsightsWidget() {
       onClick={(e) => { e.stopPropagation(); setCollapsed((c) => !c) }}
     >
       <HeartQIcon />
-    </button>
+    </Btn>
   )
 
   if (collapsed) {
     return (
-      <div className="ins-widget is-collapsed">
-        <div className="ins-collapsed">{collapseBtn}</div>
-      </div>
+      <Box className="ins-widget is-collapsed">
+        <Box className="ins-collapsed">{collapseBtn}</Box>
+      </Box>
     )
   }
 
   /* No questions yet — soft nudge to add one in settings. */
   if (activeQuestions.length === 0) {
     return (
-      <div className="ins-widget has-collapse">
+      <Box className="ins-widget has-collapse">
         {collapseBtn}
-        <p className="ins-q"><Sparkles size={16} strokeWidth={1.6} aria-hidden="true" /> {t('widgets.insights.prompt')}</p>
-        <button type="button" className="ins-add-link" onClick={() => navigate(ROUTES.SETTINGS)}>
+        <Txt as="p" className="ins-q"><Sparkles size={16} strokeWidth={1.6} aria-hidden="true" /> {t('widgets.insights.prompt')}</Txt>
+        <Btn type="button" className="ins-add-link" onClick={() => navigate(ROUTES.SETTINGS)}>
           {t('widgets.insights.addQuestion')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
     )
   }
 
   if (!q) {
     return (
-      <div className="ins-widget has-collapse">
+      <Box className="ins-widget has-collapse">
         {collapseBtn}
-        <p className="ins-empty">{t('widgets.insights.done')}</p>
-      </div>
+        <Txt as="p" className="ins-empty">{t('widgets.insights.done')}</Txt>
+      </Box>
     )
   }
 
@@ -136,17 +137,17 @@ export default function InsightsWidget() {
   const isYesNo = q.scale_type === 'yes_no'
 
   return (
-    <div className={`ins-widget${isYesNo ? ' has-collapse' : ' ins-slider-mode'}`}>
+    <Box className={`ins-widget${isYesNo ? ' has-collapse' : ' ins-slider-mode'}`}>
       {/* Yes/no keeps the floating collapse toggle; the slider layout folds
           the toggle into the control row so it sits inline beside the
           slider (see below). */}
       {isYesNo && collapseBtn}
       {isOverdue && (
-        <p className="ins-reminder">
+        <Txt as="p" className="ins-reminder">
           <Bell size={12} strokeWidth={1.8} aria-hidden="true" /> {t('widgets.insights.reminder')}
-        </p>
+        </Txt>
       )}
-      <p
+      <Txt as="p"
         className="ins-q ins-q-link"
         role="button"
         tabIndex={0}
@@ -158,24 +159,24 @@ export default function InsightsWidget() {
           label={t('widgets.insights.infoLabel')}
           text={t('widgets.insights.infoText')}
         />
-      </p>
+      </Txt>
 
       {isYesNo ? (
-        <div className="ins-yn">
-          <button type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(1)}>{t('widgets.insights.yes')}</button>
-          <button type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(0)}>{t('widgets.insights.no')}</button>
-        </div>
+        <Box className="ins-yn">
+          <Btn type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(1)}>{t('widgets.insights.yes')}</Btn>
+          <Btn type="button" className="ins-yn-btn" disabled={busy} onClick={() => save(0)}>{t('widgets.insights.no')}</Btn>
+        </Box>
       ) : (
         /* One compact line: collapse toggle and the save check sit at the two
            ends with the slider stretched between them. The current value is
            shown as a fixed number stacked above the check (no floating pill),
            which lets the row keep a single, short height. */
-        <div className="ins-slider-wrap">
+        <Box className="ins-slider-wrap">
           {/* Centred just above the slider (out of flow), sharing the top gap
               with the floating value number on the inline-end side. */}
-          {compare && <p className="ins-compare">{compare}</p>}
+          {compare && <Txt as="p" className="ins-compare">{compare}</Txt>}
           {collapseBtn}
-          <input
+          <Input
             type="range"
             min="1"
             max="10"
@@ -185,14 +186,14 @@ export default function InsightsWidget() {
             aria-label={text}
             onChange={(e) => setVal(parseInt(e.target.value, 10))}
           />
-          <div className="ins-save-col">
-            <span className="ins-slider-val mono" aria-hidden="true">{val ?? '—'}</span>
-            <button type="button" className="ins-save-btn" disabled={busy || val == null} onClick={() => save(val)} aria-label={t('widgets.insights.saveAria')}>
+          <Box className="ins-save-col">
+            <Txt className="ins-slider-val mono" aria-hidden="true">{val ?? '—'}</Txt>
+            <Btn type="button" className="ins-save-btn" disabled={busy || val == null} onClick={() => save(val)} aria-label={t('widgets.insights.saveAria')}>
               <Check size={15} strokeWidth={2} aria-hidden="true" />
-            </button>
-          </div>
-        </div>
+            </Btn>
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

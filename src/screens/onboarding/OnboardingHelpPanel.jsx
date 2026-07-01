@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { X } from 'lucide-react'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Slide-up panel pinned to the bottom of the step card. Holds the
    step-specific "what is this and how do we use it" explanation —
@@ -19,32 +20,32 @@ export default function OnboardingHelpPanel({ open, onClose, content }) {
   if (!open || !content) return null
   return (
     <>
-      <div className="ob-help-back" onClick={onClose} aria-hidden="true" />
-      <aside className="ob-help-panel" role="dialog" aria-modal="true" aria-label={content.title}>
-        <header className="ob-help-head">
-          <p className="ob-help-title">{content.title}</p>
-          <button
+      <Box className="ob-help-back" onClick={onClose} aria-hidden="true" />
+      <Box as="aside" className="ob-help-panel" role="dialog" aria-modal="true" aria-label={content.title}>
+        <Box as="header" className="ob-help-head">
+          <Txt as="p" className="ob-help-title">{content.title}</Txt>
+          <Btn
             type="button"
             className="ob-help-close"
             onClick={onClose}
             aria-label={t('help.closeAria')}
           >
             <X size={15} strokeWidth={1.7} aria-hidden="true" />
-          </button>
-        </header>
-        <div className="ob-help-body">
+          </Btn>
+        </Box>
+        <Box className="ob-help-body">
           {content.paragraphs.map((p, i) => (
-            <p key={i} className="ob-help-p">{p}</p>
+            <Txt as="p" key={i} className="ob-help-p">{p}</Txt>
           ))}
           {content.bullets && (
-            <ul className="ob-help-list">
+            <Box as="ul" className="ob-help-list">
               {content.bullets.map((b, i) => (
-                <li key={i}>{b}</li>
+                <Box as="li" key={i}>{b}</Box>
               ))}
-            </ul>
+            </Box>
           )}
-        </div>
-      </aside>
+        </Box>
+      </Box>
     </>
   )
 }

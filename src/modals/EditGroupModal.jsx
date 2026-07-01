@@ -5,6 +5,7 @@ import DateField from '../components/DateField'
 import { GROUP_BILLING_MODES } from '../lib/enums'
 import { useT } from '../i18n/useT'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 const DAYS = [0, 1, 2, 3, 4, 5, 6]
 
@@ -66,101 +67,101 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
 
   return (
     <Modal open={open} onClose={onClose} title={t('editGroup.title')}>
-      <div className="m-field">
-        <label className="m-label">{t('editGroup.groupName')}</label>
-        <input
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('editGroup.groupName')}</Box>
+        <Input
           className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
           value={form.name}
           onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
         />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('editGroup.pricing')}</label>
-        <div className="m-pills">
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('editGroup.pricing')}</Box>
+        <Box className="m-pills">
           {GROUP_BILLING_MODES.map((mode) => (
-            <button
+            <Btn
               key={mode}
               type="button"
               className={`m-pill${form.billing_mode === mode ? ' on' : ''}`}
               onClick={() => { set('billing_mode', mode); if (err) setErr('') }}
             >
               {t(`groupBilling.${mode}`)}
-            </button>
+            </Btn>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {form.billing_mode === 'package' && (
-        <div className="m-row2">
-          <div className="m-field">
-            <label className="m-label">{t('editGroup.packagePrice')}</label>
-            <input type="number" min="0" className="m-input" value={form.package_price} onChange={(e) => set('package_price', e.target.value)} />
-          </div>
-          <div className="m-field">
-            <label className="m-label">{t('editGroup.sessionCount')}</label>
-            <input type="number" min="1" className="m-input" value={form.package_sessions} onChange={(e) => set('package_sessions', e.target.value)} />
-          </div>
-        </div>
+        <Box className="m-row2">
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('editGroup.packagePrice')}</Box>
+            <Input type="number" min="0" className="m-input" value={form.package_price} onChange={(e) => set('package_price', e.target.value)} />
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('editGroup.sessionCount')}</Box>
+            <Input type="number" min="1" className="m-input" value={form.package_sessions} onChange={(e) => set('package_sessions', e.target.value)} />
+          </Box>
+        </Box>
       )}
 
       {form.billing_mode === 'per_session' && (
-        <div className="m-field">
-          <label className="m-label">{t('editGroup.pricePerSession')}</label>
-          <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => set('price_per_session', e.target.value)} />
-        </div>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editGroup.pricePerSession')}</Box>
+          <Input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => set('price_per_session', e.target.value)} />
+        </Box>
       )}
 
       {form.billing_mode === 'none' && (
-        <p className="m-hint">{t('editGroup.noneHint')}</p>
+        <Txt as="p" className="m-hint">{t('editGroup.noneHint')}</Txt>
       )}
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('editGroup.fixedDay')}</label>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editGroup.fixedDay')}</Box>
           <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {DAYS.map((d) => <option key={d} value={d}>{t(`common.day${d}`)}</option>)}
           </select>
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('editGroup.startTime')}</label>
-          <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
-        </div>
-      </div>
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('editGroup.endTime')}</label>
-          <input type="time" className="m-input" value={form.recurring_end_time} onChange={(e) => set('recurring_end_time', e.target.value)} />
-        </div>
-      </div>
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('editGroup.startDateOptional')}</label>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editGroup.startTime')}</Box>
+          <Input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
+        </Box>
+      </Box>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editGroup.endTime')}</Box>
+          <Input type="time" className="m-input" value={form.recurring_end_time} onChange={(e) => set('recurring_end_time', e.target.value)} />
+        </Box>
+      </Box>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editGroup.startDateOptional')}</Box>
           <DateField value={form.recurring_start_date} onChange={(e) => set('recurring_start_date', e.target.value)} />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('editGroup.endDateOptional')}</label>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editGroup.endDateOptional')}</Box>
           <DateField value={form.recurring_end_date} onChange={(e) => set('recurring_end_date', e.target.value)} />
-        </div>
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('editGroup.color')}</label>
-        <div className="m-colors">
+        </Box>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('editGroup.color')}</Box>
+        <Box className="m-colors">
           {COLORS.map((c) => (
-            <button key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => set('color', c)} />
+            <Btn key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => set('color', c)} />
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
       {onDelete && (
-        <button type="button" className="m-btn-delete" onClick={() => onDelete(group)}>
+        <Btn type="button" className="m-btn-delete" onClick={() => onDelete(group)}>
           <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" /> {t('editGroup.deleteGroup')}
-        </button>
+        </Btn>
       )}
     </Modal>
   )

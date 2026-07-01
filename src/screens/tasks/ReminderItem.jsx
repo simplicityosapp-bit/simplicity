@@ -3,6 +3,7 @@ import { Check, Pencil } from 'lucide-react'
 import { formatWhen } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
 import InlineTitle from './InlineTitle'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Mirrors TaskItem visually so the Tasks ↔ Reminders toggle keeps a
    single look. Status is "pending" → unchecked, "completed" → checked.
@@ -15,8 +16,8 @@ function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, onRe
   const meta = [clientName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
 
   return (
-    <div className={`tc anim${isDone ? ' is-done' : ''}`} style={{ animationDelay: `${index * 0.04}s` }}>
-      <button
+    <Box className={`tc anim${isDone ? ' is-done' : ''}`} style={{ animationDelay: `${index * 0.04}s` }}>
+      <Btn
         type="button"
         className={`tc-chk${isDone ? ' on' : ''}`}
         onClick={() => !isDone && onComplete?.(reminder)}
@@ -24,32 +25,32 @@ function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, onRe
         aria-label={isDone ? t('item.reminderDone') : t('item.checkReminder')}
       >
         {isDone && <Check size={13} strokeWidth={2.5} aria-hidden="true" />}
-      </button>
-      <div className="tc-body">
+      </Btn>
+      <Box className="tc-body">
         <InlineTitle
           className="tc-title"
           title={reminder.title}
           onRename={onRename ? (next) => onRename(reminder.id, next) : undefined}
         >
-          {count > 1 && <span className="tc-recur-count" title={t('item.pendingOccurrences', { n: count })}>×{count}</span>}
+          {count > 1 && <Txt className="tc-recur-count" title={t('item.pendingOccurrences', { n: count })}>×{count}</Txt>}
         </InlineTitle>
-        {meta && <p className="tc-meta">{meta}</p>}
+        {meta && <Txt as="p" className="tc-meta">{meta}</Txt>}
         {category && (
-          <div className="tc-tags">
-            <span className="tc-tag">
-              <span className="tc-tag-dot" style={{ background: category.color || 'var(--stone)' }} />
+          <Box className="tc-tags">
+            <Txt className="tc-tag">
+              <Txt className="tc-tag-dot" style={{ background: category.color || 'var(--stone)' }} />
               {category.name}
-            </span>
-          </div>
+            </Txt>
+          </Box>
         )}
-      </div>
+      </Box>
       {onEdit && (
-        <button type="button" className="tc-edit" onClick={() => onEdit(reminder)} aria-label={t('item.editReminder')}>
+        <Btn type="button" className="tc-edit" onClick={() => onEdit(reminder)} aria-label={t('item.editReminder')}>
           <Pencil size={13} strokeWidth={1.5} aria-hidden="true" />
-        </button>
+        </Btn>
       )}
-      <span className="tc-dot" style={{ background: dotColor }} aria-hidden="true" />
-    </div>
+      <Txt className="tc-dot" style={{ background: dotColor }} aria-hidden="true" />
+    </Box>
   )
 }
 

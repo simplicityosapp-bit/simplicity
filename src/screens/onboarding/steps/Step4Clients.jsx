@@ -10,6 +10,7 @@ import ClientFormFields from '../../../components/ClientFormFields'
 import MG from '../../../components/MG'
 import CsvMappingEditor from '../CsvMappingEditor'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt, Btn } from '../../../components/ui'
 
 const initials = (name) =>
   (name || '')
@@ -31,37 +32,37 @@ const blank = (defaultProjectId) => ({
 function ClientPreviewCard({ client, projectName, members, groups, onRemove, t }) {
   const { paid, balance, sessionsPaid, sessionsTotal } = clientBalance(client, [], [], members, groups)
   return (
-    <div className="ob-cc">
-      <div className="ob-cc-head">
-        <div className="ob-cc-av">{initials(client.name) || '–'}</div>
-        <div className="ob-cc-id">
-          <p className="ob-cc-name">{client.name || t('step4.previewName')}</p>
-          <div className="ob-cc-meta">
-            <span className="ob-cc-status"><MG text={t('step4.statusActive')} /></span>
-            {projectName && <span className="ob-cc-proj">{projectName}</span>}
-          </div>
-        </div>
+    <Box className="ob-cc">
+      <Box className="ob-cc-head">
+        <Box className="ob-cc-av">{initials(client.name) || '–'}</Box>
+        <Box className="ob-cc-id">
+          <Txt as="p" className="ob-cc-name">{client.name || t('step4.previewName')}</Txt>
+          <Box className="ob-cc-meta">
+            <Txt className="ob-cc-status"><MG text={t('step4.statusActive')} /></Txt>
+            {projectName && <Txt className="ob-cc-proj">{projectName}</Txt>}
+          </Box>
+        </Box>
         {onRemove && (
-          <button type="button" className="ob-cc-x" onClick={onRemove} aria-label={t('step4.removeAria', { name: client.name })}>
+          <Btn type="button" className="ob-cc-x" onClick={onRemove} aria-label={t('step4.removeAria', { name: client.name })}>
             <X size={14} strokeWidth={2} aria-hidden="true" />
-          </button>
+          </Btn>
         )}
-      </div>
-      <div className="ob-cc-stats">
-        <div className="ob-cc-stat">
-          <p className="ob-cc-stat-l">{t('step4.sessions')}</p>
-          <p className="ob-cc-stat-v mono">{sessionsPaid}/{sessionsTotal || 0}</p>
-        </div>
-        <div className="ob-cc-stat divided">
-          <p className="ob-cc-stat-l">{t('step4.paid')}</p>
-          <p className="ob-cc-stat-v mono">{isr(paid)}</p>
-        </div>
-        <div className="ob-cc-stat">
-          <p className="ob-cc-stat-l">{t('step4.balance')}</p>
-          <p className="ob-cc-stat-v mono">{isr(balance)}</p>
-        </div>
-      </div>
-    </div>
+      </Box>
+      <Box className="ob-cc-stats">
+        <Box className="ob-cc-stat">
+          <Txt as="p" className="ob-cc-stat-l">{t('step4.sessions')}</Txt>
+          <Txt as="p" className="ob-cc-stat-v mono">{sessionsPaid}/{sessionsTotal || 0}</Txt>
+        </Box>
+        <Box className="ob-cc-stat divided">
+          <Txt as="p" className="ob-cc-stat-l">{t('step4.paid')}</Txt>
+          <Txt as="p" className="ob-cc-stat-v mono">{isr(paid)}</Txt>
+        </Box>
+        <Box className="ob-cc-stat">
+          <Txt as="p" className="ob-cc-stat-l">{t('step4.balance')}</Txt>
+          <Txt as="p" className="ob-cc-stat-v mono">{isr(balance)}</Txt>
+        </Box>
+      </Box>
+    </Box>
   )
 }
 
@@ -225,16 +226,16 @@ export default function Step4Clients({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro">{addTitle}</p>
+      <Txt as="p" className="ob-intro">{addTitle}</Txt>
 
       <CsvMappingEditor parsed={ob.state.parsed_data} onChange={ob.setParsedData} stepKey="clients" title={t('step4.csvTitle')} />
 
       {pathA && suggestions.length > 0 && (
-        <div className="ob-field">
-          <p className="ob-label">{t('step4.fromFileLabel', { verb: t('step4.fromFileVerb') })}</p>
-          <div className="ob-pills">
+        <Box className="ob-field">
+          <Txt as="p" className="ob-label">{t('step4.fromFileLabel', { verb: t('step4.fromFileVerb') })}</Txt>
+          <Box className="ob-pills">
             {suggestions.map((s, i) => (
-              <button
+              <Btn
                 key={i}
                 type="button"
                 className={`ob-pill${form.name === s.name ? ' on' : ''}`}
@@ -242,15 +243,15 @@ export default function Step4Clients({ ob, setCTA }) {
                 title={s.email || s.phone || ''}
               >
                 {s.name}
-              </button>
+              </Btn>
             ))}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
 
       {/* Shared add-client fields — identical to the in-app modal, with a
           group select scoped to the chosen project. */}
-      <div className="ob-client-form">
+      <Box className="ob-client-form">
         <ClientFormFields
           form={form}
           set={set}
@@ -260,11 +261,11 @@ export default function Step4Clients({ ob, setCTA }) {
           groups={projectGroups}
           err={err}
         />
-      </div>
+      </Box>
 
       {/* Live preview card — faithful to the in-app client card. */}
       {composerHasName && (
-        <div className="ob-cc-wrap">
+        <Box className="ob-cc-wrap">
           <ClientPreviewCard
             client={previewClient}
             projectName={projectName(form.project_id)}
@@ -272,16 +273,16 @@ export default function Step4Clients({ ob, setCTA }) {
             groups={groups}
             t={t}
           />
-          <button type="button" className="ob-pc-add" onClick={onAddClient} disabled={busy}>
+          <Btn type="button" className="ob-pc-add" onClick={onAddClient} disabled={busy}>
             + <MG word="client" /> {t('step4.addToList')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
       )}
 
       {/* Cumulative list of added clients (real cards). */}
       {addedClients.length > 0 && (
-        <div className="ob-cc-list">
-          <p className="ob-label ob-cc-list-h">{t('step4.addedHeading', { count: addedClients.length })}</p>
+        <Box className="ob-cc-list">
+          <Txt as="p" className="ob-label ob-cc-list-h">{t('step4.addedHeading', { count: addedClients.length })}</Txt>
           {addedClients.map((c) => (
             <ClientPreviewCard
               key={c.id}
@@ -293,10 +294,10 @@ export default function Step4Clients({ ob, setCTA }) {
               t={t}
             />
           ))}
-        </div>
+        </Box>
       )}
 
-      {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
+      {err && <Txt as="p" className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</Txt>}
     </>
   )
 }

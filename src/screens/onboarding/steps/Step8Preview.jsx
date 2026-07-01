@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Moon } from 'lucide-react'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt } from '../../../components/ui'
 
 /* Step 8 — a read-only "מבט על" glimpse, faithful in FORMAT to the home
    MoonWidget (pace % primary + "% מהיעד" secondary, stacked inside the ring).
@@ -19,12 +20,12 @@ export default function Step8Preview({ ob, setCTA }) {
 
   return (
     <>
-      <div className="ob-preview-card ob-moon-card">
-        <p className="ob-preview-title">
+      <Box className="ob-preview-card ob-moon-card">
+        <Txt as="p" className="ob-preview-title">
           <Moon size={12} strokeWidth={2} aria-hidden="true" /> {t('step8.title')}
-        </p>
+        </Txt>
 
-        <div className="ob-moon-ring">
+        <Box className="ob-moon-ring">
           <svg viewBox="0 0 100 100" aria-hidden="true">
             <circle className="ob-moon-track" cx="50" cy="50" r={R} strokeWidth="6" fill="none" />
             <circle
@@ -34,21 +35,21 @@ export default function Step8Preview({ ob, setCTA }) {
               transform="rotate(-90 50 50)"
             />
           </svg>
-          <div className="ob-moon-center">
-            <span className="ob-moon-pct mono">{PACE}%</span>
-            <span className="ob-moon-kicker">{t('step8.kicker')}</span>
-            <span className="ob-moon-sub mono">{t('step8.toGoal', { pct: TO_GOAL })}</span>
-          </div>
-        </div>
+          <Box className="ob-moon-center">
+            <Txt className="ob-moon-pct mono">{PACE}%</Txt>
+            <Txt className="ob-moon-kicker">{t('step8.kicker')}</Txt>
+            <Txt className="ob-moon-sub mono">{t('step8.toGoal', { pct: TO_GOAL })}</Txt>
+          </Box>
+        </Box>
 
-        <p className="ob-empty-hint ob-moon-explain">
+        <Txt as="p" className="ob-empty-hint ob-moon-explain">
           {t('step8.explain')}
-        </p>
-      </div>
+        </Txt>
+      </Box>
 
-      <p className="ob-empty-hint" style={{ marginTop: 4 }}>
+      <Txt as="p" className="ob-empty-hint" style={{ marginTop: 4 }}>
         {t('step8.nothingToFill')}
-      </p>
+      </Txt>
 
     </>
   )

@@ -4,6 +4,7 @@ import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import { CATEGORY_COLORS } from '../lib/api/categories'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Dedicated editor for lead sources (name + colour). CRUD ties to
    useLeadSources via the parent. Deleting a source asks to confirm first;
@@ -33,17 +34,17 @@ export default function LeadSourcesModal({ open, onClose, sources = [], onAdd, o
 
   return (
     <Modal open={open} onClose={onClose} title={t('sourcesModal.title')}>
-      <p className="m-hint">{t('sourcesModal.hint')}</p>
+      <Txt as="p" className="m-hint">{t('sourcesModal.hint')}</Txt>
 
       {sources.length === 0 ? (
-        <p className="m-hint">{t('sourcesModal.empty')}</p>
+        <Txt as="p" className="m-hint">{t('sourcesModal.empty')}</Txt>
       ) : (
-        <div className="m-tax-chips">
+        <Box className="m-tax-chips">
           {sources.map((s) => (
-            <span key={s.id} className="m-tax-chip">
-              <span className="m-tax-dot" style={{ background: s.color || 'var(--stone)' }} />
-              <span>{s.name}</span>
-              <button
+            <Txt key={s.id} className="m-tax-chip">
+              <Txt className="m-tax-dot" style={{ background: s.color || 'var(--stone)' }} />
+              <Txt>{s.name}</Txt>
+              <Btn
                 type="button"
                 className="m-tax-x"
                 onClick={() => setConfirm({ id: s.id, name: s.name })}
@@ -51,17 +52,17 @@ export default function LeadSourcesModal({ open, onClose, sources = [], onAdd, o
                 title={t('sourcesModal.deleteHint')}
               >
                 <X size={11} strokeWidth={2} aria-hidden="true" />
-              </button>
-            </span>
+              </Btn>
+            </Txt>
           ))}
-        </div>
+        </Box>
       )}
 
-      <div className="m-field">
-        <label className="m-label">{t('sourcesModal.newSource')}</label>
-        <div className="m-colors">
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('sourcesModal.newSource')}</Box>
+        <Box className="m-colors">
           {CATEGORY_COLORS.map((c) => (
-            <button
+            <Btn
               key={c}
               type="button"
               className={`m-color${color === c ? ' on' : ''}`}
@@ -70,16 +71,16 @@ export default function LeadSourcesModal({ open, onClose, sources = [], onAdd, o
               onClick={() => setColor(c)}
             />
           ))}
-        </div>
-        <div className="m-tax-add">
-          <input
+        </Box>
+        <Box className="m-tax-add">
+          <Input
             className="m-input"
             value={name}
             onChange={(e) => { setName(e.target.value); setErr(null) }}
             onKeyDown={(e) => { if (e.key === 'Enter') add() }}
             placeholder={t('sourcesModal.placeholder')}
           />
-          <button
+          <Btn
             type="button"
             className="m-tax-add-btn"
             onClick={add}
@@ -87,14 +88,14 @@ export default function LeadSourcesModal({ open, onClose, sources = [], onAdd, o
             aria-label={t('sourcesModal.addAria')}
           >
             <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
-          </button>
-        </div>
-        {err && <p className="m-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
-      </div>
+          </Btn>
+        </Box>
+        {err && <Txt as="p" className="m-hint" style={{ color: 'var(--clay)' }}>{err}</Txt>}
+      </Box>
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-save" onClick={onClose}>{t('sourcesModal.close')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-save" onClick={onClose}>{t('sourcesModal.close')}</Btn>
+      </Box>
 
       <ConfirmModal
         open={!!confirm}

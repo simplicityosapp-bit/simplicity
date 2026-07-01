@@ -12,6 +12,7 @@ import { isr } from '../../../lib/finance'
 import { formatWhen } from '../../../lib/dates'
 import { toDateKey } from '../../../lib/recurring'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt, Btn } from '../../../components/ui'
 
 /* Pending-meeting review list — extracted from the old MeetingConfirmWidget,
    now rendered inside the home "דרושה תשומת לב" popup. Per meeting: name +
@@ -70,65 +71,65 @@ export default function MeetingConfirmList() {
   const deleteTx = (tx) => removeTransaction(tx.id)
 
   if (!pending.length) {
-    return <p className="h-card-empty" style={{ margin: '4px 2px' }}>{t('widgets.meetingConfirm.empty')}</p>
+    return <Txt as="p" className="h-card-empty" style={{ margin: '4px 2px' }}>{t('widgets.meetingConfirm.empty')}</Txt>
   }
 
   return (
-    <div className="h-card-list">
+    <Box className="h-card-list">
       {pending.map((m) => {
         const linkedTxs = linkedTxsForMeeting(m)
         return (
-          <div key={m.id} className="mtg-confirm-row">
-            <div className="mtg-confirm-head">
-              <div className="mtg-confirm-main">
-                <p className="mtg-confirm-name">{subjectName(m)}</p>
-                <p className="mtg-confirm-when">{formatWhen(m.scheduled_at)}</p>
-              </div>
-              <div className="mtg-confirm-actions">
-                <button type="button" className="mtg-confirm-btn approve" onClick={() => confirmMeeting(m)} aria-label={t('widgets.meetingConfirm.meetingHappened')}>
+          <Box key={m.id} className="mtg-confirm-row">
+            <Box className="mtg-confirm-head">
+              <Box className="mtg-confirm-main">
+                <Txt as="p" className="mtg-confirm-name">{subjectName(m)}</Txt>
+                <Txt as="p" className="mtg-confirm-when">{formatWhen(m.scheduled_at)}</Txt>
+              </Box>
+              <Box className="mtg-confirm-actions">
+                <Btn type="button" className="mtg-confirm-btn approve" onClick={() => confirmMeeting(m)} aria-label={t('widgets.meetingConfirm.meetingHappened')}>
                   <Check size={15} strokeWidth={2} aria-hidden="true" />
-                </button>
-                <button type="button" className="mtg-confirm-btn skip" onClick={() => skipMeeting(m)} aria-label={t('widgets.meetingConfirm.meetingSkipped')}>
+                </Btn>
+                <Btn type="button" className="mtg-confirm-btn skip" onClick={() => skipMeeting(m)} aria-label={t('widgets.meetingConfirm.meetingSkipped')}>
                   <X size={15} strokeWidth={2} aria-hidden="true" />
-                </button>
-              </div>
-            </div>
+                </Btn>
+              </Box>
+            </Box>
 
             {linkedTxs.map((tx) => {
               const cat = tx.category_id ? (categories || []).find((c) => c.id === tx.category_id) : null
               return (
-                <div key={tx.id} className="mtg-confirm-linked">
-                  <div className="mtg-confirm-main">
-                    <p className="mtg-confirm-tx-desc">
-                      <span className="mtg-confirm-tx-amt mono">−{isr(tx.amount)}</span>
+                <Box key={tx.id} className="mtg-confirm-linked">
+                  <Box className="mtg-confirm-main">
+                    <Txt as="p" className="mtg-confirm-tx-desc">
+                      <Txt className="mtg-confirm-tx-amt mono">−{isr(tx.amount)}</Txt>
                       {tx.desc ? ' · ' + tx.desc : ''}
-                    </p>
-                    <p className="mtg-confirm-tx-meta">
+                    </Txt>
+                    <Txt as="p" className="mtg-confirm-tx-meta">
                       {cat ? (
                         <>
-                          <span className="mtg-confirm-tx-dot" style={{ background: cat.color || 'var(--stone)' }} />
+                          <Txt className="mtg-confirm-tx-dot" style={{ background: cat.color || 'var(--stone)' }} />
                           {cat.name}
                         </>
                       ) : t('widgets.meetingConfirm.linkedExpense')}
-                    </p>
-                  </div>
-                  <div className="mtg-confirm-actions">
-                    <button type="button" className="mtg-confirm-btn approve" onClick={() => confirmTx(tx)} aria-label={t('widgets.meetingConfirm.txPaid')}>
+                    </Txt>
+                  </Box>
+                  <Box className="mtg-confirm-actions">
+                    <Btn type="button" className="mtg-confirm-btn approve" onClick={() => confirmTx(tx)} aria-label={t('widgets.meetingConfirm.txPaid')}>
                       <Check size={15} strokeWidth={2} aria-hidden="true" />
-                    </button>
-                    <button type="button" className="mtg-confirm-btn skip" onClick={() => skipTx(tx)} aria-label={t('widgets.meetingConfirm.txNotPaid')}>
+                    </Btn>
+                    <Btn type="button" className="mtg-confirm-btn skip" onClick={() => skipTx(tx)} aria-label={t('widgets.meetingConfirm.txNotPaid')}>
                       <X size={15} strokeWidth={2} aria-hidden="true" />
-                    </button>
-                    <button type="button" className="mtg-confirm-btn delete" onClick={() => deleteTx(tx)} aria-label={t('widgets.meetingConfirm.txDelete')}>
+                    </Btn>
+                    <Btn type="button" className="mtg-confirm-btn delete" onClick={() => deleteTx(tx)} aria-label={t('widgets.meetingConfirm.txDelete')}>
                       <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
-                    </button>
-                  </div>
-                </div>
+                    </Btn>
+                  </Box>
+                </Box>
               )
             })}
-          </div>
+          </Box>
         )
       })}
-    </div>
+    </Box>
   )
 }

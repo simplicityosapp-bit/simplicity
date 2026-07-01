@@ -1,5 +1,6 @@
 import { Component } from 'react'
 import { hasReloadGuard, markReloadGuard } from '../lib/lazyWithRetry'
+import { Box, Txt, Btn } from './ui'
 
 /* Last-line safety net. Without this, ANY error thrown while rendering a
    screen — a lazy chunk that slipped past lazyWithRetry, or a runtime bug in
@@ -44,16 +45,16 @@ export default class ErrorBoundary extends Component {
   render() {
     if (this.state.error) {
       return (
-        <div className="splash" role="alert">
-          <div className="splash-logo-wrap">
+        <Box className="splash" role="alert">
+          <Box className="splash-logo-wrap">
             <img className="splash-logo light" src="/logo-dark.png" alt="" aria-hidden="true" />
             <img className="splash-logo dark"  src="/logo-light.png" alt="" aria-hidden="true" />
-          </div>
-          <p className="splash-label">משהו השתבש. ננסה שוב?</p>
-          <button type="button" className="splash-retry" onClick={() => window.location.reload()}>
+          </Box>
+          <Txt as="p" className="splash-label">משהו השתבש. ננסה שוב?</Txt>
+          <Btn type="button" className="splash-retry" onClick={() => window.location.reload()}>
             רענון
-          </button>
-        </div>
+          </Btn>
+        </Box>
       )
     }
     return this.props.children

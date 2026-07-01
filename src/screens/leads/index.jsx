@@ -29,6 +29,7 @@ import Modal from '../../modals/Modal'
 import Coachmark from '../../components/Coachmark'
 import { useT } from '../../i18n/useT'
 import './LeadsScreen.css'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 const DEFAULT_LEADS_FILTER = { period: 'all', project: '', group: '', status: '', source: '', sort: '' }
 
@@ -205,29 +206,29 @@ export default function LeadsScreen() {
   const leadDnd = usePointerDnd({ onDrop: handleDropLead })
 
   return (
-    <div className="screen">
-      <div className="screen-top">
-        <header className="screen-head">
-          <div>
-            <div className="screen-head-meta">
-              <p className="lbl">{t('countLabel', { count: total })}</p>
-              <span className="lbl dot">·</span>
-              <p className="lbl">{view === 'statuses' ? t('tabStatuses') : t('tabLeads')}</p>
-            </div>
-            <p className="lbl-sm">{t('tagline')}</p>
-          </div>
-          <p className="t-screen">{t('title')}</p>
-        </header>
+    <Box className="screen">
+      <Box className="screen-top">
+        <Box as="header" className="screen-head">
+          <Box>
+            <Box className="screen-head-meta">
+              <Txt as="p" className="lbl">{t('countLabel', { count: total })}</Txt>
+              <Txt className="lbl dot">·</Txt>
+              <Txt as="p" className="lbl">{view === 'statuses' ? t('tabStatuses') : t('tabLeads')}</Txt>
+            </Box>
+            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
+          </Box>
+          <Txt as="p" className="t-screen">{t('title')}</Txt>
+        </Box>
         {view === 'kanban' && (
           <Coachmark id="add-lead" radius="50%">
-            <button className="cta-add" type="button" aria-label={t('newLeadAria')} onClick={() => setShowAdd(true)}>{t('newLead')}</button>
+            <Btn className="cta-add" type="button" aria-label={t('newLeadAria')} onClick={() => setShowAdd(true)}>{t('newLead')}</Btn>
           </Coachmark>
         )}
-      </div>
+      </Box>
 
-      <div className="l-toolbar">
-      <div className="l-view-toggle" role="tablist" aria-label={t('viewToggleAria')}>
-        <button
+      <Box className="l-toolbar">
+      <Box className="l-view-toggle" role="tablist" aria-label={t('viewToggleAria')}>
+        <Btn
           type="button"
           className={`l-view-btn${view === 'kanban' ? ' on' : ''}`}
           onClick={() => setView('kanban')}
@@ -235,8 +236,8 @@ export default function LeadsScreen() {
           aria-selected={view === 'kanban'}
         >
           {t('tabLeads')}
-        </button>
-        <button
+        </Btn>
+        <Btn
           type="button"
           className={`l-view-btn${view === 'statuses' ? ' on' : ''}`}
           onClick={() => setView('statuses')}
@@ -244,25 +245,25 @@ export default function LeadsScreen() {
           aria-selected={view === 'statuses'}
         >
           {t('tabStatuses')}
-        </button>
-      </div>
-        <button
+        </Btn>
+      </Box>
+        <Btn
           type="button"
           className="l-sources-link"
           onClick={() => setShowSources(true)}
         >
           <Leaf size={14} strokeWidth={1.7} aria-hidden="true" />
           {t('sourcesLink')}
-        </button>
-        <button
+        </Btn>
+        <Btn
           type="button"
           className="l-sources-link"
           onClick={() => navigate(ROUTES.LEAD_PAGES)}
         >
           <Link2 size={14} strokeWidth={1.7} aria-hidden="true" />
           {t('leadPagesLink')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
       <PendingLeadsSection
         pending={pendingReview}
@@ -271,47 +272,47 @@ export default function LeadsScreen() {
         onReject={rejectLead}
       />
 
-      <div className="l-stats">
-        <div className="l-stat">
-          <span className="l-stat-icon"><Leaf size={16} strokeWidth={1.6} aria-hidden="true" /></span>
-          <div>
-            <p className="l-stat-num mono">{stats.newThisMonth}</p>
-            <p className="l-stat-lbl">{t('stats.newThisMonth')}</p>
-          </div>
-        </div>
-        <div className="l-stat">
-          <span className="l-stat-icon"><ArrowLeft size={16} strokeWidth={1.6} aria-hidden="true" /></span>
-          <div>
-            <p className="l-stat-num mono">{stats.convertedThisMonth}</p>
-            <p className="l-stat-lbl">{t('stats.converted')}</p>
-          </div>
-        </div>
-        <div className="l-stat">
-          <span className="l-stat-icon"><TrendingUp size={16} strokeWidth={1.6} aria-hidden="true" /></span>
-          <div>
-            <p className="l-stat-num mono">{stats.convRate === null ? '—' : `${stats.convRate}%`}</p>
-            <p className="l-stat-lbl">{t('stats.convRate')}</p>
-          </div>
-        </div>
-      </div>
+      <Box className="l-stats">
+        <Box className="l-stat">
+          <Txt className="l-stat-icon"><Leaf size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+          <Box>
+            <Txt as="p" className="l-stat-num mono">{stats.newThisMonth}</Txt>
+            <Txt as="p" className="l-stat-lbl">{t('stats.newThisMonth')}</Txt>
+          </Box>
+        </Box>
+        <Box className="l-stat">
+          <Txt className="l-stat-icon"><ArrowLeft size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+          <Box>
+            <Txt as="p" className="l-stat-num mono">{stats.convertedThisMonth}</Txt>
+            <Txt as="p" className="l-stat-lbl">{t('stats.converted')}</Txt>
+          </Box>
+        </Box>
+        <Box className="l-stat">
+          <Txt className="l-stat-icon"><TrendingUp size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+          <Box>
+            <Txt as="p" className="l-stat-num mono">{stats.convRate === null ? '—' : `${stats.convRate}%`}</Txt>
+            <Txt as="p" className="l-stat-lbl">{t('stats.convRate')}</Txt>
+          </Box>
+        </Box>
+      </Box>
 
-      <button
+      <Btn
         type="button"
         className={`l-followup-banner${dueFollowups.length === 0 ? ' muted' : ''}`}
         onClick={() => setShowFollowups(true)}
       >
         <Bell size={15} strokeWidth={1.8} aria-hidden="true" />
-        {dueFollowups.length > 0 && <span className="l-followup-count mono">{dueFollowups.length}</span>}
-        <span className="l-followup-text">
+        {dueFollowups.length > 0 && <Txt className="l-followup-count mono">{dueFollowups.length}</Txt>}
+        <Txt className="l-followup-text">
           {dueFollowups.length === 0 ? t('followups.empty') : t('followups.due')}
-        </span>
+        </Txt>
         <ChevronLeft size={15} strokeWidth={1.7} className="l-followup-chev" aria-hidden="true" />
-      </button>
+      </Btn>
 
       {loading ? (
-        <div className="empty"><p className="empty-text">{t('loading')}</p></div>
+        <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
       ) : error ? (
-        <div className="empty"><p className="empty-text">{t('loadError', { error })}</p></div>
+        <Box className="empty"><Txt as="p" className="empty-text">{t('loadError', { error })}</Txt></Box>
       ) : view === 'statuses' ? (
         <LeadStatusesPanel
           statuses={leadStatuses}
@@ -321,17 +322,17 @@ export default function LeadsScreen() {
         />
       ) : (
         <>
-          <div className="l-filterbar">
-            <div className="l-search">
+          <Box className="l-filterbar">
+            <Box className="l-search">
               <Search size={16} strokeWidth={1.6} aria-hidden="true" />
-              <input
+              <Input
                 type="search"
                 placeholder={t('search')}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
-            </div>
-            <button
+            </Box>
+            <Btn
               type="button"
               className={`l-filter-btn${activeFilterCount ? ' on' : ''}`}
               onClick={() => setShowFilter(true)}
@@ -339,10 +340,10 @@ export default function LeadsScreen() {
             >
               <SlidersHorizontal size={14} strokeWidth={1.7} aria-hidden="true" />
               {t('filter.btn')}
-              {activeFilterCount > 0 && <span className="l-filter-count mono">{activeFilterCount}</span>}
-            </button>
-          </div>
-          <div className="lead-board">
+              {activeFilterCount > 0 && <Txt className="l-filter-count mono">{activeFilterCount}</Txt>}
+            </Btn>
+          </Box>
+          <Box className="lead-board">
           {LEAD_META.map((m) => (
             <LeadColumn
               key={m.key}
@@ -358,7 +359,7 @@ export default function LeadsScreen() {
               statuses={leadStatuses}
             />
           ))}
-          </div>
+          </Box>
         </>
       )}
 
@@ -428,27 +429,27 @@ export default function LeadsScreen() {
         onClose={() => setDropPicker(null)}
         title={t('dropPicker.title')}
       >
-        <div className="lead-drop-picker">
+        <Box className="lead-drop-picker">
           {(dropPicker?.subs || []).map((s) => (
-            <button
+            <Btn
               key={s.id}
               type="button"
               className="lead-drop-opt"
               onClick={() => { applyLeadMove(dropPicker.leadId, dropPicker.newMeta, s.id); setDropPicker(null) }}
             >
-              <span className="lead-drop-dot" style={{ background: s.color || 'var(--stone)' }} aria-hidden="true" />
-              <span>{s.icon ? `${s.icon} ` : ''}{s.display_name}</span>
-            </button>
+              <Txt className="lead-drop-dot" style={{ background: s.color || 'var(--stone)' }} aria-hidden="true" />
+              <Txt>{s.icon ? `${s.icon} ` : ''}{s.display_name}</Txt>
+            </Btn>
           ))}
-          <button
+          <Btn
             type="button"
             className="lead-drop-opt muted"
             onClick={() => { applyLeadMove(dropPicker.leadId, dropPicker.newMeta, null); setDropPicker(null) }}
           >
             {t('dropPicker.none')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
       </Modal>
-    </div>
+    </Box>
   )
 }

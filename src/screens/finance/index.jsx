@@ -27,6 +27,7 @@ import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
 import { useT } from '../../i18n/useT'
 import './FinanceScreen.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1)
 
@@ -103,26 +104,26 @@ export default function FinanceScreen() {
   const prevSummary = useMemo(() => sumConfirmed(prevMonthTxs), [prevMonthTxs])
 
   return (
-    <div className="screen">
-      <div className="screen-top">
-        <header className="screen-head">
-          <div>
-            <div className="screen-head-meta">
-              <p className="lbl">{t('countLabel', { count: monthTxs.length })}</p>
-              <span className="lbl dot">·</span>
-              <p className="lbl">{t('snapshot')}</p>
-            </div>
-            <p className="lbl-sm">{t('tagline')}</p>
-          </div>
-          <p className="t-screen">{t('title')}</p>
-        </header>
+    <Box className="screen">
+      <Box className="screen-top">
+        <Box as="header" className="screen-head">
+          <Box>
+            <Box className="screen-head-meta">
+              <Txt as="p" className="lbl">{t('countLabel', { count: monthTxs.length })}</Txt>
+              <Txt className="lbl dot">·</Txt>
+              <Txt as="p" className="lbl">{t('snapshot')}</Txt>
+            </Box>
+            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
+          </Box>
+          <Txt as="p" className="t-screen">{t('title')}</Txt>
+        </Box>
         <Coachmark id="add-transaction" radius="50%">
-          <button className="cta-add" type="button" aria-label={t('newTxAria')} onClick={() => setShowAdd(true)}>{t('newTx')}</button>
+          <Btn className="cta-add" type="button" aria-label={t('newTxAria')} onClick={() => setShowAdd(true)}>{t('newTx')}</Btn>
         </Coachmark>
-      </div>
+      </Box>
 
-      <div className="f-export-row">
-        <button
+      <Box className="f-export-row">
+        <Btn
           type="button"
           className="f-export-btn"
           onClick={() => exportTransactionsCSV({ transactions: monthTxs, clients, projects, categories, monthDate: month })}
@@ -130,8 +131,8 @@ export default function FinanceScreen() {
           aria-label={t('exportCsvAria')}
         >
           {t('exportCsv')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
       <MonthSummary
         month={month}
@@ -147,7 +148,7 @@ export default function FinanceScreen() {
 
       <FinanceChart month={month} />
 
-      <div className="f-mid">
+      <Box className="f-mid">
         <IncomeByProject monthTxs={monthTxs} clients={clients} projects={projects} />
         <ExpensesByCategory monthTxs={monthTxs} categories={categories} />
 
@@ -164,7 +165,7 @@ export default function FinanceScreen() {
           onAdd={addCategory}
           onDelete={(c) => removeCategory(c.id)}
         />
-      </div>
+      </Box>
 
       <InvoiceImports />
 
@@ -178,24 +179,24 @@ export default function FinanceScreen() {
         onEdit={setEditTx}
       />
 
-      <section className="f-list">
+      <Box as="section" className="f-list">
         {loading ? (
-          <div className="empty"><p className="empty-text">{t('loading')}</p></div>
+          <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
         ) : error ? (
-          <div className="empty"><p className="empty-text">{t('loadError', { error })}</p></div>
+          <Box className="empty"><Txt as="p" className="empty-text">{t('loadError', { error })}</Txt></Box>
         ) : (
           <>
             {skippedCount > 0 && (
-              <div className="f-skipped-toggle">
-                <button
+              <Box className="f-skipped-toggle">
+                <Btn
                   type="button"
                   className={`f-skipped-btn${showSkipped ? ' on' : ''}`}
                   onClick={() => setShowSkipped(!showSkipped)}
                   aria-pressed={showSkipped}
                 >
                   {showSkipped ? t('hideSkipped') : t('showSkipped', { count: skippedCount })}
-                </button>
-              </div>
+                </Btn>
+              </Box>
             )}
             <TransactionList
               transactions={monthTxs}
@@ -211,7 +212,7 @@ export default function FinanceScreen() {
             />
           </>
         )}
-      </section>
+      </Box>
 
       <AddTransactionModal
         open={showAdd}
@@ -278,6 +279,6 @@ export default function FinanceScreen() {
         danger
         onConfirm={() => { if (pendingDeleteRec) removeRecurring(pendingDeleteRec.id) }}
       />
-    </div>
+    </Box>
   )
 }

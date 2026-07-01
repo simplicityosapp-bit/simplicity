@@ -4,6 +4,7 @@ import { isr } from '../../lib/finance'
 import { fmtShortDate } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
 import './PendingSection.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Dedicated pending-transactions section. Mirrors the prototype's
    f-pending-section: a prominent attention card listing each pending
@@ -36,33 +37,33 @@ export default function PendingSection({ transactions, clients = [], projects = 
      drop the amber card wrapper + the icon/title (the modal already has both)
      so it reads as one clean card, not a card-in-card with a doubled heading. */
   return (
-    <section className={`f-pending${embedded ? ' embedded' : ''}`}>
-      <div className="f-pending-head">
+    <Box as="section" className={`f-pending${embedded ? ' embedded' : ''}`}>
+      <Box className="f-pending-head">
         {!embedded && (
-          <span className="f-pending-icon">
+          <Txt className="f-pending-icon">
             <AlertCircle size={15} strokeWidth={1.8} aria-hidden="true" />
-          </span>
+          </Txt>
         )}
-        <div className="f-pending-id">
-          {!embedded && <p className="f-pending-title">{t('pending.count', { count: transactions.length })}</p>}
-          <p className="f-pending-sub">
+        <Box className="f-pending-id">
+          {!embedded && <Txt as="p" className="f-pending-title">{t('pending.count', { count: transactions.length })}</Txt>}
+          <Txt as="p" className="f-pending-sub">
             {totalIncome > 0 && <>{t('pending.income', { amount: isr(totalIncome) })}</>}
             {totalIncome > 0 && totalExpense > 0 && ' · '}
             {totalExpense > 0 && <>{t('pending.expenses', { amount: isr(totalExpense) })}</>}
-          </p>
-        </div>
+          </Txt>
+        </Box>
         {transactions.length > 1 && (
-          <button
+          <Btn
             type="button"
             className="f-pending-bulk"
             onClick={approveAll}
             disabled={bulkBusy}
           >
             <Check size={13} strokeWidth={1.9} aria-hidden="true" /> {bulkBusy ? t('pending.approving') : t('pending.approveAll')}
-          </button>
+          </Btn>
         )}
-      </div>
-      <div className="f-pending-list">
+      </Box>
+      <Box className="f-pending-list">
         {transactions.map((tx) => {
           const client = tx.client_id ? clients.find((c) => c.id === tx.client_id) : null
           const project = tx.project_id ? projects.find((p) => p.id === tx.project_id) : null
@@ -70,7 +71,7 @@ export default function PendingSection({ transactions, clients = [], projects = 
           const meta = [client?.name, project?.name].filter(Boolean).join(' · ')
           const isExpense = tx.type === 'expense'
           return (
-            <div
+            <Box
               key={tx.id}
               className="f-pending-row"
               role="button"
@@ -78,27 +79,27 @@ export default function PendingSection({ transactions, clients = [], projects = 
               onClick={() => onEdit?.(tx)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit?.(tx) } }}
             >
-              <div className="f-pending-row-id">
-                <p className="f-pending-desc">{tx.desc || t('pending.noDesc')}</p>
-                <p className="f-pending-meta">
-                  <span>{fmtShortDate(tx.date)}</span>
-                  {meta && <><span className="f-pending-dot">·</span><span>{meta}</span></>}
+              <Box className="f-pending-row-id">
+                <Txt as="p" className="f-pending-desc">{tx.desc || t('pending.noDesc')}</Txt>
+                <Txt as="p" className="f-pending-meta">
+                  <Txt>{fmtShortDate(tx.date)}</Txt>
+                  {meta && <><Txt className="f-pending-dot">·</Txt><Txt>{meta}</Txt></>}
                   {category && (
                     <>
-                      <span className="f-pending-dot">·</span>
-                      <span className="f-pending-cat">
-                        <span className="f-pending-cat-dot" style={{ background: category.color || 'var(--stone)' }} />
+                      <Txt className="f-pending-dot">·</Txt>
+                      <Txt className="f-pending-cat">
+                        <Txt className="f-pending-cat-dot" style={{ background: category.color || 'var(--stone)' }} />
                         {category.name}
-                      </span>
+                      </Txt>
                     </>
                   )}
-                </p>
-              </div>
-              <p className={`f-pending-amt mono ${isExpense ? 'exp' : 'inc'}`}>
+                </Txt>
+              </Box>
+              <Txt as="p" className={`f-pending-amt mono ${isExpense ? 'exp' : 'inc'}`}>
                 {isExpense ? '−' : '+'}{isr(tx.amount)}
-              </p>
-              <div className="f-pending-actions">
-                <button
+              </Txt>
+              <Box className="f-pending-actions">
+                <Btn
                   type="button"
                   className="f-tx-btn approve"
                   onClick={(e) => { e.stopPropagation(); onApprove(tx.id) }}
@@ -106,8 +107,8 @@ export default function PendingSection({ transactions, clients = [], projects = 
                   aria-label={t('pending.approve')}
                 >
                   <Check size={14} strokeWidth={2} aria-hidden="true" />
-                </button>
-                <button
+                </Btn>
+                <Btn
                   type="button"
                   className="f-tx-btn skip"
                   onClick={(e) => { e.stopPropagation(); onSkip(tx.id) }}
@@ -115,9 +116,9 @@ export default function PendingSection({ transactions, clients = [], projects = 
                   aria-label={t('pending.skip')}
                 >
                   <X size={14} strokeWidth={2} aria-hidden="true" />
-                </button>
+                </Btn>
                 {onDelete && (
-                  <button
+                  <Btn
                     type="button"
                     className="f-tx-btn delete"
                     onClick={(e) => { e.stopPropagation(); onDelete(tx.id) }}
@@ -125,13 +126,13 @@ export default function PendingSection({ transactions, clients = [], projects = 
                     aria-label={t('pending.delete')}
                   >
                     <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
-                  </button>
+                  </Btn>
                 )}
-              </div>
-            </div>
+              </Box>
+            </Box>
           )
         })}
-      </div>
-    </section>
+      </Box>
+    </Box>
   )
 }

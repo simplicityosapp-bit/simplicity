@@ -20,6 +20,7 @@ import AddGoalModal from '../../modals/AddGoalModal'
 import AddReminderModal from '../../modals/AddReminderModal'
 import ScheduleMeetingModal from '../../modals/ScheduleMeetingModal'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Project-scoped twin of the home QuickRow. A single "תנועה מהירה" CTA
    drives the launcher → Add* modal flow, where every Add* opened from
@@ -57,15 +58,15 @@ export default function ProjectQuickRow({ projectId, projectName }) {
   const close = () => setActive(null)
 
   return (
-    <div className="h-quick-row">
-      <button
+    <Box className="h-quick-row">
+      <Btn
         type="button"
         className="h-quick-btn h-quick-primary"
         onClick={() => setShowLauncher(true)}
       >
         <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        <span>{t('detail.quick.add')}</span>
-      </button>
+        <Txt>{t('detail.quick.add')}</Txt>
+      </Btn>
 
       <QuickActionsModal
         open={showLauncher}
@@ -118,6 +119,6 @@ export default function ProjectQuickRow({ projectId, projectName }) {
         clients={clients}
         onSave={addMeeting}
       />
-    </div>
+    </Box>
   )
 }

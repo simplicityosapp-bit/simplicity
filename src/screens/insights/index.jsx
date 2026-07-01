@@ -14,13 +14,14 @@ import {
 import { fmtShortDate } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
 import './InsightsScreen.css'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 /* ── Inline trend line — last 30 days, missing days drawn as gaps. */
 function TrendLine({ points, t }) {
   const W = 240, H = 48, pad = 4
   const numeric = points.filter((p) => p.value != null)
   if (numeric.length < 2) {
-    return <div className="ins-trend-empty">{t('trend.notEnough')}</div>
+    return <Box className="ins-trend-empty">{t('trend.notEnough')}</Box>
   }
   const min = Math.min(...numeric.map((p) => p.value))
   const max = Math.max(...numeric.map((p) => p.value))
@@ -94,7 +95,7 @@ function DeltaPill({ delta }) {
   if (delta == null || Math.abs(delta) < 0.05) return null
   const tone = delta > 0 ? 'pos' : 'neg'
   const sign = delta > 0 ? '+' : '−'
-  return <span className={`ins-delta ${tone} mono`}>{sign}{Math.abs(delta).toFixed(1)}</span>
+  return <Txt className={`ins-delta ${tone} mono`}>{sign}{Math.abs(delta).toFixed(1)}</Txt>
 }
 
 function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle, onEdit, onDelete, skipped, onSkip, t, gender }) {
@@ -107,12 +108,12 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
   const active = !!question.active
 
   return (
-    <section className={`ins-q-card${active ? '' : ' inactive'}`}>
-      <div className="ins-q-head">
-        <span className="ins-q-icon">{question.icon || '🫧'}</span>
-        <p className="ins-q-text">{questionText(question, gender)}</p>
-        {latestAnswerToday != null && <span className="ins-q-today-pill mono">{t('card.todayPill', { value: latestAnswerToday })}</span>}
-        <button
+    <Box as="section" className={`ins-q-card${active ? '' : ' inactive'}`}>
+      <Box className="ins-q-head">
+        <Txt className="ins-q-icon">{question.icon || '🫧'}</Txt>
+        <Txt as="p" className="ins-q-text">{questionText(question, gender)}</Txt>
+        {latestAnswerToday != null && <Txt className="ins-q-today-pill mono">{t('card.todayPill', { value: latestAnswerToday })}</Txt>}
+        <Btn
           type="button"
           role="switch"
           aria-checked={active}
@@ -121,9 +122,9 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
           className={`ins-q-toggle${active ? ' on' : ''}`}
           onClick={onToggle}
         >
-          <span className="ins-q-toggle-knob" />
-        </button>
-        <button
+          <Txt className="ins-q-toggle-knob" />
+        </Btn>
+        <Btn
           type="button"
           className="ins-q-icon-btn"
           onClick={onEdit}
@@ -131,8 +132,8 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
           title={t('card.editTitle')}
         >
           <Pencil size={14} strokeWidth={1.7} aria-hidden="true" />
-        </button>
-        <button
+        </Btn>
+        <Btn
           type="button"
           className="ins-q-icon-btn danger"
           onClick={onDelete}
@@ -140,8 +141,8 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
           title={t('card.deleteTitle')}
         >
           <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
       {/* Entry row — only for an active, due-today question not yet
           answered AND not skipped-for-today (beta 07/06/2026: a small
@@ -149,15 +150,15 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
           answering — no answer is written, so streak/averages are
           untouched). */}
       {canAnswer && latestAnswerToday == null && !skipped && (
-        <div className="ins-q-entry">
+        <Box className="ins-q-entry">
           {isYn ? (
-            <div className="ins-yn">
-              <button type="button" disabled={busy} onClick={() => onSubmit(1)} className="ins-yn-btn">{t('card.yes')}</button>
-              <button type="button" disabled={busy} onClick={() => onSubmit(0)} className="ins-yn-btn">{t('card.no')}</button>
-            </div>
+            <Box className="ins-yn">
+              <Btn type="button" disabled={busy} onClick={() => onSubmit(1)} className="ins-yn-btn">{t('card.yes')}</Btn>
+              <Btn type="button" disabled={busy} onClick={() => onSubmit(0)} className="ins-yn-btn">{t('card.no')}</Btn>
+            </Box>
           ) : (
             <>
-              <input
+              <Input
                 type="range"
                 min="1"
                 max="10"
@@ -166,8 +167,8 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
                 onChange={(e) => setDraft(parseInt(e.target.value, 10))}
                 className="ins-slider"
               />
-              <span className="ins-slider-val mono">{draft ?? '—'}</span>
-              <button
+              <Txt className="ins-slider-val mono">{draft ?? '—'}</Txt>
+              <Btn
                 type="button"
                 className="ins-save"
                 disabled={busy || draft == null}
@@ -175,10 +176,10 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
                 aria-label={t('card.save')}
               >
                 <Check size={15} strokeWidth={2} aria-hidden="true" />
-              </button>
+              </Btn>
             </>
           )}
-          <button
+          <Btn
             type="button"
             className="ins-skip-btn"
             disabled={busy}
@@ -187,35 +188,35 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
           >
             <SkipForward size={13} strokeWidth={1.7} aria-hidden="true" />
             {t('card.skip')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
       )}
 
-      <div className="ins-q-stats">
-        <div className="ins-stat">
-          <p className="ins-stat-l">{t('card.avg7')}</p>
-          <p className="ins-stat-v mono">
+      <Box className="ins-q-stats">
+        <Box className="ins-stat">
+          <Txt as="p" className="ins-stat-l">{t('card.avg7')}</Txt>
+          <Txt as="p" className="ins-stat-v mono">
             {avg7 != null ? avg7.toFixed(1) : '—'}
             <DeltaPill delta={d7} />
-          </p>
-        </div>
-        <div className="ins-stat divided">
-          <p className="ins-stat-l">{t('card.avg30')}</p>
-          <p className="ins-stat-v mono">{avg30 != null ? avg30.toFixed(1) : '—'}</p>
-        </div>
-        <div className="ins-stat">
-          <p className="ins-stat-l">{t('card.last30')}</p>
+          </Txt>
+        </Box>
+        <Box className="ins-stat divided">
+          <Txt as="p" className="ins-stat-l">{t('card.avg30')}</Txt>
+          <Txt as="p" className="ins-stat-v mono">{avg30 != null ? avg30.toFixed(1) : '—'}</Txt>
+        </Box>
+        <Box className="ins-stat">
+          <Txt as="p" className="ins-stat-l">{t('card.last30')}</Txt>
           <TrendLine points={points} t={t} />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <div className="ins-q-heat">
-        <p className="ins-heat-h">{t('heatmap.heading')}</p>
-        <div className="ins-heat-wrap">
+      <Box className="ins-q-heat">
+        <Txt as="p" className="ins-heat-h">{t('heatmap.heading')}</Txt>
+        <Box className="ins-heat-wrap">
           <Heatmap weeks={heat} scale={question.scale_type} t={t} />
-        </div>
-      </div>
-    </section>
+        </Box>
+      </Box>
+    </Box>
   )
 }
 
@@ -308,59 +309,59 @@ export default function InsightsScreen() {
   }, [questions])
 
   return (
-    <div className="screen">
-      <div className="screen-top">
-        <header className="screen-head">
-          <div>
-            <div className="screen-head-meta">
-              <p className="lbl">{t('activeCount', { count: (questions || []).filter((q) => q.active).length })}</p>
-              <span className="lbl dot">·</span>
-              <p className="lbl">{t('dailyInsights')}</p>
-            </div>
-            <p className="lbl-sm">{t('tagline')}</p>
-          </div>
-          <p className="t-screen">{t('title')}</p>
-        </header>
-        <button
+    <Box className="screen">
+      <Box className="screen-top">
+        <Box as="header" className="screen-head">
+          <Box>
+            <Box className="screen-head-meta">
+              <Txt as="p" className="lbl">{t('activeCount', { count: (questions || []).filter((q) => q.active).length })}</Txt>
+              <Txt className="lbl dot">·</Txt>
+              <Txt as="p" className="lbl">{t('dailyInsights')}</Txt>
+            </Box>
+            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
+          </Box>
+          <Txt as="p" className="t-screen">{t('title')}</Txt>
+        </Box>
+        <Btn
           className="cta-add"
           type="button"
           aria-label={t('addQuestionAria')}
           onClick={() => setShowAddQuestion(true)}
         >
           {t('addQuestion')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
       {/* Reflections card */}
       {reflections.length > 0 && (
-        <section className="ins-mirror">
-          <div className="ins-mirror-head">
+        <Box as="section" className="ins-mirror">
+          <Box className="ins-mirror-head">
             <Sparkles size={16} strokeWidth={1.6} aria-hidden="true" />
-            <p className="ins-mirror-title">{t('mirror.title')}</p>
-          </div>
-          <ul className="ins-mirror-list">
+            <Txt as="p" className="ins-mirror-title">{t('mirror.title')}</Txt>
+          </Box>
+          <Box as="ul" className="ins-mirror-list">
             {reflections.map((r) => (
-              <li key={`${r.kind}-${r.text}`} className={`ins-mirror-line ${r.kind}`}>{r.text}</li>
+              <Box as="li" key={`${r.kind}-${r.text}`} className={`ins-mirror-line ${r.kind}`}>{r.text}</Box>
             ))}
-          </ul>
-        </section>
+          </Box>
+        </Box>
       )}
 
       {/* Per-question cards */}
       {questionsLoading ? (
-        <div className="empty"><p className="empty-text">{t('loading')}</p></div>
+        <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
       ) : questionsError ? (
-        <div className="empty"><p className="empty-text">{t('loadError')}</p></div>
+        <Box className="empty"><Txt as="p" className="empty-text">{t('loadError')}</Txt></Box>
       ) : visible.length === 0 ? (
-        <div className="empty">
-          <p className="empty-text">{t('empty')}</p>
-          <button type="button" className="ins-empty-add" onClick={() => setShowAddQuestion(true)}>
+        <Box className="empty">
+          <Txt as="p" className="empty-text">{t('empty')}</Txt>
+          <Btn type="button" className="ins-empty-add" onClick={() => setShowAddQuestion(true)}>
             <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
             {t('emptyAdd')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
       ) : (
-        <div className="ins-q-grid">
+        <Box className="ins-q-grid">
           {visible.map((q) => (
             <QuestionCard
               key={q.id}
@@ -384,49 +385,49 @@ export default function InsightsScreen() {
               gender={gender}
             />
           ))}
-        </div>
+        </Box>
       )}
 
       {/* Re-open today's skipped questions so they can still be answered. */}
       {skippedCount > 0 && (
-        <div className="ins-unskip-row">
-          <button type="button" className="ins-unskip-btn" onClick={unskipAll}>
+        <Box className="ins-unskip-row">
+          <Btn type="button" className="ins-unskip-btn" onClick={unskipAll}>
             <RotateCcw size={14} strokeWidth={1.7} aria-hidden="true" />
             {skippedCount === 1 ? t('unskip.one') : t('unskip.many', { count: skippedCount })}
-          </button>
-        </div>
+          </Btn>
+        </Box>
       )}
 
       {/* History */}
-      <section className="ins-history">
-        <button type="button" className="ins-history-toggle" onClick={toggleHistory} aria-expanded={historyOpen}>
+      <Box as="section" className="ins-history">
+        <Btn type="button" className="ins-history-toggle" onClick={toggleHistory} aria-expanded={historyOpen}>
           {t('history.title')}
           {historyOpen
             ? <ChevronUp size={15} strokeWidth={1.7} aria-hidden="true" />
             : <ChevronDown size={15} strokeWidth={1.7} aria-hidden="true" />}
-        </button>
+        </Btn>
         {historyOpen && (
           recent.length === 0
-            ? <p className="ins-history-empty">{t('history.empty')}</p>
+            ? <Txt as="p" className="ins-history-empty">{t('history.empty')}</Txt>
             : (
-              <div className="ins-history-list">
+              <Box className="ins-history-list">
                 {recent.map((a) => {
                   const q = questionById.get(a.user_question_id)
                   return (
-                    <div key={a.id} className="ins-history-row">
-                      <span className="ins-history-icon">{q?.icon || '🫧'}</span>
-                      <span className="ins-history-text">{q ? questionText(q, gender) : t('history.deletedQuestion')}</span>
-                      <span className="ins-history-meta">
-                        <span className="ins-history-date">{fmtShortDate(a.date)}</span>
-                        <span className="ins-history-val mono">{a.value_num != null ? a.value_num : (a.value_text || '—')}</span>
-                      </span>
-                    </div>
+                    <Box key={a.id} className="ins-history-row">
+                      <Txt className="ins-history-icon">{q?.icon || '🫧'}</Txt>
+                      <Txt className="ins-history-text">{q ? questionText(q, gender) : t('history.deletedQuestion')}</Txt>
+                      <Txt className="ins-history-meta">
+                        <Txt className="ins-history-date">{fmtShortDate(a.date)}</Txt>
+                        <Txt className="ins-history-val mono">{a.value_num != null ? a.value_num : (a.value_text || '—')}</Txt>
+                      </Txt>
+                    </Box>
                   )
                 })}
-              </div>
+              </Box>
             )
         )}
-      </section>
+      </Box>
 
       <AddQuestionModal
         open={showAddQuestion}
@@ -451,6 +452,6 @@ export default function InsightsScreen() {
         danger
         onConfirm={() => { if (pendingDelete) removeQuestion(pendingDelete.id) }}
       />
-    </div>
+    </Box>
   )
 }

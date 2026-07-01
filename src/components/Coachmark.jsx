@@ -2,6 +2,7 @@ import { useCoachmarks } from '../hooks/useCoachmarks'
 import { coachmarkText } from '../lib/coachmarks'
 import { useAddress } from '../hooks/useAddress'
 import './Coachmark.css'
+import { Txt } from './ui'
 
 /* ════════════════════════════════════════════════════════════════
    <Coachmark> — first-touch glow + guidance bubble around a button.
@@ -39,16 +40,16 @@ export default function Coachmark({ id, placement = 'bottom', radius, bubble, cl
   const style = radius ? { '--cm-radius': radius } : undefined
 
   return (
-    <span
+    <Txt
       className={`coachmark${virgin ? ' is-virgin' : ''} coachmark--${placement}${className ? ` ${className}` : ''}`}
       style={style}
       onClickCapture={handleClickCapture}
     >
-      {virgin && <span className="coachmark-glow" aria-hidden="true" />}
+      {virgin && <Txt className="coachmark-glow" aria-hidden="true" />}
       {children}
       {virgin && text && (
-        <span className="coachmark-bubble" role="status">{text}</span>
+        <Txt className="coachmark-bubble" role="status">{text}</Txt>
       )}
-    </span>
+    </Txt>
   )
 }

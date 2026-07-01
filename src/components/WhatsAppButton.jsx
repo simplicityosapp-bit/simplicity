@@ -4,6 +4,7 @@ import { MessageCircle, Send } from 'lucide-react'
 import { useT } from '../i18n/useT'
 import { waLink } from '../lib/whatsapp'
 import './WhatsAppButton.css'
+import { Box, Txt, Btn, Input, Textarea } from './ui'
 
 /* ════════════════════════════════════════════════════════════════
    WhatsAppButton — a manual "send via WhatsApp" control.
@@ -128,7 +129,7 @@ export default function WhatsAppButton({
 
   return (
     <>
-      <button
+      <Btn
         ref={btnRef}
         type="button"
         className={triggerClassName || `wab-trigger${showLabel ? ' has-label' : ''}`}
@@ -138,10 +139,10 @@ export default function WhatsAppButton({
         onClick={toggle}
       >
         <MessageCircle size={16} strokeWidth={1.7} aria-hidden="true" />
-        {showLabel && <span>{label || t('whatsapp.send')}</span>}
-      </button>
+        {showLabel && <Txt>{label || t('whatsapp.send')}</Txt>}
+      </Btn>
       {open && coords && createPortal(
-        <div
+        <Box
           ref={bodyRef}
           className="wab-pop"
           role="dialog"
@@ -150,10 +151,10 @@ export default function WhatsAppButton({
           style={{ position: 'fixed', top: coords.top, bottom: coords.bottom, left: coords.left, width: coords.width }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="wab-pop-title">{title}</div>
-          <label className="wab-field">
-            <span className="wab-label">{t('whatsapp.recipient')}</span>
-            <input
+          <Box className="wab-pop-title">{title}</Box>
+          <Box as="label" className="wab-field">
+            <Txt className="wab-label">{t('whatsapp.recipient')}</Txt>
+            <Input
               className="wab-input"
               type="tel"
               inputMode="tel"
@@ -162,22 +163,22 @@ export default function WhatsAppButton({
               onChange={(e) => setRecipient(e.target.value)}
               placeholder={t('whatsapp.recipientPlaceholder')}
             />
-          </label>
-          <label className="wab-field">
-            <span className="wab-label">{t('whatsapp.message')}</span>
-            <textarea
+          </Box>
+          <Box as="label" className="wab-field">
+            <Txt className="wab-label">{t('whatsapp.message')}</Txt>
+            <Textarea
               ref={textRef}
               className="wab-textarea"
               rows={4}
               value={text}
               onChange={(e) => setText(e.target.value)}
             />
-          </label>
-          <button type="button" className="wab-send" onClick={send}>
+          </Box>
+          <Btn type="button" className="wab-send" onClick={send}>
             <Send size={15} strokeWidth={1.8} aria-hidden="true" />
             {t('whatsapp.send')}
-          </button>
-        </div>,
+          </Btn>
+        </Box>,
         document.body,
       )}
     </>

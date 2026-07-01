@@ -7,6 +7,7 @@ import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
 import { effectiveClientMeta } from '../lib/clients'
 import { PAY_METHODS, payMethodLabel, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '../lib/invoiceDocs'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
    Israeli evenings, flipping a same-day tx to pending. */
@@ -184,21 +185,21 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   return (
     <Modal open={open} onClose={close} title={client ? t('tx.titlePayment') : t('tx.titleNew')}>
       {client && (
-        <p className="m-sub">
-          <span className="m-sub-dot" style={{ background: 'var(--sage)' }} />
+        <Txt as="p" className="m-sub">
+          <Txt className="m-sub-dot" style={{ background: 'var(--sage)' }} />
           {client.name}
-        </p>
+        </Txt>
       )}
-      <div className="m-field">
-        <div className="m-pills">
-          <button type="button" className={`m-pill${form.type === 'income' ? ' on income' : ''}`} onClick={() => set('type', 'income')}>{t('common.income')}</button>
-          <button type="button" className={`m-pill${form.type === 'expense' ? ' on expense' : ''}`} onClick={() => set('type', 'expense')}>{t('common.expense')}</button>
-        </div>
-      </div>
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('common.amount')}</label>
-          <input
+      <Box className="m-field">
+        <Box className="m-pills">
+          <Btn type="button" className={`m-pill${form.type === 'income' ? ' on income' : ''}`} onClick={() => set('type', 'income')}>{t('common.income')}</Btn>
+          <Btn type="button" className={`m-pill${form.type === 'expense' ? ' on expense' : ''}`} onClick={() => set('type', 'expense')}>{t('common.expense')}</Btn>
+        </Box>
+      </Box>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.amount')}</Box>
+          <Input
             type="number"
             min="0"
             className={`m-input${amountInvalid ? ' err' : ''}`}
@@ -206,32 +207,32 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
             onChange={(e) => { set('amount', e.target.value); if (err) setErr('') }}
             placeholder="0"
           />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('common.date')}</label>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.date')}</Box>
           <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
           {form.date > todayStr() && (
-            <p className="m-hint">{t('tx.futureHint')}</p>
+            <Txt as="p" className="m-hint">{t('tx.futureHint')}</Txt>
           )}
-        </div>
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('common.description')}</label>
-        <input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} placeholder={t('tx.descPlaceholder')} />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('tx.paymentMethod')}</label>
+        </Box>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('common.description')}</Box>
+        <Input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} placeholder={t('tx.descPlaceholder')} />
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('tx.paymentMethod')}</Box>
         <SelectMenu value={form.payment_method} onChange={(v) => set('payment_method', v)} options={payOptions} placeholder={t('tx.paymentMethodNone')} ariaLabel={t('tx.paymentMethod')} />
-      </div>
+      </Box>
       {client ? (
-        <div className="m-field">
-          <label className="m-label">{t('common.project')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.project')}</Box>
           <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
-        </div>
+        </Box>
       ) : (
         <>
-          <div className="m-field">
-            <label className="m-label">{t('common.client')}</label>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('common.client')}</Box>
             <SelectMenu
               value={form.client_id}
               onChange={(v) => set('client_id', v)}
@@ -241,37 +242,37 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
               searchable
               searchPlaceholder={t('common.client')}
             />
-          </div>
-          <div className="m-field">
-            <label className="m-label">{t('common.project')}</label>
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('common.project')}</Box>
             <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
-          </div>
+          </Box>
         </>
       )}
 
       {adHoc && (
-        <div className="m-field m-recipient">
-          <p className="m-hint">{t('tx.recipientHint')}</p>
-          <input
+        <Box className="m-field m-recipient">
+          <Txt as="p" className="m-hint">{t('tx.recipientHint')}</Txt>
+          <Input
             className="m-input"
             value={recipient.name}
             onChange={(e) => setRcp('name', e.target.value)}
             placeholder={t('tx.recipientNamePlaceholder')}
           />
-          <div className="m-row2">
-            <input className="m-input" type="email" value={recipient.email} onChange={(e) => setRcp('email', e.target.value)} placeholder={t('tx.recipientEmailPlaceholder')} />
-            <input className="m-input" value={recipient.phone} onChange={(e) => setRcp('phone', e.target.value)} placeholder={t('tx.recipientPhonePlaceholder')} />
-          </div>
-          <input className="m-input" value={recipient.tax_id} onChange={(e) => setRcp('tax_id', e.target.value)} placeholder={t('tx.recipientTaxIdPlaceholder')} />
-        </div>
+          <Box className="m-row2">
+            <Input className="m-input" type="email" value={recipient.email} onChange={(e) => setRcp('email', e.target.value)} placeholder={t('tx.recipientEmailPlaceholder')} />
+            <Input className="m-input" value={recipient.phone} onChange={(e) => setRcp('phone', e.target.value)} placeholder={t('tx.recipientPhonePlaceholder')} />
+          </Box>
+          <Input className="m-input" value={recipient.tax_id} onChange={(e) => setRcp('tax_id', e.target.value)} placeholder={t('tx.recipientTaxIdPlaceholder')} />
+        </Box>
       )}
 
       {form.type === 'expense' && (
-        <div className="m-field">
-          <label className="m-label">{t('common.category')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.category')}</Box>
           {creatingCat ? (
-            <div className="m-cat-create">
-              <input
+            <Box className="m-cat-create">
+              <Input
                 className="m-input"
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
@@ -279,13 +280,13 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                 placeholder={t('tx.newCatPlaceholder')}
                 autoFocus
               />
-              <button type="button" className="m-cat-add" onClick={createCat} disabled={catBusy || !newCatName.trim()}>
+              <Btn type="button" className="m-cat-add" onClick={createCat} disabled={catBusy || !newCatName.trim()}>
                 {catBusy ? '…' : t('common.add')}
-              </button>
-              <button type="button" className="m-cat-cancel" onClick={() => { setCreatingCat(false); setNewCatName('') }}>
+              </Btn>
+              <Btn type="button" className="m-cat-cancel" onClick={() => { setCreatingCat(false); setNewCatName('') }}>
                 {t('common.cancel')}
-              </button>
-            </div>
+              </Btn>
+            </Box>
           ) : (
             <SelectMenu
               value={form.category_id}
@@ -295,51 +296,51 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
               ariaLabel={t('common.category')}
             />
           )}
-        </div>
+        </Box>
       )}
 
       {issuable && (
-        <div className="m-field m-issue">
+        <Box className="m-field m-issue">
           {!hasClient ? (
-            <p className="m-hint">{t('tx.issueNeedsClient')}</p>
+            <Txt as="p" className="m-hint">{t('tx.issueNeedsClient')}</Txt>
           ) : futureDate ? (
-            <p className="m-hint">{t('tx.issueFutureBlocked')}</p>
+            <Txt as="p" className="m-hint">{t('tx.issueFutureBlocked')}</Txt>
           ) : (
             <>
-              <label className="m-issue-toggle">
-                <input type="checkbox" checked={issueOnCreate} onChange={(e) => { const on = e.target.checked; setIssueOnCreate(on); if (on) setIssueDocType(defaultDocType(inv.status?.business_type)) }} />
-                <span>{t('tx.issueOnSave')}</span>
-              </label>
+              <Box as="label" className="m-issue-toggle">
+                <Input type="checkbox" checked={issueOnCreate} onChange={(e) => { const on = e.target.checked; setIssueOnCreate(on); if (on) setIssueDocType(defaultDocType(inv.status?.business_type)) }} />
+                <Txt>{t('tx.issueOnSave')}</Txt>
+              </Box>
               {issueOnCreate && (
-                <div className="m-issue-opts">
-                  <div className="m-pills m-issue-types">
+                <Box className="m-issue-opts">
+                  <Box className="m-pills m-issue-types">
                     {allowedDocTypes(inv.status?.business_type).map((d) => (
-                      <button key={d.key} type="button" className={`m-pill${issueDocType === d.key ? ' on' : ''}`} onClick={() => setIssueDocType(d.key)}>{docTypeLabel(d.key)}</button>
+                      <Btn key={d.key} type="button" className={`m-pill${issueDocType === d.key ? ' on' : ''}`} onClick={() => setIssueDocType(d.key)}>{docTypeLabel(d.key)}</Btn>
                     ))}
-                  </div>
+                  </Box>
                   {/* Receipt payment method: the transaction's own אמצעי תשלום
                       drives the receipt when set (no duplicate picker); only
                       ask here when the transaction left it blank. */}
                   {isReceiptType(issueDocType) && (
                     form.payment_method ? (
-                      <p className="m-hint">{t('tx.receiptUsesMethod', { method: payMethodLabel(form.payment_method) })}</p>
+                      <Txt as="p" className="m-hint">{t('tx.receiptUsesMethod', { method: payMethodLabel(form.payment_method) })}</Txt>
                     ) : (
                       <SelectMenu value={issuePayment} onChange={setIssuePayment} options={PAY_METHODS.map((m) => ({ value: m.key, label: payMethodLabel(m.key) }))} ariaLabel={t('tx.paymentMethodAria')} />
                     )
                   )}
-                </div>
+                </Box>
               )}
             </>
           )}
-        </div>
+        </Box>
       )}
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
     </Modal>
   )
 }

@@ -3,6 +3,7 @@ import { TriangleAlert } from 'lucide-react'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
 import { isr } from '../lib/finance'
+import { Box, Txt, Btn } from '../components/ui'
 
 /* Two-step guard shown before issuing a REAL (irreversible) tax document when
    something looks off — a likely duplicate (same client + amount + date was
@@ -27,28 +28,28 @@ export default function IssueGuardModal({ open, reasons = [], amount, onClose, o
     <Modal open={open} onClose={close} title={stage === 1 ? t('issueGuard.title1') : t('issueGuard.title2')}>
       {stage === 1 ? (
         <>
-          <div className="ig-warn">
+          <Box className="ig-warn">
             <TriangleAlert size={18} strokeWidth={1.8} aria-hidden="true" />
-            <div className="ig-warn-body">
-              {reasons.map((r, i) => <p key={i} className="ig-warn-reason">{r}</p>)}
-            </div>
-          </div>
-          <div className="m-actions">
-            <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-            <button type="button" className="m-btn-save" onClick={() => setStage(2)}>
+            <Box className="ig-warn-body">
+              {reasons.map((r, i) => <Txt as="p" key={i} className="ig-warn-reason">{r}</Txt>)}
+            </Box>
+          </Box>
+          <Box className="m-actions">
+            <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+            <Btn type="button" className="m-btn-save" onClick={() => setStage(2)}>
               {t('issueGuard.sure')}
-            </button>
-          </div>
+            </Btn>
+          </Box>
         </>
       ) : (
         <>
-          <p className="m-confirm-msg">{t('issueGuard.finalMsg', { amount: isr(amount) })}</p>
-          <div className="m-actions">
-            <button type="button" className="m-btn-cancel" onClick={() => setStage(1)} disabled={busy}>{t('common.back')}</button>
-            <button type="button" className="m-btn-save danger" onClick={confirmFinal} disabled={busy}>
+          <Txt as="p" className="m-confirm-msg">{t('issueGuard.finalMsg', { amount: isr(amount) })}</Txt>
+          <Box className="m-actions">
+            <Btn type="button" className="m-btn-cancel" onClick={() => setStage(1)} disabled={busy}>{t('common.back')}</Btn>
+            <Btn type="button" className="m-btn-save danger" onClick={confirmFinal} disabled={busy}>
               {busy ? '…' : t('issueGuard.issue')}
-            </button>
-          </div>
+            </Btn>
+          </Box>
         </>
       )}
     </Modal>

@@ -5,6 +5,7 @@ import { useUpgradeNav } from '../hooks/useUpgradeNav'
 import { useT } from '../i18n/useT'
 import { BILLING_ENABLED } from '../lib/subscription'
 import './BetaExpiryBanner.css'
+import { Txt, Btn } from './ui'
 
 /* Heads-up banner shown when a user's beta exemption is about to end — so they
    aren't dropped to the free plan (and its limits) by surprise. Tapping routes
@@ -31,10 +32,10 @@ export default function BetaExpiryBanner() {
 
   const date = new Date(exemptUntil).toLocaleDateString(lang === 'he' ? 'he-IL' : lang)
   return (
-    <button type="button" className="beta-banner" onClick={goUpgrade}>
+    <Btn type="button" className="beta-banner" onClick={goUpgrade}>
       <AlertCircle size={16} strokeWidth={1.8} aria-hidden="true" />
-      <span className="beta-banner-text">{t('banner.ending', { date })}</span>
-      <span className="beta-banner-cta">{t('banner.cta')}</span>
-    </button>
+      <Txt className="beta-banner-text">{t('banner.ending', { date })}</Txt>
+      <Txt className="beta-banner-cta">{t('banner.cta')}</Txt>
+    </Btn>
   )
 }

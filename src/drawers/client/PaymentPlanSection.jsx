@@ -9,6 +9,7 @@ import { isr } from '../../lib/finance'
 import { fmtShortDate } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
 import './PaymentPlanSection.css'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    PAYMENT PLAN SECTION — split a client's total into installments and
@@ -73,61 +74,61 @@ export default function PaymentPlanSection({ client }) {
   const headerCount = plan ? `${bal.receivedCount}/${rows.length}` : null
 
   return (
-    <div className={`cd-section pp-section${open ? ' open' : ''}`}>
-      <div className="cd-sec-head">
-        <button type="button" className="cd-sec-toggle" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-          <span className="cd-sec-title">
+    <Box className={`cd-section pp-section${open ? ' open' : ''}`}>
+      <Box className="cd-sec-head">
+        <Btn type="button" className="cd-sec-toggle" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+          <Txt className="cd-sec-title">
             {t('plan.title')}
-            {headerCount && <span className="cd-sec-count">{headerCount}</span>}
-          </span>
+            {headerCount && <Txt className="cd-sec-count">{headerCount}</Txt>}
+          </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className="cd-sec-chev" aria-hidden="true" />
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
       {open && (
-        <div className="cd-sec-body">
+        <Box className="cd-sec-body">
           {loading ? (
-            <p className="cd-empty">{t('plan.loading')}</p>
+            <Txt as="p" className="cd-empty">{t('plan.loading')}</Txt>
           ) : plan ? (
             <>
-              <div className="pp-summary">
-                <div className="pp-sum-cell"><span className="pp-sum-l">{t('plan.total')}</span><span className="pp-sum-v mono">{isr(bal.total)}</span></div>
-                <div className="pp-sum-cell"><span className="pp-sum-l">{t('plan.received')}</span><span className="pp-sum-v mono">{isr(bal.received)}</span></div>
-                <div className="pp-sum-cell"><span className="pp-sum-l">{t('plan.remaining')}</span><span className="pp-sum-v mono">{isr(bal.remaining)}</span></div>
-              </div>
+              <Box className="pp-summary">
+                <Box className="pp-sum-cell"><Txt className="pp-sum-l">{t('plan.total')}</Txt><Txt className="pp-sum-v mono">{isr(bal.total)}</Txt></Box>
+                <Box className="pp-sum-cell"><Txt className="pp-sum-l">{t('plan.received')}</Txt><Txt className="pp-sum-v mono">{isr(bal.received)}</Txt></Box>
+                <Box className="pp-sum-cell"><Txt className="pp-sum-l">{t('plan.remaining')}</Txt><Txt className="pp-sum-v mono">{isr(bal.remaining)}</Txt></Box>
+              </Box>
 
-              <div className="pp-list">
+              <Box className="pp-list">
                 {rows.map((inst) => (
-                  <div key={inst.id} className="pp-inst-wrap">
-                    <div className={`pp-inst${inst.received ? ' paid' : ''}`}>
-                    <span className="pp-inst-num">{inst.num}/{plan.num_installments}</span>
-                    <div className="pp-inst-mid">
-                      <span className="pp-inst-amt mono">{isr(inst.amount)}</span>
-                      <span className="pp-inst-date">
+                  <Box key={inst.id} className="pp-inst-wrap">
+                    <Box className={`pp-inst${inst.received ? ' paid' : ''}`}>
+                    <Txt className="pp-inst-num">{inst.num}/{plan.num_installments}</Txt>
+                    <Box className="pp-inst-mid">
+                      <Txt className="pp-inst-amt mono">{isr(inst.amount)}</Txt>
+                      <Txt className="pp-inst-date">
                         {inst.received
                           ? t('plan.receivedOn', { date: fmtShortDate(inst.received_date), method: inst.payment_method ? ` · ${payMethodLabel(inst.payment_method)}` : '' })
                           : t('plan.due', { date: fmtShortDate(inst.due_date) })}
-                      </span>
-                    </div>
+                      </Txt>
+                    </Box>
                     {inst.received ? (
-                      <button type="button" className="pp-btn ghost" disabled={busy} onClick={() => unmarkReceived(inst)} title={t('plan.undo')} aria-label={t('plan.undo')}>
+                      <Btn type="button" className="pp-btn ghost" disabled={busy} onClick={() => unmarkReceived(inst)} title={t('plan.undo')} aria-label={t('plan.undo')}>
                         <RotateCcw size={13} strokeWidth={1.9} aria-hidden="true" />
-                      </button>
+                      </Btn>
                     ) : receiving?.id === inst.id ? (
-                      <span className="pp-receive">
+                      <Txt className="pp-receive">
                         <select className="pp-method" value={receiving.method || ''} onChange={(e) => setReceiving({ id: inst.id, method: e.target.value })} aria-label={t('plan.methodAria')}>
                           <option value="">{t('plan.methodNone')}</option>
                           {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
                         </select>
-                        <button type="button" className="pp-btn primary" disabled={busy} onClick={() => confirmReceived(inst)}>{t('plan.confirmReceived')}</button>
-                        <button type="button" className="pp-btn ghost" disabled={busy} onClick={() => setReceiving(null)}>{t('plan.cancel')}</button>
-                      </span>
+                        <Btn type="button" className="pp-btn primary" disabled={busy} onClick={() => confirmReceived(inst)}>{t('plan.confirmReceived')}</Btn>
+                        <Btn type="button" className="pp-btn ghost" disabled={busy} onClick={() => setReceiving(null)}>{t('plan.cancel')}</Btn>
+                      </Txt>
                     ) : (
-                      <button type="button" className="pp-btn mark" disabled={busy} onClick={() => setReceiving({ id: inst.id, method: '' })}>
+                      <Btn type="button" className="pp-btn mark" disabled={busy} onClick={() => setReceiving({ id: inst.id, method: '' })}>
                         <Check size={13} strokeWidth={2} aria-hidden="true" /> {t('plan.markReceived')}
-                      </button>
+                      </Btn>
                     )}
-                    </div>
+                    </Box>
                     {/* Online payment for this installment — hidden while Grow is
                         locked/disconnected; on payment the webhook marks it received. */}
                     {!inst.received && (
@@ -141,56 +142,56 @@ export default function PaymentPlanSection({ client }) {
                         clientPhone={client.phone}
                       />
                     )}
-                  </div>
+                  </Box>
                 ))}
-              </div>
+              </Box>
 
               {confirmDelete ? (
-                <div className="pp-del-confirm">
-                  <span>{t('plan.deleteConfirm')}</span>
-                  <button type="button" className="pp-btn danger" disabled={busy} onClick={doDelete}>{t('plan.delete')}</button>
-                  <button type="button" className="pp-btn ghost" disabled={busy} onClick={() => setConfirmDelete(false)}>{t('plan.cancel')}</button>
-                </div>
+                <Box className="pp-del-confirm">
+                  <Txt>{t('plan.deleteConfirm')}</Txt>
+                  <Btn type="button" className="pp-btn danger" disabled={busy} onClick={doDelete}>{t('plan.delete')}</Btn>
+                  <Btn type="button" className="pp-btn ghost" disabled={busy} onClick={() => setConfirmDelete(false)}>{t('plan.cancel')}</Btn>
+                </Box>
               ) : (
-                <button type="button" className="pp-del" onClick={() => setConfirmDelete(true)}>
+                <Btn type="button" className="pp-del" onClick={() => setConfirmDelete(true)}>
                   <Trash2 size={12} strokeWidth={1.7} aria-hidden="true" /> {t('plan.delete')}
-                </button>
+                </Btn>
               )}
             </>
           ) : (
-            <div className="pp-create">
-              <p className="pp-create-intro">{t('plan.createIntro')}</p>
-              <div className="pp-create-row">
-                <label className="pp-field">
-                  <span className="pp-field-l">{t('plan.totalLabel')}</span>
-                  <input className="pp-input" type="number" min="0" value={form.total} placeholder="0"
+            <Box className="pp-create">
+              <Txt as="p" className="pp-create-intro">{t('plan.createIntro')}</Txt>
+              <Box className="pp-create-row">
+                <Box as="label" className="pp-field">
+                  <Txt className="pp-field-l">{t('plan.totalLabel')}</Txt>
+                  <Input className="pp-input" type="number" min="0" value={form.total} placeholder="0"
                     onChange={(e) => setForm((f) => ({ ...f, total: e.target.value }))} />
-                </label>
-                <label className="pp-field">
-                  <span className="pp-field-l">{t('plan.countLabel')}</span>
-                  <input className="pp-input" type="number" min="1" value={form.count}
+                </Box>
+                <Box as="label" className="pp-field">
+                  <Txt className="pp-field-l">{t('plan.countLabel')}</Txt>
+                  <Input className="pp-input" type="number" min="1" value={form.count}
                     onChange={(e) => setForm((f) => ({ ...f, count: e.target.value }))} />
-                </label>
-              </div>
-              <label className="pp-field">
-                <span className="pp-field-l">{t('plan.startLabel')}</span>
+                </Box>
+              </Box>
+              <Box as="label" className="pp-field">
+                <Txt className="pp-field-l">{t('plan.startLabel')}</Txt>
                 <DateField value={form.startDate} onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))} />
-              </label>
+              </Box>
               {preview && (
-                <p className="pp-preview">
+                <Txt as="p" className="pp-preview">
                   {isr(preview.first) === isr(preview.last)
                     ? t('plan.previewEven', { count: preview.count, amount: isr(preview.first) })
                     : t('plan.previewUneven', { count: preview.count, amount: isr(preview.first), last: isr(preview.last) })}
-                </p>
+                </Txt>
               )}
-              <button type="button" className="pp-btn primary pp-create-go" disabled={busy || !(parseFloat(form.total) > 0)} onClick={submitCreate}>
+              <Btn type="button" className="pp-btn primary pp-create-go" disabled={busy || !(parseFloat(form.total) > 0)} onClick={submitCreate}>
                 <Plus size={14} strokeWidth={2} aria-hidden="true" /> {t('plan.create')}
-              </button>
-              <p className="pp-create-note"><CreditCard size={12} strokeWidth={1.7} aria-hidden="true" /> {t('plan.createNote')}</p>
-            </div>
+              </Btn>
+              <Txt as="p" className="pp-create-note"><CreditCard size={12} strokeWidth={1.7} aria-hidden="true" /> {t('plan.createNote')}</Txt>
+            </Box>
           )}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

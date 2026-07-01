@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { fetchBookingPageConfig, fetchBookingSlots, submitBooking } from '../../lib/api/bookingIntake'
 import { leadPageSurface, safeRedirectUrl } from '../../lib/bookingPageSchema'
+import { Box, Txt, Btn, Input, Textarea, Lnk } from '../../components/ui'
 import { useT } from '../../i18n/useT'
 import '../booking-pages/bookingI18n'      // self-registers the 'booking' namespace
 import '../lead-page/LeadPage.css' // shared surface + card + inputs (lp-*)
@@ -185,162 +186,159 @@ export default function BookingPage() {
      short-circuit the normal flow regardless of the config-load status. */
   if (paymentResult === 'paid') {
     return (
-      <div className={rootClass} dir="rtl" style={rootStyle}>
-        <div className="lp-card lp-state">
-          {content.logoText ? <div className="lp-logo">{content.logoText}</div> : null}
-          <div className="lp-check" aria-hidden="true">✓</div>
-          <p className="lp-thankyou">{t('publicPage.paidThankYou')}</p>
-        </div>
-      </div>
+      <Box className={rootClass} dir="rtl" style={rootStyle}>
+        <Box className="lp-card lp-state">
+          {content.logoText ? <Box className="lp-logo">{content.logoText}</Box> : null}
+          <Box className="lp-check" aria-hidden="true">✓</Box>
+          <Txt as="p" className="lp-thankyou">{t('publicPage.paidThankYou')}</Txt>
+        </Box>
+      </Box>
     )
   }
   if (paymentResult === 'cancelled') {
     return (
-      <div className={rootClass} dir="rtl" style={rootStyle}>
-        <div className="lp-card lp-state">
-          {content.logoText ? <div className="lp-logo">{content.logoText}</div> : null}
-          <h1 className="lp-heading">{t('publicPage.cancelledTitle')}</h1>
-          <p className="lp-muted">{t('publicPage.cancelledBody')}</p>
-          <a className="lp-submit" href={typeof window !== 'undefined' ? window.location.pathname : '#'}>{t('publicPage.cancelledRetry')}</a>
-        </div>
-      </div>
+      <Box className={rootClass} dir="rtl" style={rootStyle}>
+        <Box className="lp-card lp-state">
+          {content.logoText ? <Box className="lp-logo">{content.logoText}</Box> : null}
+          <Txt as="h1" className="lp-heading">{t('publicPage.cancelledTitle')}</Txt>
+          <Txt as="p" className="lp-muted">{t('publicPage.cancelledBody')}</Txt>
+          <Lnk className="lp-submit" href={typeof window !== 'undefined' ? window.location.pathname : '#'}>{t('publicPage.cancelledRetry')}</Lnk>
+        </Box>
+      </Box>
     )
   }
 
   if (status === 'loading') {
-    return <div className={rootClass} dir="rtl" style={rootStyle}><div className="lp-card lp-state"><p className="lp-muted">{t('publicPage.loading')}</p></div></div>
+    return <Box className={rootClass} dir="rtl" style={rootStyle}><Box className="lp-card lp-state"><Txt as="p" className="lp-muted">{t('publicPage.loading')}</Txt></Box></Box>
   }
   if (status === 'notfound') {
     return (
-      <div className={rootClass} dir="rtl" style={rootStyle}>
-        <div className="lp-card lp-state">
-          <h1 className="lp-heading">{t('publicPage.notFoundTitle')}</h1>
-          <p className="lp-muted">{t('publicPage.notFoundBody')}</p>
-        </div>
-      </div>
+      <Box className={rootClass} dir="rtl" style={rootStyle}>
+        <Box className="lp-card lp-state">
+          <Txt as="h1" className="lp-heading">{t('publicPage.notFoundTitle')}</Txt>
+          <Txt as="p" className="lp-muted">{t('publicPage.notFoundBody')}</Txt>
+        </Box>
+      </Box>
     )
   }
   if (status === 'done') {
     return (
-      <div className={rootClass} dir="rtl" style={rootStyle}>
-        <div className="lp-card lp-state">
-          {content.logoText ? <div className="lp-logo">{content.logoText}</div> : null}
-          <div className="lp-check" aria-hidden="true">✓</div>
-          <p className="lp-thankyou">{str(thankYou?.message) || t('publicPage.thankYouDefault')}</p>
-          {slot ? <p className="bk2-confirm-when">{fmtDayLabel(slot.start, tz)} · {fmtTime(slot.start, tz)}</p> : null}
-        </div>
-      </div>
+      <Box className={rootClass} dir="rtl" style={rootStyle}>
+        <Box className="lp-card lp-state">
+          {content.logoText ? <Box className="lp-logo">{content.logoText}</Box> : null}
+          <Box className="lp-check" aria-hidden="true">✓</Box>
+          <Txt as="p" className="lp-thankyou">{str(thankYou?.message) || t('publicPage.thankYouDefault')}</Txt>
+          {slot ? <Txt as="p" className="bk2-confirm-when">{fmtDayLabel(slot.start, tz)} · {fmtTime(slot.start, tz)}</Txt> : null}
+        </Box>
+      </Box>
     )
   }
 
   return (
-    <div className={rootClass} dir="rtl" style={rootStyle}>
-      <div className="lp-card">
-        {content.logoText ? <div className="lp-logo">{content.logoText}</div> : null}
-        {content.heading ? <h1 className="lp-heading">{content.heading}</h1> : null}
-        {content.body ? <p className="lp-body">{content.body}</p> : null}
+    <Box className={rootClass} dir="rtl" style={rootStyle}>
+      <Box className="lp-card">
+        {content.logoText ? <Box className="lp-logo">{content.logoText}</Box> : null}
+        {content.heading ? <Txt as="h1" className="lp-heading">{content.heading}</Txt> : null}
+        {content.body ? <Txt as="p" className="lp-body">{content.body}</Txt> : null}
 
         {/* Step 1 — meeting type */}
         {types.length > 1 && (
-          <div className="bk2-section">
-            <p className="bk2-step-label">{t('publicPage.stepType')}</p>
-            <div className="bk2-types">
+          <Box className="bk2-section">
+            <Txt as="p" className="bk2-step-label">{t('publicPage.stepType')}</Txt>
+            <Box className="bk2-types">
               {types.map((mt) => {
                 const id = mt.id ?? '__d'
                 return (
-                  <button
+                  <Btn
                     key={id}
-                    type="button"
                     className={`bk2-type${typeId === id ? ' on' : ''}`}
                     onClick={() => setTypeId(id)}
                   >
-                    <span className="bk2-type-name">{mt.name}</span>
-                    <span className="bk2-type-meta">{t('minutes', { count: mt.duration_minutes })}{mt.default_price ? ` · ₪${mt.default_price}` : ''}</span>
-                  </button>
+                    <Txt className="bk2-type-name">{mt.name}</Txt>
+                    <Txt className="bk2-type-meta">{t('minutes', { count: mt.duration_minutes })}{mt.default_price ? ` · ₪${mt.default_price}` : ''}</Txt>
+                  </Btn>
                 )
               })}
-            </div>
-          </div>
+            </Box>
+          </Box>
         )}
 
         {/* Step 2 — day + time */}
         {typeId != null && (
-          <div className="bk2-section">
-            <p className="bk2-step-label">{t('publicPage.stepWhen')}</p>
+          <Box className="bk2-section">
+            <Txt as="p" className="bk2-step-label">{t('publicPage.stepWhen')}</Txt>
             {slotsLoading ? (
-              <p className="lp-muted">{t('publicPage.slotsLoading')}</p>
+              <Txt as="p" className="lp-muted">{t('publicPage.slotsLoading')}</Txt>
             ) : days.length === 0 ? (
-              <p className="lp-muted">{t('publicPage.noSlots')}</p>
+              <Txt as="p" className="lp-muted">{t('publicPage.noSlots')}</Txt>
             ) : (
               <>
-                <div className="bk2-days">
+                <Box className="bk2-days">
                   {days.map((d) => (
-                    <button
+                    <Btn
                       key={d.key}
-                      type="button"
                       className={`bk2-day${dayKey === d.key ? ' on' : ''}`}
                       onClick={() => { setDayKey(d.key); setSlot(null) }}
                     >
                       {fmtDayLabel(d.list[0].start, tz)}
-                    </button>
+                    </Btn>
                   ))}
-                </div>
+                </Box>
                 {dayKey && (
-                  <div className="bk2-slots">
+                  <Box className="bk2-slots">
                     {daySlots.map((s) => (
-                      <button
+                      <Btn
                         key={s.start}
-                        type="button"
                         className={`bk2-slot${slot?.start === s.start ? ' on' : ''}`}
                         onClick={() => setSlot(s)}
                       >
                         {fmtTime(s.start, tz)}
-                      </button>
+                      </Btn>
                     ))}
-                  </div>
+                  </Box>
                 )}
               </>
             )}
-          </div>
+          </Box>
         )}
 
         {/* Step 3 — details */}
         {slot && (
-          <form className="bk2-section bk2-form" onSubmit={handleSubmit} noValidate>
-            <p className="bk2-step-label">{t('publicPage.stepDetails')}</p>
-            <p className="bk2-chosen">
+          <Box as="form" className="bk2-section bk2-form" onSubmit={handleSubmit} noValidate>
+            <Txt as="p" className="bk2-step-label">{t('publicPage.stepDetails')}</Txt>
+            <Txt as="p" className="bk2-chosen">
               {chosenType?.name ? `${chosenType.name} · ` : ''}{fmtDayLabel(slot.start, tz)} · {fmtTime(slot.start, tz)}
-            </p>
-            {needsPay ? <p className="bk2-pay-note">{t('publicPage.payNote', { amount: chosenType.default_price })}</p> : null}
-            <div className="lp-fields">
-              <label className="lp-field">
-                <span className="lp-label">{t('publicPage.fieldName')}<span className="lp-req" aria-hidden="true"> *</span></span>
-                <input className={`lp-input${errors.name ? ' is-error' : ''}`} value={values.name} onChange={(e) => setField('name', e.target.value)} required />
-                {errors.name ? <span className="lp-field-error">{t('publicPage.requiredField')}</span> : null}
-              </label>
-              <label className="lp-field">
-                <span className="lp-label">{t('publicPage.fieldPhone')}</span>
-                <input className="lp-input" type="tel" value={values.phone} onChange={(e) => setField('phone', e.target.value)} />
-              </label>
-              <label className="lp-field">
-                <span className="lp-label">{t('publicPage.fieldEmail')}</span>
-                <input className={`lp-input${errors.email ? ' is-error' : ''}`} type="email" value={values.email} onChange={(e) => setField('email', e.target.value)} />
-                {errors.email ? <span className="lp-field-error">{t('publicPage.invalidEmail')}</span> : null}
-              </label>
-              <label className="lp-field">
-                <span className="lp-label">{t('publicPage.fieldNote')}</span>
-                <textarea className="lp-input lp-textarea" rows={3} value={values.note} onChange={(e) => setField('note', e.target.value)} />
-              </label>
-            </div>
+            </Txt>
+            {needsPay ? <Txt as="p" className="bk2-pay-note">{t('publicPage.payNote', { amount: chosenType.default_price })}</Txt> : null}
+            <Box className="lp-fields">
+              <Box as="label" className="lp-field">
+                <Txt className="lp-label">{t('publicPage.fieldName')}<Txt className="lp-req" aria-hidden="true"> *</Txt></Txt>
+                <Input className={`lp-input${errors.name ? ' is-error' : ''}`} value={values.name} onChange={(e) => setField('name', e.target.value)} required />
+                {errors.name ? <Txt className="lp-field-error">{t('publicPage.requiredField')}</Txt> : null}
+              </Box>
+              <Box as="label" className="lp-field">
+                <Txt className="lp-label">{t('publicPage.fieldPhone')}</Txt>
+                <Input className="lp-input" type="tel" value={values.phone} onChange={(e) => setField('phone', e.target.value)} />
+              </Box>
+              <Box as="label" className="lp-field">
+                <Txt className="lp-label">{t('publicPage.fieldEmail')}</Txt>
+                <Input className={`lp-input${errors.email ? ' is-error' : ''}`} type="email" value={values.email} onChange={(e) => setField('email', e.target.value)} />
+                {errors.email ? <Txt className="lp-field-error">{t('publicPage.invalidEmail')}</Txt> : null}
+              </Box>
+              <Box as="label" className="lp-field">
+                <Txt className="lp-label">{t('publicPage.fieldNote')}</Txt>
+                <Textarea className="lp-input lp-textarea" rows={3} value={values.note} onChange={(e) => setField('note', e.target.value)} />
+              </Box>
+            </Box>
 
-            <input type="text" tabIndex={-1} autoComplete="off" className="lp-hp" aria-hidden="true" onChange={(e) => { hp.current = e.target.value }} />
-            {submitError ? <p className="lp-submit-error">{submitError}</p> : null}
-            <button type="submit" className="lp-submit" disabled={submitting}>
+            <Input type="text" tabIndex={-1} autoComplete="off" className="lp-hp" aria-hidden="true" onChange={(e) => { hp.current = e.target.value }} />
+            {submitError ? <Txt as="p" className="lp-submit-error">{submitError}</Txt> : null}
+            <Btn type="submit" className="lp-submit" disabled={submitting}>
               {submitting ? t('publicPage.submitting') : (needsPay ? t('publicPage.submitPay') : t('publicPage.submit'))}
-            </button>
-          </form>
+            </Btn>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

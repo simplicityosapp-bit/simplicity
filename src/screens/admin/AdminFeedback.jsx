@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { Bug, Lightbulb, Heart, MessageCircle } from 'lucide-react'
 import { useAdminQuery, callAdmin } from '../../hooks/useAdmin'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const TYPE_META = {
   bug:    { icon: Bug },
@@ -51,61 +52,61 @@ export default function AdminFeedback() {
 
   return (
     <>
-      <header className="admin-head">
-        <h1>{t('feedback.title')}</h1>
-        <p>{t('feedback.subtitle')}</p>
-      </header>
+      <Box as="header" className="admin-head">
+        <Txt as="h1">{t('feedback.title')}</Txt>
+        <Txt as="p">{t('feedback.subtitle')}</Txt>
+      </Box>
 
-      {loading && <div className="admin-state">{t('state.loading')}</div>}
-      {error && <div className="admin-state err">{t('state.loadError')}</div>}
+      {loading && <Box className="admin-state">{t('state.loading')}</Box>}
+      {error && <Box className="admin-state err">{t('state.loadError')}</Box>}
 
       {data && (
         <>
-          <div className="admin-fb-filters">
-            <div className="admin-range">
+          <Box className="admin-fb-filters">
+            <Box className="admin-range">
               {TYPE_FILTER_KEYS.map((k) => (
-                <button key={k} className={typeF === k ? 'on' : ''} onClick={() => setTypeF(k)}>{k === 'all' ? t('feedback.filterAll') : t(`feedback.types.${k}`)}</button>
+                <Btn key={k} className={typeF === k ? 'on' : ''} onClick={() => setTypeF(k)}>{k === 'all' ? t('feedback.filterAll') : t(`feedback.types.${k}`)}</Btn>
               ))}
-            </div>
-            <div className="admin-range">
+            </Box>
+            <Box className="admin-range">
               {STATUS_FILTER_KEYS.map((k) => (
-                <button key={k} className={statusF === k ? 'on' : ''} onClick={() => setStatusF(k)}>{k === 'all' ? t('feedback.filterAll') : t(`feedback.statuses.${k}`)}</button>
+                <Btn key={k} className={statusF === k ? 'on' : ''} onClick={() => setStatusF(k)}>{k === 'all' ? t('feedback.filterAll') : t(`feedback.statuses.${k}`)}</Btn>
               ))}
-            </div>
-          </div>
+            </Box>
+          </Box>
 
-          <div className="admin-fb-list">
-            {filtered.length === 0 && <div className="admin-state">{t('feedback.empty')}</div>}
+          <Box className="admin-fb-list">
+            {filtered.length === 0 && <Box className="admin-state">{t('feedback.empty')}</Box>}
             {filtered.map((it) => {
               const meta = TYPE_META[it.type]
               const Icon = meta?.icon
               return (
-                <div className="admin-card admin-fb-card" key={it.id}>
-                  <div className="admin-fb-top">
-                    <span className="admin-fb-from" dir="ltr">{it.email || t('feedback.unknownUser')}</span>
-                    <span className="admin-fb-date">{fmtDate(it.created_at)}</span>
+                <Box className="admin-card admin-fb-card" key={it.id}>
+                  <Box className="admin-fb-top">
+                    <Txt className="admin-fb-from" dir="ltr">{it.email || t('feedback.unknownUser')}</Txt>
+                    <Txt className="admin-fb-date">{fmtDate(it.created_at)}</Txt>
                     {meta && (
-                      <span className={`admin-chip type-${it.type}`}>
+                      <Txt className={`admin-chip type-${it.type}`}>
                         {Icon && <Icon size={12} strokeWidth={1.9} aria-hidden="true" />}{t(`feedback.types.${it.type}`)}
-                      </span>
+                      </Txt>
                     )}
-                    <div className="admin-status-row" role="group" aria-label={t('feedback.statusGroupAria')}>
+                    <Box className="admin-status-row" role="group" aria-label={t('feedback.statusGroupAria')}>
                       {STATUS_KEYS.map((k) => (
-                        <button
+                        <Btn
                           key={k}
                           className={(it.status || 'new') === k ? 'on' : ''}
                           onClick={() => changeStatus(it.id, k)}
                         >
                           {t(`feedback.statuses.${k}`)}
-                        </button>
+                        </Btn>
                       ))}
-                    </div>
-                  </div>
-                  <p className="admin-fb-msg">{it.message}</p>
-                </div>
+                    </Box>
+                  </Box>
+                  <Txt as="p" className="admin-fb-msg">{it.message}</Txt>
+                </Box>
               )
             })}
-          </div>
+          </Box>
         </>
       )}
     </>

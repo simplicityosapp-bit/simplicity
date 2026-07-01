@@ -15,6 +15,7 @@ import { useT } from '../../i18n/useT'
 import { dirFor, APP_LANGS } from '../../i18n/config'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import './LandingScreen.css'
+import { Box, Txt, Btn, Lnk } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════════
    LANDING — public marketing page (served at "/" to logged-out visitors).
@@ -219,21 +220,21 @@ export default function LandingScreen() {
   }, [])
 
   return (
-    <div className="lp-root" dir={dir} ref={rootRef}>
-      <div className="lp-bg" aria-hidden="true" />
-      <div className="lp-veil" aria-hidden="true" ref={veilRef} />
+    <Box className="lp-root" dir={dir} ref={rootRef}>
+      <Box className="lp-bg" aria-hidden="true" />
+      <Box className="lp-veil" aria-hidden="true" ref={veilRef} />
 
       {/* ── Header ─────────────────────────────────────────────── */}
-      <header className={`lp-header${scrolled ? ' scrolled' : ''}`}>
-        <div className="lp-wrap lp-header-in">
-          <a className="lp-brand" href="#top" aria-label={t('nav.home')}>
+      <Box as="header" className={`lp-header${scrolled ? ' scrolled' : ''}`}>
+        <Box className="lp-wrap lp-header-in">
+          <Lnk className="lp-brand" href="#top" aria-label={t('nav.home')}>
             <img src="/logo-dark.png" className="lp-brand-logo dark" alt="" aria-hidden="true" />
             <img src="/logo-light.png" className="lp-brand-logo light" alt="" aria-hidden="true" />
-            <span className="lp-brand-name">Simplicity</span>
-          </a>
-          <nav className="lp-header-actions" aria-label={t('nav.accountActions')}>
-            <div className="lp-lang" ref={langRef}>
-              <button
+            <Txt className="lp-brand-name">Simplicity</Txt>
+          </Lnk>
+          <Box as="nav" className="lp-header-actions" aria-label={t('nav.accountActions')}>
+            <Box className="lp-lang" ref={langRef}>
+              <Btn
                 type="button"
                 className="lp-lang-btn"
                 aria-haspopup="menu"
@@ -242,12 +243,12 @@ export default function LandingScreen() {
                 onClick={() => setLangOpen((o) => !o)}
               >
                 <Globe size={15} strokeWidth={2} aria-hidden="true" />
-                <span className="lp-lang-code">{activeLang.toUpperCase()}</span>
-              </button>
+                <Txt className="lp-lang-code">{activeLang.toUpperCase()}</Txt>
+              </Btn>
               {langOpen && (
-                <div className="lp-lang-menu" role="menu">
+                <Box className="lp-lang-menu" role="menu">
                   {APP_LANGS.map((l) => (
-                    <button
+                    <Btn
                       key={l.code}
                       type="button"
                       role="menuitemradio"
@@ -256,14 +257,14 @@ export default function LandingScreen() {
                       className={`lp-lang-opt${l.code === activeLang ? ' on' : ''}`}
                       onClick={() => pickLang(l.code)}
                     >
-                      <span>{l.name}</span>
+                      <Txt>{l.name}</Txt>
                       {l.code === activeLang && <Check size={15} strokeWidth={2.2} aria-hidden="true" />}
-                    </button>
+                    </Btn>
                   ))}
-                </div>
+                </Box>
               )}
-            </div>
-            <button
+            </Box>
+            <Btn
               type="button"
               className="lp-switch"
               role="switch"
@@ -273,28 +274,28 @@ export default function LandingScreen() {
             >
               <Sun className="lp-switch-ic lp-switch-sun" size={14} strokeWidth={2} aria-hidden="true" />
               <Moon className="lp-switch-ic lp-switch-moon" size={13} strokeWidth={2} aria-hidden="true" />
-              <span className="lp-switch-knob" aria-hidden="true" />
-            </button>
+              <Txt className="lp-switch-knob" aria-hidden="true" />
+            </Btn>
             <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-ghost">{t('nav.login')}</Link>
             <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-pill">{t('nav.startFree')}</Link>
-          </nav>
-        </div>
-      </header>
+          </Box>
+        </Box>
+      </Box>
 
-      <main id="top">
+      <Box as="main" id="top">
         {/* ── Hero ─────────────────────────────────────────────── */}
-        <section className="lp-hero lp-wrap" aria-labelledby="lp-h1">
+        <Box as="section" className="lp-hero lp-wrap" aria-labelledby="lp-h1">
           <img src="/logo-dark.png" className="lp-hero-mark dark" alt="" aria-hidden="true" />
           <img src="/logo-light.png" className="lp-hero-mark light" alt="" aria-hidden="true" />
-          <span className="lp-eyebrow">
-            <span className="lp-eyebrow-dot" />
+          <Txt className="lp-eyebrow">
+            <Txt className="lp-eyebrow-dot" />
             {t('hero.eyebrow')}
-          </span>
-          <h1 className="lp-hero-title" id="lp-h1">
+          </Txt>
+          <Txt as="h1" className="lp-hero-title" id="lp-h1">
             {t('hero.title1')}<br />
-            <span className="accent">{t('hero.title2')}</span>
-          </h1>
-          <p className="lp-hero-sub">
+            <Txt className="accent">{t('hero.title2')}</Txt>
+          </Txt>
+          <Txt as="p" className="lp-hero-sub">
             <MG text={t('hero.subAddress', {
               therapist: t('roles.therapists'),
               advisor: t('roles.advisors'),
@@ -302,242 +303,242 @@ export default function LandingScreen() {
               facilitator: t('roles.facilitators'),
             })} /><br />
             {t('hero.subBody')}
-          </p>
-          <div className="lp-hero-cta">
+          </Txt>
+          <Box className="lp-hero-cta">
             <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg" onClick={() => trackLandingEvent('signup_start')}>{t('hero.ctaPrimary')}</Link>
             <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-secondary">{t('hero.ctaSecondary')}</Link>
-          </div>
-          <p className="lp-hero-trust">{t('hero.trust')}</p>
-        </section>
+          </Box>
+          <Txt as="p" className="lp-hero-trust">{t('hero.trust')}</Txt>
+        </Box>
 
         {/* ── Product preview (early proof) ────────────────────── */}
-        <section className="lp-section lp-wrap" aria-labelledby="lp-demo-h">
-          <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">{t('demo.eyebrow')}</span>
-            <h2 className="lp-section-title" id="lp-demo-h">{t('demo.title')}</h2>
-            <p className="lp-section-sub">
+        <Box as="section" className="lp-section lp-wrap" aria-labelledby="lp-demo-h">
+          <Box className="lp-section-head lp-reveal">
+            <Txt className="lp-section-eyebrow">{t('demo.eyebrow')}</Txt>
+            <Txt as="h2" className="lp-section-title" id="lp-demo-h">{t('demo.title')}</Txt>
+            <Txt as="p" className="lp-section-sub">
               {t('demo.sub')}
-            </p>
-          </div>
+            </Txt>
+          </Box>
 
-          <div className="lp-demo-grid">
-            <div className="lp-demo-stage lp-reveal">
-              <div className="lp-device" role="img" aria-label={t('demo.deviceAria')}>
-                <div className="lp-screen" aria-hidden="true">
-                  <div className="lp-moon">
-                    <div className="lp-ring">
+          <Box className="lp-demo-grid">
+            <Box className="lp-demo-stage lp-reveal">
+              <Box className="lp-device" role="img" aria-label={t('demo.deviceAria')}>
+                <Box className="lp-screen" aria-hidden="true">
+                  <Box className="lp-moon">
+                    <Box className="lp-ring">
                       <svg viewBox="0 0 100 100">
                         <circle className="lp-ring-track" cx="50" cy="50" r="42" />
                         {/* 78% of 2πr (≈263.9) → offset ≈ 58 */}
                         <circle className="lp-ring-fill" cx="50" cy="50" r="42"
                           strokeDasharray="263.9" strokeDashoffset="58" />
                       </svg>
-                      <div className="lp-ring-center">
-                        <span className="lp-ring-pct"><bdi>78%</bdi></span>
-                      </div>
-                    </div>
-                    <div className="lp-moon-body">
-                      <p className="lp-moon-title">{t('demo.moonTitle')}</p>
-                      <p className="lp-moon-line">
+                      <Box className="lp-ring-center">
+                        <Txt className="lp-ring-pct"><bdi>78%</bdi></Txt>
+                      </Box>
+                    </Box>
+                    <Box className="lp-moon-body">
+                      <Txt as="p" className="lp-moon-title">{t('demo.moonTitle')}</Txt>
+                      <Txt as="p" className="lp-moon-line">
                         <Trans t={t} i18nKey="demo.moonLine" components={[<b key="b" />]} />
-                      </p>
-                    </div>
-                  </div>
+                      </Txt>
+                    </Box>
+                  </Box>
 
-                  <div className="lp-rows">
-                    <div className="lp-rows-head">
-                      <span className="lp-rows-title">{t('demo.attentionTitle')}</span>
-                      <span className="lp-rows-count">
+                  <Box className="lp-rows">
+                    <Box className="lp-rows-head">
+                      <Txt className="lp-rows-title">{t('demo.attentionTitle')}</Txt>
+                      <Txt className="lp-rows-count">
                         <Trans t={t} i18nKey="demo.attentionCount" values={{ count: 3 }} components={[<bdi key="c" />]} />
-                      </span>
-                    </div>
-                    <div className="lp-row">
-                      <span className="lp-row-dot amber"><Wallet size={16} strokeWidth={1.8} /></span>
-                      <div className="lp-row-body">
-                        <p className="lp-row-t">{t('demo.row1Title')}</p>
-                        <p className="lp-row-s">{t('demo.row1Sub')}</p>
-                      </div>
-                      <span className="lp-row-val"><bdi>₪1,240</bdi></span>
-                    </div>
-                    <div className="lp-row">
-                      <span className="lp-row-dot sage"><CalendarDays size={16} strokeWidth={1.8} /></span>
-                      <div className="lp-row-body">
-                        <p className="lp-row-t">
+                      </Txt>
+                    </Box>
+                    <Box className="lp-row">
+                      <Txt className="lp-row-dot amber"><Wallet size={16} strokeWidth={1.8} /></Txt>
+                      <Box className="lp-row-body">
+                        <Txt as="p" className="lp-row-t">{t('demo.row1Title')}</Txt>
+                        <Txt as="p" className="lp-row-s">{t('demo.row1Sub')}</Txt>
+                      </Box>
+                      <Txt className="lp-row-val"><bdi>₪1,240</bdi></Txt>
+                    </Box>
+                    <Box className="lp-row">
+                      <Txt className="lp-row-dot sage"><CalendarDays size={16} strokeWidth={1.8} /></Txt>
+                      <Box className="lp-row-body">
+                        <Txt as="p" className="lp-row-t">
                           <Trans t={t} i18nKey="demo.row2Title" components={[<bdi key="t" />]} />
-                        </p>
-                        <p className="lp-row-s">{t('demo.row2Sub')}</p>
-                      </div>
+                        </Txt>
+                        <Txt as="p" className="lp-row-s">{t('demo.row2Sub')}</Txt>
+                      </Box>
                       <ArrowLeft size={16} strokeWidth={1.8} style={{ color: 'var(--stone)' }} />
-                    </div>
-                    <div className="lp-row">
-                      <span className="lp-row-dot clay"><Users size={16} strokeWidth={1.8} /></span>
-                      <div className="lp-row-body">
-                        <p className="lp-row-t">
+                    </Box>
+                    <Box className="lp-row">
+                      <Txt className="lp-row-dot clay"><Users size={16} strokeWidth={1.8} /></Txt>
+                      <Box className="lp-row-body">
+                        <Txt as="p" className="lp-row-t">
                           <Trans t={t} i18nKey="demo.row3Title" components={[<bdi key="d" />]} />
-                        </p>
-                        <p className="lp-row-s">{t('demo.row3Sub')}</p>
-                      </div>
+                        </Txt>
+                        <Txt as="p" className="lp-row-s">{t('demo.row3Sub')}</Txt>
+                      </Box>
                       <ArrowLeft size={16} strokeWidth={1.8} style={{ color: 'var(--stone)' }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
 
-            <div className="lp-demo-points">
+            <Box className="lp-demo-points">
               {DEMO_POINTS.map(({ icon: Icon, title, text }) => (
-                <div className="lp-demo-point lp-reveal" key={title}>
-                  <span className="lp-demo-point-ic"><Icon size={20} strokeWidth={1.7} /></span>
-                  <div>
-                    <p className="lp-demo-point-t">{title}</p>
-                    <p className="lp-demo-point-s">{text}</p>
-                  </div>
-                </div>
+                <Box className="lp-demo-point lp-reveal" key={title}>
+                  <Txt className="lp-demo-point-ic"><Icon size={20} strokeWidth={1.7} /></Txt>
+                  <Box>
+                    <Txt as="p" className="lp-demo-point-t">{title}</Txt>
+                    <Txt as="p" className="lp-demo-point-s">{text}</Txt>
+                  </Box>
+                </Box>
               ))}
-            </div>
-          </div>
-        </section>
+            </Box>
+          </Box>
+        </Box>
 
         {/* ── Values ───────────────────────────────────────────── */}
-        <section className="lp-section lp-wrap" aria-labelledby="lp-values-h">
-          <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">{t('values.eyebrow')}</span>
-            <h2 className="lp-section-title" id="lp-values-h">{t('values.title')}</h2>
-            <p className="lp-section-sub">
+        <Box as="section" className="lp-section lp-wrap" aria-labelledby="lp-values-h">
+          <Box className="lp-section-head lp-reveal">
+            <Txt className="lp-section-eyebrow">{t('values.eyebrow')}</Txt>
+            <Txt as="h2" className="lp-section-title" id="lp-values-h">{t('values.title')}</Txt>
+            <Txt as="p" className="lp-section-sub">
               {t('values.sub')}
-            </p>
-          </div>
-          <div className="lp-values">
+            </Txt>
+          </Box>
+          <Box className="lp-values">
             {VALUES.map(({ icon: Icon, title, text }) => (
-              <article className="lp-card lp-value lp-reveal" key={title}>
-                <span className="lp-value-ic"><Icon size={24} strokeWidth={1.6} /></span>
-                <h3 className="lp-value-title">{title}</h3>
-                <p className="lp-value-text">{text}</p>
-              </article>
+              <Box as="article" className="lp-card lp-value lp-reveal" key={title}>
+                <Txt className="lp-value-ic"><Icon size={24} strokeWidth={1.6} /></Txt>
+                <Txt as="h3" className="lp-value-title">{title}</Txt>
+                <Txt as="p" className="lp-value-text">{text}</Txt>
+              </Box>
             ))}
-          </div>
-        </section>
+          </Box>
+        </Box>
 
         {/* ── Features ─────────────────────────────────────────── */}
-        <section className="lp-section lp-wrap" aria-labelledby="lp-features-h">
-          <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">{t('features.eyebrow')}</span>
-            <h2 className="lp-section-title" id="lp-features-h">{t('features.title')}</h2>
-            <p className="lp-section-sub">
+        <Box as="section" className="lp-section lp-wrap" aria-labelledby="lp-features-h">
+          <Box className="lp-section-head lp-reveal">
+            <Txt className="lp-section-eyebrow">{t('features.eyebrow')}</Txt>
+            <Txt as="h2" className="lp-section-title" id="lp-features-h">{t('features.title')}</Txt>
+            <Txt as="p" className="lp-section-sub">
               {t('features.sub')}
-            </p>
-          </div>
-          <div className="lp-features">
+            </Txt>
+          </Box>
+          <Box className="lp-features">
             {FEATURES.map(({ icon: Icon, title, text }) => (
-              <article className="lp-card lp-feature lp-reveal" key={title}>
-                <span className="lp-feature-ic"><Icon size={20} strokeWidth={1.7} /></span>
-                <h3 className="lp-feature-title">{title}</h3>
-                <p className="lp-feature-text">{text}</p>
-              </article>
+              <Box as="article" className="lp-card lp-feature lp-reveal" key={title}>
+                <Txt className="lp-feature-ic"><Icon size={20} strokeWidth={1.7} /></Txt>
+                <Txt as="h3" className="lp-feature-title">{title}</Txt>
+                <Txt as="p" className="lp-feature-text">{text}</Txt>
+              </Box>
             ))}
-          </div>
-        </section>
+          </Box>
+        </Box>
 
         {/* ── Built with you (openness & feedback) ─────────────── */}
-        <section className="lp-section lp-wrap" aria-labelledby="lp-feedback-h">
-          <article className="lp-card lp-feedback lp-reveal">
-            <span className="lp-feedback-ic">
+        <Box as="section" className="lp-section lp-wrap" aria-labelledby="lp-feedback-h">
+          <Box as="article" className="lp-card lp-feedback lp-reveal">
+            <Txt className="lp-feedback-ic">
               <img src="/logo-dark.png" className="lp-feedback-logo dark" alt="" aria-hidden="true" />
               <img src="/logo-light.png" className="lp-feedback-logo light" alt="" aria-hidden="true" />
-            </span>
-            <h2 className="lp-section-title" id="lp-feedback-h">{t('feedback.title')}</h2>
-            <p className="lp-feedback-text">
+            </Txt>
+            <Txt as="h2" className="lp-section-title" id="lp-feedback-h">{t('feedback.title')}</Txt>
+            <Txt as="p" className="lp-feedback-text">
               {t('feedback.text')}
-            </p>
-          </article>
-        </section>
+            </Txt>
+          </Box>
+        </Box>
 
         {/* ── Trust / privacy ──────────────────────────────────── */}
-        <section className="lp-section lp-wrap" aria-labelledby="lp-trust-h">
-          <div className="lp-section-head lp-reveal">
-            <h2 className="lp-section-title" id="lp-trust-h">{t('trust.title')}</h2>
-          </div>
-          <div className="lp-values">
+        <Box as="section" className="lp-section lp-wrap" aria-labelledby="lp-trust-h">
+          <Box className="lp-section-head lp-reveal">
+            <Txt as="h2" className="lp-section-title" id="lp-trust-h">{t('trust.title')}</Txt>
+          </Box>
+          <Box className="lp-values">
             {TRUST.map(({ icon: Icon, title, text }) => (
-              <article className="lp-card lp-value lp-reveal" key={title}>
-                <span className="lp-value-ic"><Icon size={24} strokeWidth={1.6} /></span>
-                <h3 className="lp-value-title">{title}</h3>
-                <p className="lp-value-text">{text}</p>
-              </article>
+              <Box as="article" className="lp-card lp-value lp-reveal" key={title}>
+                <Txt className="lp-value-ic"><Icon size={24} strokeWidth={1.6} /></Txt>
+                <Txt as="h3" className="lp-value-title">{title}</Txt>
+                <Txt as="p" className="lp-value-text">{text}</Txt>
+              </Box>
             ))}
-          </div>
-        </section>
+          </Box>
+        </Box>
 
         {/* ── FAQ ──────────────────────────────────────────────── */}
-        <section className="lp-section lp-wrap" aria-labelledby="lp-faq-h">
-          <div className="lp-section-head lp-reveal">
-            <span className="lp-section-eyebrow">{t('faq.eyebrow')}</span>
-            <h2 className="lp-section-title" id="lp-faq-h">{t('faq.title')}</h2>
-          </div>
-          <div className="lp-faq">
+        <Box as="section" className="lp-section lp-wrap" aria-labelledby="lp-faq-h">
+          <Box className="lp-section-head lp-reveal">
+            <Txt className="lp-section-eyebrow">{t('faq.eyebrow')}</Txt>
+            <Txt as="h2" className="lp-section-title" id="lp-faq-h">{t('faq.title')}</Txt>
+          </Box>
+          <Box className="lp-faq">
             {FAQS.map(({ q, a }) => (
-              <details className="lp-faq-item lp-reveal" key={q} onToggle={(e) => { if (e.currentTarget.open) trackLandingEvent('faq_open') }}>
-                <summary className="lp-faq-q">
+              <Box as="details" className="lp-faq-item lp-reveal" key={q} onToggle={(e) => { if (e.currentTarget.open) trackLandingEvent('faq_open') }}>
+                <Txt as="summary" className="lp-faq-q">
                   {q}
                   <Plus className="lp-faq-q-ic" size={20} strokeWidth={2} aria-hidden="true" />
-                </summary>
-                <p className="lp-faq-a"><MG text={a} /></p>
-              </details>
+                </Txt>
+                <Txt as="p" className="lp-faq-a"><MG text={a} /></Txt>
+              </Box>
             ))}
-          </div>
-        </section>
+          </Box>
+        </Box>
 
         {/* ── Closing CTA ──────────────────────────────────────── */}
-        <section className="lp-cta lp-wrap">
-          <div className="lp-cta-card lp-reveal">
-            <h2 className="lp-cta-title">{t('cta.title')}</h2>
-            <p className="lp-cta-sub">
+        <Box as="section" className="lp-cta lp-wrap">
+          <Box className="lp-cta-card lp-reveal">
+            <Txt as="h2" className="lp-cta-title">{t('cta.title')}</Txt>
+            <Txt as="p" className="lp-cta-sub">
               <MG text={t('cta.sub', { roles: roleList })} />
-            </p>
-            <div className="lp-cta-actions">
+            </Txt>
+            <Box className="lp-cta-actions">
               <Link to={ROUTES.SIGNUP} className="lp-btn lp-btn-primary lp-btn-lg" onClick={() => trackLandingEvent('signup_start')}>{t('cta.ctaPrimary')}</Link>
               <Link to={ROUTES.LOGIN} className="lp-btn lp-btn-secondary">{t('cta.ctaSecondary')}</Link>
-            </div>
-            <p className="lp-cta-micro">{t('cta.micro')}</p>
-          </div>
-        </section>
-      </main>
+            </Box>
+            <Txt as="p" className="lp-cta-micro">{t('cta.micro')}</Txt>
+          </Box>
+        </Box>
+      </Box>
 
       {/* ── Footer ─────────────────────────────────────────────── */}
-      <footer className="lp-foot">
-        <div className="lp-wrap lp-foot-in">
-          <div className="lp-foot-brand">
-            <span className="lp-foot-brand-row">
+      <Box as="footer" className="lp-foot">
+        <Box className="lp-wrap lp-foot-in">
+          <Box className="lp-foot-brand">
+            <Txt className="lp-foot-brand-row">
               <img src="/logo-dark.png" className="lp-brand-logo dark" alt="" aria-hidden="true" />
               <img src="/logo-light.png" className="lp-brand-logo light" alt="" aria-hidden="true" />
-              <span className="lp-brand-name">Simplicity</span>
-            </span>
-            <p className="lp-foot-tag"><MG text={t('footer.tagline', { roles: roleList })} /></p>
-          </div>
-          <div className="lp-foot-links">
-            <div className="lp-foot-col">
-              <span className="lp-foot-col-h">{t('footer.colProduct')}</span>
+              <Txt className="lp-brand-name">Simplicity</Txt>
+            </Txt>
+            <Txt as="p" className="lp-foot-tag"><MG text={t('footer.tagline', { roles: roleList })} /></Txt>
+          </Box>
+          <Box className="lp-foot-links">
+            <Box className="lp-foot-col">
+              <Txt className="lp-foot-col-h">{t('footer.colProduct')}</Txt>
               <Link to={ROUTES.SIGNUP} className="lp-foot-link">{t('footer.signup')}</Link>
               <Link to={ROUTES.LOGIN} className="lp-foot-link">{t('footer.login')}</Link>
-            </div>
-            <div className="lp-foot-col">
-              <span className="lp-foot-col-h">{t('footer.colLegal')}</span>
+            </Box>
+            <Box className="lp-foot-col">
+              <Txt className="lp-foot-col-h">{t('footer.colLegal')}</Txt>
               <Link to={`${ROUTES.LEGAL}?tab=privacy`} className="lp-foot-link">{t('footer.privacy')}</Link>
               <Link to={`${ROUTES.LEGAL}?tab=terms`} className="lp-foot-link">{t('footer.terms')}</Link>
-            </div>
-            <div className="lp-foot-col">
-              <span className="lp-foot-col-h">{t('footer.colContact')}</span>
-              <a href="mailto:simplicity.os.app@gmail.com" className="lp-foot-link">{t('footer.contact')}</a>
-            </div>
-          </div>
-        </div>
-        <div className="lp-wrap lp-foot-legal">
-          <span>{t('footer.copyright')}</span>
-        </div>
-      </footer>
+            </Box>
+            <Box className="lp-foot-col">
+              <Txt className="lp-foot-col-h">{t('footer.colContact')}</Txt>
+              <Lnk href="mailto:simplicity.os.app@gmail.com" className="lp-foot-link">{t('footer.contact')}</Lnk>
+            </Box>
+          </Box>
+        </Box>
+        <Box className="lp-wrap lp-foot-legal">
+          <Txt>{t('footer.copyright')}</Txt>
+        </Box>
+      </Box>
 
       {/* FAQ structured data for rich results (homepage only). */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_LD) }} />
-    </div>
+    </Box>
   )
 }

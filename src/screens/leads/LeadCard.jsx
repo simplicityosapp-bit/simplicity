@@ -5,6 +5,7 @@ import { fmtShortDate } from '../../lib/dates'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import WhatsAppButton from '../../components/WhatsAppButton'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = [], dragProps = null, dragging = false }) {
   const { t } = useT('leads')
@@ -20,7 +21,7 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
   const isConverted = meta === 'converted' && lead.converted_to_client_id
 
   return (
-    <div
+    <Box
       className={`lead-card${dragging ? ' dragging' : ''}`}
       role={onEdit ? 'button' : undefined}
       tabIndex={onEdit ? 0 : undefined}
@@ -29,7 +30,7 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
       {...(dragProps || {})}
     >
       {onDelete && (
-        <button
+        <Btn
           type="button"
           className="lead-del-btn"
           aria-label={t('card.deleteAria', { name: lead.name })}
@@ -37,51 +38,51 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
           onClick={(e) => { e.stopPropagation(); onDelete(lead) }}
         >
           <X size={13} strokeWidth={2} aria-hidden="true" />
-        </button>
+        </Btn>
       )}
 
-      <p className="lead-card-name" title={lead.name}>{lead.name}</p>
+      <Txt as="p" className="lead-card-name" title={lead.name}>{lead.name}</Txt>
 
       {sub && (
-        <div className="lead-sub">
-          <span className="lead-sub-dot" style={{ background: sub.color || 'var(--stone)' }} />
-          <span>{sub.display_name}</span>
-        </div>
+        <Box className="lead-sub">
+          <Txt className="lead-sub-dot" style={{ background: sub.color || 'var(--stone)' }} />
+          <Txt>{sub.display_name}</Txt>
+        </Box>
       )}
 
-      <div className="lead-src">
-        <span className="lead-src-dot" style={{ background: source?.color || 'rgba(42,37,32,.2)' }} />
-        <span className={source ? '' : 'lead-src-none'}>{source ? source.name : t('card.noSource')}</span>
-      </div>
+      <Box className="lead-src">
+        <Txt className="lead-src-dot" style={{ background: source?.color || 'rgba(42,37,32,.2)' }} />
+        <Txt className={source ? '' : 'lead-src-none'}>{source ? source.name : t('card.noSource')}</Txt>
+      </Box>
 
       {lead.inquiry_date && (
-        <div className="lead-line">
+        <Box className="lead-line">
           <CalendarDays size={12} strokeWidth={1.6} aria-hidden="true" />
-          <span>{t('card.inquiry', { date: fmtShortDate(lead.inquiry_date) })}</span>
-        </div>
+          <Txt>{t('card.inquiry', { date: fmtShortDate(lead.inquiry_date) })}</Txt>
+        </Box>
       )}
 
       {lead.follow_up_date && (
-        <div className={`lead-line lead-fu${overdue ? ' overdue' : ''}`}>
+        <Box className={`lead-line lead-fu${overdue ? ' overdue' : ''}`}>
           <Clock size={12} strokeWidth={1.6} aria-hidden="true" />
-          <span>{fmtShortDate(lead.follow_up_date)}</span>
-        </div>
+          <Txt>{fmtShortDate(lead.follow_up_date)}</Txt>
+        </Box>
       )}
 
-      <div className="lead-card-foot">
+      <Box className="lead-card-foot">
         {isConverted && (
-          <div className="lead-converted">
+          <Box className="lead-converted">
             <Check size={12} strokeWidth={2} aria-hidden="true" /> {t('card.converted')}
-          </div>
+          </Box>
         )}
         {!isConverted && onConvert && (
-          <button
+          <Btn
             type="button"
             className="lead-convert-btn"
             onClick={(e) => { e.stopPropagation(); onConvert(lead) }}
           >
             <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" /> {t('card.convert')}
-          </button>
+          </Btn>
         )}
         {/* Direct WhatsApp on EVERY lead. With no phone, wa.me opens WhatsApp's
            own contact picker. Stops propagation so it won't open edit/drag. */}
@@ -90,8 +91,8 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
           message={waMsg('lead', { name: lead.name })}
           triggerClassName="lead-wa-btn"
         />
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 

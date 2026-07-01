@@ -2,6 +2,7 @@ import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
 
 const todayStr = () => {
   const d = new Date()
@@ -169,133 +170,133 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
 
   return (
     <Modal open={open} onClose={close} title={isEdit ? t('reminder.titleEdit') : t('reminder.titleNew')}>
-      <div className="m-field">
-        <label className="m-label">{t('reminder.what')}</label>
-        <input
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('reminder.what')}</Box>
+        <Input
           className={`m-input${titleMissing ? ' err' : ''}`}
           value={form.title}
           onChange={(e) => { set('title', e.target.value); if (err) setErr('') }}
           placeholder={t('reminder.titlePlaceholder')}
         />
-      </div>
+      </Box>
 
-      <div className="m-field">
-        <label className="m-label">{t('reminder.recurrence')}</label>
-        <div className="m-pills">
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('reminder.recurrence')}</Box>
+        <Box className="m-pills">
           {RECURRENCES.map((r) => (
-            <button key={r.k} type="button" className={`m-pill${form.recurrence === r.k ? ' on' : ''}`} onClick={() => { set('recurrence', r.k); if (err) setErr('') }}>{t(`reminder.${r.l}`)}</button>
+            <Btn key={r.k} type="button" className={`m-pill${form.recurrence === r.k ? ' on' : ''}`} onClick={() => { set('recurrence', r.k); if (err) setErr('') }}>{t(`reminder.${r.l}`)}</Btn>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* Timing field adapts to the recurrence so there's never a stray
           "pick a date" for a weekly/monthly reminder. */}
       {form.recurrence === 'none' && (
-        <div className="m-row2">
-          <div className="m-field">
-            <label className="m-label">{t('reminder.date')}</label>
+        <Box className="m-row2">
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('reminder.date')}</Box>
             <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
-          </div>
-          <div className="m-field">
-            <label className="m-label">{t('reminder.time')}</label>
-            <input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
-          </div>
-        </div>
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('reminder.time')}</Box>
+            <Input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
+          </Box>
+        </Box>
       )}
 
       {form.recurrence === 'weekly' && (
         <>
-          <div className="m-field">
-            <label className="m-label">{t('reminder.dayOfWeek')}</label>
-            <div className="m-pills">
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('reminder.dayOfWeek')}</Box>
+            <Box className="m-pills">
               {HEB_DAYS_SHORT.map((d, i) => (
-                <button key={i} type="button" className={`m-pill${Number(form.day_of_week) === i ? ' on' : ''}`} onClick={() => set('day_of_week', String(i))}>{d}</button>
+                <Btn key={i} type="button" className={`m-pill${Number(form.day_of_week) === i ? ' on' : ''}`} onClick={() => set('day_of_week', String(i))}>{d}</Btn>
               ))}
-            </div>
-          </div>
-          <div className="m-field">
-            <label className="m-label">{t('reminder.time')}</label>
-            <input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
-          </div>
+            </Box>
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('reminder.time')}</Box>
+            <Input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
+          </Box>
         </>
       )}
 
       {form.recurrence === 'monthly_date' && (
-        <div className="m-row2">
-          <div className="m-field">
-            <label className="m-label">{t('reminder.dayOfMonth')}</label>
-            <input type="number" min="1" max="31" className="m-input" value={form.day_of_month} onChange={(e) => { set('day_of_month', e.target.value); if (err) setErr('') }} />
-          </div>
-          <div className="m-field">
-            <label className="m-label">{t('reminder.time')}</label>
-            <input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
-          </div>
-        </div>
+        <Box className="m-row2">
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('reminder.dayOfMonth')}</Box>
+            <Input type="number" min="1" max="31" className="m-input" value={form.day_of_month} onChange={(e) => { set('day_of_month', e.target.value); if (err) setErr('') }} />
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('reminder.time')}</Box>
+            <Input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
+          </Box>
+        </Box>
       )}
 
       {form.recurrence === 'every_x_days' && (
         <>
-          <div className="m-row2">
-            <div className="m-field">
-              <label className="m-label">{t('reminder.startFrom')}</label>
+          <Box className="m-row2">
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('reminder.startFrom')}</Box>
               <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
-            </div>
-            <div className="m-field">
-              <label className="m-label">{t('reminder.time')}</label>
-              <input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
-            </div>
-          </div>
-          <div className="m-field">
-            <label className="m-label">{t('reminder.everyHowMany')}</label>
-            <input type="number" min="1" className="m-input" value={form.every_x} onChange={(e) => { set('every_x', e.target.value); if (err) setErr('') }} />
-          </div>
+            </Box>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('reminder.time')}</Box>
+              <Input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
+            </Box>
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('reminder.everyHowMany')}</Box>
+            <Input type="number" min="1" className="m-input" value={form.every_x} onChange={(e) => { set('every_x', e.target.value); if (err) setErr('') }} />
+          </Box>
         </>
       )}
 
       {recurring && (
-        <div className="m-field">
-          <label className="m-label">{t('reminder.endDate')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('reminder.endDate')}</Box>
           <DateField value={form.end_date} onChange={(e) => set('end_date', e.target.value)} />
-        </div>
+        </Box>
       )}
 
       {defaultLinkedTo ? (
-        <div className="m-field">
-          <label className="m-label">{t('reminder.linkedTo')}</label>
-          <p className="m-sub">
-            <span className="m-sub-dot" style={{ background: 'var(--clay)' }} />
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('reminder.linkedTo')}</Box>
+          <Txt as="p" className="m-sub">
+            <Txt className="m-sub-dot" style={{ background: 'var(--clay)' }} />
             {linkedSubjectName || (defaultLinkedTo.type === 'project' ? t('reminder.project') : defaultLinkedTo.type)}
-          </p>
-        </div>
+          </Txt>
+        </Box>
       ) : (
-        <div className="m-field">
-          <label className="m-label">{t('reminder.linkedClient')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('reminder.linkedClient')}</Box>
           <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-        </div>
+        </Box>
       )}
       {categories.length > 0 && (
-        <div className="m-field">
-          <label className="m-label">{t('reminder.category')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('reminder.category')}</Box>
           <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-        </div>
+        </Box>
       )}
-      <div className="m-field">
-        <label className="m-label">{t('reminder.details')}</label>
-        <textarea className="m-textarea" value={form.description} onChange={(e) => set('description', e.target.value)} placeholder={t('reminder.detailsPlaceholder')} />
-      </div>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('reminder.details')}</Box>
+        <Textarea className="m-textarea" value={form.description} onChange={(e) => set('description', e.target.value)} placeholder={t('reminder.detailsPlaceholder')} />
+      </Box>
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
     </Modal>
   )
 }

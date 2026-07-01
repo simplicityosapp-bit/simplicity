@@ -3,6 +3,7 @@ import { useAuth } from '../../auth/AuthContext'
 import { getLegal, LEGAL_LANGS } from './legalI18n'
 import './LegalModal.css' // reuse the legal-document typography (.legal-h / .legal-h2 / .legal-p / .legal-meta)
 import './LegalPage.css'
+import { Box, Txt, Btn } from '../ui'
 
 /* ════════════════════════════════════════════════════════════════
    LEGAL PAGE — public, full-viewport legal documents (no app shell).
@@ -15,9 +16,9 @@ import './LegalPage.css'
    ════════════════════════════════════════════════════════════════ */
 function renderBlocks(blocks) {
   return blocks.map((b, i) => {
-    if (b.h) return <h3 key={i} className="legal-h">{b.h}</h3>
-    if (b.h2) return <h4 key={i} className="legal-h2">{b.h2}</h4>
-    return <p key={i} className="legal-p">{b.t}</p>
+    if (b.h) return <Txt as="h3" key={i} className="legal-h">{b.h}</Txt>
+    if (b.h2) return <Txt as="h4" key={i} className="legal-h2">{b.h2}</Txt>
+    return <Txt as="p" key={i} className="legal-p">{b.t}</Txt>
   })
 }
 
@@ -41,17 +42,17 @@ export default function LegalPage() {
   }, { replace: true })
 
   return (
-    <div className="legal-page" dir={dir}>
-      <div className="legal-page-sheet">
-        <header className="legal-page-head">
-          <div className="legal-page-brand">
+    <Box className="legal-page" dir={dir}>
+      <Box className="legal-page-sheet">
+        <Box as="header" className="legal-page-head">
+          <Box className="legal-page-brand">
             {/* Theme-aware: dark mark on the light sheet, light mark on the dark sheet. */}
             <img src="/logo-dark.png" className="legal-page-logo legal-page-logo-day" alt="" aria-hidden="true" />
             <img src="/logo-light.png" className="legal-page-logo legal-page-logo-night" alt="" aria-hidden="true" />
-            <span className="legal-page-name">{brand}</span>
-            <div className="legal-page-langs" role="group" aria-label={langAria}>
+            <Txt className="legal-page-name">{brand}</Txt>
+            <Box className="legal-page-langs" role="group" aria-label={langAria}>
               {LEGAL_LANGS.map((l) => (
-                <button
+                <Btn
                   key={l.code}
                   type="button"
                   lang={l.code}
@@ -60,13 +61,13 @@ export default function LegalPage() {
                   onClick={() => setParam({ lang: l.code })}
                 >
                   {l.name}
-                </button>
+                </Btn>
               ))}
-            </div>
-          </div>
-          <nav className="legal-page-tabs" role="tablist" aria-label={docsAria}>
+            </Box>
+          </Box>
+          <Box as="nav" className="legal-page-tabs" role="tablist" aria-label={docsAria}>
             {tabs.map((t) => (
-              <button
+              <Btn
                 key={t.key}
                 type="button"
                 role="tab"
@@ -77,24 +78,24 @@ export default function LegalPage() {
                 onClick={() => setParam({ tab: t.key })}
               >
                 {t.label}
-              </button>
+              </Btn>
             ))}
-          </nav>
-        </header>
+          </Box>
+        </Box>
 
-        <div className="legal-page-body" role="tabpanel" id="legal-tabpanel" aria-labelledby={`legal-tab-${active}`} tabIndex={0}>
-          {tab.meta && <p className="legal-meta">{tab.meta}</p>}
+        <Box className="legal-page-body" role="tabpanel" id="legal-tabpanel" aria-labelledby={`legal-tab-${active}`} tabIndex={0}>
+          {tab.meta && <Txt as="p" className="legal-meta">{tab.meta}</Txt>}
           {renderBlocks(tab.blocks)}
-        </div>
+        </Box>
 
         {session && (
-          <footer className="legal-page-foot">
-            <button type="button" className="legal-page-back" onClick={() => navigate('/')}>
+          <Box as="footer" className="legal-page-foot">
+            <Btn type="button" className="legal-page-back" onClick={() => navigate('/')}>
               {backLabel}
-            </button>
-          </footer>
+            </Btn>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

@@ -2,6 +2,7 @@ import { CalendarClock, RefreshCw, CheckCircle2 } from 'lucide-react'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
 import './CalendarDuplicateModal.css'
+import { Box, Txt, Btn } from '../components/ui'
 
 const fmtTime = (d) => {
   const x = d instanceof Date ? d : new Date(d)
@@ -21,52 +22,52 @@ export default function CalendarDuplicateModal({ open, onClose, duplicates = [],
   const { t } = useT('modalsTask')
   return (
     <Modal open={open} onClose={onClose} title={t('duplicate.title')}>
-      <p className="m-sub">
+      <Txt as="p" className="m-sub">
         <CalendarClock size={15} strokeWidth={1.7} aria-hidden="true" />
         {t('duplicate.intro')}
-      </p>
+      </Txt>
 
       {duplicates.length === 0 ? (
-        <p className="cdup-empty">
+        <Txt as="p" className="cdup-empty">
           <CheckCircle2 size={16} strokeWidth={1.5} aria-hidden="true" style={{ color: 'var(--sage)' }} />
           {t('duplicate.empty')}
-        </p>
+        </Txt>
       ) : (
-        <div className="cdup-list">
+        <Box className="cdup-list">
           {duplicates.map((d) => (
-            <div key={d.id} className="cdup-card">
-              <div className="cdup-head">
-                <span className="cdup-name">{d.subjectName}</span>
-                <span className="cdup-when">{t('duplicate.when', { day: fmtDay(d.when), time: fmtTime(d.when) })}</span>
-              </div>
+            <Box key={d.id} className="cdup-card">
+              <Box className="cdup-head">
+                <Txt className="cdup-name">{d.subjectName}</Txt>
+                <Txt className="cdup-when">{t('duplicate.when', { day: fmtDay(d.when), time: fmtTime(d.when) })}</Txt>
+              </Box>
 
-              <div className="cdup-rows">
-                <div className="cdup-row">
-                  <span className="cdup-row-lbl">{t('duplicate.rowMeeting', { time: fmtTime(d.meeting.scheduled_at) })}</span>
-                  <button type="button" className="cdup-btn" onClick={() => onHideMeeting(d)}>{t('duplicate.hide')}</button>
-                </div>
-                <div className="cdup-row">
-                  <span className="cdup-row-lbl">
+              <Box className="cdup-rows">
+                <Box className="cdup-row">
+                  <Txt className="cdup-row-lbl">{t('duplicate.rowMeeting', { time: fmtTime(d.meeting.scheduled_at) })}</Txt>
+                  <Btn type="button" className="cdup-btn" onClick={() => onHideMeeting(d)}>{t('duplicate.hide')}</Btn>
+                </Box>
+                <Box className="cdup-row">
+                  <Txt className="cdup-row-lbl">
                     {t('duplicate.rowEvent', { title: d.event.title || t('duplicate.eventFallback'), time: fmtTime(d.event.start_time) })}
-                  </span>
-                  <button type="button" className="cdup-btn" onClick={() => onHideEvent(d)}>{t('duplicate.hide')}</button>
-                </div>
-              </div>
+                  </Txt>
+                  <Btn type="button" className="cdup-btn" onClick={() => onHideEvent(d)}>{t('duplicate.hide')}</Btn>
+                </Box>
+              </Box>
 
-              <p className="cdup-note">
+              <Txt as="p" className="cdup-note">
                 <RefreshCw size={11} strokeWidth={1.7} aria-hidden="true" />
                 {t('duplicate.note')}
-              </p>
-            </div>
+              </Txt>
+            </Box>
           ))}
-        </div>
+        </Box>
       )}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose}>
           {duplicates.length === 0 ? t('duplicate.closeEmpty') : t('duplicate.closeLater')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
     </Modal>
   )
 }

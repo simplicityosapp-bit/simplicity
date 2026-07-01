@@ -12,6 +12,7 @@ import { useGroups } from '../../hooks/useGroups'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
 import MoonDualBars from '../../components/MoonDualBars'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const RADIUS = 42
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
@@ -56,7 +57,7 @@ export default function ProjectMoonRing({ projectId }) {
 
   return (
     <>
-      <button
+      <Btn
         type="button"
         className="moon-chip pd-moon-chip"
         onClick={() => setExpanded((v) => !v)}
@@ -67,30 +68,30 @@ export default function ProjectMoonRing({ projectId }) {
           <circle className="moon-track" cx="50" cy="50" r={RADIUS} />
           <circle className="moon-arc" cx="50" cy="50" r={RADIUS} strokeDasharray={`${dash} ${CIRCUMFERENCE}`} />
         </svg>
-        <div className="moon-chip-num mono">{`${conf}%`}</div>
-        <div className="moon-chip-kicker">{t('detail.moon.ofPace')}</div>
-        {pure != null && <div className="moon-chip-label">{t('detail.moon.percentOfGoal', { percent: pure })}</div>}
-      </button>
+        <Box className="moon-chip-num mono">{`${conf}%`}</Box>
+        <Box className="moon-chip-kicker">{t('detail.moon.ofPace')}</Box>
+        {pure != null && <Box className="moon-chip-label">{t('detail.moon.percentOfGoal', { percent: pure })}</Box>}
+      </Btn>
 
       {expanded && (
-        <div className="moon-expanded pd-moon-expanded">
-          <p className="moon-expanded-reflection">{moonReflection(conf, gender)}</p>
+        <Box className="moon-expanded pd-moon-expanded">
+          <Txt as="p" className="moon-expanded-reflection">{moonReflection(conf, gender)}</Txt>
           {scored.length === 0 ? (
-            <p className="moon-expanded-empty">{t('detail.moon.expandedEmpty')}</p>
+            <Txt as="p" className="moon-expanded-empty">{t('detail.moon.expandedEmpty')}</Txt>
           ) : (
-            <div className="moon-expanded-cats">
+            <Box className="moon-expanded-cats">
               {scored.map((s) => (
-                <div key={s.goal.id} className="moon-expanded-cat">
-                  <div className="moon-expanded-cat-head">
-                    <span className="moon-expanded-cat-dot" style={{ background: s.cat.color || 'var(--sage)' }} />
-                    <span className="moon-expanded-cat-name">{s.goal.label || s.cat.name}</span>
-                  </div>
+                <Box key={s.goal.id} className="moon-expanded-cat">
+                  <Box className="moon-expanded-cat-head">
+                    <Txt className="moon-expanded-cat-dot" style={{ background: s.cat.color || 'var(--sage)' }} />
+                    <Txt className="moon-expanded-cat-name">{s.goal.label || s.cat.name}</Txt>
+                  </Box>
                   <MoonDualBars pace={Math.min(100, s.paced)} goal={s.pure} />
-                </div>
+                </Box>
               ))}
-            </div>
+            </Box>
           )}
-        </div>
+        </Box>
       )}
     </>
   )

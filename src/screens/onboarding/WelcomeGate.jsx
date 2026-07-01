@@ -5,6 +5,7 @@ import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useOnboarding } from '../../hooks/useOnboarding'
 import { useT } from '../../i18n/useT'
 import LanguageSwitcher from '../../i18n/LanguageSwitcher'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Pre-flow welcome screen — shows once before the 9-step wizard.
    Two paths: (1) start the onboarding (advance to step 1) or
@@ -32,30 +33,30 @@ export default function WelcomeGate() {
   }
 
   return (
-    <div className="ob-screen screen">
-      <div className="ob-welcome">
+    <Box className="ob-screen screen">
+      <Box className="ob-welcome">
         {/* Two img tags + a CSS swap on [data-theme] so the right logo
             ships against the right background tone — dark logo against
             the daytime tree-frame, light logo against the night one. */}
         <img className="ob-welcome-logo ob-welcome-logo-day"   src="/logo-dark.png"  alt="" aria-hidden="true" />
         <img className="ob-welcome-logo ob-welcome-logo-night" src="/logo-light.png" alt="" aria-hidden="true" />
-        <p className="ob-welcome-name">Simplicity</p>
-        <p className="ob-welcome-tag">{t('welcome.tagline')}</p>
+        <Txt as="p" className="ob-welcome-name">Simplicity</Txt>
+        <Txt as="p" className="ob-welcome-tag">{t('welcome.tagline')}</Txt>
 
-        <button type="button" className="ob-welcome-option primary" onClick={onStart}>
-          <span className="ob-welcome-option-title">{t('welcome.startTitle')}</span>
-          <span className="ob-welcome-option-sub">{t('welcome.startSub')}</span>
+        <Btn type="button" className="ob-welcome-option primary" onClick={onStart}>
+          <Txt className="ob-welcome-option-title">{t('welcome.startTitle')}</Txt>
+          <Txt className="ob-welcome-option-sub">{t('welcome.startSub')}</Txt>
           <ArrowLeft size={16} strokeWidth={1.8} className="ob-welcome-option-arrow" aria-hidden="true" />
-        </button>
+        </Btn>
 
-        <button type="button" className="ob-welcome-option ghost" onClick={onSkip}>
-          <span className="ob-welcome-option-title">{t('welcome.skipTitle')}</span>
-          <span className="ob-welcome-option-sub">{t('welcome.skipSub')}</span>
+        <Btn type="button" className="ob-welcome-option ghost" onClick={onSkip}>
+          <Txt className="ob-welcome-option-title">{t('welcome.skipTitle')}</Txt>
+          <Txt className="ob-welcome-option-sub">{t('welcome.skipSub')}</Txt>
           <ArrowLeft size={16} strokeWidth={1.8} className="ob-welcome-option-arrow" aria-hidden="true" />
-        </button>
+        </Btn>
 
         <LanguageSwitcher className="ob-welcome-langs" />
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

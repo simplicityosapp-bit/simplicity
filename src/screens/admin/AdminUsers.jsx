@@ -8,6 +8,7 @@ import { ADMIN_EMAIL } from '../../lib/routes'
 import { useAuth } from '../../auth/AuthContext'
 import { adminPerms } from '../../lib/admin'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 /* The three grantable admin permissions, in display order. Console view
    access is implicit for every admin — these gate the sensitive extras.
@@ -149,28 +150,28 @@ export default function AdminUsers() {
 
   return (
     <>
-      <header className="admin-head">
-        <h1>{t('users.title')}</h1>
-        <p>{t('users.subtitle')}</p>
-      </header>
+      <Box as="header" className="admin-head">
+        <Txt as="h1">{t('users.title')}</Txt>
+        <Txt as="p">{t('users.subtitle')}</Txt>
+      </Box>
 
-      {loading && <div className="admin-state">{t('state.loading')}</div>}
-      {error && <div className="admin-state err">{t('state.loadError')}</div>}
+      {loading && <Box className="admin-state">{t('state.loading')}</Box>}
+      {error && <Box className="admin-state err">{t('state.loadError')}</Box>}
 
       {data && (
         <>
-          <div className="admin-search">
+          <Box className="admin-search">
             <Search size={16} strokeWidth={1.8} aria-hidden="true" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('users.searchPlaceholder')} dir="ltr" />
-          </div>
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('users.searchPlaceholder')} dir="ltr" />
+          </Box>
 
           {/* Summary chips */}
-          <div className="admin-usum">
-            <span className="admin-usum-chip"><Users size={14} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.total')} <b>{visible.length}</b></span>
-            <span className="admin-usum-chip"><BadgeCheck size={14} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.subscribers')} <b>{subs.length}</b></span>
-            <span className="admin-usum-chip sub"><Hand size={13} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.manual')} <b>{manual.length}</b></span>
-            <span className="admin-usum-chip sub"><CreditCard size={13} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.regular')} <b>{regular.length}</b></span>
-          </div>
+          <Box className="admin-usum">
+            <Txt className="admin-usum-chip"><Users size={14} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.total')} <b>{visible.length}</b></Txt>
+            <Txt className="admin-usum-chip"><BadgeCheck size={14} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.subscribers')} <b>{subs.length}</b></Txt>
+            <Txt className="admin-usum-chip sub"><Hand size={13} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.manual')} <b>{manual.length}</b></Txt>
+            <Txt className="admin-usum-chip sub"><CreditCard size={13} strokeWidth={1.8} aria-hidden="true" />{t('users.summary.regular')} <b>{regular.length}</b></Txt>
+          </Box>
 
           {/* All users */}
           <Section icon={Users} title={t('users.sections.all')} count={visible.length} open={sections.all} onToggle={() => toggleSection('all')}>
@@ -195,21 +196,21 @@ export default function AdminUsers() {
 /* Collapsible section with a count summary in the header. */
 function Section({ icon: Icon, title, count, open, onToggle, nested, children }) {
   return (
-    <section className={`admin-acc${nested ? ' nested' : ''}`}>
-      <button type="button" className="admin-acc-head" onClick={onToggle} aria-expanded={open}>
+    <Box as="section" className={`admin-acc${nested ? ' nested' : ''}`}>
+      <Btn type="button" className="admin-acc-head" onClick={onToggle} aria-expanded={open}>
         <ChevronDown size={16} strokeWidth={1.9} className="admin-acc-chev" style={{ transform: open ? 'none' : 'rotate(-90deg)' }} aria-hidden="true" />
         {Icon && <Icon size={16} strokeWidth={1.8} aria-hidden="true" />}
-        <span className="admin-acc-title">{title}</span>
-        <span className="admin-acc-count">{count}</span>
-      </button>
-      {open && <div className="admin-acc-body">{children}</div>}
-    </section>
+        <Txt className="admin-acc-title">{title}</Txt>
+        <Txt className="admin-acc-count">{count}</Txt>
+      </Btn>
+      {open && <Box className="admin-acc-body">{children}</Box>}
+    </Box>
   )
 }
 
 function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, onSetSubscription, viewerPerms, viewerId, t, emptyText }) {
   return (
-    <div className="admin-card admin-table-wrap">
+    <Box className="admin-card admin-table-wrap">
       <table className="admin-table">
         <thead>
           <tr>
@@ -248,7 +249,7 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
           ))}
         </tbody>
       </table>
-    </div>
+    </Box>
   )
 }
 
@@ -256,24 +257,24 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
    two-step toggle (click → confirm) so a flag never happens by accident. */
 function SubCell({ r, confirming, busy, canToggle, onRequestConfirm, onCancelConfirm, onApply, t }) {
   if (r.subscriber_kind === 'regular') {
-    return <span className="admin-sub-badge regular"><CreditCard size={12} strokeWidth={2} aria-hidden="true" /> {t('users.sub.regularBadge')}</span>
+    return <Txt className="admin-sub-badge regular"><CreditCard size={12} strokeWidth={2} aria-hidden="true" /> {t('users.sub.regularBadge')}</Txt>
   }
   const on = r.subscriber_kind === 'manual'
   // Admins without the set_subscriber perm see a read-only state, no toggle.
   if (!canToggle) {
-    return on ? <span className="admin-pill done">{t('users.sub.subscribed')}</span> : <span className="muted">—</span>
+    return on ? <Txt className="admin-pill done">{t('users.sub.subscribed')}</Txt> : <Txt className="muted">—</Txt>
   }
   if (confirming) {
     return (
-      <span className="admin-sub-confirm" onClick={(e) => e.stopPropagation()}>
-        <span className="admin-sub-confirm-q">{on ? t('users.sub.askCancel') : t('users.sub.askMark')}</span>
-        <button type="button" className="admin-sub-yes" disabled={busy} onClick={onApply} aria-label={t('users.sub.confirmAria')}><Check size={13} strokeWidth={2.4} /></button>
-        <button type="button" className="admin-sub-no" onClick={onCancelConfirm} aria-label={t('users.sub.cancelAria')}><X size={13} strokeWidth={2.4} /></button>
-      </span>
+      <Txt className="admin-sub-confirm" onClick={(e) => e.stopPropagation()}>
+        <Txt className="admin-sub-confirm-q">{on ? t('users.sub.askCancel') : t('users.sub.askMark')}</Txt>
+        <Btn type="button" className="admin-sub-yes" disabled={busy} onClick={onApply} aria-label={t('users.sub.confirmAria')}><Check size={13} strokeWidth={2.4} /></Btn>
+        <Btn type="button" className="admin-sub-no" onClick={onCancelConfirm} aria-label={t('users.sub.cancelAria')}><X size={13} strokeWidth={2.4} /></Btn>
+      </Txt>
     )
   }
   return (
-    <button
+    <Btn
       type="button"
       className={`admin-sub-toggle${on ? ' on' : ''}`}
       disabled={busy}
@@ -281,7 +282,7 @@ function SubCell({ r, confirming, busy, canToggle, onRequestConfirm, onCancelCon
       title={on ? t('users.sub.titleCancel') : t('users.sub.titleMark')}
     >
       {on ? <><BadgeCheck size={13} strokeWidth={2} aria-hidden="true" /> {t('users.sub.subscribed')}</> : <><Plus size={13} strokeWidth={2} aria-hidden="true" /> {t('users.sub.mark')}</>}
-    </button>
+    </Btn>
   )
 }
 
@@ -320,50 +321,50 @@ function SubscriptionBlock({ r, onSetSubscription, t }) {
     setSaved(false); setConfirming(false)
   }
   return (
-    <div className="admin-role-block" onClick={(e) => e.stopPropagation()}>
-      <div className="admin-role-head">
+    <Box className="admin-role-block" onClick={(e) => e.stopPropagation()}>
+      <Box className="admin-role-head">
         <Gem size={14} strokeWidth={1.9} aria-hidden="true" />
-        <span>{t('users.subscription.heading')}</span>
-      </div>
-      <div className="admin-sub-tiers">
+        <Txt>{t('users.subscription.heading')}</Txt>
+      </Box>
+      <Box className="admin-sub-tiers">
         {SUB_TIERS.map((tk) => (
-          <button key={tk} type="button" className={`admin-pill${tier === tk ? ' done' : ''}`} onClick={() => { setTier(tk); setSaved(false); setConfirming(false) }}>
+          <Btn key={tk} type="button" className={`admin-pill${tier === tk ? ' done' : ''}`} onClick={() => { setTier(tk); setSaved(false); setConfirming(false) }}>
             {t('users.subscription.tiers.' + tk)}
-          </button>
+          </Btn>
         ))}
-      </div>
-      <div className="admin-sub-exempt">
-        <span>{t('users.subscription.grantExempt')}</span>
+      </Box>
+      <Box className="admin-sub-exempt">
+        <Txt>{t('users.subscription.grantExempt')}</Txt>
         {EXEMPT_MONTHS.map((n) => (
-          <button key={n} type="button" className="admin-pill" onClick={() => setBetaMonths(n)}>
+          <Btn key={n} type="button" className="admin-pill" onClick={() => setBetaMonths(n)}>
             {t('users.subscription.exemptM' + n)}
-          </button>
+          </Btn>
         ))}
-      </div>
-      <label className="admin-sub-beta">
-        <span>{t('users.subscription.betaUntil')}</span>
-        <input type="date" value={beta} onChange={(e) => { setBeta(e.target.value); setSaved(false); setConfirming(false) }} />
-        {beta && <button type="button" className="admin-role-cancel" onClick={() => { setBeta(''); setSaved(false); setConfirming(false) }}>{t('users.subscription.clearBeta')}</button>}
-      </label>
-      {err && <p className="admin-role-err">{t('users.subscription.failed')}</p>}
+      </Box>
+      <Box as="label" className="admin-sub-beta">
+        <Txt>{t('users.subscription.betaUntil')}</Txt>
+        <Input type="date" value={beta} onChange={(e) => { setBeta(e.target.value); setSaved(false); setConfirming(false) }} />
+        {beta && <Btn type="button" className="admin-role-cancel" onClick={() => { setBeta(''); setSaved(false); setConfirming(false) }}>{t('users.subscription.clearBeta')}</Btn>}
+      </Box>
+      {err && <Txt as="p" className="admin-role-err">{t('users.subscription.failed')}</Txt>}
       {confirming ? (
         <>
-          <p className="admin-role-warn">{t('users.subscription.confirmQ', { tier: t('users.subscription.tiers.' + tier) })}</p>
-          <div className="admin-role-actions">
-            <button type="button" className="admin-role-cancel" onClick={() => setConfirming(false)}>{t('users.manage.cancel')}</button>
-            <button type="button" className="admin-role-go" disabled={busy} onClick={async () => { await save(); setConfirming(false) }}>
+          <Txt as="p" className="admin-role-warn">{t('users.subscription.confirmQ', { tier: t('users.subscription.tiers.' + tier) })}</Txt>
+          <Box className="admin-role-actions">
+            <Btn type="button" className="admin-role-cancel" onClick={() => setConfirming(false)}>{t('users.manage.cancel')}</Btn>
+            <Btn type="button" className="admin-role-go" disabled={busy} onClick={async () => { await save(); setConfirming(false) }}>
               {busy ? t('users.subscription.saving') : t('users.manage.confirm')}
-            </button>
-          </div>
+            </Btn>
+          </Box>
         </>
       ) : (
-        <div className="admin-role-actions">
-          <button type="button" className="admin-role-go" onClick={() => { setErr(false); setConfirming(true) }}>
+        <Box className="admin-role-actions">
+          <Btn type="button" className="admin-role-go" onClick={() => { setErr(false); setConfirming(true) }}>
             {saved ? t('users.subscription.saved') : t('users.subscription.save')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -429,9 +430,9 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
         <td dir="ltr" style={{ textAlign: 'start' }}>
           {r.email || '—'}
           {r.is_owner
-            ? <span className="admin-role-chip owner" title={t('users.role.ownerTitle')}><ShieldCheck size={11} strokeWidth={2.2} aria-hidden="true" /> {t('users.role.ownerChip')}</span>
+            ? <Txt className="admin-role-chip owner" title={t('users.role.ownerTitle')}><ShieldCheck size={11} strokeWidth={2.2} aria-hidden="true" /> {t('users.role.ownerChip')}</Txt>
             : r.is_admin
-              ? <span className="admin-role-chip" title={t('users.role.adminTitle')}><Shield size={11} strokeWidth={2.2} aria-hidden="true" /> {t('users.role.adminChip')}</span>
+              ? <Txt className="admin-role-chip" title={t('users.role.adminTitle')}><Shield size={11} strokeWidth={2.2} aria-hidden="true" /> {t('users.role.adminChip')}</Txt>
               : null}
         </td>
         <td>
@@ -447,10 +448,10 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
           />
         </td>
         <td>{fmtDate(r.created_at)}</td>
-        <td><span className={`admin-pill${r.onboarding_done ? ' done' : ''}`}>{r.onboarding_label}</span></td>
+        <td><Txt className={`admin-pill${r.onboarding_done ? ' done' : ''}`}>{r.onboarding_label}</Txt></td>
         <td className="num">{r.reflections}</td>
         <td className="num">{r.sessions}</td>
-        <td>{r.marketing_consent ? <Check size={15} strokeWidth={2.4} style={{ color: 'var(--sage)' }} aria-label={t('users.marketingConsentAria')} /> : <span className="muted">—</span>}</td>
+        <td>{r.marketing_consent ? <Check size={15} strokeWidth={2.4} style={{ color: 'var(--sage)' }} aria-label={t('users.marketingConsentAria')} /> : <Txt className="muted">—</Txt>}</td>
         <td>{fmtLastActive(r.last_sign_in_at, t)}</td>
         <td>
           <ChevronDown size={16} strokeWidth={1.8}
@@ -461,23 +462,23 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
       {isOpen && (
         <tr className="admin-detail">
           <td colSpan={9}>
-            <div className="admin-detail-grid">
-              <div><div className="k">{t('users.detail.subscriber')}</div><div className="v">{r.subscriber_kind === 'regular' ? t('users.detail.subscriberRegular') : r.subscriber_kind === 'manual' ? t('users.detail.subscriberManual') : t('users.detail.subscriberNone')}</div></div>
-              <div><div className="k">{t('users.subscription.tier')}</div><div className="v">{t('users.subscription.tiers.' + (r.subscription_tier || 'free'))}{r.beta_exempt_until ? ` · ${t('users.subscription.betaUntil')} ${fmtDate(r.beta_exempt_until)}` : ''}{r.subscribed_at ? ` · ${t('users.subscription.since')} ${fmtDate(r.subscribed_at)}${r.locked_price != null ? ` (₪${r.locked_price})` : ''}` : ''}</div></div>
-              <div><div className="k">{t('users.detail.onboardingStage')}</div><div className="v">{r.onboarding_done ? r.onboarding_label : t('users.detail.onboardingStopped', { label: r.onboarding_label })}</div></div>
-              <div><div className="k">{t('users.detail.feedbackLeft')}</div><div className="v">{r.feedback_count > 0 ? t('users.detail.feedbackCount', { count: r.feedback_count }) : t('users.detail.feedbackNone')}</div></div>
-              <div><div className="k">{t('users.detail.reflections')}</div><div className="v">{r.reflections}</div></div>
-              <div><div className="k">{t('users.detail.sessions')}</div><div className="v">{r.sessions}</div></div>
-              <div><div className="k">{t('users.detail.joined')}</div><div className="v">{fmtDate(r.created_at)}</div></div>
-              <div><div className="k">{t('users.detail.lastSignIn')}</div><div className="v">{fmtLastActive(r.last_sign_in_at, t)}</div></div>
-            </div>
-            <div className="admin-detail-consents-h">{t('users.detail.consentsHeading')}</div>
-            <div className="admin-detail-grid">
-              <div><div className="k">{t('users.detail.privacy')}</div><div className="v">{fmtConsent(r.consent?.privacy, t)}</div></div>
-              <div><div className="k">{t('users.detail.dpa')}</div><div className="v">{fmtConsent(r.consent?.dpa, t)}</div></div>
-              <div><div className="k">{t('users.detail.terms')}</div><div className="v">{fmtConsent(r.consent?.terms, t)}</div></div>
-              <div><div className="k">{t('users.detail.marketing')}</div><div className="v">{fmtMarketing(r, t)}</div></div>
-            </div>
+            <Box className="admin-detail-grid">
+              <Box><Box className="k">{t('users.detail.subscriber')}</Box><Box className="v">{r.subscriber_kind === 'regular' ? t('users.detail.subscriberRegular') : r.subscriber_kind === 'manual' ? t('users.detail.subscriberManual') : t('users.detail.subscriberNone')}</Box></Box>
+              <Box><Box className="k">{t('users.subscription.tier')}</Box><Box className="v">{t('users.subscription.tiers.' + (r.subscription_tier || 'free'))}{r.beta_exempt_until ? ` · ${t('users.subscription.betaUntil')} ${fmtDate(r.beta_exempt_until)}` : ''}{r.subscribed_at ? ` · ${t('users.subscription.since')} ${fmtDate(r.subscribed_at)}${r.locked_price != null ? ` (₪${r.locked_price})` : ''}` : ''}</Box></Box>
+              <Box><Box className="k">{t('users.detail.onboardingStage')}</Box><Box className="v">{r.onboarding_done ? r.onboarding_label : t('users.detail.onboardingStopped', { label: r.onboarding_label })}</Box></Box>
+              <Box><Box className="k">{t('users.detail.feedbackLeft')}</Box><Box className="v">{r.feedback_count > 0 ? t('users.detail.feedbackCount', { count: r.feedback_count }) : t('users.detail.feedbackNone')}</Box></Box>
+              <Box><Box className="k">{t('users.detail.reflections')}</Box><Box className="v">{r.reflections}</Box></Box>
+              <Box><Box className="k">{t('users.detail.sessions')}</Box><Box className="v">{r.sessions}</Box></Box>
+              <Box><Box className="k">{t('users.detail.joined')}</Box><Box className="v">{fmtDate(r.created_at)}</Box></Box>
+              <Box><Box className="k">{t('users.detail.lastSignIn')}</Box><Box className="v">{fmtLastActive(r.last_sign_in_at, t)}</Box></Box>
+            </Box>
+            <Box className="admin-detail-consents-h">{t('users.detail.consentsHeading')}</Box>
+            <Box className="admin-detail-grid">
+              <Box><Box className="k">{t('users.detail.privacy')}</Box><Box className="v">{fmtConsent(r.consent?.privacy, t)}</Box></Box>
+              <Box><Box className="k">{t('users.detail.dpa')}</Box><Box className="v">{fmtConsent(r.consent?.dpa, t)}</Box></Box>
+              <Box><Box className="k">{t('users.detail.terms')}</Box><Box className="v">{fmtConsent(r.consent?.terms, t)}</Box></Box>
+              <Box><Box className="k">{t('users.detail.marketing')}</Box><Box className="v">{fmtMarketing(r, t)}</Box></Box>
+            </Box>
 
             {/* Subscription management (tier + beta exemption) — for viewers
                 with the set_subscriber perm. Writes the user_subscriptions table. */}
@@ -489,100 +490,100 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
                 never on the owner row or your own row. Double confirmation:
                 pick perms → button → warning panel → confirm. */}
             {canManageAdmins && (
-              <div className="admin-role-block" onClick={(e) => e.stopPropagation()}>
-                <div className="admin-role-head">
+              <Box className="admin-role-block" onClick={(e) => e.stopPropagation()}>
+                <Box className="admin-role-head">
                   <Shield size={14} strokeWidth={1.9} aria-hidden="true" />
-                  <span>{t('users.manage.heading')}</span>
-                  {r.is_admin && <span className="admin-role-tag">{t('users.manage.tag')}</span>}
-                </div>
+                  <Txt>{t('users.manage.heading')}</Txt>
+                  {r.is_admin && <Txt className="admin-role-tag">{t('users.manage.tag')}</Txt>}
+                </Box>
 
                 {roleConfirm === null && (
                   <>
-                    <p className="admin-role-hint">
+                    <Txt as="p" className="admin-role-hint">
                       {r.is_admin
                         ? t('users.manage.hintIsAdmin')
                         : t('users.manage.hintNotAdmin')}
-                    </p>
-                    <div className="admin-role-perms">
+                    </Txt>
+                    <Box className="admin-role-perms">
                       {PERM_OPTIONS.map(({ key, labelKey }) => (
-                        <label key={key} className="admin-role-perm">
-                          <input
+                        <Box as="label" key={key} className="admin-role-perm">
+                          <Input
                             type="checkbox"
                             checked={permDraft[key]}
                             onChange={(e) => setPermDraft((d) => ({ ...d, [key]: e.target.checked }))}
                           />
-                          <span>{t(`users.perms.${labelKey}`)}</span>
-                        </label>
+                          <Txt>{t(`users.perms.${labelKey}`)}</Txt>
+                        </Box>
                       ))}
-                    </div>
-                    <div className="admin-role-actions">
-                      <button type="button" className="admin-role-go" onClick={() => { setRoleErr(false); setRoleConfirm('grant') }}>
+                    </Box>
+                    <Box className="admin-role-actions">
+                      <Btn type="button" className="admin-role-go" onClick={() => { setRoleErr(false); setRoleConfirm('grant') }}>
                         <ShieldCheck size={13} strokeWidth={2} aria-hidden="true" />
                         {r.is_admin ? t('users.manage.update') : t('users.manage.makeAdmin')}
-                      </button>
+                      </Btn>
                       {r.is_admin && (
-                        <button type="button" className="admin-role-revoke" onClick={() => { setRoleErr(false); setRoleConfirm('revoke') }}>
+                        <Btn type="button" className="admin-role-revoke" onClick={() => { setRoleErr(false); setRoleConfirm('revoke') }}>
                           {t('users.manage.removeAdmin')}
-                        </button>
+                        </Btn>
                       )}
-                    </div>
+                    </Box>
                   </>
                 )}
 
                 {roleConfirm === 'grant' && (
-                  <div className="admin-role-confirm">
-                    <p className="admin-role-warn">
+                  <Box className="admin-role-confirm">
+                    <Txt as="p" className="admin-role-warn">
                       {r.is_admin ? t('users.manage.grantWarnUpdatePre') : t('users.manage.grantWarnMakePre')}
                       <b dir="ltr">{r.email}</b>
                       {r.is_admin ? t('users.manage.grantWarnUpdatePost') : t('users.manage.grantWarnMakePost')}
-                    </p>
-                    <ul className="admin-role-summary">
+                    </Txt>
+                    <Box as="ul" className="admin-role-summary">
                       {PERM_OPTIONS.map(({ key, labelKey }) => (
-                        <li key={key} className={permDraft[key] ? 'on' : 'off'}>
+                        <Box as="li" key={key} className={permDraft[key] ? 'on' : 'off'}>
                           {permDraft[key] ? <Check size={12} strokeWidth={2.4} aria-hidden="true" /> : <X size={12} strokeWidth={2.4} aria-hidden="true" />}
                           {t(`users.perms.${labelKey}`)}
-                        </li>
+                        </Box>
                       ))}
-                    </ul>
-                    {roleErr && <p className="admin-role-err">{t('users.manage.actionFailed')}</p>}
-                    <div className="admin-role-actions">
-                      <button type="button" className="admin-role-cancel" onClick={() => { setRoleConfirm(null); setRoleErr(false) }}>{t('users.manage.cancel')}</button>
-                      <button type="button" className="admin-role-go" disabled={roleBusy} onClick={runSetAdmin}>
+                    </Box>
+                    {roleErr && <Txt as="p" className="admin-role-err">{t('users.manage.actionFailed')}</Txt>}
+                    <Box className="admin-role-actions">
+                      <Btn type="button" className="admin-role-cancel" onClick={() => { setRoleConfirm(null); setRoleErr(false) }}>{t('users.manage.cancel')}</Btn>
+                      <Btn type="button" className="admin-role-go" disabled={roleBusy} onClick={runSetAdmin}>
                         {roleBusy ? t('users.manage.saving') : t('users.manage.confirm')}
-                      </button>
-                    </div>
-                  </div>
+                      </Btn>
+                    </Box>
+                  </Box>
                 )}
 
                 {roleConfirm === 'revoke' && (
-                  <div className="admin-role-confirm">
-                    <p className="admin-role-warn">
+                  <Box className="admin-role-confirm">
+                    <Txt as="p" className="admin-role-warn">
                       {t('users.manage.revokeWarnPre')}<b dir="ltr">{r.email}</b>{t('users.manage.revokeWarnPost')}
-                    </p>
-                    {roleErr && <p className="admin-role-err">{t('users.manage.actionFailed')}</p>}
-                    <div className="admin-role-actions">
-                      <button type="button" className="admin-role-cancel" onClick={() => { setRoleConfirm(null); setRoleErr(false) }}>{t('users.manage.cancel')}</button>
-                      <button type="button" className="admin-role-revoke" disabled={roleBusy} onClick={runRevoke}>
+                    </Txt>
+                    {roleErr && <Txt as="p" className="admin-role-err">{t('users.manage.actionFailed')}</Txt>}
+                    <Box className="admin-role-actions">
+                      <Btn type="button" className="admin-role-cancel" onClick={() => { setRoleConfirm(null); setRoleErr(false) }}>{t('users.manage.cancel')}</Btn>
+                      <Btn type="button" className="admin-role-revoke" disabled={roleBusy} onClick={runRevoke}>
                         {roleBusy ? t('users.manage.removing') : t('users.manage.removeAdmin')}
-                      </button>
-                    </div>
-                  </div>
+                      </Btn>
+                    </Box>
+                  </Box>
                 )}
-              </div>
+              </Box>
             )}
 
             {!isOwner && !isSelf && viewerPerms?.delete_users && (
-              <div className="admin-detail-danger">
+              <Box className="admin-detail-danger">
                 {!delOpen ? (
-                  <button type="button" className="admin-del-btn" onClick={(e) => { e.stopPropagation(); setDelOpen(true) }}>
+                  <Btn type="button" className="admin-del-btn" onClick={(e) => { e.stopPropagation(); setDelOpen(true) }}>
                     <Trash2 size={13} strokeWidth={2} aria-hidden="true" /> {t('users.delete.button')}
-                  </button>
+                  </Btn>
                 ) : (
-                  <div className="admin-del-confirm" onClick={(e) => e.stopPropagation()}>
-                    <p className="admin-del-warn">
+                  <Box className="admin-del-confirm" onClick={(e) => e.stopPropagation()}>
+                    <Txt as="p" className="admin-del-warn">
                       {t('users.delete.warnPre')}<b dir="ltr">{r.email}</b>{t('users.delete.warnPost')}
-                    </p>
-                    <input
+                    </Txt>
+                    <Input
                       className="admin-del-input"
                       dir="ltr"
                       value={delText}
@@ -590,16 +591,16 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
                       placeholder={r.email}
                       autoComplete="off"
                     />
-                    {delErr && <p className="admin-del-err">{t('users.delete.failed')}</p>}
-                    <div className="admin-del-actions">
-                      <button type="button" className="admin-del-cancel" onClick={() => { setDelOpen(false); setDelText(''); setDelErr(false) }}>{t('users.delete.cancel')}</button>
-                      <button type="button" className="admin-del-go" disabled={!canDelete || delBusy} onClick={runDelete}>
+                    {delErr && <Txt as="p" className="admin-del-err">{t('users.delete.failed')}</Txt>}
+                    <Box className="admin-del-actions">
+                      <Btn type="button" className="admin-del-cancel" onClick={() => { setDelOpen(false); setDelText(''); setDelErr(false) }}>{t('users.delete.cancel')}</Btn>
+                      <Btn type="button" className="admin-del-go" disabled={!canDelete || delBusy} onClick={runDelete}>
                         {delBusy ? t('users.delete.deleting') : t('users.delete.confirm')}
-                      </button>
-                    </div>
-                  </div>
+                      </Btn>
+                    </Box>
+                  </Box>
                 )}
-              </div>
+              </Box>
             )}
           </td>
         </tr>

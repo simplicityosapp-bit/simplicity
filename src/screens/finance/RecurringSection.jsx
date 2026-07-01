@@ -1,6 +1,7 @@
 import { Repeat } from 'lucide-react'
 import RecurringCard from './RecurringCard'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Recurring-templates strip above the transaction list. Collapses to
    nothing when there are no templates — the "+ תבנית חדשה" CTA is
@@ -9,21 +10,21 @@ export default function RecurringSection({ templates, onAdd, onEdit, onDelete, o
   const { t } = useT('finance')
   const live = templates.filter((tpl) => !tpl.deleted_at)
   return (
-    <section className="rec-section">
-      <div className="rec-section-head">
-        <span className="rec-section-title">
+    <Box as="section" className="rec-section">
+      <Box className="rec-section-head">
+        <Txt className="rec-section-title">
           <Repeat size={15} strokeWidth={1.5} aria-hidden="true" />
           {t('recurring.title')}
-          {live.length > 0 && <span className="rec-section-count mono">{live.length}</span>}
-        </span>
-        <button type="button" className="rec-section-add" onClick={onAdd}>
+          {live.length > 0 && <Txt className="rec-section-count mono">{live.length}</Txt>}
+        </Txt>
+        <Btn type="button" className="rec-section-add" onClick={onAdd}>
           {t('recurring.add')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
       {live.length === 0 ? (
-        <p className="rec-section-empty">{t('recurring.empty')}</p>
+        <Txt as="p" className="rec-section-empty">{t('recurring.empty')}</Txt>
       ) : (
-        <div className="rec-section-list">
+        <Box className="rec-section-list">
           {live.map((tpl) => (
             <RecurringCard
               key={tpl.id}
@@ -33,8 +34,8 @@ export default function RecurringSection({ templates, onAdd, onEdit, onDelete, o
               onToggleActive={onToggleActive}
             />
           ))}
-        </div>
+        </Box>
       )}
-    </section>
+    </Box>
   )
 }

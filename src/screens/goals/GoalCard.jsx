@@ -4,6 +4,7 @@ import { formatGoalValue, timeFrameLabel } from '../../lib/goals'
 import { fmtShortDate } from '../../lib/dates'
 import ConfirmModal from '../../modals/ConfirmModal'
 import MoonDualBars from '../../components/MoonDualBars'
+import { Box, Txt, Btn } from '../../components/ui'
 import { useT } from '../../i18n/useT'
 
 function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEdit, onDelete }) {
@@ -21,35 +22,35 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
     : []
 
   return (
-    <div className="g-card anim" style={{ animationDelay: `${index * 0.05}s` }}>
-      <div className="g-card-head">
-        <div className="g-card-titleblock">
-          <p className="g-card-title">{goal.label || cat.name}</p>
-          <p className="g-card-cat">
-            <span className="g-card-cat-dot" style={{ background: cat.color || 'var(--stone)' }} />
+    <Box className="g-card anim" style={{ animationDelay: `${index * 0.05}s` }}>
+      <Box className="g-card-head">
+        <Box className="g-card-titleblock">
+          <Txt as="p" className="g-card-title">{goal.label || cat.name}</Txt>
+          <Txt as="p" className="g-card-cat">
+            <Txt className="g-card-cat-dot" style={{ background: cat.color || 'var(--stone)' }} />
             {cat.name} · {timeFrameLabel(goal)}
-          </p>
-        </div>
-        <button type="button" className="g-card-edit" onClick={() => onEdit?.(goal)} aria-label={t('card.editAria')}>
+          </Txt>
+        </Box>
+        <Btn className="g-card-edit" onClick={() => onEdit?.(goal)} aria-label={t('card.editAria')}>
           <Pencil size={13} strokeWidth={1.7} aria-hidden="true" />
-        </button>
-        <button type="button" className="g-card-del" onClick={() => onDelete?.(goal)} aria-label={t('card.deleteAria')}>
+        </Btn>
+        <Btn className="g-card-del" onClick={() => onDelete?.(goal)} aria-label={t('card.deleteAria')}>
           <Trash2 size={13} strokeWidth={1.7} aria-hidden="true" />
-        </button>
-        <p className={`g-card-pct${pure >= 100 ? ' over' : ''}`}>
+        </Btn>
+        <Txt as="p" className={`g-card-pct${pure >= 100 ? ' over' : ''}`}>
           {Math.min(pure, 100)}%{pure > 100 ? '+' : ''}
-        </p>
-      </div>
+        </Txt>
+      </Box>
 
       {/* Per-goal: pace + goal-% side by side (was a lone goal-% bar). */}
       <MoonDualBars pace={Math.min(100, paced)} goal={pure} />
 
 
-      <div className="g-card-meta">
-        <span className="g-card-target mono">
+      <Box className="g-card-meta">
+        <Txt className="g-card-target mono">
           {formatGoalValue(actual, cat)} / {formatGoalValue(target, cat)}
-        </span>
-        <span className="g-card-stars" aria-label={t('card.importanceAria', { importance })}>
+        </Txt>
+        <Txt className="g-card-stars" aria-label={t('card.importanceAria', { importance })}>
           {[1, 2, 3, 4, 5].map((i) => (
             <Star
               key={i}
@@ -60,36 +61,36 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
               aria-hidden="true"
             />
           ))}
-        </span>
-      </div>
+        </Txt>
+      </Box>
 
       {isManual && (
-        <div className="g-entry-bar">
-          <button type="button" className="g-entry-add" onClick={() => onAddEntry?.(cat)}>
+        <Box className="g-entry-bar">
+          <Btn className="g-entry-add" onClick={() => onAddEntry?.(cat)}>
             <Plus size={14} strokeWidth={1.9} aria-hidden="true" /> {t('card.addEntry')}
-          </button>
+          </Btn>
           {catEntries.length > 0 && (
-            <button type="button" className={`g-entry-toggle${showHistory ? ' open' : ''}`} onClick={() => setShowHistory((o) => !o)} aria-expanded={showHistory}>
-              {t('card.history')} <span className="g-entry-count">{catEntries.length}</span>
+            <Btn className={`g-entry-toggle${showHistory ? ' open' : ''}`} onClick={() => setShowHistory((o) => !o)} aria-expanded={showHistory}>
+              {t('card.history')} <Txt className="g-entry-count">{catEntries.length}</Txt>
               <ChevronDown size={14} strokeWidth={1.6} className="g-entry-chev" aria-hidden="true" />
-            </button>
+            </Btn>
           )}
-        </div>
+        </Box>
       )}
 
       {isManual && showHistory && catEntries.length > 0 && (
-        <div className="g-entries">
+        <Box className="g-entries">
           {catEntries.map((e) => (
-            <div key={e.id} className="g-entry-row">
-              <span className="g-entry-val mono">{formatGoalValue(e.value, cat)}</span>
-              <span className="g-entry-date">{fmtShortDate(e.date)}</span>
-              {e.note && <span className="g-entry-note">· {e.note}</span>}
-              <button type="button" className="g-entry-del" onClick={() => setConfirmEntry(e)} aria-label={t('card.deleteEntryAria')}>
+            <Box key={e.id} className="g-entry-row">
+              <Txt className="g-entry-val mono">{formatGoalValue(e.value, cat)}</Txt>
+              <Txt className="g-entry-date">{fmtShortDate(e.date)}</Txt>
+              {e.note && <Txt className="g-entry-note">· {e.note}</Txt>}
+              <Btn className="g-entry-del" onClick={() => setConfirmEntry(e)} aria-label={t('card.deleteEntryAria')}>
                 <X size={13} strokeWidth={1.8} aria-hidden="true" />
-              </button>
-            </div>
+              </Btn>
+            </Box>
           ))}
-        </div>
+        </Box>
       )}
 
       <ConfirmModal
@@ -101,7 +102,7 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
         message={confirmEntry ? t('card.deleteEntryMessage', { value: formatGoalValue(confirmEntry.value, cat), date: fmtShortDate(confirmEntry.date) }) : ''}
         onConfirm={() => { if (confirmEntry) return onDeleteEntry?.(confirmEntry.id) }}
       />
-    </div>
+    </Box>
   )
 }
 

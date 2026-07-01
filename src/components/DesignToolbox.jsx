@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { SlidersHorizontal, X } from 'lucide-react'
 import { LEAD_PAGE_BACKGROUNDS, leadPageBgUrl } from '../lib/leadPageSchema'
 import './DesignToolbox.css'
+import { Box, Txt, Btn, Input } from './ui'
 
 /* Curated on-brand quick-pick palette — leans on the Mångata accent family
    (warm clays → sage → dusk) so a one-tap colour always reads premium.
@@ -49,7 +50,7 @@ export default function DesignToolbox({ content, onChange }) {
 
   return (
     <>
-      <button
+      <Btn
         type="button"
         className={`dtb-fab${open ? ' is-open' : ''}`}
         onClick={() => setOpen((v) => !v)}
@@ -57,25 +58,25 @@ export default function DesignToolbox({ content, onChange }) {
         aria-label="ארגז כלים — עיצוב הדף"
       >
         <SlidersHorizontal size={18} strokeWidth={1.7} aria-hidden="true" />
-        <span className="dtb-fab-label">ארגז כלים</span>
-      </button>
+        <Txt className="dtb-fab-label">ארגז כלים</Txt>
+      </Btn>
 
-      {open && <div className="dtb-scrim" onClick={() => setOpen(false)} aria-hidden="true" />}
+      {open && <Box className="dtb-scrim" onClick={() => setOpen(false)} aria-hidden="true" />}
 
-      <aside className={`dtb-panel${open ? ' open' : ''}`} dir="rtl" aria-label="ארגז כלים">
-        <header className="dtb-head">
-          <span className="dtb-title"><SlidersHorizontal size={16} strokeWidth={1.7} aria-hidden="true" /> ארגז כלים</span>
-          <button type="button" className="dtb-close" onClick={() => setOpen(false)} aria-label="סגירה"><X size={18} strokeWidth={1.8} /></button>
-        </header>
+      <Box as="aside" className={`dtb-panel${open ? ' open' : ''}`} dir="rtl" aria-label="ארגז כלים">
+        <Box as="header" className="dtb-head">
+          <Txt className="dtb-title"><SlidersHorizontal size={16} strokeWidth={1.7} aria-hidden="true" /> ארגז כלים</Txt>
+          <Btn type="button" className="dtb-close" onClick={() => setOpen(false)} aria-label="סגירה"><X size={18} strokeWidth={1.8} /></Btn>
+        </Box>
 
-        <div className="dtb-body">
-          <div className="dtb-group">
-            <p className="dtb-group-lbl">צבע מותג</p>
-            <div className="dtb-presets" role="group" aria-label="צבעים מוכנים">
+        <Box className="dtb-body">
+          <Box className="dtb-group">
+            <Txt as="p" className="dtb-group-lbl">צבע מותג</Txt>
+            <Box className="dtb-presets" role="group" aria-label="צבעים מוכנים">
               {BRAND_PRESETS.map((hex) => {
                 const on = curBrand === hex.toLowerCase()
                 return (
-                  <button
+                  <Btn
                     key={hex}
                     type="button"
                     className={`dtb-preset${on ? ' on' : ''}`}
@@ -87,19 +88,19 @@ export default function DesignToolbox({ content, onChange }) {
                   />
                 )
               })}
-            </div>
-            <div className="lpb-color">
-              <input type="color" value={c.brandColor || '#C97B5E'} onChange={(e) => set({ brandColor: e.target.value })} />
-              <span className="lpb-color-hex mono">{c.brandColor || '#C97B5E'}</span>
-            </div>
-          </div>
+            </Box>
+            <Box className="lpb-color">
+              <Input type="color" value={c.brandColor || '#C97B5E'} onChange={(e) => set({ brandColor: e.target.value })} />
+              <Txt className="lpb-color-hex mono">{c.brandColor || '#C97B5E'}</Txt>
+            </Box>
+          </Box>
 
-          <div className="dtb-group">
-            <p className="dtb-group-lbl">רקע</p>
-            <div className="lpe-bg-grid">
-              <button type="button" className={`lpe-bg-swatch lpe-bg-none${!c.background ? ' on' : ''}`} onClick={() => set({ background: '' })}>ללא</button>
+          <Box className="dtb-group">
+            <Txt as="p" className="dtb-group-lbl">רקע</Txt>
+            <Box className="lpe-bg-grid">
+              <Btn type="button" className={`lpe-bg-swatch lpe-bg-none${!c.background ? ' on' : ''}`} onClick={() => set({ background: '' })}>ללא</Btn>
               {LEAD_PAGE_BACKGROUNDS.map((b) => (
-                <button
+                <Btn
                   key={b.key}
                   type="button"
                   className={`lpe-bg-swatch${c.background === b.key ? ' on' : ''}`}
@@ -109,65 +110,65 @@ export default function DesignToolbox({ content, onChange }) {
                   title={b.label}
                 />
               ))}
-            </div>
-          </div>
+            </Box>
+          </Box>
 
-          <div className="dtb-group">
-            <div className="lpe-slider-row">
-              <span className="lpe-design-lbl">שקיפות הכרטיס</span>
-              <input type="range" min="0" max="100" value={100 - (c.cardOpacity ?? 100)} onChange={(e) => set({ cardOpacity: 100 - Number(e.target.value) })} />
-              <span className="lpe-slider-val mono">{100 - (c.cardOpacity ?? 100)}%</span>
-            </div>
-            <div className="lpe-slider-row">
-              <span className="lpe-design-lbl">טשטוש רקע</span>
-              <input type="range" min="0" max="30" value={c.cardBlur ?? 14} onChange={(e) => set({ cardBlur: Number(e.target.value) })} />
-              <span className="lpe-slider-val mono">{c.cardBlur ?? 14}px</span>
-            </div>
-          </div>
+          <Box className="dtb-group">
+            <Box className="lpe-slider-row">
+              <Txt className="lpe-design-lbl">שקיפות הכרטיס</Txt>
+              <Input type="range" min="0" max="100" value={100 - (c.cardOpacity ?? 100)} onChange={(e) => set({ cardOpacity: 100 - Number(e.target.value) })} />
+              <Txt className="lpe-slider-val mono">{100 - (c.cardOpacity ?? 100)}%</Txt>
+            </Box>
+            <Box className="lpe-slider-row">
+              <Txt className="lpe-design-lbl">טשטוש רקע</Txt>
+              <Input type="range" min="0" max="30" value={c.cardBlur ?? 14} onChange={(e) => set({ cardBlur: Number(e.target.value) })} />
+              <Txt className="lpe-slider-val mono">{c.cardBlur ?? 14}px</Txt>
+            </Box>
+          </Box>
 
-          <div className="dtb-group">
-            <div className="lpe-seg-row">
-              <span className="lpe-design-lbl">פינות הכרטיס</span>
-              <div className="lpe-seg">
+          <Box className="dtb-group">
+            <Box className="lpe-seg-row">
+              <Txt className="lpe-design-lbl">פינות הכרטיס</Txt>
+              <Box className="lpe-seg">
                 {RADII.map((r) => (
-                  <button
+                  <Btn
                     key={r.v}
                     type="button"
                     className={`lpe-seg-btn${curRadius === r.v ? ' on' : ''}`}
                     onClick={() => set({ cardRadius: r.v })}
                   >
                     {r.label}
-                  </button>
+                  </Btn>
                 ))}
-              </div>
-            </div>
-          </div>
+              </Box>
+            </Box>
+          </Box>
 
-          <div className="dtb-group">
-            <label className="lpe-design-toggle">
-              <input type="checkbox" checked={!!c.bold} onChange={(e) => set({ bold: e.target.checked })} />
+          <Box className="dtb-group">
+            <Box as="label" className="lpe-design-toggle">
+              <Input type="checkbox" checked={!!c.bold} onChange={(e) => set({ bold: e.target.checked })} />
               טקסט מודגש
-            </label>
-          </div>
+            </Box>
+          </Box>
 
-          <div className="dtb-group">
-            <div className="lpe-seg-row">
-              <span className="lpe-design-lbl">צבע טקסט</span>
-              <div className="lpe-seg">
-                <button type="button" className={`lpe-seg-btn${c.textColor !== 'light' ? ' on' : ''}`} onClick={() => set({ textColor: 'dark' })}>כהה</button>
-                <button type="button" className={`lpe-seg-btn${c.textColor === 'light' ? ' on' : ''}`} onClick={() => set({ textColor: 'light' })}>בהיר</button>
-              </div>
-            </div>
-            <div className="lpe-seg-row">
-              <span className="lpe-design-lbl">יישור טקסט</span>
-              <div className="lpe-seg">
-                <button type="button" className={`lpe-seg-btn${c.textAlign !== 'center' ? ' on' : ''}`} onClick={() => set({ textAlign: 'start' })}>ימין</button>
-                <button type="button" className={`lpe-seg-btn${c.textAlign === 'center' ? ' on' : ''}`} onClick={() => set({ textAlign: 'center' })}>מרכז</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </aside>
+          <Box className="dtb-group">
+            <Box className="lpe-seg-row">
+              <Txt className="lpe-design-lbl">צבע טקסט</Txt>
+              <Box className="lpe-seg">
+                <Btn type="button" className={`lpe-seg-btn${c.textColor !== 'light' ? ' on' : ''}`} onClick={() => set({ textColor: 'dark' })}>כהה</Btn>
+                <Btn type="button" className={`lpe-seg-btn${c.textColor === 'light' ? ' on' : ''}`} onClick={() => set({ textColor: 'light' })}>בהיר</Btn>
+              </Box>
+            </Box>
+            <Box className="lpe-seg-row">
+              <Txt className="lpe-design-lbl">יישור טקסט</Txt>
+              <Box className="lpe-seg">
+                <Btn type="button" className={`lpe-seg-btn${c.textAlign !== 'center' ? ' on' : ''}`} onClick={() => set({ textAlign: 'start' })}>ימין</Btn>
+                <Btn type="button" className={`lpe-seg-btn${c.textAlign === 'center' ? ' on' : ''}`} onClick={() => set({ textAlign: 'center' })}>מרכז</Btn>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
     </>
   )
 }

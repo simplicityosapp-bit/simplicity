@@ -1,6 +1,7 @@
 import { CheckCircle2, Clock, CircleSlash, CircleDashed } from 'lucide-react'
 import MG from '../../components/MG'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* 4 status tabs. no_status only appears when it holds clients (D22). */
 const TABS = [
@@ -13,13 +14,13 @@ const TABS = [
 export default function ClientTabs({ active, counts, showNoStatus, onChange }) {
   const { t } = useT('clients')
   return (
-    <div className="c-tabs-row" role="tablist" aria-label={t('tabsAria')}>
+    <Box className="c-tabs-row" role="tablist" aria-label={t('tabsAria')}>
       {TABS.map((tab) => {
         if (tab.key === 'no_status' && !showNoStatus) return null
         const Icon = tab.icon
         const count = counts?.[tab.key] ?? 0
         return (
-          <button
+          <Btn
             key={tab.key}
             type="button"
             role="tab"
@@ -28,11 +29,11 @@ export default function ClientTabs({ active, counts, showNoStatus, onChange }) {
             onClick={() => onChange(tab.key)}
           >
             <Icon size={15} strokeWidth={1.6} aria-hidden="true" />
-            <span><MG text={t(tab.labelKey)} /></span>
-            <span className="c-tab-count">{count}</span>
-          </button>
+            <Txt><MG text={t(tab.labelKey)} /></Txt>
+            <Txt className="c-tab-count">{count}</Txt>
+          </Btn>
         )
       })}
-    </div>
+    </Box>
   )
 }

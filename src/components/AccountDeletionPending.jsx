@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext'
 import { useAddress } from '../hooks/useAddress'
 import { useT } from '../i18n/useT'
 import './AccountDeletionPending.css'
+import { Box, Txt, Btn } from './ui'
 
 /* ════════════════════════════════════════════════════════════════
    ACCOUNT DELETION PENDING — the locked grace-period gate.
@@ -52,19 +53,19 @@ export default function AccountDeletionPending() {
   }
 
   return (
-    <div className="adp-wrap" dir="rtl">
-      <div className="adp-card anim">
-        <span className="adp-icon" aria-hidden="true">
+    <Box className="adp-wrap" dir="rtl">
+      <Box className="adp-card anim">
+        <Txt className="adp-icon" aria-hidden="true">
           <AlertTriangle size={30} strokeWidth={1.7} />
-        </span>
-        <h1 className="adp-title">{t('deletion.title')}</h1>
+        </Txt>
+        <Txt as="h1" className="adp-title">{t('deletion.title')}</Txt>
 
-        <div className="adp-countdown">
-          <span className="adp-count-num mono">{left}</span>
-          <span className="adp-count-unit">{left === 1 ? t('deletion.dayUnit') : t('deletion.daysUnit')}</span>
-        </div>
+        <Box className="adp-countdown">
+          <Txt className="adp-count-num mono">{left}</Txt>
+          <Txt className="adp-count-unit">{left === 1 ? t('deletion.dayUnit') : t('deletion.daysUnit')}</Txt>
+        </Box>
 
-        <p className="adp-body">
+        <Txt as="p" className="adp-body">
           {t('deletion.bodyLead', { regret: t('deletion.regret') })}
           {targetDate && (
             <>
@@ -72,19 +73,19 @@ export default function AccountDeletionPending() {
               <Trans t={t} i18nKey="deletion.bodyDeadline" values={{ date: targetDate }} components={[<strong key="d" />]} />
             </>
           )}
-        </p>
+        </Txt>
 
-        {err && <p className="adp-err">{err}</p>}
+        {err && <Txt as="p" className="adp-err">{err}</Txt>}
 
-        <button type="button" className="adp-btn-cancel" onClick={cancel} disabled={busy}>
+        <Btn type="button" className="adp-btn-cancel" onClick={cancel} disabled={busy}>
           <RotateCcw size={17} strokeWidth={1.8} aria-hidden="true" />
           {busy ? t('deletion.canceling') : t('deletion.cancel')}
-        </button>
-        <button type="button" className="adp-btn-logout" onClick={() => signOut()} disabled={busy}>
+        </Btn>
+        <Btn type="button" className="adp-btn-logout" onClick={() => signOut()} disabled={busy}>
           <LogOut size={16} strokeWidth={1.7} aria-hidden="true" />
           {t('deletion.logout')}
-        </button>
-      </div>
-    </div>
+        </Btn>
+      </Box>
+    </Box>
   )
 }

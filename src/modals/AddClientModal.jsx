@@ -6,6 +6,7 @@ import MG from '../components/MG'
 import { showToast } from '../lib/toast'
 import { useMeetingTypes } from '../hooks/useMeetingTypes'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn } from '../components/ui'
 
 const blank = () => ({
   name: '', status: 'active', status_id: '', sessions: '', price_per_session: '',
@@ -98,12 +99,12 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
         onManageMeetingTypes={() => setManageTypes(true)}
       />
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
 
       <MeetingTypesModal open={manageTypes} onClose={() => { setManageTypes(false); refetchMeetingTypes() }} />
     </Modal>

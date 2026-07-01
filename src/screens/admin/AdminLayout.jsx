@@ -7,6 +7,7 @@ import { ROUTES } from '../../lib/routes'
 import FeedbackModal from '../../modals/FeedbackModal'
 import { useT } from '../../i18n/useT'
 import './admin.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Admin nav — four read-only screens. `end` on the dashboard link so it
    isn't kept "active" while on the nested /admin/* routes. */
@@ -38,17 +39,17 @@ export default function AdminLayout({ children }) {
     rootRef.current?.scrollTo({ top: 0 })
   }, [pathname])
   return (
-    <div className="admin-root" data-admin ref={rootRef}>
-      <aside className="admin-nav" aria-label={t('nav.label')}>
-        <div className="admin-nav-brand">
-          <span className="admin-nav-dot" aria-hidden="true" />
-          <div>
-            <p className="admin-nav-title">{t('nav.title')}</p>
-            <p className="admin-nav-sub">Simplicity</p>
-          </div>
-        </div>
+    <Box className="admin-root" data-admin ref={rootRef}>
+      <Box as="aside" className="admin-nav" aria-label={t('nav.label')}>
+        <Box className="admin-nav-brand">
+          <Txt className="admin-nav-dot" aria-hidden="true" />
+          <Box>
+            <Txt as="p" className="admin-nav-title">{t('nav.title')}</Txt>
+            <Txt as="p" className="admin-nav-sub">Simplicity</Txt>
+          </Box>
+        </Box>
 
-        <nav className="admin-nav-list">
+        <Box as="nav" className="admin-nav-list">
           {NAV.map(({ to, key, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -57,38 +58,38 @@ export default function AdminLayout({ children }) {
               className={({ isActive }) => `admin-nav-link${isActive ? ' on' : ''}`}
             >
               <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
-              <span>{t(key)}</span>
+              <Txt>{t(key)}</Txt>
             </NavLink>
           ))}
-        </nav>
+        </Box>
 
-        <button
+        <Btn
           type="button"
           className="admin-nav-link admin-nav-action"
           onClick={() => setFeedbackOpen(true)}
           title={t('nav.sendFeedback')}
         >
           <MessageSquarePlus size={18} strokeWidth={1.8} aria-hidden="true" />
-          <span>{t('nav.feedbackAction')}</span>
-        </button>
+          <Txt>{t('nav.feedbackAction')}</Txt>
+        </Btn>
 
-        <button
+        <Btn
           type="button"
           className="admin-nav-exit"
           onClick={() => navigate(ROUTES.HOME)}
           title={t('nav.backToApp')}
         >
           <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
-          <span>{t('nav.backToApp')}</span>
-        </button>
-      </aside>
+          <Txt>{t('nav.backToApp')}</Txt>
+        </Btn>
+      </Box>
 
-      <main className="admin-main">{children}</main>
+      <Box as="main" className="admin-main">{children}</Box>
 
       {/* Reuses the app's feedback flow — inserts a row + emails the team via
           send-feedback, which stamps the sender (the owner's email), so it's
           clearly identified as coming from the admin account. */}
       <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
-    </div>
+    </Box>
   )
 }

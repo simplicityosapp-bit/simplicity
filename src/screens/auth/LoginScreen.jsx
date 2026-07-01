@@ -8,6 +8,7 @@ import GoogleButton from '../../auth/GoogleButton'
 import { useT } from '../../i18n/useT'
 import LanguageSwitcher from '../../i18n/LanguageSwitcher'
 import './AuthScreen.css'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 export default function LoginScreen() {
   const { t } = useT('auth')
@@ -32,22 +33,22 @@ export default function LoginScreen() {
   }
 
   return (
-    <div className="auth-wrap">
-      <div className="auth-bg" aria-hidden="true" />
-      <div className="auth-stage">
-        <div className="auth-brand">
+    <Box className="auth-wrap">
+      <Box className="auth-bg" aria-hidden="true" />
+      <Box className="auth-stage">
+        <Box className="auth-brand">
           <img className="auth-logo light" src="/logo-dark.png" alt="" aria-hidden="true" />
           <img className="auth-logo dark"  src="/logo-light.png" alt="" aria-hidden="true" />
           <img className="auth-name light" src="/name-dark.png" alt="simplicity" />
           <img className="auth-name dark"  src="/name-light.png" alt="simplicity" />
-        </div>
+        </Box>
 
-        <form className="auth-form" onSubmit={submit}>
-          {error && <p className="auth-error">{error}</p>}
+        <Box as="form" className="auth-form" onSubmit={submit}>
+          {error && <Txt as="p" className="auth-error">{error}</Txt>}
 
-          <label className="auth-field" htmlFor="login-email">
-            <span className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></span>
-            <input
+          <Box as="label" className="auth-field" htmlFor="login-email">
+            <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+            <Input
               id="login-email"
               type="email"
               dir="ltr"
@@ -56,11 +57,11 @@ export default function LoginScreen() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
             />
-          </label>
+          </Box>
 
-          <label className="auth-field" htmlFor="login-pass">
-            <span className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></span>
-            <input
+          <Box as="label" className="auth-field" htmlFor="login-pass">
+            <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+            <Input
               id="login-pass"
               type={showPassword ? 'text' : 'password'}
               dir="ltr"
@@ -69,7 +70,7 @@ export default function LoginScreen() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
             />
-            <button
+            <Btn
               type="button"
               className="auth-field-toggle"
               onClick={() => setShowPassword((v) => !v)}
@@ -78,24 +79,24 @@ export default function LoginScreen() {
               {showPassword
                 ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
                 : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
-            </button>
-          </label>
+            </Btn>
+          </Box>
 
-          <button className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
+          <Btn className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
             {busy ? t('loggingIn') : t('login')}
-          </button>
+          </Btn>
 
-          <div className="auth-divider"><span>{t('or')}</span></div>
+          <Box className="auth-divider"><Txt>{t('or')}</Txt></Box>
 
           <GoogleButton onError={setError} />
 
           <Link to={ROUTES.RESET_PASSWORD} className="auth-link-sm">{t('forgotPassword')}</Link>
-        </form>
+        </Box>
 
-        <p className="auth-foot">{t('noAccount')} <Link to={ROUTES.SIGNUP} className="auth-foot-cta">{t('signup')}</Link></p>
+        <Txt as="p" className="auth-foot">{t('noAccount')} <Link to={ROUTES.SIGNUP} className="auth-foot-cta">{t('signup')}</Link></Txt>
 
         <LanguageSwitcher className="auth-langs" />
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

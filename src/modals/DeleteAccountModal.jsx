@@ -4,6 +4,7 @@ import { AlertTriangle } from 'lucide-react'
 import Modal from './Modal'
 import { ACCOUNT_DELETION_GRACE_DAYS } from '../lib/api/account'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    DELETE ACCOUNT — permanent removal with a 30-day grace window.
@@ -51,25 +52,25 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
 
   return (
     <Modal open={open} onClose={close} title={t('deleteAccount.title')}>
-      <div className="m-confirm-msg" style={{ display: 'flex', gap: 9, alignItems: 'flex-start' }}>
+      <Box className="m-confirm-msg" style={{ display: 'flex', gap: 9, alignItems: 'flex-start' }}>
         <AlertTriangle size={20} strokeWidth={1.5} style={{ color: 'var(--clay)', flexShrink: 0, marginTop: 1 }} aria-hidden="true" />
         {step === 1 ? (
-          <span>
+          <Txt>
             <Trans t={t} i18nKey="deleteAccount.step1" components={[<strong key="0" />, <strong key="1" />]} />
             <br />
             <Trans t={t} i18nKey="deleteAccount.step1b" values={{ days: ACCOUNT_DELETION_GRACE_DAYS }} components={[<strong key="0" />, <strong key="1" />]} />
-          </span>
+          </Txt>
         ) : (
-          <span>
+          <Txt>
             <Trans t={t} i18nKey="deleteAccount.step2" values={{ type: t('deleteAccount.typeVerb'), phrase: CONFIRM_PHRASE, days: ACCOUNT_DELETION_GRACE_DAYS }} components={[<strong key="0" />]} />
-          </span>
+          </Txt>
         )}
-      </div>
+      </Box>
 
       {step === 2 && (
-        <div style={{ marginTop: 4 }}>
-          <label className="m-label" htmlFor="delete-account-input">{t('deleteAccount.inputLabel')} {CONFIRM_PHRASE}</label>
-          <input
+        <Box style={{ marginTop: 4 }}>
+          <Box as="label" className="m-label" htmlFor="delete-account-input">{t('deleteAccount.inputLabel')} {CONFIRM_PHRASE}</Box>
+          <Input
             id="delete-account-input"
             className={`m-input${typed && typed.trim() !== CONFIRM_PHRASE ? ' err' : ''}`}
             value={typed}
@@ -78,28 +79,28 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
             autoComplete="off"
             disabled={busy}
           />
-        </div>
+        </Box>
       )}
 
-      {err && <p className="m-confirm-msg" style={{ color: 'var(--clay)', fontWeight: 600 }}>{err}</p>}
+      {err && <Txt as="p" className="m-confirm-msg" style={{ color: 'var(--clay)', fontWeight: 600 }}>{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close} disabled={busy}>{t('common.cancel')}</button>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close} disabled={busy}>{t('common.cancel')}</Btn>
         {step === 1 ? (
-          <button type="button" className="m-btn-save danger" onClick={() => setStep(2)}>
+          <Btn type="button" className="m-btn-save danger" onClick={() => setStep(2)}>
             {t('deleteAccount.continue')}
-          </button>
+          </Btn>
         ) : (
-          <button
+          <Btn
             type="button"
             className="m-btn-save danger"
             onClick={run}
             disabled={busy || typed.trim() !== CONFIRM_PHRASE}
           >
             {busy ? t('deleteAccount.deleting') : t('deleteAccount.confirmBtn')}
-          </button>
+          </Btn>
         )}
-      </div>
+      </Box>
     </Modal>
   )
 }

@@ -20,6 +20,7 @@ import ConfirmModal from '../../modals/ConfirmModal'
 import { pushUndo } from '../../lib/undo'
 import { useT } from '../../i18n/useT'
 import './ClientDrawer.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const STATUS_KEY = {
   active: 'status.active',
@@ -115,28 +116,28 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
 
   return (
     <>
-      <div className={`cd-overlay${open ? ' open' : ''}`} onClick={onClose} aria-hidden="true" />
-      <aside className={`cd-panel${open ? ' open' : ''}`} aria-label={t('drawer.fileAria')} aria-hidden={!open}>
+      <Box className={`cd-overlay${open ? ' open' : ''}`} onClick={onClose} aria-hidden="true" />
+      <Box as="aside" className={`cd-panel${open ? ' open' : ''}`} aria-label={t('drawer.fileAria')} aria-hidden={!open}>
         {client && (
           <>
-            <div className="cd-topbar">
-              <button type="button" className="cd-top-btn" onClick={onClose} aria-label={t('drawer.closeAria')}>
+            <Box className="cd-topbar">
+              <Btn type="button" className="cd-top-btn" onClick={onClose} aria-label={t('drawer.closeAria')}>
                 <X size={18} strokeWidth={1.6} />
-              </button>
-              <span className="cd-top-title">{t('drawer.title')}</span>
-              <button type="button" className="cd-top-btn danger" title={t('drawer.deleteAria')} onClick={onDelete}>
+              </Btn>
+              <Txt className="cd-top-title">{t('drawer.title')}</Txt>
+              <Btn type="button" className="cd-top-btn danger" title={t('drawer.deleteAria')} onClick={onDelete}>
                 <Trash2 size={17} strokeWidth={1.6} />
-              </button>
-            </div>
+              </Btn>
+            </Box>
 
-            <div className="cd-scroll" ref={scrollRef}>
-              <div className="cd-header">
-                <div className="cd-h-av">{initials(client.name)}</div>
-                <div className="cd-h-id">
-                  <p className="cd-h-name">{client.name}</p>
-                  <div className="cd-h-sub">
-                    <span className="cd-status-pick">
-                      <button
+            <Box className="cd-scroll" ref={scrollRef}>
+              <Box className="cd-header">
+                <Box className="cd-h-av">{initials(client.name)}</Box>
+                <Box className="cd-h-id">
+                  <Txt as="p" className="cd-h-name">{client.name}</Txt>
+                  <Box className="cd-h-sub">
+                    <Txt className="cd-status-pick">
+                      <Btn
                         type="button"
                         className={`cd-h-status cd-status-${meta} is-btn`}
                         aria-haspopup="menu"
@@ -145,13 +146,13 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                       >
                         <MG text={t(STATUS_KEY[meta] || STATUS_KEY.no_status)} />
                         <ChevronDown size={12} strokeWidth={2} aria-hidden="true" />
-                      </button>
+                      </Btn>
                       {statusMenu && (
                         <>
-                          <button type="button" className="cd-status-backdrop" aria-hidden="true" tabIndex={-1} onClick={() => setStatusMenu(false)} />
-                          <div className="cd-status-menu" role="menu">
+                          <Btn type="button" className="cd-status-backdrop" aria-hidden="true" tabIndex={-1} onClick={() => setStatusMenu(false)} />
+                          <Box className="cd-status-menu" role="menu">
                             {Object.entries(STATUS_KEY).map(([k, labelKey]) => (
-                              <button
+                              <Btn
                                 key={k}
                                 type="button"
                                 role="menuitemradio"
@@ -159,45 +160,45 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                                 className={`cd-status-opt${meta === k ? ' on' : ''}`}
                                 onClick={() => changeStatus(k)}
                               >
-                                <span className={`cd-status-dot cd-status-${k}`} aria-hidden="true" />
+                                <Txt className={`cd-status-dot cd-status-${k}`} aria-hidden="true" />
                                 {t(labelKey)}
                                 {meta === k && <Check size={13} strokeWidth={2} aria-hidden="true" className="cd-status-check" />}
-                              </button>
+                              </Btn>
                             ))}
-                          </div>
+                          </Box>
                         </>
                       )}
-                    </span>
+                    </Txt>
                     {/* Group member, status still group-driven → muted hint that
                         picking a status will override it. Once overridden → a
                         "manual" tag + one-tap revert back to the group status. */}
                     {groupDriven && (
-                      <span className="cd-h-status-by" title={t('drawer.statusByGroup')}>{t('drawer.byGroup')}</span>
+                      <Txt className="cd-h-status-by" title={t('drawer.statusByGroup')}>{t('drawer.byGroup')}</Txt>
                     )}
                     {isMember && overridden && (
-                      <span className="cd-status-manual">
-                        <span className="cd-status-manual-tag">{t('drawer.statusManual')}</span>
-                        <button type="button" className="cd-status-revert" onClick={revertToGroup} title={t('drawer.revertHint')}>
+                      <Txt className="cd-status-manual">
+                        <Txt className="cd-status-manual-tag">{t('drawer.statusManual')}</Txt>
+                        <Btn type="button" className="cd-status-revert" onClick={revertToGroup} title={t('drawer.revertHint')}>
                           <RotateCcw size={11} strokeWidth={1.8} aria-hidden="true" />
                           {t('drawer.revertToGroup')}
-                        </button>
-                      </span>
+                        </Btn>
+                      </Txt>
                     )}
-                    {project && <span className="cd-h-proj">· {project.name}</span>}
-                  </div>
-                </div>
-                <button type="button" className="cd-edit-details" onClick={() => setActionModal('edit')}>
+                    {project && <Txt className="cd-h-proj">· {project.name}</Txt>}
+                  </Box>
+                </Box>
+                <Btn type="button" className="cd-edit-details" onClick={() => setActionModal('edit')}>
                   <Pencil size={13} strokeWidth={1.6} aria-hidden="true" /> {t('drawer.edit')}
-                </button>
-              </div>
+                </Btn>
+              </Box>
 
               {/* Billing hero — ALWAYS shown on every client card (global).
                  "פגישות" = PERSONAL (done/set) when the client has 1-on-1
                  sessions; otherwise it summarises the group(s). */}
-              <div className="cd-hero">
-                <div className="cd-stat">
-                  <p className="cd-stat-l">{t('drawer.sessions')}</p>
-                  <p className="cd-stat-v mono">
+              <Box className="cd-hero">
+                <Box className="cd-stat">
+                  <Txt as="p" className="cd-stat-l">{t('drawer.sessions')}</Txt>
+                  <Txt as="p" className="cd-stat-v mono">
                     {balance.hasPersonal
                       ? (balance.perSession
                         /* Per-session billing (migration 0014) — no preset
@@ -205,42 +206,42 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                         ? `${balance.personalDone}`
                         : `${balance.personalDone}/${balance.personalQuota || 0}`)
                       : `${balance.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + g.held, 0)}/${balance.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + (g.quota || 0), 0) || 0}`}
-                  </p>
-                </div>
-                <div className="cd-stat divided">
-                  <p className="cd-stat-l">{t('drawer.paid')}</p>
-                  <p className="cd-stat-v mono">{isr(balance.paid)}</p>
-                </div>
-                <div className="cd-stat">
-                  <p className="cd-stat-l">{t('drawer.balance')}</p>
-                  <p className="cd-stat-v mono">{isr(balance.balance)}</p>
-                </div>
-              </div>
+                  </Txt>
+                </Box>
+                <Box className="cd-stat divided">
+                  <Txt as="p" className="cd-stat-l">{t('drawer.paid')}</Txt>
+                  <Txt as="p" className="cd-stat-v mono">{isr(balance.paid)}</Txt>
+                </Box>
+                <Box className="cd-stat">
+                  <Txt as="p" className="cd-stat-l">{t('drawer.balance')}</Txt>
+                  <Txt as="p" className="cd-stat-v mono">{isr(balance.balance)}</Txt>
+                </Box>
+              </Box>
 
               {/* Per-session billing note — names the model so the growing
                  balance after each logged meeting is self-explanatory. */}
               {balance.perSession && (
-                <p className="cd-billmode">{t('drawer.perSessionNote', { price: isr(client.price_per_session || 0) })}</p>
+                <Txt as="p" className="cd-billmode">{t('drawer.perSessionNote', { price: isr(client.price_per_session || 0) })}</Txt>
               )}
 
               {/* Payment-plan hint — links the hero balance to the plan so the
                   two don't read as separate "balances". */}
               {clientPlan && planBal && (
-                <p className="cd-plan-hint">{t('drawer.planHint', { received: planBal.receivedCount, total: planBal.count, remaining: isr(planBal.remaining) })}</p>
+                <Txt as="p" className="cd-plan-hint">{t('drawer.planHint', { received: planBal.receivedCount, total: planBal.count, remaining: isr(planBal.remaining) })}</Txt>
               )}
 
               {/* Group sessions — read-only breakdown, one row per group.
                  The full profile shows these in addition to the personal
                  count above (the compact list card shows personal only). */}
               {balance.groupSessions.length > 0 && (
-                <div className="cd-grp-sessions">
+                <Box className="cd-grp-sessions">
                   {balance.groupSessions.map((gs) => (
-                    <div key={gs.id} className="cd-grp-row">
-                      <span className="cd-grp-name">{t('drawer.groupSessions', { name: gs.name })}{gs.ended ? t('drawer.groupEnded') : ''}</span>
-                      <span className="cd-grp-val mono">{gs.held}/{gs.quota || 0}</span>
-                    </div>
+                    <Box key={gs.id} className="cd-grp-row">
+                      <Txt className="cd-grp-name">{t('drawer.groupSessions', { name: gs.name })}{gs.ended ? t('drawer.groupEnded') : ''}</Txt>
+                      <Txt className="cd-grp-val mono">{gs.held}/{gs.quota || 0}</Txt>
+                    </Box>
                   ))}
-                </div>
+                </Box>
               )}
 
               {/* Payment request — only when the client owes money. The
@@ -268,27 +269,27 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
               )}
 
               {/* Quick actions — ALWAYS shown on every client card (global). */}
-              <div className="cd-actions">
-                <button type="button" className="cd-action" onClick={() => setActionModal('session')}>
+              <Box className="cd-actions">
+                <Btn type="button" className="cd-action" onClick={() => setActionModal('session')}>
                   <Check size={15} strokeWidth={1.8} aria-hidden="true" /> {t('drawer.logSession')}
-                </button>
-                <button type="button" className="cd-action" onClick={() => setActionModal('meeting')}>
+                </Btn>
+                <Btn type="button" className="cd-action" onClick={() => setActionModal('meeting')}>
                   <CalendarPlus size={15} strokeWidth={1.8} aria-hidden="true" /> {t('drawer.scheduleMeeting')}
-                </button>
-                <button type="button" className="cd-action" onClick={() => { setPaymentAmount(null); setActionModal('payment') }}>
+                </Btn>
+                <Btn type="button" className="cd-action" onClick={() => { setPaymentAmount(null); setActionModal('payment') }}>
                   <Banknote size={15} strokeWidth={1.8} aria-hidden="true" /> {t('drawer.receivedPayment')}
-                </button>
+                </Btn>
                 <WhatsAppButton
                   phone={client.phone}
                   message={waMsg('client', { name: client.name })}
                 />
-              </div>
+              </Box>
 
               <ClientDrawerSections client={client} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} />
-            </div>
+            </Box>
           </>
         )}
-      </aside>
+      </Box>
 
       <AddSessionModal
         open={actionModal === 'session'}

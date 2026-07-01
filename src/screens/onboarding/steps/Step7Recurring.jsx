@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import { useRecurring } from '../../../hooks/useRecurring'
 import { useT } from '../../../i18n/useT'
 import { isr } from '../../../lib/finance'
+import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* Quick-fill presets. "Other" clears the composer so the user types their own.
    The localized label doubles as the prefilled description. */
@@ -95,38 +96,38 @@ export default function Step7Recurring({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro">{t('step7.intro')}</p>
-      <p className="ob-intro-sub">{t('step7.introSub', { verb: t('step7.introSubVerb') })}</p>
+      <Txt as="p" className="ob-intro">{t('step7.intro')}</Txt>
+      <Txt as="p" className="ob-intro-sub">{t('step7.introSub', { verb: t('step7.introSubVerb') })}</Txt>
 
-      <div className="ob-field">
-        <p className="ob-label">{t('step7.quickSuggestions')}</p>
-        <div className="ob-pills">
+      <Box className="ob-field">
+        <Txt as="p" className="ob-label">{t('step7.quickSuggestions')}</Txt>
+        <Box className="ob-pills">
           {PRESETS.map((p) => {
             const presetLabel = t(p.labelKey)
             return (
-            <button
+            <Btn
               key={p.k}
               type="button"
               className={`ob-pill${!p.clear && desc === presetLabel ? ' on' : ''}`}
               onClick={() => fillPreset(p)}
             >
               {presetLabel}
-            </button>
+            </Btn>
           )})}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <div className="ob-step-grid">
-        <div className="ob-field">
-          <label className="ob-label">{t('step7.typeLabel')}</label>
-          <div className="ob-pills">
-            <button type="button" className={`ob-pill${type === 'expense' ? ' on' : ''}`} onClick={() => setType('expense')}>{t('step7.expense')}</button>
-            <button type="button" className={`ob-pill${type === 'income' ? ' on' : ''}`} onClick={() => setType('income')}>{t('step7.income')}</button>
-          </div>
-        </div>
-        <div className="ob-field">
-          <label className="ob-label" htmlFor="ob-r-day">{t('step7.dayOfMonthLabel')}</label>
-          <input
+      <Box className="ob-step-grid">
+        <Box className="ob-field">
+          <Box as="label" className="ob-label">{t('step7.typeLabel')}</Box>
+          <Box className="ob-pills">
+            <Btn type="button" className={`ob-pill${type === 'expense' ? ' on' : ''}`} onClick={() => setType('expense')}>{t('step7.expense')}</Btn>
+            <Btn type="button" className={`ob-pill${type === 'income' ? ' on' : ''}`} onClick={() => setType('income')}>{t('step7.income')}</Btn>
+          </Box>
+        </Box>
+        <Box className="ob-field">
+          <Box as="label" className="ob-label" htmlFor="ob-r-day">{t('step7.dayOfMonthLabel')}</Box>
+          <Input
             id="ob-r-day"
             className="ob-input"
             type="number"
@@ -135,22 +136,22 @@ export default function Step7Recurring({ ob, setCTA }) {
             value={dayOfMonth}
             onChange={(e) => setDayOfMonth(e.target.value)}
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-r-desc">{t('step7.descLabel')}</label>
-        <input
+      <Box className="ob-field">
+        <Box as="label" className="ob-label" htmlFor="ob-r-desc">{t('step7.descLabel')}</Box>
+        <Input
           id="ob-r-desc"
           className="ob-input"
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
           placeholder={t('step7.descPlaceholder')}
         />
-      </div>
-      <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-r-amt">{t('step7.amountLabel')}</label>
-        <input
+      </Box>
+      <Box className="ob-field">
+        <Box as="label" className="ob-label" htmlFor="ob-r-amt">{t('step7.amountLabel')}</Box>
+        <Input
           id="ob-r-amt"
           className="ob-input"
           type="number"
@@ -158,35 +159,35 @@ export default function Step7Recurring({ ob, setCTA }) {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
-      </div>
+      </Box>
 
       {composerValid && (
-        <button type="button" className="ob-pc-add" onClick={onAddToList} disabled={busy}>
+        <Btn type="button" className="ob-pc-add" onClick={onAddToList} disabled={busy}>
           + {t('step7.addToListVerb')} {t('step7.toList')}
-        </button>
+        </Btn>
       )}
 
       {added.length > 0 && (
-        <div className="ob-field">
-          <p className="ob-label">{t('step7.addedHeading', { count: added.length })}</p>
-          <div className="ob-pc-group-list">
+        <Box className="ob-field">
+          <Txt as="p" className="ob-label">{t('step7.addedHeading', { count: added.length })}</Txt>
+          <Box className="ob-pc-group-list">
             {added.map((a) => (
-              <div key={a.id} className="ob-pc-group">
-                <span className="ob-pc-group-color" style={{ background: a.type === 'income' ? 'var(--sage)' : 'var(--clay)' }} />
-                <div className="ob-pc-group-body">
-                  <p className="ob-pc-group-name">{a.desc}</p>
-                  <p className="ob-pc-group-meta">{a.type === 'income' ? t('step7.income') : t('step7.expense')} · {isr(a.amount)}</p>
-                </div>
-                <button type="button" className="ob-pc-group-x" onClick={() => onRemove(a.id)} aria-label={t('step7.removeAria', { name: a.desc })}>
+              <Box key={a.id} className="ob-pc-group">
+                <Txt className="ob-pc-group-color" style={{ background: a.type === 'income' ? 'var(--sage)' : 'var(--clay)' }} />
+                <Box className="ob-pc-group-body">
+                  <Txt as="p" className="ob-pc-group-name">{a.desc}</Txt>
+                  <Txt as="p" className="ob-pc-group-meta">{a.type === 'income' ? t('step7.income') : t('step7.expense')} · {isr(a.amount)}</Txt>
+                </Box>
+                <Btn type="button" className="ob-pc-group-x" onClick={() => onRemove(a.id)} aria-label={t('step7.removeAria', { name: a.desc })}>
                   <X size={13} strokeWidth={2} aria-hidden="true" />
-                </button>
-              </div>
+                </Btn>
+              </Box>
             ))}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
 
-      {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
+      {err && <Txt as="p" className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</Txt>}
 
     </>
   )

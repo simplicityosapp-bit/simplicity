@@ -3,6 +3,7 @@ import DateField from '../components/DateField'
 import Modal from './Modal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
 
 /* Local YYYY-MM-DD — UTC toISOString would roll over to "tomorrow" on an
    Israeli evening, defaulting a new session's date to the wrong day. */
@@ -50,30 +51,30 @@ export default function AddSessionModal({ open, onClose, onSave, client, group, 
   return (
     <Modal open={open} onClose={close} title={isEdit ? t('session.titleEdit') : t('session.titleNew')}>
       {subject && (
-        <p className="m-sub">
-          <span className="m-sub-dot" style={{ background: subjectColor }} />
+        <Txt as="p" className="m-sub">
+          <Txt className="m-sub-dot" style={{ background: subjectColor }} />
           {subject.name}{nextNum ? ` · ${t('session.meetingNum', { num: nextNum })}` : ''}
-        </p>
+        </Txt>
       )}
-      <div className="m-field">
-        <label className="m-label">{t('session.date')}</label>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('session.date')}</Box>
         <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('session.summary')}</label>
-        <textarea className="m-textarea" value={form.summary} onChange={(e) => set('summary', e.target.value)} placeholder={t('session.summaryPlaceholder')} />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('session.notes')}</label>
-        <input className="m-input" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={t('session.notesPlaceholder')} />
-      </div>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('session.summary')}</Box>
+        <Textarea className="m-textarea" value={form.summary} onChange={(e) => set('summary', e.target.value)} placeholder={t('session.summaryPlaceholder')} />
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('session.notes')}</Box>
+        <Input className="m-input" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={t('session.notesPlaceholder')} />
+      </Box>
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
     </Modal>
   )
 }

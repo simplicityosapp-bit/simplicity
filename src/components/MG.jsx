@@ -1,5 +1,6 @@
 import { MG_WORDS, mgToReadable, hasMG } from '../lib/multiGender'
 import { useT } from '../i18n/useT'
+import { Txt } from './ui'
 
 /* ════════════════════════════════════════════════════════════════
    <MG> — render Multi-Gender Hebrew accessibly (language-aware).
@@ -26,18 +27,18 @@ export default function MG({ word, text, className = '' }) {
   /* Non-Hebrew word: render the translated plain word (no merge glyph). */
   if (word && lang !== 'he') {
     const translated = t(`mgWords.${word}`)
-    return className ? <span className={className}>{translated}</span> : <>{translated}</>
+    return className ? <Txt className={className}>{translated}</Txt> : <>{translated}</>
   }
 
   const entry = word ? MG_WORDS[word] : null
   const visible = entry ? entry.mg : text
   if (visible == null) return null
-  if (!hasMG(visible)) return className ? <span className={className}>{visible}</span> : <>{visible}</>
+  if (!hasMG(visible)) return className ? <Txt className={className}>{visible}</Txt> : <>{visible}</>
   const readable = entry ? entry.aria : mgToReadable(visible)
   return (
-    <span className={`mg-text ${className}`.trim()}>
-      <span aria-hidden="true">{visible}</span>
-      <span className="sr-only">{readable}</span>
-    </span>
+    <Txt className={`mg-text ${className}`.trim()}>
+      <Txt aria-hidden="true">{visible}</Txt>
+      <Txt className="sr-only">{readable}</Txt>
+    </Txt>
   )
 }

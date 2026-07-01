@@ -7,6 +7,7 @@ import { useT } from '../i18n/useT'
 import { useAuth } from '../auth/AuthContext'
 import { hasCookieChoice, setCookieConsent } from '../lib/cookieConsent'
 import './CookieBanner.css'
+import { Box, Txt, Btn } from './ui'
 
 /* ════════════════════════════════════════════════════════════════
    COOKIE BANNER — public-pages cookie notice with accept / reject.
@@ -39,25 +40,25 @@ export default function CookieBanner() {
   }
 
   return (
-    <div className="cookie-banner" role="region" aria-label={t('region')}>
-      <div className="cookie-banner-card">
+    <Box className="cookie-banner" role="region" aria-label={t('region')}>
+      <Box className="cookie-banner-card">
         <Cookie className="cookie-banner-icon" size={22} strokeWidth={1.75} aria-hidden="true" />
-        <div className="cookie-banner-text">
-          <p className="cookie-banner-title">{t('title')}</p>
-          <p className="cookie-banner-body">
+        <Box className="cookie-banner-text">
+          <Txt as="p" className="cookie-banner-title">{t('title')}</Txt>
+          <Txt as="p" className="cookie-banner-body">
             {t('body')}{' '}
             <Link to={ROUTES.LEGAL} className="cookie-banner-link">{t('policy')}</Link>
-          </p>
-        </div>
-        <div className="cookie-banner-actions">
-          <button type="button" className="cookie-banner-btn cookie-banner-btn--reject" onClick={() => choose(false)}>
+          </Txt>
+        </Box>
+        <Box className="cookie-banner-actions">
+          <Btn type="button" className="cookie-banner-btn cookie-banner-btn--reject" onClick={() => choose(false)}>
             {t('reject')}
-          </button>
-          <button type="button" className="cookie-banner-btn cookie-banner-btn--accept" onClick={() => choose(true)}>
+          </Btn>
+          <Btn type="button" className="cookie-banner-btn cookie-banner-btn--accept" onClick={() => choose(true)}>
             {t('accept')}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Btn>
+        </Box>
+      </Box>
+    </Box>
   )
 }

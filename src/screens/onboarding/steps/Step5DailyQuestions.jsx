@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { QUESTION_TEMPLATES, qtext } from '../../../lib/questionTemplates'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* Starter presets — derived from the SHARED QUESTION_TEMPLATES so onboarding
    and the in-app AddQuestionModal always offer the same set (single source).
@@ -95,64 +96,64 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro">{t('step5.intro', { verb: t('step5.introVerb') })}</p>
-      <p className="ob-intro-sub">{t('step5.introSub', { verb: t('step5.introSubVerb') })}</p>
+      <Txt as="p" className="ob-intro">{t('step5.intro', { verb: t('step5.introVerb') })}</Txt>
+      <Txt as="p" className="ob-intro-sub">{t('step5.introSub', { verb: t('step5.introSubVerb') })}</Txt>
 
-      <div className="ob-field">
-        <div className="ob-pills">
+      <Box className="ob-field">
+        <Box className="ob-pills">
           {PRESETS.map((p) => {
             const text = qtext(p.key, gender)
             return (
-            <button
+            <Btn
               key={p.key}
               type="button"
               className={`ob-pill${picked.includes(p.key) ? ' on' : ''}`}
               onClick={() => toggle(p.key)}
               title={text}
             >
-              <span style={{ marginInlineEnd: 4 }}>{p.icon}</span>
+              <Txt style={{ marginInlineEnd: 4 }}>{p.icon}</Txt>
               {text}
-            </button>
+            </Btn>
           )})}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* "אחר" — full custom-question creator, identical shape to
           AddQuestionModal's custom mode (text + scale + icon). */}
-      <div className="ob-field">
-        <label className="ob-label" htmlFor="ob-q-custom">{t('step5.customLabel')}</label>
-        <input
+      <Box className="ob-field">
+        <Box as="label" className="ob-label" htmlFor="ob-q-custom">{t('step5.customLabel')}</Box>
+        <Input
           id="ob-q-custom"
           className="ob-input"
           value={custom}
           onChange={(e) => setCustom(e.target.value)}
           placeholder={t('step5.customPlaceholder', { adj: t('step5.customAdj') })}
         />
-      </div>
+      </Box>
 
       {custom.trim().length > 0 && (
         <>
-          <div className="ob-field">
-            <p className="ob-label">{t('step5.answerTypeLabel')}</p>
-            <div className="ob-pills">
+          <Box className="ob-field">
+            <Txt as="p" className="ob-label">{t('step5.answerTypeLabel')}</Txt>
+            <Box className="ob-pills">
               {SCALES.map((s) => (
-                <button
+                <Btn
                   key={s.k}
                   type="button"
                   className={`ob-pill${customScale === s.k ? ' on' : ''}`}
                   onClick={() => setCustomScale(s.k)}
                 >
                   {t(s.labelKey)}
-                </button>
+                </Btn>
               ))}
-            </div>
-          </div>
+            </Box>
+          </Box>
 
-          <div className="ob-field">
-            <p className="ob-label">{t('step5.iconLabel')}</p>
-            <div className="ob-pills">
+          <Box className="ob-field">
+            <Txt as="p" className="ob-label">{t('step5.iconLabel')}</Txt>
+            <Box className="ob-pills">
               {ICONS.map((ic) => (
-                <button
+                <Btn
                   key={ic}
                   type="button"
                   className={`ob-pill${customIcon === ic ? ' on' : ''}`}
@@ -160,14 +161,14 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
                   aria-label={t('step5.iconAria', { icon: ic })}
                 >
                   {ic}
-                </button>
+                </Btn>
               ))}
-            </div>
-          </div>
+            </Box>
+          </Box>
         </>
       )}
 
-      {err && <p className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</p>}
+      {err && <Txt as="p" className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</Txt>}
 
     </>
   )

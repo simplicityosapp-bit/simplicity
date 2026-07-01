@@ -5,6 +5,7 @@ import { useMeetingTypes } from '../../../hooks/useMeetingTypes'
 import { formatWhen } from '../../../lib/dates'
 import { useT } from '../../../i18n/useT'
 import './BookingConfirmList.css'
+import { Box, Txt, Btn, Lnk } from '../../../components/ui'
 
 /* Pending-booking review list — rendered inside the home "דרושה תשומת לב"
    popup. Per booking: who + when + meeting type + contact, with approve /
@@ -28,36 +29,36 @@ export default function BookingConfirmList() {
   )
   const typeName = (id) => (types || []).find((t) => t.id === id)?.name || null
 
-  if (!pending.length) return <p className="h-card-empty">{t('widgets.bookingConfirm.empty')}</p>
+  if (!pending.length) return <Txt as="p" className="h-card-empty">{t('widgets.bookingConfirm.empty')}</Txt>
 
   return (
-    <div className="bk-confirm-list">
+    <Box className="bk-confirm-list">
       {pending.map((b) => (
-        <div key={b.id} className="bk-confirm-row">
-          <div className="bk-confirm-main">
-            <p className="bk-confirm-name">{b.name}</p>
-            <p className="bk-confirm-meta">
+        <Box key={b.id} className="bk-confirm-row">
+          <Box className="bk-confirm-main">
+            <Txt as="p" className="bk-confirm-name">{b.name}</Txt>
+            <Txt as="p" className="bk-confirm-meta">
               <Clock size={13} strokeWidth={1.7} aria-hidden="true" /> {formatWhen(b.starts_at)}
               {typeName(b.meeting_type_id) ? ` · ${typeName(b.meeting_type_id)}` : ''}
-            </p>
+            </Txt>
             {(b.phone || b.email) && (
-              <p className="bk-confirm-contact">
-                {b.phone ? <a href={`tel:${b.phone}`}><Phone size={12} strokeWidth={1.7} /> {b.phone}</a> : null}
-                {b.email ? <a href={`mailto:${b.email}`}><Mail size={12} strokeWidth={1.7} /> {b.email}</a> : null}
-              </p>
+              <Txt as="p" className="bk-confirm-contact">
+                {b.phone ? <Lnk href={`tel:${b.phone}`}><Phone size={12} strokeWidth={1.7} /> {b.phone}</Lnk> : null}
+                {b.email ? <Lnk href={`mailto:${b.email}`}><Mail size={12} strokeWidth={1.7} /> {b.email}</Lnk> : null}
+              </Txt>
             )}
-            {b.note ? <p className="bk-confirm-note">{b.note}</p> : null}
-          </div>
-          <div className="bk-confirm-actions">
-            <button type="button" className="bk-confirm-btn approve" onClick={() => run(b.id, () => confirm(b))} disabled={busyId === b.id} aria-label={t('widgets.bookingConfirm.approve')}>
+            {b.note ? <Txt as="p" className="bk-confirm-note">{b.note}</Txt> : null}
+          </Box>
+          <Box className="bk-confirm-actions">
+            <Btn type="button" className="bk-confirm-btn approve" onClick={() => run(b.id, () => confirm(b))} disabled={busyId === b.id} aria-label={t('widgets.bookingConfirm.approve')}>
               <Check size={16} strokeWidth={2} />
-            </button>
-            <button type="button" className="bk-confirm-btn reject" onClick={() => run(b.id, () => reject(b.id))} disabled={busyId === b.id} aria-label={t('widgets.bookingConfirm.reject')}>
+            </Btn>
+            <Btn type="button" className="bk-confirm-btn reject" onClick={() => run(b.id, () => reject(b.id))} disabled={busyId === b.id} aria-label={t('widgets.bookingConfirm.reject')}>
               <X size={16} strokeWidth={2} />
-            </button>
-          </div>
-        </div>
+            </Btn>
+          </Box>
+        </Box>
       ))}
-    </div>
+    </Box>
   )
 }

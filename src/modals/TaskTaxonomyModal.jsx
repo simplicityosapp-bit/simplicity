@@ -4,6 +4,7 @@ import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Statuses roll up to one of two fixed meta buckets so the binary
    open/done counters across the app keep working. */
@@ -55,99 +56,99 @@ export default function TaskTaxonomyModal({
     <Modal open={open} onClose={onClose} title={t('taxonomy.title')}>
       {/* ── Statuses ───────────────────────────────────────────── */}
       {/* The "add" form sits first; the existing pills are listed BELOW it. */}
-      <p className="m-section-title">{t('taxonomy.statuses')}</p>
-      <p className="m-hint">{t('taxonomy.statusesHint')}</p>
-      <div className="m-field">
-        <label className="m-label">{t('taxonomy.newStatus')}</label>
-        <div className="m-pills">
+      <Txt as="p" className="m-section-title">{t('taxonomy.statuses')}</Txt>
+      <Txt as="p" className="m-hint">{t('taxonomy.statusesHint')}</Txt>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('taxonomy.newStatus')}</Box>
+        <Box className="m-pills">
           {META.map((m) => (
-            <button key={m.key} type="button" className={`m-pill${sMeta === m.key ? ' on' : ''}`} onClick={() => setSMeta(m.key)}>{t(`taxonomy.${m.label}`)}</button>
+            <Btn key={m.key} type="button" className={`m-pill${sMeta === m.key ? ' on' : ''}`} onClick={() => setSMeta(m.key)}>{t(`taxonomy.${m.label}`)}</Btn>
           ))}
-        </div>
-        <div className="m-colors">
+        </Box>
+        <Box className="m-colors">
           {COLORS.map((c) => (
-            <button key={c} type="button" className={`m-color${sColor === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => setSColor(c)} />
+            <Btn key={c} type="button" className={`m-color${sColor === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => setSColor(c)} />
           ))}
-        </div>
-        <div className="m-tax-add">
-          <input
+        </Box>
+        <Box className="m-tax-add">
+          <Input
             className="m-input"
             value={sName}
             onChange={(e) => setSName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') addStatus() }}
             placeholder={t('taxonomy.statusPlaceholder')}
           />
-          <button type="button" className="m-tax-add-btn" onClick={addStatus} disabled={!sName.trim() || busy} aria-label={t('taxonomy.addStatusAria')}>
+          <Btn type="button" className="m-tax-add-btn" onClick={addStatus} disabled={!sName.trim() || busy} aria-label={t('taxonomy.addStatusAria')}>
             <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
-          </button>
-        </div>
-      </div>
+          </Btn>
+        </Box>
+      </Box>
       {META.map((m) => {
         const list = statuses.filter((s) => s.meta_category === m.key)
         return (
-          <div key={m.key} className="m-field">
-            <label className="m-label">{t(`taxonomy.${m.label}`)}</label>
+          <Box key={m.key} className="m-field">
+            <Box as="label" className="m-label">{t(`taxonomy.${m.label}`)}</Box>
             {list.length === 0 ? (
-              <p className="m-hint">—</p>
+              <Txt as="p" className="m-hint">—</Txt>
             ) : (
-              <div className="m-tax-chips">
+              <Box className="m-tax-chips">
                 {list.map((s) => (
-                  <span key={s.id} className="m-tax-chip">
-                    <span className="m-tax-dot" style={{ background: s.color || 'var(--stone)' }} />
-                    <span>{s.display_name}</span>
-                    <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'status', id: s.id, name: s.display_name })} aria-label={t('taxonomy.deleteAria', { name: s.display_name })} title={t('taxonomy.deleteHint')}>
+                  <Txt key={s.id} className="m-tax-chip">
+                    <Txt className="m-tax-dot" style={{ background: s.color || 'var(--stone)' }} />
+                    <Txt>{s.display_name}</Txt>
+                    <Btn type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'status', id: s.id, name: s.display_name })} aria-label={t('taxonomy.deleteAria', { name: s.display_name })} title={t('taxonomy.deleteHint')}>
                       <X size={11} strokeWidth={2} aria-hidden="true" />
-                    </button>
-                  </span>
+                    </Btn>
+                  </Txt>
                 ))}
-              </div>
+              </Box>
             )}
-          </div>
+          </Box>
         )
       })}
 
       {/* ── Categories ─────────────────────────────────────────── */}
       {/* The "add" form sits first; the existing pills are listed BELOW it. */}
-      <p className="m-section-title">{t('taxonomy.categories')}</p>
-      <div className="m-field">
-        <label className="m-label">{t('taxonomy.newCategory')}</label>
-        <div className="m-colors">
+      <Txt as="p" className="m-section-title">{t('taxonomy.categories')}</Txt>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('taxonomy.newCategory')}</Box>
+        <Box className="m-colors">
           {COLORS.map((c) => (
-            <button key={c} type="button" className={`m-color${cColor === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => setCColor(c)} />
+            <Btn key={c} type="button" className={`m-color${cColor === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => setCColor(c)} />
           ))}
-        </div>
-        <div className="m-tax-add">
-          <input
+        </Box>
+        <Box className="m-tax-add">
+          <Input
             className="m-input"
             value={cName}
             onChange={(e) => setCName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') addCategory() }}
             placeholder={t('taxonomy.categoryPlaceholder')}
           />
-          <button type="button" className="m-tax-add-btn" onClick={addCategory} disabled={!cName.trim() || busy} aria-label={t('taxonomy.addCategoryAria')}>
+          <Btn type="button" className="m-tax-add-btn" onClick={addCategory} disabled={!cName.trim() || busy} aria-label={t('taxonomy.addCategoryAria')}>
             <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
-          </button>
-        </div>
-      </div>
+          </Btn>
+        </Box>
+      </Box>
       {categories.length === 0 ? (
-        <p className="m-hint">—</p>
+        <Txt as="p" className="m-hint">—</Txt>
       ) : (
-        <div className="m-tax-chips">
+        <Box className="m-tax-chips">
           {categories.map((c) => (
-            <span key={c.id} className="m-tax-chip">
-              <span className="m-tax-dot" style={{ background: c.color || 'var(--stone)' }} />
-              <span>{c.name}</span>
-              <button type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'category', id: c.id, name: c.name })} aria-label={t('taxonomy.deleteAria', { name: c.name })} title={t('taxonomy.deleteHint')}>
+            <Txt key={c.id} className="m-tax-chip">
+              <Txt className="m-tax-dot" style={{ background: c.color || 'var(--stone)' }} />
+              <Txt>{c.name}</Txt>
+              <Btn type="button" className="m-tax-x" onClick={() => setConfirm({ kind: 'category', id: c.id, name: c.name })} aria-label={t('taxonomy.deleteAria', { name: c.name })} title={t('taxonomy.deleteHint')}>
                 <X size={11} strokeWidth={2} aria-hidden="true" />
-              </button>
-            </span>
+              </Btn>
+            </Txt>
           ))}
-        </div>
+        </Box>
       )}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-save" onClick={onClose}>{t('common.close')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-save" onClick={onClose}>{t('common.close')}</Btn>
+      </Box>
 
       <ConfirmModal
         open={!!confirm}

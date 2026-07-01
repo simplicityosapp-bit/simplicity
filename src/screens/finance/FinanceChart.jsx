@@ -8,6 +8,7 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { ROUTES } from '../../lib/routes'
 import { useT } from '../../i18n/useT'
 import InfoPopover from '../../components/InfoPopover'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Moonlight chart — SVG line of cumulative income day by day for the selected
    month, with a dashed goal target line, a soft area fill, a "today" dot,
@@ -115,24 +116,24 @@ export default function FinanceChart({ month }) {
   const labelDays = [...new Set([1, 7, 14, 21, daysInMonth].filter((d) => d >= 1 && d <= daysInMonth))]
 
   return (
-    <section className="f-chart">
-      <div className="f-chart-head">
-        <p className="f-chart-title">
+    <Box as="section" className="f-chart">
+      <Box className="f-chart-head">
+        <Txt as="p" className="f-chart-title">
           <Sparkles size={14} strokeWidth={1.6} aria-hidden="true" />
           {t('chart.title')}
           <InfoPopover
             label={t('chart.infoLabel')}
             text={t('chart.infoText')}
           />
-        </p>
+        </Txt>
         {pctOfGoal != null && (
-          <span className={`f-chart-pct${pctOfGoal >= 100 ? ' done' : ''}`}>
-            {isr(finalIncome)} <span className="f-chart-pct-frac">/ {isr(targetValue)}</span>
-          </span>
+          <Txt className={`f-chart-pct${pctOfGoal >= 100 ? ' done' : ''}`}>
+            {isr(finalIncome)} <Txt className="f-chart-pct-frac">/ {isr(targetValue)}</Txt>
+          </Txt>
         )}
-      </div>
+      </Box>
 
-      <div className="f-chart-svg-wrap" ref={wrapRef}>
+      <Box className="f-chart-svg-wrap" ref={wrapRef}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="f-chart-svg"
@@ -177,17 +178,17 @@ export default function FinanceChart({ month }) {
             )
           })}
         </svg>
-      </div>
+      </Box>
 
       {targetValue === 0 && (
-        <button
+        <Btn
           type="button"
           className="f-chart-cta"
           onClick={() => navigate(ROUTES.GOALS)}
         >
           {t('chart.setGoal')} <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" />
-        </button>
+        </Btn>
       )}
-    </section>
+    </Box>
   )
 }

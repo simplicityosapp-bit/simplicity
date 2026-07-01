@@ -28,6 +28,7 @@ import ScheduleMeetingModal from '../../../modals/ScheduleMeetingModal'
 import AddGoalEntryModal from '../../../modals/AddGoalEntryModal'
 import QuickGoalUpdatePicker from '../../../modals/QuickGoalUpdatePicker'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt, Btn } from '../../../components/ui'
 
 /* Two quick-add CTAs on home:
    • תנועה מהירה  → QuickActionsModal (launcher for *every* Add* in the app).
@@ -59,23 +60,23 @@ export default function QuickRow() {
   const close = () => setActive(null)
 
   return (
-    <div className="h-quick-row">
-      <button
+    <Box className="h-quick-row">
+      <Btn
         type="button"
         className="h-quick-btn h-quick-primary"
         onClick={() => setShowLauncher(true)}
       >
         <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        <span>{t('widgets.quick.quickAdd')}</span>
-      </button>
-      <button
+        <Txt>{t('widgets.quick.quickAdd')}</Txt>
+      </Btn>
+      <Btn
         type="button"
         className="h-quick-btn h-quick-secondary"
         onClick={() => setShowPicker(true)}
       >
         <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        <span>{t('widgets.quick.goalUpdate')}</span>
-      </button>
+        <Txt>{t('widgets.quick.goalUpdate')}</Txt>
+      </Btn>
 
       <QuickActionsModal
         open={showLauncher}
@@ -154,6 +155,6 @@ export default function QuickRow() {
         category={entryCategory}
         onSave={addEntry}
       />
-    </div>
+    </Box>
   )
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Users, X, Pencil } from 'lucide-react'
 import { isr } from '../../lib/finance'
 import { buildRoute, ROUTES } from '../../lib/routes'
+import { Box, Txt, Btn } from '../../components/ui'
 import { useT } from '../../i18n/useT'
 
 /* One project card: color dot + name + group-count tag, then three stats
@@ -14,7 +15,7 @@ function ProjectCard({ project, clientsCount, income, openTasks, groupsCount, in
   const open = () => navigate(buildRoute(ROUTES.PROJECT, { id: project.id }))
   const stop = (fn) => (e) => { e.stopPropagation(); fn() }
   return (
-    <div
+    <Box
       className="pc anim"
       style={{ animationDelay: `${index * 0.06}s` }}
       role="button"
@@ -22,39 +23,39 @@ function ProjectCard({ project, clientsCount, income, openTasks, groupsCount, in
       onClick={open}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open() } }}
     >
-      <div className="ph">
-        <span className="pcolor" style={{ background: project.color || 'var(--sage)' }} />
-        <p className="pn" title={project.name}>{project.name}</p>
+      <Box className="ph">
+        <Txt className="pcolor" style={{ background: project.color || 'var(--sage)' }} />
+        <Txt as="p" className="pn" title={project.name}>{project.name}</Txt>
         {groupsCount ? (
-          <span className="ps-tag">
+          <Txt className="ps-tag">
             <Users size={11} strokeWidth={1.6} aria-hidden="true" /> {groupsCount}
-          </span>
+          </Txt>
         ) : (
-          <span className="ps-tag">{t('card.active')}</span>
+          <Txt className="ps-tag">{t('card.active')}</Txt>
         )}
-        <button type="button" className="pc-edit" title={t('card.editTitle')} aria-label={t('card.editTitle')} onClick={stop(() => onEdit?.(project))}>
+        <Btn className="pc-edit" title={t('card.editTitle')} aria-label={t('card.editTitle')} onClick={stop(() => onEdit?.(project))}>
           <Pencil size={13} strokeWidth={1.7} aria-hidden="true" />
-        </button>
-        <button type="button" className="pc-del" title={t('card.deleteTitle')} aria-label={t('card.deleteTitle')} onClick={stop(() => onDelete?.(project))}>
+        </Btn>
+        <Btn className="pc-del" title={t('card.deleteTitle')} aria-label={t('card.deleteTitle')} onClick={stop(() => onDelete?.(project))}>
           <X size={14} strokeWidth={1.8} aria-hidden="true" />
-        </button>
-      </div>
-      <div className="pc-divider" />
-      <div className="pstats">
-        <div className="pstat">
-          <p className="pstat-v mono">{clientsCount}</p>
-          <p className="pstat-l">{t('card.clients')}</p>
-        </div>
-        <div className="pstat">
-          <p className="pstat-v mono pstat-inc">{isr(income)}</p>
-          <p className="pstat-l">{incomeLabel}</p>
-        </div>
-        <div className="pstat">
-          <p className="pstat-v mono">{openTasks}</p>
-          <p className="pstat-l">{t('card.tasks')}</p>
-        </div>
-      </div>
-    </div>
+        </Btn>
+      </Box>
+      <Box className="pc-divider" />
+      <Box className="pstats">
+        <Box className="pstat">
+          <Txt as="p" className="pstat-v mono">{clientsCount}</Txt>
+          <Txt as="p" className="pstat-l">{t('card.clients')}</Txt>
+        </Box>
+        <Box className="pstat">
+          <Txt as="p" className="pstat-v mono pstat-inc">{isr(income)}</Txt>
+          <Txt as="p" className="pstat-l">{incomeLabel}</Txt>
+        </Box>
+        <Box className="pstat">
+          <Txt as="p" className="pstat-v mono">{openTasks}</Txt>
+          <Txt as="p" className="pstat-l">{t('card.tasks')}</Txt>
+        </Box>
+      </Box>
+    </Box>
   )
 }
 

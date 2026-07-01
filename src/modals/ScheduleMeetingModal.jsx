@@ -2,6 +2,7 @@ import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Local YYYY-MM-DD — UTC toISOString would roll over to "tomorrow" on an
    Israeli evening, defaulting the date field to the wrong day. */
@@ -94,67 +95,67 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
   return (
     <Modal open={open} onClose={close} title={t('meeting.title')}>
       {client ? (
-        <p className="m-sub">
-          <span className="m-sub-dot" style={{ background: 'var(--terracotta)' }} />
+        <Txt as="p" className="m-sub">
+          <Txt className="m-sub-dot" style={{ background: 'var(--terracotta)' }} />
           {client.name}
-        </p>
+        </Txt>
       ) : (
-        <div className="m-field">
-          <label className="m-label">{t('meeting.client')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('meeting.client')}</Box>
           <select className="m-select" value={form.client_id} onChange={(e) => { set('client_id', e.target.value); if (err) setErr('') }}>
             <option value="">{t('meeting.pickClient')}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-        </div>
+        </Box>
       )}
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('meeting.date')}</label>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('meeting.date')}</Box>
           <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('meeting.time')}</label>
-          <input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
-        </div>
-      </div>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('meeting.time')}</Box>
+          <Input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
+        </Box>
+      </Box>
 
       {canRecur && (
-        <div className="m-field">
-          <label className="m-label">{t('meeting.meetingType')}</label>
-          <div className="m-pills">
-            <button
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('meeting.meetingType')}</Box>
+          <Box className="m-pills">
+            <Btn
               type="button"
               className={`m-pill${!recurring ? ' on' : ''}`}
               onClick={() => { setRecurring(false); setConfirmReplace(false); if (err) setErr('') }}
             >
               {t('meeting.once')}
-            </button>
-            <button
+            </Btn>
+            <Btn
               type="button"
               className={`m-pill${recurring ? ' on' : ''}`}
               onClick={() => { setRecurring(true); if (err) setErr('') }}
             >
               {t('meeting.recurring')}
-            </button>
-          </div>
+            </Btn>
+          </Box>
           {recurring && (
-            <p className="m-hint">{t('meeting.recurringHint', { day: HEB_DAYS[slotDow], time: form.time })}</p>
+            <Txt as="p" className="m-hint">{t('meeting.recurringHint', { day: HEB_DAYS[slotDow], time: form.time })}</Txt>
           )}
-        </div>
+        </Box>
       )}
 
       {showReplaceWarning && (
-        <p className="m-hint">{t('meeting.replaceWarning', { day: HEB_DAYS[client.recurring_day], time: client.recurring_time })}</p>
+        <Txt as="p" className="m-hint">{t('meeting.replaceWarning', { day: HEB_DAYS[client.recurring_day], time: client.recurring_time })}</Txt>
       )}
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>
           {busy ? t('common.saving') : (showReplaceWarning ? t('meeting.replaceConfirm') : t('common.save'))}
-        </button>
-      </div>
+        </Btn>
+      </Box>
     </Modal>
   )
 }

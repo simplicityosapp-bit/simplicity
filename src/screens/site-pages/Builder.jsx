@@ -13,6 +13,7 @@ import Editor from './Editor'
 import TemplatePicker from './TemplatePicker'
 import SiteRenderer from '../site-page/SiteRenderer'
 import './SitePagesScreen.css'
+import { Box, Txt, Btn, Lnk } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    PAGE BUILDER — a single kind's dedicated sub-screen (/pages/<kind>).
@@ -86,77 +87,77 @@ export default function SitePagesBuilder() {
   const kindLabel = t('kinds.' + kind, { defaultValue: KIND_LABEL[kind] })
 
   return (
-    <div className="screen" data-screen="sitePages">
-      <div className="spg-builder-top">
-        <button className="spe-icon-btn" onClick={() => navigate(ROUTES.SITE_PAGES)} title={t('hub.back')} aria-label={t('hub.back')}><ArrowRight size={18} /></button>
-        <h1 className="t-screen">{kindLabel}</h1>
-      </div>
+    <Box className="screen" data-screen="sitePages">
+      <Box className="spg-builder-top">
+        <Btn className="spe-icon-btn" onClick={() => navigate(ROUTES.SITE_PAGES)} title={t('hub.back')} aria-label={t('hub.back')}><ArrowRight size={18} /></Btn>
+        <Txt as="h1" className="t-screen">{kindLabel}</Txt>
+      </Box>
 
-      <div className="spg-toolbar">
-        <button className="spg-new" onClick={() => (atLimit ? goUpgrade() : setPicking(true))}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
-      </div>
+      <Box className="spg-toolbar">
+        <Btn className="spg-new" onClick={() => (atLimit ? goUpgrade() : setPicking(true))}><Plus size={16} /> {t(NEW_LABEL[kind])}</Btn>
+      </Box>
       {atLimit && (
-        <button type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.pages')} · {ts('limit.upgrade')}</button>
+        <Btn type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.pages')} · {ts('limit.upgrade')}</Btn>
       )}
 
       {loading ? (
-        <ul className="spg-grid" aria-hidden="true">
+        <Box as="ul" className="spg-grid" aria-hidden="true">
           {[0, 1, 2, 3].map((i) => (
-            <li key={i} className="spg-card spg-card-skel">
-              <div className="spg-card-thumb spg-skel" />
-              <div className="spg-card-body">
-                <div className="spg-skel-line" />
-                <div className="spg-skel-line spg-skel-line-sm" />
-              </div>
-            </li>
+            <Box as="li" key={i} className="spg-card spg-card-skel">
+              <Box className="spg-card-thumb spg-skel" />
+              <Box className="spg-card-body">
+                <Box className="spg-skel-line" />
+                <Box className="spg-skel-line spg-skel-line-sm" />
+              </Box>
+            </Box>
           ))}
-        </ul>
+        </Box>
       ) : error ? (
-        <div className="empty">
-          <span className="empty-icon"><LayoutTemplate size={28} /></span>
-          <p className="empty-text">{t('hub.loadError')}</p>
-          <button className="empty-action" onClick={() => refetch?.()}>{t('hub.retry')}</button>
-        </div>
+        <Box className="empty">
+          <Txt className="empty-icon"><LayoutTemplate size={28} /></Txt>
+          <Txt as="p" className="empty-text">{t('hub.loadError')}</Txt>
+          <Btn className="empty-action" onClick={() => refetch?.()}>{t('hub.retry')}</Btn>
+        </Box>
       ) : list.length === 0 ? (
-        <div className="empty">
-          <span className="empty-icon"><LayoutTemplate size={28} /></span>
-          <p className="empty-text">{t('hub.emptyText')}</p>
-          <button className="empty-action" onClick={() => setPicking(true)}><Plus size={16} /> {t(NEW_LABEL[kind])}</button>
-        </div>
+        <Box className="empty">
+          <Txt className="empty-icon"><LayoutTemplate size={28} /></Txt>
+          <Txt as="p" className="empty-text">{t('hub.emptyText')}</Txt>
+          <Btn className="empty-action" onClick={() => setPicking(true)}><Plus size={16} /> {t(NEW_LABEL[kind])}</Btn>
+        </Box>
       ) : (
-        <ul className="spg-grid">
+        <Box as="ul" className="spg-grid">
           {list.map((p) => (
-            <li key={p.id} className="spg-card">
-              <div className="spg-card-thumb" onClick={() => setEditingId(p.id)} role="button" tabIndex={0}
+            <Box as="li" key={p.id} className="spg-card">
+              <Box className="spg-card-thumb" onClick={() => setEditingId(p.id)} role="button" tabIndex={0}
                 aria-label={`${p.title || t('hub.untitled')} — ${t('hub.edit')}`}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setEditingId(p.id) } }}>
                 {p.sections && p.sections.length ? (
-                  <div className="spg-card-thumb-scale" aria-hidden="true">
+                  <Box className="spg-card-thumb-scale" aria-hidden="true">
                     <SiteRenderer theme={p.theme} sections={p.sections} interactive={false} />
-                  </div>
+                  </Box>
                 ) : (
-                  <div className="spg-card-thumb-empty"><LayoutTemplate size={24} /></div>
+                  <Box className="spg-card-thumb-empty"><LayoutTemplate size={24} /></Box>
                 )}
-              </div>
-              <div className="spg-card-body">
-                <div className="spg-card-main" onClick={() => setEditingId(p.id)}>
-                  <span className="spg-card-title">{p.title || t('hub.untitled')}</span>
-                  <span className={`spg-badge${p.published ? ' is-pub' : ''}`}>{p.published ? t('hub.badgePublished') : t('hub.badgeDraft')}</span>
-                </div>
-                <div className="spg-card-actions">
-                  <button onClick={() => setEditingId(p.id)} title={t('hub.edit')} aria-label={t('hub.edit')}><Pencil size={15} /></button>
-                  <button onClick={() => duplicatePage(p)} title={t('hub.duplicate')} aria-label={t('hub.duplicate')}><Files size={15} /></button>
-                  <button onClick={() => copyLink(p)} title={t('hub.copyLink')} aria-label={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</button>
-                  {p.published ? <a href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')} aria-label={t('hub.open')}><ExternalLink size={15} /></a> : null}
-                  <button onClick={() => removePage(p.id)} title={t('hub.delete')} aria-label={t('hub.delete')}><Trash2 size={15} /></button>
-                </div>
-              </div>
-            </li>
+              </Box>
+              <Box className="spg-card-body">
+                <Box className="spg-card-main" onClick={() => setEditingId(p.id)}>
+                  <Txt className="spg-card-title">{p.title || t('hub.untitled')}</Txt>
+                  <Txt className={`spg-badge${p.published ? ' is-pub' : ''}`}>{p.published ? t('hub.badgePublished') : t('hub.badgeDraft')}</Txt>
+                </Box>
+                <Box className="spg-card-actions">
+                  <Btn onClick={() => setEditingId(p.id)} title={t('hub.edit')} aria-label={t('hub.edit')}><Pencil size={15} /></Btn>
+                  <Btn onClick={() => duplicatePage(p)} title={t('hub.duplicate')} aria-label={t('hub.duplicate')}><Files size={15} /></Btn>
+                  <Btn onClick={() => copyLink(p)} title={t('hub.copyLink')} aria-label={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</Btn>
+                  {p.published ? <Lnk href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')} aria-label={t('hub.open')}><ExternalLink size={15} /></Lnk> : null}
+                  <Btn onClick={() => removePage(p.id)} title={t('hub.delete')} aria-label={t('hub.delete')}><Trash2 size={15} /></Btn>
+                </Box>
+              </Box>
+            </Box>
           ))}
-        </ul>
+        </Box>
       )}
 
       {picking ? <TemplatePicker kind={kind} onPick={createFrom} onClose={() => setPicking(false)} /> : null}
-    </div>
+    </Box>
   )
 }

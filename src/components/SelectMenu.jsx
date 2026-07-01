@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Search, Check } from 'lucide-react'
 import './SelectMenu.css'
+import { Box, Txt, Btn, Input } from './ui'
 
 /* Standard styled dropdown for modal forms — replaces the native <select> so the
    OPEN menu matches the design language (cream-glass popover, terracotta rows,
@@ -55,8 +56,8 @@ export default function SelectMenu({
   }
 
   return (
-    <div className={`sel${disabled ? ' disabled' : ''}`} ref={wrapRef} onKeyDown={onKeyDown}>
-      <button
+    <Box className={`sel${disabled ? ' disabled' : ''}`} ref={wrapRef} onKeyDown={onKeyDown}>
+      <Btn
         type="button"
         className={`sel-trigger${open ? ' open' : ''}`}
         onClick={() => { if (!disabled) setOpen((v) => !v) }}
@@ -65,28 +66,28 @@ export default function SelectMenu({
         aria-label={ariaLabel}
         disabled={disabled}
       >
-        <span className={`sel-value${selected ? '' : ' placeholder'}`}>{selected ? selected.label : placeholder}</span>
+        <Txt className={`sel-value${selected ? '' : ' placeholder'}`}>{selected ? selected.label : placeholder}</Txt>
         <ChevronDown size={16} strokeWidth={1.6} className="sel-chev" aria-hidden="true" />
-      </button>
+      </Btn>
       {open && (
-        <div className="sel-menu" role="listbox" id={listId}>
+        <Box className="sel-menu" role="listbox" id={listId}>
           {searchable && (
-            <div className="sel-search">
+            <Box className="sel-search">
               <Search size={14} strokeWidth={1.7} aria-hidden="true" />
-              <input
+              <Input
                 ref={searchRef}
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={searchPlaceholder}
               />
-            </div>
+            </Box>
           )}
-          <div className="sel-options">
+          <Box className="sel-options">
             {visible.length === 0 ? (
-              <p className="sel-empty">—</p>
+              <Txt as="p" className="sel-empty">—</Txt>
             ) : visible.map((o) => (
-              <button
+              <Btn
                 key={String(o.value)}
                 type="button"
                 role="option"
@@ -94,13 +95,13 @@ export default function SelectMenu({
                 className={`sel-opt${String(o.value) === String(value) ? ' on' : ''}${o.accent ? ' accent' : ''}`}
                 onClick={() => pick(o)}
               >
-                <span className="sel-opt-label">{o.label}</span>
+                <Txt className="sel-opt-label">{o.label}</Txt>
                 {String(o.value) === String(value) && <Check size={14} strokeWidth={2} aria-hidden="true" />}
-              </button>
+              </Btn>
             ))}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

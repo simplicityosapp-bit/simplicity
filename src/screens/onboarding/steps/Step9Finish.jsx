@@ -6,6 +6,7 @@ import { useClients } from '../../../hooks/useClients'
 import { useGoals } from '../../../hooks/useGoals'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { useRecurring } from '../../../hooks/useRecurring'
+import { Box, Txt } from '../../../components/ui'
 
 /* Step 9 — finish + final confirmation. The manual onboarding path creates
    each entity LIVE as the user advances (project on step 3, clients on 4,
@@ -39,45 +40,45 @@ export default function Step9Finish({ ob, onDone, setCTA }) {
 
   return (
     <>
-      <p className="ob-intro" style={{ justifyContent: 'center' }}>
+      <Txt as="p" className="ob-intro" style={{ justifyContent: 'center' }}>
         <Sparkles size={16} strokeWidth={1.7} aria-hidden="true" /> {t('step9.title')}
-      </p>
+      </Txt>
 
       {summary.length > 0 ? (
-        <div className="ob-field">
-          <p className="ob-label" style={{ display: 'inline-block' }}>{t('step9.summaryHeading')}</p>
-          <div className="ob-finish-summary">
+        <Box className="ob-field">
+          <Txt as="p" className="ob-label" style={{ display: 'inline-block' }}>{t('step9.summaryHeading')}</Txt>
+          <Box className="ob-finish-summary">
             {summary.map((s) => {
               const Icon = s.icon
               return (
-                <div key={s.key} className="ob-finish-row">
+                <Box key={s.key} className="ob-finish-row">
                   <Icon size={16} strokeWidth={1.6} aria-hidden="true" />
-                  <span className="ob-finish-label">{s.label}</span>
-                  <span className="ob-finish-count mono">{s.count}</span>
-                </div>
+                  <Txt className="ob-finish-label">{s.label}</Txt>
+                  <Txt className="ob-finish-count mono">{s.count}</Txt>
+                </Box>
               )
             })}
-          </div>
-          <p className="ob-empty-hint" style={{ marginTop: 8 }}>
+          </Box>
+          <Txt as="p" className="ob-empty-hint" style={{ marginTop: 8 }}>
             {t('step9.savedNote', { verb: t('step9.savedNoteVerb') })}
-          </p>
-        </div>
+          </Txt>
+        </Box>
       ) : (
-        <p className="ob-empty-hint" style={{ textAlign: 'center' }}>
+        <Txt as="p" className="ob-empty-hint" style={{ textAlign: 'center' }}>
           {t('step9.emptyNote', { verb: t('step9.emptyNoteVerb') })}
-        </p>
+        </Txt>
       )}
 
-      <div className="ob-field" style={{ textAlign: 'center' }}>
-        <p className="ob-label" style={{ display: 'inline-block' }}>{t('step9.goodToKnow')}</p>
-        <div className="ob-about" style={{ fontFamily: 'var(--mg-font)', fontSize: 'calc(13.5px * var(--text-scale))', lineHeight: 1.75, color: 'var(--espresso)', textAlign: 'center' }}>
-          <p style={{ margin: '0 0 10px' }}>{t('step9.about1')}</p>
-          <p style={{ margin: '0 0 10px' }}>{t('step9.about2', { verb: t('step9.about2Verb') })}</p>
-          <p style={{ margin: '0 0 10px' }}>{t('step9.about3', { allow: t('step9.about3AllowVerb'), like: t('step9.about3LikeVerb'), wish: t('step9.about3WishVerb') })}</p>
-          <p style={{ margin: '0 0 10px' }}>{t('step9.about4')}</p>
-          <p style={{ margin: 0, fontWeight: 600 }}>{t('step9.about5')}</p>
-        </div>
-      </div>
+      <Box className="ob-field" style={{ textAlign: 'center' }}>
+        <Txt as="p" className="ob-label" style={{ display: 'inline-block' }}>{t('step9.goodToKnow')}</Txt>
+        <Box className="ob-about" style={{ fontFamily: 'var(--mg-font)', fontSize: 'calc(13.5px * var(--text-scale))', lineHeight: 1.75, color: 'var(--espresso)', textAlign: 'center' }}>
+          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step9.about1')}</Txt>
+          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step9.about2', { verb: t('step9.about2Verb') })}</Txt>
+          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step9.about3', { allow: t('step9.about3AllowVerb'), like: t('step9.about3LikeVerb'), wish: t('step9.about3WishVerb') })}</Txt>
+          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step9.about4')}</Txt>
+          <Txt as="p" style={{ margin: 0, fontWeight: 600 }}>{t('step9.about5')}</Txt>
+        </Box>
+      </Box>
 
     </>
   )

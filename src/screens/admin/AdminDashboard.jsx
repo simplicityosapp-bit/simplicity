@@ -5,6 +5,7 @@ import { useAdminQuery } from '../../hooks/useAdmin'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useT } from '../../i18n/useT'
 import { BarChart } from './AdminCharts'
+import { Box, Txt, Input } from '../../components/ui'
 
 /* The targets the owner can set — each auto-fills its "current" from a
    live dashboard counter, so a target is just a number to aim at. */
@@ -41,53 +42,53 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <header className="admin-head">
-        <h1>{t('dashboard.title')}</h1>
-        <p>{t('dashboard.subtitle')}</p>
-      </header>
+      <Box as="header" className="admin-head">
+        <Txt as="h1">{t('dashboard.title')}</Txt>
+        <Txt as="p">{t('dashboard.subtitle')}</Txt>
+      </Box>
 
-      {loading && <div className="admin-state">{t('state.loading')}</div>}
-      {error && <div className="admin-state err">{t('state.loadError')}</div>}
+      {loading && <Box className="admin-state">{t('state.loading')}</Box>}
+      {error && <Box className="admin-state err">{t('state.loadError')}</Box>}
 
       {data && (
         <>
           {/* Headline counters */}
-          <section className="admin-stats">
+          <Box as="section" className="admin-stats">
             {STAT_CARDS.map(({ key, icon: Icon, muted, sub }) => (
-              <div className="admin-card admin-stat" key={key}>
-                <div className="admin-stat-label"><Icon size={15} strokeWidth={1.8} aria-hidden="true" />{t(`dashboard.stats.${key}`)}</div>
-                <div className={`admin-stat-value${muted ? ' muted' : ''}`}>
+              <Box className="admin-card admin-stat" key={key}>
+                <Box className="admin-stat-label"><Icon size={15} strokeWidth={1.8} aria-hidden="true" />{t(`dashboard.stats.${key}`)}</Box>
+                <Box className={`admin-stat-value${muted ? ' muted' : ''}`}>
                   {(data.totals?.[key] ?? 0).toLocaleString('he-IL')}
-                </div>
-                {sub && <div className="admin-stat-sub">{t(`dashboard.stats.${sub}`)}</div>}
-              </div>
+                </Box>
+                {sub && <Box className="admin-stat-sub">{t(`dashboard.stats.${sub}`)}</Box>}
+              </Box>
             ))}
-          </section>
+          </Box>
 
           {/* Signups over time */}
-          <section className="admin-section">
-            <div className="admin-section-head"><h2>{t('dashboard.signupsOverTime')}</h2></div>
-            <div className="admin-card admin-chart-card">
+          <Box as="section" className="admin-section">
+            <Box className="admin-section-head"><Txt as="h2">{t('dashboard.signupsOverTime')}</Txt></Box>
+            <Box className="admin-card admin-chart-card">
               <BarChart data={data.signups || []} formatX={weekLabel} />
-            </div>
-          </section>
+            </Box>
+          </Box>
 
           {/* Targets — set a number, progress auto-fills from the live data */}
-          <section className="admin-section">
-            <div className="admin-section-head">
-              <h2><Target size={16} strokeWidth={1.8} style={{ verticalAlign: '-3px', marginInlineEnd: 6 }} aria-hidden="true" />{t('dashboard.goalsHeading')}</h2>
-            </div>
-            <div className="admin-goals">
+          <Box as="section" className="admin-section">
+            <Box className="admin-section-head">
+              <Txt as="h2"><Target size={16} strokeWidth={1.8} style={{ verticalAlign: '-3px', marginInlineEnd: 6 }} aria-hidden="true" />{t('dashboard.goalsHeading')}</Txt>
+            </Box>
+            <Box className="admin-goals">
               {TARGETS.map(({ key }) => {
                 const now = data.totals?.[key] ?? 0
                 const target = targets[key]
                 const pct = target ? Math.min(100, Math.round((now / target) * 100)) : 0
                 const done = target && now >= target
                 return (
-                  <div className="admin-card admin-goal" key={key}>
-                    <div className="admin-goal-head">
-                      <span className="admin-goal-label">{t(`dashboard.targets.${key}`)}</span>
-                      <span className="admin-goal-now"><b>{now.toLocaleString('he-IL')}</b> / <input
+                  <Box className="admin-card admin-goal" key={key}>
+                    <Box className="admin-goal-head">
+                      <Txt className="admin-goal-label">{t(`dashboard.targets.${key}`)}</Txt>
+                      <Txt className="admin-goal-now"><b>{now.toLocaleString('he-IL')}</b> / <Input
                         className="admin-goal-input"
                         type="number"
                         min="0"
@@ -95,16 +96,16 @@ export default function AdminDashboard() {
                         value={target ?? ''}
                         placeholder={t('dashboard.targetPlaceholder')}
                         onChange={(e) => setTarget(key, e.target.value)}
-                      /></span>
-                    </div>
-                    <div className="admin-goal-bar">
-                      <span className={done ? 'done' : ''} style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
+                      /></Txt>
+                    </Box>
+                    <Box className="admin-goal-bar">
+                      <Txt className={done ? 'done' : ''} style={{ width: `${pct}%` }} />
+                    </Box>
+                  </Box>
                 )
               })}
-            </div>
-          </section>
+            </Box>
+          </Box>
         </>
       )}
     </>

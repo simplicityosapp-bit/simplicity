@@ -4,6 +4,7 @@ import {
   eventsByDate, isSameDay, dateKey, weekdayNamesShort, weekStartIndex,
 } from '../../lib/calendar'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const MAX_DOTS = 3
 
@@ -41,18 +42,18 @@ export default function CalendarMonth({ date, events, onPickDay, weekStart = 'su
   }, [weekStart, lang])
 
   return (
-    <div className="cal-month">
-      <div className="cal-month-dow-row">
+    <Box className="cal-month">
+      <Box className="cal-month-dow-row">
         {weekdayHeader.map((d, i) => (
-          <span key={i} className="cal-month-dow">{d}</span>
+          <Txt key={i} className="cal-month-dow">{d}</Txt>
         ))}
-      </div>
-      <div className="cal-month-grid">
+      </Box>
+      <Box className="cal-month-grid">
         {cells.map(({ d, inMonth, num, aria }) => {
           const isToday = isSameDay(d, today)
           const dayEvents = eventsMap.get(dateKey(d)) || []
           return (
-            <button
+            <Btn
               key={d.toISOString()}
               type="button"
               className={`cal-month-cell${inMonth ? '' : ' dim'}${isToday ? ' today' : ''}`}
@@ -60,32 +61,32 @@ export default function CalendarMonth({ date, events, onPickDay, weekStart = 'su
               aria-label={aria}
             >
               {hebrew ? (
-                <span className="cal-month-num heb">
+                <Txt className="cal-month-num heb">
                   {num}
-                  {dual && <span className="cal-month-num-greg mono">{d.getDate()}</span>}
-                </span>
+                  {dual && <Txt className="cal-month-num-greg mono">{d.getDate()}</Txt>}
+                </Txt>
               ) : (
-                <span className="cal-month-num mono">{num}</span>
+                <Txt className="cal-month-num mono">{num}</Txt>
               )}
               {dayEvents.length > 0 && (
-                <span className="cal-month-dots">
+                <Txt className="cal-month-dots">
                   {dayEvents.slice(0, MAX_DOTS).map((ev, i) => (
-                    <span key={i} className={`cal-month-dot ${ev.kind}`} aria-hidden="true" />
+                    <Txt key={i} className={`cal-month-dot ${ev.kind}`} aria-hidden="true" />
                   ))}
                   {dayEvents.length > MAX_DOTS && (
-                    <span className="cal-month-more mono">+{dayEvents.length - MAX_DOTS}</span>
+                    <Txt className="cal-month-more mono">+{dayEvents.length - MAX_DOTS}</Txt>
                   )}
-                </span>
+                </Txt>
               )}
-            </button>
+            </Btn>
           )
         })}
-      </div>
-      <div className="cal-month-legend">
-        <span className="cal-month-leg"><span className="cal-month-dot meeting" aria-hidden="true" /> {t('legend.meetings')}</span>
-        <span className="cal-month-leg"><span className="cal-month-dot reminder" aria-hidden="true" /> {t('legend.reminders')}</span>
-        <span className="cal-month-leg"><span className="cal-month-dot calendar" aria-hidden="true" /> {t('legend.calendar')}</span>
-      </div>
-    </div>
+      </Box>
+      <Box className="cal-month-legend">
+        <Txt className="cal-month-leg"><Txt className="cal-month-dot meeting" aria-hidden="true" /> {t('legend.meetings')}</Txt>
+        <Txt className="cal-month-leg"><Txt className="cal-month-dot reminder" aria-hidden="true" /> {t('legend.reminders')}</Txt>
+        <Txt className="cal-month-leg"><Txt className="cal-month-dot calendar" aria-hidden="true" /> {t('legend.calendar')}</Txt>
+      </Box>
+    </Box>
   )
 }

@@ -3,6 +3,7 @@ import { RotateCcw } from 'lucide-react'
 import { fmtTimeAgo, fmtShortDate } from '../../lib/dates'
 import { isr } from '../../lib/finance'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Primary-label resolver per entity type — mirrors the "Primary label
    per entity" table in data-model.md so a generic list can render any
@@ -66,12 +67,12 @@ export default function TrashItem({ entityType, row, onRestore }) {
   }
 
   return (
-    <div className="trash-item">
-      <div className="trash-item-main">
-        <p className="trash-item-label">{label}</p>
-        <p className="trash-item-meta">{t('item.deletedAgo', { ago: fmtTimeAgo(row.deleted_at) })}</p>
-      </div>
-      <button
+    <Box className="trash-item">
+      <Box className="trash-item-main">
+        <Txt as="p" className="trash-item-label">{label}</Txt>
+        <Txt as="p" className="trash-item-meta">{t('item.deletedAgo', { ago: fmtTimeAgo(row.deleted_at) })}</Txt>
+      </Box>
+      <Btn
         type="button"
         className="trash-item-restore"
         onClick={handleRestore}
@@ -79,8 +80,8 @@ export default function TrashItem({ entityType, row, onRestore }) {
         aria-label={t('item.restoreLabel', { label })}
       >
         <RotateCcw size={14} strokeWidth={1.6} aria-hidden="true" />
-        <span>{busy ? t('item.restoring') : t('item.restore')}</span>
-      </button>
-    </div>
+        <Txt>{busy ? t('item.restoring') : t('item.restore')}</Txt>
+      </Btn>
+    </Box>
   )
 }

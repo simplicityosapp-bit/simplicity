@@ -5,6 +5,7 @@ import {
   hebrewMonthsOfYear, hebrewParts, isSameHebrewMonth, stepHebrewMonth,
 } from '../../lib/calendar'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const VIEW_KEYS = ['schedule', 'day', 'week', 'month']
 
@@ -53,29 +54,29 @@ function MonthPicker({ date, onPick }) {
   const pick = (m) => { onPick(new Date(year, m, 1)); setOpen(false) }
 
   return (
-    <div className="cal-monthpick" ref={ref}>
-      <button type="button" className="cal-monthpick-btn" onClick={toggle} aria-expanded={open} aria-haspopup="dialog">
+    <Box className="cal-monthpick" ref={ref}>
+      <Btn type="button" className="cal-monthpick-btn" onClick={toggle} aria-expanded={open} aria-haspopup="dialog">
         {monthNamesLong()[date.getMonth()]} {date.getFullYear()}
         <ChevronDown size={14} strokeWidth={1.7} aria-hidden="true" />
-      </button>
+      </Btn>
       {open && (
-        <div className="cal-monthpick-panel" role="dialog" aria-label={t('monthPicker.dialogAria')}>
-          <div className="cal-monthpick-year">
-            <button type="button" onClick={() => setYear((y) => y - 1)} aria-label={t('monthPicker.prevYear')}><ChevronRight size={15} strokeWidth={1.7} aria-hidden="true" /></button>
-            <span className="mono">{year}</span>
-            <button type="button" onClick={() => setYear((y) => y + 1)} aria-label={t('monthPicker.nextYear')}><ChevronLeft size={15} strokeWidth={1.7} aria-hidden="true" /></button>
-          </div>
-          <div className="cal-monthpick-grid">
+        <Box className="cal-monthpick-panel" role="dialog" aria-label={t('monthPicker.dialogAria')}>
+          <Box className="cal-monthpick-year">
+            <Btn type="button" onClick={() => setYear((y) => y - 1)} aria-label={t('monthPicker.prevYear')}><ChevronRight size={15} strokeWidth={1.7} aria-hidden="true" /></Btn>
+            <Txt className="mono">{year}</Txt>
+            <Btn type="button" onClick={() => setYear((y) => y + 1)} aria-label={t('monthPicker.nextYear')}><ChevronLeft size={15} strokeWidth={1.7} aria-hidden="true" /></Btn>
+          </Box>
+          <Box className="cal-monthpick-grid">
             {monthNamesLong().map((m, i) => {
               const on = i === date.getMonth() && year === date.getFullYear()
               return (
-                <button key={m} type="button" className={`cal-monthpick-cell${on ? ' on' : ''}`} onClick={() => pick(i)}>{m}</button>
+                <Btn key={m} type="button" className={`cal-monthpick-cell${on ? ' on' : ''}`} onClick={() => pick(i)}>{m}</Btn>
               )
             })}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -106,29 +107,29 @@ function HebrewMonthPicker({ date, onPick }) {
   const pick = (mDate) => { onPick(mDate); setOpen(false) }
 
   return (
-    <div className="cal-monthpick" ref={wrapRef}>
-      <button type="button" className="cal-monthpick-btn" onClick={toggle} aria-expanded={open} aria-haspopup="dialog">
+    <Box className="cal-monthpick" ref={wrapRef}>
+      <Btn type="button" className="cal-monthpick-btn" onClick={toggle} aria-expanded={open} aria-haspopup="dialog">
         {hebrewMonthLabel(date)}
         <ChevronDown size={14} strokeWidth={1.7} aria-hidden="true" />
-      </button>
+      </Btn>
       {open && (
-        <div className="cal-monthpick-panel" role="dialog" aria-label={t('monthPicker.dialogAria')}>
-          <div className="cal-monthpick-year">
-            <button type="button" onClick={() => setRef(stepHebrewMonth(months[0].date, -1))} aria-label={t('monthPicker.prevYear')}><ChevronRight size={15} strokeWidth={1.7} aria-hidden="true" /></button>
-            <span>{yearText}</span>
-            <button type="button" onClick={() => setRef(stepHebrewMonth(months[months.length - 1].date, +1))} aria-label={t('monthPicker.nextYear')}><ChevronLeft size={15} strokeWidth={1.7} aria-hidden="true" /></button>
-          </div>
-          <div className="cal-monthpick-grid heb">
+        <Box className="cal-monthpick-panel" role="dialog" aria-label={t('monthPicker.dialogAria')}>
+          <Box className="cal-monthpick-year">
+            <Btn type="button" onClick={() => setRef(stepHebrewMonth(months[0].date, -1))} aria-label={t('monthPicker.prevYear')}><ChevronRight size={15} strokeWidth={1.7} aria-hidden="true" /></Btn>
+            <Txt>{yearText}</Txt>
+            <Btn type="button" onClick={() => setRef(stepHebrewMonth(months[months.length - 1].date, +1))} aria-label={t('monthPicker.nextYear')}><ChevronLeft size={15} strokeWidth={1.7} aria-hidden="true" /></Btn>
+          </Box>
+          <Box className="cal-monthpick-grid heb">
             {months.map((mo) => {
               const on = isSameHebrewMonth(mo.date, date)
               return (
-                <button key={mo.name} type="button" className={`cal-monthpick-cell${on ? ' on' : ''}`} onClick={() => pick(mo.date)}>{mo.name}</button>
+                <Btn key={mo.name} type="button" className={`cal-monthpick-cell${on ? ' on' : ''}`} onClick={() => pick(mo.date)}>{mo.name}</Btn>
               )
             })}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -154,10 +155,10 @@ export default function CalendarHeader({ view, onViewChange, date, onDateChange,
   const goToday = () => { onDateChange(new Date()); if (monthish) onViewChange('day') }
 
   return (
-    <div className="cal-header">
-      <div className="cal-view-toggle" role="tablist" aria-label={t('nav.tablistAria')}>
+    <Box className="cal-header">
+      <Box className="cal-view-toggle" role="tablist" aria-label={t('nav.tablistAria')}>
         {VIEW_KEYS.map((k) => (
-          <button
+          <Btn
             key={k}
             type="button"
             className={`cal-view-btn${view === k ? ' on' : ''}`}
@@ -166,29 +167,29 @@ export default function CalendarHeader({ view, onViewChange, date, onDateChange,
             aria-selected={view === k}
           >
             {t(`views.${k}`)}
-          </button>
+          </Btn>
         ))}
-      </div>
+      </Box>
 
       {view !== 'schedule' && (
-        <div className="cal-nav">
-          <button type="button" className="cal-nav-btn" onClick={goPrev} aria-label={prevLabel}>
+        <Box className="cal-nav">
+          <Btn type="button" className="cal-nav-btn" onClick={goPrev} aria-label={prevLabel}>
             <ChevronRight size={16} strokeWidth={1.6} aria-hidden="true" />
-          </button>
+          </Btn>
           {monthish
             ? (hebrew
                 ? <HebrewMonthPicker date={date} onPick={onDateChange} />
                 : <MonthPicker date={date} onPick={onDateChange} />)
-            : <span className="cal-nav-label">{dayLabel}</span>}
-          <button type="button" className="cal-nav-btn" onClick={goNext} aria-label={nextLabel}>
+            : <Txt className="cal-nav-label">{dayLabel}</Txt>}
+          <Btn type="button" className="cal-nav-btn" onClick={goNext} aria-label={nextLabel}>
             <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
-          </button>
-          <button type="button" className="cal-nav-today" onClick={goToday}>{t('nav.today')}</button>
-        </div>
+          </Btn>
+          <Btn type="button" className="cal-nav-today" onClick={goToday}>{t('nav.today')}</Btn>
+        </Box>
       )}
 
       {onOpenFilter && (
-        <button
+        <Btn
           type="button"
           className={`cal-nav-btn cal-filter-btn${filterActive ? ' is-active' : ''}`}
           onClick={onOpenFilter}
@@ -196,8 +197,8 @@ export default function CalendarHeader({ view, onViewChange, date, onDateChange,
           title={t('filter')}
         >
           <SlidersHorizontal size={16} strokeWidth={1.6} aria-hidden="true" />
-        </button>
+        </Btn>
       )}
-    </div>
+    </Box>
   )
 }

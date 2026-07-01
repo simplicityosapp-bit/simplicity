@@ -2,6 +2,7 @@ import { memo } from 'react'
 import { Check, Pencil } from 'lucide-react'
 import { useT } from '../../i18n/useT'
 import InlineTitle from './InlineTitle'
+import { Box, Txt, Btn } from '../../components/ui'
 
 function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRename, index, taskStatus, category, dueLabel }) {
   const { t } = useT('tasks')
@@ -9,8 +10,8 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRen
   const meta = [dueLabel, clientName, project?.name].filter(Boolean).join(' · ')
 
   return (
-    <div className={`tc anim${isDone ? ' is-done' : ''}`} style={{ animationDelay: `${index * 0.04}s` }}>
-      <button
+    <Box className={`tc anim${isDone ? ' is-done' : ''}`} style={{ animationDelay: `${index * 0.04}s` }}>
+      <Btn
         type="button"
         className={`tc-chk${isDone ? ' on' : ''}`}
         onClick={() => onToggle(task.id)}
@@ -18,38 +19,38 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRen
         aria-label={isDone ? t('item.uncheck') : t('item.checkTask')}
       >
         {isDone && <Check size={13} strokeWidth={2.5} aria-hidden="true" />}
-      </button>
-      <div className="tc-body">
+      </Btn>
+      <Box className="tc-body">
         <InlineTitle
           className="tc-title"
           title={task.title}
           onRename={onRename ? (next) => onRename(task.id, next) : undefined}
         />
-        {meta && <p className="tc-meta">{meta}</p>}
+        {meta && <Txt as="p" className="tc-meta">{meta}</Txt>}
         {(taskStatus || category) && (
-          <div className="tc-tags">
+          <Box className="tc-tags">
             {taskStatus && (
-              <span className="tc-tag">
-                <span className="tc-tag-dot" style={{ background: taskStatus.color || 'var(--stone)' }} />
+              <Txt className="tc-tag">
+                <Txt className="tc-tag-dot" style={{ background: taskStatus.color || 'var(--stone)' }} />
                 {taskStatus.display_name}
-              </span>
+              </Txt>
             )}
             {category && (
-              <span className="tc-tag">
-                <span className="tc-tag-dot" style={{ background: category.color || 'var(--stone)' }} />
+              <Txt className="tc-tag">
+                <Txt className="tc-tag-dot" style={{ background: category.color || 'var(--stone)' }} />
                 {category.name}
-              </span>
+              </Txt>
             )}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
       {onEdit && (
-        <button type="button" className="tc-edit" onClick={() => onEdit(task)} aria-label={t('item.editTask')}>
+        <Btn type="button" className="tc-edit" onClick={() => onEdit(task)} aria-label={t('item.editTask')}>
           <Pencil size={13} strokeWidth={1.5} aria-hidden="true" />
-        </button>
+        </Btn>
       )}
-      <span className="tc-dot" style={{ background: dotColor }} aria-hidden="true" />
-    </div>
+      <Txt className="tc-dot" style={{ background: dotColor }} aria-hidden="true" />
+    </Box>
   )
 }
 

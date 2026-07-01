@@ -4,6 +4,7 @@ import { clientBalance, effectiveClientMeta } from '../../lib/clients'
 import { isr } from '../../lib/finance'
 import MG from '../../components/MG'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const STATUS = {
   active: { labelKey: 'status.active', cls: 'active' },
@@ -54,13 +55,13 @@ function ClientCard({
   }
 
   return (
-    <div
+    <Box
       className={`cc anim${isPast ? ' is-past' : ''}${selectMode ? ' select-mode' : ''}${selected ? ' selected' : ''}`}
       style={{ animationDelay: `${index * 0.04}s` }}
       onClick={handleCardClick}
     >
       {selectMode && (
-        <button
+        <Btn
           type="button"
           className={`cc-check${selected ? ' on' : ''}`}
           onClick={(e) => { e.stopPropagation(); onToggleSelect?.(client.id) }}
@@ -68,34 +69,34 @@ function ClientCard({
           aria-pressed={selected}
         >
           {selected && <Check size={13} strokeWidth={2.4} aria-hidden="true" />}
-        </button>
+        </Btn>
       )}
-      <div className="cc-head">
-        <div className="cc-av">{initials(client.name)}</div>
-        <div className="cc-id">
-          <p className="cc-name" title={client.name}>{client.name}</p>
-          <div className="cc-meta">
-            <span className={`cc-status cc-status-${status.cls}`}><MG text={statusLabel} /></span>
-            {project && <span className="cc-proj">{project.name}</span>}
-          </div>
-        </div>
-      </div>
+      <Box className="cc-head">
+        <Box className="cc-av">{initials(client.name)}</Box>
+        <Box className="cc-id">
+          <Txt as="p" className="cc-name" title={client.name}>{client.name}</Txt>
+          <Box className="cc-meta">
+            <Txt className={`cc-status cc-status-${status.cls}`}><MG text={statusLabel} /></Txt>
+            {project && <Txt className="cc-proj">{project.name}</Txt>}
+          </Box>
+        </Box>
+      </Box>
 
-      <div className={`cc-stats${hasSetup ? '' : ' dim'}`}>
-        <div className="cc-stat">
-          <p className="cc-stat-l">{t('card.sessions')}</p>
-          <p className="cc-stat-v mono">{sessLabel}</p>
-        </div>
-        <div className="cc-stat divided">
-          <p className="cc-stat-l">{t('card.paid')}</p>
-          <p className="cc-stat-v mono">{isr(paid)}</p>
-        </div>
-        <div className="cc-stat">
-          <p className="cc-stat-l">{t('card.balance')}</p>
-          <p className="cc-stat-v mono">{isr(balance)}</p>
-        </div>
-      </div>
-    </div>
+      <Box className={`cc-stats${hasSetup ? '' : ' dim'}`}>
+        <Box className="cc-stat">
+          <Txt as="p" className="cc-stat-l">{t('card.sessions')}</Txt>
+          <Txt as="p" className="cc-stat-v mono">{sessLabel}</Txt>
+        </Box>
+        <Box className="cc-stat divided">
+          <Txt as="p" className="cc-stat-l">{t('card.paid')}</Txt>
+          <Txt as="p" className="cc-stat-v mono">{isr(paid)}</Txt>
+        </Box>
+        <Box className="cc-stat">
+          <Txt as="p" className="cc-stat-l">{t('card.balance')}</Txt>
+          <Txt as="p" className="cc-stat-v mono">{isr(balance)}</Txt>
+        </Box>
+      </Box>
+    </Box>
   )
 }
 

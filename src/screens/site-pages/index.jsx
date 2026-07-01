@@ -5,6 +5,7 @@ import { ROUTES, buildRoute } from '../../lib/routes'
 import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
 import './SitePagesScreen.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    PAGE BUILDER HUB — /pages
@@ -25,31 +26,31 @@ export default function SitePagesScreen() {
   const navigate = useNavigate()
 
   return (
-    <div className="screen" data-screen="sitePages">
-      <header className="screen-head spg-hub-head">
-        <div>
-          <p className="t-screen"><LayoutTemplate size={20} strokeWidth={1.6} aria-hidden="true" /> {t('hub.title')}</p>
-          <p className="lbl-sm">{t('hub.subtitle')}</p>
-        </div>
-      </header>
+    <Box className="screen" data-screen="sitePages">
+      <Box as="header" className="screen-head spg-hub-head">
+        <Box>
+          <Txt as="p" className="t-screen"><LayoutTemplate size={20} strokeWidth={1.6} aria-hidden="true" /> {t('hub.title')}</Txt>
+          <Txt as="p" className="lbl-sm">{t('hub.subtitle')}</Txt>
+        </Box>
+      </Box>
 
-      <div className="spg-tiles">
+      <Box className="spg-tiles">
         {TILES.map((tile) => {
           const Icon = tile.icon
           const title = t('kinds.' + tile.kind, { defaultValue: KIND_LABEL[tile.kind] })
           return (
-            <button key={tile.kind} type="button" className="spg-tile" onClick={() => navigate(tile.to)}
+            <Btn key={tile.kind} type="button" className="spg-tile" onClick={() => navigate(tile.to)}
               aria-label={`${title} — ${t('hub.' + tile.desc)}`}>
-              <span className="spg-tile-icon"><Icon size={22} strokeWidth={1.6} aria-hidden="true" /></span>
-              <span className="spg-tile-body">
-                <span className="spg-tile-title">{title}</span>
-                <span className="spg-tile-desc">{t('hub.' + tile.desc)}</span>
-              </span>
+              <Txt className="spg-tile-icon"><Icon size={22} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Txt className="spg-tile-body">
+                <Txt className="spg-tile-title">{title}</Txt>
+                <Txt className="spg-tile-desc">{t('hub.' + tile.desc)}</Txt>
+              </Txt>
               <ChevronLeft size={18} strokeWidth={1.7} aria-hidden="true" className="spg-tile-chevron" />
-            </button>
+            </Btn>
           )
         })}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

@@ -660,45 +660,9 @@
   color: var(--moon-hi);
 }
 
-/* ── Quick action row ──────────────────────────────────────────── */
-.h-quick-row {
-  display: flex;
-  gap: 10px;
-}
-.h-quick-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: var(--mg-btn-h);
-  border-radius: var(--mg-btn-radius);
-  font-family: var(--mg-font);
-  font-size: calc(14px * var(--text-scale));
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.18s, transform 0.12s;
-}
-.h-quick-btn:active {
-  transform: scale(0.97);
-}
-.h-quick-primary {
-  background: var(--terracotta);
-  border: none;
-  color: var(--on-accent);
-}
-.h-quick-primary:hover {
-  background: var(--mg-btn-primary-bg-hover);
-}
-[data-theme="dark"] .h-quick-primary {
-  color: var(--ink-on-accent);
-}
-.h-quick-secondary {
-  background: var(--mg-card-bg);
-  border: var(--mg-card-border);
-  color: var(--espresso);
-  backdrop-filter: var(--mg-card-blur);
-}
+/* Quick action row (.h-quick-*) lives in styles/screens.css — it's a
+   shared widget reused by project-detail's ProjectQuickRow, which needs
+   the styles even when HomeScreen.css isn't loaded. */
 
 /* ── List cards (attention / reminders / next tasks) ───────────── */
 .h-card {

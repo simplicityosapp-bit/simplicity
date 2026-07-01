@@ -4,6 +4,7 @@ import Modal from './Modal'
 import { useFeedback } from '../hooks/useFeedback'
 import { useT } from '../i18n/useT'
 import './FeedbackModal.css'
+import { Box, Txt, Btn, Textarea } from '../components/ui'
 
 /* Feedback type — optional. Sent to the team so they can triage; the
    key is sent to the edge function which maps it to the email subject. */
@@ -49,31 +50,31 @@ export default function FeedbackModal({ open, onClose }) {
   return (
     <Modal open={open} onClose={handleClose} title={t('feedback.title')}>
       {done ? (
-        <div className="fb-done">
+        <Box className="fb-done">
           <CheckCircle2 size={40} strokeWidth={1.5} aria-hidden="true" />
-          <p>{t('feedback.thanks')}</p>
-        </div>
+          <Txt as="p">{t('feedback.thanks')}</Txt>
+        </Box>
       ) : (
-        <form className="fb-form" onSubmit={handleSubmit}>
-          <p className="fb-lead">{t('feedback.lead')}</p>
+        <Box as="form" className="fb-form" onSubmit={handleSubmit}>
+          <Txt as="p" className="fb-lead">{t('feedback.lead')}</Txt>
 
-          <div className="fb-field">
-            <span className="fb-label">{t('feedback.typeLabel')}</span>
-            <div className="m-pills">
+          <Box className="fb-field">
+            <Txt className="fb-label">{t('feedback.typeLabel')}</Txt>
+            <Box className="m-pills">
               {TYPES.map((k) => (
-                <button
+                <Btn
                   key={k}
                   type="button"
                   className={`m-pill${type === k ? ' on' : ''}`}
                   onClick={() => setType((cur) => (cur === k ? null : k))}
                 >
                   {t(`feedback.types.${k}`)}
-                </button>
+                </Btn>
               ))}
-            </div>
-          </div>
+            </Box>
+          </Box>
 
-          <textarea
+          <Textarea
             className="fb-textarea m-textarea"
             value={message}
             onChange={(e) => { setMessage(e.target.value); setFailed(false) }}
@@ -82,13 +83,13 @@ export default function FeedbackModal({ open, onClose }) {
             autoFocus
             dir="rtl"
           />
-          <p className="fb-hint" style={{ fontSize: 'calc(13px * var(--text-scale))', opacity: 0.7, margin: '8px 2px 0', lineHeight: 1.5 }}>
+          <Txt as="p" className="fb-hint" style={{ fontSize: 'calc(13px * var(--text-scale))', opacity: 0.7, margin: '8px 2px 0', lineHeight: 1.5 }}>
             {t('feedback.privacyHint')}
-          </p>
+          </Txt>
           {failed && (
-            <p className="fb-error">{t('feedback.sendFailed')}</p>
+            <Txt as="p" className="fb-error">{t('feedback.sendFailed')}</Txt>
           )}
-          <button
+          <Btn
             type="submit"
             className="fb-submit"
             disabled={!message.trim() || submitting}
@@ -98,8 +99,8 @@ export default function FeedbackModal({ open, onClose }) {
             ) : (
               <><Send size={18} strokeWidth={1.7} aria-hidden="true" /> {t('feedback.send')}</>
             )}
-          </button>
-        </form>
+          </Btn>
+        </Box>
       )}
     </Modal>
   )

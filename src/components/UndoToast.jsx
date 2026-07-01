@@ -4,6 +4,7 @@ import { useUndo } from '../hooks/useUndo'
 import { performUndo, performRedo, dismiss } from '../lib/undo'
 import { useT } from '../i18n/useT'
 import './UndoToast.css'
+import { Box, Txt, Btn } from './ui'
 
 /* ════════════════════════════════════════════════════════════════
    <UndoToast> — the visible half of the undo system.
@@ -42,27 +43,27 @@ export default function UndoToast() {
   if (phase === 'idle') return null
 
   return (
-    <div className="undo-toast-wrap" role="status" aria-live="polite">
-      <div className={`undo-toast undo-toast--${phase}`}>
+    <Box className="undo-toast-wrap" role="status" aria-live="polite">
+      <Box className={`undo-toast undo-toast--${phase}`}>
         {phase === 'offer' ? (
           <>
-            <span className="undo-toast-label">{label}</span>
-            <button type="button" className="undo-toast-action" onClick={performUndo}>
+            <Txt className="undo-toast-label">{label}</Txt>
+            <Btn type="button" className="undo-toast-action" onClick={performUndo}>
               <RotateCcw size={15} strokeWidth={1.8} aria-hidden="true" />
-              <span>{t('undo.undo')}</span>
-            </button>
-            <button type="button" className="undo-toast-x" onClick={dismiss} aria-label={t('undo.dismiss')}>
+              <Txt>{t('undo.undo')}</Txt>
+            </Btn>
+            <Btn type="button" className="undo-toast-x" onClick={dismiss} aria-label={t('undo.dismiss')}>
               <X size={15} strokeWidth={1.8} aria-hidden="true" />
-            </button>
-            <span key={seq} className="undo-toast-bar" style={{ animationDuration: `${duration}ms` }} aria-hidden="true" />
+            </Btn>
+            <Txt key={seq} className="undo-toast-bar" style={{ animationDuration: `${duration}ms` }} aria-hidden="true" />
           </>
         ) : (
-          <span className="undo-toast-label undo-toast-label--done">
+          <Txt className="undo-toast-label undo-toast-label--done">
             <Check size={15} strokeWidth={2} aria-hidden="true" />
             {label}
-          </span>
+          </Txt>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

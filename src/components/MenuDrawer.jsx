@@ -14,6 +14,7 @@ import { useAuth } from '../auth/AuthContext'
 import { useT } from '../i18n/useT'
 import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './MenuDrawer.css'
+import { Box, Txt, Btn } from './ui'
 
 const GRID_ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug }
 
@@ -61,23 +62,23 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
 
   return (
     <>
-      <div
+      <Box
         className={`drawer-overlay${open ? ' open' : ''}`}
         onClick={onClose}
         aria-hidden="true"
       />
-      <aside
+      <Box as="aside"
         className={`drawer-panel${open ? ' open' : ''}`}
         aria-label={t('ariaDrawerNav')}
         aria-hidden={!open}
       >
-        <div className="drawer-title">
-          <span>{t('more')}</span>
-          <button className="drawer-close" onClick={onClose} aria-label={t('close')}>
+        <Box className="drawer-title">
+          <Txt>{t('more')}</Txt>
+          <Btn className="drawer-close" onClick={onClose} aria-label={t('close')}>
             <X size={16} strokeWidth={1.5} />
-          </button>
-        </div>
-        <p className="drawer-title-sub">{t('drawerSubtitle')}</p>
+          </Btn>
+        </Box>
+        <Txt as="p" className="drawer-title-sub">{t('drawerSubtitle')}</Txt>
 
         {/* Profile chip → opens the profile-health breakdown. The score
             (and the data hooks behind it) is computed lazily: ProfileChipLive
@@ -88,113 +89,113 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
           : <ProfileChipStatic name={name} role={role} email={user?.email} />}
 
         {/* Screen grid — every reachable screen */}
-        <nav className="drawer-nav-mobile" aria-label={t('ariaScreensNav')}>
+        <Box as="nav" className="drawer-nav-mobile" aria-label={t('ariaScreensNav')}>
           {DRAWER_NAV.map((item) => {
             const Icon = GRID_ICONS[item.icon] || Settings
             return (
-              <button
+              <Btn
                 key={item.key}
                 className={`dnav-item${screen === item.key ? ' active' : ''}`}
                 onClick={() => goTo(item.to)}
               >
                 <Icon size={20} strokeWidth={1.5} aria-hidden="true" />
-                <span>{t(`items.${item.key}`)}</span>
-              </button>
+                <Txt>{t(`items.${item.key}`)}</Txt>
+              </Btn>
             )
           })}
-        </nav>
+        </Box>
 
         {/* Owner-only admin console entry — hidden for everyone else. */}
         {isAdmin && (
           <>
-            <p className="drawer-section-lbl">{t('admin.label')}</p>
-            <button className="drawer-link" onClick={() => goTo(ROUTES.ADMIN)}>
-              <span className="drawer-link-icon"><Shield size={18} strokeWidth={1.5} /></span>
-              <span className="drawer-link-text">
+            <Txt as="p" className="drawer-section-lbl">{t('admin.label')}</Txt>
+            <Btn className="drawer-link" onClick={() => goTo(ROUTES.ADMIN)}>
+              <Txt className="drawer-link-icon"><Shield size={18} strokeWidth={1.5} /></Txt>
+              <Txt className="drawer-link-text">
                 {t('admin.console')}
-                <span className="drawer-link-text-sub">{t('admin.consoleSub')}</span>
-              </span>
-            </button>
+                <Txt className="drawer-link-text-sub">{t('admin.consoleSub')}</Txt>
+              </Txt>
+            </Btn>
           </>
         )}
 
-        <p className="drawer-section-lbl">{t('sections.personal')}</p>
+        <Txt as="p" className="drawer-section-lbl">{t('sections.personal')}</Txt>
 
-        <button className="drawer-link" onClick={() => goTo(ROUTES.SITE_PAGES)}>
-          <span className="drawer-link-icon"><LayoutTemplate size={18} strokeWidth={1.5} /></span>
-          <span className="drawer-link-text">
+        <Btn className="drawer-link" onClick={() => goTo(ROUTES.SITE_PAGES)}>
+          <Txt className="drawer-link-icon"><LayoutTemplate size={18} strokeWidth={1.5} /></Txt>
+          <Txt className="drawer-link-text">
             {t('extras.sitePages')}
-            <span className="drawer-link-text-sub">{t('items.sitePagesSub')}</span>
-          </span>
-        </button>
+            <Txt className="drawer-link-text-sub">{t('items.sitePagesSub')}</Txt>
+          </Txt>
+        </Btn>
 
-        <button className="drawer-link tint-purple" onClick={() => goTo(ROUTES.INSIGHTS)}>
-          <span className="drawer-link-icon"><Sparkles size={18} strokeWidth={1.5} /></span>
-          <span className="drawer-link-text">
+        <Btn className="drawer-link tint-purple" onClick={() => goTo(ROUTES.INSIGHTS)}>
+          <Txt className="drawer-link-icon"><Sparkles size={18} strokeWidth={1.5} /></Txt>
+          <Txt className="drawer-link-text">
             {t('extras.insights')}
-            <span className="drawer-link-text-sub">{t('items.insightsSub')}</span>
-          </span>
-        </button>
+            <Txt className="drawer-link-text-sub">{t('items.insightsSub')}</Txt>
+          </Txt>
+        </Btn>
 
-        <button className="drawer-link tint-moon" onClick={() => goTo(ROUTES.MOON_GLANCE)}>
-          <span className="drawer-link-icon"><Moon size={18} strokeWidth={1.5} /></span>
-          <span className="drawer-link-text">
+        <Btn className="drawer-link tint-moon" onClick={() => goTo(ROUTES.MOON_GLANCE)}>
+          <Txt className="drawer-link-icon"><Moon size={18} strokeWidth={1.5} /></Txt>
+          <Txt className="drawer-link-text">
             {t('extras.moon')}
-            <span className="drawer-link-text-sub">{t('items.moonSub')}</span>
-          </span>
-        </button>
+            <Txt className="drawer-link-text-sub">{t('items.moonSub')}</Txt>
+          </Txt>
+        </Btn>
 
-        <button className="drawer-link" onClick={() => goTo(ROUTES.REPORTS)}>
-          <span className="drawer-link-icon"><BarChart3 size={18} strokeWidth={1.5} /></span>
-          <span className="drawer-link-text">
+        <Btn className="drawer-link" onClick={() => goTo(ROUTES.REPORTS)}>
+          <Txt className="drawer-link-icon"><BarChart3 size={18} strokeWidth={1.5} /></Txt>
+          <Txt className="drawer-link-text">
             {t('extras.reports')}
-            <span className="drawer-link-text-sub">{t('items.reportsSub')}</span>
-          </span>
-        </button>
+            <Txt className="drawer-link-text-sub">{t('items.reportsSub')}</Txt>
+          </Txt>
+        </Btn>
 
-        <p className="drawer-section-lbl">{t('sections.settings')}</p>
+        <Txt as="p" className="drawer-section-lbl">{t('sections.settings')}</Txt>
 
-        <button className="drawer-link tint-purple" onClick={() => { onClose(); onOpenFeedback?.() }}>
-          <span className="drawer-link-icon"><MessageSquarePlus size={18} strokeWidth={1.5} /></span>
-          <span className="drawer-link-text">
+        <Btn className="drawer-link tint-purple" onClick={() => { onClose(); onOpenFeedback?.() }}>
+          <Txt className="drawer-link-icon"><MessageSquarePlus size={18} strokeWidth={1.5} /></Txt>
+          <Txt className="drawer-link-text">
             {t('feedback')}
-            <span className="drawer-link-text-sub">{t('items.feedbackSub')}</span>
-          </span>
-        </button>
+            <Txt className="drawer-link-text-sub">{t('items.feedbackSub')}</Txt>
+          </Txt>
+        </Btn>
 
-        <button className="drawer-link tint-amber" onClick={() => goTo(ROUTES.TRASH)}>
-          <span className="drawer-link-icon"><Trash2 size={18} strokeWidth={1.5} /></span>
-          <span className="drawer-link-text">
+        <Btn className="drawer-link tint-amber" onClick={() => goTo(ROUTES.TRASH)}>
+          <Txt className="drawer-link-icon"><Trash2 size={18} strokeWidth={1.5} /></Txt>
+          <Txt className="drawer-link-text">
             {t('extras.trash')}
-            <span className="drawer-link-text-sub">{t('items.trashSub')}</span>
-          </span>
-        </button>
+            <Txt className="drawer-link-text-sub">{t('items.trashSub')}</Txt>
+          </Txt>
+        </Btn>
 
         {/* Theme toggle — sun/moon slider switch */}
-        <button className="drawer-link drawer-theme" onClick={onToggleTheme}>
-          <span className="theme-switch" aria-hidden="true">
-            <span className="theme-switch-icon theme-switch-sun"><Sun size={16} strokeWidth={1.5} /></span>
-            <span className="theme-switch-icon theme-switch-moon"><Moon size={16} strokeWidth={1.5} /></span>
-            <span className="theme-switch-thumb" />
-          </span>
-          <span className="drawer-link-text">
+        <Btn className="drawer-link drawer-theme" onClick={onToggleTheme}>
+          <Txt className="theme-switch" aria-hidden="true">
+            <Txt className="theme-switch-icon theme-switch-sun"><Sun size={16} strokeWidth={1.5} /></Txt>
+            <Txt className="theme-switch-icon theme-switch-moon"><Moon size={16} strokeWidth={1.5} /></Txt>
+            <Txt className="theme-switch-thumb" />
+          </Txt>
+          <Txt className="drawer-link-text">
             {isDark ? t('theme.toLight') : t('theme.toDarkAlt')}
-            <span className="drawer-link-text-sub">{t('theme.sub')}</span>
-          </span>
-        </button>
+            <Txt className="drawer-link-text-sub">{t('theme.sub')}</Txt>
+          </Txt>
+        </Btn>
 
         {/* Logout */}
-        <button
+        <Btn
           className="drawer-link tint-amber"
           onClick={() => { onClose(); signOut() }}
         >
-          <span className="drawer-link-icon"><LogOut size={18} strokeWidth={1.5} /></span>
-          <span className="drawer-link-text">
+          <Txt className="drawer-link-icon"><LogOut size={18} strokeWidth={1.5} /></Txt>
+          <Txt className="drawer-link-text">
             {t('signOut')}
-            <span className="drawer-link-text-sub">{user?.email || ''}</span>
-          </span>
-        </button>
-      </aside>
+            <Txt className="drawer-link-text-sub">{user?.email || ''}</Txt>
+          </Txt>
+        </Btn>
+      </Box>
     </>
   )
 }
@@ -212,12 +213,12 @@ function ProfileChipInner({ name, role, email, health, loading, onClick }) {
   const tier = health?.tier
   const showScore = !!health && !loading
   return (
-    <button
+    <Btn
       className="drawer-profile"
       onClick={onClick}
       aria-label={health ? (showScore ? t('profile.healthAriaWithScore', { score }) : t('profile.healthAria')) : undefined}
     >
-      <span className="drawer-profile-avatar-wrap">
+      <Txt className="drawer-profile-avatar-wrap">
         {showScore && (
           <svg className="drawer-profile-ring" viewBox="0 0 40 40" aria-hidden="true">
             <circle className="dp-ring-track" cx="20" cy="20" r={RING_R} />
@@ -230,25 +231,25 @@ function ProfileChipInner({ name, role, email, health, loading, onClick }) {
             />
           </svg>
         )}
-        <span className="drawer-profile-avatar">{initial(name)}</span>
-      </span>
-      <span className="drawer-profile-text">
-        <span className="drawer-profile-name">{name || t('profile.myProfile')}</span>
-        <span className="drawer-profile-meta">{role || email || ''}</span>
-      </span>
+        <Txt className="drawer-profile-avatar">{initial(name)}</Txt>
+      </Txt>
+      <Txt className="drawer-profile-text">
+        <Txt className="drawer-profile-name">{name || t('profile.myProfile')}</Txt>
+        <Txt className="drawer-profile-meta">{role || email || ''}</Txt>
+      </Txt>
       {health
         ? (
-          <span className="drawer-profile-score" style={tier ? { color: tier.color } : undefined}>
-            <span className="drawer-profile-score-lbl">{t('profile.score')}</span>
-            <span className="drawer-profile-score-val">{loading ? '··' : `${score}%`}</span>
-          </span>
+          <Txt className="drawer-profile-score" style={tier ? { color: tier.color } : undefined}>
+            <Txt className="drawer-profile-score-lbl">{t('profile.score')}</Txt>
+            <Txt className="drawer-profile-score-val">{loading ? '··' : `${score}%`}</Txt>
+          </Txt>
         )
         : (
-          <span className="drawer-profile-edit" aria-hidden="true">
+          <Txt className="drawer-profile-edit" aria-hidden="true">
             <Pencil size={16} strokeWidth={1.5} />
-          </span>
+          </Txt>
         )}
-    </button>
+    </Btn>
   )
 }
 

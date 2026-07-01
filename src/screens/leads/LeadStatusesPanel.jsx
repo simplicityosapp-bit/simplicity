@@ -4,6 +4,7 @@ import { LEAD_META, metaTitle } from '../../lib/leads'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import ConfirmModal from '../../modals/ConfirmModal'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 /* Inline sub-status manager for the leads screen — mirrors what
    Settings already shows, in a more compact chip layout so the user
@@ -91,33 +92,33 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
   }
 
   return (
-    <div className="lead-statuses-panel">
-      <p className="lead-statuses-intro">
+    <Box className="lead-statuses-panel">
+      <Txt as="p" className="lead-statuses-intro">
         {t('statusesPanel.intro')}
-      </p>
+      </Txt>
       {LEAD_META.map((m) => {
         const list = (statuses || [])
           .filter((s) => s.meta_category === m.key)
           .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
         return (
-          <div key={m.key} className="lead-statuses-group">
-            <p className="lead-statuses-meta">{metaTitle(m.key)}</p>
+          <Box key={m.key} className="lead-statuses-group">
+            <Txt as="p" className="lead-statuses-meta">{metaTitle(m.key)}</Txt>
             {list.length === 0 ? (
-              <p className="lead-statuses-empty">—</p>
+              <Txt as="p" className="lead-statuses-empty">—</Txt>
             ) : (
-              <div className="lead-statuses-chips">
+              <Box className="lead-statuses-chips">
                 {list.map((s) => (
-                  <span
+                  <Txt
                     key={s.id}
                     className={`lead-statuses-chip${dnd.dragId === s.id ? ' dragging' : ''}${dnd.overZone === s.id && dnd.dragId && dnd.dragId !== s.id ? ' drop-target' : ''}`}
                     {...dnd.draggableProps(s.id)}
                     {...dnd.dropZoneProps(s.id)}
                   >
                     <GripVertical size={12} strokeWidth={1.7} aria-hidden="true" className="lead-statuses-chip-grip" />
-                    <span className="lead-statuses-chip-dot" style={{ background: s.color || 'var(--stone)' }} />
-                    <span>{s.display_name}</span>
+                    <Txt className="lead-statuses-chip-dot" style={{ background: s.color || 'var(--stone)' }} />
+                    <Txt>{s.display_name}</Txt>
                     {!s.is_default && (
-                      <button
+                      <Btn
                         type="button"
                         className="lead-statuses-chip-x"
                         onClick={() => setPendingDelete(s)}
@@ -125,29 +126,29 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                         title={t('statusesPanel.deleteChipTitle')}
                       >
                         <X size={11} strokeWidth={2} aria-hidden="true" />
-                      </button>
+                      </Btn>
                     )}
-                  </span>
+                  </Txt>
                 ))}
-              </div>
+              </Box>
             )}
-            <div
+            <Box
               className={`lead-statuses-add${dnd.overZone === `add:${m.key}` && dnd.dragId ? ' drop-target' : ''}`}
               {...dnd.dropZoneProps(`add:${m.key}`)}
             >
               {dnd.dragId ? (
                 /* Mid-drag the create row becomes the "drop here" target. */
-                <span className="lead-statuses-drop-hint">{t('statusesPanel.dropHere')}</span>
+                <Txt className="lead-statuses-drop-hint">{t('statusesPanel.dropHere')}</Txt>
               ) : (
                 <>
-                  <input
+                  <Input
                     className="m-input"
                     value={drafts[m.key] || ''}
                     onChange={(e) => setDraft(m.key, e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') submit(m.key) }}
                     placeholder={t('statusesPanel.addPlaceholder', { meta: metaTitle(m.key) })}
                   />
-                  <button
+                  <Btn
                     type="button"
                     className="lead-statuses-add-btn"
                     onClick={() => submit(m.key)}
@@ -155,11 +156,11 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                     aria-label={t('statusesPanel.addAria')}
                   >
                     <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
-                  </button>
+                  </Btn>
                 </>
               )}
-            </div>
-          </div>
+            </Box>
+          </Box>
         )
       })}
 
@@ -172,6 +173,6 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
         danger
         onConfirm={() => { if (pendingDelete) onRemove(pendingDelete.id) }}
       />
-    </div>
+    </Box>
   )
 }

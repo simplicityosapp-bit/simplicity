@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Tag } from 'lucide-react'
 import { isr } from '../../lib/finance'
 import { useT } from '../../i18n/useT'
+import { Box, Txt } from '../../components/ui'
 
 /* Distribute the month's confirmed expenses across categories.
    Expenses with no category land in "ללא קטגוריה". The bar's color
@@ -36,32 +37,32 @@ export default function ExpensesByCategory({ monthTxs, categories = [] }) {
   }, [monthTxs, categories, t])
 
   return (
-    <section className="f-breakdown">
-      <div className="f-breakdown-head">
-        <span className="f-breakdown-title">
+    <Box as="section" className="f-breakdown">
+      <Box className="f-breakdown-head">
+        <Txt className="f-breakdown-title">
           <Tag size={15} strokeWidth={1.5} aria-hidden="true" />
           {t('expensesByCategory.title')}
-        </span>
-        {rows.length > 0 && <span className="f-breakdown-count mono">{rows.length}</span>}
-      </div>
+        </Txt>
+        {rows.length > 0 && <Txt className="f-breakdown-count mono">{rows.length}</Txt>}
+      </Box>
       {rows.length === 0 ? (
-        <p className="f-breakdown-empty">{t('expensesByCategory.empty')}</p>
+        <Txt as="p" className="f-breakdown-empty">{t('expensesByCategory.empty')}</Txt>
       ) : (
-        <div className="f-breakdown-list">
+        <Box className="f-breakdown-list">
           {rows.map((r) => (
-            <div key={r.id} className="f-breakdown-row">
-              <div className="f-breakdown-row-head">
-                <span className="f-breakdown-dot" style={{ background: r.color }} />
-                <span className="f-breakdown-name">{r.name}</span>
-                <span className="f-breakdown-amt mono">{isr(r.sum)}</span>
-              </div>
-              <div className="f-breakdown-bar">
-                <div className="f-breakdown-fill" style={{ width: `${r.pct}%`, background: r.color }} />
-              </div>
-            </div>
+            <Box key={r.id} className="f-breakdown-row">
+              <Box className="f-breakdown-row-head">
+                <Txt className="f-breakdown-dot" style={{ background: r.color }} />
+                <Txt className="f-breakdown-name">{r.name}</Txt>
+                <Txt className="f-breakdown-amt mono">{isr(r.sum)}</Txt>
+              </Box>
+              <Box className="f-breakdown-bar">
+                <Box className="f-breakdown-fill" style={{ width: `${r.pct}%`, background: r.color }} />
+              </Box>
+            </Box>
           ))}
-        </div>
+        </Box>
       )}
-    </section>
+    </Box>
   )
 }

@@ -8,6 +8,7 @@ import { checkPasswordStrength } from '../../lib/passwordStrength'
 import { useAuth } from '../../auth/AuthContext'
 import { useT } from '../../i18n/useT'
 import './AuthScreen.css'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 /* Completion screen for the password-reset flow. The recovery email links to
    /update-password, where Supabase has already exchanged the recovery token
@@ -42,46 +43,46 @@ export default function UpdatePasswordScreen() {
 
   if (done) {
     return (
-      <div className="auth-wrap">
-        <div className="auth-bg" aria-hidden="true" />
-        <div className="auth-stage">
-          <div className="auth-brand">
+      <Box className="auth-wrap">
+        <Box className="auth-bg" aria-hidden="true" />
+        <Box className="auth-stage">
+          <Box className="auth-brand">
             <img className="auth-logo light" src="/logo-dark.png" alt="" aria-hidden="true" />
             <img className="auth-logo dark"  src="/logo-light.png" alt="" aria-hidden="true" />
             <img className="auth-name light" src="/name-dark.png" alt="simplicity" />
             <img className="auth-name dark"  src="/name-light.png" alt="simplicity" />
-          </div>
-          <div className="auth-form auth-msg-card">
-            <span className="auth-msg-icon"><CheckCircle2 size={34} strokeWidth={1.4} aria-hidden="true" /></span>
-            <p className="auth-title">{t('update.doneTitle')}</p>
-            <p className="auth-sub">{t('update.doneBody')}</p>
-            <button type="button" className="auth-btn auth-btn-primary" onClick={() => { clearRecovery?.(); navigate(ROUTES.HOME, { replace: true }) }}>{t('update.continue')}</button>
-          </div>
-        </div>
-      </div>
+          </Box>
+          <Box className="auth-form auth-msg-card">
+            <Txt className="auth-msg-icon"><CheckCircle2 size={34} strokeWidth={1.4} aria-hidden="true" /></Txt>
+            <Txt as="p" className="auth-title">{t('update.doneTitle')}</Txt>
+            <Txt as="p" className="auth-sub">{t('update.doneBody')}</Txt>
+            <Btn type="button" className="auth-btn auth-btn-primary" onClick={() => { clearRecovery?.(); navigate(ROUTES.HOME, { replace: true }) }}>{t('update.continue')}</Btn>
+          </Box>
+        </Box>
+      </Box>
     )
   }
 
   return (
-    <div className="auth-wrap">
-      <div className="auth-bg" aria-hidden="true" />
-      <div className="auth-stage">
-        <div className="auth-brand">
+    <Box className="auth-wrap">
+      <Box className="auth-bg" aria-hidden="true" />
+      <Box className="auth-stage">
+        <Box className="auth-brand">
           <img className="auth-logo light" src="/logo-dark.png" alt="" aria-hidden="true" />
           <img className="auth-logo dark"  src="/logo-light.png" alt="" aria-hidden="true" />
           <img className="auth-name light" src="/name-dark.png" alt="simplicity" />
           <img className="auth-name dark"  src="/name-light.png" alt="simplicity" />
-        </div>
+        </Box>
 
-        <form className="auth-form" onSubmit={submit}>
-          <p className="auth-title">{t('update.title')}</p>
-          <p className="auth-sub">{t('update.subtitle')}</p>
+        <Box as="form" className="auth-form" onSubmit={submit}>
+          <Txt as="p" className="auth-title">{t('update.title')}</Txt>
+          <Txt as="p" className="auth-sub">{t('update.subtitle')}</Txt>
 
-          {error && <p className="auth-error">{error}</p>}
+          {error && <Txt as="p" className="auth-error">{error}</Txt>}
 
-          <label className="auth-field" htmlFor="new-password">
-            <span className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></span>
-            <input
+          <Box as="label" className="auth-field" htmlFor="new-password">
+            <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+            <Input
               id="new-password"
               type={showPassword ? 'text' : 'password'}
               dir="ltr"
@@ -90,7 +91,7 @@ export default function UpdatePasswordScreen() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t('min8chars')}
             />
-            <button
+            <Btn
               type="button"
               className="auth-field-toggle"
               onClick={() => setShowPassword((v) => !v)}
@@ -99,12 +100,12 @@ export default function UpdatePasswordScreen() {
               {showPassword
                 ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
                 : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
-            </button>
-          </label>
+            </Btn>
+          </Box>
 
-          <label className="auth-field" htmlFor="confirm-password">
-            <span className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></span>
-            <input
+          <Box as="label" className="auth-field" htmlFor="confirm-password">
+            <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+            <Input
               id="confirm-password"
               type={showPassword ? 'text' : 'password'}
               dir="ltr"
@@ -113,13 +114,13 @@ export default function UpdatePasswordScreen() {
               onChange={(e) => setConfirm(e.target.value)}
               placeholder={t('update.confirmPlaceholder')}
             />
-          </label>
+          </Box>
 
-          <button className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
+          <Btn className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
             {busy ? t('update.updating') : t('update.updatePassword')}
-          </button>
-        </form>
-      </div>
-    </div>
+          </Btn>
+        </Box>
+      </Box>
+    </Box>
   )
 }

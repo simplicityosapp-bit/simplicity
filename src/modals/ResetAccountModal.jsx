@@ -3,6 +3,7 @@ import { Trans } from 'react-i18next'
 import { AlertTriangle } from 'lucide-react'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    RESET ACCOUNT — irreversible "delete everything" with a DOUBLE
@@ -47,25 +48,25 @@ export default function ResetAccountModal({ open, onClose, onConfirm }) {
 
   return (
     <Modal open={open} onClose={close} title={t('resetAccount.title')}>
-      <div className="m-confirm-msg" style={{ display: 'flex', gap: 9, alignItems: 'flex-start' }}>
+      <Box className="m-confirm-msg" style={{ display: 'flex', gap: 9, alignItems: 'flex-start' }}>
         <AlertTriangle size={20} strokeWidth={1.5} style={{ color: 'var(--clay)', flexShrink: 0, marginTop: 1 }} aria-hidden="true" />
         {step === 1 ? (
-          <span>
+          <Txt>
             <Trans t={t} i18nKey="resetAccount.step1" components={[<strong key="0" />]} />
             <br />
             <Trans t={t} i18nKey="resetAccount.step1b" values={{ enableTo: t('resetAccount.step1bEnable') }} components={[<strong key="0" />]} />
-          </span>
+          </Txt>
         ) : (
-          <span>
+          <Txt>
             <Trans t={t} i18nKey="resetAccount.step2" values={{ type: t('resetAccount.typeVerb'), word: CONFIRM_WORD }} components={[<strong key="0" />]} />
-          </span>
+          </Txt>
         )}
-      </div>
+      </Box>
 
       {step === 2 && (
-        <div style={{ marginTop: 4 }}>
-          <label className="m-label" htmlFor="reset-confirm-input">{t('resetAccount.inputLabel')} {CONFIRM_WORD}</label>
-          <input
+        <Box style={{ marginTop: 4 }}>
+          <Box as="label" className="m-label" htmlFor="reset-confirm-input">{t('resetAccount.inputLabel')} {CONFIRM_WORD}</Box>
+          <Input
             id="reset-confirm-input"
             className={`m-input${typed && typed.trim() !== CONFIRM_WORD ? ' err' : ''}`}
             value={typed}
@@ -74,28 +75,28 @@ export default function ResetAccountModal({ open, onClose, onConfirm }) {
             autoComplete="off"
             disabled={busy}
           />
-        </div>
+        </Box>
       )}
 
-      {err && <p className="m-confirm-msg" style={{ color: 'var(--clay)', fontWeight: 600 }}>{err}</p>}
+      {err && <Txt as="p" className="m-confirm-msg" style={{ color: 'var(--clay)', fontWeight: 600 }}>{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close} disabled={busy}>{t('common.cancel')}</button>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close} disabled={busy}>{t('common.cancel')}</Btn>
         {step === 1 ? (
-          <button type="button" className="m-btn-save danger" onClick={() => setStep(2)}>
+          <Btn type="button" className="m-btn-save danger" onClick={() => setStep(2)}>
             {t('resetAccount.continue')}
-          </button>
+          </Btn>
         ) : (
-          <button
+          <Btn
             type="button"
             className="m-btn-save danger"
             onClick={run}
             disabled={busy || typed.trim() !== CONFIRM_WORD}
           >
             {busy ? t('resetAccount.deleting') : t('resetAccount.confirmBtn')}
-          </button>
+          </Btn>
         )}
-      </div>
+      </Box>
     </Modal>
   )
 }

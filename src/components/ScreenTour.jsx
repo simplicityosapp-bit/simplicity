@@ -4,6 +4,7 @@ import { useTours } from '../hooks/useTours'
 import { tourFor } from '../lib/tours'
 import { useT } from '../i18n/useT'
 import './ScreenTour.css'
+import { Box, Txt, Btn } from './ui'
 
 /* ════════════════════════════════════════════════════════════════
    <ScreenTour> — first-visit, multi-step spotlight walkthrough.
@@ -119,9 +120,9 @@ export default function ScreenTour({ screenKey }) {
   bubbleLeft = Math.max(12, Math.min(bubbleLeft, window.innerWidth - BUBBLE_W - 12))
 
   return createPortal(
-    <div className="tour-root" role="dialog" aria-modal="true" aria-label={t(step.title)}>
+    <Box className="tour-root" role="dialog" aria-modal="true" aria-label={t(step.title)}>
       {/* Scrim + spotlight hole (box-shadow trick dims everything else). */}
-      <div
+      <Box
         className={`tour-spot${step.accent === 'sage' ? ' tour-spot--sage' : ''}`}
         style={{
           top: sy, left: sx, width: sw, height: sh,
@@ -129,27 +130,27 @@ export default function ScreenTour({ screenKey }) {
         }}
       />
       {/* Guidance bubble. */}
-      <div
+      <Box
         className={`tour-bubble${placeBelow ? ' tour-bubble--below' : ' tour-bubble--above'}`}
         style={{ top: bubbleTop, bottom: bubbleBottom, left: bubbleLeft }}
       >
-        <p className="tour-bubble-title">{t(step.title)}</p>
-        <p className="tour-bubble-body">{t(step.body)}</p>
-        <div className="tour-bubble-foot">
-          <span className="tour-bubble-count">{idx + 1}/{steps.length}</span>
-          <div className="tour-bubble-btns">
+        <Txt as="p" className="tour-bubble-title">{t(step.title)}</Txt>
+        <Txt as="p" className="tour-bubble-body">{t(step.body)}</Txt>
+        <Box className="tour-bubble-foot">
+          <Txt className="tour-bubble-count">{idx + 1}/{steps.length}</Txt>
+          <Box className="tour-bubble-btns">
             {/* "דלג" was a duplicate of "הבנתי" (both advanced one step) —
                skipping the whole tour is "דלג על הכל" below. */}
-            <button type="button" className="tour-btn-next" onClick={next}>
+            <Btn type="button" className="tour-btn-next" onClick={next}>
               {isLast ? tr('tour.done') : tr('tour.gotIt')}
-            </button>
-          </div>
-        </div>
+            </Btn>
+          </Box>
+        </Box>
         {!isLast && (
-          <button type="button" className="tour-skip-all" onClick={finish}>{tr('tour.skipAll')}</button>
+          <Btn type="button" className="tour-skip-all" onClick={finish}>{tr('tour.skipAll')}</Btn>
         )}
-      </div>
-    </div>,
+      </Box>
+    </Box>,
     document.body,
   )
 }

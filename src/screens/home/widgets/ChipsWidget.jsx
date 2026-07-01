@@ -17,6 +17,7 @@ import InfoPopover from '../../../components/InfoPopover'
 import TileDrillModal from '../../../modals/TileDrillModal'
 import { isr } from '../../../lib/finance'
 import { useT } from '../../../i18n/useT'
+import { Box, Txt } from '../../../components/ui'
 
 /* Bottom data chips — RTL order: משימות · נטו · לקוחות. Tap opens
    a drill-down modal where the user picks filters (status, time
@@ -73,32 +74,32 @@ export default function ChipsWidget() {
   }
   return (
     <>
-      <div className="h-chips">
-        <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('today')} onKeyDown={onTileKey(() => setOpenTile('today'))}>
+      <Box className="h-chips">
+        <Box role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('today')} onKeyDown={onTileKey(() => setOpenTile('today'))}>
           <CalendarClock size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-          <span className="h-stat-num mono">{coreLoading ? '··' : today.length}</span>
-          <span className="h-stat-lbl">
+          <Txt className="h-stat-num mono">{coreLoading ? '··' : today.length}</Txt>
+          <Txt className="h-stat-lbl">
             {t('widgets.chips.meetings')}
             <InfoPopover label={t('widgets.chips.meetingsInfoLabel')} text={t('widgets.chips.meetingsInfoText_pre') + t('widgets.chips.meetingsInfoText_post')} placement="top" />
-          </span>
-        </div>
-        <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('net')} onKeyDown={onTileKey(() => setOpenTile('net'))}>
+          </Txt>
+        </Box>
+        <Box role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('net')} onKeyDown={onTileKey(() => setOpenTile('net'))}>
           <Wallet size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-          <span className={`h-stat-num mono${netSizeCls}`}>{coreLoading ? '··' : netStr}</span>
-          <span className="h-stat-lbl">
+          <Txt className={`h-stat-num mono${netSizeCls}`}>{coreLoading ? '··' : netStr}</Txt>
+          <Txt className="h-stat-lbl">
             {netLbl}
             <InfoPopover label={t('widgets.chips.netInfoLabel')} text={t('widgets.chips.netInfoText_pre') + t('widgets.chips.netInfoText_post')} placement="top" />
-          </span>
-        </div>
-        <div role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('clients')} onKeyDown={onTileKey(() => setOpenTile('clients'))}>
+          </Txt>
+        </Box>
+        <Box role="button" tabIndex={0} className="h-stat" onClick={() => setOpenTile('clients')} onKeyDown={onTileKey(() => setOpenTile('clients'))}>
           <Users size={18} strokeWidth={1.5} className="h-stat-icon" aria-hidden="true" />
-          <span className="h-stat-num mono">{coreLoading ? '··' : summary.activeClients}</span>
-          <span className="h-stat-lbl">
+          <Txt className="h-stat-num mono">{coreLoading ? '··' : summary.activeClients}</Txt>
+          <Txt className="h-stat-lbl">
             {t('widgets.chips.clients')}
             <InfoPopover label={t('widgets.chips.clientsInfoLabel')} text={t('widgets.chips.clientsInfoText_pre') + t('widgets.chips.clientsInfoText_post')} placement="top" />
-          </span>
-        </div>
-      </div>
+          </Txt>
+        </Box>
+      </Box>
 
       <TileDrillModal
         key={openTile}

@@ -3,6 +3,7 @@ import Modal from './Modal'
 import { Download, FileSpreadsheet } from 'lucide-react'
 import { useT } from '../i18n/useT'
 import './ExportDataModal.css'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Consolidates every export into one window: a single "all data" Excel file
    (a sheet per entity) plus the individual re-importable CSVs. Replaces the
@@ -47,63 +48,63 @@ export default function ExportDataModal({
 
   return (
     <Modal open={open} onClose={onClose} title={t('export.title')}>
-      <p className="m-hint">
+      <Txt as="p" className="m-hint">
         {t('export.intro')}
-      </p>
+      </Txt>
 
-      <button type="button" className="set-data-action" onClick={runAll} disabled={busy}>
+      <Btn type="button" className="set-data-action" onClick={runAll} disabled={busy}>
         <FileSpreadsheet size={15} strokeWidth={1.7} aria-hidden="true" />
         {busy ? t('export.exporting') : t('export.exportAll')}
-      </button>
-      <p className="set-data-hint">
+      </Btn>
+      <Txt as="p" className="set-data-hint">
         {t('export.exportAllHint')}
-      </p>
+      </Txt>
 
-      <div className="export-sens">
-        <p className="export-sens-h">{t('export.sensitiveHeading')}</p>
-        <p className="export-sens-sub">
+      <Box className="export-sens">
+        <Txt as="p" className="export-sens-h">{t('export.sensitiveHeading')}</Txt>
+        <Txt as="p" className="export-sens-sub">
           {t('export.sensitiveSub')}
-        </p>
-        <div className="export-cats">
+        </Txt>
+        <Box className="export-cats">
           {SENSITIVE.map((key) => (
-            <label key={key} className={`export-cat${busy ? ' is-disabled' : ''}`}>
-              <span className="export-cat-text">
+            <Box as="label" key={key} className={`export-cat${busy ? ' is-disabled' : ''}`}>
+              <Txt className="export-cat-text">
                 {t(`export.sensitive.${key}`)}
-                <span className="export-cat-sub">{t(`export.sensitive.${key}Sub`)}</span>
-              </span>
-              <input
+                <Txt className="export-cat-sub">{t(`export.sensitive.${key}Sub`)}</Txt>
+              </Txt>
+              <Input
                 type="checkbox"
                 className="export-cat-checkbox"
                 checked={!!sel[key]}
                 disabled={busy}
                 onChange={() => toggle(key)}
               />
-            </label>
+            </Box>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      {err && <p className="export-err">{t('export.failed')}</p>}
+      {err && <Txt as="p" className="export-err">{t('export.failed')}</Txt>}
 
-      <button type="button" className="set-data-action" onClick={onExportTransactions} disabled={!hasTransactions || busy} style={{ marginTop: 12 }}>
+      <Btn type="button" className="set-data-action" onClick={onExportTransactions} disabled={!hasTransactions || busy} style={{ marginTop: 12 }}>
         <Download size={15} strokeWidth={1.7} aria-hidden="true" />
         {t('export.exportTransactions')}
-      </button>
-      <button type="button" className="set-data-action" onClick={onExportClients} disabled={!hasClients || busy} style={{ marginTop: 10 }}>
+      </Btn>
+      <Btn type="button" className="set-data-action" onClick={onExportClients} disabled={!hasClients || busy} style={{ marginTop: 10 }}>
         <Download size={15} strokeWidth={1.7} aria-hidden="true" />
         {t('export.exportClients')}
-      </button>
-      <button type="button" className="set-data-action" onClick={onExportProjects} disabled={!hasProjects || busy} style={{ marginTop: 10 }}>
+      </Btn>
+      <Btn type="button" className="set-data-action" onClick={onExportProjects} disabled={!hasProjects || busy} style={{ marginTop: 10 }}>
         <Download size={15} strokeWidth={1.7} aria-hidden="true" />
         {t('export.exportProjects')}
-      </button>
-      <p className="set-data-hint">
+      </Btn>
+      <Txt as="p" className="set-data-hint">
         {t('export.reimportHint')}
-      </p>
+      </Txt>
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose} disabled={busy}>{t('common.close')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose} disabled={busy}>{t('common.close')}</Btn>
+      </Box>
     </Modal>
   )
 }

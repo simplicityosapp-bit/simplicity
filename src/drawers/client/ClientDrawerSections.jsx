@@ -6,6 +6,7 @@ import { financeQuery, isConfirmedTx, isr } from '../../lib/finance'
 import { fmtShortDate, fmtTime } from '../../lib/dates'
 import { useT } from '../../i18n/useT'
 import PaymentPlanSection from './PaymentPlanSection'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const PRIORITY_COLOR = { high: 'var(--clay)', medium: 'var(--amber-warn)', low: 'var(--sage)' }
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
@@ -20,17 +21,17 @@ function Section({ title, count, defaultOpen = false, onEdit, editing = false, c
   const [open, setOpen] = useState(defaultOpen)
   const isOpen = open || editing
   return (
-    <div className={`cd-section${isOpen ? ' open' : ''}${editing ? ' editing' : ''}`}>
-      <div className="cd-sec-head">
-        <button type="button" className="cd-sec-toggle" onClick={() => setOpen((o) => !o)} aria-expanded={isOpen}>
-          <span className="cd-sec-title">
+    <Box className={`cd-section${isOpen ? ' open' : ''}${editing ? ' editing' : ''}`}>
+      <Box className="cd-sec-head">
+        <Btn type="button" className="cd-sec-toggle" onClick={() => setOpen((o) => !o)} aria-expanded={isOpen}>
+          <Txt className="cd-sec-title">
             {title}
-            {count != null && <span className="cd-sec-count">{count}</span>}
-          </span>
+            {count != null && <Txt className="cd-sec-count">{count}</Txt>}
+          </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className="cd-sec-chev" aria-hidden="true" />
-        </button>
+        </Btn>
         {onEdit && (
-          <button
+          <Btn
             type="button"
             className={`cd-sec-edit${editing ? ' on' : ''}`}
             title={editing ? t('sections.editing') : t('sections.edit')}
@@ -41,11 +42,11 @@ function Section({ title, count, defaultOpen = false, onEdit, editing = false, c
             {editing
               ? <Check size={14} strokeWidth={2} aria-hidden="true" />
               : <Pencil size={13} strokeWidth={1.6} aria-hidden="true" />}
-          </button>
+          </Btn>
         )}
-      </div>
-      {isOpen && <div className="cd-sec-body">{children}</div>}
-    </div>
+      </Box>
+      {isOpen && <Box className="cd-sec-body">{children}</Box>}
+    </Box>
   )
 }
 
@@ -86,21 +87,21 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
 
   return (
     <>
-      <div className="cd-group">
-        <p className="cd-group-title">{t('sections.activity')}</p>
+      <Box className="cd-group">
+        <Txt as="p" className="cd-group-title">{t('sections.activity')}</Txt>
 
         <Section title={t('sections.recurring')} onEdit={onEditClient}>
           {hasRecurring ? (
-            <p className="cd-rec">
+            <Txt as="p" className="cd-rec">
               <Trans
                 t={t}
                 i18nKey="sections.recurringLine"
                 values={{ day: t(`form.days.${c.recurring_day}`), time: c.recurring_time }}
                 components={[<b key="d" />, <b key="t" />]}
               />
-            </p>
+            </Txt>
           ) : (
-            <p className="cd-empty">{t('sections.noRecurring')}</p>
+            <Txt as="p" className="cd-empty">{t('sections.noRecurring')}</Txt>
           )}
         </Section>
 
@@ -114,24 +115,24 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
             clientSessions.map((s) => {
               const inner = (
                 <>
-                  <div className="cd-sess-head">
-                    <span className="cd-sess-num">{s.num || '•'}</span>
-                    <span className="cd-sess-date">{fmtShortDate(s.date)}{s.group_id ? t('sections.sessionGroup') : ''}</span>
+                  <Box className="cd-sess-head">
+                    <Txt className="cd-sess-num">{s.num || '•'}</Txt>
+                    <Txt className="cd-sess-date">{fmtShortDate(s.date)}{s.group_id ? t('sections.sessionGroup') : ''}</Txt>
                     {editKey === 'sess' && !s.group_id && <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon cd-sess-editicon" aria-hidden="true" />}
-                  </div>
-                  {s.summary && <p className="cd-sess-summary">{s.summary}</p>}
+                  </Box>
+                  {s.summary && <Txt as="p" className="cd-sess-summary">{s.summary}</Txt>}
                 </>
               )
               return editKey === 'sess' && !s.group_id ? (
-                <button key={s.id} type="button" className="cd-sess cd-sess-edit" onClick={() => onEditSession?.(s)}>
+                <Btn key={s.id} type="button" className="cd-sess cd-sess-edit" onClick={() => onEditSession?.(s)}>
                   {inner}
-                </button>
+                </Btn>
               ) : (
-                <div key={s.id} className="cd-sess">{inner}</div>
+                <Box key={s.id} className="cd-sess">{inner}</Box>
               )
             })
           ) : (
-            <p className="cd-empty">{t('sections.noSessions')}</p>
+            <Txt as="p" className="cd-empty">{t('sections.noSessions')}</Txt>
           )}
         </Section>
 
@@ -141,24 +142,24 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           onEdit={onEditTx && payments.length ? () => toggleEdit('pay') : undefined}
           editing={editKey === 'pay'}
         >
-          <div className="cd-pay-summary">
-            <span>{t('sections.totalPaid')}</span>
-            <span className="mono">{isr(payTotal)}</span>
-          </div>
+          <Box className="cd-pay-summary">
+            <Txt>{t('sections.totalPaid')}</Txt>
+            <Txt className="mono">{isr(payTotal)}</Txt>
+          </Box>
           {payments.length ? (
             payments.map((f) => {
               const body = (
                 <>
-                  <span className="cd-row-dot" style={{ background: f.type === 'income' ? 'var(--sage)' : 'var(--clay)' }} />
-                  <div className="cd-row-body">
-                    <p className="cd-row-title">{f.desc || t('sections.noDesc')}</p>
-                    <p className="cd-row-sub">{fmtShortDate(f.date)}{f.status === 'pending' ? t('sections.pending') : ''}</p>
-                  </div>
-                  <span className="cd-row-amt mono">{f.type === 'income' ? '+' : '−'}{isr(f.amount)}</span>
+                  <Txt className="cd-row-dot" style={{ background: f.type === 'income' ? 'var(--sage)' : 'var(--clay)' }} />
+                  <Box className="cd-row-body">
+                    <Txt as="p" className="cd-row-title">{f.desc || t('sections.noDesc')}</Txt>
+                    <Txt as="p" className="cd-row-sub">{fmtShortDate(f.date)}{f.status === 'pending' ? t('sections.pending') : ''}</Txt>
+                  </Box>
+                  <Txt className="cd-row-amt mono">{f.type === 'income' ? '+' : '−'}{isr(f.amount)}</Txt>
                 </>
               )
               return editKey === 'pay' ? (
-                <button
+                <Btn
                   key={f.id}
                   type="button"
                   className="cd-row cd-row-edit"
@@ -166,13 +167,13 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
                 >
                   {body}
                   <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon" aria-hidden="true" />
-                </button>
+                </Btn>
               ) : (
-                <div key={f.id} className="cd-row">{body}</div>
+                <Box key={f.id} className="cd-row">{body}</Box>
               )
             })
           ) : (
-            <p className="cd-empty">{t('sections.noPayments')}</p>
+            <Txt as="p" className="cd-empty">{t('sections.noPayments')}</Txt>
           )}
         </Section>
 
@@ -188,19 +189,19 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
             openTasks.map((t) => {
               const inner = (
                 <>
-                  <span className="cd-task-dot" style={{ background: PRIORITY_COLOR[t.priority] || PRIORITY_COLOR.medium }} />
-                  <p className="cd-row-title cd-grow">{t.title}</p>
+                  <Txt className="cd-task-dot" style={{ background: PRIORITY_COLOR[t.priority] || PRIORITY_COLOR.medium }} />
+                  <Txt as="p" className="cd-row-title cd-grow">{t.title}</Txt>
                   {editKey === 'tasks' && <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon" aria-hidden="true" />}
                 </>
               )
               return editKey === 'tasks' ? (
-                <button key={t.id} type="button" className="cd-row cd-row-edit" onClick={() => onEditTask?.(t)}>{inner}</button>
+                <Btn key={t.id} type="button" className="cd-row cd-row-edit" onClick={() => onEditTask?.(t)}>{inner}</Btn>
               ) : (
-                <div key={t.id} className="cd-row">{inner}</div>
+                <Box key={t.id} className="cd-row">{inner}</Box>
               )
             })
           ) : (
-            <p className="cd-empty">{t('sections.noOpenTasks')}</p>
+            <Txt as="p" className="cd-empty">{t('sections.noOpenTasks')}</Txt>
           )}
         </Section>
 
@@ -214,60 +215,60 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
             events.slice(0, 30).map((e, i) => {
               const inner = (
                 <>
-                  <span className="cd-tl-label">{e.label}{e.sub ? <span className="cd-tl-sub"> · {e.sub.slice(0, 50)}</span> : null}</span>
+                  <Txt className="cd-tl-label">{e.label}{e.sub ? <Txt className="cd-tl-sub"> · {e.sub.slice(0, 50)}</Txt> : null}</Txt>
                   {editKey === 'tl' && e.edit
                     ? <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon" aria-hidden="true" />
-                    : <span className="cd-tl-date">{fmtShortDate(e.date)}</span>}
+                    : <Txt className="cd-tl-date">{fmtShortDate(e.date)}</Txt>}
                 </>
               )
               return editKey === 'tl' && e.edit ? (
-                <button key={i} type="button" className="cd-tl-row cd-tl-edit" onClick={e.edit}>{inner}</button>
+                <Btn key={i} type="button" className="cd-tl-row cd-tl-edit" onClick={e.edit}>{inner}</Btn>
               ) : (
-                <div key={i} className="cd-tl-row">{inner}</div>
+                <Box key={i} className="cd-tl-row">{inner}</Box>
               )
             })
           ) : (
-            <p className="cd-empty">{t('sections.noEvents')}</p>
+            <Txt as="p" className="cd-empty">{t('sections.noEvents')}</Txt>
           )}
         </Section>
-      </div>
+      </Box>
 
-      <div className="cd-group">
-        <p className="cd-group-title">{t('sections.contactEnv')}</p>
+      <Box className="cd-group">
+        <Txt as="p" className="cd-group-title">{t('sections.contactEnv')}</Txt>
 
         <Section title={t('sections.moreDetails')} onEdit={onEditClient}>
           {(c.address || c.birth_date) ? (
             <>
               {c.address && (
-                <div className="cd-row">
-                  <div className="cd-row-body">
-                    <p className="cd-row-title">{c.address}</p>
-                    <p className="cd-row-sub">{t('sections.address')}</p>
-                  </div>
-                </div>
+                <Box className="cd-row">
+                  <Box className="cd-row-body">
+                    <Txt as="p" className="cd-row-title">{c.address}</Txt>
+                    <Txt as="p" className="cd-row-sub">{t('sections.address')}</Txt>
+                  </Box>
+                </Box>
               )}
               {c.birth_date && (
-                <div className="cd-row">
-                  <div className="cd-row-body">
-                    <p className="cd-row-title">{fmtShortDate(c.birth_date)}</p>
-                    <p className="cd-row-sub">{t('sections.birthDate')}</p>
-                  </div>
-                </div>
+                <Box className="cd-row">
+                  <Box className="cd-row-body">
+                    <Txt as="p" className="cd-row-title">{fmtShortDate(c.birth_date)}</Txt>
+                    <Txt as="p" className="cd-row-sub">{t('sections.birthDate')}</Txt>
+                  </Box>
+                </Box>
               )}
             </>
           ) : (
-            <p className="cd-empty">{t('sections.noMoreDetails')}</p>
+            <Txt as="p" className="cd-empty">{t('sections.noMoreDetails')}</Txt>
           )}
         </Section>
 
         <Section title={t('sections.notes')} onEdit={onEditClient}>
           {c.notes ? (
             <>
-              <p className="cd-note">{c.notes}</p>
-              {c.notes_updated_at && <p className="cd-note-ts">{t('sections.notesUpdated', { date: fmtShortDate(c.notes_updated_at) })}</p>}
+              <Txt as="p" className="cd-note">{c.notes}</Txt>
+              {c.notes_updated_at && <Txt as="p" className="cd-note-ts">{t('sections.notesUpdated', { date: fmtShortDate(c.notes_updated_at) })}</Txt>}
             </>
           ) : (
-            <p className="cd-empty">{t('sections.noNotes')}</p>
+            <Txt as="p" className="cd-empty">{t('sections.noNotes')}</Txt>
           )}
         </Section>
 
@@ -282,23 +283,23 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
               const done = r.status === 'completed'
               const inner = (
                 <>
-                  <div className="cd-row-body">
-                    <p className={`cd-row-title${done ? ' done' : ''}`}>{r.title}</p>
-                    <p className="cd-row-sub">{fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}</p>
-                  </div>
+                  <Box className="cd-row-body">
+                    <Txt as="p" className={`cd-row-title${done ? ' done' : ''}`}>{r.title}</Txt>
+                    <Txt as="p" className="cd-row-sub">{fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}</Txt>
+                  </Box>
                   {editKey === 'rem'
                     ? <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon" aria-hidden="true" />
                     : (done && <Check size={14} strokeWidth={2} className="cd-row-done" aria-hidden="true" />)}
                 </>
               )
               return editKey === 'rem' ? (
-                <button key={r.id} type="button" className="cd-row cd-row-edit" onClick={() => onEditReminder?.(r)}>{inner}</button>
+                <Btn key={r.id} type="button" className="cd-row cd-row-edit" onClick={() => onEditReminder?.(r)}>{inner}</Btn>
               ) : (
-                <div key={r.id} className="cd-row">{inner}</div>
+                <Box key={r.id} className="cd-row">{inner}</Box>
               )
             })
           ) : (
-            <p className="cd-empty">{t('sections.noReminders')}</p>
+            <Txt as="p" className="cd-empty">{t('sections.noReminders')}</Txt>
           )}
         </Section>
 
@@ -320,20 +321,20 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
                 sub = `${g?.package_sessions ? t('sections.packageSessions', { count: g.package_sessions }) : ''}${isr(g?.package_price || 0)}`
               }
               return (
-                <div key={m.id} className="cd-row">
-                  <span className="cd-row-dot" style={{ background: g?.color || 'var(--stone)' }} />
-                  <div className="cd-row-body">
-                    <p className="cd-row-title">{g ? g.name : t('sections.groupDeleted')}</p>
-                    <p className="cd-row-sub">{sub}</p>
-                  </div>
-                </div>
+                <Box key={m.id} className="cd-row">
+                  <Txt className="cd-row-dot" style={{ background: g?.color || 'var(--stone)' }} />
+                  <Box className="cd-row-body">
+                    <Txt as="p" className="cd-row-title">{g ? g.name : t('sections.groupDeleted')}</Txt>
+                    <Txt as="p" className="cd-row-sub">{sub}</Txt>
+                  </Box>
+                </Box>
               )
             })
           ) : (
-            <p className="cd-empty">{t('sections.notInGroups')}</p>
+            <Txt as="p" className="cd-empty">{t('sections.notInGroups')}</Txt>
           )}
         </Section>
-      </div>
+      </Box>
     </>
   )
 }

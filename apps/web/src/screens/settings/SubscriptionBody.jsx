@@ -3,7 +3,7 @@ import { Check, Gem } from 'lucide-react'
 import Modal from '../../modals/Modal'
 import { useT } from '../../i18n/useT'
 import { useSubscription } from '../../hooks/useSubscription'
-import { TIERS, PRICES } from '../../lib/subscription'
+import { TIERS, PRICES } from '@simplicity/core'
 import './SubscriptionBody.css'
 import { Box, Txt, Btn } from '../../components/ui'
 

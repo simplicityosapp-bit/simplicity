@@ -6,7 +6,7 @@ import {
 } from '../lib/api/paymentPlans'
 import { insertTransaction, removeTransaction } from '../lib/api/transactions'
 import { updateClient } from '../lib/api/clients'
-import { generateInstallments, installmentDesc } from '../lib/paymentPlans'
+import { generateInstallments, installmentDesc } from '@simplicity/core'
 import { showError } from '../lib/toast'
 
 /* ════════════════════════════════════════════════════════════════

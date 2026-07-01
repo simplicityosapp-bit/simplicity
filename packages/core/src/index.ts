@@ -7,6 +7,6 @@
 //   - hooks/   React Query hooks (both apps are React)
 //   - i18n/    shared locales he/en/es/fr + namespaces
 //
-// Nothing consumes this package yet — the existing web build is untouched.
+// Wave 1 migrated: domain/{paymentPlans, subscription, recurring}.
 
-export {};
+export * from './domain'

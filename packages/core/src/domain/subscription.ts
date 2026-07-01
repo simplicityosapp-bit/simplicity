@@ -21,29 +21,43 @@
    checkout → then flip the switches.
    ════════════════════════════════════════════════════════════════ */
 
+interface TierLimits {
+  clients: number
+  goals: number
+  projects: number
+  landingPages: number
+  leadPages: number
+  bookingPages: number
+}
+
+interface Subscription {
+  tier?: string | null
+  beta_exempt_until?: string | null
+}
+
 export const BILLING_ENABLED = false
 
-export const TIERS = { FREE: 'free', BASIC: 'basic', PREMIUM: 'premium' }
+export const TIERS = { FREE: 'free', BASIC: 'basic', PREMIUM: 'premium' } as const
 
 /* Monthly price in ILS (₪), for the plan cards. */
-export const PRICES = { free: 0, basic: 42, premium: 89 }
+export const PRICES: Record<string, number> = { free: 0, basic: 42, premium: 89 }
 
 /* Free-tier ceilings. `clients` counts ALL non-deleted clients in the system
    (not just active ones). Free also gets ONE of each builder page kind
    (landing / lead / booking). Paid tiers are unlimited. */
-export const LIMITS = {
+export const LIMITS: Record<string, TierLimits> = {
   free:    { clients: 10,       goals: 3,        projects: 2,        landingPages: 1,        leadPages: 1,        bookingPages: 1 },
   basic:   { clients: Infinity, goals: Infinity, projects: Infinity, landingPages: Infinity, leadPages: Infinity, bookingPages: Infinity },
   premium: { clients: Infinity, goals: Infinity, projects: Infinity, landingPages: Infinity, leadPages: Infinity, bookingPages: Infinity },
 }
 
 /* Map a builder page kind to its LIMITS key. */
-const PAGE_LIMIT_KEY = { landing: 'landingPages', lead: 'leadPages', booking: 'bookingPages' }
+const PAGE_LIMIT_KEY: Record<string, keyof TierLimits> = { landing: 'landingPages', lead: 'leadPages', booking: 'bookingPages' }
 
 /* Effective tier from a subscription row: an active beta exemption ⇒ premium;
    a missing row ⇒ free. MUST stay in lockstep with current_tier() in the
    migration so the UI never disagrees with what RLS would enforce. */
-export function effectiveTier(sub) {
+export function effectiveTier(sub: Subscription | null | undefined): string {
   if (!sub) return TIERS.FREE
   if (sub.beta_exempt_until && new Date(sub.beta_exempt_until) > new Date()) return TIERS.PREMIUM
   return sub.tier || TIERS.FREE
@@ -51,28 +65,28 @@ export function effectiveTier(sub) {
 
 /* True when the user currently holds an active beta exemption (drives the
    "beta access until <date>" line in the plan UI). */
-export function isBetaExempt(sub) {
+export function isBetaExempt(sub: Subscription | null | undefined): boolean {
   return !!(sub?.beta_exempt_until && new Date(sub.beta_exempt_until) > new Date())
 }
 
 /* While billing isn't enforced, every gate is open and every limit is ∞. */
-const open = () => !BILLING_ENABLED
+const open = (): boolean => !BILLING_ENABLED
 
-export function canConnectInvoicing(tier) { return open() || tier !== TIERS.FREE }
-export function canConnectGrow(tier)      { return open() || tier !== TIERS.FREE }
-export function canUseAI(tier)            { return open() || tier === TIERS.PREMIUM }
+export function canConnectInvoicing(tier: string): boolean { return open() || tier !== TIERS.FREE }
+export function canConnectGrow(tier: string): boolean      { return open() || tier !== TIERS.FREE }
+export function canUseAI(tier: string): boolean            { return open() || tier === TIERS.PREMIUM }
 
-export function clientLimit(tier)  { return open() ? Infinity : (LIMITS[tier]?.clients ?? Infinity) }
-export function goalLimit(tier)    { return open() ? Infinity : (LIMITS[tier]?.goals ?? Infinity) }
-export function projectLimit(tier) { return open() ? Infinity : (LIMITS[tier]?.projects ?? Infinity) }
+export function clientLimit(tier: string): number  { return open() ? Infinity : (LIMITS[tier]?.clients ?? Infinity) }
+export function goalLimit(tier: string): number    { return open() ? Infinity : (LIMITS[tier]?.goals ?? Infinity) }
+export function projectLimit(tier: string): number { return open() ? Infinity : (LIMITS[tier]?.projects ?? Infinity) }
 /* Per-kind builder-page ceiling (landing / lead / booking). Free = 1 of each. */
-export function pageLimit(tier, kind) {
+export function pageLimit(tier: string, kind: string): number {
   if (open()) return Infinity
   return LIMITS[tier]?.[PAGE_LIMIT_KEY[kind]] ?? Infinity
 }
 
 /* All capability flags for a tier, bundled (consumed by useSubscription). */
-export function capabilities(tier) {
+export function capabilities(tier: string): { connectInvoicing: boolean; connectGrow: boolean; useAI: boolean } {
   return {
     connectInvoicing: canConnectInvoicing(tier),
     connectGrow: canConnectGrow(tier),

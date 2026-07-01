@@ -10,7 +10,7 @@ import { useCategories } from '../../../hooks/useCategories'
 import { pendingMeetingsToReview, confirmScheduledMeeting, skipScheduledMeeting } from '../../../lib/scheduledMeetings'
 import { isr } from '../../../lib/finance'
 import { formatWhen } from '../../../lib/dates'
-import { toDateKey } from '../../../lib/recurring'
+import { toDateKey } from '@simplicity/core'
 import { useT } from '../../../i18n/useT'
 import { Box, Txt, Btn } from '../../../components/ui'
 

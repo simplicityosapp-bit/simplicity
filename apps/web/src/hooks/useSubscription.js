@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import { effectiveTier, isBetaExempt, capabilities, clientLimit, goalLimit, projectLimit, pageLimit } from '../lib/subscription'
+import { effectiveTier, isBetaExempt, capabilities, clientLimit, goalLimit, projectLimit, pageLimit } from '@simplicity/core'
 
 /* ════════════════════════════════════════════════════════════════
    useSubscription — the current user's plan + what it unlocks.

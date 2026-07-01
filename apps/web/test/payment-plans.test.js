@@ -2,7 +2,7 @@
    PAYMENT-PLANS SUITE — installment generation + balance arithmetic.
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest'
-import { generateInstallments, planBalance, addMonths, installmentsCoveredByPaid } from '../src/lib/paymentPlans'
+import { generateInstallments, planBalance, addMonths, installmentsCoveredByPaid } from '@simplicity/core'
 
 describe('addMonths', () => {
   it('adds whole months without UTC drift', () => {

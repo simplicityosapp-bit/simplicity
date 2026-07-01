@@ -5,6 +5,7 @@ import { useT } from '../../i18n/useT'
 import { useSubscription } from '../../hooks/useSubscription'
 import { TIERS, PRICES } from '../../lib/subscription'
 import './SubscriptionBody.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Benefit keys per tier (resolved via the `subscription` namespace). The
    list is intentionally short + scannable; the full model lives in the plan. */
@@ -25,7 +26,7 @@ export default function SubscriptionBody() {
   const { tier, sub, betaExempt, loading } = useSubscription()
   const [showUpgrade, setShowUpgrade] = useState(false)
 
-  if (loading) return <p className="set-soon" aria-busy="true">…</p>
+  if (loading) return <Txt as="p" className="set-soon" aria-busy="true">…</Txt>
 
   const fmtDate = (iso) => new Date(iso).toLocaleDateString(lang === 'he' ? 'he-IL' : lang)
   const betaDate = betaExempt && sub?.beta_exempt_until ? fmtDate(sub.beta_exempt_until) : null
@@ -34,62 +35,62 @@ export default function SubscriptionBody() {
   const subSince = sub?.subscribed_at ? fmtDate(sub.subscribed_at) : null
 
   return (
-    <div className="sub-body">
-      <div className="sub-current">
-        <span className="sub-current-label">{t('current.label')}</span>
-        <span className="sub-current-tier">
+    <Box className="sub-body">
+      <Box className="sub-current">
+        <Txt className="sub-current-label">{t('current.label')}</Txt>
+        <Txt className="sub-current-tier">
           <Gem size={14} strokeWidth={1.7} aria-hidden="true" />
           {t(`tiers.${tier}.name`)}
-        </span>
-        {betaDate && <span className="sub-beta">{t('current.betaUntil', { date: betaDate })}</span>}
+        </Txt>
+        {betaDate && <Txt className="sub-beta">{t('current.betaUntil', { date: betaDate })}</Txt>}
         {subSince && sub?.locked_price != null && (
-          <span className="sub-locked">{t('current.lockedTerms', { date: subSince, price: sub.locked_price })}</span>
+          <Txt className="sub-locked">{t('current.lockedTerms', { date: subSince, price: sub.locked_price })}</Txt>
         )}
-      </div>
+      </Box>
 
-      <div className="sub-cards">
+      <Box className="sub-cards">
         {TIER_ORDER.map((tk) => {
           const current = tk === tier
           const isUpgrade = TIER_RANK[tk] > TIER_RANK[tier]
           const price = PRICES[tk]
           return (
-            <div key={tk} className={`sub-card${current ? ' current' : ''}`}>
-              <div className="sub-card-head">
-                <p className="sub-card-name">{t(`tiers.${tk}.name`)}</p>
-                <p className="sub-card-tag">{t(`tiers.${tk}.tagline`)}</p>
-              </div>
-              <p className="sub-card-price">
-                <span className="sub-card-amount">₪{price}</span>
-                <span className="sub-card-per">{t('perMonth')}</span>
-              </p>
-              <ul className="sub-card-benefits">
+            <Box key={tk} className={`sub-card${current ? ' current' : ''}`}>
+              <Box className="sub-card-head">
+                <Txt as="p" className="sub-card-name">{t(`tiers.${tk}.name`)}</Txt>
+                <Txt as="p" className="sub-card-tag">{t(`tiers.${tk}.tagline`)}</Txt>
+              </Box>
+              <Txt as="p" className="sub-card-price">
+                <Txt className="sub-card-amount">₪{price}</Txt>
+                <Txt className="sub-card-per">{t('perMonth')}</Txt>
+              </Txt>
+              <Box as="ul" className="sub-card-benefits">
                 {TIER_BENEFITS[tk].map((b) => (
-                  <li key={b}>
+                  <Box as="li" key={b}>
                     <Check size={14} strokeWidth={2} aria-hidden="true" />
                     {t(`benefits.${b}`)}
-                  </li>
+                  </Box>
                 ))}
-              </ul>
+              </Box>
               {current ? (
-                <p className="sub-card-current">{t('thisIsYourPlan')}</p>
+                <Txt as="p" className="sub-card-current">{t('thisIsYourPlan')}</Txt>
               ) : isUpgrade ? (
-                <button type="button" className="sub-card-cta" onClick={() => setShowUpgrade(true)}>
+                <Btn type="button" className="sub-card-cta" onClick={() => setShowUpgrade(true)}>
                   {t('cta.choose')}
-                </button>
+                </Btn>
               ) : null}
-            </div>
+            </Box>
           )
         })}
-      </div>
+      </Box>
 
       <Modal open={showUpgrade} onClose={() => setShowUpgrade(false)} title={t('upgradeModal.title')}>
-        <p className="sub-upgrade-body">{t('upgradeModal.body')}</p>
-        <div className="sub-upgrade-actions">
-          <button type="button" className="m-btn-cancel" onClick={() => setShowUpgrade(false)}>
+        <Txt as="p" className="sub-upgrade-body">{t('upgradeModal.body')}</Txt>
+        <Box className="sub-upgrade-actions">
+          <Btn type="button" className="m-btn-cancel" onClick={() => setShowUpgrade(false)}>
             {t('upgradeModal.close')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
       </Modal>
-    </div>
+    </Box>
   )
 }

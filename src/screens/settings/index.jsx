@@ -49,6 +49,7 @@ import { BILLING_ENABLED } from '../../lib/subscription'
 import { getHelpScreen, getGlobalFaq, getAboutContent } from '../../lib/helpContent'
 import MG from '../../components/MG'
 import './SettingsScreen.css'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 /* Section identity (key + icon). Titles + subtitles are translated at
    render time via t(`sections.${key}.title` / `.sub`). */
@@ -116,11 +117,11 @@ const LEAD_METAS = ['in_process', 'converted', 'not_relevant']
    Compact horizontal pill group. Used by payments + design. */
 function Segmented({ label, value, options, onChange }) {
   return (
-    <div className="m-field">
-      <label className="m-label">{label}</label>
-      <div className="set-seg" role="radiogroup">
+    <Box className="m-field">
+      <Box as="label" className="m-label">{label}</Box>
+      <Box className="set-seg" role="radiogroup">
         {options.map((o) => (
-          <button
+          <Btn
             key={o.v}
             type="button"
             role="radio"
@@ -129,10 +130,10 @@ function Segmented({ label, value, options, onChange }) {
             onClick={() => onChange(o.v)}
           >
             {o.l}
-          </button>
+          </Btn>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
@@ -147,12 +148,12 @@ function PaymentsBody({ prefs, onUpdate }) {
      <Segmented> pills follow the active language. */
   const tOpts = (group, opts) => opts.map((o) => ({ ...o, l: t(`options.${group}.${o.v}`) }))
   return (
-    <div className="set-profile-body">
+    <Box className="set-profile-body">
       <Segmented label={t('payments.currency')} value={f.currency || 'ILS'} options={tOpts('currency', CURRENCY_OPTIONS)} onChange={setVal('currency')} />
       <Segmented label={t('payments.dateFormat')} value={f.date_format || 'DD/MM/YY'} options={tOpts('dateFormat', DATE_FORMAT_OPTIONS)} onChange={setVal('date_format')} />
       <Segmented label={t('payments.timeFormat')} value={f.time_format || '24h'} options={tOpts('timeFormat', TIME_FORMAT_OPTIONS)} onChange={setVal('time_format')} />
       <Segmented label={t('payments.weekStart')} value={f.week_start || 'sunday'} options={tOpts('weekStart', WEEK_START_OPTIONS)} onChange={setVal('week_start')} />
-    </div>
+    </Box>
   )
 }
 
@@ -162,9 +163,9 @@ function PaymentsBody({ prefs, onUpdate }) {
 function ColorDots({ value, onChange }) {
   const { t } = useT('settings')
   return (
-    <div className="set-color-dots" role="radiogroup" aria-label={t('common.color')}>
+    <Box className="set-color-dots" role="radiogroup" aria-label={t('common.color')}>
       {CATEGORY_COLORS.map((c) => (
-        <button
+        <Btn
           key={c}
           type="button"
           role="radio"
@@ -175,7 +176,7 @@ function ColorDots({ value, onChange }) {
           onClick={() => onChange(c)}
         />
       ))}
-    </div>
+    </Box>
   )
 }
 
@@ -184,7 +185,7 @@ function ColorDots({ value, onChange }) {
    of pressed-button / checkbox / faux-switch idioms). role="switch". */
 function Switch({ checked, onChange, label }) {
   return (
-    <button
+    <Btn
       type="button"
       role="switch"
       aria-checked={checked}
@@ -192,8 +193,8 @@ function Switch({ checked, onChange, label }) {
       className={`set-w-toggle${checked ? ' on' : ''}`}
       onClick={() => onChange(!checked)}
     >
-      <span className="set-w-toggle-knob" />
-    </button>
+      <Txt className="set-w-toggle-knob" />
+    </Btn>
   )
 }
 
@@ -257,15 +258,15 @@ function WidgetsBody({ prefs, onUpdate }) {
   }
 
   return (
-    <div className="set-w-body">
-      <p className="set-sub-h">{t('widgets.globalView')}</p>
+    <Box className="set-w-body">
+      <Txt as="p" className="set-sub-h">{t('widgets.globalView')}</Txt>
       <Segmented label={t('widgets.cardStyle')} value={(global.cardStyle === 'outlined' || !global.cardStyle) ? 'frosted' : global.cardStyle} options={CARD_STYLE_OPTIONS.map((o) => ({ ...o, l: t(`options.cardStyle.${o.v}`) }))} onChange={setGlobal('cardStyle')} />
       <Segmented label={t('widgets.textStrength')} value={global.textStrength || 'normal'} options={TEXT_STRENGTH_OPTIONS.map((o) => ({ ...o, l: t(`options.textStrength.${o.v}`) }))} onChange={setGlobal('textStrength')} />
       <Segmented label={t('widgets.density')} value={global.density || 'comfortable'} options={DENSITY_OPTIONS.map((o) => ({ ...o, l: t(`options.density.${o.v}`) }))} onChange={setGlobal('density')} />
 
-      <details className="set-w-collapse">
-      <summary className="set-w-summary">{t('widgets.widgets')}</summary>
-      <div className="set-w-list">
+      <Box as="details" className="set-w-collapse">
+      <Txt as="summary" className="set-w-summary">{t('widgets.widgets')}</Txt>
+      <Box className="set-w-list">
         {list.map((w, i) => {
           const reg = WIDGET_REGISTRY.find((r) => r.id === w.id)
           if (!reg) return null
@@ -287,16 +288,16 @@ function WidgetsBody({ prefs, onUpdate }) {
             />
           )
         })}
-      </div>
-      </details>
-    </div>
+      </Box>
+      </Box>
+    </Box>
   )
 }
 
 function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, onDragStart, onDragOver, onDrop, onDragEnd }) {
   const { t } = useT('settings')
   return (
-    <div
+    <Box
       className={`set-w-row${cfg.enabled ? '' : ' off'}${dragging ? ' dragging' : ''}${over ? ' over' : ''}`}
       draggable
       onDragStart={onDragStart}
@@ -304,12 +305,12 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
       onDrop={onDrop}
       onDragEnd={onDragEnd}
     >
-      <div className="set-w-row-head">
-        <span className="set-w-grip" aria-hidden="true">
+      <Box className="set-w-row-head">
+        <Txt className="set-w-grip" aria-hidden="true">
           <GripVertical size={14} strokeWidth={1.5} />
-        </span>
-        <span className="set-w-move">
-          <button
+        </Txt>
+        <Txt className="set-w-move">
+          <Btn
             type="button"
             className="set-w-move-btn"
             aria-label={t('widgets.moveUp', { label: t(`widgets.names.${reg.id}`) })}
@@ -317,8 +318,8 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
             onClick={() => onMove(cfg.id, -1)}
           >
             <ChevronUp size={14} strokeWidth={1.8} aria-hidden="true" />
-          </button>
-          <button
+          </Btn>
+          <Btn
             type="button"
             className="set-w-move-btn"
             aria-label={t('widgets.moveDown', { label: t(`widgets.names.${reg.id}`) })}
@@ -326,42 +327,42 @@ function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, o
             onClick={() => onMove(cfg.id, 1)}
           >
             <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
-          </button>
-        </span>
-        <span className="set-w-row-name">{t(`widgets.names.${reg.id}`)}</span>
+          </Btn>
+        </Txt>
+        <Txt className="set-w-row-name">{t(`widgets.names.${reg.id}`)}</Txt>
         <Switch
           checked={cfg.enabled}
           onChange={(v) => onUpdate({ enabled: v })}
           label={t('widgets.toggle', { label: t(`widgets.names.${reg.id}`), state: cfg.enabled ? t('widgets.off') : t('widgets.on') })}
         />
-      </div>
+      </Box>
       {cfg.enabled && (
-        <div className="set-w-row-ctrls">
+        <Box className="set-w-row-ctrls">
           {reg.supportsCompact && (
-            <button
+            <Btn
               type="button"
               className={`set-w-chip${cfg.compact ? ' on' : ''}`}
               onClick={() => onUpdate({ compact: !cfg.compact })}
-            >{t('widgets.compact')}</button>
+            >{t('widgets.compact')}</Btn>
           )}
-          <div className="set-w-density">
+          <Box className="set-w-density">
             {[
               { v: null,         l: t('widgets.rowDensity.global') },
               { v: 'compact',     l: t('widgets.rowDensity.compact') },
               { v: 'comfortable', l: t('widgets.rowDensity.comfortable') },
               { v: 'spacious',    l: t('widgets.rowDensity.spacious') },
             ].map((d) => (
-              <button
+              <Btn
                 key={d.v ?? 'global'}
                 type="button"
                 className={`set-w-chip${(cfg.density ?? null) === d.v ? ' on' : ''}`}
                 onClick={() => onUpdate({ density: d.v })}
-              >{d.l}</button>
+              >{d.l}</Btn>
             ))}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -392,7 +393,7 @@ function DesignBody({ prefs, onUpdate }) {
   const activeLang = (i18n.language || 'he').split('-')[0]
   const setLanguage = (code) => { i18n.changeLanguage(code); onUpdate({ design: { language: code } }) }
   return (
-    <div className="set-profile-body">
+    <Box className="set-profile-body">
       <Segmented label={t('common:language')} value={activeLang} options={LANGUAGE_OPTIONS} onChange={setLanguage} />
       <Segmented label={t('design.theme')} value={d.theme || 'light'} options={THEME_OPTIONS.map((o) => ({ ...o, l: t(`options.theme.${o.v}`) }))} onChange={setVal('theme')} />
       <Segmented label={t('design.background')} value={d.background || 'nature'} options={BACKGROUND_OPTIONS.map((o) => ({ ...o, l: t(`options.background.${o.v}`) }))} onChange={setVal('background')} />
@@ -420,7 +421,7 @@ function DesignBody({ prefs, onUpdate }) {
         />
       )}
       <Segmented label={t('design.textSize')} value={d.text_size || 'normal'} options={TEXT_SIZE_OPTIONS.map((o) => ({ ...o, l: t(`options.textSize.${o.v}`) }))} onChange={setVal('text_size')} />
-    </div>
+    </Box>
   )
 }
 
@@ -428,13 +429,13 @@ function DesignBody({ prefs, onUpdate }) {
    label + optional hint. `nested` indents it under its parent toggle. */
 function SwitchField({ label, hint, checked, onChange, nested = false }) {
   return (
-    <div className={`set-switch-field${nested ? ' nested' : ''}`}>
-      <div className="set-switch-field-row">
-        <span className="set-switch-field-label">{label}</span>
+    <Box className={`set-switch-field${nested ? ' nested' : ''}`}>
+      <Box className="set-switch-field-row">
+        <Txt className="set-switch-field-label">{label}</Txt>
         <Switch checked={checked} onChange={onChange} label={label} />
-      </div>
-      {hint && <p className="set-switch-field-hint">{hint}</p>}
-    </div>
+      </Box>
+      {hint && <Txt as="p" className="set-switch-field-hint">{hint}</Txt>}
+    </Box>
   )
 }
 
@@ -464,12 +465,12 @@ function AboutBody({ initialTab }) {
     initialTab && ABOUT_TABS.some((x) => x.key === initialTab) ? initialTab : 'about',
   )
   return (
-    <div className="set-about-wrap">
-      <div className="set-about-tabs" role="tablist" aria-label={t('about.tabsAria')}>
+    <Box className="set-about-wrap">
+      <Box className="set-about-tabs" role="tablist" aria-label={t('about.tabsAria')}>
         {ABOUT_TABS.map((tab2) => {
           const Icon = tab2.icon
           return (
-            <button
+            <Btn
               key={tab2.key}
               type="button"
               role="tab"
@@ -479,14 +480,14 @@ function AboutBody({ initialTab }) {
             >
               <Icon size={14} strokeWidth={1.7} aria-hidden="true" />
               {t(`about.tabs.${tab2.key}`)}
-            </button>
+            </Btn>
           )
         })}
-      </div>
+      </Box>
       {tab === 'about' && <AboutInfo navigate={navigate} />}
       {tab === 'guide' && <AboutGuide />}
       {tab === 'faq' && <AboutFaq />}
-    </div>
+    </Box>
   )
 }
 
@@ -494,111 +495,111 @@ function AboutInfo({ navigate }) {
   const { t } = useT('settings')
   const about = getAboutContent()
   return (
-    <div className="set-about">
-      <p className="set-about-name">Simplicity</p>
-      <p className="set-about-tag">{about.tagline}</p>
-      <p className="set-about-desc"><MG text={about.description} /></p>
-      <div className="set-about-principles">
+    <Box className="set-about">
+      <Txt as="p" className="set-about-name">Simplicity</Txt>
+      <Txt as="p" className="set-about-tag">{about.tagline}</Txt>
+      <Txt as="p" className="set-about-desc"><MG text={about.description} /></Txt>
+      <Box className="set-about-principles">
         {about.principles.map((p, i) => (
-          <div key={i} className="set-about-principle">
-            <p className="set-about-principle-t">{p.title}</p>
-            <p className="set-about-principle-b"><MG text={p.body} /></p>
-          </div>
+          <Box key={i} className="set-about-principle">
+            <Txt as="p" className="set-about-principle-t">{p.title}</Txt>
+            <Txt as="p" className="set-about-principle-b"><MG text={p.body} /></Txt>
+          </Box>
         ))}
-      </div>
-      <div className="set-about-meta">
-        <span>{t('about.version', { version: about.version })}</span>
-        <span className="set-about-dot">·</span>
-        <span>2026</span>
-      </div>
-      <p className="set-about-credit">{about.built_with}</p>
+      </Box>
+      <Box className="set-about-meta">
+        <Txt>{t('about.version', { version: about.version })}</Txt>
+        <Txt className="set-about-dot">·</Txt>
+        <Txt>2026</Txt>
+      </Box>
+      <Txt as="p" className="set-about-credit">{about.built_with}</Txt>
       {/* Legal documents — the desktop sidebar surfaces these too, but this is
           the only path on mobile (no sidebar). Opens the public /legal page. */}
-      <div className="set-about-legal">
-        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=privacy`)}>{t('about.privacy')}</button>
-        <span className="set-about-dot">·</span>
-        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=terms`)}>{t('about.terms')}</button>
-        <span className="set-about-dot">·</span>
-        <button type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=dpa`)}>{t('about.dpa')}</button>
-      </div>
-    </div>
+      <Box className="set-about-legal">
+        <Btn type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=privacy`)}>{t('about.privacy')}</Btn>
+        <Txt className="set-about-dot">·</Txt>
+        <Btn type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=terms`)}>{t('about.terms')}</Btn>
+        <Txt className="set-about-dot">·</Txt>
+        <Btn type="button" className="set-about-legal-link" onClick={() => navigate(`${ROUTES.LEGAL}?tab=dpa`)}>{t('about.dpa')}</Btn>
+      </Box>
+    </Box>
   )
 }
 
 function AboutGuide() {
   const { t } = useT('settings')
   return (
-    <div className="set-guide">
-      <p className="set-sub-intro">{t('about.guideIntro')}</p>
+    <Box className="set-guide">
+      <Txt as="p" className="set-sub-intro">{t('about.guideIntro')}</Txt>
       {GUIDE_ORDER.map((key) => {
         const s = getHelpScreen(key)
         if (!s) return null
         return (
-          <details key={key} className="set-guide-screen">
-            <summary>
+          <Box as="details" key={key} className="set-guide-screen">
+            <Txt as="summary">
               {s.title}
               <ChevronDown size={16} strokeWidth={1.7} className="set-guide-chev" aria-hidden="true" />
-            </summary>
-            <div className="set-guide-screen-body">
-              {s.intro && <p className="set-guide-intro"><MG text={s.intro} /></p>}
+            </Txt>
+            <Box className="set-guide-screen-body">
+              {s.intro && <Txt as="p" className="set-guide-intro"><MG text={s.intro} /></Txt>}
               {(s.features || []).map((f, i) => (
-                <div key={i} className="set-guide-feat">
-                  <p className="set-guide-feat-t"><MG text={f.title} /></p>
-                  <p className="set-guide-feat-b"><MG text={f.body} /></p>
-                </div>
+                <Box key={i} className="set-guide-feat">
+                  <Txt as="p" className="set-guide-feat-t"><MG text={f.title} /></Txt>
+                  <Txt as="p" className="set-guide-feat-b"><MG text={f.body} /></Txt>
+                </Box>
               ))}
               {(s.tips || []).length > 0 && (
                 <>
-                  <p className="set-guide-sub">{t('about.guideTips')}</p>
-                  <ul className="help-tips">
+                  <Txt as="p" className="set-guide-sub">{t('about.guideTips')}</Txt>
+                  <Box as="ul" className="help-tips">
                     {s.tips.map((t, i) => (
-                      <li key={i} className="help-tip">
-                        <span className="help-tip-icon">
+                      <Box as="li" key={i} className="help-tip">
+                        <Txt className="help-tip-icon">
                           <Lightbulb size={15} strokeWidth={1.7} aria-hidden="true" />
-                        </span>
+                        </Txt>
                         <MG text={t} />
-                      </li>
+                      </Box>
                     ))}
-                  </ul>
+                  </Box>
                 </>
               )}
               {(s.faq || []).length > 0 && (
                 <>
-                  <p className="set-guide-sub">{t('about.guideFaq')}</p>
+                  <Txt as="p" className="set-guide-sub">{t('about.guideFaq')}</Txt>
                   {s.faq.map((item, i) => (
-                    <div key={i} className="set-guide-qa">
-                      <p className="set-guide-q"><MG text={item.q} /></p>
-                      <p className="set-guide-a"><MG text={item.a} /></p>
-                    </div>
+                    <Box key={i} className="set-guide-qa">
+                      <Txt as="p" className="set-guide-q"><MG text={item.q} /></Txt>
+                      <Txt as="p" className="set-guide-a"><MG text={item.a} /></Txt>
+                    </Box>
                   ))}
                 </>
               )}
-            </div>
-          </details>
+            </Box>
+          </Box>
         )
       })}
-    </div>
+    </Box>
   )
 }
 
 function AboutFaq() {
   return (
-    <div className="set-faq">
+    <Box className="set-faq">
       {getGlobalFaq().map((cat, ci) => (
-        <div key={ci} className="set-faq-group">
-          <p className="set-faq-cat">{cat.category}</p>
+        <Box key={ci} className="set-faq-group">
+          <Txt as="p" className="set-faq-cat">{cat.category}</Txt>
           {cat.items.map((item, i) => (
-            <details key={i} className="set-faq-item">
-              <summary>
+            <Box as="details" key={i} className="set-faq-item">
+              <Txt as="summary">
                 <MG text={item.q} />
                 <ChevronDown size={15} strokeWidth={1.7} className="set-faq-chev" aria-hidden="true" />
-              </summary>
-              <p className="set-faq-a"><MG text={item.a} /></p>
-            </details>
+              </Txt>
+              <Txt as="p" className="set-faq-a"><MG text={item.a} /></Txt>
+            </Box>
           ))}
-        </div>
+        </Box>
       ))}
-    </div>
+    </Box>
   )
 }
 
@@ -653,46 +654,46 @@ function ProfileBody({ prefs, onUpdate }) {
   }
 
   return (
-    <div className="set-profile-body">
-      <div className="m-field">
-        <label className="m-label">{t('profile.fullName')} {savedName && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>{t('profile.saved')}</span>}</label>
-        <input
+    <Box className="set-profile-body">
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('profile.fullName')} {savedName && <Txt style={{ color: 'var(--sage)', fontWeight: 600 }}>{t('profile.saved')}</Txt>}</Box>
+        <Input
           className="m-input"
           value={name}
           onChange={(e) => { setName(e.target.value); setSavedName(false) }}
           onBlur={commitName}
           placeholder={t('profile.namePlaceholder')}
         />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('profile.address')}</label>
-        <div className="m-pills">
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('profile.address')}</Box>
+        <Box className="m-pills">
           {GENDERS.map((g) => (
-            <button key={g} type="button" className={`m-pill${gender === g ? ' on' : ''}`} onClick={() => pickGender(g)}>{t(`profile.genders.${g}`)}</button>
+            <Btn key={g} type="button" className={`m-pill${gender === g ? ' on' : ''}`} onClick={() => pickGender(g)}>{t(`profile.genders.${g}`)}</Btn>
           ))}
-        </div>
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('profile.role')}</label>
-        <div className="m-pills">
+        </Box>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('profile.role')}</Box>
+        <Box className="m-pills">
           {ROLE_KEYS.map((k) => (
-            <button key={k} type="button" className={`m-pill${role === k ? ' on' : ''}`} onClick={() => pickRole(k)}>{roleLabel(k, gender)}</button>
+            <Btn key={k} type="button" className={`m-pill${role === k ? ' on' : ''}`} onClick={() => pickRole(k)}>{roleLabel(k, gender)}</Btn>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
       {role === 'other' && (
-        <div className="m-field set-role-other">
-          <label className="m-label">{t('profile.roleOther')} {savedRoleOther && <span style={{ color: 'var(--sage)', fontWeight: 600 }}>{t('profile.saved')}</span>}</label>
-          <input
+        <Box className="m-field set-role-other">
+          <Box as="label" className="m-label">{t('profile.roleOther')} {savedRoleOther && <Txt style={{ color: 'var(--sage)', fontWeight: 600 }}>{t('profile.saved')}</Txt>}</Box>
+          <Input
             className="m-input"
             value={roleOther}
             onChange={(e) => { setRoleOther(e.target.value); setSavedRoleOther(false) }}
             onBlur={commitRoleOther}
             placeholder={t('profile.roleOtherPlaceholder')}
           />
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -703,11 +704,11 @@ function StatusGroups({ metas, metaNs, statuses, drafts, setDraft, onAdd, onRemo
   const [addError, setAddError] = useState(null)
   const [draftColors, setDraftColors] = useState({})
   if (loading) {
-    return <div className="set-sub"><p className="set-sub-empty">{t('common.loading')}</p></div>
+    return <Box className="set-sub"><Txt as="p" className="set-sub-empty">{t('common.loading')}</Txt></Box>
   }
   return (
-    <div className="set-sub">
-      {error && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{t('status.loadError', { error })}</p>}
+    <Box className="set-sub">
+      {error && <Txt as="p" className="set-sub-empty" style={{ color: 'var(--clay)' }}>{t('status.loadError', { error })}</Txt>}
       {metas.map((mk) => {
         const metaLabel = t(`${metaNs}.${mk}`)
         const list = statuses.filter((s) => s.meta_category === mk)
@@ -727,38 +728,38 @@ function StatusGroups({ metas, metaNs, statuses, drafts, setDraft, onAdd, onRemo
           }
         }
         return (
-          <div key={mk} className="set-sub-group">
-            <p className="set-sub-meta">{metaLabel}</p>
-            {list.length === 0 && <p className="set-sub-empty">{t('status.empty')}</p>}
+          <Box key={mk} className="set-sub-group">
+            <Txt as="p" className="set-sub-meta">{metaLabel}</Txt>
+            {list.length === 0 && <Txt as="p" className="set-sub-empty">{t('status.empty')}</Txt>}
             {list.map((s) => (
-              <div key={s.id} className="set-q-row">
-                <span className="set-q-icon" style={s.color ? { color: s.color } : undefined}>{s.icon || '•'}</span>
-                <span className="set-q-text">{s.display_name}</span>
-                <button type="button" className="set-q-del" onClick={() => onRemove(s, list)} aria-label={t('status.deleteAria')}>
+              <Box key={s.id} className="set-q-row">
+                <Txt className="set-q-icon" style={s.color ? { color: s.color } : undefined}>{s.icon || '•'}</Txt>
+                <Txt className="set-q-text">{s.display_name}</Txt>
+                <Btn type="button" className="set-q-del" onClick={() => onRemove(s, list)} aria-label={t('status.deleteAria')}>
                   <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
-                </button>
-              </div>
+                </Btn>
+              </Box>
             ))}
-            <div className="set-sub-add">
-              <input
+            <Box className="set-sub-add">
+              <Input
                 className="m-input"
                 value={draft}
                 onChange={(e) => setDraft(mk, e.target.value)}
                 placeholder={t('status.subStatusPlaceholder', { meta: metaLabel })}
                 onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
               />
-              <button type="button" className="set-q-add" onClick={submit} disabled={!draft.trim()}>
+              <Btn type="button" className="set-q-add" onClick={submit} disabled={!draft.trim()}>
                 <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
-              </button>
-            </div>
+              </Btn>
+            </Box>
             {withColor && (
               <ColorDots value={color} onChange={(c) => setDraftColors((d) => ({ ...d, [mk]: c }))} />
             )}
-          </div>
+          </Box>
         )
       })}
-      {addError && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{addError}</p>}
-    </div>
+      {addError && <Txt as="p" className="set-sub-empty" style={{ color: 'var(--clay)' }}>{addError}</Txt>}
+    </Box>
   )
 }
 
@@ -940,15 +941,15 @@ export default function SettingsScreen() {
 
   const renderBody = (key) => {
     if (key === 'profile') {
-      if (prefsLoading) return <p className="set-soon">{t('common.loading')}</p>
+      if (prefsLoading) return <Txt as="p" className="set-soon">{t('common.loading')}</Txt>
       return <ProfileBody prefs={prefs} onUpdate={updatePrefs} />
     }
     if (key === 'payments') {
-      if (prefsLoading) return <p className="set-soon">{t('common.loading')}</p>
+      if (prefsLoading) return <Txt as="p" className="set-soon">{t('common.loading')}</Txt>
       return <PaymentsBody prefs={prefs} onUpdate={updatePrefs} />
     }
     if (key === 'design') {
-      if (prefsLoading) return <p className="set-soon">{t('common.loading')}</p>
+      if (prefsLoading) return <Txt as="p" className="set-soon">{t('common.loading')}</Txt>
       return <DesignBody prefs={prefs} onUpdate={updatePrefs} />
     }
     if (key === 'about') {
@@ -958,32 +959,32 @@ export default function SettingsScreen() {
       return <SubscriptionBody />
     }
     if (key === 'widgets') {
-      if (prefsLoading) return <p className="set-soon">{t('common.loading')}</p>
+      if (prefsLoading) return <Txt as="p" className="set-soon">{t('common.loading')}</Txt>
       return <WidgetsBody prefs={prefs} onUpdate={updatePrefs} />
     }
     if (key === 'questions') {
       const reminderPref = prefs?.insightsReminder || { enabled: false, time: '20:00' }
       const setReminder = (patch) => updatePrefs?.({ insightsReminder: { ...reminderPref, ...patch } })
       return (
-        <div className="set-q">
+        <Box className="set-q">
           {questionsLoading ? (
-            <p className="set-q-empty">{t('common.loading')}</p>
+            <Txt as="p" className="set-q-empty">{t('common.loading')}</Txt>
           ) : questionsError ? (
-            <p className="set-q-empty" style={{ color: 'var(--clay)' }}>{t('questions.loadError', { error: questionsError })}</p>
+            <Txt as="p" className="set-q-empty" style={{ color: 'var(--clay)' }}>{t('questions.loadError', { error: questionsError })}</Txt>
           ) : questions.length === 0 ? (
-            <p className="set-q-empty">{t('questions.empty')}</p>
+            <Txt as="p" className="set-q-empty">{t('questions.empty')}</Txt>
           ) : (
             questions.map((q) => (
-              <div key={q.id} className={`set-q-block${q.active ? '' : ' off'}`}>
-                <div className={`set-q-row`}>
-                  <span className="set-q-icon">{q.icon || '🫧'}</span>
-                  <span className="set-q-text">{questionText(q, gender)}</span>
+              <Box key={q.id} className={`set-q-block${q.active ? '' : ' off'}`}>
+                <Box className={`set-q-row`}>
+                  <Txt className="set-q-icon">{q.icon || '🫧'}</Txt>
+                  <Txt className="set-q-text">{questionText(q, gender)}</Txt>
                   {goalLinkedQ.has(q.id) && (
-                    <span className="set-q-goal" title={t('questions.linkedToGoal')} aria-label={t('questions.linkedToGoal')}>
+                    <Txt className="set-q-goal" title={t('questions.linkedToGoal')} aria-label={t('questions.linkedToGoal')}>
                       <Target size={12} strokeWidth={1.9} aria-hidden="true" />
-                    </span>
+                    </Txt>
                   )}
-                  <button
+                  <Btn
                     type="button"
                     className="set-q-sched"
                     onClick={() => setEditingScheduleId(editingScheduleId === q.id ? null : q.id)}
@@ -991,16 +992,16 @@ export default function SettingsScreen() {
                   >
                     <CalendarDays size={11} strokeWidth={1.7} aria-hidden="true" />
                     {describeSchedule(q)}
-                  </button>
+                  </Btn>
                   <Switch
                     checked={q.active}
                     onChange={() => toggleActive(q)}
                     label={q.active ? t('questions.toggleOff') : t('questions.toggleOn')}
                   />
-                  <button type="button" className="set-q-del" onClick={() => removeQuestion(q.id)} aria-label={t('questions.deleteAria')}>
+                  <Btn type="button" className="set-q-del" onClick={() => removeQuestion(q.id)} aria-label={t('questions.deleteAria')}>
                     <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
-                  </button>
-                </div>
+                  </Btn>
+                </Box>
                 {editingScheduleId === q.id && (
                   <QuestionScheduleEditor
                     question={q}
@@ -1008,36 +1009,36 @@ export default function SettingsScreen() {
                     onUpdate={updateQuestion}
                   />
                 )}
-              </div>
+              </Box>
             ))
           )}
-          <button type="button" className="set-q-add" onClick={() => setShowAddQ(true)}>
+          <Btn type="button" className="set-q-add" onClick={() => setShowAddQ(true)}>
             <Plus size={15} strokeWidth={1.8} aria-hidden="true" /> {t('questions.add')}
-          </button>
+          </Btn>
 
-          <div className="set-sub-divider" />
-          <p className="set-sub-h">{t('questions.reminderTitle')}</p>
-          <div className="set-reminder-row">
-            <span className="set-reminder-toggle">
+          <Box className="set-sub-divider" />
+          <Txt as="p" className="set-sub-h">{t('questions.reminderTitle')}</Txt>
+          <Box className="set-reminder-row">
+            <Txt className="set-reminder-toggle">
               <Switch
                 checked={!!reminderPref.enabled}
                 onChange={(v) => setReminder({ enabled: v })}
                 label={t('questions.reminderToggle')}
               />
-              <span>{t('questions.reminderLabel')}</span>
-            </span>
-            <input
+              <Txt>{t('questions.reminderLabel')}</Txt>
+            </Txt>
+            <Input
               type="time"
               className="m-input set-reminder-time"
               value={reminderPref.time || '20:00'}
               onChange={(e) => setReminder({ time: e.target.value })}
               disabled={!reminderPref.enabled}
             />
-          </div>
-          <p className="set-reminder-hint">
+          </Box>
+          <Txt as="p" className="set-reminder-hint">
             {t('questions.reminderHint')}
-          </p>
-        </div>
+          </Txt>
+        </Box>
       )
     }
     if (key === 'data') {
@@ -1073,27 +1074,27 @@ export default function SettingsScreen() {
         { k: 'categories', n: dataCategories?.length || 0 },
       ]
       return (
-        <div className="set-data">
-          <p className="set-sub-intro">{t('data.intro')}</p>
-          <div className="set-data-stats">
+        <Box className="set-data">
+          <Txt as="p" className="set-sub-intro">{t('data.intro')}</Txt>
+          <Box className="set-data-stats">
             {counts.map((c) => (
-              <div key={c.k} className="set-data-stat">
-                <p className="set-data-stat-v mono">{c.n}</p>
-                <p className="set-data-stat-l">{t(`data.counts.${c.k}`)}</p>
-              </div>
+              <Box key={c.k} className="set-data-stat">
+                <Txt as="p" className="set-data-stat-v mono">{c.n}</Txt>
+                <Txt as="p" className="set-data-stat-l">{t(`data.counts.${c.k}`)}</Txt>
+              </Box>
             ))}
-          </div>
-          <button
+          </Box>
+          <Btn
             type="button"
             className="set-data-action"
             onClick={() => setShowExport(true)}
           >
             <Download size={15} strokeWidth={1.7} aria-hidden="true" />
             {t('data.export')}
-          </button>
-          <p className="set-data-hint">
+          </Btn>
+          <Txt as="p" className="set-data-hint">
             {t('data.exportHint')}
-          </p>
+          </Txt>
 
           <ExportDataModal
             open={showExport}
@@ -1107,7 +1108,7 @@ export default function SettingsScreen() {
             hasProjects={(dataProjects?.length || 0) > 0}
           />
 
-          <input
+          <Input
             ref={importFileRef}
             type="file"
             accept={ACCEPT}
@@ -1115,7 +1116,7 @@ export default function SettingsScreen() {
             style={{ display: 'none' }}
             onChange={(e) => { onPickImport(e.target.files); e.target.value = '' }}
           />
-          <button
+          <Btn
             type="button"
             className="set-data-action"
             onClick={() => importFileRef.current?.click()}
@@ -1124,19 +1125,19 @@ export default function SettingsScreen() {
           >
             <Upload size={15} strokeWidth={1.7} aria-hidden="true" />
             {t('data.import')}
-          </button>
-          <p className="set-data-hint">
+          </Btn>
+          <Txt as="p" className="set-data-hint">
             {t('data.importHint')}
-          </p>
+          </Txt>
           {importBusy && (
-            <p className="set-data-hint" role="status" aria-live="polite">{t('data.importProcessing')}</p>
+            <Txt as="p" className="set-data-hint" role="status" aria-live="polite">{t('data.importProcessing')}</Txt>
           )}
           {importMsg && (
-            <p className="set-data-hint" role="status" aria-live="polite"
-              style={{ color: importMsg.startsWith(t('data.importErrorPrefix')) ? 'var(--clay)' : 'var(--sage)', fontWeight: 600 }}>{importMsg}</p>
+            <Txt as="p" className="set-data-hint" role="status" aria-live="polite"
+              style={{ color: importMsg.startsWith(t('data.importErrorPrefix')) ? 'var(--clay)' : 'var(--sage)', fontWeight: 600 }}>{importMsg}</Txt>
           )}
 
-          <button
+          <Btn
             type="button"
             className="set-data-action"
             onClick={() => setShowRestartOb(true)}
@@ -1144,39 +1145,39 @@ export default function SettingsScreen() {
           >
             <Sparkles size={15} strokeWidth={1.7} aria-hidden="true" />
             {t('data.restartOnboarding')}
-          </button>
-          <p className="set-data-hint">
+          </Btn>
+          <Txt as="p" className="set-data-hint">
             {t('data.restartHint')}
-          </p>
+          </Txt>
 
-          <div className="set-danger-zone">
-            <p className="set-danger-title">{t('danger.resetTitle')}</p>
-            <button
+          <Box className="set-danger-zone">
+            <Txt as="p" className="set-danger-title">{t('danger.resetTitle')}</Txt>
+            <Btn
               type="button"
               className="set-data-action danger"
               onClick={() => setShowReset(true)}
             >
               <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" />
               {t('danger.resetAction')}
-            </button>
-            <p className="set-data-hint">
+            </Btn>
+            <Txt as="p" className="set-data-hint">
               {t('danger.resetHint')}
-            </p>
+            </Txt>
 
-            <p className="set-danger-title" style={{ marginTop: 20 }}>{t('danger.deleteTitle')}</p>
-            <button
+            <Txt as="p" className="set-danger-title" style={{ marginTop: 20 }}>{t('danger.deleteTitle')}</Txt>
+            <Btn
               type="button"
               className="set-data-action danger"
               onClick={() => setShowDelete(true)}
             >
               <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" />
               {t('danger.deleteAction')}
-            </button>
-            <p className="set-data-hint">
+            </Btn>
+            <Txt as="p" className="set-data-hint">
               {t('danger.deleteHint')}
-            </p>
-          </div>
-        </div>
+            </Txt>
+          </Box>
+        </Box>
       )
     }
     if (key === 'clients') {
@@ -1193,10 +1194,10 @@ export default function SettingsScreen() {
             loading={clientStatusesLoading}
             error={clientStatusesError}
           />
-          <div className="set-q" style={{ marginTop: 14 }}>
-            <p className="set-sub-h">{t('clients.meetingTypesHeading')}</p>
+          <Box className="set-q" style={{ marginTop: 14 }}>
+            <Txt as="p" className="set-sub-h">{t('clients.meetingTypesHeading')}</Txt>
             <MeetingTypesManager onChanged={refetchClients} />
-          </div>
+          </Box>
         </>
       )
     }
@@ -1213,41 +1214,41 @@ export default function SettingsScreen() {
         }
       }
       return (
-        <div className="set-q">
-          <p className="set-sub-h">{t('leads.sources')}</p>
+        <Box className="set-q">
+          <Txt as="p" className="set-sub-h">{t('leads.sources')}</Txt>
           {sourcesLoading ? (
-            <p className="set-sub-empty">{t('common.loading')}</p>
+            <Txt as="p" className="set-sub-empty">{t('common.loading')}</Txt>
           ) : sourcesError ? (
-            <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{t('leads.sourcesLoadError', { error: sourcesError })}</p>
+            <Txt as="p" className="set-sub-empty" style={{ color: 'var(--clay)' }}>{t('leads.sourcesLoadError', { error: sourcesError })}</Txt>
           ) : sources.length === 0 ? (
-            <p className="set-sub-empty">{t('leads.sourcesEmpty')}</p>
+            <Txt as="p" className="set-sub-empty">{t('leads.sourcesEmpty')}</Txt>
           ) : (
             sources.map((s) => (
-              <div key={s.id} className="set-q-row">
-                <span className="set-q-icon" style={{ color: s.color }}>●</span>
-                <span className="set-q-text">{s.name}</span>
-                <button type="button" className="set-q-del" onClick={() => removeSource(s.id)} aria-label={t('leads.deleteSourceAria')}>
+              <Box key={s.id} className="set-q-row">
+                <Txt className="set-q-icon" style={{ color: s.color }}>●</Txt>
+                <Txt className="set-q-text">{s.name}</Txt>
+                <Btn type="button" className="set-q-del" onClick={() => removeSource(s.id)} aria-label={t('leads.deleteSourceAria')}>
                   <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
-                </button>
-              </div>
+                </Btn>
+              </Box>
             ))
           )}
-          <div className="set-sub-add">
-            <input
+          <Box className="set-sub-add">
+            <Input
               className="m-input"
               value={newSourceName}
               onChange={(e) => setNewSourceName(e.target.value)}
               placeholder={t('leads.newSourcePlaceholder')}
               onKeyDown={(e) => { if (e.key === 'Enter') submitNewSource() }}
             />
-            <button type="button" className="set-q-add" onClick={submitNewSource} disabled={!newSourceName.trim()}>
+            <Btn type="button" className="set-q-add" onClick={submitNewSource} disabled={!newSourceName.trim()}>
               <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
-            </button>
-          </div>
+            </Btn>
+          </Box>
           <ColorDots value={newSourceColor} onChange={setNewSourceColor} />
-          {sourceError && <p className="set-sub-empty" style={{ color: 'var(--clay)' }}>{sourceError}</p>}
+          {sourceError && <Txt as="p" className="set-sub-empty" style={{ color: 'var(--clay)' }}>{sourceError}</Txt>}
 
-          <p className="set-sub-h" style={{ marginTop: 14 }}>{t('leads.subStatuses')}</p>
+          <Txt as="p" className="set-sub-h" style={{ marginTop: 14 }}>{t('leads.subStatuses')}</Txt>
           <StatusGroups
             metas={LEAD_METAS}
             metaNs="leadMetas"
@@ -1260,74 +1261,74 @@ export default function SettingsScreen() {
             error={leadStatusesError}
             withColor
           />
-        </div>
+        </Box>
       )
     }
-    return <p className="set-soon">{t('common.soon')}</p>
+    return <Txt as="p" className="set-soon">{t('common.soon')}</Txt>
   }
 
   return (
-    <div className="screen">
-      <div className="screen-top">
-        <header className="screen-head">
-          <div>
-            <div className="screen-head-meta">
-              <p className="lbl">{t('header.areas', { count: SECTION_GROUPS.length })}</p>
-              <span className="lbl dot">·</span>
-              <p className="lbl">{t('header.customization')}</p>
-            </div>
-            <p className="lbl-sm">{t('header.tagline')}</p>
-          </div>
-          <p className="t-screen">{t('header.title')}</p>
-        </header>
-      </div>
+    <Box className="screen">
+      <Box className="screen-top">
+        <Box as="header" className="screen-head">
+          <Box>
+            <Box className="screen-head-meta">
+              <Txt as="p" className="lbl">{t('header.areas', { count: SECTION_GROUPS.length })}</Txt>
+              <Txt className="lbl dot">·</Txt>
+              <Txt as="p" className="lbl">{t('header.customization')}</Txt>
+            </Box>
+            <Txt as="p" className="lbl-sm">{t('header.tagline')}</Txt>
+          </Box>
+          <Txt as="p" className="t-screen">{t('header.title')}</Txt>
+        </Box>
+      </Box>
 
-      <div className="set-list">
+      <Box className="set-list">
         {SECTION_GROUPS.map((group) => {
           const groupOpen = !!openGroups[group.key]
           const GroupIcon = group.icon
           return (
-            <div key={group.key} className="set-group">
-              <button
+            <Box key={group.key} className="set-group">
+              <Btn
                 type="button"
                 className={`set-group-head${groupOpen ? ' open' : ''}`}
                 onClick={() => toggleGroup(group.key)}
                 aria-expanded={groupOpen}
               >
-                <span className="set-group-icon"><GroupIcon size={18} strokeWidth={1.6} aria-hidden="true" /></span>
-                <div className="set-group-text">
-                  <p className="set-group-title">{t(group.titleKey)}</p>
-                  <p className="set-group-sub">{t(group.subKey)}</p>
-                </div>
+                <Txt className="set-group-icon"><GroupIcon size={18} strokeWidth={1.6} aria-hidden="true" /></Txt>
+                <Box className="set-group-text">
+                  <Txt as="p" className="set-group-title">{t(group.titleKey)}</Txt>
+                  <Txt as="p" className="set-group-sub">{t(group.subKey)}</Txt>
+                </Box>
                 <ChevronDown size={18} strokeWidth={1.6} className="set-group-chev" aria-hidden="true" />
-              </button>
+              </Btn>
               {groupOpen && (
-                <div className="set-group-children">
+                <Box className="set-group-children">
                   {group.items.map((key) => {
                     const section = SECTION_DEFS[key]
                     if (!section) return null
                     const Icon = section.icon
                     const isOpen = !!open[key]
                     return (
-                      <div key={key} className={`set-acc${isOpen ? ' open' : ''}`}>
-                        <button type="button" className="set-acc-head" onClick={() => toggle(key)} aria-expanded={isOpen}>
-                          <span className="set-acc-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></span>
-                          <span className="set-acc-text">
-                            <span className="set-acc-title">{t(section.titleKey)}</span>
-                            <span className="set-acc-sub">{t(section.subKey)}</span>
-                          </span>
+                      <Box key={key} className={`set-acc${isOpen ? ' open' : ''}`}>
+                        <Btn type="button" className="set-acc-head" onClick={() => toggle(key)} aria-expanded={isOpen}>
+                          <Txt className="set-acc-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></Txt>
+                          <Txt className="set-acc-text">
+                            <Txt className="set-acc-title">{t(section.titleKey)}</Txt>
+                            <Txt className="set-acc-sub">{t(section.subKey)}</Txt>
+                          </Txt>
                           <ChevronDown size={18} strokeWidth={1.6} className="set-acc-chev" aria-hidden="true" />
-                        </button>
-                        {isOpen && <div className="set-acc-body">{renderBody(key)}</div>}
-                      </div>
+                        </Btn>
+                        {isOpen && <Box className="set-acc-body">{renderBody(key)}</Box>}
+                      </Box>
                     )
                   })}
-                </div>
+                </Box>
               )}
-            </div>
+            </Box>
           )
         })}
-      </div>
+      </Box>
 
       <AddQuestionModal
         open={showAddQ}
@@ -1380,6 +1381,6 @@ export default function SettingsScreen() {
         onClose={() => setShowDelete(false)}
         onConfirm={onDeleteAccount}
       />
-    </div>
+    </Box>
   )
 }

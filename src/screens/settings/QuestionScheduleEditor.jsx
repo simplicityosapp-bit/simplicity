@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 /* Weekday keys; short labels are translated via t(`schedule.weekdays.${k}`). */
 const DAY_KEYS = [0, 1, 2, 3, 4, 5, 6]
@@ -65,17 +66,17 @@ export default function QuestionScheduleEditor({ question, onClose, onUpdate }) 
   }
 
   return (
-    <div className="qs-editor">
-      <div className="qs-modes">
-        <button type="button" className={`qs-mode${mode === 'every_day' ? ' on' : ''}`} onClick={() => setMode('every_day')}>{t('schedule.everyDay')}</button>
-        <button type="button" className={`qs-mode${mode === 'days_of_week' ? ' on' : ''}`} onClick={() => setMode('days_of_week')}>{t('schedule.daysOfWeek')}</button>
-        <button type="button" className={`qs-mode${mode === 'every_x_days' ? ' on' : ''}`} onClick={() => setMode('every_x_days')}>{t('schedule.everyXDays')}</button>
-      </div>
+    <Box className="qs-editor">
+      <Box className="qs-modes">
+        <Btn type="button" className={`qs-mode${mode === 'every_day' ? ' on' : ''}`} onClick={() => setMode('every_day')}>{t('schedule.everyDay')}</Btn>
+        <Btn type="button" className={`qs-mode${mode === 'days_of_week' ? ' on' : ''}`} onClick={() => setMode('days_of_week')}>{t('schedule.daysOfWeek')}</Btn>
+        <Btn type="button" className={`qs-mode${mode === 'every_x_days' ? ' on' : ''}`} onClick={() => setMode('every_x_days')}>{t('schedule.everyXDays')}</Btn>
+      </Box>
 
       {mode === 'days_of_week' && (
-        <div className="qs-day-pills">
+        <Box className="qs-day-pills">
           {DAY_KEYS.map((k) => (
-            <button
+            <Btn
               key={k}
               type="button"
               className={`qs-day${days.includes(k) ? ' on' : ''}`}
@@ -83,15 +84,15 @@ export default function QuestionScheduleEditor({ question, onClose, onUpdate }) 
               aria-pressed={days.includes(k)}
             >
               {t(`schedule.weekdays.${k}`)}
-            </button>
+            </Btn>
           ))}
-        </div>
+        </Box>
       )}
 
       {mode === 'every_x_days' && (
-        <div className="qs-x-row">
-          <span>{t('schedule.every')}</span>
-          <input
+        <Box className="qs-x-row">
+          <Txt>{t('schedule.every')}</Txt>
+          <Input
             type="number"
             min="2"
             max="30"
@@ -100,14 +101,14 @@ export default function QuestionScheduleEditor({ question, onClose, onUpdate }) 
             onBlur={() => setX((v) => String(Math.max(2, Math.min(30, parseInt(v, 10) || 2))))}
             className="qs-x-input"
           />
-          <span>{t('schedule.days')}</span>
-        </div>
+          <Txt>{t('schedule.days')}</Txt>
+        </Box>
       )}
 
-      <div className="qs-actions">
-        <button type="button" className="qs-cancel" onClick={onClose} disabled={busy}>{t('schedule.cancel')}</button>
-        <button type="button" className="qs-save" onClick={submit} disabled={busy}>{busy ? t('schedule.saving') : t('schedule.save')}</button>
-      </div>
-    </div>
+      <Box className="qs-actions">
+        <Btn type="button" className="qs-cancel" onClick={onClose} disabled={busy}>{t('schedule.cancel')}</Btn>
+        <Btn type="button" className="qs-save" onClick={submit} disabled={busy}>{busy ? t('schedule.saving') : t('schedule.save')}</Btn>
+      </Box>
+    </Box>
   )
 }

@@ -6,6 +6,7 @@ import { useT } from '../../i18n/useT'
 import '../site-pages/siteBuilderI18n'
 import SiteRenderer from './SiteRenderer'
 import './SitePage.css'
+import { Box, Txt } from '../../components/ui'
 
 /* Set the document title + meta/og/twitter tags from a page's resolved SEO,
    overriding the app defaults in index.html. Works for browsers + JS-rendering
@@ -86,16 +87,16 @@ export default function SitePage({ kind = 'landing' }) {
   }
 
   if (status === 'loading') {
-    return <div className="sp-root" dir="rtl"><div className="sp-page"><p className="sp-muted">{t('public.loading')}</p></div></div>
+    return <Box className="sp-root" dir="rtl"><Box className="sp-page"><Txt as="p" className="sp-muted">{t('public.loading')}</Txt></Box></Box>
   }
   if (status === 'notfound') {
     return (
-      <div className="sp-root" dir="rtl">
-        <div className="sp-page"><div className="sp-card sp-form-done">
-          <h1 className="sp-h2">{t('public.notFoundTitle')}</h1>
-          <p className="sp-muted">{t('public.notFoundBody')}</p>
-        </div></div>
-      </div>
+      <Box className="sp-root" dir="rtl">
+        <Box className="sp-page"><Box className="sp-card sp-form-done">
+          <Txt as="h1" className="sp-h2">{t('public.notFoundTitle')}</Txt>
+          <Txt as="p" className="sp-muted">{t('public.notFoundBody')}</Txt>
+        </Box></Box>
+      </Box>
     )
   }
 

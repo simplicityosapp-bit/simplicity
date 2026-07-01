@@ -8,6 +8,7 @@ import { iconByName } from '../../lib/pageIcons'
 import { useT } from '../../i18n/useT'
 import '../site-pages/siteBuilderI18n'
 import './SitePage.css'
+import { Box, Txt, Btn, Input, Textarea, Lnk } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    SITE RENDERER — the ONE pure renderer for builder pages.
@@ -51,15 +52,15 @@ function ActionButton({ label, action, style = 'primary', interactive }) {
     // No real destination (editor preview, or a missing/blocked URL on the live page)
     // → render a real <button>, not an <a> with no href (which isn't focusable and
     // reads as a broken link). It's inert on the live page, a plain preview in the editor.
-    if (!href) return <button type="button" className={cls} disabled={interactive}>{text}</button>
-    return <a className={cls} href={href} target="_blank" rel="noopener noreferrer">{text}</a>
+    if (!href) return <Btn type="button" className={cls} disabled={interactive}>{text}</Btn>
+    return <Lnk className={cls} href={href} target="_blank" rel="noopener noreferrer">{text}</Lnk>
   }
   const target = a.type === 'booking' ? 'booking' : 'form'
   return (
-    <button type="button" className={cls}
+    <Btn type="button" className={cls}
       onClick={() => interactive && scrollToBlock(target)}>
       {text}
-    </button>
+    </Btn>
   )
 }
 
@@ -93,14 +94,14 @@ const cardVars = (props) => ({ '--sp-card-opacity': `${props.cardOpacity ?? 100}
 
 function withCard(props, inner) {
   if (!props.card) return inner
-  return <div className="sp-card sp-block-card" style={cardVars(props)}>{inner}</div>
+  return <Box className="sp-card sp-block-card" style={cardVars(props)}>{inner}</Box>
 }
 
 /* ── Visual blocks ───────────────────────────────────────────────────────── */
 function HeroBlock({ props, interactive, edit }) {
   const { t } = useT('siteBuilder')
   const inner = (
-    <div className="sp-hero">
+    <Box className="sp-hero">
       {edit ? (
         <>
           <Editable as="div" className="sp-eyebrow" value={props.eyebrow} placeholder={t('labels.eyebrow')} onCommit={(v) => edit('eyebrow', v)} />
@@ -110,13 +111,13 @@ function HeroBlock({ props, interactive, edit }) {
         </>
       ) : (
         <>
-          {str(props.eyebrow) ? <div className="sp-eyebrow">{props.eyebrow}</div> : null}
-          {str(props.heading) ? <h1 className="sp-h1">{props.heading}</h1> : null}
-          {str(props.subheading) ? <p className="sp-sub">{props.subheading}</p> : null}
+          {str(props.eyebrow) ? <Box className="sp-eyebrow">{props.eyebrow}</Box> : null}
+          {str(props.heading) ? <Txt as="h1" className="sp-h1">{props.heading}</Txt> : null}
+          {str(props.subheading) ? <Txt as="p" className="sp-sub">{props.subheading}</Txt> : null}
           <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={interactive} />
         </>
       )}
-    </div>
+    </Box>
   )
   return withCard(props, inner)
 }
@@ -132,7 +133,7 @@ function TextBlock({ props, edit }) {
   // on the public page it's rendered. Formatting help stays in the inspector.
   const body = edit
     ? <Editable as="div" className="sp-text sp-text-raw" value={props.text} placeholder={t('labels.text')} onCommit={(v) => edit('text', v)} />
-    : <div className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.text) }} />
+    : <Box className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.text) }} />
   return withCard(props, body)
 }
 
@@ -140,12 +141,12 @@ function ImageBlock({ props, interactive }) {
   const { t } = useT('siteBuilder')
   const src = safeImageUrl(props.url)
   const mobileSrc = safeImageUrl(props.mobileUrl)
-  if (!src) return interactive ? null : <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
+  if (!src) return interactive ? null : <Box className="sp-img-empty">{t('renderer.imageEmpty')}</Box>
   return withCard(props,
-    <figure className={`sp-figure sp-w-${props.width || 'full'}${mobileSrc ? ' has-mobile' : ''}`}>
+    <Box as="figure" className={`sp-figure sp-w-${props.width || 'full'}${mobileSrc ? ' has-mobile' : ''}`}>
       <img className="sp-img sp-img-d" src={src} alt={props.alt || ''} loading="lazy" />
       {mobileSrc ? <img className="sp-img sp-img-m" src={mobileSrc} alt={props.alt || ''} loading="lazy" /> : null}
-    </figure>,
+    </Box>,
   )
 }
 
@@ -154,13 +155,13 @@ function IconTextBlock({ props, edit }) {
   const items = Array.isArray(props.items) ? props.items : []
   const setItem = (i, patch) => edit('items', items.map((it, j) => (j === i ? { ...it, ...patch } : it)))
   return withCard(props,
-    <div className="sp-icontext">
+    <Box className="sp-icontext">
       {items.map((it, i) => {
         const Icon = iconByName(it.icon)
         return (
-          <div className="sp-feature" key={i}>
-            <div className="sp-feature-icon"><Icon size={22} strokeWidth={2} aria-hidden="true" /></div>
-            <div className="sp-feature-body">
+          <Box className="sp-feature" key={i}>
+            <Box className="sp-feature-icon"><Icon size={22} strokeWidth={2} aria-hidden="true" /></Box>
+            <Box className="sp-feature-body">
               {edit ? (
                 <>
                   <Editable as="div" className="sp-feature-title" value={it.title} placeholder={t('labels.title')} onCommit={(v) => setItem(i, { title: v })} />
@@ -168,28 +169,28 @@ function IconTextBlock({ props, edit }) {
                 </>
               ) : (
                 <>
-                  {str(it.title) ? <div className="sp-feature-title">{it.title}</div> : null}
-                  {str(it.body) ? <p className="sp-feature-text">{it.body}</p> : null}
+                  {str(it.title) ? <Box className="sp-feature-title">{it.title}</Box> : null}
+                  {str(it.body) ? <Txt as="p" className="sp-feature-text">{it.body}</Txt> : null}
                 </>
               )}
-            </div>
-          </div>
+            </Box>
+          </Box>
         )
       })}
-    </div>
+    </Box>
   )
 }
 
 function TestimonialBlock({ props, edit }) {
   const { t } = useT('siteBuilder')
   return (
-    <figure className="sp-testimonial" style={cardVars(props)}>
+    <Box as="figure" className="sp-testimonial" style={cardVars(props)}>
       {edit
         ? <Editable as="blockquote" className="sp-quote" value={props.quote} placeholder={t('labels.quote')} onCommit={(v) => edit('quote', v)} />
-        : (str(props.quote) ? <blockquote className="sp-quote">{props.quote}</blockquote> : null)}
-      <figcaption className="sp-cite">
+        : (str(props.quote) ? <Box as="blockquote" className="sp-quote">{props.quote}</Box> : null)}
+      <Txt as="figcaption" className="sp-cite">
         {safeImageUrl(props.avatar) ? <img className="sp-avatar" src={safeImageUrl(props.avatar)} alt="" loading="lazy" /> : null}
-        <span>
+        <Txt>
           {edit ? (
             <>
               <Editable as="strong" value={props.author} placeholder={t('labels.author')} onCommit={(v) => edit('author', v)} />
@@ -202,9 +203,9 @@ function TestimonialBlock({ props, edit }) {
               {str(props.role) ? <em> · {props.role}</em> : null}
             </>
           )}
-        </span>
-      </figcaption>
-    </figure>
+        </Txt>
+      </Txt>
+    </Box>
   )
 }
 
@@ -212,17 +213,17 @@ function CtaBlock({ props, interactive, edit }) {
   const { t } = useT('siteBuilder')
   if (edit) {
     const cls = `sp-btn sp-btn-${props.style === 'secondary' ? 'secondary' : 'primary'}`
-    return withCard(props, <div className="sp-cta"><Editable as="span" className={cls} value={props.label} placeholder={t('labels.ctaLabel')} onCommit={(v) => edit('label', v)} /></div>)
+    return withCard(props, <Box className="sp-cta"><Editable as="span" className={cls} value={props.label} placeholder={t('labels.ctaLabel')} onCommit={(v) => edit('label', v)} /></Box>)
   }
   return withCard(props,
-    <div className="sp-cta">
+    <Box className="sp-cta">
       <ActionButton label={props.label} action={props.action} style={props.style} interactive={interactive} />
-    </div>,
+    </Box>,
   )
 }
 
 function SpacerBlock({ props }) {
-  return <div className={`sp-spacer sp-spacer-${props.size || 'md'}`} aria-hidden="true" />
+  return <Box className={`sp-spacer sp-spacer-${props.size || 'md'}`} aria-hidden="true" />
 }
 
 function DividerBlock({ props }) {
@@ -234,25 +235,25 @@ function CardsBlock({ props, interactive }) {
   const items = Array.isArray(props.items) ? props.items : []
   const cols = (props.columns && props.columns !== 'auto') ? props.columns : 'auto'
   return withCard(props,
-    <div className={`sp-cards sp-cols-${cols}`}>
+    <Box className={`sp-cards sp-cols-${cols}`}>
       {items.map((it, i) => {
         const Icon = iconByName(it.icon)
         const safe = safeRedirectUrl(it.link)
         const inner = (
           <>
-            {it.icon ? <div className="sp-cardbox-icon"><Icon size={22} strokeWidth={2} aria-hidden="true" /></div> : null}
-            {str(it.title) ? <div className="sp-cardbox-title">{it.title}</div> : null}
-            {str(it.body) ? <p className="sp-cardbox-text">{it.body}</p> : null}
+            {it.icon ? <Box className="sp-cardbox-icon"><Icon size={22} strokeWidth={2} aria-hidden="true" /></Box> : null}
+            {str(it.title) ? <Box className="sp-cardbox-title">{it.title}</Box> : null}
+            {str(it.body) ? <Txt as="p" className="sp-cardbox-text">{it.body}</Txt> : null}
           </>
         )
         // A linked card is inert in the editor (interactive=false) so the click
         // selects the section instead of escaping to a new tab.
         return safe
-          ? <a key={i} className="sp-cardbox sp-cardbox-link" href={interactive ? safe : undefined}
-              target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!interactive) e.preventDefault() }}>{inner}</a>
-          : <div key={i} className="sp-cardbox">{inner}</div>
+          ? <Lnk key={i} className="sp-cardbox sp-cardbox-link" href={interactive ? safe : undefined}
+              target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!interactive) e.preventDefault() }}>{inner}</Lnk>
+          : <Box key={i} className="sp-cardbox">{inner}</Box>
       })}
-    </div>,
+    </Box>,
   )
 }
 
@@ -260,7 +261,7 @@ function CardsBlock({ props, interactive }) {
 function IconBlock({ props }) {
   const Icon = iconByName(props.icon)
   const size = props.size === 'sm' ? 28 : props.size === 'lg' ? 64 : 44
-  return <div className={`sp-iconblock sp-align-${props.align || 'center'}`}><Icon size={size} strokeWidth={1.8} aria-hidden="true" /></div>
+  return <Box className={`sp-iconblock sp-align-${props.align || 'center'}`}><Icon size={size} strokeWidth={1.8} aria-hidden="true" /></Box>
 }
 
 function GalleryBlock({ props, interactive }) {
@@ -268,11 +269,11 @@ function GalleryBlock({ props, interactive }) {
   const items = Array.isArray(props.items) ? props.items : []
   const imgs = items.map((it) => safeImageUrl(it && it.url)).filter(Boolean)
   const cols = (props.columns && props.columns !== 'auto') ? props.columns : 'auto'
-  if (!imgs.length) return interactive ? null : <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
+  if (!imgs.length) return interactive ? null : <Box className="sp-img-empty">{t('renderer.imageEmpty')}</Box>
   return (
-    <div className={`sp-gallery sp-cols-${cols}`}>
+    <Box className={`sp-gallery sp-cols-${cols}`}>
       {imgs.map((u, i) => <img key={i} className="sp-gallery-img" src={u} alt="" loading="lazy" />)}
-    </div>
+    </Box>
   )
 }
 
@@ -280,27 +281,27 @@ function GalleryBlock({ props, interactive }) {
 function VideoBlock({ props, interactive }) {
   const { t } = useT('siteBuilder')
   const src = safeVideoEmbed(props.url)
-  if (!src) return interactive ? null : <div className="sp-img-empty">{t('renderer.videoEmpty')}</div>
+  if (!src) return interactive ? null : <Box className="sp-img-empty">{t('renderer.videoEmpty')}</Box>
   return (
-    <div className="sp-video">
+    <Box className="sp-video">
       <iframe src={src} title={t('renderer.videoTitle')} loading="lazy"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen />
-    </div>
+    </Box>
   )
 }
 
 function FaqBlock({ props }) {
   const items = Array.isArray(props.items) ? props.items : []
   return withCard(props,
-    <div className="sp-faq">
+    <Box className="sp-faq">
       {items.map((it, i) => (
-        <details className="sp-faq-item" key={i}>
-          <summary className="sp-faq-q">{str(it.q) || '—'}</summary>
-          {str(it.a) ? <p className="sp-faq-a">{it.a}</p> : null}
-        </details>
+        <Box as="details" className="sp-faq-item" key={i}>
+          <Txt as="summary" className="sp-faq-q">{str(it.q) || '—'}</Txt>
+          {str(it.a) ? <Txt as="p" className="sp-faq-a">{it.a}</Txt> : null}
+        </Box>
       ))}
-    </div>,
+    </Box>,
   )
 }
 
@@ -349,78 +350,78 @@ function FormBlock({ section, interactive, runtime }) {
   // After a successful submit the public page flags this form's id as done.
   if (interactive && runtime?.submittedForms?.has(section.id)) {
     return (
-      <div className="sp-card sp-form sp-form-done" style={cardVars(props)}>
-        <div className="sp-check" aria-hidden="true">✓</div>
-        <p className="sp-thanks">{str(runtime.thankYouBySection?.[section.id]?.message) || t('renderer.thankYouDefault')}</p>
-      </div>
+      <Box className="sp-card sp-form sp-form-done" style={cardVars(props)}>
+        <Box className="sp-check" aria-hidden="true">✓</Box>
+        <Txt as="p" className="sp-thanks">{str(runtime.thankYouBySection?.[section.id]?.message) || t('renderer.thankYouDefault')}</Txt>
+      </Box>
     )
   }
 
   return (
-    <form className="sp-card sp-form" onSubmit={submit} noValidate style={cardVars(props)}>
-      {str(props.heading) ? <h2 className="sp-h2">{props.heading}</h2> : null}
-      <div className="sp-fields">
+    <Box as="form" className="sp-card sp-form" onSubmit={submit} noValidate style={cardVars(props)}>
+      {str(props.heading) ? <Txt as="h2" className="sp-h2">{props.heading}</Txt> : null}
+      <Box className="sp-fields">
         {fields.map((f) => {
           const label = (
-            <span className="sp-label">{f.label || f.key}{f.required ? <span className="sp-req"> *</span> : null}</span>
+            <Txt className="sp-label">{f.label || f.key}{f.required ? <Txt className="sp-req"> *</Txt> : null}</Txt>
           )
           if (isConsentType(f.type)) {
             const href = safeRedirectUrl(f.link)
             return (
-              <label key={f.key} className={`sp-field sp-consent${errors[f.key] ? ' is-error' : ''}`}>
-                <input type="checkbox" className="sp-consent-box" name={f.key}
+              <Box as="label" key={f.key} className={`sp-field sp-consent${errors[f.key] ? ' is-error' : ''}`}>
+                <Input type="checkbox" className="sp-consent-box" name={f.key}
                   disabled={!interactive}
                   checked={!!values[f.key]}
                   onChange={(e) => setField(f.key, e.target.checked)} />
-                <span className="sp-consent-text">
+                <Txt className="sp-consent-text">
                   {f.label || f.key}
-                  {href ? <>{' '}<a href={href} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>{f.linkText || t('renderer.consentLinkDefault')}</a></> : null}
-                  {f.required ? <span className="sp-req"> *</span> : null}
-                </span>
-              </label>
+                  {href ? <>{' '}<Lnk href={href} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>{f.linkText || t('renderer.consentLinkDefault')}</Lnk></> : null}
+                  {f.required ? <Txt className="sp-req"> *</Txt> : null}
+                </Txt>
+              </Box>
             )
           }
           if (isChoiceType(f.type)) {
             return (
-              <div key={f.key} className="sp-field" role="group" aria-label={f.label || f.key}>
+              <Box key={f.key} className="sp-field" role="group" aria-label={f.label || f.key}>
                 {label}
-                <div className={`sp-choices${errors[f.key] ? ' is-error' : ''}`}>
+                <Box className={`sp-choices${errors[f.key] ? ' is-error' : ''}`}>
                   {(f.options || []).map((opt, oi) => (
-                    <label className="sp-choice" key={oi}>
-                      <input type={f.type === 'select' ? 'radio' : 'checkbox'} name={f.key}
+                    <Box as="label" className="sp-choice" key={oi}>
+                      <Input type={f.type === 'select' ? 'radio' : 'checkbox'} name={f.key}
                         disabled={!interactive}
                         checked={f.type === 'select' ? values[f.key] === opt
                           : (Array.isArray(values[f.key]) && values[f.key].includes(opt))}
                         onChange={() => (f.type === 'select' ? setField(f.key, opt) : toggleChoice(f.key, opt))} />
-                      <span>{opt}</span>
-                    </label>
+                      <Txt>{opt}</Txt>
+                    </Box>
                   ))}
-                </div>
-              </div>
+                </Box>
+              </Box>
             )
           }
           return (
-            <label key={f.key} className="sp-field">
+            <Box as="label" key={f.key} className="sp-field">
               {label}
               {f.type === 'textarea' ? (
-                <textarea className={`sp-input sp-textarea${errors[f.key] ? ' is-error' : ''}`} rows={4}
+                <Textarea className={`sp-input sp-textarea${errors[f.key] ? ' is-error' : ''}`} rows={4}
                   disabled={!interactive} value={values[f.key] ?? ''} onChange={(e) => setField(f.key, e.target.value)} />
               ) : (
-                <input className={`sp-input${errors[f.key] ? ' is-error' : ''}`}
+                <Input className={`sp-input${errors[f.key] ? ' is-error' : ''}`}
                   type={f.type === 'email' ? 'email' : f.type === 'tel' ? 'tel' : 'text'}
                   disabled={!interactive} value={values[f.key] ?? ''} onChange={(e) => setField(f.key, e.target.value)} />
               )}
-            </label>
+            </Box>
           )
         })}
-      </div>
-      <input type="text" tabIndex={-1} autoComplete="off" className="sp-hp" aria-hidden="true"
+      </Box>
+      <Input type="text" tabIndex={-1} autoComplete="off" className="sp-hp" aria-hidden="true"
         onChange={(e) => { hpRef.current = e.target.value }} />
-      {runtime?.errorBySection?.[section.id] ? <p className="sp-form-error">{runtime.errorBySection[section.id]}</p> : null}
-      <button type="submit" className="sp-btn sp-btn-primary sp-form-submit" disabled={!interactive || runtime?.submittingId === section.id}>
+      {runtime?.errorBySection?.[section.id] ? <Txt as="p" className="sp-form-error">{runtime.errorBySection[section.id]}</Txt> : null}
+      <Btn type="submit" className="sp-btn sp-btn-primary sp-form-submit" disabled={!interactive || runtime?.submittingId === section.id}>
         {str(props.submitLabel) || t('renderer.submit')}
-      </button>
-    </form>
+      </Btn>
+    </Box>
   )
 }
 
@@ -444,124 +445,124 @@ function BookingBlock({ props, interactive }) {
   })
   const head = (
     <>
-      {str(props.heading) ? <h2 className="sp-h2">{props.heading}</h2> : null}
-      {str(props.subheading) ? <p className="sp-sub">{props.subheading}</p> : null}
+      {str(props.heading) ? <Txt as="h2" className="sp-h2">{props.heading}</Txt> : null}
+      {str(props.subheading) ? <Txt as="p" className="sp-sub">{props.subheading}</Txt> : null}
     </>
   )
   if (!interactive) {
     // Editor preview: a representative, inert sketch of the picker.
     return (
-      <div className="sp-card sp-booking" style={cardVars(props)}>
+      <Box className="sp-card sp-booking" style={cardVars(props)}>
         {head}
         {slug ? (
-          <div className="sp-bk-preview" aria-hidden="true">
-            <p className="sp-bk-steplabel">{t('renderer.bkWhen')}</p>
-            <div className="sp-bk-row">{previewDays.map((d, i) => <span key={i} className="sp-bk-chip">{d}</span>)}</div>
-            <div className="sp-bk-row">{['09:00', '10:30', '12:00'].map((h) => <span key={h} className="sp-bk-chip">{h}</span>)}</div>
-            <p className="sp-muted sp-booking-hint">{t('renderer.bkPreviewNote')}</p>
-          </div>
+          <Box className="sp-bk-preview" aria-hidden="true">
+            <Txt as="p" className="sp-bk-steplabel">{t('renderer.bkWhen')}</Txt>
+            <Box className="sp-bk-row">{previewDays.map((d, i) => <Txt key={i} className="sp-bk-chip">{d}</Txt>)}</Box>
+            <Box className="sp-bk-row">{['09:00', '10:30', '12:00'].map((h) => <Txt key={h} className="sp-bk-chip">{h}</Txt>)}</Box>
+            <Txt as="p" className="sp-muted sp-booking-hint">{t('renderer.bkPreviewNote')}</Txt>
+          </Box>
         ) : (
-          <p className="sp-muted sp-booking-hint">{t('renderer.bookingHint')}</p>
+          <Txt as="p" className="sp-muted sp-booking-hint">{t('renderer.bookingHint')}</Txt>
         )}
-      </div>
+      </Box>
     )
   }
   if (!slug) return null
-  return <div className="sp-card sp-booking" style={cardVars(props)}>{head}<BookingInline pageId={slug} /></div>
+  return <Box className="sp-card sp-booking" style={cardVars(props)}>{head}<BookingInline pageId={slug} /></Box>
 }
 
 function BookingInline({ pageId }) {
   const { t, lang } = useT('booking')
   const f = useBookingFlow(pageId, { enabled: true })
-  if (f.status === 'loading') return <p className="sp-muted">{t('publicPage.loading')}</p>
-  if (f.status === 'notfound') return <p className="sp-muted">{t('publicPage.notFoundBody')}</p>
+  if (f.status === 'loading') return <Txt as="p" className="sp-muted">{t('publicPage.loading')}</Txt>
+  if (f.status === 'notfound') return <Txt as="p" className="sp-muted">{t('publicPage.notFoundBody')}</Txt>
   if (f.status === 'done') {
     return (
-      <div className="sp-bk-done">
-        <div className="sp-check" aria-hidden="true">✓</div>
-        <p className="sp-bk-thankyou">{str(f.thankYou?.message) || t('publicPage.thankYouDefault')}</p>
-        {f.slot ? <p className="sp-bk-when">{fmtDayLabel(f.slot.start, f.tz, lang)} · {fmtTime(f.slot.start, f.tz, lang)}</p> : null}
-      </div>
+      <Box className="sp-bk-done">
+        <Box className="sp-check" aria-hidden="true">✓</Box>
+        <Txt as="p" className="sp-bk-thankyou">{str(f.thankYou?.message) || t('publicPage.thankYouDefault')}</Txt>
+        {f.slot ? <Txt as="p" className="sp-bk-when">{fmtDayLabel(f.slot.start, f.tz, lang)} · {fmtTime(f.slot.start, f.tz, lang)}</Txt> : null}
+      </Box>
     )
   }
   return (
-    <div className="sp-bk">
-      {f.submitError === 'slot_taken' ? <p className="sp-form-error">{t('publicPage.errSlotTaken')}</p> : null}
+    <Box className="sp-bk">
+      {f.submitError === 'slot_taken' ? <Txt as="p" className="sp-form-error">{t('publicPage.errSlotTaken')}</Txt> : null}
       {f.types.length > 1 && (
-        <div className="sp-bk-section">
-          <p className="sp-bk-steplabel">{t('publicPage.stepType')}</p>
-          <div className="sp-bk-row">
+        <Box className="sp-bk-section">
+          <Txt as="p" className="sp-bk-steplabel">{t('publicPage.stepType')}</Txt>
+          <Box className="sp-bk-row">
             {f.types.map((mt) => {
               const id = mt.id ?? '__d'
               return (
-                <button key={id} type="button" className={`sp-bk-type${f.typeId === id ? ' on' : ''}`} onClick={() => f.setTypeId(id)}>
-                  <span className="sp-bk-type-name">{mt.name}</span>
-                  <span className="sp-bk-type-meta">{t('minutes', { count: mt.duration_minutes })}{mt.default_price ? ` · ₪${mt.default_price}` : ''}</span>
-                </button>
+                <Btn key={id} type="button" className={`sp-bk-type${f.typeId === id ? ' on' : ''}`} onClick={() => f.setTypeId(id)}>
+                  <Txt className="sp-bk-type-name">{mt.name}</Txt>
+                  <Txt className="sp-bk-type-meta">{t('minutes', { count: mt.duration_minutes })}{mt.default_price ? ` · ₪${mt.default_price}` : ''}</Txt>
+                </Btn>
               )
             })}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
 
       {f.typeId != null && (
-        <div className="sp-bk-section">
-          <p className="sp-bk-steplabel">{t('publicPage.stepWhen')}</p>
+        <Box className="sp-bk-section">
+          <Txt as="p" className="sp-bk-steplabel">{t('publicPage.stepWhen')}</Txt>
           {f.slotsLoading ? (
-            <p className="sp-muted">{t('publicPage.slotsLoading')}</p>
+            <Txt as="p" className="sp-muted">{t('publicPage.slotsLoading')}</Txt>
           ) : f.days.length === 0 ? (
-            <p className="sp-muted">{t('publicPage.noSlots')}</p>
+            <Txt as="p" className="sp-muted">{t('publicPage.noSlots')}</Txt>
           ) : (
             <>
-              <div className="sp-bk-row">
+              <Box className="sp-bk-row">
                 {f.days.map((d) => (
-                  <button key={d.key} type="button" className={`sp-bk-chip${f.dayKey === d.key ? ' on' : ''}`} onClick={() => { f.setDayKey(d.key); f.setSlot(null) }}>
+                  <Btn key={d.key} type="button" className={`sp-bk-chip${f.dayKey === d.key ? ' on' : ''}`} onClick={() => { f.setDayKey(d.key); f.setSlot(null) }}>
                     {fmtDayLabel(d.list[0].start, f.tz, lang)}
-                  </button>
+                  </Btn>
                 ))}
-              </div>
+              </Box>
               {f.dayKey && (
-                <div className="sp-bk-row">
+                <Box className="sp-bk-row">
                   {f.daySlots.map((s) => (
-                    <button key={s.start} type="button" className={`sp-bk-chip${f.slot?.start === s.start ? ' on' : ''}`} onClick={() => f.setSlot(s)}>
+                    <Btn key={s.start} type="button" className={`sp-bk-chip${f.slot?.start === s.start ? ' on' : ''}`} onClick={() => f.setSlot(s)}>
                       {fmtTime(s.start, f.tz, lang)}
-                    </button>
+                    </Btn>
                   ))}
-                </div>
+                </Box>
               )}
             </>
           )}
-        </div>
+        </Box>
       )}
 
       {f.slot && (
-        <form className="sp-bk-section sp-bk-form" onSubmit={f.submit} noValidate>
-          <p className="sp-bk-steplabel">{t('publicPage.stepDetails')}</p>
-          <p className="sp-bk-chosen">{f.chosenType?.name ? `${f.chosenType.name} · ` : ''}{fmtDayLabel(f.slot.start, f.tz, lang)} · {fmtTime(f.slot.start, f.tz, lang)}</p>
-          <label className="sp-field">
-            <span className="sp-label">{t('publicPage.fieldName')} *</span>
-            <input className={`sp-input${f.errors.name ? ' is-error' : ''}`} value={f.values.name} onChange={(e) => f.setField('name', e.target.value)} required />
-          </label>
-          <label className="sp-field">
-            <span className="sp-label">{t('publicPage.fieldPhone')}</span>
-            <input className="sp-input" type="tel" value={f.values.phone} onChange={(e) => f.setField('phone', e.target.value)} />
-          </label>
-          <label className="sp-field">
-            <span className="sp-label">{t('publicPage.fieldEmail')}</span>
-            <input className={`sp-input${f.errors.email ? ' is-error' : ''}`} type="email" value={f.values.email} onChange={(e) => f.setField('email', e.target.value)} />
-          </label>
-          <label className="sp-field">
-            <span className="sp-label">{t('publicPage.fieldNote')}</span>
-            <textarea className="sp-input sp-textarea" rows={3} value={f.values.note} onChange={(e) => f.setField('note', e.target.value)} />
-          </label>
-          <input type="text" tabIndex={-1} autoComplete="off" className="sp-hp" aria-hidden="true" onChange={(e) => { f.hp.current = e.target.value }} />
-          {f.submitError === 'generic' ? <p className="sp-form-error">{t('publicPage.errGeneric')}</p> : null}
-          <button type="submit" className="sp-btn sp-btn-primary sp-bk-submit" disabled={f.submitting}>
+        <Box as="form" className="sp-bk-section sp-bk-form" onSubmit={f.submit} noValidate>
+          <Txt as="p" className="sp-bk-steplabel">{t('publicPage.stepDetails')}</Txt>
+          <Txt as="p" className="sp-bk-chosen">{f.chosenType?.name ? `${f.chosenType.name} · ` : ''}{fmtDayLabel(f.slot.start, f.tz, lang)} · {fmtTime(f.slot.start, f.tz, lang)}</Txt>
+          <Box as="label" className="sp-field">
+            <Txt className="sp-label">{t('publicPage.fieldName')} *</Txt>
+            <Input className={`sp-input${f.errors.name ? ' is-error' : ''}`} value={f.values.name} onChange={(e) => f.setField('name', e.target.value)} required />
+          </Box>
+          <Box as="label" className="sp-field">
+            <Txt className="sp-label">{t('publicPage.fieldPhone')}</Txt>
+            <Input className="sp-input" type="tel" value={f.values.phone} onChange={(e) => f.setField('phone', e.target.value)} />
+          </Box>
+          <Box as="label" className="sp-field">
+            <Txt className="sp-label">{t('publicPage.fieldEmail')}</Txt>
+            <Input className={`sp-input${f.errors.email ? ' is-error' : ''}`} type="email" value={f.values.email} onChange={(e) => f.setField('email', e.target.value)} />
+          </Box>
+          <Box as="label" className="sp-field">
+            <Txt className="sp-label">{t('publicPage.fieldNote')}</Txt>
+            <Textarea className="sp-input sp-textarea" rows={3} value={f.values.note} onChange={(e) => f.setField('note', e.target.value)} />
+          </Box>
+          <Input type="text" tabIndex={-1} autoComplete="off" className="sp-hp" aria-hidden="true" onChange={(e) => { f.hp.current = e.target.value }} />
+          {f.submitError === 'generic' ? <Txt as="p" className="sp-form-error">{t('publicPage.errGeneric')}</Txt> : null}
+          <Btn type="submit" className="sp-btn sp-btn-primary sp-bk-submit" disabled={f.submitting}>
             {f.submitting ? t('publicPage.submitting') : t('publicPage.submit')}
-          </button>
-        </form>
+          </Btn>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -574,15 +575,15 @@ function SplitBlock({ props, interactive, edit }) {
   const mobileSrc = safeImageUrl(props.mobileUrl)
   const side = props.mediaSide === 'end' ? 'end' : 'start'
   const media = src ? (
-    <div className={`sp-split-media${mobileSrc ? ' has-mobile' : ''}`}>
+    <Box className={`sp-split-media${mobileSrc ? ' has-mobile' : ''}`}>
       <img className="sp-split-img sp-img-d" src={src} alt={props.alt || ''} loading="lazy" />
       {mobileSrc ? <img className="sp-split-img sp-img-m" src={mobileSrc} alt={props.alt || ''} loading="lazy" /> : null}
-    </div>
-  ) : (interactive ? null : <div className="sp-split-media sp-img-empty">{t('renderer.imageEmpty')}</div>)
+    </Box>
+  ) : (interactive ? null : <Box className="sp-split-media sp-img-empty">{t('renderer.imageEmpty')}</Box>)
   return (
-    <div className={`sp-split sp-split-${side}${!media ? ' sp-split-solo' : ''}`}>
+    <Box className={`sp-split sp-split-${side}${!media ? ' sp-split-solo' : ''}`}>
       {media}
-      <div className="sp-split-body">
+      <Box className="sp-split-body">
         {edit ? (
           <>
             <Editable as="h2" className="sp-h2" value={props.heading} placeholder={t('labels.heading')} onCommit={(v) => edit('heading', v)} />
@@ -591,13 +592,13 @@ function SplitBlock({ props, interactive, edit }) {
           </>
         ) : (
           <>
-            {str(props.heading) ? <h2 className="sp-h2">{props.heading}</h2> : null}
-            {str(props.body) ? <div className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.body) }} /> : null}
+            {str(props.heading) ? <Txt as="h2" className="sp-h2">{props.heading}</Txt> : null}
+            {str(props.body) ? <Box className="sp-text" dangerouslySetInnerHTML={{ __html: renderRichText(props.body) }} /> : null}
             <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={interactive} />
           </>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
@@ -606,14 +607,14 @@ function StatsBlock({ props }) {
   const items = Array.isArray(props.items) ? props.items : []
   const cols = (props.columns && props.columns !== 'auto') ? props.columns : 'auto'
   return withCard(props,
-    <div className={`sp-stats sp-stats-${cols}`}>
+    <Box className={`sp-stats sp-stats-${cols}`}>
       {items.map((it, i) => (
-        <div className="sp-stat" key={i}>
-          {str(it.value) ? <div className="sp-stat-value">{it.value}</div> : null}
-          {str(it.label) ? <div className="sp-stat-label">{it.label}</div> : null}
-        </div>
+        <Box className="sp-stat" key={i}>
+          {str(it.value) ? <Box className="sp-stat-value">{it.value}</Box> : null}
+          {str(it.label) ? <Box className="sp-stat-label">{it.label}</Box> : null}
+        </Box>
       ))}
-    </div>,
+    </Box>,
   )
 }
 
@@ -621,22 +622,22 @@ function StatsBlock({ props }) {
 function PricingBlock({ props, interactive }) {
   const items = Array.isArray(props.items) ? props.items : []
   return (
-    <div className="sp-pricing">
+    <Box className="sp-pricing">
       {items.map((it, i) => {
         const feats = String(it.features || '').split('\n').map((s) => s.trim()).filter(Boolean)
         return (
-          <div className={`sp-price${it.featured ? ' is-featured' : ''}`} key={i}>
-            {str(it.name) ? <div className="sp-price-name">{it.name}</div> : null}
-            <div className="sp-price-amount">
-              <span className="sp-price-value">{it.price}</span>
-              {str(it.period) ? <span className="sp-price-period"> {it.period}</span> : null}
-            </div>
-            {feats.length ? <ul className="sp-price-feats">{feats.map((f, j) => <li key={j}>{f}</li>)}</ul> : null}
+          <Box className={`sp-price${it.featured ? ' is-featured' : ''}`} key={i}>
+            {str(it.name) ? <Box className="sp-price-name">{it.name}</Box> : null}
+            <Box className="sp-price-amount">
+              <Txt className="sp-price-value">{it.price}</Txt>
+              {str(it.period) ? <Txt className="sp-price-period"> {it.period}</Txt> : null}
+            </Box>
+            {feats.length ? <Box as="ul" className="sp-price-feats">{feats.map((f, j) => <Box as="li" key={j}>{f}</Box>)}</Box> : null}
             <ActionButton label={it.ctaLabel} action={it.ctaAction} style={it.featured ? 'primary' : 'secondary'} interactive={interactive} />
-          </div>
+          </Box>
         )
       })}
-    </div>
+    </Box>
   )
 }
 
@@ -647,11 +648,11 @@ function LogosBlock({ props, interactive }) {
   const imgs = items.map((it) => safeImageUrl(it && it.url)).filter(Boolean)
   // Public page: an unfilled block is simply absent (no placeholder hint to visitors);
   // the editor still shows the empty state so the coach knows to fill it.
-  if (!imgs.length) return interactive ? null : <div className="sp-img-empty">{t('renderer.imageEmpty')}</div>
+  if (!imgs.length) return interactive ? null : <Box className="sp-img-empty">{t('renderer.imageEmpty')}</Box>
   return (
-    <div className={`sp-logos${props.grayscale !== false ? ' is-gray' : ''}`}>
+    <Box className={`sp-logos${props.grayscale !== false ? ' is-gray' : ''}`}>
       {imgs.map((u, i) => <img key={i} className="sp-logo" src={u} alt="" loading="lazy" />)}
-    </div>
+    </Box>
   )
 }
 
@@ -661,11 +662,11 @@ function StepsBlock({ props, edit }) {
   const items = Array.isArray(props.items) ? props.items : []
   const setItem = (i, patch) => edit('items', items.map((it, j) => (j === i ? { ...it, ...patch } : it)))
   return withCard(props,
-    <ol className="sp-steps">
+    <Box as="ol" className="sp-steps">
       {items.map((it, i) => (
-        <li className="sp-step" key={i}>
-          <div className="sp-step-num" aria-hidden="true">{i + 1}</div>
-          <div className="sp-step-body">
+        <Box as="li" className="sp-step" key={i}>
+          <Box className="sp-step-num" aria-hidden="true">{i + 1}</Box>
+          <Box className="sp-step-body">
             {edit ? (
               <>
                 <Editable as="div" className="sp-step-title" value={it.title} placeholder={t('labels.title')} onCommit={(v) => setItem(i, { title: v })} />
@@ -673,14 +674,14 @@ function StepsBlock({ props, edit }) {
               </>
             ) : (
               <>
-                {str(it.title) ? <div className="sp-step-title">{it.title}</div> : null}
-                {str(it.body) ? <p className="sp-step-text">{it.body}</p> : null}
+                {str(it.title) ? <Box className="sp-step-title">{it.title}</Box> : null}
+                {str(it.body) ? <Txt as="p" className="sp-step-text">{it.body}</Txt> : null}
               </>
             )}
-          </div>
-        </li>
+          </Box>
+        </Box>
       ))}
-    </ol>,
+    </Box>,
   )
 }
 
@@ -689,7 +690,7 @@ function CtaBandBlock({ props, interactive, edit }) {
   const { t } = useT('siteBuilder')
   const style = props.style || 'brand'
   return (
-    <div className={`sp-ctaband sp-ctaband-${style}`}>
+    <Box className={`sp-ctaband sp-ctaband-${style}`}>
       {edit ? (
         <>
           <Editable as="h2" className="sp-ctaband-h" value={props.heading} placeholder={t('labels.heading')} onCommit={(v) => edit('heading', v)} />
@@ -698,12 +699,12 @@ function CtaBandBlock({ props, interactive, edit }) {
         </>
       ) : (
         <>
-          {str(props.heading) ? <h2 className="sp-ctaband-h">{props.heading}</h2> : null}
-          {str(props.subheading) ? <p className="sp-ctaband-sub">{props.subheading}</p> : null}
+          {str(props.heading) ? <Txt as="h2" className="sp-ctaband-h">{props.heading}</Txt> : null}
+          {str(props.subheading) ? <Txt as="p" className="sp-ctaband-sub">{props.subheading}</Txt> : null}
           <ActionButton label={props.ctaLabel} action={props.ctaAction} interactive={interactive} />
         </>
       )}
-    </div>
+    </Box>
   )
 }
 
@@ -749,16 +750,16 @@ function SocialBlock({ props, interactive }) {
     return safeRedirectUrl(/^https?:\/\//i.test(u) ? u : `https://${u}`)
   }
   return (
-    <div className={`sp-social sp-social-${props.align || 'center'} sp-social-${props.size || 'md'}`}>
+    <Box className={`sp-social sp-social-${props.align || 'center'} sp-social-${props.size || 'md'}`}>
       {shown.map((it, i) => {
         const href = interactive ? hrefFor(it) : null
         const label = SOCIAL_LABEL[it.platform] || it.platform
         const common = { className: 'sp-social-btn', style: { '--sp-social-c': SOCIAL_COLOR[it.platform] }, title: label, 'aria-label': label }
         return href
-          ? <a key={i} href={href} target="_blank" rel="noopener noreferrer" {...common}>{socialGlyph(it.platform)}</a>
-          : <span key={i} {...common}>{socialGlyph(it.platform)}</span>
+          ? <Lnk key={i} href={href} target="_blank" rel="noopener noreferrer" {...common}>{socialGlyph(it.platform)}</Lnk>
+          : <Txt key={i} {...common}>{socialGlyph(it.platform)}</Txt>
       })}
-    </div>
+    </Box>
   )
 }
 
@@ -775,20 +776,20 @@ function ContactBlock({ props, interactive }) {
   const hoursGlyph = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
   const glyph = (g) => (g === 'address' ? addrGlyph : socialGlyph(g))
   return withCard(props,
-    <div className="sp-contact">
+    <Box className="sp-contact">
       {rows.map((r, i) => (
-        <a key={i} className="sp-contact-row" href={r.href} target="_blank" rel="noopener noreferrer">
-          <span className="sp-contact-ic">{glyph(r.g)}</span>
-          <span className="sp-contact-val">{r.label}</span>
-        </a>
+        <Lnk key={i} className="sp-contact-row" href={r.href} target="_blank" rel="noopener noreferrer">
+          <Txt className="sp-contact-ic">{glyph(r.g)}</Txt>
+          <Txt className="sp-contact-val">{r.label}</Txt>
+        </Lnk>
       ))}
       {str(props.hours) ? (
-        <div className="sp-contact-row sp-contact-static">
-          <span className="sp-contact-ic">{hoursGlyph}</span>
-          <span className="sp-contact-val sp-contact-hours">{props.hours}</span>
-        </div>
+        <Box className="sp-contact-row sp-contact-static">
+          <Txt className="sp-contact-ic">{hoursGlyph}</Txt>
+          <Txt className="sp-contact-val sp-contact-hours">{props.hours}</Txt>
+        </Box>
       ) : null}
-    </div>,
+    </Box>,
   )
 }
 
@@ -796,12 +797,12 @@ function ContactBlock({ props, interactive }) {
 function MapBlock({ props, interactive }) {
   const { t } = useT('siteBuilder')
   const q = str(props.query)
-  if (!q) return interactive ? null : <div className="sp-img-empty">{t('renderer.mapEmpty', { defaultValue: 'הוסיפו כתובת להצגת מפה' })}</div>
+  if (!q) return interactive ? null : <Box className="sp-img-empty">{t('renderer.mapEmpty', { defaultValue: 'הוסיפו כתובת להצגת מפה' })}</Box>
   const src = `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`
   return (
-    <div className={`sp-map sp-map-${props.height || 'md'}`}>
+    <Box className={`sp-map sp-map-${props.height || 'md'}`}>
       <iframe src={src} title={t('renderer.mapTitle', { defaultValue: 'מפה' })} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-    </div>
+    </Box>
   )
 }
 
@@ -810,14 +811,14 @@ function BannerBlock({ props, interactive, edit }) {
   const { t } = useT('siteBuilder')
   const style = props.style || 'brand'
   return (
-    <div className={`sp-banner sp-banner-${style}${props.sticky ? ' is-sticky' : ''}`}>
-      <div className="sp-banner-inner">
+    <Box className={`sp-banner sp-banner-${style}${props.sticky ? ' is-sticky' : ''}`}>
+      <Box className="sp-banner-inner">
         {edit
           ? <Editable as="span" className="sp-banner-text" value={props.text} placeholder={t('labels.text')} onCommit={(v) => edit('text', v)} />
-          : (str(props.text) ? <span className="sp-banner-text">{props.text}</span> : null)}
+          : (str(props.text) ? <Txt className="sp-banner-text">{props.text}</Txt> : null)}
         {str(props.ctaLabel) ? <ActionButton label={props.ctaLabel} action={props.ctaAction} style="secondary" interactive={interactive} /> : null}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
@@ -835,9 +836,9 @@ function CountdownBlock({ props, interactive }) {
   }, [target, interactive])
   let body
   if (!target) {
-    body = <p className="sp-muted">{t('renderer.countdownHint', { defaultValue: 'הגדירו תאריך ושעת יעד' })}</p>
+    body = <Txt as="p" className="sp-muted">{t('renderer.countdownHint', { defaultValue: 'הגדירו תאריך ושעת יעד' })}</Txt>
   } else if (target - now <= 0) {
-    body = <p className="sp-countdown-expired">{str(props.expiredText) || t('renderer.countdownDone', { defaultValue: 'הסתיים' })}</p>
+    body = <Txt as="p" className="sp-countdown-expired">{str(props.expiredText) || t('renderer.countdownDone', { defaultValue: 'הסתיים' })}</Txt>
   } else {
     const diff = target - now
     const units = [
@@ -847,21 +848,21 @@ function CountdownBlock({ props, interactive }) {
       [Math.floor(diff / 1000) % 60, t('renderer.cdSec', { defaultValue: 'שניות' })],
     ]
     body = (
-      <div className="sp-countdown-grid">
+      <Box className="sp-countdown-grid">
         {units.map(([v, l], i) => (
-          <div className="sp-cd-unit" key={i}>
-            <div className="sp-cd-num">{String(v).padStart(2, '0')}</div>
-            <div className="sp-cd-lbl">{l}</div>
-          </div>
+          <Box className="sp-cd-unit" key={i}>
+            <Box className="sp-cd-num">{String(v).padStart(2, '0')}</Box>
+            <Box className="sp-cd-lbl">{l}</Box>
+          </Box>
         ))}
-      </div>
+      </Box>
     )
   }
   return withCard(props,
-    <div className="sp-countdown">
-      {str(props.heading) ? <h2 className="sp-h2">{props.heading}</h2> : null}
+    <Box className="sp-countdown">
+      {str(props.heading) ? <Txt as="h2" className="sp-h2">{props.heading}</Txt> : null}
       {body}
-    </div>,
+    </Box>,
   )
 }
 
@@ -913,10 +914,10 @@ function ResizeHandle({ width, onResize }) {
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', end)
   }
   return (
-    <span className="sp-resize-handle" onPointerDown={onDown} aria-hidden="true">
-      <span className="sp-resize-grip" title={t('labels.dragWidth')} />
-      <span className="sp-resize-badge">{live != null ? live : (Number(width) || 100)}%</span>
-    </span>
+    <Txt className="sp-resize-handle" onPointerDown={onDown} aria-hidden="true">
+      <Txt className="sp-resize-grip" title={t('labels.dragWidth')} />
+      <Txt className="sp-resize-badge">{live != null ? live : (Number(width) || 100)}%</Txt>
+    </Txt>
   )
 }
 
@@ -1097,23 +1098,23 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
   }
 
   const sectionEl = (
-    <section className={wrapCls} style={styleProp} data-sid={section.id} data-selected={sel}
+    <Box as="section" className={wrapCls} style={styleProp} data-sid={section.id} data-selected={sel}
       onPointerDown={free && edit ? (e) => startFreeDrag(e, 'move') : undefined}>
       {inner}
       {edit && free ? (
         <>
-          <span className="sp-free-grip" aria-hidden="true" title={t('labels.dragMove')} />
-          <span className="sp-free-resize" onPointerDown={(e) => startFreeDrag(e, 'resize')} aria-hidden="true" title={t('labels.dragResize')} />
+          <Txt className="sp-free-grip" aria-hidden="true" title={t('labels.dragMove')} />
+          <Txt className="sp-free-resize" onPointerDown={(e) => startFreeDrag(e, 'resize')} aria-hidden="true" title={t('labels.dragResize')} />
         </>
       ) : null}
       {edit && !free ? <ResizeHandle width={width} onResize={(w) => edit('boxWidth', w)} /> : null}
-    </section>
+    </Box>
   )
   if (free) return sectionEl
   // Banner is an edge-to-edge strip — skip the centred content column.
   // Sticky must live on the ROW (a flex child of the page with real scroll range),
   // not the banner itself (whose parent is exactly its own height → 0 sticky range).
-  if (type === 'banner') return <div className={`sp-row sp-row-banner sp-pad-none${section.props?.sticky ? ' is-sticky' : ''}`}>{sectionEl}</div>
+  if (type === 'banner') return <Box className={`sp-row sp-row-banner sp-pad-none${section.props?.sticky ? ' is-sticky' : ''}`}>{sectionEl}</Box>
   // STACK mode: wrap the block in a full-width row carrying the optional section
   // background (band) + vertical rhythm, with content kept in a centred max-width
   // column (.sp-row-inner). Section design lives on section.style (not props), so
@@ -1130,9 +1131,9 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
   if (st.bgOverlay != null) rowStyle['--sp-row-overlay'] = Math.max(0, Math.min(80, Number(st.bgOverlay) || 0)) / 100
   if (st.bgOpacity != null) rowStyle['--sp-row-opacity'] = Math.max(0, Math.min(100, Number(st.bgOpacity) || 0)) / 100
   return (
-    <div className={rowCls} style={Object.keys(rowStyle).length ? rowStyle : undefined}>
-      <div className="sp-row-inner">{sectionEl}</div>
-    </div>
+    <Box className={rowCls} style={Object.keys(rowStyle).length ? rowStyle : undefined}>
+      <Box className="sp-row-inner">{sectionEl}</Box>
+    </Box>
   )
 }
 
@@ -1189,25 +1190,25 @@ export default function SiteRenderer({ theme, sections, interactive = false, run
     ...(scale < 1 ? { transform: `scale(${scale})`, transformOrigin: 'top left' } : {}),
   } : undefined
   const pageEl = (
-    <div ref={pageRef} className={`sp-page${free ? ' sp-free' : ''}`} style={pageStyle}>
+    <Box ref={pageRef} className={`sp-page${free ? ' sp-free' : ''}`} style={pageStyle}>
       {list.map((s, i) => (
         <SectionErrorBoundary key={s.id}>
           <Section section={s} index={i} free={free} layoutKey={layoutKey} canvasW={canvasW} interactive={interactive} runtime={runtime} selectedId={selectedId} onEdit={onEdit} />
         </SectionErrorBoundary>
       ))}
-      {list.length === 0 ? <div className="sp-empty">{t('renderer.empty')}</div> : null}
-    </div>
+      {list.length === 0 ? <Box className="sp-empty">{t('renderer.empty')}</Box> : null}
+    </Box>
   )
   return (
-    <div className={`sp-root ${cls} ${device != null ? 'sp-framed' : ''} ${className}`} ref={rootRef} dir="rtl" style={style}>
+    <Box className={`sp-root ${cls} ${device != null ? 'sp-framed' : ''} ${className}`} ref={rootRef} dir="rtl" style={style}>
       {/* Photo bg on its OWN layer so "freeze" can pin it to one screen as a real
           sticky wallpaper (CSS), instead of background-attachment:fixed (ignored on
           iOS; in the editor it pinned to the browser window, not the device frame —
           a mobile-resolution image came out heavily zoomed). */}
-      {cls.includes('has-bg') ? <div className="sp-bg" aria-hidden="true" /> : null}
+      {cls.includes('has-bg') ? <Box className="sp-bg" aria-hidden="true" /> : null}
       {free && scale < 1
-        ? <div className="sp-free-scaler" style={{ height: `${Math.round(Math.max(pageMinH, pageH) * scale)}px` }}>{pageEl}</div>
+        ? <Box className="sp-free-scaler" style={{ height: `${Math.round(Math.max(pageMinH, pageH) * scale)}px` }}>{pageEl}</Box>
         : pageEl}
-    </div>
+    </Box>
   )
 }

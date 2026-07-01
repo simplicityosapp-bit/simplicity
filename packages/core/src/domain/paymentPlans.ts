@@ -9,12 +9,39 @@
    arithmetic + schedule generation — no I/O, fully testable.
    ════════════════════════════════════════════════════════════════ */
 
+interface PaymentPlan {
+  total_amount?: number | null
+  num_installments?: number | null
+}
+
+interface Installment {
+  plan_id?: string
+  num?: number
+  amount?: number | null
+  received?: boolean
+  deleted_at?: string | null
+}
+
+interface GeneratedInstallment {
+  num: number
+  due_date: string
+  amount: number
+}
+
+interface PlanBalance {
+  total: number
+  received: number
+  remaining: number
+  receivedCount: number
+  count: number
+}
+
 /* Round to agorot (2 dp) without float drift biting on display/sums. */
-const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100
+const round2 = (n: unknown): number => Math.round((Number(n) || 0) * 100) / 100
 
 /* Add `n` months to a YYYY-MM-DD date, returning YYYY-MM-DD. Local time
    (no UTC shift) so a due date never slips a day on Israeli evenings. */
-export function addMonths(isoDate, n) {
+export function addMonths(isoDate: string, n: number): string {
   const [y, m, d] = String(isoDate).split('-').map(Number)
   const day = d || 1
   /* Clamp the day to the TARGET month's last day so a 29th–31st start never
@@ -26,7 +53,7 @@ export function addMonths(isoDate, n) {
 }
 
 /* The 1st of next month — the default first due date for a new plan. */
-export function firstOfNextMonth(now = new Date()) {
+export function firstOfNextMonth(now: Date = new Date()): string {
   const d = new Date(now.getFullYear(), now.getMonth() + 1, 1)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
 }
@@ -35,13 +62,15 @@ export function firstOfNextMonth(now = new Date()) {
    base amount and the LAST one absorbs the rounding remainder, so the sum is
    exactly the total (never ±0.01 off). Monthly due dates from `startDate`
    (default: the 1st of next month). Returns [{ num, due_date, amount }]. */
-export function generateInstallments({ total, count, startDate } = {}) {
+export function generateInstallments(
+  { total, count, startDate }: { total?: number | null; count?: number | null; startDate?: string } = {},
+): GeneratedInstallment[] {
   const n = Math.max(1, Math.floor(Number(count) || 1))
   /* Never produce negative installments — a plan total is always ≥ 0. */
   const sum = Math.max(0, round2(total))
   const start = startDate || firstOfNextMonth()
   const base = round2(sum / n)
-  const rows = []
+  const rows: GeneratedInstallment[] = []
   for (let i = 0; i < n; i += 1) {
     const isLast = i === n - 1
     const amount = isLast ? round2(sum - base * (n - 1)) : base
@@ -53,7 +82,7 @@ export function generateInstallments({ total, count, startDate } = {}) {
 /* Plan balance from its installments. received = sum of received amounts;
    remaining = total − received (clamped at 0 — an over-collection shows 0,
    not a negative "we owe them"). Ignores soft-deleted installments. */
-export function planBalance(plan, installments = []) {
+export function planBalance(plan: PaymentPlan | null | undefined, installments: Installment[] = []): PlanBalance {
   const list = (installments || []).filter((i) => !i.deleted_at)
   const total = round2(plan?.total_amount)
   const received = round2(list.filter((i) => i.received).reduce((s, i) => s + (Number(i.amount) || 0), 0))
@@ -66,7 +95,7 @@ export function planBalance(plan, installments = []) {
    total. Greedy from the first installment; stops at the first one the
    remaining balance can't fully cover (installments are received in order,
    all-or-nothing). Float-safe via a small epsilon. */
-export function installmentsCoveredByPaid(amounts, paid) {
+export function installmentsCoveredByPaid(amounts: unknown[] | null | undefined, paid: unknown): number {
   let remaining = Number(paid) || 0
   let count = 0
   for (const a of (amounts || [])) {
@@ -77,7 +106,7 @@ export function installmentsCoveredByPaid(amounts, paid) {
 }
 
 /* Installments of a plan, sorted by number, soft-deleted dropped. */
-export function planInstallments(planId, installments = []) {
+export function planInstallments<T extends Installment>(planId: string, installments: T[] = []): T[] {
   return (installments || [])
     .filter((i) => i.plan_id === planId && !i.deleted_at)
     .sort((a, b) => (a.num || 0) - (b.num || 0))
@@ -85,7 +114,11 @@ export function planInstallments(planId, installments = []) {
 
 /* Description for the income transaction created when an installment is
    received — "תשלום 3/6 — דנה". Kept here so it's consistent everywhere. */
-export function installmentDesc(inst, plan, clientName) {
+export function installmentDesc(
+  inst: { num?: number } | null | undefined,
+  plan: PaymentPlan | null | undefined,
+  clientName?: string,
+): string {
   const of = plan?.num_installments || inst?.num || ''
   return `תשלום ${inst?.num || ''}/${of}${clientName ? ` — ${clientName}` : ''}`
 }

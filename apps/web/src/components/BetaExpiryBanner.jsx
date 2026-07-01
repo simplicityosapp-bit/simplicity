@@ -3,7 +3,7 @@ import { AlertCircle } from 'lucide-react'
 import { useSubscription } from '../hooks/useSubscription'
 import { useUpgradeNav } from '../hooks/useUpgradeNav'
 import { useT } from '../i18n/useT'
-import { BILLING_ENABLED } from '../lib/subscription'
+import { BILLING_ENABLED } from '@simplicity/core'
 import './BetaExpiryBanner.css'
 import { Txt, Btn } from './ui'
 

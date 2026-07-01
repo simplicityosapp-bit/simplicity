@@ -1,6 +1,6 @@
 import { Pencil, Trash2, Pause, Play } from 'lucide-react'
 import { isr } from '../../lib/finance'
-import { describeCadence } from '../../lib/recurring'
+import { describeCadence } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
 

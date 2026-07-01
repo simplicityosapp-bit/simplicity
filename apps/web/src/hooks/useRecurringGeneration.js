@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { generateRecurringTransactions } from '../lib/recurring'
+import { generateRecurringTransactions } from '@simplicity/core'
 
 /* MODULE-LEVEL latch shared across EVERY mount. This engine mounts on BOTH
    home (AttentionWidget) and finance; a per-mount ref only guarded one, so a

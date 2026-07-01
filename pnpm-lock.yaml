@@ -25,6 +25,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@simplicity/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@supabase/supabase-js':
         specifier: ^2.106.2
         version: 2.110.0

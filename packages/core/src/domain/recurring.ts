@@ -9,9 +9,52 @@
    state (those mean the user already dealt with that period).
    ════════════════════════════════════════════════════════════════ */
 
+interface RecurringTemplate {
+  id?: string
+  active?: boolean
+  deleted_at?: string | null
+  trigger_type?: string
+  cadence_type?: string
+  day_of_month?: number | string | null
+  day_of_week?: number | null
+  until_date?: string | null
+  created_at?: string
+  client_id?: string | null
+  group_id?: string | null
+  amount?: number
+  type?: string
+  desc?: string | null
+  project_id?: string | null
+  category_id?: string | null
+}
+
+interface TransactionRow {
+  recurring_id?: string | null
+  date: string
+}
+
+interface ScheduledMeeting {
+  subject_type?: string
+  subject_id?: string
+  status?: string
+  scheduled_at?: string | number | Date
+}
+
+interface RecurringPayload {
+  amount?: number
+  type?: string
+  desc: string | null
+  date: string
+  status: 'pending'
+  recurring_id?: string
+  project_id: string | null
+  client_id: string | null
+  category_id: string | null
+}
+
 /* YYYY-MM-DD in local time. Stable string lets us compare dates
    without timezone surprises. */
-export function toDateKey(d) {
+export function toDateKey(d: Date | string | number): string {
   const date = d instanceof Date ? d : new Date(d)
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')
@@ -20,14 +63,14 @@ export function toDateKey(d) {
 }
 
 /* Number of days in the (year, month0) calendar month. */
-function daysInMonth(year, month0) {
+function daysInMonth(year: number, month0: number): number {
   return new Date(year, month0 + 1, 0).getDate()
 }
 
 /* For monthly_date templates: first due date in (year, month0) at
    day_of_month, clamped to the last day if the month is shorter
    (so a "31st" template still hits on Feb 28). */
-function monthlyDateFor(year, month0, dayOfMonth) {
+function monthlyDateFor(year: number, month0: number, dayOfMonth: number): Date {
   const clamped = Math.min(dayOfMonth, daysInMonth(year, month0))
   return new Date(year, month0, clamped)
 }
@@ -36,7 +79,11 @@ function monthlyDateFor(year, month0, dayOfMonth) {
    starting from the earliest tx for it (or, if none, from the
    template's creation date) and ending at `now`. Each step respects
    until_date if set. Stays in local time throughout. */
-export function* dueDatesForTemplate(template, anchorDate, now) {
+export function* dueDatesForTemplate(
+  template: RecurringTemplate,
+  anchorDate: Date,
+  now: Date,
+): Generator<Date, void, unknown> {
   const until = template.until_date ? new Date(template.until_date) : null
   if (template.cadence_type === 'monthly_date') {
     const day = Number(template.day_of_month)
@@ -63,7 +110,7 @@ export function* dueDatesForTemplate(template, anchorDate, now) {
   }
 }
 
-function payloadFromTemplate(t, dateKey) {
+function payloadFromTemplate(t: RecurringTemplate, dateKey: string): RecurringPayload {
   return {
     amount: t.amount,
     type: t.type,
@@ -86,14 +133,14 @@ function payloadFromTemplate(t, dateKey) {
                       the linked client_id / group_id
 */
 export function generateRecurringTransactions(
-  templates,
-  transactions,
-  now = new Date(),
-  scheduledMeetings = [],
-) {
-  const out = []
+  templates: RecurringTemplate[] | null | undefined,
+  transactions: TransactionRow[] | null | undefined,
+  now: Date = new Date(),
+  scheduledMeetings: ScheduledMeeting[] = [],
+): RecurringPayload[] {
+  const out: RecurringPayload[] = []
   if (!Array.isArray(templates) || !templates.length) return out
-  const existingKeys = new Set(
+  const existingKeys = new Set<string>(
     (transactions || [])
       .filter((t) => t.recurring_id)
       .map((t) => `${t.recurring_id}|${toDateKey(t.date)}`),
@@ -109,7 +156,7 @@ export function generateRecurringTransactions(
          widget couples the user's "skip" on a meeting to its tx so
          the user doesn't end up paying for a session that didn't
          happen. */
-      let subjectType, subjectId
+      let subjectType: string, subjectId: string
       if (t.client_id) { subjectType = 'client'; subjectId = t.client_id }
       else if (t.group_id) { subjectType = 'group'; subjectId = t.group_id }
       else continue
@@ -121,7 +168,7 @@ export function generateRecurringTransactions(
           m.status !== 'expired',
       )
       for (const m of relevant) {
-        const dateKey = toDateKey(m.scheduled_at)
+        const dateKey = toDateKey(m.scheduled_at as Date | string | number)
         const key = `${t.id}|${dateKey}`
         if (existingKeys.has(key)) continue
         existingKeys.add(key)
@@ -132,12 +179,12 @@ export function generateRecurringTransactions(
 
     /* Default — schedule cadence. */
     const txsForT = (transactions || []).filter((x) => x.recurring_id === t.id)
-    let anchor
+    let anchor: Date
     if (txsForT.length) {
       const earliest = txsForT.reduce((min, x) => (x.date < min ? x.date : min), txsForT[0].date)
       anchor = new Date(earliest)
     } else {
-      anchor = new Date(t.created_at)
+      anchor = new Date(t.created_at as string)
     }
     anchor.setHours(0, 0, 0, 0)
     for (const due of dueDatesForTemplate(t, anchor, now)) {
@@ -153,10 +200,10 @@ export function generateRecurringTransactions(
 /* Human-readable cadence summary for cards/lists.
    "כל חודש ב-15" / "כל יום ראשון" / "כל חודש ב-15 · עד 31/12/26". */
 const DAY_NAMES_HE = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
-export function describeCadence(template) {
+export function describeCadence(template: RecurringTemplate | null | undefined): string {
   if (!template) return ''
   if (template.trigger_type === 'on_meeting') return 'בעקבות פגישה'
-  let core
+  let core: string
   if (template.cadence_type === 'monthly_date' && template.day_of_month) {
     core = `כל חודש ב-${template.day_of_month}`
   } else if (template.cadence_type === 'weekly' && template.day_of_week != null) {

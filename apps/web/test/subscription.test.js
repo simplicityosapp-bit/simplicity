@@ -10,7 +10,7 @@ import {
   BILLING_ENABLED, TIERS, effectiveTier, isBetaExempt,
   canConnectInvoicing, canConnectGrow, canUseAI,
   clientLimit, goalLimit, projectLimit, pageLimit,
-} from '../src/lib/subscription'
+} from '@simplicity/core'
 
 const future = new Date(Date.now() + 30 * 86400000).toISOString()
 const past = new Date(Date.now() - 30 * 86400000).toISOString()

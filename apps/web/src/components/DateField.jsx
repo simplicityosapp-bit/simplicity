@@ -3,8 +3,8 @@ import { ChevronRight, ChevronLeft, ChevronsRight, ChevronsLeft } from 'lucide-r
 import {
   monthGrid, monthNamesLong, weekdayNamesShort, isSameDay, weekStartIndex,
   hebrewMonthGrid, hebrewParts, hebrewMonthLabel, stepHebrewMonth, stepHebrewYear,
-} from '../lib/calendar'
-import { fmtDateInput } from '../lib/dates'
+  fmtDateInput,
+} from '@simplicity/core'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useT } from '../i18n/useT'
 import './DateField.css'

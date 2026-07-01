@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AlertTriangle, ArrowLeft } from 'lucide-react'
 import { remindersUpcoming } from '../../lib/homeData'
-import { fmtShortDate, fmtTime } from '../../lib/dates'
+import { fmtShortDate, fmtTime } from '@simplicity/core'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useSessions } from '../../hooks/useSessions'

@@ -24,7 +24,7 @@ export {
 /* Localized weekday labels, index 0=Sunday … 6=Saturday (JS getDay order).
    Resolves via the calendar namespace (weekdayLabels()) so the weekly editor
    follows the active language; he keeps the original full names. */
-export { weekdayNamesLong as weekdayLabels } from './calendar'
+export { weekdayNamesLong as weekdayLabels } from '@simplicity/core'
 
 /* Branding + copy — same contract as lead_pages.content. */
 export const DEFAULT_CONTENT = {

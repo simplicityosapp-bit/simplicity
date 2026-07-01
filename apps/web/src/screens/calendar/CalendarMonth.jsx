@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import {
   monthGrid, hebrewMonthGrid, hebrewParts,
   eventsByDate, isSameDay, dateKey, weekdayNamesShort, weekStartIndex,
-} from '../../lib/calendar'
+} from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
 

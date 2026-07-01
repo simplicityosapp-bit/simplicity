@@ -17,7 +17,7 @@
 import i18n from '@simplicity/core/i18n'
 import { isr, isConfirmedTx } from './finance'
 import { isConvertedLead } from './leads'
-import { monthNamesShort } from './calendar'
+import { monthNamesShort } from '@simplicity/core'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AlertCircle, Check, X, Trash2 } from 'lucide-react'
 import { isr } from '../../lib/finance'
-import { fmtShortDate } from '../../lib/dates'
+import { fmtShortDate } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import './PendingSection.css'
 import { Box, Txt, Btn } from '../../components/ui'

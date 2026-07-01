@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
-import { startOfWeek, addDays, eventsForDay, isSameDay, hebrewDayNum, weekdayNamesShort } from '../../lib/calendar'
-import { fmtTime } from '../../lib/dates'
+import { startOfWeek, addDays, eventsForDay, isSameDay, hebrewDayNum, weekdayNamesShort, fmtTime } from '@simplicity/core'
 import { Box, Txt, Btn } from '../../components/ui'
 
 /* 7 vertical strips, one per day in the week containing `date`.

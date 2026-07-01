@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Clock, CalendarDays } from 'lucide-react'
-import { formatWhen } from '../../lib/dates'
-import { weekdayNamesShort } from '../../lib/calendar'
+import { formatWhen, weekdayNamesShort } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import WhatsAppButton from '../../components/WhatsAppButton'

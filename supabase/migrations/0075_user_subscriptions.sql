@@ -17,15 +17,14 @@
 --
 -- Source of truth = user_subscriptions (service-role write only, like
 -- user_integrations). The app reads its own row (SELECT-own RLS). Stripe /
--- admin write via service-role. A MISSING row = 'free' (the correct default
--- for new users created after this migration); only EXISTING users at run
--- time get the beta exemption via the backfill below.
+-- admin write via service-role. A MISSING row = 'free' (the default for
+-- everyone). There is NO backfill — beta exemptions are granted per-user by an
+-- admin (see section 5), so the owner decides who keeps access, not a migration.
 --
 -- Additive + data-preserving:
 --   • one new table, no existing data touched.
 --   • RESTRICTIVE policies ADD to (AND with) the existing *_own permissive
 --     policies for INSERT only — SELECT/UPDATE/DELETE are unchanged.
---   • backfill is guarded by NOT EXISTS → re-running is a no-op.
 --   No column or table is dropped or rewritten.
 -- ════════════════════════════════════════════════════════════════
 
@@ -195,15 +194,13 @@ CREATE POLICY booking_pages_tier_gate ON booking_pages AS RESTRICTIVE FOR INSERT
     OR booking_page_count() < 1
   );
 
--- ── 5) Backfill — grandfather every EXISTING user onto a beta exemption ─────
--- Each current user gets a 'free' row whose beta_exempt_until grants premium
--- for the beta window, so flipping the master switch on later never strands
--- someone who has been using paid-tier features for free during the beta.
--- Beta length = 3 months (owner decision). The exemption starts at migration
--- run time; adjust the interval here if the beta window changes before running.
-INSERT INTO user_subscriptions (user_id, tier, beta_exempt_until)
-SELECT u.id, 'free', now() + interval '3 months'
-FROM auth.users u
-WHERE NOT EXISTS (SELECT 1 FROM user_subscriptions s WHERE s.user_id = u.id);
+-- ── 5) No backfill — exemptions are granted PER-USER by an admin ────────────
+-- Deliberately NO mass-assignment of beta exemptions here: the owner decides
+-- who gets an exemption and for how long, via Admin → users → מנוי → "פטור בטא
+-- ל: N חודשים" (the service-role set_subscription action). Existing + new users
+-- start with NO row ⇒ current_tier() = 'free'. A row is created on demand by
+-- that admin action (beta exemption) or, later, by the Stripe webhook (paid).
+-- ⚠️  ACTIVATION: grant exemptions to the beta users you want to keep BEFORE
+-- flipping the master switch on — otherwise they drop to free immediately.
 
 NOTIFY pgrst, 'reload schema';

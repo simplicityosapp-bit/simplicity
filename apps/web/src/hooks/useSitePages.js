@@ -5,7 +5,7 @@ import {
   removeSitePage as apiRemove, restoreSitePage,
 } from '../lib/api/sitePages'
 import { registerDeleteUndo } from '../lib/undoActions'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* React-Query-backed: shared cache across the hub + editor. Mirrors
    useLeadPages / useBookingPages. One cache holds all kinds; the hub filters

@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import { configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -12,6 +13,11 @@ export default defineConfig({
     alias: {
       '@': path.resolve(dirname, './src'),
     },
+  },
+  test: {
+    /* Never scan git worktrees the harness drops under .claude/ — they are
+       stale full-repo copies that would shadow/duplicate the real suite. */
+    exclude: [...configDefaults.exclude, '**/.claude/**'],
   },
   build: {
     rollupOptions: {

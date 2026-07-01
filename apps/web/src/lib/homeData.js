@@ -14,7 +14,7 @@ import {
   goals as mockGoals, goal_categories as mockCategories,
   group_members as mockMembers, groups as mockGroups,
 } from '../data/mock'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import { ROUTES } from './routes'
 import { financeQuery, currentMonthRange } from './finance'
 import { clientBalance } from './clients'

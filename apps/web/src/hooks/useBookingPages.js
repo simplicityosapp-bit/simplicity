@@ -5,7 +5,7 @@ import {
   removeBookingPage as apiRemove, restoreBookingPage,
 } from '../lib/api/bookingPages'
 import { registerDeleteUndo } from '../lib/undoActions'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* React-Query-backed: shared cache across the builder + booking screens.
    Mirrors useLeadPages. */

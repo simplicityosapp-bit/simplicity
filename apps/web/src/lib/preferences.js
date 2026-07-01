@@ -6,7 +6,7 @@
    localStorage (mg-reports-config) — will be migrated here later.
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* Registry of home widgets. Order here = default order. Each widget
    in DEFAULT_WIDGETS.list mirrors registry entries. Display names resolve

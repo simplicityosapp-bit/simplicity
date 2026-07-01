@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* Map common Supabase auth error messages to a friendly, localized message.
    Returns a translated string in the active UI language (auth:errors.*).

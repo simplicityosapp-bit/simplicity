@@ -4,7 +4,7 @@
    10:00" matches the date the user is looking at, regardless of UTC.
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 

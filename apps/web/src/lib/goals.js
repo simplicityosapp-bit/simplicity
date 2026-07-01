@@ -2,7 +2,7 @@
    GOALS — grouping + value formatting (uses the moon score engine).
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import { moonGetData } from './moon'
 import { isr } from './finance'
 import { fmtShortDate } from './dates'

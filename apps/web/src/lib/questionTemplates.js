@@ -10,7 +10,7 @@
    AddQuestionModal (mood/energy/sleep/focus) AND the onboarding Step 5
    presets (sleep/nutrition/movement/mood/focus/quiet). A key missing here
    makes questionText() fall back to the generic fallback string. */
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* Display text lives in i18n (questions:template.<key>). A few templates
    carry a gender-addressed adjective (e.g. focus) and resolve via i18next

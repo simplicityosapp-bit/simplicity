@@ -11,7 +11,7 @@
    scheduled_at) — existing rows are skipped.
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import { showToast, showError } from './toast'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000

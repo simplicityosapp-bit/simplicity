@@ -15,7 +15,7 @@
    row written to Supabase. The 'presets' bundle is self-registered below so
    this lib needs no change to src/i18n/index.js.
    ════════════════════════════════════════════════════════════════ */
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import hePresets from '../i18n/locales/he/presets.json'
 import enPresets from '../i18n/locales/en/presets.json'
 import esPresets from '../i18n/locales/es/presets.json'

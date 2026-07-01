@@ -13,7 +13,7 @@
    reads naturally for humans but the importer has no Spanish synonyms yet.
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import heExport from '../i18n/locales/he/export.json'
 import enExport from '../i18n/locales/en/export.json'
 import esExport from '../i18n/locales/es/export.json'

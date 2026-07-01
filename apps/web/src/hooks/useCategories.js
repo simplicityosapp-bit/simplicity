@@ -6,7 +6,7 @@ import {
   removeCategory as apiRemoveCategory, restoreCategory,
 } from '../lib/api/categories'
 import { registerDeleteUndo } from '../lib/undoActions'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* React-Query-backed: shared across meeting-confirm + chips widgets + finance. Public API unchanged. */
 const KEY = ['categories']

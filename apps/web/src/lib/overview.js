@@ -10,7 +10,7 @@
    missing day is a gap, not a zero.
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 const pad2 = (n) => String(n).padStart(2, '0')
 /* Local calendar-day key — a date-only string is already a day; a full

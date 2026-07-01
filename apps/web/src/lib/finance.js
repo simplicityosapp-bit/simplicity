@@ -7,7 +7,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { transactions } from '../data/mock'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 const CURRENCY_SYMBOL = { ILS: '₪', USD: '$', EUR: '€' }
 

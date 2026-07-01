@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import { useT } from '../i18n/useT'
 import './MultiTrendChart.css'
 import { Box, Txt } from './ui'

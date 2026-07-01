@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import heQuotes from '../i18n/locales/he/quotes.json'
 import enQuotes from '../i18n/locales/en/quotes.json'
 import esQuotes from '../i18n/locales/es/quotes.json'

@@ -73,11 +73,17 @@ export function buildReacceptance() {
 }
 
 /* True when the user must (re)accept: never accepted (existing beta users
-   have no recorded consent), accepted an older privacy version, OR has no
-   terms acceptance yet / an older terms version (terms shipped after privacy). */
+   have no recorded consent), OR any of the three binding documents is stale —
+   privacy, DPA (data-processing agreement), or terms. All three are checked so
+   a version bump to ANY single document forces re-acceptance; checking only
+   privacy+terms let a DPA-only bump slip through silently. (buildConsent /
+   buildReacceptance always write all three together, so this never falsely
+   re-prompts an up-to-date user.) */
 export function needsReacceptance(user) {
   const md = user?.user_metadata
-  return md?.privacy_version !== PRIVACY_VERSION || md?.terms_version !== TERMS_VERSION
+  return md?.privacy_version !== PRIVACY_VERSION
+    || md?.dpa_version !== DPA_VERSION
+    || md?.terms_version !== TERMS_VERSION
 }
 
 export function marketingConsent(user) {

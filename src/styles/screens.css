@@ -310,6 +310,50 @@
   opacity: 0;
 }
 
+/* ── Quick action row ──────────────────────────────────────────────
+   Shared widget: the home QuickRow and the project-detail
+   ProjectQuickRow both use these classes, so they live here (globally
+   loaded) rather than in HomeScreen.css — otherwise the project-detail
+   button renders unstyled when Home's CSS chunk isn't loaded. */
+.h-quick-row {
+  display: flex;
+  gap: 10px;
+}
+.h-quick-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: var(--mg-btn-h);
+  border-radius: var(--mg-btn-radius);
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+}
+.h-quick-btn:active {
+  transform: scale(0.97);
+}
+.h-quick-primary {
+  background: var(--terracotta);
+  border: none;
+  color: var(--on-accent);
+}
+.h-quick-primary:hover {
+  background: var(--mg-btn-primary-bg-hover);
+}
+[data-theme="dark"] .h-quick-primary {
+  color: var(--ink-on-accent);
+}
+.h-quick-secondary {
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  color: var(--espresso);
+  backdrop-filter: var(--mg-card-blur);
+}
+
 /* ── Desktop content-width cap ─────────────────────────────────────
    On desktop .screen fills the whole viewport, so cards/lists over-
    stretch on wide monitors. Cap + centre each screen's top-level

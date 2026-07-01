@@ -13,6 +13,7 @@ import EditProjectModal from '../../modals/EditProjectModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
+import { Box, Txt, Btn } from '../../components/ui'
 import { useT } from '../../i18n/useT'
 import './ProjectsScreen.css'
 
@@ -63,68 +64,68 @@ export default function ProjectsScreen() {
   const cardIncomeLabel = view === 'monthly' ? t('cardIncome.monthly') : t('cardIncome.cumulative')
 
   return (
-    <div className="screen">
-      <div className="screen-top">
-        <header className="screen-head">
-          <div>
-            <div className="screen-head-meta">
-              <p className="lbl">{t('count', { count: projects.length })}</p>
-              <span className="lbl dot">·</span>
-              <p className="lbl">{t('phase')}</p>
-            </div>
-            <p className="lbl-sm">{t('tagline')}</p>
-          </div>
-          <p className="t-screen">{t('title')}</p>
-        </header>
+    <Box className="screen">
+      <Box className="screen-top">
+        <Box as="header" className="screen-head">
+          <Box>
+            <Box className="screen-head-meta">
+              <Txt as="p" className="lbl">{t('count', { count: projects.length })}</Txt>
+              <Txt className="lbl dot">·</Txt>
+              <Txt as="p" className="lbl">{t('phase')}</Txt>
+            </Box>
+            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
+          </Box>
+          <Txt as="p" className="t-screen">{t('title')}</Txt>
+        </Box>
         <Coachmark id="add-project" radius="50%">
-          <button className="cta-add" type="button" aria-label={t('newAria')} onClick={() => (atProjectLimit ? goUpgrade() : setShowAdd(true))}>{t('new')}</button>
+          <Btn className="cta-add" aria-label={t('newAria')} onClick={() => (atProjectLimit ? goUpgrade() : setShowAdd(true))}>{t('new')}</Btn>
         </Coachmark>
-      </div>
+      </Box>
       {atProjectLimit && (
-        <button type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.projects')} · {ts('limit.upgrade')}</button>
+        <Btn className="sub-limit-note" onClick={goUpgrade}>{ts('limit.projects')} · {ts('limit.upgrade')}</Btn>
       )}
 
-      <section className="p-hero">
-        <div className="s-hero">
-          <div className="mg-toggle" role="tablist" aria-label={t('range.aria')}>
-            <button type="button" className={`mg-toggle-btn${view === 'monthly' ? ' on' : ''}`} onClick={() => setView('monthly')}>{t('range.monthly')}</button>
-            <button type="button" className={`mg-toggle-btn${view === 'cumulative' ? ' on' : ''}`} onClick={() => setView('cumulative')}>{t('range.cumulative')}</button>
-          </div>
-          <p className="p-hero-title">{t('hero.title')}</p>
-          <div className="p-hero-grid">
-            <div className="p-hero-stat">
-              <p className="p-hero-stat-l">{t('hero.projects')}</p>
-              <p className="p-hero-stat-v mono">{projects.length}</p>
-            </div>
-            <div className="p-hero-stat divided">
-              <p className="p-hero-stat-l">{t('hero.clients')}</p>
-              <p className="p-hero-stat-v mono">{totals.assignedClients}</p>
-            </div>
-            <div className="p-hero-stat">
-              <p className="p-hero-stat-l">{incomeLabel}</p>
-              <p className="p-hero-stat-v mono">{isr(totals.heroIncome)}</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Box as="section" className="p-hero">
+        <Box className="s-hero">
+          <Box className="mg-toggle" role="tablist" aria-label={t('range.aria')}>
+            <Btn className={`mg-toggle-btn${view === 'monthly' ? ' on' : ''}`} onClick={() => setView('monthly')}>{t('range.monthly')}</Btn>
+            <Btn className={`mg-toggle-btn${view === 'cumulative' ? ' on' : ''}`} onClick={() => setView('cumulative')}>{t('range.cumulative')}</Btn>
+          </Box>
+          <Txt as="p" className="p-hero-title">{t('hero.title')}</Txt>
+          <Box className="p-hero-grid">
+            <Box className="p-hero-stat">
+              <Txt as="p" className="p-hero-stat-l">{t('hero.projects')}</Txt>
+              <Txt as="p" className="p-hero-stat-v mono">{projects.length}</Txt>
+            </Box>
+            <Box className="p-hero-stat divided">
+              <Txt as="p" className="p-hero-stat-l">{t('hero.clients')}</Txt>
+              <Txt as="p" className="p-hero-stat-v mono">{totals.assignedClients}</Txt>
+            </Box>
+            <Box className="p-hero-stat">
+              <Txt as="p" className="p-hero-stat-l">{incomeLabel}</Txt>
+              <Txt as="p" className="p-hero-stat-v mono">{isr(totals.heroIncome)}</Txt>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
 
-      <section className="p-list">
+      <Box as="section" className="p-list">
         {loading ? (
-          <div className="empty"><p className="empty-text">{t('loading')}</p></div>
+          <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
         ) : error ? (
-          <div className="empty"><p className="empty-text">{t('loadError', { error })}</p></div>
+          <Box className="empty"><Txt as="p" className="empty-text">{t('loadError', { error })}</Txt></Box>
         ) : projects.length === 0 ? (
-          <div className="empty">
-            <span className="empty-icon"><FolderOpen size={36} strokeWidth={1.4} aria-hidden="true" /></span>
-            <p className="empty-text">{t('empty.text')}</p>
-            <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
+          <Box className="empty">
+            <Txt className="empty-icon"><FolderOpen size={36} strokeWidth={1.4} aria-hidden="true" /></Txt>
+            <Txt as="p" className="empty-text">{t('empty.text')}</Txt>
+            <Btn className="empty-action" onClick={() => setShowAdd(true)}>
               <FolderPlus size={18} strokeWidth={1.6} aria-hidden="true" /> {t('empty.add')}
-            </button>
-            <details className="empty-reminder">
-              <summary>{t('empty.whyImportant')}</summary>
-              <p className="empty-reminder-body">{coachmarkText('add-project', gender).detail}</p>
-            </details>
-          </div>
+            </Btn>
+            <Box as="details" className="empty-reminder">
+              <Txt as="summary">{t('empty.whyImportant')}</Txt>
+              <Txt as="p" className="empty-reminder-body">{coachmarkText('add-project', gender).detail}</Txt>
+            </Box>
+          </Box>
         ) : (
           cards.map((c, i) => (
             <ProjectCard
@@ -141,7 +142,7 @@ export default function ProjectsScreen() {
             />
           ))
         )}
-      </section>
+      </Box>
 
       <AddProjectModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addProject} />
       <EditProjectModal
@@ -161,6 +162,6 @@ export default function ProjectsScreen() {
         danger
         onConfirm={() => { if (pendingDelete) removeProject(pendingDelete.id) }}
       />
-    </div>
+    </Box>
   )
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check } from 'lucide-react'
 import { useT } from '../../i18n/useT'
+import { Txt, Btn, Input } from '../../components/ui'
 
 /* Inline-editable title for a task / reminder card. The title renders as
    plain text; a double-click (desktop) or long-press (mobile) swaps it for
@@ -83,8 +84,8 @@ export default function InlineTitle({ title, onRename, className = '', children 
 
   if (editing) {
     return (
-      <span className="tc-rename">
-        <input
+      <Txt className="tc-rename">
+        <Input
           ref={inputRef}
           type="text"
           className="tc-rename-input"
@@ -98,7 +99,7 @@ export default function InlineTitle({ title, onRename, className = '', children 
         />
         {/* onMouseDown-preventDefault keeps the input focused so the click
             registers as a save, not a blur-then-click. */}
-        <button
+        <Btn
           type="button"
           className="tc-rename-save"
           onMouseDown={(e) => e.preventDefault()}
@@ -107,13 +108,13 @@ export default function InlineTitle({ title, onRename, className = '', children 
           title={t('item.renameHint')}
         >
           <Check size={14} strokeWidth={2.5} aria-hidden="true" />
-        </button>
-      </span>
+        </Btn>
+      </Txt>
     )
   }
 
   return (
-    <p
+    <Txt as="p"
       className={className}
       onDoubleClick={begin}
       onPointerDown={onPointerDown}
@@ -124,6 +125,6 @@ export default function InlineTitle({ title, onRename, className = '', children 
     >
       {title}
       {children}
-    </p>
+    </Txt>
   )
 }

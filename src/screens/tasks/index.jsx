@@ -21,6 +21,7 @@ import { formatWhen } from '../../lib/dates'
 import { reassignTasksStatus } from '../../lib/api/taskStatuses'
 import { reassignTasksCategory } from '../../lib/api/taskCategories'
 import './TasksScreen.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 const PRIORITY_COLOR = {
   high: 'var(--clay)',
@@ -253,36 +254,36 @@ export default function TasksScreen() {
     : (filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo'))
 
   return (
-    <div className="screen">
-      <div className="screen-top">
-        <header className="screen-head">
-          <div>
-            <div className="screen-head-meta">
-              <p className="lbl">{isTasks ? t('meta.open', { n: openCount }) : t('meta.openReminders', { n: openCount })}</p>
-              <span className="lbl dot">·</span>
-              <p className="lbl">{t('meta.done', { n: doneCount })}</p>
-            </div>
-            <p className="lbl-sm">{t('tagline')}</p>
-          </div>
-          <p className="t-screen">{isTasks ? t('tasks') : t('reminders')}</p>
-        </header>
+    <Box className="screen">
+      <Box className="screen-top">
+        <Box as="header" className="screen-head">
+          <Box>
+            <Box className="screen-head-meta">
+              <Txt as="p" className="lbl">{isTasks ? t('meta.open', { n: openCount }) : t('meta.openReminders', { n: openCount })}</Txt>
+              <Txt className="lbl dot">·</Txt>
+              <Txt as="p" className="lbl">{t('meta.done', { n: doneCount })}</Txt>
+            </Box>
+            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
+          </Box>
+          <Txt as="p" className="t-screen">{isTasks ? t('tasks') : t('reminders')}</Txt>
+        </Box>
         <Coachmark id="add-task" radius="50%">
-          <button
+          <Btn
             className="cta-add"
             type="button"
             aria-label={isTasks ? t('add.taskAria') : t('add.reminderAria')}
             onClick={() => setShowAdd(true)}
           >
             {isTasks ? t('add.task') : t('add.reminder')}
-          </button>
+          </Btn>
         </Coachmark>
-      </div>
+      </Box>
 
       {/* Entity toggle — same role as Leads' kanban/statuses switcher,
           rendered below screen-top so it doesn't break the centered
           "+" slot. */}
-      <div className="mg-toggle t-view" role="tablist" aria-label={t('view.aria')}>
-        <button
+      <Box className="mg-toggle t-view" role="tablist" aria-label={t('view.aria')}>
+        <Btn
           type="button"
           className={`mg-toggle-btn${view === 'tasks' ? ' on' : ''}`}
           onClick={() => switchView('tasks')}
@@ -290,8 +291,8 @@ export default function TasksScreen() {
           aria-selected={view === 'tasks'}
         >
           {t('tasks')}
-        </button>
-        <button
+        </Btn>
+        <Btn
           type="button"
           className={`mg-toggle-btn${view === 'reminders' ? ' on' : ''}`}
           onClick={() => switchView('reminders')}
@@ -299,32 +300,32 @@ export default function TasksScreen() {
           aria-selected={view === 'reminders'}
         >
           {t('reminders')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
-      <section className="t-hero">
-        <div className="s-hero">
-          <p className="t-hero-title">{isTasks ? t('hero.tasksTitle') : t('hero.remindersTitle')}</p>
-          <div className="t-hero-grid">
-            <div className="t-hero-stat">
-              <p className="t-hero-stat-l">{t('hero.open')}</p>
-              <p className="t-hero-stat-v mono">{openCount}</p>
-            </div>
-            <div className="t-hero-stat divided">
-              <p className="t-hero-stat-l">{isTasks ? t('hero.urgentTasks') : t('hero.overdueReminders')}</p>
-              <p className="t-hero-stat-v mono">{urgentCount}</p>
-            </div>
-            <div className="t-hero-stat">
-              <p className="t-hero-stat-l">{t('hero.done')}</p>
-              <p className="t-hero-stat-v mono">{doneCount}</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Box as="section" className="t-hero">
+        <Box className="s-hero">
+          <Txt as="p" className="t-hero-title">{isTasks ? t('hero.tasksTitle') : t('hero.remindersTitle')}</Txt>
+          <Box className="t-hero-grid">
+            <Box className="t-hero-stat">
+              <Txt as="p" className="t-hero-stat-l">{t('hero.open')}</Txt>
+              <Txt as="p" className="t-hero-stat-v mono">{openCount}</Txt>
+            </Box>
+            <Box className="t-hero-stat divided">
+              <Txt as="p" className="t-hero-stat-l">{isTasks ? t('hero.urgentTasks') : t('hero.overdueReminders')}</Txt>
+              <Txt as="p" className="t-hero-stat-v mono">{urgentCount}</Txt>
+            </Box>
+            <Box className="t-hero-stat">
+              <Txt as="p" className="t-hero-stat-l">{t('hero.done')}</Txt>
+              <Txt as="p" className="t-hero-stat-v mono">{doneCount}</Txt>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
 
-      <div className="mg-toggle t-filter" role="tablist" aria-label={t('filter.aria')}>
+      <Box className="mg-toggle t-filter" role="tablist" aria-label={t('filter.aria')}>
         {filters.map((f) => (
-          <button
+          <Btn
             key={f}
             type="button"
             className={`mg-toggle-btn${filter === f ? ' on' : ''}`}
@@ -333,14 +334,14 @@ export default function TasksScreen() {
             aria-selected={filter === f}
           >
             {t(`filter.${f}`)}
-          </button>
+          </Btn>
         ))}
-      </div>
+      </Box>
 
       {isTasks && (
-        <div className="mg-toggle t-groupby" role="tablist" aria-label={t('groupBy.aria')}>
+        <Box className="mg-toggle t-groupby" role="tablist" aria-label={t('groupBy.aria')}>
           {GROUP_BY.map((gb) => (
-            <button
+            <Btn
               key={gb}
               type="button"
               className={`mg-toggle-btn${groupBy === gb ? ' on' : ''}`}
@@ -349,88 +350,88 @@ export default function TasksScreen() {
               aria-selected={groupBy === gb}
             >
               {t(`groupBy.${gb}`)}
-            </button>
+            </Btn>
           ))}
-        </div>
+        </Box>
       )}
 
       {/* Category filter + manage — shared across tasks AND reminders so the
           same categories/filter drive both views. */}
       {(
-        <div className="t-tax-bar">
+        <Box className="t-tax-bar">
           {taskCategories.length > 0 ? (
-            <div className="t-cat-filter">
-              <button type="button" className={`t-cat-pill${categoryFilters.size === 0 ? ' on' : ''}`} onClick={() => setCategoryFilters(new Set())}>{t('taxonomy.all')}</button>
+            <Box className="t-cat-filter">
+              <Btn type="button" className={`t-cat-pill${categoryFilters.size === 0 ? ' on' : ''}`} onClick={() => setCategoryFilters(new Set())}>{t('taxonomy.all')}</Btn>
               {taskCategories.map((c) => (
-                <button
+                <Btn
                   key={c.id}
                   type="button"
                   className={`t-cat-pill${categoryFilters.has(c.id) ? ' on' : ''}`}
                   aria-pressed={categoryFilters.has(c.id)}
                   onClick={() => toggleCategoryFilter(c.id)}
                 >
-                  <span className="t-cat-dot" style={{ background: c.color || 'var(--stone)' }} />
+                  <Txt className="t-cat-dot" style={{ background: c.color || 'var(--stone)' }} />
                   {c.name}
-                </button>
+                </Btn>
               ))}
-            </div>
-          ) : <span />}
-          <button type="button" className="t-manage-btn" onClick={() => setShowTaxonomy(true)}>
+            </Box>
+          ) : <Txt />}
+          <Btn type="button" className="t-manage-btn" onClick={() => setShowTaxonomy(true)}>
             <Tags size={14} strokeWidth={1.5} aria-hidden="true" />
             {t('taxonomy.manage')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
       )}
 
       {filter === 'done' && doneCount > 0 && (
-        <div className="t-clear-row">
-          <button type="button" className="t-clear-btn" onClick={() => setConfirmClear(true)}>
+        <Box className="t-clear-row">
+          <Btn type="button" className="t-clear-btn" onClick={() => setConfirmClear(true)}>
             <Trash2 size={14} strokeWidth={1.5} aria-hidden="true" />
             {t('clearAll')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
       )}
 
-      <section className="t-list">
+      <Box as="section" className="t-list">
         {loading ? (
-          <div className="empty"><p className="empty-text">{isTasks ? t('loading.tasks') : t('loading.reminders')}</p></div>
+          <Box className="empty"><Txt as="p" className="empty-text">{isTasks ? t('loading.tasks') : t('loading.reminders')}</Txt></Box>
         ) : error ? (
-          <div className="empty"><p className="empty-text">{isTasks ? t('loadError.tasks', { error }) : t('loadError.reminders', { error })}</p></div>
+          <Box className="empty"><Txt as="p" className="empty-text">{isTasks ? t('loadError.tasks', { error }) : t('loadError.reminders', { error })}</Txt></Box>
         ) : isTasks ? (
           filteredTasks.length === 0 ? (
             tasks.length === 0 ? (
-              <div className="empty">
-                <span className="empty-icon"><ListTodo size={28} strokeWidth={1.5} aria-hidden="true" /></span>
-                <p className="empty-text">{t('empty.firstTask')}</p>
-                <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
+              <Box className="empty">
+                <Txt className="empty-icon"><ListTodo size={28} strokeWidth={1.5} aria-hidden="true" /></Txt>
+                <Txt as="p" className="empty-text">{t('empty.firstTask')}</Txt>
+                <Btn className="empty-action" type="button" onClick={() => setShowAdd(true)}>
                   <Plus size={18} strokeWidth={1.5} aria-hidden="true" /> {t('empty.addTask')}
-                </button>
-                <details className="empty-reminder">
-                  <summary>{t('empty.whyImportant')}</summary>
-                  <p className="empty-reminder-body">{coachmarkText('add-task', gender).detail}</p>
-                </details>
-              </div>
+                </Btn>
+                <Box as="details" className="empty-reminder">
+                  <Txt as="summary">{t('empty.whyImportant')}</Txt>
+                  <Txt as="p" className="empty-reminder-body">{coachmarkText('add-task', gender).detail}</Txt>
+                </Box>
+              </Box>
             ) : (
-              <div className="empty"><p className="empty-text">{emptyMsg}</p></div>
+              <Box className="empty"><Txt as="p" className="empty-text">{emptyMsg}</Txt></Box>
             )
           ) : (
             taskGroups.map((g) => {
               const isCollapsed = collapsed.has(g.key)
               return (
-                <div key={g.key} className={`t-group t-group-card${isCollapsed ? '' : ' open'}`}>
-                  <button
+                <Box key={g.key} className={`t-group t-group-card${isCollapsed ? '' : ' open'}`}>
+                  <Btn
                     type="button"
                     className="t-group-lbl t-group-toggle"
                     onClick={() => toggleGroup(g.key)}
                     aria-expanded={!isCollapsed}
                   >
-                    <span className="t-group-dot" style={{ background: g.color }} />
+                    <Txt className="t-group-dot" style={{ background: g.color }} />
                     {g.label}
-                    <span className="t-group-count">{g.items.length}</span>
+                    <Txt className="t-group-count">{g.items.length}</Txt>
                     <ChevronDown size={14} strokeWidth={1.6} className={`t-group-chev${isCollapsed ? '' : ' open'}`} aria-hidden="true" />
-                  </button>
+                  </Btn>
                   {!isCollapsed && (
-                    <div className="t-group-body">
+                    <Box className="t-group-body">
                       {g.items.map((task, i) => (
                         <TaskItem
                           key={task.id}
@@ -446,9 +447,9 @@ export default function TasksScreen() {
                           category={task.category_id ? categoryById.get(task.category_id) : null}
                         />
                       ))}
-                    </div>
+                    </Box>
                   )}
-                </div>
+                </Box>
               )
             })
           )
@@ -456,15 +457,15 @@ export default function TasksScreen() {
           filter === 'recurring' ? (
             /* "חוזרות" — recurring schedule grouped by weekday / monthly. */
             recurringGroups.length === 0 ? (
-              <div className="empty"><p className="empty-text">{t('empty.noRecurring')}</p></div>
+              <Box className="empty"><Txt as="p" className="empty-text">{t('empty.noRecurring')}</Txt></Box>
             ) : (
               recurringGroups.map((g) => (
-                <div key={g.key} className="t-group">
-                  <p className="t-group-lbl">
-                    <span className="t-group-dot" style={{ background: g.color }} />
+                <Box key={g.key} className="t-group">
+                  <Txt as="p" className="t-group-lbl">
+                    <Txt className="t-group-dot" style={{ background: g.color }} />
                     {g.label}
-                    <span className="t-group-count">{g.items.length}</span>
-                  </p>
+                    <Txt className="t-group-count">{g.items.length}</Txt>
+                  </Txt>
                   {g.items.map((r, i) => (
                     <ReminderItem
                       key={r.id}
@@ -478,18 +479,18 @@ export default function TasksScreen() {
                       index={i}
                     />
                   ))}
-                </div>
+                </Box>
               ))
             )
           ) : (filteredReminders.length === 0 && datedTasks.length === 0) ? (
-            <div className="empty"><p className="empty-text">{filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo')}</p></div>
+            <Box className="empty"><Txt as="p" className="empty-text">{filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo')}</Txt></Box>
           ) : filter === 'done' ? (
-            <div className="t-group">
-              <p className="t-group-lbl">
-                <span className="t-group-dot" style={{ background: 'var(--stone)' }} />
+            <Box className="t-group">
+              <Txt as="p" className="t-group-lbl">
+                <Txt className="t-group-dot" style={{ background: 'var(--stone)' }} />
                 {t('doneGroup')}
-                <span className="t-group-count">{filteredReminders.length}</span>
-              </p>
+                <Txt className="t-group-count">{filteredReminders.length}</Txt>
+              </Txt>
               {filteredReminders.map((r, i) => (
                 <ReminderItem
                   key={r.id}
@@ -503,19 +504,19 @@ export default function TasksScreen() {
                   index={i}
                 />
               ))}
-            </div>
+            </Box>
           ) : (
             REM_BUCKETS.map((b) => {
               const items = filteredReminders.filter((r) => reminderBucket(r, now) === b.key)
               const dueTasks = datedTasks.filter((task) => taskDueBucket(task, now) === b.key)
               if (!items.length && !dueTasks.length) return null
               return (
-                <div key={b.key} className="t-group">
-                  <p className="t-group-lbl">
-                    <span className="t-group-dot" style={{ background: b.color }} />
+                <Box key={b.key} className="t-group">
+                  <Txt as="p" className="t-group-lbl">
+                    <Txt className="t-group-dot" style={{ background: b.color }} />
                     {t(`buckets.${b.key}`)}
-                    <span className="t-group-count">{items.length + dueTasks.length}</span>
-                  </p>
+                    <Txt className="t-group-count">{items.length + dueTasks.length}</Txt>
+                  </Txt>
                   {items.map((r, i) => (
                     <ReminderItem
                       key={r.id}
@@ -547,12 +548,12 @@ export default function TasksScreen() {
                       category={task.category_id ? categoryById.get(task.category_id) : null}
                     />
                   ))}
-                </div>
+                </Box>
               )
             })
           )
         )}
-      </section>
+      </Box>
 
       {/* Edit a dated task tapped from the reminders view — its own task modal,
           rendered regardless of the active view. */}
@@ -642,6 +643,6 @@ export default function TasksScreen() {
           />
         </>
       )}
-    </div>
+    </Box>
   )
 }

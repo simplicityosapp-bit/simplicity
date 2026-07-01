@@ -28,6 +28,7 @@ import DeleteClientModal from '../../modals/DeleteClientModal'
 import MG from '../../components/MG'
 import { pushUndo } from '../../lib/undo'
 import './ClientsScreen.css'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 const HERO_LABEL_KEY = {
   active: 'hero.active',
@@ -334,27 +335,27 @@ export default function ClientsScreen() {
   const balanceDataError = !loading && !error && !!(txError || sessionsError || groupsError || membersError)
 
   return (
-    <div className={`screen${selectMode ? ' has-bulk-bar' : ''}`}>
-      <div className="screen-top">
-        <header className="screen-head">
-          <div>
-            <div className="screen-head-meta">
-              <p className="lbl">{t('countLabel', { count: total })}</p>
-              <span className="lbl dot">·</span>
-              <p className="lbl">{t('summary')}</p>
-            </div>
-            <p className="lbl-sm">{t('tagline')}</p>
-          </div>
-          <p className="t-screen">{t('title')}</p>
-        </header>
-        <button className="cta-add" type="button" aria-label={t('addClientAria')} onClick={() => (atClientLimit ? goUpgrade() : setShowAdd(true))}>+ <MG word="client_new" /></button>
-      </div>
+    <Box className={`screen${selectMode ? ' has-bulk-bar' : ''}`}>
+      <Box className="screen-top">
+        <Box as="header" className="screen-head">
+          <Box>
+            <Box className="screen-head-meta">
+              <Txt as="p" className="lbl">{t('countLabel', { count: total })}</Txt>
+              <Txt className="lbl dot">·</Txt>
+              <Txt as="p" className="lbl">{t('summary')}</Txt>
+            </Box>
+            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
+          </Box>
+          <Txt as="p" className="t-screen">{t('title')}</Txt>
+        </Box>
+        <Btn className="cta-add" type="button" aria-label={t('addClientAria')} onClick={() => (atClientLimit ? goUpgrade() : setShowAdd(true))}>+ <MG word="client_new" /></Btn>
+      </Box>
       {atClientLimit && (
-        <button type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.clients')} · {ts('limit.upgrade')}</button>
+        <Btn type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.clients')} · {ts('limit.upgrade')}</Btn>
       )}
-      <div className="c-top-actions">
-          <div className="c-sort-wrap" ref={sortAnchorRef}>
-            <button
+      <Box className="c-top-actions">
+          <Box className="c-sort-wrap" ref={sortAnchorRef}>
+            <Btn
               type="button"
               className="c-sort-btn"
               onClick={() => setSortOpen((v) => !v)}
@@ -362,72 +363,72 @@ export default function ClientsScreen() {
               aria-label={t('sort.label')}
             >
               <ArrowUpDown size={14} strokeWidth={1.7} aria-hidden="true" /> {t('sort.label')}
-            </button>
+            </Btn>
             {sortOpen && (
-              <div className="c-sort-pop" role="menu" style={{ [sortSide]: 0 }}>
-                <p className="c-sort-h">{t('sort.heading')}</p>
+              <Box className="c-sort-pop" role="menu" style={{ [sortSide]: 0 }}>
+                <Txt as="p" className="c-sort-h">{t('sort.heading')}</Txt>
                 {SORT_OPTIONS.map((o) => (
-                  <button
+                  <Btn
                     key={o.k}
                     type="button"
                     className={`c-sort-opt${sort.field === o.k ? ' on' : ''}`}
                     onClick={() => setSort({ field: o.k })}
                   >
                     {t(o.labelKey)}
-                  </button>
+                  </Btn>
                 ))}
-                <div className="c-sort-divider" />
-                <div className="c-sort-dir">
-                  <button
+                <Box className="c-sort-divider" />
+                <Box className="c-sort-dir">
+                  <Btn
                     type="button"
                     className={`c-sort-opt${sort.dir === 'asc' ? ' on' : ''}`}
                     onClick={() => setSort({ dir: 'asc' })}
-                  >{t('sort.asc')}</button>
-                  <button
+                  >{t('sort.asc')}</Btn>
+                  <Btn
                     type="button"
                     className={`c-sort-opt${sort.dir === 'desc' ? ' on' : ''}`}
                     onClick={() => setSort({ dir: 'desc' })}
-                  >{t('sort.desc')}</button>
-                </div>
-              </div>
+                  >{t('sort.desc')}</Btn>
+                </Box>
+              </Box>
             )}
-          </div>
-          <div className="mg-toggle c-groupby" role="tablist" aria-label={t('groupBy.aria')}>
-            <button
+          </Box>
+          <Box className="mg-toggle c-groupby" role="tablist" aria-label={t('groupBy.aria')}>
+            <Btn
               type="button"
               className={`mg-toggle-btn${groupBy === 'status' ? ' on' : ''}`}
               onClick={() => setGroupBy('status')}
-            >{t('groupBy.status')}</button>
-            <button
+            >{t('groupBy.status')}</Btn>
+            <Btn
               type="button"
               className={`mg-toggle-btn${groupBy === 'project' ? ' on' : ''}`}
               onClick={() => setGroupBy('project')}
-            >{t('groupBy.project')}</button>
-          </div>
-          <button
+            >{t('groupBy.project')}</Btn>
+          </Box>
+          <Btn
             type="button"
             className={`c-select-btn${selectMode ? ' on' : ''}`}
             onClick={() => setSelectMode((v) => !v)}
           >
             {selectMode ? t('select.cancel') : t('select.enter')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
 
       {groupBy === 'status' && (
         <ClientTabs active={tab} counts={counts} showNoStatus={counts.no_status > 0} onChange={setTab} />
       )}
 
-      <div className="c-search-row">
-        <div className="c-search">
+      <Box className="c-search-row">
+        <Box className="c-search">
           <Search size={16} strokeWidth={1.6} aria-hidden="true" />
-          <input
+          <Input
             type="search"
             placeholder={t('search')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-        </div>
-        <button
+        </Box>
+        <Btn
           type="button"
           className={`c-bal-filter${balanceOnly ? ' on' : ''}`}
           onClick={() => setBalanceOnly(!balanceOnly)}
@@ -435,70 +436,70 @@ export default function ClientsScreen() {
         >
           <Wallet size={13} strokeWidth={1.8} aria-hidden="true" />
           {t('balanceFilter')}{openBalanceCount > 0 ? ` · ${openBalanceCount}` : ''}
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
       {balanceDataError && (
-        <div className="c-data-warning" role="status">
+        <Box className="c-data-warning" role="status">
           <AlertTriangle size={15} strokeWidth={1.8} aria-hidden="true" />
-          <span>{t('dataWarning')}</span>
-        </div>
+          <Txt>{t('dataWarning')}</Txt>
+        </Box>
       )}
 
       {groupBy === 'status' && (
-        <section className="c-hero">
-          <div className="s-hero">
-            <div className="mg-toggle" role="tablist" aria-label={t('hero.rangeLabel')}>
-              <button type="button" className={`mg-toggle-btn${effScope === 'monthly' ? ' on' : ''}`} onClick={() => setScope('monthly')} disabled={scopeLocked}>{t('hero.monthly')}</button>
-              <button type="button" className={`mg-toggle-btn${effScope === 'cumulative' ? ' on' : ''}`} onClick={() => setScope('cumulative')} disabled={scopeLocked}>{t('hero.cumulative')}</button>
-            </div>
-            <p className="c-hero-scope-note">
+        <Box as="section" className="c-hero">
+          <Box className="s-hero">
+            <Box className="mg-toggle" role="tablist" aria-label={t('hero.rangeLabel')}>
+              <Btn type="button" className={`mg-toggle-btn${effScope === 'monthly' ? ' on' : ''}`} onClick={() => setScope('monthly')} disabled={scopeLocked}>{t('hero.monthly')}</Btn>
+              <Btn type="button" className={`mg-toggle-btn${effScope === 'cumulative' ? ' on' : ''}`} onClick={() => setScope('cumulative')} disabled={scopeLocked}>{t('hero.cumulative')}</Btn>
+            </Box>
+            <Txt as="p" className="c-hero-scope-note">
               {scopeLocked ? t('hero.scopePast') : (scope === 'monthly' ? t('hero.scopeThisMonth') : t('hero.scopeFromStart'))}
-            </p>
-            <p className="c-hero-title"><MG text={t(HERO_LABEL_KEY[tab])} /></p>
-            <div className="c-hero-grid">
+            </Txt>
+            <Txt as="p" className="c-hero-title"><MG text={t(HERO_LABEL_KEY[tab])} /></Txt>
+            <Box className="c-hero-grid">
               {hero.map((s, i) => (
-                <div key={s.l} className={`c-hero-stat${i === 1 ? ' divided' : ''}`}>
-                  <p className="c-hero-stat-l">{s.l}</p>
-                  <p className="c-hero-stat-v mono">{s.v}</p>
-                </div>
+                <Box key={s.l} className={`c-hero-stat${i === 1 ? ' divided' : ''}`}>
+                  <Txt as="p" className="c-hero-stat-l">{s.l}</Txt>
+                  <Txt as="p" className="c-hero-stat-v mono">{s.v}</Txt>
+                </Box>
               ))}
-            </div>
-          </div>
-        </section>
+            </Box>
+          </Box>
+        </Box>
       )}
 
-      <section className="c-list">
+      <Box as="section" className="c-list">
         {loading ? (
-          <div className="empty"><p className="empty-text">{t('loading')}</p></div>
+          <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
         ) : error ? (
-          <div className="empty"><p className="empty-text">{t('loadError', { error })}</p></div>
+          <Box className="empty"><Txt as="p" className="empty-text">{t('loadError', { error })}</Txt></Box>
         ) : list.length === 0 ? (
           query ? (
-            <div className="empty"><p className="empty-text">{t('empty.noSearchResults')}</p></div>
+            <Box className="empty"><Txt as="p" className="empty-text">{t('empty.noSearchResults')}</Txt></Box>
           ) : total === 0 ? (
-            <div className="empty">
-              <span className="empty-icon"><UserPlus size={28} strokeWidth={1.4} aria-hidden="true" /></span>
-              <p className="empty-text">{t('empty.firstClient')}</p>
-              <button className="empty-action" type="button" onClick={() => setShowAdd(true)}>
+            <Box className="empty">
+              <Txt className="empty-icon"><UserPlus size={28} strokeWidth={1.4} aria-hidden="true" /></Txt>
+              <Txt as="p" className="empty-text">{t('empty.firstClient')}</Txt>
+              <Btn className="empty-action" type="button" onClick={() => setShowAdd(true)}>
                 <UserPlus size={18} strokeWidth={1.6} aria-hidden="true" /> {t('empty.addClient')}
-              </button>
-            </div>
+              </Btn>
+            </Box>
           ) : (
-            <div className="empty"><p className="empty-text">{t('empty.noneInCategory')}</p></div>
+            <Box className="empty"><Txt as="p" className="empty-text">{t('empty.noneInCategory')}</Txt></Box>
           )
         ) : groupBy === 'project' ? (
           grouped.map(({ project, clients: pc }) => (
-            <div key={project?.id || 'none'} className="c-proj-group">
-              <p className="c-proj-head">
-                <span
+            <Box key={project?.id || 'none'} className="c-proj-group">
+              <Txt as="p" className="c-proj-head">
+                <Txt
                   className="c-proj-dot"
                   style={{ background: project?.color || 'var(--stone)' }}
                   aria-hidden="true"
                 />
-                <span className="c-proj-name">{project?.name || t('project.none')}</span>
-                <span className="c-proj-count mono">{pc.length}</span>
-              </p>
+                <Txt className="c-proj-name">{project?.name || t('project.none')}</Txt>
+                <Txt className="c-proj-count mono">{pc.length}</Txt>
+              </Txt>
               {pc.map((c, i) => (
                 <ClientCard
                   key={c.id}
@@ -517,7 +518,7 @@ export default function ClientsScreen() {
                   bal={balanceByClient.get(c.id)}
                 />
               ))}
-            </div>
+            </Box>
           ))
         ) : (
           list.map((c, i) => (
@@ -539,44 +540,44 @@ export default function ClientsScreen() {
             />
           ))
         )}
-      </section>
+      </Box>
 
       {selectMode && (
-        <div className="c-bulk-bar">
-          <span className="c-bulk-count">{t('bulk.selected', { count: selectedIds.size })}</span>
-          <div className="c-bulk-actions">
-            <div className="c-bulk-meta-wrap" ref={bulkMetaAnchorRef}>
-              <button
+        <Box className="c-bulk-bar">
+          <Txt className="c-bulk-count">{t('bulk.selected', { count: selectedIds.size })}</Txt>
+          <Box className="c-bulk-actions">
+            <Box className="c-bulk-meta-wrap" ref={bulkMetaAnchorRef}>
+              <Btn
                 type="button"
                 className="c-bulk-btn"
                 onClick={() => setBulkMetaOpen((v) => !v)}
                 disabled={selectedIds.size === 0}
-              >{t('bulk.changeStatus')} <ChevronLeft size={14} strokeWidth={1.5} aria-hidden="true" /></button>
+              >{t('bulk.changeStatus')} <ChevronLeft size={14} strokeWidth={1.5} aria-hidden="true" /></Btn>
               {bulkMetaOpen && (
-                <div className="c-sort-pop c-bulk-pop" role="menu" style={{ [bulkMetaSide]: 0 }}>
-                  <p className="c-sort-h">{t('bulk.moveTo')}</p>
+                <Box className="c-sort-pop c-bulk-pop" role="menu" style={{ [bulkMetaSide]: 0 }}>
+                  <Txt as="p" className="c-sort-h">{t('bulk.moveTo')}</Txt>
                   {BULK_META_OPTIONS.map((o) => (
-                    <button
+                    <Btn
                       key={o.k}
                       type="button"
                       className="c-sort-opt"
                       onClick={() => bulkChangeMeta(o.k)}
-                    >{t(o.labelKey)}</button>
+                    >{t(o.labelKey)}</Btn>
                   ))}
-                </div>
+                </Box>
               )}
-            </div>
-            <button
+            </Box>
+            <Btn
               type="button"
               className="c-bulk-btn danger"
               onClick={() => setPendingDeleteBatch(selectedClients)}
               disabled={selectedIds.size === 0}
-            >{t('bulk.delete')}</button>
-            <button type="button" className="c-bulk-close" onClick={() => setSelectMode(false)} aria-label={t('bulk.closeAria')}>
+            >{t('bulk.delete')}</Btn>
+            <Btn type="button" className="c-bulk-close" onClick={() => setSelectMode(false)} aria-label={t('bulk.closeAria')}>
               <X size={16} strokeWidth={1.7} aria-hidden="true" />
-            </button>
-          </div>
-        </div>
+            </Btn>
+          </Box>
+        </Box>
       )}
 
       <ClientDrawer
@@ -628,6 +629,6 @@ export default function ClientsScreen() {
         onUpdateTransaction={editTransaction}
         onRemoveTransaction={removeTransaction}
       />
-    </div>
+    </Box>
   )
 }

@@ -3,6 +3,7 @@ import { Inbox, Check, X } from 'lucide-react'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import WhatsAppButton from '../../components/WhatsAppButton'
 import { useT } from '../../i18n/useT'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    PENDING LEADS — public-page submissions awaiting manual approval.
@@ -50,45 +51,45 @@ export default function PendingLeadsSection({ pending = [], pages = [], onApprov
   }
 
   return (
-    <section className="l-pending" aria-label={t('pending.aria')}>
-      <div className="l-pending-head">
+    <Box as="section" className="l-pending" aria-label={t('pending.aria')}>
+      <Box className="l-pending-head">
         <Inbox size={16} strokeWidth={1.7} aria-hidden="true" />
-        <span className="l-pending-title">{t('pending.title')}</span>
-        <span className="l-pending-count mono">{pending.length}</span>
-      </div>
-      <div className="l-pending-list">
+        <Txt className="l-pending-title">{t('pending.title')}</Txt>
+        <Txt className="l-pending-count mono">{pending.length}</Txt>
+      </Box>
+      <Box className="l-pending-list">
         {pending.map((lead) => {
           const page = lead.page_id ? pageById[lead.page_id] : null
           return (
-            <div className="l-pending-card" key={lead.id}>
-              <div className="l-pending-info">
-                {page?.title ? <p className="l-pending-source">{t('pending.from', { page: page.title })}</p> : null}
+            <Box className="l-pending-card" key={lead.id}>
+              <Box className="l-pending-info">
+                {page?.title ? <Txt as="p" className="l-pending-source">{t('pending.from', { page: page.title })}</Txt> : null}
                 <dl className="l-pending-fields">
                   {rowsFor(lead).map((r) => (
-                    <div className="l-pending-field" key={`${lead.id}-${r.label}`}>
+                    <Box className="l-pending-field" key={`${lead.id}-${r.label}`}>
                       <dt>{r.label}</dt>
                       <dd>{r.value}</dd>
-                    </div>
+                    </Box>
                   ))}
                 </dl>
-              </div>
-              <div className="l-pending-actions">
+              </Box>
+              <Box className="l-pending-actions">
                 <WhatsAppButton
                   phone={lead.phone || ''}
                   message={waMsg('lead', { name: lead.name })}
                   triggerClassName="l-pending-wa"
                 />
-                <button type="button" className="l-pending-approve" onClick={() => onApprove(lead.id)}>
+                <Btn type="button" className="l-pending-approve" onClick={() => onApprove(lead.id)}>
                   <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('pending.approve')}
-                </button>
-                <button type="button" className="l-pending-reject" onClick={() => onReject(lead.id)} aria-label={t('pending.reject')}>
+                </Btn>
+                <Btn type="button" className="l-pending-reject" onClick={() => onReject(lead.id)} aria-label={t('pending.reject')}>
                   <X size={15} strokeWidth={2} aria-hidden="true" />
-                </button>
-              </div>
-            </div>
+                </Btn>
+              </Box>
+            </Box>
           )
         })}
-      </div>
-    </section>
+      </Box>
+    </Box>
   )
 }

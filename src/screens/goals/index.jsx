@@ -23,6 +23,7 @@ import EditGoalModal from '../../modals/EditGoalModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
+import { Box, Txt, Btn } from '../../components/ui'
 import { useT } from '../../i18n/useT'
 import './GoalsScreen.css'
 
@@ -96,51 +97,51 @@ export default function GoalsScreen() {
   }
 
   return (
-    <div className="screen">
-      <div className="screen-top">
-        <header className="screen-head">
-          <div>
-            <div className="screen-head-meta">
-              <p className="lbl">{t('countLabel', { count: totalGoals })}</p>
-              <span className="lbl dot">·</span>
-              <p className="lbl">{t('movement')}</p>
-            </div>
-            <p className="lbl-sm">{t('tagline')}</p>
-          </div>
-          <p className="t-screen">{t('title')}</p>
-        </header>
+    <Box className="screen">
+      <Box className="screen-top">
+        <Box as="header" className="screen-head">
+          <Box>
+            <Box className="screen-head-meta">
+              <Txt as="p" className="lbl">{t('countLabel', { count: totalGoals })}</Txt>
+              <Txt className="lbl dot">·</Txt>
+              <Txt as="p" className="lbl">{t('movement')}</Txt>
+            </Box>
+            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
+          </Box>
+          <Txt as="p" className="t-screen">{t('title')}</Txt>
+        </Box>
         <Coachmark id="add-goal" radius="50%">
-          <button className="cta-add" type="button" aria-label={t('newGoalAria')} onClick={() => (atGoalLimit ? goUpgrade() : setShowAddGoal(true))}>
+          <Btn className="cta-add" aria-label={t('newGoalAria')} onClick={() => (atGoalLimit ? goUpgrade() : setShowAddGoal(true))}>
             {t('newGoal')}
-          </button>
+          </Btn>
         </Coachmark>
-      </div>
+      </Box>
       {atGoalLimit && (
-        <button type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.goals')} · {ts('limit.upgrade')}</button>
+        <Btn className="sub-limit-note" onClick={goUpgrade}>{ts('limit.goals')} · {ts('limit.upgrade')}</Btn>
       )}
 
       {loading ? (
-        <div className="empty"><p className="empty-text">{t('loading')}</p></div>
+        <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
       ) : error ? (
-        <div className="empty"><p className="empty-text">{t('loadError', { error })}</p></div>
+        <Box className="empty"><Txt as="p" className="empty-text">{t('loadError', { error })}</Txt></Box>
       ) : totalGoals === 0 ? (
-        <div className="empty">
-          <span className="empty-icon"><Target size={28} strokeWidth={1.4} aria-hidden="true" /></span>
-          <p className="empty-text">{t('empty.firstGoal')}</p>
-          <button className="empty-action" type="button" onClick={() => setShowAddGoal(true)}>
+        <Box className="empty">
+          <Txt className="empty-icon"><Target size={28} strokeWidth={1.4} aria-hidden="true" /></Txt>
+          <Txt as="p" className="empty-text">{t('empty.firstGoal')}</Txt>
+          <Btn className="empty-action" onClick={() => setShowAddGoal(true)}>
             <Plus size={18} strokeWidth={1.8} aria-hidden="true" /> {t('empty.setGoal')}
-          </button>
-          <details className="empty-reminder">
-            <summary>{t('empty.whyImportant')}</summary>
-            <p className="empty-reminder-body">{coachmarkText('add-goal', prefs?.design?.gender).detail}</p>
-          </details>
-        </div>
+          </Btn>
+          <Box as="details" className="empty-reminder">
+            <Txt as="summary">{t('empty.whyImportant')}</Txt>
+            <Txt as="p" className="empty-reminder-body">{coachmarkText('add-goal', prefs?.design?.gender).detail}</Txt>
+          </Box>
+        </Box>
       ) : (
         groups.map((g) => (
-          <section key={g.category.id} className="g-group">
-            <div className="g-group-head">
-              <p className="g-group-lbl">{g.category.name}</p>
-            </div>
+          <Box as="section" key={g.category.id} className="g-group">
+            <Box className="g-group-head">
+              <Txt as="p" className="g-group-lbl">{g.category.name}</Txt>
+            </Box>
             {g.goals.map((s, i) => (
               <GoalCard
                 key={s.goal.id}
@@ -153,7 +154,7 @@ export default function GoalsScreen() {
                 onDelete={(gl) => setPendingDeleteGoal(gl)}
               />
             ))}
-          </section>
+          </Box>
         ))
       )}
 
@@ -195,6 +196,6 @@ export default function GoalsScreen() {
         danger
         onConfirm={() => { if (pendingDeleteGoal) removeGoal(pendingDeleteGoal.id) }}
       />
-    </div>
+    </Box>
   )
 }

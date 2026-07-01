@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { HelpCircle } from 'lucide-react'
 import { useT } from '../i18n/useT'
+import { Txt, Btn } from './ui'
 
 /* Small reusable "?" icon → popover. Hover opens on desktop, tap toggles
    on mobile. Click outside or Escape closes.
@@ -73,13 +74,13 @@ export default function InfoPopover({ text, label, placement = 'bottom' }) {
   useEffect(() => () => cancelClose(), [])
 
   return (
-    <span
+    <Txt
       className="info-pop"
       ref={wrapRef}
       onMouseEnter={() => { cancelClose(); setOpen(true) }}
       onMouseLeave={scheduleClose}
     >
-      <button
+      <Btn
         type="button"
         className="info-pop-btn"
         aria-label={label || t('infoPopover.label')}
@@ -87,9 +88,9 @@ export default function InfoPopover({ text, label, placement = 'bottom' }) {
         onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
       >
         <HelpCircle size={13} strokeWidth={1.7} aria-hidden="true" />
-      </button>
+      </Btn>
       {open && coords && createPortal(
-        <span
+        <Txt
           ref={bodyRef}
           className="info-pop-body"
           role="tooltip"
@@ -98,9 +99,9 @@ export default function InfoPopover({ text, label, placement = 'bottom' }) {
           onMouseLeave={scheduleClose}
         >
           {text}
-        </span>,
+        </Txt>,
         document.body,
       )}
-    </span>
+    </Txt>
   )
 }

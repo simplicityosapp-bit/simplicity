@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 const PRIORITIES = [
   { k: 'high', l: 'priorityHigh' },
@@ -71,86 +72,86 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
 
   return (
     <Modal open={open} onClose={close} title={isEdit ? t('task.titleEdit') : t('task.titleNew')}>
-      <div className="m-field">
-        <label className="m-label">{t('task.whatToDo')}</label>
-        <input
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('task.whatToDo')}</Box>
+        <Input
           className={`m-input${titleMissing ? ' err' : ''}`}
           value={form.title}
           onChange={(e) => { set('title', e.target.value); if (err) setErr('') }}
           placeholder={t('task.titlePlaceholder')}
         />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('task.priority')}</label>
-        <div className="m-pills">
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('task.priority')}</Box>
+        <Box className="m-pills">
           {PRIORITIES.map((p) => (
-            <button key={p.k} type="button" className={`m-pill${form.priority === p.k ? ' on' : ''}`} onClick={() => set('priority', p.k)}>{t(`task.${p.l}`)}</button>
+            <Btn key={p.k} type="button" className={`m-pill${form.priority === p.k ? ' on' : ''}`} onClick={() => set('priority', p.k)}>{t(`task.${p.l}`)}</Btn>
           ))}
-        </div>
-      </div>
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('task.project')}</label>
+        </Box>
+      </Box>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('task.project')}</Box>
           <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('task.client')}</label>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('task.client')}</Box>
           <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('task.dueDate')}</label>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('task.dueDate')}</Box>
           <DateField value={form.due_date} onChange={(e) => set('due_date', e.target.value)} />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('task.dueTime')}</label>
-          <input
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('task.dueTime')}</Box>
+          <Input
             type="time"
             className="m-input"
             value={form.due_time}
             onChange={(e) => set('due_time', e.target.value)}
             disabled={!form.due_date}
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {(statuses.length > 0 || categories.length > 0) && (
-        <div className="m-row2">
+        <Box className="m-row2">
           {statuses.length > 0 && (
-            <div className="m-field">
-              <label className="m-label">{t('task.status')}</label>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('task.status')}</Box>
               <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
                 <option value="">{t('common.none')}</option>
                 {statuses.map((s) => <option key={s.id} value={s.id}>{s.display_name}</option>)}
               </select>
-            </div>
+            </Box>
           )}
           {categories.length > 0 && (
-            <div className="m-field">
-              <label className="m-label">{t('task.category')}</label>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('task.category')}</Box>
               <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
                 <option value="">{t('common.none')}</option>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
-            </div>
+            </Box>
           )}
-        </div>
+        </Box>
       )}
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
     </Modal>
   )
 }

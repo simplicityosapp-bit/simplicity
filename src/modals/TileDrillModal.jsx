@@ -10,6 +10,7 @@ import { confirmScheduledMeeting } from '../lib/scheduledMeetings'
 import WhatsAppButton from '../components/WhatsAppButton'
 import { useT } from '../i18n/useT'
 import { ClientsTrend, NetBars, TasksBars } from './TileDrillCharts'
+import { Box, Txt, Btn } from '../components/ui'
 
 /* Option keys only — labels are resolved via t() at render so the pills
    localize. The `tk` is the sub-key under the given group in the json. */
@@ -33,21 +34,21 @@ function toggleInList(list, value) {
    keys; `label(key)` resolves each to localized text. */
 function Pills({ options, value, onChange, multi = false, label }) {
   return (
-    <div className="td-pills">
+    <Box className="td-pills">
       {options.map((k) => {
         const active = multi ? (value || []).includes(k) : value === k
         return (
-          <button
+          <Btn
             key={k}
             type="button"
             className={`td-pill${active ? ' on' : ''}`}
             onClick={() => onChange(multi ? toggleInList(value, k) : k)}
           >
             {label(k)}
-          </button>
+          </Btn>
         )
       })}
-    </div>
+    </Box>
   )
 }
 
@@ -56,34 +57,34 @@ function Pills({ options, value, onChange, multi = false, label }) {
    client/category filters — matches the prototype's multi-axis filter UX. */
 function MultiPills({ items, selected, onChange, allLabel, emptyLabel }) {
   if (!items?.length) {
-    return <p className="td-empty-inline">{emptyLabel}</p>
+    return <Txt as="p" className="td-empty-inline">{emptyLabel}</Txt>
   }
   const list = selected || []
   return (
-    <div className="td-pills td-pills-multi">
-      <button
+    <Box className="td-pills td-pills-multi">
+      <Btn
         type="button"
         className={`td-pill${list.length === 0 ? ' on' : ''}`}
         onClick={() => onChange([])}
       >
         {allLabel}
-      </button>
+      </Btn>
       {items.map((it) => {
         const active = list.includes(it.id)
         return (
-          <button
+          <Btn
             key={it.id}
             type="button"
             className={`td-pill${active ? ' on' : ''}`}
             onClick={() => onChange(toggleInList(list, it.id))}
             title={it.name}
           >
-            {it.color && <span className="td-pill-dot" style={{ background: it.color }} />}
-            <span className="td-pill-name">{it.name}</span>
-          </button>
+            {it.color && <Txt className="td-pill-dot" style={{ background: it.color }} />}
+            <Txt className="td-pill-name">{it.name}</Txt>
+          </Btn>
         )
       })}
-    </div>
+    </Box>
   )
 }
 
@@ -176,41 +177,41 @@ function ClientsPanel({ filters, setFilter, clients, projects, groups, t }) {
 
   return (
     <>
-      <p className="td-num mono">{filtered.length}</p>
-      <p className="td-num-lbl">{t('tileDrill.clients.matchingNum')}</p>
+      <Txt as="p" className="td-num mono">{filtered.length}</Txt>
+      <Txt as="p" className="td-num-lbl">{t('tileDrill.clients.matchingNum')}</Txt>
 
-      <div className="td-chart-block">
-        <p className="td-chart-lbl">{t('tileDrill.clients.trendLbl')}</p>
+      <Box className="td-chart-block">
+        <Txt as="p" className="td-chart-lbl">{t('tileDrill.clients.trendLbl')}</Txt>
         <ClientsTrend values={trend} />
-      </div>
+      </Box>
 
-      <p className="td-field-lbl">{t('tileDrill.clients.statusLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.clients.statusLbl')}</Txt>
       <Pills options={STATUS_OPTIONS} value={filters.statuses} multi
              label={(k) => t(`tileDrill.status.${k}`)}
              onChange={(v) => setFilter('statuses', v)} />
 
-      <p className="td-field-lbl">{t('tileDrill.clients.projectLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.clients.projectLbl')}</Txt>
       <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} allLabel={t('tileDrill.all')} emptyLabel={t('tileDrill.clients.noProjects')} />
 
-      <p className="td-field-lbl">{t('tileDrill.clients.groupLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.clients.groupLbl')}</Txt>
       <MultiPills items={groups} selected={filters.groupIds} onChange={(v) => setFilter('groupIds', v)} allLabel={t('tileDrill.all')} emptyLabel={t('tileDrill.clients.noGroups')} />
 
-      <p className="td-section-lbl">{t('tileDrill.clients.matchingSection', { count: filtered.length })}</p>
-      <div className="td-list">
+      <Txt as="p" className="td-section-lbl">{t('tileDrill.clients.matchingSection', { count: filtered.length })}</Txt>
+      <Box className="td-list">
         {filtered.length === 0 ? (
-          <p className="td-empty">{t('tileDrill.clients.emptyFilter')}</p>
+          <Txt as="p" className="td-empty">{t('tileDrill.clients.emptyFilter')}</Txt>
         ) : (
           filtered.slice(0, 8).map((c) => (
-            <div key={c.id} className="td-list-row">
-              <span className="td-list-name">{c.name}</span>
-              <span className="td-list-meta">{statusLabel(c.status_meta || c.status, t)}</span>
-            </div>
+            <Box key={c.id} className="td-list-row">
+              <Txt className="td-list-name">{c.name}</Txt>
+              <Txt className="td-list-meta">{statusLabel(c.status_meta || c.status, t)}</Txt>
+            </Box>
           ))
         )}
         {filtered.length > 8 && (
-          <p className="td-list-more">{t('tileDrill.clients.moreCount', { count: filtered.length - 8 })}</p>
+          <Txt as="p" className="td-list-more">{t('tileDrill.clients.moreCount', { count: filtered.length - 8 })}</Txt>
         )}
-      </div>
+      </Box>
     </>
   )
 }
@@ -224,50 +225,50 @@ function NetPanel({ filters, setFilter, transactions, projects, categories, summ
   const trend = useMemo(() => netTrendValues(transactions || [], 30), [transactions])
   return (
     <>
-      <p className={`td-num mono${summary.net < 0 ? ' neg' : ''}`}>
+      <Txt as="p" className={`td-num mono${summary.net < 0 ? ' neg' : ''}`}>
         {summary.net < 0 ? '−' : ''}{isr(Math.abs(summary.net))}
-      </p>
-      <p className="td-num-lbl">{filters.type === 'income' ? t('tileDrill.net.income') : filters.type === 'expense' ? t('tileDrill.net.expense') : t('tileDrill.net.net')}</p>
+      </Txt>
+      <Txt as="p" className="td-num-lbl">{filters.type === 'income' ? t('tileDrill.net.income') : filters.type === 'expense' ? t('tileDrill.net.expense') : t('tileDrill.net.net')}</Txt>
 
-      <div className="td-chart-block">
-        <p className="td-chart-lbl">{t('tileDrill.net.trendLbl')}</p>
+      <Box className="td-chart-block">
+        <Txt as="p" className="td-chart-lbl">{t('tileDrill.net.trendLbl')}</Txt>
         <NetBars incomes={trend.incomes} expenses={trend.expenses} />
-        <div className="td-chart-legend">
-          <span className="td-chart-key"><span className="td-chart-swatch sage" />{t('tileDrill.net.legendIncome')}</span>
-          <span className="td-chart-key"><span className="td-chart-swatch clay" />{t('tileDrill.net.legendExpense')}</span>
-        </div>
-      </div>
+        <Box className="td-chart-legend">
+          <Txt className="td-chart-key"><Txt className="td-chart-swatch sage" />{t('tileDrill.net.legendIncome')}</Txt>
+          <Txt className="td-chart-key"><Txt className="td-chart-swatch clay" />{t('tileDrill.net.legendExpense')}</Txt>
+        </Box>
+      </Box>
 
-      <p className="td-field-lbl">{t('tileDrill.net.timeRangeLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.net.timeRangeLbl')}</Txt>
       <Pills options={NET_RANGES} value={filters.timeRange}
              label={(k) => t(`tileDrill.netRanges.${k}`)}
              onChange={(v) => setFilter('timeRange', v)} />
 
-      <p className="td-field-lbl">{t('tileDrill.net.typeLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.net.typeLbl')}</Txt>
       <Pills options={NET_TYPES} value={filters.type}
              label={(k) => t(`tileDrill.netTypes.${k}`)}
              onChange={(v) => setFilter('type', v)} />
 
-      <p className="td-field-lbl">{t('tileDrill.net.projectLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.net.projectLbl')}</Txt>
       <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} allLabel={t('tileDrill.all')} emptyLabel={t('tileDrill.net.noProjects')} />
 
-      <p className="td-field-lbl">{t('tileDrill.net.categoryLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.net.categoryLbl')}</Txt>
       <MultiPills items={categories} selected={filters.categoryIds} onChange={(v) => setFilter('categoryIds', v)} allLabel={t('tileDrill.all')} emptyLabel={t('tileDrill.net.noCategories')} />
 
-      <div className="td-mini-stats">
-        <div className="td-mini">
-          <p className="td-mini-l">{t('tileDrill.net.miniIncome')}</p>
-          <p className="td-mini-v mono">{isr(summary._income || 0)}</p>
-        </div>
-        <div className="td-mini">
-          <p className="td-mini-l">{t('tileDrill.net.miniExpense')}</p>
-          <p className="td-mini-v mono">{isr(summary._expense || 0)}</p>
-        </div>
-        <div className="td-mini">
-          <p className="td-mini-l">{t('tileDrill.net.miniTx')}</p>
-          <p className="td-mini-v mono">{summary._txCount || 0}</p>
-        </div>
-      </div>
+      <Box className="td-mini-stats">
+        <Box className="td-mini">
+          <Txt as="p" className="td-mini-l">{t('tileDrill.net.miniIncome')}</Txt>
+          <Txt as="p" className="td-mini-v mono">{isr(summary._income || 0)}</Txt>
+        </Box>
+        <Box className="td-mini">
+          <Txt as="p" className="td-mini-l">{t('tileDrill.net.miniExpense')}</Txt>
+          <Txt as="p" className="td-mini-v mono">{isr(summary._expense || 0)}</Txt>
+        </Box>
+        <Box className="td-mini">
+          <Txt as="p" className="td-mini-l">{t('tileDrill.net.miniTx')}</Txt>
+          <Txt as="p" className="td-mini-v mono">{summary._txCount || 0}</Txt>
+        </Box>
+      </Box>
     </>
   )
 }
@@ -291,50 +292,50 @@ function TasksPanel({ filters, setFilter, tasks, projects, t }) {
 
   return (
     <>
-      <p className="td-num mono">{filtered.length}</p>
-      <p className="td-num-lbl">{t('tileDrill.tasks.matchingNum')}</p>
+      <Txt as="p" className="td-num mono">{filtered.length}</Txt>
+      <Txt as="p" className="td-num-lbl">{t('tileDrill.tasks.matchingNum')}</Txt>
 
-      <div className="td-chart-block">
-        <p className="td-chart-lbl">{t('tileDrill.tasks.trendLbl')}</p>
+      <Box className="td-chart-block">
+        <Txt as="p" className="td-chart-lbl">{t('tileDrill.tasks.trendLbl')}</Txt>
         <TasksBars values={trend.values} daysOfWeek={trend.dows} />
-      </div>
+      </Box>
 
-      <p className="td-field-lbl">{t('tileDrill.tasks.statusLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.tasks.statusLbl')}</Txt>
       <Pills options={TASK_STATUS} value={filters.status}
              label={(k) => t(`tileDrill.taskStatus.${k}`)}
              onChange={(v) => setFilter('status', v)} />
 
-      <p className="td-field-lbl">{t('tileDrill.tasks.priorityLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.tasks.priorityLbl')}</Txt>
       <Pills options={TASK_PRIORITIES} value={filters.priorities} multi
              label={(k) => t(`tileDrill.priorities.${k}`)}
              onChange={(v) => setFilter('priorities', v)} />
 
-      <p className="td-field-lbl">{t('tileDrill.tasks.projectLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.tasks.projectLbl')}</Txt>
       <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} allLabel={t('tileDrill.all')} emptyLabel={t('tileDrill.tasks.noProjects')} />
 
-      <p className="td-field-lbl">{t('tileDrill.tasks.clientScopeLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.tasks.clientScopeLbl')}</Txt>
       <Pills options={TASK_CLIENT_SCOPE} value={filters.clientScope || 'all'}
              label={(k) => t(`tileDrill.taskClientScope.${k}`)}
              onChange={(v) => setFilter('clientScope', v)} />
 
-      <p className="td-section-lbl">{t('tileDrill.tasks.upcomingSection')}</p>
-      <div className="td-list">
+      <Txt as="p" className="td-section-lbl">{t('tileDrill.tasks.upcomingSection')}</Txt>
+      <Box className="td-list">
         {filtered.length === 0 ? (
-          <p className="td-empty">{t('tileDrill.tasks.emptyFilter')}</p>
+          <Txt as="p" className="td-empty">{t('tileDrill.tasks.emptyFilter')}</Txt>
         ) : (
           filtered.slice(0, 8).map((tk) => (
-            <div key={tk.id} className="td-list-row">
-              <span className="td-list-name">{tk.title}</span>
-              <span className={`td-list-meta priority-${tk.priority || 'low'}`}>
+            <Box key={tk.id} className="td-list-row">
+              <Txt className="td-list-name">{tk.title}</Txt>
+              <Txt className={`td-list-meta priority-${tk.priority || 'low'}`}>
                 {['high', 'medium', 'low'].includes(tk.priority) ? t(`tileDrill.priorities.${tk.priority}`) : ''}
-              </span>
-            </div>
+              </Txt>
+            </Box>
           ))
         )}
         {filtered.length > 8 && (
-          <p className="td-list-more">{t('tileDrill.tasks.moreCount', { count: filtered.length - 8 })}</p>
+          <Txt as="p" className="td-list-more">{t('tileDrill.tasks.moreCount', { count: filtered.length - 8 })}</Txt>
         )}
-      </div>
+      </Box>
     </>
   )
 }
@@ -347,32 +348,32 @@ function MeetingsPanel({ filters, setFilter, items, onConfirm, onOpen, waMsg, t 
   const kinds = filters.kinds && filters.kinds.length ? filters.kinds : TODAY_KINDS
   return (
     <>
-      <p className="td-num mono">{items.length}</p>
-      <p className="td-num-lbl">{t('tileDrill.today.matchingNum')}</p>
+      <Txt as="p" className="td-num mono">{items.length}</Txt>
+      <Txt as="p" className="td-num-lbl">{t('tileDrill.today.matchingNum')}</Txt>
 
-      <p className="td-field-lbl">{t('tileDrill.today.kindsLbl')}</p>
+      <Txt as="p" className="td-field-lbl">{t('tileDrill.today.kindsLbl')}</Txt>
       <Pills options={TODAY_KINDS} value={kinds} multi
              label={(k) => t(`tileDrill.todayKinds.${k}`)}
              onChange={(v) => setFilter('kinds', v.length ? v : TODAY_KINDS)} />
 
-      <p className="td-section-lbl">{t('tileDrill.today.listSection')}</p>
-      <div className="td-list">
+      <Txt as="p" className="td-section-lbl">{t('tileDrill.today.listSection')}</Txt>
+      <Box className="td-list">
         {items.length === 0 ? (
-          <p className="td-empty">{t('tileDrill.today.empty')}</p>
+          <Txt as="p" className="td-empty">{t('tileDrill.today.empty')}</Txt>
         ) : (
           items.map((it) => (
-            <div key={it.id} className={`td-today-row kind-${it.kind}${it.kind === 'meeting' && it.status === 'confirmed' ? ' is-done' : ''}`}>
-              <button
+            <Box key={it.id} className={`td-today-row kind-${it.kind}${it.kind === 'meeting' && it.status === 'confirmed' ? ' is-done' : ''}`}>
+              <Btn
                 type="button"
                 className="td-today-main"
                 onClick={() => onOpen(it)}
                 disabled={it.kind === 'calendar'}
               >
-                <span className="td-today-time mono">{it.allDay ? t('tileDrill.today.allDay') : fmtTime(it.when)}</span>
-                <span className="td-today-name">{it.title || t(`tileDrill.todayKinds.${it.kind}`)}</span>
-                <span className={`td-today-kind kind-${it.kind}`}>{t(`tileDrill.todayKinds.${it.kind}`)}</span>
-              </button>
-              <div className="td-today-acts">
+                <Txt className="td-today-time mono">{it.allDay ? t('tileDrill.today.allDay') : fmtTime(it.when)}</Txt>
+                <Txt className="td-today-name">{it.title || t(`tileDrill.todayKinds.${it.kind}`)}</Txt>
+                <Txt className={`td-today-kind kind-${it.kind}`}>{t(`tileDrill.todayKinds.${it.kind}`)}</Txt>
+              </Btn>
+              <Box className="td-today-acts">
                 {it.phone && (
                   <WhatsAppButton
                     phone={it.phone}
@@ -382,12 +383,12 @@ function MeetingsPanel({ filters, setFilter, items, onConfirm, onOpen, waMsg, t 
                 )}
                 {it.kind === 'meeting' && (
                   it.status === 'confirmed' ? (
-                    <span className="td-today-done" title={t('tileDrill.today.happened')}>
+                    <Txt className="td-today-done" title={t('tileDrill.today.happened')}>
                       <Check size={14} strokeWidth={2.4} aria-hidden="true" />
                       {t('tileDrill.today.happened')}
-                    </span>
+                    </Txt>
                   ) : (
-                    <button
+                    <Btn
                       type="button"
                       className="td-today-act confirm"
                       onClick={() => onConfirm(it)}
@@ -395,14 +396,14 @@ function MeetingsPanel({ filters, setFilter, items, onConfirm, onOpen, waMsg, t 
                       title={t('tileDrill.today.markHappened')}
                     >
                       <Check size={15} strokeWidth={2} aria-hidden="true" />
-                    </button>
+                    </Btn>
                   )
                 )}
-              </div>
-            </div>
+              </Box>
+            </Box>
           ))
         )}
-      </div>
+      </Box>
     </>
   )
 }
@@ -463,7 +464,7 @@ export default function TileDrillModal({
 
   return (
     <Modal open={open} onClose={onClose} title={tile ? t(`tileDrill.titles.${tile}`) : ''}>
-      <div className="td-body">
+      <Box className="td-body">
         {tile === 'clients' && (
           <ClientsPanel
             filters={filters}
@@ -505,18 +506,18 @@ export default function TileDrillModal({
             t={t}
           />
         )}
-      </div>
+      </Box>
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('tileDrill.close')}</button>
-        <button
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('tileDrill.close')}</Btn>
+        <Btn
           type="button"
           className="m-btn-save"
           onClick={() => { navigate(routes[tile]); onClose() }}
         >
           <ArrowLeft size={14} strokeWidth={1.8} aria-hidden="true" /> {t('tileDrill.openFull')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
     </Modal>
   )
 }

@@ -1,5 +1,6 @@
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn } from '../components/ui'
 
 /* Pick a manual goal category to quickly log an entry for. Only categories
    that have at least one live goal are shown — otherwise there's nothing to
@@ -14,9 +15,9 @@ export default function QuickGoalUpdatePicker({ open, onClose, categories = [], 
   return (
     <Modal open={open} onClose={onClose} title={t('quickUpdate.title')}>
       {choices.length === 0 ? (
-        <p className="m-sub" style={{ color: 'var(--stone)' }}>{t('quickUpdate.empty')}</p>
+        <Txt as="p" className="m-sub" style={{ color: 'var(--stone)' }}>{t('quickUpdate.empty')}</Txt>
       ) : (
-        <div className="g-welcome-actions">
+        <Box className="g-welcome-actions">
           {choices.map((c) => {
             /* Surface the goal name(s) under this category — "category · goal"
                (e.g. "אישי · ריצה"). Entries are still logged per-category, but
@@ -27,19 +28,19 @@ export default function QuickGoalUpdatePicker({ open, onClose, categories = [], 
               .map((g) => g.label)
             const name = goalNames.length ? `${c.name} · ${goalNames.join(', ')}` : c.name
             return (
-              <button key={c.id} type="button" className="g-preset" onClick={() => { onPick(c); onClose() }}>
-                <span className="g-preset-ic">{c.icon || '⭐'}</span>
-                <span className="g-preset-name">{name}</span>
-                <span className="g-preset-hint">{t('quickUpdate.logProgress')}</span>
-              </button>
+              <Btn key={c.id} type="button" className="g-preset" onClick={() => { onPick(c); onClose() }}>
+                <Txt className="g-preset-ic">{c.icon || '⭐'}</Txt>
+                <Txt className="g-preset-name">{name}</Txt>
+                <Txt className="g-preset-hint">{t('quickUpdate.logProgress')}</Txt>
+              </Btn>
             )
           })}
-        </div>
+        </Box>
       )}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('quickUpdate.close')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('quickUpdate.close')}</Btn>
+      </Box>
     </Modal>
   )
 }

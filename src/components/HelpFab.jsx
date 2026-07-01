@@ -10,6 +10,7 @@ import { ROUTES } from '../lib/routes'
 import { useT } from '../i18n/useT'
 import MG from './MG'
 import './HelpFab.css'
+import { Box, Txt, Btn } from './ui'
 
 /* ── Help FAB + bottom-sheet ──────────────────────────────────────
    A floating "?" button rendered once inside AppShell. It owns its own
@@ -65,14 +66,14 @@ export default function HelpFab({ screenKey }) {
   }, [open])
 
   const fab = (
-    <button
+    <Btn
       type="button"
       className={`help-fab${status === 'found' ? ' in-header' : ''}`}
       onClick={() => setOpen(true)}
       aria-label={t('help.fabAria', { title: help.title })}
     >
       <HelpCircle size={20} strokeWidth={1.7} aria-hidden="true" />
-    </button>
+    </Btn>
   )
 
   return (
@@ -85,7 +86,7 @@ export default function HelpFab({ screenKey }) {
         ? createPortal(fab, node)
         : status === 'none' ? fab : null}
 
-      <div
+      <Box
         className={`help-overlay${open ? ' open' : ''}`}
         onClick={() => setOpen(false)}
         aria-hidden="true"
@@ -116,34 +117,34 @@ function HelpSheet({ open, help, onClose, onOpenGuide }) {
   }
 
   return (
-    <aside
+    <Box as="aside"
       className={`help-sheet${open ? ' open' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label={t('help.fabAria', { title: help.title })}
       aria-hidden={!open}
     >
-      <div className="help-grab" aria-hidden="true" />
+      <Box className="help-grab" aria-hidden="true" />
 
-      <div className="help-head">
-        <div className="help-head-titles">
-          <p className="help-head-eyebrow">
+      <Box className="help-head">
+        <Box className="help-head-titles">
+          <Txt as="p" className="help-head-eyebrow">
             <HelpCircle size={13} strokeWidth={1.8} aria-hidden="true" />
             {t('help.eyebrow')}
-          </p>
-          <h2 className="help-head-title"><MG text={help.title} /></h2>
-          {help.intro && <p className="help-head-intro"><MG text={help.intro} /></p>}
-        </div>
-        <button type="button" className="help-close" onClick={onClose} aria-label={t('help.close')}>
+          </Txt>
+          <Txt as="h2" className="help-head-title"><MG text={help.title} /></Txt>
+          {help.intro && <Txt as="p" className="help-head-intro"><MG text={help.intro} /></Txt>}
+        </Box>
+        <Btn type="button" className="help-close" onClick={onClose} aria-label={t('help.close')}>
           <X size={16} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
-      <div className="help-tabs" role="tablist" aria-label={t('help.tabsAria')}>
+      <Box className="help-tabs" role="tablist" aria-label={t('help.tabsAria')}>
         {TABS.map((tabDef) => {
           const Icon = tabDef.icon
           return (
-            <button
+            <Btn
               key={tabDef.key}
               type="button"
               role="tab"
@@ -153,78 +154,78 @@ function HelpSheet({ open, help, onClose, onOpenGuide }) {
             >
               <Icon size={14} strokeWidth={1.7} aria-hidden="true" />
               {t(tabDef.labelKey)}
-              {counts[tabDef.key] > 0 && <span className="help-tab-count">{counts[tabDef.key]}</span>}
-            </button>
+              {counts[tabDef.key] > 0 && <Txt className="help-tab-count">{counts[tabDef.key]}</Txt>}
+            </Btn>
           )
         })}
-      </div>
+      </Box>
 
-      <div className="help-body" role="tabpanel">
+      <Box className="help-body" role="tabpanel">
         {tab === 'features' && <FeaturesTab features={help.features} />}
         {tab === 'tips' && <TipsTab tips={help.tips} />}
         {tab === 'faq' && <FaqTab faq={help.faq} />}
-      </div>
+      </Box>
 
-      <div className="help-foot">
-        <button type="button" className="help-foot-link" onClick={onOpenGuide}>
+      <Box className="help-foot">
+        <Btn type="button" className="help-foot-link" onClick={onOpenGuide}>
           <BookOpen size={14} strokeWidth={1.7} aria-hidden="true" />
           {t('help.fullGuide')}
-        </button>
-      </div>
-    </aside>
+        </Btn>
+      </Box>
+    </Box>
   )
 }
 
 function FeaturesTab({ features }) {
   const { t } = useT('components')
-  if (!features?.length) return <p className="help-empty">{t('help.emptyFeatures')}</p>
+  if (!features?.length) return <Txt as="p" className="help-empty">{t('help.emptyFeatures')}</Txt>
   return (
-    <div>
+    <Box>
       {features.map((f, i) => (
-        <details key={i} className="help-feature" open={i === 0}>
-          <summary>
+        <Box as="details" key={i} className="help-feature" open={i === 0}>
+          <Txt as="summary">
             <MG text={f.title} />
             <ChevronDown size={16} strokeWidth={1.7} className="help-feature-chev" aria-hidden="true" />
-          </summary>
-          <p className="help-feature-body"><MG text={f.body} /></p>
-        </details>
+          </Txt>
+          <Txt as="p" className="help-feature-body"><MG text={f.body} /></Txt>
+        </Box>
       ))}
-    </div>
+    </Box>
   )
 }
 
 function TipsTab({ tips }) {
   const { t } = useT('components')
-  if (!tips?.length) return <p className="help-empty">{t('help.emptyTips')}</p>
+  if (!tips?.length) return <Txt as="p" className="help-empty">{t('help.emptyTips')}</Txt>
   return (
-    <ul className="help-tips">
+    <Box as="ul" className="help-tips">
       {tips.map((tip, i) => (
-        <li key={i} className="help-tip">
-          <span className="help-tip-icon">
+        <Box as="li" key={i} className="help-tip">
+          <Txt className="help-tip-icon">
             <Lightbulb size={15} strokeWidth={1.7} aria-hidden="true" />
-          </span>
+          </Txt>
           <MG text={tip} />
-        </li>
+        </Box>
       ))}
-    </ul>
+    </Box>
   )
 }
 
 function FaqTab({ faq }) {
   const { t } = useT('components')
-  if (!faq?.length) return <p className="help-empty">{t('help.emptyFaq')}</p>
+  if (!faq?.length) return <Txt as="p" className="help-empty">{t('help.emptyFaq')}</Txt>
   return (
-    <div>
+    <Box>
       {faq.map((item, i) => (
-        <details key={i} className="help-faq">
-          <summary>
+        <Box as="details" key={i} className="help-faq">
+          <Txt as="summary">
             <MessageCircleQuestion size={15} strokeWidth={1.7} className="help-faq-q-icon" aria-hidden="true" />
             <MG text={item.q} />
             <ChevronDown size={16} strokeWidth={1.7} className="help-faq-chev" aria-hidden="true" />
-          </summary>
-          <p className="help-faq-a"><MG text={item.a} /></p>
-        </details>
+          </Txt>
+          <Txt as="p" className="help-faq-a"><MG text={item.a} /></Txt>
+        </Box>
       ))}
-    </div>
+    </Box>
   )
 }

@@ -3,6 +3,7 @@ import Modal from './Modal'
 import MG from '../components/MG'
 import { useT } from '../i18n/useT'
 import './QuickActionsModal.css'
+import { Box, Txt, Btn } from '../components/ui'
 
 /* Quick-actions launcher — opened from the home "תנועה מהירה" button.
    Shows every "add" entry-point in the system as a tile grid; tapping a
@@ -28,24 +29,24 @@ export default function QuickActionsModal({ open, onClose, onPick }) {
 
   return (
     <Modal open={open} onClose={onClose} title={t('quickActions.title')}>
-      <div className="qa-grid">
+      <Box className="qa-grid">
         {ACTIONS.map((a) => {
           const Icon = a.icon
           return (
-            <button
+            <Btn
               key={a.id}
               type="button"
               className="qa-tile"
               onClick={() => handlePick(a.id)}
             >
-              <span className="qa-icon" aria-hidden="true">
+              <Txt className="qa-icon" aria-hidden="true">
                 <Icon size={22} strokeWidth={1.8} />
-              </span>
-              <span className="qa-label">{a.mg ? <MG word={a.mg} /> : t(`quickActions.actions.${a.id}`)}</span>
-            </button>
+              </Txt>
+              <Txt className="qa-label">{a.mg ? <MG word={a.mg} /> : t(`quickActions.actions.${a.id}`)}</Txt>
+            </Btn>
           )
         })}
-      </div>
+      </Box>
     </Modal>
   )
 }

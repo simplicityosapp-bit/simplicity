@@ -4,6 +4,7 @@ import { QUESTION_TEMPLATES, qtext } from '../lib/questionTemplates'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useT } from '../i18n/useT'
 import './AddQuestionModal.css'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 const ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 const SCALES = [
@@ -56,62 +57,62 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0,
   return (
     <Modal open={open} onClose={close} title={t('question.title')}>
       {!onlyCustom && (
-        <div className="m-field">
-          <div className="m-pills">
-            <button type="button" className={`m-pill${effMode === 'template' ? ' on' : ''}`} onClick={() => { setMode('template'); setErr('') }}>{t('question.modeTemplate')}</button>
-            <button type="button" className={`m-pill${effMode === 'custom' ? ' on' : ''}`} onClick={() => { setMode('custom'); setErr('') }}>{t('question.modeCustom')}</button>
-          </div>
-        </div>
+        <Box className="m-field">
+          <Box className="m-pills">
+            <Btn type="button" className={`m-pill${effMode === 'template' ? ' on' : ''}`} onClick={() => { setMode('template'); setErr('') }}>{t('question.modeTemplate')}</Btn>
+            <Btn type="button" className={`m-pill${effMode === 'custom' ? ' on' : ''}`} onClick={() => { setMode('custom'); setErr('') }}>{t('question.modeCustom')}</Btn>
+          </Box>
+        </Box>
       )}
 
       {effMode === 'template' ? (
-        <div className="m-field">
-          <label className="m-label">{t('question.pickQuestion')}</label>
-          <div className="q-tmpl-list">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('question.pickQuestion')}</Box>
+          <Box className="q-tmpl-list">
             {availableTemplates.map((tmpl) => (
-              <button key={tmpl.key} type="button" className={`q-tmpl${tmplKey === tmpl.key ? ' on' : ''}`} onClick={() => { setTmplKey(tmpl.key); if (err) setErr('') }}>
-                <span className="q-tmpl-ic">{tmpl.icon}</span>
-                <span className="q-tmpl-text">{qtext(tmpl.key, gender)}</span>
-              </button>
+              <Btn key={tmpl.key} type="button" className={`q-tmpl${tmplKey === tmpl.key ? ' on' : ''}`} onClick={() => { setTmplKey(tmpl.key); if (err) setErr('') }}>
+                <Txt className="q-tmpl-ic">{tmpl.icon}</Txt>
+                <Txt className="q-tmpl-text">{qtext(tmpl.key, gender)}</Txt>
+              </Btn>
             ))}
-          </div>
-        </div>
+          </Box>
+        </Box>
       ) : (
         <>
-          <div className="m-field">
-            <label className="m-label">{t('question.theQuestion')}</label>
-            <input
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('question.theQuestion')}</Box>
+            <Input
               className={`m-input${err && !form.text.trim() ? ' err' : ''}`}
               value={form.text}
               onChange={(e) => { set('text', e.target.value); if (err) setErr('') }}
               placeholder={t('question.textPlaceholder')}
             />
-          </div>
-          <div className="m-field">
-            <label className="m-label">{t('question.answerType')}</label>
-            <div className="m-pills">
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('question.answerType')}</Box>
+            <Box className="m-pills">
               {SCALES.map((s) => (
-                <button key={s.k} type="button" className={`m-pill${form.scale_type === s.k ? ' on' : ''}`} onClick={() => set('scale_type', s.k)}>{t(`question.${s.l}`)}</button>
+                <Btn key={s.k} type="button" className={`m-pill${form.scale_type === s.k ? ' on' : ''}`} onClick={() => set('scale_type', s.k)}>{t(`question.${s.l}`)}</Btn>
               ))}
-            </div>
-          </div>
-          <div className="m-field">
-            <label className="m-label">{t('question.icon')}</label>
-            <div className="m-pills">
+            </Box>
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('question.icon')}</Box>
+            <Box className="m-pills">
               {ICONS.map((ic) => (
-                <button key={ic} type="button" className={`m-pill${form.icon === ic ? ' on' : ''}`} onClick={() => set('icon', ic)}>{ic}</button>
+                <Btn key={ic} type="button" className={`m-pill${form.icon === ic ? ' on' : ''}`} onClick={() => set('icon', ic)}>{ic}</Btn>
               ))}
-            </div>
-          </div>
+            </Box>
+          </Box>
         </>
       )}
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
     </Modal>
   )
 }

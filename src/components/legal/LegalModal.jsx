@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { X } from 'lucide-react'
 import './LegalModal.css'
+import { Box, Txt, Btn } from '../ui'
 
 /* ════════════════════════════════════════════════════════════════
    LEGAL MODAL — shared full-screen, scrollable legal-document sheet (RTL).
@@ -16,34 +17,34 @@ export default function LegalModal({ title, meta, blocks, onClose }) {
   }, [onClose])
 
   return (
-    <div className="legal-overlay" dir="rtl" onClick={onClose}>
-      <div
+    <Box className="legal-overlay" dir="rtl" onClick={onClose}>
+      <Box
         className="legal-sheet"
         role="dialog"
         aria-modal="true"
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="legal-head">
-          <h2 className="legal-title">{title}</h2>
-          <button type="button" className="legal-x" onClick={onClose} aria-label="סגור">
+        <Box as="header" className="legal-head">
+          <Txt as="h2" className="legal-title">{title}</Txt>
+          <Btn type="button" className="legal-x" onClick={onClose} aria-label="סגור">
             <X size={20} strokeWidth={1.5} aria-hidden="true" />
-          </button>
-        </header>
+          </Btn>
+        </Box>
 
-        <div className="legal-body">
-          {meta && <p className="legal-meta">{meta}</p>}
+        <Box className="legal-body">
+          {meta && <Txt as="p" className="legal-meta">{meta}</Txt>}
           {blocks.map((b, i) => {
-            if (b.h) return <h3 key={i} className="legal-h">{b.h}</h3>
-            if (b.h2) return <h4 key={i} className="legal-h2">{b.h2}</h4>
-            return <p key={i} className="legal-p">{b.t}</p>
+            if (b.h) return <Txt as="h3" key={i} className="legal-h">{b.h}</Txt>
+            if (b.h2) return <Txt as="h4" key={i} className="legal-h2">{b.h2}</Txt>
+            return <Txt as="p" key={i} className="legal-p">{b.t}</Txt>
           })}
-        </div>
+        </Box>
 
-        <footer className="legal-foot">
-          <button type="button" className="legal-close" onClick={onClose}>סגור</button>
-        </footer>
-      </div>
-    </div>
+        <Box as="footer" className="legal-foot">
+          <Btn type="button" className="legal-close" onClick={onClose}>סגור</Btn>
+        </Box>
+      </Box>
+    </Box>
   )
 }

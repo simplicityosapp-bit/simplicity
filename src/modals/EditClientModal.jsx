@@ -6,6 +6,7 @@ import MeetingTypesModal from './MeetingTypesModal'
 import { isr } from '../lib/finance'
 import { useMeetingTypes } from '../hooks/useMeetingTypes'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
 
 const STATUSES = [
   { k: 'active', l: 'statusActive' },
@@ -21,15 +22,15 @@ const DAYS = [0, 1, 2, 3, 4, 5, 6]
    modal's Tab focus-trap); the chevron rotates via the .open class. */
 function Section({ icon, title, summary, open, onToggle, children }) {
   return (
-    <div className={`ec-acc${open ? ' open' : ''}`}>
-      <button type="button" className="ec-acc-head" onClick={onToggle} aria-expanded={open}>
-        <span className="ec-acc-ic" aria-hidden="true">{icon}</span>
-        <span className="ec-acc-title">{title}</span>
-        {!open && summary ? <span className="ec-acc-sum">{summary}</span> : null}
+    <Box className={`ec-acc${open ? ' open' : ''}`}>
+      <Btn type="button" className="ec-acc-head" onClick={onToggle} aria-expanded={open}>
+        <Txt className="ec-acc-ic" aria-hidden="true">{icon}</Txt>
+        <Txt className="ec-acc-title">{title}</Txt>
+        {!open && summary ? <Txt className="ec-acc-sum">{summary}</Txt> : null}
         <ChevronDown size={16} strokeWidth={1.8} className="ec-acc-chev" aria-hidden="true" />
-      </button>
-      {open && <div className="ec-acc-body">{children}</div>}
-    </div>
+      </Btn>
+      {open && <Box className="ec-acc-body">{children}</Box>}
+    </Box>
   )
 }
 
@@ -250,52 +251,52 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         open={openSecs.has('details')}
         onToggle={() => toggleSec('details')}
       >
-        <div className="m-field">
-          <label className="m-label">{t('common.name')}</label>
-          <input
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.name')}</Box>
+          <Input
             className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
             value={form.name}
             onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
           />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('editClient.status')}</label>
-          <div className="m-pills">
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editClient.status')}</Box>
+          <Box className="m-pills">
             {STATUSES.map((s) => (
-              <button key={s.k} type="button" className={`m-pill${form.status === s.k ? ' on' : ''}`} onClick={() => setMeta(s.k)}>{t(`editClient.${s.l}`)}</button>
+              <Btn key={s.k} type="button" className={`m-pill${form.status === s.k ? ' on' : ''}`} onClick={() => setMeta(s.k)}>{t(`editClient.${s.l}`)}</Btn>
             ))}
-          </div>
-        </div>
+          </Box>
+        </Box>
         {subStatuses.length > 0 && (
-          <div className="m-field">
-            <label className="m-label">{t('common.subStatusOptional')}</label>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('common.subStatusOptional')}</Box>
             <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
               <option value="">{t('common.none')}</option>
               {subStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
             </select>
-          </div>
+          </Box>
         )}
-        <div className="m-row2">
-          <div className="m-field">
-            <label className="m-label">{t('common.phone')}</label>
-            <input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} />
-          </div>
-          <div className="m-field">
-            <label className="m-label">{t('common.project')}</label>
+        <Box className="m-row2">
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('common.phone')}</Box>
+            <Input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} />
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('common.project')}</Box>
             <select className="m-select" value={form.project_id} onChange={(e) => { set('project_id', e.target.value); set('group_id', '') }}>
               <option value="">{t('common.none')}</option>
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
-          </div>
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('common.email')}</label>
-          <input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder={t('common.emailPlaceholder')} dir="ltr" />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('common.notesOptional')}</label>
-          <textarea className="m-textarea" rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
-        </div>
+          </Box>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.email')}</Box>
+          <Input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder={t('common.emailPlaceholder')} dir="ltr" />
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.notesOptional')}</Box>
+          <Textarea className="m-textarea" rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
+        </Box>
       </Section>
 
       <Section
@@ -305,14 +306,14 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         open={openSecs.has('more')}
         onToggle={() => toggleSec('more')}
       >
-        <div className="m-field">
-          <label className="m-label">{t('common.address')}</label>
-          <input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('common.addressPlaceholder')} />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('common.birthDate')}</label>
-          <input type="date" className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} />
-        </div>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.address')}</Box>
+          <Input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('common.addressPlaceholder')} />
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.birthDate')}</Box>
+          <Input type="date" className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} />
+        </Box>
       </Section>
 
       <Section
@@ -322,11 +323,11 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         open={openSecs.has('scheduling')}
         onToggle={() => toggleSec('scheduling')}
       >
-        <div className="m-field">
-          <div className="m-label-row">
-            <label className="m-label">{t('editClient.meetingType')}</label>
-            <button type="button" className="m-clear-link" onClick={() => setManageTypes(true)}>{t('editClient.manageMeetingTypes')}</button>
-          </div>
+        <Box className="m-field">
+          <Box className="m-label-row">
+            <Box as="label" className="m-label">{t('editClient.meetingType')}</Box>
+            <Btn type="button" className="m-clear-link" onClick={() => setManageTypes(true)}>{t('editClient.manageMeetingTypes')}</Btn>
+          </Box>
           <select className="m-select" value={form.meeting_type_id || ''} onChange={(e) => pickMeetingType(e.target.value)}>
             <option value="">{t('common.none')}</option>
             {meetingTypes.map((mt) => (
@@ -335,30 +336,30 @@ export default function EditClientModal({ open, onClose, onSave, client, project
               </option>
             ))}
           </select>
-        </div>
-        <div className="m-row2">
-          <div className="m-field">
-            <label className="m-label">{t('editClient.fixedDay')}</label>
+        </Box>
+        <Box className="m-row2">
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('editClient.fixedDay')}</Box>
             <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}>
               <option value="">{t('common.none')}</option>
               {DAYS.map((d) => <option key={d} value={d}>{t(`common.day${d}`)}</option>)}
             </select>
-          </div>
-          <div className="m-field">
-            <label className="m-label">{t('editClient.fixedTime')}</label>
-            <input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
-          </div>
-        </div>
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('editClient.fixedTime')}</Box>
+            <Input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
+          </Box>
+        </Box>
         {/* Reachable clear — a native time input can't be emptied on touch, so
             this is the only path back to "no fixed meeting". */}
         {(form.recurring_day !== '' || form.recurring_time !== '' || form.recurring_end_time !== '') && (
-          <button
+          <Btn
             type="button"
             className="m-clear-link"
             onClick={() => { set('recurring_day', ''); set('recurring_time', ''); set('recurring_end_time', '') }}
           >
             {t('editClient.clearFixed')}
-          </button>
+          </Btn>
         )}
       </Section>
 
@@ -369,81 +370,81 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         open={openSecs.has('billing')}
         onToggle={() => toggleSec('billing')}
       >
-        <div className="m-field">
-          <label className="m-label">{t('editClient.billingMode')}</label>
-          <div className="m-pills">
-            <button type="button" className={`m-pill${!isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'package')}>{t('editClient.billingPackage')}</button>
-            <button type="button" className={`m-pill${isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'per_session')}>{t('editClient.billingPerSession')}</button>
-          </div>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editClient.billingMode')}</Box>
+          <Box className="m-pills">
+            <Btn type="button" className={`m-pill${!isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'package')}>{t('editClient.billingPackage')}</Btn>
+            <Btn type="button" className={`m-pill${isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'per_session')}>{t('editClient.billingPerSession')}</Btn>
+          </Box>
           {form.billing_mode !== (client?.billing_mode || 'package') && (
-            <p className="m-sub">{t('editClient.billingModeChangeNote')}</p>
+            <Txt as="p" className="m-sub">{t('editClient.billingModeChangeNote')}</Txt>
           )}
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('editClient.personalSessions')}</label>
-          <div className={`ec-bill${isPerSession ? '' : ' ec-bill-2'}`} style={isPerSession ? { gridTemplateColumns: '1fr' } : undefined}>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editClient.personalSessions')}</Box>
+          <Box className={`ec-bill${isPerSession ? '' : ' ec-bill-2'}`} style={isPerSession ? { gridTemplateColumns: '1fr' } : undefined}>
             {!isPerSession && (
-              <div className="ec-bill-cell">
-                <p className="ec-bill-label">{t('editClient.scheduled')}</p>
-                <input type="number" min="0" className="ec-bill-input" value={form.sessions}
+              <Box className="ec-bill-cell">
+                <Txt as="p" className="ec-bill-label">{t('editClient.scheduled')}</Txt>
+                <Input type="number" min="0" className="ec-bill-input" value={form.sessions}
                   onChange={(e) => set('sessions', e.target.value)} aria-label={t('editClient.scheduled')} />
-              </div>
+              </Box>
             )}
-            <div className={`ec-bill-cell${isPerSession ? '' : ' divided-start'}`}>
-              <p className="ec-bill-label">{t('editClient.done')}</p>
-              <input type="number" min="0" className="ec-bill-input" value={form.done}
+            <Box className={`ec-bill-cell${isPerSession ? '' : ' divided-start'}`}>
+              <Txt as="p" className="ec-bill-label">{t('editClient.done')}</Txt>
+              <Input type="number" min="0" className="ec-bill-input" value={form.done}
                 onChange={(e) => set('done', e.target.value)} aria-label={t('editClient.done')} />
-            </div>
-          </div>
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('editClient.pricePerSession')}</label>
-          <input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('editClient.totalDueOptional')}</label>
-          <input type="number" min="0" className="m-input" value={form.total_due}
+            </Box>
+          </Box>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editClient.pricePerSession')}</Box>
+          <Input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} />
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editClient.totalDueOptional')}</Box>
+          <Input type="number" min="0" className="m-input" value={form.total_due}
             onChange={(e) => set('total_due', e.target.value)} placeholder={t('editClient.totalDuePlaceholder')} />
-          <p className="m-hint">{t('editClient.totalDueHint')}</p>
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('editClient.billingCardLabel')}</label>
-          <div className="ec-bill ec-bill-2">
-            <div className="ec-bill-cell">
-              <p className="ec-bill-label">{t('editClient.paid')}</p>
-              <div className="ec-bill-money">
-                <span className="ec-bill-cur">₪</span>
-                <input type="number" className="ec-bill-input" value={form.paid}
+          <Txt as="p" className="m-hint">{t('editClient.totalDueHint')}</Txt>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editClient.billingCardLabel')}</Box>
+          <Box className="ec-bill ec-bill-2">
+            <Box className="ec-bill-cell">
+              <Txt as="p" className="ec-bill-label">{t('editClient.paid')}</Txt>
+              <Box className="ec-bill-money">
+                <Txt className="ec-bill-cur">₪</Txt>
+                <Input type="number" className="ec-bill-input" value={form.paid}
                   onChange={(e) => { set('paid', e.target.value); setLastBillEdit('paid') }} aria-label={t('editClient.paid')} />
-              </div>
-            </div>
-            <div className="ec-bill-cell divided-start">
-              <p className="ec-bill-label">{t('editClient.balance')}</p>
-              <div className="ec-bill-money">
-                <span className="ec-bill-cur">₪</span>
-                <input type="number" className="ec-bill-input" value={String(liveBalance)}
+              </Box>
+            </Box>
+            <Box className="ec-bill-cell divided-start">
+              <Txt as="p" className="ec-bill-label">{t('editClient.balance')}</Txt>
+              <Box className="ec-bill-money">
+                <Txt className="ec-bill-cur">₪</Txt>
+                <Input type="number" className="ec-bill-input" value={String(liveBalance)}
                   onChange={(e) => { setBalance(e.target.value); setLastBillEdit('balance') }} aria-label={t('editClient.balance')} />
-              </div>
-            </div>
-          </div>
-          <p className="ec-bill-hint">{t('editClient.billingHint', { total: isr(liveTotal) })}</p>
+              </Box>
+            </Box>
+          </Box>
+          <Txt as="p" className="ec-bill-hint">{t('editClient.billingHint', { total: isr(liveTotal) })}</Txt>
           {(memberTotal > 0 || liveAdj !== 0) && (
-            <div className="ec-formula">
+            <Box className="ec-formula">
               {memberTotal > 0 && (
-                <p className="ec-formula-row">
-                  {t('editClient.fPersonal')} <span className="num">{isr(privatePortion)}</span>
+                <Txt as="p" className="ec-formula-row">
+                  {t('editClient.fPersonal')} <Txt className="num">{isr(privatePortion)}</Txt>
                   {' · '}
-                  {t('editClient.fGroups')} <span className="num">{isr(memberTotal)}</span>
-                </p>
+                  {t('editClient.fGroups')} <Txt className="num">{isr(memberTotal)}</Txt>
+                </Txt>
               )}
               {liveAdj !== 0 && (
-                <p className="ec-formula-row">
-                  {t('editClient.fDiscount')} <span className="num">{isr(liveAdj)}</span>
-                </p>
+                <Txt as="p" className="ec-formula-row">
+                  {t('editClient.fDiscount')} <Txt className="num">{isr(liveAdj)}</Txt>
+                </Txt>
               )}
-            </div>
+            </Box>
           )}
-        </div>
+        </Box>
       </Section>
 
       {showGroupsSection && (
@@ -455,33 +456,33 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           onToggle={() => toggleSec('groups')}
         >
           {projectHasGroups && (
-            <div className="m-field">
-              <label className="m-label">{t('common.groupOptional')}</label>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('common.groupOptional')}</Box>
               <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
                 <option value="">{t('editClient.noGroup')}</option>
                 {groups.filter((g) => g.project_id === form.project_id).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
               </select>
-            </div>
+            </Box>
           )}
           {groupSessions.length > 0 && (
-            <div className="m-field">
+            <Box className="m-field">
               {groupSessions.map((gs) => (
-                <div key={gs.id} className="ec-grp-row">
-                  <span className="ec-grp-name">{t('editClient.groupSessions', { name: gs.name })}</span>
-                  <span className="ec-grp-val">{t('editClient.groupSessionsVal', { held: gs.held, quota: gs.quota || 0 })}</span>
-                </div>
+                <Box key={gs.id} className="ec-grp-row">
+                  <Txt className="ec-grp-name">{t('editClient.groupSessions', { name: gs.name })}</Txt>
+                  <Txt className="ec-grp-val">{t('editClient.groupSessionsVal', { held: gs.held, quota: gs.quota || 0 })}</Txt>
+                </Box>
               ))}
-            </div>
+            </Box>
           )}
           {memberships.length > 0 && (
-            <div className="m-field">
-              <label className="m-label">{t('editClient.perGroupBilling')}</label>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('editClient.perGroupBilling')}</Box>
               {memberships.map((m) => {
                 const g = groups.find((x) => x.id === m.group_id)
                 return (
-                  <div key={m.id} className="m-row2" style={{ alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ fontSize: 'calc(13px * var(--text-scale))', color: 'var(--espresso)' }}>{g?.name || t('editClient.groupFallback')}</span>
-                    <input
+                  <Box key={m.id} className="m-row2" style={{ alignItems: 'center', marginBottom: '6px' }}>
+                    <Txt style={{ fontSize: 'calc(13px * var(--text-scale))', color: 'var(--espresso)' }}>{g?.name || t('editClient.groupFallback')}</Txt>
+                    <Input
                       type="number"
                       min="0"
                       className="m-input"
@@ -489,21 +490,21 @@ export default function EditClientModal({ open, onClose, onSave, client, project
                       onChange={(e) => setMemberOverrides((o) => ({ ...o, [m.id]: e.target.value }))}
                       placeholder={t('editClient.perGroupPlaceholder')}
                     />
-                  </div>
+                  </Box>
                 )
               })}
-              <p className="m-hint">{t('editClient.perGroupHint')}</p>
-            </div>
+              <Txt as="p" className="m-hint">{t('editClient.perGroupHint')}</Txt>
+            </Box>
           )}
         </Section>
       )}
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
 
     </Modal>
     <MeetingTypesModal open={manageTypes} onClose={() => { setManageTypes(false); refetchMeetingTypes() }} />

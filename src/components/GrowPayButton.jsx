@@ -5,6 +5,7 @@ import { GROW_ENABLED } from '../lib/grow'
 import { useT } from '../i18n/useT'
 import WhatsAppButton from './WhatsAppButton'
 import './GrowPayButton.css'
+import { Box, Txt, Btn, Input } from './ui'
 
 /* Map the create-payment-link coarse error code to a translated sentence. */
 function errMsg(code, t) {
@@ -66,15 +67,15 @@ export default function GrowPayButton({
 
   if (url) {
     return (
-      <div className="growpay-result">
-        <span className="growpay-ready">{t('growPay.linkReady')}</span>
-        <div className="growpay-linkrow">
-          <input className="growpay-url" type="text" readOnly dir="ltr" value={url} onFocus={(e) => e.target.select()} />
-          <button type="button" className="growpay-copy" onClick={onCopy} aria-label={t('growPay.copy')}>
+      <Box className="growpay-result">
+        <Txt className="growpay-ready">{t('growPay.linkReady')}</Txt>
+        <Box className="growpay-linkrow">
+          <Input className="growpay-url" type="text" readOnly dir="ltr" value={url} onFocus={(e) => e.target.select()} />
+          <Btn type="button" className="growpay-copy" onClick={onCopy} aria-label={t('growPay.copy')}>
             {copied ? <Check size={15} strokeWidth={2} aria-hidden="true" /> : <Copy size={15} strokeWidth={1.8} aria-hidden="true" />}
             {copied ? t('growPay.copied') : t('growPay.copy')}
-          </button>
-        </div>
+          </Btn>
+        </Box>
         <WhatsAppButton
           showLabel
           triggerClassName="growpay-wa"
@@ -82,18 +83,18 @@ export default function GrowPayButton({
           phone={clientPhone}
           message={t('growPay.waMessage', { name: clientName || '', url })}
         />
-      </div>
+      </Box>
     )
   }
 
   return (
-    <div className="growpay">
-      <button type="button" className={`growpay-trigger ${triggerClassName}`} onClick={onCreate} disabled={busy} aria-busy={busy}>
+    <Box className="growpay">
+      <Btn type="button" className={`growpay-trigger ${triggerClassName}`} onClick={onCreate} disabled={busy} aria-busy={busy}>
         {busy
           ? <><Loader2 size={15} strokeWidth={1.9} className="growpay-spin" aria-hidden="true" /> {t('growPay.creating')}</>
           : <><CreditCard size={15} strokeWidth={1.8} aria-hidden="true" /> {t('growPay.create')}</>}
-      </button>
-      {err && <p className="growpay-err" role="alert"><CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {err}</p>}
-    </div>
+      </Btn>
+      {err && <Txt as="p" className="growpay-err" role="alert"><CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {err}</Txt>}
+    </Box>
   )
 }

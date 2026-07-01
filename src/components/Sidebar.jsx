@@ -14,6 +14,7 @@ import { useProfileHealth } from '../hooks/useProfileHealth'
 import { useT } from '../i18n/useT'
 import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './Sidebar.css'
+import { Box, Txt, Btn } from './ui'
 
 const ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug }
 
@@ -75,26 +76,26 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
   }, [extrasOpen])
 
   return (
-    <aside className="mg-sidebar" aria-label={t('ariaMainNav')} ref={sidebarRef} onMouseEnter={() => setProfileLive(true)}>
-      <div className="mg-sidebar-brand-row">
+    <Box as="aside" className="mg-sidebar" aria-label={t('ariaMainNav')} ref={sidebarRef} onMouseEnter={() => setProfileLive(true)}>
+      <Box className="mg-sidebar-brand-row">
         <img
           className="mg-sidebar-logo"
           src="/logo-light.png"
           alt=""
           aria-hidden="true"
         />
-        <div className="mg-sidebar-brand-text">
-          <p className="mg-sidebar-brand">Simplicity</p>
-          <p className="mg-sidebar-tag">Practice OS</p>
-        </div>
-      </div>
+        <Box className="mg-sidebar-brand-text">
+          <Txt as="p" className="mg-sidebar-brand">Simplicity</Txt>
+          <Txt as="p" className="mg-sidebar-tag">Practice OS</Txt>
+        </Box>
+      </Box>
 
-      <nav className="mg-sidebar-nav">
+      <Box as="nav" className="mg-sidebar-nav">
         {DRAWER_NAV.map((item) => {
           const Icon = ICONS[item.icon] || Home
           const active = item.key === screen
           return (
-            <button
+            <Btn
               key={item.key}
               type="button"
               className={`mg-sidebar-link${active ? ' on' : ''}`}
@@ -102,16 +103,16 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
               onClick={() => navigate(item.to)}
               title={t(`items.${item.key}`)}
             >
-              <span className="mg-sidebar-link-chip" aria-hidden="true">
+              <Txt className="mg-sidebar-link-chip" aria-hidden="true">
                 <Icon size={22} strokeWidth={1.5} />
-              </span>
-              <span className="mg-sidebar-link-text">{t(`items.${item.key}`)}</span>
-            </button>
+              </Txt>
+              <Txt className="mg-sidebar-link-text">{t(`items.${item.key}`)}</Txt>
+            </Btn>
           )
         })}
 
         {/* "עוד" — opens the slide-up extras panel */}
-        <button
+        <Btn
           type="button"
           className={`mg-sidebar-link mg-sidebar-more${extrasOpen ? ' is-open' : ''}`}
           data-screen="more"
@@ -119,38 +120,38 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
           aria-expanded={extrasOpen}
           title={t('more')}
         >
-          <span className="mg-sidebar-link-chip" aria-hidden="true">
+          <Txt className="mg-sidebar-link-chip" aria-hidden="true">
             <MoreHorizontal size={22} strokeWidth={1.5} />
-          </span>
-          <span className="mg-sidebar-link-text">{t('more')}</span>
-        </button>
-      </nav>
+          </Txt>
+          <Txt className="mg-sidebar-link-text">{t('more')}</Txt>
+        </Btn>
+      </Box>
 
       {/* Slide-up panel — sits over the nav area, anchored to the
           bottom of the sidebar so it appears to rise out of "עוד".
           Glass styling lets the icons beneath show through. */}
-      <div
+      <Box
         className={`mg-sidebar-extras${extrasOpen ? ' open' : ''}`}
         role="menu"
         aria-hidden={!extrasOpen}
       >
-        <div className="mg-sidebar-extras-head">
-          <span>{t('more')}</span>
-          <button
+        <Box className="mg-sidebar-extras-head">
+          <Txt>{t('more')}</Txt>
+          <Btn
             type="button"
             className="mg-sidebar-extras-close"
             onClick={() => setExtrasOpen(false)}
             aria-label={t('close')}
           >
             <X size={14} strokeWidth={1.7} aria-hidden="true" />
-          </button>
-        </div>
-        <div className="mg-sidebar-extras-list">
+          </Btn>
+        </Box>
+        <Box className="mg-sidebar-extras-list">
           {EXTRAS.map((item) => {
             const Icon = item.icon
             const active = item.key === screen
             return (
-              <button
+              <Btn
                 key={item.key}
                 type="button"
                 className={`mg-sidebar-link mg-sidebar-sub${active ? ' on' : ''}`}
@@ -158,52 +159,52 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
                 onClick={() => { setExtrasOpen(false); navigate(item.to) }}
                 title={t(item.labelKey)}
               >
-                <span className="mg-sidebar-link-chip" aria-hidden="true">
+                <Txt className="mg-sidebar-link-chip" aria-hidden="true">
                   <Icon size={18} strokeWidth={1.5} />
-                </span>
-                <span className="mg-sidebar-link-text">{t(item.labelKey)}</span>
-              </button>
+                </Txt>
+                <Txt className="mg-sidebar-link-text">{t(item.labelKey)}</Txt>
+              </Btn>
             )
           })}
 
           {/* Feedback — an action, not a route. */}
-          <button
+          <Btn
             type="button"
             className="mg-sidebar-link mg-sidebar-sub"
             data-screen="feedback"
             onClick={() => { setExtrasOpen(false); onOpenFeedback?.() }}
             title={t('feedback')}
           >
-            <span className="mg-sidebar-link-chip" aria-hidden="true">
+            <Txt className="mg-sidebar-link-chip" aria-hidden="true">
               <MessageSquarePlus size={18} strokeWidth={1.5} />
-            </span>
-            <span className="mg-sidebar-link-text">{t('feedback')}</span>
-          </button>
-        </div>
-      </div>
+            </Txt>
+            <Txt className="mg-sidebar-link-text">{t('feedback')}</Txt>
+          </Btn>
+        </Box>
+      </Box>
 
-      <div className="mg-sidebar-foot">
+      <Box className="mg-sidebar-foot">
         {profileLive
           ? <SidebarProfileLive name={name} role={role} email={user?.email} />
           : <SidebarProfileStatic name={name} role={role} email={user?.email} />}
         {isAdmin && (
-          <button type="button" className="mg-sidebar-util mg-sidebar-admin" onClick={() => navigate(ROUTES.ADMIN)} title={t('admin.console')}>
+          <Btn type="button" className="mg-sidebar-util mg-sidebar-admin" onClick={() => navigate(ROUTES.ADMIN)} title={t('admin.console')}>
             <Shield size={16} strokeWidth={1.6} aria-hidden="true" />
-            <span>{t('admin.label')}</span>
-          </button>
+            <Txt>{t('admin.label')}</Txt>
+          </Btn>
         )}
-        <button type="button" className="mg-sidebar-util" onClick={onToggleTheme} title={isDark ? t('theme.toLight') : t('theme.toDark')}>
+        <Btn type="button" className="mg-sidebar-util" onClick={onToggleTheme} title={isDark ? t('theme.toLight') : t('theme.toDark')}>
           {isDark
             ? <Sun size={16} strokeWidth={1.6} aria-hidden="true" />
             : <Moon size={16} strokeWidth={1.6} aria-hidden="true" />}
-          <span>{isDark ? t('theme.toLight') : t('theme.toDark')}</span>
-        </button>
-        <button type="button" className="mg-sidebar-util" onClick={signOut} title={t('logout')}>
+          <Txt>{isDark ? t('theme.toLight') : t('theme.toDark')}</Txt>
+        </Btn>
+        <Btn type="button" className="mg-sidebar-util" onClick={signOut} title={t('logout')}>
           <LogOut size={16} strokeWidth={1.6} aria-hidden="true" />
-          <span>{t('logout')}</span>
-        </button>
-      </div>
-    </aside>
+          <Txt>{t('logout')}</Txt>
+        </Btn>
+      </Box>
+    </Box>
   )
 }
 
@@ -217,14 +218,14 @@ function SidebarProfileChipInner({ name, role, email, health, loading, onClick }
   const tier = health?.tier
   const showScore = !!health && !loading
   return (
-    <button
+    <Btn
       type="button"
       className="mg-sidebar-profile"
       onClick={onClick}
       title={name || t('profile.myProfile')}
       aria-label={health ? (showScore ? t('profile.healthAriaWithScore', { score }) : t('profile.healthAria')) : (name || t('profile.myProfile'))}
     >
-      <span className="mg-sidebar-profile-avatar-wrap">
+      <Txt className="mg-sidebar-profile-avatar-wrap">
         {showScore && (
           <svg className="mg-sidebar-profile-ring" viewBox="0 0 40 40" aria-hidden="true">
             <circle className="msp-ring-track" cx="20" cy="20" r={RING_R} />
@@ -237,22 +238,22 @@ function SidebarProfileChipInner({ name, role, email, health, loading, onClick }
             />
           </svg>
         )}
-        <span className="mg-sidebar-profile-avatar">{initial(name)}</span>
-      </span>
-      <span className="mg-sidebar-profile-text">
-        <span className="mg-sidebar-profile-name">{name || t('profile.myProfile')}</span>
+        <Txt className="mg-sidebar-profile-avatar">{initial(name)}</Txt>
+      </Txt>
+      <Txt className="mg-sidebar-profile-text">
+        <Txt className="mg-sidebar-profile-name">{name || t('profile.myProfile')}</Txt>
         {health
           ? (
-            <span className="mg-sidebar-profile-score">
+            <Txt className="mg-sidebar-profile-score">
               {t('profile.score')}{' '}
-              <span className="mg-sidebar-profile-score-num" style={tier ? { color: tier.color } : undefined}>
+              <Txt className="mg-sidebar-profile-score-num" style={tier ? { color: tier.color } : undefined}>
                 {loading ? '··' : `${score}%`}
-              </span>
-            </span>
+              </Txt>
+            </Txt>
           )
-          : <span className="mg-sidebar-profile-meta">{role || email || ''}</span>}
-      </span>
-    </button>
+          : <Txt className="mg-sidebar-profile-meta">{role || email || ''}</Txt>}
+      </Txt>
+    </Btn>
   )
 }
 

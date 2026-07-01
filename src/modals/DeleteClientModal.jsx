@@ -7,6 +7,7 @@ import { restoreClient } from '../lib/api/clients'
 import { restoreTransaction } from '../lib/api/transactions'
 import { pushUndo } from '../lib/undo'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn } from '../components/ui'
 
 /* Delete client(s) with explicit handling of their finances:
    - "השאר תנועות (כיתומות)" → updateTransaction with client_id=null +
@@ -116,42 +117,42 @@ export default function DeleteClientModal({
 
   return (
     <Modal open={open} onClose={onClose} title={title}>
-      <p className="dcm-intro">
+      <Txt as="p" className="dcm-intro">
         {targets.length === 1 ? t('deleteClient.introOne') : t('deleteClient.introMany')}
-      </p>
+      </Txt>
 
-      <div className="dcm-summary">
-        <div className="dcm-summary-row">
-          <span className="dcm-summary-l">{t('deleteClient.clients')}</span>
-          <span className="dcm-summary-v mono">{targets.length}</span>
-        </div>
-        <div className="dcm-summary-row">
-          <span className="dcm-summary-l">{t('deleteClient.linkedTransactions')}</span>
-          <span className="dcm-summary-v mono">{linkedTxs.length}</span>
-        </div>
+      <Box className="dcm-summary">
+        <Box className="dcm-summary-row">
+          <Txt className="dcm-summary-l">{t('deleteClient.clients')}</Txt>
+          <Txt className="dcm-summary-v mono">{targets.length}</Txt>
+        </Box>
+        <Box className="dcm-summary-row">
+          <Txt className="dcm-summary-l">{t('deleteClient.linkedTransactions')}</Txt>
+          <Txt className="dcm-summary-v mono">{linkedTxs.length}</Txt>
+        </Box>
         {linkedSum > 0 && (
-          <div className="dcm-summary-row">
-            <span className="dcm-summary-l">{t('deleteClient.totalIncome')}</span>
-            <span className="dcm-summary-v mono">{isr(linkedSum)}</span>
-          </div>
+          <Box className="dcm-summary-row">
+            <Txt className="dcm-summary-l">{t('deleteClient.totalIncome')}</Txt>
+            <Txt className="dcm-summary-v mono">{isr(linkedSum)}</Txt>
+          </Box>
         )}
-      </div>
+      </Box>
 
-      <div className="dcm-choices">
-        <button type="button" className="dcm-choice keep" onClick={doKeep} disabled={busy}>
-          <span className="dcm-choice-title">{t('deleteClient.keepTitle')}</span>
-          <span className="dcm-choice-sub">{t('deleteClient.keepSub')}</span>
-        </button>
-        <button type="button" className="dcm-choice cascade" onClick={doCascade} disabled={busy}>
+      <Box className="dcm-choices">
+        <Btn type="button" className="dcm-choice keep" onClick={doKeep} disabled={busy}>
+          <Txt className="dcm-choice-title">{t('deleteClient.keepTitle')}</Txt>
+          <Txt className="dcm-choice-sub">{t('deleteClient.keepSub')}</Txt>
+        </Btn>
+        <Btn type="button" className="dcm-choice cascade" onClick={doCascade} disabled={busy}>
           <AlertCircle size={14} strokeWidth={1.8} aria-hidden="true" />
-          <span className="dcm-choice-title">{t('deleteClient.cascadeTitle')}</span>
-          <span className="dcm-choice-sub">{t('deleteClient.cascadeSub')}</span>
-        </button>
-      </div>
+          <Txt className="dcm-choice-title">{t('deleteClient.cascadeTitle')}</Txt>
+          <Txt className="dcm-choice-sub">{t('deleteClient.cascadeSub')}</Txt>
+        </Btn>
+      </Box>
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose} disabled={busy}>{t('common.cancel')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose} disabled={busy}>{t('common.cancel')}</Btn>
+      </Box>
     </Modal>
   )
 }

@@ -18,6 +18,7 @@
 
 import { useT } from '../i18n/useT'
 import './ScheduleDayPicker.css'
+import { Box, Txt, Btn, Input } from './ui'
 
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 
@@ -31,17 +32,17 @@ export default function ScheduleDayPicker({ mode, days, x, onChange, className =
   const setX = (v) => onChange({ mode, days, x: v })
 
   return (
-    <div className={`qs-editor${className ? ` ${className}` : ''}`}>
-      <div className="qs-modes">
-        <button type="button" className={`qs-mode${mode === 'every_day' ? ' on' : ''}`} onClick={() => setMode('every_day')}>{t('schedule.everyDay')}</button>
-        <button type="button" className={`qs-mode${mode === 'days_of_week' ? ' on' : ''}`} onClick={() => setMode('days_of_week')}>{t('schedule.specificDays')}</button>
-        <button type="button" className={`qs-mode${mode === 'every_x_days' ? ' on' : ''}`} onClick={() => setMode('every_x_days')}>{t('schedule.everyXDays')}</button>
-      </div>
+    <Box className={`qs-editor${className ? ` ${className}` : ''}`}>
+      <Box className="qs-modes">
+        <Btn type="button" className={`qs-mode${mode === 'every_day' ? ' on' : ''}`} onClick={() => setMode('every_day')}>{t('schedule.everyDay')}</Btn>
+        <Btn type="button" className={`qs-mode${mode === 'days_of_week' ? ' on' : ''}`} onClick={() => setMode('days_of_week')}>{t('schedule.specificDays')}</Btn>
+        <Btn type="button" className={`qs-mode${mode === 'every_x_days' ? ' on' : ''}`} onClick={() => setMode('every_x_days')}>{t('schedule.everyXDays')}</Btn>
+      </Box>
 
       {mode === 'days_of_week' && (
-        <div className="qs-day-pills">
+        <Box className="qs-day-pills">
           {DAY_KEYS.map((dk, k) => (
-            <button
+            <Btn
               key={k}
               type="button"
               className={`qs-day${days.includes(k) ? ' on' : ''}`}
@@ -49,15 +50,15 @@ export default function ScheduleDayPicker({ mode, days, x, onChange, className =
               aria-pressed={days.includes(k)}
             >
               {t(`schedule.dayShort.${dk}`)}
-            </button>
+            </Btn>
           ))}
-        </div>
+        </Box>
       )}
 
       {mode === 'every_x_days' && (
-        <div className="qs-x-row">
-          <span>{t('schedule.every')}</span>
-          <input
+        <Box className="qs-x-row">
+          <Txt>{t('schedule.every')}</Txt>
+          <Input
             type="number"
             min="2"
             max="30"
@@ -65,9 +66,9 @@ export default function ScheduleDayPicker({ mode, days, x, onChange, className =
             onChange={(e) => setX(e.target.value)}
             className="qs-x-input"
           />
-          <span>{t('schedule.days')}</span>
-        </div>
+          <Txt>{t('schedule.days')}</Txt>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

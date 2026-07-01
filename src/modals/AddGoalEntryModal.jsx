@@ -2,6 +2,7 @@ import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* LOCAL today (UTC toISOString would roll to tomorrow on Israeli evenings,
    pre-filling a future date that goal scoring then silently ignores). */
@@ -47,38 +48,38 @@ export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
   return (
     <Modal open={open} onClose={close} title={t('goalEntry.title')}>
       {category && (
-        <p className="m-sub">
-          <span className="m-sub-dot" style={{ background: category.color || 'var(--stone)' }} />
+        <Txt as="p" className="m-sub">
+          <Txt className="m-sub-dot" style={{ background: category.color || 'var(--stone)' }} />
           {category.icon ? category.icon + ' ' : ''}{category.name}
-        </p>
+        </Txt>
       )}
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('goalEntry.value')}</label>
-          <input
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('goalEntry.value')}</Box>
+          <Input
             type="number"
             className={`m-input${err && Number.isNaN(parseFloat(form.value)) ? ' err' : ''}`}
             value={form.value}
             onChange={(e) => { set('value', e.target.value); if (err) setErr('') }}
             placeholder="0"
           />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('common.date')}</label>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.date')}</Box>
           <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
-        </div>
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('goalEntry.noteOptional')}</label>
-        <input className="m-input" value={form.note} onChange={(e) => set('note', e.target.value)} placeholder={t('goalEntry.notePlaceholder')} />
-      </div>
+        </Box>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('goalEntry.noteOptional')}</Box>
+        <Input className="m-input" value={form.note} onChange={(e) => set('note', e.target.value)} placeholder={t('goalEntry.notePlaceholder')} />
+      </Box>
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
     </Modal>
   )
 }

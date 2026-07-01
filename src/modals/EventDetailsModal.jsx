@@ -4,6 +4,7 @@ import Modal from './Modal'
 import { formatWhen, fmtTime } from '../lib/dates'
 import { isr } from '../lib/finance'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input, Lnk } from '../components/ui'
 
 /* datetime-local helpers — show/parse the browser's local wall-clock value
    (a Date with an argument is allowed by the purity lint; argless new Date()
@@ -70,90 +71,90 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
 
   return (
     <Modal open={open} onClose={onClose} title={t('event.title')}>
-      <div className="evt-detail-head">
-        <span className={`evt-detail-icon ${event.kind}`}>
+      <Box className="evt-detail-head">
+        <Txt className={`evt-detail-icon ${event.kind}`}>
           <Icon size={18} strokeWidth={1.6} aria-hidden="true" />
-        </span>
-        <div className="evt-detail-text">
-          <p className="evt-detail-title">{title}</p>
-          <p className="evt-detail-when">
+        </Txt>
+        <Box className="evt-detail-text">
+          <Txt as="p" className="evt-detail-title">{title}</Txt>
+          <Txt as="p" className="evt-detail-when">
             {formatWhen(event.when)}
             {event.allDay ? ` · ${t('event.allDay')}` : (event.end ? `–${fmtTime(event.end)}` : '')}
-          </p>
-        </div>
-      </div>
+          </Txt>
+        </Box>
+      </Box>
 
       {isMeeting && event.status === 'pending' && !billStep && (
-        <div className="evt-detail-row">
-          <p className="evt-detail-question">{t('event.meetingHappened')}</p>
-          <div className="evt-detail-actions">
-            <button type="button" className="evt-detail-btn approve" onClick={confirmHappened}>
+        <Box className="evt-detail-row">
+          <Txt as="p" className="evt-detail-question">{t('event.meetingHappened')}</Txt>
+          <Box className="evt-detail-actions">
+            <Btn type="button" className="evt-detail-btn approve" onClick={confirmHappened}>
               <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('event.yes')}
-            </button>
-            <button type="button" className="evt-detail-btn skip" onClick={handle(onSkipMeeting)}>
+            </Btn>
+            <Btn type="button" className="evt-detail-btn skip" onClick={handle(onSkipMeeting)}>
               <X size={15} strokeWidth={2} aria-hidden="true" /> {t('event.no')}
-            </button>
-          </div>
-        </div>
+            </Btn>
+          </Box>
+        </Box>
       )}
 
       {/* One-off charge prompt — only for a per-session client, after the
           meeting is confirmed. "Yes" logs a held session (the per-session
           bill); "No" just keeps the confirmation. */}
       {isMeeting && billStep && billClient && (
-        <div className="evt-detail-row">
-          <p className="evt-detail-question">
+        <Box className="evt-detail-row">
+          <Txt as="p" className="evt-detail-question">
             {billClient.price_per_session > 0
               ? t('event.billOneOff', { name: billClient.name, amount: isr(billClient.price_per_session) })
               : t('event.billOneOffNoPrice', { name: billClient.name })}
-          </p>
-          <div className="evt-detail-actions">
-            <button type="button" className="evt-detail-btn approve" onClick={doBill}>
+          </Txt>
+          <Box className="evt-detail-actions">
+            <Btn type="button" className="evt-detail-btn approve" onClick={doBill}>
               <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('event.billYes')}
-            </button>
-            <button type="button" className="evt-detail-btn skip" onClick={onClose}>
+            </Btn>
+            <Btn type="button" className="evt-detail-btn skip" onClick={onClose}>
               <X size={15} strokeWidth={2} aria-hidden="true" /> {t('event.billNo')}
-            </button>
-          </div>
-        </div>
+            </Btn>
+          </Box>
+        </Box>
       )}
 
       {isMeeting && event.status === 'confirmed' && !billStep && (
-        <p className="evt-detail-status sage">{t('event.meetingConfirmed')}</p>
+        <Txt as="p" className="evt-detail-status sage">{t('event.meetingConfirmed')}</Txt>
       )}
 
       {isCalendar && !editing && event.booking && (
-        <div className="evt-detail-booking">
-          <p className="evt-detail-booking-head">{t('event.bookingHeading')}</p>
-          <p className="evt-detail-booking-row">{t('event.bookingName', { name: event.booking.name })}</p>
+        <Box className="evt-detail-booking">
+          <Txt as="p" className="evt-detail-booking-head">{t('event.bookingHeading')}</Txt>
+          <Txt as="p" className="evt-detail-booking-row">{t('event.bookingName', { name: event.booking.name })}</Txt>
           {event.booking.meetingTypeName && (
-            <p className="evt-detail-booking-row">{t('event.bookingType', { type: event.booking.meetingTypeName })}</p>
+            <Txt as="p" className="evt-detail-booking-row">{t('event.bookingType', { type: event.booking.meetingTypeName })}</Txt>
           )}
-          <p className="evt-detail-booking-row">{t('event.bookingFromPage', { page: event.booking.pageName })}</p>
+          <Txt as="p" className="evt-detail-booking-row">{t('event.bookingFromPage', { page: event.booking.pageName })}</Txt>
           {event.booking.phone && (
-            <p className="evt-detail-booking-row"><a href={`tel:${event.booking.phone}`} dir="ltr">{t('event.bookingPhone')}: {event.booking.phone}</a></p>
+            <Txt as="p" className="evt-detail-booking-row"><Lnk href={`tel:${event.booking.phone}`} dir="ltr">{t('event.bookingPhone')}: {event.booking.phone}</Lnk></Txt>
           )}
           {event.booking.email && (
-            <p className="evt-detail-booking-row"><a href={`mailto:${event.booking.email}`} dir="ltr">{t('event.bookingEmail')}: {event.booking.email}</a></p>
+            <Txt as="p" className="evt-detail-booking-row"><Lnk href={`mailto:${event.booking.email}`} dir="ltr">{t('event.bookingEmail')}: {event.booking.email}</Lnk></Txt>
           )}
           {event.booking.note && (
-            <p className="evt-detail-booking-row">{t('event.bookingNote', { note: event.booking.note })}</p>
+            <Txt as="p" className="evt-detail-booking-row">{t('event.bookingNote', { note: event.booking.note })}</Txt>
           )}
           {onCancelBooking && event.booking.id && (
-            <button
+            <Btn
               type="button"
               className="evt-detail-btn skip evt-detail-cancel-booking"
               onClick={confirmCancelBk ? handle(onCancelBooking) : () => setConfirmCancelBk(true)}
             >
               <X size={15} strokeWidth={2} aria-hidden="true" /> {confirmCancelBk ? t('event.cancelBookingConfirm') : t('event.cancelBooking')}
-            </button>
+            </Btn>
           )}
-        </div>
+        </Box>
       )}
 
       {isCalendar && !editing && (
         <>
-          <p className="evt-detail-status">
+          <Txt as="p" className="evt-detail-status">
             {(() => {
               const links = [
                 event.clientName && t('event.linkClient', { name: event.clientName }),
@@ -166,83 +167,83 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
             {isOwned
               ? t('event.ownedEvent')
               : t('event.googleEvent')}
-          </p>
-          <div className="evt-detail-row">
-            <div className="evt-detail-actions">
-              <button type="button" className="evt-detail-btn approve" onClick={startEdit}>
+          </Txt>
+          <Box className="evt-detail-row">
+            <Box className="evt-detail-actions">
+              <Btn type="button" className="evt-detail-btn approve" onClick={startEdit}>
                 <Pencil size={15} strokeWidth={2} aria-hidden="true" /> {t('event.edit')}
-              </button>
-              <button
+              </Btn>
+              <Btn
                 type="button"
                 className="evt-detail-btn skip"
                 onClick={confirmDel ? handle(onDeleteEvent) : () => setConfirmDel(true)}
               >
                 <Trash2 size={15} strokeWidth={2} aria-hidden="true" /> {confirmDel ? t('event.deleteConfirm') : t('event.delete')}
-              </button>
-            </div>
-          </div>
+              </Btn>
+            </Box>
+          </Box>
         </>
       )}
 
       {isCalendar && editing && (
-        <div className="evt-detail-row">
-          <div className="m-field">
-            <label className="m-label">{t('event.eventTitle')}</label>
-            <input className="m-input" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder={t('event.eventTitlePlaceholder')} />
-          </div>
-          <div className="m-row2">
-            <div className="m-field">
-              <label className="m-label">{t('event.start')}</label>
-              <input type="datetime-local" className="m-input" value={form.start} onChange={(e) => { setForm((f) => ({ ...f, start: e.target.value })); if (editErr) setEditErr('') }} />
-            </div>
-            <div className="m-field">
-              <label className="m-label">{t('event.end')}</label>
-              <input type="datetime-local" className="m-input" value={form.end} onChange={(e) => setForm((f) => ({ ...f, end: e.target.value }))} />
-            </div>
-          </div>
-          {editErr && <p className="m-error">{editErr}</p>}
-          <div className="evt-detail-actions">
-            <button type="button" className="evt-detail-btn approve" onClick={saveEdit}>
+        <Box className="evt-detail-row">
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('event.eventTitle')}</Box>
+            <Input className="m-input" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder={t('event.eventTitlePlaceholder')} />
+          </Box>
+          <Box className="m-row2">
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('event.start')}</Box>
+              <Input type="datetime-local" className="m-input" value={form.start} onChange={(e) => { setForm((f) => ({ ...f, start: e.target.value })); if (editErr) setEditErr('') }} />
+            </Box>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('event.end')}</Box>
+              <Input type="datetime-local" className="m-input" value={form.end} onChange={(e) => setForm((f) => ({ ...f, end: e.target.value }))} />
+            </Box>
+          </Box>
+          {editErr && <Txt as="p" className="m-error">{editErr}</Txt>}
+          <Box className="evt-detail-actions">
+            <Btn type="button" className="evt-detail-btn approve" onClick={saveEdit}>
               <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('common.save')}
-            </button>
-            <button type="button" className="evt-detail-btn skip" onClick={() => setEditing(false)}>
+            </Btn>
+            <Btn type="button" className="evt-detail-btn skip" onClick={() => setEditing(false)}>
               <X size={15} strokeWidth={2} aria-hidden="true" /> {t('common.cancel')}
-            </button>
-          </div>
-        </div>
+            </Btn>
+          </Box>
+        </Box>
       )}
 
       {isFollowup && (
-        <div className="evt-detail-row">
-          <p className="evt-detail-status">{t('event.followupStatus', { title: event.title })}</p>
-          <div className="evt-detail-actions">
-            <button type="button" className="evt-detail-btn approve" onClick={handle(onFollowupDone)}>
+        <Box className="evt-detail-row">
+          <Txt as="p" className="evt-detail-status">{t('event.followupStatus', { title: event.title })}</Txt>
+          <Box className="evt-detail-actions">
+            <Btn type="button" className="evt-detail-btn approve" onClick={handle(onFollowupDone)}>
               <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('event.followupDone')}
-            </button>
-          </div>
-        </div>
+            </Btn>
+          </Box>
+        </Box>
       )}
 
       {!isMeeting && !isCalendar && !isFollowup && (
-        <div className="evt-detail-row">
-          <div className="evt-detail-actions">
-            <button type="button" className="evt-detail-btn approve" onClick={handle(onCompleteReminder)}>
+        <Box className="evt-detail-row">
+          <Box className="evt-detail-actions">
+            <Btn type="button" className="evt-detail-btn approve" onClick={handle(onCompleteReminder)}>
               <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('event.markDone')}
-            </button>
-            <button
+            </Btn>
+            <Btn
               type="button"
               className="evt-detail-btn skip"
               onClick={confirmDel ? handle(onRemoveReminder) : () => setConfirmDel(true)}
             >
               <X size={15} strokeWidth={2} aria-hidden="true" /> {confirmDel ? t('event.deleteConfirm') : t('taxonomy.deleteConfirm')}
-            </button>
-          </div>
-        </div>
+            </Btn>
+          </Box>
+        </Box>
       )}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.close')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.close')}</Btn>
+      </Box>
     </Modal>
   )
 }

@@ -3,6 +3,7 @@ import Modal from './Modal'
 import { qtext } from '../lib/questionTemplates'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 const ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 
@@ -46,31 +47,31 @@ export default function EditQuestionModal({ open, onClose, question, onSave }) {
 
   return (
     <Modal open={open} onClose={onClose} title={t('question.editTitle')}>
-      <div className="m-field">
-        <label className="m-label">{t('question.theQuestion')}</label>
-        <input
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('question.theQuestion')}</Box>
+        <Input
           className={`m-input${err && !text.trim() ? ' err' : ''}`}
           value={text}
           onChange={(e) => { setText(e.target.value); if (err) setErr('') }}
           placeholder={t('question.textPlaceholder')}
         />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('question.icon')}</label>
-        <div className="m-pills">
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('question.icon')}</Box>
+        <Box className="m-pills">
           {ICONS.map((ic) => (
-            <button key={ic} type="button" className={`m-pill${icon === ic ? ' on' : ''}`} onClick={() => setIcon(ic)}>{ic}</button>
+            <Btn key={ic} type="button" className={`m-pill${icon === ic ? ' on' : ''}`} onClick={() => setIcon(ic)}>{ic}</Btn>
           ))}
-        </div>
-      </div>
-      <p className="m-hint">{isYn ? t('question.scaleLockedYesNo') : t('question.scaleLockedRange')}</p>
+        </Box>
+      </Box>
+      <Txt as="p" className="m-hint">{isYn ? t('question.scaleLockedYesNo') : t('question.scaleLockedRange')}</Txt>
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
     </Modal>
   )
 }

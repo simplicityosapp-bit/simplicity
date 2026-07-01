@@ -6,6 +6,7 @@ import Modal from './Modal'
 import { ROUTES } from '../lib/routes'
 import { useT } from '../i18n/useT'
 import './ProfileHealthModal.css'
+import { Box, Txt, Btn } from '../components/ui'
 
 /* gap.icon key → Lucide component. Keys come from lib/profileHealth. */
 const ICONS = {
@@ -46,8 +47,8 @@ export default function ProfileHealthModal({ open, onClose, health, loading, onN
 
   return (
     <Modal open={open} onClose={onClose} title={t('profileHealth.title')}>
-      <div className="ph-body">
-        <div className="ph-ring-wrap">
+      <Box className="ph-body">
+        <Box className="ph-ring-wrap">
           <svg className="ph-ring" viewBox="0 0 120 120" aria-hidden="true">
             <circle className="ph-ring-track" cx="60" cy="60" r={R} />
             <circle
@@ -58,54 +59,54 @@ export default function ProfileHealthModal({ open, onClose, health, loading, onN
               strokeLinecap="round"
             />
           </svg>
-          <div className="ph-ring-center">
-            <span className="ph-score" style={{ color: ready ? tier.color : 'var(--stone)' }}>
+          <Box className="ph-ring-center">
+            <Txt className="ph-score" style={{ color: ready ? tier.color : 'var(--stone)' }}>
               {ready ? score : '··'}
-            </span>
-            <span className="ph-score-pct">%</span>
-          </div>
-        </div>
+            </Txt>
+            <Txt className="ph-score-pct">%</Txt>
+          </Box>
+        </Box>
 
-        <p className="ph-lead">{ready ? leadLine(score, tier, t) : t('profileHealth.calculating')}</p>
+        <Txt as="p" className="ph-lead">{ready ? leadLine(score, tier, t) : t('profileHealth.calculating')}</Txt>
 
         {!ready ? (
-          <p className="ph-loading">{t('profileHealth.loadingData')}</p>
+          <Txt as="p" className="ph-loading">{t('profileHealth.loadingData')}</Txt>
         ) : gaps.length === 0 ? (
-          <div className="ph-done">
+          <Box className="ph-done">
             <CheckCircle2 size={22} strokeWidth={1.6} aria-hidden="true" />
-            <span>{t('profileHealth.noGaps')}</span>
-          </div>
+            <Txt>{t('profileHealth.noGaps')}</Txt>
+          </Box>
         ) : (
-          <ul className="ph-gaps">
+          <Box as="ul" className="ph-gaps">
             {gaps.map((g) => {
               const Icon = ICONS[g.icon] || Sparkles
               return (
-                <li key={g.id} className={`ph-gap ph-gap-${g.group}`}>
-                  <span className="ph-gap-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></span>
-                  <span className="ph-gap-label">{g.label}</span>
-                  <button
+                <Box as="li" key={g.id} className={`ph-gap ph-gap-${g.group}`}>
+                  <Txt className="ph-gap-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></Txt>
+                  <Txt className="ph-gap-label">{g.label}</Txt>
+                  <Btn
                     type="button"
                     className="ph-gap-action"
                     onClick={() => onNavigate(g.action.route, g.action.state)}
                   >
                     {g.action.label}
                     <ChevronLeft size={15} strokeWidth={1.8} aria-hidden="true" />
-                  </button>
-                </li>
+                  </Btn>
+                </Box>
               )
             })}
-          </ul>
+          </Box>
         )}
 
-        <button
+        <Btn
           type="button"
           className="ph-edit"
           onClick={() => onNavigate(ROUTES.SETTINGS, { openSection: 'profile' })}
         >
           <Pencil size={16} strokeWidth={1.6} aria-hidden="true" />
           {t('profileHealth.editProfile')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
     </Modal>
   )
 }

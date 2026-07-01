@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn } from '../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
    DeleteSubStatusModal — D22.
@@ -57,33 +58,33 @@ export default function DeleteSubStatusModal({
   return (
     <Modal open={open} onClose={onClose} title={title}>
       {count === null ? (
-        <p className="set-soon">{t('deleteSubStatus.checking')}</p>
+        <Txt as="p" className="set-soon">{t('deleteSubStatus.checking')}</Txt>
       ) : count === 0 ? (
         <>
-          <p className="m-confirm-msg">{t('deleteSubStatus.noneActive')}</p>
-          {err && <p className="m-error">{err}</p>}
-          <div className="m-actions">
-            <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
-            <button type="button" className="m-btn-delete" onClick={submit} disabled={busy}>{busy ? t('deleteSubStatus.deleting') : t('deleteSubStatus.delete')}</button>
-          </div>
+          <Txt as="p" className="m-confirm-msg">{t('deleteSubStatus.noneActive')}</Txt>
+          {err && <Txt as="p" className="m-error">{err}</Txt>}
+          <Box className="m-actions">
+            <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+            <Btn type="button" className="m-btn-delete" onClick={submit} disabled={busy}>{busy ? t('deleteSubStatus.deleting') : t('deleteSubStatus.delete')}</Btn>
+          </Box>
         </>
       ) : (
         <>
-          <p className="m-confirm-msg">{t('deleteSubStatus.affected', { count })}</p>
-          <div className="m-field">
-            <label className="m-label">{t('deleteSubStatus.reassignTo')}</label>
+          <Txt as="p" className="m-confirm-msg">{t('deleteSubStatus.affected', { count })}</Txt>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('deleteSubStatus.reassignTo')}</Box>
             <select className="m-select" value={toId} onChange={(e) => setToId(e.target.value)}>
               <option value="">{t('deleteSubStatus.unassigned')}</option>
               {peers.filter((p) => p.id !== status.id).map((p) => (
                 <option key={p.id} value={p.id}>{p.icon ? p.icon + ' ' : ''}{p.display_name}</option>
               ))}
             </select>
-          </div>
-          {err && <p className="m-error">{err}</p>}
-          <div className="m-actions">
-            <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
-            <button type="button" className="m-btn-delete" onClick={submit} disabled={busy}>{busy ? t('deleteSubStatus.deleting') : t('deleteSubStatus.deleteAndMove')}</button>
-          </div>
+          </Box>
+          {err && <Txt as="p" className="m-error">{err}</Txt>}
+          <Box className="m-actions">
+            <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+            <Btn type="button" className="m-btn-delete" onClick={submit} disabled={busy}>{busy ? t('deleteSubStatus.deleting') : t('deleteSubStatus.deleteAndMove')}</Btn>
+          </Box>
         </>
       )}
     </Modal>

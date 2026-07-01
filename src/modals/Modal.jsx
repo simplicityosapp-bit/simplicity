@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { useT } from '../i18n/useT'
 import './Modal.css'
+import { Box, Txt, Btn } from '../components/ui'
 
 /* Ref-count so stacked modals (e.g. a ConfirmModal opened over a form modal)
    only release the background scroll-lock when the LAST one closes. */
@@ -81,16 +82,16 @@ export default function Modal({ open, onClose, title, titleLabel, children }) {
 
   return createPortal(
     <>
-      <div className={`m-overlay${open ? ' open' : ''}`} onClick={onClose} aria-hidden="true" />
-      <div ref={sheetRef} tabIndex={-1} className={`m-sheet${open ? ' open' : ''}`} role="dialog" aria-modal="true" aria-hidden={!open} aria-label={titleLabel || (typeof title === 'string' ? title : undefined)}>
-        <div className="m-head">
-          <p className="m-title">{title}</p>
-          <button type="button" className="m-close" onClick={onClose} aria-label={t('modal.close')}>
+      <Box className={`m-overlay${open ? ' open' : ''}`} onClick={onClose} aria-hidden="true" />
+      <Box ref={sheetRef} tabIndex={-1} className={`m-sheet${open ? ' open' : ''}`} role="dialog" aria-modal="true" aria-hidden={!open} aria-label={titleLabel || (typeof title === 'string' ? title : undefined)}>
+        <Box className="m-head">
+          <Txt as="p" className="m-title">{title}</Txt>
+          <Btn type="button" className="m-close" onClick={onClose} aria-label={t('modal.close')}>
             <X size={18} strokeWidth={1.6} />
-          </button>
-        </div>
-        <div className="m-body">{children}</div>
-      </div>
+          </Btn>
+        </Box>
+        <Box className="m-body">{children}</Box>
+      </Box>
     </>,
     document.body,
   )

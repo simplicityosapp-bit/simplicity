@@ -6,6 +6,7 @@ import InvoiceActions from '../components/InvoiceActions'
 import GrowPayButton from '../components/GrowPayButton'
 import { PAY_METHODS, payMethodLabel } from '../lib/invoiceDocs'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
 export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [], onDelete, onSaveAsClient }) {
@@ -96,87 +97,87 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
 
   return (
     <Modal open={open} onClose={onClose} title={t('editTx.title')}>
-      <div className="m-field">
-        <div className="m-pills">
-          <button type="button" className={`m-pill${form.type === 'income' ? ' on income' : ''}`} onClick={() => set('type', 'income')}>{t('common.income')}</button>
-          <button type="button" className={`m-pill${form.type === 'expense' ? ' on expense' : ''}`} onClick={() => set('type', 'expense')}>{t('common.expense')}</button>
-        </div>
-      </div>
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('common.amount')}</label>
-          <input
+      <Box className="m-field">
+        <Box className="m-pills">
+          <Btn type="button" className={`m-pill${form.type === 'income' ? ' on income' : ''}`} onClick={() => set('type', 'income')}>{t('common.income')}</Btn>
+          <Btn type="button" className={`m-pill${form.type === 'expense' ? ' on expense' : ''}`} onClick={() => set('type', 'expense')}>{t('common.expense')}</Btn>
+        </Box>
+      </Box>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.amount')}</Box>
+          <Input
             type="number"
             min="0"
             className={`m-input${err && !(parseFloat(form.amount) > 0) ? ' err' : ''}`}
             value={form.amount}
             onChange={(e) => { set('amount', e.target.value); if (err) setErr('') }}
           />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('common.date')}</label>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.date')}</Box>
           <DateField value={form.date} onChange={(e) => set('date', e.target.value)} />
-        </div>
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('common.description')}</label>
-        <input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('tx.paymentMethod')}</label>
+        </Box>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('common.description')}</Box>
+        <Input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} />
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('tx.paymentMethod')}</Box>
         <select className="m-select" value={form.payment_method} onChange={(e) => set('payment_method', e.target.value)}>
           <option value="">{t('tx.paymentMethodNone')}</option>
           {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
         </select>
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('editTx.status')}</label>
-        <div className="m-pills">
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('editTx.status')}</Box>
+        <Box className="m-pills">
           {STATUSES.map((s) => (
-            <button key={s.k} type="button" className={`m-pill${form.status === s.k ? ' on' : ''}`} onClick={() => set('status', s.k)}>{s.l}</button>
+            <Btn key={s.k} type="button" className={`m-pill${form.status === s.k ? ' on' : ''}`} onClick={() => set('status', s.k)}>{s.l}</Btn>
           ))}
-        </div>
-      </div>
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('common.client')}</label>
+        </Box>
+      </Box>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.client')}</Box>
           <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('common.project')}</label>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.project')}</Box>
           <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {isAdHoc && (
-        <div className="m-field m-recipient">
-          <p className="m-label">{t('tx.recipientSectionLabel')}</p>
-          <p className="m-recipient-name">{tx.recipient_name}</p>
+        <Box className="m-field m-recipient">
+          <Txt as="p" className="m-label">{t('tx.recipientSectionLabel')}</Txt>
+          <Txt as="p" className="m-recipient-name">{tx.recipient_name}</Txt>
           {(tx.recipient_email || tx.recipient_phone || tx.recipient_tax_id) && (
-            <p className="m-recipient-meta">{[tx.recipient_email, tx.recipient_phone, tx.recipient_tax_id].filter(Boolean).join(' · ')}</p>
+            <Txt as="p" className="m-recipient-meta">{[tx.recipient_email, tx.recipient_phone, tx.recipient_tax_id].filter(Boolean).join(' · ')}</Txt>
           )}
           {onSaveAsClient && (
-            <button type="button" className="m-recipient-save" onClick={saveAsClient} disabled={savingClient}>
+            <Btn type="button" className="m-recipient-save" onClick={saveAsClient} disabled={savingClient}>
               <UserPlus size={15} strokeWidth={1.8} aria-hidden="true" /> {savingClient ? t('common.saving') : t('tx.saveAsClient')}
-            </button>
+            </Btn>
           )}
-        </div>
+        </Box>
       )}
 
       {form.type === 'expense' && (
-        <div className="m-field">
-          <label className="m-label">{t('common.category')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.category')}</Box>
           <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
             <option value="">{t('common.noCategory')}</option>
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-        </div>
+        </Box>
       )}
 
       {/* Issue a real invoice for this income payment (Route A). Renders only
@@ -200,17 +201,17 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
         />
       )}
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
+      <Box className="m-actions">
         {onDelete && tx?.id && (
-          <button type="button" className="m-btn-delete-inline" onClick={() => { onDelete(tx.id); onClose() }}>
+          <Btn type="button" className="m-btn-delete-inline" onClick={() => { onDelete(tx.id); onClose() }}>
             <Trash2 size={15} strokeWidth={1.8} aria-hidden="true" /> {t('editTx.delete')}
-          </button>
+          </Btn>
         )}
-        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
     </Modal>
   )
 }

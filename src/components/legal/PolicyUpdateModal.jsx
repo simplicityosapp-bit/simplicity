@@ -7,6 +7,7 @@ import DPAModal from './DPAModal'
 import TermsModal from './TermsModal'
 import MG from '../MG'
 import './PolicyUpdateModal.css'
+import { Box, Txt, Btn, Input } from '../ui'
 
 /* Blocking re-acceptance gate. Shown after login when the accepted privacy or
    terms version is older than the current one (or for existing users who never
@@ -34,47 +35,47 @@ export default function PolicyUpdateModal() {
   }
 
   return (
-    <div className="policy-update" dir="rtl">
-      <div className="policy-update-card">
-        <h2 className="policy-update-title">שינינו כמה דברים במדיניות</h2>
-        <p className="policy-update-sub">אנא קרא/י ואשר/י את הגרסאות העדכניות כדי להמשיך.</p>
-        {error && <p className="policy-update-error">{error}</p>}
+    <Box className="policy-update" dir="rtl">
+      <Box className="policy-update-card">
+        <Txt as="h2" className="policy-update-title">שינינו כמה דברים במדיניות</Txt>
+        <Txt as="p" className="policy-update-sub">אנא קרא/י ואשר/י את הגרסאות העדכניות כדי להמשיך.</Txt>
+        {error && <Txt as="p" className="policy-update-error">{error}</Txt>}
 
-        <div className="auth-checks">
-          <label className="auth-check">
-            <input type="checkbox" checked={agreePrivacy} onChange={(e) => setAgreePrivacy(e.target.checked)} />
-            <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
-            <span className="auth-check-label">
+        <Box className="auth-checks">
+          <Box as="label" className="auth-check">
+            <Input type="checkbox" checked={agreePrivacy} onChange={(e) => setAgreePrivacy(e.target.checked)} />
+            <Txt className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></Txt>
+            <Txt className="auth-check-label">
               קראתי ואני <MG word="agree" /> ל
-              <button type="button" className="auth-check-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal('privacy') }}>מדיניות הפרטיות</button>
-            </span>
-          </label>
-          <label className="auth-check">
-            <input type="checkbox" checked={agreeDpa} onChange={(e) => setAgreeDpa(e.target.checked)} />
-            <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
-            <span className="auth-check-label">
+              <Btn type="button" className="auth-check-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal('privacy') }}>מדיניות הפרטיות</Btn>
+            </Txt>
+          </Box>
+          <Box as="label" className="auth-check">
+            <Input type="checkbox" checked={agreeDpa} onChange={(e) => setAgreeDpa(e.target.checked)} />
+            <Txt className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></Txt>
+            <Txt className="auth-check-label">
               קראתי ואני <MG word="agree" /> ל
-              <button type="button" className="auth-check-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal('dpa') }}>הסכם עיבוד הנתונים (DPA)</button>
-            </span>
-          </label>
-          <label className="auth-check">
-            <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
-            <span className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
-            <span className="auth-check-label">
+              <Btn type="button" className="auth-check-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal('dpa') }}>הסכם עיבוד הנתונים (DPA)</Btn>
+            </Txt>
+          </Box>
+          <Box as="label" className="auth-check">
+            <Input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
+            <Txt className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></Txt>
+            <Txt className="auth-check-label">
               קראתי ואני <MG word="agree" /> ל
-              <button type="button" className="auth-check-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal('terms') }}>תנאי השימוש</button>
-            </span>
-          </label>
-        </div>
+              <Btn type="button" className="auth-check-link" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal('terms') }}>תנאי השימוש</Btn>
+            </Txt>
+          </Box>
+        </Box>
 
-        <button className="auth-btn auth-btn-primary" type="button" onClick={confirm} disabled={busy || !canConsent}>
+        <Btn className="auth-btn auth-btn-primary" type="button" onClick={confirm} disabled={busy || !canConsent}>
           {busy ? 'שומר…' : 'אני מאשר/ת'}
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
       {legalModal === 'privacy' && <PrivacyPolicyModal onClose={() => setLegalModal(null)} />}
       {legalModal === 'dpa' && <DPAModal onClose={() => setLegalModal(null)} />}
       {legalModal === 'terms' && <TermsModal onClose={() => setLegalModal(null)} />}
-    </div>
+    </Box>
   )
 }

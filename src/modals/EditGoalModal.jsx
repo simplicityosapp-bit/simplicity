@@ -6,6 +6,7 @@ import Modal from './Modal'
 import { questionText } from '../lib/questionTemplates'
 import { scheduledOccurrences, buildSchedulePattern } from '../lib/goals'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 const IMPORTANCE = [1, 2, 3, 4, 5]
 const QUESTION_ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
@@ -182,88 +183,88 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, c
 
   return (
     <Modal open={open} onClose={onClose} title={t('editGoal.title')}>
-      <div className="m-field">
-        <label className="m-label">{t('editGoal.goalName')}</label>
-        <input className="m-input" value={form.label} onChange={(e) => set('label', e.target.value)} placeholder={cat?.name || t('editGoal.goalNamePlaceholder')} />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('editGoal.timeFrame')}</label>
-        <div className="m-pills">
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('editGoal.goalName')}</Box>
+        <Input className="m-input" value={form.label} onChange={(e) => set('label', e.target.value)} placeholder={cat?.name || t('editGoal.goalNamePlaceholder')} />
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('editGoal.timeFrame')}</Box>
+        <Box className="m-pills">
           {TIME_FRAMES.map((tf) => (
-            <button key={tf.k} type="button" className={`m-pill${form.time_frame === tf.k ? ' on' : ''}`} onClick={() => set('time_frame', tf.k)}>{tf.l}</button>
+            <Btn key={tf.k} type="button" className={`m-pill${form.time_frame === tf.k ? ' on' : ''}`} onClick={() => set('time_frame', tf.k)}>{tf.l}</Btn>
           ))}
-        </div>
-      </div>
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('editGoal.target')}</label>
-          <input
+        </Box>
+      </Box>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editGoal.target')}</Box>
+          <Input
             type="number"
             min="0"
             className={`m-input${err && !(parseFloat(form.target_value) > 0) ? ' err' : ''}`}
             value={form.target_value}
             onChange={(e) => { set('target_value', e.target.value); if (err) setErr('') }}
           />
-        </div>
+        </Box>
         {form.time_frame === 'deadline' && (
-          <div className="m-field">
-            <label className="m-label">{t('editGoal.targetDate')}</label>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('editGoal.targetDate')}</Box>
             <DateField value={form.target_date || ''} onChange={(e) => set('target_date', e.target.value)} />
-          </div>
+          </Box>
         )}
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('editGoal.importance')}</label>
-        <div className="m-pills">
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('editGoal.importance')}</Box>
+        <Box className="m-pills">
           {IMPORTANCE.map((n) => (
-            <button key={n} type="button" className={`m-pill${Number(form.importance) === n ? ' on' : ''}`} onClick={() => set('importance', n)}>{n}</button>
+            <Btn key={n} type="button" className={`m-pill${Number(form.importance) === n ? ' on' : ''}`} onClick={() => set('importance', n)}>{n}</Btn>
           ))}
-        </div>
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('editGoal.projectOptional')}</label>
+        </Box>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('editGoal.projectOptional')}</Box>
         <select className="m-select" value={form.project_id} onChange={(e) => { set('project_id', e.target.value); set('group_id', '') }}>
           <option value="">{t('common.none')}</option>
           {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
-      </div>
+      </Box>
       {form.project_id && groups.some((g) => g.project_id === form.project_id) && (
-        <div className="m-field">
-          <label className="m-label">{t('editGoal.groupOptional')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editGoal.groupOptional')}</Box>
           <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
             <option value="">{t('editGoal.noGroup')}</option>
             {groups.filter((g) => g.project_id === form.project_id).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
           </select>
-        </div>
+        </Box>
       )}
 
       {isManual && (
-        <div className="m-field">
-          <label className="m-label">{t('editGoal.tracking')}</label>
-          <div className="m-pills">
-            <button type="button" className={`m-pill${form.tracking_method === 'manual' ? ' on' : ''}`} onClick={() => set('tracking_method', 'manual')}>{t('editGoal.manualEntry')}</button>
-            <button type="button" className={`m-pill${form.tracking_method === 'daily_question' ? ' on' : ''}`} onClick={() => set('tracking_method', 'daily_question')}>{t('editGoal.dailyQuestion')}</button>
-          </div>
-        </div>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editGoal.tracking')}</Box>
+          <Box className="m-pills">
+            <Btn type="button" className={`m-pill${form.tracking_method === 'manual' ? ' on' : ''}`} onClick={() => set('tracking_method', 'manual')}>{t('editGoal.manualEntry')}</Btn>
+            <Btn type="button" className={`m-pill${form.tracking_method === 'daily_question' ? ' on' : ''}`} onClick={() => set('tracking_method', 'daily_question')}>{t('editGoal.dailyQuestion')}</Btn>
+          </Box>
+        </Box>
       )}
       {byQuestion && (
-        <div className="m-field">
-          <label className="m-label">{t('editGoal.dailyQuestion')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('editGoal.dailyQuestion')}</Box>
 
           {/* Pick an existing question, write a new one, or edit the linked one.
               Each pill shows only when its action is available. */}
           {(hasActiveQ + (canCreateQuestion ? 1 : 0) + (canEditQuestion && linkedQuestion ? 1 : 0)) > 1 && (
-            <div className="m-pills" style={{ marginBottom: 8 }}>
+            <Box className="m-pills" style={{ marginBottom: 8 }}>
               {hasActiveQ && (
-                <button type="button" className={`m-pill${qMode === 'existing' ? ' on' : ''}`} onClick={() => { set('question_mode', 'existing'); if (err) setErr('') }}>{t('addGoal.pickExisting')}</button>
+                <Btn type="button" className={`m-pill${qMode === 'existing' ? ' on' : ''}`} onClick={() => { set('question_mode', 'existing'); if (err) setErr('') }}>{t('addGoal.pickExisting')}</Btn>
               )}
               {canCreateQuestion && (
-                <button type="button" className={`m-pill${qMode === 'new' ? ' on' : ''}`} onClick={startNew}>{t('addGoal.newQuestion')}</button>
+                <Btn type="button" className={`m-pill${qMode === 'new' ? ' on' : ''}`} onClick={startNew}>{t('addGoal.newQuestion')}</Btn>
               )}
               {canEditQuestion && linkedQuestion && (
-                <button type="button" className={`m-pill${qMode === 'edit' ? ' on' : ''}`} onClick={startEdit}>{t('editGoal.editQuestion')}</button>
+                <Btn type="button" className={`m-pill${qMode === 'edit' ? ' on' : ''}`} onClick={startEdit}>{t('editGoal.editQuestion')}</Btn>
               )}
-            </div>
+            </Box>
           )}
 
           {qMode === 'existing' ? (
@@ -273,69 +274,69 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, c
                 {activeQuestions.map((q) => <option key={q.id} value={q.id}>{q.icon ? q.icon + ' ' : ''}{questionText(q, gender)}</option>)}
               </select>
             ) : (
-              <p className="m-error">{t('editGoal.noActiveQuestions')}</p>
+              <Txt as="p" className="m-error">{t('editGoal.noActiveQuestions')}</Txt>
             )
           ) : (
             <>
-              <input
+              <Input
                 className="m-input"
                 value={form.question_text}
                 onChange={(e) => { set('question_text', e.target.value); if (err) setErr('') }}
                 placeholder={form.question_scale === 'yes_no' ? t('addGoal.questionPlaceholderYesNo') : t('addGoal.questionPlaceholderSlider')}
               />
-              <div style={{ marginTop: 8 }}>
-                <label className="m-label">{t('addGoal.answerType')}</label>
-                <div className="m-pills">
+              <Box style={{ marginTop: 8 }}>
+                <Box as="label" className="m-label">{t('addGoal.answerType')}</Box>
+                <Box className="m-pills">
                   {SCALES.map((s) => (
-                    <button key={s.k} type="button" className={`m-pill${form.question_scale === s.k ? ' on' : ''}`} onClick={() => set('question_scale', s.k)}>{s.l}</button>
+                    <Btn key={s.k} type="button" className={`m-pill${form.question_scale === s.k ? ' on' : ''}`} onClick={() => set('question_scale', s.k)}>{s.l}</Btn>
                   ))}
-                </div>
-              </div>
-              <div style={{ marginTop: 8 }}>
-                <label className="m-label">{t('common.icon')}</label>
-                <div className="m-pills">
+                </Box>
+              </Box>
+              <Box style={{ marginTop: 8 }}>
+                <Box as="label" className="m-label">{t('common.icon')}</Box>
+                <Box className="m-pills">
                   {QUESTION_ICONS.map((ic) => (
-                    <button key={ic} type="button" className={`m-pill${form.question_icon === ic ? ' on' : ''}`} onClick={() => set('question_icon', ic)} aria-label={t('addGoal.iconAria', { icon: ic })}>{ic}</button>
+                    <Btn key={ic} type="button" className={`m-pill${form.question_icon === ic ? ' on' : ''}`} onClick={() => set('question_icon', ic)} aria-label={t('addGoal.iconAria', { icon: ic })}>{ic}</Btn>
                   ))}
-                </div>
-              </div>
-              <div style={{ marginTop: 8 }}>
-                <label className="m-label">{t('addGoal.whenAsked')}</label>
+                </Box>
+              </Box>
+              <Box style={{ marginTop: 8 }}>
+                <Box as="label" className="m-label">{t('addGoal.whenAsked')}</Box>
                 <ScheduleDayPicker
                   mode={form.sched_mode}
                   days={form.sched_days}
                   x={form.sched_x}
                   onChange={({ mode, days, x }) => { set('sched_mode', mode); set('sched_days', days); set('sched_x', x) }}
                 />
-              </div>
+              </Box>
             </>
           )}
 
           {effIsYesNo && (
             overMax ? (
-              <p className="m-sched-warn">
+              <Txt as="p" className="m-sched-warn">
                 <AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" />
                 {t('addGoal.overMaxWarn', { target: parseFloat(form.target_value), max: maxOccurrences })}
-              </p>
+              </Txt>
             ) : (
-              <p className="m-hint">
+              <Txt as="p" className="m-hint">
                 {t('addGoal.freqHint', { max: maxOccurrences, period: t(`addGoal.period.${form.time_frame}`) })}
-              </p>
+              </Txt>
             )
           )}
-        </div>
+        </Box>
       )}
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
       {onDelete && (
-        <button type="button" className="m-btn-delete" onClick={() => onDelete(goal)}>
+        <Btn type="button" className="m-btn-delete" onClick={() => onDelete(goal)}>
           <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" /> {t('editGoal.deleteGoal')}
-        </button>
+        </Btn>
       )}
     </Modal>
   )

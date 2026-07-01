@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 function blank(defaults = {}) {
   return {
@@ -108,17 +109,17 @@ export default function RecurringModal({ open, onClose, onSave, template, client
 
   return (
     <Modal open={open} onClose={close} title={isEdit ? t('recurring.titleEdit') : t('recurring.titleNew')}>
-      <div className="m-field">
-        <div className="m-pills">
-          <button type="button" className={`m-pill${form.type === 'income' ? ' on income' : ''}`} onClick={() => set('type', 'income')}>{t('common.income')}</button>
-          <button type="button" className={`m-pill${form.type === 'expense' ? ' on expense' : ''}`} onClick={() => set('type', 'expense')}>{t('common.expense')}</button>
-        </div>
-      </div>
+      <Box className="m-field">
+        <Box className="m-pills">
+          <Btn type="button" className={`m-pill${form.type === 'income' ? ' on income' : ''}`} onClick={() => set('type', 'income')}>{t('common.income')}</Btn>
+          <Btn type="button" className={`m-pill${form.type === 'expense' ? ' on expense' : ''}`} onClick={() => set('type', 'expense')}>{t('common.expense')}</Btn>
+        </Box>
+      </Box>
 
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('common.amount')}</label>
-          <input
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.amount')}</Box>
+          <Input
             type="number"
             min="0"
             className={`m-input${amountInvalid ? ' err' : ''}`}
@@ -126,44 +127,44 @@ export default function RecurringModal({ open, onClose, onSave, template, client
             onChange={(e) => { set('amount', e.target.value); if (err) setErr('') }}
             placeholder="0"
           />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('common.description')}</label>
-          <input
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.description')}</Box>
+          <Input
             className="m-input"
             value={form.desc}
             onChange={(e) => set('desc', e.target.value)}
             placeholder={t('recurring.descPlaceholder')}
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <div className="m-field">
-        <label className="m-label">{t('recurring.when')}</label>
-        <div className="m-pills">
-          <button type="button" className={`m-pill${form.trigger_type === 'schedule' ? ' on' : ''}`} onClick={() => set('trigger_type', 'schedule')}>{t('recurring.bySchedule')}</button>
-          <button type="button" className={`m-pill${form.trigger_type === 'on_meeting' ? ' on' : ''}`} onClick={() => set('trigger_type', 'on_meeting')}>{t('recurring.onMeeting')}</button>
-        </div>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('recurring.when')}</Box>
+        <Box className="m-pills">
+          <Btn type="button" className={`m-pill${form.trigger_type === 'schedule' ? ' on' : ''}`} onClick={() => set('trigger_type', 'schedule')}>{t('recurring.bySchedule')}</Btn>
+          <Btn type="button" className={`m-pill${form.trigger_type === 'on_meeting' ? ' on' : ''}`} onClick={() => set('trigger_type', 'on_meeting')}>{t('recurring.onMeeting')}</Btn>
+        </Box>
         {form.trigger_type === 'on_meeting' && (
-          <p className="m-hint">{t('recurring.onMeetingHint')}</p>
+          <Txt as="p" className="m-hint">{t('recurring.onMeetingHint')}</Txt>
         )}
-      </div>
+      </Box>
 
       {form.trigger_type === 'schedule' && (
         <>
-          <div className="m-field">
-            <label className="m-label">{t('recurring.repeats')}</label>
-            <div className="m-pills">
-              <button type="button" className={`m-pill${form.cadence_type === 'monthly_date' ? ' on' : ''}`} onClick={() => set('cadence_type', 'monthly_date')}>{t('recurring.monthly')}</button>
-              <button type="button" className={`m-pill${form.cadence_type === 'weekly' ? ' on' : ''}`} onClick={() => set('cadence_type', 'weekly')}>{t('recurring.weekly')}</button>
-            </div>
-          </div>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('recurring.repeats')}</Box>
+            <Box className="m-pills">
+              <Btn type="button" className={`m-pill${form.cadence_type === 'monthly_date' ? ' on' : ''}`} onClick={() => set('cadence_type', 'monthly_date')}>{t('recurring.monthly')}</Btn>
+              <Btn type="button" className={`m-pill${form.cadence_type === 'weekly' ? ' on' : ''}`} onClick={() => set('cadence_type', 'weekly')}>{t('recurring.weekly')}</Btn>
+            </Box>
+          </Box>
 
-          <div className="m-row2">
+          <Box className="m-row2">
             {form.cadence_type === 'monthly_date' ? (
-              <div className="m-field">
-                <label className="m-label">{t('recurring.dayOfMonth')}</label>
-                <input
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('recurring.dayOfMonth')}</Box>
+                <Input
                   type="number"
                   min="1"
                   max="31"
@@ -171,10 +172,10 @@ export default function RecurringModal({ open, onClose, onSave, template, client
                   value={form.day_of_month}
                   onChange={(e) => set('day_of_month', e.target.value)}
                 />
-              </div>
+              </Box>
             ) : (
-              <div className="m-field">
-                <label className="m-label">{t('recurring.dayOfWeek')}</label>
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('recurring.dayOfWeek')}</Box>
                 <select
                   className="m-select"
                   value={form.day_of_week}
@@ -182,61 +183,61 @@ export default function RecurringModal({ open, onClose, onSave, template, client
                 >
                   {DAY_NAMES.map((name, i) => <option key={i} value={i}>{name}</option>)}
                 </select>
-              </div>
+              </Box>
             )}
-            <div className="m-field">
-              <label className="m-label">{t('recurring.untilDate')}</label>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('recurring.untilDate')}</Box>
               <DateField
                 value={form.until_date}
                 onChange={(e) => set('until_date', e.target.value)}
               />
-            </div>
-          </div>
+            </Box>
+          </Box>
         </>
       )}
 
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{form.trigger_type === 'on_meeting' ? t('recurring.clientRequired') : t('recurring.clientOptional')}</label>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{form.trigger_type === 'on_meeting' ? t('recurring.clientRequired') : t('recurring.clientOptional')}</Box>
           <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('recurring.projectOptional')}</label>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('recurring.projectOptional')}</Box>
           <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {form.type === 'expense' && (
-        <div className="m-field">
-          <label className="m-label">{t('common.category')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.category')}</Box>
           <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
             <option value="">{t('common.noCategory')}</option>
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-        </div>
+        </Box>
       )}
 
       {isEdit && (
-        <div className="m-field">
-          <label className="m-label" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <input type="checkbox" className="m-check" checked={form.active} onChange={(e) => set('active', e.target.checked)} />
+        <Box className="m-field">
+          <Box as="label" className="m-label" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <Input type="checkbox" className="m-check" checked={form.active} onChange={(e) => set('active', e.target.checked)} />
             {t('recurring.active')}
-          </label>
-        </div>
+          </Box>
+        </Box>
       )}
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
     </Modal>
   )
 }

@@ -9,6 +9,7 @@ import { showToast } from '../lib/toast'
 import { PAY_METHODS, docTypeLabel, payMethodLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '../lib/invoiceDocs'
 import { useT } from '../i18n/useT'
 import './InvoiceActions.css'
+import { Box, Txt, Btn, Input, Lnk } from './ui'
 
 /* Same calendar-day key for two transactions (heuristic duplicate check). */
 const dayKey = (d) => (d ? new Date(d).toISOString().slice(0, 10) : null)
@@ -120,27 +121,27 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
   if (issued) {
     return (
       <>
-        <div className="inv-act issued" ref={issuedRef} tabIndex={-1} role="status" aria-live="polite">
+        <Box className="inv-act issued" ref={issuedRef} tabIndex={-1} role="status" aria-live="polite">
           <FileText size={15} strokeWidth={1.8} aria-hidden="true" />
-          <span>
+          <Txt>
             {t('actions.issuedLabel', { docType: docTypeLabel(issued.type) })}
             {issued.number ? <> {t('actions.issuedNumber')} <bdi>{issued.number}</bdi></> : ''}
             {tx?.amount ? ` · ${isr(tx.amount)}` : ''}
-          </span>
+          </Txt>
           {issued.url && (
-            <a href={issued.url} target="_blank" rel="noreferrer" className="inv-act-link">
+            <Lnk href={issued.url} target="_blank" rel="noreferrer" className="inv-act-link">
               {t('actions.view')} <ExternalLink size={12} strokeWidth={1.8} aria-hidden="true" />
-            </a>
+            </Lnk>
           )}
           {credited ? (
-            <span className="inv-act-credited">{t('actions.cancelled')}{credited.number ? <> {t('actions.creditNumber')} <bdi>{credited.number}</bdi></> : ''}</span>
+            <Txt className="inv-act-credited">{t('actions.cancelled')}{credited.number ? <> {t('actions.creditNumber')} <bdi>{credited.number}</bdi></> : ''}</Txt>
           ) : (
-            <button type="button" className="inv-act-credit-btn" onClick={() => { setCreditErr(''); setCreditConfirm(true) }}>
+            <Btn type="button" className="inv-act-credit-btn" onClick={() => { setCreditErr(''); setCreditConfirm(true) }}>
               {t('actions.creditBtn')}
-            </button>
+            </Btn>
           )}
-        </div>
-        {creditErr && <p className="inv-act-err" role="alert"><CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {creditErr}</p>}
+        </Box>
+        {creditErr && <Txt as="p" className="inv-act-err" role="alert"><CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {creditErr}</Txt>}
         <ConfirmModal
           open={creditConfirm}
           onClose={() => setCreditConfirm(false)}
@@ -156,17 +157,17 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
 
   if (inv.status?.credentials_invalid) {
     return (
-      <p className="inv-act hint">
+      <Txt as="p" className="inv-act hint">
         {t('actions.credsInvalidHint')}
-      </p>
+      </Txt>
     )
   }
 
   if (!tx?.client_id) {
     return (
-      <p className="inv-act hint">
+      <Txt as="p" className="inv-act hint">
         {t('actions.needClientHint')}
-      </p>
+      </Txt>
     )
   }
 
@@ -265,22 +266,22 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
   }
 
   return (
-    <div className="inv-act">
+    <Box className="inv-act">
       {!picking ? (
-        <button type="button" className="inv-act-btn" onClick={openPicker}>
+        <Btn type="button" className="inv-act-btn" onClick={openPicker}>
           <FileText size={15} strokeWidth={1.8} aria-hidden="true" /> {t('actions.issueBtn')}
-        </button>
+        </Btn>
       ) : (
-        <div className="inv-act-picker" ref={pickerRef} tabIndex={-1} role="group" aria-labelledby={lblId} onKeyDown={onPickerKeyDown}>
-          <span id={lblId} className="inv-act-picker-lbl">{clientName ? t('actions.pickerLabelNamed', { client: clientName }) : t('actions.pickerLabel')}</span>
-          <div className="inv-act-types" role="radiogroup" aria-label={t('actions.docTypeAria')}>
+        <Box className="inv-act-picker" ref={pickerRef} tabIndex={-1} role="group" aria-labelledby={lblId} onKeyDown={onPickerKeyDown}>
+          <Txt id={lblId} className="inv-act-picker-lbl">{clientName ? t('actions.pickerLabelNamed', { client: clientName }) : t('actions.pickerLabel')}</Txt>
+          <Box className="inv-act-types" role="radiogroup" aria-label={t('actions.docTypeAria')}>
             {allowedDocTypes(inv.status?.business_type).map((d) => (
-              <button key={d.key} type="button" role="radio" aria-checked={docType === d.key} className={`inv-act-type${docType === d.key ? ' on' : ''}`} onClick={() => setDocType(d.key)}>{docTypeLabel(d.key)}</button>
+              <Btn key={d.key} type="button" role="radio" aria-checked={docType === d.key} className={`inv-act-type${docType === d.key ? ' on' : ''}`} onClick={() => setDocType(d.key)}>{docTypeLabel(d.key)}</Btn>
             ))}
-          </div>
-          <label className="inv-act-field">
-            <span className="inv-act-field-lbl">{t('actions.itemFieldLabel')}</span>
-            {catalogLoading && <span className="inv-act-loading" role="status" aria-live="polite">{t('actions.loadingItems')}</span>}
+          </Box>
+          <Box as="label" className="inv-act-field">
+            <Txt className="inv-act-field-lbl">{t('actions.itemFieldLabel')}</Txt>
+            {catalogLoading && <Txt className="inv-act-loading" role="status" aria-live="polite">{t('actions.loadingItems')}</Txt>}
             {!catalogLoading && items.length > 0 && (
               <select className="inv-act-select" value={itemId} onChange={(e) => setItemId(e.target.value)}>
                 {items.map((it) => <option key={it.id} value={it.id}>{it.name}{it.price != null ? ` · ${isr(it.price)}` : ''}</option>)}
@@ -288,36 +289,36 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
               </select>
             )}
             {!catalogLoading && (items.length === 0 || itemId === '') && (
-              <input type="text" className="inv-act-input" value={itemName} onChange={(e) => setItemName(e.target.value)} placeholder={t('actions.itemPlaceholder')} />
+              <Input type="text" className="inv-act-input" value={itemName} onChange={(e) => setItemName(e.target.value)} placeholder={t('actions.itemPlaceholder')} />
             )}
             {!catalogLoading && items.length > 0 && (
-              <span className="inv-act-hint-cap">{t('actions.itemHint')}</span>
+              <Txt className="inv-act-hint-cap">{t('actions.itemHint')}</Txt>
             )}
-            {catalogErr && <span className="inv-act-hint-cap" role="status">{catalogErr}</span>}
-          </label>
+            {catalogErr && <Txt className="inv-act-hint-cap" role="status">{catalogErr}</Txt>}
+          </Box>
           {isReceiptType(docType) && (
-            <label className="inv-act-field">
-              <span className="inv-act-field-lbl">{t('actions.payMethodLabel')}</span>
+            <Box as="label" className="inv-act-field">
+              <Txt className="inv-act-field-lbl">{t('actions.payMethodLabel')}</Txt>
               <select className="inv-act-select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
                 {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
               </select>
-            </label>
+            </Box>
           )}
-          <div className="inv-act-picker-actions">
-            <button type="button" className="inv-act-go" disabled={busy || (!itemId && !itemName.trim())} aria-busy={busy} onClick={onIssueClick}>
+          <Box className="inv-act-picker-actions">
+            <Btn type="button" className="inv-act-go" disabled={busy || (!itemId && !itemName.trim())} aria-busy={busy} onClick={onIssueClick}>
               {busy
                 ? <><Loader2 size={14} strokeWidth={2} className="inv-act-spin" aria-hidden="true" /> {t('actions.issuing')}</>
                 : confirmIssue
                   ? t('actions.issueConfirm', { amount: isr(tx.amount) })
                   : t('actions.issue')}
-            </button>
-            <button type="button" className="inv-act-cancel" disabled={busy} onClick={cancelPicker}>{t('actions.cancel')}</button>
-          </div>
-        </div>
+            </Btn>
+            <Btn type="button" className="inv-act-cancel" disabled={busy} onClick={cancelPicker}>{t('actions.cancel')}</Btn>
+          </Box>
+        </Box>
       )}
-      {err && <p className="inv-act-err" role="alert"><CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {err}</p>}
+      {err && <Txt as="p" className="inv-act-err" role="alert"><CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {err}</Txt>}
       <IssueGuardModal open={guardOpen} reasons={guardReasons} amount={tx.amount} onClose={() => setGuardOpen(false)} onConfirm={doIssue} />
-    </div>
+    </Box>
   )
 }
 

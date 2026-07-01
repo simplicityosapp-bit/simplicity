@@ -1,6 +1,7 @@
 import i18n from '../i18n'
 import { useT } from '../i18n/useT'
 import './MultiTrendChart.css'
+import { Box, Txt } from './ui'
 
 /* Overlaid, self-normalized (0–100) line chart for the מבט-על trends.
    Each series is drawn relative to its own min/max (see overview.js §8.1);
@@ -39,24 +40,24 @@ export default function MultiTrendChart({ days, series }) {
   const { t } = useT('reports')
   const drawable = (series || []).filter((s) => s.norm.some((v) => v != null))
   if (drawable.length === 0 || (days?.length || 0) < 2) {
-    return <p className="mt-empty">{t('trend.empty')}</p>
+    return <Txt as="p" className="mt-empty">{t('trend.empty')}</Txt>
   }
   return (
-    <div className="mt-wrap">
+    <Box className="mt-wrap">
       <svg className="mt-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={t('trend.aria')}>
         {drawable.map((s) => (
           <path key={s.key} className="mt-line" style={{ stroke: s.color }} d={pathFor(s.norm)} />
         ))}
       </svg>
-      <div className="mt-legend">
+      <Box className="mt-legend">
         {drawable.map((s) => (
-          <span key={s.key} className="mt-legend-item">
-            <span className="mt-legend-dot" style={{ background: s.color }} />
-            <span className="mt-legend-label">{s.label}</span>
-            <span className="mt-legend-val mono">{fmtRaw(s.summary, s.unit)}</span>
-          </span>
+          <Txt key={s.key} className="mt-legend-item">
+            <Txt className="mt-legend-dot" style={{ background: s.color }} />
+            <Txt className="mt-legend-label">{s.label}</Txt>
+            <Txt className="mt-legend-val mono">{fmtRaw(s.summary, s.unit)}</Txt>
+          </Txt>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 const ICONS = ['💰', '🤝', '🌱', '✨', '🎨', '🏃', '📚', '🧘', '✍️', '💡', '⭐']
 
@@ -40,41 +41,41 @@ export default function EditGoalCategoryModal({ open, onClose, category, onSave,
 
   return (
     <Modal open={open} onClose={onClose} title={t('editCat.title')}>
-      <div className="m-field">
-        <label className="m-label">{t('editCat.metricName')}</label>
-        <input
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('editCat.metricName')}</Box>
+        <Input
           className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
           value={form.name}
           onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
           placeholder={t('editCat.namePlaceholder')}
         />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('common.icon')}</label>
-        <div className="m-pills">
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('common.icon')}</Box>
+        <Box className="m-pills">
           {icons.map((ic) => (
-            <button key={ic} type="button" className={`m-pill${form.icon === ic ? ' on' : ''}`} onClick={() => set('icon', ic)}>{ic}</button>
+            <Btn key={ic} type="button" className={`m-pill${form.icon === ic ? ' on' : ''}`} onClick={() => set('icon', ic)}>{ic}</Btn>
           ))}
-        </div>
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('common.color')}</label>
-        <div className="m-colors">
+        </Box>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('common.color')}</Box>
+        <Box className="m-colors">
           {COLORS.map((c) => (
-            <button key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => set('color', c)} />
+            <Btn key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => set('color', c)} />
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
-      <button type="button" className="m-btn-delete" onClick={() => onDelete(category)}>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
+      <Btn type="button" className="m-btn-delete" onClick={() => onDelete(category)}>
         <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" /> {t('editCat.deleteMetric')}
-      </button>
+      </Btn>
     </Modal>
   )
 }

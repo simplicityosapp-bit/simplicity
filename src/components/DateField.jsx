@@ -8,6 +8,7 @@ import { fmtDateInput } from '../lib/dates'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useT } from '../i18n/useT'
 import './DateField.css'
+import { Box, Txt, Btn } from './ui'
 
 /* Drop-in replacement for <input type="date">. The native picker displays
    in the BROWSER's UI language (e.g. MM/DD for English Chrome) and ignores
@@ -119,8 +120,8 @@ export default function DateField({ value, onChange, className = '', disabled = 
   const shiftYear = (n) => setView((v) => (hebrew ? stepHebrewYear(v, n) : new Date(v.getFullYear() + n, v.getMonth(), 1)))
 
   return (
-    <div className={`datefield ${className}`} ref={ref}>
-      <button
+    <Box className={`datefield ${className}`} ref={ref}>
+      <Btn
         type="button"
         className="datefield-btn"
         disabled={disabled}
@@ -128,45 +129,45 @@ export default function DateField({ value, onChange, className = '', disabled = 
         aria-haspopup="dialog"
         aria-expanded={open}
       >
-        <span className={value ? 'datefield-val' : 'datefield-ph'}>{triggerText()}</span>
-      </button>
+        <Txt className={value ? 'datefield-val' : 'datefield-ph'}>{triggerText()}</Txt>
+      </Btn>
       {open && !disabled && (
-        <div className={`datefield-pop${placement === 'top' ? ' up' : ''}`} role="dialog" aria-label={t('dateField.dialogLabel')}>
-          <div className="datefield-nav">
-            <button type="button" className="datefield-navbtn" onClick={() => shiftYear(-1)} aria-label={t('dateField.prevYear')}>
+        <Box className={`datefield-pop${placement === 'top' ? ' up' : ''}`} role="dialog" aria-label={t('dateField.dialogLabel')}>
+          <Box className="datefield-nav">
+            <Btn type="button" className="datefield-navbtn" onClick={() => shiftYear(-1)} aria-label={t('dateField.prevYear')}>
               <ChevronsRight size={16} strokeWidth={1.8} aria-hidden="true" />
-            </button>
-            <button type="button" className="datefield-navbtn" onClick={() => shiftMonth(-1)} aria-label={t('dateField.prevMonth')}>
+            </Btn>
+            <Btn type="button" className="datefield-navbtn" onClick={() => shiftMonth(-1)} aria-label={t('dateField.prevMonth')}>
               <ChevronRight size={16} strokeWidth={1.8} aria-hidden="true" />
-            </button>
-            <span className="datefield-month">{headerLabel}</span>
-            <button type="button" className="datefield-navbtn" onClick={() => shiftMonth(1)} aria-label={t('dateField.nextMonth')}>
+            </Btn>
+            <Txt className="datefield-month">{headerLabel}</Txt>
+            <Btn type="button" className="datefield-navbtn" onClick={() => shiftMonth(1)} aria-label={t('dateField.nextMonth')}>
               <ChevronLeft size={16} strokeWidth={1.8} aria-hidden="true" />
-            </button>
-            <button type="button" className="datefield-navbtn" onClick={() => shiftYear(1)} aria-label={t('dateField.nextYear')}>
+            </Btn>
+            <Btn type="button" className="datefield-navbtn" onClick={() => shiftYear(1)} aria-label={t('dateField.nextYear')}>
               <ChevronsLeft size={16} strokeWidth={1.8} aria-hidden="true" />
-            </button>
-          </div>
-          <div className="datefield-dow">{headDays.map((d, i) => <span key={i}>{d}</span>)}</div>
-          <div className="datefield-grid">
+            </Btn>
+          </Box>
+          <Box className="datefield-dow">{headDays.map((d, i) => <Txt key={i}>{d}</Txt>)}</Box>
+          <Box className="datefield-grid">
             {cells.map(({ d: cell, inMonth, label }, i) => {
               const isSel = selected && isSameDay(cell, selected)
               const isToday = isSameDay(cell, new Date())
               return (
-                <button
+                <Btn
                   key={i}
                   type="button"
                   className={`datefield-day${inMonth ? '' : ' out'}${isSel ? ' sel' : ''}${isToday ? ' today' : ''}${hebrew ? ' heb' : ''}`}
                   onClick={() => pick(cell)}
                 >
                   {label}
-                </button>
+                </Btn>
               )
             })}
-          </div>
-          <button type="button" className="datefield-today-btn" onClick={() => pick(new Date())}>{t('dateField.today')}</button>
-        </div>
+          </Box>
+          <Btn type="button" className="datefield-today-btn" onClick={() => pick(new Date())}>{t('dateField.today')}</Btn>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

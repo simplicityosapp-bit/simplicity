@@ -2,6 +2,7 @@ import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
+import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const blank = () => ({ name: '', phone: '', source_id: '', project_id: '', group_id: '', status_id: '', inquiry_date: todayStr(), follow_up_date: '', notes: '' })
@@ -84,24 +85,24 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
 
   return (
     <Modal open={open} onClose={close} title={t('addLead.title')}>
-      <div className="m-field">
-        <label className="m-label">{t('common.name')}</label>
-        <input
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('common.name')}</Box>
+        <Input
           className={`m-input${nameMissing ? ' err' : ''}`}
           value={form.name}
           onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
           placeholder={t('addLead.namePlaceholder')}
         />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('common.phone')}</label>
-        <input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} />
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('common.source')}</label>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('common.phone')}</Box>
+        <Input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} />
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('common.source')}</Box>
         {creatingSource ? (
-          <div className="m-cat-create">
-            <input
+          <Box className="m-cat-create">
+            <Input
               className="m-input"
               value={newSourceName}
               onChange={(e) => setNewSourceName(e.target.value)}
@@ -109,13 +110,13 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
               placeholder={t('common.newSourceName')}
               autoFocus
             />
-            <button type="button" className="m-cat-add" onClick={createSource} disabled={sourceBusy || !newSourceName.trim()}>
+            <Btn type="button" className="m-cat-add" onClick={createSource} disabled={sourceBusy || !newSourceName.trim()}>
               {sourceBusy ? '…' : t('common.add')}
-            </button>
-            <button type="button" className="m-cat-cancel" onClick={() => { setCreatingSource(false); setNewSourceName('') }}>
+            </Btn>
+            <Btn type="button" className="m-cat-cancel" onClick={() => { setCreatingSource(false); setNewSourceName('') }}>
               {t('common.cancel')}
-            </button>
-          </div>
+            </Btn>
+          </Box>
         ) : (
           <select
             className="m-select"
@@ -130,55 +131,55 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
             {onAddSource && <option value="__new__">{t('common.newSourceOption')}</option>}
           </select>
         )}
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('common.projectOptional')}</label>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('common.projectOptional')}</Box>
         <select className="m-select" value={form.project_id} onChange={(e) => setProject(e.target.value)}>
           <option value="">{t('common.none')}</option>
           {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
-      </div>
+      </Box>
       {projectGroups.length > 0 && (
-        <div className="m-field">
-          <label className="m-label">{t('common.groupOptional')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.groupOptional')}</Box>
           <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {projectGroups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
           </select>
-        </div>
+        </Box>
       )}
       {statuses.filter((s) => s.meta_category === 'in_process').length > 0 && (
-        <div className="m-field">
-          <label className="m-label">{t('common.subStatusOptional')}</label>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.subStatusOptional')}</Box>
           <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
             <option value="">{t('common.none')}</option>
             {statuses.filter((s) => s.meta_category === 'in_process').map((s) => (
               <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>
             ))}
           </select>
-        </div>
+        </Box>
       )}
-      <div className="m-row2">
-        <div className="m-field">
-          <label className="m-label">{t('common.inquiryDate')}</label>
+      <Box className="m-row2">
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.inquiryDate')}</Box>
           <DateField value={form.inquiry_date} onChange={(e) => set('inquiry_date', e.target.value)} />
-        </div>
-        <div className="m-field">
-          <label className="m-label">{t('common.followUp')}</label>
+        </Box>
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('common.followUp')}</Box>
           <DateField value={form.follow_up_date} onChange={(e) => set('follow_up_date', e.target.value)} />
-        </div>
-      </div>
-      <div className="m-field">
-        <label className="m-label">{t('common.notes')}</label>
-        <textarea className="m-textarea" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={t('common.leadNotesPlaceholder')} />
-      </div>
+        </Box>
+      </Box>
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('common.notes')}</Box>
+        <Textarea className="m-textarea" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={t('common.leadNotesPlaceholder')} />
+      </Box>
 
-      {err && <p className="m-error">{err}</p>}
+      {err && <Txt as="p" className="m-error">{err}</Txt>}
 
-      <div className="m-actions">
-        <button type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</button>
-        <button type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</button>
-      </div>
+      <Box className="m-actions">
+        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
+      </Box>
     </Modal>
   )
 }

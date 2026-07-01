@@ -20,6 +20,7 @@ import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { questionText } from '../../lib/questionTemplates'
 import { buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from '../../lib/overview'
 import MultiTrendChart from '../../components/MultiTrendChart'
+import { Box, Txt, Btn } from '../../components/ui'
 import { useT } from '../../i18n/useT'
 import './MoonGlanceScreen.css'
 
@@ -54,15 +55,15 @@ function CorrCard({ driverText, outcomeText, c }) {
   /* Symmetric co-movement phrasing — deliberately NOT "X drives Y". */
   const lineKey = c.direction === 'pos' ? 'corr.moveTogether' : 'corr.moveOpposite'
   return (
-    <div className="mg-corr-card">
-      <div className="mg-corr-text">
-        <p className="mg-corr-line">
+    <Box className="mg-corr-card">
+      <Box className="mg-corr-text">
+        <Txt as="p" className="mg-corr-line">
           <Trans t={t} i18nKey={lineKey} values={{ driver: driverText, outcome: outcomeText }} components={[<b key="d" />, <b key="o" />]} />
-        </p>
-        <p className="mg-corr-sub">{t('corr.sub', { strength: c.strength, n: c.n })}</p>
-      </div>
+        </Txt>
+        <Txt as="p" className="mg-corr-sub">{t('corr.sub', { strength: c.strength, n: c.n })}</Txt>
+      </Box>
       <Scatter points={c.points} driverText={driverText} outcomeText={outcomeText} />
-    </div>
+    </Box>
   )
 }
 
@@ -170,107 +171,106 @@ export default function MoonGlanceScreen() {
 
   if (!overall) {
     return (
-      <div className="screen moon-screen">
-        <div className="moon-head">
-          <div className="moon-head-title"><Moon size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}</div>
-        </div>
-        <div className="empty">
-          <p className="empty-text">{t('empty.noGoals', { action: t('empty.action') })}</p>
-        </div>
-      </div>
+      <Box className="screen moon-screen">
+        <Box className="moon-head">
+          <Box className="moon-head-title"><Moon size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}</Box>
+        </Box>
+        <Box className="empty">
+          <Txt as="p" className="empty-text">{t('empty.noGoals', { action: t('empty.action') })}</Txt>
+        </Box>
+      </Box>
     )
   }
 
   const conf = overall.confidence
 
   return (
-    <div className="screen moon-screen">
-      <div className="moon-head">
-        <div className="moon-head-title"><Moon size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}</div>
-        <button type="button" className="moon-head-link" onClick={() => navigate(ROUTES.REPORTS)}>
+    <Box className="screen moon-screen">
+      <Box className="moon-head">
+        <Box className="moon-head-title"><Moon size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}</Box>
+        <Btn className="moon-head-link" onClick={() => navigate(ROUTES.REPORTS)}>
           <BarChart3 size={16} strokeWidth={1.6} aria-hidden="true" /> {t('reports')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
-      <div className="mg-hero">
-        <div className="mg-ring" style={{ '--ring-pct': `${conf}%` }}>
-          <div className="mg-ring-pct mono">{conf}%</div>
+      <Box className="mg-hero">
+        <Box className="mg-ring" style={{ '--ring-pct': `${conf}%` }}>
+          <Box className="mg-ring-pct mono">{conf}%</Box>
           {/* Micro-word naming the big number as pace — mirrors the home
               MoonWidget kicker so the full screen reads the same. */}
-          <div className="mg-ring-kicker">{t('ring.kicker')}</div>
-          <div className="mg-ring-sub">{t('ring.sub', { pct: overall.pure })}</div>
-        </div>
-        <p className="mg-reflection">{moonReflection(conf, gender)}</p>
-      </div>
+          <Box className="mg-ring-kicker">{t('ring.kicker')}</Box>
+          <Box className="mg-ring-sub">{t('ring.sub', { pct: overall.pure })}</Box>
+        </Box>
+        <Txt as="p" className="mg-reflection">{moonReflection(conf, gender)}</Txt>
+      </Box>
 
-      <div className="mg-cats">
-        <p className="mg-section-h">{t('section.byCategory')}</p>
+      <Box className="mg-cats">
+        <Txt as="p" className="mg-section-h">{t('section.byCategory')}</Txt>
         {cats.map((c) => (
-          <div key={c.category.id} className="mg-cat">
-            <div className="mg-cat-head">
-              <span className="mg-cat-name">
-                <span className="mg-cat-dot" style={{ background: c.category.color || 'var(--moon-deep)' }} />
+          <Box key={c.category.id} className="mg-cat">
+            <Box className="mg-cat-head">
+              <Txt className="mg-cat-name">
+                <Txt className="mg-cat-dot" style={{ background: c.category.color || 'var(--moon-deep)' }} />
                 {c.category.name}
-              </span>
-            </div>
+              </Txt>
+            </Box>
             {/* Per-category: pace + goal-% side by side (was a lone pace bar). */}
             <MoonDualBars pace={c.confidence} goal={c.pure} />
-          </div>
+          </Box>
         ))}
-      </div>
+      </Box>
 
-      <div className="mg-trend">
-        <p className="mg-section-h">{t('section.trend')}</p>
+      <Box className="mg-trend">
+        <Txt as="p" className="mg-section-h">{t('section.trend')}</Txt>
         <TrendChart data={trend} />
-        <div className="mg-trend-stats">
-          <div className="mg-trend-stat">
-            <p className="mg-trend-stat-v mono">{avg}%</p>
-            <p className="mg-trend-stat-l">{t('trend.avg')}</p>
-          </div>
-          <div className="mg-trend-stat divided">
-            <p className="mg-trend-stat-v mono">{peak}%</p>
-            <p className="mg-trend-stat-l">{t('trend.peak')}</p>
-          </div>
-          <div className="mg-trend-stat">
-            <p className="mg-trend-stat-v mono">{conf}%</p>
-            <p className="mg-trend-stat-l">{t('trend.today')}</p>
-          </div>
-        </div>
-      </div>
+        <Box className="mg-trend-stats">
+          <Box className="mg-trend-stat">
+            <Txt as="p" className="mg-trend-stat-v mono">{avg}%</Txt>
+            <Txt as="p" className="mg-trend-stat-l">{t('trend.avg')}</Txt>
+          </Box>
+          <Box className="mg-trend-stat divided">
+            <Txt as="p" className="mg-trend-stat-v mono">{peak}%</Txt>
+            <Txt as="p" className="mg-trend-stat-l">{t('trend.peak')}</Txt>
+          </Box>
+          <Box className="mg-trend-stat">
+            <Txt as="p" className="mg-trend-stat-v mono">{conf}%</Txt>
+            <Txt as="p" className="mg-trend-stat-l">{t('trend.today')}</Txt>
+          </Box>
+        </Box>
+      </Box>
 
-      <div className="mg-overview">
-        <p className="mg-section-h">{t('section.crossModule')}</p>
-        <div className="mg-ov-pills">
+      <Box className="mg-overview">
+        <Txt as="p" className="mg-section-h">{t('section.crossModule')}</Txt>
+        <Box className="mg-ov-pills">
           {OVERVIEW_PILLS.map((m) => {
             const on = overviewKeys.includes(m.key)
             const disabled = m.key === 'question' && activeQuestions.length === 0
             return (
-              <button
+              <Btn
                 key={m.key}
-                type="button"
                 disabled={disabled}
                 className={`mg-ov-pill${on ? ' on' : ''}`}
                 onClick={() => toggleOverviewKey(m.key)}
               >
-                <span className="mg-ov-dot" style={{ background: OVERVIEW_METRICS[m.key].color }} />
+                <Txt className="mg-ov-dot" style={{ background: OVERVIEW_METRICS[m.key].color }} />
                 {t(m.labelKey)}
-              </button>
+              </Btn>
             )
           })}
-        </div>
+        </Box>
         {overviewKeys.includes('question') && activeQuestions.length > 0 && (
           <select className="mg-ov-select" value={questionId} onChange={(e) => setQuestionId(e.target.value)}>
             {activeQuestions.map((q) => <option key={q.id} value={q.id}>{questionText(q, gender)}</option>)}
           </select>
         )}
         <MultiTrendChart days={overview.days} series={overview.series} />
-        <p className="mg-ov-note">{t('overview.note')}</p>
-      </div>
+        <Txt as="p" className="mg-ov-note">{t('overview.note')}</Txt>
+      </Box>
 
-      <div className="mg-overview">
-        <p className="mg-section-h">{t('section.correlations')}</p>
+      <Box className="mg-overview">
+        <Txt as="p" className="mg-section-h">{t('section.correlations')}</Txt>
         {correlations.length === 0 ? (
-          <p className="mg-corr-empty">{t('corr.empty')}</p>
+          <Txt as="p" className="mg-corr-empty">{t('corr.empty')}</Txt>
         ) : (
           <>
             {correlations.map((c) => (
@@ -281,14 +281,14 @@ export default function MoonGlanceScreen() {
                 outcomeText={c.outcomeLabel || (c.outcomeQ ? questionText(c.outcomeQ, gender) : '')}
               />
             ))}
-            <p className="mg-ov-note">{t('corr.note')}</p>
+            <Txt as="p" className="mg-ov-note">{t('corr.note')}</Txt>
           </>
         )}
-      </div>
+      </Box>
 
-      <button type="button" className="mg-footer-link" onClick={() => navigate(ROUTES.GOALS)}>
+      <Btn className="mg-footer-link" onClick={() => navigate(ROUTES.GOALS)}>
         {t('footerLink')}
-      </button>
-    </div>
+      </Btn>
+    </Box>
   )
 }

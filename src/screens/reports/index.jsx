@@ -25,6 +25,7 @@ import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useGroups } from '../../hooks/useGroups'
 import { useT } from '../../i18n/useT'
 import './ReportsScreen.css'
+import { Box, Txt, Btn } from '../../components/ui'
 
 /* Per-metric icon mapping (Lucide). Kept here so the lib stays icon-free. */
 const METRIC_ICONS = {
@@ -74,19 +75,19 @@ export default function ReportsScreen() {
   const openDrill = (metricId, period) => setDrill({ metricId, period })
 
   return (
-    <div className="screen">
-      <div className="rep-head">
-        <div className="rep-head-title">
+    <Box className="screen">
+      <Box className="rep-head">
+        <Box className="rep-head-title">
           <BarChart3 size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}
-        </div>
-        <button type="button" className="rep-head-link" onClick={() => navigate(ROUTES.MOON_GLANCE)}>
+        </Box>
+        <Btn type="button" className="rep-head-link" onClick={() => navigate(ROUTES.MOON_GLANCE)}>
           <Moon size={16} strokeWidth={1.6} aria-hidden="true" /> {t('moonGlance')}
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
-      <div className="rep-controls">
-        <div className="rep-view-toggle" role="tablist" aria-label={t('view.selectAria')}>
-          <button
+      <Box className="rep-controls">
+        <Box className="rep-view-toggle" role="tablist" aria-label={t('view.selectAria')}>
+          <Btn
             type="button"
             className={`rep-view-btn${config.view === 'list' ? ' on' : ''}`}
             role="tab"
@@ -94,8 +95,8 @@ export default function ReportsScreen() {
             onClick={() => setView('list')}
           >
             <List size={14} strokeWidth={1.6} aria-hidden="true" /> {t('view.list')}
-          </button>
-          <button
+          </Btn>
+          <Btn
             type="button"
             className={`rep-view-btn${config.view === 'table' ? ' on' : ''}`}
             role="tab"
@@ -103,9 +104,9 @@ export default function ReportsScreen() {
             onClick={() => setView('table')}
           >
             <Table2 size={14} strokeWidth={1.6} aria-hidden="true" /> {t('view.table')}
-          </button>
-        </div>
-        <button
+          </Btn>
+        </Box>
+        <Btn
           type="button"
           className={`rep-cog${customizeOpen ? ' on' : ''}`}
           aria-label={t('customize.label')}
@@ -114,8 +115,8 @@ export default function ReportsScreen() {
           onClick={() => setCustomizeOpen((v) => !v)}
         >
           <Settings size={16} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-      </div>
+        </Btn>
+      </Box>
 
       {customizeOpen && (
         <CustomizePanel
@@ -128,10 +129,10 @@ export default function ReportsScreen() {
       )}
 
       {loading ? (
-        <div className="rep-empty">
-          <span className="rep-empty-icon"><BarChart3 size={28} strokeWidth={1.3} aria-hidden="true" /></span>
-          <p className="rep-empty-text">{t('loading')}</p>
-        </div>
+        <Box className="rep-empty">
+          <Txt className="rep-empty-icon"><BarChart3 size={28} strokeWidth={1.3} aria-hidden="true" /></Txt>
+          <Txt as="p" className="rep-empty-text">{t('loading')}</Txt>
+        </Box>
       ) : config.view === 'list' ? (
         <ListView config={config} data={data} onDrill={openDrill} />
       ) : (
@@ -145,7 +146,7 @@ export default function ReportsScreen() {
         data={data}
         onNavigate={(to) => { setDrill(null); navigate(to) }}
       />
-    </div>
+    </Box>
   )
 }
 
@@ -201,11 +202,11 @@ function ListView({ config, data, onDrill }) {
 
   return (
     <>
-      <div className="rep-pills" role="tablist" aria-label={t('list.selectMonthAria')}>
+      <Box className="rep-pills" role="tablist" aria-label={t('list.selectMonthAria')}>
         {months.map((p) => {
           const on = p.year === selected.year && p.month === selected.month
           return (
-            <button
+            <Btn
               key={`${p.year}-${p.month}`}
               type="button"
               role="tab"
@@ -214,52 +215,52 @@ function ListView({ config, data, onDrill }) {
               onClick={() => setSelected(p)}
             >
               {p.label}
-            </button>
+            </Btn>
           )
         })}
-      </div>
+      </Box>
 
-      <p className="rep-period-title">{selected.label}</p>
+      <Txt as="p" className="rep-period-title">{selected.label}</Txt>
 
       {isEmpty ? (
-        <div className="rep-empty">
-          <span className="rep-empty-icon"><BarChart3 size={28} strokeWidth={1.3} aria-hidden="true" /></span>
-          <p className="rep-empty-text">{t('list.empty')}</p>
+        <Box className="rep-empty">
+          <Txt className="rep-empty-icon"><BarChart3 size={28} strokeWidth={1.3} aria-hidden="true" /></Txt>
+          <Txt as="p" className="rep-empty-text">{t('list.empty')}</Txt>
           {suggested && (
-            <button type="button" className="rep-empty-cta" onClick={() => setSelected(suggested)}>
+            <Btn type="button" className="rep-empty-cta" onClick={() => setSelected(suggested)}>
               {t('list.goToMonth', { label: suggested.label })}
-            </button>
+            </Btn>
           )}
-        </div>
+        </Box>
       ) : (
-        <div className="rep-groups">
+        <Box className="rep-groups">
           {grouped.map((g) => (
-            <div key={g.id} className="rep-group">
-              <p className="rep-group-head">{t(`groups.${g.id}`)}</p>
-              <div className="rep-list">
+            <Box key={g.id} className="rep-group">
+              <Txt as="p" className="rep-group-head">{t(`groups.${g.id}`)}</Txt>
+              <Box className="rep-list">
                 {g.items.map((m) => {
                   const v = selectedReport.metrics[m.id]
                   const empty = v === null || v === undefined || v === 0
                   return (
-                    <div key={m.id} className={`rep-row-wrap${empty ? ' empty' : ''}`}>
-                      <button
+                    <Box key={m.id} className={`rep-row-wrap${empty ? ' empty' : ''}`}>
+                      <Btn
                         type="button"
                         className={`rep-row${empty ? ' empty' : ''}`}
                         onClick={() => !empty && onDrill(m.id, selected)}
                         disabled={empty}
                       >
-                        <span className="rep-row-icon"><MetricIcon id={m.id} /></span>
-                        <span className="rep-row-label">{t(`metrics.${m.id}`)}</span>
-                        <span className="rep-row-value mono">{formatReportValue(m, v)}</span>
-                      </button>
-                      {m.info && <span className="rep-row-info"><InfoPopover label={t('info', { label: t(`metrics.${m.id}`) })} text={t(`metricsDesc.${m.id}`)} /></span>}
-                    </div>
+                        <Txt className="rep-row-icon"><MetricIcon id={m.id} /></Txt>
+                        <Txt className="rep-row-label">{t(`metrics.${m.id}`)}</Txt>
+                        <Txt className="rep-row-value mono">{formatReportValue(m, v)}</Txt>
+                      </Btn>
+                      {m.info && <Txt className="rep-row-info"><InfoPopover label={t('info', { label: t(`metrics.${m.id}`) })} text={t(`metricsDesc.${m.id}`)} /></Txt>}
+                    </Box>
                   )
                 })}
-              </div>
-            </div>
+              </Box>
+            </Box>
           ))}
-        </div>
+        </Box>
       )}
     </>
   )
@@ -302,10 +303,10 @@ function TableView({ config, data, onSetRange, onDrill }) {
     return (
       <>
         <RangePills range={config.range} onSetRange={onSetRange} />
-        <p className="rep-period-title">{periodLabel}</p>
-        <div className="rep-empty">
-          <p className="rep-empty-text">{t('table.noMetrics')}</p>
-        </div>
+        <Txt as="p" className="rep-period-title">{periodLabel}</Txt>
+        <Box className="rep-empty">
+          <Txt as="p" className="rep-empty-text">{t('table.noMetrics')}</Txt>
+        </Box>
       </>
     )
   }
@@ -313,8 +314,8 @@ function TableView({ config, data, onSetRange, onDrill }) {
   return (
     <>
       <RangePills range={config.range} onSetRange={onSetRange} />
-      <p className="rep-period-title">{periodLabel}</p>
-      <div className="rep-table-wrap">
+      <Txt as="p" className="rep-period-title">{periodLabel}</Txt>
+      <Box className="rep-table-wrap">
         <table className="rep-table">
           <thead>
             <tr>
@@ -341,8 +342,8 @@ function TableView({ config, data, onSetRange, onDrill }) {
               return (
                 <tr key={m.id} className="rep-tr-metric">
                   <td className="rep-td-metric">
-                    <span className="rep-td-metric-icon"><MetricIcon id={m.id} size={13} /></span>
-                    <span className="rep-td-metric-name">{t(`metrics.${m.id}`)}</span>
+                    <Txt className="rep-td-metric-icon"><MetricIcon id={m.id} size={13} /></Txt>
+                    <Txt className="rep-td-metric-name">{t(`metrics.${m.id}`)}</Txt>
                     {m.info && <InfoPopover label={t('info', { label: t(`metrics.${m.id}`) })} text={t(`metricsDesc.${m.id}`)} />}
                   </td>
                   {periodReports.map((p) => {
@@ -354,19 +355,19 @@ function TableView({ config, data, onSetRange, onDrill }) {
                         className={`rep-td-cell${p.isCurrent ? ' current' : ''}${empty ? '' : ' clickable'}`}
                         onClick={empty ? undefined : () => onDrill(m.id, p)}
                       >
-                        <span className="mono">{formatReportValue(m, v)}</span>
+                        <Txt className="mono">{formatReportValue(m, v)}</Txt>
                       </td>
                     )
                   })}
                   <td className="rep-td-summary">
-                    <span className="mono">{formatReportValue(m, summary)}</span>
+                    <Txt className="mono">{formatReportValue(m, summary)}</Txt>
                   </td>
                 </tr>
               )
             })}
           </tbody>
         </table>
-      </div>
+      </Box>
     </>
   )
 }
@@ -374,21 +375,21 @@ function TableView({ config, data, onSetRange, onDrill }) {
 function RangePills({ range, onSetRange }) {
   const { t } = useT('reports')
   return (
-    <div className="rep-range-row">
-      <span className="rep-range-label">{t('table.monthsBack')}</span>
-      <div className="rep-range-group">
+    <Box className="rep-range-row">
+      <Txt className="rep-range-label">{t('table.monthsBack')}</Txt>
+      <Box className="rep-range-group">
         {[3, 6, 12].map((n) => (
-          <button
+          <Btn
             key={n}
             type="button"
             className={`rep-range-pill${range === n ? ' on' : ''}`}
             onClick={() => onSetRange(n)}
           >
             {n}
-          </button>
+          </Btn>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
@@ -420,22 +421,22 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
   const handleDragEnd = () => { setDraggingId(null); setOverId(null) }
 
   return (
-    <div className="rep-cust" role="region" aria-label={t('customize.regionAria')}>
-      <div className="rep-cust-head">
-        <span className="rep-cust-title">{t('customize.title')}</span>
-        <button type="button" className="rep-cust-reset" onClick={onReset} title={t('customize.resetTitle')}>
+    <Box className="rep-cust" role="region" aria-label={t('customize.regionAria')}>
+      <Box className="rep-cust-head">
+        <Txt className="rep-cust-title">{t('customize.title')}</Txt>
+        <Btn type="button" className="rep-cust-reset" onClick={onReset} title={t('customize.resetTitle')}>
           <RotateCcw size={12} strokeWidth={1.6} aria-hidden="true" /> {t('customize.reset')}
-        </button>
-        <button type="button" className="rep-cust-close" aria-label={t('customize.close')} onClick={onClose}>
+        </Btn>
+        <Btn type="button" className="rep-cust-close" aria-label={t('customize.close')} onClick={onClose}>
           <X size={14} strokeWidth={1.6} aria-hidden="true" />
-        </button>
-      </div>
-      <p className="rep-cust-hint">{t('customize.hint')}</p>
-      <div className="rep-cust-list">
+        </Btn>
+      </Box>
+      <Txt as="p" className="rep-cust-hint">{t('customize.hint')}</Txt>
+      <Box className="rep-cust-list">
         {items.map((m) => {
           const on = visible.has(m.id)
           return (
-            <div
+            <Box
               key={m.id}
               className={`rep-cust-row${on ? ' on' : ''}${draggingId === m.id ? ' dragging' : ''}${overId === m.id ? ' over' : ''}`}
               draggable
@@ -444,24 +445,24 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
               onDrop={(e) => handleDrop(e, m.id)}
               onDragEnd={handleDragEnd}
             >
-              <span className="rep-cust-grip" aria-hidden="true">
+              <Txt className="rep-cust-grip" aria-hidden="true">
                 <GripVertical size={14} strokeWidth={1.5} />
-              </span>
-              <span className="rep-cust-icon"><MetricIcon id={m.id} /></span>
-              <span className="rep-cust-label">{t(`metrics.${m.id}`)}</span>
-              <button
+              </Txt>
+              <Txt className="rep-cust-icon"><MetricIcon id={m.id} /></Txt>
+              <Txt className="rep-cust-label">{t(`metrics.${m.id}`)}</Txt>
+              <Btn
                 type="button"
                 className={`rep-cust-toggle${on ? ' on' : ''}`}
                 aria-label={on ? t('customize.hide', { label: t(`metrics.${m.id}`) }) : t('customize.show', { label: t(`metrics.${m.id}`) })}
                 onClick={() => onToggle(m.id)}
               >
-                <span className="rep-cust-toggle-knob" />
-              </button>
-            </div>
+                <Txt className="rep-cust-toggle-knob" />
+              </Btn>
+            </Box>
           )
         })}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
@@ -499,29 +500,29 @@ function DrillModal({ open, onClose, drill, data, onNavigate }) {
 
   return (
     <Modal open={open} onClose={onClose} title={title}>
-      <p className="rep-drill-count">
+      <Txt as="p" className="rep-drill-count">
         {t('drill.count', { count: records.length })}
-      </p>
+      </Txt>
       {records.length === 0 ? (
-        <div className="rep-drill-empty">{t('drill.empty')}</div>
+        <Box className="rep-drill-empty">{t('drill.empty')}</Box>
       ) : (
-        <div className="rep-drill-list">
+        <Box className="rep-drill-list">
           {records.map((r, i) => (
-            <button
+            <Btn
               key={`${r.primary}-${i}`}
               type="button"
               className="rep-drill-row"
               onClick={() => onNavigate(r.navigateTo)}
             >
-              <span className="rep-drill-row-icon"><DrillRowIcon name={r.icon} /></span>
-              <span className="rep-drill-row-text">
-                <span className="rep-drill-row-primary">{r.primary}</span>
-                <span className="rep-drill-row-secondary">{r.secondary}</span>
-              </span>
-              <span className="rep-drill-row-chev"><ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" /></span>
-            </button>
+              <Txt className="rep-drill-row-icon"><DrillRowIcon name={r.icon} /></Txt>
+              <Txt className="rep-drill-row-text">
+                <Txt className="rep-drill-row-primary">{r.primary}</Txt>
+                <Txt className="rep-drill-row-secondary">{r.secondary}</Txt>
+              </Txt>
+              <Txt className="rep-drill-row-chev"><ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" /></Txt>
+            </Btn>
           ))}
-        </div>
+        </Box>
       )}
     </Modal>
   )

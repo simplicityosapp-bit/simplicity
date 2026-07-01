@@ -21,6 +21,13 @@ web-build/
 .env.*
 !.env.example
 
+# local credential / test artifacts (were covered by web's .gitignore pre-move)
+.claude-*.json
+**/.claude/worktrees/
+
+# supabase CLI temp
+supabase/.temp/
+
 # OS
 .DS_Store
 Thumbs.db

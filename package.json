@@ -1,0 +1,17 @@
+{
+  "name": "simplicity-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "web": "pnpm --filter mangata-react dev",
+    "web:build": "pnpm --filter mangata-react build",
+    "web:test": "pnpm --filter mangata-react test",
+    "web:lint": "pnpm --filter mangata-react lint",
+    "mobile": "pnpm --filter simplicity-expo start",
+    "core:typecheck": "pnpm --filter @simplicity/core typecheck"
+  }
+}

@@ -1,0 +1,26 @@
+# Monorepo root — per-app .gitignore files live under apps/*/
+
+# dependencies (hoisted to root by pnpm's node-linker=hoisted)
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+build/
+web-build/
+
+# Expo / Metro
+.expo/
+.metro-health-check*
+
+# TypeScript
+*.tsbuildinfo
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db

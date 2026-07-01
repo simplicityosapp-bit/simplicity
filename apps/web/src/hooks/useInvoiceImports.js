@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listPendingInvoiceImports } from '../lib/api/invoiceImports'
 import { callInvoices } from '../lib/api/integrations'
 import { showError } from '../lib/toast'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* Route-B pending imports. Approve creates an income transaction server-side
    (the `invoices` function); dismiss marks the staged row dismissed. */

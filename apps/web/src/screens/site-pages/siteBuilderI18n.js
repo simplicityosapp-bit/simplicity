@@ -12,7 +12,7 @@
    he is the source; en + es + fr are full. (i18next falls back to its
    base/EN resolution if a locale is later requested without a bundle.)
    ════════════════════════════════════════════════════════════════ */
-import i18n from '../../i18n'
+import i18n from '@simplicity/core/i18n'
 import heSiteBuilder from '../../i18n/locales/he/siteBuilder.json'
 import enSiteBuilder from '../../i18n/locales/en/siteBuilder.json'
 import esSiteBuilder from '../../i18n/locales/es/siteBuilder.json'

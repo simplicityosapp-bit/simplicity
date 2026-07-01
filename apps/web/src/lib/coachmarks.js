@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import heGuidance from '../i18n/locales/he/guidance.json'
 import enGuidance from '../i18n/locales/en/guidance.json'
 import esGuidance from '../i18n/locales/es/guidance.json'

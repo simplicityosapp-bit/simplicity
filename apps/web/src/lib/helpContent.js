@@ -11,7 +11,7 @@
    fallback to the Hebrew raw data when a translation isn't available.
    ════════════════════════════════════════════════════════════════════ */
 
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 export const HELP_SCREENS = {
   "home": {

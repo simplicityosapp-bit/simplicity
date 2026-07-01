@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { showError } from '../lib/toast'
 import { selectAllRows } from '../lib/api/paginate'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* Reads the synced `calendar_events` (own rows via RLS) and lets the user
    assign an entity by hand to an unmatched event. The sync upsert itself

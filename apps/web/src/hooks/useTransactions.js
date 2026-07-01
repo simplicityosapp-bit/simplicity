@@ -4,7 +4,7 @@ import {
   listTransactions, insertTransaction, updateTransaction, removeTransaction as apiRemoveTx, restoreTransaction,
 } from '../lib/api/transactions'
 import { registerDeleteUndo } from '../lib/undoActions'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import { showError } from '../lib/toast'
 
 /* React-Query-backed: the finance + home widgets that each fetched the

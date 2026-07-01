@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listSessions, insertSession, updateSession as apiUpdate, removeSession as apiRemove, restoreSession } from '../lib/api/sessions'
 import { registerDeleteUndo } from '../lib/undoActions'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* React-Query-backed: shared across moon + attention widgets. Public API unchanged. */
 const KEY = ['sessions']

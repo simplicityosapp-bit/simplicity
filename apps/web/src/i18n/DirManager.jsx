@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { dirFor } from './config'
+import { dirFor } from '@simplicity/core/i18n'
 
 /* ════════════════════════════════════════════════════════════════
    DirManager — keeps <html lang/dir> in sync with the active language.

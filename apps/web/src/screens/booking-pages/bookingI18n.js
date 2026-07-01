@@ -11,7 +11,7 @@
    he is the source; en + es + fr are full. (i18next falls back to its
    base/EN resolution if a locale is later requested without a bundle.)
    ════════════════════════════════════════════════════════════════ */
-import i18n from '../../i18n'
+import i18n from '@simplicity/core/i18n'
 import heBooking from '../../i18n/locales/he/booking.json'
 import enBooking from '../../i18n/locales/en/booking.json'
 import esBooking from '../../i18n/locales/es/booking.json'

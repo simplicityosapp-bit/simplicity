@@ -2,7 +2,7 @@
    DATE HELPERS — light formatters for home widgets (locale-aware, 24h).
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import { hebrewParts } from './calendar'
 
 const pad = (n) => String(n).padStart(2, '0')

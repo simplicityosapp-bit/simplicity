@@ -20,7 +20,7 @@
    Trash drawer remains the safety net.
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 const OFFER_MS = 6000   /* how long "בטל" is offered after an action */
 const UNDONE_MS = 3500  /* brief confirm window after undo (redo lives here) */

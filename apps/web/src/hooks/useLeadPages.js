@@ -5,7 +5,7 @@ import {
   removeLeadPage as apiRemove, restoreLeadPage,
 } from '../lib/api/leadPages'
 import { registerDeleteUndo } from '../lib/undoActions'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* React-Query-backed: shared cache across the builder + lead screens. */
 const KEY = ['leadPages']

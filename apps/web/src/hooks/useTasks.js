@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listTasks, insertTask, updateTask, removeTask as apiRemoveTask, restoreTask } from '../lib/api/tasks'
 import { registerDeleteUndo } from '../lib/undoActions'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import { pushUndo } from '../lib/undo'
 
 /* React-Query-backed: home widgets (attention, chips, next-tasks) shared

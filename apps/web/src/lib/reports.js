@@ -14,7 +14,7 @@
      (good-enough heuristic until we ship a log).
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 import { isr, isConfirmedTx } from './finance'
 import { isConvertedLead } from './leads'
 import { monthNamesShort } from './calendar'

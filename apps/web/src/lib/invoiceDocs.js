@@ -3,7 +3,7 @@
    toggle (AddTransactionModal). Single source of truth so the two never drift.
    Display labels resolve via i18n (finance:docTypes.* / finance:payMethods.*) so
    they follow the active language; the option lists stay language-agnostic. */
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* The three document types the user picks per issuance (covers עוסק פטור →
    receipt and עוסק מורשה → invoice_receipt without assuming a tax status). */

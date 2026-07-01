@@ -5,7 +5,7 @@ import {
   materializeBooking as apiMaterialize, cancelBooking as apiCancel,
 } from '../lib/api/bookings'
 import { showError } from '../lib/toast'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* React-Query-backed owner view of bookings (pending review + confirmed).
    Shared by the attention widget + its confirm list. */

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUserPreferences } from '../hooks/useUserPreferences'
-import { isLang } from './config'
+import { isLang } from '@simplicity/core/i18n'
 
 /* ════════════════════════════════════════════════════════════════
    I18nSync — reconciles the persisted language preference into i18next.

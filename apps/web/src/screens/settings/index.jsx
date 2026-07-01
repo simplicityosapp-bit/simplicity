@@ -36,7 +36,7 @@ import {
 } from '../../lib/preferences'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useT } from '../../i18n/useT'
-import { LANGUAGE_OPTIONS } from '../../i18n/config'
+import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { questionText, describeSchedule } from '../../lib/questionTemplates'
 import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV, exportAllXLSX } from '../../lib/export'
 import { loadSensitiveExportData } from '../../lib/exportSensitive'

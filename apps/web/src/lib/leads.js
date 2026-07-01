@@ -5,7 +5,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { leads, lead_sources, lead_statuses } from '../data/mock'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 

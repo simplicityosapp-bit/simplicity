@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useUserPreferences } from '../hooks/useUserPreferences'
-import { APP_LANGS } from './config'
+import { APP_LANGS } from '@simplicity/core/i18n'
 import './LanguageSwitcher.css'
 
 /* ════════════════════════════════════════════════════════════════

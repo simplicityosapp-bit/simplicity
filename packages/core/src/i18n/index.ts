@@ -1,17 +1,27 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
 import { DEFAULT_LANG, LANG_CODES } from './config'
 
+/* Re-export the language config so consumers get the whole i18n surface
+   (APP_LANGS, dirFor, isLang, LANGUAGE_OPTIONS, DEFAULT_LANG, LANG_CODES)
+   from a single '@simplicity/core/i18n' entry point. */
+export * from './config'
+
 /* ════════════════════════════════════════════════════════════════
-   I18N INIT — react-i18next setup.
+   I18N ENGINE — platform-agnostic (shared by apps/web + apps/mobile).
    ════════════════════════════════════════════════════════════════
-   The active UI language is owned by i18next and cached in
-   localStorage ('mg-lang') so it survives reloads and works BOTH
-   pre-auth (login/landing) and post-auth. For signed-in users the
-   persisted preference (prefs.design.language) reconciles into this
-   via <I18nSync/>. Gender is applied per-call as i18next `context`
-   (see useT.js). Add a namespace? import its 4 JSONs + register below.
+   Owns the i18next singleton + all main-namespace resources. It does
+   NOT decide the active language or persist it — that is platform glue:
+   each app calls initI18n({ lng, dev, onMissingKey }) once at startup
+   (web reads localStorage; mobile reads the device locale). For signed-in
+   users the persisted preference (prefs.design.language) reconciles in
+   via the app-side <I18nSync/>. Gender is applied per-call as i18next
+   `context` (see the app-side useT hook).
+
+   The 7 dynamic namespaces (quotes/guidance/export/presets/reflections/
+   booking/siteBuilder) are self-registered via addResourceBundle by the
+   web libs that own them, and migrate here when those features move.
+   Add a main namespace? import its 4 JSONs + register below.
    ════════════════════════════════════════════════════════════════ */
 
 import heCommon from './locales/he/common.json'
@@ -144,7 +154,7 @@ import enSubscription from './locales/en/subscription.json'
 import esSubscription from './locales/es/subscription.json'
 import frSubscription from './locales/fr/subscription.json'
 
-export const NAMESPACES = ['common', 'auth', 'nav', 'goals', 'settings', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing', 'insights', 'reports', 'moon', 'components', 'onboarding', 'onboardingSteps', 'modalsClient', 'modalsData', 'modalsTask', 'modalsSystem', 'questions', 'help', 'cookies', 'subscription']
+export const NAMESPACES: string[] = ['common', 'auth', 'nav', 'goals', 'settings', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing', 'insights', 'reports', 'moon', 'components', 'onboarding', 'onboardingSteps', 'modalsClient', 'modalsData', 'modalsTask', 'modalsSystem', 'questions', 'help', 'cookies', 'subscription']
 
 const resources = {
   he: { common: heCommon, auth: heAuth, nav: heNav, goals: heGoals, settings: heSettings, trash: heTrash, home: heHome, clients: heClients, finance: heFinance, calendar: heCalendar, leads: heLeads, projects: heProjects, tasks: heTasks, connections: heConnections, admin: heAdmin, landing: heLanding, insights: heInsights, reports: heReports, moon: heMoon, components: heComponents, onboarding: heOnboarding, onboardingSteps: heOnboardingSteps, modalsClient: heModalsClient, modalsData: heModalsData, modalsTask: heModalsTask, modalsSystem: heModalsSystem, questions: heQuestions, help: heHelp, cookies: heCookies, subscription: heSubscription },
@@ -153,36 +163,43 @@ const resources = {
   fr: { common: frCommon, auth: frAuth, nav: frNav, goals: frGoals, settings: frSettings, trash: frTrash, home: frHome, clients: frClients, finance: frFinance, calendar: frCalendar, leads: frLeads, projects: frProjects, tasks: frTasks, connections: frConnections, admin: frAdmin, landing: frLanding, insights: frInsights, reports: frReports, moon: frMoon, components: frComponents, onboarding: frOnboarding, onboardingSteps: frOnboardingSteps, modalsClient: frModalsClient, modalsData: frModalsData, modalsTask: frModalsTask, modalsSystem: frModalsSystem, questions: frQuestions, help: frHelp, cookies: frCookies, subscription: frSubscription },
 }
 
-i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    resources,
-    fallbackLng: DEFAULT_LANG,
-    supportedLngs: LANG_CODES,
-    ns: NAMESPACES,
-    defaultNS: 'common',
-    interpolation: { escapeValue: false }, // React already escapes
-    returnEmptyString: false,
-    /* DEV safety net: surface ANY unresolved key (missing key, or a plural
-       category with no matching form) loudly in the console, so raw-key
-       leaks are caught immediately instead of shipping silently. No-op in
-       production (saveMissing false → handler never fires). */
-    saveMissing: import.meta.env.DEV,
-    missingKeyHandler: (lngs, ns, key) => {
-      console.warn(`[i18n missing] ${ns}:${key} (${lngs?.join(',')})`)
-    },
-    detection: {
-      order: ['localStorage'],            // saved choice only; new visitors get fallback (he)
-      caches: ['localStorage'],
-      lookupLocalStorage: 'mg-lang',
-    },
-  })
+export interface InitI18nOptions {
+  /** Initial UI language. Falls back to DEFAULT_LANG (he) when omitted. */
+  lng?: string
+  /** Dev mode → surface unresolved keys via onMissingKey (no-op in prod). */
+  dev?: boolean
+  /** Called for any unresolved key when `dev` is true. */
+  onMissingKey?: (lngs: readonly string[] | undefined, ns: string, key: string) => void
+}
 
-/* DEV aid: expose the instance for console/preview debugging. Guarded by
-   import.meta.env.DEV, so it's tree-shaken out of production builds. */
-if (import.meta.env.DEV) {
-  try { window.i18n = i18n } catch { /* noop */ }
+let started = false
+
+/* ════════════════════════════════════════════════════════════════
+   initI18n — build + init the shared i18next singleton. Idempotent.
+   Called once per app at startup with platform-specific glue:
+     web    → initI18n({ lng: localStorage['mg-lang'], dev: import.meta.env.DEV })
+     mobile → initI18n({ lng: deviceLocale })
+   ════════════════════════════════════════════════════════════════ */
+export function initI18n(opts: InitI18nOptions = {}): typeof i18n {
+  if (started) return i18n
+  started = true
+  i18n
+    .use(initReactI18next)
+    .init({
+      resources,
+      lng: opts.lng,
+      fallbackLng: DEFAULT_LANG,
+      supportedLngs: LANG_CODES,
+      ns: NAMESPACES,
+      defaultNS: 'common',
+      interpolation: { escapeValue: false }, // React already escapes
+      returnEmptyString: false,
+      saveMissing: !!opts.dev,
+      missingKeyHandler: opts.onMissingKey
+        ? (lngs, ns, key) => opts.onMissingKey!(lngs, ns, key)
+        : undefined,
+    })
+  return i18n
 }
 
 export default i18n

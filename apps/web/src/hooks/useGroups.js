@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listGroups, insertGroup, updateGroup as apiUpdate, removeGroup as apiRemove, restoreGroup } from '../lib/api/groups'
 import { registerDeleteUndo } from '../lib/undoActions'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* React-Query-backed: shared across meeting-confirm + chips widgets. Public API unchanged. */
 const KEY = ['groups']

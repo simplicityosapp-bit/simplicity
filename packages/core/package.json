@@ -9,10 +9,21 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./i18n": {
+      "types": "./src/i18n/index.ts",
+      "default": "./src/i18n/index.ts"
     }
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "i18next": "^26.3.1",
+    "react-i18next": "^17.0.8"
+  },
+  "peerDependencies": {
+    "react": ">=18"
   },
   "devDependencies": {
     "typescript": "^5.9.2"

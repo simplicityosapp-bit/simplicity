@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listPendingGrowImports } from '../lib/api/growImports'
 import { callGrow } from '../lib/api/integrations'
 import { showError } from '../lib/toast'
-import i18n from '../i18n'
+import i18n from '@simplicity/core/i18n'
 
 /* Pending external-charge imports from grow-poll. Approve creates an income
    transaction server-side (the `grow` function, tagged grow_transaction_id);

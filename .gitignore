@@ -1,39 +1,33 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Monorepo root — per-app .gitignore files live under apps/*/
 
-# Build output / dependencies
-node_modules
-dist
-dist-ssr
+# dependencies (hoisted to root by pnpm's node-linker=hoisted)
+node_modules/
+.pnpm-store/
 
-# Environment & secrets — NEVER commit
+# build output
+dist/
+build/
+web-build/
+
+# Expo / Metro
+.expo/
+.metro-health-check*
+
+# TypeScript
+*.tsbuildinfo
+
+# env / secrets
 .env
 .env.*
-*.local
-env (1).download
-_authcheck.mjs
-_migrate.mjs
+!.env.example
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# local credential / test artifacts (were covered by web's .gitignore pre-move)
+.claude-*.json
+**/.claude/worktrees/
 
-# audit user creds for live UX checks
-.claude-audit-creds.json
-.claude-signup-test.json
-
-# Supabase CLI local temp
+# supabase CLI temp
 supabase/.temp/
+
+# OS
+.DS_Store
+Thumbs.db

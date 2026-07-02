@@ -17,7 +17,10 @@ async function fetchTable(name, { filterDeleted = true } = {}) {
   return data ?? []
 }
 
-const EMPTY = { clients: [], transactions: [], meetings: [], calendarEvents: [], leads: [], groups: [] }
+const EMPTY = {
+  clients: [], transactions: [], meetings: [], calendarEvents: [], leads: [], groups: [],
+  tasks: [], goals: [], categories: [], sessions: [], members: [],
+}
 
 export function useHomeData() {
   const [data, setData] = useState(EMPTY)
@@ -28,15 +31,20 @@ export function useHomeData() {
     setLoading(true)
     setError(null)
     try {
-      const [clients, transactions, meetings, calendarEvents, leads, groups] = await Promise.all([
+      const [clients, transactions, meetings, calendarEvents, leads, groups, tasks, goals, categories, sessions, members] = await Promise.all([
         fetchTable('clients'),
         fetchTable('transactions'),
         fetchTable('scheduled_meetings', { filterDeleted: false }),
         fetchTable('calendar_events'),
         fetchTable('leads'),
         fetchTable('groups'),
+        fetchTable('tasks'),
+        fetchTable('goals'),
+        fetchTable('categories'),
+        fetchTable('sessions'),
+        fetchTable('group_members'),
       ])
-      setData({ clients, transactions, meetings, calendarEvents, leads, groups })
+      setData({ clients, transactions, meetings, calendarEvents, leads, groups, tasks, goals, categories, sessions, members })
     } catch (e) {
       setError(e?.message || 'load failed')
     } finally {

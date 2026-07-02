@@ -12,9 +12,15 @@
    to import from here, the temporary overlap resolves.
    ════════════════════════════════════════════════════════════════ */
 
+import i18n from '../i18n'
 import { financeQuery, currentMonthRange, type Tx } from './finance'
+import { clientBalance, type Client, type ClientSession, type GroupMembership, type Group } from './clients'
 
 const DAY = 86400000
+const ils = (n: number): string => {
+  const locale = i18n.language === 'he' ? 'he-IL' : (i18n.language || 'he-IL')
+  return `${Math.round(Math.abs(n)).toLocaleString(locale)} ₪`
+}
 const live = <T extends { deleted_at?: string | null }>(a: T[] | null | undefined): T[] =>
   (a || []).filter((r) => !r.deleted_at)
 
@@ -49,12 +55,32 @@ export interface HomeLead {
   deleted_at?: string | null
   status_meta?: string
   follow_up_date?: string | null
+  last_status_changed_at?: string | null
+  pending_review?: boolean
   name?: string
   phone?: string
 }
 export interface HomeGroup {
   id: string
   name?: string
+}
+export interface HomeGoal {
+  deleted_at?: string | null
+  category_id?: string
+  time_frame?: string
+  target_value?: number
+}
+export interface HomeCategory {
+  id?: string
+  measurement_type?: string
+  data_source?: string
+}
+/* Client rows as the home reads them — the core Client shape (needed by
+   clientBalance) plus the display fields attention rows surface. */
+export interface AttnClient extends Client {
+  created_at?: string | null
+  name?: string
+  phone?: string
 }
 export interface HomeTask {
   deleted_at?: string | null
@@ -232,4 +258,119 @@ export function todayItems(
   }
 
   return out.sort((a, b) => new Date(a.when).getTime() - new Date(b.when).getTime())
+}
+
+/* ── Money helpers ─────────────────────────────────────────────── */
+export function monthNet(now: Date = new Date(), data?: { transactions?: Tx[] }): { inc: number; exp: number; net: number } {
+  const { transactions } = data || {}
+  const tx = financeQuery({ ...currentMonthRange(now), source: transactions })
+  const inc = tx.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+  const exp = tx.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+  return { inc, exp, net: inc - exp }
+}
+function monthlyIncomeGoal(data?: { goals?: HomeGoal[]; categories?: HomeCategory[] }): number {
+  const { goals = [], categories = [] } = data || {}
+  const cat = categories.find((c) => c.measurement_type === 'auto' && c.data_source === 'transactions')
+  if (!cat) return 0
+  const g = live(goals).find((x) => x.category_id === cat.id && x.time_frame === 'monthly')
+  return g ? (g.target_value ?? 0) : 0
+}
+
+/* ── 45-day "needs attention" rules ────────────────────────────── */
+function lastClientSession(cid: string | undefined, sessions: ClientSession[]): number | null {
+  const ts = live(sessions).filter((s) => s.client_id === cid).map((s) => new Date(s.date as string | number | Date).getTime())
+  return ts.length ? Math.max(...ts) : null
+}
+export function clientsNeedingAttention(days = 45, now: Date = new Date(), data?: { clients?: AttnClient[]; sessions?: ClientSession[] }): AttnClient[] {
+  const { clients = [], sessions = [] } = data || {}
+  const cutoff = now.getTime() - days * DAY
+  return live(clients).filter((c) => {
+    if (!['active', 'wandering'].includes(c.status as string)) return false
+    if (c.created_at && new Date(c.created_at).getTime() > cutoff) return false /* too new to nag */
+    const last = lastClientSession(c.id, sessions)
+    return last === null || last < cutoff
+  })
+}
+export function leadsNeedingAttention(days = 45, now: Date = new Date(), leads: HomeLead[] = []): HomeLead[] {
+  const cutoff = now.getTime() - days * DAY
+  return live(leads).filter(
+    (l) => l.status_meta === 'in_process' && l.last_status_changed_at && new Date(l.last_status_changed_at).getTime() < cutoff,
+  )
+}
+
+/* ── Attention rows ────────────────────────────────────────────── */
+/* Localized action items for the home "דרושה תשומת לב" widget. `target` is a
+   SEMANTIC screen key (finance/calendar/clients/goals/tasks/leads) — each app
+   maps it to its own navigation (web → ROUTES, mobile → navigator screen). */
+export interface AttentionPerson { id: string; name: string; phone: string }
+export interface AttentionItem {
+  icon: string
+  text: string
+  target: string
+  kind?: string
+  entity?: string
+  waKey?: string
+  people?: AttentionPerson[]
+}
+
+export function attentionItems(
+  now: Date = new Date(),
+  data?: {
+    transactions?: Tx[]
+    scheduled_meetings?: HomeMeeting[]
+    clients?: AttnClient[]
+    tasks?: HomeTask[]
+    goals?: HomeGoal[]
+    categories?: HomeCategory[]
+    sessions?: ClientSession[]
+    leads?: HomeLead[]
+    members?: GroupMembership[]
+    groups?: Group[]
+  },
+): AttentionItem[] {
+  const {
+    transactions = [], scheduled_meetings = [], clients = [], tasks = [], goals = [],
+    categories = [], sessions = [], leads = [], members = [], groups = [],
+  } = data || {}
+  const T = (key: string, opts?: Record<string, unknown>): string => i18n.t(`home:widgets.attention.rows.${key}`, opts)
+  const items: AttentionItem[] = []
+
+  const pending = (transactions || []).filter((t) => !t.deleted_at && t.status === 'pending')
+  if (pending.length) items.push({ icon: 'Wallet', text: T('pendingTx', { count: pending.length }), target: 'finance', kind: 'pendingTx' })
+
+  const pastMeetings = (scheduled_meetings || []).filter(
+    (m) => m.status === 'pending' && new Date(m.scheduled_at).getTime() <= now.getTime(),
+  )
+  if (pastMeetings.length) items.push({ icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), target: 'calendar', kind: 'pendingMeetings' })
+
+  const withBalance = live(clients).filter((c) => c.status !== 'past' && clientBalance(c, transactions, sessions, members, groups).balance > 0)
+  if (withBalance.length) items.push({ icon: 'Wallet', text: T('balance', { count: withBalance.length }), target: 'clients' })
+
+  const goal = monthlyIncomeGoal({ goals, categories })
+  const { inc } = monthNet(now, { transactions })
+  if (goal > 0 && inc < goal) {
+    const daysLeft = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate()
+    items.push({ icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), target: 'goals' })
+  }
+
+  const urgent = live(tasks).filter((t) => t.status !== 'done' && t.priority === 'high').length
+  if (urgent) items.push({ icon: 'AlertCircle', text: T('urgentTasks', { count: urgent }), target: 'tasks' })
+
+  const staleClients = clientsNeedingAttention(45, now, { clients, sessions })
+  if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), target: 'clients', kind: 'people', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id as string, name: c.name as string, phone: c.phone || '' })) })
+
+  const officialLeads = live(leads).filter((l) => !l.pending_review)
+  const pendingLeads = live(leads).filter((l) => l.pending_review)
+  if (pendingLeads.length) items.push({ icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), target: 'leads', kind: 'pendingLeads' })
+
+  const staleLeads = leadsNeedingAttention(45, now, officialLeads)
+  if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), target: 'leads', kind: 'people', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name || '', phone: l.phone || '' })) })
+
+  const todayYmd = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const dueFollowups = officialLeads.filter(
+    (l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= todayYmd,
+  )
+  if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), target: 'leads', kind: 'people', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name || '', phone: l.phone || '' })) })
+
+  return items
 }

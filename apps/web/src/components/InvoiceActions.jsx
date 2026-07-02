@@ -202,12 +202,13 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
       const list = await inv.loadItems()
       const arr = Array.isArray(list) ? list : []
       setItems(arr)
-      // Only SUMIT uses the catalog item id (Item.ID links to a real income item).
-      // Green Invoice's createDocument ignores the id and uses the name AS the line
-      // description, so auto-picking the first catalog item replaces the actual
-      // transaction description with a generic catalog name on the receipt. For GI,
-      // default to free text (= tx.desc) so the real service detail is what's billed.
-      if (arr.length && inv.status?.provider === 'sumit') setItemId(String(arr[0].id))
+      // Both providers now link a catalog item by id: SUMIT via Item.ID, Green
+      // Invoice via the income row's itemId (both honored server-side in
+      // providers.ts). So when the account has a catalog, default the picker to
+      // the first item for EITHER provider — the user can switch to another item
+      // or to free text ("אחר"). (Previously GI defaulted to free text because its
+      // createDocument ignored the id; that gap is now closed.)
+      if (arr.length) setItemId(String(arr[0].id))
     } catch {
       setItems([])
       setCatalogErr(t('actions.catalogError'))

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, RefreshControl } from 'react-native'
-import { homeChips, isr } from '@simplicity/core'
+import { homeChips, todayItems, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import { supabase } from '../lib/supabase'
 import { useHomeData } from '../hooks/useHomeData'
@@ -9,11 +9,15 @@ import { useHomeData } from '../hooks/useHomeData'
 // SHARED core `homeChips` (same engine the web home uses). Built incrementally:
 // today's-agenda chip, attention rows, reminders etc. land in later increments.
 export default function HomeScreen({ session }) {
-  const { clients, transactions, loading, error, refetch } = useHomeData()
+  const { clients, transactions, meetings, calendarEvents, leads, groups, loading, error, refetch } = useHomeData()
 
   const chips = useMemo(
     () => homeChips(new Date(), { clients, transactions }),
     [clients, transactions],
+  )
+  const today = useMemo(
+    () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }),
+    [meetings, calendarEvents, leads, clients, groups],
   )
   const netStr = isr(chips.net)
   const email = session?.user?.email || ''
@@ -41,6 +45,7 @@ export default function HomeScreen({ session }) {
       ) : null}
 
       <View style={styles.chips}>
+        <Chip value={loading ? '··' : String(today.length)} label={i18n.t('home:widgets.chips.meetings')} />
         <Chip value={loading ? '··' : netStr} label={i18n.t('home:widgets.chips.net')} long={netStr.length >= 8} />
         <Chip value={loading ? '··' : String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} />
       </View>

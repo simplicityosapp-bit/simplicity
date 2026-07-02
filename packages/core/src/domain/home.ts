@@ -19,11 +19,42 @@ const live = <T extends { deleted_at?: string | null }>(a: T[] | null | undefine
   (a || []).filter((r) => !r.deleted_at)
 
 export interface HomeClient {
+  id?: string
+  name?: string
+  phone?: string
   deleted_at?: string | null
   status?: string
   status_meta?: string
   project_id?: string | null
   group_id?: string | null
+}
+export interface HomeMeeting {
+  id: string
+  deleted_at?: string | null
+  status?: string
+  subject_type?: string
+  subject_id?: string
+  scheduled_at: string | number | Date
+}
+export interface HomeCalEvent {
+  id: string
+  deleted_at?: string | null
+  start_time?: string | number | Date | null
+  title?: string
+  summary?: string
+  all_day?: boolean
+}
+export interface HomeLead {
+  id: string
+  deleted_at?: string | null
+  status_meta?: string
+  follow_up_date?: string | null
+  name?: string
+  phone?: string
+}
+export interface HomeGroup {
+  id: string
+  name?: string
 }
 export interface HomeTask {
   deleted_at?: string | null
@@ -127,4 +158,78 @@ export function homeChips(
   else net = inc - exp
 
   return { activeClients, openTasks, net, _income: inc, _expense: exp, _txCount: filteredTx.length }
+}
+
+/* ── Today's agenda (home "פגישות היום" chip + drill panel) ─────────
+   Merge the day's scheduled meetings, synced Google events, and lead
+   follow-ups into ONE time-sorted list. `filter.kinds` controls which
+   sources are included. Pure + no mock fallback. */
+export interface TodayItem {
+  id: string
+  kind: string
+  when: string | number | Date
+  title: string
+  phone?: string
+  subjectType?: string
+  subjectId?: string
+  leadId?: string
+  allDay?: boolean
+  status?: string
+  meeting?: HomeMeeting
+}
+
+const TODAY_KINDS = ['meeting', 'calendar', 'followup']
+
+export function todayItems(
+  now: Date = new Date(),
+  data: { meetings?: HomeMeeting[]; calendarEvents?: HomeCalEvent[]; leads?: HomeLead[]; clients?: HomeClient[]; groups?: HomeGroup[] } = {},
+  filter: { kinds?: string[] } = {},
+): TodayItem[] {
+  const { meetings = [], calendarEvents = [], leads = [], clients = [], groups = [] } = data
+  const kinds = filter.kinds && filter.kinds.length ? filter.kinds : TODAY_KINDS
+  const pad = (n: number): string => String(n).padStart(2, '0')
+  const todayKey = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+  const sameDay = (val: string | number | Date | null | undefined): boolean => {
+    if (!val) return false
+    const dt = new Date(val)
+    return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}` === todayKey
+  }
+  const out: TodayItem[] = []
+
+  if (kinds.includes('meeting')) {
+    live(meetings)
+      .filter((mt) => mt.status !== 'skipped' && sameDay(mt.scheduled_at))
+      .forEach((mt) => {
+        const isGroup = mt.subject_type === 'group'
+        const subject = isGroup
+          ? groups.find((g) => g.id === mt.subject_id)
+          : clients.find((c) => c.id === mt.subject_id)
+        out.push({
+          id: `mtg-${mt.id}`, kind: 'meeting', when: mt.scheduled_at,
+          title: subject?.name || '', phone: isGroup ? '' : ((subject as HomeClient)?.phone || ''),
+          subjectType: mt.subject_type, subjectId: mt.subject_id, status: mt.status, meeting: mt,
+        })
+      })
+  }
+
+  if (kinds.includes('calendar')) {
+    calendarEvents
+      .filter((ev) => !ev.deleted_at && sameDay(ev.start_time))
+      .forEach((ev) => out.push({
+        id: `cal-${ev.id}`, kind: 'calendar', when: ev.start_time as string | number | Date,
+        title: ev.title || ev.summary || '', allDay: !!ev.all_day,
+      }))
+  }
+
+  if (kinds.includes('followup')) {
+    live(leads)
+      .filter((l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) === todayKey)
+      .forEach((l) => out.push({
+        /* follow-ups carry no time — pin to 09:00, matching the calendar feed. */
+        id: `fu-${l.id}`, kind: 'followup', when: `${todayKey}T09:00:00`,
+        title: l.name || '', phone: l.phone || '', leadId: l.id,
+      }))
+  }
+
+  return out.sort((a, b) => new Date(a.when).getTime() - new Date(b.when).getTime())
 }

@@ -11,7 +11,7 @@ import * as st from '../src/lib/statusImport'
 import * as pv from '../src/lib/pivotImport'
 import * as sm from '../src/lib/sheetMapper'
 import { buildReviewFromSheets } from '../src/lib/importFlow'
-import { parsePayMethod } from '../src/lib/invoiceDocs'
+import { parsePayMethod } from '@simplicity/core'
 
 /* header→field for the flat path (blank value isolates header mapping). */
 const flatField = (h) => csv.buildParsedFromRows([[h], ['']], 'p.csv').mapping[0] || null

@@ -20,7 +20,7 @@ import { detectMatrix } from './pivotImport'
 import { detectColumnType, parseAmount, findHeaderRow } from './columnDetect'
 import { normalizeDate } from './csvImport'
 import { mapValueToMetaConfident } from './statusImport'
-import { parsePayMethod } from './invoiceDocs'
+import { parsePayMethod } from '@simplicity/core'
 
 /* Re-exported from columnDetect (its canonical home) so existing importers
    of sheetMapper.findHeaderRow keep working. */

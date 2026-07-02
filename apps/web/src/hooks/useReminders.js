@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listReminders, insertReminder, updateReminder, removeReminder as apiRemove, restoreReminder } from '../lib/api/reminders'
-import { isRecurring, nextScheduledAt } from '../lib/reminders'
+import { isRecurring, nextScheduledAt } from '@simplicity/core'
 import { pushUndo } from '../lib/undo'
 
 /* React-Query-backed: home mounts this in BOTH QuickRow and RemindersWidget —

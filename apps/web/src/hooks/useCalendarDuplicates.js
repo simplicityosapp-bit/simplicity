@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from 'react'
-import { findCalendarDuplicates } from '../lib/calendarDuplicates'
+import { findCalendarDuplicates } from '@simplicity/core'
 
 /* Derives calendar duplicates (app recurring meeting ⇄ synced Google event)
    from data the CALLER already holds, plus the two resolution actions. It

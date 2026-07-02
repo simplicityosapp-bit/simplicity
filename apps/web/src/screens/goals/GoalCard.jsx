@@ -1,7 +1,6 @@
 import { memo, useState } from 'react'
 import { Star, Plus, X, ChevronDown, Pencil, Trash2 } from 'lucide-react'
-import { formatGoalValue, timeFrameLabel } from '../../lib/goals'
-import { fmtShortDate } from '@simplicity/core'
+import { fmtShortDate, formatGoalValue, timeFrameLabel } from '@simplicity/core'
 import ConfirmModal from '../../modals/ConfirmModal'
 import MoonDualBars from '../../components/MoonDualBars'
 import { Box, Txt, Btn } from '../../components/ui'

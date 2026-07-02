@@ -11,8 +11,8 @@ import heReflections from '../i18n/locales/he/reflections.json'
 import enReflections from '../i18n/locales/en/reflections.json'
 import esReflections from '../i18n/locales/es/reflections.json'
 import frReflections from '../i18n/locales/fr/reflections.json'
-import { goals as allGoals, goal_categories, goal_entries, sessions, clients as mockClients, leads as mockLeads, daily_answers as mockAnswers, group_members as mockMembers, groups as mockGroups } from '../data/mock'
-import { financeQuery, currentMonthRange } from '@simplicity/core'
+import { goals as allGoals, goal_categories, goal_entries, clients as mockClients, leads as mockLeads, daily_answers as mockAnswers, group_members as mockMembers, groups as mockGroups } from '../data/mock'
+import { financeQuery } from '@simplicity/core'
 import { isConvertedLead } from './leads'
 
 /* 'reflections' namespace is owned by these libs, not i18n/index.js — register
@@ -196,19 +196,6 @@ export function moonGetData(now = new Date(), data) {
     },
     scored,
   }
-}
-
-export function moonHomeStats(now = new Date(), data) {
-  const { transactions, sessions: sess = sessions } = data || {}
-  const range = currentMonthRange(now)
-  const monthIncome = financeQuery({ type: 'income', ...range, source: transactions }).reduce((s, f) => s + f.amount, 0)
-  const sessionsCount = live(sess).filter((s) => {
-    const d = new Date(s.date)
-    return d >= range.from && d <= range.to
-  }).length
-  const { scored } = moonGetData(now, data)
-  const onTrack = scored.filter((s) => Math.min(100, s.paced) >= 80).length
-  return { monthIncome, sessionsCount, onTrack, total: scored.length }
 }
 
 export function moonReflection(confidence, gender) {

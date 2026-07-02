@@ -3,10 +3,17 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@simplicity/core": "workspace:*",
+    "@supabase/supabase-js": "^2.106.2",
     "expo": "^57.0.0",
+    "expo-localization": "~57.0.0",
     "expo-status-bar": "~57.0.0",
     "react": "19.2.3",
-    "react-native": "0.86.0"
+    "react-dom": "19.2.3",
+    "react-native": "0.86.0",
+    "react-native-url-polyfill": "^2.0.0",
+    "react-native-web": "^0.21.2"
   },
   "scripts": {
     "start": "expo start",

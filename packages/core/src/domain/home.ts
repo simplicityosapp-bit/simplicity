@@ -389,3 +389,84 @@ export function nextTasks(limit = 5, tasks: HomeTask[] = []): HomeTask[] {
 export function openTasksCount(tasks: HomeTask[] = []): number {
   return live(tasks).filter((t) => t.status !== 'done').length
 }
+
+/* ── Upcoming reminders (window: today → +daysAhead) ───────────── */
+export interface HomeReminder {
+  id?: string
+  title?: string
+  deleted_at?: string | null
+  status?: string | null
+  end_date?: string | null
+  scheduled_at: string | number | Date
+  recurrence_type?: string | null
+  recurrence_pattern?: { dayOfWeek?: number; dayOfMonth?: number; x?: number | string } | null
+  linked_to_type?: string | null
+  linked_to_id?: string | null
+}
+export interface UpcomingReminder {
+  id?: string
+  title?: string
+  when: Date
+  linked_to_type?: string | null
+  linked_to_id?: string | null
+}
+
+function nextWeeklyOccurrence(r: HomeReminder, start: Date): Date | null {
+  const base = new Date(r.scheduled_at)
+  const target = r.recurrence_pattern?.dayOfWeek
+  if (typeof target !== 'number') return null
+  const d = new Date(Math.max(base.getTime(), start.getTime()))
+  d.setHours(base.getHours(), base.getMinutes(), 0, 0)
+  for (let i = 0; i < 7; i++) {
+    if (d.getDay() === target) return new Date(d)
+    d.setDate(d.getDate() + 1)
+  }
+  return null
+}
+function nextMonthlyDateOccurrence(r: HomeReminder, start: Date): Date | null {
+  const base = new Date(r.scheduled_at)
+  const target = r.recurrence_pattern?.dayOfMonth
+  if (typeof target !== 'number') return null
+  for (let m = 0; m < 3; m++) {
+    const y = start.getFullYear()
+    const mm = start.getMonth() + m
+    const daysInMonth = new Date(y, mm + 1, 0).getDate()
+    const day = Math.min(target, daysInMonth)
+    const d = new Date(y, mm, day, base.getHours(), base.getMinutes(), 0, 0)
+    if (d >= start) return d
+  }
+  return null
+}
+function nextEveryXDaysOccurrence(r: HomeReminder, start: Date): Date | null {
+  const base = new Date(r.scheduled_at)
+  const x = Number(r.recurrence_pattern?.x)
+  if (!x || x <= 0) return null
+  if (base >= start) return base
+  const diffDays = Math.ceil((start.getTime() - base.getTime()) / DAY)
+  const steps = Math.ceil(diffDays / x)
+  const d = new Date(base)
+  d.setDate(d.getDate() + steps * x)
+  return d
+}
+function nextReminderOccurrence(r: HomeReminder, start: Date): Date | null {
+  if (r.recurrence_type === 'weekly') return nextWeeklyOccurrence(r, start)
+  if (r.recurrence_type === 'monthly_date') return nextMonthlyDateOccurrence(r, start)
+  if (r.recurrence_type === 'every_x_days') return nextEveryXDaysOccurrence(r, start)
+  return new Date(r.scheduled_at)
+}
+
+/* Next occurrence of each pending/triggered reminder within the lookahead
+   window (default 60d / top 5), sorted soonest-first. */
+export function remindersUpcoming(now: Date = new Date(), remindersData: HomeReminder[] = [], daysAhead = 60, limit = 5): UpcomingReminder[] {
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead, 23, 59, 59)
+  const out: UpcomingReminder[] = []
+  live(remindersData).forEach((r) => {
+    if (!r.status || !['pending', 'triggered'].includes(r.status)) return
+    if (r.end_date && new Date(r.end_date) < start) return
+    const occ = nextReminderOccurrence(r, start)
+    if (occ && occ >= start && occ <= end) out.push({ id: r.id, title: r.title, when: occ, linked_to_type: r.linked_to_type, linked_to_id: r.linked_to_id })
+  })
+  out.sort((a, b) => a.when.getTime() - b.when.getTime())
+  return limit ? out.slice(0, limit) : out
+}

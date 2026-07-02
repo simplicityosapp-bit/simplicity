@@ -14,20 +14,106 @@
      (good-enough heuristic until we ship a log).
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '@simplicity/core/i18n'
-import { isr, isConfirmedTx, monthNamesShort, isConvertedLead } from '@simplicity/core'
+import i18n from '../i18n'
+import { isr, isConfirmedTx, type Tx } from './finance'
+import { monthNamesShort } from './calendar'
+import { isConvertedLead } from './leads'
 
-const live = (a) => (a || []).filter((r) => !r.deleted_at)
+interface RLead {
+  deleted_at?: string | null
+  inquiry_date?: string | null
+  created_at?: string | null
+  closed_at?: string | null
+  converted_at?: string | null
+  status_meta?: string
+  name?: string
+}
+interface RClient {
+  id?: string
+  deleted_at?: string | null
+  status_meta?: string
+  status?: string
+  created_at?: string | null
+  sessions?: number | null
+  last_status_changed_at?: string | null
+  left_mid_process?: boolean
+  name?: string
+}
+interface RSession {
+  deleted_at?: string | null
+  date?: string | number | Date | null
+  client_id?: string
+  group_id?: string
+  num?: number
+}
+interface RTask {
+  deleted_at?: string | null
+  created_at?: string | null
+  completed_at?: string | null
+  status?: string
+  title?: string
+  priority?: string
+}
+interface RMember {
+  deleted_at?: string | null
+  left_at?: string | null
+  left_mid_process?: boolean
+  client_id?: string
+  group_id?: string
+}
+interface RGroup { id?: string; name?: string }
+
+export interface ReportData {
+  leads?: RLead[]
+  clients?: RClient[]
+  sessions?: RSession[]
+  transactions?: Tx[]
+  tasks?: RTask[]
+  groupMembers?: RMember[]
+  groups?: RGroup[]
+}
+
+export interface ReportPeriod {
+  start: Date
+  end: Date
+  label: string
+  year: number
+  month: number
+  isCurrent: boolean
+}
+
+export interface ReportResult {
+  period: { start: Date; end: Date }
+  metrics: Record<string, number | null>
+}
+
+export interface ReportMetric {
+  id: string
+  group: string
+  kind: string
+  format: string
+  info?: boolean
+}
+
+export interface DrillRecord {
+  icon: string
+  primary: string
+  secondary: string
+  navigateTo: string
+}
+
+const live = <T extends { deleted_at?: string | null }>(a: T[] | null | undefined): T[] =>
+  (a || []).filter((r) => !r.deleted_at)
 
 /* ── Period engine ─────────────────────────────────────────────── */
 
 /* Last N months including current, oldest → newest. Pass `lng` (the active
    language) so month labels follow it — callers thread it through a useMemo
    dependency to recompute the pills/headers on a language switch. */
-export function getPeriodsForMonths(count, now = new Date(), lng) {
+export function getPeriodsForMonths(count: number, now: Date = new Date(), lng?: string): ReportPeriod[] {
   const n = Math.max(1, count | 0)
   const months = monthNamesShort(lng)
-  const out = []
+  const out: ReportPeriod[] = []
   for (let i = n - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
     out.push({
@@ -43,7 +129,7 @@ export function getPeriodsForMonths(count, now = new Date(), lng) {
 }
 
 /* 12-month strip used by the list view's pills. */
-export function getLast12Months(now = new Date(), lng) {
+export function getLast12Months(now: Date = new Date(), lng?: string): ReportPeriod[] {
   return getPeriodsForMonths(12, now, lng)
 }
 
@@ -52,7 +138,7 @@ export function getLast12Months(now = new Date(), lng) {
 /* Active clients "as of" an end date — naive: current status_meta is
    assumed to have held since created_at. Good-enough until we ship a
    per-status log. */
-function activeClientsAsOf(clients, end) {
+function activeClientsAsOf(clients: RClient[] | undefined, end: Date): number {
   const t = end.getTime()
   return live(clients).filter((c) => {
     if ((c.status_meta || c.status || 'no_status') !== 'active') return false
@@ -64,7 +150,7 @@ function activeClientsAsOf(clients, end) {
 
 /* Open tasks "as of" an end date — created by then, not completed by
    then, not deleted by then. */
-function openTasksAsOf(tasks, end) {
+function openTasksAsOf(tasks: RTask[] | undefined, end: Date): number {
   const t = end.getTime()
   let count = 0
   ;(tasks || []).forEach((task) => {
@@ -80,7 +166,7 @@ function openTasksAsOf(tasks, end) {
 
 /* ── Core per-range aggregator ─────────────────────────────────── */
 
-export function computeReportForRange(start, end, data = {}) {
+export function computeReportForRange(start: Date, end: Date, data: ReportData = {}): ReportResult {
   const {
     leads = [],
     clients = [],
@@ -95,12 +181,12 @@ export function computeReportForRange(start, end, data = {}) {
   const sYMD = toISODate(start)
   const eYMD = toISODate(end)
 
-  const inRangeTs = (iso) => {
+  const inRangeTs = (iso?: string | number | Date | null) => {
     if (!iso) return false
     const t = new Date(iso).getTime()
     return t >= startMs && t <= endMs
   }
-  const inRangeYMD = (ymd) => !!ymd && ymd >= sYMD && ymd <= eYMD
+  const inRangeYMD = (ymd?: string | null) => !!ymd && ymd >= sYMD && ymd <= eYMD
 
   /* ── Leads ── */
   const liveLeads = live(leads)
@@ -134,7 +220,7 @@ export function computeReportForRange(start, end, data = {}) {
   })
   liveClients.forEach((c) => {
     if ((c.status_meta || c.status) !== 'past') return
-    if (!(c.sessions > 0)) return
+    if (!((c.sessions || 0) > 0)) return
     if (!inRangeTs(c.last_status_changed_at)) return
     totalEnded++
     if (c.left_mid_process) leftCount++
@@ -192,7 +278,7 @@ export function computeReportForRange(start, end, data = {}) {
    Display strings (label/desc/group name) resolve via i18n at the call site
    (reports:metrics.<id> / reports:metricsDesc.<id> / reports:groups.<id>) so
    the registry stays language-agnostic and follows the active language. */
-export const REPORT_METRICS = [
+export const REPORT_METRICS: ReportMetric[] = [
   /* Leads */
   { id: 'newInquiries',       group: 'leads',    kind: 'flow',      format: 'count' },
   { id: 'leadsClosed',        group: 'leads',    kind: 'flow',      format: 'count', info: true },
@@ -223,7 +309,7 @@ export const REPORT_GROUPS = [
 
 /* ── Formatting ────────────────────────────────────────────────── */
 
-export function formatReportValue(metric, val) {
+export function formatReportValue(metric: ReportMetric, val: number | null | undefined): string {
   if (val === null || val === undefined) return '—'
   if (metric.format === 'money') return isr(val)
   if (metric.format === 'pct') return `${val}%`
@@ -232,9 +318,11 @@ export function formatReportValue(metric, val) {
 
 /* ── Summary cell (for the table view) ─────────────────────────── */
 
+interface PeriodReport { data: ReportResult }
+
 /* Sum for flow, average for snapshot, recompute over the whole range
    for cohortPct (since percentages don't sum). */
-export function computeReportSummary(metric, periodReports) {
+export function computeReportSummary(metric: ReportMetric, periodReports: PeriodReport[]): number | null {
   if (!periodReports.length) return null
   if (metric.kind === 'flow') {
     let sum = 0
@@ -285,9 +373,11 @@ export function computeReportSummary(metric, periodReports) {
 
 /* ── Config helpers ────────────────────────────────────────────── */
 
+interface ReportConfig { visibleMetrics?: string[]; metricOrder?: string[] }
+
 /* Resolve user's metricOrder + visibleMetrics into the ordered list of
    metric objects to display. Falls back to registry order. */
-export function getOrderedVisibleMetrics(cfg) {
+export function getOrderedVisibleMetrics(cfg?: ReportConfig | null): ReportMetric[] {
   const visible = new Set(cfg?.visibleMetrics || REPORT_METRICS.map((m) => m.id))
   const order = (cfg?.metricOrder && cfg.metricOrder.length)
     ? cfg.metricOrder
@@ -295,12 +385,12 @@ export function getOrderedVisibleMetrics(cfg) {
   const byId = new Map(REPORT_METRICS.map((m) => [m.id, m]))
   return order
     .filter((id) => visible.has(id) && byId.has(id))
-    .map((id) => byId.get(id))
+    .map((id) => byId.get(id)!)
 }
 
 /* All metrics in the user's order (visible + hidden) — used by the
    customize panel. */
-export function getAllOrderedMetrics(cfg) {
+export function getAllOrderedMetrics(cfg?: ReportConfig | null): ReportMetric[] {
   const order = (cfg?.metricOrder && cfg.metricOrder.length)
     ? cfg.metricOrder
     : REPORT_METRICS.map((m) => m.id)
@@ -308,42 +398,42 @@ export function getAllOrderedMetrics(cfg) {
   /* Auto-extend: any registry id missing from order goes at the end. */
   const ids = [...order]
   REPORT_METRICS.forEach((m) => { if (!ids.includes(m.id)) ids.push(m.id) })
-  return ids.filter((id) => byId.has(id)).map((id) => byId.get(id))
+  return ids.filter((id) => byId.has(id)).map((id) => byId.get(id)!)
 }
 
 /* ── Drill-down records ─────────────────────────────────────────
    For a (metricId, period) pair, return the underlying entities so
    the modal can list them and link out. Each record:
    { icon, primary, secondary, navigateTo }                           */
-export function getDrillRecords(metricId, start, end, data = {}) {
+export function getDrillRecords(metricId: string, start: Date, end: Date, data: ReportData = {}): DrillRecord[] {
   const startMs = start.getTime()
   const endMs = end.getTime()
   const sYMD = toISODate(start)
   const eYMD = toISODate(end)
-  const inRangeTs = (iso) => {
+  const inRangeTs = (iso?: string | number | Date | null) => {
     if (!iso) return false
     const t = new Date(iso).getTime()
     return t >= startMs && t <= endMs
   }
-  const inRangeYMD = (ymd) => !!ymd && ymd >= sYMD && ymd <= eYMD
+  const inRangeYMD = (ymd?: string | null) => !!ymd && ymd >= sYMD && ymd <= eYMD
   const {
     leads = [], clients = [], sessions = [], transactions = [],
     tasks = [], groupMembers = [], groups = [],
   } = data
 
-  const out = []
+  const out: DrillRecord[] = []
   const liveLeads = live(leads)
   const liveClients = live(clients)
   const liveSessions = live(sessions)
   const liveTasks = live(tasks)
 
-  const leadRow = (l, secondary) => ({
+  const leadRow = (l: RLead, secondary: string): DrillRecord => ({
     icon: 'leaf',
     primary: l.name || i18n.t('reports:drill.noName'),
     secondary,
     navigateTo: '/leads',
   })
-  const clientRow = (c, secondary, icon = 'user') => ({
+  const clientRow = (c: RClient, secondary: string, icon = 'user'): DrillRecord => ({
     icon,
     primary: c.name || i18n.t('reports:drill.noName'),
     secondary,
@@ -423,7 +513,7 @@ export function getDrillRecords(metricId, start, end, data = {}) {
       })
       liveClients.forEach((c) => {
         if ((c.status_meta || c.status) !== 'past') return
-        if (!c.left_mid_process || !(c.sessions > 0)) return
+        if (!c.left_mid_process || !((c.sessions || 0) > 0)) return
         if (!inRangeTs(c.last_status_changed_at)) return
         out.push(clientRow(c, i18n.t('reports:drill.personalSeriesEnded', { date: fmtDay(c.last_status_changed_at) }), 'x'))
       })
@@ -435,7 +525,7 @@ export function getDrillRecords(metricId, start, end, data = {}) {
         let label = i18n.t('reports:drill.session')
         if (s.client_id) {
           const c = liveClients.find((x) => x.id === s.client_id)
-          if (c) label = c.name
+          if (c) label = c.name || label
         } else if (s.group_id) {
           const g = groups.find((x) => x.id === s.group_id)
           if (g) label = i18n.t('reports:drill.groupLabel', { name: g.name })
@@ -458,7 +548,7 @@ export function getDrillRecords(metricId, start, end, data = {}) {
       ;(transactions || []).forEach((f) => {
         if (f.deleted_at) return
         if (!isConfirmedTx(f)) return
-        if (!types.includes(f.type)) return
+        if (!f.type || !types.includes(f.type)) return
         if (!inRangeTs(f.date)) return
         const sign = f.type === 'income' ? '+' : '−'
         out.push({
@@ -516,7 +606,7 @@ export function getDrillRecords(metricId, start, end, data = {}) {
 
 /* Extract fmtDay's DD/MM/YY token from a drill record's `secondary` and turn
    it into a sortable YYYYMMDD number; 0 when there's no date (sinks to the end). */
-function drillSortKey(secondary) {
+function drillSortKey(secondary: string): number {
   const m = String(secondary).match(/(\d{2})\/(\d{2})\/(\d{2})/)
   if (!m) return 0
   const [, dd, mm, yy] = m
@@ -525,14 +615,14 @@ function drillSortKey(secondary) {
 
 /* ── Date helpers (local) ──────────────────────────────────────── */
 
-function toISODate(d) {
+function toISODate(d: Date): string {
   const y = d.getFullYear()
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
   return `${y}-${m}-${day}`
 }
 
-function fmtDay(iso) {
+function fmtDay(iso?: string | number | Date | null): string {
   if (!iso) return ''
   const d = iso instanceof Date ? iso : new Date(iso)
   const dd = String(d.getDate()).padStart(2, '0')

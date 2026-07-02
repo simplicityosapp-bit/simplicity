@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { REPORT_METRICS } from '../lib/reports'
+import { REPORT_METRICS } from '@simplicity/core'
 import { useUserPreferences } from './useUserPreferences'
 
 /* ════════════════════════════════════════════════════════════════

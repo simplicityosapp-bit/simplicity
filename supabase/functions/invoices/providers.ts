@@ -236,6 +236,11 @@ class GreenInvoiceProvider implements InvoiceProvider {
       // account setting (legacy behaviour) until the user sets their type.
       income: [{
         description: doc.itemName || doc.description, quantity: 1, price: doc.amount, currency: 'ILS',
+        // Link the row to a real catalog item when the user picked one. morning's
+        // income row accepts `itemId` (the item's UUID from /items/search) — without
+        // it the product the user defined is never recognized and the line is pure
+        // free text. Absent → ad-hoc free-text line (unchanged behaviour).
+        ...(doc.itemId ? { itemId: doc.itemId } : {}),
         ...(doc.businessType === 'licensed' ? { vatType: 1 } : {}),
       }],
     }

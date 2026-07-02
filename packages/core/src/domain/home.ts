@@ -83,6 +83,8 @@ export interface AttnClient extends Client {
   phone?: string
 }
 export interface HomeTask {
+  id?: string
+  title?: string
   deleted_at?: string | null
   status?: string
   priority?: string
@@ -373,4 +375,17 @@ export function attentionItems(
   if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), target: 'leads', kind: 'people', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name || '', phone: l.phone || '' })) })
 
   return items
+}
+
+/* ── Next open tasks (by priority) ─────────────────────────────── */
+const PORDER: Record<string, number> = { high: 0, medium: 1, low: 2 }
+export function nextTasks(limit = 5, tasks: HomeTask[] = []): HomeTask[] {
+  return live(tasks)
+    .filter((t) => t.status !== 'done')
+    .slice()
+    .sort((a, b) => (PORDER[a.priority ?? ''] ?? 1) - (PORDER[b.priority ?? ''] ?? 1))
+    .slice(0, limit)
+}
+export function openTasksCount(tasks: HomeTask[] = []): number {
+  return live(tasks).filter((t) => t.status !== 'done').length
 }

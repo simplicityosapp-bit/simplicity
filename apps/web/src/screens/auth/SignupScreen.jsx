@@ -48,17 +48,22 @@ export default function SignupScreen() {
       return
     }
     setBusy(true)
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: buildConsent({ marketing: agreeMarketing }) },
-    })
-    setBusy(false)
-    if (error) {
-      setError(translateAuthError(error.message))
-      return
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: buildConsent({ marketing: agreeMarketing }) },
+      })
+      if (error) {
+        setError(translateAuthError(error.message))
+        return
+      }
+      if (!data.session) setSent(true)
+    } catch (err) {
+      setError(translateAuthError(err?.message))
+    } finally {
+      setBusy(false)
     }
-    if (!data.session) setSent(true)
   }
 
   if (sent) {

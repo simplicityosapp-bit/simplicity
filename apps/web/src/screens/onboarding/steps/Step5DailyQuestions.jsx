@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
-import { QUESTION_TEMPLATES, qtext } from '../../../lib/questionTemplates'
+import { QUESTION_TEMPLATES, qtext } from '@simplicity/core'
 import { useT } from '../../../i18n/useT'
 import { Box, Txt, Btn, Input } from '../../../components/ui'
 

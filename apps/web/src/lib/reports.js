@@ -15,8 +15,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import i18n from '@simplicity/core/i18n'
-import { isr, isConfirmedTx, monthNamesShort } from '@simplicity/core'
-import { isConvertedLead } from './leads'
+import { isr, isConfirmedTx, monthNamesShort, isConvertedLead } from '@simplicity/core'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 

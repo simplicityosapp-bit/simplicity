@@ -19,7 +19,7 @@ import enExport from '../i18n/locales/en/export.json'
 import esExport from '../i18n/locales/es/export.json'
 import frExport from '../i18n/locales/fr/export.json'
 import { isEncrypted } from './crypto'
-import { questionText } from './questionTemplates'
+import { questionText } from '@simplicity/core'
 
 /* Self-register the 'export' namespace (he/en/es/fr). Idempotent — no central
    i18n init change needed. */

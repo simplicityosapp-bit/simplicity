@@ -1,7 +1,6 @@
 import { memo } from 'react'
 import { Clock, Check, CalendarDays, ArrowLeft, X } from 'lucide-react'
-import { statusMetaOfLead } from '../../lib/leads'
-import { fmtShortDate } from '@simplicity/core'
+import { statusMetaOfLead, fmtShortDate } from '@simplicity/core'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import WhatsAppButton from '../../components/WhatsAppButton'
 import { useT } from '../../i18n/useT'

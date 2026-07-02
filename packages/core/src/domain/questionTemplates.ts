@@ -6,11 +6,16 @@
    text via i18n (namespace 'questions'), so it follows the active language.
    ════════════════════════════════════════════════════════════════ */
 
-/* Must cover EVERY template_key any creation path uses — the in-app
-   AddQuestionModal (mood/energy/sleep/focus) AND the onboarding Step 5
-   presets (sleep/nutrition/movement/mood/focus/quiet). A key missing here
-   makes questionText() fall back to the generic fallback string. */
-import i18n from '@simplicity/core/i18n'
+import i18n from '../i18n'
+
+interface SchedulePattern { type?: string; values?: number[]; x?: number | string }
+
+export interface DailyQuestion {
+  custom_text?: string
+  template_key?: string
+  schedule_pattern?: SchedulePattern | null
+  created_at?: string | number | Date
+}
 
 /* Display text lives in i18n (questions:template.<key>). A few templates
    carry a gender-addressed adjective (e.g. focus) and resolve via i18next
@@ -21,7 +26,7 @@ const TEMPLATE_KEYS = ['mood', 'energy', 'sleep', 'focus', 'nutrition', 'movemen
 /* Resolve a template_key to display text for the user's form of address.
    Unknown keys return undefined (so questionText falls back). gender omitted
    → neutral base key, so legacy callers are unchanged. */
-export const qtext = (key, gender) => {
+export const qtext = (key: string, gender?: string): string | undefined => {
   if (!TEMPLATE_KEYS.includes(key)) return undefined
   const context = gender === 'male' || gender === 'female' ? gender : undefined
   return i18n.t(`questions:template.${key}`, context ? { context } : undefined)
@@ -40,7 +45,8 @@ export const QUESTION_TEMPLATES = [
 ]
 
 /* The text shown for a question row (custom_text wins, else the template). */
-export const questionText = (q, gender) => q.custom_text || qtext(q.template_key, gender) || i18n.t('questions:fallback')
+export const questionText = (q: DailyQuestion, gender?: string): string =>
+  q.custom_text || qtext(q.template_key || '', gender) || i18n.t('questions:fallback')
 
 const MS_PER_DAY = 86400000
 
@@ -49,7 +55,7 @@ const MS_PER_DAY = 86400000
      {type: 'days_of_week', values: [0..6]}  — only on those weekday(s)
      {type: 'every_x_days', x: N}            — every N days counted from created_at
    Missing/null pattern = always. */
-export function isQuestionDueToday(question, today = new Date()) {
+export function isQuestionDueToday(question: DailyQuestion | null | undefined, today: Date = new Date()): boolean {
   const p = question?.schedule_pattern
   if (!p) return true
   if (p.type === 'days_of_week') {
@@ -60,10 +66,10 @@ export function isQuestionDueToday(question, today = new Date()) {
   if (p.type === 'every_x_days') {
     const x = Number(p.x) || 1
     if (x <= 1) return true
-    const created = question.created_at ? new Date(question.created_at) : today
+    const created = question?.created_at ? new Date(question.created_at) : today
     const c = new Date(created.getFullYear(), created.getMonth(), created.getDate())
     const t = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-    const diffDays = Math.round((t - c) / MS_PER_DAY)
+    const diffDays = Math.round((t.getTime() - c.getTime()) / MS_PER_DAY)
     return diffDays >= 0 && diffDays % x === 0
   }
   return true
@@ -71,7 +77,7 @@ export function isQuestionDueToday(question, today = new Date()) {
 
 /* Human-readable summary of a schedule_pattern for chip labels.
    All user-facing text resolves via i18n (questions:schedule.*). */
-export function describeSchedule(question) {
+export function describeSchedule(question: DailyQuestion | null | undefined): string {
   const p = question?.schedule_pattern
   if (!p) return i18n.t('questions:schedule.everyDay')
   if (p.type === 'days_of_week') {

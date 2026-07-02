@@ -1,7 +1,6 @@
 import { memo } from 'react'
 import { Check } from 'lucide-react'
-import { clientBalance, effectiveClientMeta } from '../../lib/clients'
-import { isr } from '@simplicity/core'
+import { clientBalance, effectiveClientMeta, isr } from '@simplicity/core'
 import MG from '../../components/MG'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'

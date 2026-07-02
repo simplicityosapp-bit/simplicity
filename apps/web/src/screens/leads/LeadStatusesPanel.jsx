@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Plus, X, GripVertical } from 'lucide-react'
-import { LEAD_META, metaTitle } from '../../lib/leads'
+import { LEAD_META, metaTitle } from '@simplicity/core'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import ConfirmModal from '../../modals/ConfirmModal'
 import { useT } from '../../i18n/useT'

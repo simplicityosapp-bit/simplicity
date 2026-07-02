@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, RefreshControl } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import { homeChips, todayItems, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import { supabase } from '../lib/supabase'
@@ -14,6 +15,7 @@ import MoonWidget from './home/MoonWidget'
 // SHARED core `homeChips` (same engine the web home uses). Built incrementally:
 // today's-agenda chip, attention rows, reminders etc. land in later increments.
 export default function HomeScreen() {
+  const nav = useNavigation()
   const { session } = useAuth()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
@@ -64,9 +66,9 @@ export default function HomeScreen() {
       ) : null}
 
       <View style={styles.chips}>
-        <Chip value={loading ? '··' : String(today.length)} label={i18n.t('home:widgets.chips.meetings')} />
-        <Chip value={loading ? '··' : netStr} label={i18n.t('home:widgets.chips.net')} long={netStr.length >= 8} />
-        <Chip value={loading ? '··' : String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} />
+        <Chip value={loading ? '··' : String(today.length)} label={i18n.t('home:widgets.chips.meetings')} onPress={() => nav.navigate('Calendar')} />
+        <Chip value={loading ? '··' : netStr} label={i18n.t('home:widgets.chips.net')} long={netStr.length >= 8} onPress={() => nav.navigate('Finance')} />
+        <Chip value={loading ? '··' : String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} onPress={() => nav.navigate('Clients')} />
       </View>
 
       {!loading ? <MoonWidget data={moonData} /> : null}
@@ -77,14 +79,14 @@ export default function HomeScreen() {
   )
 }
 
-function Chip({ value, label, long }) {
+function Chip({ value, label, long, onPress }) {
   return (
-    <View style={styles.chip}>
+    <Pressable style={styles.chip} onPress={onPress}>
       <Text style={[styles.chipNum, long && styles.chipNumLong]} numberOfLines={1} adjustsFontSizeToFit>
         {value}
       </Text>
       <Text style={styles.chipLbl}>{label}</Text>
-    </View>
+    </Pressable>
   )
 }
 

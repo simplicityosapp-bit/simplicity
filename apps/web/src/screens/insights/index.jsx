@@ -6,11 +6,11 @@ import { useUserPreferences } from '../../hooks/useUserPreferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
 import EditQuestionModal from '../../modals/EditQuestionModal'
 import ConfirmModal from '../../modals/ConfirmModal'
-import { questionText, isQuestionDueToday, fmtShortDate } from '@simplicity/core'
 import {
+  questionText, isQuestionDueToday, fmtShortDate,
   averageForWindow, deltaVsPrevWindow, trendPoints, heatmapWeeks,
-  mirrorReflections, indexAnswers, dateKey,
-} from '../../lib/insights'
+  mirrorReflections, indexAnswers, ymdKey,
+} from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import './InsightsScreen.css'
 import { Box, Txt, Btn, Input } from '../../components/ui'
@@ -235,7 +235,7 @@ export default function InsightsScreen() {
   useEffect(() => { setHistoryOpen(!!prefs?.insShowHistory) }, [prefs?.insShowHistory])
 
   const today = useMemo(() => new Date(), [])
-  const todayKey = dateKey(today)
+  const todayKey = ymdKey(today)
   const idx = useMemo(() => indexAnswers(answers), [answers])
   /* Show every question (active + off) so the on/off toggle works in place.
      Off questions render greyed; only active+due-today ones can be answered. */

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { moonGetData, moonReflection } from '../../lib/moon'
+import { moonGetData, moonReflection } from '@simplicity/core'
 import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
 import { useGoalEntries } from '../../hooks/useGoalEntries'

@@ -5,13 +5,22 @@ import i18n from '../lib/i18n'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { useHomeData } from '../hooks/useHomeData'
+import AttentionWidget from './home/AttentionWidget'
 
 // First real home screen — greeting + the net + clients chips, computed by the
 // SHARED core `homeChips` (same engine the web home uses). Built incrementally:
 // today's-agenda chip, attention rows, reminders etc. land in later increments.
 export default function HomeScreen() {
   const { session } = useAuth()
-  const { clients, transactions, meetings, calendarEvents, leads, groups, loading, error, refetch } = useHomeData()
+  const {
+    clients, transactions, meetings, calendarEvents, leads, groups,
+    tasks, goals, categories, sessions, members, loading, error, refetch,
+  } = useHomeData()
+
+  const attentionData = useMemo(
+    () => ({ transactions, scheduled_meetings: meetings, clients, tasks, goals, categories, sessions, leads, members, groups }),
+    [transactions, meetings, clients, tasks, goals, categories, sessions, leads, members, groups],
+  )
 
   const chips = useMemo(
     () => homeChips(new Date(), { clients, transactions }),
@@ -51,6 +60,8 @@ export default function HomeScreen() {
         <Chip value={loading ? '··' : netStr} label={i18n.t('home:widgets.chips.net')} long={netStr.length >= 8} />
         <Chip value={loading ? '··' : String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} />
       </View>
+
+      {!loading ? <AttentionWidget data={attentionData} /> : null}
     </ScrollView>
   )
 }

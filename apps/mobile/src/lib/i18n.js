@@ -2,6 +2,7 @@
 // this is just the platform glue (pick the language from the device locale and
 // set layout direction). Web has the equivalent in apps/web/src/i18n/init.js.
 import i18n, { initI18n } from '@simplicity/core/i18n'
+import { registerReflections } from '@simplicity/core/i18n/reflections'
 import { getLocales } from 'expo-localization'
 import { I18nManager } from 'react-native'
 
@@ -20,6 +21,10 @@ function deviceLang() {
 export function setupI18n() {
   const lng = deviceLang()
   initI18n({ lng, dev: __DEV__ })
+  // Register the dynamic 'reflections' namespace (moon/mirror reflection text)
+  // AFTER init. The module's import-time side-effect runs before init on native
+  // (whole import graph loads first), so mobile must call this explicitly here.
+  registerReflections()
   // Hebrew is RTL. Note: a native RTL flip only fully applies after an app reload
   // (RN limitation); on the first install the layout may need one restart.
   const rtl = lng === 'he'

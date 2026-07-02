@@ -9,6 +9,11 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // The web app moved under apps/web/ in the monorepo migration, but the
+  // developer .env.local (VITE_SUPABASE_URL / ANON_KEY) stays at the repo root.
+  // Point Vite's env dir there so local dev picks it up (prod env comes from
+  // Vercel's env vars, so this is a no-op there — no .env file in the build).
+  envDir: path.resolve(dirname, '../..'),
   resolve: {
     alias: {
       '@': path.resolve(dirname, './src'),

@@ -9,7 +9,7 @@ import StubScreen from '../screens/StubScreen'
 // out (real content) in later increments.
 const Stack = createNativeStackNavigator()
 
-const FEATURE_SCREENS = ['Finance', 'Calendar', 'Clients', 'Goals', 'Tasks', 'Leads']
+const FEATURE_SCREENS = ['Finance', 'Calendar', 'Clients', 'Goals', 'Tasks', 'Leads', 'Moon']
 
 export default function AppNavigator() {
   return (

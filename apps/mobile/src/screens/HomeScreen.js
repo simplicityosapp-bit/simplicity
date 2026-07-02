@@ -8,6 +8,7 @@ import { useHomeData } from '../hooks/useHomeData'
 import AttentionWidget from './home/AttentionWidget'
 import NextTasksWidget from './home/NextTasksWidget'
 import RemindersWidget from './home/RemindersWidget'
+import MoonWidget from './home/MoonWidget'
 
 // First real home screen — greeting + the net + clients chips, computed by the
 // SHARED core `homeChips` (same engine the web home uses). Built incrementally:
@@ -16,8 +17,13 @@ export default function HomeScreen() {
   const { session } = useAuth()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
-    tasks, goals, categories, sessions, members, reminders, loading, error, refetch,
+    tasks, goals, categories, sessions, members, reminders, entries, answers, loading, error, refetch,
   } = useHomeData()
+
+  const moonData = useMemo(
+    () => ({ goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups }),
+    [goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups],
+  )
 
   const attentionData = useMemo(
     () => ({ transactions, scheduled_meetings: meetings, clients, tasks, goals, categories, sessions, leads, members, groups }),
@@ -63,6 +69,7 @@ export default function HomeScreen() {
         <Chip value={loading ? '··' : String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} />
       </View>
 
+      {!loading ? <MoonWidget data={moonData} /> : null}
       {!loading ? <AttentionWidget data={attentionData} /> : null}
       {!loading ? <NextTasksWidget tasks={tasks} /> : null}
       {!loading ? <RemindersWidget reminders={reminders} /> : null}

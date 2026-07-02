@@ -9,12 +9,20 @@
 
 const DAY = 86400000
 
-export const isRecurring = (r) => !!r && !!r.recurrence_type && r.recurrence_type !== 'none'
+export interface Reminder {
+  recurrence_type?: string | null
+  recurrence_pattern?: { dayOfWeek?: number; dayOfMonth?: number; x?: number | string } | null
+  scheduled_at: string | number | Date
+  status?: string | null
+}
+
+export const isRecurring = (r: Reminder | null | undefined): boolean =>
+  !!r && !!r.recurrence_type && r.recurrence_type !== 'none'
 
 const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
 /* Short human label for a recurrence ("שבועי · שלישי", "חודשי", "כל 3 ימים"). */
-export function recurrenceLabel(r) {
+export function recurrenceLabel(r: Reminder): string {
   if (r.recurrence_type === 'weekly') {
     const d = r.recurrence_pattern?.dayOfWeek
     return typeof d === 'number' ? `שבועי · יום ${HEB_DAYS[d]}` : 'שבועי'
@@ -31,7 +39,7 @@ export function recurrenceLabel(r) {
 }
 
 /* The next scheduled_at after advancing ONE interval (used on complete). */
-export function nextScheduledAt(r) {
+export function nextScheduledAt(r: Reminder): Date {
   const d = new Date(r.scheduled_at)
   if (r.recurrence_type === 'weekly') d.setDate(d.getDate() + 7)
   else if (r.recurrence_type === 'monthly_date') {
@@ -48,14 +56,14 @@ export function nextScheduledAt(r) {
 
 /* How many occurrences are due (from scheduled_at up to `now`). 0 when the
    next occurrence is still in the future; 1 for a plain due reminder. */
-export function dueOccurrenceCount(r, now = new Date()) {
+export function dueOccurrenceCount(r: Reminder, now: Date = new Date()): number {
   const base = new Date(r.scheduled_at)
   if (base > now) return 0
   if (!isRecurring(r)) return 1
-  if (r.recurrence_type === 'weekly') return Math.floor((now - base) / (7 * DAY)) + 1
+  if (r.recurrence_type === 'weekly') return Math.floor((now.getTime() - base.getTime()) / (7 * DAY)) + 1
   if (r.recurrence_type === 'every_x_days') {
     const x = Number(r.recurrence_pattern?.x) || 1
-    return Math.floor((now - base) / (x * DAY)) + 1
+    return Math.floor((now.getTime() - base.getTime()) / (x * DAY)) + 1
   }
   if (r.recurrence_type === 'monthly_date') {
     /* Compare against the CONFIGURED day-of-month (clamped to this month),
@@ -71,4 +79,5 @@ export function dueOccurrenceCount(r, now = new Date()) {
 }
 
 /* A recurring reminder is "active" while not stopped (completed/dismissed). */
-export const isActiveReminder = (r) => r && r.status !== 'completed' && r.status !== 'dismissed'
+export const isActiveReminder = (r: Reminder | null | undefined): boolean =>
+  !!r && r.status !== 'completed' && r.status !== 'dismissed'

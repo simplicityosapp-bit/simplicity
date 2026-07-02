@@ -4,7 +4,7 @@ import DateField from '../components/DateField'
 import Modal from './Modal'
 import InvoiceActions from '../components/InvoiceActions'
 import GrowPayButton from '../components/GrowPayButton'
-import { PAY_METHODS, payMethodLabel } from '../lib/invoiceDocs'
+import { PAY_METHODS, payMethodLabel } from '@simplicity/core'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input } from '../components/ui'
 

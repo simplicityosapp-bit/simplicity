@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Target, Plus } from 'lucide-react'
-import { goalsByCategory } from '../../lib/goals'
+import { goalsByCategory } from '@simplicity/core'
 import { CATEGORY_PRESETS, presetToCategory } from '../../lib/goalPresets'
 import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'

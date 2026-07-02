@@ -1,7 +1,6 @@
 import { memo } from 'react'
 import { Check, X, RotateCcw, Trash2 } from 'lucide-react'
-import { isr, fmtShortDate } from '@simplicity/core'
-import { payMethodLabel } from '../../lib/invoiceDocs'
+import { isr, fmtShortDate, payMethodLabel } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import WhatsAppButton from '../../components/WhatsAppButton'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'

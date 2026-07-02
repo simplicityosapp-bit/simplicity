@@ -71,6 +71,6 @@ export const WIDGET_DENSITIES = ['compact', 'comfortable', 'spacious']
 export const WIDGET_TEXT_STRENGTHS = ['normal', 'bold']
 
 /* ── Validator ────────────────────────────────────────────────── */
-export function isEnumValue(enumArr, value) {
+export function isEnumValue(enumArr: unknown, value: unknown): boolean {
   return Array.isArray(enumArr) && enumArr.indexOf(value) >= 0
 }

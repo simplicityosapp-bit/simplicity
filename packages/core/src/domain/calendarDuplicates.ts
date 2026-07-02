@@ -15,16 +15,46 @@
 
 export const DUP_WINDOW_MIN = 90
 
-const dayKey = (d) => {
+interface Meeting {
+  id: string
+  status?: string | null
+  subject_type?: string
+  subject_id?: string
+  scheduled_at: string | number | Date
+}
+interface CalEvent {
+  id: string
+  deleted_at?: string | null
+  start_time?: string | number | Date | null
+  client_id?: string | null
+  group_id?: string | null
+}
+interface NamedEntity { id: string; name?: string }
+interface FindDuplicatesArgs {
+  meetings?: Meeting[]
+  calendarEvents?: CalEvent[]
+  clients?: NamedEntity[]
+  groups?: NamedEntity[]
+}
+export interface CalendarDuplicate {
+  id: string
+  meeting: Meeting
+  event: CalEvent
+  subjectType?: string
+  subjectName: string
+  when: Date
+}
+
+const dayKey = (d: string | number | Date): string => {
   const x = d instanceof Date ? d : new Date(d)
   return `${x.getFullYear()}-${x.getMonth()}-${x.getDate()}`
 }
 
 /* Stable pair id so a duplicate keeps the same identity across renders
    (used as the React key + to dedupe). */
-const pairId = (meetingId, eventId) => `${meetingId}::${eventId}`
+const pairId = (meetingId: string, eventId: string): string => `${meetingId}::${eventId}`
 
-export function findCalendarDuplicates({ meetings = [], calendarEvents = [], clients = [], groups = [] } = {}) {
+export function findCalendarDuplicates({ meetings = [], calendarEvents = [], clients = [], groups = [] }: FindDuplicatesArgs = {}): CalendarDuplicate[] {
   const windowMs = DUP_WINDOW_MIN * 60 * 1000
 
   /* Only live, still-active app meetings can be duplicates — a meeting
@@ -34,7 +64,7 @@ export function findCalendarDuplicates({ meetings = [], calendarEvents = [], cli
   /* Index synced, matched events by their subject for a cheap lookup.
      An event counts only if the sync (or a manual assignment) tied it to
      a client or group — we need the subject to call it a duplicate. */
-  const eventsBySubject = new Map()
+  const eventsBySubject = new Map<string, CalEvent[]>()
   for (const ev of calendarEvents) {
     if (ev.deleted_at) continue
     if (!ev.start_time) continue
@@ -43,23 +73,23 @@ export function findCalendarDuplicates({ meetings = [], calendarEvents = [], cli
     const type = ev.client_id ? 'client' : 'group'
     const key = `${type}|${subjectId}`
     if (!eventsBySubject.has(key)) eventsBySubject.set(key, [])
-    eventsBySubject.get(key).push(ev)
+    eventsBySubject.get(key)!.push(ev)
   }
 
-  const nameOf = (type, id) => {
+  const nameOf = (type: string | undefined, id: string | undefined): string => {
     if (type === 'client') return clients.find((c) => c.id === id)?.name || 'לקוח'
     return groups.find((g) => g.id === id)?.name || 'קבוצה'
   }
 
-  const out = []
-  const seen = new Set()
+  const out: CalendarDuplicate[] = []
+  const seen = new Set<string>()
   for (const m of activeMeetings) {
     const key = `${m.subject_type}|${m.subject_id}`
     const candidates = eventsBySubject.get(key)
     if (!candidates) continue
     const mAt = new Date(m.scheduled_at)
     for (const ev of candidates) {
-      const eAt = new Date(ev.start_time)
+      const eAt = new Date(ev.start_time!)
       if (dayKey(eAt) !== dayKey(mAt)) continue
       if (Math.abs(eAt.getTime() - mAt.getTime()) > windowMs) continue
       const id = pairId(m.id, ev.id)
@@ -76,5 +106,5 @@ export function findCalendarDuplicates({ meetings = [], calendarEvents = [], cli
     }
   }
   /* Soonest first so the user clears the nearest collision first. */
-  return out.sort((a, b) => a.when - b.when)
+  return out.sort((a, b) => a.when.getTime() - b.when.getTime())
 }

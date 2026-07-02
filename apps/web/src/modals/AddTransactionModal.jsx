@@ -5,8 +5,7 @@ import Modal from './Modal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
-import { effectiveClientMeta } from '@simplicity/core'
-import { PAY_METHODS, payMethodLabel, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '../lib/invoiceDocs'
+import { effectiveClientMeta, PAY_METHODS, payMethodLabel, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '@simplicity/core'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on

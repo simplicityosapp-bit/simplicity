@@ -73,6 +73,7 @@ export default function DeleteClientModal({
             await onUpdateTransaction(s.id, { client_id: s.client_id, orphaned_from: s.orphaned_from }).catch(() => {})
           }
           qc.invalidateQueries({ queryKey: ['clients'] })
+          qc.invalidateQueries({ queryKey: ['transactions'] })
         },
         redo: apply,
       })

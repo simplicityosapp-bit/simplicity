@@ -7,6 +7,7 @@ import { useAuth } from '../lib/auth'
 import { useHomeData } from '../hooks/useHomeData'
 import AttentionWidget from './home/AttentionWidget'
 import NextTasksWidget from './home/NextTasksWidget'
+import RemindersWidget from './home/RemindersWidget'
 
 // First real home screen — greeting + the net + clients chips, computed by the
 // SHARED core `homeChips` (same engine the web home uses). Built incrementally:
@@ -15,7 +16,7 @@ export default function HomeScreen() {
   const { session } = useAuth()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
-    tasks, goals, categories, sessions, members, loading, error, refetch,
+    tasks, goals, categories, sessions, members, reminders, loading, error, refetch,
   } = useHomeData()
 
   const attentionData = useMemo(
@@ -64,6 +65,7 @@ export default function HomeScreen() {
 
       {!loading ? <AttentionWidget data={attentionData} /> : null}
       {!loading ? <NextTasksWidget tasks={tasks} /> : null}
+      {!loading ? <RemindersWidget reminders={reminders} /> : null}
     </ScrollView>
   )
 }

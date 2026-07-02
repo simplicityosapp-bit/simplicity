@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { useHomeData } from '../hooks/useHomeData'
 import AttentionWidget from './home/AttentionWidget'
+import NextTasksWidget from './home/NextTasksWidget'
 
 // First real home screen — greeting + the net + clients chips, computed by the
 // SHARED core `homeChips` (same engine the web home uses). Built incrementally:
@@ -62,6 +63,7 @@ export default function HomeScreen() {
       </View>
 
       {!loading ? <AttentionWidget data={attentionData} /> : null}
+      {!loading ? <NextTasksWidget tasks={tasks} /> : null}
     </ScrollView>
   )
 }

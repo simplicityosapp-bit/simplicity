@@ -3,12 +3,14 @@ import { View, Text, Pressable, StyleSheet, ScrollView, RefreshControl } from 'r
 import { homeChips, todayItems, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../lib/auth'
 import { useHomeData } from '../hooks/useHomeData'
 
 // First real home screen — greeting + the net + clients chips, computed by the
 // SHARED core `homeChips` (same engine the web home uses). Built incrementally:
 // today's-agenda chip, attention rows, reminders etc. land in later increments.
-export default function HomeScreen({ session }) {
+export default function HomeScreen() {
+  const { session } = useAuth()
   const { clients, transactions, meetings, calendarEvents, leads, groups, loading, error, refetch } = useHomeData()
 
   const chips = useMemo(

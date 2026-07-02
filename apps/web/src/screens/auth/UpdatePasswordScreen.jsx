@@ -35,10 +35,15 @@ export default function UpdatePasswordScreen() {
     if (pwIssue === 'tooCommon') { setError(t('update.pwTooCommon')); return }
     if (password !== confirm) { setError(t('update.mismatch')); return }
     setBusy(true)
-    const { error } = await supabase.auth.updateUser({ password })
-    setBusy(false)
-    if (error) { setError(translateAuthError(error.message)); return }
-    setDone(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ password })
+      if (error) { setError(translateAuthError(error.message)); return }
+      setDone(true)
+    } catch (err) {
+      setError(translateAuthError(err?.message))
+    } finally {
+      setBusy(false)
+    }
   }
 
   if (done) {

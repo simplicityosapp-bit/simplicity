@@ -26,10 +26,15 @@ export default function LoginScreen() {
       return
     }
     setBusy(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    setBusy(false)
-    if (error) setError(translateAuthError(error.message))
-    // On success the AuthProvider switches the app to the authenticated view.
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) setError(translateAuthError(error.message))
+      // On success the AuthProvider switches the app to the authenticated view.
+    } catch (err) {
+      setError(translateAuthError(err?.message))
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (

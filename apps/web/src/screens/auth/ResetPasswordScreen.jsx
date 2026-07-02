@@ -24,12 +24,17 @@ export default function ResetPasswordScreen() {
       return
     }
     setBusy(true)
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}${ROUTES.UPDATE_PASSWORD}`,
-    })
-    setBusy(false)
-    if (error) setError(translateAuthError(error.message))
-    else setSent(true)
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}${ROUTES.UPDATE_PASSWORD}`,
+      })
+      if (error) setError(translateAuthError(error.message))
+      else setSent(true)
+    } catch (err) {
+      setError(translateAuthError(err?.message))
+    } finally {
+      setBusy(false)
+    }
   }
 
   if (sent) {

@@ -3,17 +3,10 @@
    ════════════════════════════════════════════════════════════════
    Each function accepts an optional `data` bag with named members
    (transactions, clients, tasks, leads, sessions, scheduled_meetings,
-   goals, categories, reminders). Members default to the mock data so
-   screens not yet migrated keep working.
+   goals, categories, reminders). Missing members default to [] — no mock
+   fallback (every caller passes real data from hooks).
    ════════════════════════════════════════════════════════════════ */
 
-import {
-  clients as mockClients, tasks as mockTasks, leads as mockLeads,
-  transactions as mockTransactions, reminders as mockReminders,
-  scheduled_meetings as mockMeetings, sessions as mockSessions,
-  goals as mockGoals, goal_categories as mockCategories,
-  group_members as mockMembers, groups as mockGroups,
-} from '../data/mock'
 import i18n from '@simplicity/core/i18n'
 import { ROUTES } from './routes'
 import { financeQuery, currentMonthRange } from '@simplicity/core'
@@ -35,7 +28,7 @@ export function monthNet(now = new Date(), data) {
   return { inc, exp, net: inc - exp }
 }
 function monthlyIncomeGoal(data) {
-  const { goals = mockGoals, categories = mockCategories } = data || {}
+  const { goals = [], categories = [] } = data || {}
   const cat = categories.find((c) => c.measurement_type === 'auto' && c.data_source === 'transactions')
   if (!cat) return 0
   const g = live(goals).find((x) => x.category_id === cat.id && x.time_frame === 'monthly')
@@ -48,7 +41,7 @@ function lastClientSession(cid, sessions) {
   return ts.length ? Math.max(...ts) : null
 }
 export function clientsNeedingAttention(days = 45, now = new Date(), data) {
-  const { clients = mockClients, sessions = mockSessions } = data || {}
+  const { clients = [], sessions = [] } = data || {}
   const cutoff = now.getTime() - days * DAY
   return live(clients).filter((c) => {
     if (!['active', 'wandering'].includes(c.status)) return false
@@ -57,7 +50,7 @@ export function clientsNeedingAttention(days = 45, now = new Date(), data) {
     return last === null || last < cutoff
   })
 }
-export function leadsNeedingAttention(days = 45, now = new Date(), leads = mockLeads) {
+export function leadsNeedingAttention(days = 45, now = new Date(), leads = []) {
   const cutoff = now.getTime() - days * DAY
   return live(leads).filter(
     (l) => l.status_meta === 'in_process' && l.last_status_changed_at && new Date(l.last_status_changed_at).getTime() < cutoff,
@@ -163,7 +156,7 @@ function rangeFromKey(key, now) {
    Each tile reads its slice from the resolved filters; missing
    filters fall back to sensible defaults (see DEFAULT_TILE_FILTERS). */
 export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS) {
-  const { clients = mockClients, tasks = mockTasks, transactions } = data || {}
+  const { clients = [], tasks = [], transactions } = data || {}
   const f = {
     clients: { ...DEFAULT_TILE_FILTERS.clients, ...(filters.clients || {}) },
     net:     { ...DEFAULT_TILE_FILTERS.net,     ...(filters.net     || {}) },
@@ -217,16 +210,16 @@ export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS
 /* ── Attention rows ────────────────────────────────────────────── */
 export function attentionItems(now = new Date(), data) {
   const {
-    transactions = mockTransactions,
-    scheduled_meetings = mockMeetings,
-    clients = mockClients,
-    tasks = mockTasks,
-    goals = mockGoals,
-    categories = mockCategories,
-    sessions = mockSessions,
-    leads = mockLeads,
-    members = mockMembers,
-    groups = mockGroups,
+    transactions = [],
+    scheduled_meetings = [],
+    clients = [],
+    tasks = [],
+    goals = [],
+    categories = [],
+    sessions = [],
+    leads = [],
+    members = [],
+    groups = [],
   } = data || {}
   /* Row labels are localized at compute time via the active i18n language.
      The widget re-runs this memo on language change so the rows re-render. */
@@ -328,7 +321,7 @@ function nextReminderOccurrence(r, start) {
    the lookahead window. Default window matches the home widget (60
    days / top 5) so existing callers don't change behaviour; the
    calendar passes wider params to cover its grid views. */
-export function remindersUpcoming(now = new Date(), remindersData = mockReminders, daysAhead = 60, limit = 5) {
+export function remindersUpcoming(now = new Date(), remindersData = [], daysAhead = 60, limit = 5) {
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead, 23, 59, 59)
   const out = []
@@ -344,13 +337,13 @@ export function remindersUpcoming(now = new Date(), remindersData = mockReminder
 
 /* ── Next tasks (open, by priority) ────────────────────────────── */
 const PORDER = { high: 0, medium: 1, low: 2 }
-export function nextTasks(limit = 5, tasks = mockTasks) {
+export function nextTasks(limit = 5, tasks = []) {
   return live(tasks)
     .filter((t) => t.status !== 'done')
     .slice()
     .sort((a, b) => (PORDER[a.priority] ?? 1) - (PORDER[b.priority] ?? 1))
     .slice(0, limit)
 }
-export function openTasksCount(tasks = mockTasks) {
+export function openTasksCount(tasks = []) {
   return live(tasks).filter((t) => t.status !== 'done').length
 }

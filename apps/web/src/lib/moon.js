@@ -11,7 +11,6 @@ import heReflections from '../i18n/locales/he/reflections.json'
 import enReflections from '../i18n/locales/en/reflections.json'
 import esReflections from '../i18n/locales/es/reflections.json'
 import frReflections from '../i18n/locales/fr/reflections.json'
-import { goals as allGoals, goal_categories, goal_entries, clients as mockClients, leads as mockLeads, daily_answers as mockAnswers, group_members as mockMembers, groups as mockGroups } from '../data/mock'
 import { financeQuery } from '@simplicity/core'
 import { isConvertedLead } from './leads'
 
@@ -161,19 +160,19 @@ function scoreGoal(goal, now, categories, entries, transactions, clients, leads,
   return { goal, cat, target, actual, pure, paced }
 }
 
-/* `data` lets a screen feed real Supabase rows; omitted → mock (so screens
-   not yet migrated keep working). { goals, categories, entries, transactions } */
+/* `data` lets a screen feed real Supabase rows; omitted members → [] (no mock
+   fallback). { goals, categories, entries, transactions } */
 export function moonGetData(now = new Date(), data) {
   const {
-    goals = allGoals,
-    categories = goal_categories,
-    entries = goal_entries,
+    goals = [],
+    categories = [],
+    entries = [],
     transactions,
-    clients = mockClients,
-    leads = mockLeads,
-    answers = mockAnswers,
-    members = mockMembers,
-    groups = mockGroups,
+    clients = [],
+    leads = [],
+    answers = [],
+    members = [],
+    groups = [],
   } = data || {}
   const scored = live(goals)
     .filter((g) => !g.parent_goal_id)

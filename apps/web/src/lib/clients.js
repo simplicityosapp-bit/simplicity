@@ -6,14 +6,13 @@
    sessions × price. Only confirmed income counts as "paid".
    ════════════════════════════════════════════════════════════════ */
 
-import { sessions, group_members as mockMembers, groups as mockGroups } from '../data/mock'
 import { financeQuery } from '@simplicity/core'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 
 export const statusMetaOf = (c) => c.status_meta || c.status || 'no_status'
 
-export function getClientMemberships(clientId, membersData = mockMembers) {
+export function getClientMemberships(clientId, membersData = []) {
   return live(membersData).filter((m) => m.client_id === clientId && !m.left_at)
 }
 
@@ -29,7 +28,7 @@ export const isStatusOverridden = (c) => !!c?.status_overridden
    only sit in ended groups → 'past'. A client with no group membership —
    OR one whose status the coach has manually overridden (status_overridden,
    migration 0062) — keeps their own stored status_meta. */
-export function effectiveClientMeta(c, membersData = mockMembers, groupsData = mockGroups) {
+export function effectiveClientMeta(c, membersData = [], groupsData = []) {
   if (!c) return 'no_status'
   if (isStatusOverridden(c)) return statusMetaOf(c)
   const memberships = getClientMemberships(c.id, membersData)
@@ -46,7 +45,7 @@ export function effectiveClientMeta(c, membersData = mockMembers, groupsData = m
    they're a member AND haven't been manually overridden. The card shows a
    read-only "by group" hint in this state; once overridden, the manual
    picker takes over. */
-export function isGroupDriven(c, membersData = mockMembers) {
+export function isGroupDriven(c, membersData = []) {
   return !!c && !isStatusOverridden(c) && getClientMemberships(c.id, membersData).length > 0
 }
 
@@ -68,7 +67,7 @@ function membershipTotal(m, groupsData, heldCount = 0) {
   return g.package_price || 0
 }
 
-export function clientBalance(c, txns, sessionsData = sessions, membersData = mockMembers, groupsData = mockGroups) {
+export function clientBalance(c, txns, sessionsData = [], membersData = [], groupsData = []) {
   /* "שולם" = real confirmed income + paid_adjustment (an INFORMAL paid
      credit recorded from the card via "התעלם" — money received but not
      entered as a finance transaction). The separate balance_adjustment is
@@ -170,7 +169,7 @@ export function paidForClients(arr, range = {}, txns) {
    sessions — mirroring clientBalance.sessionsPaid (every member "attends" the
    group's sessions), so the monthly count matches cumulative (formula §4.1 =
    private + active-group sessions). */
-export function sessionsCountForClients(arr, range = {}, sessionsData = sessions, membersData = mockMembers, groupsData = mockGroups) {
+export function sessionsCountForClients(arr, range = {}, sessionsData = [], membersData = [], groupsData = []) {
   const from = range.from ? new Date(range.from).getTime() : null
   const to = range.to ? new Date(range.to).getTime() : null
   const inRange = (s) => {

@@ -12,7 +12,7 @@ import {
   computeReportForRange, getLast12Months, getPeriodsForMonths,
   formatReportValue, getOrderedVisibleMetrics, computeReportSummary,
   getAllOrderedMetrics, getDrillRecords,
-} from '../../lib/reports'
+} from '@simplicity/core'
 import Modal from '../../modals/Modal'
 import InfoPopover from '../../components/InfoPopover'
 import { useReportsConfig } from '../../hooks/useReportsConfig'

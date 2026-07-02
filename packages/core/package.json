@@ -13,6 +13,10 @@
     "./i18n": {
       "types": "./src/i18n/index.ts",
       "default": "./src/i18n/index.ts"
+    },
+    "./i18n/reflections": {
+      "types": "./src/i18n/reflections.ts",
+      "default": "./src/i18n/reflections.ts"
     }
   },
   "scripts": {

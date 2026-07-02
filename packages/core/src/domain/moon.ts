@@ -1,30 +1,62 @@
 /* ════════════════════════════════════════════════════════════════
-   MOON SCORE — ported from moon-glance.js (snake_case mock).
+   MOON SCORE — ported from moon-glance.js.
    ════════════════════════════════════════════════════════════════
    Each parent goal is scored: pure = actual/target, paced = actual vs
    expected-by-now (period elapsed). The home "confidence" ring is the
    importance-weighted average of per-goal pace, each capped at 100.
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '@simplicity/core/i18n'
-import heReflections from '../i18n/locales/he/reflections.json'
-import enReflections from '../i18n/locales/en/reflections.json'
-import esReflections from '../i18n/locales/es/reflections.json'
-import frReflections from '../i18n/locales/fr/reflections.json'
-import { financeQuery, isConvertedLead } from '@simplicity/core'
+import i18n from '../i18n'
+import { financeQuery, type Tx } from './finance'
+import { isConvertedLead } from './leads'
+import '../i18n/reflections' // side-effect: register the 'reflections' namespace
 
-/* 'reflections' namespace is owned by these libs, not i18n/index.js — register
-   on import so i18n.t resolves even when moon.js loads without insights.js
-   (e.g. the home MoonWidget). Idempotent deep-merge. */
-if (!i18n.hasResourceBundle('he', 'reflections')) i18n.addResourceBundle('he', 'reflections', heReflections, true, true)
-if (!i18n.hasResourceBundle('en', 'reflections')) i18n.addResourceBundle('en', 'reflections', enReflections, true, true)
-if (!i18n.hasResourceBundle('es', 'reflections')) i18n.addResourceBundle('es', 'reflections', esReflections, true, true)
-if (!i18n.hasResourceBundle('fr', 'reflections')) i18n.addResourceBundle('fr', 'reflections', frReflections, true, true)
+interface MoonGoal {
+  time_frame?: string
+  created_at?: string | null
+  target_date?: string | null
+  target_value?: number | string | null
+  category_id?: string
+  project_id?: string | null
+  group_id?: string | null
+  tracking_method?: string
+  tracked_by_question_id?: string | null
+  parent_goal_id?: string | null
+  importance?: number
+  deleted_at?: string | null
+}
+interface MoonCategory {
+  id: string
+  measurement_type?: string
+  data_source?: string
+  graph_type?: string
+}
+interface MoonEntry { category_id?: string; date: string; value?: number | null; deleted_at?: string | null }
+interface MoonAnswer { user_question_id?: string; value_num?: number | string | null; date: string; deleted_at?: string | null }
+interface MoonClient { status_meta?: string; status?: string; deleted_at?: string | null }
+interface MoonLead { inquiry_date?: string | null; converted_at?: string | null; deleted_at?: string | null }
+interface MoonMember { left_at?: string | null; group_id: string; client_id: string; deleted_at?: string | null }
+interface MoonGroup { id: string; project_id?: string | null; deleted_at?: string | null }
 
-const live = (a) => (a || []).filter((r) => !r.deleted_at)
-const isActiveClient = (c) => (c.status_meta || c.status || 'no_status') === 'active'
+export interface MoonData {
+  goals?: MoonGoal[]
+  categories?: MoonCategory[]
+  entries?: MoonEntry[]
+  transactions?: Tx[]
+  clients?: MoonClient[]
+  leads?: MoonLead[]
+  answers?: MoonAnswer[]
+  members?: MoonMember[]
+  groups?: MoonGroup[]
+}
+interface Period { start: Date; end: Date }
+export interface ScoredGoal { goal: MoonGoal; cat: MoonCategory; target: number; actual: number; pure: number; paced: number }
 
-function goalPeriod(goal, now) {
+const live = <T extends { deleted_at?: string | null }>(a: T[] | null | undefined): T[] =>
+  (a || []).filter((r) => !r.deleted_at)
+const isActiveClient = (c: MoonClient): boolean => (c.status_meta || c.status || 'no_status') === 'active'
+
+function goalPeriod(goal: MoonGoal, now: Date): Period {
   if (goal.time_frame === 'monthly') {
     return {
       start: new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0),
@@ -47,15 +79,15 @@ function goalPeriod(goal, now) {
   return { start, end }
 }
 
-function elapsedFraction(period, now) {
+function elapsedFraction(period: Period, now: Date): number {
   const total = period.end.getTime() - period.start.getTime()
   if (total <= 0) return 1
   return Math.max(0, Math.min(1, (now.getTime() - period.start.getTime()) / total))
 }
 
-const isBinary = (goal) => goal.time_frame === 'deadline' && Number(goal.target_value) === 1
+const isBinary = (goal: MoonGoal): boolean => goal.time_frame === 'deadline' && Number(goal.target_value) === 1
 
-function goalActual(goal, cat, now, entries, transactions, clients, leads, answers, members, groups) {
+function goalActual(goal: MoonGoal, cat: MoonCategory, now: Date, entries: MoonEntry[], transactions: Tx[] | undefined, clients: MoonClient[], leads: MoonLead[], answers: MoonAnswer[], members: MoonMember[], groups: MoonGroup[]): number {
   const period = goalPeriod(goal, now)
   const to = now < period.end ? now : period.end
   /* Sum of manual progress entries for this goal's category within the
@@ -65,7 +97,7 @@ function goalActual(goal, cat, now, entries, transactions, clients, leads, answe
      be silently dropped (beta 06/06/2026). End-of-today is the upper
      bound so an entry logged before noon still counts toward today (the
      sentinel date is normalised to 'YYYY-MM-DDT12:00:00'). */
-  const sumManualEntries = () => {
+  const sumManualEntries = (): number => {
     const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
     return live(entries)
       .filter((e) => {
@@ -109,7 +141,7 @@ function goalActual(goal, cat, now, entries, transactions, clients, leads, answe
     if (cat.data_source === 'leads_closings') {
       return live(leads).filter((l) => {
         if (!isConvertedLead(l)) return false
-        const d = new Date(l.converted_at)
+        const d = new Date(l.converted_at || 0)
         return d >= period.start && d <= to
       }).length
     }
@@ -134,7 +166,7 @@ function goalActual(goal, cat, now, entries, transactions, clients, leads, answe
   return sumManualEntries()
 }
 
-function scoreGoal(goal, now, categories, entries, transactions, clients, leads, answers, members, groups) {
+function scoreGoal(goal: MoonGoal, now: Date, categories: MoonCategory[], entries: MoonEntry[], transactions: Tx[] | undefined, clients: MoonClient[], leads: MoonLead[], answers: MoonAnswer[], members: MoonMember[], groups: MoonGroup[]): ScoredGoal | null {
   const cat = categories.find((c) => c.id === goal.category_id)
   /* target must be a real positive number — Number() guards against a
      non-numeric string slipping past `<= 0` (e.g. "x" <= 0 is false),
@@ -161,7 +193,7 @@ function scoreGoal(goal, now, categories, entries, transactions, clients, leads,
 
 /* `data` lets a screen feed real Supabase rows; omitted members → [] (no mock
    fallback). { goals, categories, entries, transactions } */
-export function moonGetData(now = new Date(), data) {
+export function moonGetData(now: Date = new Date(), data?: MoonData): { overall: { pure: number; paced: number; confidence: number } | null; scored: ScoredGoal[] } {
   const {
     goals = [],
     categories = [],
@@ -176,7 +208,7 @@ export function moonGetData(now = new Date(), data) {
   const scored = live(goals)
     .filter((g) => !g.parent_goal_id)
     .map((g) => scoreGoal(g, now, categories, entries, transactions, clients, leads, answers, members, groups))
-    .filter(Boolean)
+    .filter((s): s is ScoredGoal => Boolean(s))
   if (!scored.length) return { overall: null, scored: [] }
   let tw = 0, tp = 0, tpc = 0, tc = 0
   scored.forEach((s) => {
@@ -196,7 +228,7 @@ export function moonGetData(now = new Date(), data) {
   }
 }
 
-export function moonReflection(confidence, gender) {
+export function moonReflection(confidence: number, gender?: string): string {
   /* Address the user in their form of address (some strings carry "את/ה"). */
   const opts = gender === 'male' || gender === 'female' ? { context: gender } : undefined
   if (confidence >= 90) return i18n.t('reflections:moon.excellent', opts)
@@ -207,12 +239,12 @@ export function moonReflection(confidence, gender) {
 
 /* Per-category breakdown: importance-weighted, pace-capped confidence + the
    goals that feed it. Categories without scored goals are omitted. */
-export function moonGetCategories(now = new Date(), data) {
+export function moonGetCategories(now: Date = new Date(), data?: MoonData): { category: MoonCategory; confidence: number; pure: number; goals: ScoredGoal[] }[] {
   const { scored } = moonGetData(now, data)
-  const byCat = new Map()
+  const byCat = new Map<string, { category: MoonCategory; items: ScoredGoal[] }>()
   scored.forEach((s) => {
     if (!byCat.has(s.cat.id)) byCat.set(s.cat.id, { category: s.cat, items: [] })
-    byCat.get(s.cat.id).items.push(s)
+    byCat.get(s.cat.id)!.items.push(s)
   })
   return [...byCat.values()].map(({ category, items }) => {
     let tw = 0, tc = 0, tp = 0
@@ -228,8 +260,8 @@ export function moonGetCategories(now = new Date(), data) {
 
 /* Daily confidence for the last `days` days — computed by scoring "as of" each
    day, so it reflects how income + entries accumulate through the period. */
-export function moonTrend(days = 30, now = new Date(), data) {
-  const out = []
+export function moonTrend(days = 30, now: Date = new Date(), data?: MoonData): { date: Date; score: number }[] {
+  const out: { date: Date; score: number }[] = []
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i, 23, 59, 59)
     const res = moonGetData(d, data)

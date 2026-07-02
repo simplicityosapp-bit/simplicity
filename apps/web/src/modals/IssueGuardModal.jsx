@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { TriangleAlert } from 'lucide-react'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
-import { isr } from '../lib/finance'
+import { isr } from '@simplicity/core'
 import { Box, Txt, Btn } from '../components/ui'
 
 /* Two-step guard shown before issuing a REAL (irreversible) tax document when

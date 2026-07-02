@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { useRecurring } from '../../../hooks/useRecurring'
 import { useT } from '../../../i18n/useT'
-import { isr } from '../../../lib/finance'
+import { isr } from '@simplicity/core'
 import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* Quick-fill presets. "Other" clears the composer so the user types their own.

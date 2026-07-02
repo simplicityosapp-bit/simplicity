@@ -3,7 +3,7 @@ import { User, CalendarDays, Wallet, Users, ChevronDown, MapPin } from 'lucide-r
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import MeetingTypesModal from './MeetingTypesModal'
-import { isr } from '../lib/finance'
+import { isr } from '@simplicity/core'
 import { useMeetingTypes } from '../hooks/useMeetingTypes'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Textarea } from '../components/ui'

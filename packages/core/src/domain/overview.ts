@@ -10,12 +10,33 @@
    missing day is a gap, not a zero.
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from '@simplicity/core/i18n'
+import i18n from '../i18n'
 
-const pad2 = (n) => String(n).padStart(2, '0')
+type DayInput = Date | string | number
+
+interface TrendTxn { deleted_at?: string | null; type?: string; status?: string; date: DayInput; amount?: number | string | null }
+interface TrendLead { deleted_at?: string | null; inquiry_date?: DayInput | null }
+interface TrendSession { deleted_at?: string | null; date?: DayInput | null }
+interface TrendAnswer { deleted_at?: string | null; user_question_id?: string; value_num?: number | null; date: DayInput }
+
+export interface TrendQuestion { id: string; active?: boolean; scale_type?: string }
+
+export interface TrendContext {
+  transactions?: TrendTxn[]
+  leads?: TrendLead[]
+  sessions?: TrendSession[]
+  answers?: TrendAnswer[]
+  scoreByDay?: Record<string, number>
+  questionId?: string | null
+}
+
+type MetricKey = 'income' | 'leads' | 'sessions' | 'score' | 'question'
+interface OverviewMetric { key: MetricKey; color: string; unit: string; missingZero: boolean }
+
+const pad2 = (n: number): string => String(n).padStart(2, '0')
 /* Local calendar-day key — a date-only string is already a day; a full
    timestamp is bucketed by LOCAL parts (toISOString would shift to UTC). */
-function dayKey(d) {
+function dayKey(d: DayInput): string {
   if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d)) return d.slice(0, 10)
   const dt = d instanceof Date ? d : new Date(d)
   return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}`
@@ -26,7 +47,7 @@ function dayKey(d) {
    stay legible on the glass card in both themes. */
 /* Display labels resolve via i18n (reports:trendSeries.<key>) at build time so
    the legend follows the active language; the registry stays language-agnostic. */
-export const OVERVIEW_METRICS = {
+export const OVERVIEW_METRICS: Record<MetricKey, OverviewMetric> = {
   income:   { key: 'income',   color: '#8BA888', unit: '₪',  missingZero: true },
   leads:    { key: 'leads',    color: '#C97B5E', unit: '',   missingZero: true },
   sessions: { key: 'sessions', color: '#D4A574', unit: '',   missingZero: true },
@@ -35,8 +56,8 @@ export const OVERVIEW_METRICS = {
 }
 
 /* Last `window` calendar days, oldest-first, as day keys. */
-function windowDays(window, now) {
-  const out = []
+function windowDays(window: number, now: Date): string[] {
+  const out: string[] = []
   const base = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   for (let i = window - 1; i >= 0; i -= 1) {
     const d = new Date(base)
@@ -48,12 +69,12 @@ function windowDays(window, now) {
 
 /* Raw per-day value for one metric across the day-key list. Returns an
    array aligned to `days`; null = missing (drawn as a gap). */
-function rawSeries(metricKey, days, ctx) {
+function rawSeries(metricKey: string, days: string[], ctx: TrendContext): (number | null)[] {
   const { transactions = [], leads = [], sessions = [], answers = [], scoreByDay = {}, questionId = null } = ctx
-  const zero = () => days.map(() => 0)
+  const zero = (): (number | null)[] => days.map(() => 0)
 
   if (metricKey === 'income') {
-    const sum = Object.create(null)
+    const sum: Record<string, number> = Object.create(null)
     transactions.forEach((t) => {
       if (t.deleted_at || t.type !== 'income') return
       if (t.status && t.status !== 'confirmed') return
@@ -63,7 +84,7 @@ function rawSeries(metricKey, days, ctx) {
     return days.map((k) => sum[k] || 0)
   }
   if (metricKey === 'leads') {
-    const cnt = Object.create(null)
+    const cnt: Record<string, number> = Object.create(null)
     leads.forEach((l) => {
       if (l.deleted_at || !l.inquiry_date) return
       const k = dayKey(l.inquiry_date)
@@ -72,7 +93,7 @@ function rawSeries(metricKey, days, ctx) {
     return days.map((k) => cnt[k] || 0)
   }
   if (metricKey === 'sessions') {
-    const cnt = Object.create(null)
+    const cnt: Record<string, number> = Object.create(null)
     sessions.forEach((s) => {
       if (s.deleted_at || !s.date) return
       const k = dayKey(s.date)
@@ -86,7 +107,7 @@ function rawSeries(metricKey, days, ctx) {
   }
   if (metricKey === 'question') {
     if (!questionId) return days.map(() => null)
-    const byDay = Object.create(null)
+    const byDay: Record<string, number> = Object.create(null)
     answers.forEach((a) => {
       if (a.deleted_at || a.user_question_id !== questionId || a.value_num == null) return
       byDay[dayKey(a.date)] = Number(a.value_num)
@@ -100,8 +121,8 @@ function rawSeries(metricKey, days, ctx) {
    A flat NON-zero series sits at 50 ("no movement"); a flat ALL-ZERO
    series sits at 0 — otherwise an income/leads line for a user with no
    activity would draw at mid-height and read as "steady medium income". */
-function normalize(raw) {
-  const vals = raw.filter((v) => v != null)
+function normalize(raw: (number | null)[]): (number | null)[] {
+  const vals = raw.filter((v): v is number => v != null)
   if (!vals.length) return raw.map(() => null)
   const min = Math.min(...vals)
   const max = Math.max(...vals)
@@ -118,9 +139,10 @@ function normalize(raw) {
    ════════════════════════════════════════════════════════════════ */
 
 /* Average ranks (ties shared) — the basis for Spearman. */
-function rankArray(arr) {
-  const order = arr.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0])
-  const ranks = new Array(arr.length)
+function rankArray(arr: number[]): number[] {
+  const order: [number, number][] = arr.map((v, i) => [v, i])
+  order.sort((a, b) => a[0] - b[0])
+  const ranks: number[] = new Array(arr.length)
   let i = 0
   while (i < order.length) {
     let j = i
@@ -132,7 +154,7 @@ function rankArray(arr) {
   return ranks
 }
 
-function pearson(x, y) {
+function pearson(x: number[], y: number[]): number {
   const n = x.length
   if (n < 3) return 0
   const mx = x.reduce((a, b) => a + b, 0) / n
@@ -147,13 +169,13 @@ function pearson(x, y) {
   return sxy / Math.sqrt(sxx * syy)
 }
 
-function spearman(x, y) {
+function spearman(x: number[], y: number[]): number {
   return pearson(rankArray(x), rankArray(y))
 }
 
 /* Deterministic PRNG (mulberry32) so the permutation p-value is stable
    across renders — no flicker for a link sitting near the threshold. */
-function makeRng(seed) {
+function makeRng(seed: number): () => number {
   let a = seed >>> 0
   return () => {
     a = (a + 0x6D2B79F5) | 0
@@ -166,7 +188,7 @@ function makeRng(seed) {
 /* Stable 32-bit string hash → permutation seed keyed to the link's
    IDENTITY (driver|outcome), not its position in the candidate array.
    Reordering / toggling questions no longer reshuffles every p-value. */
-function strHash(str) {
+function strHash(str: string): number {
   let h = 2166136261
   for (let i = 0; i < str.length; i += 1) {
     h ^= str.charCodeAt(i)
@@ -178,7 +200,7 @@ function strHash(str) {
 /* Permutation test: how often a shuffled outcome matches/beats the
    observed |ρ|. The (ge+1)/(iters+1) estimator never returns 0, so a
    real link stays distinguishable under multiple-comparison correction. */
-function permutationP(x, y, rhoObs, iters, seed) {
+function permutationP(x: number[], y: number[], rhoObs: number, iters: number, seed: number): number {
   const rng = makeRng(seed)
   const yc = y.slice()
   const absObs = Math.abs(rhoObs)
@@ -196,7 +218,7 @@ function permutationP(x, y, rhoObs, iters, seed) {
 /* Same-sign, non-trivial Spearman in BOTH chronological halves → the
    pattern is stable, not driven by one stretch. Each half needs ≥5 points
    and |r| ≥ 0.2 (4-point halves clear a 0.1 bar almost by chance). */
-function splitHalfStable(xs, ys) {
+function splitHalfStable(xs: number[], ys: number[]): boolean {
   const n = xs.length
   const mid = Math.floor(n / 2)
   if (mid < 5 || n - mid < 5) return false
@@ -205,14 +227,16 @@ function splitHalfStable(xs, ys) {
   return Math.sign(r1) === Math.sign(r2) && Math.abs(r1) >= 0.2 && Math.abs(r2) >= 0.2
 }
 
-function strengthLabel(absR) {
+function strengthLabel(absR: number): string {
   if (absR >= 0.5) return 'חזק'
   if (absR >= 0.35) return 'בינוני'
   return 'עדין'
 }
 
+interface CorrCtx { days: string[]; income: (number | null)[]; leads: (number | null)[]; sessions: (number | null)[] }
+
 /* One window's day keys + per-day raw arrays for the count outcomes. */
-function corrContext(ctx, window, now) {
+function corrContext(ctx: TrendContext, window: number, now: Date): CorrCtx {
   const days = windowDays(window, now)
   return {
     days,
@@ -223,8 +247,8 @@ function corrContext(ctx, window, now) {
 }
 
 /* Per-day value map for one question (dayKey → value_num). */
-function questionDayMap(answers, qid) {
-  const m = Object.create(null)
+function questionDayMap(answers: TrendAnswer[] | undefined, qid: string): Record<string, number> {
+  const m: Record<string, number> = Object.create(null)
   ;(answers || []).forEach((a) => {
     if (a.deleted_at || a.user_question_id !== qid || a.value_num == null) return
     m[dayKey(a.date)] = Number(a.value_num)
@@ -232,14 +256,18 @@ function questionDayMap(answers, qid) {
   return m
 }
 
+type Outcome =
+  | { kind: 'question'; map: Record<string, number> }
+  | { kind: 'income' | 'leads' | 'sessions' }
+
 /* Build paired observations for a (driver question, outcome) candidate.
    Q↔Q pairs are DAILY (same self-report cadence); a count outcome is
    aggregated WEEKLY (7-day blocks: mean driver vs summed outcome) to
    damp daily noise and the worst of the reporting lag. */
-function buildPairs(driverMap, outcome, corr) {
+function buildPairs(driverMap: Record<string, number>, outcome: Outcome, corr: CorrCtx): { xs: number[]; ys: number[] } {
   const { days } = corr
-  const xs = []
-  const ys = []
+  const xs: number[] = []
+  const ys: number[] = []
   if (outcome.kind === 'question') {
     days.forEach((k) => {
       const d = driverMap[k]
@@ -265,7 +293,41 @@ function buildPairs(driverMap, outcome, corr) {
   return { xs, ys }
 }
 
-const OUTCOME_LABELS = { income: 'הכנסות', leads: 'פניות', sessions: 'פגישות' }
+const OUTCOME_LABELS: Record<string, string> = { income: 'הכנסות', leads: 'פניות', sessions: 'פגישות' }
+
+interface Candidate {
+  driver: TrendQuestion
+  driverMap: Record<string, number>
+  outcomeKey: string
+  outcomeLabel: string | null
+  outcomeQ: TrendQuestion | null
+  outcome: Outcome
+  minN: number
+}
+
+export interface CorrelationResult {
+  key: string
+  driverLabel: TrendQuestion
+  outcomeLabel: string | null
+  outcomeQ: TrendQuestion | null
+  rho: number
+  p: number
+  n: number
+  direction: 'pos' | 'neg'
+  strength: string
+  points: { x: number; y: number }[]
+}
+
+export interface OverviewCorrelationOpts {
+  window?: number
+  now?: Date
+  questions?: TrendQuestion[]
+  minDaily?: number
+  minWeekly?: number
+  fdrQ?: number
+  iters?: number
+  cap?: number
+}
 
 /* The guarded pipeline (analytics §8.2). Cheap gates (sample size, a
    minimum |ρ|, split-half stability) pre-filter; survivors get a permutation
@@ -273,17 +335,17 @@ const OUTCOME_LABELS = { income: 'הכנסות', leads: 'פניות', sessions: 
    family controls the false-discovery rate from testing many pairs. Returns
    ≤ `cap` survivors as a flat "patterns to explore" list — never a headline.
    The common, correct result is an empty array. */
-export function buildOverviewCorrelations(ctx, {
+export function buildOverviewCorrelations(ctx: TrendContext, {
   window = 120, now = new Date(), questions = [],
   minDaily = 14, minWeekly = 10, fdrQ = 0.10, iters = 2000, cap = 3,
-} = {}) {
+}: OverviewCorrelationOpts = {}): CorrelationResult[] {
   const corr = corrContext(ctx, window, now)
   /* Only numeric (1–10) questions drive a correlation — "when X is higher"
      is meaningless for a yes/no question, and the wording would read wrong. */
   const active = (questions || []).filter((q) => q.active && q.scale_type !== 'yes_no')
   const maps = active.map((q) => ({ q, map: questionDayMap(ctx.answers, q.id) }))
 
-  const candidates = []
+  const candidates: Candidate[] = []
   maps.forEach(({ q: dq, map: dMap }, di) => {
     /* Q ↔ other Q (each unordered pair once). */
     maps.forEach(({ q: oq, map: oMap }, oi) => {
@@ -291,7 +353,7 @@ export function buildOverviewCorrelations(ctx, {
       candidates.push({ driver: dq, driverMap: dMap, outcomeKey: `q:${oq.id}`, outcomeLabel: null, outcomeQ: oq, outcome: { kind: 'question', map: oMap }, minN: minDaily })
     })
     /* Q ↔ count outcomes (weekly). */
-    ;['income', 'leads', 'sessions'].forEach((key) => {
+    ;(['income', 'leads', 'sessions'] as const).forEach((key) => {
       candidates.push({ driver: dq, driverMap: dMap, outcomeKey: key, outcomeLabel: OUTCOME_LABELS[key], outcomeQ: null, outcome: { kind: key }, minN: minWeekly })
     })
   })
@@ -302,7 +364,7 @@ export function buildOverviewCorrelations(ctx, {
   const mTotal = candidates.length
   if (mTotal === 0) return []
 
-  const scored = []
+  const scored: { p: number; result: CorrelationResult }[] = []
   candidates.forEach((c) => {
     const { xs, ys } = buildPairs(c.driverMap, c.outcome, corr)
     if (xs.length < c.minN) return
@@ -343,14 +405,29 @@ export function buildOverviewCorrelations(ctx, {
     .slice(0, cap)
 }
 
+export interface TrendSeries {
+  key: MetricKey
+  label: string
+  color: string
+  unit: string
+  raw: (number | null)[]
+  norm: (number | null)[]
+  summary: number | null
+  summaryKind: 'total' | 'latest'
+}
+
 /* Build the overlay: one normalized series per selected metric, each with
    its raw array + latest non-null raw value for the legend. `questionLabel`
    overrides the generic "שאלה יומית" label when a question is selected. */
-export function buildOverviewTrend(selectedKeys, ctx, { window = 30, now = new Date(), questionLabel } = {}) {
+export function buildOverviewTrend(
+  selectedKeys: string[] | null | undefined,
+  ctx: TrendContext,
+  { window = 30, now = new Date(), questionLabel }: { window?: number; now?: Date; questionLabel?: string } = {},
+): { days: string[]; series: TrendSeries[] } {
   const days = windowDays(window, now)
   const series = (selectedKeys || [])
-    .map((key) => OVERVIEW_METRICS[key])
-    .filter(Boolean)
+    .map((key) => OVERVIEW_METRICS[key as MetricKey])
+    .filter((m): m is OverviewMetric => Boolean(m))
     .map((m) => {
       const raw = rawSeries(m.key, days, ctx)
       /* Legend value: count/money metrics show the WINDOW TOTAL (a daily
@@ -358,7 +435,7 @@ export function buildOverviewTrend(selectedKeys, ctx, { window = 30, now = new D
          daily question show their latest answered value. */
       const lastRaw = [...raw].reverse().find((v) => v != null)
       const summary = m.missingZero
-        ? raw.reduce((acc, v) => acc + (v || 0), 0)
+        ? raw.reduce((acc: number, v) => acc + (v || 0), 0)
         : (lastRaw == null ? null : lastRaw)
       return {
         key: m.key,
@@ -368,7 +445,7 @@ export function buildOverviewTrend(selectedKeys, ctx, { window = 30, now = new D
         raw,
         norm: normalize(raw),
         summary,
-        summaryKind: m.missingZero ? 'total' : 'latest',
+        summaryKind: (m.missingZero ? 'total' : 'latest') as 'total' | 'latest',
       }
     })
   return { days, series }

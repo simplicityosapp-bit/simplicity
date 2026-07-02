@@ -3,7 +3,7 @@ import { FileDown, Check, X, ExternalLink, Loader2, TriangleAlert } from 'lucide
 import { useInvoiceImports } from '../../hooks/useInvoiceImports'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useT } from '../../i18n/useT'
-import { isr } from '../../lib/finance'
+import { isr } from '@simplicity/core'
 import ConfirmModal from '../../modals/ConfirmModal'
 import './InvoiceImports.css'
 import { Box, Txt, Btn, Lnk } from '../../components/ui'

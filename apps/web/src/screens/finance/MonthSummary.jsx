@@ -1,6 +1,5 @@
 import { ChevronRight, ChevronLeft, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react'
-import { fmtMonthYear } from '@simplicity/core'
-import { isr } from '../../lib/finance'
+import { fmtMonthYear, isr } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
 

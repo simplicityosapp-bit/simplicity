@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Users, X, Pencil } from 'lucide-react'
-import { isr } from '../../lib/finance'
+import { isr } from '@simplicity/core'
 import { buildRoute, ROUTES } from '../../lib/routes'
 import { Box, Txt, Btn } from '../../components/ui'
 import { useT } from '../../i18n/useT'

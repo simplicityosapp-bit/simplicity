@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { FolderOpen } from 'lucide-react'
-import { isr } from '../../lib/finance'
+import { isr } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt } from '../../components/ui'
 

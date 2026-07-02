@@ -15,7 +15,7 @@ import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import InfoPopover from '../../../components/InfoPopover'
 import TileDrillModal from '../../../modals/TileDrillModal'
-import { isr } from '../../../lib/finance'
+import { isr } from '@simplicity/core'
 import { useT } from '../../../i18n/useT'
 import { Box, Txt } from '../../../components/ui'
 

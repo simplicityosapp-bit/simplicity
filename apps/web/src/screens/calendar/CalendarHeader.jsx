@@ -3,7 +3,7 @@ import { ChevronRight, ChevronLeft, ChevronDown, SlidersHorizontal } from 'lucid
 import {
   fmtDayLabel, fmtHebrewDayLabel, hebrewMonthLabel, monthNamesLong,
   hebrewMonthsOfYear, hebrewParts, isSameHebrewMonth, stepHebrewMonth,
-} from '../../lib/calendar'
+} from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
 

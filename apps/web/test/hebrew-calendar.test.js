@@ -10,7 +10,7 @@ import { describe, it, expect } from 'vitest'
 import {
   hebrewNumeral, hebrewParts, hebrewDayNum, isSameHebrewMonth,
   startOfHebrewMonth, stepHebrewMonth, stepHebrewYear, hebrewMonthGrid, hebrewMonthLabel, fmtHebrewDayLabel,
-} from '../src/lib/calendar'
+} from '@simplicity/core'
 
 describe('hebrewNumeral — gematria with geresh / gershayim', () => {
   it('single letter gets a geresh', () => {

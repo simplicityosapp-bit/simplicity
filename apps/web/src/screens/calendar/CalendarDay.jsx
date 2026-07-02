@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
-import { eventsForDay, isSameDay } from '../../lib/calendar'
-import { fmtTime } from '../../lib/dates'
+import { eventsForDay, isSameDay, fmtTime } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
 

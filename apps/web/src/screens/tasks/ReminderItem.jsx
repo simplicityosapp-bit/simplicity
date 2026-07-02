@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Check, Pencil } from 'lucide-react'
-import { formatWhen } from '../../lib/dates'
+import { formatWhen } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import InlineTitle from './InlineTitle'
 import { Box, Txt, Btn } from '../../components/ui'

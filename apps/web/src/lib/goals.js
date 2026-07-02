@@ -5,7 +5,7 @@
 import i18n from '@simplicity/core/i18n'
 import { moonGetData } from './moon'
 import { isr } from './finance'
-import { fmtShortDate } from './dates'
+import { fmtShortDate } from '@simplicity/core'
 
 export function timeFrameLabel(goal) {
   if (goal.time_frame === 'monthly') return 'חודשי'

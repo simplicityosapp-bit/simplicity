@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { setCurrentCurrency } from '../lib/finance'
-import { setDateTimeFormat, setHebrewCalendar } from '../lib/dates'
+import { setDateTimeFormat, setHebrewCalendar } from '@simplicity/core'
 
 /* ════════════════════════════════════════════════════════════════
    PrefsApplier — one-way bridge from user_preferences to side-effects.

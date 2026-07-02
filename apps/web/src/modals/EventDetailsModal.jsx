@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Check, X, CalendarDays, Clock, Pencil, Trash2 } from 'lucide-react'
 import Modal from './Modal'
-import { formatWhen, fmtTime } from '../lib/dates'
+import { formatWhen, fmtTime } from '@simplicity/core'
 import { isr } from '../lib/finance'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Lnk } from '../components/ui'

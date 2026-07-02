@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar'
 import { setupI18n } from './src/lib/i18n'
 import { supabase } from './src/lib/supabase'
 import LoginScreen from './src/screens/LoginScreen'
-import HomePlaceholder from './src/screens/HomePlaceholder'
+import HomeScreen from './src/screens/HomeScreen'
 
 // Init the shared i18n engine once, before the first render.
 setupI18n()
@@ -34,7 +34,7 @@ export default function App() {
 
   return (
     <>
-      {session ? <HomePlaceholder session={session} /> : <LoginScreen />}
+      {session ? <HomeScreen session={session} /> : <LoginScreen />}
       <StatusBar style="auto" />
     </>
   )

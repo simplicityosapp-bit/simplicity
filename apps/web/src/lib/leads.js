@@ -4,10 +4,7 @@
    4 fixed meta columns (D24). Sub-status + source come from their tables.
    ════════════════════════════════════════════════════════════════ */
 
-import { leads, lead_sources, lead_statuses } from '../data/mock'
 import i18n from '@simplicity/core/i18n'
-
-const live = (a) => (a || []).filter((r) => !r.deleted_at)
 
 /* 3 fixed meta columns. "רפאים" (ghost) is no longer its own column —
    it became a SUB-status under "לא רלוונטי" (migration 0009). The `title`
@@ -37,34 +34,11 @@ export const isConvertedLead = (l) => statusMetaOfLead(l) === 'converted' && !!l
    hidden from the kanban + stats and surface only in the review section +
    the home "דורש תשומת לב" widget until approved (pending_review → false). */
 export const isPendingReview = (l) => !!l.pending_review
-export const sourceOf = (id) => lead_sources.find((s) => s.id === id)
-export const subStatusOf = (id) => lead_statuses.find((s) => s.id === id)
 
-/* Column accent = the default sub-status colour for that meta. */
-export function metaColor(key) {
-  const def = lead_statuses.find((s) => s.meta_category === key && s.is_default)
+/* Column accent = the default sub-status colour for that meta. Pass the
+   user's real lead_statuses (from useLeadStatuses) so the kanban reflects
+   their customised colours; falls back to a neutral token when absent. */
+export function metaColor(key, statuses) {
+  const def = (statuses || []).find((s) => s.meta_category === key && s.is_default)
   return def?.color || 'var(--stone)'
-}
-
-export function leadsByMeta() {
-  const all = live(leads)
-  const out = {}
-  LEAD_META.forEach((m) => {
-    out[m.key] = all.filter((l) => statusMetaOfLead(l) === m.key)
-  })
-  return out
-}
-
-export function leadStats(now = new Date()) {
-  const all = live(leads)
-  const inMonth = (d) => {
-    if (!d) return false
-    const x = new Date(d)
-    return x.getFullYear() === now.getFullYear() && x.getMonth() === now.getMonth()
-  }
-  const newThisMonth = all.filter((l) => (l.inquiry_date ? inMonth(l.inquiry_date) : inMonth(l.created_at)))
-  const convertedThisMonth = all.filter((l) => isConvertedLead(l) && inMonth(l.converted_at)).length
-  const cohortConverted = newThisMonth.filter(isConvertedLead).length
-  const convRate = newThisMonth.length ? Math.round((cohortConverted / newThisMonth.length) * 100) : null
-  return { newThisMonth: newThisMonth.length, convertedThisMonth, convRate }
 }

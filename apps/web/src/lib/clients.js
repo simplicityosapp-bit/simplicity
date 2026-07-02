@@ -6,7 +6,7 @@
    sessions × price. Only confirmed income counts as "paid".
    ════════════════════════════════════════════════════════════════ */
 
-import { clients, sessions, group_members as mockMembers, groups as mockGroups } from '../data/mock'
+import { sessions, group_members as mockMembers, groups as mockGroups } from '../data/mock'
 import { financeQuery } from '@simplicity/core'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
@@ -191,15 +191,4 @@ export function sessionsCountForClients(arr, range = {}, sessionsData = sessions
     if (gids.length) count += liveSess.filter((s) => s.group_id && gids.includes(s.group_id) && inRange(s)).length
   }
   return count
-}
-
-/* All live clients grouped by status meta. */
-export function clientsByMeta() {
-  const all = live(clients)
-  return {
-    active: all.filter((c) => statusMetaOf(c) === 'active'),
-    wandering: all.filter((c) => statusMetaOf(c) === 'wandering'),
-    past: all.filter((c) => statusMetaOf(c) === 'past'),
-    no_status: all.filter((c) => statusMetaOf(c) === 'no_status'),
-  }
 }

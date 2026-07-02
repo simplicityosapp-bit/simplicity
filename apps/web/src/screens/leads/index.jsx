@@ -348,7 +348,7 @@ export default function LeadsScreen() {
             <LeadColumn
               key={m.key}
               title={metaTitle(m.key)}
-              color={metaColor(m.key)}
+              color={metaColor(m.key, leadStatuses)}
               metaKey={m.key}
               leads={buckets[m.key] || []}
               onEdit={setEditLead}

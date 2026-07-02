@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { FileDown, Check, X, Loader2 } from 'lucide-react'
 import { useGrowImports } from '../../hooks/useGrowImports'
 import { useT } from '../../i18n/useT'
-import { isr } from '../../lib/finance'
+import { isr } from '@simplicity/core'
 import '../finance/InvoiceImports.css'
 import { Box, Txt, Btn } from '../../components/ui' // reuse the import-list styles (inv-import*)
 

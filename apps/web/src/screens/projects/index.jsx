@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { FolderOpen, FolderPlus } from 'lucide-react'
-import { financeQuery, isr, currentMonthRange } from '../../lib/finance'
+import { financeQuery, isr, currentMonthRange } from '@simplicity/core'
 import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
 import { useTransactions } from '../../hooks/useTransactions'

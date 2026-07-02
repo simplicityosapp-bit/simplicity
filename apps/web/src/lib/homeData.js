@@ -16,7 +16,7 @@ import {
 } from '../data/mock'
 import i18n from '@simplicity/core/i18n'
 import { ROUTES } from './routes'
-import { financeQuery, currentMonthRange } from './finance'
+import { financeQuery, currentMonthRange } from '@simplicity/core'
 import { clientBalance } from './clients'
 
 const DAY = 86400000

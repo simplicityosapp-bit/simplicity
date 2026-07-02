@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { RotateCcw } from 'lucide-react'
-import { fmtTimeAgo, fmtShortDate } from '@simplicity/core'
-import { isr } from '../../lib/finance'
+import { fmtTimeAgo, fmtShortDate, isr } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
 

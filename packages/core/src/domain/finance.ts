@@ -1,27 +1,55 @@
 /* ════════════════════════════════════════════════════════════════
-   FINANCE HELPERS — ported from core.js (snake_case mock fields).
+   FINANCE HELPERS — ported from core.js (snake_case fields).
    ════════════════════════════════════════════════════════════════
    financeQuery is the canonical lens over transactions. Pending +
    skipped are excluded by default (they don't "count" in stats),
-   matching isConfirmedTx. Pre-Supabase this reads the mock array.
+   matching isConfirmedTx. Callers pass the rows to filter via `source`.
    ════════════════════════════════════════════════════════════════ */
 
-import { transactions } from '../data/mock'
-import i18n from '@simplicity/core/i18n'
+import i18n from '../i18n'
 
-const CURRENCY_SYMBOL = { ILS: '₪', USD: '$', EUR: '€' }
+/** A finance transaction row (snake_case, as stored). */
+export interface Tx {
+  id?: string
+  status?: string
+  deleted_at?: string | null
+  invoice_credited_at?: string | null
+  type?: string
+  project_id?: string | null
+  client_id?: string | null
+  category_id?: string | null
+  date: string | number | Date
+  amount: number
+  desc?: string
+}
+
+export interface FinanceQueryOpts {
+  type?: string
+  projectId?: string | null
+  clientId?: string | null
+  clientIds?: string[] | null
+  categoryId?: string | null
+  from?: string | number | Date | null
+  to?: string | number | Date | null
+  includePending?: boolean
+  includeSkipped?: boolean
+  includeCancelled?: boolean
+  source?: Tx[]
+}
+
+const CURRENCY_SYMBOL: Record<string, string> = { ILS: '₪', USD: '$', EUR: '€' }
 
 /* Module-level current currency — kept in sync with prefs by the
    PrefsApplier component. Pre-load defaults to ILS. */
 let CURRENT_CURRENCY = 'ILS'
-export function setCurrentCurrency(c) {
+export function setCurrentCurrency(c: string | null | undefined): void {
   if (c && CURRENCY_SYMBOL[c]) CURRENT_CURRENCY = c
 }
-export function getCurrentCurrency() { return CURRENT_CURRENCY }
+export function getCurrentCurrency(): string { return CURRENT_CURRENCY }
 
 /* Format a number as the user's currency (e.g. "₪1,200"). Negatives put the
    sign BEFORE the symbol ("-₪50"), not between ("₪-50"). */
-export function isr(n) {
+export function isr(n: number | null | undefined): string {
   const sym = CURRENCY_SYMBOL[CURRENT_CURRENCY] || '₪'
   const v = Math.round(n || 0)
   const locale = i18n.language === 'he' ? 'he-IL' : (i18n.language || 'he-IL')
@@ -29,12 +57,12 @@ export function isr(n) {
 }
 
 /* Confirmed = not pending and not skipped. */
-export function isConfirmedTx(f) {
+export function isConfirmedTx(f: Tx): boolean {
   return f.status !== 'pending' && f.status !== 'skipped'
 }
 
 /* Inclusive bounds for the current calendar month. */
-export function currentMonthRange(now = new Date()) {
+export function currentMonthRange(now: Date = new Date()): { from: Date; to: Date } {
   return {
     from: new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0),
     to: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999),
@@ -42,11 +70,9 @@ export function currentMonthRange(now = new Date()) {
 }
 
 /* Filter transactions by an options bag — the canonical way to read finance data.
-   opts: { type, projectId, clientId, clientIds, categoryId, from, to,
-           includePending, includeSkipped, source }
-   `source` is the array to filter — defaults to the mock data; pass real
-   Supabase rows once a screen has loaded them. */
-export function financeQuery(opts = {}) {
+   `source` is the array to filter (real Supabase rows a screen has loaded);
+   defaults to an empty array when a caller omits it. */
+export function financeQuery(opts: FinanceQueryOpts = {}): Tx[] {
   const {
     type = 'both',
     projectId = null,
@@ -58,7 +84,7 @@ export function financeQuery(opts = {}) {
     includePending = false,
     includeSkipped = false,
     includeCancelled = false,
-    source = transactions,
+    source = [],
   } = opts
 
   const fromTs = from ? (from instanceof Date ? from.getTime() : new Date(from).getTime()) : null
@@ -76,7 +102,7 @@ export function financeQuery(opts = {}) {
     if (type === 'expense' && f.type !== 'expense') return false
     if (projectId && f.project_id !== projectId) return false
     if (clientId && f.client_id !== clientId) return false
-    if (clientIdSet && !clientIdSet.has(f.client_id)) return false
+    if (clientIdSet && !clientIdSet.has(f.client_id as string)) return false
     if (categoryId && f.category_id !== categoryId) return false
     if (fromTs !== null || toTs !== null) {
       const ts = new Date(f.date).getTime()
@@ -90,13 +116,13 @@ export function financeQuery(opts = {}) {
 /* Daily aggregate for a calendar month with optional scope. Used by the finance
    chart and any future "trend within month" widget. Returns parallel arrays of
    length daysInMonth so chart code can iterate by index without date math. */
-export function financeDailyBuckets(year, month, opts = {}) {
+export function financeDailyBuckets(year: number, month: number, opts: FinanceQueryOpts = {}) {
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const monthStart = new Date(year, month, 1, 0, 0, 0, 0)
   const monthEnd = new Date(year, month, daysInMonth, 23, 59, 59, 999)
   const tx = financeQuery({ ...opts, from: monthStart, to: monthEnd })
-  const dailyInc = new Array(daysInMonth).fill(0)
-  const dailyExp = new Array(daysInMonth).fill(0)
+  const dailyInc: number[] = new Array(daysInMonth).fill(0)
+  const dailyExp: number[] = new Array(daysInMonth).fill(0)
   tx.forEach((f) => {
     const d = new Date(f.date).getDate() - 1
     if (d < 0 || d >= daysInMonth) return
@@ -104,9 +130,9 @@ export function financeDailyBuckets(year, month, opts = {}) {
     else if (f.type === 'expense') dailyExp[d] += f.amount
   })
   const dailyNet = dailyInc.map((v, i) => v - dailyExp[i])
-  const cumInc = []
-  const cumExp = []
-  const cumNet = []
+  const cumInc: number[] = []
+  const cumExp: number[] = []
+  const cumNet: number[] = []
   let ci = 0; let ce = 0; let cn = 0
   for (let i = 0; i < daysInMonth; i += 1) {
     ci += dailyInc[i]; cumInc.push(ci)
@@ -116,12 +142,25 @@ export function financeDailyBuckets(year, month, opts = {}) {
   return { daysInMonth, dailyInc, dailyExp, dailyNet, cumInc, cumExp, cumNet }
 }
 
+export interface Goal {
+  id: string
+  category_id?: string | null
+  project_id?: string | null
+  parent_goal_id?: string | null
+  time_frame?: string
+  target_value?: number | null
+}
+export interface GoalCategory {
+  id: string
+  key?: string
+}
+
 /* Single source of truth for the monthly income goal. Mirrors the prototype's
    getMonthlyIncomeGoal — finds the goals[] record tied to the 'income' goal
    category at the monthly time-frame with no project/parent scope. Returns
    the goal record or null. Caller supplies goals + categories arrays so the
    helper stays pure (and chart/widgets pull from useGoals + useGoalCategories). */
-export function getMonthlyIncomeGoal(goals, goalCategories) {
+export function getMonthlyIncomeGoal(goals: Goal[] | null | undefined, goalCategories: GoalCategory[] | null | undefined): Goal | null {
   const incomeCat = (goalCategories || []).find((c) => c.key === 'income')
   if (!incomeCat) return null
   return (goals || []).find(
@@ -131,7 +170,7 @@ export function getMonthlyIncomeGoal(goals, goalCategories) {
       && g.time_frame === 'monthly',
   ) || null
 }
-export const getMonthlyIncomeGoalAmount = (goals, goalCategories) => {
+export const getMonthlyIncomeGoalAmount = (goals: Goal[] | null | undefined, goalCategories: GoalCategory[] | null | undefined): number => {
   const g = getMonthlyIncomeGoal(goals, goalCategories)
   return g ? (g.target_value || 0) : 0
 }

@@ -7,7 +7,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { clients, sessions, group_members as mockMembers, groups as mockGroups } from '../data/mock'
-import { financeQuery } from './finance'
+import { financeQuery } from '@simplicity/core'
 
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 

@@ -4,7 +4,7 @@ import { X, Users, FolderKanban, Receipt, CalendarDays, Check, RotateCcw, Repeat
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useLeads } from '../../hooks/useLeads'
-import { isr } from '../../lib/finance'
+import { isr } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import './OnboardingReviewWizard.css'
 import { Box, Txt, Btn, Input } from '../../components/ui'

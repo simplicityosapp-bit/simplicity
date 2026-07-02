@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useClients } from '../../hooks/useClients'
-import { financeDailyBuckets, isr } from '../../lib/finance'
+import { financeDailyBuckets, isr } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt } from '../../components/ui'
 

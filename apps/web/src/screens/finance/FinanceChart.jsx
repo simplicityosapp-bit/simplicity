@@ -1,7 +1,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Sparkles, ArrowLeft } from 'lucide-react'
-import { financeDailyBuckets, getMonthlyIncomeGoal, isr } from '../../lib/finance'
+import { financeDailyBuckets, getMonthlyIncomeGoal, isr } from '@simplicity/core'
 import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
 import { useTransactions } from '../../hooks/useTransactions'

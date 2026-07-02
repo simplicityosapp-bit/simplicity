@@ -12,7 +12,7 @@ import enReflections from '../i18n/locales/en/reflections.json'
 import esReflections from '../i18n/locales/es/reflections.json'
 import frReflections from '../i18n/locales/fr/reflections.json'
 import { goals as allGoals, goal_categories, goal_entries, sessions, clients as mockClients, leads as mockLeads, daily_answers as mockAnswers, group_members as mockMembers, groups as mockGroups } from '../data/mock'
-import { financeQuery, currentMonthRange } from './finance'
+import { financeQuery, currentMonthRange } from '@simplicity/core'
 import { isConvertedLead } from './leads'
 
 /* 'reflections' namespace is owned by these libs, not i18n/index.js — register

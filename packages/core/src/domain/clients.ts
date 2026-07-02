@@ -6,13 +6,55 @@
    sessions × price. Only confirmed income counts as "paid".
    ════════════════════════════════════════════════════════════════ */
 
-import { financeQuery } from '@simplicity/core'
+import { financeQuery, type Tx } from './finance'
 
-const live = (a) => (a || []).filter((r) => !r.deleted_at)
+export interface Client {
+  id: string
+  status_meta?: string
+  status?: string
+  status_overridden?: boolean
+  balance_adjustment?: number | string | null
+  paid_adjustment?: number | string | null
+  billing_mode?: string
+  sessions_done_adjustment?: number | string | null
+  total_override?: number | string | null
+  price_per_session?: number | null
+  sessions?: number | null
+  group_id?: string | null
+  deleted_at?: string | null
+}
+export interface GroupMembership {
+  client_id?: string
+  group_id?: string
+  left_at?: string | null
+  total_override?: number | string | null
+  package_sessions_override?: number | string | null
+  deleted_at?: string | null
+}
+export interface Group {
+  id: string
+  status?: string
+  billing_mode?: string
+  price_per_session?: number | null
+  package_price?: number | null
+  package_sessions?: number | null
+  name?: string
+  deleted_at?: string | null
+}
+export interface ClientSession {
+  client_id?: string
+  group_id?: string
+  date?: string | number | Date
+  deleted_at?: string | null
+}
+interface DateRange { from?: string | number | Date | null; to?: string | number | Date | null }
 
-export const statusMetaOf = (c) => c.status_meta || c.status || 'no_status'
+const live = <T extends { deleted_at?: string | null }>(a: T[] | null | undefined): T[] =>
+  (a || []).filter((r) => !r.deleted_at)
 
-export function getClientMemberships(clientId, membersData = []) {
+export const statusMetaOf = (c: Client): string => c.status_meta || c.status || 'no_status'
+
+export function getClientMemberships(clientId: string, membersData: GroupMembership[] = []): GroupMembership[] {
   return live(membersData).filter((m) => m.client_id === clientId && !m.left_at)
 }
 
@@ -20,7 +62,7 @@ export function getClientMemberships(clientId, membersData = []) {
    (migration 0062). When set, the stored status_meta wins over whatever
    the client's groups would otherwise dictate. Only meaningful for group
    members — a non-member's status is always their own stored value. */
-export const isStatusOverridden = (c) => !!c?.status_overridden
+export const isStatusOverridden = (c: Client | null | undefined): boolean => !!c?.status_overridden
 
 /* C1 — a client who belongs to one or more groups derives their status
    from those groups (the group owns the client's lifecycle). "Active wins
@@ -28,14 +70,14 @@ export const isStatusOverridden = (c) => !!c?.status_overridden
    only sit in ended groups → 'past'. A client with no group membership —
    OR one whose status the coach has manually overridden (status_overridden,
    migration 0062) — keeps their own stored status_meta. */
-export function effectiveClientMeta(c, membersData = [], groupsData = []) {
+export function effectiveClientMeta(c: Client | null | undefined, membersData: GroupMembership[] = [], groupsData: Group[] = []): string {
   if (!c) return 'no_status'
   if (isStatusOverridden(c)) return statusMetaOf(c)
   const memberships = getClientMemberships(c.id, membersData)
   if (!memberships.length) return statusMetaOf(c)
   const statuses = memberships
     .map((m) => (groupsData || []).find((g) => g.id === m.group_id))
-    .filter(Boolean)
+    .filter((g): g is Group => Boolean(g))
     .map((g) => g.status)
   if (!statuses.length) return statusMetaOf(c)
   return statuses.some((s) => s !== 'ended') ? 'active' : 'past'
@@ -45,7 +87,7 @@ export function effectiveClientMeta(c, membersData = [], groupsData = []) {
    they're a member AND haven't been manually overridden. The card shows a
    read-only "by group" hint in this state; once overridden, the manual
    picker takes over. */
-export function isGroupDriven(c, membersData = []) {
+export function isGroupDriven(c: Client | null | undefined, membersData: GroupMembership[] = []): boolean {
   return !!c && !isStatusOverridden(c) && getClientMemberships(c.id, membersData).length > 0
 }
 
@@ -57,7 +99,7 @@ export function isGroupDriven(c, membersData = []) {
      - 'none'        → no group-level price (0 unless an override exists).
    Legacy rows have no billing_mode; they default to 'package', matching
    their pre-migration behaviour exactly. */
-function membershipTotal(m, groupsData, heldCount = 0) {
+function membershipTotal(m: GroupMembership, groupsData: Group[], heldCount = 0): number {
   if (m.total_override != null && m.total_override !== '') return Number(m.total_override)
   const g = groupsData.find((x) => x.id === m.group_id)
   if (!g) return 0
@@ -67,7 +109,7 @@ function membershipTotal(m, groupsData, heldCount = 0) {
   return g.package_price || 0
 }
 
-export function clientBalance(c, txns, sessionsData = [], membersData = [], groupsData = []) {
+export function clientBalance(c: Client, txns?: Tx[], sessionsData: ClientSession[] = [], membersData: GroupMembership[] = [], groupsData: Group[] = []) {
   /* "שולם" = real confirmed income + paid_adjustment (an INFORMAL paid
      credit recorded from the card via "התעלם" — money received but not
      entered as a finance transaction). The separate balance_adjustment is
@@ -81,7 +123,7 @@ export function clientBalance(c, txns, sessionsData = [], membersData = [], grou
   const liveSess = live(sessionsData)
   /* Sessions held per group — needed for per-session billing. Counts
      all group sessions (the package/per-session rate applies per member). */
-  const heldForGroup = (gid) => liveSess.filter((s) => s.group_id === gid).length
+  const heldForGroup = (gid?: string) => liveSess.filter((s) => s.group_id === gid).length
   const memTotal = memberships.reduce(
     (s, m) => s + membershipTotal(m, groupsData, heldForGroup(m.group_id)),
     0,
@@ -91,7 +133,7 @@ export function clientBalance(c, txns, sessionsData = [], membersData = [], grou
      history (the `ended` flag on groupSessions) but no longer feed the
      current counters. Money is intentionally untouched — group dues and
      payments don't evaporate when a group closes. */
-  const isEndedGroup = (gid) => (groupsData || []).find((x) => x.id === gid)?.status === 'ended'
+  const isEndedGroup = (gid?: string) => (groupsData || []).find((x) => x.id === gid)?.status === 'ended'
   const activeMemberships = memberships.filter((m) => !isEndedGroup(m.group_id))
 
   const liveSessions = live(sessionsData)
@@ -157,7 +199,7 @@ export function clientBalance(c, txns, sessionsData = [], membersData = [], grou
 }
 
 /* Sum confirmed income for a set of clients, optionally within a date range. */
-export function paidForClients(arr, range = {}, txns) {
+export function paidForClients(arr: Client[], range: DateRange = {}, txns?: Tx[]): number {
   return arr.reduce(
     (s, c) => s + financeQuery({ type: 'income', clientId: c.id, ...range, source: txns }).reduce((ss, f) => ss + f.amount, 0),
     0,
@@ -169,12 +211,12 @@ export function paidForClients(arr, range = {}, txns) {
    sessions — mirroring clientBalance.sessionsPaid (every member "attends" the
    group's sessions), so the monthly count matches cumulative (formula §4.1 =
    private + active-group sessions). */
-export function sessionsCountForClients(arr, range = {}, sessionsData = [], membersData = [], groupsData = []) {
+export function sessionsCountForClients(arr: Client[], range: DateRange = {}, sessionsData: ClientSession[] = [], membersData: GroupMembership[] = [], groupsData: Group[] = []): number {
   const from = range.from ? new Date(range.from).getTime() : null
   const to = range.to ? new Date(range.to).getTime() : null
-  const inRange = (s) => {
+  const inRange = (s: ClientSession) => {
     if (from === null && to === null) return true
-    const ts = new Date(s.date).getTime()
+    const ts = new Date(s.date ?? 0).getTime()
     if (from !== null && ts < from) return false
     if (to !== null && ts > to) return false
     return true
@@ -182,7 +224,7 @@ export function sessionsCountForClients(arr, range = {}, sessionsData = [], memb
   const liveSess = live(sessionsData)
   const ids = new Set(arr.map((c) => c.id))
   let count = liveSess.filter((s) => s.client_id && ids.has(s.client_id) && inRange(s)).length
-  const isEndedGroup = (gid) => (groupsData || []).find((x) => x.id === gid)?.status === 'ended'
+  const isEndedGroup = (gid?: string) => (groupsData || []).find((x) => x.id === gid)?.status === 'ended'
   for (const c of arr) {
     const memberships = getClientMemberships(c.id, membersData)
     let gids = memberships.filter((m) => !isEndedGroup(m.group_id)).map((m) => m.group_id)

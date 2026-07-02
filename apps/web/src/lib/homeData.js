@@ -9,8 +9,7 @@
 
 import i18n from '@simplicity/core/i18n'
 import { ROUTES } from './routes'
-import { financeQuery, currentMonthRange } from '@simplicity/core'
-import { clientBalance } from './clients'
+import { financeQuery, currentMonthRange, clientBalance } from '@simplicity/core'
 
 const DAY = 86400000
 const live = (a) => (a || []).filter((r) => !r.deleted_at)

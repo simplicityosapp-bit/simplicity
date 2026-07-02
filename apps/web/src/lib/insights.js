@@ -13,7 +13,7 @@ import heReflections from '../i18n/locales/he/reflections.json'
 import enReflections from '../i18n/locales/en/reflections.json'
 import esReflections from '../i18n/locales/es/reflections.json'
 import frReflections from '../i18n/locales/fr/reflections.json'
-import { qtext } from './questionTemplates'
+import { qtext } from '@simplicity/core'
 
 /* The 'reflections' namespace lives in these three libs (insights / moon /
    profileHealth), not in i18n/index.js's static registration. Register the

@@ -6,12 +6,11 @@ import { useUserPreferences } from '../../hooks/useUserPreferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
 import EditQuestionModal from '../../modals/EditQuestionModal'
 import ConfirmModal from '../../modals/ConfirmModal'
-import { questionText, isQuestionDueToday } from '../../lib/questionTemplates'
+import { questionText, isQuestionDueToday, fmtShortDate } from '@simplicity/core'
 import {
   averageForWindow, deltaVsPrevWindow, trendPoints, heatmapWeeks,
   mirrorReflections, indexAnswers, dateKey,
 } from '../../lib/insights'
-import { fmtShortDate } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import './InsightsScreen.css'
 import { Box, Txt, Btn, Input } from '../../components/ui'

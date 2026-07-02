@@ -11,8 +11,7 @@ import heReflections from '../i18n/locales/he/reflections.json'
 import enReflections from '../i18n/locales/en/reflections.json'
 import esReflections from '../i18n/locales/es/reflections.json'
 import frReflections from '../i18n/locales/fr/reflections.json'
-import { financeQuery } from '@simplicity/core'
-import { isConvertedLead } from './leads'
+import { financeQuery, isConvertedLead } from '@simplicity/core'
 
 /* 'reflections' namespace is owned by these libs, not i18n/index.js — register
    on import so i18n.t resolves even when moon.js loads without insights.js

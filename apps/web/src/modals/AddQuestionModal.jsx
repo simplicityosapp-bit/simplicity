@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
-import { QUESTION_TEMPLATES, qtext } from '../lib/questionTemplates'
+import { QUESTION_TEMPLATES, qtext } from '@simplicity/core'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useT } from '../i18n/useT'
 import './AddQuestionModal.css'

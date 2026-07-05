@@ -3,11 +3,27 @@ import { StatusBar } from 'expo-status-bar'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { setupI18n } from './src/lib/i18n'
 import { AuthProvider, useAuth } from './src/lib/auth'
+import { DrawerProvider, useDrawer } from './src/lib/drawer'
 import LoginScreen from './src/screens/LoginScreen'
-import AppNavigator from './src/navigation/AppNavigator'
+import AppNavigator, { navigationRef } from './src/navigation/AppNavigator'
+import Drawer from './src/components/Drawer'
 
 // Init the shared i18n engine once, before the first render.
 setupI18n()
+
+// The "עוד" drawer, rendered as an App-level overlay ABOVE the navigator so it
+// floats over every screen (incl. pushed stack screens). Plain state, no Modal.
+function DrawerHost() {
+  const { open, setOpen } = useDrawer()
+  return (
+    <Drawer
+      open={open}
+      onClose={() => setOpen(false)}
+      onNavigate={(screen) => navigationRef.isReady() && navigationRef.navigate(screen)}
+      activeScreen={navigationRef.isReady() ? navigationRef.getCurrentRoute()?.name : undefined}
+    />
+  )
+}
 
 function Root() {
   const { session, ready } = useAuth()
@@ -18,20 +34,29 @@ function Root() {
       </View>
     )
   }
-  return session ? <AppNavigator /> : <LoginScreen />
+  if (!session) return <LoginScreen />
+  return (
+    <View style={styles.fill}>
+      <AppNavigator />
+      <DrawerHost />
+    </View>
+  )
 }
 
 export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <Root />
-        <StatusBar style="auto" />
+        <DrawerProvider>
+          <Root />
+          <StatusBar style="auto" />
+        </DrawerProvider>
       </AuthProvider>
     </SafeAreaProvider>
   )
 }
 
 const styles = StyleSheet.create({
+  fill: { flex: 1 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fbf7f2' },
 })

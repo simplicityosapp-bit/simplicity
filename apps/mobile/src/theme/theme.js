@@ -7,12 +7,13 @@ export const colors = {
   bg: '#F7F3EE', // bone — screen base (behind the photo, and where no photo)
   card: '#FFFCF7', // cream — opaque surface (non-glass contexts)
   cardFlat: '#F5EFE2', // warm cream — pressed / alt surface
-  glassTint: 'rgba(255,252,247,0.62)', // cream veil over the blur (a touch denser so cards read w/o a heavy scrim)
+  glassTint: 'rgba(255,252,247,0.34)', // cream veil @ ~0.30 like web --mg-card-bg (heavy native blur carries the rest)
   scrim: 'rgba(247,243,238,0.14)', // very soft warm veil — keep the photo crisp (was washing it out)
-  // text (flat-appropriate soft values, not the photo-darkened near-blacks)
+  // text — matches web tokens.css EXACTLY (stone/mist were darkened 24.05.26 to
+  // near-black for max legibility over the day-view photo backgrounds).
   text: '#2A2520', // espresso — headings, numbers, body
-  textSub: '#6B6358', // stone (soft) — labels, secondary
-  textFaint: '#A8A097', // mist (soft) — placeholders, meta
+  textSub: '#2C2621', // stone — labels, secondary, icons (near-black, per web)
+  textFaint: '#3A332B', // mist — placeholders, meta (near-black, per web)
   // brand + status
   brand: '#C97B5E', // terracotta — primary, key accent
   brandSoft: '#F4E3DA', // blush — highlight / selected
@@ -40,7 +41,9 @@ export const type = {
 export const radius = { card: 20, pill: 999 }
 export const space = { screenPadH: 20, cardPadV: 16, cardPadH: 16, gap: 12, headerTop: 56 }
 export const shadow = {
-  card: { shadowColor: '#2A2520', shadowOpacity: 0.08, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 3 },
+  // Web --mg-card-shadow: 0 1px 2px @0.04, 0 8px 24px @0.06 — RN takes one layer,
+  // so approximate the soft ambient one (8px offset, 24 blur, low opacity).
+  card: { shadowColor: '#2A2520', shadowOpacity: 0.07, shadowRadius: 22, shadowOffset: { width: 0, height: 8 }, elevation: 3 },
 }
 
 // Per-screen background photos (day set), mapped like web's --screen-bg.

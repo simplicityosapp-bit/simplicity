@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabase'
 // month view; RLS scopes rows to the user.
 export function useFinanceData() {
   const [transactions, setTransactions] = useState([])
+  const [clients, setClients] = useState([])
+  const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -12,9 +14,12 @@ export function useFinanceData() {
     setLoading(true)
     setError(null)
     try {
-      const { data, error: e } = await supabase.from('transactions').select('*').is('deleted_at', null).limit(2000)
-      if (e) throw e
-      setTransactions(data ?? [])
+      const fetch = (t) => supabase.from(t).select('*').is('deleted_at', null).limit(2000)
+      const [tx, cl, cat] = await Promise.all([fetch('transactions'), fetch('clients'), fetch('categories')])
+      if (tx.error) throw tx.error
+      setTransactions(tx.data ?? [])
+      setClients(cl.data ?? [])
+      setCategories(cat.data ?? [])
     } catch (e) {
       setError(e?.message || 'load failed')
     } finally {
@@ -40,5 +45,5 @@ export function useFinanceData() {
     if (e) { load(); throw e }
   }, [load])
 
-  return { transactions, loading, error, refetch: load, updateTransaction, deleteTransaction }
+  return { transactions, clients, categories, loading, error, refetch: load, updateTransaction, deleteTransaction }
 }

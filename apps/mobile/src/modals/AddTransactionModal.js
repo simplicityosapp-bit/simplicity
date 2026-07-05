@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
 import { Trash2 } from 'lucide-react-native'
+import { PAY_METHODS, payMethodLabel } from '@simplicity/core'
 import Sheet from '../components/Sheet'
+import Select from '../components/Select'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
-// Add/edit a transaction (mirrors web AddTransactionModal's core: income/expense
-// + amount + date + description). Pass a `tx` to edit it (prefills + shows
-// delete). Client/project/category/payment selects and invoice-issuing are a
-// later increment; onSave gets a transactions-ready payload.
+// Add/edit a transaction (mirrors web AddTransactionModal: income/expense +
+// amount + date + description + client/category/payment-method selects). Pass a
+// `tx` to edit. Invoice-issuing is a later increment; onSave gets a
+// transactions-ready payload.
 const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -18,9 +20,12 @@ const blank = (tx) => ({
   amount: tx?.amount != null ? String(tx.amount) : '',
   desc: tx?.desc || '',
   date: tx?.date ? String(tx.date).slice(0, 10) : todayStr(),
+  client_id: tx?.client_id || '',
+  category_id: tx?.category_id || '',
+  payment_method: tx?.payment_method || '',
 })
 
-export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null }) {
+export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null, clients = [], categories = [] }) {
   const isEdit = !!tx
   const [form, setForm] = useState(() => blank(tx))
   const [err, setErr] = useState('')
@@ -43,13 +48,16 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
     const isFuture = form.date > todayStr()
     const desc = form.desc.trim() || (form.type === 'income' ? i18n.t('modalsData:tx.incomeFallback') : i18n.t('modalsData:tx.expenseFallback'))
     try {
+      const clientId = form.client_id || null
+      const categoryId = form.type === 'expense' ? (form.category_id || null) : null
+      const paymentMethod = form.payment_method || null
       const payload = isEdit
-        ? { amount, type: form.type, desc, date: form.date, status: isFuture ? 'pending' : 'confirmed' }
+        ? { amount, type: form.type, desc, date: form.date, status: isFuture ? 'pending' : 'confirmed', client_id: clientId, category_id: categoryId, payment_method: paymentMethod }
         : {
           amount, type: form.type, desc, date: form.date,
           status: isFuture ? 'pending' : 'confirmed',
-          project_id: null, client_id: null, category_id: null,
-          payment_method: null, recurring_id: null, orphaned_from: null,
+          project_id: null, client_id: clientId, category_id: categoryId,
+          payment_method: paymentMethod, recurring_id: null, orphaned_from: null,
         }
       await onSave(payload)
       close()
@@ -95,6 +103,32 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
         <Text style={styles.label}>{i18n.t('modalsData:common.description')}</Text>
         <TextInput style={styles.input} value={form.desc} onChangeText={(v) => set('desc', v)} placeholder={i18n.t('modalsData:tx.descPlaceholder')} placeholderTextColor={colors.textFaint} />
       </View>
+
+      <Select
+        label={i18n.t('modalsData:common.client')}
+        value={form.client_id}
+        onChange={(v) => set('client_id', v)}
+        placeholder={i18n.t('modalsData:common.none')}
+        options={[{ value: '', label: i18n.t('modalsData:common.none') }, ...clients.map((c) => ({ value: c.id, label: c.name || '' }))]}
+      />
+
+      {form.type === 'expense' ? (
+        <Select
+          label={i18n.t('modalsData:common.category')}
+          value={form.category_id}
+          onChange={(v) => set('category_id', v)}
+          placeholder={i18n.t('modalsData:common.noCategory')}
+          options={[{ value: '', label: i18n.t('modalsData:common.noCategory') }, ...categories.map((c) => ({ value: c.id, label: c.name || '' }))]}
+        />
+      ) : null}
+
+      <Select
+        label={i18n.t('modalsData:tx.paymentMethod')}
+        value={form.payment_method}
+        onChange={(v) => set('payment_method', v)}
+        placeholder={i18n.t('modalsData:tx.paymentMethodNone')}
+        options={[{ value: '', label: i18n.t('modalsData:tx.paymentMethodNone') }, ...PAY_METHODS.map((m) => ({ value: m.key, label: payMethodLabel(m.key) }))]}
+      />
 
       {err ? <Text style={styles.error}>{err}</Text> : null}
 

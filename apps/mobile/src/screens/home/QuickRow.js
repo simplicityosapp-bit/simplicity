@@ -38,7 +38,7 @@ export default function QuickRow({ clients, goals, categories, addTask, addEntry
 
       <QuickActionsModal open={showLauncher} onClose={() => setShowLauncher(false)} onPick={setActive} />
       <AddTaskModal open={active === 'task'} onClose={close} onSave={addTask} />
-      <AddTransactionModal open={active === 'transaction'} onClose={close} onSave={addTransaction} />
+      <AddTransactionModal open={active === 'transaction'} onClose={close} onSave={addTransaction} clients={clients} categories={categories} />
       <AddClientModal open={active === 'client'} onClose={close} onSave={addClient} />
       <AddLeadModal open={active === 'lead'} onClose={close} onSave={addLead} />
       <AddProjectModal open={active === 'project'} onClose={close} onSave={addProject} />

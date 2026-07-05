@@ -12,7 +12,7 @@ import { useFinanceData } from '../hooks/useFinanceData'
 // Finance screen — month summary (net / income / expenses, all from core) + the
 // month's confirmed transactions, over the per-screen photo (Warm Precision).
 export default function FinanceScreen() {
-  const { transactions, loading, error, refetch, updateTransaction, deleteTransaction } = useFinanceData()
+  const { transactions, clients, categories, loading, error, refetch, updateTransaction, deleteTransaction } = useFinanceData()
   const [editing, setEditing] = useState(null)
   const now = new Date()
 
@@ -72,6 +72,8 @@ export default function FinanceScreen() {
       <AddTransactionModal
         open={!!editing}
         tx={editing}
+        clients={clients}
+        categories={categories}
         onClose={() => setEditing(null)}
         onSave={(patch) => updateTransaction(editing.id, patch)}
         onDelete={() => deleteTransaction(editing.id)}

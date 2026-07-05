@@ -1,25 +1,37 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
-// Quick-add a task (mirrors web AddTaskModal's core: title + priority). The
-// optional project/client/due-date fields are a later increment; onSave gets a
-// tasks-ready row (status:'todo' filled by the caller/mutation).
+// Add/edit a task (mirrors web AddTaskModal's core: title + priority). Pass a
+// `task` to edit it (prefills + shows delete); the optional project/client/
+// due-date fields are a later increment. onSave gets a tasks-ready payload
+// (the caller wires it to an insert or an update).
 const PRIORITIES = [
   { k: 'high', l: 'priorityHigh' },
   { k: 'medium', l: 'priorityMedium' },
   { k: 'low', l: 'priorityLow' },
 ]
-const blank = () => ({ title: '', priority: 'medium' })
+const blank = (task) => ({ title: task?.title || '', priority: task?.priority || 'medium' })
 
-export default function AddTaskModal({ open, onClose, onSave }) {
-  const [form, setForm] = useState(blank)
+export default function AddTaskModal({ open, onClose, onSave, onDelete, task = null }) {
+  const isEdit = !!task
+  const [form, setForm] = useState(() => blank(task))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  // Re-seed the form each time the sheet opens (or the edited task changes) —
+  // the modal instance is persistent, so useState's initializer won't re-run.
+  useEffect(() => { if (open) { setForm(blank(task)); setErr(''); setBusy(false) } }, [open, task])
+  const close = () => { setErr(''); setBusy(false); onClose() }
+
+  const remove = async () => {
+    if (busy || !onDelete) return
+    setBusy(true)
+    try { await onDelete(); close() } catch (e) { setBusy(false); setErr(i18n.t('modalsTask:common.saveFailed', { error: e.message || i18n.t('modalsTask:common.tryAgain') })) }
+  }
 
   const submit = async () => {
     if (!form.title.trim()) { setErr(i18n.t('modalsTask:task.titleRequired')); return }
@@ -35,7 +47,7 @@ export default function AddTaskModal({ open, onClose, onSave }) {
   }
 
   return (
-    <Sheet open={open} onClose={close} title={i18n.t('modalsTask:task.titleNew')}>
+    <Sheet open={open} onClose={close} title={i18n.t(isEdit ? 'modalsTask:task.titleEdit' : 'modalsTask:task.titleNew')}>
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsTask:task.whatToDo')}</Text>
         <TextInput
@@ -64,6 +76,11 @@ export default function AddTaskModal({ open, onClose, onSave }) {
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
+        {isEdit && onDelete ? (
+          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
+            <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
+          </Pressable>
+        ) : null}
         <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsTask:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? i18n.t('modalsTask:common.saving') : i18n.t('modalsTask:common.save')}</Text>
@@ -84,7 +101,8 @@ const styles = StyleSheet.create({
   pillText: { fontSize: 14, color: colors.text },
   pillTextOn: { color: colors.onBrand, fontWeight: '600' },
   error: { color: colors.danger, fontSize: 13 },
-  actions: { flexDirection: 'row', gap: 12, marginTop: 4 },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
+  delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancelText: { fontSize: 15, color: colors.textSub },
   save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center' },

@@ -1,20 +1,22 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { Check } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHeader from '../components/ScreenHeader'
 import Card from '../components/Card'
+import AddTaskModal from '../modals/AddTaskModal'
 import { colors } from '../theme/theme'
 import { useTasksList } from '../hooks/useTasksList'
 
 const PORDER = { high: 0, medium: 1, low: 2 }
 const byPriority = (a, b) => (PORDER[a.priority] ?? 1) - (PORDER[b.priority] ?? 1)
 
-// Tasks screen — open + done tasks with an optimistic mark-done checkbox, over
-// the per-screen photo (Warm Precision theme).
+// Tasks screen — open + done tasks with an optimistic mark-done checkbox; tap a
+// row to edit (title/priority) or delete it, over the per-screen photo.
 export default function TasksScreen() {
-  const { tasks, loading, error, toggleDone, refetch } = useTasksList()
+  const { tasks, loading, error, toggleDone, updateTask, deleteTask, refetch } = useTasksList()
+  const [editing, setEditing] = useState(null)
 
   const { open, done } = useMemo(() => {
     const open = tasks.filter((t) => t.status !== 'done').slice().sort(byPriority)
@@ -37,7 +39,7 @@ export default function TasksScreen() {
 
           {open.length ? (
             <Section title={i18n.t('tasks:filters.todo', { defaultValue: 'פתוחות' })}>
-              {open.map((t, i) => <Row key={t.id} task={t} first={i === 0} onToggle={() => toggleDone(t)} />)}
+              {open.map((t, i) => <Row key={t.id} task={t} first={i === 0} onToggle={() => toggleDone(t)} onEdit={() => setEditing(t)} />)}
             </Section>
           ) : (
             <Text style={styles.empty}>{i18n.t('home:widgets.nextTasks.noOpen')}</Text>
@@ -45,11 +47,19 @@ export default function TasksScreen() {
 
           {done.length ? (
             <Section title={i18n.t('tasks:filters.done', { defaultValue: 'הושלמו' })}>
-              {done.map((t, i) => <Row key={t.id} task={t} first={i === 0} onToggle={() => toggleDone(t)} />)}
+              {done.map((t, i) => <Row key={t.id} task={t} first={i === 0} onToggle={() => toggleDone(t)} onEdit={() => setEditing(t)} />)}
             </Section>
           ) : null}
         </ScrollView>
       )}
+
+      <AddTaskModal
+        open={!!editing}
+        task={editing}
+        onClose={() => setEditing(null)}
+        onSave={(patch) => updateTask(editing.id, patch)}
+        onDelete={() => deleteTask(editing.id)}
+      />
     </Screen>
   )
 }
@@ -63,7 +73,7 @@ function Section({ title, children }) {
   )
 }
 
-function Row({ task, first, onToggle }) {
+function Row({ task, first, onToggle, onEdit }) {
   const isDone = task.status === 'done'
   return (
     <View style={[styles.row, !first && styles.rowBorder]}>
@@ -77,7 +87,9 @@ function Row({ task, first, onToggle }) {
         <View style={[styles.check, isDone && styles.checkOn]}>{isDone ? <Check size={13} strokeWidth={3} color={colors.onBrand} /> : null}</View>
       </Pressable>
       {!isDone && task.priority === 'high' ? <View style={styles.dot} /> : null}
-      <Text style={[styles.text, isDone && styles.textDone]} numberOfLines={2}>{task.title || ''}</Text>
+      <Pressable style={styles.textWrap} onPress={onEdit}>
+        <Text style={[styles.text, isDone && styles.textDone]} numberOfLines={2}>{task.title || ''}</Text>
+      </Pressable>
     </View>
   )
 }
@@ -94,6 +106,7 @@ const styles = StyleSheet.create({
   check: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: '#cbb9a8', alignItems: 'center', justifyContent: 'center' },
   checkOn: { backgroundColor: colors.positive, borderColor: colors.positive },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.brand },
-  text: { flex: 1, fontSize: 14, color: colors.text, lineHeight: 20 },
+  textWrap: { flex: 1, paddingVertical: 2 },
+  text: { fontSize: 14, color: colors.text, lineHeight: 20 },
   textDone: { color: colors.textFaint, textDecorationLine: 'line-through' },
 })

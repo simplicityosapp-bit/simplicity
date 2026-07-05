@@ -36,5 +36,22 @@ export function useTasksList() {
     }
   }, [])
 
-  return { tasks, loading, error, toggleDone, refetch: load }
+  // Edit a task (title/priority): optimistic patch, refetch to restore truth on
+  // error. Returns the saved row (or throws so the sheet can surface the error).
+  const updateTask = useCallback(async (id, patch) => {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t))) // optimistic
+    const { data, error: e } = await supabase.from('tasks').update(patch).eq('id', id).select().single()
+    if (e) { load(); throw e }
+    setTasks((prev) => prev.map((t) => (t.id === id ? data : t)))
+    return data
+  }, [load])
+
+  // Soft-delete (set deleted_at): optimistically drop the row; refetch on error.
+  const deleteTask = useCallback(async (id) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id)) // optimistic remove
+    const { error: e } = await supabase.from('tasks').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    if (e) { load(); throw e }
+  }, [load])
+
+  return { tasks, loading, error, toggleDone, updateTask, deleteTask, refetch: load }
 }

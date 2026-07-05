@@ -1,15 +1,17 @@
 import { useMemo } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { eventsByDate, fmtDayLabel, fmtTime, startOfDay } from '@simplicity/core'
 import i18n from '../lib/i18n'
+import Screen from '../components/Screen'
+import ScreenHeader from '../components/ScreenHeader'
+import Card from '../components/Card'
+import { colors } from '../theme/theme'
 import { useCalendarData } from '../hooks/useCalendarData'
 
-// Real Calendar screen (replaces the stub) — an upcoming agenda. Meetings +
-// synced calendar events are normalized to { when, title } and grouped by day
-// with the shared core eventsByDate. (Month grid is a later increment.)
+// Calendar screen — an upcoming agenda. Meetings + synced calendar events are
+// normalized to { when, title } and grouped by day with core eventsByDate, over
+// the per-screen photo (Warm Precision theme). (Month grid is a later increment.)
 export default function CalendarScreen() {
-  const nav = useNavigation()
   const { meetings, calendarEvents, clients, groups, loading, error, refetch } = useCalendarData()
 
   const days = useMemo(() => {
@@ -38,26 +40,22 @@ export default function CalendarScreen() {
   }, [meetings, calendarEvents, clients, groups])
 
   return (
-    <View style={styles.root}>
-      <View style={styles.bar}>
-        <Pressable onPress={() => nav.goBack()} hitSlop={10}><Text style={styles.back}>‹</Text></Pressable>
-        <Text style={styles.title}>{i18n.t('calendar:title', { defaultValue: 'יומן' })}</Text>
-        <View style={styles.spacer} />
-      </View>
+    <Screen name="calendar">
+      <ScreenHeader title={i18n.t('calendar:title', { defaultValue: 'יומן' })} />
 
       {loading && !days.length ? (
-        <View style={styles.center}><ActivityIndicator color="#C97B5E" /></View>
+        <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
           contentContainerStyle={styles.content}
-          refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor="#C97B5E" />}
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {days.length ? (
             days.map((d) => (
               <View key={d.key} style={styles.group}>
                 <Text style={styles.dayLabel}>{fmtDayLabel(d.when)}</Text>
-                <View style={styles.card}>
+                <Card padded={false}>
                   {d.events.map((e, i) => (
                     <View key={e.id} style={[styles.row, i > 0 && styles.rowBorder]}>
                       <Text style={styles.time}>{fmtTime(e.when)}</Text>
@@ -65,7 +63,7 @@ export default function CalendarScreen() {
                       <Text style={styles.eventTitle} numberOfLines={1}>{e.title || '—'}</Text>
                     </View>
                   ))}
-                </View>
+                </Card>
               </View>
             ))
           ) : (
@@ -73,29 +71,22 @@ export default function CalendarScreen() {
           )}
         </ScrollView>
       )}
-    </View>
+    </Screen>
   )
 }
 
-const BRAND = '#C97B5E'
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#fbf7f2' },
-  bar: { flexDirection: 'row', alignItems: 'center', paddingTop: 56, paddingBottom: 12, paddingHorizontal: 16, gap: 8 },
-  back: { fontSize: 30, color: BRAND, lineHeight: 30 },
-  title: { fontSize: 18, fontWeight: '600', color: '#3a342e', flex: 1, textAlign: 'center' },
-  spacer: { width: 30 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 16 },
-  error: { color: '#c0392b', fontSize: 13 },
-  empty: { color: '#a89f95', fontSize: 14, textAlign: 'center', marginTop: 24 },
+  error: { color: colors.danger, fontSize: 13 },
+  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
   group: { gap: 8 },
-  dayLabel: { fontSize: 14, fontWeight: '600', color: '#7c6f63' },
-  card: { backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: '#efe7da', overflow: 'hidden' },
+  dayLabel: { fontSize: 14, fontWeight: '600', color: colors.textSub },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },
-  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#f2ece1' },
-  time: { fontSize: 13, color: '#7c6f63', width: 48 },
+  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
+  time: { fontSize: 13, color: colors.textSub, width: 48 },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  dotMeeting: { backgroundColor: '#C97B5E' },
-  dotCal: { backgroundColor: '#8BA888' },
-  eventTitle: { flex: 1, fontSize: 15, color: '#3a342e' },
+  dotMeeting: { backgroundColor: colors.brand },
+  dotCal: { backgroundColor: colors.positive },
+  eventTitle: { flex: 1, fontSize: 15, color: colors.text },
 })

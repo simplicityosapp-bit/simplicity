@@ -1,15 +1,17 @@
 import { useMemo } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { goalsByCategory, formatGoalValue, timeFrameLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
+import Screen from '../components/Screen'
+import ScreenHeader from '../components/ScreenHeader'
+import Card from '../components/Card'
+import { colors } from '../theme/theme'
 import { useGoalsData } from '../hooks/useGoalsData'
 
-// Real Goals screen (replaces the stub). Goals grouped by category, each scored
-// by the shared core engine (goalsByCategory → moonGetData): a pace bar +
-// actual/target value.
+// Goals screen — goals grouped by category, each scored by the shared core
+// engine (goalsByCategory → moonGetData): a pace bar + actual/target value,
+// over the per-screen photo (Warm Precision theme).
 export default function GoalsScreen() {
-  const nav = useNavigation()
   const { goals, categories, entries, transactions, clients, leads, answers, members, groups, loading, error, refetch } = useGoalsData()
 
   const cats = useMemo(
@@ -18,26 +20,22 @@ export default function GoalsScreen() {
   )
 
   return (
-    <View style={styles.root}>
-      <View style={styles.bar}>
-        <Pressable onPress={() => nav.goBack()} hitSlop={10}><Text style={styles.back}>‹</Text></Pressable>
-        <Text style={styles.title}>{i18n.t('goals:title', { defaultValue: 'יעדים' })}</Text>
-        <View style={styles.spacer} />
-      </View>
+    <Screen name="goals">
+      <ScreenHeader title={i18n.t('goals:title', { defaultValue: 'יעדים' })} />
 
       {loading && !cats.length ? (
-        <View style={styles.center}><ActivityIndicator color="#C97B5E" /></View>
+        <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
           contentContainerStyle={styles.content}
-          refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor="#C97B5E" />}
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {cats.length ? (
             cats.map(({ category, goals: scored }) => (
               <View key={category.id} style={styles.group}>
                 <Text style={styles.catName}>{category.name || ''}</Text>
-                <View style={styles.card}>
+                <Card padded={false}>
                   {scored.map((s, i) => {
                     const pct = Math.min(100, Math.max(0, s.pure ?? 0))
                     return (
@@ -51,7 +49,7 @@ export default function GoalsScreen() {
                       </View>
                     )
                   })}
-                </View>
+                </Card>
               </View>
             ))
           ) : (
@@ -59,30 +57,23 @@ export default function GoalsScreen() {
           )}
         </ScrollView>
       )}
-    </View>
+    </Screen>
   )
 }
 
-const BRAND = '#C97B5E'
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#fbf7f2' },
-  bar: { flexDirection: 'row', alignItems: 'center', paddingTop: 56, paddingBottom: 12, paddingHorizontal: 16, gap: 8 },
-  back: { fontSize: 30, color: BRAND, lineHeight: 30 },
-  title: { fontSize: 18, fontWeight: '600', color: '#3a342e', flex: 1, textAlign: 'center' },
-  spacer: { width: 30 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 18 },
-  error: { color: '#c0392b', fontSize: 13 },
-  empty: { color: '#a89f95', fontSize: 14, textAlign: 'center', marginTop: 24 },
+  error: { color: colors.danger, fontSize: 13 },
+  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
   group: { gap: 8 },
-  catName: { fontSize: 14, fontWeight: '600', color: '#7c6f63' },
-  card: { backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: '#efe7da', overflow: 'hidden' },
+  catName: { fontSize: 14, fontWeight: '600', color: colors.textSub },
   goal: { paddingVertical: 14, paddingHorizontal: 16, gap: 8 },
-  goalBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#f2ece1' },
+  goalBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   goalHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  goalLabel: { flex: 1, fontSize: 15, color: '#3a342e' },
-  goalVal: { fontSize: 13, color: '#7c6f63' },
-  track: { height: 8, borderRadius: 4, backgroundColor: '#efe7da', overflow: 'hidden' },
-  fill: { height: 8, borderRadius: 4, backgroundColor: '#8BA888' },
-  goalMeta: { fontSize: 12, color: '#a89f95' },
+  goalLabel: { flex: 1, fontSize: 15, color: colors.text },
+  goalVal: { fontSize: 13, color: colors.textSub },
+  track: { height: 8, borderRadius: 4, backgroundColor: 'rgba(42,37,32,0.08)', overflow: 'hidden' },
+  fill: { height: 8, borderRadius: 4, backgroundColor: colors.positive },
+  goalMeta: { fontSize: 12, color: colors.textFaint },
 })

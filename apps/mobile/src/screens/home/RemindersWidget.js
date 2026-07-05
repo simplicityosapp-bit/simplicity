@@ -3,6 +3,8 @@ import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { remindersUpcoming, formatWhen } from '@simplicity/core'
 import i18n from '../../lib/i18n'
+import Card from '../../components/Card'
+import { colors } from '../../theme/theme'
 
 // "תזכורות קרובות" — the next occurrences of pending/triggered reminders
 // (shared core remindersUpcoming). Hidden when there are none. Reminders live
@@ -20,7 +22,7 @@ export default function RemindersWidget({ reminders }) {
           <Text style={styles.link}>{i18n.t('home:widgets.reminders.link', { count: items.length })} ›</Text>
         </Pressable>
       </View>
-      <View style={styles.card}>
+      <Card padded={false}>
         {items.map((r, i) => (
           <Pressable
             key={r.id || i}
@@ -31,7 +33,7 @@ export default function RemindersWidget({ reminders }) {
             <Text style={styles.when}>{formatWhen(r.when)}</Text>
           </Pressable>
         ))}
-      </View>
+      </Card>
     </View>
   )
 }
@@ -39,11 +41,10 @@ export default function RemindersWidget({ reminders }) {
 const styles = StyleSheet.create({
   wrap: { marginTop: 20, gap: 8 },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 15, fontWeight: '600', color: '#3a342e' },
-  link: { fontSize: 13, color: '#C97B5E' },
-  card: { backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: '#efe7da', overflow: 'hidden' },
+  title: { fontSize: 15, fontWeight: '600', color: colors.text },
+  link: { fontSize: 13, color: colors.brand },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 13, paddingHorizontal: 16 },
-  rowBorder: { borderTopWidth: 1, borderTopColor: '#f2ece1' },
-  text: { flex: 1, fontSize: 14, color: '#3a342e' },
-  when: { fontSize: 13, color: '#7c6f63' },
+  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
+  text: { flex: 1, fontSize: 14, color: colors.text },
+  when: { fontSize: 13, color: colors.textSub },
 })

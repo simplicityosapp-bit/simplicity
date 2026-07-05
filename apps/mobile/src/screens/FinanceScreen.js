@@ -23,7 +23,7 @@ export default function FinanceScreen() {
   return (
     <View style={styles.root}>
       <View style={styles.bar}>
-        <Pressable onPress={() => nav.goBack()} hitSlop={10}><Text style={styles.back}>‹</Text></Pressable>
+        {nav.canGoBack() ? <Pressable onPress={() => nav.goBack()} hitSlop={10}><Text style={styles.back}>‹</Text></Pressable> : <View style={styles.spacer} />}
         <Text style={styles.title}>{i18n.t('finance:title', { defaultValue: 'כסף' })}</Text>
         <View style={styles.spacer} />
       </View>

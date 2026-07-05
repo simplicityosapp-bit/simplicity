@@ -1,38 +1,61 @@
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { Home, Users, ClipboardList, Wallet, Menu } from 'lucide-react-native'
+import i18n from '../lib/i18n'
+import { colors } from '../theme/theme'
 import HomeScreen from '../screens/HomeScreen'
-import StubScreen from '../screens/StubScreen'
-import TasksScreen from '../screens/TasksScreen'
 import ClientsScreen from '../screens/ClientsScreen'
+import TasksScreen from '../screens/TasksScreen'
 import FinanceScreen from '../screens/FinanceScreen'
 import GoalsScreen from '../screens/GoalsScreen'
 import LeadsScreen from '../screens/LeadsScreen'
 import CalendarScreen from '../screens/CalendarScreen'
+import MenuScreen from '../screens/MenuScreen'
+import StubScreen from '../screens/StubScreen'
 
-// Authenticated stack. Home is the root; each screen carries its own header
-// (headerShown: false) to keep the Mångata look. The feature screens are stubs
-// for now — they give the home widgets real navigation targets and get fleshed
-// out (real content) in later increments.
 const Stack = createNativeStackNavigator()
+const Tab = createBottomTabNavigator()
 
-// Only Moon stays a stub now (a full moon-detail screen is out of scope — the
-// home MoonWidget already shows the score).
-const STUB_SCREENS = ['Moon']
+// Bottom bar matches the web: clients · tasks · home · finance · תפריט. Each tab
+// screen carries its own header; feature screens off the bar (Goals/Leads/
+// Calendar/Moon) are pushed onto the root stack (from the Menu tab or a widget).
+const TAB_ICON = { Home, Clients: Users, Tasks: ClipboardList, Finance: Wallet, Menu }
+const tabTitle = (key, fallback) => i18n.t(`nav:items.${key}`, { defaultValue: fallback })
+
+function Tabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: colors.brand,
+        tabBarInactiveTintColor: colors.textSub,
+        tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.border, height: 60, paddingBottom: 6, paddingTop: 6 },
+        tabBarLabelStyle: { fontSize: 11 },
+        tabBarIcon: ({ color, size }) => {
+          const Icon = TAB_ICON[route.name]
+          return Icon ? <Icon size={size ?? 22} color={color} strokeWidth={1.6} /> : null
+        },
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} options={{ title: tabTitle('home', 'בית') }} />
+      <Tab.Screen name="Clients" component={ClientsScreen} options={{ title: tabTitle('clients', 'לקוחות') }} />
+      <Tab.Screen name="Tasks" component={TasksScreen} options={{ title: tabTitle('tasks', 'משימות') }} />
+      <Tab.Screen name="Finance" component={FinanceScreen} options={{ title: tabTitle('finance', 'כסף') }} />
+      <Tab.Screen name="Menu" component={MenuScreen} options={{ title: i18n.t('nav:menu', { defaultValue: 'תפריט' }) }} />
+    </Tab.Navigator>
+  )
+}
 
 export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Tasks" component={TasksScreen} />
-        <Stack.Screen name="Clients" component={ClientsScreen} />
-        <Stack.Screen name="Finance" component={FinanceScreen} />
+        <Stack.Screen name="Main" component={Tabs} />
         <Stack.Screen name="Goals" component={GoalsScreen} />
         <Stack.Screen name="Leads" component={LeadsScreen} />
         <Stack.Screen name="Calendar" component={CalendarScreen} />
-        {STUB_SCREENS.map((name) => (
-          <Stack.Screen key={name} name={name} component={StubScreen} />
-        ))}
+        <Stack.Screen name="Moon" component={StubScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )

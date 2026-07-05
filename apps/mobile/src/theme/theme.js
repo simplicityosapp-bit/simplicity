@@ -7,8 +7,8 @@ export const colors = {
   bg: '#F7F3EE', // bone — screen base (behind the photo, and where no photo)
   card: '#FFFCF7', // cream — opaque surface (non-glass contexts)
   cardFlat: '#F5EFE2', // warm cream — pressed / alt surface
-  glassTint: 'rgba(255,252,247,0.55)', // cream veil over the blur (readability over photos)
-  scrim: 'rgba(247,243,238,0.32)', // soft warm veil over the background photo
+  glassTint: 'rgba(255,252,247,0.62)', // cream veil over the blur (a touch denser so cards read w/o a heavy scrim)
+  scrim: 'rgba(247,243,238,0.14)', // very soft warm veil — keep the photo crisp (was washing it out)
   // text (flat-appropriate soft values, not the photo-darkened near-blacks)
   text: '#2A2520', // espresso — headings, numbers, body
   textSub: '#6B6358', // stone (soft) — labels, secondary

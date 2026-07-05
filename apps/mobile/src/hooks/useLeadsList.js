@@ -25,5 +25,19 @@ export function useLeadsList() {
     load()
   }, [load])
 
-  return { leads, loading, error, refetch: load }
+  const updateLead = useCallback(async (id, patch) => {
+    setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l))) // optimistic
+    const { data, error: e } = await supabase.from('leads').update(patch).eq('id', id).select().single()
+    if (e) { load(); throw e }
+    setLeads((prev) => prev.map((l) => (l.id === id ? data : l)))
+    return data
+  }, [load])
+
+  const deleteLead = useCallback(async (id) => {
+    setLeads((prev) => prev.filter((l) => l.id !== id)) // optimistic remove
+    const { error: e } = await supabase.from('leads').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    if (e) { load(); throw e }
+  }, [load])
+
+  return { leads, loading, error, refetch: load, updateLead, deleteLead }
 }

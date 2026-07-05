@@ -1,10 +1,11 @@
-import { useMemo } from 'react'
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { useMemo, useState } from 'react'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { LEAD_META, statusMetaOfLead, metaTitle, isPendingReview } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHeader from '../components/ScreenHeader'
 import Card from '../components/Card'
+import AddLeadModal from '../modals/AddLeadModal'
 import { colors } from '../theme/theme'
 import { useLeadsList } from '../hooks/useLeadsList'
 
@@ -13,7 +14,8 @@ const META_COLOR = { in_process: '#D9A566', converted: colors.positive, not_rele
 // Leads screen — leads grouped by their status-meta (core statusMetaOfLead), in
 // the canonical LEAD_META order, over the per-screen photo (Warm Precision).
 export default function LeadsScreen() {
-  const { leads, loading, error, refetch } = useLeadsList()
+  const { leads, loading, error, refetch, updateLead, deleteLead } = useLeadsList()
+  const [editing, setEditing] = useState(null)
 
   const groups = useMemo(
     () => LEAD_META
@@ -44,13 +46,13 @@ export default function LeadsScreen() {
                 </View>
                 <Card padded={false}>
                   {rows.map((l, i) => (
-                    <View key={l.id || i} style={[styles.row, i > 0 && styles.rowBorder]}>
+                    <Pressable key={l.id || i} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditing(l)}>
                       <View style={styles.info}>
                         <Text style={styles.name} numberOfLines={1}>{l.name || '—'}</Text>
                         {l.phone ? <Text style={styles.phone}>{l.phone}</Text> : null}
                       </View>
                       {isPendingReview(l) ? <View style={styles.pending} /> : null}
-                    </View>
+                    </Pressable>
                   ))}
                 </Card>
               </View>
@@ -60,6 +62,14 @@ export default function LeadsScreen() {
           )}
         </ScrollView>
       )}
+
+      <AddLeadModal
+        open={!!editing}
+        lead={editing}
+        onClose={() => setEditing(null)}
+        onSave={(patch) => updateLead(editing.id, patch)}
+        onDelete={() => deleteLead(editing.id)}
+      />
     </Screen>
   )
 }

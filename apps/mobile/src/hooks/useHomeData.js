@@ -115,6 +115,7 @@ export function useHomeData() {
 
   const addTask = useCallback((payload) => insertInto('tasks', { status: 'todo', completed_at: null, ...payload }, 'tasks'), [insertInto])
   const addEntry = useCallback((payload) => insertInto('goal_entries', payload, 'entries'), [insertInto])
+  const addTransaction = useCallback((payload) => insertInto('transactions', payload, 'transactions'), [insertInto])
 
-  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry }
+  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction }
 }

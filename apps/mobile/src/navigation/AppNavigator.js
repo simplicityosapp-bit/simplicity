@@ -7,6 +7,7 @@ import ClientsScreen from '../screens/ClientsScreen'
 import FinanceScreen from '../screens/FinanceScreen'
 import GoalsScreen from '../screens/GoalsScreen'
 import LeadsScreen from '../screens/LeadsScreen'
+import CalendarScreen from '../screens/CalendarScreen'
 
 // Authenticated stack. Home is the root; each screen carries its own header
 // (headerShown: false) to keep the Mångata look. The feature screens are stubs
@@ -14,8 +15,9 @@ import LeadsScreen from '../screens/LeadsScreen'
 // out (real content) in later increments.
 const Stack = createNativeStackNavigator()
 
-// Still-stub feature screens (Tasks/Clients/Finance/Goals/Leads are now real).
-const STUB_SCREENS = ['Calendar', 'Moon']
+// Only Moon stays a stub now (a full moon-detail screen is out of scope — the
+// home MoonWidget already shows the score).
+const STUB_SCREENS = ['Moon']
 
 export default function AppNavigator() {
   return (
@@ -27,6 +29,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Finance" component={FinanceScreen} />
         <Stack.Screen name="Goals" component={GoalsScreen} />
         <Stack.Screen name="Leads" component={LeadsScreen} />
+        <Stack.Screen name="Calendar" component={CalendarScreen} />
         {STUB_SCREENS.map((name) => (
           <Stack.Screen key={name} name={name} component={StubScreen} />
         ))}

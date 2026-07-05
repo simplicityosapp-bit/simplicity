@@ -98,5 +98,23 @@ export function useHomeData() {
     return saved
   }, [])
 
-  return { ...data, loading, error, refetch: load, addAnswer }
+  // Generic "add a row" (mirrors the web api sanitize+insert pattern): strip
+  // server-owned columns, stamp user_id, insert, and prepend to the matching
+  // local array so derived widgets update without a refetch.
+  const insertInto = useCallback(async (table, payload, key) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const row = { ...payload }
+    SERVER_OWNED.forEach((k) => delete row[k])
+    row.user_id = session.user.id
+    const { data: saved, error: insErr } = await supabase.from(table).insert(row).select().single()
+    if (insErr) throw insErr
+    setData((prev) => ({ ...prev, [key]: [saved, ...prev[key]] }))
+    return saved
+  }, [])
+
+  const addTask = useCallback((payload) => insertInto('tasks', { status: 'todo', completed_at: null, ...payload }, 'tasks'), [insertInto])
+  const addEntry = useCallback((payload) => insertInto('goal_entries', payload, 'entries'), [insertInto])
+
+  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry }
 }

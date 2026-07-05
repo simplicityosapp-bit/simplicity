@@ -17,6 +17,7 @@ export const colors = {
   brand: '#C97B5E', // terracotta — primary, key accent
   brandSoft: '#F4E3DA', // blush — highlight / selected
   positive: '#8BA888', // sage — success / goals / urgent
+  amberWarn: '#D4A574', // soft amber — attention rows (not a hard danger)
   danger: '#B5634E', // clay — real warnings only
   onBrand: '#FFFFFF',
   // lines

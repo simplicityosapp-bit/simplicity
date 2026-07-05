@@ -1,5 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native'
-import { Wallet, CheckSquare } from 'lucide-react-native'
+import { Wallet, CheckSquare, Users, UserPlus } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
@@ -10,6 +10,8 @@ import { colors } from '../theme/theme'
 // (task + transaction); the grid grows as more add-flows land.
 const ACTIONS = [
   { id: 'transaction', Icon: Wallet },
+  { id: 'client', Icon: Users },
+  { id: 'lead', Icon: UserPlus },
   { id: 'task', Icon: CheckSquare },
 ]
 

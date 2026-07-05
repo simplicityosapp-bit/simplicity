@@ -4,6 +4,8 @@ import { Plus } from 'lucide-react-native'
 import QuickActionsModal from '../../modals/QuickActionsModal'
 import AddTaskModal from '../../modals/AddTaskModal'
 import AddTransactionModal from '../../modals/AddTransactionModal'
+import AddClientModal from '../../modals/AddClientModal'
+import AddLeadModal from '../../modals/AddLeadModal'
 import QuickGoalUpdatePicker from '../../modals/QuickGoalUpdatePicker'
 import AddGoalEntryModal from '../../modals/AddGoalEntryModal'
 import i18n from '../../lib/i18n'
@@ -13,7 +15,7 @@ import { colors } from '../../theme/theme'
 //  • הוספה מהירה → QuickActionsModal launcher → the picked Add* modal
 //    (task/transaction implemented; more add-flows land incrementally).
 //  • עדכון יעד   → goal-category picker → AddGoalEntryModal.
-export default function QuickRow({ goals, categories, addTask, addEntry, addTransaction }) {
+export default function QuickRow({ goals, categories, addTask, addEntry, addTransaction, addClient, addLead }) {
   const [showLauncher, setShowLauncher] = useState(false)
   const [active, setActive] = useState(null) // 'task' | 'transaction'
   const [showPicker, setShowPicker] = useState(false)
@@ -34,6 +36,8 @@ export default function QuickRow({ goals, categories, addTask, addEntry, addTran
       <QuickActionsModal open={showLauncher} onClose={() => setShowLauncher(false)} onPick={setActive} />
       <AddTaskModal open={active === 'task'} onClose={close} onSave={addTask} />
       <AddTransactionModal open={active === 'transaction'} onClose={close} onSave={addTransaction} />
+      <AddClientModal open={active === 'client'} onClose={close} onSave={addClient} />
+      <AddLeadModal open={active === 'lead'} onClose={close} onSave={addLead} />
 
       <QuickGoalUpdatePicker
         open={showPicker}

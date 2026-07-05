@@ -20,8 +20,10 @@ async function fetchTable(name, { filterDeleted = true } = {}) {
 const EMPTY = {
   clients: [], transactions: [], meetings: [], calendarEvents: [], leads: [], groups: [],
   tasks: [], goals: [], categories: [], sessions: [], members: [], reminders: [],
-  entries: [], answers: [],
+  entries: [], answers: [], questions: [],
 }
+
+const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 
 export function useHomeData() {
   const [data, setData] = useState(EMPTY)
@@ -32,7 +34,7 @@ export function useHomeData() {
     setLoading(true)
     setError(null)
     try {
-      const [clients, transactions, meetings, calendarEvents, leads, groups, tasks, goals, categories, sessions, members, reminders, entries, answers] = await Promise.all([
+      const [clients, transactions, meetings, calendarEvents, leads, groups, tasks, goals, categories, sessions, members, reminders, entries, answers, questions] = await Promise.all([
         fetchTable('clients'),
         fetchTable('transactions'),
         fetchTable('scheduled_meetings', { filterDeleted: false }),
@@ -47,8 +49,9 @@ export function useHomeData() {
         fetchTable('reminders'),
         fetchTable('goal_entries'),
         fetchTable('daily_answers'),
+        fetchTable('user_questions'),
       ])
-      setData({ clients, transactions, meetings, calendarEvents, leads, groups, tasks, goals, categories, sessions, members, reminders, entries, answers })
+      setData({ clients, transactions, meetings, calendarEvents, leads, groups, tasks, goals, categories, sessions, members, reminders, entries, answers, questions })
     } catch (e) {
       setError(e?.message || 'load failed')
     } finally {
@@ -60,5 +63,40 @@ export function useHomeData() {
     load()
   }, [load])
 
-  return { ...data, loading, error, refetch: load }
+  // Save a daily-question answer (mirrors web's insertDailyAnswer): insert, and
+  // on the (question,date) partial-unique clash (23505 — re-answer today) update
+  // the existing row instead. Updates local `answers` so the widget advances.
+  const addAnswer = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const row = { ...payload }
+    SERVER_OWNED.forEach((k) => delete row[k])
+    row.user_id = session.user.id
+    let saved
+    const { data: ins, error } = await supabase.from('daily_answers').insert(row).select().single()
+    if (error) {
+      if (error.code === '23505' && row.user_question_id && row.date) {
+        const { data: upd, error: updErr } = await supabase
+          .from('daily_answers')
+          .update({ value_num: row.value_num ?? null, value_text: row.value_text ?? null, note: row.note ?? null })
+          .eq('user_question_id', row.user_question_id).eq('date', row.date).is('deleted_at', null)
+          .select().single()
+        if (updErr) throw updErr
+        saved = upd
+      } else {
+        throw error
+      }
+    } else {
+      saved = ins
+    }
+    setData((prev) => ({
+      ...prev,
+      answers: prev.answers.some((a) => a.id === saved.id)
+        ? prev.answers.map((a) => (a.id === saved.id ? saved : a))
+        : [saved, ...prev.answers],
+    }))
+    return saved
+  }, [])
+
+  return { ...data, loading, error, refetch: load, addAnswer }
 }

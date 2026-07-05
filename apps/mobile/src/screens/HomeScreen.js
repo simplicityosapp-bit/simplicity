@@ -15,6 +15,7 @@ import NextTasksWidget from './home/NextTasksWidget'
 import RemindersWidget from './home/RemindersWidget'
 import MoonWidget from './home/MoonWidget'
 import QuoteWidget from './home/QuoteWidget'
+import InsightsWidget from './home/InsightsWidget'
 
 // Home — greeting + net/clients/today chips (shared core homeChips) + the
 // widget stack, over the per-screen background photo (Warm Precision theme).
@@ -24,7 +25,7 @@ export default function HomeScreen() {
   const { session } = useAuth()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
-    tasks, goals, categories, sessions, members, reminders, entries, answers, loading, error, refetch,
+    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer,
   } = useHomeData()
 
   const moonData = useMemo(
@@ -71,6 +72,8 @@ export default function HomeScreen() {
             <MoonWidget data={moonData} />
           </View>
         ) : null}
+
+        {!loading ? <InsightsWidget questions={questions} answers={answers} addAnswer={addAnswer} /> : null}
 
         <View style={styles.chips}>
           <Chip value={loading ? '··' : String(today.length)} label={i18n.t('home:widgets.chips.meetings')} onPress={() => nav.navigate('Calendar')} />

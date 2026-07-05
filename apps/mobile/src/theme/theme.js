@@ -19,6 +19,8 @@ export const colors = {
   positive: '#8BA888', // sage — success / goals / urgent
   amberWarn: '#D4A574', // soft amber — attention rows (not a hard danger)
   danger: '#B5634E', // clay — real warnings only
+  moonDeep: '#5a6a8c', // dusk blue — daily-question slider fill / thumb
+  moonHi: '#b8c4e0', // light dusk — slider gradient top (web --moon-hi)
   onBrand: '#FFFFFF',
   // lines
   border: 'rgba(42,37,32,0.08)',

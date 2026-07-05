@@ -1,21 +1,25 @@
 import { useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, RefreshControl } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { homeChips, todayItems, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { useHomeData } from '../hooks/useHomeData'
+import Screen from '../components/Screen'
+import Card from '../components/Card'
+import { colors, type, space } from '../theme/theme'
 import AttentionWidget from './home/AttentionWidget'
 import NextTasksWidget from './home/NextTasksWidget'
 import RemindersWidget from './home/RemindersWidget'
 import MoonWidget from './home/MoonWidget'
 
-// First real home screen — greeting + the net + clients chips, computed by the
-// SHARED core `homeChips` (same engine the web home uses). Built incrementally:
-// today's-agenda chip, attention rows, reminders etc. land in later increments.
+// Home — greeting + net/clients/today chips (shared core homeChips) + the
+// widget stack, over the per-screen background photo (Warm Precision theme).
 export default function HomeScreen() {
   const nav = useNavigation()
+  const insets = useSafeAreaInsets()
   const { session } = useAuth()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
@@ -26,16 +30,11 @@ export default function HomeScreen() {
     () => ({ goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups }),
     [goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups],
   )
-
   const attentionData = useMemo(
     () => ({ transactions, scheduled_meetings: meetings, clients, tasks, goals, categories, sessions, leads, members, groups }),
     [transactions, meetings, clients, tasks, goals, categories, sessions, leads, members, groups],
   )
-
-  const chips = useMemo(
-    () => homeChips(new Date(), { clients, transactions }),
-    [clients, transactions],
-  )
+  const chips = useMemo(() => homeChips(new Date(), { clients, transactions }), [clients, transactions])
   const today = useMemo(
     () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }),
     [meetings, calendarEvents, leads, clients, groups],
@@ -44,69 +43,66 @@ export default function HomeScreen() {
   const email = session?.user?.email || ''
 
   return (
-    <ScrollView
-      style={styles.root}
-      contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={BRAND} />}
-    >
-      <View style={styles.header}>
-        <Text style={styles.brand}>Simplicity</Text>
-        <Pressable onPress={() => supabase.auth.signOut()} hitSlop={8}>
-          <Text style={styles.logout}>{i18n.t('nav:logout')}</Text>
-        </Pressable>
-      </View>
-
-      {email ? <Text style={styles.email}>{email}</Text> : null}
-
-      {error ? (
-        <View style={styles.errorBox}>
-          <Text style={styles.errorText}>{error}</Text>
-          <Pressable onPress={refetch}><Text style={styles.retry}>↻</Text></Pressable>
+    <Screen name="home">
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 12 }]}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
+      >
+        <View style={styles.header}>
+          <Text style={styles.brand}>Simplicity</Text>
+          <Pressable onPress={() => supabase.auth.signOut()} hitSlop={8}>
+            <Text style={styles.logout}>{i18n.t('nav:logout')}</Text>
+          </Pressable>
         </View>
-      ) : null}
 
-      <View style={styles.chips}>
-        <Chip value={loading ? '··' : String(today.length)} label={i18n.t('home:widgets.chips.meetings')} onPress={() => nav.navigate('Calendar')} />
-        <Chip value={loading ? '··' : netStr} label={i18n.t('home:widgets.chips.net')} long={netStr.length >= 8} onPress={() => nav.navigate('Finance')} />
-        <Chip value={loading ? '··' : String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} onPress={() => nav.navigate('Clients')} />
-      </View>
+        {email ? <Text style={styles.email}>{email}</Text> : null}
 
-      {!loading ? <MoonWidget data={moonData} /> : null}
-      {!loading ? <AttentionWidget data={attentionData} /> : null}
-      {!loading ? <NextTasksWidget tasks={tasks} /> : null}
-      {!loading ? <RemindersWidget reminders={reminders} /> : null}
-    </ScrollView>
+        {error ? (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{error}</Text>
+            <Pressable onPress={refetch}><Text style={styles.retry}>↻</Text></Pressable>
+          </View>
+        ) : null}
+
+        <View style={styles.chips}>
+          <Chip value={loading ? '··' : String(today.length)} label={i18n.t('home:widgets.chips.meetings')} onPress={() => nav.navigate('Calendar')} />
+          <Chip value={loading ? '··' : netStr} label={i18n.t('home:widgets.chips.net')} long={netStr.length >= 8} onPress={() => nav.navigate('Finance')} />
+          <Chip value={loading ? '··' : String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} onPress={() => nav.navigate('Clients')} />
+        </View>
+
+        {!loading ? <MoonWidget data={moonData} /> : null}
+        {!loading ? <AttentionWidget data={attentionData} /> : null}
+        {!loading ? <NextTasksWidget tasks={tasks} /> : null}
+        {!loading ? <RemindersWidget reminders={reminders} /> : null}
+      </ScrollView>
+    </Screen>
   )
 }
 
 function Chip({ value, label, long, onPress }) {
   return (
-    <Pressable style={styles.chip} onPress={onPress}>
-      <Text style={[styles.chipNum, long && styles.chipNumLong]} numberOfLines={1} adjustsFontSizeToFit>
-        {value}
-      </Text>
-      <Text style={styles.chipLbl}>{label}</Text>
+    <Pressable style={styles.chipWrap} onPress={onPress}>
+      <Card padded={false} contentStyle={styles.chipInner}>
+        <Text style={[styles.chipNum, long && styles.chipNumLong]} numberOfLines={1} adjustsFontSizeToFit>{value}</Text>
+        <Text style={styles.chipLbl}>{label}</Text>
+      </Card>
     </Pressable>
   )
 }
 
-const BRAND = '#C97B5E'
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#fbf7f2' },
-  content: { paddingHorizontal: 20, paddingTop: 64, paddingBottom: 40, gap: 8 },
+  content: { paddingHorizontal: space.screenPadH, paddingBottom: 40, gap: 8 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  brand: { fontSize: 16, letterSpacing: 1, color: BRAND, fontWeight: '600' },
-  logout: { color: '#7c6f63', fontSize: 14 },
-  email: { color: '#a89f95', fontSize: 13, marginBottom: 12 },
+  brand: { fontSize: 16, letterSpacing: 1, color: colors.brand, fontWeight: '600' },
+  logout: { color: colors.textSub, fontSize: 14 },
+  email: { color: colors.textFaint, fontSize: 13, marginBottom: 12 },
   errorBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#fbeae7', borderRadius: 12, padding: 12, marginBottom: 8 },
-  errorText: { color: '#c0392b', fontSize: 13, flex: 1 },
-  retry: { color: '#c0392b', fontSize: 18 },
+  errorText: { color: colors.danger, fontSize: 13, flex: 1 },
+  retry: { color: colors.danger, fontSize: 18 },
   chips: { flexDirection: 'row', gap: 12 },
-  chip: {
-    flex: 1, backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: '#efe7da',
-    paddingVertical: 22, paddingHorizontal: 16, alignItems: 'center', gap: 6,
-  },
-  chipNum: { fontSize: 28, fontWeight: '600', color: '#3a342e' },
-  chipNumLong: { fontSize: 22 },
-  chipLbl: { fontSize: 14, color: '#7c6f63' },
+  chipWrap: { flex: 1 },
+  chipInner: { paddingVertical: 22, paddingHorizontal: 12, alignItems: 'center', gap: 6 },
+  chipNum: { ...type.displayL, color: colors.text },
+  chipNumLong: { fontSize: 20 },
+  chipLbl: { fontSize: 14, color: colors.textSub },
 })

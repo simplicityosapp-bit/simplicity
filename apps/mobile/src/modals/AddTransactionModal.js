@@ -1,24 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
-// Quick-add a transaction (mirrors web AddTransactionModal's core: income/expense
-// + amount + date + description). Client/project/category/payment selects and
-// invoice-issuing are a later increment; onSave gets a transactions-ready row.
+// Add/edit a transaction (mirrors web AddTransactionModal's core: income/expense
+// + amount + date + description). Pass a `tx` to edit it (prefills + shows
+// delete). Client/project/category/payment selects and invoice-issuing are a
+// later increment; onSave gets a transactions-ready payload.
 const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
-const blank = () => ({ type: 'income', amount: '', desc: '', date: todayStr() })
+const blank = (tx) => ({
+  type: tx?.type || 'income',
+  amount: tx?.amount != null ? String(tx.amount) : '',
+  desc: tx?.desc || '',
+  date: tx?.date ? String(tx.date).slice(0, 10) : todayStr(),
+})
 
-export default function AddTransactionModal({ open, onClose, onSave }) {
-  const [form, setForm] = useState(blank)
+export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null }) {
+  const isEdit = !!tx
+  const [form, setForm] = useState(() => blank(tx))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  useEffect(() => { if (open) { setForm(blank(tx)); setErr(''); setBusy(false) } }, [open, tx])
+  const close = () => { setErr(''); setBusy(false); onClose() }
+
+  const remove = async () => {
+    if (busy || !onDelete) return
+    setBusy(true)
+    try { await onDelete(); close() } catch (e) { setBusy(false); setErr(i18n.t('modalsData:common.saveFailed', { error: e.message || i18n.t('modalsData:common.tryAgain') })) }
+  }
 
   const submit = async () => {
     const amount = parseFloat(form.amount)
@@ -26,20 +41,17 @@ export default function AddTransactionModal({ open, onClose, onSave }) {
     setBusy(true)
     setErr('')
     const isFuture = form.date > todayStr()
+    const desc = form.desc.trim() || (form.type === 'income' ? i18n.t('modalsData:tx.incomeFallback') : i18n.t('modalsData:tx.expenseFallback'))
     try {
-      await onSave({
-        amount,
-        type: form.type,
-        desc: form.desc.trim() || (form.type === 'income' ? i18n.t('modalsData:tx.incomeFallback') : i18n.t('modalsData:tx.expenseFallback')),
-        date: form.date,
-        status: isFuture ? 'pending' : 'confirmed',
-        project_id: null,
-        client_id: null,
-        category_id: null,
-        payment_method: null,
-        recurring_id: null,
-        orphaned_from: null,
-      })
+      const payload = isEdit
+        ? { amount, type: form.type, desc, date: form.date, status: isFuture ? 'pending' : 'confirmed' }
+        : {
+          amount, type: form.type, desc, date: form.date,
+          status: isFuture ? 'pending' : 'confirmed',
+          project_id: null, client_id: null, category_id: null,
+          payment_method: null, recurring_id: null, orphaned_from: null,
+        }
+      await onSave(payload)
       close()
     } catch (e) {
       setBusy(false)
@@ -50,7 +62,7 @@ export default function AddTransactionModal({ open, onClose, onSave }) {
   const amountInvalid = !!err && !(parseFloat(form.amount) > 0)
 
   return (
-    <Sheet open={open} onClose={close} title={i18n.t('modalsData:tx.titleNew')}>
+    <Sheet open={open} onClose={close} title={isEdit ? (tx.desc?.trim() || i18n.t('modalsData:tx.titleNew')) : i18n.t('modalsData:tx.titleNew')}>
       <View style={styles.pills}>
         <Pressable style={[styles.pill, form.type === 'income' && styles.pillIncome]} onPress={() => set('type', 'income')}>
           <Text style={[styles.pillText, form.type === 'income' && styles.pillTextOn]}>{i18n.t('modalsData:common.income')}</Text>
@@ -87,6 +99,11 @@ export default function AddTransactionModal({ open, onClose, onSave }) {
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
+        {isEdit && onDelete ? (
+          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
+            <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
+          </Pressable>
+        ) : null}
         <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsData:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? i18n.t('modalsData:common.saving') : i18n.t('modalsData:common.save')}</Text>
@@ -111,7 +128,8 @@ const styles = StyleSheet.create({
   inputErr: { borderColor: colors.danger },
   hint: { fontSize: 12, color: colors.textFaint, marginTop: -8 },
   error: { color: colors.danger, fontSize: 13 },
-  actions: { flexDirection: 'row', gap: 12, marginTop: 4 },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
+  delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancelText: { fontSize: 15, color: colors.textSub },
   save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center' },

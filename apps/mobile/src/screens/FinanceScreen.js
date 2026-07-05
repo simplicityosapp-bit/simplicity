@@ -1,17 +1,19 @@
-import { useMemo } from 'react'
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { useMemo, useState } from 'react'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { financeQuery, currentMonthRange, monthNet, isr, fmtShortDate } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHeader from '../components/ScreenHeader'
 import Card from '../components/Card'
+import AddTransactionModal from '../modals/AddTransactionModal'
 import { colors } from '../theme/theme'
 import { useFinanceData } from '../hooks/useFinanceData'
 
 // Finance screen — month summary (net / income / expenses, all from core) + the
 // month's confirmed transactions, over the per-screen photo (Warm Precision).
 export default function FinanceScreen() {
-  const { transactions, loading, error, refetch } = useFinanceData()
+  const { transactions, loading, error, refetch, updateTransaction, deleteTransaction } = useFinanceData()
+  const [editing, setEditing] = useState(null)
   const now = new Date()
 
   const { inc, exp, net } = useMemo(() => monthNet(now, { transactions }), [transactions]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -49,7 +51,7 @@ export default function FinanceScreen() {
               {monthTx.map((t, i) => {
                 const income = t.type === 'income'
                 return (
-                  <View key={t.id || i} style={[styles.row, i > 0 && styles.rowBorder]}>
+                  <Pressable key={t.id || i} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditing(t)}>
                     <View style={styles.info}>
                       <Text style={styles.desc} numberOfLines={1}>{t.desc || '—'}</Text>
                       <Text style={styles.date}>{fmtShortDate(t.date)}</Text>
@@ -57,7 +59,7 @@ export default function FinanceScreen() {
                     <Text style={[styles.amount, { color: income ? colors.positive : colors.textSub }]}>
                       {income ? '+' : '−'}{isr(t.amount)}
                     </Text>
-                  </View>
+                  </Pressable>
                 )
               })}
             </Card>
@@ -66,6 +68,14 @@ export default function FinanceScreen() {
           )}
         </ScrollView>
       )}
+
+      <AddTransactionModal
+        open={!!editing}
+        tx={editing}
+        onClose={() => setEditing(null)}
+        onSave={(patch) => updateTransaction(editing.id, patch)}
+        onDelete={() => deleteTransaction(editing.id)}
+      />
     </Screen>
   )
 }

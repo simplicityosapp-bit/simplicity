@@ -26,5 +26,19 @@ export function useFinanceData() {
     load()
   }, [load])
 
-  return { transactions, loading, error, refetch: load }
+  const updateTransaction = useCallback(async (id, patch) => {
+    setTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t))) // optimistic
+    const { data, error: e } = await supabase.from('transactions').update(patch).eq('id', id).select().single()
+    if (e) { load(); throw e }
+    setTransactions((prev) => prev.map((t) => (t.id === id ? data : t)))
+    return data
+  }, [load])
+
+  const deleteTransaction = useCallback(async (id) => {
+    setTransactions((prev) => prev.filter((t) => t.id !== id)) // optimistic remove
+    const { error: e } = await supabase.from('transactions').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    if (e) { load(); throw e }
+  }, [load])
+
+  return { transactions, loading, error, refetch: load, updateTransaction, deleteTransaction }
 }

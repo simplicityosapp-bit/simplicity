@@ -1,10 +1,11 @@
-import { useMemo } from 'react'
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { useMemo, useState } from 'react'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { clientBalance, statusMetaOf, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHeader from '../components/ScreenHeader'
 import Card from '../components/Card'
+import AddClientModal from '../modals/AddClientModal'
 import { colors } from '../theme/theme'
 import { useClientsList } from '../hooks/useClientsList'
 
@@ -14,7 +15,8 @@ const STATUS_COLOR = { active: colors.positive, wandering: '#D9A566', past: '#b3
 // Real Clients screen. Read-only list — name + status + outstanding balance
 // (core clientBalance), over the per-screen photo (Warm Precision theme).
 export default function ClientsScreen() {
-  const { clients, transactions, sessions, members, groups, loading, error, refetch } = useClientsList()
+  const { clients, transactions, sessions, members, groups, loading, error, refetch, updateClient, deleteClient } = useClientsList()
+  const [editing, setEditing] = useState(null)
 
   const rows = useMemo(
     () => clients
@@ -38,14 +40,14 @@ export default function ClientsScreen() {
           {rows.length ? (
             <Card padded={false}>
               {rows.map(({ c, meta, balance }, i) => (
-                <View key={c.id} style={[styles.row, i > 0 && styles.rowBorder]}>
+                <Pressable key={c.id} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditing(c)}>
                   <View style={[styles.dot, { backgroundColor: STATUS_COLOR[meta] || '#cbb9a8' }]} />
                   <View style={styles.info}>
                     <Text style={styles.name} numberOfLines={1}>{c.name || ''}</Text>
                     <Text style={styles.status}>{i18n.t(`clients:status.${meta}`, { defaultValue: meta })}</Text>
                   </View>
                   {balance > 0 ? <Text style={styles.balance}>{isr(balance)}</Text> : null}
-                </View>
+                </Pressable>
               ))}
             </Card>
           ) : (
@@ -53,6 +55,14 @@ export default function ClientsScreen() {
           )}
         </ScrollView>
       )}
+
+      <AddClientModal
+        open={!!editing}
+        client={editing}
+        onClose={() => setEditing(null)}
+        onSave={(patch) => updateClient(editing.id, patch)}
+        onDelete={() => deleteClient(editing.id)}
+      />
     </Screen>
   )
 }

@@ -39,5 +39,21 @@ export function useClientsList() {
     load()
   }, [load])
 
-  return { ...state, loading, error, refetch: load }
+  // Edit a client (name/phone/…): optimistic patch, refetch on error.
+  const updateClient = useCallback(async (id, patch) => {
+    setState((s) => ({ ...s, clients: s.clients.map((c) => (c.id === id ? { ...c, ...patch } : c)) }))
+    const { data, error: e } = await supabase.from('clients').update(patch).eq('id', id).select().single()
+    if (e) { load(); throw e }
+    setState((s) => ({ ...s, clients: s.clients.map((c) => (c.id === id ? data : c)) }))
+    return data
+  }, [load])
+
+  // Soft-delete (deleted_at): drop the row optimistically; refetch on error.
+  const deleteClient = useCallback(async (id) => {
+    setState((s) => ({ ...s, clients: s.clients.filter((c) => c.id !== id) }))
+    const { error: e } = await supabase.from('clients').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    if (e) { load(); throw e }
+  }, [load])
+
+  return { ...state, loading, error, refetch: load, updateClient, deleteClient }
 }

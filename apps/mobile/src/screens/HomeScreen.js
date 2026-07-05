@@ -14,6 +14,7 @@ import AttentionWidget from './home/AttentionWidget'
 import NextTasksWidget from './home/NextTasksWidget'
 import RemindersWidget from './home/RemindersWidget'
 import MoonWidget from './home/MoonWidget'
+import QuoteWidget from './home/QuoteWidget'
 
 // Home — greeting + net/clients/today chips (shared core homeChips) + the
 // widget stack, over the per-screen background photo (Warm Precision theme).
@@ -64,13 +65,19 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
+        {!loading ? (
+          <View style={styles.topRow}>
+            <QuoteWidget />
+            <MoonWidget data={moonData} />
+          </View>
+        ) : null}
+
         <View style={styles.chips}>
           <Chip value={loading ? '··' : String(today.length)} label={i18n.t('home:widgets.chips.meetings')} onPress={() => nav.navigate('Calendar')} />
           <Chip value={loading ? '··' : netStr} label={i18n.t('home:widgets.chips.net')} long={netStr.length >= 8} onPress={() => nav.navigate('Finance')} />
           <Chip value={loading ? '··' : String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} onPress={() => nav.navigate('Clients')} />
         </View>
 
-        {!loading ? <MoonWidget data={moonData} /> : null}
         {!loading ? <AttentionWidget data={attentionData} /> : null}
         {!loading ? <NextTasksWidget tasks={tasks} /> : null}
         {!loading ? <RemindersWidget reminders={reminders} /> : null}
@@ -99,6 +106,7 @@ const styles = StyleSheet.create({
   errorBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#fbeae7', borderRadius: 12, padding: 12, marginBottom: 8 },
   errorText: { color: colors.danger, fontSize: 13, flex: 1 },
   retry: { color: colors.danger, fontSize: 18 },
+  topRow: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: 4 },
   chips: { flexDirection: 'row', gap: 12 },
   chipWrap: { flex: 1 },
   chipInner: { paddingVertical: 22, paddingHorizontal: 12, alignItems: 'center', gap: 6 },

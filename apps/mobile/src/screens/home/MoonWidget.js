@@ -1,14 +1,20 @@
 import { useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { moonGetData, moonReflection } from '@simplicity/core'
+import { BlurView } from 'expo-blur'
+import Svg, { Circle } from 'react-native-svg'
+import { moonGetData } from '@simplicity/core'
 import i18n from '../../lib/i18n'
-import Card from '../../components/Card'
-import { colors } from '../../theme/theme'
+import { colors, shadow } from '../../theme/theme'
 
-// "מבט על" — the pace-aware overall goal score (shared core moonGetData) + a
-// one-line reflection. Simple progress bar (SVG ring is a later design pass).
-// No goals → prompts to set one (→ Goals). Otherwise → Moon screen.
+// "מבט על" — pace-aware overall goal score (shared core moonGetData) drawn as a
+// circular ring chip, matching web's .moon-chip: a 132px glass circle with an
+// SVG progress arc (sage), the confidence % + "מהקצב" in the centre, and a
+// "{pure}% מהיעד" caption below. No goals → prompts to set one (→ Goals).
+const SIZE = 132
+const RADIUS = 42
+const CIRC = 2 * Math.PI * RADIUS // ≈ 263.89, matches web
+
 export default function MoonWidget({ data }) {
   const nav = useNavigation()
   const { overall } = useMemo(() => moonGetData(new Date(), data), [data])
@@ -16,9 +22,10 @@ export default function MoonWidget({ data }) {
   if (!overall) {
     return (
       <Pressable style={styles.wrap} onPress={() => nav.navigate('Goals')}>
-        <Card padded={false} contentStyle={styles.emptyInner}>
-          <Text style={styles.emptyText}>{i18n.t('home:widgets.moon.setGoal')}</Text>
-        </Card>
+        <Chip>
+          <Text style={styles.num}>—</Text>
+        </Chip>
+        <Text style={styles.emptyLabel}>{i18n.t('home:widgets.moon.setGoal')}</Text>
       </Pressable>
     )
   }
@@ -26,34 +33,55 @@ export default function MoonWidget({ data }) {
   const conf = overall.confidence ?? 0
   const pure = overall.pure
   const pct = Math.min(100, Math.max(0, conf))
+  const dash = (pct / 100) * CIRC
 
   return (
     <Pressable style={styles.wrap} onPress={() => nav.navigate('Moon')}>
-      <Card padded={false} contentStyle={styles.inner}>
-        <View style={styles.head}>
-          <Text style={styles.num}>{conf}%</Text>
-          <Text style={styles.kicker}>{i18n.t('home:widgets.moon.ofPace')}</Text>
-          {pure != null ? (
-            <Text style={styles.goalPct}>· {i18n.t('home:widgets.moon.percentOfGoal', { percent: pure })}</Text>
-          ) : null}
-        </View>
-        <View style={styles.track}><View style={[styles.fill, { width: `${pct}%` }]} /></View>
-        <Text style={styles.reflection}>{moonReflection(conf)}</Text>
-      </Card>
+      <Chip>
+        {/* Rotate the whole SVG -90° (via RN style, not an SVG transform attr)
+            so the arc starts at 12 o'clock — avoids react-native-svg-web's
+            transform-origin DOM warning. */}
+        <Svg width={SIZE} height={SIZE} viewBox="0 0 100 100" style={styles.ring}>
+          <Circle cx="50" cy="50" r={RADIUS} fill="none" stroke="rgba(42,37,32,0.08)" strokeWidth={5} />
+          <Circle
+            cx="50" cy="50" r={RADIUS} fill="none"
+            stroke={colors.positive} strokeWidth={7} strokeLinecap="round"
+            strokeDasharray={`${dash} ${CIRC}`}
+          />
+        </Svg>
+        <Text style={styles.num}>{conf}%</Text>
+        <Text style={styles.kicker}>{i18n.t('home:widgets.moon.ofPace')}</Text>
+      </Chip>
+      {pure != null ? (
+        <Text style={styles.caption}>{i18n.t('home:widgets.moon.percentOfGoal', { percent: pure })}</Text>
+      ) : null}
     </Pressable>
   )
 }
 
+function Chip({ children }) {
+  return (
+    <View style={styles.chipShadow}>
+      <View style={styles.chipClip}>
+        <BlurView intensity={28} tint="light" style={StyleSheet.absoluteFill} />
+        <View style={[StyleSheet.absoluteFill, styles.chipTint]} />
+        {children}
+      </View>
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
-  wrap: { marginTop: 20 },
-  inner: { paddingVertical: 18, paddingHorizontal: 18, gap: 12 },
-  emptyInner: { paddingVertical: 18, paddingHorizontal: 18, alignItems: 'center' },
-  emptyText: { color: colors.brand, fontSize: 15, fontWeight: '600' },
-  head: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
-  num: { fontSize: 30, fontWeight: '600', color: colors.text },
-  kicker: { fontSize: 14, color: colors.textSub },
-  goalPct: { fontSize: 13, color: colors.textFaint },
-  track: { height: 8, borderRadius: 4, backgroundColor: 'rgba(42,37,32,0.08)', overflow: 'hidden' },
-  fill: { height: 8, borderRadius: 4, backgroundColor: colors.positive },
-  reflection: { fontSize: 14, color: colors.textSub, lineHeight: 20 },
+  wrap: { alignItems: 'center', gap: 8 },
+  chipShadow: { width: SIZE, height: SIZE, borderRadius: SIZE / 2, ...shadow.card },
+  chipClip: {
+    width: SIZE, height: SIZE, borderRadius: SIZE / 2, overflow: 'hidden',
+    borderWidth: 1, borderColor: colors.glassBorder, alignItems: 'center', justifyContent: 'center',
+  },
+  chipTint: { backgroundColor: colors.glassTint },
+  ring: { ...StyleSheet.absoluteFillObject, transform: [{ rotate: '-90deg' }] },
+  num: { fontSize: 26, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
+  kicker: { fontSize: 10, color: colors.textSub, marginTop: 1 },
+  caption: { fontSize: 11, color: colors.textSub, textAlign: 'center' },
+  emptyLabel: { fontSize: 11, color: colors.brand, fontWeight: '600', textAlign: 'center' },
 })

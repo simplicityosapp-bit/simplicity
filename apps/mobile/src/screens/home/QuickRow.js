@@ -8,6 +8,7 @@ import AddClientModal from '../../modals/AddClientModal'
 import AddLeadModal from '../../modals/AddLeadModal'
 import AddProjectModal from '../../modals/AddProjectModal'
 import AddReminderModal from '../../modals/AddReminderModal'
+import AddMeetingModal from '../../modals/AddMeetingModal'
 import QuickGoalUpdatePicker from '../../modals/QuickGoalUpdatePicker'
 import AddGoalEntryModal from '../../modals/AddGoalEntryModal'
 import i18n from '../../lib/i18n'
@@ -17,7 +18,7 @@ import { colors } from '../../theme/theme'
 //  • הוספה מהירה → QuickActionsModal launcher → the picked Add* modal
 //    (task/transaction implemented; more add-flows land incrementally).
 //  • עדכון יעד   → goal-category picker → AddGoalEntryModal.
-export default function QuickRow({ goals, categories, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder }) {
+export default function QuickRow({ clients, goals, categories, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting }) {
   const [showLauncher, setShowLauncher] = useState(false)
   const [active, setActive] = useState(null) // 'task' | 'transaction'
   const [showPicker, setShowPicker] = useState(false)
@@ -42,6 +43,7 @@ export default function QuickRow({ goals, categories, addTask, addEntry, addTran
       <AddLeadModal open={active === 'lead'} onClose={close} onSave={addLead} />
       <AddProjectModal open={active === 'project'} onClose={close} onSave={addProject} />
       <AddReminderModal open={active === 'reminder'} onClose={close} onSave={addReminder} />
+      <AddMeetingModal open={active === 'meeting'} onClose={close} onSave={addMeeting} clients={clients} />
 
       <QuickGoalUpdatePicker
         open={showPicker}

@@ -122,6 +122,7 @@ export function useHomeData() {
   const addLead = useCallback((payload) => insertInto('leads', payload, 'leads'), [insertInto])
   const addProject = useCallback((payload) => insertInto('projects', payload, 'projects'), [insertInto])
   const addReminder = useCallback((payload) => insertInto('reminders', payload, 'reminders'), [insertInto])
+  const addMeeting = useCallback((payload) => insertInto('scheduled_meetings', payload, 'meetings'), [insertInto])
 
-  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder }
+  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting }
 }

@@ -1,5 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native'
-import { Wallet, CheckSquare, Users, UserPlus } from 'lucide-react-native'
+import { Wallet, CheckSquare, Users, UserPlus, FolderOpen, Bell } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
@@ -13,6 +13,8 @@ const ACTIONS = [
   { id: 'client', Icon: Users },
   { id: 'lead', Icon: UserPlus },
   { id: 'task', Icon: CheckSquare },
+  { id: 'project', Icon: FolderOpen },
+  { id: 'reminder', Icon: Bell },
 ]
 
 export default function QuickActionsModal({ open, onClose, onPick }) {

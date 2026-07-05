@@ -26,7 +26,7 @@ export default function HomeScreen() {
   const { session } = useAuth()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
-    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer, addTask, addEntry, addTransaction, addClient, addLead,
+    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder,
   } = useHomeData()
 
   const moonData = useMemo(
@@ -75,7 +75,7 @@ export default function HomeScreen() {
         ) : null}
 
         {!loading ? <InsightsWidget questions={questions} answers={answers} addAnswer={addAnswer} /> : null}
-        {!loading ? <QuickRow goals={goals} categories={categories} addTask={addTask} addEntry={addEntry} addTransaction={addTransaction} addClient={addClient} addLead={addLead} /> : null}
+        {!loading ? <QuickRow goals={goals} categories={categories} addTask={addTask} addEntry={addEntry} addTransaction={addTransaction} addClient={addClient} addLead={addLead} addProject={addProject} addReminder={addReminder} /> : null}
 
         <View style={styles.chips}>
           <Chip value={loading ? '··' : String(today.length)} label={i18n.t('home:widgets.chips.meetings')} onPress={() => nav.navigate('Calendar')} />

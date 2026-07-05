@@ -109,7 +109,9 @@ export function useHomeData() {
     row.user_id = session.user.id
     const { data: saved, error: insErr } = await supabase.from(table).insert(row).select().single()
     if (insErr) throw insErr
-    setData((prev) => ({ ...prev, [key]: [saved, ...prev[key]] }))
+    // prev[key] may be undefined for tables we insert into but don't fetch on
+    // home (e.g. projects) — start a fresh array in that case.
+    setData((prev) => ({ ...prev, [key]: [saved, ...(prev[key] || [])] }))
     return saved
   }, [])
 
@@ -118,6 +120,8 @@ export function useHomeData() {
   const addTransaction = useCallback((payload) => insertInto('transactions', payload, 'transactions'), [insertInto])
   const addClient = useCallback((payload) => insertInto('clients', payload, 'clients'), [insertInto])
   const addLead = useCallback((payload) => insertInto('leads', payload, 'leads'), [insertInto])
+  const addProject = useCallback((payload) => insertInto('projects', payload, 'projects'), [insertInto])
+  const addReminder = useCallback((payload) => insertInto('reminders', payload, 'reminders'), [insertInto])
 
-  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead }
+  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder }
 }

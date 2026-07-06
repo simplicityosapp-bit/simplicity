@@ -25,10 +25,11 @@ export default function TasksScreen() {
   const clientById = useMemo(() => Object.fromEntries(clients.map((c) => [c.id, c.name])), [clients])
   const projectById = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p.name])), [projects])
 
-  const { open, done } = useMemo(() => {
+  const { open, done, urgent } = useMemo(() => {
     const open = tasks.filter((t) => t.status !== 'done').slice().sort(byPriority)
     const done = tasks.filter((t) => t.status === 'done')
-    return { open, done }
+    const urgent = open.filter((t) => t.priority === 'high').length
+    return { open, done, urgent }
   }, [tasks])
 
   return (
@@ -43,6 +44,14 @@ export default function TasksScreen() {
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          {tasks.length ? (
+            <View style={styles.hero}>
+              <Stat n={open.length} label={i18n.t('tasks:filters.todo', { defaultValue: 'פתוחות' })} />
+              <Stat n={urgent} label={i18n.t('tasks:urgent', { defaultValue: 'דחופות' })} accent />
+              <Stat n={done.length} label={i18n.t('tasks:filters.done', { defaultValue: 'הושלמו' })} />
+            </View>
+          ) : null}
 
           {open.length ? (
             <Section title={i18n.t('tasks:filters.todo', { defaultValue: 'פתוחות' })}>
@@ -68,6 +77,15 @@ export default function TasksScreen() {
         onDelete={() => deleteTask(editing.id)}
       />
     </Screen>
+  )
+}
+
+function Stat({ n, label, accent }) {
+  return (
+    <View style={styles.stat}>
+      <Text style={[styles.statNum, accent && styles.statNumAccent]}>{n}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
   )
 }
 
@@ -113,6 +131,11 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 18 },
   error: { color: colors.danger, fontSize: 13 },
   empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
+  hero: { flexDirection: 'row', gap: 10 },
+  stat: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 16, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, gap: 2 },
+  statNum: { fontSize: 22, fontWeight: '600', color: colors.text },
+  statNumAccent: { color: colors.brand },
+  statLabel: { fontSize: 12, color: colors.textSub },
   section: { gap: 8 },
   sectionTitle: { fontSize: 14, fontWeight: '600', color: colors.textSub },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 13, paddingHorizontal: 16 },

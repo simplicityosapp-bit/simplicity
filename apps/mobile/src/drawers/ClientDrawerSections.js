@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { ChevronDown, Pencil } from 'lucide-react-native'
 import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, fmtTime } from '@simplicity/core'
 import Card from '../components/Card'
+import PaymentPlanSection from './PaymentPlanSection'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
@@ -95,6 +96,8 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
             )
           }) : <Text style={styles.empty}>{T('noPayments')}</Text>}
         </Section>
+
+        <PaymentPlanSection client={c} />
 
         <Section title={T('openTasks')} count={openTasks.length}>
           {openTasks.length ? openTasks.map((t) => {

@@ -12,6 +12,7 @@ import Card from '../components/Card'
 import Select from '../components/Select'
 import { colors } from '../theme/theme'
 import { usePreferences } from '../hooks/usePreferences'
+import { applySavedLanguage } from '../lib/preferences'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 
@@ -66,7 +67,7 @@ export default function SettingsScreen() {
   const toggle = (k) => setOpen((o) => (o === k ? null : k))
 
   const role = prefs.role || 'therapist'
-  const setLanguage = (code) => { setLang(code); i18n.changeLanguage(code); update({ language: code }) }
+  const setLanguage = (code) => { setLang(code); applySavedLanguage(code); update({ language: code }) }
 
   const exportCsv = async (kind) => {
     const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`

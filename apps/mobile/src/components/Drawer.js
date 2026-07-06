@@ -1,7 +1,8 @@
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Moon, Sparkles, X, LogOut } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Moon, Sparkles, X, LogOut, Pencil } from 'lucide-react-native'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../lib/auth'
 import i18n from '../lib/i18n'
 import { colors, space } from '../theme/theme'
 
@@ -22,6 +23,9 @@ const TILES = [
 
 export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   const insets = useSafeAreaInsets()
+  const { session } = useAuth()
+  const email = session?.user?.email || ''
+  const initial = (email.trim()[0] || '?').toUpperCase()
   if (!open) return null
   return (
     <View style={styles.overlay}>
@@ -36,6 +40,15 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
         <Text style={styles.sub}>{i18n.t('nav:drawerSubtitle', { defaultValue: 'תפריט · העדפות וכלים אישיים' })}</Text>
 
         <ScrollView contentContainerStyle={styles.scroll}>
+          <View style={styles.profile}>
+            <View style={styles.avatar}><Text style={styles.avatarText}>{initial}</Text></View>
+            <View style={styles.profileText}>
+              <Text style={styles.profileName} numberOfLines={1}>{i18n.t('nav:profile.myProfile', { defaultValue: 'הפרופיל שלי' })}</Text>
+              <Text style={styles.profileMeta} numberOfLines={1}>{email}</Text>
+            </View>
+            <Pencil size={16} strokeWidth={1.5} color={colors.textFaint} />
+          </View>
+
           <View style={styles.grid}>
             {TILES.map((it) => {
               const active = activeScreen === it.screen
@@ -79,6 +92,12 @@ const styles = StyleSheet.create({
   close: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.cardFlat, alignItems: 'center', justifyContent: 'center' },
   sub: { fontSize: 12, color: colors.textFaint, marginTop: 2, marginBottom: 16 },
   scroll: { paddingBottom: 40, gap: 16 },
+  profile: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, paddingVertical: 12, paddingHorizontal: 14 },
+  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: 17, fontWeight: '700', color: colors.brand },
+  profileText: { flex: 1, gap: 2 },
+  profileName: { fontSize: 15, fontWeight: '600', color: colors.text },
+  profileMeta: { fontSize: 12, color: colors.textFaint },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: GAP },
   tile: {
     width: `${(100 - 0) / 3}%`, flexGrow: 1, flexBasis: '30%',

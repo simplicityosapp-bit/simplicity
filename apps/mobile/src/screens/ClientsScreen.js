@@ -11,6 +11,7 @@ import ClientDrawer from '../drawers/ClientDrawer'
 import { useFormOptions } from '../lib/formOptions'
 import { colors, shadow } from '../theme/theme'
 import { useClientsList } from '../hooks/useClientsList'
+import { usePreferences } from '../hooks/usePreferences'
 
 const TABS = [
   { key: 'active', icon: CheckCircle2 },
@@ -54,15 +55,21 @@ export default function ClientsScreen() {
     updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction,
   } = useClientsList()
   const { projects } = useFormOptions()
+  const { prefs, update: updatePrefs } = usePreferences()
   const [adding, setAdding] = useState(false)
   const [openId, setOpenId] = useState(null)
   const [tab, setTab] = useState('active')
   const [query, setQuery] = useState('')
-  const [balanceOnly, setBalanceOnly] = useState(false)
-  const [sort, setSort] = useState({ field: 'name', dir: 'asc' })
   const [sortOpen, setSortOpen] = useState(false)
-  const [groupBy, setGroupBy] = useState('status')
-  const [scope, setScope] = useState('monthly')
+  // Persisted controls (survive across sessions, like the web).
+  const balanceOnly = !!prefs.clientsBalanceOnly
+  const setBalanceOnly = (v) => updatePrefs({ clientsBalanceOnly: v })
+  const sort = prefs.clientsSort || { field: 'name', dir: 'asc' }
+  const setSort = (patch) => updatePrefs({ clientsSort: { ...sort, ...patch } })
+  const groupBy = prefs.clientsGroupBy === 'project' ? 'project' : 'status'
+  const setGroupBy = (g) => updatePrefs({ clientsGroupBy: g })
+  const scope = prefs.clientsScope === 'cumulative' ? 'cumulative' : 'monthly'
+  const setScope = (s) => updatePrefs({ clientsScope: s })
   const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState(() => new Set())
   const [bulkStatusOpen, setBulkStatusOpen] = useState(false)
@@ -269,7 +276,7 @@ export default function ClientsScreen() {
                 placeholderTextColor={colors.textFaint}
               />
             </View>
-            <Pressable style={[styles.balFilter, balanceOnly && styles.balFilterOn]} onPress={() => setBalanceOnly((v) => !v)}>
+            <Pressable style={[styles.balFilter, balanceOnly && styles.balFilterOn]} onPress={() => setBalanceOnly(!balanceOnly)}>
               <Wallet size={13} strokeWidth={1.8} color={balanceOnly ? colors.onBrand : colors.textSub} />
               <Text style={[styles.balFilterText, balanceOnly && styles.tabTextOn]}>
                 {i18n.t('clients:balanceFilter', { defaultValue: 'יתרה פתוחה' })}{openBalanceCount > 0 ? ` · ${openBalanceCount}` : ''}
@@ -368,17 +375,17 @@ export default function ClientsScreen() {
         {SORT_OPTIONS.map((f) => {
           const on = sort.field === f
           return (
-            <Pressable key={f} style={styles.sortOpt} onPress={() => setSort((s) => ({ ...s, field: f }))}>
+            <Pressable key={f} style={styles.sortOpt} onPress={() => setSort({ field: f })}>
               <Text style={[styles.sortOptText, on && styles.sortOptOn]}>{i18n.t(`clients:sort.${f}`)}</Text>
               {on ? <Check size={16} strokeWidth={2} color={colors.brand} /> : null}
             </Pressable>
           )
         })}
         <View style={styles.sortDir}>
-          <Pressable style={[styles.sortDirBtn, sort.dir === 'asc' && styles.sortDirOn]} onPress={() => setSort((s) => ({ ...s, dir: 'asc' }))}>
+          <Pressable style={[styles.sortDirBtn, sort.dir === 'asc' && styles.sortDirOn]} onPress={() => setSort({ dir: 'asc' })}>
             <Text style={[styles.sortDirText, sort.dir === 'asc' && styles.toggleTextOn]}>{i18n.t('clients:sort.asc', { defaultValue: 'עולה' })}</Text>
           </Pressable>
-          <Pressable style={[styles.sortDirBtn, sort.dir === 'desc' && styles.sortDirOn]} onPress={() => setSort((s) => ({ ...s, dir: 'desc' }))}>
+          <Pressable style={[styles.sortDirBtn, sort.dir === 'desc' && styles.sortDirOn]} onPress={() => setSort({ dir: 'desc' })}>
             <Text style={[styles.sortDirText, sort.dir === 'desc' && styles.toggleTextOn]}>{i18n.t('clients:sort.desc', { defaultValue: 'יורד' })}</Text>
           </Pressable>
         </View>

@@ -222,12 +222,19 @@ export default function ClientsScreen() {
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          {/* Controls — sort + group-by toggle + select (glass like the cards) */}
+          {/* Controls — sort + select (glass like the cards), centered */}
           <View style={styles.controls}>
             <GlassPressable radius={999} style={styles.sortBtn} onPress={() => setSortOpen(true)}>
               <ArrowUpDown size={14} strokeWidth={1.7} color={colors.textSub} />
               <Text style={styles.sortBtnText}>{i18n.t('clients:sort.label', { defaultValue: 'מיון' })}</Text>
             </GlassPressable>
+            <GlassPressable radius={999} on={selectMode} onColor={colors.text} style={styles.selectBtn} onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}>
+              <Text style={[styles.selectBtnText, selectMode && styles.toggleTextOn]}>{selectMode ? i18n.t('clients:select.cancel', { defaultValue: 'בטל בחירה' }) : i18n.t('clients:select.enter', { defaultValue: 'בחר/י' })}</Text>
+            </GlassPressable>
+          </View>
+
+          {/* Group-by — the "divide by" row (status / project), centered */}
+          <View style={styles.groupByRow}>
             <Glass radius={999} style={styles.toggle}>
               <Pressable style={[styles.toggleBtn, groupBy === 'status' && styles.toggleOn]} onPress={() => setGroupBy('status')}>
                 <Text style={[styles.toggleText, groupBy === 'status' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.status', { defaultValue: 'סטטוס' })}</Text>
@@ -236,9 +243,6 @@ export default function ClientsScreen() {
                 <Text style={[styles.toggleText, groupBy === 'project' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.project', { defaultValue: 'פרויקט' })}</Text>
               </Pressable>
             </Glass>
-            <GlassPressable radius={999} on={selectMode} onColor={colors.text} style={styles.selectBtn} onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}>
-              <Text style={[styles.selectBtnText, selectMode && styles.toggleTextOn]}>{selectMode ? i18n.t('clients:select.cancel', { defaultValue: 'בטל בחירה' }) : i18n.t('clients:select.enter', { defaultValue: 'בחר/י' })}</Text>
-            </GlassPressable>
           </View>
 
           {/* Status tabs (status mode only) */}
@@ -434,9 +438,10 @@ const styles = StyleSheet.create({
   empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24, lineHeight: 20 },
 
   // Controls row (glass backgrounds provided by <Glass>/<GlassPressable>)
-  controls: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  controls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   sortBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 7, paddingHorizontal: 12 },
   sortBtnText: { fontSize: 12, color: colors.text },
+  groupByRow: { alignItems: 'center' },
   toggle: { flexDirection: 'row', padding: 2 },
   toggleBtn: { paddingVertical: 6, paddingHorizontal: 14, borderRadius: 999 },
   toggleOn: { backgroundColor: colors.brand },
@@ -446,7 +451,7 @@ const styles = StyleSheet.create({
   selectBtnText: { fontSize: 12, color: colors.textSub },
 
   // Tabs
-  tabs: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
+  tabs: { flexDirection: 'row', gap: 8, paddingVertical: 2, flexGrow: 1, justifyContent: 'center' },
   tab: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 14 },
   tabText: { fontSize: 12, fontWeight: '500', color: colors.textSub },
   tabCount: { fontSize: 11, color: colors.textSub, opacity: 0.8 },

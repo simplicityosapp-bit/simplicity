@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Moon, X, LogOut } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Moon, Sparkles, X, LogOut } from 'lucide-react-native'
 import { supabase } from '../lib/supabase'
 import i18n from '../lib/i18n'
 import { colors, space } from '../theme/theme'
@@ -17,6 +17,7 @@ const TILES = [
   { key: 'goals', screen: 'Goals', Icon: Target, fallback: 'יעדים' },
   { key: 'calendar', screen: 'Calendar', Icon: CalendarDays, fallback: 'יומן' },
   { key: 'moon', screen: 'Moon', Icon: Moon, fallback: 'מבט על' },
+  { key: 'questions', screen: 'Questions', Icon: Sparkles, fallback: 'שאלות' },
 ]
 
 export default function Drawer({ open, onClose, onNavigate, activeScreen }) {

@@ -18,7 +18,7 @@ export default function RemindersWidget({ reminders }) {
   const summary = i18n.t('home:widgets.reminders.soonSummary', { count: items.length })
 
   return (
-    <WidgetCard Icon={Clock} title={i18n.t('home:widgets.reminders.title')} count={items.length} summary={summary}>
+    <WidgetCard Icon={Clock} title={i18n.t('home:widgets.reminders.title')} count={i18n.t('home:widgets.reminders.link', { count: items.length })} summary={summary}>
       {items.map((r, i) => (
         <Pressable
           key={r.id || i}

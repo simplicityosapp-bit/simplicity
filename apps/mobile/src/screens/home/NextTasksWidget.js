@@ -22,7 +22,7 @@ export default function NextTasksWidget({ tasks }) {
       : i18n.t('home:widgets.nextTasks.openSummary', { count: total })
 
   return (
-    <WidgetCard Icon={ClipboardList} title={i18n.t('home:widgets.nextTasks.title')} count={total || null} summary={summary}>
+    <WidgetCard Icon={ClipboardList} title={i18n.t('home:widgets.nextTasks.title')} count={total ? i18n.t('home:widgets.nextTasks.link', { count: total }) : null} summary={summary}>
       {items.length ? (
         items.map((task, i) => (
           <Pressable

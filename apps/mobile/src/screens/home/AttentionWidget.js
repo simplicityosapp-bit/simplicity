@@ -24,7 +24,7 @@ export default function AttentionWidget({ data }) {
   const summary = items[0].text + (items.length > 1 ? ` · ${i18n.t('home:widgets.attention.more', { count: items.length - 1 })}` : '')
 
   return (
-    <WidgetCard Icon={Bell} title={i18n.t('home:widgets.attention.title')} count={items.length} summary={summary}>
+    <WidgetCard Icon={Bell} title={i18n.t('home:widgets.attention.title')} count={i18n.t('home:widgets.attention.count', { count: items.length })} summary={summary}>
       {items.map((it, i) => {
         const RowIcon = ROW_ICON[it.icon] || Bell
         return (

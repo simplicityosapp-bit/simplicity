@@ -33,7 +33,7 @@ export default function WidgetCard({ Icon, title, count, summary, children, defa
 const styles = StyleSheet.create({
   wrap: { marginTop: 12 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 15, paddingHorizontal: 16 },
-  title: { flex: 1, fontSize: 16, fontWeight: '600', color: colors.text },
+  title: { flex: 1, fontSize: 17, fontWeight: '600', color: colors.text },
   count: { fontSize: 13, color: colors.textSub },
   chevOpen: { transform: [{ rotate: '180deg' }] },
   body: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },

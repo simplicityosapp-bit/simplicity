@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { LEAD_META, statusMetaOfLead, metaTitle, isPendingReview, fmtShortDate } from '@simplicity/core'
+import { LEAD_META, statusMetaOfLead, metaTitle, isPendingReview, isConvertedLead, fmtShortDate } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
-import ScreenHeader from '../components/ScreenHeader'
+import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import AddLeadModal from '../modals/AddLeadModal'
 import { colors } from '../theme/theme'
@@ -20,24 +20,42 @@ const todayYmd = () => {
 // the canonical LEAD_META order. Rows show source + follow-up (overdue in amber),
 // over the per-screen photo (Warm Precision).
 export default function LeadsScreen() {
-  const { leads, loading, error, refetch, updateLead, deleteLead } = useLeadsList()
+  const { leads, loading, error, refetch, addLead, updateLead, deleteLead } = useLeadsList()
   const { leadSources } = useFormOptions()
   const [editing, setEditing] = useState(null)
+  const [adding, setAdding] = useState(false)
 
   const sourceById = useMemo(() => Object.fromEntries(leadSources.map((s) => [s.id, s.name])), [leadSources])
   const today = todayYmd()
 
   const pending = useMemo(() => leads.filter((l) => !l.deleted_at && isPendingReview(l)), [leads])
+  const official = useMemo(() => leads.filter((l) => !l.deleted_at && !isPendingReview(l)), [leads])
   const groups = useMemo(
     () => LEAD_META
-      .map((m) => ({ meta: m.key, title: metaTitle(m.key), rows: leads.filter((l) => !isPendingReview(l) && statusMetaOfLead(l) === m.key) }))
+      .map((m) => ({ meta: m.key, title: metaTitle(m.key), rows: official.filter((l) => statusMetaOfLead(l) === m.key) }))
       .filter((g) => g.rows.length),
-    [leads],
+    [official],
   )
+  // Stats hero — new this month · converted this month · conversion rate (cohort).
+  const stats = useMemo(() => {
+    const now = new Date()
+    const inMonth = (d) => { if (!d) return false; const x = new Date(d); return x.getFullYear() === now.getFullYear() && x.getMonth() === now.getMonth() }
+    const newThis = official.filter((l) => (l.inquiry_date ? inMonth(l.inquiry_date) : inMonth(l.created_at)))
+    const convertedThisMonth = official.filter((l) => isConvertedLead(l) && inMonth(l.converted_at)).length
+    const cohortConverted = newThis.filter(isConvertedLead).length
+    const convRate = newThis.length ? Math.round((cohortConverted / newThis.length) * 100) : null
+    return { newThisMonth: newThis.length, convertedThisMonth, convRate }
+  }, [official])
 
   return (
     <Screen name="leads">
-      <ScreenHeader title={i18n.t('leads:title', { defaultValue: 'לידים' })} />
+      <ScreenHead
+        title={i18n.t('leads:title', { defaultValue: 'לידים' })}
+        meta={[i18n.t('leads:countLabel', { count: official.length, defaultValue: `${official.length} לידים` })]}
+        tagline={i18n.t('leads:tagline', { defaultValue: 'טיפוח קשרים מוביל לתוצאות.' })}
+        onAdd={() => setAdding(true)}
+        addLabel={i18n.t('leads:newLeadAria', { defaultValue: 'ליד חדש' })}
+      />
 
       {loading && !leads.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
@@ -47,6 +65,14 @@ export default function LeadsScreen() {
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          {official.length ? (
+            <Card padded={false} contentStyle={styles.hero}>
+              <HeroStat value={stats.newThisMonth} label={i18n.t('leads:stats.newThisMonth', { defaultValue: 'פניות החודש' })} />
+              <HeroStat value={stats.convertedThisMonth} label={i18n.t('leads:stats.converted', { defaultValue: 'הומרו ללקוחות' })} divided accent />
+              <HeroStat value={stats.convRate == null ? '—' : `${stats.convRate}%`} label={i18n.t('leads:stats.convRate', { defaultValue: 'אחוז המרה' })} />
+            </Card>
+          ) : null}
 
           {pending.length ? (
             <View style={styles.group}>
@@ -109,6 +135,7 @@ export default function LeadsScreen() {
         </ScrollView>
       )}
 
+      <AddLeadModal open={adding} onClose={() => setAdding(false)} onSave={addLead} />
       <AddLeadModal
         open={!!editing}
         lead={editing}
@@ -120,7 +147,22 @@ export default function LeadsScreen() {
   )
 }
 
+function HeroStat({ value, label, accent, divided }) {
+  return (
+    <View style={[styles.heroStat, divided && styles.heroStatDivided]}>
+      <Text style={[styles.heroStatV, accent && styles.heroStatAccent]}>{value}</Text>
+      <Text style={styles.heroStatL}>{label}</Text>
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
+  hero: { flexDirection: 'row', paddingVertical: 16, paddingHorizontal: 8 },
+  heroStat: { flex: 1, alignItems: 'center', gap: 4 },
+  heroStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
+  heroStatV: { fontSize: 22, fontWeight: '600', color: colors.text },
+  heroStatAccent: { color: colors.positive },
+  heroStatL: { fontSize: 10, fontWeight: '500', color: colors.textSub, letterSpacing: 0.3, textTransform: 'uppercase', textAlign: 'center' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 18 },
   error: { color: colors.danger, fontSize: 13 },

@@ -25,6 +25,15 @@ export function useLeadsList() {
     load()
   }, [load])
 
+  const addLead = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('leads').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    setLeads((prev) => [data, ...prev])
+    return data
+  }, [])
+
   const updateLead = useCallback(async (id, patch) => {
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l))) // optimistic
     const { data, error: e } = await supabase.from('leads').update(patch).eq('id', id).select().single()
@@ -39,5 +48,5 @@ export function useLeadsList() {
     if (e) { load(); throw e }
   }, [load])
 
-  return { leads, loading, error, refetch: load, updateLead, deleteLead }
+  return { leads, loading, error, refetch: load, addLead, updateLead, deleteLead }
 }

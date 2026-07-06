@@ -2,20 +2,27 @@ import { useState, useEffect } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
+import Select from '../components/Select'
+import { useFormOptions } from '../lib/formOptions'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
-// Add/edit a lead (mirrors web AddLeadModal's core: name + phone; new leads land
-// in the "בתהליך" column). Pass a `lead` to edit it (prefills + shows delete);
-// source/status/follow-up selects are a later increment — defaulted on create.
+// Add/edit a lead (mirrors web AddLeadModal's core: name + phone + source +
+// follow-up date; new leads land in the "בתהליך" column). Pass a `lead` to edit.
 const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
-const blank = (lead) => ({ name: lead?.name || '', phone: lead?.phone || '' })
+const blank = (lead) => ({
+  name: lead?.name || '',
+  phone: lead?.phone || '',
+  source_id: lead?.source_id || '',
+  follow_up_date: lead?.follow_up_date ? String(lead.follow_up_date).slice(0, 10) : '',
+})
 
 export default function AddLeadModal({ open, onClose, onSave, onDelete, lead = null }) {
   const isEdit = !!lead
+  const { leadSources } = useFormOptions()
   const [form, setForm] = useState(() => blank(lead))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -35,13 +42,13 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, lead = n
     setErr('')
     try {
       const payload = isEdit
-        ? { name: form.name.trim(), phone: form.phone.trim() || null }
+        ? { name: form.name.trim(), phone: form.phone.trim() || null, source_id: form.source_id || null, follow_up_date: form.follow_up_date || null }
         : {
           name: form.name.trim(),
           phone: form.phone.trim() || null,
-          source_id: null, project_id: null, group_id: null,
+          source_id: form.source_id || null, project_id: null, group_id: null,
           status: 'new', status_id: null, status_meta: 'in_process',
-          inquiry_date: todayStr(), follow_up_date: null,
+          inquiry_date: todayStr(), follow_up_date: form.follow_up_date || null,
           last_status_changed_at: new Date().toISOString(),
           notes: null, converted_to_client_id: null, converted_at: null,
         }
@@ -52,6 +59,8 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, lead = n
       setErr(i18n.t('modalsClient:common.saveFailed', { error: e.message || i18n.t('modalsClient:common.tryAgain') }))
     }
   }
+
+  const none = i18n.t('modalsClient:common.none')
 
   return (
     <Sheet open={open} onClose={close} title={i18n.t(isEdit ? 'modalsClient:editLead.title' : 'modalsClient:addLead.title')}>
@@ -68,6 +77,18 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, lead = n
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsClient:common.phone')}</Text>
         <TextInput style={styles.input} value={form.phone} onChangeText={(v) => set('phone', v)} placeholder={i18n.t('modalsClient:common.phonePlaceholder')} placeholderTextColor={colors.textFaint} keyboardType="phone-pad" />
+      </View>
+
+      <Select
+        label={i18n.t('modalsClient:common.source')}
+        value={form.source_id}
+        onChange={(v) => set('source_id', v)}
+        placeholder={none}
+        options={[{ value: '', label: none }, ...leadSources.map((s) => ({ value: s.id, label: s.name || '' }))]}
+      />
+      <View style={styles.field}>
+        <Text style={styles.label}>{i18n.t('modalsClient:common.followUp')}</Text>
+        <TextInput style={styles.input} value={form.follow_up_date} onChangeText={(v) => set('follow_up_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
       </View>
 
       {err ? <Text style={styles.error}>{err}</Text> : null}

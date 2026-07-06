@@ -7,6 +7,7 @@ import Screen from '../components/Screen'
 import ScreenHeader from '../components/ScreenHeader'
 import Card from '../components/Card'
 import AddGoalModal from '../modals/AddGoalModal'
+import EditGoalModal from '../modals/EditGoalModal'
 import { colors } from '../theme/theme'
 import { useGoalsData } from '../hooks/useGoalsData'
 
@@ -14,8 +15,9 @@ import { useGoalsData } from '../hooks/useGoalsData'
 // engine (goalsByCategory → moonGetData): a pace bar + actual/target value,
 // over the per-screen photo (Warm Precision theme). "+" adds a goal.
 export default function GoalsScreen() {
-  const { goals, categories, entries, transactions, clients, leads, answers, members, groups, loading, error, refetch, addGoal } = useGoalsData()
+  const { goals, categories, entries, transactions, clients, leads, answers, members, groups, loading, error, refetch, addGoal, updateGoal, deleteGoal } = useGoalsData()
   const [showAdd, setShowAdd] = useState(false)
+  const [editGoal, setEditGoal] = useState(null)
 
   const cats = useMemo(
     () => goalsByCategory(new Date(), { goals, categories, entries, transactions, clients, leads, answers, members, groups }),
@@ -29,6 +31,7 @@ export default function GoalsScreen() {
         right={<Pressable onPress={() => setShowAdd(true)} hitSlop={10}><Plus size={24} strokeWidth={2} color={colors.brand} /></Pressable>}
       />
       <AddGoalModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addGoal} />
+      <EditGoalModal open={!!editGoal} goal={editGoal} onClose={() => setEditGoal(null)} onSave={updateGoal} onDelete={deleteGoal} />
 
       {loading && !cats.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
@@ -46,14 +49,14 @@ export default function GoalsScreen() {
                   {scored.map((s, i) => {
                     const pct = Math.min(100, Math.max(0, s.pure ?? 0))
                     return (
-                      <View key={s.goal.id || i} style={[styles.goal, i > 0 && styles.goalBorder]}>
+                      <Pressable key={s.goal.id || i} style={[styles.goal, i > 0 && styles.goalBorder]} onPress={() => setEditGoal(s.goal)}>
                         <View style={styles.goalHead}>
                           <Text style={styles.goalLabel} numberOfLines={1}>{s.goal.label || category.name || ''}</Text>
                           <Text style={styles.goalVal}>{formatGoalValue(s.actual, s.cat)} / {formatGoalValue(s.target, s.cat)}</Text>
                         </View>
                         <View style={styles.track}><View style={[styles.fill, { width: `${pct}%` }]} /></View>
                         <Text style={styles.goalMeta}>{timeFrameLabel(s.goal)} · {pct}%</Text>
-                      </View>
+                      </Pressable>
                     )
                   })}
                 </Card>

@@ -31,6 +31,15 @@ export function useFinanceData() {
     load()
   }, [load])
 
+  const addTransaction = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('transactions').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    setTransactions((prev) => [data, ...prev])
+    return data
+  }, [])
+
   const updateTransaction = useCallback(async (id, patch) => {
     setTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t))) // optimistic
     const { data, error: e } = await supabase.from('transactions').update(patch).eq('id', id).select().single()
@@ -45,5 +54,5 @@ export function useFinanceData() {
     if (e) { load(); throw e }
   }, [load])
 
-  return { transactions, clients, categories, loading, error, refetch: load, updateTransaction, deleteTransaction }
+  return { transactions, clients, categories, loading, error, refetch: load, addTransaction, updateTransaction, deleteTransaction }
 }

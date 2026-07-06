@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native'
 import { financeQuery, currentMonthRange, monthNet, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
-import ScreenHeader from '../components/ScreenHeader'
+import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import AddTransactionModal from '../modals/AddTransactionModal'
 import { colors } from '../theme/theme'
@@ -14,8 +14,9 @@ import { useFinanceData } from '../hooks/useFinanceData'
 // confirmed transactions, and a pending-approval section (tap a row to edit/
 // approve). Rows show client · category · payment. Over the per-screen photo.
 export default function FinanceScreen() {
-  const { transactions, clients, categories, loading, error, refetch, updateTransaction, deleteTransaction } = useFinanceData()
+  const { transactions, clients, categories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction } = useFinanceData()
   const [editing, setEditing] = useState(null)
+  const [adding, setAdding] = useState(false)
   const [monthOffset, setMonthOffset] = useState(0)
   const now = new Date()
   const monthDate = useMemo(() => new Date(now.getFullYear(), now.getMonth() + monthOffset, 1), [monthOffset]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -59,7 +60,13 @@ export default function FinanceScreen() {
 
   return (
     <Screen name="finance">
-      <ScreenHeader title={i18n.t('finance:title', { defaultValue: 'כסף' })} />
+      <ScreenHead
+        title={i18n.t('finance:title', { defaultValue: 'כסף' })}
+        meta={[i18n.t('finance:countLabel', { count: monthTx.length }), i18n.t('finance:snapshot', { defaultValue: 'תמונת מצב' })]}
+        tagline={i18n.t('finance:tagline', { defaultValue: 'הפעולות שלך יוצרות תוצאות טובות.' })}
+        onAdd={() => setAdding(true)}
+        addLabel={i18n.t('finance:newTxAria', { defaultValue: 'תנועה חדשה' })}
+      />
 
       {loading && !transactions.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
@@ -105,6 +112,7 @@ export default function FinanceScreen() {
         </ScrollView>
       )}
 
+      <AddTransactionModal open={adding} clients={clients} onClose={() => setAdding(false)} onSave={addTransaction} />
       <AddTransactionModal
         open={!!editing}
         tx={editing}

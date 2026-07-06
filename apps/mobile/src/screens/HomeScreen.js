@@ -77,15 +77,18 @@ export default function HomeScreen() {
         {!loading ? <InsightsWidget questions={questions} answers={answers} addAnswer={addAnswer} /> : null}
         {!loading ? <QuickRow clients={clients} goals={goals} categories={categories} addTask={addTask} addEntry={addEntry} addTransaction={addTransaction} addClient={addClient} addLead={addLead} addProject={addProject} addReminder={addReminder} addMeeting={addMeeting} /> : null}
 
-        <View style={styles.chips}>
-          <Chip value={loading ? '··' : String(today.length)} label={i18n.t('home:widgets.chips.meetings')} onPress={() => nav.navigate('Calendar')} />
-          <Chip value={loading ? '··' : netStr} label={i18n.t('home:widgets.chips.net')} long={netStr.length >= 8} onPress={() => nav.navigate('Finance')} />
-          <Chip value={loading ? '··' : String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} onPress={() => nav.navigate('Clients')} />
-        </View>
-
+        {/* Widget order mirrors web: attention · reminders · next-tasks, chips last. */}
         {!loading ? <AttentionWidget data={attentionData} /> : null}
-        {!loading ? <NextTasksWidget tasks={tasks} /> : null}
         {!loading ? <RemindersWidget reminders={reminders} /> : null}
+        {!loading ? <NextTasksWidget tasks={tasks} /> : null}
+
+        {!loading ? (
+          <View style={styles.chips}>
+            <Chip value={String(today.length)} label={i18n.t('home:widgets.chips.meetings')} onPress={() => nav.navigate('Calendar')} />
+            <Chip value={netStr} label={i18n.t('home:widgets.chips.net')} long={netStr.length >= 8} onPress={() => nav.navigate('Finance')} />
+            <Chip value={String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} onPress={() => nav.navigate('Clients')} />
+          </View>
+        ) : null}
       </ScrollView>
     </Screen>
   )
@@ -112,7 +115,7 @@ const styles = StyleSheet.create({
   errorText: { color: colors.danger, fontSize: 13, flex: 1 },
   retry: { color: colors.danger, fontSize: 18 },
   topRow: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: 4 },
-  chips: { flexDirection: 'row', gap: 12 },
+  chips: { flexDirection: 'row', gap: 12, marginTop: 12 },
   chipWrap: { flex: 1 },
   chipInner: { paddingVertical: 22, paddingHorizontal: 12, alignItems: 'center', gap: 6 },
   chipNum: { ...type.displayL, color: colors.text },

@@ -1,10 +1,9 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { Plus } from 'lucide-react-native'
 import { goalsByCategory, formatGoalValue, timeFrameLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
-import ScreenHeader from '../components/ScreenHeader'
+import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import AddGoalModal from '../modals/AddGoalModal'
 import EditGoalModal from '../modals/EditGoalModal'
@@ -26,9 +25,12 @@ export default function GoalsScreen() {
 
   return (
     <Screen name="goals">
-      <ScreenHeader
+      <ScreenHead
         title={i18n.t('goals:title', { defaultValue: 'יעדים' })}
-        right={<Pressable onPress={() => setShowAdd(true)} hitSlop={10}><Plus size={24} strokeWidth={2} color={colors.brand} /></Pressable>}
+        meta={[i18n.t('goals:countLabel', { count: goals.length, defaultValue: `${goals.length} יעדים` })]}
+        tagline={i18n.t('goals:tagline', { defaultValue: 'כל יעד — כיוון, לא לחץ.' })}
+        onAdd={() => setShowAdd(true)}
+        addLabel={i18n.t('goals:newGoalAria', { defaultValue: 'יעד חדש' })}
       />
       <AddGoalModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addGoal} />
       <EditGoalModal open={!!editGoal} goal={editGoal} onClose={() => setEditGoal(null)} onSave={updateGoal} onDelete={deleteGoal} />

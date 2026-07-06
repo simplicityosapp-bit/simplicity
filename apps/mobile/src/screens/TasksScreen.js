@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { Check, ChevronDown, Pencil, Tags } from 'lucide-react-native'
+import { Check, ChevronDown, Pencil, Tags, Trash2 } from 'lucide-react-native'
 import { fmtShortDate, formatWhen, startOfDay, isRecurring, isActiveReminder, dueOccurrenceCount } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import Sheet from '../components/Sheet'
 import { Glass, GlassPressable } from '../components/Glass'
 import AddTaskModal from '../modals/AddTaskModal'
 import AddReminderModal from '../modals/AddReminderModal'
@@ -43,8 +44,8 @@ function dateToBucket(due, now) {
 // Tasks + Reminders screen (mirrors web screens/tasks): entity toggle, glass
 // hero, filter (+ group-by for tasks), and collapsible glass-card groups.
 export default function TasksScreen() {
-  const { tasks, loading: tLoading, error: tError, addTask, toggleDone, updateTask, deleteTask, refetch: refetchTasks } = useTasksList()
-  const { reminders, loading: rLoading, error: rError, addReminder, editReminder, completeReminder, deleteReminder, refetch: refetchRems } = useRemindersList()
+  const { tasks, loading: tLoading, error: tError, addTask, toggleDone, updateTask, deleteTask, clearCompleted: clearTasks, refetch: refetchTasks } = useTasksList()
+  const { reminders, loading: rLoading, error: rError, addReminder, editReminder, completeReminder, deleteReminder, clearCompleted: clearRems, refetch: refetchRems } = useRemindersList()
   const { clients, projects, taskStatuses } = useFormOptions()
   const taxonomy = useTaskTaxonomy()
   const taskCategories = taxonomy.taskCategories
@@ -57,6 +58,7 @@ export default function TasksScreen() {
   const [collapsed, setCollapsed] = useState(() => new Set())
   const [categoryFilters, setCategoryFilters] = useState(() => new Set())
   const [showTaxonomy, setShowTaxonomy] = useState(false)
+  const [confirmClear, setConfirmClear] = useState(false)
   const toggleGroup = (k) => setCollapsed((prev) => { const n = new Set(prev); if (n.has(k)) n.delete(k); else n.add(k); return n })
   const toggleCategory = (id) => setCategoryFilters((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
 
@@ -207,6 +209,14 @@ export default function TasksScreen() {
             </GlassPressable>
           </View>
 
+          {/* Clear all completed (only on the done filter) */}
+          {filter === 'done' && doneCount > 0 ? (
+            <GlassPressable radius={999} style={styles.clearBtn} onPress={() => setConfirmClear(true)}>
+              <Trash2 size={14} strokeWidth={1.6} color={colors.danger} />
+              <Text style={styles.clearText}>{i18n.t('tasks:clearAll', { defaultValue: 'נקה הכל' })}</Text>
+            </GlassPressable>
+          ) : null}
+
           {groups.length ? (
             groups.map((g) => {
               const isOpen = !collapsed.has(g.key)
@@ -263,6 +273,24 @@ export default function TasksScreen() {
         onAddCategory={taxonomy.addCategory}
         onRemoveCategory={taxonomy.removeCategory}
       />
+
+      {/* Confirm clear-all completed */}
+      <Sheet open={confirmClear} onClose={() => setConfirmClear(false)} title={i18n.t(isTasks ? 'tasks:clearConfirm.tasksTitle' : 'tasks:clearConfirm.remindersTitle', { defaultValue: i18n.t('tasks:clearAll', { defaultValue: 'נקה הכל' }) })}>
+        <Text style={styles.confirmMsg}>
+          {i18n.t(
+            doneCount === 1
+              ? (isTasks ? 'tasks:clearConfirm.tasksMessageOne' : 'tasks:clearConfirm.remindersMessageOne')
+              : (isTasks ? 'tasks:clearConfirm.tasksMessageMany' : 'tasks:clearConfirm.remindersMessageMany'),
+            { count: doneCount, defaultValue: '' },
+          )}
+        </Text>
+        <View style={styles.confirmActions}>
+          <Pressable style={styles.confirmCancel} onPress={() => setConfirmClear(false)}><Text style={styles.confirmCancelText}>{i18n.t('modalsTask:common.cancel', { defaultValue: 'ביטול' })}</Text></Pressable>
+          <Pressable style={styles.confirmDelete} onPress={() => { (isTasks ? clearTasks : clearRems)(); setConfirmClear(false) }}>
+            <Text style={styles.confirmDeleteText}>{i18n.t('tasks:clearConfirm.confirm', { defaultValue: i18n.t('tasks:clearAll', { defaultValue: 'נקה הכל' }) })}</Text>
+          </Pressable>
+        </View>
+      </Sheet>
     </Screen>
   )
 }
@@ -371,6 +399,14 @@ const styles = StyleSheet.create({
   catText: { fontSize: 12, color: colors.textSub },
   catTextOn: { color: colors.onBrand, fontWeight: '600' },
   manageBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12 },
+  clearBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 14, alignSelf: 'center', borderColor: 'rgba(181,99,78,0.35)' },
+  clearText: { fontSize: 12, fontWeight: '500', color: colors.danger },
+  confirmMsg: { fontSize: 14, color: colors.text, lineHeight: 20 },
+  confirmActions: { flexDirection: 'row', gap: 12, marginTop: 4 },
+  confirmCancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
+  confirmCancelText: { fontSize: 15, color: colors.textSub },
+  confirmDelete: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.danger, alignItems: 'center' },
+  confirmDeleteText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
 
   groupOuter: { marginTop: 0 },
   group: {},

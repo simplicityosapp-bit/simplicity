@@ -62,5 +62,14 @@ export function useTasksList() {
     if (e) { load(); throw e }
   }, [load])
 
-  return { tasks, loading, error, addTask, toggleDone, updateTask, deleteTask, refetch: load }
+  // Clear all completed tasks (soft-delete every done row at once).
+  const clearCompleted = useCallback(async () => {
+    const ids = tasks.filter((t) => t.status === 'done').map((t) => t.id)
+    if (!ids.length) return
+    setTasks((prev) => prev.filter((t) => t.status !== 'done'))
+    const { error: e } = await supabase.from('tasks').update({ deleted_at: new Date().toISOString() }).in('id', ids)
+    if (e) { load(); throw e }
+  }, [tasks, load])
+
+  return { tasks, loading, error, addTask, toggleDone, updateTask, deleteTask, clearCompleted, refetch: load }
 }

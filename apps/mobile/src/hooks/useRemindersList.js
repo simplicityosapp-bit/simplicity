@@ -55,5 +55,14 @@ export function useRemindersList() {
     if (e) { load(); throw e }
   }, [load])
 
-  return { reminders, loading, error, refetch: load, addReminder, editReminder, completeReminder, deleteReminder }
+  // Clear all completed reminders (soft-delete every completed row at once).
+  const clearCompleted = useCallback(async () => {
+    const ids = reminders.filter((r) => r.status === 'completed').map((r) => r.id)
+    if (!ids.length) return
+    setReminders((prev) => prev.filter((r) => r.status !== 'completed'))
+    const { error: e } = await supabase.from('reminders').update({ deleted_at: new Date().toISOString() }).in('id', ids)
+    if (e) { load(); throw e }
+  }, [reminders, load])
+
+  return { reminders, loading, error, refetch: load, addReminder, editReminder, completeReminder, deleteReminder, clearCompleted }
 }

@@ -1,22 +1,29 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { Check } from 'lucide-react-native'
+import { fmtShortDate, startOfDay } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHeader from '../components/ScreenHeader'
 import Card from '../components/Card'
 import AddTaskModal from '../modals/AddTaskModal'
 import { colors } from '../theme/theme'
+import { useFormOptions } from '../lib/formOptions'
 import { useTasksList } from '../hooks/useTasksList'
 
 const PORDER = { high: 0, medium: 1, low: 2 }
 const byPriority = (a, b) => (PORDER[a.priority] ?? 1) - (PORDER[b.priority] ?? 1)
 
 // Tasks screen — open + done tasks with an optimistic mark-done checkbox; tap a
-// row to edit (title/priority) or delete it, over the per-screen photo.
+// row to edit or delete it. Rows show a due-date · client · project meta line
+// (overdue due-dates in amber), over the per-screen photo.
 export default function TasksScreen() {
   const { tasks, loading, error, toggleDone, updateTask, deleteTask, refetch } = useTasksList()
+  const { clients, projects } = useFormOptions()
   const [editing, setEditing] = useState(null)
+
+  const clientById = useMemo(() => Object.fromEntries(clients.map((c) => [c.id, c.name])), [clients])
+  const projectById = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p.name])), [projects])
 
   const { open, done } = useMemo(() => {
     const open = tasks.filter((t) => t.status !== 'done').slice().sort(byPriority)
@@ -39,7 +46,7 @@ export default function TasksScreen() {
 
           {open.length ? (
             <Section title={i18n.t('tasks:filters.todo', { defaultValue: 'פתוחות' })}>
-              {open.map((t, i) => <Row key={t.id} task={t} first={i === 0} onToggle={() => toggleDone(t)} onEdit={() => setEditing(t)} />)}
+              {open.map((t, i) => <Row key={t.id} task={t} first={i === 0} clientById={clientById} projectById={projectById} onToggle={() => toggleDone(t)} onEdit={() => setEditing(t)} />)}
             </Section>
           ) : (
             <Text style={styles.empty}>{i18n.t('home:widgets.nextTasks.noOpen')}</Text>
@@ -47,7 +54,7 @@ export default function TasksScreen() {
 
           {done.length ? (
             <Section title={i18n.t('tasks:filters.done', { defaultValue: 'הושלמו' })}>
-              {done.map((t, i) => <Row key={t.id} task={t} first={i === 0} onToggle={() => toggleDone(t)} onEdit={() => setEditing(t)} />)}
+              {done.map((t, i) => <Row key={t.id} task={t} first={i === 0} clientById={clientById} projectById={projectById} onToggle={() => toggleDone(t)} onEdit={() => setEditing(t)} />)}
             </Section>
           ) : null}
         </ScrollView>
@@ -73,8 +80,14 @@ function Section({ title, children }) {
   )
 }
 
-function Row({ task, first, onToggle, onEdit }) {
+function Row({ task, first, clientById, projectById, onToggle, onEdit }) {
   const isDone = task.status === 'done'
+  const overdue = !isDone && task.due_at && new Date(task.due_at) < startOfDay(new Date())
+  const meta = [
+    task.due_at ? fmtShortDate(task.due_at) : null,
+    clientById[task.client_id],
+    projectById[task.project_id],
+  ].filter(Boolean).join(' · ')
   return (
     <View style={[styles.row, !first && styles.rowBorder]}>
       <Pressable
@@ -89,6 +102,7 @@ function Row({ task, first, onToggle, onEdit }) {
       {!isDone && task.priority === 'high' ? <View style={styles.dot} /> : null}
       <Pressable style={styles.textWrap} onPress={onEdit}>
         <Text style={[styles.text, isDone && styles.textDone]} numberOfLines={2}>{task.title || ''}</Text>
+        {meta ? <Text style={[styles.meta, overdue && styles.metaOverdue]} numberOfLines={1}>{meta}</Text> : null}
       </Pressable>
     </View>
   )
@@ -106,7 +120,9 @@ const styles = StyleSheet.create({
   check: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: '#cbb9a8', alignItems: 'center', justifyContent: 'center' },
   checkOn: { backgroundColor: colors.positive, borderColor: colors.positive },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.brand },
-  textWrap: { flex: 1, paddingVertical: 2 },
+  textWrap: { flex: 1, paddingVertical: 2, gap: 2 },
   text: { fontSize: 14, color: colors.text, lineHeight: 20 },
   textDone: { color: colors.textFaint, textDecorationLine: 'line-through' },
+  meta: { fontSize: 12, color: colors.textFaint },
+  metaOverdue: { color: colors.amberWarn },
 })

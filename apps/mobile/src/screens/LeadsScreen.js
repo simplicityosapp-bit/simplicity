@@ -1,21 +1,31 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { LEAD_META, statusMetaOfLead, metaTitle, isPendingReview } from '@simplicity/core'
+import { LEAD_META, statusMetaOfLead, metaTitle, isPendingReview, fmtShortDate } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHeader from '../components/ScreenHeader'
 import Card from '../components/Card'
 import AddLeadModal from '../modals/AddLeadModal'
 import { colors } from '../theme/theme'
+import { useFormOptions } from '../lib/formOptions'
 import { useLeadsList } from '../hooks/useLeadsList'
 
 const META_COLOR = { in_process: '#D9A566', converted: colors.positive, not_relevant: '#b3a99c' }
+const todayYmd = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 
 // Leads screen — leads grouped by their status-meta (core statusMetaOfLead), in
-// the canonical LEAD_META order, over the per-screen photo (Warm Precision).
+// the canonical LEAD_META order. Rows show source + follow-up (overdue in amber),
+// over the per-screen photo (Warm Precision).
 export default function LeadsScreen() {
   const { leads, loading, error, refetch, updateLead, deleteLead } = useLeadsList()
+  const { leadSources } = useFormOptions()
   const [editing, setEditing] = useState(null)
+
+  const sourceById = useMemo(() => Object.fromEntries(leadSources.map((s) => [s.id, s.name])), [leadSources])
+  const today = todayYmd()
 
   const groups = useMemo(
     () => LEAD_META
@@ -45,15 +55,23 @@ export default function LeadsScreen() {
                   <Text style={styles.count}>{rows.length}</Text>
                 </View>
                 <Card padded={false}>
-                  {rows.map((l, i) => (
-                    <Pressable key={l.id || i} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditing(l)}>
-                      <View style={styles.info}>
-                        <Text style={styles.name} numberOfLines={1}>{l.name || '—'}</Text>
-                        {l.phone ? <Text style={styles.phone}>{l.phone}</Text> : null}
-                      </View>
-                      {isPendingReview(l) ? <View style={styles.pending} /> : null}
-                    </Pressable>
-                  ))}
+                  {rows.map((l, i) => {
+                    const overdue = l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= today
+                    const metaParts = []
+                    if (sourceById[l.source_id]) metaParts.push(sourceById[l.source_id])
+                    if (l.follow_up_date) metaParts.push(`${i18n.t('modalsClient:common.followUp')} ${fmtShortDate(l.follow_up_date)}`)
+                    const meta = metaParts.join(' · ')
+                    return (
+                      <Pressable key={l.id || i} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditing(l)}>
+                        <View style={styles.info}>
+                          <Text style={styles.name} numberOfLines={1}>{l.name || '—'}</Text>
+                          {l.phone ? <Text style={styles.phone}>{l.phone}</Text> : null}
+                          {meta ? <Text style={[styles.meta, overdue && styles.metaOverdue]} numberOfLines={1}>{meta}</Text> : null}
+                        </View>
+                        {isPendingReview(l) ? <View style={styles.pending} /> : null}
+                      </Pressable>
+                    )
+                  })}
                 </Card>
               </View>
             ))
@@ -89,5 +107,7 @@ const styles = StyleSheet.create({
   info: { flex: 1, gap: 2 },
   name: { fontSize: 15, color: colors.text },
   phone: { fontSize: 12, color: colors.textFaint },
+  meta: { fontSize: 12, color: colors.textFaint },
+  metaOverdue: { color: colors.amberWarn },
   pending: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.brand },
 })

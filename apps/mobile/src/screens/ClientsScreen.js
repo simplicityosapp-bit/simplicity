@@ -20,7 +20,7 @@ export default function ClientsScreen() {
 
   const rows = useMemo(
     () => clients
-      .map((c) => ({ c, meta: statusMetaOf(c), balance: clientBalance(c, transactions, sessions, members, groups).balance }))
+      .map((c) => ({ c, meta: statusMetaOf(c), bal: clientBalance(c, transactions, sessions, members, groups) }))
       .sort((a, b) => (SORDER[a.meta] ?? 2) - (SORDER[b.meta] ?? 2)),
     [clients, transactions, sessions, members, groups],
   )
@@ -39,16 +39,23 @@ export default function ClientsScreen() {
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {rows.length ? (
             <Card padded={false}>
-              {rows.map(({ c, meta, balance }, i) => (
-                <Pressable key={c.id} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditing(c)}>
-                  <View style={[styles.dot, { backgroundColor: STATUS_COLOR[meta] || '#cbb9a8' }]} />
-                  <View style={styles.info}>
-                    <Text style={styles.name} numberOfLines={1}>{c.name || ''}</Text>
-                    <Text style={styles.status}>{i18n.t(`clients:status.${meta}`, { defaultValue: meta })}</Text>
-                  </View>
-                  {balance > 0 ? <Text style={styles.balance}>{isr(balance)}</Text> : null}
-                </Pressable>
-              ))}
+              {rows.map(({ c, meta, bal }, i) => {
+                const stats = []
+                if (bal.hasPersonal && bal.personalQuota > 0) stats.push(`${bal.personalDone}/${bal.personalQuota} ${i18n.t('clients:card.sessions')}`)
+                if (bal.paid > 0) stats.push(`${i18n.t('clients:card.paid')} ${isr(bal.paid)}`)
+                return (
+                  <Pressable key={c.id} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditing(c)}>
+                    <View style={[styles.dot, { backgroundColor: STATUS_COLOR[meta] || '#cbb9a8' }]} />
+                    <View style={styles.info}>
+                      <Text style={styles.name} numberOfLines={1}>{c.name || ''}</Text>
+                      <Text style={styles.status} numberOfLines={1}>
+                        {i18n.t(`clients:status.${meta}`, { defaultValue: meta })}{stats.length ? ` · ${stats.join(' · ')}` : ''}
+                      </Text>
+                    </View>
+                    {bal.balance > 0 ? <Text style={styles.balance}>{isr(bal.balance)}</Text> : null}
+                  </Pressable>
+                )
+              })}
             </Card>
           ) : (
             <Text style={styles.empty}>{i18n.t('clients:empty.firstClient', { defaultValue: '—' })}</Text>

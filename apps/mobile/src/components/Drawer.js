@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Moon, Sparkles, X, LogOut, Pencil } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Moon, Sparkles, Settings, X, LogOut, Pencil } from 'lucide-react-native'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import i18n from '../lib/i18n'
@@ -19,6 +19,7 @@ const TILES = [
   { key: 'calendar', screen: 'Calendar', Icon: CalendarDays, fallback: 'יומן' },
   { key: 'moon', screen: 'Moon', Icon: Moon, fallback: 'מבט על' },
   { key: 'questions', screen: 'Questions', Icon: Sparkles, fallback: 'שאלות' },
+  { key: 'settings', screen: 'Settings', Icon: Settings, fallback: 'הגדרות' },
 ]
 
 export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
@@ -40,14 +41,14 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
         <Text style={styles.sub}>{i18n.t('nav:drawerSubtitle', { defaultValue: 'תפריט · העדפות וכלים אישיים' })}</Text>
 
         <ScrollView contentContainerStyle={styles.scroll}>
-          <View style={styles.profile}>
+          <Pressable style={styles.profile} onPress={() => { onClose(); onNavigate('Settings') }}>
             <View style={styles.avatar}><Text style={styles.avatarText}>{initial}</Text></View>
             <View style={styles.profileText}>
               <Text style={styles.profileName} numberOfLines={1}>{i18n.t('nav:profile.myProfile', { defaultValue: 'הפרופיל שלי' })}</Text>
               <Text style={styles.profileMeta} numberOfLines={1}>{email}</Text>
             </View>
             <Pencil size={16} strokeWidth={1.5} color={colors.textFaint} />
-          </View>
+          </Pressable>
 
           <View style={styles.grid}>
             {TILES.map((it) => {

@@ -11,7 +11,7 @@ async function fetchTable(name, { filterDeleted = true } = {}) {
   return data ?? []
 }
 
-const EMPTY = { meetings: [], calendarEvents: [], clients: [], groups: [] }
+const EMPTY = { meetings: [], calendarEvents: [], clients: [], groups: [], reminders: [], leads: [] }
 
 export function useCalendarData() {
   const [state, setState] = useState(EMPTY)
@@ -22,13 +22,15 @@ export function useCalendarData() {
     setLoading(true)
     setError(null)
     try {
-      const [meetings, calendarEvents, clients, groups] = await Promise.all([
+      const [meetings, calendarEvents, clients, groups, reminders, leads] = await Promise.all([
         fetchTable('scheduled_meetings', { filterDeleted: false }),
         fetchTable('calendar_events'),
         fetchTable('clients'),
         fetchTable('groups'),
+        fetchTable('reminders'),
+        fetchTable('leads'),
       ])
-      setState({ meetings, calendarEvents, clients, groups })
+      setState({ meetings, calendarEvents, clients, groups, reminders, leads })
     } catch (e) {
       setError(e?.message || 'load failed')
     } finally {

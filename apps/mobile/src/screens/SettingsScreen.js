@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, Sparkles, Download } from 'lucide-react-native'
+import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, Sparkles, Download, X, Plus } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
-import { isr, fmtShortDate, payMethodLabel } from '@simplicity/core'
+import { fmtShortDate, payMethodLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import { supabase } from '../lib/supabase'
 import Screen from '../components/Screen'
@@ -13,6 +13,7 @@ import Select from '../components/Select'
 import { colors } from '../theme/theme'
 import { usePreferences } from '../hooks/usePreferences'
 import { useFinanceData } from '../hooks/useFinanceData'
+import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 
 const GENDERS = ['male', 'female', 'neutral']
 const ROLES = ['therapist', 'coach', 'consultant', 'trainer', 'other']
@@ -59,6 +60,7 @@ export default function SettingsScreen() {
   const nav = useNavigation()
   const { prefs, update } = usePreferences()
   const { transactions, clients, categories } = useFinanceData()
+  const tax = useConfigTaxonomy()
   const [open, setOpen] = useState('profile')
   const [lang, setLang] = useState(i18n.language)
   const toggle = (k) => setOpen((o) => (o === k ? null : k))
@@ -143,14 +145,30 @@ export default function SettingsScreen() {
         </Section>
 
         {/* Configuration */}
-        <Section Icon={SlidersHorizontal} title={T('sections.questions.title', { defaultValue: 'קונפיגורציה' })} sub={T('sections.questions.sub', { defaultValue: '' })} open={open === 'config'} onToggle={() => toggle('config')}>
+        <Section Icon={SlidersHorizontal} title={T('sections.clients.title', { defaultValue: 'קונפיגורציה' })} sub={T('sections.clients.sub', { defaultValue: '' })} open={open === 'config'} onToggle={() => toggle('config')}>
           <Pressable style={styles.rowBtn} onPress={() => nav.navigate('Questions')}>
             <Sparkles size={16} strokeWidth={1.7} color={colors.textSub} />
             <Text style={styles.rowBtnText}>{i18n.t('settings:sections.questions.title', { defaultValue: 'שאלות יומיות' })}</Text>
             <View style={{ flex: 1 }} />
             <ChevronDown size={16} strokeWidth={1.6} color={colors.textFaint} style={{ transform: [{ rotate: '-90deg' }] }} />
           </Pressable>
-          <Text style={styles.hint}>{T('config.moreHint', { defaultValue: 'ניהול סטטוסים, מקורות לידים וסוגי פגישה — בקרוב.' })}</Text>
+
+          <StatusManager tax={tax} />
+          <TaxonomyManager
+            title={T('leads.sourcesTitle', { defaultValue: 'מקורות לידים' })}
+            items={tax.leadSources.map((s) => ({ id: s.id, label: s.name, color: s.color }))}
+            placeholder={T('leads.sourcePlaceholder', { defaultValue: 'מקור חדש…' })}
+            onAdd={(name) => tax.addLeadSource(name)}
+            onRemove={tax.removeLeadSource}
+          />
+          <TaxonomyManager
+            title={T('payments.meetingTypesTitle', { defaultValue: 'סוגי פגישה' })}
+            items={tax.meetingTypes.map((m) => ({ id: m.id, label: `${m.name}${m.default_price != null ? ` · ₪${m.default_price}` : ''}` }))}
+            placeholder={T('payments.typePlaceholder', { defaultValue: 'סוג פגישה…' })}
+            secondPlaceholder="₪"
+            onAdd={(name, price) => tax.addMeetingType(name, price ? Number(price) : null)}
+            onRemove={tax.removeMeetingType}
+          />
         </Section>
 
         {/* Sign out */}
@@ -165,6 +183,76 @@ export default function SettingsScreen() {
 
 function Field({ label, children }) {
   return <View style={styles.field}>{label ? <Text style={styles.label}>{label}</Text> : null}{children}</View>
+}
+
+// Chips + inline add (name [+ optional second field]) for a config taxonomy.
+function TaxonomyManager({ title, items, placeholder, secondPlaceholder, onAdd, onRemove }) {
+  const [name, setName] = useState('')
+  const [second, setSecond] = useState('')
+  const [busy, setBusy] = useState(false)
+  const add = async () => {
+    const v = name.trim(); if (!v || busy) return
+    setBusy(true); try { await onAdd(v, second.trim()); setName(''); setSecond('') } finally { setBusy(false) }
+  }
+  return (
+    <View style={styles.taxBlock}>
+      <Text style={styles.taxTitle}>{title}</Text>
+      <View style={styles.chips}>
+        {items.length ? items.map((it) => (
+          <View key={it.id} style={styles.chip}>
+            {it.color ? <View style={[styles.chipDot, { backgroundColor: it.color }]} /> : null}
+            <Text style={styles.chipText}>{it.label}</Text>
+            <Pressable onPress={() => onRemove(it.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
+          </View>
+        )) : <Text style={styles.hint}>{i18n.t('settings:common.none', { defaultValue: '—' })}</Text>}
+      </View>
+      <View style={styles.addRow}>
+        <TextInput style={[styles.input, styles.addInput]} value={name} onChangeText={setName} placeholder={placeholder} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
+        {secondPlaceholder ? <TextInput style={[styles.input, styles.addSecond]} value={second} onChangeText={setSecond} placeholder={secondPlaceholder} placeholderTextColor={colors.textFaint} keyboardType="numeric" /> : null}
+        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !name.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+      </View>
+    </View>
+  )
+}
+
+// Client statuses — chips + add (name + a meta pill so it's grouped correctly).
+const STATUS_METAS = ['active', 'wandering', 'past']
+function StatusManager({ tax }) {
+  const [name, setName] = useState('')
+  const [meta, setMeta] = useState('active')
+  const [busy, setBusy] = useState(false)
+  const add = async () => {
+    const v = name.trim(); if (!v || busy) return
+    setBusy(true); try { await tax.addClientStatus(v, meta); setName('') } finally { setBusy(false) }
+  }
+  return (
+    <View style={styles.taxBlock}>
+      <Text style={styles.taxTitle}>{i18n.t('settings:clients.statusesTitle', { defaultValue: 'סטטוסי לקוחות' })}</Text>
+      <View style={styles.chips}>
+        {tax.clientStatuses.length ? tax.clientStatuses.map((s) => (
+          <View key={s.id} style={styles.chip}>
+            {s.icon ? <Text style={styles.chipIcon}>{s.icon}</Text> : null}
+            <Text style={styles.chipText}>{s.display_name}</Text>
+            {s.is_default ? null : <Pressable onPress={() => tax.removeClientStatus(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>}
+          </View>
+        )) : <Text style={styles.hint}>{i18n.t('settings:common.none', { defaultValue: '—' })}</Text>}
+      </View>
+      <View style={styles.metaPills}>
+        {STATUS_METAS.map((m) => {
+          const on = meta === m
+          return (
+            <Pressable key={m} style={[styles.metaPill, on && styles.metaPillOn]} onPress={() => setMeta(m)}>
+              <Text style={[styles.metaPillText, on && styles.pillTextOn]}>{i18n.t(`clients:status.${m === 'no_status' ? 'noStatus' : m}`, { defaultValue: m })}</Text>
+            </Pressable>
+          )
+        })}
+      </View>
+      <View style={styles.addRow}>
+        <TextInput style={[styles.input, styles.addInput]} value={name} onChangeText={setName} placeholder={i18n.t('settings:clients.statusPlaceholder', { defaultValue: 'סטטוס חדש…' })} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
+        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !name.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+      </View>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -191,6 +279,23 @@ const styles = StyleSheet.create({
 
   rowBtn: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
   rowBtnText: { fontSize: 14, color: colors.text },
+
+  // Config taxonomy managers
+  taxBlock: { gap: 8 },
+  taxTitle: { fontSize: 13, fontWeight: '600', color: colors.textSub },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  chipDot: { width: 8, height: 8, borderRadius: 4 },
+  chipIcon: { fontSize: 12 },
+  chipText: { fontSize: 13, color: colors.text },
+  addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  addInput: { flex: 1 },
+  addSecond: { width: 70 },
+  addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  metaPills: { flexDirection: 'row', gap: 6 },
+  metaPill: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  metaPillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  metaPillText: { fontSize: 12, color: colors.textSub },
 
   signOut: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, marginTop: 4 },
   signOutText: { fontSize: 15, fontWeight: '600', color: colors.danger },

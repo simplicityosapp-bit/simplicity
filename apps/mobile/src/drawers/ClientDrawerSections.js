@@ -134,6 +134,15 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           ) : <Text style={styles.empty}>{T('noMoreDetails')}</Text>}
         </Section>
 
+        <Section title={T('notes')}>
+          {c.notes ? (
+            <>
+              <Text style={styles.note}>{c.notes}</Text>
+              {c.notes_updated_at ? <Text style={styles.noteTs}>{T('notesUpdated', { date: fmtShortDate(c.notes_updated_at) })}</Text> : null}
+            </>
+          ) : <Text style={styles.empty}>{T('noNotes')}</Text>}
+        </Section>
+
         <Section title={T('reminders')} count={activeReminders.length}>
           {linkedReminders.length ? linkedReminders.map((r) => (
             <View key={r.id} style={styles.row}>
@@ -181,6 +190,8 @@ const styles = StyleSheet.create({
   secCount: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.06)', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
   secBody: { paddingHorizontal: 14, paddingBottom: 14, gap: 8 },
   line: { fontSize: 13, color: colors.text },
+  note: { fontSize: 13, color: colors.text, lineHeight: 19 },
+  noteTs: { fontSize: 11, color: colors.textFaint, marginTop: 6 },
   empty: { fontSize: 12, color: colors.textFaint, textAlign: 'center', paddingVertical: 4 },
 
   sessRow: { gap: 6, paddingVertical: 4 },

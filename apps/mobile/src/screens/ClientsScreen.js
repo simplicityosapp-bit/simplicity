@@ -11,12 +11,14 @@ import { useClientsList } from '../hooks/useClientsList'
 
 const SORDER = { active: 0, wandering: 1, no_status: 2, past: 3 }
 const STATUS_COLOR = { active: colors.positive, wandering: '#D9A566', past: '#b3a99c', no_status: '#cbb9a8' }
+const TABS = ['all', 'active', 'wandering', 'past']
 
-// Real Clients screen. Read-only list — name + status + outstanding balance
-// (core clientBalance), over the per-screen photo (Warm Precision theme).
+// Clients screen — name + status + sessions/paid/balance (core clientBalance),
+// filterable by status tab, over the per-screen photo. Tap a row to edit.
 export default function ClientsScreen() {
   const { clients, transactions, sessions, members, groups, loading, error, refetch, updateClient, deleteClient } = useClientsList()
   const [editing, setEditing] = useState(null)
+  const [tab, setTab] = useState('all')
 
   const rows = useMemo(
     () => clients
@@ -24,6 +26,9 @@ export default function ClientsScreen() {
       .sort((a, b) => (SORDER[a.meta] ?? 2) - (SORDER[b.meta] ?? 2)),
     [clients, transactions, sessions, members, groups],
   )
+  const shown = useMemo(() => (tab === 'all' ? rows : rows.filter((r) => r.meta === tab)), [rows, tab])
+  const tabLabel = (t) => (t === 'all' ? i18n.t('clients:filter.all', { defaultValue: 'הכל' }) : i18n.t(`clients:status.${t}`))
+  const tabCount = (t) => (t === 'all' ? rows.length : rows.filter((r) => r.meta === t).length)
 
   return (
     <Screen name="clients">
@@ -38,8 +43,20 @@ export default function ClientsScreen() {
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {rows.length ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
+              {TABS.map((t) => {
+                const on = tab === t
+                return (
+                  <Pressable key={t} style={[styles.tab, on && styles.tabOn]} onPress={() => setTab(t)}>
+                    <Text style={[styles.tabText, on && styles.tabTextOn]}>{tabLabel(t)} {tabCount(t)}</Text>
+                  </Pressable>
+                )
+              })}
+            </ScrollView>
+          ) : null}
+          {shown.length ? (
             <Card padded={false}>
-              {rows.map(({ c, meta, bal }, i) => {
+              {shown.map(({ c, meta, bal }, i) => {
                 const stats = []
                 if (bal.hasPersonal && bal.personalQuota > 0) stats.push(`${bal.personalDone}/${bal.personalQuota} ${i18n.t('clients:card.sessions')}`)
                 if (bal.paid > 0) stats.push(`${i18n.t('clients:card.paid')} ${isr(bal.paid)}`)
@@ -58,7 +75,7 @@ export default function ClientsScreen() {
               })}
             </Card>
           ) : (
-            <Text style={styles.empty}>{i18n.t('clients:empty.firstClient', { defaultValue: '—' })}</Text>
+            <Text style={styles.empty}>{rows.length ? i18n.t('clients:empty.noSearchResults', { defaultValue: '—' }) : i18n.t('clients:empty.firstClient', { defaultValue: '—' })}</Text>
           )}
         </ScrollView>
       )}
@@ -79,6 +96,11 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 12 },
   error: { color: colors.danger, fontSize: 13 },
   empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
+  tabs: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
+  tab: { paddingVertical: 7, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  tabOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  tabText: { fontSize: 13, color: colors.textSub },
+  tabTextOn: { color: colors.onBrand, fontWeight: '600' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   dot: { width: 10, height: 10, borderRadius: 5 },

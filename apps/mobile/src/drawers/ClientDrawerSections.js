@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { ChevronDown, Pencil } from 'lucide-react-native'
 import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, fmtTime } from '@simplicity/core'
+import Card from '../components/Card'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
@@ -17,13 +18,16 @@ const T = (k, o) => i18n.t(`clients:sections.${k}`, o)
 function Section({ title, count, defaultOpen = false, children }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <View style={styles.section}>
+    <Card padded={false} style={styles.sectionOuter} contentStyle={styles.section}>
       <Pressable style={styles.secHead} onPress={() => setOpen((o) => !o)}>
-        <Text style={styles.secTitle}>{title}{count != null ? <Text style={styles.secCount}>  {count}</Text> : null}</Text>
+        <View style={styles.secTitleWrap}>
+          <Text style={styles.secTitle}>{title}</Text>
+          {count != null ? <Text style={styles.secCount}>{count}</Text> : null}
+        </View>
         <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
       </Pressable>
       {open ? <View style={styles.secBody}>{children}</View> : null}
-    </View>
+    </Card>
   )
 }
 
@@ -164,21 +168,23 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
 }
 
 const styles = StyleSheet.create({
-  group: { gap: 2 },
-  groupTitle: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.5, textTransform: 'uppercase', marginTop: 6, marginBottom: 6 },
-  section: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  secHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 13 },
-  secTitle: { fontSize: 14, color: colors.text },
-  secCount: { fontSize: 12, color: colors.textSub },
-  secBody: { paddingBottom: 12, gap: 8 },
+  group: { gap: 0, marginBottom: 6 },
+  groupTitle: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.6, marginHorizontal: 2, marginTop: 8, marginBottom: 8 },
+  sectionOuter: { marginBottom: 8 },
+  section: {},
+  secHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 13, paddingHorizontal: 14 },
+  secTitleWrap: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  secTitle: { fontSize: 14, fontWeight: '600', color: colors.text },
+  secCount: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.06)', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
+  secBody: { paddingHorizontal: 14, paddingBottom: 14, gap: 8 },
   line: { fontSize: 13, color: colors.text },
-  empty: { fontSize: 13, color: colors.textFaint },
+  empty: { fontSize: 12, color: colors.textFaint, textAlign: 'center', paddingVertical: 4 },
 
-  sessRow: { gap: 4, paddingVertical: 4 },
+  sessRow: { gap: 6, paddingVertical: 4 },
   sessHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  sessNum: { fontSize: 12, fontWeight: '600', color: colors.brand, minWidth: 16 },
-  sessDate: { flex: 1, fontSize: 13, color: colors.textSub },
-  sessSummary: { fontSize: 13, color: colors.text, lineHeight: 18 },
+  sessNum: { width: 22, height: 22, borderRadius: 11, textAlign: 'center', lineHeight: 22, overflow: 'hidden', fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.06)' },
+  sessDate: { flex: 1, fontSize: 12, color: colors.textSub },
+  sessSummary: { fontSize: 13, color: colors.text, lineHeight: 19 },
 
   paySummary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 4 },
   paySummaryL: { fontSize: 12, color: colors.textSub },

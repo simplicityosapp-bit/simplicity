@@ -4,6 +4,7 @@ import { Search, Wallet, ArrowUpDown, Check, X, Trash2, CheckCircle2, Clock, Cir
 import { clientBalance, effectiveClientMeta, paidForClients, sessionsCountForClients, currentMonthRange, financeQuery, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
+import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import Sheet from '../components/Sheet'
 import AddClientModal from '../modals/AddClientModal'
@@ -202,21 +203,13 @@ export default function ClientsScreen() {
 
   return (
     <Screen name="clients">
-      {/* Screen head — meta + tagline + big title, with the add button */}
-      <View style={styles.head}>
-        <View style={styles.headText}>
-          <View style={styles.headMeta}>
-            <Text style={styles.metaLbl}>{i18n.t('clients:countLabel', { count: total, defaultValue: `${total} לקוחות` })}</Text>
-            <Text style={styles.metaDot}>·</Text>
-            <Text style={styles.metaLbl}>{i18n.t('clients:summary', { defaultValue: 'סיכום' })}</Text>
-          </View>
-          <Text style={styles.tagline}>{i18n.t('clients:tagline', { defaultValue: 'בניית קשרים יוצרת תוצאות.' })}</Text>
-          <Text style={styles.title}>{i18n.t('clients:title', { defaultValue: 'לקוחות' })}</Text>
-        </View>
-        <Pressable style={styles.cta} onPress={() => setAdding(true)}>
-          <Text style={styles.ctaText}>+ {i18n.t('clients:empty.addClient', { defaultValue: 'לקוח' })}</Text>
-        </Pressable>
-      </View>
+      <ScreenHead
+        title={i18n.t('clients:title', { defaultValue: 'לקוחות' })}
+        meta={[i18n.t('clients:countLabel', { count: total, defaultValue: `${total} לקוחות` }), i18n.t('clients:summary', { defaultValue: 'סיכום' })]}
+        tagline={i18n.t('clients:tagline', { defaultValue: 'בניית קשרים יוצרת תוצאות.' })}
+        onAdd={() => setAdding(true)}
+        addLabel={i18n.t('clients:addClientAria', { defaultValue: 'הוספת לקוח' })}
+      />
 
       {loading && !clients.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
@@ -438,17 +431,6 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 12 },
   error: { color: colors.danger, fontSize: 13 },
   empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24, lineHeight: 20 },
-
-  // Screen head
-  head: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', paddingTop: 56, paddingBottom: 10, paddingHorizontal: 20, gap: 12 },
-  headText: { flex: 1, alignItems: 'flex-end' },
-  headMeta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  metaLbl: { fontSize: 12, color: colors.textSub },
-  metaDot: { fontSize: 12, color: colors.textFaint },
-  tagline: { fontSize: 11, color: colors.textFaint, marginTop: 2 },
-  title: { fontSize: 28, fontWeight: '600', color: colors.text, marginTop: 4 },
-  cta: { marginTop: 6, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 999, backgroundColor: colors.brand },
-  ctaText: { fontSize: 14, fontWeight: '600', color: colors.onBrand },
 
   // Controls row
   controls: { flexDirection: 'row', alignItems: 'center', gap: 8 },

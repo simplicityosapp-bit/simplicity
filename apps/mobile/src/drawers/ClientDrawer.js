@@ -166,7 +166,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                   style={styles.payRequest}
                   onPress={() => whatsapp(`${i18n.t('clients:drawer.requestPayment', { defaultValue: 'דרישת תשלום' })} · ${isr(bal.balance)}`)}
                 >
-                  <MessageCircle size={16} strokeWidth={1.8} color={colors.onBrand} />
+                  <MessageCircle size={15} strokeWidth={1.8} color={colors.positive} />
                   <Text style={styles.payRequestText}>{i18n.t('clients:drawer.requestPayment', { defaultValue: 'דרישת תשלום בוואטסאפ' })}</Text>
                 </Pressable>
               ) : null}
@@ -263,10 +263,10 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 40, gap: 16 },
 
   header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  av: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
-  avText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
+  av: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  avText: { fontSize: 16, fontWeight: '600', color: colors.onBrand },
   headId: { flex: 1, minWidth: 0, gap: 5 },
-  headName: { fontSize: 18, fontWeight: '600', color: colors.text },
+  headName: { fontSize: 18, fontWeight: '700', color: colors.text },
   headSub: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   statusPill: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 3, paddingHorizontal: 9, borderRadius: 10 },
   statusText: { fontSize: 11, fontWeight: '500', color: colors.text },
@@ -296,8 +296,8 @@ const styles = StyleSheet.create({
   grpName: { flex: 1, fontSize: 12, color: colors.textSub },
   grpVal: { fontSize: 12, fontWeight: '600', color: colors.text },
 
-  payRequest: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 13, borderRadius: 14, backgroundColor: colors.positive },
-  payRequestText: { fontSize: 14, fontWeight: '600', color: colors.onBrand },
+  payRequest: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 14, borderWidth: 0.5, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
+  payRequestText: { fontSize: 13, fontWeight: '500', color: colors.positive },
 
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   action: { flexGrow: 1, flexBasis: '46%', alignItems: 'center', gap: 6, paddingVertical: 14, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },

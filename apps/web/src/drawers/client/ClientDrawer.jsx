@@ -49,6 +49,10 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   /* True while "הוסף תנועה" is handling the prompt, so the shared onClose
      doesn't ALSO record an informal credit. */
   const paidActionRef = useRef(false)
+  /* While the payment modal is open FROM the "record?" prompt, holds the paid
+     delta so cancelling that modal (no real transaction) still lands the amount
+     on the card as an informal credit — a manual "שולם" edit is never lost. */
+  const pendingPaidRef = useRef(null)
   const scrollRef = useRef(null)
 
   useEffect(() => {
@@ -313,12 +317,26 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
       <AddTransactionModal
         key={`pay-${client?.id}-${paymentAmount ?? 'x'}`}
         open={actionModal === 'payment'}
-        onClose={() => { setActionModal(null); setPaymentAmount(null) }}
+        onClose={() => {
+          /* Closed WITHOUT recording a transaction. If we got here from the
+             manual-"שולם" prompt, keep the amount on the card as an informal
+             credit so the edit isn't lost (same result as choosing "התעלם"). */
+          if (pendingPaidRef.current != null && client) {
+            onUpdateClient?.(client.id, { paid_adjustment: (Number(client.paid_adjustment) || 0) + pendingPaidRef.current })?.catch?.(() => {})
+          }
+          pendingPaidRef.current = null
+          setActionModal(null); setPaymentAmount(null)
+        }}
         client={client}
         projects={projects}
         defaultType="income"
         defaults={paymentAmount != null ? { amount: String(Math.abs(paymentAmount)), desc: t('drawer.paymentDefaultDesc') } : {}}
-        onSave={onAddPayment}
+        onSave={async (data) => {
+          /* A real transaction is being recorded → drop the informal-credit
+             fallback so the amount is never counted twice. */
+          pendingPaidRef.current = null
+          return onAddPayment?.(data)
+        }}
       />
       <EditClientModal
         key={client?.id}
@@ -387,7 +405,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
           /* "התעלם" (or dismiss) → keep the change ON THE CARD only: store
              the delta as an informal paid_adjustment, no finance entry. */
           if (!paidActionRef.current && pendingPayment != null && client) {
-            onUpdateClient?.(client.id, { paid_adjustment: (Number(client.paid_adjustment) || 0) + pendingPayment })
+            onUpdateClient?.(client.id, { paid_adjustment: (Number(client.paid_adjustment) || 0) + pendingPayment })?.catch?.(() => {})
           }
           paidActionRef.current = false
           setPendingPayment(null)
@@ -398,7 +416,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
           : ''}
         confirmLabel={t('drawer.manualPayConfirm')}
         cancelLabel={t('drawer.manualPayCancel')}
-        onConfirm={() => { paidActionRef.current = true; setPaymentAmount(pendingPayment); setActionModal('payment') }}
+        onConfirm={() => { paidActionRef.current = true; pendingPaidRef.current = pendingPayment; setPaymentAmount(pendingPayment); setActionModal('payment') }}
       />
     </>
   )

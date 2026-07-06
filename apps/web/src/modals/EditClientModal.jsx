@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { User, CalendarDays, Wallet, Users, ChevronDown, MapPin } from 'lucide-react'
 import Modal from './Modal'
-import ConfirmModal from './ConfirmModal'
 import MeetingTypesModal from './MeetingTypesModal'
 import { isr } from '@simplicity/core'
 import { useMeetingTypes } from '../hooks/useMeetingTypes'
@@ -80,12 +79,6 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   const [manageTypes, setManageTypes] = useState(false)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
-  /* Which billing cell the user last touched — decides save behaviour:
-     'paid' → prompt for a real transaction; 'balance' → adjustment (now
-     gated behind an explicit confirm). */
-  const [lastBillEdit, setLastBillEdit] = useState(null)
-  /* Holds the new balance awaiting the "balance changed to X — save?" confirm. */
-  const [confirmBal, setConfirmBal] = useState(null)
   /* Which sections are open — only "details" starts open. */
   const [openSecs, setOpenSecs] = useState(() => new Set(['details']))
   const toggleSec = (k) => setOpenSecs((s) => {
@@ -186,23 +179,20 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       const nextDoneAdj = (Number(form.done) || 0) - personalHeld
       const prevDoneAdj = Number(client?.sessions_done_adjustment) || 0
       if (nextDoneAdj !== prevDoneAdj) patch.sessions_done_adjustment = nextDoneAdj
-      /* Billing intent split:
-         - edited "יתרה" → balance_adjustment (forgive/zero; needs 0010), now
-           confirmed before we get here.
-         - edited "שולם" → a real payment → prompt the parent to record a
-           transaction (handled after save); never written as adjustment.
-         balance_adjustment is included ONLY when it actually changes, so a
-         normal edit never depends on migration 0010 existing. */
+      /* Billing edits are handled INDEPENDENTLY — "שולם" and "יתרה" can both
+         change in one save and neither is discarded:
+         - "יתרה" → balance_adjustment (a forgiveness that only affects the
+           client card; needs migration 0010).
+         - "שולם" → a real payment → after saving, prompt the parent to record
+           a finance transaction (handled below); never written as adjustment.
+         Each is included ONLY when it actually changes, so a normal edit never
+         depends on migrations 0010/0012 existing. */
       const prevAdj = Number(client?.balance_adjustment) || 0
+      const nextAdj = Number(form.adjustment) || 0
+      if (nextAdj !== prevAdj) patch.balance_adjustment = nextAdj
       const nextPaid = Number(form.paid) || 0
-      let paymentDelta = 0
-      if (lastBillEdit === 'balance') {
-        const nextAdj = Number(form.adjustment) || 0
-        if (nextAdj !== prevAdj) patch.balance_adjustment = nextAdj
-      } else if (lastBillEdit === 'paid') {
-        /* delta vs the currently-shown "שולם" (= real income + informal adj). */
-        paymentDelta = nextPaid - (rawPaid + (Number(client?.paid_adjustment) || 0))
-      }
+      /* delta vs the currently-shown "שולם" (= real income + informal adj). */
+      const paymentDelta = nextPaid - (rawPaid + (Number(client?.paid_adjustment) || 0))
       await onSave(client.id, patch)
       /* Persist any changed per-group billing overrides. */
       for (const m of memberships) {
@@ -222,20 +212,14 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     }
   }
 
-  /* Save button. A hand-edited "יתרה" is a real balance change, so confirm it
-     explicitly (instead of writing the adjustment silently); everything else
-     saves straight through. A missing name re-opens "details" so the error
-     ring is visible even if the section was collapsed. */
+  /* Save button. Editing "יתרה" only adjusts the client card, so it saves
+     straight through — the only prompt is the finance "record a transaction?"
+     one, raised after save (by the parent) when "שולם" changed. A missing name
+     re-opens "details" so the error ring is visible even if collapsed. */
   const submit = () => {
     if (!form.name.trim()) {
       setErr(t('common.nameRequired'))
       setOpenSecs((s) => new Set(s).add('details'))
-      return
-    }
-    const prevAdj = Number(client?.balance_adjustment) || 0
-    const nextAdj = Number(form.adjustment) || 0
-    if (lastBillEdit === 'balance' && nextAdj !== prevAdj) {
-      setConfirmBal(liveBalance)
       return
     }
     doSubmit()
@@ -415,7 +399,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
               <Box className="ec-bill-money">
                 <Txt className="ec-bill-cur">₪</Txt>
                 <Input type="number" className="ec-bill-input" value={form.paid}
-                  onChange={(e) => { set('paid', e.target.value); setLastBillEdit('paid') }} aria-label={t('editClient.paid')} />
+                  onChange={(e) => set('paid', e.target.value)} aria-label={t('editClient.paid')} />
               </Box>
             </Box>
             <Box className="ec-bill-cell divided-start">
@@ -423,7 +407,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
               <Box className="ec-bill-money">
                 <Txt className="ec-bill-cur">₪</Txt>
                 <Input type="number" className="ec-bill-input" value={String(liveBalance)}
-                  onChange={(e) => { setBalance(e.target.value); setLastBillEdit('balance') }} aria-label={t('editClient.balance')} />
+                  onChange={(e) => setBalance(e.target.value)} aria-label={t('editClient.balance')} />
               </Box>
             </Box>
           </Box>
@@ -508,15 +492,6 @@ export default function EditClientModal({ open, onClose, onSave, client, project
 
     </Modal>
     <MeetingTypesModal open={manageTypes} onClose={() => { setManageTypes(false); refetchMeetingTypes() }} />
-    <ConfirmModal
-      open={confirmBal != null}
-      onClose={() => setConfirmBal(null)}
-      title={t('editClient.confirmBalanceTitle')}
-      message={confirmBal != null ? t('editClient.confirmBalanceMsg', { balance: isr(confirmBal) }) : ''}
-      confirmLabel={t('common.save')}
-      cancelLabel={t('common.cancel')}
-      onConfirm={() => doSubmit()}
-    />
     </>
   )
 }

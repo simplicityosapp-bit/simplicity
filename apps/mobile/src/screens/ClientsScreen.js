@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { Plus, Search } from 'lucide-react-native'
 import { clientBalance, statusMetaOf, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -16,9 +17,11 @@ const TABS = ['all', 'active', 'wandering', 'past']
 // Clients screen — name + status + sessions/paid/balance (core clientBalance),
 // filterable by status tab, over the per-screen photo. Tap a row to edit.
 export default function ClientsScreen() {
-  const { clients, transactions, sessions, members, groups, loading, error, refetch, updateClient, deleteClient } = useClientsList()
+  const { clients, transactions, sessions, members, groups, loading, error, refetch, addClient, updateClient, deleteClient } = useClientsList()
   const [editing, setEditing] = useState(null)
+  const [adding, setAdding] = useState(false)
   const [tab, setTab] = useState('all')
+  const [query, setQuery] = useState('')
 
   const rows = useMemo(
     () => clients
@@ -26,13 +29,20 @@ export default function ClientsScreen() {
       .sort((a, b) => (SORDER[a.meta] ?? 2) - (SORDER[b.meta] ?? 2)),
     [clients, transactions, sessions, members, groups],
   )
-  const shown = useMemo(() => (tab === 'all' ? rows : rows.filter((r) => r.meta === tab)), [rows, tab])
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return rows.filter((r) => (tab === 'all' || r.meta === tab) && (!q || (r.c.name || '').toLowerCase().includes(q)))
+  }, [rows, tab, query])
   const tabLabel = (t) => (t === 'all' ? i18n.t('clients:filter.all', { defaultValue: 'הכל' }) : i18n.t(`clients:status.${t}`))
   const tabCount = (t) => (t === 'all' ? rows.length : rows.filter((r) => r.meta === t).length)
 
   return (
     <Screen name="clients">
-      <ScreenHeader title={i18n.t('clients:title', { defaultValue: 'לקוחות' })} />
+      <ScreenHeader
+        title={i18n.t('clients:title', { defaultValue: 'לקוחות' })}
+        right={<Pressable onPress={() => setAdding(true)} hitSlop={10}><Plus size={24} strokeWidth={2} color={colors.brand} /></Pressable>}
+      />
+      <AddClientModal open={adding} onClose={() => setAdding(false)} onSave={addClient} />
 
       {loading && !clients.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
@@ -43,16 +53,28 @@ export default function ClientsScreen() {
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {rows.length ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
-              {TABS.map((t) => {
-                const on = tab === t
-                return (
-                  <Pressable key={t} style={[styles.tab, on && styles.tabOn]} onPress={() => setTab(t)}>
-                    <Text style={[styles.tabText, on && styles.tabTextOn]}>{tabLabel(t)} {tabCount(t)}</Text>
-                  </Pressable>
-                )
-              })}
-            </ScrollView>
+            <>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
+                {TABS.map((t) => {
+                  const on = tab === t
+                  return (
+                    <Pressable key={t} style={[styles.tab, on && styles.tabOn]} onPress={() => setTab(t)}>
+                      <Text style={[styles.tabText, on && styles.tabTextOn]}>{tabLabel(t)} {tabCount(t)}</Text>
+                    </Pressable>
+                  )
+                })}
+              </ScrollView>
+              <View style={styles.searchRow}>
+                <Search size={17} strokeWidth={1.8} color={colors.textFaint} />
+                <TextInput
+                  style={styles.searchInput}
+                  value={query}
+                  onChangeText={setQuery}
+                  placeholder={i18n.t('clients:search', { defaultValue: 'חיפוש לקוח…' })}
+                  placeholderTextColor={colors.textFaint}
+                />
+              </View>
+            </>
           ) : null}
           {shown.length ? (
             <Card padded={false}>
@@ -101,6 +123,8 @@ const styles = StyleSheet.create({
   tabOn: { backgroundColor: colors.brand, borderColor: colors.brand },
   tabText: { fontSize: 13, color: colors.textSub },
   tabTextOn: { color: colors.onBrand, fontWeight: '600' },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderRadius: 12, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 12, paddingVertical: 2 },
+  searchInput: { flex: 1, paddingVertical: 9, fontSize: 15, color: colors.text },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   dot: { width: 10, height: 10, borderRadius: 5 },

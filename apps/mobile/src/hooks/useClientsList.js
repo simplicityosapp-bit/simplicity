@@ -39,6 +39,17 @@ export function useClientsList() {
     load()
   }, [load])
 
+  // Add a client: insert + prepend (mirrors the launcher's addClient).
+  const addClient = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const row = { ...payload, user_id: session.user.id }
+    const { data, error: e } = await supabase.from('clients').insert(row).select().single()
+    if (e) throw e
+    setState((s) => ({ ...s, clients: [data, ...s.clients] }))
+    return data
+  }, [])
+
   // Edit a client (name/phone/…): optimistic patch, refetch on error.
   const updateClient = useCallback(async (id, patch) => {
     setState((s) => ({ ...s, clients: s.clients.map((c) => (c.id === id ? { ...c, ...patch } : c)) }))
@@ -55,5 +66,5 @@ export function useClientsList() {
     if (e) { load(); throw e }
   }, [load])
 
-  return { ...state, loading, error, refetch: load, updateClient, deleteClient }
+  return { ...state, loading, error, refetch: load, addClient, updateClient, deleteClient }
 }

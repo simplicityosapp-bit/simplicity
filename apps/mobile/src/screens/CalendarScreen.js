@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { ChevronLeft, ChevronRight } from 'lucide-react-native'
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react-native'
 import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming, statusMetaOfLead } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import AddMeetingModal from '../modals/AddMeetingModal'
 import { colors } from '../theme/theme'
 import { useCalendarData } from '../hooks/useCalendarData'
 
@@ -19,10 +20,11 @@ const pad = (n) => String(n).padStart(2, '0')
 const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
 export default function CalendarScreen() {
-  const { meetings, calendarEvents, clients, groups, reminders, leads, loading, error, refetch } = useCalendarData()
+  const { meetings, calendarEvents, clients, groups, reminders, leads, loading, error, refetch, addMeeting, setMeetingStatus } = useCalendarData()
   const now = new Date()
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
   const [selected, setSelected] = useState(() => keyOf(now))
+  const [adding, setAdding] = useState(false)
   const KIND_TAG = {
     reminder: i18n.t('calendar:kinds.reminder', { defaultValue: 'תזכורת' }),
     followup: i18n.t('calendar:kinds.followup', { defaultValue: 'מעקב' }),
@@ -34,7 +36,7 @@ export default function CalendarScreen() {
     meetings.filter((m) => m.status !== 'skipped' && m.scheduled_at).forEach((m) => {
       const isGroup = m.subject_type === 'group'
       const subj = isGroup ? groups.find((g) => g.id === m.subject_id) : clients.find((c) => c.id === m.subject_id)
-      out.push({ id: `m-${m.id}`, when: m.scheduled_at, title: subj?.name || '', kind: 'meeting' })
+      out.push({ id: `m-${m.id}`, when: m.scheduled_at, title: subj?.name || '', kind: 'meeting', pending: m.status === 'pending', mid: m.id })
     })
     calendarEvents.filter((e) => !e.deleted_at && e.start_time).forEach((e) => out.push({ id: `c-${e.id}`, when: e.start_time, title: e.title || e.summary || '', kind: 'calendar' }))
     remindersUpcoming(now, reminders, 120, 0).forEach((r, i) => out.push({ id: `r-${r.id || i}`, when: r.when, title: r.title || '', kind: 'reminder' }))
@@ -72,6 +74,8 @@ export default function CalendarScreen() {
       <ScreenHead
         title={i18n.t('calendar:title', { defaultValue: 'יומן' })}
         tagline={i18n.t('calendar:tagline', { defaultValue: 'יום אחרי יום, צעד אחרי צעד.' })}
+        onAdd={() => setAdding(true)}
+        addLabel={i18n.t('calendar:newEventAria', { defaultValue: 'פגישה חדשה' })}
       />
 
       {loading && !events.length ? (
@@ -126,7 +130,11 @@ export default function CalendarScreen() {
                   <Text style={styles.time}>{fmtTime(e.when)}</Text>
                   <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
                   <Text style={styles.eventTitle} numberOfLines={1}>{e.title || '—'}</Text>
-                  {KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}
+                  {e.pending ? (
+                    <Pressable style={styles.confirm} onPress={() => setMeetingStatus(e.mid, 'confirmed')} hitSlop={6}>
+                      <Check size={14} strokeWidth={2.2} color={colors.positive} />
+                    </Pressable>
+                  ) : KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}
                 </View>
               ))}
             </Card>
@@ -135,6 +143,8 @@ export default function CalendarScreen() {
           )}
         </ScrollView>
       )}
+
+      <AddMeetingModal open={adding} clients={clients} onClose={() => setAdding(false)} onSave={addMeeting} />
     </Screen>
   )
 }
@@ -170,4 +180,5 @@ const styles = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4 },
   eventTitle: { flex: 1, fontSize: 15, color: colors.text },
   kindTag: { fontSize: 11, color: colors.textFaint, backgroundColor: colors.cardFlat, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, overflow: 'hidden' },
+  confirm: { width: 30, height: 30, borderRadius: 15, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', alignItems: 'center', justifyContent: 'center' },
 })

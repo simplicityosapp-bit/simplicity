@@ -42,5 +42,22 @@ export function useCalendarData() {
     load()
   }, [load])
 
-  return { ...state, loading, error, refetch: load }
+  // Schedule a one-off meeting (mirrors the web ScheduleMeetingModal insert).
+  const addMeeting = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('scheduled_meetings').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    setState((s) => ({ ...s, meetings: [data, ...s.meetings] }))
+    return data
+  }, [])
+
+  // Confirm / skip a pending meeting (status: pending → confirmed / skipped).
+  const setMeetingStatus = useCallback(async (id, status) => {
+    setState((s) => ({ ...s, meetings: s.meetings.map((m) => (m.id === id ? { ...m, status } : m)) }))
+    const { error: e } = await supabase.from('scheduled_meetings').update({ status }).eq('id', id)
+    if (e) { load(); throw e }
+  }, [load])
+
+  return { ...state, loading, error, refetch: load, addMeeting, setMeetingStatus }
 }

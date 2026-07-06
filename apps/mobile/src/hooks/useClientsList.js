@@ -72,6 +72,15 @@ export function useClientsList() {
   const addClient = useCallback((payload) => insertInto('clients', payload, 'clients'), [insertInto])
   const addTransaction = useCallback((payload) => insertInto('transactions', payload, 'transactions'), [insertInto])
   const addSession = useCallback((payload) => insertInto('sessions', payload, 'sessions'), [insertInto])
+  // Schedule a meeting (scheduled_meetings isn't in this hook's state → insert only;
+  // the calendar screen picks it up on its own load).
+  const addMeeting = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('scheduled_meetings').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    return data
+  }, [])
 
   const updateClient = useCallback((id, patch) => patchRow('clients', 'clients', id, patch), [patchRow])
   const deleteClient = useCallback((id) => softDelete('clients', 'clients', id), [softDelete])
@@ -83,7 +92,7 @@ export function useClientsList() {
 
   return {
     ...state, loading, error, refetch: load,
-    addClient, addTransaction, addSession,
+    addClient, addTransaction, addSession, addMeeting,
     updateClient, deleteClient,
     updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction,
   }

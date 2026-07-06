@@ -27,7 +27,7 @@ const STATUS_PILL = {
 const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction }) {
+export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, addMeeting, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction }) {
   const insets = useSafeAreaInsets()
   const { projects } = useFormOptions()
   const [editing, setEditing] = useState(false)
@@ -207,7 +207,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         onSave={(id, patch) => updateClient(id, patch)}
       />
       <AddTransactionModal open={paying} defaults={{ client_id: clientId, type: 'income' }} onClose={() => setPaying(false)} onSave={addTransaction} />
-      <AddMeetingModal open={scheduling} clients={client ? [client] : []} onClose={() => setScheduling(false)} onSave={async () => {}} />
+      <AddMeetingModal open={scheduling} clients={client ? [client] : []} onClose={() => setScheduling(false)} onSave={addMeeting} />
 
       {/* Log a session — composes the full sessions row around the modal's when/summary/notes */}
       <AddSessionModal

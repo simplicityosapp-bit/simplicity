@@ -53,7 +53,7 @@ function sortClients(arr, sort, paidByClient) {
 export default function ClientsScreen() {
   const {
     clients, transactions, sessions, members, groups, tasks, reminders, loading, error, refetch,
-    addClient, addTransaction, addSession, updateClient, deleteClient,
+    addClient, addTransaction, addSession, addMeeting, updateClient, deleteClient,
     updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction,
   } = useClientsList()
   const { projects } = useFormOptions()
@@ -400,6 +400,7 @@ export default function ClientsScreen() {
         deleteClient={deleteClient}
         addTransaction={addTransaction}
         addSession={addSession}
+        addMeeting={addMeeting}
         updateSession={updateSession}
         updateTask={updateTask}
         deleteTask={deleteTask}

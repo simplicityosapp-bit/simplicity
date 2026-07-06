@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, Trash2, Pencil, Banknote, MessageCircle, CalendarPlus, ChevronDown, Check, RotateCcw } from 'lucide-react-native'
 import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, isr } from '@simplicity/core'
 import Card from '../components/Card'
-import AddClientModal from '../modals/AddClientModal'
+import EditClientModal from '../modals/EditClientModal'
 import AddTransactionModal from '../modals/AddTransactionModal'
 import AddMeetingModal from '../modals/AddMeetingModal'
 import AddSessionModal from '../modals/AddSessionModal'
@@ -196,7 +196,16 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         </View>
       </View>
 
-      <AddClientModal open={editing} client={client} onClose={() => setEditing(false)} onSave={(patch) => updateClient(client.id, patch)} onDelete={del} />
+      <EditClientModal
+        open={editing}
+        client={client}
+        rawPaid={bal?.paidReal ?? 0}
+        memberTotal={bal?.memberTotal ?? 0}
+        personalHeld={bal?.personalHeld ?? 0}
+        groupSessions={bal?.groupSessions ?? []}
+        onClose={() => setEditing(false)}
+        onSave={(id, patch) => updateClient(id, patch)}
+      />
       <AddTransactionModal open={paying} defaults={{ client_id: clientId, type: 'income' }} onClose={() => setPaying(false)} onSave={addTransaction} />
       <AddMeetingModal open={scheduling} clients={client ? [client] : []} onClose={() => setScheduling(false)} onSave={async () => {}} />
 

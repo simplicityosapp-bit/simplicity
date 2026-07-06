@@ -48,7 +48,11 @@ function sortClients(arr, sort, paidByClient) {
 // rich client CARDS (avatar + name + status + project + sessions/paid/balance).
 // Tap a card to open the client drawer in place.
 export default function ClientsScreen() {
-  const { clients, transactions, sessions, members, groups, loading, error, refetch, addClient, addTransaction, updateClient, deleteClient } = useClientsList()
+  const {
+    clients, transactions, sessions, members, groups, tasks, reminders, loading, error, refetch,
+    addClient, addTransaction, addSession, updateClient, deleteClient,
+    updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction,
+  } = useClientsList()
   const { projects } = useFormOptions()
   const [adding, setAdding] = useState(false)
   const [openId, setOpenId] = useState(null)
@@ -319,10 +323,18 @@ export default function ClientsScreen() {
         sessions={sessions}
         members={members}
         groups={groups}
+        tasks={tasks}
+        reminders={reminders}
         onClose={() => setOpenId(null)}
         updateClient={updateClient}
         deleteClient={deleteClient}
         addTransaction={addTransaction}
+        addSession={addSession}
+        updateSession={updateSession}
+        updateTask={updateTask}
+        deleteTask={deleteTask}
+        updateTransaction={updateTransaction}
+        deleteTransaction={deleteTransaction}
       />
     </Screen>
   )

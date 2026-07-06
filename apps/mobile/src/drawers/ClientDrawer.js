@@ -2,11 +2,14 @@ import { useMemo, useState } from 'react'
 import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, Trash2, Pencil, Banknote, MessageCircle, CalendarPlus, ChevronDown, Check, RotateCcw } from 'lucide-react-native'
-import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, isr, fmtShortDate } from '@simplicity/core'
+import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, isr } from '@simplicity/core'
 import Card from '../components/Card'
 import AddClientModal from '../modals/AddClientModal'
 import AddTransactionModal from '../modals/AddTransactionModal'
 import AddMeetingModal from '../modals/AddMeetingModal'
+import AddSessionModal from '../modals/AddSessionModal'
+import AddTaskModal from '../modals/AddTaskModal'
+import ClientDrawerSections from './ClientDrawerSections'
 import { useFormOptions } from '../lib/formOptions'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
@@ -24,13 +27,17 @@ const STATUS_PILL = {
 const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, onClose, updateClient, deleteClient, addTransaction }) {
+export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction }) {
   const insets = useSafeAreaInsets()
   const { projects } = useFormOptions()
   const [editing, setEditing] = useState(false)
   const [paying, setPaying] = useState(false)
   const [scheduling, setScheduling] = useState(false)
+  const [logging, setLogging] = useState(false)
   const [statusMenu, setStatusMenu] = useState(false)
+  const [editSession, setEditSession] = useState(null)
+  const [editTask, setEditTask] = useState(null)
+  const [editTx, setEditTx] = useState(null)
 
   const client = clients.find((c) => c.id === clientId) || null
   const bal = useMemo(
@@ -42,13 +49,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
   const overridden = isStatusOverridden(client)
   const isMember = !!client && members.some((m) => m.client_id === client.id && !m.left_at)
   const project = client ? projects.find((p) => p.id === client.project_id) : null
-  const clientTx = useMemo(
-    () => (client
-      ? transactions.filter((t) => t.client_id === client.id && !t.deleted_at)
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 12)
-      : []),
-    [transactions, client],
-  )
+  const nextNum = client ? sessions.filter((s) => s.client_id === client.id).length + 1 : 1
 
   // Manual status change always sets status_overridden so the choice wins over
   // any group the client belongs to (migration 0062); revert clears the override.
@@ -142,6 +143,23 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                 <HeroStat label={i18n.t('clients:drawer.balance', { defaultValue: 'יתרה' })} value={isr(bal.balance)} accent={bal.balance > 0} />
               </Card>
 
+              {/* Per-session billing note — names the model so the growing balance is clear */}
+              {bal.perSession ? (
+                <Text style={styles.billNote}>{i18n.t('clients:drawer.perSessionNote', { price: isr(client.price_per_session || 0) })}</Text>
+              ) : null}
+
+              {/* Group sessions — read-only breakdown, one row per group */}
+              {bal.groupSessions.length > 0 ? (
+                <View style={styles.grpSessions}>
+                  {bal.groupSessions.map((gs) => (
+                    <View key={gs.id} style={styles.grpRow}>
+                      <Text style={styles.grpName} numberOfLines={1}>{i18n.t('clients:drawer.groupSessions', { name: gs.name })}{gs.ended ? i18n.t('clients:drawer.groupEnded', { defaultValue: ' (הסתיימה)' }) : ''}</Text>
+                      <Text style={styles.grpVal}>{gs.held}/{gs.quota || 0}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
+
               {/* Payment request — only when the client owes money */}
               {bal.balance > 0 && client.phone ? (
                 <Pressable
@@ -153,41 +171,26 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                 </Pressable>
               ) : null}
 
-              {/* Quick actions */}
+              {/* Quick actions (2×2) */}
               <View style={styles.actions}>
+                <Action Icon={Check} label={i18n.t('clients:drawer.logSession', { defaultValue: 'תיעוד פגישה' })} onPress={() => setLogging(true)} />
                 <Action Icon={CalendarPlus} label={i18n.t('clients:drawer.scheduleMeeting', { defaultValue: 'קביעת פגישה' })} onPress={() => setScheduling(true)} />
                 <Action Icon={Banknote} label={i18n.t('clients:drawer.receivedPayment', { defaultValue: 'קיבלתי תשלום' })} onPress={() => setPaying(true)} />
                 {client.phone ? <Action Icon={MessageCircle} label="WhatsApp" onPress={() => whatsapp()} /> : null}
               </View>
 
-              {/* Recent payments */}
-              {clientTx.length ? (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>{i18n.t('clients:sections.payments', { defaultValue: 'תשלומים' })}</Text>
-                  <Card padded={false}>
-                    {clientTx.map((t, i) => {
-                      const income = t.type === 'income'
-                      return (
-                        <View key={t.id || i} style={[styles.txRow, i > 0 && styles.txBorder]}>
-                          <View style={styles.txInfo}>
-                            <Text style={styles.txDesc} numberOfLines={1}>{t.desc || i18n.t('clients:sections.noDesc', { defaultValue: '—' })}</Text>
-                            <Text style={styles.txDate}>{fmtShortDate(t.date)}{t.status === 'pending' ? i18n.t('clients:sections.pending', { defaultValue: ' · ממתין' }) : ''}</Text>
-                          </View>
-                          <Text style={[styles.txAmount, { color: income ? colors.positive : colors.textSub }]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
-                        </View>
-                      )
-                    })}
-                  </Card>
-                </View>
-              ) : null}
-
-              {/* Notes */}
-              {client.notes ? (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>{i18n.t('clients:sections.notes', { defaultValue: 'הערות' })}</Text>
-                  <Card padded={false} contentStyle={styles.notes}><Text style={styles.notesText}>{client.notes}</Text></Card>
-                </View>
-              ) : null}
+              <ClientDrawerSections
+                client={client}
+                txns={transactions}
+                tasks={tasks}
+                reminders={reminders}
+                sessions={sessions}
+                members={members}
+                groups={groups}
+                onEditTx={setEditTx}
+                onEditSession={setEditSession}
+                onEditTask={setEditTask}
+              />
             </ScrollView>
           ) : null}
         </View>
@@ -196,6 +199,38 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
       <AddClientModal open={editing} client={client} onClose={() => setEditing(false)} onSave={(patch) => updateClient(client.id, patch)} onDelete={del} />
       <AddTransactionModal open={paying} defaults={{ client_id: clientId, type: 'income' }} onClose={() => setPaying(false)} onSave={addTransaction} />
       <AddMeetingModal open={scheduling} clients={client ? [client] : []} onClose={() => setScheduling(false)} onSave={async () => {}} />
+
+      {/* Log a session — composes the full sessions row around the modal's when/summary/notes */}
+      <AddSessionModal
+        open={logging}
+        client={client}
+        nextNum={nextNum}
+        onClose={() => setLogging(false)}
+        onSave={(data) => addSession({ ...data, client_id: clientId, group_id: null, subject_type: 'client', subject_id: clientId, num: nextNum })}
+      />
+
+      {/* Edit an existing session / task / payment from the sections */}
+      <AddSessionModal
+        open={!!editSession}
+        session={editSession}
+        client={client}
+        onClose={() => setEditSession(null)}
+        onSave={(patch) => updateSession(editSession.id, patch)}
+      />
+      <AddTaskModal
+        open={!!editTask}
+        task={editTask}
+        onClose={() => setEditTask(null)}
+        onSave={(patch) => updateTask(editTask.id, patch)}
+        onDelete={() => { deleteTask(editTask.id); setEditTask(null) }}
+      />
+      <AddTransactionModal
+        open={!!editTx}
+        tx={editTx}
+        onClose={() => setEditTx(null)}
+        onSave={(payload) => updateTransaction(editTx.id, payload)}
+        onDelete={() => { deleteTransaction(editTx.id); setEditTx(null) }}
+      />
     </Modal>
   )
 }
@@ -255,23 +290,18 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 20, fontWeight: '500', color: colors.text },
   statAccent: { color: colors.brand },
 
+  billNote: { fontSize: 12, color: colors.textSub, textAlign: 'center', marginTop: -6 },
+  grpSessions: { gap: 6, marginTop: -4 },
+  grpRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  grpName: { flex: 1, fontSize: 12, color: colors.textSub },
+  grpVal: { fontSize: 12, fontWeight: '600', color: colors.text },
+
   payRequest: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 13, borderRadius: 14, backgroundColor: colors.positive },
   payRequestText: { fontSize: 14, fontWeight: '600', color: colors.onBrand },
 
-  actions: { flexDirection: 'row', gap: 10 },
-  action: { flex: 1, alignItems: 'center', gap: 6, paddingVertical: 14, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  action: { flexGrow: 1, flexBasis: '46%', alignItems: 'center', gap: 6, paddingVertical: 14, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
   actionLabel: { fontSize: 11.5, color: colors.text },
-
-  section: { gap: 8 },
-  sectionTitle: { fontSize: 13, fontWeight: '600', color: colors.textSub },
-  txRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 12, paddingHorizontal: 16 },
-  txBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  txInfo: { flex: 1, gap: 2 },
-  txDesc: { fontSize: 14, color: colors.text },
-  txDate: { fontSize: 12, color: colors.textFaint },
-  txAmount: { fontSize: 14, fontWeight: '600' },
-  notes: { paddingVertical: 14, paddingHorizontal: 16 },
-  notesText: { fontSize: 14, color: colors.text, lineHeight: 20 },
 })
 
 HeroStat.displayName = 'HeroStat'

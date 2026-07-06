@@ -1,18 +1,21 @@
-import { useMemo } from 'react'
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { useMemo, useState } from 'react'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { Plus } from 'lucide-react-native'
 import { goalsByCategory, formatGoalValue, timeFrameLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHeader from '../components/ScreenHeader'
 import Card from '../components/Card'
+import AddGoalModal from '../modals/AddGoalModal'
 import { colors } from '../theme/theme'
 import { useGoalsData } from '../hooks/useGoalsData'
 
 // Goals screen — goals grouped by category, each scored by the shared core
 // engine (goalsByCategory → moonGetData): a pace bar + actual/target value,
-// over the per-screen photo (Warm Precision theme).
+// over the per-screen photo (Warm Precision theme). "+" adds a goal.
 export default function GoalsScreen() {
-  const { goals, categories, entries, transactions, clients, leads, answers, members, groups, loading, error, refetch } = useGoalsData()
+  const { goals, categories, entries, transactions, clients, leads, answers, members, groups, loading, error, refetch, addGoal } = useGoalsData()
+  const [showAdd, setShowAdd] = useState(false)
 
   const cats = useMemo(
     () => goalsByCategory(new Date(), { goals, categories, entries, transactions, clients, leads, answers, members, groups }),
@@ -21,7 +24,11 @@ export default function GoalsScreen() {
 
   return (
     <Screen name="goals">
-      <ScreenHeader title={i18n.t('goals:title', { defaultValue: 'יעדים' })} />
+      <ScreenHeader
+        title={i18n.t('goals:title', { defaultValue: 'יעדים' })}
+        right={<Pressable onPress={() => setShowAdd(true)} hitSlop={10}><Plus size={24} strokeWidth={2} color={colors.brand} /></Pressable>}
+      />
+      <AddGoalModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addGoal} />
 
       {loading && !cats.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>

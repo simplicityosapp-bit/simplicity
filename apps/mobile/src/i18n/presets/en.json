@@ -1,0 +1,24 @@
+{
+  "category": {
+    "income": {
+      "name": "Income",
+      "hint": "Updates automatically from your transactions"
+    },
+    "clients_active": {
+      "name": "Active clients",
+      "hint": "Counted automatically from your clients"
+    },
+    "leads_inquiries": {
+      "name": "Inquiries",
+      "hint": "Counted automatically from your leads"
+    },
+    "leads_closings": {
+      "name": "Closings",
+      "hint": "Leads converted into clients"
+    },
+    "group_members": {
+      "name": "Group members",
+      "hint": "Counted automatically from group members (can be linked to a project)"
+    }
+  }
+}

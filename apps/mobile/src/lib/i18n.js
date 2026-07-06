@@ -4,6 +4,7 @@
 import i18n, { initI18n } from '@simplicity/core/i18n'
 import { registerReflections } from '@simplicity/core/i18n/reflections'
 import { registerQuotes } from '../i18n/registerQuotes'
+import { registerPresets } from '../i18n/registerPresets'
 import { getLocales } from 'expo-localization'
 import { I18nManager } from 'react-native'
 
@@ -29,6 +30,8 @@ export function setupI18n() {
   // Register the localized daily-quote pools (see registerQuotes for why this
   // is deferred to here on native rather than an import-time side-effect).
   registerQuotes()
+  // Goal-category preset display strings (see registerPresets).
+  registerPresets()
   // Hebrew is RTL. Note: a native RTL flip only fully applies after an app reload
   // (RN limitation); on the first install the layout may need one restart.
   const rtl = lng === 'he'

@@ -5,7 +5,7 @@ import { colors } from '../theme/theme'
 
 // Shared screen header — centered title with an optional back chevron, over the
 // Screen photo. Back shows only when the stack can pop (tab roots have no back).
-export default function ScreenHeader({ title }) {
+export default function ScreenHeader({ title, right = null }) {
   const nav = useNavigation()
   return (
     <View style={styles.bar}>
@@ -17,7 +17,7 @@ export default function ScreenHeader({ title }) {
         <View style={styles.spacer} />
       )}
       <Text style={styles.title} numberOfLines={1}>{title}</Text>
-      <View style={styles.spacer} />
+      {right ? <View style={styles.right}>{right}</View> : <View style={styles.spacer} />}
     </View>
   )
 }
@@ -26,4 +26,5 @@ const styles = StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center', paddingTop: 56, paddingBottom: 12, paddingHorizontal: 16, gap: 8 },
   title: { fontSize: 18, fontWeight: '600', color: colors.text, flex: 1, textAlign: 'center' },
   spacer: { width: 30 },
+  right: { minWidth: 30, alignItems: 'flex-end' },
 })

@@ -43,7 +43,7 @@ export function useHomeData() {
         fetchTable('groups'),
         fetchTable('tasks'),
         fetchTable('goals'),
-        fetchTable('categories'),
+        fetchTable('goal_categories'), // goal categories (moon/attention), NOT the finance `categories` table
         fetchTable('sessions'),
         fetchTable('group_members'),
         fetchTable('reminders'),

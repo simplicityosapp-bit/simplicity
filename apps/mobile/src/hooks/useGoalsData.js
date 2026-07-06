@@ -26,7 +26,7 @@ export function useGoalsData() {
     try {
       const [goals, categories, entries, transactions, clients, leads, answers, members, groups] = await Promise.all([
         fetchTable('goals'),
-        fetchTable('categories'),
+        fetchTable('goal_categories'), // goal categories live in goal_categories, NOT categories (that's finance)
         fetchTable('goal_entries'),
         fetchTable('transactions'),
         fetchTable('clients'),
@@ -65,14 +65,14 @@ export function useGoalsData() {
     if (metricKey === OTHER_METRIC_KEY) {
       const existing = cats.find((c) => c.key === OTHER_METRIC_KEY)
       if (existing) return existing.id
-      const created = await insertInto('categories', presetToCategory(OTHER_METRIC), 'categories')
+      const created = await insertInto('goal_categories', presetToCategory(OTHER_METRIC), 'categories')
       return created.id
     }
     const preset = CATEGORY_PRESETS.find((p) => p.key === metricKey)
     if (!preset) throw new Error('unknown metric')
     const existing = cats.find((c) => c.data_source === preset.data_source)
     if (existing) return existing.id
-    const created = await insertInto('categories', presetToCategory(preset), 'categories')
+    const created = await insertInto('goal_categories', presetToCategory(preset), 'categories')
     return created.id
   }, [insertInto])
 

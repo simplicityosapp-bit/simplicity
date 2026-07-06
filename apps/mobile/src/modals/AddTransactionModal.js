@@ -4,6 +4,7 @@ import { Trash2 } from 'lucide-react-native'
 import { PAY_METHODS, payMethodLabel } from '@simplicity/core'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
+import { useFormOptions } from '../lib/formOptions'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
@@ -25,8 +26,10 @@ const blank = (tx) => ({
   payment_method: tx?.payment_method || '',
 })
 
-export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null, clients = [], categories = [] }) {
+export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null, clients: propClients = [] }) {
   const isEdit = !!tx
+  const { clients: optClients, categories } = useFormOptions() // categories = the FINANCE `categories` table (expense tags)
+  const clients = propClients.length ? propClients : optClients
   const [form, setForm] = useState(() => blank(tx))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)

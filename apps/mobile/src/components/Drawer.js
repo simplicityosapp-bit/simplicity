@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Moon, Sparkles, Settings, X, LogOut, Pencil } from 'lucide-react-native'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
+import { usePreferences } from '../lib/preferences'
 import i18n from '../lib/i18n'
 import { colors, space } from '../theme/theme'
 
@@ -25,8 +26,12 @@ const TILES = [
 export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   const insets = useSafeAreaInsets()
   const { session } = useAuth()
+  const { prefs } = usePreferences()
   const email = session?.user?.email || ''
-  const initial = (email.trim()[0] || '?').toUpperCase()
+  const name = prefs.full_name || i18n.t('nav:profile.myProfile', { defaultValue: 'הפרופיל שלי' })
+  const roleText = prefs.role === 'other' ? (prefs.role_other || '') : (prefs.role ? i18n.t(`settings:profile.roles.${prefs.role}`, { defaultValue: '' }) : '')
+  const meta = roleText || email
+  const initial = (prefs.full_name || email).trim()[0]?.toUpperCase() || '?'
   if (!open) return null
   return (
     <View style={styles.overlay}>
@@ -44,8 +49,8 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
           <Pressable style={styles.profile} onPress={() => { onClose(); onNavigate('Settings') }}>
             <View style={styles.avatar}><Text style={styles.avatarText}>{initial}</Text></View>
             <View style={styles.profileText}>
-              <Text style={styles.profileName} numberOfLines={1}>{i18n.t('nav:profile.myProfile', { defaultValue: 'הפרופיל שלי' })}</Text>
-              <Text style={styles.profileMeta} numberOfLines={1}>{email}</Text>
+              <Text style={styles.profileName} numberOfLines={1}>{name}</Text>
+              <Text style={styles.profileMeta} numberOfLines={1}>{meta}</Text>
             </View>
             <Pencil size={16} strokeWidth={1.5} color={colors.textFaint} />
           </Pressable>

@@ -27,6 +27,15 @@ export function useTasksList() {
     load()
   }, [load])
 
+  const addTask = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('tasks').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    setTasks((prev) => [data, ...prev])
+    return data
+  }, [])
+
   const toggleDone = useCallback(async (task) => {
     const next = task.status === 'done' ? 'todo' : 'done'
     setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, status: next } : t))) // optimistic
@@ -53,5 +62,5 @@ export function useTasksList() {
     if (e) { load(); throw e }
   }, [load])
 
-  return { tasks, loading, error, toggleDone, updateTask, deleteTask, refetch: load }
+  return { tasks, loading, error, addTask, toggleDone, updateTask, deleteTask, refetch: load }
 }

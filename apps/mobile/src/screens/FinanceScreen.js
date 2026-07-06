@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2 } from 'lucide-react-native'
-import { monthNet, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
+import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Plus } from 'lucide-react-native'
+import { monthNet, describeCadence, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
@@ -9,8 +9,11 @@ import Card from '../components/Card'
 import { GlassPressable } from '../components/Glass'
 import AddTransactionModal from '../modals/AddTransactionModal'
 import FinanceCategoriesModal from '../modals/FinanceCategoriesModal'
+import RecurringModal from '../modals/RecurringModal'
+import FinanceChart from './finance/FinanceChart'
 import { colors } from '../theme/theme'
 import { useFinanceData } from '../hooks/useFinanceData'
+import { useRecurring } from '../hooks/useRecurring'
 import { useFormOptions } from '../lib/formOptions'
 
 const sameMonth = (d, m) => { const x = new Date(d); return x.getFullYear() === m.getFullYear() && x.getMonth() === m.getMonth() }
@@ -24,10 +27,13 @@ const isConfirmed = (t) => t.status === 'confirmed' && !t.invoice_credited_at
 export default function FinanceScreen() {
   const { transactions, clients, categories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction, setStatus, addCategory, removeCategory } = useFinanceData()
   const { projects } = useFormOptions()
+  const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(false)
   const [manageCat, setManageCat] = useState(false)
   const [showSkipped, setShowSkipped] = useState(false)
+  const [addRec, setAddRec] = useState(false)
+  const [editRec, setEditRec] = useState(null)
   const [monthOffset, setMonthOffset] = useState(0)
   const now = new Date()
   const monthDate = useMemo(() => new Date(now.getFullYear(), now.getMonth() + monthOffset, 1), [monthOffset]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -36,6 +42,7 @@ export default function FinanceScreen() {
   const categoryById = useMemo(() => Object.fromEntries(categories.map((c) => [c.id, c.name])), [categories])
   const projectOf = useMemo(() => new Map(clients.filter((c) => c.project_id).map((c) => [c.id, c.project_id])), [clients])
   const projectById = useMemo(() => Object.fromEntries((projects || []).map((p) => [p.id, p])), [projects])
+  const liveTemplates = useMemo(() => templates.filter((t) => !t.deleted_at), [templates])
 
   const { inc, exp, net } = useMemo(() => monthNet(monthDate, { transactions }), [monthDate, transactions])
   const prevNet = useMemo(() => monthNet(new Date(monthDate.getFullYear(), monthDate.getMonth() - 1, 1), { transactions }).net, [monthDate, transactions])
@@ -152,6 +159,41 @@ export default function FinanceScreen() {
             ) : null}
           </Card>
 
+          {/* Income-pace chart */}
+          <FinanceChart month={monthDate} transactions={transactions} />
+
+          {/* Recurring templates */}
+          <Card contentStyle={styles.rec}>
+            <View style={styles.recHead}>
+              <Repeat size={15} strokeWidth={1.6} color={colors.textSub} />
+              <Text style={styles.recTitle}>{i18n.t('finance:recurring.title', { defaultValue: 'תבניות חוזרות' })}</Text>
+              {liveTemplates.length ? <Text style={styles.bdCount}>{liveTemplates.length}</Text> : null}
+              <View style={{ flex: 1 }} />
+              <Pressable style={styles.recAdd} onPress={() => setAddRec(true)} hitSlop={6}>
+                <Plus size={14} strokeWidth={2} color={colors.brand} />
+                <Text style={styles.recAddText}>{i18n.t('finance:recurring.add', { defaultValue: '+ תבנית חדשה' })}</Text>
+              </Pressable>
+            </View>
+            {liveTemplates.length ? liveTemplates.map((tpl, i) => {
+              const income = tpl.type === 'income'
+              const paused = !tpl.active
+              return (
+                <View key={tpl.id} style={[styles.recRow, i > 0 && styles.rowBorder, paused && styles.recPaused]}>
+                  <View style={styles.recMain}>
+                    <Text style={styles.recDesc} numberOfLines={1}>{tpl.desc || (income ? i18n.t('finance:recurring.income', { defaultValue: 'הכנסה' }) : i18n.t('finance:recurring.expense', { defaultValue: 'הוצאה' }))}</Text>
+                    <Text style={styles.recMeta} numberOfLines={1}>{describeCadence(tpl)}{paused ? ` · ${i18n.t('finance:recurring.paused', { defaultValue: 'מושהה' })}` : ''}</Text>
+                  </View>
+                  <Text style={[styles.recAmt, { color: income ? colors.positive : colors.textSub }]}>{income ? '+' : '−'}{isr(Math.abs(tpl.amount || 0))}</Text>
+                  <View style={styles.recActions}>
+                    <Pressable onPress={() => updateRecurring(tpl.id, { active: !tpl.active })} hitSlop={6}>{paused ? <Play size={15} strokeWidth={1.7} color={colors.textSub} /> : <Pause size={15} strokeWidth={1.7} color={colors.textSub} />}</Pressable>
+                    <Pressable onPress={() => setEditRec(tpl)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textSub} /></Pressable>
+                    <Pressable onPress={() => removeRecurring(tpl.id)} hitSlop={6}><Trash2 size={14} strokeWidth={1.7} color={colors.danger} /></Pressable>
+                  </View>
+                </View>
+              )
+            }) : <Text style={styles.bdEmpty}>{i18n.t('finance:recurring.empty', { defaultValue: 'אין תבניות חוזרות עדיין.' })}</Text>}
+          </Card>
+
           {/* Breakdowns */}
           <Breakdown Icon={FolderOpen} title={i18n.t('finance:incomeByProject.title', { defaultValue: 'הכנסות לפי פרויקט' })} rows={incomeRows} empty={i18n.t('finance:incomeByProject.empty', { defaultValue: '—' })} />
           <Breakdown
@@ -191,6 +233,8 @@ export default function FinanceScreen() {
         onDelete={() => deleteTransaction(editing.id)}
       />
       <FinanceCategoriesModal open={manageCat} categories={categories} onClose={() => setManageCat(false)} onAdd={addCategory} onRemove={removeCategory} />
+      <RecurringModal open={addRec} onClose={() => setAddRec(false)} onSave={addRecurring} />
+      <RecurringModal open={!!editRec} template={editRec} onClose={() => setEditRec(null)} onSave={(patch) => updateRecurring(editRec.id, patch)} />
     </Screen>
   )
 }
@@ -247,6 +291,20 @@ const styles = StyleSheet.create({
   bdAmt: { fontSize: 13, fontWeight: '600', color: colors.text },
   bdBar: { height: 6, borderRadius: 3, backgroundColor: 'rgba(42,37,32,0.06)', overflow: 'hidden' },
   bdFill: { height: 6, borderRadius: 3 },
+
+  // Recurring
+  rec: { paddingVertical: 14, paddingHorizontal: 16, gap: 4 },
+  recHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  recTitle: { fontSize: 13, fontWeight: '600', color: colors.text },
+  recAdd: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  recAddText: { fontSize: 12, fontWeight: '500', color: colors.brand },
+  recRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11 },
+  recPaused: { opacity: 0.55 },
+  recMain: { flex: 1, gap: 2 },
+  recDesc: { fontSize: 14, color: colors.text },
+  recMeta: { fontSize: 11, color: colors.textFaint },
+  recAmt: { fontSize: 14, fontWeight: '600' },
+  recActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
 
   // Skipped toggle
   skipToggle: { alignSelf: 'center', paddingVertical: 7, paddingHorizontal: 16 },

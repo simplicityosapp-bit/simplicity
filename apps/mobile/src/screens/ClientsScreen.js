@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { Search, Wallet, ArrowUpDown, Check, CheckCircle2, Clock, CircleSlash, CircleDashed } from 'lucide-react-native'
+import { Search, Wallet, ArrowUpDown, Check, X, Trash2, CheckCircle2, Clock, CircleSlash, CircleDashed } from 'lucide-react-native'
 import { clientBalance, effectiveClientMeta, paidForClients, sessionsCountForClients, currentMonthRange, financeQuery, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -9,7 +9,7 @@ import Sheet from '../components/Sheet'
 import AddClientModal from '../modals/AddClientModal'
 import ClientDrawer from '../drawers/ClientDrawer'
 import { useFormOptions } from '../lib/formOptions'
-import { colors } from '../theme/theme'
+import { colors, shadow } from '../theme/theme'
 import { useClientsList } from '../hooks/useClientsList'
 
 const TABS = [
@@ -63,6 +63,26 @@ export default function ClientsScreen() {
   const [sortOpen, setSortOpen] = useState(false)
   const [groupBy, setGroupBy] = useState('status')
   const [scope, setScope] = useState('monthly')
+  const [selectMode, setSelectMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState(() => new Set())
+  const [bulkStatusOpen, setBulkStatusOpen] = useState(false)
+  const [pendingBulkDelete, setPendingBulkDelete] = useState(false)
+
+  const toggleSelect = (id) => setSelectedIds((prev) => {
+    const next = new Set(prev)
+    if (next.has(id)) next.delete(id); else next.add(id)
+    return next
+  })
+  const exitSelect = () => { setSelectMode(false); setSelectedIds(new Set()); setBulkStatusOpen(false); setPendingBulkDelete(false) }
+  const bulkChangeMeta = (k) => {
+    selectedIds.forEach((id) => updateClient(id, { status_meta: k, status_id: null, status_overridden: true }))
+    setBulkStatusOpen(false)
+    exitSelect()
+  }
+  const bulkDelete = () => {
+    selectedIds.forEach((id) => deleteClient(id))
+    exitSelect()
+  }
 
   // One pass: derive each client's effective status + balance.
   const enriched = useMemo(
@@ -142,9 +162,15 @@ export default function ClientsScreen() {
     const sessLabel = bal.hasPersonal
       ? `${bal.personalDone}/${bal.personalQuota || 0}`
       : `${bal.groupSessions.reduce((s, g) => s + g.held, 0)}/${bal.groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`
+    const selected = selectedIds.has(c.id)
     return (
-      <Pressable key={c.id} onPress={() => setOpenId(c.id)}>
-        <Card padded={false} contentStyle={[styles.cc, meta === 'past' && styles.ccPast]}>
+      <Pressable key={c.id} onPress={() => (selectMode ? toggleSelect(c.id) : setOpenId(c.id))}>
+        <Card padded={false} contentStyle={[styles.cc, meta === 'past' && styles.ccPast, selected && styles.ccSelected]}>
+          {selectMode ? (
+            <View style={[styles.ccCheck, selected && styles.ccCheckOn]}>
+              {selected ? <Check size={13} strokeWidth={2.4} color={colors.onBrand} /> : null}
+            </View>
+          ) : null}
           <View style={styles.ccHead}>
             <View style={styles.ccAv}><Text style={styles.ccAvText}>{initials(c.name)}</Text></View>
             <View style={styles.ccId}>
@@ -209,6 +235,9 @@ export default function ClientsScreen() {
                 <Text style={[styles.toggleText, groupBy === 'project' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.project', { defaultValue: 'פרויקט' })}</Text>
               </Pressable>
             </View>
+            <Pressable style={[styles.selectBtn, selectMode && styles.selectBtnOn]} onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}>
+              <Text style={[styles.selectBtnText, selectMode && styles.toggleTextOn]}>{selectMode ? i18n.t('clients:select.cancel', { defaultValue: 'בטל בחירה' }) : i18n.t('clients:select.enter', { defaultValue: 'בחר/י' })}</Text>
+            </Pressable>
           </View>
 
           {/* Status tabs (status mode only) */}
@@ -293,6 +322,46 @@ export default function ClientsScreen() {
           )}
         </ScrollView>
       )}
+
+      {/* Bulk action bar */}
+      {selectMode ? (
+        <View style={[styles.bulkBar, { bottom: 16 }]}>
+          <Text style={styles.bulkCount}>{i18n.t('clients:bulk.selected', { count: selectedIds.size, defaultValue: `${selectedIds.size} נבחרו` })}</Text>
+          <View style={styles.bulkActions}>
+            <Pressable style={[styles.bulkBtn, !selectedIds.size && styles.bulkBtnOff]} disabled={!selectedIds.size} onPress={() => setBulkStatusOpen(true)}>
+              <Text style={styles.bulkBtnText}>{i18n.t('clients:bulk.changeStatus', { defaultValue: 'שינוי סטטוס' })}</Text>
+            </Pressable>
+            <Pressable style={[styles.bulkBtn, styles.bulkDanger, !selectedIds.size && styles.bulkBtnOff]} disabled={!selectedIds.size} onPress={() => setPendingBulkDelete(true)}>
+              <Trash2 size={14} strokeWidth={1.8} color={colors.danger} />
+            </Pressable>
+            <Pressable style={styles.bulkClose} onPress={exitSelect}>
+              <X size={16} strokeWidth={1.7} color={colors.textSub} />
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
+
+      {/* Bulk change-status sheet */}
+      <Sheet open={bulkStatusOpen} onClose={() => setBulkStatusOpen(false)} title={i18n.t('clients:bulk.moveTo', { defaultValue: 'העברה ל-' })}>
+        {TABS.map(({ key }) => (
+          <Pressable key={key} style={styles.sortOpt} onPress={() => bulkChangeMeta(key)}>
+            <Text style={styles.sortOptText}>{i18n.t(`clients:status.${statusKey(key)}`)}</Text>
+          </Pressable>
+        ))}
+      </Sheet>
+
+      {/* Bulk delete confirm sheet */}
+      <Sheet open={pendingBulkDelete} onClose={() => setPendingBulkDelete(false)} title={i18n.t('clients:bulk.delete', { defaultValue: 'מחיקה' })}>
+        <Text style={styles.confirmText}>{i18n.t('clients:bulk.selected', { count: selectedIds.size, defaultValue: `${selectedIds.size} נבחרו` })}</Text>
+        <View style={styles.sortDir}>
+          <Pressable style={styles.sortDirBtn} onPress={() => setPendingBulkDelete(false)}>
+            <Text style={styles.sortDirText}>{i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' })}</Text>
+          </Pressable>
+          <Pressable style={[styles.sortDirBtn, styles.confirmDelete]} onPress={bulkDelete}>
+            <Text style={styles.confirmDeleteText}>{i18n.t('clients:bulk.delete', { defaultValue: 'מחיקה' })}</Text>
+          </Pressable>
+        </View>
+      </Sheet>
 
       {/* Sort sheet */}
       <Sheet open={sortOpen} onClose={() => setSortOpen(false)} title={i18n.t('clients:sort.heading', { defaultValue: 'מיין/י לפי' })}>
@@ -383,6 +452,9 @@ const styles = StyleSheet.create({
   toggleOn: { backgroundColor: colors.brand },
   toggleText: { fontSize: 12, color: colors.textSub },
   toggleTextOn: { color: colors.onBrand, fontWeight: '600' },
+  selectBtn: { paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+  selectBtnOn: { backgroundColor: colors.text, borderColor: colors.text },
+  selectBtnText: { fontSize: 12, color: colors.textSub },
 
   // Tabs
   tabs: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
@@ -425,6 +497,9 @@ const styles = StyleSheet.create({
   // Client card
   cc: { padding: 16, gap: 14 },
   ccPast: { opacity: 0.62 },
+  ccSelected: { borderWidth: 2, borderColor: colors.positive },
+  ccCheck: { position: 'absolute', top: 10, left: 10, zIndex: 2, width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  ccCheckOn: { backgroundColor: colors.positive, borderColor: colors.positive },
   ccHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   ccAv: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
   ccAvText: { fontSize: 14, fontWeight: '600', color: colors.onBrand },
@@ -448,6 +523,19 @@ const styles = StyleSheet.create({
   sortDirBtn: { flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   sortDirOn: { backgroundColor: colors.brand, borderColor: colors.brand },
   sortDirText: { fontSize: 14, color: colors.textSub },
+  confirmText: { fontSize: 14, color: colors.text },
+  confirmDelete: { backgroundColor: colors.danger, borderColor: colors.danger },
+  confirmDeleteText: { fontSize: 14, fontWeight: '600', color: colors.onBrand },
+
+  // Bulk bar
+  bulkBar: { position: 'absolute', left: 12, right: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, ...shadow.card },
+  bulkCount: { fontSize: 13, fontWeight: '600', color: colors.text },
+  bulkActions: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  bulkBtn: { paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border },
+  bulkBtnOff: { opacity: 0.4 },
+  bulkBtnText: { fontSize: 12, color: colors.text },
+  bulkDanger: { borderColor: 'rgba(181,99,78,0.35)' },
+  bulkClose: { width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
 })
 
 HeroStat.displayName = 'HeroStat'

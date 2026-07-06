@@ -15,6 +15,7 @@ const TABLES = {
   leadStatuses: 'lead_statuses',
   meetingTypes: 'meeting_types',
   taskStatuses: 'task_statuses',
+  userQuestions: 'user_questions',
 }
 const KEYS = Object.keys(TABLES)
 const EMPTY = Object.fromEntries(KEYS.map((k) => [k, []]))

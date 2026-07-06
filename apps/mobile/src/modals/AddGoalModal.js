@@ -2,25 +2,31 @@ import { useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
+import { questionText } from '@simplicity/core'
 import { useFormOptions } from '../lib/formOptions'
-import { ALL_METRICS, metricName } from '../lib/goalPresets'
+import { ALL_METRICS, metricName, OTHER_METRIC_KEY } from '../lib/goalPresets'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
-// Add a goal (mirrors web AddGoalModal's core: metric + name + time-frame +
-// target + importance + project). The manual metric's daily-question tracking
-// path (inline question authoring + schedule) is a later increment — tracking
-// stays 'manual'. onSave resolves metric_key → category (useGoalsData.addGoal).
+// Add a goal (mirrors web AddGoalModal: metric + name + time-frame + target +
+// importance + project; for the manual "other" metric, a tracking choice —
+// manual entries or linked to an existing daily question). Inline question
+// AUTHORING (write a new question + schedule) is still deferred to the Questions
+// screen. onSave resolves metric_key → category (useGoalsData.addGoal).
 const IMPORTANCE = [1, 2, 3, 4, 5]
-const blank = () => ({ metric_key: '', label: '', time_frame: 'monthly', target_value: '', target_date: '', importance: 3, project_id: '' })
+const blank = () => ({ metric_key: '', label: '', time_frame: 'monthly', target_value: '', target_date: '', importance: 3, project_id: '', tracking_method: 'manual', tracked_by_question_id: '' })
 
 export default function AddGoalModal({ open, onClose, onSave }) {
-  const { projects } = useFormOptions()
+  const { projects, userQuestions } = useFormOptions()
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+
+  const isManual = form.metric_key === OTHER_METRIC_KEY
+  const byQuestion = isManual && form.tracking_method === 'daily_question'
+  const activeQuestions = (userQuestions || []).filter((q) => q.active)
 
   const TIME_FRAMES = [
     { k: 'monthly', l: i18n.t('modalsData:addGoal.tf.monthly') },
@@ -33,6 +39,7 @@ export default function AddGoalModal({ open, onClose, onSave }) {
     const target = parseFloat(form.target_value)
     if (!target || target <= 0) { setErr(i18n.t('modalsData:addGoal.needTarget')); return }
     if (form.time_frame === 'deadline' && !form.target_date) { setErr(i18n.t('modalsData:addGoal.needTargetDate')); return }
+    if (byQuestion && !form.tracked_by_question_id) { setErr(i18n.t('modalsData:addGoal.needQuestion')); return }
     setBusy(true)
     setErr('')
     try {
@@ -46,8 +53,8 @@ export default function AddGoalModal({ open, onClose, onSave }) {
         target_value: target,
         target_date: form.time_frame === 'deadline' ? form.target_date : null,
         importance: Number(form.importance),
-        tracking_method: 'manual',
-        tracked_by_question_id: null,
+        tracking_method: byQuestion ? 'daily_question' : 'manual',
+        tracked_by_question_id: byQuestion ? form.tracked_by_question_id : null,
         measurement_type: null,
         data_source: null,
         manual_input_type: null,
@@ -133,6 +140,34 @@ export default function AddGoalModal({ open, onClose, onSave }) {
         options={[{ value: '', label: none }, ...projects.map((p) => ({ value: p.id, label: p.name || '' }))]}
       />
 
+      {isManual ? (
+        <View style={styles.field}>
+          <Text style={styles.label}>{i18n.t('modalsData:addGoal.tracking')}</Text>
+          <View style={styles.pills}>
+            <Pressable style={[styles.pill, form.tracking_method === 'manual' && styles.pillOn]} onPress={() => set('tracking_method', 'manual')}>
+              <Text style={[styles.pillText, form.tracking_method === 'manual' && styles.pillTextOn]}>{i18n.t('modalsData:addGoal.manualEntry')}</Text>
+            </Pressable>
+            <Pressable style={[styles.pill, form.tracking_method === 'daily_question' && styles.pillOn]} onPress={() => set('tracking_method', 'daily_question')}>
+              <Text style={[styles.pillText, form.tracking_method === 'daily_question' && styles.pillTextOn]}>{i18n.t('modalsData:addGoal.dailyQuestion')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
+
+      {byQuestion ? (
+        activeQuestions.length ? (
+          <Select
+            label={i18n.t('modalsData:addGoal.dailyQuestion')}
+            value={form.tracked_by_question_id}
+            onChange={(v) => { set('tracked_by_question_id', v); if (err) setErr('') }}
+            placeholder={i18n.t('modalsData:addGoal.pickQuestion')}
+            options={activeQuestions.map((q) => ({ value: q.id, label: `${q.icon ? q.icon + ' ' : ''}${questionText(q)}` }))}
+          />
+        ) : (
+          <Text style={styles.hint}>{i18n.t('modalsData:addGoal.noActiveQuestions')}</Text>
+        )
+      ) : null}
+
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
@@ -158,6 +193,7 @@ const styles = StyleSheet.create({
   pillText: { fontSize: 14, color: colors.text },
   pillTextOn: { color: colors.onBrand, fontWeight: '600' },
   error: { color: colors.danger, fontSize: 13 },
+  hint: { color: colors.textSub, fontSize: 13, lineHeight: 19 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
   cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancelText: { fontSize: 15, color: colors.textSub },

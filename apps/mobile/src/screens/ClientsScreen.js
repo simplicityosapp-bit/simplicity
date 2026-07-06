@@ -6,6 +6,7 @@ import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import { Glass, GlassPressable } from '../components/Glass'
 import Sheet from '../components/Sheet'
 import AddClientModal from '../modals/AddClientModal'
 import ClientDrawer from '../drawers/ClientDrawer'
@@ -221,23 +222,23 @@ export default function ClientsScreen() {
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          {/* Controls — sort + group-by toggle */}
+          {/* Controls — sort + group-by toggle + select (glass like the cards) */}
           <View style={styles.controls}>
-            <Pressable style={styles.sortBtn} onPress={() => setSortOpen(true)}>
+            <GlassPressable radius={999} style={styles.sortBtn} onPress={() => setSortOpen(true)}>
               <ArrowUpDown size={14} strokeWidth={1.7} color={colors.textSub} />
               <Text style={styles.sortBtnText}>{i18n.t('clients:sort.label', { defaultValue: 'מיון' })}</Text>
-            </Pressable>
-            <View style={styles.toggle}>
+            </GlassPressable>
+            <Glass radius={999} style={styles.toggle}>
               <Pressable style={[styles.toggleBtn, groupBy === 'status' && styles.toggleOn]} onPress={() => setGroupBy('status')}>
                 <Text style={[styles.toggleText, groupBy === 'status' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.status', { defaultValue: 'סטטוס' })}</Text>
               </Pressable>
               <Pressable style={[styles.toggleBtn, groupBy === 'project' && styles.toggleOn]} onPress={() => setGroupBy('project')}>
                 <Text style={[styles.toggleText, groupBy === 'project' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.project', { defaultValue: 'פרויקט' })}</Text>
               </Pressable>
-            </View>
-            <Pressable style={[styles.selectBtn, selectMode && styles.selectBtnOn]} onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}>
+            </Glass>
+            <GlassPressable radius={999} on={selectMode} onColor={colors.text} style={styles.selectBtn} onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}>
               <Text style={[styles.selectBtnText, selectMode && styles.toggleTextOn]}>{selectMode ? i18n.t('clients:select.cancel', { defaultValue: 'בטל בחירה' }) : i18n.t('clients:select.enter', { defaultValue: 'בחר/י' })}</Text>
-            </Pressable>
+            </GlassPressable>
           </View>
 
           {/* Status tabs (status mode only) */}
@@ -247,11 +248,11 @@ export default function ClientsScreen() {
                 if (key === 'no_status' && !counts.no_status) return null
                 const on = tab === key
                 return (
-                  <Pressable key={key} style={[styles.tab, on && styles.tabOn]} onPress={() => setTab(key)}>
+                  <GlassPressable key={key} radius={20} on={on} style={styles.tab} onPress={() => setTab(key)}>
                     <Icon size={14} strokeWidth={1.7} color={on ? colors.onBrand : colors.textSub} />
                     <Text style={[styles.tabText, on && styles.tabTextOn]}>{i18n.t(`clients:status.${statusKey(key)}`)}</Text>
                     <Text style={[styles.tabCount, on && styles.tabTextOn]}>{counts[key] || 0}</Text>
-                  </Pressable>
+                  </GlassPressable>
                 )
               })}
             </ScrollView>
@@ -259,7 +260,7 @@ export default function ClientsScreen() {
 
           {/* Search + open-balance filter */}
           <View style={styles.searchRow}>
-            <View style={styles.search}>
+            <Glass radius={14} style={styles.search}>
               <Search size={16} strokeWidth={1.6} color={colors.textFaint} />
               <TextInput
                 style={styles.searchInput}
@@ -268,13 +269,13 @@ export default function ClientsScreen() {
                 placeholder={i18n.t('clients:search', { defaultValue: 'חיפוש לקוח…' })}
                 placeholderTextColor={colors.textFaint}
               />
-            </View>
-            <Pressable style={[styles.balFilter, balanceOnly && styles.balFilterOn]} onPress={() => setBalanceOnly(!balanceOnly)}>
+            </Glass>
+            <GlassPressable radius={999} on={balanceOnly} style={styles.balFilter} onPress={() => setBalanceOnly(!balanceOnly)}>
               <Wallet size={13} strokeWidth={1.8} color={balanceOnly ? colors.onBrand : colors.textSub} />
               <Text style={[styles.balFilterText, balanceOnly && styles.tabTextOn]}>
                 {i18n.t('clients:balanceFilter', { defaultValue: 'יתרה פתוחה' })}{openBalanceCount > 0 ? ` · ${openBalanceCount}` : ''}
               </Text>
-            </Pressable>
+            </GlassPressable>
           </View>
 
           {/* Per-tab hero summary with monthly/cumulative toggle (status mode) */}
@@ -432,33 +433,30 @@ const styles = StyleSheet.create({
   error: { color: colors.danger, fontSize: 13 },
   empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24, lineHeight: 20 },
 
-  // Controls row
+  // Controls row (glass backgrounds provided by <Glass>/<GlassPressable>)
   controls: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  sortBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+  sortBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 7, paddingHorizontal: 12 },
   sortBtnText: { fontSize: 12, color: colors.text },
-  toggle: { flexDirection: 'row', borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 2 },
+  toggle: { flexDirection: 'row', padding: 2 },
   toggleBtn: { paddingVertical: 6, paddingHorizontal: 14, borderRadius: 999 },
   toggleOn: { backgroundColor: colors.brand },
   toggleText: { fontSize: 12, color: colors.textSub },
   toggleTextOn: { color: colors.onBrand, fontWeight: '600' },
-  selectBtn: { paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
-  selectBtnOn: { backgroundColor: colors.text, borderColor: colors.text },
+  selectBtn: { paddingVertical: 7, paddingHorizontal: 12 },
   selectBtnText: { fontSize: 12, color: colors.textSub },
 
   // Tabs
   tabs: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
-  tab: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 14, borderRadius: 20, borderWidth: 0.5, borderColor: colors.border, backgroundColor: colors.card },
-  tabOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  tab: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 14 },
   tabText: { fontSize: 12, fontWeight: '500', color: colors.textSub },
   tabCount: { fontSize: 11, color: colors.textSub, opacity: 0.8 },
   tabTextOn: { color: colors.onBrand, fontWeight: '600' },
 
   // Search
   searchRow: { flexDirection: 'row', alignItems: 'stretch', gap: 8 },
-  search: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, height: 42, paddingHorizontal: 14, borderRadius: 14, borderWidth: 0.5, borderColor: colors.border, backgroundColor: colors.card },
+  search: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, height: 42, paddingHorizontal: 14 },
   searchInput: { flex: 1, fontSize: 14, color: colors.text },
-  balFilter: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, borderRadius: 999, borderWidth: 0.5, borderColor: colors.border, backgroundColor: colors.card },
-  balFilterOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  balFilter: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14 },
   balFilterText: { fontSize: 12, fontWeight: '500', color: colors.textSub },
 
   // Hero

@@ -58,7 +58,7 @@ export default function LeadsScreen() {
               </View>
             ))
           ) : (
-            <Text style={styles.empty}>—</Text>
+            <Text style={styles.empty}>{i18n.t('leads:empty', { defaultValue: 'עדיין אין לידים.' })}</Text>
           )}
         </ScrollView>
       )}

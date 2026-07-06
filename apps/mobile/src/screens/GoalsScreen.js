@@ -63,7 +63,7 @@ export default function GoalsScreen() {
               </View>
             ))
           ) : (
-            <Text style={styles.empty}>—</Text>
+            <Text style={styles.empty}>{i18n.t('goals:empty.firstGoal', { defaultValue: '—' })}</Text>
           )}
         </ScrollView>
       )}

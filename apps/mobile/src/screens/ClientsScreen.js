@@ -51,7 +51,7 @@ export default function ClientsScreen() {
               ))}
             </Card>
           ) : (
-            <Text style={styles.empty}>—</Text>
+            <Text style={styles.empty}>{i18n.t('clients:empty.firstClient', { defaultValue: '—' })}</Text>
           )}
         </ScrollView>
       )}

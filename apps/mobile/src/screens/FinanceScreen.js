@@ -64,7 +64,7 @@ export default function FinanceScreen() {
               })}
             </Card>
           ) : (
-            <Text style={styles.empty}>—</Text>
+            <Text style={styles.empty}>{i18n.t('finance:list.empty', { defaultValue: '—' })}</Text>
           )}
         </ScrollView>
       )}

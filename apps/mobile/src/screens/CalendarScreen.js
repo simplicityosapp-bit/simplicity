@@ -67,7 +67,7 @@ export default function CalendarScreen() {
               </View>
             ))
           ) : (
-            <Text style={styles.empty}>—</Text>
+            <Text style={styles.empty}>{i18n.t('calendar:list.empty', { defaultValue: '—' })}</Text>
           )}
         </ScrollView>
       )}

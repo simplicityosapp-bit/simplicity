@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { Plus, Trash2 } from 'lucide-react-native'
+import { Trash2 } from 'lucide-react-native'
 import { questionText } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
-import ScreenHeader from '../components/ScreenHeader'
+import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import AddQuestionModal from '../modals/AddQuestionModal'
 import { colors } from '../theme/theme'
@@ -21,9 +21,11 @@ export default function QuestionsScreen() {
 
   return (
     <Screen name="tasks">
-      <ScreenHeader
+      <ScreenHead
         title={i18n.t('settings:sections.questions.title', { defaultValue: 'שאלות יומיות' })}
-        right={<Pressable onPress={() => setShowAdd(true)} hitSlop={10}><Plus size={24} strokeWidth={2} color={colors.brand} /></Pressable>}
+        meta={questions.length ? [i18n.t('settings:questions.count', { count: questions.length, defaultValue: `${questions.length} שאלות` })] : []}
+        onAdd={() => setShowAdd(true)}
+        addLabel={i18n.t('settings:questions.add', { defaultValue: 'הוספת שאלה' })}
       />
       <AddQuestionModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addQuestion} nextOrder={nextOrder} usedTemplateKeys={usedTemplateKeys} />
 

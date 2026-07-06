@@ -1,87 +1,137 @@
-import { useMemo } from 'react'
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { eventsByDate, fmtDayLabel, fmtTime, startOfDay, remindersUpcoming, statusMetaOfLead } from '@simplicity/core'
+import { useMemo, useState } from 'react'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { ChevronLeft, ChevronRight } from 'lucide-react-native'
+import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming, statusMetaOfLead } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
-import ScreenHeader from '../components/ScreenHeader'
+import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import { colors } from '../theme/theme'
 import { useCalendarData } from '../hooks/useCalendarData'
 
-// Calendar screen — an upcoming agenda that merges meetings + synced calendar
-// events + reminders + lead follow-ups (mirrors the web feed), normalized to
-// { when, title, kind } and grouped by day with core eventsByDate, over the
-// per-screen photo. (Month grid + tap-to-confirm are later increments.)
+// Calendar screen (mirrors web): a month grid of the merged feed (meetings +
+// synced events + reminders + lead follow-ups) with per-day dots, plus the
+// selected day's agenda below. Tap a day to see its events. (Event creation /
+// tap-to-confirm are later increments.)
 const KIND_COLOR = { meeting: colors.brand, calendar: colors.positive, reminder: colors.amberWarn, followup: colors.moonDeep }
+const WEEKDAYS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש']
+const pad = (n) => String(n).padStart(2, '0')
+const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
 export default function CalendarScreen() {
   const { meetings, calendarEvents, clients, groups, reminders, leads, loading, error, refetch } = useCalendarData()
+  const now = new Date()
+  const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
+  const [selected, setSelected] = useState(() => keyOf(now))
   const KIND_TAG = {
     reminder: i18n.t('calendar:kinds.reminder', { defaultValue: 'תזכורת' }),
     followup: i18n.t('calendar:kinds.followup', { defaultValue: 'מעקב' }),
   }
 
-  const days = useMemo(() => {
-    const now = new Date()
+  // Normalize the whole feed → { id, when, title, kind }.
+  const events = useMemo(() => {
     const out = []
-    meetings
-      .filter((m) => m.status !== 'skipped' && m.scheduled_at)
-      .forEach((m) => {
-        const isGroup = m.subject_type === 'group'
-        const subj = isGroup ? groups.find((g) => g.id === m.subject_id) : clients.find((c) => c.id === m.subject_id)
-        out.push({ id: `m-${m.id}`, when: m.scheduled_at, title: subj?.name || '', kind: 'meeting' })
-      })
-    calendarEvents
-      .filter((e) => !e.deleted_at && e.start_time)
-      .forEach((e) => out.push({ id: `c-${e.id}`, when: e.start_time, title: e.title || e.summary || '', kind: 'calendar' }))
-    remindersUpcoming(now, reminders, 60, 0)
-      .forEach((r, i) => out.push({ id: `r-${r.id || i}`, when: r.when, title: r.title || '', kind: 'reminder' }))
-    leads
-      .filter((l) => !l.deleted_at && l.follow_up_date && statusMetaOfLead(l) === 'in_process')
-      .forEach((l) => out.push({ id: `l-${l.id}`, when: `${String(l.follow_up_date).slice(0, 10)}T09:00:00`, title: l.name || '', kind: 'followup' }))
+    meetings.filter((m) => m.status !== 'skipped' && m.scheduled_at).forEach((m) => {
+      const isGroup = m.subject_type === 'group'
+      const subj = isGroup ? groups.find((g) => g.id === m.subject_id) : clients.find((c) => c.id === m.subject_id)
+      out.push({ id: `m-${m.id}`, when: m.scheduled_at, title: subj?.name || '', kind: 'meeting' })
+    })
+    calendarEvents.filter((e) => !e.deleted_at && e.start_time).forEach((e) => out.push({ id: `c-${e.id}`, when: e.start_time, title: e.title || e.summary || '', kind: 'calendar' }))
+    remindersUpcoming(now, reminders, 120, 0).forEach((r, i) => out.push({ id: `r-${r.id || i}`, when: r.when, title: r.title || '', kind: 'reminder' }))
+    leads.filter((l) => !l.deleted_at && l.follow_up_date && statusMetaOfLead(l) === 'in_process').forEach((l) => out.push({ id: `l-${l.id}`, when: `${String(l.follow_up_date).slice(0, 10)}T09:00:00`, title: l.name || '', kind: 'followup' }))
+    return out
+  }, [meetings, calendarEvents, clients, groups, reminders, leads]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const today0 = startOfDay(now)
-    const upcoming = out
-      .filter((e) => new Date(e.when) >= today0)
-      .sort((a, b) => new Date(a.when).getTime() - new Date(b.when).getTime())
+  const byDay = useMemo(() => {
+    const m = new Map()
+    events.forEach((e) => { const k = keyOf(new Date(e.when)); if (!m.has(k)) m.set(k, []); m.get(k).push(e) })
+    m.forEach((list) => list.sort((a, b) => new Date(a.when) - new Date(b.when)))
+    return m
+  }, [events])
 
-    // eventsByDate groups in insertion (already time-sorted) order; sort the day
-    // buckets by their first event's time (dateKey is unpadded, so no string sort).
-    return [...eventsByDate(upcoming).entries()]
-      .map(([key, events]) => ({ key, when: events[0].when, events }))
-      .sort((a, b) => new Date(a.when).getTime() - new Date(b.when).getTime())
-  }, [meetings, calendarEvents, clients, groups, reminders, leads])
+  // Build the 6-week grid for `month` (Sunday-start).
+  const weeks = useMemo(() => {
+    const first = new Date(month.getFullYear(), month.getMonth(), 1)
+    const start = first.getDay() // 0=Sun
+    const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()
+    const cells = []
+    for (let i = 0; i < start; i++) cells.push(null)
+    for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(month.getFullYear(), month.getMonth(), d))
+    while (cells.length % 7 !== 0) cells.push(null)
+    const rows = []
+    for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7))
+    return rows
+  }, [month])
+
+  const todayKey = keyOf(now)
+  const selectedEvents = byDay.get(selected) || []
+  const stepMonth = (n) => setMonth((m) => new Date(m.getFullYear(), m.getMonth() + n, 1))
 
   return (
     <Screen name="calendar">
-      <ScreenHeader title={i18n.t('calendar:title', { defaultValue: 'יומן' })} />
+      <ScreenHead
+        title={i18n.t('calendar:title', { defaultValue: 'יומן' })}
+        tagline={i18n.t('calendar:tagline', { defaultValue: 'יום אחרי יום, צעד אחרי צעד.' })}
+      />
 
-      {loading && !days.length ? (
+      {loading && !events.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
           contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          {days.length ? (
-            days.map((d) => (
-              <View key={d.key} style={styles.group}>
-                <Text style={styles.dayLabel}>{fmtDayLabel(d.when)}</Text>
-                <Card padded={false}>
-                  {d.events.map((e, i) => (
-                    <View key={e.id} style={[styles.row, i > 0 && styles.rowBorder]}>
-                      <Text style={styles.time}>{fmtTime(e.when)}</Text>
-                      <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
-                      <Text style={styles.eventTitle} numberOfLines={1}>{e.title || '—'}</Text>
-                      {KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}
-                    </View>
-                  ))}
-                </Card>
+
+          {/* Month grid */}
+          <Card contentStyle={styles.grid}>
+            <View style={styles.monthNav}>
+              <Pressable onPress={() => stepMonth(-1)} hitSlop={10}><ChevronRight size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
+              <Text style={styles.monthLabel}>{fmtMonthYear(month)}</Text>
+              <Pressable onPress={() => stepMonth(1)} hitSlop={10}><ChevronLeft size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
+            </View>
+            <View style={styles.weekHead}>
+              {WEEKDAYS.map((w) => <Text key={w} style={styles.weekday}>{w}</Text>)}
+            </View>
+            {weeks.map((row, ri) => (
+              <View key={ri} style={styles.week}>
+                {row.map((cell, ci) => {
+                  if (!cell) return <View key={ci} style={styles.cell} />
+                  const k = keyOf(cell)
+                  const evs = byDay.get(k) || []
+                  const isToday = k === todayKey
+                  const isSel = k === selected
+                  return (
+                    <Pressable key={ci} style={styles.cell} onPress={() => setSelected(k)}>
+                      <View style={[styles.cellInner, isSel && styles.cellSel, isToday && !isSel && styles.cellToday]}>
+                        <Text style={[styles.cellNum, isSel && styles.cellNumSel, isToday && !isSel && styles.cellNumToday]}>{cell.getDate()}</Text>
+                        <View style={styles.dots}>
+                          {evs.slice(0, 3).map((e, i) => <View key={i} style={[styles.evDot, { backgroundColor: isSel ? colors.onBrand : (KIND_COLOR[e.kind] || colors.textFaint) }]} />)}
+                        </View>
+                      </View>
+                    </Pressable>
+                  )
+                })}
               </View>
-            ))
+            ))}
+          </Card>
+
+          {/* Selected day agenda */}
+          <Text style={styles.dayLabel}>{fmtDayLabel(`${selected}T00:00:00`)}</Text>
+          {selectedEvents.length ? (
+            <Card padded={false}>
+              {selectedEvents.map((e, i) => (
+                <View key={e.id} style={[styles.row, i > 0 && styles.rowBorder]}>
+                  <Text style={styles.time}>{fmtTime(e.when)}</Text>
+                  <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
+                  <Text style={styles.eventTitle} numberOfLines={1}>{e.title || '—'}</Text>
+                  {KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}
+                </View>
+              ))}
+            </Card>
           ) : (
-            <Text style={styles.empty}>{i18n.t('calendar:list.empty', { defaultValue: '—' })}</Text>
+            <Text style={styles.empty}>{i18n.t('calendar:list.empty', { defaultValue: 'אין אירועים ביום זה.' })}</Text>
           )}
         </ScrollView>
       )}
@@ -91,11 +141,29 @@ export default function CalendarScreen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 16 },
+  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 14 },
   error: { color: colors.danger, fontSize: 13 },
-  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
-  group: { gap: 8 },
-  dayLabel: { fontSize: 14, fontWeight: '600', color: colors.textSub },
+  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 12 },
+
+  // Grid
+  grid: { paddingVertical: 14, paddingHorizontal: 10, gap: 6 },
+  monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 6, marginBottom: 4 },
+  monthLabel: { fontSize: 15, fontWeight: '600', color: colors.text },
+  weekHead: { flexDirection: 'row' },
+  weekday: { flex: 1, textAlign: 'center', fontSize: 11, fontWeight: '600', color: colors.textSub },
+  week: { flexDirection: 'row' },
+  cell: { flex: 1, aspectRatio: 1, alignItems: 'center', justifyContent: 'center', padding: 2 },
+  cellInner: { width: '100%', height: '100%', borderRadius: 10, alignItems: 'center', justifyContent: 'center', gap: 3 },
+  cellSel: { backgroundColor: colors.brand },
+  cellToday: { backgroundColor: 'rgba(201,123,94,0.12)' },
+  cellNum: { fontSize: 13, color: colors.text },
+  cellNumSel: { color: colors.onBrand, fontWeight: '700' },
+  cellNumToday: { color: colors.brand, fontWeight: '700' },
+  dots: { flexDirection: 'row', gap: 2, height: 4 },
+  evDot: { width: 4, height: 4, borderRadius: 2 },
+
+  // Agenda
+  dayLabel: { fontSize: 14, fontWeight: '600', color: colors.textSub, marginTop: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   time: { fontSize: 13, color: colors.textSub, width: 48 },

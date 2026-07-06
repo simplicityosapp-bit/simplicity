@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator } from 'react-native'
 import i18n from '../lib/i18n'
 import { supabase } from '../lib/supabase'
+import { signInWithGoogle, googleAvailable } from '../lib/googleSignIn'
+import GoogleButton from '../components/GoogleButton'
 
 // Strings come from @simplicity/core's shared `auth` namespace — the same source
 // the web login screen uses, so the two never drift.
@@ -12,7 +14,23 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('')
   const [show, setShow] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [gbusy, setGbusy] = useState(false)
   const [error, setError] = useState('')
+
+  const onGoogle = async () => {
+    setError('')
+    setGbusy(true)
+    try {
+      const res = await signInWithGoogle()
+      // res.cancelled → user dismissed, show nothing. res.ok → the App-level
+      // onAuthStateChange listener swaps to the home screen. Otherwise: message.
+      if (res?.error) setError(res.error)
+    } catch {
+      setError(t('auth:errors.generic'))
+    } finally {
+      setGbusy(false)
+    }
+  }
 
   const onSubmit = async () => {
     setError('')
@@ -79,9 +97,22 @@ export default function LoginScreen() {
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Pressable style={[styles.btn, busy && styles.btnBusy]} onPress={onSubmit} disabled={busy}>
+      <Pressable style={[styles.btn, (busy || gbusy) && styles.btnBusy]} onPress={onSubmit} disabled={busy || gbusy}>
         {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t('auth:login')}</Text>}
       </Pressable>
+
+      <View style={styles.divider}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>{t('auth:or')}</Text>
+        <View style={styles.dividerLine} />
+      </View>
+
+      <GoogleButton
+        label={t('auth:googleLogin')}
+        onPress={onGoogle}
+        busy={gbusy}
+        disabled={busy || !googleAvailable}
+      />
 
       <Text style={styles.foot}>
         {t('auth:noAccount')} {t('auth:signup')}
@@ -106,5 +137,8 @@ const styles = StyleSheet.create({
   btn: { backgroundColor: BRAND, borderRadius: 12, paddingVertical: 15, alignItems: 'center', marginTop: 4 },
   btnBusy: { opacity: 0.7 },
   btnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 2 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#e4dccf' },
+  dividerText: { color: '#a89f95', fontSize: 13 },
   foot: { textAlign: 'center', color: '#7c6f63', fontSize: 14, marginTop: 8 },
 })

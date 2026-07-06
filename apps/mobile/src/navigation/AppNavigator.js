@@ -13,7 +13,6 @@ import GoalsScreen from '../screens/GoalsScreen'
 import LeadsScreen from '../screens/LeadsScreen'
 import CalendarScreen from '../screens/CalendarScreen'
 import QuestionsScreen from '../screens/QuestionsScreen'
-import ClientDetailScreen from '../screens/ClientDetailScreen'
 import StubScreen from '../screens/StubScreen'
 
 export const navigationRef = createNavigationContainerRef()
@@ -69,7 +68,6 @@ export default function AppNavigator() {
         <Stack.Screen name="Calendar" component={CalendarScreen} />
         <Stack.Screen name="Moon" component={StubScreen} />
         <Stack.Screen name="Questions" component={QuestionsScreen} />
-        <Stack.Screen name="ClientDetail" component={ClientDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Plus } from 'lucide-react-native'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share } from 'react-native'
+import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Plus, Download } from 'lucide-react-native'
 import { monthNet, describeCadence, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -89,6 +89,19 @@ export default function FinanceScreen() {
 
   const txMeta = (t) => [clientById[t.client_id] || t.recipient_name, t.type === 'expense' ? categoryById[t.category_id] : null, payMethodLabel(t.payment_method)].filter(Boolean).join(' · ')
 
+  // Export the month's transactions as CSV via the native share sheet.
+  const exportCsv = async () => {
+    if (!monthTxs.length) return
+    const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
+    const header = ['תאריך', 'תיאור', 'סוג', 'סכום', 'לקוח', 'קטגוריה', 'אמצעי תשלום', 'סטטוס']
+    const rows = monthTxs.map((t) => [
+      fmtShortDate(t.date), t.desc || '', t.type === 'income' ? 'הכנסה' : 'הוצאה', t.amount,
+      clientById[t.client_id] || t.recipient_name || '', categoryById[t.category_id] || '', payMethodLabel(t.payment_method) || '', t.status || '',
+    ])
+    const csv = [header, ...rows].map((r) => r.map(q).join(',')).join('\n')
+    try { await Share.share({ message: csv, title: fmtMonthYear(monthDate) }) } catch { /* user cancelled / unsupported */ }
+  }
+
   const renderRow = (t, i, opts = {}) => {
     const income = t.type === 'income'
     const meta = txMeta(t)
@@ -129,6 +142,14 @@ export default function FinanceScreen() {
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          {/* Export CSV */}
+          {monthTxs.length ? (
+            <GlassPressable radius={999} style={styles.exportBtn} onPress={exportCsv}>
+              <Download size={13} strokeWidth={1.8} color={colors.textSub} />
+              <Text style={styles.exportText}>{i18n.t('finance:exportCsv', { defaultValue: 'ייצוא CSV' })}</Text>
+            </GlassPressable>
+          ) : null}
 
           {/* Pending approval */}
           {pending.length ? (
@@ -305,6 +326,10 @@ const styles = StyleSheet.create({
   recMeta: { fontSize: 11, color: colors.textFaint },
   recAmt: { fontSize: 14, fontWeight: '600' },
   recActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+
+  // Export
+  exportBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end', paddingVertical: 6, paddingHorizontal: 14 },
+  exportText: { fontSize: 12, fontWeight: '500', color: colors.textSub },
 
   // Skipped toggle
   skipToggle: { alignSelf: 'center', paddingVertical: 7, paddingHorizontal: 16 },

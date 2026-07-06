@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { Search, Wallet, CheckCircle2, Clock, CircleSlash, CircleDashed } from 'lucide-react-native'
-import { clientBalance, effectiveClientMeta, isr } from '@simplicity/core'
+import { Search, Wallet, ArrowUpDown, Check, CheckCircle2, Clock, CircleSlash, CircleDashed } from 'lucide-react-native'
+import { clientBalance, effectiveClientMeta, paidForClients, sessionsCountForClients, currentMonthRange, financeQuery, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import Card from '../components/Card'
+import Sheet from '../components/Sheet'
 import AddClientModal from '../modals/AddClientModal'
 import ClientDrawer from '../drawers/ClientDrawer'
 import { useFormOptions } from '../lib/formOptions'
@@ -17,6 +18,7 @@ const TABS = [
   { key: 'past', icon: CircleSlash },
   { key: 'no_status', icon: CircleDashed },
 ]
+const SORT_OPTIONS = ['name', 'balance', 'paid', 'sessions', 'created', 'oldest']
 const STATUS_PILL = {
   active: 'rgba(139,168,136,0.16)',
   wandering: 'rgba(212,165,116,0.18)',
@@ -26,10 +28,25 @@ const STATUS_PILL = {
 const statusKey = (m) => (m === 'no_status' ? 'noStatus' : m)
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-// Clients screen — mirrors the web: right-aligned screen head + add, status tabs
-// (with counts), search + open-balance filter, a per-tab summary hero, then rich
-// client CARDS (avatar + name + status + project + sessions/paid/balance). Tap a
-// card to open the client drawer in place.
+function sortClients(arr, sort, paidByClient) {
+  const dir = sort.dir === 'desc' ? -1 : 1
+  return [...arr].sort((a, b) => {
+    switch (sort.field) {
+      case 'balance': return ((a.bal.balance || 0) - (b.bal.balance || 0)) * dir
+      case 'sessions': return ((a.bal.sessionsPaid || 0) - (b.bal.sessionsPaid || 0)) * dir
+      case 'paid': return ((paidByClient.get(a.c.id) || 0) - (paidByClient.get(b.c.id) || 0)) * dir
+      case 'created': return (new Date(a.c.created_at || 0).getTime() - new Date(b.c.created_at || 0).getTime()) * dir
+      case 'oldest': return new Date(a.c.created_at || 0).getTime() - new Date(b.c.created_at || 0).getTime()
+      case 'name': default: return (a.c.name || '').localeCompare(b.c.name || '', 'he') * dir
+    }
+  })
+}
+
+// Clients screen — mirrors the web: right-aligned screen head + add, a controls
+// row (sort + status/project group-by), status tabs (with counts), search +
+// open-balance filter, a per-tab summary hero (monthly/cumulative toggle), then
+// rich client CARDS (avatar + name + status + project + sessions/paid/balance).
+// Tap a card to open the client drawer in place.
 export default function ClientsScreen() {
   const { clients, transactions, sessions, members, groups, loading, error, refetch, addClient, addTransaction, updateClient, deleteClient } = useClientsList()
   const { projects } = useFormOptions()
@@ -38,12 +55,21 @@ export default function ClientsScreen() {
   const [tab, setTab] = useState('active')
   const [query, setQuery] = useState('')
   const [balanceOnly, setBalanceOnly] = useState(false)
+  const [sort, setSort] = useState({ field: 'name', dir: 'asc' })
+  const [sortOpen, setSortOpen] = useState(false)
+  const [groupBy, setGroupBy] = useState('status')
+  const [scope, setScope] = useState('monthly')
 
   // One pass: derive each client's effective status + balance.
   const enriched = useMemo(
     () => clients.map((c) => ({ c, meta: effectiveClientMeta(c, members, groups), bal: clientBalance(c, transactions, sessions, members, groups) })),
     [clients, transactions, sessions, members, groups],
   )
+  const paidByClient = useMemo(() => {
+    const m = new Map()
+    clients.forEach((c) => m.set(c.id, financeQuery({ type: 'income', clientId: c.id, source: transactions }).reduce((s, f) => s + f.amount, 0)))
+    return m
+  }, [clients, transactions])
   const counts = useMemo(() => {
     const g = { active: 0, wandering: 0, past: 0, no_status: 0 }
     enriched.forEach((e) => { g[e.meta] = (g[e.meta] || 0) + 1 })
@@ -51,25 +77,91 @@ export default function ClientsScreen() {
   }, [enriched])
   const openBalanceCount = useMemo(() => enriched.filter((e) => e.bal.balance > 0).length, [enriched])
 
+  // Source list: project group-by and the balance filter are cross-status; the
+  // status tabs apply only inside the status grouping.
   const shown = useMemo(() => {
     const q = query.trim()
-    return enriched.filter((e) => {
-      if (balanceOnly) return e.bal.balance > 0 && (!q || (e.c.name || '').includes(q))
-      return e.meta === tab && (!q || (e.c.name || '').includes(q))
+    let filtered = enriched.filter((e) => {
+      if (groupBy === 'project' || balanceOnly) return true
+      return e.meta === tab
     })
-  }, [enriched, tab, query, balanceOnly])
+    if (balanceOnly) filtered = filtered.filter((e) => e.bal.balance > 0)
+    if (q) filtered = filtered.filter((e) => (e.c.name || '').includes(q))
+    return sortClients(filtered, sort, paidByClient)
+  }, [enriched, groupBy, tab, query, balanceOnly, sort, paidByClient])
 
-  // Per-tab hero totals (cumulative): sessions done/allot, paid, open balance.
+  // Project-grouped view — one block per project (+ a "no project" bucket).
+  const grouped = useMemo(() => {
+    if (groupBy !== 'project') return []
+    const map = new Map()
+    shown.forEach((e) => {
+      const pid = e.c.project_id || '__none'
+      if (!map.has(pid)) map.set(pid, { project: projects.find((p) => p.id === e.c.project_id) || null, items: [] })
+      map.get(pid).items.push(e)
+    })
+    return [...map.values()].sort((a, b) => (a.project ? 0 : 1) - (b.project ? 0 : 1))
+  }, [groupBy, shown, projects])
+
+  // Per-tab hero totals — monthly (count + range paid) or cumulative (done/allot).
   const hero = useMemo(() => {
-    const set = balanceOnly ? shown : enriched.filter((e) => e.meta === tab)
-    const done = set.reduce((s, e) => s + (e.bal.personalDone || 0), 0)
-    const allot = set.reduce((s, e) => s + (e.bal.personalQuota || 0), 0)
-    const paid = set.reduce((s, e) => s + (e.bal.paid || 0), 0)
-    const balance = set.reduce((s, e) => s + (e.bal.balance || 0), 0)
-    return { sessions: `${done}/${allot}`, paid: isr(paid), balance: isr(balance) }
-  }, [enriched, shown, tab, balanceOnly])
+    const tabClients = enriched.filter((e) => e.meta === tab).map((e) => e.c)
+    const range = scope === 'monthly' ? currentMonthRange() : {}
+    const paid = paidForClients(tabClients, range, transactions)
+    const balance = enriched.filter((e) => e.meta === tab).reduce((s, e) => s + (e.bal.balance || 0), 0)
+    if (tab === 'past' || tab === 'no_status') {
+      return [
+        { l: i18n.t('clients:hero.clients', { defaultValue: 'לקוחות' }), v: String(tabClients.length) },
+        { l: i18n.t('clients:hero.sessions', { defaultValue: 'פגישות' }), v: String(sessionsCountForClients(tabClients, range, sessions, members, groups)) },
+        { l: i18n.t('clients:hero.paid', { defaultValue: 'שולם' }), v: isr(paid) },
+      ]
+    }
+    let sessionsLabel
+    if (scope === 'monthly') {
+      sessionsLabel = String(sessionsCountForClients(tabClients, range, sessions, members, groups))
+    } else {
+      const done = enriched.filter((e) => e.meta === tab).reduce((s, e) => s + (e.bal.sessionsPaid || 0), 0)
+      const allot = tabClients.reduce((s, c) => s + (c.sessions || 0), 0)
+      sessionsLabel = `${done}/${allot}`
+    }
+    return [
+      { l: i18n.t('clients:hero.sessions', { defaultValue: 'פגישות' }), v: sessionsLabel },
+      { l: i18n.t('clients:hero.paid', { defaultValue: 'שולם' }), v: isr(paid) },
+      { l: i18n.t('clients:hero.openBalance', { defaultValue: 'יתרה פתוחה' }), v: isr(balance) },
+    ]
+  }, [enriched, tab, scope, transactions, sessions, members, groups])
 
   const total = counts.active + counts.wandering + counts.past + counts.no_status
+
+  const renderCard = (e) => {
+    const { c, meta, bal } = e
+    const project = projects.find((p) => p.id === c.project_id)
+    const sessLabel = bal.hasPersonal
+      ? `${bal.personalDone}/${bal.personalQuota || 0}`
+      : `${bal.groupSessions.reduce((s, g) => s + g.held, 0)}/${bal.groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`
+    return (
+      <Pressable key={c.id} onPress={() => setOpenId(c.id)}>
+        <Card padded={false} contentStyle={[styles.cc, meta === 'past' && styles.ccPast]}>
+          <View style={styles.ccHead}>
+            <View style={styles.ccAv}><Text style={styles.ccAvText}>{initials(c.name)}</Text></View>
+            <View style={styles.ccId}>
+              <Text style={styles.ccName} numberOfLines={1}>{c.name || ''}</Text>
+              <View style={styles.ccMeta}>
+                <View style={[styles.ccStatus, { backgroundColor: STATUS_PILL[meta] || STATUS_PILL.no_status }]}>
+                  <Text style={styles.ccStatusText}>{i18n.t(`clients:status.${statusKey(meta)}`, { defaultValue: '' })}</Text>
+                </View>
+                {project ? <Text style={styles.ccProj} numberOfLines={1}>{project.name}</Text> : null}
+              </View>
+            </View>
+          </View>
+          <View style={styles.ccStats}>
+            <CardStat label={i18n.t('clients:card.sessions', { defaultValue: 'פגישות' })} value={sessLabel} />
+            <CardStat label={i18n.t('clients:card.paid', { defaultValue: 'שולם' })} value={isr(bal.paid)} divided />
+            <CardStat label={i18n.t('clients:card.balance', { defaultValue: 'יתרה' })} value={isr(bal.balance)} />
+          </View>
+        </Card>
+      </Pressable>
+    )
+  }
 
   return (
     <Screen name="clients">
@@ -99,8 +191,24 @@ export default function ClientsScreen() {
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          {/* Status tabs */}
-          {!balanceOnly ? (
+          {/* Controls — sort + group-by toggle */}
+          <View style={styles.controls}>
+            <Pressable style={styles.sortBtn} onPress={() => setSortOpen(true)}>
+              <ArrowUpDown size={14} strokeWidth={1.7} color={colors.textSub} />
+              <Text style={styles.sortBtnText}>{i18n.t('clients:sort.label', { defaultValue: 'מיון' })}</Text>
+            </Pressable>
+            <View style={styles.toggle}>
+              <Pressable style={[styles.toggleBtn, groupBy === 'status' && styles.toggleOn]} onPress={() => setGroupBy('status')}>
+                <Text style={[styles.toggleText, groupBy === 'status' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.status', { defaultValue: 'סטטוס' })}</Text>
+              </Pressable>
+              <Pressable style={[styles.toggleBtn, groupBy === 'project' && styles.toggleOn]} onPress={() => setGroupBy('project')}>
+                <Text style={[styles.toggleText, groupBy === 'project' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.project', { defaultValue: 'פרויקט' })}</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Status tabs (status mode only) */}
+          {groupBy === 'status' && !balanceOnly ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
               {TABS.map(({ key, icon: Icon }) => {
                 if (key === 'no_status' && !counts.no_status) return null
@@ -136,49 +244,42 @@ export default function ClientsScreen() {
             </Pressable>
           </View>
 
-          {/* Per-tab hero summary */}
-          {total > 0 ? (
+          {/* Per-tab hero summary with monthly/cumulative toggle (status mode) */}
+          {groupBy === 'status' && total > 0 ? (
             <Card padded={false} contentStyle={styles.hero}>
-              <Text style={styles.heroTitle}>{i18n.t(`clients:hero.${statusKey(tab)}`, { defaultValue: i18n.t('clients:summary', { defaultValue: 'סיכום' }) })}</Text>
+              <View style={styles.heroTop}>
+                <Text style={styles.heroTitle}>{i18n.t(`clients:hero.${statusKey(tab)}`, { defaultValue: i18n.t('clients:summary', { defaultValue: 'סיכום' }) })}</Text>
+                {tab !== 'past' && tab !== 'no_status' ? (
+                  <View style={styles.scopeToggle}>
+                    <Pressable style={[styles.scopeBtn, scope === 'monthly' && styles.scopeOn]} onPress={() => setScope('monthly')}>
+                      <Text style={[styles.scopeText, scope === 'monthly' && styles.scopeTextOn]}>{i18n.t('clients:hero.monthly', { defaultValue: 'חודשי' })}</Text>
+                    </Pressable>
+                    <Pressable style={[styles.scopeBtn, scope === 'cumulative' && styles.scopeOn]} onPress={() => setScope('cumulative')}>
+                      <Text style={[styles.scopeText, scope === 'cumulative' && styles.scopeTextOn]}>{i18n.t('clients:hero.cumulative', { defaultValue: 'מצטבר' })}</Text>
+                    </Pressable>
+                  </View>
+                ) : null}
+              </View>
               <View style={styles.heroGrid}>
-                <HeroStat label={i18n.t('clients:hero.sessions', { defaultValue: 'פגישות' })} value={hero.sessions} />
-                <HeroStat label={i18n.t('clients:hero.paid', { defaultValue: 'שולם' })} value={hero.paid} divided />
-                <HeroStat label={i18n.t('clients:hero.openBalance', { defaultValue: 'יתרה פתוחה' })} value={hero.balance} />
+                {hero.map((s, i) => <HeroStat key={s.l} label={s.l} value={s.v} divided={i === 1} />)}
               </View>
             </Card>
           ) : null}
 
-          {/* Client cards */}
+          {/* Client cards — flat or project-grouped */}
           {shown.length ? (
-            shown.map(({ c, meta, bal }) => {
-              const project = projects.find((p) => p.id === c.project_id)
-              const sessLabel = bal.hasPersonal
-                ? `${bal.personalDone}/${bal.personalQuota || 0}`
-                : `${bal.groupSessions.reduce((s, g) => s + g.held, 0)}/${bal.groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`
-              return (
-                <Pressable key={c.id} onPress={() => setOpenId(c.id)}>
-                  <Card padded={false} contentStyle={[styles.cc, meta === 'past' && styles.ccPast]}>
-                    <View style={styles.ccHead}>
-                      <View style={styles.ccAv}><Text style={styles.ccAvText}>{initials(c.name)}</Text></View>
-                      <View style={styles.ccId}>
-                        <Text style={styles.ccName} numberOfLines={1}>{c.name || ''}</Text>
-                        <View style={styles.ccMeta}>
-                          <View style={[styles.ccStatus, { backgroundColor: STATUS_PILL[meta] || STATUS_PILL.no_status }]}>
-                            <Text style={styles.ccStatusText}>{i18n.t(`clients:status.${statusKey(meta)}`, { defaultValue: '' })}</Text>
-                          </View>
-                          {project ? <Text style={styles.ccProj} numberOfLines={1}>{project.name}</Text> : null}
-                        </View>
-                      </View>
-                    </View>
-                    <View style={styles.ccStats}>
-                      <CardStat label={i18n.t('clients:card.sessions', { defaultValue: 'פגישות' })} value={sessLabel} />
-                      <CardStat label={i18n.t('clients:card.paid', { defaultValue: 'שולם' })} value={isr(bal.paid)} divided />
-                      <CardStat label={i18n.t('clients:card.balance', { defaultValue: 'יתרה' })} value={isr(bal.balance)} />
-                    </View>
-                  </Card>
-                </Pressable>
-              )
-            })
+            groupBy === 'project'
+              ? grouped.map(({ project, items }) => (
+                <View key={project?.id || '__none'} style={styles.projGroup}>
+                  <View style={styles.projHead}>
+                    <View style={[styles.projDot, { backgroundColor: project?.color || colors.textSub }]} />
+                    <Text style={styles.projName} numberOfLines={1}>{project?.name || i18n.t('clients:project.none', { defaultValue: 'ללא פרויקט' })}</Text>
+                    <Text style={styles.projCount}>{items.length}</Text>
+                  </View>
+                  {items.map(renderCard)}
+                </View>
+              ))
+              : shown.map(renderCard)
           ) : (
             <Text style={styles.empty}>
               {query || balanceOnly
@@ -188,6 +289,27 @@ export default function ClientsScreen() {
           )}
         </ScrollView>
       )}
+
+      {/* Sort sheet */}
+      <Sheet open={sortOpen} onClose={() => setSortOpen(false)} title={i18n.t('clients:sort.heading', { defaultValue: 'מיין/י לפי' })}>
+        {SORT_OPTIONS.map((f) => {
+          const on = sort.field === f
+          return (
+            <Pressable key={f} style={styles.sortOpt} onPress={() => setSort((s) => ({ ...s, field: f }))}>
+              <Text style={[styles.sortOptText, on && styles.sortOptOn]}>{i18n.t(`clients:sort.${f}`)}</Text>
+              {on ? <Check size={16} strokeWidth={2} color={colors.brand} /> : null}
+            </Pressable>
+          )
+        })}
+        <View style={styles.sortDir}>
+          <Pressable style={[styles.sortDirBtn, sort.dir === 'asc' && styles.sortDirOn]} onPress={() => setSort((s) => ({ ...s, dir: 'asc' }))}>
+            <Text style={[styles.sortDirText, sort.dir === 'asc' && styles.toggleTextOn]}>{i18n.t('clients:sort.asc', { defaultValue: 'עולה' })}</Text>
+          </Pressable>
+          <Pressable style={[styles.sortDirBtn, sort.dir === 'desc' && styles.sortDirOn]} onPress={() => setSort((s) => ({ ...s, dir: 'desc' }))}>
+            <Text style={[styles.sortDirText, sort.dir === 'desc' && styles.toggleTextOn]}>{i18n.t('clients:sort.desc', { defaultValue: 'יורד' })}</Text>
+          </Pressable>
+        </View>
+      </Sheet>
 
       <AddClientModal open={adding} onClose={() => setAdding(false)} onSave={addClient} />
       <ClientDrawer
@@ -240,6 +362,16 @@ const styles = StyleSheet.create({
   cta: { marginTop: 6, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 999, backgroundColor: colors.brand },
   ctaText: { fontSize: 14, fontWeight: '600', color: colors.onBrand },
 
+  // Controls row
+  controls: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  sortBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+  sortBtnText: { fontSize: 12, color: colors.text },
+  toggle: { flexDirection: 'row', borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 2 },
+  toggleBtn: { paddingVertical: 6, paddingHorizontal: 14, borderRadius: 999 },
+  toggleOn: { backgroundColor: colors.brand },
+  toggleText: { fontSize: 12, color: colors.textSub },
+  toggleTextOn: { color: colors.onBrand, fontWeight: '600' },
+
   // Tabs
   tabs: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
   tab: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 14, borderRadius: 20, borderWidth: 0.5, borderColor: colors.border, backgroundColor: colors.card },
@@ -258,12 +390,25 @@ const styles = StyleSheet.create({
 
   // Hero
   hero: { paddingVertical: 16, paddingHorizontal: 12, gap: 12 },
-  heroTitle: { fontSize: 11, fontWeight: '500', color: colors.textSub, letterSpacing: 0.4, textAlign: 'center' },
+  heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  heroTitle: { flex: 1, fontSize: 11, fontWeight: '500', color: colors.textSub, letterSpacing: 0.4 },
+  scopeToggle: { flexDirection: 'row', borderRadius: 999, borderWidth: 1, borderColor: colors.border, padding: 2 },
+  scopeBtn: { paddingVertical: 4, paddingHorizontal: 10, borderRadius: 999 },
+  scopeOn: { backgroundColor: colors.brand },
+  scopeText: { fontSize: 11, color: colors.textSub },
+  scopeTextOn: { color: colors.onBrand, fontWeight: '600' },
   heroGrid: { flexDirection: 'row' },
   heroStat: { flex: 1, alignItems: 'center', gap: 4 },
   heroStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
   heroStatL: { fontSize: 9, fontWeight: '500', color: colors.textSub, letterSpacing: 0.4, textTransform: 'uppercase' },
   heroStatV: { fontSize: 22, fontWeight: '500', color: colors.text },
+
+  // Project group
+  projGroup: { gap: 12 },
+  projHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, marginBottom: 2, paddingHorizontal: 2 },
+  projDot: { width: 10, height: 10, borderRadius: 5 },
+  projName: { flex: 1, fontSize: 13, fontWeight: '600', color: colors.text },
+  projCount: { fontSize: 12, fontWeight: '600', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.07)', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 999, overflow: 'hidden' },
 
   // Client card
   cc: { padding: 16, gap: 14 },
@@ -282,6 +427,15 @@ const styles = StyleSheet.create({
   ccStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
   ccStatL: { fontSize: 9, fontWeight: '500', color: colors.textSub, letterSpacing: 0.4, textTransform: 'uppercase' },
   ccStatV: { fontSize: 17, fontWeight: '500', color: colors.text },
+
+  // Sort sheet
+  sortOpt: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 13, paddingHorizontal: 4 },
+  sortOptText: { fontSize: 15, color: colors.text },
+  sortOptOn: { color: colors.brand, fontWeight: '600' },
+  sortDir: { flexDirection: 'row', gap: 10, marginTop: 8 },
+  sortDirBtn: { flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
+  sortDirOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  sortDirText: { fontSize: 14, color: colors.textSub },
 })
 
 HeroStat.displayName = 'HeroStat'

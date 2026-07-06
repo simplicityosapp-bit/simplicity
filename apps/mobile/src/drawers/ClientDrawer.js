@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { X, Trash2, Pencil, Banknote, MessageCircle, CalendarPlus } from 'lucide-react-native'
-import { clientBalance, effectiveClientMeta, isr, fmtShortDate } from '@simplicity/core'
+import { X, Trash2, Pencil, Banknote, MessageCircle, CalendarPlus, ChevronDown, Check, RotateCcw } from 'lucide-react-native'
+import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, isr, fmtShortDate } from '@simplicity/core'
 import Card from '../components/Card'
 import AddClientModal from '../modals/AddClientModal'
 import AddTransactionModal from '../modals/AddTransactionModal'
@@ -16,11 +16,12 @@ import { colors } from '../theme/theme'
 // request when the client owes, quick actions, and the recent payments + notes.
 // Opened in place from the clients list (not a pushed screen).
 const STATUS_PILL = {
-  active: { bg: 'rgba(139,168,136,0.16)' },
-  wandering: { bg: 'rgba(212,165,116,0.18)' },
-  past: { bg: 'rgba(42,37,32,0.06)' },
-  no_status: { bg: 'rgba(42,37,32,0.06)' },
+  active: { bg: 'rgba(139,168,136,0.16)', dot: '#8BA888' },
+  wandering: { bg: 'rgba(212,165,116,0.18)', dot: '#D4A574' },
+  past: { bg: 'rgba(42,37,32,0.06)', dot: '#b3a99c' },
+  no_status: { bg: 'rgba(42,37,32,0.06)', dot: '#cbb9a8' },
 }
+const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
 export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, onClose, updateClient, deleteClient, addTransaction }) {
@@ -29,6 +30,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
   const [editing, setEditing] = useState(false)
   const [paying, setPaying] = useState(false)
   const [scheduling, setScheduling] = useState(false)
+  const [statusMenu, setStatusMenu] = useState(false)
 
   const client = clients.find((c) => c.id === clientId) || null
   const bal = useMemo(
@@ -36,6 +38,9 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
     [client, transactions, sessions, members, groups],
   )
   const meta = client ? effectiveClientMeta(client, members, groups) : 'no_status'
+  const groupDriven = client ? isGroupDriven(client, members) : false
+  const overridden = isStatusOverridden(client)
+  const isMember = !!client && members.some((m) => m.client_id === client.id && !m.left_at)
   const project = client ? projects.find((p) => p.id === client.project_id) : null
   const clientTx = useMemo(
     () => (client
@@ -44,6 +49,19 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
       : []),
     [transactions, client],
   )
+
+  // Manual status change always sets status_overridden so the choice wins over
+  // any group the client belongs to (migration 0062); revert clears the override.
+  const changeStatus = (k) => {
+    setStatusMenu(false)
+    if (!client || (client.status_meta === k && client.status_overridden)) return
+    updateClient(client.id, { status_meta: k, status_id: null, status_overridden: true })
+  }
+  const revertToGroup = () => {
+    setStatusMenu(false)
+    if (!client || !client.status_overridden) return
+    updateClient(client.id, { status_overridden: false })
+  }
 
   const del = () => { if (client) { deleteClient(client.id); onClose() } }
   const whatsapp = (msg) => {
@@ -80,11 +98,36 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                 <View style={styles.headId}>
                   <Text style={styles.headName} numberOfLines={1}>{client.name}</Text>
                   <View style={styles.headSub}>
-                    <View style={[styles.statusPill, { backgroundColor: (STATUS_PILL[meta] || STATUS_PILL.no_status).bg }]}>
+                    <Pressable
+                      style={[styles.statusPill, { backgroundColor: (STATUS_PILL[meta] || STATUS_PILL.no_status).bg }]}
+                      onPress={() => setStatusMenu((o) => !o)}
+                    >
                       <Text style={styles.statusText}>{i18n.t(`clients:status.${meta === 'no_status' ? 'noStatus' : meta}`, { defaultValue: '' })}</Text>
-                    </View>
+                      <ChevronDown size={12} strokeWidth={2} color={colors.textSub} />
+                    </Pressable>
+                    {groupDriven && !overridden ? (
+                      <Text style={styles.byGroup}>{i18n.t('clients:drawer.byGroup', { defaultValue: ' · לפי הקבוצה' })}</Text>
+                    ) : null}
+                    {isMember && overridden ? (
+                      <Pressable style={styles.revert} onPress={revertToGroup}>
+                        <Text style={styles.manualTag}>{i18n.t('clients:drawer.statusManual', { defaultValue: 'ידני' })}</Text>
+                        <RotateCcw size={11} strokeWidth={1.8} color={colors.textSub} />
+                        <Text style={styles.revertText}>{i18n.t('clients:drawer.revertToGroup', { defaultValue: 'חזרה לסטטוס הקבוצה' })}</Text>
+                      </Pressable>
+                    ) : null}
                     {project ? <Text style={styles.projText}>· {project.name}</Text> : null}
                   </View>
+                  {statusMenu ? (
+                    <View style={styles.statusMenu}>
+                      {STATUS_ORDER.map((k) => (
+                        <Pressable key={k} style={styles.statusOpt} onPress={() => changeStatus(k)}>
+                          <View style={[styles.statusDot, { backgroundColor: STATUS_PILL[k].dot }]} />
+                          <Text style={[styles.statusOptText, meta === k && styles.statusOptOn]}>{i18n.t(`clients:status.${k === 'no_status' ? 'noStatus' : k}`)}</Text>
+                          {meta === k ? <Check size={13} strokeWidth={2} color={colors.brand} /> : null}
+                        </Pressable>
+                      ))}
+                    </View>
+                  ) : null}
                 </View>
                 <Pressable style={styles.editBtn} onPress={() => setEditing(true)} hitSlop={6}>
                   <Pencil size={13} strokeWidth={1.7} color={colors.textSub} />
@@ -190,9 +233,18 @@ const styles = StyleSheet.create({
   headId: { flex: 1, minWidth: 0, gap: 5 },
   headName: { fontSize: 18, fontWeight: '600', color: colors.text },
   headSub: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  statusPill: { paddingVertical: 2, paddingHorizontal: 9, borderRadius: 10 },
+  statusPill: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 3, paddingHorizontal: 9, borderRadius: 10 },
   statusText: { fontSize: 11, fontWeight: '500', color: colors.text },
+  byGroup: { fontSize: 11, color: colors.textFaint },
+  revert: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  manualTag: { fontSize: 10, fontWeight: '600', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.07)', paddingVertical: 1, paddingHorizontal: 6, borderRadius: 8, overflow: 'hidden' },
+  revertText: { fontSize: 10, color: colors.textSub },
   projText: { fontSize: 11, color: colors.textSub },
+  statusMenu: { marginTop: 8, marginStart: 58, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 4 },
+  statusOpt: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 8 },
+  statusDot: { width: 9, height: 9, borderRadius: 5 },
+  statusOptText: { flex: 1, fontSize: 13, color: colors.text },
+  statusOptOn: { color: colors.brand, fontWeight: '600' },
   editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingHorizontal: 11, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
   editText: { fontSize: 12, color: colors.textSub },
 

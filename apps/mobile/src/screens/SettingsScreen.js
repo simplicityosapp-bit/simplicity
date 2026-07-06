@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, Sparkles, Download, X, Plus } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel } from '@simplicity/core'
-import i18n from '../lib/i18n'
+import i18n, { setGenderContext } from '../lib/i18n'
 import { supabase } from '../lib/supabase'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
@@ -68,6 +68,10 @@ export default function SettingsScreen() {
 
   const role = prefs.role || 'therapist'
   const setLanguage = (code) => { setLang(code); applySavedLanguage(code); update({ language: code }) }
+  // Form of address → i18next context (matches web's prefs.design.gender). Apply
+  // immediately so this screen re-renders gendered; other screens pick it up on
+  // their next render (gender is set-once, like web).
+  const setGender = (g) => { setGenderContext(g); update({ design: { ...(prefs.design || {}), gender: g } }) }
 
   const exportCsv = async (kind) => {
     const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
@@ -114,7 +118,7 @@ export default function SettingsScreen() {
             </Field>
           ) : null}
           <Field label={T('profile.genders.label', { defaultValue: 'פנייה' })}>
-            <Pills options={GENDERS.map((g) => ({ k: g, label: T(`profile.genders.${g}`, { defaultValue: g }) }))} value={prefs.gender || 'neutral'} onPick={(g) => update({ gender: g })} />
+            <Pills options={GENDERS.map((g) => ({ k: g, label: T(`profile.genders.${g}`, { defaultValue: g }) }))} value={prefs.design?.gender || 'neutral'} onPick={setGender} />
           </Field>
         </Section>
 

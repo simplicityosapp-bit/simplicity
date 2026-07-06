@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { I18nManager } from 'react-native'
 import { supabase } from './supabase'
-import i18n from './i18n'
+import i18n, { setGenderContext } from './i18n'
 
 const SUPPORTED_LANGS = ['he', 'en', 'es', 'fr']
 
@@ -39,6 +39,7 @@ export function PreferencesProvider({ children }) {
         ref.current = p
         if (alive) setPrefs(p)
         applySavedLanguage(p.language)
+        setGenderContext(p.design?.gender)
       } catch { /* keep defaults */ }
     })()
     return () => { alive = false }

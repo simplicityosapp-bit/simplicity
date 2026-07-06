@@ -5,6 +5,7 @@ import { setupI18n } from './src/lib/i18n'
 import { AuthProvider, useAuth } from './src/lib/auth'
 import { DrawerProvider, useDrawer } from './src/lib/drawer'
 import { FormOptionsProvider } from './src/lib/formOptions'
+import { PreferencesProvider } from './src/lib/preferences'
 import LoginScreen from './src/screens/LoginScreen'
 import AppNavigator, { navigationRef } from './src/navigation/AppNavigator'
 import Drawer from './src/components/Drawer'
@@ -37,12 +38,14 @@ function Root() {
   }
   if (!session) return <LoginScreen />
   return (
-    <FormOptionsProvider>
-      <View style={styles.fill}>
-        <AppNavigator />
-        <DrawerHost />
-      </View>
-    </FormOptionsProvider>
+    <PreferencesProvider>
+      <FormOptionsProvider>
+        <View style={styles.fill}>
+          <AppNavigator />
+          <DrawerHost />
+        </View>
+      </FormOptionsProvider>
+    </PreferencesProvider>
   )
 }
 

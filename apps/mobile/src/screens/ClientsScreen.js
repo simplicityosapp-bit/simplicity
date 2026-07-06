@@ -66,7 +66,7 @@ export default function ClientsScreen() {
                     <View style={styles.info}>
                       <Text style={styles.name} numberOfLines={1}>{c.name || ''}</Text>
                       <Text style={styles.status} numberOfLines={1}>
-                        {i18n.t(`clients:status.${meta}`, { defaultValue: meta })}{stats.length ? ` · ${stats.join(' · ')}` : ''}
+                        {i18n.t(`clients:status.${meta === 'no_status' ? 'noStatus' : meta}`, { defaultValue: '' })}{stats.length ? ` · ${stats.join(' · ')}` : ''}
                       </Text>
                     </View>
                     {bal.balance > 0 ? <Text style={styles.balance}>{isr(bal.balance)}</Text> : null}

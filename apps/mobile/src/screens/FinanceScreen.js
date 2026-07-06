@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { financeQuery, currentMonthRange, monthNet, isr, fmtShortDate } from '@simplicity/core'
+import { ChevronLeft, ChevronRight } from 'lucide-react-native'
+import { financeQuery, currentMonthRange, monthNet, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHeader from '../components/ScreenHeader'
@@ -9,20 +10,50 @@ import AddTransactionModal from '../modals/AddTransactionModal'
 import { colors } from '../theme/theme'
 import { useFinanceData } from '../hooks/useFinanceData'
 
-// Finance screen — month summary (net / income / expenses, all from core) + the
-// month's confirmed transactions, over the per-screen photo (Warm Precision).
+// Finance screen — a month summary you can page through (prev/next), the month's
+// confirmed transactions, and a pending-approval section (tap a row to edit/
+// approve). Rows show client · category · payment. Over the per-screen photo.
 export default function FinanceScreen() {
   const { transactions, clients, categories, loading, error, refetch, updateTransaction, deleteTransaction } = useFinanceData()
   const [editing, setEditing] = useState(null)
+  const [monthOffset, setMonthOffset] = useState(0)
   const now = new Date()
+  const monthDate = useMemo(() => new Date(now.getFullYear(), now.getMonth() + monthOffset, 1), [monthOffset]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { inc, exp, net } = useMemo(() => monthNet(now, { transactions }), [transactions]) // eslint-disable-line react-hooks/exhaustive-deps
+  const clientById = useMemo(() => Object.fromEntries(clients.map((c) => [c.id, c.name])), [clients])
+  const categoryById = useMemo(() => Object.fromEntries(categories.map((c) => [c.id, c.name])), [categories])
+
+  const { inc, exp, net } = useMemo(() => monthNet(monthDate, { transactions }), [monthDate, transactions])
   const monthTx = useMemo(
-    () => financeQuery({ ...currentMonthRange(now), source: transactions })
+    () => financeQuery({ ...currentMonthRange(monthDate), source: transactions })
       .slice()
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-    [transactions], // eslint-disable-line react-hooks/exhaustive-deps
+    [monthDate, transactions],
   )
+  const pending = useMemo(
+    () => transactions.filter((t) => !t.deleted_at && t.status === 'pending').sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    [transactions],
+  )
+
+  const txMeta = (t) => [
+    clientById[t.client_id] || t.recipient_name,
+    t.type === 'expense' ? categoryById[t.category_id] : null,
+    payMethodLabel(t.payment_method),
+  ].filter(Boolean).join(' · ')
+
+  const renderTx = (list) => list.map((t, i) => {
+    const income = t.type === 'income'
+    const meta = txMeta(t)
+    return (
+      <Pressable key={t.id || i} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditing(t)}>
+        <View style={styles.info}>
+          <Text style={styles.desc} numberOfLines={1}>{t.desc || '—'}</Text>
+          <Text style={styles.date} numberOfLines={1}>{fmtShortDate(t.date)}{meta ? ` · ${meta}` : ''}</Text>
+        </View>
+        <Text style={[styles.amount, { color: income ? colors.positive : colors.textSub }]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
+      </Pressable>
+    )
+  })
 
   return (
     <Screen name="finance">
@@ -37,8 +68,21 @@ export default function FinanceScreen() {
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
+          {pending.length ? (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>{i18n.t('finance:pending.count', { count: pending.length })}</Text>
+              <Card padded={false}>{renderTx(pending)}</Card>
+            </View>
+          ) : null}
+
           <Card contentStyle={styles.summary}>
-            <Text style={styles.sumLabel}>{i18n.t('finance:summary.netThisMonth', { defaultValue: 'נטו החודש' })}</Text>
+            <View style={styles.monthNav}>
+              <Pressable onPress={() => setMonthOffset((o) => o - 1)} hitSlop={10}><ChevronRight size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
+              <Text style={styles.monthLabel}>{fmtMonthYear(monthDate)}</Text>
+              <Pressable onPress={() => setMonthOffset((o) => Math.min(0, o + 1))} hitSlop={10} disabled={monthOffset >= 0}>
+                <ChevronLeft size={22} strokeWidth={1.8} color={monthOffset >= 0 ? colors.textFaint : colors.brand} />
+              </Pressable>
+            </View>
             <Text style={[styles.sumNet, { color: net >= 0 ? colors.positive : colors.danger }]}>{isr(net)}</Text>
             <View style={styles.sumRow}>
               <Text style={styles.sumSub}>{i18n.t('finance:summary.income', { defaultValue: 'הכנסות' })} {isr(inc)}</Text>
@@ -47,22 +91,7 @@ export default function FinanceScreen() {
           </Card>
 
           {monthTx.length ? (
-            <Card padded={false}>
-              {monthTx.map((t, i) => {
-                const income = t.type === 'income'
-                return (
-                  <Pressable key={t.id || i} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditing(t)}>
-                    <View style={styles.info}>
-                      <Text style={styles.desc} numberOfLines={1}>{t.desc || '—'}</Text>
-                      <Text style={styles.date}>{fmtShortDate(t.date)}</Text>
-                    </View>
-                    <Text style={[styles.amount, { color: income ? colors.positive : colors.textSub }]}>
-                      {income ? '+' : '−'}{isr(t.amount)}
-                    </Text>
-                  </Pressable>
-                )
-              })}
-            </Card>
+            <Card padded={false}>{renderTx(monthTx)}</Card>
           ) : (
             <Text style={styles.empty}>{i18n.t('finance:list.empty', { defaultValue: '—' })}</Text>
           )}
@@ -87,8 +116,11 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 16 },
   error: { color: colors.danger, fontSize: 13 },
   empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
-  summary: { paddingVertical: 20, paddingHorizontal: 20, gap: 6, alignItems: 'center' },
-  sumLabel: { fontSize: 13, color: colors.textSub },
+  section: { gap: 8 },
+  sectionTitle: { fontSize: 14, fontWeight: '600', color: colors.textSub },
+  summary: { paddingVertical: 18, paddingHorizontal: 20, gap: 6, alignItems: 'center' },
+  monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch' },
+  monthLabel: { fontSize: 14, fontWeight: '600', color: colors.textSub },
   sumNet: { fontSize: 32, fontWeight: '600' },
   sumRow: { flexDirection: 'row', gap: 20, marginTop: 4 },
   sumSub: { fontSize: 13, color: colors.textFaint },

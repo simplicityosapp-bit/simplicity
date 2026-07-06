@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import { Plus, Search } from 'lucide-react-native'
 import { clientBalance, statusMetaOf, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
@@ -17,8 +18,8 @@ const TABS = ['all', 'active', 'wandering', 'past']
 // Clients screen — name + status + sessions/paid/balance (core clientBalance),
 // filterable by status tab, over the per-screen photo. Tap a row to edit.
 export default function ClientsScreen() {
-  const { clients, transactions, sessions, members, groups, loading, error, refetch, addClient, updateClient, deleteClient } = useClientsList()
-  const [editing, setEditing] = useState(null)
+  const nav = useNavigation()
+  const { clients, transactions, sessions, members, groups, loading, error, refetch, addClient } = useClientsList()
   const [adding, setAdding] = useState(false)
   const [tab, setTab] = useState('all')
   const [query, setQuery] = useState('')
@@ -83,7 +84,7 @@ export default function ClientsScreen() {
                 if (bal.hasPersonal && bal.personalQuota > 0) stats.push(`${bal.personalDone}/${bal.personalQuota} ${i18n.t('clients:card.sessions')}`)
                 if (bal.paid > 0) stats.push(`${i18n.t('clients:card.paid')} ${isr(bal.paid)}`)
                 return (
-                  <Pressable key={c.id} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditing(c)}>
+                  <Pressable key={c.id} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => nav.navigate('ClientDetail', { clientId: c.id })}>
                     <View style={[styles.dot, { backgroundColor: STATUS_COLOR[meta] || '#cbb9a8' }]} />
                     <View style={styles.info}>
                       <Text style={styles.name} numberOfLines={1}>{c.name || ''}</Text>
@@ -101,14 +102,6 @@ export default function ClientsScreen() {
           )}
         </ScrollView>
       )}
-
-      <AddClientModal
-        open={!!editing}
-        client={editing}
-        onClose={() => setEditing(null)}
-        onSave={(patch) => updateClient(editing.id, patch)}
-        onDelete={() => deleteClient(editing.id)}
-      />
     </Screen>
   )
 }

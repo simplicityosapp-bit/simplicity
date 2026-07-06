@@ -16,25 +16,25 @@ const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
-const blank = (tx) => ({
-  type: tx?.type || 'income',
+const blank = (tx, defaults = {}) => ({
+  type: tx?.type || defaults.type || 'income',
   amount: tx?.amount != null ? String(tx.amount) : '',
   desc: tx?.desc || '',
   date: tx?.date ? String(tx.date).slice(0, 10) : todayStr(),
-  client_id: tx?.client_id || '',
+  client_id: tx?.client_id || defaults.client_id || '',
   category_id: tx?.category_id || '',
   payment_method: tx?.payment_method || '',
 })
 
-export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null, clients: propClients = [] }) {
+export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null, clients: propClients = [], defaults = {} }) {
   const isEdit = !!tx
   const { clients: optClients, categories } = useFormOptions() // categories = the FINANCE `categories` table (expense tags)
   const clients = propClients.length ? propClients : optClients
-  const [form, setForm] = useState(() => blank(tx))
+  const [form, setForm] = useState(() => blank(tx, defaults))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  useEffect(() => { if (open) { setForm(blank(tx)); setErr(''); setBusy(false) } }, [open, tx])
+  useEffect(() => { if (open) { setForm(blank(tx, defaults)); setErr(''); setBusy(false) } }, [open, tx]) // eslint-disable-line react-hooks/exhaustive-deps
   const close = () => { setErr(''); setBusy(false); onClose() }
 
   const remove = async () => {

@@ -20,7 +20,7 @@ const PRIORITY_COLOR = { high: colors.danger, medium: colors.amberWarn, low: col
 const PRIORITY_GROUPS = ['high', 'medium', 'low']
 const TASK_FILTERS = ['todo', 'done', 'all']
 const REM_FILTERS = ['todo', 'recurring', 'done']
-const GROUP_BY = ['priority', 'project']
+const GROUP_BY = ['priority', 'project', 'category']
 const FALLBACK = colors.textFaint
 const REM_BUCKETS = [
   { key: 'overdue', color: colors.danger },
@@ -93,10 +93,16 @@ export default function TasksScreen() {
       if (none.length) gs.push({ key: 'p-none', label: i18n.t('tasks:groupBy.noProject', { defaultValue: 'ללא פרויקט' }), color: FALLBACK, items: none })
       return gs.filter((g) => g.items.length)
     }
+    if (groupBy === 'category') {
+      const gs = taskCategories.map((c) => ({ key: `c-${c.id}`, label: c.name, color: c.color || FALLBACK, items: filteredTasks.filter((t) => t.category_id === c.id) }))
+      const none = filteredTasks.filter((t) => !t.category_id || !taskCategories.some((c) => c.id === t.category_id))
+      if (none.length) gs.push({ key: 'c-none', label: i18n.t('tasks:groupBy.noCategory', { defaultValue: 'ללא קטגוריה' }), color: FALLBACK, items: none })
+      return gs.filter((g) => g.items.length)
+    }
     return PRIORITY_GROUPS
       .map((g) => ({ key: `pri-${g}`, label: i18n.t(`tasks:priority.${g}`), color: PRIORITY_COLOR[g], items: filteredTasks.filter((t) => (t.priority || 'medium') === g) }))
       .filter((g) => g.items.length)
-  }, [groupBy, filteredTasks, projects])
+  }, [groupBy, filteredTasks, projects, taskCategories])
 
   // ── reminder groups ──
   const reminderGroups = useMemo(() => {
@@ -351,7 +357,7 @@ const styles = StyleSheet.create({
   heroStatV: { fontSize: 22, fontWeight: '500', color: colors.text },
   heroStatAccent: { color: colors.brand },
 
-  seg: { flexDirection: 'row', padding: 2, alignSelf: 'flex-start' },
+  seg: { flexDirection: 'row', padding: 2, alignSelf: 'center' },
   segBtn: { paddingVertical: 6, paddingHorizontal: 16, borderRadius: 999 },
   segOn: { backgroundColor: colors.brand },
   segText: { fontSize: 12, color: colors.textSub },

@@ -24,6 +24,8 @@ export default function FinanceScreen() {
   const categoryById = useMemo(() => Object.fromEntries(categories.map((c) => [c.id, c.name])), [categories])
 
   const { inc, exp, net } = useMemo(() => monthNet(monthDate, { transactions }), [monthDate, transactions])
+  const prevNet = useMemo(() => monthNet(new Date(monthDate.getFullYear(), monthDate.getMonth() - 1, 1), { transactions }).net, [monthDate, transactions])
+  const delta = net - prevNet
   const monthTx = useMemo(
     () => financeQuery({ ...currentMonthRange(monthDate), source: transactions })
       .slice()
@@ -88,6 +90,11 @@ export default function FinanceScreen() {
               <Text style={styles.sumSub}>{i18n.t('finance:summary.income', { defaultValue: 'הכנסות' })} {isr(inc)}</Text>
               <Text style={styles.sumSub}>{i18n.t('finance:summary.expenses', { defaultValue: 'הוצאות' })} {isr(exp)}</Text>
             </View>
+            {delta !== 0 ? (
+              <Text style={[styles.delta, { color: delta >= 0 ? colors.positive : colors.danger }]}>
+                {delta >= 0 ? '▲' : '▼'} {isr(Math.abs(delta))} {i18n.t('finance:summary.vsPrevMonth', { defaultValue: 'מהחודש הקודם' })}
+              </Text>
+            ) : null}
           </Card>
 
           {monthTx.length ? (
@@ -124,6 +131,7 @@ const styles = StyleSheet.create({
   sumNet: { fontSize: 32, fontWeight: '600' },
   sumRow: { flexDirection: 'row', gap: 20, marginTop: 4 },
   sumSub: { fontSize: 13, color: colors.textFaint },
+  delta: { fontSize: 12, fontWeight: '600', marginTop: 2 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   info: { flex: 1, gap: 2 },

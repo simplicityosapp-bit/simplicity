@@ -1,18 +1,20 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { Check, ChevronDown, Pencil } from 'lucide-react-native'
+import { Check, ChevronDown, Pencil, Tags } from 'lucide-react-native'
 import { fmtShortDate, formatWhen, startOfDay, isRecurring, isActiveReminder, dueOccurrenceCount } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
-import { Glass } from '../components/Glass'
+import { Glass, GlassPressable } from '../components/Glass'
 import AddTaskModal from '../modals/AddTaskModal'
 import AddReminderModal from '../modals/AddReminderModal'
+import TaskTaxonomyModal from '../modals/TaskTaxonomyModal'
 import { colors } from '../theme/theme'
 import { useFormOptions } from '../lib/formOptions'
 import { useTasksList } from '../hooks/useTasksList'
 import { useRemindersList } from '../hooks/useRemindersList'
+import { useTaskTaxonomy } from '../hooks/useTaskTaxonomy'
 
 const PRIORITY_COLOR = { high: colors.danger, medium: colors.amberWarn, low: colors.positive }
 const PRIORITY_GROUPS = ['high', 'medium', 'low']
@@ -44,6 +46,8 @@ export default function TasksScreen() {
   const { tasks, loading: tLoading, error: tError, addTask, toggleDone, updateTask, deleteTask, refetch: refetchTasks } = useTasksList()
   const { reminders, loading: rLoading, error: rError, addReminder, editReminder, completeReminder, deleteReminder, refetch: refetchRems } = useRemindersList()
   const { clients, projects, taskStatuses } = useFormOptions()
+  const taxonomy = useTaskTaxonomy()
+  const taskCategories = taxonomy.taskCategories
   const [view, setView] = useState('tasks')
   const [adding, setAdding] = useState(false)
   const [editTask, setEditTask] = useState(null)
@@ -51,15 +55,20 @@ export default function TasksScreen() {
   const [filter, setFilter] = useState('todo')
   const [groupBy, setGroupBy] = useState('priority')
   const [collapsed, setCollapsed] = useState(() => new Set())
+  const [categoryFilters, setCategoryFilters] = useState(() => new Set())
+  const [showTaxonomy, setShowTaxonomy] = useState(false)
   const toggleGroup = (k) => setCollapsed((prev) => { const n = new Set(prev); if (n.has(k)) n.delete(k); else n.add(k); return n })
+  const toggleCategory = (id) => setCategoryFilters((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
 
   const isTasks = view === 'tasks'
   const switchView = (v) => { setView(v); setFilter('todo') }
   const clientById = useMemo(() => Object.fromEntries(clients.map((c) => [c.id, c.name])), [clients])
   const projectById = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p.name])), [projects])
   const statusById = useMemo(() => Object.fromEntries((taskStatuses || []).map((s) => [s.id, s])), [taskStatuses])
+  const categoryById = useMemo(() => Object.fromEntries(taskCategories.map((c) => [c.id, c])), [taskCategories])
   const now = useMemo(() => new Date(), [tasks, reminders, view, filter])
   const remClient = (r) => (r.linked_to_type === 'client' ? clientById[r.linked_to_id] : null)
+  const catMatch = (row) => !categoryFilters.size || categoryFilters.has(row.category_id)
 
   const loading = isTasks ? tLoading : rLoading
   const error = isTasks ? tError : rError
@@ -71,10 +80,12 @@ export default function TasksScreen() {
 
   // ── task groups ──
   const filteredTasks = useMemo(() => {
-    if (filter === 'todo') return tasks.filter((t) => t.status !== 'done')
-    if (filter === 'done') return tasks.filter((t) => t.status === 'done')
-    return tasks
-  }, [tasks, filter])
+    let list = tasks
+    if (filter === 'todo') list = list.filter((t) => t.status !== 'done')
+    else if (filter === 'done') list = list.filter((t) => t.status === 'done')
+    if (categoryFilters.size) list = list.filter((t) => categoryFilters.has(t.category_id))
+    return list
+  }, [tasks, filter, categoryFilters])
   const taskGroups = useMemo(() => {
     if (groupBy === 'project') {
       const gs = projects.map((p) => ({ key: `p-${p.id}`, label: p.name, color: p.color || FALLBACK, items: filteredTasks.filter((t) => t.project_id === p.id) }))
@@ -104,15 +115,22 @@ export default function TasksScreen() {
       return gs
     }
     if (filter === 'done') {
-      const items = reminders.filter((r) => r.status === 'completed')
+      const items = reminders.filter((r) => r.status === 'completed' && catMatch(r))
       return items.length ? [{ key: 'done', label: i18n.t('tasks:doneGroup', { defaultValue: 'הושלמו' }), color: colors.textSub, items }] : []
     }
-    // todo → active reminders bucketed by due date
-    const active = reminders.filter((r) => isActiveReminder(r) && (isRecurring(r) ? dueOccurrenceCount(r, now) >= 1 : true))
+    // todo → active reminders + dated open tasks, both bucketed by due date
+    const active = reminders.filter((r) => isActiveReminder(r) && catMatch(r) && (isRecurring(r) ? dueOccurrenceCount(r, now) >= 1 : true))
+    const dated = tasks.filter((t) => t.due_at && t.status !== 'done' && catMatch(t))
     return REM_BUCKETS
-      .map((b) => ({ key: b.key, label: i18n.t(`tasks:buckets.${b.key}`), color: b.color, items: active.filter((r) => dateToBucket(new Date(r.scheduled_at), now) === b.key) }))
-      .filter((g) => g.items.length)
-  }, [isTasks, filter, reminders, now])
+      .map((b) => ({
+        key: b.key,
+        label: i18n.t(`tasks:buckets.${b.key}`),
+        color: b.color,
+        items: active.filter((r) => dateToBucket(new Date(r.scheduled_at), now) === b.key),
+        datedTasks: dated.filter((t) => dateToBucket(new Date(t.due_at), now) === b.key),
+      }))
+      .filter((g) => g.items.length || g.datedTasks.length)
+  }, [isTasks, filter, reminders, tasks, now, categoryFilters]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const groups = isTasks ? taskGroups : reminderGroups
   const filters = isTasks ? TASK_FILTERS : REM_FILTERS
@@ -157,6 +175,32 @@ export default function TasksScreen() {
             <Segmented options={GROUP_BY.map((g) => ({ k: g, label: i18n.t(`tasks:groupBy.${g}`) }))} value={groupBy} onPick={setGroupBy} />
           ) : null}
 
+          {/* Category filter + manage — shared across tasks + reminders */}
+          <View style={styles.catBar}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catPills}>
+              {taskCategories.length ? (
+                <>
+                  <GlassPressable radius={999} on={categoryFilters.size === 0} style={styles.catPill} onPress={() => setCategoryFilters(new Set())}>
+                    <Text style={[styles.catText, categoryFilters.size === 0 && styles.catTextOn]}>{i18n.t('tasks:taxonomy.all', { defaultValue: 'הכל' })}</Text>
+                  </GlassPressable>
+                  {taskCategories.map((c) => {
+                    const on = categoryFilters.has(c.id)
+                    return (
+                      <GlassPressable key={c.id} radius={999} on={on} style={styles.catPill} onPress={() => toggleCategory(c.id)}>
+                        <View style={[styles.catDot, { backgroundColor: c.color || colors.textSub }]} />
+                        <Text style={[styles.catText, on && styles.catTextOn]}>{c.name}</Text>
+                      </GlassPressable>
+                    )
+                  })}
+                </>
+              ) : null}
+            </ScrollView>
+            <GlassPressable radius={999} style={styles.manageBtn} onPress={() => setShowTaxonomy(true)}>
+              <Tags size={14} strokeWidth={1.6} color={colors.textSub} />
+              <Text style={styles.catText}>{i18n.t('tasks:taxonomy.manage', { defaultValue: 'סטטוסים וקטגוריות' })}</Text>
+            </GlassPressable>
+          </View>
+
           {groups.length ? (
             groups.map((g) => {
               const isOpen = !collapsed.has(g.key)
@@ -165,18 +209,25 @@ export default function TasksScreen() {
                   <Pressable style={styles.groupHead} onPress={() => toggleGroup(g.key)}>
                     <View style={[styles.groupDot, { backgroundColor: g.color }]} />
                     <Text style={styles.groupLabel}>{g.label}</Text>
-                    <Text style={styles.groupCount}>{g.items.length}</Text>
+                    <Text style={styles.groupCount}>{g.items.length + (g.datedTasks ? g.datedTasks.length : 0)}</Text>
                     <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }} />
                   </Pressable>
                   {isOpen ? (
                     <View style={styles.groupBody}>
                       {isTasks
                         ? g.items.map((t, i) => (
-                          <TaskRow key={t.id} task={t} first={i === 0} clientById={clientById} projectById={projectById} status={statusById[t.status_id]} onToggle={() => toggleDone(t)} onEdit={() => setEditTask(t)} />
+                          <TaskRow key={t.id} task={t} first={i === 0} clientById={clientById} projectById={projectById} status={statusById[t.status_id]} category={categoryById[t.category_id]} onToggle={() => toggleDone(t)} onEdit={() => setEditTask(t)} />
                         ))
-                        : g.items.map((r, i) => (
-                          <ReminderRow key={r.id} reminder={r} first={i === 0} clientName={remClient(r)} count={isRecurring(r) ? dueOccurrenceCount(r, now) : 1} onComplete={() => completeReminder(r)} onEdit={() => setEditRem(r)} />
-                        ))}
+                        : (
+                          <>
+                            {g.items.map((r, i) => (
+                              <ReminderRow key={r.id} reminder={r} first={i === 0} clientName={remClient(r)} count={isRecurring(r) ? dueOccurrenceCount(r, now) : 1} onComplete={() => completeReminder(r)} onEdit={() => setEditRem(r)} />
+                            ))}
+                            {(g.datedTasks || []).map((t, i) => (
+                              <TaskRow key={t.id} task={t} first={g.items.length === 0 && i === 0} clientById={clientById} projectById={projectById} status={statusById[t.status_id]} category={categoryById[t.category_id]} onToggle={() => toggleDone(t)} onEdit={() => setEditTask(t)} />
+                            ))}
+                          </>
+                        )}
                     </View>
                   ) : null}
                 </Card>
@@ -196,6 +247,16 @@ export default function TasksScreen() {
       )}
       <AddTaskModal open={!!editTask} task={editTask} onClose={() => setEditTask(null)} onSave={(patch) => updateTask(editTask.id, patch)} onDelete={() => { deleteTask(editTask.id); setEditTask(null) }} />
       <AddReminderModal open={!!editRem} reminder={editRem} onClose={() => setEditRem(null)} onSave={(patch) => editReminder(editRem.id, patch)} onDelete={() => { deleteReminder(editRem.id); setEditRem(null) }} />
+      <TaskTaxonomyModal
+        open={showTaxonomy}
+        onClose={() => setShowTaxonomy(false)}
+        statuses={taskStatuses || []}
+        categories={taskCategories}
+        onAddStatus={taxonomy.addStatus}
+        onRemoveStatus={taxonomy.removeStatus}
+        onAddCategory={taxonomy.addCategory}
+        onRemoveCategory={taxonomy.removeCategory}
+      />
     </Screen>
   )
 }
@@ -230,7 +291,7 @@ function Segmented({ options, value, onPick }) {
   )
 }
 
-function TaskRow({ task, first, clientById, projectById, status, onToggle, onEdit }) {
+function TaskRow({ task, first, clientById, projectById, status, category, onToggle, onEdit }) {
   const isDone = task.status === 'done'
   const overdue = !isDone && task.due_at && new Date(task.due_at) < startOfDay(new Date())
   const meta = [task.due_at ? fmtShortDate(task.due_at) : null, clientById[task.client_id], projectById[task.project_id]].filter(Boolean).join(' · ')
@@ -244,7 +305,12 @@ function TaskRow({ task, first, clientById, projectById, status, onToggle, onEdi
           <Text style={[styles.text, isDone && styles.textDone]} numberOfLines={2}>{task.title || ''}</Text>
           {status ? <Text style={styles.chip} numberOfLines={1}>{status.icon ? `${status.icon} ` : ''}{status.display_name}</Text> : null}
         </View>
-        {meta ? <Text style={[styles.meta, overdue && styles.metaOverdue]} numberOfLines={1}>{meta}</Text> : null}
+        <View style={styles.metaRow}>
+          {category ? (
+            <View style={styles.catTag}><View style={[styles.catTagDot, { backgroundColor: category.color || colors.textSub }]} /><Text style={styles.catTagText}>{category.name}</Text></View>
+          ) : null}
+          {meta ? <Text style={[styles.meta, overdue && styles.metaOverdue]} numberOfLines={1}>{meta}</Text> : null}
+        </View>
       </Pressable>
     </View>
   )
@@ -291,6 +357,15 @@ const styles = StyleSheet.create({
   segText: { fontSize: 12, color: colors.textSub },
   segTextOn: { color: colors.onBrand, fontWeight: '600' },
 
+  // Category filter bar
+  catBar: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  catPills: { flexDirection: 'row', gap: 6, paddingVertical: 2 },
+  catPill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12 },
+  catDot: { width: 8, height: 8, borderRadius: 4 },
+  catText: { fontSize: 12, color: colors.textSub },
+  catTextOn: { color: colors.onBrand, fontWeight: '600' },
+  manageBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12 },
+
   groupOuter: { marginTop: 0 },
   group: {},
   groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 13, paddingHorizontal: 14 },
@@ -308,6 +383,10 @@ const styles = StyleSheet.create({
   text: { flex: 1, fontSize: 14, color: colors.text, lineHeight: 20 },
   textDone: { color: colors.textFaint, textDecorationLine: 'line-through' },
   chip: { fontSize: 10, color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.05)', borderRadius: 8, paddingVertical: 1, paddingHorizontal: 7, overflow: 'hidden' },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
+  catTag: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 1, paddingHorizontal: 7, borderRadius: 8, backgroundColor: 'rgba(42,37,32,0.05)' },
+  catTagDot: { width: 6, height: 6, borderRadius: 3 },
+  catTagText: { fontSize: 10, color: colors.textSub },
   meta: { fontSize: 12, color: colors.textFaint },
   metaOverdue: { color: colors.amberWarn },
 })

@@ -112,11 +112,22 @@ export const transactions = [
   { id: uid(), user_id: USER, amount: 380, type: 'income', desc: 'מנוי שדולג', date: dateAgo(33), created_at: daysAgo(33), status: 'skipped', project_id: projects[0].id, client_id: clients[1].id, category_id: categories[0].id, recurring_id: recurring_templates[0].id, orphaned_from: null },
 ]
 
+/* ── task taxonomy (custom statuses + categories, shared by tasks + reminders) ── */
+export const task_statuses = [
+  { id: uid(), user_id: USER, display_name: 'בתהליך', icon: '🔵', color: '#5a6a8c', meta_category: 'todo', created_at: daysAgo(30), deleted_at: null },
+  { id: uid(), user_id: USER, display_name: 'ממתין לחומר', icon: '⏳', color: '#D4A574', meta_category: 'todo', created_at: daysAgo(30), deleted_at: null },
+]
+export const task_categories = [
+  { id: uid(), user_id: USER, name: 'אדמיניסטרציה', color: '#8BA888', created_at: daysAgo(30), deleted_at: null },
+  { id: uid(), user_id: USER, name: 'תוכן', color: '#C97B5E', created_at: daysAgo(30), deleted_at: null },
+  { id: uid(), user_id: USER, name: 'לקוחות', color: '#5a6a8c', created_at: daysAgo(30), deleted_at: null },
+]
+
 /* ── tasks — high todo / medium done / low todo ── */
 export const tasks = [
-  { id: uid(), user_id: USER, title: 'להכין חומרים לסדנת בוקר', priority: 'high', status: 'todo', project_id: projects[1].id, client_id: null, created_at: daysAgo(2), completed_at: null },
-  { id: uid(), user_id: USER, title: 'לשלוח סיכום פגישה לרעות', priority: 'medium', status: 'done', project_id: projects[0].id, client_id: clients[0].id, created_at: daysAgo(8), completed_at: daysAgo(6) },
-  { id: uid(), user_id: USER, title: 'לעדכן טקסט באתר', priority: 'low', status: 'todo', project_id: null, client_id: null, created_at: daysAgo(1), completed_at: null },
+  { id: uid(), user_id: USER, title: 'להכין חומרים לסדנת בוקר', priority: 'high', status: 'todo', status_id: task_statuses[0].id, category_id: task_categories[1].id, project_id: projects[1].id, client_id: null, created_at: daysAgo(2), completed_at: null },
+  { id: uid(), user_id: USER, title: 'לשלוח סיכום פגישה לרעות', priority: 'medium', status: 'done', category_id: task_categories[2].id, project_id: projects[0].id, client_id: clients[0].id, created_at: daysAgo(8), completed_at: daysAgo(6) },
+  { id: uid(), user_id: USER, title: 'לעדכן טקסט באתר', priority: 'low', status: 'todo', category_id: task_categories[0].id, due_at: daysFromNow(2), project_id: null, client_id: null, created_at: daysAgo(1), completed_at: null },
 ]
 
 /* ── leads — in_process / converted / ghost ── */
@@ -333,6 +344,8 @@ export const MOCK_DB = {
   categories,
   transactions,
   recurring_templates,
+  task_statuses,
+  task_categories,
   tasks,
   lead_sources,
   meeting_types,

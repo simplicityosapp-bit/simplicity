@@ -15,6 +15,7 @@ const TABLES = {
   leadStatuses: 'lead_statuses',
   meetingTypes: 'meeting_types',
   taskStatuses: 'task_statuses',
+  taskCategories: 'task_categories',
   userQuestions: 'user_questions',
 }
 const KEYS = Object.keys(TABLES)

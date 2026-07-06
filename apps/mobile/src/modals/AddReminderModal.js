@@ -13,8 +13,14 @@ const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
+const RECUR = [
+  { k: 'none', l: 'recOnce' },
+  { k: 'weekly', l: 'recWeekly' },
+  { k: 'monthly_date', l: 'recMonthly' },
+  { k: 'every_x_days', l: 'recEveryX' },
+]
 const fromReminder = (r) => {
-  if (!r) return { title: '', description: '', date: todayStr(), time: '09:00' }
+  if (!r) return { title: '', description: '', date: todayStr(), time: '09:00', recurrence: 'none', interval: '7' }
   const d = r.scheduled_at ? new Date(r.scheduled_at) : new Date()
   const pad = (n) => String(n).padStart(2, '0')
   return {
@@ -22,7 +28,15 @@ const fromReminder = (r) => {
     description: r.description || '',
     date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
     time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+    recurrence: r.recurrence_type || 'none',
+    interval: String(r.recurrence_pattern?.interval || 7),
   }
+}
+const recurrencePayload = (recurrence, scheduled, interval) => {
+  if (recurrence === 'weekly') return { recurrence_type: 'weekly', recurrence_pattern: { dayOfWeek: scheduled.getDay() } }
+  if (recurrence === 'monthly_date') return { recurrence_type: 'monthly_date', recurrence_pattern: { day: scheduled.getDate() } }
+  if (recurrence === 'every_x_days') return { recurrence_type: 'every_x_days', recurrence_pattern: { interval: Number(interval) || 7 } }
+  return { recurrence_type: 'none', recurrence_pattern: null }
 }
 
 export default function AddReminderModal({ open, onClose, onSave, onDelete, reminder = null }) {
@@ -47,10 +61,11 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
     setBusy(true)
     setErr('')
     try {
-      const patch = { title: form.title.trim(), description: form.description.trim() || null, scheduled_at: scheduled.toISOString() }
+      const rec = recurrencePayload(form.recurrence, scheduled, form.interval)
+      const patch = { title: form.title.trim(), description: form.description.trim() || null, scheduled_at: scheduled.toISOString(), ...rec }
       await onSave(isEdit ? patch : {
         ...patch,
-        recurrence_type: 'none', recurrence_pattern: null, end_date: null,
+        end_date: null,
         linked_to_type: null, linked_to_id: null, category_id: null,
         status: 'pending', type: null, channel: null,
       })
@@ -84,6 +99,26 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
         </View>
       </View>
       <View style={styles.field}>
+        <Text style={styles.label}>{i18n.t('modalsTask:reminder.recurrence')}</Text>
+        <View style={styles.pills}>
+          {RECUR.map((r) => {
+            const on = form.recurrence === r.k
+            return (
+              <Pressable key={r.k} style={[styles.pill, on && styles.pillOn]} onPress={() => set('recurrence', r.k)}>
+                <Text style={[styles.pillText, on && styles.pillTextOn]}>{i18n.t(`modalsTask:reminder.${r.l}`)}</Text>
+              </Pressable>
+            )
+          })}
+        </View>
+      </View>
+      {form.recurrence === 'every_x_days' ? (
+        <View style={styles.field}>
+          <Text style={styles.label}>{i18n.t('modalsTask:reminder.everyHowMany', { defaultValue: 'כל כמה ימים' })}</Text>
+          <TextInput style={styles.input} value={form.interval} onChangeText={(v) => set('interval', v)} keyboardType="numeric" placeholderTextColor={colors.textFaint} />
+        </View>
+      ) : null}
+
+      <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsTask:reminder.details')}</Text>
         <TextInput style={styles.input} value={form.description} onChangeText={(v) => set('description', v)} placeholder={i18n.t('modalsTask:reminder.detailsPlaceholder')} placeholderTextColor={colors.textFaint} />
       </View>
@@ -110,6 +145,11 @@ const styles = StyleSheet.create({
   label: { fontSize: 13, color: colors.textSub },
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
   inputErr: { borderColor: colors.danger },
+  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  pillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  pillText: { fontSize: 13, color: colors.textSub },
+  pillTextOn: { color: colors.onBrand, fontWeight: '600' },
   error: { color: colors.danger, fontSize: 13 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
   delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },

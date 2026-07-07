@@ -14,10 +14,10 @@ import { colors } from '../theme/theme'
 // AUTHORING (write a new question + schedule) is still deferred to the Questions
 // screen. onSave resolves metric_key → category (useGoalsData.addGoal).
 const IMPORTANCE = [1, 2, 3, 4, 5]
-const blank = () => ({ metric_key: '', label: '', time_frame: 'monthly', target_value: '', target_date: '', importance: 3, project_id: '', tracking_method: 'manual', tracked_by_question_id: '' })
+const blank = () => ({ metric_key: '', label: '', time_frame: 'monthly', target_value: '', target_date: '', importance: 3, project_id: '', group_id: '', tracking_method: 'manual', tracked_by_question_id: '' })
 
 export default function AddGoalModal({ open, onClose, onSave }) {
-  const { projects, userQuestions } = useFormOptions()
+  const { projects, groups = [], userQuestions } = useFormOptions()
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -47,7 +47,7 @@ export default function AddGoalModal({ open, onClose, onSave }) {
         metric_key: form.metric_key,
         parent_goal_id: null,
         project_id: form.project_id || null,
-        group_id: null,
+        group_id: form.group_id || null,
         label: form.label.trim() || null,
         time_frame: form.time_frame,
         target_value: target,
@@ -135,10 +135,19 @@ export default function AddGoalModal({ open, onClose, onSave }) {
       <Select
         label={i18n.t('modalsData:addGoal.projectOptional')}
         value={form.project_id}
-        onChange={(v) => set('project_id', v)}
+        onChange={(v) => setForm((f) => ({ ...f, project_id: v, group_id: '' }))}
         placeholder={none}
         options={[{ value: '', label: none }, ...projects.map((p) => ({ value: p.id, label: p.name || '' }))]}
       />
+      {groups.filter((g) => g.project_id === form.project_id).length ? (
+        <Select
+          label={i18n.t('modalsData:addGoal.groupOptional')}
+          value={form.group_id}
+          onChange={(v) => set('group_id', v)}
+          placeholder={none}
+          options={[{ value: '', label: none }, ...groups.filter((g) => g.project_id === form.project_id).map((g) => ({ value: g.id, label: g.name || '' }))]}
+        />
+      ) : null}
 
       {isManual ? (
         <View style={styles.field}>

@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
+import Select from '../components/Select'
+import { useFormOptions } from '../lib/formOptions'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
 // Edit a goal (mirrors web EditGoalModal's core: label / time-frame / target /
-// target-date / importance + delete). The metric isn't editable (a goal keeps
-// its category); the daily-question tracking path is deferred. onSave(id, patch).
+// target-date / importance / project+group + delete). The metric isn't editable
+// (a goal keeps its category); the daily-question tracking path is deferred.
+// onSave(id, patch).
 const IMPORTANCE = [1, 2, 3, 4, 5]
 const blank = (goal) => ({
   label: goal?.label || '',
@@ -15,9 +18,12 @@ const blank = (goal) => ({
   target_value: goal?.target_value != null ? String(goal.target_value) : '',
   target_date: goal?.target_date ? String(goal.target_date).slice(0, 10) : '',
   importance: goal?.importance ?? 3,
+  project_id: goal?.project_id || '',
+  group_id: goal?.group_id || '',
 })
 
 export default function EditGoalModal({ open, onClose, onSave, onDelete, goal }) {
+  const { projects = [], groups = [] } = useFormOptions()
   const [form, setForm] = useState(() => blank(goal))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -50,6 +56,8 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal })
         target_value: target,
         target_date: form.time_frame === 'deadline' ? form.target_date : null,
         importance: Number(form.importance),
+        project_id: form.project_id || null,
+        group_id: form.group_id || null,
       })
       close()
     } catch (e) {
@@ -112,6 +120,25 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal })
           })}
         </View>
       </View>
+
+      {projects.length ? (
+        <Select
+          label={i18n.t('modalsData:editGoal.projectOptional')}
+          value={form.project_id}
+          onChange={(v) => setForm((f) => ({ ...f, project_id: v, group_id: '' }))}
+          placeholder={i18n.t('modalsData:common.none')}
+          options={[{ value: '', label: i18n.t('modalsData:common.none') }, ...projects.map((p) => ({ value: p.id, label: p.name || '' }))]}
+        />
+      ) : null}
+      {groups.filter((g) => g.project_id === form.project_id).length ? (
+        <Select
+          label={i18n.t('modalsData:editGoal.groupOptional')}
+          value={form.group_id}
+          onChange={(v) => set('group_id', v)}
+          placeholder={i18n.t('modalsData:common.none')}
+          options={[{ value: '', label: i18n.t('modalsData:common.none') }, ...groups.filter((g) => g.project_id === form.project_id).map((g) => ({ value: g.id, label: g.name || '' }))]}
+        />
+      ) : null}
 
       {err ? <Text style={styles.error}>{err}</Text> : null}
 

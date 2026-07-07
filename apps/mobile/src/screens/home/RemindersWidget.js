@@ -12,10 +12,17 @@ import { colors } from '../../theme/theme'
 // Reminders live under the Tasks screen, so rows tap through to Tasks.
 export default function RemindersWidget({ reminders }) {
   const nav = useNavigation()
-  const items = useMemo(() => remindersUpcoming(new Date(), reminders), [reminders])
+  const items = useMemo(() => remindersUpcoming(new Date(), reminders, 60, 0), [reminders]) // all upcoming
+  const todayCount = useMemo(() => {
+    const now = new Date()
+    const isToday = (d) => d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate()
+    return items.filter((r) => isToday(new Date(r.when))).length
+  }, [items])
   if (!items.length) return null
 
-  const summary = i18n.t('home:widgets.reminders.soonSummary', { count: items.length })
+  const summary = todayCount > 0
+    ? i18n.t('home:widgets.reminders.todaySummary', { count: items.length, today: todayCount })
+    : i18n.t('home:widgets.reminders.soonSummary', { count: items.length })
 
   return (
     <WidgetCard Icon={Clock} title={i18n.t('home:widgets.reminders.title')} count={i18n.t('home:widgets.reminders.link', { count: items.length })} summary={summary}>

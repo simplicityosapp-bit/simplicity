@@ -35,7 +35,7 @@ export default function NextTasksWidget({ tasks }) {
           </Pressable>
         ))
       ) : (
-        <Text style={styles.empty}>{i18n.t('home:widgets.nextTasks.noOpen')}</Text>
+        <Text style={styles.empty}>{i18n.t('home:widgets.nextTasks.allDone', { add: i18n.t('home:widgets.nextTasks.addWord') })}</Text>
       )}
     </WidgetCard>
   )

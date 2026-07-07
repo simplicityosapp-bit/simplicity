@@ -5,12 +5,12 @@ import { usePreferences } from '../lib/preferences'
 
 // Screen frame with a background that honours the user's "רקע" preference
 // (prefs.design.background): 'nature' = the per-screen photo (default), 'simple'
-// = one calm photo everywhere, 'empty' = flat soft-cream (no photo). A soft warm
+// = one calm photo everywhere, 'blank' = flat soft-cream (no photo). A soft warm
 // scrim sits over any photo so glass cards stay readable.
 export default function Screen({ name, children }) {
   const { prefs } = usePreferences()
   const mode = prefs?.design?.background || 'nature'
-  const bg = mode === 'empty' ? null : (mode === 'simple' ? backgrounds.home : backgrounds[name])
+  const bg = mode === 'blank' ? null : (mode === 'simple' ? backgrounds.home : backgrounds[name])
   return (
     <View style={styles.root}>
       {bg ? (

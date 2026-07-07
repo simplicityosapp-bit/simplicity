@@ -16,10 +16,10 @@ import { applySavedLanguage } from '../lib/preferences'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 
-const GENDERS = ['male', 'female', 'neutral']
+const GENDERS = ['female', 'male', 'neutral']
 const ROLES = ['therapist', 'coach', 'consultant', 'trainer', 'other']
 const TEXT_SIZES = ['small', 'normal', 'large']
-const BACKGROUNDS = ['nature', 'simple', 'empty']
+const BACKGROUNDS = ['nature', 'simple', 'blank']
 const T = (k, o) => i18n.t(`settings:${k}`, o)
 
 function Section({ Icon, title, sub, open, onToggle, children }) {
@@ -38,13 +38,13 @@ function Section({ Icon, title, sub, open, onToggle, children }) {
   )
 }
 
-function Pills({ options, value, onPick }) {
+function Pills({ options, value, onPick, accent }) {
   return (
     <View style={styles.pills}>
       {options.map((o) => {
         const on = value === o.k
         return (
-          <Pressable key={o.k} style={[styles.pill, on && styles.pillOn]} onPress={() => onPick(o.k)}>
+          <Pressable key={o.k} style={[styles.pill, on && (accent === 'brand' ? styles.pillOnBrand : styles.pillOn)]} onPress={() => onPick(o.k)}>
             <Text style={[styles.pillText, on && styles.pillTextOn]}>{o.label}</Text>
           </Pressable>
         )
@@ -66,7 +66,7 @@ export default function SettingsScreen() {
   const [lang, setLang] = useState(i18n.language)
   const toggle = (k) => setOpen((o) => (o === k ? null : k))
 
-  const role = prefs.role || 'therapist'
+  const role = prefs.profile?.role || 'other'
   const setLanguage = (code) => { setLang(code); applySavedLanguage(code); update({ language: code }) }
   // Form of address → i18next context (matches web's prefs.design.gender). Apply
   // immediately so this screen re-renders gendered; other screens pick it up on
@@ -107,18 +107,18 @@ export default function SettingsScreen() {
         {/* Profile */}
         <Section Icon={User} title={T('sections.profile.title', { defaultValue: 'פרופיל' })} sub={T('sections.profile.sub', { defaultValue: '' })} open={open === 'profile'} onToggle={() => toggle('profile')}>
           <Field label={T('profile.fullName', { defaultValue: 'שם מלא' })}>
-            <TextInput style={styles.input} value={prefs.full_name || ''} onChangeText={(v) => update({ full_name: v })} placeholder={T('profile.namePlaceholder', { defaultValue: 'השם שלך' })} placeholderTextColor={colors.textFaint} />
+            <TextInput style={styles.input} value={prefs.profile?.full_name || ''} onChangeText={(v) => update({ profile: { ...(prefs.profile || {}), full_name: v } })} placeholder={T('profile.namePlaceholder', { defaultValue: 'השם שלך' })} placeholderTextColor={colors.textFaint} />
           </Field>
-          <Select label={T('profile.role', { defaultValue: 'תפקיד' })} value={role} onChange={(v) => update({ role: v })}
+          <Field label={T('profile.genders.label', { defaultValue: 'פנייה' })}>
+            <Pills accent="brand" options={GENDERS.map((g) => ({ k: g, label: T(`profile.genders.${g}`, { defaultValue: g }) }))} value={prefs.design?.gender || 'neutral'} onPick={setGender} />
+          </Field>
+          <Select label={T('profile.role', { defaultValue: 'תפקיד' })} value={role} onChange={(v) => update({ profile: { ...(prefs.profile || {}), role: v } })}
             options={ROLES.map((r) => ({ value: r, label: T(`profile.roles.${r}`, { defaultValue: r }) }))} />
           {role === 'other' ? (
             <Field label={T('profile.roleOther', { defaultValue: 'תפקיד אחר' })}>
-              <TextInput style={styles.input} value={prefs.role_other || ''} onChangeText={(v) => update({ role_other: v })} placeholder={T('profile.roleOtherPlaceholder', { defaultValue: '' })} placeholderTextColor={colors.textFaint} />
+              <TextInput style={styles.input} value={prefs.profile?.role_other || ''} onChangeText={(v) => update({ profile: { ...(prefs.profile || {}), role_other: v } })} placeholder={T('profile.roleOtherPlaceholder', { defaultValue: '' })} placeholderTextColor={colors.textFaint} />
             </Field>
           ) : null}
-          <Field label={T('profile.genders.label', { defaultValue: 'פנייה' })}>
-            <Pills options={GENDERS.map((g) => ({ k: g, label: T(`profile.genders.${g}`, { defaultValue: g }) }))} value={prefs.design?.gender || 'neutral'} onPick={setGender} />
-          </Field>
         </Section>
 
         {/* Appearance */}
@@ -279,6 +279,7 @@ const styles = StyleSheet.create({
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
   pillOn: { backgroundColor: colors.text, borderColor: colors.text },
+  pillOnBrand: { backgroundColor: colors.brand, borderColor: colors.brand },
   pillText: { fontSize: 13, color: colors.textSub },
   pillTextOn: { color: colors.onBrand, fontWeight: '600' },
 

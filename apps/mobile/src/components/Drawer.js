@@ -93,10 +93,10 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
     persistThemeAndReload(next)
   }
   const email = session?.user?.email || ''
-  const name = prefs.full_name || i18n.t('nav:profile.myProfile', { defaultValue: 'הפרופיל שלי' })
-  const roleText = prefs.role === 'other' ? (prefs.role_other || '') : (prefs.role ? i18n.t(`settings:profile.roles.${prefs.role}`, { defaultValue: '' }) : '')
+  const name = prefs.profile?.full_name || i18n.t('nav:profile.myProfile', { defaultValue: 'הפרופיל שלי' })
+  const roleText = prefs.profile?.role === 'other' ? (prefs.profile?.role_other || '') : (prefs.profile?.role ? i18n.t(`settings:profile.roles.${prefs.profile.role}`, { defaultValue: '' }) : '')
   const meta = roleText || email
-  const initial = (prefs.full_name || email).trim()[0]?.toUpperCase() || '?'
+  const initial = (prefs.profile?.full_name || email).trim()[0]?.toUpperCase() || '?'
 
   // Slide in from the right (1 = off-screen, 0 = in) + backdrop fade.
   const anim = useRef(new Animated.Value(1)).current

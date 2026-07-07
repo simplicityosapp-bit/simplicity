@@ -124,5 +124,13 @@ export function useHomeData() {
   const addReminder = useCallback((payload) => insertInto('reminders', payload, 'reminders'), [insertInto])
   const addMeeting = useCallback((payload) => insertInto('scheduled_meetings', payload, 'meetings'), [insertInto])
 
-  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting }
+  // Mark a scheduled meeting as happened / skipped (tile-drill "מה קרה" action).
+  const setMeetingStatus = useCallback(async (id, status) => {
+    if (!id) return
+    setData((prev) => ({ ...prev, meetings: prev.meetings.map((m) => (m.id === id ? { ...m, status } : m)) }))
+    const { error: e } = await supabase.from('scheduled_meetings').update({ status }).eq('id', id)
+    if (e) load()
+  }, [load])
+
+  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus }
 }

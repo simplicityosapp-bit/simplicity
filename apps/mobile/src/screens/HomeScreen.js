@@ -1,18 +1,22 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, RefreshControl } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { homeChips, todayItems, isr } from '@simplicity/core'
+import { homeChips, todayItems, getTileFilters, moonGetData, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import { CalendarClock, Wallet, Users } from 'lucide-react-native'
 import { useHomeData } from '../hooks/useHomeData'
+import { useFormOptions } from '../lib/formOptions'
+import { usePreferences } from '../lib/preferences'
 import Screen from '../components/Screen'
 import Card from '../components/Card'
+import InfoPopover from '../components/InfoPopover'
+import TileDrillModal from '../modals/TileDrillModal'
 import { colors, space } from '../theme/theme'
 import AttentionWidget from './home/AttentionWidget'
 import NextTasksWidget from './home/NextTasksWidget'
 import RemindersWidget from './home/RemindersWidget'
-import MoonWidget from './home/MoonWidget'
+import MoonWidget, { MoonExpansion } from './home/MoonWidget'
 import QuoteWidget from './home/QuoteWidget'
 import InsightsWidget from './home/InsightsWidget'
 import QuickRow from './home/QuickRow'
@@ -24,23 +28,35 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
-    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting,
+    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus,
   } = useHomeData()
+  const { prefs, update: updatePrefs } = usePreferences()
+  const { projects, categories: financeCategories } = useFormOptions()
+  const [openTile, setOpenTile] = useState(null)
+  const [moonExpanded, setMoonExpanded] = useState(false)
+  const filters = useMemo(() => getTileFilters(prefs), [prefs])
+  const gender = prefs.design?.gender
 
   const moonData = useMemo(
     () => ({ goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups }),
     [goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups],
   )
+  const moon = useMemo(() => moonGetData(new Date(), moonData), [moonData])
   const attentionData = useMemo(
     () => ({ transactions, scheduled_meetings: meetings, clients, tasks, goals, categories, sessions, leads, members, groups }),
     [transactions, meetings, clients, tasks, goals, categories, sessions, leads, members, groups],
   )
-  const chips = useMemo(() => homeChips(new Date(), { clients, transactions }), [clients, transactions])
+  const chips = useMemo(() => homeChips(new Date(), { clients, tasks, transactions }, filters), [clients, tasks, transactions, filters])
   const today = useMemo(
-    () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }),
-    [meetings, calendarEvents, leads, clients, groups],
+    () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }, filters.today),
+    [meetings, calendarEvents, leads, clients, groups, filters.today],
   )
   const netStr = isr(chips.net)
+  const netLbl = filters.net?.type === 'income'
+    ? i18n.t('home:widgets.chips.income', { defaultValue: 'הכנסות' })
+    : filters.net?.type === 'expense'
+      ? i18n.t('home:widgets.chips.expense', { defaultValue: 'הוצאות' })
+      : i18n.t('home:widgets.chips.net')
 
   return (
     <Screen name="home">
@@ -58,8 +74,11 @@ export default function HomeScreen() {
         {!loading ? (
           <View style={styles.topRow}>
             <QuoteWidget />
-            <MoonWidget data={moonData} />
+            <MoonWidget overall={moon.overall} expanded={moonExpanded} onToggle={() => setMoonExpanded((v) => !v)} />
           </View>
+        ) : null}
+        {!loading && moonExpanded && moon.overall ? (
+          <MoonExpansion scored={moon.scored} conf={moon.overall.confidence} gender={gender} onFull={() => nav.navigate('Moon')} />
         ) : null}
 
         {!loading ? <InsightsWidget questions={questions} answers={answers} addAnswer={addAnswer} /> : null}
@@ -72,23 +91,48 @@ export default function HomeScreen() {
 
         {!loading ? (
           <View style={styles.chips}>
-            <Chip value={String(today.length)} label={i18n.t('home:widgets.chips.meetings')} Icon={CalendarClock} onPress={() => nav.navigate('Calendar')} />
-            <Chip value={netStr} label={i18n.t('home:widgets.chips.net')} long={netStr.length >= 8} Icon={Wallet} onPress={() => nav.navigate('Finance')} />
-            <Chip value={String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} Icon={Users} onPress={() => nav.navigate('Clients')} />
+            <Chip value={String(today.length)} label={i18n.t('home:widgets.chips.meetings')} Icon={CalendarClock} onPress={() => setOpenTile('today')}
+              info={<InfoPopover label={i18n.t('home:widgets.chips.meetingsInfoLabel')} text={i18n.t('home:widgets.chips.meetingsInfoText_pre') + i18n.t('home:widgets.chips.meetingsInfoText_post')} />} />
+            <Chip value={netStr} label={netLbl} long={netStr.length >= 8} Icon={Wallet} onPress={() => setOpenTile('net')}
+              info={<InfoPopover label={i18n.t('home:widgets.chips.netInfoLabel')} text={i18n.t('home:widgets.chips.netInfoText_pre') + i18n.t('home:widgets.chips.netInfoText_post')} />} />
+            <Chip value={String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} Icon={Users} onPress={() => setOpenTile('clients')}
+              info={<InfoPopover label={i18n.t('home:widgets.chips.clientsInfoLabel')} text={i18n.t('home:widgets.chips.clientsInfoText_pre') + i18n.t('home:widgets.chips.clientsInfoText_post')} />} />
           </View>
         ) : null}
       </ScrollView>
+
+      <TileDrillModal
+        open={!!openTile}
+        tile={openTile}
+        onClose={() => setOpenTile(null)}
+        prefs={prefs}
+        updatePrefs={updatePrefs}
+        filters={filters[openTile] || {}}
+        clients={clients}
+        groups={groups}
+        projects={projects}
+        categories={financeCategories}
+        transactions={transactions}
+        netSummary={chips}
+        meetings={meetings}
+        calendarEvents={calendarEvents}
+        leads={leads}
+        onConfirm={(it) => setMeetingStatus(it.meeting?.id, 'confirmed')}
+      />
     </Screen>
   )
 }
 
-function Chip({ value, label, long, Icon, onPress }) {
+function Chip({ value, label, long, Icon, info, onPress }) {
   return (
     <Pressable style={styles.chipWrap} onPress={onPress}>
       <Card padded={false} contentStyle={styles.chipInner}>
         {Icon ? <Icon size={18} strokeWidth={1.6} color={colors.textSub} style={styles.chipIcon} /> : null}
         <Text style={[styles.chipNum, long && styles.chipNumLong]} numberOfLines={1} adjustsFontSizeToFit>{value}</Text>
-        <Text style={styles.chipLbl}>{label}</Text>
+        <View style={styles.chipLblRow}>
+          <Text style={styles.chipLbl}>{label}</Text>
+          {info}
+        </View>
       </Card>
     </Pressable>
   )
@@ -106,5 +150,6 @@ const styles = StyleSheet.create({
   chipIcon: { position: 'absolute', top: 12, end: 12 },
   chipNum: { fontSize: 22, fontWeight: '500', color: colors.text, fontVariant: ['tabular-nums'] },
   chipNumLong: { fontSize: 18 },
+  chipLblRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   chipLbl: { fontSize: 11, fontWeight: '500', color: colors.textSub },
 })

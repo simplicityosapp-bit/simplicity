@@ -26,7 +26,7 @@ function Section({ Icon, title, sub, open, onToggle, children }) {
   return (
     <Card padded={false} style={styles.sectionOuter} contentStyle={styles.section}>
       <Pressable style={styles.secHead} onPress={onToggle}>
-        <Icon size={18} strokeWidth={1.7} color={colors.textSub} />
+        <View style={styles.secIcon}><Icon size={18} strokeWidth={1.7} color={colors.brand} /></View>
         <View style={styles.secTitleWrap}>
           <Text style={styles.secTitle}>{title}</Text>
           {sub ? <Text style={styles.secSub} numberOfLines={1}>{sub}</Text> : null}
@@ -265,9 +265,10 @@ const styles = StyleSheet.create({
   sectionOuter: {},
   section: {},
   secHead: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14, paddingHorizontal: 14 },
+  secIcon: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' },
   secTitleWrap: { flex: 1 },
-  secTitle: { fontSize: 15, fontWeight: '600', color: colors.text },
-  secSub: { fontSize: 11, color: colors.textFaint, marginTop: 1 },
+  secTitle: { fontSize: 16, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
+  secSub: { fontSize: 12, color: colors.textFaint, marginTop: 1 },
   secBody: { paddingHorizontal: 14, paddingBottom: 16, gap: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider, paddingTop: 14 },
 
   field: { gap: 6 },

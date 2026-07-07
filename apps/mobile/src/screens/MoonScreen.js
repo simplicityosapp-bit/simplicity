@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   reflection: { fontSize: 13, color: colors.text, textAlign: 'center', lineHeight: 19, marginTop: 4, paddingHorizontal: 6 },
 
   section: { gap: 8 },
-  sectionH: { fontSize: 12, fontWeight: '600', color: colors.textSub, letterSpacing: 0.3 },
+  sectionH: { alignSelf: 'flex-start', fontSize: 12, fontWeight: '600', color: colors.textSub, letterSpacing: 0.6, backgroundColor: 'rgba(255,255,255,0.5)', paddingVertical: 3, paddingHorizontal: 12, borderRadius: 999, overflow: 'hidden' },
   catCard: { paddingVertical: 4, paddingHorizontal: 16 },
   cat: { paddingVertical: 12, gap: 8 },
   catBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },

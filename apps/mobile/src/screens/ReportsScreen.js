@@ -64,8 +64,8 @@ export default function ReportsScreen() {
             const metrics = REPORT_METRICS.filter((m) => m.group === g.id)
             return (
               <View key={g.id} style={styles.group}>
-                <Text style={styles.groupTitle}>{i18n.t(`reports:groups.${g.id}`)}</Text>
                 <Card padded={false}>
+                  <Text style={styles.groupTitle}>{i18n.t(`reports:groups.${g.id}`)}</Text>
                   {metrics.map((m, i) => {
                     const Icon = METRIC_ICONS[m.id] || BarChart3
                     return (
@@ -96,9 +96,9 @@ const styles = StyleSheet.create({
   pillText: { fontSize: 13, color: colors.textSub },
   pillTextOn: { color: colors.onBrand, fontWeight: '600' },
   group: { gap: 8 },
-  groupTitle: { fontSize: 14, fontWeight: '600', color: colors.textSub, marginHorizontal: 2 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },
+  groupTitle: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.4, paddingVertical: 10, paddingHorizontal: 14, backgroundColor: 'rgba(42,37,32,0.025)', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 11, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  rowLabel: { flex: 1, fontSize: 14, color: colors.text },
-  rowValue: { fontSize: 15, fontWeight: '600', color: colors.text },
+  rowLabel: { flex: 1, fontSize: 13, color: colors.text },
+  rowValue: { fontSize: 13, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
 })

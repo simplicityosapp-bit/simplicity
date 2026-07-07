@@ -75,18 +75,20 @@ export default function ProjectDetailScreen() {
   return (
     <Screen name="clients">
       {/* Compact header — color + name + meta counts + edit (mirrors web pd-head) */}
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-        <Pressable onPress={() => nav.goBack()} hitSlop={10}><ChevronLeft size={26} strokeWidth={1.8} color={colors.brand} /></Pressable>
-        {project ? <View style={[styles.hcolor, { backgroundColor: project.color || colors.positive }]} /> : null}
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <Text style={styles.hname} numberOfLines={1}>{project?.name || ''}</Text>
-          {project ? (
-            <Text style={styles.hmeta} numberOfLines={1}>
-              {`${activeCount} ${D('metaActive', { defaultValue: 'פעיל' })}${wanderingCount > 0 ? ` · ${D('metaWandering', { count: wanderingCount })}` : ''} · ${D('metaGroups', { count: groups.length })}`}
-            </Text>
-          ) : null}
-        </View>
-        {project ? <Pressable style={styles.hedit} onPress={() => setEditing(true)} hitSlop={6}><Pencil size={15} strokeWidth={1.7} color={colors.textSub} /></Pressable> : null}
+      <View style={[styles.headWrap, { paddingTop: insets.top + 10 }]}>
+        <Card contentStyle={styles.header}>
+          <Pressable onPress={() => nav.goBack()} hitSlop={10}><ChevronLeft size={26} strokeWidth={1.8} color={colors.brand} /></Pressable>
+          {project ? <View style={[styles.hcolor, { backgroundColor: project.color || colors.positive }]} /> : null}
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={styles.hname} numberOfLines={1}>{project?.name || ''}</Text>
+            {project ? (
+              <Text style={styles.hmeta} numberOfLines={1}>
+                {`${activeCount} ${D('metaActive', { defaultValue: 'פעיל' })}${wanderingCount > 0 ? ` · ${D('metaWandering', { count: wanderingCount })}` : ''} · ${D('metaGroups', { count: groups.length })}`}
+              </Text>
+            ) : null}
+          </View>
+          {project ? <Pressable style={styles.hedit} onPress={() => setEditing(true)} hitSlop={6}><Pencil size={15} strokeWidth={1.7} color={colors.textSub} /></Pressable> : null}
+        </Card>
       </View>
 
       {loading && !project ? (
@@ -225,7 +227,8 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 16 },
   error: { color: colors.danger, fontSize: 13 },
 
-  header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingBottom: 12 },
+  headWrap: { paddingHorizontal: 16, paddingBottom: 12 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
   hcolor: { width: 13, height: 13, borderRadius: 7 },
   hname: { flex: 1, fontSize: 20, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   hmeta: { fontSize: 11, color: colors.textSub, marginTop: 2 },

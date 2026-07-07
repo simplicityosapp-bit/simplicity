@@ -49,12 +49,12 @@ export default function TrashScreen() {
               const Icon = ICONS[t.key] || Trash2
               return (
                 <View key={t.key} style={styles.group}>
-                  <View style={styles.groupHead}>
-                    <Icon size={15} strokeWidth={1.5} color={colors.textSub} />
-                    <Text style={styles.groupName}>{i18n.t(`trash:entities.${t.key}`)}</Text>
-                    <Text style={styles.groupCount}>{items.length}</Text>
-                  </View>
                   <Card padded={false}>
+                    <View style={styles.groupHead}>
+                      <Icon size={15} strokeWidth={1.5} color={colors.textSub} />
+                      <Text style={styles.groupName}>{i18n.t(`trash:entities.${t.key}`)}</Text>
+                      <Text style={styles.groupCount}>{items.length}</Text>
+                    </View>
                     {items.map((row, i) => (
                       <View key={row.id} style={[styles.row, i > 0 && styles.rowBorder]}>
                         <Text style={styles.rowLabel} numberOfLines={1}>{row[FIELD[t.key]] || i18n.t(`trash:entities.${t.key}`)}</Text>
@@ -82,9 +82,9 @@ const styles = StyleSheet.create({
   empty: { alignItems: 'center', gap: 12, paddingVertical: 60 },
   emptyText: { fontSize: 14, color: colors.textFaint, textAlign: 'center', lineHeight: 20 },
   group: { gap: 8 },
-  groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
   groupName: { fontSize: 14, fontWeight: '600', color: colors.textSub, flex: 1 },
-  groupCount: { fontSize: 13, color: colors.textFaint },
+  groupCount: { fontSize: 12, fontWeight: '600', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.08)', minWidth: 22, textAlign: 'center', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 6, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   rowLabel: { flex: 1, fontSize: 14, color: colors.text },

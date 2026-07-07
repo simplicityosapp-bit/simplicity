@@ -55,5 +55,41 @@ export function useProjectDetailData(projectId) {
     if (e) throw e
   }, [])
 
-  return { ...state, loading, error, refetch: load, updateProject, removeProject }
+  const addGroup = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('groups').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    setState((s) => ({ ...s, groups: [...s.groups, data] }))
+    return data
+  }, [])
+
+  const updateGroup = useCallback(async (id, patch) => {
+    setState((s) => ({ ...s, groups: s.groups.map((g) => (g.id === id ? { ...g, ...patch } : g)) }))
+    const { error: e } = await supabase.from('groups').update(patch).eq('id', id)
+    if (e) { load() }
+  }, [load])
+
+  const removeGroup = useCallback(async (id) => {
+    setState((s) => ({ ...s, groups: s.groups.filter((g) => g.id !== id) }))
+    const { error: e } = await supabase.from('groups').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    if (e) { load() }
+  }, [load])
+
+  const addMember = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('group_members').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    setState((s) => ({ ...s, members: [...s.members, data] }))
+    return data
+  }, [])
+
+  const removeMember = useCallback(async (id) => {
+    setState((s) => ({ ...s, members: s.members.filter((m) => m.id !== id) }))
+    const { error: e } = await supabase.from('group_members').update({ left_at: new Date().toISOString() }).eq('id', id)
+    if (e) { load() }
+  }, [load])
+
+  return { ...state, loading, error, refetch: load, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember }
 }

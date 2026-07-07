@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { useRoute, useNavigation } from '@react-navigation/native'
-import { Pencil, Users, CalendarDays } from 'lucide-react-native'
+import { Pencil, Users, CalendarDays, Plus, ChevronDown, X } from 'lucide-react-native'
 import { financeQuery, currentMonthRange, isr, fmtShortDate } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import AddProjectModal from '../modals/AddProjectModal'
+import AddGroupModal from '../modals/AddGroupModal'
+import AddGroupMemberModal from '../modals/AddGroupMemberModal'
 import { colors } from '../theme/theme'
 import { useProjectDetailData } from '../hooks/useProjectDetailData'
 
@@ -21,8 +23,12 @@ export default function ProjectDetailScreen() {
   const route = useRoute()
   const nav = useNavigation()
   const projectId = route.params?.projectId
-  const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject } = useProjectDetailData(projectId)
+  const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember } = useProjectDetailData(projectId)
   const [editing, setEditing] = useState(false)
+  const [addingGroup, setAddingGroup] = useState(false)
+  const [editGroup, setEditGroup] = useState(null)
+  const [addMemberTo, setAddMemberTo] = useState(null)
+  const [expanded, setExpanded] = useState(null)
 
   const projClientIds = useMemo(() => new Set(clients.map((c) => c.id)), [clients])
   const groupIds = useMemo(() => new Set(groups.map((g) => g.id)), [groups])
@@ -39,7 +45,11 @@ export default function ProjectDetailScreen() {
       .slice(0, 6),
     [sessions, projClientIds, groupIds],
   )
-  const memberCount = (gid) => members.filter((m) => m.group_id === gid && !m.left_at).length
+  const membersOf = (gid) => members.filter((m) => m.group_id === gid && !m.left_at)
+  const availableFor = (gid) => { const ids = new Set(membersOf(gid).map((m) => m.client_id)); return clients.filter((c) => !ids.has(c.id)) }
+  const groupBilling = (g) => (g.billing_mode === 'per_session' || (g.package_price == null && g.price_per_session != null))
+    ? `${isr(g.price_per_session || 0)} · ${i18n.t('modalsClient:editClient.billingPerSession', { defaultValue: 'לפי פגישה' })}`
+    : `${isr(g.package_price || 0)} / ${g.package_sessions || 0}`
   const clientName = (id) => clients.find((c) => c.id === id)?.name
 
   if (!loading && !project) {
@@ -87,16 +97,45 @@ export default function ProjectDetailScreen() {
             )) : <Text style={styles.empty}>{D('clients.empty', { defaultValue: 'אין לקוחות בפרויקט זה' })}</Text>}
           </Section>
 
-          {/* Groups (read-only) */}
-          <Section title={D('groups.title', { defaultValue: 'קבוצות' })} count={groups.length}>
-            {groups.length ? groups.map((g, i) => (
-              <View key={g.id} style={[styles.row, i > 0 && styles.rowBorder]}>
-                <Users size={15} strokeWidth={1.6} color={colors.textSub} />
-                <Text style={styles.rowName} numberOfLines={1}>{g.name}</Text>
-                <Text style={styles.rowSub}>{D('groups.members', { count: memberCount(g.id), defaultValue: `${memberCount(g.id)} חברים` })}</Text>
-              </View>
-            )) : <Text style={styles.empty}>{D('groups.emptyShort', { defaultValue: 'אין קבוצות בפרויקט זה' })}</Text>}
-          </Section>
+          {/* Groups — add / edit / members */}
+          <View style={styles.section}>
+            <View style={styles.secHead}>
+              <Text style={styles.secTitle}>{D('groups.title', { defaultValue: 'קבוצות' })}</Text>
+              <Text style={styles.secCount}>{groups.length}</Text>
+              <Pressable style={styles.addChip} onPress={() => setAddingGroup(true)} hitSlop={6}><Plus size={16} strokeWidth={2} color={colors.brand} /></Pressable>
+            </View>
+            {groups.length ? groups.map((g) => {
+              const gm = membersOf(g.id)
+              const open = expanded === g.id
+              return (
+                <Card key={g.id} contentStyle={styles.gcard}>
+                  <Pressable style={styles.grow} onPress={() => setExpanded(open ? null : g.id)}>
+                    <View style={[styles.gdot, { backgroundColor: g.color || colors.positive }]} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.gname} numberOfLines={1}>{g.name}</Text>
+                      <Text style={styles.gsub}>{D('groups.members', { count: gm.length, defaultValue: `${gm.length} חברים` })} · {groupBilling(g)}</Text>
+                    </View>
+                    <Pressable onPress={() => setEditGroup(g)} hitSlop={8}><Pencil size={13} strokeWidth={1.7} color={colors.textSub} /></Pressable>
+                    <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
+                  </Pressable>
+                  {open ? (
+                    <View style={styles.gbody}>
+                      {gm.length ? gm.map((m) => (
+                        <View key={m.id} style={styles.mrow}>
+                          <Text style={styles.mname} numberOfLines={1}>{clientName(m.client_id) || '—'}</Text>
+                          <Pressable onPress={() => removeMember(m.id)} hitSlop={8}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
+                        </View>
+                      )) : <Text style={styles.mEmpty}>{i18n.t('modalsClient:addGroup.noMembers', { defaultValue: 'עדיין אין חברים' })}</Text>}
+                      <Pressable style={styles.addMember} onPress={() => setAddMemberTo(g)}>
+                        <Plus size={14} strokeWidth={2} color={colors.brand} />
+                        <Text style={styles.addMemberText}>{i18n.t('modalsClient:addGroupMember.title', { defaultValue: 'הוספת חבר/ה' })}</Text>
+                      </Pressable>
+                    </View>
+                  ) : null}
+                </Card>
+              )
+            }) : <Card padded={false}><Text style={styles.empty}>{D('groups.emptyShort', { defaultValue: 'אין קבוצות בפרויקט זה' })}</Text></Card>}
+          </View>
 
           {/* Recent sessions */}
           {recentSessions.length ? (
@@ -119,6 +158,22 @@ export default function ProjectDetailScreen() {
         onClose={() => setEditing(false)}
         onSave={(patch) => updateProject(project.id, patch)}
         onDelete={async () => { await removeProject(project.id); setEditing(false); nav.goBack() }}
+      />
+      <AddGroupModal open={addingGroup} project={project} onClose={() => setAddingGroup(false)} onSave={addGroup} />
+      <AddGroupModal
+        open={!!editGroup}
+        group={editGroup}
+        project={project}
+        onClose={() => setEditGroup(null)}
+        onSave={(patch) => updateGroup(editGroup.id, patch)}
+        onDelete={() => { removeGroup(editGroup.id); setEditGroup(null) }}
+      />
+      <AddGroupMemberModal
+        open={!!addMemberTo}
+        group={addMemberTo}
+        availableClients={addMemberTo ? availableFor(addMemberTo.id) : []}
+        onClose={() => setAddMemberTo(null)}
+        onSave={addMember}
       />
     </Screen>
   )
@@ -167,6 +222,18 @@ const styles = StyleSheet.create({
   secTitle: { fontSize: 14, fontWeight: '600', color: colors.textSub, flex: 1 },
   secCount: { fontSize: 13, color: colors.textFaint },
   secBody: {},
+  addChip: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brandSoft },
+  gcard: { padding: 0 },
+  grow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
+  gdot: { width: 11, height: 11, borderRadius: 6 },
+  gname: { fontSize: 15, fontWeight: '600', color: colors.text },
+  gsub: { fontSize: 12, color: colors.textFaint, marginTop: 1 },
+  gbody: { paddingHorizontal: 14, paddingBottom: 12, gap: 8, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider, paddingTop: 10 },
+  mrow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  mname: { flex: 1, fontSize: 14, color: colors.text },
+  mEmpty: { fontSize: 12, color: colors.textFaint },
+  addMember: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6 },
+  addMemberText: { fontSize: 13, fontWeight: '500', color: colors.brand },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   sdot: { width: 9, height: 9, borderRadius: 5 },

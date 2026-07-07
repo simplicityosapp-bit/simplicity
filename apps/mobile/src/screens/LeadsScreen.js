@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated } from 'react-native'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking } from 'react-native'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
-import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview } from '@simplicity/core'
+import { Bell, Check, MessageCircle, ChevronLeft } from 'lucide-react-native'
+import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, fmtShortDate } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
@@ -18,6 +19,10 @@ import { useLeadsList } from '../hooks/useLeadsList'
 // then returns a CSS var, which RN can't use).
 const META_COLOR = { in_process: '#D9A566', converted: colors.positive, not_relevant: '#b3a99c' }
 const COL_W = Math.min(300, Math.round(Dimensions.get('window').width * 0.82))
+const todayYmd = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 
 // Leads screen — a KANBAN board (mirrors web): horizontally-scrolling meta
 // columns (in_process / converted / not_relevant), each with rich lead cards.
@@ -33,6 +38,7 @@ export default function LeadsScreen() {
   // Tap-to-move flow: { lead, newMeta?, subs? } — first pick a target column,
   // then (if it has 2+ sub-statuses) a sub-status.
   const [movePicker, setMovePicker] = useState(null)
+  const [showFollowups, setShowFollowups] = useState(false)
 
   const pending = useMemo(() => leads.filter((l) => !l.deleted_at && isPendingReview(l)), [leads])
   const official = useMemo(() => leads.filter((l) => !l.deleted_at && !isPendingReview(l)), [leads])
@@ -43,6 +49,12 @@ export default function LeadsScreen() {
     return g
   }, [official])
   const total = LEAD_META.reduce((s, m) => s + (buckets[m.key]?.length || 0), 0)
+  // Open follow-ups — due (date ≤ today) AND still in_process.
+  const dueFollowups = useMemo(() => {
+    const ymd = todayYmd()
+    return official.filter((l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= ymd)
+  }, [official])
+  const waLead = (l) => Linking.openURL(`https://wa.me/${(l.phone || '').replace(/\D/g, '')}`)
 
   // Commit a column move (+ optional sub-status). status_id is set to a
   // sub-status that BELONGS to the target column (or null); moving OUT of
@@ -160,6 +172,15 @@ export default function LeadsScreen() {
             </View>
           ) : null}
 
+          {/* Open follow-ups banner */}
+          <Pressable style={[styles.banner, dueFollowups.length === 0 && styles.bannerMuted]} onPress={() => setShowFollowups(true)}>
+            <Bell size={15} strokeWidth={1.8} color={dueFollowups.length ? colors.brand : colors.textSub} />
+            {dueFollowups.length ? <Text style={styles.bannerCount}>{dueFollowups.length}</Text> : null}
+            <Text style={styles.bannerText}>{dueFollowups.length === 0 ? i18n.t('leads:followups.empty', { defaultValue: 'אין פולואו-אפים פתוחים להיום' }) : i18n.t('leads:followups.due', { defaultValue: 'פולואו-אפים להיום' })}</Text>
+            <View style={{ flex: 1 }} />
+            <ChevronLeft size={15} strokeWidth={1.7} color={colors.textFaint} />
+          </Pressable>
+
           {/* Kanban board — horizontally-scrolling meta columns. Long-press a
              card to pick it up and drag between columns (edge = auto-scroll);
              the ⇄ control is the tap-to-move fallback. */}
@@ -269,6 +290,22 @@ export default function LeadsScreen() {
           </>
         ) : null}
       </Sheet>
+
+      {/* Open follow-ups list */}
+      <Sheet open={showFollowups} onClose={() => setShowFollowups(false)} title={i18n.t('modalsTask:followups.title', { defaultValue: 'פולואו-אפים פתוחים' })}>
+        {dueFollowups.length === 0 ? (
+          <Text style={styles.fuEmpty}>{i18n.t('modalsTask:followups.empty', { defaultValue: 'אין פולואו-אפים פתוחים להיום.' })}</Text>
+        ) : dueFollowups.map((l) => (
+          <View key={l.id} style={styles.fuRow}>
+            <Pressable style={styles.fuOpen} onPress={() => { setShowFollowups(false); setEditing(l) }}>
+              <Text style={styles.fuName} numberOfLines={1}>{l.name}</Text>
+              <Text style={styles.fuDate}>{fmtShortDate(l.follow_up_date)}</Text>
+            </Pressable>
+            <Pressable style={styles.fuIcon} onPress={() => waLead(l)} hitSlop={6}><MessageCircle size={16} strokeWidth={1.7} color={colors.positive} /></Pressable>
+            <Pressable style={styles.fuDone} onPress={() => updateLead(l.id, { follow_up_date: null })} hitSlop={6}><Check size={16} strokeWidth={2} color={colors.onBrand} /></Pressable>
+          </View>
+        ))}
+      </Sheet>
     </Screen>
   )
 }
@@ -306,4 +343,17 @@ const styles = StyleSheet.create({
   opt: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14, paddingHorizontal: 4, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
   optDot: { width: 10, height: 10, borderRadius: 5 },
   optText: { fontSize: 15, color: colors.text },
+
+  banner: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 11, paddingHorizontal: 14, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(201,123,94,0.35)', backgroundColor: 'rgba(201,123,94,0.08)' },
+  bannerMuted: { borderColor: colors.border, backgroundColor: colors.cardFlat },
+  bannerCount: { fontSize: 12, fontWeight: '700', color: colors.onBrand, backgroundColor: colors.brand, minWidth: 20, textAlign: 'center', borderRadius: 999, paddingVertical: 1, paddingHorizontal: 6, overflow: 'hidden' },
+  bannerText: { fontSize: 13, fontWeight: '500', color: colors.text },
+
+  fuEmpty: { fontSize: 13, color: colors.textFaint, paddingVertical: 8 },
+  fuRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
+  fuOpen: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  fuName: { fontSize: 15, color: colors.text, flex: 1 },
+  fuDate: { fontSize: 13, color: colors.textSub },
+  fuIcon: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cardFlat },
+  fuDone: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.positive },
 })

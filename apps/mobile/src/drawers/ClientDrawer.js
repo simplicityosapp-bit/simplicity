@@ -210,7 +210,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         onSave={(id, patch) => updateClient(id, patch)}
       />
       <AddTransactionModal open={paying} defaults={{ client_id: clientId, type: 'income' }} onClose={() => setPaying(false)} onSave={addTransaction} />
-      <AddMeetingModal open={scheduling} clients={client ? [client] : []} onClose={() => setScheduling(false)} onSave={addMeeting} />
+      <AddMeetingModal open={scheduling} client={client} clients={client ? [client] : []} onClose={() => setScheduling(false)} onSave={addMeeting} onSetRecurringSlot={updateClient} />
 
       {/* Log a session — composes the full sessions row around the modal's when/summary/notes */}
       <AddSessionModal

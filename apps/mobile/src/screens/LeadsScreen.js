@@ -9,6 +9,7 @@ import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import { Glass, GlassPressable } from '../components/Glass'
 import Sheet from '../components/Sheet'
 import LeadCard from './leads/LeadCard'
 import AddLeadModal from '../modals/AddLeadModal'
@@ -227,25 +228,25 @@ export default function LeadsScreen() {
           ) : null}
 
           {/* Open follow-ups banner */}
-          <Pressable style={[styles.banner, dueFollowups.length === 0 && styles.bannerMuted]} onPress={() => setShowFollowups(true)}>
-            <Bell size={15} strokeWidth={1.8} color={dueFollowups.length ? colors.brand : colors.textSub} />
+          <GlassPressable radius={20} style={[styles.banner, dueFollowups.length === 0 && styles.bannerMuted]} onPress={() => setShowFollowups(true)}>
+            <Bell size={15} strokeWidth={1.8} color={dueFollowups.length ? colors.amberWarn : colors.textSub} />
             {dueFollowups.length ? <Text style={styles.bannerCount}>{dueFollowups.length}</Text> : null}
             <Text style={styles.bannerText}>{dueFollowups.length === 0 ? i18n.t('leads:followups.empty', { defaultValue: 'אין פולואו-אפים פתוחים להיום' }) : i18n.t('leads:followups.due', { defaultValue: 'פולואו-אפים להיום' })}</Text>
             <View style={{ flex: 1 }} />
             <ChevronLeft size={15} strokeWidth={1.7} color={colors.textFaint} />
-          </Pressable>
+          </GlassPressable>
 
           {/* Search + filter */}
           <View style={styles.filterbar}>
-            <View style={styles.searchBox}>
+            <Glass radius={18} style={styles.searchBox}>
               <Search size={16} strokeWidth={1.6} color={colors.textFaint} />
               <TextInput style={styles.searchInput} value={query} onChangeText={setQuery} placeholder={i18n.t('leads:search', { defaultValue: 'חיפוש ליד…' })} placeholderTextColor={colors.textFaint} />
-            </View>
-            <Pressable style={[styles.filterBtn, activeFilterCount > 0 && styles.filterBtnOn]} onPress={() => setShowFilter(true)}>
+            </Glass>
+            <GlassPressable radius={999} on={activeFilterCount > 0} onColor={colors.text} style={styles.filterBtn} onPress={() => setShowFilter(true)}>
               <SlidersHorizontal size={14} strokeWidth={1.7} color={activeFilterCount ? colors.onBrand : colors.textSub} />
               <Text style={[styles.filterBtnText, activeFilterCount > 0 && styles.filterBtnTextOn]}>{i18n.t('leads:filter.btn', { defaultValue: 'סינון' })}</Text>
               {activeFilterCount > 0 ? <Text style={styles.filterCount}>{activeFilterCount}</Text> : null}
-            </Pressable>
+            </GlassPressable>
           </View>
 
           {/* Kanban board — horizontally-scrolling meta columns. Long-press a
@@ -548,9 +549,9 @@ const styles = StyleSheet.create({
   optDot: { width: 10, height: 10, borderRadius: 5 },
   optText: { fontSize: 15, color: colors.text },
 
-  banner: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 11, paddingHorizontal: 14, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(201,123,94,0.35)', backgroundColor: 'rgba(201,123,94,0.08)' },
-  bannerMuted: { borderColor: colors.border, backgroundColor: colors.cardFlat },
-  bannerCount: { fontSize: 12, fontWeight: '700', color: colors.onBrand, backgroundColor: colors.brand, minWidth: 20, textAlign: 'center', borderRadius: 999, paddingVertical: 1, paddingHorizontal: 6, overflow: 'hidden' },
+  banner: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 11, paddingHorizontal: 14 },
+  bannerMuted: { opacity: 0.7 },
+  bannerCount: { fontSize: 12, fontWeight: '700', color: colors.onBrand, backgroundColor: colors.amberWarn, minWidth: 20, textAlign: 'center', borderRadius: 999, paddingVertical: 1, paddingHorizontal: 6, overflow: 'hidden' },
   bannerText: { fontSize: 13, fontWeight: '500', color: colors.text },
 
   fuEmpty: { fontSize: 13, color: colors.textFaint, paddingVertical: 8 },
@@ -562,9 +563,9 @@ const styles = StyleSheet.create({
   fuDone: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.positive },
 
   filterbar: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  searchBox: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, backgroundColor: colors.card },
+  searchBox: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 14, color: colors.text },
-  filterBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+  filterBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14 },
   filterBtnOn: { backgroundColor: colors.brand, borderColor: colors.brand },
   filterBtnText: { fontSize: 13, color: colors.textSub },
   filterBtnTextOn: { color: colors.onBrand, fontWeight: '600' },

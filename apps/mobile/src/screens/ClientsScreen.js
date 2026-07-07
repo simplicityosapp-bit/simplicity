@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   cc: { padding: 16, gap: 14 },
   ccPast: { opacity: 0.62 },
   ccSelected: { borderWidth: 2, borderColor: colors.positive },
-  ccCheck: { position: 'absolute', top: 10, left: 10, zIndex: 2, width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  ccCheck: { position: 'absolute', top: 10, start: 10, zIndex: 2, width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
   ccCheckOn: { backgroundColor: colors.positive, borderColor: colors.positive },
   ccHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   ccAv: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },

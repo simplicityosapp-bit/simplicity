@@ -63,7 +63,7 @@ function Chip({ children }) {
   return (
     <View style={styles.chipShadow}>
       <View style={styles.chipClip}>
-        <BlurView intensity={28} tint="light" style={StyleSheet.absoluteFill} />
+        <BlurView intensity={50} tint="light" style={StyleSheet.absoluteFill} />
         <View style={[StyleSheet.absoluteFill, styles.chipTint]} />
         {children}
       </View>

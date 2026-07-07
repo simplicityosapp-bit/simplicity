@@ -48,5 +48,22 @@ export function useLeadsList() {
     if (e) { load(); throw e }
   }, [load])
 
-  return { leads, loading, error, refetch: load, addLead, updateLead, deleteLead }
+  // Lead → client conversion helpers (used by ConvertLeadModal).
+  const addClient = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('clients').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    return data
+  }, [])
+
+  const addGroupMember = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('group_members').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    return data
+  }, [])
+
+  return { leads, loading, error, refetch: load, addLead, updateLead, deleteLead, addClient, addGroupMember }
 }

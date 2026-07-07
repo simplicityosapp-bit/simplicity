@@ -31,7 +31,7 @@ const blank = (lead) => ({
   notes: lead?.notes || '',
 })
 
-export default function AddLeadModal({ open, onClose, onSave, onDelete, lead = null }) {
+export default function AddLeadModal({ open, onClose, onSave, onDelete, onConvert, lead = null }) {
   const isEdit = !!lead
   const { leadSources, leadStatuses = [], projects = [], groups = [] } = useFormOptions()
   const [form, setForm] = useState(() => blank(lead))
@@ -175,6 +175,12 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, lead = n
         <TextInput style={[styles.input, styles.textarea]} value={form.notes} onChangeText={(v) => set('notes', v)} placeholder={i18n.t('modalsClient:common.leadNotesPlaceholder')} placeholderTextColor={colors.textFaint} multiline />
       </View>
 
+      {isEdit && onConvert && lead?.status_meta !== 'converted' ? (
+        <Pressable style={styles.convert} onPress={() => onConvert(lead)}>
+          <Text style={styles.convertText}>{i18n.t('modalsClient:convertLead.convert', { defaultValue: 'המר ללקוח' })}</Text>
+        </Pressable>
+      ) : null}
+
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
@@ -205,6 +211,8 @@ const styles = StyleSheet.create({
   pillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
   pillText: { fontSize: 13, color: colors.textSub },
   pillTextOn: { color: colors.onBrand, fontWeight: '600' },
+  convert: { paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(139,168,136,0.5)', backgroundColor: 'rgba(139,168,136,0.12)', alignItems: 'center' },
+  convertText: { fontSize: 14, fontWeight: '600', color: colors.positive },
   error: { color: colors.danger, fontSize: 13 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
   delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },

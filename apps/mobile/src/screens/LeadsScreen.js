@@ -6,6 +6,7 @@ import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import AddLeadModal from '../modals/AddLeadModal'
+import ConvertLeadModal from '../modals/ConvertLeadModal'
 import { colors } from '../theme/theme'
 import { useFormOptions } from '../lib/formOptions'
 import { useLeadsList } from '../hooks/useLeadsList'
@@ -20,10 +21,11 @@ const todayYmd = () => {
 // the canonical LEAD_META order. Rows show source + follow-up (overdue in amber),
 // over the per-screen photo (Warm Precision).
 export default function LeadsScreen() {
-  const { leads, loading, error, refetch, addLead, updateLead, deleteLead } = useLeadsList()
+  const { leads, loading, error, refetch, addLead, updateLead, deleteLead, addClient, addGroupMember } = useLeadsList()
   const { leadSources } = useFormOptions()
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(false)
+  const [converting, setConverting] = useState(null)
 
   const sourceById = useMemo(() => Object.fromEntries(leadSources.map((s) => [s.id, s.name])), [leadSources])
   const today = todayYmd()
@@ -142,6 +144,15 @@ export default function LeadsScreen() {
         onClose={() => setEditing(null)}
         onSave={(patch) => updateLead(editing.id, patch)}
         onDelete={() => deleteLead(editing.id)}
+        onConvert={(l) => { setEditing(null); setConverting(l) }}
+      />
+      <ConvertLeadModal
+        open={!!converting}
+        lead={converting}
+        onClose={() => setConverting(null)}
+        onCreateClient={addClient}
+        onUpdateLead={updateLead}
+        onAddGroupMember={addGroupMember}
       />
     </Screen>
   )

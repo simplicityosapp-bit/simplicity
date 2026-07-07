@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { goalsByCategory, formatGoalValue, timeFrameLabel } from '@simplicity/core'
+import { Star } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
@@ -49,21 +50,9 @@ export default function GoalsScreen() {
             cats.map(({ category, goals: scored }) => (
               <View key={category.id} style={styles.group}>
                 <Text style={styles.catName}>{category.name || ''}</Text>
-                <Card padded={false}>
-                  {scored.map((s, i) => {
-                    const pct = Math.min(100, Math.max(0, s.pure ?? 0))
-                    return (
-                      <Pressable key={s.goal.id || i} style={[styles.goal, i > 0 && styles.goalBorder]} onPress={() => setEditGoal(s.goal)}>
-                        <View style={styles.goalHead}>
-                          <Text style={styles.goalLabel} numberOfLines={1}>{s.goal.label || category.name || ''}</Text>
-                          <Text style={styles.goalVal}>{formatGoalValue(s.actual, s.cat)} / {formatGoalValue(s.target, s.cat)}</Text>
-                        </View>
-                        <View style={styles.track}><View style={[styles.fill, { width: `${pct}%` }]} /></View>
-                        <Text style={styles.goalMeta}>{timeFrameLabel(s.goal)} · {pct}%</Text>
-                      </Pressable>
-                    )
-                  })}
-                </Card>
+                {scored.map((s, i) => (
+                  <GoalCard key={s.goal.id || i} scored={s} onEdit={() => setEditGoal(s.goal)} />
+                ))}
               </View>
             ))
           ) : (
@@ -75,19 +64,82 @@ export default function GoalsScreen() {
   )
 }
 
+// One goal = its own glass card, mirroring web GoalCard: title + category
+// dot/timeframe, a big mono percent (sage + "+" when ≥100%), pace-vs-goal dual
+// bars, and an actual/target line beside a 5-star importance rating.
+function GBar({ label, pct, color }) {
+  const w = Math.min(100, Math.max(0, pct ?? 0))
+  return (
+    <View style={styles.gbarCol}>
+      <View style={styles.gbarHead}>
+        <Text style={styles.gbarLbl}>{label}</Text>
+        <Text style={styles.gbarVal}>{w}%</Text>
+      </View>
+      <View style={styles.gbarTrack}><View style={[styles.gbarFill, { width: `${w}%`, backgroundColor: color }]} /></View>
+    </View>
+  )
+}
+
+function GoalCard({ scored: s, onEdit }) {
+  const pure = Number.isFinite(s.pure) ? s.pure : 0
+  const paced = Number.isFinite(s.paced) ? s.paced : pure
+  const importance = s.goal.importance || 3
+  const over = pure >= 100
+  return (
+    <Pressable onPress={onEdit}>
+      <Card>
+        <View style={styles.gHead}>
+          <View style={styles.gTitleBlock}>
+            <Text style={styles.gTitle} numberOfLines={1}>{s.goal.label || s.cat?.name || ''}</Text>
+            <View style={styles.gCatRow}>
+              <View style={[styles.gCatDot, { backgroundColor: s.cat?.color || colors.textSub }]} />
+              <Text style={styles.gCatText} numberOfLines={1}>{s.cat?.name} · {timeFrameLabel(s.goal)}</Text>
+            </View>
+          </View>
+          <Text style={[styles.gPct, over && styles.gPctOver]}>{Math.min(pure, 100)}%{pure > 100 ? '+' : ''}</Text>
+        </View>
+        <View style={styles.gBars}>
+          <GBar label={i18n.t('moon:dualBars.pace', { defaultValue: 'מהקצב' })} pct={Math.min(100, paced)} color={colors.positive} />
+          <GBar label={i18n.t('moon:dualBars.goal', { defaultValue: 'מהיעד' })} pct={pure} color={colors.moonDeep} />
+        </View>
+        <View style={styles.gMeta}>
+          <Text style={styles.gTarget}>{formatGoalValue(s.actual, s.cat)} / {formatGoalValue(s.target, s.cat)}</Text>
+          <View style={styles.gStars}>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <Star key={n} size={12} strokeWidth={1.5} color={n <= importance ? colors.amberWarn : colors.textFaint} fill={n <= importance ? colors.amberWarn : 'none'} />
+            ))}
+          </View>
+        </View>
+      </Card>
+    </Pressable>
+  )
+}
+
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 18 },
   error: { color: colors.danger, fontSize: 13 },
   empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
-  group: { gap: 8 },
-  catName: { fontSize: 14, fontWeight: '600', color: colors.textSub },
-  goal: { paddingVertical: 14, paddingHorizontal: 16, gap: 8 },
-  goalBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  goalHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  goalLabel: { flex: 1, fontSize: 15, color: colors.text },
-  goalVal: { fontSize: 13, color: colors.textSub },
-  track: { height: 8, borderRadius: 4, backgroundColor: 'rgba(42,37,32,0.08)', overflow: 'hidden' },
-  fill: { height: 8, borderRadius: 4, backgroundColor: colors.positive },
-  goalMeta: { fontSize: 12, color: colors.textFaint },
+  group: { gap: 10 },
+  catName: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.6, marginHorizontal: 2 },
+  // goal card
+  gHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 12 },
+  gTitleBlock: { flex: 1, minWidth: 0 },
+  gTitle: { fontSize: 15, fontWeight: '600', color: colors.text },
+  gCatRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  gCatDot: { width: 8, height: 8, borderRadius: 4 },
+  gCatText: { flex: 1, fontSize: 11, color: colors.textSub },
+  gPct: { fontSize: 20, fontWeight: '500', color: colors.text, fontVariant: ['tabular-nums'], lineHeight: 20 },
+  gPctOver: { color: colors.positive },
+  gBars: { flexDirection: 'row', gap: 14 },
+  gMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
+  gTarget: { fontSize: 13, fontWeight: '500', color: colors.textSub, fontVariant: ['tabular-nums'] },
+  gStars: { flexDirection: 'row', gap: 2 },
+  // dual bar column
+  gbarCol: { flex: 1, gap: 4 },
+  gbarHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  gbarLbl: { fontSize: 11, color: colors.textSub },
+  gbarVal: { fontSize: 11, fontWeight: '500', color: colors.textSub, fontVariant: ['tabular-nums'] },
+  gbarTrack: { height: 5, borderRadius: 3, backgroundColor: colors.divider, overflow: 'hidden' },
+  gbarFill: { height: 5, borderRadius: 3 },
 })

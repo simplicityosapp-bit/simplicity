@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share } from 'react-native'
-import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Plus, Download } from 'lucide-react-native'
+import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Plus, Download, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react-native'
 import { monthNet, describeCadence, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -45,8 +45,11 @@ export default function FinanceScreen() {
   const liveTemplates = useMemo(() => templates.filter((t) => !t.deleted_at), [templates])
 
   const { inc, exp, net } = useMemo(() => monthNet(monthDate, { transactions }), [monthDate, transactions])
-  const prevNet = useMemo(() => monthNet(new Date(monthDate.getFullYear(), monthDate.getMonth() - 1, 1), { transactions }).net, [monthDate, transactions])
-  const delta = net - prevNet
+  const prev = useMemo(() => monthNet(new Date(monthDate.getFullYear(), monthDate.getMonth() - 1, 1), { transactions }), [monthDate, transactions])
+  const newLabel = i18n.t('finance:summary.new', { defaultValue: 'חדש' })
+  const netDelta = deltaInfo(net, prev.net, true, newLabel)
+  const incDelta = deltaInfo(inc, prev.inc, true, newLabel)
+  const expDelta = deltaInfo(exp, prev.exp, false, newLabel)
 
   const monthTxs = useMemo(
     () => transactions.filter((t) => !t.deleted_at && sameMonth(t.date, monthDate)),
@@ -168,16 +171,34 @@ export default function FinanceScreen() {
                 <ChevronLeft size={22} strokeWidth={1.8} color={monthOffset >= 0 ? colors.textFaint : colors.brand} />
               </Pressable>
             </View>
-            <Text style={[styles.sumNet, { color: net >= 0 ? colors.positive : colors.danger }]}>{isr(net)}</Text>
-            <View style={styles.sumRow}>
-              <Text style={styles.sumSub}>{i18n.t('finance:summary.income', { defaultValue: 'הכנסות' })} {isr(inc)}</Text>
-              <Text style={styles.sumSub}>{i18n.t('finance:summary.expenses', { defaultValue: 'הוצאות' })} {isr(exp)}</Text>
+            <View style={styles.netRow}>
+              <Text style={styles.netLbl}>{i18n.t('finance:summary.netThisMonth', { defaultValue: 'נטו החודש' })}</Text>
+              <DeltaPill delta={netDelta} />
             </View>
-            {delta !== 0 ? (
-              <Text style={[styles.delta, { color: delta >= 0 ? colors.positive : colors.danger }]}>
-                {delta >= 0 ? '▲' : '▼'} {isr(Math.abs(delta))} {i18n.t('finance:summary.vsPrevMonth', { defaultValue: 'מהחודש הקודם' })}
-              </Text>
-            ) : null}
+            <Text style={[styles.sumNet, net < 0 && { color: colors.danger }]}>{net < 0 ? '−' : ''}{isr(Math.abs(net))}</Text>
+            <View style={styles.heroDivider} />
+            <View style={styles.io}>
+              <View style={styles.ioCard}>
+                <View style={[styles.ioIcon, styles.ioIconInc]}><ArrowUp size={14} strokeWidth={2} color={colors.positive} /></View>
+                <View style={styles.ioBody}>
+                  <View style={styles.ioHead}>
+                    <Text style={styles.ioLbl}>{i18n.t('finance:summary.income', { defaultValue: 'הכנסות' })}</Text>
+                    <DeltaPill delta={incDelta} />
+                  </View>
+                  <Text style={styles.ioV} numberOfLines={1}>{isr(inc)}</Text>
+                </View>
+              </View>
+              <View style={styles.ioCard}>
+                <View style={[styles.ioIcon, styles.ioIconExp]}><ArrowDown size={14} strokeWidth={2} color={colors.danger} /></View>
+                <View style={styles.ioBody}>
+                  <View style={styles.ioHead}>
+                    <Text style={styles.ioLbl}>{i18n.t('finance:summary.expenses', { defaultValue: 'הוצאות' })}</Text>
+                    <DeltaPill delta={expDelta} />
+                  </View>
+                  <Text style={styles.ioV} numberOfLines={1}>{isr(exp)}</Text>
+                </View>
+              </View>
+            </View>
           </Card>
 
           {/* Income-pace chart */}
@@ -284,6 +305,32 @@ function Breakdown({ Icon, title, rows, empty, action }) {
   )
 }
 
+// Month-over-month delta for a metric. goodWhenUp: income up = good (sage),
+// expense up = bad (clay). Returns { text, tone: pos|neg|neu, dir: up|down|flat }.
+function deltaInfo(curr, prev, goodWhenUp, newLabel) {
+  if (prev == null) return null
+  if (prev === 0 && curr === 0) return null
+  if (prev === 0) return { text: newLabel, tone: goodWhenUp ? 'pos' : 'neg', dir: 'up' }
+  const diff = curr - prev
+  if (diff === 0) return { text: '0%', tone: 'neu', dir: 'flat' }
+  const pct = Math.round((diff / Math.abs(prev)) * 100)
+  const isUp = diff > 0
+  return { text: `${isUp ? '+' : ''}${pct}%`, tone: isUp === goodWhenUp ? 'pos' : 'neg', dir: isUp ? 'up' : 'down' }
+}
+
+function DeltaPill({ delta }) {
+  if (!delta) return null
+  const Icon = delta.dir === 'up' ? TrendingUp : delta.dir === 'down' ? TrendingDown : null
+  const tint = delta.tone === 'pos' ? colors.positive : delta.tone === 'neg' ? colors.danger : colors.textSub
+  const toneStyle = delta.tone === 'pos' ? styles.deltaPos : delta.tone === 'neg' ? styles.deltaNeg : styles.deltaNeu
+  return (
+    <View style={[styles.deltaPill, toneStyle]}>
+      {Icon ? <Icon size={11} strokeWidth={1.8} color={tint} /> : null}
+      <Text style={[styles.deltaText, { color: tint }]}>{delta.text}</Text>
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 16 },
@@ -291,13 +338,27 @@ const styles = StyleSheet.create({
   empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
   section: { gap: 8 },
   sectionTitle: { fontSize: 14, fontWeight: '600', color: colors.textSub },
-  summary: { paddingVertical: 18, paddingHorizontal: 20, gap: 6, alignItems: 'center' },
-  monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch' },
+  summary: { paddingVertical: 18, paddingHorizontal: 20 },
+  monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch', marginBottom: 12 },
   monthLabel: { fontSize: 14, fontWeight: '600', color: colors.textSub },
-  sumNet: { fontSize: 32, fontWeight: '600' },
-  sumRow: { flexDirection: 'row', gap: 20, marginTop: 4 },
-  sumSub: { fontSize: 13, color: colors.textFaint },
-  delta: { fontSize: 12, fontWeight: '600', marginTop: 2 },
+  netRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  netLbl: { fontSize: 12, fontWeight: '500', color: colors.textSub },
+  sumNet: { fontSize: 36, fontWeight: '500', lineHeight: 36, color: colors.text, fontVariant: ['tabular-nums'], marginBottom: 12 },
+  heroDivider: { height: 1, backgroundColor: colors.divider, marginBottom: 14 },
+  io: { flexDirection: 'row', gap: 12 },
+  ioCard: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, minWidth: 0 },
+  ioBody: { flex: 1, minWidth: 0 },
+  ioIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  ioIconInc: { backgroundColor: 'rgba(139,168,136,0.2)' },
+  ioIconExp: { backgroundColor: 'rgba(181,99,78,0.18)' },
+  ioHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
+  ioLbl: { fontSize: 11, fontWeight: '500', color: colors.textSub },
+  ioV: { fontSize: 22, fontWeight: '500', lineHeight: 22, color: colors.text, fontVariant: ['tabular-nums'] },
+  deltaPill: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 2, paddingHorizontal: 7, borderRadius: 999 },
+  deltaText: { fontSize: 10, fontWeight: '500', fontVariant: ['tabular-nums'] },
+  deltaPos: { backgroundColor: 'rgba(139,168,136,0.14)' },
+  deltaNeg: { backgroundColor: 'rgba(181,99,78,0.14)' },
+  deltaNeu: { backgroundColor: 'rgba(42,37,32,0.08)' },
 
   // Breakdown card
   bd: { paddingVertical: 16, paddingHorizontal: 18, gap: 12 },

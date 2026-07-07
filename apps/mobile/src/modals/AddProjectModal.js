@@ -1,19 +1,29 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
-// Quick-add a project (mirrors web AddProjectModal: name + color swatch).
+// Add/edit a project (mirrors web AddProjectModal: name + color swatch). Pass a
+// `project` to edit it (prefills + shows delete).
 const SWATCHES = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
-const blank = () => ({ name: '', color: SWATCHES[0] })
+const blank = (project) => ({ name: project?.name || '', color: project?.color || SWATCHES[0] })
 
-export default function AddProjectModal({ open, onClose, onSave }) {
-  const [form, setForm] = useState(blank)
+export default function AddProjectModal({ open, onClose, onSave, onDelete, project = null }) {
+  const isEdit = !!project
+  const [form, setForm] = useState(() => blank(project))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  useEffect(() => { if (open) { setForm(blank(project)); setErr(''); setBusy(false) } }, [open, project])
+  const close = () => { setErr(''); setBusy(false); onClose() }
+
+  const remove = async () => {
+    if (busy || !onDelete) return
+    setBusy(true)
+    try { await onDelete(); close() } catch (e) { setBusy(false); setErr(i18n.t('modalsData:common.saveFailed', { error: e.message || i18n.t('modalsData:common.tryAgain') })) }
+  }
 
   const submit = async () => {
     if (!form.name.trim()) { setErr(i18n.t('modalsData:common.nameRequired')); return }
@@ -29,7 +39,7 @@ export default function AddProjectModal({ open, onClose, onSave }) {
   }
 
   return (
-    <Sheet open={open} onClose={close} title={i18n.t('modalsData:addProject.title')}>
+    <Sheet open={open} onClose={close} title={i18n.t(isEdit ? 'projects:card.editTitle' : 'modalsData:addProject.title', { defaultValue: isEdit ? 'ערוך פרויקט' : 'פרויקט חדש' })}>
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsData:addProject.projectName')}</Text>
         <TextInput
@@ -56,6 +66,9 @@ export default function AddProjectModal({ open, onClose, onSave }) {
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
+        {isEdit && onDelete ? (
+          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}><Trash2 size={18} strokeWidth={1.8} color={colors.danger} /></Pressable>
+        ) : null}
         <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsData:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? i18n.t('modalsData:common.saving') : i18n.t('modalsData:common.save')}</Text>
@@ -74,7 +87,8 @@ const styles = StyleSheet.create({
   swatch: { width: 34, height: 34, borderRadius: 17, borderWidth: 2, borderColor: 'transparent' },
   swatchOn: { borderColor: colors.text },
   error: { color: colors.danger, fontSize: 13 },
-  actions: { flexDirection: 'row', gap: 12, marginTop: 4 },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
+  delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancelText: { fontSize: 15, color: colors.textSub },
   save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center' },

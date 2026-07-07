@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Moon, Sparkles, Settings, Trash2, X, LogOut, Pencil } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Moon, Sparkles, Settings, Trash2, FolderOpen, X, LogOut, Pencil } from 'lucide-react-native'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { usePreferences } from '../lib/preferences'
@@ -13,6 +13,7 @@ import { colors, space } from '../theme/theme'
 const TILES = [
   { key: 'home', screen: 'Home', Icon: Home, fallback: 'בית' },
   { key: 'clients', screen: 'Clients', Icon: Users, fallback: 'לקוחות' },
+  { key: 'projects', screen: 'Projects', Icon: FolderOpen, fallback: 'פרויקטים' },
   { key: 'leads', screen: 'Leads', Icon: Heart, fallback: 'לידים' },
   { key: 'finance', screen: 'Finance', Icon: Wallet, fallback: 'כסף' },
   { key: 'tasks', screen: 'Tasks', Icon: ClipboardList, fallback: 'משימות' },

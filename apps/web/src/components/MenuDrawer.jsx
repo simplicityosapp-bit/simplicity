@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sparkles, Moon, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug, LayoutTemplate,
+  Moon, Activity, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug, LayoutTemplate,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
@@ -130,15 +130,15 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
         </Btn>
 
         <Btn className="drawer-link tint-purple" onClick={() => goTo(ROUTES.INSIGHTS)}>
-          <Txt className="drawer-link-icon"><Sparkles size={18} strokeWidth={1.5} /></Txt>
+          <Txt className="drawer-link-icon"><Activity size={18} strokeWidth={1.5} /></Txt>
           <Txt className="drawer-link-text">
             {t('extras.insights')}
             <Txt className="drawer-link-text-sub">{t('items.insightsSub')}</Txt>
           </Txt>
         </Btn>
 
-        <Btn className="drawer-link tint-moon" onClick={() => goTo(ROUTES.MOON_GLANCE)}>
-          <Txt className="drawer-link-icon"><Moon size={18} strokeWidth={1.5} /></Txt>
+        <Btn className="drawer-link" onClick={() => goTo(ROUTES.MOON_GLANCE)}>
+          <Txt className="drawer-link-icon"><img src="/logo-dark.png" width="20" height="20" style={{ objectFit: 'contain' }} alt="" aria-hidden="true" /></Txt>
           <Txt className="drawer-link-text">
             {t('extras.moon')}
             <Txt className="drawer-link-text-sub">{t('items.moonSub')}</Txt>

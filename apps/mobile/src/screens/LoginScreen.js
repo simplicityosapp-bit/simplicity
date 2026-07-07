@@ -4,6 +4,7 @@ import i18n from '../lib/i18n'
 import { supabase } from '../lib/supabase'
 import { signInWithGoogle, googleAvailable } from '../lib/googleSignIn'
 import GoogleButton from '../components/GoogleButton'
+import { colors } from '../theme/theme'
 
 // Strings come from @simplicity/core's shared `auth` namespace — the same source
 // the web login screen uses, so the two never drift.
@@ -66,7 +67,7 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#a89f95"
+        placeholderTextColor={colors.textFaint}
         autoCapitalize="none"
         keyboardType="email-address"
         autoComplete="email"
@@ -79,7 +80,7 @@ export default function LoginScreen() {
         <TextInput
           style={[styles.input, styles.pwInput]}
           placeholder="Password"
-          placeholderTextColor="#a89f95"
+          placeholderTextColor={colors.textFaint}
           secureTextEntry={!show}
           autoCapitalize="none"
           value={password}
@@ -98,7 +99,7 @@ export default function LoginScreen() {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <Pressable style={[styles.btn, (busy || gbusy) && styles.btnBusy]} onPress={onSubmit} disabled={busy || gbusy}>
-        {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t('auth:login')}</Text>}
+        {busy ? <ActivityIndicator color={colors.onBrand} /> : <Text style={styles.btnText}>{t('auth:login')}</Text>}
       </Pressable>
 
       <View style={styles.divider}>
@@ -121,24 +122,24 @@ export default function LoginScreen() {
   )
 }
 
-const BRAND = '#C97B5E'
+const BRAND = colors.brand
 const styles = StyleSheet.create({
-  wrap: { flex: 1, justifyContent: 'center', paddingHorizontal: 28, gap: 14, backgroundColor: '#fbf7f2' },
+  wrap: { flex: 1, justifyContent: 'center', paddingHorizontal: 28, gap: 14, backgroundColor: colors.bg },
   brand: { fontSize: 15, letterSpacing: 1, color: BRAND, textAlign: 'center', fontWeight: '600' },
-  title: { fontSize: 26, fontWeight: '600', color: '#3a342e', textAlign: 'center', marginBottom: 8 },
+  title: { fontSize: 26, fontWeight: '600', color: colors.text, textAlign: 'center', marginBottom: 8 },
   input: {
-    borderWidth: 1, borderColor: '#e4dccf', borderRadius: 12, paddingHorizontal: 16,
-    paddingVertical: 13, fontSize: 16, color: '#3a342e', backgroundColor: '#fff',
+    borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 16,
+    paddingVertical: 13, fontSize: 16, color: colors.text, backgroundColor: colors.card,
   },
   pwRow: { position: 'relative', justifyContent: 'center' },
   pwInput: { paddingEnd: 84 },
   pwToggle: { position: 'absolute', end: 14, top: -10, color: BRAND, fontSize: 13 },
-  error: { color: '#c0392b', fontSize: 14, textAlign: 'center' },
+  error: { color: colors.danger, fontSize: 14, textAlign: 'center' },
   btn: { backgroundColor: BRAND, borderRadius: 12, paddingVertical: 15, alignItems: 'center', marginTop: 4 },
   btnBusy: { opacity: 0.7 },
-  btnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  btnText: { color: colors.onBrand, fontSize: 16, fontWeight: '600' },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 2 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: '#e4dccf' },
-  dividerText: { color: '#a89f95', fontSize: 13 },
-  foot: { textAlign: 'center', color: '#7c6f63', fontSize: 14, marginTop: 8 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { color: colors.textFaint, fontSize: 13 },
+  foot: { textAlign: 'center', color: colors.textSub, fontSize: 14, marginTop: 8 },
 })

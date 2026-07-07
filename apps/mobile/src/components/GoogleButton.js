@@ -1,5 +1,6 @@
 import { Pressable, Text, StyleSheet, ActivityIndicator, View } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
+import { colors } from '../theme/theme'
 
 // The official multicolor Google "G", mirrored from the web GoogleButton so the
 // two platforms stay visually identical.
@@ -28,7 +29,7 @@ export default function GoogleButton({ label, onPress, busy = false, disabled = 
       accessibilityLabel={label}
     >
       {busy ? (
-        <ActivityIndicator color="#C97B5E" />
+        <ActivityIndicator color={colors.brand} />
       ) : (
         <View style={styles.inner}>
           <GoogleG />
@@ -41,10 +42,10 @@ export default function GoogleButton({ label, onPress, busy = false, disabled = 
 
 const styles = StyleSheet.create({
   btn: {
-    borderWidth: 1, borderColor: '#e4dccf', borderRadius: 12, paddingVertical: 14,
-    alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff',
+    borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 14,
+    alignItems: 'center', justifyContent: 'center', backgroundColor: colors.card,
   },
   btnInactive: { opacity: 0.5 },
   inner: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  text: { color: '#3a342e', fontSize: 16, fontWeight: '600' },
+  text: { color: colors.text, fontSize: 16, fontWeight: '600' },
 })

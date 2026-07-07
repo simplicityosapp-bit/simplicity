@@ -25,8 +25,8 @@ const SORT_OPTIONS = ['name', 'balance', 'paid', 'sessions', 'created', 'oldest'
 const STATUS_PILL = {
   active: 'rgba(139,168,136,0.16)',
   wandering: 'rgba(212,165,116,0.18)',
-  past: 'rgba(42,37,32,0.06)',
-  no_status: 'rgba(42,37,32,0.06)',
+  past: colors.fill,
+  no_status: colors.fill,
 }
 const statusKey = (m) => (m === 'no_status' ? 'noStatus' : m)
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()

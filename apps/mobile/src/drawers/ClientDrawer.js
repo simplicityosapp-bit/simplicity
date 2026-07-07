@@ -22,8 +22,8 @@ import { colors } from '../theme/theme'
 const STATUS_PILL = {
   active: { bg: 'rgba(139,168,136,0.16)', dot: '#8BA888' },
   wandering: { bg: 'rgba(212,165,116,0.18)', dot: '#D4A574' },
-  past: { bg: 'rgba(42,37,32,0.06)', dot: '#b3a99c' },
-  no_status: { bg: 'rgba(42,37,32,0.06)', dot: '#cbb9a8' },
+  past: { bg: colors.fill, dot: '#b3a99c' },
+  no_status: { bg: colors.fill, dot: '#cbb9a8' },
 }
 const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()

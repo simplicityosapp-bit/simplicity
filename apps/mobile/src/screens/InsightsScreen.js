@@ -53,7 +53,7 @@ function Heatmap({ weeks }) {
   const W = weeks.length * (CELL + GAP)
   const H = 7 * (CELL + GAP)
   const fill = (v) => {
-    if (v == null) return 'rgba(42,37,32,0.06)'
+    if (v == null) return colors.fill
     const o = 0.2 + 0.8 * ((v - min) / range)
     return `rgba(139,168,136,${o.toFixed(2)})`
   }
@@ -165,7 +165,7 @@ export default function InsightsScreen() {
             <Card contentStyle={styles.mirror}>
               <Sparkles size={16} strokeWidth={1.7} color={colors.brand} />
               <View style={{ flex: 1, gap: 4 }}>
-                {mirror.map((m, i) => <Text key={i} style={styles.mirrorText}>{m.text}</Text>)}
+                {mirror.map((m, i) => <Text key={i} style={[styles.mirrorText, (m.kind === 'welcome' || m.kind === 'stable') && styles.mirrorTextMuted]}>{m.text}</Text>)}
               </View>
             </Card>
           ) : null}
@@ -191,6 +191,7 @@ const styles = StyleSheet.create({
 
   mirror: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, padding: 16 },
   mirrorText: { fontSize: 13, color: colors.text, lineHeight: 19 },
+  mirrorTextMuted: { color: colors.textSub },
 
   qcard: { padding: 16, gap: 12 },
   qcardOff: { opacity: 0.6 },

@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
 
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 11 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  check: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: '#cbb9a8', alignItems: 'center', justifyContent: 'center', marginTop: 1 },
+  check: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   checkOn: { backgroundColor: colors.positive, borderColor: colors.positive },
   textWrap: { flex: 1, gap: 3 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },

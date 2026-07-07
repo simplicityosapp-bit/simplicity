@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Pencil, Users, CalendarDays, Plus, ChevronDown, ChevronLeft, X } from 'lucide-react-native'
-import { financeQuery, currentMonthRange, isr, fmtShortDate } from '@simplicity/core'
+import { Pencil, Users, CalendarDays, Plus, ChevronDown, ChevronRight, X } from 'lucide-react-native'
+import { financeQuery, currentMonthRange, isr, fmtShortDate, statusMetaOf } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import Card from '../components/Card'
@@ -34,8 +34,8 @@ export default function ProjectDetailScreen() {
 
   const projClientIds = useMemo(() => new Set(clients.map((c) => c.id)), [clients])
   const groupIds = useMemo(() => new Set(groups.map((g) => g.id)), [groups])
-  const activeCount = clients.filter((c) => (c.status_meta || 'active') === 'active').length
-  const wanderingCount = clients.filter((c) => c.status_meta === 'wandering').length
+  const activeCount = clients.filter((c) => statusMetaOf(c) === 'active').length
+  const wanderingCount = clients.filter((c) => statusMetaOf(c) === 'wandering').length
   const projectTx = useMemo(
     () => transactions.filter((t) => t.project_id === projectId || (!t.project_id && projClientIds.has(t.client_id))),
     [transactions, projectId, projClientIds],
@@ -55,9 +55,12 @@ export default function ProjectDetailScreen() {
   )
   const membersOf = (gid) => members.filter((m) => m.group_id === gid && !m.left_at)
   const availableFor = (gid) => { const ids = new Set(membersOf(gid).map((m) => m.client_id)); return clients.filter((c) => !ids.has(c.id)) }
-  const groupBilling = (g) => (g.billing_mode === 'per_session' || (g.package_price == null && g.price_per_session != null))
-    ? `${isr(g.price_per_session || 0)} · ${i18n.t('modalsClient:editClient.billingPerSession', { defaultValue: 'לפי פגישה' })}`
-    : `${isr(g.package_price || 0)} / ${g.package_sessions || 0}`
+  const groupBilling = (g) => {
+    const mode = g.billing_mode || 'package'
+    if (mode === 'per_session') return g.price_per_session ? D('groups.pricePerSession', { price: isr(g.price_per_session) }) : ''
+    if (mode === 'none') return ''
+    return g.package_price ? D('groups.pricePackage', { price: isr(g.package_price), count: g.package_sessions || 1 }) : ''
+  }
   const groupRecurring = (g) => (g.recurring_day != null && g.recurring_time) ? `${i18n.t(`modalsClient:common.day${g.recurring_day}`)} ${g.recurring_time}` : null
   const clientName = (id) => clients.find((c) => c.id === id)?.name
 
@@ -65,7 +68,7 @@ export default function ProjectDetailScreen() {
     return (
       <Screen name="clients">
         <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-          <Pressable onPress={() => nav.goBack()} hitSlop={10}><ChevronLeft size={26} strokeWidth={1.8} color={colors.brand} /></Pressable>
+          <Pressable onPress={() => nav.goBack()} hitSlop={10}><ChevronRight size={26} strokeWidth={1.8} color={colors.brand} /></Pressable>
           <Text style={styles.hname}>{D('notFound', { defaultValue: 'הפרויקט לא נמצא' })}</Text>
         </View>
       </Screen>
@@ -77,7 +80,7 @@ export default function ProjectDetailScreen() {
       {/* Compact header — color + name + meta counts + edit (mirrors web pd-head) */}
       <View style={[styles.headWrap, { paddingTop: insets.top + 10 }]}>
         <Card contentStyle={styles.header}>
-          <Pressable onPress={() => nav.goBack()} hitSlop={10}><ChevronLeft size={26} strokeWidth={1.8} color={colors.brand} /></Pressable>
+          <Pressable onPress={() => nav.goBack()} hitSlop={10}><ChevronRight size={26} strokeWidth={1.8} color={colors.brand} /></Pressable>
           {project ? <View style={[styles.hcolor, { backgroundColor: project.color || colors.positive }]} /> : null}
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={styles.hname} numberOfLines={1}>{project?.name || ''}</Text>
@@ -111,7 +114,7 @@ export default function ProjectDetailScreen() {
           <Section title={D('clients.title', { defaultValue: 'לקוחות' })} count={clients.length}>
             {clients.length ? clients.map((c, i) => (
               <View key={c.id} style={[styles.row, i > 0 && styles.rowBorder]}>
-                <View style={[styles.sdot, { backgroundColor: STATUS_DOT[c.status_meta] || STATUS_DOT.no_status }]} />
+                <View style={[styles.sdot, { backgroundColor: STATUS_DOT[statusMetaOf(c)] || STATUS_DOT.no_status }]} />
                 <Text style={styles.rowName} numberOfLines={1}>{c.name}</Text>
                 {c.phone ? <Text style={styles.rowSub}>{c.phone}</Text> : null}
               </View>
@@ -127,6 +130,7 @@ export default function ProjectDetailScreen() {
             </View>
             {groups.length ? groups.map((g) => {
               const gm = membersOf(g.id)
+              const gb = groupBilling(g)
               const open = expanded === g.id
               return (
                 <Card key={g.id} contentStyle={styles.gcard}>
@@ -134,7 +138,7 @@ export default function ProjectDetailScreen() {
                     <View style={[styles.gdot, { backgroundColor: g.color || colors.positive }]} />
                     <View style={{ flex: 1 }}>
                       <Text style={styles.gname} numberOfLines={1}>{g.name}</Text>
-                      <Text style={styles.gsub} numberOfLines={1}>{D('groups.members', { count: gm.length, defaultValue: `${gm.length} חברים` })} · {groupBilling(g)}{groupRecurring(g) ? ` · ${groupRecurring(g)}` : ''}</Text>
+                      <Text style={styles.gsub} numberOfLines={1}>{D('groups.members', { count: gm.length, defaultValue: `${gm.length} חברים` })}{gb ? ` · ${gb}` : ''}{groupRecurring(g) ? ` · ${groupRecurring(g)}` : ''}</Text>
                     </View>
                     <Pressable onPress={() => setEditGroup(g)} hitSlop={8}><Pencil size={13} strokeWidth={1.7} color={colors.textSub} /></Pressable>
                     <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
@@ -230,14 +234,14 @@ const styles = StyleSheet.create({
   headWrap: { paddingHorizontal: 16, paddingBottom: 12 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
   hcolor: { width: 13, height: 13, borderRadius: 7 },
-  hname: { flex: 1, fontSize: 20, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
+  hname: { flex: 1, fontSize: 17, fontWeight: '600', color: colors.text, letterSpacing: -0.3 },
   hmeta: { fontSize: 11, color: colors.textSub, marginTop: 2 },
   hedit: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
 
   stats: { flexDirection: 'row', paddingVertical: 16, paddingHorizontal: 8 },
   stat: { flex: 1, alignItems: 'center', gap: 4 },
   statDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
-  statV: { fontSize: 20, fontWeight: '600', color: colors.text },
+  statV: { fontSize: 18, fontWeight: '600', color: colors.text },
   statL: { fontSize: 11, color: colors.textSub },
 
   section: { gap: 8 },

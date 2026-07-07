@@ -36,16 +36,15 @@ export default function ReportsScreen() {
 
   return (
     <Screen name="finance">
-      <ScreenHead
-        title={i18n.t('reports:title', { defaultValue: 'דוחות' })}
-        meta={[period.label]}
-        tagline={i18n.t('reports:tagline', { defaultValue: 'המספרים מספרים את הסיפור.' })}
-      />
-
       {loading && !clients.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
+          <ScreenHead
+            title={i18n.t('reports:title', { defaultValue: 'דוחות' })}
+            meta={[period.label]}
+            tagline={i18n.t('reports:tagline', { defaultValue: 'המספרים מספרים את הסיפור.' })}
+          />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {/* Month selector */}

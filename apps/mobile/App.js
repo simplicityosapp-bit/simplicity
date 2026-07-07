@@ -20,13 +20,21 @@ setupI18n()
 
 // The "עוד" drawer, rendered as an App-level overlay ABOVE the navigator so it
 // floats over every screen (incl. pushed stack screens). Plain state, no Modal.
+// The 4 primary tabs live nested under the "Main" route, so navigate to them via
+// {screen} (a bare navigate('Home') from the root ref doesn't resolve a nested
+// tab); everything else is a root stack route.
+const TAB_ROUTES = ['Clients', 'Tasks', 'Home', 'Finance']
 function DrawerHost() {
   const { open, setOpen } = useDrawer()
   return (
     <Drawer
       open={open}
       onClose={() => setOpen(false)}
-      onNavigate={(screen) => navigationRef.isReady() && navigationRef.navigate(screen)}
+      onNavigate={(screen) => {
+        if (!navigationRef.isReady()) return
+        if (TAB_ROUTES.includes(screen)) navigationRef.navigate('Main', { screen })
+        else navigationRef.navigate(screen)
+      }}
       activeScreen={navigationRef.isReady() ? navigationRef.getCurrentRoute()?.name : undefined}
     />
   )

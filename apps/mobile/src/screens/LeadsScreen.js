@@ -171,14 +171,6 @@ export default function LeadsScreen() {
 
   return (
     <Screen name="leads">
-      <ScreenHead
-        title={i18n.t('leads:title', { defaultValue: 'לידים' })}
-        meta={[i18n.t('leads:countLabel', { count: total, defaultValue: `${total} לידים` })]}
-        tagline={i18n.t('leads:tagline', { defaultValue: 'טיפוח קשרים מוביל לתוצאות.' })}
-        onAdd={() => setAdding(true)}
-        addLabel={i18n.t('leads:newLeadAria', { defaultValue: 'ליד חדש' })}
-      />
-
       {loading && !leads.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
@@ -186,6 +178,13 @@ export default function LeadsScreen() {
           contentContainerStyle={styles.content}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
+          <ScreenHead
+            title={i18n.t('leads:title', { defaultValue: 'לידים' })}
+            meta={[i18n.t('leads:countLabel', { count: total, defaultValue: `${total} לידים` })]}
+            tagline={i18n.t('leads:tagline', { defaultValue: 'טיפוח קשרים מוביל לתוצאות.' })}
+            onAdd={() => setAdding(true)}
+            addLabel={i18n.t('leads:newLeadAria', { defaultValue: 'ליד חדש' })}
+          />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <View style={styles.viewToggle}>

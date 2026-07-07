@@ -102,9 +102,8 @@ export default function SettingsScreen() {
 
   return (
     <Screen name="tasks">
-      <ScreenHead title={i18n.t('settings:header.title', { defaultValue: 'הגדרות' })} />
-
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <ScreenHead title={i18n.t('settings:header.title', { defaultValue: 'הגדרות' })} />
         {/* Profile */}
         <Section Icon={User} title={T('sections.profile.title', { defaultValue: 'פרופיל' })} sub={T('sections.profile.sub', { defaultValue: '' })} open={open === 'profile'} onToggle={() => toggle('profile')}>
           <Field label={T('profile.fullName', { defaultValue: 'שם מלא' })}>

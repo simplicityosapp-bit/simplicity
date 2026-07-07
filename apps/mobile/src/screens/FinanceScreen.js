@@ -128,14 +128,6 @@ export default function FinanceScreen() {
 
   return (
     <Screen name="finance">
-      <ScreenHead
-        title={i18n.t('finance:title', { defaultValue: 'כסף' })}
-        meta={[i18n.t('finance:countLabel', { count: monthTxs.length }), i18n.t('finance:snapshot', { defaultValue: 'תמונת מצב' })]}
-        tagline={i18n.t('finance:tagline', { defaultValue: 'הפעולות שלך יוצרות תוצאות טובות.' })}
-        onAdd={() => setAdding(true)}
-        addLabel={i18n.t('finance:newTxAria', { defaultValue: 'תנועה חדשה' })}
-      />
-
       {loading && !transactions.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
@@ -144,6 +136,13 @@ export default function FinanceScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
+          <ScreenHead
+            title={i18n.t('finance:title', { defaultValue: 'כסף' })}
+            meta={[i18n.t('finance:countLabel', { count: monthTxs.length }), i18n.t('finance:snapshot', { defaultValue: 'תמונת מצב' })]}
+            tagline={i18n.t('finance:tagline', { defaultValue: 'הפעולות שלך יוצרות תוצאות טובות.' })}
+            onAdd={() => setAdding(true)}
+            addLabel={i18n.t('finance:newTxAria', { defaultValue: 'תנועה חדשה' })}
+          />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {/* Export CSV */}

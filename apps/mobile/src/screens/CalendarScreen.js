@@ -71,13 +71,6 @@ export default function CalendarScreen() {
 
   return (
     <Screen name="calendar">
-      <ScreenHead
-        title={i18n.t('calendar:title', { defaultValue: 'יומן' })}
-        tagline={i18n.t('calendar:tagline', { defaultValue: 'יום אחרי יום, צעד אחרי צעד.' })}
-        onAdd={() => setAdding(true)}
-        addLabel={i18n.t('calendar:newEventAria', { defaultValue: 'פגישה חדשה' })}
-      />
-
       {loading && !events.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
@@ -86,6 +79,12 @@ export default function CalendarScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
+          <ScreenHead
+            title={i18n.t('calendar:title', { defaultValue: 'יומן' })}
+            tagline={i18n.t('calendar:tagline', { defaultValue: 'יום אחרי יום, צעד אחרי צעד.' })}
+            onAdd={() => setAdding(true)}
+            addLabel={i18n.t('calendar:newEventAria', { defaultValue: 'פגישה חדשה' })}
+          />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {/* Month grid */}

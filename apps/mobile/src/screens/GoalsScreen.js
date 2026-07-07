@@ -28,13 +28,6 @@ export default function GoalsScreen() {
 
   return (
     <Screen name="goals">
-      <ScreenHead
-        title={i18n.t('goals:title', { defaultValue: 'יעדים' })}
-        meta={[i18n.t('goals:countLabel', { count: goals.length, defaultValue: `${goals.length} יעדים` })]}
-        tagline={i18n.t('goals:tagline', { defaultValue: 'כל יעד — כיוון, לא לחץ.' })}
-        onAdd={() => setShowAdd(true)}
-        addLabel={i18n.t('goals:newGoalAria', { defaultValue: 'יעד חדש' })}
-      />
       <AddGoalModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addGoal} onAddQuestion={(q) => addQuestion({ ...q, order: questions.length })} />
       <EditGoalModal open={!!editGoal} goal={editGoal} onClose={() => setEditGoal(null)} onSave={updateGoal} onDelete={deleteGoal} />
 
@@ -45,6 +38,13 @@ export default function GoalsScreen() {
           contentContainerStyle={styles.content}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
+          <ScreenHead
+            title={i18n.t('goals:title', { defaultValue: 'יעדים' })}
+            meta={[i18n.t('goals:countLabel', { count: goals.length, defaultValue: `${goals.length} יעדים` })]}
+            tagline={i18n.t('goals:tagline', { defaultValue: 'כל יעד — כיוון, לא לחץ.' })}
+            onAdd={() => setShowAdd(true)}
+            addLabel={i18n.t('goals:newGoalAria', { defaultValue: 'יעד חדש' })}
+          />
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {cats.length ? (
             cats.map(({ category, goals: scored }) => (

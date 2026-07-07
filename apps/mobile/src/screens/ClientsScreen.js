@@ -205,14 +205,6 @@ export default function ClientsScreen() {
 
   return (
     <Screen name="clients">
-      <ScreenHead
-        title={i18n.t('clients:title', { defaultValue: 'לקוחות' })}
-        meta={[i18n.t('clients:countLabel', { count: total, defaultValue: `${total} לקוחות` }), i18n.t('clients:summary', { defaultValue: 'סיכום' })]}
-        tagline={i18n.t('clients:tagline', { defaultValue: 'בניית קשרים יוצרת תוצאות.' })}
-        onAdd={() => setAdding(true)}
-        addLabel={i18n.t('clients:addClientAria', { defaultValue: 'הוספת לקוח' })}
-      />
-
       {loading && !clients.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
@@ -221,6 +213,13 @@ export default function ClientsScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
+          <ScreenHead
+            title={i18n.t('clients:title', { defaultValue: 'לקוחות' })}
+            meta={[i18n.t('clients:countLabel', { count: total, defaultValue: `${total} לקוחות` }), i18n.t('clients:summary', { defaultValue: 'סיכום' })]}
+            tagline={i18n.t('clients:tagline', { defaultValue: 'בניית קשרים יוצרת תוצאות.' })}
+            onAdd={() => setAdding(true)}
+            addLabel={i18n.t('clients:addClientAria', { defaultValue: 'הוספת לקוח' })}
+          />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {/* Controls — sort + group-by toggle + select (glass like the cards) */}

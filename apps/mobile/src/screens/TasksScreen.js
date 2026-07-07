@@ -145,17 +145,6 @@ export default function TasksScreen() {
 
   return (
     <Screen name="tasks">
-      <ScreenHead
-        title={isTasks ? i18n.t('tasks:tasks') : i18n.t('tasks:reminders')}
-        meta={[
-          isTasks ? i18n.t('tasks:meta.open', { n: openCount }) : i18n.t('tasks:meta.openReminders', { n: openCount }),
-          i18n.t('tasks:meta.done', { n: doneCount }),
-        ]}
-        tagline={i18n.t('tasks:tagline')}
-        onAdd={() => setAdding(true)}
-        addLabel={isTasks ? i18n.t('tasks:add.taskAria') : i18n.t('tasks:add.reminderAria')}
-      />
-
       {loading && !(isTasks ? tasks.length : reminders.length) ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
@@ -164,6 +153,16 @@ export default function TasksScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={isTasks ? refetchTasks : refetchRems} tintColor={colors.brand} />}
         >
+          <ScreenHead
+            title={isTasks ? i18n.t('tasks:tasks') : i18n.t('tasks:reminders')}
+            meta={[
+              isTasks ? i18n.t('tasks:meta.open', { n: openCount }) : i18n.t('tasks:meta.openReminders', { n: openCount }),
+              i18n.t('tasks:meta.done', { n: doneCount }),
+            ]}
+            tagline={i18n.t('tasks:tagline')}
+            onAdd={() => setAdding(true)}
+            addLabel={isTasks ? i18n.t('tasks:add.taskAria') : i18n.t('tasks:add.reminderAria')}
+          />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {/* Entity toggle */}

@@ -21,12 +21,6 @@ export default function QuestionsScreen() {
 
   return (
     <Screen name="tasks">
-      <ScreenHead
-        title={i18n.t('settings:sections.questions.title', { defaultValue: 'שאלות יומיות' })}
-        meta={questions.length ? [i18n.t('settings:questions.count', { count: questions.length, defaultValue: `${questions.length} שאלות` })] : []}
-        onAdd={() => setShowAdd(true)}
-        addLabel={i18n.t('settings:questions.add', { defaultValue: 'הוספת שאלה' })}
-      />
       <AddQuestionModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addQuestion} nextOrder={nextOrder} usedTemplateKeys={usedTemplateKeys} />
 
       {loading && !questions.length ? (
@@ -36,6 +30,12 @@ export default function QuestionsScreen() {
           contentContainerStyle={styles.content}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
+          <ScreenHead
+            title={i18n.t('settings:sections.questions.title', { defaultValue: 'שאלות יומיות' })}
+            meta={questions.length ? [i18n.t('settings:questions.count', { count: questions.length, defaultValue: `${questions.length} שאלות` })] : []}
+            onAdd={() => setShowAdd(true)}
+            addLabel={i18n.t('settings:questions.add', { defaultValue: 'הוספת שאלה' })}
+          />
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {questions.length ? (
             <Card padded={false}>

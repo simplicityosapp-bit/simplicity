@@ -143,16 +143,15 @@ export default function InsightsScreen() {
 
   return (
     <Screen name="moon">
-      <ScreenHead
-        title={T('title', { defaultValue: 'מה איתך היום' })}
-        meta={questions.length ? [T('activeCount', { count: questions.filter((q) => q.active).length, defaultValue: `${questions.filter((q) => q.active).length} שאלות` })] : []}
-        tagline={T('tagline', { defaultValue: 'מראה יומית קטנה.' })}
-      />
-
       {loading && !questions.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
+          <ScreenHead
+            title={T('title', { defaultValue: 'מה איתך היום' })}
+            meta={questions.length ? [T('activeCount', { count: questions.filter((q) => q.active).length, defaultValue: `${questions.filter((q) => q.active).length} שאלות` })] : []}
+            tagline={T('tagline', { defaultValue: 'מראה יומית קטנה.' })}
+          />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {mirror.length ? (

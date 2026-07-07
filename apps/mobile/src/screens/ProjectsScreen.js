@@ -44,18 +44,17 @@ export default function ProjectsScreen() {
 
   return (
     <Screen name="clients">
-      <ScreenHead
-        title={i18n.t('projects:title', { defaultValue: 'פרויקטים' })}
-        meta={[i18n.t('projects:count', { count: projects.length, defaultValue: `${projects.length} פרויקטים` })]}
-        tagline={i18n.t('projects:tagline', { defaultValue: 'מיקוד יוצר תוצאות.' })}
-        onAdd={() => setShowAdd(true)}
-        addLabel={i18n.t('projects:newAria', { defaultValue: 'פרויקט חדש' })}
-      />
-
       {loading && !projects.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
+          <ScreenHead
+            title={i18n.t('projects:title', { defaultValue: 'פרויקטים' })}
+            meta={[i18n.t('projects:count', { count: projects.length, defaultValue: `${projects.length} פרויקטים` })]}
+            tagline={i18n.t('projects:tagline', { defaultValue: 'מיקוד יוצר תוצאות.' })}
+            onAdd={() => setShowAdd(true)}
+            addLabel={i18n.t('projects:newAria', { defaultValue: 'פרויקט חדש' })}
+          />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <Card padded={false} contentStyle={styles.hero}>

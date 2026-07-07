@@ -45,8 +45,6 @@ export default function MoonScreen() {
 
   return (
     <Screen name="moon">
-      <ScreenHead title={i18n.t('moon:title', { defaultValue: 'מבט על' })} />
-
       {loading && !overall ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : !overall ? (
@@ -60,6 +58,7 @@ export default function MoonScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
+          <ScreenHead title={i18n.t('moon:title', { defaultValue: 'מבט על' })} />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {/* Hero ring + reflection */}

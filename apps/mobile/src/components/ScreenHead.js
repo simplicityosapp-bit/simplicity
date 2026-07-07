@@ -49,9 +49,13 @@ export default function ScreenHead({ title, meta = [], tagline, onAdd, addLabel,
 }
 
 const styles = StyleSheet.create({
+  // Lives as the first child inside each screen's scroll content (so it scrolls
+  // with the page, like web — not pinned). The content container already pads 20
+  // horizontally + has a row gap, so the head carries no horizontal padding /
+  // bottom margin of its own.
   wrap: { paddingTop: 52 },
-  back: { paddingHorizontal: 16, paddingBottom: 4, alignSelf: 'flex-start' },
-  top: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingTop: 4, marginBottom: 16 },
+  back: { paddingBottom: 4, alignSelf: 'flex-start' },
+  top: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 4 },
   // Glass card, ~62% like the web .screen-head; title on top, meta + tagline below.
   card: { flexBasis: '62%', flexShrink: 1, maxWidth: 280, paddingVertical: 16, paddingHorizontal: 18, alignItems: 'flex-start', gap: 6 },
   title: { fontSize: 24, fontWeight: '700', letterSpacing: -0.5, lineHeight: 27, color: colors.text },

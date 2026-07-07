@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
 // Daily questions (user_questions) — list + add + toggle-active + soft-delete.
-// Mirrors web useUserQuestions. Feeds the QuestionsScreen and, transitively, the
+// Mirrors web useUserQuestions. Feeds AddGoalModal question-authoring and, transitively, the
 // home InsightsWidget (which reads active, due-today questions).
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 

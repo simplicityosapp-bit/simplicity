@@ -51,10 +51,10 @@ export default function MoonWidget({ data }) {
         </Svg>
         <Text style={styles.num}>{conf}%</Text>
         <Text style={styles.kicker}>{i18n.t('home:widgets.moon.ofPace')}</Text>
+        {pure != null ? (
+          <Text style={styles.goalInside}>{i18n.t('home:widgets.moon.percentOfGoal', { percent: pure })}</Text>
+        ) : null}
       </Chip>
-      {pure != null ? (
-        <Text style={styles.caption}>{i18n.t('home:widgets.moon.percentOfGoal', { percent: pure })}</Text>
-      ) : null}
     </Pressable>
   )
 }
@@ -82,6 +82,6 @@ const styles = StyleSheet.create({
   ring: { ...StyleSheet.absoluteFillObject, transform: [{ rotate: '-90deg' }] },
   num: { fontSize: 26, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
   kicker: { fontSize: 10, color: colors.textSub, marginTop: 1 },
-  caption: { fontSize: 11, color: colors.textSub, textAlign: 'center' },
+  goalInside: { fontSize: 9, color: colors.textFaint, fontWeight: '500', marginTop: 3, textAlign: 'center', fontVariant: ['tabular-nums'] },
   emptyLabel: { fontSize: 11, color: colors.brand, fontWeight: '600', textAlign: 'center' },
 })

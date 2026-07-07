@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react'
-import { View, Text, Pressable, ScrollView, StyleSheet, Animated } from 'react-native'
+import { View, Text, Image, Pressable, ScrollView, StyleSheet, Animated } from 'react-native'
 import { BlurView } from 'expo-blur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Moon, Activity, BarChart3, Sparkles, Trash2, X, LogOut, Pencil } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, X, LogOut, Pencil } from 'lucide-react-native'
+
+const LOGO = require('../../assets/logo.png')
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { usePreferences } from '../lib/preferences'
@@ -30,9 +32,8 @@ const GRID = [
 // Secondary tools — labeled link rows (web "extras"): title + sub + tinted chip.
 const PERSONAL = [
   { key: 'insights', screen: 'Insights', Icon: Activity, title: 'nav:extras.insights', sub: 'nav:items.insightsSub', fb: 'מה איתך היום?' },
-  { key: 'moon', screen: 'Moon', Icon: Moon, tint: 'moon', title: 'nav:extras.moon', sub: 'nav:items.moonSub', fb: 'מבט על' },
+  { key: 'moon', screen: 'Moon', logo: true, title: 'nav:extras.moon', sub: 'nav:items.moonSub', fb: 'מבט על' },
   { key: 'reports', screen: 'Reports', Icon: BarChart3, title: 'nav:extras.reports', sub: 'nav:items.reportsSub', fb: 'דוחות' },
-  { key: 'questions', screen: 'Questions', Icon: Sparkles, title: 'nav:items.questions', fb: 'שאלות' },
 ]
 const TOOLS = [
   { key: 'trash', screen: 'Trash', Icon: Trash2, tint: 'amber', title: 'nav:extras.trash', sub: 'nav:items.trashSub', fb: 'סל מיחזור' },
@@ -43,12 +44,12 @@ const TINT = {
   amber: { bg: 'rgba(212,165,116,0.16)', border: 'rgba(212,165,116,0.32)', color: colors.amberWarn },
 }
 
-function LinkRow({ Icon, tint, title, sub, danger, onPress }) {
+function LinkRow({ Icon, logo, tint, title, sub, danger, onPress }) {
   const t = tint ? TINT[tint] : null
   return (
     <Pressable style={styles.link} onPress={onPress}>
       <View style={[styles.linkIcon, t && { backgroundColor: t.bg, borderColor: t.border }]}>
-        <Icon size={18} strokeWidth={1.6} color={danger ? colors.danger : t ? t.color : colors.textSub} />
+        {logo ? <Image source={LOGO} style={styles.linkLogo} resizeMode="contain" /> : <Icon size={18} strokeWidth={1.6} color={danger ? colors.danger : t ? t.color : colors.textSub} />}
       </View>
       <View style={styles.linkText}>
         <Text style={[styles.linkTitle, danger && { color: colors.danger }]} numberOfLines={1}>{title}</Text>
@@ -120,7 +121,7 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
 
             <Text style={styles.sectionLbl}>{i18n.t('nav:sections.personal', { defaultValue: 'אישי' })}</Text>
             {PERSONAL.map((it) => (
-              <LinkRow key={it.key} Icon={it.Icon} tint={it.tint}
+              <LinkRow key={it.key} Icon={it.Icon} logo={it.logo} tint={it.tint}
                 title={i18n.t(it.title, { defaultValue: it.fb })}
                 sub={it.sub ? i18n.t(it.sub, { defaultValue: '' }) : null}
                 onPress={() => go(it.screen)} />
@@ -183,6 +184,7 @@ const styles = StyleSheet.create({
   // link rows
   link: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 20, borderWidth: 0.5, borderColor: colors.border, paddingVertical: 11, paddingHorizontal: 14, marginTop: 2 },
   linkIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.glassTint, borderWidth: 0.5, borderColor: colors.divider },
+  linkLogo: { width: 22, height: 22 },
   linkText: { flex: 1 },
   linkTitle: { fontSize: 14, fontWeight: '500', color: colors.text },
   linkSub: { fontSize: 10, color: colors.textSub, marginTop: 1, letterSpacing: 0.2 },

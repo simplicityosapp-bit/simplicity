@@ -150,7 +150,7 @@ export default function SettingsScreen() {
 
         {/* Configuration */}
         <Section Icon={SlidersHorizontal} title={T('sections.clients.title', { defaultValue: 'קונפיגורציה' })} sub={T('sections.clients.sub', { defaultValue: '' })} open={open === 'config'} onToggle={() => toggle('config')}>
-          <Pressable style={styles.rowBtn} onPress={() => nav.navigate('Questions')}>
+          <Pressable style={styles.rowBtn} onPress={() => nav.navigate('Insights')}>
             <Sparkles size={16} strokeWidth={1.7} color={colors.textSub} />
             <Text style={styles.rowBtnText}>{i18n.t('settings:sections.questions.title', { defaultValue: 'שאלות יומיות' })}</Text>
             <View style={{ flex: 1 }} />

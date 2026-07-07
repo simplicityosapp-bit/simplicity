@@ -11,6 +11,7 @@ import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import AddQuestionModal from '../modals/AddQuestionModal'
 import { colors } from '../theme/theme'
 import { usePreferences } from '../lib/preferences'
 import { useInsightsData } from '../hooks/useInsightsData'
@@ -133,16 +134,20 @@ TrendLine.displayName = 'TrendLine'
 Heatmap.displayName = 'Heatmap'
 
 export default function InsightsScreen() {
-  const { questions, answers, loading, error, refetch, addAnswer, toggleActive, removeQuestion } = useInsightsData()
+  const { questions, answers, loading, error, refetch, addAnswer, addQuestion, toggleActive, removeQuestion } = useInsightsData()
   const { prefs } = usePreferences()
   const gender = prefs.design?.gender
   const today = ymdKey(new Date())
   const idx = useMemo(() => indexAnswers(answers), [answers])
   const mirror = useMemo(() => mirrorReflections(questions, idx, new Date(), gender), [questions, idx, gender])
   const submit = (qid, value_num) => addAnswer({ user_question_id: qid, date: today, value_num })
+  const [showAdd, setShowAdd] = useState(false)
+  const nextOrder = questions.reduce((m, q) => Math.max(m, (q.order ?? 0) + 1), 0)
+  const usedTemplateKeys = questions.map((q) => q.template_key).filter(Boolean)
 
   return (
     <Screen name="moon">
+      <AddQuestionModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addQuestion} nextOrder={nextOrder} usedTemplateKeys={usedTemplateKeys} />
       {loading && !questions.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
@@ -151,6 +156,8 @@ export default function InsightsScreen() {
             title={T('title', { defaultValue: 'מה איתך היום' })}
             meta={questions.length ? [T('activeCount', { count: questions.filter((q) => q.active).length, defaultValue: `${questions.filter((q) => q.active).length} שאלות` })] : []}
             tagline={T('tagline', { defaultValue: 'מראה יומית קטנה.' })}
+            onAdd={() => setShowAdd(true)}
+            addLabel={i18n.t('settings:questions.add', { defaultValue: 'הוספת שאלה' })}
           />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 

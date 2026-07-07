@@ -1,8 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
-// Daily questions + their answers, for the Insights screen. addAnswer upserts
-// one answer per question per day; toggleActive/removeQuestion manage questions.
+const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
+
+// Daily questions + their answers, for the Insights screen ("מה איתך היום"):
+// the single place questions are both answered AND managed. addAnswer upserts one
+// answer per question per day; addQuestion/toggleActive/removeQuestion manage them.
 export function useInsightsData() {
   const [questions, setQuestions] = useState([])
   const [answers, setAnswers] = useState([])
@@ -47,6 +50,18 @@ export function useInsightsData() {
     setAnswers((prev) => [...prev, data])
   }, [answers])
 
+  const addQuestion = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const row = { ...payload }
+    SERVER_OWNED.forEach((k) => delete row[k])
+    row.user_id = session.user.id
+    const { data, error: e } = await supabase.from('user_questions').insert(row).select().single()
+    if (e) throw e
+    setQuestions((prev) => [...prev, data].slice().sort((x, y) => (x.order ?? 0) - (y.order ?? 0)))
+    return data
+  }, [])
+
   const toggleActive = useCallback(async (q) => {
     setQuestions((prev) => prev.map((x) => (x.id === q.id ? { ...x, active: !q.active } : x))) // optimistic
     const { error: e } = await supabase.from('user_questions').update({ active: !q.active }).eq('id', q.id)
@@ -59,5 +74,5 @@ export function useInsightsData() {
     if (e) { load() }
   }, [load])
 
-  return { questions, answers, loading, error, refetch: load, addAnswer, toggleActive, removeQuestion }
+  return { questions, answers, loading, error, refetch: load, addAnswer, addQuestion, toggleActive, removeQuestion }
 }

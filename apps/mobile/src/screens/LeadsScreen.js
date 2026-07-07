@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking } from 'react-native'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
-import { Bell, Check, MessageCircle, ChevronLeft, Search, SlidersHorizontal } from 'lucide-react-native'
+import { Bell, Check, MessageCircle, ChevronLeft, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
 import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, fmtShortDate } from '@simplicity/core'
 import Select from '../components/Select'
+import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
@@ -33,6 +34,8 @@ const todayYmd = () => {
 export default function LeadsScreen() {
   const { leads, loading, error, refetch, addLead, updateLead, deleteLead, addClient, addGroupMember } = useLeadsList()
   const { leadSources = [], leadStatuses = [], projects = [] } = useFormOptions()
+  const tax = useConfigTaxonomy()
+  const [view, setView] = useState('board')
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(false)
   const [converting, setConverting] = useState(null)
@@ -177,6 +180,19 @@ export default function LeadsScreen() {
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
+          <View style={styles.viewToggle}>
+            <Pressable style={[styles.viewBtn, view === 'board' && styles.viewBtnOn]} onPress={() => setView('board')}>
+              <Text style={[styles.viewBtnText, view === 'board' && styles.viewBtnTextOn]}>{i18n.t('leads:tabLeads', { defaultValue: 'לידים' })}</Text>
+            </Pressable>
+            <Pressable style={[styles.viewBtn, view === 'statuses' && styles.viewBtnOn]} onPress={() => setView('statuses')}>
+              <Text style={[styles.viewBtnText, view === 'statuses' && styles.viewBtnTextOn]}>{i18n.t('leads:tabStatuses', { defaultValue: 'סטטוסים' })}</Text>
+            </Pressable>
+          </View>
+
+          {view === 'statuses' ? (
+            <LeadStatusesPanel leadStatuses={tax.leadStatuses} onAdd={tax.addLeadStatus} onRemove={tax.removeLeadStatus} />
+          ) : (
+          <>
           {pending.length ? (
             <View style={styles.group}>
               <View style={styles.groupHead}>
@@ -282,6 +298,8 @@ export default function LeadsScreen() {
               <LeadCard lead={dragLead} sources={leadSources} statuses={leadStatuses} />
             </Animated.View>
           ) : null}
+          </>
+          )}
         </ScrollView>
       )}
 
@@ -395,8 +413,75 @@ export default function LeadsScreen() {
   )
 }
 
+// Sub-status manager (view === 'statuses') — chips per meta group + add/remove.
+// Web also allows drag-reorder / drag-between-groups; omitted here (v1).
+function LeadStatusesPanel({ leadStatuses, onAdd, onRemove }) {
+  return (
+    <View style={{ gap: 16 }}>
+      <Text style={styles.panelIntro}>{i18n.t('leads:statusesPanel.intro', { defaultValue: 'ניהול תתי-סטטוסים תחת כל קטגוריית-על.' })}</Text>
+      {LEAD_META.map((m) => (
+        <StatusGroup
+          key={m.key}
+          meta={m.key}
+          title={metaTitle(m.key)}
+          statuses={(leadStatuses || []).filter((s) => s.meta_category === m.key && !s.deleted_at)}
+          onAdd={onAdd}
+          onRemove={onRemove}
+        />
+      ))}
+    </View>
+  )
+}
+
+function StatusGroup({ meta, title, statuses, onAdd, onRemove }) {
+  const [draft, setDraft] = useState('')
+  const [busy, setBusy] = useState(false)
+  const add = async () => {
+    const v = draft.trim(); if (!v || busy) return
+    setBusy(true); try { await onAdd(v, meta); setDraft('') } finally { setBusy(false) }
+  }
+  return (
+    <View style={styles.sgroup}>
+      <Text style={styles.sgroupTitle}>{title}</Text>
+      <View style={styles.chips}>
+        {statuses.length ? statuses.map((s) => (
+          <View key={s.id} style={styles.chip}>
+            {s.icon ? <Text style={styles.chipIcon}>{s.icon}</Text> : null}
+            {s.color ? <View style={[styles.chipDot, { backgroundColor: s.color }]} /> : null}
+            <Text style={styles.chipText}>{s.display_name}</Text>
+            {s.is_default ? null : <Pressable onPress={() => onRemove(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>}
+          </View>
+        )) : <Text style={styles.chipEmpty}>—</Text>}
+      </View>
+      <View style={styles.addRow}>
+        <TextInput style={styles.addInput} value={draft} onChangeText={setDraft} placeholder={i18n.t('leads:statusesPanel.addPlaceholder', { meta: title })} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
+        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+      </View>
+    </View>
+  )
+}
+LeadStatusesPanel.displayName = 'LeadStatusesPanel'
+StatusGroup.displayName = 'StatusGroup'
+
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  viewToggle: { flexDirection: 'row', gap: 8, backgroundColor: colors.cardFlat, borderRadius: 999, padding: 4 },
+  viewBtn: { flex: 1, paddingVertical: 8, borderRadius: 999, alignItems: 'center' },
+  viewBtnOn: { backgroundColor: colors.brand },
+  viewBtnText: { fontSize: 14, color: colors.textSub },
+  viewBtnTextOn: { color: colors.onBrand, fontWeight: '600' },
+  panelIntro: { fontSize: 13, color: colors.textSub, lineHeight: 18 },
+  sgroup: { gap: 8 },
+  sgroupTitle: { fontSize: 14, fontWeight: '600', color: colors.text },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  chipIcon: { fontSize: 12 },
+  chipDot: { width: 8, height: 8, borderRadius: 4 },
+  chipText: { fontSize: 13, color: colors.text },
+  chipEmpty: { fontSize: 12, color: colors.textFaint },
+  addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  addInput: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, fontSize: 14, color: colors.text, backgroundColor: colors.card },
+  addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 18 },
   error: { color: colors.danger, fontSize: 13 },
   group: { gap: 8 },

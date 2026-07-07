@@ -8,7 +8,7 @@ import { useFormOptions } from '../lib/formOptions'
 // Deleting a status/source/type leaves any linked row falling back to its meta /
 // "none" (no cascade reassignment in this v1). RLS scopes rows to the user.
 export function useConfigTaxonomy() {
-  const { clientStatuses, leadSources, meetingTypes, refetch } = useFormOptions()
+  const { clientStatuses, leadSources, leadStatuses, meetingTypes, refetch } = useFormOptions()
 
   const insertRow = useCallback(async (table, payload) => {
     const { data: { session } } = await supabase.auth.getSession()
@@ -27,9 +27,12 @@ export function useConfigTaxonomy() {
   return {
     clientStatuses: clientStatuses || [],
     leadSources: leadSources || [],
+    leadStatuses: leadStatuses || [],
     meetingTypes: meetingTypes || [],
     addClientStatus: useCallback((display_name, meta_category) => insertRow('client_statuses', { display_name, meta_category }), [insertRow]),
     removeClientStatus: useCallback((id) => softDelete('client_statuses', id), [softDelete]),
+    addLeadStatus: useCallback((display_name, meta_category) => insertRow('lead_statuses', { display_name, meta_category, is_default: false }), [insertRow]),
+    removeLeadStatus: useCallback((id) => softDelete('lead_statuses', id), [softDelete]),
     addLeadSource: useCallback((name) => insertRow('lead_sources', { name }), [insertRow]),
     removeLeadSource: useCallback((id) => softDelete('lead_sources', id), [softDelete]),
     addMeetingType: useCallback((name, default_price) => insertRow('meeting_types', { name, default_price: default_price || null }), [insertRow]),

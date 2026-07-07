@@ -52,7 +52,7 @@ export default function ConvertLeadModal({ open, onClose, lead, onCreateClient, 
       await onUpdateLead(lead.id, {
         status_meta: 'converted', status_id: subStatusId,
         converted_at: now, converted_to_client_id: newClient.id, last_status_changed_at: now,
-      })
+      }, { source: 'converted' })
       onClose()
     } catch (e) {
       setBusy(false)

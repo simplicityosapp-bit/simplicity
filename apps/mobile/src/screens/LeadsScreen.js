@@ -1,59 +1,75 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { LEAD_META, statusMetaOfLead, metaTitle, isPendingReview, isConvertedLead, fmtShortDate } from '@simplicity/core'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions } from 'react-native'
+import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import Sheet from '../components/Sheet'
+import LeadCard from './leads/LeadCard'
 import AddLeadModal from '../modals/AddLeadModal'
 import ConvertLeadModal from '../modals/ConvertLeadModal'
 import { colors } from '../theme/theme'
 import { useFormOptions } from '../lib/formOptions'
 import { useLeadsList } from '../hooks/useLeadsList'
 
+// Fallback column-dot colors when a meta has no default sub-status (metaColor
+// then returns a CSS var, which RN can't use).
 const META_COLOR = { in_process: '#D9A566', converted: colors.positive, not_relevant: '#b3a99c' }
-const todayYmd = () => {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
+const COL_W = Math.min(300, Math.round(Dimensions.get('window').width * 0.82))
 
-// Leads screen — leads grouped by their status-meta (core statusMetaOfLead), in
-// the canonical LEAD_META order. Rows show source + follow-up (overdue in amber),
-// over the per-screen photo (Warm Precision).
+// Leads screen — a KANBAN board (mirrors web): horizontally-scrolling meta
+// columns (in_process / converted / not_relevant), each with rich lead cards.
+// Move a lead between stages via the card's move control (→ target column →
+// sub-status picker); every sub-status change is logged (lead_status_log via
+// updateLead's source). Pending public-page leads sit in a review strip above.
 export default function LeadsScreen() {
   const { leads, loading, error, refetch, addLead, updateLead, deleteLead, addClient, addGroupMember } = useLeadsList()
-  const { leadSources } = useFormOptions()
+  const { leadSources = [], leadStatuses = [] } = useFormOptions()
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(false)
   const [converting, setConverting] = useState(null)
-
-  const sourceById = useMemo(() => Object.fromEntries(leadSources.map((s) => [s.id, s.name])), [leadSources])
-  const today = todayYmd()
+  // Tap-to-move flow: { lead, newMeta?, subs? } — first pick a target column,
+  // then (if it has 2+ sub-statuses) a sub-status.
+  const [movePicker, setMovePicker] = useState(null)
 
   const pending = useMemo(() => leads.filter((l) => !l.deleted_at && isPendingReview(l)), [leads])
   const official = useMemo(() => leads.filter((l) => !l.deleted_at && !isPendingReview(l)), [leads])
-  const groups = useMemo(
-    () => LEAD_META
-      .map((m) => ({ meta: m.key, title: metaTitle(m.key), rows: official.filter((l) => statusMetaOfLead(l) === m.key) }))
-      .filter((g) => g.rows.length),
-    [official],
-  )
-  // Stats hero — new this month · converted this month · conversion rate (cohort).
-  const stats = useMemo(() => {
-    const now = new Date()
-    const inMonth = (d) => { if (!d) return false; const x = new Date(d); return x.getFullYear() === now.getFullYear() && x.getMonth() === now.getMonth() }
-    const newThis = official.filter((l) => (l.inquiry_date ? inMonth(l.inquiry_date) : inMonth(l.created_at)))
-    const convertedThisMonth = official.filter((l) => isConvertedLead(l) && inMonth(l.converted_at)).length
-    const cohortConverted = newThis.filter(isConvertedLead).length
-    const convRate = newThis.length ? Math.round((cohortConverted / newThis.length) * 100) : null
-    return { newThisMonth: newThis.length, convertedThisMonth, convRate }
+  const buckets = useMemo(() => {
+    const g = {}
+    LEAD_META.forEach((m) => { g[m.key] = [] })
+    official.forEach((l) => { (g[statusMetaOfLead(l)] || g.in_process).push(l) })
+    return g
   }, [official])
+  const total = LEAD_META.reduce((s, m) => s + (buckets[m.key]?.length || 0), 0)
+
+  // Commit a column move (+ optional sub-status). status_id is set to a
+  // sub-status that BELONGS to the target column (or null); moving OUT of
+  // 'converted' clears the conversion stamp. source='manual_drag' logs it.
+  const applyLeadMove = (leadId, newMeta, statusId) => {
+    const next = {
+      status_meta: newMeta,
+      status_id: statusId ?? null,
+      last_status_changed_at: new Date().toISOString(),
+      ...(newMeta !== 'converted' ? { converted_at: null, converted_to_client_id: null } : {}),
+    }
+    updateLead(leadId, next, { source: 'manual_drag' }).catch(() => {})
+  }
+
+  // Move a lead to a chosen meta: 2+ sub-statuses → ask which; 1 → auto; 0 → none.
+  const chooseMeta = (lead, newMeta) => {
+    if (statusMetaOfLead(lead) === newMeta) { setMovePicker(null); return }
+    const subs = leadStatuses.filter((s) => s.meta_category === newMeta && !s.deleted_at)
+    if (subs.length >= 2) { setMovePicker({ lead, newMeta, subs }); return }
+    applyLeadMove(lead.id, newMeta, subs.length === 1 ? subs[0].id : null)
+    setMovePicker(null)
+  }
 
   return (
     <Screen name="leads">
       <ScreenHead
         title={i18n.t('leads:title', { defaultValue: 'לידים' })}
-        meta={[i18n.t('leads:countLabel', { count: official.length, defaultValue: `${official.length} לידים` })]}
+        meta={[i18n.t('leads:countLabel', { count: total, defaultValue: `${total} לידים` })]}
         tagline={i18n.t('leads:tagline', { defaultValue: 'טיפוח קשרים מוביל לתוצאות.' })}
         onAdd={() => setAdding(true)}
         addLabel={i18n.t('leads:newLeadAria', { defaultValue: 'ליד חדש' })}
@@ -68,14 +84,6 @@ export default function LeadsScreen() {
         >
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          {official.length ? (
-            <Card padded={false} contentStyle={styles.hero}>
-              <HeroStat value={stats.newThisMonth} label={i18n.t('leads:stats.newThisMonth', { defaultValue: 'פניות החודש' })} />
-              <HeroStat value={stats.convertedThisMonth} label={i18n.t('leads:stats.converted', { defaultValue: 'הומרו ללקוחות' })} divided accent />
-              <HeroStat value={stats.convRate == null ? '—' : `${stats.convRate}%`} label={i18n.t('leads:stats.convRate', { defaultValue: 'אחוז המרה' })} />
-            </Card>
-          ) : null}
-
           {pending.length ? (
             <View style={styles.group}>
               <View style={styles.groupHead}>
@@ -85,7 +93,7 @@ export default function LeadsScreen() {
               </View>
               <Card padded={false}>
                 {pending.map((l, i) => (
-                  <View key={l.id || i} style={[styles.row, i > 0 && styles.rowBorder]}>
+                  <View key={l.id || i} style={[styles.pendRow, i > 0 && styles.rowBorder]}>
                     <View style={styles.info}>
                       <Text style={styles.name} numberOfLines={1}>{l.name || '—'}</Text>
                       {l.phone ? <Text style={styles.phone}>{l.phone}</Text> : null}
@@ -102,38 +110,37 @@ export default function LeadsScreen() {
             </View>
           ) : null}
 
-          {groups.length ? (
-            groups.map(({ meta, title, rows }) => (
-              <View key={meta} style={styles.group}>
-                <View style={styles.groupHead}>
-                  <View style={[styles.dot, { backgroundColor: META_COLOR[meta] || '#cbb9a8' }]} />
-                  <Text style={styles.groupTitle}>{title}</Text>
-                  <Text style={styles.count}>{rows.length}</Text>
+          {/* Kanban board — horizontally-scrolling meta columns */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.board}>
+            {LEAD_META.map((m) => {
+              const raw = metaColor(m.key, leadStatuses)
+              const dot = raw && String(raw).startsWith('#') ? raw : META_COLOR[m.key]
+              const rows = buckets[m.key] || []
+              return (
+                <View key={m.key} style={[styles.col, { width: COL_W }]}>
+                  <View style={styles.colHead}>
+                    <View style={[styles.colDot, { backgroundColor: dot }]} />
+                    <Text style={styles.colTitle}>{metaTitle(m.key)}</Text>
+                    <Text style={styles.colCount}>{rows.length}</Text>
+                  </View>
+                  <View style={styles.colBody}>
+                    {rows.length ? rows.map((l) => (
+                      <LeadCard
+                        key={l.id}
+                        lead={l}
+                        onEdit={setEditing}
+                        onConvert={setConverting}
+                        onDelete={deleteLead}
+                        onMove={(lead) => setMovePicker({ lead })}
+                        sources={leadSources}
+                        statuses={leadStatuses}
+                      />
+                    )) : <Text style={styles.colEmpty}>{i18n.t('leads:column.empty', { defaultValue: 'אין לידים בעמודה זו' })}</Text>}
+                  </View>
                 </View>
-                <Card padded={false}>
-                  {rows.map((l, i) => {
-                    const overdue = l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= today
-                    const metaParts = []
-                    if (sourceById[l.source_id]) metaParts.push(sourceById[l.source_id])
-                    if (l.follow_up_date) metaParts.push(`${i18n.t('modalsClient:common.followUp')} ${fmtShortDate(l.follow_up_date)}`)
-                    const meta = metaParts.join(' · ')
-                    return (
-                      <Pressable key={l.id || i} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditing(l)}>
-                        <View style={styles.info}>
-                          <Text style={styles.name} numberOfLines={1}>{l.name || '—'}</Text>
-                          {l.phone ? <Text style={styles.phone}>{l.phone}</Text> : null}
-                          {meta ? <Text style={[styles.meta, overdue && styles.metaOverdue]} numberOfLines={1}>{meta}</Text> : null}
-                        </View>
-                        {isPendingReview(l) ? <View style={styles.pending} /> : null}
-                      </Pressable>
-                    )
-                  })}
-                </Card>
-              </View>
-            ))
-          ) : !pending.length ? (
-            <Text style={styles.empty}>{i18n.t('leads:empty', { defaultValue: 'עדיין אין לידים.' })}</Text>
-          ) : null}
+              )
+            })}
+          </ScrollView>
         </ScrollView>
       )}
 
@@ -154,46 +161,71 @@ export default function LeadsScreen() {
         onUpdateLead={updateLead}
         onAddGroupMember={addGroupMember}
       />
+
+      {/* Move flow — pick target column, then sub-status if the column has 2+ */}
+      <Sheet
+        open={!!movePicker}
+        onClose={() => setMovePicker(null)}
+        title={movePicker?.newMeta ? i18n.t('leads:dropPicker.title', { defaultValue: 'לאיזה תת-סטטוס לשייך?' }) : i18n.t('leads:move.title', { defaultValue: 'העברה לשלב' })}
+      >
+        {movePicker && !movePicker.newMeta ? (
+          LEAD_META.filter((m) => m.key !== statusMetaOfLead(movePicker.lead)).map((m) => {
+            const raw = metaColor(m.key, leadStatuses)
+            const dot = raw && String(raw).startsWith('#') ? raw : META_COLOR[m.key]
+            return (
+              <Pressable key={m.key} style={styles.opt} onPress={() => chooseMeta(movePicker.lead, m.key)}>
+                <View style={[styles.optDot, { backgroundColor: dot }]} />
+                <Text style={styles.optText}>{metaTitle(m.key)}</Text>
+              </Pressable>
+            )
+          })
+        ) : movePicker ? (
+          <>
+            {movePicker.subs.map((s) => (
+              <Pressable key={s.id} style={styles.opt} onPress={() => { applyLeadMove(movePicker.lead.id, movePicker.newMeta, s.id); setMovePicker(null) }}>
+                <View style={[styles.optDot, { backgroundColor: s.color || colors.textSub }]} />
+                <Text style={styles.optText}>{s.icon ? `${s.icon} ` : ''}{s.display_name}</Text>
+              </Pressable>
+            ))}
+            <Pressable style={styles.opt} onPress={() => { applyLeadMove(movePicker.lead.id, movePicker.newMeta, null); setMovePicker(null) }}>
+              <Text style={[styles.optText, { color: colors.textSub }]}>{i18n.t('leads:dropPicker.none', { defaultValue: 'ללא תת-סטטוס' })}</Text>
+            </Pressable>
+          </>
+        ) : null}
+      </Sheet>
     </Screen>
   )
 }
 
-function HeroStat({ value, label, accent, divided }) {
-  return (
-    <View style={[styles.heroStat, divided && styles.heroStatDivided]}>
-      <Text style={[styles.heroStatV, accent && styles.heroStatAccent]}>{value}</Text>
-      <Text style={styles.heroStatL}>{label}</Text>
-    </View>
-  )
-}
-
 const styles = StyleSheet.create({
-  hero: { flexDirection: 'row', paddingVertical: 16, paddingHorizontal: 8 },
-  heroStat: { flex: 1, alignItems: 'center', gap: 4 },
-  heroStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
-  heroStatV: { fontSize: 22, fontWeight: '600', color: colors.text },
-  heroStatAccent: { color: colors.positive },
-  heroStatL: { fontSize: 10, fontWeight: '500', color: colors.textSub, letterSpacing: 0.3, textTransform: 'uppercase', textAlign: 'center' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 18 },
   error: { color: colors.danger, fontSize: 13 },
-  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
   group: { gap: 8 },
   groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dot: { width: 10, height: 10, borderRadius: 5 },
   groupTitle: { fontSize: 14, fontWeight: '600', color: colors.textSub, flex: 1 },
   count: { fontSize: 13, color: colors.textFaint },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },
+  pendRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   info: { flex: 1, gap: 2 },
   name: { fontSize: 15, color: colors.text },
   phone: { fontSize: 12, color: colors.textFaint },
-  meta: { fontSize: 12, color: colors.textFaint },
-  metaOverdue: { color: colors.amberWarn },
-  pending: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.brand },
   approve: { paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, backgroundColor: colors.positive },
   approveText: { fontSize: 13, fontWeight: '600', color: colors.onBrand },
   reject: { paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border },
   rejectText: { fontSize: 13, color: colors.textSub },
-})
 
+  board: { gap: 12, paddingBottom: 4 },
+  col: { gap: 10 },
+  colHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 2 },
+  colDot: { width: 10, height: 10, borderRadius: 5 },
+  colTitle: { fontSize: 14, fontWeight: '600', color: colors.text, flex: 1 },
+  colCount: { fontSize: 13, fontWeight: '600', color: colors.textSub, backgroundColor: colors.cardFlat, minWidth: 22, textAlign: 'center', borderRadius: 999, paddingVertical: 1, paddingHorizontal: 7, overflow: 'hidden' },
+  colBody: { gap: 10 },
+  colEmpty: { fontSize: 12, color: colors.textFaint, textAlign: 'center', paddingVertical: 24 },
+
+  opt: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14, paddingHorizontal: 4, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
+  optDot: { width: 10, height: 10, borderRadius: 5 },
+  optText: { fontSize: 15, color: colors.text },
+})

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { View, Text, Image, Pressable, ScrollView, StyleSheet, Animated } from 'react-native'
 import { BlurView } from 'expo-blur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, X, LogOut, Pencil } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, X, LogOut, Pencil } from 'lucide-react-native'
 
 const LOGO = require('../../assets/logo.png')
 import { supabase } from '../lib/supabase'
@@ -31,6 +31,7 @@ const GRID = [
 ]
 // Secondary tools — labeled link rows (web "extras"): title + sub + tinted chip.
 const PERSONAL = [
+  { key: 'sitePages', screen: 'Pages', Icon: LayoutTemplate, title: 'nav:extras.sitePages', sub: 'nav:items.sitePagesSub', fb: 'דפים ציבוריים' },
   { key: 'insights', screen: 'Insights', Icon: Activity, title: 'nav:extras.insights', sub: 'nav:items.insightsSub', fb: 'מה איתך היום?' },
   { key: 'moon', screen: 'Moon', logo: true, title: 'nav:extras.moon', sub: 'nav:items.moonSub', fb: 'מבט על' },
   { key: 'reports', screen: 'Reports', Icon: BarChart3, title: 'nav:extras.reports', sub: 'nav:items.reportsSub', fb: 'דוחות' },

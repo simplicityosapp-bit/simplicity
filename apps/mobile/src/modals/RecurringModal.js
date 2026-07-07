@@ -43,7 +43,11 @@ export default function RecurringModal({ open, onClose, onSave, template = null 
     try {
       await onSave({
         type: form.type, amount, desc: form.desc.trim() || null,
-        trigger_type: 'schedule', cadence_type: form.cadence_type,
+        // Preserve an existing on_meeting trigger on edit — this modal only
+        // authors the schedule path, but must not silently rewrite a
+        // meeting-triggered template to 'schedule' when it's edited.
+        trigger_type: isEdit ? (template.trigger_type || 'schedule') : 'schedule',
+        cadence_type: form.cadence_type,
         day_of_month: form.cadence_type === 'monthly_date' ? parseInt(form.day_of_month, 10) : null,
         day_of_week: form.cadence_type === 'weekly' ? parseInt(form.day_of_week, 10) : null,
         until_date: form.until_date || null,

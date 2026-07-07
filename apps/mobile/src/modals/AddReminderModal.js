@@ -29,13 +29,16 @@ const fromReminder = (r) => {
     date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
     time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
     recurrence: r.recurrence_type || 'none',
-    interval: String(r.recurrence_pattern?.interval || 7),
+    interval: String(r.recurrence_pattern?.x || 7),
   }
 }
+// Pattern KEYS must match what core/reminders.ts reads: dayOfWeek / dayOfMonth / x
+// (the shared engine drives both web + mobile, so a wrong key silently breaks the
+// schedule — e.g. every_x under the old `interval` key read as every 1 day).
 const recurrencePayload = (recurrence, scheduled, interval) => {
   if (recurrence === 'weekly') return { recurrence_type: 'weekly', recurrence_pattern: { dayOfWeek: scheduled.getDay() } }
-  if (recurrence === 'monthly_date') return { recurrence_type: 'monthly_date', recurrence_pattern: { day: scheduled.getDate() } }
-  if (recurrence === 'every_x_days') return { recurrence_type: 'every_x_days', recurrence_pattern: { interval: Number(interval) || 7 } }
+  if (recurrence === 'monthly_date') return { recurrence_type: 'monthly_date', recurrence_pattern: { dayOfMonth: scheduled.getDate() } }
+  if (recurrence === 'every_x_days') return { recurrence_type: 'every_x_days', recurrence_pattern: { x: Number(interval) || 7 } }
   return { recurrence_type: 'none', recurrence_pattern: null }
 }
 

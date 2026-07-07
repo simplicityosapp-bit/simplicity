@@ -26,12 +26,14 @@ const blank = (task) => ({
   priority: task?.priority || 'medium',
   project_id: task?.project_id || '',
   client_id: task?.client_id || '',
+  status_id: task?.status_id || '',
+  category_id: task?.category_id || '',
   ...dueParts(task?.due_at),
 })
 
 export default function AddTaskModal({ open, onClose, onSave, onDelete, task = null }) {
   const isEdit = !!task
-  const { projects, clients } = useFormOptions()
+  const { projects, clients, taskStatuses = [], taskCategories = [] } = useFormOptions()
   const [form, setForm] = useState(() => blank(task))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -51,13 +53,21 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, task = n
     setErr('')
     // A date alone is enough — default the time to 09:00 so it lands on the day.
     const due_at = form.due_date ? new Date(`${form.due_date}T${form.due_time || '09:00'}`).toISOString() : null
+    // A chosen custom status drives the binary status via its meta ('done' → done,
+    // else todo) so counters stay correct; with none, keep the create default /
+    // leave an edit's status untouched. Mirrors web AddTaskModal.
+    const chosen = taskStatuses.find((s) => s.id === form.status_id)
+    const metaStatus = chosen ? (chosen.meta_category === 'done' ? 'done' : 'todo') : null
     try {
       await onSave({
         title: form.title.trim(),
         priority: form.priority,
         project_id: form.project_id || null,
         client_id: form.client_id || null,
+        status_id: form.status_id || null,
+        category_id: form.category_id || null,
         due_at,
+        ...(metaStatus ? { status: metaStatus } : (isEdit ? {} : { status: 'todo', completed_at: null })),
       })
       close()
     } catch (e) {
@@ -120,6 +130,24 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, task = n
         placeholder={noneClient}
         options={[{ value: '', label: noneClient }, ...clients.map((c) => ({ value: c.id, label: c.name || '' }))]}
       />
+      {taskStatuses.length ? (
+        <Select
+          label={i18n.t('modalsTask:task.status')}
+          value={form.status_id}
+          onChange={(v) => set('status_id', v)}
+          placeholder={noneClient}
+          options={[{ value: '', label: noneClient }, ...taskStatuses.map((s) => ({ value: s.id, label: s.display_name || '' }))]}
+        />
+      ) : null}
+      {taskCategories.length ? (
+        <Select
+          label={i18n.t('modalsTask:task.category')}
+          value={form.category_id}
+          onChange={(v) => set('category_id', v)}
+          placeholder={noneClient}
+          options={[{ value: '', label: noneClient }, ...taskCategories.map((c) => ({ value: c.id, label: c.name || '' }))]}
+        />
+      ) : null}
 
       {err ? <Text style={styles.error}>{err}</Text> : null}
 

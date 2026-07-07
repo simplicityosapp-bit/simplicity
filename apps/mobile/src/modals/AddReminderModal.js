@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
+import Select from '../components/Select'
+import { useFormOptions } from '../lib/formOptions'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
@@ -20,7 +22,7 @@ const RECUR = [
   { k: 'every_x_days', l: 'recEveryX' },
 ]
 const fromReminder = (r) => {
-  if (!r) return { title: '', description: '', date: todayStr(), time: '09:00', recurrence: 'none', interval: '7' }
+  if (!r) return { title: '', description: '', date: todayStr(), time: '09:00', recurrence: 'none', interval: '7', client_id: '', category_id: '', end_date: '' }
   const d = r.scheduled_at ? new Date(r.scheduled_at) : new Date()
   const pad = (n) => String(n).padStart(2, '0')
   return {
@@ -30,6 +32,9 @@ const fromReminder = (r) => {
     time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
     recurrence: r.recurrence_type || 'none',
     interval: String(r.recurrence_pattern?.x || 7),
+    client_id: (r.linked_to_type === 'client' && r.linked_to_id) ? r.linked_to_id : '',
+    category_id: r.category_id || '',
+    end_date: r.end_date || '',
   }
 }
 // Pattern KEYS must match what core/reminders.ts reads: dayOfWeek / dayOfMonth / x
@@ -44,6 +49,7 @@ const recurrencePayload = (recurrence, scheduled, interval) => {
 
 export default function AddReminderModal({ open, onClose, onSave, onDelete, reminder = null }) {
   const isEdit = !!reminder
+  const { clients = [], taskCategories = [] } = useFormOptions()
   const [form, setForm] = useState(() => fromReminder(reminder))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -61,17 +67,24 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
     if (!form.title.trim()) { setErr(i18n.t('modalsTask:reminder.titleRequired')); return }
     const scheduled = new Date(`${form.date}T${form.time || '09:00'}`)
     if (Number.isNaN(scheduled.getTime())) { setErr(i18n.t('modalsTask:reminder.invalidDateTime')); return }
+    // An end date only applies to a recurring reminder, and can't precede the first occurrence.
+    const hasEnd = form.recurrence !== 'none' && form.end_date
+    if (hasEnd && new Date(`${form.end_date}T23:59:59`) < scheduled) { setErr(i18n.t('modalsTask:reminder.endBeforeFirst')); return }
     setBusy(true)
     setErr('')
     try {
       const rec = recurrencePayload(form.recurrence, scheduled, form.interval)
-      const patch = { title: form.title.trim(), description: form.description.trim() || null, scheduled_at: scheduled.toISOString(), ...rec }
-      await onSave(isEdit ? patch : {
-        ...patch,
-        end_date: null,
-        linked_to_type: null, linked_to_id: null, category_id: null,
-        status: 'pending', type: null, channel: null,
-      })
+      const common = {
+        title: form.title.trim(),
+        description: form.description.trim() || null,
+        scheduled_at: scheduled.toISOString(),
+        end_date: hasEnd ? form.end_date : null,
+        linked_to_type: form.client_id ? 'client' : null,
+        linked_to_id: form.client_id || null,
+        category_id: form.category_id || null,
+        ...rec,
+      }
+      await onSave(isEdit ? common : { ...common, status: 'pending', type: null, channel: null })
       close()
     } catch (e) {
       setBusy(false)
@@ -119,6 +132,29 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
           <Text style={styles.label}>{i18n.t('modalsTask:reminder.everyHowMany', { defaultValue: 'כל כמה ימים' })}</Text>
           <TextInput style={styles.input} value={form.interval} onChangeText={(v) => set('interval', v)} keyboardType="numeric" placeholderTextColor={colors.textFaint} />
         </View>
+      ) : null}
+      {form.recurrence !== 'none' ? (
+        <View style={styles.field}>
+          <Text style={styles.label}>{i18n.t('modalsTask:reminder.endDate', { defaultValue: 'תאריך סיום (אופציונלי)' })}</Text>
+          <TextInput style={styles.input} value={form.end_date} onChangeText={(v) => set('end_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+        </View>
+      ) : null}
+
+      <Select
+        label={i18n.t('modalsTask:reminder.linkedClient', { defaultValue: 'לקוח מקושר (אופציונלי)' })}
+        value={form.client_id}
+        onChange={(v) => set('client_id', v)}
+        placeholder={i18n.t('modalsTask:common.none')}
+        options={[{ value: '', label: i18n.t('modalsTask:common.none') }, ...clients.map((c) => ({ value: c.id, label: c.name || '' }))]}
+      />
+      {taskCategories.length ? (
+        <Select
+          label={i18n.t('modalsTask:reminder.category', { defaultValue: 'קטגוריה (אופציונלי)' })}
+          value={form.category_id}
+          onChange={(v) => set('category_id', v)}
+          placeholder={i18n.t('modalsTask:common.none')}
+          options={[{ value: '', label: i18n.t('modalsTask:common.none') }, ...taskCategories.map((c) => ({ value: c.id, label: c.name || '' }))]}
+        />
       ) : null}
 
       <View style={styles.field}>

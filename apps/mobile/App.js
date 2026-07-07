@@ -1,8 +1,9 @@
+import { useState, useEffect } from 'react'
 import { View, ActivityIndicator, StyleSheet } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { setupI18n } from './src/lib/i18n'
+import i18n, { setupI18n } from './src/lib/i18n'
 import { AuthProvider, useAuth } from './src/lib/auth'
 import { DrawerProvider, useDrawer } from './src/lib/drawer'
 import { FormOptionsProvider } from './src/lib/formOptions'
@@ -30,6 +31,17 @@ function DrawerHost() {
 
 function Root() {
   const { session, ready } = useAuth()
+  // Screens call i18n.t() directly (not via a re-rendering hook), so an in-place
+  // language switch wouldn't repaint them. Remount the nav subtree on
+  // languageChanged so the WHOLE app repaints in the new language (a Hebrew↔LTR
+  // direction flip still needs an app reload — RN I18nManager limit). Providers
+  // stay mounted above the key, so prefs/session/drawer state survives.
+  const [lang, setLang] = useState(i18n.language)
+  useEffect(() => {
+    const onChange = (l) => setLang(l || i18n.language)
+    i18n.on('languageChanged', onChange)
+    return () => i18n.off('languageChanged', onChange)
+  }, [])
   if (!ready) {
     return (
       <View style={styles.center}>
@@ -37,11 +49,11 @@ function Root() {
       </View>
     )
   }
-  if (!session) return <LoginScreen />
+  if (!session) return <LoginScreen key={lang} />
   return (
     <PreferencesProvider>
       <FormOptionsProvider>
-        <View style={styles.fill}>
+        <View style={styles.fill} key={lang}>
           <AppNavigator />
           <DrawerHost />
         </View>

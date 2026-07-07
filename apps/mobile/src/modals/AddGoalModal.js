@@ -14,9 +14,11 @@ import { colors } from '../theme/theme'
 // AUTHORING (write a new question + schedule) is still deferred to the Questions
 // screen. onSave resolves metric_key → category (useGoalsData.addGoal).
 const IMPORTANCE = [1, 2, 3, 4, 5]
-const blank = () => ({ metric_key: '', label: '', time_frame: 'monthly', target_value: '', target_date: '', importance: 3, project_id: '', group_id: '', tracking_method: 'manual', tracked_by_question_id: '' })
+const ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
+const SCALES = [{ k: '1-10', l: 'scaleRange' }, { k: 'yes_no', l: 'scaleYesNo' }]
+const blank = () => ({ metric_key: '', label: '', time_frame: 'monthly', target_value: '', target_date: '', importance: 3, project_id: '', group_id: '', tracking_method: 'manual', tracked_by_question_id: '', question_mode: 'existing', question_text: '', question_scale: '1-10', question_icon: ICONS[0] })
 
-export default function AddGoalModal({ open, onClose, onSave }) {
+export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
   const { projects, groups = [], userQuestions } = useFormOptions()
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
@@ -27,6 +29,12 @@ export default function AddGoalModal({ open, onClose, onSave }) {
   const isManual = form.metric_key === OTHER_METRIC_KEY
   const byQuestion = isManual && form.tracking_method === 'daily_question'
   const activeQuestions = (userQuestions || []).filter((q) => q.active)
+  // Pick an existing question or write a new one inline (mirrors web's qMode).
+  // With no active questions we force "new"; with no onAddQuestion, "existing".
+  const canCreateQuestion = !!onAddQuestion
+  const hasActiveQ = activeQuestions.length > 0
+  const qMode = byQuestion ? (hasActiveQ && canCreateQuestion ? form.question_mode : (canCreateQuestion ? 'new' : 'existing')) : null
+  const creatingQuestion = byQuestion && qMode === 'new'
 
   const TIME_FRAMES = [
     { k: 'monthly', l: i18n.t('modalsData:addGoal.tf.monthly') },
@@ -39,10 +47,25 @@ export default function AddGoalModal({ open, onClose, onSave }) {
     const target = parseFloat(form.target_value)
     if (!target || target <= 0) { setErr(i18n.t('modalsData:addGoal.needTarget')); return }
     if (form.time_frame === 'deadline' && !form.target_date) { setErr(i18n.t('modalsData:addGoal.needTargetDate')); return }
-    if (byQuestion && !form.tracked_by_question_id) { setErr(i18n.t('modalsData:addGoal.needQuestion')); return }
+    if (byQuestion && creatingQuestion && !form.question_text.trim()) { setErr(i18n.t('modalsData:addGoal.needQuestionText')); return }
+    if (byQuestion && !creatingQuestion && !form.tracked_by_question_id) { setErr(i18n.t('modalsData:addGoal.needQuestion')); return }
     setBusy(true)
     setErr('')
     try {
+      // Create the brand-new daily question first (every-day schedule, matching
+      // mobile's AddQuestionModal convention), then link the goal to it.
+      let questionId = form.tracked_by_question_id
+      if (byQuestion && creatingQuestion) {
+        const q = await onAddQuestion({
+          template_key: null,
+          custom_text: form.question_text.trim(),
+          scale_type: form.question_scale,
+          icon: form.question_icon,
+          active: true,
+          schedule_pattern: {},
+        })
+        questionId = q.id
+      }
       await onSave({
         metric_key: form.metric_key,
         parent_goal_id: null,
@@ -54,7 +77,7 @@ export default function AddGoalModal({ open, onClose, onSave }) {
         target_date: form.time_frame === 'deadline' ? form.target_date : null,
         importance: Number(form.importance),
         tracking_method: byQuestion ? 'daily_question' : 'manual',
-        tracked_by_question_id: byQuestion ? form.tracked_by_question_id : null,
+        tracked_by_question_id: byQuestion ? questionId : null,
         measurement_type: null,
         data_source: null,
         manual_input_type: null,
@@ -164,17 +187,64 @@ export default function AddGoalModal({ open, onClose, onSave }) {
       ) : null}
 
       {byQuestion ? (
-        activeQuestions.length ? (
-          <Select
-            label={i18n.t('modalsData:addGoal.dailyQuestion')}
-            value={form.tracked_by_question_id}
-            onChange={(v) => { set('tracked_by_question_id', v); if (err) setErr('') }}
-            placeholder={i18n.t('modalsData:addGoal.pickQuestion')}
-            options={activeQuestions.map((q) => ({ value: q.id, label: `${q.icon ? q.icon + ' ' : ''}${questionText(q)}` }))}
-          />
-        ) : (
-          <Text style={styles.hint}>{i18n.t('modalsData:addGoal.noActiveQuestions')}</Text>
-        )
+        <View style={styles.field}>
+          {hasActiveQ && canCreateQuestion ? (
+            <View style={styles.pills}>
+              <Pressable style={[styles.pill, qMode === 'existing' && styles.pillOn]} onPress={() => { set('question_mode', 'existing'); if (err) setErr('') }}>
+                <Text style={[styles.pillText, qMode === 'existing' && styles.pillTextOn]}>{i18n.t('modalsData:addGoal.pickExisting')}</Text>
+              </Pressable>
+              <Pressable style={[styles.pill, qMode === 'new' && styles.pillOn]} onPress={() => { set('question_mode', 'new'); if (err) setErr('') }}>
+                <Text style={[styles.pillText, qMode === 'new' && styles.pillTextOn]}>{i18n.t('modalsData:addGoal.newQuestion')}</Text>
+              </Pressable>
+            </View>
+          ) : null}
+
+          {qMode === 'existing' ? (
+            hasActiveQ ? (
+              <Select
+                label={i18n.t('modalsData:addGoal.dailyQuestion')}
+                value={form.tracked_by_question_id}
+                onChange={(v) => { set('tracked_by_question_id', v); if (err) setErr('') }}
+                placeholder={i18n.t('modalsData:addGoal.pickQuestion')}
+                options={activeQuestions.map((q) => ({ value: q.id, label: `${q.icon ? q.icon + ' ' : ''}${questionText(q)}` }))}
+              />
+            ) : (
+              <Text style={styles.hint}>{i18n.t('modalsData:addGoal.noActiveQuestions')}</Text>
+            )
+          ) : (
+            <>
+              <TextInput
+                style={styles.input}
+                value={form.question_text}
+                onChangeText={(v) => { set('question_text', v); if (err) setErr('') }}
+                placeholder={i18n.t(form.question_scale === 'yes_no' ? 'modalsData:addGoal.questionPlaceholderYesNo' : 'modalsData:addGoal.questionPlaceholderSlider')}
+                placeholderTextColor={colors.textFaint}
+              />
+              <Text style={styles.subLabel}>{i18n.t('modalsData:addGoal.answerType')}</Text>
+              <View style={styles.pills}>
+                {SCALES.map((s) => {
+                  const on = form.question_scale === s.k
+                  return (
+                    <Pressable key={s.k} style={[styles.pill, on && styles.pillOn]} onPress={() => set('question_scale', s.k)}>
+                      <Text style={[styles.pillText, on && styles.pillTextOn]}>{i18n.t(`modalsTask:question.${s.l}`)}</Text>
+                    </Pressable>
+                  )
+                })}
+              </View>
+              <Text style={styles.subLabel}>{i18n.t('modalsData:common.icon', { defaultValue: 'אייקון' })}</Text>
+              <View style={styles.iconRow}>
+                {ICONS.map((ic) => {
+                  const on = form.question_icon === ic
+                  return (
+                    <Pressable key={ic} style={[styles.iconBtn, on && styles.iconOn]} onPress={() => set('question_icon', ic)}>
+                      <Text style={styles.iconGlyph}>{ic}</Text>
+                    </Pressable>
+                  )
+                })}
+              </View>
+            </>
+          )}
+        </View>
       ) : null}
 
       {err ? <Text style={styles.error}>{err}</Text> : null}
@@ -201,6 +271,11 @@ const styles = StyleSheet.create({
   pillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
   pillText: { fontSize: 14, color: colors.text },
   pillTextOn: { color: colors.onBrand, fontWeight: '600' },
+  subLabel: { fontSize: 12, color: colors.textSub, marginTop: 8 },
+  iconRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  iconBtn: { width: 40, height: 40, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center', justifyContent: 'center' },
+  iconOn: { borderColor: colors.brand, backgroundColor: colors.brandSoft },
+  iconGlyph: { fontSize: 18 },
   error: { color: colors.danger, fontSize: 13 },
   hint: { color: colors.textSub, fontSize: 13, lineHeight: 19 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },

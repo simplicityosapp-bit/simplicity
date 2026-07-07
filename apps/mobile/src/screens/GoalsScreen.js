@@ -9,12 +9,14 @@ import AddGoalModal from '../modals/AddGoalModal'
 import EditGoalModal from '../modals/EditGoalModal'
 import { colors } from '../theme/theme'
 import { useGoalsData } from '../hooks/useGoalsData'
+import { useQuestions } from '../hooks/useQuestions'
 
 // Goals screen — goals grouped by category, each scored by the shared core
 // engine (goalsByCategory → moonGetData): a pace bar + actual/target value,
 // over the per-screen photo (Warm Precision theme). "+" adds a goal.
 export default function GoalsScreen() {
   const { goals, categories, entries, transactions, clients, leads, answers, members, groups, loading, error, refetch, addGoal, updateGoal, deleteGoal } = useGoalsData()
+  const { questions, addQuestion } = useQuestions()
   const [showAdd, setShowAdd] = useState(false)
   const [editGoal, setEditGoal] = useState(null)
 
@@ -32,7 +34,7 @@ export default function GoalsScreen() {
         onAdd={() => setShowAdd(true)}
         addLabel={i18n.t('goals:newGoalAria', { defaultValue: 'יעד חדש' })}
       />
-      <AddGoalModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addGoal} />
+      <AddGoalModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addGoal} onAddQuestion={(q) => addQuestion({ ...q, order: questions.length })} />
       <EditGoalModal open={!!editGoal} goal={editGoal} onClose={() => setEditGoal(null)} onSave={updateGoal} onDelete={deleteGoal} />
 
       {loading && !cats.length ? (

@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   secHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 13, paddingHorizontal: 14 },
   secTitleWrap: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   secTitle: { fontSize: 14, fontWeight: '600', color: colors.text },
-  secCount: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.06)', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
+  secCount: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: colors.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
   secBody: { paddingHorizontal: 14, paddingBottom: 14, gap: 8 },
   line: { fontSize: 13, color: colors.text },
   note: { fontSize: 13, color: colors.text, lineHeight: 19 },
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
 
   sessRow: { gap: 6, paddingVertical: 4 },
   sessHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  sessNum: { width: 22, height: 22, borderRadius: 11, textAlign: 'center', lineHeight: 22, overflow: 'hidden', fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.06)' },
+  sessNum: { width: 22, height: 22, borderRadius: 11, textAlign: 'center', lineHeight: 22, overflow: 'hidden', fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: colors.fillStrong },
   sessDate: { flex: 1, fontSize: 12, color: colors.textSub },
   sessSummary: { fontSize: 13, color: colors.text, lineHeight: 19 },
 

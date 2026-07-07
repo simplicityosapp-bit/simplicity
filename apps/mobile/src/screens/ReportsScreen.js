@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   pillText: { fontSize: 13, color: colors.textSub },
   pillTextOn: { color: colors.onBrand, fontWeight: '600' },
   group: { gap: 8 },
-  groupTitle: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.4, paddingVertical: 10, paddingHorizontal: 14, backgroundColor: 'rgba(42,37,32,0.025)', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
+  groupTitle: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.4, paddingVertical: 10, paddingHorizontal: 14, backgroundColor: colors.fill, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 11, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   rowLabel: { flex: 1, fontSize: 13, color: colors.text },

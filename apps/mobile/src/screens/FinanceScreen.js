@@ -357,20 +357,20 @@ const styles = StyleSheet.create({
   deltaText: { fontSize: 10, fontWeight: '500', fontVariant: ['tabular-nums'] },
   deltaPos: { backgroundColor: 'rgba(139,168,136,0.14)' },
   deltaNeg: { backgroundColor: 'rgba(181,99,78,0.14)' },
-  deltaNeu: { backgroundColor: 'rgba(42,37,32,0.08)' },
+  deltaNeu: { backgroundColor: colors.fillStrong },
 
   // Breakdown card
   bd: { paddingVertical: 16, paddingHorizontal: 18, gap: 12 },
   bdHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   bdTitle: { fontSize: 13, fontWeight: '600', color: colors.text },
-  bdCount: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.06)', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
+  bdCount: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: colors.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
   bdEmpty: { fontSize: 12, color: colors.textFaint },
   bdRow: { gap: 6 },
   bdRowHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   bdDot: { width: 9, height: 9, borderRadius: 5 },
   bdName: { flex: 1, fontSize: 13, color: colors.text },
   bdAmt: { fontSize: 13, fontWeight: '600', color: colors.text },
-  bdBar: { height: 6, borderRadius: 3, backgroundColor: 'rgba(42,37,32,0.06)', overflow: 'hidden' },
+  bdBar: { height: 6, borderRadius: 3, backgroundColor: colors.fillStrong, overflow: 'hidden' },
   bdFill: { height: 6, borderRadius: 3 },
 
   // Recurring

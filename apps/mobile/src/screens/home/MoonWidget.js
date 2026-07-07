@@ -38,7 +38,7 @@ export default function MoonWidget({ overall, expanded, onToggle }) {
     <Pressable style={styles.wrap} onPress={onToggle} accessibilityLabel={i18n.t('home:widgets.moon.glanceAria', { percent: conf })}>
       <Chip>
         <Svg width={SIZE} height={SIZE} viewBox="0 0 100 100" style={styles.ring}>
-          <Circle cx="50" cy="50" r={RADIUS} fill="none" stroke="rgba(42,37,32,0.08)" strokeWidth={5} />
+          <Circle cx="50" cy="50" r={RADIUS} fill="none" stroke={colors.divider} strokeWidth={5} />
           <Circle cx="50" cy="50" r={RADIUS} fill="none" stroke={colors.positive} strokeWidth={7} strokeLinecap="round" strokeDasharray={`${dash} ${CIRC}`} />
         </Svg>
         <Text style={styles.num}>{conf}%</Text>

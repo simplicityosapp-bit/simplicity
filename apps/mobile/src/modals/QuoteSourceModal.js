@@ -86,10 +86,10 @@ const styles = StyleSheet.create({
   pillTextOn: { color: colors.onBrand, fontWeight: '600' },
   hint: { fontSize: 12, color: colors.textFaint, marginTop: 8, lineHeight: 17 },
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  input: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: colors.text, backgroundColor: 'rgba(255,255,255,0.4)' },
+  input: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: colors.text, backgroundColor: colors.inputBg },
   addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
   list: { gap: 6 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(42,37,32,0.04)', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.fill, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12 },
   rowText: { flex: 1, fontSize: 14, color: colors.text, lineHeight: 19 },
   error: { fontSize: 13, color: colors.danger, marginTop: 10 },
 })

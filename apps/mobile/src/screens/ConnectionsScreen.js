@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   cardSub: { fontSize: 12, color: colors.textSub, marginTop: 1 },
   field: { gap: 5 },
   fieldLabel: { fontSize: 13, fontWeight: '500', color: colors.textSub },
-  input: { minHeight: 44, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: colors.text, backgroundColor: 'rgba(255,255,255,0.4)', textAlignVertical: 'top' },
+  input: { minHeight: 44, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: colors.text, backgroundColor: colors.inputBg, textAlignVertical: 'top' },
   tokens: { fontSize: 11, color: colors.textFaint, letterSpacing: 0.3 },
   saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.brand, borderRadius: 14, paddingVertical: 12, marginTop: 2 },
   saveText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },

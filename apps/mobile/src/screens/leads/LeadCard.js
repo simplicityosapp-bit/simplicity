@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   dragging: { opacity: 0.4 },
   del: { position: 'absolute', top: 6, insetInlineEnd: 6, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', zIndex: 2 },
   name: { fontSize: 14, fontWeight: '600', color: colors.text, paddingInlineEnd: 18 },
-  sub: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 999, backgroundColor: 'rgba(42,37,32,0.05)' },
+  sub: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 999, backgroundColor: colors.fill },
   subDot: { width: 7, height: 7, borderRadius: 4 },
   subText: { fontSize: 12, color: colors.textSub },
   src: { flexDirection: 'row', alignItems: 'center', gap: 5 },

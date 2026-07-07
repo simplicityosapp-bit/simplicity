@@ -16,14 +16,20 @@ const LIGHT = {
   brand: '#C97B5E', brandSoft: '#F4E3DA', positive: '#8BA888', amberWarn: '#D4A574', danger: '#B5634E',
   moonDeep: '#5a6a8c', moonHi: '#b8c4e0', onBrand: '#FFFFFF',
   border: 'rgba(42,37,32,0.08)', glassBorder: 'rgba(255,255,255,0.5)', divider: 'rgba(42,37,32,0.07)',
+  // Theme-aware surface fills — subtle chips/pills/badges, input fields, toggle
+  // knobs. These flip for dark mode (a dark tint on a dark card would vanish).
+  fill: 'rgba(42,37,32,0.05)', fillStrong: 'rgba(42,37,32,0.08)', inputBg: 'rgba(255,255,255,0.4)', knob: '#FFFFFF',
+  panelBg: 'rgba(255,252,247,0.74)', // drawer frosted panel veil (over the blur)
 }
 const DARK = {
-  bg: '#14130F', card: '#22262B', cardFlat: '#2A2F36',
-  glassTint: 'rgba(28,33,40,0.55)', scrim: 'rgba(8,10,8,0.46)', blurTint: 'dark',
+  bg: '#15140F', card: '#20242A', cardFlat: '#282D34',
+  glassTint: 'rgba(24,28,34,0.62)', scrim: 'rgba(10,12,10,0.82)', blurTint: 'dark',
   text: '#F0EBE0', textSub: '#C3CBC0', textFaint: '#8B948C',
-  brand: '#C97B5E', brandSoft: 'rgba(201,123,94,0.22)', positive: '#8FB08C', amberWarn: '#C99A6A', danger: '#D98C76',
+  brand: '#C97B5E', brandSoft: 'rgba(201,123,94,0.24)', positive: '#8FB08C', amberWarn: '#C99A6A', danger: '#D98C76',
   moonDeep: '#9aa6c8', moonHi: '#e6edff', onBrand: '#FFFFFF',
-  border: 'rgba(240,235,224,0.12)', glassBorder: 'rgba(255,255,255,0.12)', divider: 'rgba(240,235,224,0.08)',
+  border: 'rgba(240,235,224,0.12)', glassBorder: 'rgba(255,255,255,0.10)', divider: 'rgba(240,235,224,0.09)',
+  fill: 'rgba(255,255,255,0.06)', fillStrong: 'rgba(255,255,255,0.11)', inputBg: 'rgba(255,255,255,0.06)', knob: '#E8E4DA',
+  panelBg: 'rgba(20,24,29,0.86)',
 }
 
 // Mutable — the single object every screen imports. applyThemeColors mutates it
@@ -39,10 +45,17 @@ export const type = {
   micro: { fontSize: 11, fontWeight: '500', color: colors.textFaint },
 }
 
+// The mode actually applied this session (set at boot). The drawer toggle reads
+// THIS (not prefs) so it always reflects what's on screen — prefs can lag the
+// AsyncStorage boot cache (and is empty in the preview mock).
+let activeMode = 'light'
+export function getThemeMode() { return activeMode }
+
 // Apply a palette in place (colors + the color-carrying type entries), BEFORE any
 // screen's StyleSheet.create runs. Called from index.js boot.
 export function applyThemeColors(mode) {
-  Object.assign(colors, mode === 'dark' ? DARK : LIGHT)
+  activeMode = mode === 'dark' ? 'dark' : 'light'
+  Object.assign(colors, activeMode === 'dark' ? DARK : LIGHT)
   type.displayXL.color = colors.text
   type.displayL.color = colors.text
   type.heading.color = colors.text

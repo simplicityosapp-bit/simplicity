@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   group: { gap: 8 },
   groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
   groupName: { fontSize: 14, fontWeight: '600', color: colors.textSub, flex: 1 },
-  groupCount: { fontSize: 12, fontWeight: '600', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.08)', minWidth: 22, textAlign: 'center', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 6, overflow: 'hidden' },
+  groupCount: { fontSize: 12, fontWeight: '600', color: colors.textSub, backgroundColor: colors.fillStrong, minWidth: 22, textAlign: 'center', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 6, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   rowLabel: { flex: 1, fontSize: 14, color: colors.text },

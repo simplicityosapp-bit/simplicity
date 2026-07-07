@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   listMore: { fontSize: 12, color: colors.textFaint, paddingTop: 6, textAlign: 'center' },
   empty: { fontSize: 13, color: colors.textFaint, textAlign: 'center', paddingVertical: 10 },
   miniStats: { flexDirection: 'row', gap: 8, marginTop: 14 },
-  mini: { flex: 1, alignItems: 'center', gap: 2, backgroundColor: 'rgba(42,37,32,0.04)', borderRadius: 12, paddingVertical: 10 },
+  mini: { flex: 1, alignItems: 'center', gap: 2, backgroundColor: colors.fill, borderRadius: 12, paddingVertical: 10 },
   miniL: { fontSize: 10, color: colors.textSub },
   miniV: { fontSize: 15, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
   // today rows

@@ -65,7 +65,7 @@ export default function MoonScreen() {
           <Card contentStyle={styles.hero}>
             <View style={styles.ringWrap}>
               <Svg width={132} height={132} viewBox="0 0 100 100" style={styles.ringSvg}>
-                <Circle cx="50" cy="50" r={RING} fill="none" stroke="rgba(42,37,32,0.08)" strokeWidth={5} />
+                <Circle cx="50" cy="50" r={RING} fill="none" stroke={colors.divider} strokeWidth={5} />
                 <Circle cx="50" cy="50" r={RING} fill="none" stroke={colors.moonDeep} strokeWidth={7} strokeLinecap="round" strokeDasharray={`${dash} ${CIRC}`} />
               </Svg>
               <Text style={styles.ringNum}>{conf}%</Text>
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   reflection: { fontSize: 13, color: colors.text, textAlign: 'center', lineHeight: 19, marginTop: 4, paddingHorizontal: 6 },
 
   section: { gap: 8 },
-  sectionH: { alignSelf: 'flex-start', fontSize: 12, fontWeight: '600', color: colors.textSub, letterSpacing: 0.6, backgroundColor: 'rgba(255,255,255,0.5)', paddingVertical: 3, paddingHorizontal: 12, borderRadius: 999, overflow: 'hidden' },
+  sectionH: { alignSelf: 'flex-start', fontSize: 12, fontWeight: '600', color: colors.textSub, letterSpacing: 0.6, backgroundColor: colors.fillStrong, paddingVertical: 3, paddingHorizontal: 12, borderRadius: 999, overflow: 'hidden' },
   catCard: { paddingVertical: 4, paddingHorizontal: 16 },
   cat: { paddingVertical: 12, gap: 8 },
   catBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   catName: { flex: 1, fontSize: 14, fontWeight: '500', color: colors.text },
   dualRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   dualLabel: { fontSize: 11, color: colors.textSub, width: 42 },
-  dualTrack: { flex: 1, height: 7, borderRadius: 4, backgroundColor: 'rgba(42,37,32,0.06)', overflow: 'hidden' },
+  dualTrack: { flex: 1, height: 7, borderRadius: 4, backgroundColor: colors.fillStrong, overflow: 'hidden' },
   dualFill: { height: 7, borderRadius: 4 },
   dualPct: { fontSize: 11, color: colors.textSub, width: 34, textAlign: 'right' },
 

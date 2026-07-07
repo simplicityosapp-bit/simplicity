@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
   projHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, marginBottom: 2, paddingHorizontal: 2 },
   projDot: { width: 10, height: 10, borderRadius: 5 },
   projName: { flex: 1, fontSize: 13, fontWeight: '600', color: colors.text },
-  projCount: { fontSize: 12, fontWeight: '600', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.07)', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 999, overflow: 'hidden' },
+  projCount: { fontSize: 12, fontWeight: '600', color: colors.textSub, backgroundColor: colors.fillStrong, paddingVertical: 2, paddingHorizontal: 8, borderRadius: 999, overflow: 'hidden' },
 
   // Client card
   cc: { padding: 16, gap: 14 },
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
   ccMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' },
   ccStatus: { paddingVertical: 2, paddingHorizontal: 9, borderRadius: 10 },
   ccStatusText: { fontSize: 10, fontWeight: '500', color: colors.text },
-  ccProj: { fontSize: 10, color: colors.textSub, paddingVertical: 2, paddingHorizontal: 9, borderRadius: 10, borderWidth: 0.5, borderColor: colors.border, backgroundColor: 'rgba(42,37,32,0.05)' },
+  ccProj: { fontSize: 10, color: colors.textSub, paddingVertical: 2, paddingHorizontal: 9, borderRadius: 10, borderWidth: 0.5, borderColor: colors.border, backgroundColor: colors.fill },
   ccStats: { flexDirection: 'row', borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider, paddingTop: 12 },
   ccStat: { flex: 1, alignItems: 'center', gap: 4 },
   ccStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },

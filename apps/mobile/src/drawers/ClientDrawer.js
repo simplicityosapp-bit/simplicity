@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   statusText: { fontSize: 11, fontWeight: '500', color: colors.text },
   byGroup: { fontSize: 11, color: colors.textFaint },
   revert: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  manualTag: { fontSize: 10, fontWeight: '600', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.07)', paddingVertical: 1, paddingHorizontal: 6, borderRadius: 8, overflow: 'hidden' },
+  manualTag: { fontSize: 10, fontWeight: '600', color: colors.textSub, backgroundColor: colors.fillStrong, paddingVertical: 1, paddingHorizontal: 6, borderRadius: 8, overflow: 'hidden' },
   revertText: { fontSize: 10, color: colors.textSub },
   projText: { fontSize: 11, color: colors.textSub },
   statusMenu: { marginTop: 8, marginStart: 58, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 4 },

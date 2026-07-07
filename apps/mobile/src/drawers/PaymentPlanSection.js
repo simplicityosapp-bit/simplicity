@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   section: {},
   head: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 13, paddingHorizontal: 14 },
   title: { fontSize: 14, fontWeight: '600', color: colors.text },
-  count: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: 'rgba(42,37,32,0.06)', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
+  count: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: colors.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
   body: { gap: 12, paddingHorizontal: 14, paddingBottom: 14 },
   empty: { fontSize: 12, color: colors.textFaint },
 

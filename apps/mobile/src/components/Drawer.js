@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { usePreferences } from '../lib/preferences'
 import i18n from '../lib/i18n'
-import { colors, space, persistThemeAndReload } from '../theme/theme'
+import { colors, space, persistThemeAndReload, getThemeMode } from '../theme/theme'
 
 // The "עוד" drawer — a right-anchored frosted-glass sheet mirroring web's
 // MenuDrawer: a profile chip, a 3-col glass GRID of the primary screens, then
@@ -84,7 +84,9 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   const insets = useSafeAreaInsets()
   const { session } = useAuth()
   const { prefs, update } = usePreferences()
-  const dark = (prefs.design?.theme || 'light') === 'dark'
+  // Reflect the mode actually applied this session (not prefs, which lags the
+  // AsyncStorage boot cache and is empty in the mock) so the toggle flips both ways.
+  const dark = getThemeMode() === 'dark'
   const toggleTheme = () => {
     const next = dark ? 'light' : 'dark'
     try { update({ design: { ...(prefs.design || {}), theme: next } }) } catch { /* best-effort */ }
@@ -183,11 +185,11 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0.5, borderLeftColor: colors.glassBorder,
     shadowColor: '#2A2520', shadowOpacity: 0.18, shadowRadius: 24, shadowOffset: { width: -6, height: 0 }, elevation: 12,
   },
-  panelVeil: { backgroundColor: 'rgba(255,252,247,0.74)' }, // ≈ web --modal-bg over the blur
+  panelVeil: { backgroundColor: colors.panelBg }, // ≈ web --modal-bg over the blur
   body: { flex: 1, paddingHorizontal: space.screenPadH },
   titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 22, fontWeight: '700', color: colors.text, letterSpacing: -0.4 },
-  close: { width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(255,255,255,0.5)', borderWidth: 0.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  close: { width: 30, height: 30, borderRadius: 15, backgroundColor: colors.fillStrong, borderWidth: 0.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   sub: { fontSize: 10, fontWeight: '500', color: colors.textSub, letterSpacing: 1, marginTop: 4, marginBottom: 14, textTransform: 'uppercase' },
   scroll: { paddingBottom: 40, gap: 4 },
   // profile chip
@@ -201,7 +203,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: GAP, marginTop: 6, marginBottom: 4 },
   tile: {
     flexBasis: '30%', flexGrow: 1,
-    backgroundColor: 'rgba(255,252,247,0.5)', borderRadius: 14, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.fill, borderRadius: 14, borderWidth: 1, borderColor: colors.border,
     paddingVertical: 14, alignItems: 'center', gap: 6,
   },
   tileActive: { backgroundColor: colors.brand, borderColor: colors.brand },
@@ -210,15 +212,15 @@ const styles = StyleSheet.create({
   // section label
   sectionLbl: { fontSize: 10, fontWeight: '500', color: colors.textSub, letterSpacing: 1, textTransform: 'uppercase', marginTop: 14, marginHorizontal: 4, marginBottom: 2 },
   // link rows
-  link: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 20, borderWidth: 0.5, borderColor: colors.border, paddingVertical: 11, paddingHorizontal: 14, marginTop: 2 },
+  link: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.inputBg, borderRadius: 20, borderWidth: 0.5, borderColor: colors.border, paddingVertical: 11, paddingHorizontal: 14, marginTop: 2 },
   linkIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.glassTint, borderWidth: 0.5, borderColor: colors.divider },
   linkLogo: { width: 22, height: 22 },
   linkText: { flex: 1 },
   linkTitle: { fontSize: 14, fontWeight: '500', color: colors.text },
   linkSub: { fontSize: 10, color: colors.textSub, marginTop: 1, letterSpacing: 0.2 },
   // theme switch
-  switch: { width: 46, height: 26, borderRadius: 13, backgroundColor: 'rgba(42,37,32,0.12)', padding: 3, justifyContent: 'center' },
+  switch: { width: 46, height: 26, borderRadius: 13, backgroundColor: colors.fillStrong, padding: 3, justifyContent: 'center' },
   switchOn: { backgroundColor: 'rgba(90,106,140,0.5)' },
-  switchThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#fff' },
+  switchThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: colors.knob },
   switchThumbOn: { alignSelf: 'flex-end' },
 })

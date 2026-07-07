@@ -14,7 +14,7 @@ import { useCalendarData } from '../hooks/useCalendarData'
 // synced events + reminders + lead follow-ups) with per-day dots, plus the
 // selected day's agenda below. Tap a day to see its events. (Event creation /
 // tap-to-confirm are later increments.)
-const KIND_COLOR = { meeting: colors.brand, calendar: colors.positive, reminder: colors.amberWarn, followup: colors.moonDeep }
+const KIND_COLOR = { meeting: colors.positive, calendar: colors.moonDeep, reminder: colors.amberWarn, followup: colors.brand }
 const WEEKDAYS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש']
 const pad = (n) => String(n).padStart(2, '0')
 const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
@@ -165,10 +165,10 @@ const styles = StyleSheet.create({
   cell: { flex: 1, aspectRatio: 1, alignItems: 'center', justifyContent: 'center', padding: 2 },
   cellInner: { width: '100%', height: '100%', borderRadius: 10, alignItems: 'center', justifyContent: 'center', gap: 3 },
   cellSel: { backgroundColor: colors.brand },
-  cellToday: { backgroundColor: 'rgba(201,123,94,0.12)' },
+  cellToday: { backgroundColor: 'rgba(139,168,136,0.10)', borderWidth: 1, borderColor: 'rgba(139,168,136,0.45)' },
   cellNum: { fontSize: 13, color: colors.text },
-  cellNumSel: { color: colors.onBrand, fontWeight: '700' },
-  cellNumToday: { color: colors.brand, fontWeight: '700' },
+  cellNumSel: { color: colors.onBrand, fontWeight: '600' },
+  cellNumToday: { color: colors.text, fontWeight: '600' },
   dots: { flexDirection: 'row', gap: 2, height: 4 },
   evDot: { width: 4, height: 4, borderRadius: 2 },
 

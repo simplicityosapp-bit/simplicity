@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
 
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  pillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  pillOn: { backgroundColor: colors.text, borderColor: colors.text },
   pillText: { fontSize: 13, color: colors.textSub },
   pillTextOn: { color: colors.onBrand, fontWeight: '600' },
 
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
   metaPills: { flexDirection: 'row', gap: 6 },
   metaPill: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  metaPillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  metaPillOn: { backgroundColor: colors.text, borderColor: colors.text },
   metaPillText: { fontSize: 12, color: colors.textSub },
 
   signOut: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, marginTop: 4 },

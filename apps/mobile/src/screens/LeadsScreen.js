@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   viewToggle: { flexDirection: 'row', gap: 8, backgroundColor: colors.cardFlat, borderRadius: 999, padding: 4 },
   viewBtn: { flex: 1, paddingVertical: 8, borderRadius: 999, alignItems: 'center' },
-  viewBtnOn: { backgroundColor: colors.brand },
+  viewBtnOn: { backgroundColor: colors.text },
   viewBtnText: { fontSize: 14, color: colors.textSub },
   viewBtnTextOn: { color: colors.onBrand, fontWeight: '600' },
   panelIntro: { fontSize: 13, color: colors.textSub, lineHeight: 18 },

@@ -67,7 +67,7 @@ export default function MoonScreen() {
             <View style={styles.ringWrap}>
               <Svg width={132} height={132} viewBox="0 0 100 100" style={styles.ringSvg}>
                 <Circle cx="50" cy="50" r={RING} fill="none" stroke="rgba(42,37,32,0.08)" strokeWidth={5} />
-                <Circle cx="50" cy="50" r={RING} fill="none" stroke={colors.positive} strokeWidth={7} strokeLinecap="round" strokeDasharray={`${dash} ${CIRC}`} />
+                <Circle cx="50" cy="50" r={RING} fill="none" stroke={colors.moonDeep} strokeWidth={7} strokeLinecap="round" strokeDasharray={`${dash} ${CIRC}`} />
               </Svg>
               <Text style={styles.ringNum}>{conf}%</Text>
               <Text style={styles.ringKicker}>{i18n.t('moon:ring.kicker', { defaultValue: 'מהקצב' })}</Text>
@@ -101,8 +101,8 @@ export default function MoonScreen() {
               <Text style={styles.sectionH}>{i18n.t('moon:section.trend', { defaultValue: 'המגמה לאורך זמן' })}</Text>
               <Card contentStyle={styles.trendCard}>
                 <Svg viewBox={`0 0 ${chart.W} ${chart.H}`} width="100%" height={chart.H}>
-                  <Polygon points={chart.area} fill={colors.positive} fillOpacity={0.10} />
-                  <Path d={chart.d} stroke={colors.positive} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+                  <Polygon points={chart.area} fill={colors.moonDeep} fillOpacity={0.14} />
+                  <Path d={chart.d} stroke={colors.moonDeep} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
                 </Svg>
                 <View style={styles.trendStats}>
                   <TrendStat value={`${avg}%`} label={i18n.t('moon:trend.avg', { defaultValue: 'ממוצע' })} />

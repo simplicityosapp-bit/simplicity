@@ -227,7 +227,7 @@ export default function FinanceScreen() {
 
           {/* Skipped toggle */}
           {skippedCount > 0 ? (
-            <GlassPressable radius={999} on={showSkipped} style={styles.skipToggle} onPress={() => setShowSkipped((v) => !v)}>
+            <GlassPressable radius={999} on={showSkipped} onColor="rgba(42,37,32,0.08)" style={styles.skipToggle} onPress={() => setShowSkipped((v) => !v)}>
               <Text style={[styles.skipToggleText, showSkipped && styles.skipToggleTextOn]}>
                 {showSkipped ? i18n.t('finance:hideSkipped', { defaultValue: 'הסתר דילוגים' }) : i18n.t('finance:showSkipped', { count: skippedCount, defaultValue: `הצג דילוגים (${skippedCount})` })}
               </Text>
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
   // Skipped toggle
   skipToggle: { alignSelf: 'center', paddingVertical: 7, paddingHorizontal: 16 },
   skipToggleText: { fontSize: 12, color: colors.textSub },
-  skipToggleTextOn: { color: colors.onBrand, fontWeight: '600' },
+  skipToggleTextOn: { color: colors.text, fontWeight: '600' },
 
   // Rows
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },

@@ -59,7 +59,7 @@ export default function TrashScreen() {
                       <View key={row.id} style={[styles.row, i > 0 && styles.rowBorder]}>
                         <Text style={styles.rowLabel} numberOfLines={1}>{row[FIELD[t.key]] || i18n.t(`trash:entities.${t.key}`)}</Text>
                         <Pressable style={styles.restore} onPress={() => restore(t.key, row.id)} hitSlop={6}>
-                          <RotateCcw size={14} strokeWidth={1.8} color={colors.brand} />
+                          <RotateCcw size={14} strokeWidth={1.8} color={colors.textSub} />
                           <Text style={styles.restoreText}>{i18n.t('trash:restore', { defaultValue: 'שחזור' })}</Text>
                         </Pressable>
                       </View>
@@ -88,6 +88,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   rowLabel: { flex: 1, fontSize: 14, color: colors.text },
-  restore: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(201,123,94,0.4)', backgroundColor: 'rgba(201,123,94,0.08)' },
-  restoreText: { fontSize: 13, fontWeight: '500', color: colors.brand },
+  restore: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.divider, backgroundColor: 'transparent' },
+  restoreText: { fontSize: 13, fontWeight: '500', color: colors.text },
 })

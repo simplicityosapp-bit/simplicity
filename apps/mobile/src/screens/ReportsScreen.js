@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   error: { color: colors.danger, fontSize: 13 },
   pills: { gap: 8, paddingVertical: 2 },
   pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  pillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  pillOn: { backgroundColor: colors.text, borderColor: colors.text },
   pillText: { fontSize: 13, color: colors.textSub },
   pillTextOn: { color: colors.onBrand, fontWeight: '600' },
   group: { gap: 8 },

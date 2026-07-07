@@ -37,8 +37,8 @@ function TrendLine({ points }) {
   if (curr.length) segments.push(curr)
   return (
     <Svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`}>
-      {segments.map((seg, i) => <Polyline key={i} points={seg.join(' ')} fill="none" stroke={colors.brand} strokeWidth={1.6} strokeLinejoin="round" strokeLinecap="round" />)}
-      {points.map((p, i) => (p.value == null ? null : <Circle key={i} cx={xs(i)} cy={ys(p.value)} r={1.6} fill={colors.brand} />))}
+      {segments.map((seg, i) => <Polyline key={i} points={seg.join(' ')} fill="none" stroke={colors.positive} strokeWidth={1.6} strokeLinejoin="round" strokeLinecap="round" />)}
+      {points.map((p, i) => (p.value == null ? null : <Circle key={i} cx={xs(i)} cy={ys(p.value)} r={1.6} fill={colors.positive} />))}
     </Svg>
   )
 }
@@ -54,7 +54,7 @@ function Heatmap({ weeks }) {
   const fill = (v) => {
     if (v == null) return 'rgba(42,37,32,0.06)'
     const o = 0.2 + 0.8 * ((v - min) / range)
-    return `rgba(201,123,94,${o.toFixed(2)})`
+    return `rgba(139,168,136,${o.toFixed(2)})`
   }
   return (
     <Svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
@@ -97,9 +97,9 @@ function QuestionInsightCard({ question, idx, today, gender, onSubmit, onToggle,
           </View>
         ) : (
           <View style={styles.sliderRow}>
-            <Slider style={{ flex: 1 }} minimumValue={1} maximumValue={10} step={1} value={draft} onValueChange={setDraft} minimumTrackTintColor={colors.brand} maximumTrackTintColor={colors.border} thumbTintColor={colors.brand} />
+            <Slider style={{ flex: 1 }} minimumValue={1} maximumValue={10} step={1} value={draft} onValueChange={setDraft} minimumTrackTintColor={colors.moonDeep} maximumTrackTintColor={colors.border} thumbTintColor={colors.moonDeep} />
             <Text style={styles.sliderVal}>{draft}</Text>
-            <Pressable style={styles.save} disabled={busy} onPress={() => submit(draft)}><Check size={15} strokeWidth={2} color={colors.onBrand} /></Pressable>
+            <Pressable style={styles.save} disabled={busy} onPress={() => submit(draft)}><Check size={15} strokeWidth={2} color={colors.positive} /></Pressable>
           </View>
         )
       ) : null}
@@ -191,9 +191,9 @@ const styles = StyleSheet.create({
   qhead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   qicon: { fontSize: 18 },
   qtext: { flex: 1, fontSize: 15, fontWeight: '600', color: colors.text },
-  todayPill: { fontSize: 12, fontWeight: '700', color: colors.brand, backgroundColor: colors.brandSoft, minWidth: 22, textAlign: 'center', borderRadius: 999, paddingVertical: 1, paddingHorizontal: 7, overflow: 'hidden' },
+  todayPill: { fontSize: 12, fontWeight: '600', color: colors.positive, backgroundColor: 'rgba(139,168,136,0.15)', minWidth: 22, textAlign: 'center', borderRadius: 999, paddingVertical: 1, paddingHorizontal: 7, overflow: 'hidden' },
   toggle: { width: 40, height: 24, borderRadius: 999, backgroundColor: colors.cardFlat, borderWidth: 1, borderColor: colors.border, padding: 2, justifyContent: 'center' },
-  toggleOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  toggleOn: { backgroundColor: colors.moonDeep, borderColor: colors.moonDeep },
   knob: { width: 18, height: 18, borderRadius: 9, backgroundColor: colors.onBrand },
   knobOn: { alignSelf: 'flex-end' },
 
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   ynText: { fontSize: 15, fontWeight: '600', color: colors.text },
   sliderRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   sliderVal: { fontSize: 16, fontWeight: '700', color: colors.text, width: 24, textAlign: 'center' },
-  save: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  save: { width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(139,168,136,0.18)', borderWidth: 1, borderColor: colors.positive, alignItems: 'center', justifyContent: 'center' },
 
   stats: { flexDirection: 'row' },
   stat: { flex: 1, alignItems: 'center', gap: 3 },

@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking } from 'react-native'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
-import { Bell, Check, MessageCircle, ChevronLeft, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
+import { Bell, Check, MessageCircle, ChevronLeft, ChevronUp, ChevronDown, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
 import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, fmtShortDate } from '@simplicity/core'
 import Select from '../components/Select'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
@@ -15,7 +15,10 @@ import AddLeadModal from '../modals/AddLeadModal'
 import ConvertLeadModal from '../modals/ConvertLeadModal'
 import { colors } from '../theme/theme'
 import { useFormOptions } from '../lib/formOptions'
+import { usePreferences } from '../lib/preferences'
 import { useLeadsList } from '../hooks/useLeadsList'
+
+const DEFAULT_FILTER = { period: 'all', project: '', group: '', status: '', source: '', sort: '' }
 
 // Fallback column-dot colors when a meta has no default sub-status (metaColor
 // then returns a CSS var, which RN can't use).
@@ -33,9 +36,12 @@ const todayYmd = () => {
 // updateLead's source). Pending public-page leads sit in a review strip above.
 export default function LeadsScreen() {
   const { leads, loading, error, refetch, addLead, updateLead, deleteLead, addClient, addGroupMember } = useLeadsList()
-  const { leadSources = [], leadStatuses = [], projects = [] } = useFormOptions()
+  const { leadSources = [], leadStatuses = [], projects = [], groups = [] } = useFormOptions()
   const tax = useConfigTaxonomy()
-  const [view, setView] = useState('board')
+  const { prefs, update: updatePrefs } = usePreferences()
+  // View + filter persist in prefs (mirror web prefs.leadsView / prefs.leadsFilter).
+  const view = prefs.leadsView === 'statuses' ? 'statuses' : 'board'
+  const setView = (v) => updatePrefs({ leadsView: v })
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(false)
   const [converting, setConverting] = useState(null)
@@ -44,9 +50,10 @@ export default function LeadsScreen() {
   const [movePicker, setMovePicker] = useState(null)
   const [showFollowups, setShowFollowups] = useState(false)
   const [query, setQuery] = useState('')
-  const [filter, setFilter] = useState({ period: 'all', project: '', group: '', status: '', source: '', sort: '' })
   const [showFilter, setShowFilter] = useState(false)
-  const setF = (k, v) => setFilter((f) => (k === 'project' ? { ...f, project: v, group: '' } : { ...f, [k]: v }))
+  const filter = useMemo(() => ({ ...DEFAULT_FILTER, ...(prefs.leadsFilter || {}) }), [prefs.leadsFilter])
+  const setF = (k, v) => updatePrefs({ leadsFilter: k === 'project' ? { ...filter, project: v, group: '' } : { ...filter, [k]: v } })
+  const clearFilter = () => updatePrefs({ leadsFilter: { ...DEFAULT_FILTER } })
   const activeFilterCount = (filter.period !== 'all' ? 1 : 0) + (filter.project ? 1 : 0) + (filter.group ? 1 : 0) + (filter.status ? 1 : 0) + (filter.source ? 1 : 0) + (filter.sort ? 1 : 0)
 
   const pending = useMemo(() => leads.filter((l) => !l.deleted_at && isPendingReview(l)), [leads])
@@ -190,7 +197,7 @@ export default function LeadsScreen() {
           </View>
 
           {view === 'statuses' ? (
-            <LeadStatusesPanel leadStatuses={tax.leadStatuses} onAdd={tax.addLeadStatus} onRemove={tax.removeLeadStatus} />
+            <LeadStatusesPanel leadStatuses={tax.leadStatuses} onAdd={tax.addLeadStatus} onRemove={tax.removeLeadStatus} onUpdate={tax.updateLeadStatus} />
           ) : (
           <>
           {pending.length ? (
@@ -386,6 +393,13 @@ export default function LeadsScreen() {
         </View>
         <Select label={i18n.t('leads:filter.project')} value={filter.project} onChange={(v) => setF('project', v)} placeholder={i18n.t('leads:filter.all')}
           options={[{ value: '', label: i18n.t('leads:filter.all') }, { value: '__none__', label: i18n.t('leads:filter.unassigned') }, ...projects.map((p) => ({ value: p.id, label: p.name || '' }))]} />
+        {(() => {
+          const gopts = (filter.project && filter.project !== '__none__') ? groups.filter((g) => g.project_id === filter.project && !g.deleted_at) : groups.filter((g) => !g.deleted_at)
+          return gopts.length ? (
+            <Select label={i18n.t('leads:filter.group')} value={filter.group} onChange={(v) => setF('group', v)} placeholder={i18n.t('leads:filter.all')}
+              options={[{ value: '', label: i18n.t('leads:filter.all') }, { value: '__none__', label: i18n.t('leads:filter.unassigned') }, ...gopts.map((g) => ({ value: g.id, label: g.name || '' }))]} />
+          ) : null
+        })()}
         {leadStatuses.length ? (
           <Select label={i18n.t('leads:filter.status')} value={filter.status} onChange={(v) => setF('status', v)} placeholder={i18n.t('leads:filter.all')}
             options={[{ value: '', label: i18n.t('leads:filter.all') }, ...leadStatuses.filter((s) => !s.deleted_at).map((s) => ({ value: s.id, label: `${s.icon ? s.icon + ' ' : ''}${s.display_name || ''}` }))]} />
@@ -406,7 +420,7 @@ export default function LeadsScreen() {
           })}
         </View>
         {activeFilterCount > 0 ? (
-          <Pressable style={styles.clearBtn} onPress={() => setFilter({ period: 'all', project: '', group: '', status: '', source: '', sort: '' })}>
+          <Pressable style={styles.clearBtn} onPress={clearFilter}>
             <Text style={styles.clearText}>{i18n.t('leads:filter.clear', { defaultValue: 'נקה הכל' })}</Text>
           </Pressable>
         ) : null}
@@ -415,9 +429,10 @@ export default function LeadsScreen() {
   )
 }
 
-// Sub-status manager (view === 'statuses') — chips per meta group + add/remove.
-// Web also allows drag-reorder / drag-between-groups; omitted here (v1).
-function LeadStatusesPanel({ leadStatuses, onAdd, onRemove }) {
+// Sub-status manager (view === 'statuses') — chips per meta group + add/remove +
+// reorder. Web reorders by drag; mobile uses compact ▲▼ (earlier/later) which is
+// reliable on a wrapped chip layout. Renumbers sort_order (10,20,…) on each move.
+function LeadStatusesPanel({ leadStatuses, onAdd, onRemove, onUpdate }) {
   return (
     <View style={{ gap: 16 }}>
       <Text style={styles.panelIntro}>{i18n.t('leads:statusesPanel.intro', { defaultValue: 'ניהול תתי-סטטוסים תחת כל קטגוריית-על.' })}</Text>
@@ -429,25 +444,41 @@ function LeadStatusesPanel({ leadStatuses, onAdd, onRemove }) {
           statuses={(leadStatuses || []).filter((s) => s.meta_category === m.key && !s.deleted_at)}
           onAdd={onAdd}
           onRemove={onRemove}
+          onUpdate={onUpdate}
         />
       ))}
     </View>
   )
 }
 
-function StatusGroup({ meta, title, statuses, onAdd, onRemove }) {
+function StatusGroup({ meta, title, statuses, onAdd, onRemove, onUpdate }) {
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const add = async () => {
     const v = draft.trim(); if (!v || busy) return
     setBusy(true); try { await onAdd(v, meta); setDraft('') } finally { setBusy(false) }
   }
+  const sorted = [...statuses].sort((a, b) => (a.sort_order ?? 1e9) - (b.sort_order ?? 1e9))
+  const move = (i, dir) => {
+    const j = i + dir
+    if (j < 0 || j >= sorted.length || !onUpdate) return
+    const next = [...sorted]
+    const [m] = next.splice(i, 1); next.splice(j, 0, m)
+    next.forEach((s, idx) => { const so = (idx + 1) * 10; if (s.sort_order !== so) onUpdate(s.id, { sort_order: so }) })
+  }
+  const canReorder = sorted.length > 1 && !!onUpdate
   return (
     <View style={styles.sgroup}>
       <Text style={styles.sgroupTitle}>{title}</Text>
       <View style={styles.chips}>
-        {statuses.length ? statuses.map((s) => (
+        {sorted.length ? sorted.map((s, i) => (
           <View key={s.id} style={styles.chip}>
+            {canReorder ? (
+              <View style={styles.reorder}>
+                <Pressable onPress={() => move(i, -1)} disabled={i === 0} hitSlop={4}><ChevronUp size={11} strokeWidth={2} color={i === 0 ? colors.border : colors.textSub} /></Pressable>
+                <Pressable onPress={() => move(i, 1)} disabled={i === sorted.length - 1} hitSlop={4}><ChevronDown size={11} strokeWidth={2} color={i === sorted.length - 1 ? colors.border : colors.textSub} /></Pressable>
+              </View>
+            ) : null}
             {s.icon ? <Text style={styles.chipIcon}>{s.icon}</Text> : null}
             {s.color ? <View style={[styles.chipDot, { backgroundColor: s.color }]} /> : null}
             <Text style={styles.chipText}>{s.display_name}</Text>
@@ -477,6 +508,7 @@ const styles = StyleSheet.create({
   sgroupTitle: { fontSize: 14, fontWeight: '600', color: colors.text },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  reorder: { marginInlineEnd: 1, marginInlineStart: -2 },
   chipIcon: { fontSize: 12 },
   chipDot: { width: 8, height: 8, borderRadius: 4 },
   chipText: { fontSize: 13, color: colors.text },

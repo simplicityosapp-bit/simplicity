@@ -1,8 +1,9 @@
 import { useMemo, useRef, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking } from 'react-native'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
-import { Bell, Check, MessageCircle, ChevronLeft } from 'lucide-react-native'
+import { Bell, Check, MessageCircle, ChevronLeft, Search, SlidersHorizontal } from 'lucide-react-native'
 import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, fmtShortDate } from '@simplicity/core'
+import Select from '../components/Select'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
@@ -31,7 +32,7 @@ const todayYmd = () => {
 // updateLead's source). Pending public-page leads sit in a review strip above.
 export default function LeadsScreen() {
   const { leads, loading, error, refetch, addLead, updateLead, deleteLead, addClient, addGroupMember } = useLeadsList()
-  const { leadSources = [], leadStatuses = [] } = useFormOptions()
+  const { leadSources = [], leadStatuses = [], projects = [] } = useFormOptions()
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(false)
   const [converting, setConverting] = useState(null)
@@ -39,15 +40,45 @@ export default function LeadsScreen() {
   // then (if it has 2+ sub-statuses) a sub-status.
   const [movePicker, setMovePicker] = useState(null)
   const [showFollowups, setShowFollowups] = useState(false)
+  const [query, setQuery] = useState('')
+  const [filter, setFilter] = useState({ period: 'all', project: '', group: '', status: '', source: '', sort: '' })
+  const [showFilter, setShowFilter] = useState(false)
+  const setF = (k, v) => setFilter((f) => (k === 'project' ? { ...f, project: v, group: '' } : { ...f, [k]: v }))
+  const activeFilterCount = (filter.period !== 'all' ? 1 : 0) + (filter.project ? 1 : 0) + (filter.group ? 1 : 0) + (filter.status ? 1 : 0) + (filter.source ? 1 : 0) + (filter.sort ? 1 : 0)
 
   const pending = useMemo(() => leads.filter((l) => !l.deleted_at && isPendingReview(l)), [leads])
   const official = useMemo(() => leads.filter((l) => !l.deleted_at && !isPendingReview(l)), [leads])
   const buckets = useMemo(() => {
+    const now = new Date()
+    const inPeriod = (l) => {
+      if (!filter.period || filter.period === 'all') return true
+      const raw = l.inquiry_date || l.created_at
+      if (!raw) return false
+      const d = new Date(raw)
+      if (filter.period === 'month') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+      if (filter.period === 'last30') { const c = new Date(now); c.setDate(c.getDate() - 30); return d >= c }
+      if (filter.period === 'lastMonth') { const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1); return d.getFullYear() === lm.getFullYear() && d.getMonth() === lm.getMonth() }
+      return true
+    }
+    const matchRef = (val, sel) => (!sel ? true : sel === '__none__' ? !val : val === sel)
+    const q = query.trim()
     const g = {}
     LEAD_META.forEach((m) => { g[m.key] = [] })
-    official.forEach((l) => { (g[statusMetaOfLead(l)] || g.in_process).push(l) })
+    official
+      .filter((l) => inPeriod(l)
+        && (!q || (l.name || '').includes(q))
+        && matchRef(l.project_id, filter.project)
+        && matchRef(l.group_id, filter.group)
+        && matchRef(l.source_id, filter.source)
+        && (!filter.status || l.status_id === filter.status))
+      .forEach((l) => { (g[statusMetaOfLead(l)] || g.in_process).push(l) })
+    if (filter.sort) {
+      const dir = filter.sort === 'old' ? 1 : -1
+      const keyOf = (l) => String(l.inquiry_date || l.created_at || '')
+      LEAD_META.forEach((m) => { g[m.key].sort((a, b) => keyOf(a).localeCompare(keyOf(b)) * dir) })
+    }
     return g
-  }, [official])
+  }, [official, filter, query])
   const total = LEAD_META.reduce((s, m) => s + (buckets[m.key]?.length || 0), 0)
   // Open follow-ups — due (date ≤ today) AND still in_process.
   const dueFollowups = useMemo(() => {
@@ -181,6 +212,19 @@ export default function LeadsScreen() {
             <ChevronLeft size={15} strokeWidth={1.7} color={colors.textFaint} />
           </Pressable>
 
+          {/* Search + filter */}
+          <View style={styles.filterbar}>
+            <View style={styles.searchBox}>
+              <Search size={16} strokeWidth={1.6} color={colors.textFaint} />
+              <TextInput style={styles.searchInput} value={query} onChangeText={setQuery} placeholder={i18n.t('leads:search', { defaultValue: 'חיפוש ליד…' })} placeholderTextColor={colors.textFaint} />
+            </View>
+            <Pressable style={[styles.filterBtn, activeFilterCount > 0 && styles.filterBtnOn]} onPress={() => setShowFilter(true)}>
+              <SlidersHorizontal size={14} strokeWidth={1.7} color={activeFilterCount ? colors.onBrand : colors.textSub} />
+              <Text style={[styles.filterBtnText, activeFilterCount > 0 && styles.filterBtnTextOn]}>{i18n.t('leads:filter.btn', { defaultValue: 'סינון' })}</Text>
+              {activeFilterCount > 0 ? <Text style={styles.filterCount}>{activeFilterCount}</Text> : null}
+            </Pressable>
+          </View>
+
           {/* Kanban board — horizontally-scrolling meta columns. Long-press a
              card to pick it up and drag between columns (edge = auto-scroll);
              the ⇄ control is the tap-to-move fallback. */}
@@ -306,6 +350,47 @@ export default function LeadsScreen() {
           </View>
         ))}
       </Sheet>
+
+      {/* Filter board */}
+      <Sheet open={showFilter} onClose={() => setShowFilter(false)} title={i18n.t('leads:filter.title', { defaultValue: 'סינון לידים' })}>
+        <Text style={styles.filterLabel}>{i18n.t('leads:filter.period', { defaultValue: 'תקופה' })}</Text>
+        <View style={styles.seg}>
+          {['all', 'month', 'last30', 'lastMonth'].map((p) => {
+            const on = (filter.period || 'all') === p
+            return (
+              <Pressable key={p} style={[styles.segBtn, on && styles.segOn]} onPress={() => setF('period', p)}>
+                <Text style={[styles.segText, on && styles.segTextOn]}>{i18n.t(`leads:filter.period_${p}`)}</Text>
+              </Pressable>
+            )
+          })}
+        </View>
+        <Select label={i18n.t('leads:filter.project')} value={filter.project} onChange={(v) => setF('project', v)} placeholder={i18n.t('leads:filter.all')}
+          options={[{ value: '', label: i18n.t('leads:filter.all') }, { value: '__none__', label: i18n.t('leads:filter.unassigned') }, ...projects.map((p) => ({ value: p.id, label: p.name || '' }))]} />
+        {leadStatuses.length ? (
+          <Select label={i18n.t('leads:filter.status')} value={filter.status} onChange={(v) => setF('status', v)} placeholder={i18n.t('leads:filter.all')}
+            options={[{ value: '', label: i18n.t('leads:filter.all') }, ...leadStatuses.filter((s) => !s.deleted_at).map((s) => ({ value: s.id, label: `${s.icon ? s.icon + ' ' : ''}${s.display_name || ''}` }))]} />
+        ) : null}
+        {leadSources.length ? (
+          <Select label={i18n.t('leads:filter.source')} value={filter.source} onChange={(v) => setF('source', v)} placeholder={i18n.t('leads:filter.all')}
+            options={[{ value: '', label: i18n.t('leads:filter.all') }, { value: '__none__', label: i18n.t('leads:filter.unassigned') }, ...leadSources.map((s) => ({ value: s.id, label: s.name || '' }))]} />
+        ) : null}
+        <Text style={styles.filterLabel}>{i18n.t('leads:filter.sort', { defaultValue: 'מיון לפי תאריך' })}</Text>
+        <View style={styles.seg}>
+          {[['', 'sort_none'], ['new', 'sort_new'], ['old', 'sort_old']].map(([v, k]) => {
+            const on = (filter.sort || '') === v
+            return (
+              <Pressable key={k} style={[styles.segBtn, on && styles.segOn]} onPress={() => setF('sort', v)}>
+                <Text style={[styles.segText, on && styles.segTextOn]}>{i18n.t(`leads:filter.${k}`)}</Text>
+              </Pressable>
+            )
+          })}
+        </View>
+        {activeFilterCount > 0 ? (
+          <Pressable style={styles.clearBtn} onPress={() => setFilter({ period: 'all', project: '', group: '', status: '', source: '', sort: '' })}>
+            <Text style={styles.clearText}>{i18n.t('leads:filter.clear', { defaultValue: 'נקה הכל' })}</Text>
+          </Pressable>
+        ) : null}
+      </Sheet>
     </Screen>
   )
 }
@@ -356,4 +441,21 @@ const styles = StyleSheet.create({
   fuDate: { fontSize: 13, color: colors.textSub },
   fuIcon: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cardFlat },
   fuDone: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.positive },
+
+  filterbar: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  searchBox: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, backgroundColor: colors.card },
+  searchInput: { flex: 1, paddingVertical: 10, fontSize: 14, color: colors.text },
+  filterBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+  filterBtnOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  filterBtnText: { fontSize: 13, color: colors.textSub },
+  filterBtnTextOn: { color: colors.onBrand, fontWeight: '600' },
+  filterCount: { fontSize: 11, fontWeight: '700', color: colors.brand, backgroundColor: colors.onBrand, minWidth: 18, textAlign: 'center', borderRadius: 999, paddingHorizontal: 5, overflow: 'hidden' },
+  filterLabel: { fontSize: 13, color: colors.textSub, marginTop: 4 },
+  seg: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  segBtn: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  segOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  segText: { fontSize: 13, color: colors.textSub },
+  segTextOn: { color: colors.onBrand, fontWeight: '600' },
+  clearBtn: { paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center', marginTop: 4 },
+  clearText: { fontSize: 14, color: colors.textSub },
 })

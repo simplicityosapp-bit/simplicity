@@ -15,7 +15,7 @@ const LIGHT = {
   text: '#2A2520', textSub: '#2C2621', textFaint: '#3A332B',
   brand: '#C97B5E', brandSoft: '#F4E3DA', positive: '#8BA888', amberWarn: '#D4A574', danger: '#B5634E',
   moonDeep: '#5a6a8c', moonHi: '#b8c4e0', onBrand: '#FFFFFF',
-  border: 'rgba(42,37,32,0.08)', glassBorder: 'rgba(255,255,255,0.5)', divider: 'rgba(42,37,32,0.07)',
+  border: 'rgba(42,37,32,0.08)', glassBorder: 'rgba(255,255,255,0.5)', divider: 'rgba(42,37,32,0.06)',
   // Theme-aware surface fills — subtle chips/pills/badges, input fields, toggle
   // knobs. These flip for dark mode (a dark tint on a dark card would vanish).
   fill: 'rgba(42,37,32,0.05)', fillStrong: 'rgba(42,37,32,0.08)', inputBg: 'rgba(255,255,255,0.4)', knob: '#FFFFFF',
@@ -27,7 +27,7 @@ const DARK = {
   text: '#F0EBE0', textSub: '#C3CBC0', textFaint: '#8B948C',
   brand: '#C97B5E', brandSoft: 'rgba(201,123,94,0.24)', positive: '#8FB08C', amberWarn: '#C99A6A', danger: '#D98C76',
   moonDeep: '#9aa6c8', moonHi: '#e6edff', onBrand: '#FFFFFF',
-  border: 'rgba(240,235,224,0.12)', glassBorder: 'rgba(255,255,255,0.10)', divider: 'rgba(240,235,224,0.09)',
+  border: 'rgba(240,235,224,0.12)', glassBorder: 'rgba(255,255,255,0.10)', divider: 'rgba(240,235,224,0.14)',
   fill: 'rgba(255,255,255,0.06)', fillStrong: 'rgba(255,255,255,0.11)', inputBg: 'rgba(255,255,255,0.06)', knob: '#E8E4DA',
   panelBg: 'rgba(20,24,29,0.86)',
 }
@@ -37,8 +37,8 @@ const DARK = {
 export const colors = { ...LIGHT }
 
 export const type = {
-  displayXL: { fontSize: 34, fontWeight: '600', color: colors.text },
-  displayL: { fontSize: 24, fontWeight: '600', color: colors.text },
+  displayXL: { fontSize: 36, fontWeight: '500', color: colors.text },
+  displayL: { fontSize: 24, fontWeight: '500', color: colors.text },
   heading: { fontSize: 17, fontWeight: '600', color: colors.text },
   body: { fontSize: 15, fontWeight: '400', color: colors.text },
   caption: { fontSize: 13, fontWeight: '500', color: colors.textSub },

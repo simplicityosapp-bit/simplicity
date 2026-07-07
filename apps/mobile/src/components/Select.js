@@ -26,7 +26,7 @@ export default function Select({ label, value, options = [], onChange, placehold
             return (
               <Pressable key={String(o.value) + i} style={[styles.option, i > 0 && styles.optionBorder]} onPress={() => { onChange(o.value); setOpen(false) }}>
                 <Text style={[styles.optionText, on && styles.optionOn]} numberOfLines={1}>{o.label}</Text>
-                {on ? <Check size={15} strokeWidth={2.2} color={colors.brand} /> : null}
+                {on ? <Check size={15} strokeWidth={2.2} color={colors.positive} /> : null}
               </Pressable>
             )
           })}
@@ -39,13 +39,13 @@ export default function Select({ label, value, options = [], onChange, placehold
 const styles = StyleSheet.create({
   field: { gap: 6 },
   label: { fontSize: 13, color: colors.textSub },
-  control: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, backgroundColor: colors.card },
-  value: { flex: 1, fontSize: 15, color: colors.text },
+  control: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingVertical: 11, paddingHorizontal: 14, backgroundColor: colors.card },
+  value: { flex: 1, fontSize: 14, color: colors.text },
   placeholder: { color: colors.textFaint },
   chevOpen: { transform: [{ rotate: '180deg' }] },
   options: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, backgroundColor: colors.card, overflow: 'hidden' },
   option: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingVertical: 12, paddingHorizontal: 14 },
   optionBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   optionText: { flex: 1, fontSize: 15, color: colors.text },
-  optionOn: { fontWeight: '600', color: colors.brand },
+  optionOn: { fontWeight: '600', color: colors.positive },
 })

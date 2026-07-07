@@ -1,5 +1,6 @@
 import { View, ActivityIndicator, StyleSheet } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { setupI18n } from './src/lib/i18n'
 import { AuthProvider, useAuth } from './src/lib/auth'
@@ -51,14 +52,16 @@ function Root() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <DrawerProvider>
-          <Root />
-          <StatusBar style="auto" />
-        </DrawerProvider>
-      </AuthProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.fill}>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <DrawerProvider>
+            <Root />
+            <StatusBar style="auto" />
+          </DrawerProvider>
+        </AuthProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   )
 }
 

@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions } from 'react-native'
+import { useMemo, useRef, useState } from 'react'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated } from 'react-native'
+import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -65,6 +66,55 @@ export default function LeadsScreen() {
     setMovePicker(null)
   }
 
+  // ── Drag-and-drop (long-press to pick up) with horizontal edge auto-scroll ──
+  const boardRef = useRef(null)
+  const boardBox = useRef({ x: 0, width: Dimensions.get('window').width }) // screen coords
+  const scrollX = useRef(0)
+  const colX = useRef({}) // { metaKey: { x, width } } in board-content coords
+  const overMeta = useRef(null)
+  const edge = useRef({ dir: 0, timer: null })
+  const ghost = useRef(new Animated.ValueXY()).current
+  const [dragLead, setDragLead] = useState(null)
+
+  const stopEdgeScroll = () => { if (edge.current.timer) { clearInterval(edge.current.timer); edge.current.timer = null } edge.current.dir = 0 }
+  const startEdgeScroll = (dir) => {
+    if (edge.current.dir === dir) return
+    stopEdgeScroll()
+    edge.current.dir = dir
+    edge.current.timer = setInterval(() => {
+      const next = Math.max(0, scrollX.current + dir * 14)
+      scrollX.current = next
+      boardRef.current?.scrollTo({ x: next, animated: false })
+    }, 16)
+  }
+  const hitMeta = (absX) => {
+    const relX = absX - boardBox.current.x + scrollX.current
+    for (const m of LEAD_META) { const c = colX.current[m.key]; if (c && relX >= c.x && relX <= c.x + c.width) return m.key }
+    return null
+  }
+  const onDragMove = (absX, absY) => {
+    ghost.setValue({ x: absX - COL_W / 2, y: absY - 28 })
+    overMeta.current = hitMeta(absX)
+    const local = absX - boardBox.current.x
+    if (local < 52) startEdgeScroll(-1)
+    else if (local > boardBox.current.width - 52) startEdgeScroll(1)
+    else stopEdgeScroll()
+  }
+  const onDrop = (lead) => {
+    stopEdgeScroll()
+    const target = overMeta.current
+    overMeta.current = null
+    setDragLead(null)
+    if (target && target !== statusMetaOfLead(lead)) chooseMeta(lead, target)
+  }
+  const makePan = (lead) => Gesture.Pan()
+    .activateAfterLongPress(220)
+    .runOnJS(true)
+    .onStart((e) => { setDragLead(lead); ghost.setValue({ x: e.absoluteX - COL_W / 2, y: e.absoluteY - 28 }) })
+    .onUpdate((e) => onDragMove(e.absoluteX, e.absoluteY))
+    .onEnd(() => onDrop(lead))
+    .onFinalize(() => { stopEdgeScroll(); setDragLead(null) })
+
   return (
     <Screen name="leads">
       <ScreenHead
@@ -110,37 +160,63 @@ export default function LeadsScreen() {
             </View>
           ) : null}
 
-          {/* Kanban board — horizontally-scrolling meta columns */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.board}>
-            {LEAD_META.map((m) => {
-              const raw = metaColor(m.key, leadStatuses)
-              const dot = raw && String(raw).startsWith('#') ? raw : META_COLOR[m.key]
-              const rows = buckets[m.key] || []
-              return (
-                <View key={m.key} style={[styles.col, { width: COL_W }]}>
-                  <View style={styles.colHead}>
-                    <View style={[styles.colDot, { backgroundColor: dot }]} />
-                    <Text style={styles.colTitle}>{metaTitle(m.key)}</Text>
-                    <Text style={styles.colCount}>{rows.length}</Text>
+          {/* Kanban board — horizontally-scrolling meta columns. Long-press a
+             card to pick it up and drag between columns (edge = auto-scroll);
+             the ⇄ control is the tap-to-move fallback. */}
+          <View
+            onLayout={() => boardRef.current?.measureInWindow?.((x, y, w) => { boardBox.current = { x, width: w } })}
+          >
+            <ScrollView
+              ref={boardRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.board}
+              scrollEventThrottle={16}
+              onScroll={(e) => { scrollX.current = e.nativeEvent.contentOffset.x }}
+            >
+              {LEAD_META.map((m) => {
+                const raw = metaColor(m.key, leadStatuses)
+                const dot = raw && String(raw).startsWith('#') ? raw : META_COLOR[m.key]
+                const rows = buckets[m.key] || []
+                const over = dragLead && overMeta.current === m.key
+                return (
+                  <View
+                    key={m.key}
+                    style={[styles.col, { width: COL_W }, over && styles.colOver]}
+                    onLayout={(e) => { colX.current[m.key] = { x: e.nativeEvent.layout.x, width: e.nativeEvent.layout.width } }}
+                  >
+                    <View style={styles.colHead}>
+                      <View style={[styles.colDot, { backgroundColor: dot }]} />
+                      <Text style={styles.colTitle}>{metaTitle(m.key)}</Text>
+                      <Text style={styles.colCount}>{rows.length}</Text>
+                    </View>
+                    <View style={styles.colBody}>
+                      {rows.length ? rows.map((l) => (
+                        <GestureDetector key={l.id} gesture={makePan(l)}>
+                          <LeadCard
+                            lead={l}
+                            onEdit={setEditing}
+                            onConvert={setConverting}
+                            onDelete={deleteLead}
+                            onMove={(lead) => setMovePicker({ lead })}
+                            sources={leadSources}
+                            statuses={leadStatuses}
+                            dragging={dragLead?.id === l.id}
+                          />
+                        </GestureDetector>
+                      )) : <Text style={styles.colEmpty}>{i18n.t('leads:column.empty', { defaultValue: 'אין לידים בעמודה זו' })}</Text>}
+                    </View>
                   </View>
-                  <View style={styles.colBody}>
-                    {rows.length ? rows.map((l) => (
-                      <LeadCard
-                        key={l.id}
-                        lead={l}
-                        onEdit={setEditing}
-                        onConvert={setConverting}
-                        onDelete={deleteLead}
-                        onMove={(lead) => setMovePicker({ lead })}
-                        sources={leadSources}
-                        statuses={leadStatuses}
-                      />
-                    )) : <Text style={styles.colEmpty}>{i18n.t('leads:column.empty', { defaultValue: 'אין לידים בעמודה זו' })}</Text>}
-                  </View>
-                </View>
-              )
-            })}
-          </ScrollView>
+                )
+              })}
+            </ScrollView>
+          </View>
+          {/* Floating ghost of the lifted card */}
+          {dragLead ? (
+            <Animated.View pointerEvents="none" style={[styles.ghost, { width: COL_W, transform: ghost.getTranslateTransform() }]}>
+              <LeadCard lead={dragLead} sources={leadSources} statuses={leadStatuses} />
+            </Animated.View>
+          ) : null}
         </ScrollView>
       )}
 
@@ -217,7 +293,9 @@ const styles = StyleSheet.create({
   rejectText: { fontSize: 13, color: colors.textSub },
 
   board: { gap: 12, paddingBottom: 4 },
-  col: { gap: 10 },
+  col: { gap: 10, borderRadius: 16, borderWidth: 1, borderColor: 'transparent', padding: 4 },
+  colOver: { borderColor: colors.brand, backgroundColor: 'rgba(201,123,94,0.06)' },
+  ghost: { position: 'absolute', top: 0, left: 0, zIndex: 999, opacity: 0.96, shadowColor: '#2A2520', shadowOpacity: 0.2, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 12 },
   colHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 2 },
   colDot: { width: 10, height: 10, borderRadius: 5 },
   colTitle: { fontSize: 14, fontWeight: '600', color: colors.text, flex: 1 },

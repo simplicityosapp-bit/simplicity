@@ -9,7 +9,7 @@ import { colors } from '../theme/theme'
 function Layers({ on, onColor }) {
   return (
     <>
-      <BlurView intensity={50} tint="light" style={StyleSheet.absoluteFill} pointerEvents="none" />
+      <BlurView intensity={50} tint={colors.blurTint} style={StyleSheet.absoluteFill} pointerEvents="none" />
       <View style={[StyleSheet.absoluteFill, { backgroundColor: on ? onColor : colors.glassTint }]} pointerEvents="none" />
     </>
   )

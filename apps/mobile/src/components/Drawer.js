@@ -2,14 +2,14 @@ import { useEffect, useRef } from 'react'
 import { View, Text, Image, Pressable, ScrollView, StyleSheet, Animated } from 'react-native'
 import { BlurView } from 'expo-blur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, X, LogOut, Pencil } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, Sun, Moon, X, LogOut, Pencil } from 'lucide-react-native'
 
 const LOGO = require('../../assets/logo.png')
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { usePreferences } from '../lib/preferences'
 import i18n from '../lib/i18n'
-import { colors, space } from '../theme/theme'
+import { colors, space, persistThemeAndReload } from '../theme/theme'
 
 // The "עוד" drawer — a right-anchored frosted-glass sheet mirroring web's
 // MenuDrawer: a profile chip, a 3-col glass GRID of the primary screens, then
@@ -61,10 +61,35 @@ function LinkRow({ Icon, logo, tint, title, sub, danger, onPress }) {
   )
 }
 
+// Light/dark toggle (mirrors web's drawer theme switch) — persists the choice
+// and reloads so the new palette applies (RN freezes StyleSheet colors).
+function ThemeToggle({ dark, onToggle }) {
+  return (
+    <Pressable style={styles.link} onPress={onToggle}>
+      <View style={styles.linkIcon}>
+        {dark ? <Moon size={18} strokeWidth={1.6} color={colors.moonDeep} /> : <Sun size={18} strokeWidth={1.6} color={colors.amberWarn} />}
+      </View>
+      <View style={styles.linkText}>
+        <Text style={styles.linkTitle}>{i18n.t(dark ? 'nav:theme.toLight' : 'nav:theme.toDarkAlt', { defaultValue: dark ? 'מצב יום' : 'מצב לילה' })}</Text>
+        <Text style={styles.linkSub}>{i18n.t('nav:theme.sub', { defaultValue: 'החלפת ערכת צבעים' })}</Text>
+      </View>
+      <View style={[styles.switch, dark && styles.switchOn]}>
+        <View style={[styles.switchThumb, dark && styles.switchThumbOn]} />
+      </View>
+    </Pressable>
+  )
+}
+
 export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   const insets = useSafeAreaInsets()
   const { session } = useAuth()
-  const { prefs } = usePreferences()
+  const { prefs, update } = usePreferences()
+  const dark = (prefs.design?.theme || 'light') === 'dark'
+  const toggleTheme = () => {
+    const next = dark ? 'light' : 'dark'
+    try { update({ design: { ...(prefs.design || {}), theme: next } }) } catch { /* best-effort */ }
+    persistThemeAndReload(next)
+  }
   const email = session?.user?.email || ''
   const name = prefs.full_name || i18n.t('nav:profile.myProfile', { defaultValue: 'הפרופיל שלי' })
   const roleText = prefs.role === 'other' ? (prefs.role_other || '') : (prefs.role ? i18n.t(`settings:profile.roles.${prefs.role}`, { defaultValue: '' }) : '')
@@ -87,7 +112,7 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
       </Animated.View>
       <Animated.View style={[styles.panel, { paddingTop: insets.top + 12, transform: [{ translateX }] }]}>
-        <BlurView intensity={60} tint="light" style={StyleSheet.absoluteFill} pointerEvents="none" />
+        <BlurView intensity={60} tint={colors.blurTint} style={StyleSheet.absoluteFill} pointerEvents="none" />
         <View style={[StyleSheet.absoluteFill, styles.panelVeil]} pointerEvents="none" />
 
         <View style={styles.body}>
@@ -136,6 +161,7 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
                 sub={it.sub ? i18n.t(it.sub, { defaultValue: '' }) : null}
                 onPress={() => go(it.screen)} />
             ))}
+            <ThemeToggle dark={dark} onToggle={toggleTheme} />
             <LinkRow Icon={LogOut} tint="amber" danger
               title={i18n.t('nav:signOut', { defaultValue: 'התנתקות' })}
               sub={email}
@@ -190,4 +216,9 @@ const styles = StyleSheet.create({
   linkText: { flex: 1 },
   linkTitle: { fontSize: 14, fontWeight: '500', color: colors.text },
   linkSub: { fontSize: 10, color: colors.textSub, marginTop: 1, letterSpacing: 0.2 },
+  // theme switch
+  switch: { width: 46, height: 26, borderRadius: 13, backgroundColor: 'rgba(42,37,32,0.12)', padding: 3, justifyContent: 'center' },
+  switchOn: { backgroundColor: 'rgba(90,106,140,0.5)' },
+  switchThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#fff' },
+  switchThumbOn: { alignSelf: 'flex-end' },
 })

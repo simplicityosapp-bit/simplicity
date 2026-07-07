@@ -9,7 +9,7 @@ export default function Card({ style, contentStyle, padded = true, children }) {
   return (
     <View style={[styles.shadow, style]}>
       <View style={styles.clip}>
-        <BlurView intensity={50} tint="light" style={StyleSheet.absoluteFill} />
+        <BlurView intensity={50} tint={colors.blurTint} style={StyleSheet.absoluteFill} />
         <View style={[StyleSheet.absoluteFill, styles.tint]} />
         <View style={[padded && styles.padded, contentStyle]}>{children}</View>
       </View>

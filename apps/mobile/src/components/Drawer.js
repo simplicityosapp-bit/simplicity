@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { View, Text, Image, Pressable, ScrollView, StyleSheet, Animated } from 'react-native'
 import { BlurView } from 'expo-blur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, X, LogOut, Pencil } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, X, LogOut, Pencil } from 'lucide-react-native'
 
 const LOGO = require('../../assets/logo.png')
 import { supabase } from '../lib/supabase'
@@ -27,6 +27,7 @@ const GRID = [
   { key: 'tasks', screen: 'Tasks', Icon: ClipboardList, fb: 'משימות' },
   { key: 'goals', screen: 'Goals', Icon: Target, fb: 'יעדים' },
   { key: 'calendar', screen: 'Calendar', Icon: CalendarDays, fb: 'יומן' },
+  { key: 'connections', screen: 'Connections', Icon: Plug, fb: 'חיבורים' },
   { key: 'settings', screen: 'Settings', Icon: Settings, fb: 'הגדרות' },
 ]
 // Secondary tools — labeled link rows (web "extras"): title + sub + tinted chip.

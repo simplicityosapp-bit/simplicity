@@ -263,30 +263,32 @@ export default function LeadsScreen() {
                 return (
                   <View
                     key={m.key}
-                    style={[styles.col, { width: COL_W }, over && styles.colOver]}
+                    style={{ width: COL_W }}
                     onLayout={(e) => { colX.current[m.key] = { x: e.nativeEvent.layout.x, width: e.nativeEvent.layout.width } }}
                   >
-                    <View style={styles.colHead}>
-                      <View style={[styles.colDot, { backgroundColor: dot }]} />
-                      <Text style={styles.colTitle}>{metaTitle(m.key)}</Text>
-                      <Text style={styles.colCount}>{rows.length}</Text>
-                    </View>
-                    <View style={styles.colBody}>
-                      {rows.length ? rows.map((l) => (
-                        <GestureDetector key={l.id} gesture={makePan(l)}>
-                          <LeadCard
-                            lead={l}
-                            onEdit={setEditing}
-                            onConvert={setConverting}
-                            onDelete={deleteLead}
-                            onMove={(lead) => setMovePicker({ lead })}
-                            sources={leadSources}
-                            statuses={leadStatuses}
-                            dragging={dragLead?.id === l.id}
-                          />
-                        </GestureDetector>
-                      )) : <Text style={styles.colEmpty}>{i18n.t('leads:column.empty', { defaultValue: 'אין לידים בעמודה זו' })}</Text>}
-                    </View>
+                    <Card padded={false} style={over ? styles.colOver : undefined} contentStyle={styles.colFrame}>
+                      <View style={styles.colHead}>
+                        <View style={[styles.colDot, { backgroundColor: dot }]} />
+                        <Text style={styles.colTitle}>{metaTitle(m.key)}</Text>
+                        <Text style={styles.colCount}>{rows.length}</Text>
+                      </View>
+                      <View style={styles.colBody}>
+                        {rows.length ? rows.map((l) => (
+                          <GestureDetector key={l.id} gesture={makePan(l)}>
+                            <LeadCard
+                              lead={l}
+                              onEdit={setEditing}
+                              onConvert={setConverting}
+                              onDelete={deleteLead}
+                              onMove={(lead) => setMovePicker({ lead })}
+                              sources={leadSources}
+                              statuses={leadStatuses}
+                              dragging={dragLead?.id === l.id}
+                            />
+                          </GestureDetector>
+                        )) : <Text style={styles.colEmpty}>{i18n.t('leads:column.empty', { defaultValue: 'אין לידים בעמודה זו' })}</Text>}
+                      </View>
+                    </Card>
                   </View>
                 )
               })}
@@ -500,10 +502,10 @@ const styles = StyleSheet.create({
   rejectText: { fontSize: 13, color: colors.textSub },
 
   board: { gap: 12, paddingBottom: 4 },
-  col: { gap: 10, borderRadius: 16, borderWidth: 1, borderColor: 'transparent', padding: 4 },
-  colOver: { borderColor: colors.brand, backgroundColor: 'rgba(201,123,94,0.06)' },
+  colFrame: { padding: 12, minHeight: 96 },
+  colOver: { borderColor: colors.positive, borderWidth: 1.5 },
   ghost: { position: 'absolute', top: 0, left: 0, zIndex: 999, opacity: 0.96, shadowColor: '#2A2520', shadowOpacity: 0.2, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 12 },
-  colHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 2 },
+  colHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingBottom: 10, marginBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
   colDot: { width: 10, height: 10, borderRadius: 5 },
   colTitle: { fontSize: 14, fontWeight: '600', color: colors.text, flex: 1 },
   colCount: { fontSize: 13, fontWeight: '600', color: colors.textSub, backgroundColor: colors.cardFlat, minWidth: 22, textAlign: 'center', borderRadius: 999, paddingVertical: 1, paddingHorizontal: 7, overflow: 'hidden' },

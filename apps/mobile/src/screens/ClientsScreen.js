@@ -23,8 +23,8 @@ const TABS = [
 ]
 const SORT_OPTIONS = ['name', 'balance', 'paid', 'sessions', 'created', 'oldest']
 const STATUS_PILL = {
-  active: 'rgba(139,168,136,0.16)',
-  wandering: 'rgba(212,165,116,0.18)',
+  active: 'rgba(139,168,136,0.14)',
+  wandering: 'rgba(212,165,116,0.16)',
   past: colors.fill,
   no_status: colors.fill,
 }

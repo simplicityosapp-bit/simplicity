@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   error: { color: colors.danger, fontSize: 13 },
   empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
   group: { gap: 10 },
-  catName: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.6, marginHorizontal: 2 },
+  catName: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.66, marginHorizontal: 2 },
   // goal card
   gHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 12 },
   gTitleBlock: { flex: 1, minWidth: 0 },

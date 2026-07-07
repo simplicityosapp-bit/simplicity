@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share } from 'react-native'
-import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Plus, Download, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react-native'
+import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Download, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react-native'
 import { monthNet, describeCadence, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -214,7 +214,6 @@ export default function FinanceScreen() {
               {liveTemplates.length ? <Text style={styles.bdCount}>{liveTemplates.length}</Text> : null}
               <View style={{ flex: 1 }} />
               <Pressable style={styles.recAdd} onPress={() => setAddRec(true)} hitSlop={6}>
-                <Plus size={14} strokeWidth={2} color={colors.brand} />
                 <Text style={styles.recAddText}>{i18n.t('finance:recurring.add', { defaultValue: '+ תבנית חדשה' })}</Text>
               </Pressable>
             </View>

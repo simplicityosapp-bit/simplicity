@@ -159,7 +159,7 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
 
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsTask:reminder.details')}</Text>
-        <TextInput style={styles.input} value={form.description} onChangeText={(v) => set('description', v)} placeholder={i18n.t('modalsTask:reminder.detailsPlaceholder')} placeholderTextColor={colors.textFaint} />
+        <TextInput style={[styles.input, { minHeight: 72, paddingTop: 11 }]} value={form.description} onChangeText={(v) => set('description', v)} placeholder={i18n.t('modalsTask:reminder.detailsPlaceholder')} placeholderTextColor={colors.textFaint} multiline textAlignVertical="top" />
       </View>
 
       {err ? <Text style={styles.error}>{err}</Text> : null}

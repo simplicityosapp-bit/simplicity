@@ -100,7 +100,7 @@ export default function MoonScreen() {
               <Text style={styles.sectionH}>{i18n.t('moon:section.trend', { defaultValue: 'המגמה לאורך זמן' })}</Text>
               <Card contentStyle={styles.trendCard}>
                 <Svg viewBox={`0 0 ${chart.W} ${chart.H}`} width="100%" height={chart.H}>
-                  <Polygon points={chart.area} fill={colors.moonDeep} fillOpacity={0.14} />
+                  <Polygon points={chart.area} fill={colors.moon} fillOpacity={0.14} />
                   <Path d={chart.d} stroke={colors.moonDeep} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
                 </Svg>
                 <View style={styles.trendStats}>

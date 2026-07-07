@@ -44,17 +44,17 @@ function TrendLine({ points }) {
   )
 }
 
-function Heatmap({ weeks }) {
+function Heatmap({ weeks, scale }) {
   const CELL = 8, GAP = 2
   const vals = weeks.flat().filter((c) => c && c.value != null).map((c) => c.value)
-  const min = vals.length ? Math.min(...vals) : 0
-  const max = vals.length ? Math.max(...vals) : 1
+  const min = vals.length ? Math.min(...vals) : 1
+  const max = vals.length ? Math.max(...vals) : 10
   const range = max - min || 1
   const W = weeks.length * (CELL + GAP)
   const H = 7 * (CELL + GAP)
   const fill = (v) => {
     if (v == null) return colors.fill
-    const o = 0.2 + 0.8 * ((v - min) / range)
+    const o = scale === 'yes_no' ? (v >= 1 ? 0.85 : 0.2) : (0.18 + 0.72 * ((v - min) / range))
     return `rgba(139,168,136,${o.toFixed(2)})`
   }
   return (
@@ -120,7 +120,7 @@ function QuestionInsightCard({ question, idx, today, gender, onSubmit, onToggle,
       </View>
 
       <View style={styles.viz}><TrendLine points={points} /></View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}><Heatmap weeks={heat} /></ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}><Heatmap weeks={heat} scale={question.scale_type} /></ScrollView>
 
       <Pressable style={styles.del} onPress={() => onDelete(question.id)} hitSlop={6}>
         <Trash2 size={13} strokeWidth={1.7} color={colors.textFaint} />

@@ -77,7 +77,7 @@ export default function TrashScreen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 16 },
+  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
   error: { color: colors.danger, fontSize: 13 },
   empty: { alignItems: 'center', gap: 12, paddingVertical: 60 },
   emptyText: { fontSize: 14, color: colors.textFaint, textAlign: 'center', lineHeight: 20 },

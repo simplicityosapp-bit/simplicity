@@ -224,7 +224,7 @@ Section.displayName = 'Section'
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 16 },
+  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
   error: { color: colors.danger, fontSize: 13 },
 
   headWrap: { paddingHorizontal: 16, paddingBottom: 12 },

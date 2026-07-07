@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   addInput: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, fontSize: 14, color: colors.text, backgroundColor: colors.card },
   addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 18 },
+  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 18 },
   error: { color: colors.danger, fontSize: 13 },
   group: { gap: 8 },
   groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },

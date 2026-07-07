@@ -1,8 +1,6 @@
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import i18n from '../lib/i18n'
-import BottomBar from '../components/BottomBar'
 import HomeScreen from '../screens/HomeScreen'
 import ClientsScreen from '../screens/ClientsScreen'
 import TasksScreen from '../screens/TasksScreen'
@@ -24,23 +22,21 @@ export const navigationRef = createNavigationContainerRef()
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 
-// Bottom bar mirrors the web BOTTOM_NAV: clients · tasks · HOME(center) ·
-// finance · תפריט. Rendered by the custom dark-glass BottomBar (per-tab colored
-// chips); תפריט opens the Drawer overlay, not a tab.
-const EmptyScreen = () => null
-
+// The 4 primary tab routes. The bottom bar itself is rendered ONCE at the App
+// level (see components/BottomBar) as a persistent overlay over every screen, so
+// here the tab navigator's own bar is suppressed (tabBar → null). Order mirrors
+// web BOTTOM_NAV: clients · tasks · HOME(center) · finance (תפריט = drawer).
 function Tabs() {
   return (
     <Tab.Navigator
         initialRouteName="Home"
         screenOptions={{ headerShown: false }}
-        tabBar={(props) => <BottomBar {...props} />}
+        tabBar={() => null}
       >
         <Tab.Screen name="Clients" component={ClientsScreen} />
         <Tab.Screen name="Tasks" component={TasksScreen} />
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Finance" component={FinanceScreen} />
-        <Tab.Screen name="Menu" component={EmptyScreen} />
     </Tab.Navigator>
   )
 }

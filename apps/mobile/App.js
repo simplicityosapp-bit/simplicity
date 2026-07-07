@@ -12,6 +12,7 @@ import { FormOptionsProvider } from './src/lib/formOptions'
 import { PreferencesProvider } from './src/lib/preferences'
 import LoginScreen from './src/screens/LoginScreen'
 import AppNavigator, { navigationRef } from './src/navigation/AppNavigator'
+import BottomBar from './src/components/BottomBar'
 import Drawer from './src/components/Drawer'
 
 // Init the shared i18n engine once, before the first render.
@@ -57,6 +58,7 @@ function Root() {
       <FormOptionsProvider>
         <View style={styles.fill} key={lang}>
           <AppNavigator />
+          <BottomBar />
           <DrawerHost />
         </View>
       </FormOptionsProvider>

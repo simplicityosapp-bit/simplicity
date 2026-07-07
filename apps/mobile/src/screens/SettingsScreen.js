@@ -261,7 +261,7 @@ function StatusManager({ tax }) {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 12 },
+  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 12 },
   sectionOuter: {},
   section: {},
   secHead: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14, paddingHorizontal: 14 },

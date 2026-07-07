@@ -433,7 +433,7 @@ function CardStat({ label, value, divided }) {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 12 },
+  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 12 },
   error: { color: colors.danger, fontSize: 13 },
   empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24, lineHeight: 20 },
 

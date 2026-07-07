@@ -125,7 +125,7 @@ CardStat.displayName = 'CardStat'
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 14 },
+  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
   error: { color: colors.danger, fontSize: 13 },
 
   hero: { paddingVertical: 16, paddingHorizontal: 16, gap: 14 },

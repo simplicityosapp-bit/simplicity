@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { useRoute, useNavigation } from '@react-navigation/native'
-import { Pencil, Users, CalendarDays, Plus, ChevronDown, X } from 'lucide-react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Pencil, Users, CalendarDays, Plus, ChevronDown, ChevronLeft, X } from 'lucide-react-native'
 import { financeQuery, currentMonthRange, isr, fmtShortDate } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
-import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import FinanceChart from './finance/FinanceChart'
 import AddProjectModal from '../modals/AddProjectModal'
 import AddGroupModal from '../modals/AddGroupModal'
 import AddGroupMemberModal from '../modals/AddGroupMemberModal'
@@ -22,6 +23,7 @@ const STATUS_DOT = { active: colors.positive, wandering: colors.amberWarn, past:
 export default function ProjectDetailScreen() {
   const route = useRoute()
   const nav = useNavigation()
+  const insets = useSafeAreaInsets()
   const projectId = route.params?.projectId
   const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember } = useProjectDetailData(projectId)
   const [editing, setEditing] = useState(false)
@@ -32,6 +34,12 @@ export default function ProjectDetailScreen() {
 
   const projClientIds = useMemo(() => new Set(clients.map((c) => c.id)), [clients])
   const groupIds = useMemo(() => new Set(groups.map((g) => g.id)), [groups])
+  const activeCount = clients.filter((c) => (c.status_meta || 'active') === 'active').length
+  const wanderingCount = clients.filter((c) => c.status_meta === 'wandering').length
+  const projectTx = useMemo(
+    () => transactions.filter((t) => t.project_id === projectId || (!t.project_id && projClientIds.has(t.client_id))),
+    [transactions, projectId, projClientIds],
+  )
   const monthIncome = useMemo(() => {
     const allIncome = financeQuery({ type: 'income', ...currentMonthRange(), source: transactions })
     return allIncome
@@ -50,19 +58,36 @@ export default function ProjectDetailScreen() {
   const groupBilling = (g) => (g.billing_mode === 'per_session' || (g.package_price == null && g.price_per_session != null))
     ? `${isr(g.price_per_session || 0)} · ${i18n.t('modalsClient:editClient.billingPerSession', { defaultValue: 'לפי פגישה' })}`
     : `${isr(g.package_price || 0)} / ${g.package_sessions || 0}`
+  const groupRecurring = (g) => (g.recurring_day != null && g.recurring_time) ? `${i18n.t(`modalsClient:common.day${g.recurring_day}`)} ${g.recurring_time}` : null
   const clientName = (id) => clients.find((c) => c.id === id)?.name
 
   if (!loading && !project) {
     return (
       <Screen name="clients">
-        <ScreenHead title={D('notFound', { defaultValue: 'הפרויקט לא נמצא' })} />
+        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+          <Pressable onPress={() => nav.goBack()} hitSlop={10}><ChevronLeft size={26} strokeWidth={1.8} color={colors.brand} /></Pressable>
+          <Text style={styles.hname}>{D('notFound', { defaultValue: 'הפרויקט לא נמצא' })}</Text>
+        </View>
       </Screen>
     )
   }
 
   return (
     <Screen name="clients">
-      <ScreenHead title={project?.name || ''} meta={project ? [D('stats.clients', { defaultValue: 'לקוחות' }) + ` ${clients.length}`] : []} />
+      {/* Compact header — color + name + meta counts + edit (mirrors web pd-head) */}
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+        <Pressable onPress={() => nav.goBack()} hitSlop={10}><ChevronLeft size={26} strokeWidth={1.8} color={colors.brand} /></Pressable>
+        {project ? <View style={[styles.hcolor, { backgroundColor: project.color || colors.positive }]} /> : null}
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={styles.hname} numberOfLines={1}>{project?.name || ''}</Text>
+          {project ? (
+            <Text style={styles.hmeta} numberOfLines={1}>
+              {`${activeCount} ${D('metaActive', { defaultValue: 'פעיל' })}${wanderingCount > 0 ? ` · ${D('metaWandering', { count: wanderingCount })}` : ''} · ${D('metaGroups', { count: groups.length })}`}
+            </Text>
+          ) : null}
+        </View>
+        {project ? <Pressable style={styles.hedit} onPress={() => setEditing(true)} hitSlop={6}><Pencil size={15} strokeWidth={1.7} color={colors.textSub} /></Pressable> : null}
+      </View>
 
       {loading && !project ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
@@ -70,21 +95,15 @@ export default function ProjectDetailScreen() {
         <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          {/* Header row — color + name + edit */}
-          <View style={styles.headrow}>
-            <View style={[styles.color, { backgroundColor: project.color || colors.positive }]} />
-            <Text style={styles.name} numberOfLines={1}>{project.name}</Text>
-            <Pressable style={styles.editBtn} onPress={() => setEditing(true)} hitSlop={6}>
-              <Pencil size={14} strokeWidth={1.7} color={colors.textSub} />
-            </Pressable>
-          </View>
-
           {/* Stats */}
           <Card padded={false} contentStyle={styles.stats}>
             <Stat value={clients.length} label={D('stats.clients', { defaultValue: 'לקוחות' })} />
             <Stat value={isr(monthIncome)} label={D('stats.incomeMonth', { defaultValue: 'הכנסה החודש' })} divided />
             <Stat value={groups.length} label={D('stats.groups', { defaultValue: 'קבוצות' })} />
           </Card>
+
+          {/* Project income — cumulative this month (scoped to the project) */}
+          {projectTx.length ? <FinanceChart month={new Date()} transactions={projectTx} /> : null}
 
           {/* Clients */}
           <Section title={D('clients.title', { defaultValue: 'לקוחות' })} count={clients.length}>
@@ -113,7 +132,7 @@ export default function ProjectDetailScreen() {
                     <View style={[styles.gdot, { backgroundColor: g.color || colors.positive }]} />
                     <View style={{ flex: 1 }}>
                       <Text style={styles.gname} numberOfLines={1}>{g.name}</Text>
-                      <Text style={styles.gsub}>{D('groups.members', { count: gm.length, defaultValue: `${gm.length} חברים` })} · {groupBilling(g)}</Text>
+                      <Text style={styles.gsub} numberOfLines={1}>{D('groups.members', { count: gm.length, defaultValue: `${gm.length} חברים` })} · {groupBilling(g)}{groupRecurring(g) ? ` · ${groupRecurring(g)}` : ''}</Text>
                     </View>
                     <Pressable onPress={() => setEditGroup(g)} hitSlop={8}><Pencil size={13} strokeWidth={1.7} color={colors.textSub} /></Pressable>
                     <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
@@ -206,10 +225,11 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 16 },
   error: { color: colors.danger, fontSize: 13 },
 
-  headrow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  color: { width: 14, height: 14, borderRadius: 7 },
-  name: { flex: 1, fontSize: 20, fontWeight: '700', color: colors.text },
-  editBtn: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingBottom: 12 },
+  hcolor: { width: 13, height: 13, borderRadius: 7 },
+  hname: { flex: 1, fontSize: 20, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
+  hmeta: { fontSize: 11, color: colors.textSub, marginTop: 2 },
+  hedit: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
 
   stats: { flexDirection: 'row', paddingVertical: 16, paddingHorizontal: 8 },
   stat: { flex: 1, alignItems: 'center', gap: 4 },

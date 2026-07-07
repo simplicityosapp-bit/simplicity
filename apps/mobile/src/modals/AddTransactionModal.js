@@ -22,13 +22,14 @@ const blank = (tx, defaults = {}) => ({
   desc: tx?.desc || '',
   date: tx?.date ? String(tx.date).slice(0, 10) : todayStr(),
   client_id: tx?.client_id || defaults.client_id || '',
+  project_id: tx?.project_id || defaults.project_id || '',
   category_id: tx?.category_id || '',
   payment_method: tx?.payment_method || '',
 })
 
 export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null, clients: propClients = [], defaults = {} }) {
   const isEdit = !!tx
-  const { clients: optClients, categories } = useFormOptions() // categories = the FINANCE `categories` table (expense tags)
+  const { clients: optClients, categories, projects = [] } = useFormOptions() // categories = the FINANCE `categories` table (expense tags)
   const clients = propClients.length ? propClients : optClients
   const [form, setForm] = useState(() => blank(tx, defaults))
   const [err, setErr] = useState('')
@@ -54,12 +55,13 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
       const clientId = form.client_id || null
       const categoryId = form.type === 'expense' ? (form.category_id || null) : null
       const paymentMethod = form.payment_method || null
+      const projectId = form.project_id || null
       const payload = isEdit
-        ? { amount, type: form.type, desc, date: form.date, status: isFuture ? 'pending' : 'confirmed', client_id: clientId, category_id: categoryId, payment_method: paymentMethod }
+        ? { amount, type: form.type, desc, date: form.date, status: isFuture ? 'pending' : 'confirmed', client_id: clientId, project_id: projectId, category_id: categoryId, payment_method: paymentMethod }
         : {
           amount, type: form.type, desc, date: form.date,
           status: isFuture ? 'pending' : 'confirmed',
-          project_id: null, client_id: clientId, category_id: categoryId,
+          project_id: projectId, client_id: clientId, category_id: categoryId,
           payment_method: paymentMethod, recurring_id: null, orphaned_from: null,
         }
       await onSave(payload)
@@ -114,6 +116,15 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
         placeholder={i18n.t('modalsData:common.none')}
         options={[{ value: '', label: i18n.t('modalsData:common.none') }, ...clients.map((c) => ({ value: c.id, label: c.name || '' }))]}
       />
+      {projects.length ? (
+        <Select
+          label={i18n.t('modalsData:common.project')}
+          value={form.project_id}
+          onChange={(v) => set('project_id', v)}
+          placeholder={i18n.t('modalsData:common.none')}
+          options={[{ value: '', label: i18n.t('modalsData:common.none') }, ...projects.map((p) => ({ value: p.id, label: p.name || '' }))]}
+        />
+      ) : null}
 
       {form.type === 'expense' ? (
         <Select

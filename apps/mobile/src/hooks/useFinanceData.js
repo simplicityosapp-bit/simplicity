@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
 // Expense-category palette (mirrors the web CATEGORY_COLORS spirit).
-const CATEGORY_COLORS = ['#C97B5E', '#8BA888', '#D4A574', '#5a6a8c', '#b8845e', '#7a9b8e', '#b56e8a', '#6a8caf']
+export const CATEGORY_COLORS = ['#C97B5E', '#8BA888', '#D4A574', '#5a6a8c', '#b8845e', '#7a9b8e', '#b56e8a', '#6a8caf']
 
 // Transactions for the finance screen. Core financeQuery/monthNet derive the
 // month view; RLS scopes rows to the user.
@@ -60,11 +60,11 @@ export function useFinanceData() {
   // Set a transaction's status (pending → confirmed/skipped, or unskip → pending).
   const setStatus = useCallback((id, status) => updateTransaction(id, { status }), [updateTransaction])
 
-  // Manage expense categories (add w/ an auto-assigned palette color / soft-delete).
-  const addCategory = useCallback(async (name) => {
+  // Manage expense categories (add w/ a chosen or auto-assigned palette color / soft-delete).
+  const addCategory = useCallback(async (name, chosenColor) => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) throw new Error('no session')
-    const color = CATEGORY_COLORS[categories.length % CATEGORY_COLORS.length]
+    const color = chosenColor || CATEGORY_COLORS[categories.length % CATEGORY_COLORS.length]
     const { data, error: e } = await supabase.from('categories').insert({ name, color, user_id: session.user.id }).select().single()
     if (e) throw e
     setCategories((prev) => [...prev, data])

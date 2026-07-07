@@ -3,6 +3,8 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { useFonts } from 'expo-font'
+import { fontAssets } from './src/lib/fonts'
 import i18n, { setupI18n } from './src/lib/i18n'
 import { AuthProvider, useAuth } from './src/lib/auth'
 import { DrawerProvider, useDrawer } from './src/lib/drawer'
@@ -63,6 +65,14 @@ function Root() {
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts(fontAssets)
+  if (!fontsLoaded) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator color="#C97B5E" />
+      </View>
+    )
+  }
   return (
     <GestureHandlerRootView style={styles.fill}>
       <SafeAreaProvider>

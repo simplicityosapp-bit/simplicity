@@ -236,7 +236,7 @@ export default function TasksScreen() {
                         : (
                           <>
                             {g.items.map((r, i) => (
-                              <ReminderRow key={r.id} reminder={r} first={i === 0} clientName={remClient(r)} count={isRecurring(r) ? dueOccurrenceCount(r, now) : 1} onComplete={() => completeReminder(r)} onEdit={() => setEditRem(r)} />
+                              <ReminderRow key={r.id} reminder={r} first={i === 0} clientName={remClient(r)} count={filter === 'todo' && isRecurring(r) ? dueOccurrenceCount(r, now) : 1} onComplete={() => completeReminder(r)} onEdit={() => setEditRem(r)} />
                             ))}
                             {(g.datedTasks || []).map((t, i) => (
                               <TaskRow key={t.id} task={t} first={g.items.length === 0 && i === 0} clientById={clientById} projectById={projectById} status={statusById[t.status_id]} category={categoryById[t.category_id]} onToggle={() => toggleDone(t)} onEdit={() => setEditTask(t)} />

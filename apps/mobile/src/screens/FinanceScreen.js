@@ -15,6 +15,7 @@ import { colors } from '../theme/theme'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { useRecurring } from '../hooks/useRecurring'
 import { useFormOptions } from '../lib/formOptions'
+import { usePreferences } from '../hooks/usePreferences'
 
 const sameMonth = (d, m) => { const x = new Date(d); return x.getFullYear() === m.getFullYear() && x.getMonth() === m.getMonth() }
 const isConfirmed = (t) => t.status === 'confirmed' && !t.invoice_credited_at
@@ -28,10 +29,12 @@ export default function FinanceScreen() {
   const { transactions, clients, categories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction, setStatus, addCategory, removeCategory } = useFinanceData()
   const { projects } = useFormOptions()
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
+  const { prefs, update } = usePreferences()
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(false)
   const [manageCat, setManageCat] = useState(false)
-  const [showSkipped, setShowSkipped] = useState(false)
+  const showSkipped = prefs?.financeShowSkipped !== false
+  const setShowSkipped = (v) => update({ financeShowSkipped: v })
   const [addRec, setAddRec] = useState(false)
   const [editRec, setEditRec] = useState(null)
   const [monthOffset, setMonthOffset] = useState(0)
@@ -166,8 +169,8 @@ export default function FinanceScreen() {
             <View style={styles.monthNav}>
               <Pressable onPress={() => setMonthOffset((o) => o - 1)} hitSlop={10}><ChevronRight size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
               <Text style={styles.monthLabel}>{fmtMonthYear(monthDate)}</Text>
-              <Pressable onPress={() => setMonthOffset((o) => Math.min(0, o + 1))} hitSlop={10} disabled={monthOffset >= 0}>
-                <ChevronLeft size={22} strokeWidth={1.8} color={monthOffset >= 0 ? colors.textFaint : colors.brand} />
+              <Pressable onPress={() => setMonthOffset((o) => o + 1)} hitSlop={10}>
+                <ChevronLeft size={22} strokeWidth={1.8} color={colors.brand} />
               </Pressable>
             </View>
             <View style={styles.netRow}>
@@ -247,7 +250,7 @@ export default function FinanceScreen() {
 
           {/* Skipped toggle */}
           {skippedCount > 0 ? (
-            <GlassPressable radius={999} on={showSkipped} onColor="rgba(42,37,32,0.08)" style={styles.skipToggle} onPress={() => setShowSkipped((v) => !v)}>
+            <GlassPressable radius={999} on={showSkipped} onColor="rgba(42,37,32,0.08)" style={styles.skipToggle} onPress={() => setShowSkipped(!showSkipped)}>
               <Text style={[styles.skipToggleText, showSkipped && styles.skipToggleTextOn]}>
                 {showSkipped ? i18n.t('finance:hideSkipped', { defaultValue: 'הסתר דילוגים' }) : i18n.t('finance:showSkipped', { count: skippedCount, defaultValue: `הצג דילוגים (${skippedCount})` })}
               </Text>

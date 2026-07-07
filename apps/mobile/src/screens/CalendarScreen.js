@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react-native'
-import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming, statusMetaOfLead } from '@simplicity/core'
+import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
@@ -33,14 +33,14 @@ export default function CalendarScreen() {
   // Normalize the whole feed → { id, when, title, kind }.
   const events = useMemo(() => {
     const out = []
-    meetings.filter((m) => m.status !== 'skipped' && m.scheduled_at).forEach((m) => {
+    meetings.filter((m) => ['pending', 'confirmed'].includes(m.status) && m.scheduled_at).forEach((m) => {
       const isGroup = m.subject_type === 'group'
       const subj = isGroup ? groups.find((g) => g.id === m.subject_id) : clients.find((c) => c.id === m.subject_id)
       out.push({ id: `m-${m.id}`, when: m.scheduled_at, title: subj?.name || '', kind: 'meeting', pending: m.status === 'pending', mid: m.id })
     })
     calendarEvents.filter((e) => !e.deleted_at && e.start_time).forEach((e) => out.push({ id: `c-${e.id}`, when: e.start_time, title: e.title || e.summary || '', kind: 'calendar' }))
     remindersUpcoming(now, reminders, 120, 0).forEach((r, i) => out.push({ id: `r-${r.id || i}`, when: r.when, title: r.title || '', kind: 'reminder' }))
-    leads.filter((l) => !l.deleted_at && l.follow_up_date && statusMetaOfLead(l) === 'in_process').forEach((l) => out.push({ id: `l-${l.id}`, when: `${String(l.follow_up_date).slice(0, 10)}T09:00:00`, title: l.name || '', kind: 'followup' }))
+    leads.filter((l) => !l.deleted_at && l.follow_up_date && l.status_meta === 'in_process').forEach((l) => out.push({ id: `l-${l.id}`, when: `${String(l.follow_up_date).slice(0, 10)}T09:00:00`, title: l.name || '', kind: 'followup' }))
     return out
   }, [meetings, calendarEvents, clients, groups, reminders, leads]) // eslint-disable-line react-hooks/exhaustive-deps
 

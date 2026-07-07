@@ -75,7 +75,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
   const sessLabel = bal
     ? (bal.hasPersonal
       ? (bal.perSession ? `${bal.personalDone}` : `${bal.personalDone}/${bal.personalQuota || 0}`)
-      : `${bal.groupSessions.reduce((s, g) => s + g.held, 0)}/${bal.groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`)
+      : `${bal.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + g.held, 0)}/${bal.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + (g.quota || 0), 0) || 0}`)
     : '—'
 
   return (
@@ -108,7 +108,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                       <Text style={styles.statusText}>{i18n.t(`clients:status.${meta === 'no_status' ? 'noStatus' : meta}`, { defaultValue: '' })}</Text>
                       <ChevronDown size={12} strokeWidth={2} color={colors.textSub} />
                     </Pressable>
-                    {groupDriven && !overridden ? (
+                    {groupDriven ? (
                       <Text style={styles.byGroup}>{i18n.t('clients:drawer.byGroup', { defaultValue: ' · לפי הקבוצה' })}</Text>
                     ) : null}
                     {isMember && overridden ? (

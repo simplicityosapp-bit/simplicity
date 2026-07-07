@@ -5,7 +5,7 @@ import Slider from '@react-native-community/slider'
 import { Sparkles, Check, Trash2 } from 'lucide-react-native'
 import {
   questionText, ymdKey, indexAnswers, getAnswer, averageForWindow, deltaVsPrevWindow,
-  trendPoints, heatmapWeeks, mirrorReflections,
+  trendPoints, heatmapWeeks, mirrorReflections, isQuestionDueToday,
 } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -90,7 +90,7 @@ function QuestionInsightCard({ question, idx, today, gender, onSubmit, onToggle,
         </Pressable>
       </View>
 
-      {question.active && answeredVal == null ? (
+      {question.active && isQuestionDueToday(question) && answeredVal == null ? (
         isYn ? (
           <View style={styles.yn}>
             <Pressable style={styles.ynBtn} disabled={busy} onPress={() => submit(1)}><Text style={styles.ynText}>{T('card.yes', { defaultValue: 'כן' })}</Text></Pressable>

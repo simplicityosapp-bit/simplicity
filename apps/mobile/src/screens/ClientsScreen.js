@@ -139,7 +139,9 @@ export default function ClientsScreen() {
   // Per-tab hero totals — monthly (count + range paid) or cumulative (done/allot).
   const hero = useMemo(() => {
     const tabClients = enriched.filter((e) => e.meta === tab).map((e) => e.c)
-    const range = scope === 'monthly' ? currentMonthRange() : {}
+    // past/no_status are always cumulative (monthly paid reads ~0 there) — match web's effScope
+    const effScope = (tab === 'past' || tab === 'no_status') ? 'cumulative' : scope
+    const range = effScope === 'monthly' ? currentMonthRange() : {}
     const paid = paidForClients(tabClients, range, transactions)
     const balance = enriched.filter((e) => e.meta === tab).reduce((s, e) => s + (e.bal.balance || 0), 0)
     if (tab === 'past' || tab === 'no_status') {
@@ -150,7 +152,7 @@ export default function ClientsScreen() {
       ]
     }
     let sessionsLabel
-    if (scope === 'monthly') {
+    if (effScope === 'monthly') {
       sessionsLabel = String(sessionsCountForClients(tabClients, range, sessions, members, groups))
     } else {
       const done = enriched.filter((e) => e.meta === tab).reduce((s, e) => s + (e.bal.sessionsPaid || 0), 0)

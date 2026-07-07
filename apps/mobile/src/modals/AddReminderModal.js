@@ -22,7 +22,7 @@ const RECUR = [
   { k: 'every_x_days', l: 'recEveryX' },
 ]
 const fromReminder = (r) => {
-  if (!r) return { title: '', description: '', date: todayStr(), time: '09:00', recurrence: 'none', interval: '7', client_id: '', category_id: '', end_date: '' }
+  if (!r) return { title: '', description: '', date: todayStr(), time: '09:00', recurrence: 'none', interval: '2', client_id: '', category_id: '', end_date: '' }
   const d = r.scheduled_at ? new Date(r.scheduled_at) : new Date()
   const pad = (n) => String(n).padStart(2, '0')
   return {
@@ -31,7 +31,7 @@ const fromReminder = (r) => {
     date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
     time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
     recurrence: r.recurrence_type || 'none',
-    interval: String(r.recurrence_pattern?.x || 7),
+    interval: String(r.recurrence_pattern?.x ?? 2),
     client_id: (r.linked_to_type === 'client' && r.linked_to_id) ? r.linked_to_id : '',
     category_id: r.category_id || '',
     end_date: r.end_date || '',
@@ -43,7 +43,7 @@ const fromReminder = (r) => {
 const recurrencePayload = (recurrence, scheduled, interval) => {
   if (recurrence === 'weekly') return { recurrence_type: 'weekly', recurrence_pattern: { dayOfWeek: scheduled.getDay() } }
   if (recurrence === 'monthly_date') return { recurrence_type: 'monthly_date', recurrence_pattern: { dayOfMonth: scheduled.getDate() } }
-  if (recurrence === 'every_x_days') return { recurrence_type: 'every_x_days', recurrence_pattern: { x: Number(interval) || 7 } }
+  if (recurrence === 'every_x_days') return { recurrence_type: 'every_x_days', recurrence_pattern: { x: Number(interval) || 2 } }
   return { recurrence_type: 'none', recurrence_pattern: null }
 }
 

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import { FolderOpen } from 'lucide-react-native'
 import { financeQuery, isr, currentMonthRange } from '@simplicity/core'
 import i18n from '../lib/i18n'
@@ -13,10 +14,10 @@ import { useProjectsData } from '../hooks/useProjectsData'
 // Projects screen (mirrors web): monthly/cumulative hero (projects · assigned
 // clients · income) + a card per project (clients / income / open tasks).
 export default function ProjectsScreen() {
-  const { projects, clients, transactions, tasks, loading, error, refetch, addProject, updateProject, removeProject } = useProjectsData()
+  const { projects, clients, transactions, tasks, loading, error, refetch, addProject } = useProjectsData()
+  const nav = useNavigation()
   const [view, setView] = useState('monthly')
   const [showAdd, setShowAdd] = useState(false)
-  const [editProject, setEditProject] = useState(null)
 
   const { totals, cards } = useMemo(() => {
     const range = view === 'monthly' ? currentMonthRange() : {}
@@ -80,7 +81,7 @@ export default function ProjectsScreen() {
             </View>
           ) : (
             cards.map((c) => (
-              <Pressable key={c.project.id} onPress={() => setEditProject(c.project)}>
+              <Pressable key={c.project.id} onPress={() => nav.navigate('ProjectDetail', { projectId: c.project.id })}>
                 <Card contentStyle={styles.card}>
                   <View style={styles.cardHead}>
                     <View style={[styles.dot, { backgroundColor: c.project.color || colors.brand }]} />
@@ -99,13 +100,6 @@ export default function ProjectsScreen() {
       )}
 
       <AddProjectModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addProject} />
-      <AddProjectModal
-        open={!!editProject}
-        project={editProject}
-        onClose={() => setEditProject(null)}
-        onSave={(patch) => updateProject(editProject.id, patch)}
-        onDelete={() => { removeProject(editProject.id); setEditProject(null) }}
-      />
     </Screen>
   )
 }

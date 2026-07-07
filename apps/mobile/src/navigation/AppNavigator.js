@@ -15,6 +15,7 @@ import MoonScreen from '../screens/MoonScreen'
 import SettingsScreen from '../screens/SettingsScreen'
 import TrashScreen from '../screens/TrashScreen'
 import ProjectsScreen from '../screens/ProjectsScreen'
+import ProjectDetailScreen from '../screens/ProjectDetailScreen'
 import ReportsScreen from '../screens/ReportsScreen'
 import InsightsScreen from '../screens/InsightsScreen'
 
@@ -57,6 +58,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Questions" component={QuestionsScreen} />
         <Stack.Screen name="Trash" component={TrashScreen} />
         <Stack.Screen name="Projects" component={ProjectsScreen} />
+        <Stack.Screen name="ProjectDetail" component={ProjectDetailScreen} />
         <Stack.Screen name="Reports" component={ReportsScreen} />
         <Stack.Screen name="Insights" component={InsightsScreen} />
       </Stack.Navigator>

@@ -16,6 +16,7 @@ import SettingsScreen from '../screens/SettingsScreen'
 import TrashScreen from '../screens/TrashScreen'
 import ProjectsScreen from '../screens/ProjectsScreen'
 import ReportsScreen from '../screens/ReportsScreen'
+import InsightsScreen from '../screens/InsightsScreen'
 
 export const navigationRef = createNavigationContainerRef()
 
@@ -57,6 +58,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Trash" component={TrashScreen} />
         <Stack.Screen name="Projects" component={ProjectsScreen} />
         <Stack.Screen name="Reports" component={ReportsScreen} />
+        <Stack.Screen name="Insights" component={InsightsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )

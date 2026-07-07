@@ -1,31 +1,62 @@
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native'
+import { useEffect, useRef } from 'react'
+import { View, Text, Pressable, ScrollView, StyleSheet, Animated } from 'react-native'
+import { BlurView } from 'expo-blur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Moon, Sparkles, Activity, Settings, Trash2, FolderOpen, BarChart3, X, LogOut, Pencil } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Moon, Activity, BarChart3, Sparkles, Trash2, X, LogOut, Pencil } from 'lucide-react-native'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { usePreferences } from '../lib/preferences'
 import i18n from '../lib/i18n'
 import { colors, space } from '../theme/theme'
 
-// The "עוד" drawer — a right-anchored overlay sheet (RTL), matching web's
-// MenuDrawer: close + a grid of screen tiles + logout. Opened from the bottom
-// bar's תפריט button (not a tab screen).
-const TILES = [
-  { key: 'home', screen: 'Home', Icon: Home, fallback: 'בית' },
-  { key: 'clients', screen: 'Clients', Icon: Users, fallback: 'לקוחות' },
-  { key: 'projects', screen: 'Projects', Icon: FolderOpen, fallback: 'פרויקטים' },
-  { key: 'leads', screen: 'Leads', Icon: Heart, fallback: 'לידים' },
-  { key: 'finance', screen: 'Finance', Icon: Wallet, fallback: 'כסף' },
-  { key: 'tasks', screen: 'Tasks', Icon: ClipboardList, fallback: 'משימות' },
-  { key: 'goals', screen: 'Goals', Icon: Target, fallback: 'יעדים' },
-  { key: 'calendar', screen: 'Calendar', Icon: CalendarDays, fallback: 'יומן' },
-  { key: 'moon', screen: 'Moon', Icon: Moon, fallback: 'מבט על' },
-  { key: 'reports', screen: 'Reports', Icon: BarChart3, fallback: 'דוחות' },
-  { key: 'insights', screen: 'Insights', Icon: Activity, fallback: 'מה איתך היום' },
-  { key: 'questions', screen: 'Questions', Icon: Sparkles, fallback: 'שאלות' },
-  { key: 'trash', screen: 'Trash', Icon: Trash2, fallback: 'סל מיחזור' },
-  { key: 'settings', screen: 'Settings', Icon: Settings, fallback: 'הגדרות' },
+// The "עוד" drawer — a right-anchored frosted-glass sheet mirroring web's
+// MenuDrawer: a profile chip, a 3-col glass GRID of the primary screens, then
+// labeled SECTIONS ("אישי" / tools) of link rows with a sub-text + tinted icon
+// chip. Slides in over every screen (rendered App-level above the navigator).
+
+// Primary screens — 3-col grid (web DRAWER_NAV order, minus Connections which
+// has no mobile screen).
+const GRID = [
+  { key: 'home', screen: 'Home', Icon: Home, fb: 'בית' },
+  { key: 'clients', screen: 'Clients', Icon: Users, fb: 'לקוחות' },
+  { key: 'leads', screen: 'Leads', Icon: Heart, fb: 'לידים' },
+  { key: 'finance', screen: 'Finance', Icon: Wallet, fb: 'כסף' },
+  { key: 'projects', screen: 'Projects', Icon: FolderOpen, fb: 'פרויקטים' },
+  { key: 'tasks', screen: 'Tasks', Icon: ClipboardList, fb: 'משימות' },
+  { key: 'goals', screen: 'Goals', Icon: Target, fb: 'יעדים' },
+  { key: 'calendar', screen: 'Calendar', Icon: CalendarDays, fb: 'יומן' },
+  { key: 'settings', screen: 'Settings', Icon: Settings, fb: 'הגדרות' },
 ]
+// Secondary tools — labeled link rows (web "extras"): title + sub + tinted chip.
+const PERSONAL = [
+  { key: 'insights', screen: 'Insights', Icon: Activity, title: 'nav:extras.insights', sub: 'nav:items.insightsSub', fb: 'מה איתך היום?' },
+  { key: 'moon', screen: 'Moon', Icon: Moon, tint: 'moon', title: 'nav:extras.moon', sub: 'nav:items.moonSub', fb: 'מבט על' },
+  { key: 'reports', screen: 'Reports', Icon: BarChart3, title: 'nav:extras.reports', sub: 'nav:items.reportsSub', fb: 'דוחות' },
+  { key: 'questions', screen: 'Questions', Icon: Sparkles, title: 'nav:items.questions', fb: 'שאלות' },
+]
+const TOOLS = [
+  { key: 'trash', screen: 'Trash', Icon: Trash2, tint: 'amber', title: 'nav:extras.trash', sub: 'nav:items.trashSub', fb: 'סל מיחזור' },
+]
+
+const TINT = {
+  moon: { bg: 'rgba(90,106,140,0.16)', border: 'rgba(90,106,140,0.32)', color: colors.moonDeep },
+  amber: { bg: 'rgba(212,165,116,0.16)', border: 'rgba(212,165,116,0.32)', color: colors.amberWarn },
+}
+
+function LinkRow({ Icon, tint, title, sub, danger, onPress }) {
+  const t = tint ? TINT[tint] : null
+  return (
+    <Pressable style={styles.link} onPress={onPress}>
+      <View style={[styles.linkIcon, t && { backgroundColor: t.bg, borderColor: t.border }]}>
+        <Icon size={18} strokeWidth={1.6} color={danger ? colors.danger : t ? t.color : colors.textSub} />
+      </View>
+      <View style={styles.linkText}>
+        <Text style={[styles.linkTitle, danger && { color: colors.danger }]} numberOfLines={1}>{title}</Text>
+        {sub ? <Text style={styles.linkSub} numberOfLines={1}>{sub}</Text> : null}
+      </View>
+    </Pressable>
+  )
+}
 
 export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   const insets = useSafeAreaInsets()
@@ -36,90 +67,123 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   const roleText = prefs.role === 'other' ? (prefs.role_other || '') : (prefs.role ? i18n.t(`settings:profile.roles.${prefs.role}`, { defaultValue: '' }) : '')
   const meta = roleText || email
   const initial = (prefs.full_name || email).trim()[0]?.toUpperCase() || '?'
+
+  // Slide in from the right (1 = off-screen, 0 = in) + backdrop fade.
+  const anim = useRef(new Animated.Value(1)).current
+  useEffect(() => {
+    Animated.timing(anim, { toValue: 0, duration: 300, useNativeDriver: true }).start()
+  }, [anim])
+  const translateX = anim.interpolate({ inputRange: [0, 1], outputRange: [0, 400] })
+  const backdropOpacity = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] })
+
+  const go = (screen) => { onClose(); onNavigate(screen) }
   if (!open) return null
   return (
     <View style={styles.overlay}>
-      <Pressable style={styles.backdrop} onPress={onClose} />
-      <View style={[styles.panel, { paddingTop: insets.top + 12 }]}>
-        <View style={styles.titleRow}>
-          <Text style={styles.title}>{i18n.t('nav:more', { defaultValue: 'עוד' })}</Text>
-          <Pressable style={styles.close} onPress={onClose} hitSlop={8}>
-            <X size={16} strokeWidth={1.6} color={colors.textSub} />
-          </Pressable>
-        </View>
-        <Text style={styles.sub}>{i18n.t('nav:drawerSubtitle', { defaultValue: 'תפריט · העדפות וכלים אישיים' })}</Text>
+      <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+      </Animated.View>
+      <Animated.View style={[styles.panel, { paddingTop: insets.top + 12, transform: [{ translateX }] }]}>
+        <BlurView intensity={60} tint="light" style={StyleSheet.absoluteFill} pointerEvents="none" />
+        <View style={[StyleSheet.absoluteFill, styles.panelVeil]} pointerEvents="none" />
 
-        <ScrollView contentContainerStyle={styles.scroll}>
-          <Pressable style={styles.profile} onPress={() => { onClose(); onNavigate('Settings') }}>
-            <View style={styles.avatar}><Text style={styles.avatarText}>{initial}</Text></View>
-            <View style={styles.profileText}>
-              <Text style={styles.profileName} numberOfLines={1}>{name}</Text>
-              <Text style={styles.profileMeta} numberOfLines={1}>{meta}</Text>
-            </View>
-            <Pencil size={16} strokeWidth={1.5} color={colors.textFaint} />
-          </Pressable>
-
-          <View style={styles.grid}>
-            {TILES.map((it) => {
-              const active = activeScreen === it.screen
-              return (
-                <Pressable
-                  key={it.key}
-                  style={[styles.tile, active && styles.tileActive]}
-                  onPress={() => { onClose(); onNavigate(it.screen) }}
-                >
-                  <it.Icon size={22} strokeWidth={1.6} color={active ? colors.onBrand : colors.brand} />
-                  <Text style={[styles.tileLabel, active && styles.tileLabelActive]}>
-                    {i18n.t(`nav:items.${it.key}`, { defaultValue: it.fallback })}
-                  </Text>
-                </Pressable>
-              )
-            })}
+        <View style={styles.body}>
+          <View style={styles.titleRow}>
+            <Text style={styles.title}>{i18n.t('nav:more', { defaultValue: 'עוד' })}</Text>
+            <Pressable style={styles.close} onPress={onClose} hitSlop={8}>
+              <X size={16} strokeWidth={1.6} color={colors.textSub} />
+            </Pressable>
           </View>
+          <Text style={styles.sub}>{i18n.t('nav:drawerSubtitle', { defaultValue: 'תפריט · העדפות וכלים אישיים' })}</Text>
 
-          <Pressable style={styles.logout} onPress={() => { onClose(); supabase.auth.signOut() }}>
-            <LogOut size={18} strokeWidth={1.6} color={colors.danger} />
-            <Text style={styles.logoutText}>{i18n.t('nav:signOut', { defaultValue: 'התנתקות' })}</Text>
-          </Pressable>
-        </ScrollView>
-      </View>
+          <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+            <Pressable style={styles.profile} onPress={() => go('Settings')}>
+              <View style={styles.avatar}><Text style={styles.avatarText}>{initial}</Text></View>
+              <View style={styles.profileText}>
+                <Text style={styles.profileName} numberOfLines={1}>{name}</Text>
+                <Text style={styles.profileMeta} numberOfLines={1}>{meta}</Text>
+              </View>
+              <Pencil size={16} strokeWidth={1.5} color={colors.textFaint} />
+            </Pressable>
+
+            <View style={styles.grid}>
+              {GRID.map((it) => {
+                const active = activeScreen === it.screen
+                return (
+                  <Pressable key={it.key} style={[styles.tile, active && styles.tileActive]} onPress={() => go(it.screen)}>
+                    <it.Icon size={20} strokeWidth={1.6} color={active ? colors.onBrand : colors.brand} />
+                    <Text style={[styles.tileLabel, active && styles.tileLabelActive]}>{i18n.t(`nav:items.${it.key}`, { defaultValue: it.fb })}</Text>
+                  </Pressable>
+                )
+              })}
+            </View>
+
+            <Text style={styles.sectionLbl}>{i18n.t('nav:sections.personal', { defaultValue: 'אישי' })}</Text>
+            {PERSONAL.map((it) => (
+              <LinkRow key={it.key} Icon={it.Icon} tint={it.tint}
+                title={i18n.t(it.title, { defaultValue: it.fb })}
+                sub={it.sub ? i18n.t(it.sub, { defaultValue: '' }) : null}
+                onPress={() => go(it.screen)} />
+            ))}
+
+            <Text style={styles.sectionLbl}>{i18n.t('nav:sections.settings', { defaultValue: 'הגדרות' })}</Text>
+            {TOOLS.map((it) => (
+              <LinkRow key={it.key} Icon={it.Icon} tint={it.tint}
+                title={i18n.t(it.title, { defaultValue: it.fb })}
+                sub={it.sub ? i18n.t(it.sub, { defaultValue: '' }) : null}
+                onPress={() => go(it.screen)} />
+            ))}
+            <LinkRow Icon={LogOut} tint="amber" danger
+              title={i18n.t('nav:signOut', { defaultValue: 'התנתקות' })}
+              sub={email}
+              onPress={() => { onClose(); supabase.auth.signOut() }} />
+          </ScrollView>
+        </View>
+      </Animated.View>
     </View>
   )
 }
 
-const GAP = 10
+const GAP = 8
 const styles = StyleSheet.create({
   overlay: { ...StyleSheet.absoluteFillObject, zIndex: 100 },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(42,37,32,0.35)' },
   panel: {
     position: 'absolute', top: 0, bottom: 0, right: 0, width: '86%', maxWidth: 380,
-    backgroundColor: colors.bg, paddingHorizontal: space.screenPadH,
-    borderTopLeftRadius: 24, borderBottomLeftRadius: 24,
+    borderTopLeftRadius: 24, borderBottomLeftRadius: 24, overflow: 'hidden',
+    borderLeftWidth: 0.5, borderLeftColor: colors.glassBorder,
     shadowColor: '#2A2520', shadowOpacity: 0.18, shadowRadius: 24, shadowOffset: { width: -6, height: 0 }, elevation: 12,
   },
+  panelVeil: { backgroundColor: 'rgba(255,252,247,0.74)' }, // ≈ web --modal-bg over the blur
+  body: { flex: 1, paddingHorizontal: space.screenPadH },
   titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 22, fontWeight: '700', color: colors.text },
-  close: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.cardFlat, alignItems: 'center', justifyContent: 'center' },
-  sub: { fontSize: 12, color: colors.textFaint, marginTop: 2, marginBottom: 16 },
-  scroll: { paddingBottom: 40, gap: 16 },
-  profile: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, paddingVertical: 12, paddingHorizontal: 14 },
-  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontSize: 17, fontWeight: '700', color: colors.brand },
+  title: { fontSize: 22, fontWeight: '700', color: colors.text, letterSpacing: -0.4 },
+  close: { width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(255,255,255,0.5)', borderWidth: 0.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  sub: { fontSize: 10, fontWeight: '500', color: colors.textSub, letterSpacing: 1, marginTop: 4, marginBottom: 14, textTransform: 'uppercase' },
+  scroll: { paddingBottom: 40, gap: 4 },
+  // profile chip
+  profile: { flexDirection: 'row', alignItems: 'center', gap: 11, backgroundColor: colors.glassTint, borderRadius: 20, borderWidth: 0.5, borderColor: colors.divider, paddingVertical: 11, paddingHorizontal: 12, marginBottom: 4 },
+  avatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: 14, fontWeight: '700', color: colors.onBrand },
   profileText: { flex: 1, gap: 2 },
-  profileName: { fontSize: 15, fontWeight: '600', color: colors.text },
-  profileMeta: { fontSize: 12, color: colors.textFaint },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: GAP },
+  profileName: { fontSize: 14, fontWeight: '500', color: colors.text },
+  profileMeta: { fontSize: 11, color: colors.textSub },
+  // grid
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: GAP, marginTop: 6, marginBottom: 4 },
   tile: {
-    width: `${(100 - 0) / 3}%`, flexGrow: 1, flexBasis: '30%',
-    backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border,
-    paddingVertical: 18, alignItems: 'center', gap: 8,
+    flexBasis: '30%', flexGrow: 1,
+    backgroundColor: 'rgba(255,252,247,0.5)', borderRadius: 14, borderWidth: 1, borderColor: colors.border,
+    paddingVertical: 14, alignItems: 'center', gap: 6,
   },
   tileActive: { backgroundColor: colors.brand, borderColor: colors.brand },
-  tileLabel: { fontSize: 13, color: colors.text },
+  tileLabel: { fontSize: 12, fontWeight: '500', color: colors.text },
   tileLabelActive: { color: colors.onBrand, fontWeight: '600' },
-  logout: {
-    flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card,
-    borderRadius: 16, borderWidth: 1, borderColor: colors.border, paddingVertical: 15, paddingHorizontal: 16,
-  },
-  logoutText: { fontSize: 15, color: colors.text },
+  // section label
+  sectionLbl: { fontSize: 10, fontWeight: '500', color: colors.textSub, letterSpacing: 1, textTransform: 'uppercase', marginTop: 14, marginHorizontal: 4, marginBottom: 2 },
+  // link rows
+  link: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 20, borderWidth: 0.5, borderColor: colors.border, paddingVertical: 11, paddingHorizontal: 14, marginTop: 2 },
+  linkIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.glassTint, borderWidth: 0.5, borderColor: colors.divider },
+  linkText: { flex: 1 },
+  linkTitle: { fontSize: 14, fontWeight: '500', color: colors.text },
+  linkSub: { fontSize: 10, color: colors.textSub, marginTop: 1, letterSpacing: 0.2 },
 })

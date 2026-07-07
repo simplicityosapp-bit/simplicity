@@ -32,7 +32,7 @@ function Section({ title, count, defaultOpen = false, children }) {
   )
 }
 
-export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditSession, onEditTask }) {
+export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditSession, onEditTask, onEditReminder }) {
   const payments = financeQuery({ clientId: c.id, includePending: true, source: txns }).slice().sort((a, b) => new Date(b.date) - new Date(a.date))
   const payTotal = payments.filter((f) => f.type === 'income' && isConfirmedTx(f)).reduce((s, f) => s + f.amount, 0)
   const clientSessions = live(sessions).filter((s) => s.client_id === c.id || (c.group_id && s.group_id === c.group_id)).sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -144,14 +144,18 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
         </Section>
 
         <Section title={T('reminders')} count={activeReminders.length}>
-          {linkedReminders.length ? linkedReminders.map((r) => (
-            <View key={r.id} style={styles.row}>
-              <View style={styles.rowBody}>
-                <Text style={[styles.rowTitle, r.status === 'completed' && styles.done]} numberOfLines={1}>{r.title}</Text>
-                <Text style={styles.rowSub}>{fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}</Text>
-              </View>
-            </View>
-          )) : <Text style={styles.empty}>{T('noReminders')}</Text>}
+          {linkedReminders.length ? linkedReminders.map((r) => {
+            const Row = onEditReminder ? Pressable : View
+            return (
+              <Row key={r.id} style={styles.row} onPress={onEditReminder ? () => onEditReminder(r) : undefined}>
+                <View style={styles.rowBody}>
+                  <Text style={[styles.rowTitle, r.status === 'completed' && styles.done]} numberOfLines={1}>{r.title}</Text>
+                  <Text style={styles.rowSub}>{fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}</Text>
+                </View>
+                {onEditReminder ? <Pencil size={12} strokeWidth={1.6} color={colors.textFaint} /> : null}
+              </Row>
+            )
+          }) : <Text style={styles.empty}>{T('noReminders')}</Text>}
         </Section>
 
         <Section title={T('memberships')} count={memberships.length}>

@@ -89,11 +89,14 @@ export function useClientsList() {
   const deleteTask = useCallback((id) => softDelete('tasks', 'tasks', id), [softDelete])
   const updateTransaction = useCallback((id, patch) => patchRow('transactions', 'transactions', id, patch), [patchRow])
   const deleteTransaction = useCallback((id) => softDelete('transactions', 'transactions', id), [softDelete])
+  const updateReminder = useCallback((id, patch) => patchRow('reminders', 'reminders', id, patch), [patchRow])
+  const deleteReminder = useCallback((id) => softDelete('reminders', 'reminders', id), [softDelete])
 
   return {
     ...state, loading, error, refetch: load,
     addClient, addTransaction, addSession, addMeeting,
     updateClient, deleteClient,
     updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction,
+    updateReminder, deleteReminder,
   }
 }

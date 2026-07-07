@@ -5,10 +5,10 @@ import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
-// Add/edit a reminder (mirrors web AddReminderModal's core: title + date + time
-// + details). Pass a `reminder` to edit it (prefills + shows delete). Recurrence
-// authoring (weekly/monthly/every-x) stays a later increment — existing recurring
-// reminders still show in the list; create here is single-shot.
+// Add/edit a reminder (mirrors web AddReminderModal: title + date + time +
+// recurrence + details). Pass a `reminder` to edit it (prefills + shows delete).
+// Recurrence authoring (once / weekly / monthly-date / every-x-days) is wired via
+// the RECUR pills + recurrencePayload below.
 const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`

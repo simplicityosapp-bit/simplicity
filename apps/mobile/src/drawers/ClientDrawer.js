@@ -9,6 +9,7 @@ import AddTransactionModal from '../modals/AddTransactionModal'
 import AddMeetingModal from '../modals/AddMeetingModal'
 import AddSessionModal from '../modals/AddSessionModal'
 import AddTaskModal from '../modals/AddTaskModal'
+import AddReminderModal from '../modals/AddReminderModal'
 import ClientDrawerSections from './ClientDrawerSections'
 import { useFormOptions } from '../lib/formOptions'
 import i18n from '../lib/i18n'
@@ -27,7 +28,7 @@ const STATUS_PILL = {
 const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, addMeeting, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction }) {
+export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, addMeeting, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction, updateReminder, deleteReminder }) {
   const insets = useSafeAreaInsets()
   const { projects } = useFormOptions()
   const [editing, setEditing] = useState(false)
@@ -38,6 +39,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
   const [editSession, setEditSession] = useState(null)
   const [editTask, setEditTask] = useState(null)
   const [editTx, setEditTx] = useState(null)
+  const [editReminder, setEditReminder] = useState(null)
 
   const client = clients.find((c) => c.id === clientId) || null
   const bal = useMemo(
@@ -190,6 +192,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                 onEditTx={setEditTx}
                 onEditSession={setEditSession}
                 onEditTask={setEditTask}
+                onEditReminder={updateReminder ? setEditReminder : undefined}
               />
             </ScrollView>
           ) : null}
@@ -239,6 +242,13 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         onClose={() => setEditTx(null)}
         onSave={(payload) => updateTransaction(editTx.id, payload)}
         onDelete={() => { deleteTransaction(editTx.id); setEditTx(null) }}
+      />
+      <AddReminderModal
+        open={!!editReminder}
+        reminder={editReminder}
+        onClose={() => setEditReminder(null)}
+        onSave={(patch) => updateReminder(editReminder.id, patch)}
+        onDelete={deleteReminder ? () => { deleteReminder(editReminder.id); setEditReminder(null) } : undefined}
       />
     </Modal>
   )

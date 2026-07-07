@@ -21,5 +21,5 @@ const styles = StyleSheet.create({
   shadow: { borderRadius: radius.card, ...shadow.card, backgroundColor: 'transparent' },
   clip: { borderRadius: radius.card, overflow: 'hidden', borderWidth: 1, borderColor: colors.glassBorder },
   tint: { backgroundColor: colors.glassTint },
-  padded: { paddingVertical: 20, paddingHorizontal: 22 }, // toward web --mg-card-pad 24×28
+  padded: { paddingVertical: 22, paddingHorizontal: 26 }, // toward web --mg-card-pad 24×28
 })

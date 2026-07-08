@@ -1,12 +1,13 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import Svg, { Circle, Path, Polygon } from 'react-native-svg'
-import { moonGetData, moonGetCategories, moonTrend, moonReflection, buildOverviewCorrelations, questionText } from '@simplicity/core'
+import { moonGetData, moonGetCategories, moonTrend, moonReflection, buildOverviewCorrelations, buildOverviewTrend, OVERVIEW_METRICS, questionText } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import Select from '../components/Select'
 import { colors } from '../theme/theme'
 import { useGoalsData } from '../hooks/useGoalsData'
 
@@ -15,6 +16,18 @@ import { useGoalsData } from '../hooks/useGoalsData'
 // avg/peak/today, plus the guarded cross-module correlations (§8.2).
 const RING = 46
 const CIRC = 2 * Math.PI * RING
+// Metric toggles for the cross-module trend overlay (§8.1).
+const OVERVIEW_PILLS = [
+  { key: 'income', labelKey: 'moon:pills.income' },
+  { key: 'leads', labelKey: 'moon:pills.leads' },
+  { key: 'sessions', labelKey: 'moon:pills.sessions' },
+  { key: 'score', labelKey: 'moon:pills.score' },
+  { key: 'question', labelKey: 'moon:pills.question' },
+]
+const dayKeyOf = (d) => {
+  const dt = d instanceof Date ? d : new Date(d)
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
+}
 
 export default function MoonScreen() {
   const nav = useNavigation()
@@ -32,6 +45,23 @@ export default function MoonScreen() {
   const correlations = useMemo(
     () => buildOverviewCorrelations({ transactions, leads, sessions, answers }, { questions: activeQuestions, window: 30 }),
     [transactions, leads, sessions, answers, activeQuestions],
+  )
+  // Cross-module trend overlay (§8.1) — one self-normalized (0-100) line per metric.
+  const [overviewKeys, setOverviewKeys] = useState(['income', 'score'])
+  const [questionId, setQuestionId] = useState('')
+  const toggleOverviewKey = (k) => {
+    setOverviewKeys((prev) => (prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]))
+    if (k === 'question' && !questionId && activeQuestions.length) setQuestionId(activeQuestions[0].id)
+  }
+  const scoreByDay = useMemo(() => {
+    const m = {}
+    trend.forEach((t) => { m[dayKeyOf(t.date)] = t.score })
+    return m
+  }, [trend])
+  const selectedQuestion = activeQuestions.find((q) => q.id === questionId)
+  const overview = useMemo(
+    () => buildOverviewTrend(overviewKeys, { transactions, leads, sessions, answers, scoreByDay, questionId: questionId || null }, { window: 30, questionLabel: selectedQuestion ? questionText(selectedQuestion) : undefined }),
+    [overviewKeys, transactions, leads, sessions, answers, scoreByDay, questionId, selectedQuestion],
   )
 
   const scores = trend.map((t) => t.score)
@@ -118,6 +148,30 @@ export default function MoonScreen() {
             </View>
           ) : null}
 
+          {/* Cross-module trend overlay (§8.1) — self-normalized lines per metric */}
+          <View style={styles.section}>
+            <Text style={styles.sectionH}>{i18n.t('moon:section.crossModule', { defaultValue: 'מגמות בין מודולים' })}</Text>
+            <View style={styles.ovPills}>
+              {OVERVIEW_PILLS.map((m) => {
+                const on = overviewKeys.includes(m.key)
+                const disabled = m.key === 'question' && activeQuestions.length === 0
+                return (
+                  <Pressable key={m.key} disabled={disabled} style={[styles.ovPill, on && styles.ovPillOn, disabled && styles.ovPillOff]} onPress={() => toggleOverviewKey(m.key)}>
+                    <View style={[styles.ovDot, { backgroundColor: OVERVIEW_METRICS[m.key].color }]} />
+                    <Text style={[styles.ovPillText, on && styles.ovPillTextOn]}>{i18n.t(m.labelKey)}</Text>
+                  </Pressable>
+                )
+              })}
+            </View>
+            {overviewKeys.includes('question') && activeQuestions.length > 0 ? (
+              <Select value={questionId} onChange={setQuestionId} options={activeQuestions.map((q) => ({ value: q.id, label: questionText(q) }))} />
+            ) : null}
+            <Card contentStyle={styles.ovCard}>
+              <MultiTrendChart days={overview.days} series={overview.series} />
+            </Card>
+            <Text style={styles.corrNote}>{i18n.t('moon:overview.note')}</Text>
+          </View>
+
           {/* Guarded correlations (§8.2) — "patterns to explore", never headlines */}
           <View style={styles.section}>
             <Text style={styles.sectionH}>{i18n.t('moon:section.correlations', { defaultValue: 'קשרים לבדיקה' })}</Text>
@@ -200,6 +254,52 @@ function CorrCard({ c }) {
   )
 }
 
+// Overlaid self-normalized (0-100) multi-line trend (mirrors web MultiTrendChart):
+// each metric is drawn to its own min/max; nulls break the line into gaps.
+const MT_W = 300, MT_H = 110, MT_PAD = 6
+function pathFor(norm) {
+  const n = norm.length
+  if (n < 2) return ''
+  let d = '', pen = false
+  norm.forEach((v, i) => {
+    if (v == null) { pen = false; return }
+    const x = MT_PAD + (i / (n - 1)) * (MT_W - 2 * MT_PAD)
+    const y = MT_H - MT_PAD - (v / 100) * (MT_H - 2 * MT_PAD)
+    d += `${pen ? 'L' : 'M'}${Math.round(x * 10) / 10},${Math.round(y * 10) / 10} `
+    pen = true
+  })
+  return d.trim()
+}
+function fmtRaw(v, unit) {
+  if (v == null) return '—'
+  const num = unit === '₪' ? Math.round(v).toLocaleString('he-IL') : Math.round(v * 10) / 10
+  return unit ? `${num} ${unit}` : `${num}`
+}
+function MultiTrendChart({ days, series }) {
+  const drawable = (series || []).filter((s) => s.norm.some((v) => v != null))
+  if (drawable.length === 0 || (days?.length || 0) < 2) {
+    return <Text style={styles.ovEmpty}>{i18n.t('reports:trend.empty', { defaultValue: 'אין מספיק נתונים לגרף עדיין.' })}</Text>
+  }
+  return (
+    <View style={styles.mtWrap}>
+      <Svg viewBox={`0 0 ${MT_W} ${MT_H}`} width="100%" height={MT_H}>
+        {drawable.map((s) => (
+          <Path key={s.key} d={pathFor(s.norm)} stroke={s.color} strokeWidth={1.6} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+        ))}
+      </Svg>
+      <View style={styles.mtLegend}>
+        {drawable.map((s) => (
+          <View key={s.key} style={styles.mtLegendItem}>
+            <View style={[styles.mtLegendDot, { backgroundColor: s.color }]} />
+            <Text style={styles.mtLegendLabel} numberOfLines={1}>{s.label}</Text>
+            <Text style={styles.mtLegendVal}>{fmtRaw(s.summary, s.unit)}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14, paddingHorizontal: 40 },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
@@ -248,9 +348,26 @@ const styles = StyleSheet.create({
   corrBold: { fontWeight: '700', color: colors.text },
   corrSub: { fontSize: 11, color: colors.textFaint },
   corrNote: { fontSize: 11, color: colors.textFaint, lineHeight: 16, paddingHorizontal: 4 },
+
+  ovPills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  ovPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  ovPillOn: { borderColor: colors.brand, backgroundColor: colors.brandSoft },
+  ovPillOff: { opacity: 0.4 },
+  ovDot: { width: 8, height: 8, borderRadius: 4 },
+  ovPillText: { fontSize: 12, color: colors.textSub },
+  ovPillTextOn: { color: colors.text, fontWeight: '600' },
+  ovCard: { paddingVertical: 14, paddingHorizontal: 12, gap: 10 },
+  ovEmpty: { fontSize: 12, color: colors.textFaint, textAlign: 'center', paddingVertical: 20 },
+  mtWrap: { gap: 10 },
+  mtLegend: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  mtLegendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  mtLegendDot: { width: 8, height: 8, borderRadius: 4 },
+  mtLegendLabel: { fontSize: 11, color: colors.textSub, maxWidth: 90 },
+  mtLegendVal: { fontSize: 11, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
 })
 
 DualBar.displayName = 'DualBar'
 TrendStat.displayName = 'TrendStat'
 Scatter.displayName = 'Scatter'
 CorrCard.displayName = 'CorrCard'
+MultiTrendChart.displayName = 'MultiTrendChart'

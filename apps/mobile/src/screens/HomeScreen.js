@@ -28,7 +28,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
-    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, toggleTask, completeReminder,
+    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, toggleTask, completeReminder, setTransactionStatus, deleteTransaction,
   } = useHomeData()
   const { prefs, update: updatePrefs } = usePreferences()
   const { projects, categories: financeCategories } = useFormOptions()
@@ -85,7 +85,16 @@ export default function HomeScreen() {
         {!loading ? <QuickRow clients={clients} goals={goals} categories={categories} addTask={addTask} addEntry={addEntry} addTransaction={addTransaction} addClient={addClient} addLead={addLead} addProject={addProject} addReminder={addReminder} addMeeting={addMeeting} /> : null}
 
         {/* Widget order mirrors web: attention · reminders · next-tasks, chips last. */}
-        {!loading ? <AttentionWidget data={attentionData} /> : null}
+        {!loading ? (
+          <AttentionWidget
+            data={attentionData}
+            projects={projects}
+            financeCategories={financeCategories}
+            onApproveTx={(id) => setTransactionStatus(id, 'confirmed')}
+            onSkipTx={(id) => setTransactionStatus(id, 'skipped')}
+            onDeleteTx={deleteTransaction}
+          />
+        ) : null}
         {!loading ? <RemindersWidget reminders={reminders} onComplete={completeReminder} /> : null}
         {!loading ? <NextTasksWidget tasks={tasks} onToggle={toggleTask} /> : null}
 

@@ -148,5 +148,21 @@ export function useHomeData() {
     if (e) load()
   }, [load])
 
-  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, toggleTask, completeReminder }
+  // Approve / skip a pending transaction from the home attention popup (mirrors
+  // finance setStatus + web PendingSection). Optimistic; reload on failure.
+  const setTransactionStatus = useCallback(async (id, status) => {
+    if (!id) return
+    setData((prev) => ({ ...prev, transactions: prev.transactions.map((t) => (t.id === id ? { ...t, status } : t)) }))
+    const { error: e } = await supabase.from('transactions').update({ status }).eq('id', id)
+    if (e) load()
+  }, [load])
+  // Soft-delete a transaction (deleted_at), matching useFinanceData.deleteTransaction.
+  const deleteTransaction = useCallback(async (id) => {
+    if (!id) return
+    setData((prev) => ({ ...prev, transactions: prev.transactions.filter((t) => t.id !== id) }))
+    const { error: e } = await supabase.from('transactions').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    if (e) load()
+  }, [load])
+
+  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, toggleTask, completeReminder, setTransactionStatus, deleteTransaction }
 }

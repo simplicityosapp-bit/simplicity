@@ -91,5 +91,16 @@ export function useProjectDetailData(projectId) {
     if (e) { load() }
   }, [load])
 
-  return { ...state, loading, error, refetch: load, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember }
+  // Log a session (materialise a held meeting) — used by the group "log session"
+  // action; the caller composes the full row (subject_type/group_id/num).
+  const addSession = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('sessions').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    setState((s) => ({ ...s, sessions: [data, ...s.sessions] }))
+    return data
+  }, [])
+
+  return { ...state, loading, error, refetch: load, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession }
 }

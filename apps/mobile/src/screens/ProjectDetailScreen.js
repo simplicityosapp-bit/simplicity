@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Pencil, Users, CalendarDays, Plus, ChevronDown, ChevronRight, X } from 'lucide-react-native'
+import { Pencil, Users, CalendarDays, Plus, ChevronDown, ChevronRight, X, Check } from 'lucide-react-native'
 import { financeQuery, currentMonthRange, isr, fmtShortDate, statusMetaOf } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -11,6 +11,7 @@ import FinanceChart from './finance/FinanceChart'
 import AddProjectModal from '../modals/AddProjectModal'
 import AddGroupModal from '../modals/AddGroupModal'
 import AddGroupMemberModal from '../modals/AddGroupMemberModal'
+import AddSessionModal from '../modals/AddSessionModal'
 import { colors } from '../theme/theme'
 import { useProjectDetailData } from '../hooks/useProjectDetailData'
 
@@ -25,11 +26,12 @@ export default function ProjectDetailScreen() {
   const nav = useNavigation()
   const insets = useSafeAreaInsets()
   const projectId = route.params?.projectId
-  const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember } = useProjectDetailData(projectId)
+  const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession } = useProjectDetailData(projectId)
   const [editing, setEditing] = useState(false)
   const [addingGroup, setAddingGroup] = useState(false)
   const [editGroup, setEditGroup] = useState(null)
   const [addMemberTo, setAddMemberTo] = useState(null)
+  const [logSessionGroup, setLogSessionGroup] = useState(null)
   const [expanded, setExpanded] = useState(null)
 
   const projClientIds = useMemo(() => new Set(clients.map((c) => c.id)), [clients])
@@ -154,10 +156,16 @@ export default function ProjectDetailScreen() {
                           <Pressable onPress={() => removeMember(m.id)} hitSlop={8}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
                         </View>
                       )) : <Text style={styles.mEmpty}>{i18n.t('modalsClient:addGroup.noMembers', { defaultValue: 'עדיין אין חברים' })}</Text>}
-                      <Pressable style={styles.addMember} onPress={() => setAddMemberTo(g)}>
-                        <Plus size={14} strokeWidth={2} color={colors.brand} />
-                        <Text style={styles.addMemberText}>{i18n.t('modalsClient:addGroupMember.title', { defaultValue: 'הוספת חבר/ה' })}</Text>
-                      </Pressable>
+                      <View style={styles.gactions}>
+                        <Pressable style={styles.addMember} onPress={() => setAddMemberTo(g)}>
+                          <Plus size={14} strokeWidth={2} color={colors.brand} />
+                          <Text style={styles.addMemberText}>{i18n.t('modalsClient:addGroupMember.title', { defaultValue: 'הוספת חבר/ה' })}</Text>
+                        </Pressable>
+                        <Pressable style={styles.addMember} onPress={() => setLogSessionGroup(g)}>
+                          <Check size={14} strokeWidth={2} color={colors.brand} />
+                          <Text style={styles.addMemberText}>{i18n.t('clients:drawer.logSession', { defaultValue: 'תיעוד פגישה' })}</Text>
+                        </Pressable>
+                      </View>
                     </View>
                   ) : null}
                 </Card>
@@ -202,6 +210,18 @@ export default function ProjectDetailScreen() {
         availableClients={addMemberTo ? availableFor(addMemberTo.id) : []}
         onClose={() => setAddMemberTo(null)}
         onSave={addMember}
+      />
+      {/* Log a group session — composes the full row (subject_type:'group', num).
+          Mirrors web logGroupSession so group package/held billing advances. */}
+      <AddSessionModal
+        open={!!logSessionGroup}
+        client={{ name: logSessionGroup?.name || '' }}
+        nextNum={logSessionGroup ? sessions.filter((s) => s.group_id === logSessionGroup.id).length + 1 : 1}
+        onClose={() => setLogSessionGroup(null)}
+        onSave={(data) => {
+          const g = logSessionGroup
+          return addSession({ ...data, client_id: null, group_id: g.id, subject_type: 'group', subject_id: g.id, num: sessions.filter((s) => s.group_id === g.id).length + 1 })
+        }}
       />
     </Screen>
   )
@@ -262,6 +282,7 @@ const styles = StyleSheet.create({
   mrow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   mname: { flex: 1, fontSize: 14, color: colors.text },
   mEmpty: { fontSize: 12, color: colors.textFaint },
+  gactions: { flexDirection: 'row', alignItems: 'center', gap: 16, flexWrap: 'wrap' },
   addMember: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6 },
   addMemberText: { fontSize: 13, fontWeight: '500', color: colors.brand },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 16 },

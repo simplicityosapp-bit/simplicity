@@ -60,7 +60,7 @@ function Section({ Icon, title, summary, open, onToggle, children }) {
   )
 }
 
-export default function EditClientModal({ open, onClose, onSave, client, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [] }) {
+export default function EditClientModal({ open, onClose, onSave, client, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [], onPaidEntry }) {
   const { projects, groups, clientStatuses, meetingTypes } = useFormOptions()
   const snap = { rawPaid, memberTotal, personalHeld }
   const [form, setForm] = useState(() => blank(client, snap))
@@ -129,9 +129,15 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
       // "יתרה" edit → balance_adjustment (a card-only forgiveness).
       const nextAdj = Number(form.adjustment) || 0
       if (nextAdj !== (Number(client?.balance_adjustment) || 0)) patch.balance_adjustment = nextAdj
-      // "שולם" edit → fold the delta into paid_adjustment (card-only, no finance entry).
+      // "שולם" edit → hand the delta to the parent, which prompts to record a
+      // real income transaction OR fold it into paid_adjustment as a card-only
+      // credit (mirrors web onPaidEntry). Fall back to folding if no handler is
+      // wired, so a standalone use never silently drops the change.
       const paymentDelta = (Number(form.paid) || 0) - (rawPaid + (Number(client?.paid_adjustment) || 0))
-      if (paymentDelta !== 0) patch.paid_adjustment = (Number(client?.paid_adjustment) || 0) + paymentDelta
+      if (paymentDelta !== 0) {
+        if (onPaidEntry) onPaidEntry(paymentDelta)
+        else patch.paid_adjustment = (Number(client?.paid_adjustment) || 0) + paymentDelta
+      }
       await onSave(client.id, patch)
       onClose()
     } catch (e) {

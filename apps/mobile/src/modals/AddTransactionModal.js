@@ -18,8 +18,8 @@ const todayStr = () => {
 }
 const blank = (tx, defaults = {}) => ({
   type: tx?.type || defaults.type || 'income',
-  amount: tx?.amount != null ? String(tx.amount) : '',
-  desc: tx?.desc || '',
+  amount: tx?.amount != null ? String(tx.amount) : (defaults.amount || ''),
+  desc: tx?.desc || defaults.desc || '',
   date: tx?.date ? String(tx.date).slice(0, 10) : todayStr(),
   status: tx?.status || 'confirmed',
   client_id: tx?.client_id || defaults.client_id || '',

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Linking, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, Trash2, Pencil, Banknote, MessageCircle, CalendarPlus, ChevronDown, Check, RotateCcw } from 'lucide-react-native'
@@ -34,6 +34,9 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
   const { projects } = useFormOptions()
   const [editing, setEditing] = useState(false)
   const [paying, setPaying] = useState(false)
+  const [payDefaults, setPayDefaults] = useState(null)   // prefill for the "record payment" modal
+  const [pendingPaid, setPendingPaid] = useState(null)   // paid-field delta awaiting the record-or-fold prompt
+  const pendingPaidRef = useRef(null)                    // delta to fold if the payment modal closes unsaved
   const [scheduling, setScheduling] = useState(false)
   const [logging, setLogging] = useState(false)
   const [statusMenu, setStatusMenu] = useState(false)
@@ -71,6 +74,36 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
     if (!client || !client.status_overridden) return
     updateClient(client.id, { status_overridden: false })
   }
+
+  // Manual "שולם" edit → fold the delta into paid_adjustment as an informal,
+  // card-only credit (mirrors web's "התעלם"/close-without-recording path).
+  const foldPaid = (delta) => {
+    if (!client) return
+    updateClient(client.id, { paid_adjustment: (Number(client.paid_adjustment) || 0) + delta })
+  }
+  // When EditClientModal reports a paid-field delta, ask whether to record a real
+  // income transaction or just fix the card (mirrors web ClientDrawer ConfirmModal).
+  // Run from an effect so the edit sheet has closed before the prompt appears.
+  useEffect(() => {
+    if (pendingPaid == null || !client) return
+    const delta = pendingPaid
+    setPendingPaid(null)
+    Alert.alert(
+      i18n.t('clients:drawer.manualPayTitle', { defaultValue: 'עדכון תשלום ידני' }),
+      i18n.t('clients:drawer.manualPayMessage', { amount: isr(Math.abs(delta)) }),
+      [
+        { text: i18n.t('clients:drawer.manualPayCancel', { defaultValue: 'רק בכרטיס' }), style: 'cancel', onPress: () => foldPaid(delta) },
+        {
+          text: i18n.t('clients:drawer.manualPayConfirm', { defaultValue: 'הוסף תנועה' }),
+          onPress: () => {
+            pendingPaidRef.current = delta   // fold on the card if the modal is closed unsaved
+            setPayDefaults({ client_id: clientId, type: 'income', amount: String(Math.abs(delta)), desc: i18n.t('clients:drawer.paymentDefaultDesc', { defaultValue: 'עדכון תשלום' }) })
+            setPaying(true)
+          },
+        },
+      ],
+    )
+  }, [pendingPaid]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const del = () => {
     if (!client) return
@@ -230,8 +263,24 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         groupSessions={bal?.groupSessions ?? []}
         onClose={() => setEditing(false)}
         onSave={(id, patch) => updateClient(id, patch)}
+        onPaidEntry={(delta) => setPendingPaid(delta)}
       />
-      <AddTransactionModal open={paying} defaults={{ client_id: clientId, type: 'income' }} onClose={() => setPaying(false)} onSave={addTransaction} />
+      <AddTransactionModal
+        open={paying}
+        defaults={payDefaults || { client_id: clientId, type: 'income' }}
+        onClose={() => {
+          // Closed without recording → keep the amount on the card (fold), so a
+          // manual "שולם" edit is never lost (same as choosing "רק בכרטיס").
+          if (pendingPaidRef.current != null) { foldPaid(pendingPaidRef.current); pendingPaidRef.current = null }
+          setPayDefaults(null); setPaying(false)
+        }}
+        onSave={async (data) => {
+          // A real transaction is being recorded → drop the fold fallback so the
+          // amount is never counted twice.
+          pendingPaidRef.current = null
+          return addTransaction(data)
+        }}
+      />
       <AddMeetingModal open={scheduling} client={client} clients={client ? [client] : []} onClose={() => setScheduling(false)} onSave={addMeeting} onSetRecurringSlot={updateClient} />
 
       {/* Log a session — composes the full sessions row around the modal's when/summary/notes */}

@@ -28,7 +28,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
-    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus,
+    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, toggleTask, completeReminder,
   } = useHomeData()
   const { prefs, update: updatePrefs } = usePreferences()
   const { projects, categories: financeCategories } = useFormOptions()
@@ -86,8 +86,8 @@ export default function HomeScreen() {
 
         {/* Widget order mirrors web: attention · reminders · next-tasks, chips last. */}
         {!loading ? <AttentionWidget data={attentionData} /> : null}
-        {!loading ? <RemindersWidget reminders={reminders} /> : null}
-        {!loading ? <NextTasksWidget tasks={tasks} /> : null}
+        {!loading ? <RemindersWidget reminders={reminders} onComplete={completeReminder} /> : null}
+        {!loading ? <NextTasksWidget tasks={tasks} onToggle={toggleTask} /> : null}
 
         {!loading ? (
           <View style={styles.chips}>

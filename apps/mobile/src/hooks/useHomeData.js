@@ -132,5 +132,21 @@ export function useHomeData() {
     if (e) load()
   }, [load])
 
-  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus }
+  // Inline complete-from-home (NextTasks ✓ / Reminders ✓), mirrors web.
+  const toggleTask = useCallback(async (task) => {
+    if (!task?.id) return
+    const done = task.status !== 'done'
+    const patch = { status: done ? 'done' : 'todo', completed_at: done ? new Date().toISOString() : null }
+    setData((prev) => ({ ...prev, tasks: prev.tasks.map((t) => (t.id === task.id ? { ...t, ...patch } : t)) }))
+    const { error: e } = await supabase.from('tasks').update(patch).eq('id', task.id)
+    if (e) load()
+  }, [load])
+  const completeReminder = useCallback(async (id) => {
+    if (!id) return
+    setData((prev) => ({ ...prev, reminders: prev.reminders.map((r) => (r.id === id ? { ...r, status: 'completed' } : r)) }))
+    const { error: e } = await supabase.from('reminders').update({ status: 'completed' }).eq('id', id)
+    if (e) load()
+  }, [load])
+
+  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, toggleTask, completeReminder }
 }

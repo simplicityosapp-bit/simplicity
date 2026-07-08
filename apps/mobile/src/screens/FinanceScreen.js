@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share } from 'react-native'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share, Alert } from 'react-native'
 import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Download, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react-native'
 import { monthNet, describeCadence, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
@@ -230,7 +230,7 @@ export default function FinanceScreen() {
                   <View style={styles.recActions}>
                     <Pressable onPress={() => updateRecurring(tpl.id, { active: !tpl.active })} hitSlop={6}>{paused ? <Play size={15} strokeWidth={1.7} color={colors.textSub} /> : <Pause size={15} strokeWidth={1.7} color={colors.textSub} />}</Pressable>
                     <Pressable onPress={() => setEditRec(tpl)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textSub} /></Pressable>
-                    <Pressable onPress={() => removeRecurring(tpl.id)} hitSlop={6}><Trash2 size={14} strokeWidth={1.7} color={colors.danger} /></Pressable>
+                    <Pressable onPress={() => Alert.alert(i18n.t('finance:deleteRecurring.title', { defaultValue: 'מחיקת תבנית חוזרת' }), i18n.t('finance:deleteRecurring.message', { name: tpl.desc || '', defaultValue: 'למחוק את התבנית?' }), [{ text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' }, { text: i18n.t('finance:deleteRecurring.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => removeRecurring(tpl.id) }])} hitSlop={6}><Trash2 size={14} strokeWidth={1.7} color={colors.danger} /></Pressable>
                   </View>
                 </View>
               )

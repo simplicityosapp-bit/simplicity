@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking, Alert } from 'react-native'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import { Bell, Check, MessageCircle, ChevronLeft, ChevronUp, ChevronDown, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
 import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, fmtShortDate } from '@simplicity/core'
@@ -37,6 +37,16 @@ const todayYmd = () => {
 // updateLead's source). Pending public-page leads sit in a review strip above.
 export default function LeadsScreen() {
   const { leads, loading, error, refetch, addLead, updateLead, deleteLead, addClient, addGroupMember } = useLeadsList()
+  const confirmDeleteLead = (id, name) => {
+    Alert.alert(
+      i18n.t('leads:delete.title', { defaultValue: 'מחיקת ליד' }),
+      i18n.t('leads:delete.message', { name: name || '', defaultValue: 'למחוק את הליד?' }),
+      [
+        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+        { text: i18n.t('leads:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => deleteLead(id) },
+      ],
+    )
+  }
   const { leadSources = [], leadStatuses = [], projects = [], groups = [] } = useFormOptions()
   const tax = useConfigTaxonomy()
   const { prefs, update: updatePrefs } = usePreferences()
@@ -286,7 +296,7 @@ export default function LeadsScreen() {
                               lead={l}
                               onEdit={setEditing}
                               onConvert={setConverting}
-                              onDelete={deleteLead}
+                              onDelete={(lead) => confirmDeleteLead(lead.id, lead.name)}
                               onMove={(lead) => setMovePicker({ lead })}
                               sources={leadSources}
                               statuses={leadStatuses}
@@ -318,7 +328,7 @@ export default function LeadsScreen() {
         lead={editing}
         onClose={() => setEditing(null)}
         onSave={(patch) => updateLead(editing.id, patch)}
-        onDelete={() => deleteLead(editing.id)}
+        onDelete={() => confirmDeleteLead(editing.id, editing.name)}
         onConvert={(l) => { setEditing(null); setConverting(l) }}
       />
       <ConvertLeadModal

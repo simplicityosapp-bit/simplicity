@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
 import { Plus, X, Check } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import { CATEGORY_COLORS } from '../hooks/useFinanceData'
@@ -16,6 +16,16 @@ export default function FinanceCategoriesModal({ open, onClose, categories, onAd
     const v = input.trim(); if (!v || busy) return
     setBusy(true); try { await onAdd(v, color); setInput('') } finally { setBusy(false) }
   }
+  const confirmRemove = (c) => {
+    Alert.alert(
+      i18n.t('finance:categories.deleteTitle', { defaultValue: 'מחיקת קטגוריה' }),
+      i18n.t('finance:categories.deleteMessage', { name: c.name, defaultValue: 'למחוק את הקטגוריה?' }),
+      [
+        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+        { text: i18n.t('finance:categories.deleteConfirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => onRemove(c.id) },
+      ],
+    )
+  }
   return (
     <Sheet open={open} onClose={onClose} title={i18n.t('finance:categories.title', { defaultValue: 'קטגוריות הוצאות' })}>
       <View style={styles.chips}>
@@ -23,7 +33,7 @@ export default function FinanceCategoriesModal({ open, onClose, categories, onAd
           <View key={c.id} style={styles.chip}>
             <View style={[styles.dot, { backgroundColor: c.color || colors.textSub }]} />
             <Text style={styles.chipText}>{c.name}</Text>
-            <Pressable onPress={() => onRemove(c.id)} hitSlop={6}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
+            <Pressable onPress={() => confirmRemove(c)} hitSlop={6}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
           </View>
         )) : <Text style={styles.empty}>{i18n.t('finance:categories.empty', { defaultValue: 'אין קטגוריות עדיין.' })}</Text>}
       </View>

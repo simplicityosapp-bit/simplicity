@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Linking } from 'react-native'
+import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Linking, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, Trash2, Pencil, Banknote, MessageCircle, CalendarPlus, ChevronDown, Check, RotateCcw } from 'lucide-react-native'
 import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, planBalance, planInstallments, isr } from '@simplicity/core'
@@ -72,7 +72,17 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
     updateClient(client.id, { status_overridden: false })
   }
 
-  const del = () => { if (client) { deleteClient(client.id); onClose() } }
+  const del = () => {
+    if (!client) return
+    Alert.alert(
+      i18n.t('modalsClient:deleteClient.title', { defaultValue: 'מחיקת לקוח' }),
+      i18n.t('clients:drawer.deleteMessage', { defaultValue: 'הלקוח יעבור לסל המיחזור, וניתן לשחזר תוך 30 יום.' }),
+      [
+        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+        { text: i18n.t('leads:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => { deleteClient(client.id); onClose() } },
+      ],
+    )
+  }
   const whatsapp = (msg) => {
     const p = (client?.phone || '').replace(/\D/g, '')
     if (p) Linking.openURL(`https://wa.me/${p}${msg ? `?text=${encodeURIComponent(msg)}` : ''}`)

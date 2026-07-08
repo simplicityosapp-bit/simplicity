@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
@@ -37,10 +37,20 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal })
     { k: 'deadline', l: i18n.t('modalsData:editGoal.tf.deadline') },
   ]
 
-  const remove = async () => {
-    if (busy || !onDelete) return
+  const doRemove = async () => {
     setBusy(true)
     try { await onDelete(goal.id); close() } catch (e) { setBusy(false); setErr(i18n.t('modalsData:common.saveFailed', { error: e.message || i18n.t('modalsData:common.tryAgain') })) }
+  }
+  const remove = () => {
+    if (busy || !onDelete) return
+    Alert.alert(
+      i18n.t('goals:delete.title', { defaultValue: 'מחיקת יעד' }),
+      i18n.t('goals:delete.messageNamed', { label: goal?.label || '', defaultValue: 'למחוק את היעד? ניתן לשחזר מסל המיחזור תוך 30 יום.' }),
+      [
+        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+        { text: i18n.t('goals:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: doRemove },
+      ],
+    )
   }
 
   const submit = async () => {

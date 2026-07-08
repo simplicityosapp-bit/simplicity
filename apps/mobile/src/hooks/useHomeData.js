@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { isRecurring, nextScheduledAt } from '@simplicity/core'
 import { supabase } from '../lib/supabase'
 import { confirmScheduledMeeting } from '../lib/scheduledMeetings'
 
@@ -153,18 +154,35 @@ export function useHomeData() {
   // Inline complete-from-home (NextTasks ✓ / Reminders ✓), mirrors web.
   const toggleTask = useCallback(async (task) => {
     if (!task?.id) return
-    const done = task.status !== 'done'
-    const patch = { status: done ? 'done' : 'todo', completed_at: done ? new Date().toISOString() : null }
+    const done = task.status !== 'done' // becoming done
+    // Completing clears any custom status_id so a done task drops its
+    // "in progress"-style chip (mirrors web useTasks.toggleTask).
+    const patch = { status: done ? 'done' : 'todo', completed_at: done ? new Date().toISOString() : null, ...(done ? { status_id: null } : {}) }
     setData((prev) => ({ ...prev, tasks: prev.tasks.map((t) => (t.id === task.id ? { ...t, ...patch } : t)) }))
     const { error: e } = await supabase.from('tasks').update(patch).eq('id', task.id)
     if (e) load()
   }, [load])
+  // Complete a reminder from home (RemindersWidget ✓). A recurring reminder
+  // advances to its next occurrence rather than being marked done (unless past
+  // end_date) — mirrors web + useRemindersList. Looks up the full row by id so
+  // recurrence fields are present regardless of the widget item shape.
   const completeReminder = useCallback(async (id) => {
     if (!id) return
-    setData((prev) => ({ ...prev, reminders: prev.reminders.map((r) => (r.id === id ? { ...r, status: 'completed' } : r)) }))
-    const { error: e } = await supabase.from('reminders').update({ status: 'completed' }).eq('id', id)
+    const reminder = data.reminders.find((r) => r.id === id)
+    if (!reminder) return
+    let patch
+    if (isRecurring(reminder)) {
+      const next = nextScheduledAt(reminder)
+      patch = (reminder.end_date && next > new Date(reminder.end_date))
+        ? { status: 'completed' }
+        : { scheduled_at: next.toISOString() }
+    } else {
+      patch = { status: 'completed' }
+    }
+    setData((prev) => ({ ...prev, reminders: prev.reminders.map((r) => (r.id === id ? { ...r, ...patch } : r)) }))
+    const { error: e } = await supabase.from('reminders').update(patch).eq('id', id)
     if (e) load()
-  }, [load])
+  }, [data.reminders, load])
 
   // Approve / skip a pending transaction from the home attention popup (mirrors
   // finance setStatus + web PendingSection). Optimistic; reload on failure.

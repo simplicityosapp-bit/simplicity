@@ -37,11 +37,20 @@ export function useTasksList() {
   }, [])
 
   const toggleDone = useCallback(async (task) => {
-    const next = task.status === 'done' ? 'todo' : 'done'
-    setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, status: next } : t))) // optimistic
-    const { error: e } = await supabase.from('tasks').update({ status: next }).eq('id', task.id)
+    const done = task.status === 'done' // currently done → we're reopening
+    // Marking done stamps completed_at + clears any custom (open-meta) status_id
+    // so a finished task doesn't keep an "in progress"-style chip; reopening
+    // clears completed_at. Mirrors web useTasks.toggleTask.
+    const patch = {
+      status: done ? 'todo' : 'done',
+      completed_at: done ? null : new Date().toISOString(),
+      ...(done ? {} : { status_id: null }),
+    }
+    const prev = { status: task.status, completed_at: task.completed_at ?? null, status_id: task.status_id ?? null }
+    setTasks((ts) => ts.map((t) => (t.id === task.id ? { ...t, ...patch } : t))) // optimistic
+    const { error: e } = await supabase.from('tasks').update(patch).eq('id', task.id)
     if (e) {
-      setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, status: task.status } : t))) // rollback
+      setTasks((ts) => ts.map((t) => (t.id === task.id ? { ...t, ...prev } : t))) // rollback
     }
   }, [])
 

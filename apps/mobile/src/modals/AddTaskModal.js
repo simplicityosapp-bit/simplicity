@@ -49,10 +49,18 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, task = n
 
   const submit = async () => {
     if (!form.title.trim()) { setErr(i18n.t('modalsTask:task.titleRequired')); return }
+    // A date alone is enough — default the time to 09:00 so it lands on the day.
+    // Guard an invalid typed date (raw TextInput) BEFORE setBusy so toISOString()
+    // can't throw a RangeError caught as a generic "save failed" — mirrors
+    // AddReminderModal (which validates before entering the busy state).
+    let due_at = null
+    if (form.due_date) {
+      const when = new Date(`${form.due_date}T${form.due_time || '09:00'}`)
+      if (Number.isNaN(when.getTime())) { setErr(i18n.t('modalsTask:reminder.invalidDateTime')); return }
+      due_at = when.toISOString()
+    }
     setBusy(true)
     setErr('')
-    // A date alone is enough — default the time to 09:00 so it lands on the day.
-    const due_at = form.due_date ? new Date(`${form.due_date}T${form.due_time || '09:00'}`).toISOString() : null
     // A chosen custom status drives the binary status via its meta ('done' → done,
     // else todo) so counters stay correct; with none, keep the create default /
     // leave an edit's status untouched. Mirrors web AddTaskModal.

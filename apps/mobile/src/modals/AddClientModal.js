@@ -71,7 +71,9 @@ export default function AddClientModal({ open, onClose, onSave, onDelete, client
       phone: form.phone.trim() || null,
       email: form.email.trim() || null,
       project_id: form.project_id || null, group_id: form.group_id || null,
-      sessions: Number(form.sessions) || 0,
+      // Per-session billing has no prepaid package → sessions is 0 (matches web;
+      // the input is hidden for per_session but the form value isn't cleared).
+      sessions: form.billing_mode === 'per_session' ? 0 : (Number(form.sessions) || 0),
       price_per_session: price,
       billing_mode: form.billing_mode,
       meeting_type_id: form.meeting_type_id || null,

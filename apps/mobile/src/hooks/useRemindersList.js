@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { isRecurring, nextScheduledAt } from '@simplicity/core'
 import { supabase } from '../lib/supabase'
 
 // Reminders list + mutations for the Tasks screen's reminders view (mirrors the
@@ -42,11 +43,23 @@ export function useRemindersList() {
     return data
   }, [load])
 
-  // Mark a reminder done (one-shot). Optimistic; rolls back on error.
+  // Complete a reminder. A RECURRING reminder ADVANCES to its next occurrence
+  // (so it actually recurs) instead of being marked done — unless it passed its
+  // end_date, then it stops. One-shot → completed. Mirrors web useReminders.
   const completeReminder = useCallback(async (reminder) => {
-    setReminders((prev) => prev.map((r) => (r.id === reminder.id ? { ...r, status: 'completed' } : r)))
-    const { error: e } = await supabase.from('reminders').update({ status: 'completed' }).eq('id', reminder.id)
-    if (e) setReminders((prev) => prev.map((r) => (r.id === reminder.id ? { ...r, status: reminder.status } : r)))
+    let patch
+    if (isRecurring(reminder)) {
+      const next = nextScheduledAt(reminder)
+      patch = (reminder.end_date && next > new Date(reminder.end_date))
+        ? { status: 'completed' }
+        : { scheduled_at: next.toISOString() }
+    } else {
+      patch = { status: 'completed' }
+    }
+    const prev = { status: reminder.status, scheduled_at: reminder.scheduled_at }
+    setReminders((rs) => rs.map((r) => (r.id === reminder.id ? { ...r, ...patch } : r)))
+    const { error: e } = await supabase.from('reminders').update(patch).eq('id', reminder.id)
+    if (e) setReminders((rs) => rs.map((r) => (r.id === reminder.id ? { ...r, ...prev } : r)))
   }, [])
 
   const deleteReminder = useCallback(async (id) => {

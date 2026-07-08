@@ -51,6 +51,9 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
   const submit = async () => {
     const amount = parseFloat(form.amount)
     if (!amount || amount <= 0) { setErr(i18n.t('modalsData:common.amountPositive')); return }
+    // Guard the free-text date so a blank/malformed value can't reach the DB
+    // (web validates the date field; mobile uses a plain TextInput).
+    if (!form.date || Number.isNaN(new Date(`${form.date}T00:00:00`).getTime())) { setErr(i18n.t('modalsData:editTx.needDate', { defaultValue: 'יש לבחור תאריך תקין.' })); return }
     setBusy(true)
     setErr('')
     const isFuture = form.date > todayStr()

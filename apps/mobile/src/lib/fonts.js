@@ -2,12 +2,15 @@ import { Text, TextInput, StyleSheet } from 'react-native'
 
 // Bundled Alef TTFs (Google Alef, OFL) — the app-wide typeface, matching web
 // (the whole web app runs on Alef). Passed to useFonts() in App.js.
-// NOTE: web additionally scopes Heebo to digits and AlefMG to the 12 dual-gender
-// glyphs via CSS `unicode-range`, which RN can't express with a single
-// fontFamily — so digits render in Alef and the dual-gender codepoints fall back
-// to the device font until a merged .ttf is bundled. (See owner decision.)
+// The regular face is AlefMultiGndr (Alef + the dual-gender glyphs, incl. the
+// U+05CC mark) so those codepoints render correctly instead of falling back to
+// the device font. Web scopes AlefMG to them via CSS `unicode-range` (which RN
+// can't do per-glyph), but AlefMG is a superset of Alef — verified: digits, ₪,
+// U+05CC all present — so it works as the base face. Bold stays standard
+// Alef-Bold (no dual-gender bold cut exists; bold + U+05CC is rare). The .ttf was
+// converted from the web .woff via scratchpad/woff2ttf.js (WOFF1 = zlib SFNT).
 export const fontAssets = {
-  Alef: require('../../assets/fonts/Alef-Regular.ttf'),
+  Alef: require('../../assets/fonts/AlefMultiGndr-Regular.ttf'),
   'Alef-Bold': require('../../assets/fonts/Alef-Bold.ttf'),
 }
 

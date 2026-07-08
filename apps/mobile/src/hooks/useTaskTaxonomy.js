@@ -16,16 +16,23 @@ export function useTaskTaxonomy() {
     await refetch()
   }, [refetch])
 
-  const softDelete = useCallback(async (table, id) => {
+  // Clear the link on every task using this status/category BEFORE soft-deleting
+  // the taxonomy row (the task survives, falling back to its meta / no category),
+  // then refresh. Mirrors web reassignTasksStatus/Category → removeStatus/Category.
+  const removeWithReassign = useCallback(async (table, field, id) => {
+    try { await supabase.from('tasks').update({ [field]: null }).eq(field, id).is('deleted_at', null) } catch { /* non-fatal */ }
     const { error } = await supabase.from(table).update({ deleted_at: new Date().toISOString() }).eq('id', id)
     if (error) throw error
     await refetch()
   }, [refetch])
 
-  const addStatus = useCallback((display_name) => insertRow('task_statuses', { display_name, meta_category: 'todo' }), [insertRow])
-  const removeStatus = useCallback((id) => softDelete('task_statuses', id), [softDelete])
-  const addCategory = useCallback((name) => insertRow('task_categories', { name }), [insertRow])
-  const removeCategory = useCallback((id) => softDelete('task_categories', id), [softDelete])
+  // addStatus/addCategory take the full row (mirrors web onAddStatus/onAddCategory):
+  // a status carries meta_category ('open'|'done' — the task_statuses CHECK; a
+  // hardcoded 'todo' was rejected by the DB) + color; a category carries color.
+  const addStatus = useCallback((payload) => insertRow('task_statuses', payload), [insertRow])
+  const removeStatus = useCallback((id) => removeWithReassign('task_statuses', 'status_id', id), [removeWithReassign])
+  const addCategory = useCallback((payload) => insertRow('task_categories', payload), [insertRow])
+  const removeCategory = useCallback((id) => removeWithReassign('task_categories', 'category_id', id), [removeWithReassign])
 
   return { taskStatuses: taskStatuses || [], taskCategories: taskCategories || [], addStatus, removeStatus, addCategory, removeCategory }
 }

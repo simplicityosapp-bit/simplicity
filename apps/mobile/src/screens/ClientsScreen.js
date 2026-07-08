@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { useRoute, useNavigation } from '@react-navigation/native'
 import { Search, Wallet, ArrowUpDown, Check, X, Trash2, CheckCircle2, Clock, CircleSlash, CircleDashed } from 'lucide-react-native'
 import { clientBalance, effectiveClientMeta, paidForClients, sessionsCountForClients, currentMonthRange, financeQuery, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
@@ -61,6 +62,18 @@ export default function ClientsScreen() {
   const { prefs, update: updatePrefs } = usePreferences()
   const [adding, setAdding] = useState(false)
   const [openId, setOpenId] = useState(null)
+  // Deep-link: Home's "needs attention" people popup can navigate here asking
+  // to open a specific client's drawer (openClientId param). Consume it once,
+  // then clear the param so a back-and-return doesn't re-open it.
+  const route = useRoute()
+  const nav = useNavigation()
+  useEffect(() => {
+    const id = route.params?.openClientId
+    if (id) {
+      setOpenId(id)
+      nav.setParams({ openClientId: undefined })
+    }
+  }, [route.params?.openClientId])
   const [tab, setTab] = useState('active')
   const [query, setQuery] = useState('')
   const [sortOpen, setSortOpen] = useState(false)

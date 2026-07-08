@@ -37,6 +37,14 @@ export default function AttentionWidget({ data }) {
     const screen = TARGET_SCREEN[it.target]
     if (screen) nav.navigate(screen)
   }
+  // Tap a person's name → open their client drawer (deep-link param) or the
+  // leads board (leads have no per-row drawer on mobile). Mirrors web.
+  const openPerson = (p) => {
+    if (!peopleRow) return
+    if (peopleRow.entity === 'client') nav.navigate('Clients', { openClientId: p.id })
+    else nav.navigate('Leads')
+    setPeopleRow(null)
+  }
 
   return (
     <>
@@ -64,7 +72,9 @@ export default function AttentionWidget({ data }) {
           <Text style={styles.empty}>{i18n.t('home:widgets.attention.noPeople', { defaultValue: '—' })}</Text>
         ) : (peopleRow?.people || []).map((p, i) => (
           <View key={p.id || i} style={[styles.personRow, i > 0 && styles.rowBorder]}>
-            <Text style={styles.personName} numberOfLines={1}>{p.name || '—'}</Text>
+            <Pressable style={styles.personMain} onPress={() => openPerson(p)}>
+              <Text style={styles.personName} numberOfLines={1}>{p.name || '—'}</Text>
+            </Pressable>
             <Pressable style={styles.waBtn} onPress={() => waOpen(p.phone)} hitSlop={6} accessibilityLabel="WhatsApp">
               <MessageCircle size={17} strokeWidth={1.8} color={colors.positive} />
             </Pressable>
@@ -81,6 +91,7 @@ const styles = StyleSheet.create({
   text: { flex: 1, fontSize: 14, color: colors.text, lineHeight: 20 },
   empty: { fontSize: 13, color: colors.textFaint, textAlign: 'center', paddingVertical: 12 },
   personRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 12 },
-  personName: { flex: 1, fontSize: 15, color: colors.text },
+  personMain: { flex: 1 },
+  personName: { fontSize: 15, color: colors.text },
   waBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cardFlat },
 })

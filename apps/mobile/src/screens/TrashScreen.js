@@ -3,7 +3,7 @@ import { Trash2, RotateCcw, User, FolderOpen, Users, CheckSquare, UserPlus, Tag,
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
-import { fmtShortDate, isr } from '@simplicity/core'
+import { fmtShortDate, fmtTimeAgo, isr } from '@simplicity/core'
 import { useTrash, TRASH_TYPES } from '../hooks/useTrash'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
@@ -84,7 +84,10 @@ export default function TrashScreen() {
                     </View>
                     {items.map((row, i) => (
                       <View key={row.id} style={[styles.row, i > 0 && styles.rowBorder]}>
-                        <Text style={styles.rowLabel} numberOfLines={1}>{primaryLabel(t.key, row)}</Text>
+                        <View style={styles.rowMain}>
+                          <Text style={styles.rowLabel} numberOfLines={1}>{primaryLabel(t.key, row)}</Text>
+                          <Text style={styles.rowMeta} numberOfLines={1}>{TT('item.deletedAgo', { ago: fmtTimeAgo(row.deleted_at) })}</Text>
+                        </View>
                         <Pressable style={styles.restore} onPress={() => restore(t.key, row.id)} hitSlop={6}>
                           <RotateCcw size={14} strokeWidth={1.8} color={colors.textSub} />
                           <Text style={styles.restoreText}>{i18n.t('trash:restore', { defaultValue: 'שחזור' })}</Text>
@@ -114,7 +117,9 @@ const styles = StyleSheet.create({
   groupCount: { fontSize: 12, fontWeight: '600', color: colors.textSub, backgroundColor: colors.fillStrong, minWidth: 22, textAlign: 'center', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 6, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  rowLabel: { flex: 1, fontSize: 14, color: colors.text },
+  rowMain: { flex: 1, gap: 2 },
+  rowLabel: { fontSize: 15, fontWeight: '500', color: colors.text },
+  rowMeta: { fontSize: 12, color: colors.textFaint },
   restore: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.divider, backgroundColor: 'transparent' },
   restoreText: { fontSize: 13, fontWeight: '500', color: colors.text },
 })

@@ -40,14 +40,14 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, avai
         label={M('client', { defaultValue: 'לקוח/ה' })}
         value={clientId}
         onChange={(v) => { setClientId(v); if (err) setErr('') }}
-        placeholder={M('pick', { defaultValue: 'בחר/י לקוח/ה' })}
+        placeholder={M('selectClient', { defaultValue: 'בחר/י לקוח' })}
         options={availableClients.map((c) => ({ value: c.id, label: c.name || '' }))}
       />
-      {availableClients.length === 0 ? <Text style={styles.hint}>{M('none', { defaultValue: 'אין לקוחות פנויים להוספה.' })}</Text> : null}
+      {availableClients.length === 0 ? <Text style={styles.hint}>{M('allMembers', { defaultValue: 'כל הלקוחות שלך כבר חברים בקבוצה.' })}</Text> : null}
       {err ? <Text style={styles.error}>{err}</Text> : null}
       <View style={styles.actions}>
         <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
-        <Pressable style={[styles.save, (busy || !clientId) && styles.saveOff]} onPress={submit} disabled={busy || !clientId}><Text style={styles.saveText}>{busy ? C('saving') : C('save')}</Text></Pressable>
+        <Pressable style={[styles.save, (busy || !clientId) && styles.saveOff]} onPress={submit} disabled={busy || !clientId}><Text style={styles.saveText}>{busy ? C('saving') : M('addAction', { defaultValue: 'הוספה' })}</Text></Pressable>
       </View>
     </Sheet>
   )

@@ -112,13 +112,16 @@ export default function ProjectDetailScreen() {
 
           {/* Clients */}
           <Section title={D('clients.title', { defaultValue: 'לקוחות' })} count={clients.length}>
-            {clients.length ? clients.map((c, i) => (
-              <View key={c.id} style={[styles.row, i > 0 && styles.rowBorder]}>
-                <View style={[styles.sdot, { backgroundColor: STATUS_DOT[statusMetaOf(c)] || STATUS_DOT.no_status }]} />
-                <Text style={styles.rowName} numberOfLines={1}>{c.name}</Text>
-                {c.phone ? <Text style={styles.rowSub}>{c.phone}</Text> : null}
-              </View>
-            )) : <Text style={styles.empty}>{D('clients.empty', { defaultValue: 'אין לקוחות בפרויקט זה' })}</Text>}
+            {clients.length ? clients.map((c, i) => {
+              const g = c.group_id ? groups.find((gg) => gg.id === c.group_id) : null
+              return (
+                <View key={c.id} style={[styles.row, i > 0 && styles.rowBorder]}>
+                  <View style={[styles.sdot, { backgroundColor: STATUS_DOT[statusMetaOf(c)] || STATUS_DOT.no_status }]} />
+                  <Text style={styles.rowName} numberOfLines={1}>{c.name}</Text>
+                  <Text style={[styles.clientTag, !g && styles.clientTagPrivate]} numberOfLines={1}>{g ? g.name : D('clients.private', { defaultValue: 'פרטי' })}</Text>
+                </View>
+              )
+            }) : <Text style={styles.empty}>{D('clients.empty', { defaultValue: 'אין לקוחות בפרויקט זה' })}</Text>}
           </Section>
 
           {/* Groups — add / edit / members */}
@@ -266,5 +269,7 @@ const styles = StyleSheet.create({
   sdot: { width: 9, height: 9, borderRadius: 5 },
   rowName: { flex: 1, fontSize: 14, color: colors.text },
   rowSub: { fontSize: 12, color: colors.textFaint },
+  clientTag: { fontSize: 11, color: colors.textSub, backgroundColor: colors.fill, paddingVertical: 2, paddingHorizontal: 8, borderRadius: 999, overflow: 'hidden', maxWidth: 120 },
+  clientTagPrivate: { color: colors.textFaint },
   empty: { fontSize: 13, color: colors.textFaint, textAlign: 'center', paddingVertical: 18 },
 })

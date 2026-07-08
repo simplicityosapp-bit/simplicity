@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 
 // Projects + the data the projects screen derives per-card stats from (clients /
 // transactions / tasks). CRUD on the projects table; RLS scopes to the user.
-const EMPTY = { projects: [], clients: [], transactions: [], tasks: [] }
+const EMPTY = { projects: [], clients: [], transactions: [], tasks: [], groups: [] }
 
 async function fetchTable(name) {
   const { data, error } = await supabase.from(name).select('*').is('deleted_at', null).limit(2000)
@@ -20,10 +20,10 @@ export function useProjectsData() {
     setLoading(true)
     setError(null)
     try {
-      const [projects, clients, transactions, tasks] = await Promise.all([
-        fetchTable('projects'), fetchTable('clients'), fetchTable('transactions'), fetchTable('tasks'),
+      const [projects, clients, transactions, tasks, groups] = await Promise.all([
+        fetchTable('projects'), fetchTable('clients'), fetchTable('transactions'), fetchTable('tasks'), fetchTable('groups'),
       ])
-      setState({ projects, clients, transactions, tasks })
+      setState({ projects, clients, transactions, tasks, groups })
     } catch (e) {
       setError(e?.message || 'load failed')
     } finally {

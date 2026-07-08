@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react-native'
-import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming } from '@simplicity/core'
+import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming, weekStartIndex } from '@simplicity/core'
 import i18n from '../lib/i18n'
+import { usePreferences } from '../lib/preferences'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
@@ -22,6 +23,9 @@ const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDat
 
 export default function CalendarScreen() {
   const { meetings, calendarEvents, clients, groups, reminders, leads, loading, error, refetch, addMeeting, confirmMeeting, skipMeeting, updateEvent, deleteEvent } = useCalendarData()
+  const { prefs } = usePreferences()
+  const weekStart = weekStartIndex(prefs?.format?.week_start)   // 0=Sun, 1=Mon (mirrors web)
+  const weekdays = weekStart ? [...WEEKDAYS.slice(weekStart), ...WEEKDAYS.slice(0, weekStart)] : WEEKDAYS
   const now = new Date()
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
   const [selected, setSelected] = useState(() => keyOf(now))
@@ -56,7 +60,7 @@ export default function CalendarScreen() {
   // Build the 6-week grid for `month` (Sunday-start).
   const weeks = useMemo(() => {
     const first = new Date(month.getFullYear(), month.getMonth(), 1)
-    const start = first.getDay() // 0=Sun
+    const start = (first.getDay() - weekStart + 7) % 7 // leading blanks from the chosen week start
     const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()
     const cells = []
     for (let i = 0; i < start; i++) cells.push(null)
@@ -65,7 +69,7 @@ export default function CalendarScreen() {
     const rows = []
     for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7))
     return rows
-  }, [month])
+  }, [month, weekStart])
 
   const todayKey = keyOf(now)
   const selectedEvents = byDay.get(selected) || []
@@ -97,7 +101,7 @@ export default function CalendarScreen() {
               <Pressable onPress={() => stepMonth(1)} hitSlop={10}><ChevronLeft size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
             </View>
             <View style={styles.weekHead}>
-              {WEEKDAYS.map((w) => <Text key={w} style={styles.weekday}>{w}</Text>)}
+              {weekdays.map((w) => <Text key={w} style={styles.weekday}>{w}</Text>)}
             </View>
             {weeks.map((row, ri) => (
               <View key={ri} style={styles.week}>

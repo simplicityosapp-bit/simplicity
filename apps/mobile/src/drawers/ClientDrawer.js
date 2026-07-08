@@ -107,12 +107,43 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
 
   const del = () => {
     if (!client) return
+    const cancel = i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' })
+    const linkedTxs = (transactions || []).filter((t) => !t.deleted_at && t.client_id === client.id)
+    // No linked transactions → straightforward soft-delete.
+    if (!linkedTxs.length) {
+      Alert.alert(
+        i18n.t('modalsClient:deleteClient.titleOne', { name: client.name }),
+        i18n.t('clients:drawer.deleteMessage', { defaultValue: 'הלקוח יעבור לסל המיחזור, וניתן לשחזר תוך 30 יום.' }),
+        [
+          { text: cancel, style: 'cancel' },
+          { text: i18n.t('leads:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => { deleteClient(client.id); onClose() } },
+        ],
+      )
+      return
+    }
+    // Linked transactions → offer keep-orphaned vs cascade, mirroring web
+    // DeleteClientModal. Without this the client's transactions dangled on a
+    // deleted client_id, untagged. (Mobile has no undo toast; both are
+    // restorable from Trash.)
+    const keep = async () => {
+      for (const tx of linkedTxs) {
+        await updateTransaction(tx.id, { client_id: null, orphaned_from: { type: 'client', name: client.name || i18n.t('modalsClient:deleteClient.orphanName') } }).catch(() => {})
+      }
+      await deleteClient(client.id).catch(() => {})
+      onClose()
+    }
+    const cascade = async () => {
+      for (const tx of linkedTxs) { await deleteTransaction(tx.id).catch(() => {}) }
+      await deleteClient(client.id).catch(() => {})
+      onClose()
+    }
     Alert.alert(
-      i18n.t('modalsClient:deleteClient.title', { defaultValue: 'מחיקת לקוח' }),
-      i18n.t('clients:drawer.deleteMessage', { defaultValue: 'הלקוח יעבור לסל המיחזור, וניתן לשחזר תוך 30 יום.' }),
+      i18n.t('modalsClient:deleteClient.titleOne', { name: client.name }),
+      `${i18n.t('modalsClient:deleteClient.introOne')}\n\n${i18n.t('modalsClient:deleteClient.linkedTransactions')}: ${linkedTxs.length}`,
       [
-        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
-        { text: i18n.t('leads:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => { deleteClient(client.id); onClose() } },
+        { text: cancel, style: 'cancel' },
+        { text: i18n.t('modalsClient:deleteClient.keepTitle'), onPress: keep },
+        { text: i18n.t('modalsClient:deleteClient.cascadeTitle'), style: 'destructive', onPress: cascade },
       ],
     )
   }

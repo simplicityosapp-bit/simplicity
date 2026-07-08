@@ -6,14 +6,15 @@ import { useFormOptions } from '../lib/formOptions'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
-// Add/edit a recurring transaction template (mirrors web RecurringModal's
-// schedule path): type · amount · desc · cadence (monthly-date / weekly) + day ·
-// until-date · client/project/category · active. The on-meeting trigger is a
-// later increment; this creates schedule-based templates.
+// Add/edit a recurring transaction template (mirrors web RecurringModal): type ·
+// amount · desc · WHEN (by-schedule cadence OR on-meeting) · client/project/
+// category · active. A schedule template fires on its cadence; an on-meeting
+// template bills once per meeting with that client (generation stays web-only).
 const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-const blank = () => ({ type: 'expense', amount: '', desc: '', cadence_type: 'monthly_date', day_of_month: String(new Date().getDate()), day_of_week: '0', until_date: '', client_id: '', project_id: '', category_id: '', active: true })
+const blank = () => ({ type: 'expense', amount: '', desc: '', trigger_type: 'schedule', cadence_type: 'monthly_date', day_of_month: String(new Date().getDate()), day_of_week: '0', until_date: '', client_id: '', project_id: '', category_id: '', active: true })
 const fromTemplate = (t) => (t ? {
   type: t.type, amount: String(t.amount ?? ''), desc: t.desc || '',
+  trigger_type: t.trigger_type || 'schedule',
   cadence_type: t.cadence_type || 'monthly_date',
   day_of_month: String(t.day_of_month ?? 1), day_of_week: String(t.day_of_week ?? 0),
   until_date: t.until_date ? String(t.until_date).slice(0, 10) : '',
@@ -35,7 +36,10 @@ export default function RecurringModal({ open, onClose, onSave, template = null 
   const submit = async () => {
     const amount = parseFloat(form.amount)
     if (!amount || amount <= 0) { setErr(C('amountPositive')); return }
-    if (form.cadence_type === 'monthly_date') {
+    const onMeeting = form.trigger_type === 'on_meeting'
+    if (onMeeting) {
+      if (!form.client_id) { setErr(T('needClient')); return }
+    } else if (form.cadence_type === 'monthly_date') {
       const day = parseInt(form.day_of_month, 10)
       if (!day || day < 1 || day > 31) { setErr(T('badDayOfMonth')); return }
     }
@@ -43,14 +47,13 @@ export default function RecurringModal({ open, onClose, onSave, template = null 
     try {
       await onSave({
         type: form.type, amount, desc: form.desc.trim() || null,
-        // Preserve an existing on_meeting trigger on edit — this modal only
-        // authors the schedule path, but must not silently rewrite a
-        // meeting-triggered template to 'schedule' when it's edited.
-        trigger_type: isEdit ? (template.trigger_type || 'schedule') : 'schedule',
+        trigger_type: form.trigger_type,
+        // Cadence fields are irrelevant while on_meeting, but keep the values so a
+        // flip back to 'schedule' doesn't lose them (the engine ignores them).
         cadence_type: form.cadence_type,
         day_of_month: form.cadence_type === 'monthly_date' ? parseInt(form.day_of_month, 10) : null,
         day_of_week: form.cadence_type === 'weekly' ? parseInt(form.day_of_week, 10) : null,
-        until_date: form.until_date || null,
+        until_date: onMeeting ? null : (form.until_date || null),
         client_id: form.client_id || null, project_id: form.project_id || null,
         category_id: form.type === 'expense' ? (form.category_id || null) : null,
         active: form.active,
@@ -80,31 +83,44 @@ export default function RecurringModal({ open, onClose, onSave, template = null 
       </View>
 
       <View style={styles.field}>
-        <Text style={styles.label}>{T('repeats')}</Text>
+        <Text style={styles.label}>{T('when')}</Text>
         <View style={styles.pills}>
-          <Pressable style={[styles.segPill, form.cadence_type === 'monthly_date' && styles.segOn]} onPress={() => set('cadence_type', 'monthly_date')}><Text style={[styles.segText, form.cadence_type === 'monthly_date' && styles.pillTextOn]}>{T('monthly')}</Text></Pressable>
-          <Pressable style={[styles.segPill, form.cadence_type === 'weekly' && styles.segOn]} onPress={() => set('cadence_type', 'weekly')}><Text style={[styles.segText, form.cadence_type === 'weekly' && styles.pillTextOn]}>{T('weekly')}</Text></Pressable>
+          <Pressable style={[styles.segPill, form.trigger_type === 'schedule' && styles.segOn]} onPress={() => set('trigger_type', 'schedule')}><Text style={[styles.segText, form.trigger_type === 'schedule' && styles.pillTextOn]}>{T('bySchedule')}</Text></Pressable>
+          <Pressable style={[styles.segPill, form.trigger_type === 'on_meeting' && styles.segOn]} onPress={() => set('trigger_type', 'on_meeting')}><Text style={[styles.segText, form.trigger_type === 'on_meeting' && styles.pillTextOn]}>{T('onMeeting')}</Text></Pressable>
         </View>
+        {form.trigger_type === 'on_meeting' ? <Text style={styles.hint}>{T('onMeetingHint')}</Text> : null}
       </View>
 
-      <View style={styles.row2}>
-        {form.cadence_type === 'monthly_date' ? (
-          <View style={styles.fieldFlex}>
-            <Text style={styles.label}>{T('dayOfMonth')}</Text>
-            <TextInput style={styles.input} value={form.day_of_month} onChangeText={(v) => set('day_of_month', v)} keyboardType="numeric" placeholderTextColor={colors.textFaint} />
+      {form.trigger_type === 'schedule' ? (
+        <>
+          <View style={styles.field}>
+            <Text style={styles.label}>{T('repeats')}</Text>
+            <View style={styles.pills}>
+              <Pressable style={[styles.segPill, form.cadence_type === 'monthly_date' && styles.segOn]} onPress={() => set('cadence_type', 'monthly_date')}><Text style={[styles.segText, form.cadence_type === 'monthly_date' && styles.pillTextOn]}>{T('monthly')}</Text></Pressable>
+              <Pressable style={[styles.segPill, form.cadence_type === 'weekly' && styles.segOn]} onPress={() => set('cadence_type', 'weekly')}><Text style={[styles.segText, form.cadence_type === 'weekly' && styles.pillTextOn]}>{T('weekly')}</Text></Pressable>
+            </View>
           </View>
-        ) : (
-          <View style={styles.fieldFlex}>
-            <Select label={T('dayOfWeek')} value={form.day_of_week} onChange={(v) => set('day_of_week', v)} options={DAY_KEYS.map((k, i) => ({ value: String(i), label: i18n.t(`modalsData:recurring.days.${k}`, { defaultValue: i18n.t(`clients:form.days.${i}`) }) }))} />
-          </View>
-        )}
-        <View style={styles.fieldFlex}>
-          <Text style={styles.label}>{T('untilDate')}</Text>
-          <TextInput style={styles.input} value={form.until_date} onChangeText={(v) => set('until_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
-        </View>
-      </View>
 
-      <Select label={T('clientOptional')} value={form.client_id} onChange={(v) => set('client_id', v)} placeholder={C('none')} options={[{ value: '', label: C('none') }, ...clients.map((c) => ({ value: c.id, label: c.name || '' }))]} />
+          <View style={styles.row2}>
+            {form.cadence_type === 'monthly_date' ? (
+              <View style={styles.fieldFlex}>
+                <Text style={styles.label}>{T('dayOfMonth')}</Text>
+                <TextInput style={styles.input} value={form.day_of_month} onChangeText={(v) => set('day_of_month', v)} keyboardType="numeric" placeholderTextColor={colors.textFaint} />
+              </View>
+            ) : (
+              <View style={styles.fieldFlex}>
+                <Select label={T('dayOfWeek')} value={form.day_of_week} onChange={(v) => set('day_of_week', v)} options={DAY_KEYS.map((k, i) => ({ value: String(i), label: i18n.t(`modalsData:recurring.days.${k}`, { defaultValue: i18n.t(`clients:form.days.${i}`) }) }))} />
+              </View>
+            )}
+            <View style={styles.fieldFlex}>
+              <Text style={styles.label}>{T('untilDate')}</Text>
+              <TextInput style={styles.input} value={form.until_date} onChangeText={(v) => set('until_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+            </View>
+          </View>
+        </>
+      ) : null}
+
+      <Select label={form.trigger_type === 'on_meeting' ? T('clientRequired') : T('clientOptional')} value={form.client_id} onChange={(v) => set('client_id', v)} placeholder={C('none')} options={[{ value: '', label: C('none') }, ...clients.map((c) => ({ value: c.id, label: c.name || '' }))]} />
       <Select label={T('projectOptional')} value={form.project_id} onChange={(v) => set('project_id', v)} placeholder={C('none')} options={[{ value: '', label: C('none') }, ...projects.map((p) => ({ value: p.id, label: p.name || '' }))]} />
       {form.type === 'expense' ? (
         <Select label={C('category')} value={form.category_id} onChange={(v) => set('category_id', v)} placeholder={C('noCategory')} options={[{ value: '', label: C('noCategory') }, ...categories.map((c) => ({ value: c.id, label: c.name || '' }))]} />
@@ -143,6 +159,7 @@ const styles = StyleSheet.create({
   label: { fontSize: 13, color: colors.textSub },
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
   inputErr: { borderColor: colors.danger },
+  hint: { fontSize: 12, color: colors.textFaint, lineHeight: 17 },
   activeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   check: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   checkOn: { backgroundColor: colors.brand, borderColor: colors.brand },

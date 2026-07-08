@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
-import { questionText, scheduledOccurrences } from '@simplicity/core'
+import ScheduleDayPicker from '../components/ScheduleDayPicker'
+import { questionText, scheduledOccurrences, buildSchedulePattern } from '@simplicity/core'
 import { useFormOptions } from '../lib/formOptions'
 import { ALL_METRICS, metricName, OTHER_METRIC_KEY } from '../lib/goalPresets'
 import i18n from '../lib/i18n'
@@ -16,7 +17,7 @@ import { colors } from '../theme/theme'
 const IMPORTANCE = [1, 2, 3, 4, 5]
 const ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 const SCALES = [{ k: '1-10', l: 'scaleRange' }, { k: 'yes_no', l: 'scaleYesNo' }]
-const blank = () => ({ metric_key: '', label: '', time_frame: 'monthly', target_value: '', target_date: '', importance: 3, project_id: '', group_id: '', tracking_method: 'manual', tracked_by_question_id: '', question_mode: 'existing', question_text: '', question_scale: '1-10', question_icon: ICONS[0] })
+const blank = () => ({ metric_key: '', label: '', time_frame: 'monthly', target_value: '', target_date: '', importance: 3, project_id: '', group_id: '', tracking_method: 'manual', tracked_by_question_id: '', question_mode: 'existing', question_text: '', question_scale: '1-10', question_icon: ICONS[0], sched_mode: 'every_day', sched_days: [0, 1, 2, 3, 4, 5, 6], sched_x: 2 })
 
 export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
   const { projects, groups = [], userQuestions } = useFormOptions()
@@ -40,8 +41,10 @@ export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
   // (its schedule caps it); sliders accumulate freely. Handles both a picked
   // question (its stored schedule) and a new one (every-day = {}). Mirrors web.
   const selectedQuestion = activeQuestions.find((q) => q.id === form.tracked_by_question_id)
+  const newSchedPattern = creatingQuestion ? buildSchedulePattern(form.sched_mode, form.sched_days, form.sched_x) : null
+  const noDays = creatingQuestion && form.sched_mode === 'days_of_week' && form.sched_days.length === 0
   const effIsYesNo = byQuestion && (creatingQuestion ? form.question_scale === 'yes_no' : selectedQuestion?.scale_type === 'yes_no')
-  const effPattern = creatingQuestion ? {} : selectedQuestion?.schedule_pattern
+  const effPattern = creatingQuestion ? newSchedPattern : selectedQuestion?.schedule_pattern
   const maxOccurrences = effIsYesNo ? scheduledOccurrences(effPattern, form.time_frame, form.target_date) : null
   const overMax = effIsYesNo && parseFloat(form.target_value) > maxOccurrences
 
@@ -57,13 +60,14 @@ export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
     if (!target || target <= 0) { setErr(i18n.t('modalsData:addGoal.needTarget')); return }
     if (form.time_frame === 'deadline' && !form.target_date) { setErr(i18n.t('modalsData:addGoal.needTargetDate')); return }
     if (byQuestion && creatingQuestion && !form.question_text.trim()) { setErr(i18n.t('modalsData:addGoal.needQuestionText')); return }
+    if (byQuestion && creatingQuestion && noDays) { setErr(i18n.t('modalsData:addGoal.needAtLeastOneDay')); return }
     if (byQuestion && !creatingQuestion && !form.tracked_by_question_id) { setErr(i18n.t('modalsData:addGoal.needQuestion')); return }
     if (overMax) { setErr(i18n.t('modalsData:addGoal.overMaxError', { max: maxOccurrences })); return }
     setBusy(true)
     setErr('')
     try {
-      // Create the brand-new daily question first (every-day schedule, matching
-      // mobile's AddQuestionModal convention), then link the goal to it.
+      // Create the brand-new daily question first (carrying the authored
+      // schedule; every-day = {}), then link the goal to it. Mirrors web.
       let questionId = form.tracked_by_question_id
       if (byQuestion && creatingQuestion) {
         const q = await onAddQuestion({
@@ -72,7 +76,7 @@ export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
           scale_type: form.question_scale,
           icon: form.question_icon,
           active: true,
-          schedule_pattern: {},
+          schedule_pattern: newSchedPattern || {},
         })
         questionId = q.id
       }
@@ -252,8 +256,22 @@ export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
                   )
                 })}
               </View>
+              <Text style={styles.subLabel}>{i18n.t('modalsData:addGoal.whenAsked')}</Text>
+              <ScheduleDayPicker
+                mode={form.sched_mode}
+                days={form.sched_days}
+                x={form.sched_x}
+                onChange={({ mode, days, x }) => { setForm((f) => ({ ...f, sched_mode: mode, sched_days: days, sched_x: x })); if (err) setErr('') }}
+              />
             </>
           )}
+          {effIsYesNo ? (
+            <Text style={overMax ? styles.error : styles.hint}>
+              {overMax
+                ? i18n.t('modalsData:addGoal.overMaxWarn', { target: parseFloat(form.target_value), max: maxOccurrences })
+                : i18n.t('modalsData:addGoal.freqHint', { max: maxOccurrences, period: i18n.t(`modalsData:addGoal.period.${form.time_frame}`) })}
+            </Text>
+          ) : null}
         </View>
       ) : null}
 

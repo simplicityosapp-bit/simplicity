@@ -16,23 +16,33 @@ const PRIORITY_COLOR = { high: colors.danger, medium: colors.amberWarn, low: col
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 const T = (k, o) => i18n.t(`clients:sections.${k}`, o)
 
-function Section({ title, count, defaultOpen = false, children }) {
+function Section({ title, count, defaultOpen = false, onEdit, children }) {
   const [open, setOpen] = useState(defaultOpen)
+  const toggle = () => setOpen((o) => !o)
+  // Non-nested pressables (title / pencil / chevron are siblings) — a Pressable
+  // inside the header Pressable swallows the tap on RN Web (same fix as web).
   return (
     <Card padded={false} style={styles.sectionOuter} contentStyle={styles.section}>
-      <Pressable style={styles.secHead} onPress={() => setOpen((o) => !o)}>
-        <View style={styles.secTitleWrap}>
+      <View style={styles.secHead}>
+        <Pressable style={styles.secTitleWrap} onPress={toggle}>
           <Text style={styles.secTitle}>{title}</Text>
           {count != null ? <Text style={styles.secCount}>{count}</Text> : null}
-        </View>
-        <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
-      </Pressable>
+        </Pressable>
+        {onEdit ? (
+          <Pressable onPress={onEdit} hitSlop={8} style={styles.secEdit} accessibilityLabel={i18n.t('clients:drawer.edit', { defaultValue: 'ערוך' })}>
+            <Pencil size={13} strokeWidth={1.6} color={colors.textSub} />
+          </Pressable>
+        ) : null}
+        <Pressable onPress={toggle} hitSlop={8} style={styles.secChevron}>
+          <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
+        </Pressable>
+      </View>
       {open ? <View style={styles.secBody}>{children}</View> : null}
     </Card>
   )
 }
 
-export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditSession, onEditTask, onEditReminder }) {
+export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditClient, onEditTx, onEditSession, onEditTask, onEditReminder }) {
   const payments = financeQuery({ clientId: c.id, includePending: true, source: txns }).slice().sort((a, b) => new Date(b.date) - new Date(a.date))
   const payTotal = payments.filter((f) => f.type === 'income' && isConfirmedTx(f)).reduce((s, f) => s + f.amount, 0)
   const clientSessions = live(sessions).filter((s) => s.client_id === c.id || (c.group_id && s.group_id === c.group_id)).sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -44,9 +54,9 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
 
   // timeline — merged event feed (meetings + payments + completed tasks).
   const events = []
-  clientSessions.forEach((s) => events.push({ type: 'meeting', date: s.date, label: `${T('eventMeeting')}${s.num ? ' #' + s.num : ''}`, sub: s.summary || s.notes || '' }))
-  financeQuery({ clientId: c.id, source: txns }).forEach((f) => events.push({ type: 'payment', date: f.date, label: T('eventPayment', { amount: isr(f.amount) }), sub: f.desc || '' }))
-  live(tasks).filter((t) => t.client_id === c.id && t.status === 'done' && t.completed_at).forEach((t) => events.push({ type: 'task', date: t.completed_at, label: t.title, sub: '' }))
+  clientSessions.forEach((s) => events.push({ type: 'meeting', date: s.date, label: `${T('eventMeeting')}${s.num ? ' #' + s.num : ''}`, sub: s.summary || s.notes || '', edit: onEditSession && !s.group_id ? () => onEditSession(s) : null }))
+  financeQuery({ clientId: c.id, source: txns }).forEach((f) => events.push({ type: 'payment', date: f.date, label: T('eventPayment', { amount: isr(f.amount) }), sub: f.desc || '', edit: onEditTx ? () => onEditTx((txns || []).find((t) => t.id === f.id) || f) : null }))
+  live(tasks).filter((t) => t.client_id === c.id && t.status === 'done' && t.completed_at).forEach((t) => events.push({ type: 'task', date: t.completed_at, label: t.title, sub: '', edit: onEditTask ? () => onEditTask(t) : null }))
   events.sort((a, b) => new Date(b.date) - new Date(a.date))
 
   return (
@@ -54,7 +64,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
       <View style={styles.group}>
         <Text style={styles.groupTitle}>{T('activity')}</Text>
 
-        <Section title={T('recurring')}>
+        <Section title={T('recurring')} onEdit={onEditClient}>
           {hasRecurring
             ? <Text style={styles.line}>{i18n.t('clients:sections.recurringLine', { day: i18n.t(`clients:form.days.${c.recurring_day}`), time: c.recurring_time }).replace(/<\/?\d>/g, '')}</Text>
             : <Text style={styles.empty}>{T('noRecurring')}</Text>}
@@ -113,19 +123,22 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
         </Section>
 
         <Section title={T('timeline')} count={events.length}>
-          {events.length ? events.slice(0, 30).map((e, i) => (
-            <View key={i} style={styles.tlRow}>
-              <Text style={styles.tlLabel} numberOfLines={1}>{e.label}{e.sub ? ` · ${e.sub.slice(0, 50)}` : ''}</Text>
-              <Text style={styles.tlDate}>{fmtShortDate(e.date)}</Text>
-            </View>
-          )) : <Text style={styles.empty}>{T('noEvents')}</Text>}
+          {events.length ? events.slice(0, 30).map((e, i) => {
+            const Row = e.edit ? Pressable : View
+            return (
+              <Row key={i} style={styles.tlRow} onPress={e.edit || undefined}>
+                <Text style={styles.tlLabel} numberOfLines={1}>{e.label}{e.sub ? ` · ${e.sub.slice(0, 50)}` : ''}</Text>
+                <Text style={styles.tlDate}>{fmtShortDate(e.date)}</Text>
+              </Row>
+            )
+          }) : <Text style={styles.empty}>{T('noEvents')}</Text>}
         </Section>
       </View>
 
       <View style={styles.group}>
         <Text style={styles.groupTitle}>{T('contactEnv')}</Text>
 
-        <Section title={T('moreDetails')}>
+        <Section title={T('moreDetails')} onEdit={onEditClient}>
           {(c.address || c.birth_date) ? (
             <>
               {c.address ? <View style={styles.row}><View style={styles.rowBody}><Text style={styles.rowTitle}>{c.address}</Text><Text style={styles.rowSub}>{T('address')}</Text></View></View> : null}
@@ -134,7 +147,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           ) : <Text style={styles.empty}>{T('noMoreDetails')}</Text>}
         </Section>
 
-        <Section title={T('notes')}>
+        <Section title={T('notes')} onEdit={onEditClient}>
           {c.notes ? (
             <>
               <Text style={styles.note}>{c.notes}</Text>
@@ -158,7 +171,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           }) : <Text style={styles.empty}>{T('noReminders')}</Text>}
         </Section>
 
-        <Section title={T('memberships')} count={memberships.length}>
+        <Section title={T('memberships')} count={memberships.length} onEdit={memberships.length ? onEditClient : undefined}>
           {memberships.length ? memberships.map((m) => {
             const g = groups.find((x) => x.id === m.group_id)
             const mode = g?.billing_mode || 'package'
@@ -188,8 +201,10 @@ const styles = StyleSheet.create({
   groupTitle: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.6, marginHorizontal: 2, marginTop: 8, marginBottom: 8 },
   sectionOuter: { marginBottom: 8 },
   section: {},
-  secHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 13, paddingHorizontal: 14 },
-  secTitleWrap: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  secHead: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 },
+  secTitleWrap: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 13 },
+  secEdit: { padding: 8 },
+  secChevron: { paddingVertical: 13, paddingHorizontal: 4 },
   secTitle: { fontSize: 14, fontWeight: '600', color: colors.text },
   secCount: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: colors.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
   secBody: { paddingHorizontal: 14, paddingBottom: 14, gap: 8 },

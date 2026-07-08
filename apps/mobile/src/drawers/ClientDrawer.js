@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, Trash2, Pencil, Banknote, MessageCircle, CalendarPlus, ChevronDown, Check, RotateCcw } from 'lucide-react-native'
-import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, isr } from '@simplicity/core'
+import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, planBalance, planInstallments, isr } from '@simplicity/core'
 import Card from '../components/Card'
 import EditClientModal from '../modals/EditClientModal'
 import AddTransactionModal from '../modals/AddTransactionModal'
@@ -12,6 +12,7 @@ import AddTaskModal from '../modals/AddTaskModal'
 import AddReminderModal from '../modals/AddReminderModal'
 import ClientDrawerSections from './ClientDrawerSections'
 import { useFormOptions } from '../lib/formOptions'
+import { usePaymentPlans } from '../hooks/usePaymentPlans'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
@@ -52,6 +53,11 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
   const isMember = !!client && members.some((m) => m.client_id === client.id && !m.left_at)
   const project = client ? projects.find((p) => p.id === client.project_id) : null
   const nextNum = client ? sessions.filter((s) => s.client_id === client.id).length + 1 : 1
+  // Payment-plan glance for the hint under the hero (the full plan lives in the
+  // sections' PaymentPlanSection; this mirrors web's small summary line).
+  const { plans, installments } = usePaymentPlans()
+  const plan = client ? (plans.find((p) => p.client_id === client.id) || null) : null
+  const planBal = plan ? planBalance(plan, planInstallments(plan.id, installments)) : null
 
   // Manual status change always sets status_overridden so the choice wins over
   // any group the client belongs to (migration 0062); revert clears the override.
@@ -150,6 +156,11 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                 <Text style={styles.billNote}>{i18n.t('clients:drawer.perSessionNote', { price: isr(client.price_per_session || 0) })}</Text>
               ) : null}
 
+              {/* Payment plan hint — quick glance (full plan is in the sections below) */}
+              {plan && planBal ? (
+                <Text style={styles.planHint}>{i18n.t('clients:drawer.planHint', { received: planBal.receivedCount, total: planBal.count, remaining: isr(planBal.remaining) })}</Text>
+              ) : null}
+
               {/* Group sessions — read-only breakdown, one row per group */}
               {bal.groupSessions.length > 0 ? (
                 <View style={styles.grpSessions}>
@@ -189,6 +200,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                 sessions={sessions}
                 members={members}
                 groups={groups}
+                onEditClient={() => setEditing(true)}
                 onEditTx={setEditTx}
                 onEditSession={setEditSession}
                 onEditTask={setEditTask}
@@ -310,6 +322,7 @@ const styles = StyleSheet.create({
   statAccent: { color: colors.brand },
 
   billNote: { fontSize: 12, color: colors.textSub, textAlign: 'center', marginTop: -6 },
+  planHint: { fontSize: 12, color: colors.textSub, textAlign: 'center' },
   grpSessions: { gap: 6, marginTop: -4 },
   grpRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   grpName: { flex: 1, fontSize: 12, color: colors.textSub },

@@ -1,9 +1,21 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { I18nManager } from 'react-native'
+import { setCurrentCurrency, setDateTimeFormat, setHebrewCalendar } from '@simplicity/core'
 import { supabase } from './supabase'
 import i18n, { setGenderContext } from './i18n'
 
 const SUPPORTED_LANGS = ['he', 'en', 'es', 'fr']
+
+// Apply saved format prefs to the core formatters (mirrors web PrefsApplier):
+// currency → isr, date/time → fmtShortDate/fmtTime, Hebrew calendar → formatWhen.
+// Without this, every date/time/money value on mobile was fixed to DD/MM · 24h ·
+// ₪ regardless of what the user chose on web.
+function applyFormatPrefs(p) {
+  if (!p) return
+  if (p.format?.currency) setCurrentCurrency(p.format.currency)
+  setDateTimeFormat({ date_format: p.format?.date_format, time_format: p.format?.time_format })
+  setHebrewCalendar({ enabled: p.design?.hebrew_calendar, dual: p.design?.hebrew_calendar_dual })
+}
 
 // Apply a saved UI language over the startup default (which was picked from the
 // device locale in setupI18n). Strings swap immediately; a Hebrew↔LTR direction
@@ -40,6 +52,7 @@ export function PreferencesProvider({ children }) {
         if (alive) setPrefs(p)
         applySavedLanguage(p.language)
         setGenderContext(p.design?.gender)
+        applyFormatPrefs(p)
       } catch { /* keep defaults */ }
     })()
     return () => { alive = false }
@@ -49,6 +62,7 @@ export function PreferencesProvider({ children }) {
     const next = { ...ref.current, ...patch }
     ref.current = next
     setPrefs(next)
+    applyFormatPrefs(next)
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import Slider from '@react-native-community/slider'
 import { Sparkles, Check } from 'lucide-react-native'
 import { questionText, isQuestionDueToday } from '@simplicity/core'
@@ -18,6 +19,7 @@ const dayStr = (offset = 0) => {
 }
 
 export default function InsightsWidget({ questions, answers, addAnswer }) {
+  const nav = useNavigation()
   const [val, setVal] = useState(null)
   const [busy, setBusy] = useState(false)
 
@@ -70,10 +72,10 @@ export default function InsightsWidget({ questions, answers, addAnswer }) {
   return (
     <View style={styles.wrap}>
       <Card contentStyle={styles.inner}>
-        <View style={styles.qRow}>
+        <Pressable style={styles.qRow} onPress={() => nav.navigate('Insights')} accessibilityRole="button">
           <Sparkles size={16} strokeWidth={1.6} color={colors.brand} />
           <Text style={styles.q}>{text}</Text>
-        </View>
+        </Pressable>
 
         {isYesNo ? (
           <View style={styles.ynRow}>

@@ -9,6 +9,7 @@ import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import InfoPopover from '../components/InfoPopover'
 import { colors } from '../theme/theme'
 import { useReportsData } from '../hooks/useReportsData'
 
@@ -96,6 +97,7 @@ export default function ReportsScreen() {
                         <Icon size={15} strokeWidth={1.6} color={colors.textSub} />
                         <Text style={styles.rowLabel}>{i18n.t(`reports:metrics.${m.id}`)}</Text>
                         <Text style={styles.rowValue}>{formatReportValue(m, v)}</Text>
+                        {m.info ? <InfoPopover label={i18n.t('reports:info', { label: i18n.t(`reports:metrics.${m.id}`) })} text={i18n.t(`reports:metricsDesc.${m.id}`)} /> : null}
                       </View>
                     )
                   })}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { staleScheduledMeetingIds } from '../lib/scheduledMeetings'
 
 // Clients + everything the drawer/sections need: the rows core clientBalance uses
 // (transactions/sessions/members/groups) plus tasks + reminders for the client's
@@ -82,7 +83,29 @@ export function useClientsList() {
     return data
   }, [])
 
-  const updateClient = useCallback((id, patch) => patchRow('clients', 'clients', id, patch), [patchRow])
+  // Patch a client, and when its recurring slot changes, hard-delete the FUTURE
+  // PENDING meetings generated for the OLD slot so stale occurrences don't linger
+  // on the calendar (mirrors web handleUpdateClient). Web-only generation won't
+  // clean these up, so mobile must. scheduled_meetings is a hard delete (no
+  // deleted_at column). Fetched on demand — the hook doesn't hold that state.
+  const updateClient = useCallback(async (id, patch) => {
+    const prev = state.clients.find((c) => c.id === id)
+    const result = await patchRow('clients', 'clients', id, patch)
+    if (prev && ('recurring_day' in patch || 'recurring_time' in patch)) {
+      try {
+        const { data: mtgs } = await supabase.from('scheduled_meetings').select('*')
+          .eq('subject_type', 'client').eq('subject_id', id).eq('status', 'pending')
+        const stale = staleScheduledMeetingIds(
+          'client', id,
+          { day: prev.recurring_day, time: prev.recurring_time },
+          { day: patch.recurring_day, time: patch.recurring_time },
+          mtgs || [],
+        )
+        for (const mid of stale) { await supabase.from('scheduled_meetings').delete().eq('id', mid) }
+      } catch { /* non-fatal — the slot change itself already succeeded */ }
+    }
+    return result
+  }, [patchRow, state.clients])
   const deleteClient = useCallback((id) => softDelete('clients', 'clients', id), [softDelete])
   const updateSession = useCallback((id, patch) => patchRow('sessions', 'sessions', id, patch), [patchRow])
   const updateTask = useCallback((id, patch) => patchRow('tasks', 'tasks', id, patch), [patchRow])

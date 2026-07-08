@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
-import { questionText } from '@simplicity/core'
+import { questionText, scheduledOccurrences } from '@simplicity/core'
 import { useFormOptions } from '../lib/formOptions'
 import { ALL_METRICS, metricName, OTHER_METRIC_KEY } from '../lib/goalPresets'
 import i18n from '../lib/i18n'
@@ -36,6 +36,15 @@ export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
   const qMode = byQuestion ? (hasActiveQ && canCreateQuestion ? form.question_mode : (canCreateQuestion ? 'new' : 'existing')) : null
   const creatingQuestion = byQuestion && qMode === 'new'
 
+  // A yes/no goal can't target more "yes" answers than the question is asked
+  // (its schedule caps it); sliders accumulate freely. Handles both a picked
+  // question (its stored schedule) and a new one (every-day = {}). Mirrors web.
+  const selectedQuestion = activeQuestions.find((q) => q.id === form.tracked_by_question_id)
+  const effIsYesNo = byQuestion && (creatingQuestion ? form.question_scale === 'yes_no' : selectedQuestion?.scale_type === 'yes_no')
+  const effPattern = creatingQuestion ? {} : selectedQuestion?.schedule_pattern
+  const maxOccurrences = effIsYesNo ? scheduledOccurrences(effPattern, form.time_frame, form.target_date) : null
+  const overMax = effIsYesNo && parseFloat(form.target_value) > maxOccurrences
+
   const TIME_FRAMES = [
     { k: 'monthly', l: i18n.t('modalsData:addGoal.tf.monthly') },
     { k: 'weekly', l: i18n.t('modalsData:addGoal.tf.weekly') },
@@ -49,6 +58,7 @@ export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
     if (form.time_frame === 'deadline' && !form.target_date) { setErr(i18n.t('modalsData:addGoal.needTargetDate')); return }
     if (byQuestion && creatingQuestion && !form.question_text.trim()) { setErr(i18n.t('modalsData:addGoal.needQuestionText')); return }
     if (byQuestion && !creatingQuestion && !form.tracked_by_question_id) { setErr(i18n.t('modalsData:addGoal.needQuestion')); return }
+    if (overMax) { setErr(i18n.t('modalsData:addGoal.overMaxError', { max: maxOccurrences })); return }
     setBusy(true)
     setErr('')
     try {

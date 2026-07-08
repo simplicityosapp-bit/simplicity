@@ -89,4 +89,5 @@ export const backgrounds = {
   calendar: require('../../assets/backgrounds/calendar.webp'),
   tasks: require('../../assets/backgrounds/tasks.webp'),
   moon: require('../../assets/backgrounds/moon.webp'),
+  reports: require('../../assets/backgrounds/reports.webp'), // used by the 'simple' bg mode
 }

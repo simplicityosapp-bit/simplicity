@@ -3,6 +3,7 @@ import { Trash2, RotateCcw, User, FolderOpen, Users, CheckSquare, UserPlus, Tag,
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import { fmtShortDate, isr } from '@simplicity/core'
 import { useTrash, TRASH_TYPES } from '../hooks/useTrash'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
@@ -15,7 +16,34 @@ const ICONS = {
   sessions: CalendarDays, reminders: Bell, goals: Target, goalCategories: LayoutGrid,
   goalEntries: BarChart3, userQuestions: HelpCircle, dailyAnswers: MessageCircle,
 }
-const FIELD = Object.fromEntries(TRASH_TYPES.map((t) => [t.key, t.field]))
+const TT = (k, o) => i18n.t(`trash:${k}`, o)
+
+// Primary-label resolver per entity (mirrors web TrashItem.primaryLabel) so each
+// row shows a meaningful label even without a name/desc — e.g. a transaction with
+// no description falls back to its signed amount, a session to "פגישה #N · date".
+function primaryLabel(key, row) {
+  switch (key) {
+    case 'clients': case 'projects': case 'groups': case 'leads':
+    case 'leadSources': case 'categories': case 'goalCategories':
+      return row.name || '—'
+    case 'leadStatuses': return row.display_name || '—'
+    case 'tasks': return row.title || '—'
+    case 'reminders': return row.title || '—'
+    case 'goals': return row.label || (row.target_value != null ? TT('item.goalFallback', { value: row.target_value }) : '—')
+    case 'goalEntries': { const v = row.value ?? '—'; return row.date ? `${v} · ${fmtShortDate(row.date)}` : `${v}` }
+    case 'userQuestions': return row.custom_text || row.template_key || '—'
+    case 'dailyAnswers': { const v = row.value_num ?? row.value_text ?? '—'; return row.date ? `${fmtShortDate(row.date)} · ${v}` : `${v}` }
+    case 'transactions': case 'recurring': {
+      if (row.desc) return row.desc
+      return `${row.type === 'expense' ? '−' : '+'}${isr(Math.abs(row.amount || 0))}`
+    }
+    case 'sessions': {
+      const num = row.num != null ? TT('item.sessionNum', { num: row.num }) : TT('item.session')
+      return row.date ? `${num} · ${fmtShortDate(row.date)}` : num
+    }
+    default: return row.name || row.title || '—'
+  }
+}
 
 export default function TrashScreen() {
   const { trash, totalCount, loading, error, restore, refetch } = useTrash()
@@ -56,7 +84,7 @@ export default function TrashScreen() {
                     </View>
                     {items.map((row, i) => (
                       <View key={row.id} style={[styles.row, i > 0 && styles.rowBorder]}>
-                        <Text style={styles.rowLabel} numberOfLines={1}>{row[FIELD[t.key]] || i18n.t(`trash:entities.${t.key}`)}</Text>
+                        <Text style={styles.rowLabel} numberOfLines={1}>{primaryLabel(t.key, row)}</Text>
                         <Pressable style={styles.restore} onPress={() => restore(t.key, row.id)} hitSlop={6}>
                           <RotateCcw size={14} strokeWidth={1.8} color={colors.textSub} />
                           <Text style={styles.restoreText}>{i18n.t('trash:restore', { defaultValue: 'שחזור' })}</Text>

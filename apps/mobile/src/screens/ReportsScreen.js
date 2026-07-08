@@ -28,11 +28,23 @@ export default function ReportsScreen() {
   const [idx, setIdx] = useState(periods.length - 1) // current month
   const period = periods[idx]
 
-  const report = useMemo(
-    () => computeReportForRange(period.start, period.end, { leads, clients, sessions, transactions, tasks, groupMembers, groups }),
-    [period, leads, clients, sessions, transactions, tasks, groupMembers, groups],
+  const data = useMemo(
+    () => ({ leads, clients, sessions, transactions, tasks, groupMembers, groups }),
+    [leads, clients, sessions, transactions, tasks, groupMembers, groups],
   )
+  const report = useMemo(() => computeReportForRange(period.start, period.end, data), [period, data])
   const metricVal = (id) => report?.metrics?.[id]
+  // Whole month with no data → offer the most recent month that has some (web parity).
+  const isEmpty = useMemo(() => REPORT_METRICS.every((m) => { const v = report?.metrics?.[m.id]; return v == null || v === 0 }), [report])
+  const suggested = useMemo(() => {
+    if (!isEmpty) return null
+    for (let i = periods.length - 1; i >= 0; i -= 1) {
+      if (i === idx) continue
+      const rep = computeReportForRange(periods[i].start, periods[i].end, data)
+      if (REPORT_METRICS.some((m) => { const v = rep.metrics[m.id]; return v != null && v !== 0 })) return { i, label: periods[i].label }
+    }
+    return null
+  }, [isEmpty, periods, idx, data])
 
   return (
     <Screen name="finance">
@@ -59,7 +71,17 @@ export default function ReportsScreen() {
             })}
           </ScrollView>
 
-          {REPORT_GROUPS.map((g) => {
+          {isEmpty ? (
+            <View style={styles.emptyBox}>
+              <BarChart3 size={28} strokeWidth={1.3} color={colors.textFaint} />
+              <Text style={styles.emptyText}>{i18n.t('reports:list.empty', { defaultValue: 'אין נתונים לחודש הזה' })}</Text>
+              {suggested ? (
+                <Pressable style={styles.emptyCta} onPress={() => setIdx(suggested.i)}>
+                  <Text style={styles.emptyCtaText}>{i18n.t('reports:list.goToMonth', { label: suggested.label, defaultValue: `← עבור ל${suggested.label}` })}</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : REPORT_GROUPS.map((g) => {
             const metrics = REPORT_METRICS.filter((m) => m.group === g.id)
             return (
               <View key={g.id} style={styles.group}>
@@ -67,11 +89,13 @@ export default function ReportsScreen() {
                   <Text style={styles.groupTitle}>{i18n.t(`reports:groups.${g.id}`)}</Text>
                   {metrics.map((m, i) => {
                     const Icon = METRIC_ICONS[m.id] || BarChart3
+                    const v = metricVal(m.id)
+                    const empty = v == null || v === 0
                     return (
-                      <View key={m.id} style={[styles.row, i > 0 && styles.rowBorder]}>
+                      <View key={m.id} style={[styles.row, i > 0 && styles.rowBorder, empty && styles.rowEmpty]}>
                         <Icon size={15} strokeWidth={1.6} color={colors.textSub} />
                         <Text style={styles.rowLabel}>{i18n.t(`reports:metrics.${m.id}`)}</Text>
-                        <Text style={styles.rowValue}>{formatReportValue(m, metricVal(m.id))}</Text>
+                        <Text style={styles.rowValue}>{formatReportValue(m, v)}</Text>
                       </View>
                     )
                   })}
@@ -100,4 +124,9 @@ const styles = StyleSheet.create({
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   rowLabel: { flex: 1, fontSize: 13, color: colors.text },
   rowValue: { fontSize: 13, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
+  rowEmpty: { opacity: 0.6 }, // web .rep-row.empty — a 0/null metric reads dimmed
+  emptyBox: { alignItems: 'center', gap: 12, paddingVertical: 48 },
+  emptyText: { fontSize: 14, color: colors.textFaint, textAlign: 'center' },
+  emptyCta: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: colors.border },
+  emptyCtaText: { fontSize: 13, fontWeight: '500', color: colors.brand },
 })

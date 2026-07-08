@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
@@ -19,10 +19,20 @@ export default function AddProjectModal({ open, onClose, onSave, onDelete, proje
   useEffect(() => { if (open) { setForm(blank(project)); setErr(''); setBusy(false) } }, [open, project])
   const close = () => { setErr(''); setBusy(false); onClose() }
 
-  const remove = async () => {
-    if (busy || !onDelete) return
+  const doRemove = async () => {
     setBusy(true)
     try { await onDelete(); close() } catch (e) { setBusy(false); setErr(i18n.t('modalsData:common.saveFailed', { error: e.message || i18n.t('modalsData:common.tryAgain') })) }
+  }
+  const remove = () => {
+    if (busy || !onDelete) return
+    Alert.alert(
+      i18n.t('projects:delete.title', { defaultValue: 'מחיקת פרויקט' }),
+      i18n.t('projects:delete.message', { name: project?.name || '', defaultValue: 'למחוק את הפרויקט?' }),
+      [
+        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+        { text: i18n.t('projects:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: doRemove },
+      ],
+    )
   }
 
   const submit = async () => {

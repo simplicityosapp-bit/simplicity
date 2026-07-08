@@ -56,8 +56,8 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, so
       ) : null}
       {lead.follow_up_date ? (
         <View style={styles.line}>
-          <Clock size={11} strokeWidth={1.6} color={overdue ? colors.danger : colors.textFaint} />
-          <Text style={[styles.lineText, overdue && styles.overdue]}>{fmtShortDate(lead.follow_up_date)}</Text>
+          <Clock size={11} strokeWidth={1.6} color={overdue ? colors.danger : colors.textSub} />
+          <Text style={[styles.fuText, overdue && styles.overdue]}>{fmtShortDate(lead.follow_up_date)}</Text>
         </View>
       ) : null}
 
@@ -97,7 +97,8 @@ const styles = StyleSheet.create({
   srcNone: { color: colors.textFaint },
   line: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   lineText: { fontSize: 11, color: colors.textFaint },
-  overdue: { color: colors.danger, fontWeight: '600' },
+  fuText: { fontSize: 11, color: colors.textSub }, // web .lead-fu = var(--stone)
+  overdue: { color: colors.danger, fontWeight: '500' },
   foot: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
   converted: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   convertedText: { fontSize: 11, fontWeight: '600', color: colors.positive },

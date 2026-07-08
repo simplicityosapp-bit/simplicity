@@ -48,7 +48,12 @@ export function usePaymentPlans() {
     }).select().single()
     if (error) throw error
     const rows = generateInstallments({ total, count, startDate }).map((r) => ({ ...r, plan_id: plan.id, user_id: uid }))
-    const { data: created } = await supabase.from('payment_installments').insert(rows).select()
+    // Installments MUST succeed before we set the client total — otherwise the
+    // client gets an inflated total_override with no installments to pay it
+    // down (unpayable, corrupted balance). Mirrors web, which awaits a throwing
+    // insertPaymentInstallments() before the updateClient total_override.
+    const { data: created, error: instErr } = await supabase.from('payment_installments').insert(rows).select()
+    if (instErr) throw instErr
     setPlans((prev) => [plan, ...prev])
     setInstallments((prev) => [...prev, ...(created ?? [])])
     try { await supabase.from('clients').update({ total_override: Number(total) || 0, has_custom_price: true }).eq('id', client_id) } catch { /* card total only — non-fatal */ }

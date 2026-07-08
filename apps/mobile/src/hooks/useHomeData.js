@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { confirmScheduledMeeting } from '../lib/scheduledMeetings'
 
@@ -30,6 +30,10 @@ export function useHomeData() {
   const [data, setData] = useState(EMPTY)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  // Freshest sessions for meeting-confirm numbering (avoids a stale-closure num
+  // across rapid successive confirms). Tracks the latest committed state.
+  const sessionsRef = useRef(data.sessions)
+  sessionsRef.current = data.sessions
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -143,8 +147,8 @@ export function useHomeData() {
   // Confirm a meeting from home (tile-drill "מה קרה") — materialise a linked
   // session so it counts on the client card, matching web + the calendar flow.
   const confirmMeeting = useCallback(async (meeting) => {
-    await confirmScheduledMeeting({ meeting, sessions: data.sessions, addSession, updateMeeting: updateMeetingRow })
-  }, [data.sessions, addSession, updateMeetingRow])
+    await confirmScheduledMeeting({ meeting, sessions: sessionsRef.current, addSession, updateMeeting: updateMeetingRow })
+  }, [addSession, updateMeetingRow])
 
   // Inline complete-from-home (NextTasks ✓ / Reminders ✓), mirrors web.
   const toggleTask = useCallback(async (task) => {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { confirmScheduledMeeting, skipScheduledMeeting } from '../lib/scheduledMeetings'
 
@@ -18,6 +18,11 @@ export function useCalendarData() {
   const [state, setState] = useState(EMPTY)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  // Freshest sessions for meeting-confirm numbering — reading state.sessions
+  // from a callback closure can be stale across rapid successive confirms
+  // (two would compute the same session num). The ref tracks the latest commit.
+  const sessionsRef = useRef(state.sessions)
+  sessionsRef.current = state.sessions
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -86,14 +91,15 @@ export function useCalendarData() {
     if (e) { load(); throw e }
   }, [load])
 
-  // Confirm "it happened" — materialises a linked session (mirrors web). Reads
-  // sessions from the latest state via the functional setState escape hatch is
-  // overkill; the closure's `state.sessions` is fresh enough for numbering.
+  // Confirm "it happened" — materialises a linked session (mirrors web). Uses
+  // sessionsRef for freshest numbering, and swallows a failed write: updateMeeting
+  // already reloads on error, so the try/catch just prevents an unhandled
+  // rejection reaching the un-awaited onPress in CalendarScreen.
   const confirmMeeting = useCallback(async (meeting) => {
-    await confirmScheduledMeeting({ meeting, sessions: state.sessions, addSession, updateMeeting })
-  }, [state.sessions, addSession, updateMeeting])
+    try { await confirmScheduledMeeting({ meeting, sessions: sessionsRef.current, addSession, updateMeeting }) } catch { /* updateMeeting already reloaded */ }
+  }, [addSession, updateMeeting])
   const skipMeeting = useCallback(async (meeting) => {
-    await skipScheduledMeeting({ meeting, updateMeeting, removeSession })
+    try { await skipScheduledMeeting({ meeting, updateMeeting, removeSession }) } catch { /* updateMeeting already reloaded */ }
   }, [updateMeeting, removeSession])
 
   return { ...state, loading, error, refetch: load, addMeeting, setMeetingStatus, addSession, removeSession, updateMeeting, confirmMeeting, skipMeeting }

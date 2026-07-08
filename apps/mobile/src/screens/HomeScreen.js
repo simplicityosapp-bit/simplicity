@@ -28,7 +28,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
-    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, toggleTask, completeReminder, setTransactionStatus, deleteTransaction,
+    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction,
   } = useHomeData()
   const { prefs, update: updatePrefs } = usePreferences()
   const { projects, categories: financeCategories } = useFormOptions()
@@ -126,7 +126,7 @@ export default function HomeScreen() {
         meetings={meetings}
         calendarEvents={calendarEvents}
         leads={leads}
-        onConfirm={(it) => setMeetingStatus(it.meeting?.id, 'confirmed')}
+        onConfirm={(it) => (it.meeting ? confirmMeeting(it.meeting) : setMeetingStatus(it.meeting?.id, 'confirmed'))}
       />
     </Screen>
   )

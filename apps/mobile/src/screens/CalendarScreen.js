@@ -20,7 +20,7 @@ const pad = (n) => String(n).padStart(2, '0')
 const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
 export default function CalendarScreen() {
-  const { meetings, calendarEvents, clients, groups, reminders, leads, loading, error, refetch, addMeeting, setMeetingStatus } = useCalendarData()
+  const { meetings, calendarEvents, clients, groups, reminders, leads, loading, error, refetch, addMeeting, confirmMeeting } = useCalendarData()
   const now = new Date()
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
   const [selected, setSelected] = useState(() => keyOf(now))
@@ -130,7 +130,7 @@ export default function CalendarScreen() {
                   <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
                   <Text style={styles.eventTitle} numberOfLines={1}>{e.title || '—'}</Text>
                   {e.pending ? (
-                    <Pressable style={styles.confirm} onPress={() => setMeetingStatus(e.mid, 'confirmed')} hitSlop={6}>
+                    <Pressable style={styles.confirm} onPress={() => confirmMeeting(meetings.find((m) => m.id === e.mid))} hitSlop={6}>
                       <Check size={14} strokeWidth={2.2} color={colors.positive} />
                     </Pressable>
                   ) : KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}

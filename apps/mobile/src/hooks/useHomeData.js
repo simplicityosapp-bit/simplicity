@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { confirmScheduledMeeting } from '../lib/scheduledMeetings'
 
 // Minimal data layer for the home screen. RLS scopes every row to the signed-in
 // user, so a plain select is safe. We only read columns the home derivations
@@ -123,6 +124,7 @@ export function useHomeData() {
   const addProject = useCallback((payload) => insertInto('projects', payload, 'projects'), [insertInto])
   const addReminder = useCallback((payload) => insertInto('reminders', payload, 'reminders'), [insertInto])
   const addMeeting = useCallback((payload) => insertInto('scheduled_meetings', payload, 'meetings'), [insertInto])
+  const addSession = useCallback((payload) => insertInto('sessions', payload, 'sessions'), [insertInto])
 
   // Mark a scheduled meeting as happened / skipped (tile-drill "מה קרה" action).
   const setMeetingStatus = useCallback(async (id, status) => {
@@ -131,6 +133,18 @@ export function useHomeData() {
     const { error: e } = await supabase.from('scheduled_meetings').update({ status }).eq('id', id)
     if (e) load()
   }, [load])
+  // Patch a scheduled_meeting (status + session_id link); optimistic.
+  const updateMeetingRow = useCallback(async (id, patch) => {
+    if (!id) return
+    setData((prev) => ({ ...prev, meetings: prev.meetings.map((m) => (m.id === id ? { ...m, ...patch } : m)) }))
+    const { error: e } = await supabase.from('scheduled_meetings').update(patch).eq('id', id)
+    if (e) load()
+  }, [load])
+  // Confirm a meeting from home (tile-drill "מה קרה") — materialise a linked
+  // session so it counts on the client card, matching web + the calendar flow.
+  const confirmMeeting = useCallback(async (meeting) => {
+    await confirmScheduledMeeting({ meeting, sessions: data.sessions, addSession, updateMeeting: updateMeetingRow })
+  }, [data.sessions, addSession, updateMeetingRow])
 
   // Inline complete-from-home (NextTasks ✓ / Reminders ✓), mirrors web.
   const toggleTask = useCallback(async (task) => {
@@ -164,5 +178,5 @@ export function useHomeData() {
     if (e) load()
   }, [load])
 
-  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, toggleTask, completeReminder, setTransactionStatus, deleteTransaction }
+  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, addSession, setMeetingStatus, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction }
 }

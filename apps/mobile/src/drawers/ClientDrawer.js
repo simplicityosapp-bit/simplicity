@@ -29,7 +29,7 @@ const STATUS_PILL = {
 const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, addMeeting, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction, updateReminder, deleteReminder }) {
+export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, addMeeting, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction, updateReminder, deleteReminder, updateMember }) {
   const insets = useSafeAreaInsets()
   const { projects } = useFormOptions()
   const [editing, setEditing] = useState(false)
@@ -264,6 +264,8 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         onClose={() => setEditing(false)}
         onSave={(id, patch) => updateClient(id, patch)}
         onPaidEntry={(delta) => setPendingPaid(delta)}
+        memberships={client ? members.filter((m) => m.client_id === client.id && !m.left_at) : []}
+        onUpdateMember={updateMember}
       />
       <AddTransactionModal
         open={paying}

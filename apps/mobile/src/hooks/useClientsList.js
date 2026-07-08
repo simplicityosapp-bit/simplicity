@@ -114,12 +114,15 @@ export function useClientsList() {
   const deleteTransaction = useCallback((id) => softDelete('transactions', 'transactions', id), [softDelete])
   const updateReminder = useCallback((id, patch) => patchRow('reminders', 'reminders', id, patch), [patchRow])
   const deleteReminder = useCallback((id) => softDelete('reminders', 'reminders', id), [softDelete])
+  // Per-group membership patch (group_members.total_override / has_custom_price) —
+  // feeds clientBalance memberTotal; edited from EditClientModal's Groups section.
+  const updateMember = useCallback((id, patch) => patchRow('group_members', 'members', id, patch), [patchRow])
 
   return {
     ...state, loading, error, refetch: load,
     addClient, addTransaction, addSession, addMeeting,
     updateClient, deleteClient,
     updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction,
-    updateReminder, deleteReminder,
+    updateReminder, deleteReminder, updateMember,
   }
 }

@@ -60,14 +60,19 @@ function Section({ Icon, title, summary, open, onToggle, children }) {
   )
 }
 
-export default function EditClientModal({ open, onClose, onSave, client, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [], onPaidEntry }) {
+export default function EditClientModal({ open, onClose, onSave, client, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [], onPaidEntry, memberships = [], onUpdateMember }) {
   const { projects, groups, clientStatuses, meetingTypes } = useFormOptions()
   const snap = { rawPaid, memberTotal, personalHeld }
   const [form, setForm] = useState(() => blank(client, snap))
   const [openSecs, setOpenSecs] = useState(() => new Set(['details']))
+  // Per-group billing override (group_members.total_override), keyed by
+  // membership id — lets the user set a member's total after the group's
+  // billing mode produced a default (mirrors web EditClientModal).
+  const memberDefaults = () => Object.fromEntries((memberships || []).map((m) => [m.id, m.total_override != null ? String(m.total_override) : '']))
+  const [memberOverrides, setMemberOverrides] = useState(memberDefaults)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
-  useEffect(() => { if (open) { setForm(blank(client, snap)); setOpenSecs(new Set(['details'])); setErr(''); setBusy(false) } }, [open, client?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (open) { setForm(blank(client, snap)); setOpenSecs(new Set(['details'])); setMemberOverrides(memberDefaults()); setErr(''); setBusy(false) } }, [open, client?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const toggleSec = (k) => setOpenSecs((s) => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n })
@@ -93,7 +98,7 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
     ? `${C(`day${form.recurring_day}`)}${form.recurring_time ? ` · ${form.recurring_time}` : ''}`
     : (form.meeting_type_id ? (meetingTypes.find((mt) => mt.id === form.meeting_type_id)?.name || '') : '')
   const projectHasGroups = !!form.project_id && groups.some((g) => g.project_id === form.project_id)
-  const showGroups = groupSessions.length > 0 || projectHasGroups
+  const showGroups = groupSessions.length > 0 || projectHasGroups || memberships.length > 0
 
   const submit = async () => {
     if (!form.name.trim()) { setErr(C('nameRequired')); setOpenSecs((s) => new Set(s).add('details')); return }
@@ -134,11 +139,18 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
       // credit (mirrors web onPaidEntry). Fall back to folding if no handler is
       // wired, so a standalone use never silently drops the change.
       const paymentDelta = (Number(form.paid) || 0) - (rawPaid + (Number(client?.paid_adjustment) || 0))
-      if (paymentDelta !== 0) {
-        if (onPaidEntry) onPaidEntry(paymentDelta)
-        else patch.paid_adjustment = (Number(client?.paid_adjustment) || 0) + paymentDelta
-      }
+      if (!onPaidEntry && paymentDelta !== 0) patch.paid_adjustment = (Number(client?.paid_adjustment) || 0) + paymentDelta
       await onSave(client.id, patch)
+      // Persist any changed per-group billing overrides (mirrors web).
+      for (const m of memberships) {
+        const rawv = memberOverrides[m.id]
+        const next = rawv !== '' && rawv != null ? Math.max(0, Number(rawv) || 0) : null
+        if (next !== (m.total_override ?? null)) {
+          await onUpdateMember?.(m.id, { total_override: next, has_custom_price: next != null })
+        }
+      }
+      // A manual "שולם" change → hand the delta to the parent to prompt record-or-fold.
+      if (onPaidEntry && paymentDelta !== 0) onPaidEntry(paymentDelta)
       onClose()
     } catch (e) {
       setBusy(false)
@@ -248,6 +260,28 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
               <Text style={styles.grpVal}>{T('groupSessionsVal', { held: gs.held, quota: gs.quota || 0 })}</Text>
             </View>
           ))}
+          {memberships.length > 0 ? (
+            <View style={styles.perGroup}>
+              <Text style={styles.label}>{T('perGroupBilling')}</Text>
+              {memberships.map((m) => {
+                const g = groups.find((x) => x.id === m.group_id)
+                return (
+                  <View key={m.id} style={styles.perGroupRow}>
+                    <Text style={styles.perGroupName} numberOfLines={1}>{g?.name || T('groupFallback')}</Text>
+                    <TextInput
+                      style={[styles.input, styles.perGroupInput]}
+                      value={memberOverrides[m.id] ?? ''}
+                      onChangeText={(v) => setMemberOverrides((o) => ({ ...o, [m.id]: v }))}
+                      placeholder={T('perGroupPlaceholder')}
+                      placeholderTextColor={colors.textFaint}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                )
+              })}
+              <Text style={styles.hint}>{T('perGroupHint')}</Text>
+            </View>
+          ) : null}
         </Section>
       ) : null}
 
@@ -308,6 +342,10 @@ const styles = StyleSheet.create({
   grpRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 4 },
   grpName: { fontSize: 13, color: colors.text },
   grpVal: { fontSize: 13, color: colors.textSub },
+  perGroup: { gap: 8, marginTop: 8 },
+  perGroupRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  perGroupName: { flex: 1, fontSize: 13, color: colors.text },
+  perGroupInput: { flex: 1 },
 
   error: { color: colors.danger, fontSize: 13 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },

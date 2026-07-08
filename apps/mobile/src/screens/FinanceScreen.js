@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share, Alert } from 'react-native'
 import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Download, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react-native'
 import { monthNet, describeCadence, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
@@ -40,6 +40,20 @@ export default function FinanceScreen() {
   const [monthOffset, setMonthOffset] = useState(0)
   const now = new Date()
   const monthDate = useMemo(() => new Date(now.getFullYear(), now.getMonth() + monthOffset, 1), [monthOffset]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // After creating a transaction, jump the view to its month so the new row is
+  // visible (mirrors web finance/index.jsx onSave → setMonth(new Date(row.date))).
+  // A back/future-dated tx that lands outside the visible month otherwise looks
+  // like the save failed, risking a duplicate entry.
+  const addAndGoToMonth = useCallback(async (payload) => {
+    const row = await addTransaction(payload)
+    if (row?.date) {
+      const d = new Date(row.date)
+      const ref = new Date()
+      setMonthOffset((d.getFullYear() - ref.getFullYear()) * 12 + (d.getMonth() - ref.getMonth()))
+    }
+    return row
+  }, [addTransaction])
 
   const clientById = useMemo(() => Object.fromEntries(clients.map((c) => [c.id, c.name])), [clients])
   const categoryById = useMemo(() => Object.fromEntries(categories.map((c) => [c.id, c.name])), [categories])
@@ -280,7 +294,7 @@ export default function FinanceScreen() {
         </ScrollView>
       )}
 
-      <AddTransactionModal open={adding} clients={clients} onClose={() => setAdding(false)} onSave={addTransaction} />
+      <AddTransactionModal open={adding} clients={clients} onClose={() => setAdding(false)} onSave={addAndGoToMonth} />
       <AddTransactionModal
         open={!!editing}
         tx={editing}

@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import Svg, { Circle, Path, Polygon } from 'react-native-svg'
-import { moonGetData, moonGetCategories, moonTrend, moonReflection } from '@simplicity/core'
+import { moonGetData, moonGetCategories, moonTrend, moonReflection, buildOverviewCorrelations, questionText } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
@@ -12,14 +12,13 @@ import { useGoalsData } from '../hooks/useGoalsData'
 
 // Moon screen ("מבט על", mirrors web moon-glance core): a confidence ring +
 // reflection, per-category pace/goal dual bars, and a 30-day trend line with
-// avg/peak/today. (The cross-module overlay + guarded correlations are a later
-// increment.)
+// avg/peak/today, plus the guarded cross-module correlations (§8.2).
 const RING = 46
 const CIRC = 2 * Math.PI * RING
 
 export default function MoonScreen() {
   const nav = useNavigation()
-  const { goals, categories, entries, transactions, clients, leads, answers, members, groups, loading, error, refetch } = useGoalsData()
+  const { goals, categories, entries, transactions, clients, leads, answers, members, groups, sessions, questions, loading, error, refetch } = useGoalsData()
   const data = useMemo(
     () => ({ goals, categories, entries, transactions, clients, leads, answers, members, groups }),
     [goals, categories, entries, transactions, clients, leads, answers, members, groups],
@@ -27,6 +26,13 @@ export default function MoonScreen() {
   const { overall } = useMemo(() => moonGetData(new Date(), data), [data])
   const cats = useMemo(() => moonGetCategories(new Date(), data), [data])
   const trend = useMemo(() => moonTrend(30, new Date(), data), [data])
+  // Guarded cross-module correlations (§8.2) — Spearman + permutation + FDR over a
+  // 30-day window; the common (and correct) result is an empty list.
+  const activeQuestions = useMemo(() => (questions || []).filter((q) => q.active), [questions])
+  const correlations = useMemo(
+    () => buildOverviewCorrelations({ transactions, leads, sessions, answers }, { questions: activeQuestions, window: 30 }),
+    [transactions, leads, sessions, answers, activeQuestions],
+  )
 
   const scores = trend.map((t) => t.score)
   const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
@@ -112,6 +118,21 @@ export default function MoonScreen() {
             </View>
           ) : null}
 
+          {/* Guarded correlations (§8.2) — "patterns to explore", never headlines */}
+          <View style={styles.section}>
+            <Text style={styles.sectionH}>{i18n.t('moon:section.correlations', { defaultValue: 'קשרים לבדיקה' })}</Text>
+            {correlations.length === 0 ? (
+              <Card contentStyle={styles.corrEmptyCard}>
+                <Text style={styles.corrEmpty}>{i18n.t('moon:corr.empty')}</Text>
+              </Card>
+            ) : (
+              <>
+                {correlations.map((c) => <CorrCard key={c.key} c={c} />)}
+                <Text style={styles.corrNote}>{i18n.t('moon:corr.note')}</Text>
+              </>
+            )}
+          </View>
+
           <Pressable style={styles.footerLink} onPress={() => nav.navigate('Goals')}>
             <Text style={styles.footerLinkText}>{i18n.t('moon:footerLink', { defaultValue: 'לניהול היעדים' })}</Text>
           </Pressable>
@@ -137,6 +158,45 @@ function TrendStat({ value, label, divided }) {
       <Text style={styles.trendStatV}>{value}</Text>
       <Text style={styles.trendStatL}>{label}</Text>
     </View>
+  )
+}
+
+// Render an i18n string whose <0>…</0>/<1>…</1> spans (driver/outcome) are bold —
+// mirrors the web <Trans> with <b> components.
+function taggedLine(raw) {
+  return raw.split(/<\/?[01]>/).map((part, i) => (i % 2 === 1
+    ? <Text key={i} style={styles.corrBold}>{part}</Text>
+    : part))
+}
+
+// Honest little scatter so the spread is visible, not just a number (min-max scaled).
+function Scatter({ points }) {
+  if (!points || points.length < 3) return null
+  const W = 120, H = 78, PAD = 6
+  const xs = points.map((p) => p.x), ys = points.map((p) => p.y)
+  const xmin = Math.min(...xs), xmax = Math.max(...xs), ymin = Math.min(...ys), ymax = Math.max(...ys)
+  const sx = (x) => (xmax === xmin ? W / 2 : PAD + ((x - xmin) / (xmax - xmin)) * (W - 2 * PAD))
+  const sy = (y) => (ymax === ymin ? H / 2 : H - PAD - ((y - ymin) / (ymax - ymin)) * (H - 2 * PAD))
+  return (
+    <Svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+      {points.map((p, i) => <Circle key={i} cx={sx(p.x)} cy={sy(p.y)} r={2.2} fill={colors.moonDeep} fillOpacity={0.7} />)}
+    </Svg>
+  )
+}
+
+// One "pattern to explore" — symmetric co-movement phrasing (never "X drives Y").
+function CorrCard({ c }) {
+  const driver = questionText(c.driverLabel)
+  const outcome = c.outcomeLabel || (c.outcomeQ ? questionText(c.outcomeQ) : '')
+  const raw = i18n.t(c.direction === 'pos' ? 'moon:corr.moveTogether' : 'moon:corr.moveOpposite', { driver, outcome })
+  return (
+    <Card contentStyle={styles.corrCard}>
+      <View style={styles.corrText}>
+        <Text style={styles.corrLine}>{taggedLine(raw)}</Text>
+        <Text style={styles.corrSub}>{i18n.t('moon:corr.sub', { strength: c.strength, n: c.n })}</Text>
+      </View>
+      <Scatter points={c.points} />
+    </Card>
   )
 }
 
@@ -179,7 +239,18 @@ const styles = StyleSheet.create({
 
   footerLink: { alignSelf: 'center', paddingVertical: 8 },
   footerLinkText: { fontSize: 13, color: colors.brand, fontWeight: '500' },
+
+  corrEmptyCard: { paddingVertical: 16, paddingHorizontal: 18 },
+  corrEmpty: { fontSize: 13, color: colors.textSub, lineHeight: 19 },
+  corrCard: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 16 },
+  corrText: { flex: 1, gap: 4 },
+  corrLine: { fontSize: 13, color: colors.text, lineHeight: 19 },
+  corrBold: { fontWeight: '700', color: colors.text },
+  corrSub: { fontSize: 11, color: colors.textFaint },
+  corrNote: { fontSize: 11, color: colors.textFaint, lineHeight: 16, paddingHorizontal: 4 },
 })
 
 DualBar.displayName = 'DualBar'
 TrendStat.displayName = 'TrendStat'
+Scatter.displayName = 'Scatter'
+CorrCard.displayName = 'CorrCard'

@@ -13,7 +13,7 @@ async function fetchTable(name) {
   return data ?? []
 }
 
-const EMPTY = { goals: [], categories: [], entries: [], transactions: [], clients: [], leads: [], answers: [], members: [], groups: [] }
+const EMPTY = { goals: [], categories: [], entries: [], transactions: [], clients: [], leads: [], answers: [], members: [], groups: [], sessions: [], questions: [] }
 
 export function useGoalsData() {
   const [state, setState] = useState(EMPTY)
@@ -24,7 +24,7 @@ export function useGoalsData() {
     setLoading(true)
     setError(null)
     try {
-      const [goals, categories, entries, transactions, clients, leads, answers, members, groups] = await Promise.all([
+      const [goals, categories, entries, transactions, clients, leads, answers, members, groups, sessions, questions] = await Promise.all([
         fetchTable('goals'),
         fetchTable('goal_categories'), // goal categories live in goal_categories, NOT categories (that's finance)
         fetchTable('goal_entries'),
@@ -34,8 +34,10 @@ export function useGoalsData() {
         fetchTable('daily_answers'),
         fetchTable('group_members'),
         fetchTable('groups'),
+        fetchTable('sessions'),      // for the Moon cross-module overlay + correlations
+        fetchTable('user_questions'),
       ])
-      setState({ goals, categories, entries, transactions, clients, leads, answers, members, groups })
+      setState({ goals, categories, entries, transactions, clients, leads, answers, members, groups, sessions, questions })
     } catch (e) {
       setError(e?.message || 'load failed')
     } finally {

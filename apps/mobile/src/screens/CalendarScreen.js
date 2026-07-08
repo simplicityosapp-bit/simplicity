@@ -7,6 +7,7 @@ import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import AddMeetingModal from '../modals/AddMeetingModal'
+import EventDetailsModal from '../modals/EventDetailsModal'
 import { colors } from '../theme/theme'
 import { useCalendarData } from '../hooks/useCalendarData'
 
@@ -20,11 +21,12 @@ const pad = (n) => String(n).padStart(2, '0')
 const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
 export default function CalendarScreen() {
-  const { meetings, calendarEvents, clients, groups, reminders, leads, loading, error, refetch, addMeeting, confirmMeeting } = useCalendarData()
+  const { meetings, calendarEvents, clients, groups, reminders, leads, loading, error, refetch, addMeeting, confirmMeeting, skipMeeting, updateEvent, deleteEvent } = useCalendarData()
   const now = new Date()
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
   const [selected, setSelected] = useState(() => keyOf(now))
   const [adding, setAdding] = useState(false)
+  const [detail, setDetail] = useState(null)   // agenda row tapped → EventDetailsModal
   const KIND_TAG = {
     reminder: i18n.t('calendar:kinds.reminder', { defaultValue: 'תזכורת' }),
     followup: i18n.t('calendar:kinds.followup', { defaultValue: 'מעקב' }),
@@ -36,9 +38,9 @@ export default function CalendarScreen() {
     meetings.filter((m) => ['pending', 'confirmed'].includes(m.status) && m.scheduled_at).forEach((m) => {
       const isGroup = m.subject_type === 'group'
       const subj = isGroup ? groups.find((g) => g.id === m.subject_id) : clients.find((c) => c.id === m.subject_id)
-      out.push({ id: `m-${m.id}`, when: m.scheduled_at, title: subj?.name || '', kind: 'meeting', pending: m.status === 'pending', mid: m.id })
+      out.push({ id: `m-${m.id}`, when: m.scheduled_at, title: subj?.name || '', kind: 'meeting', pending: m.status === 'pending', status: m.status, mid: m.id, raw: m })
     })
-    calendarEvents.filter((e) => !e.deleted_at && e.start_time).forEach((e) => out.push({ id: `c-${e.id}`, when: e.start_time, title: e.title || e.summary || '', kind: 'calendar' }))
+    calendarEvents.filter((e) => !e.deleted_at && e.start_time).forEach((e) => out.push({ id: `c-${e.id}`, when: e.start_time, title: e.title || e.summary || '', kind: 'calendar', end: e.end_time, raw: e }))
     remindersUpcoming(now, reminders, 120, 0).forEach((r, i) => out.push({ id: `r-${r.id || i}`, when: r.when, title: r.title || '', kind: 'reminder' }))
     leads.filter((l) => !l.deleted_at && l.follow_up_date && l.status_meta === 'in_process').forEach((l) => out.push({ id: `l-${l.id}`, when: `${String(l.follow_up_date).slice(0, 10)}T09:00:00`, title: l.name || '', kind: 'followup' }))
     return out
@@ -124,18 +126,21 @@ export default function CalendarScreen() {
           <Text style={styles.dayLabel}>{fmtDayLabel(`${selected}T00:00:00`)}</Text>
           {selectedEvents.length ? (
             <Card padded={false}>
-              {selectedEvents.map((e, i) => (
-                <View key={e.id} style={[styles.row, i > 0 && styles.rowBorder]}>
-                  <Text style={styles.time}>{fmtTime(e.when)}</Text>
-                  <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
-                  <Text style={styles.eventTitle} numberOfLines={1}>{e.title || '—'}</Text>
-                  {e.pending ? (
-                    <Pressable style={styles.confirm} onPress={() => confirmMeeting(meetings.find((m) => m.id === e.mid))} hitSlop={6}>
-                      <Check size={14} strokeWidth={2.2} color={colors.positive} />
-                    </Pressable>
-                  ) : KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}
-                </View>
-              ))}
+              {selectedEvents.map((e, i) => {
+                const tappable = e.kind === 'meeting' || e.kind === 'calendar'
+                return (
+                  <Pressable key={e.id} style={[styles.row, i > 0 && styles.rowBorder]} onPress={tappable ? () => setDetail(e) : undefined} disabled={!tappable}>
+                    <Text style={styles.time}>{fmtTime(e.when)}</Text>
+                    <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
+                    <Text style={styles.eventTitle} numberOfLines={1}>{e.title || '—'}</Text>
+                    {e.pending ? (
+                      <Pressable style={styles.confirm} onPress={() => confirmMeeting(e.raw)} hitSlop={6}>
+                        <Check size={14} strokeWidth={2.2} color={colors.positive} />
+                      </Pressable>
+                    ) : KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}
+                  </Pressable>
+                )
+              })}
             </Card>
           ) : (
             <Text style={styles.empty}>{i18n.t('calendar:list.empty', { defaultValue: 'אין אירועים ביום זה.' })}</Text>
@@ -144,6 +149,15 @@ export default function CalendarScreen() {
       )}
 
       <AddMeetingModal open={adding} clients={clients} onClose={() => setAdding(false)} onSave={addMeeting} />
+      <EventDetailsModal
+        open={!!detail}
+        event={detail}
+        onClose={() => setDetail(null)}
+        onConfirmMeeting={confirmMeeting}
+        onSkipMeeting={skipMeeting}
+        onUpdateEvent={updateEvent}
+        onDeleteEvent={deleteEvent}
+      />
     </Screen>
   )
 }

@@ -33,7 +33,11 @@ export function useInsightsData() {
 
   useEffect(() => { load() }, [load])
 
-  // One answer per (question, day): update the existing row, else insert.
+  // One answer per (question, day). Update a locally-known row directly; else
+  // insert, and on the (question,date) partial-unique clash (23505 — the row
+  // exists server-side but not in local state, e.g. it was answered today on web
+  // or the Home widget) UPDATE it instead of surfacing a raw DB error. Mirrors
+  // web insertDailyAnswer + the Home widget's addAnswer.
   const addAnswer = useCallback(async ({ user_question_id, date, value_num }) => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) throw new Error('no session')
@@ -42,12 +46,24 @@ export function useInsightsData() {
       const { data, error: e } = await supabase.from('daily_answers').update({ value_num }).eq('id', existing.id).select().single()
       if (e) throw e
       setAnswers((prev) => prev.map((a) => (a.id === existing.id ? (data || { ...a, value_num }) : a)))
-      return
+      return data
     }
     const row = { user_question_id, date, value_num, value_text: null, note: null, user_id: session.user.id }
-    const { data, error: e } = await supabase.from('daily_answers').insert(row).select().single()
-    if (e) throw e
-    setAnswers((prev) => [...prev, data])
+    const { data: ins, error } = await supabase.from('daily_answers').insert(row).select().single()
+    if (error) {
+      if (error.code === '23505') {
+        const { data: upd, error: updErr } = await supabase.from('daily_answers')
+          .update({ value_num, value_text: null, note: null })
+          .eq('user_question_id', user_question_id).eq('date', date).is('deleted_at', null)
+          .select().single()
+        if (updErr) throw updErr
+        setAnswers((prev) => (prev.some((a) => a.id === upd.id) ? prev.map((a) => (a.id === upd.id ? upd : a)) : [upd, ...prev]))
+        return upd
+      }
+      throw error
+    }
+    setAnswers((prev) => [...prev, ins])
+    return ins
   }, [answers])
 
   const addQuestion = useCallback(async (payload) => {

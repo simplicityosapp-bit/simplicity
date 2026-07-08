@@ -50,17 +50,17 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
     const price = parseFloat(form.package_price)
     const sess = parseInt(form.package_sessions, 10)
     const perSession = parseFloat(form.price_per_session)
-    if (!isPer) {
+    if (form.billing_mode === 'package') {
       if (!(price > 0)) { setErr(G('errPackagePrice', { defaultValue: 'יש למלא מחיר חבילה חיובי.' })); return }
       if (!(sess > 0)) { setErr(G('errSessions', { defaultValue: 'יש למלא מספר פגישות חיובי.' })); return }
-    } else if (!(perSession > 0)) { setErr(G('errPerSession', { defaultValue: 'יש למלא מחיר לפגישה חיובי.' })); return }
+    } else if (isPer && !(perSession > 0)) { setErr(G('errPerSession', { defaultValue: 'יש למלא מחיר לפגישה חיובי.' })); return }
     setBusy(true)
     setErr('')
     try {
       const payload = {
         name: form.name.trim(), color: form.color, billing_mode: form.billing_mode,
-        package_price: isPer ? null : price,
-        package_sessions: isPer ? null : sess,
+        package_price: form.billing_mode === 'package' ? price : null,
+        package_sessions: form.billing_mode === 'package' ? sess : null,
         price_per_session: isPer ? perSession : null,
       }
       await onSave(isEdit ? payload : { ...payload, project_id: project?.id || null, status: 'active', recurring_day: null, recurring_time: null })
@@ -88,11 +88,11 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
       <View style={styles.field}>
         <Text style={styles.label}>{G('pricing', { defaultValue: 'תמחור' })}</Text>
         <View style={styles.pills}>
-          {[{ k: 'package', l: 'billingPackage' }, { k: 'per_session', l: 'billingPerSession' }].map((m) => {
+          {[{ k: 'package', l: 'editClient.billingPackage' }, { k: 'per_session', l: 'editClient.billingPerSession' }, { k: 'none', l: 'common.none' }].map((m) => {
             const on = form.billing_mode === m.k
             return (
-              <Pressable key={m.k} style={[styles.pill, on && styles.pillOn]} onPress={() => set('billing_mode', m.k)}>
-                <Text style={[styles.pillText, on && styles.pillTextOn]}>{i18n.t(`modalsClient:editClient.${m.l}`)}</Text>
+              <Pressable key={m.k} style={[styles.pill, on && styles.pillOn]} onPress={() => { set('billing_mode', m.k); if (err) setErr('') }}>
+                <Text style={[styles.pillText, on && styles.pillTextOn]} numberOfLines={1}>{i18n.t(`modalsClient:${m.l}`)}</Text>
               </Pressable>
             )
           })}
@@ -104,6 +104,8 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
           <Text style={styles.label}>{G('pricePerSession', { defaultValue: 'מחיר לפגישה ₪' })}</Text>
           <TextInput style={styles.input} value={form.price_per_session} onChangeText={(v) => set('price_per_session', v)} keyboardType="numeric" placeholder="0" placeholderTextColor={colors.textFaint} />
         </View>
+      ) : form.billing_mode === 'none' ? (
+        <Text style={styles.hint}>{G('noneHint', { defaultValue: 'בלי מחיר קבוע מראש. אפשר לתמחר כל חבר בנפרד דרך כרטיס הלקוח.' })}</Text>
       ) : (
         <View style={styles.row2}>
           <View style={styles.flex}>
@@ -135,6 +137,7 @@ const styles = StyleSheet.create({
   label: { fontSize: 13, color: colors.textSub },
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
   inputErr: { borderColor: colors.danger },
+  hint: { fontSize: 12, color: colors.textFaint, lineHeight: 16 },
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   swatch: { width: 34, height: 34, borderRadius: 17, borderWidth: 2, borderColor: 'transparent' },
   swatchOn: { borderColor: colors.text },

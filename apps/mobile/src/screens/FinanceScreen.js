@@ -108,6 +108,12 @@ export default function FinanceScreen() {
     try { await Share.share({ message: csv, title: fmtMonthYear(monthDate) }) } catch { /* user cancelled / unsupported */ }
   }
 
+  // Bulk-approve every pending row (sequential so optimistic setStatus updates
+  // don't trample each other), mirroring web PendingSection.approveAll.
+  const approveAllPending = async () => {
+    for (const t of pending) { await Promise.resolve(setStatus(t.id, 'confirmed')).catch(() => {}) }
+  }
+
   const renderRow = (t, i, opts = {}) => {
     const income = t.type === 'income'
     const meta = txMeta(t)
@@ -121,6 +127,7 @@ export default function FinanceScreen() {
           <View style={styles.actions}>
             <Pressable style={styles.approve} onPress={() => setStatus(t.id, 'confirmed')} hitSlop={6}><Check size={16} strokeWidth={2.2} color={colors.positive} /></Pressable>
             <Pressable style={styles.skip} onPress={() => setStatus(t.id, 'skipped')} hitSlop={6}><SkipForward size={15} strokeWidth={1.8} color={colors.textFaint} /></Pressable>
+            <Pressable style={styles.skip} onPress={() => deleteTransaction(t.id)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
           </View>
         ) : (
           <Text style={[styles.amount, { color: income ? colors.positive : colors.textSub }]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
@@ -159,7 +166,15 @@ export default function FinanceScreen() {
           {/* Pending approval */}
           {pending.length ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{i18n.t('finance:pending.count', { count: pending.length })}</Text>
+              <View style={styles.pendingHead}>
+                <Text style={styles.sectionTitle}>{i18n.t('finance:pending.count', { count: pending.length })}</Text>
+                {pending.length > 1 ? (
+                  <Pressable style={styles.bulkBtn} onPress={approveAllPending} hitSlop={6}>
+                    <Check size={13} strokeWidth={2} color={colors.positive} />
+                    <Text style={styles.bulkText}>{i18n.t('finance:pending.approveAll', { defaultValue: 'אשר הכל' })}</Text>
+                  </Pressable>
+                ) : null}
+              </View>
               <Card padded={false}>{pending.map((t, i) => renderRow(t, i, { pending: true }))}</Card>
             </View>
           ) : null}
@@ -339,6 +354,9 @@ const styles = StyleSheet.create({
   empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
   section: { gap: 8 },
   sectionTitle: { fontSize: 14, fontWeight: '600', color: colors.textSub },
+  pendingHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  bulkBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
+  bulkText: { fontSize: 12, fontWeight: '600', color: colors.positive },
   summary: { paddingVertical: 18, paddingHorizontal: 20 },
   monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch', marginBottom: 12 },
   monthLabel: { fontSize: 14, fontWeight: '600', color: colors.textSub },

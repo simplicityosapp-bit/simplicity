@@ -69,7 +69,7 @@ export default function ConnectionsScreen() {
             </View>
           ))}
           <Pressable style={styles.saveBtn} onPress={save}>
-            <Check size={16} strokeWidth={2.2} color={colors.onBrand} />
+            <Check size={16} strokeWidth={2.2} color={colors.onBtn} />
             <Text style={styles.saveText}>{saved ? T('saved', 'נשמר') : T('save', 'שמירה')}</Text>
           </Pressable>
         </Card>
@@ -103,6 +103,6 @@ const styles = StyleSheet.create({
   fieldLabel: { fontSize: 13, fontWeight: '500', color: colors.textSub },
   input: { minHeight: 44, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: colors.text, backgroundColor: colors.inputBg, textAlignVertical: 'top' },
   tokens: { fontSize: 11, color: colors.textFaint, letterSpacing: 0.3 },
-  saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.brand, borderRadius: 14, paddingVertical: 12, marginTop: 2 },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
+  saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.btnBg, borderRadius: 14, paddingVertical: 12, marginTop: 2 },
+  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
 })

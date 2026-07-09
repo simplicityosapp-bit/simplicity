@@ -28,7 +28,7 @@ export default function QuickRow({ clients, goals, categories, addTask, addEntry
   return (
     <View style={styles.row}>
       <Pressable style={[styles.btn, styles.primary]} onPress={() => setShowLauncher(true)}>
-        <Plus size={18} strokeWidth={2} color={colors.onBrand} />
+        <Plus size={18} strokeWidth={2} color={colors.onBtn} />
         <Text style={styles.primaryText}>{i18n.t('home:widgets.quick.quickAdd')}</Text>
       </Pressable>
       <Pressable style={[styles.btn, styles.secondary]} onPress={() => setShowPicker(true)}>
@@ -65,8 +65,8 @@ export default function QuickRow({ clients, goals, categories, addTask, addEntry
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 10, marginTop: 12 },
   btn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 13, borderRadius: 14 },
-  primary: { backgroundColor: colors.brand },
-  primaryText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
+  primary: { backgroundColor: colors.btnBg },
+  primaryText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
   secondary: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
   secondaryText: { fontSize: 15, fontWeight: '600', color: colors.text },
 })

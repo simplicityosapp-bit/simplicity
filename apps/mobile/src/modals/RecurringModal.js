@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', gap: 12, marginTop: 4 },
   cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancelText: { fontSize: 15, color: colors.textSub },
-  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center' },
+  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.btnBg, alignItems: 'center' },
   saveOff: { opacity: 0.5 },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
+  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
 })

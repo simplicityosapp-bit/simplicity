@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   sortDirOn: { backgroundColor: colors.brand, borderColor: colors.brand },
   sortDirText: { fontSize: 14, color: colors.textSub },
   confirmText: { fontSize: 14, color: colors.text },
-  confirmDelete: { backgroundColor: colors.danger, borderColor: colors.danger },
+  confirmDelete: { backgroundColor: colors.dangerFill, borderColor: colors.danger },
   confirmDeleteText: { fontSize: 14, fontWeight: '600', color: colors.onBrand },
 
   // Bulk bar

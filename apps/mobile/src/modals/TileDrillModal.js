@@ -231,7 +231,7 @@ export default function TileDrillModal({
       <View style={styles.actions}>
         <Pressable style={styles.cancelBtn} onPress={onClose}><Text style={styles.cancelText}>{T('close')}</Text></Pressable>
         <Pressable style={styles.saveBtn} onPress={openFull}>
-          <ArrowLeft size={14} strokeWidth={1.8} color={colors.onBrand} />
+          <ArrowLeft size={14} strokeWidth={1.8} color={colors.onBtn} />
           <Text style={styles.saveText}>{T('openFull')}</Text>
         </Pressable>
       </View>
@@ -283,6 +283,6 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', gap: 10, marginTop: 14 },
   cancelBtn: { flex: 1, paddingVertical: 13, borderRadius: 14, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancelText: { fontSize: 15, fontWeight: '500', color: colors.textSub },
-  saveBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 13, borderRadius: 14, backgroundColor: colors.brand },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
+  saveBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 13, borderRadius: 14, backgroundColor: colors.btnBg },
+  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
 })

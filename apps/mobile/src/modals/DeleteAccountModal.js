@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', gap: 12, marginTop: 8 },
   cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancelText: { fontSize: 15, color: colors.textSub },
-  danger: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.danger, alignItems: 'center' },
+  danger: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.dangerFill, alignItems: 'center' },
   dangerText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
   off: { opacity: 0.5 },
 })

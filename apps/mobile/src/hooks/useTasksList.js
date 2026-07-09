@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { reconcileCompletion } from '../lib/tasks'
 
 // First mobile mutation layer — tasks list + optimistic mark-done. RLS scopes
 // rows to the user. toggleDone flips locally first, then persists; on error it
@@ -30,7 +31,7 @@ export function useTasksList() {
   const addTask = useCallback(async (payload) => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) throw new Error('no session')
-    const { data, error: e } = await supabase.from('tasks').insert({ ...payload, user_id: session.user.id }).select().single()
+    const { data, error: e } = await supabase.from('tasks').insert({ ...reconcileCompletion(payload), user_id: session.user.id }).select().single()
     if (e) throw e
     setTasks((prev) => [data, ...prev])
     return data
@@ -56,7 +57,8 @@ export function useTasksList() {
 
   // Edit a task (title/priority): optimistic patch, refetch to restore truth on
   // error. Returns the saved row (or throws so the sheet can surface the error).
-  const updateTask = useCallback(async (id, patch) => {
+  const updateTask = useCallback(async (id, rawPatch) => {
+    const patch = reconcileCompletion(rawPatch)
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t))) // optimistic
     const { data, error: e } = await supabase.from('tasks').update(patch).eq('id', id).select().single()
     if (e) { load(); throw e }

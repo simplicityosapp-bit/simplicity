@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { isRecurring, nextScheduledAt } from '@simplicity/core'
 import { supabase } from '../lib/supabase'
 import { confirmScheduledMeeting } from '../lib/scheduledMeetings'
+import { reconcileCompletion } from '../lib/tasks'
 
 // Minimal data layer for the home screen. RLS scopes every row to the signed-in
 // user, so a plain select is safe. We only read columns the home derivations
@@ -121,7 +122,7 @@ export function useHomeData() {
     return saved
   }, [])
 
-  const addTask = useCallback((payload) => insertInto('tasks', { status: 'todo', completed_at: null, ...payload }, 'tasks'), [insertInto])
+  const addTask = useCallback((payload) => insertInto('tasks', reconcileCompletion({ status: 'todo', completed_at: null, ...payload }), 'tasks'), [insertInto])
   const addEntry = useCallback((payload) => insertInto('goal_entries', payload, 'entries'), [insertInto])
   const addTransaction = useCallback((payload) => insertInto('transactions', payload, 'transactions'), [insertInto])
   const addClient = useCallback((payload) => insertInto('clients', payload, 'clients'), [insertInto])

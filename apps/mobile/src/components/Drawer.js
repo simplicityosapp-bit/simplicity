@@ -7,7 +7,7 @@ import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settin
 const LOGO = require('../../assets/logo.png')
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
-import { usePreferences } from '../lib/preferences'
+import { usePreferences, roleLabel } from '../lib/preferences'
 import i18n from '../lib/i18n'
 import { colors, space, persistThemeAndReload, getThemeMode } from '../theme/theme'
 
@@ -94,7 +94,7 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   }
   const email = session?.user?.email || ''
   const name = prefs.profile?.full_name || i18n.t('nav:profile.myProfile', { defaultValue: 'הפרופיל שלי' })
-  const roleText = prefs.profile?.role === 'other' ? (prefs.profile?.role_other || '') : (prefs.profile?.role ? i18n.t(`settings:profile.roles.${prefs.profile.role}`, { defaultValue: '' }) : '')
+  const roleText = prefs.profile?.role === 'other' ? (prefs.profile?.role_other || '') : roleLabel(prefs.profile?.role, prefs.design?.gender)
   const meta = roleText || email
   const initial = (prefs.profile?.full_name || email).trim()[0]?.toUpperCase() || '?'
 

@@ -17,15 +17,19 @@ export default function PendingDeletionScreen() {
   const { prefs, update } = usePreferences()
   const scheduled = prefs?.accountDeletion?.scheduled_for
   const dateStr = scheduled ? fmtShortDate(scheduled) : ''
+  // Reuse the same translated keys web's AccountDeletionPending uses
+  // (components:deletion.*) so en/es/fr users don't get Hebrew fallbacks. Body =
+  // lead + deadline; strip the <0></0> markup i18next carries for web's <Trans>.
+  const body = `${i18n.t('components:deletion.bodyLead', { regret: i18n.t('components:deletion.regret') })} ${i18n.t('components:deletion.bodyDeadline', { date: dateStr }).replace(/<\/?\d>/g, '')}`
   return (
     <Screen name="login">
       <View style={[styles.wrap, { paddingTop: insets.top + 48 }]}>
         <Card contentStyle={styles.card}>
           <AlertTriangle size={40} strokeWidth={1.6} color={colors.danger} />
-          <Text style={styles.title}>{i18n.t('modalsSystem:deleteAccount.pendingTitle', { defaultValue: 'החשבון מסומן למחיקה' })}</Text>
-          <Text style={styles.body}>{i18n.t('modalsSystem:deleteAccount.pendingBody', { date: dateStr, defaultValue: `החשבון יימחק לצמיתות ב-${dateStr}. אפשר לבטל עד אז ולהמשיך להשתמש כרגיל.` })}</Text>
+          <Text style={styles.title}>{i18n.t('components:deletion.title', { defaultValue: 'החשבון מתוזמן למחיקה' })}</Text>
+          <Text style={styles.body}>{body}</Text>
           <Pressable style={styles.cancelBtn} onPress={() => update({ accountDeletion: null })}>
-            <Text style={styles.cancelText}>{i18n.t('modalsSystem:deleteAccount.cancelRequest', { defaultValue: 'ביטול המחיקה והמשך שימוש' })}</Text>
+            <Text style={styles.cancelText}>{i18n.t('components:deletion.cancel', { defaultValue: 'בטל מחיקה ושחזר את החשבון' })}</Text>
           </Pressable>
           <Pressable onPress={() => supabase.auth.signOut()} hitSlop={8}>
             <Text style={styles.signOut}>{i18n.t('nav:signOut', { defaultValue: 'התנתקות' })}</Text>

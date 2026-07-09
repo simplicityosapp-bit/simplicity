@@ -1,7 +1,9 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { I18nManager } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { setCurrentCurrency, setDateTimeFormat, setHebrewCalendar } from '@simplicity/core'
 import { supabase } from './supabase'
+import { THEME_KEY } from '../theme/theme'
 import i18n, { setGenderContext } from './i18n'
 
 const SUPPORTED_LANGS = ['he', 'en', 'es', 'fr']
@@ -53,6 +55,12 @@ export function PreferencesProvider({ children }) {
         applySavedLanguage(p.language)
         setGenderContext(p.design?.gender)
         applyFormatPrefs(p)
+        // Sync the saved theme to the boot cache so a theme chosen on web (or a
+        // prior session) applies on the NEXT launch (RN freezes StyleSheet colors
+        // at boot — theme.js reads THEME_KEY there). No reload here (avoids a flash).
+        if (p.design?.theme === 'dark' || p.design?.theme === 'light') {
+          AsyncStorage.setItem(THEME_KEY, p.design.theme).catch(() => {})
+        }
       } catch { /* keep defaults */ }
     })()
     return () => { alive = false }

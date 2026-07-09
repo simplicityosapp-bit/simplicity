@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert, Platform, DevSettings, Linking } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
-import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, Sparkles, Download, X, Plus } from 'lucide-react-native'
+import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Wallet, Info, LayoutGrid } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
@@ -10,7 +12,7 @@ import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import Select from '../components/Select'
-import { colors } from '../theme/theme'
+import { colors, THEME_KEY, getThemeMode } from '../theme/theme'
 import { usePreferences } from '../hooks/usePreferences'
 import { applySavedLanguage } from '../lib/preferences'
 import { useFinanceData } from '../hooks/useFinanceData'
@@ -20,7 +22,37 @@ const GENDERS = ['female', 'male', 'neutral']
 const ROLES = ['therapist', 'coach', 'consultant', 'trainer', 'other']
 const TEXT_SIZES = ['small', 'normal', 'large']
 const BACKGROUNDS = ['nature', 'simple', 'blank']
+const THEMES = ['light', 'dark']
+// Home widget registry order (mirrors web WIDGET_REGISTRY); the home honors
+// prefs.widgets.list (enabled + order), so this drives the config UI.
+const WIDGET_IDS = ['quote', 'moon', 'insights', 'quick-row', 'attention', 'reminders', 'next-tasks', 'chips']
+// Format options mirror web lib/preferences.js (values must match the core setters).
+const CURRENCIES = [{ k: 'ILS', l: '₪ שקל' }, { k: 'USD', l: '$ דולר' }, { k: 'EUR', l: '€ יורו' }]
+const DATE_FMTS = [{ k: 'DD/MM/YY', l: 'DD/MM/YY' }, { k: 'MM/DD/YY', l: 'MM/DD/YY' }, { k: 'YYYY-MM-DD', l: 'YYYY-MM-DD' }]
+const TIME_FMTS = [{ k: '24h', l: '24 שעות' }, { k: '12h', l: '12h' }]
+const WEEK_STARTS = [{ k: 'sunday', l: 'ראשון' }, { k: 'monday', l: 'שני' }]
 const T = (k, o) => i18n.t(`settings:${k}`, o)
+
+// On/off switch (mirrors web Switch). RN has no built-in, so it's a pill track + knob.
+function Switch({ checked, onChange }) {
+  return (
+    <Pressable style={[styles.switchTrack, checked && styles.switchTrackOn]} onPress={() => onChange(!checked)} accessibilityRole="switch" accessibilityState={{ checked }} hitSlop={6}>
+      <View style={[styles.switchKnob, checked && styles.switchKnobOn]} />
+    </Pressable>
+  )
+}
+
+function SwitchField({ label, hint, checked, onChange }) {
+  return (
+    <View style={styles.field}>
+      <View style={styles.switchRow}>
+        <Text style={[styles.label, styles.switchLabel]}>{label}</Text>
+        <Switch checked={checked} onChange={onChange} />
+      </View>
+      {hint ? <Text style={styles.hint}>{hint}</Text> : null}
+    </View>
+  )
+}
 
 function Section({ Icon, title, sub, open, onToggle, children }) {
   return (
@@ -72,6 +104,43 @@ export default function SettingsScreen() {
   // immediately so this screen re-renders gendered; other screens pick it up on
   // their next render (gender is set-once, like web).
   const setGender = (g) => { setGenderContext(g); update({ design: { ...(prefs.design || {}), gender: g } }) }
+  // Nested prefs are shallow-merged by update(), so spread the current object.
+  const setDesign = (patch) => update({ design: { ...(prefs.design || {}), ...patch } })
+  const setFormat = (k, v) => update({ format: { ...(prefs.format || {}), [k]: v } })
+  // Theme lives in prefs.design.theme (synced with web) AND AsyncStorage THEME_KEY
+  // (read at boot — RN freezes StyleSheet colors, so a switch needs a reload).
+  const reloadApp = () => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location) { window.location.reload(); return }
+    try { DevSettings.reload() } catch { /* production build needs a manual restart */ }
+  }
+  const setTheme = async (mode) => {
+    setDesign({ theme: mode })
+    try { await AsyncStorage.setItem(THEME_KEY, mode) } catch { /* boot defaults to light */ }
+    reloadApp()
+  }
+  // Legal pages live on the web app; open them in the browser (same content).
+  const openLegal = (tab) => { Linking.openURL(`https://simplicity-os.com/legal?tab=${tab}`).catch(() => {}) }
+  const appVersion = Constants.expoConfig?.version || Constants.manifest?.version || '1.0.0'
+
+  // Home widgets: enable/disable + order (what the home actually honors). Start
+  // from the saved list, else the registry default; append any missing ids.
+  const widgetList = (() => {
+    const saved = prefs.widgets?.list
+    const base = (saved && saved.length) ? saved.filter((w) => WIDGET_IDS.includes(w.id)) : []
+    const have = new Set(base.map((w) => w.id))
+    WIDGET_IDS.forEach((id) => { if (!have.has(id)) base.push({ id, enabled: true }) })
+    return base
+  })()
+  const writeWidgets = (list) => update({ widgets: { ...(prefs.widgets || {}), list } })
+  const toggleWidget = (id) => writeWidgets(widgetList.map((w) => (w.id === id ? { ...w, enabled: w.enabled === false } : w)))
+  const moveWidget = (id, dir) => {
+    const i = widgetList.findIndex((w) => w.id === id)
+    const j = i + dir
+    if (i < 0 || j < 0 || j >= widgetList.length) return
+    const next = widgetList.slice()
+    const tmp = next[i]; next[i] = next[j]; next[j] = tmp
+    writeWidgets(next)
+  }
 
   const exportCsv = async (kind) => {
     const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
@@ -127,12 +196,51 @@ export default function SettingsScreen() {
             <Pills options={LANGUAGE_OPTIONS.map((l) => ({ k: l.v, label: l.l }))} value={lang} onPick={setLanguage} />
             {lang === 'he' ? null : <Text style={styles.hint}>{T('design.rtlHint', { defaultValue: 'שינוי כיווניות מלא מתעדכן לאחר הפעלה מחדש.' })}</Text>}
           </Field>
+          <Field label={T('design.theme', { defaultValue: 'מצב יום/לילה' })}>
+            <Pills options={THEMES.map((m) => ({ k: m, label: T(`options.theme.${m}`, { defaultValue: m }) }))} value={prefs.design?.theme || getThemeMode()} onPick={setTheme} />
+            <Text style={styles.hint}>{T('design.themeHint', { defaultValue: 'החלפת המצב מרעננת את האפליקציה.' })}</Text>
+          </Field>
           <Field label={T('design.textSize', { defaultValue: 'גודל טקסט' })}>
-            <Pills options={TEXT_SIZES.map((s) => ({ k: s, label: T(`design.textSizes.${s}`, { defaultValue: s }) }))} value={prefs.text_size || 'normal'} onPick={(s) => update({ text_size: s })} />
+            <Pills options={TEXT_SIZES.map((s) => ({ k: s, label: T(`design.textSizes.${s}`, { defaultValue: s }) }))} value={prefs.design?.text_size || 'normal'} onPick={(s) => setDesign({ text_size: s })} />
           </Field>
           <Field label={T('design.background', { defaultValue: 'רקע' })}>
-            <Pills options={BACKGROUNDS.map((b) => ({ k: b, label: T(`design.backgrounds.${b}`, { defaultValue: b }) }))} value={prefs.design?.background || 'nature'} onPick={(b) => update({ design: { ...(prefs.design || {}), background: b } })} />
+            <Pills options={BACKGROUNDS.map((b) => ({ k: b, label: T(`design.backgrounds.${b}`, { defaultValue: b }) }))} value={prefs.design?.background || 'nature'} onPick={(b) => setDesign({ background: b })} />
           </Field>
+          <SwitchField label={T('design.hebrewCalendar', { defaultValue: 'לוח עברי' })} checked={!!prefs.design?.hebrew_calendar} onChange={(v) => setDesign({ hebrew_calendar: v })} />
+          <SwitchField label={T('design.hebrewDateInput', { defaultValue: 'בחירת תאריך בלוח עברי' })} checked={!!prefs.design?.hebrew_date_input} onChange={(v) => setDesign({ hebrew_date_input: v })} />
+          {(prefs.design?.hebrew_calendar || prefs.design?.hebrew_date_input) ? (
+            <SwitchField label={T('design.hebrewCalendarDual', { defaultValue: 'הצגת תאריך לועזי לצד העברי' })} checked={!!prefs.design?.hebrew_calendar_dual} onChange={(v) => setDesign({ hebrew_calendar_dual: v })} />
+          ) : null}
+        </Section>
+
+        {/* Currency, date & time */}
+        <Section Icon={Wallet} title={T('sections.payments.title', { defaultValue: 'מטבע, תאריך ושעה' })} sub={T('sections.payments.sub', { defaultValue: '' })} open={open === 'format'} onToggle={() => toggle('format')}>
+          <Field label={T('payments.currency', { defaultValue: 'מטבע' })}>
+            <Pills options={CURRENCIES.map((c) => ({ k: c.k, label: T(`options.currency.${c.k}`, { defaultValue: c.l }) }))} value={prefs.format?.currency || 'ILS'} onPick={(v) => setFormat('currency', v)} />
+          </Field>
+          <Field label={T('payments.dateFormat', { defaultValue: 'פורמט תאריך' })}>
+            <Pills options={DATE_FMTS.map((d) => ({ k: d.k, label: d.l }))} value={prefs.format?.date_format || 'DD/MM/YY'} onPick={(v) => setFormat('date_format', v)} />
+          </Field>
+          <Field label={T('payments.timeFormat', { defaultValue: 'פורמט שעה' })}>
+            <Pills options={TIME_FMTS.map((t) => ({ k: t.k, label: T(`options.timeFormat.${t.k}`, { defaultValue: t.l }) }))} value={prefs.format?.time_format || '24h'} onPick={(v) => setFormat('time_format', v)} />
+          </Field>
+          <Field label={T('payments.weekStart', { defaultValue: 'יום ראשון בשבוע' })}>
+            <Pills options={WEEK_STARTS.map((w) => ({ k: w.k, label: T(`options.weekStart.${w.k}`, { defaultValue: w.l }) }))} value={prefs.format?.week_start || 'sunday'} onPick={(v) => setFormat('week_start', v)} />
+          </Field>
+        </Section>
+
+        {/* Home widgets — enable/disable + order */}
+        <Section Icon={LayoutGrid} title={T('sections.widgets.title', { defaultValue: 'ווידג׳טים ותצוגה' })} sub={T('sections.widgets.sub', { defaultValue: 'מה מופיע במסך הבית' })} open={open === 'widgets'} onToggle={() => toggle('widgets')}>
+          {widgetList.map((w, i) => (
+            <View key={w.id} style={styles.widgetRow}>
+              <View style={styles.widgetReorder}>
+                <Pressable onPress={() => moveWidget(w.id, -1)} disabled={i === 0} hitSlop={6}><ChevronUp size={16} strokeWidth={1.8} color={i === 0 ? colors.textFaint : colors.textSub} /></Pressable>
+                <Pressable onPress={() => moveWidget(w.id, 1)} disabled={i === widgetList.length - 1} hitSlop={6}><ChevronDown size={16} strokeWidth={1.8} color={i === widgetList.length - 1 ? colors.textFaint : colors.textSub} /></Pressable>
+              </View>
+              <Text style={styles.widgetName} numberOfLines={1}>{T(`widgets.names.${w.id}`, { defaultValue: w.id })}</Text>
+              <Switch checked={w.enabled !== false} onChange={() => toggleWidget(w.id)} />
+            </View>
+          ))}
         </Section>
 
         {/* Data */}
@@ -173,6 +281,26 @@ export default function SettingsScreen() {
             onAdd={(name, price) => tax.addMeetingType(name, price ? Number(price) : null)}
             onRemove={tax.removeMeetingType}
           />
+        </Section>
+
+        {/* About */}
+        <Section Icon={Info} title={T('sections.about.title', { defaultValue: 'אודות' })} sub={`v${appVersion}`} open={open === 'about'} onToggle={() => toggle('about')}>
+          <Text style={styles.intro}>{T('about.version', { version: appVersion, defaultValue: `גרסה ${appVersion}` })}</Text>
+          <Pressable style={styles.rowBtn} onPress={() => openLegal('privacy')}>
+            <Text style={styles.rowBtnText}>{T('about.privacy', { defaultValue: 'מדיניות פרטיות' })}</Text>
+            <View style={{ flex: 1 }} />
+            <ChevronDown size={16} strokeWidth={1.6} color={colors.textFaint} style={{ transform: [{ rotate: '-90deg' }] }} />
+          </Pressable>
+          <Pressable style={styles.rowBtn} onPress={() => openLegal('terms')}>
+            <Text style={styles.rowBtnText}>{T('about.terms', { defaultValue: 'תנאי שימוש' })}</Text>
+            <View style={{ flex: 1 }} />
+            <ChevronDown size={16} strokeWidth={1.6} color={colors.textFaint} style={{ transform: [{ rotate: '-90deg' }] }} />
+          </Pressable>
+          <Pressable style={styles.rowBtn} onPress={() => openLegal('dpa')}>
+            <Text style={styles.rowBtnText}>{T('about.dpa', { defaultValue: 'הסכם עיבוד נתונים' })}</Text>
+            <View style={{ flex: 1 }} />
+            <ChevronDown size={16} strokeWidth={1.6} color={colors.textFaint} style={{ transform: [{ rotate: '-90deg' }] }} />
+          </Pressable>
         </Section>
 
         {/* Sign out */}
@@ -275,6 +403,15 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
   hint: { fontSize: 11, color: colors.textFaint, lineHeight: 16 },
   intro: { fontSize: 13, color: colors.textSub, lineHeight: 18 },
+  switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  switchLabel: { flex: 1 },
+  switchTrack: { width: 44, height: 26, borderRadius: 13, backgroundColor: colors.cardFlat, borderWidth: 1, borderColor: colors.border, padding: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' },
+  switchTrackOn: { backgroundColor: colors.brand, borderColor: colors.brand, justifyContent: 'flex-end' },
+  switchKnob: { width: 20, height: 20, borderRadius: 10, backgroundColor: colors.card },
+  switchKnobOn: { backgroundColor: colors.onBrand },
+  widgetRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 },
+  widgetReorder: { flexDirection: 'row', gap: 2 },
+  widgetName: { flex: 1, fontSize: 14, color: colors.text },
 
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },

@@ -53,9 +53,19 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
   const saveEdit = async () => {
     if (!form.date || !form.start) { setErr(T('startRequired')); return }
     setBusy(true)
-    const startIso = new Date(`${form.date}T${form.start}`).toISOString()
-    const endIso = form.end ? new Date(`${form.date}T${form.end}`).toISOString() : null
-    const patch = { title: form.title.trim() || T('noTitle'), start_time: startIso, end_time: endIso }
+    const start = new Date(`${form.date}T${form.start}`)
+    let endIso = null
+    if (form.end) {
+      let end = new Date(`${form.date}T${form.end}`)
+      // Single date + start/end TIME: an end at or before start rolls to the next
+      // day (e.g. 23:00→01:00) — otherwise end_time would land before start_time.
+      if (end <= start) end = new Date(end.getTime() + 24 * 60 * 60 * 1000)
+      endIso = end.toISOString()
+    }
+    // Editing always yields a concrete timed event (start is required), so clear
+    // all_day — else a previously all-day (e.g. Google-synced) event keeps
+    // all_day=true and the new times are ignored on re-render.
+    const patch = { title: form.title.trim() || T('noTitle'), start_time: start.toISOString(), end_time: endIso, all_day: false }
     try { await onUpdateEvent?.(event.raw, patch); onClose() } catch (e) { setBusy(false); setErr(e?.message || T('startRequired')) }
   }
   const confirmDelete = () => {

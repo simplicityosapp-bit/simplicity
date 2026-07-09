@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert, Platform, DevSettings } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert, Platform, DevSettings, Linking } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
-import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, Sparkles, Download, X, Plus, Wallet } from 'lucide-react-native'
+import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, Sparkles, Download, X, Plus, Wallet, Info } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
@@ -114,6 +115,9 @@ export default function SettingsScreen() {
     try { await AsyncStorage.setItem(THEME_KEY, mode) } catch { /* boot defaults to light */ }
     reloadApp()
   }
+  // Legal pages live on the web app; open them in the browser (same content).
+  const openLegal = (tab) => { Linking.openURL(`https://simplicity-os.com/legal?tab=${tab}`).catch(() => {}) }
+  const appVersion = Constants.expoConfig?.version || Constants.manifest?.version || '1.0.0'
 
   const exportCsv = async (kind) => {
     const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
@@ -240,6 +244,26 @@ export default function SettingsScreen() {
             onAdd={(name, price) => tax.addMeetingType(name, price ? Number(price) : null)}
             onRemove={tax.removeMeetingType}
           />
+        </Section>
+
+        {/* About */}
+        <Section Icon={Info} title={T('sections.about.title', { defaultValue: 'אודות' })} sub={`v${appVersion}`} open={open === 'about'} onToggle={() => toggle('about')}>
+          <Text style={styles.intro}>{T('about.version', { version: appVersion, defaultValue: `גרסה ${appVersion}` })}</Text>
+          <Pressable style={styles.rowBtn} onPress={() => openLegal('privacy')}>
+            <Text style={styles.rowBtnText}>{T('about.privacy', { defaultValue: 'מדיניות פרטיות' })}</Text>
+            <View style={{ flex: 1 }} />
+            <ChevronDown size={16} strokeWidth={1.6} color={colors.textFaint} style={{ transform: [{ rotate: '-90deg' }] }} />
+          </Pressable>
+          <Pressable style={styles.rowBtn} onPress={() => openLegal('terms')}>
+            <Text style={styles.rowBtnText}>{T('about.terms', { defaultValue: 'תנאי שימוש' })}</Text>
+            <View style={{ flex: 1 }} />
+            <ChevronDown size={16} strokeWidth={1.6} color={colors.textFaint} style={{ transform: [{ rotate: '-90deg' }] }} />
+          </Pressable>
+          <Pressable style={styles.rowBtn} onPress={() => openLegal('dpa')}>
+            <Text style={styles.rowBtnText}>{T('about.dpa', { defaultValue: 'הסכם עיבוד נתונים' })}</Text>
+            <View style={{ flex: 1 }} />
+            <ChevronDown size={16} strokeWidth={1.6} color={colors.textFaint} style={{ transform: [{ rotate: '-90deg' }] }} />
+          </Pressable>
         </Section>
 
         {/* Sign out */}

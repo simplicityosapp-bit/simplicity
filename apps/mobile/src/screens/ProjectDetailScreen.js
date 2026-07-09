@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Alert } from 'react-native'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Pencil, Users, CalendarDays, Plus, ChevronDown, ChevronRight, X, Check } from 'lucide-react-native'
+import { Pencil, Users, CalendarDays, Plus, ChevronDown, X, Check } from 'lucide-react-native'
 import { financeQuery, currentMonthRange, isr, fmtShortDate, statusMetaOf } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -117,7 +117,6 @@ export default function ProjectDetailScreen() {
     return (
       <Screen name="clients">
         <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-          <Pressable onPress={() => nav.goBack()} hitSlop={10}><ChevronRight size={26} strokeWidth={1.8} color={colors.brand} /></Pressable>
           <Text style={styles.hname}>{D('notFound', { defaultValue: 'הפרויקט לא נמצא' })}</Text>
         </View>
       </Screen>
@@ -129,7 +128,6 @@ export default function ProjectDetailScreen() {
       {/* Compact header — color + name + meta counts + edit (mirrors web pd-head) */}
       <View style={[styles.headWrap, { paddingTop: insets.top + 10 }]}>
         <Card contentStyle={styles.header}>
-          <Pressable onPress={() => nav.goBack()} hitSlop={10}><ChevronRight size={26} strokeWidth={1.8} color={colors.brand} /></Pressable>
           {project ? <View style={[styles.hcolor, { backgroundColor: project.color || colors.positive }]} /> : null}
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={styles.hname} numberOfLines={1}>{project?.name || ''}</Text>

@@ -13,7 +13,11 @@ export default function Sheet({ open, onClose, title, children }) {
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        {/* Fill the overlay + anchor to the bottom so the sheet's maxHeight '86%'
+            resolves against the full screen height (an auto-height wrapper left a
+            tall form — e.g. Add Client — unconstrained, overflowing off the top).
+            box-none lets taps in the empty area above the sheet reach the backdrop. */}
+        <KeyboardAvoidingView style={styles.kav} pointerEvents="box-none" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <View style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
             <View style={styles.head}>
               <Text style={styles.title} numberOfLines={1}>{title}</Text>
@@ -34,6 +38,7 @@ export default function Sheet({ open, onClose, title, children }) {
 const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end' },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(42,37,32,0.35)' },
+  kav: { flex: 1, justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24,
     paddingHorizontal: 20, paddingTop: 18, maxHeight: '86%',

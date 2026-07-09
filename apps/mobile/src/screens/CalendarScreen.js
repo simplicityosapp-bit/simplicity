@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useCallback } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react-native'
 import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming, weekStartIndex } from '@simplicity/core'
@@ -34,6 +34,10 @@ export default function CalendarScreen() {
   }, [refetch]))
   const weekStart = weekStartIndex(prefs?.format?.week_start)   // 0=Sun, 1=Mon (mirrors web)
   const weekdays = weekStart ? [...WEEKDAYS.slice(weekStart), ...WEEKDAYS.slice(0, weekStart)] : WEEKDAYS
+  // Manual RTL flip for the LTR-engine Hebrew state (no-op on a real RTL device):
+  // mirror the week header + day grid (Sunday on the right) and the agenda rows.
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
+  const flipRow = flip ? styles.rowFlip : null
   const now = new Date()
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
   const [selected, setSelected] = useState(() => keyOf(now))
@@ -125,11 +129,11 @@ export default function CalendarScreen() {
               <Text style={styles.monthLabel}>{fmtMonthYear(month)}</Text>
               <Pressable onPress={() => stepMonth(1)} hitSlop={10}><ChevronLeft size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
             </View>
-            <View style={styles.weekHead}>
+            <View style={[styles.weekHead, flipRow]}>
               {weekdays.map((w) => <Text key={w} style={styles.weekday}>{w}</Text>)}
             </View>
             {weeks.map((row, ri) => (
-              <View key={ri} style={styles.week}>
+              <View key={ri} style={[styles.week, flipRow]}>
                 {row.map((cell, ci) => {
                   if (!cell) return <View key={ci} style={styles.cell} />
                   const k = keyOf(cell)
@@ -158,10 +162,10 @@ export default function CalendarScreen() {
               {selectedEvents.map((e, i) => {
                 const tappable = e.kind === 'meeting' || e.kind === 'calendar'
                 return (
-                  <Pressable key={e.id} style={[styles.row, i > 0 && styles.rowBorder]} onPress={tappable ? () => setDetail(e) : undefined} disabled={!tappable}>
+                  <Pressable key={e.id} style={[styles.row, flipRow, i > 0 && styles.rowBorder]} onPress={tappable ? () => setDetail(e) : undefined} disabled={!tappable}>
                     <Text style={styles.time}>{fmtTime(e.when)}</Text>
                     <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
-                    <Text style={styles.eventTitle} numberOfLines={1}>{e.title || '—'}</Text>
+                    <Text style={[styles.eventTitle, flip && styles.eventTitleRtl]} numberOfLines={1}>{e.title || '—'}</Text>
                     {e.pending ? (
                       <Pressable style={styles.confirm} onPress={() => handleConfirm(e.raw)} hitSlop={6}>
                         <Check size={14} strokeWidth={2.2} color={colors.positive} />
@@ -219,6 +223,8 @@ const styles = StyleSheet.create({
   // Agenda
   dayLabel: { fontSize: 14, fontWeight: '600', color: colors.textSub, marginTop: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },
+  rowFlip: { flexDirection: 'row-reverse' },
+  eventTitleRtl: { textAlign: 'right' },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   time: { fontSize: 13, color: colors.textSub, width: 48 },
   dot: { width: 8, height: 8, borderRadius: 4 },

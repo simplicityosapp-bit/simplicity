@@ -44,7 +44,7 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, so
       ) : null}
 
       <View style={styles.src}>
-        <View style={[styles.srcDot, { backgroundColor: source?.color || 'rgba(42,37,32,0.2)' }]} />
+        <View style={[styles.srcDot, { backgroundColor: source?.color || colors.textFaint }]} />
         <Text style={[styles.srcText, !source && styles.srcNone]} numberOfLines={1}>{source ? source.name : T('noSource')}</Text>
       </View>
 

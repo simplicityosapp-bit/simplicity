@@ -95,7 +95,7 @@ export default function InsightsWidget({ questions, answers, addAnswer }) {
               step={1}
               value={val ?? 5}
               minimumTrackTintColor={colors.moonDeep}
-              maximumTrackTintColor="rgba(42,37,32,0.12)"
+              maximumTrackTintColor={colors.fillStrong}
               thumbTintColor={colors.moonDeep}
               onValueChange={(v) => setVal(Math.round(v))}
             />

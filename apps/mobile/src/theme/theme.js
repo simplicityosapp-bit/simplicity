@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 const LIGHT = {
   bg: '#F7F3EE', card: '#FFFCF7', cardFlat: '#F5EFE2',
   glassTint: 'rgba(255,252,247,0.34)', scrim: 'rgba(247,243,238,0.14)', blurTint: 'light',
-  text: '#2A2520', textSub: '#2C2621', textFaint: '#3A332B',
+  text: '#2A2520', textSub: '#2C2621', textFaint: '#3A332B', overlay: 'rgba(0,0,0,0.22)',
   brand: '#C97B5E', brandSoft: '#F4E3DA', positive: '#8BA888', amberWarn: '#D4A574', danger: '#B5634E',
   // Primary-CTA fill is its own token: LIGHT it equals the brand terracotta, but
   // in dark web's "Moonlight" palette splits it to Moonglow cream (--mg-btn-primary-bg)
@@ -29,11 +29,11 @@ const LIGHT = {
 const DARK = {
   bg: '#15140F', card: '#20242A', cardFlat: '#282D34',
   glassTint: 'rgba(24,28,34,0.62)', scrim: 'rgba(8,11,16,0.30)', blurTint: 'dark',
-  text: '#F0EBE0', textSub: '#C3CBC0', textFaint: '#8B948C',
+  text: '#F0EBE0', textSub: '#C3CBC0', textFaint: '#7C8590', overlay: 'rgba(0,0,0,0.58)',
   // Accent → Misted Sage (web dark remaps --terracotta). brandSoft → sage-tinted
   // circle bg (web dark .set-group-icon bg). Primary CTA → Moonglow cream + espresso
   // text. danger TEXT stays legible salmon; danger BUTTON fill = deep wine.
-  brand: '#6B8472', brandSoft: 'rgba(107,132,114,0.20)', positive: '#8FB08C', amberWarn: '#C99A6A', danger: '#D98C76',
+  brand: '#6B8472', brandSoft: 'rgba(107,132,114,0.20)', positive: '#7A9583', amberWarn: '#C99A6A', danger: '#D98C76',
   btnBg: '#D9D2C0', onBtn: '#2A2520', dangerFill: '#6E3D49',
   moon: '#c9d2ec', moonDeep: '#9aa6c8', moonHi: '#e6edff', onBrand: '#FFFFFF',
   border: 'rgba(240,235,224,0.12)', glassBorder: 'rgba(255,255,255,0.10)', divider: 'rgba(240,235,224,0.14)',

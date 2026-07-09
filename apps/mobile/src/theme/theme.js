@@ -81,6 +81,7 @@ export const shadow = {
 
 // Per-screen background photos (day set), mapped like web's --screen-bg.
 export const backgrounds = {
+  login: require('../../assets/backgrounds/home.webp'), // pre-auth login/signup screen
   home: require('../../assets/backgrounds/home.webp'),
   clients: require('../../assets/backgrounds/clients.webp'),
   finance: require('../../assets/backgrounds/finance.webp'),

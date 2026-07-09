@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator, ScrollView } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import i18n from '../lib/i18n'
 import { supabase } from '../lib/supabase'
-import { signInWithGoogle, googleAvailable } from '../lib/googleSignIn'
+import { signInWithGoogle } from '../lib/googleSignIn'
 import GoogleButton from '../components/GoogleButton'
+import Screen from '../components/Screen'
+import Card from '../components/Card'
 import { colors } from '../theme/theme'
 
 // Strings come from @simplicity/core's shared `auth` namespace — the same source
@@ -11,6 +14,7 @@ import { colors } from '../theme/theme'
 const t = (k, o) => i18n.t(k, o)
 
 export default function LoginScreen() {
+  const insets = useSafeAreaInsets()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [show, setShow] = useState(false)
@@ -60,7 +64,9 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={styles.wrap}>
+    <Screen name="login">
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]} keyboardShouldPersistTaps="handled">
+        <Card contentStyle={styles.wrap}>
       <Text style={styles.brand}>Simplicity</Text>
       <Text style={styles.title}>{t('auth:login')}</Text>
 
@@ -112,19 +118,22 @@ export default function LoginScreen() {
         label={t('auth:googleLogin')}
         onPress={onGoogle}
         busy={gbusy}
-        disabled={busy || !googleAvailable}
+        disabled={busy}
       />
 
       <Text style={styles.foot}>
         {t('auth:noAccount')} {t('auth:signup')}
       </Text>
-    </View>
+        </Card>
+      </ScrollView>
+    </Screen>
   )
 }
 
 const BRAND = colors.brand
 const styles = StyleSheet.create({
-  wrap: { flex: 1, justifyContent: 'center', paddingHorizontal: 28, gap: 14, backgroundColor: colors.bg },
+  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 20 },
+  wrap: { gap: 14 },
   brand: { fontSize: 15, letterSpacing: 1, color: BRAND, textAlign: 'center', fontWeight: '600' },
   title: { fontSize: 26, fontWeight: '600', color: colors.text, textAlign: 'center', marginBottom: 8 },
   input: {

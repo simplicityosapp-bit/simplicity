@@ -9,8 +9,10 @@ import i18n, { setupI18n } from './src/lib/i18n'
 import { AuthProvider, useAuth } from './src/lib/auth'
 import { DrawerProvider, useDrawer } from './src/lib/drawer'
 import { FormOptionsProvider } from './src/lib/formOptions'
-import { PreferencesProvider } from './src/lib/preferences'
+import { PreferencesProvider, usePreferences } from './src/lib/preferences'
+import { isDeletionPending } from './src/lib/account'
 import LoginScreen from './src/screens/LoginScreen'
+import PendingDeletionScreen from './src/screens/PendingDeletionScreen'
 import AppNavigator, { navigationRef } from './src/navigation/AppNavigator'
 import BottomBar from './src/components/BottomBar'
 import Drawer from './src/components/Drawer'
@@ -63,14 +65,24 @@ function Root() {
   if (!session) return <LoginScreen key={lang} />
   return (
     <PreferencesProvider>
-      <FormOptionsProvider>
-        <View style={styles.fill} key={lang}>
-          <AppNavigator />
-          <BottomBar />
-          <DrawerHost />
-        </View>
-      </FormOptionsProvider>
+      <AuthedApp lang={lang} />
     </PreferencesProvider>
+  )
+}
+
+// Inside PreferencesProvider so it can read prefs: while an account-deletion
+// request is within its grace window, gate the whole app to the pending screen.
+function AuthedApp({ lang }) {
+  const { prefs } = usePreferences()
+  if (isDeletionPending(prefs)) return <PendingDeletionScreen />
+  return (
+    <FormOptionsProvider>
+      <View style={styles.fill} key={lang}>
+        <AppNavigator />
+        <BottomBar />
+        <DrawerHost />
+      </View>
+    </FormOptionsProvider>
   )
 }
 

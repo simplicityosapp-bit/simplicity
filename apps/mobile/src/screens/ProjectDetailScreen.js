@@ -27,12 +27,13 @@ export default function ProjectDetailScreen() {
   const nav = useNavigation()
   const insets = useSafeAreaInsets()
   const projectId = route.params?.projectId
-  const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession, updateClient } = useProjectDetailData(projectId)
+  const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession, updateClient, updateSession, removeSession } = useProjectDetailData(projectId)
   const [editing, setEditing] = useState(false)
   const [addingGroup, setAddingGroup] = useState(false)
   const [editGroup, setEditGroup] = useState(null)
   const [addMemberTo, setAddMemberTo] = useState(null)
   const [logSessionGroup, setLogSessionGroup] = useState(null)
+  const [editSession, setEditSession] = useState(null)
   const [expanded, setExpanded] = useState(null)
 
   const projClientIds = useMemo(() => new Set(clients.map((c) => c.id)), [clients])
@@ -66,6 +67,16 @@ export default function ProjectDetailScreen() {
   }
   const groupRecurring = (g) => (g.recurring_day != null && g.recurring_time) ? `${i18n.t(`modalsClient:common.day${g.recurring_day}`)} ${g.recurring_time}` : null
   const clientName = (id) => clients.find((c) => c.id === id)?.name
+  const confirmDeleteSession = (s) => {
+    Alert.alert(
+      i18n.t('modalsTask:session.deleteTitle', { defaultValue: 'מחיקת פגישה' }),
+      i18n.t('modalsTask:session.deleteMessage', { defaultValue: 'למחוק את הפגישה שתועדה?' }),
+      [
+        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+        { text: i18n.t('leads:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => removeSession(s.id) },
+      ],
+    )
+  }
 
   // Group lifecycle status (active / in_development / ended). Flipping to
   // active/ended cascades the member clients' status to active/past — but never
@@ -223,11 +234,12 @@ export default function ProjectDetailScreen() {
           {recentSessions.length ? (
             <Section title={D('groups.pastSessionsTitle', { defaultValue: 'פגישות שהתקיימו' })} count={recentSessions.length}>
               {recentSessions.map((s, i) => (
-                <View key={s.id} style={[styles.row, i > 0 && styles.rowBorder]}>
+                <Pressable key={s.id} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditSession(s)}>
                   <CalendarDays size={14} strokeWidth={1.6} color={colors.textFaint} />
-                  <Text style={styles.rowName} numberOfLines={1}>{clientName(s.client_id) || s.summary || '—'}</Text>
+                  <Text style={styles.rowName} numberOfLines={1}>{clientName(s.client_id) || (s.group_id ? groups.find((g) => g.id === s.group_id)?.name : '') || s.summary || '—'}</Text>
                   <Text style={styles.rowSub}>{fmtShortDate(s.date)}</Text>
-                </View>
+                  <Pressable onPress={() => confirmDeleteSession(s)} hitSlop={8}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
+                </Pressable>
               ))}
             </Section>
           ) : null}
@@ -268,6 +280,14 @@ export default function ProjectDetailScreen() {
           const g = logSessionGroup
           return addSession({ ...data, client_id: null, group_id: g.id, subject_type: 'group', subject_id: g.id, num: sessions.filter((s) => s.group_id === g.id).length + 1 })
         }}
+      />
+      {/* Edit a logged session (date / summary / notes). Delete is on the row. */}
+      <AddSessionModal
+        open={!!editSession}
+        session={editSession}
+        client={{ name: (editSession && (clientName(editSession.client_id) || (editSession.group_id ? groups.find((g) => g.id === editSession.group_id)?.name : ''))) || '' }}
+        onClose={() => setEditSession(null)}
+        onSave={(patch) => updateSession(editSession.id, patch)}
       />
     </Screen>
   )

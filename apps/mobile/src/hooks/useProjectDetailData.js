@@ -110,5 +110,17 @@ export function useProjectDetailData(projectId) {
     if (e) { load() }
   }, [load])
 
-  return { ...state, loading, error, refetch: load, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession, updateClient }
+  // Edit / delete a logged session (date fix, mis-log removal). Optimistic.
+  const updateSession = useCallback(async (id, patch) => {
+    setState((s) => ({ ...s, sessions: s.sessions.map((x) => (x.id === id ? { ...x, ...patch } : x)) }))
+    const { error: e } = await supabase.from('sessions').update(patch).eq('id', id)
+    if (e) { load() }
+  }, [load])
+  const removeSession = useCallback(async (id) => {
+    setState((s) => ({ ...s, sessions: s.sessions.filter((x) => x.id !== id) }))
+    const { error: e } = await supabase.from('sessions').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    if (e) { load() }
+  }, [load])
+
+  return { ...state, loading, error, refetch: load, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession, updateClient, updateSession, removeSession }
 }

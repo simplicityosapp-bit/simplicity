@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Alert } from 'react-native'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Pencil, Users, CalendarDays, Plus, ChevronDown, ChevronRight, X, Check } from 'lucide-react-native'
@@ -17,6 +17,7 @@ import { useProjectDetailData } from '../hooks/useProjectDetailData'
 
 const D = (k, o) => i18n.t(`projects:detail.${k}`, o)
 const STATUS_DOT = { active: colors.positive, wandering: colors.amberWarn, past: '#b3a99c', no_status: '#cbb9a8' }
+const GSTATUS_KEYS = ['active', 'in_development', 'ended']
 
 // Project detail (scoped v1 of web's project-detail): header + stats + clients
 // list + groups (read-only) + recent sessions + project edit. The heavy web
@@ -26,7 +27,7 @@ export default function ProjectDetailScreen() {
   const nav = useNavigation()
   const insets = useSafeAreaInsets()
   const projectId = route.params?.projectId
-  const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession } = useProjectDetailData(projectId)
+  const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession, updateClient } = useProjectDetailData(projectId)
   const [editing, setEditing] = useState(false)
   const [addingGroup, setAddingGroup] = useState(false)
   const [editGroup, setEditGroup] = useState(null)
@@ -65,6 +66,41 @@ export default function ProjectDetailScreen() {
   }
   const groupRecurring = (g) => (g.recurring_day != null && g.recurring_time) ? `${i18n.t(`modalsClient:common.day${g.recurring_day}`)} ${g.recurring_time}` : null
   const clientName = (id) => clients.find((c) => c.id === id)?.name
+
+  // Group lifecycle status (active / in_development / ended). Flipping to
+  // active/ended cascades the member clients' status to active/past — but never
+  // clobbers a manually-overridden client (status_overridden). Mirrors web
+  // requestGroupStatus + propagateToClients, with a confirm when clients flip.
+  const groupMemberClients = (gid) => {
+    const ids = new Set()
+    members.forEach((m) => { if (m.group_id === gid && !m.left_at) ids.add(m.client_id) })
+    clients.forEach((c) => { if (!c.deleted_at && c.group_id === gid) ids.add(c.id) })
+    return Array.from(ids).map((cid) => clients.find((c) => c.id === cid)).filter(Boolean)
+  }
+  const changeGroupStatus = (g, newStatus) => {
+    if ((g.status || 'active') === newStatus) return
+    const targetMeta = newStatus === 'active' ? 'active' : (newStatus === 'ended' ? 'past' : null)
+    const willFlip = targetMeta
+      ? groupMemberClients(g.id).filter((c) => !c.status_overridden && statusMetaOf(c) !== targetMeta)
+      : []
+    if (willFlip.length === 0) { updateGroup(g.id, { status: newStatus }); return }
+    const propagate = async () => {
+      await updateGroup(g.id, { status: newStatus })
+      for (const c of willFlip) { await updateClient(c.id, { status: targetMeta, status_meta: targetMeta }).catch(() => {}) }
+    }
+    Alert.alert(
+      D('statusChange.title', { defaultValue: 'שינוי סטטוס קבוצה' }),
+      D(willFlip.length === 1 ? 'statusChange.messageOne' : 'statusChange.messageMany', {
+        status: D(`status.${newStatus}`),
+        count: willFlip.length,
+        meta: D(`meta.${targetMeta}`),
+      }),
+      [
+        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+        { text: D('statusChange.confirm', { defaultValue: 'שנה סטטוס' }), onPress: propagate },
+      ],
+    )
+  }
 
   if (!loading && !project) {
     return (
@@ -148,6 +184,16 @@ export default function ProjectDetailScreen() {
                     <Pressable onPress={() => setEditGroup(g)} hitSlop={8}><Pencil size={13} strokeWidth={1.7} color={colors.textSub} /></Pressable>
                     <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
                   </Pressable>
+                  <View style={styles.gstatusRow}>
+                    {GSTATUS_KEYS.map((k) => {
+                      const on = (g.status || 'active') === k
+                      return (
+                        <Pressable key={k} style={[styles.gstatusPill, on && styles.gstatusOn]} onPress={() => changeGroupStatus(g, k)}>
+                          <Text style={[styles.gstatusText, on && styles.gstatusTextOn]}>{D(`status.${k}`)}</Text>
+                        </Pressable>
+                      )
+                    })}
+                  </View>
                   {open ? (
                     <View style={styles.gbody}>
                       {gm.length ? gm.map((m) => (
@@ -275,6 +321,11 @@ const styles = StyleSheet.create({
   addChip: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brandSoft },
   gcard: { padding: 0 },
   grow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
+  gstatusRow: { flexDirection: 'row', gap: 6, paddingHorizontal: 14, paddingBottom: 10, flexWrap: 'wrap' },
+  gstatusPill: { paddingVertical: 5, paddingHorizontal: 11, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  gstatusOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  gstatusText: { fontSize: 12, color: colors.textSub },
+  gstatusTextOn: { color: colors.onBrand, fontWeight: '600' },
   gdot: { width: 11, height: 11, borderRadius: 6 },
   gname: { fontSize: 15, fontWeight: '600', color: colors.text },
   gsub: { fontSize: 12, color: colors.textFaint, marginTop: 1 },

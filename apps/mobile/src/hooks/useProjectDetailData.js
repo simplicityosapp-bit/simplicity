@@ -102,5 +102,13 @@ export function useProjectDetailData(projectId) {
     return data
   }, [])
 
-  return { ...state, loading, error, refetch: load, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession }
+  // Patch a client — used by the group-status cascade (a group active/ended flip
+  // propagates the member clients' status). Optimistic; reload on error.
+  const updateClient = useCallback(async (id, patch) => {
+    setState((s) => ({ ...s, clients: s.clients.map((c) => (c.id === id ? { ...c, ...patch } : c)) }))
+    const { error: e } = await supabase.from('clients').update(patch).eq('id', id)
+    if (e) { load() }
+  }, [load])
+
+  return { ...state, loading, error, refetch: load, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession, updateClient }
 }

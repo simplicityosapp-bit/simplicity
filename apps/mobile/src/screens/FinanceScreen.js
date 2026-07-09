@@ -27,7 +27,14 @@ const isConfirmed = (t) => t.status === 'confirmed' && !t.invoice_credited_at
 // invoice imports are a later increment.)
 export default function FinanceScreen() {
   const { transactions, clients, categories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction, setStatus, addCategory, removeCategory } = useFinanceData()
-  const { projects } = useFormOptions()
+  const { projects, refetch: refetchFormOptions } = useFormOptions()
+  // Inline category creation from the add-transaction modal: create + refresh the
+  // shared lookup so the new category shows in the picker (mirrors web onCreateCategory).
+  const addCategoryAndRefresh = useCallback(async (name) => {
+    const row = await addCategory(name)
+    await refetchFormOptions?.()
+    return row
+  }, [addCategory, refetchFormOptions])
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
   const { prefs, update } = usePreferences()
   const [editing, setEditing] = useState(null)
@@ -294,7 +301,7 @@ export default function FinanceScreen() {
         </ScrollView>
       )}
 
-      <AddTransactionModal open={adding} clients={clients} onClose={() => setAdding(false)} onSave={addAndGoToMonth} />
+      <AddTransactionModal open={adding} clients={clients} onClose={() => setAdding(false)} onSave={addAndGoToMonth} onAddCategory={addCategoryAndRefresh} />
       <AddTransactionModal
         open={!!editing}
         tx={editing}

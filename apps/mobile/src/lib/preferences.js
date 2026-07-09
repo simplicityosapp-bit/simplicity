@@ -38,9 +38,32 @@ export function applySavedLanguage(lang) {
 // mode, language, sort/scope, etc.). update() is optimistic + persists.
 const PreferencesContext = createContext({ prefs: {}, update: async () => {} })
 
+// One-level deep merge (mirrors web deepMerge): nested objects (design/format/
+// widgets/profile…) merge key-by-key instead of being replaced wholesale, so a
+// caller can pass just the changed leaf and concurrent updates can't drop each
+// other's sibling keys.
+function deepMerge(base, patch) {
+  const out = { ...(base || {}) }
+  Object.keys(patch || {}).forEach((k) => {
+    const v = patch[k]
+    if (v && typeof v === 'object' && !Array.isArray(v) && out[k] && typeof out[k] === 'object' && !Array.isArray(out[k])) {
+      out[k] = deepMerge(out[k], v)
+    } else {
+      out[k] = v
+    }
+  })
+  return out
+}
+
 export function PreferencesProvider({ children }) {
   const [prefs, setPrefs] = useState({})
   const ref = useRef({})
+  // True once the user has interacted, so the initial server load doesn't revert
+  // a change made during cold-start (mirrors web's prefsRef==null guard).
+  const touched = useRef(false)
+  // Serializes DB writes so an earlier write finishing last can't overwrite a
+  // later merge (lost-update race when two update()s land near-simultaneously).
+  const writeChain = useRef(Promise.resolve())
 
   useEffect(() => {
     let alive = true
@@ -50,16 +73,22 @@ export function PreferencesProvider({ children }) {
         if (!session) return
         const { data } = await supabase.from('user_preferences').select('preferences').eq('user_id', session.user.id).maybeSingle()
         const p = (data && data.preferences) || {}
-        ref.current = p
-        if (alive) setPrefs(p)
-        applySavedLanguage(p.language)
-        setGenderContext(p.design?.gender)
-        applyFormatPrefs(p)
+        // RACE FIX: if the user already toggled something before this load
+        // resolved, adopting the server value would silently revert their change
+        // (the read started BEFORE they clicked). Only adopt when untouched.
+        if (!touched.current) {
+          ref.current = p
+          if (alive) setPrefs(p)
+        }
+        const eff = ref.current // authoritative value (server p if untouched, else the user's)
+        applySavedLanguage(eff.language)
+        setGenderContext(eff.design?.gender)
+        applyFormatPrefs(eff)
         // Sync the saved theme to the boot cache so a theme chosen on web (or a
         // prior session) applies on the NEXT launch (RN freezes StyleSheet colors
         // at boot — theme.js reads THEME_KEY there). No reload here (avoids a flash).
-        if (p.design?.theme === 'dark' || p.design?.theme === 'light') {
-          AsyncStorage.setItem(THEME_KEY, p.design.theme).catch(() => {})
+        if (eff.design?.theme === 'dark' || eff.design?.theme === 'light') {
+          AsyncStorage.setItem(THEME_KEY, eff.design.theme).catch(() => {})
         }
       } catch { /* keep defaults */ }
     })()
@@ -67,16 +96,23 @@ export function PreferencesProvider({ children }) {
   }, [])
 
   const update = useCallback(async (patch) => {
-    const next = { ...ref.current, ...patch }
+    touched.current = true
+    const next = deepMerge(ref.current, patch)
     ref.current = next
     setPrefs(next)
     applyFormatPrefs(next)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const { data } = await supabase.from('user_preferences').update({ preferences: next }).eq('user_id', session.user.id).select('preferences').maybeSingle()
-      if (!data) await supabase.from('user_preferences').insert({ user_id: session.user.id, preferences: next })
-    } catch { /* keep optimistic */ }
+    // Chain the DB write after any in-flight one, and always send the LATEST
+    // merged state (ref.current) so concurrent updates can't lose each other.
+    const task = writeChain.current.then(async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return
+        const { data } = await supabase.from('user_preferences').update({ preferences: ref.current }).eq('user_id', session.user.id).select('preferences').maybeSingle()
+        if (!data) await supabase.from('user_preferences').insert({ user_id: session.user.id, preferences: ref.current })
+      } catch { /* keep optimistic */ }
+    })
+    writeChain.current = task.catch(() => {})
+    return task
   }, [])
 
   return <PreferencesContext.Provider value={{ prefs, update }}>{children}</PreferencesContext.Provider>

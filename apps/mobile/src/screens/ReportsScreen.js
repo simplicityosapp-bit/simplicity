@@ -119,7 +119,9 @@ const styles = StyleSheet.create({
   pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
   pillOn: { backgroundColor: colors.text, borderColor: colors.text },
   pillText: { fontSize: 13, color: colors.textSub },
-  pillTextOn: { color: colors.onBrand, fontWeight: '600' },
+  // Inverse of the colors.text fill so it reads in both themes (white would vanish
+  // on the cream dark-mode fill).
+  pillTextOn: { color: colors.bg, fontWeight: '600' },
   group: { gap: 8 },
   groupTitle: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.4, paddingVertical: 10, paddingHorizontal: 14, backgroundColor: colors.fill, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 11, paddingHorizontal: 16 },

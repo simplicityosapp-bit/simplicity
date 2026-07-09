@@ -3,7 +3,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert,
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
-import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Wallet, Info, LayoutGrid, Trash2 } from 'lucide-react-native'
+import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Wallet, Info, LayoutGrid, Trash2, Eye, Layers, Users, Leaf } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
@@ -35,6 +35,18 @@ const TIME_FMTS = [{ k: '24h', l: '24 שעות' }, { k: '12h', l: '12h' }]
 const WEEK_STARTS = [{ k: 'sunday', l: 'ראשון' }, { k: 'monday', l: 'שני' }]
 const T = (k, o) => i18n.t(`settings:${k}`, o)
 
+// Two-level section tree — mirrors web's SECTION_GROUPS exactly: a group (collapsible)
+// holds a set of sections (also collapsible). Each section key maps to a body in
+// renderBody() below. Group + section icons match web's SECTION_GROUPS / SECTION_DEFS.
+const SECTION_ICON = { profile: User, design: Palette, widgets: LayoutGrid, payments: Wallet, clients: Users, leads: Leaf, questions: Sparkles, data: Database, about: Info }
+const GROUPS = [
+  { key: 'personal', Icon: User, items: ['profile', 'design'] },
+  { key: 'display', Icon: Eye, items: ['widgets', 'payments'] },
+  { key: 'workflow', Icon: Layers, items: ['clients', 'leads', 'questions'] },
+  { key: 'data', Icon: Database, items: ['data'] },
+  { key: 'about', Icon: Info, items: ['about'] },
+]
+
 // On/off switch (mirrors web Switch). RN has no built-in, so it's a pill track + knob.
 function Switch({ checked, onChange }) {
   return (
@@ -56,11 +68,28 @@ function SwitchField({ label, hint, checked, onChange }) {
   )
 }
 
+// Top-level group header — collapsible band that reveals its sections when open.
+function Group({ Icon, title, sub, open, onToggle, children }) {
+  return (
+    <View style={styles.group}>
+      <Pressable style={styles.groupHead} onPress={onToggle}>
+        <View style={styles.groupIcon}><Icon size={19} strokeWidth={1.7} color={colors.brand} /></View>
+        <View style={styles.groupTitleWrap}>
+          <Text style={styles.groupTitle}>{title}</Text>
+          {sub ? <Text style={styles.groupSub} numberOfLines={1}>{sub}</Text> : null}
+        </View>
+        <ChevronDown size={18} strokeWidth={1.7} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
+      </Pressable>
+      {open ? <View style={styles.groupChildren}>{children}</View> : null}
+    </View>
+  )
+}
+
 function Section({ Icon, title, sub, open, onToggle, children }) {
   return (
     <Card padded={false} style={styles.sectionOuter} contentStyle={styles.section}>
       <Pressable style={styles.secHead} onPress={onToggle}>
-        <View style={styles.secIcon}><Icon size={18} strokeWidth={1.7} color={colors.brand} /></View>
+        <View style={styles.secIcon}><Icon size={17} strokeWidth={1.7} color={colors.brand} /></View>
         <View style={styles.secTitleWrap}>
           <Text style={styles.secTitle}>{title}</Text>
           {sub ? <Text style={styles.secSub} numberOfLines={1}>{sub}</Text> : null}
@@ -87,19 +116,21 @@ function Pills({ options, value, onPick, accent }) {
   )
 }
 
-// Settings — profile · appearance · data · configuration · sign out. Persists to
-// user prefs (usePreferences); the language switch applies immediately via
-// i18next (an RTL he↔ltr flip needs an app restart). Some appearance controls
-// persist the choice; applying background/text-size app-wide is a later pass.
+// Settings — a two-level tree (groups → sections) matching the web app. Persists to
+// user prefs (usePreferences); the language switch applies immediately via i18next
+// (an RTL he↔ltr flip needs an app restart). Theme/format changes reload the app so
+// RN's frozen StyleSheet colors + core format setters pick up the new values.
 export default function SettingsScreen() {
   const nav = useNavigation()
   const { prefs, update } = usePreferences()
   const { transactions, clients, categories } = useFinanceData()
   const tax = useConfigTaxonomy()
-  const [open, setOpen] = useState('profile')
+  const [openGroups, setOpenGroups] = useState({})
+  const [open, setOpen] = useState({})
   const [lang, setLang] = useState(i18n.language)
   const [showDeleteAccount, setShowDeleteAccount] = useState(false)
-  const toggle = (k) => setOpen((o) => (o === k ? null : k))
+  const toggleGroup = (k) => setOpenGroups((g) => ({ ...g, [k]: !g[k] }))
+  const toggle = (k) => setOpen((o) => ({ ...o, [k]: !o[k] }))
 
   const role = prefs.profile?.role || 'other'
   const setLanguage = (code) => { setLang(code); applySavedLanguage(code); update({ language: code }) }
@@ -198,12 +229,12 @@ export default function SettingsScreen() {
     )
   }
 
-  return (
-    <Screen name="tasks">
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <ScreenHead title={i18n.t('settings:header.title', { defaultValue: 'הגדרות' })} />
-        {/* Profile */}
-        <Section Icon={User} title={T('sections.profile.title', { defaultValue: 'פרופיל' })} sub={T('sections.profile.sub', { defaultValue: '' })} open={open === 'profile'} onToggle={() => toggle('profile')}>
+  // Section bodies keyed by section id (mirrors web's renderBody switch). Grouping
+  // is purely presentational — the same controls, split by web's section boundaries.
+  const renderBody = (key) => {
+    if (key === 'profile') {
+      return (
+        <>
           <Field label={T('profile.fullName', { defaultValue: 'שם מלא' })}>
             <TextInput style={styles.input} value={prefs.profile?.full_name || ''} onChangeText={(v) => update({ profile: { ...(prefs.profile || {}), full_name: v } })} placeholder={T('profile.namePlaceholder', { defaultValue: 'השם שלך' })} placeholderTextColor={colors.textFaint} />
           </Field>
@@ -217,10 +248,12 @@ export default function SettingsScreen() {
               <TextInput style={styles.input} value={prefs.profile?.role_other || ''} onChangeText={(v) => update({ profile: { ...(prefs.profile || {}), role_other: v } })} placeholder={T('profile.roleOtherPlaceholder', { defaultValue: '' })} placeholderTextColor={colors.textFaint} />
             </Field>
           ) : null}
-        </Section>
-
-        {/* Appearance */}
-        <Section Icon={Palette} title={T('sections.design.title', { defaultValue: 'מראה ושפה' })} sub={T('sections.design.sub', { defaultValue: '' })} open={open === 'design'} onToggle={() => toggle('design')}>
+        </>
+      )
+    }
+    if (key === 'design') {
+      return (
+        <>
           <Field label={T('design.language', { defaultValue: 'שפה' })}>
             <Pills options={LANGUAGE_OPTIONS.map((l) => ({ k: l.v, label: l.l }))} value={lang} onPick={setLanguage} />
             {lang === 'he' ? null : <Text style={styles.hint}>{T('design.rtlHint', { defaultValue: 'שינוי כיווניות מלא מתעדכן לאחר הפעלה מחדש.' })}</Text>}
@@ -240,10 +273,24 @@ export default function SettingsScreen() {
           {(prefs.design?.hebrew_calendar || prefs.design?.hebrew_date_input) ? (
             <SwitchField label={T('design.hebrewCalendarDual', { defaultValue: 'הצגת תאריך לועזי לצד העברי' })} checked={!!prefs.design?.hebrew_calendar_dual} onChange={(v) => setDesign({ hebrew_calendar_dual: v })} />
           ) : null}
-        </Section>
-
-        {/* Currency, date & time */}
-        <Section Icon={Wallet} title={T('sections.payments.title', { defaultValue: 'מטבע, תאריך ושעה' })} sub={T('sections.payments.sub', { defaultValue: '' })} open={open === 'format'} onToggle={() => toggle('format')}>
+        </>
+      )
+    }
+    if (key === 'widgets') {
+      return widgetList.map((w, i) => (
+        <View key={w.id} style={styles.widgetRow}>
+          <View style={styles.widgetReorder}>
+            <Pressable onPress={() => moveWidget(w.id, -1)} disabled={i === 0} hitSlop={6}><ChevronUp size={16} strokeWidth={1.8} color={i === 0 ? colors.textFaint : colors.textSub} /></Pressable>
+            <Pressable onPress={() => moveWidget(w.id, 1)} disabled={i === widgetList.length - 1} hitSlop={6}><ChevronDown size={16} strokeWidth={1.8} color={i === widgetList.length - 1 ? colors.textFaint : colors.textSub} /></Pressable>
+          </View>
+          <Text style={styles.widgetName} numberOfLines={1}>{T(`widgets.names.${w.id}`, { defaultValue: w.id })}</Text>
+          <Switch checked={w.enabled !== false} onChange={() => toggleWidget(w.id)} />
+        </View>
+      ))
+    }
+    if (key === 'payments') {
+      return (
+        <>
           <Field label={T('payments.currency', { defaultValue: 'מטבע' })}>
             <Pills options={CURRENCIES.map((c) => ({ k: c.k, label: T(`options.currency.${c.k}`, { defaultValue: c.l }) }))} value={prefs.format?.currency || 'ILS'} onPick={(v) => setFormat('currency', v)} />
           </Field>
@@ -256,24 +303,51 @@ export default function SettingsScreen() {
           <Field label={T('payments.weekStart', { defaultValue: 'יום ראשון בשבוע' })}>
             <Pills options={WEEK_STARTS.map((w) => ({ k: w.k, label: T(`options.weekStart.${w.k}`, { defaultValue: w.l }) }))} value={prefs.format?.week_start || 'sunday'} onPick={(v) => setFormat('week_start', v)} />
           </Field>
-        </Section>
-
-        {/* Home widgets — enable/disable + order */}
-        <Section Icon={LayoutGrid} title={T('sections.widgets.title', { defaultValue: 'ווידג׳טים ותצוגה' })} sub={T('sections.widgets.sub', { defaultValue: 'מה מופיע במסך הבית' })} open={open === 'widgets'} onToggle={() => toggle('widgets')}>
-          {widgetList.map((w, i) => (
-            <View key={w.id} style={styles.widgetRow}>
-              <View style={styles.widgetReorder}>
-                <Pressable onPress={() => moveWidget(w.id, -1)} disabled={i === 0} hitSlop={6}><ChevronUp size={16} strokeWidth={1.8} color={i === 0 ? colors.textFaint : colors.textSub} /></Pressable>
-                <Pressable onPress={() => moveWidget(w.id, 1)} disabled={i === widgetList.length - 1} hitSlop={6}><ChevronDown size={16} strokeWidth={1.8} color={i === widgetList.length - 1 ? colors.textFaint : colors.textSub} /></Pressable>
-              </View>
-              <Text style={styles.widgetName} numberOfLines={1}>{T(`widgets.names.${w.id}`, { defaultValue: w.id })}</Text>
-              <Switch checked={w.enabled !== false} onChange={() => toggleWidget(w.id)} />
-            </View>
-          ))}
-        </Section>
-
-        {/* Data */}
-        <Section Icon={Database} title={T('sections.data.title', { defaultValue: 'נתונים' })} sub={T('sections.data.sub', { defaultValue: '' })} open={open === 'data'} onToggle={() => toggle('data')}>
+        </>
+      )
+    }
+    if (key === 'clients') {
+      return (
+        <>
+          <StatusManager tax={tax} />
+          <TaxonomyManager
+            title={T('clients.meetingTypesHeading', { defaultValue: 'סוגי פגישה ומחירים' })}
+            items={tax.meetingTypes.map((m) => ({ id: m.id, label: `${m.name}${m.default_price != null ? ` · ₪${m.default_price}` : ''}` }))}
+            placeholder={T('payments.typePlaceholder', { defaultValue: 'סוג פגישה…' })}
+            secondPlaceholder="₪"
+            onAdd={(name, price) => tax.addMeetingType(name, price ? Number(price) : null)}
+            onRemove={tax.removeMeetingType}
+          />
+        </>
+      )
+    }
+    if (key === 'leads') {
+      return (
+        <>
+          <TaxonomyManager
+            title={T('leads.sources', { defaultValue: 'מקורות פנייה' })}
+            items={tax.leadSources.map((s) => ({ id: s.id, label: s.name, color: s.color }))}
+            placeholder={T('leads.sourcePlaceholder', { defaultValue: 'מקור חדש…' })}
+            onAdd={(name) => tax.addLeadSource(name)}
+            onRemove={tax.removeLeadSource}
+          />
+          <LeadStatusManager tax={tax} />
+        </>
+      )
+    }
+    if (key === 'questions') {
+      return (
+        <Pressable style={styles.rowBtn} onPress={() => nav.navigate('Insights')}>
+          <Sparkles size={16} strokeWidth={1.7} color={colors.textSub} />
+          <Text style={styles.rowBtnText}>{T('questions.manage', { defaultValue: 'ניהול השאלות היומיות' })}</Text>
+          <View style={{ flex: 1 }} />
+          <ChevronDown size={16} strokeWidth={1.6} color={colors.textFaint} style={{ transform: [{ rotate: '-90deg' }] }} />
+        </Pressable>
+      )
+    }
+    if (key === 'data') {
+      return (
+        <>
           <Text style={styles.intro}>{T('data.intro', { defaultValue: 'ייצוא הנתונים שלך.' })}</Text>
           <Pressable style={styles.rowBtn} onPress={() => exportCsv('clients')}>
             <Download size={16} strokeWidth={1.7} color={colors.textSub} />
@@ -300,37 +374,12 @@ export default function SettingsScreen() {
             </Pressable>
             <Text style={styles.hint}>{T('danger.deleteHint', { defaultValue: '' })}</Text>
           </View>
-        </Section>
-
-        {/* Configuration */}
-        <Section Icon={SlidersHorizontal} title={T('sections.clients.title', { defaultValue: 'קונפיגורציה' })} sub={T('sections.clients.sub', { defaultValue: '' })} open={open === 'config'} onToggle={() => toggle('config')}>
-          <Pressable style={styles.rowBtn} onPress={() => nav.navigate('Insights')}>
-            <Sparkles size={16} strokeWidth={1.7} color={colors.textSub} />
-            <Text style={styles.rowBtnText}>{i18n.t('settings:sections.questions.title', { defaultValue: 'שאלות יומיות' })}</Text>
-            <View style={{ flex: 1 }} />
-            <ChevronDown size={16} strokeWidth={1.6} color={colors.textFaint} style={{ transform: [{ rotate: '-90deg' }] }} />
-          </Pressable>
-
-          <StatusManager tax={tax} />
-          <TaxonomyManager
-            title={T('leads.sourcesTitle', { defaultValue: 'מקורות לידים' })}
-            items={tax.leadSources.map((s) => ({ id: s.id, label: s.name, color: s.color }))}
-            placeholder={T('leads.sourcePlaceholder', { defaultValue: 'מקור חדש…' })}
-            onAdd={(name) => tax.addLeadSource(name)}
-            onRemove={tax.removeLeadSource}
-          />
-          <TaxonomyManager
-            title={T('payments.meetingTypesTitle', { defaultValue: 'סוגי פגישה' })}
-            items={tax.meetingTypes.map((m) => ({ id: m.id, label: `${m.name}${m.default_price != null ? ` · ₪${m.default_price}` : ''}` }))}
-            placeholder={T('payments.typePlaceholder', { defaultValue: 'סוג פגישה…' })}
-            secondPlaceholder="₪"
-            onAdd={(name, price) => tax.addMeetingType(name, price ? Number(price) : null)}
-            onRemove={tax.removeMeetingType}
-          />
-        </Section>
-
-        {/* About */}
-        <Section Icon={Info} title={T('sections.about.title', { defaultValue: 'אודות' })} sub={`v${appVersion}`} open={open === 'about'} onToggle={() => toggle('about')}>
+        </>
+      )
+    }
+    if (key === 'about') {
+      return (
+        <>
           <Text style={styles.intro}>{T('about.version', { version: appVersion, defaultValue: `גרסה ${appVersion}` })}</Text>
           <Pressable style={styles.rowBtn} onPress={() => openLegal('privacy')}>
             <Text style={styles.rowBtnText}>{T('about.privacy', { defaultValue: 'מדיניות פרטיות' })}</Text>
@@ -347,7 +396,43 @@ export default function SettingsScreen() {
             <View style={{ flex: 1 }} />
             <ChevronDown size={16} strokeWidth={1.6} color={colors.textFaint} style={{ transform: [{ rotate: '-90deg' }] }} />
           </Pressable>
-        </Section>
+        </>
+      )
+    }
+    return null
+  }
+
+  return (
+    <Screen name="tasks">
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <ScreenHead title={i18n.t('settings:header.title', { defaultValue: 'הגדרות' })} />
+
+        {GROUPS.map((g) => (
+          <Group
+            key={g.key}
+            Icon={g.Icon}
+            title={T(`groups.${g.key}.title`, { defaultValue: g.key })}
+            sub={T(`groups.${g.key}.sub`, { defaultValue: '' })}
+            open={!!openGroups[g.key]}
+            onToggle={() => toggleGroup(g.key)}
+          >
+            {g.items.map((key) => {
+              const Icon = SECTION_ICON[key]
+              return (
+                <Section
+                  key={key}
+                  Icon={Icon}
+                  title={T(`sections.${key}.title`, { defaultValue: key })}
+                  sub={T(`sections.${key}.sub`, { defaultValue: '' })}
+                  open={!!open[key]}
+                  onToggle={() => toggle(key)}
+                >
+                  {renderBody(key)}
+                </Section>
+              )
+            })}
+          </Group>
+        ))}
 
         {/* Sign out */}
         <Pressable style={styles.signOut} onPress={signOut}>
@@ -434,14 +519,64 @@ function StatusManager({ tax }) {
   )
 }
 
+// Lead sub-statuses — chips + add (name + a meta pill), mirrors web's leads section.
+const LEAD_METAS = ['in_process', 'converted', 'not_relevant']
+function LeadStatusManager({ tax }) {
+  const [name, setName] = useState('')
+  const [meta, setMeta] = useState('in_process')
+  const [busy, setBusy] = useState(false)
+  const add = async () => {
+    const v = name.trim(); if (!v || busy) return
+    setBusy(true); try { await tax.addLeadStatus(v, meta); setName('') } finally { setBusy(false) }
+  }
+  return (
+    <View style={styles.taxBlock}>
+      <Text style={styles.taxTitle}>{i18n.t('settings:leads.subStatuses', { defaultValue: 'תתי-סטטוסים' })}</Text>
+      <View style={styles.chips}>
+        {tax.leadStatuses.length ? tax.leadStatuses.map((s) => (
+          <View key={s.id} style={styles.chip}>
+            <Text style={styles.chipText}>{s.display_name}</Text>
+            {s.is_default ? null : <Pressable onPress={() => tax.removeLeadStatus(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>}
+          </View>
+        )) : <Text style={styles.hint}>{i18n.t('settings:common.none', { defaultValue: '—' })}</Text>}
+      </View>
+      <View style={styles.metaPills}>
+        {LEAD_METAS.map((m) => {
+          const on = meta === m
+          return (
+            <Pressable key={m} style={[styles.metaPill, on && styles.metaPillOn]} onPress={() => setMeta(m)}>
+              <Text style={[styles.metaPillText, on && styles.pillTextOn]}>{i18n.t(`settings:leadMetas.${m}`, { defaultValue: m })}</Text>
+            </Pressable>
+          )
+        })}
+      </View>
+      <View style={styles.addRow}>
+        <TextInput style={[styles.input, styles.addInput]} value={name} onChangeText={setName} placeholder={i18n.t('settings:clients.statusPlaceholder', { defaultValue: 'סטטוס חדש…' })} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
+        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !name.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+      </View>
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 12 },
+  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
+
+  // Group (top level)
+  group: { gap: 10 },
+  groupHead: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 6, paddingHorizontal: 4 },
+  groupIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' },
+  groupTitleWrap: { flex: 1 },
+  groupTitle: { fontSize: 18, fontWeight: '700', color: colors.text, letterSpacing: -0.4 },
+  groupSub: { fontSize: 12, color: colors.textFaint, marginTop: 1 },
+  groupChildren: { gap: 10, marginTop: 2 },
+
+  // Section (nested)
   sectionOuter: {},
   section: {},
-  secHead: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14, paddingHorizontal: 14 },
-  secIcon: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' },
+  secHead: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 13, paddingHorizontal: 14 },
+  secIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' },
   secTitleWrap: { flex: 1 },
-  secTitle: { fontSize: 16, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
+  secTitle: { fontSize: 15, fontWeight: '600', color: colors.text, letterSpacing: -0.2 },
   secSub: { fontSize: 12, color: colors.textFaint, marginTop: 1 },
   secBody: { paddingHorizontal: 14, paddingBottom: 16, gap: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider, paddingTop: 14 },
 
@@ -482,7 +617,7 @@ const styles = StyleSheet.create({
   addInput: { flex: 1 },
   addSecond: { width: 70 },
   addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
-  metaPills: { flexDirection: 'row', gap: 6 },
+  metaPills: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   metaPill: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
   metaPillOn: { backgroundColor: colors.text, borderColor: colors.text },
   metaPillText: { fontSize: 12, color: colors.textSub },
@@ -495,6 +630,7 @@ const styles = StyleSheet.create({
   dangerBtnText: { fontSize: 14, color: colors.danger, fontWeight: '500' },
 })
 
+Group.displayName = 'Group'
 Section.displayName = 'Section'
 Pills.displayName = 'Pills'
 Field.displayName = 'Field'

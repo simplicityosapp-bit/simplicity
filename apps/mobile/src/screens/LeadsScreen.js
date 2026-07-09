@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState, useEffect } from 'react'
+import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
+import { useFocusEffect } from '@react-navigation/native'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking, Alert } from 'react-native'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import { Bell, Check, MessageCircle, ChevronLeft, ChevronUp, ChevronDown, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
@@ -50,6 +51,12 @@ export default function LeadsScreen() {
   const { leadSources = [], leadStatuses = [], projects = [], groups = [] } = useFormOptions()
   const tax = useConfigTaxonomy()
   const { prefs, update: updatePrefs } = usePreferences()
+  // Persistent tab: silently re-pull leads on RE-focus (skip mount).
+  const firstFocus = useRef(true)
+  useFocusEffect(useCallback(() => {
+    if (firstFocus.current) { firstFocus.current = false; return }
+    refetch(true)
+  }, [refetch]))
   // View + filter persist in prefs (mirror web prefs.leadsView / prefs.leadsFilter).
   const view = prefs.leadsView === 'statuses' ? 'statuses' : 'board'
   const setView = (v) => updatePrefs({ leadsView: v })

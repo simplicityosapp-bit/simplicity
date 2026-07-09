@@ -24,9 +24,9 @@ export function useCalendarData() {
   const sessionsRef = useRef(state.sessions)
   sessionsRef.current = state.sessions
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const load = useCallback(async (silent) => {
+    if (!silent) setLoading(true)
+    if (!silent) setError(null)
     try {
       const [meetings, calendarEvents, clients, groups, reminders, leads, sessions] = await Promise.all([
         fetchTable('scheduled_meetings', { filterDeleted: false }),
@@ -39,9 +39,9 @@ export function useCalendarData() {
       ])
       setState({ meetings, calendarEvents, clients, groups, reminders, leads, sessions })
     } catch (e) {
-      setError(e?.message || 'load failed')
+      if (!silent) setError(e?.message || 'load failed')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [])
 

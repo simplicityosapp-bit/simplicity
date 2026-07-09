@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
-import { useRoute, useNavigation } from '@react-navigation/native'
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native'
 import { Search, Wallet, ArrowUpDown, Check, X, Trash2, CheckCircle2, Clock, CircleSlash, CircleDashed } from 'lucide-react-native'
 import { clientBalance, effectiveClientMeta, paidForClients, sessionsCountForClients, currentMonthRange, financeQuery, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
@@ -65,6 +65,14 @@ export default function ClientsScreen() {
   } = useClientsList()
   const { projects } = useFormOptions()
   const { prefs, update: updatePrefs } = usePreferences()
+  // Persistent tab: silently re-pull on every RE-focus so mutations made elsewhere
+  // (a payment, a new client) show on return. Skip the mount focus (initial load
+  // covers it); silent = no spinner, no blank (content is gated on !data.length).
+  const firstFocus = useRef(true)
+  useFocusEffect(useCallback(() => {
+    if (firstFocus.current) { firstFocus.current = false; return }
+    refetch(true)
+  }, [refetch]))
   const [adding, setAdding] = useState(false)
   const [openId, setOpenId] = useState(null)
   // Deep-link: Home's "needs attention" people popup can navigate here asking

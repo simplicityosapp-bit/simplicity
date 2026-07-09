@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useCallback } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
+import { useFocusEffect } from '@react-navigation/native'
 import { Check, ChevronDown, Pencil, Tags, Trash2 } from 'lucide-react-native'
 import { fmtShortDate, formatWhen, startOfDay, isRecurring, isActiveReminder, dueOccurrenceCount } from '@simplicity/core'
 import i18n from '../lib/i18n'
@@ -49,6 +50,12 @@ export default function TasksScreen() {
   const { clients, projects, taskStatuses } = useFormOptions()
   const taxonomy = useTaskTaxonomy()
   const taskCategories = taxonomy.taskCategories
+  // Persistent tab: silently re-pull tasks + reminders on RE-focus (skip mount).
+  const firstFocus = useRef(true)
+  useFocusEffect(useCallback(() => {
+    if (firstFocus.current) { firstFocus.current = false; return }
+    refetchTasks(true); refetchRems(true)
+  }, [refetchTasks, refetchRems]))
   const [view, setView] = useState('tasks')
   const [adding, setAdding] = useState(false)
   const [editTask, setEditTask] = useState(null)

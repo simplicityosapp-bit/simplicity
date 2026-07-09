@@ -1,5 +1,6 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useRef } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share, Alert } from 'react-native'
+import { useFocusEffect } from '@react-navigation/native'
 import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Download, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react-native'
 import { monthNet, describeCadence, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
@@ -38,6 +39,13 @@ export default function FinanceScreen() {
   }, [addCategory, refetchFormOptions])
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
   const { prefs, update } = usePreferences()
+  // Persistent tab: silently re-pull on RE-focus so a payment/edit made elsewhere
+  // (e.g. from a client drawer) reflects in the totals on return. Skip mount focus.
+  const firstFocus = useRef(true)
+  useFocusEffect(useCallback(() => {
+    if (firstFocus.current) { firstFocus.current = false; return }
+    refetch(true)
+  }, [refetch]))
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(false)
   const [manageCat, setManageCat] = useState(false)

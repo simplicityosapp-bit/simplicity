@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useCallback } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { useFocusEffect } from '@react-navigation/native'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react-native'
 import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming, weekStartIndex } from '@simplicity/core'
 import i18n from '../lib/i18n'
@@ -24,6 +25,13 @@ const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDat
 export default function CalendarScreen() {
   const { meetings, calendarEvents, clients, groups, reminders, leads, sessions, loading, error, refetch, addMeeting, confirmMeeting, skipMeeting, setMeetingStatus, addSession, updateEvent, deleteEvent } = useCalendarData()
   const { prefs } = usePreferences()
+  // Persistent tab: silently re-pull on RE-focus so a meeting/session/reminder
+  // added elsewhere reflects on return (skip mount).
+  const firstFocus = useRef(true)
+  useFocusEffect(useCallback(() => {
+    if (firstFocus.current) { firstFocus.current = false; return }
+    refetch(true)
+  }, [refetch]))
   const weekStart = weekStartIndex(prefs?.format?.week_start)   // 0=Sun, 1=Mon (mirrors web)
   const weekdays = weekStart ? [...WEEKDAYS.slice(weekStart), ...WEEKDAYS.slice(0, weekStart)] : WEEKDAYS
   const now = new Date()

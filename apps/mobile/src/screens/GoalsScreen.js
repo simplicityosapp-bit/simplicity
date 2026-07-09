@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useCallback } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { useFocusEffect } from '@react-navigation/native'
 import { goalsByCategory, formatGoalValue, timeFrameLabel } from '@simplicity/core'
 import { Star } from 'lucide-react-native'
 import i18n from '../lib/i18n'
@@ -18,6 +19,12 @@ import { useQuestions } from '../hooks/useQuestions'
 export default function GoalsScreen() {
   const { goals, categories, entries, transactions, clients, leads, answers, members, groups, loading, error, refetch, addGoal, updateGoal, deleteGoal } = useGoalsData()
   const { questions, addQuestion, updateQuestion } = useQuestions()
+  // Persistent tab: silently re-pull on RE-focus (skip mount).
+  const firstFocus = useRef(true)
+  useFocusEffect(useCallback(() => {
+    if (firstFocus.current) { firstFocus.current = false; return }
+    refetch(true)
+  }, [refetch]))
   const [showAdd, setShowAdd] = useState(false)
   const [editGoal, setEditGoal] = useState(null)
 

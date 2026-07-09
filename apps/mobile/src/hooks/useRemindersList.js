@@ -10,17 +10,17 @@ export function useRemindersList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const load = useCallback(async (silent) => {
+    if (!silent) setLoading(true)
+    if (!silent) setError(null)
     try {
       const { data, error: e } = await supabase.from('reminders').select('*').is('deleted_at', null).order('scheduled_at', { ascending: true }).limit(2000)
       if (e) throw e
       setReminders(data ?? [])
     } catch (e) {
-      setError(e?.message || 'load failed')
+      if (!silent) setError(e?.message || 'load failed')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [])
 

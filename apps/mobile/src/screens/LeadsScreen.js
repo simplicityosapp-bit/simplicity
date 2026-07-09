@@ -512,7 +512,8 @@ const styles = StyleSheet.create({
   viewBtn: { flex: 1, paddingVertical: 8, borderRadius: 999, alignItems: 'center' },
   viewBtnOn: { backgroundColor: colors.text },
   viewBtnText: { fontSize: 14, color: colors.textSub },
-  viewBtnTextOn: { color: colors.onBrand, fontWeight: '600' },
+  // Inverse of the colors.text fill so the active tab label reads in both themes.
+  viewBtnTextOn: { color: colors.bg, fontWeight: '600' },
   panelIntro: { fontSize: 13, color: colors.textSub, lineHeight: 18 },
   sgroup: { gap: 8 },
   sgroupTitle: { fontSize: 14, fontWeight: '600', color: colors.text },

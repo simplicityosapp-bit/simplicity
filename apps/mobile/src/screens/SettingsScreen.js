@@ -109,7 +109,7 @@ function Pills({ options, value, onPick, accent }) {
         const on = value === o.k
         return (
           <Pressable key={o.k} style={[styles.pill, on && (accent === 'brand' ? styles.pillOnBrand : styles.pillOn)]} onPress={() => onPick(o.k)}>
-            <Text style={[styles.pillText, on && styles.pillTextOn]}>{o.label}</Text>
+            <Text style={[styles.pillText, on && (accent === 'brand' ? styles.pillTextOn : styles.pillTextOnInv)]}>{o.label}</Text>
           </Pressable>
         )
       })}
@@ -138,10 +138,11 @@ export default function SettingsScreen() {
   // Form of address → i18next context (matches web's prefs.design.gender). Apply
   // immediately so this screen re-renders gendered; other screens pick it up on
   // their next render (gender is set-once, like web).
-  const setGender = (g) => { setGenderContext(g); update({ design: { ...(prefs.design || {}), gender: g } }) }
-  // Nested prefs are shallow-merged by update(), so spread the current object.
-  const setDesign = (patch) => update({ design: { ...(prefs.design || {}), ...patch } })
-  const setFormat = (k, v) => update({ format: { ...(prefs.format || {}), [k]: v } })
+  const setGender = (g) => { setGenderContext(g); update({ design: { gender: g } }) }
+  // update() one-level deep-merges, so pass only the changed leaf (passing a
+  // spread of the render-closure prefs risks dropping a concurrently-changed sibling).
+  const setDesign = (patch) => update({ design: patch })
+  const setFormat = (k, v) => update({ format: { [k]: v } })
   // Theme lives in prefs.design.theme (synced with web) AND AsyncStorage THEME_KEY
   // (read at boot — RN freezes StyleSheet colors, so a switch needs a reload).
   const reloadApp = () => {
@@ -166,7 +167,7 @@ export default function SettingsScreen() {
     WIDGET_IDS.forEach((id) => { if (!have.has(id)) base.push({ id, enabled: true }) })
     return base
   })()
-  const writeWidgets = (list) => update({ widgets: { ...(prefs.widgets || {}), list } })
+  const writeWidgets = (list) => update({ widgets: { list } })
   const toggleWidget = (id) => writeWidgets(widgetList.map((w) => (w.id === id ? { ...w, enabled: w.enabled === false } : w)))
   const moveWidget = (id, dir) => {
     const i = widgetList.findIndex((w) => w.id === id)
@@ -237,16 +238,16 @@ export default function SettingsScreen() {
       return (
         <>
           <Field label={T('profile.fullName', { defaultValue: 'שם מלא' })}>
-            <TextInput style={styles.input} value={prefs.profile?.full_name || ''} onChangeText={(v) => update({ profile: { ...(prefs.profile || {}), full_name: v } })} placeholder={T('profile.namePlaceholder', { defaultValue: 'השם שלך' })} placeholderTextColor={colors.textFaint} />
+            <TextInput style={styles.input} value={prefs.profile?.full_name || ''} onChangeText={(v) => update({ profile: { full_name: v } })} placeholder={T('profile.namePlaceholder', { defaultValue: 'השם שלך' })} placeholderTextColor={colors.textFaint} />
           </Field>
           <Field label={T('profile.genders.label', { defaultValue: 'פנייה' })}>
             <Pills accent="brand" options={GENDERS.map((g) => ({ k: g, label: T(`profile.genders.${g}`, { defaultValue: g }) }))} value={prefs.design?.gender || 'neutral'} onPick={setGender} />
           </Field>
-          <Select label={T('profile.role', { defaultValue: 'תפקיד' })} value={role} onChange={(v) => update({ profile: { ...(prefs.profile || {}), role: v } })}
+          <Select label={T('profile.role', { defaultValue: 'תפקיד' })} value={role} onChange={(v) => update({ profile: { role: v } })}
             options={ROLES.map((r) => ({ value: r, label: T(`profile.roles.${r}`, { defaultValue: r }) }))} />
           {role === 'other' ? (
             <Field label={T('profile.roleOther', { defaultValue: 'תפקיד אחר' })}>
-              <TextInput style={styles.input} value={prefs.profile?.role_other || ''} onChangeText={(v) => update({ profile: { ...(prefs.profile || {}), role_other: v } })} placeholder={T('profile.roleOtherPlaceholder', { defaultValue: '' })} placeholderTextColor={colors.textFaint} />
+              <TextInput style={styles.input} value={prefs.profile?.role_other || ''} onChangeText={(v) => update({ profile: { role_other: v } })} placeholder={T('profile.roleOtherPlaceholder', { defaultValue: '' })} placeholderTextColor={colors.textFaint} />
             </Field>
           ) : null}
         </>
@@ -507,7 +508,7 @@ function StatusManager({ tax }) {
           const on = meta === m
           return (
             <Pressable key={m} style={[styles.metaPill, on && styles.metaPillOn]} onPress={() => setMeta(m)}>
-              <Text style={[styles.metaPillText, on && styles.pillTextOn]}>{i18n.t(`clients:status.${m === 'no_status' ? 'noStatus' : m}`, { defaultValue: m })}</Text>
+              <Text style={[styles.metaPillText, on && styles.pillTextOnInv]}>{i18n.t(`clients:status.${m === 'no_status' ? 'noStatus' : m}`, { defaultValue: m })}</Text>
             </Pressable>
           )
         })}
@@ -546,7 +547,7 @@ function LeadStatusManager({ tax }) {
           const on = meta === m
           return (
             <Pressable key={m} style={[styles.metaPill, on && styles.metaPillOn]} onPress={() => setMeta(m)}>
-              <Text style={[styles.metaPillText, on && styles.pillTextOn]}>{i18n.t(`settings:leadMetas.${m}`, { defaultValue: m })}</Text>
+              <Text style={[styles.metaPillText, on && styles.pillTextOnInv]}>{i18n.t(`settings:leadMetas.${m}`, { defaultValue: m })}</Text>
             </Pressable>
           )
         })}
@@ -603,6 +604,11 @@ const styles = StyleSheet.create({
   pillOnBrand: { backgroundColor: colors.brand, borderColor: colors.brand },
   pillText: { fontSize: 13, color: colors.textSub },
   pillTextOn: { color: colors.onBrand, fontWeight: '600' },
+  // Neutral "on" pill = colors.text fill (dark in light, cream in dark), so its
+  // label must be the inverse (colors.bg) to stay legible in BOTH themes — web
+  // flips espresso↔cream the same way. onBrand (white) would vanish on the cream
+  // dark-mode fill.
+  pillTextOnInv: { color: colors.bg, fontWeight: '600' },
 
   rowBtn: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
   rowBtnText: { fontSize: 14, color: colors.text },

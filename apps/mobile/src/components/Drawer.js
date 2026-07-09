@@ -89,7 +89,7 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   const dark = getThemeMode() === 'dark'
   const toggleTheme = () => {
     const next = dark ? 'light' : 'dark'
-    try { update({ design: { ...(prefs.design || {}), theme: next } }) } catch { /* best-effort */ }
+    try { update({ design: { theme: next } }) } catch { /* best-effort */ }
     persistThemeAndReload(next)
   }
   const email = session?.user?.email || ''

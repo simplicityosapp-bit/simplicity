@@ -166,7 +166,7 @@ export default function PaymentPlanSection({ client }) {
                 </Text>
               ) : null}
               <Pressable style={[styles.createGo, (busy || !(parseFloat(form.total) > 0)) && styles.createGoOff]} disabled={busy || !(parseFloat(form.total) > 0)} onPress={submitCreate}>
-                <Plus size={14} strokeWidth={2} color={colors.onBrand} />
+                <Plus size={14} strokeWidth={2} color={colors.onBtn} />
                 <Text style={styles.createGoText}>{T('create', { defaultValue: 'יצירת תוכנית' })}</Text>
               </Pressable>
               <View style={styles.createNote}>
@@ -217,13 +217,13 @@ const styles = StyleSheet.create({
   markText: { fontSize: 12, color: colors.positive, fontWeight: '500' },
   ghostBtn: { paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   receiveRow: { flexDirection: 'row', alignItems: 'center', gap: 8, width: '100%', marginTop: 4 },
-  primaryBtn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, backgroundColor: colors.brand },
-  primaryText: { fontSize: 13, fontWeight: '600', color: colors.onBrand },
+  primaryBtn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, backgroundColor: colors.btnBg },
+  primaryText: { fontSize: 13, fontWeight: '600', color: colors.onBtn },
   cancelText: { fontSize: 13, color: colors.textSub },
 
   delConfirm: { flexDirection: 'row', alignItems: 'center', gap: 10, flexWrap: 'wrap' },
   delText: { fontSize: 13, color: colors.text, flex: 1 },
-  dangerBtn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, backgroundColor: colors.danger },
+  dangerBtn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, backgroundColor: colors.dangerFill },
   dangerText: { fontSize: 13, fontWeight: '600', color: colors.onBrand },
   delBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8 },
   delBtnText: { fontSize: 12, color: colors.textFaint },
@@ -235,9 +235,9 @@ const styles = StyleSheet.create({
   fieldL: { fontSize: 12, color: colors.textSub },
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12, fontSize: 14, color: colors.text, backgroundColor: colors.card },
   preview: { fontSize: 12, color: colors.brand, fontWeight: '500' },
-  createGo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, borderRadius: 12, backgroundColor: colors.brand },
+  createGo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, borderRadius: 12, backgroundColor: colors.btnBg },
   createGoOff: { opacity: 0.45 },
-  createGoText: { fontSize: 14, fontWeight: '600', color: colors.onBrand },
+  createGoText: { fontSize: 14, fontWeight: '600', color: colors.onBtn },
   createNote: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   createNoteText: { fontSize: 11, color: colors.textFaint, flex: 1, lineHeight: 15 },
 })

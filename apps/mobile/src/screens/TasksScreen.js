@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   confirmActions: { flexDirection: 'row', gap: 12, marginTop: 4 },
   confirmCancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   confirmCancelText: { fontSize: 15, color: colors.textSub },
-  confirmDelete: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.danger, alignItems: 'center' },
+  confirmDelete: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.dangerFill, alignItems: 'center' },
   confirmDeleteText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
 
   groupOuter: { marginTop: 0 },

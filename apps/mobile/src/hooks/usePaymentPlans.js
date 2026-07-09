@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { selectAll } from '../lib/paginate'
 import { generateInstallments, installmentDesc } from '@simplicity/core'
 
 // Split-payment plans (פריסת תשלומים) + their installments, ported from web's
@@ -24,8 +25,8 @@ export function usePaymentPlans() {
     setLoading(true)
     try {
       const [{ data: p }, { data: i }] = await Promise.all([
-        supabase.from('payment_plans').select('*').is('deleted_at', null).order('created_at', { ascending: false }),
-        supabase.from('payment_installments').select('*').is('deleted_at', null),
+        selectAll(() => supabase.from('payment_plans').select('*').is('deleted_at', null).order('created_at', { ascending: false })),
+        selectAll(() => supabase.from('payment_installments').select('*').is('deleted_at', null)),
       ])
       setPlans(p ?? [])
       setInstallments(i ?? [])

@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { selectAll } from '../lib/paginate'
 import { staleScheduledMeetingIds } from '../lib/scheduledMeetings'
 
 // Clients + everything the drawer/sections need: the rows core clientBalance uses
 // (transactions/sessions/members/groups) plus tasks + reminders for the client's
 // activity panels. RLS scopes everything to the user.
 async function fetchTable(name) {
-  const { data, error } = await supabase.from(name).select('*').is('deleted_at', null).limit(2000)
+  const { data, error } = await selectAll(() => supabase.from(name).select('*').is('deleted_at', null))
   if (error) throw error
   return data ?? []
 }

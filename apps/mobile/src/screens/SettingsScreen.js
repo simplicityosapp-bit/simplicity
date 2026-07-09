@@ -7,6 +7,7 @@ import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Down
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
+import { csvCell } from '../lib/csv'
 import { supabase } from '../lib/supabase'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
@@ -207,7 +208,6 @@ export default function SettingsScreen() {
   const requestDeletion = async () => { await update({ accountDeletion: buildAccountDeletionRequest() }) }
 
   const exportCsv = async (kind) => {
-    const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
     let header, rows
     if (kind === 'clients') {
       header = ['שם', 'טלפון', 'אימייל', 'סטטוס']
@@ -218,7 +218,7 @@ export default function SettingsScreen() {
       header = ['תאריך', 'תיאור', 'סוג', 'סכום', 'לקוח', 'קטגוריה', 'אמצעי תשלום']
       rows = transactions.filter((t) => !t.deleted_at).map((t) => [fmtShortDate(t.date), t.desc || '', t.type === 'income' ? 'הכנסה' : 'הוצאה', t.amount, cliById[t.client_id] || t.recipient_name || '', catById[t.category_id] || '', payMethodLabel(t.payment_method) || ''])
     }
-    const csv = [header, ...rows].map((r) => r.map(q).join(',')).join('\n')
+    const csv = [header, ...rows].map((r) => r.map(csvCell).join(',')).join('\n')
     try { await Share.share({ message: csv }) } catch { /* cancelled / unsupported */ }
   }
 

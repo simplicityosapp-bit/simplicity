@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, Refre
 import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Download, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react-native'
 import { monthNet, describeCadence, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
 import i18n from '../lib/i18n'
+import { csvCell } from '../lib/csv'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
@@ -81,8 +82,11 @@ export default function FinanceScreen() {
   )
   const pending = useMemo(() => monthTxs.filter((t) => t.status === 'pending').sort((a, b) => new Date(a.date) - new Date(b.date)), [monthTxs])
   const skippedCount = useMemo(() => monthTxs.filter((t) => t.status === 'skipped').length, [monthTxs])
+  // Pending rows live in their own approval section (`pending` above) — exclude
+  // them here so they aren't ALSO shown in the main list, mislabeled as confirmed
+  // (mirrors web TransactionList: status !== 'pending' && (showSkipped || !skipped)).
   const listTx = useMemo(
-    () => monthTxs.filter((t) => showSkipped || t.status !== 'skipped').sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    () => monthTxs.filter((t) => t.status !== 'pending' && (showSkipped || t.status !== 'skipped')).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
     [monthTxs, showSkipped],
   )
 
@@ -119,13 +123,12 @@ export default function FinanceScreen() {
   // Export the month's transactions as CSV via the native share sheet.
   const exportCsv = async () => {
     if (!monthTxs.length) return
-    const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
     const header = ['תאריך', 'תיאור', 'סוג', 'סכום', 'לקוח', 'קטגוריה', 'אמצעי תשלום', 'סטטוס']
     const rows = monthTxs.map((t) => [
       fmtShortDate(t.date), t.desc || '', t.type === 'income' ? 'הכנסה' : 'הוצאה', t.amount,
       clientById[t.client_id] || t.recipient_name || '', categoryById[t.category_id] || '', payMethodLabel(t.payment_method) || '', t.status || '',
     ])
-    const csv = [header, ...rows].map((r) => r.map(q).join(',')).join('\n')
+    const csv = [header, ...rows].map((r) => r.map(csvCell).join(',')).join('\n')
     try { await Share.share({ message: csv, title: fmtMonthYear(monthDate) }) } catch { /* user cancelled / unsupported */ }
   }
 

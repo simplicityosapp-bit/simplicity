@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { selectAll } from '../lib/paginate'
 
 // Expense-category palette (mirrors the web CATEGORY_COLORS spirit).
 export const CATEGORY_COLORS = ['#C97B5E', '#8BA888', '#D4A574', '#5a6a8c', '#b8845e', '#7a9b8e', '#b56e8a', '#6a8caf']
@@ -17,7 +18,7 @@ export function useFinanceData() {
     setLoading(true)
     setError(null)
     try {
-      const fetch = (t) => supabase.from(t).select('*').is('deleted_at', null).limit(2000)
+      const fetch = (t) => selectAll(() => supabase.from(t).select('*').is('deleted_at', null))
       const [tx, cl, cat] = await Promise.all([fetch('transactions'), fetch('clients'), fetch('categories')])
       if (tx.error) throw tx.error
       setTransactions(tx.data ?? [])

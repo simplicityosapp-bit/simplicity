@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { selectAll } from '../lib/paginate'
 
 // Recurring transaction templates for the finance screen (add / update / soft-
 // delete / toggle-active). RLS scopes rows to the user. NOTE: the background
@@ -12,7 +13,7 @@ export function useRecurring() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const { data } = await supabase.from('recurring_templates').select('*').is('deleted_at', null).limit(2000)
+      const { data } = await selectAll(() => supabase.from('recurring_templates').select('*').is('deleted_at', null))
       setTemplates(data ?? [])
     } catch {
       setTemplates([])

@@ -32,6 +32,16 @@ export function applySavedLanguage(lang) {
   }
 }
 
+// Reset the global format/gender singletons to app defaults — called on sign-out
+// so the next user on a shared device doesn't briefly inherit the previous user's
+// currency/date-format/gendered wording before their own prefs load.
+export function resetPreferenceEffects() {
+  setGenderContext('neutral')
+  setCurrentCurrency('ILS')
+  setDateTimeFormat({ date_format: 'DD/MM/YY', time_format: '24h' })
+  setHebrewCalendar({ enabled: false, dual: false })
+}
+
 // Localized, gender-aware label for a profession key (ported from web
 // lib/preferences.js). Roles live under the `common:roles.*` i18n namespace with
 // _male/_female context variants — NOT settings:profile.roles.*.

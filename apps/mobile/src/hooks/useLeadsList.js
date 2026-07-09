@@ -41,17 +41,17 @@ export function useLeadsList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const load = useCallback(async (silent) => {
+    if (!silent) setLoading(true)
+    if (!silent) setError(null)
     try {
       const { data, error: e } = await supabase.from('leads').select('*').is('deleted_at', null).limit(2000)
       if (e) throw e
       setLeads(data ?? [])
     } catch (e) {
-      setError(e?.message || 'load failed')
+      if (!silent) setError(e?.message || 'load failed')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [])
 

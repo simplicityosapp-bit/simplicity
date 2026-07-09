@@ -25,7 +25,6 @@ const GENDERS = ['female', 'male', 'neutral']
 // Matches web's ROLE_LABELS / common:roles.* keys (consultant/trainer had no
 // translations and weren't web roles).
 const ROLES = ['therapist', 'coach', 'facilitator', 'teacher', 'instructor', 'other']
-const TEXT_SIZES = ['small', 'normal', 'large']
 const BACKGROUNDS = ['nature', 'simple', 'blank']
 const THEMES = ['light', 'dark']
 // Home widget registry order (mirrors web WIDGET_REGISTRY); the home honors
@@ -266,9 +265,10 @@ export default function SettingsScreen() {
             <Pills options={THEMES.map((m) => ({ k: m, label: T(`options.theme.${m}`, { defaultValue: m }) }))} value={prefs.design?.theme || getThemeMode()} onPick={setTheme} />
             <Text style={styles.hint}>{T('design.themeHint', { defaultValue: 'החלפת המצב מרעננת את האפליקציה.' })}</Text>
           </Field>
-          <Field label={T('design.textSize', { defaultValue: 'גודל טקסט' })}>
-            <Pills options={TEXT_SIZES.map((s) => ({ k: s, label: T(`design.textSizes.${s}`, { defaultValue: s }) }))} value={prefs.design?.text_size || 'normal'} onPick={(s) => setDesign({ text_size: s })} />
-          </Field>
+          {/* Text-size control is hidden until app-wide font scaling is built — RN has
+              no global font-scale (no central Text primitive), so the pref currently
+              does nothing. The prefs.design.text_size plumbing is kept for that future
+              build; showing a control that silently no-ops is worse than omitting it. */}
           <Field label={T('design.background', { defaultValue: 'רקע' })}>
             <Pills options={BACKGROUNDS.map((b) => ({ k: b, label: T(`design.backgrounds.${b}`, { defaultValue: b }) }))} value={prefs.design?.background || 'nature'} onPick={(b) => setDesign({ background: b })} />
           </Field>

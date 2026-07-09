@@ -20,9 +20,9 @@ export function useGoalsData() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const load = useCallback(async (silent) => {
+    if (!silent) setLoading(true)
+    if (!silent) setError(null)
     try {
       const [goals, categories, entries, transactions, clients, leads, answers, members, groups, sessions, questions] = await Promise.all([
         fetchTable('goals'),
@@ -39,9 +39,9 @@ export function useGoalsData() {
       ])
       setState({ goals, categories, entries, transactions, clients, leads, answers, members, groups, sessions, questions })
     } catch (e) {
-      setError(e?.message || 'load failed')
+      if (!silent) setError(e?.message || 'load failed')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [])
 

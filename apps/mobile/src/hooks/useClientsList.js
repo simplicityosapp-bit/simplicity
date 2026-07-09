@@ -19,9 +19,9 @@ export function useClientsList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const load = useCallback(async (silent) => {
+    if (!silent) setLoading(true)
+    if (!silent) setError(null)
     try {
       const [clients, transactions, sessions, members, groups, tasks, reminders] = await Promise.all([
         fetchTable('clients'),
@@ -34,9 +34,9 @@ export function useClientsList() {
       ])
       setState({ clients, transactions, sessions, members, groups, tasks, reminders })
     } catch (e) {
-      setError(e?.message || 'load failed')
+      if (!silent) setError(e?.message || 'load failed')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [])
 

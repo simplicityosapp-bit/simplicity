@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, Pressable, StyleSheet, I18nManager } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { Clock, Check } from 'lucide-react-native'
 import { remindersUpcoming, formatWhen } from '@simplicity/core'
@@ -19,6 +19,7 @@ export default function RemindersWidget({ reminders, onComplete }) {
     return items.filter((r) => isToday(new Date(r.when))).length
   }, [items])
   if (!items.length) return null
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
 
   const summary = todayCount > 0
     ? i18n.t('home:widgets.reminders.todaySummary', { count: items.length, today: todayCount })
@@ -27,9 +28,9 @@ export default function RemindersWidget({ reminders, onComplete }) {
   return (
     <WidgetCard Icon={Clock} title={i18n.t('home:widgets.reminders.title')} count={i18n.t('home:widgets.reminders.link', { count: items.length })} summary={summary}>
       {items.map((r, i) => (
-        <View key={r.id || i} style={[styles.row, i > 0 && styles.rowBorder]}>
-          <Pressable style={styles.rowMain} onPress={() => nav.navigate('Tasks')}>
-            <Text style={styles.text} numberOfLines={1}>{r.title || ''}</Text>
+        <View key={r.id || i} style={[styles.row, flip && styles.rowFlip, i > 0 && styles.rowBorder]}>
+          <Pressable style={[styles.rowMain, flip && styles.rowFlip]} onPress={() => nav.navigate('Tasks')}>
+            <Text style={[styles.text, flip && styles.textRtl]} numberOfLines={1}>{r.title || ''}</Text>
             <Text style={styles.when}>{formatWhen(r.when)}</Text>
           </Pressable>
           {onComplete ? (
@@ -45,6 +46,8 @@ export default function RemindersWidget({ reminders, onComplete }) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16 },
+  rowFlip: { flexDirection: 'row-reverse' },
+  textRtl: { textAlign: 'right' },
   rowMain: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 13 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   text: { flex: 1, fontSize: 14, color: colors.text },

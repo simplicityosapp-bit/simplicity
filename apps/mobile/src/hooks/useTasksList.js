@@ -10,17 +10,17 @@ export function useTasksList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const load = useCallback(async (silent) => {
+    if (!silent) setLoading(true)
+    if (!silent) setError(null)
     try {
       const { data, error: e } = await supabase.from('tasks').select('*').is('deleted_at', null).order('created_at', { ascending: false }).limit(2000)
       if (e) throw e
       setTasks(data ?? [])
     } catch (e) {
-      setError(e?.message || 'load failed')
+      if (!silent) setError(e?.message || 'load failed')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [])
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, Linking } from 'react-native'
+import { View, Text, Pressable, StyleSheet, Linking, I18nManager } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { Bell, Wallet, Calendar, Target, AlertCircle, Clock, ChevronLeft, MessageCircle, Check, SkipForward, Trash2 } from 'lucide-react-native'
 import { attentionItems, isr, fmtShortDate } from '@simplicity/core'
@@ -59,6 +59,7 @@ export default function AttentionWidget({ data, projects = [], financeCategories
     setPeopleRow(null)
   }
 
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   return (
     <>
       <WidgetCard Icon={Bell} title={i18n.t('home:widgets.attention.title')} count={i18n.t('home:widgets.attention.count', { count: items.length })} summary={summary}>
@@ -67,11 +68,11 @@ export default function AttentionWidget({ data, projects = [], financeCategories
           return (
             <Pressable
               key={`${it.target}-${it.kind || ''}-${i}`}
-              style={[styles.row, i > 0 && styles.rowBorder]}
+              style={[styles.row, flip && styles.rowFlip, i > 0 && styles.rowBorder]}
               onPress={() => onRow(it)}
             >
               <RowIcon size={17} strokeWidth={1.7} color={colors.amberWarn} />
-              <Text style={styles.text} numberOfLines={2}>{it.text}</Text>
+              <Text style={[styles.text, flip && styles.textRtl]} numberOfLines={2}>{it.text}</Text>
               {it.kind === 'people'
                 ? <MessageCircle size={16} strokeWidth={1.7} color={colors.positive} />
                 : <ChevronLeft size={18} strokeWidth={1.6} color={colors.textFaint} />}
@@ -82,7 +83,7 @@ export default function AttentionWidget({ data, projects = [], financeCategories
 
       <Sheet open={!!peopleRow} onClose={() => setPeopleRow(null)} title={peopleRow?.text || i18n.t('home:widgets.attention.reachOut', { defaultValue: 'יצירת קשר' })}>
         {(peopleRow?.people || []).length === 0 ? (
-          <Text style={styles.empty}>{i18n.t('home:widgets.attention.noPeople', { defaultValue: '—' })}</Text>
+          <Text style={styles.empty}>{i18n.t('home:widgets.attention.noPeople', { defaultValue: 'אין אנשים כרגע' })}</Text>
         ) : (peopleRow?.people || []).map((p, i) => (
           <View key={p.id || i} style={[styles.personRow, i > 0 && styles.rowBorder]}>
             <Pressable style={styles.personMain} onPress={() => openPerson(p)}>
@@ -136,6 +137,8 @@ export default function AttentionWidget({ data, projects = [], financeCategories
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 13, paddingHorizontal: 16 },
+  rowFlip: { flexDirection: 'row-reverse' },
+  textRtl: { textAlign: 'right' },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   text: { flex: 1, fontSize: 14, color: colors.text, lineHeight: 20 },
   empty: { fontSize: 13, color: colors.textFaint, textAlign: 'center', paddingVertical: 12 },

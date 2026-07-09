@@ -14,9 +14,9 @@ export function useFinanceData() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const load = useCallback(async (silent) => {
+    if (!silent) setLoading(true)
+    if (!silent) setError(null)
     try {
       const fetch = (t) => selectAll(() => supabase.from(t).select('*').is('deleted_at', null))
       const [tx, cl, cat] = await Promise.all([fetch('transactions'), fetch('clients'), fetch('categories')])
@@ -25,9 +25,9 @@ export function useFinanceData() {
       setClients(cl.data ?? [])
       setCategories(cat.data ?? [])
     } catch (e) {
-      setError(e?.message || 'load failed')
+      if (!silent) setError(e?.message || 'load failed')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [])
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, Pressable, StyleSheet, I18nManager } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { ClipboardList, Check } from 'lucide-react-native'
 import { nextTasks, openTasksCount } from '@simplicity/core'
@@ -14,6 +14,7 @@ export default function NextTasksWidget({ tasks, onToggle }) {
   const items = useMemo(() => nextTasks(999, tasks), [tasks])
   const total = useMemo(() => openTasksCount(tasks), [tasks])
   const urgent = useMemo(() => items.filter((t) => t.priority === 'high').length, [items])
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
 
   const summary = total === 0
     ? i18n.t('home:widgets.nextTasks.noOpen')
@@ -25,10 +26,10 @@ export default function NextTasksWidget({ tasks, onToggle }) {
     <WidgetCard Icon={ClipboardList} title={i18n.t('home:widgets.nextTasks.title')} count={total ? i18n.t('home:widgets.nextTasks.link', { count: total }) : null} summary={summary}>
       {items.length ? (
         items.map((task, i) => (
-          <View key={task.id || i} style={[styles.row, i > 0 && styles.rowBorder]}>
-            <Pressable style={styles.rowMain} onPress={() => nav.navigate('Tasks')}>
+          <View key={task.id || i} style={[styles.row, flip && styles.rowFlip, i > 0 && styles.rowBorder]}>
+            <Pressable style={[styles.rowMain, flip && styles.rowFlip]} onPress={() => nav.navigate('Tasks')}>
               <View style={[styles.dot, task.priority === 'high' ? styles.dotUrgent : styles.dotRegular]} />
-              <Text style={styles.text} numberOfLines={1}>{task.title || ''}</Text>
+              <Text style={[styles.text, flip && styles.textRtl]} numberOfLines={1}>{task.title || ''}</Text>
             </Pressable>
             {onToggle ? (
               <Pressable style={styles.check} onPress={() => onToggle(task)} hitSlop={8} accessibilityLabel={i18n.t('home:widgets.nextTasks.markDone', { defaultValue: 'סמן כבוצעה' })}>
@@ -46,6 +47,8 @@ export default function NextTasksWidget({ tasks, onToggle }) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16 },
+  rowFlip: { flexDirection: 'row-reverse' },
+  textRtl: { textAlign: 'right' },
   rowMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   check: { width: 26, height: 26, borderRadius: 13, borderWidth: 1, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },

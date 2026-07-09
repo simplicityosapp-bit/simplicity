@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking, Alert } from 'react-native'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import { Bell, Check, MessageCircle, ChevronLeft, ChevronUp, ChevronDown, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
@@ -141,6 +141,9 @@ export default function LeadsScreen() {
   const [dragLead, setDragLead] = useState(null)
 
   const stopEdgeScroll = () => { if (edge.current.timer) { clearInterval(edge.current.timer); edge.current.timer = null } edge.current.dir = 0 }
+  // Clear the edge-scroll interval if the screen unmounts mid-drag (navigating away
+  // while auto-scrolling would otherwise leak the timer).
+  useEffect(() => () => { if (edge.current.timer) clearInterval(edge.current.timer) }, [])
   const startEdgeScroll = (dir) => {
     if (edge.current.dir === dir) return
     stopEdgeScroll()

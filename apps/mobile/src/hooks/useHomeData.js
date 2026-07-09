@@ -31,14 +31,19 @@ const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 export function useHomeData() {
   const [data, setData] = useState(EMPTY)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState(null)
+  // Blank the screen with the full-screen loader ONLY on the first load; focus/
+  // pull refetches keep the current content visible while they run.
+  const loadedRef = useRef(false)
   // Freshest sessions for meeting-confirm numbering (avoids a stale-closure num
   // across rapid successive confirms). Tracks the latest committed state.
   const sessionsRef = useRef(data.sessions)
   sessionsRef.current = data.sessions
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async ({ mode } = {}) => {
+    if (mode === 'refresh') setRefreshing(true)
+    else if (!loadedRef.current) setLoading(true)
     setError(null)
     try {
       const [clients, transactions, meetings, calendarEvents, leads, groups, tasks, goals, categories, sessions, members, reminders, entries, answers, questions] = await Promise.all([
@@ -59,10 +64,12 @@ export function useHomeData() {
         fetchTable('user_questions'),
       ])
       setData({ clients, transactions, meetings, calendarEvents, leads, groups, tasks, goals, categories, sessions, members, reminders, entries, answers, questions })
+      loadedRef.current = true
     } catch (e) {
       setError(e?.message || 'load failed')
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }, [])
 
@@ -201,5 +208,10 @@ export function useHomeData() {
     if (e) load()
   }, [load])
 
-  return { ...data, loading, error, refetch: load, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, addSession, setMeetingStatus, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction }
+  // refetch → pull-to-refresh (shows the RefreshControl spinner, keeps content);
+  // reload → silent background refresh (screen focus), no spinner, no blank.
+  const refetch = useCallback(() => load({ mode: 'refresh' }), [load])
+  const reload = useCallback(() => load(), [load])
+
+  return { ...data, loading, refreshing, error, refetch, reload, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, addSession, setMeetingStatus, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction }
 }

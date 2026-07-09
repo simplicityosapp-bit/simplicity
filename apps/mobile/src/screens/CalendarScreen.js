@@ -22,7 +22,7 @@ const pad = (n) => String(n).padStart(2, '0')
 const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
 export default function CalendarScreen() {
-  const { meetings, calendarEvents, clients, groups, reminders, leads, loading, error, refetch, addMeeting, confirmMeeting, skipMeeting, updateEvent, deleteEvent } = useCalendarData()
+  const { meetings, calendarEvents, clients, groups, reminders, leads, sessions, loading, error, refetch, addMeeting, confirmMeeting, skipMeeting, setMeetingStatus, addSession, updateEvent, deleteEvent } = useCalendarData()
   const { prefs } = usePreferences()
   const weekStart = weekStartIndex(prefs?.format?.week_start)   // 0=Sun, 1=Mon (mirrors web)
   const weekdays = weekStart ? [...WEEKDAYS.slice(weekStart), ...WEEKDAYS.slice(0, weekStart)] : WEEKDAYS
@@ -74,6 +74,23 @@ export default function CalendarScreen() {
   const todayKey = keyOf(now)
   const selectedEvents = byDay.get(selected) || []
   const stepMonth = (n) => setMonth((m) => new Date(m.getFullYear(), m.getMonth() + n, 1))
+
+  // Confirm "it happened". A per-session client's meeting only flips status here
+  // (no auto-materialise) so it isn't double-counted — its held session is logged
+  // through the one-off charge prompt (billSession) instead. Mirrors web calendar.
+  const meetingClientFor = (ev) => (ev?.kind === 'meeting' && ev.raw?.subject_type === 'client') ? clients.find((c) => c.id === ev.raw.subject_id) : null
+  const handleConfirm = (meeting) => {
+    const c = meeting?.subject_type === 'client' ? clients.find((x) => x.id === meeting.subject_id) : null
+    if (c?.billing_mode === 'per_session') return setMeetingStatus(meeting.id, 'confirmed')
+    return confirmMeeting(meeting)
+  }
+  const billClient = (() => { const c = meetingClientFor(detail); return c && c.billing_mode === 'per_session' ? c : null })()
+  const billSession = (ev) => {
+    const c = meetingClientFor(ev)
+    if (!c) return Promise.resolve()
+    const num = sessions.filter((s) => !s.deleted_at && s.client_id === c.id).length + 1
+    return addSession({ date: new Date(ev.when).toISOString(), summary: null, notes: null, client_id: c.id, group_id: null, subject_type: 'client', subject_id: c.id, num })
+  }
 
   return (
     <Screen name="calendar">
@@ -138,7 +155,7 @@ export default function CalendarScreen() {
                     <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
                     <Text style={styles.eventTitle} numberOfLines={1}>{e.title || '—'}</Text>
                     {e.pending ? (
-                      <Pressable style={styles.confirm} onPress={() => confirmMeeting(e.raw)} hitSlop={6}>
+                      <Pressable style={styles.confirm} onPress={() => handleConfirm(e.raw)} hitSlop={6}>
                         <Check size={14} strokeWidth={2.2} color={colors.positive} />
                       </Pressable>
                     ) : KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}
@@ -157,10 +174,12 @@ export default function CalendarScreen() {
         open={!!detail}
         event={detail}
         onClose={() => setDetail(null)}
-        onConfirmMeeting={confirmMeeting}
+        onConfirmMeeting={handleConfirm}
         onSkipMeeting={skipMeeting}
         onUpdateEvent={updateEvent}
         onDeleteEvent={deleteEvent}
+        billClient={billClient}
+        onBillSession={billSession}
       />
     </Screen>
   )

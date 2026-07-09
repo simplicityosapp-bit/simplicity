@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
 import { Check, X, Pencil, Trash2, CalendarDays, Clock } from 'lucide-react-native'
-import { formatWhen, fmtTime } from '@simplicity/core'
+import { formatWhen, fmtTime, isr } from '@simplicity/core'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
@@ -17,12 +17,13 @@ const pad = (n) => String(n).padStart(2, '0')
 const datePart = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` }
 const timePart = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : `${pad(d.getHours())}:${pad(d.getMinutes())}` }
 
-export default function EventDetailsModal({ open, onClose, event, onConfirmMeeting, onSkipMeeting, onUpdateEvent, onDeleteEvent }) {
+export default function EventDetailsModal({ open, onClose, event, onConfirmMeeting, onSkipMeeting, onUpdateEvent, onDeleteEvent, billClient = null, onBillSession }) {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ title: '', date: '', start: '', end: '' })
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
-  useEffect(() => { if (open) { setEditing(false); setErr(''); setBusy(false) } }, [open, event])
+  const [billStep, setBillStep] = useState(false)  // per-session client: offer a one-off charge after confirm
+  useEffect(() => { if (open) { setEditing(false); setErr(''); setBusy(false); setBillStep(false) } }, [open, event])
 
   if (!event) return <Sheet open={open} onClose={onClose} title={T('title')} />
 
@@ -31,6 +32,18 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
   const Icon = (isMeeting || isCalendar) ? CalendarDays : Clock
 
   const run = (fn) => async () => { if (busy) return; setBusy(true); try { await fn?.(event.raw) } finally { onClose() } }
+  // "Did it happen? → yes". For a per-session client the parent's confirm only
+  // flips status (no auto-materialise), then we offer the one-off charge here so
+  // the session isn't double-counted. Mirrors web EventDetailsModal billStep.
+  const confirmHappened = async () => {
+    if (busy) return
+    setBusy(true)
+    try { await onConfirmMeeting?.(event.raw) } catch { /* parent surfaces errors */ }
+    setBusy(false)
+    if (billClient) setBillStep(true)
+    else onClose()
+  }
+  const doBill = async () => { if (busy) return; setBusy(true); try { await onBillSession?.(event) } finally { onClose() } }
 
   const startEdit = () => {
     setForm({ title: event.title || '', date: datePart(event.when), start: timePart(event.when), end: event.end ? timePart(event.end) : '' })
@@ -64,11 +77,11 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
       </View>
 
       {/* Meeting — confirm it happened / skip */}
-      {isMeeting && event.status === 'pending' ? (
+      {isMeeting && event.status === 'pending' && !billStep ? (
         <View style={styles.block}>
           <Text style={styles.question}>{T('meetingHappened')}</Text>
           <View style={styles.actions}>
-            <Pressable style={[styles.btn, styles.approve]} onPress={run(onConfirmMeeting)} disabled={busy}>
+            <Pressable style={[styles.btn, styles.approve]} onPress={confirmHappened} disabled={busy}>
               <Check size={15} strokeWidth={2} color={colors.onBrand} /><Text style={styles.approveText}>{T('yes')}</Text>
             </Pressable>
             <Pressable style={[styles.btn, styles.skip]} onPress={run(onSkipMeeting)} disabled={busy}>
@@ -77,7 +90,25 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
           </View>
         </View>
       ) : null}
-      {isMeeting && event.status === 'confirmed' ? (
+      {/* Per-session client → one-off charge prompt after confirm (mirrors web). */}
+      {isMeeting && billStep && billClient ? (
+        <View style={styles.block}>
+          <Text style={styles.question}>
+            {billClient.price_per_session > 0
+              ? T('billOneOff', { name: billClient.name, amount: isr(billClient.price_per_session) })
+              : T('billOneOffNoPrice', { name: billClient.name })}
+          </Text>
+          <View style={styles.actions}>
+            <Pressable style={[styles.btn, styles.approve]} onPress={doBill} disabled={busy}>
+              <Check size={15} strokeWidth={2} color={colors.onBrand} /><Text style={styles.approveText}>{T('billYes')}</Text>
+            </Pressable>
+            <Pressable style={[styles.btn, styles.skip]} onPress={onClose} disabled={busy}>
+              <X size={15} strokeWidth={2} color={colors.textSub} /><Text style={styles.skipText}>{T('billNo')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
+      {isMeeting && event.status === 'confirmed' && !billStep ? (
         <Text style={styles.confirmed}>{T('meetingConfirmed')}</Text>
       ) : null}
 

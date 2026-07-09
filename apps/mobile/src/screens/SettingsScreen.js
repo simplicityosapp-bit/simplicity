@@ -68,11 +68,12 @@ function SwitchField({ label, hint, checked, onChange }) {
   )
 }
 
-// Top-level group header — collapsible band that reveals its sections when open.
+// Top-level group — a glass card (mirrors web's .set-group) holding a collapsible
+// head + its nested section cards, so nothing floats bare on the screen photo.
 function Group({ Icon, title, sub, open, onToggle, children }) {
   return (
-    <View style={styles.group}>
-      <Pressable style={styles.groupHead} onPress={onToggle}>
+    <Card padded={false} contentStyle={styles.groupCard}>
+      <Pressable style={[styles.groupHead, open && styles.groupHeadOpen]} onPress={onToggle}>
         <View style={styles.groupIcon}><Icon size={19} strokeWidth={1.7} color={colors.brand} /></View>
         <View style={styles.groupTitleWrap}>
           <Text style={styles.groupTitle}>{title}</Text>
@@ -81,7 +82,7 @@ function Group({ Icon, title, sub, open, onToggle, children }) {
         <ChevronDown size={18} strokeWidth={1.7} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
       </Pressable>
       {open ? <View style={styles.groupChildren}>{children}</View> : null}
-    </View>
+    </Card>
   )
 }
 
@@ -561,14 +562,15 @@ function LeadStatusManager({ tax }) {
 const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
 
-  // Group (top level)
-  group: { gap: 10 },
-  groupHead: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 6, paddingHorizontal: 4 },
+  // Group (top level) — a glass card wrapping head + nested sections
+  groupCard: {},
+  groupHead: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 16, paddingHorizontal: 16 },
+  groupHeadOpen: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
   groupIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' },
   groupTitleWrap: { flex: 1 },
-  groupTitle: { fontSize: 18, fontWeight: '700', color: colors.text, letterSpacing: -0.4 },
-  groupSub: { fontSize: 12, color: colors.textFaint, marginTop: 1 },
-  groupChildren: { gap: 10, marginTop: 2 },
+  groupTitle: { fontSize: 17, fontWeight: '700', color: colors.text, letterSpacing: -0.4 },
+  groupSub: { fontSize: 12, color: colors.textFaint, marginTop: 2 },
+  groupChildren: { gap: 10, paddingHorizontal: 12, paddingTop: 12, paddingBottom: 14 },
 
   // Section (nested)
   sectionOuter: {},

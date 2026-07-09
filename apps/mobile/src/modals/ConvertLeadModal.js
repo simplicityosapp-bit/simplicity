@@ -15,7 +15,11 @@ const C = (k, o) => i18n.t(`modalsClient:common.${k}`, o)
 const T = (k, o) => i18n.t(`modalsClient:convertLead.${k}`, o)
 
 export default function ConvertLeadModal({ open, onClose, lead, onCreateClient, onUpdateLead, onAddGroupMember }) {
-  const { projects = [], groups = [], clientStatuses = [] } = useFormOptions()
+  // Sub-statuses inside the 'converted' meta live in lead_statuses — NOT
+  // client_statuses (whose meta_category CHECK excludes 'converted'). Web passes
+  // leadStatuses here; reading clientStatuses made convertedSubStatuses always
+  // empty → status_id null → no 'converted' lead_status_log row was ever written.
+  const { projects = [], groups = [], leadStatuses = [] } = useFormOptions()
   const [form, setForm] = useState(() => ({ name: lead?.name || '', phone: lead?.phone || '', project_id: lead?.project_id || '', group_id: lead?.group_id || '', status_id: '' }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -23,7 +27,7 @@ export default function ConvertLeadModal({ open, onClose, lead, onCreateClient, 
   useEffect(() => { if (open) { setForm({ name: lead?.name || '', phone: lead?.phone || '', project_id: lead?.project_id || '', group_id: lead?.group_id || '', status_id: '' }); setErr(''); setBusy(false) } }, [open, lead])
 
   const projectGroups = form.project_id ? groups.filter((g) => g.project_id === form.project_id && !g.deleted_at) : []
-  const convertedSubStatuses = clientStatuses.filter((s) => s.meta_category === 'converted')
+  const convertedSubStatuses = leadStatuses.filter((s) => s.meta_category === 'converted')
   const defaultConverted = convertedSubStatuses.find((s) => s.is_default)
 
   const submit = async () => {

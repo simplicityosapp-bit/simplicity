@@ -17,7 +17,7 @@ import { useQuestions } from '../hooks/useQuestions'
 // over the per-screen photo (Warm Precision theme). "+" adds a goal.
 export default function GoalsScreen() {
   const { goals, categories, entries, transactions, clients, leads, answers, members, groups, loading, error, refetch, addGoal, updateGoal, deleteGoal } = useGoalsData()
-  const { questions, addQuestion } = useQuestions()
+  const { questions, addQuestion, updateQuestion } = useQuestions()
   const [showAdd, setShowAdd] = useState(false)
   const [editGoal, setEditGoal] = useState(null)
 
@@ -29,7 +29,7 @@ export default function GoalsScreen() {
   return (
     <Screen name="goals">
       <AddGoalModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addGoal} onAddQuestion={(q) => addQuestion({ ...q, order: questions.length })} />
-      <EditGoalModal open={!!editGoal} goal={editGoal} onClose={() => setEditGoal(null)} onSave={updateGoal} onDelete={deleteGoal} />
+      <EditGoalModal open={!!editGoal} goal={editGoal} onClose={() => setEditGoal(null)} onSave={updateGoal} onDelete={deleteGoal} categories={categories} questions={questions} onAddQuestion={(q) => addQuestion({ ...q, order: questions.length })} onUpdateQuestion={updateQuestion} />
 
       {loading && !cats.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>

@@ -74,15 +74,33 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
     setErr('')
     try {
       const rec = recurrencePayload(form.recurrence, scheduled, form.interval)
+      // On edit, if the user didn't change the timing, preserve the ORIGINAL
+      // scheduled_at + recurrence_pattern so a clamped monthly reminder (e.g.
+      // the 31st, currently anchored to Feb-28) isn't silently rewritten to the
+      // 28th. Mirrors web AddReminderModal's "keep stored scheduled_at when
+      // timing wasn't changed" guard.
+      let scheduledAt = scheduled.toISOString()
+      let recPattern = rec.recurrence_pattern
+      if (isEdit && reminder?.scheduled_at && form.recurrence !== 'none') {
+        const orig = fromReminder(reminder)
+        const timingUnchanged = form.date === orig.date && form.time === orig.time
+          && form.recurrence === orig.recurrence
+          && (form.recurrence !== 'every_x_days' || form.interval === orig.interval)
+        if (timingUnchanged) {
+          scheduledAt = reminder.scheduled_at
+          if (reminder.recurrence_pattern) recPattern = reminder.recurrence_pattern
+        }
+      }
       const common = {
         title: form.title.trim(),
         description: form.description.trim() || null,
-        scheduled_at: scheduled.toISOString(),
+        scheduled_at: scheduledAt,
         end_date: hasEnd ? form.end_date : null,
         linked_to_type: form.client_id ? 'client' : null,
         linked_to_id: form.client_id || null,
         category_id: form.category_id || null,
         ...rec,
+        recurrence_pattern: recPattern,
       }
       await onSave(isEdit ? common : { ...common, status: 'pending', type: null, channel: null })
       close()

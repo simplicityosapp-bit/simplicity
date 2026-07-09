@@ -102,5 +102,22 @@ export function useCalendarData() {
     try { await skipScheduledMeeting({ meeting, updateMeeting, removeSession }) } catch { /* updateMeeting already reloaded */ }
   }, [updateMeeting, removeSession])
 
-  return { ...state, loading, error, refetch: load, addMeeting, setMeetingStatus, addSession, removeSession, updateMeeting, confirmMeeting, skipMeeting }
+  // Own + edit a synced calendar_event. Setting owned=true detaches it from the
+  // one-way Google sync (the Edge Function skips owned rows — migration 0023) so
+  // the new title/time survive the next sync. Mirrors web useCalendarEvents.
+  const updateEvent = useCallback(async (ev, patch) => {
+    const next = { ...patch, owned: true }
+    setState((s) => ({ ...s, calendarEvents: s.calendarEvents.map((r) => (r.id === ev.id ? { ...r, ...next } : r)) }))
+    const { error: e } = await supabase.from('calendar_events').update(next).eq('id', ev.id)
+    if (e) { load(); throw e }
+  }, [load])
+  // Own + delete a synced calendar_event for good (owned=true so the soft-delete
+  // survives future syncs — without it the sync resets deleted_at). Mirrors web.
+  const deleteEvent = useCallback(async (ev) => {
+    setState((s) => ({ ...s, calendarEvents: s.calendarEvents.filter((r) => r.id !== ev.id) }))
+    const { error: e } = await supabase.from('calendar_events').update({ owned: true, deleted_at: new Date().toISOString() }).eq('id', ev.id)
+    if (e) { load(); throw e }
+  }, [load])
+
+  return { ...state, loading, error, refetch: load, addMeeting, setMeetingStatus, addSession, removeSession, updateMeeting, confirmMeeting, skipMeeting, updateEvent, deleteEvent }
 }

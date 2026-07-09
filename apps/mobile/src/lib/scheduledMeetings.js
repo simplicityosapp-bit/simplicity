@@ -7,6 +7,38 @@
 // numbering). No toast here — the hook's optimistic update + reload-on-error
 // surfaces failure.
 
+// Parse "HH:MM" → [hh, mm] (ported verbatim from web lib/scheduledMeetings.js).
+function parseHHMM(t) {
+  if (!t) return null
+  const m = String(t).match(/^(\d{1,2}):(\d{2})/)
+  if (!m) return null
+  const hh = Number(m[1])
+  const mm = Number(m[2])
+  if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null
+  return [hh, mm]
+}
+
+// IDs of a subject's FUTURE PENDING meetings that matched the OLD weekly slot
+// but not the NEW one — the stale occurrences to purge when a client's recurring
+// slot changes (ported verbatim from web). Past/confirmed meetings are left
+// alone. `now` is injected so callers stay testable.
+export function staleScheduledMeetingIds(subjectType, subjectId, oldSchedule, newSchedule, meetings, now = new Date()) {
+  const matchesSlot = (m, sched) => {
+    const day = sched?.day
+    if (day == null || day === '') return false
+    const hhmm = parseHHMM(sched.time)
+    if (!hhmm) return false
+    const d = new Date(m.scheduled_at)
+    return d.getDay() === Number(day) && d.getHours() === hhmm[0] && d.getMinutes() === hhmm[1]
+  }
+  return (meetings || [])
+    .filter((m) => m.subject_type === subjectType && m.subject_id === subjectId)
+    .filter((m) => m.status === 'pending')
+    .filter((m) => new Date(m.scheduled_at) > now)
+    .filter((m) => matchesSlot(m, oldSchedule) && !matchesSlot(m, newSchedule))
+    .map((m) => m.id)
+}
+
 // Next session number for a meeting's subject — count of the subject's existing
 // sessions + 1 (mirrors ClientDrawer nextNum / web nextSessionNum).
 export function nextSessionNum(sessions, m) {

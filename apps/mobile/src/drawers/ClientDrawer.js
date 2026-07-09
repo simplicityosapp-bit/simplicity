@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Linking, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, Trash2, Pencil, Banknote, MessageCircle, CalendarPlus, ChevronDown, Check, RotateCcw } from 'lucide-react-native'
@@ -29,11 +29,14 @@ const STATUS_PILL = {
 const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, addMeeting, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction, updateReminder, deleteReminder }) {
+export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, addMeeting, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction, updateReminder, deleteReminder, updateMember }) {
   const insets = useSafeAreaInsets()
   const { projects } = useFormOptions()
   const [editing, setEditing] = useState(false)
   const [paying, setPaying] = useState(false)
+  const [payDefaults, setPayDefaults] = useState(null)   // prefill for the "record payment" modal
+  const [pendingPaid, setPendingPaid] = useState(null)   // paid-field delta awaiting the record-or-fold prompt
+  const pendingPaidRef = useRef(null)                    // delta to fold if the payment modal closes unsaved
   const [scheduling, setScheduling] = useState(false)
   const [logging, setLogging] = useState(false)
   const [statusMenu, setStatusMenu] = useState(false)
@@ -72,14 +75,75 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
     updateClient(client.id, { status_overridden: false })
   }
 
+  // Manual "שולם" edit → fold the delta into paid_adjustment as an informal,
+  // card-only credit (mirrors web's "התעלם"/close-without-recording path).
+  const foldPaid = (delta) => {
+    if (!client) return
+    updateClient(client.id, { paid_adjustment: (Number(client.paid_adjustment) || 0) + delta })
+  }
+  // When EditClientModal reports a paid-field delta, ask whether to record a real
+  // income transaction or just fix the card (mirrors web ClientDrawer ConfirmModal).
+  // Run from an effect so the edit sheet has closed before the prompt appears.
+  useEffect(() => {
+    if (pendingPaid == null || !client) return
+    const delta = pendingPaid
+    setPendingPaid(null)
+    Alert.alert(
+      i18n.t('clients:drawer.manualPayTitle', { defaultValue: 'עדכון תשלום ידני' }),
+      i18n.t('clients:drawer.manualPayMessage', { amount: isr(Math.abs(delta)) }),
+      [
+        { text: i18n.t('clients:drawer.manualPayCancel', { defaultValue: 'רק בכרטיס' }), style: 'cancel', onPress: () => foldPaid(delta) },
+        {
+          text: i18n.t('clients:drawer.manualPayConfirm', { defaultValue: 'הוסף תנועה' }),
+          onPress: () => {
+            pendingPaidRef.current = delta   // fold on the card if the modal is closed unsaved
+            setPayDefaults({ client_id: clientId, type: 'income', amount: String(Math.abs(delta)), desc: i18n.t('clients:drawer.paymentDefaultDesc', { defaultValue: 'עדכון תשלום' }) })
+            setPaying(true)
+          },
+        },
+      ],
+    )
+  }, [pendingPaid]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const del = () => {
     if (!client) return
+    const cancel = i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' })
+    const linkedTxs = (transactions || []).filter((t) => !t.deleted_at && t.client_id === client.id)
+    // No linked transactions → straightforward soft-delete.
+    if (!linkedTxs.length) {
+      Alert.alert(
+        i18n.t('modalsClient:deleteClient.titleOne', { name: client.name }),
+        i18n.t('clients:drawer.deleteMessage', { defaultValue: 'הלקוח יעבור לסל המיחזור, וניתן לשחזר תוך 30 יום.' }),
+        [
+          { text: cancel, style: 'cancel' },
+          { text: i18n.t('leads:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => { deleteClient(client.id); onClose() } },
+        ],
+      )
+      return
+    }
+    // Linked transactions → offer keep-orphaned vs cascade, mirroring web
+    // DeleteClientModal. Without this the client's transactions dangled on a
+    // deleted client_id, untagged. (Mobile has no undo toast; both are
+    // restorable from Trash.)
+    const keep = async () => {
+      for (const tx of linkedTxs) {
+        await updateTransaction(tx.id, { client_id: null, orphaned_from: { type: 'client', name: client.name || i18n.t('modalsClient:deleteClient.orphanName') } }).catch(() => {})
+      }
+      await deleteClient(client.id).catch(() => {})
+      onClose()
+    }
+    const cascade = async () => {
+      for (const tx of linkedTxs) { await deleteTransaction(tx.id).catch(() => {}) }
+      await deleteClient(client.id).catch(() => {})
+      onClose()
+    }
     Alert.alert(
-      i18n.t('modalsClient:deleteClient.title', { defaultValue: 'מחיקת לקוח' }),
-      i18n.t('clients:drawer.deleteMessage', { defaultValue: 'הלקוח יעבור לסל המיחזור, וניתן לשחזר תוך 30 יום.' }),
+      i18n.t('modalsClient:deleteClient.titleOne', { name: client.name }),
+      `${i18n.t('modalsClient:deleteClient.introOne')}\n\n${i18n.t('modalsClient:deleteClient.linkedTransactions')}: ${linkedTxs.length}`,
       [
-        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
-        { text: i18n.t('leads:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => { deleteClient(client.id); onClose() } },
+        { text: cancel, style: 'cancel' },
+        { text: i18n.t('modalsClient:deleteClient.keepTitle'), onPress: keep },
+        { text: i18n.t('modalsClient:deleteClient.cascadeTitle'), style: 'destructive', onPress: cascade },
       ],
     )
   }
@@ -230,8 +294,26 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         groupSessions={bal?.groupSessions ?? []}
         onClose={() => setEditing(false)}
         onSave={(id, patch) => updateClient(id, patch)}
+        onPaidEntry={(delta) => setPendingPaid(delta)}
+        memberships={client ? members.filter((m) => m.client_id === client.id && !m.left_at) : []}
+        onUpdateMember={updateMember}
       />
-      <AddTransactionModal open={paying} defaults={{ client_id: clientId, type: 'income' }} onClose={() => setPaying(false)} onSave={addTransaction} />
+      <AddTransactionModal
+        open={paying}
+        defaults={payDefaults || { client_id: clientId, type: 'income' }}
+        onClose={() => {
+          // Closed without recording → keep the amount on the card (fold), so a
+          // manual "שולם" edit is never lost (same as choosing "רק בכרטיס").
+          if (pendingPaidRef.current != null) { foldPaid(pendingPaidRef.current); pendingPaidRef.current = null }
+          setPayDefaults(null); setPaying(false)
+        }}
+        onSave={async (data) => {
+          // A real transaction is being recorded → drop the fold fallback so the
+          // amount is never counted twice.
+          pendingPaidRef.current = null
+          return addTransaction(data)
+        }}
+      />
       <AddMeetingModal open={scheduling} client={client} clients={client ? [client] : []} onClose={() => setScheduling(false)} onSave={addMeeting} onSetRecurringSlot={updateClient} />
 
       {/* Log a session — composes the full sessions row around the modal's when/summary/notes */}

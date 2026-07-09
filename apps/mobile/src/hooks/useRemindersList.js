@@ -14,7 +14,7 @@ export function useRemindersList() {
     setLoading(true)
     setError(null)
     try {
-      const { data, error: e } = await supabase.from('reminders').select('*').is('deleted_at', null).limit(2000)
+      const { data, error: e } = await supabase.from('reminders').select('*').is('deleted_at', null).order('scheduled_at', { ascending: true }).limit(2000)
       if (e) throw e
       setReminders(data ?? [])
     } catch (e) {

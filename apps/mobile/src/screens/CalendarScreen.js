@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react-native'
-import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming } from '@simplicity/core'
+import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming, weekStartIndex } from '@simplicity/core'
 import i18n from '../lib/i18n'
+import { usePreferences } from '../lib/preferences'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import AddMeetingModal from '../modals/AddMeetingModal'
+import EventDetailsModal from '../modals/EventDetailsModal'
 import { colors } from '../theme/theme'
 import { useCalendarData } from '../hooks/useCalendarData'
 
@@ -20,11 +22,15 @@ const pad = (n) => String(n).padStart(2, '0')
 const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
 export default function CalendarScreen() {
-  const { meetings, calendarEvents, clients, groups, reminders, leads, loading, error, refetch, addMeeting, confirmMeeting } = useCalendarData()
+  const { meetings, calendarEvents, clients, groups, reminders, leads, sessions, loading, error, refetch, addMeeting, confirmMeeting, skipMeeting, setMeetingStatus, addSession, updateEvent, deleteEvent } = useCalendarData()
+  const { prefs } = usePreferences()
+  const weekStart = weekStartIndex(prefs?.format?.week_start)   // 0=Sun, 1=Mon (mirrors web)
+  const weekdays = weekStart ? [...WEEKDAYS.slice(weekStart), ...WEEKDAYS.slice(0, weekStart)] : WEEKDAYS
   const now = new Date()
   const [month, setMonth] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1))
   const [selected, setSelected] = useState(() => keyOf(now))
   const [adding, setAdding] = useState(false)
+  const [detail, setDetail] = useState(null)   // agenda row tapped → EventDetailsModal
   const KIND_TAG = {
     reminder: i18n.t('calendar:kinds.reminder', { defaultValue: 'תזכורת' }),
     followup: i18n.t('calendar:kinds.followup', { defaultValue: 'מעקב' }),
@@ -36,9 +42,9 @@ export default function CalendarScreen() {
     meetings.filter((m) => ['pending', 'confirmed'].includes(m.status) && m.scheduled_at).forEach((m) => {
       const isGroup = m.subject_type === 'group'
       const subj = isGroup ? groups.find((g) => g.id === m.subject_id) : clients.find((c) => c.id === m.subject_id)
-      out.push({ id: `m-${m.id}`, when: m.scheduled_at, title: subj?.name || '', kind: 'meeting', pending: m.status === 'pending', mid: m.id })
+      out.push({ id: `m-${m.id}`, when: m.scheduled_at, title: subj?.name || '', kind: 'meeting', pending: m.status === 'pending', status: m.status, mid: m.id, raw: m })
     })
-    calendarEvents.filter((e) => !e.deleted_at && e.start_time).forEach((e) => out.push({ id: `c-${e.id}`, when: e.start_time, title: e.title || e.summary || '', kind: 'calendar' }))
+    calendarEvents.filter((e) => !e.deleted_at && e.start_time).forEach((e) => out.push({ id: `c-${e.id}`, when: e.start_time, title: e.title || e.summary || '', kind: 'calendar', end: e.end_time, raw: e }))
     remindersUpcoming(now, reminders, 120, 0).forEach((r, i) => out.push({ id: `r-${r.id || i}`, when: r.when, title: r.title || '', kind: 'reminder' }))
     leads.filter((l) => !l.deleted_at && l.follow_up_date && l.status_meta === 'in_process').forEach((l) => out.push({ id: `l-${l.id}`, when: `${String(l.follow_up_date).slice(0, 10)}T09:00:00`, title: l.name || '', kind: 'followup' }))
     return out
@@ -54,7 +60,7 @@ export default function CalendarScreen() {
   // Build the 6-week grid for `month` (Sunday-start).
   const weeks = useMemo(() => {
     const first = new Date(month.getFullYear(), month.getMonth(), 1)
-    const start = first.getDay() // 0=Sun
+    const start = (first.getDay() - weekStart + 7) % 7 // leading blanks from the chosen week start
     const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()
     const cells = []
     for (let i = 0; i < start; i++) cells.push(null)
@@ -63,11 +69,28 @@ export default function CalendarScreen() {
     const rows = []
     for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7))
     return rows
-  }, [month])
+  }, [month, weekStart])
 
   const todayKey = keyOf(now)
   const selectedEvents = byDay.get(selected) || []
   const stepMonth = (n) => setMonth((m) => new Date(m.getFullYear(), m.getMonth() + n, 1))
+
+  // Confirm "it happened". A per-session client's meeting only flips status here
+  // (no auto-materialise) so it isn't double-counted — its held session is logged
+  // through the one-off charge prompt (billSession) instead. Mirrors web calendar.
+  const meetingClientFor = (ev) => (ev?.kind === 'meeting' && ev.raw?.subject_type === 'client') ? clients.find((c) => c.id === ev.raw.subject_id) : null
+  const handleConfirm = (meeting) => {
+    const c = meeting?.subject_type === 'client' ? clients.find((x) => x.id === meeting.subject_id) : null
+    if (c?.billing_mode === 'per_session') return setMeetingStatus(meeting.id, 'confirmed')
+    return confirmMeeting(meeting)
+  }
+  const billClient = (() => { const c = meetingClientFor(detail); return c && c.billing_mode === 'per_session' ? c : null })()
+  const billSession = (ev) => {
+    const c = meetingClientFor(ev)
+    if (!c) return Promise.resolve()
+    const num = sessions.filter((s) => !s.deleted_at && s.client_id === c.id).length + 1
+    return addSession({ date: new Date(ev.when).toISOString(), summary: null, notes: null, client_id: c.id, group_id: null, subject_type: 'client', subject_id: c.id, num })
+  }
 
   return (
     <Screen name="calendar">
@@ -95,7 +118,7 @@ export default function CalendarScreen() {
               <Pressable onPress={() => stepMonth(1)} hitSlop={10}><ChevronLeft size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
             </View>
             <View style={styles.weekHead}>
-              {WEEKDAYS.map((w) => <Text key={w} style={styles.weekday}>{w}</Text>)}
+              {weekdays.map((w) => <Text key={w} style={styles.weekday}>{w}</Text>)}
             </View>
             {weeks.map((row, ri) => (
               <View key={ri} style={styles.week}>
@@ -124,18 +147,21 @@ export default function CalendarScreen() {
           <Text style={styles.dayLabel}>{fmtDayLabel(`${selected}T00:00:00`)}</Text>
           {selectedEvents.length ? (
             <Card padded={false}>
-              {selectedEvents.map((e, i) => (
-                <View key={e.id} style={[styles.row, i > 0 && styles.rowBorder]}>
-                  <Text style={styles.time}>{fmtTime(e.when)}</Text>
-                  <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
-                  <Text style={styles.eventTitle} numberOfLines={1}>{e.title || '—'}</Text>
-                  {e.pending ? (
-                    <Pressable style={styles.confirm} onPress={() => confirmMeeting(meetings.find((m) => m.id === e.mid))} hitSlop={6}>
-                      <Check size={14} strokeWidth={2.2} color={colors.positive} />
-                    </Pressable>
-                  ) : KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}
-                </View>
-              ))}
+              {selectedEvents.map((e, i) => {
+                const tappable = e.kind === 'meeting' || e.kind === 'calendar'
+                return (
+                  <Pressable key={e.id} style={[styles.row, i > 0 && styles.rowBorder]} onPress={tappable ? () => setDetail(e) : undefined} disabled={!tappable}>
+                    <Text style={styles.time}>{fmtTime(e.when)}</Text>
+                    <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
+                    <Text style={styles.eventTitle} numberOfLines={1}>{e.title || '—'}</Text>
+                    {e.pending ? (
+                      <Pressable style={styles.confirm} onPress={() => handleConfirm(e.raw)} hitSlop={6}>
+                        <Check size={14} strokeWidth={2.2} color={colors.positive} />
+                      </Pressable>
+                    ) : KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}
+                  </Pressable>
+                )
+              })}
             </Card>
           ) : (
             <Text style={styles.empty}>{i18n.t('calendar:list.empty', { defaultValue: 'אין אירועים ביום זה.' })}</Text>
@@ -144,6 +170,17 @@ export default function CalendarScreen() {
       )}
 
       <AddMeetingModal open={adding} clients={clients} onClose={() => setAdding(false)} onSave={addMeeting} />
+      <EventDetailsModal
+        open={!!detail}
+        event={detail}
+        onClose={() => setDetail(null)}
+        onConfirmMeeting={handleConfirm}
+        onSkipMeeting={skipMeeting}
+        onUpdateEvent={updateEvent}
+        onDeleteEvent={deleteEvent}
+        billClient={billClient}
+        onBillSession={billSession}
+      />
     </Screen>
   )
 }

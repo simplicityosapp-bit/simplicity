@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Alert } from 'react-native'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Pencil, Users, CalendarDays, Plus, ChevronDown, ChevronRight, X } from 'lucide-react-native'
+import { Pencil, Users, CalendarDays, Plus, ChevronDown, ChevronRight, X, Check } from 'lucide-react-native'
 import { financeQuery, currentMonthRange, isr, fmtShortDate, statusMetaOf } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -11,11 +11,13 @@ import FinanceChart from './finance/FinanceChart'
 import AddProjectModal from '../modals/AddProjectModal'
 import AddGroupModal from '../modals/AddGroupModal'
 import AddGroupMemberModal from '../modals/AddGroupMemberModal'
+import AddSessionModal from '../modals/AddSessionModal'
 import { colors } from '../theme/theme'
 import { useProjectDetailData } from '../hooks/useProjectDetailData'
 
 const D = (k, o) => i18n.t(`projects:detail.${k}`, o)
 const STATUS_DOT = { active: colors.positive, wandering: colors.amberWarn, past: '#b3a99c', no_status: '#cbb9a8' }
+const GSTATUS_KEYS = ['active', 'in_development', 'ended']
 
 // Project detail (scoped v1 of web's project-detail): header + stats + clients
 // list + groups (read-only) + recent sessions + project edit. The heavy web
@@ -25,11 +27,13 @@ export default function ProjectDetailScreen() {
   const nav = useNavigation()
   const insets = useSafeAreaInsets()
   const projectId = route.params?.projectId
-  const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember } = useProjectDetailData(projectId)
+  const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession, updateClient, updateSession, removeSession } = useProjectDetailData(projectId)
   const [editing, setEditing] = useState(false)
   const [addingGroup, setAddingGroup] = useState(false)
   const [editGroup, setEditGroup] = useState(null)
   const [addMemberTo, setAddMemberTo] = useState(null)
+  const [logSessionGroup, setLogSessionGroup] = useState(null)
+  const [editSession, setEditSession] = useState(null)
   const [expanded, setExpanded] = useState(null)
 
   const projClientIds = useMemo(() => new Set(clients.map((c) => c.id)), [clients])
@@ -63,6 +67,51 @@ export default function ProjectDetailScreen() {
   }
   const groupRecurring = (g) => (g.recurring_day != null && g.recurring_time) ? `${i18n.t(`modalsClient:common.day${g.recurring_day}`)} ${g.recurring_time}` : null
   const clientName = (id) => clients.find((c) => c.id === id)?.name
+  const confirmDeleteSession = (s) => {
+    Alert.alert(
+      i18n.t('modalsTask:session.deleteTitle', { defaultValue: 'מחיקת פגישה' }),
+      i18n.t('modalsTask:session.deleteMessage', { defaultValue: 'למחוק את הפגישה שתועדה?' }),
+      [
+        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+        { text: i18n.t('leads:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => removeSession(s.id) },
+      ],
+    )
+  }
+
+  // Group lifecycle status (active / in_development / ended). Flipping to
+  // active/ended cascades the member clients' status to active/past — but never
+  // clobbers a manually-overridden client (status_overridden). Mirrors web
+  // requestGroupStatus + propagateToClients, with a confirm when clients flip.
+  const groupMemberClients = (gid) => {
+    const ids = new Set()
+    members.forEach((m) => { if (m.group_id === gid && !m.left_at) ids.add(m.client_id) })
+    clients.forEach((c) => { if (!c.deleted_at && c.group_id === gid) ids.add(c.id) })
+    return Array.from(ids).map((cid) => clients.find((c) => c.id === cid)).filter(Boolean)
+  }
+  const changeGroupStatus = (g, newStatus) => {
+    if ((g.status || 'active') === newStatus) return
+    const targetMeta = newStatus === 'active' ? 'active' : (newStatus === 'ended' ? 'past' : null)
+    const willFlip = targetMeta
+      ? groupMemberClients(g.id).filter((c) => !c.status_overridden && statusMetaOf(c) !== targetMeta)
+      : []
+    if (willFlip.length === 0) { updateGroup(g.id, { status: newStatus }); return }
+    const propagate = async () => {
+      await updateGroup(g.id, { status: newStatus })
+      for (const c of willFlip) { await updateClient(c.id, { status: targetMeta, status_meta: targetMeta }).catch(() => {}) }
+    }
+    Alert.alert(
+      D('statusChange.title', { defaultValue: 'שינוי סטטוס קבוצה' }),
+      D(willFlip.length === 1 ? 'statusChange.messageOne' : 'statusChange.messageMany', {
+        status: D(`status.${newStatus}`),
+        count: willFlip.length,
+        meta: D(`meta.${targetMeta}`),
+      }),
+      [
+        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+        { text: D('statusChange.confirm', { defaultValue: 'שנה סטטוס' }), onPress: propagate },
+      ],
+    )
+  }
 
   if (!loading && !project) {
     return (
@@ -146,6 +195,16 @@ export default function ProjectDetailScreen() {
                     <Pressable onPress={() => setEditGroup(g)} hitSlop={8}><Pencil size={13} strokeWidth={1.7} color={colors.textSub} /></Pressable>
                     <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
                   </Pressable>
+                  <View style={styles.gstatusRow}>
+                    {GSTATUS_KEYS.map((k) => {
+                      const on = (g.status || 'active') === k
+                      return (
+                        <Pressable key={k} style={[styles.gstatusPill, on && styles.gstatusOn]} onPress={() => changeGroupStatus(g, k)}>
+                          <Text style={[styles.gstatusText, on && styles.gstatusTextOn]}>{D(`status.${k}`)}</Text>
+                        </Pressable>
+                      )
+                    })}
+                  </View>
                   {open ? (
                     <View style={styles.gbody}>
                       {gm.length ? gm.map((m) => (
@@ -154,10 +213,16 @@ export default function ProjectDetailScreen() {
                           <Pressable onPress={() => removeMember(m.id)} hitSlop={8}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
                         </View>
                       )) : <Text style={styles.mEmpty}>{i18n.t('modalsClient:addGroup.noMembers', { defaultValue: 'עדיין אין חברים' })}</Text>}
-                      <Pressable style={styles.addMember} onPress={() => setAddMemberTo(g)}>
-                        <Plus size={14} strokeWidth={2} color={colors.brand} />
-                        <Text style={styles.addMemberText}>{i18n.t('modalsClient:addGroupMember.title', { defaultValue: 'הוספת חבר/ה' })}</Text>
-                      </Pressable>
+                      <View style={styles.gactions}>
+                        <Pressable style={styles.addMember} onPress={() => setAddMemberTo(g)}>
+                          <Plus size={14} strokeWidth={2} color={colors.brand} />
+                          <Text style={styles.addMemberText}>{i18n.t('modalsClient:addGroupMember.title', { defaultValue: 'הוספת חבר/ה' })}</Text>
+                        </Pressable>
+                        <Pressable style={styles.addMember} onPress={() => setLogSessionGroup(g)}>
+                          <Check size={14} strokeWidth={2} color={colors.brand} />
+                          <Text style={styles.addMemberText}>{i18n.t('clients:drawer.logSession', { defaultValue: 'תיעוד פגישה' })}</Text>
+                        </Pressable>
+                      </View>
                     </View>
                   ) : null}
                 </Card>
@@ -169,11 +234,12 @@ export default function ProjectDetailScreen() {
           {recentSessions.length ? (
             <Section title={D('groups.pastSessionsTitle', { defaultValue: 'פגישות שהתקיימו' })} count={recentSessions.length}>
               {recentSessions.map((s, i) => (
-                <View key={s.id} style={[styles.row, i > 0 && styles.rowBorder]}>
+                <Pressable key={s.id} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditSession(s)}>
                   <CalendarDays size={14} strokeWidth={1.6} color={colors.textFaint} />
-                  <Text style={styles.rowName} numberOfLines={1}>{clientName(s.client_id) || s.summary || '—'}</Text>
+                  <Text style={styles.rowName} numberOfLines={1}>{clientName(s.client_id) || (s.group_id ? groups.find((g) => g.id === s.group_id)?.name : '') || s.summary || '—'}</Text>
                   <Text style={styles.rowSub}>{fmtShortDate(s.date)}</Text>
-                </View>
+                  <Pressable onPress={() => confirmDeleteSession(s)} hitSlop={8}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
+                </Pressable>
               ))}
             </Section>
           ) : null}
@@ -202,6 +268,26 @@ export default function ProjectDetailScreen() {
         availableClients={addMemberTo ? availableFor(addMemberTo.id) : []}
         onClose={() => setAddMemberTo(null)}
         onSave={addMember}
+      />
+      {/* Log a group session — composes the full row (subject_type:'group', num).
+          Mirrors web logGroupSession so group package/held billing advances. */}
+      <AddSessionModal
+        open={!!logSessionGroup}
+        client={{ name: logSessionGroup?.name || '' }}
+        nextNum={logSessionGroup ? sessions.filter((s) => s.group_id === logSessionGroup.id).length + 1 : 1}
+        onClose={() => setLogSessionGroup(null)}
+        onSave={(data) => {
+          const g = logSessionGroup
+          return addSession({ ...data, client_id: null, group_id: g.id, subject_type: 'group', subject_id: g.id, num: sessions.filter((s) => s.group_id === g.id).length + 1 })
+        }}
+      />
+      {/* Edit a logged session (date / summary / notes). Delete is on the row. */}
+      <AddSessionModal
+        open={!!editSession}
+        session={editSession}
+        client={{ name: (editSession && (clientName(editSession.client_id) || (editSession.group_id ? groups.find((g) => g.id === editSession.group_id)?.name : ''))) || '' }}
+        onClose={() => setEditSession(null)}
+        onSave={(patch) => updateSession(editSession.id, patch)}
       />
     </Screen>
   )
@@ -255,6 +341,11 @@ const styles = StyleSheet.create({
   addChip: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brandSoft },
   gcard: { padding: 0 },
   grow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
+  gstatusRow: { flexDirection: 'row', gap: 6, paddingHorizontal: 14, paddingBottom: 10, flexWrap: 'wrap' },
+  gstatusPill: { paddingVertical: 5, paddingHorizontal: 11, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  gstatusOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  gstatusText: { fontSize: 12, color: colors.textSub },
+  gstatusTextOn: { color: colors.onBrand, fontWeight: '600' },
   gdot: { width: 11, height: 11, borderRadius: 6 },
   gname: { fontSize: 15, fontWeight: '600', color: colors.text },
   gsub: { fontSize: 12, color: colors.textFaint, marginTop: 1 },
@@ -262,6 +353,7 @@ const styles = StyleSheet.create({
   mrow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   mname: { flex: 1, fontSize: 14, color: colors.text },
   mEmpty: { fontSize: 12, color: colors.textFaint },
+  gactions: { flexDirection: 'row', alignItems: 'center', gap: 16, flexWrap: 'wrap' },
   addMember: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6 },
   addMemberText: { fontSize: 13, fontWeight: '500', color: colors.brand },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 16 },

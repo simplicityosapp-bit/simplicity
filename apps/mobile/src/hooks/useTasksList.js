@@ -13,7 +13,7 @@ export function useTasksList() {
     setLoading(true)
     setError(null)
     try {
-      const { data, error: e } = await supabase.from('tasks').select('*').is('deleted_at', null).limit(2000)
+      const { data, error: e } = await supabase.from('tasks').select('*').is('deleted_at', null).order('created_at', { ascending: false }).limit(2000)
       if (e) throw e
       setTasks(data ?? [])
     } catch (e) {

@@ -91,5 +91,36 @@ export function useProjectDetailData(projectId) {
     if (e) { load() }
   }, [load])
 
-  return { ...state, loading, error, refetch: load, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember }
+  // Log a session (materialise a held meeting) — used by the group "log session"
+  // action; the caller composes the full row (subject_type/group_id/num).
+  const addSession = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('sessions').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    setState((s) => ({ ...s, sessions: [data, ...s.sessions] }))
+    return data
+  }, [])
+
+  // Patch a client — used by the group-status cascade (a group active/ended flip
+  // propagates the member clients' status). Optimistic; reload on error.
+  const updateClient = useCallback(async (id, patch) => {
+    setState((s) => ({ ...s, clients: s.clients.map((c) => (c.id === id ? { ...c, ...patch } : c)) }))
+    const { error: e } = await supabase.from('clients').update(patch).eq('id', id)
+    if (e) { load() }
+  }, [load])
+
+  // Edit / delete a logged session (date fix, mis-log removal). Optimistic.
+  const updateSession = useCallback(async (id, patch) => {
+    setState((s) => ({ ...s, sessions: s.sessions.map((x) => (x.id === id ? { ...x, ...patch } : x)) }))
+    const { error: e } = await supabase.from('sessions').update(patch).eq('id', id)
+    if (e) { load() }
+  }, [load])
+  const removeSession = useCallback(async (id) => {
+    setState((s) => ({ ...s, sessions: s.sessions.filter((x) => x.id !== id) }))
+    const { error: e } = await supabase.from('sessions').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    if (e) { load() }
+  }, [load])
+
+  return { ...state, loading, error, refetch: load, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession, updateClient, updateSession, removeSession }
 }

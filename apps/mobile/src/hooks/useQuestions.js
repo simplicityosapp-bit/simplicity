@@ -51,5 +51,15 @@ export function useQuestions() {
     if (e) { setError(e.message); load() }
   }, [load])
 
-  return { questions, loading, error, refetch: load, addQuestion, toggleActive, removeQuestion }
+  // Patch a question in place (text / scale / icon / schedule) — used when a goal
+  // edits its linked daily question (mirrors web onUpdateQuestion).
+  const updateQuestion = useCallback(async (id, patch) => {
+    setQuestions((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)))
+    const { data, error: e } = await supabase.from('user_questions').update(patch).eq('id', id).select().single()
+    if (e) { setError(e.message); load(); throw e }
+    setQuestions((prev) => prev.map((x) => (x.id === id ? data : x)))
+    return data
+  }, [load])
+
+  return { questions, loading, error, refetch: load, addQuestion, toggleActive, removeQuestion, updateQuestion }
 }

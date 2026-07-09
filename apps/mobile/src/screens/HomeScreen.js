@@ -23,6 +23,9 @@ import QuickRow from './home/QuickRow'
 
 // Home — greeting + net/clients/today chips (shared core homeChips) + the
 // widget stack, over the per-screen background photo (Warm Precision theme).
+// Default widget order = web WIDGET_REGISTRY; prefs.widgets.list overrides it.
+const DEFAULT_WIDGET_ORDER = ['quote', 'moon', 'insights', 'quick-row', 'attention', 'reminders', 'next-tasks', 'chips']
+
 export default function HomeScreen() {
   const nav = useNavigation()
   const insets = useSafeAreaInsets()
@@ -58,6 +61,39 @@ export default function HomeScreen() {
       ? i18n.t('home:widgets.chips.expense', { defaultValue: 'הוצאות' })
       : i18n.t('home:widgets.chips.net')
 
+  // Honor the user's home-widget config (enable/disable + order), mirroring web.
+  // Falls back to the registry default order when nothing is saved.
+  const list = (prefs?.widgets?.list && prefs.widgets.list.length) ? prefs.widgets.list : DEFAULT_WIDGET_ORDER.map((id) => ({ id, enabled: true }))
+  const enabledIds = list.filter((w) => w.enabled !== false).map((w) => w.id)
+  const enabledSet = new Set(enabledIds)
+  const quoteOn = enabledSet.has('quote')
+  const moonOn = enabledSet.has('moon')
+  const restOrder = enabledIds.filter((id) => id !== 'quote' && id !== 'moon')
+
+  const renderWidget = (id) => {
+    switch (id) {
+      case 'insights': return <InsightsWidget key="insights" questions={questions} answers={answers} addAnswer={addAnswer} />
+      case 'quick-row': return <QuickRow key="quick-row" clients={clients} goals={goals} categories={categories} addTask={addTask} addEntry={addEntry} addTransaction={addTransaction} addClient={addClient} addLead={addLead} addProject={addProject} addReminder={addReminder} addMeeting={addMeeting} />
+      case 'attention': return (
+        <AttentionWidget key="attention" data={attentionData} projects={projects} financeCategories={financeCategories}
+          onApproveTx={(id2) => setTransactionStatus(id2, 'confirmed')} onSkipTx={(id2) => setTransactionStatus(id2, 'skipped')} onDeleteTx={deleteTransaction} />
+      )
+      case 'reminders': return <RemindersWidget key="reminders" reminders={reminders} onComplete={completeReminder} />
+      case 'next-tasks': return <NextTasksWidget key="next-tasks" tasks={tasks} onToggle={toggleTask} />
+      case 'chips': return (
+        <View key="chips" style={styles.chips}>
+          <Chip value={String(today.length)} label={i18n.t('home:widgets.chips.meetings')} Icon={CalendarClock} onPress={() => setOpenTile('today')}
+            info={<InfoPopover label={i18n.t('home:widgets.chips.meetingsInfoLabel')} text={i18n.t('home:widgets.chips.meetingsInfoText_pre') + i18n.t('home:widgets.chips.meetingsInfoText_post')} />} />
+          <Chip value={netStr} label={netLbl} long={netStr.length >= 8} Icon={Wallet} onPress={() => setOpenTile('net')}
+            info={<InfoPopover label={i18n.t('home:widgets.chips.netInfoLabel')} text={i18n.t('home:widgets.chips.netInfoText_pre') + i18n.t('home:widgets.chips.netInfoText_post')} />} />
+          <Chip value={String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} Icon={Users} onPress={() => setOpenTile('clients')}
+            info={<InfoPopover label={i18n.t('home:widgets.chips.clientsInfoLabel')} text={i18n.t('home:widgets.chips.clientsInfoText_pre') + i18n.t('home:widgets.chips.clientsInfoText_post')} />} />
+        </View>
+      )
+      default: return null
+    }
+  }
+
   return (
     <Screen name="home">
       <ScrollView
@@ -71,43 +107,18 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
-        {!loading ? (
+        {!loading && (quoteOn || moonOn) ? (
           <View style={styles.topRow}>
-            <QuoteWidget />
-            <MoonWidget overall={moon.overall} expanded={moonExpanded} onToggle={() => setMoonExpanded((v) => !v)} />
+            {quoteOn ? <QuoteWidget /> : null}
+            {moonOn ? <MoonWidget overall={moon.overall} expanded={moonExpanded} onToggle={() => setMoonExpanded((v) => !v)} /> : null}
           </View>
         ) : null}
-        {!loading && moonExpanded && moon.overall ? (
+        {!loading && moonOn && moonExpanded && moon.overall ? (
           <MoonExpansion scored={moon.scored} conf={moon.overall.confidence} gender={gender} onFull={() => nav.navigate('Moon')} />
         ) : null}
 
-        {!loading ? <InsightsWidget questions={questions} answers={answers} addAnswer={addAnswer} /> : null}
-        {!loading ? <QuickRow clients={clients} goals={goals} categories={categories} addTask={addTask} addEntry={addEntry} addTransaction={addTransaction} addClient={addClient} addLead={addLead} addProject={addProject} addReminder={addReminder} addMeeting={addMeeting} /> : null}
-
-        {/* Widget order mirrors web: attention · reminders · next-tasks, chips last. */}
-        {!loading ? (
-          <AttentionWidget
-            data={attentionData}
-            projects={projects}
-            financeCategories={financeCategories}
-            onApproveTx={(id) => setTransactionStatus(id, 'confirmed')}
-            onSkipTx={(id) => setTransactionStatus(id, 'skipped')}
-            onDeleteTx={deleteTransaction}
-          />
-        ) : null}
-        {!loading ? <RemindersWidget reminders={reminders} onComplete={completeReminder} /> : null}
-        {!loading ? <NextTasksWidget tasks={tasks} onToggle={toggleTask} /> : null}
-
-        {!loading ? (
-          <View style={styles.chips}>
-            <Chip value={String(today.length)} label={i18n.t('home:widgets.chips.meetings')} Icon={CalendarClock} onPress={() => setOpenTile('today')}
-              info={<InfoPopover label={i18n.t('home:widgets.chips.meetingsInfoLabel')} text={i18n.t('home:widgets.chips.meetingsInfoText_pre') + i18n.t('home:widgets.chips.meetingsInfoText_post')} />} />
-            <Chip value={netStr} label={netLbl} long={netStr.length >= 8} Icon={Wallet} onPress={() => setOpenTile('net')}
-              info={<InfoPopover label={i18n.t('home:widgets.chips.netInfoLabel')} text={i18n.t('home:widgets.chips.netInfoText_pre') + i18n.t('home:widgets.chips.netInfoText_post')} />} />
-            <Chip value={String(chips.activeClients)} label={i18n.t('home:widgets.chips.clients')} Icon={Users} onPress={() => setOpenTile('clients')}
-              info={<InfoPopover label={i18n.t('home:widgets.chips.clientsInfoLabel')} text={i18n.t('home:widgets.chips.clientsInfoText_pre') + i18n.t('home:widgets.chips.clientsInfoText_post')} />} />
-          </View>
-        ) : null}
+        {/* Widget order + enable/disable follow the user's prefs.widgets (web parity). */}
+        {!loading ? restOrder.map((id) => renderWidget(id)) : null}
       </ScrollView>
 
       <TileDrillModal

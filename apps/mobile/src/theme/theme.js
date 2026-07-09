@@ -23,7 +23,7 @@ const LIGHT = {
 }
 const DARK = {
   bg: '#15140F', card: '#20242A', cardFlat: '#282D34',
-  glassTint: 'rgba(24,28,34,0.62)', scrim: 'rgba(10,12,10,0.82)', blurTint: 'dark',
+  glassTint: 'rgba(24,28,34,0.62)', scrim: 'rgba(8,11,16,0.30)', blurTint: 'dark',
   text: '#F0EBE0', textSub: '#C3CBC0', textFaint: '#8B948C',
   brand: '#C97B5E', brandSoft: 'rgba(201,123,94,0.24)', positive: '#8FB08C', amberWarn: '#C99A6A', danger: '#D98C76',
   moon: '#c9d2ec', moonDeep: '#9aa6c8', moonHi: '#e6edff', onBrand: '#FFFFFF',
@@ -62,6 +62,7 @@ export function applyThemeColors(mode) {
   type.body.color = colors.text
   type.caption.color = colors.textSub
   type.micro.color = colors.textFaint
+  applyBackgroundSet(activeMode)
 }
 
 export const THEME_KEY = 'mg-theme'
@@ -79,8 +80,11 @@ export const shadow = {
   card: { shadowColor: '#2A2520', shadowOpacity: 0.07, shadowRadius: 22, shadowOffset: { width: 0, height: 8 }, elevation: 3 },
 }
 
-// Per-screen background photos (day set), mapped like web's --screen-bg.
-export const backgrounds = {
+// Per-screen background photos, mapped like web's --screen-bg. Web keeps a
+// separate day + night photo per screen and swaps on [data-theme]; mirror that
+// with two sets so dark mode gets a genuinely dark, atmospheric image (not a
+// day photo buried under a heavy scrim).
+const DAY_BG = {
   login: require('../../assets/backgrounds/home.webp'), // pre-auth login/signup screen
   home: require('../../assets/backgrounds/home.webp'),
   clients: require('../../assets/backgrounds/clients.webp'),
@@ -92,3 +96,19 @@ export const backgrounds = {
   moon: require('../../assets/backgrounds/moon.webp'),
   reports: require('../../assets/backgrounds/reports.webp'), // used by the 'simple' bg mode
 }
+const NIGHT_BG = {
+  login: require('../../assets/backgrounds/night/home.webp'),
+  home: require('../../assets/backgrounds/night/home.webp'),
+  clients: require('../../assets/backgrounds/night/clients.webp'),
+  finance: require('../../assets/backgrounds/night/finance.webp'),
+  goals: require('../../assets/backgrounds/night/goals.webp'),
+  leads: require('../../assets/backgrounds/night/leads.webp'),
+  calendar: require('../../assets/backgrounds/night/calendar.webp'),
+  tasks: require('../../assets/backgrounds/night/tasks.webp'),
+  moon: require('../../assets/backgrounds/night/moon.webp'),
+  reports: require('../../assets/backgrounds/night/reports.webp'),
+}
+// The active set flips with the boot palette (same reasoning as `colors`).
+export const backgrounds = { ...DAY_BG }
+function applyBackgroundSet(mode) { Object.assign(backgrounds, mode === 'dark' ? NIGHT_BG : DAY_BG) }
+applyBackgroundSet(activeMode)

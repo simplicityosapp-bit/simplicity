@@ -37,7 +37,7 @@ export default function Sheet({ open, onClose, title, children }) {
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(42,37,32,0.35)' },
+  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: colors.overlay },
   kav: { flex: 1, justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24,

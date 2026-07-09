@@ -317,7 +317,7 @@ function Pills({ options, value, onPick }) {
 
 const styles = StyleSheet.create({
   acc: { borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, overflow: 'hidden' },
-  accOpen: { borderColor: 'rgba(42,37,32,0.14)' },
+  accOpen: { borderColor: colors.brand },
   accHead: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 13, paddingHorizontal: 14 },
   accTitle: { fontSize: 14, fontWeight: '600', color: colors.text },
   accSum: { flex: 1, textAlign: 'right', fontSize: 12, color: colors.textFaint },

@@ -160,7 +160,7 @@ function Chip({ value, label, long, Icon, info, onPress }) {
 
 const styles = StyleSheet.create({
   content: { paddingHorizontal: space.screenPadH, paddingBottom: 96, gap: 8 },
-  errorBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#fbeae7', borderRadius: 12, padding: 12, marginBottom: 8 },
+  errorBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(181,99,78,0.12)', borderRadius: 12, padding: 12, marginBottom: 8 },
   errorText: { color: colors.danger, fontSize: 13, flex: 1 },
   retry: { color: colors.danger, fontSize: 18 },
   topRow: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: 4 },

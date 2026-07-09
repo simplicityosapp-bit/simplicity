@@ -51,6 +51,11 @@ function sortClients(arr, sort, paidByClient) {
 // open-balance filter, a per-tab summary hero (monthly/cumulative toggle), then
 // rich client CARDS (avatar + name + status + project + sessions/paid/balance).
 // Tap a card to open the client drawer in place.
+// Any effective meta outside the 4 known buckets falls into no_status (matches
+// web) — otherwise it makes a phantom count key, is missing from the tab totals,
+// and the client never matches a tab (invisible).
+const bucketMeta = (m) => (m === 'active' || m === 'wandering' || m === 'past' ? m : 'no_status')
+
 export default function ClientsScreen() {
   const {
     clients, transactions, sessions, members, groups, tasks, reminders, loading, error, refetch,
@@ -98,7 +103,9 @@ export default function ClientsScreen() {
   })
   const exitSelect = () => { setSelectMode(false); setSelectedIds(new Set()); setBulkStatusOpen(false); setPendingBulkDelete(false) }
   const bulkChangeMeta = (k) => {
-    selectedIds.forEach((id) => updateClient(id, { status_meta: k, status_id: null, status_overridden: true }))
+    // Write the legacy `status` column too (web parity) so EditClientModal's
+    // prefill and any raw-status reader stay consistent with status_meta.
+    selectedIds.forEach((id) => updateClient(id, { status_meta: k, status: k, status_id: null, status_overridden: true }))
     setBulkStatusOpen(false)
     exitSelect()
   }
@@ -119,7 +126,7 @@ export default function ClientsScreen() {
   }, [clients, transactions])
   const counts = useMemo(() => {
     const g = { active: 0, wandering: 0, past: 0, no_status: 0 }
-    enriched.forEach((e) => { g[e.meta] = (g[e.meta] || 0) + 1 })
+    enriched.forEach((e) => { g[bucketMeta(e.meta)] += 1 })
     return g
   }, [enriched])
   const openBalanceCount = useMemo(() => enriched.filter((e) => e.bal.balance > 0).length, [enriched])
@@ -130,7 +137,7 @@ export default function ClientsScreen() {
     const q = query.trim()
     let filtered = enriched.filter((e) => {
       if (groupBy === 'project' || balanceOnly) return true
-      return e.meta === tab
+      return bucketMeta(e.meta) === tab
     })
     if (balanceOnly) filtered = filtered.filter((e) => e.bal.balance > 0)
     if (q) filtered = filtered.filter((e) => (e.c.name || '').includes(q))

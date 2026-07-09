@@ -2,7 +2,7 @@
 // Session persistence uses AsyncStorage (not localStorage); the URL polyfill is
 // required so supabase-js's internal `new URL(...)` works on Hermes.
 import 'react-native-url-polyfill/auto'
-import { Platform } from 'react-native'
+import { Platform, AppState } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createClient } from '@supabase/supabase-js'
 
@@ -53,3 +53,16 @@ if (previewMock) {
 }
 
 export const supabase = client
+
+// Native only: the SDK's token-refresh timer is suspended while the app is
+// backgrounded, so a session can expire in the background and the next request
+// 401s. Wire refresh to AppState (per the Expo/Supabase guide): run it while the
+// app is active, stop it when backgrounded. Web handles this itself (tab
+// visibility); the preview mock client has no auth timers.
+if (!previewMock && Platform.OS !== 'web' && client?.auth?.startAutoRefresh) {
+  client.auth.startAutoRefresh()
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') client.auth.startAutoRefresh()
+    else client.auth.stopAutoRefresh()
+  })
+}

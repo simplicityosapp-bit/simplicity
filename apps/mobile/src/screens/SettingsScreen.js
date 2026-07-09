@@ -7,6 +7,7 @@ import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Down
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
+import { csvCell } from '../lib/csv'
 import { supabase } from '../lib/supabase'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
@@ -14,14 +15,16 @@ import Card from '../components/Card'
 import Select from '../components/Select'
 import { colors, THEME_KEY, getThemeMode } from '../theme/theme'
 import { usePreferences } from '../hooks/usePreferences'
-import { applySavedLanguage } from '../lib/preferences'
+import { applySavedLanguage, roleLabel } from '../lib/preferences'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 import DeleteAccountModal from '../modals/DeleteAccountModal'
 import { resetAllUserData, buildAccountDeletionRequest } from '../lib/account'
 
 const GENDERS = ['female', 'male', 'neutral']
-const ROLES = ['therapist', 'coach', 'consultant', 'trainer', 'other']
+// Matches web's ROLE_LABELS / common:roles.* keys (consultant/trainer had no
+// translations and weren't web roles).
+const ROLES = ['therapist', 'coach', 'facilitator', 'teacher', 'instructor', 'other']
 const TEXT_SIZES = ['small', 'normal', 'large']
 const BACKGROUNDS = ['nature', 'simple', 'blank']
 const THEMES = ['light', 'dark']
@@ -134,7 +137,7 @@ export default function SettingsScreen() {
   const toggle = (k) => setOpen((o) => ({ ...o, [k]: !o[k] }))
 
   const role = prefs.profile?.role || 'other'
-  const setLanguage = (code) => { setLang(code); applySavedLanguage(code); update({ language: code }) }
+  const setLanguage = (code) => { setLang(code); applySavedLanguage(code); update({ design: { language: code } }) }
   // Form of address → i18next context (matches web's prefs.design.gender). Apply
   // immediately so this screen re-renders gendered; other screens pick it up on
   // their next render (gender is set-once, like web).
@@ -205,7 +208,6 @@ export default function SettingsScreen() {
   const requestDeletion = async () => { await update({ accountDeletion: buildAccountDeletionRequest() }) }
 
   const exportCsv = async (kind) => {
-    const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
     let header, rows
     if (kind === 'clients') {
       header = ['שם', 'טלפון', 'אימייל', 'סטטוס']
@@ -216,7 +218,7 @@ export default function SettingsScreen() {
       header = ['תאריך', 'תיאור', 'סוג', 'סכום', 'לקוח', 'קטגוריה', 'אמצעי תשלום']
       rows = transactions.filter((t) => !t.deleted_at).map((t) => [fmtShortDate(t.date), t.desc || '', t.type === 'income' ? 'הכנסה' : 'הוצאה', t.amount, cliById[t.client_id] || t.recipient_name || '', catById[t.category_id] || '', payMethodLabel(t.payment_method) || ''])
     }
-    const csv = [header, ...rows].map((r) => r.map(q).join(',')).join('\n')
+    const csv = [header, ...rows].map((r) => r.map(csvCell).join(',')).join('\n')
     try { await Share.share({ message: csv }) } catch { /* cancelled / unsupported */ }
   }
 
@@ -244,7 +246,7 @@ export default function SettingsScreen() {
             <Pills accent="brand" options={GENDERS.map((g) => ({ k: g, label: T(`profile.genders.${g}`, { defaultValue: g }) }))} value={prefs.design?.gender || 'neutral'} onPick={setGender} />
           </Field>
           <Select label={T('profile.role', { defaultValue: 'תפקיד' })} value={role} onChange={(v) => update({ profile: { role: v } })}
-            options={ROLES.map((r) => ({ value: r, label: T(`profile.roles.${r}`, { defaultValue: r }) }))} />
+            options={ROLES.map((r) => ({ value: r, label: roleLabel(r, prefs.design?.gender) || r }))} />
           {role === 'other' ? (
             <Field label={T('profile.roleOther', { defaultValue: 'תפקיד אחר' })}>
               <TextInput style={styles.input} value={prefs.profile?.role_other || ''} onChangeText={(v) => update({ profile: { role_other: v } })} placeholder={T('profile.roleOtherPlaceholder', { defaultValue: '' })} placeholderTextColor={colors.textFaint} />

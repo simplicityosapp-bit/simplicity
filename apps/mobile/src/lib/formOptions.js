@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { supabase } from './supabase'
+import { selectAll } from './paginate'
 
 // Shared lookup data for the add/edit sheets (clients, projects, categories,
 // and the small config tables). Fetched ONCE for the whole authed app and read
@@ -29,7 +30,7 @@ export function FormOptionsProvider({ children }) {
   const load = useCallback(async () => {
     try {
       const results = await Promise.all(
-        KEYS.map((k) => supabase.from(TABLES[k]).select('*').is('deleted_at', null).limit(2000)),
+        KEYS.map((k) => selectAll(() => supabase.from(TABLES[k]).select('*').is('deleted_at', null))),
       )
       const next = {}
       KEYS.forEach((k, i) => { next[k] = results[i].data ?? [] })

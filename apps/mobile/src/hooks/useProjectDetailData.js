@@ -25,7 +25,7 @@ export function useProjectDetailData(projectId) {
     try {
       const [projects, clients, transactions, sessions, groups, members] = await Promise.all([
         fetchTable('projects'), fetchTable('clients'), fetchTable('transactions'),
-        fetchTable('sessions'), fetchTable('groups'), fetchTable('group_members', false),
+        fetchTable('sessions'), fetchTable('groups'), fetchTable('group_members'),
       ])
       setState({
         project: projects.find((p) => p.id === projectId) || null,
@@ -87,7 +87,10 @@ export function useProjectDetailData(projectId) {
 
   const removeMember = useCallback(async (id) => {
     setState((s) => ({ ...s, members: s.members.filter((m) => m.id !== id) }))
-    const { error: e } = await supabase.from('group_members').update({ left_at: new Date().toISOString() }).eq('id', id)
+    // Soft-delete via deleted_at (matches web removeGroupMember): the fetch filters
+    // deleted_at, so removal sticks, is restorable from Trash, and re-adding the
+    // same client doesn't create a duplicate row (left_at left the row "live").
+    const { error: e } = await supabase.from('group_members').update({ deleted_at: new Date().toISOString() }).eq('id', id)
     if (e) { load() }
   }, [load])
 

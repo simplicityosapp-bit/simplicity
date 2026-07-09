@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useCallback } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, RefreshControl } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { homeChips, todayItems, getTileFilters, moonGetData, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
@@ -31,10 +31,20 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
-    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, error, refetch, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction,
+    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, refreshing, error, refetch, reload, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction,
   } = useHomeData()
   const { prefs, update: updatePrefs } = usePreferences()
   const { projects, categories: financeCategories } = useFormOptions()
+
+  // Home is a persistent bottom-tab screen (mounts once), so silently re-pull on
+  // every RE-focus to pick up mutations made on other tabs (add a client, complete
+  // a task, log a payment). Skip the mount focus — the hook's initial load covers
+  // it — and stay silent so content never blanks.
+  const firstFocus = useRef(true)
+  useFocusEffect(useCallback(() => {
+    if (firstFocus.current) { firstFocus.current = false; return }
+    reload()
+  }, [reload]))
   const [openTile, setOpenTile] = useState(null)
   const [moonExpanded, setMoonExpanded] = useState(false)
   const filters = useMemo(() => getTileFilters(prefs), [prefs])
@@ -98,7 +108,7 @@ export default function HomeScreen() {
     <Screen name="home">
       <ScrollView
         contentContainerStyle={[styles.content, { paddingTop: insets.top + 12 }]}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refetch} tintColor={colors.brand} />}
       >
         {error ? (
           <View style={styles.errorBox}>

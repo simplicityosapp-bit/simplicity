@@ -32,6 +32,15 @@ export function applySavedLanguage(lang) {
   }
 }
 
+// Localized, gender-aware label for a profession key (ported from web
+// lib/preferences.js). Roles live under the `common:roles.*` i18n namespace with
+// _male/_female context variants — NOT settings:profile.roles.*.
+export function roleLabel(key, gender) {
+  if (!key) return ''
+  const context = gender === 'male' || gender === 'female' ? gender : undefined
+  return i18n.t('common:roles.' + key, { context })
+}
+
 // App-wide user preferences (one row per user, a JSONB `preferences` blob —
 // mirrors the web userPreferences API). A single provider loads once and shares
 // { prefs, update } so every screen reads the same reactive state (background
@@ -81,7 +90,10 @@ export function PreferencesProvider({ children }) {
           if (alive) setPrefs(p)
         }
         const eff = ref.current // authoritative value (server p if untouched, else the user's)
-        applySavedLanguage(eff.language)
+        // Language lives at prefs.design.language (the durable store web reads/writes);
+        // fall back to a legacy top-level prefs.language so an early mobile-only choice
+        // isn't lost on upgrade.
+        applySavedLanguage(eff.design?.language || eff.language)
         setGenderContext(eff.design?.gender)
         applyFormatPrefs(eff)
         // Sync the saved theme to the boot cache so a theme chosen on web (or a
@@ -101,6 +113,11 @@ export function PreferencesProvider({ children }) {
     ref.current = next
     setPrefs(next)
     applyFormatPrefs(next)
+    // Keep the gender context in sync too (symmetric with applyFormatPrefs) so any
+    // update() path that changes design.gender takes effect without a manual call.
+    // `next` is the full merged prefs, so this preserves the current gender on
+    // unrelated updates rather than resetting it.
+    setGenderContext(next.design?.gender)
     // Chain the DB write after any in-flight one, and always send the LATEST
     // merged state (ref.current) so concurrent updates can't lose each other.
     const task = writeChain.current.then(async () => {

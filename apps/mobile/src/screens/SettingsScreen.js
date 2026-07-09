@@ -3,7 +3,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert,
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
-import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Wallet, Info, LayoutGrid } from 'lucide-react-native'
+import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Wallet, Info, LayoutGrid, Trash2 } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
@@ -17,6 +17,8 @@ import { usePreferences } from '../hooks/usePreferences'
 import { applySavedLanguage } from '../lib/preferences'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
+import DeleteAccountModal from '../modals/DeleteAccountModal'
+import { resetAllUserData, buildAccountDeletionRequest } from '../lib/account'
 
 const GENDERS = ['female', 'male', 'neutral']
 const ROLES = ['therapist', 'coach', 'consultant', 'trainer', 'other']
@@ -96,6 +98,7 @@ export default function SettingsScreen() {
   const tax = useConfigTaxonomy()
   const [open, setOpen] = useState('profile')
   const [lang, setLang] = useState(i18n.language)
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false)
   const toggle = (k) => setOpen((o) => (o === k ? null : k))
 
   const role = prefs.profile?.role || 'other'
@@ -141,6 +144,32 @@ export default function SettingsScreen() {
     const tmp = next[i]; next[i] = next[j]; next[j] = tmp
     writeWidgets(next)
   }
+
+  // Reset (soft-delete all data) — double-confirm, then reload so lists refresh.
+  const resetData = () => {
+    const cancel = i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' })
+    Alert.alert(
+      T('danger.resetTitle', { defaultValue: 'איפוס חשבון' }),
+      T('danger.resetHint', { defaultValue: 'מוחק את כל הנתונים בחשבון. אי אפשר לבטל.' }),
+      [
+        { text: cancel, style: 'cancel' },
+        {
+          text: T('danger.resetAction', { defaultValue: 'מחיקת כל הנתונים' }),
+          style: 'destructive',
+          onPress: () => Alert.alert(
+            T('danger.resetTitle', { defaultValue: 'איפוס חשבון' }),
+            i18n.t('settings:danger.resetConfirmAgain', { defaultValue: 'בטוח/ה? הפעולה בלתי-הפיכה.' }),
+            [
+              { text: cancel, style: 'cancel' },
+              { text: T('danger.resetAction', { defaultValue: 'מחק הכל' }), style: 'destructive', onPress: async () => { try { await resetAllUserData() } catch { /* surfaced by reload */ } reloadApp() } },
+            ],
+          ),
+        },
+      ],
+    )
+  }
+  // Record the account-deletion request → AuthedApp gates to the pending screen.
+  const requestDeletion = async () => { await update({ accountDeletion: buildAccountDeletionRequest() }) }
 
   const exportCsv = async (kind) => {
     const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
@@ -254,6 +283,23 @@ export default function SettingsScreen() {
             <Download size={16} strokeWidth={1.7} color={colors.textSub} />
             <Text style={styles.rowBtnText}>{T('data.exportTransactions', { defaultValue: 'ייצוא תנועות (CSV)' })}</Text>
           </Pressable>
+
+          {/* Danger zone — reset data + delete account (mirrors web) */}
+          <View style={styles.dangerZone}>
+            <Text style={styles.dangerTitle}>{T('danger.resetTitle', { defaultValue: 'איפוס חשבון' })}</Text>
+            <Pressable style={styles.dangerBtn} onPress={resetData}>
+              <Trash2 size={15} strokeWidth={1.7} color={colors.danger} />
+              <Text style={styles.dangerBtnText}>{T('danger.resetAction', { defaultValue: 'מחיקת כל הנתונים והתחלה מאפס' })}</Text>
+            </Pressable>
+            <Text style={styles.hint}>{T('danger.resetHint', { defaultValue: '' })}</Text>
+
+            <Text style={[styles.dangerTitle, { marginTop: 16 }]}>{T('danger.deleteTitle', { defaultValue: 'מחיקת חשבון' })}</Text>
+            <Pressable style={styles.dangerBtn} onPress={() => setShowDeleteAccount(true)}>
+              <Trash2 size={15} strokeWidth={1.7} color={colors.danger} />
+              <Text style={styles.dangerBtnText}>{T('danger.deleteAction', { defaultValue: 'מחיקת החשבון לצמיתות' })}</Text>
+            </Pressable>
+            <Text style={styles.hint}>{T('danger.deleteHint', { defaultValue: '' })}</Text>
+          </View>
         </Section>
 
         {/* Configuration */}
@@ -309,6 +355,7 @@ export default function SettingsScreen() {
           <Text style={styles.signOutText}>{i18n.t('nav:signOut', { defaultValue: 'התנתקות' })}</Text>
         </Pressable>
       </ScrollView>
+      <DeleteAccountModal open={showDeleteAccount} onClose={() => setShowDeleteAccount(false)} onConfirm={requestDeletion} />
     </Screen>
   )
 }
@@ -442,6 +489,10 @@ const styles = StyleSheet.create({
 
   signOut: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, marginTop: 4 },
   signOutText: { fontSize: 15, fontWeight: '600', color: colors.danger },
+  dangerZone: { marginTop: 8, paddingTop: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider, gap: 8 },
+  dangerTitle: { fontSize: 13, fontWeight: '700', color: colors.danger },
+  dangerBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(181,99,78,0.4)', backgroundColor: 'rgba(181,99,78,0.06)' },
+  dangerBtnText: { fontSize: 14, color: colors.danger, fontWeight: '500' },
 })
 
 Section.displayName = 'Section'

@@ -82,7 +82,7 @@ export default function AttentionWidget({ data, projects = [], financeCategories
 
       <Sheet open={!!peopleRow} onClose={() => setPeopleRow(null)} title={peopleRow?.text || i18n.t('home:widgets.attention.reachOut', { defaultValue: 'יצירת קשר' })}>
         {(peopleRow?.people || []).length === 0 ? (
-          <Text style={styles.empty}>{i18n.t('home:widgets.attention.noPeople', { defaultValue: '—' })}</Text>
+          <Text style={styles.empty}>{i18n.t('home:widgets.attention.noPeople', { defaultValue: 'אין אנשים כרגע' })}</Text>
         ) : (peopleRow?.people || []).map((p, i) => (
           <View key={p.id || i} style={[styles.personRow, i > 0 && styles.rowBorder]}>
             <Pressable style={styles.personMain} onPress={() => openPerson(p)}>

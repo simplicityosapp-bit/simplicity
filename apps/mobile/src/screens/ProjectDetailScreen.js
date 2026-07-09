@@ -40,14 +40,17 @@ export default function ProjectDetailScreen() {
   const groupIds = useMemo(() => new Set(groups.map((g) => g.id)), [groups])
   const activeCount = clients.filter((c) => statusMetaOf(c) === 'active').length
   const wanderingCount = clients.filter((c) => statusMetaOf(c) === 'wandering').length
+  // A tx belongs to this project if it's tagged to it OR its client is a member —
+  // no "untagged only" guard, so a tx tagged to another project but whose client is
+  // here still counts (matches web project-detail monthIncome).
   const projectTx = useMemo(
-    () => transactions.filter((t) => t.project_id === projectId || (!t.project_id && projClientIds.has(t.client_id))),
+    () => transactions.filter((t) => t.project_id === projectId || projClientIds.has(t.client_id)),
     [transactions, projectId, projClientIds],
   )
   const monthIncome = useMemo(() => {
     const allIncome = financeQuery({ type: 'income', ...currentMonthRange(), source: transactions })
     return allIncome
-      .filter((f) => f.project_id === projectId || (!f.project_id && f.client_id && projClientIds.has(f.client_id)))
+      .filter((f) => f.project_id === projectId || (f.client_id && projClientIds.has(f.client_id)))
       .reduce((s, f) => s + f.amount, 0)
   }, [transactions, projectId, projClientIds])
   const recentSessions = useMemo(

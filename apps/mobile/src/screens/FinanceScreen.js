@@ -153,7 +153,7 @@ export default function FinanceScreen() {
       <View key={t.id || i} style={[styles.row, i > 0 && styles.rowBorder]}>
         <Pressable style={styles.info} onPress={() => setEditing(t)}>
           <Text style={[styles.desc, t.status === 'skipped' && styles.skippedText]} numberOfLines={1}>{t.desc || '—'}</Text>
-          <Text style={styles.date} numberOfLines={1}>{fmtShortDate(t.date)}{meta ? ` · ${meta}` : ''}{t.status === 'skipped' ? ` · ${i18n.t('finance:list.skippedTag', { defaultValue: 'דולג' })}` : ''}</Text>
+          <Text style={styles.date} numberOfLines={1}>{fmtShortDate(t.date)}{meta ? ` · ${meta}` : ''}{t.status === 'skipped' ? ` · ${i18n.t('finance:list.skippedTag', { defaultValue: 'דולג' })}` : ''}{t.invoice_credited_at ? ` · ${i18n.t('finance:tx.credited', { defaultValue: 'זוכה' })}` : ''}</Text>
         </Pressable>
         {opts.pending ? (
           <View style={styles.actions}>
@@ -162,7 +162,7 @@ export default function FinanceScreen() {
             <Pressable style={styles.skip} onPress={() => deleteTransaction(t.id)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
           </View>
         ) : (
-          <Text style={[styles.amount, { color: income ? colors.positive : colors.textSub }]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
+          <Text style={[styles.amount, { color: income ? colors.positive : colors.textSub }, t.invoice_credited_at && styles.creditedAmount]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
         )}
       </View>
     )
@@ -456,6 +456,9 @@ const styles = StyleSheet.create({
   skippedText: { color: colors.textFaint, textDecorationLine: 'line-through' },
   date: { fontSize: 12, color: colors.textFaint },
   amount: { fontSize: 15, fontWeight: '600' },
+  // Credit-noted income → struck through + muted (it's out of the totals; mirrors
+  // web TransactionCard.credited).
+  creditedAmount: { textDecorationLine: 'line-through', color: colors.textFaint },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   approve: { width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', alignItems: 'center', justifyContent: 'center' },
   skip: { width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },

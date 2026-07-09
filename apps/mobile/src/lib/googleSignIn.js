@@ -1,19 +1,36 @@
-// Google Sign-In — DEFAULT (web + test/Node) stub.
+// Google Sign-In — DEFAULT (web / RNW / Node) implementation.
 //
-// The real implementation lives in googleSignIn.native.js and pulls in
-// @react-native-google-signin/google-signin, a native module that does NOT exist
-// on react-native-web or under the Node test runner. Metro resolves the
-// `.native.js` variant for iOS/Android and falls back to THIS file everywhere
-// else, so the native import never reaches web/Node and the RN-web smoke build
-// (and any core tests) stay green.
-//
-// `googleAvailable` is false here, so LoginScreen renders the Google button
-// inert (disabled) on web instead of executing native code.
+// The device build uses googleSignIn.native.js (the @react-native-google-signin
+// One Tap flow — a native module that doesn't exist on react-native-web or under
+// Node). Metro resolves the `.native.js` variant on iOS/Android and falls back to
+// THIS file everywhere else. On the web build (the app run in a browser) we use
+// Supabase's OAuth REDIRECT flow — the same one apps/web's login uses — so the
+// Google button actually signs in instead of being an inert no-op. On return the
+// App-level onAuthStateChange (src/lib/auth.js) picks up the session → home.
+import { supabase } from './supabase'
+import i18n from './i18n'
 
-export const googleAvailable = false
+export const googleAvailable = true
 
-// eslint-disable-next-line no-unused-vars
+// Returns { ok } (redirect started), { error } (localized), or throws never.
 export async function signInWithGoogle() {
-  // Never reached in practice — the button is disabled when !googleAvailable.
-  return { error: null }
+  try {
+    const origin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : undefined
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: origin ? { redirectTo: origin } : undefined,
+    })
+    if (error) {
+      const m = String(error.message || '').toLowerCase()
+      return {
+        error: m.includes('provider is not enabled')
+          ? i18n.t('auth:errors.providerDisabled')
+          : (error.message || i18n.t('auth:errors.generic')),
+      }
+    }
+    // A full-page redirect to Google is now in flight; nothing more to do here.
+    return { ok: true }
+  } catch {
+    return { error: i18n.t('auth:errors.generic') }
+  }
 }

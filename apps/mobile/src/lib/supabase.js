@@ -2,6 +2,7 @@
 // Session persistence uses AsyncStorage (not localStorage); the URL polyfill is
 // required so supabase-js's internal `new URL(...)` works on Hermes.
 import 'react-native-url-polyfill/auto'
+import { Platform } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createClient } from '@supabase/supabase-js'
 
@@ -23,13 +24,18 @@ function realClient() {
     // eslint-disable-next-line no-console
     console.warn('[supabase] Missing EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY — set them in apps/mobile/.env')
   }
+  // On the WEB build (the app run in a browser), Google sign-in uses Supabase's
+  // OAuth REDIRECT flow, so the client must read the auth code Supabase appends to
+  // the return URL to complete the session. On native (device) that never applies
+  // — the One Tap flow hands the id_token to signInWithIdToken directly — so it
+  // stays off there. AsyncStorage transparently uses localStorage on RNW.
+  const isWeb = Platform.OS === 'web'
   return createClient(url ?? '', anonKey ?? '', {
     auth: {
       storage: AsyncStorage,
       autoRefreshToken: true,
       persistSession: true,
-      // No URL-based session handoff on native (a web-only OAuth redirect concern).
-      detectSessionInUrl: false,
+      detectSessionInUrl: isWeb,
     },
   })
 }

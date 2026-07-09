@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
 import { Check, ChevronDown, Pencil, Tags, Trash2 } from 'lucide-react-native'
 import { fmtShortDate, formatWhen, startOfDay, isRecurring, isActiveReminder, dueOccurrenceCount } from '@simplicity/core'
 import i18n from '../lib/i18n'
@@ -328,21 +328,26 @@ function TaskRow({ task, first, clientById, projectById, status, category, onTog
   const isDone = task.status === 'done'
   const overdue = !isDone && task.due_at && new Date(task.due_at) < startOfDay(new Date())
   const meta = [task.due_at ? fmtShortDate(task.due_at) : null, clientById[task.client_id], projectById[task.project_id]].filter(Boolean).join(' · ')
+  // Hebrew but a non-RTL engine (RN Web / pre-restart) → flip the row so the
+  // check sits on the RIGHT with the right-aligned text + chips (matches device).
+  const rtl = (i18n.language || '').startsWith('he')
+  const flip = rtl && !I18nManager.isRTL
+  const align = rtl ? 'right' : 'left'
   return (
-    <View style={[styles.row, !first && styles.rowBorder]}>
+    <View style={[styles.row, !first && styles.rowBorder, flip && styles.rowFlip]}>
       <Pressable onPress={onToggle} hitSlop={8} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
         <View style={[styles.check, isDone && styles.checkOn]}>{isDone ? <Check size={13} strokeWidth={3} color={colors.onBrand} /> : null}</View>
       </Pressable>
       <Pressable style={styles.textWrap} onPress={onEdit}>
-        <View style={styles.titleRow}>
-          <Text style={[styles.text, isDone && styles.textDone]} numberOfLines={2}>{task.title || ''}</Text>
+        <View style={[styles.titleRow, flip && styles.rowFlip]}>
+          <Text style={[styles.text, isDone && styles.textDone, { textAlign: align }]} numberOfLines={2}>{task.title || ''}</Text>
           {status ? <Text style={styles.chip} numberOfLines={1}>{status.icon ? `${status.icon} ` : ''}{status.display_name}</Text> : null}
         </View>
-        <View style={styles.metaRow}>
+        <View style={[styles.metaRow, flip && styles.rowFlip]}>
           {category ? (
             <View style={styles.catTag}><View style={[styles.catTagDot, { backgroundColor: category.color || colors.textSub }]} /><Text style={styles.catTagText}>{category.name}</Text></View>
           ) : null}
-          {meta ? <Text style={[styles.meta, overdue && styles.metaOverdue]} numberOfLines={1}>{meta}</Text> : null}
+          {meta ? <Text style={[styles.meta, overdue && styles.metaOverdue, { textAlign: align }]} numberOfLines={1}>{meta}</Text> : null}
         </View>
       </Pressable>
     </View>
@@ -352,17 +357,20 @@ function TaskRow({ task, first, clientById, projectById, status, category, onTog
 function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit }) {
   const isDone = reminder.status === 'completed'
   const meta = [clientName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
+  const rtl = (i18n.language || '').startsWith('he')
+  const flip = rtl && !I18nManager.isRTL
+  const align = rtl ? 'right' : 'left'
   return (
-    <View style={[styles.row, !first && styles.rowBorder]}>
+    <View style={[styles.row, !first && styles.rowBorder, flip && styles.rowFlip]}>
       <Pressable onPress={() => !isDone && onComplete()} hitSlop={8} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
         <View style={[styles.check, isDone && styles.checkOn]}>{isDone ? <Check size={13} strokeWidth={3} color={colors.onBrand} /> : null}</View>
       </Pressable>
       <Pressable style={styles.textWrap} onPress={onEdit}>
-        <View style={styles.titleRow}>
-          <Text style={[styles.text, isDone && styles.textDone]} numberOfLines={2}>{reminder.title || ''}</Text>
+        <View style={[styles.titleRow, flip && styles.rowFlip]}>
+          <Text style={[styles.text, isDone && styles.textDone, { textAlign: align }]} numberOfLines={2}>{reminder.title || ''}</Text>
           {count > 1 ? <Text style={styles.chip}>×{count}</Text> : null}
         </View>
-        {meta ? <Text style={styles.meta} numberOfLines={1}>{meta}</Text> : null}
+        {meta ? <Text style={[styles.meta, { textAlign: align }]} numberOfLines={1}>{meta}</Text> : null}
       </Pressable>
       <Pressable onPress={onEdit} hitSlop={8}><Pencil size={13} strokeWidth={1.6} color={colors.textFaint} /></Pressable>
     </View>
@@ -416,6 +424,7 @@ const styles = StyleSheet.create({
   groupBody: { paddingHorizontal: 14, paddingBottom: 6 },
 
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 11 },
+  rowFlip: { flexDirection: 'row-reverse' },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
   check: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   checkOn: { backgroundColor: colors.positive, borderColor: colors.positive },

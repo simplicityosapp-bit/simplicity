@@ -3,7 +3,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert,
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
-import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, Sparkles, Download, X, Plus, Wallet, Info } from 'lucide-react-native'
+import { User, Palette, Database, SlidersHorizontal, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Wallet, Info, LayoutGrid } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
@@ -23,6 +23,9 @@ const ROLES = ['therapist', 'coach', 'consultant', 'trainer', 'other']
 const TEXT_SIZES = ['small', 'normal', 'large']
 const BACKGROUNDS = ['nature', 'simple', 'blank']
 const THEMES = ['light', 'dark']
+// Home widget registry order (mirrors web WIDGET_REGISTRY); the home honors
+// prefs.widgets.list (enabled + order), so this drives the config UI.
+const WIDGET_IDS = ['quote', 'moon', 'insights', 'quick-row', 'attention', 'reminders', 'next-tasks', 'chips']
 // Format options mirror web lib/preferences.js (values must match the core setters).
 const CURRENCIES = [{ k: 'ILS', l: '₪ שקל' }, { k: 'USD', l: '$ דולר' }, { k: 'EUR', l: '€ יורו' }]
 const DATE_FMTS = [{ k: 'DD/MM/YY', l: 'DD/MM/YY' }, { k: 'MM/DD/YY', l: 'MM/DD/YY' }, { k: 'YYYY-MM-DD', l: 'YYYY-MM-DD' }]
@@ -119,6 +122,26 @@ export default function SettingsScreen() {
   const openLegal = (tab) => { Linking.openURL(`https://simplicity-os.com/legal?tab=${tab}`).catch(() => {}) }
   const appVersion = Constants.expoConfig?.version || Constants.manifest?.version || '1.0.0'
 
+  // Home widgets: enable/disable + order (what the home actually honors). Start
+  // from the saved list, else the registry default; append any missing ids.
+  const widgetList = (() => {
+    const saved = prefs.widgets?.list
+    const base = (saved && saved.length) ? saved.filter((w) => WIDGET_IDS.includes(w.id)) : []
+    const have = new Set(base.map((w) => w.id))
+    WIDGET_IDS.forEach((id) => { if (!have.has(id)) base.push({ id, enabled: true }) })
+    return base
+  })()
+  const writeWidgets = (list) => update({ widgets: { ...(prefs.widgets || {}), list } })
+  const toggleWidget = (id) => writeWidgets(widgetList.map((w) => (w.id === id ? { ...w, enabled: w.enabled === false } : w)))
+  const moveWidget = (id, dir) => {
+    const i = widgetList.findIndex((w) => w.id === id)
+    const j = i + dir
+    if (i < 0 || j < 0 || j >= widgetList.length) return
+    const next = widgetList.slice()
+    const tmp = next[i]; next[i] = next[j]; next[j] = tmp
+    writeWidgets(next)
+  }
+
   const exportCsv = async (kind) => {
     const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
     let header, rows
@@ -204,6 +227,20 @@ export default function SettingsScreen() {
           <Field label={T('payments.weekStart', { defaultValue: 'יום ראשון בשבוע' })}>
             <Pills options={WEEK_STARTS.map((w) => ({ k: w.k, label: T(`options.weekStart.${w.k}`, { defaultValue: w.l }) }))} value={prefs.format?.week_start || 'sunday'} onPick={(v) => setFormat('week_start', v)} />
           </Field>
+        </Section>
+
+        {/* Home widgets — enable/disable + order */}
+        <Section Icon={LayoutGrid} title={T('sections.widgets.title', { defaultValue: 'ווידג׳טים ותצוגה' })} sub={T('sections.widgets.sub', { defaultValue: 'מה מופיע במסך הבית' })} open={open === 'widgets'} onToggle={() => toggle('widgets')}>
+          {widgetList.map((w, i) => (
+            <View key={w.id} style={styles.widgetRow}>
+              <View style={styles.widgetReorder}>
+                <Pressable onPress={() => moveWidget(w.id, -1)} disabled={i === 0} hitSlop={6}><ChevronUp size={16} strokeWidth={1.8} color={i === 0 ? colors.textFaint : colors.textSub} /></Pressable>
+                <Pressable onPress={() => moveWidget(w.id, 1)} disabled={i === widgetList.length - 1} hitSlop={6}><ChevronDown size={16} strokeWidth={1.8} color={i === widgetList.length - 1 ? colors.textFaint : colors.textSub} /></Pressable>
+              </View>
+              <Text style={styles.widgetName} numberOfLines={1}>{T(`widgets.names.${w.id}`, { defaultValue: w.id })}</Text>
+              <Switch checked={w.enabled !== false} onChange={() => toggleWidget(w.id)} />
+            </View>
+          ))}
         </Section>
 
         {/* Data */}
@@ -372,6 +409,9 @@ const styles = StyleSheet.create({
   switchTrackOn: { backgroundColor: colors.brand, borderColor: colors.brand, justifyContent: 'flex-end' },
   switchKnob: { width: 20, height: 20, borderRadius: 10, backgroundColor: colors.card },
   switchKnobOn: { backgroundColor: colors.onBrand },
+  widgetRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 },
+  widgetReorder: { flexDirection: 'row', gap: 2 },
+  widgetName: { flex: 1, fontSize: 14, color: colors.text },
 
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },

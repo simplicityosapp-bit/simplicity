@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
 import { QUESTION_TEMPLATES, qtext } from '@simplicity/core'
 import Sheet from '../components/Sheet'
@@ -14,7 +14,8 @@ const SCALES = [
   { k: 'yes_no', l: 'scaleYesNo' },
 ]
 
-export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0, usedTemplateKeys = [] }) {
+export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0, usedTemplateKeys = [], editQuestion = null }) {
+  const isEdit = !!editQuestion
   const [mode, setMode] = useState('template')
   const [tmplKey, setTmplKey] = useState('')
   const [form, setForm] = useState({ text: '', scale_type: '1-10', icon: ICONS[0] })
@@ -23,13 +24,29 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0,
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => { setMode('template'); setTmplKey(''); setForm({ text: '', scale_type: '1-10', icon: ICONS[0] }); setErr(''); setBusy(false); onClose() }
 
+  // Editing prefills the custom fields (a template question's text becomes editable
+  // custom text on save); adding resets to the template picker.
+  useEffect(() => {
+    if (!open) return
+    if (editQuestion) {
+      setMode('custom')
+      setForm({ text: editQuestion.custom_text || qtext(editQuestion.template_key) || '', scale_type: editQuestion.scale_type || '1-10', icon: editQuestion.icon || ICONS[0] })
+    } else {
+      setMode('template'); setTmplKey(''); setForm({ text: '', scale_type: '1-10', icon: ICONS[0] })
+    }
+    setErr('')
+  }, [open, editQuestion])
+
   const availableTemplates = QUESTION_TEMPLATES.filter((tmpl) => !usedTemplateKeys.includes(tmpl.key))
-  const onlyCustom = availableTemplates.length === 0
+  const onlyCustom = isEdit || availableTemplates.length === 0
   const effMode = onlyCustom ? 'custom' : mode
 
   const submit = async () => {
     let row
-    if (effMode === 'template') {
+    if (isEdit) {
+      if (!form.text.trim()) { setErr(i18n.t('modalsTask:question.textRequired')); return }
+      row = { template_key: null, custom_text: form.text.trim(), scale_type: form.scale_type, icon: form.icon }
+    } else if (effMode === 'template') {
       const tmpl = QUESTION_TEMPLATES.find((x) => x.key === tmplKey)
       if (!tmpl) { setErr(i18n.t('modalsTask:question.questionRequired')); return }
       row = { template_key: tmpl.key, custom_text: null, scale_type: tmpl.scale_type, icon: tmpl.icon, active: true, order: nextOrder, schedule_pattern: {} }
@@ -49,7 +66,7 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0,
   }
 
   return (
-    <Sheet open={open} onClose={close} title={i18n.t('modalsTask:question.title')}>
+    <Sheet open={open} onClose={close} title={isEdit ? i18n.t('modalsTask:question.titleEdit', { defaultValue: 'עריכת שאלה' }) : i18n.t('modalsTask:question.title')}>
       {!onlyCustom ? (
         <View style={styles.pills}>
           <Pressable style={[styles.pill, effMode === 'template' && styles.pillOn]} onPress={() => { setMode('template'); setErr('') }}>

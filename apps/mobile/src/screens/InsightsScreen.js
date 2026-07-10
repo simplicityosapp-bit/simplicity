@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import Svg, { Polyline, Circle, Rect } from 'react-native-svg'
 import Slider from '@react-native-community/slider'
-import { Sparkles, Check, Trash2 } from 'lucide-react-native'
+import { Sparkles, Check, Trash2, Pencil } from 'lucide-react-native'
 import {
   questionText, ymdKey, indexAnswers, getAnswer, averageForWindow, deltaVsPrevWindow,
   trendPoints, heatmapWeeks, mirrorReflections, isQuestionDueToday,
@@ -66,7 +66,7 @@ function Heatmap({ weeks, scale }) {
   )
 }
 
-function QuestionInsightCard({ question, idx, today, gender, onSubmit, onToggle, onDelete }) {
+function QuestionInsightCard({ question, idx, today, gender, onSubmit, onToggle, onEdit, onDelete }) {
   const [draft, setDraft] = useState(5)
   const [busy, setBusy] = useState(false)
   const answered = getAnswer(idx, question.id, today)
@@ -85,6 +85,7 @@ function QuestionInsightCard({ question, idx, today, gender, onSubmit, onToggle,
         <Text style={styles.qicon}>{question.icon || '🫧'}</Text>
         <Text style={styles.qtext}>{questionText(question, gender)}</Text>
         {answeredVal != null ? <Text style={styles.todayPill}>{answeredVal}</Text> : null}
+        {onEdit ? <Pressable onPress={() => onEdit(question)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textFaint} /></Pressable> : null}
         <Pressable onPress={() => onToggle(question)} hitSlop={6}>
           <View style={[styles.toggle, question.active && styles.toggleOn]}><View style={[styles.knob, question.active && styles.knobOn]} /></View>
         </Pressable>
@@ -134,7 +135,7 @@ TrendLine.displayName = 'TrendLine'
 Heatmap.displayName = 'Heatmap'
 
 export default function InsightsScreen() {
-  const { questions, answers, loading, error, refetch, addAnswer, addQuestion, toggleActive, removeQuestion } = useInsightsData()
+  const { questions, answers, loading, error, refetch, addAnswer, addQuestion, toggleActive, removeQuestion, updateQuestion } = useInsightsData()
   const { prefs } = usePreferences()
   const gender = prefs.design?.gender
   const today = ymdKey(new Date())
@@ -142,12 +143,20 @@ export default function InsightsScreen() {
   const mirror = useMemo(() => mirrorReflections(questions, idx, new Date(), gender), [questions, idx, gender])
   const submit = (qid, value_num) => addAnswer({ user_question_id: qid, date: today, value_num })
   const [showAdd, setShowAdd] = useState(false)
+  const [editQ, setEditQ] = useState(null)
   const nextOrder = questions.reduce((m, q) => Math.max(m, (q.order ?? 0) + 1), 0)
   const usedTemplateKeys = questions.map((q) => q.template_key).filter(Boolean)
 
   return (
     <Screen name="moon">
-      <AddQuestionModal open={showAdd} onClose={() => setShowAdd(false)} onSave={addQuestion} nextOrder={nextOrder} usedTemplateKeys={usedTemplateKeys} />
+      <AddQuestionModal
+        open={showAdd || !!editQ}
+        onClose={() => { setShowAdd(false); setEditQ(null) }}
+        onSave={editQ ? (patch) => updateQuestion(editQ.id, patch) : addQuestion}
+        editQuestion={editQ}
+        nextOrder={nextOrder}
+        usedTemplateKeys={usedTemplateKeys}
+      />
       {loading && !questions.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
@@ -172,7 +181,7 @@ export default function InsightsScreen() {
 
           {questions.length ? (
             questions.map((q) => (
-              <QuestionInsightCard key={q.id} question={q} idx={idx} today={today} gender={gender} onSubmit={submit} onToggle={toggleActive} onDelete={removeQuestion} />
+              <QuestionInsightCard key={q.id} question={q} idx={idx} today={today} gender={gender} onSubmit={submit} onToggle={toggleActive} onEdit={setEditQ} onDelete={removeQuestion} />
             ))
           ) : (
             <Text style={styles.empty}>{T('empty', { defaultValue: 'אין עדיין שאלות יומיות.' })}</Text>

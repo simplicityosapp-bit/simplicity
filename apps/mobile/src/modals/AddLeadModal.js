@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
-import { Trash2 } from 'lucide-react-native'
+import { Trash2, Plus } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import { useFormOptions } from '../lib/formOptions'
+import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
@@ -34,10 +35,20 @@ const blank = (lead) => ({
 export default function AddLeadModal({ open, onClose, onSave, onDelete, onConvert, lead = null }) {
   const isEdit = !!lead
   const { leadSources, leadStatuses = [], projects = [], groups = [] } = useFormOptions()
+  const { addLeadSource } = useConfigTaxonomy()
   const [form, setForm] = useState(() => blank(lead))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [newSource, setNewSource] = useState('')
+  const [addingSource, setAddingSource] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  // Create a lead source without leaving the modal (mirrors web onAddSource), then
+  // select it. addLeadSource refreshes the shared FormOptions list internally.
+  const createSource = async () => {
+    const v = newSource.trim(); if (!v || addingSource) return
+    setAddingSource(true)
+    try { const row = await addLeadSource(v); if (row?.id) set('source_id', row.id); setNewSource('') } catch { /* ignore */ } finally { setAddingSource(false) }
+  }
   // Changing the kanban stage clears the sub-status (it belongs to a meta).
   const setMeta = (k) => setForm((f) => ({ ...f, status_meta: k, status_id: '' }))
   const projectGroups = groups.filter((g) => g.project_id === form.project_id)
@@ -115,6 +126,10 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
         placeholder={none}
         options={[{ value: '', label: none }, ...leadSources.map((s) => ({ value: s.id, label: s.name || '' }))]}
       />
+      <View style={styles.srcAddRow}>
+        <TextInput style={[styles.input, styles.srcAddInput]} value={newSource} onChangeText={setNewSource} placeholder={i18n.t('leads:newSourcePlaceholder', { defaultValue: 'מקור חדש…' })} placeholderTextColor={colors.textFaint} onSubmitEditing={createSource} />
+        <Pressable style={[styles.srcAddBtn, (!newSource.trim() || addingSource) && styles.srcAddBtnOff]} onPress={createSource} disabled={!newSource.trim() || addingSource}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+      </View>
       {projects.length ? (
         <Select
           label={i18n.t('modalsClient:common.projectOptional')}
@@ -204,6 +219,10 @@ const styles = StyleSheet.create({
   fieldFlex: { flex: 1, gap: 6 },
   label: { fontSize: 13, color: colors.textSub },
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
+  srcAddRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: -4 },
+  srcAddInput: { flex: 1 },
+  srcAddBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  srcAddBtnOff: { opacity: 0.4 },
   textarea: { minHeight: 72, textAlignVertical: 'top' },
   inputErr: { borderColor: colors.danger },
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

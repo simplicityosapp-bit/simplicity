@@ -3,7 +3,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert,
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
-import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Wallet, Info, LayoutGrid, Trash2, Eye, Layers, Users, Leaf } from 'lucide-react-native'
+import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Layers, Users, Leaf } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
@@ -316,10 +316,11 @@ export default function SettingsScreen() {
           <StatusManager tax={tax} />
           <TaxonomyManager
             title={T('clients.meetingTypesHeading', { defaultValue: 'סוגי פגישה ומחירים' })}
-            items={tax.meetingTypes.map((m) => ({ id: m.id, label: `${m.name}${m.default_price != null ? ` · ₪${m.default_price}` : ''}` }))}
+            items={tax.meetingTypes.map((m) => ({ id: m.id, label: `${m.name}${m.default_price != null ? ` · ₪${m.default_price}` : ''}`, editName: m.name, editSecond: m.default_price != null ? String(m.default_price) : '' }))}
             placeholder={T('payments.typePlaceholder', { defaultValue: 'סוג פגישה…' })}
             secondPlaceholder="₪"
             onAdd={(name, price) => tax.addMeetingType(name, price ? Number(price) : null)}
+            onUpdate={(id, name, price) => tax.updateMeetingType(id, name, price ? Number(price) : null)}
             onRemove={tax.removeMeetingType}
           />
         </>
@@ -454,30 +455,36 @@ function Field({ label, children }) {
 }
 
 // Chips + inline add (name [+ optional second field]) for a config taxonomy.
-function TaxonomyManager({ title, items, placeholder, secondPlaceholder, onAdd, onRemove }) {
+function TaxonomyManager({ title, items, placeholder, secondPlaceholder, onAdd, onUpdate, onRemove }) {
   const [name, setName] = useState('')
   const [second, setSecond] = useState('')
+  const [editId, setEditId] = useState(null) // when set, the add-row edits this item
   const [busy, setBusy] = useState(false)
-  const add = async () => {
+  const reset = () => { setName(''); setSecond(''); setEditId(null) }
+  const submit = async () => {
     const v = name.trim(); if (!v || busy) return
-    setBusy(true); try { await onAdd(v, second.trim()); setName(''); setSecond('') } finally { setBusy(false) }
+    setBusy(true)
+    try { if (editId && onUpdate) await onUpdate(editId, v, second.trim()); else await onAdd(v, second.trim()); reset() } finally { setBusy(false) }
   }
+  // Tapping a chip's label loads it into the row for editing (only if onUpdate).
+  const startEdit = (it) => { if (!onUpdate) return; setEditId(it.id); setName(it.editName ?? it.label); setSecond(it.editSecond ?? '') }
   return (
     <View style={styles.taxBlock}>
       <Text style={styles.taxTitle}>{title}</Text>
       <View style={styles.chips}>
         {items.length ? items.map((it) => (
-          <View key={it.id} style={styles.chip}>
+          <View key={it.id} style={[styles.chip, editId === it.id && styles.chipEditing]}>
             {it.color ? <View style={[styles.chipDot, { backgroundColor: it.color }]} /> : null}
-            <Text style={styles.chipText}>{it.label}</Text>
+            <Pressable onPress={() => startEdit(it)} disabled={!onUpdate}><Text style={styles.chipText}>{it.label}</Text></Pressable>
             <Pressable onPress={() => onRemove(it.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
           </View>
         )) : <Text style={styles.hint}>{i18n.t('settings:common.none', { defaultValue: '—' })}</Text>}
       </View>
       <View style={styles.addRow}>
-        <TextInput style={[styles.input, styles.addInput]} value={name} onChangeText={setName} placeholder={placeholder} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
+        <TextInput style={[styles.input, styles.addInput]} value={name} onChangeText={setName} placeholder={placeholder} placeholderTextColor={colors.textFaint} onSubmitEditing={submit} />
         {secondPlaceholder ? <TextInput style={[styles.input, styles.addSecond]} value={second} onChangeText={setSecond} placeholder={secondPlaceholder} placeholderTextColor={colors.textFaint} keyboardType="numeric" /> : null}
-        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !name.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+        {editId ? <Pressable style={styles.addCancel} onPress={reset} hitSlop={6}><X size={16} strokeWidth={2} color={colors.textSub} /></Pressable> : null}
+        <Pressable style={styles.addBtn} onPress={submit} disabled={busy || !name.trim()}>{editId ? <Check size={18} strokeWidth={2.2} color={colors.onBrand} /> : <Plus size={18} strokeWidth={2} color={colors.onBrand} />}</Pressable>
       </View>
     </View>
   )
@@ -620,6 +627,7 @@ const styles = StyleSheet.create({
   taxTitle: { fontSize: 13, fontWeight: '600', color: colors.textSub },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  chipEditing: { borderColor: colors.brand, backgroundColor: colors.brandSoft },
   chipDot: { width: 8, height: 8, borderRadius: 4 },
   chipIcon: { fontSize: 12 },
   chipText: { fontSize: 13, color: colors.text },
@@ -627,6 +635,7 @@ const styles = StyleSheet.create({
   addInput: { flex: 1 },
   addSecond: { width: 70 },
   addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  addCancel: { width: 36, height: 44, alignItems: 'center', justifyContent: 'center' },
   metaPills: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   metaPill: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
   metaPillOn: { backgroundColor: colors.text, borderColor: colors.text },

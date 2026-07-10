@@ -13,9 +13,10 @@ export function useConfigTaxonomy() {
   const insertRow = useCallback(async (table, payload) => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) throw new Error('no session')
-    const { error } = await supabase.from(table).insert({ ...payload, user_id: session.user.id })
+    const { data, error } = await supabase.from(table).insert({ ...payload, user_id: session.user.id }).select().single()
     if (error) throw error
     await refetch()
+    return data
   }, [refetch])
 
   const softDelete = useCallback(async (table, id) => {
@@ -43,6 +44,7 @@ export function useConfigTaxonomy() {
     addLeadSource: useCallback((name) => insertRow('lead_sources', { name }), [insertRow]),
     removeLeadSource: useCallback((id) => softDelete('lead_sources', id), [softDelete]),
     addMeetingType: useCallback((name, default_price) => insertRow('meeting_types', { name, default_price: default_price || null }), [insertRow]),
+    updateMeetingType: useCallback((id, name, default_price) => updateRow('meeting_types', id, { name, default_price: default_price || null }), [updateRow]),
     removeMeetingType: useCallback((id) => softDelete('meeting_types', id), [softDelete]),
   }
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { selectAll } from '../lib/paginate'
 
 // The seven tables the reports engine (core computeReportForRange) needs. Loaded
 // raw — core's live() filters soft-deleted rows, and this avoids a missing
@@ -7,8 +8,10 @@ import { supabase } from '../lib/supabase'
 const EMPTY = { leads: [], clients: [], sessions: [], transactions: [], tasks: [], groupMembers: [], groups: [] }
 const TABLES = { leads: 'leads', clients: 'clients', sessions: 'sessions', transactions: 'transactions', tasks: 'tasks', groupMembers: 'group_members', groups: 'groups' }
 
+// Reports aggregate the ENTIRE history, so a plain read (1000-row cap) would
+// silently under-count totals. Paginate the full set (matches web selectAllRows).
 async function fetchTable(name) {
-  const { data, error } = await supabase.from(name).select('*').limit(2000)
+  const { data, error } = await selectAll(() => supabase.from(name).select('*'))
   if (error) throw error
   return data ?? []
 }

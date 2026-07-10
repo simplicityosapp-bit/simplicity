@@ -1,15 +1,19 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { selectAll } from '../lib/paginate'
 
 // Everything one project's detail screen needs: the project + its clients,
 // groups, group members, sessions and transactions. CRUD is limited to the
 // project itself (group management stays on desktop for now).
 const EMPTY = { project: null, clients: [], transactions: [], sessions: [], groups: [], members: [] }
 
+// Paginated so per-project lifetime income doesn't under-count past the row cap.
 async function fetchTable(name, filterDeleted = true) {
-  let q = supabase.from(name).select('*').limit(3000)
-  if (filterDeleted) q = q.is('deleted_at', null)
-  const { data, error } = await q
+  const { data, error } = await selectAll(() => {
+    let q = supabase.from(name).select('*')
+    if (filterDeleted) q = q.is('deleted_at', null)
+    return q
+  })
   if (error) throw error
   return data ?? []
 }

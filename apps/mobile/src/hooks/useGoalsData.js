@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { selectAll } from '../lib/paginate'
 import { CATEGORY_PRESETS, OTHER_METRIC, OTHER_METRIC_KEY, presetToCategory } from '../lib/goalPresets'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 
 // Everything core moonGetData/goalsByCategory need to score goals. Keys match
 // the MoonData shape (entries=goal_entries, answers=daily_answers,
-// members=group_members).
+// members=group_members). Paginated so income-goal progress (transactions-backed)
+// doesn't under-count past the row cap.
 async function fetchTable(name) {
-  const { data, error } = await supabase.from(name).select('*').is('deleted_at', null).limit(2000)
+  const { data, error } = await selectAll(() => supabase.from(name).select('*').is('deleted_at', null))
   if (error) throw error
   return data ?? []
 }

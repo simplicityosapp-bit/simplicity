@@ -3,19 +3,21 @@ import { isRecurring, nextScheduledAt } from '@simplicity/core'
 import { supabase } from '../lib/supabase'
 import { confirmScheduledMeeting } from '../lib/scheduledMeetings'
 import { reconcileCompletion } from '../lib/tasks'
+import { selectAll } from '../lib/paginate'
 
 // Minimal data layer for the home screen. RLS scopes every row to the signed-in
 // user, so a plain select is safe. We only read columns the home derivations
 // need — none of them are encrypted-at-rest.
-// NOTE: single select (Supabase's 1000-row default → we ask for 2000). Fine for
-// typical coach volumes; a proper paginated fetch (like web's selectAllRows) is
-// a follow-up.
+// Paginated (selectAll) so the net/goal-gap/pending figures never truncate past
+// the 1000-row cap — matches web's selectAllRows.
 // `scheduled_meetings` has no deleted_at column, so it's fetched unfiltered —
 // core's todayItems still applies live()/inline deleted filtering client-side.
 async function fetchTable(name, { filterDeleted = true } = {}) {
-  let q = supabase.from(name).select('*').limit(2000)
-  if (filterDeleted) q = q.is('deleted_at', null)
-  const { data, error } = await q
+  const { data, error } = await selectAll(() => {
+    let q = supabase.from(name).select('*')
+    if (filterDeleted) q = q.is('deleted_at', null)
+    return q
+  })
   if (error) throw error
   return data ?? []
 }

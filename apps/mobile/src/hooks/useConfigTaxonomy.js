@@ -44,7 +44,22 @@ export function useConfigTaxonomy() {
     addLeadSource: useCallback((name) => insertRow('lead_sources', { name }), [insertRow]),
     removeLeadSource: useCallback((id) => softDelete('lead_sources', id), [softDelete]),
     addMeetingType: useCallback((name, default_price) => insertRow('meeting_types', { name, default_price: default_price || null }), [insertRow]),
-    updateMeetingType: useCallback((id, name, default_price) => updateRow('meeting_types', id, { name, default_price: default_price || null }), [updateRow]),
+    updateMeetingType: useCallback(async (id, name, default_price) => {
+      const price = default_price || null
+      const { error } = await supabase.from('meeting_types').update({ name, default_price: price }).eq('id', id)
+      if (error) throw error
+      // Live price propagation (mirrors web applyMeetingTypePrice): push the new
+      // price to every linked client that hasn't manually overridden it. A null
+      // price ("no preset" type) never clobbers client prices. Clients/Home
+      // screens reflect it on their next focus-refetch.
+      if (price != null) {
+        const { error: cErr } = await supabase.from('clients')
+          .update({ price_per_session: Number(price) })
+          .eq('meeting_type_id', id).eq('price_overridden', false).is('deleted_at', null)
+        if (cErr) throw cErr
+      }
+      await refetch()
+    }, [refetch]),
     removeMeetingType: useCallback((id) => softDelete('meeting_types', id), [softDelete]),
   }
 }

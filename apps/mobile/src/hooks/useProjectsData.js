@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { selectAll } from '../lib/paginate'
 
 // Projects + the data the projects screen derives per-card stats from (clients /
 // transactions / tasks). CRUD on the projects table; RLS scopes to the user.
 const EMPTY = { projects: [], clients: [], transactions: [], tasks: [], groups: [] }
 
+// Paginated so per-project income stats don't under-count past the row cap.
 async function fetchTable(name) {
-  const { data, error } = await supabase.from(name).select('*').is('deleted_at', null).limit(2000)
+  const { data, error } = await selectAll(() => supabase.from(name).select('*').is('deleted_at', null))
   if (error) throw error
   return data ?? []
 }

@@ -53,7 +53,7 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
   const setMeta = (k) => setForm((f) => ({ ...f, status_meta: k, status_id: '' }))
   const projectGroups = groups.filter((g) => g.project_id === form.project_id)
   const subStatuses = leadStatuses.filter((s) => s.meta_category === form.status_meta)
-  useEffect(() => { if (open) { setForm(blank(lead)); setErr(''); setBusy(false) } }, [open, lead])
+  useEffect(() => { if (open) { setForm(blank(lead)); setErr(''); setBusy(false); setNewSource(''); setAddingSource(false) } }, [open, lead])
   const close = () => { setErr(''); setBusy(false); onClose() }
 
   const remove = async () => {

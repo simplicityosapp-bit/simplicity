@@ -16,7 +16,7 @@ import { colors } from '../theme/theme'
 const t = (k, o) => i18n.t(k, o)
 // Web wraps the policy names in <a1>…</a1> for its <Trans> links; mobile shows the
 // plain sentence + a single "read more" link, so strip that markup.
-const stripTags = (s) => String(s || '').replace(/<\/?[a-z]\d*>/gi, '')
+const stripTags = (s) => String(s || '').replace(/<\/?[a-z\d]+>/gi, '')
 const LEGAL_URL = 'https://simplicity-os.com/legal'
 // The reset link opens the web app's update-password page (same as web's flow).
 const RESET_REDIRECT = 'https://simplicity-os.com/update-password'
@@ -69,7 +69,12 @@ export default function LoginScreen() {
     })
     if (err) {
       const m = String(err.message || '').toLowerCase()
-      setError(m.includes('registered') || m.includes('already') ? t('auth:errors.emailInUse', { defaultValue: 'האימייל כבר רשום — נסה/י להתחבר.' }) : (err.message || t('auth:errors.generic')))
+      setError(
+        m.includes('registered') || m.includes('already') ? t('auth:errors.alreadyRegistered')
+          : m.includes('rate') ? t('auth:errors.rateLimit')
+            : m.includes('weak') || m.includes('password') ? t('auth:signupScreen.passwordMin8')
+              : t('auth:errors.generic'),
+      )
       return
     }
     // No session yet = email confirmation required → show the check-email note.
@@ -94,19 +99,27 @@ export default function LoginScreen() {
     } catch { setError(t('auth:errors.generic')) } finally { setBusy(false) }
   }
 
-  const title = mode === 'signup' ? t('auth:signup') : mode === 'reset' ? t('auth:reset', { defaultValue: 'איפוס סיסמה' }) : t('auth:login')
-  const cta = mode === 'signup' ? t('auth:signup') : mode === 'reset' ? t('auth:reset', { defaultValue: 'שליחת קישור איפוס' }) : t('auth:login')
+  // `auth:reset` is an OBJECT in core (reset.title/sendLink/…), so t('auth:reset')
+  // would return i18next's "returned an object" string — use the nested leaves.
+  const title = mode === 'signup' ? t('auth:signup') : mode === 'reset' ? t('auth:reset.title') : t('auth:login')
+  const cta = mode === 'signup' ? t('auth:signup') : mode === 'reset' ? t('auth:reset.sendLink') : t('auth:login')
 
-  // Reset / signup "check your email" confirmation.
+  // Reset / signup "check your email" confirmation. Reset uses distinct copy —
+  // it doesn't ask the user to confirm their email, just that a link was sent.
   if (sent) {
+    const isReset = mode === 'reset'
+    const sentTitle = isReset ? t('auth:reset.sentTitle') : t('auth:signupScreen.checkEmailTitle')
+    const sentBody = isReset
+      ? stripTags(t('auth:reset.sentBody', { email: email.trim() }))
+      : t('auth:signupScreen.sentBody', { email: email.trim() })
     return (
       <Screen name="login">
         <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
           <Card contentStyle={styles.wrap}>
             <Text style={styles.brand}>Simplicity</Text>
-            <Text style={styles.title}>{t('auth:signupScreen.checkEmailTitle', { defaultValue: 'בדוק/י את האימייל' })}</Text>
-            <Text style={styles.foot}>{t('auth:signupScreen.sentBody', { email: email.trim(), defaultValue: `שלחנו קישור ל-${email.trim()}.` })}</Text>
-            <Pressable style={styles.btn} onPress={() => goMode('login')}><Text style={styles.btnText}>{t('auth:backToLogin', { defaultValue: 'חזרה להתחברות' })}</Text></Pressable>
+            <Text style={styles.title}>{sentTitle}</Text>
+            <Text style={styles.foot}>{sentBody}</Text>
+            <Pressable style={styles.btn} onPress={() => goMode('login')}><Text style={styles.btnText}>{t('auth:backToLogin')}</Text></Pressable>
           </Card>
         </ScrollView>
       </Screen>

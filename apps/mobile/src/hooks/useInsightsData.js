@@ -90,5 +90,11 @@ export function useInsightsData() {
     if (e) { load() }
   }, [load])
 
-  return { questions, answers, loading, error, refetch: load, addAnswer, addQuestion, toggleActive, removeQuestion }
+  const updateQuestion = useCallback(async (id, patch) => {
+    setQuestions((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x))) // optimistic
+    const { error: e } = await supabase.from('user_questions').update(patch).eq('id', id)
+    if (e) { setError(e.message); load() }
+  }, [load])
+
+  return { questions, answers, loading, error, refetch: load, addAnswer, addQuestion, toggleActive, removeQuestion, updateQuestion }
 }

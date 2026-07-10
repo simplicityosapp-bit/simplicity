@@ -3,7 +3,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking, Alert, I18nManager } from 'react-native'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import { Bell, Check, MessageCircle, ChevronLeft, ChevronUp, ChevronDown, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
-import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, fmtShortDate } from '@simplicity/core'
+import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, isConvertedLead, fmtShortDate } from '@simplicity/core'
 import Select from '../components/Select'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 import i18n from '../lib/i18n'
@@ -77,6 +77,16 @@ export default function LeadsScreen() {
 
   const pending = useMemo(() => leads.filter((l) => !l.deleted_at && isPendingReview(l)), [leads])
   const official = useMemo(() => leads.filter((l) => !l.deleted_at && !isPendingReview(l)), [leads])
+  // Header stats (mirrors web computeStats): new this month, converted this month,
+  // and the cohort conversion rate for this month's new leads.
+  const stats = useMemo(() => {
+    const now = new Date()
+    const inMonth = (d) => { if (!d) return false; const x = new Date(d); return x.getFullYear() === now.getFullYear() && x.getMonth() === now.getMonth() }
+    const newThis = official.filter((l) => (l.inquiry_date ? inMonth(l.inquiry_date) : inMonth(l.created_at)))
+    const convertedThisMonth = official.filter((l) => isConvertedLead(l) && inMonth(l.converted_at)).length
+    const cohortConverted = newThis.filter(isConvertedLead).length
+    return { newThisMonth: newThis.length, convertedThisMonth, convRate: newThis.length ? Math.round((cohortConverted / newThis.length) * 100) : null }
+  }, [official])
   const buckets = useMemo(() => {
     const now = new Date()
     const inPeriod = (l) => {
@@ -221,6 +231,11 @@ export default function LeadsScreen() {
             <LeadStatusesPanel leadStatuses={tax.leadStatuses} onAdd={tax.addLeadStatus} onRemove={tax.removeLeadStatus} onUpdate={tax.updateLeadStatus} />
           ) : (
           <>
+          <View style={styles.statsRow}>
+            <View style={styles.stat}><Text style={styles.statNum}>{stats.newThisMonth}</Text><Text style={styles.statLbl}>{i18n.t('leads:stats.newThisMonth', { defaultValue: 'חדשים החודש' })}</Text></View>
+            <View style={styles.stat}><Text style={styles.statNum}>{stats.convertedThisMonth}</Text><Text style={styles.statLbl}>{i18n.t('leads:stats.converted', { defaultValue: 'הומרו החודש' })}</Text></View>
+            <View style={styles.stat}><Text style={styles.statNum}>{stats.convRate == null ? '—' : `${stats.convRate}%`}</Text><Text style={styles.statLbl}>{i18n.t('leads:stats.convRate', { defaultValue: 'שיעור המרה' })}</Text></View>
+          </View>
           {pending.length ? (
             <View style={styles.group}>
               <View style={[styles.groupHead, flip && styles.rowFlip]}>
@@ -544,6 +559,10 @@ const styles = StyleSheet.create({
   groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   rowFlip: { flexDirection: 'row-reverse' },
   txtRtl: { textAlign: 'right' },
+  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 4 },
+  stat: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 16, backgroundColor: colors.cardFlat, borderWidth: 1, borderColor: colors.border },
+  statNum: { fontSize: 20, fontWeight: '700', color: colors.text },
+  statLbl: { fontSize: 11, color: colors.textFaint, marginTop: 2 },
   dot: { width: 10, height: 10, borderRadius: 5 },
   groupTitle: { fontSize: 14, fontWeight: '600', color: colors.textSub, flex: 1 },
   count: { fontSize: 13, color: colors.textFaint },

@@ -60,9 +60,17 @@ export const supabase = client
 // app is active, stop it when backgrounded. Web handles this itself (tab
 // visibility); the preview mock client has no auth timers.
 if (!previewMock && Platform.OS !== 'web' && client?.auth?.startAutoRefresh) {
-  client.auth.startAutoRefresh()
-  AppState.addEventListener('change', (state) => {
-    if (state === 'active') client.auth.startAutoRefresh()
-    else client.auth.stopAutoRefresh()
-  })
+  // Guard the whole block: this runs at module import, so an unexpected throw
+  // here would take down app startup (white screen) rather than just skipping
+  // background refresh.
+  try {
+    client.auth.startAutoRefresh()
+    AppState.addEventListener('change', (state) => {
+      if (state === 'active') client.auth.startAutoRefresh()
+      else client.auth.stopAutoRefresh()
+    })
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    if (typeof console !== 'undefined') console.warn('[supabase] auto-refresh wiring failed', e?.message)
+  }
 }

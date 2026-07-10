@@ -16,6 +16,7 @@ import PendingDeletionScreen from './src/screens/PendingDeletionScreen'
 import AppNavigator, { navigationRef } from './src/navigation/AppNavigator'
 import BottomBar from './src/components/BottomBar'
 import Drawer from './src/components/Drawer'
+import ErrorBoundary from './src/components/ErrorBoundary'
 
 // Init the shared i18n engine once, before the first render.
 setupI18n()
@@ -87,8 +88,11 @@ function AuthedApp({ lang }) {
 }
 
 export default function App() {
-  const [fontsLoaded] = useFonts(fontAssets)
-  if (!fontsLoaded) {
+  // Don't brick the app on a font that a device rejects: if useFonts errors
+  // (e.g. Android's stricter TTF parser refusing an asset), proceed with the
+  // system fallback instead of hanging on the spinner forever.
+  const [fontsLoaded, fontError] = useFonts(fontAssets)
+  if (!fontsLoaded && !fontError) {
     return (
       <View style={styles.center}>
         <ActivityIndicator color="#C97B5E" />
@@ -96,16 +100,18 @@ export default function App() {
     )
   }
   return (
-    <GestureHandlerRootView style={styles.fill}>
-      <SafeAreaProvider>
-        <AuthProvider>
-          <DrawerProvider>
-            <Root />
-            <StatusBar style="auto" />
-          </DrawerProvider>
-        </AuthProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <ErrorBoundary>
+      <GestureHandlerRootView style={styles.fill}>
+        <SafeAreaProvider>
+          <AuthProvider>
+            <DrawerProvider>
+              <Root />
+              <StatusBar style="auto" />
+            </DrawerProvider>
+          </AuthProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   )
 }
 

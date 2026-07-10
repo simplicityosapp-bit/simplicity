@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useCallback } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import { goalsByCategory, formatGoalValue, timeFrameLabel } from '@simplicity/core'
 import { Star } from 'lucide-react-native'
@@ -92,15 +92,16 @@ function GoalCard({ scored: s, onEdit }) {
   const paced = Number.isFinite(s.paced) ? s.paced : pure
   const importance = s.goal.importance || 3
   const over = pure >= 100
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   return (
     <Pressable onPress={onEdit}>
       <Card>
-        <View style={styles.gHead}>
+        <View style={[styles.gHead, flip && styles.rowFlip]}>
           <View style={styles.gTitleBlock}>
-            <Text style={styles.gTitle} numberOfLines={1}>{s.goal.label || s.cat?.name || ''}</Text>
-            <View style={styles.gCatRow}>
+            <Text style={[styles.gTitle, flip && styles.txtRtl]} numberOfLines={1}>{s.goal.label || s.cat?.name || ''}</Text>
+            <View style={[styles.gCatRow, flip && styles.rowFlip]}>
               <View style={[styles.gCatDot, { backgroundColor: s.cat?.color || colors.textSub }]} />
-              <Text style={styles.gCatText} numberOfLines={1}>{s.cat?.name} · {timeFrameLabel(s.goal)}</Text>
+              <Text style={[styles.gCatText, flip && styles.txtRtl]} numberOfLines={1}>{s.cat?.name} · {timeFrameLabel(s.goal)}</Text>
             </View>
           </View>
           <Text style={[styles.gPct, over && styles.gPctOver]}>{Math.min(pure, 100)}%{pure > 100 ? '+' : ''}</Text>
@@ -109,7 +110,7 @@ function GoalCard({ scored: s, onEdit }) {
           <GBar label={i18n.t('moon:dualBars.pace', { defaultValue: 'מהקצב' })} pct={Math.min(100, paced)} color={colors.positive} />
           <GBar label={i18n.t('moon:dualBars.goal', { defaultValue: 'מהיעד' })} pct={pure} color={colors.moonDeep} />
         </View>
-        <View style={styles.gMeta}>
+        <View style={[styles.gMeta, flip && styles.rowFlip]}>
           <Text style={styles.gTarget}>{formatGoalValue(s.actual, s.cat)} / {formatGoalValue(s.target, s.cat)}</Text>
           <View style={styles.gStars}>
             {[1, 2, 3, 4, 5].map((n) => (
@@ -131,6 +132,8 @@ const styles = StyleSheet.create({
   catName: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.66, marginHorizontal: 2 },
   // goal card
   gHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 12 },
+  rowFlip: { flexDirection: 'row-reverse' },
+  txtRtl: { textAlign: 'right' },
   gTitleBlock: { flex: 1, minWidth: 0 },
   gTitle: { fontSize: 15, fontWeight: '600', color: colors.text },
   gCatRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },

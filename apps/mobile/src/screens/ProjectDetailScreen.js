@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Alert } from 'react-native'
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Alert, I18nManager } from 'react-native'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Pencil, Users, CalendarDays, Plus, ChevronDown, X, Check } from 'lucide-react-native'
@@ -36,6 +36,7 @@ export default function ProjectDetailScreen() {
   const [editSession, setEditSession] = useState(null)
   const [expanded, setExpanded] = useState(null)
 
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   const projClientIds = useMemo(() => new Set(clients.map((c) => c.id)), [clients])
   const groupIds = useMemo(() => new Set(groups.map((g) => g.id)), [groups])
   const activeCount = clients.filter((c) => statusMetaOf(c) === 'active').length
@@ -165,9 +166,9 @@ export default function ProjectDetailScreen() {
             {clients.length ? clients.map((c, i) => {
               const g = c.group_id ? groups.find((gg) => gg.id === c.group_id) : null
               return (
-                <View key={c.id} style={[styles.row, i > 0 && styles.rowBorder]}>
+                <View key={c.id} style={[styles.row, flip && styles.rowFlip, i > 0 && styles.rowBorder]}>
                   <View style={[styles.sdot, { backgroundColor: STATUS_DOT[statusMetaOf(c)] || STATUS_DOT.no_status }]} />
-                  <Text style={styles.rowName} numberOfLines={1}>{c.name}</Text>
+                  <Text style={[styles.rowName, flip && styles.txtRtl]} numberOfLines={1}>{c.name}</Text>
                   <Text style={[styles.clientTag, !g && styles.clientTagPrivate]} numberOfLines={1}>{g ? g.name : D('clients.private', { defaultValue: 'פרטי' })}</Text>
                 </View>
               )
@@ -176,8 +177,8 @@ export default function ProjectDetailScreen() {
 
           {/* Groups — add / edit / members */}
           <View style={styles.section}>
-            <View style={styles.secHead}>
-              <Text style={styles.secTitle}>{D('groups.title', { defaultValue: 'קבוצות' })}</Text>
+            <View style={[styles.secHead, flip && styles.rowFlip]}>
+              <Text style={[styles.secTitle, flip && styles.txtRtl]}>{D('groups.title', { defaultValue: 'קבוצות' })}</Text>
               <Text style={styles.secCount}>{groups.length}</Text>
               <Pressable style={styles.addChip} onPress={() => setAddingGroup(true)} hitSlop={6}><Plus size={16} strokeWidth={2} color={colors.brand} /></Pressable>
             </View>
@@ -235,10 +236,10 @@ export default function ProjectDetailScreen() {
           {recentSessions.length ? (
             <Section title={D('groups.pastSessionsTitle', { defaultValue: 'פגישות שהתקיימו' })} count={recentSessions.length}>
               {recentSessions.map((s, i) => (
-                <Pressable key={s.id} style={[styles.row, i > 0 && styles.rowBorder]} onPress={() => setEditSession(s)}>
+                <Pressable key={s.id} style={[styles.row, flip && styles.rowFlip, i > 0 && styles.rowBorder]} onPress={() => setEditSession(s)}>
                   <CalendarDays size={14} strokeWidth={1.6} color={colors.textFaint} />
-                  <Text style={styles.rowName} numberOfLines={1}>{clientName(s.client_id) || (s.group_id ? groups.find((g) => g.id === s.group_id)?.name : '') || s.summary || '—'}</Text>
-                  <Text style={styles.rowSub}>{fmtShortDate(s.date)}</Text>
+                  <Text style={[styles.rowName, flip && styles.txtRtl]} numberOfLines={1}>{clientName(s.client_id) || (s.group_id ? groups.find((g) => g.id === s.group_id)?.name : '') || s.summary || '—'}</Text>
+                  <Text style={[styles.rowSub, flip && styles.txtRtl]}>{fmtShortDate(s.date)}</Text>
                   <Pressable onPress={() => confirmDeleteSession(s)} hitSlop={8}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
                 </Pressable>
               ))}
@@ -303,10 +304,11 @@ function Stat({ value, label, divided }) {
   )
 }
 function Section({ title, count, children }) {
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   return (
     <View style={styles.section}>
-      <View style={styles.secHead}>
-        <Text style={styles.secTitle}>{title}</Text>
+      <View style={[styles.secHead, flip && styles.rowFlip]}>
+        <Text style={[styles.secTitle, flip && styles.txtRtl]}>{title}</Text>
         {count != null ? <Text style={styles.secCount}>{count}</Text> : null}
       </View>
       <Card padded={false}><View style={styles.secBody}>{children}</View></Card>
@@ -342,6 +344,8 @@ const styles = StyleSheet.create({
   addChip: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brandSoft },
   gcard: { padding: 0 },
   grow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
+  rowFlip: { flexDirection: 'row-reverse' },
+  txtRtl: { textAlign: 'right' },
   gstatusRow: { flexDirection: 'row', gap: 6, paddingHorizontal: 14, paddingBottom: 10, flexWrap: 'wrap' },
   gstatusPill: { paddingVertical: 5, paddingHorizontal: 11, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
   gstatusOn: { backgroundColor: colors.brand, borderColor: colors.brand },

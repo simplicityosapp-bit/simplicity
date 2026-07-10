@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, Pressable, StyleSheet, I18nManager } from 'react-native'
 import { ChevronDown, Pencil } from 'lucide-react-native'
 import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, fmtTime } from '@simplicity/core'
 import Card from '../components/Card'
@@ -19,13 +19,14 @@ const T = (k, o) => i18n.t(`clients:sections.${k}`, o)
 function Section({ title, count, defaultOpen = false, onEdit, children }) {
   const [open, setOpen] = useState(defaultOpen)
   const toggle = () => setOpen((o) => !o)
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   // Non-nested pressables (title / pencil / chevron are siblings) — a Pressable
   // inside the header Pressable swallows the tap on RN Web (same fix as web).
   return (
     <Card padded={false} style={styles.sectionOuter} contentStyle={styles.section}>
-      <View style={styles.secHead}>
+      <View style={[styles.secHead, flip && styles.rowFlip]}>
         <Pressable style={styles.secTitleWrap} onPress={toggle}>
-          <Text style={styles.secTitle}>{title}</Text>
+          <Text style={[styles.secTitle, flip && styles.txtRtl]}>{title}</Text>
           {count != null ? <Text style={styles.secCount}>{count}</Text> : null}
         </Pressable>
         {onEdit ? (
@@ -43,6 +44,10 @@ function Section({ title, count, defaultOpen = false, onEdit, children }) {
 }
 
 export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditClient, onEditTx, onEditSession, onEditTask, onEditReminder }) {
+  // Manual RTL flip for the LTR-engine Hebrew state (no-op on a real RTL device):
+  // put leading dots/nums on the right, trailing dates/amounts on the left, and
+  // right-align labels.
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   const payments = financeQuery({ clientId: c.id, includePending: true, source: txns }).slice().sort((a, b) => new Date(b.date) - new Date(a.date))
   const payTotal = payments.filter((f) => f.type === 'income' && isConfirmedTx(f)).reduce((s, f) => s + f.amount, 0)
   const clientSessions = live(sessions).filter((s) => s.client_id === c.id || (c.group_id && s.group_id === c.group_id)).sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -76,30 +81,30 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
             const Row = editable ? Pressable : View
             return (
               <Row key={s.id} style={styles.sessRow} onPress={editable ? () => onEditSession(s) : undefined}>
-                <View style={styles.sessHead}>
+                <View style={[styles.sessHead, flip && styles.rowFlip]}>
                   <Text style={styles.sessNum}>{s.num || '•'}</Text>
-                  <Text style={styles.sessDate}>{fmtShortDate(s.date)}{s.group_id ? T('sessionGroup') : ''}</Text>
+                  <Text style={[styles.sessDate, flip && styles.txtRtl]}>{fmtShortDate(s.date)}{s.group_id ? T('sessionGroup') : ''}</Text>
                   {editable ? <Pencil size={12} strokeWidth={1.6} color={colors.textFaint} /> : null}
                 </View>
-                {s.summary ? <Text style={styles.sessSummary}>{s.summary}</Text> : null}
+                {s.summary ? <Text style={[styles.sessSummary, flip && styles.txtRtl]}>{s.summary}</Text> : null}
               </Row>
             )
           }) : <Text style={styles.empty}>{T('noSessions')}</Text>}
         </Section>
 
         <Section title={T('payments')} count={payments.length}>
-          <View style={styles.paySummary}>
+          <View style={[styles.paySummary, flip && styles.rowFlip]}>
             <Text style={styles.paySummaryL}>{T('totalPaid')}</Text>
             <Text style={styles.paySummaryV}>{isr(payTotal)}</Text>
           </View>
           {payments.length ? payments.map((f) => {
             const Row = onEditTx ? Pressable : View
             return (
-              <Row key={f.id} style={styles.row} onPress={onEditTx ? () => onEditTx((txns || []).find((t) => t.id === f.id) || f) : undefined}>
+              <Row key={f.id} style={[styles.row, flip && styles.rowFlip]} onPress={onEditTx ? () => onEditTx((txns || []).find((t) => t.id === f.id) || f) : undefined}>
                 <View style={[styles.rowDot, { backgroundColor: f.type === 'income' ? colors.positive : colors.danger }]} />
                 <View style={styles.rowBody}>
-                  <Text style={styles.rowTitle} numberOfLines={1}>{f.desc || T('noDesc')}</Text>
-                  <Text style={styles.rowSub}>{fmtShortDate(f.date)}{f.status === 'pending' ? T('pending') : ''}</Text>
+                  <Text style={[styles.rowTitle, flip && styles.txtRtl]} numberOfLines={1}>{f.desc || T('noDesc')}</Text>
+                  <Text style={[styles.rowSub, flip && styles.txtRtl]}>{fmtShortDate(f.date)}{f.status === 'pending' ? T('pending') : ''}</Text>
                 </View>
                 <Text style={styles.rowAmt}>{f.type === 'income' ? '+' : '−'}{isr(f.amount)}</Text>
               </Row>
@@ -113,9 +118,9 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           {openTasks.length ? openTasks.map((t) => {
             const Row = onEditTask ? Pressable : View
             return (
-              <Row key={t.id} style={styles.row} onPress={onEditTask ? () => onEditTask(t) : undefined}>
+              <Row key={t.id} style={[styles.row, flip && styles.rowFlip]} onPress={onEditTask ? () => onEditTask(t) : undefined}>
                 <View style={[styles.rowDot, { backgroundColor: PRIORITY_COLOR[t.priority] || PRIORITY_COLOR.medium }]} />
-                <Text style={[styles.rowTitle, styles.grow]} numberOfLines={2}>{t.title}</Text>
+                <Text style={[styles.rowTitle, styles.grow, flip && styles.txtRtl]} numberOfLines={2}>{t.title}</Text>
                 {onEditTask ? <Pencil size={12} strokeWidth={1.6} color={colors.textFaint} /> : null}
               </Row>
             )
@@ -126,8 +131,8 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           {events.length ? events.slice(0, 30).map((e, i) => {
             const Row = e.edit ? Pressable : View
             return (
-              <Row key={i} style={styles.tlRow} onPress={e.edit || undefined}>
-                <Text style={styles.tlLabel} numberOfLines={1}>{e.label}{e.sub ? ` · ${e.sub.slice(0, 50)}` : ''}</Text>
+              <Row key={i} style={[styles.tlRow, flip && styles.rowFlip]} onPress={e.edit || undefined}>
+                <Text style={[styles.tlLabel, flip && styles.txtRtl]} numberOfLines={1}>{e.label}{e.sub ? ` · ${e.sub.slice(0, 50)}` : ''}</Text>
                 <Text style={styles.tlDate}>{fmtShortDate(e.date)}</Text>
               </Row>
             )
@@ -141,8 +146,8 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
         <Section title={T('moreDetails')} onEdit={onEditClient}>
           {(c.address || c.birth_date) ? (
             <>
-              {c.address ? <View style={styles.row}><View style={styles.rowBody}><Text style={styles.rowTitle}>{c.address}</Text><Text style={styles.rowSub}>{T('address')}</Text></View></View> : null}
-              {c.birth_date ? <View style={styles.row}><View style={styles.rowBody}><Text style={styles.rowTitle}>{fmtShortDate(c.birth_date)}</Text><Text style={styles.rowSub}>{T('birthDate')}</Text></View></View> : null}
+              {c.address ? <View style={[styles.row, flip && styles.rowFlip]}><View style={styles.rowBody}><Text style={[styles.rowTitle, flip && styles.txtRtl]}>{c.address}</Text><Text style={[styles.rowSub, flip && styles.txtRtl]}>{T('address')}</Text></View></View> : null}
+              {c.birth_date ? <View style={[styles.row, flip && styles.rowFlip]}><View style={styles.rowBody}><Text style={[styles.rowTitle, flip && styles.txtRtl]}>{fmtShortDate(c.birth_date)}</Text><Text style={[styles.rowSub, flip && styles.txtRtl]}>{T('birthDate')}</Text></View></View> : null}
             </>
           ) : <Text style={styles.empty}>{T('noMoreDetails')}</Text>}
         </Section>
@@ -160,10 +165,10 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           {linkedReminders.length ? linkedReminders.map((r) => {
             const Row = onEditReminder ? Pressable : View
             return (
-              <Row key={r.id} style={styles.row} onPress={onEditReminder ? () => onEditReminder(r) : undefined}>
+              <Row key={r.id} style={[styles.row, flip && styles.rowFlip]} onPress={onEditReminder ? () => onEditReminder(r) : undefined}>
                 <View style={styles.rowBody}>
                   <Text style={[styles.rowTitle, r.status === 'completed' && styles.done]} numberOfLines={1}>{r.title}</Text>
-                  <Text style={styles.rowSub}>{fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}</Text>
+                  <Text style={[styles.rowSub, flip && styles.txtRtl]}>{fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}</Text>
                 </View>
                 {onEditReminder ? <Pencil size={12} strokeWidth={1.6} color={colors.textFaint} /> : null}
               </Row>
@@ -181,11 +186,11 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
             else if (mode === 'none') sub = T('noFixedPrice')
             else sub = `${g?.package_sessions ? T('packageSessions', { count: g.package_sessions }) : ''}${isr(g?.package_price || 0)}`
             return (
-              <View key={m.id} style={styles.row}>
+              <View key={m.id} style={[styles.row, flip && styles.rowFlip]}>
                 <View style={[styles.rowDot, { backgroundColor: g?.color || colors.textSub }]} />
                 <View style={styles.rowBody}>
-                  <Text style={styles.rowTitle} numberOfLines={1}>{g ? g.name : T('groupDeleted')}</Text>
-                  <Text style={styles.rowSub}>{sub}</Text>
+                  <Text style={[styles.rowTitle, flip && styles.txtRtl]} numberOfLines={1}>{g ? g.name : T('groupDeleted')}</Text>
+                  <Text style={[styles.rowSub, flip && styles.txtRtl]}>{sub}</Text>
                 </View>
               </View>
             )
@@ -224,6 +229,8 @@ const styles = StyleSheet.create({
   paySummaryV: { fontSize: 13, fontWeight: '600', color: colors.text },
 
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7 },
+  rowFlip: { flexDirection: 'row-reverse' },
+  txtRtl: { textAlign: 'right' },
   rowDot: { width: 8, height: 8, borderRadius: 4 },
   rowBody: { flex: 1, gap: 2 },
   rowTitle: { fontSize: 13, color: colors.text },

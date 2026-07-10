@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, Pressable, StyleSheet, I18nManager } from 'react-native'
 import { BlurView } from 'expo-blur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Users, ClipboardList, Home, Wallet, Menu } from 'lucide-react-native'
@@ -43,8 +43,11 @@ export default function BottomBar() {
     if (navigationRef.isReady()) navigationRef.navigate('Main', { screen: item.name })
   }
 
+  // Mirror the tab order in the LTR-engine Hebrew state so the first tab (Clients)
+  // sits on the right; no-op on a real RTL device where the engine mirrors it.
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   return (
-    <View style={[styles.bar, { paddingBottom: 10 + insets.bottom }]}>
+    <View style={[styles.bar, flip && styles.barFlip, { paddingBottom: 10 + insets.bottom }]}>
       <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
       <View style={[StyleSheet.absoluteFill, styles.tint]} pointerEvents="none" />
       {ITEMS.map((item) => {
@@ -65,6 +68,7 @@ export default function BottomBar() {
 
 const styles = StyleSheet.create({
   bar: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', paddingTop: 10, paddingHorizontal: 6, borderTopWidth: 1, borderTopColor: 'rgba(240,235,224,0.10)', overflow: 'hidden' },
+  barFlip: { flexDirection: 'row-reverse' },
   tint: { backgroundColor: 'rgba(42,37,32,0.42)' },
   item: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 4, paddingTop: 2 },
   chip: { width: 44, height: 34, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },

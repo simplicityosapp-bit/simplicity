@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet, Linking } from 'react-native'
+import { View, Text, Pressable, StyleSheet, Linking, I18nManager } from 'react-native'
 import { Clock, Check, CalendarDays, ArrowLeftRight, MessageCircle, X } from 'lucide-react-native'
 import { statusMetaOfLead, fmtShortDate } from '@simplicity/core'
 import { GlassPressable } from '../../components/Glass'
@@ -21,6 +21,7 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, so
   const sub = lead.status_id ? statuses.find((s) => s.id === lead.status_id) : null
   const overdue = lead.follow_up_date && String(lead.follow_up_date).slice(0, 10) <= todayYmd() && meta === 'in_process'
   const isConverted = meta === 'converted' && lead.converted_to_client_id
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   const whatsapp = () => {
     const p = (lead.phone || '').replace(/\D/g, '')
     Linking.openURL(`https://wa.me/${p}`)
@@ -34,34 +35,34 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, so
         </Pressable>
       ) : null}
 
-      <Text style={styles.name} numberOfLines={1}>{lead.name || '—'}</Text>
+      <Text style={[styles.name, flip && styles.txtRtl]} numberOfLines={1}>{lead.name || '—'}</Text>
 
       {sub ? (
-        <View style={styles.sub}>
+        <View style={[styles.sub, flip && styles.rowFlip]}>
           <View style={[styles.subDot, { backgroundColor: sub.color || colors.textSub }]} />
-          <Text style={styles.subText} numberOfLines={1}>{sub.display_name}</Text>
+          <Text style={[styles.subText, flip && styles.txtRtl]} numberOfLines={1}>{sub.display_name}</Text>
         </View>
       ) : null}
 
-      <View style={styles.src}>
+      <View style={[styles.src, flip && styles.rowFlip]}>
         <View style={[styles.srcDot, { backgroundColor: source?.color || colors.textFaint }]} />
-        <Text style={[styles.srcText, !source && styles.srcNone]} numberOfLines={1}>{source ? source.name : T('noSource')}</Text>
+        <Text style={[styles.srcText, !source && styles.srcNone, flip && styles.txtRtl]} numberOfLines={1}>{source ? source.name : T('noSource')}</Text>
       </View>
 
       {lead.inquiry_date ? (
-        <View style={styles.line}>
+        <View style={[styles.line, flip && styles.rowFlip]}>
           <CalendarDays size={11} strokeWidth={1.6} color={colors.textFaint} />
           <Text style={styles.lineText}>{T('inquiry', { date: fmtShortDate(lead.inquiry_date) })}</Text>
         </View>
       ) : null}
       {lead.follow_up_date ? (
-        <View style={styles.line}>
+        <View style={[styles.line, flip && styles.rowFlip]}>
           <Clock size={11} strokeWidth={1.6} color={overdue ? colors.danger : colors.textSub} />
           <Text style={[styles.fuText, overdue && styles.overdue]}>{fmtShortDate(lead.follow_up_date)}</Text>
         </View>
       ) : null}
 
-      <View style={styles.foot}>
+      <View style={[styles.foot, flip && styles.rowFlip]}>
         {isConverted ? (
           <View style={styles.converted}><Check size={11} strokeWidth={2} color={colors.positive} /><Text style={styles.convertedText}>{T('converted')}</Text></View>
         ) : onConvert ? (
@@ -92,6 +93,8 @@ const styles = StyleSheet.create({
   subDot: { width: 7, height: 7, borderRadius: 4 },
   subText: { fontSize: 12, color: colors.textSub },
   src: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  rowFlip: { flexDirection: 'row-reverse' },
+  txtRtl: { textAlign: 'right' },
   srcDot: { width: 7, height: 7, borderRadius: 4 },
   srcText: { fontSize: 12, color: colors.textSub },
   srcNone: { color: colors.textFaint },

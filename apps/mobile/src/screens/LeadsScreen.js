@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
 import { useFocusEffect } from '@react-navigation/native'
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking, Alert } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking, Alert, I18nManager } from 'react-native'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import { Bell, Check, MessageCircle, ChevronLeft, ChevronUp, ChevronDown, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
 import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, fmtShortDate } from '@simplicity/core'
@@ -57,6 +57,7 @@ export default function LeadsScreen() {
     if (firstFocus.current) { firstFocus.current = false; return }
     refetch(true)
   }, [refetch]))
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   // View + filter persist in prefs (mirror web prefs.leadsView / prefs.leadsFilter).
   const view = prefs.leadsView === 'statuses' ? 'statuses' : 'board'
   const setView = (v) => updatePrefs({ leadsView: v })
@@ -222,9 +223,9 @@ export default function LeadsScreen() {
           <>
           {pending.length ? (
             <View style={styles.group}>
-              <View style={styles.groupHead}>
+              <View style={[styles.groupHead, flip && styles.rowFlip]}>
                 <View style={[styles.dot, { backgroundColor: colors.brand }]} />
-                <Text style={styles.groupTitle}>{i18n.t('leads:pending.title', { defaultValue: 'ממתינים לאישור' })}</Text>
+                <Text style={[styles.groupTitle, flip && styles.txtRtl]}>{i18n.t('leads:pending.title', { defaultValue: 'ממתינים לאישור' })}</Text>
                 <Text style={styles.count}>{pending.length}</Text>
               </View>
               <Card padded={false}>
@@ -541,6 +542,8 @@ const styles = StyleSheet.create({
   error: { color: colors.danger, fontSize: 13 },
   group: { gap: 8 },
   groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  rowFlip: { flexDirection: 'row-reverse' },
+  txtRtl: { textAlign: 'right' },
   dot: { width: 10, height: 10, borderRadius: 5 },
   groupTitle: { fontSize: 14, fontWeight: '600', color: colors.textSub, flex: 1 },
   count: { fontSize: 13, color: colors.textFaint },

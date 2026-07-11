@@ -1,3 +1,6 @@
+// MUST be first: makes Hermes's partial Intl safe (Hebrew-calendar DateTimeFormat
+// + RelativeTimeFormat) BEFORE the @simplicity/core barrel evaluates at App load.
+import './src/lib/intlSafe';
 import 'react-native-gesture-handler';
 import { registerRootComponent } from 'expo';
 import AsyncStorage from '@react-native-async-storage/async-storage';

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, I18nManager } from 'react-native'
-import { BlurView } from 'expo-blur'
+import { BlurView } from './SafeBlur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Users, ClipboardList, Home, Wallet, Menu } from 'lucide-react-native'
 import i18n from '../lib/i18n'

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { View, Text, Image, Pressable, ScrollView, StyleSheet, Animated } from 'react-native'
-import { BlurView } from 'expo-blur'
+import { BlurView } from './SafeBlur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, Sun, Moon, X, LogOut, Pencil } from 'lucide-react-native'
 

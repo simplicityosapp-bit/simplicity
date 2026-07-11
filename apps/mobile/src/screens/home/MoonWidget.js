@@ -1,6 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { BlurView } from 'expo-blur'
+import { BlurView } from '../../components/SafeBlur'
 import Svg, { Circle } from 'react-native-svg'
 import { ArrowLeft } from 'lucide-react-native'
 import { moonReflection } from '@simplicity/core'

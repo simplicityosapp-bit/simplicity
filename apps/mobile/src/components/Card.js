@@ -1,5 +1,5 @@
 import { View, StyleSheet } from 'react-native'
-import { BlurView } from 'expo-blur'
+import { BlurView } from './SafeBlur'
 import { colors, radius, shadow } from '../theme/theme'
 
 // Cream glass card — BlurView + a cream veil (per web --mg-card-* : cream over

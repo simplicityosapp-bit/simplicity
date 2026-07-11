@@ -1,5 +1,5 @@
 import { View, Pressable, StyleSheet } from 'react-native'
-import { BlurView } from 'expo-blur'
+import { BlurView } from './SafeBlur'
 import { colors } from '../theme/theme'
 
 // Frosted-glass chrome matching the Card's translucency (BlurView + cream veil +

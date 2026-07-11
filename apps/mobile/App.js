@@ -18,8 +18,15 @@ import BottomBar from './src/components/BottomBar'
 import Drawer from './src/components/Drawer'
 import ErrorBoundary from './src/components/ErrorBoundary'
 
-// Init the shared i18n engine once, before the first render.
-setupI18n()
+// Init the shared i18n engine once, before the first render. Guarded so a setup
+// throw can't take down app startup before anything renders (release builds have
+// no redbox — an uncaught error here would be a silent instant-close).
+try {
+  setupI18n()
+} catch (e) {
+  // eslint-disable-next-line no-console
+  if (typeof console !== 'undefined') console.warn('[i18n] setup failed', e?.message)
+}
 
 // The "עוד" drawer, rendered as an App-level overlay ABOVE the navigator so it
 // floats over every screen (incl. pushed stack screens). Plain state, no Modal.

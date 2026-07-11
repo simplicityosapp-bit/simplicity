@@ -9,8 +9,15 @@ import { Text, TextInput, StyleSheet } from 'react-native'
 // U+05CC all present — so it works as the base face. Bold stays standard
 // Alef-Bold (no dual-gender bold cut exists; bold + U+05CC is rare). The .ttf was
 // converted from the web .woff via scratchpad/woff2ttf.js (WOFF1 = zlib SFNT).
+// NOTE: base face is Google's official Alef-Regular (native-safe). The
+// hand-converted AlefMultiGndr (dual-gender U+05CC glyph) is temporarily NOT
+// loaded — a device build closed instantly on launch and the converted TTF was a
+// prime suspect for a native font-loader crash, so we rule it out. U+05CC falls
+// back to the system font meanwhile (cosmetic). Restore AlefMultiGndr once the
+// app is confirmed booting on-device (rebuild it with a real tool, not the
+// hand-rolled WOFF decoder).
 export const fontAssets = {
-  Alef: require('../../assets/fonts/AlefMultiGndr-Regular.ttf'),
+  Alef: require('../../assets/fonts/Alef-Regular.ttf'),
   'Alef-Bold': require('../../assets/fonts/Alef-Bold.ttf'),
 }
 

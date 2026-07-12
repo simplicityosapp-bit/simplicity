@@ -53,9 +53,9 @@ export async function finalizeOnboardingImport(input = {}) {
 
   /* Resolve the work list — explicit reviewed arrays win; otherwise
      fall back to the raw parsed_data buckets. */
-  let projects = []
-  let clients = []
-  let transactions = []
+  let projects
+  let clients
+  let transactions
   let leads = []
   let clientStatuses = []
   let leadStatuses = []

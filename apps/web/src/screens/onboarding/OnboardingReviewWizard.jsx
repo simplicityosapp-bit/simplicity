@@ -257,6 +257,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     try {
       const strip = (type) => state[type]
         .filter((row, i) => isIncluded(type, i, row) && isValid(type, row))
+        // eslint-disable-next-line no-unused-vars -- _row is destructured only to strip the UI-only field from the persisted payload.
         .map(({ _row, ...rest }) => rest)
       const summary = await onConfirm({ projects: strip('projects'), clients: strip('clients'), leads: strip('leads'), transactions: strip('transactions'), sessions: strip('sessions') })
       const failed = summary

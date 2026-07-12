@@ -16,7 +16,7 @@ import { Box, Txt } from '../../../components/ui'
    write, so nothing can double-create) and the primary CTA flips
    onboarding.completed_at and lands the user on /home.
    (No skip button on this last step — see OnboardingShell.) */
-export default function Step9Finish({ ob, onDone, setCTA }) {
+export default function Step9Finish({ onDone, setCTA }) {
   const { t } = useT('onboardingSteps')
   const { projects } = useProjects()
   const { clients } = useClients()

@@ -77,6 +77,7 @@ function computeResult(state) {
     /* Content signature (ignoring server-owned id/timestamps) so that
        generation hooks re-running under React StrictMode don't pile up
        duplicate rows — the real DB's unique constraints would reject them. */
+    // eslint-disable-next-line no-unused-vars -- id/created_at/updated_at are destructured only to omit these server-owned fields from the content signature.
     const sig = (r) => { const { id, created_at, updated_at, ...rest } = r; return JSON.stringify(rest) }
     const rows = (Array.isArray(payload) ? payload : [payload]).map((r) => ({
       id: uuid(),

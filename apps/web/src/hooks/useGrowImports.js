@@ -14,7 +14,7 @@ export function useGrowImports() {
   const qc = useQueryClient()
   const { data, isLoading, refetch } = useQuery({ queryKey: KEY, queryFn: listPendingGrowImports })
   const imports = data ?? []
-  const drop = (id) => qc.setQueryData(KEY, (prev) => (prev ?? []).filter((r) => r.id !== id))
+  const drop = useCallback((id) => qc.setQueryData(KEY, (prev) => (prev ?? []).filter((r) => r.id !== id)), [qc])
 
   const approve = useCallback(async (id) => {
     try {
@@ -26,7 +26,7 @@ export function useGrowImports() {
       else showError(i18n.t('components:errors.importFailed'))
       throw e
     }
-  }, [qc])
+  }, [qc, drop])
 
   const dismiss = useCallback(async (id) => {
     try {
@@ -36,7 +36,7 @@ export function useGrowImports() {
       showError(i18n.t('components:errors.actionFailed'))
       throw e
     }
-  }, [qc])
+  }, [drop])
 
   return { imports, loading: isLoading, refetch, approve, dismiss }
 }

@@ -56,7 +56,6 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
       }
       const ids = []
       for (const k of picked) {
-        // eslint-disable-next-line no-await-in-loop
         const row = await addQuestion({
           template_key: k,
           custom_text: null,
@@ -68,7 +67,6 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
         ids.push(row.id)
       }
       if (custom.trim().length > 0) {
-        // eslint-disable-next-line no-await-in-loop
         const row = await addQuestion({
           template_key: null,
           custom_text: custom.trim(),

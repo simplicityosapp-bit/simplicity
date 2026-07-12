@@ -79,7 +79,6 @@ export async function readManyFiles(files) {
   const all = []
   const flats = []
   for (const file of Array.from(files || [])) {
-    // eslint-disable-next-line no-await-in-loop
     const { matrixSources, flatParsed } = await readFileSources(file)
     all.push(...matrixSources)
     if (flatParsed) flats.push(flatParsed)

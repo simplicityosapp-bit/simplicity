@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useUserPreferences } from './useUserPreferences'
 
 /* ════════════════════════════════════════════════════════════════
@@ -13,7 +13,7 @@ import { useUserPreferences } from './useUserPreferences'
 
 export function useTours() {
   const { prefs, update } = useUserPreferences()
-  const seen = prefs?.tours || {}
+  const seen = useMemo(() => prefs?.tours || {}, [prefs?.tours])
 
   const isSeen = useCallback((key) => !!seen[key], [seen])
 

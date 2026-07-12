@@ -33,7 +33,7 @@ export function useOnboarding() {
   const total = ONBOARDING_STEPS.length
   const progress = total > 0 ? (stepIndex + 1) / total : 0
   const isComplete = !!(state.completed_at || state.skipped_at)
-  const completedSteps = state.completed_steps || []
+  const completedSteps = useMemo(() => state.completed_steps || [], [state.completed_steps])
 
   /* Patch a few onboarding keys. We deliberately DON'T spread `...state`
      here: `update` already deep-merges the patch over the LATEST prefs

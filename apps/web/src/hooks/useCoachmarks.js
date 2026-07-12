@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useUserPreferences } from './useUserPreferences'
 
 /* ════════════════════════════════════════════════════════════════
@@ -13,7 +13,7 @@ import { useUserPreferences } from './useUserPreferences'
 
 export function useCoachmarks() {
   const { prefs, update } = useUserPreferences()
-  const seen = prefs?.coachmarks || {}
+  const seen = useMemo(() => prefs?.coachmarks || {}, [prefs?.coachmarks])
 
   const isVirgin = useCallback((id) => !seen[id], [seen])
 

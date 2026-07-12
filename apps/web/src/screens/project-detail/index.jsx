@@ -224,7 +224,6 @@ export default function ProjectDetailScreen() {
        never clobber a deliberate manual status. */
     const memberClients = groupMemberClients(gid).filter((c) => !c.status_overridden && statusMetaOf(c) !== targetMeta)
     for (const c of memberClients) {
-      // eslint-disable-next-line no-await-in-loop
       await updateClient(c.id, { status: targetMeta, status_meta: targetMeta }).catch(() => {})
     }
     return memberClients.length
@@ -293,7 +292,6 @@ export default function ProjectDetailScreen() {
     if (mode === 'move') {
       const others = liveMembers.filter((m) => m.client_id === client.id && m.group_id !== group.id)
       for (const m of others) {
-        // eslint-disable-next-line no-await-in-loop
         await removeMember(m.id).catch(() => {})
       }
     }

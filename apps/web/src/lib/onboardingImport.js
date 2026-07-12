@@ -342,7 +342,6 @@ export async function finalizeOnboardingImport(input = {}) {
         const dayKey = (r.date || placeholderDate).slice(0, 10)
         if (r.date && seen.has(dayKey)) { summary.sessions.skipped += 1; continue }
         const iso = r.date ? `${r.date}T12:00:00.000Z` : placeholderDate
-        // eslint-disable-next-line no-await-in-loop
         await insertOne(cId, iso, r.summary || 'יובא מהקובץ')
         seen.add(dayKey)
       }
@@ -351,7 +350,6 @@ export async function finalizeOnboardingImport(input = {}) {
     /* 2) Count fallback — top each client up to its sessions_done target. */
     for (const cs of clientSessions) {
       while ((numByClient.get(cs.client_id) || 0) < cs.count) {
-        // eslint-disable-next-line no-await-in-loop
         const ok = await insertOne(cs.client_id, placeholderDate, 'יובא מהקובץ')
         if (!ok) break
       }

@@ -39,7 +39,7 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
   const canAdvance = picked.length > 0 || custom.trim().length > 0
   /* No CTA hint here — selecting is self-evident; the empty footer reads cleaner. */
   const hint = null
-  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [picked, custom, customScale, customIcon, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [picked, custom, customScale, customIcon, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/immutability
 
   const onNext = async () => {
     setBusy(true); setErr('')

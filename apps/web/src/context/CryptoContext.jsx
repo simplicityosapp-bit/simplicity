@@ -26,9 +26,11 @@ export function CryptoProvider({ children }) {
 
   useEffect(() => {
     let cancelled = false
+    /* eslint-disable react-hooks/set-state-in-effect -- clear stale key state synchronously when the user changes, before re-deriving. */
     setKey(null)
     setIsReady(false)
     setError(null)
+    /* eslint-enable react-hooks/set-state-in-effect */
     clearActiveKey()
     const uid = user?.id
     if (!uid) return undefined
@@ -58,6 +60,7 @@ export function CryptoProvider({ children }) {
   return <CryptoContext.Provider value={value}>{children}</CryptoContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- the provider and its hook intentionally share a file; splitting would ripple imports for a dev-only HMR nicety.
 export function useCrypto() {
   const ctx = useContext(CryptoContext)
   if (!ctx) throw new Error('useCrypto must be used within a CryptoProvider')

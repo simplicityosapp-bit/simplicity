@@ -110,6 +110,7 @@ export default function Step6Goals({ ob, setCTA }) {
     : null
   /* Deps coerced to stable primitives — never undefined — so the array
      keeps a constant length across renders (React requires this). */
+  // eslint-disable-next-line react-hooks/immutability -- onNext is declared just below and only invoked at CTA time, after assignment.
   useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) },
     [type || '', target || '', timeFrame, targetDate || '', importance, label || '', tracking, qText || '', qScale, qIcon, schedMode, schedDays.length, schedX, projectId || '', busy, canAdvance, hint || '']) // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../lib/routes'
 import { useOnboarding } from '../../hooks/useOnboarding'
@@ -59,7 +59,7 @@ export default function OnboardingScreen() {
      import itself reads existing clients/projects directly from the
      DB so we don't have to plumb them through React state. */
   const onDoneInputs = useRef({ ob, navigate })
-  onDoneInputs.current = { ob, navigate }
+  useEffect(() => { onDoneInputs.current = { ob, navigate } }) // keep latest inputs current without destabilizing the memoized onDone
 
   /* Finish: complete() clears the raw CSV from prefs (personal client
      data we only kept for the review) in the same write, then land home.

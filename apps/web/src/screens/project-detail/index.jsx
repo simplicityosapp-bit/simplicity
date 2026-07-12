@@ -743,6 +743,7 @@ export default function ProjectDetailScreen() {
             ) : (
               projectReminders.map((r) => {
                 const isCompleted = r.status === 'completed'
+                // eslint-disable-next-line react-hooks/purity -- Date.now() for an at-render overdue check is acceptable here.
                 const isOverdue = r.status === 'pending' && new Date(r.scheduled_at).getTime() < Date.now()
                 return (
                   <Box key={r.id} className="pd-rem-row">

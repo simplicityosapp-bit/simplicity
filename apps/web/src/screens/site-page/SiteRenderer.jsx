@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, Component } from 'react'
+import { createElement, useState, useRef, useEffect, Component } from 'react'
 import { sitePageSurface, safeRedirectUrl, safeImageUrl, safeVideoEmbed, FREE_CANVAS_W, FREE_CANVAS_MOBILE_W, freeDefaultLayout, freeLayoutKey } from '../../lib/sitePageSchema'
 import { renderRichText } from '../../lib/richText'
 import { useBookingFlow } from './useBookingFlow'
@@ -259,9 +259,8 @@ function CardsBlock({ props, interactive }) {
 
 /* A single decorative icon. */
 function IconBlock({ props }) {
-  const Icon = iconByName(props.icon)
   const size = props.size === 'sm' ? 28 : props.size === 'lg' ? 64 : 44
-  return <Box className={`sp-iconblock sp-align-${props.align || 'center'}`}><Icon size={size} strokeWidth={1.8} aria-hidden="true" /></Box>
+  return <Box className={`sp-iconblock sp-align-${props.align || 'center'}`}>{createElement(iconByName(props.icon), { size, strokeWidth: 1.8, 'aria-hidden': 'true' })}</Box>
 }
 
 function GalleryBlock({ props, interactive }) {
@@ -555,6 +554,7 @@ function BookingInline({ pageId }) {
             <Txt className="sp-label">{t('publicPage.fieldNote')}</Txt>
             <Textarea className="sp-input sp-textarea" rows={3} value={f.values.note} onChange={(e) => f.setField('note', e.target.value)} />
           </Box>
+          {/* eslint-disable-next-line react-hooks/immutability -- honeypot ref write inside an event handler is safe (not render-phase mutation). */}
           <Input type="text" tabIndex={-1} autoComplete="off" className="sp-hp" aria-hidden="true" onChange={(e) => { f.hp.current = e.target.value }} />
           {f.submitError === 'generic' ? <Txt as="p" className="sp-form-error">{t('publicPage.errGeneric')}</Txt> : null}
           <Btn type="submit" className="sp-btn sp-btn-primary sp-bk-submit" disabled={f.submitting}>

@@ -53,8 +53,10 @@ export default function SitePage({ kind = 'landing' }) {
 
   useEffect(() => {
     let active = true
+    /* eslint-disable react-hooks/set-state-in-effect -- intentional reset-on-pageId/kind-change before the async config load. */
     setStatus('loading'); setConfig(null)
     setSubmittedForms(new Set()); setThankYouBySection({}); setErrorBySection({}); setSubmittingId(null)
+    /* eslint-enable react-hooks/set-state-in-effect */
     ;(async () => {
       try {
         const cfg = await fetchSitePageConfig(pageId, kind)

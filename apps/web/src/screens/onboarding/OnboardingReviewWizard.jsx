@@ -188,6 +188,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
 
   const [tab, setTab] = useState(TABS[0]?.key || 'clients')
   const [visible, setVisible] = useState(PAGE)
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- reset the visible-row count back to one page when the tab changes.
   useEffect(() => { setVisible(PAGE) }, [tab])
   /* When the dirty-close confirmation appears, move focus to its safe action. */
   useEffect(() => { if (confirmingClose) stayBtnRef.current?.focus() }, [confirmingClose])

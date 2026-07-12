@@ -42,6 +42,7 @@ export default function ScreenTour({ screenKey }) {
   /* Auto-start when the screen changes. Reset first, then poll for the
      targets (the screen may still be mounting / data still loading). */
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset tour state on screen change, then poll for the step targets.
     setActive(false); setIdx(0); setRect(null); setSteps([])
     const def = tourFor(screenKey)
     if (!def || isSeen(screenKey)) return

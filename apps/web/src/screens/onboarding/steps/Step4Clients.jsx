@@ -106,6 +106,7 @@ export default function Step4Clients({ ob, setCTA }) {
   )
   useEffect(() => {
     if (form.group_id && !projectGroups.some((g) => g.id === form.group_id)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clear a group selection that no longer belongs to the chosen project.
       setForm((f) => ({ ...f, group_id: '' }))
     }
   }, [projectGroups, form.group_id])

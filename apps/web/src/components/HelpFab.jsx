@@ -33,8 +33,10 @@ const TABS = [
 function useHeaderAnchor(pathname, screenKey) {
   const [state, setState] = useState({ status: 'searching', node: null })
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- reset the anchor state on route/screen change, then poll the DOM for the header node. */
     if (screenKey === 'home') { setState({ status: 'none', node: null }); return undefined }
     setState({ status: 'searching', node: null })
+    /* eslint-enable react-hooks/set-state-in-effect */
     let raf
     let tries = 0
     const find = () => {

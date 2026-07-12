@@ -1275,6 +1275,10 @@ function FormFieldsEditor({ value, onChange }) {
   const setField = (i, patch) => onChange(fields.map((f, j) => (j === i ? { ...f, ...patch } : f)))
   const remove = (i) => onChange(fields.filter((_, j) => j !== i))
   const add = () => onChange([...fields, { key: freeFieldKey(fields), label: t('fields.newField'), type: 'text', required: false, builtin: false }])
+  // Per-option editing for choice fields (select/checkbox): one row each, add/remove individually.
+  const setOption = (i, oi, val) => setField(i, { options: (fields[i].options || []).map((o, k) => (k === oi ? val : o)) })
+  const addOption = (i) => setField(i, { options: [...(fields[i].options || []), ''] })
+  const removeOption = (i, oi) => setField(i, { options: (fields[i].options || []).filter((_, k) => k !== oi) })
   return (
     <Box className="spe-f">
       <Txt>{t('fields.formFields')}</Txt>
@@ -1291,9 +1295,16 @@ function FormFieldsEditor({ value, onChange }) {
             <Box as="label" className="spe-req-toggle"><Input type="checkbox" checked={!!f.required} onChange={(e) => setField(i, { required: e.target.checked })} /> {t('fields.required')}</Box>
           </Box>
           {isChoiceType(f.type) ? (
-            <Input className="spe-flex" placeholder={t('fields.optionsPlaceholder')}
-              value={(f.options || []).join(', ')}
-              onChange={(e) => setField(i, { options: e.target.value.split(',').map((o) => o.trim()).filter(Boolean) })} />
+            <Box className="spe-opts">
+              {(f.options || []).map((o, oi) => (
+                <Box className="spe-opt-row" key={oi}>
+                  <Input className="spe-flex" placeholder={t('fields.optionPlaceholder')}
+                    value={o} onChange={(e) => setOption(i, oi, e.target.value)} />
+                  <Btn onClick={() => removeOption(i, oi)}><Trash2 size={13} /></Btn>
+                </Box>
+              ))}
+              <Btn className="spe-add-opt" onClick={() => addOption(i)}><Plus size={13} /> {t('fields.addOption')}</Btn>
+            </Box>
           ) : isConsentType(f.type) ? (
             <>
               <Input className="spe-flex" placeholder={t('fields.consentLinkUrl')}

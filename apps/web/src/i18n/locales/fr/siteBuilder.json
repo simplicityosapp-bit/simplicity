@@ -195,7 +195,8 @@
     "formFields": "Champs du formulaire",
     "newField": "Nouveau champ",
     "required": "Obligatoire",
-    "optionsPlaceholder": "Options, séparées par des virgules",
+    "optionPlaceholder": "Option",
+    "addOption": "Ajouter une option",
     "consentLinkUrl": "Lien (facultatif)",
     "consentLinkText": "Texte du lien",
     "addField": "Ajouter un champ"

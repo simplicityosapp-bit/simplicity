@@ -195,7 +195,8 @@
     "formFields": "שדות הטופס",
     "newField": "שדה חדש",
     "required": "חובה",
-    "optionsPlaceholder": "אפשרויות, מופרדות בפסיק",
+    "optionPlaceholder": "אפשרות",
+    "addOption": "הוספת אפשרות",
     "consentLinkUrl": "קישור (אופציונלי)",
     "consentLinkText": "טקסט הקישור",
     "addField": "הוספת שדה"

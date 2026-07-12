@@ -47,6 +47,7 @@ export function useAdminQuery(action, params = {}) {
     }
   }, [action, key])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- run() fetches on mount / query change; its setLoading is the intended external-system sync.
   useEffect(() => { run() }, [run])
 
   return { data, loading, error, refetch: run }

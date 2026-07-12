@@ -27,6 +27,7 @@ export default function ExportDataModal({
 
   /* Reset the opt-in sensitive selections each time the modal opens — they
      export decrypted PII and must never silently carry over from a prior open. */
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- reset the opt-in sensitive selections each time the modal opens.
   useEffect(() => { if (open) { setSel({}); setErr(false) } }, [open])
 
   const toggle = (key) => setSel((s) => ({ ...s, [key]: !s[key] }))

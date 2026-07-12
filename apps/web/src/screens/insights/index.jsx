@@ -232,6 +232,7 @@ export default function InsightsScreen() {
   const [pendingDelete, setPendingDelete] = useState(null)
 
   /* Keep the controlled toggle in sync if prefs hydrate after mount. */
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- keep the controlled toggle in sync when prefs hydrate after mount.
   useEffect(() => { setHistoryOpen(!!prefs?.insShowHistory) }, [prefs?.insShowHistory])
 
   const today = useMemo(() => new Date(), [])

@@ -305,6 +305,7 @@ function ConsentGate({ children }) {
   useEffect(() => {
     if (!user || tried.current) return
     const pending = readPendingConsent()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time gate: mark consent resolved when nothing is stashed to sync.
     if (!pending) { setPendingDone(true); return }
     tried.current = true
     ;(async () => {

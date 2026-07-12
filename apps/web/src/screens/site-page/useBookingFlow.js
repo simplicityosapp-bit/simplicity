@@ -45,11 +45,13 @@ export function useBookingFlow(pageId, { enabled = true } = {}) {
 
   /* Load the page config once (or when the referenced page changes). */
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- guard + intentional reset-on-pageId-change before the async config load. */
     if (!enabled || !str(pageId)) { setStatus(str(pageId) ? 'loading' : 'notfound'); return }
     let active = true
     setStatus('loading'); setConfig(null); setTypeId(null); setSlots(null)
     setDayKey(null); setSlot(null); setValues({ name: '', phone: '', email: '', note: '' })
     setErrors({}); setSubmitError(null); setThankYou(null); hp.current = ''
+    /* eslint-enable react-hooks/set-state-in-effect */
     ;(async () => {
       try {
         const cfg = await fetchBookingPageConfig(pageId)
@@ -66,6 +68,7 @@ export function useBookingFlow(pageId, { enabled = true } = {}) {
   useEffect(() => {
     if (!enabled || !config || typeId == null) return
     let active = true
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset slot state when the meeting type changes, then fetch availability.
     setSlotsLoading(true); setSlots(null); setDayKey(null); setSlot(null)
     ;(async () => {
       try {

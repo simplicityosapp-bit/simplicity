@@ -28,9 +28,11 @@ export function useT(ns) {
   /* <Trans> reads the namespace + i18n off the `t` it's given. Our wrapper
      is a fresh function, so copy that metadata across — otherwise <Trans>
      falls back to the default ('common') namespace and renders raw keys. */
+  /* eslint-disable react-hooks/immutability -- tg is a freshly-created local function; copying i18n metadata onto it is safe construction, not shared-state mutation. */
   tg.ns = t.ns
   tg.lng = t.lng
   tg.i18n = t.i18n
+  /* eslint-enable react-hooks/immutability */
 
   return { t: tg, i18n, lang: i18n.language, gender }
 }

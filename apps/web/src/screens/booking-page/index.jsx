@@ -63,9 +63,11 @@ export default function BookingPage() {
     let active = true
     // Reset all per-page state so navigating between two /book/<id> pages (same
     // component instance) never carries over the previous page's selections.
+    /* eslint-disable react-hooks/set-state-in-effect -- intentional reset-on-pageId-change before the async config load. */
     setStatus('loading'); setConfig(null); setTypeId(null); setSlots(null)
     setDayKey(null); setSlot(null); setValues({ name: '', phone: '', email: '', note: '' })
     setErrors({}); setSubmitError(null); setThankYou(null); hp.current = ''
+    /* eslint-enable react-hooks/set-state-in-effect */
     ;(async () => {
       try {
         const cfg = await fetchBookingPageConfig(pageId)
@@ -94,6 +96,7 @@ export default function BookingPage() {
   useEffect(() => {
     try {
       const p = new URLSearchParams(window.location.search)
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- read the Grow return flag once on mount and reflect it in state.
       if (p.get('paid')) setPaymentResult('paid')
       else if (p.get('cancelled')) setPaymentResult('cancelled')
     } catch { /* ignore */ }
@@ -103,6 +106,7 @@ export default function BookingPage() {
   useEffect(() => {
     if (!config || typeId == null) return
     let active = true
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset slot state when the meeting type changes, then fetch availability.
     setSlotsLoading(true); setSlots(null); setDayKey(null); setSlot(null)
     ;(async () => {
       try {

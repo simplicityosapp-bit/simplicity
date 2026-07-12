@@ -38,6 +38,7 @@ export function useFeedback() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- deps are correct ([user?.id]); the compiler can't prove it through the optional chain.
   const submitFeedback = useCallback(async (message, type = null) => {
     const text = (message || '').trim()
     if (!text) return { ok: false, error: 'empty' }

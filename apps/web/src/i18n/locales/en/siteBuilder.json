@@ -195,7 +195,8 @@
     "formFields": "Form fields",
     "newField": "New field",
     "required": "Required",
-    "optionsPlaceholder": "Options, comma-separated",
+    "optionPlaceholder": "Option",
+    "addOption": "Add option",
     "consentLinkUrl": "Link (optional)",
     "consentLinkText": "Link text",
     "addField": "Add field"

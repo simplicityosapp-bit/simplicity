@@ -195,7 +195,8 @@
     "formFields": "Campos del formulario",
     "newField": "Nuevo campo",
     "required": "Obligatorio",
-    "optionsPlaceholder": "Opciones, separadas por comas",
+    "optionPlaceholder": "Opción",
+    "addOption": "Añadir opción",
     "consentLinkUrl": "Enlace (opcional)",
     "consentLinkText": "Texto del enlace",
     "addField": "Añadir campo"

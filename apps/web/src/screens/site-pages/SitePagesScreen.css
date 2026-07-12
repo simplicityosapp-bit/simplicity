@@ -478,6 +478,14 @@
 .spe-add-row { display: inline-flex; align-items: center; justify-content: center; gap: 5px; font: inherit; font-size: var(--mg-caption); color: var(--terracotta); background: transparent; border: 1px dashed var(--terracotta); border-radius: 9px; padding: 8px; cursor: pointer; transition: background 0.15s; }
 .spe-add-row:hover { background: color-mix(in srgb, var(--terracotta) 8%, transparent); }
 
+/* Choice-field options: one editable row each + a lightweight "add option" button. */
+.spe-opts { display: flex; flex-direction: column; gap: 6px; }
+.spe-opt-row { display: flex; gap: 6px; align-items: center; }
+.spe-opt-row button { display: grid; place-items: center; width: 28px; height: 28px; flex: none; border: none; background: transparent; color: var(--spb-text-3, var(--mist)); border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s; }
+.spe-opt-row button:hover { background: color-mix(in srgb, var(--clay) 12%, transparent); color: var(--clay); }
+.spe-add-opt { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; font: inherit; font-size: var(--mg-micro); color: var(--terracotta); background: transparent; border: none; padding: 2px 4px; cursor: pointer; }
+.spe-add-opt:hover { text-decoration: underline; }
+
 /* Shared focus-visible ring — keyboard operability across the whole editor. */
 .spe :is(button, a, input, select, textarea):focus-visible,
 .spg-tab:focus-visible, .spg-new:focus-visible, .spg-card-actions :is(button, a):focus-visible {

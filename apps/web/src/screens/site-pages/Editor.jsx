@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight, Plus, Trash2, Monitor, Smartphone, GripVertical,
   Palette, Upload, X, ChevronUp, ChevronDown, Maximize2, Minimize2,
@@ -138,6 +138,7 @@ export default function Editor({ page, onSave, onBack }) {
       if (okTimer.current) clearTimeout(okTimer.current)
       knownAssets.current?.forEach((p) => { if (!savedAssets.current?.has(p)) removePageAsset(p) })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount/unmount only: seed the asset refs on mount, sweep orphan uploads on unmount. Adding page.* deps would re-run and corrupt the orphan-tracking sets.
   }, [])
 
   /* Track the bottom-sheet breakpoint so dialog semantics apply only when modal. */
@@ -239,6 +240,7 @@ export default function Editor({ page, onSave, onBack }) {
   // always its own history step, never coalesced into a neighbouring value edit.
   const mutate = (fn, immediate) => {
     const h = hist.current
+    // eslint-disable-next-line react-hooks/purity -- `mutate` runs only from event handlers (edits), never during render, so Date.now() here is safe.
     const now = Date.now()
     if (immediate || h.past.length === 0 || now - h.lastT > COALESCE_MS) {
       h.past.push(snapshot(draft))
@@ -270,13 +272,15 @@ export default function Editor({ page, onSave, onBack }) {
     restore(h.future.pop())
     h.lastT = 0
   }
+  // eslint-disable-next-line react-hooks/refs -- reads a ref during render, but every history mutation also calls setDraft, so the component re-renders and these booleans recompute in the same tick.
   const canUndo = hist.current.past.length > 0
+  // eslint-disable-next-line react-hooks/refs -- see canUndo above: state always re-renders alongside the ref mutation.
   const canRedo = hist.current.future.length > 0
 
   /* Ctrl/⌘+Z = undo, Ctrl/⌘+Shift+Z or Ctrl+Y = redo. Skipped while a text field
      is focused so the browser's native text undo still works there. */
   const histKeyRef = useRef({})
-  histKeyRef.current = { undo, redo }
+  useEffect(() => { histKeyRef.current = { undo, redo } }) // keep latest callbacks without re-binding the listener
   useEffect(() => {
     const onKey = (e) => {
       if (!(e.ctrlKey || e.metaKey)) return
@@ -358,7 +362,7 @@ export default function Editor({ page, onSave, onBack }) {
      never while typing in a field / editing text in place (ref keeps the handler
      reading the latest selectedId + deleteSection without re-binding each render). */
   const keyDelRef = useRef({})
-  keyDelRef.current = { selectedId, deleteSection }
+  useEffect(() => { keyDelRef.current = { selectedId, deleteSection } }) // keep latest values without re-binding the listener
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== 'Delete' && e.key !== 'Backspace') return
@@ -915,7 +919,7 @@ function SectionDesign({ style, onStyle }) {
    column (width is also draggable on the canvas). In FREE mode size/position come
    from dragging, so instead we expose LAYERING (bring to front / send to back) for
    overlapping blocks. */
-function SizePosition({ props, onChange, free, section, sections }) {
+function SizePosition({ props, onChange, free, sections }) {
   const { t } = useT('siteBuilder')
   if (free) {
     const list = Array.isArray(sections) ? sections : []
@@ -1174,7 +1178,6 @@ function IconPicker({ value, onChange }) {
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const ref = useRef(null)
-  const Current = iconByName(value)
   useEffect(() => {
     if (!open) return undefined
     const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
@@ -1190,7 +1193,7 @@ function IconPicker({ value, onChange }) {
   return (
     <Box className="spe-iconpick" ref={ref}>
       <Btn type="button" className={`spe-iconswatch${open ? ' is-open' : ''}`} onClick={() => setOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={open}>
-        <Txt className="spe-iconswatch-icn"><Current size={18} /></Txt>
+        <Txt className="spe-iconswatch-icn">{createElement(iconByName(value), { size: 18 })}</Txt>
         <Txt className="spe-iconswatch-name">{value || t('inspector.pickIcon', { defaultValue: 'בחרו אייקון' })}</Txt>
         <ChevronDown size={15} className="spe-iconswatch-chev" />
       </Btn>

@@ -149,7 +149,7 @@ export default function TasksScreen() {
   const doneCount  = isTasks
     ? tasks.filter((t) => t.status === 'done').length
     : reminders.filter((r) => r.status === 'completed').length
-  const now = useMemo(() => new Date(), [reminders, tasks, filter, view])
+  const now = useMemo(() => new Date(), [reminders, tasks, filter, view]) // eslint-disable-line react-hooks/exhaustive-deps -- deps intentionally refresh "now" when the list re-renders on data/filter/view change
   /* "Urgent" tile re-labels per entity: tasks use priority=high, while
      reminders use overdue (past due AND still pending). */
   const urgentCount = isTasks

@@ -86,7 +86,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
         />
         <Box className="mg-sidebar-brand-text">
           <Txt as="p" className="mg-sidebar-brand">Simplicity</Txt>
-          <Txt as="p" className="mg-sidebar-tag">Practice OS</Txt>
+          <Txt as="p" className="mg-sidebar-tag">Business OS</Txt>
         </Box>
       </Box>
 

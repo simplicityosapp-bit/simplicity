@@ -805,7 +805,7 @@
         },
         {
           "q": "¿Dónde añado o elimino preguntas?",
-          "a": "En Ajustes > Preguntas del registro diario. En la pantalla de Registro diario solo puedes activar, desactivar, responder y saltar, no añadir ni eliminar."
+          "a": "En Ajustes > Preguntas del registro diario. En la pantalla de Registro diario solo puedes activar, desactivar y responder, no añadir ni eliminar. Saltar una pregunta por hoy se ha movido al widget «Registro diario» de la pantalla de Inicio."
         },
         {
           "q": "¿Hay correlaciones entre métricas aquí?",
@@ -1379,7 +1379,7 @@
     }
   ],
   "about": {
-    "tagline": "Practice OS — a tu propio ritmo",
+    "tagline": "Business OS — a tu propio ritmo",
     "description": "Simplicity se creó para terapeutas, coaches, facilitadores, profesores, instructores y consultores en Israel. Un solo lugar para toda tu actividad: clientes, prospectos, sesiones y calendario, finanzas, proyectos, tareas, objetivos y tu propio proceso personal. Todo en hebreo, en tu forma de tratamiento preferida (masculino/femenino/neutro), y sin el ruido.",
     "principles": [
       {

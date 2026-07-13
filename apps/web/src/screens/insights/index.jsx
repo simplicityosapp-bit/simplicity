@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Sparkles, Check, ChevronDown, ChevronUp, RotateCcw, SkipForward, Plus, Pencil, Trash2 } from 'lucide-react'
+import { Sparkles, Check, ChevronDown, ChevronUp, RotateCcw, Plus, Pencil, Trash2 } from 'lucide-react'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
@@ -97,7 +97,7 @@ function DeltaPill({ delta }) {
   return <Txt className={`ins-delta ${tone} mono`}>{sign}{Math.abs(delta).toFixed(1)}</Txt>
 }
 
-function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle, onEdit, onDelete, skipped, onSkip, t, gender }) {
+function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft, setDraft, canAnswer, onToggle, onEdit, onDelete, skipped, t, gender }) {
   const avg7 = useMemo(() => averageForWindow(idx, question.id, 7), [idx, question.id])
   const avg30 = useMemo(() => averageForWindow(idx, question.id, 30), [idx, question.id])
   const d7 = useMemo(() => deltaVsPrevWindow(idx, question.id, 7), [idx, question.id])
@@ -143,11 +143,10 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
         </Btn>
       </Box>
 
-      {/* Entry row — only for an active, due-today question not yet
-          answered AND not skipped-for-today (beta 07/06/2026: a small
-          "דלג" lets the user dismiss one question for the day without
-          answering — no answer is written, so streak/averages are
-          untouched). */}
+      {/* Entry row — only for an active, due-today question not yet answered
+          AND not skipped-for-today. Skipping moved to the home "מה איתך היום"
+          widget (beta 13/07/2026); a question skipped there is hidden here too
+          and can be re-opened via the "ענה על N שדולגו" button below the grid. */}
       {canAnswer && latestAnswerToday == null && !skipped && (
         <Box className="ins-q-entry">
           {isYn ? (
@@ -178,16 +177,6 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
               </Btn>
             </>
           )}
-          <Btn
-            type="button"
-            className="ins-skip-btn"
-            disabled={busy}
-            onClick={onSkip}
-            aria-label={t('card.skipAria')}
-          >
-            <SkipForward size={13} strokeWidth={1.7} aria-hidden="true" />
-            {t('card.skip')}
-          </Btn>
         </Box>
       )}
 
@@ -257,10 +246,9 @@ export default function InsightsScreen() {
   }, [prefs?.insSkipped, todayKey])
   const skippedSet = useMemo(() => new Set(skippedToday), [skippedToday])
 
-  const skipQuestion = (qId) => {
-    if (skippedSet.has(qId)) return
-    updatePrefs?.({ insSkipped: { date: todayKey, ids: [...skippedToday, qId] } })
-  }
+  /* Skipping a question moved to the home "מה איתך היום" widget (beta
+     13/07/2026); this screen only reflects the shared prefs.insSkipped state
+     (hides skipped questions from the entry grid) and offers a bulk re-open. */
   const unskipAll = () => updatePrefs?.({ insSkipped: { date: todayKey, ids: [] } })
 
   /* Count of today's skipped questions that are still answerable (active,
@@ -380,7 +368,6 @@ export default function InsightsScreen() {
               setDraft={(v) => setDraft(q.id, v)}
               onSubmit={(v) => submit(q, v)}
               skipped={skippedSet.has(q.id)}
-              onSkip={() => skipQuestion(q.id)}
               t={t}
               gender={gender}
             />

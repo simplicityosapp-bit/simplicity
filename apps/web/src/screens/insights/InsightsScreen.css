@@ -197,27 +197,6 @@
 .ins-yn-btn:hover { background: rgba(42, 37, 32, 0.04); }
 [data-theme="dark"] .ins-yn-btn:hover { background: rgba(240, 235, 224, 0.06); }
 
-/* "דלג" — quiet ghost action pushed to the far (start) edge of the entry
-   row; dismisses one question for the day without writing an answer. */
-.ins-skip-btn {
-  margin-inline-start: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: none;
-  background: transparent;
-  font-family: var(--mg-font);
-  font-size: calc(12px * var(--text-scale));
-  font-weight: 500;
-  color: var(--stone);
-  cursor: pointer;
-}
-.ins-skip-btn:hover { background: rgba(42, 37, 32, 0.04); }
-[data-theme="dark"] .ins-skip-btn:hover { background: rgba(240, 235, 224, 0.06); }
-.ins-skip-btn:disabled { opacity: 0.4; cursor: default; }
-
 /* Re-open the questions skipped today (sits between the grid and history). */
 .ins-unskip-row {
   display: flex;

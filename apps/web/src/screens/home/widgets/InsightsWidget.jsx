@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sparkles, Check, Bell } from 'lucide-react'
+import { Sparkles, Check, Bell, SkipForward } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
 import { questionText, isQuestionDueToday } from '@simplicity/core'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
@@ -38,13 +38,21 @@ export default function InsightsWidget() {
   const navigate = useNavigate()
   const { questions } = useUserQuestions()
   const { answers, addAnswer } = useDailyAnswers()
-  const { prefs } = useUserPreferences()
+  const { prefs, update: updatePrefs } = useUserPreferences()
   const [val, setVal] = useState(null)
   const [collapsed, setCollapsed] = useState(false)
   const [busy, setBusy] = useState(false)
 
   const today = dayStr(0)
   const todayDate = useMemo(() => new Date(), [])
+  /* Per-day skip set — shares prefs.insSkipped with the "מה איתך היום"
+     screen (identical {date, ids} shape + local ymd key). A question skipped
+     here is skipped there too and vice-versa; it auto-expires next day. */
+  const skippedToday = useMemo(() => {
+    const s = prefs?.insSkipped
+    return (s && s.date === today && Array.isArray(s.ids)) ? s.ids : []
+  }, [prefs?.insSkipped, today])
+  const skippedSet = useMemo(() => new Set(skippedToday), [skippedToday])
   /* "Due today" combines `active` with the per-question
      schedule_pattern (days-of-week / every-X-days). Null pattern
      means "always". */
@@ -53,8 +61,8 @@ export default function InsightsWidget() {
     [questions, todayDate],
   )
   const q = useMemo(
-    () => activeQuestions.find((x) => !answers.some((a) => a.user_question_id === x.id && a.date === today)),
-    [activeQuestions, answers, today],
+    () => activeQuestions.find((x) => !skippedSet.has(x.id) && !answers.some((a) => a.user_question_id === x.id && a.date === today)),
+    [activeQuestions, answers, today, skippedSet],
   )
 
   /* S1 — soft in-app reminder: if the user enabled the daily reminder and
@@ -80,6 +88,21 @@ export default function InsightsWidget() {
       setBusy(false)
     }
   }
+
+  /* Skip one question for today — writes NO answer (streak/averages untouched),
+     just drops it from today's queue so the widget advances. Moved here from the
+     "מה איתך היום" screen (beta 13/07/2026). */
+  const skip = () => {
+    if (busy || !q || skippedSet.has(q.id)) return
+    updatePrefs?.({ insSkipped: { date: today, ids: [...skippedToday, q.id] } })
+    setVal(null)
+  }
+  const skipBtn = (
+    <Btn type="button" className="ins-skip-btn" disabled={busy} onClick={skip} aria-label={t('widgets.insights.skipAria')}>
+      <SkipForward size={13} strokeWidth={1.7} aria-hidden="true" />
+      {t('widgets.insights.skip')}
+    </Btn>
+  )
 
   const collapseBtn = (
     <Btn
@@ -194,6 +217,7 @@ export default function InsightsWidget() {
           </Box>
         </Box>
       )}
+      <Box className="ins-skip-row">{skipBtn}</Box>
     </Box>
   )
 }

@@ -805,7 +805,7 @@
         },
         {
           "q": "Where do I add or delete questions?",
-          "a": "In Settings > Daily Check-In Questions. On the Daily Check-In screen you can only enable, disable, answer, and skip — not add or delete."
+          "a": "In Settings > Daily Check-In Questions. On the Daily Check-In screen you can only enable, disable, and answer — not add or delete. Skipping a question for today moved to the \"How are you today\" widget on the Home screen."
         },
         {
           "q": "Are there correlations between metrics here?",
@@ -1379,7 +1379,7 @@
     }
   ],
   "about": {
-    "tagline": "Practice OS — at your own pace",
+    "tagline": "Business OS — at your own pace",
     "description": "Simplicity was built for therapists, coaches, facilitators, teachers, instructors and consultants in Israel. One place for your entire practice: clients, leads, sessions and calendar, finance, projects, tasks, goals and your own personal process. All in Hebrew, in your preferred form of address (masculine/feminine/neutral), and without the clutter.",
     "principles": [
       {

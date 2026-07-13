@@ -85,7 +85,9 @@
       "infoText": "La question quotidienne suit votre ressenti au fil du temps. L'échelle va de 1 à 10 (10 = le mieux). Les réponses sont enregistrées par jour et alimentent des analyses sur l'écran « Comment allez-vous aujourd'hui ».",
       "yes": "Oui",
       "no": "Non",
-      "saveAria": "Enregistrer la réponse"
+      "saveAria": "Enregistrer la réponse",
+      "skip": "Passer",
+      "skipAria": "Passer cette question pour aujourd'hui"
     },
     "moon": {
       "percentOfGoal": "{{percent}} % de l'objectif",

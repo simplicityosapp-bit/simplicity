@@ -805,7 +805,7 @@
         },
         {
           "q": "Où ajouter ou supprimer des questions ?",
-          "a": "Dans Paramètres > Questions du point quotidien. Sur l'écran Point quotidien, vous pouvez seulement activer, désactiver, répondre et passer — pas ajouter ni supprimer."
+          "a": "Dans Paramètres > Questions du point quotidien. Sur l'écran Point quotidien, vous pouvez seulement activer, désactiver et répondre — pas ajouter ni supprimer. Passer une question pour aujourd'hui a été déplacé vers le widget « Point quotidien » de l'écran d'accueil."
         },
         {
           "q": "Y a-t-il des corrélations entre les mesures ici ?",
@@ -1379,7 +1379,7 @@
     }
   ],
   "about": {
-    "tagline": "Practice OS — à votre rythme",
+    "tagline": "Business OS — à votre rythme",
     "description": "Simplicity a été conçu pour les thérapeutes, coachs, facilitateurs, enseignants, instructeurs et consultants en Israël. Un seul endroit pour toute votre activité : clients, prospects, séances et calendrier, finances, projets, tâches, objectifs et votre propre processus personnel. Le tout en hébreu, dans votre forme d'adresse préférée (masculine/féminine/neutre), et sans l'encombrement.",
     "principles": [
       {

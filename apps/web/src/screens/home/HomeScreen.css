@@ -139,6 +139,12 @@
 [data-theme="dark"] .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
   box-shadow: var(--mg-card-shadow);
 }
+/* Same treatment for the flat "blank" (ריק) background: with no photo behind
+   the cards the 1px accent ring reads as a hard frame (beta 13/07/2026) — drop
+   it to the plain card shadow, mirroring the dark-mode rule above. */
+html[data-bg="blank"] .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
+  box-shadow: var(--mg-card-shadow);
+}
 /* The moon widget's root is a LAYOUT block wrapping a ROUND chip — the
    generic ring above would draw a SQUARE around the circle. Move the ring
    onto the chip itself so it hugs the actual (round) widget. */
@@ -150,6 +156,9 @@
     var(--mg-card-shadow);
 }
 [data-theme="dark"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip {
+  box-shadow: var(--mg-card-shadow);
+}
+html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip {
   box-shadow: var(--mg-card-shadow);
 }
 
@@ -407,6 +416,29 @@
   position: relative;
   padding: var(--mg-card-pad);
 }
+/* "דלג" — quiet skip action on the daily-question widget; dismisses one
+   question for today without writing an answer (moved here from the
+   "מה איתך היום" screen, beta 13/07/2026). Shares prefs.insSkipped. */
+.ins-skip-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+.ins-skip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  font: 500 calc(12px * var(--text-scale)) / 1 var(--mg-font);
+  color: var(--stone);
+  cursor: pointer;
+}
+.ins-skip-btn:hover { background: rgba(42, 37, 32, 0.04); }
+[data-theme="dark"] .ins-skip-btn:hover { background: rgba(240, 235, 224, 0.06); }
+.ins-skip-btn:disabled { opacity: 0.4; cursor: default; }
 /* Reserve an inline-start strip for the round collapse toggle when open. */
 .ins-widget.has-collapse {
   padding-inline-start: 52px;

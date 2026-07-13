@@ -97,7 +97,11 @@
     "subscription": {
       "heading": "Subscription",
       "tier": "Plan",
-      "tiers": { "free": "Free", "basic": "Basic", "premium": "Premium" },
+      "tiers": {
+        "free": "Free",
+        "basic": "Basic",
+        "premium": "Premium"
+      },
       "betaUntil": "Beta exemption until",
       "grantExempt": "Grant beta exemption for:",
       "exemptM1": "1 month",
@@ -179,12 +183,42 @@
     "statuses": {
       "new": "New",
       "in_progress": "In progress",
-      "done": "Done"
+      "done": "Done",
+      "waiting_decision": "Awaiting decision",
+      "rejected": "Rejected"
     },
     "filterAll": "All",
     "empty": "No feedback to show",
     "unknownUser": "Unknown user",
-    "statusGroupAria": "Status"
+    "statusGroupAria": "Status",
+    "classifications": {
+      "bug": "Bug",
+      "dev": "Feature",
+      "unclear": "Unclear"
+    },
+    "surfaces": {
+      "technical": "Technical",
+      "design": "Design",
+      "both": "Both"
+    },
+    "platforms": {
+      "mobile": "Mobile",
+      "desktop": "Desktop",
+      "both": "Both",
+      "unknown": "Unknown"
+    },
+    "sources": {
+      "app": "In-app",
+      "email": "Email",
+      "manual": "Manual"
+    },
+    "classificationLabel": "Classification",
+    "surfaceLabel": "Tech / design",
+    "platformLabel": "Platform",
+    "unset": "—",
+    "searchPlaceholder": "Search text, title or notes…",
+    "titlePlaceholder": "Short title…",
+    "notesPlaceholder": "Triage notes / investigation direction / fix log…"
   },
   "analytics": {
     "title": "Analytics",

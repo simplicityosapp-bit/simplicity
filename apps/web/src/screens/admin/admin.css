@@ -530,6 +530,49 @@
 .admin-status-row button.on { background: var(--terracotta); color: var(--on-accent); }
 [data-theme="dark"] .admin-status-row button.on { color: var(--ink-on-accent); }
 
+/* Triage board — search, source chip, title, per-field selects, notes. */
+.admin-fb-search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 12px; margin-bottom: 10px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border); background: var(--mg-card-bg);
+  color: var(--mist);
+}
+.admin-fb-search input {
+  flex: 1; border: none; background: transparent;
+  padding: 10px 0; font-family: inherit; font-size: var(--mg-body); color: var(--espresso);
+}
+.admin-fb-search input:focus { outline: none; }
+.admin-fb-filters { margin-bottom: 14px; }
+.admin-fb-source { background: rgba(0, 0, 0, .06); color: var(--mist); }
+[data-theme="dark"] .admin-fb-source { background: rgba(255, 255, 255, .08); }
+.admin-fb-title {
+  width: 100%; margin-bottom: 8px;
+  border: none; background: transparent; padding: 2px 0;
+  font-family: inherit; font-size: var(--mg-subtitle); font-weight: 600; color: var(--espresso);
+}
+.admin-fb-title::placeholder { color: var(--mist); font-weight: 500; }
+.admin-fb-title:focus { outline: none; }
+.admin-fb-triage {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  margin: 12px 0 10px; padding-top: 10px;
+  border-top: 1px solid var(--divider);
+}
+.admin-fb-tfield { display: flex; flex-direction: column; gap: 4px; }
+.admin-fb-tlabel { font-size: var(--mg-micro); font-weight: 500; color: var(--mist); }
+.admin-fb-select {
+  padding: 6px 10px; border-radius: 8px;
+  border: var(--mg-card-border); background: var(--mg-card-bg);
+  font-family: inherit; font-size: var(--mg-caption); color: var(--espresso); cursor: pointer;
+}
+.admin-fb-notes {
+  width: 100%; resize: vertical; min-height: 40px;
+  padding: 8px 10px; border-radius: 10px;
+  border: var(--mg-card-border); background: var(--mg-card-bg);
+  font-family: inherit; font-size: var(--mg-caption); line-height: 1.5; color: var(--espresso);
+}
+.admin-fb-notes::placeholder { color: var(--mist); }
+
 /* ── Funnel ────────────────────────────────────────────────────── */
 .admin-funnel { display: flex; flex-direction: column; gap: 9px; }
 .admin-funnel-row { display: grid; grid-template-columns: 120px 1fr 40px; align-items: center; gap: 12px; }

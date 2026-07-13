@@ -218,7 +218,17 @@
     "unset": "—",
     "searchPlaceholder": "חיפוש בטקסט, כותרת או הערות…",
     "titlePlaceholder": "כותרת קצרה…",
-    "notesPlaceholder": "הערות triage / כיוון בדיקה / לוג תיקון…"
+    "notesPlaceholder": "הערות triage / כיוון בדיקה / לוג תיקון…",
+    "selectAria": "בחר פידבק",
+    "deleteOneAria": "מחק פידבק",
+    "selectAll": "בחר הכל",
+    "selectedCount": "{{count}} נבחרו",
+    "deleteSelected": "מחק ({{count}})",
+    "deletedToast": "{{count}} פידבקים נמחקו",
+    "deleteError": "המחיקה נכשלה",
+    "deleteTitle": "מחיקת פידבק",
+    "deleteConfirm": "למחוק {{count}} פידבקים? הפעולה בלתי הפיכה.",
+    "deleteConfirmBtn": "מחק"
   },
   "analytics": {
     "title": "אנליטיקס",

@@ -218,7 +218,17 @@
     "unset": "—",
     "searchPlaceholder": "Search text, title or notes…",
     "titlePlaceholder": "Short title…",
-    "notesPlaceholder": "Triage notes / investigation direction / fix log…"
+    "notesPlaceholder": "Triage notes / investigation direction / fix log…",
+    "selectAria": "Select feedback",
+    "deleteOneAria": "Delete feedback",
+    "selectAll": "Select all",
+    "selectedCount": "{{count}} selected",
+    "deleteSelected": "Delete ({{count}})",
+    "deletedToast": "{{count}} feedback deleted",
+    "deleteError": "Delete failed",
+    "deleteTitle": "Delete feedback",
+    "deleteConfirm": "Delete {{count}} feedback item(s)? This cannot be undone.",
+    "deleteConfirmBtn": "Delete"
   },
   "analytics": {
     "title": "Analytics",

@@ -218,7 +218,17 @@
     "unset": "—",
     "searchPlaceholder": "Buscar texto, título o notas…",
     "titlePlaceholder": "Título breve…",
-    "notesPlaceholder": "Notas de triaje / dirección de investigación / registro de corrección…"
+    "notesPlaceholder": "Notas de triaje / dirección de investigación / registro de corrección…",
+    "selectAria": "Seleccionar comentario",
+    "deleteOneAria": "Eliminar comentario",
+    "selectAll": "Seleccionar todo",
+    "selectedCount": "{{count}} seleccionados",
+    "deleteSelected": "Eliminar ({{count}})",
+    "deletedToast": "{{count}} comentarios eliminados",
+    "deleteError": "Error al eliminar",
+    "deleteTitle": "Eliminar comentario",
+    "deleteConfirm": "¿Eliminar {{count}} comentario(s)? Esta acción es irreversible.",
+    "deleteConfirmBtn": "Eliminar"
   },
   "analytics": {
     "title": "Analíticas",

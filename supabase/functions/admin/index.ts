@@ -231,6 +231,18 @@ Deno.serve(async (req) => {
       return json({ ok: true })
     }
 
+    // Delete feedback rows (single or bulk) from the admin board. Destructive —
+    // the UI guards it behind a confirm dialog. NOT in the feedback-CLI token
+    // set, so only a real admin login can delete (the automation token cannot).
+    if (action === 'feedback_delete') {
+      const raw = Array.isArray(body?.ids) ? body.ids : (body?.id ? [body.id] : [])
+      const ids = [...new Set(raw)].filter((x) => typeof x === 'string' && UUID_RE.test(x))
+      if (!ids.length) return json({ error: 'bad request' }, 400)
+      const { error } = await admin.from('feedback').delete().in('id', ids)
+      if (error) return json({ error: 'delete failed', detail: error.message }, 500)
+      return json({ ok: true, deleted: ids.length })
+    }
+
     // Manually mark/unmark a user as a subscriber — even without a real
     // payment (beta). Stored as preferences.subscription.manual on the
     // TARGET user's own row (merged, never overwriting their prefs). The

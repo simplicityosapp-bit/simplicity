@@ -41,6 +41,12 @@ description: Reads the Notion feedback backlog, cross-references the repo files 
 
 ---
 
+## מבנה הריפו — מונוריפו (קרא לפני הכל)
+
+`C:\dev\simplicity` הוא **מונוריפו pnpm**: `apps/web/` (אפליקציית הווב, package `mangata-react` — **מה שהסקיל הזה מתקן**), `apps/mobile/` (Expo RN, `simplicity-expo`), `packages/core/` (`@simplicity/core`), ו-`supabase/` בשורש (schema + migrations, משותף). קוד הווב כולו תחת `apps/web/src/`. build/lint דרך `pnpm web:build` / `pnpm web:lint` מהשורש (אין `npm run build`/`lint` בשורש).
+
+---
+
 ## שלב 1 — טעינת הקשר
 
 קרא לפני כל ריצה:
@@ -51,17 +57,17 @@ description: Reads the Notion feedback backlog, cross-references the repo files 
 - `C:\dev\simplicity-assets\desingh.checklist.md`
 
 ### עיצוב (קרא תוכן מלא)
-- `src/styles/tokens.css`
-- `src/styles/screens.css`
-- `src/index.css`
+- `apps/web/src/styles/tokens.css`
+- `apps/web/src/styles/screens.css`
+- `apps/web/src/index.css`
 
 ### ארכיטקטורה (רשימה בלבד — פתח לפי צורך)
-- `src/App.jsx`
-- `src/lib/routes.js`
-- `src/hooks/` — שמות קבצים בלבד
+- `apps/web/src/App.jsx`
+- `apps/web/src/lib/routes.js`
+- `apps/web/src/hooks/` — שמות קבצים בלבד
 
 ### סכמה (קרא תוכן מלא)
-- `supabase/schema.sql`
+- `supabase/schema.sql` (בשורש המונוריפו)
 - `supabase/migrations/`
 
 ---
@@ -113,14 +119,14 @@ description: Reads the Notion feedback backlog, cross-references the repo files 
 ```
 ## Context
 Simplicity app — Practice OS for Israeli coaches.
-Repo root: C:\dev\simplicity\
+Monorepo root: C:\dev\simplicity\ (pnpm workspace). Web app lives in apps/web/ (package "mangata-react"). supabase/ (schema + migrations) is at the monorepo root. This fix targets apps/web.
 
 ## Source of truth files (read ALL of these first)
-- src/styles/tokens.css (design tokens — source of truth)
-- src/styles/screens.css (screen primitives)
-- src/index.css (globals)
-- supabase/schema.sql (DB schema)
-- supabase/migrations/ (all migrations)
+- apps/web/src/styles/tokens.css (design tokens — source of truth)
+- apps/web/src/styles/screens.css (screen primitives)
+- apps/web/src/index.css (globals)
+- supabase/schema.sql (DB schema, at monorepo root)
+- supabase/migrations/ (all migrations, at monorepo root)
 - C:\dev\simplicity-assets\analytics-formulas.md (business logic)
 - C:\dev\simplicity-assets\analytics.spec.md (analytics spec)
 - C:\dev\simplicity-assets\desingh.checklist.md (design decisions)
@@ -169,17 +175,18 @@ Never DROP columns without explicit approval.
 ### א. Build
 ```bash
 cd "C:\dev\simplicity"
-npm run build
+pnpm web:build
 ```
 נכשל → **עצור. תקן שגיאות build, ואז חזור לולידציה.**
 
 ### ב. Lint
+`pnpm web:lint` הוא `eslint .` על **כל** אפליקציית הווב ו**נכשל מראש** (חוב lint קיים בקבצים שלא נגעת בהם). לכן הרץ lint רק על **הקבצים ששינית**, מתוך `apps/web`:
 ```bash
-cd "C:\dev\simplicity"
-npm run lint
+cd "C:\dev\simplicity/apps/web"
+npx eslint <changed-file-relative-to-apps/web> ...
 ```
-שגיאות lint → תקן לפני commit.
-Warnings → רשום בהערות Notion, אל תחסום.
+שגיאות lint *שהשינוי שלך הוסיף* → תקן לפני commit.
+Warnings / חוב קיים שלא קשור → רשום בהערות Notion, אל תחסום.
 
 ### ג. בדיקת תקינות התיקון
 לפני commit — שאל: "האם הבאג שתואר אכן נפתר לפי הקוד שנכתב?"
@@ -194,10 +201,10 @@ Warnings → רשום בהערות Notion, אל תחסום.
 חסר / חלקי → **עצור. כתוב migration מלא.**
 
 ### ה. Git commit
-רק אחרי build + lint ללא שגיאות:
+רק אחרי build + lint ללא שגיאות. ה-git repo בשורש המונוריפו `C:\dev\simplicity`. הוסף רק את הקבצים של התיקון הזה (כולל `pnpm-lock.yaml` של השורש אם השתנו dependencies) — לא `git add .` עיוור:
 ```bash
 cd "C:\dev\simplicity"
-git add .
+git add <only-the-changed-files>
 git commit -m "fix: [תיאור קצר] (https://app.notion.com/p/b9312c65b4ca43e7907fea3725da470e)"
 ```
 

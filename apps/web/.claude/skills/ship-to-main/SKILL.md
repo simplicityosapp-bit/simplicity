@@ -16,12 +16,12 @@ description: >-
 
 ## הקשר חשוב על הריפו
 
-- ה-git repo נמצא בשורש הפרויקט (`C:\dev\simplicity`). הרץ את פקודות ה-git מהשורש.
+- ה-git repo נמצא בשורש ה**מונוריפו** (`C:\dev\simplicity`, workspace של pnpm). הרץ את פקודות ה-git מהשורש. אפליקציית הווב היא תת-תיקייה `apps/web` (package `mangata-react`); יש גם `apps/mobile` (Expo) ו-`packages/core`. יש `pnpm-lock.yaml` **יחיד בשורש** — אם שינוי נגע ב-dependencies, כלול אותו ב-commit.
 - הזרימה ההיסטורית (ראה `git log --graph`): לכל שינוי לוגי — branch קצר →
   commit אחד → חזרה ל-`main` → `git merge --no-ff` עם הודעה שמתחילה ב-`Merge: ` →
   `git push origin main`.
-- `npm run lint` הוא `eslint .` על כל הריפו ו**נכשל מראש** (עשרות שגיאות
-  קיימות בקבצים שלא נגעת בהם). לכן בצע lint **רק על הקבצים ששונו**, וודא
+- `pnpm web:lint` (מהשורש) הוא `eslint .` על כל אפליקציית הווב ו**נכשל מראש** (עשרות
+  שגיאות קיימות בקבצים שלא נגעת בהם). לכן בצע lint **רק על הקבצים ששונו**, וודא
   שהשינוי *שלך* לא הוסיף שגיאות חדשות — אל תתקן חוב lint קיים שלא קשור.
 - שורות: git על Windows מנרמל CRLF↔LF ב-commit. אם git מציג קבצים כ"שונו" שהם
   רק הבדלי סוף-שורה, בדוק עם `git diff --ignore-all-space --stat` והתעלם מרעש EOL.
@@ -38,15 +38,18 @@ description: >-
    `git diff --ignore-all-space --stat`) ושאל איך לקבץ לקומיטים. ברירת מחדל:
    **שינוי לוגי אחד = branch + merge אחד**. אם לא ברור — שאל, אל תנחש.
 
-3. **שער build (חובה לפני כל commit).**
+3. **שער build (חובה לפני כל commit).** מהשורש:
    ```bash
-   npm run build
+   pnpm web:build
    ```
    נכשל → **עצור**. אל תקמט.
 
-4. **Lint על הקבצים ששונו בלבד.**
+4. **Lint על הקבצים ששונו בלבד.** eslint (flat config) יושב ב-`apps/web/eslint.config.js`,
+   לכן הרץ אותו **מתוך `apps/web`** עם נתיבים יחסיים לשם:
    ```bash
-   npx eslint <changed-file-1> <changed-file-2>
+   cd apps/web
+   npx eslint <changed-file-1> <changed-file-2>   # נתיבים יחסיים ל-apps/web
+   cd ../..
    ```
    שגיאה *שהשינוי שלך הוסיף* → תקן. שגיאה קיימת מראש שלא קשורה → רשום בדיווח,
    אל תחסום ואל תתקן אותה כאן.

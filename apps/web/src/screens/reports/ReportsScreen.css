@@ -504,7 +504,14 @@
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
   -webkit-overflow-scrolling: touch;
+  /* Opaque fill for the sticky metric column + header. The card's own
+     --mg-card-bg is translucent glass (frosted), so a sticky <th>/<td> — which
+     has no per-cell backdrop-filter — lets the horizontally-scrolled cells
+     bleed through and the frozen row-header reads as transparent. Use the
+     OPAQUE card surface so the frozen column stays readable while scrolling. */
+  --rep-sticky-bg: var(--cream);
 }
+[data-theme="dark"] .rep-table-wrap { --rep-sticky-bg: #262B33; } /* opaque dark card surface (matches flat-dark --mg-card-bg) */
 .rep-table-wrap::-webkit-scrollbar { height: 6px; }
 .rep-table-wrap::-webkit-scrollbar-thumb { background: rgba(0,0,0,.12); border-radius: 4px; }
 
@@ -518,7 +525,7 @@
 .rep-table thead th {
   position: sticky;
   top: 0;
-  background: var(--mg-card-bg);
+  background: var(--rep-sticky-bg);
   font-weight: 600;
   font-size: calc(11px * var(--text-scale));
   letter-spacing: 0.02em;
@@ -566,7 +573,7 @@
   position: sticky;
   right: 0;
   z-index: 1;
-  background: var(--mg-card-bg);
+  background: var(--rep-sticky-bg);
   text-align: start !important;
   border-inline-end: 1px solid var(--divider, rgba(0,0,0,.06));
   min-width: 112px;

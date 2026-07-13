@@ -139,6 +139,12 @@
 [data-theme="dark"] .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
   box-shadow: var(--mg-card-shadow);
 }
+/* Same treatment for the flat "blank" (ריק) background: with no photo behind
+   the cards the 1px accent ring reads as a hard frame (beta 13/07/2026) — drop
+   it to the plain card shadow, mirroring the dark-mode rule above. */
+html[data-bg="blank"] .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
+  box-shadow: var(--mg-card-shadow);
+}
 /* The moon widget's root is a LAYOUT block wrapping a ROUND chip — the
    generic ring above would draw a SQUARE around the circle. Move the ring
    onto the chip itself so it hugs the actual (round) widget. */
@@ -150,6 +156,9 @@
     var(--mg-card-shadow);
 }
 [data-theme="dark"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip {
+  box-shadow: var(--mg-card-shadow);
+}
+html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip {
   box-shadow: var(--mg-card-shadow);
 }
 

@@ -4,7 +4,7 @@ description: >-
   Commit, merge, and push uncommitted changes to `main` following this repo's
   established git workflow (short-lived feature branch → one descriptive commit
   → `git merge --no-ff` with a `Merge: ...` message → push to origin/main), then
-  update the matching Notion feedback item. Use whenever the user wants to ship /
+  update the matching feedback row in Supabase (public.feedback). Use whenever the user wants to ship /
   push / merge work to main, e.g. "תעשה פוש ומרג להגל", "תעלה ל-main",
   "commit and merge", "ship to main".
 ---
@@ -12,7 +12,7 @@ description: >-
 # Ship to main
 
 מטרה: לקחת שינויים לא מקומיטים ולהעלות אותם ל-`main` **בדיוק** לפי הזרימה
-ההיסטורית של הריפו, עם build כשער חובה, ולעדכן את Notion בסוף כל תיקון.
+ההיסטורית של הריפו, עם build כשער חובה, ולעדכן את שורת הפידבק ב-Supabase בסוף כל תיקון.
 
 ## הקשר חשוב על הריפו
 
@@ -71,17 +71,19 @@ description: >-
    git push origin main
    ```
 
-7. **עדכון Notion — חובה בסוף כל תיקון שבוצע.**
-   לכל שינוי שמוזג, עדכן את פריט הפידבק התואם ב-Notion (אם יש כלי Notion זמין):
-   - Data source: `collection://c2e8479e-b8c3-4282-bc6d-c760c88a68cb` (📥 פידבקים בטא).
-   - מצא את הרשומה הרלוונטית לפי הכותרת/התיאור של התיקון.
-   - **סטטוס → `טופל`**.
-   - **הערות →** מה תוקן, אילו קבצים שונו, התאריך, ו-hash של ה-merge commit
-     (וקישור ל-commit אם קיים).
-   - אם אין פריט תואם, או ש-Notion לא זמין — ציין זאת מפורשות בדיווח הסיום.
+7. **עדכון שורת הפידבק ב-Supabase — חובה בסוף כל תיקון שבוצע.**
+   לכל שינוי שמוזג, עדכן את השורה התואמת ב-`public.feedback` (EU `rdurkakzyymxhocvhufw`)
+   דרך ה-CLI המקושר (SQL), או הפק את ה-UPDATE להרצה ידנית / עדכן דרך מסך אדמין → פידבקים:
+   - מצא את השורה לפי `title`/`message` של התיקון.
+   - **`status` → `'done'`**.
+   - **`notes` →** מה תוקן, אילו קבצים שונו, התאריך, ו-hash של ה-merge commit.
+   ```sql
+   UPDATE public.feedback SET status = 'done', notes = '<...>' WHERE id = '<uuid>';
+   ```
+   - אם אין שורה תואמת, או שלא ניתן להריץ SQL — ציין זאת מפורשות בדיווח הסיום.
 
-8. **דווח** למשתמש: אילו branchים נוצרו, hash לכל merge, מה נדחף, ואילו פריטי
-   Notion עודכנו.
+8. **דווח** למשתמש: אילו branchים נוצרו, hash לכל merge, מה נדחף, ואילו שורות
+   פידבק עודכנו.
 
 ## כללי ברזל
 
@@ -89,5 +91,5 @@ description: >-
 - build חייב לעבור לפני **כל** commit.
 - לעולם אל תעשה `git push --force`.
 - אל תיגע בקבצים/סודות שלא קשורים לשינוי.
-- **כל תיקון שמוזג → עדכון Notion תואם.** אל תסיים בלי לעדכן (או לדווח שלא היה ניתן).
-- אם לא ברור איך לקבץ קומיטים, מה הודעת ה-merge, או איזו רשומת Notion — **שאל**.
+- **כל תיקון שמוזג → עדכון שורת הפידבק ב-`public.feedback`.** אל תסיים בלי לעדכן (או לדווח שלא היה ניתן).
+- אם לא ברור איך לקבץ קומיטים, מה הודעת ה-merge, או איזו שורת פידבק — **שאל**.

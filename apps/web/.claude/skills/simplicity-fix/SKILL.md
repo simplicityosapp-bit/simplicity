@@ -59,27 +59,33 @@ description: Find and fix bugs, performance issues, and UI/UX problems in the Si
 
 ---
 
+## מבנה הריפו — מונוריפו (קרא לפני הכל)
+
+`C:\dev\simplicity` הוא **מונוריפו pnpm**: `apps/web/` (אפליקציית הווב, package `mangata-react`, Vite/React — **מה שהסקיל הזה מתקן**), `apps/mobile/` (Expo RN, `simplicity-expo`), `packages/core/` (`@simplicity/core`), ו-`supabase/` בשורש (schema + migrations, משותף). קוד הווב כולו תחת `apps/web/src/`. פקודות מהשורש: `pnpm web:build` / `pnpm web:lint` / `pnpm web:test` (אין `npm run build`/`lint` בשורש).
+
+---
+
 ## שלב 2 — Context Load (אוטומטי)
 
 קרא לפני כל סשן. אם קובץ לא קיים — ציין ואל תמשיך.
 
 ### עיצוב
-- `src/styles/tokens.css` — כל design tokens
-- `src/styles/screens.css` — shared primitives
-- `src/index.css` — globals + per-screen theming
+- `apps/web/src/styles/tokens.css` — כל design tokens
+- `apps/web/src/styles/screens.css` — shared primitives
+- `apps/web/src/index.css` — globals + per-screen theming
 
 ### ארכיטקטורה
-- `src/App.jsx` — routing + guards
-- `src/lib/routes.js`
-- `src/lib/supabase.js`
+- `apps/web/src/App.jsx` — routing + guards
+- `apps/web/src/lib/routes.js`
+- `apps/web/src/lib/supabase.js`
 
 ### סכמה
-- `supabase/schema.sql`
+- `supabase/schema.sql` (בשורש המונוריפו)
 - `supabase/migrations/` — כל הקבצים
 
 ### לבעיה ספציפית — קרא גם:
-- את המסך / component הרלוונטי
-- את ה-hook הרלוונטי מ-`hooks/`
+- את המסך / component הרלוונטי (`apps/web/src/screens/`, `apps/web/src/components/`)
+- את ה-hook הרלוונטי מ-`apps/web/src/hooks/`
 
 ---
 
@@ -87,9 +93,9 @@ description: Find and fix bugs, performance issues, and UI/UX problems in the Si
 
 האפליקציה חוסמת כל מסך מאחורי התחברות Supabase, ו-Claude **לא יכול** להתחבר (אסור להזין סיסמה / OAuth / signIn תוכנתי). כדי לאמת ויזואלית את האפליקציה המחוברת בפריוויו המקומי — השתמש במצב ה-mock המובנה (אין צורך שהמשתמש יסביר כל פעם):
 
-1. הפעל את שרת הפיתוח: `preview_start` עם config `vite` (פורט 5174).
+1. הפעל את שרת הפיתוח: `preview_start` עם config `vite` (פורט 5174) — הקונפיג ב-`apps/web/.claude/launch.json`, מריץ את אפליקציית הווב.
 2. טען את האפליקציה עם **`?mock=1`** ב-URL — או הרץ `localStorage.setItem('PREVIEW_MOCK','1')` ואז reload.
-3. `src/lib/supabase.js` מחליף את ה-client ל-mock (`src/lib/mockSupabase.js`) עם נתוני `src/data/mock.js`: session מזויף + prefs מלאים (אונבורדינג מסומן כהושלם), כך שהאפליקציה נוחתת על הבית. בלי auth, בלי רשת, בלי סיסמה.
+3. `apps/web/src/lib/supabase.js` מחליף את ה-client ל-mock (`apps/web/src/lib/mockSupabase.js`) עם נתוני `apps/web/src/data/mock.js`: session מזויף + prefs מלאים (אונבורדינג מסומן כהושלם), כך שהאפליקציה נוחתת על הבית. בלי auth, בלי רשת, בלי סיסמה.
 4. אז אפשר `preview_snapshot` / `preview_screenshot` / `preview_eval` לאימות רגיל.
 
 **בטיחות (חשוב):** פעיל **רק ב-DEV ורק עם ה-flag**. ב-build של פרודקשן `import.meta.env.DEV===false` → הקוד נמחק לגמרי (tree-shaken; אומת שאין זכר ב-`dist`). אפס השפעה על משתמשים אמיתיים או על כניסות אמיתיות; ה-flag יושב ב-localStorage של דפדפן הפריוויו של Claude Code בלבד.
@@ -107,7 +113,7 @@ description: Find and fix bugs, performance issues, and UI/UX problems in the Si
 ```
 ## Context
 Simplicity app — Practice OS for Israeli coaches.
-Repo root: C:\dev\simplicity\
+Monorepo root: C:\dev\simplicity\ (pnpm workspace). Web app lives in apps/web/ (package "mangata-react"). supabase/ (schema + migrations) is at the monorepo root. This task targets apps/web.
 
 ## Issue to investigate
 [תיאור הבעיה]
@@ -132,18 +138,18 @@ Repo root: C:\dev\simplicity\
 ```
 ## Context
 Simplicity app — Practice OS for Israeli coaches.
-Repo root: C:\dev\simplicity\
+Monorepo root: C:\dev\simplicity\ (pnpm workspace). Web app lives in apps/web/ (package "mangata-react"). supabase/ (schema + migrations) is at the monorepo root. This scan targets apps/web.
 
 ## Scan scope
 [קטגוריות שנבחרו]
 
 ## Read these files first
-- src/styles/tokens.css
-- src/styles/screens.css
+- apps/web/src/styles/tokens.css
+- apps/web/src/styles/screens.css
 - supabase/schema.sql
-- All files in src/screens/
-- All files in src/hooks/
-- All files in src/modals/
+- All files in apps/web/src/screens/
+- All files in apps/web/src/hooks/
+- All files in apps/web/src/modals/
 
 ## Task
 Scan for issues in the categories above.
@@ -201,7 +207,7 @@ Do NOT fix anything yet — report only.
 ```
 ## Context
 Simplicity app — Practice OS for Israeli coaches.
-Repo root: C:\dev\simplicity\
+Monorepo root: C:\dev\simplicity\ (pnpm workspace). Web app lives in apps/web/ (package "mangata-react"). supabase/ (schema + migrations) is at the monorepo root. This fix targets apps/web.
 
 ## Issue
 [תיאור הבעיה + root cause]

@@ -24,27 +24,40 @@ description: Build or design a new feature, screen, fix, or schema change for th
 
 ---
 
+## מבנה הריפו — מונוריפו (חשוב: קרא לפני הכל)
+
+`C:\dev\simplicity` הוא **מונוריפו pnpm** (workspace), לא שורש אפליקציה. המבנה:
+
+- `apps/web/` — **אפליקציית הווב** (package `mangata-react`, Vite/React). **זה מה שהסקיל הזה עובד עליו כברירת מחדל.** כל קוד הווב יושב תחת `apps/web/src/`.
+- `apps/mobile/` — אפליקציית Expo React Native (package `simplicity-expo`). לגעת בה רק אם המשימה מפורשות על המובייל.
+- `packages/core/` — לוגיקת domain משותפת ב-TypeScript (`@simplicity/core`).
+- `supabase/` — schema + migrations, יושב ב**שורש המונוריפו** (משותף לכל האפליקציות).
+
+**פקודות (מהשורש `C:\dev\simplicity`):** `pnpm web` (dev), `pnpm web:build`, `pnpm web:lint`, `pnpm web:test`, `pnpm core:typecheck`. או מתוך `apps/web/`: `pnpm dev` / `pnpm build` / `pnpm lint` / `pnpm test`. **אין** `npm run build`/`npm run lint` בשורש — הם הוסרו במעבר ל-pnpm.
+
+---
+
 ## שלב 1 — Context Load (אוטומטי, בתחילת כל הפעלה)
 
 קרא את הקבצים הבאים. בלי לדלג. אם קובץ לא קיים — ציין זאת ואל תמשיך.
 
 ### עיצוב וטוקנים
-- `src/styles/tokens.css` — כל CSS custom properties (צבעים, spacing, radius, blur)
-- `src/styles/screens.css` — primitives משותפים (`.screen`, `.screen-top`, `.cta-add`, `.s-hero`, `.mg-toggle`)
-- `src/index.css` — globals, per-screen theming, backgrounds
+- `apps/web/src/styles/tokens.css` — כל CSS custom properties (צבעים, spacing, radius, blur)
+- `apps/web/src/styles/screens.css` — primitives משותפים (`.screen`, `.screen-top`, `.cta-add`, `.s-hero`, `.mg-toggle`)
+- `apps/web/src/index.css` — globals, per-screen theming, backgrounds
 
 
 ### ארכיטקטורה
-- `src/App.jsx` — routing + onboarding guard
-- `src/lib/routes.js` — כל ה-routes
-- `src/lib/supabase.js` — Supabase client init
+- `apps/web/src/App.jsx` — routing + onboarding guard
+- `apps/web/src/lib/routes.js` — כל ה-routes
+- `apps/web/src/lib/supabase.js` — Supabase client init
 
 ### סכמה ונתונים
-- `supabase/schema.sql` — 28 טבלאות, source of truth לסכמה
+- `supabase/schema.sql` — ~37 טבלאות, source of truth לסכמה (בשורש המונוריפו)
 - `supabase/migrations/` — כל המיגרציות הקיימות (קרא את כולן)
 
 ### Hooks קיימים
-- `src/hooks/` — קרא את רשימת הקבצים. לפני כל פיצ'ר — בדוק אם hook רלוונטי כבר קיים.
+- `apps/web/src/hooks/` — קרא את רשימת הקבצים. לפני כל פיצ'ר — בדוק אם hook רלוונטי כבר קיים.
 
 ### תיעוד
 - `C:\dev\simplicity-assets\analytics-formulas.md`
@@ -104,15 +117,15 @@ description: Build or design a new feature, screen, fix, or schema change for th
 ```
 ## Context
 Working on Simplicity (סימפליסיטי) — a Practice OS for Israeli coaches and mentors.
-Repo root: C:\dev\simplicity\
+Monorepo root: C:\dev\simplicity\ (pnpm workspace).
+The WEB app lives in apps/web/ (package "mangata-react", Vite/React). Also present: apps/mobile/ (Expo RN) and packages/core/ (shared TS). This task targets apps/web unless stated otherwise.
 
 ## Source of truth files (read these first)
-- src/styles/tokens.css (all design tokens)
-- src/styles/screens.css (shared screen primitives)
-- src/index.css (globals + per-screen theming)
-- supabase/schema.sql (DB schema — 28 tables)
-
-- supabase/migrations/ (all existing migrations)
+- apps/web/src/styles/tokens.css (all design tokens)
+- apps/web/src/styles/screens.css (shared screen primitives)
+- apps/web/src/index.css (globals + per-screen theming)
+- supabase/schema.sql (DB schema — ~37 tables, at monorepo root)
+- supabase/migrations/ (all existing migrations, at monorepo root)
 
 ## Design rules (always derive from files, never from memory)
 - No external UI library — hand-rolled CSS custom properties only
@@ -211,9 +224,9 @@ claude -p "$(cat /tmp/cc_prompt.txt)"
 
 האפליקציה חוסמת כל מסך מאחורי התחברות Supabase, ו-Claude **לא יכול** להתחבר (אסור להזין סיסמה / OAuth / signIn תוכנתי). כדי לאמת ויזואלית את האפליקציה המחוברת בפריוויו המקומי — השתמש במצב ה-mock המובנה (אין צורך שהמשתמש יסביר כל פעם):
 
-1. הפעל את שרת הפיתוח: `preview_start` עם config `vite` (פורט 5174).
+1. הפעל את שרת הפיתוח: `preview_start` עם config `vite` (פורט 5174) — הקונפיג יושב ב-`apps/web/.claude/launch.json` ומריץ את אפליקציית הווב.
 2. טען את האפליקציה עם **`?mock=1`** ב-URL — או הרץ `localStorage.setItem('PREVIEW_MOCK','1')` ואז reload.
-3. `src/lib/supabase.js` מחליף את ה-client ל-mock (`src/lib/mockSupabase.js`) עם נתוני `src/data/mock.js`: session מזויף + prefs מלאים (אונבורדינג מסומן כהושלם), כך שהאפליקציה נוחתת על הבית. בלי auth, בלי רשת, בלי סיסמה.
+3. `apps/web/src/lib/supabase.js` מחליף את ה-client ל-mock (`apps/web/src/lib/mockSupabase.js`) עם נתוני `apps/web/src/data/mock.js`: session מזויף + prefs מלאים (אונבורדינג מסומן כהושלם), כך שהאפליקציה נוחתת על הבית. בלי auth, בלי רשת, בלי סיסמה.
 4. אז אפשר `preview_snapshot` / `preview_screenshot` / `preview_eval` לאימות רגיל.
 
 **בטיחות (חשוב):** פעיל **רק ב-DEV ורק עם ה-flag**. ב-build של פרודקשן `import.meta.env.DEV===false` → הקוד נמחק לגמרי (tree-shaken; אומת שאין זכר ב-`dist`). אפס השפעה על משתמשים אמיתיים או על כניסות אמיתיות; ה-flag יושב ב-localStorage של דפדפן הפריוויו של Claude Code בלבד.
@@ -222,7 +235,9 @@ claude -p "$(cat /tmp/cc_prompt.txt)"
 
 ## זרימת Git (פרויקט סימפליסיטי)
 
-ה-repo נמצא בשורש `C:\dev\simplicity` (האפליקציה היא שורש הריפו, לא תת-תיקייה). קבצי המפרט/אסטס יושבים ב-`C:\dev\simplicity-assets`. ברירת המחדל: `origin/main`, עבודה ב-feature branches שממוזגים ל-main עם merge commit.
+ה-git repo נמצא בשורש המונוריפו `C:\dev\simplicity` (מונוריפו pnpm — אפליקציית הווב היא תת-תיקייה `apps/web`, לא שורש הריפו). הרץ פקודות git מהשורש. קבצי המפרט/אסטס יושבים ב-`C:\dev\simplicity-assets` (מחוץ לריפו). ברירת המחדל: `origin/main`, עבודה ב-feature branches שממוזגים ל-main עם merge commit.
+
+**חשוב אחרי שינוי dependencies:** קמט את `pnpm-lock.yaml` של **השורש** (הוא lockfile יחיד למונוריפו) — אחרת ה-deploy ב-Vercel נשבר.
 
 זרימה סטנדרטית — **אשר עם המשתמש לפני push/merge**, ואז הרץ צעדים מאוחדים:
 1. `git checkout -b feat/<שם>`

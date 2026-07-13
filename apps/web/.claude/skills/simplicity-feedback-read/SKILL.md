@@ -51,7 +51,9 @@ description: Reads beta user feedback from the Simplicity Gmail account, classif
 
 קרא את **רשימת הקבצים** בלבד — לא את התוכן. פתח קובץ ספציפי רק אם רלוונטי לפידבק ספציפי.
 
-- `src/hooks/` — רשימת hooks (שמות בלבד)
+> הריפו הוא מונוריפו pnpm: קוד הווב תחת `apps/web/src/`, ו-`supabase/` בשורש.
+
+- `apps/web/src/hooks/` — רשימת hooks (שמות בלבד)
 - `supabase/schema.sql` — רשימת טבלאות (שמות בלבד)
 - `C:\dev\simplicity-assets\analytics-formulas.md` — כותרות בלבד
 - `C:\dev\simplicity-assets\desingh.checklist.md` — כותרות בלבד

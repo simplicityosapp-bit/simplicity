@@ -85,7 +85,9 @@
       "infoText": "La pregunta diaria registra cómo te sientes a lo largo del tiempo. La escala es de 1 a 10 (10 = lo mejor). Las respuestas se guardan por día y generan información en la pantalla «¿Cómo estás hoy?».",
       "yes": "Sí",
       "no": "No",
-      "saveAria": "Guardar respuesta"
+      "saveAria": "Guardar respuesta",
+      "skip": "Omitir",
+      "skipAria": "Omitir esta pregunta por hoy"
     },
     "moon": {
       "percentOfGoal": "{{percent}}% del objetivo",

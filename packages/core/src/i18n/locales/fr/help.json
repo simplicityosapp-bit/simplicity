@@ -805,7 +805,7 @@
         },
         {
           "q": "Où ajouter ou supprimer des questions ?",
-          "a": "Dans Paramètres > Questions du point quotidien. Sur l'écran Point quotidien, vous pouvez seulement activer, désactiver, répondre et passer — pas ajouter ni supprimer."
+          "a": "Dans Paramètres > Questions du point quotidien. Sur l'écran Point quotidien, vous pouvez seulement activer, désactiver et répondre — pas ajouter ni supprimer. Passer une question pour aujourd'hui a été déplacé vers le widget « Point quotidien » de l'écran d'accueil."
         },
         {
           "q": "Y a-t-il des corrélations entre les mesures ici ?",

@@ -805,7 +805,7 @@
         },
         {
           "q": "¿Dónde añado o elimino preguntas?",
-          "a": "En Ajustes > Preguntas del registro diario. En la pantalla de Registro diario solo puedes activar, desactivar, responder y saltar, no añadir ni eliminar."
+          "a": "En Ajustes > Preguntas del registro diario. En la pantalla de Registro diario solo puedes activar, desactivar y responder, no añadir ni eliminar. Saltar una pregunta por hoy se ha movido al widget «Registro diario» de la pantalla de Inicio."
         },
         {
           "q": "¿Hay correlaciones entre métricas aquí?",

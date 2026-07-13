@@ -85,7 +85,9 @@
       "infoText": "The daily question tracks how you feel over time. The scale is 1–10 (10 = best). Answers are saved per day and build insights in the 'How are you today' screen.",
       "yes": "Yes",
       "no": "No",
-      "saveAria": "Save answer"
+      "saveAria": "Save answer",
+      "skip": "Skip",
+      "skipAria": "Skip this question for today"
     },
     "moon": {
       "percentOfGoal": "{{percent}}% of goal",

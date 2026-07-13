@@ -407,6 +407,29 @@
   position: relative;
   padding: var(--mg-card-pad);
 }
+/* "דלג" — quiet skip action on the daily-question widget; dismisses one
+   question for today without writing an answer (moved here from the
+   "מה איתך היום" screen, beta 13/07/2026). Shares prefs.insSkipped. */
+.ins-skip-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+.ins-skip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  font: 500 calc(12px * var(--text-scale)) / 1 var(--mg-font);
+  color: var(--stone);
+  cursor: pointer;
+}
+.ins-skip-btn:hover { background: rgba(42, 37, 32, 0.04); }
+[data-theme="dark"] .ins-skip-btn:hover { background: rgba(240, 235, 224, 0.06); }
+.ins-skip-btn:disabled { opacity: 0.4; cursor: default; }
 /* Reserve an inline-start strip for the round collapse toggle when open. */
 .ins-widget.has-collapse {
   padding-inline-start: 52px;

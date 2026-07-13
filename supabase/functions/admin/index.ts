@@ -133,47 +133,58 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    // ── 1. Authenticate + authorise the caller (the real gate) ──────
-    const authHeader = req.headers.get('Authorization') ?? ''
-    if (!authHeader) return json({ error: 'unauthorized' }, 401)
+    const body = await req.json().catch(() => ({}))
+    const action = body?.action as string
 
-    const caller = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: authHeader } } },
-    )
-    const { data: { user }, error: authErr } = await caller.auth.getUser()
-    if (authErr || !user) return json({ error: 'unauthorized' }, 401)
-    // A CONFIRMED email is required either way — stays correct even if
-    // email-confirmation is ever relaxed, or email-change semantics issue a
-    // session on an unconfirmed address.
-    if (!user.email_confirmed_at) return json({ error: 'forbidden' }, 403)
-    // Admin = the hardcoded super-owner OR a user the owner promoted
-    // (app_metadata.role === 'admin', set only by set_admin below).
-    const isOwner = (user.email ?? '').toLowerCase() === ADMIN_EMAIL
-    const meta = (user.app_metadata ?? {}) as Record<string, unknown>
-    const isPromoted = meta.role === 'admin'
-    if (!isOwner && !isPromoted) return json({ error: 'forbidden' }, 403)
-    // Effective permissions. The owner implicitly has every power; a promoted
-    // admin has exactly the perms stamped on their metadata (default false).
-    // These gate the sensitive actions below; read actions need only admin.
-    const mp = (meta.admin_perms ?? {}) as Record<string, unknown>
-    const perms = {
-      delete_users:   isOwner || mp.delete_users === true,
-      set_subscriber: isOwner || mp.set_subscriber === true,
-      manage_admins:  isOwner || mp.manage_admins === true,
-    }
-
-    // ── 2. Service-role client — bypasses RLS, owner-verified above ──
+    // ── Service-role client — bypasses RLS; the caller is gated below. ──
     const admin = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
 
-    const body = await req.json().catch(() => ({}))
-    const action = body?.action as string
+    // ── Authorise the caller: EITHER the scoped feedback-CLI token, which
+    //    unlocks ONLY the feedback triage actions (list/update) for the
+    //    automation skills, OR a real admin login (owner / promoted admin).
+    //    The token path carries NO admin perms, so the sensitive actions
+    //    (delete_user / set_admin / …) still require a real login. ──
+    const FEEDBACK_TOKEN = Deno.env.get('FEEDBACK_CLI_TOKEN') ?? ''
+    const FEEDBACK_ACTIONS = new Set(['feedback_list', 'feedback_update', 'feedback_update_status'])
+    const viaFeedbackToken =
+      !!FEEDBACK_TOKEN
+      && (req.headers.get('x-feedback-token') ?? '') === FEEDBACK_TOKEN
+      && FEEDBACK_ACTIONS.has(action)
 
-    // ── 3. Route ────────────────────────────────────────────────────
+    let perms = { delete_users: false, set_subscriber: false, manage_admins: false }
+    if (!viaFeedbackToken) {
+      // ── Real admin gate: a CONFIRMED-email owner or promoted admin JWT. ──
+      const authHeader = req.headers.get('Authorization') ?? ''
+      if (!authHeader) return json({ error: 'unauthorized' }, 401)
+      const caller = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_ANON_KEY')!,
+        { global: { headers: { Authorization: authHeader } } },
+      )
+      const { data: { user }, error: authErr } = await caller.auth.getUser()
+      if (authErr || !user) return json({ error: 'unauthorized' }, 401)
+      if (!user.email_confirmed_at) return json({ error: 'forbidden' }, 403)
+      // Admin = the hardcoded super-owner OR a user the owner promoted
+      // (app_metadata.role === 'admin', set only by set_admin below).
+      const isOwner = (user.email ?? '').toLowerCase() === ADMIN_EMAIL
+      const meta = (user.app_metadata ?? {}) as Record<string, unknown>
+      const isPromoted = meta.role === 'admin'
+      if (!isOwner && !isPromoted) return json({ error: 'forbidden' }, 403)
+      // Effective permissions. The owner implicitly has every power; a promoted
+      // admin has exactly the perms stamped on their metadata (default false).
+      // These gate the sensitive actions below; read actions need only admin.
+      const mp = (meta.admin_perms ?? {}) as Record<string, unknown>
+      perms = {
+        delete_users:   isOwner || mp.delete_users === true,
+        set_subscriber: isOwner || mp.set_subscriber === true,
+        manage_admins:  isOwner || mp.manage_admins === true,
+      }
+    }
+
+    // ── Route ────────────────────────────────────────────────────
     if (action === 'feedback_update_status') {
       const id = body?.id as string
       const status = body?.status as string

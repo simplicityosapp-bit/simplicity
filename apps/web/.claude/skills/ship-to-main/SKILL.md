@@ -72,15 +72,15 @@ description: >-
    ```
 
 7. **עדכון שורת הפידבק ב-Supabase — חובה בסוף כל תיקון שבוצע.**
-   לכל שינוי שמוזג, עדכן את השורה התואמת ב-`public.feedback` (EU `rdurkakzyymxhocvhufw`)
-   דרך ה-CLI המקושר (SQL), או הפק את ה-UPDATE להרצה ידנית / עדכן דרך מסך אדמין → פידבקים:
-   - מצא את השורה לפי `title`/`message` של התיקון.
-   - **`status` → `'done'`**.
-   - **`notes` →** מה תוקן, אילו קבצים שונו, התאריך, ו-hash של ה-merge commit.
-   ```sql
-   UPDATE public.feedback SET status = 'done', notes = '<...>' WHERE id = '<uuid>';
+   לכל שינוי שמוזג, עדכן את השורה התואמת ב-`public.feedback` דרך ה-edge `admin` עם הטוקן
+   מ-`C:\dev\simplicity\.feedback-cli.env` (`FEEDBACK_FUNCTIONS_URL`, `FEEDBACK_CLI_TOKEN`).
+   שלוף `feedback_list`, מצא את השורה לפי `title`/`message`, ואז:
+   ```bash
+   curl -s -X POST "$FEEDBACK_FUNCTIONS_URL" -H "content-type: application/json" \
+     -H "x-feedback-token: $FEEDBACK_CLI_TOKEN" \
+     -d '{"action":"feedback_update","id":"<uuid>","status":"done","notes":"<מה תוקן, קבצים, תאריך, merge hash>"}'
    ```
-   - אם אין שורה תואמת, או שלא ניתן להריץ SQL — ציין זאת מפורשות בדיווח הסיום.
+   - אם אין שורה תואמת, או שלא ניתן לעדכן — ציין זאת מפורשות בדיווח הסיום (אפשר גם דרך מסך אדמין → פידבקים).
 
 8. **דווח** למשתמש: אילו branchים נוצרו, hash לכל merge, מה נדחף, ואילו שורות
    פידבק עודכנו.

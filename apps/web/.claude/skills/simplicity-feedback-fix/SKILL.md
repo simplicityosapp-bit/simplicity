@@ -74,14 +74,13 @@ description: Reads the Supabase feedback backlog (public.feedback), cross-refere
 
 ## שלב 2 — קריאת פידבק מ-Supabase + סדר עדיפויות
 
-מקור האמת: `public.feedback` (Supabase EU `rdurkakzyymxhocvhufw`). קריאה/עדכון דרך ה-**CLI המקושר** בהרצת SQL (service-role / סיסמת DB — אותו ערוץ כמו מיגרציות); כשאין הרצה אוטומטית ב-env — **הפק את ה-SQL להרצה ידנית ע"י הבעלים**. **אין Notion.** הלוח האנושי: מסך אדמין → פידבקים.
+מקור האמת: `public.feedback` (Supabase EU `rdurkakzyymxhocvhufw`). הגישה **אוטונומית** דרך ה-edge `admin` עם טוקן מצומצם מקובץ מקומי gitignored `C:\dev\simplicity\.feedback-cli.env` (משתנים `FEEDBACK_FUNCTIONS_URL`, `FEEDBACK_CLI_TOKEN`). הטוקן פותח **רק** את פעולות הפידבק (list/update). **אין Notion.** הלוח האנושי: מסך אדמין → פידבקים.
 
-שלוף פריטים פתוחים (באגים קודם, ואז לפי תאריך):
-```sql
-SELECT id, created_at, message, title, classification, surface, platform, status, notes, type
-FROM public.feedback
-WHERE status IN ('new', 'in_progress', 'waiting_decision')
-ORDER BY (classification = 'bug') DESC, created_at ASC;
+שלוף את כל הפידבק, וסנן צד-לקוח לפריטים פתוחים (`status ∈ {new, in_progress, waiting_decision}`), באגים (`classification='bug'`) קודם ואז לפי `created_at`:
+```bash
+curl -s -X POST "$FEEDBACK_FUNCTIONS_URL" -H "content-type: application/json" \
+  -H "x-feedback-token: $FEEDBACK_CLI_TOKEN" -d '{"action":"feedback_list"}'
+# → { items: [{ id, email, message, type, status, created_at, platform, source, classification, surface, title, notes }] }
 ```
 
 מיפוי סטטוסים: `new`=פתוח · `in_progress`=בעבודה/בוצע-וממתין · `waiting_decision`=ממתין להחלטה · `done`=טופל · `rejected`=נדחה. הסיווג הקובע הוא `classification` (bug/dev/unclear) — **לא** `type` (הדיווח העצמי של המשתמש, רמז בלבד).
@@ -219,27 +218,19 @@ git commit -m "fix: [תיאור קצר] (feedback <short-id>)"
 
 ---
 
-## שלב 6 — עדכון השורה ב-Supabase
+## שלב 6 — עדכון השורה ב-Supabase (edge)
 
-### תיקון מוצלח
-```sql
-UPDATE public.feedback SET status = 'done',
-  notes = '<מה תוקן, באיזה קובץ, תאריך + merge hash>'
-WHERE id = '<uuid>';
+patch לפי `id` דרך ה-edge (כל שדה אופציונלי):
+```bash
+curl -s -X POST "$FEEDBACK_FUNCTIONS_URL" -H "content-type: application/json" \
+  -H "x-feedback-token: $FEEDBACK_CLI_TOKEN" \
+  -d '{"action":"feedback_update","id":"<uuid>","status":"done","notes":"<מה תוקן + merge hash>"}'
 ```
+- **תיקון מוצלח** → `status:"done"` + `notes` (מה תוקן, קובץ, תאריך, merge hash).
+- **עצירה (שאלה פתוחה / החלטת מוצר)** → `status:"waiting_decision"` + `notes`.
+- **דחייה** → `status:"rejected"` + סיבה ב-`notes`.
 
-### עצירה (שאלה פתוחה / החלטת מוצר)
-```sql
-UPDATE public.feedback SET status = 'waiting_decision',
-  notes = '<מה חסר, מה השאלה הפתוחה>'
-WHERE id = '<uuid>';
-```
-
-### דחייה
-`status = 'rejected'` + סיבה ב-`notes`.
-
-### אין הרצה אוטומטית של SQL
-הפק את ה-UPDATE להרצה ידנית ע"י הבעלים, או עדכן דרך מסך האדמין → פידבקים. אל תסיים בלי שהשורה עודכנה (או שדיווחת שלא ניתן).
+ב-PowerShell שמור את ה-JSON לקובץ והעבר `--data-binary "@file"` (אחרת הגרשיים נאבדים). אל תסיים בלי שהשורה עודכנה (או שדיווחת שלא ניתן).
 
 ---
 

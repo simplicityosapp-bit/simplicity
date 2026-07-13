@@ -97,7 +97,11 @@
     "subscription": {
       "heading": "מנוי",
       "tier": "מסלול",
-      "tiers": { "free": "חינמי", "basic": "בסיסי", "premium": "פרימיום" },
+      "tiers": {
+        "free": "חינמי",
+        "basic": "בסיסי",
+        "premium": "פרימיום"
+      },
       "betaUntil": "פטור בטא עד",
       "grantExempt": "פטור בטא ל:",
       "exemptM1": "חודש",
@@ -179,12 +183,42 @@
     "statuses": {
       "new": "חדש",
       "in_progress": "בטיפול",
-      "done": "טופל"
+      "done": "טופל",
+      "waiting_decision": "ממתין להחלטה",
+      "rejected": "נדחה"
     },
     "filterAll": "הכול",
     "empty": "אין פידבקים להצגה",
     "unknownUser": "משתמש לא מזוהה",
-    "statusGroupAria": "סטטוס"
+    "statusGroupAria": "סטטוס",
+    "classifications": {
+      "bug": "באג",
+      "dev": "פיתוח",
+      "unclear": "לא ברור"
+    },
+    "surfaces": {
+      "technical": "טכני",
+      "design": "עיצובי",
+      "both": "שניהם"
+    },
+    "platforms": {
+      "mobile": "מובייל",
+      "desktop": "דסקטופ",
+      "both": "שתיהן",
+      "unknown": "לא ידוע"
+    },
+    "sources": {
+      "app": "מהאפליקציה",
+      "email": "מייל",
+      "manual": "ידני"
+    },
+    "classificationLabel": "סיווג",
+    "surfaceLabel": "טכני/עיצובי",
+    "platformLabel": "פלטפורמה",
+    "unset": "—",
+    "searchPlaceholder": "חיפוש בטקסט, כותרת או הערות…",
+    "titlePlaceholder": "כותרת קצרה…",
+    "notesPlaceholder": "הערות triage / כיוון בדיקה / לוג תיקון…"
   },
   "analytics": {
     "title": "אנליטיקס",

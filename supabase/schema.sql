@@ -177,7 +177,13 @@ CREATE TABLE feedback (
   message text NOT NULL,
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   type text,
-  status text DEFAULT 'new'::text NOT NULL
+  status text DEFAULT 'new'::text NOT NULL,
+  platform text,
+  source text DEFAULT 'app'::text NOT NULL,
+  classification text,
+  surface text,
+  title text,
+  notes text
 );
 
 CREATE TABLE goal_categories (
@@ -620,8 +626,12 @@ ALTER TABLE daily_answers ADD CONSTRAINT daily_answers_user_id_fkey FOREIGN KEY 
 ALTER TABLE daily_answers ADD CONSTRAINT daily_answers_user_question_id_fkey FOREIGN KEY (user_question_id) REFERENCES user_questions(id) ON DELETE CASCADE;
 ALTER TABLE feedback ADD CONSTRAINT feedback_pkey PRIMARY KEY (id);
 ALTER TABLE feedback ADD CONSTRAINT feedback_message_check CHECK ((char_length(btrim(message)) > 0));
-ALTER TABLE feedback ADD CONSTRAINT feedback_status_check CHECK ((status = ANY (ARRAY['new'::text, 'in_progress'::text, 'done'::text])));
+ALTER TABLE feedback ADD CONSTRAINT feedback_status_check CHECK ((status = ANY (ARRAY['new'::text, 'in_progress'::text, 'waiting_decision'::text, 'done'::text, 'rejected'::text])));
 ALTER TABLE feedback ADD CONSTRAINT feedback_type_check CHECK (((type IS NULL) OR (type = ANY (ARRAY['bug'::text, 'idea'::text, 'praise'::text, 'other'::text]))));
+ALTER TABLE feedback ADD CONSTRAINT feedback_platform_check CHECK (((platform IS NULL) OR (platform = ANY (ARRAY['mobile'::text, 'desktop'::text, 'both'::text, 'unknown'::text]))));
+ALTER TABLE feedback ADD CONSTRAINT feedback_source_check CHECK ((source = ANY (ARRAY['app'::text, 'email'::text, 'manual'::text])));
+ALTER TABLE feedback ADD CONSTRAINT feedback_classification_check CHECK (((classification IS NULL) OR (classification = ANY (ARRAY['bug'::text, 'dev'::text, 'unclear'::text]))));
+ALTER TABLE feedback ADD CONSTRAINT feedback_surface_check CHECK (((surface IS NULL) OR (surface = ANY (ARRAY['technical'::text, 'design'::text, 'both'::text]))));
 ALTER TABLE feedback ADD CONSTRAINT feedback_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE goal_categories ADD CONSTRAINT goal_categories_pkey PRIMARY KEY (id);
 ALTER TABLE goal_categories ADD CONSTRAINT goal_categories_graph_type_check CHECK ((graph_type = ANY (ARRAY['cumulative'::text, 'delta'::text])));
@@ -778,6 +788,7 @@ CREATE UNIQUE INDEX idx_daily_answers_uniq ON public.daily_answers USING btree (
 CREATE INDEX idx_daily_answers_user ON public.daily_answers USING btree (user_id);
 CREATE INDEX idx_feedback_created_at ON public.feedback USING btree (created_at DESC);
 CREATE INDEX idx_feedback_status ON public.feedback USING btree (status);
+CREATE INDEX idx_feedback_classification ON public.feedback USING btree (classification);
 CREATE INDEX idx_feedback_user ON public.feedback USING btree (user_id);
 CREATE INDEX idx_goal_categories_user ON public.goal_categories USING btree (user_id);
 CREATE INDEX idx_goal_entries_category ON public.goal_entries USING btree (category_id);

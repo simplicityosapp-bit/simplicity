@@ -17,21 +17,21 @@ import { useAuth } from '../auth/AuthContext'
    so the admin console can classify feedback. Legacy rows have a NULL
    type — harmless, treated as "unclassified".
 
-   `device` (מובייל/דסקטופ) is detected client-side and likewise only rides
-   along to the email — not stored on the row — so the team can see whether
-   the feedback came from a phone or a computer.
+   `platform` (mobile/desktop) is detected client-side and stored on the row
+   (migration 0079) for the admin triage board; the Hebrew `device` label also
+   rides along to the notification email so the team sees phone vs. computer.
    ════════════════════════════════════════════════════════════════ */
 
 /* Best-effort device classification for feedback triage. Mobile UA, or a
-   touch-first coarse pointer, → 'מובייל'; otherwise 'דסקטופ'. */
-function detectDevice() {
-  if (typeof navigator === 'undefined') return 'דסקטופ'
+   touch-first coarse pointer, → mobile; otherwise desktop. */
+function isMobileDevice() {
+  if (typeof navigator === 'undefined') return false
   const ua = navigator.userAgent || ''
-  const isMobile =
-    /Mobi|Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(ua) ||
+  return /Mobi|Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(ua) ||
     ((navigator.maxTouchPoints || 0) > 1 && window.matchMedia?.('(pointer: coarse)').matches)
-  return isMobile ? 'מובייל' : 'דסקטופ'
 }
+const detectDevice = () => (isMobileDevice() ? 'מובייל' : 'דסקטופ')   // Hebrew label for the notification email
+const detectPlatform = () => (isMobileDevice() ? 'mobile' : 'desktop') // canonical value stored on the row (migration 0079)
 
 export function useFeedback() {
   const { user } = useAuth()
@@ -46,21 +46,21 @@ export function useFeedback() {
     setSubmitting(true)
     setError(null)
     try {
-      // 1) Durable copy. `type` (bug/idea/praise/other) is stored from
-      //    migration 0016 on; null when the user didn't pick one.
-      //    Resilient to deploy ordering: if this build ships before the
-      //    migration adds the `type` column, the first insert fails with a
-      //    "column not found" error — we fall back to a type-less insert so
-      //    feedback NEVER breaks for users regardless of deploy order.
-      const first = await supabase
-        .from('feedback')
-        .insert({ user_id: user?.id, message: text, type: type || null })
-      const missingTypeCol = first.error
-        && /type/i.test(first.error.message || '')
-        && /column|schema|find/i.test(first.error.message || '')
-      const insErr = missingTypeCol
-        ? (await supabase.from('feedback').insert({ user_id: user?.id, message: text })).error
-        : first.error
+      // 1) Durable copy — the source of truth. Alongside `type` (bug/idea/…,
+      //    the user's self-report, migration 0016) we store the auto-detected
+      //    `platform` + `source='app'` for the admin triage board (migration
+      //    0079). Deploy-order resilient: if this build ships before a migration
+      //    adds a column, retry with progressively fewer columns so feedback
+      //    NEVER breaks for users regardless of deploy order.
+      const base = { user_id: user?.id, message: text }
+      const isMissingCol = (err) => err && /column|schema cache|could not find/i.test(err.message || '')
+      let insErr = (await supabase.from('feedback').insert({ ...base, type: type || null, platform: detectPlatform(), source: 'app' })).error
+      if (insErr && isMissingCol(insErr)) {
+        insErr = (await supabase.from('feedback').insert({ ...base, type: type || null })).error
+        if (insErr && isMissingCol(insErr)) {
+          insErr = (await supabase.from('feedback').insert(base)).error
+        }
+      }
       if (insErr) throw insErr
 
       // 2) Email the team (best-effort). `device` is email-only (not stored).

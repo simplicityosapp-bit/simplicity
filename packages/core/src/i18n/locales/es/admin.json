@@ -97,7 +97,11 @@
     "subscription": {
       "heading": "Suscripción",
       "tier": "Plan",
-      "tiers": { "free": "Gratis", "basic": "Básico", "premium": "Premium" },
+      "tiers": {
+        "free": "Gratis",
+        "basic": "Básico",
+        "premium": "Premium"
+      },
       "betaUntil": "Exención beta hasta",
       "grantExempt": "Conceder exención beta por:",
       "exemptM1": "1 mes",
@@ -179,12 +183,42 @@
     "statuses": {
       "new": "Nuevo",
       "in_progress": "En curso",
-      "done": "Hecho"
+      "done": "Resuelto",
+      "waiting_decision": "Esperando decisión",
+      "rejected": "Rechazado"
     },
     "filterAll": "Todos",
     "empty": "No hay opiniones que mostrar",
     "unknownUser": "Usuario desconocido",
-    "statusGroupAria": "Estado"
+    "statusGroupAria": "Estado",
+    "classifications": {
+      "bug": "Error",
+      "dev": "Función",
+      "unclear": "Sin definir"
+    },
+    "surfaces": {
+      "technical": "Técnico",
+      "design": "Diseño",
+      "both": "Ambos"
+    },
+    "platforms": {
+      "mobile": "Móvil",
+      "desktop": "Escritorio",
+      "both": "Ambas",
+      "unknown": "Desconocido"
+    },
+    "sources": {
+      "app": "En la app",
+      "email": "Correo",
+      "manual": "Manual"
+    },
+    "classificationLabel": "Clasificación",
+    "surfaceLabel": "Técnico / diseño",
+    "platformLabel": "Plataforma",
+    "unset": "—",
+    "searchPlaceholder": "Buscar texto, título o notas…",
+    "titlePlaceholder": "Título breve…",
+    "notesPlaceholder": "Notas de triaje / dirección de investigación / registro de corrección…"
   },
   "analytics": {
     "title": "Analíticas",

@@ -177,10 +177,45 @@ Deno.serve(async (req) => {
     if (action === 'feedback_update_status') {
       const id = body?.id as string
       const status = body?.status as string
-      if (!id || !['new', 'in_progress', 'done'].includes(status)) {
+      // Notion-parity status set (migration 0079): new/in_progress/waiting_decision/done/rejected.
+      if (!id || !['new', 'in_progress', 'waiting_decision', 'done', 'rejected'].includes(status)) {
         return json({ error: 'bad request' }, 400)
       }
       const { error } = await admin.from('feedback').update({ status }).eq('id', id)
+      if (error) return json({ error: 'update failed', detail: error.message }, 500)
+      return json({ ok: true })
+    }
+
+    // Full triage patch for the backlog board (migration 0079). Updates only the
+    // fields present in the body, each validated against its enum. This is the
+    // Notion-replacement write path — status + classification + surface +
+    // platform + title + notes.
+    if (action === 'feedback_update') {
+      const id = body?.id as string
+      if (!id || !UUID_RE.test(id)) return json({ error: 'bad request' }, 400)
+      const ENUMS: Record<string, string[]> = {
+        status: ['new', 'in_progress', 'waiting_decision', 'done', 'rejected'],
+        classification: ['bug', 'dev', 'unclear'],
+        surface: ['technical', 'design', 'both'],
+        platform: ['mobile', 'desktop', 'both', 'unknown'],
+      }
+      const patch: Record<string, unknown> = {}
+      for (const field of Object.keys(ENUMS)) {
+        if (!(field in body)) continue
+        const v = body[field]
+        if (field === 'status') {
+          if (!ENUMS.status.includes(v)) return json({ error: 'bad status' }, 400)
+          patch.status = v
+        } else {
+          // classification/surface/platform are nullable — '' or null clears them.
+          if (v !== null && v !== '' && !ENUMS[field].includes(v)) return json({ error: `bad ${field}` }, 400)
+          patch[field] = v === '' ? null : v
+        }
+      }
+      if ('title' in body) patch.title = body.title == null ? null : String(body.title).slice(0, 200)
+      if ('notes' in body) patch.notes = body.notes == null ? null : String(body.notes).slice(0, 8000)
+      if (Object.keys(patch).length === 0) return json({ error: 'nothing to update' }, 400)
+      const { error } = await admin.from('feedback').update(patch).eq('id', id)
       if (error) return json({ error: 'update failed', detail: error.message }, 500)
       return json({ ok: true })
     }
@@ -330,10 +365,17 @@ Deno.serve(async (req) => {
     if (action === 'feedback_list') {
       const users = await fetchAllUsers(admin)
       const emailById = new Map(users.map((u) => [u.id, u.email]))
-      const { data: rows, error } = await admin
-        .from('feedback')
-        .select('id, user_id, message, type, status, created_at')
-        .order('created_at', { ascending: false })
+      const FULL = 'id, user_id, message, type, status, created_at, platform, source, classification, surface, title, notes'
+      const BASE = 'id, user_id, message, type, status, created_at'
+      let { data: rows, error } = await admin
+        .from('feedback').select(FULL).order('created_at', { ascending: false })
+      // Deploy-order resilience: if this edge ships before migration 0079 adds
+      // the triage columns, PostgREST errors on the unknown columns — fall back
+      // to the base select so the board still loads (triage fields just empty).
+      if (error && /column|does not exist|schema cache|find/i.test(error.message || '')) {
+        ;({ data: rows, error } = await admin
+          .from('feedback').select(BASE).order('created_at', { ascending: false }))
+      }
       if (error) return json({ error: 'query failed', detail: error.message }, 500)
       const items = (rows ?? []).map((r) => ({
         id: r.id,
@@ -342,6 +384,13 @@ Deno.serve(async (req) => {
         type: r.type ?? null,
         status: r.status ?? 'new',
         created_at: r.created_at,
+        // Triage fields (migration 0079) — the backlog board reads/edits these.
+        platform: r.platform ?? null,
+        source: r.source ?? 'app',
+        classification: r.classification ?? null,
+        surface: r.surface ?? null,
+        title: r.title ?? null,
+        notes: r.notes ?? null,
       }))
       return json({ ok: true, items })
     }

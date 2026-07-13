@@ -31,3 +31,6 @@ supabase/.temp/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local feedback-triage skill credentials (never commit)
+.feedback-cli.env

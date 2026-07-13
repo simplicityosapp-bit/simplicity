@@ -218,7 +218,17 @@
     "unset": "—",
     "searchPlaceholder": "Rechercher texte, titre ou notes…",
     "titlePlaceholder": "Titre court…",
-    "notesPlaceholder": "Notes de tri / piste d'investigation / journal de correction…"
+    "notesPlaceholder": "Notes de tri / piste d'investigation / journal de correction…",
+    "selectAria": "Sélectionner le retour",
+    "deleteOneAria": "Supprimer le retour",
+    "selectAll": "Tout sélectionner",
+    "selectedCount": "{{count}} sélectionnés",
+    "deleteSelected": "Supprimer ({{count}})",
+    "deletedToast": "{{count}} retours supprimés",
+    "deleteError": "Échec de la suppression",
+    "deleteTitle": "Supprimer le retour",
+    "deleteConfirm": "Supprimer {{count}} retour(s) ? Cette action est irréversible.",
+    "deleteConfirmBtn": "Supprimer"
   },
   "analytics": {
     "title": "Statistiques",

@@ -573,6 +573,29 @@
 }
 .admin-fb-notes::placeholder { color: var(--mist); }
 
+/* Multi-select + delete */
+.admin-fb-check { width: 16px; height: 16px; accent-color: var(--terracotta); cursor: pointer; flex-shrink: 0; }
+.admin-fb-card.sel { outline: 2px solid var(--terracotta); outline-offset: 1px; }
+.admin-fb-del {
+  margin-inline-start: 4px; display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent;
+  color: var(--mist); cursor: pointer; flex-shrink: 0;
+}
+.admin-fb-del:hover { background: rgba(181, 99, 78, .14); color: var(--clay); }
+.admin-fb-bulkbar {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 12px; padding: 8px 12px;
+  border-radius: var(--mg-card-radius); border: var(--mg-card-border); background: var(--mg-card-bg);
+}
+.admin-fb-selall { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: var(--mg-caption); color: var(--espresso); }
+.admin-fb-selcount { font-size: var(--mg-caption); color: var(--stone); }
+.admin-fb-bulkdel {
+  display: inline-flex; align-items: center; gap: 6px; margin-inline-start: auto;
+  padding: 6px 14px; border-radius: 999px; border: none; cursor: pointer;
+  background: var(--clay); color: var(--on-accent); font-family: inherit; font-size: var(--mg-caption); font-weight: 500;
+}
+.admin-fb-bulkdel:hover { filter: brightness(0.94); }
+
 /* ── Funnel ────────────────────────────────────────────────────── */
 .admin-funnel { display: flex; flex-direction: column; gap: 9px; }
 .admin-funnel-row { display: grid; grid-template-columns: 120px 1fr 40px; align-items: center; gap: 12px; }

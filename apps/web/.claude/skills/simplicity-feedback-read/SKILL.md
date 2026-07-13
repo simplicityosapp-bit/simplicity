@@ -1,57 +1,74 @@
 ---
 name: simplicity-feedback-read
-description: Reads beta user feedback from the Simplicity Gmail account, classifies each item, suggests investigation directions, and logs everything clearly to the Notion feedback backlog. Designed to run automatically several times a day during beta, or manually on demand. Does not fix anything — only reads, classifies, and documents.
+description: Triages beta user feedback directly in Supabase (public.feedback) — classifies each untriaged row, suggests an investigation direction, and writes the triage fields back. The admin screen is the human board. Does not fix anything — only reads, classifies, and documents. No Notion.
 ---
 
 # Simplicity Feedback Reader — Workflow Skill
 
 ## תפקיד
 
-קורא פידבקים מהמייל של סימפליסיטי, מסווג, מציע כיוון קצר לבדיקה — ומתעד ב-Notion. לא מתקן שום דבר.
+מסווג פידבקים **ישירות ב-Supabase** (`public.feedback`), מציע כיוון קצר לבדיקה, וכותב את שדות ה-triage בחזרה לשורה. לא מתקן שום דבר. **אין יותר Notion** — מקור האמת הוא הטבלה, והלוח האנושי הוא מסך האדמין → פידבקים.
+
+> **למה זה השתנה:** פידבק מהאפליקציה נכתב כשורה דורבנית ל-`public.feedback` (ה-hook `useFeedback` + edge `send-feedback` — "the row is the source of truth"). המייל הוא רק התראה. לכן אין צורך ליצור רשומה — רק להעשיר שורות שעדיין לא סווגו.
+
+---
+
+## גישה ל-Supabase (מקור האמת)
+
+- טבלה: `public.feedback` · פרויקט EU `rdurkakzyymxhocvhufw`.
+- קריאה/כתיבה: הרצת SQL דרך ה-**Supabase CLI המקושר** (service-role / סיסמת DB — אותו ערוץ שבו רצות מיגרציות). כשאין הרצה אוטומטית ב-env (אין סיסמה) — **הפק את ה-SQL להרצה ידנית ע"י הבעלים**, בדיוק כמו מיגרציה.
+- צפייה/סימון אנושי: מסך אדמין → פידבקים (`AdminFeedback`).
+
+### שדות ה-triage בטבלה (מיגרציה 0079)
+| עמודה | ערכים |
+|---|---|
+| `status` | `new` (פתוח) · `in_progress` · `waiting_decision` · `done` · `rejected` |
+| `classification` | `bug` · `dev` · `unclear` (הכרעת triage — **נפרד** מ-`type`, הדיווח העצמי של המשתמש) |
+| `surface` | `technical` · `design` · `both` |
+| `platform` | `mobile` · `desktop` · `both` · `unknown` |
+| `title` | כותרת קצרה בעברית |
+| `notes` | כיוון בדיקה (שורה אחת) + מאוחר יותר לוג התיקון |
+| `type` (קיים) | `bug`/`idea`/`praise`/`other` — דיווח המשתמש, לרמז בלבד |
+| `source` | `app` (טופס) · `email` · `manual` |
 
 ---
 
 ## עקרונות ליבה
 
-1. **קרא והבן לפני שמסווג.** אם הפידבק עמום — "לא ברור", לא לנחש.
-2. **סיווג המשתמש הוא רמז, לא אמת.** משתמש שסימן `[באג]` יכול לטעות — הסיווג הסופי נקבע לפי תוכן הפידבק, לא לפי הנושא.
-3. **כיוון קצר, לא ניתוח מעמיק.** שורה אחת — היכן לחפש ורמת ביטחון. זהו.
-4. **תעד הכל.** כל פידבק נרשם, גם אם נראה לא רלוונטי.
-5. **אל תיצור כפילויות.** בדוק לפי נושא + תאריך לפני יצירת רשומה.
+1. **קרא והבן לפני שמסווג.** אם הפידבק עמום — `classification='unclear'`, לא לנחש.
+2. **הדיווח העצמי (`type`) הוא רמז, לא אמת.** משתמש שסימן `bug` יכול לטעות — הסיווג הסופי (`classification`) נקבע לפי התוכן.
+3. **כיוון קצר, לא ניתוח מעמיק.** שורה אחת ב-`notes` — היכן לחפש + רמת ביטחון. זהו.
+4. **תעד הכל.** כל שורה מסווגת, גם `praise` (→ `unclear`, בלי להקדיש זמן חשיבה).
+5. **בלי כפילויות.** לא יוצרים שורות חדשות לפידבק-אפליקציה — הוא כבר קיים. רק מעשירים.
 6. **תקשורת בעברית.**
 
 ---
 
-## שלב 1 — קריאת המייל
+## שלב 1 — שליפת שורות לא-מסווגות
 
-### פילטר מיילים
+הרץ (או הפק) את ה-SQL:
 
-חפש בנושא: `subject:פידבק חדש`
+```sql
+SELECT id, created_at, message, type, platform, status
+FROM public.feedback
+WHERE classification IS NULL
+  AND status <> 'rejected'
+ORDER BY created_at ASC;
+```
 
-**דלג על:**
-- מיילים עם `__healthcheck__ ignore` בתוכן
-- מיילים שהנושא הוא `[מחמאה]` — תעד ב-Notion בסיווג "לא ברור" אבל אל תקדיש להם זמן חשיבה
+אם אין שורות — סיים בשקט.
 
-**סוג הפידבק** מופיע בנושא בסוגריים מרובעות: `[באג]`, `[רעיון]`, `[אחר]`, `[מחמאה]`
-
-חלון זמן: מאז הריצה האחרונה (או 24 שעות אחורה בריצה ראשונה).
-
-לכל מייל — חלץ:
-- שם שולח + תאריך
-- תוכן מלא
-- מה המשתמש ציפה שיקרה
-- מה קרה בפועל
-- האם מוזכרת פלטפורמה (מובייל / דסקטופ)?
-
-אם אין מיילים חדשים — סיים בשקט.
+> **פידבק שהגיע במייל ישיר** (לא דרך הטופס — נדיר): אין לו שורה. הוסף אותה ידנית:
+> `INSERT INTO public.feedback (user_id, message, type, source, status) VALUES ('<uid>', '<text>', '<type|null>', 'email', 'new');`
+> ואז המשך לסווג אותה כמו כל שורה.
 
 ---
 
 ## שלב 2 — קריאת קבצי הקשר (רשימה בלבד)
 
-קרא את **רשימת הקבצים** בלבד — לא את התוכן. פתח קובץ ספציפי רק אם רלוונטי לפידבק ספציפי.
+קרא את **רשימת הקבצים** בלבד — לא תוכן. פתח קובץ ספציפי רק אם רלוונטי לפידבק ספציפי.
 
-> הריפו הוא מונוריפו pnpm: קוד הווב תחת `apps/web/src/`, ו-`supabase/` בשורש.
+> מונוריפו pnpm: קוד הווב תחת `apps/web/src/`, ו-`supabase/` בשורש.
 
 - `apps/web/src/hooks/` — רשימת hooks (שמות בלבד)
 - `supabase/schema.sql` — רשימת טבלאות (שמות בלבד)
@@ -60,46 +77,46 @@ description: Reads beta user feedback from the Simplicity Gmail account, classif
 
 ---
 
-## שלב 3 — סיווג
+## שלב 3 — סיווג לכל שורה
 
-לכל פידבק:
-
-### א. סיווג ראשי
-| קריטריון | סיווג |
+### א. `classification`
+| קריטריון | ערך |
 |---|---|
-| `[באג]` בנושא, או תיאור של דבר שלא עובד | **באג** |
-| `[רעיון]` בנושא, או בקשה לפיצ'ר חדש | **פיתוח** |
-| `[מחמאה]` / `[אחר]` / לא ברור | **לא ברור** |
+| תיאור של דבר שלא עובד (או `type='bug'`) | `bug` |
+| בקשה לפיצ'ר / שיפור חדש (או `type='idea'`) | `dev` |
+| `praise` / `other` / עמום | `unclear` |
 
-### ב. טכני או עיצובי
-| קריטריון | סוג |
+### ב. `surface`
+| קריטריון | ערך |
 |---|---|
-| לוגיקה, חישוב, שגיאה, ביצועים | **טכני** |
-| מראה, פונט, צבע, פריסה, זרימה | **עיצובי** |
-| שילוב | **שניהם** |
+| לוגיקה, חישוב, שגיאה, ביצועים | `technical` |
+| מראה, פונט, צבע, פריסה, זרימה | `design` |
+| שילוב | `both` |
 
-### ג. כיוון לבדיקה (שורה אחת בלבד)
-דוגמה: `useTransactions / recurring_templates — בדוק insert. ביטחון: בינוני.`
+### ג. `platform`
+אם השורה כבר נושאת `platform` (זוהה אוטומטית בטופס) — השאר. אחרת הסק מהטקסט (`mobile`/`desktop`), או `unknown`.
+
+### ד. `title` + `notes`
+- `title`: תיאור קצר וברור בעברית.
+- `notes`: כיוון בדיקה בשורה אחת. דוגמה: `useTransactions / recurring_templates — בדוק insert. ביטחון: בינוני.`
 
 ---
 
-## שלב 4 — תיעוד ב-Notion
+## שלב 4 — כתיבת ה-triage בחזרה
 
-**טבלה:** 📥 פידבקים בטא
-**URL:** https://app.notion.com/p/b9312c65b4ca43e7907fea3725da470e
-**Data source:** `collection://c2e8479e-b8c3-4282-bc6d-c760c88a68cb`
+לכל שורה, הרץ (או הפק) UPDATE ממוקד לפי `id`:
 
-| שדה | מה למלא |
-|---|---|
-| כותרת | תיאור קצר וברור בעברית |
-| תאריך קבלה | תאריך המייל |
-| מקור | מייל |
-| סיווג | באג / פיתוח / לא ברור |
-| פלטפורמה | מובייל / דסקטופ / שתיהן / לא ידוע |
-| סטטוס | פתוח |
-| טכני או עיצובי | טכני / עיצובי / שניהם |
-| תיאור מלא | הפידבק המקורי + מה המשתמש ציפה |
-| הערות | כיוון הבדיקה (שורה אחת) |
+```sql
+UPDATE public.feedback
+SET classification = '<bug|dev|unclear>',
+    surface        = '<technical|design|both>',
+    platform       = COALESCE(platform, '<mobile|desktop|both|unknown>'),
+    title          = '<כותרת>',
+    notes          = '<כיוון בדיקה — שורה אחת>'
+WHERE id = '<uuid>';
+```
+
+`status` נשאר `new` (פתוח) — הקריאה לא סוגרת פריטים, רק מסווגת.
 
 ---
 
@@ -108,22 +125,21 @@ description: Reads beta user feedback from the Simplicity Gmail account, classif
 ```
 סיכום ריצה — [תאריך ושעה]
 
-📨 מיילים שנקראו: X
-📋 פידבקים חדשים שתועדו: X
+📋 שורות שסווגו: X
 
-🔴 באגים: X (טכני: X / עיצובי: X)
-🟣 פיתוח: X
-🟡 לא ברור: X
+🔴 bug: X (technical: X / design: X)
+🟣 dev: X
+🟡 unclear: X
 
-📌 https://app.notion.com/p/b9312c65b4ca43e7907fea3725da470e
+מקור: public.feedback · צפייה: מסך אדמין → פידבקים
 ```
 
 ---
 
 ## כללי ברזל
 
-- **לעולם** אל תתקן שום דבר — רק קרא, סווג, תעד.
-- **לעולם** אל תיצור כפילויות ב-Notion.
+- **לעולם** אל תתקן שום דבר — רק סווג ותעד.
+- **לעולם** אל תיצור שורה כפולה לפידבק-אפליקציה — הוא כבר קיים ב-`public.feedback`.
 - **לעולם** אל תפתח קובץ מהריפו אלא אם ישירות רלוונטי לפידבק.
 - כיוון הבדיקה — שורה אחת, לא ניתוח.
-- `__healthcheck__ ignore` — דלג לחלוטין.
+- **אין Notion.** מקור האמת = `public.feedback`; הלוח = מסך האדמין.

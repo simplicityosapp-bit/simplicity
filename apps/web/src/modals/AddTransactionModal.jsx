@@ -5,7 +5,7 @@ import Modal from './Modal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
-import { effectiveClientMeta, PAY_METHODS, payMethodLabel, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType } from '@simplicity/core'
+import { effectiveClientMeta, PAY_METHODS, payMethodLabel, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType, isr } from '@simplicity/core'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
@@ -32,6 +32,7 @@ const blank = (defaults = {}) => ({
    have to re-pick the project they're clearly already on. */
 export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {}, members = [], groups = [] }) {
   const { t } = useT('modalsData')
+  const { t: tc } = useT('connections') // reuse the per-tx picker's item-field strings
   const inv = useInvoiceProvider()
   const lockedClientId = client?.id || ''
   const initial = { ...defaults, client_id: lockedClientId || defaults.client_id, type: defaultType || defaults.type }
@@ -47,6 +48,14 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   const [issueOnCreate, setIssueOnCreate] = useState(false)
   const [issueDocType, setIssueDocType] = useState('invoice_receipt')
   const [issuePayment, setIssuePayment] = useState('bank_transfer')
+  /* Catalog item ("מוצר") for the issued document — mirrors the per-transaction
+     picker (InvoiceActions) so the on-create receipt links the SAME chosen
+     product by id. Loaded when the toggle is switched on. '' = free text ("אחר"). */
+  const [issueItems, setIssueItems] = useState([])
+  const [issueItemId, setIssueItemId] = useState('')
+  const [issueItemName, setIssueItemName] = useState('')
+  const [issueCatalogLoading, setIssueCatalogLoading] = useState(false)
+  const [issueCatalogErr, setIssueCatalogErr] = useState('')
   /* Ad-hoc recipient — issue a receipt for someone who ISN'T a client. Active
      when the client select is the "__adhoc__" sentinel (income only, standalone
      add flow). The details are saved on the transaction (recipient_*). */
@@ -64,7 +73,23 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       return next
     })
   }
-  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); setRecipient({ name: '', email: '', phone: '', tax_id: '' }); onClose() }
+  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); setIssueItems([]); setIssueItemId(''); setIssueItemName(''); setIssueCatalogLoading(false); setIssueCatalogErr(''); setRecipient({ name: '', email: '', phone: '', tax_id: '' }); onClose() }
+
+  /* Load the provider catalog for the issue-on-create picker. Defaults the
+     selection to the first item — visible and changeable (like InvoiceActions),
+     so the user always sees exactly which product will be billed. */
+  const loadIssueCatalog = async () => {
+    setIssueCatalogErr(''); setIssueCatalogLoading(true)
+    setIssueItemName(form.desc.trim())
+    try {
+      const list = await inv.loadItems()
+      const arr = Array.isArray(list) ? list : []
+      setIssueItems(arr)
+      setIssueItemId(arr.length ? String(arr[0].id) : '')
+    } catch {
+      setIssueItems([]); setIssueItemId(''); setIssueCatalogErr(tc('actions.catalogError'))
+    } finally { setIssueCatalogLoading(false) }
+  }
 
   /* Inline "new category" creation (Option C1): only when the parent passes
      onCreateCategory. Creating one selects it immediately so the user never
@@ -122,13 +147,12 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
           // Clamp to what this business may issue — the toggle's default can be
           // stale if status loaded after it was checked (would 2403 post-save).
           const docType = clampDocType(inv.status?.business_type, issueDocType)
-          // Issue-on-creation has no item picker, so it never GUESSES a catalog
-          // item — auto-picking the first one billed the wrong product on every
-          // document. The line is the transaction's own description; a user who
-          // needs a specific catalog product issues from the per-transaction
-          // picker (InvoiceActions), which links the chosen item by id.
-          const itemId = null
-          const itemName = form.desc.trim()
+          // Link the SAME catalog product the user picked (issueItemId), by id —
+          // mirroring the per-transaction picker (InvoiceActions). '' = "אחר" free
+          // text, which falls back to the transaction's own description.
+          const selectedItem = issueItems.find((it) => String(it.id) === String(issueItemId))
+          const itemId = issueItemId || null
+          const itemName = issueItemId ? (selectedItem?.name || '') : (issueItemName.trim() || form.desc.trim())
           const r = await inv.issueDocument(row.id, docType, { itemId, itemName, paymentMethod: form.payment_method || issuePayment })
           const num = r?.document?.number
           showToast(t('tx.savedAndIssued', { doc: docTypeLabel(docType), num: num ? t('tx.numPrefix', { num }) : '' }))
@@ -298,7 +322,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
           ) : (
             <>
               <Box as="label" className="m-issue-toggle">
-                <Input type="checkbox" checked={issueOnCreate} onChange={(e) => { const on = e.target.checked; setIssueOnCreate(on); if (on) setIssueDocType(defaultDocType(inv.status?.business_type)) }} />
+                <Input type="checkbox" checked={issueOnCreate} onChange={(e) => { const on = e.target.checked; setIssueOnCreate(on); if (on) { setIssueDocType(defaultDocType(inv.status?.business_type)); loadIssueCatalog() } }} />
                 <Txt>{t('tx.issueOnSave')}</Txt>
               </Box>
               {issueOnCreate && (
@@ -307,6 +331,29 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                     {allowedDocTypes(inv.status?.business_type).map((d) => (
                       <Btn key={d.key} type="button" className={`m-pill${issueDocType === d.key ? ' on' : ''}`} onClick={() => setIssueDocType(d.key)}>{docTypeLabel(d.key)}</Btn>
                     ))}
+                  </Box>
+                  {/* Product/service line ("מוצר") — links the chosen catalog item
+                      by id, exactly like the per-transaction picker. */}
+                  <Box className="m-issue-item">
+                    <Box as="label" className="m-label">{tc('actions.itemFieldLabel')}</Box>
+                    {issueCatalogLoading ? (
+                      <Txt as="p" className="m-hint">{tc('actions.loadingItems')}</Txt>
+                    ) : (
+                      <>
+                        {issueItems.length > 0 && (
+                          <SelectMenu
+                            value={issueItemId}
+                            onChange={setIssueItemId}
+                            options={[...issueItems.map((it) => ({ value: String(it.id), label: it.price != null ? `${it.name} · ${isr(it.price)}` : it.name })), { value: '', label: tc('actions.itemOther') }]}
+                            ariaLabel={tc('actions.itemFieldLabel')}
+                          />
+                        )}
+                        {(issueItems.length === 0 || issueItemId === '') && (
+                          <Input className="m-input" value={issueItemName} onChange={(e) => setIssueItemName(e.target.value)} placeholder={tc('actions.itemPlaceholder')} />
+                        )}
+                        {issueCatalogErr && <Txt as="p" className="m-hint">{issueCatalogErr}</Txt>}
+                      </>
+                    )}
                   </Box>
                   {/* Receipt payment method: the transaction's own אמצעי תשלום
                       drives the receipt when set (no duplicate picker); only

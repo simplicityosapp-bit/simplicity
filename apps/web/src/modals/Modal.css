@@ -877,6 +877,10 @@
 .m-issue-toggle input { accent-color: var(--terracotta); width: 16px; height: 16px; }
 .m-issue-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
 .m-issue-types { flex-wrap: wrap; }
+/* Product picker inside the issue-on-create block: label + select (+ free-text
+   fallback) stacked; the wrapper itself gets the 10px opts gap from siblings. */
+.m-issue-item { display: flex; flex-direction: column; gap: 6px; }
+.m-issue-item .m-label { margin-bottom: 0; }
 
 /* Delete action in the edit-transaction modal — pushed to the start, away from
    cancel/save. Soft-delete + undo (no confirm; the undo toast is the safety). */

@@ -255,7 +255,8 @@
     "todayKinds": {
       "meeting": "פגישה",
       "calendar": "יומן",
-      "followup": "מעקב"
+      "followup": "מעקב",
+      "reminder": "תזכורת"
     }
   }
 }

@@ -21,7 +21,7 @@ const TASK_PRIORITIES = ['high', 'medium', 'low']
 /* One general client toggle instead of a pill-per-client list (beta
    07/06/2026): 'all' = no filter, 'linked' = only tasks tied to a client. */
 const TASK_CLIENT_SCOPE = ['all', 'linked']
-const TODAY_KINDS = ['meeting', 'calendar', 'followup']
+const TODAY_KINDS = ['meeting', 'calendar', 'followup', 'reminder']
 
 function toggleInList(list, value) {
   const arr = list || []
@@ -366,7 +366,7 @@ function MeetingsPanel({ filters, setFilter, items, onConfirm, onOpen, waMsg, t 
                 type="button"
                 className="td-today-main"
                 onClick={() => onOpen(it)}
-                disabled={it.kind === 'calendar'}
+                disabled={it.kind === 'calendar' || it.kind === 'reminder'}
               >
                 <Txt className="td-today-time mono">{it.allDay ? t('tileDrill.today.allDay') : fmtTime(it.when)}</Txt>
                 <Txt className="td-today-name">{it.title || t(`tileDrill.todayKinds.${it.kind}`)}</Txt>
@@ -417,7 +417,7 @@ export default function TileDrillModal({
   clients = [], groups = [], projects = [], categories = [],
   tasks = [], transactions = [],
   netSummary = {},
-  meetings = [], calendarEvents = [], leads = [], sessions = [], addSession, updateMeeting, waMsg,
+  meetings = [], calendarEvents = [], leads = [], reminders = [], sessions = [], addSession, updateMeeting, waMsg,
 }) {
   const { t } = useT('modalsSystem')
   const navigate = useNavigate()
@@ -434,8 +434,8 @@ export default function TileDrillModal({
      per-render `filters` object, so the memo actually memoizes. */
   const todayKinds = filters.kinds
   const todayList = useMemo(
-    () => (tile === 'today' ? todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }, { kinds: todayKinds }) : []),
-    [tile, meetings, calendarEvents, leads, clients, groups, todayKinds],
+    () => (tile === 'today' ? todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups, reminders }, { kinds: todayKinds }) : []),
+    [tile, meetings, calendarEvents, leads, clients, groups, reminders, todayKinds],
   )
   /* "Happened" materializes a session + flips the meeting to confirmed —
      the shared helper used by the home review widget and the calendar. */

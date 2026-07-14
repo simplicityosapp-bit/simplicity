@@ -9,6 +9,7 @@ import { useTransactions } from '../../../hooks/useTransactions'
 import { useCategories } from '../../../hooks/useCategories'
 import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
 import { useCalendarEvents } from '../../../hooks/useCalendarEvents'
+import { useReminders } from '../../../hooks/useReminders'
 import { useLeads } from '../../../hooks/useLeads'
 import { useSessions } from '../../../hooks/useSessions'
 import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
@@ -34,6 +35,7 @@ export default function ChipsWidget() {
   const { categories } = useCategories()
   const { meetings, updateMeeting } = useScheduledMeetings()
   const { events: calendarEvents } = useCalendarEvents()
+  const { reminders } = useReminders()
   const { leads } = useLeads()
   const { sessions, addSession } = useSessions()
   const waMsg = useWhatsAppMessage()
@@ -48,8 +50,8 @@ export default function ChipsWidget() {
   /* Today's agenda count drives the bottom chip; the same list feeds the
      drill panel. Sources + which-kinds-count are controlled by filters.today. */
   const today = useMemo(
-    () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }, filters.today),
-    [meetings, calendarEvents, leads, clients, groups, filters.today],
+    () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups, reminders }, filters.today),
+    [meetings, calendarEvents, leads, clients, groups, reminders, filters.today],
   )
   /* First-load gate: show a soft placeholder instead of flashing 0 / 0₪ while
      the core data is still arriving (the numbers then settle without a jump). */
@@ -118,6 +120,7 @@ export default function ChipsWidget() {
         meetings={meetings}
         calendarEvents={calendarEvents}
         leads={leads}
+        reminders={reminders}
         sessions={sessions}
         addSession={addSession}
         updateMeeting={updateMeeting}

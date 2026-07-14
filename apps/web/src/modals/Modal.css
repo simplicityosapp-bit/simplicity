@@ -650,6 +650,7 @@
 .td-today-kind.kind-meeting { color: var(--sage); background: color-mix(in srgb, var(--sage) 14%, transparent); }
 .td-today-kind.kind-calendar { color: var(--moon-deep); background: color-mix(in srgb, var(--moon-deep) 14%, transparent); }
 .td-today-kind.kind-followup { color: var(--amber-warn); background: color-mix(in srgb, var(--amber-warn) 16%, transparent); }
+.td-today-kind.kind-reminder { color: var(--terracotta); background: color-mix(in srgb, var(--terracotta) 14%, transparent); }
 .td-today-acts {
   flex-shrink: 0;
   display: inline-flex;

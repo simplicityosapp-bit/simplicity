@@ -232,7 +232,8 @@
     "todayKinds": {
       "meeting": "Meeting",
       "calendar": "Calendar",
-      "followup": "Follow-up"
+      "followup": "Follow-up",
+      "reminder": "Reminder"
     }
   }
 }

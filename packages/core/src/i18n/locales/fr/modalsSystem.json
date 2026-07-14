@@ -232,7 +232,8 @@
     "todayKinds": {
       "meeting": "Rendez-vous",
       "calendar": "Agenda",
-      "followup": "Relance"
+      "followup": "Relance",
+      "reminder": "Rappel"
     }
   }
 }

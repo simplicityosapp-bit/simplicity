@@ -64,7 +64,7 @@ const DEFAULT_TILE_FILTERS = {
   clients: { statuses: ['active', 'wandering'], projectIds: [], groupIds: [] },
   net:     { timeRange: 'thisMonth', type: 'both', projectIds: [], groupIds: [], categoryIds: [] },
   tasks:   { status: 'open', priorities: [], projectIds: [], clientScope: 'all' },
-  today:   { kinds: ['meeting', 'calendar', 'followup'] },
+  today:   { kinds: ['meeting', 'calendar', 'followup', 'reminder'] },
 }
 
 export function getTileFilters(prefs) {
@@ -84,9 +84,9 @@ export function getTileFilters(prefs) {
    list. Pure + no mock fallback: a cold load reads empty, never
    fabricated rows. Returns normalized items: { id, kind, when, title,
    phone?, subjectType?, subjectId?, leadId?, allDay?, meeting? }. */
-const TODAY_KINDS = ['meeting', 'calendar', 'followup']
+const TODAY_KINDS = ['meeting', 'calendar', 'followup', 'reminder']
 export function todayItems(now = new Date(), data = {}, filter = {}) {
-  const { meetings = [], calendarEvents = [], leads = [], clients = [], groups = [] } = data
+  const { meetings = [], calendarEvents = [], leads = [], clients = [], groups = [], reminders = [] } = data
   const kinds = filter.kinds && filter.kinds.length ? filter.kinds : TODAY_KINDS
   const pad = (n) => String(n).padStart(2, '0')
   const todayKey = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
@@ -130,6 +130,16 @@ export function todayItems(now = new Date(), data = {}, filter = {}) {
         id: `fu-${l.id}`, kind: 'followup', when: `${todayKey}T09:00:00`,
         title: l.name || '', phone: l.phone || '', leadId: l.id,
       }))
+  }
+
+  if (kinds.includes('reminder')) {
+    /* Today's reminders — the same recurring/one-off expansion the calendar
+       feed uses (remindersUpcoming), narrowed to today (daysAhead 0, no cap).
+       Reminders show on the calendar too, so this keeps the לו"ז faithful to
+       it; toggled per the today.kinds filter like every other kind. */
+    remindersUpcoming(now, reminders, 0, 0).forEach((r) => out.push({
+      id: `rem-${r.id}`, kind: 'reminder', when: r.when, title: r.title || '',
+    }))
   }
 
   return out.sort((a, b) => new Date(a.when) - new Date(b.when))

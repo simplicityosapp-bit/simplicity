@@ -3,6 +3,20 @@
    Tokens only; matches the connections / card glass language.
    ════════════════════════════════════════════════════════════════ */
 
+/* Title mark — the shared green disc + white glyph (beta 14/07/2026),
+   matching the WhatsApp mark everywhere else. */
+.wa-title-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--sage);
+  color: var(--on-accent);
+  vertical-align: -6px;
+}
+
 /* The explanatory line sits under the title; allow it to wrap to a few
    lines and breathe rather than render as a single muted caption. */
 .wa-subtitle {

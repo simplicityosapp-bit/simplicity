@@ -88,7 +88,7 @@ export default function WhatsAppConnectionScreen() {
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
         </Btn>
         <Box>
-          <Txt as="p" className="t-screen"><MessageCircle size={20} strokeWidth={1.6} aria-hidden="true" /> {t('whatsappScreen.title')}</Txt>
+          <Txt as="p" className="t-screen"><span className="wa-title-glyph" aria-hidden="true"><MessageCircle size={14} strokeWidth={2} /></span> {t('whatsappScreen.title')}</Txt>
           <Txt as="p" className="lbl-sm wa-subtitle">{t('whatsappScreen.subtitle')}</Txt>
         </Box>
       </Box>

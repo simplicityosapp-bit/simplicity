@@ -583,6 +583,13 @@
   background: color-mix(in srgb, var(--terracotta) 10%, transparent);
   color: var(--terracotta);
 }
+/* WhatsApp connector — the shared green disc + white glyph (beta 14/07/2026),
+   matching the WhatsAppButton mark everywhere else. */
+.conn-row-icon.wa {
+  border-radius: 50%;
+  background: var(--sage);
+  color: var(--on-accent);
+}
 .conn-row-body { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
 .conn-row-title {
   font-family: var(--mg-font);

@@ -10,29 +10,59 @@
   display: inline-flex;
 }
 
-/* ── Trigger ─────────────────────────────────────────────────────── */
+/* ── The WhatsApp mark ───────────────────────────────────────────────
+   Always a SOLID green disc with a WHITE glyph, so it reads identically
+   in every host (list row, drawer, tx card, connections…) and never
+   blends into a light chip (beta 14/07/2026). Brand-neutral by design:
+   the app green (--sage) + --on-accent, never WhatsApp's own hex. The
+   disc is a self-contained child, so host trigger classes keep their own
+   size/placement without changing how the mark looks. */
+.wab-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--sage);
+  color: var(--on-accent);
+  flex-shrink: 0;
+}
+
+/* Icon-only WhatsApp triggers show ONLY the green disc: strip whatever
+   background/border/shadow the host trigger class paints (so the disc never
+   sits inside a second tinted ring), while KEEPING the host's size + padding
+   so it stays aligned with sibling action buttons in a row. `button.…`
+   (0,1,1) beats any single host class (0,1,0) regardless of import order.
+   Labeled triggers (has-label pills) keep their host chrome. */
+button.wab-mark--icon {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* ── Trigger ─────────────────────────────────────────────────────────
+   The default trigger is now just a transparent tap-target wrapping the
+   disc — the disc carries the whole visual. Host overrides (triggerClassName)
+   keep their own box for row alignment; the disc sits centered inside. */
 .wab-trigger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  width: var(--mg-icon-btn);
-  height: var(--mg-icon-btn);
-  border-radius: 50%;
-  border: var(--mg-card-border);
-  background: var(--mg-btn-secondary-bg);
-  color: var(--sage);
+  gap: 8px;
+  border: none;
+  background: transparent;
   cursor: pointer;
   padding: 0;
-  transition: background 0.15s ease, transform 0.12s ease;
+  transition: transform 0.12s ease;
 }
 .wab-trigger.has-label {
-  width: auto;
   border-radius: var(--mg-btn-radius);
-  padding: 8px 14px;
+  padding: 4px 12px 4px 6px;
   font: 500 var(--mg-caption) / 1 var(--mg-font);
+  color: var(--espresso);
 }
-.wab-trigger:hover { background: var(--mg-btn-secondary-bg-hover); }
+.wab-trigger:hover .wab-glyph { filter: brightness(0.94); }
 .wab-trigger:active { transform: scale(0.95); }
 .wab-trigger:focus-visible {
   outline: 2px solid var(--sage);

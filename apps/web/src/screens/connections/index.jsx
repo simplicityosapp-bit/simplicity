@@ -15,10 +15,10 @@ import { Box, Txt, Btn } from '../../components/ui'
    opens the connection's own sub-screen (where you connect / manage / view its
    data). The toggle/connect actions live inside the sub-screen, so a row tap
    can never accidentally disconnect. */
-function ConnRow({ icon: Icon, title, loading, connected, warn, statusText, onOpen, loadingLabel, ariaLabel }) {
+function ConnRow({ icon: Icon, title, loading, connected, warn, statusText, onOpen, loadingLabel, ariaLabel, iconClass }) {
   return (
     <Btn type="button" className="conn-row" onClick={onOpen} aria-label={ariaLabel}>
-      <Txt className="conn-row-icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></Txt>
+      <Txt className={`conn-row-icon${iconClass ? ` ${iconClass}` : ''}`}><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></Txt>
       <Txt className="conn-row-body">
         <Txt className="conn-row-title">{title}</Txt>
         <Txt className={`conn-row-status${connected ? ' on' : ''}${warn ? ' warn' : ''}`}>
@@ -199,6 +199,7 @@ export default function ConnectionsScreen() {
         )}
         <ConnRow
           icon={MessageCircle}
+          iconClass="wa"
           title="WhatsApp"
           loading={false}
           connected

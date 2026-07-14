@@ -132,13 +132,15 @@ export default function WhatsAppButton({
       <Btn
         ref={btnRef}
         type="button"
-        className={triggerClassName || `wab-trigger${showLabel ? ' has-label' : ''}`}
+        className={`wab-mark${showLabel ? '' : ' wab-mark--icon'} ${triggerClassName || `wab-trigger${showLabel ? ' has-label' : ''}`}`}
         aria-label={title}
         aria-expanded={open}
         title={title}
         onClick={toggle}
       >
-        <MessageCircle size={16} strokeWidth={1.7} aria-hidden="true" />
+        <span className="wab-glyph" aria-hidden="true">
+          <MessageCircle size={15} strokeWidth={2} />
+        </span>
         {showLabel && <Txt>{label || t('whatsapp.send')}</Txt>}
       </Btn>
       {open && coords && createPortal(

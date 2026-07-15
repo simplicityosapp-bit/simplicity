@@ -416,14 +416,16 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   position: relative;
   padding: var(--mg-card-pad);
 }
-/* "דלג" — quiet skip action, tucked into the widget's top-inline-start
-   (visually top-right in RTL) corner so it costs no vertical row and the
-   widget stays compact (beta 14/07/2026). Dismisses one question for today
-   without writing an answer; shares prefs.insSkipped with the screen. */
+/* "דלג" — quiet skip action, tucked into the widget's top-inline-end
+   (visually top-left in RTL) corner so it costs no vertical row and the
+   widget stays compact (beta 14/07/2026; moved from the inline-start/top-right
+   corner to the inline-end/top-left corner per feedback 15/07/2026).
+   Dismisses one question for today without writing an answer; shares
+   prefs.insSkipped with the screen. */
 .ins-skip-btn {
   position: absolute;
   top: 6px;
-  inset-inline-start: 6px;
+  inset-inline-end: 6px;
   z-index: 2;
   display: inline-flex;
   align-items: center;

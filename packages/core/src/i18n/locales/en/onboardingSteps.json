@@ -30,7 +30,8 @@
     "errReadFailVerb": "make sure",
     "errReadFail": "We couldn't read the file — {{verb}} it's a valid CSV or Excel and isn't open in another app right now, or you can just start fresh.",
     "errNoEntities": "We read the file but couldn't find any clients, projects, or transactions in it. Check that each table's type is right and that the name/amount column is mapped — or choose \"start fresh\".",
-    "hintYearMissing": "Pick a year for each monthly table before continuing."
+    "hintYearMissing": "Pick a year for each monthly table before continuing.",
+    "hintPickFile": "Choose a file to upload, or start fresh."
   },
   "step3": {
     "intro": "Shall we build a project?",

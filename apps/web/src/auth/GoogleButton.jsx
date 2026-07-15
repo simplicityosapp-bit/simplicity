@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { translateAuthError } from './authErrors'
 
@@ -17,17 +18,30 @@ function GoogleG() {
    `onBeforeAuth` runs just before the OAuth redirect (used to stash consent
    so it can be written to user_metadata on return). */
 export default function GoogleButton({ onError, label = 'התחברות עם Google', disabled = false, onBeforeAuth }) {
+  const [busy, setBusy] = useState(false)
   const click = async () => {
-    if (disabled) return
+    if (disabled || busy) return
     if (onBeforeAuth) onBeforeAuth()
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin },
-    })
-    if (error && onError) onError(translateAuthError(error.message))
+    setBusy(true)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin },
+      })
+      /* Success → a full-page redirect follows; keep `busy` latched so the
+         button can't fire a second signInWithOAuth (+ re-run onBeforeAuth)
+         during the slow window before the browser navigates away. */
+      if (error) {
+        setBusy(false)
+        if (onError) onError(translateAuthError(error.message))
+      }
+    } catch (e) {
+      setBusy(false)
+      if (onError) onError(translateAuthError(e?.message))
+    }
   }
   return (
-    <button type="button" className="auth-btn-google" onClick={click} disabled={disabled}>
+    <button type="button" className="auth-btn-google" onClick={click} disabled={disabled || busy}>
       <GoogleG />
       <span>{label}</span>
     </button>

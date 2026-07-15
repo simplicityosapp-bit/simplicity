@@ -92,7 +92,7 @@ function AppShell() {
   const screen = screenKeyFromPath(location.pathname)
   const { user } = useAuth()
   const { isDark, toggleTheme } = useTheme()
-  const { prefs, update: updatePrefs, loading: prefsLoading } = useUserPreferences()
+  const { prefs, update: updatePrefs, loading: prefsLoading, error: prefsError } = useUserPreferences()
   const [menuOpen, setMenuOpen] = useState(false)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
 
@@ -157,6 +157,24 @@ function AppShell() {
             <AdminApp />
           </Suspense>
         </ErrorBoundary>
+      </div>
+    )
+  }
+
+  /* Preferences failed to load (e.g. a transient network error). Don't fall
+     through to the onboarding guard below — with prefs null, obDone is false
+     and we'd wrongly replay onboarding for an EXISTING user (and a "start"
+     click would then overwrite their not-yet-loaded prefs). Offer a retry
+     instead. Mirrors the CryptoGate error pattern above. */
+  if (prefsError && !prefs) {
+    return (
+      <div className="app" data-screen="prefs-error">
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 24, textAlign: 'center' }}>
+          <p style={{ maxWidth: 360, lineHeight: 1.7, margin: 0 }}>
+            לא הצלחנו לטעון את ההגדרות שלך. ייתכן שזו תקלת רשת זמנית — נסה/י שוב, ואם זה חוזר רענן/י את הדף.
+          </p>
+          <button type="button" onClick={() => window.location.reload()}>נסה/י שוב</button>
+        </div>
       </div>
     )
   }
@@ -265,10 +283,13 @@ function AuthGate() {
    show the splash. */
 function urlHasOAuthCallback() {
   if (typeof window === 'undefined') return false
-  return (
-    window.location.search.includes('code=') ||
-    window.location.hash.includes('access_token=')
-  )
+  /* Match the EXACT `code` query param Supabase's PKCE exchange looks for —
+     not a substring. `search.includes('code=')` also matched innocent
+     marketing params like ?promocode= / ?discount_code= / ?referral_code=,
+     trapping logged-out visitors to "/" on an infinite splash (the code is
+     never exchanged, so the URL is never cleaned and the gate never clears). */
+  const params = new URLSearchParams(window.location.search)
+  return params.has('code') || window.location.hash.includes('access_token=')
 }
 
 /* Holds the app behind the field-encryption key. It derives from the user id

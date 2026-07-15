@@ -30,7 +30,8 @@
     "errReadFailVerb": "asegúrate de que",
     "errReadFail": "No pudimos leer el archivo — {{verb}} sea un CSV o Excel válido y no esté abierto en otra app ahora mismo, o puedes simplemente empezar de cero.",
     "errNoEntities": "Leímos el archivo pero no pudimos encontrar clientes, proyectos ni transacciones en él. Comprueba que el tipo de cada tabla sea correcto y que la columna de nombre/importe esté asignada — o elige «empezar de cero».",
-    "hintYearMissing": "Elige un año para cada tabla mensual antes de continuar."
+    "hintYearMissing": "Elige un año para cada tabla mensual antes de continuar.",
+    "hintPickFile": "Elige un archivo para subir, o empieza de cero."
   },
   "step3": {
     "intro": "¿Construimos un proyecto?",

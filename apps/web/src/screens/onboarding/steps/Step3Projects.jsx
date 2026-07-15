@@ -5,7 +5,6 @@ import { useGroups } from '../../../hooks/useGroups'
 import { useT } from '../../../i18n/useT'
 import { isr } from '@simplicity/core'
 import AddGroupModal from '../../../modals/AddGroupModal'
-import CsvMappingEditor from '../CsvMappingEditor'
 import { CATEGORY_SWATCHES as COLORS } from '../../../lib/palette'
 import { Box, Txt, Btn, Input } from '../../../components/ui'
 
@@ -111,8 +110,6 @@ export default function Step3Projects({ ob, setCTA }) {
           {t('step3.existingBanner', { count: projects.length })}
         </Box>
       )}
-
-      <CsvMappingEditor parsed={ob.state.parsed_data} onChange={ob.setParsedData} stepKey="projects" title={t('step3.csvTitle')} />
 
       <Box className="ob-field">
         <Box as="label" className="ob-label" htmlFor="ob-p-name">{t('step3.nameLabel')}</Box>

@@ -75,14 +75,22 @@ export function useOnboarding() {
       const completed = completedSteps.includes(cur)
         ? completedSteps
         : [...completedSteps, cur]
+      /* Patch ONLY the keys we change — do NOT spread `...state`. `state` is
+         this render's snapshot; a step handler that ran setAnswers(...created_ids)
+         immediately before advance() already wrote the fresh ids to prefsRef,
+         and update() deep-merges over that latest prefs. Re-injecting the stale
+         snapshot's `answers` here would clobber those ids back to [] (arrays are
+         replaced wholesale), re-orphaning them → duplicate project/client/goal/
+         question rows on Back→Next. Same rule the `patch` helper documents. */
       const nextState = {
-        ...state,
         step: nextStep,
         completed_steps: completed,
         started_at: state.started_at || new Date().toISOString(),
       }
       if (extraAnswers) {
-        nextState.answers = { ...state.answers, ...extraAnswers }
+        /* deep-merges over the latest answers (never seen in practice — all
+           callers advance() with no args — but kept correct just in case). */
+        nextState.answers = extraAnswers
       }
       /* If we tried to advance past the last step, mark complete. */
       if (cur === ONBOARDING_STEPS[ONBOARDING_STEPS.length - 1]) {
@@ -97,8 +105,9 @@ export function useOnboarding() {
     const cur = step
     const nextIdx = Math.min(ONBOARDING_STEPS.indexOf(cur) + 1, ONBOARDING_STEPS.length - 1)
     const nextStep = ONBOARDING_STEPS[nextIdx]
+    /* Patch only what we change — never spread `...state` (stale snapshot); see
+       advance() above for why. update() deep-merges over the latest prefs. */
     const nextState = {
-      ...state,
       step: nextStep,
       started_at: state.started_at || new Date().toISOString(),
     }

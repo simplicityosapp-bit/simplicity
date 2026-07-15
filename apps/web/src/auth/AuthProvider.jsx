@@ -20,6 +20,11 @@ export default function AuthProvider({ children }) {
       // Record one app-usage session per tab for the admin analytics heartbeat
       // (deduped in recordAppSession). Covers tabs opened with a live session.
       if (prevUserId) recordAppSession(prevUserId)
+    }).catch(() => {
+      // getSession() can reject (e.g. a stalled navigator.locks lock held by
+      // another tab). Never strand the whole app on the splash — clear the gate
+      // and fall through; onAuthStateChange still delivers a session if present.
+      if (active) setLoading(false)
     })
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       // A password-reset link establishes a session AND fires PASSWORD_RECOVERY.
@@ -42,6 +47,10 @@ export default function AuthProvider({ children }) {
       // token refresh for the same user won't double-count).
       if (event === 'SIGNED_IN' && nextUserId) recordAppSession(nextUserId)
       setSession(s)
+      // Redundantly release the initial loading gate: INITIAL_SESSION fires on
+      // subscribe even if getSession() above hangs, so the app can never be
+      // stuck on the splash. Idempotent with the getSession().then path.
+      setLoading(false)
     })
     return () => {
       active = false

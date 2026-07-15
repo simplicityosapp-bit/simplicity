@@ -116,9 +116,11 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   const isValid = (type, row) => {
     if (type === 'transactions') {
       const amt = Number(row.amount)
-      /* Recurring rules have no single date (they repeat) — only the
-         amount must be valid. One-off transactions still need a date. */
-      return !Number.isNaN(amt) && amt !== 0 && (row.recurring || !!row.date)
+      /* Only a valid, non-zero amount is required. Recurring rules have no
+         single date (they repeat); a dateless one-off (e.g. a yearly/quarterly
+         rate-table row) is NOT dropped — the importer parks it on the historical
+         placeholder date and flags it estimated, same as dateless sessions. */
+      return !Number.isNaN(amt) && amt !== 0
     }
     /* A session row needs a client to attach to; the date is optional (a
        missing one falls back to the historical placeholder at import). */
@@ -263,6 +265,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
       const summary = await onConfirm({ projects: strip('projects'), clients: strip('clients'), leads: strip('leads'), transactions: strip('transactions'), sessions: strip('sessions') })
       const failed = summary
         ? (summary.projects?.failed || 0) + (summary.clients?.failed || 0) + (summary.leads?.failed || 0) + (summary.transactions?.failed || 0) + (summary.recurring?.failed || 0) + (summary.sessions?.failed || 0)
+          + (summary.paymentPlans?.failed || 0) + (summary.clientStatuses?.failed || 0) + (summary.leadStatuses?.failed || 0)
         : 0
       if (summary?.fatal || failed > 0) setResult(summary)
       else await onComplete()
@@ -310,6 +313,8 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     const totalCreated = created.clients + created.projects + created.leads + created.transactions + created.recurring
     const totalFailed = (result.clients?.failed || 0) + (result.projects?.failed || 0)
       + (result.leads?.failed || 0) + (result.transactions?.failed || 0) + (result.recurring?.failed || 0)
+      + (result.sessions?.failed || 0) + (result.paymentPlans?.failed || 0)
+      + (result.clientStatuses?.failed || 0) + (result.leadStatuses?.failed || 0)
     /* Plain-language created summary line (only non-zero kinds). */
     const parts = []
     if (created.clients) parts.push(t('review.result.created.clients', { count: created.clients }))

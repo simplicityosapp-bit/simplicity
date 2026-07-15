@@ -361,9 +361,15 @@ export async function finalizeOnboardingImport(input = {}) {
      onboarding never doubles anything. ── */
   let existingTxns = []
   try { existingTxns = await listTransactions() } catch { /* assume none */ }
-  const txnKey = (amount, type, date, cId, pId) => `${Math.abs(amount)}|${type}|${date}|${cId || ''}|${pId || ''}`
+  /* Key includes desc + category so two GENUINELY-distinct rows that happen to
+     share amount+type+date+client+project aren't collapsed into one (e.g. a
+     flat CSV with "05/01,200,expense,קפה" and "05/01,200,expense,חניה" differ
+     by category; matrix rows differ by desc, which encodes label+period).
+     Re-import stays idempotent: the same file resolves to the same category_id
+     and produces the same desc, so the key still matches. */
+  const txnKey = (amount, type, date, cId, pId, catId, desc) => `${Math.abs(amount)}|${type}|${date}|${cId || ''}|${pId || ''}|${catId || ''}|${(desc || '').trim()}`
   const seenTxns = new Set(
-    existingTxns.map((t) => txnKey(t.amount, t.type, String(t.date).slice(0, 10), t.client_id, t.project_id)),
+    existingTxns.map((t) => txnKey(t.amount, t.type, String(t.date).slice(0, 10), t.client_id, t.project_id, t.category_id, t.desc)),
   )
   /* Client payments are dated "today", so a plain date-keyed check would
      let a re-import on a DIFFERENT day duplicate them. Dedup them
@@ -478,7 +484,7 @@ export async function finalizeOnboardingImport(input = {}) {
     const project_id = t.project_name ? (projectIdByName.get(norm(t.project_name)) || null) : null
     const type = t.type === 'expense' ? 'expense' : 'income'
     const category_id = type === 'expense' ? await resolveCategoryId(t.category) : null
-    const key = txnKey(amount, type, date, client_id, project_id)
+    const key = txnKey(amount, type, date, client_id, project_id, category_id, t.desc)
     if (seenTxns.has(key)) { summary.transactions.skipped += 1; continue }
     try {
       await insertTransaction({

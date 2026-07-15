@@ -414,7 +414,7 @@
   font-size: calc(12.5px * var(--text-scale));
   line-height: 1.5;
   color: var(--stone);
-  text-align: right;
+  text-align: start; /* logical: right in RTL (unchanged), left in LTR (en/es/fr) */
 }
 .auth-check > input {
   position: absolute;

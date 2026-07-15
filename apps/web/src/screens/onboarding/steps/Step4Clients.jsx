@@ -7,7 +7,6 @@ import { useGroupMembers } from '../../../hooks/useGroupMembers'
 import { clientBalance, isr } from '@simplicity/core'
 import ClientFormFields from '../../../components/ClientFormFields'
 import MG from '../../../components/MG'
-import CsvMappingEditor from '../CsvMappingEditor'
 import { useT } from '../../../i18n/useT'
 import { Box, Txt, Btn } from '../../../components/ui'
 
@@ -200,17 +199,6 @@ export default function Step4Clients({ ob, setCTA }) {
 
   useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [form, createdIds, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const pathA = ob.state.parsed_data?.kind === 'csv'
-  const suggestions = (pathA && Array.isArray(ob.state.parsed_data.clients)) ? ob.state.parsed_data.clients.slice(0, 12) : []
-  const onPickSuggestion = (s) => {
-    setForm((f) => ({
-      ...f,
-      name: s.name || '',
-      sessions: s.sessions ? String(s.sessions) : f.sessions,
-      price_per_session: s.price_per_session ? String(s.price_per_session) : f.price_per_session,
-    }))
-  }
-
   /* Live preview — build a synthetic membership so the card reflects the
      selected group's sessions + price before the row is committed. */
   const previewClient = {
@@ -227,27 +215,6 @@ export default function Step4Clients({ ob, setCTA }) {
   return (
     <>
       <Txt as="p" className="ob-intro">{addTitle}</Txt>
-
-      <CsvMappingEditor parsed={ob.state.parsed_data} onChange={ob.setParsedData} stepKey="clients" title={t('step4.csvTitle')} />
-
-      {pathA && suggestions.length > 0 && (
-        <Box className="ob-field">
-          <Txt as="p" className="ob-label">{t('step4.fromFileLabel', { verb: t('step4.fromFileVerb') })}</Txt>
-          <Box className="ob-pills">
-            {suggestions.map((s, i) => (
-              <Btn
-                key={i}
-                type="button"
-                className={`ob-pill${form.name === s.name ? ' on' : ''}`}
-                onClick={() => onPickSuggestion(s)}
-                title={s.email || s.phone || ''}
-              >
-                {s.name}
-              </Btn>
-            ))}
-          </Box>
-        </Box>
-      )}
 
       {/* Shared add-client fields — identical to the in-app modal, with a
           group select scoped to the chosen project. */}

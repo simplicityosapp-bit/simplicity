@@ -123,7 +123,11 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
   const sheets = (ob.state.parsed_data?.sheets || []).filter((s) => !s.removed)
   const yearMissing = sheets.some((s) => s.type === 'matrix' && (s.pivot?.periodCols || []).some((c) => c.month) && !s.pivot?.year)
   const canAdvance = (mode === 'B' || (mode === 'A' && !!fileName)) && !yearMissing
-  const hint = yearMissing ? t('step2.hintYearMissing') : null
+  /* "I have data" picked but no file yet (e.g. the picker was cancelled) —
+     Next is disabled, so tell the user how to proceed instead of dead-ending. */
+  const hint = yearMissing
+    ? t('step2.hintYearMissing')
+    : (mode === 'A' && !fileName && !busy ? t('step2.hintPickFile') : null)
   useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [mode, fileName, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (

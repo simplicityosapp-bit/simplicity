@@ -30,7 +30,8 @@
     "errReadFailVerb": "assurez-vous",
     "errReadFail": "Nous n'avons pas pu lire le fichier — {{verb}} qu'il s'agit d'un CSV ou Excel valide et qu'il n'est pas ouvert dans une autre application en ce moment, ou vous pouvez simplement partir de zéro.",
     "errNoEntities": "Nous avons lu le fichier mais n'y avons trouvé aucun client, projet ou transaction. Vérifiez que le type de chaque tableau est correct et que la colonne du nom/montant est associée — ou choisissez « partir de zéro ».",
-    "hintYearMissing": "Choisissez une année pour chaque tableau mensuel avant de continuer."
+    "hintYearMissing": "Choisissez une année pour chaque tableau mensuel avant de continuer.",
+    "hintPickFile": "Choisissez un fichier à importer, ou partez de zéro."
   },
   "step3": {
     "intro": "Construisons-nous un projet ?",

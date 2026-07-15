@@ -161,6 +161,8 @@ export default function InsightsWidget() {
 
   return (
     <Box className={`ins-widget${isYesNo ? ' has-collapse' : ' ins-slider-mode'}`}>
+      {/* Skip sits in the widget's top corner (absolute) so it costs no row. */}
+      {skipBtn}
       {/* Yes/no keeps the floating collapse toggle; the slider layout folds
           the toggle into the control row so it sits inline beside the
           slider (see below). */}
@@ -195,9 +197,10 @@ export default function InsightsWidget() {
            shown as a fixed number stacked above the check (no floating pill),
            which lets the row keep a single, short height. */
         <Box className="ins-slider-wrap">
-          {/* Centred just above the slider (out of flow), sharing the top gap
-              with the floating value number on the inline-end side. */}
+          {/* The live value floats centred just above the slider; the day-over-day
+              comparison sits out of flow at the inline-end so they never overlap. */}
           {compare && <Txt as="p" className="ins-compare">{compare}</Txt>}
+          <Txt className="ins-slider-val mono" aria-hidden="true">{val ?? '—'}</Txt>
           {collapseBtn}
           <Input
             type="range"
@@ -209,15 +212,11 @@ export default function InsightsWidget() {
             aria-label={text}
             onChange={(e) => setVal(parseInt(e.target.value, 10))}
           />
-          <Box className="ins-save-col">
-            <Txt className="ins-slider-val mono" aria-hidden="true">{val ?? '—'}</Txt>
-            <Btn type="button" className="ins-save-btn" disabled={busy || val == null} onClick={() => save(val)} aria-label={t('widgets.insights.saveAria')}>
-              <Check size={15} strokeWidth={2} aria-hidden="true" />
-            </Btn>
-          </Box>
+          <Btn type="button" className="ins-save-btn" disabled={busy || val == null} onClick={() => save(val)} aria-label={t('widgets.insights.saveAria')}>
+            <Check size={15} strokeWidth={2} aria-hidden="true" />
+          </Btn>
         </Box>
       )}
-      <Box className="ins-skip-row">{skipBtn}</Box>
     </Box>
   )
 }

@@ -416,23 +416,23 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   position: relative;
   padding: var(--mg-card-pad);
 }
-/* "דלג" — quiet skip action on the daily-question widget; dismisses one
-   question for today without writing an answer (moved here from the
-   "מה איתך היום" screen, beta 13/07/2026). Shares prefs.insSkipped. */
-.ins-skip-row {
-  display: flex;
-  justify-content: center;
-  margin-top: 8px;
-}
+/* "דלג" — quiet skip action, tucked into the widget's top-inline-start
+   (visually top-right in RTL) corner so it costs no vertical row and the
+   widget stays compact (beta 14/07/2026). Dismisses one question for today
+   without writing an answer; shares prefs.insSkipped with the screen. */
 .ins-skip-btn {
+  position: absolute;
+  top: 6px;
+  inset-inline-start: 6px;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
+  gap: 3px;
+  padding: 2px 8px;
   border-radius: 999px;
   border: none;
   background: transparent;
-  font: 500 calc(12px * var(--text-scale)) / 1 var(--mg-font);
+  font: 500 calc(11px * var(--text-scale)) / 1 var(--mg-font);
   color: var(--stone);
   cursor: pointer;
 }
@@ -569,9 +569,9 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   display: flex;
   align-items: center;
   gap: 12px;
-  /* room above for the floating value number + the comparison line, which
-     both live out of flow in this gap (number inline-end, comparison centred) */
-  margin-top: 30px;
+  /* room above for the floating value number (centred) + comparison line
+     (inline-end), which both live out of flow in this gap */
+  margin-top: 22px;
 }
 /* In the slider row the collapse toggle is folded inline (instead of the
    absolutely-positioned floating button used by the other states), so it
@@ -585,19 +585,12 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 .ins-slider-wrap .ins-collapse-btn:active {
   transform: scale(0.9);
 }
-/* Value + save check at the inline-end end. The check stays vertically
-   centred on the slider line; the value number floats out of flow above it,
-   rising into the empty space between the question and the slider (so it
-   never pushes the check off the line). */
-.ins-save-col {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-.ins-save-col .ins-slider-val {
+/* The live value floats centred just above the slider, out of flow in the
+   top gap (beta 14/07/2026 — moved off the inline-end save column to the
+   middle so the widget reads tighter). It never pushes the row's height. */
+.ins-slider-wrap .ins-slider-val {
   position: absolute;
-  bottom: calc(100% + 7px);
+  bottom: calc(100% + 4px);
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
@@ -678,15 +671,16 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   font-weight: 500;
   color: var(--moon-deep);
 }
-/* In the slider layout the comparison sits centred just above the slider,
-   out of flow in the top gap, so showing it neither collides with the slider
-   nor lengthens the widget. */
+/* In the slider layout the comparison sits out of flow in the top gap at the
+   inline-end, clear of the centred value number (which now owns the middle),
+   so showing it neither collides with the number nor lengthens the widget. */
 .ins-slider-mode .ins-compare {
   position: absolute;
-  inset-inline: 0;
-  bottom: calc(100% + 7px);
+  inset-inline-start: auto;
+  inset-inline-end: 2px;
+  bottom: calc(100% + 5px);
   margin: 0;
-  text-align: center;
+  text-align: end;
 }
 [data-theme="dark"] .ins-compare {
   color: var(--moon-hi);

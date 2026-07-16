@@ -109,6 +109,8 @@ curl -s -X POST "$FEEDBACK_FUNCTIONS_URL" -H "content-type: application/json" \
 
 (`platform` — עדכן רק אם השורה עדיין ריקה.) `status` נשאר `new` — הקריאה מסווגת, לא סוגרת.
 
+ב-PowerShell שמור את ה-JSON לקובץ והעבר `--data-binary "@file"` (אחרת הגרשיים נאבדים והכותרת בעברית נחתכת). אל תסיים בלי שהשורה עודכנה — או שדיווחת במפורש שלא ניתן.
+
 ---
 
 ## שלב 5 — סיכום ריצה

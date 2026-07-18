@@ -35,7 +35,7 @@ export default function CommunityNotifications({ enabled }) {
         type="button"
         className="cmt-notif-bell"
         onClick={toggle}
-        aria-label={t('chat.notif.aria', { count: unreadCount })}
+        aria-label={unreadCount > 0 ? t('chat.notif.ariaCount', { count: unreadCount }) : t('chat.notif.aria')}
         aria-expanded={open}
       >
         <Bell size={18} strokeWidth={1.7} aria-hidden="true" />
@@ -45,7 +45,7 @@ export default function CommunityNotifications({ enabled }) {
       </Btn>
 
       {open && (
-        <Box className="cmt-notif-panel" role="menu" aria-label={t('chat.notif.title')}>
+        <Box className="cmt-notif-panel" role="region" aria-label={t('chat.notif.title')}>
           <Txt as="p" className="cmt-notif-panel-title">{t('chat.notif.title')}</Txt>
           {notifications.length === 0 ? (
             <Txt as="p" className="cmt-notif-empty">{t('chat.notif.empty')}</Txt>
@@ -53,7 +53,7 @@ export default function CommunityNotifications({ enabled }) {
             notifications.map((n) => {
               const actorName = n.actor?.display_name || t('chat.unknownAuthor')
               return (
-                <Box key={n.id} className={`cmt-notif-item${n.read_at ? '' : ' unread'}`} role="menuitem">
+                <Box key={n.id} className={`cmt-notif-item${n.read_at ? '' : ' unread'}`}>
                   <CommunityAvatar name={actorName} url={n.actor?.avatar_url} size={26} />
                   <Box className="cmt-notif-item-body">
                     <Txt className="cmt-notif-item-text">{t('chat.notif.mentioned', { name: actorName })}</Txt>

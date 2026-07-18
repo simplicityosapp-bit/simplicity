@@ -93,18 +93,30 @@ export default function CommunityProfileCard({
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', onKey)
-    let onDown
+    let onDown, onScroll
     if (mode === 'popover') {
       onDown = (e) => { if (cardRef.current && !cardRef.current.contains(e.target)) onClose() }
       document.addEventListener('pointerdown', onDown)
+      /* Fixed-positioned off a captured rect — a feed scroll would leave it
+         floating over unrelated content, so close it. Capture catches the feed's
+         own scroll (scroll doesn't bubble). */
+      onScroll = () => onClose()
+      window.addEventListener('scroll', onScroll, true)
     }
     return () => {
       document.removeEventListener('keydown', onKey)
       if (onDown) document.removeEventListener('pointerdown', onDown)
+      if (onScroll) window.removeEventListener('scroll', onScroll, true)
     }
   }, [onClose, mode])
 
-  useEffect(() => { cardRef.current?.focus() }, [])
+  /* Move focus into the card on open and restore it to the opener (the author
+     button) on close, so keyboard focus doesn't drop to <body>. */
+  useEffect(() => {
+    const opener = document.activeElement
+    cardRef.current?.focus()
+    return () => { if (opener instanceof HTMLElement && document.contains(opener)) opener.focus() }
+  }, [])
 
   if (mode === 'modal') {
     return (

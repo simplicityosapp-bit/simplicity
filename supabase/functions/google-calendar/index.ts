@@ -473,9 +473,17 @@ async function pushCommunity(userId: string, events: any): Promise<Record<string
     else { console.error('push-community insert failed:', res.status, await res.text()); failed++ }
 
     if (retag) {
-      await admin.from('calendar_events')
+      const { error: upErr } = await admin.from('calendar_events')
         .update({ google_event_id: gid, owned: true })
         .eq('user_id', userId).eq('google_event_id', `community:${ev.id}`)
+      /* If a cmt<hex> row already exists for this event (a re-import, or the
+         pull-sync re-created it), the rename hits the (user_id, google_event_id)
+         unique constraint. The community:<id> row is then redundant — drop it so
+         the calendar never shows the event twice. */
+      if (upErr) {
+        await admin.from('calendar_events').delete()
+          .eq('user_id', userId).eq('google_event_id', `community:${ev.id}`)
+      }
     }
   }
   return { ok: true, added, existing, failed }

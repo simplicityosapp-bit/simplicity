@@ -21,6 +21,8 @@
     "specialtiesHint": "Comma-separated · up to 8 tags",
     "link": "Link",
     "linkPlaceholder": "https://example.com",
+    "cardNamePh": "Your name",
+    "cardRolePh": "Your role or field",
     "errors": {
       "required": "Please enter a display name.",
       "reserved": "That name is reserved — please try another.",
@@ -76,7 +78,8 @@
       "aria": "Notifications",
       "title": "Notifications",
       "empty": "No new notifications",
-      "mentioned": "{{name}} mentioned you"
+      "mentioned": "{{name}} mentioned you",
+      "ariaCount": "Notifications ({{count}} new)"
     },
     "loadOlder": "Earlier messages",
     "loadingOlder": "Loading…",
@@ -105,7 +108,8 @@
       "queueEmpty": "No open reports",
       "removeMessage": "Remove message",
       "dismiss": "Dismiss",
-      "removedMsg": "Removed message"
+      "removedMsg": "Removed message",
+      "queueAriaCount": "Reports ({{count}})"
     }
   },
   "events": {

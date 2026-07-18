@@ -112,6 +112,24 @@
 .cmt-chat-screen .cmt-head {
   flex: 0 0 auto;
 }
+/* .screen-head caps at 280px (a card sized for the narrow home tier). The
+   community screens fill their column, so that cap left the header inset from
+   the full-width feed AND squeezed the title under the header's absolute icon
+   cluster (worst: an admin in Hebrew — the title collided with the events/search
+   icons). Let it fill; the desktop content cap still applies at ≥768px. */
+.cmt-chat-screen .cmt-head,
+.cmt-events-screen .cmt-head,
+.cmt-profile-screen .cmt-head { max-width: none; }
+/* Events/profile carry an in-flow "back" button; row layout puts title + back
+   on one line instead of .screen-head's column-reverse (which stacked the back
+   button on top of the title). */
+.cmt-events-screen .cmt-head,
+.cmt-profile-screen .cmt-head {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
 
 /* Center the column's children, and fill up to each one's max-width. This
    REPLACES the narrow-tier's centering mechanism for this screen only, and
@@ -248,12 +266,23 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  /* A glass pill so the icons read over the photo background — they were bare
+     icons floating on the feed. Stacked opacity like the bubbles. */
+  background:
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
   opacity: 0;
   transition: opacity 0.15s;
 }
 .cmt-row:hover .cmt-row-actions,
-.cmt-row:focus-within .cmt-row-actions { opacity: 0.8; }
-@media (hover: none) { .cmt-row-actions { opacity: 0.5; } }
+.cmt-row:focus-within .cmt-row-actions { opacity: 1; }
+/* Touch has no hover — keep the pill visible so the actions are reachable. */
+@media (hover: none) { .cmt-row-actions { opacity: 1; } }
 .cmt-row-action {
   display: inline-flex;
   align-items: center;
@@ -377,7 +406,8 @@
   transition: background 0.12s;
 }
 .cmt-mention-item:hover,
-.cmt-mention-item:focus-visible { background: rgba(201, 123, 94, 0.14); }
+.cmt-mention-item:focus-visible,
+.cmt-mention-item.active { background: rgba(201, 123, 94, 0.14); }
 .cmt-mention-name {
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
@@ -450,10 +480,15 @@
   padding: 8px;
   border-radius: 14px;
   border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  /* Stronger blur than a standard card (24px): these popovers float over the
-     busy message feed, so the list underneath needs to melt away for the panel
-     to read. No-op in flat mode, where the panel background is already opaque. */
+  /* Opaque via stacked layers, NOT relying on backdrop-filter: the panel is a
+     descendant of the header (itself a backdrop-filtered glass card), and a
+     nested backdrop-filter reads as see-through in most browsers. Stacking the
+     token compounds its alpha (~30%→66% light / ~86% dark) so the list reads
+     regardless; still solid in flat mode. Blur kept for where it does work. */
+  background:
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    var(--mg-card-bg);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   box-shadow: var(--mg-card-shadow);
@@ -800,6 +835,118 @@
 }
 .cmt-pc-close:hover { color: var(--clay); }
 
+/* ── Profile editor: live business card + form ─────────────────── */
+/* Column with an inner-scrolling editor (like the chat/events): the header
+   stays put and only the editor scrolls, which behaves far better than
+   page-scroll when the mobile keyboard opens (paired with focusScroll). */
+.cmt-profile-screen { display: flex; flex-direction: column; }
+.cmt-profile-screen .cmt-head { flex: 0 0 auto; }
+.cmt-profile-editor {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+.cmt-profile-editor::-webkit-scrollbar { display: none; }
+
+/* The live card — a real "business card": a colourful band, the avatar
+   overlapping it, then the details filling in as you type. */
+.cmt-pcard {
+  position: relative;
+  /* flex-shrink 0: overflow:hidden below would otherwise let the column-flex
+     editor collapse this item to 0 (a flex item with overflow≠visible gets an
+     auto min-size of 0). The editor scrolls, so full height is fine. */
+  flex: 0 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  border: var(--mg-card-border);
+  background:
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    var(--mg-card-bg);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  box-shadow: 0 14px 36px rgba(42, 37, 32, 0.2);
+}
+.cmt-pcard-band {
+  height: 74px;
+  background: linear-gradient(115deg, #c97b5e 0%, #e0b28a 46%, #b7a0cf 100%);
+}
+.cmt-pcard-avatar-wrap {
+  position: absolute;
+  top: 40px;
+  inset-inline-start: 20px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--cream, #fbf7f0);
+  box-shadow: 0 4px 12px rgba(42, 37, 32, 0.18);
+}
+[data-theme="dark"] .cmt-pcard-avatar-wrap { background: #262b33; }
+.cmt-pcard-body { padding: 44px 20px 20px; }
+.cmt-pcard-name-row { display: flex; align-items: center; gap: 6px; }
+.cmt-pcard-name {
+  font-family: var(--mg-font);
+  font-size: calc(20px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+  overflow-wrap: anywhere;
+}
+.cmt-pcard-name.ph,
+.cmt-pcard-headline.ph { color: var(--stone); opacity: 0.5; font-weight: 500; }
+.cmt-pcard-verified { display: inline-flex; color: var(--terracotta); flex: 0 0 auto; }
+.cmt-pcard-headline {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--stone);
+}
+.cmt-pcard-bio {
+  margin: 12px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1.55;
+  color: var(--espresso);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.cmt-pcard-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.cmt-pcard-tag {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(201, 123, 94, 0.14);
+  color: var(--clay);
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  font-weight: 500;
+}
+[data-theme="dark"] .cmt-pcard-tag { background: rgba(201, 123, 94, 0.24); color: #e7b9a6; }
+.cmt-pcard-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  max-width: 100%;
+  color: var(--terracotta);
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Desktop: card beside the form (a card-designer feel); sticky so it stays in
+   view as the fields scroll. */
+@media (min-width: 760px) {
+  .cmt-profile-editor { flex-direction: row; align-items: flex-start; gap: 24px; }
+  .cmt-pcard { flex: 0 0 300px; position: sticky; top: 0; }
+  .cmt-profile-form { flex: 1 1 auto; min-width: 0; }
+}
+
 /* ── Profile edit form (create + edit share it) ────────────────── */
 .cmt-profile-form { display: flex; flex-direction: column; gap: 14px; }
 .cmt-bio-input { resize: vertical; min-height: 66px; line-height: 1.5; }
@@ -1029,6 +1176,10 @@
   font-family: var(--mg-font);
   font-size: calc(11.5px * var(--text-scale));
   color: var(--stone);
+  /* "09:00 – 17:00" is two LTR runs; in the RTL page they'd reorder to
+     "17:00 – 09:00" (wrong). Force LTR + isolate so the range reads correctly. */
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 .cme-main { min-width: 0; }
 .cme-title-txt {
@@ -1219,6 +1370,11 @@
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
   box-shadow: var(--mg-card-shadow);
+}
+/* Opened downward when there's no room above (near the feed's clipped top). */
+.cmt-react-picker.down {
+  bottom: auto;
+  top: calc(100% + 4px);
 }
 .cmt-react-pick {
   display: inline-flex;

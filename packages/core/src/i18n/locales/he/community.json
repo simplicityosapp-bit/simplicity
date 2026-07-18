@@ -25,6 +25,8 @@
     "specialtiesHint": "מפרידים בפסיקים · עד 8 תגיות",
     "link": "קישור",
     "linkPlaceholder": "https://example.com",
+    "cardNamePh": "השם שלך",
+    "cardRolePh": "התפקיד או התחום שלך",
     "errors": {
       "required": "יש למלא שם תצוגה.",
       "reserved": "השם הזה שמור, נסה/י שם אחר.",
@@ -84,7 +86,8 @@
       "aria": "התראות",
       "title": "התראות",
       "empty": "אין התראות חדשות",
-      "mentioned": "{{name}} אזכר/ה אותך"
+      "mentioned": "{{name}} אזכר/ה אותך",
+      "ariaCount": "התראות ({{count}} חדשות)"
     },
     "loadOlder": "הודעות קודמות",
     "loadingOlder": "טוען…",
@@ -115,7 +118,8 @@
       "queueEmpty": "אין דיווחים פתוחים",
       "removeMessage": "הסרת הודעה",
       "dismiss": "סגירה",
-      "removedMsg": "הודעה שהוסרה"
+      "removedMsg": "הודעה שהוסרה",
+      "queueAriaCount": "דיווחים ({{count}})"
     }
   },
   "events": {

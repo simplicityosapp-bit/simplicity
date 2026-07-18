@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import {
-  listCommunityMessages, MESSAGES_PAGE, insertCommunityMessage, softDeleteCommunityMessage,
+  listCommunityMessages, listPinnedMessages, MESSAGES_PAGE, insertCommunityMessage, softDeleteCommunityMessage,
   addReaction, removeReaction, insertMentions, setMessagePinned, reportMessage,
 } from '../lib/api/communityMessages'
 import { getCommunityProfileByUserId } from '../lib/api/communityProfiles'
@@ -54,6 +54,7 @@ import { getCommunityProfileByUserId } from '../lib/api/communityProfiles'
    scale, and it is documented rather than hidden.
    ════════════════════════════════════════════════════════════════ */
 const KEY = ['communityMessages']
+const PINNED_KEY = ['communityPinned']
 
 /* Same shape the embed produces, so a realtime row and a fetched row are
    indistinguishable downstream. */
@@ -65,14 +66,26 @@ export function useCommunityMessages({ enabled = true } = {}) {
     queryKey: KEY,
     queryFn: () => listCommunityMessages(),
     enabled,
+    /* staleTime ∞: this list is realtime-driven, and any React Query refetch
+       (mount, refocus) re-runs listCommunityMessages() with no cursor → newest
+       page only → it would REPLACE and truncate paged-in history. Freshness
+       comes from the channel + catchUp() below, not from refetching. */
+    staleTime: Infinity,
   })
   const messages = data ?? []
+
+  /* Pinned bar: a dedicated query, independent of the paginated feed window, so
+     a message pinned earlier than the loaded page still shows (otherwise pins
+     go invisible the moment the room passes one page). */
+  const pinnedQ = useQuery({ queryKey: PINNED_KEY, queryFn: listPinnedMessages, enabled, staleTime: 30_000 })
+  const pinned = pinnedQ.data ?? []
 
   /* Pagination: the query above lands the newest page; loadOlder pages back.
      hasMore is seeded once from the first page's fullness (a full page implies
      there's older history), then owned by loadOlder. */
   const [hasMore, setHasMore] = useState(false)
   const [loadingOlder, setLoadingOlder] = useState(false)
+  const loadingOlderRef = useRef(false)   /* in-flight guard (state lags a double-tap) */
   const initedRef = useRef(false)
   useEffect(() => {
     if (!initedRef.current && data) {
@@ -81,13 +94,32 @@ export function useCommunityMessages({ enabled = true } = {}) {
     }
   }, [data])
 
-  /* refetch through a ref so the subscribe effect below can call the latest
-     one WITHOUT listing it as a dependency. React Query's refetch is normally
-     stable, but depending on it would risk tearing down and re-opening the
-     channel (and re-firing the SUBSCRIBED refetch) on any identity change —
-     the effect must run exactly once per enable. */
-  const refetchRef = useRef(refetch)
-  useEffect(() => { refetchRef.current = refetch }, [refetch])
+  /* On (re)subscribe, CATCH UP the reconnect gap without wiping paged history:
+     fetch the newest page and MERGE it (dedup by id) instead of replacing the
+     cache. The old code called refetch() here, which replaced the cache with
+     the newest 50 on every rejoin — silently discarding every older page the
+     user had loaded. Routed through a ref so the subscribe effect can call the
+     latest without re-subscribing. Also refreshes the pinned set. */
+  const catchUp = useCallback(async () => {
+    try {
+      const recent = await listCommunityMessages()
+      qc.setQueryData(KEY, (prev) => {
+        const list = prev ?? []
+        const ids = new Set(list.map((m) => m.id))
+        const fresh = recent.filter((m) => !ids.has(m.id))
+        if (!fresh.length) return list
+        const next = [...list, ...fresh]
+        next.sort((a, b) =>
+          a.created_at < b.created_at ? -1
+            : a.created_at > b.created_at ? 1
+              : a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
+        return next
+      })
+    } catch { /* the channel keeps delivering; the next rejoin retries */ }
+    qc.invalidateQueries({ queryKey: PINNED_KEY })
+  }, [qc])
+  const catchUpRef = useRef(catchUp)
+  useEffect(() => { catchUpRef.current = catchUp }, [catchUp])
 
   /* Merge one row in, deduped by id and kept in (created_at, id) order.
      Sorted-insert, NOT append: the realtime handler is async (it may await an
@@ -173,11 +205,12 @@ export function useCommunityMessages({ enabled = true } = {}) {
           if (r?.message_id && !cancelled) applyReaction(r.message_id, r.emoji, r.user_id, false)
         },
       )
-      /* On join AND every rejoin, refetch to sweep up anything inserted while
-         the socket wasn't live (see THE HAND-OFF / RECONNECT GAP above). Via
-         the ref so this doesn't have to be an effect dependency. */
+      /* On join AND every rejoin, CATCH UP (merge the newest page) to sweep up
+         anything inserted while the socket wasn't live (see THE HAND-OFF /
+         RECONNECT GAP above) — without wiping loaded older pages. Via the ref so
+         this doesn't have to be an effect dependency. */
       .subscribe((status) => {
-        if (status === 'SUBSCRIBED' && !cancelled) refetchRef.current?.()
+        if (status === 'SUBSCRIBED' && !cancelled) catchUpRef.current?.()
       })
 
     return () => { cancelled = true; supabase.removeChannel(channel) }
@@ -191,20 +224,28 @@ export function useCommunityMessages({ enabled = true } = {}) {
      to the optimistic embed so the sender's own @-highlight shows at once. */
   const send = useCallback(async (content, author, replyToId = null, mentions = []) => {
     const row = await insertCommunityMessage(replyToId ? { content, reply_to_id: replyToId } : { content })
-    upsert({
+    const optimistic = {
       ...withAuthor(row, author ?? null),
       community_message_mentions: mentions.map((mn) => ({
         mentioned_user_id: mn.user_id,
         community_profiles: { display_name: mn.display_name },
       })),
-    })
+    }
+    upsert(optimistic)
+    /* upsert is first-writer-wins; the realtime echo can beat this insert's
+       resolution and slot the row WITHOUT the mention embed, in which case
+       upsert just no-oped. Overwrite in place so the sender's own @-highlight
+       shows immediately either way. */
+    if (mentions.length) {
+      qc.setQueryData(KEY, (prev) => (prev ?? []).map((m) => (m.id === optimistic.id ? { ...m, ...optimistic } : m)))
+    }
     if (mentions.length) {
       /* A mention-insert failure must not lose the message — the row is already
          up. Surface nothing; the highlight/notification just won't land. */
       try { await insertMentions(row.id, mentions.map((mn) => mn.user_id)) } catch { /* noop */ }
     }
     return row
-  }, [upsert])
+  }, [upsert, qc])
 
   /* Confirm-then-patch (NOT optimistic): the row leaves this client's list
      only AFTER the soft-delete succeeds — so a failed delete needs no
@@ -237,8 +278,18 @@ export function useCommunityMessages({ enabled = true } = {}) {
   const setPinned = useCallback(async (messageId, pinned) => {
     const now = pinned ? new Date().toISOString() : null
     qc.setQueryData(KEY, (prev) => (prev ?? []).map((m) => (m.id === messageId ? { ...m, pinned_at: now } : m)))
+    /* The pinned bar reads its own query (PINNED_KEY) so it survives pagination
+       — patch it too, so a pin/unpin shows in the bar immediately. */
+    qc.setQueryData(PINNED_KEY, (prev) => {
+      const list = prev ?? []
+      if (!pinned) return list.filter((m) => m.id !== messageId)
+      if (list.some((m) => m.id === messageId)) return list
+      const msg = (qc.getQueryData(KEY) ?? []).find((m) => m.id === messageId)
+      return msg ? [{ ...msg, pinned_at: now }, ...list] : list
+    })
     try { await setMessagePinned(messageId, pinned) } catch (e) {
       qc.invalidateQueries({ queryKey: KEY })
+      qc.invalidateQueries({ queryKey: PINNED_KEY })
       throw e
     }
   }, [qc])
@@ -251,8 +302,10 @@ export function useCommunityMessages({ enabled = true } = {}) {
      back (top reached) or nothing new does. The caller anchors scroll around
      this so the viewport doesn't jump. */
   const loadOlder = useCallback(async () => {
+    if (loadingOlderRef.current) return   // in-flight guard: a rapid double-tap beats the loadingOlder state
     const current = qc.getQueryData(KEY) ?? []
     if (!current.length) return
+    loadingOlderRef.current = true
     setLoadingOlder(true)
     try {
       const older = await listCommunityMessages({ before: current[0].created_at, limit: MESSAGES_PAGE })
@@ -271,13 +324,16 @@ export function useCommunityMessages({ enabled = true } = {}) {
         return next
       })
       setHasMore(older.length >= MESSAGES_PAGE && added > 0)
+    } catch {
+      /* Leave hasMore as-is so the button stays available for a retry. */
     } finally {
+      loadingOlderRef.current = false
       setLoadingOlder(false)
     }
   }, [qc])
 
   return {
-    messages, loading: isLoading, error: error?.message ?? null,
+    messages, pinned, loading: isLoading, error: error?.message ?? null,
     send, remove, toggleReaction, setPinned, report, refetch,
     hasMore, loadingOlder, loadOlder,
   }

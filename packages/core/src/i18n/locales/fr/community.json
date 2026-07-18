@@ -21,6 +21,8 @@
     "specialtiesHint": "Séparées par des virgules · jusqu’à 8 tags",
     "link": "Lien",
     "linkPlaceholder": "https://example.com",
+    "cardNamePh": "Votre nom",
+    "cardRolePh": "Votre rôle ou domaine",
     "errors": {
       "required": "Veuillez saisir un nom d'affichage.",
       "reserved": "Ce nom est réservé, veuillez en essayer un autre.",
@@ -76,7 +78,8 @@
       "aria": "Notifications",
       "title": "Notifications",
       "empty": "Aucune nouvelle notification",
-      "mentioned": "{{name}} vous a mentionné"
+      "mentioned": "{{name}} vous a mentionné",
+      "ariaCount": "Notifications ({{count}} nouvelles)"
     },
     "loadOlder": "Messages précédents",
     "loadingOlder": "Chargement…",
@@ -105,7 +108,8 @@
       "queueEmpty": "Aucun signalement ouvert",
       "removeMessage": "Supprimer le message",
       "dismiss": "Ignorer",
-      "removedMsg": "Message supprimé"
+      "removedMsg": "Message supprimé",
+      "queueAriaCount": "Signalements ({{count}})"
     }
   },
   "events": {

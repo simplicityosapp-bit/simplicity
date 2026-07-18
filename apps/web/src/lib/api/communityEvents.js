@@ -66,11 +66,16 @@ export async function addEventToMyCalendar(event) {
 export async function removeEventFromMyCalendar(eventId) {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) return
+  /* An added event carries the community:<id> sentinel OR — once pushed to
+     Google — the promoted cmt<hex> id (see the edge's retag). Delete BOTH: a
+     remove that only matched community:<id> would silently hit 0 rows after an
+     import, leaving the event in the calendar and letting a re-add duplicate it. */
+  const gid = `cmt${eventId.replace(/-/g, '').toLowerCase()}`
   const { error } = await supabase
     .from('calendar_events')
     .delete()
     .eq('user_id', session.user.id)
-    .eq('google_event_id', `${NS}${eventId}`)
+    .in('google_event_id', [`${NS}${eventId}`, gid])
   if (error) throw error
 }
 

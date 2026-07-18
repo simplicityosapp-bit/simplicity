@@ -37,7 +37,7 @@ export default function CommunityChatScreen() {
   const { user } = useAuth()
   const isAdmin = isAdminUser(user)
   const gateOpen = !profileLoading && hasProfile
-  const { messages, loading, error, send, remove, toggleReaction, setPinned, report, hasMore, loadingOlder, loadOlder } = useCommunityMessages({ enabled: gateOpen })
+  const { messages, pinned, loading, error, send, remove, toggleReaction, setPinned, report, hasMore, loadingOlder, loadOlder } = useCommunityMessages({ enabled: gateOpen })
   const members = useCommunityMembers({ enabled: gateOpen })
 
   const [draft, setDraft] = useState('')
@@ -49,6 +49,7 @@ export default function CommunityChatScreen() {
   const [expandedThreads, setExpandedThreads] = useState(() => new Set())
   const [mention, setMention] = useState(null)           /* { at, query } of the @-token being typed */
   const [pickedMentions, setPickedMentions] = useState([])  /* [{ user_id, display_name }] inserted this draft */
+  const [mentionActive, setMentionActive] = useState(0)     /* highlighted row in the @-picker (keyboard nav) */
   const [profileCard, setProfileCard] = useState(null)   /* { userId, rect, mode } of the open member card */
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')       /* what's typed in the search box */
@@ -209,10 +210,25 @@ export default function CommunityChatScreen() {
     setDraft(value)
     if (err) setErr('')
     setMention(activeMention(value, e.target.selectionStart ?? value.length))
+    setMentionActive(0)   /* reset the highlight as the query narrows */
   }
   const mentionMatches = mention
     ? members.filter((m) => m.display_name.toLowerCase().includes(mention.query.toLowerCase())).slice(0, 6)
     : []
+  const mentionActiveIdx = mentionMatches.length ? Math.min(mentionActive, mentionMatches.length - 1) : 0
+
+  /* Keyboard nav for the @-picker: arrows move the highlight, Enter/Tab pick it
+     (so a keyboard user actually records a mention — a manually typed @name
+     never becomes a DB mention row), Escape dismisses. Falls through to normal
+     Enter-submits when the picker is closed. */
+  const onComposerKeyDown = (e) => {
+    if (mention && mentionMatches.length > 0) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); setMentionActive((i) => (i + 1) % mentionMatches.length); return }
+      if (e.key === 'ArrowUp') { e.preventDefault(); setMentionActive((i) => (i - 1 + mentionMatches.length) % mentionMatches.length); return }
+      if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); pickMention(mentionMatches[mentionActiveIdx]); return }
+      if (e.key === 'Escape') { e.preventDefault(); setMention(null); return }
+    }
+  }
   const pickMention = (mem) => {
     if (!mention) return
     const before = draft.slice(0, mention.at)
@@ -252,7 +268,9 @@ export default function CommunityChatScreen() {
     if (arr) arr.push(m)
     else repliesByParent.set(m.reply_to_id, [m])
   }
-  const pinnedMessages = topLevel.filter((m) => m.pinned_at)
+  /* From the dedicated pinned query (not the feed window), so pins older than
+     the loaded page still show. Only top-level messages belong in the bar. */
+  const pinnedMessages = pinned.filter((m) => !m.reply_to_id)
 
   return (
     <Box className="screen cmt-chat-screen">
@@ -484,14 +502,15 @@ export default function CommunityChatScreen() {
           </Box>
         )}
         {mention && mentionMatches.length > 0 && (
-          <Box className="cmt-mention-picker" role="listbox" aria-label={t('chat.mention.label')}>
-            {mentionMatches.map((mem) => (
+          <Box id="cmt-mention-listbox" className="cmt-mention-picker" role="listbox" aria-label={t('chat.mention.label')}>
+            {mentionMatches.map((mem, i) => (
               <Btn
                 key={mem.user_id}
+                id={`cmt-mention-opt-${i}`}
                 type="button"
-                className="cmt-mention-item"
+                className={`cmt-mention-item${i === mentionActiveIdx ? ' active' : ''}`}
                 role="option"
-                aria-selected="false"
+                aria-selected={i === mentionActiveIdx}
                 onClick={() => pickMention(mem)}
               >
                 <CommunityAvatar name={mem.display_name} url={mem.avatar_url} size={22} />
@@ -507,7 +526,12 @@ export default function CommunityChatScreen() {
             className="m-input cmt-composer-input"
             value={draft}
             onChange={onDraftChange}
-            onKeyDown={(e) => { if (e.key === 'Escape' && mention) { e.preventDefault(); setMention(null) } }}
+            onKeyDown={onComposerKeyDown}
+            role="combobox"
+            aria-expanded={!!(mention && mentionMatches.length > 0)}
+            aria-controls="cmt-mention-listbox"
+            aria-autocomplete="list"
+            aria-activedescendant={mention && mentionMatches.length > 0 ? `cmt-mention-opt-${mentionActiveIdx}` : undefined}
             placeholder={t('chat.placeholder')}
             aria-label={t('chat.placeholder')}
             autoComplete="off"

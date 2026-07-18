@@ -119,7 +119,7 @@ export default function CommunityMessage({
         <Btn type="button" className="cmt-row-action" onClick={() => onReply(m)} aria-label={t('chat.reply.action')}>
           <CornerUpLeft size={14} strokeWidth={1.7} aria-hidden="true" />
         </Btn>
-        {isAdmin && (
+        {isAdmin && !isReply && (
           <Btn
             type="button"
             className={`cmt-row-action${pinned ? ' on' : ''}`}

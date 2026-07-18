@@ -15,7 +15,8 @@
     "reports": "Rapports",
     "insights": "Comment allez-vous aujourd'hui ?",
     "trash": "Corbeille",
-    "legal": "Politiques et conditions"
+    "legal": "Politiques et conditions",
+    "community": "Communauté"
   },
   "feedback": "Contactez-nous",
   "admin": {
@@ -52,7 +53,8 @@
     "trashSub": "Restaurer les éléments supprimés · 30 jours",
     "sitePagesSub": "Créez des pages, des formulaires et des réservations — un système",
     "leadPagesSub": "Formulaires publics de capture de prospects",
-    "bookingPagesSub": "Page publique de réservation de rendez-vous, synchronisée avec votre calendrier"
+    "bookingPagesSub": "Page publique de réservation de rendez-vous, synchronisée avec votre calendrier",
+    "communitySub": "Le salon partagé"
   },
   "signOut": "Se déconnecter",
   "profile": {

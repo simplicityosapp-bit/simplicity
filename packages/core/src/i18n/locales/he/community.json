@@ -1,0 +1,177 @@
+{
+  "profileSetup": {
+    "title": "פרופיל קהילה",
+    "subtitle": "כדי להשתתף בקהילה צריך שם תצוגה.",
+    "displayName": "שם תצוגה",
+    "namePlaceholder": "איך לקרוא לך בקהילה?",
+    "hint": "זה השם שחברי הקהילה יראו ליד ההודעות שלך. אפשר לשנות אותו בהמשך.",
+    "create": "יצירת פרופיל",
+    "creating": "יוצר/ת…",
+    "creating_male": "יוצר…",
+    "creating_female": "יוצרת…",
+    "editSubtitle": "עדכון הפרופיל הציבורי שלך.",
+    "toChat": "לחדר הקהילה",
+    "save": "שמירת שינויים",
+    "saving": "שומר/ת…",
+    "saving_male": "שומר…",
+    "saving_female": "שומרת…",
+    "saved": "הפרופיל נשמר ✓",
+    "headline": "תפקיד / תחום",
+    "headlinePlaceholder": "מאמנת אישית · NLP",
+    "bio": "כמה מילים עליך",
+    "bioPlaceholder": "ספר/י בקצרה במה את/ה עוסק/ת ומה מייחד אותך…",
+    "specialties": "התמחויות",
+    "specialtiesPlaceholder": "זוגיות, קריירה, הורות",
+    "specialtiesHint": "מפרידים בפסיקים · עד 8 תגיות",
+    "link": "קישור",
+    "linkPlaceholder": "https://example.com",
+    "errors": {
+      "required": "יש למלא שם תצוגה.",
+      "reserved": "השם הזה שמור, נסה/י שם אחר.",
+      "reserved_male": "השם הזה שמור, נסה שם אחר.",
+      "reserved_female": "השם הזה שמור, נסי שם אחר.",
+      "exists": "כבר יש לך פרופיל קהילה.",
+      "failed": "יצירת הפרופיל נכשלה: {{error}}"
+    },
+    "ready": {
+      "title": "הפרופיל מוכן",
+      "nameLabel": "שם התצוגה שלך",
+      "body": "אפשר להיכנס לחדר הקהילה.",
+      "toChat": "לחדר הקהילה"
+    }
+  },
+  "chat": {
+    "title": "קהילה",
+    "subtitle": "חדר אחד, לכל המשתמשים.",
+    "loading": "טוען הודעות…",
+    "placeholder": "כתיבת הודעה…",
+    "send": "שליחה",
+    "verified": "מאומת",
+    "unknownAuthor": "חבר קהילה",
+    "empty": {
+      "title": "עוד אין הודעות",
+      "body": "ההודעה הראשונה בחדר יכולה להיות שלך."
+    },
+    "delete": {
+      "title": "מחיקת הודעה",
+      "message": "ההודעה תוסר מהחדר ולא ניתן להחזיר אותה.",
+      "confirm": "מחיקה",
+      "aria": "מחיקת ההודעה שלי"
+    },
+    "errors": {
+      "loadFailed": "טעינת החדר נכשלה. אפשר לרענן את הדף ולנסות שוב.",
+      "blocked": "אין גישה לחדר הקהילה כרגע.",
+      "sendFailed": "שליחת ההודעה נכשלה: {{error}}",
+      "deleteFailed": "מחיקת ההודעה נכשלה: {{error}}",
+      "reactFailed": "לא ניתן לעדכן את הריאקציה כרגע."
+    },
+    "reactions": {
+      "add": "הוספת ריאקציה"
+    },
+    "reply": {
+      "action": "תגובה",
+      "count_one": "תגובה אחת",
+      "count_other": "{{count}} תגובות",
+      "replyingTo": "בתגובה ל־{{name}}",
+      "cancel": "ביטול תגובה",
+      "count_two": "{{count}} תגובות",
+      "count_many": "{{count}} תגובות"
+    },
+    "mention": {
+      "label": "אזכור חבר"
+    },
+    "notif": {
+      "aria": "התראות",
+      "title": "התראות",
+      "empty": "אין התראות חדשות",
+      "mentioned": "{{name}} אזכר/ה אותך"
+    },
+    "loadOlder": "הודעות קודמות",
+    "loadingOlder": "טוען…",
+    "search": {
+      "toggle": "חיפוש",
+      "placeholder": "חיפוש בהודעות…",
+      "close": "סגירת חיפוש",
+      "hint": "הקלד/י כדי לחפש בהודעות הקהילה.",
+      "searching": "מחפש…",
+      "noResults": "לא נמצאו תוצאות",
+      "noResultsBody": "אין הודעות שתואמות ל\"{{term}}\".",
+      "count_one": "תוצאה אחת",
+      "count_two": "{{count}} תוצאות",
+      "count_many": "{{count}} תוצאות",
+      "count_other": "{{count}} תוצאות"
+    },
+    "mod": {
+      "pin": "הצמדה",
+      "unpin": "ביטול הצמדה",
+      "pinnedLabel": "הודעות מוצמדות",
+      "report": "דיווח",
+      "reportTitle": "דיווח על הודעה",
+      "reportMessage": "ההודעה תישלח לצוות הקהילה לבדיקה.",
+      "pinFailed": "עדכון ההצמדה נכשל: {{error}}",
+      "reportFailed": "הדיווח נכשל: {{error}}",
+      "queueAria": "דיווחים",
+      "queueTitle": "דיווחים",
+      "queueEmpty": "אין דיווחים פתוחים",
+      "removeMessage": "הסרת הודעה",
+      "dismiss": "סגירה",
+      "removedMsg": "הודעה שהוסרה"
+    }
+  },
+  "events": {
+    "title": "לוח קהילה",
+    "subtitle": "אירועים, מפגשים וסדנאות של הקהילה.",
+    "toChat": "לחדר הקהילה",
+    "newEvent": "אירוע חדש",
+    "loading": "טוען אירועים…",
+    "by": "מאת {{name}}",
+    "addToCalendar": "הוספה ליומן",
+    "added": "ביומן ✓",
+    "empty": {
+      "title": "אין אירועים קרובים",
+      "body": "אפשר להיות הראשונים ליצור אירוע קהילה."
+    },
+    "google": {
+      "import": "ייבא ליומן גוגל ({{count}})",
+      "importing": "מייבא…",
+      "done": "נוסף ליומן גוגל: {{count}} ✓",
+      "failed": "הייבוא נכשל. אפשר לנסות שוב או להתחבר מחדש."
+    },
+    "form": {
+      "title": "כותרת",
+      "titlePlaceholder": "שם האירוע",
+      "starts": "מתחיל",
+      "ends": "מסתיים (רשות)",
+      "location": "מיקום (רשות)",
+      "locationPlaceholder": "פיזי או קישור לזום",
+      "link": "קישור (רשות)",
+      "description": "תיאור (רשות)",
+      "descriptionPlaceholder": "על מה האירוע?",
+      "create": "יצירת אירוע",
+      "creating": "יוצר/ת…",
+      "creating_male": "יוצר…",
+      "creating_female": "יוצרת…",
+      "cancel": "ביטול"
+    },
+    "delete": {
+      "title": "מחיקת אירוע",
+      "message": "האירוע יוסר מהלוח.",
+      "confirm": "מחיקה",
+      "aria": "מחיקת אירוע"
+    },
+    "errors": {
+      "required": "יש למלא כותרת ומועד התחלה.",
+      "createFailed": "יצירת האירוע נכשלה: {{error}}",
+      "loadFailed": "טעינת האירועים נכשלה. אפשר לרענן את הדף."
+    }
+  },
+  "profileCard": {
+    "title": "פרופיל",
+    "loading": "טוען…",
+    "empty": "עדיין אין פרטים נוספים.",
+    "viewFull": "פרופיל מלא",
+    "edit": "עריכת הפרופיל",
+    "close": "סגירה",
+    "openAria": "הצגת הפרופיל של {{name}}"
+  }
+}

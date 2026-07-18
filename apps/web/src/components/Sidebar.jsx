@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
   Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield, Plug, FileText, LayoutTemplate,
+  MessagesSquare,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
@@ -26,6 +27,8 @@ const RING_C = 2 * Math.PI * RING_R
    from a slide-up panel anchored over the "עוד" button. */
 const EXTRAS = [
   { key: 'sitePages', labelKey: 'extras.sitePages', icon: LayoutTemplate, to: ROUTES.SITE_PAGES },
+  /* → the room, not the profile gate: the gate redirects itself when needed. */
+  { key: 'community', labelKey: 'extras.community', icon: MessagesSquare, to: ROUTES.COMMUNITY_CHAT, beta: true },
   { key: 'moon',     labelKey: 'extras.moon',     icon: Moon,       to: ROUTES.MOON_GLANCE },
   { key: 'reports',  labelKey: 'extras.reports',  icon: BarChart3,  to: ROUTES.REPORTS },
   { key: 'insights', labelKey: 'extras.insights', icon: Sparkles,   to: ROUTES.INSIGHTS },
@@ -162,7 +165,10 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
                 <Txt className="mg-sidebar-link-chip" aria-hidden="true">
                   <Icon size={18} strokeWidth={1.5} />
                 </Txt>
-                <Txt className="mg-sidebar-link-text">{t(item.labelKey)}</Txt>
+                <Txt className="mg-sidebar-link-text">
+                  {t(item.labelKey)}
+                  {item.beta && <Txt as="span" className="mg-nav-beta">beta</Txt>}
+                </Txt>
               </Btn>
             )
           })}

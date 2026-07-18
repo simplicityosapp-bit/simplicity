@@ -1,5 +1,23 @@
 {
   "screens": {
+    "community": {
+      "title": "Comunidad",
+      "intro": "Una sala compartida para todas las personas que usan Simplicity. Antes del primer mensaje eliges un nombre visible: es lo que los miembros verán junto a ti.",
+      "features": [
+        { "title": "La sala", "body": "Todos los mensajes en una sala, del más antiguo al más reciente. Un mensaje nuevo aparece de inmediato para todos, sin recargar." },
+        { "title": "Nombre visible", "body": "El nombre que se muestra junto a cada uno de tus mensajes. Tu nombre, un apodo o el de tu negocio: lo que prefieras mostrar. Puedes cambiarlo más adelante." },
+        { "title": "Eliminar un mensaje", "body": "Puedes eliminar tus propios mensajes, y solo esos. La eliminación es definitiva: no se puede deshacer, y un mensaje enviado no se puede editar." },
+        { "title": "Nombres reservados", "body": "Los nombres asociados a Simplicity o a su equipo de soporte están bloqueados para que nadie pueda hacerse pasar por nosotros. Las cuentas oficiales llevan una marca de verificación." }
+      ],
+      "tips": [
+        "Tu nombre visible es público dentro de la comunidad. Si prefieres no aparecer con tu nombre completo, usa un apodo."
+      ],
+      "faq": [
+        { "q": "¿Quién puede ver mis mensajes?", "a": "Cualquier persona con una cuenta activa de Simplicity. Es una sala compartida, no un chat privado." },
+        { "q": "¿Puedo editar un mensaje enviado?", "a": "No. Solo puedes eliminarlo." },
+        { "q": "¿Puedo añadir una foto de perfil?", "a": "Todavía no. Por ahora solo hay nombre visible." }
+      ]
+    },
     "sitePages": {
       "title": "Páginas públicas",
       "intro": "Un sistema para crear páginas públicas: páginas de aterrizaje, de captación de datos y de reservas. Construye con secciones arrastrando, diseña con libertad y publica con tu propio enlace.",

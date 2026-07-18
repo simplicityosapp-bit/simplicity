@@ -384,7 +384,10 @@
      top-level blocks (top-bar, settings, canvas, config cards) cap + centre
      uniformly on desktop instead of sprawling full-width. */
   .app[data-screen="leadPages"] .screen > *,
-  .app[data-screen="bookingPages"] .screen > * {
+  .app[data-screen="bookingPages"] .screen > *,
+  /* community — a name form today, a message list next; both read as a column,
+     not a dashboard. */
+  .app[data-screen="community"] .screen > * {
     max-width: var(--mg-content-narrow);
     margin-inline: auto;
   }

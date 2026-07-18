@@ -426,13 +426,68 @@ async function unpushBooking(userId: string, bookingId: string) {
   return { ok: true }
 }
 
+/* Push the caller's added community events (0092) into their Google Calendar.
+   Each gets a DETERMINISTIC id 'cmt<uuid-hex>' so a repeat click is idempotent
+   (Google answers 409 for a duplicate id, which we count as "already there").
+   On success we retag the in-app calendar_events row (it held the sentinel
+   'community:<id>') to the real id + owned=true — exactly the push-booking
+   trick, so the read-sync recognises the event and never duplicates it. The
+   client sends the event fields; we never trust it for identity beyond the id. */
+async function pushCommunity(userId: string, events: any): Promise<Record<string, unknown>> {
+  const list = Array.isArray(events) ? events : []
+  const integration = await getIntegration(userId)
+  if (!integration?.refresh_token) return { ok: false, reason: 'not_connected' }
+  let accessToken: string
+  try { accessToken = await freshAccessToken(integration) }
+  catch { return { ok: false, reason: 'reconnect_needed' } }
+
+  let added = 0, existing = 0, failed = 0
+  for (const ev of list) {
+    if (!ev?.id || !ev?.starts_at) { failed++; continue }
+    // 'cmt' + 32 hex chars — all within Google's base32hex id alphabet (a-v,0-9).
+    const gid = 'cmt' + String(ev.id).replace(/-/g, '').toLowerCase()
+    const start = new Date(ev.starts_at)
+    const end = ev.ends_at ? new Date(ev.ends_at) : new Date(start.getTime() + 3600000)
+    const descParts: string[] = []
+    if (ev.description) descParts.push(String(ev.description))
+    if (ev.link) descParts.push(String(ev.link))
+    descParts.push('אירוע קהילה — סימפליסיטי')
+    const body: Record<string, unknown> = {
+      id: gid,
+      summary: ev.title ? String(ev.title) : 'אירוע קהילה',
+      description: descParts.join('\n\n'),
+      start: { dateTime: start.toISOString() },
+      end: { dateTime: end.toISOString() },
+    }
+    if (ev.location) body.location = String(ev.location)
+
+    const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    if (res.status === 401 || res.status === 403) return { ok: false, reason: 'reconnect_needed', added, existing }
+    let retag = false
+    if (res.status === 409) { existing++; retag = true }              // already in Google → idempotent
+    else if (res.ok) { added++; retag = true }
+    else { console.error('push-community insert failed:', res.status, await res.text()); failed++ }
+
+    if (retag) {
+      await admin.from('calendar_events')
+        .update({ google_event_id: gid, owned: true })
+        .eq('user_id', userId).eq('google_event_id', `community:${ev.id}`)
+    }
+  }
+  return { ok: true, added, existing, failed }
+}
+
 // ── HTTP entry ──────────────────────────────────────────────────
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   try {
     const userId = await getUserId(req)
     if (!userId) return json({ error: 'unauthorized' }, 401)
-    const { action, code, redirect_uri, sync_from, state, bookingId } = await req.json().catch(() => ({}))
+    const { action, code, redirect_uri, sync_from, state, bookingId, events } = await req.json().catch(() => ({}))
 
     if (action === 'auth-url') {
       if (!redirect_uri) return json({ error: 'redirect_uri required' }, 400)
@@ -485,6 +540,10 @@ Deno.serve(async (req) => {
     if (action === 'unpush-booking') {
       if (!bookingId) return json({ error: 'bookingId required' }, 400)
       return json(await unpushBooking(userId, bookingId))
+    }
+
+    if (action === 'push-community') {
+      return json(await pushCommunity(userId, events))
     }
 
     if (action === 'status') {

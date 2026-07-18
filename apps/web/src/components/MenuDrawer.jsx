@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
   Moon, Activity, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug, LayoutTemplate,
+  MessagesSquare,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
@@ -126,6 +127,18 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
           <Txt className="drawer-link-text">
             {t('extras.sitePages')}
             <Txt className="drawer-link-text-sub">{t('items.sitePagesSub')}</Txt>
+          </Txt>
+        </Btn>
+
+        {/* → the room. A user with no profile is bounced to the gate by the
+            chat screen itself, so nav never has to know about that step. */}
+        <Btn className="drawer-link" onClick={() => goTo(ROUTES.COMMUNITY_CHAT)}>
+          <Txt className="drawer-link-icon"><MessagesSquare size={18} strokeWidth={1.5} /></Txt>
+          <Txt className="drawer-link-text">
+            <Txt as="span" className="drawer-link-title">
+              {t('extras.community')}<Txt as="span" className="mg-nav-beta">beta</Txt>
+            </Txt>
+            <Txt className="drawer-link-text-sub">{t('items.communitySub')}</Txt>
           </Txt>
         </Btn>
 

@@ -15,7 +15,8 @@
     "reports": "Informes",
     "insights": "¿Cómo estás hoy?",
     "trash": "Papelera",
-    "legal": "Políticas y condiciones"
+    "legal": "Políticas y condiciones",
+    "community": "Comunidad"
   },
   "feedback": "Habla con nosotros",
   "admin": {
@@ -52,7 +53,8 @@
     "trashSub": "Restaura elementos eliminados · 30 días",
     "sitePagesSub": "Crea páginas, formularios y reservas — un sistema",
     "leadPagesSub": "Formularios públicos de captación de prospectos",
-    "bookingPagesSub": "Página pública de reserva de citas, sincronizada con tu calendario"
+    "bookingPagesSub": "Página pública de reserva de citas, sincronizada con tu calendario",
+    "communitySub": "La sala compartida"
   },
   "signOut": "Cerrar sesión",
   "profile": {

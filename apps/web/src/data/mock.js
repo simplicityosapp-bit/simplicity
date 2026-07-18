@@ -208,6 +208,101 @@ export const user_quotes = [
   { id: uid(), user_id: USER, text: 'הציטוט האישי הראשון שלי.', author: null, created_at: daysAgo(5), updated_at: daysAgo(5), deleted_at: null },
 ]
 
+/* ── קהילה — הפרופילים הציבוריים והחדר ─────────────────────────────
+   שלושה חברים כדי שאפשר יהיה לראות את מה שחדר אמיתי מראה: הודעות שלי
+   (עם אפשרות מחיקה) לצד הודעות של אחרים (בלי), וחשבון רשמי מאומת. */
+const MEMBER_2 = 'mock-user-002'
+const MEMBER_3 = 'mock-user-003'
+
+export const community_profiles = [
+  { id: uid(), user_id: USER, display_name: 'נועה לדוגמה', avatar_url: null, is_verified: false, created_at: daysAgo(20),
+    headline: 'מאמנת אישית · קריירה', bio: 'מלווה נשים בצמתים מקצועיים — מעברים בקריירה, חזרה מחופשת לידה, ובניית ביטחון. אוהבת תהליכים קצרים וממוקדים.', specialties: ['קריירה', 'זוגיות', 'הורות'], link: 'https://noa-example.co.il' },
+  { id: uid(), user_id: MEMBER_2, display_name: 'דנה לוי', avatar_url: null, is_verified: false, created_at: daysAgo(18),
+    headline: 'מטפלת רגשית · CBT', bio: 'עובדת עם מתבגרים והורים. מאמינה שקצת כלים פרקטיים עושים את כל ההבדל.', specialties: ['מתבגרים', 'חרדה', 'הורות'], link: 'https://dana-example.com' },
+  { id: uid(), user_id: MEMBER_3, display_name: 'Simplicity', avatar_url: null, is_verified: true, created_at: daysAgo(30),
+    headline: 'צוות סימפליסיטי', bio: 'העדכונים הרשמיים, טיפים והזמנות למפגשי הקהילה.', specialties: ['הכרזות', 'עזרה'], link: 'https://simplicity-os.com' },
+]
+
+/* Each row carries an inline `community_profiles` object because the real
+   query embeds the author through the 0086 FK, and the mock's select() ignores
+   the select string entirely — so the fixture has to shape itself like the
+   response PostgREST would return. No deleted rows: the real SELECT policy
+   hides those server-side (0081) and the mock has no policies to do it. */
+const author = (u) => {
+  const p = community_profiles.find((x) => x.user_id === u)
+  /* null, never a throw: the real embed returns null for a missing profile,
+     and a fixture helper must not be able to take the whole app down at
+     module load if the two lists drift apart. */
+  return p ? { display_name: p.display_name, avatar_url: p.avatar_url, is_verified: p.is_verified } : null
+}
+/* The "pricing" question gets a reply thread (reply_to_id → Q_ID). Flat model:
+   every reply points at the root. */
+const Q_ID = uid()
+/* Filler history so the room is long enough to page: the "load older" button
+   only shows once the first window fills (≥ MESSAGES_PAGE). All older than the
+   story below (daysAgo > 3), varied authors, distinct times → ascending. */
+const FILLER_AUTHORS = [USER, MEMBER_2, MEMBER_3]
+const FILLER_LINES = [
+  'תודה על השיתוף, ממש עזר לי 🙏',
+  'מישהי ניסתה את הגישה הזאת עם לקוחות חדשים?',
+  'אני עובדת ככה כבר שנה וזה משנה תמונה.',
+  'שאלה קטנה — איך אתם מתמודדים עם ביטולים?',
+  'הטיפ הזה שווה זהב, תודה!',
+  'גם אני נתקלתי בזה השבוע.',
+  'מסכים לגמרי, חשוב לשים גבולות.',
+  'איזה כלי אתם ממליצים למעקב?',
+  'עשיתי את זה אתמול, עבד מצוין 🎉',
+  'מחכה למפגש הקהילה הבא 🌿',
+]
+const communityFiller = Array.from({ length: 50 }, (_, i) => {
+  const u = FILLER_AUTHORS[i % FILLER_AUTHORS.length]
+  return {
+    id: uid(), user_id: u,
+    content: `${FILLER_LINES[i % FILLER_LINES.length]} (#${i + 1})`,
+    created_at: daysAgo(28 - i * 0.5), deleted_at: null, reply_to_id: null,
+    community_profiles: author(u),
+    community_message_reactions: [], community_message_mentions: [],
+  }
+})
+export const community_messages = [
+  ...communityFiller,
+  { id: uid(), user_id: MEMBER_3, content: 'ברוכים הבאים לחדר הקהילה 🌿 המדריך המלא כאן: https://simplicity-os.com/guide (שווה קריאה).', created_at: daysAgo(3), deleted_at: null, reply_to_id: null, pinned_at: endAfter(0, -5), community_profiles: author(MEMBER_3),
+    community_message_reactions: [{ emoji: '❤️', user_id: MEMBER_2 }, { emoji: '❤️', user_id: USER }, { emoji: '🙏', user_id: MEMBER_3 }] },
+  { id: Q_ID, user_id: MEMBER_2, content: 'שאלה: איך אתן מתמחרות פגישת היכרות? אצלי היא בחינם וכבר לא בטוחה.', created_at: daysAgo(2), deleted_at: null, reply_to_id: null, community_profiles: author(MEMBER_2),
+    community_message_reactions: [{ emoji: '👍', user_id: USER }] },
+  { id: uid(), user_id: USER, content: '@דנה לוי אצלי היא בתשלום סמלי — מסננת יפה ומכבדת את הזמן של שנינו.', created_at: daysAgo(1), deleted_at: null, reply_to_id: null, community_profiles: author(USER),
+    community_message_reactions: [], community_message_mentions: [{ mentioned_user_id: MEMBER_2, community_profiles: { display_name: 'דנה לוי' } }] },
+  /* thread under the pricing question (distinct times so they order naturally) */
+  { id: uid(), user_id: USER, content: 'אני גובה 50% מהמחיר הרגיל לפגישת היכרות — לא חינם, אבל נגיש.', created_at: endAfter(-2, 30), deleted_at: null, reply_to_id: Q_ID, community_profiles: author(USER),
+    community_message_reactions: [] },
+  { id: uid(), user_id: MEMBER_3, content: 'רעיון טוב 🙏 גם אני אאמץ את זה.', created_at: endAfter(-2, 90), deleted_at: null, reply_to_id: Q_ID, community_profiles: author(MEMBER_3),
+    community_message_reactions: [{ emoji: '❤️', user_id: MEMBER_2 }] },
+]
+
+/* An admin moderation queue: one reported message (the pricing question),
+   flagged by another member. message embed is inlined (mock ignores select). */
+export const community_message_reports = [
+  { id: uid(), message_id: Q_ID, reporter_id: MEMBER_3, reason: 'לא רלוונטי לחדר', created_at: endAfter(0, -18),
+    message: { id: Q_ID, content: 'שאלה: איך אתן מתמחרות פגישת היכרות? אצלי היא בחינם וכבר לא בטוחה.', deleted_at: null, community_profiles: { display_name: 'דנה לוי' } } },
+]
+
+/* Community calendar events (0092). created_by resolves to a member name via
+   the events screen's member map; USER's event shows the delete action. */
+export const community_events = [
+  { id: uid(), created_by: MEMBER_3, title: 'מפגש קהילה חודשי (זום)', description: 'נדבר על תמחור, גבולות ולקוחות. מוזמנות ומוזמנים 🌿', location: 'זום', link: 'https://zoom.us/j/example', starts_at: endAfter(3, 18 * 60), ends_at: endAfter(3, 19 * 60), created_at: daysAgo(2) },
+  { id: uid(), created_by: MEMBER_2, title: 'סדנת כתיבה שיווקית', description: null, location: 'תל אביב', link: null, starts_at: endAfter(6, 10 * 60), ends_at: endAfter(6, 12 * 60), created_at: daysAgo(1) },
+  { id: uid(), created_by: USER, title: 'וובינר: אוטומציות בעסק', description: 'איך לחסוך 5 שעות בשבוע עם כמה אוטומציות פשוטות.', location: null, link: 'https://example.com/webinar', starts_at: endAfter(10, 20 * 60), ends_at: null, created_at: daysAgo(0) },
+]
+
+/* Notifications for the mock user (נועה) — two unread @-mentions. actor + message
+   are inlined because the mock's select() ignores the embed string. */
+export const community_notifications = [
+  { id: uid(), recipient_id: USER, actor_id: MEMBER_2, type: 'mention', message_id: uid(), read_at: null, created_at: endAfter(0, -25),
+    actor: { display_name: 'דנה לוי', avatar_url: null }, message: { content: '@נועה לדוגמה תודה על הטיפ, אימצתי!' } },
+  { id: uid(), recipient_id: USER, actor_id: MEMBER_3, type: 'mention', message_id: uid(), read_at: null, created_at: endAfter(0, -140),
+    actor: { display_name: 'Simplicity', avatar_url: null }, message: { content: '@נועה לדוגמה מוזמנת למפגש הקהילה הבא 🌿' } },
+]
+
 /* ── user_preferences — אובייקט אחד עם ברירות מחדל (snake_case; הפרוטוטיפ השתמש ב-camelCase) ── */
 export const user_preferences = {
   user_id: USER,
@@ -349,6 +444,13 @@ export const MOCK_DB = {
   reminders,
   quotes,
   user_quotes,
+  community_profiles,
+  community_messages,
+  community_message_reactions: [],   /* toggle target; embed is inline on messages above */
+  community_message_mentions: [],    /* insert target; embed is inline on messages above */
+  community_notifications,
+  community_message_reports,
+  community_events,
   user_preferences,
   payment_plans,
   payment_installments,

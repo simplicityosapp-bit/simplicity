@@ -1,0 +1,1294 @@
+/* ════════════════════════════════════════════════════════════════
+   COMMUNITY — profile setup + the room.
+   ════════════════════════════════════════════════════════════════
+   The form itself is the shared m-* field system (modals/Modal.css):
+   .m-field / .m-label / .m-input(.err) / .m-error / .m-hint / .m-btn-save.
+   Those classes are always in the bundle — App.jsx statically imports
+   FeedbackModal → Modal → Modal.css — which is why the settings screen
+   already uses them outside a modal. Nothing here re-declares them.
+
+   Card chrome is the standard --mg-card-* glass, verbatim. Never a bespoke
+   opacity / blur / shadow: matching the tokens exactly is what keeps the
+   glass reading as one material across screens.
+   ════════════════════════════════════════════════════════════════ */
+
+/* The desktop width cap lives in screens.css with every other screen's, keyed
+   on [data-screen="community"] — the narrow tier. It used to be a local
+   specificity fight against home's wide tier, back when this screen borrowed
+   home's key; owning a key is what let that go away. Nothing to override here
+   any more. */
+
+/* The head is a single title block (no back button, no CTA), so it stands on
+   its own rather than inside .screen-top. */
+.cmt-head {
+  margin: 14px 0 16px;
+}
+.cmt-head .t-screen {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cmt-card {
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+  padding: var(--mg-card-pad);
+}
+
+/* The submit is the card's only action, so it spans it — .m-btn-save is
+   `flex: 1` for a modal's action row, which collapses to content width on a
+   block parent. */
+.cmt-submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* ── Ready state ───────────────────────────────────────────────── */
+.cmt-ready {
+  text-align: center;
+}
+.cmt-ready-mark {
+  display: inline-flex;
+  margin-bottom: 8px;
+  color: var(--sage);
+}
+.cmt-ready-title {
+  margin: 0 0 14px;
+  font-family: var(--mg-font);
+  font-size: calc(16px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.cmt-ready-label {
+  margin-bottom: 2px;
+}
+.cmt-ready-name {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(20px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+  /* A member-chosen string of unknown script sitting in an RTL page — isolate
+     it so a Latin or mixed name can't reorder the label around it. */
+  unicode-bidi: isolate;
+}
+.cmt-ready .m-hint {
+  margin-top: 10px;
+}
+.cmt-ready-cta {
+  width: 100%;
+  margin-top: 14px;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   THE ROOM
+   ════════════════════════════════════════════════════════════════ */
+
+/* The composer stays put while only the feed scrolls. .screen is the scroll
+   container app-wide (position:absolute; inset:0; overflow-y:auto), so the
+   chat turns itself into a column and hands the scrolling to .cmt-feed
+   instead — the one screen where the page must not scroll as a whole.
+   min-height:0 on the feed is what actually lets it shrink inside the flex
+   column; without it the feed grows to its content and the composer is pushed
+   off the bottom of the viewport. */
+.cmt-chat-screen {
+  display: flex;
+  flex-direction: column;
+  /* Do NOT zero .screen's bottom padding: it is RESPONSIVE — 84px+safe-area on
+     mobile (clears the fixed bottom nav) and 24px on desktop (no nav). The
+     composer is the last flex child, so it sits inside that padding: just above
+     the nav on mobile, flush at the bottom on desktop. An earlier version
+     zeroed this and hardcoded 84px on the composer, which left 84px of dead
+     space on desktop where the bottom nav is hidden (display:none ≥768px). */
+}
+/* .screen-head carries `flex: 0 0 62%` for .screen-top, which is a flex ROW —
+   there 62% is a WIDTH. Turning .screen into a flex COLUMN silently re-reads
+   that basis as 62% of the HEIGHT, and the header balloons to two thirds of
+   the viewport with the feed crushed underneath. Re-state the basis for this
+   axis; the 280px max-width from screens.css still applies. */
+.cmt-chat-screen .cmt-head {
+  flex: 0 0 auto;
+}
+
+/* Center the column's children, and fill up to each one's max-width. This
+   REPLACES the narrow-tier's centering mechanism for this screen only, and
+   has to: that rule (screens.css) centers block children with
+   `margin-inline: auto`, and auto margins on a FLEX item do not center it —
+   they absorb the free space and collapse the item to its content width. So
+   on desktop the head/feed/composer shrank to ~200px on a 1200px screen.
+   align-items + width:100% cap-and-centre instead; margin-inline:0 neutralises
+   the tier's now-harmful auto. Only bites ≥768px, where that tier lives —
+   mobile has no cap and was always full-width. */
+.cmt-chat-screen {
+  align-items: center;
+}
+.cmt-chat-screen > * {
+  width: 100%;
+  margin-inline: 0;
+}
+.cmt-feed {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;                 /* tight within a group; .group-start adds the rest */
+  padding-bottom: 12px;
+}
+.cmt-feed::-webkit-scrollbar { display: none; }
+/* margin-block:auto centres the single-child states (loading / error / empty)
+   in the feed's empty space instead of hugging the top. Inert once messages
+   fill the column. */
+.cmt-feed-note { text-align: center; padding: 18px 0; margin-block: auto; }
+
+/* ── Messages: two-sided bubbles (WhatsApp/Messenger) ───────────── */
+/* A row holds one message. align-self does the sides — in the RTL feed column,
+   flex-start = right (others), flex-end = left (mine), and it mirrors on its
+   own if the app ever runs LTR. Bubbles never span the full width. */
+.cmt-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 82%;
+}
+.cmt-row.other { align-self: flex-start; }
+.cmt-row.mine  { align-self: flex-end; }
+/* Breath between author-groups only; consecutive same-author bubbles keep the
+   feed's tight 2px gap. */
+.cmt-row.group-start { margin-top: 10px; }
+.cmt-row:first-child { margin-top: 0; }
+
+/* Fixed avatar slot (others only) so grouped bubbles stay aligned even on the
+   continuation rows where no avatar renders. Centred against its message, not
+   pinned to the bottom. */
+.cmt-row-avatar {
+  flex: 0 0 30px;
+  width: 30px;
+  align-self: center;
+}
+
+.cmt-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.cmt-bubble-author {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 3px;
+  padding-inline: 4px;
+}
+
+.cmt-bubble {
+  border-radius: 16px;
+  border: var(--mg-card-border);
+  /* Raised opacity: the 30%-cream card token is too sheer for small, text-dense
+     chat bubbles over the forest photo. Stacking the token compounds its alpha
+     (~30% → ~66% light, ~86% dark) yet stays theme-aware AND fully solid in flat
+     mode, where the token is already opaque — no bespoke cream to drift from the
+     palette. */
+  background:
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+  padding: 8px 12px;
+}
+/* Mine: a warm terracotta wash over the SAME raised-opacity base, so "warm = me"
+   still reads but the bubble is as legible as the others; text stays --espresso
+   (dark on light, light on dark). */
+.cmt-row.mine .cmt-bubble {
+  background:
+    linear-gradient(rgba(201, 123, 94, 0.3), rgba(201, 123, 94, 0.3)),
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    var(--mg-card-bg);
+  border-color: rgba(201, 123, 94, 0.34);
+}
+[data-theme="dark"] .cmt-row.mine .cmt-bubble {
+  background:
+    linear-gradient(rgba(201, 123, 94, 0.38), rgba(201, 123, 94, 0.38)),
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    var(--mg-card-bg);
+  border-color: rgba(201, 123, 94, 0.42);
+}
+/* Subtle tail — flatten the corner nearest the sender's edge (logical props so
+   it mirrors in RTL/LTR). */
+.cmt-row.other .cmt-bubble { border-start-start-radius: 5px; }
+.cmt-row.mine  .cmt-bubble { border-start-end-radius: 5px; }
+
+.cmt-msg-author {
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+  /* Member-chosen text of unknown script inside an RTL row: isolate it so a
+     Latin name can't drag the badge out of place. */
+  unicode-bidi: isolate;
+  overflow-wrap: anywhere;
+}
+.cmt-msg-verified {
+  display: inline-flex;
+  color: var(--sage);
+}
+/* Row actions (reply on every message, delete on my own): a small stack beside
+   the bubble, revealed on hover / keyboard focus, faint on touch (no hover).
+   Each ≥24px (WCAG 2.5.8). */
+.cmt-row-actions {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  margin-bottom: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.cmt-row:hover .cmt-row-actions,
+.cmt-row:focus-within .cmt-row-actions { opacity: 0.8; }
+@media (hover: none) { .cmt-row-actions { opacity: 0.5; } }
+.cmt-row-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.cmt-row-action:hover { color: var(--terracotta); }
+.cmt-msg-del:hover { color: var(--clay); }
+
+/* ── Reply threads ─────────────────────────────────────────────── */
+/* A thread is a single indented column (Facebook-style), regardless of the
+   two-sided main flow — override the rows' sides so replies stack from the
+   start edge, and indent the whole thread toward the parent's side. */
+.cmt-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 100%;
+}
+.cmt-thread.other { align-self: flex-start; padding-inline-start: 22px; }
+.cmt-thread.mine  { align-self: flex-end;   padding-inline-end: 22px; }
+.cmt-thread .cmt-row { align-self: flex-start; max-width: 100%; }
+.cmt-thread-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  margin: 2px 0;
+  padding: 2px 6px;
+  border: none;
+  background: none;
+  color: var(--terracotta);
+  cursor: pointer;
+}
+.cmt-thread.mine .cmt-thread-toggle { align-self: flex-end; }
+.cmt-thread-toggle-label {
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 600;
+  color: var(--terracotta);
+}
+/* Replies are a touch tighter than top-level bubbles. */
+.cmt-row.reply .cmt-bubble { padding: 6px 10px; }
+.cmt-row.reply .cmt-msg-text { font-size: calc(13px * var(--text-scale)); }
+
+/* ── Composer reply preview ────────────────────────────────────── */
+.cmt-reply-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border-inline-start: 3px solid var(--terracotta);
+  background: var(--mg-card-bg);
+}
+.cmt-reply-preview-body { flex: 1 1 auto; min-width: 0; }
+.cmt-reply-preview-to {
+  display: block;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  color: var(--terracotta);
+}
+.cmt-reply-preview-snippet {
+  display: block;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  unicode-bidi: plaintext;
+}
+.cmt-reply-cancel {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.cmt-reply-cancel:hover { color: var(--clay); }
+
+/* ── @-mentions ────────────────────────────────────────────────── */
+.cmt-mention-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 6px;
+  padding: 4px;
+  border-radius: 12px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+}
+.cmt-mention-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: start;
+  transition: background 0.12s;
+}
+.cmt-mention-item:hover,
+.cmt-mention-item:focus-visible { background: rgba(201, 123, 94, 0.14); }
+.cmt-mention-name {
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+  unicode-bidi: isolate;
+}
+/* The highlighted @name inside a message. */
+.cmt-mention {
+  color: var(--terracotta);
+  font-weight: 600;
+}
+/* A clickable link inside a message. break-word so a long URL wraps instead of
+   widening the bubble. Only http/https hrefs reach here (renderContent). */
+.cmt-link {
+  color: var(--terracotta);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+.cmt-link:hover { text-decoration: none; }
+
+/* ── Notifications bell + panel ────────────────────────────────── */
+.cmt-head { position: relative; }
+.cmt-notif {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 44px;   /* just inward of the help "?" (pinned at 12px) */
+  z-index: 3;
+}
+.cmt-notif-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.cmt-notif-bell:hover { color: var(--terracotta); }
+.cmt-notif-badge {
+  position: absolute;
+  top: -2px;
+  inset-inline-end: -2px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--clay);
+  color: #fff;
+  font-family: var(--mg-font);
+  font-size: calc(9px * var(--text-scale));
+  font-weight: 700;
+  line-height: 15px;
+  text-align: center;
+}
+.cmt-notif-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-end: 0;
+  z-index: 20;
+  width: 280px;
+  max-width: 78vw;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 14px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  /* Stronger blur than a standard card (24px): these popovers float over the
+     busy message feed, so the list underneath needs to melt away for the panel
+     to read. No-op in flat mode, where the panel background is already opaque. */
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  box-shadow: var(--mg-card-shadow);
+}
+.cmt-notif-panel-title {
+  margin: 0 0 6px;
+  padding: 0 4px;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.cmt-notif-empty {
+  margin: 12px 4px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  text-align: center;
+}
+.cmt-notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 6px;
+  border-radius: 8px;
+}
+.cmt-notif-item.unread { background: rgba(201, 123, 94, 0.12); }
+.cmt-notif-item-body { flex: 1 1 auto; min-width: 0; }
+.cmt-notif-item-text {
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--espresso);
+}
+.cmt-notif-item-snippet {
+  display: block;
+  margin-top: 1px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  unicode-bidi: plaintext;
+}
+.cmt-notif-item-time {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--mg-font);
+  font-size: calc(10px * var(--text-scale));
+  color: var(--stone);
+  opacity: 0.7;
+}
+
+/* ── Moderation: pinned bar ────────────────────────────────────── */
+.cmt-pinned-bar {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 6px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border-inline-start: 3px solid var(--terracotta);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+}
+.cmt-pinned-item { display: flex; align-items: center; gap: 6px; }
+.cmt-pinned-icon { display: inline-flex; flex: 0 0 auto; color: var(--terracotta); }
+.cmt-pinned-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  unicode-bidi: plaintext;
+}
+.cmt-pinned-author { font-weight: 600; }
+.cmt-pinned-unpin {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+}
+.cmt-pinned-unpin:hover { color: var(--clay); }
+/* pin action lit when the message is pinned */
+.cmt-row-action.on { color: var(--terracotta); }
+
+/* ── Moderation: reports flag + queue (admin) ──────────────────── */
+.cmt-mod {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 78px;   /* inward of the bell (44) and help (12) */
+  z-index: 3;
+}
+.cmt-mod-flag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.cmt-mod-flag:hover { color: var(--terracotta); }
+.cmt-mod-badge {
+  position: absolute;
+  top: -2px;
+  inset-inline-end: -2px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--clay);
+  color: #fff;
+  font-family: var(--mg-font);
+  font-size: calc(9px * var(--text-scale));
+  font-weight: 700;
+  line-height: 15px;
+  text-align: center;
+}
+.cmt-mod-item { padding: 7px 6px; }
+.cmt-mod-item + .cmt-mod-item { border-top: 1px solid rgba(42, 37, 32, 0.08); }
+[data-theme="dark"] .cmt-mod-item + .cmt-mod-item { border-top-color: rgba(240, 235, 224, 0.1); }
+.cmt-mod-item-text {
+  display: block;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--espresso);
+  overflow-wrap: anywhere;
+}
+.cmt-mod-item-author { font-weight: 600; }
+.cmt-mod-item-count { color: var(--stone); font-weight: 600; }
+.cmt-mod-item-actions { display: flex; gap: 6px; margin-top: 5px; }
+.cmt-mod-btn {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(42, 37, 32, 0.15);
+  background: none;
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  cursor: pointer;
+}
+.cmt-mod-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
+.cmt-mod-btn.danger { color: var(--clay); border-color: rgba(181, 99, 78, 0.4); }
+.cmt-mod-btn.danger:hover { background: var(--clay); color: #fff; border-color: var(--clay); }
+
+/* ── Clickable author (opens the member card) ──────────────────── */
+/* The name keeps its .cmt-msg-author look; this only strips the <button>
+   chrome and adds affordance. The avatar wrapper is a bare round button. */
+.cmt-author-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: inherit;
+}
+.cmt-author-btn:hover { text-decoration: underline; }
+.cmt-avatar-btn {
+  display: inline-flex;
+  border: none;
+  background: none;
+  padding: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.cmt-author-btn:focus-visible,
+.cmt-avatar-btn:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ── Member profile card: popover + full modal ─────────────────── */
+.cmt-pc {
+  border-radius: 16px;
+  border: var(--mg-card-border);
+  /* Same opacity-stacking as the bubbles + a strong blur: the card floats over
+     the busy feed and must read cleanly. Opaque + no-op blur in flat mode. */
+  background:
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    var(--mg-card-bg);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  box-shadow: 0 12px 34px rgba(42, 37, 32, 0.22);
+  color: var(--espresso);
+}
+.cmt-pc-popover { z-index: 50; width: 268px; max-width: 92vw; padding: 14px; }
+.cmt-pc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(28, 24, 20, 0.4);
+}
+.cmt-pc-modal { position: relative; width: 360px; max-width: 100%; padding: 22px; }
+
+.cmt-pc-head { display: flex; align-items: center; gap: 11px; }
+.cmt-pc-id { min-width: 0; }
+.cmt-pc-name-row { display: flex; align-items: center; gap: 5px; }
+.cmt-pc-name {
+  font-family: var(--mg-font);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+  overflow-wrap: anywhere;
+}
+.cmt-pc-modal .cmt-pc-name { font-size: calc(17px * var(--text-scale)); }
+.cmt-pc-verified { display: inline-flex; color: var(--terracotta); flex: 0 0 auto; }
+.cmt-pc-headline {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+.cmt-pc-bio {
+  margin: 11px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  line-height: 1.55;
+  color: var(--espresso);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.cmt-pc-bio.clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+}
+.cmt-pc-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 11px; }
+.cmt-pc-tag {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(201, 123, 94, 0.14);
+  color: var(--clay);
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 500;
+}
+[data-theme="dark"] .cmt-pc-tag { background: rgba(201, 123, 94, 0.24); color: #e7b9a6; }
+.cmt-pc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  max-width: 100%;
+  color: var(--terracotta);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  text-decoration: none;
+}
+.cmt-pc-link:hover { text-decoration: underline; }
+.cmt-pc-link-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmt-pc-empty,
+.cmt-pc-loading {
+  margin: 11px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+.cmt-pc-actions { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+.cmt-pc-full {
+  flex: 1 1 auto;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 123, 94, 0.4);
+  background: none;
+  color: var(--terracotta);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 600;
+  cursor: pointer;
+}
+.cmt-pc-full:hover { background: rgba(201, 123, 94, 0.12); }
+.cmt-pc-edit-sm {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid rgba(42, 37, 32, 0.15);
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+}
+.cmt-pc-edit-sm:hover { border-color: var(--terracotta); color: var(--terracotta); }
+.cmt-pc-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 123, 94, 0.4);
+  background: none;
+  color: var(--terracotta);
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 600;
+  cursor: pointer;
+}
+.cmt-pc-edit:hover { background: rgba(201, 123, 94, 0.12); }
+.cmt-pc-close {
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+}
+.cmt-pc-close:hover { color: var(--clay); }
+
+/* ── Profile edit form (create + edit share it) ────────────────── */
+.cmt-profile-form { display: flex; flex-direction: column; gap: 14px; }
+.cmt-bio-input { resize: vertical; min-height: 66px; line-height: 1.5; }
+.cmt-profile-saved {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 600;
+  color: var(--sage, #6f8f6a);
+}
+.cmt-head-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+}
+.cmt-head-back:hover { color: var(--terracotta); }
+
+/* ── Search + pagination (#17) ─────────────────────────────────── */
+.cmt-head-search {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 78px;   /* outward of help(12) + bell(44); free when no mod */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+  transition: color 0.15s;
+  z-index: 3;
+}
+.cmt-head-search.is-admin { inset-inline-end: 112px; }  /* clear the mod flag (78) */
+.cmt-head-search:hover,
+.cmt-head-search.on { color: var(--terracotta); }
+
+.cmt-search-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: var(--mg-card-border);
+  background:
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    var(--mg-card-bg);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+}
+.cmt-search-icon { flex: 0 0 auto; color: var(--stone); }
+.cmt-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+}
+.cmt-search-close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  min-height: 26px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+}
+.cmt-search-close:hover { color: var(--clay); }
+.cmt-search-count {
+  margin: 0 2px 8px;
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  font-weight: 600;
+  color: var(--stone);
+}
+
+.cmt-load-older { display: flex; justify-content: center; padding: 2px 0 10px; }
+.cmt-load-older-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background:
+    linear-gradient(var(--mg-card-bg), var(--mg-card-bg)),
+    var(--mg-card-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 600;
+  cursor: pointer;
+}
+.cmt-load-older-btn:hover { color: var(--terracotta); }
+.cmt-load-older-btn:disabled { opacity: 0.6; cursor: default; }
+
+/* ── Community calendar / events (#18) ─────────────────────────── */
+.cmt-head-events {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 112px;   /* outward of help(12)+bell(44)+search(78) */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+  transition: color 0.15s;
+  z-index: 3;
+}
+.cmt-head-events.is-admin { inset-inline-end: 146px; }  /* clear mod(78)+search(112) */
+.cmt-head-events:hover { color: var(--terracotta); }
+
+/* Same column-with-inner-scroll shape as the chat: the header stays put and the
+   body scrolls, instead of the whole .screen (which the app shell clips to the
+   viewport). Without this the list below the fold is unreachable. */
+.cmt-events-screen { display: flex; flex-direction: column; }
+.cmt-events-screen .cmt-head { flex: 0 0 auto; }   /* re-state the 62% row basis (see chat) */
+.cmt-events-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+.cmt-events-body::-webkit-scrollbar { display: none; }
+.cme-new {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 123, 94, 0.4);
+  background: none;
+  color: var(--terracotta);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  cursor: pointer;
+}
+.cme-new:hover { background: rgba(201, 123, 94, 0.12); }
+
+.cme-gimport { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cme-gimport-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 600;
+  cursor: pointer;
+}
+.cme-gimport-btn:hover:not(:disabled) { color: var(--terracotta); }
+.cme-gimport-btn:disabled { opacity: 0.55; cursor: default; }
+.cme-gimport-msg {
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  font-weight: 600;
+  color: #5f7f5a;
+}
+[data-theme="dark"] .cme-gimport-msg { color: #9cbf96; }
+
+.cme-form { display: flex; flex-direction: column; gap: 12px; }
+.cme-form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.cme-form-row .m-field { flex: 1 1 160px; min-width: 0; }
+.cme-desc-input { resize: vertical; min-height: 60px; line-height: 1.5; }
+.cme-form-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.cme-form-cancel {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: none;
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 600;
+  cursor: pointer;
+}
+.cme-form-cancel:hover { color: var(--clay); }
+
+.cme-list { display: flex; flex-direction: column; gap: 10px; }
+/* Vertical stack, not a 3-column row: on a phone the date + actions columns
+   crushed the content to a few px and it wrapped per-character. Date/time on
+   top, content, then actions — each gets the full width. */
+.cme-card { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; }
+.cme-when { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.cme-when-day {
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 600;
+  color: var(--terracotta);
+}
+.cme-when-time {
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--stone);
+}
+.cme-main { min-width: 0; }
+.cme-title-txt {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(14.5px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+  overflow-wrap: anywhere;
+}
+.cme-desc-txt {
+  margin: 4px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--espresso);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.cme-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; }
+.cme-meta-item,
+.cme-meta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--stone);
+}
+.cme-meta-link { color: var(--terracotta); text-decoration: none; max-width: 100%; overflow: hidden; }
+.cme-meta-link:hover { text-decoration: underline; }
+.cme-creator {
+  margin: 6px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+}
+.cme-actions { display: flex; flex-direction: row; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 2px; }
+.cme-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 123, 94, 0.4);
+  background: none;
+  color: var(--terracotta);
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cme-add:hover { background: rgba(201, 123, 94, 0.12); }
+.cme-add.on {
+  background: rgba(111, 143, 106, 0.16);
+  border-color: rgba(111, 143, 106, 0.5);
+  color: #5f7f5a;
+}
+[data-theme="dark"] .cme-add.on { color: #9cbf96; }
+.cme-del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(181, 99, 78, 0.35);
+  background: none;
+  color: var(--clay);
+  cursor: pointer;
+}
+.cme-del:hover { background: var(--clay); color: #fff; border-color: var(--clay); }
+
+.cmt-msg-text {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--espresso);
+  /* Preserve the author's line breaks; wrap an unbroken URL rather than let it
+     widen the whole feed. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  unicode-bidi: plaintext;
+}
+/* Per-bubble time — small, muted, at the reading-end (bottom-left in RTL).
+   plaintext keeps HH:MM rendering LTR inside the RTL bubble. */
+.cmt-bubble-time {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--mg-font);
+  font-size: calc(10px * var(--text-scale));
+  color: var(--stone);
+  opacity: 0.7;
+  text-align: end;
+  unicode-bidi: plaintext;
+}
+
+/* ── Day separator ─────────────────────────────────────────────── */
+/* A centered pill between messages from different days ("היום"/"אתמול"/date).
+   Direct child of the feed, so align-self:center overrides the rows' sides. */
+.cmt-day-sep {
+  align-self: center;
+  margin: 10px 0 4px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+}
+.cmt-day-sep:first-child { margin-top: 0; }
+.cmt-day-sep-label {
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+}
+
+/* ── Reactions ─────────────────────────────────────────────────── */
+.cmt-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+}
+/* A reaction chip (emoji + count); toggles on click, highlighted when it's
+   one of mine — same warm accent as my own bubbles. ≥24px tall (WCAG). */
+.cmt-reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 24px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(42, 37, 32, 0.12);
+  background: var(--mg-card-bg);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+[data-theme="dark"] .cmt-reaction { border-color: rgba(240, 235, 224, 0.14); }
+.cmt-reaction.mine {
+  background: rgba(201, 123, 94, 0.18);
+  border-color: rgba(201, 123, 94, 0.45);
+}
+.cmt-reaction-emoji { font-size: calc(13px * var(--text-scale)); line-height: 1; }
+.cmt-reaction-count {
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  color: var(--stone);
+}
+
+/* Add-react trigger — revealed on row hover / focus, faint on touch (no hover),
+   like the delete button. */
+.cmt-react-add-wrap { position: relative; display: inline-flex; }
+.cmt-react-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 0.15s, color 0.15s;
+}
+.cmt-row:hover .cmt-react-add,
+.cmt-react-add:focus-visible,
+.cmt-react-add[aria-expanded="true"] { opacity: 0.7; }
+.cmt-react-add:hover { opacity: 1; color: var(--terracotta); }
+@media (hover: none) { .cmt-react-add { opacity: 0.45; } }
+
+/* The 5-emoji palette popover above the trigger. */
+.cmt-react-picker {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  inset-inline-start: 0;
+  z-index: 5;
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+}
+.cmt-react-pick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  font-size: calc(17px * var(--text-scale));
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.cmt-react-pick:hover { transform: scale(1.2); }
+
+/* ── Avatar ────────────────────────────────────────────────────── */
+.cmt-avatar {
+  flex: 0 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.cmt-avatar-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cmt-avatar-letter {
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 600;
+  /* color is set inline per-swatch (inkFor in CommunityAvatar.jsx) so the
+     initial clears WCAG contrast on every hue — cream alone failed AA on 6/8. */
+}
+
+/* ── Composer ──────────────────────────────────────────────────── */
+/* No bottom padding here — .screen's responsive bottom padding (above) is what
+   sits the composer above the nav on mobile and flush on desktop. */
+.cmt-composer {
+  flex: 0 0 auto;
+  padding-top: 8px;
+  background: transparent;
+}
+.cmt-composer-err { margin: 0 0 6px; }
+.cmt-composer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cmt-composer-input { flex: 1 1 auto; }
+.cmt-composer-send {
+  flex: 0 0 auto;
+  width: var(--mg-btn-h);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Empty room ────────────────────────────────────────────────── */
+.cmt-empty { text-align: center; margin-block: auto; }
+.cmt-empty-mark {
+  display: inline-flex;
+  margin-bottom: 8px;
+  color: var(--stone);
+  opacity: 0.7;
+}
+.cmt-empty-title {
+  margin: 0 0 4px;
+  font-family: var(--mg-font);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}

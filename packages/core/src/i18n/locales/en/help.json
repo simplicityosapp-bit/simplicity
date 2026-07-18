@@ -1,5 +1,23 @@
 {
   "screens": {
+    "community": {
+      "title": "Community",
+      "intro": "One shared room for everyone using Simplicity. Before your first message you pick a display name — that is what members see beside you.",
+      "features": [
+        { "title": "The room", "body": "Every message in one room, oldest to newest. A new message appears for everyone straight away, with no refresh." },
+        { "title": "Display name", "body": "The name shown beside each of your messages. A first name, a nickname or your business name — whatever you are comfortable showing. You can change it later." },
+        { "title": "Deleting a message", "body": "You can delete your own messages, and only those. Deletion is final — there is no undo, and a sent message cannot be edited." },
+        { "title": "Reserved names", "body": "Names associated with Simplicity or its support team are blocked so nobody can impersonate us. Official accounts carry a verified mark." }
+      ],
+      "tips": [
+        "Your display name is public within the community. If you would rather not be identified by your full name, use a nickname."
+      ],
+      "faq": [
+        { "q": "Who can see my messages?", "a": "Everyone with an active Simplicity account. It is one shared room, not a private chat." },
+        { "q": "Can I edit a message after sending?", "a": "No. You can only delete it." },
+        { "q": "Can I add a profile photo?", "a": "Not yet. For now it is a display name only." }
+      ]
+    },
     "sitePages": {
       "title": "Public pages",
       "intro": "One system for building public pages: landing pages, lead-capture pages and booking pages. Build from sections by dragging, design freely, and publish under your own link.",

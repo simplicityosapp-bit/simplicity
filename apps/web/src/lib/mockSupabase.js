@@ -317,8 +317,15 @@ export function makeMockClient() {
         // /admin screens render in preview. Everything else is a no-op ok.
         if (name === 'admin') return { data: adminInvoke(opts?.body), error: null }
         // Google Calendar in preview: "connected" so the synced-events
-        // accordion renders against the mock calendar_events fixtures.
-        if (name === 'google-calendar') return { data: { status: { connected: true, sync_from: '2025-06-07', last_synced_at: new Date().toISOString() } }, error: null }
+        // accordion renders against the mock calendar_events fixtures. The
+        // community push is acknowledged (real Google writes can't run here).
+        if (name === 'google-calendar') {
+          if (opts?.body?.action === 'push-community') {
+            const n = (opts?.body?.events || []).length
+            return { data: { ok: true, added: n, existing: 0, failed: 0 }, error: null }
+          }
+          return { data: { status: { connected: true, sync_from: '2025-06-07', last_synced_at: new Date().toISOString() } }, error: null }
+        }
         // Invoices in preview: a "connected" SUMIT account so the connections
         // card AND the "הפק חשבונית" action on transactions render end-to-end.
         if (name === 'invoices') {

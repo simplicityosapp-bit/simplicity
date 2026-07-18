@@ -1,0 +1,165 @@
+{
+  "profileSetup": {
+    "title": "Perfil de la comunidad",
+    "subtitle": "Necesitas un nombre visible para participar en la comunidad.",
+    "displayName": "Nombre visible",
+    "namePlaceholder": "¿Cómo quieres que te llamen?",
+    "hint": "Es el nombre que los miembros verán junto a tus mensajes. Puedes cambiarlo más adelante.",
+    "create": "Crear perfil",
+    "creating": "Creando…",
+    "editSubtitle": "Actualiza tu perfil público.",
+    "toChat": "Ir a la sala",
+    "save": "Guardar cambios",
+    "saving": "Guardando…",
+    "saved": "Perfil guardado ✓",
+    "headline": "Rol / ámbito",
+    "headlinePlaceholder": "Coach personal · PNL",
+    "bio": "Unas palabras sobre ti",
+    "bioPlaceholder": "En breve: a qué te dedicas y qué te distingue…",
+    "specialties": "Especialidades",
+    "specialtiesPlaceholder": "pareja, carrera, crianza",
+    "specialtiesHint": "Separadas por comas · hasta 8 etiquetas",
+    "link": "Enlace",
+    "linkPlaceholder": "https://example.com",
+    "errors": {
+      "required": "Introduce un nombre visible.",
+      "reserved": "Ese nombre está reservado; prueba con otro.",
+      "exists": "Ya tienes un perfil de la comunidad.",
+      "failed": "No se pudo crear el perfil: {{error}}"
+    },
+    "ready": {
+      "title": "Perfil listo",
+      "nameLabel": "Tu nombre visible",
+      "body": "Ya puedes entrar en la sala de la comunidad.",
+      "toChat": "Ir a la sala"
+    }
+  },
+  "chat": {
+    "title": "Comunidad",
+    "subtitle": "Una sala, para todos.",
+    "loading": "Cargando mensajes…",
+    "placeholder": "Escribe un mensaje…",
+    "send": "Enviar",
+    "verified": "Verificado",
+    "unknownAuthor": "Miembro de la comunidad",
+    "empty": {
+      "title": "Aún no hay mensajes",
+      "body": "El primer mensaje de la sala puede ser el tuyo."
+    },
+    "delete": {
+      "title": "Eliminar mensaje",
+      "message": "El mensaje se quitará de la sala y no se podrá recuperar.",
+      "confirm": "Eliminar",
+      "aria": "Eliminar mi mensaje"
+    },
+    "errors": {
+      "loadFailed": "No se pudo cargar la sala. Prueba a actualizar la página.",
+      "blocked": "Ahora mismo no tienes acceso a la sala de la comunidad.",
+      "sendFailed": "No se pudo enviar el mensaje: {{error}}",
+      "deleteFailed": "No se pudo eliminar el mensaje: {{error}}",
+      "reactFailed": "No se pudo actualizar la reacción."
+    },
+    "reactions": {
+      "add": "Añadir reacción"
+    },
+    "reply": {
+      "action": "Responder",
+      "count_one": "{{count}} respuesta",
+      "count_other": "{{count}} respuestas",
+      "replyingTo": "Respondiendo a {{name}}",
+      "cancel": "Cancelar respuesta"
+    },
+    "mention": {
+      "label": "Mencionar a un miembro"
+    },
+    "notif": {
+      "aria": "Notificaciones",
+      "title": "Notificaciones",
+      "empty": "No hay notificaciones nuevas",
+      "mentioned": "{{name}} te ha mencionado"
+    },
+    "loadOlder": "Mensajes anteriores",
+    "loadingOlder": "Cargando…",
+    "search": {
+      "toggle": "Buscar",
+      "placeholder": "Buscar mensajes…",
+      "close": "Cerrar búsqueda",
+      "hint": "Escribe para buscar en la sala.",
+      "searching": "Buscando…",
+      "noResults": "Sin resultados",
+      "noResultsBody": "Ningún mensaje coincide con «{{term}}».",
+      "count_one": "{{count}} resultado",
+      "count_other": "{{count}} resultados"
+    },
+    "mod": {
+      "pin": "Fijar",
+      "unpin": "Dejar de fijar",
+      "pinnedLabel": "Mensajes fijados",
+      "report": "Denunciar",
+      "reportTitle": "Denunciar mensaje",
+      "reportMessage": "Este mensaje se enviará al equipo de la comunidad para su revisión.",
+      "pinFailed": "No se pudo actualizar la fijación: {{error}}",
+      "reportFailed": "La denuncia falló: {{error}}",
+      "queueAria": "Denuncias",
+      "queueTitle": "Denuncias",
+      "queueEmpty": "No hay denuncias abiertas",
+      "removeMessage": "Eliminar mensaje",
+      "dismiss": "Descartar",
+      "removedMsg": "Mensaje eliminado"
+    }
+  },
+  "events": {
+    "title": "Calendario de la comunidad",
+    "subtitle": "Eventos, encuentros y talleres.",
+    "toChat": "Ir a la sala",
+    "newEvent": "Nuevo evento",
+    "loading": "Cargando eventos…",
+    "by": "por {{name}}",
+    "addToCalendar": "Añadir al calendario",
+    "added": "En el calendario ✓",
+    "empty": {
+      "title": "No hay eventos próximos",
+      "body": "Sé el primero en publicar un evento."
+    },
+    "google": {
+      "import": "Añadir a Google Calendar ({{count}})",
+      "importing": "Importando…",
+      "done": "Añadido a Google Calendar: {{count}} ✓",
+      "failed": "La importación falló. Inténtalo de nuevo o vuelve a conectar."
+    },
+    "form": {
+      "title": "Título",
+      "titlePlaceholder": "Nombre del evento",
+      "starts": "Empieza",
+      "ends": "Termina (opcional)",
+      "location": "Ubicación (opcional)",
+      "locationPlaceholder": "Presencial o enlace de vídeo",
+      "link": "Enlace (opcional)",
+      "description": "Descripción (opcional)",
+      "descriptionPlaceholder": "¿De qué trata?",
+      "create": "Crear evento",
+      "creating": "Creando…",
+      "cancel": "Cancelar"
+    },
+    "delete": {
+      "title": "Eliminar evento",
+      "message": "El evento se quitará del calendario.",
+      "confirm": "Eliminar",
+      "aria": "Eliminar evento"
+    },
+    "errors": {
+      "required": "Añade un título y una hora de inicio.",
+      "createFailed": "No se pudo crear el evento: {{error}}",
+      "loadFailed": "No se pudieron cargar los eventos. Prueba a actualizar la página."
+    }
+  },
+  "profileCard": {
+    "title": "Perfil",
+    "loading": "Cargando…",
+    "empty": "Aún no hay más detalles.",
+    "viewFull": "Perfil completo",
+    "edit": "Editar perfil",
+    "close": "Cerrar",
+    "openAria": "Ver el perfil de {{name}}"
+  }
+}

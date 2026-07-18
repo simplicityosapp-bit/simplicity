@@ -17,7 +17,8 @@
   "time": {
     "now": "maintenant",
     "today": "Aujourd'hui",
-    "tomorrow": "Demain"
+    "tomorrow": "Demain",
+    "yesterday": "Hier"
   },
   "mgWords": {
     "client": "client",

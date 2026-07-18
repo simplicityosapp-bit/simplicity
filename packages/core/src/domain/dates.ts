@@ -3,7 +3,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import i18n from '../i18n'
-import { hebrewParts, type DateInput } from './calendar'
+import { hebrewParts, fmtDayLabel, type DateInput } from './calendar'
 
 const pad = (n: number): string => String(n).padStart(2, '0')
 
@@ -110,4 +110,15 @@ export function formatWhen(date: DateInput, now: Date = new Date()): string {
     ? (hebrewDual ? `${hebShortDate(d)} · ${fmtShortDate(d)}` : hebShortDate(d))
     : fmtShortDate(d)
   return `${datePart} · ${fmtTime(d)}`
+}
+
+/* Day-separator label for a chat/feed: "Today" / "Yesterday", else the app's
+   existing full day label (weekday + day + month, from calendar.ts). No time —
+   that lives per-message. */
+export function fmtRelativeDay(date: DateInput, now: Date = new Date()): string {
+  const d = date instanceof Date ? date : new Date(date)
+  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1)
+  if (sameDay(d, now)) return i18n.t('common:time.today')
+  if (sameDay(d, yesterday)) return i18n.t('common:time.yesterday')
+  return fmtDayLabel(d)
 }

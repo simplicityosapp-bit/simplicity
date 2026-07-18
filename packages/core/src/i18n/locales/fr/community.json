@@ -1,0 +1,165 @@
+{
+  "profileSetup": {
+    "title": "Profil de la communauté",
+    "subtitle": "Un nom d'affichage est nécessaire pour participer à la communauté.",
+    "displayName": "Nom d'affichage",
+    "namePlaceholder": "Comment souhaitez-vous être appelé ?",
+    "hint": "C'est le nom que les membres verront à côté de vos messages. Vous pourrez le modifier plus tard.",
+    "create": "Créer le profil",
+    "creating": "Création…",
+    "editSubtitle": "Mettez à jour votre profil public.",
+    "toChat": "Aller au salon",
+    "save": "Enregistrer les modifications",
+    "saving": "Enregistrement…",
+    "saved": "Profil enregistré ✓",
+    "headline": "Rôle / domaine",
+    "headlinePlaceholder": "Coach personnel · PNL",
+    "bio": "Quelques mots sur vous",
+    "bioPlaceholder": "En bref : ce que vous faites et ce qui vous distingue…",
+    "specialties": "Spécialités",
+    "specialtiesPlaceholder": "couple, carrière, parentalité",
+    "specialtiesHint": "Séparées par des virgules · jusqu’à 8 tags",
+    "link": "Lien",
+    "linkPlaceholder": "https://example.com",
+    "errors": {
+      "required": "Veuillez saisir un nom d'affichage.",
+      "reserved": "Ce nom est réservé, veuillez en essayer un autre.",
+      "exists": "Vous avez déjà un profil de communauté.",
+      "failed": "Impossible de créer le profil : {{error}}"
+    },
+    "ready": {
+      "title": "Profil prêt",
+      "nameLabel": "Votre nom d'affichage",
+      "body": "Vous pouvez entrer dans le salon de la communauté.",
+      "toChat": "Aller au salon"
+    }
+  },
+  "chat": {
+    "title": "Communauté",
+    "subtitle": "Un salon, pour tout le monde.",
+    "loading": "Chargement des messages…",
+    "placeholder": "Écrire un message…",
+    "send": "Envoyer",
+    "verified": "Vérifié",
+    "unknownAuthor": "Membre de la communauté",
+    "empty": {
+      "title": "Aucun message pour le moment",
+      "body": "Le premier message du salon peut être le vôtre."
+    },
+    "delete": {
+      "title": "Supprimer le message",
+      "message": "Le message sera retiré du salon et ne pourra pas être rétabli.",
+      "confirm": "Supprimer",
+      "aria": "Supprimer mon message"
+    },
+    "errors": {
+      "loadFailed": "Impossible de charger le salon. Essayez d'actualiser la page.",
+      "blocked": "Vous n'avez pas accès au salon de la communauté pour le moment.",
+      "sendFailed": "Impossible d'envoyer le message : {{error}}",
+      "deleteFailed": "Impossible de supprimer le message : {{error}}",
+      "reactFailed": "Impossible de mettre à jour la réaction."
+    },
+    "reactions": {
+      "add": "Ajouter une réaction"
+    },
+    "reply": {
+      "action": "Répondre",
+      "count_one": "{{count}} réponse",
+      "count_other": "{{count}} réponses",
+      "replyingTo": "En réponse à {{name}}",
+      "cancel": "Annuler la réponse"
+    },
+    "mention": {
+      "label": "Mentionner un membre"
+    },
+    "notif": {
+      "aria": "Notifications",
+      "title": "Notifications",
+      "empty": "Aucune nouvelle notification",
+      "mentioned": "{{name}} vous a mentionné"
+    },
+    "loadOlder": "Messages précédents",
+    "loadingOlder": "Chargement…",
+    "search": {
+      "toggle": "Rechercher",
+      "placeholder": "Rechercher des messages…",
+      "close": "Fermer la recherche",
+      "hint": "Tapez pour rechercher dans le salon.",
+      "searching": "Recherche…",
+      "noResults": "Aucun résultat",
+      "noResultsBody": "Aucun message ne correspond à «{{term}}».",
+      "count_one": "{{count}} résultat",
+      "count_other": "{{count}} résultats"
+    },
+    "mod": {
+      "pin": "Épingler",
+      "unpin": "Désépingler",
+      "pinnedLabel": "Messages épinglés",
+      "report": "Signaler",
+      "reportTitle": "Signaler le message",
+      "reportMessage": "Ce message sera envoyé à l'équipe de la communauté pour examen.",
+      "pinFailed": "Impossible de mettre à jour l'épingle : {{error}}",
+      "reportFailed": "Le signalement a échoué : {{error}}",
+      "queueAria": "Signalements",
+      "queueTitle": "Signalements",
+      "queueEmpty": "Aucun signalement ouvert",
+      "removeMessage": "Supprimer le message",
+      "dismiss": "Ignorer",
+      "removedMsg": "Message supprimé"
+    }
+  },
+  "events": {
+    "title": "Calendrier de la communauté",
+    "subtitle": "Événements, rencontres et ateliers.",
+    "toChat": "Aller au salon",
+    "newEvent": "Nouvel événement",
+    "loading": "Chargement des événements…",
+    "by": "par {{name}}",
+    "addToCalendar": "Ajouter au calendrier",
+    "added": "Dans le calendrier ✓",
+    "empty": {
+      "title": "Aucun événement à venir",
+      "body": "Soyez le premier à publier un événement."
+    },
+    "google": {
+      "import": "Ajouter à Google Agenda ({{count}})",
+      "importing": "Importation…",
+      "done": "Ajouté à Google Agenda : {{count}} ✓",
+      "failed": "L’import a échoué. Réessayez ou reconnectez-vous."
+    },
+    "form": {
+      "title": "Titre",
+      "titlePlaceholder": "Nom de l’événement",
+      "starts": "Début",
+      "ends": "Fin (facultatif)",
+      "location": "Lieu (facultatif)",
+      "locationPlaceholder": "En personne ou lien visio",
+      "link": "Lien (facultatif)",
+      "description": "Description (facultatif)",
+      "descriptionPlaceholder": "De quoi s’agit-il ?",
+      "create": "Créer l’événement",
+      "creating": "Création…",
+      "cancel": "Annuler"
+    },
+    "delete": {
+      "title": "Supprimer l’événement",
+      "message": "L’événement sera retiré du calendrier.",
+      "confirm": "Supprimer",
+      "aria": "Supprimer l’événement"
+    },
+    "errors": {
+      "required": "Ajoutez un titre et une heure de début.",
+      "createFailed": "Impossible de créer l’événement : {{error}}",
+      "loadFailed": "Impossible de charger les événements. Essayez d’actualiser la page."
+    }
+  },
+  "profileCard": {
+    "title": "Profil",
+    "loading": "Chargement…",
+    "empty": "Pas encore de détails.",
+    "viewFull": "Profil complet",
+    "edit": "Modifier le profil",
+    "close": "Fermer",
+    "openAria": "Voir le profil de {{name}}"
+  }
+}

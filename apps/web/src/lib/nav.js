@@ -31,6 +31,13 @@ export function screenKeyFromPath(pathname) {
   if (pathname.startsWith('/insights')) return 'insights'
   if (pathname.startsWith('/connections')) return 'connections'
   if (pathname.startsWith('/onboarding')) return 'onboarding'
+  /* One key for the whole /community/* feature (profile gate today, the room
+     next), the way 'connections' covers its sub-screens rather than each one
+     claiming a key. Single word, so no camelCase question — cf. leadPages /
+     bookingPages / sitePages. Its look is wired in index.css, deliberately
+     pointing at home's art for now; changing it is a rule change there, not a
+     code change here. */
+  if (pathname.startsWith('/community')) return 'community'
   return 'home'
 }
 

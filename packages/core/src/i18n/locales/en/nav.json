@@ -15,7 +15,8 @@
     "reports": "Reports",
     "insights": "How are you today?",
     "trash": "Recycle bin",
-    "legal": "Policies & terms"
+    "legal": "Policies & terms",
+    "community": "Community"
   },
   "feedback": "Talk to us",
   "admin": {
@@ -52,7 +53,8 @@
     "trashSub": "Restore deleted items · 30 days",
     "sitePagesSub": "Build landing pages, forms and booking — one system",
     "leadPagesSub": "Public lead-capture forms",
-    "bookingPagesSub": "Public appointment-booking page, synced to your calendar"
+    "bookingPagesSub": "Public appointment-booking page, synced to your calendar",
+    "communitySub": "The shared room"
   },
   "signOut": "Sign out",
   "profile": {

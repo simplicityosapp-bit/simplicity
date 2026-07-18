@@ -62,6 +62,9 @@ const CalendarConnectionScreen = lazyWithRetry(() => import('./screens/connectio
 const InvoiceConnectionScreen = lazyWithRetry(() => import('./screens/connections/InvoiceConnection'))
 const GrowConnectionScreen = lazyWithRetry(() => import('./screens/connections/GrowConnection'))
 const WhatsAppConnectionScreen = lazyWithRetry(() => import('./screens/connections/WhatsAppConnection'))
+const CommunityProfileSetupScreen = lazyWithRetry(() => import('./screens/community/ProfileSetupScreen'))
+const CommunityChatScreen = lazyWithRetry(() => import('./screens/community/ChatScreen'))
+const CommunityEventsScreen = lazyWithRetry(() => import('./screens/community/CommunityEventsScreen'))
 /* Owner-only admin console — its own route tree + chrome, gated below. */
 const AdminApp = lazyWithRetry(() => import('./screens/admin'))
 /* Public marketing landing — served at "/" to logged-out visitors (and
@@ -241,6 +244,9 @@ function AppShell() {
             <Route path={ROUTES.CONNECTION_INVOICES} element={<InvoiceConnectionScreen />} />
             <Route path={ROUTES.CONNECTION_GROW} element={<GrowConnectionScreen />} />
             <Route path={ROUTES.CONNECTION_WHATSAPP} element={<WhatsAppConnectionScreen />} />
+            <Route path={ROUTES.COMMUNITY_CHAT} element={<CommunityChatScreen />} />
+            <Route path={ROUTES.COMMUNITY_PROFILE} element={<CommunityProfileSetupScreen />} />
+            <Route path={ROUTES.COMMUNITY_EVENTS} element={<CommunityEventsScreen />} />
             <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
           </Routes>
         </Suspense>

@@ -45,6 +45,18 @@ export const ROUTES = {
   CONNECTION_GROW: '/connections/grow', // sub-screen: Grow payment gateway (סליקה)
   CONNECTION_WHATSAPP: '/connections/whatsapp', // sub-screen: WhatsApp message templates
 
+  // Community. COMMUNITY_CHAT is the room and the feature's entry point — it
+  // is what nav links to. COMMUNITY_PROFILE is the display-name gate in front
+  // of it: a community_profiles row is required before a first post (FK,
+  // migration 0086), so the chat redirects here when there isn't one. Nav
+  // deliberately points at the room, not the gate — the gate is a step, not a
+  // destination, and it disappears for good once the row exists.
+  COMMUNITY_CHAT: '/community/chat',
+  COMMUNITY_PROFILE: '/community/profile',
+  // The community calendar — a list of member-posted events, off the room's
+  // header. Same gate as the room (a profile is needed to take part).
+  COMMUNITY_EVENTS: '/community/events',
+
   // Admin console — owner-only (simplicity.os.app@gmail.com). A separate
   // world: gated by email in App.jsx, served by the `admin` edge function,
   // never touches the main app's chrome or RLS. Non-owners are bounced home.

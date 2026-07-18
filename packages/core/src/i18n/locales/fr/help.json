@@ -1,5 +1,23 @@
 {
   "screens": {
+    "community": {
+      "title": "Communauté",
+      "intro": "Un salon partagé pour toutes les personnes qui utilisent Simplicity. Avant votre premier message, vous choisissez un nom d'affichage : c'est ce que les membres verront à côté de vous.",
+      "features": [
+        { "title": "Le salon", "body": "Tous les messages dans un seul salon, du plus ancien au plus récent. Un nouveau message apparaît immédiatement pour tout le monde, sans rechargement." },
+        { "title": "Nom d'affichage", "body": "Le nom affiché à côté de chacun de vos messages. Votre prénom, un pseudonyme ou le nom de votre activité — ce que vous préférez montrer. Vous pourrez le modifier plus tard." },
+        { "title": "Supprimer un message", "body": "Vous pouvez supprimer vos propres messages, et uniquement ceux-là. La suppression est définitive : aucun retour en arrière, et un message envoyé ne peut pas être modifié." },
+        { "title": "Noms réservés", "body": "Les noms associés à Simplicity ou à son équipe d'assistance sont bloqués afin que personne ne puisse se faire passer pour nous. Les comptes officiels portent une marque de vérification." }
+      ],
+      "tips": [
+        "Votre nom d'affichage est public au sein de la communauté. Si vous préférez ne pas être identifié par votre nom complet, utilisez un pseudonyme."
+      ],
+      "faq": [
+        { "q": "Qui peut voir mes messages ?", "a": "Toute personne disposant d’un compte Simplicity actif. C’est un salon partagé, pas une discussion privée." },
+        { "q": "Puis-je modifier un message envoyé ?", "a": "Non. Vous pouvez seulement le supprimer." },
+        { "q": "Puis-je ajouter une photo de profil ?", "a": "Pas encore. Pour l'instant, il n'y a qu'un nom d'affichage." }
+      ]
+    },
     "sitePages": {
       "title": "Pages publiques",
       "intro": "Un seul système pour créer des pages publiques : pages d'atterrissage, pages de capture de prospects et pages de réservation. Construisez par sections en glissant, concevez librement et publiez sous votre propre lien.",

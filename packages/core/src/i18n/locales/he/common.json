@@ -25,7 +25,8 @@
   "time": {
     "now": "כעת",
     "today": "היום",
-    "tomorrow": "מחר"
+    "tomorrow": "מחר",
+    "yesterday": "אתמול"
   },
   "mgWords": {
     "client": "לקוח/ה",

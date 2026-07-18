@@ -21,6 +21,8 @@
     "specialtiesHint": "Separadas por comas · hasta 8 etiquetas",
     "link": "Enlace",
     "linkPlaceholder": "https://example.com",
+    "cardNamePh": "Tu nombre",
+    "cardRolePh": "Tu rol o ámbito",
     "errors": {
       "required": "Introduce un nombre visible.",
       "reserved": "Ese nombre está reservado; prueba con otro.",
@@ -76,7 +78,8 @@
       "aria": "Notificaciones",
       "title": "Notificaciones",
       "empty": "No hay notificaciones nuevas",
-      "mentioned": "{{name}} te ha mencionado"
+      "mentioned": "{{name}} te ha mencionado",
+      "ariaCount": "Notificaciones ({{count}} nuevas)"
     },
     "loadOlder": "Mensajes anteriores",
     "loadingOlder": "Cargando…",
@@ -105,7 +108,8 @@
       "queueEmpty": "No hay denuncias abiertas",
       "removeMessage": "Eliminar mensaje",
       "dismiss": "Descartar",
-      "removedMsg": "Mensaje eliminado"
+      "removedMsg": "Mensaje eliminado",
+      "queueAriaCount": "Denuncias ({{count}})"
     }
   },
   "events": {

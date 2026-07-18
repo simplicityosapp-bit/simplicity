@@ -39,7 +39,7 @@ export default function CommunityModeration({ enabled, onRemoveMessage }) {
         type="button"
         className="cmt-mod-flag"
         onClick={() => setOpen((o) => !o)}
-        aria-label={t('chat.mod.queueAria')}
+        aria-label={groups.length > 0 ? t('chat.mod.queueAriaCount', { count: groups.length }) : t('chat.mod.queueAria')}
         aria-expanded={open}
       >
         <Flag size={17} strokeWidth={1.7} aria-hidden="true" />
@@ -49,16 +49,20 @@ export default function CommunityModeration({ enabled, onRemoveMessage }) {
       </Btn>
 
       {open && (
-        <Box className="cmt-notif-panel cmt-mod-panel" role="menu" aria-label={t('chat.mod.queueTitle')}>
+        <Box className="cmt-notif-panel cmt-mod-panel" aria-label={t('chat.mod.queueTitle')}>
           <Txt as="p" className="cmt-notif-panel-title">{t('chat.mod.queueTitle')}</Txt>
           {groups.length === 0 ? (
             <Txt as="p" className="cmt-notif-empty">{t('chat.mod.queueEmpty')}</Txt>
           ) : (
             groups.map((g) => {
-              const removed = !!g.message?.deleted_at
+              /* A soft-deleted message's embed comes back NULL (the members
+                 SELECT policy hides deleted_at IS NOT NULL rows), so a null
+                 message means it's already gone — show the "removed" state
+                 rather than a blank row with a live remove button. */
+              const removed = !g.message || !!g.message?.deleted_at
               const authorName = g.message?.community_profiles?.display_name || t('chat.unknownAuthor')
               return (
-                <Box key={g.messageId} className="cmt-mod-item" role="menuitem">
+                <Box key={g.messageId} className="cmt-mod-item">
                   <Txt className="cmt-mod-item-text">
                     <Txt as="span" className="cmt-mod-item-author">{`${authorName}: `}</Txt>
                     {removed ? <em>{t('chat.mod.removedMsg')}</em> : (g.message?.content ?? '')}
@@ -69,7 +73,12 @@ export default function CommunityModeration({ enabled, onRemoveMessage }) {
                       <Btn
                         type="button"
                         className="cmt-mod-btn danger"
-                        onClick={() => { onRemoveMessage(g.messageId); dismiss(g.messageId) }}
+                        onClick={async () => {
+                          /* Only clear the reports once the soft-delete actually
+                             succeeds — otherwise a failed delete leaves the
+                             message live but gone from the queue. */
+                          try { await onRemoveMessage(g.messageId); dismiss(g.messageId) } catch { /* keep the report */ }
+                        }}
                       >
                         {t('chat.mod.removeMessage')}
                       </Btn>

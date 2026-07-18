@@ -9,7 +9,18 @@ import { Box, Txt, Btn } from '../../components/ui'
    the message's embedded community_message_reactions ([{emoji, user_id}]). */
 export default function CommunityReactions({ reactions = [], myUserId, onToggle, addLabel }) {
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [flipDown, setFlipDown] = useState(false)
   const wrapRef = useRef(null)
+
+  /* The palette opens UPWARD by default, but the feed is an overflow-clip
+     container — near the top of the viewport the upward palette gets sliced off
+     and is unreachable. Measure on open and flip it downward when there isn't
+     room above. */
+  const togglePicker = () => {
+    const r = wrapRef.current?.getBoundingClientRect()
+    setFlipDown(!!r && r.top < 140)
+    setPickerOpen((o) => !o)
+  }
 
   /* Close the palette on an outside click or Escape while it's open. */
   useEffect(() => {
@@ -59,14 +70,14 @@ export default function CommunityReactions({ reactions = [], myUserId, onToggle,
         <Btn
           type="button"
           className="cmt-react-add"
-          onClick={() => setPickerOpen((o) => !o)}
+          onClick={togglePicker}
           aria-label={addLabel}
           aria-expanded={pickerOpen}
         >
           <SmilePlus size={15} strokeWidth={1.7} aria-hidden="true" />
         </Btn>
         {pickerOpen && (
-          <Box className="cmt-react-picker" role="menu" aria-label={addLabel}>
+          <Box className={`cmt-react-picker${flipDown ? ' down' : ''}`} role="menu" aria-label={addLabel}>
             {REACTION_EMOJIS.map((emoji) => (
               <Btn
                 key={emoji}

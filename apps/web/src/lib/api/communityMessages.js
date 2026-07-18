@@ -47,10 +47,28 @@ export async function listCommunityMessages({ before = null, limit = MESSAGES_PA
     .select(WITH_AUTHOR)
     .order('created_at', { ascending: false })
     .limit(limit)
-  if (before) q = q.lt('created_at', before)
+  /* .lte, not .lt: created_at is non-unique (a transaction-batch insert shares
+     one now()), so a strict `<` at a page boundary would permanently SKIP a row
+     that shares the boundary timestamp. .lte re-includes the boundary rows; the
+     caller dedups by id, so the only cost is re-fetching a couple of ties. */
+  if (before) q = q.lte('created_at', before)
   const { data, error } = await q
   if (error) throw error
   return (data ?? []).slice().reverse()
+}
+
+/* Every live pinned message, independent of the feed's paginated window — the
+   pinned bar must surface pins older than the loaded page (otherwise pins go
+   invisible once the room passes one page). Served by idx_community_messages_
+   pinned (0090); deleted_at IS NULL is enforced by the SELECT policy (0081). */
+export async function listPinnedMessages() {
+  const { data, error } = await supabase
+    .from('community_messages')
+    .select(WITH_AUTHOR)
+    .not('pinned_at', 'is', null)
+    .order('pinned_at', { ascending: false })
+  if (error) throw error
+  return data ?? []
 }
 
 /* Server-side substring search across the room. Newest-first and capped: this
@@ -168,9 +186,13 @@ export async function listCommunityMembers() {
 export async function insertMentions(messageId, userIds) {
   const unique = [...new Set(userIds)].filter(Boolean)
   if (!unique.length) return
-  const rows = unique.map((id) => ({ message_id: messageId, mentioned_user_id: id }))
-  const { error } = await supabase.from('community_message_mentions').insert(rows)
-  if (error) throw error
+  /* Per-row, not one atomic batch: if one mentioned member deleted their profile
+     between the @-pick and send, the FK (0089) would reject the WHOLE batch —
+     dropping every other member's mention + notification. Independent inserts
+     let the valid ones through; allSettled so a network failure on one doesn't
+     reject the rest. Best-effort by design (the message is already posted). */
+  await Promise.allSettled(unique.map((id) =>
+    supabase.from('community_message_mentions').insert({ message_id: messageId, mentioned_user_id: id })))
 }
 
 /* ── Moderation (0090, admin-gated by RLS) ──────────────────────────────────

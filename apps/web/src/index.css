@@ -695,7 +695,7 @@ body.modal-open .screen {
   background: rgba(201, 123, 94, 0.16);
   color: var(--terracotta, #c97b5e);
   font-family: var(--mg-font, inherit);
-  font-size: 9.5px;
+  font-size: calc(9.5px * var(--text-scale, 1));
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;

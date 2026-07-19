@@ -5,28 +5,48 @@ import { Box, Txt } from './ui'
 
 /* Overlaid, self-normalized (0–100) line chart for the מבט-על trends.
    Each series is drawn relative to its own min/max (see overview.js §8.1);
-   nulls break the line into gaps. Stroke colors are concrete hex set
-   inline — NOT var() — to dodge the dark-mode SVG-stroke var() bug. */
+   missing days are bridged into a continuous line with a dot on each real
+   measurement. Stroke colors are concrete hex set inline — NOT var() — to
+   dodge the dark-mode SVG-stroke var() bug. */
 
 const W = 300
 const H = 110
 const PAD = 6
 
-/* Build an SVG path from normalized points, starting a fresh subpath
-   after every gap (null) so missing days don't draw a false straight line. */
+/* Build an SVG path from normalized points. Missing days (null) are BRIDGED —
+   the pen stays down across a gap so the line stays continuous instead of
+   shattering into disjoint segments (a self-reported question answered on only
+   some days used to draw as a scatter of broken strokes). Each REAL measurement
+   also gets a dot (dotsFor) so sparse data still reads honestly — you can see
+   exactly which days have data rather than mistaking a bridge for dense input. */
 function pathFor(norm) {
   const n = norm.length
   if (n < 2) return ''
   let d = ''
   let pen = false
   norm.forEach((v, i) => {
-    if (v == null) { pen = false; return }
+    if (v == null) return // skip the missing day but keep the pen down → bridge it
     const x = PAD + (i / (n - 1)) * (W - 2 * PAD)
     const y = H - PAD - (v / 100) * (H - 2 * PAD)
     d += `${pen ? 'L' : 'M'}${Math.round(x * 10) / 10},${Math.round(y * 10) / 10} `
     pen = true
   })
   return d.trim()
+}
+
+/* Screen coords of every real (non-null) point — drawn as dots over the line so
+   the actual measurements stay visible even where the line bridges a gap. */
+function dotsFor(norm) {
+  const n = norm.length
+  if (n < 2) return []
+  const out = []
+  norm.forEach((v, i) => {
+    if (v == null) return
+    const x = PAD + (i / (n - 1)) * (W - 2 * PAD)
+    const y = H - PAD - (v / 100) * (H - 2 * PAD)
+    out.push({ i, x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 })
+  })
+  return out
 }
 
 function fmtRaw(v, unit) {
@@ -46,7 +66,12 @@ export default function MultiTrendChart({ days, series }) {
     <Box className="mt-wrap">
       <svg className="mt-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={t('trend.aria')}>
         {drawable.map((s) => (
-          <path key={s.key} className="mt-line" style={{ stroke: s.color }} d={pathFor(s.norm)} />
+          <g key={s.key}>
+            <path className="mt-line" style={{ stroke: s.color }} d={pathFor(s.norm)} />
+            {dotsFor(s.norm).map((p) => (
+              <circle key={p.i} className="mt-dot" cx={p.x} cy={p.y} r="1.8" style={{ fill: s.color }} />
+            ))}
+          </g>
         ))}
       </svg>
       <Box className="mt-legend">

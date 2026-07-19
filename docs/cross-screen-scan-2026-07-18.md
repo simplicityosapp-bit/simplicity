@@ -131,8 +131,16 @@ overriding its own day (true history where recorded, estimate elsewhere).
 saved today's point; opening מבט-על directly left that day a hole. Added the same
 fire-and-forget `upsertMoonSnapshot` on the moon-glance screen.
 
+**M4 [MED] Cross-module overlay ("מגמות בין מודולים") drew a shattered line.** `MultiTrendChart`
+deliberately broke the polyline at every missing day, so a daily question answered on only some
+days rendered as disjoint broken strokes (owner screenshot). Fixed: bridge nulls into ONE
+continuous line and mark each real measurement with a dot — so sparse data reads honestly
+(you see which days have data) without the holes. Verified in-browser: the sparse question
+series is now a single path (`M`+`L`…, no broken subpaths) with dots on the 3 real answers.
+
 Validation: eslint clean · vitest 317/317 · vite build · `/moon` renders all sections, zero
-console errors · synthetic correlation-window proof. **Uncommitted — awaiting your OK to ship.**
+console errors · synthetic correlation-window proof · DOM-verified bridged overlay line.
+M1–M3 SHIPPED main 2026-07-19 (merge 8b12edb); **M4 uncommitted — awaiting your OK to ship.**
 
 ## Noted but low-value (cleanups, no user-facing bug)
 

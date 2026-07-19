@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Trans } from 'react-i18next'
 import { Moon, BarChart3 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { moonGetData, moonGetCategories, moonTrend, moonReflection, questionText, buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from '@simplicity/core'
+import { upsertMoonSnapshot } from '../../lib/api/moonSnapshots'
 import MoonDualBars from '../../components/MoonDualBars'
 import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
@@ -22,9 +23,16 @@ import { Box, Txt, Btn } from '../../components/ui'
 import { useT } from '../../i18n/useT'
 import './MoonGlanceScreen.css'
 
-/* Shared window (days) for BOTH the cross-module trend overlay and the
-   guarded correlations beneath it, so they always describe the same period. */
+/* Window (days) for the cross-module trend OVERLAY — a 30-day visual shape. */
 const OV_WINDOW = 30
+/* Window (days) for the guarded correlations — DELIBERATELY longer than the
+   overlay. The correlation gates need real sample size (a weekly outcome needs
+   ~10 seven-day blocks ⇒ 70+ days; a daily Q↔Q pair needs ~14 answered days).
+   At 30 days those thresholds can NEVER be met — Q↔income/leads/sessions is
+   mathematically impossible and Q↔Q almost never qualifies, so the section sat
+   permanently empty. 120 days (the engine's designed default) lets a genuine
+   pattern actually surface when the data supports it. */
+const CORR_WINDOW = 120
 
 /* Tiny scatter for a correlation card — honest display so the user sees
    the spread, not just a number. Points are min-max scaled per axis. */
@@ -118,21 +126,33 @@ export default function MoonGlanceScreen() {
     [goals, categories, entries, transactions, clients, leads, answers, members, groups],
   )
   const { overall } = useMemo(() => moonGetData(new Date(), data), [data])
+
+  /* Persist today's score as a snapshot when THIS screen is open too — not only
+     the home MoonWidget — so the 30-day trend accumulates a point on any day the
+     user opens מבט-על directly (previously those days were holes). Upserts on
+     (user_id, date); fire-and-forget, never blocks the UI. */
+  useEffect(() => {
+    if (!overall) return
+    upsertMoonSnapshot({ score: overall.pure, paced: overall.paced, confidence: overall.confidence }).catch(() => { /* non-fatal */ })
+  }, [overall])
+
   const cats = useMemo(() => moonGetCategories(new Date(), data), [data])
   const liveTrend = useMemo(() => moonTrend(30, new Date(), data), [data])
   const { snapshots } = useMoonSnapshots(30)
 
-  /* Prefer real persisted snapshots once we have enough to draw a
-     meaningful line; fall back to the live recompute for users who
-     just started (no historical snapshots yet). */
+  /* A GAP-FREE 30-day line: the live day-by-day reconstruction is the base, and
+     any real persisted snapshot overrides its own day (true history where we
+     recorded it, estimate elsewhere). Previously we switched to snapshots-ONLY
+     once two existed — which drew a sparse, hole-y line, evenly spaced as if the
+     gap days didn't exist, on every day the app wasn't opened. */
   const trend = useMemo(() => {
-    if (snapshots && snapshots.length >= 2) {
-      return snapshots.map((s) => ({
-        date: new Date(s.date),
-        score: Number(s.confidence ?? s.score ?? 0),
-      }))
-    }
-    return liveTrend
+    if (!snapshots || snapshots.length === 0) return liveTrend
+    const byDay = Object.create(null)
+    snapshots.forEach((s) => { byDay[dayKeyOf(new Date(s.date))] = Number(s.confidence ?? s.score ?? 0) })
+    return liveTrend.map((tp) => {
+      const k = dayKeyOf(tp.date)
+      return k in byDay ? { date: tp.date, score: byDay[k] } : tp
+    })
   }, [snapshots, liveTrend])
 
   const scores = trend.map((t) => t.score)
@@ -159,11 +179,12 @@ export default function MoonGlanceScreen() {
     }, { window: OV_WINDOW, questionLabel: selectedQuestion ? questionText(selectedQuestion, gender) : undefined }),
     [overviewKeys, transactions, leads, sessions, answers, scoreByDay, questionId, selectedQuestion, gender],
   )
-  /* Guarded correlations (§8.2) — Spearman + permutation + split-half;
-     the common result is an honest "no significant link". Same window as the
-     trend overlay above so both describe the identical period. */
+  /* Guarded correlations (§8.2) — Spearman + permutation + split-half; the
+     common result is an honest "no significant link". Uses CORR_WINDOW (longer
+     than the overlay) so the statistical gates have enough days to ever pass —
+     see the constant above. */
   const correlations = useMemo(
-    () => buildOverviewCorrelations({ transactions, leads, sessions, answers }, { questions: activeQuestions, window: OV_WINDOW }),
+    () => buildOverviewCorrelations({ transactions, leads, sessions, answers }, { questions: activeQuestions, window: CORR_WINDOW }),
     [transactions, leads, sessions, answers, activeQuestions],
   )
 

@@ -1,11 +1,12 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Check } from 'lucide-react'
 import Modal from './Modal'
+import ConfirmModal from './ConfirmModal'
 import { ROUTES } from '../lib/routes'
 import { isr, fmtTime } from '@simplicity/core'
 import { getTileFilters, todayItems } from '../lib/homeData'
-import { confirmScheduledMeeting } from '../lib/scheduledMeetings'
+import { confirmScheduledMeeting, billPerSessionMeeting } from '../lib/scheduledMeetings'
 import WhatsAppButton from '../components/WhatsAppButton'
 import { useT } from '../i18n/useT'
 import { ClientsTrend, NetBars, TasksBars } from './TileDrillCharts'
@@ -420,6 +421,8 @@ export default function TileDrillModal({
   meetings = [], calendarEvents = [], leads = [], reminders = [], sessions = [], addSession, updateMeeting, waMsg,
 }) {
   const { t } = useT('modalsSystem')
+  const { t: tb } = useT('modalsTask') // reuse the calendar's one-off charge strings
+  const [billPrompt, setBillPrompt] = useState(null) // per-session client to charge after confirming
   const navigate = useNavigate()
   const allFilters = getTileFilters(prefs)
   const filters = allFilters[tile] || {}
@@ -437,11 +440,15 @@ export default function TileDrillModal({
     () => (tile === 'today' ? todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups, reminders }, { kinds: todayKinds }) : []),
     [tile, meetings, calendarEvents, leads, clients, groups, reminders, todayKinds],
   )
-  /* "Happened" materializes a session + flips the meeting to confirmed —
-     the shared helper used by the home review widget and the calendar. */
-  const confirmToday = (it) => {
+  /* "Happened" materializes a session + flips the meeting to confirmed — the
+     shared helper used by the home review widget and the calendar. Per-session
+     clients don't auto-materialise (that would double-count vs. their
+     per-meeting charge); after confirming, offer the one-off charge. */
+  const confirmToday = async (it) => {
     if (it.meeting && addSession && updateMeeting) {
-      confirmScheduledMeeting({ meeting: it.meeting, sessions, addSession, updateMeeting })
+      const c = it.meeting.subject_type === 'client' ? (clients || []).find((x) => x.id === it.meeting.subject_id) : null
+      await confirmScheduledMeeting({ meeting: it.meeting, sessions, addSession, updateMeeting, clients })
+      if (c?.billing_mode === 'per_session') setBillPrompt({ meeting: it.meeting, client: c })
     }
   }
   /* Tap a row → jump to where it lives. Google events are read-only (the
@@ -462,6 +469,7 @@ export default function TileDrillModal({
   }
 
   return (
+    <>
     <Modal open={open} onClose={onClose} title={tile ? t(`tileDrill.titles.${tile}`) : ''}>
       <Box className="td-body">
         {tile === 'clients' && (
@@ -518,5 +526,17 @@ export default function TileDrillModal({
         </Btn>
       </Box>
     </Modal>
+    {/* One-off charge prompt for a per-session client, after confirming a meeting. */}
+    <ConfirmModal
+      open={!!billPrompt}
+      onClose={() => setBillPrompt(null)}
+      message={billPrompt && (Number(billPrompt.client.price_per_session) > 0
+        ? tb('event.billOneOff', { name: billPrompt.client.name, amount: isr(billPrompt.client.price_per_session) })
+        : tb('event.billOneOffNoPrice', { name: billPrompt.client.name }))}
+      confirmLabel={tb('event.billYes')}
+      cancelLabel={tb('event.billNo')}
+      onConfirm={() => billPerSessionMeeting({ meeting: billPrompt.meeting, sessions, addSession })}
+    />
+    </>
   )
 }

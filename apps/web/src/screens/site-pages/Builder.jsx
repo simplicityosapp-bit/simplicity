@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate, Navigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { ArrowRight, Plus, Pencil, Trash2, ExternalLink, Copy, Check, LayoutTemplate, Files } from 'lucide-react'
 import { useSitePages } from '../../hooks/useSitePages'
 import { useSubscription } from '../../hooks/useSubscription'
@@ -30,10 +30,14 @@ export default function SitePagesBuilder() {
   const { t: ts } = useT('subscription')
   const navigate = useNavigate()
   const { kind } = useParams()
+  const location = useLocation()
   const { pages, loading, error, refetch, addPage, updatePage, removePage } = useSitePages()
   const { limits } = useSubscription()
   const goUpgrade = useUpgradeNav()
-  const [editingId, setEditingId] = useState(null)
+  /* Deep-edit: a caller (e.g. the project-detail lead-pages section) can pass
+     `editPageId` in nav state to open a specific page straight into the editor.
+     Seeded once on mount; resolves to the page once useSitePages loads. */
+  const [editingId, setEditingId] = useState(location.state?.editPageId || null)
   const [copied, setCopied] = useState(null)
   const [picking, setPicking] = useState(false)
 

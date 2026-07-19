@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Search, ArrowUpDown, X, UserPlus, Wallet, ChevronLeft, AlertTriangle } from 'lucide-react'
+import { ROUTES } from '../../lib/routes'
 import { effectiveClientMeta, paidForClients, sessionsCountForClients, clientBalance, currentMonthRange, isr, financeQuery } from '@simplicity/core'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
@@ -133,6 +134,7 @@ export default function ClientsScreen() {
   const setGroupBy = (g) => updatePrefs?.({ clientsGroupBy: g })
   const [query, setQuery] = useState('')
   const { id: routeClientId } = useParams()
+  const navigate = useNavigate()
   const [openId, setOpenId] = useState(routeClientId || null)
   /* Deep-link to a specific client (e.g. from the project drawer): when the
      route param changes to an id, open it. Adjusted during render (not in an
@@ -581,7 +583,13 @@ export default function ClientsScreen() {
 
       <ClientDrawer
         client={openClient}
-        onClose={() => setOpenId(null)}
+        onClose={() => {
+          setOpenId(null)
+          /* If we arrived via a /clients/:id deep-link, drop the id from the URL
+             so it matches the now-closed drawer — otherwise the address bar keeps
+             pointing at the client and a reload re-opens the drawer unexpectedly. */
+          if (routeClientId) navigate(ROUTES.CLIENTS, { replace: true })
+        }}
         onDelete={() => setPendingDeleteClient(openClient)}
         projects={projects}
         txns={transactions}

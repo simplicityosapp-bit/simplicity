@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Check, X, Trash2 } from 'lucide-react'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
@@ -7,9 +7,10 @@ import { useSessions } from '../../../hooks/useSessions'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useRecurring } from '../../../hooks/useRecurring'
 import { useCategories } from '../../../hooks/useCategories'
-import { pendingMeetingsToReview, confirmScheduledMeeting, skipScheduledMeeting } from '../../../lib/scheduledMeetings'
+import { pendingMeetingsToReview, confirmScheduledMeeting, skipScheduledMeeting, billPerSessionMeeting } from '../../../lib/scheduledMeetings'
 import { isr, formatWhen, toDateKey } from '@simplicity/core'
 import { useT } from '../../../i18n/useT'
+import ConfirmModal from '../../../modals/ConfirmModal'
 import { Box, Txt, Btn } from '../../../components/ui'
 
 /* Pending-meeting review list — extracted from the old MeetingConfirmWidget,
@@ -20,6 +21,8 @@ import { Box, Txt, Btn } from '../../../components/ui'
    populated before this popup opens. */
 export default function MeetingConfirmList() {
   const { t } = useT('home')
+  const { t: tb } = useT('modalsTask') // reuse the calendar's one-off charge strings
+  const [billPrompt, setBillPrompt] = useState(null) // per-session client to charge after confirming
   const { clients } = useClients()
   const { groups } = useGroups()
   const { meetings, updateMeeting } = useScheduledMeetings()
@@ -55,8 +58,14 @@ export default function MeetingConfirmList() {
   /* Confirming "it happened" materialises a real session and links it via
      scheduled_meetings.session_id (see confirmScheduledMeeting). The calendar
      event-details flow shares the same helper so both surfaces update the
-     client/group card identically. */
-  const confirmMeeting = (m) => confirmScheduledMeeting({ meeting: m, sessions, addSession, updateMeeting })
+     client/group card identically. Per-session clients don't auto-materialise
+     (that would double-count vs. their per-meeting charge) — after confirming,
+     we offer the one-off charge, mirroring the calendar's billSession step. */
+  const confirmMeeting = async (m) => {
+    const c = m.subject_type === 'client' ? (clients || []).find((x) => x.id === m.subject_id) : null
+    await confirmScheduledMeeting({ meeting: m, sessions, addSession, updateMeeting, clients })
+    if (c?.billing_mode === 'per_session') setBillPrompt({ meeting: m, client: c })
+  }
   const skipMeeting = (m) => {
     /* Didn't happen: its linked expense shouldn't post, and any session we
        materialised for it is dropped by skipScheduledMeeting. */
@@ -68,11 +77,29 @@ export default function MeetingConfirmList() {
   const skipTx = (tx) => setTxStatus(tx.id, 'skipped')
   const deleteTx = (tx) => removeTransaction(tx.id)
 
+  /* One-off charge prompt for a per-session client, shown after confirming.
+     Rendered in BOTH branches so it survives the list emptying (confirming the
+     last pending meeting drops `pending` to zero). */
+  const billModal = (
+    <ConfirmModal
+      open={!!billPrompt}
+      onClose={() => setBillPrompt(null)}
+      message={billPrompt && (Number(billPrompt.client.price_per_session) > 0
+        ? tb('event.billOneOff', { name: billPrompt.client.name, amount: isr(billPrompt.client.price_per_session) })
+        : tb('event.billOneOffNoPrice', { name: billPrompt.client.name }))}
+      confirmLabel={tb('event.billYes')}
+      cancelLabel={tb('event.billNo')}
+      onConfirm={() => billPerSessionMeeting({ meeting: billPrompt.meeting, sessions, addSession })}
+    />
+  )
+
   if (!pending.length) {
-    return <Txt as="p" className="h-card-empty" style={{ margin: '4px 2px' }}>{t('widgets.meetingConfirm.empty')}</Txt>
+    return <>{billModal}<Txt as="p" className="h-card-empty" style={{ margin: '4px 2px' }}>{t('widgets.meetingConfirm.empty')}</Txt></>
   }
 
   return (
+    <>
+    {billModal}
     <Box className="h-card-list">
       {pending.map((m) => {
         const linkedTxs = linkedTxsForMeeting(m)
@@ -129,5 +156,6 @@ export default function MeetingConfirmList() {
         )
       })}
     </Box>
+    </>
   )
 }

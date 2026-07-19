@@ -437,7 +437,9 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
     icon,
     primary: c.name || i18n.t('reports:drill.noName'),
     secondary,
-    navigateTo: '/clients',
+    // Deep-link to the client's own drawer (/clients/:id) instead of the bare
+    // list, so drilling a report row opens that specific record.
+    navigateTo: c.id ? `/clients/${c.id}` : '/clients',
   })
 
   switch (metricId) {
@@ -508,7 +510,7 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
           icon: 'x',
           primary: name,
           secondary: i18n.t('reports:drill.leftGroup', { date: fmtDay(m.left_at) }),
-          navigateTo: '/clients',
+          navigateTo: cli?.id ? `/clients/${cli.id}` : '/clients',
         })
       })
       liveClients.forEach((c) => {

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   listMeetingTypes, insertMeetingType, updateMeetingType,
   removeMeetingType as apiRemove, restoreMeetingType, applyMeetingTypePrice,
@@ -6,6 +7,7 @@ import {
 import { pushUndo } from '../lib/undo'
 
 export function useMeetingTypes() {
+  const qc = useQueryClient()
   const [types, setTypes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -55,6 +57,12 @@ export function useMeetingTypes() {
         && Number(patch.default_price) !== Number(prev?.default_price)
       if (priceChanged && row.default_price != null) {
         await applyMeetingTypePrice(id, row.default_price)
+        /* The price propagated to every linked client at the DB level — refresh
+           the shared clients cache so the list / open drawer / Home / Finance
+           re-derive balances at once. Fixes the callers that open this manager
+           WITHOUT an onPriceApplied callback (the client add/edit forms), which
+           otherwise showed stale prices until staleTime elapsed. */
+        qc.invalidateQueries({ queryKey: ['clients'] })
         await onPriceApplied?.()
       }
       return row
@@ -65,7 +73,7 @@ export function useMeetingTypes() {
       refetch()
       throw e
     }
-  }, [types, refetch])
+  }, [types, refetch, qc])
 
   const removeType = useCallback(async (id) => {
     const row = types.find((t) => t.id === id)

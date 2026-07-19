@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ChevronDown, ChevronUp, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
@@ -775,6 +776,21 @@ export default function SettingsScreen() {
     const group = location.state?.openGroup
     return group ? { [group]: true } : {}
   })
+  /* The initializers above only run on mount. When the user is ALREADY on
+     /settings and navigates here again with fresh state (e.g. HelpFab "open full
+     guide", or the profile-health "complete profile" row), there's no remount —
+     so reconcile per-navigation (location.key changes once per navigation) and
+     open the requested section/group. Adjusted during render (not in an effect,
+     which the lint forbids) — mirrors the clients screen's deep-link handling.
+     Merges, so manually-opened sections persist. */
+  const [prevNavKey, setPrevNavKey] = useState(location.key)
+  if (location.key !== prevNavKey) {
+    setPrevNavKey(location.key)
+    const section = location.state?.openSection
+    const group = location.state?.openGroup
+    if (section) setOpen((o) => ({ ...o, [section]: true }))
+    if (group) setOpenGroups((g) => ({ ...g, [group]: true }))
+  }
   const [showAddQ, setShowAddQ] = useState(false)
   const [newSourceName, setNewSourceName] = useState('')
   const [newSourceColor, setNewSourceColor] = useState(CATEGORY_COLORS[0])
@@ -793,9 +809,10 @@ export default function SettingsScreen() {
   const gender = prefs?.design?.gender || 'neutral'
   /* Data-section hooks — pulled lazily-ish: useClients/etc. all use a
      single network round-trip on mount, so this isn't expensive. */
+  const qc = useQueryClient()
   const { clients: dataClients, refetch: refetchClients } = useClients()
-  const { projects: dataProjects, refetch: refetchProjects } = useProjects()
-  const { transactions: dataTransactions, refetch: refetchTransactions } = useTransactions()
+  const { projects: dataProjects } = useProjects()
+  const { transactions: dataTransactions } = useTransactions()
   const { categories: dataCategories } = useCategories()
   const { tasks: dataTasks } = useTasks()
   const { leads: dataLeads, refetch: refetchLeads } = useLeads()
@@ -909,7 +926,13 @@ export default function SettingsScreen() {
     }
   }
   const onImported = (summary) => {
-    refetchClients?.(); refetchProjects?.(); refetchTransactions?.()
+    /* The importer bulk-inserts via direct API calls (clients, projects,
+       transactions, SESSIONS, payment plans/installments, categories, leads,
+       client/lead statuses) — far more than the three caches refreshed before,
+       so imported sessions/plans stayed invisible on the client drawer/reports
+       until staleTime elapsed. A blanket invalidate after this rare, heavy op
+       resyncs every cache at once and can't miss a written table. */
+    qc.invalidateQueries()
     if (summary) {
       const c = summary.clients?.created || 0
       const p = summary.projects?.created || 0

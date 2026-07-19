@@ -81,6 +81,10 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
         status_id: form.status_id || null,
         last_status_changed_at: form.status_meta !== lead.status_meta ? now : lead.last_status_changed_at,
         converted_at: nowConverted && !wasConverted ? now : (nowConverted ? lead.converted_at : null),
+        /* Clear the client link when un-converting, mirroring the kanban drag
+           path (applyLeadMove) — otherwise a dangling converted_to_client_id
+           lingers after the lead is moved back out of "converted". */
+        converted_to_client_id: nowConverted ? lead.converted_to_client_id : null,
       })
       onClose()
     } catch (e) {

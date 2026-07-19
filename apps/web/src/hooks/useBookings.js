@@ -19,10 +19,20 @@ export function useBookings() {
 
   const replace = (row) => qc.setQueryData(KEY, (prev) => (prev ?? []).map((b) => (b.id === row.id ? row : b)).sort(byTime))
 
+  /* Confirming/materialising a booking CREATES a lead + an owned calendar
+     event server-side (lib/api/bookings.js) — but those writes bypass their
+     hooks, so their caches would stay stale. Refresh them so the Leads board
+     (and the calendar) show the new person without waiting out staleTime. */
+  const refreshCreatedEntities = () => {
+    qc.invalidateQueries({ queryKey: ['leads'] })
+    qc.invalidateQueries({ queryKey: ['calendarEvents'] })
+  }
+
   const confirm = useCallback(async (booking) => {
     try {
       const row = await apiConfirm(booking)
       replace(row)
+      refreshCreatedEntities()
       return row
     } catch (e) { showError(e.message || i18n.t('components:errors.bookingConfirm')); throw e }
   }, [qc]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -39,6 +49,7 @@ export function useBookings() {
   const materialize = useCallback(async (booking) => {
     const row = await apiMaterialize(booking)
     replace(row)
+    refreshCreatedEntities()
     return row
   }, [qc]) // eslint-disable-line react-hooks/exhaustive-deps
 

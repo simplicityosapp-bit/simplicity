@@ -170,9 +170,19 @@ function nextSessionNum(sessions, m) {
    fails, still mark confirmed so the row doesn't get stuck. Shared by the home
    review widget and the calendar event-details flow so both surfaces update
    the card identically. */
-export async function confirmScheduledMeeting({ meeting, sessions, addSession, updateMeeting }) {
+export async function confirmScheduledMeeting({ meeting, sessions, addSession, updateMeeting, clients = [] }) {
   try {
-    if (meeting.session_id) {
+    /* Per-session clients bill each meeting through the explicit one-off charge
+       prompt (the calendar's billSession), so auto-materialising a session here
+       too would double-count. The calendar screen guarded this inline; centralise
+       it in the helper so EVERY surface (home review widget, today-tile drill,
+       calendar) behaves identically instead of the home surfaces silently
+       creating a billable session the calendar deliberately avoids. */
+    const subjectClient = meeting.subject_type === 'client'
+      ? (clients || []).find((c) => c.id === meeting.subject_id)
+      : null
+    const perSession = subjectClient?.billing_mode === 'per_session'
+    if (meeting.session_id || perSession) {
       await updateMeeting(meeting.id, { status: 'confirmed' })
     } else {
       const isGroup = meeting.subject_type === 'group'
@@ -198,6 +208,26 @@ export async function confirmScheduledMeeting({ meeting, sessions, addSession, u
   } catch {
     showError(i18n.t('calendar:toast.actionFailed'))
   }
+}
+
+/* Log the one-off held session that BILLS a per-session client for a confirmed
+   meeting — mirrors the calendar's billSession (clientBalance accrues held ×
+   price_per_session). Offered as an explicit "charge?" step AFTER confirming,
+   so per-session clients are billed the same way on the home surfaces and the
+   calendar. The session is intentionally unlinked from the meeting (like the
+   calendar), a standalone charge. */
+export async function billPerSessionMeeting({ meeting, sessions, addSession }) {
+  const num = (sessions || []).filter((s) => !s.deleted_at && s.client_id === meeting.subject_id).length + 1
+  return addSession({
+    date: meeting.scheduled_at,
+    summary: null,
+    notes: null,
+    client_id: meeting.subject_id,
+    group_id: null,
+    subject_type: 'client',
+    subject_id: meeting.subject_id,
+    num,
+  })
 }
 
 /* Didn't happen: mark skipped and drop any session we materialised for it

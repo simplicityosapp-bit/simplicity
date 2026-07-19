@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
@@ -33,6 +34,7 @@ const blank = (defaults = {}) => ({
 export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {}, members = [], groups = [] }) {
   const { t } = useT('modalsData')
   const { t: tc } = useT('connections') // reuse the per-tx picker's item-field strings
+  const qc = useQueryClient()
   const inv = useInvoiceProvider()
   const lockedClientId = client?.id || ''
   const initial = { ...defaults, client_id: lockedClientId || defaults.client_id, type: defaultType || defaults.type }
@@ -155,6 +157,12 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
           const itemName = issueItemId ? (selectedItem?.name || '') : (issueItemName.trim() || form.desc.trim())
           const r = await inv.issueDocument(row.id, docType, { itemId, itemName, paymentMethod: form.payment_method || issuePayment })
           const num = r?.document?.number
+          /* issueDocument set invoice_document_* on the tx server-side, but the
+             optimistic row from onSave predates it — resync the shared cache so
+             the finance list shows the receipt/WhatsApp affordance and re-opening
+             the row doesn't offer a duplicate issue. Mirrors the per-tx edit
+             flow's onIssued=refetch, done here for every mount site at once. */
+          qc.invalidateQueries({ queryKey: ['transactions'] })
           showToast(t('tx.savedAndIssued', { doc: docTypeLabel(docType), num: num ? t('tx.numPrefix', { num }) : '' }))
         } catch (e) {
           // Surface the provider's real reason (e.detail) when present, instead

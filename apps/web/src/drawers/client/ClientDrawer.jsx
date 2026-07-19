@@ -338,8 +338,15 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
           return onAddPayment?.(data)
         }}
       />
+      {/* Key includes the open-state so the form RE-SEEDS from fresh props
+          every time it opens. Without this, the modal stays mounted (Modal
+          keeps children mounted) with a one-time snapshot taken when the
+          drawer first opened — so a status/session/paid change made via the
+          drawer's own quick-actions would be silently reverted on the next
+          "ערוך פרטים" → save. Mirrors how the sibling edit modals below key
+          off their open-gate (editTx?.id, editSession?.id …). */}
       <EditClientModal
-        key={client?.id}
+        key={`edit-${client?.id}-${actionModal === 'edit'}`}
         open={actionModal === 'edit'}
         onClose={() => setActionModal(null)}
         client={client}

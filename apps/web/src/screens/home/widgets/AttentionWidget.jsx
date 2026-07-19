@@ -37,6 +37,19 @@ import { Box, Txt, Btn } from '../../../components/ui'
 
 const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
 
+/* Non-actionable attention rows navigate to their entity's screen. Items from
+   attentionItems() carry a `target` key — the row handler used to check `it.to`,
+   which NO item ever sets, so every navigating row (open balances, goal-gap,
+   urgent tasks, pending leads) was a dead click. Map target → route instead. */
+const TARGET_ROUTE = {
+  finance: ROUTES.FINANCE,
+  calendar: ROUTES.CALENDAR,
+  clients: ROUTES.CLIENTS,
+  goals: ROUTES.GOALS,
+  tasks: ROUTES.TASKS,
+  leads: ROUTES.LEADS,
+}
+
 /* "דרושה תשומת לב" — composed rows from pending tx, pending meetings,
    balances, goal gap, urgent tasks, 45-day client/lead rules. The actionable
    rows (pending transactions / pending meetings) open an approve-skip-delete
@@ -136,7 +149,7 @@ export default function AttentionWidget() {
     if (it.kind === 'pendingTx') setPopup('tx')
     else if (it.kind === 'pendingMeetings') setPopup('meetings')
     else if (it.kind === 'people') setPeopleRow(it)
-    else if (it.to) navigate(it.to)
+    else if (it.target && TARGET_ROUTE[it.target]) navigate(TARGET_ROUTE[it.target])
   }
   /* Tap a person → open their card (client) or the leads board (lead). */
   const openPerson = (p) => {

@@ -4,7 +4,7 @@ import {
   ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarPlus, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout,
 } from 'lucide-react'
 import { useProjects } from '../../hooks/useProjects'
-import { useLeadPages } from '../../hooks/useLeadPages'
+import { useSitePages } from '../../hooks/useSitePages'
 import { useLeads } from '../../hooks/useLeads'
 import { useLeadStatuses } from '../../hooks/useLeadStatuses'
 import { useClients } from '../../hooks/useClients'
@@ -21,6 +21,7 @@ import { Trans } from 'react-i18next'
 import { statusMetaOf, metaTitle, statusMetaOfLead, isPendingReview, financeQuery, currentMonthRange, isr } from '@simplicity/core'
 import { staleScheduledMeetingIds } from '../../lib/scheduledMeetings'
 import { buildRoute, ROUTES } from '../../lib/routes'
+import LoadingSplash from '../../components/LoadingSplash'
 import { restoreGroup } from '../../lib/api/groups'
 import { restoreSession } from '../../lib/api/sessions'
 import { restoreReminder } from '../../lib/api/reminders'
@@ -63,8 +64,11 @@ export default function ProjectDetailScreen() {
   const { t } = useT('projects')
   const { id } = useParams()
   const navigate = useNavigate()
-  const { projects, updateProject } = useProjects()
-  const { pages: leadPages } = useLeadPages()
+  const { projects, updateProject, loading: projectsLoading } = useProjects()
+  /* Lead pages live on the unified page engine (site_pages, kind='lead') since
+     migration 0068 — the legacy lead_pages table is only a backup. Read the live
+     source so this section matches what the /pages/lead builder actually edits. */
+  const { pages: sitePages } = useSitePages()
   const { leads: leadList } = useLeads()
   const { statuses: leadStatuses } = useLeadStatuses()
   const { clients, addClient, updateClient, removeClient, refetch: refetchClients } = useClients()
@@ -138,8 +142,8 @@ export default function ProjectDetailScreen() {
   )
   const projectClients = useMemo(() => clients.filter((c) => c.project_id === id), [clients, id])
   const projectLeadPages = useMemo(
-    () => (leadPages || []).filter((p) => p.project_id === id && !p.deleted_at),
-    [leadPages, id],
+    () => (sitePages || []).filter((p) => p.kind === 'lead' && p.project_id === id && !p.deleted_at),
+    [sitePages, id],
   )
   /* Leads tied to this project (excludes public submissions still awaiting
      approval, which live in the leads-screen review section, not here). */
@@ -187,6 +191,10 @@ export default function ProjectDetailScreen() {
   const clientDnd = usePointerDnd({ onDrop: (clientId, groupId) => dropClientOnGroup(clientId, groupId) })
 
   if (!project) {
+    /* On a cold deep-link (pasted/bookmarked /projects/:id) useProjects() is
+       still loading, so `project` is briefly undefined — show a loader instead
+       of flashing "not found" and only declare it missing once the fetch is in. */
+    if (projectsLoading) return <LoadingSplash transparent />
     return (
       <Box className="screen">
         <Box className="empty"><Txt as="p" className="empty-text">{t('detail.notFound')}</Txt></Box>
@@ -436,7 +444,7 @@ export default function ProjectDetailScreen() {
       <Box className="pd-headrow">
         <ProjectMoonRing projectId={id} />
         <Box as="header" className="pd-head">
-        <Btn type="button" className="pd-back" onClick={() => navigate(-1)} aria-label={t('detail.back')}>
+        <Btn type="button" className="pd-back" onClick={() => navigate(ROUTES.PROJECTS)} aria-label={t('detail.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
         </Btn>
         <Box className="pd-head-id">
@@ -834,7 +842,7 @@ export default function ProjectDetailScreen() {
             {projectLeadPages.length === 0 ? (
               <Txt as="p" className="pd-empty">
                 {t('detail.leadPages.empty')}{' '}
-                <Btn type="button" className="pd-link-inline" onClick={() => navigate(ROUTES.LEAD_PAGES)}>
+                <Btn type="button" className="pd-link-inline" onClick={() => navigate(buildRoute(ROUTES.SITE_PAGE_KIND, { kind: 'lead' }))}>
                   {t('detail.leadPages.create')}
                 </Btn>
               </Txt>
@@ -844,7 +852,7 @@ export default function ProjectDetailScreen() {
                   key={p.id}
                   type="button"
                   className="pd-leadpage-row"
-                  onClick={() => navigate(ROUTES.LEAD_PAGES, { state: { editPageId: p.id } })}
+                  onClick={() => navigate(buildRoute(ROUTES.SITE_PAGE_KIND, { kind: 'lead' }), { state: { editPageId: p.id } })}
                   aria-label={t('detail.leadPages.openAria', { name: p.title || t('detail.leadPages.untitled') })}
                 >
                   <Link2 size={15} strokeWidth={1.7} className="pd-leadpage-icon" aria-hidden="true" />

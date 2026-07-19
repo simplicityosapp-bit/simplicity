@@ -58,7 +58,7 @@ export default function SubscriptionScreen() {
           <Box className="subs-plan">
             <Box className="subs-plan-head">
               <Txt as="p" className="subs-plan-name">{t('tiers.premium.name')}</Txt>
-              <Txt as="p" className="subs-plan-tag">{t('tiers.basic.tagline')}</Txt>
+              <Txt as="p" className="subs-plan-tag">{t('screen.planTagline')}</Txt>
             </Box>
             <Txt as="p" className="subs-plan-price">
               <Txt className="subs-plan-amount">₪{PRICES[TIERS.BASIC]}</Txt>

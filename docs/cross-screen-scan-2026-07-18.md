@@ -111,7 +111,28 @@ fix confirmed bugs → this report.
 - **Q4 ✅ DONE** — report-drill client rows open the specific client.
 - **Q5 ✅ CONFIRMED** — sessions-never-income is intended, no change.
 
-**Q3 — still open (you weren't sure what I meant).** Plain version: the little **30-day confidence trend line** on the מבט-על screen is saved one point per day, but the *only* place that saves today's point is the moon widget **on the Home screen**. So if on some day you open מבט-על directly (or you've hidden the Home moon widget) without passing through Home, that day's dot is missing from the trend — the big % ring is always live and correct, but the historical line can have gaps. One-line fix: also save the point when מבט-על itself is opened. **Want me to?** (Low priority, purely the history chart.)
+## Moon-glance graph gaps — built 2026-07-19 (after your "fix the holes, especially the correlations")
+
+**M1 [HIGH] Correlations were structurally impossible to show.** `moon-glance/index.jsx`
+forced `buildOverviewCorrelations(..., { window: 30 })`, but the engine's gates need real
+sample size — a weekly Q↔income/leads/sessions outcome needs ~10 seven-day blocks (70+ days)
+and a daily Q↔Q pair needs ~14 answered days. At 30 days the weekly outcomes get only **4**
+blocks → **never** pass, so the whole "קשרים לבדיקה" section sat permanently empty. Fixed:
+gave correlations their own `CORR_WINDOW = 120` (the engine's designed default), decoupled
+from the 30-day overlay. **Proven** with a synthetic test: a weekly Q↔income pattern returns
+**0 at 30d, ≥1 at 120d**.
+
+**M2 [MED] Trend line had holes.** Once ≥2 snapshots existed, the 30-day trend switched to
+snapshot-days-ONLY, drawn evenly spaced as if the un-opened gap days didn't exist. Fixed: the
+line is now the gap-free live day-by-day reconstruction as a base, with any real snapshot
+overriding its own day (true history where recorded, estimate elsewhere).
+
+**M3 [MED] (was Q3) Snapshot now saved from מבט-על too.** Previously only the Home moon widget
+saved today's point; opening מבט-על directly left that day a hole. Added the same
+fire-and-forget `upsertMoonSnapshot` on the moon-glance screen.
+
+Validation: eslint clean · vitest 317/317 · vite build · `/moon` renders all sections, zero
+console errors · synthetic correlation-window proof. **Uncommitted — awaiting your OK to ship.**
 
 ## Noted but low-value (cleanups, no user-facing bug)
 

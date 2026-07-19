@@ -106,6 +106,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
               key={item.key}
               type="button"
               className={`mg-sidebar-link${active ? ' on' : ''}`}
+              aria-current={active ? 'page' : undefined}
               data-screen={item.key}
               onClick={() => navigate(item.to)}
               title={t(`items.${item.key}`)}

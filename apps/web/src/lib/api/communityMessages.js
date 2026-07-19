@@ -14,6 +14,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { selectAllRows } from './paginate'
 
 /* The palette — the 5 reactions the UI offers. Defined here (not in the DB) so
    it can grow without a migration; 0087 only length-guards the emoji column.
@@ -172,12 +173,12 @@ export async function removeReaction(messageId, emoji) {
    Members for the @-autocomplete, and the mention rows a sent message tags. */
 
 export async function listCommunityMembers() {
-  const { data, error } = await supabase
+  /* Paginated: the @-mention picker must see EVERY member, not the first 1000
+     PostgREST returns by default (would silently drop members past 1000). */
+  return selectAllRows(() => supabase
     .from('community_profiles')
     .select('user_id, display_name, avatar_url, is_verified')
-    .order('display_name', { ascending: true })
-  if (error) throw error
-  return data ?? []
+    .order('display_name', { ascending: true }))
 }
 
 /* Tag a just-sent message. RLS lets the author insert only on their OWN message;

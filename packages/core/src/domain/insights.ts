@@ -75,10 +75,12 @@ export function getAnswer(idx: AnswerIndex, qId: string, date: string | Date | n
 export function averageForWindow(idx: AnswerIndex, qId: string, daysBack: number, now: Date = new Date()): number | null {
   const inner = idx.get(qId)
   if (!inner) return null
-  const cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (daysBack - 1))
   let sum = 0, n = 0
   for (let i = 0; i < daysBack; i++) {
-    const d = new Date(cutoff.getTime() + i * MS_PER_DAY)
+    /* Local-midnight per day (DST-safe). A fixed cutoff + i*MS_PER_DAY step
+       drifts by a day across Israel's autumn fall-back (a 25h day) — double-
+       counting one day and dropping the newest. */
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (daysBack - 1 - i))
     const v = valueOfAnswer(inner.get(ymdKey(d)))
     if (v != null) { sum += v; n++ }
   }
@@ -134,14 +136,16 @@ export function heatmapWeeks(idx: AnswerIndex, qId: string, now: Date = new Date
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const totalDays = weeks * 7
   /* Align to start-of-week (Sunday). */
-  const startCandidate = new Date(today.getTime() - (totalDays - 1) * MS_PER_DAY)
-  const dow = startCandidate.getDay()
-  const start = new Date(startCandidate.getTime() - dow * MS_PER_DAY)
+  /* All day-stepping via local-date construction (DST-safe) — a fixed
+     start + n*MS_PER_DAY step shifts the whole grid by a day across the
+     autumn fall-back. */
+  const startCandidate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (totalDays - 1))
+  const start = new Date(startCandidate.getFullYear(), startCandidate.getMonth(), startCandidate.getDate() - startCandidate.getDay())
   const cols: (TrendPoint | null)[][] = []
   for (let w = 0; w < weeks; w++) {
     const col: (TrendPoint | null)[] = []
     for (let r = 0; r < 7; r++) {
-      const d = new Date(start.getTime() + (w * 7 + r) * MS_PER_DAY)
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + (w * 7 + r))
       if (d > today) { col.push(null); continue }
       col.push({ date: d, value: valueOfAnswer(idx.get(qId)?.get(ymdKey(d))) })
     }

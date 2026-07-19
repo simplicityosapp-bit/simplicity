@@ -290,7 +290,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 />
               </Box>
 
-              <ClientDrawerSections client={client} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} />
+              <ClientDrawerSections client={client} balance={balance} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} />
             </Box>
           </>
         )}

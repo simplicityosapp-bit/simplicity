@@ -48,7 +48,7 @@ function Section({ title, count, defaultOpen = false, onEdit, editing = false, c
   )
 }
 
-export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder }) {
+export default function ClientDrawerSections({ client: c, balance, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder }) {
   const { t } = useT('clients')
   /* Which panel is currently in edit mode (one at a time). The header
      pencil toggles it; in edit mode the panel's rows become tappable and
@@ -60,7 +60,10 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
   const payments = financeQuery({ clientId: c.id, includePending: true, source: txns })
     .slice()
     .sort((a, b) => new Date(b.date) - new Date(a.date))
-  const payTotal = payments.filter((f) => f.type === 'income' && isConfirmedTx(f)).reduce((s, f) => s + f.amount, 0)
+  /* Match the drawer header's "שולם": the client's paid total, which INCLUDES
+     any informal manual "שולם" adjustment (recorded with no transaction), not
+     just the summed income rows below. */
+  const payTotal = balance ? balance.paid : payments.filter((f) => f.type === 'income' && isConfirmedTx(f)).reduce((s, f) => s + f.amount, 0)
 
   const clientSessions = live(sessions)
     .filter((s) => s.client_id === c.id || (c.group_id && s.group_id === c.group_id))

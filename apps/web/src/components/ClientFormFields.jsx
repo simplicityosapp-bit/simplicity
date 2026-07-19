@@ -25,6 +25,7 @@ import { useState } from 'react'
 import { ChevronDown, MapPin } from 'lucide-react'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input } from './ui'
+import DateField from './DateField'
 
 const STATUSES = [
   { k: 'active', labelKey: 'status.active' },
@@ -180,7 +181,7 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
             </Box>
             <Box className="m-field">
               <Box as="label" className="m-label">{t('form.birthDate')}</Box>
-              <Input type="date" className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} />
+              <DateField className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} />
             </Box>
           </Box>
         )}

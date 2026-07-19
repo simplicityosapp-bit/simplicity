@@ -11,6 +11,7 @@ import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
 import Editor from './Editor'
 import TemplatePicker from './TemplatePicker'
+import ConfirmModal from '../../modals/ConfirmModal'
 import SiteRenderer from '../site-page/SiteRenderer'
 import './SitePagesScreen.css'
 import { Box, Txt, Btn, Lnk } from '../../components/ui'
@@ -40,6 +41,7 @@ export default function SitePagesBuilder() {
   const [editingId, setEditingId] = useState(location.state?.editPageId || null)
   const [copied, setCopied] = useState(null)
   const [picking, setPicking] = useState(false)
+  const [pendingDel, setPendingDel] = useState(null) // page pending a delete-confirm
 
   // Unknown kind (or booking, which has its own builder) → back to the hub.
   if (!ENGINE_KINDS.has(kind)) return <Navigate to={ROUTES.SITE_PAGES} replace />
@@ -153,7 +155,7 @@ export default function SitePagesBuilder() {
                   <Btn onClick={() => duplicatePage(p)} title={t('hub.duplicate')} aria-label={t('hub.duplicate')}><Files size={15} /></Btn>
                   <Btn onClick={() => copyLink(p)} title={t('hub.copyLink')} aria-label={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</Btn>
                   {p.published ? <Lnk href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')} aria-label={t('hub.open')}><ExternalLink size={15} /></Lnk> : null}
-                  <Btn onClick={() => removePage(p.id)} title={t('hub.delete')} aria-label={t('hub.delete')}><Trash2 size={15} /></Btn>
+                  <Btn onClick={() => setPendingDel(p)} title={t('hub.delete')} aria-label={t('hub.delete')}><Trash2 size={15} /></Btn>
                 </Box>
               </Box>
             </Box>
@@ -162,6 +164,17 @@ export default function SitePagesBuilder() {
       )}
 
       {picking ? <TemplatePicker kind={kind} onPick={createFrom} onClose={() => setPicking(false)} /> : null}
+      {pendingDel ? (
+        <ConfirmModal
+          open
+          danger
+          onClose={() => setPendingDel(null)}
+          title={t('hub.deleteConfirmTitle', { defaultValue: 'למחוק את הדף?' })}
+          message={t('hub.deleteConfirmMsg', { defaultValue: 'הדף יימחק. אפשר לשחזר מסל המיחזור תוך 30 יום.' })}
+          confirmLabel={t('hub.delete')}
+          onConfirm={() => removePage(pendingDel.id)}
+        />
+      ) : null}
     </Box>
   )
 }

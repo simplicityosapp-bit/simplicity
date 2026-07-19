@@ -6,6 +6,7 @@ import { isr } from '@simplicity/core'
 import { useMeetingTypes } from '../hooks/useMeetingTypes'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
+import DateField from '../components/DateField'
 
 const STATUSES = [
   { k: 'active', l: 'statusActive' },
@@ -296,7 +297,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.birthDate')}</Box>
-          <Input type="date" className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} />
+          <DateField className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} />
         </Box>
       </Section>
 

@@ -1,95 +1,72 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   listMeetingTypes, insertMeetingType, updateMeetingType,
   removeMeetingType as apiRemove, restoreMeetingType, applyMeetingTypePrice,
 } from '../lib/api/meetingTypes'
 import { pushUndo } from '../lib/undo'
 
+/* React-Query-backed: shared across the client add/edit forms, MeetingTypesModal,
+   the calendar, booking-pages and the meeting-confirm list — one cache instead
+   of a fetch per mount, so adding/repricing a type in one surface shows in the
+   others immediately (previously each held an independent copy). Public API
+   unchanged. */
+const KEY = ['meetingTypes']
+
 export function useMeetingTypes() {
   const qc = useQueryClient()
-  const [types, setTypes] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setTypes(await listMeetingTypes())
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await listMeetingTypes()
-        if (active) { setTypes(data); setError(null) }
-      } catch (e) {
-        if (active) setError(e.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    })()
-    return () => { active = false }
-  }, [])
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listMeetingTypes })
+  const types = data ?? []
 
   const addType = useCallback(async (payload) => {
     const row = await insertMeetingType(payload)
-    setTypes((prev) => [...prev, row])
+    qc.setQueryData(KEY, (prev) => [...(prev ?? []), row])
     return row
-  }, [])
+  }, [qc])
 
-  /* Update a type. When default_price changes, push it to every linked
-     client that hasn't been manually overridden (live propagation). The
-     caller passes onPriceApplied to refetch the clients list afterwards. */
+  /* Update a type. When default_price changes, push it to every linked client
+     that hasn't been manually overridden (live propagation). The caller passes
+     onPriceApplied to refetch the clients list afterwards. */
   const updateType = useCallback(async (id, patch, onPriceApplied) => {
-    const prev = types.find((t) => t.id === id)
+    const prev = (qc.getQueryData(KEY) ?? []).find((t) => t.id === id)
     try {
       const row = await updateMeetingType(id, patch)
-      setTypes((list) => list.map((t) => (t.id === id ? row : t)))
+      qc.setQueryData(KEY, (list) => (list ?? []).map((t) => (t.id === id ? row : t)))
       const priceChanged = patch.default_price !== undefined
         && Number(patch.default_price) !== Number(prev?.default_price)
       if (priceChanged && row.default_price != null) {
         await applyMeetingTypePrice(id, row.default_price)
         /* The price propagated to every linked client at the DB level — refresh
            the shared clients cache so the list / open drawer / Home / Finance
-           re-derive balances at once. Fixes the callers that open this manager
-           WITHOUT an onPriceApplied callback (the client add/edit forms), which
-           otherwise showed stale prices until staleTime elapsed. */
+           re-derive balances at once. */
         qc.invalidateQueries({ queryKey: ['clients'] })
         await onPriceApplied?.()
       }
       return row
     } catch (e) {
-      /* The type update or the price propagation to clients failed — resync
-         from source so the UI never shows a price that didn't propagate. */
-      setError(e.message)
-      refetch()
+      /* The type update or the price propagation failed — resync from source so
+         the UI never shows a price that didn't propagate, then rethrow so the
+         caller can surface it. */
+      qc.invalidateQueries({ queryKey: KEY })
       throw e
     }
-  }, [types, refetch, qc])
+  }, [qc])
 
   const removeType = useCallback(async (id) => {
-    const row = types.find((t) => t.id === id)
-    setTypes((prev) => prev.filter((t) => t.id !== id))
+    const row = (qc.getQueryData(KEY) ?? []).find((t) => t.id === id)
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => t.id !== id))
     try {
       await apiRemove(id)
       if (row) pushUndo({
         label: 'סוג הפגישה נמחק',
-        undo: async () => { try { await restoreMeetingType(id) } finally { refetch() } },
+        undo: async () => { try { await restoreMeetingType(id) } finally { qc.invalidateQueries({ queryKey: KEY }) } },
         redo: async () => {
-          setTypes((prev) => prev.filter((t) => t.id !== id))
-          try { await apiRemove(id) } catch (e) { setError(e.message); refetch() }
+          qc.setQueryData(KEY, (prevList) => (prevList ?? []).filter((t) => t.id !== id))
+          try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
         },
       })
-    } catch (e) { setError(e.message); refetch() }
-  }, [types, refetch])
+    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
 
-  return { types, loading, error, addType, updateType, removeType, refetch }
+  return { types, loading: isLoading, error: error?.message ?? null, addType, updateType, removeType, refetch }
 }

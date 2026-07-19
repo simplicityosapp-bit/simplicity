@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Check, X, CalendarDays, Clock, Pencil, Trash2 } from 'lucide-react'
 import Modal from './Modal'
 import { formatWhen, fmtTime, isr } from '@simplicity/core'
@@ -33,14 +33,24 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
      charge — logging it as a held session (which is what bills a per-session
      client). Only this step keeps the modal open; everything else closes. */
   const [billStep, setBillStep] = useState(false)
+  /* Guards every async action against a double-fire (double-bill, double-save,
+     double-delete). A ref so a rapid second tap is caught synchronously, before
+     any re-render. */
+  const busyRef = useRef(false)
   if (!event) return <Modal open={open} onClose={onClose} title={t('event.title')} />
 
   const confirmHappened = async () => {
+    if (busyRef.current) return
+    busyRef.current = true
     try { await onConfirmMeeting?.(event) } catch { /* parent surfaces errors */ }
-    if (billClient) setBillStep(true)
+    if (billClient) { busyRef.current = false; setBillStep(true) } // stay open for the bill prompt
     else onClose()
   }
-  const doBill = async () => { try { await onBillSession?.(event) } finally { onClose() } }
+  const doBill = async () => {
+    if (busyRef.current) return           // a double-tap here would log two held sessions → double bill
+    busyRef.current = true
+    try { await onBillSession?.(event) } finally { onClose() }
+  }
 
   const isMeeting = event.kind === 'meeting'
   const isCalendar = event.kind === 'calendar'
@@ -50,6 +60,8 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
   const title = event.title || t('event.fallbackTitle')
 
   const handle = (fn) => async () => {
+    if (busyRef.current) return
+    busyRef.current = true
     try { await fn(event) } finally { onClose() }
   }
 
@@ -59,13 +71,23 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
     setEditing(true)
   }
   const saveEdit = async () => {
+    if (busyRef.current) return
     if (!form.start) { setEditErr(t('event.startRequired')); return }
+    busyRef.current = true
     const patch = {
       title: form.title.trim() || t('event.noTitle'),
       start_time: new Date(form.start).toISOString(),
       end_time: form.end ? new Date(form.end).toISOString() : null,
     }
-    try { await onUpdateEvent?.(event, patch) } finally { onClose() }
+    /* On failure keep the modal OPEN and show the error, instead of closing as
+       if the edit saved (a rejected update was previously swallowed by `finally`). */
+    try {
+      await onUpdateEvent?.(event, patch)
+      onClose()
+    } catch {
+      setEditErr(t('event.saveFailed', { defaultValue: 'השמירה נכשלה — נסה/י שוב.' }))
+      busyRef.current = false
+    }
   }
 
   return (

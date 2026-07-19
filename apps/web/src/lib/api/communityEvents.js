@@ -99,6 +99,7 @@ export async function listMyAddedEventIds() {
     .from('calendar_events')
     .select('google_event_id')
     .eq('user_id', session.user.id)
+    .is('deleted_at', null)
     .or(`google_event_id.like.${NS}*,google_event_id.like.cmt*`)
   if (error) throw error
   const ids = []

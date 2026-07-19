@@ -24,7 +24,15 @@ export default function Modal({ open, onClose, title, titleLabel, children }) {
   /* Escape closes. */
   useEffect(() => {
     if (!open) return undefined
-    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return
+      /* Only the TOP-most modal responds, so stacked modals (e.g. a picker over
+         a form) don't all close on one Escape. Portals mount in open order, so
+         the last .m-sheet.open in the DOM is the top one. */
+      const sheets = document.querySelectorAll('.m-sheet.open')
+      if (sheets.length && sheets[sheets.length - 1] !== sheetRef.current) return
+      onClose()
+    }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])

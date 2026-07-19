@@ -882,18 +882,14 @@ export default function SettingsScreen() {
   /* Full account wipe → then restart onboarding so the user lands on a
      clean first-run experience. */
   const onResetAccount = async () => {
-    /* Best-effort wipe: resetAllUserData() continues through every table
-       and is idempotent (safe to retry). Reset onboarding REGARDLESS, in
-       `finally`, so a partial failure can never strand the user in a
-       half-emptied app with onboarding still "done" — they always land
-       back in the clean first-run flow. A wipe error still propagates to
-       the modal so the user is told something didn't delete. */
-    try {
-      await resetAllUserData()
-    } finally {
-      await updatePrefs({ onboarding: defaultOnboarding() })
-      navigate(ROUTES.ONBOARDING)
-    }
+    /* Wipe first. On FAILURE we intentionally do NOT reset onboarding or
+       navigate — the error propagates to ResetAccountModal, which stays open
+       and shows it. (Previously a `finally` navigated to onboarding before the
+       modal could surface the error, so a failed/partial wipe looked like a
+       clean success.) Only a fully successful wipe advances to first-run. */
+    await resetAllUserData()
+    await updatePrefs({ onboarding: defaultOnboarding() })
+    navigate(ROUTES.ONBOARDING)
   }
   /* CSV/Excel import (Settings → data). Pick one or more files → read
      every sheet via the shared multi-sheet engine → open the same

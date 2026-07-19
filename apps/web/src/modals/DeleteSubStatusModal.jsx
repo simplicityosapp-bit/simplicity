@@ -58,7 +58,16 @@ export default function DeleteSubStatusModal({
   return (
     <Modal open={open} onClose={onClose} title={title}>
       {count === null ? (
-        <Txt as="p" className="set-soon">{t('deleteSubStatus.checking')}</Txt>
+        err ? (
+          <>
+            <Txt as="p" className="m-error">{err}</Txt>
+            <Box className="m-actions">
+              <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+            </Box>
+          </>
+        ) : (
+          <Txt as="p" className="set-soon">{t('deleteSubStatus.checking')}</Txt>
+        )
       ) : count === 0 ? (
         <>
           <Txt as="p" className="m-confirm-msg">{t('deleteSubStatus.noneActive')}</Txt>

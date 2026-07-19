@@ -90,6 +90,11 @@ const isBinary = (goal: MoonGoal): boolean => goal.time_frame === 'deadline' && 
 function goalActual(goal: MoonGoal, cat: MoonCategory, now: Date, entries: MoonEntry[], transactions: Tx[] | undefined, clients: MoonClient[], leads: MoonLead[], answers: MoonAnswer[], members: MoonMember[], groups: MoonGroup[]): number {
   const period = goalPeriod(goal, now)
   const to = now < period.end ? now : period.end
+  /* Upper bound for day-anchored contributions (manual entries + daily-question
+     answers). Both anchor a date to LOCAL NOON, so bounding by end-of-today
+     (not `now`) lets a value logged BEFORE noon still count toward today; the
+     `d <= period.end` cap keeps it inside a goal whose window already closed. */
+  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
   /* Sum of manual progress entries for this goal's category within the
      period. Used for purely-manual goals AND added on top of a
      question-tracked goal's answers — a daily-question goal still shows
@@ -98,7 +103,6 @@ function goalActual(goal: MoonGoal, cat: MoonCategory, now: Date, entries: MoonE
      bound so an entry logged before noon still counts toward today (the
      sentinel date is normalised to 'YYYY-MM-DDT12:00:00'). */
   const sumManualEntries = (): number => {
-    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
     return live(entries)
       .filter((e) => {
         if (e.category_id !== goal.category_id) return false
@@ -117,7 +121,7 @@ function goalActual(goal: MoonGoal, cat: MoonCategory, now: Date, entries: MoonE
       .filter((a) => {
         if (a.user_question_id !== goal.tracked_by_question_id || a.value_num == null) return false
         const d = new Date(a.date + 'T12:00:00')
-        return d >= period.start && d <= to
+        return d >= period.start && d <= period.end && d <= todayEnd
       })
       .reduce((s, a) => s + Number(a.value_num), 0)
     return answersSum + sumManualEntries()

@@ -24,7 +24,8 @@ const SOFT_DELETE_TABLES = [
   'group_members', 'leads', 'tasks', 'goals', 'goal_entries', 'goal_categories',
   'reminders', 'categories', 'lead_sources', 'client_statuses', 'lead_statuses',
   'task_statuses', 'task_categories', 'user_questions', 'daily_answers', 'sessions',
-  'user_quotes', 'calendar_events',
+  'user_quotes', 'calendar_events', 'meeting_types', 'payment_plans',
+  'payment_installments', 'lead_pages', 'booking_pages', 'site_pages',
 ]
 
 /* Tables without deleted_at — physically deleted. These are child/log
@@ -55,6 +56,16 @@ export async function resetAllUserData() {
   for (const table of HARD_DELETE_TABLES) {
     const { error } = await ALL_ROWS(supabase.from(table).delete())
     if (error) failed.push(`${table}: ${error.message}`)
+  }
+
+  /* Public builder pages: force them OFFLINE (published=false) so they stop
+     serving to visitors — not just vanish from the owner's builder lists via
+     the soft-delete below. Every public edge 404s an unpublished page, so this
+     guarantees the reset takes /p, /lead and /book pages down.
+     (bookings rows have no deleted_at and are visitor records — left as-is.) */
+  for (const table of ['lead_pages', 'booking_pages', 'site_pages']) {
+    const { error } = await ALL_ROWS(supabase.from(table).update({ published: false }))
+    if (error) failed.push(`${table} (unpublish): ${error.message}`)
   }
 
   /* Soft-delete everything else. */

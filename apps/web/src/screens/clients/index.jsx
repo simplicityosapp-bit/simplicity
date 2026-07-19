@@ -320,7 +320,7 @@ export default function ClientsScreen() {
       sessionsLabel = String(sessionsCountForClients(tabClients, range, sessions, members, groups))
     } else {
       const done = tabClients.reduce((s, c) => s + (balanceByClient.get(c.id)?.sessionsPaid || 0), 0)
-      const allot = tabClients.reduce((s, c) => s + (c.sessions || 0), 0)
+      const allot = tabClients.reduce((s, c) => s + (balanceByClient.get(c.id)?.sessionsTotal || 0), 0)
       sessionsLabel = `${done}/${allot}`
     }
     return [

@@ -4,7 +4,10 @@ import DateField from '../components/DateField'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn } from '../components/ui'
 
-const todayStr = () => new Date().toISOString().slice(0, 10)
+const todayStr = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 const blank = () => ({ client_id: '', joined_at: todayStr() })
 
 /* Add a client to a group. `availableClients` should exclude clients who are

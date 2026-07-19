@@ -57,7 +57,10 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
 
   useEffect(() => {
     if (!open) return
-    const onKey = (e) => e.key === 'Escape' && onClose()
+    /* Defer to any modal layered over the drawer (EditClientModal, the payment
+       prompt, …) so Escape closes only the top sheet — not the drawer with an
+       unsaved edit still open above it. Mirrors MenuDrawer's guard. */
+    const onKey = (e) => { if (e.key === 'Escape' && !document.querySelector('.m-sheet.open')) onClose() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])

@@ -4,7 +4,10 @@ import Modal from './Modal'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
 
-const todayStr = () => new Date().toISOString().slice(0, 10)
+const todayStr = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 const blank = () => ({ name: '', phone: '', source_id: '', project_id: '', group_id: '', status_id: '', inquiry_date: todayStr(), follow_up_date: '', notes: '' })
 
 /* onSave is async (Supabase insert). New leads land in the "בתהליך" column;

@@ -10,7 +10,7 @@
 --     but that product doesn't exist yet: billing is still dormant
 --     (BILLING_ENABLED=false + billing_enforced()=false — see 0075), and
 --     "community" exists today only as a PREMIUM benefit label in the plan
---     copy (TIER_BENEFITS in SubscriptionBody.jsx → subscription.community
+--     copy (i18n subscription namespace → benefits.community
 --     = "פגישות קהילה דו-שבועיות"). There is no community-subscription
 --     column, table, or flag anywhere in the schema.
 --

@@ -376,6 +376,7 @@
   }
   .app[data-screen="tasks"] .screen > *,
   .app[data-screen="settings"] .screen > *,
+  .app[data-screen="subscription"] .screen > *,
   .app[data-screen="connections"] .screen > *,
   .app[data-screen="trash"] .screen > *,
   .app[data-screen="moon"] .screen > *,

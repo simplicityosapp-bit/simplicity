@@ -3,6 +3,13 @@
     "title": "Suscripción",
     "subtitle": "Tu plan y lo que incluye"
   },
+  "screen": {
+    "metaA": "Tu plan",
+    "metaB": "Qué incluye",
+    "tagline": "Todo lo que necesitas para gestionar tu práctica — en un solo lugar.",
+    "title": "Suscripción",
+    "offerHeading": "El plan Premium"
+  },
   "current": {
     "label": "Tu plan actual",
     "betaUntil": "Acceso beta completo hasta el {{date}}",
@@ -20,10 +27,10 @@
     "goalsFree": "Hasta 3 objetivos",
     "projectsFree": "Hasta 2 proyectos",
     "googleCalendar": "Conectar Google Calendar",
-    "unlimited": "Uso totalmente ilimitado del sistema",
+    "unlimited": "Sin límites de clientes, proyectos, objetivos ni transacciones",
     "invoicing": "Conectar facturación",
     "clearing": "Conectar cobro con tarjeta",
-    "pages": "Páginas de aterrizaje, captación y reservas",
+    "pages": "Páginas de captación, reserva de citas y aterrizaje",
     "pagesFree": "Páginas de aterrizaje, captación y reservas — una de cada",
     "ai": "Integración de IA",
     "community": "Reuniones comunitarias quincenales"

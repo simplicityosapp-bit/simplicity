@@ -36,6 +36,7 @@ export const ROUTES = {
   MOON_GLANCE: '/moon',
   REPORTS: '/reports',
   SETTINGS: '/settings',
+  SUBSCRIPTION: '/subscription', // the user's own Simplicity plan (promoted out of Settings)
   PROJECTS: '/projects',
   TRASH: '/trash',
   INSIGHTS: '/insights',

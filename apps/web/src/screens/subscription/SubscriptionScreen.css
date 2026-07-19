@@ -1,0 +1,152 @@
+/* ════════════════════════════════════════════════════════════════
+   Subscription screen — the user's own Simplicity plan.
+   ════════════════════════════════════════════════════════════════
+   Standard Mångata glass tokens (no bespoke colors). A current-plan
+   status panel + one featured Basic plan card, capped into a tidy
+   RTL-start column. Premium/community are intentionally not shown.
+   ════════════════════════════════════════════════════════════════ */
+
+.subs-loading {
+  padding: 48px 0;
+  text-align: center;
+  color: var(--stone);
+}
+
+.subs-body {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 480px;
+}
+
+/* ── Current plan status ─────────────────────────────────────────── */
+.subs-current {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+.subs-current-label {
+  margin: 0;
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+.subs-current-tier {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-weight: 600;
+  font-size: calc(18px * var(--text-scale));
+  color: var(--terracotta);
+}
+.subs-current-tier svg { color: var(--terracotta); }
+.subs-beta {
+  margin: 0;
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  color: var(--sage);
+}
+.subs-locked {
+  margin: 0;
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+}
+
+/* ── Featured plan (Basic) ───────────────────────────────────────── */
+.subs-offer-h {
+  margin: 0 0 12px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+
+/* Single featured plan card — a terracotta edge marks it as the plan on
+   offer (mirrors the "current plan" edge in the old Settings body). */
+.subs-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 26px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  border-color: var(--terracotta);
+  background: var(--mg-card-bg);
+  box-shadow: 0 0 0 1px var(--terracotta), var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+
+.subs-plan-head { display: flex; flex-direction: column; gap: 2px; }
+.subs-plan-name {
+  margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-weight: 700;
+  font-size: calc(20px * var(--text-scale));
+  color: var(--espresso);
+}
+.subs-plan-tag {
+  margin: 0;
+  font-size: calc(13px * var(--text-scale));
+  color: var(--stone);
+}
+
+.subs-plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+}
+.subs-plan-amount {
+  font-family: 'Assistant', sans-serif;
+  font-weight: 700;
+  font-size: calc(34px * var(--text-scale));
+  letter-spacing: -0.02em;
+  color: var(--espresso);
+}
+.subs-plan-per {
+  font-size: calc(13px * var(--text-scale));
+  color: var(--stone);
+}
+
+.subs-plan-benefits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.subs-plan-benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: calc(14.5px * var(--text-scale));
+  line-height: 1.4;
+  color: var(--espresso);
+}
+.subs-plan-benefits svg {
+  color: var(--sage);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.subs-plan-current {
+  margin: 0;
+  padding: 6px 0;
+  text-align: center;
+  font-weight: 600;
+  font-size: calc(14px * var(--text-scale));
+  color: var(--terracotta);
+}

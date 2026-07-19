@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
   Sun, Moon, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield, Plug, FileText, LayoutTemplate,
-  MessagesSquare,
+  MessagesSquare, Gem,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
@@ -29,6 +29,8 @@ const EXTRAS = [
   { key: 'sitePages', labelKey: 'extras.sitePages', icon: LayoutTemplate, to: ROUTES.SITE_PAGES },
   /* → the room, not the profile gate: the gate redirects itself when needed. */
   { key: 'community', labelKey: 'extras.community', icon: MessagesSquare, to: ROUTES.COMMUNITY_CHAT, beta: true },
+  /* The user's own Simplicity plan — promoted out of Settings into its own screen. */
+  { key: 'subscription', labelKey: 'extras.subscription', icon: Gem, to: ROUTES.SUBSCRIPTION },
   { key: 'reports',  labelKey: 'extras.reports',  icon: BarChart3,  to: ROUTES.REPORTS },
   { key: 'insights', labelKey: 'extras.insights', icon: Sparkles,   to: ROUTES.INSIGHTS },
   /* connections demoted here from the main grid (owner call 2026-07-19); reuses

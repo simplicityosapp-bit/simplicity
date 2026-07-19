@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
   Moon, Activity, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug, LayoutTemplate,
-  MessagesSquare,
+  MessagesSquare, Gem,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
@@ -139,6 +139,15 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
               {t('extras.community')}<Txt as="span" className="mg-nav-beta">beta</Txt>
             </Txt>
             <Txt className="drawer-link-text-sub">{t('items.communitySub')}</Txt>
+          </Txt>
+        </Btn>
+
+        {/* המנוי של המשתמש — מסלול Simplicity שלו (הועבר מ"הגדרות"). */}
+        <Btn className="drawer-link" onClick={() => goTo(ROUTES.SUBSCRIPTION)}>
+          <Txt className="drawer-link-icon"><Gem size={18} strokeWidth={1.5} /></Txt>
+          <Txt className="drawer-link-text">
+            {t('extras.subscription')}
+            <Txt className="drawer-link-text-sub">{t('items.subscriptionSub')}</Txt>
           </Txt>
         </Btn>
 

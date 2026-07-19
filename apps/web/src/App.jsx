@@ -52,6 +52,7 @@ const CalendarScreen = lazyWithRetry(() => import('./screens/calendar'))
 const GoalsScreen = lazyWithRetry(() => import('./screens/goals'))
 const MoonGlanceScreen = lazyWithRetry(() => import('./screens/moon-glance'))
 const SettingsScreen = lazyWithRetry(() => import('./screens/settings'))
+const SubscriptionScreen = lazyWithRetry(() => import('./screens/subscription'))
 const ReportsScreen = lazyWithRetry(() => import('./screens/reports'))
 const ProjectsScreen = lazyWithRetry(() => import('./screens/projects'))
 const ProjectDetailScreen = lazyWithRetry(() => import('./screens/project-detail'))
@@ -234,6 +235,7 @@ function AppShell() {
             <Route path={ROUTES.GOALS} element={<GoalsScreen />} />
             <Route path={ROUTES.MOON_GLANCE} element={<MoonGlanceScreen />} />
             <Route path={ROUTES.SETTINGS} element={<SettingsScreen />} />
+            <Route path={ROUTES.SUBSCRIPTION} element={<SubscriptionScreen />} />
             <Route path={ROUTES.REPORTS} element={<ReportsScreen />} />
             <Route path={ROUTES.PROJECTS} element={<ProjectsScreen />} />
             <Route path={ROUTES.PROJECT} element={<ProjectDetailScreen />} />

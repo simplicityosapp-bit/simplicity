@@ -3,6 +3,13 @@
     "title": "Abonnement",
     "subtitle": "Votre formule et ce qu'elle inclut"
   },
+  "screen": {
+    "metaA": "Votre formule",
+    "metaB": "Ce qui est inclus",
+    "tagline": "Tout ce qu'il faut pour gérer votre activité — au même endroit.",
+    "title": "Abonnement",
+    "offerHeading": "La formule Premium"
+  },
   "current": {
     "label": "Votre formule actuelle",
     "betaUntil": "Accès bêta complet jusqu'au {{date}}",
@@ -20,10 +27,10 @@
     "goalsFree": "Jusqu'à 3 objectifs",
     "projectsFree": "Jusqu'à 2 projets",
     "googleCalendar": "Connecter Google Calendar",
-    "unlimited": "Utilisation totalement illimitée du système",
+    "unlimited": "Aucune limite de clients, projets, objectifs ou transactions",
     "invoicing": "Connecter la facturation",
     "clearing": "Connecter l'encaissement par carte",
-    "pages": "Pages d'atterrissage, de captation et de réservation",
+    "pages": "Pages de captation, de prise de rendez-vous et d'atterrissage",
     "pagesFree": "Pages d'atterrissage, de captation et de réservation — une de chaque",
     "ai": "Intégration de l'IA",
     "community": "Réunions communautaires bimensuelles"

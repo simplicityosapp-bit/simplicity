@@ -63,6 +63,8 @@ export const DRAWER_NAV = [
   { key: 'tasks', icon: 'ClipboardList', to: ROUTES.TASKS },
   { key: 'goals', icon: 'Target', to: ROUTES.GOALS },
   { key: 'calendar', icon: 'Calendar', to: ROUTES.CALENDAR },
-  { key: 'connections', icon: 'Plug', to: ROUTES.CONNECTIONS },
+  /* מבט על promoted to the main grid (owner call 2026-07-19); connections moved
+     to the "עוד" extras panel / mobile personal section. */
+  { key: 'moon', icon: 'Moon', to: ROUTES.MOON_GLANCE },
   { key: 'settings', icon: 'Settings', to: ROUTES.SETTINGS },
 ]

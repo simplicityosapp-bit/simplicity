@@ -17,7 +17,7 @@ import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './Sidebar.css'
 import { Box, Txt, Btn } from './ui'
 
-const ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug }
+const ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug, Moon }
 
 const initial = (name) => name?.trim()?.[0] ?? '·'
 const RING_R = 18
@@ -29,9 +29,11 @@ const EXTRAS = [
   { key: 'sitePages', labelKey: 'extras.sitePages', icon: LayoutTemplate, to: ROUTES.SITE_PAGES },
   /* → the room, not the profile gate: the gate redirects itself when needed. */
   { key: 'community', labelKey: 'extras.community', icon: MessagesSquare, to: ROUTES.COMMUNITY_CHAT, beta: true },
-  { key: 'moon',     labelKey: 'extras.moon',     icon: Moon,       to: ROUTES.MOON_GLANCE },
   { key: 'reports',  labelKey: 'extras.reports',  icon: BarChart3,  to: ROUTES.REPORTS },
   { key: 'insights', labelKey: 'extras.insights', icon: Sparkles,   to: ROUTES.INSIGHTS },
+  /* connections demoted here from the main grid (owner call 2026-07-19); reuses
+     the existing items.connections label. מבט על took its grid slot. */
+  { key: 'connections', labelKey: 'items.connections', icon: Plug,  to: ROUTES.CONNECTIONS },
   { key: 'trash',    labelKey: 'extras.trash',    icon: Trash2,     to: ROUTES.TRASH },
   { key: 'legal',    labelKey: 'extras.legal',    icon: FileText,   to: ROUTES.LEGAL },
 ]

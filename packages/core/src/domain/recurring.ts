@@ -31,9 +31,11 @@ interface RecurringTemplate {
 interface TransactionRow {
   recurring_id?: string | null
   date: string
+  scheduled_meeting_id?: string | null
 }
 
 interface ScheduledMeeting {
+  id?: string
   subject_type?: string
   subject_id?: string
   status?: string
@@ -50,6 +52,7 @@ interface RecurringPayload {
   project_id: string | null
   client_id: string | null
   category_id: string | null
+  scheduled_meeting_id?: string | null
 }
 
 /* YYYY-MM-DD in local time. Stable string lets us compare dates
@@ -110,7 +113,7 @@ export function* dueDatesForTemplate(
   }
 }
 
-function payloadFromTemplate(t: RecurringTemplate, dateKey: string): RecurringPayload {
+function payloadFromTemplate(t: RecurringTemplate, dateKey: string, scheduledMeetingId: string | null = null): RecurringPayload {
   return {
     amount: t.amount,
     type: t.type,
@@ -121,6 +124,7 @@ function payloadFromTemplate(t: RecurringTemplate, dateKey: string): RecurringPa
     project_id: t.project_id || null,
     client_id: t.client_id || null,
     category_id: t.category_id || null,
+    scheduled_meeting_id: scheduledMeetingId,
   }
 }
 
@@ -140,11 +144,16 @@ export function generateRecurringTransactions(
 ): RecurringPayload[] {
   const out: RecurringPayload[] = []
   if (!Array.isArray(templates) || !templates.length) return out
-  const existingKeys = new Set<string>(
-    (transactions || [])
-      .filter((t) => t.recurring_id)
-      .map((t) => `${t.recurring_id}|${toDateKey(t.date)}`),
-  )
+  /* De-dup keys from existing rows. Every recurring row keys by date; an
+     on_meeting row ALSO keys by its scheduled_meeting_id (link added by
+     migration 0094). Checking both means we neither regenerate a paid slot nor
+     duplicate a meeting a pre-0094 (date-only) row already covers. */
+  const existingKeys = new Set<string>()
+  for (const et of transactions || []) {
+    if (!et.recurring_id) continue
+    existingKeys.add(`d|${et.recurring_id}|${toDateKey(et.date)}`)
+    if (et.scheduled_meeting_id) existingKeys.add(`m|${et.recurring_id}|${et.scheduled_meeting_id}`)
+  }
   for (const t of templates) {
     if (!t.active) continue
     if (t.deleted_at) continue
@@ -169,10 +178,14 @@ export function generateRecurringTransactions(
       )
       for (const m of relevant) {
         const dateKey = toDateKey(m.scheduled_at as Date | string | number)
-        const key = `${t.id}|${dateKey}`
-        if (existingKeys.has(key)) continue
-        existingKeys.add(key)
-        out.push(payloadFromTemplate(t, dateKey))
+        const mk = `m|${t.id}|${m.id}`
+        const dk = `d|${t.id}|${dateKey}`
+        /* Skip if THIS meeting already has a tx, OR a pre-0094 date-only row
+           already covers this date (don't duplicate a legacy payment). Add only
+           the meeting key — so a SIBLING meeting the same day still generates. */
+        if ((m.id && existingKeys.has(mk)) || existingKeys.has(dk)) continue
+        existingKeys.add(mk)
+        out.push(payloadFromTemplate(t, dateKey, m.id ?? null))
       }
       continue
     }
@@ -188,7 +201,7 @@ export function generateRecurringTransactions(
     }
     anchor.setHours(0, 0, 0, 0)
     for (const due of dueDatesForTemplate(t, anchor, now)) {
-      const key = `${t.id}|${toDateKey(due)}`
+      const key = `d|${t.id}|${toDateKey(due)}`
       if (existingKeys.has(key)) continue
       existingKeys.add(key)
       out.push(payloadFromTemplate(t, toDateKey(due)))

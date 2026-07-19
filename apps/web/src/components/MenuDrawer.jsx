@@ -17,7 +17,7 @@ import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './MenuDrawer.css'
 import { Box, Txt, Btn } from './ui'
 
-const GRID_ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug }
+const GRID_ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug, Moon }
 
 function initial(name) {
   return name?.trim()?.[0] ?? '·'
@@ -150,11 +150,12 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
           </Txt>
         </Btn>
 
-        <Btn className="drawer-link" onClick={() => goTo(ROUTES.MOON_GLANCE)}>
-          <Txt className="drawer-link-icon"><img src="/logo-dark.png" width="20" height="20" style={{ objectFit: 'contain' }} alt="" aria-hidden="true" /></Txt>
+        {/* מבט על now lives in the screen grid above; connections was moved out
+            of the grid to here (owner call 2026-07-19). */}
+        <Btn className="drawer-link" onClick={() => goTo(ROUTES.CONNECTIONS)}>
+          <Txt className="drawer-link-icon"><Plug size={18} strokeWidth={1.5} /></Txt>
           <Txt className="drawer-link-text">
-            {t('extras.moon')}
-            <Txt className="drawer-link-text-sub">{t('items.moonSub')}</Txt>
+            {t('items.connections')}
           </Txt>
         </Btn>
 

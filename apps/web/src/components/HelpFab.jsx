@@ -24,6 +24,11 @@ const TABS = [
   { key: 'faq',      labelKey: 'help.tabs.faq',      icon: MessageCircleQuestion },
 ]
 
+/* Screens that deliberately show no help sheet — the "?" FAB is hidden for
+   them entirely (e.g. subscription: a short, self-explanatory plan screen
+   where generic help would just be noise). */
+const NO_HELP_SCREENS = new Set(['subscription'])
+
 /* Finds the current screen's header card so the "?" button can be portaled
    INTO it (and thus scroll with it) instead of floating over the viewport.
    The screen mounts async (lazy routes), so we poll a few frames until the
@@ -56,7 +61,8 @@ export default function HelpFab({ screenKey }) {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const help = getHelpScreen(screenKey) || getHelpScreen('home')
+  const skip = NO_HELP_SCREENS.has(screenKey)
+  const help = skip ? null : (getHelpScreen(screenKey) || getHelpScreen('home'))
   const { status, node } = useHeaderAnchor(location.pathname, screenKey)
 
   /* Close on Escape while open. */
@@ -66,6 +72,10 @@ export default function HelpFab({ screenKey }) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
+
+  /* Screens in NO_HELP_SCREENS render no FAB at all. Placed after every hook
+     so the rules of hooks hold. */
+  if (skip) return null
 
   const fab = (
     <Btn

@@ -16,7 +16,8 @@
     "insights": "מה איתך היום?",
     "trash": "סל מיחזור",
     "legal": "מדיניות ותנאים",
-    "community": "קהילה"
+    "community": "קהילה",
+    "subscription": "מנוי"
   },
   "feedback": "דברו אלינו",
   "admin": {
@@ -55,7 +56,8 @@
     "sitePagesSub": "בנו דפי נחיתה, טפסים ותורים — מערכת אחת",
     "leadPagesSub": "טפסים ציבוריים לאיסוף לידים",
     "bookingPagesSub": "דף ציבורי לקביעת תורים, מסונכרן ליומן",
-    "communitySub": "החדר המשותף"
+    "communitySub": "החדר המשותף",
+    "subscriptionSub": "המסלול שלך ומה הוא כולל"
   },
   "signOut": "התנתקות",
   "profile": {

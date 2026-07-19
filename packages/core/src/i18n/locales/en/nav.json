@@ -16,7 +16,8 @@
     "insights": "How are you today?",
     "trash": "Recycle bin",
     "legal": "Policies & terms",
-    "community": "Community"
+    "community": "Community",
+    "subscription": "Subscription"
   },
   "feedback": "Talk to us",
   "admin": {
@@ -55,7 +56,8 @@
     "sitePagesSub": "Build landing pages, forms and booking — one system",
     "leadPagesSub": "Public lead-capture forms",
     "bookingPagesSub": "Public appointment-booking page, synced to your calendar",
-    "communitySub": "The shared room"
+    "communitySub": "The shared room",
+    "subscriptionSub": "Your plan and what it includes"
   },
   "signOut": "Sign out",
   "profile": {

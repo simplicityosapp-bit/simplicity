@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ChevronDown, ChevronUp, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
   Plus, Trash2, Leaf, GripVertical, CalendarDays, Database, Download, Upload,
-  BookOpen, HelpCircle, Lightbulb, Eye, Layers, Gem,
+  BookOpen, HelpCircle, Lightbulb, Eye, Layers,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { buildSheetsFromFiles, ACCEPT } from '../../lib/importFlow'
@@ -38,14 +38,13 @@ import {
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useT } from '../../i18n/useT'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
-import { questionText, describeSchedule, BILLING_ENABLED } from '@simplicity/core'
+import { questionText, describeSchedule } from '@simplicity/core'
 import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV, exportAllXLSX } from '../../lib/export'
 import { loadSensitiveExportData } from '../../lib/exportSensitive'
 import ExportDataModal from '../../modals/ExportDataModal'
 import { defaultOnboarding } from '../../lib/preferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
 import QuestionScheduleEditor from './QuestionScheduleEditor'
-import SubscriptionBody from './SubscriptionBody'
 import { getHelpScreen, getGlobalFaq, getAboutContent } from '../../lib/helpContent'
 import MG from '../../components/MG'
 import './SettingsScreen.css'
@@ -55,7 +54,6 @@ import { Box, Txt, Btn, Input } from '../../components/ui'
    render time via t(`sections.${key}.title` / `.sub`). */
 const SECTION_DEFS = {
   profile: { key: 'profile', icon: User, titleKey: 'sections.profile.title', subKey: 'sections.profile.sub' },
-  subscription: { key: 'subscription', icon: Gem, titleKey: 'sections.subscription.title', subKey: 'sections.subscription.sub' },
   widgets: { key: 'widgets', icon: LayoutGrid, titleKey: 'sections.widgets.title', subKey: 'sections.widgets.sub' },
   clients: { key: 'clients', icon: Users, titleKey: 'sections.clients.title', subKey: 'sections.clients.sub' },
   payments: { key: 'payments', icon: Wallet, titleKey: 'sections.payments.title', subKey: 'sections.payments.sub' },
@@ -72,11 +70,9 @@ const SECTION_GROUPS = [
     icon: User,
     titleKey: 'groups.personal.title',
     subKey: 'groups.personal.sub',
-    /* The "מנוי" section only appears once billing is live — while the master
-       switch is off it's infrastructure-only and every user has full access,
-       so showing pricing / upgrade prompts would be premature. (The admin
-       console can still set tiers + beta exemptions to pre-configure.) */
-    items: ['profile', 'design', ...(BILLING_ENABLED ? ['subscription'] : [])],
+    /* מנוי moved to its own nav screen (screens/subscription) — no longer a
+       section here; useUpgradeNav routes there. */
+    items: ['profile', 'design'],
   },
   {
     key: 'display',
@@ -976,9 +972,6 @@ export default function SettingsScreen() {
     }
     if (key === 'about') {
       return <AboutBody initialTab={location.state?.aboutTab} />
-    }
-    if (key === 'subscription') {
-      return <SubscriptionBody />
     }
     if (key === 'widgets') {
       if (prefsLoading) return <Txt as="p" className="set-soon">{t('common.loading')}</Txt>

@@ -3,6 +3,13 @@
     "title": "Subscription",
     "subtitle": "Your plan and what it includes"
   },
+  "screen": {
+    "metaA": "Your plan",
+    "metaB": "What's included",
+    "tagline": "Everything you need to run your practice — in one place.",
+    "title": "Subscription",
+    "offerHeading": "The Premium plan"
+  },
   "current": {
     "label": "Your current plan",
     "betaUntil": "Full beta access until {{date}}",
@@ -20,10 +27,10 @@
     "goalsFree": "Up to 3 goals",
     "projectsFree": "Up to 2 projects",
     "googleCalendar": "Connect Google Calendar",
-    "unlimited": "Fully unlimited use of the system",
+    "unlimited": "No limits on clients, projects, goals or transactions",
     "invoicing": "Connect invoicing",
     "clearing": "Connect card clearing",
-    "pages": "Landing, lead and booking pages",
+    "pages": "Lead-capture, appointment-booking and landing pages",
     "pagesFree": "Landing, lead and booking pages — one of each",
     "ai": "AI integration",
     "community": "Biweekly community meetings"

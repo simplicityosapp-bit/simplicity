@@ -16,7 +16,8 @@
     "insights": "¿Cómo estás hoy?",
     "trash": "Papelera",
     "legal": "Políticas y condiciones",
-    "community": "Comunidad"
+    "community": "Comunidad",
+    "subscription": "Suscripción"
   },
   "feedback": "Habla con nosotros",
   "admin": {
@@ -55,7 +56,8 @@
     "sitePagesSub": "Crea páginas, formularios y reservas — un sistema",
     "leadPagesSub": "Formularios públicos de captación de prospectos",
     "bookingPagesSub": "Página pública de reserva de citas, sincronizada con tu calendario",
-    "communitySub": "La sala compartida"
+    "communitySub": "La sala compartida",
+    "subscriptionSub": "Tu plan y lo que incluye"
   },
   "signOut": "Cerrar sesión",
   "profile": {

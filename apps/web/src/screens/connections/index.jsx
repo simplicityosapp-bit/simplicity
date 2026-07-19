@@ -5,6 +5,7 @@ import { ROUTES } from '../../lib/routes'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useSubscription } from '../../hooks/useSubscription'
+import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import { useGrowGateway } from '../../hooks/useGrowGateway'
 import { GROW_ENABLED } from '../../lib/grow'
 import { useT } from '../../i18n/useT'
@@ -54,8 +55,8 @@ function SoonRow({ icon: Icon, title, soonLabel, ariaLabel }) {
 }
 
 /* Locked integration — available only on a paid plan. Tapping routes to the
-   subscription section in Settings (the upgrade surface). While billing isn't
-   enforced (BILLING_ENABLED=false) this never renders — can.* is all true. */
+   subscription screen (the upgrade surface). While billing isn't enforced
+   (BILLING_ENABLED=false) this never renders — can.* is all true. */
 function LockedRow({ icon: Icon, title, label, onOpen, ariaLabel }) {
   return (
     <Btn type="button" className="conn-row conn-row-locked" onClick={onOpen} aria-label={ariaLabel}>
@@ -78,7 +79,7 @@ export default function ConnectionsScreen() {
   const { t: ts } = useT('subscription')
   const { can } = useSubscription()
   const navigate = useNavigate()
-  const goUpgrade = () => navigate(ROUTES.SETTINGS, { state: { openGroup: 'personal', openSection: 'subscription' } })
+  const goUpgrade = useUpgradeNav()
   const [params] = useSearchParams()
   const gcal = useGoogleCalendar()
   const inv = useInvoiceProvider()

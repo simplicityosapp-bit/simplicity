@@ -16,7 +16,8 @@
     "insights": "Comment allez-vous aujourd'hui ?",
     "trash": "Corbeille",
     "legal": "Politiques et conditions",
-    "community": "Communauté"
+    "community": "Communauté",
+    "subscription": "Abonnement"
   },
   "feedback": "Contactez-nous",
   "admin": {
@@ -55,7 +56,8 @@
     "sitePagesSub": "Créez des pages, des formulaires et des réservations — un système",
     "leadPagesSub": "Formulaires publics de capture de prospects",
     "bookingPagesSub": "Page publique de réservation de rendez-vous, synchronisée avec votre calendrier",
-    "communitySub": "Le salon partagé"
+    "communitySub": "Le salon partagé",
+    "subscriptionSub": "Votre formule et ce qu'elle comprend"
   },
   "signOut": "Se déconnecter",
   "profile": {

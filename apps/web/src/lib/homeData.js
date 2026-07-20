@@ -289,6 +289,41 @@ export function attentionItems(now = new Date(), data) {
   return items
 }
 
+/* Semantic target keys → web routes. Web's attentionItems() emits `to` (a
+   ROUTES path) directly; the shared core attentionItems() emits a semantic
+   `target` key instead (mobile maps it to its own navigator). This covers the
+   second shape so an item of either form resolves to a real route. */
+const TARGET_ROUTE = {
+  finance: ROUTES.FINANCE,
+  calendar: ROUTES.CALENDAR,
+  clients: ROUTES.CLIENTS,
+  goals: ROUTES.GOALS,
+  tasks: ROUTES.TASKS,
+  leads: ROUTES.LEADS,
+}
+
+/* The single source of truth for what clicking an attention row does, so the
+   widget handler and the item shape can't silently drift apart. That drift is
+   exactly what broke the widget once: a refactor pointed the handler at
+   `it.target` while every web item still carried `it.to`, turning all four
+   navigating rows (balances, goal-gap, urgent tasks, pending leads) into dead
+   clicks. Centralising the decision here — and testing it against the real
+   attentionItems() output — closes that gap.
+
+   Returns one of:
+     { type: 'popup',   popup: 'tx' | 'meetings' }  — open the approve modal
+     { type: 'people' }                             — open the reach-out list
+     { type: 'navigate', to: <route> }              — go to a screen
+     null                                            — genuinely not actionable */
+export function attentionRowAction(it) {
+  if (!it) return null
+  if (it.kind === 'pendingTx') return { type: 'popup', popup: 'tx' }
+  if (it.kind === 'pendingMeetings') return { type: 'popup', popup: 'meetings' }
+  if (it.kind === 'people') return { type: 'people' }
+  const to = it.to || (it.target ? TARGET_ROUTE[it.target] : null)
+  return to ? { type: 'navigate', to } : null
+}
+
 /* ── Upcoming reminders (window: today → +60d) ─────────────────── */
 function nextWeeklyOccurrence(r, start) {
   const base = new Date(r.scheduled_at)

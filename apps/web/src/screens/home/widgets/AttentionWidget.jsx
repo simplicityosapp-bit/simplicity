@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock, FileDown, BellOff } from 'lucide-react'
-import { attentionItems } from '../../../lib/homeData'
+import { attentionItems, attentionRowAction } from '../../../lib/homeData'
 import { ROUTES } from '../../../lib/routes'
 import { pushUndo } from '../../../lib/undo'
 import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
@@ -37,19 +37,6 @@ import { useT } from '../../../i18n/useT'
 import { Box, Txt, Btn } from '../../../components/ui'
 
 const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
-
-/* Non-actionable attention rows navigate to their entity's screen. Items from
-   attentionItems() carry a `target` key — the row handler used to check `it.to`,
-   which NO item ever sets, so every navigating row (open balances, goal-gap,
-   urgent tasks, pending leads) was a dead click. Map target → route instead. */
-const TARGET_ROUTE = {
-  finance: ROUTES.FINANCE,
-  calendar: ROUTES.CALENDAR,
-  clients: ROUTES.CLIENTS,
-  goals: ROUTES.GOALS,
-  tasks: ROUTES.TASKS,
-  leads: ROUTES.LEADS,
-}
 
 /* "דרושה תשומת לב" — composed rows from pending tx, pending meetings,
    balances, goal gap, urgent tasks, 45-day client/lead rules. The actionable
@@ -153,12 +140,16 @@ export default function AttentionWidget() {
     ? t('widgets.attention.allClear')
     : summaryParts.slice(0, 2).join(' · ') + (summaryParts.length > 2 ? ` · ${t('widgets.attention.more', { count: summaryParts.length - 2 })}` : '')
 
-  /* Actionable rows open a popup; the rest navigate. */
+  /* What a row does is decided by attentionRowAction (in homeData, tested
+     against the real item shapes) so the handler and the data can't drift —
+     a past drift pointed this at `it.target` while items carried `it.to` and
+     killed every navigating row. Here we only execute the resolved action. */
   const onRow = (it) => {
-    if (it.kind === 'pendingTx') setPopup('tx')
-    else if (it.kind === 'pendingMeetings') setPopup('meetings')
-    else if (it.kind === 'people') setPeopleId(it.rowId)
-    else if (it.target && TARGET_ROUTE[it.target]) navigate(TARGET_ROUTE[it.target])
+    const action = attentionRowAction(it)
+    if (!action) return
+    if (action.type === 'popup') setPopup(action.popup)
+    else if (action.type === 'people') setPeopleId(it.rowId)
+    else if (action.type === 'navigate') navigate(action.to)
   }
   /* Tap a person → open their card (client) or the leads board (lead). */
   const openPerson = (p) => {

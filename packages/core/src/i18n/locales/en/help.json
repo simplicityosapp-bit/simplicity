@@ -4,36 +4,75 @@
       "title": "Community",
       "intro": "One shared room for everyone using Simplicity. Before your first message you pick a display name — that is what members see beside you.",
       "features": [
-        { "title": "The room", "body": "Every message in one room, oldest to newest. A new message appears for everyone straight away, with no refresh." },
-        { "title": "Display name", "body": "The name shown beside each of your messages. A first name, a nickname or your business name — whatever you are comfortable showing. You can change it later." },
-        { "title": "Deleting a message", "body": "You can delete your own messages, and only those. Deletion is final — there is no undo, and a sent message cannot be edited." },
-        { "title": "Reserved names", "body": "Names associated with Simplicity or its support team are blocked so nobody can impersonate us. Official accounts carry a verified mark." }
+        {
+          "title": "The room",
+          "body": "Every message in one room, oldest to newest. A new message appears for everyone straight away, with no refresh."
+        },
+        {
+          "title": "Display name",
+          "body": "The name shown beside each of your messages. A first name, a nickname or your business name — whatever you are comfortable showing. You can change it later."
+        },
+        {
+          "title": "Deleting a message",
+          "body": "You can delete your own messages, and only those. Deletion is final — there is no undo, and a sent message cannot be edited."
+        },
+        {
+          "title": "Reserved names",
+          "body": "Names associated with Simplicity or its support team are blocked so nobody can impersonate us. Official accounts carry a verified mark."
+        }
       ],
       "tips": [
         "Your display name is public within the community. If you would rather not be identified by your full name, use a nickname."
       ],
       "faq": [
-        { "q": "Who can see my messages?", "a": "Everyone with an active Simplicity account. It is one shared room, not a private chat." },
-        { "q": "Can I edit a message after sending?", "a": "No. You can only delete it." },
-        { "q": "Can I add a profile photo?", "a": "Not yet. For now it is a display name only." }
+        {
+          "q": "Who can see my messages?",
+          "a": "Everyone with an active Simplicity account. It is one shared room, not a private chat."
+        },
+        {
+          "q": "Can I edit a message after sending?",
+          "a": "No. You can only delete it."
+        },
+        {
+          "q": "Can I add a profile photo?",
+          "a": "Not yet. For now it is a display name only."
+        }
       ]
     },
     "sitePages": {
       "title": "Public pages",
       "intro": "One system for building public pages: landing pages, lead-capture pages and booking pages. Build from sections by dragging, design freely, and publish under your own link.",
       "features": [
-        { "title": "Section-based building", "body": "Add sections from the palette (hero, text, image, benefits, testimonial, button, form), drag to reorder, and click a section to edit it in the side panel. The center preview is exactly what visitors see." },
-        { "title": "Flexible design", "body": "In the 'Page design' panel choose a font, brand color, background (nature photo / color / your own upload), card opacity and blur, and alignment. You can upload images and pick icons." },
-        { "title": "Desktop and mobile", "body": "A toggle at the top of the editor switches between desktop and mobile preview, so you can check the page looks good on both." },
-        { "title": "Form and booking", "body": "A form section collects details straight into your leads — with manual or automatic approval and a thank-you message. A button can link to an external site, scroll to the form, or lead to booking." }
+        {
+          "title": "Section-based building",
+          "body": "Add sections from the palette (hero, text, image, benefits, testimonial, button, form), drag to reorder, and click a section to edit it in the side panel. The center preview is exactly what visitors see."
+        },
+        {
+          "title": "Flexible design",
+          "body": "In the 'Page design' panel choose a font, brand color, background (nature photo / color / your own upload), card opacity and blur, and alignment. You can upload images and pick icons."
+        },
+        {
+          "title": "Desktop and mobile",
+          "body": "A toggle at the top of the editor switches between desktop and mobile preview, so you can check the page looks good on both."
+        },
+        {
+          "title": "Form and booking",
+          "body": "A form section collects details straight into your leads — with manual or automatic approval and a thank-you message. A button can link to an external site, scroll to the form, or lead to booking."
+        }
       ],
       "tips": [
         "Publish the page (the 'Publish' toggle in the editor) to get a public link — a draft page isn't reachable.",
         "Set a short slug in the 'Public address' field for an easy link to share."
       ],
       "faq": [
-        { "q": "Does the visitor need to log in?", "a": "No. The pages are fully public. Only you see the submissions that come in." },
-        { "q": "What's the difference between the three kinds?", "a": "Landing page — a full marketing page; Lead page — a form-focused page; Booking — pick a time from your calendar. All on the same design engine." }
+        {
+          "q": "Does the visitor need to log in?",
+          "a": "No. The pages are fully public. Only you see the submissions that come in."
+        },
+        {
+          "q": "What's the difference between the three kinds?",
+          "a": "Landing page — a full marketing page; Lead page — a form-focused page; Booking — pick a time from your calendar. All on the same design engine."
+        }
       ]
     },
     "home": {
@@ -130,47 +169,51 @@
       "features": [
         {
           "title": "Adding a client",
-          "body": "The \"+ New Client\" button at the top of the screen opens a form where only the name is required. You can also fill in status and sub-status, billing method (package / per session), number of sessions, price per session, phone, email, project, and a recurring session (day + time). Everything else can always be filled in later from within the client card."
+          "body": "The \"+ New client\" button opens a short form: name, phone and status. Only the name is required — everything else can wait. Below them, \"Billing, meetings and more\" expands to the rest: billing mode (package / per session), number of sessions and price per session, meeting type, sub-status, project, email, address, date of birth and a recurring meeting (day + time). No field was removed — it just stays out of the way, and you can fill it in later from the client's file."
         },
         {
           "title": "Client statuses",
           "body": "Every client belongs to one of four groups: Active, Paused, Former, No status. The tabs at the top of the list show the groups with a count for each. The \"No status\" tab only appears if there are clients in it. In Settings you can add your own sub-statuses to each group, and they'll appear in the status picker in the client form."
         },
         {
-          "title": "Sorting the list",
-          "body": "The \"Sort\" button orders the list by name, balance, paid, sessions, date added, or seniority (oldest first), in ascending or descending order. Your selection is saved and restored every time you open the screen."
+          "title": "The \"View\" button — sorting, grouping and selecting",
+          "body": "The three controls that change the shape of the list sit together in one menu. Sorting orders by name, balance, paid, sessions, date added or longest-standing, ascending or descending. Grouping switches between status and project. \"Select multiple\" turns on selection mode. Each choice is saved for you and comes back next time you open the screen."
         },
         {
           "title": "Grouping by status or project",
-          "body": "The \"Status / Project\" toggle switches the display layout. In \"Project\" mode, clients are organized under each project name (including a \"No project\" group), and the tabs and top summary disappear in that view."
+          "body": "At the top of the \"View\" menu is a status / project toggle. In project mode clients are listed under each project name (including \"No project\"), and the tabs and the summary above disappear — which is why the button itself changes to \"View · Project\", so it is clear where they went."
         },
         {
-          "title": "Search and balance filter",
-          "body": "The search bar searches by client name. The \"Open balance\" button shows only clients who still owe you money (balance above zero), and next to it you can see how many clients match that in the current view."
+          "title": "Search and the open-balance filter",
+          "body": "The search bar matches on the client's name. The \"Open balance\" button shows only those who still owe, and the number beside it counts everyone who owes — across all statuses, not just the open tab. The filter itself crosses statuses too: with it on you will also see paused and former clients who still owe, so no debt hides in a tab you rarely open."
         },
         {
           "title": "Top summary (monthly / cumulative)",
           "body": "Above the list (when grouping by status) a summary of the open group is shown: sessions, paid, and open balance. The \"Monthly / Cumulative\" toggle determines whether the sessions and amounts are for the current month or from the beginning. In the \"Former\" and \"No status\" tabs the summary is always cumulative and the toggle is locked."
         },
         {
-          "title": "Client card (client profile)",
-          "body": "Tapping a client opens a side drawer with all their details: billing summary (sessions / paid / balance), quick actions, and expandable sections — fixed weekly session, sessions and summaries, payments, open tasks, timeline, notes, linked reminders, and groups. In each section you can tap the pencil icon to enter edit mode and open an item."
+          "title": "The client file",
+          "body": "Tapping a client opens a side panel: the billing summary (sessions / paid / balance), quick actions, and sections that expand — weekly recurring meeting, sessions & summaries, payments, payment plan, open tasks, timeline, more details, notes, linked reminders and group memberships. The pencil beside a section heading does one of two things: on the recurring meeting, more details and notes it opens a small form in place, with Save and Cancel; on the sections that are lists (sessions, payments, tasks, timeline, reminders) it makes the rows tappable, and tapping one opens it for editing."
         },
         {
-          "title": "Quick actions in the card",
-          "body": "Three buttons sit at the top of the card: \"Log session\" to record a session that already happened (date, summary, private notes), \"Schedule session\" to set up a future appointment — one-time or a recurring \"fixed slot\" weekly, and \"Payment received\" to record income."
+          "title": "Quick actions in the file",
+          "body": "Four buttons at the top of the file: \"Log session\" for a meeting that already happened (date, summary, private notes), \"Schedule meeting\" for a future one — either one-off or a weekly recurring slot, \"Got paid\" to record income, and a WhatsApp button that opens a chat with the client. Below the billing summary there is also \"Adjustment\", for changes that are not money coming in."
         },
         {
-          "title": "Changing status in the card",
-          "body": "The status label in the card is a button — tap it and choose a different group, with an option to undo. A client who belongs to a group gets their status from the group, shown as \"· From group\", and their status can't be changed manually."
+          "title": "Changing the status from the file",
+          "body": "The status label in the file is a button — tap it and pick another group, with one-step Undo. A client who belongs to a group takes the status from that group and is marked \"· by group\", but you can still pick a status by hand and your choice wins over the group. It is then marked \"Manual\", with \"Back to group status\" beside it to clear the override."
         },
         {
           "title": "Editing details and billing",
-          "body": "The \"Edit\" button opens the full form: name, status and sub-status, billing method, individual sessions (\"Scheduled\" and \"Completed\"), price, \"Total due\" which overrides the automatic calculation, and \"Paid\" and \"Balance\" fields for manual editing, plus phone, email, project, group, recurring session, and notes. Changing \"Paid\" offers to add a real financial transaction; changing \"Balance\" logs an adjustment only, with no transaction."
+          "body": "The \"Edit\" button opens the full form in sections: details, more details, meetings & scheduling, billing & payments, and groups. That is where you find the billing mode, personal sessions (\"scheduled\" and \"done\"), price per session, a \"Total due\" that overrides the automatic calculation, and the \"Paid\" and \"Balance\" fields you can type into. Changing either of those last two opens the Adjustment sheet, so even a manual correction carries a reason and a date."
         },
         {
-          "title": "Multi-select and bulk actions",
-          "body": "The \"Select\" button activates selection mode: mark several clients, and in the toolbar at the bottom you can \"Change status\" to move them all to a different group, or \"Delete\". Both actions can be undone with a single undo tap."
+          "title": "Adjustments — a discount, an import fix, cash that was never booked",
+          "body": "Below the billing summary in the file there is \"Adjustment\". Instead of having to know which number to edit, you pick what happened: \"Discount\" lowers the balance without claiming anyone paid; \"Imported data fix\" corrects a figure that came in wrong; \"Payment received, never recorded\" raises \"Paid\". A line states exactly what will change before you save. You can add a note (\"cash at the session\"), and it is all stored with a date and appears as a row under Payments — so the total above always adds up to what is listed beneath it. Written-off debt sits in its own group, since it is not part of \"Total paid\". An adjustment never reaches your finance reports; if the money really did arrive, use \"Record as income instead\"."
+        },
+        {
+          "title": "Selecting several clients at once",
+          "body": "\"View\" → \"Select multiple\" turns on selection mode: tick a few clients and the bar that appears at the bottom offers \"Change status\", to move them all to another group, or \"Delete\". Both are reversible with a single Undo."
         },
         {
           "title": "Deleting a client and handling transactions",
@@ -183,11 +226,11 @@
       ],
       "tips": [
         "Sorting, grouping, the monthly/cumulative toggle, and the \"Open balance\" filter are all saved per user — whatever you chose will be restored next time you open the screen.",
-        "Moving several clients to \"Former\" at the end of a season? Tap \"Select\" → check the clients → \"Change status\" in the toolbar at the bottom.",
+        "Moving a few clients to \"Former\" at the end of a season? \"View\" → \"Select multiple\" → tick them → \"Change status\" in the bar at the bottom.",
         "To keep things precise, add sub-statuses in Settings (e.g. \"Short break\", \"Waiting for confirmation\") — they'll appear in the status picker in the client form.",
-        "Imported data and the amounts don't add up? Use \"Total due\" or the \"Paid\" / \"Balance\" fields in edit mode to straighten out the card without disrupting future session calculations.",
-        "A client assigned to a group gets their status from the group — if you can't change their status manually, that's why (shown as \"· From group\").",
-        "To set a fixed weekly session: open the card → \"Schedule session\" → \"Fixed slot\". The day is set based on the date you picked, and you can change or cancel it later in client edit."
+        "Imported data and the numbers do not line up? \"Total due\" in the edit form straightens the overall figure, and to correct \"Paid\" or \"Balance\" use \"Adjustment\" with the reason \"Imported data fix\" — that way there is a record of why the number moved.",
+        "A client placed in a group takes its status from that group and is marked \"· by group\". You can override it by hand — it will be marked \"Manual\", and one tap returns it to the group's status.",
+        "To set a weekly recurring meeting: open the file → \"Schedule meeting\" → recurring slot. The day follows the date you picked. To change or clear it later, the short way is the pencil beside \"Weekly recurring meeting\" inside the file."
       ],
       "faq": [
         {
@@ -195,16 +238,16 @@
           "a": "Search only works by client name. To find someone by other details, sort or browse the list and open the card to see the phone number and email."
         },
         {
-          "q": "Is client data encrypted?",
-          "a": "Currently client details (name, phone, email, notes, and summaries) are stored as plain text, not encrypted. Access is protected solely by your account permissions."
+          "q": "Is my clients’ information protected?",
+          "a": "Yes. Each account reaches only its own data, and no other user of the system can reach your clients. The team has limited technical access for operation, support and backup only."
         },
         {
           "q": "I deleted a client by accident — can I restore them?",
           "a": "Yes. Right after deletion an undo option appears, and in any case the client is kept in the Trash for 30 days. Note: if you chose \"Delete transactions too\", restoring the client alone does not bring back the transactions that were deleted with them — choose \"Keep transactions\" if preserving payment history matters to you."
         },
         {
-          "q": "I changed \"Paid\" in client edit but nothing was recorded in Finance?",
-          "a": "Changing \"Paid\" asks you: \"Add transaction\" creates a real income entry in Finance, and \"Card only\" updates the display only, with no transaction. Changing \"Balance\", on the other hand, is always recorded as an adjustment only, with no Finance transaction."
+          "q": "I changed \"Paid\" in the client's details but nothing was recorded in Finance?",
+          "a": "Changing \"Paid\" or \"Balance\" opens the Adjustment sheet, where you say what happened. An adjustment updates the client's file only and never appears in your finance reports — that is deliberate, for discounts and import fixes. If the money genuinely arrived, pick \"Payment received, never recorded\" and then \"Record as income instead\", and a real payment is created in Finance."
         },
         {
           "q": "Why does the top summary show zero sessions or ₪0 this month?",
@@ -213,6 +256,10 @@
         {
           "q": "What's the difference between \"Package\" and \"Per session\" billing?",
           "a": "With \"Package\", the balance is calculated based on the number of scheduled sessions × the price per session. With \"Per session\" there's no fixed quantity upfront — the balance accumulates based on the number of sessions you've actually logged × the price per session."
+        },
+        {
+          "q": "What is the \"Unitemised adjustment\" row?",
+          "a": "It appears when the adjustments on a client add up to more than the listed rows explain — for example one made from the mobile app, or one recorded before this screen could store reasons. Rather than leave an unexplained gap, the difference is shown as its own row, so the total above always matches what is listed beneath it."
         }
       ]
     },

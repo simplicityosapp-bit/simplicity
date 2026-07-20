@@ -4,36 +4,75 @@
       "title": "Comunidad",
       "intro": "Una sala compartida para todas las personas que usan Simplicity. Antes del primer mensaje eliges un nombre visible: es lo que los miembros verán junto a ti.",
       "features": [
-        { "title": "La sala", "body": "Todos los mensajes en una sala, del más antiguo al más reciente. Un mensaje nuevo aparece de inmediato para todos, sin recargar." },
-        { "title": "Nombre visible", "body": "El nombre que se muestra junto a cada uno de tus mensajes. Tu nombre, un apodo o el de tu negocio: lo que prefieras mostrar. Puedes cambiarlo más adelante." },
-        { "title": "Eliminar un mensaje", "body": "Puedes eliminar tus propios mensajes, y solo esos. La eliminación es definitiva: no se puede deshacer, y un mensaje enviado no se puede editar." },
-        { "title": "Nombres reservados", "body": "Los nombres asociados a Simplicity o a su equipo de soporte están bloqueados para que nadie pueda hacerse pasar por nosotros. Las cuentas oficiales llevan una marca de verificación." }
+        {
+          "title": "La sala",
+          "body": "Todos los mensajes en una sala, del más antiguo al más reciente. Un mensaje nuevo aparece de inmediato para todos, sin recargar."
+        },
+        {
+          "title": "Nombre visible",
+          "body": "El nombre que se muestra junto a cada uno de tus mensajes. Tu nombre, un apodo o el de tu negocio: lo que prefieras mostrar. Puedes cambiarlo más adelante."
+        },
+        {
+          "title": "Eliminar un mensaje",
+          "body": "Puedes eliminar tus propios mensajes, y solo esos. La eliminación es definitiva: no se puede deshacer, y un mensaje enviado no se puede editar."
+        },
+        {
+          "title": "Nombres reservados",
+          "body": "Los nombres asociados a Simplicity o a su equipo de soporte están bloqueados para que nadie pueda hacerse pasar por nosotros. Las cuentas oficiales llevan una marca de verificación."
+        }
       ],
       "tips": [
         "Tu nombre visible es público dentro de la comunidad. Si prefieres no aparecer con tu nombre completo, usa un apodo."
       ],
       "faq": [
-        { "q": "¿Quién puede ver mis mensajes?", "a": "Cualquier persona con una cuenta activa de Simplicity. Es una sala compartida, no un chat privado." },
-        { "q": "¿Puedo editar un mensaje enviado?", "a": "No. Solo puedes eliminarlo." },
-        { "q": "¿Puedo añadir una foto de perfil?", "a": "Todavía no. Por ahora solo hay nombre visible." }
+        {
+          "q": "¿Quién puede ver mis mensajes?",
+          "a": "Cualquier persona con una cuenta activa de Simplicity. Es una sala compartida, no un chat privado."
+        },
+        {
+          "q": "¿Puedo editar un mensaje enviado?",
+          "a": "No. Solo puedes eliminarlo."
+        },
+        {
+          "q": "¿Puedo añadir una foto de perfil?",
+          "a": "Todavía no. Por ahora solo hay nombre visible."
+        }
       ]
     },
     "sitePages": {
       "title": "Páginas públicas",
       "intro": "Un sistema para crear páginas públicas: páginas de aterrizaje, de captación de datos y de reservas. Construye con secciones arrastrando, diseña con libertad y publica con tu propio enlace.",
       "features": [
-        { "title": "Construcción por secciones", "body": "Añade secciones desde la paleta (encabezado, texto, imagen, beneficios, testimonio, botón, formulario), arrastra para reordenar y haz clic en una sección para editarla en el panel lateral. La vista central es exactamente lo que verá el visitante." },
-        { "title": "Diseño flexible", "body": "En el panel 'Diseño de la página' elige fuente, color de marca, fondo (foto de naturaleza / color / tu propia imagen), opacidad y desenfoque de las tarjetas, y alineación. Puedes subir imágenes y elegir iconos." },
-        { "title": "Escritorio y móvil", "body": "Un interruptor en la parte superior del editor cambia entre la vista de escritorio y móvil para comprobar que la página se vea bien en ambas." },
-        { "title": "Formulario y reservas", "body": "Una sección de formulario recoge los datos directamente como prospecto — con aprobación manual o automática y un mensaje de agradecimiento. Un botón puede enlazar a un sitio externo, desplazarse al formulario o llevar a la reserva." }
+        {
+          "title": "Construcción por secciones",
+          "body": "Añade secciones desde la paleta (encabezado, texto, imagen, beneficios, testimonio, botón, formulario), arrastra para reordenar y haz clic en una sección para editarla en el panel lateral. La vista central es exactamente lo que verá el visitante."
+        },
+        {
+          "title": "Diseño flexible",
+          "body": "En el panel 'Diseño de la página' elige fuente, color de marca, fondo (foto de naturaleza / color / tu propia imagen), opacidad y desenfoque de las tarjetas, y alineación. Puedes subir imágenes y elegir iconos."
+        },
+        {
+          "title": "Escritorio y móvil",
+          "body": "Un interruptor en la parte superior del editor cambia entre la vista de escritorio y móvil para comprobar que la página se vea bien en ambas."
+        },
+        {
+          "title": "Formulario y reservas",
+          "body": "Una sección de formulario recoge los datos directamente como prospecto — con aprobación manual o automática y un mensaje de agradecimiento. Un botón puede enlazar a un sitio externo, desplazarse al formulario o llevar a la reserva."
+        }
       ],
       "tips": [
         "Publica la página (el interruptor 'Publicar' en el editor) para obtener un enlace público — una página en borrador no es accesible.",
         "Define una dirección corta en el campo 'Dirección pública' para un enlace fácil de compartir."
       ],
       "faq": [
-        { "q": "¿El visitante debe iniciar sesión?", "a": "No. Las páginas son totalmente públicas. Solo tú ves los envíos que llegan." },
-        { "q": "¿Cuál es la diferencia entre los tres tipos?", "a": "Página de aterrizaje — una página de marketing completa; Captación — una página centrada en el formulario; Reservas — elegir una hora de tu calendario. Todas sobre el mismo motor de diseño." }
+        {
+          "q": "¿El visitante debe iniciar sesión?",
+          "a": "No. Las páginas son totalmente públicas. Solo tú ves los envíos que llegan."
+        },
+        {
+          "q": "¿Cuál es la diferencia entre los tres tipos?",
+          "a": "Página de aterrizaje — una página de marketing completa; Captación — una página centrada en el formulario; Reservas — elegir una hora de tu calendario. Todas sobre el mismo motor de diseño."
+        }
       ]
     },
     "home": {
@@ -130,47 +169,51 @@
       "features": [
         {
           "title": "Añadir un cliente",
-          "body": "El botón «+ Nuevo cliente» en la parte superior de la pantalla abre un formulario donde solo el nombre es obligatorio. También puedes rellenar el estado y subestado, el método de facturación (paquete / por sesión), el número de sesiones, el precio por sesión, el teléfono, el correo, el proyecto y una sesión recurrente (día + hora). Todo lo demás siempre se puede rellenar más tarde desde dentro de la ficha del cliente."
+          "body": "El botón «+ Cliente nuevo» abre un formulario corto: nombre, teléfono y estado. Solo el nombre es obligatorio; el resto puede esperar. Debajo, «Facturación, citas y más» despliega todo lo demás: modo de facturación (paquete / por sesión), número de sesiones y precio por sesión, tipo de cita, subestado, proyecto, correo, dirección, fecha de nacimiento y una cita recurrente (día + hora). No se ha quitado ningún campo: simplemente no estorba, y puedes completarlo después desde la ficha del cliente."
         },
         {
           "title": "Estados de cliente",
           "body": "Cada cliente pertenece a uno de cuatro grupos: Activo, En pausa, Antiguo, Sin estado. Las pestañas en la parte superior de la lista muestran los grupos con un recuento de cada uno. La pestaña «Sin estado» solo aparece si hay clientes en ella. En Ajustes puedes añadir tus propios subestados a cada grupo, y aparecerán en el selector de estado del formulario de cliente."
         },
         {
-          "title": "Ordenar la lista",
-          "body": "El botón «Ordenar» organiza la lista por nombre, saldo, pagado, sesiones, fecha de alta o antigüedad (más antiguos primero), en orden ascendente o descendente. Tu selección se guarda y se restaura cada vez que abres la pantalla."
+          "title": "El botón «Vista»: ordenar, agrupar y seleccionar",
+          "body": "Los tres controles que cambian la forma de la lista están juntos en un solo menú. La ordenación coloca por nombre, saldo, pagado, sesiones, fecha de alta o antigüedad, de forma ascendente o descendente. La agrupación alterna entre estado y proyecto. «Seleccionar varios» activa el modo de selección. Cada elección se guarda y vuelve la próxima vez que abras la pantalla."
         },
         {
           "title": "Agrupar por estado o proyecto",
-          "body": "El interruptor «Estado / Proyecto» cambia el diseño de la visualización. En modo «Proyecto», los clientes se organizan bajo el nombre de cada proyecto (incluido un grupo «Sin proyecto»), y las pestañas y el resumen superior desaparecen en esa vista."
+          "body": "En la parte superior del menú «Vista» hay un conmutador estado / proyecto. En modo proyecto los clientes se listan bajo el nombre de cada proyecto (incluido «Sin proyecto»), y las pestañas y el resumen superior desaparecen; por eso el propio botón pasa a mostrar «Vista · Proyecto», para que quede claro adónde han ido."
         },
         {
-          "title": "Búsqueda y filtro de saldo",
-          "body": "La barra de búsqueda busca por nombre de cliente. El botón «Saldo pendiente» muestra solo los clientes que aún te deben dinero (saldo mayor que cero), y junto a él puedes ver cuántos clientes coinciden con eso en la vista actual."
+          "title": "Búsqueda y filtro de saldo pendiente",
+          "body": "La barra de búsqueda busca por el nombre del cliente. El botón «Saldo pendiente» muestra solo a quienes aún deben, y el número que lo acompaña cuenta a todos los que deben, en todos los estados, no solo en la pestaña abierta. El filtro también cruza estados: al activarlo verás además clientes en pausa y anteriores que siguen debiendo, para que ninguna deuda quede escondida en una pestaña que casi no abres."
         },
         {
           "title": "Resumen superior (mensual / acumulado)",
           "body": "Sobre la lista (al agrupar por estado) se muestra un resumen del grupo abierto: sesiones, pagado y saldo pendiente. El interruptor «Mensual / Acumulado» determina si las sesiones e importes son del mes actual o desde el principio. En las pestañas «Antiguo» y «Sin estado» el resumen es siempre acumulado y el interruptor está bloqueado."
         },
         {
-          "title": "Ficha del cliente (perfil del cliente)",
-          "body": "Al tocar un cliente se abre un panel lateral con todos sus datos: resumen de facturación (sesiones / pagado / saldo), acciones rápidas y secciones desplegables: sesión fija semanal, sesiones y resúmenes, pagos, tareas abiertas, cronología, notas, recordatorios vinculados y grupos. En cada sección puedes tocar el icono del lápiz para entrar en modo edición y abrir un elemento."
+          "title": "La ficha del cliente",
+          "body": "Al tocar un cliente se abre un panel lateral: el resumen de facturación (sesiones / pagado / saldo), acciones rápidas y secciones desplegables: cita semanal recurrente, sesiones y resúmenes, pagos, plan de pagos, tareas abiertas, cronología, más detalles, notas, recordatorios vinculados y pertenencia a grupos. El lápiz junto al título de una sección hace una de dos cosas: en la cita recurrente, más detalles y notas abre un formulario pequeño allí mismo, con Guardar y Cancelar; en las secciones que son listas (sesiones, pagos, tareas, cronología, recordatorios) hace que las filas se puedan tocar, y al tocar una se abre para editarla."
         },
         {
           "title": "Acciones rápidas en la ficha",
-          "body": "Tres botones se sitúan en la parte superior de la ficha: «Registrar sesión» para anotar una sesión que ya ocurrió (fecha, resumen, notas privadas), «Programar sesión» para crear una cita futura —única o una «franja fija» semanal recurrente— y «Pago recibido» para registrar un ingreso."
+          "body": "Cuatro botones en la parte superior de la ficha: «Registrar sesión» para una cita que ya ocurrió (fecha, resumen, notas privadas), «Programar cita» para una futura, puntual o como hora fija semanal, «Pago recibido» para registrar un ingreso, y un botón de WhatsApp que abre una conversación con el cliente. Debajo del resumen de facturación está además «Ajuste», para cambios que no son dinero entrante."
         },
         {
-          "title": "Cambiar el estado en la ficha",
-          "body": "La etiqueta de estado en la ficha es un botón: tócala y elige un grupo diferente, con opción de deshacer. Un cliente que pertenece a un grupo obtiene su estado del grupo, mostrado como «· Del grupo», y su estado no se puede cambiar manualmente."
+          "title": "Cambiar el estado desde la ficha",
+          "body": "La etiqueta de estado de la ficha es un botón: tócala y elige otro grupo, con opción de deshacer. Un cliente que pertenece a un grupo toma el estado de ese grupo y se marca «· según el grupo», pero puedes elegirle un estado a mano y tu elección prevalece sobre el grupo. Entonces se marca «Manual», con «Volver al estado del grupo» al lado para quitar la anulación."
         },
         {
           "title": "Editar datos y facturación",
-          "body": "El botón «Editar» abre el formulario completo: nombre, estado y subestado, método de facturación, sesiones individuales («Programadas» y «Completadas»), precio, «Total a cobrar» que anula el cálculo automático, y los campos «Pagado» y «Saldo» para edición manual, además de teléfono, correo, proyecto, grupo, sesión recurrente y notas. Cambiar «Pagado» ofrece añadir una transacción financiera real; cambiar «Saldo» registra solo un ajuste, sin transacción."
+          "body": "El botón «Editar» abre el formulario completo por secciones: datos, más detalles, citas y programación, facturación y pagos, y grupos. Ahí están el modo de facturación, las sesiones personales («programadas» y «realizadas»), el precio por sesión, un «Total a pagar» que anula el cálculo automático, y los campos «Pagado» y «Saldo» que puedes escribir. Cambiar cualquiera de esos dos últimos abre la ventana de Ajuste, para que también una corrección manual lleve un motivo y una fecha."
         },
         {
-          "title": "Selección múltiple y acciones en lote",
-          "body": "El botón «Seleccionar» activa el modo de selección: marca varios clientes, y en la barra de herramientas inferior puedes «Cambiar estado» para moverlos a todos a un grupo diferente, o «Eliminar». Ambas acciones se pueden deshacer con un solo toque."
+          "title": "Ajustes: un descuento, una corrección de importación, efectivo sin registrar",
+          "body": "Debajo del resumen de facturación de la ficha está «Ajuste». En vez de tener que saber qué número editar, eliges qué ha pasado: «Descuento» reduce el saldo sin afirmar que alguien haya pagado; «Corrección de datos importados» arregla un importe que entró mal; «Pago recibido, no registrado» sube «Pagado». Una línea indica exactamente qué cambiará antes de guardar. Puedes añadir una nota («efectivo en la sesión»), y todo queda guardado con fecha y aparece como una fila en Pagos, de modo que el total de arriba siempre cuadra con lo que hay debajo. La deuda condonada va en su propio grupo, porque no forma parte del «Total pagado». Un ajuste nunca llega a tus informes financieros; si el dinero sí entró, usa «Registrar como ingreso en su lugar»."
+        },
+        {
+          "title": "Seleccionar varios clientes a la vez",
+          "body": "«Vista» → «Seleccionar varios» activa el modo de selección: marca varios clientes y la barra que aparece abajo ofrece «Cambiar estado», para moverlos todos a otro grupo, o «Eliminar». Ambas acciones se deshacen con un solo Deshacer."
         },
         {
           "title": "Eliminar un cliente y gestionar las transacciones",
@@ -183,11 +226,11 @@
       ],
       "tips": [
         "El orden, la agrupación, el interruptor mensual/acumulado y el filtro «Saldo pendiente» se guardan por usuario: lo que elijas se restaurará la próxima vez que abras la pantalla.",
-        "¿Mueves varios clientes a «Antiguo» al final de una temporada? Toca «Seleccionar» → marca los clientes → «Cambiar estado» en la barra de herramientas inferior.",
+        "¿Pasar varios clientes a «Anterior» al final de una temporada? «Vista» → «Seleccionar varios» → márcalos → «Cambiar estado» en la barra inferior.",
         "Para ser más preciso, añade subestados en Ajustes (por ejemplo «Pausa breve», «Esperando confirmación»): aparecerán en el selector de estado del formulario de cliente.",
-        "¿Importaste datos y los importes no cuadran? Usa «Total a cobrar» o los campos «Pagado» / «Saldo» en modo edición para arreglar la ficha sin alterar los cálculos de sesiones futuras.",
-        "Un cliente asignado a un grupo obtiene su estado del grupo: si no puedes cambiar su estado manualmente, esa es la razón (se muestra como «· Del grupo»).",
-        "Para fijar una sesión semanal fija: abre la ficha → «Programar sesión» → «Franja fija». El día se establece según la fecha que elegiste, y puedes cambiarlo o cancelarlo más tarde en la edición del cliente."
+        "¿Importaste datos y los importes no cuadran? «Total a pagar» en la edición endereza la cifra global, y para corregir «Pagado» o «Saldo» usa «Ajuste» con el motivo «Corrección de datos importados»: así queda constancia de por qué se movió el número.",
+        "Un cliente asignado a un grupo toma de él su estado y se marca «· según el grupo». Puedes anularlo a mano: quedará marcado «Manual», y con un toque vuelve al estado del grupo.",
+        "Para fijar una cita semanal recurrente: abre la ficha → «Programar cita» → hora fija. El día sigue a la fecha que elegiste. Para cambiarla o quitarla después, el camino corto es el lápiz junto a «Cita semanal recurrente» dentro de la ficha."
       ],
       "faq": [
         {
@@ -195,16 +238,16 @@
           "a": "La búsqueda solo funciona por nombre de cliente. Para encontrar a alguien por otros datos, ordena o navega por la lista y abre la ficha para ver el teléfono y el correo."
         },
         {
-          "q": "¿Los datos del cliente están cifrados?",
-          "a": "Actualmente los datos del cliente (nombre, teléfono, correo, notas y resúmenes) se almacenan como texto sin cifrar. El acceso está protegido únicamente por los permisos de tu cuenta."
+          "q": "¿Están protegidos los datos de mis clientes?",
+          "a": "Sí. Cada cuenta accede únicamente a sus propios datos y ningún otro usuario del sistema puede llegar a tus clientes. El equipo tiene acceso técnico limitado solo para operación, soporte y copias de seguridad."
         },
         {
           "q": "Eliminé un cliente sin querer, ¿puedo restaurarlo?",
           "a": "Sí. Justo después de eliminarlo aparece una opción de deshacer, y en cualquier caso el cliente se conserva en la Papelera durante 30 días. Nota: si elegiste «Eliminar también las transacciones», restaurar solo al cliente no recupera las transacciones que se eliminaron con él; elige «Conservar transacciones» si te importa preservar el historial de pagos."
         },
         {
-          "q": "Cambié «Pagado» en la edición del cliente pero no se registró nada en Dinero, ¿por qué?",
-          "a": "Cambiar «Pagado» te pregunta: «Añadir transacción» crea un ingreso real en Dinero, y «Solo en la ficha» actualiza únicamente la visualización, sin transacción. Cambiar «Saldo», en cambio, siempre se registra solo como un ajuste, sin transacción en Dinero."
+          "q": "Cambié «Pagado» en los datos del cliente pero no se registró nada en Dinero.",
+          "a": "Cambiar «Pagado» o «Saldo» abre la ventana de Ajuste, donde indicas qué ha pasado. Un ajuste actualiza solo la ficha del cliente y nunca aparece en los informes financieros: es intencionado, para descuentos y correcciones de importación. Si el dinero realmente entró, elige «Pago recibido, no registrado» y después «Registrar como ingreso en su lugar», y se creará un pago real en Dinero."
         },
         {
           "q": "¿Por qué el resumen superior muestra cero sesiones o 0 € este mes?",
@@ -213,6 +256,10 @@
         {
           "q": "¿Cuál es la diferencia entre la facturación «Paquete» y «Por sesión»?",
           "a": "Con «Paquete», el saldo se calcula según el número de sesiones programadas × el precio por sesión. Con «Por sesión» no hay una cantidad fija de antemano: el saldo se acumula según el número de sesiones que has registrado realmente × el precio por sesión."
+        },
+        {
+          "q": "¿Qué es la fila «Ajuste sin detallar»?",
+          "a": "Aparece cuando los ajustes de un cliente suman más de lo que explican las filas listadas: por ejemplo uno hecho desde la app móvil, o uno registrado antes de que esta pantalla pudiera guardar motivos. En lugar de dejar un hueco sin explicar, la diferencia se muestra como una fila propia, para que el total de arriba siempre coincida con lo que hay debajo."
         }
       ]
     },

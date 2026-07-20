@@ -26,6 +26,12 @@ export default function SignupScreen() {
 
   /* All legal documents must be accepted before any signup path. */
   const canConsent = agreePolicies && agreeTerms
+  /* The consent error renders next to the checkboxes, NOT in the form's
+     top error slot — up there it sits above the email field and gets
+     missed. Raised only on a submit attempt, and it clears itself the
+     moment the boxes are ticked (canConsent flips true). */
+  const [consentTried, setConsentTried] = useState(false)
+  const showConsentErr = consentTried && !canConsent
 
   const submit = async (e) => {
     e.preventDefault()
@@ -44,7 +50,7 @@ export default function SignupScreen() {
       return
     }
     if (!canConsent) {
-      setError(t('signupScreen.mustAccept'))
+      setConsentTried(true)
       return
     }
     setBusy(true)
@@ -187,11 +193,15 @@ export default function SignupScreen() {
             </Box>
           </Box>
 
+          {showConsentErr && (
+            <Txt as="p" className="auth-error" role="alert">{t('signupScreen.mustAccept')}</Txt>
+          )}
+
           {/* Stays enabled without consent on purpose: submitting runs the
-              consent guard in submit(), which explains WHY signup is blocked
-              ('mustAccept'). Disabling it here made that message unreachable
-              and the form looked broken. The guard still runs before any
-              auth call, so consent is never bypassed. */}
+              consent guard in submit(), which raises showConsentErr and
+              explains WHY signup is blocked. Disabling it here left the form
+              silent and looking broken. The guard still runs before any auth
+              call, so consent is never bypassed. */}
           <Btn className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
             {busy ? t('signupScreen.creating') : t('signup')}
           </Btn>

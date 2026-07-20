@@ -4,36 +4,75 @@
       "title": "Communauté",
       "intro": "Un salon partagé pour toutes les personnes qui utilisent Simplicity. Avant votre premier message, vous choisissez un nom d'affichage : c'est ce que les membres verront à côté de vous.",
       "features": [
-        { "title": "Le salon", "body": "Tous les messages dans un seul salon, du plus ancien au plus récent. Un nouveau message apparaît immédiatement pour tout le monde, sans rechargement." },
-        { "title": "Nom d'affichage", "body": "Le nom affiché à côté de chacun de vos messages. Votre prénom, un pseudonyme ou le nom de votre activité — ce que vous préférez montrer. Vous pourrez le modifier plus tard." },
-        { "title": "Supprimer un message", "body": "Vous pouvez supprimer vos propres messages, et uniquement ceux-là. La suppression est définitive : aucun retour en arrière, et un message envoyé ne peut pas être modifié." },
-        { "title": "Noms réservés", "body": "Les noms associés à Simplicity ou à son équipe d'assistance sont bloqués afin que personne ne puisse se faire passer pour nous. Les comptes officiels portent une marque de vérification." }
+        {
+          "title": "Le salon",
+          "body": "Tous les messages dans un seul salon, du plus ancien au plus récent. Un nouveau message apparaît immédiatement pour tout le monde, sans rechargement."
+        },
+        {
+          "title": "Nom d'affichage",
+          "body": "Le nom affiché à côté de chacun de vos messages. Votre prénom, un pseudonyme ou le nom de votre activité — ce que vous préférez montrer. Vous pourrez le modifier plus tard."
+        },
+        {
+          "title": "Supprimer un message",
+          "body": "Vous pouvez supprimer vos propres messages, et uniquement ceux-là. La suppression est définitive : aucun retour en arrière, et un message envoyé ne peut pas être modifié."
+        },
+        {
+          "title": "Noms réservés",
+          "body": "Les noms associés à Simplicity ou à son équipe d'assistance sont bloqués afin que personne ne puisse se faire passer pour nous. Les comptes officiels portent une marque de vérification."
+        }
       ],
       "tips": [
         "Votre nom d'affichage est public au sein de la communauté. Si vous préférez ne pas être identifié par votre nom complet, utilisez un pseudonyme."
       ],
       "faq": [
-        { "q": "Qui peut voir mes messages ?", "a": "Toute personne disposant d’un compte Simplicity actif. C’est un salon partagé, pas une discussion privée." },
-        { "q": "Puis-je modifier un message envoyé ?", "a": "Non. Vous pouvez seulement le supprimer." },
-        { "q": "Puis-je ajouter une photo de profil ?", "a": "Pas encore. Pour l'instant, il n'y a qu'un nom d'affichage." }
+        {
+          "q": "Qui peut voir mes messages ?",
+          "a": "Toute personne disposant d’un compte Simplicity actif. C’est un salon partagé, pas une discussion privée."
+        },
+        {
+          "q": "Puis-je modifier un message envoyé ?",
+          "a": "Non. Vous pouvez seulement le supprimer."
+        },
+        {
+          "q": "Puis-je ajouter une photo de profil ?",
+          "a": "Pas encore. Pour l'instant, il n'y a qu'un nom d'affichage."
+        }
       ]
     },
     "sitePages": {
       "title": "Pages publiques",
       "intro": "Un seul système pour créer des pages publiques : pages d'atterrissage, pages de capture de prospects et pages de réservation. Construisez par sections en glissant, concevez librement et publiez sous votre propre lien.",
       "features": [
-        { "title": "Construction par sections", "body": "Ajoutez des sections depuis la palette (en-tête, texte, image, avantages, témoignage, bouton, formulaire), glissez pour réorganiser et cliquez sur une section pour la modifier dans le panneau latéral. L'aperçu central correspond exactement à ce que verra le visiteur." },
-        { "title": "Conception flexible", "body": "Dans le panneau « Conception de la page », choisissez une police, une couleur de marque, un arrière-plan (photo de nature / couleur / votre propre image), l'opacité et le flou des cartes, et l'alignement. Vous pouvez téléverser des images et choisir des icônes." },
-        { "title": "Ordinateur et mobile", "body": "Un bouton en haut de l'éditeur bascule entre l'aperçu ordinateur et mobile, pour vérifier que la page s'affiche bien sur les deux." },
-        { "title": "Formulaire et réservation", "body": "Une section formulaire recueille les coordonnées directement en tant que prospect — avec approbation manuelle ou automatique et un message de remerciement. Un bouton peut renvoyer vers un site externe, défiler jusqu'au formulaire ou mener à la réservation." }
+        {
+          "title": "Construction par sections",
+          "body": "Ajoutez des sections depuis la palette (en-tête, texte, image, avantages, témoignage, bouton, formulaire), glissez pour réorganiser et cliquez sur une section pour la modifier dans le panneau latéral. L'aperçu central correspond exactement à ce que verra le visiteur."
+        },
+        {
+          "title": "Conception flexible",
+          "body": "Dans le panneau « Conception de la page », choisissez une police, une couleur de marque, un arrière-plan (photo de nature / couleur / votre propre image), l'opacité et le flou des cartes, et l'alignement. Vous pouvez téléverser des images et choisir des icônes."
+        },
+        {
+          "title": "Ordinateur et mobile",
+          "body": "Un bouton en haut de l'éditeur bascule entre l'aperçu ordinateur et mobile, pour vérifier que la page s'affiche bien sur les deux."
+        },
+        {
+          "title": "Formulaire et réservation",
+          "body": "Une section formulaire recueille les coordonnées directement en tant que prospect — avec approbation manuelle ou automatique et un message de remerciement. Un bouton peut renvoyer vers un site externe, défiler jusqu'au formulaire ou mener à la réservation."
+        }
       ],
       "tips": [
         "Publiez la page (le bouton « Publier » dans l'éditeur) pour obtenir un lien public — une page en brouillon n'est pas accessible.",
         "Définissez une adresse courte dans le champ « Adresse publique » pour un lien facile à partager."
       ],
       "faq": [
-        { "q": "Le visiteur doit-il se connecter ?", "a": "Non. Les pages sont entièrement publiques. Vous seul voyez les envois reçus." },
-        { "q": "Quelle est la différence entre les trois types ?", "a": "Page d'atterrissage — une page marketing complète ; Capture — une page centrée sur le formulaire ; Réservation — choisir un créneau dans votre agenda. Toutes sur le même moteur de conception." }
+        {
+          "q": "Le visiteur doit-il se connecter ?",
+          "a": "Non. Les pages sont entièrement publiques. Vous seul voyez les envois reçus."
+        },
+        {
+          "q": "Quelle est la différence entre les trois types ?",
+          "a": "Page d'atterrissage — une page marketing complète ; Capture — une page centrée sur le formulaire ; Réservation — choisir un créneau dans votre agenda. Toutes sur le même moteur de conception."
+        }
       ]
     },
     "home": {
@@ -130,47 +169,51 @@
       "features": [
         {
           "title": "Ajouter un client",
-          "body": "Le bouton « + Nouveau client » en haut de l'écran ouvre un formulaire où seul le nom est requis. Vous pouvez aussi renseigner le statut et le sous-statut, le mode de facturation (forfait / à la séance), le nombre de séances, le prix par séance, le téléphone, l'e-mail, le projet et une séance récurrente (jour + heure). Tout le reste peut toujours être complété ultérieurement depuis la fiche du client."
+          "body": "Le bouton « + Nouveau client » ouvre un formulaire court : nom, téléphone et statut. Seul le nom est obligatoire, le reste peut attendre. En dessous, « Facturation, séances et plus » déplie tout le reste : mode de facturation (forfait / à la séance), nombre de séances et prix par séance, type de séance, sous-statut, projet, e-mail, adresse, date de naissance et une séance récurrente (jour + heure). Aucun champ n'a été supprimé : il ne fait simplement plus obstacle, et vous pouvez le compléter plus tard depuis la fiche du client."
         },
         {
           "title": "Statuts des clients",
           "body": "Chaque client appartient à l'un des quatre groupes : Actif, En pause, Ancien, Sans statut. Les onglets en haut de la liste affichent les groupes avec un compteur pour chacun. L'onglet « Sans statut » n'apparaît que s'il contient des clients. Dans les Paramètres, vous pouvez ajouter vos propres sous-statuts à chaque groupe, et ils apparaîtront dans le sélecteur de statut du formulaire client."
         },
         {
-          "title": "Trier la liste",
-          "body": "Le bouton « Trier » ordonne la liste par nom, solde, payé, séances, date d'ajout ou ancienneté (les plus anciens d'abord), par ordre croissant ou décroissant. Votre sélection est enregistrée et restaurée à chaque ouverture de l'écran."
+          "title": "Le bouton « Affichage » : tri, regroupement et sélection",
+          "body": "Les trois commandes qui changent la forme de la liste sont réunies dans un seul menu. Le tri classe par nom, solde, payé, séances, date d'ajout ou ancienneté, en ordre croissant ou décroissant. Le regroupement bascule entre statut et projet. « Sélection multiple » active le mode de sélection. Chaque choix est mémorisé et revient à votre prochaine visite."
         },
         {
-          "title": "Grouper par statut ou par projet",
-          "body": "Le sélecteur « Statut / Projet » modifie la disposition de l'affichage. En mode « Projet », les clients sont organisés sous chaque nom de projet (y compris un groupe « Sans projet »), et les onglets et le résumé du haut disparaissent dans cette vue."
+          "title": "Regrouper par statut ou par projet",
+          "body": "En haut du menu « Affichage » se trouve un sélecteur statut / projet. En mode projet, les clients sont classés sous le nom de chaque projet (« Sans projet » compris), et les onglets ainsi que le résumé du haut disparaissent — c'est pourquoi le bouton lui-même affiche alors « Affichage · Projet », pour qu'on comprenne où ils sont passés."
         },
         {
-          "title": "Recherche et filtre de solde",
-          "body": "La barre de recherche cherche par nom de client. Le bouton « Solde impayé » n'affiche que les clients qui vous doivent encore de l'argent (solde supérieur à zéro), et à côté vous pouvez voir combien de clients correspondent dans la vue actuelle."
+          "title": "Recherche et filtre de solde ouvert",
+          "body": "La barre de recherche porte sur le nom du client. Le bouton « Solde ouvert » n'affiche que ceux qui doivent encore, et le nombre à côté compte tous les débiteurs, tous statuts confondus, pas seulement l'onglet ouvert. Le filtre traverse lui aussi les statuts : une fois activé, vous verrez également les clients en pause et anciens qui doivent encore, pour qu'aucune dette ne se cache dans un onglet que vous ouvrez rarement."
         },
         {
           "title": "Résumé du haut (mensuel / cumulé)",
           "body": "Au-dessus de la liste (lors d'un groupement par statut), un résumé du groupe ouvert s'affiche : séances, payé et solde impayé. Le sélecteur « Mensuel / Cumulé » détermine si les séances et les montants concernent le mois en cours ou depuis le début. Dans les onglets « Ancien » et « Sans statut », le résumé est toujours cumulé et le sélecteur est verrouillé."
         },
         {
-          "title": "Fiche client (profil du client)",
-          "body": "Appuyer sur un client ouvre un panneau latéral avec tous ses détails : résumé de facturation (séances / payé / solde), actions rapides et sections dépliables — séance hebdomadaire fixe, séances et résumés, paiements, tâches ouvertes, chronologie, notes, rappels liés et groupes. Dans chaque section, vous pouvez appuyer sur l'icône crayon pour passer en mode modification et ouvrir un élément."
+          "title": "La fiche client",
+          "body": "Toucher un client ouvre un panneau latéral : le résumé de facturation (séances / payé / solde), des actions rapides, et des sections dépliables — séance hebdomadaire récurrente, séances et résumés, paiements, plan de paiement, tâches ouvertes, chronologie, plus de détails, notes, rappels liés et appartenance aux groupes. Le crayon à côté du titre d'une section fait l'une de deux choses : sur la séance récurrente, plus de détails et notes, il ouvre un petit formulaire sur place, avec Enregistrer et Annuler ; sur les sections qui sont des listes (séances, paiements, tâches, chronologie, rappels), il rend les lignes cliquables, et cliquer sur une ligne l'ouvre en édition."
         },
         {
           "title": "Actions rapides dans la fiche",
-          "body": "Trois boutons se trouvent en haut de la fiche : « Enregistrer une séance » pour consigner une séance déjà passée (date, résumé, notes privées), « Planifier une séance » pour fixer un rendez-vous à venir — ponctuel ou un « créneau fixe » hebdomadaire récurrent, et « Paiement reçu » pour enregistrer un revenu."
+          "body": "Quatre boutons en haut de la fiche : « Enregistrer une séance » pour une séance déjà passée (date, résumé, notes privées), « Planifier une séance » pour une séance à venir, ponctuelle ou en créneau hebdomadaire fixe, « Paiement reçu » pour enregistrer un revenu, et un bouton WhatsApp qui ouvre une conversation avec le client. Sous le résumé de facturation figure aussi « Ajustement », pour les changements qui ne sont pas de l'argent entrant."
         },
         {
-          "title": "Changer le statut dans la fiche",
-          "body": "L'étiquette de statut dans la fiche est un bouton — appuyez dessus et choisissez un autre groupe, avec une option d'annulation. Un client qui appartient à un groupe tient son statut du groupe, affiché comme « · Du groupe », et son statut ne peut pas être modifié manuellement."
+          "title": "Changer le statut depuis la fiche",
+          "body": "L'étiquette de statut de la fiche est un bouton : touchez-la et choisissez un autre groupe, avec une annulation en un pas. Un client appartenant à un groupe prend le statut de ce groupe et porte la mention « · selon le groupe », mais vous pouvez lui choisir un statut à la main et votre choix l'emporte sur le groupe. Il est alors marqué « Manuel », avec « Revenir au statut du groupe » à côté pour lever la dérogation."
         },
         {
-          "title": "Modifier les détails et la facturation",
-          "body": "Le bouton « Modifier » ouvre le formulaire complet : nom, statut et sous-statut, mode de facturation, séances individuelles (« Planifiées » et « Effectuées »), prix, « Total dû » qui remplace le calcul automatique, et les champs « Payé » et « Solde » à modifier manuellement, ainsi que téléphone, e-mail, projet, groupe, séance récurrente et notes. Modifier « Payé » propose d'ajouter une transaction financière réelle ; modifier « Solde » consigne uniquement un ajustement, sans transaction."
+          "title": "Modifier les informations et la facturation",
+          "body": "Le bouton « Modifier » ouvre le formulaire complet, par sections : informations, plus de détails, séances et planification, facturation et paiements, et groupes. On y trouve le mode de facturation, les séances individuelles (« prévues » et « effectuées »), le prix par séance, un « Total à payer » qui remplace le calcul automatique, et les champs « Payé » et « Solde » que vous pouvez saisir. Modifier l'un de ces deux derniers ouvre la fenêtre d'Ajustement, afin qu'une correction manuelle porte elle aussi un motif et une date."
         },
         {
-          "title": "Sélection multiple et actions groupées",
-          "body": "Le bouton « Sélectionner » active le mode sélection : cochez plusieurs clients, et dans la barre d'outils en bas vous pouvez « Changer le statut » pour les déplacer tous vers un autre groupe, ou « Supprimer ». Les deux actions peuvent être annulées d'un seul appui sur annuler."
+          "title": "Ajustements : une remise, une correction d'import, des espèces non enregistrées",
+          "body": "Sous le résumé de facturation de la fiche se trouve « Ajustement ». Au lieu de devoir savoir quel nombre modifier, vous choisissez ce qui s'est passé : « Remise » diminue le solde sans prétendre que quelqu'un a payé ; « Correction de données importées » rectifie un montant mal repris ; « Paiement reçu, non enregistré » augmente « Payé ». Une ligne indique exactement ce qui va changer avant l'enregistrement. Vous pouvez ajouter une note (« espèces à la séance »), et tout est conservé avec une date et apparaît comme une ligne dans Paiements — ainsi le total du haut correspond toujours à ce qui est listé en dessous. Les dettes annulées figurent dans leur propre groupe, car elles ne font pas partie du « Total payé ». Un ajustement n'entre jamais dans vos rapports financiers ; si l'argent est réellement arrivé, utilisez « Enregistrer comme revenu à la place »."
+        },
+        {
+          "title": "Sélectionner plusieurs clients à la fois",
+          "body": "« Affichage » → « Sélection multiple » active le mode de sélection : cochez plusieurs clients et la barre qui apparaît en bas propose « Changer le statut », pour les déplacer tous vers un autre groupe, ou « Supprimer ». Les deux actions s'annulent d'un seul Annuler."
         },
         {
           "title": "Supprimer un client et gérer les transactions",
@@ -183,11 +226,11 @@
       ],
       "tips": [
         "Le tri, le groupement, le sélecteur mensuel/cumulé et le filtre « Solde impayé » sont tous enregistrés par utilisateur — ce que vous avez choisi sera restauré la prochaine fois que vous ouvrirez l'écran.",
-        "Vous déplacez plusieurs clients vers « Ancien » à la fin d'une saison ? Appuyez sur « Sélectionner » → cochez les clients → « Changer le statut » dans la barre d'outils en bas.",
+        "Passer plusieurs clients en « Ancien » en fin de saison ? « Affichage » → « Sélection multiple » → cochez-les → « Changer le statut » dans la barre du bas.",
         "Pour rester précis, ajoutez des sous-statuts dans les Paramètres (par ex. « Pause courte », « En attente de confirmation ») — ils apparaîtront dans le sélecteur de statut du formulaire client.",
-        "Des données importées et des montants qui ne tombent pas juste ? Utilisez « Total dû » ou les champs « Payé » / « Solde » en mode modification pour rectifier la fiche sans perturber les calculs des séances à venir.",
-        "Un client affecté à un groupe tient son statut du groupe — si vous ne pouvez pas changer son statut manuellement, c'est pour cela (affiché comme « · Du groupe »).",
-        "Pour définir une séance hebdomadaire fixe : ouvrez la fiche → « Planifier une séance » → « Créneau fixe ». Le jour est défini d'après la date que vous avez choisie, et vous pouvez le modifier ou l'annuler plus tard en modifiant le client."
+        "Données importées et montants incohérents ? « Total à payer » dans le formulaire redresse le montant global, et pour corriger « Payé » ou « Solde », utilisez « Ajustement » avec le motif « Correction de données importées » — ainsi il reste une trace de la raison du changement.",
+        "Un client placé dans un groupe en reçoit le statut et porte la mention « · selon le groupe ». Vous pouvez le remplacer à la main : il sera marqué « Manuel », et un seul geste le ramène au statut du groupe.",
+        "Pour fixer une séance hebdomadaire récurrente : ouvrez la fiche → « Planifier une séance » → créneau fixe. Le jour suit la date choisie. Pour la modifier ou l'annuler ensuite, le chemin court est le crayon à côté de « Séance hebdomadaire récurrente » dans la fiche."
       ],
       "faq": [
         {
@@ -203,8 +246,8 @@
           "a": "Oui. Juste après la suppression, une option d'annulation apparaît, et de toute façon le client est conservé dans la Corbeille pendant 30 jours. Note : si vous avez choisi « Supprimer aussi les transactions », restaurer le client seul ne ramène pas les transactions supprimées avec lui — choisissez « Conserver les transactions » si l'historique des paiements vous importe."
         },
         {
-          "q": "J'ai modifié « Payé » dans la modification du client mais rien n'a été enregistré dans Argent ?",
-          "a": "Modifier « Payé » vous demande : « Ajouter une transaction » crée une véritable entrée de revenu dans Argent, et « Fiche uniquement » met à jour l'affichage seulement, sans transaction. Modifier « Solde », en revanche, est toujours consigné comme un simple ajustement, sans transaction dans Argent."
+          "q": "J'ai modifié « Payé » dans la fiche du client mais rien n'a été enregistré dans Argent.",
+          "a": "Modifier « Payé » ou « Solde » ouvre la fenêtre d'Ajustement, où vous indiquez ce qui s'est passé. Un ajustement ne met à jour que la fiche du client et n'apparaît jamais dans vos rapports financiers — c'est voulu, pour les remises et les corrections d'import. Si l'argent est bien arrivé, choisissez « Paiement reçu, non enregistré » puis « Enregistrer comme revenu à la place », et un vrai paiement est créé dans Argent."
         },
         {
           "q": "Pourquoi le résumé du haut affiche-t-il zéro séance ou ₪0 ce mois-ci ?",
@@ -213,6 +256,10 @@
         {
           "q": "Quelle est la différence entre la facturation « Forfait » et « À la séance » ?",
           "a": "Avec « Forfait », le solde est calculé en fonction du nombre de séances planifiées × le prix par séance. Avec « À la séance », il n'y a pas de quantité fixe à l'avance — le solde s'accumule en fonction du nombre de séances que vous avez réellement enregistrées × le prix par séance."
+        },
+        {
+          "q": "Qu'est-ce que la ligne « Ajustement non détaillé » ?",
+          "a": "Elle apparaît quand les ajustements d'un client dépassent ce que les lignes listées expliquent — par exemple un ajustement fait depuis l'application mobile, ou enregistré avant que cet écran ne sache conserver les motifs. Plutôt que de laisser un écart inexpliqué, la différence est affichée comme une ligne à part, pour que le total du haut corresponde toujours à ce qui figure en dessous."
         }
       ]
     },

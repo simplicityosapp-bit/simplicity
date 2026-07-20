@@ -149,7 +149,7 @@
     },
     "status": {
       "active": "Actif",
-      "wandering": "Entre-deux",
+      "wandering": "En pause",
       "past": "Ancien",
       "no_status": "Aucun"
     },

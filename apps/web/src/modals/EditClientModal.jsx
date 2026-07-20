@@ -39,7 +39,7 @@ function Section({ icon, title, summary, open, onToggle, children }) {
    The fields are grouped into four foldable sections (details / scheduling /
    billing / groups) so the form reads top-down instead of as one long scroll.
    None of the billing math or save logic changes with the regroup. */
-export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [] }) {
+export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, onBalanceEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [] }) {
   const { t } = useT('modalsClient')
   /* Per-group billing override (group_members.total_override) — keyed by
      membership id. Lets the user manually set a member's total after the
@@ -180,6 +180,13 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       const nextDoneAdj = (Number(form.done) || 0) - personalHeld
       const prevDoneAdj = Number(client?.sessions_done_adjustment) || 0
       if (nextDoneAdj !== prevDoneAdj) patch.sessions_done_adjustment = nextDoneAdj
+      /* The client file shows "עודכן {date}" under the notes, but the stamp was
+         only ever written on CREATE — so an edited note kept a stale date, or
+         showed none at all. Stamp it only when the text actually changed, so a
+         plain save never bumps it. */
+      if ((form.notes.trim() || null) !== (client.notes ?? null)) {
+        patch.notes_updated_at = new Date().toISOString()
+      }
       /* Billing edits are handled INDEPENDENTLY — "שולם" and "יתרה" can both
          change in one save and neither is discarded:
          - "יתרה" → balance_adjustment (a forgiveness that only affects the
@@ -190,7 +197,11 @@ export default function EditClientModal({ open, onClose, onSave, client, project
          depends on migrations 0010/0012 existing. */
       const prevAdj = Number(client?.balance_adjustment) || 0
       const nextAdj = Number(form.adjustment) || 0
-      if (nextAdj !== prevAdj) patch.balance_adjustment = nextAdj
+      /* NOT written into the patch any more. A changed «יתרה» is a real
+         adjustment, so it goes through the adjustment sheet (which moves the
+         same balance_adjustment column AND records why — migration 0095).
+         Writing it here too would double-apply it. */
+      const balanceDelta = nextAdj - prevAdj
       const nextPaid = Number(form.paid) || 0
       /* delta vs the currently-shown "שולם" (= real income + informal adj). */
       const paymentDelta = nextPaid - (rawPaid + (Number(client?.paid_adjustment) || 0))
@@ -203,9 +214,12 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           await onUpdateMember?.(m.id, { total_override: next, has_custom_price: next != null })
         }
       }
-      /* A manual "שולם" change → hand the delta to the parent so it can ask
-         whether to record a real transaction. */
+      /* Hand any manual money change to the parent, which opens the adjustment
+         sheet so it lands in the ledger with a reason. Paid wins if somehow
+         both changed in one save — the sheet takes one adjustment at a time,
+         and «שולם» is the one that claims money actually moved. */
       if (paymentDelta !== 0) onPaidEntry?.(paymentDelta)
+      else if (balanceDelta !== 0) onBalanceEntry?.(balanceDelta)
       onClose()
     } catch (e) {
       setBusy(false)

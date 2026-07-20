@@ -9,14 +9,14 @@
   "loadError": "שגיאה בטעינת הלקוחות: {{error}}",
   "status": {
     "active": "פעיל׌",
-    "wandering": "ביניים",
+    "wandering": "בהפסקה",
     "past": "לשעבר",
     "noStatus": "ללא סטטוס",
     "none": "ללא"
   },
   "hero": {
     "active": "סיכום לקוחות פעיל׊׉",
-    "wandering": "סיכום לקוחות ביניים",
+    "wandering": "סיכום לקוחות בהפסקה",
     "past": "סיכום לקוחות לשעבר",
     "noStatus": "סיכום ללא סטטוס",
     "clients": "לקוחות",
@@ -46,8 +46,13 @@
   },
   "groupBy": {
     "aria": "קיבוץ לקוחות",
+    "heading": "קיבוץ",
     "status": "סטטוס",
     "project": "פרויקט"
+  },
+  "view": {
+    "label": "תצוגה",
+    "multiSelect": "בחירה מרובה"
   },
   "select": {
     "enter": "בחר/י",
@@ -110,9 +115,9 @@
     "statusChanged": "הסטטוס שונה",
     "paymentDefaultDesc": "עדכון תשלום",
     "manualPayTitle": "עדכון תשלום ידני",
-    "manualPayMessage": "עדכנת את «שולם» ב-{{amount}}. להוסיף תנועה רשמית בכסף, או רק לעדכן את כרטיס הלקוח (בלי תנועה)?",
-    "manualPayConfirm": "הוסף תנועה",
-    "manualPayCancel": "רק בכרטיס"
+    "manualPayMessage": "עדכנת את «שולם» ב-{{amount}}. אפשר לרשום את הסכום כהכנסה בדוחות הכספים, או לתקן רק את כרטיס הלקוח — תיקון בכרטיס בלבד לא יופיע בדוחות הכספים.",
+    "manualPayConfirm": "רישום כהכנסה",
+    "manualPayCancel": "תיקון בכרטיס בלבד"
   },
   "sections": {
     "activity": "פעילות",
@@ -154,6 +159,43 @@
     "noFixedPrice": "ללא מחיר קבוע",
     "packageSessions": "{{count}} פגישות · ",
     "notInGroups": "לא בקבוצות"
+  },
+  "inline": {
+    "save": "שמירה",
+    "cancel": "ביטול",
+    "saving": "שומר…",
+    "saveFailed": "השמירה נכשלה. נסו שוב.",
+    "notesPlaceholder": "מה חשוב לזכור על הלקוח׌?"
+  },
+  "adjust": {
+    "open": "התאמה",
+    "title": "התאמה",
+    "whatHappened": "מה קרה?",
+    "reasonDiscount": "הנחה",
+    "reasonImportFix": "תיקון נתוני ייבוא",
+    "reasonUnrecorded": "תשלום שהתקבל ולא נרשם",
+    "amount": "סכום ₪",
+    "note": "הערה",
+    "notePlaceholder": "למשל: מזומן בפגישה",
+    "previewPaid": "שולם: {{from}} ← {{to}}",
+    "previewBalance": "יתרה: {{from}} ← {{to}}",
+    "notInReports": "התאמה לא מופיעה בדוחות הכספים.",
+    "alsoRecordIncome": "לרשום כהכנסה בדוחות במקום",
+    "amountRequired": "יש להזין סכום.",
+    "saveFailed": "השמירה נכשלה. נסו שוב.",
+    "undoLabel": "נרשמה התאמה של {{amount}}",
+    "legacyRow": "התאמה קודמת",
+    "noDate": "ללא תאריך",
+    "affectsBalance": "מקטין את היתרה",
+    "row": {
+      "discount": "הנחה",
+      "import_fix": "תיקון נתוני ייבוא",
+      "unrecorded_payment": "תשלום שהתקבל ולא נרשם"
+    },
+    "cancelDiscards": "ביטול כאן יבטל גם את השינוי שהזנת.",
+    "writeOffs": "מחיקות חוב",
+    "unexplained": "התאמה ללא פירוט",
+    "unexplainedSub": "נרשמה מחוץ למסך הזה"
   },
   "plan": {
     "title": "פריסת תשלומים",
@@ -203,8 +245,8 @@
     "birthDate": "תאריך לידה",
     "group": "קבוצה (אופציונלי)",
     "noGroup": "ללא קבוצה",
-    "recurringDay": "פגישה קבועה — יום",
-    "recurringTime": "פגישה קבועה — שעה",
+    "recurringDay": "יום",
+    "recurringTime": "שעה",
     "clearRecurring": "ניקוי פגישה קבועה",
     "days": {
       "0": "ראשון",
@@ -214,7 +256,13 @@
       "4": "חמישי",
       "5": "שישי",
       "6": "שבת"
-    }
+    },
+    "onlyNameRequired": "רק השם חובה",
+    "moreToggle": "חיוב, פגישות ועוד",
+    "grpBilling": "חיוב",
+    "grpLinks": "שיוך",
+    "grpContact": "קשר",
+    "grpRecurring": "פגישה קבועה"
   },
   "dataWarning": "חלק מהנתונים לא נטענו — ייתכן שהיתרות חלקיות."
 }

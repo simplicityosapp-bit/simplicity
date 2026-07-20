@@ -1,34 +1,58 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Trans } from 'react-i18next'
 import { ChevronDown, Pencil, Check } from 'lucide-react'
 import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, fmtTime } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import PaymentPlanSection from './PaymentPlanSection'
-import { Box, Txt, Btn } from '../../components/ui'
+import DateField from '../../components/DateField'
+import { Box, Txt, Btn, Input, Textarea } from '../../components/ui'
+
+const DAY_KEYS = [0, 1, 2, 3, 4, 5, 6]
 
 const PRIORITY_COLOR = { high: 'var(--clay)', medium: 'var(--amber-warn)', low: 'var(--sage)' }
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
+/* Render an amount with its OWN sign — adjustments can be negative (a figure
+   imported too high), so the sign can't be inferred from the row's kind. */
+const signed = (n) => `${(Number(n) || 0) < 0 ? '−' : '+'}${isr(Math.abs(Number(n) || 0))}`
 
 /* A collapsible section. When `onEdit` is supplied the header shows a real
    edit button — a SIBLING of the toggle, never nested inside it (nested
    <button> is invalid HTML and swallowed the tap on mobile). `editing`
    reflects the panel's active edit state: it forces the section open and
    flips the pencil to a "done" check. */
-function Section({ title, count, defaultOpen = false, onEdit, editing = false, children }) {
+/* `inline` marks the three sections whose pencil opens a form with its own
+   save/cancel inside the body, rather than a row-edit mode. Those hide the
+   header button while the form is open: it rendered as a ✓ titled "סיום
+   עריכה", but clicking it discarded everything typed. */
+function Section({ title, count, defaultOpen = false, onEdit, editing = false, inline = false, children }) {
   const { t } = useT('clients')
   const [open, setOpen] = useState(defaultOpen)
+  /* Entering edit mode also latches the section open, so that when editing
+     ends the panel doesn't snap shut and hide the value just saved. Adjusted
+     during render (not in an effect) to avoid a cascading set-state-in-effect,
+     the same pattern the clients screen uses for its route/selection resets. */
+  const [prevEditing, setPrevEditing] = useState(editing)
+  if (editing !== prevEditing) {
+    setPrevEditing(editing)
+    if (editing) setOpen(true)
+  }
   const isOpen = open || editing
+  /* Inert while editing. `isOpen` is forced true then, so a toggle click had
+     no visible effect but still flipped `open` to false underneath — and the
+     section snapped shut the moment the save landed, which is exactly what
+     the latch above exists to prevent. */
+  const toggleOpen = () => { if (!editing) setOpen((o) => !o) }
   return (
     <Box className={`cd-section${isOpen ? ' open' : ''}${editing ? ' editing' : ''}`}>
       <Box className="cd-sec-head">
-        <Btn type="button" className="cd-sec-toggle" onClick={() => setOpen((o) => !o)} aria-expanded={isOpen}>
+        <Btn type="button" className="cd-sec-toggle" onClick={toggleOpen} aria-expanded={isOpen} aria-disabled={editing || undefined}>
           <Txt className="cd-sec-title">
             {title}
             {count != null && <Txt className="cd-sec-count">{count}</Txt>}
           </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className="cd-sec-chev" aria-hidden="true" />
         </Btn>
-        {onEdit && (
+        {onEdit && !(inline && editing) && (
           <Btn
             type="button"
             className={`cd-sec-edit${editing ? ' on' : ''}`}
@@ -48,13 +72,117 @@ function Section({ title, count, defaultOpen = false, onEdit, editing = false, c
   )
 }
 
-export default function ClientDrawerSections({ client: c, balance, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder }) {
+/* Inline editor for a single-value section (recurring slot / more details /
+   notes). The pencil swaps the section's read view for these fields plus an
+   explicit save+cancel pair — deliberately NOT save-on-blur, so there is
+   always a definite "I saved" moment for a non-technical user.
+   Module-level (stable identity) so the inputs never remount on a parent
+   re-render — same reason EditClientModal's Section sits at module level;
+   typing must keep focus. Fields come in as children, so they reconcile
+   normally. */
+function InlineForm({ onSave, onCancel, saving, error, children }) {
+  const { t } = useT('clients')
+  return (
+    <Box className="cd-inline">
+      {children}
+      {error && <Txt as="p" className="cd-inline-err">{error}</Txt>}
+      <Box className="cd-inline-actions">
+        <Btn type="button" className="cd-inline-cancel" onClick={onCancel} disabled={saving}>
+          {t('inline.cancel')}
+        </Btn>
+        <Btn type="button" className="cd-inline-save" onClick={onSave} disabled={saving}>
+          {saving ? t('inline.saving') : t('inline.save')}
+        </Btn>
+      </Box>
+    </Box>
+  )
+}
+
+export default function ClientDrawerSections({ client: c, balance, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], adjustments = [], modalOpen = false, onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder, onUpdateClient }) {
   const { t } = useT('clients')
   /* Which panel is currently in edit mode (one at a time). The header
      pencil toggles it; in edit mode the panel's rows become tappable and
      open the matching editor. */
   const [editKey, setEditKey] = useState(null)
   const toggleEdit = (k) => setEditKey((p) => (p === k ? null : k))
+
+  /* ── inline single-value editing ──
+     The three sections below (recurring slot / more details / notes) used to
+     hand their pencil straight to the full edit modal — the same thing the
+     header's "ערוך" button does. So one pencil icon meant two different
+     things depending on which section it sat in. They now edit their own
+     field in place; only "חברויות בקבוצות" still opens the modal, because a
+     table of per-group price overrides is not a single value. */
+  /* Deliberately SEPARATE from editKey above. Sharing one key meant opening
+     any list section's pencil silently threw away a half-typed note, and a
+     save landing after the user moved on would exit the row-edit mode they
+     had just entered. The two kinds of editing are independent. */
+  const [inlineKey, setInlineKey] = useState(null)
+  /* Mirrors inlineKey so an in-flight save can tell, on landing, whether the
+     user has since moved to a different editor — the state variable captured
+     in that closure is stale by then. */
+  const inlineKeyRef = useRef(null)
+  useEffect(() => { inlineKeyRef.current = inlineKey }, [inlineKey])
+  const [draft, setDraft] = useState({})
+  const [saving, setSaving] = useState(false)
+  const [saveErr, setSaveErr] = useState('')
+  const setField = (k, v) => setDraft((d) => ({ ...d, [k]: v }))
+  const closeInline = () => { setInlineKey(null); setDraft({}); setSaving(false); setSaveErr('') }
+  /* A modal took over (full edit, schedule-meeting, …). Those write the same
+     client through other paths, so an inline draft left open underneath would
+     be stale — and saving it afterwards would silently revert what the modal
+     just wrote, stamping it as a fresh edit. Drop the draft instead.
+     Adjusted during render rather than in an effect, matching the pattern
+     used by Section above and by the clients screen. */
+  const [prevModalOpen, setPrevModalOpen] = useState(modalOpen)
+  if (modalOpen !== prevModalOpen) {
+    setPrevModalOpen(modalOpen)
+    if (modalOpen && inlineKey) closeInline()
+  }
+
+  /* Toggle an inline editor, seeding its draft from the client on open. */
+  const toggleInline = (k, seed) => {
+    if (inlineKey === k) { closeInline(); return }
+    setInlineKey(k); setDraft(seed); setSaving(false); setSaveErr('')
+  }
+  const saveInline = async (patch) => {
+    if (saving) return
+    const forKey = inlineKeyRef.current
+    setSaving(true)
+    setSaveErr('')
+    try {
+      await onUpdateClient?.(c.id, patch)
+      setSaving(false)
+      /* Only act if this editor is still the open one — a slow save landing
+         after the user switched must not close, or error onto, the new one. */
+      if (inlineKeyRef.current === forKey) { setInlineKey(null); setDraft({}) }
+    } catch {
+      /* Stay open with the draft intact so nothing typed is lost. */
+      setSaving(false)
+      if (inlineKeyRef.current === forKey) setSaveErr(t('inline.saveFailed'))
+    }
+  }
+
+  /* Adjustments split by which number they move: 'paid' ones belong under the
+     payments total (which includes them), 'balance' ones are debt written off
+     and get their own group. */
+  const paidAdjustments = adjustments.filter((a) => a.kind === 'paid')
+  const balanceAdjustments = adjustments.filter((a) => a.kind === 'balance')
+
+  /* The scalar is the source of truth; these rows only explain it. Anything
+     that moves the scalar WITHOUT writing a row leaves a gap — the mobile app
+     still writes it directly, a migration can be pending, someone can edit the
+     row in the database. Rather than trusting every writer to keep the two in
+     step, show whatever the rows don't account for as its own line. The total
+     then always adds up, whatever happened upstream. */
+  const unexplained = (col, rows) => {
+    const scalar = Number(c[col]) || 0
+    const explained = rows.reduce((s, a) => s + (Number(a.amount) || 0), 0)
+    const gap = Math.round((scalar - explained) * 100) / 100
+    return gap === 0 ? null : gap
+  }
+  const unexplainedPaid = unexplained('paid_adjustment', paidAdjustments)
+  const unexplainedBalance = unexplained('balance_adjustment', balanceAdjustments)
 
   /* ── data ── */
   const payments = financeQuery({ clientId: c.id, includePending: true, source: txns })
@@ -91,8 +219,64 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
       <Box className="cd-group">
         <Txt as="p" className="cd-group-title">{t('sections.activity')}</Txt>
 
-        <Section title={t('sections.recurring')} onEdit={onEditClient}>
-          {hasRecurring ? (
+        <Section
+          title={t('sections.recurring')}
+          onEdit={onUpdateClient ? () => toggleInline('recurring', {
+            recurring_day: c.recurring_day != null ? String(c.recurring_day) : '',
+            recurring_time: c.recurring_time || '',
+          }) : onEditClient}
+          editing={inlineKey === 'recurring'}
+          inline
+        >
+          {inlineKey === 'recurring' ? (
+            <InlineForm
+              saving={saving}
+              error={saveErr}
+              onCancel={closeInline}
+              onSave={() => saveInline({
+                recurring_day: draft.recurring_day !== '' ? Number(draft.recurring_day) : null,
+                /* A fixed meeting needs a day; with no day the times are inert
+                   — drop them so a stray time can't persist a half-set slot
+                   (mirrors EditClientModal). */
+                recurring_time: draft.recurring_day !== '' ? (draft.recurring_time || null) : null,
+                ...(draft.recurring_day === '' ? { recurring_end_time: null } : {}),
+              })}
+            >
+              <Box className="m-row2">
+                <Box className="m-field">
+                  <Box as="label" className="m-label">{t('form.recurringDay')}</Box>
+                  <select
+                    className="m-select"
+                    value={draft.recurring_day}
+                    onChange={(e) => setField('recurring_day', e.target.value)}
+                    aria-label={t('form.recurringDay')}
+                  >
+                    <option value="">{t('form.none')}</option>
+                    {DAY_KEYS.map((d) => <option key={d} value={d}>{t(`form.days.${d}`)}</option>)}
+                  </select>
+                </Box>
+                <Box className="m-field">
+                  <Box as="label" className="m-label">{t('form.recurringTime')}</Box>
+                  <Input
+                    type="time"
+                    className="m-input"
+                    value={draft.recurring_time}
+                    onChange={(e) => setField('recurring_time', e.target.value)}
+                    aria-label={t('form.recurringTime')}
+                  />
+                </Box>
+              </Box>
+              {/* A native time input can't be emptied on touch, so this is the
+                  only path back to "no fixed meeting". */}
+              {(draft.recurring_day !== '' || draft.recurring_time !== '' || !!c.recurring_end_time) && (
+                <Btn
+                  type="button"
+                  className="m-clear-link"
+                  onClick={() => { setField('recurring_day', ''); setField('recurring_time', '') }}
+                >{t('form.clearRecurring')}</Btn>
+              )}
+            </InlineForm>
+          ) : hasRecurring ? (
             <Txt as="p" className="cd-rec">
               <Trans
                 t={t}
@@ -147,6 +331,40 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
             <Txt>{t('sections.totalPaid')}</Txt>
             <Txt className="mono">{isr(payTotal)}</Txt>
           </Box>
+          {/* ONLY the 'paid' adjustments belong here: "סה״כ שולם" above is
+              balance.paid, which includes paid_adjustment but NOT
+              balance_adjustment. Listing both kinds under it put a −₪150
+              forgiveness inside a total it was never part of. The 'balance'
+              ones get their own group below. A 'legacy' row predates migration
+              0095 and has no date or reason to show. */}
+          {paidAdjustments.map((a) => (
+            <Box key={a.id} className="cd-row">
+              <Txt className="cd-row-dot cd-dot-adjust" />
+              <Box className="cd-row-body">
+                <Txt as="p" className="cd-row-title">
+                  {a.reason === 'legacy' ? t('adjust.legacyRow') : t(`adjust.row.${a.reason}`)}
+                  {a.note ? <Txt className="cd-row-note"> · {a.note}</Txt> : null}
+                </Txt>
+                <Txt as="p" className="cd-row-sub">
+                  {a.occurred_on ? fmtShortDate(a.occurred_on) : t('adjust.noDate')}
+                </Txt>
+              </Box>
+              {/* Sign comes from the AMOUNT, not the kind — a correction
+                  downward is a negative 'paid' adjustment and must not render
+                  with a +. */}
+              <Txt className="cd-row-amt mono">{signed(a.amount)}</Txt>
+            </Box>
+          ))}
+          {unexplainedPaid != null && (
+            <Box className="cd-row">
+              <Txt className="cd-row-dot cd-dot-adjust" />
+              <Box className="cd-row-body">
+                <Txt as="p" className="cd-row-title">{t('adjust.unexplained')}</Txt>
+                <Txt as="p" className="cd-row-sub">{t('adjust.unexplainedSub')}</Txt>
+              </Box>
+              <Txt className="cd-row-amt mono">{signed(unexplainedPaid)}</Txt>
+            </Box>
+          )}
           {payments.length ? (
             payments.map((f) => {
               const body = (
@@ -175,6 +393,40 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
             })
           ) : (
             <Txt as="p" className="cd-empty">{t('sections.noPayments')}</Txt>
+          )}
+
+          {/* Debt written off — real history, but NOT part of "סה״כ שולם"
+              above, so it sits under its own heading rather than inside a
+              total it never belonged to. */}
+          {(balanceAdjustments.length > 0 || unexplainedBalance != null) && (
+            <>
+              <Txt as="p" className="cd-adjust-head">{t('adjust.writeOffs')}</Txt>
+              {unexplainedBalance != null && (
+                <Box className="cd-row">
+                  <Txt className="cd-row-dot cd-dot-adjust" />
+                  <Box className="cd-row-body">
+                    <Txt as="p" className="cd-row-title">{t('adjust.unexplained')}</Txt>
+                    <Txt as="p" className="cd-row-sub">{t('adjust.unexplainedSub')}</Txt>
+                  </Box>
+                  <Txt className="cd-row-amt mono">{signed(-unexplainedBalance)}</Txt>
+                </Box>
+              )}
+              {balanceAdjustments.map((a) => (
+                <Box key={a.id} className="cd-row">
+                  <Txt className="cd-row-dot cd-dot-adjust" />
+                  <Box className="cd-row-body">
+                    <Txt as="p" className="cd-row-title">
+                      {a.reason === 'legacy' ? t('adjust.legacyRow') : t(`adjust.row.${a.reason}`)}
+                      {a.note ? <Txt className="cd-row-note"> · {a.note}</Txt> : null}
+                    </Txt>
+                    <Txt as="p" className="cd-row-sub">
+                      {a.occurred_on ? fmtShortDate(a.occurred_on) : t('adjust.noDate')}
+                    </Txt>
+                  </Box>
+                  <Txt className="cd-row-amt mono">{signed(-a.amount)}</Txt>
+                </Box>
+              ))}
+            </>
           )}
         </Section>
 
@@ -237,8 +489,46 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
       <Box className="cd-group">
         <Txt as="p" className="cd-group-title">{t('sections.contactEnv')}</Txt>
 
-        <Section title={t('sections.moreDetails')} onEdit={onEditClient}>
-          {(c.address || c.birth_date) ? (
+        <Section
+          title={t('sections.moreDetails')}
+          onEdit={onUpdateClient ? () => toggleInline('more', {
+            address: c.address || '',
+            birth_date: c.birth_date || '',
+          }) : onEditClient}
+          editing={inlineKey === 'more'}
+          inline
+        >
+          {inlineKey === 'more' ? (
+            <InlineForm
+              saving={saving}
+              error={saveErr}
+              onCancel={closeInline}
+              onSave={() => saveInline({
+                address: draft.address.trim() || null,
+                birth_date: draft.birth_date || null,
+              })}
+            >
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('form.address')}</Box>
+                <Input
+                  className="m-input"
+                  value={draft.address}
+                  onChange={(e) => setField('address', e.target.value)}
+                  aria-label={t('form.address')}
+                  placeholder={t('form.addressPlaceholder')}
+                />
+              </Box>
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('form.birthDate')}</Box>
+                <DateField
+                  className="m-input"
+                  value={draft.birth_date}
+                  onChange={(e) => setField('birth_date', e.target.value)}
+                  aria-label={t('form.birthDate')}
+                />
+              </Box>
+            </InlineForm>
+          ) : (c.address || c.birth_date) ? (
             <>
               {c.address && (
                 <Box className="cd-row">
@@ -262,8 +552,38 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
           )}
         </Section>
 
-        <Section title={t('sections.notes')} onEdit={onEditClient}>
-          {c.notes ? (
+        <Section
+          title={t('sections.notes')}
+          onEdit={onUpdateClient ? () => toggleInline('notes', { notes: c.notes || '' }) : onEditClient}
+          editing={inlineKey === 'notes'}
+          inline
+        >
+          {inlineKey === 'notes' ? (
+            <InlineForm
+              saving={saving}
+              error={saveErr}
+              onCancel={closeInline}
+              onSave={() => {
+                const next = draft.notes.trim() || null
+                const patch = { notes: next }
+                /* Stamp only on a real change, so re-saving an untouched note
+                   never bumps the "עודכן" date shown below it. */
+                if (next !== (c.notes ?? null)) patch.notes_updated_at = new Date().toISOString()
+                saveInline(patch)
+              }}
+            >
+              <Box className="m-field">
+                <Textarea
+                  className="m-textarea"
+                  rows={4}
+                  value={draft.notes}
+                  onChange={(e) => setField('notes', e.target.value)}
+                  placeholder={t('inline.notesPlaceholder')}
+                  aria-label={t('sections.notes')}
+                />
+              </Box>
+            </InlineForm>
+          ) : c.notes ? (
             <>
               <Txt as="p" className="cd-note">{c.notes}</Txt>
               {c.notes_updated_at && <Txt as="p" className="cd-note-ts">{t('sections.notesUpdated', { date: fmtShortDate(c.notes_updated_at) })}</Txt>}

@@ -65,7 +65,7 @@
       "clients": "Clientes",
       "clientsInfoLabel": "Acerca de los clientes",
       "clientsInfoText_pre": "Toca",
-      "clientsInfoText_post": " la tarjeta para filtrar por estado, proyecto y grupo. Por defecto: activo + medio.",
+      "clientsInfoText_post": " la tarjeta para filtrar por estado, proyecto y grupo. Por defecto: activo + en pausa.",
       "meetings": "Agenda",
       "meetingsInfoLabel": "Acerca de la agenda",
       "meetingsInfoText_pre": "Toca",

@@ -48,7 +48,7 @@ const missingPrice = (c) =>
   !(Number(c.price_per_session) > 0) && c.total_override == null && !c.has_custom_price
 
 /* The "missing price" quality check only concerns clients we're actually
-   (or potentially) working with: 'active' (פעיל) and 'wandering' (ביניים).
+   (or potentially) working with: 'active' (פעיל) and 'wandering' (בהפסקה).
    'past' (לשעבר) and 'no_status' (ללא סטטוס) clients are ignored — a former
    client doesn't need a price. Status labels per enums.js (D18). */
 const statusMetaOf = (c) => c.status_meta || c.status || 'no_status'

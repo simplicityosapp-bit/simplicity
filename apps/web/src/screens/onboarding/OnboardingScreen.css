@@ -409,6 +409,41 @@
 [data-theme="dark"] .ob-client-form .m-pill.on { color: var(--ink); }
 /* Each shared field stacks label-pill above its control with a small gap. */
 .ob-client-form .m-field { display: flex; flex-direction: column; gap: 4px; }
+/* The shared form now keeps billing / links / contact / the recurring slot
+   behind ONE toggle, so that toggle and its group headings carry real weight
+   here — and over the forest photo they'd otherwise be bare text. The panel
+   wears the standard card glass (never an opaque sheet — the immersive
+   onboarding look stays), and the headings + hint take the same legibility
+   pill the field labels already use. */
+.ob-client-form .ec-acc {
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  backdrop-filter: var(--mg-card-blur);
+}
+.ob-client-form .ec-acc-title { font-weight: 600; }
+.ob-client-form .m-group-h,
+.ob-client-form .m-hint {
+  display: inline-block;
+  width: fit-content;
+  padding: 3px 11px;
+  border-radius: 999px;
+  background: rgba(255, 252, 247, 0.82);
+  backdrop-filter: var(--mg-card-blur);
+  border: var(--mg-card-border);
+  color: var(--espresso);
+}
+/* Each dark selector stands ALONE — a comma list here gets minified into
+   ".ob-client-form .m-group-h,[data-theme=dark] .ob-client-form .m-hint",
+   dropping the prefix off the first one and painting the heading dark in
+   LIGHT mode. Same trap tokens.css documents. Verified in dist/. */
+[data-theme="dark"] .ob-client-form .m-group-h {
+  background: rgba(26, 22, 18, 0.82);
+  color: var(--cream);
+}
+[data-theme="dark"] .ob-client-form .m-hint {
+  background: rgba(26, 22, 18, 0.82);
+  color: var(--cream);
+}
 .ob-input,
 .ob-select {
   padding: 10px 12px;

@@ -33,7 +33,7 @@
   },
   "clientMetas": {
     "active": "Actif",
-    "wandering": "Hésitant",
+    "wandering": "En pause",
     "past": "Ancien",
     "no_status": "Sans statut"
   },

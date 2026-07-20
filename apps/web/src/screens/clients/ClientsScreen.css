@@ -186,9 +186,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Group-by toggle (in top-actions row) ──────────────────────── */
-.c-groupby { margin-inline-end: 8px; }
-
 /* ── Project-grouped view ─────────────────────────────────────── */
 /* When the user picks "פרויקט", the flat list becomes a stack of
    .c-proj-group blocks, each with a project header strip + a card
@@ -391,7 +388,10 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Top actions: sort + select + add ───────────────────────── */
+/* ── Top actions: the single "תצוגה" menu ───────────────────────
+   Sort, grouping and multi-select used to sit here as three permanent
+   controls; they now live inside one popover so the row above the tabs
+   carries a single trigger. */
 .c-top-actions {
   display: flex;
   align-items: center;
@@ -406,8 +406,7 @@
   position: relative;
   display: inline-block;
 }
-.c-sort-btn,
-.c-select-btn {
+.c-sort-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -423,31 +422,25 @@
   cursor: pointer;
   transition: background 0.15s, box-shadow 0.15s;
 }
-.c-sort-btn:hover,
-.c-select-btn:hover {
+.c-sort-btn:hover {
   background: rgba(255, 250, 240, 0.78);
   box-shadow: 0 6px 18px rgba(42, 37, 32, 0.12);
 }
-[data-theme="dark"] .c-sort-btn,
-[data-theme="dark"] .c-select-btn {
+[data-theme="dark"] .c-sort-btn {
   border-color: rgba(240, 235, 224, 0.20);
   background: rgba(20, 18, 14, 0.55);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32);
 }
-.c-select-btn.on {
-  background: var(--espresso);
-  border-color: var(--espresso);
-  color: var(--on-accent);
-}
-[data-theme="dark"] .c-select-btn.on {
-  color: var(--ink-on-accent);
-}
-[data-theme="dark"] .c-sort-btn:hover,
-[data-theme="dark"] .c-select-btn:hover {
+[data-theme="dark"] .c-sort-btn:hover {
   background: rgba(240, 235, 224, 0.07);
 }
+/* Active non-default grouping, echoed on the trigger. */
+.c-view-active {
+  color: var(--stone);
+  font-weight: 500;
+}
 
-/* Sort popover */
+/* View popover */
 .c-sort-pop {
   position: absolute;
   top: calc(100% + 6px);
@@ -488,10 +481,22 @@
 .c-sort-opt:hover {
   background: rgba(42, 37, 32, 0.04);
 }
+/* Selected option — an OPAQUE pill. It used to be a 15%-alpha sage tint
+   carrying sage text, so the coloured label dissolved into the glass popover
+   behind it. Same fill as .mg-toggle-btn.on, so "selected" reads identically
+   wherever it appears. */
 .c-sort-opt.on {
-  background: rgba(139, 168, 136, 0.15);
-  color: var(--sage);
-  font-weight: 600;
+  background: var(--terracotta);
+  color: var(--on-accent);
+  font-weight: 500;
+}
+/* Grouping toggle at the head of the menu — split the width evenly. */
+.c-view-toggle {
+  margin-bottom: 2px;
+}
+.c-view-toggle .mg-toggle-btn {
+  flex: 1;
+  text-align: center;
 }
 .c-sort-divider {
   height: 1px;
@@ -508,6 +513,11 @@
 }
 [data-theme="dark"] .c-sort-opt:hover {
   background: rgba(240, 235, 224, 0.05);
+}
+/* Must follow the dark hover rule — equal specificity, so source order is what
+   keeps a selected option opaque while the pointer is over it. */
+[data-theme="dark"] .c-sort-opt.on {
+  color: var(--ink-on-accent);
 }
 
 /* ── Bulk select state ──────────────────────────────────────── */

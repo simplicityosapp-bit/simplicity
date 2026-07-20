@@ -53,9 +53,14 @@ const HOME_TOUR = [
    double glow. Steps whose target is absent are skipped at runtime. */
 const CLIENTS_TOUR = [
   { target: '.c-tabs-row',    title: 'guidance:tour.clients.tabs.title',    body: 'guidance:tour.clients.tabs.body' },
-  { target: '.c-groupby',     title: 'guidance:tour.clients.groupby.title', body: 'guidance:tour.clients.groupby.body' },
+  /* Sorting, grouping and multi-select used to be three controls on the
+     screen and had two tour steps between them (.c-groupby, .c-select-btn).
+     They now live inside the one "תצוגה" popover — and since steps with a
+     missing target are silently skipped, leaving those selectors would have
+     dropped the walkthrough for exactly the controls that just became less
+     discoverable. One step on the trigger covers all three. */
+  { target: '.c-sort-btn',    title: 'guidance:tour.clients.view.title',    body: 'guidance:tour.clients.view.body' },
   { target: '.s-hero',        title: 'guidance:tour.clients.hero.title',    body: 'guidance:tour.clients.hero.body' },
-  { target: '.c-select-btn',  title: 'guidance:tour.clients.select.title',  body: 'guidance:tour.clients.select.body' },
   { target: '.cta-add',       title: 'guidance:tour.clients.add.title',     body: 'guidance:tour.clients.add.body', radius: '50%', accent: 'sage' },
 ]
 

@@ -9,14 +9,14 @@
   "loadError": "Impossible de charger les clients : {{error}}",
   "status": {
     "active": "Actif",
-    "wandering": "Hésitant",
+    "wandering": "En pause",
     "past": "Ancien",
     "noStatus": "Sans statut",
     "none": "Aucun"
   },
   "hero": {
     "active": "Résumé des clients actifs",
-    "wandering": "Résumé des clients hésitants",
+    "wandering": "Résumé des clients en pause",
     "past": "Résumé des anciens clients",
     "noStatus": "Résumé sans statut",
     "clients": "Clients",
@@ -44,8 +44,13 @@
   },
   "groupBy": {
     "aria": "Grouper les clients",
+    "heading": "Grouper par",
     "status": "Statut",
     "project": "Projet"
+  },
+  "view": {
+    "label": "Affichage",
+    "multiSelect": "Sélection multiple"
   },
   "select": {
     "enter": "Sélectionner",
@@ -104,9 +109,9 @@
     "statusChanged": "Statut modifié",
     "paymentDefaultDesc": "Mise à jour du paiement",
     "manualPayTitle": "Mise à jour manuelle du paiement",
-    "manualPayMessage": "Vous avez mis à jour « Payé » de {{amount}}. Enregistrer une transaction réelle, ou simplement mettre à jour la fiche client (sans transaction) ?",
-    "manualPayConfirm": "Ajouter une transaction",
-    "manualPayCancel": "Fiche uniquement"
+    "manualPayMessage": "Vous avez mis à jour « Payé » de {{amount}}. Vous pouvez enregistrer le montant comme revenu dans vos rapports financiers, ou corriger uniquement la fiche client — une correction limitée à la fiche n'apparaîtra pas dans les rapports financiers.",
+    "manualPayConfirm": "Enregistrer comme revenu",
+    "manualPayCancel": "Corriger la fiche uniquement"
   },
   "sections": {
     "activity": "Activité",
@@ -148,6 +153,43 @@
     "noFixedPrice": "Pas de prix fixe",
     "packageSessions": "{{count}} séances · ",
     "notInGroups": "Dans aucun groupe"
+  },
+  "inline": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "saveFailed": "L'enregistrement a échoué. Réessayez.",
+    "notesPlaceholder": "Que faut-il retenir de ce client ?"
+  },
+  "adjust": {
+    "open": "Ajustement",
+    "title": "Ajustement",
+    "whatHappened": "Que s'est-il passé ?",
+    "reasonDiscount": "Remise",
+    "reasonImportFix": "Correction de données importées",
+    "reasonUnrecorded": "Paiement reçu, non enregistré",
+    "amount": "Montant ₪",
+    "note": "Note",
+    "notePlaceholder": "ex. : espèces à la séance",
+    "previewPaid": "Payé : {{from}} → {{to}}",
+    "previewBalance": "Solde : {{from}} → {{to}}",
+    "notInReports": "Un ajustement n'apparaît pas dans les rapports financiers.",
+    "alsoRecordIncome": "Enregistrer comme revenu à la place",
+    "amountRequired": "Saisissez un montant.",
+    "saveFailed": "L'enregistrement a échoué. Réessayez.",
+    "undoLabel": "Ajustement de {{amount}} enregistré",
+    "legacyRow": "Ajustement antérieur",
+    "noDate": "Sans date",
+    "affectsBalance": "réduit le solde",
+    "row": {
+      "discount": "Remise",
+      "import_fix": "Correction de données importées",
+      "unrecorded_payment": "Paiement reçu, non enregistré"
+    },
+    "cancelDiscards": "Annuler ici abandonne aussi la modification saisie.",
+    "writeOffs": "Dette annulée",
+    "unexplained": "Ajustement non détaillé",
+    "unexplainedSub": "enregistré hors de cet écran"
   },
   "plan": {
     "title": "Échéancier",
@@ -197,8 +239,8 @@
     "birthDate": "Date de naissance",
     "group": "Groupe (facultatif)",
     "noGroup": "Aucun groupe",
-    "recurringDay": "Rendez-vous récurrent — jour",
-    "recurringTime": "Rendez-vous récurrent — heure",
+    "recurringDay": "Jour",
+    "recurringTime": "Heure",
     "clearRecurring": "Effacer le rendez-vous récurrent",
     "days": {
       "0": "Dimanche",
@@ -208,7 +250,13 @@
       "4": "Jeudi",
       "5": "Vendredi",
       "6": "Samedi"
-    }
+    },
+    "onlyNameRequired": "Seul le nom est obligatoire",
+    "moreToggle": "Facturation, séances et plus",
+    "grpBilling": "Facturation",
+    "grpLinks": "Rattachement",
+    "grpContact": "Contact",
+    "grpRecurring": "Séance récurrente"
   },
   "dataWarning": "Certaines données ne se sont pas chargées — les soldes peuvent être incomplets."
 }

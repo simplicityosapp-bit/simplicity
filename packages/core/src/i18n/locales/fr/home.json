@@ -65,7 +65,7 @@
       "clients": "Clients",
       "clientsInfoLabel": "À propos des clients",
       "clientsInfoText_pre": "Touchez",
-      "clientsInfoText_post": " la carte pour filtrer par statut, projet et groupe. Par défaut : actifs + intermédiaires.",
+      "clientsInfoText_post": " la carte pour filtrer par statut, projet et groupe. Par défaut : actifs + en pause.",
       "meetings": "Agenda",
       "meetingsInfoLabel": "À propos du planning",
       "meetingsInfoText_pre": "Appuyez sur",

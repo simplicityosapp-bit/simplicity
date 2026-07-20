@@ -51,7 +51,7 @@ export const groups = [
 /* ── client_statuses — תת-סטטוס ברירת-מחדל אחד לכל meta_category ── */
 export const client_statuses = [
   { id: uid(), user_id: USER, meta_category: 'active', display_name: 'פעיל׌', icon: '🟢', is_default: true, created_at: daysAgo(300), updated_at: daysAgo(300), deleted_at: null },
-  { id: uid(), user_id: USER, meta_category: 'wandering', display_name: 'ביניים', icon: '🟡', is_default: true, created_at: daysAgo(300), updated_at: daysAgo(300), deleted_at: null },
+  { id: uid(), user_id: USER, meta_category: 'wandering', display_name: 'בהפסקה', icon: '🟡', is_default: true, created_at: daysAgo(300), updated_at: daysAgo(300), deleted_at: null },
   { id: uid(), user_id: USER, meta_category: 'past', display_name: 'לשעבר', icon: '⚫', is_default: true, created_at: daysAgo(300), updated_at: daysAgo(300), deleted_at: null },
   { id: uid(), user_id: USER, meta_category: 'no_status', display_name: 'ללא סטטוס', icon: '⚪', is_default: true, created_at: daysAgo(300), updated_at: daysAgo(300), deleted_at: null },
 ]
@@ -79,11 +79,11 @@ export const meeting_types = [
 /* ── clients — 5 מצבים שונים ── */
 export const clients = [
   // 0 — פעיל, פרטי, חשבון חלקי (12 פגישות, חלקן שולמו)
-  { id: uid(), user_id: USER, name: 'רעות מדיון', status: 'active', status_id: client_statuses[0].id, status_meta: 'active', project_id: projects[0].id, group_id: null, sessions: 12, price_per_session: 380, total_override: null, has_custom_price: false, meeting_type_id: meeting_types[0].id, price_overridden: false, recurring_day: 1, recurring_time: '18:00', left_mid_process: false, phone: '052-1234567', notes: 'עובדים על קצב פנימי.', notes_updated_at: daysAgo(5), created_at: daysAgo(220) },
-  // 1 — ביניים
+  { id: uid(), user_id: USER, name: 'רעות מדיון', status: 'active', status_id: client_statuses[0].id, status_meta: 'active', project_id: projects[0].id, group_id: null, sessions: 12, price_per_session: 380, total_override: null, has_custom_price: false, meeting_type_id: meeting_types[0].id, price_overridden: false, recurring_day: 1, recurring_time: '18:00', left_mid_process: false, phone: '052-1234567', paid_adjustment: 200, notes: 'עובדים על קצב פנימי.', notes_updated_at: daysAgo(5), created_at: daysAgo(220) },
+  // 1 — בהפסקה
   { id: uid(), user_id: USER, name: 'יעל אריאל', status: 'wandering', status_id: client_statuses[1].id, status_meta: 'wandering', project_id: projects[0].id, group_id: null, sessions: 6, price_per_session: 380, total_override: null, has_custom_price: false, meeting_type_id: meeting_types[0].id, price_overridden: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '052-7778899', notes: 'סיימה חבילה — לא חזרה לחדש.', notes_updated_at: daysAgo(40), created_at: daysAgo(150) },
   // 2 — לשעבר
-  { id: uid(), user_id: USER, name: 'אסף ברק', status: 'past', status_id: client_statuses[2].id, status_meta: 'past', project_id: projects[0].id, group_id: null, sessions: 20, price_per_session: 350, total_override: null, has_custom_price: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: null, notes: 'סיים מסע של 20 פגישות.', notes_updated_at: daysAgo(60), created_at: daysAgo(330) },
+  { id: uid(), user_id: USER, name: 'אסף ברק', status: 'past', status_id: client_statuses[2].id, status_meta: 'past', project_id: projects[0].id, group_id: null, sessions: 20, price_per_session: 350, total_override: null, has_custom_price: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: null, balance_adjustment: 150, notes: 'סיים מסע של 20 פגישות.', notes_updated_at: daysAgo(60), created_at: daysAgo(330) },
   // 3 — ללא סטטוס (פנייה טרייה)
   { id: uid(), user_id: USER, name: 'דניאל רגב', status: 'no_status', status_id: client_statuses[3].id, status_meta: 'no_status', project_id: null, group_id: null, sessions: 0, price_per_session: 0, total_override: null, has_custom_price: false, recurring_day: null, recurring_time: null, left_mid_process: false, phone: '050-1239876', notes: null, notes_updated_at: null, created_at: daysAgo(10) },
   // 4 — חבר קבוצה (מעגל בוקר)
@@ -318,6 +318,16 @@ export const user_preferences = {
   theme: 'light',
 }
 
+/* ── client_adjustments (migration 0095) ──
+   The ledger explaining clients.paid_adjustment / balance_adjustment. One
+   row carries a reason + date; the 'legacy' one is what the migration's
+   backfill produces for adjustments made before the table existed (no date,
+   no reason — those were never recorded). */
+export const client_adjustments = [
+  { id: uid(), user_id: USER, client_id: clients[0].id, kind: 'paid', reason: 'unrecorded_payment', amount: 200, note: 'מזומן בפגישה', occurred_on: dateAgo(12), created_at: daysAgo(12), updated_at: daysAgo(12), deleted_at: null },
+  { id: uid(), user_id: USER, client_id: clients[2].id, kind: 'balance', reason: 'legacy', amount: 150, note: null, occurred_on: null, created_at: daysAgo(80), updated_at: daysAgo(80), deleted_at: null },
+]
+
 /* ── MOCK_DB — הכל במקום אחד ── */
 /* Route B: staged incoming invoices awaiting import (preview only). */
 export const pending_invoice_imports = [
@@ -425,6 +435,7 @@ export const MOCK_DB = {
   group_members,
   clients,
   client_statuses,
+  client_adjustments,
   categories,
   transactions,
   recurring_templates,

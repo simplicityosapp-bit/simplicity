@@ -134,7 +134,7 @@
         },
         {
           "title": "Client statuses",
-          "body": "Every client belongs to one of four groups: Active, In-between, Former, No status. The tabs at the top of the list show the groups with a count for each. The \"No status\" tab only appears if there are clients in it. In Settings you can add your own sub-statuses to each group, and they'll appear in the status picker in the client form."
+          "body": "Every client belongs to one of four groups: Active, Paused, Former, No status. The tabs at the top of the list show the groups with a count for each. The \"No status\" tab only appears if there are clients in it. In Settings you can add your own sub-statuses to each group, and they'll appear in the status picker in the client form."
         },
         {
           "title": "Sorting the list",
@@ -432,7 +432,7 @@
         },
         {
           "title": "Project Screen: Header and Stats",
-          "body": "Inside the project, the header shows the number of active clients (and \"In-between\" clients if any) and the number of groups, along with three stats: clients, \"Income This Month\", and groups. The pencil button at the top opens \"Edit Project\". Note: \"Income This Month\" inside the project screen always shows the current month — it is not affected by the monthly/cumulative toggle on the main screen."
+          "body": "Inside the project, the header shows the number of active clients (and \"Paused\" clients if any) and the number of groups, along with three stats: clients, \"Income This Month\", and groups. The pencil button at the top opens \"Edit Project\". Note: \"Income This Month\" inside the project screen always shows the current month — it is not affected by the monthly/cumulative toggle on the main screen."
         },
         {
           "title": "Quick Add Inside a Project",

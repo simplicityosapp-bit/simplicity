@@ -54,7 +54,7 @@
     "back": "Atrás",
     "editAria": "Editar proyecto",
     "metaActive": "activos",
-    "metaWandering": "{{count}} indecisos",
+    "metaWandering": "{{count}} en pausa",
     "metaGroups": "{{count}} grupos",
     "stats": {
       "clients": "Clientes",

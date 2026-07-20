@@ -9,14 +9,14 @@
   "loadError": "No se pudieron cargar los clientes: {{error}}",
   "status": {
     "active": "Activo",
-    "wandering": "Indeciso",
+    "wandering": "En pausa",
     "past": "Anterior",
     "noStatus": "Sin estado",
     "none": "Ninguno"
   },
   "hero": {
     "active": "Resumen de clientes activos",
-    "wandering": "Resumen de clientes indecisos",
+    "wandering": "Resumen de clientes en pausa",
     "past": "Resumen de clientes anteriores",
     "noStatus": "Resumen sin estado",
     "clients": "Clientes",
@@ -44,8 +44,13 @@
   },
   "groupBy": {
     "aria": "Agrupar clientes",
+    "heading": "Agrupar por",
     "status": "Estado",
     "project": "Proyecto"
+  },
+  "view": {
+    "label": "Vista",
+    "multiSelect": "Seleccionar varios"
   },
   "select": {
     "enter": "Seleccionar",
@@ -104,9 +109,9 @@
     "statusChanged": "Estado cambiado",
     "paymentDefaultDesc": "Actualización de pago",
     "manualPayTitle": "Actualización manual de pago",
-    "manualPayMessage": "Has actualizado «Pagado» en {{amount}}. ¿Registrar una transacción de dinero real, o solo actualizar la ficha del cliente (sin transacción)?",
-    "manualPayConfirm": "Añadir transacción",
-    "manualPayCancel": "Solo la ficha"
+    "manualPayMessage": "Has actualizado «Pagado» en {{amount}}. Puedes registrar el importe como ingreso en tus informes financieros, o corregir solo la ficha del cliente: una corrección solo en la ficha no aparecerá en los informes financieros.",
+    "manualPayConfirm": "Registrar como ingreso",
+    "manualPayCancel": "Corregir solo la ficha"
   },
   "sections": {
     "activity": "Actividad",
@@ -148,6 +153,43 @@
     "noFixedPrice": "Sin precio fijo",
     "packageSessions": "{{count}} sesiones · ",
     "notInGroups": "En ningún grupo"
+  },
+  "inline": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "saving": "Guardando…",
+    "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+    "notesPlaceholder": "¿Qué conviene recordar sobre este cliente?"
+  },
+  "adjust": {
+    "open": "Ajuste",
+    "title": "Ajuste",
+    "whatHappened": "¿Qué ha pasado?",
+    "reasonDiscount": "Descuento",
+    "reasonImportFix": "Corrección de datos importados",
+    "reasonUnrecorded": "Pago recibido, no registrado",
+    "amount": "Importe ₪",
+    "note": "Nota",
+    "notePlaceholder": "p. ej.: efectivo en la sesión",
+    "previewPaid": "Pagado: {{from}} → {{to}}",
+    "previewBalance": "Saldo: {{from}} → {{to}}",
+    "notInReports": "Un ajuste no aparece en los informes financieros.",
+    "alsoRecordIncome": "Registrar como ingreso en su lugar",
+    "amountRequired": "Introduce un importe.",
+    "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+    "undoLabel": "Ajuste de {{amount}} registrado",
+    "legacyRow": "Ajuste anterior",
+    "noDate": "Sin fecha",
+    "affectsBalance": "reduce el saldo",
+    "row": {
+      "discount": "Descuento",
+      "import_fix": "Corrección de datos importados",
+      "unrecorded_payment": "Pago recibido, no registrado"
+    },
+    "cancelDiscards": "Cancelar aquí también descarta el cambio que introdujiste.",
+    "writeOffs": "Deuda condonada",
+    "unexplained": "Ajuste sin detallar",
+    "unexplainedSub": "registrado fuera de esta pantalla"
   },
   "plan": {
     "title": "Plan de pagos",
@@ -197,8 +239,8 @@
     "birthDate": "Fecha de nacimiento",
     "group": "Grupo (opcional)",
     "noGroup": "Sin grupo",
-    "recurringDay": "Cita recurrente — día",
-    "recurringTime": "Cita recurrente — hora",
+    "recurringDay": "Día",
+    "recurringTime": "Hora",
     "clearRecurring": "Borrar cita recurrente",
     "days": {
       "0": "Domingo",
@@ -208,7 +250,13 @@
       "4": "Jueves",
       "5": "Viernes",
       "6": "Sábado"
-    }
+    },
+    "onlyNameRequired": "Solo el nombre es obligatorio",
+    "moreToggle": "Facturación, citas y más",
+    "grpBilling": "Facturación",
+    "grpLinks": "Asignación",
+    "grpContact": "Contacto",
+    "grpRecurring": "Cita recurrente"
   },
   "dataWarning": "Algunos datos no se cargaron — los saldos pueden estar incompletos."
 }

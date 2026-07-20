@@ -10,7 +10,7 @@
    ✅ 25.05.26 — יושר ל-data-model.md בכל הנקודות (data-model מנצח את הפרומפט):
    REMINDER_STATUSES, REMINDER_LINKED_TYPES (+'period'), פיצול RECURRENCE לשני enums
    (REMINDER_RECURRENCE_TYPES + RECURRING_CADENCE_TYPES), TRACKING_METHODS,
-   ותווית wandering ('ביניים').
+   ותווית wandering ('בהפסקה').
    ════════════════════════════════════════════════════════════════ */
 
 /* ── Clients ──────────────────────────────────────────────────── */

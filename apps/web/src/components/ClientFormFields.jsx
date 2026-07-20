@@ -72,13 +72,14 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
           value={form.name}
           onChange={(e) => set('name', e.target.value)}
           placeholder={t('form.namePlaceholder')}
+          aria-label={t('form.name')}
         />
         <Txt as="p" className="m-hint">{t('form.onlyNameRequired')}</Txt>
       </Box>
 
       <Box className="m-field">
         <Box as="label" className="m-label">{t('form.phone')}</Box>
-        <Input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="050-0000000" />
+        <Input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="050-0000000" aria-label={t('form.phone')} />
       </Box>
 
       <Box className="m-field">
@@ -136,12 +137,12 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
               {form.billing_mode !== 'per_session' && (
                 <Box className="m-field">
                   <Box as="label" className="m-label">{t('form.sessionsCount')}</Box>
-                  <Input type="number" min="0" className="m-input" value={form.sessions} onChange={(e) => set('sessions', e.target.value)} placeholder="0" />
+                  <Input type="number" min="0" className="m-input" value={form.sessions} onChange={(e) => set('sessions', e.target.value)} placeholder="0" aria-label={t('form.sessionsCount')} />
                 </Box>
               )}
               <Box className="m-field">
                 <Box as="label" className="m-label">{t('form.pricePerSession')}</Box>
-                <Input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} placeholder="0" />
+                <Input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} placeholder="0" aria-label={t('form.pricePerSession')} />
               </Box>
             </Box>
 
@@ -157,6 +158,7 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
                   className="m-select"
                   value={form.meeting_type_id || ''}
                   onChange={(e) => (onPickMeetingType ? onPickMeetingType(e.target.value) : set('meeting_type_id', e.target.value))}
+                  aria-label={t('form.meetingType')}
                 >
                   <option value="">{t('form.none')}</option>
                   {meetingTypes.map((mt) => (
@@ -172,7 +174,7 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
             {subStatuses.length > 0 && (
               <Box className="m-field">
                 <Box as="label" className="m-label">{t('form.subStatus')}</Box>
-                <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
+                <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}aria-label={t('form.subStatus')} >
                   <option value="">{t('form.none')}</option>
                   {subStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
                 </select>
@@ -180,7 +182,7 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
             )}
             <Box className="m-field">
               <Box as="label" className="m-label">{t('form.project')}</Box>
-              <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
+              <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}aria-label={t('form.project')} >
                 <option value="">{t('form.none')}</option>
                 {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
@@ -188,7 +190,7 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
             {groups.length > 0 && (
               <Box className="m-field">
                 <Box as="label" className="m-label">{t('form.group')}</Box>
-                <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
+                <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}aria-label={t('form.group')} >
                   <option value="">{t('form.noGroup')}</option>
                   {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
                 </select>
@@ -198,29 +200,29 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
             <Txt as="p" className="m-group-h">{t('form.grpContact')}</Txt>
             <Box className="m-field">
               <Box as="label" className="m-label">{t('form.email')}</Box>
-              <Input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder="name@example.com" dir="ltr" />
+              <Input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder="name@example.com" dir="ltr" aria-label={t('form.email')} />
             </Box>
             <Box className="m-field">
               <Box as="label" className="m-label">{t('form.address')}</Box>
-              <Input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('form.addressPlaceholder')} />
+              <Input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('form.addressPlaceholder')} aria-label={t('form.address')} />
             </Box>
             <Box className="m-field">
               <Box as="label" className="m-label">{t('form.birthDate')}</Box>
-              <DateField className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} />
+              <DateField className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} aria-label={t('form.birthDate')} />
             </Box>
 
             <Txt as="p" className="m-group-h">{t('form.grpRecurring')}</Txt>
             <Box className="m-row2">
               <Box className="m-field">
                 <Box as="label" className="m-label">{t('form.recurringDay')}</Box>
-                <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}>
+                <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}aria-label={t('form.recurringDay')} >
                   <option value="">{t('form.none')}</option>
                   {DAY_KEYS.map((d) => <option key={d} value={d}>{t(`form.days.${d}`)}</option>)}
                 </select>
               </Box>
               <Box className="m-field">
                 <Box as="label" className="m-label">{t('form.recurringTime')}</Box>
-                <Input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
+                <Input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} aria-label={t('form.recurringTime')} />
               </Box>
             </Box>
             {/* A native time input can't be emptied on touch devices, so once a

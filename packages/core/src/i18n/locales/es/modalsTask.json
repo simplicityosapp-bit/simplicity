@@ -81,7 +81,7 @@
     "meetingType": "Tipo de cita",
     "once": "Una vez",
     "recurring": "Hora fija",
-    "recurringHint": "Una cita semanal cada {{day}} a las {{time}}. Puedes cambiarla o quitarla en los ajustes del cliente.",
+    "recurringHint": "Una cita semanal cada {{day}} a las {{time}}. Puedes cambiarla o quitarla desde «Cita semanal recurrente» en la ficha del cliente.",
     "replaceWarning": "Este cliente ya tiene una hora fija el {{day}} a las {{time}}. Al pulsar «Sí, reemplazar» se sobrescribirá.",
     "replaceConfirm": "Sí, reemplazar"
   },

@@ -11,6 +11,7 @@ import { listDeletedCategories, restoreCategory } from '../lib/api/categories'
 import { listDeletedSessions, restoreSession } from '../lib/api/sessions'
 import { listDeletedRecurring, restoreRecurring } from '../lib/api/recurring'
 import { listDeletedReminders, restoreReminder } from '../lib/api/reminders'
+import { listDeletedCalendarEvents, restoreCalendarEvent } from '../lib/api/calendarEvents'
 import { listDeletedGoals, restoreGoal } from '../lib/api/goals'
 import { listDeletedGoalCategories, restoreGoalCategory } from '../lib/api/goalCategories'
 import { listDeletedGoalEntries, restoreGoalEntry } from '../lib/api/goalEntries'
@@ -35,6 +36,7 @@ export const TRASH_ENTITY_TYPES = [
   'recurring',
   'sessions',
   'reminders',
+  'calendarEvents',
   'goals',
   'goalCategories',
   'goalEntries',
@@ -71,6 +73,7 @@ const LISTERS = {
   recurring: listDeletedRecurring,
   sessions: listDeletedSessions,
   reminders: listDeletedReminders,
+  calendarEvents: listDeletedCalendarEvents,
   goals: listDeletedGoals,
   goalCategories: listDeletedGoalCategories,
   goalEntries: listDeletedGoalEntries,
@@ -91,6 +94,7 @@ const RESTORERS = {
   recurring: restoreRecurring,
   sessions: restoreSession,
   reminders: restoreReminder,
+  calendarEvents: restoreCalendarEvent,
   goals: restoreGoal,
   goalCategories: restoreGoalCategory,
   goalEntries: restoreGoalEntry,

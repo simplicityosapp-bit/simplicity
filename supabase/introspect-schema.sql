@@ -58,11 +58,19 @@ WITH t AS (
          format('  -- RLS %s', CASE WHEN t.relrowsecurity THEN 'ENABLED' ELSE 'DISABLED  <-- check this' END)
   FROM t
 
-  /* 5 — the policies themselves */
+  /* 5 — the policies themselves.
+     PERMISSIVE vs RESTRICTIVE is part of the policy, not decoration: several
+     tables stack a permissive *_own policy under restrictive gates, and the
+     two combine with AND only because the gates are restrictive. Emit it —
+     an earlier version of this query left the column out, and the resulting
+     schema.sql could not say whether the free-tier caps constrained anything
+     at all. */
   UNION ALL
   SELECT p.tablename, 5, row_number() OVER (PARTITION BY p.tablename ORDER BY p.policyname)::int,
-         format('  POLICY %I FOR %s TO %s USING (%s)%s',
-           p.policyname, p.cmd, array_to_string(p.roles, ','),
+         format('  POLICY %I %s FOR %s TO %s USING (%s)%s',
+           p.policyname,
+           CASE WHEN p.permissive = 'RESTRICTIVE' THEN '[RESTRICTIVE/AND]' ELSE '[permissive/OR]' END,
+           p.cmd, array_to_string(p.roles, ','),
            COALESCE(p.qual, 'true'),
            COALESCE(' WITH CHECK (' || p.with_check || ')', ''))
   FROM pg_policies p

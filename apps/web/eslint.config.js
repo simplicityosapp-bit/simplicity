@@ -18,4 +18,15 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    /* Node contexts, not browser: api/ is a Vercel serverless function and
+       test/ runs under vitest. Both legitimately read `process`, which
+       globals.browser doesn't declare — the resulting no-undef errors were
+       standing noise that made a genuinely clean run indistinguishable from
+       a broken one. */
+    files: ['api/**/*.{js,jsx}', 'test/**/*.{js,jsx}'],
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
+    },
+  },
 ])

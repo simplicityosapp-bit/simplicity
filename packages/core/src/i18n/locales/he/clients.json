@@ -193,7 +193,9 @@
       "unrecorded_payment": "תשלום שהתקבל ולא נרשם"
     },
     "cancelDiscards": "ביטול כאן יבטל גם את השינוי שהזנת.",
-    "writeOffs": "מחיקות חוב"
+    "writeOffs": "מחיקות חוב",
+    "unexplained": "התאמה ללא פירוט",
+    "unexplainedSub": "נרשמה מחוץ למסך הזה"
   },
   "plan": {
     "title": "פריסת תשלומים",

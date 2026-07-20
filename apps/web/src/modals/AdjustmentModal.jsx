@@ -119,6 +119,7 @@ export default function AdjustmentModal({ open, onClose, balance, onSave, onAlso
             className="m-input"
             value={amount}
             onChange={(e) => { setAmount(e.target.value); if (err) setErr('') }}
+            aria-label={t('adjust.amount')}
             placeholder="0"
           />
         </Box>
@@ -128,6 +129,7 @@ export default function AdjustmentModal({ open, onClose, balance, onSave, onAlso
             className="m-input"
             value={note}
             onChange={(e) => setNote(e.target.value)}
+            aria-label={t('adjust.note')}
             placeholder={t('adjust.notePlaceholder')}
           />
         </Box>

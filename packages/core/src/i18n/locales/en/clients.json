@@ -187,7 +187,9 @@
       "unrecorded_payment": "Payment received, never recorded"
     },
     "cancelDiscards": "Cancelling here also drops the change you entered.",
-    "writeOffs": "Written off"
+    "writeOffs": "Written off",
+    "unexplained": "Unitemised adjustment",
+    "unexplainedSub": "recorded outside this screen"
   },
   "plan": {
     "title": "Payment plan",

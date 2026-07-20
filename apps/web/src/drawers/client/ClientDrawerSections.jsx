@@ -169,6 +169,21 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
   const paidAdjustments = adjustments.filter((a) => a.kind === 'paid')
   const balanceAdjustments = adjustments.filter((a) => a.kind === 'balance')
 
+  /* The scalar is the source of truth; these rows only explain it. Anything
+     that moves the scalar WITHOUT writing a row leaves a gap — the mobile app
+     still writes it directly, a migration can be pending, someone can edit the
+     row in the database. Rather than trusting every writer to keep the two in
+     step, show whatever the rows don't account for as its own line. The total
+     then always adds up, whatever happened upstream. */
+  const unexplained = (col, rows) => {
+    const scalar = Number(c[col]) || 0
+    const explained = rows.reduce((s, a) => s + (Number(a.amount) || 0), 0)
+    const gap = Math.round((scalar - explained) * 100) / 100
+    return gap === 0 ? null : gap
+  }
+  const unexplainedPaid = unexplained('paid_adjustment', paidAdjustments)
+  const unexplainedBalance = unexplained('balance_adjustment', balanceAdjustments)
+
   /* ── data ── */
   const payments = financeQuery({ clientId: c.id, includePending: true, source: txns })
     .slice()
@@ -234,6 +249,7 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
                     className="m-select"
                     value={draft.recurring_day}
                     onChange={(e) => setField('recurring_day', e.target.value)}
+                    aria-label={t('form.recurringDay')}
                   >
                     <option value="">{t('form.none')}</option>
                     {DAY_KEYS.map((d) => <option key={d} value={d}>{t(`form.days.${d}`)}</option>)}
@@ -246,6 +262,7 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
                     className="m-input"
                     value={draft.recurring_time}
                     onChange={(e) => setField('recurring_time', e.target.value)}
+                    aria-label={t('form.recurringTime')}
                   />
                 </Box>
               </Box>
@@ -338,6 +355,16 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
               <Txt className="cd-row-amt mono">{signed(a.amount)}</Txt>
             </Box>
           ))}
+          {unexplainedPaid != null && (
+            <Box className="cd-row">
+              <Txt className="cd-row-dot cd-dot-adjust" />
+              <Box className="cd-row-body">
+                <Txt as="p" className="cd-row-title">{t('adjust.unexplained')}</Txt>
+                <Txt as="p" className="cd-row-sub">{t('adjust.unexplainedSub')}</Txt>
+              </Box>
+              <Txt className="cd-row-amt mono">{signed(unexplainedPaid)}</Txt>
+            </Box>
+          )}
           {payments.length ? (
             payments.map((f) => {
               const body = (
@@ -371,9 +398,19 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
           {/* Debt written off — real history, but NOT part of "סה״כ שולם"
               above, so it sits under its own heading rather than inside a
               total it never belonged to. */}
-          {balanceAdjustments.length > 0 && (
+          {(balanceAdjustments.length > 0 || unexplainedBalance != null) && (
             <>
               <Txt as="p" className="cd-adjust-head">{t('adjust.writeOffs')}</Txt>
+              {unexplainedBalance != null && (
+                <Box className="cd-row">
+                  <Txt className="cd-row-dot cd-dot-adjust" />
+                  <Box className="cd-row-body">
+                    <Txt as="p" className="cd-row-title">{t('adjust.unexplained')}</Txt>
+                    <Txt as="p" className="cd-row-sub">{t('adjust.unexplainedSub')}</Txt>
+                  </Box>
+                  <Txt className="cd-row-amt mono">{signed(-unexplainedBalance)}</Txt>
+                </Box>
+              )}
               {balanceAdjustments.map((a) => (
                 <Box key={a.id} className="cd-row">
                   <Txt className="cd-row-dot cd-dot-adjust" />
@@ -477,6 +514,7 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
                   className="m-input"
                   value={draft.address}
                   onChange={(e) => setField('address', e.target.value)}
+                  aria-label={t('form.address')}
                   placeholder={t('form.addressPlaceholder')}
                 />
               </Box>
@@ -486,6 +524,7 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
                   className="m-input"
                   value={draft.birth_date}
                   onChange={(e) => setField('birth_date', e.target.value)}
+                  aria-label={t('form.birthDate')}
                 />
               </Box>
             </InlineForm>

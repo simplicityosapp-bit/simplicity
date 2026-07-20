@@ -187,7 +187,9 @@
       "unrecorded_payment": "Pago recibido, no registrado"
     },
     "cancelDiscards": "Cancelar aquí también descarta el cambio que introdujiste.",
-    "writeOffs": "Deuda condonada"
+    "writeOffs": "Deuda condonada",
+    "unexplained": "Ajuste sin detallar",
+    "unexplainedSub": "registrado fuera de esta pantalla"
   },
   "plan": {
     "title": "Plan de pagos",

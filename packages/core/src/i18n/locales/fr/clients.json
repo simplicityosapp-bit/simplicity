@@ -187,7 +187,9 @@
       "unrecorded_payment": "Paiement reçu, non enregistré"
     },
     "cancelDiscards": "Annuler ici abandonne aussi la modification saisie.",
-    "writeOffs": "Dette annulée"
+    "writeOffs": "Dette annulée",
+    "unexplained": "Ajustement non détaillé",
+    "unexplainedSub": "enregistré hors de cet écran"
   },
   "plan": {
     "title": "Échéancier",

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ROUTES } from '../../lib/routes'
@@ -15,7 +15,11 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
+  /* Seeded from the redirect that sent us here — a dead password-reset link
+     lands on login, and without this it did so with no explanation at all.
+     Seeded rather than assigned, so typing and re-submitting clears it. */
+  const { state } = useLocation()
+  const [error, setError] = useState(state?.authError || '')
   const [busy, setBusy] = useState(false)
 
   const submit = async (e) => {

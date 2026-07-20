@@ -3,6 +3,11 @@ import { supabase } from '../lib/supabase'
 import { selectAll } from '../lib/paginate'
 import { staleScheduledMeetingIds } from '../lib/scheduledMeetings'
 
+/* YYYY-MM-DD in LOCAL time (matches the DATE column semantics). Mirrors the
+   web's helper in lib/api/clientAdjustments.js. */
+const localDateString = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
 // Clients + everything the drawer/sections need: the rows core clientBalance uses
 // (transactions/sessions/members/groups) plus tasks + reminders for the client's
 // activity panels. RLS scopes everything to the user.
@@ -104,6 +109,44 @@ export function useClientsList() {
         )
         for (const mid of stale) { await supabase.from('scheduled_meetings').delete().eq('id', mid) }
       } catch { /* non-fatal — the slot change itself already succeeded */ }
+    }
+    /* An adjustment column moved → also write the row that explains it
+       (client_adjustments, migration 0095). Without this, an adjustment made
+       here reaches the web as a bare number: the client file renders whatever
+       the rows don't account for as "התאמה ללא פירוט", so nothing is lost, but
+       the reason and the date are.
+       The reason is inferred from what this app's own flows mean — folding a
+       "שולם" edit is cash that arrived and was never booked, and a "יתרה" edit
+       is debt written off. Those are the same pairings the web sheet offers.
+       Done HERE rather than at the three call sites because every adjustment
+       write funnels through this function, including any added later.
+       Non-fatal, exactly like the cleanup above: the scalar is the source of
+       truth and has already landed, so a missing explanation must never fail
+       the edit the user just made. */
+    if (prev) {
+      for (const [col, kind, reason] of [
+        ['paid_adjustment', 'paid', 'unrecorded_payment'],
+        ['balance_adjustment', 'balance', 'discount'],
+      ]) {
+        if (!(col in patch)) continue
+        const delta = (Number(patch[col]) || 0) - (Number(prev[col]) || 0)
+        if (!delta) continue
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
+          if (!session) continue
+          await supabase.from('client_adjustments').insert({
+            user_id: session.user.id,
+            client_id: id,
+            kind,
+            reason,
+            amount: delta,
+            /* Stamped locally, not left to the column's DEFAULT CURRENT_DATE,
+               which is UTC — an adjustment made in Israel after midnight would
+               otherwise be filed under the previous day. */
+            occurred_on: localDateString(),
+          })
+        } catch { /* no ledger row — the web still shows the amount, unitemised */ }
+      }
     }
     return result
   }, [patchRow, state.clients])

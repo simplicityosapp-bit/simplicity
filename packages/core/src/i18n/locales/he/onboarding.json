@@ -23,7 +23,8 @@
     "saving": "שומר…",
     "next": "הלאה",
     "skip": "דלג",
-    "finishing": "מסיים…"
+    "finishing": "מסיים…",
+    "saveFailed": "השמירה נכשלה. נסו שוב."
   },
   "help": {
     "closeAria": "סגירת ההסבר"

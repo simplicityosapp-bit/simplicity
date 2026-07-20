@@ -256,6 +256,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
             value={form.name}
             onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
+            aria-label={t('common.name')}
           />
         </Box>
         <Box className="m-field">
@@ -269,7 +270,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         {subStatuses.length > 0 && (
           <Box className="m-field">
             <Box as="label" className="m-label">{t('common.subStatusOptional')}</Box>
-            <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
+            <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}aria-label={t('common.subStatusOptional')} >
               <option value="">{t('common.none')}</option>
               {subStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
             </select>
@@ -278,11 +279,11 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         <Box className="m-row2">
           <Box className="m-field">
             <Box as="label" className="m-label">{t('common.phone')}</Box>
-            <Input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} />
+            <Input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} aria-label={t('common.phone')} />
           </Box>
           <Box className="m-field">
             <Box as="label" className="m-label">{t('common.project')}</Box>
-            <select className="m-select" value={form.project_id} onChange={(e) => { set('project_id', e.target.value); set('group_id', '') }}>
+            <select className="m-select" value={form.project_id} onChange={(e) => { set('project_id', e.target.value); set('group_id', '') }}aria-label={t('common.project')} >
               <option value="">{t('common.none')}</option>
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
@@ -290,11 +291,11 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.email')}</Box>
-          <Input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder={t('common.emailPlaceholder')} dir="ltr" />
+          <Input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder={t('common.emailPlaceholder')} dir="ltr" aria-label={t('common.email')} />
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.notesOptional')}</Box>
-          <Textarea className="m-textarea" rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
+          <Textarea className="m-textarea" rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} aria-label={t('common.notesOptional')} />
         </Box>
       </Section>
 
@@ -307,11 +308,11 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       >
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.address')}</Box>
-          <Input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('common.addressPlaceholder')} />
+          <Input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('common.addressPlaceholder')} aria-label={t('common.address')} />
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.birthDate')}</Box>
-          <DateField className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} />
+          <DateField className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} aria-label={t('common.birthDate')} />
         </Box>
       </Section>
 
@@ -327,7 +328,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             <Box as="label" className="m-label">{t('editClient.meetingType')}</Box>
             <Btn type="button" className="m-clear-link" onClick={() => setManageTypes(true)}>{t('editClient.manageMeetingTypes')}</Btn>
           </Box>
-          <select className="m-select" value={form.meeting_type_id || ''} onChange={(e) => pickMeetingType(e.target.value)}>
+          <select className="m-select" value={form.meeting_type_id || ''} onChange={(e) => pickMeetingType(e.target.value)}aria-label={t('editClient.meetingType')} >
             <option value="">{t('common.none')}</option>
             {meetingTypes.map((mt) => (
               <option key={mt.id} value={mt.id}>
@@ -339,14 +340,14 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         <Box className="m-row2">
           <Box className="m-field">
             <Box as="label" className="m-label">{t('editClient.fixedDay')}</Box>
-            <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}>
+            <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}aria-label={t('editClient.fixedDay')} >
               <option value="">{t('common.none')}</option>
               {DAYS.map((d) => <option key={d} value={d}>{t(`common.day${d}`)}</option>)}
             </select>
           </Box>
           <Box className="m-field">
             <Box as="label" className="m-label">{t('editClient.fixedTime')}</Box>
-            <Input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} />
+            <Input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} aria-label={t('editClient.fixedTime')} />
           </Box>
         </Box>
         {/* Reachable clear — a native time input can't be emptied on touch, so
@@ -398,12 +399,13 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('editClient.pricePerSession')}</Box>
-          <Input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} />
+          <Input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} aria-label={t('editClient.pricePerSession')} />
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('editClient.totalDueOptional')}</Box>
           <Input type="number" min="0" className="m-input" value={form.total_due}
-            onChange={(e) => set('total_due', e.target.value)} placeholder={t('editClient.totalDuePlaceholder')} />
+            onChange={(e) => set('total_due', e.target.value)} placeholder={t('editClient.totalDuePlaceholder')} aria-label={t('editClient.totalDueOptional')}
+          />
           <Txt as="p" className="m-hint">{t('editClient.totalDueHint')}</Txt>
         </Box>
         <Box className="m-field">
@@ -457,7 +459,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           {projectHasGroups && (
             <Box className="m-field">
               <Box as="label" className="m-label">{t('common.groupOptional')}</Box>
-              <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
+              <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}aria-label={t('common.groupOptional')} >
                 <option value="">{t('editClient.noGroup')}</option>
                 {groups.filter((g) => g.project_id === form.project_id).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
               </select>
@@ -488,6 +490,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
                       value={memberOverrides[m.id] ?? ''}
                       onChange={(e) => setMemberOverrides((o) => ({ ...o, [m.id]: e.target.value }))}
                       placeholder={t('editClient.perGroupPlaceholder')}
+                      aria-label={t('editClient.perGroupBilling')}
                     />
                   </Box>
                 )

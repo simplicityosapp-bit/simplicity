@@ -55,7 +55,22 @@ export function useClientAdjustments() {
         client_id: client.id, kind, reason, amount: delta, note: note || null,
       })
       qc.setQueryData(KEY, (prev) => [row, ...(prev ?? [])])
-    } catch { /* no ledger — the balance is still right */ }
+    } catch (e) {
+      /* Logged, never toasted. The user's action SUCCEEDED — the balance moved
+         correctly — so an error banner would be actively misleading; all that
+         is missing is the explanation. They still see the shortfall, because
+         the payments panel renders anything the rows don't account for as
+         "התאמה ללא פירוט".
+         There is no telemetry in this app, so the console is the only channel
+         that carries the cause. Worth having: the likeliest reason is that
+         migration 0095 hasn't been run yet, and that is invisible otherwise. */
+      console.warn(
+        `[adjustments] balance updated but the ledger row was not written for client ${client.id} (${kind}/${reason}, ${delta}). ` +
+        'The amount is correct; it will show as an unitemised adjustment. ' +
+        'If this repeats, check that migration 0095 has been run.',
+        e,
+      )
+    }
     /* One-step undo, the way every other destructive-ish action in the app
        behaves — restores the exact prior scalar (not `- delta`, so a
        concurrent edit can't compound) and retires the row. */

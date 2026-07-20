@@ -81,7 +81,7 @@
     "meetingType": "Meeting type",
     "once": "One-time",
     "recurring": "Fixed time",
-    "recurringHint": "A weekly meeting every {{day}} at {{time}}. You can change or clear it in the client's settings.",
+    "recurringHint": "A weekly meeting every {{day}} at {{time}}. You can change or clear it from \"Weekly recurring meeting\" in the client file.",
     "replaceWarning": "This client already has a fixed time on {{day}} at {{time}}. Tapping \"Yes, replace\" will overwrite it.",
     "replaceConfirm": "Yes, replace"
   },

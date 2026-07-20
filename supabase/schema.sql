@@ -1,6 +1,32 @@
 -- ════════════════════════════════════════════════════════════════
--- Simplicity — schema.sql  (REGENERATED from the live EU DB by
--- introspection; the Docker-based `supabase db dump` is unavailable here).
+-- Simplicity — schema.sql
+--
+-- ⚠️ NOT AUTHORITATIVE. Do not read this file to learn the current shape of
+-- the database. `supabase/migrations/` is the only accurate source.
+--
+-- Last trustworthy regeneration was around migration 0026 (2026-06-11).
+-- Everything after that has been hand-patched per feature, and the drift is
+-- now substantial in BOTH directions (audited 2026-07-20):
+--
+--   • MISSING — 21 tables that migrations create are absent here, among them
+--     user_consent (0029), meeting_types (0043), booking_pages + bookings
+--     (0052), payment_plans + payment_installments (0056), site_pages (0066),
+--     user_subscriptions (0075), app_sessions (0076), the community_* set
+--     (0080-0092) and client_adjustments (0095). Columns too, e.g.
+--     clients.status_overridden (0062) and transactions.scheduled_meeting_id
+--     (0094).
+--
+--   • WRONG — and this is the dangerous half: three tables DROPPED by
+--     0027_drop_dead_tables.sql are still fully defined below, with
+--     constraints, indexes, RLS and triggers. client_notes,
+--     reminder_occurrences and session_attachments DO NOT EXIST in the
+--     database. Anything written against them will fail at runtime.
+--
+-- Regenerating this properly needs a dump from the live EU DB; until that
+-- happens the file is kept only for historical reference.
+--
+-- (Originally regenerated from the live EU DB by introspection; the
+-- Docker-based `supabase db dump` is unavailable in this environment.)
 -- public schema only — auth.* / storage.* are Supabase-managed.
 -- ════════════════════════════════════════════════════════════════
 

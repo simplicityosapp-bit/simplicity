@@ -9,8 +9,10 @@ import { screenKeyFromPath } from './lib/nav'
 import { useTheme } from './hooks/useTheme'
 import { useUserPreferences } from './hooks/useUserPreferences'
 import UserPreferencesProvider from './components/UserPreferencesProvider'
+import i18n from '@simplicity/core/i18n'
 import DirManager from './i18n/DirManager'
 import I18nSync from './i18n/I18nSync'
+import { translateAuthError } from './auth/authErrors'
 import AuthProvider from './auth/AuthProvider'
 import { useAuth } from './auth/AuthContext'
 import BottomNav from './components/BottomNav'
@@ -300,6 +302,26 @@ function urlHasOAuthCallback() {
   return params.has('code') || window.location.hash.includes('access_token=')
 }
 
+/* Supabase reports a dead auth link in the URL — in the hash for the implicit
+   flow, in the query for PKCE:
+     #error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired
+   Returns a translated message, or '' when the URL carries no auth error (a
+   plain visit to /update-password while logged out, say). */
+function authErrorFromUrl() {
+  if (typeof window === 'undefined') return ''
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+  const query = new URLSearchParams(window.location.search)
+  const code = hash.get('error_code') || query.get('error_code')
+  const desc = hash.get('error_description') || query.get('error_description')
+  const err = hash.get('error') || query.get('error')
+  if (!code && !desc && !err) return ''
+  /* otp_expired is the common one — a link that was already used, or older
+     than the token lifetime. Anything else falls back to the description
+     Supabase sent, run through the same translator the forms use. */
+  if (code === 'otp_expired') return i18n.t('auth:errors.resetLinkExpired')
+  return translateAuthError(desc || err || '')
+}
+
 /* Holds the app behind the field-encryption key. It derives from the user id
    in a few ms; until it's ready we show the splash so no screen reads
    ciphertext or writes plaintext. See docs/ENCRYPTION_PLAN.md. */
@@ -428,7 +450,15 @@ function Root() {
      path (also a change-password entry for a signed-in user). Without a session
      the recovery link is needed, so bounce to login. */
   if (recovery || pathname === ROUTES.UPDATE_PASSWORD) {
-    return session ? <UpdatePasswordScreen /> : <Navigate to={ROUTES.LOGIN} replace />
+    if (session) return <UpdatePasswordScreen />
+    /* No session on a recovery route almost always means the link was already
+       used or has expired. Supabase says so in the URL hash
+       (#error=access_denied&error_code=otp_expired&error_description=…), but
+       nothing read it, so the person was dropped on the login screen with no
+       explanation — which reads as the app throwing them out, and they try the
+       same dead link again. Carry the reason to login, which already has a
+       place to show it. */
+    return <Navigate to={ROUTES.LOGIN} replace state={{ authError: authErrorFromUrl() }} />
   }
   /* Logged-out visitor on the bare "/" lands on the public marketing page
      (the front door for Google + first-time visitors). Every other logged-out

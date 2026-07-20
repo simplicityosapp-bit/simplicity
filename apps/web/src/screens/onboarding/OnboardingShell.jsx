@@ -4,6 +4,7 @@ import { ONBOARDING_STEPS } from '../../lib/preferences'
 import { useTheme } from '../../hooks/useTheme'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useT } from '../../i18n/useT'
+import { showError } from '../../lib/toast'
 import OnboardingTree from './OnboardingTree'
 import OnboardingHelpPanel from './OnboardingHelpPanel'
 import { HELP_BY_STEP } from './helpContent'
@@ -24,6 +25,19 @@ export default function OnboardingShell({ ob, cta, children }) {
   const { t } = useT('onboarding')
   const [helpOpen, setHelpOpen] = useState(false)
   const [skipping, setSkipping] = useState(false)
+  /* The primary CTA was wired straight to cta.onNext, which is async on most
+     steps. A rejection therefore became an unhandled promise rejection: the
+     user tapped "next"/"סיום", nothing moved, and nothing said why. Most
+     visible on the last step, where finishAndGoHome re-throws on a failed
+     save — by design, so a retry is possible — but the throw had nowhere to
+     land. Surfacing it here covers every step, not just that one. */
+  const runNext = async (e) => {
+    try {
+      await cta?.onNext?.(e)
+    } catch {
+      showError(t('shell.saveFailed'))
+    }
+  }
   /* The App-level gate (obDone) swaps to Home once skip/complete writes land;
      show a busy state meanwhile so the last-step "סיום" isn't a dead tap. */
   const onSkip = async () => {
@@ -118,7 +132,7 @@ export default function OnboardingShell({ ob, cta, children }) {
           <Btn
             type="button"
             className="ob-btn primary"
-            onClick={cta?.onNext}
+            onClick={runNext}
             disabled={!cta?.canAdvance || cta?.busy || !cta?.onNext}
           >
             {cta?.busy ? t('shell.saving') : (cta?.nextLabel || t('shell.next'))}

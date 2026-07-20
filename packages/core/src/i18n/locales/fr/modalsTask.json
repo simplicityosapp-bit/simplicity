@@ -81,7 +81,7 @@
     "meetingType": "Type de rendez-vous",
     "once": "Une seule fois",
     "recurring": "Horaire fixe",
-    "recurringHint": "Un rendez-vous hebdomadaire chaque {{day}} à {{time}}. Vous pouvez le modifier ou le supprimer dans les paramètres du client.",
+    "recurringHint": "Un rendez-vous hebdomadaire chaque {{day}} à {{time}}. Vous pouvez le modifier ou le supprimer depuis « Séance hebdomadaire récurrente » dans la fiche du client.",
     "replaceWarning": "Ce client a déjà un horaire fixe le {{day}} à {{time}}. Appuyer sur « Oui, remplacer » l'écrasera.",
     "replaceConfirm": "Oui, remplacer"
   },

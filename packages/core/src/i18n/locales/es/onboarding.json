@@ -23,7 +23,8 @@
     "saving": "Guardando…",
     "next": "Siguiente",
     "skip": "Omitir",
-    "finishing": "Finalizando…"
+    "finishing": "Finalizando…",
+    "saveFailed": "No se pudo guardar. Inténtalo de nuevo."
   },
   "help": {
     "closeAria": "Cerrar la ayuda"

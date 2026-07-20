@@ -95,8 +95,11 @@ const CLIENT_META_KEYWORDS = {
 
 export const LEAD_METAS = ['in_process', 'converted', 'not_relevant']
 export const CLIENT_METAS = ['active', 'wandering', 'past', 'no_status']
-export const LEAD_META_LABELS = { in_process: 'בתהליך', converted: 'הומרו', not_relevant: 'לא רלוונטי' }
-export const CLIENT_META_LABELS = { active: 'פעיל', wandering: 'בהפסקה', past: 'לשעבר', no_status: 'ללא סטטוס' }
+/* LEAD_META_LABELS / CLIENT_META_LABELS lived here and had no consumers. They
+   were hardcoded Hebrew, so they also silently went stale — CLIENT_META_LABELS
+   still said "ביניים" after the status was renamed, and nothing caught it
+   because nothing read it. Display labels belong in i18n (clients:status.*).
+   The *_METAS arrays above ARE used, and stay. */
 const LEAD_DEFAULT = 'in_process'
 const CLIENT_DEFAULT = 'active'
 

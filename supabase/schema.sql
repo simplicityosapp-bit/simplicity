@@ -15,16 +15,32 @@
 -- Constraints, indexes and triggers are reproduced as Postgres itself
 -- renders them (pg_get_constraintdef / pg_get_indexdef / pg_get_triggerdef).
 --
--- ⚠️ OPEN QUESTION, deliberately recorded here rather than dropped:
--- several tables carry MORE THAN ONE policy for the same command —
--- clients / projects / goals / booking_pages / site_pages (an *_own policy
--- plus a tier gate), community_messages (insert_members + insert_live) and
--- community_profiles (three INSERT policies). PERMISSIVE policies combine
--- with OR, RESTRICTIVE with AND. If those gates are PERMISSIVE then the
--- free-tier limits never bind, and community_messages would accept an
--- insert carrying any user_id. The introspection query did not select
--- pg_policies.permissive, so this file cannot say which they are. Settle it
--- with:
+-- ── RESTRICTIVE POLICIES ARE LOAD-BEARING HERE — verified 2026-07-20 ──
+-- Several tables carry more than one policy for the same command. Postgres
+-- combines PERMISSIVE policies with OR and RESTRICTIVE ones with AND, so
+-- which flavour each is determines whether it constrains anything at all.
+-- Checked against the live DB; the split is deliberate and correct:
+--
+--   PERMISSIVE  (grants access)   *_own, *_select_members, *_insert_own,
+--                                 *_update_own, *_admin_moderate
+--   RESTRICTIVE (narrows it)      clients_tier_limit, projects_tier_limit,
+--                                 goals_tier_limit, booking_pages_tier_gate,
+--                                 site_pages_tier_gate,
+--                                 community_messages_insert_live,
+--                                 community_profiles_name_not_reserved,
+--                                 community_profiles_unverified_insert
+--
+-- So a client INSERT evaluates as (user_id = auth.uid()) AND (tier check) —
+-- the free-tier caps really do bind once BILLING_ENABLED flips on — and a
+-- community message as (author AND member) AND (not-deleted), which is what
+-- stops an insert carrying somebody else's user_id.
+--
+-- ⚠️ If any of the RESTRICTIVE ones is ever dropped and recreated without
+-- `AS RESTRICTIVE`, it silently becomes an OR branch and stops constraining
+-- anything: every tier cap evaporates, and community_messages would accept a
+-- forged user_id. Nothing fails, no test goes red, and the policy still
+-- reads correctly in every listing that omits the `permissive` column —
+-- including the introspection query that produced this file. Confirm with:
 --   SELECT tablename, policyname, cmd, permissive FROM pg_policies
 --   WHERE schemaname='public' ORDER BY tablename, cmd;
 -- ════════════════════════════════════════════════════════════════
@@ -79,7 +95,7 @@ CREATE INDEX idx_booking_pages_user ON public.booking_pages USING btree (user_id
 CREATE UNIQUE INDEX idx_booking_pages_slug_unique ON public.booking_pages USING btree (lower(slug)) WHERE ((slug IS NOT NULL) AND (deleted_at IS NULL));
 ALTER TABLE public.booking_pages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY booking_pages_own ON public.booking_pages FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
-CREATE POLICY booking_pages_tier_gate ON public.booking_pages FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (booking_page_count() < 1)));
+CREATE POLICY booking_pages_tier_gate ON public.booking_pages FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (booking_page_count() < 1)));  -- RESTRICTIVE in the live DB (AND-ed). See header.
 CREATE TRIGGER trg_booking_pages_updated BEFORE UPDATE ON public.booking_pages FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE public.bookings (
@@ -313,7 +329,7 @@ CREATE INDEX idx_clients_status_id ON public.clients USING btree (status_id);
 CREATE INDEX idx_clients_meeting_type_id ON public.clients USING btree (meeting_type_id);
 ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
 CREATE POLICY clients_own ON public.clients FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
-CREATE POLICY clients_tier_limit ON public.clients FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (NOT onboarding_completed()) OR (client_count() < 10)));
+CREATE POLICY clients_tier_limit ON public.clients FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (NOT onboarding_completed()) OR (client_count() < 10)));  -- RESTRICTIVE in the live DB (AND-ed). See header.
 CREATE TRIGGER trg_clients_updated BEFORE UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ════════════════════════════════════════════════════════════════
@@ -365,7 +381,7 @@ CREATE INDEX idx_community_messages_pinned ON public.community_messages USING bt
 ALTER TABLE public.community_messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY community_messages_select_members ON public.community_messages FOR SELECT TO authenticated USING ((community_access() AND (deleted_at IS NULL)));
 CREATE POLICY community_messages_insert_members ON public.community_messages FOR INSERT TO authenticated WITH CHECK (((user_id = auth.uid()) AND community_access()));
-CREATE POLICY community_messages_insert_live ON public.community_messages FOR INSERT TO authenticated WITH CHECK ((deleted_at IS NULL));  -- see header: PERMISSIVE here would OR away the members check
+CREATE POLICY community_messages_insert_live ON public.community_messages FOR INSERT TO authenticated WITH CHECK ((deleted_at IS NULL));  -- RESTRICTIVE in the live DB (AND-ed). See header.
 CREATE POLICY community_messages_soft_delete_own ON public.community_messages FOR UPDATE TO authenticated USING (((user_id = auth.uid()) AND (deleted_at IS NULL))) WITH CHECK (((user_id = auth.uid()) AND (deleted_at IS NOT NULL)));
 CREATE POLICY community_messages_admin_moderate ON public.community_messages FOR UPDATE TO authenticated USING (is_community_admin()) WITH CHECK (is_community_admin());
 CREATE TRIGGER trg_community_messages_immutable BEFORE UPDATE ON public.community_messages FOR EACH ROW EXECUTE FUNCTION guard_immutable_columns('id', 'user_id', 'content', 'created_at');
@@ -465,8 +481,8 @@ ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_user_id_
 ALTER TABLE public.community_profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY community_profiles_select_members ON public.community_profiles FOR SELECT TO authenticated USING ((community_access() OR (user_id = auth.uid())));
 CREATE POLICY community_profiles_insert_own ON public.community_profiles FOR INSERT TO authenticated WITH CHECK ((user_id = auth.uid()));
-CREATE POLICY community_profiles_name_not_reserved ON public.community_profiles FOR INSERT TO authenticated WITH CHECK ((NOT is_reserved_display_name(display_name)));
-CREATE POLICY community_profiles_unverified_insert ON public.community_profiles FOR INSERT TO authenticated WITH CHECK ((NOT is_verified));
+CREATE POLICY community_profiles_name_not_reserved ON public.community_profiles FOR INSERT TO authenticated WITH CHECK ((NOT is_reserved_display_name(display_name)));  -- RESTRICTIVE in the live DB (AND-ed). See header.
+CREATE POLICY community_profiles_unverified_insert ON public.community_profiles FOR INSERT TO authenticated WITH CHECK ((NOT is_verified));  -- RESTRICTIVE in the live DB (AND-ed). See header.
 CREATE POLICY community_profiles_update_own ON public.community_profiles FOR UPDATE TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE TRIGGER trg_community_profiles_reserved_name BEFORE UPDATE ON public.community_profiles FOR EACH ROW WHEN ((new.display_name IS DISTINCT FROM old.display_name)) EXECUTE FUNCTION community_profiles_guard_reserved_name();
 
@@ -642,7 +658,7 @@ CREATE INDEX idx_goals_user ON public.goals USING btree (user_id);
 CREATE INDEX idx_goals_tracked_question ON public.goals USING btree (tracked_by_question_id);
 ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY;
 CREATE POLICY goals_own ON public.goals FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
-CREATE POLICY goals_tier_limit ON public.goals FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (goal_count() < 3)));
+CREATE POLICY goals_tier_limit ON public.goals FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (goal_count() < 3)));  -- RESTRICTIVE in the live DB (AND-ed). See header.
 CREATE TRIGGER trg_goals_updated BEFORE UPDATE ON public.goals FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ════════════════════════════════════════════════════════════════
@@ -1074,7 +1090,7 @@ ALTER TABLE public.projects ADD CONSTRAINT projects_user_id_fkey FOREIGN KEY (us
 CREATE INDEX idx_projects_user ON public.projects USING btree (user_id);
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 CREATE POLICY projects_own ON public.projects FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
-CREATE POLICY projects_tier_limit ON public.projects FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (project_count() < 2)));
+CREATE POLICY projects_tier_limit ON public.projects FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (project_count() < 2)));  -- RESTRICTIVE in the live DB (AND-ed). See header.
 CREATE TRIGGER trg_projects_updated BEFORE UPDATE ON public.projects FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- Shared content, not per-user. Display now comes from the i18n `quotes`
@@ -1249,7 +1265,7 @@ CREATE INDEX idx_site_pages_user ON public.site_pages USING btree (user_id);
 CREATE UNIQUE INDEX idx_site_pages_kind_slug_unique ON public.site_pages USING btree (kind, lower(slug)) WHERE ((slug IS NOT NULL) AND (deleted_at IS NULL));
 ALTER TABLE public.site_pages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY site_pages_own ON public.site_pages FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
-CREATE POLICY site_pages_tier_gate ON public.site_pages FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (site_page_count(kind) < 1)));
+CREATE POLICY site_pages_tier_gate ON public.site_pages FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (site_page_count(kind) < 1)));  -- RESTRICTIVE in the live DB (AND-ed). See header.
 CREATE TRIGGER trg_site_pages_updated BEFORE UPDATE ON public.site_pages FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ════════════════════════════════════════════════════════════════

@@ -329,7 +329,13 @@ function nextReminderOccurrence(r, start) {
 /* Surface the next occurrence of each pending/triggered reminder in
    the lookahead window. Default window matches the home widget (60
    days / top 5) so existing callers don't change behaviour; the
-   calendar passes wider params to cover its grid views. */
+   calendar passes wider params to cover its grid views.
+
+   ⚠️ The window deliberately STARTS AT TODAY. Past-dated reminders are never
+   surfaced — including on the calendar grid, where past MEETINGS *do* show.
+   That asymmetry is an OWNER DECISION (2026-07-19): reminders are action items,
+   not history, so the calendar doesn't backfill them. This is intended
+   behaviour, not a bug — please don't "fix" it. */
 export function remindersUpcoming(now = new Date(), remindersData = [], daysAhead = 60, limit = 5) {
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead, 23, 59, 59)

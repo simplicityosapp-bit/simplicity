@@ -212,7 +212,16 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
      values requestClose reads change, so the handler never goes stale. */
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'Escape') { requestClose(); return }
+      if (e.key === 'Escape') {
+        /* Defer to a popup layered ABOVE the wizard — an open DateField picker
+           or a modal sheet. Escape there must dismiss only that popup, never ask
+           to discard the whole wizard. Both listeners sit on `document`, and the
+           wizard's is registered first, so the picker's stopPropagation can't
+           stop this one (same node) — hence the DOM check, mirroring
+           MenuDrawer's `.m-sheet.open` guard. */
+        if (document.querySelector('.datefield-pop, .m-sheet.open')) return
+        requestClose(); return
+      }
       if (e.key !== 'Tab') return
       const panel = panelRef.current
       if (!panel) return

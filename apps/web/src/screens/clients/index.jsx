@@ -373,6 +373,25 @@ export default function ClientsScreen() {
             </Btn>
             {viewOpen && (
               <Box className="c-sort-pop" role="menu" style={{ [viewSide]: 0 }}>
+                {/* Grouping leads, and wears the shared double-pill toggle: it's
+                    a binary either/or, so rendering it as two more rows in a
+                    list of single-pick rows made three different behaviours all
+                    look identical. */}
+                <Txt as="p" className="c-sort-h">{t('groupBy.heading')}</Txt>
+                <Box className="mg-toggle c-view-toggle" role="tablist" aria-label={t('groupBy.aria')}>
+                  <Btn
+                    type="button"
+                    className={`mg-toggle-btn${groupBy === 'status' ? ' on' : ''}`}
+                    onClick={() => setGroupBy('status')}
+                  >{t('groupBy.status')}</Btn>
+                  <Btn
+                    type="button"
+                    className={`mg-toggle-btn${groupBy === 'project' ? ' on' : ''}`}
+                    onClick={() => setGroupBy('project')}
+                  >{t('groupBy.project')}</Btn>
+                </Box>
+
+                <Box className="c-sort-divider" />
                 <Txt as="p" className="c-sort-h">{t('sort.heading')}</Txt>
                 {SORT_OPTIONS.map((o) => (
                   <Btn
@@ -397,19 +416,6 @@ export default function ClientsScreen() {
                     onClick={() => setSort({ dir: 'desc' })}
                   >{t('sort.desc')}</Btn>
                 </Box>
-
-                <Box className="c-sort-divider" />
-                <Txt as="p" className="c-sort-h">{t('groupBy.heading')}</Txt>
-                <Btn
-                  type="button"
-                  className={`c-sort-opt${groupBy === 'status' ? ' on' : ''}`}
-                  onClick={() => setGroupBy('status')}
-                >{t('groupBy.status')}</Btn>
-                <Btn
-                  type="button"
-                  className={`c-sort-opt${groupBy === 'project' ? ' on' : ''}`}
-                  onClick={() => setGroupBy('project')}
-                >{t('groupBy.project')}</Btn>
 
                 <Box className="c-sort-divider" />
                 <Btn

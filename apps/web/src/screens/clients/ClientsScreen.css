@@ -481,10 +481,22 @@
 .c-sort-opt:hover {
   background: rgba(42, 37, 32, 0.04);
 }
+/* Selected option — an OPAQUE pill. It used to be a 15%-alpha sage tint
+   carrying sage text, so the coloured label dissolved into the glass popover
+   behind it. Same fill as .mg-toggle-btn.on, so "selected" reads identically
+   wherever it appears. */
 .c-sort-opt.on {
-  background: rgba(139, 168, 136, 0.15);
-  color: var(--sage);
-  font-weight: 600;
+  background: var(--terracotta);
+  color: var(--on-accent);
+  font-weight: 500;
+}
+/* Grouping toggle at the head of the menu — split the width evenly. */
+.c-view-toggle {
+  margin-bottom: 2px;
+}
+.c-view-toggle .mg-toggle-btn {
+  flex: 1;
+  text-align: center;
 }
 .c-sort-divider {
   height: 1px;
@@ -501,6 +513,11 @@
 }
 [data-theme="dark"] .c-sort-opt:hover {
   background: rgba(240, 235, 224, 0.05);
+}
+/* Must follow the dark hover rule — equal specificity, so source order is what
+   keeps a selected option opaque while the pointer is over it. */
+[data-theme="dark"] .c-sort-opt.on {
+  color: var(--ink-on-accent);
 }
 
 /* ── Bulk select state ──────────────────────────────────────── */

@@ -52,6 +52,7 @@
     "eventHide": "No se pudo ocultar el evento — inténtalo de nuevo",
     "eventUpdate": "No se pudo actualizar el evento — inténtalo de nuevo",
     "eventDelete": "No se pudo eliminar el evento — inténtalo de nuevo",
+    "eventRestore": "No se pudo restaurar el evento — inténtalo de nuevo",
     "bookingConfirm": "No se pudo confirmar la cita",
     "bookingReject": "No se pudo rechazar la cita",
     "bookingCancel": "No se pudo cancelar la cita"

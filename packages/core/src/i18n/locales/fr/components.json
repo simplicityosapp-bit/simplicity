@@ -52,6 +52,7 @@
     "eventHide": "Impossible de masquer l'événement — réessayez",
     "eventUpdate": "Impossible de mettre à jour l'événement — réessayez",
     "eventDelete": "Impossible de supprimer l'événement — réessayez",
+    "eventRestore": "Impossible de restaurer l'événement — réessayez",
     "bookingConfirm": "Impossible de confirmer le rendez-vous",
     "bookingReject": "Impossible de refuser le rendez-vous",
     "bookingCancel": "Impossible d'annuler le rendez-vous"

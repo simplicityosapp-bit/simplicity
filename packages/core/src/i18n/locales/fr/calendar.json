@@ -8,7 +8,9 @@
   "dup": {
     "one": "Un doublon de calendrier avec Google",
     "many": "{{count}} doublons de calendrier avec Google",
-    "cta": "Résoudre les doublons"
+    "cta": "Résoudre les doublons",
+    "autoHiddenOne": "Un doublon de calendrier masqué automatiquement",
+    "autoHiddenMany": "{{count}} doublons de calendrier masqués automatiquement"
   },
   "fallback": {
     "client": "Client",

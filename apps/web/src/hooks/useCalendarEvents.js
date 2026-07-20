@@ -102,5 +102,19 @@ export function useCalendarEvents() {
     if (e) { showError(i18n.t('components:errors.eventDelete')); qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
-  return { events, loading: isLoading, error: error?.message ?? null, refetch, assignClient, assignProject, assignLead, assignGroup, dismissEvent, updateEvent, deleteEvent }
+  /* Un-hide a previously dismissed/deleted synced event (undo + Trash
+     restore). Clears deleted_at but KEEPS owned=true, so the event stays
+     visible and detached from the one-way sync — a restored event is never
+     re-clobbered nor re-auto-hidden (auto-resolve skips owned rows).
+     Optimistic; reconcile on failure. */
+  const restoreEvent = useCallback(async (ev) => {
+    qc.setQueryData(KEY, (prev) => [{ ...ev, owned: true, deleted_at: null }, ...(prev ?? []).filter((row) => row.id !== ev.id)])
+    const { error: e } = await supabase
+      .from('calendar_events')
+      .update({ owned: true, deleted_at: null })
+      .eq('id', ev.id)
+    if (e) { showError(i18n.t('components:errors.eventRestore')); qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
+
+  return { events, loading: isLoading, error: error?.message ?? null, refetch, assignClient, assignProject, assignLead, assignGroup, dismissEvent, updateEvent, deleteEvent, restoreEvent }
 }

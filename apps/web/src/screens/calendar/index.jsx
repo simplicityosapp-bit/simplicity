@@ -9,6 +9,7 @@ import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetings
 import { confirmScheduledMeeting, skipScheduledMeeting } from '../../lib/scheduledMeetings'
 import { showToast, showError } from '../../lib/toast'
 import { useCalendarDuplicates } from '../../hooks/useCalendarDuplicates'
+import { useCalendarDuplicateAutoResolve } from '../../hooks/useCalendarDuplicateAutoResolve'
 import { useCalendarEvents } from '../../hooks/useCalendarEvents'
 import { useGoogleCalendarAutoSync } from '../../hooks/useGoogleCalendarAutoSync'
 import { useBookings } from '../../hooks/useBookings'
@@ -51,7 +52,7 @@ export default function CalendarScreen() {
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
   const { sessions, addSession, removeSession } = useSessions()
-  const { events: calendarEvents, loading: calendarEventsLoading, refetch: refetchCalendarEvents, dismissEvent, updateEvent, deleteEvent } = useCalendarEvents()
+  const { events: calendarEvents, loading: calendarEventsLoading, refetch: refetchCalendarEvents, dismissEvent, updateEvent, deleteEvent, restoreEvent } = useCalendarEvents()
   /* Auto-sync Google Calendar on entry + every 10 min while this screen is
      open (client-side only; reloads the cached events after each pull). */
   useGoogleCalendarAutoSync({ onSynced: refetchCalendarEvents })
@@ -103,10 +104,14 @@ export default function CalendarScreen() {
 
   /* Calendar duplicates: an app recurring meeting that collides with a synced
      Google event for the same subject/day/time. Surfaced as a banner here +
-     a row in the home AttentionWidget; resolved one-by-one (never auto). */
+     a row in the home AttentionWidget; loose pairs resolved one-by-one. */
   const { duplicates, hideMeeting, hideEvent } = useCalendarDuplicates({
     meetings, calendarEvents, clients, groups, updateMeeting, dismissEvent,
   })
+  /* Near-exact pairs (±15 min) are auto-hidden here — the one screen where
+     Google auto-sync runs — hiding only the synced mirror, with a batched
+     undo + Trash as the safety net. Looser pairs stay in the banner above. */
+  useCalendarDuplicateAutoResolve({ duplicates, dismissEvent, restoreEvent })
 
   const weekStart = prefs?.format?.week_start || prefs?.weekStart || 'sunday'
   const dayViewStart = Number.isFinite(prefs?.dayViewStart) ? prefs.dayViewStart : 6

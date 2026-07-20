@@ -8,7 +8,9 @@
   "dup": {
     "one": "Un duplicado de calendario con Google",
     "many": "{{count}} duplicados de calendario con Google",
-    "cta": "Resolver duplicados"
+    "cta": "Resolver duplicados",
+    "autoHiddenOne": "Un duplicado de calendario ocultado automáticamente",
+    "autoHiddenMany": "{{count}} duplicados de calendario ocultados automáticamente"
   },
   "fallback": {
     "client": "Cliente",

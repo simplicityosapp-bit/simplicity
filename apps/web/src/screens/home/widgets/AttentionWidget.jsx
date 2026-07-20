@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock, FileDown } from 'lucide-react'
-import { attentionItems } from '../../../lib/homeData'
+import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock, FileDown, BellOff } from 'lucide-react'
+import { attentionItems, attentionRowAction } from '../../../lib/homeData'
 import { ROUTES } from '../../../lib/routes'
+import { pushUndo } from '../../../lib/undo'
 import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
 import WhatsAppButton from '../../../components/WhatsAppButton'
 import InfoPopover from '../../../components/InfoPopover'
@@ -37,19 +38,6 @@ import { Box, Txt, Btn } from '../../../components/ui'
 
 const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
 
-/* Non-actionable attention rows navigate to their entity's screen. Items from
-   attentionItems() carry a `target` key — the row handler used to check `it.to`,
-   which NO item ever sets, so every navigating row (open balances, goal-gap,
-   urgent tasks, pending leads) was a dead click. Map target → route instead. */
-const TARGET_ROUTE = {
-  finance: ROUTES.FINANCE,
-  calendar: ROUTES.CALENDAR,
-  clients: ROUTES.CLIENTS,
-  goals: ROUTES.GOALS,
-  tasks: ROUTES.TASKS,
-  leads: ROUTES.LEADS,
-}
-
 /* "דרושה תשומת לב" — composed rows from pending tx, pending meetings,
    balances, goal gap, urgent tasks, 45-day client/lead rules. The actionable
    rows (pending transactions / pending meetings) open an approve-skip-delete
@@ -62,7 +50,7 @@ export default function AttentionWidget() {
   const waMsg = useWhatsAppMessage()
   const { transactions, setStatus: setTxStatus, removeTransaction, addTransaction, loading: transactionsLoading } = useTransactions()
   const { meetings, addMeeting, updateMeeting, loading: meetingsLoading } = useScheduledMeetings()
-  const { clients } = useClients()
+  const { clients, updateClient } = useClients()
   const { groups } = useGroups()
   const { members } = useGroupMembers()
   const { tasks } = useTasks()
@@ -114,8 +102,16 @@ export default function AttentionWidget() {
   const [open, setOpen] = useState(false)
   const [popup, setPopup] = useState(null) /* 'tx' | 'meetings' | null */
   /* A clicked contact-row (stale clients / stale leads / today's follow-ups)
-     opens a small people list with a direct WhatsApp send per person. */
-  const [peopleRow, setPeopleRow] = useState(null)
+     opens a small people list with a direct WhatsApp send per person. Only the
+     row's ID is held, never the row object: the row is re-resolved from the
+     freshly computed items on every render, so dismissing a client drops them
+     out of the open list — and closes the modal once the last one goes —
+     instead of leaving a stale snapshot on screen. */
+  const [peopleId, setPeopleId] = useState(null)
+  const peopleRow = useMemo(
+    () => (peopleId ? items.find((it) => it.rowId === peopleId) || null : null),
+    [items, peopleId],
+  )
 
   const pendingTxs = useMemo(
     () => (transactions || []).filter((t) => !t.deleted_at && t.status === 'pending'),
@@ -144,18 +140,37 @@ export default function AttentionWidget() {
     ? t('widgets.attention.allClear')
     : summaryParts.slice(0, 2).join(' · ') + (summaryParts.length > 2 ? ` · ${t('widgets.attention.more', { count: summaryParts.length - 2 })}` : '')
 
-  /* Actionable rows open a popup; the rest navigate. */
+  /* What a row does is decided by attentionRowAction (in homeData, tested
+     against the real item shapes) so the handler and the data can't drift —
+     a past drift pointed this at `it.target` while items carried `it.to` and
+     killed every navigating row. Here we only execute the resolved action. */
   const onRow = (it) => {
-    if (it.kind === 'pendingTx') setPopup('tx')
-    else if (it.kind === 'pendingMeetings') setPopup('meetings')
-    else if (it.kind === 'people') setPeopleRow(it)
-    else if (it.target && TARGET_ROUTE[it.target]) navigate(TARGET_ROUTE[it.target])
+    const action = attentionRowAction(it)
+    if (!action) return
+    if (action.type === 'popup') setPopup(action.popup)
+    else if (action.type === 'people') setPeopleId(it.rowId)
+    else if (action.type === 'navigate') navigate(action.to)
   }
   /* Tap a person → open their card (client) or the leads board (lead). */
   const openPerson = (p) => {
     if (!peopleRow) return
     navigate(peopleRow.entity === 'client' ? ROUTES.CLIENT.replace(':id', p.id) : ROUTES.LEADS)
-    setPeopleRow(null)
+    setPeopleId(null)
+  }
+
+  /* "התעלם" — stamp attention_snoozed_at so the 45-day rule reads now as the
+     latest contact point. The client leaves the list at once and comes back
+     only if another 45 days pass with no session (snooze, not mute). Undo
+     restores the PREVIOUS stamp rather than blanking the column, so undoing a
+     second dismissal doesn't silently un-dismiss the first. */
+  const snoozeClient = async (p) => {
+    const prev = clients.find((c) => c.id === p.id)?.attention_snoozed_at ?? null
+    await updateClient(p.id, { attention_snoozed_at: new Date().toISOString() })
+    pushUndo({
+      label: t('widgets.attention.snoozed'),
+      undo: async () => { await updateClient(p.id, { attention_snoozed_at: prev }) },
+      redo: async () => { await updateClient(p.id, { attention_snoozed_at: new Date().toISOString() }) },
+    })
   }
 
   return (
@@ -255,7 +270,10 @@ export default function AttentionWidget() {
         onHideEvent={hideEvent}
       />
 
-      <Modal open={!!peopleRow} onClose={() => setPeopleRow(null)} title={peopleRow?.text || t('widgets.attention.reachOut')}>
+      <Modal open={!!peopleRow} onClose={() => setPeopleId(null)} title={peopleRow?.text || t('widgets.attention.reachOut')}>
+        {peopleRow?.rowId === 'staleClients' ? (
+          <Txt as="p" className="h-people-hint">{t('widgets.attention.staleClientsHint')}</Txt>
+        ) : null}
         <Box className="h-people-list">
           {(peopleRow?.people || []).map((p) => (
             <Box key={p.id} className="h-people-row">
@@ -268,6 +286,19 @@ export default function AttentionWidget() {
                 message={waMsg(peopleRow.waKey, { name: p.name })}
                 triggerClassName="h-people-wa"
               />
+              {/* Dismiss is client-only — the snooze column lives on clients,
+                  and the two lead rows clear themselves by their own rules. */}
+              {peopleRow.rowId === 'staleClients' ? (
+                <Btn
+                  type="button"
+                  className="h-people-snooze"
+                  aria-label={t('widgets.attention.snoozeAria', { name: p.name })}
+                  onClick={() => snoozeClient(p)}
+                >
+                  <BellOff size={15} strokeWidth={1.6} aria-hidden="true" />
+                  <Txt className="h-people-snooze-label">{t('widgets.attention.snooze')}</Txt>
+                </Btn>
+              ) : null}
             </Box>
           ))}
         </Box>

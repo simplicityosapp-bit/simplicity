@@ -52,6 +52,7 @@
     "eventHide": "Couldn't hide the event — please try again",
     "eventUpdate": "Couldn't update the event — please try again",
     "eventDelete": "Couldn't delete the event — please try again",
+    "eventRestore": "Couldn't restore the event — please try again",
     "bookingConfirm": "Couldn't confirm the booking",
     "bookingReject": "Couldn't reject the booking",
     "bookingCancel": "Couldn't cancel the booking"

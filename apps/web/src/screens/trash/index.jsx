@@ -1,6 +1,6 @@
 import {
   Trash2, User, FolderOpen, Users, CheckSquare, UserPlus, Tag,
-  Banknote, Repeat, CalendarDays, Bell, Target, LayoutGrid, BarChart3,
+  Banknote, Repeat, CalendarDays, CalendarClock, Bell, Target, LayoutGrid, BarChart3,
   HelpCircle, MessageCircle,
 } from 'lucide-react'
 import { Trans } from 'react-i18next'
@@ -23,6 +23,7 @@ const ENTITY_ICONS = {
   recurring:      Repeat,
   sessions:       CalendarDays,
   reminders:      Bell,
+  calendarEvents: CalendarClock,
   goals:          Target,
   goalCategories: LayoutGrid,
   goalEntries:    BarChart3,

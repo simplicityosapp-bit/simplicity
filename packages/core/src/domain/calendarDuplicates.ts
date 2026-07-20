@@ -8,12 +8,27 @@
      · on the SAME calendar day (local time)
      · within ±DUP_WINDOW_MIN minutes of the meeting time
 
-   We never auto-resolve and never touch Google (one-way sync) — the
-   caller decides per pair whether to hide the app meeting (status
-   'skipped') or the synced event (deleted_at). Pure + deterministic.
+   Resolution is split by confidence (product decision 20/07/2026,
+   superseding the 08/06/2026 "never auto-resolve" rule):
+     · NEAR-EXACT pairs — start times within ±AUTO_RESOLVE_WINDOW_MIN —
+       are auto-resolved: the app hides the synced Google MIRROR (never
+       the app meeting). One-way sync means the event still lives in the
+       user's Google Calendar, so nothing is truly lost — it's reversible
+       via undo and the Trash drawer.
+     · LOOSER pairs (same subject/day, but time off by up to
+       DUP_WINDOW_MIN) stay manual — the caller decides per pair. A
+       common-name false match is far likelier here, so a human confirms.
+   We still never write to Google. Pure + deterministic.
    ════════════════════════════════════════════════════════════════ */
 
 export const DUP_WINDOW_MIN = 90
+
+/* Auto-hide only when the app meeting and the synced event start within
+   this window of each other — a true duplicate of the SAME session lines
+   up almost exactly, whereas two coincidental same-subject events on one
+   day usually don't. Kept well under DUP_WINDOW_MIN so the loose cases
+   fall through to manual resolution. */
+export const AUTO_RESOLVE_WINDOW_MIN = 15
 
 interface Meeting {
   id: string
@@ -107,4 +122,13 @@ export function findCalendarDuplicates({ meetings = [], calendarEvents = [], cli
   }
   /* Soonest first so the user clears the nearest collision first. */
   return out.sort((a, b) => a.when.getTime() - b.when.getTime())
+}
+
+/* True when a duplicate's two sides start within AUTO_RESOLVE_WINDOW_MIN —
+   i.e. confident enough to auto-hide the synced mirror. Looser pairs
+   (still inside DUP_WINDOW_MIN) return false and stay manual. Pure. */
+export function isNearExactDuplicate(dup: CalendarDuplicate): boolean {
+  if (!dup?.event?.start_time || !dup?.meeting?.scheduled_at) return false
+  const gap = Math.abs(new Date(dup.event.start_time).getTime() - new Date(dup.meeting.scheduled_at).getTime())
+  return gap <= AUTO_RESOLVE_WINDOW_MIN * 60 * 1000
 }

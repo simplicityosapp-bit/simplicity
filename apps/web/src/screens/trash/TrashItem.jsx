@@ -49,6 +49,10 @@ function primaryLabel(entityType, row, t) {
       const num = row.num != null ? t('item.sessionNum', { num: row.num }) : t('item.session')
       return row.date ? `${num} · ${fmtShortDate(row.date)}` : num
     }
+    case 'calendarEvents': {
+      const title = row.title || t('item.calendarEventFallback')
+      return row.start_time ? `${title} · ${fmtShortDate(row.start_time)}` : title
+    }
     default:
       return row.name || row.title || '—'
   }

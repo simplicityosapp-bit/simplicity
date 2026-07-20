@@ -614,6 +614,15 @@
   line-height: 1.5;
   color: var(--espresso);
 }
+/* Session notes sit under the summary as secondary text — same muted
+   treatment as .cd-sess-date so the summary stays the primary line. */
+.cd-sess-notes {
+  margin: 4px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--stone);
+}
 .cd-tl-row {
   display: flex;
   align-items: center;

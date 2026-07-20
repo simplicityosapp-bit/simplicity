@@ -24,6 +24,8 @@
     "category": "Category",
     "dueDate": "Due date",
     "dueTime": "Time",
+    "addDue": "+ Add a due date",
+    "removeDue": "Remove due date",
     "noDueDateHint": "Tasks have no due date — need a reminder for a specific day? Add a <0>reminder</0> instead."
   },
   "reminder": {
@@ -91,6 +93,8 @@
     "metaDone": "Done",
     "statuses": "Statuses",
     "statusesHint": "Each status maps to \"Open\" or \"Done\" — so the home counters stay correct.",
+    "defaultPriority": "Default priority",
+    "defaultPriorityHint": "The priority every new task starts on.",
     "newStatus": "New status",
     "statusPlaceholder": "e.g. In progress",
     "addStatusAria": "Add status",

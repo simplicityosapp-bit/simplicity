@@ -4,6 +4,7 @@ import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
 import { useT } from '../i18n/useT'
+import { useUserPreferences } from '../hooks/useUserPreferences'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Statuses roll up to one of two fixed meta buckets so the binary
@@ -11,6 +12,13 @@ import { Box, Txt, Btn, Input } from '../components/ui'
 const META = [
   { key: 'open', label: 'metaOpen' },
   { key: 'done', label: 'metaDone' },
+]
+/* Mirrors AddTaskModal's PRIORITIES so the picker here reads exactly like
+   the one in the task form. */
+const PRIORITIES = [
+  { k: 'high', l: 'priorityHigh' },
+  { k: 'medium', l: 'priorityMedium' },
+  { k: 'low', l: 'priorityLow' },
 ]
 
 /* Manage custom task statuses (grouped by open/done meta) and custom task
@@ -24,6 +32,8 @@ export default function TaskTaxonomyModal({
   onAddCategory, onRemoveCategory,
 }) {
   const { t } = useT('modalsTask')
+  const { prefs, update: updatePrefs } = useUserPreferences()
+  const defaultPriority = prefs?.tasks?.default_priority || 'medium'
   const [sName, setSName] = useState('')
   const [sMeta, setSMeta] = useState('open')
   const [sColor, setSColor] = useState(COLORS[0])
@@ -54,6 +64,26 @@ export default function TaskTaxonomyModal({
 
   return (
     <Modal open={open} onClose={onClose} title={t('taxonomy.title')}>
+      {/* ── Default priority ───────────────────────────────────── */}
+      {/* Which priority a NEW task opens on. Same pill widget as the task
+          form's own priority picker, so the two read identically. */}
+      <Txt as="p" className="m-section-title">{t('taxonomy.defaultPriority')}</Txt>
+      <Txt as="p" className="m-hint">{t('taxonomy.defaultPriorityHint')}</Txt>
+      <Box className="m-field">
+        <Box className="m-pills">
+          {PRIORITIES.map((p) => (
+            <Btn
+              key={p.k}
+              type="button"
+              className={`m-pill${defaultPriority === p.k ? ' on' : ''}`}
+              onClick={() => updatePrefs({ tasks: { default_priority: p.k } })}
+            >
+              {t(`task.${p.l}`)}
+            </Btn>
+          ))}
+        </Box>
+      </Box>
+
       {/* ── Statuses ───────────────────────────────────────────── */}
       {/* The "add" form sits first; the existing pills are listed BELOW it. */}
       <Txt as="p" className="m-section-title">{t('taxonomy.statuses')}</Txt>

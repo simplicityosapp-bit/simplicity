@@ -306,6 +306,7 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
                     {editKey === 'sess' && !s.group_id && <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon cd-sess-editicon" aria-hidden="true" />}
                   </Box>
                   {s.summary && <Txt as="p" className="cd-sess-summary">{s.summary}</Txt>}
+                  {s.notes && <Txt as="p" className="cd-sess-notes">{s.notes}</Txt>}
                 </>
               )
               return editKey === 'sess' && !s.group_id ? (

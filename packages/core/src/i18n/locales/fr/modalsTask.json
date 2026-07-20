@@ -24,6 +24,8 @@
     "category": "Catégorie",
     "dueDate": "Échéance",
     "dueTime": "Heure",
+    "addDue": "+ Ajouter une échéance",
+    "removeDue": "Retirer l'échéance",
     "noDueDateHint": "Les tâches n'ont pas d'échéance — besoin d'un rappel pour un jour précis ? Ajoutez plutôt un <0>rappel</0>."
   },
   "reminder": {
@@ -91,6 +93,8 @@
     "metaDone": "Terminées",
     "statuses": "Statuts",
     "statusesHint": "Chaque statut correspond à « Ouvert » ou « Terminé » — ainsi les compteurs de l'accueil restent corrects.",
+    "defaultPriority": "Priorité par défaut",
+    "defaultPriorityHint": "La priorité de départ de chaque nouvelle tâche.",
     "newStatus": "Nouveau statut",
     "statusPlaceholder": "ex. En cours",
     "addStatusAria": "Ajouter un statut",

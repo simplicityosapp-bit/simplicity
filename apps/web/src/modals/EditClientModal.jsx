@@ -180,6 +180,13 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       const nextDoneAdj = (Number(form.done) || 0) - personalHeld
       const prevDoneAdj = Number(client?.sessions_done_adjustment) || 0
       if (nextDoneAdj !== prevDoneAdj) patch.sessions_done_adjustment = nextDoneAdj
+      /* The client file shows "עודכן {date}" under the notes, but the stamp was
+         only ever written on CREATE — so an edited note kept a stale date, or
+         showed none at all. Stamp it only when the text actually changed, so a
+         plain save never bumps it. */
+      if ((form.notes.trim() || null) !== (client.notes ?? null)) {
+        patch.notes_updated_at = new Date().toISOString()
+      }
       /* Billing edits are handled INDEPENDENTLY — "שולם" and "יתרה" can both
          change in one save and neither is discarded:
          - "יתרה" → balance_adjustment (a forgiveness that only affects the

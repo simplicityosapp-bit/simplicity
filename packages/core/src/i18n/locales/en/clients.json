@@ -44,8 +44,13 @@
   },
   "groupBy": {
     "aria": "Group clients",
+    "heading": "Group by",
     "status": "Status",
     "project": "Project"
+  },
+  "view": {
+    "label": "View",
+    "multiSelect": "Select multiple"
   },
   "select": {
     "enter": "Select",
@@ -104,9 +109,9 @@
     "statusChanged": "Status changed",
     "paymentDefaultDesc": "Payment update",
     "manualPayTitle": "Manual payment update",
-    "manualPayMessage": "You updated \"Paid\" by {{amount}}. Record a real money transaction, or just update the client card (no transaction)?",
-    "manualPayConfirm": "Add transaction",
-    "manualPayCancel": "Card only"
+    "manualPayMessage": "You updated \"Paid\" by {{amount}}. You can record the amount as income in your finance reports, or correct the client card only — a card-only correction will not appear in your finance reports.",
+    "manualPayConfirm": "Record as income",
+    "manualPayCancel": "Correct card only"
   },
   "sections": {
     "activity": "Activity",

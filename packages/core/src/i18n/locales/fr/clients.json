@@ -44,8 +44,13 @@
   },
   "groupBy": {
     "aria": "Grouper les clients",
+    "heading": "Grouper par",
     "status": "Statut",
     "project": "Projet"
+  },
+  "view": {
+    "label": "Affichage",
+    "multiSelect": "Sélection multiple"
   },
   "select": {
     "enter": "Sélectionner",
@@ -104,9 +109,9 @@
     "statusChanged": "Statut modifié",
     "paymentDefaultDesc": "Mise à jour du paiement",
     "manualPayTitle": "Mise à jour manuelle du paiement",
-    "manualPayMessage": "Vous avez mis à jour « Payé » de {{amount}}. Enregistrer une transaction réelle, ou simplement mettre à jour la fiche client (sans transaction) ?",
-    "manualPayConfirm": "Ajouter une transaction",
-    "manualPayCancel": "Fiche uniquement"
+    "manualPayMessage": "Vous avez mis à jour « Payé » de {{amount}}. Vous pouvez enregistrer le montant comme revenu dans vos rapports financiers, ou corriger uniquement la fiche client — une correction limitée à la fiche n'apparaîtra pas dans les rapports financiers.",
+    "manualPayConfirm": "Enregistrer comme revenu",
+    "manualPayCancel": "Corriger la fiche uniquement"
   },
   "sections": {
     "activity": "Activité",

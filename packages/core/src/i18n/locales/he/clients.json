@@ -46,8 +46,13 @@
   },
   "groupBy": {
     "aria": "קיבוץ לקוחות",
+    "heading": "קיבוץ",
     "status": "סטטוס",
     "project": "פרויקט"
+  },
+  "view": {
+    "label": "תצוגה",
+    "multiSelect": "בחירה מרובה"
   },
   "select": {
     "enter": "בחר/י",
@@ -110,9 +115,9 @@
     "statusChanged": "הסטטוס שונה",
     "paymentDefaultDesc": "עדכון תשלום",
     "manualPayTitle": "עדכון תשלום ידני",
-    "manualPayMessage": "עדכנת את «שולם» ב-{{amount}}. להוסיף תנועה רשמית בכסף, או רק לעדכן את כרטיס הלקוח (בלי תנועה)?",
-    "manualPayConfirm": "הוסף תנועה",
-    "manualPayCancel": "רק בכרטיס"
+    "manualPayMessage": "עדכנת את «שולם» ב-{{amount}}. אפשר לרשום את הסכום כהכנסה בדוחות הכספים, או לתקן רק את כרטיס הלקוח — תיקון בכרטיס בלבד לא יופיע בדוחות הכספים.",
+    "manualPayConfirm": "רישום כהכנסה",
+    "manualPayCancel": "תיקון בכרטיס בלבד"
   },
   "sections": {
     "activity": "פעילות",

@@ -44,8 +44,13 @@
   },
   "groupBy": {
     "aria": "Agrupar clientes",
+    "heading": "Agrupar por",
     "status": "Estado",
     "project": "Proyecto"
+  },
+  "view": {
+    "label": "Vista",
+    "multiSelect": "Seleccionar varios"
   },
   "select": {
     "enter": "Seleccionar",
@@ -104,9 +109,9 @@
     "statusChanged": "Estado cambiado",
     "paymentDefaultDesc": "Actualización de pago",
     "manualPayTitle": "Actualización manual de pago",
-    "manualPayMessage": "Has actualizado «Pagado» en {{amount}}. ¿Registrar una transacción de dinero real, o solo actualizar la ficha del cliente (sin transacción)?",
-    "manualPayConfirm": "Añadir transacción",
-    "manualPayCancel": "Solo la ficha"
+    "manualPayMessage": "Has actualizado «Pagado» en {{amount}}. Puedes registrar el importe como ingreso en tus informes financieros, o corregir solo la ficha del cliente: una corrección solo en la ficha no aparecerá en los informes financieros.",
+    "manualPayConfirm": "Registrar como ingreso",
+    "manualPayCancel": "Corregir solo la ficha"
   },
   "sections": {
     "activity": "Actividad",

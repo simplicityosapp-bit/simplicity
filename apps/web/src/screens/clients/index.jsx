@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Search, ArrowUpDown, X, UserPlus, Wallet, ChevronLeft, AlertTriangle } from 'lucide-react'
+import { Search, SlidersHorizontal, X, UserPlus, Wallet, ChevronLeft, AlertTriangle } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { effectiveClientMeta, paidForClients, sessionsCountForClients, clientBalance, currentMonthRange, isr, financeQuery } from '@simplicity/core'
 import { useClients } from '../../hooks/useClients'
@@ -147,9 +147,11 @@ export default function ClientsScreen() {
   const [showAdd, setShowAdd] = useState(false)
   const [pendingDeleteClient, setPendingDeleteClient] = useState(null)
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState(null)
-  const [sortOpen, setSortOpen] = useState(false)
-  const sortAnchorRef = useRef(null)
-  const sortSide = usePopoverSide(sortAnchorRef, sortOpen)
+  /* One "תצוגה" menu holds sort + grouping + multi-select — the three
+     controls that used to sit as a permanent row above the tabs. */
+  const [viewOpen, setViewOpen] = useState(false)
+  const viewAnchorRef = useRef(null)
+  const viewSide = usePopoverSide(viewAnchorRef, viewOpen)
   const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState(() => new Set())
   const [bulkMetaOpen, setBulkMetaOpen] = useState(false)
@@ -232,15 +234,15 @@ export default function ClientsScreen() {
     return ordered
   }, [groupBy, list, projects])
 
-  /* Close the sort popover when tapping outside. */
+  /* Close the view popover when tapping outside. */
   useEffect(() => {
-    if (!sortOpen) return
+    if (!viewOpen) return
     const onDoc = (e) => {
-      if (!sortAnchorRef.current?.contains(e.target)) setSortOpen(false)
+      if (!viewAnchorRef.current?.contains(e.target)) setViewOpen(false)
     }
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
-  }, [sortOpen])
+  }, [viewOpen])
 
   /* Same dismissal for the bulk-meta popover inside the bulk action bar. */
   useEffect(() => {
@@ -355,18 +357,22 @@ export default function ClientsScreen() {
         <Btn type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.clients')} · {ts('limit.upgrade')}</Btn>
       )}
       <Box className="c-top-actions">
-          <Box className="c-sort-wrap" ref={sortAnchorRef}>
+          <Box className="c-sort-wrap" ref={viewAnchorRef}>
             <Btn
               type="button"
               className="c-sort-btn"
-              onClick={() => setSortOpen((v) => !v)}
-              aria-expanded={sortOpen}
-              aria-label={t('sort.label')}
+              onClick={() => setViewOpen((v) => !v)}
+              aria-expanded={viewOpen}
+              aria-haspopup="menu"
             >
-              <ArrowUpDown size={14} strokeWidth={1.7} aria-hidden="true" /> {t('sort.label')}
+              <SlidersHorizontal size={14} strokeWidth={1.7} aria-hidden="true" /> {t('view.label')}
+              {/* Grouping by project hides the tabs AND the hero, so the active
+                  grouping is echoed on the trigger — otherwise the control that
+                  caused the change is itself hidden inside the menu. */}
+              {groupBy === 'project' && <Txt className="c-view-active">· {t('groupBy.project')}</Txt>}
             </Btn>
-            {sortOpen && (
-              <Box className="c-sort-pop" role="menu" style={{ [sortSide]: 0 }}>
+            {viewOpen && (
+              <Box className="c-sort-pop" role="menu" style={{ [viewSide]: 0 }}>
                 <Txt as="p" className="c-sort-h">{t('sort.heading')}</Txt>
                 {SORT_OPTIONS.map((o) => (
                   <Btn
@@ -391,28 +397,29 @@ export default function ClientsScreen() {
                     onClick={() => setSort({ dir: 'desc' })}
                   >{t('sort.desc')}</Btn>
                 </Box>
+
+                <Box className="c-sort-divider" />
+                <Txt as="p" className="c-sort-h">{t('groupBy.heading')}</Txt>
+                <Btn
+                  type="button"
+                  className={`c-sort-opt${groupBy === 'status' ? ' on' : ''}`}
+                  onClick={() => setGroupBy('status')}
+                >{t('groupBy.status')}</Btn>
+                <Btn
+                  type="button"
+                  className={`c-sort-opt${groupBy === 'project' ? ' on' : ''}`}
+                  onClick={() => setGroupBy('project')}
+                >{t('groupBy.project')}</Btn>
+
+                <Box className="c-sort-divider" />
+                <Btn
+                  type="button"
+                  className={`c-sort-opt${selectMode ? ' on' : ''}`}
+                  onClick={() => { setSelectMode((v) => !v); setViewOpen(false) }}
+                >{selectMode ? t('select.cancel') : t('view.multiSelect')}</Btn>
               </Box>
             )}
           </Box>
-          <Box className="mg-toggle c-groupby" role="tablist" aria-label={t('groupBy.aria')}>
-            <Btn
-              type="button"
-              className={`mg-toggle-btn${groupBy === 'status' ? ' on' : ''}`}
-              onClick={() => setGroupBy('status')}
-            >{t('groupBy.status')}</Btn>
-            <Btn
-              type="button"
-              className={`mg-toggle-btn${groupBy === 'project' ? ' on' : ''}`}
-              onClick={() => setGroupBy('project')}
-            >{t('groupBy.project')}</Btn>
-          </Box>
-          <Btn
-            type="button"
-            className={`c-select-btn${selectMode ? ' on' : ''}`}
-            onClick={() => setSelectMode((v) => !v)}
-          >
-            {selectMode ? t('select.cancel') : t('select.enter')}
-          </Btn>
         </Box>
 
       {groupBy === 'status' && (

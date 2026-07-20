@@ -238,8 +238,8 @@
           "a": "La recherche fonctionne uniquement par nom de client. Pour trouver quelqu'un par d'autres détails, triez ou parcourez la liste et ouvrez la fiche pour voir le numéro de téléphone et l'e-mail."
         },
         {
-          "q": "Les données des clients sont-elles chiffrées ?",
-          "a": "Actuellement, les détails des clients (nom, téléphone, e-mail, notes et résumés) sont stockés en texte clair, non chiffrés. L'accès est protégé uniquement par les autorisations de votre compte."
+          "q": "Les données de mes clients sont-elles protégées ?",
+          "a": "Oui. Chaque compte n'accède qu'à ses propres données : l'isolement est appliqué par la base de données elle-même (Row-Level Security), de sorte qu'aucun autre utilisateur du système ne peut atteindre vos clients. Les données sont hébergées sur des serveurs de l'Union européenne, toutes les communications sont chiffrées (HTTPS/TLS) et le stockage est chiffré au niveau de l'infrastructure. L'équipe dispose d'un accès technique limité, uniquement pour l'exploitation, le support et les sauvegardes. Le détail complet figure dans la politique de confidentialité."
         },
         {
           "q": "J'ai supprimé un client par erreur — puis-je le restaurer ?",

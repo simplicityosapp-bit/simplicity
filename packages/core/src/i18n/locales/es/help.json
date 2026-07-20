@@ -238,8 +238,8 @@
           "a": "La búsqueda solo funciona por nombre de cliente. Para encontrar a alguien por otros datos, ordena o navega por la lista y abre la ficha para ver el teléfono y el correo."
         },
         {
-          "q": "¿Los datos del cliente están cifrados?",
-          "a": "Actualmente los datos del cliente (nombre, teléfono, correo, notas y resúmenes) se almacenan como texto sin cifrar. El acceso está protegido únicamente por los permisos de tu cuenta."
+          "q": "¿Están protegidos los datos de mis clientes?",
+          "a": "Sí. Cada cuenta accede únicamente a sus propios datos: el aislamiento lo aplica la propia base de datos (Row-Level Security), de modo que ningún otro usuario del sistema puede llegar a tus clientes. Los datos se alojan en servidores de la Unión Europea, toda la comunicación va cifrada (HTTPS/TLS) y el almacenamiento está cifrado a nivel de infraestructura. El equipo tiene acceso técnico limitado solo para operación, soporte y copias de seguridad. El detalle completo está en la política de privacidad."
         },
         {
           "q": "Eliminé un cliente sin querer, ¿puedo restaurarlo?",

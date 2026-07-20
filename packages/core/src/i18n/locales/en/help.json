@@ -238,8 +238,8 @@
           "a": "Search only works by client name. To find someone by other details, sort or browse the list and open the card to see the phone number and email."
         },
         {
-          "q": "Is client data encrypted?",
-          "a": "Currently client details (name, phone, email, notes, and summaries) are stored as plain text, not encrypted. Access is protected solely by your account permissions."
+          "q": "Is my clients’ information protected?",
+          "a": "Yes. Each account reaches only its own data — the isolation is enforced by the database itself (Row-Level Security), so no other user of the system can reach your clients. The data is held on servers in the European Union, all traffic is encrypted (HTTPS/TLS), and storage is encrypted at the infrastructure level. The team has limited technical access for operation, support and backup only. The full detail is in the privacy policy."
         },
         {
           "q": "I deleted a client by accident — can I restore them?",

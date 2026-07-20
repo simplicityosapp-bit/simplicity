@@ -989,10 +989,13 @@ CREATE TABLE public.payment_requests (
   client_id          uuid,
   transaction_id     uuid,
   installment_id     uuid,
-  booking_id         uuid,   -- NOTE: no FK. client_id/transaction_id/installment_id
-                             -- each have one; this column does not, so deleting a
-                             -- booking leaves the reference dangling. Confirmed
-                             -- absent in the live DB, not an omission here.
+  booking_id         uuid,   -- No FK, unlike its three sibling *_id columns.
+                             -- DELIBERATE: migration 0061 says "no FK yet to avoid
+                             -- coupling". Dormant anyway (GROW_ENABLED=false), and
+                             -- grow-webhook reads it with maybeSingle() behind an
+                             -- `if (bk)` guard, then bails on a missing customer
+                             -- name — a vanished booking costs an invoice, not
+                             -- correctness. Left alone on purpose.
   source             text NOT NULL,
   amount             numeric NOT NULL,
   description        text,
@@ -1386,11 +1389,17 @@ CREATE TABLE public.transactions (
   recipient_phone                text,
   recipient_tax_id               text,
   grow_transaction_id            text,
-  scheduled_meeting_id           uuid   -- NOTE: no FK, though every other *_id here
-                                        -- has one. It drives idx_transactions_recurring_meeting,
-                                        -- so a deleted scheduled_meeting leaves the
-                                        -- charge pointing at nothing. Confirmed absent
-                                        -- in the live DB.
+  scheduled_meeting_id           uuid   -- No FK, though every other *_id here has one,
+                                        -- and scheduled_meetings is a HARD delete — so
+                                        -- this can point at a row that is gone.
+                                        -- Harmless in practice: buildRecurringPayloads
+                                        -- dedups on BOTH `m|template|meeting` and
+                                        -- `d|template|date`, so a meeting deleted and
+                                        -- recreated on the same day is still caught by
+                                        -- the date key and cannot double-charge. A
+                                        -- stale id here is clutter, not a money bug.
+                                        -- Anything new that JOINs on it must not assume
+                                        -- the meeting still exists.
 );
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_pkey PRIMARY KEY (id);
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_status_check CHECK ((status = ANY (ARRAY['confirmed'::text, 'pending'::text, 'skipped'::text])));

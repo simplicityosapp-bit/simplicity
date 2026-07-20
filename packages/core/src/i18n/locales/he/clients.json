@@ -215,8 +215,8 @@
     "birthDate": "תאריך לידה",
     "group": "קבוצה (אופציונלי)",
     "noGroup": "ללא קבוצה",
-    "recurringDay": "פגישה קבועה — יום",
-    "recurringTime": "פגישה קבועה — שעה",
+    "recurringDay": "יום",
+    "recurringTime": "שעה",
     "clearRecurring": "ניקוי פגישה קבועה",
     "days": {
       "0": "ראשון",
@@ -226,7 +226,13 @@
       "4": "חמישי",
       "5": "שישי",
       "6": "שבת"
-    }
+    },
+    "onlyNameRequired": "רק השם חובה",
+    "moreToggle": "חיוב, פגישות ועוד",
+    "grpBilling": "חיוב",
+    "grpLinks": "שיוך",
+    "grpContact": "קשר",
+    "grpRecurring": "פגישה קבועה"
   },
   "dataWarning": "חלק מהנתונים לא נטענו — ייתכן שהיתרות חלקיות."
 }

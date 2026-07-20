@@ -247,6 +247,21 @@
   color: var(--stone);
 }
 
+/* Quiet heading that splits a long field list into named groups (billing /
+   links / contact / recurring) WITHOUT adding more collapsibles. Used inside
+   the add-client form's single "more" toggle. */
+.m-group-h {
+  margin: 18px 0 8px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--stone);
+}
+.m-group-h:first-child {
+  margin-top: 2px;
+}
+
 /* ── Ad-hoc receipt recipient (Add/Edit transaction) ────────────── */
 .m-recipient { display: flex; flex-direction: column; gap: 8px; }
 .m-recipient .m-row2 { margin: 0; }

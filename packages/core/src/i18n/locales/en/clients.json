@@ -209,8 +209,8 @@
     "birthDate": "Date of birth",
     "group": "Group (optional)",
     "noGroup": "No group",
-    "recurringDay": "Recurring meeting — day",
-    "recurringTime": "Recurring meeting — time",
+    "recurringDay": "Day",
+    "recurringTime": "Time",
     "clearRecurring": "Clear recurring meeting",
     "days": {
       "0": "Sunday",
@@ -220,7 +220,13 @@
       "4": "Thursday",
       "5": "Friday",
       "6": "Saturday"
-    }
+    },
+    "onlyNameRequired": "Only the name is required",
+    "moreToggle": "Billing, meetings and more",
+    "grpBilling": "Billing",
+    "grpLinks": "Links",
+    "grpContact": "Contact",
+    "grpRecurring": "Recurring meeting"
   },
   "dataWarning": "Some data didn't load — balances may be incomplete."
 }

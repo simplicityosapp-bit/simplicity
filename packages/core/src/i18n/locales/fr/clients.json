@@ -209,8 +209,8 @@
     "birthDate": "Date de naissance",
     "group": "Groupe (facultatif)",
     "noGroup": "Aucun groupe",
-    "recurringDay": "Rendez-vous récurrent — jour",
-    "recurringTime": "Rendez-vous récurrent — heure",
+    "recurringDay": "Jour",
+    "recurringTime": "Heure",
     "clearRecurring": "Effacer le rendez-vous récurrent",
     "days": {
       "0": "Dimanche",
@@ -220,7 +220,13 @@
       "4": "Jeudi",
       "5": "Vendredi",
       "6": "Samedi"
-    }
+    },
+    "onlyNameRequired": "Seul le nom est obligatoire",
+    "moreToggle": "Facturation, séances et plus",
+    "grpBilling": "Facturation",
+    "grpLinks": "Rattachement",
+    "grpContact": "Contact",
+    "grpRecurring": "Séance récurrente"
   },
   "dataWarning": "Certaines données ne se sont pas chargées — les soldes peuvent être incomplets."
 }

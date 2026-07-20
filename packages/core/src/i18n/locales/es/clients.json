@@ -209,8 +209,8 @@
     "birthDate": "Fecha de nacimiento",
     "group": "Grupo (opcional)",
     "noGroup": "Sin grupo",
-    "recurringDay": "Cita recurrente — día",
-    "recurringTime": "Cita recurrente — hora",
+    "recurringDay": "Día",
+    "recurringTime": "Hora",
     "clearRecurring": "Borrar cita recurrente",
     "days": {
       "0": "Domingo",
@@ -220,7 +220,13 @@
       "4": "Jueves",
       "5": "Viernes",
       "6": "Sábado"
-    }
+    },
+    "onlyNameRequired": "Solo el nombre es obligatorio",
+    "moreToggle": "Facturación, citas y más",
+    "grpBilling": "Facturación",
+    "grpLinks": "Asignación",
+    "grpContact": "Contacto",
+    "grpRecurring": "Cita recurrente"
   },
   "dataWarning": "Algunos datos no se cargaron — los saldos pueden estar incompletos."
 }

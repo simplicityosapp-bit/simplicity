@@ -58,6 +58,18 @@ export default function SignupScreen() {
         setError(translateAuthError(error.message))
         return
       }
+      /* Signing up with an address that already has an account does NOT come
+         back as an error: Supabase's email-enumeration protection returns a
+         success so an attacker can't probe which addresses are registered.
+         Taking that at face value showed "check your inbox" for a mail that
+         is never sent, and the person waits for it.
+         The tell is an empty identities array — a real new signup always has
+         one. Same message the error path uses, so we don't leak anything the
+         user couldn't already find by trying to log in. */
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        setError(translateAuthError('already registered'))
+        return
+      }
       if (!data.session) setSent(true)
     } catch (err) {
       setError(translateAuthError(err?.message))

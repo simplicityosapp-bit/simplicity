@@ -23,7 +23,8 @@
     "saving": "Saving…",
     "next": "Next",
     "skip": "Skip",
-    "finishing": "Finishing…"
+    "finishing": "Finishing…",
+    "saveFailed": "Couldn't save. Try again."
   },
   "help": {
     "closeAria": "Close help"

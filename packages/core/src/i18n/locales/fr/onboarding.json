@@ -23,7 +23,8 @@
     "saving": "Enregistrement…",
     "next": "Suivant",
     "skip": "Passer",
-    "finishing": "Finalisation…"
+    "finishing": "Finalisation…",
+    "saveFailed": "L'enregistrement a échoué. Réessayez."
   },
   "help": {
     "closeAria": "Fermer l'aide"

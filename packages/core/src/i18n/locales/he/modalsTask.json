@@ -99,6 +99,8 @@
     "metaDone": "הושלמו",
     "statuses": "סטטוסים",
     "statusesHint": "כל סטטוס משויך ל\"פתוחות\" או \"הושלמו\" — כך הספירות בבית נשארות נכונות.",
+    "defaultPriority": "עדיפות ברירת מחדל",
+    "defaultPriorityHint": "העדיפות שממנה מתחילה כל משימה חדשה.",
     "newStatus": "סטטוס חדש",
     "statusPlaceholder": "לדוגמה: בתהליך",
     "addStatusAria": "הוספת סטטוס",

@@ -93,6 +93,8 @@
     "metaDone": "Hechas",
     "statuses": "Estados",
     "statusesHint": "Cada estado se asigna a «Abierta» o «Hecha», de modo que los contadores de inicio se mantengan correctos.",
+    "defaultPriority": "Prioridad predeterminada",
+    "defaultPriorityHint": "La prioridad con la que empieza cada tarea nueva.",
     "newStatus": "Nuevo estado",
     "statusPlaceholder": "p. ej. En curso",
     "addStatusAria": "Añadir estado",

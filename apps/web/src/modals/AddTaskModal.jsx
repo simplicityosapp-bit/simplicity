@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
 import { useT } from '../i18n/useT'
+import { useUserPreferences } from '../hooks/useUserPreferences'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
 const PRIORITIES = [
@@ -20,15 +21,20 @@ const dueParts = (iso) => {
     due_time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
   }
 }
-const blank = () => ({ title: '', priority: 'medium', project_id: '', client_id: '', status_id: '', category_id: '', due_date: '', due_time: '' })
+/* priority stays null until the user actually picks one; the effective value
+   is derived at render from prefs.tasks.default_priority (set in
+   TaskTaxonomyModal). Deriving rather than seeding state means a late-arriving
+   preference is picked up without an effect that writes back into the form. */
+const blank = () => ({ title: '', priority: null, project_id: '', client_id: '', status_id: '', category_id: '', due_date: '', due_time: '' })
 const fromTask = (t) => (t
-  ? { title: t.title || '', priority: t.priority || 'medium', project_id: t.project_id || '', client_id: t.client_id || '', status_id: t.status_id || '', category_id: t.category_id || '', ...dueParts(t.due_at) }
+  ? { title: t.title || '', priority: t.priority || null, project_id: t.project_id || '', client_id: t.client_id || '', status_id: t.status_id || '', category_id: t.category_id || '', ...dueParts(t.due_at) }
   : blank())
 
 /* onSave is async (Supabase insert/update). Pass `task` to edit an existing one. */
 export default function AddTaskModal({ open, onClose, onSave, projects = [], clients = [], statuses = [], categories = [], task = null }) {
   const isEdit = !!task
   const { t } = useT('modalsTask')
+  const { prefs } = useUserPreferences()
   const [form, setForm] = useState(() => fromTask(task))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -36,6 +42,8 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
   const [showDue, setShowDue] = useState(() => !!task?.due_at)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => { setForm(fromTask(task)); setShowDue(!!task?.due_at); setErr(''); setBusy(false); onClose() }
+  /* Nothing picked yet → fall back to the configured default. */
+  const priority = form.priority ?? (prefs?.tasks?.default_priority || 'medium')
 
   const submit = async () => {
     if (!form.title.trim()) { setErr(t('task.titleRequired')); return }
@@ -55,7 +63,7 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
         : null
       await onSave({
         title: form.title.trim(),
-        priority: form.priority,
+        priority,
         project_id: form.project_id || null,
         client_id: form.client_id || null,
         status_id: form.status_id || null,
@@ -87,7 +95,7 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
         <Box as="label" className="m-label">{t('task.priority')}</Box>
         <Box className="m-pills">
           {PRIORITIES.map((p) => (
-            <Btn key={p.k} type="button" className={`m-pill${form.priority === p.k ? ' on' : ''}`} onClick={() => set('priority', p.k)}>{t(`task.${p.l}`)}</Btn>
+            <Btn key={p.k} type="button" className={`m-pill${priority === p.k ? ' on' : ''}`} onClick={() => set('priority', p.k)}>{t(`task.${p.l}`)}</Btn>
           ))}
         </Box>
       </Box>

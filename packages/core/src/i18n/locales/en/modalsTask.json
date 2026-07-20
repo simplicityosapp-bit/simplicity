@@ -93,6 +93,8 @@
     "metaDone": "Done",
     "statuses": "Statuses",
     "statusesHint": "Each status maps to \"Open\" or \"Done\" — so the home counters stay correct.",
+    "defaultPriority": "Default priority",
+    "defaultPriorityHint": "The priority every new task starts on.",
     "newStatus": "New status",
     "statusPlaceholder": "e.g. In progress",
     "addStatusAria": "Add status",

@@ -22,8 +22,20 @@
 --     reminder_occurrences and session_attachments DO NOT EXIST in the
 --     database. Anything written against them will fail at runtime.
 --
--- Regenerating this properly needs a dump from the live EU DB; until that
--- happens the file is kept only for historical reference.
+-- ── TO FIX THIS ─────────────────────────────────────────────────
+-- Run `supabase/introspect-schema.sql` in the Supabase SQL editor and rebuild
+-- this file from its output. It reads pg_catalog, so what comes back is what
+-- is actually in the database — including anything applied outside a
+-- migration file, which is the drift most worth catching.
+--
+-- Do it after any batch of migrations. The file is only useful if it is
+-- true, and it goes stale silently: nothing fails when it is wrong, which is
+-- how it got ~70 migrations behind without anyone noticing.
+--
+-- When regenerating, record the last applied migration number in this header
+-- as a watermark, so the next reader can tell at a glance how far back it
+-- goes rather than having to diff it against the migrations directory.
+-- ────────────────────────────────────────────────────────────────
 --
 -- (Originally regenerated from the live EU DB by introspection; the
 -- Docker-based `supabase db dump` is unavailable in this environment.)

@@ -693,3 +693,67 @@
 .cd-tl-edit:hover { background: rgba(42, 37, 32, 0.04); }
 [data-theme="dark"] .cd-tl-edit:hover { background: rgba(240, 235, 224, 0.05); }
 .cd-tl-edit:active { transform: scale(0.99); }
+
+/* ── Inline single-value editing ────────────────────────────────
+   The pencil on "פגישה שבועית קבועה" / "פרטים נוספים" / "הערות" swaps
+   that section's read view for a small form instead of opening the full
+   edit modal. Save is the section's one primary; cancel wears the
+   secondary glass. Explicit buttons (not save-on-blur) so there is always
+   a definite "saved" moment. */
+.cd-inline {
+  padding-top: 4px;
+}
+.cd-inline .m-field {
+  margin-bottom: 10px;
+}
+.cd-inline-err {
+  margin: 0 0 8px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--clay-on-dark);
+}
+.cd-inline-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.cd-inline-save,
+.cd-inline-cancel {
+  flex: 1;
+  height: 38px;
+  border-radius: var(--mg-btn-radius);
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: var(--mg-btn-weight);
+  transition: background 0.15s, opacity 0.15s;
+}
+.cd-inline-save {
+  border: none;
+  background: var(--mg-btn-primary-bg);
+  color: var(--on-accent);
+}
+.cd-inline-save:hover:not(:disabled) {
+  background: var(--mg-btn-primary-bg-hover);
+}
+/* Dark mode's primary is Moonglow (light), so its label flips to dark ink. */
+[data-theme="dark"] .cd-inline-save {
+  color: var(--ink-on-accent);
+}
+.cd-inline-cancel {
+  border: 0.5px solid rgba(42, 37, 32, 0.12);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  color: var(--espresso);
+}
+.cd-inline-cancel:hover:not(:disabled) {
+  background: var(--mg-btn-secondary-bg-hover);
+}
+[data-theme="dark"] .cd-inline-cancel {
+  border-color: rgba(240, 235, 224, 0.14);
+}
+.cd-inline-save:disabled,
+.cd-inline-cancel:disabled {
+  opacity: 0.55;
+  cursor: default;
+}

@@ -154,6 +154,13 @@
     "packageSessions": "{{count}} sessions · ",
     "notInGroups": "Not in any group"
   },
+  "inline": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "saveFailed": "Couldn't save. Try again.",
+    "notesPlaceholder": "What is worth remembering about this client?"
+  },
   "plan": {
     "title": "Payment plan",
     "loading": "Loading…",

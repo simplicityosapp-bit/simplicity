@@ -4,7 +4,10 @@ import { ChevronDown, Pencil, Check } from 'lucide-react'
 import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, fmtTime } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import PaymentPlanSection from './PaymentPlanSection'
-import { Box, Txt, Btn } from '../../components/ui'
+import DateField from '../../components/DateField'
+import { Box, Txt, Btn, Input, Textarea } from '../../components/ui'
+
+const DAY_KEYS = [0, 1, 2, 3, 4, 5, 6]
 
 const PRIORITY_COLOR = { high: 'var(--clay)', medium: 'var(--amber-warn)', low: 'var(--sage)' }
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
@@ -17,6 +20,15 @@ const live = (a) => (a || []).filter((r) => !r.deleted_at)
 function Section({ title, count, defaultOpen = false, onEdit, editing = false, children }) {
   const { t } = useT('clients')
   const [open, setOpen] = useState(defaultOpen)
+  /* Entering edit mode also latches the section open, so that when editing
+     ends the panel doesn't snap shut and hide the value just saved. Adjusted
+     during render (not in an effect) to avoid a cascading set-state-in-effect,
+     the same pattern the clients screen uses for its route/selection resets. */
+  const [prevEditing, setPrevEditing] = useState(editing)
+  if (editing !== prevEditing) {
+    setPrevEditing(editing)
+    if (editing) setOpen(true)
+  }
   const isOpen = open || editing
   return (
     <Box className={`cd-section${isOpen ? ' open' : ''}${editing ? ' editing' : ''}`}>
@@ -48,13 +60,70 @@ function Section({ title, count, defaultOpen = false, onEdit, editing = false, c
   )
 }
 
-export default function ClientDrawerSections({ client: c, balance, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder }) {
+/* Inline editor for a single-value section (recurring slot / more details /
+   notes). The pencil swaps the section's read view for these fields plus an
+   explicit save+cancel pair — deliberately NOT save-on-blur, so there is
+   always a definite "I saved" moment for a non-technical user.
+   Module-level (stable identity) so the inputs never remount on a parent
+   re-render — same reason EditClientModal's Section sits at module level;
+   typing must keep focus. Fields come in as children, so they reconcile
+   normally. */
+function InlineForm({ onSave, onCancel, saving, error, children }) {
+  const { t } = useT('clients')
+  return (
+    <Box className="cd-inline">
+      {children}
+      {error && <Txt as="p" className="cd-inline-err">{error}</Txt>}
+      <Box className="cd-inline-actions">
+        <Btn type="button" className="cd-inline-cancel" onClick={onCancel} disabled={saving}>
+          {t('inline.cancel')}
+        </Btn>
+        <Btn type="button" className="cd-inline-save" onClick={onSave} disabled={saving}>
+          {saving ? t('inline.saving') : t('inline.save')}
+        </Btn>
+      </Box>
+    </Box>
+  )
+}
+
+export default function ClientDrawerSections({ client: c, balance, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder, onUpdateClient }) {
   const { t } = useT('clients')
   /* Which panel is currently in edit mode (one at a time). The header
      pencil toggles it; in edit mode the panel's rows become tappable and
      open the matching editor. */
   const [editKey, setEditKey] = useState(null)
   const toggleEdit = (k) => setEditKey((p) => (p === k ? null : k))
+
+  /* ── inline single-value editing ──
+     The three sections below (recurring slot / more details / notes) used to
+     hand their pencil straight to the full edit modal — the same thing the
+     header's "ערוך" button does. So one pencil icon meant two different
+     things depending on which section it sat in. They now edit their own
+     field in place; only "חברויות בקבוצות" still opens the modal, because a
+     table of per-group price overrides is not a single value. */
+  const [draft, setDraft] = useState({})
+  const [saving, setSaving] = useState(false)
+  const [saveErr, setSaveErr] = useState('')
+  const setField = (k, v) => setDraft((d) => ({ ...d, [k]: v }))
+  const closeInline = () => { setEditKey(null); setDraft({}); setSaving(false); setSaveErr('') }
+  /* Toggle an inline editor, seeding its draft from the client on open. */
+  const toggleInline = (k, seed) => {
+    if (editKey === k) { closeInline(); return }
+    setEditKey(k); setDraft(seed); setSaving(false); setSaveErr('')
+  }
+  const saveInline = async (patch) => {
+    if (saving) return
+    setSaving(true)
+    setSaveErr('')
+    try {
+      await onUpdateClient?.(c.id, patch)
+      closeInline()
+    } catch {
+      /* Stay open with the draft intact so nothing typed is lost. */
+      setSaving(false)
+      setSaveErr(t('inline.saveFailed'))
+    }
+  }
 
   /* ── data ── */
   const payments = financeQuery({ clientId: c.id, includePending: true, source: txns })
@@ -91,8 +160,61 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
       <Box className="cd-group">
         <Txt as="p" className="cd-group-title">{t('sections.activity')}</Txt>
 
-        <Section title={t('sections.recurring')} onEdit={onEditClient}>
-          {hasRecurring ? (
+        <Section
+          title={t('sections.recurring')}
+          onEdit={onUpdateClient ? () => toggleInline('recurring', {
+            recurring_day: c.recurring_day != null ? String(c.recurring_day) : '',
+            recurring_time: c.recurring_time || '',
+          }) : onEditClient}
+          editing={editKey === 'recurring'}
+        >
+          {editKey === 'recurring' ? (
+            <InlineForm
+              saving={saving}
+              error={saveErr}
+              onCancel={closeInline}
+              onSave={() => saveInline({
+                recurring_day: draft.recurring_day !== '' ? Number(draft.recurring_day) : null,
+                /* A fixed meeting needs a day; with no day the times are inert
+                   — drop them so a stray time can't persist a half-set slot
+                   (mirrors EditClientModal). */
+                recurring_time: draft.recurring_day !== '' ? (draft.recurring_time || null) : null,
+                ...(draft.recurring_day === '' ? { recurring_end_time: null } : {}),
+              })}
+            >
+              <Box className="m-row2">
+                <Box className="m-field">
+                  <Box as="label" className="m-label">{t('form.recurringDay')}</Box>
+                  <select
+                    className="m-select"
+                    value={draft.recurring_day}
+                    onChange={(e) => setField('recurring_day', e.target.value)}
+                  >
+                    <option value="">{t('form.none')}</option>
+                    {DAY_KEYS.map((d) => <option key={d} value={d}>{t(`form.days.${d}`)}</option>)}
+                  </select>
+                </Box>
+                <Box className="m-field">
+                  <Box as="label" className="m-label">{t('form.recurringTime')}</Box>
+                  <Input
+                    type="time"
+                    className="m-input"
+                    value={draft.recurring_time}
+                    onChange={(e) => setField('recurring_time', e.target.value)}
+                  />
+                </Box>
+              </Box>
+              {/* A native time input can't be emptied on touch, so this is the
+                  only path back to "no fixed meeting". */}
+              {(draft.recurring_day !== '' || draft.recurring_time !== '') && (
+                <Btn
+                  type="button"
+                  className="m-clear-link"
+                  onClick={() => { setField('recurring_day', ''); setField('recurring_time', '') }}
+                >{t('form.clearRecurring')}</Btn>
+              )}
+            </InlineForm>
+          ) : hasRecurring ? (
             <Txt as="p" className="cd-rec">
               <Trans
                 t={t}
@@ -237,8 +359,43 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
       <Box className="cd-group">
         <Txt as="p" className="cd-group-title">{t('sections.contactEnv')}</Txt>
 
-        <Section title={t('sections.moreDetails')} onEdit={onEditClient}>
-          {(c.address || c.birth_date) ? (
+        <Section
+          title={t('sections.moreDetails')}
+          onEdit={onUpdateClient ? () => toggleInline('more', {
+            address: c.address || '',
+            birth_date: c.birth_date || '',
+          }) : onEditClient}
+          editing={editKey === 'more'}
+        >
+          {editKey === 'more' ? (
+            <InlineForm
+              saving={saving}
+              error={saveErr}
+              onCancel={closeInline}
+              onSave={() => saveInline({
+                address: draft.address.trim() || null,
+                birth_date: draft.birth_date || null,
+              })}
+            >
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('form.address')}</Box>
+                <Input
+                  className="m-input"
+                  value={draft.address}
+                  onChange={(e) => setField('address', e.target.value)}
+                  placeholder={t('form.addressPlaceholder')}
+                />
+              </Box>
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('form.birthDate')}</Box>
+                <DateField
+                  className="m-input"
+                  value={draft.birth_date}
+                  onChange={(e) => setField('birth_date', e.target.value)}
+                />
+              </Box>
+            </InlineForm>
+          ) : (c.address || c.birth_date) ? (
             <>
               {c.address && (
                 <Box className="cd-row">
@@ -262,8 +419,37 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
           )}
         </Section>
 
-        <Section title={t('sections.notes')} onEdit={onEditClient}>
-          {c.notes ? (
+        <Section
+          title={t('sections.notes')}
+          onEdit={onUpdateClient ? () => toggleInline('notes', { notes: c.notes || '' }) : onEditClient}
+          editing={editKey === 'notes'}
+        >
+          {editKey === 'notes' ? (
+            <InlineForm
+              saving={saving}
+              error={saveErr}
+              onCancel={closeInline}
+              onSave={() => {
+                const next = draft.notes.trim() || null
+                const patch = { notes: next }
+                /* Stamp only on a real change, so re-saving an untouched note
+                   never bumps the "עודכן" date shown below it. */
+                if (next !== (c.notes ?? null)) patch.notes_updated_at = new Date().toISOString()
+                saveInline(patch)
+              }}
+            >
+              <Box className="m-field">
+                <Textarea
+                  className="m-textarea"
+                  rows={4}
+                  value={draft.notes}
+                  onChange={(e) => setField('notes', e.target.value)}
+                  placeholder={t('inline.notesPlaceholder')}
+                  aria-label={t('sections.notes')}
+                />
+              </Box>
+            </InlineForm>
+          ) : c.notes ? (
             <>
               <Txt as="p" className="cd-note">{c.notes}</Txt>
               {c.notes_updated_at && <Txt as="p" className="cd-note-ts">{t('sections.notesUpdated', { date: fmtShortDate(c.notes_updated_at) })}</Txt>}

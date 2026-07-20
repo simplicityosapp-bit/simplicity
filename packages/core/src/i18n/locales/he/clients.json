@@ -160,6 +160,13 @@
     "packageSessions": "{{count}} פגישות · ",
     "notInGroups": "לא בקבוצות"
   },
+  "inline": {
+    "save": "שמירה",
+    "cancel": "ביטול",
+    "saving": "שומר…",
+    "saveFailed": "השמירה נכשלה. נסו שוב.",
+    "notesPlaceholder": "מה חשוב לזכור על הלקוח׌?"
+  },
   "plan": {
     "title": "פריסת תשלומים",
     "loading": "טוען…",

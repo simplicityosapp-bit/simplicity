@@ -154,6 +154,13 @@
     "packageSessions": "{{count}} séances · ",
     "notInGroups": "Dans aucun groupe"
   },
+  "inline": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "saveFailed": "L'enregistrement a échoué. Réessayez.",
+    "notesPlaceholder": "Que faut-il retenir de ce client ?"
+  },
   "plan": {
     "title": "Échéancier",
     "loading": "Chargement…",

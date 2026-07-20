@@ -290,7 +290,12 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 />
               </Box>
 
-              <ClientDrawerSections client={client} balance={balance} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} />
+              {/* onUpdateClient lets the single-value sections (recurring slot /
+                  more details / notes) save in place instead of opening the
+                  full edit modal. It's the screen's wrapped updater, so a
+                  recurring-slot change still clears the stale pending
+                  meetings generated for the old slot. */}
+              <ClientDrawerSections client={client} balance={balance} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} onUpdateClient={onUpdateClient} />
             </Box>
           </>
         )}

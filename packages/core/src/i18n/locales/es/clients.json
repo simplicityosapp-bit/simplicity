@@ -154,6 +154,13 @@
     "packageSessions": "{{count}} sesiones · ",
     "notInGroups": "En ningún grupo"
   },
+  "inline": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "saving": "Guardando…",
+    "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+    "notesPlaceholder": "¿Qué conviene recordar sobre este cliente?"
+  },
   "plan": {
     "title": "Plan de pagos",
     "loading": "Cargando…",

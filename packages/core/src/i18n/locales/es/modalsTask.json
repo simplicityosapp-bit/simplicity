@@ -24,6 +24,8 @@
     "category": "Categoría",
     "dueDate": "Fecha límite",
     "dueTime": "Hora",
+    "addDue": "+ Añadir fecha límite",
+    "removeDue": "Quitar fecha límite",
     "noDueDateHint": "Las tareas no tienen fecha límite. ¿Necesitas un recordatorio para un día concreto? Añade un <0>recordatorio</0> en su lugar."
   },
   "reminder": {

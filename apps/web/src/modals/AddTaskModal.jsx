@@ -32,8 +32,10 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
   const [form, setForm] = useState(() => fromTask(task))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  /* Editing a task that already has a due date opens with the field showing. */
+  const [showDue, setShowDue] = useState(() => !!task?.due_at)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(fromTask(task)); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(fromTask(task)); setShowDue(!!task?.due_at); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
     if (!form.title.trim()) { setErr(t('task.titleRequired')); return }
@@ -106,22 +108,40 @@ export default function AddTaskModal({ open, onClose, onSave, projects = [], cli
         </Box>
       </Box>
 
-      <Box className="m-row2">
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('task.dueDate')}</Box>
-          <DateField value={form.due_date} onChange={(e) => set('due_date', e.target.value)} />
-        </Box>
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('task.dueTime')}</Box>
-          <Input
-            type="time"
-            className="m-input"
-            value={form.due_time}
-            onChange={(e) => set('due_time', e.target.value)}
-            disabled={!form.due_date}
-          />
-        </Box>
-      </Box>
+      {/* The due date is optional, so it stays behind a toggle instead of
+          taking two permanent rows. Removing collapses AND clears it — a
+          hidden-but-set date would silently keep a due_at the user can't see. */}
+      {showDue ? (
+        <>
+          <Box className="m-row2">
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('task.dueDate')}</Box>
+              <DateField value={form.due_date} onChange={(e) => set('due_date', e.target.value)} />
+            </Box>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('task.dueTime')}</Box>
+              <Input
+                type="time"
+                className="m-input"
+                value={form.due_time}
+                onChange={(e) => set('due_time', e.target.value)}
+                disabled={!form.due_date}
+              />
+            </Box>
+          </Box>
+          <Btn
+            type="button"
+            className="m-clear-link"
+            onClick={() => { setShowDue(false); setForm((f) => ({ ...f, due_date: '', due_time: '' })) }}
+          >
+            {t('task.removeDue')}
+          </Btn>
+        </>
+      ) : (
+        <Btn type="button" className="m-clear-link" onClick={() => setShowDue(true)}>
+          {t('task.addDue')}
+        </Btn>
+      )}
 
       {(statuses.length > 0 || categories.length > 0) && (
         <Box className="m-row2">

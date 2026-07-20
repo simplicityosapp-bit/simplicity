@@ -24,6 +24,8 @@
     "category": "Category",
     "dueDate": "Due date",
     "dueTime": "Time",
+    "addDue": "+ Add a due date",
+    "removeDue": "Remove due date",
     "noDueDateHint": "Tasks have no due date — need a reminder for a specific day? Add a <0>reminder</0> instead."
   },
   "reminder": {

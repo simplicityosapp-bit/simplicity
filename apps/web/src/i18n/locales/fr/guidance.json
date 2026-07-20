@@ -65,17 +65,13 @@
         "title": "Statut des clients",
         "body": "Actifs, intermédiaires et anciens sont les trois grandes catégories, et au sein de chacune vous pouvez définir autant de statuts que vous le souhaitez."
       },
-      "groupby": {
-        "title": "Grouper par",
-        "body": "Vous pouvez voir vos clients par statut, par projet, par solde — comme vous le souhaitez."
+      "view": {
+        "title": "Affichage",
+        "body": "Le tri, le regroupement par statut ou projet et la sélection de plusieurs clients se trouvent ici."
       },
       "hero": {
         "title": "Résumé rapide",
         "body": "Un résumé général — « Mensuel » montre l'image de ce mois-ci, et « Cumulé » montre tout depuis le début."
-      },
-      "select": {
-        "title": "Sélection multiple",
-        "body": "Vous pouvez sélectionner plusieurs clients à la fois pour changer leur statut ensemble, ou les supprimer en une seule fois."
       },
       "add": {
         "title": "Ajouter un client",

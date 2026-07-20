@@ -44,6 +44,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   const [editReminder, setEditReminder] = useState(null)
   const [statusMenu, setStatusMenu] = useState(false)
   const [paymentAmount, setPaymentAmount] = useState(null)
+  const [paymentDesc, setPaymentDesc] = useState(null)
   /* Editing «שולם» or «יתרה» by hand no longer raises a bare yes/no prompt.
      The delta opens the adjustment sheet instead, pre-seeded with the amount
      and a likely reason, so every adjustment lands in the ledger with a
@@ -309,7 +310,12 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   full edit modal. It's the screen's wrapped updater, so a
                   recurring-slot change still clears the stale pending
                   meetings generated for the old slot. */}
-              <ClientDrawerSections client={client} balance={balance} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} adjustments={clientAdjustments} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} onUpdateClient={onUpdateClient} />
+              {/* Keyed on the client so an open inline editor can never carry
+                  one client's draft into another when the panel swaps content
+                  in place. `modalOpen` closes any inline editor when a modal
+                  takes over — otherwise a draft left open underneath could be
+                  saved afterwards and overwrite what the modal just wrote. */}
+              <ClientDrawerSections key={client.id} modalOpen={!!actionModal} client={client} balance={balance} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} adjustments={clientAdjustments} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} onUpdateClient={onUpdateClient} />
             </Box>
           </>
         )}
@@ -342,11 +348,11 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         /* No informal-credit fallback here any more: when this opens from the
            adjustment sheet the adjustment is already recorded, so closing
            without booking income loses nothing. */
-        onClose={() => { setActionModal(null); setPaymentAmount(null) }}
+        onClose={() => { setActionModal(null); setPaymentAmount(null); setPaymentDesc(null) }}
         client={client}
         projects={projects}
         defaultType="income"
-        defaults={paymentAmount != null ? { amount: String(Math.abs(paymentAmount)), desc: t('drawer.paymentDefaultDesc') } : {}}
+        defaults={paymentAmount != null ? { amount: String(Math.abs(paymentAmount)), desc: paymentDesc || t('drawer.paymentDefaultDesc') } : {}}
         onSave={onAddPayment}
       />
       {/* Key includes the open-state so the form RE-SEEDS from fresh props
@@ -431,7 +437,17 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         presetAmount={pendingAdjust?.amount ?? null}
         presetReason={pendingAdjust?.reason ?? null}
         onSave={recordAdjustment}
-        onAlsoRecordIncome={(amount) => { setPaymentAmount(amount); setActionModal('payment') }}
+        /* Booking real income INSTEAD of an adjustment. One handler does the
+           whole transition — closing the sheet from inside the modal and
+           opening this from here got batched into a single commit where the
+           close won, so the button silently did nothing. The note rides along
+           as the transaction's description. */
+        onAlsoRecordIncome={(amount, note) => {
+          setPendingAdjust(null)
+          setPaymentAmount(amount)
+          setPaymentDesc(note || null)
+          setActionModal('payment')
+        }}
       />
     </>
   )

@@ -52,12 +52,14 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
   const nameMissing = !!err && !form.name.trim()
   /* The toggle starts closed — a blank form should cost a name and nothing
      else. It opens on mount only when something inside already carries a
-     value (onboarding can keep a project/group between clients), so a
-     part-filled form never hides what's in it. */
+     value, so a part-filled form never hides what's in it.
+     project_id / group_id are deliberately NOT part of the test: onboarding
+     seeds the project it just created into every new client, so including it
+     forced the accordion open on arrival — handing the new user all fourteen
+     fields, in the one place the short form matters most. */
   const [moreOpen, setMoreOpen] = useState(() => !!(
     form.sessions || form.price_per_session || form.meeting_type_id
-    || form.status_id || form.project_id || form.group_id
-    || form.email || form.address || form.birth_date
+    || form.status_id || form.email || form.address || form.birth_date
     || form.recurring_day !== '' || form.recurring_time
   ))
 

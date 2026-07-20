@@ -75,16 +75,23 @@ COMMENT ON TABLE client_adjustments IS
 -- One 'legacy' row per client that already carries a non-zero adjustment, so
 -- the ledger reconciles with the scalar from the first day and the client file
 -- never shows an unexplained gap. occurred_on stays NULL: the real date was
--- never recorded. Guarded by NOT EXISTS so re-running never double-inserts.
+-- never recorded.
+--
+-- The guard is "this client+kind has NO adjustment row at all", not "no legacy
+-- row". Guarding on legacy alone would re-fire for any client whose first
+-- adjustment was made AFTER the migration: no legacy row exists, the scalar is
+-- non-zero, and a re-run would insert a duplicate legacy row explaining money
+-- twice. deleted_at IS NULL keeps soft-deleted clients out.
 
 INSERT INTO client_adjustments (user_id, client_id, kind, reason, amount, occurred_on)
 SELECT c.user_id, c.id, 'paid', 'legacy', c.paid_adjustment, NULL
 FROM clients c
 WHERE c.paid_adjustment IS NOT NULL
   AND c.paid_adjustment <> 0
+  AND c.deleted_at IS NULL
   AND NOT EXISTS (
     SELECT 1 FROM client_adjustments a
-    WHERE a.client_id = c.id AND a.kind = 'paid' AND a.reason = 'legacy'
+    WHERE a.client_id = c.id AND a.kind = 'paid'
   );
 
 INSERT INTO client_adjustments (user_id, client_id, kind, reason, amount, occurred_on)
@@ -92,7 +99,8 @@ SELECT c.user_id, c.id, 'balance', 'legacy', c.balance_adjustment, NULL
 FROM clients c
 WHERE c.balance_adjustment IS NOT NULL
   AND c.balance_adjustment <> 0
+  AND c.deleted_at IS NULL
   AND NOT EXISTS (
     SELECT 1 FROM client_adjustments a
-    WHERE a.client_id = c.id AND a.kind = 'balance' AND a.reason = 'legacy'
+    WHERE a.client_id = c.id AND a.kind = 'balance'
   );

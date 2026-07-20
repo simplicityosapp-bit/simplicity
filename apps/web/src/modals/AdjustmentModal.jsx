@@ -17,10 +17,14 @@ import { Box, Txt, Btn, Input } from '../components/ui'
      תיקון נתוני ייבוא        → paid     (corrects a wrong imported figure)
      תשלום שהתקבל ולא נרשם   → paid     (money in hand, deliberately not booked)
 
-   The live line underneath states the outcome before saving, and the
-   "record as income too" question is asked only for the one reason where
-   it makes sense — in context, instead of as a popup after typing into a
-   number field.
+   The live line underneath states the outcome before saving. For the one
+   reason where the money genuinely exists, the sheet also offers to book it
+   as real income INSTEAD — asked in context, rather than as a popup after
+   typing into a number field.
+
+   Amounts are SIGNED. A correction downward is the natural gesture for a
+   figure that came in too high, and the deltas handed over by the edit modal
+   carry their own sign.
    ════════════════════════════════════════════════════════════════ */
 
 const REASONS = [
@@ -36,7 +40,12 @@ const REASONS = [
 export default function AdjustmentModal({ open, onClose, balance, onSave, onAlsoRecordIncome, presetAmount = null, presetReason = null }) {
   const { t } = useT('clients')
   const [reason, setReason] = useState(presetReason || 'discount')
-  const [amount, setAmount] = useState(presetAmount != null ? String(Math.abs(presetAmount)) : '')
+  /* The preset arrives SIGNED — lowering «שולם» from 500 to 300 hands over
+     -200. Keep the sign: absolute-valuing it here turned every downward
+     correction into an increase, moving the number by 2×delta the wrong way.
+     The field stays signed-editable for the same reason (an imported figure
+     that came in too high has no other way down). */
+  const [amount, setAmount] = useState(presetAmount != null ? String(presetAmount) : '')
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
@@ -52,24 +61,36 @@ export default function AdjustmentModal({ open, onClose, balance, onSave, onAlso
 
   const close = () => {
     setReason(presetReason || 'discount')
-    setAmount(presetAmount != null ? String(Math.abs(presetAmount)) : '')
+    setAmount(presetAmount != null ? String(presetAmount) : '')
     setNote(''); setBusy(false); setErr('')
     onClose()
   }
 
-  const submit = async (alsoIncome = false) => {
+  const submit = async () => {
     if (busy) return
     if (!delta) { setErr(t('adjust.amountRequired')); return }
     setBusy(true)
     setErr('')
     try {
       await onSave({ kind: picked.kind, reason: picked.k, amount: delta, note: note.trim() || null })
-      if (alsoIncome) onAlsoRecordIncome?.(delta, note.trim() || null)
       close()
     } catch {
       setBusy(false)
       setErr(t('adjust.saveFailed'))
     }
+  }
+
+  /* Book it as real income INSTEAD of an adjustment — never as well as one.
+     clientBalance sums paid = real income + paid_adjustment, so writing both
+     counts the same shekel twice. An adjustment exists precisely for money
+     that is NOT in the books; once it goes in the books it stops being one.
+     The parent closes this sheet and opens the income form (doing both here
+     would let React batch the close over the open, which silently swallowed
+     the action). */
+  const recordAsIncome = () => {
+    if (busy) return
+    if (!delta) { setErr(t('adjust.amountRequired')); return }
+    onAlsoRecordIncome?.(delta, note.trim() || null)
   }
 
   return (
@@ -95,7 +116,6 @@ export default function AdjustmentModal({ open, onClose, balance, onSave, onAlso
           <Box as="label" className="m-label">{t('adjust.amount')}</Box>
           <Input
             type="number"
-            min="0"
             className="m-input"
             value={amount}
             onChange={(e) => { setAmount(e.target.value); if (err) setErr('') }}
@@ -113,9 +133,16 @@ export default function AdjustmentModal({ open, onClose, balance, onSave, onAlso
         </Box>
       </Box>
 
+      {/* Opened from a hand-edited «שולם»/«יתרה»: that edit was deliberately
+          NOT written yet, so cancelling here drops it. Say so, rather than
+          letting a modal that reported "saved" quietly lose a number. */}
+      {presetAmount != null && (
+        <Txt as="p" className="m-hint">{t('adjust.cancelDiscards')}</Txt>
+      )}
+
       {/* States the outcome BEFORE saving — the whole point is that the user
           never has to work out which number a reason moves. */}
-      {delta > 0 && (
+      {delta !== 0 && (
         <Box className="adj-preview">
           <Txt as="p" className="adj-preview-line">
             {t('adjust.previewPaid', { from: isr(paidNow), to: isr(paidNext) })}
@@ -131,15 +158,15 @@ export default function AdjustmentModal({ open, onClose, balance, onSave, onAlso
 
       <Box className="m-actions">
         <Btn type="button" className="m-btn-cancel" onClick={close} disabled={busy}>{t('inline.cancel')}</Btn>
-        <Btn type="button" className="m-btn-save" onClick={() => submit(false)} disabled={busy}>
+        <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>
           {busy ? t('inline.saving') : t('inline.save')}
         </Btn>
       </Box>
 
-      {/* Only money actually received can also be booked as income — asked
-          here, where the user already said that's what happened. */}
+      {/* Offered only for money that actually changed hands — and it REPLACES
+          the adjustment rather than adding to it. */}
       {picked.k === 'unrecorded_payment' && (
-        <Btn type="button" className="adj-also-income" onClick={() => submit(true)} disabled={busy}>
+        <Btn type="button" className="adj-also-income" onClick={recordAsIncome} disabled={busy}>
           {t('adjust.alsoRecordIncome')}
         </Btn>
       )}

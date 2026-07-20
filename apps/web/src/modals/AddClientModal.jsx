@@ -86,7 +86,12 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
 
   return (
     <Modal open={open} onClose={close} title={<MG word="client_new" />} titleLabel={t('addClient.titleLabel')}>
+      {/* Remount per opening. Modal keeps its children mounted, so without
+          this the fields live for the whole screen's lifetime and the "more"
+          toggle stays however the last client left it — expanded on every
+          later "+ לקוח חדש". */}
       <ClientFormFields
+        key={open ? 'open' : 'closed'}
         form={form}
         set={set}
         setMeta={setMeta}

@@ -96,7 +96,7 @@ const CLIENT_META_KEYWORDS = {
 export const LEAD_METAS = ['in_process', 'converted', 'not_relevant']
 export const CLIENT_METAS = ['active', 'wandering', 'past', 'no_status']
 export const LEAD_META_LABELS = { in_process: 'בתהליך', converted: 'הומרו', not_relevant: 'לא רלוונטי' }
-export const CLIENT_META_LABELS = { active: 'פעיל', wandering: 'ביניים', past: 'לשעבר', no_status: 'ללא סטטוס' }
+export const CLIENT_META_LABELS = { active: 'פעיל', wandering: 'בהפסקה', past: 'לשעבר', no_status: 'ללא סטטוס' }
 const LEAD_DEFAULT = 'in_process'
 const CLIENT_DEFAULT = 'active'
 

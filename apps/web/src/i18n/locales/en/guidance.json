@@ -65,17 +65,13 @@
         "title": "Client status",
         "body": "Active, in-between, and former are the three top-level buckets, and within each you can define as many statuses as you like."
       },
-      "groupby": {
-        "title": "Group by",
-        "body": "You can view your clients by status, by project, by balance — however you like."
+      "view": {
+        "title": "View",
+        "body": "Sorting, grouping by status or project, and selecting several clients at once all live here."
       },
       "hero": {
         "title": "Quick summary",
         "body": "A general summary — \"Monthly\" shows this month's picture, and \"Cumulative\" shows everything from the start."
-      },
-      "select": {
-        "title": "Multi-select",
-        "body": "You can select several clients at once to change their status together, or delete them in one go."
       },
       "add": {
         "title": "Add client",

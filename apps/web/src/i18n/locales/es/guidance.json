@@ -65,17 +65,13 @@
         "title": "Estado de los clientes",
         "body": "Activos, intermedios y antiguos son los tres grupos principales, y dentro de cada uno puedes definir tantos estados como quieras."
       },
-      "groupby": {
-        "title": "Agrupar por",
-        "body": "Puedes ver tus clientes por estado, por proyecto, por saldo — como tú quieras."
+      "view": {
+        "title": "Vista",
+        "body": "Aquí están la ordenación, la agrupación por estado o proyecto y la selección de varios clientes a la vez."
       },
       "hero": {
         "title": "Resumen rápido",
         "body": "Un resumen general — «Mensual» muestra la imagen de este mes, y «Acumulado» muestra todo desde el principio."
-      },
-      "select": {
-        "title": "Selección múltiple",
-        "body": "Puedes seleccionar varios clientes a la vez para cambiarles el estado juntos, o eliminarlos de una vez."
       },
       "add": {
         "title": "Añadir cliente",

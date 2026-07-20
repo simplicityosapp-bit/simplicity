@@ -780,3 +780,12 @@
 /* Amber, so an adjustment never reads as a real payment in the list. */
 .cd-dot-adjust { background: var(--amber-warn); }
 .cd-row-note { color: var(--stone); }
+/* Heading for the write-off group inside the payments panel — those rows are
+   NOT part of "סה״כ שולם" above, so they sit under their own label. */
+.cd-adjust-head {
+  margin: 14px 0 2px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  color: var(--stone);
+}

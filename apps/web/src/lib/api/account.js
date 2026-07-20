@@ -26,6 +26,7 @@ const SOFT_DELETE_TABLES = [
   'task_statuses', 'task_categories', 'user_questions', 'daily_answers', 'sessions',
   'user_quotes', 'calendar_events', 'meeting_types', 'payment_plans',
   'payment_installments', 'lead_pages', 'booking_pages', 'site_pages',
+  'client_adjustments',
 ]
 
 /* Tables without deleted_at — physically deleted. These are child/log

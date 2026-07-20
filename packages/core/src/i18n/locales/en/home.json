@@ -65,7 +65,7 @@
       "clients": "Clients",
       "clientsInfoLabel": "About clients",
       "clientsInfoText_pre": "Tap",
-      "clientsInfoText_post": " the card to filter by status, project and group. Default: active + mid.",
+      "clientsInfoText_post": " the card to filter by status, project and group. Default: active + paused.",
       "meetings": "Agenda",
       "meetingsInfoLabel": "About the agenda",
       "meetingsInfoText_pre": "Tap",

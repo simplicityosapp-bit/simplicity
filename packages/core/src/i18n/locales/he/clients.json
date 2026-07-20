@@ -113,7 +113,11 @@
     "receivedPayment": "קיבלתי תשלום",
     "requestPayment": "דרישת תשלום בוואטסאפ",
     "statusChanged": "הסטטוס שונה",
-    "paymentDefaultDesc": "עדכון תשלום"
+    "paymentDefaultDesc": "עדכון תשלום",
+    "manualPayTitle": "עדכון תשלום ידני",
+    "manualPayMessage": "עדכנת את «שולם» ב-{{amount}}. אפשר לרשום את הסכום כהכנסה בדוחות הכספים, או לתקן רק את כרטיס הלקוח — תיקון בכרטיס בלבד לא יופיע בדוחות הכספים.",
+    "manualPayConfirm": "רישום כהכנסה",
+    "manualPayCancel": "תיקון בכרטיס בלבד"
   },
   "sections": {
     "activity": "פעילות",
@@ -176,7 +180,7 @@
     "previewPaid": "שולם: {{from}} ← {{to}}",
     "previewBalance": "יתרה: {{from}} ← {{to}}",
     "notInReports": "התאמה לא מופיעה בדוחות הכספים.",
-    "alsoRecordIncome": "לרשום גם כהכנסה בדוחות",
+    "alsoRecordIncome": "לרשום כהכנסה בדוחות במקום",
     "amountRequired": "יש להזין סכום.",
     "saveFailed": "השמירה נכשלה. נסו שוב.",
     "undoLabel": "נרשמה התאמה של {{amount}}",
@@ -187,7 +191,9 @@
       "discount": "הנחה",
       "import_fix": "תיקון נתוני ייבוא",
       "unrecorded_payment": "תשלום שהתקבל ולא נרשם"
-    }
+    },
+    "cancelDiscards": "ביטול כאן יבטל גם את השינוי שהזנת.",
+    "writeOffs": "מחיקות חוב"
   },
   "plan": {
     "title": "פריסת תשלומים",

@@ -107,7 +107,11 @@
     "receivedPayment": "Got paid",
     "requestPayment": "Request payment on WhatsApp",
     "statusChanged": "Status changed",
-    "paymentDefaultDesc": "Payment update"
+    "paymentDefaultDesc": "Payment update",
+    "manualPayTitle": "Manual payment update",
+    "manualPayMessage": "You updated \"Paid\" by {{amount}}. You can record the amount as income in your finance reports, or correct the client card only — a card-only correction will not appear in your finance reports.",
+    "manualPayConfirm": "Record as income",
+    "manualPayCancel": "Correct card only"
   },
   "sections": {
     "activity": "Activity",
@@ -170,7 +174,7 @@
     "previewPaid": "Paid: {{from}} → {{to}}",
     "previewBalance": "Balance: {{from}} → {{to}}",
     "notInReports": "An adjustment does not appear in your finance reports.",
-    "alsoRecordIncome": "Also record it as income",
+    "alsoRecordIncome": "Record as income instead",
     "amountRequired": "Enter an amount.",
     "saveFailed": "Couldn't save. Try again.",
     "undoLabel": "Adjustment of {{amount}} recorded",
@@ -181,7 +185,9 @@
       "discount": "Discount",
       "import_fix": "Imported data fix",
       "unrecorded_payment": "Payment received, never recorded"
-    }
+    },
+    "cancelDiscards": "Cancelling here also drops the change you entered.",
+    "writeOffs": "Written off"
   },
   "plan": {
     "title": "Payment plan",

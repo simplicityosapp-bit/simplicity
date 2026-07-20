@@ -6,7 +6,7 @@
    This table EXPLAINS clients.paid_adjustment / balance_adjustment — it
    does not replace them. Those columns stay the source of truth that
    clientBalance() reads, so callers must update the scalar and append a
-   row here together (see lib/clientAdjustments.js, which does both).
+   row here together (see hooks/useClientAdjustments.js, which does both).
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
@@ -62,4 +62,27 @@ export async function removeClientAdjustment(id) {
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw error
+}
+
+/* Undo's counterpart — without it a redo restored the number but left the row
+   soft-deleted, landing back on the bare unexplained figure this table exists
+   to eliminate. */
+export async function restoreClientAdjustment(id) {
+  const { error } = await supabase
+    .from('client_adjustments')
+    .update({ deleted_at: null })
+    .eq('id', id)
+  if (error) throw error
+}
+
+/* One client column, straight from the DB. Used to base an increment on the
+   stored value instead of a possibly-stale React prop. */
+export async function getClientScalar(clientId, column) {
+  const { data, error } = await supabase
+    .from('clients')
+    .select(column)
+    .eq('id', clientId)
+    .single()
+  if (error) throw error
+  return data?.[column]
 }

@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { listClientAdjustments, insertClientAdjustment, removeClientAdjustment } from '../lib/api/clientAdjustments'
+import { listClientAdjustments, insertClientAdjustment, removeClientAdjustment, restoreClientAdjustment, getClientScalar } from '../lib/api/clientAdjustments'
 import { updateClient } from '../lib/api/clients'
 import { pushUndo } from '../lib/undo'
 
@@ -36,7 +36,11 @@ export function useClientAdjustments() {
     const delta = Number(amount) || 0
     const col = COLUMN[kind]
     if (!col || !client) throw new Error('invalid adjustment')
-    const before = Number(client[col]) || 0
+    /* Read the scalar FRESH rather than trusting the React prop. The prop only
+       catches up after the clients refetch lands, so two adjustments in quick
+       succession both read the pre-first value and the second overwrote the
+       first — money silently lost while both ledger rows persisted. */
+    const before = Number((await getClientScalar(client.id, col)) ?? client[col]) || 0
     await updateClient(client.id, { [col]: before + delta })
     refreshClients()
     /* The ledger write is deliberately NON-FATAL. Migrations here are applied
@@ -67,6 +71,9 @@ export function useClientAdjustments() {
       },
       redo: async () => {
         await updateClient(client.id, { [col]: before + delta }).catch(() => {})
+        /* Bring the row back too — restoring only the scalar would leave the
+           number unexplained again. */
+        if (row) await restoreClientAdjustment(row.id).catch(() => {})
         qc.invalidateQueries({ queryKey: KEY })
         refreshClients()
       },

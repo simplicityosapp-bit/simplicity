@@ -187,7 +187,12 @@ export default function SignupScreen() {
             </Box>
           </Box>
 
-          <Btn className="auth-btn auth-btn-primary" type="submit" disabled={busy || !canConsent}>
+          {/* Stays enabled without consent on purpose: submitting runs the
+              consent guard in submit(), which explains WHY signup is blocked
+              ('mustAccept'). Disabling it here made that message unreachable
+              and the form looked broken. The guard still runs before any
+              auth call, so consent is never bypassed. */}
+          <Btn className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
             {busy ? t('signupScreen.creating') : t('signup')}
           </Btn>
 

@@ -14,7 +14,7 @@
 
 import i18n from '../i18n'
 import { financeQuery, currentMonthRange, type Tx } from './finance'
-import { clientBalance, type Client, type ClientSession, type GroupMembership, type Group } from './clients'
+import { clientBalance, effectiveClientMeta, type Client, type ClientSession, type GroupMembership, type Group } from './clients'
 
 const DAY = 86400000
 const ils = (n: number): string => {
@@ -81,6 +81,7 @@ export interface AttnClient extends Client {
   created_at?: string | null
   name?: string
   phone?: string
+  attention_snoozed_at?: string | null
 }
 export interface HomeTask {
   id?: string
@@ -283,12 +284,20 @@ function lastClientSession(cid: string | undefined, sessions: ClientSession[]): 
   const ts = live(sessions).filter((s) => s.client_id === cid).map((s) => new Date(s.date as string | number | Date).getTime())
   return ts.length ? Math.max(...ts) : null
 }
-export function clientsNeedingAttention(days = 45, now: Date = new Date(), data?: { clients?: AttnClient[]; sessions?: ClientSession[] }): AttnClient[] {
-  const { clients = [], sessions = [] } = data || {}
+/* Status MUST come from effectiveClientMeta, never the raw `status` column:
+   the canonical value lives in status_meta, `status` is a legacy mirror that
+   the client drawer never rewrote (so it goes stale on every manual change),
+   and group members derive their status from the group entirely. Reading the
+   raw column surfaced 'past' clients as needing attention. */
+export function clientsNeedingAttention(days = 45, now: Date = new Date(), data?: { clients?: AttnClient[]; sessions?: ClientSession[]; members?: GroupMembership[]; groups?: Group[] }): AttnClient[] {
+  const { clients = [], sessions = [], members = [], groups = [] } = data || {}
   const cutoff = now.getTime() - days * DAY
   return live(clients).filter((c) => {
-    if (!['active', 'wandering'].includes(c.status as string)) return false
+    if (!['active', 'wandering'].includes(effectiveClientMeta(c, members, groups))) return false
     if (c.created_at && new Date(c.created_at).getTime() > cutoff) return false /* too new to nag */
+    /* "התעלם" restarts the same 45-day clock rather than muting forever, so a
+       dismissed client resurfaces if the gap keeps growing. */
+    if (c.attention_snoozed_at && new Date(c.attention_snoozed_at).getTime() >= cutoff) return false
     const last = lastClientSession(c.id, sessions)
     return last === null || last < cutoff
   })
@@ -310,6 +319,9 @@ export interface AttentionItem {
   text: string
   target: string
   kind?: string
+  /* Stable identity for a row, independent of its (count-bearing) label —
+     lets an open people-modal re-resolve its row as the list shrinks. */
+  rowId?: string
   entity?: string
   waKey?: string
   people?: AttentionPerson[]
@@ -345,7 +357,7 @@ export function attentionItems(
   )
   if (pastMeetings.length) items.push({ icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), target: 'calendar', kind: 'pendingMeetings' })
 
-  const withBalance = live(clients).filter((c) => c.status !== 'past' && clientBalance(c, transactions, sessions, members, groups).balance > 0)
+  const withBalance = live(clients).filter((c) => effectiveClientMeta(c, members, groups) !== 'past' && clientBalance(c, transactions, sessions, members, groups).balance > 0)
   if (withBalance.length) items.push({ icon: 'Wallet', text: T('balance', { count: withBalance.length }), target: 'clients' })
 
   const goal = monthlyIncomeGoal({ goals, categories })
@@ -358,21 +370,21 @@ export function attentionItems(
   const urgent = live(tasks).filter((t) => t.status !== 'done' && t.priority === 'high').length
   if (urgent) items.push({ icon: 'AlertCircle', text: T('urgentTasks', { count: urgent }), target: 'tasks' })
 
-  const staleClients = clientsNeedingAttention(45, now, { clients, sessions })
-  if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), target: 'clients', kind: 'people', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id as string, name: c.name as string, phone: c.phone || '' })) })
+  const staleClients = clientsNeedingAttention(45, now, { clients, sessions, members, groups })
+  if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), target: 'clients', kind: 'people', rowId: 'staleClients', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id as string, name: c.name as string, phone: c.phone || '' })) })
 
   const officialLeads = live(leads).filter((l) => !l.pending_review)
   const pendingLeads = live(leads).filter((l) => l.pending_review)
   if (pendingLeads.length) items.push({ icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), target: 'leads', kind: 'pendingLeads' })
 
   const staleLeads = leadsNeedingAttention(45, now, officialLeads)
-  if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), target: 'leads', kind: 'people', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name || '', phone: l.phone || '' })) })
+  if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), target: 'leads', kind: 'people', rowId: 'staleLeads', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name || '', phone: l.phone || '' })) })
 
   const todayYmd = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   const dueFollowups = officialLeads.filter(
     (l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= todayYmd,
   )
-  if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), target: 'leads', kind: 'people', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name || '', phone: l.phone || '' })) })
+  if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), target: 'leads', kind: 'people', rowId: 'dueFollowups', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name || '', phone: l.phone || '' })) })
 
   return items
 }

@@ -86,7 +86,7 @@ function InlineForm({ onSave, onCancel, saving, error, children }) {
   )
 }
 
-export default function ClientDrawerSections({ client: c, balance, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder, onUpdateClient }) {
+export default function ClientDrawerSections({ client: c, balance, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], adjustments = [], onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder, onUpdateClient }) {
   const { t } = useT('clients')
   /* Which panel is currently in edit mode (one at a time). The header
      pencil toggles it; in edit mode the panel's rows become tappable and
@@ -269,6 +269,26 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
             <Txt>{t('sections.totalPaid')}</Txt>
             <Txt className="mono">{isr(payTotal)}</Txt>
           </Box>
+          {/* Manual adjustments, shown as their own rows. "סה״כ שולם" above
+              INCLUDES them, so without these the total sat over a list that
+              didn't add up to it, with nothing explaining the gap. A 'legacy'
+              row predates migration 0095 and has no date or reason to show. */}
+          {adjustments.map((a) => (
+            <Box key={a.id} className="cd-row cd-row-adjust">
+              <Txt className="cd-row-dot cd-dot-adjust" />
+              <Box className="cd-row-body">
+                <Txt as="p" className="cd-row-title">
+                  {a.reason === 'legacy' ? t('adjust.legacyRow') : t(`adjust.row.${a.reason}`)}
+                  {a.note ? <Txt className="cd-row-note"> · {a.note}</Txt> : null}
+                </Txt>
+                <Txt as="p" className="cd-row-sub">
+                  {a.occurred_on ? fmtShortDate(a.occurred_on) : t('adjust.noDate')}
+                  {a.kind === 'balance' ? ` · ${t('adjust.affectsBalance')}` : ''}
+                </Txt>
+              </Box>
+              <Txt className="cd-row-amt mono">{a.kind === 'paid' ? '+' : '−'}{isr(Math.abs(Number(a.amount) || 0))}</Txt>
+            </Box>
+          ))}
           {payments.length ? (
             payments.map((f) => {
               const body = (

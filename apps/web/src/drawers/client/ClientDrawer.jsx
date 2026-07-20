@@ -14,7 +14,8 @@ import ScheduleMeetingModal from '../../modals/ScheduleMeetingModal'
 import AddTransactionModal from '../../modals/AddTransactionModal'
 import EditClientModal from '../../modals/EditClientModal'
 import EditTransactionModal from '../../modals/EditTransactionModal'
-import ConfirmModal from '../../modals/ConfirmModal'
+import AdjustmentModal from '../../modals/AdjustmentModal'
+import { useClientAdjustments } from '../../hooks/useClientAdjustments'
 import { pushUndo } from '../../lib/undo'
 import { useT } from '../../i18n/useT'
 import './ClientDrawer.css'
@@ -42,18 +43,24 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   const [editTask, setEditTask] = useState(null)
   const [editReminder, setEditReminder] = useState(null)
   const [statusMenu, setStatusMenu] = useState(false)
-  /* Manual "שולם" edit flow: pendingPayment holds the delta awaiting the
-     "record a transaction?" prompt; paymentAmount pre-fills the payment modal. */
-  const [pendingPayment, setPendingPayment] = useState(null)
   const [paymentAmount, setPaymentAmount] = useState(null)
-  /* True while "הוסף תנועה" is handling the prompt, so the shared onClose
-     doesn't ALSO record an informal credit. */
-  const paidActionRef = useRef(false)
-  /* While the payment modal is open FROM the "record?" prompt, holds the paid
-     delta so cancelling that modal (no real transaction) still lands the amount
-     on the card as an informal credit — a manual "שולם" edit is never lost. */
-  const pendingPaidRef = useRef(null)
+  /* Editing «שולם» or «יתרה» by hand no longer raises a bare yes/no prompt.
+     The delta opens the adjustment sheet instead, pre-seeded with the amount
+     and a likely reason, so every adjustment lands in the ledger with a
+     reason and a date attached (migration 0095). */
+  const [pendingAdjust, setPendingAdjust] = useState(null)
+  const { adjustments, addAdjustment } = useClientAdjustments()
   const scrollRef = useRef(null)
+
+  const clientAdjustments = client ? adjustments.filter((a) => a.client_id === client.id) : []
+
+  const recordAdjustment = async ({ kind, reason, amount, note }) => {
+    if (!client) return
+    await addAdjustment(client, {
+      kind, reason, amount, note,
+      undoLabel: t('adjust.undoLabel', { amount: isr(Math.abs(Number(amount) || 0)) }),
+    })
+  }
 
   useEffect(() => {
     if (!open) return
@@ -223,6 +230,13 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 </Box>
               </Box>
 
+              {/* One discoverable way in for a discount / an import fix / cash
+                  that was never booked — instead of knowing that each of those
+                  is entered by hand-editing a different number. */}
+              <Btn type="button" className="cd-adjust-link" onClick={() => setActionModal('adjust')}>
+                {t('adjust.open')}
+              </Btn>
+
               {/* Per-session billing note — names the model so the growing
                  balance after each logged meeting is self-explanatory. */}
               {balance.perSession && (
@@ -295,7 +309,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   full edit modal. It's the screen's wrapped updater, so a
                   recurring-slot change still clears the stale pending
                   meetings generated for the old slot. */}
-              <ClientDrawerSections client={client} balance={balance} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} onUpdateClient={onUpdateClient} />
+              <ClientDrawerSections client={client} balance={balance} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} adjustments={clientAdjustments} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} onUpdateClient={onUpdateClient} />
             </Box>
           </>
         )}
@@ -325,26 +339,15 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
       <AddTransactionModal
         key={`pay-${client?.id}-${paymentAmount ?? 'x'}`}
         open={actionModal === 'payment'}
-        onClose={() => {
-          /* Closed WITHOUT recording a transaction. If we got here from the
-             manual-"שולם" prompt, keep the amount on the card as an informal
-             credit so the edit isn't lost (same result as choosing "התעלם"). */
-          if (pendingPaidRef.current != null && client) {
-            onUpdateClient?.(client.id, { paid_adjustment: (Number(client.paid_adjustment) || 0) + pendingPaidRef.current })?.catch?.(() => {})
-          }
-          pendingPaidRef.current = null
-          setActionModal(null); setPaymentAmount(null)
-        }}
+        /* No informal-credit fallback here any more: when this opens from the
+           adjustment sheet the adjustment is already recorded, so closing
+           without booking income loses nothing. */
+        onClose={() => { setActionModal(null); setPaymentAmount(null) }}
         client={client}
         projects={projects}
         defaultType="income"
         defaults={paymentAmount != null ? { amount: String(Math.abs(paymentAmount)), desc: t('drawer.paymentDefaultDesc') } : {}}
-        onSave={async (data) => {
-          /* A real transaction is being recorded → drop the informal-credit
-             fallback so the amount is never counted twice. */
-          pendingPaidRef.current = null
-          return onAddPayment?.(data)
-        }}
+        onSave={onAddPayment}
       />
       {/* Key includes the open-state so the form RE-SEEDS from fresh props
           every time it opens. Without this, the modal stays mounted (Modal
@@ -369,7 +372,11 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         isMember={isMember}
         onSave={onUpdateClient}
         onUpdateMember={onUpdateMember}
-        onPaidEntry={(delta) => setPendingPayment(delta)}
+        /* A hand-edited «שולם» is money the user says arrived; a hand-edited
+           «יתרה» is debt they're writing off. Each opens the adjustment sheet
+           with that reason pre-picked, so both land in the ledger. */
+        onPaidEntry={(delta) => setPendingAdjust({ amount: delta, reason: 'unrecorded_payment' })}
+        onBalanceEntry={(delta) => setPendingAdjust({ amount: delta, reason: 'discount' })}
       />
 
       {/* Edit an existing payment/transaction from the payments panel. */}
@@ -413,25 +420,18 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         onSave={(patch) => onEditReminder?.(editReminder.id, patch)}
       />
 
-      {/* Manual "שולם" edit → record a real transaction, or just fix the card. */}
-      <ConfirmModal
-        open={pendingPayment != null}
-        onClose={() => {
-          /* "התעלם" (or dismiss) → keep the change ON THE CARD only: store
-             the delta as an informal paid_adjustment, no finance entry. */
-          if (!paidActionRef.current && pendingPayment != null && client) {
-            onUpdateClient?.(client.id, { paid_adjustment: (Number(client.paid_adjustment) || 0) + pendingPayment })?.catch?.(() => {})
-          }
-          paidActionRef.current = false
-          setPendingPayment(null)
-        }}
-        title={t('drawer.manualPayTitle')}
-        message={pendingPayment != null
-          ? t('drawer.manualPayMessage', { amount: isr(Math.abs(pendingPayment)) })
-          : ''}
-        confirmLabel={t('drawer.manualPayConfirm')}
-        cancelLabel={t('drawer.manualPayCancel')}
-        onConfirm={() => { paidActionRef.current = true; pendingPaidRef.current = pendingPayment; setPaymentAmount(pendingPayment); setActionModal('payment') }}
+      {/* Manual adjustment — opened either from the billing hero, or seeded
+          by a hand-edited «שולם»/«יתרה» in the edit modal. Keyed on the seed
+          so it re-seeds every time it opens (Modal keeps children mounted). */}
+      <AdjustmentModal
+        key={`adj-${client?.id}-${pendingAdjust?.amount ?? 'x'}-${actionModal === 'adjust'}`}
+        open={actionModal === 'adjust' || !!pendingAdjust}
+        onClose={() => { setActionModal(null); setPendingAdjust(null) }}
+        balance={balance}
+        presetAmount={pendingAdjust?.amount ?? null}
+        presetReason={pendingAdjust?.reason ?? null}
+        onSave={recordAdjustment}
+        onAlsoRecordIncome={(amount) => { setPaymentAmount(amount); setActionModal('payment') }}
       />
     </>
   )

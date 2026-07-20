@@ -113,11 +113,7 @@
     "receivedPayment": "קיבלתי תשלום",
     "requestPayment": "דרישת תשלום בוואטסאפ",
     "statusChanged": "הסטטוס שונה",
-    "paymentDefaultDesc": "עדכון תשלום",
-    "manualPayTitle": "עדכון תשלום ידני",
-    "manualPayMessage": "עדכנת את «שולם» ב-{{amount}}. אפשר לרשום את הסכום כהכנסה בדוחות הכספים, או לתקן רק את כרטיס הלקוח — תיקון בכרטיס בלבד לא יופיע בדוחות הכספים.",
-    "manualPayConfirm": "רישום כהכנסה",
-    "manualPayCancel": "תיקון בכרטיס בלבד"
+    "paymentDefaultDesc": "עדכון תשלום"
   },
   "sections": {
     "activity": "פעילות",
@@ -166,6 +162,32 @@
     "saving": "שומר…",
     "saveFailed": "השמירה נכשלה. נסו שוב.",
     "notesPlaceholder": "מה חשוב לזכור על הלקוח׌?"
+  },
+  "adjust": {
+    "open": "התאמה",
+    "title": "התאמה",
+    "whatHappened": "מה קרה?",
+    "reasonDiscount": "הנחה",
+    "reasonImportFix": "תיקון נתוני ייבוא",
+    "reasonUnrecorded": "תשלום שהתקבל ולא נרשם",
+    "amount": "סכום ₪",
+    "note": "הערה",
+    "notePlaceholder": "למשל: מזומן בפגישה",
+    "previewPaid": "שולם: {{from}} ← {{to}}",
+    "previewBalance": "יתרה: {{from}} ← {{to}}",
+    "notInReports": "התאמה לא מופיעה בדוחות הכספים.",
+    "alsoRecordIncome": "לרשום גם כהכנסה בדוחות",
+    "amountRequired": "יש להזין סכום.",
+    "saveFailed": "השמירה נכשלה. נסו שוב.",
+    "undoLabel": "נרשמה התאמה של {{amount}}",
+    "legacyRow": "התאמה קודמת",
+    "noDate": "ללא תאריך",
+    "affectsBalance": "מקטין את היתרה",
+    "row": {
+      "discount": "הנחה",
+      "import_fix": "תיקון נתוני ייבוא",
+      "unrecorded_payment": "תשלום שהתקבל ולא נרשם"
+    }
   },
   "plan": {
     "title": "פריסת תשלומים",

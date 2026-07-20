@@ -107,11 +107,7 @@
     "receivedPayment": "Got paid",
     "requestPayment": "Request payment on WhatsApp",
     "statusChanged": "Status changed",
-    "paymentDefaultDesc": "Payment update",
-    "manualPayTitle": "Manual payment update",
-    "manualPayMessage": "You updated \"Paid\" by {{amount}}. You can record the amount as income in your finance reports, or correct the client card only — a card-only correction will not appear in your finance reports.",
-    "manualPayConfirm": "Record as income",
-    "manualPayCancel": "Correct card only"
+    "paymentDefaultDesc": "Payment update"
   },
   "sections": {
     "activity": "Activity",
@@ -160,6 +156,32 @@
     "saving": "Saving…",
     "saveFailed": "Couldn't save. Try again.",
     "notesPlaceholder": "What is worth remembering about this client?"
+  },
+  "adjust": {
+    "open": "Adjustment",
+    "title": "Adjustment",
+    "whatHappened": "What happened?",
+    "reasonDiscount": "Discount",
+    "reasonImportFix": "Imported data fix",
+    "reasonUnrecorded": "Payment received, never recorded",
+    "amount": "Amount ₪",
+    "note": "Note",
+    "notePlaceholder": "e.g. cash at the session",
+    "previewPaid": "Paid: {{from}} → {{to}}",
+    "previewBalance": "Balance: {{from}} → {{to}}",
+    "notInReports": "An adjustment does not appear in your finance reports.",
+    "alsoRecordIncome": "Also record it as income",
+    "amountRequired": "Enter an amount.",
+    "saveFailed": "Couldn't save. Try again.",
+    "undoLabel": "Adjustment of {{amount}} recorded",
+    "legacyRow": "Earlier adjustment",
+    "noDate": "No date",
+    "affectsBalance": "lowers the balance",
+    "row": {
+      "discount": "Discount",
+      "import_fix": "Imported data fix",
+      "unrecorded_payment": "Payment received, never recorded"
+    }
   },
   "plan": {
     "title": "Payment plan",

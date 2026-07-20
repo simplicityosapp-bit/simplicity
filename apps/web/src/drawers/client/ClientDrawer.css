@@ -757,3 +757,26 @@
   opacity: 0.55;
   cursor: default;
 }
+
+/* ── Manual adjustment ──────────────────────────────────────────
+   One entry point under the billing hero, and the ledger rows it
+   produces inside the payments panel. Those rows exist so "סה״כ שולם"
+   always adds up to what is listed beneath it. */
+.cd-adjust-link {
+  display: block;
+  margin: 8px auto 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 0.5px solid rgba(42, 37, 32, 0.14);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+.cd-adjust-link:hover { background: var(--mg-btn-secondary-bg-hover); }
+[data-theme="dark"] .cd-adjust-link { border-color: rgba(240, 235, 224, 0.14); }
+/* Amber, so an adjustment never reads as a real payment in the list. */
+.cd-dot-adjust { background: var(--amber-warn); }
+.cd-row-note { color: var(--stone); }

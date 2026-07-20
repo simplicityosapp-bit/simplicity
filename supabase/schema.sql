@@ -8,10 +8,18 @@
 --
 -- Regenerate after any batch of migrations, with that same file, and move
 -- the watermark. This document goes stale silently — nothing fails when it
--- is wrong — which is how the previous version fell ~70 migrations behind
--- while still asserting three tables that had been dropped.
+-- is wrong — which is how the previous version fell ~70 migrations behind:
+-- it declared 35 tables, three of which migration 0027 had dropped
+-- (client_notes, reminder_occurrences, session_attachments), and omitted 22
+-- that exist.
 --
--- 36 tables. public schema only; auth.* / storage.* are Supabase-managed.
+-- Counts here are diffed against the introspection output, not eyeballed.
+-- The first draft of this header said "36 tables" because the number was
+-- written from memory instead of counted — in a file whose only job is to
+-- be accurate, that is the failure mode to guard against.
+--
+-- 54 tables, verified against the live list rather than counted by eye.
+-- public schema only; auth.* / storage.* are Supabase-managed.
 -- Constraints, indexes and triggers are reproduced as Postgres itself
 -- renders them (pg_get_constraintdef / pg_get_indexdef / pg_get_triggerdef).
 --

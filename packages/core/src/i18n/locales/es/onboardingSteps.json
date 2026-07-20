@@ -15,7 +15,7 @@
   },
   "step2": {
     "intro": "¿Tienes datos que te gustaría traer?",
-    "introSub": "Si los tienes, los repasaremos juntos y los meteremos en el sistema — y si no, seguimos adelante, paso a paso :)",
+    "introSub": "Si los tienes, los repasaremos juntos y los meteremos en el sistema, para que tus clientes y pagos ya estén aquí en vez de teclearlos de nuevo — y si no, seguimos adelante, paso a paso :)",
     "pathAHas": "Sí, los tengo",
     "pathASub": "CSV o Excel — puedes soltar varios archivos a la vez. Detectaremos las columnas, y siempre revisarás todo antes de guardar nada.",
     "pathBFresh": "No, empiezo de cero",

@@ -15,7 +15,7 @@
   },
   "step2": {
     "intro": "Got any data you'd like to bring in?",
-    "introSub": "If you do, we'll go through it together and get it into the system — if not, we'll keep going, one small step at a time :)",
+    "introSub": "If you do, we'll go through it together and get it into the system, so your clients and payments are already here instead of being retyped by hand — if not, we'll keep going, one small step at a time :)",
     "pathAHas": "Yes, I do",
     "pathASub": "CSV or Excel — you can drop in several files at once. We'll detect the columns, and you'll always review everything before anything is saved.",
     "pathBFresh": "No, starting fresh",

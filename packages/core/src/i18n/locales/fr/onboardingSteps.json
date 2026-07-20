@@ -15,7 +15,7 @@
   },
   "step2": {
     "intro": "Avez-vous des données que vous aimeriez importer ?",
-    "introSub": "Si oui, nous les parcourrons ensemble et les intégrerons au système — sinon, nous continuerons, une petite étape à la fois :)",
+    "introSub": "Si oui, nous les parcourrons ensemble et les intégrerons au système, pour que vos clients et vos paiements soient déjà là au lieu d'être ressaisis à la main — sinon, nous continuerons, une petite étape à la fois :)",
     "pathAHas": "Oui, j'en ai",
     "pathASub": "CSV ou Excel — vous pouvez déposer plusieurs fichiers à la fois. Nous détecterons les colonnes, et vous vérifierez toujours tout avant que quoi que ce soit ne soit enregistré.",
     "pathBFresh": "Non, je pars de zéro",

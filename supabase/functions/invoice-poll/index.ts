@@ -8,11 +8,23 @@
 //
 //  Deploy:  supabase functions deploy invoice-poll --no-verify-jwt
 //  Secret:  supabase secrets set POLL_SECRET=<random>   (the cron must send it)
+//
+//  ⚠️ DAILY, never every-15-minutes. This snippet used to say '*/15 * * * *',
+//  and polling at that rate is what ran up real SUMIT charges — each poll
+//  lists documents through the provider's billable API. Migration 0077 made
+//  the periodic scan opt-in per connection AND moved the job to daily; this
+//  comment was left behind, so anyone re-running it silently restored the
+//  cadence that caused the incident. Keep the two in step.
+//
 //  Schedule (run in SQL, with YOUR service key + the same secret):
-//    select cron.schedule('invoice-poll','*/15 * * * *', $$
+//    select cron.schedule('invoice-poll','0 3 * * *', $$
 //      select net.http_post(
 //        url := 'https://rdurkakzyymxhocvhufw.supabase.co/functions/v1/invoice-poll?s=<POLL_SECRET>',
 //        headers := '{"Content-Type":"application/json"}'::jsonb) $$);
+//
+//  Already scheduled? Change it in place instead of re-adding:
+//    select cron.alter_job((select jobid from cron.job where jobname='invoice-poll'),
+//                           schedule := '0 3 * * *');
 //
 //  Auth: a shared POLL_SECRET (?s= or x-poll-secret) — the function is
 //  public (no JWT) but only the holder of the secret can trigger a poll.

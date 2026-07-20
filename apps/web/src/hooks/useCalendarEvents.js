@@ -60,15 +60,18 @@ export function useCalendarEvents() {
   const assignLead = useCallback((ev, leadId) => assignMatch(ev, 'lead_id', leadId), [assignMatch])
   const assignGroup = useCallback((ev, groupId) => assignMatch(ev, 'group_id', groupId), [assignMatch])
 
-  /* Hide a synced event from the app view (soft-delete). Used to resolve a
-     calendar duplicate when the user keeps the app meeting. NOTE: one-way
-     sync means a future sync may re-create the row — the calling UI warns
-     about this. Optimistic; resync on failure. */
+  /* OWN + hide a synced event from the app view (soft-delete). Used to
+     resolve a calendar duplicate when the user keeps the app meeting.
+     owned=true makes the hide survive future syncs — same as deleteEvent
+     below; without it the Edge Function's upsert resets deleted_at to null
+     and the duplicate comes back on every auto-sync. Google is never
+     touched (one-way sync), so the event still lives in the user's Google
+     Calendar. Optimistic; resync on failure. */
   const dismissEvent = useCallback(async (ev) => {
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((row) => row.id !== ev.id))
     const { error: e } = await supabase
       .from('calendar_events')
-      .update({ deleted_at: new Date().toISOString() })
+      .update({ owned: true, deleted_at: new Date().toISOString() })
       .eq('id', ev.id)
     if (e) { showError(i18n.t('components:errors.eventHide')); qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])

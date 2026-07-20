@@ -9,14 +9,14 @@
   "loadError": "שגיאה בטעינת הלקוחות: {{error}}",
   "status": {
     "active": "פעיל׌",
-    "wandering": "ביניים",
+    "wandering": "בהפסקה",
     "past": "לשעבר",
     "noStatus": "ללא סטטוס",
     "none": "ללא"
   },
   "hero": {
     "active": "סיכום לקוחות פעיל׊׉",
-    "wandering": "סיכום לקוחות ביניים",
+    "wandering": "סיכום לקוחות בהפסקה",
     "past": "סיכום לקוחות לשעבר",
     "noStatus": "סיכום ללא סטטוס",
     "clients": "לקוחות",

@@ -60,7 +60,7 @@
   },
   "clientStatus": {
     "active": "Actif",
-    "wandering": "Indécis",
+    "wandering": "En pause",
     "past": "Ancien",
     "no_status": "Sans statut"
   },

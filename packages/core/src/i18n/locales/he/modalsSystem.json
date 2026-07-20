@@ -172,7 +172,7 @@
     },
     "status": {
       "active": "פעיל׌",
-      "wandering": "ביניים",
+      "wandering": "בהפסקה",
       "past": "לשעבר",
       "no_status": "ללא"
     },

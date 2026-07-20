@@ -9,14 +9,14 @@
   "loadError": "No se pudieron cargar los clientes: {{error}}",
   "status": {
     "active": "Activo",
-    "wandering": "Indeciso",
+    "wandering": "En pausa",
     "past": "Anterior",
     "noStatus": "Sin estado",
     "none": "Ninguno"
   },
   "hero": {
     "active": "Resumen de clientes activos",
-    "wandering": "Resumen de clientes indecisos",
+    "wandering": "Resumen de clientes en pausa",
     "past": "Resumen de clientes anteriores",
     "noStatus": "Resumen sin estado",
     "clients": "Clientes",

@@ -9,14 +9,14 @@
   "loadError": "Couldn't load clients: {{error}}",
   "status": {
     "active": "Active",
-    "wandering": "On the fence",
+    "wandering": "Paused",
     "past": "Former",
     "noStatus": "No status",
     "none": "None"
   },
   "hero": {
     "active": "Active clients summary",
-    "wandering": "On-the-fence clients summary",
+    "wandering": "Paused clients summary",
     "past": "Former clients summary",
     "noStatus": "No-status summary",
     "clients": "Clients",

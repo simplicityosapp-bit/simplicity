@@ -149,7 +149,7 @@
     },
     "status": {
       "active": "Active",
-      "wandering": "In between",
+      "wandering": "Paused",
       "past": "Former",
       "no_status": "None"
     },

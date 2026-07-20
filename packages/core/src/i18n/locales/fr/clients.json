@@ -9,14 +9,14 @@
   "loadError": "Impossible de charger les clients : {{error}}",
   "status": {
     "active": "Actif",
-    "wandering": "Hésitant",
+    "wandering": "En pause",
     "past": "Ancien",
     "noStatus": "Sans statut",
     "none": "Aucun"
   },
   "hero": {
     "active": "Résumé des clients actifs",
-    "wandering": "Résumé des clients hésitants",
+    "wandering": "Résumé des clients en pause",
     "past": "Résumé des anciens clients",
     "noStatus": "Résumé sans statut",
     "clients": "Clients",

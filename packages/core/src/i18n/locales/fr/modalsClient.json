@@ -46,7 +46,7 @@
     "title": "Modifier le client",
     "status": "Statut",
     "statusActive": "Actif",
-    "statusWandering": "Intermédiaire",
+    "statusWandering": "En pause",
     "statusPast": "Ancien",
     "statusNone": "Aucun",
     "billingMode": "Mode de facturation",

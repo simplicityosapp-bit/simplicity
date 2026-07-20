@@ -134,7 +134,7 @@
         },
         {
           "title": "Estados de cliente",
-          "body": "Cada cliente pertenece a uno de cuatro grupos: Activo, Intermedio, Antiguo, Sin estado. Las pestañas en la parte superior de la lista muestran los grupos con un recuento de cada uno. La pestaña «Sin estado» solo aparece si hay clientes en ella. En Ajustes puedes añadir tus propios subestados a cada grupo, y aparecerán en el selector de estado del formulario de cliente."
+          "body": "Cada cliente pertenece a uno de cuatro grupos: Activo, En pausa, Antiguo, Sin estado. Las pestañas en la parte superior de la lista muestran los grupos con un recuento de cada uno. La pestaña «Sin estado» solo aparece si hay clientes en ella. En Ajustes puedes añadir tus propios subestados a cada grupo, y aparecerán en el selector de estado del formulario de cliente."
         },
         {
           "title": "Ordenar la lista",
@@ -432,7 +432,7 @@
         },
         {
           "title": "Pantalla del proyecto: encabezado y estadísticas",
-          "body": "Dentro del proyecto, el encabezado muestra el número de clientes activos (y los clientes «Intermedio» si los hay) y el número de grupos, junto con tres estadísticas: clientes, «Ingresos este mes» y grupos. El botón de lápiz en la parte superior abre «Editar proyecto». Nota: «Ingresos este mes» dentro de la pantalla del proyecto siempre muestra el mes actual; no se ve afectado por el interruptor mensual/acumulado de la pantalla principal."
+          "body": "Dentro del proyecto, el encabezado muestra el número de clientes activos (y los clientes «En pausa» si los hay) y el número de grupos, junto con tres estadísticas: clientes, «Ingresos este mes» y grupos. El botón de lápiz en la parte superior abre «Editar proyecto». Nota: «Ingresos este mes» dentro de la pantalla del proyecto siempre muestra el mes actual; no se ve afectado por el interruptor mensual/acumulado de la pantalla principal."
         },
         {
           "title": "Añadir rápido dentro de un proyecto",

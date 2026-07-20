@@ -46,7 +46,7 @@
     "title": "Edit client",
     "status": "Status",
     "statusActive": "Active",
-    "statusWandering": "In-between",
+    "statusWandering": "Paused",
     "statusPast": "Former",
     "statusNone": "None",
     "billingMode": "Billing mode",

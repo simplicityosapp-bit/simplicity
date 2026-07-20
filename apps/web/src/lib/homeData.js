@@ -9,7 +9,7 @@
 
 import i18n from '@simplicity/core/i18n'
 import { ROUTES } from './routes'
-import { financeQuery, currentMonthRange, clientBalance } from '@simplicity/core'
+import { financeQuery, currentMonthRange, clientBalance, effectiveClientMeta } from '@simplicity/core'
 
 const DAY = 86400000
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
@@ -39,12 +39,20 @@ function lastClientSession(cid, sessions) {
   const ts = live(sessions).filter((s) => s.client_id === cid).map((s) => new Date(s.date).getTime())
   return ts.length ? Math.max(...ts) : null
 }
+/* Status MUST come from effectiveClientMeta, never the raw `status` column:
+   the canonical value lives in status_meta, `status` is a legacy mirror that
+   the client drawer never rewrote (so it goes stale on every manual change),
+   and group members derive their status from the group entirely. Reading the
+   raw column surfaced 'past' clients as needing attention. */
 export function clientsNeedingAttention(days = 45, now = new Date(), data) {
-  const { clients = [], sessions = [] } = data || {}
+  const { clients = [], sessions = [], members = [], groups = [] } = data || {}
   const cutoff = now.getTime() - days * DAY
   return live(clients).filter((c) => {
-    if (!['active', 'wandering'].includes(c.status)) return false
+    if (!['active', 'wandering'].includes(effectiveClientMeta(c, members, groups))) return false
     if (c.created_at && new Date(c.created_at).getTime() > cutoff) return false /* too new to nag */
+    /* "התעלם" restarts the same 45-day clock rather than muting forever, so a
+       dismissed client resurfaces if the gap keeps growing. */
+    if (c.attention_snoozed_at && new Date(c.attention_snoozed_at).getTime() >= cutoff) return false
     const last = lastClientSession(c.id, sessions)
     return last === null || last < cutoff
   })
@@ -244,7 +252,7 @@ export function attentionItems(now = new Date(), data) {
     items.push({ icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), to: ROUTES.CALENDAR, kind: 'pendingMeetings' })
   }
 
-  const withBalance = live(clients).filter((c) => c.status !== 'past' && clientBalance(c, transactions, sessions, members, groups).balance > 0)
+  const withBalance = live(clients).filter((c) => effectiveClientMeta(c, members, groups) !== 'past' && clientBalance(c, transactions, sessions, members, groups).balance > 0)
   if (withBalance.length) items.push({ icon: 'Wallet', text: T('balance', { count: withBalance.length }), to: ROUTES.CLIENTS })
 
   const goal = monthlyIncomeGoal({ goals, categories })
@@ -257,8 +265,8 @@ export function attentionItems(now = new Date(), data) {
   const urgent = live(tasks).filter((t) => t.status !== 'done' && t.priority === 'high').length
   if (urgent) items.push({ icon: 'AlertCircle', text: T('urgentTasks', { count: urgent }), to: ROUTES.TASKS })
 
-  const staleClients = clientsNeedingAttention(45, now, { clients, sessions })
-  if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), to: ROUTES.CLIENTS, kind: 'people', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
+  const staleClients = clientsNeedingAttention(45, now, { clients, sessions, members, groups })
+  if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), to: ROUTES.CLIENTS, kind: 'people', rowId: 'staleClients', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
 
   /* Leads from public lead-pages awaiting manual approval. Kept orthogonal:
      pending leads are excluded from the stale / follow-up rules below. */
@@ -267,7 +275,7 @@ export function attentionItems(now = new Date(), data) {
   if (pendingLeads.length) items.push({ icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), to: ROUTES.LEADS, kind: 'pendingLeads' })
 
   const staleLeads = leadsNeedingAttention(45, now, officialLeads)
-  if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), to: ROUTES.LEADS, kind: 'people', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
+  if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), to: ROUTES.LEADS, kind: 'people', rowId: 'staleLeads', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
   /* Lead follow-ups due — date ≤ today AND still in_process (closed metas
      suppress, the follow-up is moot). follow_up_date is a 'YYYY-MM-DD' string
@@ -276,7 +284,7 @@ export function attentionItems(now = new Date(), data) {
   const dueFollowups = officialLeads.filter(
     (l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= todayYmd,
   )
-  if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), to: ROUTES.LEADS, kind: 'people', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
+  if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), to: ROUTES.LEADS, kind: 'people', rowId: 'dueFollowups', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
   return items
 }

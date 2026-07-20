@@ -49,7 +49,11 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   )
   const [form, setForm] = useState(() => ({
     name: client?.name || '',
-    status: client?.status || 'active',
+    /* status_meta is canonical; `status` is a legacy mirror the client drawer
+       did not rewrite, so seeding from it showed a stale pill — and the
+       status_overridden check on save then read that stale value as a
+       deliberate change, silently reverting the drawer's status. */
+    status: client?.status_meta || client?.status || 'active',
     status_id: client?.status_id || '',
     billing_mode: client?.billing_mode || 'package',
     sessions: client?.sessions ?? '',

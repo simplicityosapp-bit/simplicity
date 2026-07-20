@@ -86,8 +86,12 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   const changeStatus = (k) => {
     if (!client) { setStatusMenu(false); return }
     if (client.status_meta === k && client.status_overridden) { setStatusMenu(false); return }
-    const prev = { status_meta: client.status_meta ?? null, status_id: client.status_id ?? null, status_overridden: !!client.status_overridden }
-    const next = { status_meta: k, status_id: null, status_overridden: true }
+    /* Keep the legacy `status` mirror in step with status_meta — every other
+       write path (add / edit / bulk reassign) sets both, and leaving it behind
+       here is what let stale statuses leak into the attention widget and the
+       edit modal's status pill. */
+    const prev = { status_meta: client.status_meta ?? null, status: client.status ?? null, status_id: client.status_id ?? null, status_overridden: !!client.status_overridden }
+    const next = { status_meta: k, status: k, status_id: null, status_overridden: true }
     onUpdateClient?.(client.id, next)
     setStatusMenu(false)
     pushUndo({

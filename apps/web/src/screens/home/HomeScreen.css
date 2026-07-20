@@ -1065,3 +1065,37 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   transition: background 0.15s;
 }
 .h-people-wa:hover { background: color-mix(in srgb, var(--sage) 22%, transparent); }
+/* Softens the stale-client list into a reminder rather than a to-do. */
+.h-people-hint {
+  margin: 0 0 4px;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--stone);
+}
+.h-people-snooze {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 17px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.h-people-snooze:hover {
+  background: color-mix(in srgb, var(--stone) 10%, transparent);
+  color: var(--espresso);
+}
+/* The label is the affordance on desktop; on narrow screens the icon
+   carries it alone so a long client name keeps its room. */
+@media (max-width: 420px) {
+  .h-people-snooze { padding: 0 10px; }
+  .h-people-snooze-label { display: none; }
+}

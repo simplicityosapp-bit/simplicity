@@ -21,25 +21,50 @@
   .home-stack > .feedback-card { order: 2; }
 }
 
-/* ── Desktop layout (≥768px) ────────────────────────────────────
-   The stack becomes a 3-column grid. Most widgets span the full
-   row; the two list widgets (attention / tasks-and-reminders) each
-   take one column and sit side-by-side. */
+/* ── Desktop layout (≥768px) — ONE GRID ─────────────────────────
+   Four columns, and every widget is a real cell in it. Previously most
+   widgets spanned the full width and only two shared a row, so the screen
+   read as a stack of full-width bands with one exception — not a grid.
+
+   The quick-add button is the reason for four rather than three: it takes
+   the last column beside the daily question, which is what puts it "next to
+   the widgets" instead of on a full-width bar of its own.
+
+   `.home-row-top` becomes display:contents so the quote and the moon chip
+   stop being a nested flex row and become grid cells directly. On mobile it
+   stays a flex row — the round chip beside the quote is compact there. */
 @media (min-width: 768px) {
   .home-stack {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
     align-items: start;
   }
-  .home-stack > .home-widget,
-  .home-stack > .home-row-top {
-    grid-column: 1 / -1;        /* span all 3 columns by default */
-  }
-  .home-stack > .home-widget[data-widget-id="attention"],
-  .home-stack > .home-widget[data-widget-id="next-tasks"] {
-    grid-column: span 1;        /* sit side-by-side in one row */
-  }
+  /* Two specificity notes, both learned the hard way by measuring:
+
+     1. `.home-stack > .home-row-top` — not the bare class. The unscoped
+        `.home-row-top { display: flex }` below sits LATER in this file at
+        equal specificity, so it would win and display:contents would never
+        take effect.
+
+     2. Descendant, not child, selectors for the widgets. display:contents
+        removes the row's BOX, not the DOM node — quote and moon are still
+        children of .home-row-top, so `.home-stack > .home-widget` does not
+        match them and their spans were silently ignored. */
+  .home-stack > .home-row-top { display: contents; }
+  .home-stack .home-widget { grid-column: 1 / -1; }
+
+  .home-stack .home-widget[data-widget-id="quote"]      { grid-column: span 3; }
+  .home-stack .home-widget[data-widget-id="moon"]       { grid-column: span 1; }
+  .home-stack .home-widget[data-widget-id="insights"]   { grid-column: span 3; }
+  .home-stack .home-widget[data-widget-id="quick-row"]  { grid-column: span 1; align-self: stretch; }
+  .home-stack .home-widget[data-widget-id="attention"]  { grid-column: span 2; }
+  .home-stack .home-widget[data-widget-id="next-tasks"] { grid-column: span 2; }
+
+  /* The quick-add cell is a tile, so the button fills it rather than
+     floating at a fixed width inside an empty column. */
+  .home-stack .home-widget[data-widget-id="quick-row"] .h-quick-row,
+  .home-stack .home-widget[data-widget-id="quick-row"] .h-quick-btn { height: 100%; }
 }
 
 /* Top row — moon-chip pinned to the start side (right in RTL),
@@ -113,62 +138,61 @@
 [data-theme="dark"] .home-widget[data-accent="amber"]      { --widget-accent: #BE9266; }
 [data-theme="dark"] .home-widget[data-accent="clay"]       { --widget-accent: #9A5E50; }
 
-/* Per-widget accent — soft tinted ring + ambient glow on the card.
-   No hard stripe. The first child of .home-widget is the actual card
-   element (.h-quote / .h-card / .ins-widget / .h-stat).
-   Selector is bumped to .home-stack .home-widget > * so it wins the
-   cascade tie-break against the .h-quote/.h-card/... block below. */
-/* :not() exclusions keep modal portals (rendered as siblings of the
-   widget body — e.g. the TileDrillModal opened from ChipsWidget)
-   from inheriting position:relative. They have to stay
-   position:fixed so they can overlay the entire app frame; without
-   the exclusion this rule wins specificity (0,2,1 vs 0,1,0) and
-   the modal flows in the document instead of floating centered. */
+/* No accent ring or glow in the flattened grid. Eight cards each haloed in
+   their own colour is the opposite of one uniform grid, and a coloured ring
+   sitting on top of a thin dark hairline reads as two borders. The accent
+   variables above are still resolved — small accents inside the cards can
+   use them — but the card outline itself is uniform now.
+
+   `position: relative` stays: other rules anchor to it. The :not() exclusions
+   keep modal portals (rendered as siblings of the widget body — e.g. the
+   TileDrillModal opened from ChipsWidget) from inheriting it; they must stay
+   position:fixed to overlay the whole app frame, and without the exclusion
+   this rule wins on specificity (0,2,1 vs 0,1,0) and drops them into flow. */
 .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
   position: relative;
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 28%, transparent),
-    0 0 22px color-mix(in srgb, var(--widget-accent, transparent) 14%, transparent),
-    var(--mg-card-shadow);
-}
-/* The per-widget brand accent (ring + glow) is LIGHT-MODE ONLY. In dark it
-   read as a harsh bright square hugging every widget; drop it back to the
-   plain card shadow so the widgets stay clean at night. */
-[data-theme="dark"] .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
-  box-shadow: var(--mg-card-shadow);
-}
-/* Same treatment for the flat "blank" (ריק) background: with no photo behind
-   the cards the 1px accent ring reads as a hard frame (beta 13/07/2026) — drop
-   it to the plain card shadow, mirroring the dark-mode rule above. */
-html[data-bg="blank"] .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
-  box-shadow: var(--mg-card-shadow);
-}
-/* The moon widget's root is a LAYOUT block wrapping a ROUND chip — the
-   generic ring above would draw a SQUARE around the circle. Move the ring
-   onto the chip itself so it hugs the actual (round) widget. */
-.home-stack .home-widget > .moon-block { box-shadow: none; }
-.home-stack .home-widget[data-widget-id="moon"] .moon-chip {
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 28%, transparent),
-    0 0 22px color-mix(in srgb, var(--widget-accent, transparent) 14%, transparent),
-    var(--mg-card-shadow);
-}
-[data-theme="dark"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip {
-  box-shadow: var(--mg-card-shadow);
-}
-html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip {
-  box-shadow: var(--mg-card-shadow);
+  box-shadow: none;
 }
 
-/* Card-style is now global: PrefsApplier sets <html data-card-style> and
-   tokens.css overrides the --mg-card-* tokens accordingly. Home cards just
-   read those tokens through this indirection, so the choice (frosted /
-   flat) reaches Home like every other screen — no home-local style blocks. */
+/* Card-style is global: PrefsApplier sets <html data-card-style> and
+   tokens.css overrides the --mg-card-* tokens accordingly. Home reads them
+   through this indirection.
+
+   ── FLATTENED GRID (design experiment) ──────────────────────────
+   Home overrides the four card variables rather than the global tokens, so
+   the change is contained to this screen and every other screen keeps the
+   cream-glass look untouched.
+
+   What changes: the cards stop being deep frosted panes and become flat
+   tiles — a thin dark hairline instead of a white one, more of the surface
+   filled in so text sits on something solid, no drop shadow, a tighter
+   corner and less padding. The point is that eight differently-weighted
+   panes become one grid reading at one depth, with hierarchy carried by
+   size and position instead of by glassiness.
+
+   Blur is reduced, not removed. The screen sits on a busy forest photo; at
+   0 blur and this opacity the text competes with leaves. 10px is enough to
+   settle the background without reading as frosted. */
 .home-screen {
-  --home-card-bg:     var(--mg-card-bg);
-  --home-card-border: var(--mg-card-border);
-  --home-card-shadow: var(--mg-card-shadow);
-  --home-card-blur:   var(--mg-card-blur);
+  --home-card-bg:     rgba(255, 252, 247, 0.62);
+  --home-card-border: 1px solid rgba(42, 37, 32, 0.16);
+  --home-card-shadow: none;
+  --home-card-blur:   blur(10px);
+  --mg-card-radius:   14px;
+  --mg-card-pad:      16px 18px;
+}
+[data-theme="dark"] .home-screen {
+  --home-card-bg:     rgba(22, 26, 32, 0.72);
+  --home-card-border: 1px solid rgba(0, 0, 0, 0.45);
+}
+/* The flat background has no photo to sit on, so the cards can be fully
+   opaque there and drop the blur entirely. */
+html[data-bg="blank"] .home-screen {
+  --home-card-bg:   #F6F1E7;
+  --home-card-blur: none;
+}
+html[data-bg="blank"][data-theme="dark"] .home-screen {
+  --home-card-bg: #1B1F26;
 }
 
 /* Shared glass card surface. */
@@ -1274,10 +1298,6 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 .h-add-pick-btn svg { color: var(--stone); }
 
 /* The quick-add widget is a full-width bar on mobile, where it is the main
-   way in. On desktop the per-card "+" buttons cover adding, so it shrinks to
-   a normal-sized button aligned to the start instead of stretching across
-   the whole grid row. */
-@media (min-width: 768px) {
-  .h-quick-row { justify-content: flex-start; }
-  .h-quick-row .h-quick-btn { flex: 0 0 auto; min-width: 190px; }
-}
+   way in. On desktop it becomes a tile in the last grid column beside the
+   daily question — see the grid block at the top of this file, which also
+   stretches it to the row height. */

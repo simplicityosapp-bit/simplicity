@@ -225,7 +225,41 @@ export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS
   return { activeClients, net, _income: inc, _expense: exp, _txCount: filteredTx.length }
 }
 
-/* ── Attention rows ────────────────────────────────────────────── */
+/* ── Attention rows ─────────────────────────────────────────────
+   Urgency order for the "דרושה תשומת לב" list. The rows used to render in
+   whatever order the rules happened to run, so "5 תנועות ממתינות לאישור"
+   (money, blocks the books) sat at the same weight as "2 לקוחות — עבר זמן
+   מאז שדיברתם" (a soft nudge). Owner decision: order by urgency, no group
+   headings.
+
+   The ranking, most urgent first:
+     someone is waiting on you  — a booking request, a lead who filled a form
+     time-boxed to today        — follow-ups due
+     blocks your books          — meetings to confirm, transactions, documents
+     your own work              — urgent tasks
+     money owed to you          — client balances
+     drifting relationships     — stale clients, stale leads
+     housekeeping / FYI         — calendar duplicates, goal gap
+
+   Gaps of 5-10 leave room to slot a new rule in without renumbering. The
+   widget-level rows (bookings / invoices / duplicates) are built in
+   AttentionWidget but ranked from this same map, so the list and the
+   one-line summary can't disagree about what matters most. */
+export const ATTENTION_PRIORITY = {
+  bookings:        10,
+  pendingLeads:    15,
+  dueFollowups:    20,
+  pendingMeetings: 30,
+  pendingTx:       35,
+  invoices:        40,
+  urgentTasks:     50,
+  balance:         60,
+  staleClients:    70,
+  staleLeads:      75,
+  duplicates:      80,
+  goalGap:         90,
+}
+
 export function attentionItems(now = new Date(), data) {
   const {
     transactions = [],
@@ -249,39 +283,39 @@ export function attentionItems(now = new Date(), data) {
   const T = (key, opts) => i18n.t(`home:widgets.attention.rows.${key}`, opts)
   const items = []
   const pending = (transactions || []).filter((t) => !t.deleted_at && t.status === 'pending')
-  if (pending.length) items.push({ rowId: 'pendingTx', icon: 'Wallet', text: T('pendingTx', { count: pending.length }), to: ROUTES.FINANCE, kind: 'pendingTx' })
+  if (pending.length) items.push({ rowId: 'pendingTx', priority: ATTENTION_PRIORITY.pendingTx, icon: 'Wallet', text: T('pendingTx', { count: pending.length }), to: ROUTES.FINANCE, kind: 'pendingTx' })
 
   const pastMeetings = (scheduled_meetings || []).filter(
     (m) => m.status === 'pending' && new Date(m.scheduled_at).getTime() <= now.getTime(),
   )
   if (pastMeetings.length) {
-    items.push({ rowId: 'pendingMeetings', icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), to: ROUTES.CALENDAR, kind: 'pendingMeetings' })
+    items.push({ rowId: 'pendingMeetings', priority: ATTENTION_PRIORITY.pendingMeetings, icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), to: ROUTES.CALENDAR, kind: 'pendingMeetings' })
   }
 
   const withBalance = live(clients).filter((c) => effectiveClientMeta(c, members, groups) !== 'past' && clientBalance(c, transactions, sessions, members, groups).balance > 0)
-  if (withBalance.length) items.push({ rowId: 'balance', icon: 'Wallet', text: T('balance', { count: withBalance.length }), to: ROUTES.CLIENTS })
+  if (withBalance.length) items.push({ rowId: 'balance', priority: ATTENTION_PRIORITY.balance, icon: 'Wallet', text: T('balance', { count: withBalance.length }), to: ROUTES.CLIENTS })
 
   const goal = monthlyIncomeGoal({ goals, categories })
   const { inc } = monthNet(now, { transactions })
   if (goal > 0 && inc < goal) {
     const daysLeft = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate()
-    items.push({ rowId: 'goalGap', icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), to: ROUTES.GOALS })
+    items.push({ rowId: 'goalGap', priority: ATTENTION_PRIORITY.goalGap, icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), to: ROUTES.GOALS })
   }
 
   const urgent = live(tasks).filter((t) => t.status !== 'done' && t.priority === 'high').length
-  if (urgent) items.push({ rowId: 'urgentTasks', icon: 'AlertCircle', text: T('urgentTasks', { count: urgent }), to: ROUTES.TASKS })
+  if (urgent) items.push({ rowId: 'urgentTasks', priority: ATTENTION_PRIORITY.urgentTasks, icon: 'AlertCircle', text: T('urgentTasks', { count: urgent }), to: ROUTES.TASKS })
 
   const staleClients = clientsNeedingAttention(45, now, { clients, sessions, members, groups })
-  if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), to: ROUTES.CLIENTS, kind: 'people', rowId: 'staleClients', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
+  if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), to: ROUTES.CLIENTS, kind: 'people', rowId: 'staleClients', priority: ATTENTION_PRIORITY.staleClients, entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
 
   /* Leads from public lead-pages awaiting manual approval. Kept orthogonal:
      pending leads are excluded from the stale / follow-up rules below. */
   const officialLeads = live(leads).filter((l) => !l.pending_review)
   const pendingLeads = live(leads).filter((l) => l.pending_review)
-  if (pendingLeads.length) items.push({ rowId: 'pendingLeads', icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), to: ROUTES.LEADS, kind: 'pendingLeads' })
+  if (pendingLeads.length) items.push({ rowId: 'pendingLeads', priority: ATTENTION_PRIORITY.pendingLeads, icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), to: ROUTES.LEADS, kind: 'pendingLeads' })
 
   const staleLeads = leadsNeedingAttention(45, now, officialLeads)
-  if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), to: ROUTES.LEADS, kind: 'people', rowId: 'staleLeads', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
+  if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), to: ROUTES.LEADS, kind: 'people', rowId: 'staleLeads', priority: ATTENTION_PRIORITY.staleLeads, entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
   /* Lead follow-ups due — date ≤ today AND still in_process (closed metas
      suppress, the follow-up is moot). follow_up_date is a 'YYYY-MM-DD' string
@@ -290,9 +324,12 @@ export function attentionItems(now = new Date(), data) {
   const dueFollowups = officialLeads.filter(
     (l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= todayYmd,
   )
-  if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), to: ROUTES.LEADS, kind: 'people', rowId: 'dueFollowups', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
+  if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), to: ROUTES.LEADS, kind: 'people', rowId: 'dueFollowups', priority: ATTENTION_PRIORITY.dueFollowups, entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
-  return items
+  /* Most urgent first — see ATTENTION_PRIORITY. Insertion order used to leak
+     through as display order, which is how a soft 45-day nudge ended up
+     sitting above money waiting for approval. */
+  return items.sort((a, b) => a.priority - b.priority)
 }
 
 /* Semantic target keys → web routes. Web's attentionItems() emits `to` (a
@@ -325,6 +362,11 @@ export function attentionRowAction(it) {
   if (!it) return null
   if (it.kind === 'pendingTx') return { type: 'popup', popup: 'tx' }
   if (it.kind === 'pendingMeetings') return { type: 'popup', popup: 'meetings' }
+  /* Generic popup row — carries its own target. The widget builds three of
+     these (bookings / invoices / calendar duplicates) so they can be ranked
+     and rendered in the same list as the rule-derived rows instead of being
+     hard-coded above them. */
+  if (it.kind === 'popup' && it.popup) return { type: 'popup', popup: it.popup }
   if (it.kind === 'people') return { type: 'people' }
   const to = it.to || (it.target ? TARGET_ROUTE[it.target] : null)
   return to ? { type: 'navigate', to } : null

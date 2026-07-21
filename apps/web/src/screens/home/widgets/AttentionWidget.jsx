@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock, FileDown, BellOff } from 'lucide-react'
-import { attentionItems, attentionRowAction } from '../../../lib/homeData'
+import { attentionItems, attentionRowAction, ATTENTION_PRIORITY } from '../../../lib/homeData'
 import { ROUTES } from '../../../lib/routes'
 import { pushUndo } from '../../../lib/undo'
 import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
@@ -32,7 +32,7 @@ import InvoiceImports from '../../finance/InvoiceImports'
 import { useT } from '../../../i18n/useT'
 import { Box, Txt, Btn } from '../../../components/ui'
 
-const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
+const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell, FileDown, CalendarClock }
 
 /* "דרושה תשומת לב" — composed rows from pending tx, pending meetings,
    balances, goal gap, urgent tasks, 45-day client/lead rules. The actionable
@@ -100,27 +100,47 @@ export default function AttentionWidget() {
     [transactions],
   )
 
-  const dupText = duplicates.length > 0
-    ? t('widgets.attention.dup', { count: duplicates.length })
-    : null
-
   const pendingBookings = useMemo(
     () => (bookings || []).filter((b) => b.status === 'pending'),
     [bookings],
   )
-  const bookingsText = pendingBookings.length > 0
-    ? t('widgets.attention.bookings', { count: pendingBookings.length })
-    : null
 
-  const invoicesText = (invoiceImports?.length || 0) > 0
-    ? t('widgets.attention.invoices', { count: invoiceImports.length })
-    : null
+  /* Three rows that can't come from attentionItems() — they need hooks this
+     widget owns (bookings, invoice imports, the calendar-duplicate resolver).
+     They're shaped like every other row and ranked from the SAME priority map,
+     so they sort in among the rule-derived ones instead of being pinned to the
+     top by render order. */
+  const widgetRows = useMemo(() => {
+    const out = []
+    if (pendingBookings.length) {
+      out.push({ rowId: 'bookings', priority: ATTENTION_PRIORITY.bookings, icon: 'Calendar',
+        text: t('widgets.attention.bookings', { count: pendingBookings.length }), kind: 'popup', popup: 'bookings' })
+    }
+    if (invoiceImports?.length) {
+      out.push({ rowId: 'invoices', priority: ATTENTION_PRIORITY.invoices, icon: 'FileDown',
+        text: t('widgets.attention.invoices', { count: invoiceImports.length }), kind: 'popup', popup: 'invoices' })
+    }
+    if (duplicates.length) {
+      out.push({ rowId: 'duplicates', priority: ATTENTION_PRIORITY.duplicates, icon: 'CalendarClock',
+        text: t('widgets.attention.dup', { count: duplicates.length }), kind: 'popup', popup: 'duplicates' })
+    }
+    return out
+    /* `lang` — same reason as `items` above: t() is read at compute time. */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingBookings, invoiceImports, duplicates, lang])
 
-  const totalCount = items.length + (dupText ? 1 : 0) + (bookingsText ? 1 : 0) + (invoicesText ? 1 : 0)
-  const summaryParts = [invoicesText, bookingsText, dupText, ...items.map((it) => it.text)].filter(Boolean)
+  /* ONE list, most urgent first. Both the rows and the summary read from it,
+     so the sentence on the closed card always names the same things the open
+     card shows at the top. */
+  const rows = useMemo(
+    () => [...widgetRows, ...items].sort((a, b) => a.priority - b.priority),
+    [widgetRows, items],
+  )
+
+  const totalCount = rows.length
   const summary = totalCount === 0
     ? t('widgets.attention.allClear')
-    : summaryParts.slice(0, 2).join(' · ') + (summaryParts.length > 2 ? ` · ${t('widgets.attention.more', { count: summaryParts.length - 2 })}` : '')
+    : rows.slice(0, 2).map((r) => r.text).join(' · ') + (totalCount > 2 ? ` · ${t('widgets.attention.more', { count: totalCount - 2 })}` : '')
 
   /* What a row does is decided by attentionRowAction (in homeData, tested
      against the real item shapes) so the handler and the data can't drift —
@@ -191,31 +211,14 @@ export default function AttentionWidget() {
             <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
           </Btn>
         </Box>
+        {/* Open: one loop over one sorted list. The three widget-owned rows
+            used to be hard-coded above the map, which pinned them to the top
+            regardless of how urgent they were. Closed: the same list, first
+            two entries, as a sentence. */}
         {open ? (
           <Box className="h-card-list" id="h-attn-list">
-            {(invoiceImports?.length || 0) > 0 && (
-              <Btn type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('invoices') }}>
-                <FileDown size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                <Txt className="h-attn-text">{invoicesText}</Txt>
-                <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-              </Btn>
-            )}
-            {pendingBookings.length > 0 && (
-              <Btn type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('bookings') }}>
-                <Calendar size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                <Txt className="h-attn-text">{bookingsText}</Txt>
-                <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-              </Btn>
-            )}
-            {duplicates.length > 0 && (
-              <Btn type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('duplicates') }}>
-                <CalendarClock size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                <Txt className="h-attn-text">{dupText}</Txt>
-                <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-              </Btn>
-            )}
-            {items.length ? (
-              items.map((it) => {
+            {rows.length ? (
+              rows.map((it) => {
                 const Icon = ICONS[it.icon] || Bell
                 return (
                   <Btn key={it.rowId} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); onRow(it) }}>
@@ -225,9 +228,9 @@ export default function AttentionWidget() {
                   </Btn>
                 )
               })
-            ) : (duplicates.length === 0 && pendingBookings.length === 0 && (invoiceImports?.length || 0) === 0) ? (
+            ) : (
               <Txt as="p" className="h-card-empty">{t('widgets.attention.empty')}</Txt>
-            ) : null}
+            )}
           </Box>
         ) : (
           <Txt as="p" className="h-card-summary">{summary}</Txt>

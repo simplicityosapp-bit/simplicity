@@ -140,16 +140,21 @@ export default function ScreenTour({ screenKey }) {
         <Box className="tour-bubble-foot">
           <Txt className="tour-bubble-count">{idx + 1}/{steps.length}</Txt>
           <Box className="tour-bubble-btns">
-            {/* "דלג" was a duplicate of "הבנתי" (both advanced one step) —
-               skipping the whole tour is "דלג על הכל" below. */}
+            {/* "דלג על הכל" sits in the footer as a real peer of "הבנתי",
+               not as a faint underlined link tucked underneath it. The home
+               tour is seven steps and it runs straight after a nine-step
+               onboarding — leaving is a legitimate choice at that point, and
+               it should not be the hardest thing on screen to find or to hit.
+               ("דלג" alone used to live here too and merely advanced one step,
+               duplicating "הבנתי"; that one is gone, this skips the tour.) */}
+            {!isLast && (
+              <Btn type="button" className="tour-skip-all" onClick={finish}>{tr('tour.skipAll')}</Btn>
+            )}
             <Btn type="button" className="tour-btn-next" onClick={next}>
               {isLast ? tr('tour.done') : tr('tour.gotIt')}
             </Btn>
           </Box>
         </Box>
-        {!isLast && (
-          <Btn type="button" className="tour-skip-all" onClick={finish}>{tr('tour.skipAll')}</Btn>
-        )}
       </Box>
     </Box>,
     document.body,

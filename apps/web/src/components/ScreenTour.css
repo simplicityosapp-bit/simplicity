@@ -106,21 +106,30 @@
 .tour-btn-next:active { transform: scale(0.96); }
 [data-theme="dark"] .tour-btn-next { color: var(--espresso); }
 
+/* Secondary button beside "הבנתי", not a faint link below it. It was 11.5px
+   --mist underlined text with a ~20px tap target — the smallest, palest,
+   hardest-to-hit thing in the bubble — while the seven-step home tour runs
+   right after a nine-step onboarding. Leaving is a reasonable choice there,
+   so it now reads and measures like one: same height as the primary, real
+   contrast, no underline. */
 .tour-skip-all {
-  display: block;
-  margin: 10px auto 0;
-  padding: 4px 6px;
+  min-height: 38px;
+  padding: 8px 14px;
   border: none;
+  border-radius: var(--mg-btn-radius);
   background: transparent;
-  color: var(--mist);
+  color: var(--stone);
   font-family: var(--mg-font);
-  font-size: calc(11.5px * var(--text-scale));
+  font-size: calc(13.5px * var(--text-scale));
   font-weight: 500;
-  text-decoration: underline;
-  text-underline-offset: 2px;
   cursor: pointer;
+  transition: background 0.18s, color 0.18s;
 }
-.tour-skip-all:hover { color: var(--stone); }
+.tour-skip-all:hover {
+  background: rgba(42, 37, 32, 0.05);
+  color: var(--espresso);
+}
+[data-theme="dark"] .tour-skip-all:hover { background: rgba(240, 235, 224, 0.07); }
 
 /* ── Reduced motion — keep the cue, drop the movement. ─────────── */
 @media (prefers-reduced-motion: reduce) {

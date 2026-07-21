@@ -31,8 +31,8 @@ import { useT } from '../../../i18n/useT'
 import { Box, Txt, Btn } from '../../../components/ui'
 
 /* Two quick-add CTAs on home:
-   • תנועה מהירה  → QuickActionsModal (launcher for *every* Add* in the app).
-   • עדכון זריז  → goal-category picker → AddGoalEntryModal. */
+   • הוספה מהירה → QuickActionsModal (launcher for *every* Add* in the app).
+   • עדכון יעד   → goal-category picker → AddGoalEntryModal. */
 export default function QuickRow() {
   const { t } = useT('home')
   const { addTransaction } = useTransactions()
@@ -53,7 +53,7 @@ export default function QuickRow() {
   const [showLauncher, setShowLauncher] = useState(false)
   const [active, setActive] = useState(null)  // 'transaction' | 'client' | ...
 
-  // עדכון זריז flow (manual goal entry).
+  // עדכון יעד flow (manual goal entry).
   const [showPicker, setShowPicker] = useState(false)
   const [entryCategory, setEntryCategory] = useState(null)
 
@@ -141,7 +141,7 @@ export default function QuickRow() {
         onSave={addMeeting}
       />
 
-      {/* עדכון זריז flow — orthogonal to the launcher above. */}
+      {/* עדכון יעד flow — orthogonal to the launcher above. */}
       <QuickGoalUpdatePicker
         open={showPicker}
         onClose={() => setShowPicker(false)}

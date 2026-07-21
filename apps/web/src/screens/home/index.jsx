@@ -11,6 +11,7 @@ import NextTasksWidget from './widgets/NextTasksWidget'
 import ChipsWidget from './widgets/ChipsWidget'
 import FeedbackCard from '../../components/FeedbackCard'
 import BetaExpiryBanner from '../../components/BetaExpiryBanner'
+import HomeGenerators from './HomeGenerators'
 import './HomeScreen.css'
 import { Box } from '../../components/ui'
 
@@ -73,6 +74,9 @@ export default function HomeScreen({ onOpenFeedback }) {
       data-text-strength={textStrength}
       data-density={globalDensity}
     >
+      {/* Renders nothing — hosts the materialisation engines so they run
+          whatever the user's widget configuration is. */}
+      <HomeGenerators />
       <Box className="home-stack">
         {showWelcome && <HomeWelcome onDismiss={() => updatePrefs({ homeWelcomeDismissed: true })} />}
         <BetaExpiryBanner />

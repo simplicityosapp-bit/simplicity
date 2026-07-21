@@ -9,7 +9,7 @@
 
 import i18n from '@simplicity/core/i18n'
 import { ROUTES } from './routes'
-import { financeQuery, currentMonthRange, clientBalance, effectiveClientMeta } from '@simplicity/core'
+import { financeQuery, currentMonthRange, clientBalance, effectiveClientMeta, getClientMemberships } from '@simplicity/core'
 
 const DAY = 86400000
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
@@ -81,6 +81,18 @@ export function getTileFilters(prefs) {
     net:     { ...DEFAULT_TILE_FILTERS.net,     ...(fromPrefs.net     || {}) },
     today:   { ...DEFAULT_TILE_FILTERS.today,   ...(fromPrefs.today   || {}) },
   }
+}
+
+/* Is this client in one of the selected groups?
+   Membership is a `group_members` row. `clients.group_id` is a LEGACY mirror
+   written only by the client form + lead conversion — anyone assigned through
+   the group roster (assignToGroup) never gets one — so matching that column
+   alone silently dropped most of a group's members from the filter. Both are
+   checked so neither write path is missed. */
+export function clientInGroups(c, groupIds, membersData = []) {
+  if (!groupIds?.length) return true
+  if (c.group_id && groupIds.includes(c.group_id)) return true
+  return getClientMemberships(c.id, membersData).some((m) => groupIds.includes(m.group_id))
 }
 
 /* ── Today's agenda (home "פגישות היום" chip + drill panel) ─────────
@@ -171,18 +183,23 @@ function rangeFromKey(key, now) {
    Each tile reads its slice from the resolved filters; missing
    filters fall back to sensible defaults (see DEFAULT_TILE_FILTERS). */
 export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS) {
-  const { clients = [], transactions } = data || {}
+  const { clients = [], transactions, members = [], groups = [] } = data || {}
   const f = {
     clients: { ...DEFAULT_TILE_FILTERS.clients, ...(filters.clients || {}) },
     net:     { ...DEFAULT_TILE_FILTERS.net,     ...(filters.net     || {}) },
   }
 
-  /* Clients tile — count by status_meta + optional project/group. */
+  /* Clients tile — count by EFFECTIVE status + optional project/group.
+     Status MUST come from effectiveClientMeta, never the raw `status_meta` /
+     `status` columns: a client whose status is driven by their group carries a
+     stale own-status, so reading it directly made this chip disagree with the
+     clients screen (and with the attention widget, which was already fixed).
+     Same rule as clientsNeedingAttention above. */
   const activeClients = live(clients).filter((c) => {
-    const meta = c.status_meta || c.status
+    const meta = effectiveClientMeta(c, members, groups)
     if (f.clients.statuses?.length && !f.clients.statuses.includes(meta)) return false
     if (f.clients.projectIds?.length && !f.clients.projectIds.includes(c.project_id)) return false
-    if (f.clients.groupIds?.length && !f.clients.groupIds.includes(c.group_id)) return false
+    if (!clientInGroups(c, f.clients.groupIds, members)) return false
     return true
   }).length
 
@@ -222,32 +239,37 @@ export function attentionItems(now = new Date(), data) {
     members = [],
     groups = [],
   } = data || {}
+  /* Every row carries a stable `rowId` — one per rule, unique within a run.
+     It is the widget's React key (the key used to be `icon + text`, which
+     collides the moment two rules share an icon AND render the same string,
+     and churns on every language switch or count change). The people rows
+     additionally use it to re-resolve themselves while their modal is open. */
   /* Row labels are localized at compute time via the active i18n language.
      The widget re-runs this memo on language change so the rows re-render. */
   const T = (key, opts) => i18n.t(`home:widgets.attention.rows.${key}`, opts)
   const items = []
   const pending = (transactions || []).filter((t) => !t.deleted_at && t.status === 'pending')
-  if (pending.length) items.push({ icon: 'Wallet', text: T('pendingTx', { count: pending.length }), to: ROUTES.FINANCE, kind: 'pendingTx' })
+  if (pending.length) items.push({ rowId: 'pendingTx', icon: 'Wallet', text: T('pendingTx', { count: pending.length }), to: ROUTES.FINANCE, kind: 'pendingTx' })
 
   const pastMeetings = (scheduled_meetings || []).filter(
     (m) => m.status === 'pending' && new Date(m.scheduled_at).getTime() <= now.getTime(),
   )
   if (pastMeetings.length) {
-    items.push({ icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), to: ROUTES.CALENDAR, kind: 'pendingMeetings' })
+    items.push({ rowId: 'pendingMeetings', icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), to: ROUTES.CALENDAR, kind: 'pendingMeetings' })
   }
 
   const withBalance = live(clients).filter((c) => effectiveClientMeta(c, members, groups) !== 'past' && clientBalance(c, transactions, sessions, members, groups).balance > 0)
-  if (withBalance.length) items.push({ icon: 'Wallet', text: T('balance', { count: withBalance.length }), to: ROUTES.CLIENTS })
+  if (withBalance.length) items.push({ rowId: 'balance', icon: 'Wallet', text: T('balance', { count: withBalance.length }), to: ROUTES.CLIENTS })
 
   const goal = monthlyIncomeGoal({ goals, categories })
   const { inc } = monthNet(now, { transactions })
   if (goal > 0 && inc < goal) {
     const daysLeft = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate()
-    items.push({ icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), to: ROUTES.GOALS })
+    items.push({ rowId: 'goalGap', icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), to: ROUTES.GOALS })
   }
 
   const urgent = live(tasks).filter((t) => t.status !== 'done' && t.priority === 'high').length
-  if (urgent) items.push({ icon: 'AlertCircle', text: T('urgentTasks', { count: urgent }), to: ROUTES.TASKS })
+  if (urgent) items.push({ rowId: 'urgentTasks', icon: 'AlertCircle', text: T('urgentTasks', { count: urgent }), to: ROUTES.TASKS })
 
   const staleClients = clientsNeedingAttention(45, now, { clients, sessions, members, groups })
   if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), to: ROUTES.CLIENTS, kind: 'people', rowId: 'staleClients', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
@@ -256,7 +278,7 @@ export function attentionItems(now = new Date(), data) {
      pending leads are excluded from the stale / follow-up rules below. */
   const officialLeads = live(leads).filter((l) => !l.pending_review)
   const pendingLeads = live(leads).filter((l) => l.pending_review)
-  if (pendingLeads.length) items.push({ icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), to: ROUTES.LEADS, kind: 'pendingLeads' })
+  if (pendingLeads.length) items.push({ rowId: 'pendingLeads', icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), to: ROUTES.LEADS, kind: 'pendingLeads' })
 
   const staleLeads = leadsNeedingAttention(45, now, officialLeads)
   if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), to: ROUTES.LEADS, kind: 'people', rowId: 'staleLeads', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })

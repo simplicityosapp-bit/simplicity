@@ -12,8 +12,6 @@ import PendingSection from '../../finance/PendingSection'
 import MeetingConfirmList from './MeetingConfirmList'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
-import { useScheduledMeetingsGeneration } from '../../../hooks/useScheduledMeetingsGeneration'
-import { useRecurringGeneration } from '../../../hooks/useRecurringGeneration'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
 import { useGroupMembers } from '../../../hooks/useGroupMembers'
@@ -22,14 +20,12 @@ import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useCategories } from '../../../hooks/useCategories'
 import { useProjects } from '../../../hooks/useProjects'
-import { useRecurring } from '../../../hooks/useRecurring'
 import { useSessions } from '../../../hooks/useSessions'
 import { useLeads } from '../../../hooks/useLeads'
 import { useCalendarEvents } from '../../../hooks/useCalendarEvents'
 import { useCalendarDuplicates } from '../../../hooks/useCalendarDuplicates'
 import CalendarDuplicateModal from '../../../modals/CalendarDuplicateModal'
 import { useBookings } from '../../../hooks/useBookings'
-import { useBookingsGeneration } from '../../../hooks/useBookingsGeneration'
 import BookingConfirmList from './BookingConfirmList'
 import { useInvoiceImports } from '../../../hooks/useInvoiceImports'
 import InvoiceImports from '../../finance/InvoiceImports'
@@ -41,15 +37,17 @@ const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
 /* "דרושה תשומת לב" — composed rows from pending tx, pending meetings,
    balances, goal gap, urgent tasks, 45-day client/lead rules. The actionable
    rows (pending transactions / pending meetings) open an approve-skip-delete
-   popup; the rest navigate to their screen. Also hosts the generation hooks
-   that materialise pending meetings + linked expenses on home (moved here from
-   the now-removed meeting-confirm widget). */
+   popup; the rest navigate to their screen.
+
+   The materialisation engines used to live here on the assumption that this
+   widget always mounts on home — it doesn't, it can be switched off in
+   Settings. They now sit in <HomeGenerators/>, mounted by HomeScreen itself. */
 export default function AttentionWidget() {
   const { t, lang } = useT('home')
   const navigate = useNavigate()
   const waMsg = useWhatsAppMessage()
-  const { transactions, setStatus: setTxStatus, removeTransaction, addTransaction, loading: transactionsLoading } = useTransactions()
-  const { meetings, addMeeting, updateMeeting, loading: meetingsLoading } = useScheduledMeetings()
+  const { transactions, setStatus: setTxStatus, removeTransaction } = useTransactions()
+  const { meetings, updateMeeting } = useScheduledMeetings()
   const { clients, updateClient } = useClients()
   const { groups } = useGroups()
   const { members } = useGroupMembers()
@@ -58,30 +56,14 @@ export default function AttentionWidget() {
   const { categories: goalCategories } = useGoalCategories()
   const { categories: financeCategories } = useCategories()
   const { projects } = useProjects()
-  const { templates } = useRecurring()
   const { sessions } = useSessions()
   const { leads } = useLeads()
   const { events: calendarEvents, dismissEvent } = useCalendarEvents()
-  const { bookings, materialize, loading: bookingsLoading } = useBookings()
+  const { bookings } = useBookings()
   /* Route-B invoice imports staged by the provider webhook (a receipt issued
      in SUMIT/Green Invoice) — surface them here so a new receipt raises an
      attention row, not just a section on the finance screen. */
   const { imports: invoiceImports } = useInvoiceImports()
-
-  /* Materialise pending scheduled-meeting rows + their linked on_meeting
-     expenses so the attention count + popups are populated on home visit.
-     Idempotent — gated on the loading flags so it doesn't race the fetch. */
-  useScheduledMeetingsGeneration({ clients, groups, meetings, meetingsLoading, addMeeting })
-  useRecurringGeneration({
-    templates,
-    transactions,
-    addTransaction,
-    scheduledMeetings: meetings,
-    transactionsLoading,
-    scheduledMeetingsLoading: meetingsLoading,
-  })
-  /* Backfill lead + calendar event for auto-confirmed bookings. */
-  useBookingsGeneration({ bookings, loading: bookingsLoading, materialize })
 
   const items = useMemo(
     () => attentionItems(new Date(), { transactions, scheduled_meetings: meetings, clients, tasks, goals, categories: goalCategories, sessions, leads, members, groups }),
@@ -217,7 +199,7 @@ export default function AttentionWidget() {
               items.map((it) => {
                 const Icon = ICONS[it.icon] || Bell
                 return (
-                  <Btn key={it.icon + it.text} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); onRow(it) }}>
+                  <Btn key={it.rowId} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); onRow(it) }}>
                     <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
                     <Txt className="h-attn-text">{it.text}</Txt>
                     <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />

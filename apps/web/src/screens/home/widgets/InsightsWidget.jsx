@@ -76,6 +76,15 @@ export default function InsightsWidget() {
     return now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)
   }, [reminder, q])
 
+  /* The slider renders at 5 while `val` is still null (nothing touched yet).
+     Saving used to be gated on `val != null`, so answering the honest value 5
+     was impossible: dropping the thumb where it already sits fires no change
+     event, leaving the button disabled with no hint why. The displayed number
+     and the saved value now both read through this, so what you see on the
+     slider is what gets stored. */
+  const SLIDER_DEFAULT = 5
+  const effectiveVal = val ?? SLIDER_DEFAULT
+
   const save = async (value) => {
     if (busy || !q) return
     setBusy(true)
@@ -200,19 +209,19 @@ export default function InsightsWidget() {
           {/* The live value floats centred just above the slider; the day-over-day
               comparison sits out of flow at the inline-end so they never overlap. */}
           {compare && <Txt as="p" className="ins-compare">{compare}</Txt>}
-          <Txt className="ins-slider-val mono" aria-hidden="true">{val ?? '—'}</Txt>
+          <Txt className="ins-slider-val mono" aria-hidden="true">{effectiveVal}</Txt>
           {collapseBtn}
           <Input
             type="range"
             min="1"
             max="10"
             step="1"
-            value={val ?? 5}
+            value={effectiveVal}
             className="ins-slider"
             aria-label={text}
             onChange={(e) => setVal(parseInt(e.target.value, 10))}
           />
-          <Btn type="button" className="ins-save-btn" disabled={busy || val == null} onClick={() => save(val)} aria-label={t('widgets.insights.saveAria')}>
+          <Btn type="button" className="ins-save-btn" disabled={busy} onClick={() => save(effectiveVal)} aria-label={t('widgets.insights.saveAria')}>
             <Check size={15} strokeWidth={2} aria-hidden="true" />
           </Btn>
         </Box>

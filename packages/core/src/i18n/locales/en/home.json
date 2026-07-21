@@ -146,7 +146,6 @@
       "subjectGroup": "Group",
       "meetingHappened": "The meeting took place",
       "meetingSkipped": "Didn't take place",
-      "meetingDelete": "Delete meeting",
       "linkedExpense": "Meeting expense",
       "txPaid": "Paid",
       "txNotPaid": "Not paid",

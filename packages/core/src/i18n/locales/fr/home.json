@@ -146,7 +146,6 @@
       "subjectGroup": "Groupe",
       "meetingHappened": "Le rendez-vous a eu lieu",
       "meetingSkipped": "N'a pas eu lieu",
-      "meetingDelete": "Supprimer le rendez-vous",
       "linkedExpense": "Dépense du rendez-vous",
       "txPaid": "Payé",
       "txNotPaid": "Non payé",

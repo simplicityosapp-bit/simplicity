@@ -4,8 +4,8 @@ import { ArrowLeft, Check } from 'lucide-react'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import { ROUTES } from '../lib/routes'
-import { isr, fmtTime } from '@simplicity/core'
-import { getTileFilters, todayItems } from '../lib/homeData'
+import { isr, fmtTime, effectiveClientMeta } from '@simplicity/core'
+import { getTileFilters, todayItems, clientInGroups } from '../lib/homeData'
 import { confirmScheduledMeeting, billPerSessionMeeting } from '../lib/scheduledMeetings'
 import WhatsAppButton from '../components/WhatsAppButton'
 import { useT } from '../i18n/useT'
@@ -138,17 +138,22 @@ function netTrendValues(transactions, days = 30) {
   return { incomes, expenses }
 }
 
-function ClientsPanel({ filters, setFilter, clients, projects, groups, t }) {
+function ClientsPanel({ filters, setFilter, clients, projects, groups, members, t }) {
   const liveClients = clients.filter((c) => !c.deleted_at)
+  /* Status + group membership resolve exactly like homeChips (and the clients
+     screen): effectiveClientMeta, because a group-driven client's own status
+     column is stale, and clientInGroups, because membership lives in
+     `group_members` — `clients.group_id` is a legacy mirror that misses anyone
+     added through the group roster. */
   const filtered = useMemo(() => {
     return liveClients.filter((c) => {
-      const meta = c.status_meta || c.status
+      const meta = effectiveClientMeta(c, members, groups)
       if (filters.statuses?.length && !filters.statuses.includes(meta)) return false
       if (filters.projectIds?.length && !filters.projectIds.includes(c.project_id)) return false
-      if (filters.groupIds?.length && !filters.groupIds.includes(c.group_id)) return false
+      if (!clientInGroups(c, filters.groupIds, members)) return false
       return true
     })
-  }, [liveClients, filters])
+  }, [liveClients, filters, members, groups])
   const trend = useMemo(() => clientsTrendValues(liveClients, 30), [liveClients])
 
   return (
@@ -180,7 +185,7 @@ function ClientsPanel({ filters, setFilter, clients, projects, groups, t }) {
           filtered.slice(0, 8).map((c) => (
             <Box key={c.id} className="td-list-row">
               <Txt className="td-list-name">{c.name}</Txt>
-              <Txt className="td-list-meta">{statusLabel(c.status_meta || c.status, t)}</Txt>
+              <Txt className="td-list-meta">{statusLabel(effectiveClientMeta(c, members, groups), t)}</Txt>
             </Box>
           ))
         )}
@@ -324,7 +329,7 @@ function MeetingsPanel({ filters, setFilter, items, onConfirm, onOpen, waMsg, t 
 export default function TileDrillModal({
   open, onClose, tile,
   prefs, updatePrefs,
-  clients = [], groups = [], projects = [], categories = [],
+  clients = [], groups = [], members = [], projects = [], categories = [],
   transactions = [],
   netSummary = {},
   meetings = [], calendarEvents = [], leads = [], reminders = [], sessions = [], addSession, updateMeeting, waMsg,
@@ -387,6 +392,7 @@ export default function TileDrillModal({
             clients={clients}
             projects={projects}
             groups={groups}
+            members={members}
             t={t}
           />
         )}

@@ -98,14 +98,12 @@ export interface HomeTask {
 export interface TileFilters {
   clients: { statuses?: string[]; projectIds?: string[]; groupIds?: string[] }
   net: { timeRange?: string; type?: string; projectIds?: string[]; groupIds?: string[]; categoryIds?: string[] }
-  tasks: { status?: string; priorities?: string[]; projectIds?: string[]; clientScope?: string }
   today: { kinds?: string[] }
 }
 
 export const DEFAULT_TILE_FILTERS: TileFilters = {
   clients: { statuses: ['active', 'wandering'], projectIds: [], groupIds: [] },
   net: { timeRange: 'thisMonth', type: 'both', projectIds: [], groupIds: [], categoryIds: [] },
-  tasks: { status: 'open', priorities: [], projectIds: [], clientScope: 'all' },
   today: { kinds: ['meeting', 'calendar', 'followup'] },
 }
 
@@ -114,7 +112,6 @@ export function getTileFilters(prefs?: { tileFilters?: Partial<TileFilters> } | 
   return {
     clients: { ...DEFAULT_TILE_FILTERS.clients, ...(fromPrefs.clients || {}) },
     net: { ...DEFAULT_TILE_FILTERS.net, ...(fromPrefs.net || {}) },
-    tasks: { ...DEFAULT_TILE_FILTERS.tasks, ...(fromPrefs.tasks || {}) },
     today: { ...DEFAULT_TILE_FILTERS.today, ...(fromPrefs.today || {}) },
   }
 }
@@ -132,25 +129,23 @@ function rangeFromKey(key: string | undefined, now: Date): { from: Date; to: Dat
 
 export interface HomeChips {
   activeClients: number
-  openTasks: number
   net: number
   _income: number
   _expense: number
   _txCount: number
 }
 
-/* Filter-aware computation of the home tiles (clients count / open tasks /
-   net). Each tile reads its slice from the resolved filters. */
+/* Filter-aware computation of the home tiles that show a number (clients
+   count / net). Each tile reads its slice from the resolved filters. */
 export function homeChips(
   now: Date = new Date(),
-  data?: { clients?: HomeClient[]; tasks?: HomeTask[]; transactions?: Tx[] },
+  data?: { clients?: HomeClient[]; transactions?: Tx[] },
   filters: TileFilters = DEFAULT_TILE_FILTERS,
 ): HomeChips {
-  const { clients = [], tasks = [], transactions } = data || {}
+  const { clients = [], transactions } = data || {}
   const f = {
     clients: { ...DEFAULT_TILE_FILTERS.clients, ...(filters.clients || {}) },
     net: { ...DEFAULT_TILE_FILTERS.net, ...(filters.net || {}) },
-    tasks: { ...DEFAULT_TILE_FILTERS.tasks, ...(filters.tasks || {}) },
   }
 
   const activeClients = live(clients).filter((c) => {
@@ -158,15 +153,6 @@ export function homeChips(
     if (f.clients.statuses?.length && (!meta || !f.clients.statuses.includes(meta))) return false
     if (f.clients.projectIds?.length && !f.clients.projectIds.includes(c.project_id as string)) return false
     if (f.clients.groupIds?.length && !f.clients.groupIds.includes(c.group_id as string)) return false
-    return true
-  }).length
-
-  const openTasks = live(tasks).filter((t) => {
-    if (f.tasks.status === 'open' && t.status === 'done') return false
-    if (f.tasks.status === 'done' && t.status !== 'done') return false
-    if (f.tasks.priorities?.length && (!t.priority || !f.tasks.priorities.includes(t.priority))) return false
-    if (f.tasks.projectIds?.length && !f.tasks.projectIds.includes(t.project_id as string)) return false
-    if (f.tasks.clientScope === 'linked' && !t.client_id) return false
     return true
   }).length
 
@@ -186,7 +172,7 @@ export function homeChips(
   else if (f.net.type === 'expense') net = -exp
   else net = inc - exp
 
-  return { activeClients, openTasks, net, _income: inc, _expense: exp, _txCount: filteredTx.length }
+  return { activeClients, net, _income: inc, _expense: exp, _txCount: filteredTx.length }
 }
 
 /* ── Today's agenda (home "פגישות היום" chip + drill panel) ─────────

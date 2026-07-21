@@ -155,19 +155,9 @@
   "tileDrill": {
     "close": "סגירה",
     "openFull": "פתיחה במלא",
-    "dayLabels": [
-      "א",
-      "ב",
-      "ג",
-      "ד",
-      "ה",
-      "ו",
-      "ש"
-    ],
     "titles": {
       "clients": "לקוחות",
       "net": "נטו",
-      "tasks": "משימות",
       "today": "לו\"ז"
     },
     "status": {
@@ -185,20 +175,6 @@
       "both": "נטו (הכנסות − הוצאות)",
       "income": "הכנסות בלבד",
       "expense": "הוצאות בלבד"
-    },
-    "taskStatus": {
-      "open": "פתוחות",
-      "done": "בוצעו",
-      "both": "הכל"
-    },
-    "priorities": {
-      "high": "גבוהה",
-      "medium": "בינונית",
-      "low": "נמוכה"
-    },
-    "taskClientScope": {
-      "all": "הכל",
-      "linked": "משויכות ללקוח"
     },
     "all": "הכל",
     "none": "אין",
@@ -230,18 +206,6 @@
       "miniTx": "תנועות",
       "noProjects": "אין פרויקטים עדיין",
       "noCategories": "אין קטגוריות עדיין"
-    },
-    "tasks": {
-      "matchingNum": "משימות תואמות",
-      "trendLbl": "משימות שהושלמו · 7 ימים",
-      "statusLbl": "סטטוס",
-      "priorityLbl": "דחיפות",
-      "projectLbl": "פרויקט",
-      "clientScopeLbl": "שיוך ללקוח",
-      "upcomingSection": "המשימות הקרובות",
-      "emptyFilter": "אין משימות שתואמות לפילטר.",
-      "moreCount": "+{{count}} נוספות",
-      "noProjects": "אין פרויקטים עדיין"
     },
     "today": {
       "matchingNum": "פריטים היום",

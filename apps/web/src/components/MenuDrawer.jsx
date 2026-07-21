@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
+import { COMMUNITY_ENABLED } from '../lib/community'
 import { isAdminUser } from '../lib/admin'
 import { roleLabel } from '../lib/preferences'
 import { useUserPreferences } from '../hooks/useUserPreferences'
@@ -131,16 +132,19 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
         </Btn>
 
         {/* → the room. A user with no profile is bounced to the gate by the
-            chat screen itself, so nav never has to know about that step. */}
-        <Btn className="drawer-link" onClick={() => goTo(ROUTES.COMMUNITY_CHAT)}>
-          <Txt className="drawer-link-icon"><MessagesSquare size={18} strokeWidth={1.5} /></Txt>
-          <Txt className="drawer-link-text">
-            <Txt as="span" className="drawer-link-title">
-              {t('extras.community')}<Txt as="span" className="mg-nav-beta">beta</Txt>
+            chat screen itself, so nav never has to know about that step.
+            Hidden while COMMUNITY_ENABLED is false — the route stays open. */}
+        {COMMUNITY_ENABLED && (
+          <Btn className="drawer-link" onClick={() => goTo(ROUTES.COMMUNITY_CHAT)}>
+            <Txt className="drawer-link-icon"><MessagesSquare size={18} strokeWidth={1.5} /></Txt>
+            <Txt className="drawer-link-text">
+              <Txt as="span" className="drawer-link-title">
+                {t('extras.community')}<Txt as="span" className="mg-nav-beta">beta</Txt>
+              </Txt>
+              <Txt className="drawer-link-text-sub">{t('items.communitySub')}</Txt>
             </Txt>
-            <Txt className="drawer-link-text-sub">{t('items.communitySub')}</Txt>
-          </Txt>
-        </Btn>
+          </Btn>
+        )}
 
         {/* המנוי של המשתמש — מסלול Simplicity שלו (הועבר מ"הגדרות"). */}
         <Btn className="drawer-link" onClick={() => goTo(ROUTES.SUBSCRIPTION)}>

@@ -378,6 +378,13 @@ html[data-bg="blank"] .home-screen {
   inset-inline-start: 0;
   z-index: 20;
   width: max(100%, 250px);
+  /* .screen clips on the x-axis (overflow-x: hidden), so an over-wide panel
+     is CUT, not scrolled to. The panel hangs from the chip's start edge —
+     one page-padding in from the screen edge — so the room it has is
+     100vw minus that padding. Measured slack at 280px was only 6px, which a
+     padding change or a wider page-pad would eat. This binds below ~282px
+     and is inert at every real device width. */
+  max-width: calc(100vw - 32px);
   max-height: min(340px, 60vh);
   overflow-y: auto;
   overscroll-behavior: contain;

@@ -174,7 +174,15 @@
       "urgent_two": "{{count}} דחופות",
       "urgent_many": "{{count}} דחופות",
       "openSummary_two": "{{count}} משימות פתוחות",
-      "openSummary_many": "{{count}} משימות פתוחות"
+      "openSummary_many": "{{count}} משימות פתוחות",
+      "overdue_one": "משימה אחת באיחור",
+      "overdue_two": "{{count}} משימות באיחור",
+      "overdue_many": "{{count}} משימות באיחור",
+      "overdue_other": "{{count}} משימות באיחור",
+      "overdueOf_one": "{{overdueText}} מתוך {{count}} פתוחה",
+      "overdueOf_two": "{{overdueText}} מתוך {{count}} פתוחות",
+      "overdueOf_many": "{{overdueText}} מתוך {{count}} פתוחות",
+      "overdueOf_other": "{{overdueText}} מתוך {{count}} פתוחות"
     },
     "quick": {
       "quickAdd": "הוספה מהירה"

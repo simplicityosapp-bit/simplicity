@@ -118,7 +118,11 @@
       "openSummary_other": "{{count}} tâches ouvertes",
       "allDone": "Toutes les tâches sont terminées. {{add}} une tâche dès qu'elle se présente.",
       "addWord": "Ajoutez",
-      "markDone": "Marquer comme terminée"
+      "markDone": "Marquer comme terminée",
+      "overdue_one": "1 en retard",
+      "overdue_other": "{{count}} en retard",
+      "overdueOf_one": "{{overdueText}} sur {{count}} ouverte",
+      "overdueOf_other": "{{overdueText}} sur {{count}} ouvertes"
     },
     "quick": {
       "quickAdd": "Ajout rapide"

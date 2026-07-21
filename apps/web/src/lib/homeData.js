@@ -441,15 +441,60 @@ export function remindersUpcoming(now = new Date(), remindersData = [], daysAhea
   return limit ? out.slice(0, limit) : out
 }
 
-/* ── Next tasks (open, by priority) ────────────────────────────── */
+/* ── Next tasks (open, most pressing first) ─────────────────────
+   Ordered by PRESSURE, not by priority alone. `tasks.due_at` has existed
+   since the column was added and the tasks screen buckets by it
+   (overdue / today / this week / later) — but home sorted on priority only
+   and never even displayed a date, so a task due this morning sat below one
+   flagged urgent with no deadline at all.
+
+   Rank, then due date, then priority:
+     0  overdue        — the deadline has passed
+     1  due today
+     2  flagged urgent — no deadline, or one further out
+     3  everything else
+
+   `now` is a parameter so the ranking is testable without faking the clock. */
 const PORDER = { high: 0, medium: 1, low: 2 }
-export function nextTasks(limit = 5, tasks = []) {
+const dueTs = (t) => {
+  if (!t.due_at) return null
+  const d = new Date(t.due_at)
+  return Number.isNaN(+d) ? null : +d
+}
+function taskRank(t, now, dayEnd) {
+  const due = dueTs(t)
+  if (due !== null) {
+    if (due < +now) return 0
+    if (due < +dayEnd) return 1
+  }
+  return t.priority === 'high' ? 2 : 3
+}
+export function nextTasks(limit = 5, tasks = [], now = new Date()) {
+  const dayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0)
   return live(tasks)
     .filter((t) => t.status !== 'done')
     .slice()
-    .sort((a, b) => (PORDER[a.priority] ?? 1) - (PORDER[b.priority] ?? 1))
+    .sort((a, b) => {
+      const ra = taskRank(a, now, dayEnd)
+      const rb = taskRank(b, now, dayEnd)
+      if (ra !== rb) return ra - rb
+      /* Within a rank, a deadline beats no deadline, soonest first. */
+      const da = dueTs(a) ?? Infinity
+      const db = dueTs(b) ?? Infinity
+      if (da !== db) return da - db
+      return (PORDER[a.priority] ?? 1) - (PORDER[b.priority] ?? 1)
+    })
     .slice(0, limit)
 }
 export function openTasksCount(tasks = []) {
   return live(tasks).filter((t) => t.status !== 'done').length
+}
+/* Open tasks whose deadline has already passed — the one number worth
+   raising on the closed card, since it's the only genuinely late thing. */
+export function overdueTasksCount(tasks = [], now = new Date()) {
+  return live(tasks).filter((t) => {
+    if (t.status === 'done') return false
+    const due = dueTs(t)
+    return due !== null && due < +now
+  }).length
 }

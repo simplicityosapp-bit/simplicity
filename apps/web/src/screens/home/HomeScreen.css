@@ -876,6 +876,19 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   flex: 1;
   min-width: 0;
 }
+/* The due date the list is ordered by. It was never shown before, so the
+   ordering had no visible cause; a passed deadline reads in clay. */
+.h-task-due {
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.h-task-due.is-overdue {
+  color: var(--clay);
+  font-weight: 500;
+}
 .h-task-dot {
   width: 8px;
   height: 8px;

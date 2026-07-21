@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ClipboardList, ChevronLeft, ChevronDown, Check } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
-import { nextTasks, openTasksCount } from '../../../lib/homeData'
+import { nextTasks, openTasksCount, overdueTasksCount } from '../../../lib/homeData'
+import { formatWhen } from '@simplicity/core'
 import { useTasks } from '../../../hooks/useTasks'
 import { useT } from '../../../i18n/useT'
 import { Box, Txt, Btn } from '../../../components/ui'
@@ -12,8 +13,12 @@ export default function NextTasksWidget() {
   const { t } = useT('home')
   const navigate = useNavigate()
   const { tasks, toggleTask } = useTasks()
-  const items = useMemo(() => nextTasks(999, tasks), [tasks])   /* all open, by priority */
+  /* All open tasks, most pressing first — overdue, then due today, then
+     flagged urgent. Home used to sort on priority alone and never showed a
+     due date, so a task due this morning could sit below an undated one. */
+  const items = useMemo(() => nextTasks(999, tasks), [tasks])
   const total = useMemo(() => openTasksCount(tasks), [tasks])
+  const overdue = useMemo(() => overdueTasksCount(tasks), [tasks])
   const urgent = useMemo(
     () => (tasks || []).filter((t) => !t.deleted_at && t.status !== 'done' && t.priority === 'high').length,
     [tasks],
@@ -21,11 +26,15 @@ export default function NextTasksWidget() {
   /* Closed = title + summary; click opens the full list of every open task. */
   const [open, setOpen] = useState(false)
 
+  /* Late beats urgent in the one line the closed card gets: a passed
+     deadline is a fact, "high priority" is a label. */
   const summary = total === 0
     ? t('widgets.nextTasks.noOpen')
-    : urgent > 0
-      ? t('widgets.nextTasks.urgentOf', { count: total, urgentText: t('widgets.nextTasks.urgent', { count: urgent }) })
-      : t('widgets.nextTasks.openSummary', { count: total })
+    : overdue > 0
+      ? t('widgets.nextTasks.overdueOf', { count: total, overdueText: t('widgets.nextTasks.overdue', { count: overdue }) })
+      : urgent > 0
+        ? t('widgets.nextTasks.urgentOf', { count: total, urgentText: t('widgets.nextTasks.urgent', { count: urgent }) })
+        : t('widgets.nextTasks.openSummary', { count: total })
 
   return (
     <Box
@@ -67,6 +76,13 @@ export default function NextTasksWidget() {
                 <Txt className="h-task-content">
                   <Txt className={`h-task-dot ${task.priority === 'high' ? 'urgent' : 'regular'}`} />
                   <Txt className="h-task-text">{task.title}</Txt>
+                  {/* The date the list is now ordered by. Sorting on something
+                      invisible reads as an arbitrary order. */}
+                  {task.due_at && (
+                    <Txt className={`h-task-due${new Date(task.due_at) < new Date() ? ' is-overdue' : ''}`}>
+                      {formatWhen(task.due_at)}
+                    </Txt>
+                  )}
                 </Txt>
                 <Btn type="button" className="h-check" title={t('widgets.nextTasks.markDone')} aria-label={t('widgets.nextTasks.markDone')} onClick={(e) => { e.stopPropagation(); toggleTask(task) }}>
                   <Check size={13} strokeWidth={2} aria-hidden="true" />

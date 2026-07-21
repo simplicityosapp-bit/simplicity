@@ -118,7 +118,11 @@
       "openSummary_other": "{{count}} open tasks",
       "allDone": "All tasks done. {{add}} a task when one comes up.",
       "addWord": "Add",
-      "markDone": "Mark as done"
+      "markDone": "Mark as done",
+      "overdue_one": "1 overdue",
+      "overdue_other": "{{count}} overdue",
+      "overdueOf_one": "{{overdueText}} of {{count}} open",
+      "overdueOf_other": "{{overdueText}} of {{count}} open"
     },
     "quick": {
       "quickAdd": "Quick add"
